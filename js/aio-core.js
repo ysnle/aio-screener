@@ -22354,8 +22354,7 @@ var _initMacroPage = function() {
   // v48.15 (P2-C): Chart.js 무거운 작업은 IntersectionObserver 기반 lazy
   // yield curve 차트는 macro 페이지 중상단, FRED 12개월 시계열은 하단 — 각각 분리
   _lazyInitChartPage('macro', 'yieldCurveChart', function() {
-    // P875: native macro renderer is the sole owner of yieldCurveChart. The
-    // legacy initYieldCurveChart path remains available for FX/bond only.
+    // P875: native macro renderer is the sole owner of yieldCurveChart (the legacy initializer is deleted, P1342).
     var nativeMacro = document.getElementById('page-macro');
     if (nativeMacro && nativeMacro.dataset.aioMacroChartRenderer === 'native') return;
     if (typeof renderYieldCurve === 'function') { try { renderYieldCurve(); } catch(e) {} }

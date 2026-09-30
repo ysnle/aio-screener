@@ -216,7 +216,7 @@
       "p808Boundary": "market.js owns the bounded macro 2Y value/source readout from explicit DGS2 evidence; missing DGS2 remains visibly pending.",
       "p811Boundary": "market.js owns the bounded curve status/meaning labels from explicit 2Y/10Y evidence with a fail-closed state; the legacy yield-curve status prose is deleted while the legacy chart remains.",
       "p816Boundary": "market.js owns the bounded Fed/FOMC context line from the Fed rate snapshot and event registry; the legacy event-freshness writer is fenced from the native sink.",
-      "p833Boundary": "market.js owns the yieldCurveChart lifecycle from current Treasury evidence with a blocked fallback; initYieldCurveChart is fenced while the native macro chart marker is mounted.",
+      "p833Boundary": "market.js owns the yieldCurveChart lifecycle from current Treasury evidence with a blocked fallback; the legacy initYieldCurveChart was deleted (P1342).",
       "contestedIds": [],
       "legacyWriterEvidence": [
         "js/aio-core.js: _aioApplyEventFreshnessGate retains compatibility metadata but skips macro-fed-meaning when the native marker is active",
@@ -264,7 +264,7 @@
       "legacyWriterEvidence": [
         "js/aio-data.js: shared live quote/snapshot passes fence native fxbond elements",
         "index.html: updateFxBondPage/updateCrossAssetMatrix own secondary risk, spread, and narrative ids; P812/P813 carry and CAM verdict writers were deleted",
-        "index.html: loadFxBondTrendCharts/initYieldCurveChart own legacy chart canvases"
+        "index.html: loadFxBondTrendCharts owns legacy chart canvases"
       ],
       "p813Boundary": "market.js owns the bounded CAM verdict from DXY, 10Y, HYG, and 2Y evidence with a fail-closed label; other cross-asset signal cells and chart surfaces remain legacy-owned.",
       "p814Boundary": "market.js owns the bounded yc-chart-status label from explicit 3M/10Y curve evidence with a fail-closed state; P828 transfers the TNX/JPY trend and current Treasury curve canvases with source-labelled blocked fallbacks.",

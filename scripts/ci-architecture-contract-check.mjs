@@ -376,7 +376,9 @@ if (routeOwners.routes?.fxbond?.chartOwner !== 'native' || (routeOwners.routes?.
 for (const marker of ['renderNativeHistoryChart', 'renderNativeCurveChart', 'aioFxbondChartRenderer']) {
   if (!marketPageSource.includes(marker)) fail(`native fxbond chart marker missing: ${marker}`);
 }
-if (!pagesSource.includes('nativeFxbondPage') || !pagesSource.includes("ctx.dataset.aioFxbondChartRenderer === 'native'")) fail('legacy fxbond chart writer fence missing');
+// P1342: the legacy yield-curve writer (initYieldCurveChart) was deleted; a returning legacy writer must carry the fence.
+if (/function initYieldCurveChart\b/.test(pagesSource) && !pagesSource.includes("ctx.dataset.aioFxbondChartRenderer === 'native'")) fail('legacy fxbond chart writer fence missing');
+if (!pagesSource.includes('nativeFxbondPage')) fail('legacy fxbond trend writer must yield to the native fxbond page');
 // P829: entity.js owns extended-session and portfolio P&L hero sinks; compatibility writers
 // remain available for action/overview behavior but cannot overwrite native-marked nodes.
 for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value', 'aioTickerExtensionRenderer', 'aioTickerPnlRenderer']) {
