@@ -2211,8 +2211,6 @@ const _PROXY_REGISTRY = {
 _PROXY_REGISTRY.init();
 window.addEventListener('aio:publicConfig', function() { _PROXY_REGISTRY.init(); });
 
-// 하위 호환: 기존 코드에서 PROXY_LIST 참조하는 곳 대응
-const PROXY_LIST = _PROXY_REGISTRY.getMkUrls();
 
 function _aioProxyUrlExpectsJson(url) {
   url = String(url || '');
@@ -2740,22 +2738,6 @@ async function fetchOptionSentiment() {
   };
 }
 window.fetchOptionSentiment = fetchOptionSentiment;
-
-async function fetchLockoutMarketBundle(symbols) {
-  symbols = symbols && symbols.length ? symbols : ['SPY', 'QQQ', 'SMH', 'SOXX', 'IWM', 'RSP', 'KRE', 'XBI'];
-  var rows = await Promise.allSettled(symbols.map(function(sym) { return fetchOHLCVWithFallback(sym, '1day', 180); }));
-  var snapshots = {};
-  var dataQuality = {};
-  rows.forEach(function(r, i) {
-    var sym = symbols[i];
-    var bars = r.status === 'fulfilled' && Array.isArray(r.value) ? r.value : [];
-    snapshots[sym] = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(bars) : { ok: false, reason: 'calc_missing', bars: bars.length };
-    dataQuality[sym] = bars && bars.dataQuality ? bars.dataQuality : (window.calcDataQuality ? window.calcDataQuality({ source: 'lockout-bundle', rows: bars.length, missing: !bars.length }) : null);
-  });
-  var optionSentiment = await fetchOptionSentiment();
-  return { symbols: symbols, snapshots: snapshots, dataQuality: dataQuality, optionSentiment: optionSentiment };
-}
-window.fetchLockoutMarketBundle = fetchLockoutMarketBundle;
 
 
 var _NAVER_NYSE = 'JPM V XOM MA UNH JNJ HD PG ABBV MRK CVX BAC DIS WMT KO PEP MCD TMO LLY GS MS BMY RTX HON CAT DE UPS IBM GE NKE VZ T PM AXP C WFC PFE ABT DHR LOW SYK BDX ZTS CME ICE APD SHW ECL EMR ETN ITW NSC UNP LMT NOC GD BA F GM SO NEE DUK SPGI MCO BLK MMC AON CL WMB KMI MPC VLO PSX SLB HAL FCX NUE URI DD HCA SYY YUM WM PLD SPG PSA O AEP EXC SRE WEC DOW COP OXY EOG BKR COF BK MET PRU AIG AFL TRV CB RSG TFC PNC USB HUBB GPN OTIS STE VRSK EFX NRG PCAR KHC MCK MAR IQV STZ CNC CI MDLZ BSX TJX GEV VRT DELL HPE GLW CCJ PGR TDG RMD TRGP ROP CARR WELL TSM BABA NVO NVS AZN HSBC TM SHEL RIO BHP UBS UL BUD TTE BP TD RY SONY HUM A'.split(' ').reduce(function(s,t){s[t]=1;return s;},{});
@@ -4371,73 +4353,6 @@ window.AIO.getRefreshSchedulerAudit = function() {
   };
 };
 
-window.AIO.getPageRefreshCoverageAudit = function() {
-  _assignRefreshScheduleFunctions();
-  _normalizeRefreshSchedule();
-  var prMap = window.AIO_PAGE_REFRESH_MAP || {};
-  var targetPages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
-  var now = Date.now();
-  var missingPageIds = [];
-  var taskIssues = [];
-  var profileIssues = [];
-  var pageDetails = {};
-
-  targetPages.forEach(function(pageId) {
-    var pageEl = document.getElementById('page-' + pageId);
-    if (!pageEl) missingPageIds.push(pageId);
-
-    var tasks = Array.isArray(prMap[pageId]) ? prMap[pageId] : [];
-    var profile = window.AIO && window.AIO.DATA_REQUIREMENT_PROFILES ? window.AIO.DATA_REQUIREMENT_PROFILES[pageId] : null;
-    var expectedTasks = profile && Array.isArray(profile.tasks) ? profile.tasks : [];
-    var missingProfileTasks = expectedTasks.filter(function(task) { return tasks.indexOf(task) < 0; });
-    var extraTasks = tasks.filter(function(task) { return expectedTasks.length && expectedTasks.indexOf(task) < 0; });
-    if (missingProfileTasks.length) profileIssues.push(pageId + ' missing profile tasks: ' + missingProfileTasks.join(','));
-    var details = [];
-    tasks.forEach(function(task) {
-      var cfg = REFRESH_SCHEDULE[task] || {};
-      var defined = typeof REFRESH_SCHEDULE[task] !== 'undefined';
-      var hasFn = typeof cfg.fn === 'function';
-      if (!defined) taskIssues.push(pageId + '→' + task);
-      else if (!hasFn) taskIssues.push(pageId + '→' + task + ' (fn missing)');
-      details.push({
-        task: task,
-        defined: defined,
-        hasFn: hasFn,
-        lastOk: cfg._lastOk || 0,
-        intervalMs: cfg.interval || 0,
-        staleMs: cfg._lastOk ? Math.max(0, now - cfg._lastOk) : null,
-        nextDue: cfg.nextDue || 0
-      });
-    });
-
-    pageDetails[pageId] = {
-      pageExists: !!pageEl,
-      tasks: tasks,
-      expectedTasks: expectedTasks,
-      missingProfileTasks: missingProfileTasks,
-      extraTasks: extraTasks,
-      taskDetails: details,
-      taskIssues: details.filter(function(d){ return !d.defined || !d.hasFn; }).map(function(d){ return d.task; })
-    };
-  });
-
-  var mapOk = targetPages.every(function(pageId) {
-    return Array.isArray(prMap[pageId]) && prMap[pageId].length > 0;
-  });
-  var pageRefreshWired = typeof window._aioRefreshPageData === 'function';
-
-  return {
-    status: (missingPageIds.length || taskIssues.length || profileIssues.length || !mapOk || !pageRefreshWired) ? 'warn' : 'ok',
-    pageIds: targetPages,
-    pageDetails: pageDetails,
-    missingPageIds: missingPageIds,
-    mapOk: mapOk,
-    pageRefreshWired: pageRefreshWired,
-    taskIssues: taskIssues,
-    profileIssues: profileIssues,
-    generatedAt: new Date(now).toISOString()
-  };
-};
 
 window.AIO.refreshAllComprehensivePages = async function() {
   var pages = ['home','signal','breadth','sentiment','briefing'];
@@ -4485,7 +4400,6 @@ window.AIO.refreshAllCriticalPages = async function() {
     generatedAt: new Date().toISOString()
   };
 };
-window.AIO.refreshCritical10Pages = window.AIO.refreshAllCriticalPages;
 
 window.AIO.getComprehensivePageDataFreshnessAudit = function() {
   _assignRefreshScheduleFunctions();
@@ -6857,16 +6771,6 @@ window.AIO = window.AIO || {};
 window.AIO.getPublicShareReadiness = function(opts) {
   return _aioBuildPublicShareReadiness(Object.assign({ full: true }, opts || {}));
 };
-window.AIO.getServerMarketAnalysis = function() {
-  var m = window._serverMarketAnalysis || null;
-  return m ? {
-    ready: true,
-    oneLine: m.oneLine || '',
-    fullLength: String(m.full || '').length,
-    generatedAt: m.generatedAt || '',
-    source: m.source || 'server'
-  } : { ready: false };
-};
 window.AIO.getDataReconciliationStatus = function() {
   var value = window._serverDataMeta && window._serverDataMeta.reconciliation;
   return value ? JSON.parse(JSON.stringify(value)) : { status:'unavailable', checkedAt:Date.now() };
@@ -8527,8 +8431,6 @@ const ANALYST_KW = [
   '목표주가 상향','목표주가 하향','투자의견 상향','투자의견 하향',
   '비중확대','비중축소','시장수익률','매수 유지','중립 유지',
 ];
-// 하위 호환: HIGH_KW = MACRO_KW + TECH_KW
-const HIGH_KW = [...MACRO_KW, ...TECH_KW];
 const KNOWN_TICKERS = new Set([
   'AAOI','AAPL','ABBV','ABNB','ABT','ACGL','ACLS','ACN','ADA','ADBE','ADI','ADP',
   'ADSK','AEHR','AEM','AEP','AES','AFL','AFRM','AGG','AI','AIG','AIZ','AJG',
@@ -9256,12 +9158,6 @@ const _FINANCE_RELEVANCE_KW = [
   '물가','인플레','디플레','스태그플레이션',
 ];
 
-// ── 시간창(Time Window) 설정 ─────────────────────────────────────
-// 섹션별 뉴스 노출 기간 (단위: 시간)
-// v30.12 P5: 시간창 조정 — 홈 7일→48시간, 시장 3일→48시간 (stale 뉴스 제거)
-const TW_HOME_H     = 24;    // v51.31: 전체 뉴스/소식은 08:00 KST 기준 24h 사이클
-const TW_MARKET_H   = 24;    // v51.31: 시장 소식도 일간 사이클로 통일
-const TW_BRIEFING_H = 24;    // 데일리 브리핑: 24시간 이내
 
 // pubDate 기반 나이 필터. 날짜가 없거나 해석되지 않는 항목은 현재성
 // 근거가 없으므로 current window에 넣지 않는다(참고 화면에서는 별도 노출 가능).
@@ -9973,16 +9869,6 @@ window._aioSafeSourceLabel = _aioSafeSourceLabel;
 /* ── v30.12: Google Translate 무료 API (배치 지원 + 재시도 + 품질 검증 강화) ── */
 const _GT_SEPARATOR = '\n§§§\n'; // 배치 구분자 — Google이 번역하지 않는 특수 패턴
 
-// v30.12: 단일 텍스트 번역 (하위 호환)
-async function googleTranslateFree(text, from='en', to='ko', _retry=0) {
-  try {
-    var result = await _gtBatchTranslate([text], from, to, _retry);
-    return result[0];
-  } catch(e) {
-    if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(e, { source: 'translation' });
-    _aioLog('warn', 'fetch', 'googleTranslateFree error: ' + e.message); return null;
-  }
-}
 
 // v30.12: 배치 번역 — 최대 8건을 하나의 API 호출로 처리
 // returns: string[] (각 항목의 번역 결과, 실패 시 null)
@@ -11791,7 +11677,6 @@ function _getBriefingWindowKST() {
 
 // 브리핑 캐시 키: 앵커 날짜 기반
 var _briefingCacheKey = null;
-var _briefingCachedHtml = null;
 
 function _buildBriefingDecisionSummary(items, totalCount, bw) {
   var ld = window._liveData || {};
@@ -16550,7 +16435,6 @@ const _SECTOR_KEYWORDS = {
   '화장품':['화장품','뷰티브랜드','스킨케어','색조'],
   '게임':['게임','게임/블록체인','엔터','미디어','드라마'],
 };
-window.AIO_SECTOR_KEYWORDS = _SECTOR_KEYWORDS;
 
 function _detectSectorQuery(text) {
   var lower = text.toLowerCase();
@@ -16868,9 +16752,3 @@ function _formatScreenerResultPrompt(result) {
 window._formatScreenerResultPrompt = _formatScreenerResultPrompt;
 // AIO.ScreenerQuery: 스크리너 공개 API (aio-data.js 이동 완료 v51.17)
 window.AIO = window.AIO || {};
-window.AIO.ScreenerQuery = {
-  run:            _aioRunScreenerQuery,
-  buildDiversified: _aioBuildDiversifiedRecommendationRows,
-  formatPrompt:   _formatScreenerResultPrompt,
-  detectSector:   _detectSectorQuery,
-};
