@@ -10,12 +10,13 @@ version: 2
 # static SPA), so the npm entry below only covers the CI browser-test toolchain — but an
 # unpinned toolchain is still a mutable toolchain, and `npm ci` runs in every workflow.
 # Pull requests opened here still have to pass the normal push/PR CI gate.
+# P1342: monthly, not weekly. A grouped bump must re-pin the SHAs the release gates assert, so it is a
+# deliberate maintenance batch verified by the full QA run, never an auto-merge.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '04:40'
       timezone: Asia/Seoul
     open-pull-requests-limit: 3
@@ -35,8 +36,7 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '04:50'
       timezone: Asia/Seoul
     open-pull-requests-limit: 2

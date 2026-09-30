@@ -34,7 +34,7 @@ target_version: version.json
 
 ## Task routing
 
-Independent code/history audit and remaining reconstruction work: [`REPORT.md`](../_artifacts/deep-audit-20260831/REPORT.md). Inventory coverage, semantic review, local browser checks and deployed certification are explicitly separate.
+Current handoff (2026-09-27 full audit, supersedes the August handoffs): [`HANDOFF.md`](../_artifacts/full-audit-20260927/HANDOFF.md), live progress in [`EXECUTION-STATUS.md`](../_artifacts/full-audit-20260927/EXECUTION-STATUS.md), target design in `FOUNDATION-DESIGN.md` / `V2-BLUEPRINT.md` beside it. Earlier audit: [`REPORT.md`](../_artifacts/deep-audit-20260831/REPORT.md) (historical). Inventory coverage, semantic review, local browser checks and deployed certification are explicitly separate.
 
 Latest desktop journey evidence and open boundaries: [`user-flow-remediation-20260830.md`](../_artifacts/user-flow-remediation-20260830.md). The route walkthrough is not whole-content semantic or deployment certification (P1010/R572).
 
@@ -50,13 +50,15 @@ Latest desktop journey evidence and open boundaries: [`user-flow-remediation-202
 | Supplied research | `integrate` skill → extraction/source boundary |
 | Docs/skills/hooks/agents | `knowledge-lint` skill → eight passes |
 | Skill optimization | `autoresearch` skill → eval guide and experiment log |
-| Product scope or architecture | `AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md` → machine charter → relevant architecture contracts |
+| Product scope or architecture | `AGENTS.md` "Product decisions (fixed)" → `AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md` → relevant architecture contracts |
+| Recording a fix, delegating, post-PR trim | `record-fix.mjs` (`/version-up`), `.claude/skills/_shared/agent-prompt-anatomy.md`, `/restate` `/assumptions` `/trim-pr` |
+| Merging main into a version branch | `node scripts/resolve-generated-conflicts.mjs` → the release gates it prints |
 
 ## Context lifecycle
 
 - `preflight`: consult once at task start; reuse unchanged context. Governance and INDEX are targeted references.
 - `ledger`: append/compact history; targeted search only.
-- `current-handoff` or `research-record`: read when its domain is touched.
+- `current-handoff` or `research-record`: read when its domain is touched. A handoff whose frontmatter declares `superseded_by:` is catalogued as `historical-snapshot`.
 - `machine-contract`: consumed by scripts/gates; inspect when changing its producer or consumer.
 - `historical-snapshot`: explicit audit/history request only; never a current baseline.
 - `generated`: change the producer and regenerate, never edit by hand.
@@ -66,7 +68,7 @@ The exact classification for every `_context/*.md|json` file is in `CONTEXT-CATA
 
 ## Current and live state
 
-- Ongoing all-line/history audit: `../_artifacts/exhaustive-audit-20260831/REPORT.md` and `coverage-summary.json`. Inventory/parse coverage is separate from semantic completion; unresolved work is not closed by a passing gate.
+- Earlier all-line/history audit (historical): `../_artifacts/exhaustive-audit-20260831/REPORT.md` and `coverage-summary.json`. Inventory/parse coverage is separate from semantic completion; unresolved work is not closed by a passing gate.
 
 - **Agent handoff (current): `../_artifacts/full-audit-20260927/HANDOFF.md`** — 마지막 작업, 열린 항목과 다음 행동, 반복 금지. 실행 로그는 같은 디렉터리의 `EXECUTION-STATUS.md`. 이전 `full-review-20260916/`은 역사 기록이다.
 

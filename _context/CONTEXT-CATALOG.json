@@ -62,10 +62,11 @@
     {
       "path": "_context/AIO-CURRENT-CODE-REMEDIATION-HANDOFF-2026-08-09.md",
       "title": "AIO 현재형 코드 개선 핸드오프",
-      "kind": "current-handoff",
-      "readPolicy": "targeted",
-      "bytes": 32091,
-      "lines": 537,
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "supersededBy": "_artifacts/full-audit-20260927/HANDOFF.md (2026-09-27 full audit; open items re-triaged there)",
+      "bytes": 32201,
+      "lines": 538,
       "lastVerified": "2026-09-25",
       "autoRefresh": false
     },
@@ -114,7 +115,7 @@
       "title": "ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md",
       "kind": "historical-snapshot",
       "readPolicy": "explicit-only",
-      "bytes": 102611,
+      "bytes": 102421,
       "lines": 846,
       "lastVerified": null,
       "autoRefresh": false
@@ -134,7 +135,7 @@
       "title": "ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md",
       "kind": "historical-snapshot",
       "readPolicy": "explicit-only",
-      "bytes": 136797,
+      "bytes": 136748,
       "lines": 834,
       "lastVerified": "2026-07-29",
       "autoRefresh": false
@@ -378,8 +379,8 @@
       "title": "AIO Context Index",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 7282,
-      "lines": 99,
+      "bytes": 7967,
+      "lines": 101,
       "lastVerified": "2026-09-28",
       "autoRefresh": true
     },
@@ -436,10 +437,11 @@
     {
       "path": "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
       "title": "시장 원리·AI 시대 지식 지도 구조 개편 핸드오프",
-      "kind": "current-handoff",
-      "readPolicy": "targeted",
-      "bytes": 73734,
-      "lines": 904,
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "supersededBy": "_artifacts/full-audit-20260927/HANDOFF.md (2026-09-27 full audit; open items re-triaged there)",
+      "bytes": 73844,
+      "lines": 905,
       "lastVerified": "2026-08-22",
       "autoRefresh": false
     },

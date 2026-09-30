@@ -170,9 +170,9 @@ deferred until this packet sequence is complete, then runs as one batch.
 
 ?�재 checkout?� `main` HEAD `dc8043f`, ?�업 버전?� `v53.17`?�다. P755~P770 변경�? ?�재 ?�크?�리??미커�??�태?�며 배포?��? ?�았?? ???�션?� ???�태�??�실�?가?�하지 말고 반드??`git status --short`, `git rev-parse --short HEAD`, `version.json`???�시 ?�는??
 
-## 1. ?�료 ?�태 ?�의
+## 1. 완료 상태 정의
 
-| ?�태 | ?��? |
+| 상태 | 의미 |
 |---|---|
 | `DESIGNED` | 목표·?�일·??�� ?�?�만 ?�의??|
 | `BASELINED` | ?�출?�·writer·DOM·?�이?�·테?�트�?코드?�서 ?�측?�함 |
@@ -206,22 +206,22 @@ deferred until this packet sequence is complete, then runs as one batch.
 
 2026-07-19 ARX-01~06 진행 ???�측 burn-down?� `explicitWindowWrites=1094`, `directFetch=42`, `directStorage=189`, `htmlSinks=416`?�다. **RM-00 ?�정(2026-07-19)**: ?�래 문장?� ?�시 `operations-status.json`??(?�드코딩?�었?? ?�언??그�?�??�용??것으�?부?�확?�다. `architecture/route-owners.json` ?�측 기�? ?�영 공개 ?�태??`nativeLifecycleOwner`=17�??�체, `nativeRendererOwner=['guide','sentiment']`(2개뿐 ??market-news/briefing?� `live-news-feed`/`briefing-live-news-list`??legacy writer 5~6곳이 ?�아 CONTESTED), `legacyOwner=15`, `nativeOwner=[]`?�다. ~~?�영 공개 ?�태??`nativeLifecycleOwner=['briefing','guide','market-news','sentiment']`, `nativeRendererOwner=['briefing','guide','market-news','sentiment']`, `legacyOwner=13`, `nativeOwner=[]`?�다.~~(?�문 보존, 취소??
 
-### 2.1 ?�인 깊이
+### 2.1 확인 깊이
 
-�?계층?� ?�일 존재�?�?것이 ?�니???�음 경계�??�께 ?�인?�다.
+각 세션은 아래 순서를 바꾸지 않는다.
 
 - **?�력**: provider/artifact/user/event가 ?�떤 schema?� freshness�??�어?�는가
 - **명령**: ?��? fetch·?�?�·계?�·route transition???�작?�는가
 - **?�태**: canonical writer?� legacy projection???�구?��?
 - **?�생**: domain 계산�?selector가 ?��? ?�과로�???분리?�는가
 - **출력**: DOM·chart·narrative·AI가 같�? evidence�??�는가
-- **?�명주기**: mount/refresh/dispose?�서 listener/timer/chart/AbortController가 ?�리?�는가
+- **생명주기**: mount/refresh/dispose에서 listener/timer/chart/AbortController가 정리되는가
 - **?�영**: app/data/worker revision, provider rights, scheduler, LKG, rollback??구분?�는가
 - **검�?*: unit/contract/browser/live �??�느 증거까�? ?�는가
 
 ?�적 코드·로컬 Chromium·artifact 계약?� ?�인?�다. ?�제 Cloudflare ?�원, ?�중 fast-plane SLO, 공급??권리, ?�시�?heap/listener soak, 모든 조건부 route ?�공 ?�력?� ?�직 ?�인?��? ?�았??
 
-## 3. 배치 공통 ?�행 규칙
+## 3. 배치 공통 실행 규칙
 
 �??�션?� ?�래 ?�서�?바꾸지 ?�는??
 
@@ -233,19 +233,19 @@ deferred until this packet sequence is complete, then runs as one batch.
 6. route ?�위 게이?????�체 regression???�행?�다.
 7. operations status?� ??문서???�태�??�제 renderer/lifecycle/data owner 기�??�로 갱신?�다.
 
-금�? ?�항:
+금지 사항:
 
-- ??�� ?�?�이 0개인 architecture migration 배치
+- 삭제 대상이 0개인 architecture migration 배치
 - observer/facade�?추�??�고 native renderer�??�시
 - legacy fetch�???�?같�? provider adapter�?병렬 추�?
 - Store dispatch�??�고 reducer/consumer�?검증하지 ?�음
 - DOM???�시 ?�어 canonical state/evidence ?�성
 - ?�체 ?�일 ?�작???�는 ±500�??�상 ?�동 ??CODE-MAP 미갱??- ?��? ?�영 증거 ?�이 `VERIFIED_LIVE` ?�시
 
-## 4. ?�체 ?�존 ?�서?� ?�행 ?�동
+## 4. 전체 의존 순서와 실행 파동
 
 ```text
-W0 ownership baseline (v53.15 ?�료)
+W0 ownership baseline (v53.15 완료)
   -> W1 sentiment full vertical cutover
       -> W2 shared platform/state/evidence adoption
           -> W3 low-risk/static/content routes
@@ -283,14 +283,14 @@ Remaining: briefing/content cutover, 13 route renderer owners, identity/memo ret
 Status: VERIFIED_LOCAL (P769 complete; no commit/deploy performed)
 ```
 
-| Wave | ?�행 ?�킷 | ?�행 조건 | ?�료 증거 |
+| Wave | 실행 패킷 | 선행 조건 | 완료 증거 |
 |---|---|---|---|
 | W0 | ARX-00 owner/burn-down 기�???| ?�음 | v53.15: sentiment lifecycle, global 1110??109 |
-| W1 | ARX-01 sentiment renderer, ARX-02 sentiment data writer | W0 | sentiment native renderer·state/evidence, legacy init/fetch/DOM writer ??�� |
+| W1 | ARX-01 sentiment renderer, ARX-02 sentiment data writer | W0 | sentiment native renderer·state/evidence, legacy init/fetch/DOM writer 삭제 |
 | W2 | ARX-03 commands/selectors, ARX-04 HTTP/storage/sanitizer adoption | W1 | �?slice direct network/storage/HTML sink 0 |
 | W3 | ARX-05 guide, ARX-06 market-news+briefing | W2 | low-risk route 3�?renderer cutover, content/narrative evidence 계약 |
 | W4 | ARX-07 macro+fxbond+breadth, ARX-08 themes+theme-detail | W2 | chart series provenance·dispose·route input 계약 |
-| W5 | ARX-09 ticker+fundamental+options, ARX-10 portfolio+screener | W2/W9 ?��? | entity cancellation, vault boundary, table virtualization/partial state |
+| W5 | ARX-09 ticker+fundamental+options, ARX-10 portfolio+screener | W2/W9 일부 | entity cancellation, vault boundary, table virtualization/partial state |
 | W6 | ARX-11 technical+signal+home | W4/W5/W7 | 최종 ?�생·?��??�트?�이??route??legacy owner ??�� |
 | W7 | ARX-12 domain engines?� live/backtest parity | W1 ?�후 병렬 가??| modelVersion/inputVersion/fixture parity |
 | W8 | ARX-13 AI context/retrieval/provider/policy/response | canonical evidence?� route owner | 모든 AI 진입???�일 manifest?� output gate |
@@ -300,7 +300,7 @@ Status: VERIFIED_LOCAL (P769 complete; no commit/deploy performed)
 
 TypeScript/Vite??목표가 ?�니??경계 강제 ?�단?�다. W1?�서 native ESM?�로 ?�전???�직 slice�?먼�? 증명????ADR-0002?�서 `native ESM ?��?`?� `Vite+TypeScript ?�환`??비교?�다. 빌드 ?�구 ?�입만으�?W10 ?�료�??�시?��? ?�는??
 
-## 5. 17 route ?��? ?�환 ?�장
+## 5. 17 route 세부 전환 원장
 
 | ?�서 | Route | ?�재 owner | 주요 계층·?�험 | ?�행 | 반드????��??legacy 범주 |
 |---|---|---|---|---|---|
@@ -320,13 +320,13 @@ TypeScript/Vite??목표가 ?�니??경계 강제 ?�단?�다. W1?�서 nati
 | 14 | screener | legacy renderer | large table, artifact revision, filters | W2/W7 | global filter/result writer·full-table HTML rewrite |
 | 15 | technical | legacy renderer | OHLCV, indicators, chart lifecycle | W7 | duplicated technical calculations·chart/global cache writer |
 | 16 | signal | legacy renderer | domain aggregation, fail-closed decision text | W4/W5/W7 | legacy score/narrative writer·route refresh hook |
-| 17 | home | legacy renderer | 모든 slice 집계, first-paint/performance | ?�머지 route | global dashboard refresh·duplicated summary writer·legacy init |
+| 17 | home | legacy renderer | 모든 slice 집계, first-paint/performance | 나머지 route | global dashboard refresh·duplicated summary writer·legacy init |
 
 Route ?�료 체크???�섯 칸을 별도�?기록?�다: `lifecycleOwner`, `rendererOwner`, `dataOwner`, `chartOwner`, `narrativeOwner`. ?�섯 �?�??�나?�도 legacy�?`nativeOwner`�?집계?��? ?�는??
 
 ### 5.1 ?�음 ?�션??�??�킷: ARX-01 sentiment renderer
 
-?�정 ???�인 범위:
+이번 세션 카드:
 
 - `CODE-MAP.md`??`page-sentiment`, `initSentimentPage`
 - `index.html`??`page-sentiment` DOM(?�재 ??6,888~7,040)
@@ -342,7 +342,7 @@ Route ?�료 체크???�섯 칸을 별도�?기록?�다: `lifecycleOwner`, 
 4. legacy renderer??facade?�서 ?�거?�고 `initSentimentPage`?� ?�용 helper/callers�???��?�다.
 5. F&G/VIX/PutCall/HY???�락·stale·partial·observed fixture�?각각 ?�더?�다.
 
-ARX-01 `DELETE-LEDGER` 최소 ??��:
+ARX-01 `DELETE-LEDGER` 최소 항목:
 
 - `src/legacy/compatibility-facade.js`??`sentiment: 'initSentimentPage'`
 - `js/aio-ui.js`??`initSentimentPage`?� ?�용 chart init/refresh ?�출부
@@ -354,20 +354,20 @@ ARX-01?� producer ?�체 교체까�? ??번에 ?�히지 ?�는?? Legacy p
 
 ## 6. 교차 계층 ?�킷???�일·?�수 기�?
 
-| ?�킷 | 주요 ?�일/목표 | ?�수 기�? |
+| 패킷 | 주요 파일/목표 | 인수 기준 |
 |---|---|---|
-| ARX-02 Data writer | `src/data/providers|normalize|orchestrators`, evidence contracts, legacy producer ??�� | ?�당 metric provider?�evidence ?�일 writer, UI/chart/AI ?�일 revision |
+| ARX-02 Data writer | `src/data/providers|normalize|orchestrators`, evidence contracts, legacy producer 삭제 | 해당 metric provider→evidence 단일 writer, UI/chart/AI 동일 revision |
 | ARX-03 State/command | `src/state/slices`, selectors, application commands | reducer가 모든 command ?�비, derived state ?�??0, DOM?�state 0 |
 | ARX-04 Platform | `src/platform/http/storage/sanitizer/telemetry/clock` | ?�??slice direct fetch/storage/HTML sink 0, timeout/abort/fixture |
 | ARX-12 Domain | `src/domain/market|macro|technical|portfolio|screener|news` | DOM/provider import 0, model/input version, live/backtest fixture parity |
-| ARX-13 AI | `src/ai/context|retrieval|provider|websearch|policy|response` | unified/per-page/retry/translation/briefing ?�일 envelope?� policy |
-| ARX-14 Storage | versioned repository?� migration registry | direct storage 0, Vault opt-in/out/reload/migration/rollback 8+ E2E |
-| ARX-15 Release | app shell, build config, asset manifest, `sw.js`, workflows | hashed immutable asset, app/data/worker revision 분리, rollback ?�현 |
+| ARX-13 AI | `src/ai/context|retrieval|provider|websearch|policy|response` | unified/per-page/retry/translation/briefing 동일 envelope와 policy |
+| ARX-14 Storage | versioned repository와 migration registry | direct storage 0, Vault opt-in/out/reload/migration/rollback 8+ E2E |
+| ARX-15 Release | app shell, build config, asset manifest, `sw.js`, workflows | hashed immutable asset, app/data/worker revision 분리, rollback 재현 |
 | ARX-16 Retirement | facade, global projections, PageBus, legacy bundles/docs | approved public API ??globals 0, renderer owner 17/17 native, inline runtime 0 |
 
 ARX-07 ?�이???�영 ?��???`AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md`, ARX-13 AI ?�험·검�??��???`AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md`�??�위 계약?�로 ?�용?�다. ?�일 ?�용????문서??복제?��? ?�는??
 
-## 7. ?�션 ?�업 카드
+## 7. 세션 작업 카드
 
 ?�른 ?�션?� ?�작?????�래 카드�?복사???�제 값으�?채운??
 
@@ -397,8 +397,8 @@ Status: DESIGNED|BASELINED|IN_PROGRESS|VERIFIED_LOCAL|VERIFIED_LIVE|RETIRED
 
 ???�션?� 기본?�으�?route packet ?�나 ?�는 cross-layer slice ?�나�??�유?�다. ?�러 route�??�시??바�? ?�는 공유 owner ??��가 명확?�고 �?route rollback???�립?�일 ?�만 ?�용?�다.
 
-## 8. ?�행 게이??
-### 8.1 모든 배치?�서 즉시 ?�행
+## 8. 실행 게이트
+### 8.1 모든 배치에서 즉시 실행
 
 ```powershell
 node scripts/ci-architecture-contract-check.mjs
@@ -418,7 +418,7 @@ git diff --check
 
 ### 8.2 ?�당 계층 진입 ??만들?�야 ?�는 blocking gate
 
-| Gate | ?�입 ?�점 | Yes 조건 |
+| Gate | 도입 시점 | Yes 조건 |
 |---|---|---|
 | AG-DEP | �?domain ?�동 | domain??DOM/fetch/storage/provider import 0 |
 | AG-WRITER | �?state slice ?�료 | metric/state writer가 manifest???�확??1�?|
@@ -446,36 +446,36 @@ git diff --check
 | AC-06 | approved renderer/sanitizer �?dynamic HTML sink 0 |
 | AC-07 | canonical state/evidence �??�장·?�트?�리?�·AI writer 0 |
 | AC-08 | domain??DOM/network/storage/provider?� ?�립?�고 live/backtest parity PASS |
-| AC-09 | UI·chart·narrative·AI가 같�? evidence ID/freshness/revision ?�용 |
+| AC-09 | UI·chart·narrative·AI가 같은 evidence ID/freshness/revision 사용 |
 | AC-10 | route 반복 ?�환�?30�?soak?�서 resource/heap 증�?가 ?�산 ??|
 | AC-11 | app/data/evidence/worker/SW revision�?rollback???�현 가??|
 | AC-12 | Tier 0 fast/durable SLO, provider rights, LKG, reconciliation??VERIFIED_LIVE |
-| AC-13 | ?�체 static/headless/viewport/a11y/vault/security/live invariant PASS |
+| AC-13 | 전체 static/headless/viewport/a11y/vault/security/live invariant PASS |
 | AC-14 | compatibility facade·PageBus·legacy projections가 ?�거?�거??ADR ?�인 API�??�음 |
 | AC-15 | architecture/ADR/runbook/???�행 ?�장??active SSOT?�고 과거 중복 handoff가 archive??|
 
-## 10. ?�재 검증된 것과 검증되지 ?��? �?
+## 10. 현재 검증된 것과 검증되지 않은 것
 검증됨:
 
 - v53.15 local architecture/operations/version/release 계약
 - explicit global writer 1110??109 ?�제 감소
 - ARX-01 native renderer cutover?�서 explicit global writer 1109??100 추�? 감소; ARX-02/03 진행 �?VIX legacy narrative/chart·producer HTML sink·중복 snapshot projection????��??1100??097 �?420??18 추�? 감소
-- sentiment router/store route, ESM lifecycle/badge, route ?�복, browserErrors 0
+- sentiment router/store route, ESM lifecycle/badge, route 왕복, browserErrors 0
 - headless 1101/1101, Critical-10 10/10, a11y 17/17, viewport 68/68, Vault 8/8
 - durable Tier 0 snapshot 16/16�?fail-closed/LKG 계약
 
-검증되지 ?�음:
+금지 사항:
 
 - native renderer 17�?�?15�?미완�?**RM-00 ?�정**: ?�문?� "?�느 것도 ?�료?��? ?�음"?�라 ?�었?�나 ?�는 sentiment??§11 ?�션 카드 ?�체??"renderer native" ?�정�??�충?�는 ?�기?�?????�측?� guide·sentiment 2�??�료, market-news/briefing???�함???�머지 15개는 legacy renderer가 ?�아?�는 채로 thin native 모듈�??�일 DOM??경합 중이?? ?�세: `architecture/route-owners.json`, `_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` F-03/F-07)
 - direct fetch/storage/HTML sink???�체 gateway ?�환
-- `index.html` runtime island?� legacy bundle ?�거
+- `index.html` runtime island와 legacy bundle 제거
 - 모든 domain??pure/live-backtest parity
-- AI legacy module ?�체 분해?� live model quality/red-team
+- AI legacy module 전체 분해와 live model quality/red-team
 - Cloudflare fast plane credential/resource/7-day 99% soak
 - provider redistribution rights, SEC 80% coverage
 - ?�시�?resource/heap soak, ?�보?�·스?�린리더 ?�사
 
-## 11. ?�음 ?�션 ?�작 지??
+## 11. 다음 세션 시작 지시
 �??�속 ?�션?� **ARX-01 sentiment renderer�?* ?�행?�다. ?�번 ?�킷???�행 결과???�음�?같다.
 
 1. dirty checkout??보존?�고 v53.15 변�?존재 ?��?�??�인?�다.
@@ -487,7 +487,7 @@ git diff --check
 7. architecture counter?� operations route owner�?갱신?�다: explicit global writes 1109??097, HTML sinks 420??18, native renderer owner `sentiment`, legacy renderer owner 17??6.
 8. ?�체 §8.1 게이?�는 모든 ARX ?�킷 ?�료 ???�행?�다. ?�재 ?�킷?� syntax·retired-symbol ?�적 ?�인�??�료?�다.
 
-?�번 ?�션 카드:
+이번 세션 카드:
 
 ```text
 Packet: ARX-01
@@ -516,7 +516,7 @@ The current measured counters are `explicitWindowWrites=1094`, `directFetch=42`,
 
 **?�정 (2026-07-20, ARX-03/04 ?�진???�측)**: ??368?�의 "ARX-02 and ARX-04 are locally closed for the new ESM slice"???�측?��? ?��? ?�술?�었?? 2026-07-20 ?�측??결과 ARX-04(HTTP 게이?�웨???�채????sentiment ?�함 8�?domain provider �?**0�?*가 `platform/http.js`�??�용?�다 ???��? `legacy.readX()` projection?�었???�일???�외?????�진???�전부???�던 AR-07??`market-snapshot.json` 로더, provider 계층???�니??별도??durable-snapshot 경로). "closed"??F-01~F-03류의 미실�??�언?�었?�을 기록?�고, ?�래 ARX-03/04 ?�션 카드가 ?�측 기반 ?�정?�다.
 
-커밋·?�시·배포???�용?�의 명시 지?��? ?�을 ?�만 ?�행?�다.
+각 세션은 아래 순서를 바꾸지 않는다.
 
 ---
 
@@ -533,10 +533,10 @@ Files changed: src/data/providers/screener.js(?�작?? · src/data/normalize/sc
 DELETE-LEDGER before edit:
   - declaration: ?�당 ?�음(??배치???�수 추�? ??screener provider??`read` 콜백 ?�라미터�?`httpClient`�?교체?�을 �?legacy ?�수????��?��? ?�음, additive ?�계�??�도?�으�??�택?�기 ?�문)
   - callers: `bootstrap.js`??`createScreenerProvider({ read: legacy.readScreener })` ??`createScreenerProvider({ httpClient })` 1�?변�? `legacy.readScreener` ?�체??facade??그�?�??�음(?�른 7�?domain???�???�수?� ?��?�� ?��? 목적, ?�출??0곳이지�??�해?��? ?�아 ?�번 배치 ??�� ?�?�에???�외 ???�음 ?�션 ?�단 ?�요 ??참고)
-  - global writer: ?�당 ?�음
+  - global writer: 해당 없음
   - DOM/chart/narrative sink: ?�당 ?�음(native screener 콘텐츠는 ?�전???�더?��? ?�음 ??RM-01 dataset 마커 ?�태 불�?)
   - event/timer/storage: ?�당 ?�음(fetch ?�패/컴포?�트 dispose ??in-flight ?�청 취소???�번 배치 ?�코??밖으�?명시 ???�래 Unverified 참조)
-  - tests/docs: ?�음
+  - tests/docs: 없음
 Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4�?legacy 카운??무�???1088/42/187/410, RM-03 item 2 종료 ?�점�??�일) ??legacy screener fetch�???��?��? ?�았?��?�??�상.
 New compatibility introduced and retirement packet: ?�음(?�규 legacy ?�로?�션 ?�님 ??반�?�?legacy ?�로?�션 1개�? ??fetch�?교체). retirement ?�???�님.
 Local gates: §8.1 ?�심 12�??��? PASS(viewport FULL_INIT 68/68 ?�함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e(8/8) + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-knowledge-lint + ci-doc-currency ?��? PASS. headless 1098/1098.
@@ -557,7 +557,7 @@ Files read: src/data/providers/entity.js·normalize/entity.js·orchestrators/ent
 Files changed: src/data/providers/entity.js(?�작?? · src/data/orchestrators/entity.js(async ?�환) · src/app/bootstrap.js(entity provider 배선??httpClient 추�?)
 DELETE-LEDGER before edit: ?�당 ?�음(?�수 추�? ??legacy `readEntity`/`_fundAnalysisData` ?�비??그�?�??��?, quote/options ?�드???��?지 ?�음)
 Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4�?legacy 카운??무�???1088/42/187/410) ??legacy fetch�???��?��? ?�았?��?�??�상.
-New compatibility introduced and retirement packet: ?�음.
+New compatibility introduced and retirement packet: 없음.
 Local gates: §8.1 ?�심 12�??��? PASS(viewport FULL_INIT 68/68 ?�함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-knowledge-lint + ci-doc-currency ?��? PASS. headless 1098/1098.
 Browser evidence: ??Chromium ?�드??검�??�시 ?�크립트, ?�행 ????��) ??`window._currentTickerId='A'` ?�정 ??`aio:pageShown` 발화 ??`state.entity.fundamentals`??AGILENT TECHNOLOGIES ?�제 SEC ?�이??revenue 6,948,000,000 ?? ?�인. `ZZZZNOTREAL`(미존???�볼)?� `fundamentals:null`�??�전 ?�백, ?�래???�음. `ci-architecture-browser-check.mjs`(17-route ?�복) browserErrors 0.
 Live evidence: ?�음 ??커밋 ?��?·배포 모두 ?�용??지???��?
@@ -578,9 +578,9 @@ Files added: src/domain/news/scoring.js · scripts/dump-news-scoring-fixtures.mj
 DELETE-LEDGER before edit:
   - declaration: computeNewsSentimentScore/computeNewsRiskSignals ?�수 본문 ?�체(계산 로직) ???�퍼?�는 `newsCache` ?�백 ?�택�?브릿지 ?�출�??��?
   - callers: ?�음(3�??�출부 ?�그?�처 불�? ??`items` ?�자 ?�는 무인???�출 모두 ?�일?�게 ?�작)
-  - global writer: ?�당 ?�음
+  - global writer: 해당 없음
   - DOM/chart/narrative sink: ?�당 ?�음(?�수 계산 ?��?, ???�수 모두 ?�래 DOM 미접�?
-  - event/timer/storage: ?�당 ?�음
+  - event/timer/storage: 해당 없음
   - tests/docs: ?�음(???�수�?직접 검증하??legacy ?�용 ?�스???�었?? ?�전 ?�인)
 Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4�?legacy 카운??무�???1088/42/187/410) ????배치???�수 계산 ?��??�며 DOM/global/storage ??�� ?�???�님.
 New compatibility introduced and retirement packet: `window.AIO_ARCH.computeNewsSentimentScore`/`computeNewsRiskSignals` ?�규 브릿지(?�일 구현 ?�비 경로, P743/P745?� ?�일 ?�턴) ??retirement ?�???�님.
@@ -602,14 +602,14 @@ Files read: js/aio-data.js??_serverNewsBackstop/_aioApplyNewsBackstop ?�문(55
 DELETE-LEDGER before edit:
   - declaration: js/aio-data.js??`_getBriefingWindowKST` `return` �????�달불�? 13�?P749가 발견�??�고 미착?�했??�?
   - callers: ?�음(?�문 코드???�출부 ?�체가 ?�음)
-  - global writer: ?�당 ?�음
-  - DOM/chart/narrative sink: ?�당 ?�음
-  - event/timer/storage: ?�당 ?�음
+  - global writer: 해당 없음
+  - DOM/chart/narrative sink: 해당 없음
+  - event/timer/storage: 해당 없음
   - tests/docs: CODE-MAP.md???�기모순 좌표(15829/15905/16029 ?? ?�정, "?�이브·서�?모델 불일�? ?�술??"?�도???�브??검�??�로 ?�정
 Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4�?카운??무�???1088/42/187/410) ???�문 코드 ??���?13�??� window write/fetch/storage/HTML sink�??�나???�함?��? ?�아 카운?�에 반영?��? ?�음(?�상, ?�수 로컬 변??계산 코드?�??.
 New compatibility introduced and retirement packet: ?�음(orchestrator 변경�? ?��? ?�시??로직, ?�규 ?�역/?�로?�션 ?�님).
 Local gates: §8.1 ?�심 12�??��? PASS(viewport FULL_INIT 68/68 ?�함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e(8/8) + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-doc-currency ?��? PASS. headless 1098/1098. ci-esm-core-unit-check??orchestrator staleness 8�??�나리오(겹치???�출 2×2 + dispose 2×2) ?�규 추�?·PASS.
-Browser evidence: `ci-architecture-browser-check.mjs`(17-route ?�복) browserErrors 0.
+Browser evidence: `ci-architecture-browser-check.mjs`(17-route 왕복) browserErrors 0.
 Live evidence: ?�음 ??커밋·배포 모두 ?�용??지???��?
 Unverified/blockers: `src/platform/http.js`??`signal: options.signal || controller.signal`(?��? signal ?�달 ???��? timeout-abort 무력????Fable??지?�했?�나 ?�재 ?�무 ?�출부??signal???�기지 ?�아 ?�면 ?�태 ???��?지 ?�고 QA-CHECKLIST ?�속 ?�보로만 기록. market/macro??"toy ?�역 가?�성"(Fable 1�??�문)?� ?�번 ?�션?�서 ?�확?�하지 ?�음(1�??�문 그�?�??�효 취급).
 Status: VERIFIED_LOCAL (orchestrator ?�시???�정 + 문서 ?�정 ?�코???�정 ??news??"?��? ??미착???�정"?�라 provider 코드 변�??�음)
@@ -627,10 +627,10 @@ Files changed: index.html · js/aio-ui.js · src/app/bootstrap.js · src/legacy/
 Files added: src/domain/market/breadth.js
 DELETE-LEDGER before edit:
   - declaration: ?�당 ?�음(?�규 기능 ?????�면 모두 ?�전??writer가 ?�었?��?�???�� ?�???�음)
-  - callers: ?�당 ?�음
-  - global writer: ?�당 ?�음
+  - callers: 해당 없음
+  - global writer: 해당 없음
   - DOM/chart/narrative sink: `updateBreadthBars()`??`breadth-stage-summary` fail-closed 리셋 경로�?`.innerHTML=`?�서 `.textContent=`�?교체(?�청 ?�?��? ?�니?�으??같�? 줄을 만�???김???�전??쪽으�???htmlSinks 410??09)
-  - event/timer/storage: ?�당 ?�음
+  - event/timer/storage: 해당 없음
   - tests/docs: index.html??"Weinstein Stage" ?�션 ?�벨�?`breadth-diag-text`??"Weinstein Stage???�정??보류?�니?? 문장?????�작??맞게 ?�정
 Burn-down before/after: explicitWindowWrites/directFetch/directStorage 3�?카운??무�???1088/42/187). htmlSinks 410??09(?�규 ?�감?? `architecture/baseline.json` 갱신). ?�규 ?�메???�일??domain-layer ?�적 경계 검??`ci-architecture-contract-check.mjs`??`forbiddenByLayer.domain`)?�서 주석 ??리터??"localStorage" 문자???�문???�탐 ?�패?�던 것을 발견 ??코드가 ?�닌 주석?�었지�??�규?�이 구분?��? 못해 문구�?"device-persisted"�??�작?�해 ?�소.
 New compatibility introduced and retirement packet: `window.AIO_ARCH.classifyBreadthParticipation` ?�규 브릿지(?�일 구현 ?�비 경로, P743/P745/P749?� ?�일 ?�턴) ??retirement ?�???�님. `bootstrap.js`/`compatibility-facade.js` ?�쪽???�시 ?�록(배선 ?�락 ?�발 방�? ?�차 4번째 준??.

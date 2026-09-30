@@ -63,11 +63,13 @@ export function buildContextCatalog(root) {
     const path = join(root, '_context', file);
     const text = readFileSync(path, 'utf8');
     const frontmatter = file.endsWith('.md') ? extractFrontmatter(text) : null;
+    const effectiveKind = kind === 'current-handoff' && frontmatter?.superseded_by ? 'historical-snapshot' : kind;
     return {
       path: `_context/${file}`,
       title: file.endsWith('.md') ? extractTitle(text, file) : file,
-      kind,
-      readPolicy: readPolicy(kind),
+      kind: effectiveKind,
+      readPolicy: readPolicy(effectiveKind),
+      ...(frontmatter?.superseded_by ? { supersededBy: frontmatter.superseded_by } : {}),
       bytes: canonicalTextBytes(text),
       lines: lineCount(text),
       lastVerified: frontmatter?.last_verified || null,

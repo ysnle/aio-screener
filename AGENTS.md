@@ -18,6 +18,19 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 독립적인 조사·리뷰를 병렬 위임하면 실제로 도움이 되는 큰 작업에서는 범위가 명확한 서브에이전트를 사용한다. 파일 소유권을 분리하고 기존 변경을 보존하며, 작은 일이나 같은 조사에는 위임을 늘리지 않는다. 결과는 주 담당자가 통합 검증한다.
 - 한국어로 결과와 근거를 간결하게 설명한다. 에이전트 간 메시지도 정상적인 문장과 띄어쓰기를 사용한다. 통과한 검사는 새 변경·실패·미해결 위험이 있을 때만 다시 실행한다.
 
+## Product decisions (fixed)
+
+Owner decisions that every agent (Claude, Codex, subagents) applies without re-asking. Change them only when the user says so.
+
+- Audience: the operator's family and friends (~5 users, 2–4 concurrent). Free to run, operated by one person, automated. No public-SaaS features (sign-up, billing, multi-tenant).
+- Scores are reference descriptions of the market on the **latest completed US regular-session close** ("직전 미국장 종가 기준", R670), labelled with that basis and never decision-grade. Missing inputs hold the score; they are never guessed.
+- Desktop only. Mobile layouts and code were removed on purpose; do not add breakpoints or mobile handling back.
+- The options route is retired (`#options` aliases to `sentiment`). Do not revive it.
+- No ticker guessing: company names resolve only by exact registry match, and a ticker-shaped input is never rewritten to another issuer (P1339).
+- Data producers (`scripts/fetch-*`, `build-*`, `sync-*`, `refresh-*`) run only in GitHub Actions; locally, read artifacts and run gates.
+- Korean themes and Korean-market content are user-facing features, not experiments.
+- Work in large batches: implement several items, then verify and record once. Use scoped parallel subagents for independent areas.
+
 ## Task routing
 
 | Task | Skill / evidence |
@@ -39,6 +52,8 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - Generated workspace files are never hand-edited: run `node scripts/generate-workspace-state.mjs --write`, `node scripts/sync-agent-profiles.mjs`, and `node scripts/sync-agent-skills.mjs` as applicable.
 - Static, runtime/headless, browser and live evidence are separate. Never promote a lower evidence level to a higher one.
 - No commit or deployment is implied by “finish”, “fix all”, QA completion, or a passing local gate.
+- Change flow: a `claude/vX.Y-<topic>` (or `codex/...`) branch → PR → CI → merge only when the user asked to ship. Merging `origin/main` into a version branch always conflicts on the generated release manifests (the data bot rewrites them); run `node scripts/resolve-generated-conflicts.mjs` and the release gates it prints instead of hand-editing.
+- Parallel agents get separate worktrees and disjoint file ownership; the main agent integrates and runs the gates once.
 
 ## Closeout
 

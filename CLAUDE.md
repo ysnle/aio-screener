@@ -33,7 +33,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 **R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · root/context docs · CHANGELOG.md · JS cachebusters — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치** (v51.64~)
 **R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
-**R3. 버그 수정 시 사후 분석**: `_context/BUG-POSTMORTEM.md`에 P번호 기록
+**R3. 버그 수정 시 사후 분석**: P/R/QA/CHANGELOG/상태는 `node scripts/record-fix.mjs <entry.json>`로 한 번에 기록 (수기 편집 금지, 형식은 `/version-up`)
 **R27. Commands↔Skills 동기화**: 새 스킬 시 command wrapper 동시 생성
 
 ---
@@ -42,7 +42,8 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 - **자동 배포/커밋 금지** — 사용자가 해당 동작을 명시적으로 요청한 경우에만
 - **코드 전면 재작성 금지** — CODE-MAP/owner registry 기반으로 가장 낮은 공통 원인을 부분 패치
-- **코드 수정 시 자동 반영**: BUG-POSTMORTEM + QA-CHECKLIST + RULES + 버전 표면 전체 동기화(`scripts/bump-version.mjs`가 패치하는 모든 표면)
+- **제품 결정·변경 흐름은 `AGENTS.md`가 정본**: 종가 기준 점수, 데스크톱 전용, 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, 브랜치→PR, 생성물 충돌 해소 스크립트
+- **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
 - **게이트-문서 계약 주의**: CI 게이트가 QA-CHECKLIST §7 마커·RULES 특정 문구·CHANGELOG v50.89 섹션을 grep한다 — 문서 압축/정리 시 삭제 금지
 
 ---

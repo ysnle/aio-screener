@@ -73,6 +73,9 @@ for (const command of ['git checkout -- .', 'git restore .', 'git restore --work
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard denies "${command}" (P1340)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
 }
+// P1342: the reachability tooling lives in the repo (not a session scratchpad) and its splitter/remover stay correct.
+const deadCodeSelfTest = spawnSync(process.execPath, [join(root, 'scripts', 'dead-code.mjs'), 'self-test'], { cwd: root, encoding: 'utf8', timeout: 15_000 });
+check('dead-code tooling self-test passes (P1342)', deadCodeSelfTest.status === 0, deadCodeSelfTest.stderr);
 check('guard allows a single-path checkout (P1340)', !/deny/.test(runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git checkout -- js/aio-core.js' } }).stdout || ''));
 let dangerousOutput = {};
 try { dangerousOutput = JSON.parse(dangerousHook.stdout || '{}'); } catch { dangerousOutput = {}; }

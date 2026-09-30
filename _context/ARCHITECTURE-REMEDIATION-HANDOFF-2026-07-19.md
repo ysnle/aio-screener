@@ -178,7 +178,7 @@ Each lower-agent packet owns only its listed runtime/test/document files, update
 - ?�료 ?�태 ?�의(`DESIGNED`~`RETIRED`)?� ?�션 카드 ?�식?� ?�행 계획 §1·§7??그�?�??�용?�다. 복제?��? ?�는??
 - 근거 규칙: **R352**(v53.15 ?�설 ??"migration?� scaffold 존재가 ?�니???�행 ?�유�??�전 + legacy burn-down?�로 ?�정") ????문서 ?�체가 R352??집행?�다.
 
-### 0.1 ?�행 ?�태 (2026-07-19 ?�션)
+### 0.1 실행 상태 (2026-07-19 세션)
 
 RM-00 + RM-04 ?�료(같�? ?�션 병합 ?�행, §3 권장 방식). ?�어??같�? ?�션?�서 RM-01???�료(?�용??지?�로 "커밋�??�고 ?��? ??�� ?�차 진행"). ?�션 카드??§7 ?�식?�로 문서 ?�단??별도 기록. ?�약:
 
@@ -224,7 +224,7 @@ RM-00 + RM-04 ?�료(같�? ?�션 병합 ?�행, §3 권장 방식). ?��
 - **부??발견 2**: breadth ?�이지??`updateWSAnalysis()`(js/aio-ui.js)가 ?�기 ?�이지가 ?�니??technical ?�이지??DOM(`ws-analysis`)???�고 ?�던 고아 ?�수?�을 ?�인????��. `breadth-stage-summary`(breadth ?�이지)·`mtf-verdict-text`(technical ?�이지)?????�문 코드가 ?�일??writer?�?�는 것도 ?�인 ??�??????�면?� ?�번 ??�� ?�전부???��? ?�이브로???��? 갱신?��? ?�는 ?�구 ?�레?�스?�?��??? 무엇??채울지???�품 결정???�요???�번 배치?�서??고치지 ?�고 명시 ?�월(QA-CHECKLIST ?�린 백로�?.
 - **parity**: RRG/Weinstein/MTF 모두 `git stash`�?추출 ??커밋 ?�태�??�시 복원??legacy?�서 직접 ?�드리스 ?�프(`scripts/dump-rrg-fixtures.mjs`, `dump-weinstein-mtf-fixtures.mjs`, 8�??�나리오????골든 fixture?� ?�전 ?�치�?`ci-domain-parity-check.mjs`?�서 ?�인. `bootstrap.js` api 객체?� `compatibility-facade.js`??`exposeArchitecture()` ?�쪽???�규 ?�수�??�께 ?�록??P743??발견??"?�출�?allowlist ?�락" 배선 버그???�발???�했??브라?��? 게이?�도 별도�?PASS ?�인).
 - **item 3 ?�확??*: `deriveSignalDecision`??toy 출력?� `src/ui/pages/analysis.js`(RM-01 ?�후)가 `.status`�??�고 `.action`/`.score`/`.reasons`???�디?�도 ?��? ?�음???�비�??�수 grep?�로 ?�확????�???toy 모델?� ?�재 ?�면???�떤 ?�못??값도 ?�출?��? ?�는?? 그러???�바�??��?`computeTradingScoreModel`??0~100 ?�수�?action/label�?매핑)??`normalizeAnalysis`??vix/vvix/dxy/tnx/oilPrice/pcr/hyBp/newsSentimentScore/newsRiskSignals�??�로 threading?�야 ?�는 ?�업?�며, ?�는 ?�행 계획 §4??ARX-11(technical+signal+home orchestration, W4/W5/W7 ?�행 ?�요)???��? 계획????별도 ?�동?�다. ?�번 ?�션?� �??�실???�측?�로 ?�정?�는 ??그치�?조기·부분적??매핑???�의�?만들지 ?�았???�거?��? ?�른 ?�식??병렬 ?�입 금�? ?�칙�??�일???�유�? "?��?�?미리 ?�결"??같�? 리스??.
-- ?�세: `_context/BUG-POSTMORTEM.md` P745(추출)·P746(고아 DOM 발견).
+- 상세: `_context/BUG-POSTMORTEM.md` P745(추출)·P746(고아 DOM 발견).
 
 **RM-05** (같�? ?�션 ?�어???�행):
 - item 1(AG-DOM-WRITER ?�시??·item 4(ops-status ?�원??방�?)??RM-01/RM-00?�서 ?��? 구현?????�확?�만 ?�고 `route-owners.json`??route cutover ???�용목록 ?��? ?�차�?명시.
@@ -250,7 +250,7 @@ RM-00 + RM-04 ?�료(같�? ?�션 병합 ?�행, §3 권장 방식). ?��
 
 **?��? ??��(?�음 ?�션)**: (1) identity/memo compatibility producer?� ?��? ARX-16 surface�?canonical state/artifact�??�차 ?��??�다. (2) ?�직 legacy renderer/data owner??route?�을 execution-plan ?�서�?계속 cutover?�다. (3) ?�배??�provider rights·live certification·fast-plane 7??soak??별도 ?�영 ?�업?�로 ?�아 ?�다.
 
-## 1. ?�측 발견 ?�장 (F-01~F-09)
+## 1. 실측 발견 원장 (F-01~F-09)
 
 �?발견?� 2026-07-19 v53.16(HEAD `9462404`) ?�측?�다. ?�현 명령???�께 ?�으�?착수 ???�실?�한??
 
@@ -271,11 +271,11 @@ RM-00 + RM-04 ?�료(같�? ?�션 병합 ?�행, §3 권장 방식). ?��
 
 renderer owner가 legacy??13�?route??추�????��? native 모듈(`src/ui/pages/analysis.js` 49�? `entity.js` 66�? `market.js` 72�? `themes.js` 62�? `portfolio.js` 70�? `screener.js` 60�???**legacy가 계속 ?�는 ?�일 DOM ?�드�???��?�다**. ?�??충돌:
 
-| DOM id | legacy writer | native writer | 충돌 ?�용 |
+| DOM id | legacy writer | native writer | 충돌 내용 |
 |---|---|---|---|
 | `home-trading-signal` | `aio-data.js:16500` (`_aioRenderHomeHero`/`refreshSignal`, ?�제 Trading Score 5밴드 ?�국??"?�경 ?�호/?�호??) | `analysis.js` (`home.action` = `WATCH/WAIT/REDUCE` ?�문) | 모델·?�어·척도 모두 ?�름 |
-| `score-gauge-val` | `aio-core.js` `refreshSignalDashboard` (0~100 ?�수) | `analysis.js:18` (toy 모델 -1~1 `toFixed(2)`) | "62" vs "0.33" 경합 |
-| `home-hero-total` | `aio-data.js:16414` | `analysis.js:13` (`availableInputs`) | ?��? ?�름 |
+| `score-gauge-val` | `aio-core.js` `refreshSignalDashboard` (0~100 정수) | `analysis.js:18` (toy 모델 -1~1 `toFixed(2)`) | "62" vs "0.33" 경합 |
+| `home-hero-total` | `aio-data.js:16414` | `analysis.js:13` (`availableInputs`) | 의미 다름 |
 | `ticker-hero-price` ??ticker-* | `aio-core.js:25740` ?��? | `entity.js:24-36` | ?�이??경로 ?�름 |
 | `screener-results-body`·`screener-result-count` | `aio-data.js:1974/1977/2013` (22컬럼 innerHTML) | `screener.js:16-37` (5컬럼 replaceChildren) | **?�이�??�체 경합 ??native가 ?�기�?22컬럼 ?�이블에 5컬럼 ??* |
 | `pf-positions-tbody`·`pf-total-value`·`pf-total-pnl` | `aio-ui.js:1161`(liveEls) ??| `portfolio.js:13-47` (5컬럼 ?? | ?�일 계열 |
@@ -345,7 +345,7 @@ RM-00?� ???��? **?�언???�니???�실측으�??�정**????`architec
 
 burn-down 기�???v53.16): `explicitWindowWrites=1094 / directFetch=42 / directStorage=189 / htmlSinks=416` (`architecture/baseline.json`). ?�거????92,000�?index.html 28,381 + js/ 63,474) vs src/ 96?�일 3,218�?
 
-## 3. 복구 ?�킷
+## 3. 복구 패킷
 
 공통 규칙: ???�션 = ???�킷(RM-00+RM-04�?병합 ?�용). �??�킷?�서 ?�행 계획 §7 ?�션 카드 ?�성 + §8.1 ?�체 게이???�행(?�예 금�?). 커밋·?�시·배포???�용??명시 지???�에�?
 
@@ -418,7 +418,7 @@ DELETE-LEDGER(최소): `analysis.js:13-24`??contested setText ?��?, `entity.
 2. 진척???�일??지?? route-owners.json??5�?native 증�? + baseline.json 4�?카운?�의 ?�조 감소. ?�규 ?�일 ?�·마커·dataset ?�탬?�는 진척???�니??R352).
 3. ?�??slice(screener/portfolio) ?��??� RM-02 ?�료가 ?�행 조건.
 
-## 4. ?�행 ?�서
+## 4. 실행 순서
 
 ```text
 RM-00 + RM-04 (?�장·게이?�·규????1?�션)
@@ -579,7 +579,7 @@ Remaining: briefing/content cutover, 13 route renderer owners, identity/memo ret
 Status: VERIFIED_LOCAL (P769 complete; no commit/deploy performed)
 ```
 
-## 5. 문서 ?�체 ?�수 기�? (2026-07-19 RM-00~05 ?�료 ?�점 ?�정, 2026-07-20 RM-03 item 2 갱신)
+## 5. 문서 전체 인수 기준 (2026-07-19 RM-00~05 완료 시점 판정, 2026-07-20 RM-03 item 2 갱신)
 
 1. **충족**: ops-status·retirement-manifest·route-owners.json·handoff·?�행 계획·INDEX가 ?�일???�측 ?�유�?lifecycle 17, renderer 2, data 0, chart 1, narrative 1)???�술?�다. RM-03 item 2???�메??계층 ?�업?�라 ??5칸을 바꾸지 ?�았??2026-07-20 ?�확??.
 2. **충족**: contested DOM writer 0 (AG-DOM-WRITER PASS, RM-01). ???�는 "native가 legacy�?침범?��? ?�는?????�이�? "legacy가 ??��?�고 native가 ?�독 ?�유"?�는 ?�이 ?�니?? §2 baseline 4카운?�는 RM-00~05 ?�안 무�??��??�나 RM-03 item 2(2026-07-20)?�서 처음 ?�질 감소?�다(1094/42/189/416 ??1088/42/187/410) ??????감소??"native가 legacy ?�유�??�수?�서"가 ?�니??"?�전???�문?�된 legacy 코드�???��?�서"?�며, contested DOM writer 0?�라??결론 ?�체??바뀌�? ?�는??
@@ -600,7 +600,7 @@ Status: VERIFIED_LOCAL (P769 complete; no commit/deploy performed)
 
 ??문서???�정???�후 ?�측�??�르�??�측???�선?�고 ??문서�??�정?�다.
 
-## 7. 금�? 목록
+## 7. 금지 목록
 
 - RM ?�료 ????ARX ?�킷 착수, ??병렬 계획 문서 ?�성(??문서가 ?�일??RM ?�장)
 - ??�� 0�?architecture 배치, ?�언???�태 ?�격, 게이?��? ??��??초록 만들�?- legacy?� ?�른 ?�식??병렬 ?�입(?�메?��? 추출�?
@@ -608,13 +608,13 @@ Status: VERIFIED_LOCAL (P769 complete; no commit/deploy performed)
 
 **2026-07-19 갱신**: RM-00/01/02/03(item 1·5)/04/05가 같�? ?�션?�서 ?�료?�어 "RM ?�료 ??ARX 착수 금�?" 조항???�제(RM 미완�??????�상 ?�립?��? ?�는?? 그러???�것??"?�라???�어??ARX-03/04�??�동 착수?�라"???��? ?�니????RM-06(§0.1)??명시?�듯 ARX ?�진?��? route??600~800�??�규+?�백~?�천 �???�� 규모??별도 ?�세???�업?�며, 착수 ?��?·?�점?� ?�용??지?��? 받는?? ?�머지 3�?금�? ??��(??�� 0�?배치, legacy?� ?�른 ?�식 병렬 ?�입, 무단 커밋·?�시·배포)?� RM ?�료 ?��??� 무�??�게 계속 ?�효?�다.
 
-## 8. ?�션 로그 (?�행 계획 §7 ?�식)
+## 8. 세션 로그 (실행 계획 §7 양식)
 
 ```text
 Packet: RM-00+RM-04
 Historical evidence ? Checkout/HEAD/version/liveRevision: d147a76 (d147a7648a15899e3020b041a11cdc01af55c927) / v53.16 / live revision 미확???�번 ?�션 배포 ?�음)
 Scope route/metric/layer: 17-route ?�유�??�계 ?�체(route-owners.json ?�설) + 4�?게이???�작??+ 배치 규율 문서 ?�정. ?�정 route ?�더???�업 ?�님(RM-01 ?�코???�님).
-Owner before: lifecycle ?�언 17/17(?�드코딩) / renderer ?�언 17/17(?�드코딩, ?�측 2/17) / data ?�언 불명 / chart ?�언 불명 / narrative ?�언 불명
+Owner before: lifecycle 선언 17/17(하드코딩) / renderer 선언 17/17(하드코딩, 실측 2/17) / data 선언 불명 / chart 선언 불명 / narrative 선언 불명
 Owner after:  lifecycle ?�측 17/17 / renderer ?�측 2/17(guide, sentiment) / data ?�측 0/17 / chart ?�측 1/17(sentiment) / narrative ?�측 1/17(sentiment) ??route-owners.json???�후 ?�일???�스
 Files read: RULES.md(R352/R3/R25), BUG-POSTMORTEM.md(반복 ?�래???�·최??P), ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md ?�문, ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md ?��?�? CODE-MAP.md, bootstrap.js/router.js/routes.js/legacy-observer.js/compatibility-facade.js, src/ui/pages/{guide,sentiment,analysis,entity,market,themes,portfolio,screener,news}.js ?�문, src/state/store.js, src/data/contracts/operations.js, 4�??�??게이???�본, retirement-manifest.json/baseline.json/golden-routes.json/release-manifest.json, js/aio-core.js·aio-data.js·aio-ui.js ??contested id 교차 grep ?�수
 Files changed: architecture/route-owners.json(?�규) · architecture/retirement-manifest.json · public-data/operations-status.json · scripts/build-operations-status.mjs · scripts/ci-architecture-contract-check.mjs · scripts/ci-retirement-contract.mjs · scripts/ci-operations-status-check.mjs · scripts/ci-domain-parity-check.mjs?�ci-domain-module-smoke-check.mjs(rename) · .github/workflows/ci.yml · _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md · _context/ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(??문서) · _context/INDEX.md · _context/WORKFLOW-GOVERNANCE.md · _context/BUG-POSTMORTEM.md · CHANGELOG.md
@@ -623,7 +623,7 @@ DELETE-LEDGER before edit:
   - callers: ?�음(리터???�체가 ?�?? 별도 ?�출부 ?�음)
   - global writer: ?�당 ?�음 ?????�킷?� ?�계/게이???�킷?�며 route DOM writer 변�??�음
   - DOM/chart/narrative sink: ?�당 ?�음(RM-01 ?�코?�로 ?�월, route-owners.json??contested id 목록?�로 ?�계)
-  - event/timer/storage: ?�당 ?�음
+  - event/timer/storage: 해당 없음
   - tests/docs: `ci-retirement-contract.mjs`??"17�??�니�??�패" ?�드 조건, `ci-operations-status-check.mjs`??`requiredNativeRoutes` ?�드코딩 배열, ?�행계획/?�드?�프??"all 17 native"·"validation deferred" ?�술 ???��? ?�측 검�??�는 취소???�정?�로 교체(문서????�� ?�닌 취소??추기)
 Burn-down before/after: explicitWindowWrites 1094??094 · directFetch 42??2 · directStorage 189??89 · htmlSinks 416??16 (무�?�??????�킷?� legacy 코드 ??��가 ?�?�이 ?�니�??�상. RM-01/02/03?�서 감소 ?�정). ?�일???�질 변?�는 `operations-status.json`??`nativeRendererOwner` 17?? ??"감소"가 ?�니???�드코딩 ?�거�??�한 ?�직??
 New compatibility introduced and retirement packet: ?�음(?�규 ?�환 계층 ?�입 ?�음). `retirement-manifest.json`??`schemaVersion`??v1?�v2�??�리�?`nativeRoutes` ?�일 ?�드�?`nativeLifecycleRoutes`/`nativeRendererRoutes`�?분리?�다 ???�비?�는 `ci-retirement-contract.mjs` ?�나뿐이�?같�? 배치?�서 갱신?�다.
@@ -667,12 +667,12 @@ Historical evidence ? Checkout/HEAD/version/liveRevision: RM-01??69a1fa5�?커�
 Scope route/metric/layer: store·?�벤???�능 계약 ??src/state/store.js, src/state/memoize.js(?�규), src/app/bootstrap.js, src/ui/pages/sentiment.js, scripts/ci-architecture-contract-check.mjs, architecture/adr-0002-*.md(?�규), sw.js
 Owner before: dispatch???�체 state clone 2??+ 구독?�당 1??1000??screener fixture p95=7.49ms). aio:liveQuotes 6�??�립 리스??조정 ?�음). ?�능 게이??부??
 Owner after: clone 0??reducer ?�프?�드 ?�뢰, devMode?�서�?deep-freeze). aio:liveQuotes 1�?coalesced 리스?? sentiment.js???�기 slice 참조 변�??�에�??�렌?? 1000??fixture p95=0.044~0.111ms. ?�능 게이???�시??5ms ?�산).
-Files read: src/state/store.js, src/state/slices/*.js(reducer ?�프?�드 계약 ?�인), src/app/bootstrap.js ?�체, src/ui/pages/sentiment.js, architecture/adr-0001-rebuild-foundations.md(기존 ADR 관례 ?�인), _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md §4(ADR-0002 ?�약 ?�인)
+Files read: src/state/store.js, src/state/slices/*.js(reducer 스프레드 계약 확인), src/app/bootstrap.js 전체, src/ui/pages/sentiment.js, architecture/adr-0001-rebuild-foundations.md(기존 ADR 관례 확인), _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md §4(ADR-0002 예약 확인)
 Files changed: src/state/store.js · src/state/memoize.js(?�규) · src/app/bootstrap.js · src/ui/pages/sentiment.js · scripts/ci-architecture-contract-check.mjs · architecture/adr-0002-vite-typescript-and-state-access.md(?�규) · sw.js(?�규 ?�일 precache ?�록) · _context/BUG-POSTMORTEM.md · CHANGELOG.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(??문서)
 DELETE-LEDGER before edit:
   - declaration: store.js??`clone()` ?�수?� �?3�??�출부(getState 1·dispatch 2) ?�체 ??��, `deepFreeze()`�?교체(devMode 조건부)
   - callers: bootstrap.js??`stopMarketQuotes`/`stopThemesQuotes`/`stopEntityQuotes`/`stopPortfolioQuotes`/`stopAnalysisQuotes` 5�?변???�언 �??�??`legacy.on('aio:liveQuotes', ...)` ?�출 5�???��(1�?coalesced 리스?�로 ?�합), stop() cleanup?�서 ?�??5�??�출 ?�거
-  - global writer: ?�당 ?�음
+  - global writer: 해당 없음
   - DOM/chart/narrative sink: ?�당 ?�음(??배치??store ?��? ?�능 계약, DOM ?�기 변�??�음)
   - event/timer/storage: aio:liveQuotes 리스???�록 개수�?6??�?감소, ?�른 ?�벤??refresh:done/pageShown/marketSnapshot ?????�코???�로 ?��?(명시??범위�?처리)
   - tests/docs: ?�음(기존 ?�스?��? ???�계로도 그�?�??�과?�을 §8.1�??�인)
@@ -700,9 +700,9 @@ Files renamed: scripts/ci-domain-module-smoke-check.mjs ??scripts/ci-domain-pari
 DELETE-LEDGER before edit:
   - declaration: js/aio-core.js??computeTradingScore ?��? 5�??�브?�코??계산 블록(volScore/momScore/trendCalcScore/breadthCalcScore/macroScore 계단?�수) ???�메??모듈�??��?, ?�퍼?�는 ?�력 ?�집�??��?. scripts/backtest-trading-score.mjs??calcVolScore/calcMomScore/calcTrendScore/calcBreadthScore/calcMacroScore 5�??�수 ?�체 ??��.
   - callers: ?�음(?�수 ?�출부??그�?�? ?��? 구현�??�임)
-  - global writer: ?�당 ?�음
+  - global writer: 해당 없음
   - DOM/chart/narrative sink: ?�당 ?�음(?�메??계층 ?�업, DOM 무�?)
-  - event/timer/storage: ?�당 ?�음
+  - event/timer/storage: 해당 없음
   - tests/docs: ci-runtime-contract-check.mjs·ci-semantic-review-check.mjs??"`{ total, score: total`가 core???�어???�다" ?�드 검�?2건을 ?�메??모듈 검?�로 ?�정. ci-domain-module-smoke-check.mjs ??ci-domain-parity-check.mjs 개명 + ci.yml 갱신.
 Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4�?legacy 카운??무�???1094/42/189/416) ????배치???�고리즘 ?��??�며 legacy DOM/global ??�� ?�???�님. ?�질 변?? Trading Score 구현�?3벌→2�??�이�?백테?�트 ?�렴, toy ?�메???�존).
 New compatibility introduced and retirement packet: `window.AIO_ARCH.computeTradingScoreModel` ?�규 브릿지(?�일 구현 ?�비 경로) ??retirement ?�???�님(?�구 계약). `architecture/fixtures/trading-score-golden.json`?� ?�후 F&G/RRG/Weinstein 추출 ???�일 ?�턴(?�드리스 ?�프?�순???�수 추출?�parity ?��???참조 ?��?�??��?.
@@ -721,7 +721,7 @@ Historical evidence ? Checkout/HEAD/version/liveRevision: RM-03??9293bd4�?커�
 Scope route/metric/layer: 게이???�효??보강 ??scripts/ci-architecture-browser-check.mjs, scripts/ci-esm-core-unit-check.mjs(?�규), src/ui/pages/{entity,market,themes}.js, architecture/route-owners.json, .github/workflows/ci.yml, ?�행계획 §8.1
 Owner before: AG-DOM-WRITER???��? ?�시(RM-01), ops-status ?�원??방�????��? ?�시(RM-00) ??문서?�만 부?? 브라?��? 게이?�는 5�?route�??�복(sentiment/guide/market-news/briefing/home), ?�머지 12�?route???�행 경로 검�??�력 ?�음. ESM 코어 5�?모듈?� ?�합 ?�모??ci-architecture-contract-check)로만 간접 검�? 격리 unit ?�스???�음.
 Owner after: 브라?��? 게이?��? 17�?route ?��?�?2???�복?�며 canvas/?�?�머 ?�수�?검�? ESM 코어 5�?모듈 격리 unit 계약 39�?assertion ?�설. route-owners.json??AG-DOM-WRITER ?�용목록 ?��? ?�차 명시.
-Files read: src/app/lifecycle.js, src/app/router.js, src/data/evidence-store.js, src/data/contracts/evidence.js, src/legacy/compatibility-facade.js(?�독), src/ui/pages/{entity,market,themes}.js(?�독, 결함 발견)
+Files read: src/app/lifecycle.js, src/app/router.js, src/data/evidence-store.js, src/data/contracts/evidence.js, src/legacy/compatibility-facade.js(재독), src/ui/pages/{entity,market,themes}.js(재독, 결함 발견)
 Files changed: scripts/ci-architecture-browser-check.mjs · src/ui/pages/entity.js · src/ui/pages/market.js · src/ui/pages/themes.js · architecture/route-owners.json · .github/workflows/ci.yml · _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md(§8.1) · _context/BUG-POSTMORTEM.md · CHANGELOG.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(??문서)
 Files added: scripts/ci-esm-core-unit-check.mjs
 DELETE-LEDGER before edit: ?�당 ?�음(??배치???�규 게이???�스??추�? + 3�??�일???�락??dataset ?�성 1줄씩 추�? ????�� ?�???�음, ?�상. RM-01/03�??�리 ??배치??목적 ?�체가 "검�?강화"?�며 legacy burn-down??목표가 ?�님)

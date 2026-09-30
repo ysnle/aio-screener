@@ -13,6 +13,10 @@ Writers add more code than required; asking them to be concise up front does not
 4. Present the list. Apply only items the user approves (or low-risk verified CUTs when the user asked for
    autonomous cleanup), then run the affected gates and record one ledger entry for the batch.
 
+## Tooling
+- `node scripts/dead-code.mjs report [js/<file>.js]` lists top-level names with no runtime reference (RULES-named ones are flagged keep; test/gate-only refs are listed). `node scripts/dead-code.mjs remove <file> <names>` deletes them CRLF-safely. Re-grep string-built references before removing.
+- Parallel trims: one worktree per file group (`git worktree add <dir> -b claude/vX.Y-<area> <base>`), disjoint ownership, integrate and gate once.
+
 ## Rules for the reviewer
 - Read-only; no git writes; never run fetch-/build-/sync-/refresh-/generate-/bump-version/record-fix or `--write`.
 - A CUT needs verified evidence (no runtime, test or gate caller). Otherwise mark it `guessed`.

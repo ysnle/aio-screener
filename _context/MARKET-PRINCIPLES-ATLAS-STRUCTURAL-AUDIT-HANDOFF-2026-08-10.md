@@ -1,4 +1,5 @@
 ---
+superseded_by: _artifacts/full-audit-20260927/HANDOFF.md (2026-09-27 full audit; open items re-triaged there)
 verified_by: Codex
 last_verified: 2026-08-22
 confidence: high for repository, artifact topology, renderer behavior, content-volume measurement, and reproduced live UI findings; medium for academic/source directness because every external source original was not independently re-read

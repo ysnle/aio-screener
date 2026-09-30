@@ -1,4 +1,5 @@
 ---
+superseded_by: _artifacts/full-audit-20260927/HANDOFF.md (2026-09-27 full audit; open items re-triaged there)
 verified_by: Codex; CommandCode re-verified structural claims and open-packet status at v56.35 (2026-09-25)
 last_verified: 2026-09-25
 confidence: high for repository structure and static code findings; live/operator state not re-certified
