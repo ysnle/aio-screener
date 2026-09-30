@@ -1121,6 +1121,16 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     if (!ma || ma[50] !== 200 || ma[200] !== 125 || ma.asOf !== rows[199].date) fail(`moving average: expected 200/125 on sorted valid closes, got ${JSON.stringify(ma)} (P1339)`);
     if (spxMovingAveragesFromHistory(rows.slice(1)) !== null || spxMovingAveragesFromHistory(null) !== null) fail('moving average: fewer than 200 closes must not produce a 200-day MA (P1339)');
   }
+  // ── P1339: company names resolve exactly; ticker-shaped input is never rewritten through an alias ──
+  {
+    const { resolveRegisteredName } = await load('src/domain/ticker/resolve-name.js');
+    const entries = { GOOGL: { en: 'Alphabet', kr: '알파벳', alt: ['google', 'goog'] }, NVDA: { en: 'NVIDIA', kr: '엔비디아', alt: ['nvidia'] }, WDAY: { en: 'Workday', alt: ['hr'] }, '000660.KS': { en: 'SK hynix', kr: 'SK하이닉스', alt: ['sk hynix'] } };
+    const cases = [['GOOG', null], ['HR', null], ['googl', 'GOOGL'], ['google', 'GOOGL'], ['Alphabet', 'GOOGL'], ['엔비디아', 'NVDA'], ['nvidia', 'NVDA'], ['sk hynix', '000660.KS'], ['', null], ['삼성전자', null]];
+    for (const [input, expected] of cases) {
+      const got = resolveRegisteredName(input, entries);
+      if (got !== expected) fail(`ticker name resolution: ${JSON.stringify(input)} expected ${expected}, got ${got} (P1339, no ticker guessing)`);
+    }
+  }
   // ── P1327/R672: Korean theme names and membership have one owner ──
   {
     const { KR_THEME_LABELS, krThemesForSymbol, krCodeOf } = await load('src/domain/themes/kr-themes.js');

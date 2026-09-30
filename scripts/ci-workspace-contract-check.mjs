@@ -69,7 +69,7 @@ const safeHook = runHook('guard-command', { cwd: root, hook_event_name: 'PreTool
 check('safe command hook fixture passes silently', safeHook.status === 0 && safeHook.stdout === '', safeHook.stderr);
 const dangerousHook = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git reset --hard HEAD' } });
 // P1340: whole-tree discards are denied like reset --hard; a single-path checkout stays allowed.
-for (const command of ['git checkout -- .', 'git restore .', 'git clean -fd']) {
+for (const command of ['git checkout -- .', 'git restore .', 'git restore --worktree .', 'git restore -s HEAD .', 'git checkout -f', 'git clean -fd', 'git clean --force -d']) {
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard denies "${command}" (P1340)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
 }

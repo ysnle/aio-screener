@@ -27,6 +27,8 @@ import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SA
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { computeMarketHealth } from '../domain/market/health.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
+import { latestCompletedUsSession } from '../ai/time/market-session.js';
+import { resolveRegisteredName } from '../domain/ticker/resolve-name.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
 // Portfolio statistics/backtest is a native ESM module; importing it during
@@ -149,7 +151,7 @@ if (typeof window !== 'undefined') {
   window._aioNormalizeTickerInput = (raw) => {
     const normalized = normalizeTickerInput(raw, { krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
     if (normalized !== String(raw || '').trim().toUpperCase()) return normalized;
-    return window.AIO?.resolveTickerFromAnyName?.(String(raw || '').trim()) || normalized;
+    return resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries) || normalized;
   };
   window._aioTickerDisplayName = (symbol) => tickerDisplayName(symbol, { krStockDb: window.KR_STOCK_DB });
   // P1326/R671: one currentness vocabulary (실시간/지연/종가/지난 시세) from observation times + US calendar.
@@ -373,14 +375,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
   // committed daily history so the trend input follows the close basis instead of holding the score.
   const applyHistoryMa = () => {
-    if (root._spxMA?.[50] && root._spxMA?.[200]) return;
+    if (root._spxMA?.[50] && root._spxMA?.[200] && !String(root._spxMASource || '').startsWith('public-data/history.json')) return;
     const ma = spxMovingAveragesFromHistory(root._aioHistory);
-    if (!ma) return;
+    const basis = latestCompletedUsSession(clock.now());
+    if (!ma || !basis || ma.asOf < basis.previousDate) return;
     root._spxMA = { 50: ma[50], 200: ma[200] };
     root._spxMATs = Date.parse(`${ma.asOf}T00:00:00Z`);
     root._spxMASource = `public-data/history.json daily closes (${ma.asOf})`;
   };
-  root.addEventListener?.('aio:historyLoaded', applyHistoryMa);
   applyHistoryMa();
   // E2/LC-26: the single writer/reader for the signal score mode. The legacy toggle calls
   // `setSignalScoreMode`; both the native runtime reader and the legacy facade read it back
@@ -782,7 +784,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopAnalysisModeChange = compatibilityEvents.on('aio:signalScoreModeChanged', syncAnalysis.sync);
     // P1339: score inputs that land after boot (history.json MA fallback, F&G / put-call / HY spread) re-derive
     // the analysis slice; otherwise the hero stays 'held' on the boot-time snapshot until the next refresh.
-    const stopAnalysisHistory = compatibilityEvents.on('aio:historyLoaded', syncAnalysis.sync);
+    const stopAnalysisHistory = compatibilityEvents.on('aio:historyLoaded', () => { applyHistoryMa(); syncAnalysis.sync(); });
     const stopAnalysisSentiment = legacy.on('aio:sentimentUpdated', syncAnalysis.sync);
     const stopShown = legacy.on('aio:navigationCommitted', (event) => {
       // W00/P1143: the store route follows the router's single committed result, so

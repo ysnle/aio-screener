@@ -52,8 +52,9 @@ if (mode === 'guard-command') {
   const blocked = [
     [/\bgit\s+reset\s+--hard\b/i, 'git reset --hard can destroy uncommitted work.'],
     // P1340: the shared working tree belongs to the user; whole-tree discards are as destructive as reset --hard.
-    [/\bgit\s+(?:checkout|restore)\s+(?:--\s+)?\.(?:\s|$)/i, 'Discarding the whole working tree can destroy uncommitted work.'],
-    [/\bgit\s+clean\b[^\n]*\s-[a-z]*f/i, 'git clean -f deletes untracked files permanently.'],
+    [/\bgit\s+(?:checkout|restore)\b(?:\s+-{1,2}[a-z-]+(?:\s+\S+)?)*\s+(?:--\s+)?\.(?:\s|$)/i, 'Discarding the whole working tree can destroy uncommitted work.'],
+    [/\bgit\s+checkout\s+(?:-f|--force)\b/i, 'Forced checkout discards local changes.'],
+    [/\bgit\s+clean\b[^\n]*\s(?:-[a-z]*f[a-z]*|--force)\b/i, 'git clean -f deletes untracked files permanently.'],
     [/\bgit\s+push\b[^\n]*\s--force(?:\s|$)/i, 'Force push is forbidden; use an explicitly reviewed safer workflow.'],
     [/(?:^|[;&|]\s*)rm\s+-[^\n]*r[^\n]*f\s+(?:~|\/|\$HOME|%USERPROFILE%)(?:\s|$)/i, 'Recursive deletion of a home/root target is forbidden.'],
     [/\b(?:Remove-Item|del|rmdir)\b[^\n]*(?:C:\\|%USERPROFILE%|\$HOME)[^\n]*(?:-Recurse|\/s)/i, 'Broad recursive deletion is forbidden.']

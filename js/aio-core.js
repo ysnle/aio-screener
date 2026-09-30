@@ -18041,7 +18041,7 @@ window._aioStockStaleInfo = function(sym) {
 // 자동 렌더: 가이드 페이지 진입 시 + 30초 주기
 // v48.99: _aioPageBus 마이그 (P178)
 _aioPageBus.register('core-guide-shown', 'aio:pageShown', function(e) {
-  if (e && (e.detail === 'guide' || (e.detail && e.detail.id === 'guide'))) { // P1339: detail is the route id string
+  if (e && e.detail === 'guide') { // P1339: detail is the route id string
     setTimeout(function() { if (window._aioRenderFreshness) window._aioRenderFreshness(); }, 100);
   }
 });
@@ -22455,7 +22455,7 @@ var _initBriefingPage = function() {
   // v50.76: 시장 현황 스트립 업데이트 (briefing-market-strip)
   try {
     var bsv = document.getElementById('briefing-score-val');
-    var tsRes = typeof computeTradingScore === 'function' ? computeTradingScore() : null; // P1339: _tradingScore had no writer
+    var tsRes = typeof computeTradingScore === 'function' ? computeTradingScore() : null; // P1339: the one score path (close basis), not the refreshHomeDashboard snapshot
     var ts = tsRes && tsRes.total != null ? tsRes.total : null;
     if (bsv && ts != null) {
       var bsCol = ts >= 75 ? 'var(--data-green)' : ts >= 60 ? 'var(--data-green)' : ts >= 45 ? 'var(--data-amber)' : ts >= 30 ? '#fb923c' : 'var(--data-red)';
@@ -22848,13 +22848,12 @@ var _safePageInitGlobal = function(pageId, fn) {
 }
 // P1339: b7bce36b nulled PAGES[route].init and orphaned these initializers (macro calendar/FRED/KR badges,
 // briefing strip, fundamental recent searches, guide chapters). One page-shown hook restores them without PAGES.init.
-var _aioGuidePolished = false;
 _aioPageBus.register('core-page-init-rewire', 'aio:pageShown', function(e) {
-  var id = e && (typeof e.detail === 'string' ? e.detail : e.detail && e.detail.id);
+  var id = e && e.detail;
   if (id === 'macro') _safePageInitGlobal('macro', _initMacroPage);
   else if (id === 'briefing') _safePageInitGlobal('briefing', _initBriefingPage);
   else if (id === 'fundamental') _safePageInitGlobal('fundamental', _initFundamentalPage);
-  else if (id === 'guide' && !_aioGuidePolished) { _aioGuidePolished = true; _safePageInitGlobal('guide', function() { _aioPolishRemainingPages('guide'); }); }
+  else if (id === 'guide') _safePageInitGlobal('guide', function() { _aioPolishRemainingPages('guide'); }); // idempotent via data-aio-remaining-polished
 });
 
 // v48.14: aio:pageShown dedup guard (Agent C2/P1-1 대응)

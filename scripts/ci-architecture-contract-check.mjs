@@ -446,8 +446,7 @@ for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRendere
 const htmlSource = read('index.html');
 // P1135/R620: the inline market-health model and its native fence moved with block B to js/aio-macro-tech.js.
 if (!macroTechSource.includes('function _aioIsNativeTechnicalHealth') || !macroTechSource.includes('window.AIO_ARCH.computeMarketHealth') || !macroTechSource.includes('_aioIsNativeTechnicalHealth()')) fail('legacy technical health model/fence missing');
-// P1339: the orphaned legacy technical initializer was deleted; if one ever returns it must keep the native-health fence.
-if (/var _initTechnicalPage = function/.test(coreSource) && (!coreSource.includes('nativeTechnicalHealth') || !coreSource.includes('window._aioIsNativeTechnicalHealth'))) fail('legacy technical initializer fence missing');
+// P1339: the orphaned legacy technical initializer (and its native-health fence) was deleted.
 // P786: signal owns the score/decision hero. The legacy dashboard remains active for
 // secondary score bars, execution-window widgets, risk monitor, and narrative, but its three
 // primary text sinks must be fenced when the native signal marker is present. P1118 adds the
