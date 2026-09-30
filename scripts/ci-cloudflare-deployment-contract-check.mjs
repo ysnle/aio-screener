@@ -63,6 +63,16 @@ for (const [name, workflow, workerKey] of [['proxy', proxyWorkflow, 'aiProxy'], 
     && /EXPECTED_SHA: \$\{\{ steps\.rollback-baseline\.outputs\.source_sha \}\}/.test(workflow));
 }
 
+{
+  // P1341: an identity-less legacy Worker is recorded as a sentinel and rollback verification accepts the
+  // sentinel only when the restored Worker again has no sourceSha — it never waives a real SHA comparison.
+  const dataPlaneWorkflow = read('.github/workflows/deploy-data-plane.yml');
+  check('P1341 data-plane baseline records an identity-less Worker as legacy-unidentified and rejects malformed SHAs',
+    /h\.sourceSha==null\?'legacy-unidentified':'invalid'/.test(dataPlaneWorkflow) && /rollback baseline sourceSha is malformed/.test(dataPlaneWorkflow));
+  check('P1341 rollback verification accepts the legacy sentinel only for a Worker without sourceSha',
+    /e==='legacy-unidentified'\?h\.sourceSha!=null:h\.sourceSha!==e/.test(dataPlaneWorkflow));
+}
+
 check('P1307/R652/QA-DATA-49 CI attests per-Worker runtime/config changes on the exact pushed SHA',
   /fetch-depth:\s*0/.test(ciWorkflow)
   && /PUSH_BEFORE_SHA/.test(ciWorkflow)

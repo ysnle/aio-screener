@@ -4,6 +4,7 @@
 - **Facade trim (P1338):** the third copy of the score inputs is gone; saved news-sentiment history is no longer wiped on render.
 - **Harness:** the data-refresh skill dispatches the refresh workflows instead of running producers locally.
 - **Watchdog and guard (P1340):** skipped deploy runs no longer fail the watchdog; whole-tree discards are denied; hooks run from the project root regardless of session cwd.
+- **Data-plane deadlock (P1341):** an identity-less legacy Worker no longer blocks every deploy path.
 - **Verification:** static, esm, headless and browser gates. No producer run locally.
 - R1 7곳 v56.84
 

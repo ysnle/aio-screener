@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1341 - v56.84 - data-plane deploy deadlocked: the rollback baseline required a sourceSha the July Worker never exposed (2026-09-30)
+
+- symptom/reproduction: After P1335 the data plane still served the July build. The automatic convergence step refused (live sourceSha unavailable) and a manual dispatch failed at 'Capture active rollback target and source identity', which exits when the live Worker has no sourceSha — so no path could ever replace an identity-less Worker.
+- root_cause: Source identity was added to Worker health after the July build; the baseline capture assumed every live Worker already had it.
+- fix: deploy-data-plane.yml records an identity-less live Worker as 'legacy-unidentified' (a malformed sourceSha still fails), and rollback verification accepts the sentinel only when the restored Worker again has no sourceSha. The automatic path stays strict; a manual dispatch with the attested CI run id replaces the legacy build once.
+- violated_rule: R652 — rollback baselines capture the live identity; the capture must represent 'no identity' explicitly instead of blocking forever.
+- prevention: QA-DATA-61 — cloudflare deployment contract asserts the sentinel and its narrow verification.
+- verification/residual: ci-cloudflare-deployment-contract-check; manual dispatch after merge; /health then reports the merged sourceSha.
+
 ## P1340 - v56.84 - watchdog failed every run on skipped deploy runs; guard missed whole-tree discards; hooks were cwd-relative (2026-09-30)
 
 - symptom/reproduction: Data freshness watchdog failed on every run since 9/27 and alert issue #4 grew past 110 comments. One cause: deploy-ai-proxy/deploy-data-plane skip data-refresh commits by design, and the external-pipeline check read the latest completed run (conclusion 'skipped') as a failed deployment. Separately, the destructive-command guard blocked git reset --hard but not git checkout -- . / git restore . / git clean -f on a working tree shared with the user and Codex, and Claude hooks ran 'node scripts/agent-hook.mjs' relative to the session cwd, so a session started outside the repo root silently ran without guards.

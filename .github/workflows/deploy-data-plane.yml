@@ -165,7 +165,11 @@ jobs:
           previous_version="$(node scripts/resolve-worker-rollback-version.mjs "$RUNNER_TEMP/aio-fast-deployments.json")"
           health_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-fast-before-health.json" --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
           if [ "$health_status" != '200' ] && [ "$health_status" != '503' ]; then echo "::error::rollback baseline health endpoint returned HTTP $health_status"; exit 1; fi
-          previous_sha="$(node -e "const h=require(process.argv[1]);if(!/^([0-9a-f]{40})$/.test(h.sourceSha||''))process.exit(1);process.stdout.write(h.sourceSha)" "$RUNNER_TEMP/aio-fast-before-health.json")"
+          # P1341: a Worker built before source identity existed has no sourceSha. Record it as
+          # legacy-unidentified so a manual dispatch can replace it; rollback then verifies the
+          # restored Worker is that same identity-less build, never an arbitrary SHA.
+          previous_sha="$(node -e "const h=require(process.argv[1]);process.stdout.write(/^[0-9a-f]{40}$/.test(h.sourceSha||'')?h.sourceSha:(h.sourceSha==null?'legacy-unidentified':'invalid'))" "$RUNNER_TEMP/aio-fast-before-health.json")"
+          if [ "$previous_sha" = 'invalid' ]; then echo "::error::rollback baseline sourceSha is malformed"; exit 1; fi
           echo "version_id=$previous_version" >> "$GITHUB_OUTPUT"
           echo "source_sha=$previous_sha" >> "$GITHUB_OUTPUT"
           echo "http_status=$health_status" >> "$GITHUB_OUTPUT"
@@ -241,7 +245,7 @@ jobs:
           restored=0
           for attempt in $(seq 1 10); do
             status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-fast-rollback-health.json" --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
-            if [ "$status" = "$EXPECTED_STATUS" ] && node -e "const h=require(process.argv[1]);if(h.sourceSha!==process.env.EXPECTED_SHA)process.exit(1)" "$RUNNER_TEMP/aio-fast-rollback-health.json"; then restored=1; break; fi
+            if [ "$status" = "$EXPECTED_STATUS" ] && node -e "const h=require(process.argv[1]);const e=process.env.EXPECTED_SHA;if(e==='legacy-unidentified'?h.sourceSha!=null:h.sourceSha!==e)process.exit(1)" "$RUNNER_TEMP/aio-fast-rollback-health.json"; then restored=1; break; fi
             sleep 3
           done
           if [ "$restored" != '1' ]; then echo "::error::fast-plane rollback source/status did not return to the captured baseline"; cat "$RUNNER_TEMP/aio-fast-rollback-health.json" || true; exit 1; fi

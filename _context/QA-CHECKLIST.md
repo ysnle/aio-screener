@@ -10,6 +10,7 @@ confidence: medium
 - [x] QA-DATA-60: SPX 50/200 MAs derive from >=200 sorted completed closes in history.json only when the live chart produced none; fewer than 200 closes yields no MA. verify_by: P1339 `ci-esm-core-unit-check.mjs`
 - [x] QA-DATA-59: The compatibility facade owns no trading-score input reader; core reads window._aioReadTradingScoreInputs and the news history normalizer is exposed. verify_by: P1338 `ci-esm-core-unit-check.mjs`
 - [x] QA-OPS-AG-02: The guard denies git checkout -- ., git restore . and git clean -f, allows a single-path checkout, and Claude hooks resolve agent-hook.mjs from $CLAUDE_PROJECT_DIR. verify_by: P1340 `ci-workspace-contract-check.mjs`
+- [x] QA-DATA-61: The data-plane baseline records an identity-less Worker as legacy-unidentified, rejects malformed SHAs, and rollback accepts the sentinel only for a Worker without sourceSha. verify_by: P1341 `ci-cloudflare-deployment-contract-check.mjs`
 
 ## v56.83 deploy blockers, Worker rollback, FRED retry, delegation routines (2026-09-29)
 
