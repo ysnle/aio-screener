@@ -28,6 +28,8 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 | Supplied research or market framework | `integrate` |
 | Docs, skills, agents, hooks or knowledge drift | `knowledge-lint` |
 | Skill experiments and eval design | `autoresearch` |
+| Delegation, assumption check, post-PR trim | `.agents/skills/_shared/agent-prompt-anatomy.md`; the routines in `.claude/commands/{restate,assumptions,trim-pr}.md` apply as written |
+| Recording a fix (P/R/QA/CHANGELOG/status) | `node scripts/record-fix.mjs <entry.json>` after `bump-version`, then `generate-workspace-state --write` |
 
 ## Non-negotiable boundaries
 
