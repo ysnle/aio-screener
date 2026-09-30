@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-09-30T01:05:01.492Z",
-  "appRevision": "v56.84",
-  "gitHead": "ac5ac36c424a6c12ac3cd98ca7d87f1b16edf383",
+  "observedAt": "2026-09-30T01:51:31.147Z",
+  "appRevision": "v56.85",
+  "gitHead": "f6c2bebc63c744fcfca655cffe926f38b927699f",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -15,25 +15,25 @@
   "gateStatus": "PASS",
   "targetStatus": "TARGET_MISS",
   "targetFailures": [
-    "max long task 214 > 200"
+    "max long task 207 > 200"
   ],
   "metrics": {
-    "fcpMs": 1084,
-    "dclMs": 374,
-    "loadMs": 391,
-    "maxLongTaskMs": 214,
-    "totalLongTaskMs": 552,
+    "fcpMs": 1108,
+    "dclMs": 337,
+    "loadMs": 356,
+    "maxLongTaskMs": 207,
+    "totalLongTaskMs": 580,
     "longTaskCount": 5,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 6443,
+    "domNodes": 6435,
     "activeRouteDomNodes": 673,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "routeMs": 72,
-    "wallMs": 7659,
-    "totalExternalRequests": 150,
+    "routeMs": 75,
+    "wallMs": 7672,
+    "totalExternalRequests": 153,
     "quoteRequests": 41,
-    "initialExternalRequests": 9,
+    "initialExternalRequests": 12,
     "initialQuoteRequests": 0,
     "bootObservationWindowMs": 2000,
     "delayedPrimaryChart": {

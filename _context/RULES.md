@@ -2,10 +2,16 @@
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
 last_verified: 2026-09-30
 confidence: medium
-target_version: v56.84
+target_version: v56.85
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R676. Owner decisions and the change flow are shared repository state (v56.85, P1343)
+
+**Rule**: Fixed product decisions (scope, score basis, platform, retired routes, no ticker guessing, where producers run, how changes ship) are written in AGENTS.md, which every agent reads; personal agent memory may only point to them. A decision changes only when the owner says so, and the same change updates AGENTS.md.
+
+**Validation**: AGENTS.md 'Product decisions (fixed)' section; ci-workspace-contract-check and knowledge-lint (QA-OPS-AG-04).
 
 ## R675. Initializers are reachable from a route or event, not only from tests (v56.84, P1339)
 

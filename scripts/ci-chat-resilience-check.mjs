@@ -100,7 +100,8 @@ assert(unifiedChat.includes('signal: _uniSignal') && chatShell.includes("_aioCan
 assert(unifiedChat.includes('_uniRun.quotaPending = true') && source.includes("closeConfirmModal('chat-cancelled')"));
 assert(shellWorkspace.includes('function showConfirmModal(title, msg, onConfirm, icon, onCancel)'));
 assert(shellWorkspace.includes('_confirmCancelCallback') && shellWorkspace.includes("closeConfirmModal('escape')"));
-assert(ui.includes('function getLLMAvailability()') && ui.includes('window._aioGetLLMRouteReadiness'));
+// P1342: R592 is enforced by behaviour (the quota badge never flips the switch for a missing route), not by an unused snapshot helper.
+assert(ui.includes('function getLLMRouteReadiness(') && ui.includes('window._aioGetLLMRouteReadiness'));
 const quotaUi=ui.slice(ui.indexOf('function updateQuotaBadge()'),ui.indexOf('function toggleLLM()'));
 assert(quotaUi.includes('if (isOn && !route.ready)') && !quotaUi.includes("track.classList.remove('on')"));
 const consumeUi=ui.slice(ui.indexOf('function consumeLLMQuery()'),ui.indexOf('// Init on load'));

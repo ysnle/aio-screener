@@ -1,3 +1,8 @@
+## v56.85 (2026-09-30)
+- **Dead code (P1342):** about 660 unreachable lines removed across aio-data/ui/pages/workspace/chat/core by parallel worktree agents; one ticker resolver; reachability tooling (`scripts/dead-code.mjs`) moved into the repo.
+- **Harness (P1343, R676):** product decisions and the change flow in AGENTS.md for every agent; record-fix flow in CLAUDE.md; superseded handoffs demoted; generated-manifest conflict resolver; Dependabot monthly.
+- R1 7곳 v56.85
+
 ## v56.84 (2026-09-30)
 - **Orphaned initializers (P1339, R675):** macro calendar, briefing strip, fundamental recent searches and guide chapters run again; company-name ticker search and chat aliases work; the score's trend input falls back to history.json closes.
 - **Removal:** ~500 unreachable lines in aio-core/audits and the tests that only kept them alive; facade -123 lines.

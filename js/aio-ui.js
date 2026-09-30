@@ -510,16 +510,8 @@ function getLLMRouteReadiness() {
   return { ready: false, reason: 'WORKER_NOT_CHECKED', label: 'Worker 확인 필요' };
 }
 
-// P1070/R592: switch state, route readiness, and quota are independent
-// dimensions. A missing route must never be represented by mutating the
-// user's ON/OFF switch, and callers can use this snapshot for fail-closed
-// dispatch decisions.
-function getLLMAvailability() {
-  var enabled = getLLMState();
-  var route = getLLMRouteReadiness();
-  return { enabled: enabled, routeReady: !!route.ready, usable: !!enabled && !!route.ready, route: route };
-}
-window._aioGetLLMAvailability = getLLMAvailability;
+// P1070/R592: switch state, route readiness, and quota are independent dimensions. A missing route must
+// never be represented by mutating the user's ON/OFF switch (P1342: the unused combined snapshot was deleted).
 window._aioGetLLMRouteReadiness = getLLMRouteReadiness;
 
 function getQuota() {

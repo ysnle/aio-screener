@@ -11678,88 +11678,11 @@ function _getBriefingWindowKST() {
 // 브리핑 캐시 키: 앵커 날짜 기반
 var _briefingCacheKey = null;
 
-function _buildBriefingDecisionSummary(items, totalCount, bw) {
-  var ld = window._liveData || {};
-  function live(sym, key) {
-    var row = ld[sym] || {};
-    if (row[key] == null) return null;
-    var n = Number(row[key]);
-    return isFinite(n) ? n : null;
-  }
-  function escLocal(v) {
-    return typeof escHtml === 'function' ? escHtml(String(v == null ? '' : v)) : String(v == null ? '' : v).replace(/[&<>"']/g, function(c) {
-      return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c];
-    });
-  }
-  function pct(v) { return v == null ? '—' : (v >= 0 ? '+' : '') + Number(v).toFixed(1) + '%'; }
-  var spyPct = live('SPY', 'pct');
-  var vix = live('^VIX', 'price');
-  var wti = live('CL=F', 'price');
-  var wtiPct = live('CL=F', 'pct');
-  var tnx = live('^TNX', 'price');
-  var dxyPct = live('DX-Y.NYB', 'pct');
-  var usdJpy = live('JPY=X', 'price');
-  var nvdaPct = live('NVDA', 'pct');
-  var snap = window.DATA_SNAPSHOT || {};
-  // v52.34 P649: 브리핑 페이지 세 번째 F&G 소스 — 이전엔 존재하지 않는/미할당 필드를 읽어 항상 null이었다.
-  // P642가 고친 상단 스트립/요약 텍스트와 동일하게 live-first로 정합.
-  var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-  var fg = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : null;
-  var textBlob = (items || []).slice(0, 40).map(function(i) {
-    return [i.title, i.desc, i.topic, i.source].join(' ');
-  }).join(' ').toLowerCase();
-  // v51.12 6-축 신호 감지
-  var fedHits = (textBlob.match(/fomc|fed|warsh|dot plot|rate|yield|금리|점도표/g) || []).length;
-  var iranHits = (textBlob.match(/iran|hormuz|oil|brent|wti|middle east|이란|호르무즈|유가|중동/g) || []).length;
-  var macroHits = (textBlob.match(/macro|inflation|cpi|pce|dollar|fx|인플레|달러/g) || []).length;
-  var bojHits = (textBlob.match(/boj|bank of japan|yen carry|엔화|일본은행|엔캐리|ueda|우에다/g) || []).length;
-  var semiHits = (textBlob.match(/nvidia|nvda|hynix|하이닉스|tsmc|amd|semiconductor|반도체|hbm|엔비디아|ai infra|capex/g) || []).length;
-  var krHits = (textBlob.match(/kospi|korea|외국인|기관|수급|원달러|달러원|한국|삼성전자|sk하이닉스/g) || []).length;
-  // 6-축 톤 판단
-  var marketTone = spyPct == null || vix == null ? '시장 축 산출 보류' : (spyPct > 0.6 && vix < 20 ? '위험선호 우위' : (spyPct < -0.6 || vix >= 22 ? '위험회피 경계' : '관망 혼합'));
-  var fedTone = tnx == null ? '금리 축 산출 보류' : (tnx >= 4.4 || fedHits >= 2 ? '금리/점도표 경계' : '금리 부담 중립');
-  var oilTone = wti == null || wtiPct == null ? '유가 축 산출 보류' : (wti < 75 && wtiPct <= 0.5 ? '유가 리스크 완화' : (wti >= 85 ? '유가 헤드라인 경계' : '유가 중립'));
-  var bojTone = usdJpy == null ? '엔화 축 산출 보류' : (bojHits >= 2 ? '엔캐리 리스크 경계' : (usdJpy < 145 ? '엔화 강세 모니터' : '엔캐리 안정'));
-  var semiTone = nvdaPct == null ? '반도체 축 산출 보류' : (semiHits >= 3 ? 'AI·반도체 촉매 활성' : (nvdaPct > 1.0 ? 'AI·반도체 강세' : 'AI·반도체 중립'));
-  var krTone = krHits >= 2 ? '한국장 수급 주목' : '한국장 중립';
-  // 6축 기반 오늘 행동
-  var actions = [];
-  if (fedTone.indexOf('경계') >= 0) actions.push('금리 민감주·레버리지 노출 확인 후 분할 진입');
-  if (oilTone.indexOf('경계') >= 0) actions.push('에너지·중동 가격 반응 확인 필요');
-  if (bojTone.indexOf('경계') >= 0) actions.push('엔화·정책·변동성의 동시 변화를 추가 확인');
-  if (semiTone.indexOf('활성') >= 0 || semiTone.indexOf('강세') >= 0) actions.push('AI·반도체 모멘텀 유효 — 추세 추종');
-  if (oilTone.indexOf('완화') >= 0 && !actions.length) actions.push('유가 안정은 인플레 부담 완화 — 꼬리위험은 유지');
-  if (krTone.indexOf('주목') >= 0) actions.push('한국장 외인 수급 방향 확인');
-  if (!actions.length) actions.push('추세가 확인된 업종 위주로 선별. 뉴스는 가격 반응이 동반될 때만 가중.');
-  var action = actions.join(' · ');
-  var fgText = fg != null ? ' · F&G ' + fg : '';
-  var meta = '선별 뉴스 ' + totalCount + '건 · Fed ' + fedHits + ' · 지정학 ' + iranHits + ' · 매크로 ' + macroHits + ' · BOJ ' + bojHits + ' · 반도체 ' + semiHits + ' · 한국 ' + krHits;
-  function tile(tone, color, sub) {
-    return '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:9px;"><b style="color:' + color + ';">' + escLocal(tone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">' + escLocal(sub) + '</div></div>';
-  }
-  return '<div style="margin-bottom:12px;padding:12px;background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.04));border:1px solid rgba(0,212,255,0.20);border-radius:4px;">' +
-    '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:9px;">' +
-    '<div style="font-size:13px;font-weight:900;color:var(--text-primary);">시장 상황 요약 <span style="font-size:10px;font-weight:400;color:var(--text-muted);">(6-축)</span></div>' +
-    '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">' + escLocal(meta) + '</div>' +
-    '</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">' +
-    tile(marketTone, 'var(--data-cyan)', 'SPY ' + pct(spyPct) + ' · VIX ' + (vix == null ? '—' : Number(vix).toFixed(1)) + fgText) +
-    tile(fedTone, 'var(--data-amber)', '10Y ' + (tnx == null ? '—' : Number(tnx).toFixed(2) + '%') + ' · DXY ' + pct(dxyPct)) +
-    tile(oilTone, 'var(--data-green)', 'WTI ' + (wti == null ? '—' : '$' + Number(wti).toFixed(1)) + ' (' + pct(wtiPct) + ')') +
-    tile(bojTone, 'var(--data-purple)', 'USD/JPY ' + (usdJpy == null ? '—' : Number(usdJpy).toFixed(1)) + ' · BOJ ' + bojHits + '건') +
-    tile(semiTone, 'var(--data-blue)', 'NVDA ' + pct(nvdaPct) + ' · 뉴스 ' + semiHits + '건') +
-    tile(krTone, 'var(--data-magenta)', 'KOSPI · 외인수급 뉴스 ' + krHits + '건') +
-    '</div>' +
-    '<div style="margin-top:9px;font-size:11px;color:var(--text-secondary);line-height:1.5;"><b style="color:var(--accent);">오늘 행동</b> ' + escLocal(action) + '</div>' +
-    '</div>';
-}
-window._buildBriefingDecisionSummary = _buildBriefingDecisionSummary;
 
 window.renderBriefingFeed = function(items) {
   // P770: primary briefing DOM belongs to src/ui/pages/news.js; this legacy call is input-only.
-  var briefingDecisionHtml = null; // retained source contract for the legacy AI compatibility surface.
   if (typeof _aioNotifyNewsSurfaceInvalidated === "function") _aioNotifyNewsSurfaceInvalidated("briefing-feed-input");
-  return { status: "delegated-to-native-briefing", count: Array.isArray(items) ? items.length : 0, briefingDecisionHtml: briefingDecisionHtml };
+  return { status: "delegated-to-native-briefing", count: Array.isArray(items) ? items.length : 0 };
 }
 
 // escHtml defined globally at line ~8130

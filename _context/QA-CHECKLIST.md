@@ -4,6 +4,11 @@ last_verified: 2026-09-30
 confidence: medium
 ---
 
+## v56.85 parallel dead-code trim, harness governance (2026-09-30)
+
+- [x] QA-OPS-AG-03: Reachability tooling lives in scripts/ and its self-test (including the page-bus ASI case) passes in the workspace gate. verify_by: P1342 `ci-workspace-contract-check.mjs`
+- [x] QA-OPS-AG-04: AGENTS.md carries the fixed product decisions and change flow; superseded handoffs are catalogued as historical-snapshot; generated-manifest merge conflicts resolve with scripts/resolve-generated-conflicts.mjs. verify_by: P1343 `ci-workspace-contract-check.mjs` + `ci-knowledge-lint-check.mjs`
+
 ## v56.84 facade trim, orphaned initializers, MA fallback (2026-09-30)
 
 - [x] QA-UX-10: Opening macro, briefing, fundamental and guide runs their initializers once via aio:pageShown (next release, briefing strip, recent searches, folded guide chapters). verify_by: P1339 browser walkthrough + `ci-architecture-contract-check.mjs` (PAGES.init stays null)

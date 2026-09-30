@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.84';
+const APP_VERSION = 'v56.85';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -7843,26 +7843,8 @@ window.AIO.getTickerRegistryEntryAudit = function() {
   };
 };
 
-window.AIO.resolveTickerFromAnyName = function(input) {
-  if (!input || typeof input !== 'string') return null;
-  var reg = window.AIO_TICKER_NAME_REGISTRY;
-  if (!reg) return null;
-  var q = String(input).trim();
-  var qLower = q.toLowerCase();
-  // 1. 정확 ticker 매칭 (대문자 변환)
-  var qUpper = q.toUpperCase();
-  if (reg.entries[qUpper]) return qUpper;
-  // 2. en/kr/alt 매칭
-  var found = null;
-  Object.keys(reg.entries).some(function(ticker) {
-    var e = reg.entries[ticker];
-    if (e.en && e.en.toLowerCase() === qLower) { found = ticker; return true; }
-    if (e.kr && e.kr === q) { found = ticker; return true; }
-    if (e.alt && e.alt.indexOf(qLower) !== -1) { found = ticker; return true; }
-    return false;
-  });
-  return found;
-};
+// P1342: one resolver (src/domain/ticker/resolve-name.js) — aliases never rewrite ticker-shaped input.
+window.AIO.resolveTickerFromAnyName = function(input) { return typeof window._aioResolveRegisteredName === 'function' ? window._aioResolveRegisteredName(input) : null; };
 
 window.AIO.getTickerMappingAudit = function() {
   var reg = window.AIO_TICKER_NAME_REGISTRY;
@@ -8213,8 +8195,6 @@ window.AIO.getThemeTrendDeepAudit = function() {
     generatedAt: new Date().toISOString()
   };
 };
-
-window.AIO.assertThemeTrendDeepAudit = window.AIO.getThemeTrendDeepAudit;
 
 
 // ─────────────────────────────────────────────────────────────────
@@ -17961,7 +17941,6 @@ window.AIO.getOperationalHealth = function() {
     logs: logs
   };
 };
-window.AIO.operationalHealthSnapshot = window.AIO.getOperationalHealth;
 
 // v48.37: SCREENER_DB memo 내부 날짜 파서 — 애널리스트 리포트 staleness 구조적 감지
 // 매칭 패턴: [Citi 04/17] · [JPM 04/17] · [GS 04/15 Buy] · [2026.04] · [2026-04-15]
@@ -19616,7 +19595,6 @@ window.AIO.getCanonicalMetric = function(metricId, opts) {
   }
   return result;
 };
-window.AIO.getCurrentMarketMetric = window.AIO.getCanonicalMetric;
 
 window.AIO_CROSS_SOURCE_QUOTE_CACHE = window.AIO_CROSS_SOURCE_QUOTE_CACHE || {};
 

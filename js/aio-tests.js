@@ -3420,10 +3420,6 @@
     _assert('T866 breadth_regime_contract_and_zero_delta_v5460: 32% breadth classifies fearful red and zero delta is neutral 0pp',
       t866ok,
       t866detail);
-    var briefSummarySrc867 = typeof _buildBriefingDecisionSummary === 'function' ? _buildBriefingDecisionSummary.toString() : '';
-    _assert('T867 briefing_decision_summary_fg_canonical_v5234: 6축 요약 카드 F&G가 canonical currentness selector를 쓰고 dead snap.fg.value/snap.fearGreed 필드를 참조하지 않음',
-      /getCanonicalMetric\(['"]fg['"]\)/.test(briefSummarySrc867) && !/snap\.fg\.value/.test(briefSummarySrc867) && !/snap\.fearGreed/.test(briefSummarySrc867),
-      'hasCanonical=' + /getCanonicalMetric/.test(briefSummarySrc867) + ' hasDeadFields=' + /snap\.fg\.value|snap\.fearGreed/.test(briefSummarySrc867));
     var calcKrHealthSrc868 = typeof calcKrHealthScore === 'function' ? calcKrHealthScore.toString() : '';
     _assert('T868 vkospi_failure_state_contract_v5234: VKOSPI 연속 실패 시 실패 상태를 노출하고 calcKrHealthScore가 그 상태를 스냅샷 값으로 덮어쓰지 않음',
       typeof _showVkospiFailureState === 'function' && typeof _vkospiIsFailedState === 'function' && /_vkospiIsFailedState\(\)/.test(calcKrHealthSrc868),
@@ -7097,18 +7093,13 @@
       if (typeof window.generateMacroStoryline === 'function') window.generateMacroStoryline();
       var macroStory836 = document.getElementById('macro-storyline');
       var macroText836 = macroStory836 ? (macroStory836.textContent || '') : '';
-      var briefingHelper836 = typeof window._buildBriefingDecisionSummary === 'function'
-        ? window._buildBriefingDecisionSummary([{ title: 'FOMC Iran oil market note', desc: 'Fed rates and Hormuz oil risk', topic: 'macro' }], 1, {})
-        : '';
-      var renderSrc836 = typeof window.renderBriefingFeed === 'function' ? String(window.renderBriefingFeed) : '';
       var macroParagraphs836 = macroStory836 ? macroStory836.querySelectorAll('p').length : 0;
       var macroBlocked836 = !!(macroStory836 && macroStory836.querySelector('[data-runtime-state="unavailable"][data-operational-use="blocked"]'));
       var macroCompact836 = (macroParagraphs836 >= 2 && macroText836.length >= 80 && macroText836.length <= 900 && !macroStory836.querySelector('.macro-now-card') && !/1장|2장|3장/.test(macroText836)) || macroBlocked836;
-      var briefingSummary836 = /시장 상황 요약/.test(briefingHelper836) && /오늘 행동/.test(briefingHelper836) && /briefingDecisionHtml/.test(renderSrc836);
-      t836ok = !!(macroCompact836 && briefingSummary836);
-      t836detail = JSON.stringify({ macroCompact: macroCompact836, macroBlocked:macroBlocked836, macroParagraphs: macroParagraphs836, briefingSummary: briefingSummary836 });
+      t836ok = !!macroCompact836;
+      t836detail = JSON.stringify({ macroCompact: macroCompact836, macroBlocked:macroBlocked836, macroParagraphs: macroParagraphs836 });
     } catch(e) { t836detail = 'ERR:' + e.message; }
-    _assert('T836 v5288_macro_briefing_comp_ux: macro uses concise narrative paragraphs and briefing keeps its market/action summary', t836ok, t836detail);
+    _assert('T836 v5288_macro_briefing_comp_ux: macro uses concise narrative paragraphs (P1342: the legacy briefing summary helper had no caller since P770)', t836ok, t836detail);
 
     // T837: v50.70 page decision/source contract + FOMC freshness gate.
     var t837ok = false, t837detail = '';

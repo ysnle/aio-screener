@@ -50,7 +50,7 @@ export function splitTopLevel(src) {
       // ASI-lite at depth 0: a newline after a complete statement-ish token followed by a new statement start
       if (c === '\n' && depth === 0 && stmtStart !== null) {
         let j = i + 1; while (j < n && /[ \t\r]/.test(src[j])) j++;
-        const nextIsStmt = /^(function\b|var\b|let\b|const\b|window\.|if\b|try\b|\(function|\(\(\)|document\.|_aio[A-Za-z]*\(|setTimeout|async function)/.test(src.slice(j, j + 20));
+        const nextIsStmt = /^(function\b|var\b|let\b|const\b|window\.|if\b|try\b|\(function|\(\(\)|document\.|_aio[\w$.]*\(|AIO\.[\w$.]+\s*=|setTimeout|async function)/.test(src.slice(j, j + 40));
         if ((prevSig === '}' || prevSig === ')' ) && nextIsStmt && !/^[.?:,+\-*/&|=]/.test(src.slice(j, j + 1))) closeStmt(i);
       }
       i++; continue;

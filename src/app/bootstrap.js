@@ -153,6 +153,7 @@ if (typeof window !== 'undefined') {
     if (normalized !== String(raw || '').trim().toUpperCase()) return normalized;
     return resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries) || normalized;
   };
+  window._aioResolveRegisteredName = (raw) => resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries);
   window._aioTickerDisplayName = (symbol) => tickerDisplayName(symbol, { krStockDb: window.KR_STOCK_DB });
   // P1326/R671: one currentness vocabulary (실시간/지연/종가/지난 시세) from observation times + US calendar.
   window._aioDescribeQuoteCurrentness = describeQuoteCurrentness;

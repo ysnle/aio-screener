@@ -5572,8 +5572,6 @@ window._aioCheckAlerts = _aioCheckAlerts;
 window.AIO = window.AIO || {};
 window.AIO.getAlerts = _aioGetAlerts;
 window.AIO.addAlert = _aioAddAlert;
-window.AIO.removeAlert = _aioRemoveAlert;
-window.AIO.checkAlerts = _aioCheckAlerts;
 window.AIO.getUserProfile = _aioGetUserProfile;
 window.AIO.setUserProfile = _aioSetUserProfile;
 // 자동 1분마다 점검 (페이지 로드 후 30초 지연)

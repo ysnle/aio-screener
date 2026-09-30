@@ -4,6 +4,24 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1343 - v56.85 - owner decisions lived only in one agent's personal memory; routing pointed at superseded handoffs (2026-09-30)
+
+- symptom/reproduction: The fixed product decisions were written only in Claude's personal memory, so Codex and subagents could not see them: - close-basis scores - desktop only - options retired - no ticker guessing - no local producers - family scope - work in big batches CLAUDE.md still told agents to hand-edit BUG/QA/RULES instead of using record-fix. INDEX routed current work to the August audits, and two August handoffs stayed classified 'current-handoff' because classification was filename-based. Every merge of main into a version branch conflicted on three generated manifests and was resolved by hand. Dependabot opened weekly grouped major bumps that the SHA-pin gates always fail. Two historical docs carried U+FFFD damage.
+- root_cause: Harness state (decisions, flow, routing) was not treated as shared, versioned product state, and the catalog had no way to mark a handoff superseded.
+- fix: AGENTS.md now carries 'Product decisions (fixed)' and the branch → PR → merge flow, which all agents read. CLAUDE.md points to it and describes the record-fix order. INDEX routes to _artifacts/full-audit-20260927 and to the new routines. workspace-state-lib treats a handoff whose frontmatter declares superseded_by: as historical-snapshot; the two August handoffs now declare it. scripts/resolve-generated-conflicts.mjs resolves the manifest conflicts (main's data identity, branch appRevision) and refuses any other conflict. Dependabot runs monthly. 66 damaged lines were restored from the last clean revision.
+- violated_rule: R676 (new) — owner product decisions and the change flow live in AGENTS.md, not in one agent's private memory.
+- prevention: QA-OPS-AG-04 — workspace and knowledge-lint gates, plus the catalog's supersededBy field.
+- verification/residual: workspace, knowledge-lint, skill-contract, skill-eval-fixture, ledger-integrity, operator-secrets gates; the catalog lists the two August handoffs as historical-snapshot with supersededBy.
+
+## P1342 - v56.85 - unreachable runtime code kept alive; reachability tooling lived only in a session scratchpad (2026-09-30)
+
+- symptom/reproduction: After the aio-core trim (P1339), aio-data, aio-ui, aio-pages, aio-workspace and aio-chat still carried unreachable code: market/Korea leader snapshot builders (305 lines), _updatePerfTable, AIO.FundPage, a page-refresh coverage audit kept only by T691, PROXY_LIST, googleTranslateFree, the orphaned initYieldCurveChart (100 lines), pure AIO.* aliases, and a second ticker resolver (AIO.resolveTickerFromAnyName) that still rewrote GOOG to GOOGL. The splitter/remover that found P1339's dead code existed only in one session's temp folder, and its ASI heuristic merged `var x = function(){}` with a following `_aioPageBus.register(...)`, reporting live code as dead.
+- root_cause: Dead-code removal depended on ad-hoc session tooling, so each session re-derived it or skipped the work; side-effecting assignments and page-bus registrations were not modelled.
+- fix: Two parallel worktree trims (Sonnet agents, disjoint files) plus the main agent removed about 660 lines net (aio-data -122, aio-workspace -312, aio-ui -75, aio-pages -103, core/chat aliases). AIO.resolveTickerFromAnyName now delegates to src/domain/ticker/resolve-name.js. scripts/lib/js-toplevel.mjs and scripts/dead-code.mjs (report/remove/self-test) are in the repo: the report flags RULES-named names, gate/test-only references and side-effecting statements as keep. The splitter ends a statement before `_aio*.x(` and `AIO.x =` lines. The architecture fence for the legacy yield-curve writer applies only if such a writer returns.
+- violated_rule: R675 — a runtime initializer or renderer needs a production caller; code kept alive only by tests is deleted with the test.
+- prevention: QA-OPS-AG-03 — the workspace gate runs `dead-code.mjs self-test` (splitter/remover fixture including the page-bus ASI case).
+- verification/residual: Headless 1138/1138; runtime, architecture, esm, chat-resilience, retirement, desktop-scope, data-pipeline and assertion-trace gates pass; decomposition ratchet recorded (aio-data 16,755, aio-workspace 2,712, aio-ui 7,342, aio-pages 3,328).
+
 ## P1341 - v56.84 - data-plane deploy deadlocked: the rollback baseline required a sourceSha the July Worker never exposed (2026-09-30)
 
 - symptom/reproduction: After P1335 the data plane still served the July build. The automatic convergence step refused (live sourceSha unavailable) and a manual dispatch failed at 'Capture active rollback target and source identity', which exits when the live Worker has no sourceSha — so no path could ever replace an identity-less Worker.

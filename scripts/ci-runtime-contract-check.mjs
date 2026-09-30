@@ -458,7 +458,8 @@ check('theme detail deep analysis filters finite pct values before toFixed', /to
 check('theme-detail route resolves to themes inline detail surface',
   (/id === 'theme-detail'/.test(core) && /_aioOpenThemeDetailOnThemes/.test(core) && /showThemeDetail\(themeId\)/.test(core))
   || (/createThemesPage/.test(themesPage) && /createThemesPage\(\{[^}]*route:\s*'theme-detail'/.test(bootstrap) && /aioArchitectureSlice/.test(themesPage)));
-check('briefing summary F&G reads canonical currentness envelope', /getCanonicalMetric\('fg'\)/.test(data) && /var fgMetric/.test(data));
+// P1342: the legacy briefing summary helper (no caller since P770) was deleted; F&G consumers still read the canonical envelope.
+check('briefing summary F&G reads canonical currentness envelope', /getCanonicalMetric\('fg'\)/.test(data) && !/_buildBriefingDecisionSummary/.test(data));
 check('KR candle chart auto-loads from canvas and avoids zero-baseline compression', /krCandleCanvas/.test(ui) && /loadKrCandleChart\(krCode \|\| '005930'\)/.test(ui) && /beginAtZero:\s*false/.test(ui) && /suggestedMin:\s*ySuggestedMin/.test(ui) && /suggestedMax:\s*ySuggestedMax/.test(ui));
 check('headless tests validate every theme record and representative renderer boundaries plus route redirect', /T860 theme_detail_registry_and_representative_render_v5460/.test(tests) && /T861 theme_detail_route_redirect_v5227/.test(tests));
 check('theme composition audit indexes canonical semantic evidence once instead of rebuilding the screener universe per symbol', (() => {
@@ -489,7 +490,7 @@ check('value slot renderer encodes value/pending/failed/na states and touched ma
     && sentimentPage.includes('setMetric(documentRef') && sentimentPage.includes('^VIX9D') && sentimentPage.includes('sentiment.vix3m') && sentimentPage.includes('sentiment.vix6m');
   return (valueSlotBase && legacyTouched) || (valueSlotBase && nativeTouched);
 })());
-check('briefing decision summary F&G uses canonical currentness source, not dead snap fields', (data.match(/getCanonicalMetric\('fg'\)/g) || []).length >= 2 && !/snap\.fg\.value|snap\.fearGreed/.test(data) && /T867 briefing_decision_summary_fg_canonical_v5234/.test(tests));
+check('briefing decision summary F&G uses canonical currentness source, not dead snap fields', /getCanonicalMetric\('fg'\)/.test(data) && !/snap\.fg\.value|snap\.fearGreed/.test(data));
 // P1134/R620: the VKOSPI failure-state helpers now live in js/aio-kr-data.js (block C) while
 // calcKrHealthScore lives in js/aio-ui.js (block F) — the check spans two owners, so each token is
 // asserted against the file that actually holds it.
