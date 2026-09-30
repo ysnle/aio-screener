@@ -9,22 +9,16 @@
 //   - daily published inputs (F&G, put/call, HY spread, breadth): dated no earlier than the
 //     session before it, because these series publish after the close with a one-day lag.
 // Anything older, undated or non-finite stays out, so the score never mixes in stale days.
-import { latestCompletedUsSession } from '../../ai/time/market-session.js';
+import { latestCompletedUsSession, nyParts } from '../../ai/time/market-session.js';
 
 export const CLOSE_BASIS_QUOTE_KEYS = Object.freeze(['vix', 'vvix', 'dxy', 'tnx', 'oilPrice', 'spxPrice']);
 export const CLOSE_BASIS_DAILY_KEYS = Object.freeze(['fg', 'pcr', 'hyBp', 'breadth200']);
 
 const DATE_ONLY = /^(\d{4}-\d{2}-\d{2})(?:T00:00(?::00(?:\.000)?)?Z?)?$/;
 
-function nyDate(ms) {
-  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
-  return `${p.year}-${p.month}-${p.day}`;
-}
-
 /** The basis every close-basis input is judged against, or null when the calendar is unknown. */
 export function resolveCloseBasis(nowMs = Date.now()) {
-  const session = latestCompletedUsSession(nowMs);
-  return session;
+  return latestCompletedUsSession(nowMs);
 }
 
 /**
@@ -38,7 +32,7 @@ export function evaluateCloseBasisInput({ key, value, observedAt, basis, nowMs =
   const observedMs = dateOnly ? Date.parse(`${dateOnly[1]}T12:00:00Z`) : Date.parse(raw);
   if (!raw || !Number.isFinite(observedMs)) return { ok: false, asOf: null, reason: 'observed-at-missing' };
   if (observedMs > nowMs + 60000) return { ok: false, asOf: null, reason: 'observed-in-future' };
-  const asOf = dateOnly ? dateOnly[1] : nyDate(observedMs);
+  const asOf = dateOnly ? dateOnly[1] : nyParts(observedMs).date;
   if (CLOSE_BASIS_QUOTE_KEYS.includes(key)) {
     if (dateOnly) return { ok: asOf >= basis.date, asOf, reason: asOf >= basis.date ? 'session-close' : 'older-than-basis' };
     const windowMs = (key === 'tnx' ? 65 : 5) * 60000;

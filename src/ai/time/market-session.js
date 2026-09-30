@@ -42,51 +42,34 @@ export const MARKET_CALENDAR_REGISTRY = Object.freeze({
   })
 });
 
+// New York wall-clock date and minute-of-day for an instant (DST aware).
+export function nyParts(ms) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
+  return { date: `${p.year}-${p.month}-${p.day}`, minute: Number(p.hour) * 60 + Number(p.minute) };
+}
+
 export function isLatestUsRegularClose({ instrumentId, observedAt, now = Date.now() } = {}) {
   if (!/^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)$/.test(String(instrumentId || ''))) return false;
   const observedMs = Date.parse(observedAt || '');
   const nowMs = Number(now);
   if (!Number.isFinite(observedMs) || !Number.isFinite(nowMs) || observedMs > nowMs) return false;
-  const parts = (ms) => {
-    const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
-    return { date: `${p.year}-${p.month}-${p.day}`, minute: Number(p.hour) * 60 + Number(p.minute) };
-  };
-  const current = parts(nowMs);
-  const observed = parts(observedMs);
-  const session = (date) => resolveMarketCalendarSession({ market: 'US', date });
-  const today = session(current.date);
-  if (today.status === 'unknown') return false;
-  const closeMinute = (s) => Number(s.close.slice(0, 2)) * 60 + Number(s.close.slice(3));
   // A previous close cannot certify current evidence once regular trading resumes.
-  if (today.status === 'open' && current.minute >= 570 && current.minute < closeMinute(today)) return false;
-  let lastDate = current.date;
-  if (today.status !== 'open' || current.minute < 570) {
-    for (let i = 0; i < 10; i++) {
-      lastDate = new Date(Date.parse(`${lastDate}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
-      const prior = session(lastDate);
-      if (prior.status === 'unknown') return false;
-      if (prior.status === 'open') break;
-    }
-  }
-  const lastSession = session(lastDate);
-  if (lastSession.status !== 'open' || observed.date !== lastDate) return false;
+  const last = latestCompletedUsSession(nowMs, { requirePrevious: false });
+  const observed = nyParts(observedMs);
+  if (!last || last.inSession || observed.date !== last.date) return false;
   // Yahoo Treasury index observations end around 14:59 ET. Accept only a
   // bounded closing observation window, never a stale morning tick.
-  const minimumMinute = /^\^(TNX|IRX)$/.test(instrumentId) ? Math.min(895, closeMinute(lastSession) - 5) : closeMinute(lastSession) - 5;
-  return observed.minute >= minimumMinute;
+  const closeMinute = nyParts(last.closeMs).minute;
+  return observed.minute >= (/^\^(TNX|IRX)$/.test(instrumentId) ? Math.min(895, closeMinute - 5) : closeMinute - 5);
 }
 
 // P1328: the most recent COMPLETED US regular session (date + exact close instant) and the date of
 // the session before it. While a session is in progress its close has not
 // happened yet, so the "latest completed" session is the previous one. Unknown years fail
 // closed (null).
-export function latestCompletedUsSession(now = Date.now()) {
+export function latestCompletedUsSession(now = Date.now(), { requirePrevious = true } = {}) {
   const nowMs = Number(now);
   if (!Number.isFinite(nowMs)) return null;
-  const nyParts = (ms) => {
-    const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
-    return { date: `${p.year}-${p.month}-${p.day}`, minute: Number(p.hour) * 60 + Number(p.minute) };
-  };
   const minuteOf = (hhmm) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3));
   const closeInstant = (date, hhmm) => {
     // New York wall time → UTC instant (DST aware): start from UTC-5 and correct once.
@@ -112,11 +95,11 @@ export function latestCompletedUsSession(now = Date.now()) {
   const last = today.status === 'open' && current.minute >= minuteOf(today.close) ? today : previousOpen(current.date);
   if (!last) return null;
   const before = previousOpen(last.date);
-  if (!before) return null;
+  if (!before && requirePrevious) return null;
   return Object.freeze({
     date: last.date,
     closeMs: closeInstant(last.date, last.close),
-    previousDate: before.date,
+    previousDate: before?.date ?? null,
     inSession: today.status === 'open' && current.minute >= 570 && current.minute < minuteOf(today.close)
   });
 }
