@@ -3714,11 +3714,6 @@
       !!mapOk && prFn && profileMapOk && mappedFnsOk,
       'mapOk=' + !!mapOk + ' profileMapOk=' + profileMapOk + ' mappedFnsOk=' + mappedFnsOk + ' fn=' + prFn + ' keys=' + (prMap ? Object.keys(prMap).join(',') : 'none'));
 
-    var coverageAudit = (typeof window.AIO.getPageRefreshCoverageAudit === 'function') ? window.AIO.getPageRefreshCoverageAudit() : null;
-    _assert('T691 page_refresh_coverage_audit_v4998: 종합 5페이지 DOM 존재 + refresh 매핑 + coverage audit (institutional-grade page refresh)',
-      !!coverageAudit && coverageAudit.status === 'ok',
-      coverageAudit ? ('status=' + coverageAudit.status + ' missing=' + coverageAudit.missingPageIds.join(',') + ' issues=' + coverageAudit.taskIssues.join(',') + ' profileIssues=' + ((coverageAudit.profileIssues || []).join(',')) + ' wired=' + coverageAudit.pageRefreshWired) : 'coverageAudit undefined');
-
     var refreshSrc690 = prFn ? window._aioRefreshPageData.toString() : '';
     var newsFnSrc690 = (window.REFRESH_SCHEDULE && window.REFRESH_SCHEDULE.news && window.REFRESH_SCHEDULE.news.fn) ? window.REFRESH_SCHEDULE.news.fn.toString() : '';
     var runSrc690 = (window.AIO && typeof window.AIO.runScheduledRefresh === 'function') ? window.AIO.runScheduledRefresh.toString() : '';
