@@ -3,7 +3,7 @@
   "sourceSchemaVersion": "2.0",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
   "projectionPolicy": "Latest normalized annual facts plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path.",
-  "generatedAt": "2026-09-30T12:59:03.561Z",
+  "generatedAt": "2026-09-30T22:35:15.341Z",
   "source": "SEC EDGAR companyfacts",
   "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
   "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -14,18 +14,18 @@
   "domainReceipt": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "sec-fundamentals",
-    "runId": "gha:36718288681",
-    "attemptedAt": "2026-09-30T12:58:59.990Z",
+    "runId": "gha:36786332775",
+    "attemptedAt": "2026-09-30T22:35:15.340Z",
     "sourceRevision": "sec-company-tickers:ec78fbd272ecb158e65b60d774e2ee5715b454eaadc3c9a670214fa0c2bcce13",
     "inputWatermarks": {
       "universe": null,
-      "screener": "2026-09-30T06:00:41.666Z",
-      "previousArtifact": "2026-09-30T05:56:26.234Z"
+      "screener": "2026-09-30T12:59:53.947Z",
+      "previousArtifact": "2026-09-30T12:59:03.561Z"
     },
     "batchLimit": 24,
     "counts": {
       "eligible": 655,
-      "attempted": 3,
+      "attempted": 0,
       "updated": 0,
       "retained": 562,
       "pendingEligible": 93
@@ -33,8 +33,8 @@
     "thisBatch": {
       "updated": 0,
       "terminalUnsupported": 0,
-      "transientFailed": 3,
-      "recorded": 3
+      "transientFailed": 0,
+      "recorded": 0
     },
     "ledger": {
       "total": 95,
@@ -44,8 +44,8 @@
     },
     "lastSuccessfulObservation": null,
     "publication": {
-      "status": "NO_REFRESH_RETAINED",
-      "reason": "every attempted target failed; previously stored rows stay published",
+      "status": "NOT_ATTEMPTED",
+      "reason": "no target was due in this batch",
       "allowsPartial": true,
       "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
       "terminalExcludedFromBatchFailures": true,
