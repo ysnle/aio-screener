@@ -2255,7 +2255,6 @@ var _priceHistory = {};
 // P721: 심볼별 히스토리 종류 마커 — true면 실제 일봉 종가 시계열(hydrateRRGDailyHistory가 채움).
 // collectPriceHistory의 세션 내 틱 push가 일봉 시계열을 밀어내며 오염시키는 것을 차단한다.
 var _priceHistoryDaily = {};
-var _rsLastCalc = 0;
 
 // 라이브 데이터 기반 RS 근사 계산
 function calcLiveRS(sym) {
@@ -3270,9 +3269,7 @@ var KR_INSIGHT_MAP = {
 // ═══════════════════════════════════════════════════════════════
 //  v38.3: 테마별 맞춤 인사이트 데이터 (레퍼런스 기반)
 // ═══════════════════════════════════════════════════════════════
-var THEME_INSIGHTS_META = Object.freeze({ status:'unavailable', reason:'검증되지 않은 정적 테마 해설 제거' });
 var THEME_INSIGHTS = Object.freeze({});
-var SUB_THEME_INSIGHTS_META = Object.freeze({ status:'unavailable', reason:'검증되지 않은 정적 하위 테마 해설 제거' });
 var SUB_THEME_INSIGHTS = Object.freeze({});
 
 var THEME_NARRATIVES_META = Object.freeze({ status:'unavailable', reason:'정적 기업·산업 수치 제거 — 시세·뉴스 증거만 허용' });

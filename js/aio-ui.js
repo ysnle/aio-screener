@@ -727,7 +727,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
 // ═══════════════════════════════════════════════════════════════════════
 //  GITHUB PAGES AUTO-UPDATE POLLING
 //  동작: version.json을 5분마다 fetch → 버전 변경 시 상단 배너 표시
@@ -1469,12 +1468,6 @@ function renderDataQualityBadge(quality) {
   return _itbBadge('Data ' + label + conf, tone) + '<span style="font-size:10px;color:var(--text-muted);margin-left:6px;">' + escHtml((quality.freshness || 'UNKNOWN') + source) + '</span>';
 }
 
-function renderNewsImpactBadge(vector) {
-  vector = vector || {};
-  var urgency = Number(vector.urgency || 0);
-  var tone = urgency >= 70 || vector.technicalImpact === 'EXIT_RISK' ? 'risk' : urgency >= 45 ? 'warn' : 'bull';
-  return _itbBadge((vector.factor || 'GENERAL') + ' ' + Math.round(urgency), tone);
-}
 
 function renderPortfolioTechnicalRisk(result) {
   var el = document.getElementById('pf-technical-risk');
@@ -1908,7 +1901,6 @@ window.renderOpexGammaPanel = renderOpexGammaPanel;
 window.renderBreadthRotationPanel = renderBreadthRotationPanel;
 window.renderCandleRiskBadge = renderCandleRiskBadge;
 window.renderDataQualityBadge = renderDataQualityBadge;
-window.renderNewsImpactBadge = renderNewsImpactBadge;
 window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -4047,20 +4039,6 @@ window._renderFundMultiPeriod = _renderFundMultiPeriod;
 window._renderFundVariance = _renderFundVariance;
 // AIO.FundPage: 기업분석 렌더링 함수 공개 API (aio-chat.js → aio-ui.js 물리 이동 대상)
 window.AIO = window.AIO || {};
-window.AIO.FundPage = {
-  renderHeader:     _renderFundHeader,
-  renderSEC:        _renderFundSEC,
-  renderFinancials: _renderFundFinancials,
-  renderCharts:     _renderFundamentalFinancialsCharts,
-  renderStatements: _renderFundStatements,
-  renderValuation:  _renderFundValuation,
-  renderPeers:      _renderFundPeers,
-  renderEarnings:   _renderFundEarnings,
-  renderNews:       _renderFundNews,
-  renderSources:    _renderFundSources,
-  renderMultiPeriod: _renderFundMultiPeriod,
-  renderVariance:   _renderFundVariance,
-};
 
 // ═══ v52.39 P654/R291: 페이지별 기초 교육 레이어 ════════════════════════════
 // 콘텐츠 규칙: 불변 메커니즘·관계식만, 현재 레벨/날짜/방향 판정 금지(R291).
@@ -5385,58 +5363,6 @@ function _buildMinerviniTechnicalEngine(o, h, l, c, v) {
   return { score: score, verdict: verdict, ma: ma, stage: stage, entry: entry, crosses: crosses, volumeZones: volumeZones, fib: fib, vcp: vcp, current: current, riskFlags: riskFlags };
 }
 
-// Fetch 1-year daily chart data from Yahoo Finance
-// v48.14: 동적 ETF 성과 테이블 갱신 (Agent P1-13 대응)
-// data-perf-ytd·data-perf-1y 속성이 있는 모든 DOM을 Yahoo API로 자동 갱신
-async function _updatePerfTable(forceTickers) {
-  try {
-    var targets = Array.from(document.querySelectorAll('[data-perf-ytd],[data-perf-1y]'));
-    var tickerSet = {};
-    targets.forEach(function(el) {
-      var t = el.getAttribute('data-perf-ytd') || el.getAttribute('data-perf-1y');
-      if (t) tickerSet[t] = true;
-    });
-    if (forceTickers && Array.isArray(forceTickers)) {
-      forceTickers.forEach(function(t) { tickerSet[t] = true; });
-    }
-    var tickers = Object.keys(tickerSet);
-    for (var idx = 0; idx < tickers.length; idx++) {
-      var sym = tickers[idx];
-      try {
-        var ytdData = await _fetchYahooChartData(sym, 'ytd');
-        var y1Data = await _fetchYahooChartData(sym, '1y');
-        var ytdPct = null, y1Pct = null;
-        if (ytdData && ytdData.closes) {
-          var cYtd = ytdData.closes.filter(function(v){return v!=null && isFinite(v);});
-          if (cYtd.length >= 2) ytdPct = (cYtd[cYtd.length-1] - cYtd[0]) / cYtd[0] * 100;
-        }
-        if (y1Data && y1Data.closes) {
-          var c1y = y1Data.closes.filter(function(v){return v!=null && isFinite(v);});
-          if (c1y.length >= 2) y1Pct = (c1y[c1y.length-1] - c1y[0]) / c1y[0] * 100;
-        }
-        // DOM 갱신
-        document.querySelectorAll('[data-perf-ytd="' + sym + '"]').forEach(function(el) {
-          if (ytdPct != null) {
-            el.textContent = (ytdPct >= 0 ? '+' : '') + ytdPct.toFixed(1) + '%';
-            el.style.color = ytdPct >= 0 ? 'var(--green)' : 'var(--red)';
-          } else {
-            el.textContent = 'N/A';
-            el.style.color = 'var(--text-muted)';
-          }
-        });
-        document.querySelectorAll('[data-perf-1y="' + sym + '"]').forEach(function(el) {
-          if (y1Pct != null) {
-            el.textContent = (y1Pct >= 0 ? '+' : '') + y1Pct.toFixed(1) + '%';
-            el.style.color = y1Pct >= 0 ? 'var(--green)' : 'var(--red)';
-          } else {
-            el.textContent = 'N/A';
-            el.style.color = 'var(--text-muted)';
-          }
-        });
-      } catch(e) { _aioLog('warn', 'render', '_updatePerfTable ticker 실패: ' + sym + ' ' + e.message); }
-    }
-  } catch(e) { _aioLog('warn', 'render', '_updatePerfTable 실패: ' + e.message); }
-}
 
 // P1132/R619: 여기 있던 3줄짜리 위임 래퍼를 제거했다. 이 래퍼는 index.html 인라인 시절에도
 // **항상 덮어써지는 죽은 코드**였다 — aio-data.js(디퍼)가 `window._fetchYahooChartData =
