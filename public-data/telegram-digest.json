@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-01T14:26:33.711Z",
-  "attemptedAt": "2026-10-01T14:26:33.711Z",
-  "lastSuccessfulAt": "2026-10-01T14:26:33.711Z",
+  "generatedAt": "2026-10-01T19:33:10.620Z",
+  "attemptedAt": "2026-10-01T19:33:10.620Z",
+  "lastSuccessfulAt": "2026-10-01T19:33:10.620Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-17T14:26:30.411Z",
-  "until": "2026-10-01T14:26:30.411Z",
+  "since": "2026-09-17T19:33:05.785Z",
+  "until": "2026-10-01T19:33:05.785Z",
   "current24hWindow": {
     "start": "2026-09-29T23:00:00.000Z",
     "end": "2026-09-30T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 199,
-    "eligibleTextCount": 23,
+    "eligibleTextCount": 15,
     "channelCounts": {
       "insidertracking": 92,
       "HANAchina": 49,
@@ -82,11 +82,11 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 263,
-      "freshCount": 38,
-      "eligibleTextCount": 36,
+      "freshCount": 36,
+      "eligibleTextCount": 34,
       "selectedCount": 71,
       "error": null,
-      "lastPostId": 25603
+      "lastPostId": 25606
     },
     {
       "channel": "insidertracking",
@@ -114,20 +114,56 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 647,
-      "freshCount": 40,
-      "eligibleTextCount": 40,
+      "count": 643,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
       "selectedCount": 124,
       "error": null,
       "lastPostId": 69730
     }
   ],
-  "count": 2186,
-  "retainedItemCount": 452,
+  "count": 2182,
+  "retainedItemCount": 441,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/25606",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-10-01T15:11:01.000Z",
+      "localDateKst": "2026-10-02",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25604",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-10-01T15:04:33.000Z",
+      "localDateKst": "2026-10-02",
+      "score": 81,
+      "tags": [
+        "macro",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/25603",
       "channel": "aetherjapanresearch",
@@ -1199,7 +1235,7 @@
       "tickers": [
         "META"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25588",
@@ -1286,7 +1322,7 @@
       "tickers": [
         "META"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20422",
@@ -1402,7 +1438,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69707",
@@ -1417,7 +1453,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65098",
@@ -1445,7 +1481,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65097",
@@ -1483,7 +1519,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69704",
@@ -1495,7 +1531,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20418",
@@ -1599,7 +1635,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69702",
@@ -1615,7 +1651,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65094",
@@ -1666,7 +1702,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65091",
@@ -1690,7 +1726,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65090",
@@ -1730,7 +1766,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20405",
@@ -1769,7 +1805,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20403",
@@ -1817,7 +1853,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69696",
@@ -1829,7 +1865,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65088",
@@ -1884,7 +1920,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65086",
@@ -1913,7 +1949,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25581",
@@ -1964,7 +2000,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65085",
@@ -2017,7 +2053,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65083",
@@ -2067,7 +2103,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69690",
@@ -3829,7 +3865,7 @@
       "tickers": [
         "BE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25565",
@@ -3843,7 +3879,7 @@
       "tickers": [
         "META"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/65003",
@@ -4276,7 +4312,7 @@
       "tickers": [
         "T"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64996",
@@ -4388,7 +4424,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25562",
@@ -29993,120 +30029,35 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/69050",
-      "channel": "HANAchina",
-      "datetime": "2026-09-17T16:40:39.000Z",
-      "localDateKst": "2026-09-18",
-      "score": 40,
-      "tags": [
-        "flows"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/69049",
-      "channel": "HANAchina",
-      "datetime": "2026-09-17T16:39:38.000Z",
-      "localDateKst": "2026-09-18",
-      "score": 55,
-      "tags": [
-        "macro",
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/69048",
-      "channel": "HANAchina",
-      "datetime": "2026-09-17T16:32:04.000Z",
-      "localDateKst": "2026-09-18",
-      "score": 67,
-      "tags": [
-        "credit",
-        "macro",
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/69047",
-      "channel": "HANAchina",
-      "datetime": "2026-09-17T16:30:58.000Z",
-      "localDateKst": "2026-09-18",
-      "score": 47,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25325",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-17T15:49:37.000Z",
-      "localDateKst": "2026-09-18",
-      "score": 60,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "AMD",
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25324",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-17T15:43:15.000Z",
-      "localDateKst": "2026-09-18",
-      "score": 93,
-      "tags": [
-        "macro",
-        "ai-policy",
-        "kr-market",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [
-        "GOOG",
-        "AVGO"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2186,
-    "eligibleTextCount": 111,
-    "mediaOnlyCount": 2075,
+    "observedCount": 2182,
+    "eligibleTextCount": 89,
+    "mediaOnlyCount": 2093,
     "highSignalCount": 493,
-    "broadSignalCount": 989,
+    "broadSignalCount": 987,
     "selectedRawCount": 409,
-    "selectedEligibleCount": 71,
-    "selectedRawCoveragePct": 64,
+    "selectedEligibleCount": 61,
+    "selectedRawCoveragePct": 68.5,
     "selectedOfObservedPct": 18.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 675,
-    "macro": 744,
-    "semi": 533,
-    "kr-market": 251,
-    "earnings": 324,
-    "flows": 165,
-    "geo": 411,
+    "macro": 743,
+    "semi": 532,
     "power": 308,
-    "healthcare": 124,
-    "credit": 66,
-    "ai-policy": 199,
+    "ai-policy": 200,
+    "earnings": 325,
+    "healthcare": 126,
+    "market-note": 675,
+    "kr-market": 249,
+    "flows": 163,
+    "geo": 411,
+    "credit": 65,
     "japan": 118,
     "equity": 183,
     "insider": 44,
@@ -30115,18 +30066,18 @@
     "crypto": 7
   },
   "tickerCounts": {
+    "GOOG": 51,
     "MU": 57,
     "BAC": 2,
     "GS": 6,
     "DB": 1,
     "MSFT": 32,
     "AMZN": 52,
-    "GOOG": 50,
     "RKLB": 8,
-    "AVGO": 41,
+    "AVGO": 40,
     "ORCL": 28,
     "SNDK": 15,
-    "TSM": 58,
+    "TSM": 57,
     "BLK": 1,
     "005930.KS": 52,
     "035420.KS": 26,
@@ -30136,7 +30087,7 @@
     "META": 95,
     "000660.KS": 51,
     "NVDA": 84,
-    "AMD": 62,
+    "AMD": 61,
     "TSLA": 24,
     "LITE": 19,
     "ARM": 6,
@@ -30265,14 +30216,14 @@
     "ANSS": 1
   },
   "themes": [
-    "Macro/Rates (744 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약...",
+    "Macro/Rates (743 posts in 14-day research window): Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점...",
     "Market Notes (675 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · 10x Genomics · AbCellera Biologics · Bruker · Exelixis · Genmab ·...",
-    "Semiconductors/Memory (533 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약...",
+    "Semiconductors/Memory (532 posts in 14-day research window): Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점...",
     "Geopolitics (411 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 시놉시스 (SNPS) — 오픈AI와 반도체 설계 특화 모델 ‘GPT-Synopsys’를 공동...",
-    "Earnings/Corporate (324 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약...",
-    "AI Power/Grid (308 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약...",
-    "Korea Market (251 posts in 14-day research window): SK 하이닉스 공식) 솔리다임 관련 최근 보도에 대해 설명드립니다 솔리다임과 관련해 현재 구체적으로 결정된 사항은 없습니다. 외부 자본 또는 내부 자본 활용 여부는 그 형식뿐 아니라, 기존 주주에게 미치는 경제적 가치를 종합적으로 고려해 판단할 사안입니다. 어떤 방안이든 장기적인 기업가치와 주주가치 제고를 가장...",
-    "AI Policy/Export Controls (199 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
+    "Earnings/Corporate (325 posts in 14-day research window): Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점...",
+    "AI Power/Grid (308 posts in 14-day research window): Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점...",
+    "Korea Market (249 posts in 14-day research window): SK 하이닉스 공식) 솔리다임 관련 최근 보도에 대해 설명드립니다 솔리다임과 관련해 현재 구체적으로 결정된 사항은 없습니다. 외부 자본 또는 내부 자본 활용 여부는 그 형식뿐 아니라, 기존 주주에게 미치는 경제적 가치를 종합적으로 고려해 판단할 사안입니다. 어떤 방안이든 장기적인 기업가치와 주주가치 제고를 가장...",
+    "AI Policy/Export Controls (200 posts in 14-day research window): Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점..."
   ],
   "catalysts": [
     {
@@ -30287,18 +30238,18 @@
     },
     {
       "key": "AMD",
-      "count": 62,
-      "text": "2026년 9월 30일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (66.20%) 2위: SPACE EXPLORATION..."
-    },
-    {
-      "key": "TSM",
-      "count": 58,
+      "count": 61,
       "text": "2026년 9월 30일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (66.20%) 2위: SPACE EXPLORATION..."
     },
     {
       "key": "MU",
       "count": 57,
       "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 마이크론(MU) Q4 FY2026 어닝콜 요약 🟢 긍정 요인: • FY2026 사상 최대 실적 달성. 연간 매출은 1,332억달러로 전년 대비 256% 증가, 연간..."
+    },
+    {
+      "key": "TSM",
+      "count": 57,
+      "text": "2026년 9월 30일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (66.20%) 2위: SPACE EXPLORATION..."
     },
     {
       "key": "AMZN",
@@ -30311,18 +30262,18 @@
       "text": "2026 BofA 아시아태평양 컨퍼런스 주요 시사점 1. 컨퍼런스 개요 및 참가 규모 • 홍콩에서 나흘간 진행된 2회차 APAC 컨퍼런스에 1,500명 이상의 투자자와 400여개 기업이 참여 • 작년 대비..."
     },
     {
+      "key": "GOOG",
+      "count": 51,
+      "text": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점..."
+    },
+    {
       "key": "000660.KS",
       "count": 51,
       "text": "SK 하이닉스 공식) 솔리다임 관련 최근 보도에 대해 설명드립니다 솔리다임과 관련해 현재 구체적으로 결정된 사항은 없습니다. 외부 자본 또는 내부 자본 활용 여부는 그 형식뿐 아니라, 기존 주주에게 미치는 경제적 가치를 종합적으로 고려해 판단할 사안입니다. 어떤 방안이든 장기적인 기업가치와 주주가치 제고를 가장..."
     },
     {
-      "key": "GOOG",
-      "count": 50,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
-    },
-    {
       "key": "AVGO",
-      "count": 41,
+      "count": 40,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
     },
     {
@@ -30343,8 +30294,8 @@
       "topics": [
         "macro"
       ],
-      "count": 744,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
+      "count": 743,
+      "focus": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점..."
     },
     {
       "id": "geo",
@@ -30361,7 +30312,7 @@
       "topics": [
         "credit"
       ],
-      "count": 66,
+      "count": 65,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
     },
     {
@@ -30370,8 +30321,8 @@
       "topics": [
         "semi"
       ],
-      "count": 533,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
+      "count": 532,
+      "focus": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점..."
     },
     {
       "id": "optical",
@@ -30389,7 +30340,7 @@
         "power"
       ],
       "count": 308,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
+      "focus": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점..."
     },
     {
       "id": "ai-policy",
@@ -30397,8 +30348,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 199,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
+      "count": 200,
+      "focus": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점..."
     },
     {
       "id": "kr-market",
@@ -30406,7 +30357,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 251,
+      "count": 249,
       "focus": "SK 하이닉스 공식) 솔리다임 관련 최근 보도에 대해 설명드립니다 솔리다임과 관련해 현재 구체적으로 결정된 사항은 없습니다. 외부 자본 또는 내부 자본 활용 여부는 그 형식뿐 아니라, 기존 주주에게 미치는 경제적 가치를 종합적으로 고려해 판단할 사안입니다. 어떤 방안이든 장기적인 기업가치와 주주가치 제고를 가장..."
     },
     {
@@ -30433,8 +30384,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 324,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
+      "count": 325,
+      "focus": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점..."
     },
     {
       "id": "healthcare",
@@ -30442,8 +30393,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 124,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 텐센트와 약 70억 달러 규모의 5년 AI 컴퓨팅 계약을 체결한 것으로 보도됨. 오라클의 동남아시아 데이터센터에서 약 10만 개의 첨단 AI 칩에 대한 접근을 제공하며, 계약금의 약..."
+      "count": 126,
+      "focus": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능 격차가 다시 벌어지고 사용 경제성도 프런티어 랩의 모델군에 유리해지고 있기 때문입니다. 오픈웨이트 모델이 독점..."
     },
     {
       "id": "japan",
@@ -30460,7 +30411,7 @@
       "topics": [
         "flows"
       ],
-      "count": 165,
+      "count": 163,
       "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 마이크론(MU) Q4 FY2026 어닝콜 요약 🟢 긍정 요인: • FY2026 사상 최대 실적 달성. 연간 매출은 1,332억달러로 전년 대비 256% 증가, 연간..."
     },
     {
@@ -30722,6 +30673,27 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "aetherjapanresearch/25606",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25606",
+      "datetime": "2026-10-01T15:11:01.000Z",
+      "localDateKst": "2026-10-02",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능..."
+    },
     {
       "id": "insidertracking/65137",
       "channel": "insidertracking",
@@ -31857,32 +31829,49 @@
       "score": 99,
       "hasText": true,
       "summary": "마이크론 테크놀로지(Micron Technology) 회계연도 2026년 4분기 어닝콜 Q&A 세션 1. 팀 아큐리 (UBS) Q. 자본 환원의 기준점은 무엇입니까? 최소 현금 보유 목표는 얼마입니까? A...."
-    },
+    }
+  ],
+  "broadItems": [
     {
-      "id": "bornlupin/20334",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20334",
-      "datetime": "2026-09-28T07:48:37.000Z",
-      "localDateKst": "2026-09-28",
+      "id": "aetherjapanresearch/25606",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25606",
+      "datetime": "2026-10-01T15:11:01.000Z",
+      "localDateKst": "2026-10-02",
       "tags": [
         "macro",
         "semi",
-        "optical",
         "power",
+        "ai-policy",
         "earnings",
         "healthcare"
       ],
       "tickers": [
-        "AVGO",
-        "LITE",
-        "COHR"
+        "GOOG"
       ],
-      "score": 99,
+      "score": 100,
       "hasText": true,
-      "summary": "Citi) 루멘텀(LITE) 목표주가 &#036;1,200 → &#036;1,400 상향, 매수 유지: \"OCS는 &#036;11B 시장\" (2026.09.28) Citi는 Citi TMT 컨퍼런스와..."
-    }
-  ],
-  "broadItems": [
+      "summary": "Citi, AI ROI: 오픈 모델의 미래는 비용보다 통제력, 프런티어 랩이 다시 앞서 나가는 중 Citi는 오픈웨이트 모델이 프런티어 모델 매출에 미치는 영향이 국지적 정점을 지났다고 판단했습니다. 성능..."
+    },
+    {
+      "id": "aetherjapanresearch/25604",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25604",
+      "datetime": "2026-10-01T15:04:33.000Z",
+      "localDateKst": "2026-10-02",
+      "tags": [
+        "macro",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 81,
+      "hasText": true,
+      "summary": "Citi) 알파벳(GOOGL.O); 제미나이 4 아르곤은 주가의 핵심 부담 요인을 해소할 것으로 판단되는 SOTA 파운데이션 모델 씨티의 견해 장 마감 후 제미나이 4 아르곤이 출시되었습니다. 코딩, 지식..."
+    },
     {
       "id": "HANAchina/69730",
       "channel": "HANAchina",
@@ -38896,45 +38885,6 @@
       "score": 90,
       "hasText": true,
       "summary": "트럼프 관세, 메모리 반도체 가격에 추가 압박…AI 투자 비용 더 커진다 AI 데이터센터 확산으로 메모리 반도체 가격이 급등하는 가운데 도널드 트럼프 행정부의 반도체 관세 정책이 추가적인 비용 상승 요인으로..."
-    },
-    {
-      "id": "aetherjapanresearch/25487",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25487",
-      "datetime": "2026-09-25T07:53:47.000Z",
-      "localDateKst": "2026-09-25",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 77,
-      "hasText": true,
-      "summary": "JP모건) 아카마이; 앤트로픽과의 대형 계약으로 플랫폼의 차별성과 용량 사업에서 유리한 경제성을 확보할 수 있는 역량을 입증했으며, 이에 목표주가를 167달러로 상향. 아카마이는 앤트로픽과 116억 달러..."
-    },
-    {
-      "id": "aetherjapanresearch/25484",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25484",
-      "datetime": "2026-09-25T03:22:27.000Z",
-      "localDateKst": "2026-09-25",
-      "tags": [
-        "macro",
-        "ai-policy",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "GOOG",
-        "AMZN",
-        "V",
-        "MA"
-      ],
-      "score": 83,
-      "hasText": true,
-      "summary": "골드만삭스) 커머스 환경의 에이전틱 AI 시대 진입 (2026.09.24, Americas Technology) 골드만삭스는 2022년 11월 ChatGPT 출시와 LLM 확산에 이어, 최근 10억 명 이상의..."
     }
   ],
   "current24hItems": [
@@ -38999,20 +38949,6 @@
       "summary": "Q. FY27 2Q~4Q FCF가 1,000억달러를 넘을 수 있는데, 그 수준의 주주환원을 기대해도 되는지? - 주주환원 확대 여력과 의지 모두 보유 - CHIPS 협약에 따라 12월 9일부터 자사주 매입..."
     },
     {
-      "id": "HANAchina/69693",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69693",
-      "datetime": "2026-09-30T22:35:44.000Z",
-      "localDateKst": "2026-10-01",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "**연간 목표보다 성장 불균형 완충 중요"
-    },
-    {
       "id": "insidertracking/65085",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/65085",
@@ -39044,20 +38980,6 @@
       "score": 73,
       "hasText": true,
       "summary": "마이크론 Q&A 세션 현금 및 자사주매입 3Q FCF는 &#036;33.2B, 4Q에는 이보다 유의미하게 높아질 것. 자사주매입 기존 &#036;2.2B 승인 넘어 추가 요청할 추진 중 CAPEX (연간..."
-    },
-    {
-      "id": "HANAchina/69692",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69692",
-      "datetime": "2026-09-30T22:07:02.000Z",
-      "localDateKst": "2026-10-01",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "•중국증시 테크 주가 극명한 차이 •병목•수출 테마가 아니면 저가경쟁 우려"
     },
     {
       "id": "insidertracking/65083",
@@ -40173,22 +40095,6 @@
       "summary": "JP모건) 블룸 에너지; 경영진 미팅 주요 내용 저희는 어제 뉴욕에서 블룸 에너지 경영진을 초청해 미팅을 가졌습니다. 일부 데이터센터 구축이 최근 거시경제 및 정책 역풍에 직면해 있음에도 전반적인 분위기는..."
     },
     {
-      "id": "aetherjapanresearch/25565",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25565",
-      "datetime": "2026-09-30T05:05:46.000Z",
-      "localDateKst": "2026-09-30",
-      "tags": [
-        "equity"
-      ],
-      "tickers": [
-        "META"
-      ],
-      "score": 39,
-      "hasText": true,
-      "summary": "제목 : 메타, 중소기업용 ‘뮤즈’ 출시 *연합인포맥스* CNBC는 \"메타 플랫폼스(NAS:META)가 중소기업을 위한 인공지능(AI) 에이전트 뮤즈를 출시했다\"고 보도했다. “동사는 기업 운영과 고객 관리..."
-    },
-    {
       "id": "insidertracking/65003",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/65003",
@@ -40491,20 +40397,6 @@
       "score": 57,
       "hasText": true,
       "summary": "트럼프, 7개월 이란전을 ‘짧은 소풍’ 비유…“곧 끝나고 유가 급락”"
-    },
-    {
-      "id": "aetherjapanresearch/25563",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25563",
-      "datetime": "2026-09-30T00:29:34.000Z",
-      "localDateKst": "2026-09-30",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "소풍이 안끝나는데요 ㅅ1발???"
     },
     {
       "id": "aetherjapanresearch/25562",
