@@ -1,15 +1,15 @@
 {
  "meta": {
   "schemaVersion": "v53.4",
-  "lastBulkUpdate": "2026-07-16",
+  "lastBulkUpdate": "2026-10-01",
   "staleAfterDays": 30,
   "replaceAfterDays": 90,
   "source": "js/aio-data.js curated identity universe; public-data/screener.json runtime enrichment",
   "note": "정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다.",
-  "recordCount": 873,
-  "uniqueSymbols": 873,
+  "recordCount": 931,
+  "uniqueSymbols": 931,
   "duplicateSymbols": 0,
-  "currentness": "STALE"
+  "currentness": "CURRENT"
  },
  "universe": [
   {
@@ -56,7 +56,7 @@
    "sym": "TSM",
    "name": "TSMC",
    "sector": "Technology",
-   "index": "SP500",
+   "index": "ADR",
    "memo": "[2026-08-09 TG-REFERENCE] Insider/BornLupin/HANA observations point to N3 capacity, advanced packaging and TPU/ASIC allocation as a supply-chain branch. Verify wafer starts, customer allocation, pricing and utilization from company/industry primary evidence; channel recirculation is not independent confirmation."
   },
   {
@@ -72,12 +72,6 @@
    "sector": "Consumer",
    "index": "SP500",
    "memo": "[2026-08-09 TG-REFERENCE] HANA relayed higher Optimus production ambitions and Chinese humanoid-robot scaling claims. Treat shipment/production numbers as hypotheses until filings, customer deployments and unit economics confirm; data collection and industrial validation remain the key bottlenecks."
-  },
-  {
-   "sym": "BRK.B",
-   "name": "Berkshire Hathaway",
-   "sector": "Financials",
-   "index": "SP500"
   },
   {
    "sym": "LLY",
@@ -292,7 +286,7 @@
    "sym": "ARM",
    "name": "ARM Holdings",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "ADR"
   },
   {
    "sym": "QCOM",
@@ -411,7 +405,7 @@
    "sym": "ASML",
    "name": "ASML Holdings",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "ADR"
   },
   {
    "sym": "LIN",
@@ -535,8 +529,8 @@
    "index": "SP500"
   },
   {
-   "sym": "SQ",
-   "name": "Block Inc",
+   "sym": "XYZ",
+   "name": "Block",
    "sector": "Financials",
    "index": "SP500"
   },
@@ -924,25 +918,25 @@
    "sym": "PINS",
    "name": "Pinterest",
    "sector": "Communication Services",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "SNAP",
    "name": "Snap Inc",
    "sector": "Communication Services",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "RBLX",
    "name": "Roblox",
    "sector": "Communication Services",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "SPOT",
    "name": "Spotify",
    "sector": "Communication Services",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "TEM",
@@ -960,7 +954,7 @@
    "sym": "PATH",
    "name": "UiPath",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "CFLT",
@@ -978,7 +972,7 @@
    "sym": "NET",
    "name": "Cloudflare",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "MDB",
@@ -996,7 +990,7 @@
    "sym": "ESTC",
    "name": "Elastic",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "HOOD",
@@ -1020,7 +1014,7 @@
    "sym": "CCJ",
    "name": "Cameco",
    "sector": "Energy",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "OKLO",
@@ -1032,7 +1026,7 @@
    "sym": "TLN",
    "name": "Talen Energy",
    "sector": "Utilities",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "RIVN",
@@ -1137,12 +1131,6 @@
    "index": "NASDAQ"
   },
   {
-   "sym": "EA",
-   "name": "Electronic Arts",
-   "sector": "Communication Services",
-   "index": "SP500"
-  },
-  {
    "sym": "TTWO",
    "name": "Take-Two Interactive",
    "sector": "Communication Services",
@@ -1170,7 +1158,7 @@
    "sym": "ONON",
    "name": "On Holding",
    "sector": "Consumer",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "TRGP",
@@ -1188,13 +1176,13 @@
    "sym": "SEI",
    "name": "Solaris Energy Infrastructure",
    "sector": "Energy",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "LBRT",
    "name": "Liberty Energy",
    "sector": "Energy",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "KMI",
@@ -1225,14 +1213,14 @@
    "sym": "RS",
    "name": "Reliance, Inc.",
    "sector": "Materials",
-   "index": "SP500",
+   "index": "NYSE",
    "memo": "[2026-08-09 REFERENCE] Steel/metal distribution strength is a relative-strength lead. Confirm with operating data, margin/cycle exposure, support/retest behavior and volume; do not promote a chart observation to a fundamental thesis without filings."
   },
   {
    "sym": "SHOP",
    "name": "Shopify",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "ABNB",
@@ -1292,7 +1280,7 @@
    "sym": "TOST",
    "name": "Toast",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "GRAB",
@@ -1304,13 +1292,13 @@
    "sym": "SE",
    "name": "Sea Limited",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "ADR"
   },
   {
    "sym": "NU",
    "name": "Nu Holdings",
    "sector": "Financials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "PYPL",
@@ -1542,12 +1530,6 @@
    "index": "SP500"
   },
   {
-   "sym": "MMC",
-   "name": "Marsh McLennan",
-   "sector": "Financials",
-   "index": "SP500"
-  },
-  {
    "sym": "AIG",
    "name": "American International Group",
    "sector": "Financials",
@@ -1560,9 +1542,9 @@
    "index": "SP500"
   },
   {
-   "sym": "FI",
-   "name": "Fastenal",
-   "sector": "Industrials",
+   "sym": "FISV",
+   "name": "Fiserv",
+   "sector": "Financials",
    "index": "SP500"
   },
   {
@@ -1752,8 +1734,8 @@
    "index": "SP500"
   },
   {
-   "sym": "BK",
-   "name": "The Bank of New York Mellon",
+   "sym": "BNY",
+   "name": "BNY Mellon",
    "sector": "Financials",
    "index": "SP500"
   },
@@ -1889,7 +1871,7 @@
    "sym": "NVT",
    "name": "nVent Electric",
    "sector": "Industrials",
-   "index": "SP500",
+   "index": "NYSE",
    "memo": "[2026-08-09 TG-REFERENCE] Power-quality and high-density data-center equipment are a downstream beneficiary hypothesis. Verify enclosure/distribution backlog, pricing, lead times, thermal requirements and customer/site readiness."
   },
   {
@@ -2033,7 +2015,7 @@
    "sym": "MTZ",
    "name": "MasTec",
    "sector": "Industrials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "MRSH",
@@ -2099,7 +2081,7 @@
    "sym": "KEX",
    "name": "Kirby Corp",
    "sector": "Industrials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "RCL",
@@ -2468,12 +2450,6 @@
    "index": "SP500"
   },
   {
-   "sym": "ANSS",
-   "name": "ANSYS",
-   "sector": "Technology",
-   "index": "SP500"
-  },
-  {
    "sym": "HIG",
    "name": "Hartford Financial",
    "sector": "Financials",
@@ -2543,12 +2519,6 @@
    "sym": "IT",
    "name": "Gartner",
    "sector": "Technology",
-   "index": "SP500"
-  },
-  {
-   "sym": "K",
-   "name": "Kellanova",
-   "sector": "Consumer Defensive",
    "index": "SP500"
   },
   {
@@ -2660,12 +2630,6 @@
    "index": "SP500"
   },
   {
-   "sym": "AVB",
-   "name": "AvalonBay",
-   "sector": "Real Estate",
-   "index": "SP500"
-  },
-  {
    "sym": "MAA",
    "name": "Mid-America Apartment",
    "sector": "Real Estate",
@@ -2723,7 +2687,7 @@
    "sym": "MKTX",
    "name": "MarketAxess",
    "sector": "Financials",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "LYV",
@@ -2778,7 +2742,7 @@
    "sym": "CAG",
    "name": "Conagra Brands",
    "sector": "Consumer Defensive",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "NI",
@@ -2790,12 +2754,6 @@
    "sym": "KDP",
    "name": "Keurig Dr Pepper",
    "sector": "Consumer Defensive",
-   "index": "SP500"
-  },
-  {
-   "sym": "HOLX",
-   "name": "Hologic",
-   "sector": "Healthcare",
    "index": "SP500"
   },
   {
@@ -2838,7 +2796,7 @@
    "sym": "MOH",
    "name": "Molina Healthcare",
    "sector": "Healthcare",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "PFG",
@@ -2904,7 +2862,7 @@
    "sym": "WSO",
    "name": "Watsco",
    "sector": "Industrials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "BAX",
@@ -2916,7 +2874,7 @@
    "sym": "CPB",
    "name": "Campbell Soup",
    "sector": "Consumer Defensive",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "DVA",
@@ -2943,12 +2901,6 @@
    "index": "SP500"
   },
   {
-   "sym": "WBA",
-   "name": "Walgreens",
-   "sector": "Healthcare",
-   "index": "SP500"
-  },
-  {
    "sym": "CINF",
    "name": "Cincinnati Financial",
    "sector": "Financials",
@@ -2958,13 +2910,13 @@
    "sym": "POOL",
    "name": "Pool Corp",
    "sector": "Consumer",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "EMN",
    "name": "Eastman Chemical",
    "sector": "Materials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "NVR",
@@ -2976,7 +2928,7 @@
    "sym": "BLDR",
    "name": "Builders FirstSource",
    "sector": "Consumer",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "NTRS",
@@ -2985,16 +2937,10 @@
    "index": "SP500"
   },
   {
-   "sym": "IPG",
-   "name": "Interpublic Group",
-   "sector": "Communication Services",
-   "index": "SP500"
-  },
-  {
    "sym": "LKQ",
    "name": "LKQ Corp",
    "sector": "Consumer",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "FSLR",
@@ -3006,7 +2952,7 @@
    "sym": "ENPH",
    "name": "Enphase Energy",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "ON",
@@ -3048,7 +2994,7 @@
    "sym": "TFX",
    "name": "Teleflex",
    "sector": "Healthcare",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "ILMN",
@@ -3085,7 +3031,7 @@
    "sym": "BBWI",
    "name": "Bath & Body Works",
    "sector": "Consumer",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "MGM",
@@ -3109,13 +3055,13 @@
    "sym": "CZR",
    "name": "Caesars Entertainment",
    "sector": "Consumer",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "CE",
    "name": "Celanese",
    "sector": "Materials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "GL",
@@ -3148,18 +3094,6 @@
    "index": "SP500"
   },
   {
-   "sym": "WRK",
-   "name": "WestRock",
-   "sector": "Materials",
-   "index": "SP500"
-  },
-  {
-   "sym": "JNPR",
-   "name": "Juniper Networks",
-   "sector": "Technology",
-   "index": "SP500"
-  },
-  {
    "sym": "UDR",
    "name": "UDR Inc",
    "sector": "Real Estate",
@@ -3187,13 +3121,13 @@
    "sym": "MHK",
    "name": "Mohawk Industries",
    "sector": "Consumer",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "MTCH",
    "name": "Match Group",
    "sector": "Communication Services",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "GNRC",
@@ -3205,13 +3139,7 @@
    "sym": "RHI",
    "name": "Robert Half",
    "sector": "Industrials",
-   "index": "SP500"
-  },
-  {
-   "sym": "DAY",
-   "name": "Dayforce",
-   "sector": "Industrials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "CHRW",
@@ -3289,7 +3217,7 @@
    "sym": "BIO",
    "name": "Bio-Rad Labs",
    "sector": "Healthcare",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "VTRS",
@@ -3319,13 +3247,13 @@
    "sym": "PAYC",
    "name": "Paycom",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "EPAM",
    "name": "EPAM Systems",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "RVTY",
@@ -3343,13 +3271,13 @@
    "sym": "BWA",
    "name": "BorgWarner",
    "sector": "Industrials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "PSKY",
    "name": "Paramount Skydance",
    "sector": "Communication Services",
-   "index": ""
+   "index": "SP500"
   },
   {
    "sym": "WYNN",
@@ -3385,7 +3313,7 @@
    "sym": "GFS",
    "name": "GlobalFoundries",
    "sector": "Technology",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "MCHP",
@@ -3889,7 +3817,7 @@
    "sym": "LNG",
    "name": "Cheniere Energy",
    "sector": "Energy",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "CCEP",
@@ -3907,7 +3835,7 @@
    "sym": "ALNY",
    "name": "Alnylam Pharma",
    "sector": "Healthcare",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "ARGX",
@@ -3949,7 +3877,7 @@
    "sym": "HEI",
    "name": "HEICO Corp",
    "sector": "Industrials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "FER",
@@ -3973,7 +3901,7 @@
    "sym": "SPY",
    "name": "SPDR S&P 500 ETF",
    "sector": "ETF",
-   "index": "SP500"
+   "index": "ETF"
   },
   {
    "sym": "QQQ",
@@ -3985,19 +3913,19 @@
    "sym": "VTI",
    "name": "Vanguard Total Market",
    "sector": "ETF",
-   "index": "SP500"
+   "index": "ETF"
   },
   {
    "sym": "VOO",
    "name": "Vanguard S&P 500",
    "sector": "ETF",
-   "index": "SP500"
+   "index": "ETF"
   },
   {
    "sym": "IVV",
    "name": "iShares Core S&P 500",
    "sector": "ETF",
-   "index": "SP500"
+   "index": "ETF"
   },
   {
    "sym": "SOXX",
@@ -4333,7 +4261,7 @@
    "sym": "AA",
    "name": "Alcoa Corp",
    "sector": "Basic Materials",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "BIIB",
@@ -4351,7 +4279,7 @@
    "sym": "ETSY",
    "name": "Etsy",
    "sector": "Consumer Cyclical",
-   "index": "SP500"
+   "index": "NASDAQ"
   },
   {
    "sym": "LAC",
@@ -4387,7 +4315,7 @@
    "sym": "STAG",
    "name": "STAG Industrial",
    "sector": "Real Estate",
-   "index": "SP500"
+   "index": "NYSE"
   },
   {
    "sym": "IBIT",
@@ -5301,6 +5229,426 @@
    "name": "Lattice Semiconductor",
    "sector": "Technology",
    "index": "NASDAQ100"
+  },
+  {
+   "sym": "AOS",
+   "name": "A. O. Smith",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "AMCR",
+   "name": "Amcor",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "AEE",
+   "name": "Ameren",
+   "sector": "Utilities",
+   "index": "SP500"
+  },
+  {
+   "sym": "APA",
+   "name": "APA Corporation",
+   "sector": "Energy",
+   "index": "SP500"
+  },
+  {
+   "sym": "AVY",
+   "name": "Avery Dennison",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "BALL",
+   "name": "Ball Corporation",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "BBY",
+   "name": "Best Buy",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "BF-B",
+   "name": "Brown–Forman",
+   "sector": "Consumer Defensive",
+   "index": "SP500"
+  },
+  {
+   "sym": "CASY",
+   "name": "Casey's",
+   "sector": "Consumer Defensive",
+   "index": "SP500"
+  },
+  {
+   "sym": "CNP",
+   "name": "CenterPoint Energy",
+   "sector": "Utilities",
+   "index": "SP500"
+  },
+  {
+   "sym": "CF",
+   "name": "CF Industries",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "CSGP",
+   "name": "CoStar Group",
+   "sector": "Real Estate",
+   "index": "SP500"
+  },
+  {
+   "sym": "CCI",
+   "name": "Crown Castle",
+   "sector": "Real Estate",
+   "index": "SP500"
+  },
+  {
+   "sym": "DRI",
+   "name": "Darden Restaurants",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "DTE",
+   "name": "DTE Energy",
+   "sector": "Utilities",
+   "index": "SP500"
+  },
+  {
+   "sym": "ECHO",
+   "name": "EchoStar",
+   "sector": "Communication Services",
+   "index": "SP500"
+  },
+  {
+   "sym": "EME",
+   "name": "Emcor",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "ERIE",
+   "name": "Erie Indemnity",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "EL",
+   "name": "Estée Lauder Companies (The)",
+   "sector": "Consumer Defensive",
+   "index": "SP500"
+  },
+  {
+   "sym": "P",
+   "name": "Everpure",
+   "sector": "Technology",
+   "index": "SP500"
+  },
+  {
+   "sym": "EXE",
+   "name": "Expand Energy",
+   "sector": "Energy",
+   "index": "SP500"
+  },
+  {
+   "sym": "EXPE",
+   "name": "Expedia Group",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "FDXF",
+   "name": "FedEx Freight",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "FIS",
+   "name": "Fidelity National Information Services",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "FLEX",
+   "name": "Flex Ltd.",
+   "sector": "Technology",
+   "index": "SP500"
+  },
+  {
+   "sym": "FTV",
+   "name": "Fortive",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "BEN",
+   "name": "Franklin Resources",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "GPC",
+   "name": "Genuine Parts Company",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "HAS",
+   "name": "Hasbro",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "DOC",
+   "name": "Healthpeak Properties",
+   "sector": "Real Estate",
+   "index": "SP500"
+  },
+  {
+   "sym": "HONA",
+   "name": "Honeywell Aerospace",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "HST",
+   "name": "Host Hotels & Resorts",
+   "sector": "Real Estate",
+   "index": "SP500"
+  },
+  {
+   "sym": "HBAN",
+   "name": "Huntington Bancshares",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "IR",
+   "name": "Ingersoll Rand",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "IBKR",
+   "name": "Interactive Brokers",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "IP",
+   "name": "International Paper",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "IVZ",
+   "name": "Invesco",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "INVH",
+   "name": "Invitation Homes",
+   "sector": "Real Estate",
+   "index": "SP500"
+  },
+  {
+   "sym": "JKHY",
+   "name": "Jack Henry & Associates",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "KMB",
+   "name": "Kimberly-Clark",
+   "sector": "Consumer Defensive",
+   "index": "SP500"
+  },
+  {
+   "sym": "LH",
+   "name": "Labcorp",
+   "sector": "Healthcare",
+   "index": "SP500"
+  },
+  {
+   "sym": "LVS",
+   "name": "Las Vegas Sands",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "LEN",
+   "name": "Lennar",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "L",
+   "name": "Loews Corporation",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "LYB",
+   "name": "LyondellBasell",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "MLM",
+   "name": "Martin Marietta Materials",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "MKC",
+   "name": "McCormick & Company",
+   "sector": "Consumer Defensive",
+   "index": "SP500"
+  },
+  {
+   "sym": "MOS",
+   "name": "Mosaic Company (The)",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "OMC",
+   "name": "Omnicom Group",
+   "sector": "Communication Services",
+   "index": "SP500"
+  },
+  {
+   "sym": "PNR",
+   "name": "Pentair",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "PCG",
+   "name": "PG&E Corporation",
+   "sector": "Utilities",
+   "index": "SP500"
+  },
+  {
+   "sym": "Q",
+   "name": "Qnity Electronics",
+   "sector": "Technology",
+   "index": "SP500"
+  },
+  {
+   "sym": "RJF",
+   "name": "Raymond James Financial",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "ROL",
+   "name": "Rollins, Inc.",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "SJM",
+   "name": "J.M. Smucker Company (The)",
+   "sector": "Consumer Defensive",
+   "index": "SP500"
+  },
+  {
+   "sym": "SW",
+   "name": "Smurfit Westrock",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "SYF",
+   "name": "Synchrony Financial",
+   "sector": "Financials",
+   "index": "SP500"
+  },
+  {
+   "sym": "TDY",
+   "name": "Teledyne Technologies",
+   "sector": "Technology",
+   "index": "SP500"
+  },
+  {
+   "sym": "TRMB",
+   "name": "Trimble Inc.",
+   "sector": "Technology",
+   "index": "SP500"
+  },
+  {
+   "sym": "TSN",
+   "name": "Tyson Foods",
+   "sector": "Consumer Defensive",
+   "index": "SP500"
+  },
+  {
+   "sym": "ULTA",
+   "name": "Ulta Beauty",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "UAL",
+   "name": "United Airlines Holdings",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "UHS",
+   "name": "Universal Health Services",
+   "sector": "Healthcare",
+   "index": "SP500"
+  },
+  {
+   "sym": "VEEV",
+   "name": "Veeva Systems",
+   "sector": "Healthcare",
+   "index": "SP500"
+  },
+  {
+   "sym": "VICI",
+   "name": "Vici Properties",
+   "sector": "Real Estate",
+   "index": "SP500"
+  },
+  {
+   "sym": "VMRK",
+   "name": "Vivmark Residential",
+   "sector": "Real Estate",
+   "index": "SP500"
+  },
+  {
+   "sym": "VMC",
+   "name": "Vulcan Materials Company",
+   "sector": "Materials",
+   "index": "SP500"
+  },
+  {
+   "sym": "WSM",
+   "name": "Williams-Sonoma, Inc.",
+   "sector": "Consumer",
+   "index": "SP500"
+  },
+  {
+   "sym": "XYL",
+   "name": "Xylem Inc.",
+   "sector": "Industrials",
+   "index": "SP500"
+  },
+  {
+   "sym": "ZBH",
+   "name": "Zimmer Biomet",
+   "sector": "Healthcare",
+   "index": "SP500"
   }
  ],
  "generatedFrom": "js/aio-data.js:SCREENER_DB",

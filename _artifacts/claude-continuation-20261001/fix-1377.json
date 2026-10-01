@@ -1,0 +1,10 @@
+{ "version": "v56.91", "date": "2026-10-01",
+  "p": { "id": 1377, "title": "refresh-data actually runs every 30 minutes",
+    "symptom": "refresh-data is scheduled every 30 min but GitHub ran it every 4-6 h; 15 of the last 40 runs failed and 2026-09-26 12:11Z-09-28 07:39Z had no successful refresh for ~43 h, so one failing producer cycle left all data stale for half a day.",
+    "root_cause": "GitHub scheduled workflows are best-effort and are delayed or dropped under load; the 12 h market-snapshot SLA (A1) then fails after two or three missed/failed cycles.",
+    "fix": "The data-plane Worker's existing 5-minute cron dispatches refresh-data.yml at :20/:50 with inputs.trigger=scheduler (needs GITHUB_DISPATCH_TOKEN, a fine-grained PAT with Actions read/write on this repo only); scheduler-triggered runs skip the operator-only full 13F chain.",
+    "violated_rule": "Freshness SLAs must be backed by a scheduler that actually fires.",
+    "prevention": "ci-data-plane-contract-check P1377: no token -> no dispatch, off-slot -> no dispatch, slot -> one POST to refresh-data.yml dispatches with ref main and trigger scheduler; workflow input and 13F guard pinned.",
+    "verification": "Fixture gate PASS. Live effect requires the owner to add GITHUB_DISPATCH_TOKEN as a Worker secret (worker/README.md)." },
+  "qa": [], "changelog": ["**데이터 갱신 주기 보강 (P1377):** GitHub 예약 실행이 4~6시간 간격으로 밀리던 문제를 Cloudflare Worker 예약(매시 20·50분) 실행 요청으로 보완. 토큰 설정 필요(worker/README.md)."],
+  "note": "v56.91 — reliable refresh dispatch (P1377), S&P 500 universe review (P1378), F&G headline gate (P1379)." }

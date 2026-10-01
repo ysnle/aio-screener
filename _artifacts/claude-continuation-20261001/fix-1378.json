@@ -1,0 +1,10 @@
+{ "version": "v56.91", "date": "2026-10-01",
+  "p": { "id": 1378, "title": "Screener universe membership review before the hard expiry",
+    "symptom": "SCREENER_DB lastBulkUpdate was 2026-07-16 (77 days; CI static-db-expiry red on main since mid-August, hard expiry 2026-10-14). 73 current S&P 500 constituents were missing, 69 rows were tagged SP500 although not members (foreign ADRs, ETFs, acquired companies), FI was labelled 'Fastenal' and BRK.B/BRK-B were duplicates.",
+    "root_cause": "The curated identity list had no review since July; index tags were never re-checked against index changes or ticker renames (SQ->XYZ, FI->FISV, BK->BNY, MMC->MRSH).",
+    "fix": "Reviewed against the Wikipedia S&P 500 constituents table (Aug 2026 revision): 70 constituents added, 3 renamed, 12 removed (acquired/private or duplicate; confirmed by no current screener price), 55 non-members retagged by listing (NYSE/NASDAQ/ADR/ETF, agent knowledge), PSKY index set; lastBulkUpdate 2026-10-01; screener-universe.json regenerated (931 rows). aio-data.js +55 lines recorded with --allow-growth (data, not code).",
+    "violated_rule": "R605 universe review cadence; one identity per instrument.",
+    "prevention": "Existing static-db-expiry gate (30-day review / 90-day hard expiry) now passes; sync-screener-universe --check parity.",
+    "verification": "sync-screener-universe --check OK (931, no drift); static-db-expiry OK (age 0.6d). New symbols receive factors on the next refresh-screener run. SEC company_tickers_exchange could not be fetched locally (SEC requires a contact e-mail User-Agent), so exchange tags are not SEC-verified." },
+  "qa": [], "changelog": ["**스크리너 종목 목록 점검 (P1378):** S&P 500 구성 종목 70개 추가, 티커 변경 3건 반영, 인수·비상장 등 12건 제거, 지수 비구성 55건 태그 정정, 'FI=Fastenal' 오기 수정. 931개."],
+  "note": "v56.91 — reliable refresh dispatch (P1377), S&P 500 universe review (P1378), F&G headline gate (P1379)." }

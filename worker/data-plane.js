@@ -26,6 +26,25 @@ export const FAST_PLANE_WRITE_POLICY = Object.freeze({
   maxSuccessfulKvWritesPerDayWorstCase: SCHEDULED_RUNS_PER_DAY * 2
 });
 
+// P1377: GitHub's own schedule ran refresh-data every 4-6 h instead of every 30 min (best-effort
+// cron), so one failing producer cycle left data stale for half a day. This worker's reliable
+// 5-minute cron dispatches the workflow at :20 and :50. Without GITHUB_DISPATCH_TOKEN (a
+// fine-grained PAT with Actions: read/write on this repository only) it does nothing.
+export const REFRESH_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-data.yml', ref: 'main', slotMinutes: [20, 50], trigger: 'scheduler' });
+
+export async function dispatchRefreshData({ env, scheduledTime = Date.now(), fetchImpl = fetch } = {}) {
+  const token = env?.GITHUB_DISPATCH_TOKEN;
+  if (!token) return { dispatched: false, reason: 'token-not-configured' };
+  if (!REFRESH_DISPATCH_POLICY.slotMinutes.includes(new Date(scheduledTime).getUTCMinutes())) return { dispatched: false, reason: 'not-a-dispatch-slot' };
+  const repo = env?.GITHUB_DISPATCH_REPO || 'ysnle/aio-screener';
+  const response = await fetchImpl(`https://api.github.com/repos/${repo}/actions/workflows/${REFRESH_DISPATCH_POLICY.workflow}/dispatches`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', 'user-agent': 'aio-data-plane-scheduler', 'content-type': 'application/json' },
+    body: JSON.stringify({ ref: REFRESH_DISPATCH_POLICY.ref, inputs: { trigger: REFRESH_DISPATCH_POLICY.trigger } })
+  });
+  return { dispatched: response.status === 204, status: response.status };
+}
+
 function origins(env) {
   return String(env?.ALLOWED_ORIGINS || DEFAULT_ORIGIN).split(',').map((value) => value.trim()).filter(Boolean);
 }
@@ -232,7 +251,8 @@ export default {
     return jsonResponse({ ok: false, error: 'not_found' }, request, env, 404);
   },
 
-  async scheduled(_controller, env, ctx) {
+  async scheduled(controller, env, ctx) {
     ctx.waitUntil(publishQuotes({ env }));
+    ctx.waitUntil(dispatchRefreshData({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
   }
 };

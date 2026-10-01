@@ -108,3 +108,17 @@ For a read-only live contract check against the currently configured endpoint,
 run `node scripts/ci-fast-plane-live-check.mjs`. It validates only `/health` and
 `/quotes`; it cannot manufacture GitHub secret configuration, provider rights, or
 the seven-day soak requirement.
+
+## refresh-data 예약 실행 보강 (P1377)
+
+GitHub 예약 실행은 30분 간격으로 설정돼 있어도 실제로는 4~6시간 간격으로 실행되는 경우가 많습니다. 데이터 플레인 Worker는 이미 5분마다 실행되므로, 매시 20분·50분(UTC)에 `refresh-data.yml`을 `trigger=scheduler`로 실행 요청합니다. 이 요청으로 시작된 실행은 13F 전체 수집을 건너뜁니다.
+
+설정은 한 번만 하면 됩니다.
+
+1. GitHub → Settings → Developer settings → Fine-grained tokens에서 새 토큰을 만듭니다.
+   - Repository access: `ysnle/aio-screener`만
+   - Permissions: Actions → Read and write (그 외 권한은 주지 않음)
+   - 만료일은 1년 이내로 정하고, 만료 전에 같은 방법으로 교체합니다.
+2. Cloudflare 대시보드 → Workers & Pages → `aio-screener-data-plane` → Settings → Variables and Secrets → **Secret**으로 `GITHUB_DISPATCH_TOKEN`을 추가합니다.
+
+토큰이 없으면 Worker는 요청을 보내지 않습니다(`token-not-configured`). 이때는 기존 GitHub 예약 실행만 동작합니다.

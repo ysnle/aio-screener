@@ -4,6 +4,33 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1379 - v56.91 - F&G semantics gate accepts a newer intraday headline (2026-10-01)
+
+- symptom/reproduction: main CI failed on every bot commit with 'fear-greed headline is the rounding of the latest daily point: headline=32 latest=31.23', blocking Pages deployment.
+- root_cause: CNN's same-day daily marker (00:00Z) and its intraday headline (13:51Z) are different observations (P1100 keeps the marker in history); the gate required equality whenever the calendar day matched.
+- fix: Equality is required only when the headline is not later than the daily marker.
+- violated_rule: A gate must encode the data's real observation semantics, not an assumed equality.
+- prevention: The check still fails if a same-day headline older than or equal to the marker differs from it.
+- verification/residual: ci-artifact-semantics-check OK on the 2026-10-01T13:56Z artifact.
+
+## P1378 - v56.91 - Screener universe membership review before the hard expiry (2026-10-01)
+
+- symptom/reproduction: SCREENER_DB lastBulkUpdate was 2026-07-16 (77 days; CI static-db-expiry red on main since mid-August, hard expiry 2026-10-14). 73 current S&P 500 constituents were missing, 69 rows were tagged SP500 although not members (foreign ADRs, ETFs, acquired companies), FI was labelled 'Fastenal' and BRK.B/BRK-B were duplicates.
+- root_cause: The curated identity list had no review since July; index tags were never re-checked against index changes or ticker renames (SQ->XYZ, FI->FISV, BK->BNY, MMC->MRSH).
+- fix: Reviewed against the Wikipedia S&P 500 constituents table (Aug 2026 revision): 70 constituents added, 3 renamed, 12 removed (acquired/private or duplicate; confirmed by no current screener price), 55 non-members retagged by listing (NYSE/NASDAQ/ADR/ETF, agent knowledge), PSKY index set; lastBulkUpdate 2026-10-01; screener-universe.json regenerated (931 rows). aio-data.js +55 lines recorded with --allow-growth (data, not code).
+- violated_rule: R605 universe review cadence; one identity per instrument.
+- prevention: Existing static-db-expiry gate (30-day review / 90-day hard expiry) now passes; sync-screener-universe --check parity.
+- verification/residual: sync-screener-universe --check OK (931, no drift); static-db-expiry OK (age 0.6d). New symbols receive factors on the next refresh-screener run. SEC company_tickers_exchange could not be fetched locally (SEC requires a contact e-mail User-Agent), so exchange tags are not SEC-verified.
+
+## P1377 - v56.91 - refresh-data actually runs every 30 minutes (2026-10-01)
+
+- symptom/reproduction: refresh-data is scheduled every 30 min but GitHub ran it every 4-6 h; 15 of the last 40 runs failed and 2026-09-26 12:11Z-09-28 07:39Z had no successful refresh for ~43 h, so one failing producer cycle left all data stale for half a day.
+- root_cause: GitHub scheduled workflows are best-effort and are delayed or dropped under load; the 12 h market-snapshot SLA (A1) then fails after two or three missed/failed cycles.
+- fix: The data-plane Worker's existing 5-minute cron dispatches refresh-data.yml at :20/:50 with inputs.trigger=scheduler (needs GITHUB_DISPATCH_TOKEN, a fine-grained PAT with Actions read/write on this repo only); scheduler-triggered runs skip the operator-only full 13F chain.
+- violated_rule: Freshness SLAs must be backed by a scheduler that actually fires.
+- prevention: ci-data-plane-contract-check P1377: no token -> no dispatch, off-slot -> no dispatch, slot -> one POST to refresh-data.yml dispatches with ref main and trigger scheduler; workflow input and 13F guard pinned.
+- verification/residual: Fixture gate PASS. Live effect requires the owner to add GITHUB_DISPATCH_TOKEN as a Worker secret (worker/README.md).
+
 ## P1376 - v56.90 - Remaining sourceless sinks: VIX9D/VIX6M cells and the macro consumer-confidence card (2026-10-01)
 
 - symptom/reproduction: After P1371, the sentiment term-structure still showed permanent VIX9D/VIX6M '—' cells (no value in production) and the macro dashboard still had a consumer-confidence card with no producer.

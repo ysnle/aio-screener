@@ -1,0 +1,10 @@
+{ "version": "v56.91", "date": "2026-10-01",
+  "p": { "id": 1379, "title": "F&G semantics gate accepts a newer intraday headline",
+    "symptom": "main CI failed on every bot commit with 'fear-greed headline is the rounding of the latest daily point: headline=32 latest=31.23', blocking Pages deployment.",
+    "root_cause": "CNN's same-day daily marker (00:00Z) and its intraday headline (13:51Z) are different observations (P1100 keeps the marker in history); the gate required equality whenever the calendar day matched.",
+    "fix": "Equality is required only when the headline is not later than the daily marker.",
+    "violated_rule": "A gate must encode the data's real observation semantics, not an assumed equality.",
+    "prevention": "The check still fails if a same-day headline older than or equal to the marker differs from it.",
+    "verification": "ci-artifact-semantics-check OK on the 2026-10-01T13:56Z artifact." },
+  "qa": [], "changelog": ["**F&G 검사 수정 (P1379):** CNN 장중 최신값과 같은 날 일별 점이 다를 때 CI가 실패해 배포가 막히던 문제 수정."],
+  "note": "v56.91 — reliable refresh dispatch (P1377), S&P 500 universe review (P1378), F&G headline gate (P1379)." }

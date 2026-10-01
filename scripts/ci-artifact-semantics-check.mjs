@@ -325,7 +325,11 @@ if (data?.fearGreed?.history) {
   const last = points[points.length - 1];
   const lastDay = String(last?.observedAt || '').slice(0, 10);
   const headlineDay = String(data.fearGreed.asOf || '').slice(0, 10);
-  if (last && lastDay && lastDay === headlineDay) {
+  // P1379: CNN's same-day daily marker (00:00) and its intraday headline are two observations;
+  // the headline may legitimately move after the marker. Equality is only required when the
+  // headline is not later than the marker (it then has no newer reading to carry).
+  const headlineLater = Date.parse(data.fearGreed.asOf || '') > Date.parse(last?.observedAt || '');
+  if (last && lastDay && lastDay === headlineDay && !headlineLater) {
     check('the fear-greed headline is the rounding of the latest daily point',
       Math.round(Number(last.score)) === Number(data.fearGreed.score),
       `headline=${data.fearGreed.score} latest=${last.score}`);

@@ -8,7 +8,15 @@ on:
   schedule:
     - cron: '17,47 * * * *'
     - cron: '13 7 * * *'
-  workflow_dispatch: {}
+  # P1377: the data-plane Worker cron dispatches with trigger=scheduler every 30 min because
+  # GitHub schedules ran only every 4-6 h. Operator dispatches keep the default trigger.
+  workflow_dispatch:
+    inputs:
+      trigger:
+        description: "operator (full 13F chain) or scheduler (data cycle only)"
+        required: false
+        default: operator
+        type: string
 
 permissions:
   contents: write
@@ -71,7 +79,7 @@ jobs:
 
       - name: Refresh weekly SEC 13F and daily 13D-G discovery
         id: masters
-        if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || github.event.schedule == '13 7 * * *') }}
+        if: ${{ !cancelled() && ((github.event_name == 'workflow_dispatch' && inputs.trigger != 'scheduler') || github.event.schedule == '13 7 * * *') }}
         env:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: |

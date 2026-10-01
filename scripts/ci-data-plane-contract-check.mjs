@@ -142,4 +142,23 @@ try {
   globalThis.fetch = originalFetch;
 }
 
+// P1377: the Worker cron dispatches refresh-data at :20/:50 only with a token, as trigger=scheduler,
+// and the workflow skips the operator-only full 13F chain for that trigger.
+{
+  const { dispatchRefreshData, REFRESH_DISPATCH_POLICY } = await import('../worker/data-plane.js');
+  const calls = [];
+  const fetchImpl = async (url, init) => { calls.push({ url, init }); return new Response(null, { status: 204 }); };
+  const slot = Date.parse('2026-10-01T13:20:00Z');
+  const none = await dispatchRefreshData({ env: {}, scheduledTime: slot, fetchImpl });
+  const offSlot = await dispatchRefreshData({ env: { GITHUB_DISPATCH_TOKEN: 'fixture' }, scheduledTime: Date.parse('2026-10-01T13:25:00Z'), fetchImpl });
+  const sent = await dispatchRefreshData({ env: { GITHUB_DISPATCH_TOKEN: 'fixture' }, scheduledTime: slot, fetchImpl });
+  const body = calls[0] ? JSON.parse(calls[0].init.body) : null;
+  if (none.dispatched || none.reason !== 'token-not-configured' || offSlot.dispatched || !sent.dispatched || calls.length !== 1
+    || !/\/repos\/ysnle\/aio-screener\/actions\/workflows\/refresh-data\.yml\/dispatches$/.test(calls[0].url)
+    || body?.ref !== 'main' || body?.inputs?.trigger !== REFRESH_DISPATCH_POLICY.trigger) fail(`P1377 refresh dispatch contract regressed: ${JSON.stringify({ none, offSlot, sent, calls: calls.length, body })}`);
+  const refreshWorkflow = read('.github/workflows/refresh-data.yml');
+  if (!/workflow_dispatch:\n\s+inputs:\n\s+trigger:/.test(refreshWorkflow) || !/inputs\.trigger != 'scheduler'/.test(refreshWorkflow)) fail('P1377 refresh-data must accept trigger=scheduler and keep the full 13F chain operator-only');
+  if (!/dispatchRefreshData\(\{ env, scheduledTime: controller\?\.scheduledTime/.test(worker)) fail('P1377 scheduled() must dispatch refresh-data');
+}
+
 console.log(JSON.stringify({ ok: true, worker: 'cron+kv', kvSmoke: 'health/fixture-pass', qg: ['QG-01', 'QG-06', 'QG-08'], deploy: 'exact-CI-attested-auto+rollback' }));
