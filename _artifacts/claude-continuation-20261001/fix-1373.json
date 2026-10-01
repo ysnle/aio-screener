@@ -1,0 +1,10 @@
+{ "version": "v56.90", "date": "2026-10-01",
+  "p": { "id": 1373, "title": "News selection covers Korea, FX/bonds and credit",
+    "symptom": "The published 40-item news cycle had 0 Korea, 0 fxbond and 0 credit items (only us/semi, us/macro, global/geo, us/analyst).",
+    "root_cause": "The Korean Google News edition (hl=ko) was queried with English terms and returned no in-cycle items; fxbond/credit items lost a pure score ranking to semis/macro/geo.",
+    "fix": "Korean query in Korean; after the 3 reserved Korea slots, floors of 3 fxbond and 2 credit items before the score-ordered fill.",
+    "violated_rule": "Korean-market content is a user-facing feature (AGENTS.md).",
+    "prevention": "ci-data-pipeline-contract-check P1373 pins the Korean query and the topic floors.",
+    "verification": "Static gate PASS; live proof is the next Actions news cycle." },
+  "qa": [], "changelog": ["**뉴스 주제 균형 (P1373):** 한국 뉴스 검색어를 한국어로 바꾸고 환율·채권·신용 기사 최소 할당을 둬 40건이 반도체·거시·지정학으로만 채워지지 않게 함."],
+  "note": "v56.90 — AI market analysis Korean/session guard (P1372), news coverage (P1373), SEC bank revenue (P1374), FOMC target range (P1375), sourceless sinks follow-up (P1376)." }

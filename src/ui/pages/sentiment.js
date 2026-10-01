@@ -63,6 +63,13 @@ function setMetric(documentRef, selector, value, evidence, digits = 1, suffix = 
   annotate(element, evidence);
 }
 
+// 2026-10-01 (P1371 policy): VIX9D/VIX6M have no producer in production (Yahoo returns nothing);
+// their cells stay hidden until a value exists instead of showing a permanent "—".
+function showCellWhenObserved(documentRef, selector, value) {
+  const cell = documentRef?.querySelector?.(selector)?.parentElement;
+  if (cell) cell.hidden = finite(value) == null;
+}
+
 function drawFallback(canvas, values, label) {
   if (!canvas) return false;
   const finiteValues = (values || []).map(finite).filter((value) => value !== null);
@@ -245,10 +252,12 @@ function renderSentiment(documentRef, state, evidenceStore, chartFactory, charts
   renderNeedle(documentRef, fg.score);
 
   setMetric(documentRef, '[data-live-price="^VIX9D"]', sentiment.vix9d, getEvidence('vix9d'));
+  showCellWhenObserved(documentRef, '[data-live-price="^VIX9D"]', sentiment.vix9d);
   const vixElement = setMetric(documentRef, '#vix-live-val', sentiment.vix, getEvidence('vix'), 1);
   setText(documentRef, 'vix-live-label', getEvidence('vix')?.allowedUse === 'decision' ? '현재 관측' : '참고값');
   setMetric(documentRef, '[data-live-price="^VIX3M"]', sentiment.vix3m, getEvidence('vix3m'));
   setMetric(documentRef, '[data-live-price="^VIX6M"]', sentiment.vix6m, getEvidence('vix6m'));
+  showCellWhenObserved(documentRef, '[data-live-price="^VIX6M"]', sentiment.vix6m);
   const skew = sentiment.skew || {};
   const skewValue = setText(documentRef, 'sent-skew-value', formatNumber(skew.value, 2));
   const skewMeta = setText(documentRef, 'sent-skew-meta', finite(skew.value) == null

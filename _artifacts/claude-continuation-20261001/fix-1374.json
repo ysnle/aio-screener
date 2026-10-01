@@ -1,0 +1,10 @@
+{ "version": "v56.90", "date": "2026-10-01",
+  "p": { "id": 1374, "title": "SEC fundamentals cover banks reporting revenue net of interest expense",
+    "symptom": "GS, FITB, RF, TFC and other US-GAAP 10-K filers were terminal 'required-us-gaap-annual-concepts-unavailable' (46 such rows), so their SEC cards were empty.",
+    "root_cause": "Revenue used only RevenueFromContractWithCustomerExcludingAssessedTax/Revenues/SalesRevenueNet; terminal rows were never rechecked after the concept set changed.",
+    "fix": "RevenuesNetOfInterestExpense added as the lowest-priority revenue concept; concept-coverage failures record SEC_CONCEPT_SET_VERSION and are rechecked once when it changes.",
+    "violated_rule": "Coverage gaps should be closed from the official source before considering paid data (AGENTS.md budget).",
+    "prevention": "ci-data-pipeline-contract-check P1374: bank-only fixture yields margin/growth; a filer with both concepts keeps standard revenue; recheck logic pinned.",
+    "verification": "Fixture gate PASS; actual coverage change appears after the next refresh-screener runs (batch 24)." },
+  "qa": [], "changelog": ["**SEC 은행 매출 지원 (P1374):** 이자비용 차감 순영업수익(RevenuesNetOfInterestExpense)을 매출 대체 개념으로 추가하고, 개념 집합이 바뀌면 제외됐던 종목을 자동 재확인."],
+  "note": "v56.90 — AI market analysis Korean/session guard (P1372), news coverage (P1373), SEC bank revenue (P1374), FOMC target range (P1375), sourceless sinks follow-up (P1376)." }

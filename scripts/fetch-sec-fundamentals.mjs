@@ -139,6 +139,10 @@ function latestIso(values) {
  * concept set. Classify that boundary before scheduling so terminally
  * unsupported issuers do not occupy every future retry batch.
  */
+// P1374: concept-coverage failures are only terminal for the concept set that produced them.
+// Bump when the annual revenue/income concept lists change so those rows are rechecked once.
+export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v2';
+
 export function classifyIssuerCapability(companyFacts, submissions = null) {
   const taxonomies = Object.keys(companyFacts?.facts || {});
   const hasUsGaap = taxonomies.includes('us-gaap');
@@ -186,7 +190,10 @@ function buildPointInTimeFacts(companyFacts, submissions) {
   const revenueRows = factRows(companyFacts, 'us-gaap', [
     'RevenueFromContractWithCustomerExcludingAssessedTax',
     'Revenues',
-    'SalesRevenueNet'
+    'SalesRevenueNet',
+    // P1374: banks/broker-dealers (GS, FITB, RF, TFC…) report total revenue net of interest expense.
+    // Lowest priority: dedupeLatestFiled keeps the earlier concept for the same period/filing.
+    'RevenuesNetOfInterestExpense'
   ], 'USD').filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
@@ -261,7 +268,10 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const revenues = annualDurationRows(companyFacts, [
     'RevenueFromContractWithCustomerExcludingAssessedTax',
     'Revenues',
-    'SalesRevenueNet'
+    'SalesRevenueNet',
+    // P1374: banks/broker-dealers (GS, FITB, RF, TFC…) report total revenue net of interest expense.
+    // Lowest priority: dedupeLatestFiled keeps the earlier concept for the same period/filing.
+    'RevenuesNetOfInterestExpense'
   ]);
   const incomes = annualDurationRows(companyFacts, ['NetIncomeLoss', 'ProfitLoss']);
   if (!revenues.length) return null;
@@ -449,7 +459,10 @@ export async function refreshSecFundamentals(priceHints = null) {
     }))
     .filter(row => {
       if (force) return true;
-      if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported) return false;
+      const conceptSetChanged = row.priorFailure?.reasonCode === 'required-us-gaap-annual-concepts-unavailable'
+        && row.priorFailure?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION;
+      if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported && !conceptSetChanged) return false;
+      if (conceptSetChanged) return true;
       const dataDue = !row.fetchedAt || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
       const retryDue = retryFailedNow || !row.lastFailureAt || now - new Date(row.lastFailureAt).getTime() >= FAILURE_RETRY_AFTER_MS;
       return dataDue && retryDue;
@@ -499,6 +512,7 @@ export async function refreshSecFundamentals(priceHints = null) {
           status: 'TERMINAL_UNSUPPORTED',
           reasonCode: 'required-us-gaap-annual-concepts-unavailable',
           reason: 'no comparable annual US-GAAP revenue/net-income facts',
+          conceptSetVersion: SEC_CONCEPT_SET_VERSION,
           issuerTaxonomy: capability.issuerTaxonomy,
           filingForms: capability.filingForms,
           attemptedAt,

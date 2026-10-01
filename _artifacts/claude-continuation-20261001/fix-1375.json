@@ -1,0 +1,10 @@
+{ "version": "v56.90", "date": "2026-10-01",
+  "p": { "id": 1375, "title": "Policy-rate surfaces show the FOMC target range, not the FEDFUNDS monthly average",
+    "symptom": "The global policy-rate table compared BOK 3.00% with US 3.63% (FEDFUNDS August average), and the macro 'now' card and CP2 showed 3.63 while the same app reported the 2026-09-16 decision 3.75-4.00%.",
+    "root_cause": "DATA_SNAPSHOT.fedRate started as the official range and was overwritten by the server FEDFUNDS monthly average; one key carried two concepts.",
+    "fix": "Producer adds FRED DFEDTARL/DFEDTARU; new fed-target sink (legacy map and native market.js) shows the range with source, falling back to the official FOMC decision registry; the monthly-average card keeps fed-rate.",
+    "violated_rule": "One metric, one meaning; compare like with like.",
+    "prevention": "Native readSnapshotMetric handles fed-target explicitly; browser check shows '3.75-4.00% · FOMC 결정 2026-09-16' on macro and signal.",
+    "verification": "Local browser verification on macro and signal routes." },
+  "qa": [], "changelog": ["**연준 정책금리 표기 (P1375):** 정책금리 비교·요약에 월평균 실효금리(3.63%) 대신 FOMC 목표범위(3.75–4.00%)를 표시하고 FRED 일별 목표범위 수집을 추가."],
+  "note": "v56.90 — AI market analysis Korean/session guard (P1372), news coverage (P1373), SEC bank revenue (P1374), FOMC target range (P1375), sourceless sinks follow-up (P1376)." }

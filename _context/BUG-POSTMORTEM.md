@@ -4,6 +4,51 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1376 - v56.90 - Remaining sourceless sinks: VIX9D/VIX6M cells and the macro consumer-confidence card (2026-10-01)
+
+- symptom/reproduction: After P1371, the sentiment term-structure still showed permanent VIX9D/VIX6M '—' cells (no value in production) and the macro dashboard still had a consumer-confidence card with no producer.
+- root_cause: P1371 removed the risk-monitor and macro-row sinks but not these two duplicate surfaces.
+- fix: VIX9D/VIX6M cells are hidden until a value exists (grid adapts to visible cells); the consumer-confidence card is removed (Conference Board has no free source; UMCSENT is a different index, P593).
+- violated_rule: Product decision 2026-10-01: hide widgets whose source does not exist.
+- prevention: No data-snap='cons-conf' sink remains; sentiment.js showCellWhenObserved hides unobserved term cells.
+- verification/residual: Local browser: term cells VIX/VIX3M visible, VIX9D/VIX6M hidden; no consumer-confidence sink.
+
+## P1375 - v56.90 - Policy-rate surfaces show the FOMC target range, not the FEDFUNDS monthly average (2026-10-01)
+
+- symptom/reproduction: The global policy-rate table compared BOK 3.00% with US 3.63% (FEDFUNDS August average), and the macro 'now' card and CP2 showed 3.63 while the same app reported the 2026-09-16 decision 3.75-4.00%.
+- root_cause: DATA_SNAPSHOT.fedRate started as the official range and was overwritten by the server FEDFUNDS monthly average; one key carried two concepts.
+- fix: Producer adds FRED DFEDTARL/DFEDTARU; new fed-target sink (legacy map and native market.js) shows the range with source, falling back to the official FOMC decision registry; the monthly-average card keeps fed-rate.
+- violated_rule: One metric, one meaning; compare like with like.
+- prevention: Native readSnapshotMetric handles fed-target explicitly; browser check shows '3.75-4.00% · FOMC 결정 2026-09-16' on macro and signal.
+- verification/residual: Local browser verification on macro and signal routes.
+
+## P1374 - v56.90 - SEC fundamentals cover banks reporting revenue net of interest expense (2026-10-01)
+
+- symptom/reproduction: GS, FITB, RF, TFC and other US-GAAP 10-K filers were terminal 'required-us-gaap-annual-concepts-unavailable' (46 such rows), so their SEC cards were empty.
+- root_cause: Revenue used only RevenueFromContractWithCustomerExcludingAssessedTax/Revenues/SalesRevenueNet; terminal rows were never rechecked after the concept set changed.
+- fix: RevenuesNetOfInterestExpense added as the lowest-priority revenue concept; concept-coverage failures record SEC_CONCEPT_SET_VERSION and are rechecked once when it changes.
+- violated_rule: Coverage gaps should be closed from the official source before considering paid data (AGENTS.md budget).
+- prevention: ci-data-pipeline-contract-check P1374: bank-only fixture yields margin/growth; a filer with both concepts keeps standard revenue; recheck logic pinned.
+- verification/residual: Fixture gate PASS; actual coverage change appears after the next refresh-screener runs (batch 24).
+
+## P1373 - v56.90 - News selection covers Korea, FX/bonds and credit (2026-10-01)
+
+- symptom/reproduction: The published 40-item news cycle had 0 Korea, 0 fxbond and 0 credit items (only us/semi, us/macro, global/geo, us/analyst).
+- root_cause: The Korean Google News edition (hl=ko) was queried with English terms and returned no in-cycle items; fxbond/credit items lost a pure score ranking to semis/macro/geo.
+- fix: Korean query in Korean; after the 3 reserved Korea slots, floors of 3 fxbond and 2 credit items before the score-ordered fill.
+- violated_rule: Korean-market content is a user-facing feature (AGENTS.md).
+- prevention: ci-data-pipeline-contract-check P1373 pins the Korean query and the topic floors.
+- verification/residual: Static gate PASS; live proof is the next Actions news cycle.
+
+## P1372 - v56.90 - Server AI market analysis must be Korean, heading-free and session-true (2026-10-01)
+
+- symptom/reproduction: The 2026-10-01 data.json marketAnalysis (status verified) was an English '# Korean Market Analysis' whose one-liner was that markdown heading, and it said 'The KOSPI closed at 6,813.15' for an intraday DELAYED_IN_SESSION observation.
+- root_cause: The prompt 'Produce a concise Korean market analysis' is ambiguous (analysis of Korea vs written in Korean); evidence lines carried no session, so the model could not know the KOSPI value was intraday; the validator checked numbers but not language or session wording; the one-liner took the first line even when it was a heading.
+- fix: Prompt demands Korean plain lines and forbids calling in-session values a close; evidence lines carry session; the validator blocks language-not-korean and session-wording-mismatch; summary drops markdown headings.
+- violated_rule: Korean product surface; observation time and session are part of every value (R670).
+- prevention: ci-data-pipeline-contract-check P1372: English text blocked, 'KOSPI … 마감' with an in-session row blocked, intraday wording and a correctly closed SPX accepted.
+- verification/residual: Gate PASS with fixtures; the producer runs only in Actions, so the next published analysis is the live proof.
+
 ## P1371 - v56.89 - Sourceless widgets and ungrounded grades no longer read as data (2026-10-01)
 
 - symptom/reproduction: Production v56.83 showed SKEW as '— 현재 원천 미수신' although the live quote (141.92) had arrived; a hidden risk-monitor fallback wrote Fear & Greed '18' when the value was missing; MOVE, consumer confidence and five KR macro rows had no source at all and showed a permanent '—'; the signal/ticker strips showed a TPR letter grade derived from the reference score/rank, an 'M7 1/1' count from 1 of 7 quotes, a SIG BUY/SELL pill with no data behind it, an un-normalised RSP/SPY price ratio, and the themes cycle line an uncalibrated 'n/100'.

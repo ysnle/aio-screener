@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v56.89 — 올인원 투자 터미널</title>
+  <title>AIO Screener v56.90 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=56.89" defer></script>
-<script src="./js/aio-macro-tech.js?v=56.89" defer></script>
-<script src="./js/aio-kr-data.js?v=56.89" defer></script>
-<script src="./js/aio-pages.js?v=56.89" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=56.89">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=56.89">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=56.89">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=56.89">
+<script src="./js/aio-workspace.js?v=56.90" defer></script>
+<script src="./js/aio-macro-tech.js?v=56.90" defer></script>
+<script src="./js/aio-kr-data.js?v=56.90" defer></script>
+<script src="./js/aio-pages.js?v=56.90" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=56.90">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=56.90">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=56.90">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=56.90">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -5864,7 +5864,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v56.89</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v56.90</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6412,7 +6412,7 @@ button[data-filter-active="true"] {
         <div class="cp-num" style="color:var(--data-amber);">CP2</div>
         <div class="cp-name">통화정책</div>
         <div class="cp-score" style="color:var(--data-amber);">MEDIUM</div>
-        <div class="cp-detail" id="cp2-detail" data-evidence-id="fed-rate-fomc-calendar" data-source-kind="SNAPSHOT" data-as-of="2026-07-29">연준 <span data-snap="fed-rate">—</span>% · FOMC <span data-snap="fomc">—</span> <span id="cp2-fed-rate-meta" class="snap-meta" style="font-size:11px;color:var(--text-muted);margin-left:4px;"></span> · 금리·달러·2Y/10Y 반응으로 경로 재평가</div>
+        <div class="cp-detail" id="cp2-detail" data-evidence-id="fed-rate-fomc-calendar" data-source-kind="SNAPSHOT" data-as-of="2026-07-29">연준 목표범위 <span data-snap="fed-target">—</span> · FOMC <span data-snap="fomc">—</span> <span id="cp2-fed-rate-meta" class="snap-meta" style="font-size:11px;color:var(--text-muted);margin-left:4px;"></span> · 금리·달러·2Y/10Y 반응으로 경로 재평가</div>
         <div class="cp-meter"><div style="width:55%;height:100%;background:var(--data-amber);border-radius:3px;"></div></div>
       </div>
       <!-- CP3 -->
@@ -7139,7 +7139,7 @@ button[data-filter-active="true"] {
           <span style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">VIX 기간구조</span>
           <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="VIX 기간구조 설명" style="font-size:11px;color:var(--text-dim);">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">Term Structure 해석</span><strong>콘탱고</strong>(우상향, 정상): 단기&lt;장기 · 시장 안정. <strong>백워데이션</strong>(역전, 비정상): 단기&gt;장기 · 즉각적 공포 &gt; 미래 우려. VIX 백워데이션은 <strong>시장 패닉 신호</strong> · 역사적 바닥 1~2주 선행.</span></span>
         </div>
-        <div id="vix-term-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);">
+        <div id="vix-term-summary" style="display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);">
           <div style="padding:18px 20px 18px 0;border-right:1px solid var(--border-subtle);">
             <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">VIX9D</div>
             <div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^VIX9D">—</div>
@@ -8352,12 +8352,11 @@ button[data-filter-active="true"] {
   <div id="macro-fred-stale-banner" data-runtime-state="unavailable" data-operational-use="blocked" style="font-size:12px;color:var(--data-amber);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:4px;padding:8px 14px;margin-bottom:12px;">CPI/PCE: FRED·BLS 원천 수신 대기 · 미수신 값은 현재 판단에 사용하지 않습니다.</div>
   <!-- P1142: 파싱 시점에 window._fredData가 아직 비어 있어 결코 실행 효과가 없던 인라인 은닉 스크립트를 제거했다.
        배너는 정적 fail-closed 상태(unavailable/blocked)로 항상 표시되며, 현재 이 상태를 동적으로 갱신하는 코드는 없다. -->
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:26px;">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;">
     <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">CPI-U YoY · 공식 보도 기준 (NSA)</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="cpi-yoy" title="BLS CUUR0000SA0 · 비계절조정 CPI-U 전년비">—</span> <span id="cpi-yoy-delta" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BLS NSA headline · 분석용 SA 전년비 <span data-snap="cpi-sa-yoy" title="BLS CUSR0000SA0 · 계절조정 지수 전년비">—</span></div></div>
     <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">근원 CPI-U YoY · 공식 보도 기준 (NSA)</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="core-cpi-yoy" title="BLS CUUR0000SA0L1E · 비계절조정 근원 CPI-U 전년비">—</span> <span id="core-cpi-yoy-delta" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BLS NSA core · 분석용 SA 전년비 <span data-snap="core-cpi-sa-yoy" title="BLS CUSR0000SA0L1E · 계절조정 근원 지수 전년비">—</span></div></div>
     <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">근원 PCE</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="core-pce-yoy">—</span> <span id="core-pce-yoy-delta" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BEA 발표 기준 · 추세 확인</div></div>
     <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">NFP 신규고용</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="nfp">—</span> <span id="nfp-delta-tag" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BLS 발표 기준 · 임금·실업률과 교차 확인</div></div>
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">소비자심리</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-snap="cons-conf">—</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Conf. Board · 100↑=낙관</div></div>
   </div>
 
   <!-- 수익률 곡선 + 원자재·사이클 2열 — v52.70 아이보리 3d: 시안 구조(기존 yieldCurveChart 캔버스 재사용) -->
@@ -8534,7 +8533,7 @@ button[data-filter-active="true"] {
           <div style="font-size:10px;font-weight:800;color:var(--data-green);"> 라이브</div>
           <!-- v52.40 (P655/EF-01): "지금·라이브" 카드는 원래 data-snap="spx"(스냅샷 전용)라 "라이브" 라벨과
                모순됐다 — 전용 id로 분리해 _aioSyncMacroLiveSpxMini()가 window._liveData['^GSPC'] 우선으로 채움. -->
-          <div style="font-size:11px;color:var(--data-green);margin-top:2px;line-height:1.3;">S&P: <span id="macro-now-spx">—</span><br>Fed: <span data-snap="fed-rate">—</span><br>VIX: <span data-snap="vix">—</span></div>
+          <div style="font-size:11px;color:var(--data-green);margin-top:2px;line-height:1.3;">S&P: <span id="macro-now-spx">—</span><br>Fed 목표: <span data-snap="fed-target">—</span><br>VIX: <span data-snap="vix">—</span></div>
         </div>
       </div>
     </div>
@@ -8974,7 +8973,7 @@ button[data-filter-active="true"] {
       <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
       <table class="kr-flow-table">
         <tr><th>지표</th><th>한국</th><th>미국</th><th>일본</th><th>중국</th></tr>
-        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">—</td><td data-snap="fed-rate">—</td><td>—</td><td>—</td></tr>
+        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">—</td><td data-snap="fed-target">—</td><td>—</td><td>—</td></tr>
         <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">—</td><td data-snap="cpi">—</td><td>—</td><td>—</td></tr>
         <tr><td>GDP 성장률</td><td data-snap="kr-gdp">—</td><td>—</td><td>—</td><td>—</td></tr>
         <tr><td>환율 (vs USD)</td><td data-snap="krw">—</td><td>—</td><td>—</td><td>—</td></tr>
@@ -12547,15 +12546,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=56.89" defer></script>
-  <script src="./js/aio-data.js?v=56.89" defer></script>
-  <script src="./js/aio-ui.js?v=56.89" defer></script>
+  <script src="./js/aio-core.js?v=56.90" defer></script>
+  <script src="./js/aio-data.js?v=56.90" defer></script>
+  <script src="./js/aio-ui.js?v=56.90" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=56.89" defer></script>
+<script src="./js/aio-chat.js?v=56.90" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -12617,7 +12616,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=56.89" defer></script>
+<script src="./js/aio-glossary.js?v=56.90" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

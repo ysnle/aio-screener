@@ -211,6 +211,16 @@ function readSnapshotMetric(root, key) {
     }
     if (finite(series.value) != null) return { value: finite(series.value), source: `FRED:${FRED_SERIES[key]}` };
   }
+  if (key === 'fed-target') {
+    // P1375: the policy-rate comparison shows the FOMC target range (FRED DFEDTARL/U, daily), not the
+    // FEDFUNDS monthly average; until the producer has published it, the official decision registry.
+    const lower = finite(root?.DATA_SNAPSHOT?.fedTargetLower);
+    const upper = finite(root?.DATA_SNAPSHOT?.fedTargetUpper);
+    if (lower != null && upper != null) return { value: `${lower.toFixed(2)}–${upper.toFixed(2)}%`, source: 'FRED:DFEDTARL/DFEDTARU', formatted: true };
+    const fomc = root?.AIO_EVENT_FRESHNESS_REGISTRY?.fomc;
+    if (fomc?.policyRange) return { value: String(fomc.policyRange), source: `FOMC 결정 ${fomc.eventDate || ''}`.trim(), formatted: true };
+    return null;
+  }
   if (key === 'fed-rate') {
     const target = finite(root?._fredData?.DFEDTARU?.value);
     if (target != null) return { value: `${(target - 0.25).toFixed(2)}–${target.toFixed(2)}%`, source: 'FRED:DFEDTARU', formatted: true };

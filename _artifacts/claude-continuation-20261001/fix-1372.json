@@ -1,0 +1,10 @@
+{ "version": "v56.90", "date": "2026-10-01",
+  "p": { "id": 1372, "title": "Server AI market analysis must be Korean, heading-free and session-true",
+    "symptom": "The 2026-10-01 data.json marketAnalysis (status verified) was an English '# Korean Market Analysis' whose one-liner was that markdown heading, and it said 'The KOSPI closed at 6,813.15' for an intraday DELAYED_IN_SESSION observation.",
+    "root_cause": "The prompt 'Produce a concise Korean market analysis' is ambiguous (analysis of Korea vs written in Korean); evidence lines carried no session, so the model could not know the KOSPI value was intraday; the validator checked numbers but not language or session wording; the one-liner took the first line even when it was a heading.",
+    "fix": "Prompt demands Korean plain lines and forbids calling in-session values a close; evidence lines carry session; the validator blocks language-not-korean and session-wording-mismatch; summary drops markdown headings.",
+    "violated_rule": "Korean product surface; observation time and session are part of every value (R670).",
+    "prevention": "ci-data-pipeline-contract-check P1372: English text blocked, 'KOSPI … 마감' with an in-session row blocked, intraday wording and a correctly closed SPX accepted.",
+    "verification": "Gate PASS with fixtures; the producer runs only in Actions, so the next published analysis is the live proof." },
+  "qa": [], "changelog": ["**AI 시장 분석 한국어·시점 검증 (P1372):** 영어로 생성되고 장중 값을 '마감'이라고 쓴 분석이 'verified'로 발행되던 문제를 수정."],
+  "note": "v56.90 — AI market analysis Korean/session guard (P1372), news coverage (P1373), SEC bank revenue (P1374), FOMC target range (P1375), sourceless sinks follow-up (P1376)." }

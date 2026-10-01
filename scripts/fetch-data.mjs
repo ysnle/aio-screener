@@ -73,7 +73,11 @@ const FRED_SERIES = {
   coreCpiSa:  { id: 'CPILFESL', kind: 'yoy' },
   pce:        { id: 'PCEPI',    kind: 'yoy' },
   corePce:    { id: 'PCEPILFE', kind: 'yoy' },
-  fedRate:    { id: 'FEDFUNDS', kind: 'level' },
+  fedRate:    { id: 'FEDFUNDS', kind: 'level' }, // effective rate, MONTHLY average — not the policy target
+  // 2026-10-01: the FOMC target range itself (official daily FRED series); the policy-rate surfaces
+  // compared FEDFUNDS' monthly average (3.63) with BOK's policy rate and the 3.75-4.00 decision.
+  fedTargetLower: { id: 'DFEDTARL', kind: 'level' },
+  fedTargetUpper: { id: 'DFEDTARU', kind: 'level' },
   unemployment:{ id: 'UNRATE',  kind: 'level' },
   nfp:        { id: 'PAYEMS',   kind: 'mom_diff' }, // 천명 단위 (e.g. 172)
   housingStarts: { id: 'HOUST',          kind: 'level', scale: 0.001 }, // 천 단위→백만 단위 (DATA_SNAPSHOT.housingStarts는 1.47M 형태)
@@ -1305,7 +1309,8 @@ const NEWS_FEEDS = [
   { query: 'dollar OR yen OR Treasury yields OR bond market OR credit spreads OR gold when:2d', source: 'Google News - FX/Bonds', topic: 'fxbond', country: 'global', tier: 1 },
   { query: 'LQD OR HYG OR corporate bonds OR credit spreads OR investment grade OAS OR rating downgrade OR AI capex funding OR data center financing when:2d', source: 'Google News - Credit/Funding', topic: 'credit', country: 'global', tier: 1 },
   { query: 'upgrade OR downgrade OR price target OR analyst rating OR earnings guidance stock when:2d', source: 'Google News - Analyst/Earnings', topic: 'analyst', country: 'us', tier: 2 },
-  { query: 'KOSPI Samsung Electronics SK Hynix AI semiconductor selloff rebound Micron foreign investors when:2d', source: 'Google News - Korea markets', topic: 'korea', country: 'kr', tier: 2 },
+  // P1373: the ko/KR edition was queried with English terms and returned no in-cycle items.
+  { query: '코스피 OR 코스닥 OR 삼성전자 OR SK하이닉스 OR 외국인 순매수 OR 원달러 환율 when:2d', source: 'Google News - Korea markets', topic: 'korea', country: 'kr', tier: 2 },
 ].map(feed => ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
 
 const SERVER_NEWS_PRIORITY_RULES = [
@@ -1498,7 +1503,21 @@ async function fetchNews() {
     seen.add(k);
     pushItem(it);
   }
-  // 나머지 슬롯(최대 37개)을 US/글로벌 뉴스로 채움
+  // P1373: score-only ranking let semis/macro/geo fill every slot (fxbond and credit got 0 of 40).
+  // Reserve a small floor per under-covered topic before the score-ordered fill.
+  for (const [topic, floor] of [['fxbond', 3], ['credit', 2]]) {
+    let taken = 0;
+    for (const it of items) {
+      if (taken >= floor || out.length >= 40) break;
+      if (it.topic !== topic) continue;
+      const k = it.title.toLowerCase().slice(0, 60);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      pushItem(it);
+      taken += 1;
+    }
+  }
+  // 나머지 슬롯을 US/글로벌 뉴스로 채움
   for (const it of items) {
     if (out.length >= 40) break;
     const k = it.title.toLowerCase().slice(0, 60);
@@ -3233,6 +3252,8 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
       sourceTier: row?.sourceTier || 'unknown',
       sourceKind: (canonical ? canonical.sourceKind : row?.sourceKind) || 'market-quote',
       allowedUse: (canonical ? canonical.allowedUse : row?.allowedUse) || 'reference-only',
+      // P1372: an intraday delayed value must not be narrated as a close.
+      session: canonical?.session || row?.marketState || null,
       status: 'observed',
     });
   }
@@ -3305,6 +3326,17 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   if (!body) issues.push('empty');
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
+  // P1372: "a concise Korean market analysis" produced an English analysis *of the Korean
+  // market*. The product is Korean; English prose is not publishable.
+  const hangul = (body.match(/[가-힣]/g) || []).length;
+  const latin = (body.match(/[A-Za-z]/g) || []).length;
+  if (body && latin >= 30 && hangul < latin * 0.6) issues.push('language-not-korean');
+  const CLOSED_SESSIONS = ['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'REGULAR'];
+  for (const row of metricEvidence) {
+    if (!row.session || CLOSED_SESSIONS.includes(row.session)) continue;
+    const label = String(row.label || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (label && new RegExp(`${label}(?:(?![.。,]\\s|\\n|이고|이며|[A-Z]{2,}).){0,40}(?:마감|종가|closed|closing|close at)`).test(body)) issues.push(`session-wording-mismatch:${row.metricId}`);
+  }
   // Proximity is an ambiguity signal, not a false number: a correct sentence that lists
   // VIX and Fear & Greed together is not a fabrication. The precise guard is
   // `metric-value-mismatch`, which compares the stated number with its own evidence row.
@@ -3521,7 +3553,8 @@ export function buildMarketAnalysisHeadlineContext(data) {
 }
 
 function _marketAnalysisSummary(text) {
-  return String(text || '').trim().split(/\n+/).map(line => line.trim()).filter(Boolean).join('\n').slice(0, 2400);
+  // P1372: a markdown heading ("# ... Analysis") is not analysis text and must not become the one-liner.
+  return String(text || '').trim().split(/\n+/).map(line => line.trim()).filter((line) => line && !/^#{1,6}\s/.test(line)).join('\n').slice(0, 2400);
 }
 
 function _marketAnalysisOneLine(summary) {
@@ -3723,13 +3756,14 @@ export async function genMarketAnalysis(data, snapshot = null) {
   try {
     const q = {};
     (data.quotes || []).forEach(row => { if (row?.symbol) q[row.symbol] = row.regularMarketPrice ?? row.price; });
-    const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit} observedAt=${row.observedAt} source=${row.source}`).join('\n');
+    const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const vix = Number(q['^VIX']);
     const model = vix >= 25 ? 'claude-sonnet-4-6' : 'claude-haiku-4-5';
     const prompt = [
-      'Produce a concise Korean market analysis from the typed evidence below.',
+      '아래 근거로 시장 요약을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 4~5줄 평문으로 쓴다. Write the whole answer in Korean.',
+      'session=DELAYED_IN_SESSION/IN_SESSION 값은 "장중"이라고 쓰고 "마감·종가"라고 쓰지 마라. Only MARKET_CLOSED/COMPLETED values may be called a close.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',
       'Do not merge VIX with Fear&Greed. Do not invent missing values. Return 4-5 concise lines.',
       'METRIC_EVIDENCE:\n' + evidenceLines,

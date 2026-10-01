@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.89';
+const APP_VERSION = 'v56.90';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -8976,7 +8976,7 @@ window.AIO.getStaticSeedFallbackAudit = function() {
   // v49.47 P313 보강: data-snap 키와 DS 필드명이 다른 14건 alias map
   // 라이브 audit 결과 (Chrome MCP): hy-spread→hySpread / wage-growth→usWageGrowth 등 prefix 차이로 매칭 실패
   var aliasMap = {
-    'hy-spread': 'hySpread',
+    'hy-spread': 'hySpread', 'fed-target': 'fedRate', // P1375: seed = official FOMC range until DFEDTARL/U arrive
     'wage-growth': 'usWageGrowth',
     'housing': 'housingStarts',
     'cpi-sa-yoy': 'cpiSa',
@@ -18640,6 +18640,7 @@ function applyDataSnapshot() {
       'move':          '—', // current ^MOVE observation required
       'kr-unemploy':   '—', // current official observation is not wired; do not promote an undated seed
       'fed-rate':      S.fedRate || '—',
+      'fed-target':    typeof S.fedTargetLower === 'number' && typeof S.fedTargetUpper === 'number' ? S.fedTargetLower.toFixed(2) + '–' + S.fedTargetUpper.toFixed(2) + '%' : (AIO_MANUAL_REFERENCE.fedPolicy.value ? AIO_MANUAL_REFERENCE.fedPolicy.value + '%' : '—'), // FOMC target: FRED DFEDTARL/U, else official manual reference
       'cpi':           unit(S.cpi, 1, '%'),
       // v34.6: 한국 매크로 data-snap 매핑
       'bok-rate':      unit(S.bokRate, 2, '%'),

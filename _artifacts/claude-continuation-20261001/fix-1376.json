@@ -1,0 +1,10 @@
+{ "version": "v56.90", "date": "2026-10-01",
+  "p": { "id": 1376, "title": "Remaining sourceless sinks: VIX9D/VIX6M cells and the macro consumer-confidence card",
+    "symptom": "After P1371, the sentiment term-structure still showed permanent VIX9D/VIX6M '—' cells (no value in production) and the macro dashboard still had a consumer-confidence card with no producer.",
+    "root_cause": "P1371 removed the risk-monitor and macro-row sinks but not these two duplicate surfaces.",
+    "fix": "VIX9D/VIX6M cells are hidden until a value exists (grid adapts to visible cells); the consumer-confidence card is removed (Conference Board has no free source; UMCSENT is a different index, P593).",
+    "violated_rule": "Product decision 2026-10-01: hide widgets whose source does not exist.",
+    "prevention": "No data-snap='cons-conf' sink remains; sentiment.js showCellWhenObserved hides unobserved term cells.",
+    "verification": "Local browser: term cells VIX/VIX3M visible, VIX9D/VIX6M hidden; no consumer-confidence sink." },
+  "qa": [], "changelog": ["**남은 원천 없는 칸 정리 (P1376):** VIX9D·VIX6M은 값이 있을 때만 표시하고, 원천 없는 소비자심리 카드를 제거."],
+  "note": "v56.90 — AI market analysis Korean/session guard (P1372), news coverage (P1373), SEC bank revenue (P1374), FOMC target range (P1375), sourceless sinks follow-up (P1376)." }

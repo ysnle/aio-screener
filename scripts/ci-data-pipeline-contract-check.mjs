@@ -228,7 +228,7 @@ check('fetch-data ranks backstop news by market-impact score', /scoreServerNewsI
 check('fetch-data has first-class credit/funding news backstop', /Google News - Credit\/Funding/.test(fetchData) && /topic:\s*'credit'/.test(fetchData) && /credit-funding/.test(fetchData) && /capex funding/.test(fetchData) && /data center financing/.test(fetchData));
 check('fetch-data ranks news by actual article source tier, not Google feed tier', /getServerNewsSourceTier/.test(fetchData) && /SERVER_NEWS_LOW_QUALITY_SOURCE_RE/.test(fetchData) && /source-tier/.test(fetchData) && /low-quality-source-8/.test(fetchData) && /feedTier/.test(fetchData));
 check('telegram classifier routes credit and capex funding risk', /add\('credit'\)/.test(fetchTelegram) && /lqd|LQD/.test(fetchTelegram) && /project finance|프로젝트/.test(fetchTelegram) && /capex funding|자금조달/.test(fetchTelegram));
-check('fetch-data queries current Korea AI/semi market movers', /KOSPI Samsung Electronics SK Hynix AI semiconductor selloff rebound Micron/.test(fetchData));
+check('P1373 fetch-data queries the Korean edition in Korean and reserves fxbond/credit floors', /코스피 OR 코스닥 OR 삼성전자 OR SK하이닉스/.test(fetchData) && /[['fxbond', 3], ['credit', 2]]/.test(fetchData));
 check('fetch-data enforces KST 08:00 completed 24h news cycle', /NEWS_CYCLE_POLICY\s*=\s*'kst-0800-completed-24h'/.test(fetchData) && /getKst0800NewsCycle/.test(fetchData) && /newsCycleStart/.test(fetchData) && /newsCycleEnd/.test(fetchData) && /newsCycleLabel/.test(fetchData));
 check('BEA PCE adapter is keyless official-primary evidence with observation/release/fetch separation', /parseBeaPceHtml/.test(fetchData) && /fetchBeaPce/.test(fetchData) && /www\.bea\.gov\/news\/current-releases/.test(fetchData) && /bea-official-primary/.test(fetchData) && /nextReleaseAt/.test(fetchData));
 check('history stores completed closes and carries the shared market-cut revision', /completed-market-cut/.test(fetchData) && /previous-completed-close/.test(fetchData) && /deriveMarketSession/.test(fetchData) && /marketSnapshotRevision/.test(fetchData));
@@ -364,6 +364,32 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
   check('headline-only causal prose warns on missing attribution instead of blocking the narrative', ok, detail.slice(0, 1600));
 }
 {
+  // P1372: the 2026-10-01 artifact published an English "Korean Market Analysis" whose one-liner was
+  // its markdown heading and which called an intraday delayed KOSPI value a close, marked verified.
+  let ok = false;
+  let detail = '';
+  try {
+    const { validateMarketAnalysisText } = await import('./fetch-data.mjs');
+    const snapshot = { quotes: [
+      { instrumentId: '^KS11', evidenceId: 'market.index.kospi:t', value: 6813.15, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-01T00:13:50.000Z', session: 'DELAYED_IN_SESSION' },
+      { instrumentId: '^GSPC', evidenceId: 'market.index.spx:t', value: 7651.54, unit: 'index', source: 'Yahoo chart', observedAt: '2026-09-30T20:00:00.000Z', session: 'MARKET_CLOSED' }
+    ] };
+    const data = { meta: { generatedAt: '2026-10-01T00:34:00.000Z' }, news: [], macro: {} };
+    const english = validateMarketAnalysisText('The KOSPI is at 6,813.15 while the S&P 500 stood at 7,651.54 and volatility stays contained.', data, snapshot);
+    const closedWording = validateMarketAnalysisText('KOSPI는 6,813.15로 마감했고 SPX는 7,651.54로 마감했습니다. 위험 선호는 제한적입니다.', data, snapshot);
+    const intraday = validateMarketAnalysisText('KOSPI는 장중 6,813.15이고 SPX는 전일 7,651.54로 마감했습니다. 위험 선호는 제한적입니다.', data, snapshot);
+    const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+    ok = english.issues.includes('language-not-korean')
+      && closedWording.issues.includes('session-wording-mismatch:market.kospi')
+      && !closedWording.issues.includes('session-wording-mismatch:market.spx')
+      && !intraday.issues.some((issue) => issue.startsWith('session-wording-mismatch') || issue === 'language-not-korean')
+      && /filter\(\(line\) => line && !\/\^#\{1,6\}\\s\/\.test\(line\)\)/.test(source)
+      && /반드시 한국어로만 작성하라/.test(source);
+    detail = JSON.stringify({ english: english.issues, closedWording: closedWording.issues, intraday: intraday.issues });
+  } catch (error) { detail = error.message; }
+  check('P1372 market analysis must be Korean, heading-free, and never call an in-session value a close', ok, detail.slice(0, 1600));
+}
+{
   // P1119/P1122: the headline-only rights boundary stays (no article body is retained), but
   // its absence no longer withholds the narrative — causal prose is attributed and warned,
   // not blocked. Both halves are asserted so neither can drift silently.
@@ -421,6 +447,33 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
     detail = JSON.stringify(row);
   } catch (error) { detail = error.message; }
   check('SEC companyfacts normalizer preserves annual period and computes bounded comparable ratios', ok, detail.slice(0, 500));
+}
+{
+  // P1374: a bank that reports only RevenuesNetOfInterestExpense was terminal (no revenue); a filer that
+  // reports both keeps its standard revenue concept for the same period (lowest-priority fallback).
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
+    const period = (val, accn, start, end, filed) => ({ start, end, filed, form: '10-K', fp: 'FY', val, accn });
+    const common = {
+      NetIncomeLoss: { units: { USD: [period(20, 'a', '2024-01-01', '2024-12-31', '2025-02-20'), period(25, 'b', '2025-01-01', '2025-12-31', '2026-02-20')] } },
+      StockholdersEquity: { units: { USD: [{ end: '2025-12-31', filed: '2026-02-20', form: '10-K', fp: 'FY', val: 200, accn: 'b' }] } }
+    };
+    const shares = { dei: { EntityCommonStockSharesOutstanding: { units: { shares: [{ end: '2025-12-31', filed: '2026-02-20', form: '10-K', fp: 'FY', val: 10, accn: 'b' }] } } } };
+    const bankRevenue = { RevenuesNetOfInterestExpense: { units: { USD: [period(80, 'a', '2024-01-01', '2024-12-31', '2025-02-20'), period(100, 'b', '2025-01-01', '2025-12-31', '2026-02-20')] } } };
+    const submissions = { filings: { recent: { accessionNumber: ['a', 'b'], acceptanceDateTime: ['2025-02-20T18:00:00.000Z', '2026-02-20T18:00:00.000Z'] } } };
+    const bank = normalizeSecCompanyFacts('BNK', { cik: 3, entityName: 'Bank Corp', facts: { 'us-gaap': { ...bankRevenue, ...common }, ...shares } }, 50, submissions);
+    const both = normalizeSecCompanyFacts('BTH', { cik: 4, entityName: 'Both Corp', facts: { 'us-gaap': {
+      Revenues: { units: { USD: [period(400, 'a', '2024-01-01', '2024-12-31', '2025-02-20'), period(500, 'b', '2025-01-01', '2025-12-31', '2026-02-20')] } },
+      ...bankRevenue, ...common }, ...shares } }, 50, submissions);
+    const secSource = readFileSync(new URL('./fetch-sec-fundamentals.mjs', import.meta.url), 'utf8');
+    ok = !!bank && bank.margin === 25 && bank.revGrowth === 25 && !!both && both.margin === 5 && both.revGrowth === 25
+      // terminal concept-coverage rows are rechecked once when the concept set version changes
+      && /conceptSetChanged/.test(secSource) && /conceptSetVersion: SEC_CONCEPT_SET_VERSION/.test(secSource);
+    detail = JSON.stringify({ bank: bank && { margin: bank.margin, revGrowth: bank.revGrowth }, both: both && { margin: both.margin, revGrowth: both.revGrowth } });
+  } catch (error) { detail = error.message; }
+  check('P1374 SEC normalizer covers bank revenue net of interest expense without overriding standard revenue', ok, detail.slice(0, 500));
 }
 {
   // W09-B/P1148 (F02): a derived ratio cannot have been reproducible before its LATEST operand

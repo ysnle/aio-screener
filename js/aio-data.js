@@ -5627,7 +5627,7 @@ async function _aioLoadServerData() {
       // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 서버 FRED 자동화 편입.
       // consConf(Conf. Board)는 제외 유지 — FRED엔 해당 시리즈가 없고, UMCSENT(미시간대)는
       // 별개 지표라 혼입 금지(P593).
-      ['cpi','coreCpi','cpiSa','coreCpiSa','pce','corePce','fedRate','unemployment','nfp','housingStarts','retailSales','usWageGrowth','dgs2','dgs5','dgs10','dgs20','dgs30','t10y2y'].forEach(function(k){
+      ['cpi','coreCpi','cpiSa','coreCpiSa','pce','corePce','fedRate','fedTargetLower','fedTargetUpper','unemployment','nfp','housingStarts','retailSales','usWageGrowth','dgs2','dgs5','dgs10','dgs20','dgs30','t10y2y'].forEach(function(k){
         var _blsCanonicalCpi = d.macro._bls && d.macro._bls.series && d.macro._bls.series[k];
         var _canonicalCpiDefinitionBlocked = (k === 'cpi' || k === 'coreCpi')
           && _blsCanonicalCpi
