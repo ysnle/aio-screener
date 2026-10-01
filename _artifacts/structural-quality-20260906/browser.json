@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-01T13:39:40.678Z",
+  "generatedAt": "2026-10-01T13:53:36.170Z",
   "routes": [
     {
       "id": "home",
@@ -24,7 +24,7 @@
         },
         {
           "tag": "A",
-          "name": "Micron beats on earnings and issues strong guidance as data center revenue jumps 11-fold - CNBC — 원문 새 창에서 열기"
+          "name": "Micron beats on earnings and issues strong guidance as data center revenue jumps 11-fold - cnbc.com — 원문 새 창에서"
         }
       ],
       "headings": [
@@ -136,7 +136,7 @@
     {
       "id": "technical",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "INPUT",
@@ -493,15 +493,19 @@
         },
         {
           "tag": "A",
+          "name": "지정학 · cnbc.com 기사 · 중요도 54 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "매크로 · Eurasia Business News 기사 · 중요도 62 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "반도체/AI 인프라 · finance.biggo.com 기사 · 중요도 44 · $MU — 원문 새 창에서 열기"
+          "name": "반도체/AI 인프라 · Yahoo Finance 기사 · 중요도 57 · $MU — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "지정학 · WSJ 기사 · 중요도 62 — 원문 새 창에서 열기"
+          "name": "반도체/AI 인프라 · finance.biggo.com 기사 · 중요도 44 · $MU — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -517,15 +521,11 @@
         },
         {
           "tag": "A",
-          "name": "반도체/AI 인프라 · Investor's Business Daily 기사 · 중요도 44 · $HPE — 원문 새 창에서 열기"
+          "name": "매크로 · BNN Bloomberg 기사 · 중요도 48 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "반도체/AI 인프라 · Stocks Down Under 기사 · 중요도 44 · $JBL, $DIA — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "반도체/AI 인프라 · CNBC 기사 · 중요도 71 · $MU — 원문 새 창에서 열기"
+          "name": "반도체/AI 인프라 · cnbc.com 기사 · 중요도 71 · $MU — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -537,7 +537,7 @@
         },
         {
           "tag": "A",
-          "name": "지정학 · Houston Public Media 기사 · 중요도 48 — 원문 새 창에서 열기"
+          "name": "시장 · Kitco 기사 · 중요도 42 — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -1236,7 +1236,7 @@
     {
       "id": "screener",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
@@ -1257,30 +1257,6 @@
         {
           "tag": "BUTTON",
           "name": "조건 실행"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "균형 상대 랭킹"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "모멘텀 지속"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "추세 정렬"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "저변동 방어"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "퀄리티 결합"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "돌파 관찰"
         },
         {
           "tag": "SELECT",
@@ -1381,134 +1357,6 @@
         {
           "tag": "BUTTON",
           "name": "컬럼 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "상대 점수 정렬 내림차순"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "가격 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1M 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "3M 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RSI 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VCP 구조 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 AMC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMC 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 ILMN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ILMN 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 ARKG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARKG 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 229640.KQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "229640.KQ 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 003490.KS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "003490.KS 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 BE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BE 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 MRNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 DNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DNA 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 GME"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GME 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 AES"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AES 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 357780.KQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "357780.KQ 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 000500.KS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "000500.KS 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "12개 더 보기"
         },
         {
           "tag": "BUTTON",
