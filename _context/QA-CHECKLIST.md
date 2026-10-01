@@ -4,6 +4,10 @@ last_verified: 2026-10-01
 confidence: medium
 ---
 
+## v56.88 Page decision scope (2026-10-01)
+
+- [x] QA-SEMANTIC-SCOPE-01: Page headers outside home/signal/sentiment/briefing never carry the market-score verdict or its input caveat; partial evidence is not labelled 미수신. verify_by: Actual browser decision-header sweep across 13 routes + ci-runtime-contract-check P1364
+
 ## v56.87 Semantic, financial and operating-budget audit (2026-09-30)
 
 - [x] QA-SEMANTIC-DATA-01: MA uses eligible distinct observed sessions and recent conflicts hold; KRX uses its own completed close and valid later candidates; missing optional inputs remain visible. verify_by: P1349/R677 ci-esm-core-unit-check + ci-native-decision-evidence-check

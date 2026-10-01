@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.87';
+const APP_VERSION = 'v56.88';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -4863,11 +4863,8 @@ function _aioDefaultDecision(pageId) {
        _scoreBlocked = _scoreBlocked || _missing.length >= 3;
       var _scoreEvidenceKind = _missing.length >= 3 ? 'SNAPSHOT' : (_missing.length >= 1 ? 'DELAYED' : 'LIVE');
       sourceKind = _aioMergeSourceKind(sourceKind, _scoreEvidenceKind);
-      if (_missing.length) {
-        _scoreCaveat = '스코어 입력 확인 필요(' + _missing.length + '/' + _audit.total + '): '
-          + _missing.slice(0, 4).map(function(m) { return m.label; }).join(', ')
-          + (_missing.length > 4 ? ' 외 ' + (_missing.length - 4) + '개' : '');
-      }
+      // P1364: describe the close-basis model's own gaps (R670), never the live decision-grade audit count.
+      try { _scoreCaveat = window.AIO_ARCH.getState().analysis.signal.presentation.description || _scoreCaveat; } catch(_) {}
     }
     else if (_aioStrictFinite(window._tradingScore) != null) { _sc = _aioStrictFinite(window._tradingScore); _scoreBlocked = false; }
   } catch(_) { _sc = null; _scoreBlocked = true; }
@@ -5011,7 +5008,8 @@ function _aioDefaultDecision(pageId) {
     _tickerGateBlocked = _tickerGateMissing.length > 0;
   }
   // H3-C: quorum 미달이면 수치 밴드가 있어도 현재 행동 결론을 생성하지 않는다.
-  if (_scoreBlocked && map[pageId]) {
+  var _scoreScope = ['home', 'signal', 'sentiment', 'briefing'].indexOf(pageId) >= 0; // P1364: other pages keep their own verdict; the block still forbids trades.
+  if (_scoreBlocked && map[pageId] && _scoreScope) {
     map[pageId].decision = _sc == null
       ? '판정 보류 · 판단 등급 입력 없음 (스코어 ' + _scoreText + ')'
       : '시장환경 관찰 · 예측 검증 미확립 (스코어 ' + _scoreText + ')';
@@ -5032,11 +5030,11 @@ function _aioDefaultDecision(pageId) {
   d.pageId = pageId;
   d.decisionBlocked = _scoreBlocked || _tickerGateBlocked;
   d.decisionEligible = !_scoreBlocked && !_tickerGateBlocked && _scorePredictiveValidation === 'established';
-  d.predictiveValidation = _scorePredictiveValidation;
+  d.predictiveValidation = _scorePredictiveValidation; d.scoreScope = _scoreScope;
   d.sourceKind = d.sourceKind || sourceKind || 'SNAPSHOT';
   d.asOf = _aioDecisionAsOf(d.sourceKind);
   d.confidence = _aioDecisionConfidence(d.sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84);
-  if (_scoreCaveat) d.caveat = d.caveat ? (d.caveat + ' · ' + _scoreCaveat) : _scoreCaveat;
+  if (_scoreCaveat && _scoreScope) d.caveat = d.caveat ? (d.caveat + ' · ' + _scoreCaveat) : _scoreCaveat;
   d.provenanceBundle = _scoreEvidenceBundle;
   return d;
 }
@@ -5060,7 +5058,7 @@ window._aioBuildPageDecision = function(pageId) {
     }
   }
   if (d.decisionBlocked) {
-    d.action = '시장환경 상태만 확인합니다. 필수 현재성·예측 검증 근거가 확립되기 전에는 매매·비중 결론을 생성하지 않습니다.';
+    d.action = d.scoreScope === false ? '이 화면의 수집 근거를 참고로 확인합니다. 매매·비중 결론은 생성하지 않습니다.' : '시장환경 상태만 확인합니다. 필수 현재성·예측 검증 근거가 확립되기 전에는 매매·비중 결론을 생성하지 않습니다.';
   }
   while (d.reasons.length < 3) d.reasons.push('추가 데이터 확인 필요');
   d.reasons = d.reasons.slice(0, 3);
@@ -5074,10 +5072,11 @@ window._aioBuildPageDecision = function(pageId) {
       || (Array.isArray(evidence.blockers) && evidence.blockers.length > 0)
       || evidence.marketEpoch?.status === 'BLOCKED';
     if (evidenceBlocked) {
+      var partialOnly = evidence.sourceKind !== 'UNAVAILABLE' && evidence.marketEpoch?.status !== 'BLOCKED' && (evidence.blockers || []).every(function(b) { return /^(market-epoch-partial:|visible-unavailable-values$)/.test(b); }); // P1364: PARTIAL is not 미수신.
       d.decisionBlocked = true;
-      d.decision = '판단 보류 · 필수 현재성 근거 미수신';
-      d.action = '필수 현재성 근거가 확인되기 전에는 시장환경 관찰만 표시하고 매매·비중 결론을 생성하지 않습니다.';
-      d.reasons.unshift('현재성·필수 입력이 확인되지 않아 행동 결론을 보류합니다.');
+      d.decision = partialOnly ? '판단 보류 · 일부 근거 부분 확보' : '판단 보류 · 필수 현재성 근거 미수신';
+      d.action = '필수 현재성 근거가 확인되기 전에는 ' + (d.scoreScope === false ? '이 화면의 수집 근거만 참고로 표시하고' : '시장환경 관찰만 표시하고') + ' 매매·비중 결론을 생성하지 않습니다.';
+      d.reasons.unshift(partialOnly ? '일부 입력이 부분 수신·지연 상태라 행동 결론을 보류합니다.' : '현재성·필수 입력이 확인되지 않아 행동 결론을 보류합니다.');
       d.reasons = d.reasons.slice(0, 3);
     }
     d.caveat = (evidence.caveat && d.caveat && evidence.caveat !== d.caveat)
@@ -14874,7 +14873,7 @@ function _vaultUnlock() {
     pin.value = '';
     _updateVaultStatus();
   }).catch(function(e) {
-    msg.textContent = e && e.message === 'vault-auth-evidence-missing' ? 'PIN 검증 정보가 없습니다. 저장 자료를 백업한 뒤 Vault 복구가 필요합니다.' : 'PIN 또는 저장된 암호문을 확인할 수 없습니다'; msg.style.color = '#ff5b50';
+    msg.textContent = 'PIN 또는 저장된 암호문을 확인할 수 없습니다'; msg.style.color = '#ff5b50';
   });
 }
 

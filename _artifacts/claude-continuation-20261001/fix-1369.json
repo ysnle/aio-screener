@@ -1,0 +1,10 @@
+{ "version": "v56.88", "date": "2026-10-01",
+  "p": { "id": 1369, "title": "Diagnostic scores and units say what they measure",
+    "symptom": "The developer audit panel labelled a string-presence prompt check '기관급 퀄리티 90/100' and a structural rule check '답변 품질 74점', showed 'web_search ON' although the shared Worker refuses paid search (P1353), and the top strip showed the 10Y yield as '5.293' without a unit.",
+    "root_cause": "Labels described intent (quality) rather than the measured quantity (presence of rule strings); the web-search line reported a preference as availability.",
+    "fix": "Relabel to '프롬프트 구성 점검' and '답변 규칙 점검' with an explicit 'not answer quality' note, add the shared-Worker block to the web_search line, label the strip '美 10년물(%)'.",
+    "violated_rule": "Uncalibrated scores must not be presented as quality certification.",
+    "prevention": "P1369 marker on the web_search line; the T526/T527 API contract (qualityScore field) is unchanged.",
+    "verification": "Text verified in the local audit widget and top strip." },
+  "qa": [], "changelog": ["**진단 점수·단위 표기 (P1369):** 문자열 포함 여부를 세는 진단을 '기관급 퀄리티/답변 품질'로 부르던 표기를 실제 측정 의미로 수정하고, 10년물 금리 단위를 표기."],
+  "note": "v56.88 — P1363 Vault, P1364–P1366 scope/SEC/RRG, P1367–P1369 metric consistency and signal widgets." }

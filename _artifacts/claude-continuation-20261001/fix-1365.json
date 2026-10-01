@@ -1,0 +1,16 @@
+{
+  "version": "v56.88", "date": "2026-10-01",
+  "p": {
+    "id": 1365,
+    "title": "Unselected fundamental page no longer reads as an SEC receipt failure",
+    "symptom": "With 8 SEC watchlist cards rendered from the received companyfacts projection, the 'SEC 기본 보고' card above them said 'SEC EDGAR 연간 데이터 및 PIT 기준시점 수신 대기 · 관측 항목 없음', which the previous audit read as SEC 미수신.",
+    "root_cause": "renderFundamentalReport rendered the selected-issuer report and treated 'no issuer selected' identically to 'selected issuer has no SEC facts' (the same scope confusion P1360 fixed in the timeline contract).",
+    "fix": "When the entity slice has no id, the card states that no company is selected and points to the ticker input / watchlist; the missing-facts wording is kept for a selected issuer without facts.",
+    "violated_rule": "P1360 scope split: an absent selection is not a missing observation.",
+    "prevention": "Covered by the P1360 fundamental-watchlist timeline gate for data scope; the renderer wording is verified in the real browser for both unselected and NVDA-selected states.",
+    "verification": "Local browser v56.88: unselected shows '선택한 종목 없음' with 8 SEC watchlist cards; clicking NVDA shows 10-K 2026-01-25, 7 observed items."
+  },
+  "qa": [],
+  "changelog": ["**기업분석 미선택 문구 (P1365):** 종목을 고르지 않은 상태를 'SEC 수신 대기'로 표시하던 문구를 '선택한 종목 없음'으로 분리. 선택 기업의 SEC 결측 문구는 유지."],
+  "note": "v56.88 — P1363 salt-only Vault recovery, P1364 market-score scope in page headers, P1365 unselected SEC report wording."
+}

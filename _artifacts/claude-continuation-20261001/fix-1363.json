@@ -1,0 +1,16 @@
+{
+  "version": "v56.88", "date": "2026-10-01",
+  "p": {
+    "id": 1363,
+    "title": "Salt-only legacy Vault no longer dead-ends every unlock",
+    "symptom": "A browser whose pre-P1350 Vault wrote aio_vault_salt but never stored a ciphertext (PIN set, nothing saved yet) could never unlock again: every PIN failed with vault-auth-evidence-missing, the UI asked for a 'Vault 복구' that does not exist, and portfolio PIN protection could never be re-enabled.",
+    "root_cause": "P1350 authenticateVault treated 'salt exists, no sentinel, no ciphertext' as unverifiable and threw. With nothing encrypted there is nothing a wrong PIN could expose or corrupt, so the fail-closed branch protected no data while removing the only recovery path.",
+    "fix": "Salt-only state now establishes the verification sentinel with the supplied PIN (same path as a fresh Vault, existing salt kept); a failed attempt removes only a partial sentinel and never the pre-existing salt. The dead error-message branches were removed.",
+    "violated_rule": "Fail-closed security must protect an actual asset; a lockout with no recovery path is a defect, not protection.",
+    "prevention": "ci-portfolio-vault-e2e salt-only scenario now requires the first PIN to establish the sentinel and a different PIN to be rejected afterwards.",
+    "verification": "node scripts/ci-portfolio-vault-e2e.mjs: 55/55 PASS in isolated Chromium, including P1350/P1363 legacy_auth_and_salt_only_establishes_sentinel."
+  },
+  "qa": [],
+  "changelog": ["**Vault salt-only 잠김 해소 (P1363):** 암호문·검증 정보 없이 salt만 남은 기존 브라우저가 어떤 PIN으로도 열리지 않던 문제를 수정. 첫 PIN으로 검증 정보를 설정하고 이후 다른 PIN은 거부."],
+  "note": "v56.88 — P1363 salt-only Vault recovery, P1364 market-score scope in page headers."
+}

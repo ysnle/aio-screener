@@ -89,9 +89,9 @@ for (const manager of holdings.managers || []) {
     schema: 'masters-13f-manager-web-projection.v1',
     artifactRole: 'BOUNDED_WEB_PROJECTION',
     projectionPolicy: `Rank-ordered first ${MANAGER_PROJECTION_ROW_LIMIT} current and comparison rows; complete SEC row stores remain outside the Pages interactive artifact.`,
+    // P1370: a content-addressed object holds content only. The daily reviewedAt/generatedAt
+    // stamps live in holdings-summary.json; embedding them re-hashed unchanged quarters daily.
     sourceKind: holdings.sourceKind,
-    reviewedAt: holdings.reviewedAt,
-    generatedAt,
     managerId: manager.id,
     cik: manager.cik,
     latestFiling: manager.latestFiling,
@@ -300,3 +300,11 @@ console.log(JSON.stringify({
   fullRowsExcludedFromBootstrap: (holdings.allHoldings || []).length,
   fullComparisonsExcludedFromBootstrap: (holdings.comparisons || []).length
 }, null, 2));
+
+// P1370: remove projections the just-written summary no longer references (one
+// generation per manager stays on Pages instead of an unbounded daily pile-up).
+const projectionDir = path.join(mastersDir, '..', 'objects', 'masters');
+const referencedProjections = new Set(Object.values(managerShards).map((shard) => `${shard.sha256}.json`));
+for (const name of await fs.readdir(projectionDir)) {
+  if (/^[0-9a-f]{64}\.json$/.test(name) && !referencedProjections.has(name)) await fs.unlink(path.join(projectionDir, name));
+}

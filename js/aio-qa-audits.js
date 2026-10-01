@@ -3303,7 +3303,7 @@ window._aioRenderAuditWidget = function() {
         if (ws) {
           var statusIcon = ws.enabled ? '🔍' : '⊘';
           var statusColor = ws.enabled ? 'var(--data-cyan)' : 'var(--text-muted)';
-          wsEl.innerHTML = '<span style="color:' + statusColor + ';">' + statusIcon + '</span> web_search ' + (ws.enabled ? '<b>ON</b>' : 'OFF') + ' · 호출 ' + ws.calls + '회';
+          wsEl.innerHTML = '<span style="color:' + statusColor + ';">' + statusIcon + '</span> web_search 설정 ' + (ws.enabled ? '<b>ON</b>' : 'OFF') + (ws.chatReadiness === 'SHARED_WORKER' || (window._aioLastClaudeRouteState && window._aioLastClaudeRouteState.reason === 'SHARED_WORKER') ? ' · 공유 Worker에서는 차단(P1353)' : '') + ' · 호출 ' + ws.calls + '회'; // P1369: a preference is not availability
         } else {
           wsEl.innerHTML = '<span style="color:var(--text-muted);">— web_search 미가용</span>';
         }
@@ -3467,7 +3467,7 @@ window._aioRenderAuditWidget = function() {
         if (ccc) {
           var icon9 = ccc.status === 'ok' ? '✓' : ccc.status === 'warn' ? '⚠' : '✗';
           var color9 = ccc.status === 'ok' ? 'var(--data-green)' : ccc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          cccEl.innerHTML = '<span style="color:' + color9 + ';">' + icon9 + '</span> 기관급 퀄리티 <b>' + ccc.qualityScore + '/100</b> · 프레임 ' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total + ' · 시나리오 ' + (ccc.fetchChat.scenarioGuide ? '✓' : '✗') + ' · 시각 단서 ' + (ccc.fetchChat.visualCue ? '✓' : '✗');
+          cccEl.innerHTML = '<span style="color:' + color9 + ';">' + icon9 + '</span> 프롬프트 구성 점검 <b>' + ccc.qualityScore + '/100</b> (규칙 문구 포함 여부 · 답변 품질 측정 아님) · 프레임 ' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total + ' · 시나리오 ' + (ccc.fetchChat.scenarioGuide ? '✓' : '✗') + ' · 시각 단서 ' + (ccc.fetchChat.visualCue ? '✓' : '✗');
         } else {
           cccEl.innerHTML = '<span style="color:var(--text-muted);">— chatContextConsistency audit 미가용</span>';
         }
@@ -3541,7 +3541,7 @@ window._aioRenderAuditWidget = function() {
         if (aq) {
           var iconE = aq.status === 'ok' ? '✓' : aq.status === 'warn' ? '⚠' : '✗';
           var colorE = aq.status === 'ok' ? 'var(--data-green)' : aq.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          aqEl.innerHTML = '<span style="color:' + colorE + ';">' + iconE + '</span> 📋 답변 품질 <b>' + aq.overallScore + '점</b> · 현재 ' + aq.freshness.score + ' · 정확 ' + aq.accuracy.score + ' · 직관 ' + aq.intuitiveness.score;
+          aqEl.innerHTML = '<span style="color:' + colorE + ';">' + iconE + '</span> 📋 답변 규칙 점검 <b>' + aq.overallScore + '점</b> (구조 기준 · 실제 답변 평가 아님) · 현재 ' + aq.freshness.score + ' · 정확 ' + aq.accuracy.score + ' · 직관 ' + aq.intuitiveness.score;
         } else {
           aqEl.innerHTML = '<span style="color:var(--text-muted);">— answerQuality audit 미가용</span>';
         }

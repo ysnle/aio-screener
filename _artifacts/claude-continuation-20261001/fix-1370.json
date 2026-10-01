@@ -1,0 +1,10 @@
+{ "version": "v56.88", "date": "2026-10-01",
+  "p": { "id": 1370, "title": "13F manager projections stop re-hashing unchanged quarters every day",
+    "symptom": "public-data/objects/masters held 1,110 projection files (252MB) for 37 managers: one new copy per manager per daily run for 30 days, of which only the latest 37 (~9MB) are referenced. Each run added ~250k lines to git history and ~8MB to the Pages site, heading for the 1GB Pages limit.",
+    "root_cause": "The content-addressed projection embedded the daily reviewedAt/generatedAt stamps, so identical quarterly holdings produced a new sha256 every day, and the builder never removed unreferenced objects.",
+    "fix": "Projection objects carry content only (freshness stamps stay in holdings-summary.json); after writing the summary the builder deletes projection files it no longer references.",
+    "violated_rule": "Content-addressed artifacts must hash content, not build time; a generated object store needs a retention rule.",
+    "prevention": "ci-13f-semantic-hash-check P1370 checks: no daily stamp properties in the projection literal; the builder prunes unreferenced projections.",
+    "verification": "Scratch-copy simulation (producer not run in the repo): two consecutive builds yield the same 37 hashes, 1,110 → 37 files, 252MB → 9MB. Existing git history size (pack 619MB) is unchanged; reclaiming it needs a separate, explicit history decision." },
+  "qa": [], "changelog": ["**13F 객체 누적 중단 (P1370):** 분기 데이터인 13F 운용사 투영이 매일 시각만 바뀐 새 파일로 쌓이던 문제를 수정(1,110개·252MB → 37개·9MB). 미참조 파일은 생산 시 정리."],
+  "note": "v56.88 — P1363 Vault, P1364–P1366 scope/SEC/RRG, P1367–P1369 metric consistency and signal widgets, P1370 13F object retention." }

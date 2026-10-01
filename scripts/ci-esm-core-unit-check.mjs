@@ -57,7 +57,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const now = Date.parse('2026-10-01T00:34:00Z');
   const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v2', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
   if (!selectProducedRotation(artifact, 'XLK', now)) fail('P1358 coherent producer rotation was lost');
-  for (const extra of [{ quadrant: 'Lagging' }, { sessionDate: '2026-09-29' }, { rsRatio: NaN }, { fetchedAt: null }, { alignedSessionCount: 2 }]) {
+  // P1366: an absent 1/5-session return keeps the valid coordinates; a non-numeric return does not.
+  const partialReturn = selectProducedRotation({ ...artifact, items: { XLK: { ...artifact.items.XLK, dailyPct: null, weeklyPct: null } } }, 'XLK', now);
+  if (!partialReturn || partialReturn.rsRatio !== 101 || partialReturn.dailyPct !== null) fail('P1366 missing optional return discarded valid RRG coordinates');
+  const partialItem = createThemesProvider({ readRotationHistory: () => ({ ...artifact, items: { XLK: { ...artifact.items.XLK, dailyPct: null } } }), readDefinitions: () => ({ sectors: [{ sym: 'XLK', name: '기술' }] }), now: () => now }).readCurrent().items[0];
+  if (partialItem.rsRatio !== 101 || partialItem.pct !== null || partialItem.directionCompatible !== false) fail('P1366 provider claimed a direction without a daily return');
+  for (const extra of [{ quadrant: 'Lagging' }, { sessionDate: '2026-09-29' }, { rsRatio: NaN }, { fetchedAt: null }, { alignedSessionCount: 2 }, { dailyPct: '1.2' }, { weeklyPct: NaN }]) {
     if (selectProducedRotation({ ...artifact, items: { XLK: { ...artifact.items.XLK, ...extra } } }, 'XLK', now)) fail('P1358 invalid producer rotation was promoted');
   }
   const provider = createThemesProvider({ readRotationHistory: () => artifact, readDefinitions: () => ({ sectors: [{ sym: 'XLK', name: '기술' }] }), now: () => now });

@@ -4,6 +4,78 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1370 - v56.88 - 13F manager projections stop re-hashing unchanged quarters every day (2026-10-01)
+
+- symptom/reproduction: public-data/objects/masters held 1,110 projection files (252MB) for 37 managers: one new copy per manager per daily run for 30 days, of which only the latest 37 (~9MB) are referenced. Each run added ~250k lines to git history and ~8MB to the Pages site, heading for the 1GB Pages limit.
+- root_cause: The content-addressed projection embedded the daily reviewedAt/generatedAt stamps, so identical quarterly holdings produced a new sha256 every day, and the builder never removed unreferenced objects.
+- fix: Projection objects carry content only (freshness stamps stay in holdings-summary.json); after writing the summary the builder deletes projection files it no longer references.
+- violated_rule: Content-addressed artifacts must hash content, not build time; a generated object store needs a retention rule.
+- prevention: ci-13f-semantic-hash-check P1370 checks: no daily stamp properties in the projection literal; the builder prunes unreferenced projections.
+- verification/residual: Scratch-copy simulation (producer not run in the repo): two consecutive builds yield the same 37 hashes, 1,110 → 37 files, 252MB → 9MB. Existing git history size (pack 619MB) is unchanged; reclaiming it needs a separate, explicit history decision.
+
+## P1369 - v56.88 - Diagnostic scores and units say what they measure (2026-10-01)
+
+- symptom/reproduction: The developer audit panel labelled a string-presence prompt check '기관급 퀄리티 90/100' and a structural rule check '답변 품질 74점', showed 'web_search ON' although the shared Worker refuses paid search (P1353), and the top strip showed the 10Y yield as '5.293' without a unit.
+- root_cause: Labels described intent (quality) rather than the measured quantity (presence of rule strings); the web-search line reported a preference as availability.
+- fix: Relabel to '프롬프트 구성 점검' and '답변 규칙 점검' with an explicit 'not answer quality' note, add the shared-Worker block to the web_search line, label the strip '美 10년물(%)'.
+- violated_rule: Uncalibrated scores must not be presented as quality certification.
+- prevention: P1369 marker on the web_search line; the T526/T527 API contract (qualityScore field) is unchanged.
+- verification/residual: Text verified in the local audit widget and top strip.
+
+## P1368 - v56.88 - Signal page legacy widgets refresh on native navigation and never invent VIX (2026-10-01)
+
+- symptom/reproduction: Navigating to 시장 환경 left the metric strip as the static 'VIX — · F&G — · SPY —' placeholder and the entry checklist at '판정 대기' while home showed VIX 16.34 and F&G 31; the strip also substituted VIX=20 when the quote was missing.
+- root_cause: After the native router migration initSignalDashboard runs only from the global refresh button; still-legacy signal widgets refreshed only on a later aio:liveQuotes event. The strip had a hard-coded 20 fallback.
+- fix: An aio:pageShown('signal') bus handler runs the same legacy widget projection as the live-quote hook; a missing VIX renders '—' in muted colour.
+- violated_rule: Missing inputs are never guessed (product decision); a migrated route must keep an owner for every visible widget.
+- prevention: P1368 markers at the handler and the strip; browser verification after reload-then-navigate.
+- verification/residual: Local browser: after boot and navigation the strip shows 'VIX 16.3 F&G 31 SPY —' and the checklist '통과 2 · 미충족 0 · 대기 3'.
+
+## P1367 - v56.88 - One VIX band across home, regime summary and chat (2026-10-01)
+
+- symptom/reproduction: VIX 16.34 read '주의' (green) on the home card, '안정' in the market-state summary used by briefing/chat, and a third 20/25 band in the chat fallback.
+- root_cause: Three owners hard-coded different VIX thresholds (15/20/25/30, 18/25/32, 20/25) for the same label surface.
+- fix: Home card and chat fallback use the canonical aio-core _vixBand thresholds 18/25/32 with labels 안정/보통/경계/패닉.
+- violated_rule: One metric, one interpretation per session.
+- prevention: Inline P1367 markers at both former owners point to the canonical band; browser check shows home '안정' for VIX 16.34.
+- verification/residual: Local browser v56.88: home-vix-status '안정' at VIX 16.34, matching the regime summary.
+
+## P1366 - v56.88 - A missing 1/5-session return no longer discards a valid durable RRG point (2026-10-01)
+
+- symptom/reproduction: The P1358 producer publishes a CURRENT rotation row with dailyPct or weeklyPct = null when the prior session is absent (its own fixture asserts this), but the consumer required both returns to be finite and dropped the whole row, losing valid rsRatio/rsMomentum coordinates.
+- root_cause: selectProducedRotation validated optional performance fields with the same finite() gate as the RRG coordinates; producer and consumer disagreed on which fields are mandatory.
+- fix: Coordinates stay mandatory; dailyPct/weeklyPct must be a finite number or null. The themes provider marks direction compatibility only when a produced daily return exists.
+- violated_rule: Missing values are not estimated, and a missing optional field must not erase independent valid evidence.
+- prevention: ci-esm-core-unit-check P1366 cases: null returns keep coordinates with pct=null and directionCompatible=false; string/NaN returns are still rejected.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs OK; real Actions production of rotationHistory is still unobserved (QA-SEMANTIC-ROTATION-01 stays open).
+
+## P1365 - v56.88 - Unselected fundamental page no longer reads as an SEC receipt failure (2026-10-01)
+
+- symptom/reproduction: With 8 SEC watchlist cards rendered from the received companyfacts projection, the 'SEC 기본 보고' card above them said 'SEC EDGAR 연간 데이터 및 PIT 기준시점 수신 대기 · 관측 항목 없음', which the previous audit read as SEC 미수신.
+- root_cause: renderFundamentalReport rendered the selected-issuer report and treated 'no issuer selected' identically to 'selected issuer has no SEC facts' (the same scope confusion P1360 fixed in the timeline contract).
+- fix: When the entity slice has no id, the card states that no company is selected and points to the ticker input / watchlist; the page status badge (○ 종목 선택 전) and summary use the same split; the missing-facts wording is kept for a selected issuer without facts.
+- violated_rule: P1360 scope split: an absent selection is not a missing observation.
+- prevention: Covered by the P1360 fundamental-watchlist timeline gate for data scope; the renderer wording is verified in the real browser for both unselected and NVDA-selected states.
+- verification/residual: Local browser v56.88: unselected shows '선택한 종목 없음' with 8 SEC watchlist cards; clicking NVDA shows 10-K 2026-01-25, 7 observed items.
+
+## P1364 - v56.88 - Market-score verdict and caveat stay on score pages and describe the close-basis model (2026-10-01)
+
+- symptom/reproduction: With score 58 computed from 9/30 completed closes, every page header (기업 분석·FX·매크로·테마·스크리너 등) still showed '스코어 입력 확인 필요(12/13)' and replaced its own verdict with the market-score observation; partial market epochs were labelled '필수 현재성 근거 미수신'.
+- root_cause: Two contracts disagreed after R670/P1345: the caveat counted the live decision-grade audit (verified_current) while the score uses completed-close evidence. Because predictive validation is never established, _scoreBlocked is always true and the H3-C override rewrote every page's verdict and appended the score caveat regardless of page scope. PARTIAL epoch blockers shared the hard-block wording.
+- fix: The score caveat uses the canonical native close-basis presentation. The H3-C verdict override and score caveat apply only to home/signal/sentiment/briefing; other pages keep their own verdict and caveat while still blocking trade conclusions. Partial-only blockers read '일부 근거 부분 확보'.
+- violated_rule: R670 close-basis score; a page verdict must not import another scope's evidence.
+- prevention: ci-runtime-contract-check P1364 check pins the scope list, the scoped override/caveat and the canonical presentation source.
+- verification/residual: Local browser (worktree v56.88): home/signal/briefing keep 58*/100 with the close-basis caveat; fundamental header shows '판단 보류 · 일부 근거 부분 확보' without the 12/13 market caveat; ci-runtime-contract-check OK.
+
+## P1363 - v56.88 - Salt-only legacy Vault no longer dead-ends every unlock (2026-10-01)
+
+- symptom/reproduction: A browser whose pre-P1350 Vault wrote aio_vault_salt but never stored a ciphertext (PIN set, nothing saved yet) could never unlock again: every PIN failed with vault-auth-evidence-missing, the UI asked for a 'Vault 복구' that does not exist, and portfolio PIN protection could never be re-enabled.
+- root_cause: P1350 authenticateVault treated 'salt exists, no sentinel, no ciphertext' as unverifiable and threw. With nothing encrypted there is nothing a wrong PIN could expose or corrupt, so the fail-closed branch protected no data while removing the only recovery path.
+- fix: Salt-only state now establishes the verification sentinel with the supplied PIN (same path as a fresh Vault, existing salt kept); a failed attempt removes only a partial sentinel and never the pre-existing salt. The dead error-message branches were removed.
+- violated_rule: Fail-closed security must protect an actual asset; a lockout with no recovery path is a defect, not protection.
+- prevention: ci-portfolio-vault-e2e salt-only scenario now requires the first PIN to establish the sentinel and a different PIN to be rejected afterwards.
+- verification/residual: node scripts/ci-portfolio-vault-e2e.mjs: 55/55 PASS in isolated Chromium, including P1350/P1363 legacy_auth_and_salt_only_establishes_sentinel.
+
 ## P1362 - v56.87 - Make delayed news key-configuration action a real accessible button (2026-10-01)
 
 - symptom/reproduction: The accessibility failed-batch rerun exposed a 17px Claude key-configuration action in the delayed market-news status footer.

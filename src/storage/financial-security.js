@@ -18,7 +18,8 @@ export async function authenticateVault(vault, pin, { storage, saltStorage, sens
     existing = saltStorage.getItem('aio_vault_salt');
     verify = storage.getItem(VERIFY_KEY);
     const ciphertexts = sensitiveKeys.map((key) => storage.getItem(key)).filter(encrypted);
-    if (existing && !verify && !ciphertexts.length) throw new Error('vault-auth-evidence-missing');
+    // P1363: a salt with neither sentinel nor ciphertext protects nothing (pre-P1350 unlocks
+    // wrote the salt before any save). Establish the sentinel instead of a dead-end lockout.
     if (existing) {
       vault._salt = Uint8Array.from(atob(existing), (char) => char.charCodeAt(0));
       if (vault._salt.length !== 16) throw new Error('vault-salt-invalid');
@@ -60,7 +61,7 @@ export async function authenticateVault(vault, pin, { storage, saltStorage, sens
   } catch (error) {
     // P1350: a cancelled authentication must not write the old origin or lock a newer unlock.
     if (generationOf(vault) !== generation) throw cancelled();
-    if (!existing && !verify) { try { storage.removeItem(VERIFY_KEY); saltStorage.removeItem('aio_vault_salt'); } catch (_) {} }
+    if (!verify) { try { storage.removeItem(VERIFY_KEY); if (!existing) saltStorage.removeItem('aio_vault_salt'); } catch (_) {} }
     vault.lock();
     throw error;
   }

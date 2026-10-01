@@ -1,0 +1,19 @@
+{
+  "version": "v56.88", "date": "2026-10-01",
+  "p": {
+    "id": 1364,
+    "title": "Market-score verdict and caveat stay on score pages and describe the close-basis model",
+    "symptom": "With score 58 computed from 9/30 completed closes, every page header (기업 분석·FX·매크로·테마·스크리너 등) still showed '스코어 입력 확인 필요(12/13)' and replaced its own verdict with the market-score observation; partial market epochs were labelled '필수 현재성 근거 미수신'.",
+    "root_cause": "Two contracts disagreed after R670/P1345: the caveat counted the live decision-grade audit (verified_current) while the score uses completed-close evidence. Because predictive validation is never established, _scoreBlocked is always true and the H3-C override rewrote every page's verdict and appended the score caveat regardless of page scope. PARTIAL epoch blockers shared the hard-block wording.",
+    "fix": "The score caveat uses the canonical native close-basis presentation. The H3-C verdict override and score caveat apply only to home/signal/sentiment/briefing; other pages keep their own verdict and caveat while still blocking trade conclusions. Partial-only blockers read '일부 근거 부분 확보'.",
+    "violated_rule": "R670 close-basis score; a page verdict must not import another scope's evidence.",
+    "prevention": "ci-runtime-contract-check P1364 check pins the scope list, the scoped override/caveat and the canonical presentation source.",
+    "verification": "Local browser (worktree v56.88): home/signal/briefing keep 58*/100 with the close-basis caveat; fundamental header shows '판단 보류 · 일부 근거 부분 확보' without the 12/13 market caveat; ci-runtime-contract-check OK."
+  },
+  "qa": [
+    { "id": "QA-SEMANTIC-SCOPE-01", "text": "Page headers outside home/signal/sentiment/briefing never carry the market-score verdict or its input caveat; partial evidence is not labelled 미수신.", "verify_by": "Actual browser decision-header sweep across 13 routes + ci-runtime-contract-check P1364", "done": true }
+  ],
+  "qa_section": "Page decision scope",
+  "changelog": ["**상단 판정 범위 분리 (P1364):** 시장 점수 결측 문구(12/13)를 종가 기준 점수 설명으로 교체하고, 시장 점수 판정은 홈·시그널·심리·브리핑에만 적용. 기업분석 등은 자기 판정 유지, 부분 수신은 '미수신'으로 표시하지 않음."],
+  "note": "v56.88 — P1363 salt-only Vault recovery, P1364 market-score scope in page headers."
+}

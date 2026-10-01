@@ -334,4 +334,14 @@ try {
   await fs.rm(directory, { recursive: true, force: true });
 }
 
+// P1370: content-addressed manager projections must not embed the daily build/review stamps
+// (they re-hashed unchanged quarters every day: 37 managers x 30 days = 1110 files, 252MB),
+// and the builder must prune projections the current summary no longer references.
+{
+  const builder = await fs.readFile(new URL('./build-masters-runtime-artifacts.mjs', import.meta.url), 'utf8');
+  const projection = builder.slice(builder.indexOf("schema: 'masters-13f-manager-web-projection.v1'"), builder.indexOf('const projectionText'));
+  check('P1370 projection-content-excludes-daily-stamps', projection.length > 0 && !/^\s*(?:generatedAt|reviewedAt)\s*[,:]/m.test(projection));
+  check('P1370 builder-prunes-unreferenced-projections', /referencedProjections\.has\(name\)/.test(builder) && /fs\.unlink\(path\.join\(projectionDir, name\)\)/.test(builder));
+}
+
 console.log(JSON.stringify({ status: 'PASS', checks }));

@@ -779,10 +779,17 @@ async function main() {
       _AioVault.lock(); localStorage.removeItem('aio_vault_verify_v1');
       await _AioVault.unlock('2468');
       const legacySentinel = !!localStorage.getItem('aio_vault_verify_v1');
-      // P1350: salt-only legacy state cannot establish whether a supplied PIN is correct.
+      // P1363: salt-only legacy state protects no ciphertext; the first PIN establishes the
+      // sentinel (no dead-end lockout), and that sentinel then rejects a different PIN.
       _AioVault.lock(); localStorage.clear(); localStorage.setItem('aio_vault_salt',btoa(String.fromCharCode(...new Uint8Array(16))));
       let saltOnly = false;
-      try { await _AioVault.unlock('2468'); } catch (error) { saltOnly = error.message === 'vault-auth-evidence-missing' && !_AioVault.isUnlocked(); }
+      try {
+        await _AioVault.unlock('2468');
+        const established = _AioVault.isUnlocked() && !!localStorage.getItem('aio_vault_verify_v1');
+        _AioVault.lock(); let rejected = false;
+        try { await _AioVault.unlock('9999'); } catch (_) { rejected = !_AioVault.isUnlocked(); }
+        saltOnly = established && rejected;
+      } catch (_) { saltOnly = false; }
       // P1350: switching to public-PC session storage never reuses private-origin caches.
       localStorage.clear(); await _AioVault.unlock('2468'); await safeLS('aio_portfolio_data',values[0]); _AioVault._keyRuntime.aio_portfolio_data=values[0];
       const privateStored = localStorage.getItem('aio_portfolio_data');
@@ -821,7 +828,7 @@ async function main() {
     check('P1350 wrong_pin_no_plaintext_overwrite',security.wrongSafe,JSON.stringify(security));
     check('P1350 financial_cache_restore_after_lock',security.restored,JSON.stringify(security));
     check('P1350 reset_and_reprotect_preserve_credentials',security.reset && security.reprotected,JSON.stringify(security));
-    check('P1350 legacy_auth_and_salt_only_fail_closed',security.legacySentinel && security.saltOnly,JSON.stringify(security));
+    check('P1350/P1363 legacy_auth_and_salt_only_establishes_sentinel',security.legacySentinel && security.saltOnly,JSON.stringify(security));
     check('P1350 public_pc_storage_isolation',security.publicIsolated && security.publicStored,JSON.stringify(security));
     check('P1350 public_pc_optout_financial_writers_preserve_private_storage',security.publicOptout,JSON.stringify(security));
     check('P1350 credential_only_vault_authenticates_pin',security.keyOnlyRejected,JSON.stringify(security));

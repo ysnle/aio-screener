@@ -1,0 +1,10 @@
+{ "version": "v56.88", "date": "2026-10-01",
+  "p": { "id": 1367, "title": "One VIX band across home, regime summary and chat",
+    "symptom": "VIX 16.34 read '주의' (green) on the home card, '안정' in the market-state summary used by briefing/chat, and a third 20/25 band in the chat fallback.",
+    "root_cause": "Three owners hard-coded different VIX thresholds (15/20/25/30, 18/25/32, 20/25) for the same label surface.",
+    "fix": "Home card and chat fallback use the canonical aio-core _vixBand thresholds 18/25/32 with labels 안정/보통/경계/패닉.",
+    "violated_rule": "One metric, one interpretation per session.",
+    "prevention": "Inline P1367 markers at both former owners point to the canonical band; browser check shows home '안정' for VIX 16.34.",
+    "verification": "Local browser v56.88: home-vix-status '안정' at VIX 16.34, matching the regime summary." },
+  "qa": [], "changelog": ["**VIX 구간 통일 (P1367):** 홈·시장 상태 요약·채팅의 서로 다른 VIX 구간(주의/안정 혼재)을 18/25/32 단일 기준으로 통일."],
+  "note": "v56.88 — P1363 Vault, P1364–P1366 scope/SEC/RRG, P1367–P1369 metric consistency and signal widgets." }

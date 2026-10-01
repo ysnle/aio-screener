@@ -1,0 +1,16 @@
+{
+  "version": "v56.88", "date": "2026-10-01",
+  "p": {
+    "id": 1366,
+    "title": "A missing 1/5-session return no longer discards a valid durable RRG point",
+    "symptom": "The P1358 producer publishes a CURRENT rotation row with dailyPct or weeklyPct = null when the prior session is absent (its own fixture asserts this), but the consumer required both returns to be finite and dropped the whole row, losing valid rsRatio/rsMomentum coordinates.",
+    "root_cause": "selectProducedRotation validated optional performance fields with the same finite() gate as the RRG coordinates; producer and consumer disagreed on which fields are mandatory.",
+    "fix": "Coordinates stay mandatory; dailyPct/weeklyPct must be a finite number or null. The themes provider marks direction compatibility only when a produced daily return exists.",
+    "violated_rule": "Missing values are not estimated, and a missing optional field must not erase independent valid evidence.",
+    "prevention": "ci-esm-core-unit-check P1366 cases: null returns keep coordinates with pct=null and directionCompatible=false; string/NaN returns are still rejected.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs OK; real Actions production of rotationHistory is still unobserved (QA-SEMANTIC-ROTATION-01 stays open)."
+  },
+  "qa": [],
+  "changelog": ["**RRG 좌표·수익률 분리 (P1366):** 생산된 RRG 행에서 1일/5일 수익률이 없을 때 유효한 좌표까지 버리던 소비자 검증을 수정. 수익률은 null로 유지."],
+  "note": "v56.88 — P1363 salt-only Vault recovery, P1364 market-score scope in page headers, P1365 unselected SEC wording, P1366 RRG coordinate/return split."
+}

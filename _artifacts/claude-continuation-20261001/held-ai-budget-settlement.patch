@@ -1,0 +1,150 @@
+--- a/cloudflare-worker-proxy.js
++++ b/cloudflare-worker-proxy.js
+@@ -858,6 +858,23 @@
+         result = { ok: true, started: true };
+         return;
+       }
++      if (operation === 'settle') {
++        // P-HELD-SETTLEMENT: a started reservation is replaced once by the provider-reported cost of a
++        // completed response. Unsettled attempts (timeout, cancel, error) keep the upper bound.
++        const reservation = this.counts.reservations[key];
++        if (!reservation || typeof reservation !== 'object' || reservation.started !== true || reservation.settled === true) {
++          result = { ok: true, settled: false };
++          return;
++        }
++        if (!Number.isSafeInteger(body.actualMicroUsd) || body.actualMicroUsd < 0) throw new Error('valid AI settlement amount required');
++        const settledMicroUsd = Math.max(1, body.actualMicroUsd);
++        this.counts.months[reservation.monthKey] = Math.max(0, (this.counts.months[reservation.monthKey] || 0) - reservation.reservationMicroUsd + settledMicroUsd);
++        reservation.reservationMicroUsd = settledMicroUsd;
++        reservation.settled = true;
++        await this.save();
++        result = { ok: true, settled: true, monthlyReservedMicroUsd: this.counts.months[reservation.monthKey] };
++        return;
++      }
+       throw new Error('unsupported quota operation');
+     });
+     return result || { ok: false };
+@@ -911,8 +928,8 @@
+   });
+ }
+ 
+-// Relay failures and AI attempts stopped BEFORE dispatch may release. Once an
+-// AI request starts, its conservative monthly reservation is never refunded.
++// Relay failures and AI attempts stopped BEFORE dispatch may release. Once an AI
++// request starts, only a completed response's reported usage can lower it (P-HELD-SETTLEMENT).
+ async function releaseQuota(env, dayKey, requestId) {
+   if (!dayKey || !requestId) return;
+   try {
+@@ -922,6 +939,62 @@
+   }
+ }
+ 
++// P-HELD-SETTLEMENT: provider-reported usage → cost, priced with the same conservative multipliers
++// as the reservation (cache writes at the 1h 2x rate, the 1.1x geo premium). Returns null
++// when usage is incomplete, so the caller keeps the upper-bound reservation.
++export function anthropicActualMicroUsd(model, usage) {
++  const rates = typeof model === 'string' && Object.hasOwn(ANTHROPIC_PRICES, model) ? ANTHROPIC_PRICES[model] : null;
++  if (!rates || !usage || typeof usage !== 'object' || !Number.isSafeInteger(usage.output_tokens)) return null;
++  const tokens = key => usage[key] === undefined ? 0 : Number.isSafeInteger(usage[key]) && usage[key] >= 0 ? usage[key] : NaN;
++  const input = tokens('input_tokens'), write = tokens('cache_creation_input_tokens'), read = tokens('cache_read_input_tokens'), output = tokens('output_tokens');
++  if (![input, write, read, output].every(Number.isFinite)) return null;
++  return Math.ceil((input * rates[0] + write * rates[0] * 2 + read * rates[0] / 10 + output * rates[1]) * 11 / 10);
++}
++
++// Pass the provider body through unchanged while reading its usage. Settlement happens
++// only when the whole body was delivered (SSE: a message_stop event was seen).
++function settleOnCompletion(upstream, model, settle) {
++  if (!upstream || upstream.status !== 200 || !upstream.body) return upstream;
++  const sse = /text\/event-stream/i.test(upstream.headers.get('content-type') || '');
++  const decoder = new TextDecoder();
++  const usage = {};
++  let buffered = '', stopped = false, overflow = false;
++  const merge = value => {
++    if (!value || typeof value !== 'object') return;
++    for (const [key, count] of Object.entries(value)) if (Number.isSafeInteger(count) && count >= 0) usage[key] = Math.max(usage[key] || 0, count);
++  };
++  const readLines = final => {
++    const lines = buffered.split('\n');
++    buffered = final ? '' : lines.pop();
++    for (const line of lines) {
++      if (!line.startsWith('data:')) continue;
++      try {
++        const event = JSON.parse(line.slice(5));
++        if (event?.type === 'message_stop') stopped = true;
++        merge(event?.message?.usage); merge(event?.usage);
++      } catch (_) {}
++    }
++  };
++  const observer = new TransformStream({
++    transform(chunk, controller) {
++      controller.enqueue(chunk);
++      if (overflow) return;
++      buffered += decoder.decode(chunk, { stream: true });
++      if (sse) readLines(false);
++      else if (buffered.length > 4 * 1024 * 1024) { overflow = true; buffered = ''; }
++    },
++    async flush() {
++      if (overflow) return;
++      buffered += decoder.decode();
++      if (sse) readLines(true);
++      else { try { const message = JSON.parse(buffered); stopped = message?.type === 'message'; merge(message?.usage); } catch (_) {} }
++      const actual = stopped ? anthropicActualMicroUsd(model, usage) : null;
++      if (actual != null) { try { await settle(actual); } catch (_) { /* the reservation stays as the upper bound */ } }
++    },
++  });
++  return new Response(upstream.body.pipeThrough(observer), { status: upstream.status, headers: upstream.headers });
++}
++
+ async function dispatchAnthropic(env, budget, payload, signal, rpc) {
+   const reservation = await rpc('reserve', payload);
+   if (!reservation?.ok || !reservation.reserved) {
+@@ -937,7 +1010,10 @@
+   }
+   try { await rpc('start', payload); }
+   catch (error) { await rpc('release', payload); throw error; }
+-  try { return await fetchAnthropicWithDeadline(env.ANTHROPIC_API_KEY, budget.body, signal); }
++  try {
++    const upstream = await fetchAnthropicWithDeadline(env.ANTHROPIC_API_KEY, budget.body, signal);
++    return settleOnCompletion(upstream, budget.body.model, actualMicroUsd => rpc('settle', { ...payload, actualMicroUsd }));
++  }
+   catch (error) {
+     return Response.json({ error: { type: error.name === 'AbortError' ? 'timeout' : 'upstream_error', message: 'Claude upstream unavailable; monthly reservation retained' } }, { status: 502 });
+   }
+--- a/src/ai/policies/budget.js
++++ b/src/ai/policies/budget.js
+@@ -8,3 +8,24 @@
+   state._aioWebSearchStats = stats;
+   try { if (typeof bumpCounter === 'function') bumpCounter('claudeWebSearch'); } catch (_) {}
+ }
++
++// P-HELD-TRANSLATION: every visitor's browser translates the same published news through the shared
++// Worker, so automatic translation alone could consume the whole monthly AI budget.
++// Grant at most `limit` shared-key batches per browser per KST day; the caller sends
++// the rest to the existing free translation path. Storage failure denies (fail closed).
++export const SERVER_TRANSLATION_DAILY_BATCHES = 2;
++export function takeServerTranslationSlot({ storage, now = Date.now(), limit = SERVER_TRANSLATION_DAILY_BATCHES } = {}) {
++  const key = 'aio_server_translation_batches_v1';
++  const day = new Date(Number(now) + 9 * 3600000).toISOString().slice(0, 10);
++  try {
++    let state = null;
++    try { state = JSON.parse(storage.getItem(key) || 'null'); } catch (_) { state = null; }
++    const used = state && state.day === day && Number.isSafeInteger(state.count) && state.count >= 0 ? state.count : 0;
++    if (used >= limit) return false;
++    const next = JSON.stringify({ day, count: used + 1 });
++    storage.setItem(key, next);
++    return storage.getItem(key) === next;
++  } catch (_) {
++    return false;
++  }
++}
+--- a/js/aio-data.js
++++ b/js/aio-data.js
+@@ -10555,7 +10555,7 @@
+ 
+     // 공통 공개 정책이 자동 번역 출력 형식을 차단했다면 같은 세션에서 매 배치마다
+     // Claude 요청을 반복하지 않고 무료/로컬 번역 경로로 즉시 우회한다.
+-    if (window._aioTranslationPolicyBlockedUntil > Date.now()) {
++    if (window._aioTranslationPolicyBlockedUntil > Date.now() || (_ct.serverKey && !(window._aioAIBudgetPolicy && window._aioAIBudgetPolicy.takeServerTranslationSlot({ storage: localStorage })))) { // P-HELD-TRANSLATION: shared-key daily batch cap
+       var _circuitBatch = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
+       if (_circuitBatch.length) { try { await freeTranslateNews(_circuitBatch); } catch(_) { _circuitBatch.forEach(localEnrichSingle); } }
+       continue;

@@ -15709,8 +15709,8 @@ function refreshHomeDashboard() {
   if (vixValueEl) {
     const vp = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
     vixValueEl.textContent = _homeFixed(vp, 2, '—');
-    const vixLabel = vp == null ? '—' : (vp >= 30 ? '극단공포' : vp >= 25 ? '공포' : vp >= 20 ? '경계' : vp >= 15 ? '주의' : '안정');
-    const vixCol = vp == null ? '#7b8599' : (vp >= 30 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 20 ? '#ffa31a' : '#00e5a0');
+    const vixLabel = vp == null ? '—' : (vp >= 32 ? '패닉' : vp >= 25 ? '경계' : vp >= 18 ? '보통' : '안정'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
+    const vixCol = vp == null ? '#7b8599' : (vp >= 32 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 18 ? 'var(--text-secondary)' : '#00e5a0');
     vixValueEl.style.color = vixCol;
     if (vixStatusEl) vixStatusEl.textContent = vixLabel;
   }

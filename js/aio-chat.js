@@ -3651,7 +3651,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       var _spx = (_s && _s.spx) || (_ms && _ms.spx) || '—';
       var _tnx = (_s && _s.tnx) || '—';
       var _score = (_s && _s.score != null) ? _s.score : '—';
-      var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 20 ? '주의' : '안정'));
+      var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 32 ? '패닉' : _vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 18 ? '보통' : '안정')); // P1367 canonical band
       var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (_fg <= 25 ? '극단 공포' : _fg <= 45 ? '공포' : _fg <= 55 ? '중립' : _fg <= 75 ? '탐욕' : '극단 탐욕'));
       // v49.68 R128 시각 단서 표준 — VIX/F&G 이모지 자동 적용
       var _vixEmoji = _vix === '—' ? '⚪' : Number(_vix) >= 25 ? '🔴' : Number(_vix) >= 20 ? '🟡' : '🟢';

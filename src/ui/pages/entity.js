@@ -272,7 +272,8 @@ function renderFundamentalStatus(documentRef, state) {
   const available = !!fundamentals && typeof fundamentals === 'object'
     && Array.isArray(fundamentals.coverage) && fundamentals.coverage.length > 0;
   const observedAt = fundamentals?.observedAt || fundamentals?.filedAt || null;
-  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `기준 ${String(observedAt).slice(0, 10)}` : '기준일 미수신'}` : '○ SEC 데이터 미수신';
+  const unselected = !String(state?.id || '').trim(); // P1365: no selection ≠ SEC 미수신.
+  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `기준 ${String(observedAt).slice(0, 10)}` : '기준일 미수신'}` : unselected ? '○ 종목 선택 전' : '○ SEC 데이터 미수신';
   element.className = 'freshness-badge fb-static';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
@@ -315,7 +316,7 @@ function renderFundamentalSummary(documentRef, state) {
   const observedAt = fundamentals?.observedAt || '기준일 미상';
   element.textContent = available
     ? `SEC ${period} 데이터 ${coverage.length}개 항목 확인 · 기준일 ${observedAt}${facts.length ? ` · ${facts.join(' · ')}` : ''}`
-    : 'SEC 연간 재무 데이터 수신 대기 · 해석 보류';
+    : !String(state?.id || '').trim() ? '종목 선택 전 · 선택 기업의 SEC 연간 재무 해석 없음' : 'SEC 연간 재무 데이터 수신 대기 · 해석 보류';
   element.dataset.aioFundamentalSummaryRenderer = 'native';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
@@ -446,6 +447,8 @@ function markSecReportElement(element, report) {
 
 function renderFundamentalReport(documentRef, page, state) {
   const report = deriveSecReport(state?.fundamentals);
+  // P1365: no selected issuer is not an SEC receipt failure; the watchlist below carries SEC rows.
+  const unselected = !String(state?.id || '').trim();
   if (page) {
     page.dataset.aioFundamentalReportRenderer = 'native';
     page.dataset.aioSecReportModel = report.modelVersion;
@@ -464,16 +467,17 @@ function renderFundamentalReport(documentRef, page, state) {
   if (meta) {
     meta.textContent = report.status === 'current'
       ? `${report.form || 'Annual filing'} · 기준일 ${report.observedAt || '—'} · 신선도 ${report.freshness?.state || 'unknown'}${report.freshness?.ageDays != null ? ` (${report.freshness.ageDays}일)` : ''} · 제출일 ${report.filedAt || '—'}${report.filingMetadata?.acceptedAt ? ` · 접수 ${report.filingMetadata.acceptedAt}` : ''}${report.accession ? ` · ${report.accession}` : ''}${report.pointInTime?.observationCount ? ` · PIT ${report.pointInTime.observationCount}건 (${report.pointInTime.status})` : ''}`
-      : 'SEC EDGAR 연간 데이터 및 PIT 기준시점 수신 대기 · 값이 없는 항목은 추정하지 않습니다';
+      : unselected ? '선택한 종목 없음 · 티커를 입력하거나 아래 관심종목을 선택하면 해당 기업의 SEC 연간 공시·PIT 기준시점을 표시합니다'
+        : 'SEC EDGAR 연간 데이터 및 PIT 기준시점 수신 대기 · 값이 없는 항목은 추정하지 않습니다';
   }
   if (coverage) coverage.textContent = report.status === 'current'
     ? `관측 항목 ${report.coverage.length}개 · ${report.source} · ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`
-    : '관측 항목 없음';
+    : unselected ? '선택 기업 없음' : '관측 항목 없음';
   if (!grid) return;
   grid.replaceChildren();
   if (report.metrics.length === 0) {
     const empty = documentRef.createElement('div');
-    empty.textContent = '공식 SEC annual fact가 수신되면 핵심 재무 지표가 표시됩니다.';
+    empty.textContent = unselected ? '종목을 선택하면 핵심 재무 지표가 표시됩니다.' : '공식 SEC annual fact가 수신되면 핵심 재무 지표가 표시됩니다.';
     empty.style.cssText = 'grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:8px 0;';
     grid.appendChild(empty);
     return;

@@ -533,7 +533,7 @@ async function unlockPortfolio() {
   } catch (error) {
     if (error && error.message === 'vault-operation-cancelled') return; _AioVault.lock(); // P1350: do not re-lock a newer unlock operation.
     if (optedOut) { try { storage.setItem(PF_VAULT_OPTOUT_KEY, '1'); } catch (_) {} }
-    showToast(error && error.message === 'vault-auth-evidence-missing' ? 'PIN 검증 정보가 없습니다. 저장 자료를 백업한 뒤 Vault 복구가 필요합니다.' : 'PIN 또는 저장된 암호문을 확인할 수 없습니다.');
+    showToast('PIN 또는 저장된 암호문을 확인할 수 없습니다.');
   }
 }
 function setupPortfolioPin() {

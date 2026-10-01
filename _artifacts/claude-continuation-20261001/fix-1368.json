@@ -1,0 +1,10 @@
+{ "version": "v56.88", "date": "2026-10-01",
+  "p": { "id": 1368, "title": "Signal page legacy widgets refresh on native navigation and never invent VIX",
+    "symptom": "Navigating to 시장 환경 left the metric strip as the static 'VIX — · F&G — · SPY —' placeholder and the entry checklist at '판정 대기' while home showed VIX 16.34 and F&G 31; the strip also substituted VIX=20 when the quote was missing.",
+    "root_cause": "After the native router migration initSignalDashboard runs only from the global refresh button; still-legacy signal widgets refreshed only on a later aio:liveQuotes event. The strip had a hard-coded 20 fallback.",
+    "fix": "An aio:pageShown('signal') bus handler runs the same legacy widget projection as the live-quote hook; a missing VIX renders '—' in muted colour.",
+    "violated_rule": "Missing inputs are never guessed (product decision); a migrated route must keep an owner for every visible widget.",
+    "prevention": "P1368 markers at the handler and the strip; browser verification after reload-then-navigate.",
+    "verification": "Local browser: after boot and navigation the strip shows 'VIX 16.3 F&G 31 SPY —' and the checklist '통과 2 · 미충족 0 · 대기 3'." },
+  "qa": [], "changelog": ["**시장 환경 위젯 갱신 (P1368):** 페이지 이동 시 상단 지표 띠·체크리스트가 자리표시자로 남던 문제와 VIX 결측 시 20을 넣던 대체값을 제거."],
+  "note": "v56.88 — P1363 Vault, P1364–P1366 scope/SEC/RRG, P1367–P1369 metric consistency and signal widgets." }

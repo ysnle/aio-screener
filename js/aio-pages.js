@@ -952,12 +952,12 @@ function refreshSignalDashboard() {
     var phaseEl = document.getElementById('signal-phase-label');
     if (mvStrip) {
       var ld77 = window._liveData || {};
-      var vixVal = (ld77['^VIX'] && ld77['^VIX'].price) ? ld77['^VIX'].price : 20;
+      var vixVal = ld77['^VIX'] && Number(ld77['^VIX'].price) > 0 ? Number(ld77['^VIX'].price) : null; // P1368: a missing VIX is not 20
       // v52.7 P607/R261: window._fearGreedValue phantom global 시정 — window._lastFG로 전환 (aio-core.js:23234 동일 수정)
       var _fg77m = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
       var fg77 = _fg77m && _fg77m.value != null ? _fg77m.value : null;
       var ts77 = totalFinite ? displayTotal : null;
-      var vixCol77 = vixVal < 20 ? 'var(--data-green)' : vixVal < 25 ? 'var(--data-amber)' : 'var(--data-red)';
+      var vixCol77 = vixVal == null ? 'var(--text-muted)' : vixVal < 20 ? 'var(--data-green)' : vixVal < 25 ? 'var(--data-amber)' : 'var(--data-red)';
       var fgCol77 = fg77 != null ? (fg77 >= 60 ? 'var(--data-green)' : fg77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
       var tsGrade77 = ts77 == null ? '—' : ts77 >= 75 ? 'A' : ts77 >= 60 ? 'B' : ts77 >= 45 ? 'C' : ts77 >= 30 ? 'D' : 'F';
       var m7Up77 = 0, m7Tot77 = 0;
@@ -967,7 +967,7 @@ function refreshSignalDashboard() {
       var spyStr77 = spyChg77 != null ? ((spyChg77 >= 0 ? '+' : '') + spyChg77.toFixed(2) + '%') : '—';
       var spyCol77 = spyChg77 != null ? (spyChg77 >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
       mvStrip.innerHTML =
-        '<span class="mv-pill"><span class="mv-pill-lbl">VIX</span><span style="color:' + vixCol77 + ';">' + vixVal.toFixed(1) + '</span></span>' +
+        '<span class="mv-pill"><span class="mv-pill-lbl">VIX</span><span style="color:' + vixCol77 + ';">' + (vixVal == null ? '—' : vixVal.toFixed(1)) + '</span></span>' +
         '<span class="mv-pill"><span class="mv-pill-lbl">F&amp;G</span><span style="color:' + fgCol77 + ';">' + (fg77 != null ? fg77 : '—') + '</span></span>' +
         '<span class="mv-pill"><span class="mv-pill-lbl">SPY</span><span style="color:' + spyCol77 + ';">' + spyStr77 + '</span></span>' +
         '<span class="mv-pill-sep"></span>' +
@@ -1154,8 +1154,8 @@ _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
   // v42.1: 어떤 페이지에서든 마켓 펄스 업데이트
   try { updateMarketPulse(); } catch(e) {}
 });
+_aioPageBus.register('html-signal-shown', 'aio:pageShown', function(e) { if (e.detail === 'signal') setTimeout(function() { try { updateRiskMonitor(); updateSectorHeatmap(); refreshSignalDashboard(); updateExitTriggers(); updateBottomProcess(); updateEntryChecklist(); } catch(_) {} }, 0); }); // P1368: native navigation skips initSignalDashboard
 });
-
 
 // ══════════════════════════════════════════════════════════════════
 // v9 FX & Bond Market JS

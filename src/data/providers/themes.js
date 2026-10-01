@@ -118,7 +118,7 @@ export function createThemesProvider({
           fetchedAt: currentQuote.directionCompatible ? currentQuote.fetchedAt : produced?.fetchedAt || null,
           revision: produced?.revision || currentQuote.revision,
           changeBasis: currentQuote.directionCompatible ? currentQuote.changeBasis : produced?.changeBasis || 'unknown',
-          directionCompatible: currentQuote.directionCompatible || !!produced,
+          directionCompatible: currentQuote.directionCompatible || finite(produced?.dailyPct) != null,
           rotationSource: rotation?.modelVersion ? `native-rrg:${rotation.modelVersion}` : (item?.source || 'native-rrg')
         };
       });
