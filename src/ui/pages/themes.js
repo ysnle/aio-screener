@@ -154,12 +154,13 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
   if (total < 6) {
     pill.className = 'status-pill sp-neutral';
-    pill.textContent = `사이클 판정 보류 · RRG 근거 ${total}/11`;
+    pill.textContent = `RRG 관측 보류 · 근거 ${total}/11`;
     return;
   }
   const riskOn = counts.Leading + counts.Improving >= counts.Weakening + counts.Lagging;
   pill.className = `status-pill ${riskOn ? 'sp-risk-on' : 'sp-risk-off'}`;
-  pill.textContent = riskOn ? 'RRG 전환 우세 · 성장 주도' : 'RRG 전환 약세 · 방어 주도';
+  // P1352: quadrant counts describe relative strength, not sector identity or the business cycle.
+  pill.textContent = `섹터 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}`;
 }
 
 function renderThemePerformanceNarrative({ documentRef, root, store, route }) {
@@ -394,8 +395,9 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   const provenance = documentRef.createElement('div');
   const membership = detail.membershipPolicy || {};
   const membershipAsOf = membership.observedAt ? `구성 기준 ${String(membership.observedAt).slice(0, 10)}` : '구성 기준일 미검증';
-  provenance.textContent = `canonical theme-detail · ${detail.source === 'quote-missing' ? '시세 reference-only' : `시세 source: ${detail.source}`} · ${membership.source || 'AIO curated taxonomy'} · ${membershipAsOf} · 참고 분류`;
-  provenance.style.cssText = 'font-size:10px;line-height:1.5;color:var(--text-muted);';
+  provenance.textContent = `${detail.source === 'quote-missing' ? '시세 근거 미확보' : '시세 관측'} · AIO 참고 테마 분류 · ${membershipAsOf}`;
+  provenance.title = `시세 출처: ${detail.source} · 구성 출처: ${membership.source || 'AIO curated taxonomy'}`;
+  provenance.style.cssText = 'font-size:12px;line-height:1.5;color:var(--text-muted);';
   provenance.setAttribute('data-source-kind', membership.sourceKind || 'REFERENCE');
   provenance.setAttribute('data-operational-use', membership.allowedUse === 'decision' ? 'decision' : 'reference-only');
   if (membership.observedAt) provenance.setAttribute('data-observed-at', membership.observedAt);

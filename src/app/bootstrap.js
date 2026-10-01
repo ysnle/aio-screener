@@ -1,4 +1,6 @@
 import { createClock } from '../platform/clock.js';
+import * as financialSecurity from '../storage/financial-security.js';
+import * as aiBudgetPolicy from '../ai/policies/budget.js';
 import { createHttpClient } from '../platform/http.js';
 import { createStore } from '../state/store.js';
 import { createInitialSentimentState, sentimentReducer, SENTIMENT_DATA_CLEAR, SENTIMENT_DATA_SET } from '../state/slices/sentiment.js';
@@ -20,6 +22,7 @@ import { createEvidenceStore } from '../data/evidence-store.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
+import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
@@ -357,6 +360,8 @@ function reducer(state, action) {
 }
 
 export function createAIOArchitecture({ root = globalThis, documentRef = root.document, now = () => Date.now(), fetchImpl = root.fetch } = {}) {
+  root._aioFinancialSecurity = financialSecurity;
+  root._aioAIBudgetPolicy = aiBudgetPolicy;
   const clock = createClock(now);
   const evidenceStore = createEvidenceStore();
   const defaultSavedScreens = createSavedScreenCollection(createDefaultScreenDefinitions().map((definition) => ({ definition })));
@@ -370,16 +375,16 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const runtimeReaders = createRuntimeReaders({ root, now: clock.now });
   // P1328/R670: the legacy computeTradingScore wrapper reads the one native score-input path.
   root._aioReadTradingScoreInputs = () => runtimeReaders.readTradingScoreInputs();
+  root._aioFinalizePageDecision = (decision) => finalizePageDecision(decision, store.getState()?.analysis?.signal);
   // P1338: the facade whitelist never exposed this, so aio-data fell back to () => [] and wiped the saved
   // news-sentiment history on every render.
   root._aioNormalizeNewsSentimentHistory = normalizeNewsSentimentHistory;
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
   // committed daily history so the trend input follows the close basis instead of holding the score.
   const applyHistoryMa = () => {
-    if (root._spxMA?.[50] && root._spxMA?.[200] && !String(root._spxMASource || '').startsWith('public-data/history.json')) return;
-    const ma = spxMovingAveragesFromHistory(root._aioHistory);
     const basis = latestCompletedUsSession(clock.now());
-    if (!ma || !basis || ma.asOf < basis.previousDate) return;
+    const ma = spxMovingAveragesFromHistory(root._aioHistory, { asOf: basis?.date });
+    if (!ma || !basis || ma.asOf !== basis.date) return;
     root._spxMA = { 50: ma[50], 200: ma[200] };
     root._spxMATs = Date.parse(`${ma.asOf}T00:00:00Z`);
     root._spxMASource = `public-data/history.json daily closes (${ma.asOf})`;
@@ -481,6 +486,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     provider: createThemesProvider({
       readLiveData: () => root?._liveData || {},
       readHistory: () => root?._priceHistory || {},
+      readRotationHistory: () => root?._serverDataMeta?.rotationHistory || null,
       readWeeklyPerf: () => root?._sectorWeeklyCache || {},
       readDefinitions: () => ({
         sectors: root?.RRG_SECTORS,
@@ -787,6 +793,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // the analysis slice; otherwise the hero stays 'held' on the boot-time snapshot until the next refresh.
     const stopAnalysisHistory = compatibilityEvents.on('aio:historyLoaded', () => { applyHistoryMa(); syncAnalysis.sync(); });
     const stopAnalysisSentiment = legacy.on('aio:sentimentUpdated', syncAnalysis.sync);
+    const stopAnalysisSnapshot = legacy.on('aio:marketSnapshot', syncAnalysis.sync); // P1345: late canonical quotes are analysis inputs.
     const stopShown = legacy.on('aio:navigationCommitted', (event) => {
       // W00/P1143: the store route follows the router's single committed result, so
       // DOM, router, scope, and canonical state move together on one navigation.
@@ -794,6 +801,26 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (committed) store.dispatch({ type: 'route/changed', payload: committed });
     });
     const stopTimelineStore = store.subscribe(() => emitDataTimelineUpdated('store-updated'));
+    // P1357: late history/snapshot inputs update the native reference immediately;
+    // re-project shared headers from that same committed analysis revision too.
+    let headerAnalysis = store.getState()?.analysis;
+    let headerProjectionQueued = false;
+    const stopDecisionHeaders = store.subscribe(() => {
+      const analysis = store.getState()?.analysis;
+      if (analysis === headerAnalysis) return;
+      headerAnalysis = analysis;
+      if (headerProjectionQueued) return;
+      headerProjectionQueued = true;
+      queueMicrotask(() => {
+        headerProjectionQueued = false;
+        if (disposed || typeof root._aioRenderPageDecisionHeader !== 'function') return;
+        for (const route of ['home', 'signal', 'briefing']) {
+          if (!documentRef?.getElementById?.(`page-${route}`)) continue;
+          try { root._aioRenderPageDecisionHeader(route); } catch (_) {}
+        }
+        try { root.updateMarketPulse?.(); } catch (_) {}
+      });
+    });
     const refreshStaleActivePage = () => {
       emitDataTimelineUpdated('freshness-watchdog');
       if (documentRef?.visibilityState === 'hidden') return;
@@ -835,6 +862,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         applyMarketSnapshotToLegacy(root, marketSnapshot, { sourceId: result.source });
         syncSentimentProjection();
         syncMarket.sync();
+        syncAnalysis.sync(); // P1345: the ready path also works when the host has no event bridge.
         emitDataTimelineUpdated('market-snapshot');
       }
       return result;
@@ -875,8 +903,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisModeChange();
       stopAnalysisHistory();
       stopAnalysisSentiment();
+      stopAnalysisSnapshot();
       stopShown();
       stopTimelineStore();
+      stopDecisionHeaders();
       compatibilityEvents.dispose();
       clearInterval(timelineWatchdog);
       documentRef?.removeEventListener?.('visibilitychange', onVisibilityTimelineCheck);

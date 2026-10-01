@@ -1,0 +1,18 @@
+{
+  "version": "v56.87",
+  "date": "2026-10-01",
+  "p": {
+    "id": 1355,
+    "title": "Verified producer receipt preserves observation identity across local app versions",
+    "symptom": "Local freshness gates failed although the remote producer had published a fresh, coherent data batch; incoming generated manifests carried an older app version.",
+    "root_cause": "The working tree had not received the producer commits, and the version tool had no narrow mode to align imported generated metadata without changing source data or advancing the application version.",
+    "fix": "Receive 11 exact-SHA Git blobs after byte-length, Git blob SHA1, JSON and dataRevision checks, preserve original backups and exclude public-config. Add bump-version --align-generated for exactly the three generated version surfaces, validating the current version and a common snapshot revision before writes; preserve production times, source identity and observed live versions.",
+    "violated_rule": "R1 official version surfaces; R676 producer and release identity.",
+    "prevention": "QA-SEMANTIC-PRODUCER-01 and P1355 fixtures in ci-esm-core-unit-check.mjs reject mixed batches and newer incoming app versions and preserve untouched metadata.",
+    "verification": "Exact commit 9896adec45cc5de78fba2af481554602f3e89c6d received with all 11 blob hashes verified. Official alignment CLI succeeded at v56.87. Freshness and lineage rerun plus integrated QA evidence are recorded separately in REPORT.md. No local data producer or remote mutation was run."
+  },
+  "qa": [{ "id": "QA-SEMANTIC-PRODUCER-01", "text": "Imported producer batches retain their data identity and observation timestamps; metadata alignment refuses mixed batches and newer incoming versions.", "verify_by": "P1355/R1 ci-esm-core-unit-check + bump-version --align-generated + data freshness/lineage gates", "done": true }],
+  "qa_section": "Semantic, financial and operating-budget audit",
+  "changelog": ["**생산 산출물 수신 (P1355):** 고정 SHA·해시·동일 사이클을 검증해 최신 데이터를 수신하고, 공식 버전 도구의 제한된 메타데이터 정렬로 관측 시각과 원본 출처를 보존."],
+  "note": "v56.87 — P1349–P1355 session evidence, Vault, provenance, UI semantics, monthly budget, missing formatting and verified producer receipt."
+}

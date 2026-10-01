@@ -1,8 +1,179 @@
 ---
-last_verified: 2026-09-30
+last_verified: 2026-10-01
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
+
+## P1362 - v56.87 - Make delayed news key-configuration action a real accessible button (2026-10-01)
+
+- symptom/reproduction: The accessibility failed-batch rerun exposed a 17px Claude key-configuration action in the delayed market-news status footer.
+- root_cause: The async status renderer created an interactive data-action span with no button role, keyboard focus or minimum hit target. Its late arrival made it absent in some earlier audits.
+- fix: Render a native type=button with the existing delegated action and explicit minimum hit area; preserve the label and configuration behavior.
+- violated_rule: Existing keyboard and desktop target-size browser contracts.
+- prevention: Existing 19-route real Chromium accessibility audit checks named controls and hit-target size. P1362 is cited in the delayed production renderer.
+- verification/residual: Actual browser rerun reproduced the footer target failure after P1361 headline repair; final rerun is recorded in REPORT.md.
+
+## P1361 - v56.87 - Give native news headline targets layout slack above 24px (2026-10-01)
+
+- symptom/reproduction: Final 19-route Chromium accessibility audit found one briefing news anchor just below the 24px hit-target threshold, despite its rounded report height showing 24.
+- root_cause: The inline-flex headline used an exact 24px CSS minimum; subpixel layout left a bounding rectangle marginally below the threshold for a particular headline.
+- fix: Raise the existing news-item-link minimum height to 28px without weakening the browser threshold or exempting the original article link.
+- violated_rule: Existing WCAG desktop target-size browser contract.
+- prevention: Existing ci-accessibility-matrix-check measures real hit rectangles on all 19 routes; P1361 is cited beside the target CSS.
+- verification/residual: Final affected audit reproduced the real briefing anchor failure. Failed-batch rerun and document closeout results are recorded in REPORT.md.
+
+## P1360 - v56.87 - Match fundamental page evidence to selected issuer or actual SEC watchlist (2026-10-01)
+
+- symptom/reproduction: The default fundamental page displayed eight SEC watchlist records but its timeline was BLOCKED because no individual issuer was selected.
+- root_cause: The page contract always required entity.fundamental while the production presenter supported two different scopes. A valid watchlist was assessed as a missing selected company.
+- fix: Publish a dated watchlist observation with the oldest actual period date and require every member to have a date. Select the page evidence scope explicitly; an absent selected issuer is never rescued by watchlist data. Preserve source, generated time and period time separately.
+- violated_rule: R677 observation identity; R679 truthful reference presentation.
+- prevention: ci-fundamental-watchlist-timeline-check runs the actual SEC artifact through the production provider, normalizer, catalog and page timeline; missing, stale and selected-issuer cases remain conservative.
+- verification/residual: Production-module regression PASS for eight dated watchlist records, empty list, all/one missing dates, stale member and selected issuer separation. Integrated browser and final QA results are recorded separately in REPORT.md.
+
+## P1359 - v56.87 - Decode translated and original news at one normalization boundary (2026-10-01)
+
+- symptom/reproduction: Actual Chromium regression detected a twice-decoded nested numeric entity in a news card.
+- root_cause: The presenter decoded all display text after normalization had already decoded original fields. Translated fields had remained raw, which caused an attempted UI fix to add a second interpretation for original text.
+- fix: Normalize ko_title and ko_summary alongside original title/summary, and remove decoding from the renderer. Keep textContent presentation and literal markup without HTML execution.
+- violated_rule: P1205 news entity and XSS contract; R679 truthful content presentation.
+- prevention: P1359 native original/translated single-pass fixtures and the existing production browser nested-entity/XSS fixture.
+- verification/residual: Native single-pass fixture PASS. The browser nested-entity/XSS failure was resolved; the following theme label fixture was updated to the precise user-facing AIO reference taxonomy. Final integrated browser result is recorded in REPORT.md.
+
+## P1358 - v56.87 - Durable completed-session ETF rotation producer and native consumer (2026-10-01)
+
+- symptom/reproduction: RRG and sector performance remained empty when browser-side Yahoo history hydration was unavailable, although the scheduled producer already had a market-data collection lane.
+- root_cause: No durable ETF relative-rotation artifact existed. Each visitor depended on an external browser hydration request; stored screener rows did not contain the required aligned daily histories.
+- fix: Add a bounded SPY plus 25 ETF daily adjusted-close collector and derived rotation artifact to the existing Actions producer. Align exact session dates, verify provider instrument/timeframe/currency and completed-session grace, compute RRG plus one/five-session returns, reuse the same completed session without requests, and retain failed observations without advancing their timestamp. The native provider consumes validated current derived rows. No raw stock/ETF prices are published; T3 reference and rights-review limits remain.
+- violated_rule: P715 raw-price publication boundary; R677 observation/session identity; R679 descriptive reference semantics.
+- prevention: QA-SEMANTIC-ROTATION-01; ci-rotation-history-check plus P1358 native consumer fixtures are registered in the QA pipeline.
+- verification/residual: Producer mock gate PASS for 25 ETF coverage, 26 bounded requests, concurrency 3, zero same-session requests, date intersection, holidays, DST/half-days, type conflicts, missing evidence and failed-refresh retention. Consumer positive/negative units PASS. Real Actions production and a browser rendering newly produced real rotation remain unverified; no local producer or workflow dispatch ran.
+
+## P1357 - v56.87 - Separate informative current observations from score-close and trade eligibility (2026-10-01)
+
+- symptom/reproduction: A valid completed-close score coexisted with a missing-data header, and briefing axes hid current oil, dollar and Korean-session observations.
+- root_cause: Legacy trade-grade evidence gates overwrote descriptive reference summaries; one US close clock was applied to continuous-market and Korean informational cards, while a TTL cache retained the initial empty score after native analysis updated.
+- fix: Expose the native tradingScore in the analysis slice, invalidate the legacy score cache when that object changes, and let briefing cards consume dated current delayed observations with their own session labels and reference-only use. Shared header integration is separately verified before closeout.
+- violated_rule: R670 completed US close applies to scores; R679 reference descriptions must not assert trade eligibility or calibrated probabilities.
+- prevention: QA-SEMANTIC-CURRENT-01 and P1357 fixtures reject future, stale, unlabelled, invalid and blocked observations while preserving usable current delayed references.
+- verification/residual: Native unit fixtures passed. Actual browser and shared header parity, cache event timing and integrated QA remain pending until recorded in REPORT.md.
+
+## P1356 - v56.87 - Advance PCE schedule from verified official future dates (2026-10-01)
+
+- symptom/reproduction: After the UTC date changed, the PCE calendar still named September 30 as its next release and the expiry gate failed.
+- root_cause: The hand-curated official schedule stopped at the September release and did not include the next published dates.
+- fix: Verify the BEA release schedule and register October 29, November 25 and December 23. Advance nextRelease only; leave lastRelease and released macro results tied to their existing evidence.
+- violated_rule: R650 schedule advancement is separate from verified release results.
+- prevention: The existing static-db calendar expiry gate remains mandatory and detects stale nextRelease; the macro-calendar review workflow remains the scheduled review path.
+- verification/residual: ci-static-db-expiry-check passed after the update. Official source: https://www.bea.gov/news/schedule (page modified 2026-09-30). No data producer or remote workflow was executed.
+
+## P1355 - v56.87 - Verified producer receipt preserves observation identity across local app versions (2026-10-01)
+
+- symptom/reproduction: Local freshness gates failed although the remote producer had published a fresh, coherent data batch; incoming generated manifests carried an older app version.
+- root_cause: The working tree had not received the producer commits, and the version tool had no narrow mode to align imported generated metadata without changing source data or advancing the application version.
+- fix: Receive 11 exact-SHA Git blobs after byte-length, Git blob SHA1, JSON and dataRevision checks, preserve original backups and exclude public-config. Add bump-version --align-generated for exactly the three generated version surfaces, validating the current version and a common snapshot revision before writes; preserve production times, source identity and observed live versions.
+- violated_rule: R1 official version surfaces; R676 producer and release identity.
+- prevention: QA-SEMANTIC-PRODUCER-01 and P1355 fixtures in ci-esm-core-unit-check.mjs reject mixed batches and newer incoming app versions and preserve untouched metadata.
+- verification/residual: Exact commit 9896adec45cc5de78fba2af481554602f3e89c6d received with all 11 blob hashes verified. Official alignment CLI succeeded at v56.87. Freshness and lineage rerun plus integrated QA evidence are recorded separately in REPORT.md. No local data producer or remote mutation was run.
+
+## P1354 - v56.87 - Shared numeric formatting preserves missing observations (2026-10-01)
+
+- symptom/reproduction: The actual theme screen still displayed missing VIX as 0.0 and missing yield spread as 0.00 despite a held model and explicit missing-value fallback.
+- root_cause: The shared _aioSafeFixed presenter used Number(value), coercing null, blank text and booleans into numeric observations before checking finiteness.
+- fix: Use the shared strict finite-number boundary in the common presenter. Invalid types reach the caller fallback; real numeric zero and numeric strings remain valid across sibling consumers.
+- violated_rule: R294 and R679 presentation meaning boundaries.
+- prevention: QA-SEMANTIC-FORMAT-01; production-function positive and negative fixtures in ci-esm-core-unit-check.mjs.
+- verification/residual: Native units pass for null, undefined, blanks, booleans, objects, NaN and infinity plus numeric zero and string positive controls. Browser recheck and integrated QA are separately recorded in REPORT.md.
+
+## P1353 - v56.87 - Atomic monthly AI reservation and truthful operating budget scope (2026-09-30)
+
+- symptom/reproduction: Daily request counts did not enforce the operator monthly AI budget; UI assumed $50 for five users and offered paid shared search with unknown cost bounds.
+- root_cause: Request volume, conservative cost reservations and provider invoiced spend were conflated; prices and execution routes did not share an atomic monthly ledger.
+- fix: Reserve conservative priced text/cache/output cost in the same US Durable Object, default at most $10 per UTC month, preserve reservations once upstream starts, handle restart/concurrency/idempotency/month rollover and legacy unknown spend, explicitly reject unpriced/unsupported paid modes and isolate paid-search policy in native ESM. Document total operating target $10 and ceiling $20, with free-source-first procurement.
+- violated_rule: Owner budget decision and new R680 cost-dimension contract.
+- prevention: QA-SEMANTIC-BUDGET-01; ci-worker-anthropic-check, ci-worker-relay-check and native policy unit checks.
+- verification/residual: Mock Worker-to-DO-to-upstream budget and relay gates pass, including public health non-disclosure. No paid request. Reservations are not invoices; personal keys and Actions direct calls bypass this ledger, and provider workspace spending caps are not configured or certified.
+
+## P1352 - v56.87 - Descriptive market UI without default scores or economic-cycle overclaims (2026-09-30)
+
+- symptom/reproduction: Held signal scores became 50 in the pulse; legacy headings implied buy permission; RRG counts claimed growth/defensive leadership and market indicators claimed economic expansion/recession; translated news entities leaked into text.
+- root_cause: Sibling UI writers applied neutral defaults and copied stronger meaning than their measured inputs could support.
+- fix: Propagate held scores, preserve true zero, unify market-environment labels, describe RRG counts as relative strength, label the cycle map as educational and the heuristic as a market-input combination, preserve missing yields and decode translated news display values.
+- violated_rule: R670 and R671; new R679 presentation meaning contract.
+- prevention: QA-SEMANTIC-UI-01; ci-esm-core-unit-check, headless T213/T819 and architecture-browser pulse regression.
+- verification/residual: Unit market-model checks pass; actual in-app browser confirms revised theme/signal text. Integrated browser and full QA certification are tracked in the report without substituting static evidence for visual review.
+
+## P1351 - v56.87 - Exact deployment provenance and stale-release guards (2026-09-30)
+
+- symptom/reproduction: Rollback selected missing/tied timestamps, observer lists omitted exact runs, and Pages/Worker paths could verify or mutate a stale main revision.
+- root_cause: Deployment identity relied on partial lists/SHA alone and latest-main checks did not cover mutation/retry boundaries.
+- fix: Require valid unique latest rollback dates, exact-run fallback with repository/main/workflow/SHA/status checks, bind attestations to run ID and repository, and guard deploy/retry against stale main. The separately proposed dispatch-driven automatic convergence expansion remains unapplied pending specific approval.
+- violated_rule: R674 and exact release-attestation boundaries.
+- prevention: QA-SEMANTIC-DEPLOY-01; ci-cloudflare-deployment-contract-check and ci-deployment-convergence-check.
+- verification/residual: Deployment contract and convergence unit gates, actual YAML parser, syntax and diff checks pass. No dispatch, deployment or rollback occurred; live convergence is not certified.
+
+## P1350 - v56.87 - Authenticated financial Vault and evidence-safe AI portfolio context (2026-09-30)
+
+- symptom/reproduction: Wrong PIN could appear unlocked; ledger/FX were outside encryption and reload restoration; provider backups included portfolio data; current watchlist objects lost metadata; missing AI prices became fabricated ratios.
+- root_cause: Key derivation was mistaken for authentication; sensitive storage had parallel ownership and hard-coded localStorage; coercion and buy-cost fallbacks were promoted to current market valuation; asynchronous continuations lacked lock invalidation.
+- fix: Authenticate ciphertext/sentinel, encrypt and restore all three financial sections, separate credential backups, preserve watchlist objects, respect public-PC storage, propagate persist acknowledgements, invalidate pending operations on lock, and hold AI allocation/return without coherent currency/time/price evidence. Journal notes require their disclosed consent.
+- violated_rule: R294 and R670; new R678 financial boundary contract.
+- prevention: QA-SEMANTIC-VAULT-01; ci-portfolio-vault-e2e and ci-esm-core-unit-check.
+- verification/residual: Initial production-bridge isolated Chromium checks passed 44/44. Expanded lock-race/public-PC cases and integrated main certification are recorded separately in the semantic audit report; real user storage is untouched.
+
+## P1349 - v56.87 - Observation-session identity and independent KRX briefing evidence (2026-09-30)
+
+- symptom/reproduction: SPX history collection buckets counted the same close repeatedly; the briefing used a missing SOX symbol and a US session for KRX observations.
+- root_cause: Collection dates, observation dates and market session identity were conflated, and candidates were selected before their complete evidence contract was validated.
+- fix: Deduplicate MA inputs by actual observed session, hold conflicting recent observations, reject invalid calendar dates and unsupported close provenance; validate all KRX candidates against its own completed calendar; explicitly use the available SMH semiconductor ETF; disclose optional missing score inputs.
+- violated_rule: R670 and R294; new R677 observation identity contract.
+- prevention: QA-SEMANTIC-DATA-01; ci-esm-core-unit-check and ci-native-decision-evidence-check.
+- verification/residual: Deterministic positive/negative unit and native decision evidence gates pass. Current history independently yields MA50 7645.16 and MA200 7213.34 on 2026-09-29. Deployed state is separate.
+
+## P1345 - v56.86 - Completed-close inputs, dated MA and late snapshot analysis (2026-09-30)
+
+- symptom/reproduction: Next-session values and undated MA could enter prior-close scores; late snapshots left analysis held; Korean issuer prefixes were guessed.
+- root_cause: Close fallback lacked upper/date/session bounds; MA inherited SPX freshness; startup omitted analysis sync; prefix matching rewrote names.
+- fix: Select proven basis-date closes for every input; derive unique completed history MA, support observationRelation and exclude carried bars; synchronize late snapshot analysis; require exact Korean names.
+- violated_rule: R670 and P1339.
+- prevention: QA-DATA-62: P1345 ci-esm-core-unit-check.mjs + actual-history probe
+- verification/residual: ESM PASS; actual-artifact probe MA50 7693.09/MA200 7258.16 and score54; invalid DXY/WTI/VVIX held.
+
+## P1348 - v56.86 - Shared canonical aliases across compatibility navigation (2026-09-30)
+
+- symptom/reproduction: Legacy chart/news/help could select DOM routes while native router recorded home.
+- root_cause: Compatibility and showPage consumed different alias maps.
+- fix: Share complete canonical aliases and retain theme-detail inline handling and retired options-to-sentiment mapping.
+- violated_rule: Single navigation authority.
+- prevention: QA-OPS-NAV-01: P1348 ESM navigation fixture + architecture-browser gate
+- verification/residual: Independent static review found no alias/theme-detail regression; browser/runtime closeout recorded in REPORT.md.
+
+## P1347 - v56.86 - Safe dead-code ranges and explicit QA ledger updates (2026-09-30)
+
+- symptom/reproduction: Dead-code removal consumed neighbouring live statements; record-fix could not close existing QA; delegation reference contradicted worktree policy.
+- root_cause: Deletion always expanded to full lines; recorder rejected duplicates without explicit updates; reference drift.
+- fix: Expand deletion only over whitespace; add update:true requiring exactly one existing QA row; preserve atomic validation; align canonical delegation and generated mirror.
+- violated_rule: R676 and tooling preservation contracts.
+- prevention: QA-OPS-AG-05: P1347 dead-code self-test + ci-record-fix-check.mjs + sync-agent-skills --check
+- verification/residual: Dead-code self-test PASS; isolated recorder 69 checks PASS and real ledgers byte-identical.
+
+## P1346 - v56.86 - Native six-axis briefing and top descriptive checklist (2026-09-30)
+
+- symptom/reproduction: Native cutover removed six-axis summary and left actions below long narratives with stale entry-only writers.
+- root_cause: News migration omitted summary/action consumers and event lifecycle.
+- fix: Add pure reference model/native six-axis component with labels and per-axis holds; connect proven snapshot/broader quote candidates; count same completed news window; label analysis eligibility; move checks to top and remove competing legacy writers.
+- violated_rule: R670 and QA-UX-11.
+- prevention: QA-UX-11: P1346 ESM fixtures + architecture-browser gate + real Chrome screenshots in codex-audit-20260930
+- verification/residual: ESM PASS; real Chrome shows all six axes and top checks. Actual provider success for missing quote sources remains unverified.
+
+## P1344 - v56.85 - work stalled behind PR merges; mixed CRLF/LF working tree; briefing lost its market summary and action card (2026-09-30)
+
+- symptom/reproduction: Three problems stalled work: 1. Finished and CI-green work (v56.84 PR #15, v56.85 local) never shipped. The PR merge step needed a separate approval, and every merge of main re-conflicted the generated manifests. 2. core.autocrlf=true left 455 working files CRLF and 117 mixed, while the index was LF. Exact-string edits missed, and gates that slice source on '\n' failed locally only. 3. The native briefing route (P770) never rendered the '시장 상황 요약 / 오늘 행동' card. A legacy helper and a fake 'briefingDecisionHtml' source contract kept tests green. That card is the briefing page's primary content.
+- root_cause: The change flow was copied from multi-reviewer practice for a one-operator repo whose real release gate is the CI-attested deploy. Line endings were never pinned in .gitattributes. The briefing migration had no acceptance check for the card, and existence tests stood in for it.
+- fix: Owner decision: work on main directly. AGENTS.md: local full QA → commit on main → push on request, CI-attested deploy as the gate, branches only for parallel agents. .gitattributes pins `* text=auto eol=lf` (`*.cmd`/`*.ps1` CRLF); the working tree was normalized, 568 files, index unchanged. The briefing card restoration is recorded as open QA-UX-11 for the next session: native, close-basis, with checks instead of trade instructions.
+- violated_rule: R676 — owner decisions (here: the change flow) live in AGENTS.md; R675 — a test must not keep a removed surface alive.
+- prevention: QA-UX-11 (open) — briefing summary card acceptance; the workspace gate reads AGENTS.md.
+- verification/residual: `git ls-files --eol`: 2,791 i/lf w/lf, only *.cmd/*.ps1 CRLF; `git add --renormalize .` staged no content change besides .gitattributes; full QA 136/136 before the switch.
 
 ## P1343 - v56.85 - owner decisions lived only in one agent's personal memory; routing pointed at superseded handoffs (2026-09-30)
 

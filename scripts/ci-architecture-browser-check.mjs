@@ -577,7 +577,7 @@ try {
     summaryText: document.getElementById('theme-detail-native-summary')?.textContent || '',
     pendingThemeId: window._aioOpenThemeDetailOnThemes || null
   }), relatedThemeId);
-  if (tickerThemeBridge.activePage !== 'page-themes' || tickerThemeBridge.panelThemeId !== relatedThemeId || tickerThemeBridge.pendingThemeId !== null || !tickerThemeBridge.summaryText.includes('참고 분류')) throw new Error(`ticker-to-theme lazy route handoff failed: ${JSON.stringify(tickerThemeBridge)}`);
+  if (tickerThemeBridge.activePage !== 'page-themes' || tickerThemeBridge.panelThemeId !== relatedThemeId || tickerThemeBridge.pendingThemeId !== null || !tickerThemeBridge.summaryText.includes('AIO 참고 테마 분류')) throw new Error(`ticker-to-theme lazy route handoff failed: ${JSON.stringify(tickerThemeBridge)}`);
   // P1321: the options route is retired; its old hash must alias to sentiment instead of a stub page.
   // QA-ROUTE-19 / R666
   const optionsRetired = await page.evaluate(() => ({ pageGone: !document.getElementById('page-options'), routeGone: !(window.AIO_ALL_ROUTE_PAGE_IDS || []).includes('options'), alias: window.AIO_ROUTE_REGISTRY?.canonical?.options || null }));
@@ -703,6 +703,23 @@ try {
   });
   if (signalRoute.renderer !== 'native' || signalRoute.signalRenderer !== 'native' || signalRoute.rawPrimarySinkCount !== 3 || signalRoute.nativePrimarySinkCount !== 3 || Object.values(signalRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`signal native hero/fence failed: ${JSON.stringify(signalRoute)}`);
   if (signalRoute.adjustmentsRenderer !== 'native' || signalRoute.adjustmentRowCount < 1) throw new Error(`signal adjustment sink failed: ${JSON.stringify(signalRoute)}`);
+  // P1352: a blocked primary score must not become the pulse's default 50; zero remains a real observation.
+  const pulseSemantics = await page.evaluate(() => {
+    const original = window.computeTradingScore;
+    const outcomes = [];
+    try {
+      for (const total of [null, 0, 75]) {
+        window.computeTradingScore = () => ({ total });
+        window.updateMarketPulse();
+        outcomes.push({ total, text: document.getElementById('mp-signal-score')?.textContent, label: document.getElementById('mp-signal-label')?.textContent });
+      }
+      window.computeTradingScore = () => { throw new Error('P1352 test unavailable'); };
+      window.updateMarketPulse();
+      outcomes.push({ total: 'throw', text: document.getElementById('mp-signal-score')?.textContent });
+    } finally { window.computeTradingScore = original; window.updateMarketPulse(); }
+    return outcomes;
+  });
+  if (pulseSemantics[0].text !== '—' || pulseSemantics[0].label !== '산출 보류' || pulseSemantics[1].text !== '0' || pulseSemantics[2].text !== '75' || pulseSemantics[3].text !== '—') throw new Error(`P1352 pulse fabricated score: ${JSON.stringify(pulseSemantics)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
   const homeRoute = await page.evaluate(() => {
@@ -732,6 +749,20 @@ try {
   if (homeRoute.renderer !== 'native' || homeRoute.homeRenderer !== 'native' || homeRoute.rawPrimarySinkCount !== 4 || homeRoute.nativePrimarySinkCount !== 4 || homeRoute.fearGreedRenderer !== 'native' || !homeRoute.fearGreedScore.trim() || homeRoute.qualityRenderer !== 'native' || !homeRoute.qualityScore.trim() || !homeRoute.qualityLabel.trim() || Object.values(homeRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`home native summary/Fear & Greed/quality/fence failed: ${JSON.stringify(homeRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('briefing'));
   await page.waitForFunction(() => document.getElementById('page-briefing')?.dataset.aioArchitectureRoute === 'briefing');
+  // P1346/QA-UX-11: the summary and descriptive checklist are the top briefing surfaces.
+  const briefingSummary = await page.evaluate(() => {
+    const summary = document.getElementById('briefing-decision-summary');
+    const action = document.getElementById('briefing-action-list');
+    const narrative = document.getElementById('briefing-analysis-lead');
+    return { native: summary?.dataset.aioBriefingSummaryRenderer, axes: summary?.querySelectorAll('[data-axis]').length,
+      basis: summary?.textContent, actions: action?.textContent,
+      beforeNarrative: !!summary && !!narrative && !!(summary.compareDocumentPosition(narrative) & Node.DOCUMENT_POSITION_FOLLOWING),
+      actionBeforeNarrative: !!action && !!narrative && !!(action.compareDocumentPosition(narrative) & Node.DOCUMENT_POSITION_FOLLOWING) };
+  });
+  if (briefingSummary.native !== 'native' || briefingSummary.axes !== 6 || !/종가 기준/.test(briefingSummary.basis)
+    || !briefingSummary.beforeNarrative || !briefingSummary.actionBeforeNarrative
+    || !/확인/.test(briefingSummary.actions) || /매수|매도|BUY|SELL/.test(briefingSummary.actions))
+    throw new Error(`P1346 briefing summary/checklist failed: ${JSON.stringify(briefingSummary)}`);
   const contentRoutes = await page.evaluate(({ market, macro, fxbond, breadth, themes, themeDetail, ticker, fundamental, portfolio, technical, signal, home }) => ({
     active: window.AIO_ARCH.router.active(),
     // P770: market-news and briefing must expose native primary-feed markers; secondary AI digest

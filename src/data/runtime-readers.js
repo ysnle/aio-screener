@@ -3,7 +3,9 @@ import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/s
 import { QUOTE_IDENTITIES } from './contracts/market-snapshot.js';
 import { readPortfolioAssumptions } from './portfolio-assumptions.js';
 import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
-import { resolveCloseBasis, evaluateCloseBasisInput, describeCloseBasis } from '../domain/signal/close-basis.js';
+import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis } from '../domain/signal/close-basis.js';
+import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
+import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.
@@ -378,6 +380,25 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   catalog['technical.history'] = { ...catalog['entity.history'], source: 'technical-ohlcv' };
   const fundamentals = entity.fundamentals || null;
   catalog['entity.fundamental'] = { value: fundamentals?.coverage?.length || (fundamentals ? 1 : 0), observedAt: fundamentals?.observedAt || fundamentals?.filedAt || null, fetchedAt: fundamentals?.fetchedAt || null, source: fundamentals?.source || 'SEC EDGAR', sourceKind: fundamentals ? 'official-regulator' : 'unavailable' };
+  // P1360: the unselected fundamental page shows a real SEC watchlist, not an
+  // absent selected issuer. Its own period observations must all be present.
+  const fundamentalRows = Array.isArray(entity.fundamentalsWatchlist) ? entity.fundamentalsWatchlist : [];
+  const fundamentalDates = fundamentalRows.map((row) => row?.observedAt).filter((date) => parseTime(date) != null);
+  catalog['fundamental.watchlist'] = {
+    value: fundamentalRows.length,
+    available: fundamentalRows.length > 0 && fundamentalDates.length === fundamentalRows.length,
+    observedAt: oldestIso(fundamentalDates),
+    fetchedAt: entity.fundamentalsMeta?.generatedAt || null,
+    source: entity.fundamentalsMeta?.source || 'SEC EDGAR',
+    sourceKind: fundamentalRows.length ? 'official-regulator' : 'unavailable',
+    reason: !fundamentalRows.length ? 'watchlist-empty' : fundamentalDates.length !== fundamentalRows.length ? 'watchlist-observedAt-missing' : null
+  };
+  const selectedFundamental = !!String(entity.id || '').trim();
+  catalog['fundamental.referenceScope'] = {
+    ...(selectedFundamental ? catalog['entity.fundamental'] : catalog['fundamental.watchlist']),
+    scope: selectedFundamental ? 'selected-company' : 'watchlist',
+    inputId: selectedFundamental ? 'entity.fundamental' : 'fundamental.watchlist'
+  };
   const holdings = Array.isArray(state?.portfolio?.holdings) ? state.portfolio.holdings : [];
   catalog['portfolio.quoteCoverage'] = coverageObservation(holdings, { emptyAllowed: true, fallbackObservedAt: state?.portfolio?.updatedAt || meta.generatedAt || null, source: 'portfolio-holding-quotes' });
   const themeItems = Array.isArray(state?.themes?.items) ? state.themes.items : [];
@@ -496,27 +517,41 @@ function decisionInputs(root, nowMs = Date.now()) {
       : { value: null, source: 'unavailable', sourceKind: null, sourceTier: null, status: 'unavailable', allowedUse: 'none', allowedUseCeiling: null, observedAt: null, blockedReasons: ['evidence_missing'] };
   });
   Object.assign(decisionEvidence, maEvidence);
-  // P1328/R670: inputs that are not decision-grade may still describe the market on the
-  // latest completed US regular close (domain/signal/close-basis.js). They are marked
-  // `session_close` / `close-basis` so the score can never present them as decision evidence.
+  // P1345/R670: all score inputs describe the completed close, even when a live
+  // decision-grade row exists. Keep live prices for other consumers; select here only.
   const basis = resolveCloseBasis(nowMs);
-  if (basis) {
-    for (const [key, id] of Object.entries(evidenceKeys)) {
-      const row = byId.get(id);
-      if (input[key] != null || !row) continue;
-      const observedAt = row.observedAt || (row.timestampValid && Number.isFinite(row.ageMs) ? new Date(nowMs - row.ageMs).toISOString() : null);
-      const verdict = evaluateCloseBasisInput({ key, value: row.value, observedAt, basis, nowMs });
-      if (!verdict.ok) continue;
-      input[key] = finite(row.value);
-      decisionEvidence[key] = { ...decisionEvidence[key], value: input[key], status: 'session_close', allowedUse: 'close-basis', observedAt };
-    }
-    // The moving averages are daily-close derivatives of the same SPX series: they follow its basis.
-    for (const key of input.spxPrice != null ? ['spx50ma', 'spx200ma'] : []) {
-      const value = finite(maEvidence[key]?.value);
-      if (input[key] != null || value == null) continue;
-      input[key] = value;
-      decisionEvidence[key] = { ...maEvidence[key], value, status: 'session_close', allowedUse: 'close-basis' };
-    }
+  const history = Array.isArray(root?._aioHistory) ? root._aioHistory : [];
+  const closeRow = history.findLast((row) => row?.date === basis?.date);
+  let snapshotQuotes = [];
+  try { snapshotQuotes = root?.AIO_ARCH?.getMarketSnapshot?.()?.quotes || []; } catch (_) {}
+  const fields = { vix: ['vix', '^VIX'], vvix: ['vvix', '^VVIX'], dxy: ['dxy', 'DX-Y.NYB'],
+    tnx: ['tnx', '^TNX'], oilPrice: ['wti', 'CL=F'], spxPrice: ['spx', '^GSPC'],
+    fg: ['fg'], breadth200: ['breadth200'], pcr: ['pcr'], hyBp: ['hySpread'] };
+  const snapshot = root?.DATA_SNAPSHOT || {};
+  const daily = { fg: fearGreedObservation(root, snapshot), pcr: putCallObservation(root, snapshot), hyBp: hySpreadObservation(root, snapshot) };
+  for (const [key, id] of Object.entries(evidenceKeys)) {
+    const [field, symbol] = fields[key];
+    const meta = closeRow?.fieldMeta?.[field];
+    const live = symbol && root?._liveData?.[symbol];
+    const envelope = live?.quoteEnvelope || live;
+    const historical = meta ? { ...meta, value: closeRow[field], session: meta.observedMarketSession } : null;
+    const chosen = selectCloseBasisObservation({ key, basis, nowMs, candidates: [daily[key], historical,
+      snapshotQuotes.find((quote) => quote.instrumentId === symbol),
+      envelope && { ...envelope, value: envelope.value ?? envelope.price,
+        session: envelope.session || envelope.marketState || live.session || live.marketState }, byId.get(id)] });
+    input[key] = chosen ? finite(Number(chosen.value)) : null;
+    decisionEvidence[key] = chosen || { ...decisionEvidence[key], value: null, status: 'blocked',
+      allowedUse: 'none', blockedReasons: ['completed_close_evidence_missing'] };
+  }
+  // P1345: a current SPX quote cannot grant freshness to an old/undated MA.
+  const closeMa = basis && spxMovingAveragesFromHistory(history, { asOf: basis.date });
+  for (const [key, period] of [['spx50ma', 50], ['spx200ma', 200]]) {
+    const value = input.spxPrice != null && closeMa?.asOf === basis?.date ? closeMa[period] : null;
+    input[key] = value;
+    decisionEvidence[key] = { value, source: 'public-data/history.json:SPX completed closes',
+      observedAt: value == null ? null : basis.date, asOf: value == null ? null : basis.date,
+      status: value == null ? 'blocked' : 'session_close', allowedUse: value == null ? 'none' : 'close-basis',
+      allowedUseCeiling: 'reference', blockedReasons: value == null ? ['completed_close_ma_missing'] : [] };
   }
   input.closeBasis = basis ? Object.freeze({ ...basis, label: describeCloseBasis(basis) }) : null;
   input.decisionEvidence = decisionEvidence;
@@ -547,7 +582,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
     const spyChg = spyRaw == null || typeof spyRaw === 'boolean' || (typeof spyRaw === 'string' && !spyRaw.trim()) ? null : finite(Number(spyRaw));
     let tradingScoreTotal = null;
     try {
-      const raw = root?.computeTradingScore?.()?.total;
+      const raw = computeTradingScoreModel(decisionInputs(root, now())).total; // P1357: avoid a pre-analysis legacy TTL value.
       tradingScoreTotal = raw == null || typeof raw === 'boolean' || (typeof raw === 'string' && !raw.trim()) ? null : Number(raw);
       if (!Number.isFinite(tradingScoreTotal)) tradingScoreTotal = null;
     } catch (_) { tradingScoreTotal = null; }

@@ -1,0 +1,26 @@
+{
+  "version": "v56.87",
+  "date": "2026-10-01",
+  "p": {
+    "id": 1360,
+    "title": "Match fundamental page evidence to selected issuer or actual SEC watchlist",
+    "symptom": "The default fundamental page displayed eight SEC watchlist records but its timeline was BLOCKED because no individual issuer was selected.",
+    "root_cause": "The page contract always required entity.fundamental while the production presenter supported two different scopes. A valid watchlist was assessed as a missing selected company.",
+    "fix": "Publish a dated watchlist observation with the oldest actual period date and require every member to have a date. Select the page evidence scope explicitly; an absent selected issuer is never rescued by watchlist data. Preserve source, generated time and period time separately.",
+    "violated_rule": "R677 observation identity; R679 truthful reference presentation.",
+    "prevention": "ci-fundamental-watchlist-timeline-check runs the actual SEC artifact through the production provider, normalizer, catalog and page timeline; missing, stale and selected-issuer cases remain conservative.",
+    "verification": "Production-module regression PASS for eight dated watchlist records, empty list, all/one missing dates, stale member and selected issuer separation. Integrated browser and final QA results are recorded separately in REPORT.md."
+  },
+  "qa": [
+    {
+      "id": "QA-SEMANTIC-CURRENT-01",
+      "text": "Current reference cards and shared headers distinguish usable observations from trade eligibility and use each market's observation clock.",
+      "verify_by": "P1357 native units and shared-header VM gate PASS; actual 2026-10-01 briefing shows score 58, DXY, WTI and KOSPI with distinct observation labels; final integrated QA in REPORT.md",
+      "done": true,
+      "update": true
+    }
+  ],
+  "qa_section": "Semantic, financial and operating-budget audit",
+  "changelog": ["**펀더멘털 보류 원인 수정 (P1360):** 선택 종목과 실제 SEC 관심종목 목록의 시점 검사 범위를 분리. 관심종목의 실제 기간 관측을 확인하며 결측·오래된 관측은 유지."],
+  "note": "v56.87 — P1349–P1360 observation integrity, financial security, deployment provenance, budget, current-reference paths and SEC watchlist scope."
+}

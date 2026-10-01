@@ -1,0 +1,33 @@
+{
+  "version": "v56.87",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1353,
+    "title": "Atomic monthly AI reservation and truthful operating budget scope",
+    "symptom": "Daily request counts did not enforce the operator monthly AI budget; UI assumed $50 for five users and offered paid shared search with unknown cost bounds.",
+    "root_cause": "Request volume, conservative cost reservations and provider invoiced spend were conflated; prices and execution routes did not share an atomic monthly ledger.",
+    "fix": "Reserve conservative priced text/cache/output cost in the same US Durable Object, default at most $10 per UTC month, preserve reservations once upstream starts, handle restart/concurrency/idempotency/month rollover and legacy unknown spend, explicitly reject unpriced/unsupported paid modes and isolate paid-search policy in native ESM. Document total operating target $10 and ceiling $20, with free-source-first procurement.",
+    "violated_rule": "Owner budget decision and new {R} cost-dimension contract.",
+    "prevention": "QA-SEMANTIC-BUDGET-01; ci-worker-anthropic-check, ci-worker-relay-check and native policy unit checks.",
+    "verification": "Mock Worker-to-DO-to-upstream budget and relay gates pass, including public health non-disclosure. No paid request. Reservations are not invoices; personal keys and Actions direct calls bypass this ledger, and provider workspace spending caps are not configured or certified."
+  },
+  "r": {
+    "id": 680,
+    "title": "Budget scope, reservation and invoice remain distinct",
+    "rule": "The project targets $10/month and at most $20/month; AI allocation is at most $10 and paid data requires a demonstrated gap within its $10 allocation. Daily counts are not money. Shared-Worker monthly reservations are atomic and conservative, never labelled actual invoiced usage or full-account protection. Unsupported/unpriced paid modes fail explicitly; direct-key/Actions paths and provider-native cap requirements stay visible.",
+    "validation": "P1353; ci-worker-anthropic-check, ci-worker-relay-check and ci-esm-core-unit-check."
+  },
+  "qa": [
+    {
+      "id": "QA-SEMANTIC-BUDGET-01",
+      "text": "Monthly reservations are atomic across concurrency/restart/UTC rollover, do not refund uncertain upstream charges, reject unknown prices/tools and expose operator accounting only privately.",
+      "verify_by": "P1353/R680 ci-worker-anthropic-check + ci-worker-relay-check + ci-esm-core-unit-check",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**운영 예산 (P1353/R680):** 무료 원천 우선·전체 월 $10 목표/$20 상한·공유 AI 월 $10 보수 예약·지원하지 않는 유료 검색 명시 차단. 직접 호출/실청구 상한은 별도."
+  ],
+  "qa_section": "Semantic, financial and operating-budget audit",
+  "note": "v56.87 — P1349 observation sessions; P1350 financial security; P1351 provenance; P1352 UI meaning; P1353 monthly reservation."
+}

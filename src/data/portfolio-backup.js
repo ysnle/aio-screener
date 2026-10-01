@@ -27,8 +27,8 @@ export function sanitizePositions(raw) {
       const out = { ...p, ticker: p.ticker.trim().toUpperCase() };
       if (out.memo) out.memo = String(out.memo).slice(0, 200);
       if (out.note) out.note = String(out.note).slice(0, 200);
-      out.qty = Number(out.qty) || 0;
-      out.cost = Number(out.cost) || 0;
+      out.qty = Number.isFinite(Number(out.qty)) ? Number(out.qty) : 0;
+      out.cost = Number.isFinite(Number(out.cost)) ? Number(out.cost) : 0;
       return out;
     });
 }
@@ -53,7 +53,14 @@ function sanitizeWatchlists(raw) {
       ...l,
       id: l.id.trim().slice(0, 64),
       name: l.name.trim().slice(0, 50),
-      tickers: (Array.isArray(l.tickers) ? l.tickers : []).filter((t) => typeof t === 'string' && TICKER_RE.test(t.trim())).map((t) => t.trim().toUpperCase()).slice(0, 200)
+      // P1350: the live owner stores {sym,note,addedAt}; legacy strings become that shape.
+      tickers: (Array.isArray(l.tickers) ? l.tickers : []).map((t) => {
+        const raw = typeof t === 'string' ? { sym: t } : t;
+        if (!raw || typeof raw.sym !== 'string' || !TICKER_RE.test(raw.sym.trim())) return null;
+        const item = { sym: raw.sym.trim().toUpperCase(), note: typeof raw.note === 'string' ? raw.note.slice(0, 200) : '' };
+        if (typeof raw.addedAt === 'number' && Number.isFinite(raw.addedAt) && raw.addedAt >= 0) item.addedAt = raw.addedAt;
+        return item;
+      }).filter(Boolean).slice(0, 200)
     }));
 }
 

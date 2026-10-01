@@ -26,6 +26,7 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { execFileSync } from 'child_process';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { alignGeneratedVersion, GENERATED_VERSION_FILES } from './lib/align-generated-version.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -117,6 +118,20 @@ try {
 } catch (e) {
   console.error('version.json 파싱 실패:', e.message);
   process.exit(1);
+}
+
+// P1355: align only incoming producer metadata to this already-versioned local app.
+if (process.argv.includes('--align-generated')) {
+  try {
+    if (resumeFrom || prevVer !== newVer) throw new Error('--align-generated requires the existing current version, without --resume-from');
+    const documents = Object.fromEntries(GENERATED_VERSION_FILES.map((path) => [path, JSON.parse(read(path))]));
+    const aligned = alignGeneratedVersion(documents, { version: newVer, snapshotRevision: JSON.parse(read('public-data/market-snapshot.json')).revision });
+    const originals = Object.fromEntries(GENERATED_VERSION_FILES.map((path) => [path, read(path)]));
+    try { for (const path of GENERATED_VERSION_FILES) write(path, JSON.stringify(aligned[path], null, 2) + '\n'); }
+    catch (error) { for (const path of GENERATED_VERSION_FILES) { try { write(path, originals[path]); } catch (_) {} } throw error; }
+    console.log(`Generated version metadata aligned to ${newVer}; producer times and data identity preserved.`);
+    process.exit(0);
+  } catch (error) { console.error(error.message); process.exit(1); }
 }
 
 const parsedPrevVersion = parseVersion(prevVer);

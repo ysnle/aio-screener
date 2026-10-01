@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v56.85**
+- 현재 버전: **v56.87**
 - **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md` §6.
 - 이 파일에는 버전별 작업 요약을 **누적하지 않는다** (2026-07-18 통합 — CHANGELOG가 단일 출처).
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -42,7 +42,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 - **자동 배포/커밋 금지** — 사용자가 해당 동작을 명시적으로 요청한 경우에만
 - **코드 전면 재작성 금지** — CODE-MAP/owner registry 기반으로 가장 낮은 공통 원인을 부분 패치
-- **제품 결정·변경 흐름은 `AGENTS.md`가 정본**: 종가 기준 점수, 데스크톱 전용, 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, 브랜치→PR, 생성물 충돌 해소 스크립트
+- **제품 결정·변경 흐름은 `AGENTS.md`가 정본**: 종가 기준 점수, 데스크톱 전용, 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(PR 없음, push는 요청 시), 생성물 충돌 해소 스크립트
 - **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
 - **게이트-문서 계약 주의**: CI 게이트가 QA-CHECKLIST §7 마커·RULES 특정 문구·CHANGELOG v50.89 섹션을 grep한다 — 문서 압축/정리 시 삭제 금지
 

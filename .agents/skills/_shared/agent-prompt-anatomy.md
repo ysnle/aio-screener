@@ -12,7 +12,7 @@ Use this shape for every subagent prompt. Order matters: the agent reads the goa
 
 Rules of thumb
 - One agent per independent item; give each a clean context with only what that item needs.
-- Assign disjoint file ownership when agents edit in parallel (this repo is one working tree; no worktrees).
+- Assign disjoint file ownership when agents edit in parallel, with one worktree per editing agent as required by AGENTS.md. Read-only reviewers may share the main checkout.
 - Verification is a separate pass by a different agent (skeptic), not a sentence in the worker's prompt.
 - After a large change, run `/trim-pr` in a fresh context: cutting after the fact beats asking a writer to be concise.
 - The main session keeps ledgers, version bumps and final gates; agents return drafts.

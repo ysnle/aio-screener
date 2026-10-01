@@ -1,0 +1,16 @@
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {readFileSync,writeFileSync} from 'node:fs';
+const sha='38f35b37339c9ae5518f330a5a75cdbfbaa6282a',path='public-data/screener.json';
+const blob=JSON.parse(execFileSync('gh',['api',`repos/ysnle/aio-screener/git/blobs/${sha}`],{encoding:'utf8',maxBuffer:8e6}));
+const bytes=Buffer.from(blob.content.replace(/\s/g,''),'base64');
+if(bytes.length!==1662484||createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex')!==sha)throw Error('invalid screener source blob');
+JSON.parse(bytes.toString('utf8'));
+const base='_artifacts/codex-semantic-audit-20260930/producer-receipt';
+writeFileSync(`${base}/original/${path}`,readFileSync(path));
+writeFileSync(`${base}/received/${path}`,bytes);
+writeFileSync(path,bytes);
+const receipt=JSON.parse(readFileSync(`${base}/receipt.json`,'utf8'));
+receipt.files.push({path,gitBlobSha:sha,bytes:bytes.length,reason:'transitive reconciliation source at the same fixed commit'});
+writeFileSync(`${base}/receipt.json`,JSON.stringify(receipt,null,2)+'\n');
+console.log('Received same-commit screener source; original backed up, blob identity verified.');

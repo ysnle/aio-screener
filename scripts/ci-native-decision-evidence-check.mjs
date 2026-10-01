@@ -75,7 +75,8 @@ const snapshotInput = readers.readAnalysis().tradingScoreInputs;
 const blocked = computeTradingScoreModel(snapshotInput);
 assert.equal(blocked.total, null, 'snapshot/reference values must block native score');
 assert.equal(blocked.decisionBlocked, true, 'snapshot/reference values must set decisionBlocked');
-assert.ok(Object.values(snapshotInput.decisionEvidence).some((row) => row.status === 'snapshot_reference' && row.allowedUse !== 'decision'));
+// P1345/R670: missing completed-close proof clears the numeric input, regardless of its old status.
+assert.ok(Object.values(snapshotInput.decisionEvidence).every((row) => row.value == null && row.allowedUse === 'none'), 'P1345: unproven snapshot close escaped its hold');
 
 const liveRoot = {
   ...base,
@@ -91,9 +92,17 @@ const liveRoot = {
 };
 const liveInput = createRuntimeReaders({ root: liveRoot, now: () => Date.parse('2026-07-30T00:00:00.000Z') }).readAnalysis().tradingScoreInputs;
 const liveScore = computeTradingScoreModel(liveInput);
-assert.notEqual(liveScore.total, null, 'verified-current evidence should permit a complete score');
-assert.equal(liveScore.decisionBlocked, false);
-assert.equal(liveScore.componentMissing.length, 0);
+assert.equal(liveScore.total, null, 'P1345: current evidence without close proof must hold the close-based score');
+assert.equal(liveScore.decisionBlocked, true, 'P1345: current metadata alone must not authorize a descriptive score');
+const closeRoot = { ...base,
+  _aioHistory: Array.from({ length: 200 }, (_, i) => ({ date: new Date(Date.parse('2026-07-29T00:00:00Z')-(199-i)*86400000).toISOString().slice(0,10), spx: 4800 })),
+  AIO: { getTradingDecisionInputEvidence: () => ({ rows: rows('verified_current').map((row) => ({ ...row,
+    observedAt: '2026-07-29T20:00:00Z', session: 'MARKET_CLOSED', valueBasis: 'regular-session-close' })) }) } };
+const closeInput = createRuntimeReaders({ root: closeRoot, now: () => Date.parse('2026-07-30T00:00:00Z') }).readAnalysis().tradingScoreInputs;
+const closeScore = computeTradingScoreModel(closeInput);
+assert.notEqual(closeScore.total, null, 'P1345: proven completed closes must compute a reference score');
+assert.equal(closeScore.decisionEligible, false, 'P1345: even official close inputs cannot promote the descriptive score');
+assert.equal(closeScore.componentMissing.length, 0, 'P1345: complete proven fixture lost a component');
 
 const undatedNews = computeNewsSentimentScore({
   now: Date.parse('2026-07-30T00:00:00.000Z'),

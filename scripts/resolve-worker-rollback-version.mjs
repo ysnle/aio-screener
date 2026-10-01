@@ -16,8 +16,16 @@ export function resolveActiveWorkerVersionId(payload) {
 
   // P1335: Wrangler lists deployments oldest-first, so deployments[0] rolled a Worker back to a
   // July version. The active deployment is the newest one by created_on.
-  const createdMs = (deployment) => { const ms = Date.parse(deployment?.created_on || deployment?.createdOn || ''); return Number.isFinite(ms) ? ms : -Infinity; };
-  const active = deployments.reduce((newest, deployment) => (createdMs(deployment) > createdMs(newest) ? deployment : newest), deployments[deployments.length - 1]);
+  // P1351: an undated record cannot be ordered safely against the active deployment.
+  const dated = deployments.map((deployment) => {
+    const created = Date.parse(deployment?.created_on || deployment?.createdOn || '');
+    if (!Number.isFinite(created)) throw new Error('Worker rollback baseline has a missing or invalid deployment date');
+    return { deployment, created };
+  });
+  const newest = Math.max(...dated.map((entry) => entry.created));
+  const latest = dated.filter((entry) => entry.created === newest);
+  if (latest.length !== 1) throw new Error('Worker rollback baseline has an ambiguous latest deployment date');
+  const active = latest[0].deployment;
   if (!Array.isArray(active?.versions) || active.versions.length !== 1 || active.versions[0]?.percentage !== 100) {
     throw new Error('active Worker deployment is split or malformed; automatic rollback requires one version at 100%');
   }

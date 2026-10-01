@@ -18,7 +18,7 @@ const PREDICTIVE_VALIDATION_NOT_ESTABLISHED = 'not-established';
 const PREDICTIVE_VALIDATION_ESTABLISHED = 'established';
 
 function finiteNumber(value) {
-  return value == null || typeof value === 'boolean' || String(value).trim() === '' || !Number.isFinite(Number(value)) ? null : Number(value);
+  return !['number', 'string'].includes(typeof value) || String(value).trim() === '' || !Number.isFinite(Number(value)) ? null : Number(value);
 }
 
 function boundedNumber(value, minimum, maximum) {
@@ -261,6 +261,8 @@ export function computeTradingScoreModel(input = {}) {
     componentCoveragePct: availableWeight,
     componentMissing: Object.freeze(componentMissing),
     partial: availableWeight < 100,
+    // P1349: base-axis coverage does not certify the optional stress corrections.
+    missingOptionalInputs: Object.freeze(Object.entries({ vvix, pcr, hyBp, oilPrice }).filter(([, value]) => value == null).map(([key]) => key)),
     decisionBlocked: hasDecisionEvidence && total == null,
     decisionCoverageThreshold,
     rawCompositeScore,
@@ -348,6 +350,9 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
   const components = deriveTradingScoreComponents(score);
+  const optionalLabels = { vvix: 'VVIX', pcr: 'Put/Call', hyBp: 'HY 스프레드', oilPrice: 'WTI' };
+  const optionalMissing = Array.isArray(score.missingOptionalInputs) ? score.missingOptionalInputs : [];
+  const optionalText = optionalMissing.length ? ` 보조·위험보정 근거 미확보: ${optionalMissing.map(key => optionalLabels[key] || key).join(' · ')}.` : '';
   // P1118: the published total is not the weighted component sum — post-composite
   // adjustments and the [5,100] clamp move it afterwards. Carry the exact terms into the
   // presentation so the visible hero can reconcile the components it already shows with
@@ -375,8 +380,8 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       predictiveValidation,
       components,
       breakdown,
-      decision: '판정 보류 — 판단 등급 입력 없음',
-      description: `${missingText || '시장 환경'}: 실시간·검증된 입력이 없어 점수를 계산하지 않았습니다(미수신 또는 지연·참고 시세). 수신된 개별 지표는 참고값으로 볼 수 있습니다.`,
+      decision: '점수 보류 — 완료 종가 근거 부족',
+      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText || '시장 환경'}: 완료 종가 기준의 필수 근거가 부족해 점수를 보류합니다. 개별 관측값은 별도로 확인하세요.${optionalText}`,
       reasons: Object.freeze(['required-input-missing', ...reasons])
     });
   }
@@ -402,7 +407,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       breakdown,
       basisLabel,
       decision: `시장환경 관찰 — ${CONDITION_BAND_LABELS[conditionBand]} 구간 · 예측 검증 미확립`,
-      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText ? `${missingText} 제외 · ` : ''}현재 시장 입력 조합을 요약한 참고 지표입니다. 예측 신호·매매 권고로 사용하지 않습니다.`,
+      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText ? `${missingText} 제외 · ` : ''}기본 5축의 확보된 입력을 요약한 참고 지표입니다.${optionalText} 예측 신호·매매 권고로 사용하지 않습니다.`,
       reasons: Object.freeze(['predictive-validation-not-established', ...reasons])
     });
   }

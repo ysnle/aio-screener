@@ -25,6 +25,7 @@ import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
+import { collectRotationHistory } from './lib/rotation-history.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
@@ -1603,6 +1604,9 @@ async function fetchHistory(symbol, range = '6mo') {
         out.push({
           date: new Date(ts[i] * 1000).toISOString().slice(0, 10),
           observedAt: new Date(ts[i] * 1000).toISOString(),
+          instrumentId: res.meta?.symbol || null,
+          timeframe: res.meta?.dataGranularity || null,
+          currency: res.meta?.currency || null,
            close: round(c, 2),
           // Missing adjusted-close evidence stays missing. A raw-close fallback
           // would silently turn a total-return backtest into a price-only test.
@@ -3793,6 +3797,10 @@ async function main() {
   // provider exception must not abort the other free-source collectors or
   // turn a complete cycle into an unlabelled empty artifact.
   const attemptedAt = new Date().toISOString();
+  // P1358: collect bounded completed-session ETF research once per session.
+  // This independent lane reuses the existing free delayed Yahoo path; it
+  // publishes only derived rotation/returns, preserving P715 raw-price stripping.
+  const rotationHistoryTask = collectRotationHistory({ fetchHistory, previous: previous?.rotationHistory, now: Date.parse(attemptedAt) });
   const settled = await Promise.allSettled([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
@@ -4220,6 +4228,7 @@ async function main() {
     quotes: [],
     meta: { ...d.meta, quotesPublished: false, quotePolicy: 'client-direct-fetch-only(P715)' }
   });
+  data.rotationHistory = await rotationHistoryTask;
   await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   const histInfo = await updateHistory(data, marketSnapshotForConsumers, fredDexkous);

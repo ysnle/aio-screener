@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "asset-manifest-v1",
+  "appRevision": "v56.83",
+  "dataRevision": "market-snapshot:2026-10-01T00:34:01.108Z:e00476d3",
+  "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
+  "workerRevision": "sw:v56.83",
+  "immutableRuntime": [
+    "index.html",
+    "js/aio-core.js",
+    "js/aio-data.js",
+    "js/aio-ui.js",
+    "js/aio-chat.js",
+    "js/aio-glossary.js",
+    "js/aio-pages.js",
+    "js/aio-kr-data.js",
+    "js/aio-macro-tech.js",
+    "js/aio-workspace.js",
+    "src/**/*.js"
+  ],
+  "rollback": {
+    "strategy": "revision-pinned",
+    "appDataIndependent": true,
+    "workerCacheIndependent": true,
+    "lastKnownGood": "v53.17"
+  },
+  "dataGeneratedAt": "2026-10-01T00:34:01.108Z",
+  "dataCycleId": "kst-0800-2026-09-30T23:00:00.000Z",
+  "dataCycleManifestRevision": "kst-0800-2026-09-30T23:00:00.000Z:market-snapshot:2026-10-01T00:34:01.108Z:e00476d3",
+  "generatedAt": "2026-10-01T00:34:35.123Z"
+}

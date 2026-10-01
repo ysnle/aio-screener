@@ -1,0 +1,583 @@
+{
+  "schemaVersion": "operations-status-v1",
+  "statusVocabulary": [
+    "CURRENT",
+    "DEGRADED",
+    "BLOCKED",
+    "OPERATOR_REQUIRED",
+    "NO_ROUTE",
+    "UNKNOWN"
+  ],
+  "statusCodeVocabulary": [
+    "NOT_CONFIGURED",
+    "CONFIGURED_HEALTHY",
+    "CONFIGURED_BROKEN",
+    "STALE",
+    "NOT_OBSERVED",
+    "RIGHTS_REVIEW_REQUIRED"
+  ],
+  "rightsVocabulary": [
+    "VERIFIED",
+    "REVIEW_REQUIRED",
+    "OPERATOR_REQUIRED",
+    "UNAVAILABLE",
+    "UNKNOWN"
+  ],
+  "generatedAt": "2026-09-29T23:44:41.667Z",
+  "appRevision": "v56.87",
+  "dataRevision": "market-snapshot:2026-09-29T23:44:28.985Z:70a75f3e",
+  "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
+  "overall": "OPERATOR_REQUIRED",
+  "overallBasis": {
+    "planes": [
+      "durable"
+    ],
+    "excludes": [
+      "fast",
+      "browser"
+    ],
+    "note": "overall is derived from the durable data plane only; the fast quote plane and the browser shell plane are published separately and can be UNKNOWN while overall is unchanged"
+  },
+  "featureAvailability": {
+    "market-breadth": {
+      "availability": "AVAILABLE",
+      "asOf": "2026-09-29T23:44:28.985Z",
+      "missingReason": null,
+      "sources": [
+        "durable"
+      ]
+    },
+    "fundamental-ranking": {
+      "availability": "AVAILABLE",
+      "asOf": "2026-09-29T23:44:28.985Z",
+      "missingReason": null,
+      "sources": [
+        "durable"
+      ]
+    },
+    "quotes": {
+      "availability": "UNAVAILABLE",
+      "asOf": "2026-09-29T23:44:41.667Z",
+      "missingReason": "fast-quote-provider-rights-not-reviewed",
+      "sources": [
+        "fast"
+      ]
+    },
+    "ai-chat": {
+      "availability": "AVAILABLE",
+      "asOf": "2026-09-29T23:44:41.667Z",
+      "missingReason": null,
+      "sources": [
+        "fast"
+      ]
+    },
+    "browser-shell": {
+      "availability": "UNKNOWN",
+      "asOf": null,
+      "missingReason": "browser-plane-not-observed",
+      "sources": [
+        "browser"
+      ]
+    }
+  },
+  "domainReceipts": {
+    "market-quotes": {
+      "publicationStatus": "SUCCESS",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-09-29T23:44:28.985Z",
+      "lastSuccessfulObservation": "2026-09-29T23:44:28.985Z",
+      "counts": {
+        "eligible": 78,
+        "attempted": 78,
+        "updated": 78,
+        "retained": 0
+      }
+    },
+    "news": {
+      "publicationStatus": "SUCCESS",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-09-29T23:44:28.985Z",
+      "lastSuccessfulObservation": "2026-09-29T23:44:28.985Z",
+      "counts": {
+        "eligible": 8,
+        "attempted": 8,
+        "updated": 40,
+        "retained": 0
+      }
+    },
+    "macro-fred": {
+      "publicationStatus": "SUCCESS",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-09-29T23:44:28.985Z",
+      "lastSuccessfulObservation": "2026-09-29T23:44:28.985Z",
+      "counts": {
+        "eligible": 19,
+        "attempted": 19,
+        "updated": 19,
+        "retained": 0
+      }
+    },
+    "macro-bls": {
+      "publicationStatus": "SUCCESS",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-09-29T23:44:28.985Z",
+      "lastSuccessfulObservation": "2026-09-29T23:44:28.985Z",
+      "counts": {
+        "eligible": 8,
+        "attempted": 8,
+        "updated": 8,
+        "retained": 0
+      }
+    },
+    "macro-bea": {
+      "publicationStatus": "SUCCESS",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-09-29T23:44:28.985Z",
+      "lastSuccessfulObservation": "2026-09-29T23:44:28.985Z",
+      "counts": {
+        "eligible": 1,
+        "attempted": 1,
+        "updated": 1,
+        "retained": 0
+      }
+    },
+    "treasury-curve": {
+      "publicationStatus": "SUCCESS",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-09-29T23:44:28.985Z",
+      "lastSuccessfulObservation": "2026-09-29T23:44:28.985Z",
+      "counts": {
+        "eligible": 1,
+        "attempted": 1,
+        "updated": 1,
+        "retained": 0
+      }
+    },
+    "surveys-aaii": {
+      "publicationStatus": "NO_REFRESH_RETAINED",
+      "userCopy": "새 수집 실패 — 기존값 유지 중 · 성공 관측 기록 없음",
+      "lastSuccessfulObservation": null,
+      "counts": {
+        "eligible": 1,
+        "attempted": 1,
+        "updated": 0,
+        "retained": 1
+      }
+    },
+    "options-put-call": {
+      "publicationStatus": "SUCCESS",
+      "userCopy": "새 수집 성공 · 마지막 성공 관측 2026-09-29T23:44:28.985Z",
+      "lastSuccessfulObservation": "2026-09-29T23:44:28.985Z",
+      "counts": {
+        "eligible": 1,
+        "attempted": 1,
+        "updated": 1,
+        "retained": 0
+      }
+    }
+  },
+  "planes": {
+    "durable": {
+      "status": "CURRENT",
+      "statusCode": "CONFIGURED_HEALTHY",
+      "source": "github-actions",
+      "lastSuccessfulAt": "2026-09-29T23:44:28.985Z",
+      "coverage": {
+        "required": 16,
+        "observed": 16,
+        "tier0Required": 16,
+        "tier0Observed": 16,
+        "tier1Required": 0,
+        "tier1Observed": 0
+      },
+      "freshness": {
+        "fresh": true,
+        "withinSla": true,
+        "coverageComplete": true,
+        "quoteQualityComplete": true,
+        "blockedQuotes": [],
+        "generatedAt": "2026-09-29T23:44:28.985Z",
+        "ageHours": 0,
+        "maxAgeHours": 12,
+        "evaluatedAt": "2026-09-29T23:44:41.667Z",
+        "reason": null
+      },
+      "readiness": {
+        "secretConfigured": "OPERATOR_REQUIRED",
+        "workflowWired": "CURRENT",
+        "lastCallSucceeded": "CURRENT",
+        "dataCurrent": "CURRENT",
+        "licensedForUse": "REVIEW_REQUIRED"
+      }
+    },
+    "fast": {
+      "status": "OPERATOR_REQUIRED",
+      "statusCode": "CONFIGURED_HEALTHY",
+      "scheduler": "cloudflare-cron",
+      "endpoint": "https://aio-screener-data-plane.zmfhd007.workers.dev",
+      "health": {
+        "status": "CURRENT",
+        "statusCode": 200,
+        "coverage": "16/16",
+        "revision": "fast-quotes:2026-09-29T23:40:29.611Z:d9af7f9d",
+        "sourceSha": null,
+        "observedAt": "2026-09-29T23:44:41.667Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
+        "observationError": null,
+        "evidenceFresh": true,
+        "evidenceEvaluatedAt": "2026-09-29T23:44:41.667Z"
+      },
+      "soak": {
+        "requiredDays": 7,
+        "observedDays": 0,
+        "targetSuccessRate": 0.99
+      },
+      "readiness": {
+        "secretConfigured": "OPERATOR_REQUIRED",
+        "workflowWired": "CURRENT",
+        "lastCallSucceeded": "CURRENT",
+        "dataCurrent": "CURRENT",
+        "licensedForUse": "REVIEW_REQUIRED"
+      }
+    },
+    "browser": {
+      "status": "UNKNOWN",
+      "statusCode": "NOT_OBSERVED",
+      "source": "static-pages+service-worker",
+      "revision": "v56.87",
+      "configured": true,
+      "observed": "NOT_OBSERVED",
+      "lastAttemptAt": null,
+      "lastSuccessfulAt": null,
+      "dataQuality": "NOT_MEASURED",
+      "deliveryObserved": "NOT_OBSERVED",
+      "revisionMatch": "NOT_OBSERVED",
+      "evidenceAge": null,
+      "note": "정적 셸·서비스워커 revision은 배포 계약이며, 브라우저 실행·Pages 도달·SW revision 일치의 실측 근거가 아닙니다."
+    }
+  },
+  "ai": {
+    "scheduledAnalysis": {
+      "status": "BLOCKED",
+      "statusCode": "CONFIGURED_BROKEN",
+      "source": "github-actions",
+      "lastCallSucceeded": "BLOCKED",
+      "evidence": {
+        "marketAnalysisOk": false,
+        "generatedAt": "2026-09-29T23:44:28.985Z"
+      }
+    },
+    "publicChat": {
+      "status": "CURRENT",
+      "statusCode": "CONFIGURED_HEALTHY",
+      "personalKey": "EXPLICIT_USER_CONFIG",
+      "sharedWorker": "CURRENT",
+      "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
+      "health": {
+        "status": "CURRENT",
+        "statusCode": 200,
+        "observedAt": "2026-09-29T23:44:41.667Z",
+        "revision": "v56.82",
+        "sourceSha": "714719433e77077fb662d904fcd81a8f788a5b83",
+        "configured": true,
+        "quotaConfigured": true,
+        "authorityReady": true,
+        "authorityJurisdiction": "us",
+        "providerSmokeBoundary": "blocking-deployment-workflow-only",
+        "ready": true,
+        "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
+        "observationError": null,
+        "evidenceFresh": true,
+        "evidenceEvaluatedAt": "2026-09-29T23:44:41.667Z"
+      },
+      "scheduledAnalysisDoesNotImplyChat": true
+    }
+  },
+  "providers": {
+    "yahoo": {
+      "rights": "REVIEW_REQUIRED",
+      "statusCode": "RIGHTS_REVIEW_REQUIRED",
+      "use": "reference",
+      "lastFetchAt": "2026-09-29T23:44:28.985Z"
+    },
+    "fred": {
+      "rights": "REVIEW_REQUIRED",
+      "statusCode": "RIGHTS_REVIEW_REQUIRED",
+      "use": "official-series",
+      "status": "CURRENT",
+      "lastAttemptAt": "2026-09-29T23:44:29.048Z",
+      "lastFetchAt": "2026-09-29T23:44:29.048Z"
+    },
+    "sec": {
+      "rights": "REVIEW_REQUIRED",
+      "statusCode": "RIGHTS_REVIEW_REQUIRED",
+      "use": "filing-evidence",
+      "coveragePct": 85.8,
+      "stored": 562,
+      "eligible": 655
+    }
+  },
+  "reconciliation": {
+    "tier0": {
+      "status": "MATCH",
+      "artifact": "market-snapshot:2026-09-29T23:44:28.985Z:70a75f3e",
+      "uiEvidence": "same-revision-contract",
+      "observedAtComplete": true
+    },
+    "artifact": "public-data/reconciliation-status.json",
+    "categoryCount": 22,
+    "overall": "PARTIAL",
+    "counts": {
+      "PARTIAL": 14,
+      "MATCH": 6,
+      "BLOCKED": 2
+    },
+    "closure": {
+      "complete": false,
+      "unresolvedCategories": [
+        "market-quotes",
+        "aaii",
+        "naaim",
+        "investors-intelligence",
+        "us-breadth",
+        "kr-breadth",
+        "breadth-history",
+        "hy-oas",
+        "retail-housing-ism",
+        "central-bank-policy",
+        "macro-calendar",
+        "news",
+        "commodities-fx",
+        "global-indices",
+        "crypto",
+        "kr-macro-vkospi-supply"
+      ],
+      "partialCategories": [
+        "market-quotes",
+        "aaii",
+        "naaim",
+        "us-breadth",
+        "kr-breadth",
+        "breadth-history",
+        "hy-oas",
+        "retail-housing-ism",
+        "central-bank-policy",
+        "macro-calendar",
+        "news",
+        "commodities-fx",
+        "global-indices",
+        "crypto"
+      ],
+      "operatorRequiredCategories": [
+        "investors-intelligence",
+        "kr-macro-vkospi-supply"
+      ],
+      "policyBlockedCategories": [
+        "investors-intelligence",
+        "kr-macro-vkospi-supply"
+      ],
+      "runtimeBlockedCategories": [],
+      "sourceRegistry": {
+        "categoryCount": 22,
+        "dailyAuditCoverage": 22,
+        "criticalDataGaps": [
+          {
+            "id": "point-in-time-fundamentals",
+            "priority": "P0",
+            "status": "PARTIAL",
+            "reason": "SEC-covered annual facts now retain append-only filing observations and can be reconstructed by accepted/filed time; coverage still converges in bounded batches and does not supply historical prices or non-SEC issuers.",
+            "requiredOrigin": "SEC companyfacts plus submissions acceptanceDateTime",
+            "allowedInterimUse": "filing-as-of research; valuation only with contemporaneous price",
+            "implementedScope": "sec-pit-facts.v1 history and deterministic as-of selector",
+            "remainingLimit": "bounded SEC coverage, older accession acceptance timestamps, historical prices and non-US issuers",
+            "validationGate": "scripts/ci-professional-data-gap-check.mjs"
+          },
+          {
+            "id": "historical-universe-and-corporate-actions",
+            "priority": "P0",
+            "status": "BLOCKED",
+            "reason": "Delisted securities, membership windows, ticker mapping and split/dividend factors are incomplete.",
+            "requiredOrigin": "PIT membership, map files and factor files",
+            "allowedInterimUse": "no predictive promotion"
+          },
+          {
+            "id": "independent-quote-reconciliation",
+            "priority": "P0",
+            "status": "BLOCKED",
+            "reason": "Tier-0 and rendered quotes lack a redistribution-approved independent comparison plane.",
+            "requiredOrigin": "licensed quote provider",
+            "allowedInterimUse": "reference with source/session labels"
+          },
+          {
+            "id": "official-exchange-breadth",
+            "priority": "P1",
+            "status": "BLOCKED",
+            "reason": "AIO-universe breadth does not replace exchange A/D and new-high/new-low data.",
+            "requiredOrigin": "NYSE/Nasdaq/KRX approved feed",
+            "allowedInterimUse": "AIO-universe participation only"
+          },
+          {
+            "id": "earnings-revisions-and-guidance",
+            "priority": "P1",
+            "status": "BLOCKED",
+            "reason": "Consensus revisions, surprise history and guidance need a licensed or explicitly permitted source.",
+            "requiredOrigin": "licensed estimates plus SEC filings",
+            "allowedInterimUse": "filed actuals and dated news only"
+          },
+          {
+            "id": "short-interest-and-options-flow",
+            "priority": "P1",
+            "status": "BLOCKED",
+            "reason": "Short interest, borrow cost, options Greeks/IV surface and flow require specialized feeds.",
+            "requiredOrigin": "FINRA/exchange/OPRA or licensed vendor",
+            "allowedInterimUse": "Cboe aggregate put/call and delayed VIX only"
+          },
+          {
+            "id": "insider-and-institutional-filings",
+            "priority": "P1",
+            "status": "PARTIAL",
+            "reason": "Seven manager 13F holdings, adjacent-quarter changes and twelve-quarter history are normalized and source-linked; Forms 3/4/5 and 13D/G are not yet normalized.",
+            "requiredOrigin": "SEC EDGAR",
+            "allowedInterimUse": "reported-period institutional reference only",
+            "implementedScope": "verified 13F metadata, holdings, changes and history",
+            "remainingLimit": "insider Forms 3/4/5, beneficial ownership 13D/G and complete CUSIP-to-ticker master",
+            "validationGate": "scripts/ci-masters-contract-check.mjs"
+          },
+          {
+            "id": "portfolio-risk-attribution",
+            "priority": "P2",
+            "status": "PARTIAL",
+            "reason": "Browser-side VaR/CVaR, drawdown, benchmark beta/alpha, correlation, stress and return/risk contribution are implemented; institutional factor models and capacity remain unavailable.",
+            "requiredOrigin": "adjusted OHLCV plus benchmark/factor series",
+            "allowedInterimUse": "historical research with survivorship and provider limitations",
+            "implementedScope": "3-month daily risk plus up-to-10-year monthly benchmark and component attribution",
+            "remainingLimit": "licensed factor returns, transaction costs, liquidity/capacity and survivorship-free histories",
+            "validationGate": "scripts/ci-professional-data-gap-check.mjs"
+          }
+        ]
+      },
+      "sourceRevision": "market-snapshot:2026-09-29T23:44:28.985Z:70a75f3e",
+      "sourceArtifacts": [
+        "public-data/data.json",
+        "public-data/market-snapshot.json",
+        "public-data/screener.json",
+        "public-data/history.json"
+      ]
+    },
+    "routeCount": 19,
+    "rawProducerClaimGate": "not_applicable_for_quote_plane"
+  },
+  "routes": {
+    "supported": 19,
+    "nativeOwner": [
+      "sentiment",
+      "principles",
+      "masters",
+      "atlas",
+      "guide"
+    ],
+    "legacyOwner": 0,
+    "nativeLifecycleOwner": [
+      "home",
+      "signal",
+      "breadth",
+      "sentiment",
+      "briefing",
+      "technical",
+      "macro",
+      "fxbond",
+      "fundamental",
+      "themes",
+      "theme-detail",
+      "portfolio",
+      "ticker",
+      "market-news",
+      "principles",
+      "masters",
+      "atlas",
+      "guide",
+      "screener"
+    ],
+    "nativeRendererOwner": [
+      "home",
+      "signal",
+      "breadth",
+      "sentiment",
+      "briefing",
+      "technical",
+      "macro",
+      "fxbond",
+      "fundamental",
+      "themes",
+      "theme-detail",
+      "portfolio",
+      "ticker",
+      "market-news",
+      "principles",
+      "masters",
+      "atlas",
+      "guide",
+      "screener"
+    ],
+    "nativeDataOwner": [
+      "home",
+      "signal",
+      "breadth",
+      "sentiment",
+      "briefing",
+      "technical",
+      "macro",
+      "fxbond",
+      "fundamental",
+      "themes",
+      "theme-detail",
+      "portfolio",
+      "ticker",
+      "market-news",
+      "principles",
+      "masters",
+      "atlas",
+      "guide",
+      "screener"
+    ],
+    "nativeChartOwner": [
+      "breadth",
+      "sentiment",
+      "technical",
+      "macro",
+      "fxbond",
+      "themes",
+      "portfolio",
+      "ticker"
+    ],
+    "nativeNarrativeOwner": [
+      "sentiment",
+      "theme-detail"
+    ],
+    "nativeLazyOwner": [
+      "home",
+      "signal",
+      "breadth",
+      "sentiment",
+      "briefing",
+      "technical",
+      "macro",
+      "fxbond",
+      "fundamental",
+      "themes",
+      "theme-detail",
+      "portfolio",
+      "ticker",
+      "market-news",
+      "principles",
+      "masters",
+      "atlas",
+      "guide",
+      "screener"
+    ],
+    "observerOwner": 0,
+    "cutoverStatus": "MIGRATION_IN_PROGRESS",
+    "routeOwnersManifest": "architecture/route-owners.json"
+  },
+  "blockers": [
+    "fast_plane_soak_and_rights_review_required",
+    "provider_rights_review_required"
+  ]
+}

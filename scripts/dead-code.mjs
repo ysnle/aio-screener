@@ -37,15 +37,18 @@ function removeStatements(source, names) {
   const removed = [];
   for (const st of statements(s)) {
     if (!wanted.has(st.name) || st.a < cursor) continue;
-    let a = s.lastIndexOf('\n', st.a - 1) + 1;
+    const lineStart = s.lastIndexOf('\n', st.a - 1) + 1;
+    // P1347: line expansion must never consume a neighbouring statement.
+    let a = /^\s*$/.test(s.slice(lineStart, st.a)) ? lineStart : st.a;
     for (;;) {
       const prevEnd = a - 1;
-      if (prevEnd <= 0) break;
+      if (a !== lineStart || prevEnd <= 0) break;
       const prevStart = s.lastIndexOf('\n', prevEnd - 1) + 1;
       if (/^\s*(\/\/|\/\*|\*)/.test(s.slice(prevStart, prevEnd))) a = prevStart; else break;
     }
     const nl = s.indexOf('\n', st.b);
-    const b = nl < 0 ? s.length : nl + 1;
+    const lineEnd = nl < 0 ? s.length : nl;
+    const b = /^\s*$/.test(s.slice(st.b, lineEnd)) ? (nl < 0 ? s.length : nl + 1) : st.b;
     out += s.slice(cursor, a);
     cursor = b;
     removed.push(st.name);
@@ -61,6 +64,12 @@ if (mode === 'self-test') {
   const { text, removed } = removeStatements(fixture, ['dead']);
   // The page-bus registration after an ASI-terminated `var hook = function(){}` must stay its own statement.
   const hookRemoval = removeStatements(fixture, ['hook']).text;
+  const sameLine = removeStatements('var dead = function() {}; window.sideEffect();\n', ['dead']).text;
+  const adjacent = removeStatements('function dead() {} function keep() {}\n', ['dead']).text;
+  const leading = removeStatements('window.sideEffect(); function dead() {}\n', ['dead']).text;
+  if (!sameLine.includes('window.sideEffect();') || !adjacent.includes('function keep() {}') || !leading.includes('window.sideEffect();')) {
+    throw new Error('P1347: removing a statement must preserve same-line neighbours');
+  }
   if (names !== 'keep,dead,used,AIO.x,hook' || removed.join() !== 'dead' || /dead/.test(text) || !/function keep/.test(text) || !/var used/.test(text) || !/_aioPageBus\.register/.test(hookRemoval) || /var hook/.test(hookRemoval)) {
     console.error(`dead-code self-test failed: names=${names} removed=${removed} text=${JSON.stringify(text)}`);
     process.exit(1);

@@ -1,18 +1,38 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-09-30
+last_verified: 2026-10-01
 confidence: medium
 ---
+
+## v56.87 Semantic, financial and operating-budget audit (2026-09-30)
+
+- [x] QA-SEMANTIC-DATA-01: MA uses eligible distinct observed sessions and recent conflicts hold; KRX uses its own completed close and valid later candidates; missing optional inputs remain visible. verify_by: P1349/R677 ci-esm-core-unit-check + ci-native-decision-evidence-check
+- [x] QA-SEMANTIC-VAULT-01: Production Vault authenticates PIN, protects/restores all financial declarations, separates credential backups, preserves watchlists and prevents missing valuation evidence from becoming AI percentages. verify_by: P1350/R678 ci-portfolio-vault-e2e + ci-esm-core-unit-check + headless T960
+- [x] QA-SEMANTIC-DEPLOY-01: Rollback ambiguity, stale main mutation and repository/run/SHA attestation substitution fail closed. verify_by: P1351 ci-cloudflare-deployment-contract-check + ci-deployment-convergence-check
+- [ ] QA-SEMANTIC-DEPLOY-02: Bot-advanced main converges Pages and both Workers using specifically approved dispatch CI consumption; proposal is pending and not applied. verify_by: P1351 approved DEPLOYMENT-PROPOSAL.md implementation + isolated driver regression + CI-attested live probe
+- [x] QA-SEMANTIC-UI-01: Signal/pulse preserve null and zero, market models do not claim economic phases, and RRG labels describe their actual measured distribution. verify_by: P1352/R679 ci-esm-core-unit-check + ci-architecture-browser-check + headless T213/T819 + manual browser screenshot
+- [x] QA-SEMANTIC-BUDGET-01: Monthly reservations are atomic across concurrency/restart/UTC rollover, do not refund uncertain upstream charges, reject unknown prices/tools and expose operator accounting only privately. verify_by: P1353/R680 ci-worker-anthropic-check + ci-worker-relay-check + ci-esm-core-unit-check
+- [x] QA-SEMANTIC-FORMAT-01: The shared formatter preserves missing observations through fallback while accepting real zero and numeric strings. verify_by: P1354/R679 ci-esm-core-unit-check + actual theme browser screenshot
+- [x] QA-SEMANTIC-PRODUCER-01: Imported producer batches retain their data identity and observation timestamps; metadata alignment refuses mixed batches and newer incoming versions. verify_by: P1355/R1 ci-esm-core-unit-check + bump-version --align-generated + data freshness/lineage gates
+- [x] QA-SEMANTIC-CURRENT-01: Current reference cards and shared headers distinguish usable observations from trade eligibility and use each market's observation clock. verify_by: P1357 native units and shared-header VM gate PASS; actual 2026-10-01 briefing shows score 58, DXY, WTI and KOSPI with distinct observation labels; final integrated QA in REPORT.md
+- [ ] QA-SEMANTIC-ROTATION-01: The durable derived RRG artifact reaches the native provider while preserving aligned completed sessions, raw-price limits, failed observations and reference-only use. verify_by: P1358 ci-rotation-history-check + ci-esm-core-unit-check + Actions producer run + real-data themes screenshot
+
+## v56.86 continued reconstruction audit (2026-09-30)
+
+- [x] QA-OPS-AG-05: Dead-code preserves same-line neighbours, QA updates modify exactly one existing row, and delegation honors AGENTS worktree policy. verify_by: P1347 dead-code self-test + ci-record-fix-check.mjs + sync-agent-skills --check
+- [x] QA-OPS-NAV-01: Compatibility and native navigation share aliases and preserve theme-detail and retired options handling. verify_by: P1348 ESM navigation fixture + architecture-browser gate
+- [x] QA-DATA-62: Reference scores preserve completed-close basis, reject stale MA, refresh after late snapshot and never guess Korean company prefixes. verify_by: P1345 ci-esm-core-unit-check.mjs + independent actual-history probe
 
 ## v56.85 parallel dead-code trim, harness governance (2026-09-30)
 
 - [x] QA-OPS-AG-03: Reachability tooling lives in scripts/ and its self-test (including the page-bus ASI case) passes in the workspace gate. verify_by: P1342 `ci-workspace-contract-check.mjs`
 - [x] QA-OPS-AG-04: AGENTS.md carries the fixed product decisions and change flow; superseded handoffs are catalogued as historical-snapshot; generated-manifest merge conflicts resolve with scripts/resolve-generated-conflicts.mjs. verify_by: P1343 `ci-workspace-contract-check.mjs` + `ci-knowledge-lint-check.mjs`
+- [x] QA-UX-11: Briefing shows native six-axis summary and 오늘 행동 above narratives, labels close basis, holds missing evidence, counts the same news window and uses descriptive checks. verify_by: P1346 ESM fixtures + architecture-browser gate + real Chrome screenshots in codex-audit-20260930
 
 ## v56.84 facade trim, orphaned initializers, MA fallback (2026-09-30)
 
 - [x] QA-UX-10: Opening macro, briefing, fundamental and guide runs their initializers once via aio:pageShown (next release, briefing strip, recent searches, folded guide chapters). verify_by: P1339 browser walkthrough + `ci-architecture-contract-check.mjs` (PAGES.init stays null)
-- [x] QA-DATA-60: SPX 50/200 MAs derive from >=200 sorted completed closes in history.json only when the live chart produced none; fewer than 200 closes yields no MA. verify_by: P1339 `ci-esm-core-unit-check.mjs`
+- [x] QA-DATA-60: SPX 50/200 MAs derive from unique completed historical closes ending on the score basis date; partial, carried and future bars do not count. verify_by: P1339/P1345 ci-esm-core-unit-check.mjs + actual history
 - [x] QA-DATA-59: The compatibility facade owns no trading-score input reader; core reads window._aioReadTradingScoreInputs and the news history normalizer is exposed. verify_by: P1338 `ci-esm-core-unit-check.mjs`
 - [x] QA-OPS-AG-02: The guard denies git checkout -- ., git restore . and git clean -f, allows a single-path checkout, and Claude hooks resolve agent-hook.mjs from $CLAUDE_PROJECT_DIR. verify_by: P1340 `ci-workspace-contract-check.mjs`
 - [x] QA-DATA-61: The data-plane baseline records an identity-less Worker as legacy-unidentified, rejects malformed SHAs, and rollback accepts the sentinel only for a Worker without sourceSha. verify_by: P1341 `ci-cloudflare-deployment-contract-check.mjs`

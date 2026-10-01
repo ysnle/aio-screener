@@ -1,6 +1,31 @@
+## v56.87 (2026-09-30)
+- **시장 근거 (P1349/R677):** 관측 세션 기준 이동평균, KRX 독립 종가, SMH 명시, 보조 결측 안내.
+- **금융 보호 (P1350/R678):** 실제 PIN 인증·금융 3개 섹션 보호·공용PC 격리·비동기 잠금 취소·백업 복원·AI 결측 보류.
+- **배포 근거 (P1351):** exact run/repository/SHA 검증·최신 main 보호·모호한 rollback 차단. 자동 수렴 확대 제안은 보류.
+- **화면 의미 (P1352/R679):** 점수 보류 일관성·시장 환경 명칭·경기 국면 단정 제거·RRG 분포 표현·뉴스 문자 디코딩.
+- **운영 예산 (P1353/R680):** 무료 원천 우선·전체 월 $10 목표/$20 상한·공유 AI 월 $10 보수 예약·지원하지 않는 유료 검색 명시 차단. 직접 호출/실청구 상한은 별도.
+- **공통 숫자 표시 (P1354):** null·공백·boolean을 0으로 표시하던 공통 formatter를 엄격한 수치 경계로 수정.
+- **생산 산출물 수신 (P1355):** 고정 SHA·해시·동일 사이클을 검증해 최신 데이터를 수신하고, 공식 버전 도구의 제한된 메타데이터 정렬로 관측 시각과 원본 출처를 보존.
+- **PCE 공식 일정 (P1356):** BEA 공식 발표일로 nextRelease를 10/29에 맞추고 연말 일정까지 보강. 발표 결과·관측값은 추정하지 않음.
+- **최신 관측 연결 (P1357):** 종가 점수·장중 참고 관측·매매 허용을 분리하고 native 분석 변경 시 legacy 초기 빈 점수 캐시를 무효화.
+- **RRG 생산 경로 (P1358):** 기존 Actions 수집에 SPY·25 ETF 완료 일봉 파생 분석을 연결하고 native 테마 소비자를 보강. 동일 세션 캐시·실패 관측 보존·원시가격 미발행.
+- **뉴스 문자열 경계 (P1359):** 원문·번역문을 정규화 단계에서 한 번만 해석하고 렌더러의 이중 해석을 제거. HTML 실행 방지 유지.
+- **펀더멘털 보류 원인 수정 (P1360):** 선택 종목과 실제 SEC 관심종목 목록의 시점 검사 범위를 분리. 관심종목의 실제 기간 관측을 확인하며 결측·오래된 관측은 유지.
+- **뉴스 클릭 영역 (P1361):** 소수점 레이아웃에서 24px 미만이 되던 원문 링크 최소 높이를 28px로 보강. 실제 브라우저 접근성 기준 유지.
+- **비동기 뉴스 설정 동작 (P1362):** 키 설정 링크를 실제 버튼으로 바꿔 키보드 접근과 클릭 영역을 보강. 기존 위임 동작 유지.
+- R1 7곳 v56.87
+
+## v56.86 (2026-09-30)
+- **브리핑 6축·오늘 행동 복원: 종가 근거·보류와 분석 가능 기사 건수 표시, 상단 확인 목록 및 native 갱신 연결. (P1346):** 검증 근거와 잔여 항목은 codex-audit-20260930/REPORT.md.
+- **개편 도구·원장 계약 보강: dead-code 인접 코드 보존, 기존 QA 명시 갱신, 병렬 작업 지침 정합성 복구. (P1347):** 검증 근거와 잔여 항목은 codex-audit-20260930/REPORT.md.
+- **호환 라우트 정합성: chart/news/help 등 별칭을 native와 공유하고 theme-detail 예외 유지. (P1348):** 검증 근거와 잔여 항목은 codex-audit-20260930/REPORT.md.
+- **종가 점수 근거·갱신 보강: 다음 장중값·오래된 MA 차단, 완료 이력 MA·늦은 snapshot 재계산, 한국 회사명 정확 일치. (P1345):** 검증 근거와 잔여 항목은 codex-audit-20260930/REPORT.md.
+- R1 7곳 v56.86
+
 ## v56.85 (2026-09-30)
 - **Dead code (P1342):** about 660 unreachable lines removed across aio-data/ui/pages/workspace/chat/core by parallel worktree agents; one ticker resolver; reachability tooling (`scripts/dead-code.mjs`) moved into the repo.
 - **Harness (P1343, R676):** product decisions and the change flow in AGENTS.md for every agent; record-fix flow in CLAUDE.md; superseded handoffs demoted; generated-manifest conflict resolver; Dependabot monthly.
+- **Main-direct flow, LF, briefing (P1344):** routine work lands on main (push on request, CI-attested deploy); LF pinned in .gitattributes; briefing summary/action card restoration opened as QA-UX-11.
 - R1 7곳 v56.85
 
 ## v56.84 (2026-09-30)

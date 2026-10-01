@@ -1,0 +1,29 @@
+{
+  "version": "v56.86",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1347,
+    "title": "Safe dead-code ranges and explicit QA ledger updates",
+    "symptom": "Dead-code removal consumed neighbouring live statements; record-fix could not close existing QA; delegation reference contradicted worktree policy.",
+    "root_cause": "Deletion always expanded to full lines; recorder rejected duplicates without explicit updates; reference drift.",
+    "fix": "Expand deletion only over whitespace; add update:true requiring exactly one existing QA row; preserve atomic validation; align canonical delegation and generated mirror.",
+    "violated_rule": "R676 and tooling preservation contracts.",
+    "prevention": "QA-OPS-AG-05: P1347 dead-code self-test + ci-record-fix-check.mjs + sync-agent-skills --check",
+    "verification": "Dead-code self-test PASS; isolated recorder 69 checks PASS and real ledgers byte-identical."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-OPS-AG-05",
+      "text": "Dead-code preserves same-line neighbours, QA updates modify exactly one existing row, and delegation honors AGENTS worktree policy",
+      "verify_by": "P1347 dead-code self-test + ci-record-fix-check.mjs + sync-agent-skills --check",
+      "done": true
+    }
+  ],
+  "qa_section": "continued reconstruction audit",
+  "changelog": [
+    "**개편 도구·원장 계약 보강: dead-code 인접 코드 보존, 기존 QA 명시 갱신, 병렬 작업 지침 정합성 복구. (P1347):** 검증 근거와 잔여 항목은 codex-audit-20260930/REPORT.md."
+  ],
+  "note": "v56.86 — P1345 completed-close inputs/late snapshot; P1346 briefing; P1347 tooling; P1348 aliases.",
+  "status": null
+}

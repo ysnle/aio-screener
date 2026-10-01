@@ -122,17 +122,64 @@ const activeVersionId = 'a1a1a1a1-1111-4111-8111-a1a1a1a1a1a1';
 let rejectsSplitRollback = false;
 try {
   (await import('./resolve-worker-rollback-version.mjs')).resolveActiveWorkerVersionId({
-    deployments: [{ versions: [{ percentage: 50, version_id: activeVersionId }, { percentage: 50, version_id: 'b2b2b2b2-2222-4222-8222-b2b2b2b2b2b2' }] }]
+    deployments: [{ created_on: '2026-09-30T00:00:00Z', versions: [{ percentage: 50, version_id: activeVersionId }, { percentage: 50, version_id: 'b2b2b2b2-2222-4222-8222-b2b2b2b2b2b2' }] }]
   });
 } catch { rejectsSplitRollback = true; }
 let resolvesSingleActiveRollback = false;
 try {
   resolvesSingleActiveRollback = (await import('./resolve-worker-rollback-version.mjs')).resolveActiveWorkerVersionId({
-    deployments: [{ versions: [{ percentage: 100, version_id: activeVersionId }] }]
+    deployments: [{ created_on: '2026-09-30T00:00:00Z', versions: [{ percentage: 100, version_id: activeVersionId }] }]
   }) === activeVersionId;
 } catch { /* the contract below reports a fixture failure */ }
 check('P1307/R652/QA-DATA-49 rollback resolver accepts a single active version and rejects a split baseline',
   resolvesSingleActiveRollback && rejectsSplitRollback && rollbackResolver.includes('percentage !== 100'));
+
+// P1351: ordering and exact-ID provenance fixtures prevent a list/array fallback becoming release authority.
+const { resolveActiveWorkerVersionId } = await import('./resolve-worker-rollback-version.mjs');
+const record = (created_on, version_id = activeVersionId) => ({ created_on, versions: [{ percentage: 100, version_id }] });
+for (const [name, records] of [
+  ['missing date', [record(undefined)]], ['invalid date', [record('garbage')]],
+  ['ambiguous latest', [record('2026-09-30T00:00:00Z'), record('2026-09-30T00:00:00Z')]],
+  ['unordered unknown', [record('2026-09-30T00:00:00Z'), record(undefined)]]
+]) {
+  let rejected = false;
+  try { resolveActiveWorkerVersionId(records); } catch { rejected = true; }
+  check(`P1351 rollback rejects ${name}`, rejected);
+}
+check('P1351 rollback orders valid oldest-first records', resolveActiveWorkerVersionId([
+  record('2026-09-29T00:00:00Z', 'b2b2b2b2-2222-4222-8222-b2b2b2b2b2b2'), record('2026-09-30T00:00:00Z')
+]) === activeVersionId);
+check('P1351 manual redeploy refuses stale main', !workerImpact.shouldDeployWorker({ plane: 'aiProxy', manual: true, testedSha: '2'.repeat(40), latestMainSha: '3'.repeat(40) }));
+let missingMainRejected = false;
+try { workerImpact.shouldDeployWorker({ plane: 'aiProxy', manual: true, testedSha: '2'.repeat(40) }); } catch { missingMainRejected = true; }
+check('P1351 manual redeploy fails closed when main API identity is unavailable', missingMainRejected);
+
+const { isTrustedDeploymentRun, resolveProvenanceRun } = await import('./deployment-provenance.mjs');
+const expected = { repository: 'ysnle/aio-screener', name: 'CI', sha: '2'.repeat(40), runId: 123 };
+const exact = { id: 123, name: 'CI', head_branch: 'main', head_repository: { full_name: expected.repository }, head_sha: expected.sha, event: 'workflow_dispatch', status: 'completed', conclusion: 'success' };
+let exactCalls = 0;
+const recovered = await resolveProvenanceRun([{ ...exact, id: 122 }], 123, async () => { exactCalls++; return exact; });
+check('P1351 stale bounded list recovers exact run ID', exactCalls === 1 && isTrustedDeploymentRun(recovered, expected));
+await resolveProvenanceRun([exact], 123, async () => { throw new Error('unexpected exact lookup'); });
+for (const [name, patch] of [['fork', { head_repository: { full_name: 'fork/aio' } }], ['wrong branch', { head_branch: 'feature' }], ['wrong SHA', { head_sha: '3'.repeat(40) }], ['wrong name', { name: 'Untrusted' }], ['failed CI', { conclusion: 'failure' }], ['PR', { event: 'pull_request' }]]) {
+  check(`P1351 exact provenance rejects ${name}`, !isTrustedDeploymentRun({ ...exact, ...patch }, expected));
+}
+let unavailableRejected = false;
+try { await resolveProvenanceRun([], 123, async () => { throw new Error('HTTP 403'); }); } catch { unavailableRejected = true; }
+check('P1351 unavailable exact provenance never becomes success', unavailableRejected);
+let invalidIdRejected = false;
+try { await resolveProvenanceRun([], '../other', async () => exact); } catch { invalidIdRejected = true; }
+check('P1351 exact provenance rejects malformed run ID before lookup', invalidIdRejected);
+const running = { ...exact, name: 'Deploy GitHub Pages', status: 'in_progress', conclusion: null };
+const pagesExpected = { ...expected, name: running.name };
+check('P1351 only explicit current Pages release may be in progress', !isTrustedDeploymentRun(running, pagesExpected) && isTrustedDeploymentRun(running, { ...pagesExpected, allowInProgress: true }));
+check('P1351 in-progress exception never accepts another Pages run', !isTrustedDeploymentRun(running, { ...pagesExpected, runId: 124, allowInProgress: true }));
+for (const workflow of [proxyWorkflow, dataWorkflow]) {
+  const guard = workflow.slice(workflow.indexOf('Recheck main head immediately before Worker mutation'), workflow.indexOf('      - name: Deploy', workflow.indexOf('Recheck main head immediately before Worker mutation')));
+  check('P1351 Worker mutation guard has no manual bypass', guard.includes('branches/main') && !guard.includes("then echo 'safe=true'"));
+}
+const pagesWorkflow = read('.github/workflows/pages-deploy.yml');
+check('P1351 Pages mutation and release verification require latest-main guard', pagesWorkflow.includes('Recheck main head immediately before Pages mutation') && /id: deployment\s+if: steps\.latest-main\.outputs\.safe == 'true'/.test(pagesWorkflow) && /Verify released Pages and all external planes\s+if: steps\.latest-main\.outputs\.safe == 'true'/.test(pagesWorkflow));
 
 // P1334/R674: a fork PR can name its branch 'main'; workflow_run deploys must require a push from this repository.
 for (const wf of ['.github/workflows/deploy-ai-proxy.yml', '.github/workflows/deploy-data-plane.yml']) {

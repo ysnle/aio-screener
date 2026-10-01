@@ -1,0 +1,42 @@
+{
+  "version": "v56.86",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1345,
+    "title": "Completed-close inputs, dated MA and late snapshot analysis",
+    "symptom": "Next-session values and undated MA could enter prior-close scores; late snapshots left analysis held; Korean issuer prefixes were guessed.",
+    "root_cause": "Close fallback lacked upper/date/session bounds; MA inherited SPX freshness; startup omitted analysis sync; prefix matching rewrote names.",
+    "fix": "Select proven basis-date closes for every input; derive unique completed history MA, support observationRelation and exclude carried bars; synchronize late snapshot analysis; require exact Korean names.",
+    "violated_rule": "R670 and P1339.",
+    "prevention": "QA-DATA-62: P1345 ci-esm-core-unit-check.mjs + actual-history probe",
+    "verification": "ESM PASS; actual-artifact probe MA50 7693.09/MA200 7258.16 and score54; invalid DXY/WTI/VVIX held."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-DATA-62",
+      "text": "Reference scores preserve completed-close basis, reject stale MA, refresh after late snapshot and never guess Korean company prefixes",
+      "verify_by": "P1345 ci-esm-core-unit-check.mjs + independent actual-history probe",
+      "done": true
+    },
+    {
+      "id": "QA-DATA-60",
+      "update": true,
+      "text": "SPX 50/200 MAs derive from unique completed historical closes ending on the score basis date; partial, carried and future bars do not count",
+      "verify_by": "P1339/P1345 ci-esm-core-unit-check.mjs + actual history",
+      "done": true
+    }
+  ],
+  "qa_section": "continued reconstruction audit",
+  "changelog": [
+    "**종가 점수 근거·갱신 보강: 다음 장중값·오래된 MA 차단, 완료 이력 MA·늦은 snapshot 재계산, 한국 회사명 정확 일치. (P1345):** 검증 근거와 잔여 항목은 codex-audit-20260930/REPORT.md."
+  ],
+  "note": "v56.86 — P1345 completed-close inputs/late snapshot; P1346 briefing; P1347 tooling; P1348 aliases.",
+  "status": {
+    "time": "12:00 KST",
+    "title": "Codex continuation audit",
+    "bullets": [
+      "P1345–P1348 implemented with separate static/runtime/browser/live evidence. Original dirty edits preserved. No commit/push/deploy."
+    ]
+  }
+}

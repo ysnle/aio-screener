@@ -1,0 +1,16 @@
+{
+  "version": "v56.87", "date": "2026-10-01",
+  "p": {
+    "id": 1361,
+    "title": "Give native news headline targets layout slack above 24px",
+    "symptom": "Final 19-route Chromium accessibility audit found one briefing news anchor just below the 24px hit-target threshold, despite its rounded report height showing 24.",
+    "root_cause": "The inline-flex headline used an exact 24px CSS minimum; subpixel layout left a bounding rectangle marginally below the threshold for a particular headline.",
+    "fix": "Raise the existing news-item-link minimum height to 28px without weakening the browser threshold or exempting the original article link.",
+    "violated_rule": "Existing WCAG desktop target-size browser contract.",
+    "prevention": "Existing ci-accessibility-matrix-check measures real hit rectangles on all 19 routes; P1361 is cited beside the target CSS.",
+    "verification": "Final affected audit reproduced the real briefing anchor failure. Failed-batch rerun and document closeout results are recorded in REPORT.md."
+  },
+  "qa": [],
+  "changelog": ["**뉴스 클릭 영역 (P1361):** 소수점 레이아웃에서 24px 미만이 되던 원문 링크 최소 높이를 28px로 보강. 실제 브라우저 접근성 기준 유지."],
+  "note": "v56.87 — P1349–P1361 observation integrity, financial security, provenance, budget, durable reference paths, SEC scope and headline accessibility."
+}

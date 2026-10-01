@@ -2,10 +2,34 @@
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
 last_verified: 2026-09-30
 confidence: medium
-target_version: v56.85
+target_version: v56.87
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R680. Budget scope, reservation and invoice remain distinct (v56.87, P1353)
+
+**Rule**: The project targets $10/month and at most $20/month; AI allocation is at most $10 and paid data requires a demonstrated gap within its $10 allocation. Daily counts are not money. Shared-Worker monthly reservations are atomic and conservative, never labelled actual invoiced usage or full-account protection. Unsupported/unpriced paid modes fail explicitly; direct-key/Actions paths and provider-native cap requirements stay visible.
+
+**Validation**: P1353; ci-worker-anthropic-check, ci-worker-relay-check and ci-esm-core-unit-check.
+
+## R679. Presentation cannot strengthen evidence meaning (v56.87, P1352)
+
+**Rule**: A descriptive score never grants buying permission. A held score stays held in sibling summaries; zero is not missing. Relative-strength quadrant counts do not establish sector identity or an economic-cycle phase. Model input coverage is not predictive accuracy. UI copy must name the measured object and preserve its limits.
+
+**Validation**: P1352; ci-esm-core-unit-check, ci-architecture-browser-check and headless model fixtures.
+
+## R678. Financial security follows purpose and asynchronous lifetime (v56.87, P1350)
+
+**Rule**: Positions, ledger and FX declarations share authentication, encryption, storage selection, lock invalidation and reload restoration. Provider credential backups exclude financial records. Lock or storage-mode changes invalidate asynchronous continuations. Failed persistence is never success; AI valuation requires coherent price, currency and observation evidence.
+
+**Validation**: P1350; ci-portfolio-vault-e2e, ci-esm-core-unit-check and headless fixtures.
+
+## R677. Observation identity precedes collection chronology (v56.87, P1349)
+
+**Rule**: Price history windows count distinct eligible market observation sessions, never collection buckets. Conflicting recent observations hold the derived result. Each market owns its completed-session calendar. Validate every candidate before selecting one; missing metadata cannot manufacture completed-close eligibility.
+
+**Validation**: P1349; ci-esm-core-unit-check and ci-native-decision-evidence-check.
 
 ## R676. Owner decisions and the change flow are shared repository state (v56.85, P1343)
 
@@ -45,9 +69,9 @@ target_version: v56.85
 
 ## R670. Reference descriptions use the latest completed US regular close and say so (v56.81, P1328)
 
-**Rule**: Descriptive (non-decision) scores are computed on decision-grade evidence when present and otherwise on the latest completed US regular-session close (quotes observed at/after that close; daily publications dated no earlier than the prior session), with the basis stated in the visible text. Close-basis inputs can never make a result decision-eligible. There is one input path for legacy and native consumers.
+**Rule**: Descriptive (non-decision) scores always describe the latest completed US regular-session close, including during the next session. Quote observations must prove that close on its date; a later intraday observation or fetchedAt never supplies a close. Daily publications may lag one session. Moving averages derive from unique completed daily bars ending on the basis date. The visible text states that basis and missing evidence holds the input. Close-basis inputs can never make a result decision-eligible. There is one input path for legacy and native consumers (P1345).
 
-**Validation**: `ci-esm-core-unit-check.mjs` P1328 fixtures (QA-DATA-57).
+**Validation**: `ci-esm-core-unit-check.mjs` P1328/P1345 fixtures (QA-DATA-57/QA-DATA-62), including next-session observations, stale MA, contradictory metadata and late snapshot publication.
 
 ## R669. Desktop-only: no mobile/tablet code ships (v56.81, P1324)
 

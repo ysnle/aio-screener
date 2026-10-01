@@ -49,7 +49,7 @@ export function createDeclarationsStore(environment = {}) {
     try {
       const adapter = getAdapter();
       const storage = getLocalStorage();
-      if (adapter) adapter.set(key, json);
+      if (adapter) { if (adapter.set(key, json) === false) return Promise.resolve({ ok: false, reason: 'storage-write-failed' }); } // P1350: adapter rejection is not a successful persist.
       else if (storage) storage.setItem(key, json);
       else return Promise.resolve({ ok: false, reason: 'storage-write-failed' });
       return Promise.resolve({ ok: true });

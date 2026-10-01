@@ -31,6 +31,8 @@
  *   1) 위 Worker 배포 후 → Worker 설정(Settings) → Variables and Secrets:
  *        - Secret 추가(필수): 이름 ANTHROPIC_API_KEY, 값 = 운영자 Anthropic API 키
  *        - (선택) 변수 ANTHROPIC_DAILY_CAP (기본 300), ANTHROPIC_MAX_TOKENS (기본 1500)
+ *        - P1353: ANTHROPIC_MONTHLY_BUDGET_USD (기본 $10, $0~$10). UTC 월별 보수적
+ *          비용 예약 상한이며 실제 청구액이 아니다. 개인 키/Actions 직접 호출은 제외된다.
  *        - (선택, WO-1B) 변수 AIO_APP_TOKEN — 값은 반드시 클라이언트(js/aio-chat.js
  *          `_aioAppToken()`)와 동일한 문자열로 설정. 미설정 시 이 검사는 건너뜀(기존 배포
  *          하위호환 — 갑자기 막히지 않음). 설정 시 이 헤더 없는 curl 등 단순 남용 차단.
@@ -46,7 +48,9 @@
  *        개인 Claude 키 입력 경로는 DO와 무관하게 항상 정상 동작.
  *   3) 사이트에서: 사이드바 "CF Worker URL" 입력 + localStorage 'aio_claude_server_mode'='1'
  *        (개인 키를 입력하면 개인 키가 우선 — 서버 키는 개인 키 없을 때/서버모드 토글 시 사용)
- * 비용 보호: 모델 haiku/sonnet만 허용(opus 차단), max_tokens 상한, 일일 호출 캡.
+ * 비용 보호: 가격 확인된 모델만 허용, max_tokens 상한, 일일 호출 캡 + 월 비용 예약 캡.
+ * 유료 서버 검색·멀티모달은 안전한 비용 상한이 없어 명시적으로 거부한다. 공급자 Workspace
+ * 월 지출 한도도 설정해야 하며 이 Worker만으로 전체 계정의 월 청구액을 보장하지 않는다.
  *
  * ── v56: 서버측 키 릴레이 (GET /relay?provider=<fred|bok|kosis>&<params>) ──
  * FRED·BOK ECOS·KOSIS는 브라우저에서 CORS로 막히거나(FRED) 애초에 CORS 헤더를 보내지
@@ -333,7 +337,7 @@ function errorResponse(message, status = 400, origin = '', aiContext = null, env
     source: aiContext.source || 'worker-anthropic', reason,
     rawMessage: raw.slice(0, 240), retryable, referenceOnly: true,
     userMessage: reason === 'rate_limit' ? 'AI 사용 한도에 도달했습니다.' : reason === 'timeout' ? 'AI 응답이 시간 초과되었습니다.' : reason === 'auth_or_origin' ? 'AI 인증 또는 허용 출처 확인이 필요합니다.' : reason === 'regional_forbidden' ? '현재 네트워크 지역에서 AI 요청이 거부되었습니다.' : 'AI 서버가 일시적으로 사용할 수 없습니다.',
-    nextAction: reason === 'rate_limit' ? '1분 후 다시 시도하세요.' : reason === 'auth_or_origin' ? 'API 키·Worker URL·Origin 설정을 확인하세요.' : '잠시 후 다시 시도하세요.'
+    nextAction: /monthly|월.*예산|과거.*비용/i.test(raw) ? 'UTC 월 예산 상태와 공급자 Console 한도를 확인하세요. 반복 재시도로 예산이 복구되지 않습니다.' : reason === 'rate_limit' ? '1분 후 다시 시도하세요.' : reason === 'auth_or_origin' ? 'API 키·Worker URL·Origin 설정을 확인하세요.' : '잠시 후 다시 시도하세요.'
   } : undefined;
   const payload = { error: raw, status };
   if (aioAiError) payload.aioAiError = aioAiError;
@@ -354,8 +358,8 @@ function errorResponse(message, status = 400, origin = '', aiContext = null, env
 // ── v50.52 B5 / v52.47 WO-1B: Claude(Anthropic) 서버 키 프록시 ──────────────────────
 // 운영자 시크릿(env.ANTHROPIC_API_KEY)으로 호출 → 사용자는 개인 키 입력 불요.
 // 비용/남용 보호(WO-1B 강화): kill switch → Origin 서버측 강제 → 앱 토큰(선택) →
-// IP당 20회/분 레이트리밋 → 일일 캡(KV 필수, fail-closed) → body 크기 상한 → 모델
-// allowlist(haiku/sonnet, opus 차단) → max_tokens 상한. 스트리밍 지원(SSE 그대로 파이프).
+// IP당 20회/분 레이트리밋 → body 크기·가격·content 계약 → DO 일일/월 예약 캡
+// (fail-closed) → upstream. 스트리밍 지원(SSE 그대로 파이프).
 // [WO-1B 한계 — 정직하게 기록] 정적 사이트+무료 Workers 구조상 진짜 호출자 인증은 불가능하다.
 // 앱 토큰은 공개 클라이언트 JS에 그대로 노출되므로 "URL만 알고 curl로 두드리는" 자동화
 // 남용은 막지만, 공개 소스를 직접 읽는 작정한 공격자는 우회할 수 있다 — Codex 자체도 이 구조적
@@ -481,18 +485,25 @@ async function handleOperatorAiUsage(request, env) {
   if (!hasAtomicQuotaBinding(env)) return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
 
   const usageDayUtc = new Date().toISOString().slice(0, 10);
-  const cap = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
-  if (!Number.isSafeInteger(cap) || cap < 1) return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
   try {
+    const cap = quotaInteger(env.ANTHROPIC_DAILY_CAP, 300);
+    const monthlyCapMicroUsd = anthropicMonthlyBudgetMicroUsd(env);
     const usage = await quotaRpc(env, 'usage', { dayKey: `claude:${usageDayUtc}` });
-    if (usage?.ok !== true || !Number.isSafeInteger(usage.requestCount) || usage.requestCount < 0) {
+    if (usage?.ok !== true || !Number.isSafeInteger(usage.requestCount) || usage.requestCount < 0
+      || !Number.isSafeInteger(usage.monthlyReservedMicroUsd) || usage.monthlyReservedMicroUsd < 0) {
       return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
     }
     return privateOperatorResponse({
       schemaVersion: 'aio-operator-ai-usage.v1',
       usageDayUtc,
       requestCount: usage.requestCount,
-      anthropicDailyCap: cap
+      anthropicDailyCap: cap,
+      usageMonthUtc: usage.usageMonthUtc,
+      monthlyReservedMicroUsd: usage.monthlyReservedMicroUsd,
+      monthlyBudgetMicroUsd: monthlyCapMicroUsd,
+      monthlyPastSpendUnknown: usage.monthlyPastSpendUnknown === true,
+      accountingBasis: 'conservative-reservation-not-invoice',
+      scope: 'worker-anthropic-only; excludes personal-key-browser and GitHub-Actions direct calls'
     });
   } catch (_) {
     return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
@@ -512,6 +523,115 @@ async function deriveRequestId(request, bodyText) {
 }
 
 const QUOTA_STATE_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
+
+// P1353: frozen 2026-09-30 price snapshot, USD per million tokens. Exact
+// model versions only; an unknown alias must never inherit another model's price.
+// https://platform.claude.com/docs/en/about-claude/pricing
+const ANTHROPIC_PRICES = Object.freeze({
+  'claude-haiku-4-5': [1, 5], 'claude-haiku-4-5-20251001': [1, 5],
+  'claude-sonnet-4-6': [3, 15],
+  'claude-sonnet-4-5': [3, 15], 'claude-sonnet-4-5-20250929': [3, 15],
+});
+const BUDGET_SCHEMA = 2;
+const MONTH_RETENTION_MS = 70 * 24 * 60 * 60 * 1000;
+
+function quotaInteger(value, fallback, maximum = 1000000) {
+  const raw = value === undefined ? String(fallback) : String(value);
+  if (!/^\d+$/.test(raw) || !Number.isSafeInteger(Number(raw)) || Number(raw) < 1 || Number(raw) > maximum) throw new Error('invalid AI quota configuration');
+  return Number(raw);
+}
+
+export function anthropicMonthlyBudgetMicroUsd(env = {}) {
+  const raw = env.ANTHROPIC_MONTHLY_BUDGET_USD === undefined ? '10' : String(env.ANTHROPIC_MONTHLY_BUDGET_USD);
+  if (!/^(?:0|[1-9]\d*)(?:\.\d{1,6})?$/.test(raw)) throw new Error('invalid monthly AI budget');
+  const [whole, fraction = ''] = raw.split('.');
+  const amount = Number(whole) * 1000000 + Number(fraction.padEnd(6, '0'));
+  if (!Number.isSafeInteger(amount) || amount < 0 || amount > 10000000) throw new Error('monthly AI budget must be between $0 and $10');
+  return amount;
+}
+
+// This is an admission reservation, NEVER a measurement of invoiced usage.
+// Text byte-level tokenization cannot create more text tokens than UTF-8 bytes;
+// reserve extra framing room per message/tool without clipping to a model's
+// context size. This narrow text/custom-tool protocol
+// excludes image/PDF/audio/server-tool expansion and premium/unknown parameters.
+// Cache writes reserve the most expensive supported 1h write (2x input), and
+// every request reserves the US inference premium (1.1x), even if not incurred.
+// Provider workspace spend limits remain necessary: direct browser/Actions calls
+// bypass this ledger, and provider pricing/tokenization changes are not attested here.
+export function prepareAnthropicBudget(body, env = {}) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('JSON object required');
+  const model = body.model === undefined ? 'claude-haiku-4-5' : body.model;
+  const rates = typeof model === 'string' && Object.hasOwn(ANTHROPIC_PRICES, model) ? ANTHROPIC_PRICES[model] : null;
+  if (!rates) throw new Error('unsupported model: no verified price; server AI supports Haiku 4.5 and Sonnet 4.5/4.6 only');
+  const maxTokens = quotaInteger(env.ANTHROPIC_MAX_TOKENS, 1500, 8192);
+  let outputTokens;
+  try { outputTokens = body.max_tokens === undefined ? maxTokens : quotaInteger(body.max_tokens, maxTokens, 1000000); }
+  catch { throw new Error('invalid max_tokens input'); }
+  body = { ...body, model, max_tokens: Math.min(maxTokens, outputTokens) };
+  const allowed = new Set(['model','max_tokens','messages','system','stream','temperature','top_p','top_k','stop_sequences','tools','tool_choice','thinking','cache_control','metadata','inference_geo']);
+  if (Object.keys(body).some(key => !allowed.has(key))) throw new Error('unsupported AI request parameter: no safe cost bound');
+  if (!Array.isArray(body.messages) || body.messages.length > 64) throw new Error('at most 64 text messages required');
+  if (body.stream !== undefined && typeof body.stream !== 'boolean') throw new Error('boolean stream required');
+  for (const key of ['temperature','top_p']) if (body[key] !== undefined
+    && (typeof body[key] !== 'number' || !Number.isFinite(body[key]) || body[key] < 0 || body[key] > 1)) throw new Error('invalid sampling parameter');
+  if (body.top_k !== undefined && (!Number.isSafeInteger(body.top_k) || body.top_k < 0)) throw new Error('invalid top_k');
+  if (body.stop_sequences !== undefined && (!Array.isArray(body.stop_sequences) || body.stop_sequences.length > 64 || body.stop_sequences.some(value => typeof value !== 'string'))) throw new Error('invalid stop sequences');
+  if (body.metadata !== undefined && (!body.metadata || typeof body.metadata !== 'object' || Array.isArray(body.metadata)
+    || Object.keys(body.metadata).some(key => key !== 'user_id') || (body.metadata.user_id !== undefined && typeof body.metadata.user_id !== 'string'))) throw new Error('invalid metadata');
+  if (body.tool_choice !== undefined && (!body.tool_choice || !['auto','any','tool','none'].includes(body.tool_choice.type)
+    || Object.keys(body.tool_choice).some(key => !['type','name','disable_parallel_tool_use'].includes(key))
+    || (body.tool_choice.type === 'tool' && typeof body.tool_choice.name !== 'string')
+    || (body.tool_choice.disable_parallel_tool_use !== undefined && typeof body.tool_choice.disable_parallel_tool_use !== 'boolean'))) throw new Error('unsupported tool choice');
+  const cache = value => {
+    if (value === undefined) return;
+    if (!value || value.type !== 'ephemeral' || (value.ttl !== undefined && !['5m','1h'].includes(value.ttl))
+      || Object.keys(value).some(key => !['type','ttl'].includes(key))) throw new Error('unsupported cache configuration');
+  };
+  const textBlocks = value => {
+    if (typeof value === 'string') return;
+    if (!Array.isArray(value) || value.length > 64) throw new Error('only bounded text content is supported by the monthly budget');
+    for (const block of value) {
+      if (!block || block.type !== 'text' || typeof block.text !== 'string'
+        || Object.keys(block).some(key => !['type','text','cache_control'].includes(key))) throw new Error('image/PDF/audio/server-tool content has no safe server budget bound');
+      cache(block.cache_control);
+    }
+  };
+  if (body.system !== undefined) textBlocks(body.system);
+  for (const message of body.messages) {
+    if (!message || !['user','assistant'].includes(message.role) || Object.keys(message).some(key => !['role','content'].includes(key))) throw new Error('unsupported AI message');
+    if (typeof message.content === 'string') continue;
+    if (!Array.isArray(message.content) || message.content.length > 64) throw new Error('unsupported AI message content');
+    for (const block of message.content) {
+      if (block?.type === 'text') { textBlocks([block]); continue; }
+      if (block?.type === 'tool_use' && typeof block.id === 'string' && typeof block.name === 'string'
+        && block.input && typeof block.input === 'object' && !Array.isArray(block.input)
+        && Object.keys(block).every(key => ['type','id','name','input','cache_control'].includes(key))) { cache(block.cache_control); continue; }
+      if (block?.type === 'tool_result' && typeof block.tool_use_id === 'string'
+        && Object.keys(block).every(key => ['type','tool_use_id','content','is_error','cache_control'].includes(key))) { textBlocks(block.content); cache(block.cache_control); continue; }
+      throw new Error('unsupported AI content: no safe cost bound');
+    }
+  }
+  if (body.tools !== undefined && (!Array.isArray(body.tools) || body.tools.length > 32)) throw new Error('at most 32 custom tools supported');
+  for (const tool of body.tools || []) {
+    if (tool?.type && tool.type !== 'custom') throw new Error('유료 서버 검색·도구는 검색 결과 토큰의 안전 상한이 없어 서버 모드에서 차단됩니다. 개인 키 경로와 공급자 예산 설정을 확인하세요.');
+    if (!tool || typeof tool.name !== 'string' || !tool.input_schema || typeof tool.input_schema !== 'object'
+      || Object.keys(tool).some(key => !['type','name','description','input_schema','cache_control'].includes(key))) throw new Error('unsupported custom tool configuration');
+    cache(tool.cache_control);
+  }
+  cache(body.cache_control);
+  if (body.inference_geo !== undefined && (model !== 'claude-sonnet-4-6' || !['us','global'].includes(body.inference_geo))) throw new Error('unsupported inference pricing for this model');
+  if (body.thinking !== undefined && (!body.thinking || !['enabled','disabled'].includes(body.thinking.type)
+    || Object.keys(body.thinking).some(key => !['type','budget_tokens'].includes(key))
+    || (body.thinking.type === 'enabled' && (!Number.isSafeInteger(body.thinking.budget_tokens) || body.thinking.budget_tokens < 1 || body.thinking.budget_tokens >= body.max_tokens)))) throw new Error('unsupported thinking budget');
+  const bytes = new TextEncoder().encode(JSON.stringify(body)).byteLength;
+  if (bytes > 200 * 1024) throw new Error('AI request exceeds the budgeted text limit');
+  const inputTokenUpperBound = bytes + 8192 + body.messages.length * 1024 + (body.tools?.length || 0) * 4096;
+  const reservationMicroUsd = Math.ceil((inputTokenUpperBound * rates[0] * 2 + body.max_tokens * rates[1]) * 11 / 10);
+  const monthlyCapMicroUsd = anthropicMonthlyBudgetMicroUsd(env);
+  return { body, reservationMicroUsd, monthlyCapMicroUsd, inputTokenUpperBound,
+    accountingBasis: 'conservative-reservation-not-invoice', pricingAsOf: '2026-09-30' };
+}
 
 // Keep the deadline and caller cancellation alive until the body is consumed.
 // Fetch resolving only means headers arrived; an SSE body may still stall.
@@ -583,14 +703,41 @@ export class AIOQuotaDurableObject {
     this.state = state;
     this.storage = state.storage;
     this.env = env;
-    this.counts = { days: {}, reservations: {} };
+    this.counts = { schemaVersion: BUDGET_SCHEMA, days: {}, months: {}, reservations: {}, legacyUnknownMonths: {} };
   }
 
   async load() {
     const saved = await this.storage.get('quota-state');
-    if (saved && typeof saved === 'object') this.counts = saved;
-    this.counts.days ||= {};
-    this.counts.reservations ||= {};
+    if (saved === undefined) return;
+    const record = value => value && typeof value === 'object' && !Array.isArray(value);
+    if (!record(saved) || !record(saved.days) || !record(saved.reservations)) throw new Error('corrupt quota state');
+    this.counts = saved;
+    if (saved.schemaVersion !== BUDGET_SCHEMA) {
+      // P1353: legacy request counters cannot reconstruct past monthly spend.
+      // Never migrate an existing authority to a silently empty dollar ledger.
+      if (saved.schemaVersion !== undefined || saved.months !== undefined) throw new Error('unsupported quota schema');
+      const month = new Date().toISOString().slice(0, 7);
+      this.counts = { ...saved, schemaVersion: BUDGET_SCHEMA, months: { [month]: 10000000 }, legacyUnknownMonths: { [month]: true } };
+      await this.save();
+    }
+    if (!record(this.counts.months) || !record(this.counts.legacyUnknownMonths)) throw new Error('corrupt monthly quota state');
+    for (const count of Object.values(this.counts.days)) if (!Number.isSafeInteger(count) || count < 0) throw new Error('corrupt daily quota count');
+    for (const [month, amount] of Object.entries(this.counts.months)) {
+      if (!/^\d{4}-(?:0[1-9]|1[0-2])$/.test(month) || !Number.isSafeInteger(amount) || amount < 0) throw new Error('corrupt monthly quota count');
+    }
+    const sums = {};
+    for (const reservation of Object.values(this.counts.reservations)) {
+      if (typeof reservation === 'number' && Number.isFinite(reservation) && reservation > 0) continue; // legacy/relay
+      if (!record(reservation) || !Number.isFinite(reservation.createdAt) || typeof reservation.started !== 'boolean'
+        || !Number.isSafeInteger(reservation.reservationMicroUsd) || reservation.reservationMicroUsd < 1
+        || !Object.hasOwn(this.counts.months, reservation.monthKey)) throw new Error('corrupt reservation');
+      sums[reservation.monthKey] = (sums[reservation.monthKey] || 0) + reservation.reservationMicroUsd;
+    }
+    for (const [month, sum] of Object.entries(sums)) if (sum > this.counts.months[month]) throw new Error('monthly ledger was reset or undercounts reservations');
+    for (const [day, count] of Object.entries(this.counts.days)) {
+      if (count > 0 && day.startsWith('claude:') && Date.parse(day.slice(7) + 'T00:00:00Z') >= Date.now() - QUOTA_STATE_RETENTION_MS
+        && !Object.hasOwn(this.counts.months, day.slice(7, 14))) throw new Error('monthly ledger missing for existing AI usage');
+    }
   }
 
   async save() { await this.storage.put('quota-state', this.counts); }
@@ -598,10 +745,19 @@ export class AIOQuotaDurableObject {
   prune(now = Date.now()) {
     let changed = false;
     const cutoff = now - QUOTA_STATE_RETENTION_MS;
-    for (const [key, reservedAt] of Object.entries(this.counts.reservations || {})) {
-      if (!Number.isFinite(Number(reservedAt)) || Number(reservedAt) < cutoff) {
+    for (const [key, reservation] of Object.entries(this.counts.reservations || {})) {
+      const reservedAt = typeof reservation === 'object' ? reservation.createdAt : reservation;
+      const expiresBefore = typeof reservation === 'object' ? now - MONTH_RETENTION_MS : cutoff;
+      if (Number(reservedAt) < expiresBefore) {
         delete this.counts.reservations[key];
         changed = true;
+      }
+    }
+    for (const month of Object.keys(this.counts.months)) {
+      const nextMonth = new Date(`${month}-01T00:00:00Z`);
+      nextMonth.setUTCMonth(nextMonth.getUTCMonth() + 1);
+      if (nextMonth.getTime() < now - MONTH_RETENTION_MS) {
+        delete this.counts.months[month]; delete this.counts.legacyUnknownMonths[month]; changed = true;
       }
     }
     for (const dayKey of Object.keys(this.counts.days || {})) {
@@ -632,7 +788,10 @@ export class AIOQuotaDurableObject {
         }
         const requestCount = this.counts.days[dayKey] ?? 0;
         if (!Number.isSafeInteger(requestCount) || requestCount < 0) throw new Error('valid Anthropic quota count is required');
-        result = { ok: true, requestCount };
+        const monthKey = day.slice(0, 7);
+        result = { ok: true, requestCount, usageMonthUtc: monthKey,
+          monthlyReservedMicroUsd: this.counts.months[monthKey] ?? 0,
+          monthlyPastSpendUnknown: this.counts.legacyUnknownMonths[monthKey] === true };
         return;
       }
       if (!dayKey || !requestId) throw new Error('dayKey and requestId are required');
@@ -641,14 +800,31 @@ export class AIOQuotaDurableObject {
           result = { ok: true, reserved: true, duplicate: true, count: this.counts.days[dayKey] || 0 };
           return;
         }
-        const count = Number(this.counts.days[dayKey] || 0);
-        const cap = Math.max(1, Number(body.cap) || 300);
+        const count = this.counts.days[dayKey] || 0;
+        const cap = quotaInteger(body.cap, 300);
+        const isAi = dayKey.startsWith('claude:');
+        const monthKey = dayKey.slice(7, 14);
+        if (isAi) {
+          const day = dayKey.slice(7);
+          const instant = Date.parse(`${day}T00:00:00Z`);
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isFinite(instant) || new Date(instant).toISOString().slice(0, 10) !== day
+            || !Number.isSafeInteger(body.reservationMicroUsd) || body.reservationMicroUsd < 1
+            || !Number.isSafeInteger(body.monthlyCapMicroUsd) || body.monthlyCapMicroUsd < 0 || body.monthlyCapMicroUsd > 10000000) throw new Error('valid AI budget reservation required');
+          const monthlyReservedMicroUsd = this.counts.months[monthKey] || 0;
+          if (this.counts.legacyUnknownMonths[monthKey] || monthlyReservedMicroUsd + body.reservationMicroUsd > body.monthlyCapMicroUsd) {
+            result = { ok: false, reserved: false, count, reason: this.counts.legacyUnknownMonths[monthKey] ? 'legacy-month-spend-unknown' : 'monthly-budget', monthlyReservedMicroUsd };
+            return;
+          }
+        }
         if (count >= cap) {
           result = { ok: false, reserved: false, duplicate: false, count, reason: 'daily-cap' };
           return;
         }
         this.counts.days[dayKey] = count + 1;
-        this.counts.reservations[key] = Date.now();
+        if (isAi) {
+          this.counts.months[monthKey] = (this.counts.months[monthKey] || 0) + body.reservationMicroUsd;
+          this.counts.reservations[key] = { createdAt: Date.now(), dayKey, monthKey, reservationMicroUsd: body.reservationMicroUsd, started: false };
+        } else this.counts.reservations[key] = Date.now();
         await this.save();
         result = { ok: true, reserved: true, duplicate: false, count: count + 1 };
         return;
@@ -658,10 +834,28 @@ export class AIOQuotaDurableObject {
           result = { ok: true, released: false, idempotent: true, count: this.counts.days[dayKey] || 0 };
           return;
         }
+        const reservation = this.counts.reservations[key];
+        // An upstream-started attempt may already be billed, even on timeout,
+        // cancellation or 4xx/5xx. It must never replenish monthly headroom.
+        if (typeof reservation === 'object' && reservation.started) {
+          result = { ok: true, released: false, retained: true, count: this.counts.days[dayKey] || 0 };
+          return;
+        }
+        if (typeof reservation === 'object') {
+          this.counts.months[reservation.monthKey] -= reservation.reservationMicroUsd;
+        }
         delete this.counts.reservations[key];
         this.counts.days[dayKey] = Math.max(0, Number(this.counts.days[dayKey] || 0) - 1);
         await this.save();
         result = { ok: true, released: true, idempotent: false, count: this.counts.days[dayKey] };
+        return;
+      }
+      if (operation === 'start') {
+        const reservation = this.counts.reservations[key];
+        if (!reservation || typeof reservation !== 'object') throw new Error('budgeted AI reservation required');
+        reservation.started = true;
+        await this.save();
+        result = { ok: true, started: true };
         return;
       }
       throw new Error('unsupported quota operation');
@@ -690,21 +884,17 @@ export class AIOQuotaDurableObject {
       if (jurisdiction !== 'us') {
         return Response.json({ error: { type: 'authority_location_error', message: 'US AI authority required' } }, { status: 503 });
       }
-      const reservation = await this.mutateQuota('reserve', body);
-      if (!reservation?.ok || !reservation.reserved) return Response.json({ error: { type: 'rate_limit_error', message: 'daily AI quota exceeded' } }, { status: 429 });
-      if (reservation.duplicate) return Response.json({ error: { type: 'idempotency_conflict', message: 'duplicate request is already reserved; retry with a new request id' } }, { status: 409, headers: { 'X-AIO-Upstream-Authority': 'durable-object-us' } });
-      const ownedReservation = !reservation.duplicate;
+      let budget, cap;
       try {
-        const upstream = await fetchAnthropicWithDeadline(this.env.ANTHROPIC_API_KEY, body.claudeBody || {}, request.signal);
-        if (upstream.status >= 400 && ownedReservation) await this.mutateQuota('release', body);
-        return new Response(upstream.body, { status: upstream.status, headers: {
-          'Content-Type': upstream.headers.get('content-type') || 'application/json',
-          'X-AIO-Upstream-Authority': 'durable-object-us',
-        }});
+        budget = prepareAnthropicBudget(body.claudeBody, this.env);
+        cap = quotaInteger(this.env.ANTHROPIC_DAILY_CAP, 300);
       } catch (error) {
-        if (ownedReservation) await this.mutateQuota('release', body);
-        return Response.json({ error: { type: error.name === 'AbortError' ? 'timeout' : 'upstream_error', message: 'Claude upstream unavailable' } }, { status: 502 });
+        return Response.json({ error: { type: 'budget_validation_error', message: error.message } }, { status: 400 });
       }
+      const payload = { dayKey: 'claude:' + new Date().toISOString().slice(0, 10), cap, requestId: body.requestId,
+        reservationMicroUsd: budget.reservationMicroUsd, monthlyCapMicroUsd: budget.monthlyCapMicroUsd };
+      const upstream = await dispatchAnthropic(this.env, budget, payload, request.signal, (operation, value) => this.mutateQuota(operation, value));
+      return new Response(upstream.body, { status: upstream.status, headers: { 'Content-Type': upstream.headers.get('content-type') || 'application/json', 'X-AIO-Upstream-Authority': 'durable-object-us' } });
     }
     const result = await this.mutateQuota(operation, body);
     return Response.json(result || { ok: false }, { status: 200 });
@@ -721,14 +911,35 @@ async function fetchAnthropicThroughDurableObject(env, payload, signal) {
   });
 }
 
-// Shared by /anthropic and /relay: release a reservation that did not produce a
-// billable/consumed upstream result, so failures never count against the daily cap.
+// Relay failures and AI attempts stopped BEFORE dispatch may release. Once an
+// AI request starts, its conservative monthly reservation is never refunded.
 async function releaseQuota(env, dayKey, requestId) {
   if (!dayKey || !requestId) return;
   try {
     await quotaRpc(env, 'release', { dayKey, requestId });
   } catch (_) {
     // The atomic authority remains the source of truth.
+  }
+}
+
+async function dispatchAnthropic(env, budget, payload, signal, rpc) {
+  const reservation = await rpc('reserve', payload);
+  if (!reservation?.ok || !reservation.reserved) {
+    const message = reservation?.reason === 'legacy-month-spend-unknown'
+      ? '이번 UTC 월의 과거 AI 비용을 확인할 수 없어 서버 AI를 보호 차단했습니다. 공급자 Console의 월 한도를 확인하세요.'
+      : reservation?.reason === 'monthly-budget' ? '월 AI 예산의 보수적 예약 상한에 도달했습니다. 실제 청구액이 아니며 반복 재시도로 복구되지 않습니다.' : 'daily AI quota exceeded';
+    return Response.json({ error: { type: 'rate_limit_error', message, quotaReason: reservation?.reason || 'quota-unavailable' } }, { status: 429 });
+  }
+  if (reservation.duplicate) return Response.json({ error: { type: 'idempotency_conflict', message: 'duplicate request is already reserved' } }, { status: 409 });
+  if (signal?.aborted) {
+    await rpc('release', payload);
+    return Response.json({ error: { type: 'cancelled', message: 'AI request cancelled before upstream dispatch' } }, { status: 502 });
+  }
+  try { await rpc('start', payload); }
+  catch (error) { await rpc('release', payload); throw error; }
+  try { return await fetchAnthropicWithDeadline(env.ANTHROPIC_API_KEY, budget.body, signal); }
+  catch (error) {
+    return Response.json({ error: { type: error.name === 'AbortError' ? 'timeout' : 'upstream_error', message: 'Claude upstream unavailable; monthly reservation retained' } }, { status: 502 });
   }
 }
 
@@ -752,12 +963,15 @@ async function handleAnthropic(request, env, origin) {
   let body;
   try { body = JSON.parse(bodyText); } catch { return errorResponse('Invalid JSON body', 400, origin, aiError, env); }
   if (!body || typeof body !== 'object' || Array.isArray(body)) return errorResponse('JSON object required', 400, origin, aiError, env);
-  const cap = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
+  let cap, budget;
+  try {
+    cap = quotaInteger(env.ANTHROPIC_DAILY_CAP, 300);
+    budget = prepareAnthropicBudget(body, env);
+    body = budget.body;
+  } catch (error) { return errorResponse(error.message, /configuration|monthly AI budget/.test(error.message) ? 503 : 400, origin, aiError, env); }
   const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
   const requestId = await deriveRequestId(request, bodyText);
-  if (!/^claude-(haiku|sonnet)/.test(String(body.model || ''))) body.model = 'claude-haiku-4-5';
-  const maxTokens = parseInt(env.ANTHROPIC_MAX_TOKENS || '1500', 10);
-  if (!body.max_tokens || body.max_tokens > maxTokens) body.max_tokens = maxTokens;
+  const maxTokens = body.max_tokens;
   if (hasDurableObjectNamespace(env)) {
     try {
       const upstream = await fetchAnthropicThroughDurableObject(env, { dayKey, cap, requestId, claudeBody: body }, request.signal);
@@ -773,24 +987,16 @@ async function handleAnthropic(request, env, origin) {
       return errorResponse('AI durable authority unavailable', 503, origin, aiError, env);
     }
   }
-  let ownedReservation = false;
   try {
-    const reservation = await quotaRpc(env, 'reserve', { dayKey, cap, requestId });
-    if (!reservation?.ok || !reservation.reserved) return errorResponse('daily AI quota exceeded', 429, origin, aiError, env);
-    if (reservation.duplicate) return errorResponse('duplicate idempotency key is already reserved', 409, origin, aiError, env);
-    ownedReservation = !reservation.duplicate;
-  } catch { return errorResponse('AI quota unavailable', 503, origin, aiError, env); }
-  try {
-    const upstream = await fetchAnthropicWithDeadline(env.ANTHROPIC_API_KEY, body, request.signal);
-    if (upstream.status >= 400 && ownedReservation) await releaseQuota(env, dayKey, requestId);
+    const upstream = await dispatchAnthropic(env, budget, { dayKey, cap, requestId,
+      reservationMicroUsd: budget.reservationMicroUsd, monthlyCapMicroUsd: budget.monthlyCapMicroUsd }, request.signal, (operation, payload) => quotaRpc(env, operation, payload));
     return new Response(upstream.body, { status: upstream.status, headers: {
       'Content-Type': upstream.headers.get('content-type') || 'application/json',
       ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
       'X-AIO-Proxy': 'cloudflare-worker-anthropic', 'X-AIO-Max-Tokens': String(maxTokens),
     }});
   } catch (error) {
-    if (ownedReservation) await releaseQuota(env, dayKey, requestId);
-    return errorResponse(error.name === 'AbortError' ? 'Claude timeout' : 'Claude upstream error', 502, origin, aiError, env);
+    return errorResponse('AI quota unavailable', 503, origin, aiError, env);
   }
 }
 

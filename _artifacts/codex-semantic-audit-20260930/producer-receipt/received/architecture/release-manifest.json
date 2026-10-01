@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "release-v1",
+  "appRevision": "v56.83",
+  "dataRevision": "market-snapshot:2026-10-01T00:34:01.108Z:e00476d3",
+  "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
+  "generatedAt": "2026-10-01T00:34:35.123Z",
+  "publicSource": "public-artifact-manifest.json",
+  "assetManifest": "architecture/asset-manifest.json",
+  "workerRevision": "sw:v56.83",
+  "rollback": {
+    "strategy": "revision-pinned",
+    "appDataIndependent": true,
+    "workerCacheIndependent": true,
+    "lastKnownGood": "v53.17"
+  },
+  "serviceWorker": "sw.js",
+  "status": "MIGRATION_IN_PROGRESS",
+  "dataGeneratedAt": "2026-10-01T00:34:01.108Z",
+  "dataCycleId": "kst-0800-2026-09-30T23:00:00.000Z",
+  "dataCycleManifestRevision": "kst-0800-2026-09-30T23:00:00.000Z:market-snapshot:2026-10-01T00:34:01.108Z:e00476d3"
+}

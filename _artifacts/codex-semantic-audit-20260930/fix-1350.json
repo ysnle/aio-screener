@@ -1,0 +1,33 @@
+{
+  "version": "v56.87",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1350,
+    "title": "Authenticated financial Vault and evidence-safe AI portfolio context",
+    "symptom": "Wrong PIN could appear unlocked; ledger/FX were outside encryption and reload restoration; provider backups included portfolio data; current watchlist objects lost metadata; missing AI prices became fabricated ratios.",
+    "root_cause": "Key derivation was mistaken for authentication; sensitive storage had parallel ownership and hard-coded localStorage; coercion and buy-cost fallbacks were promoted to current market valuation; asynchronous continuations lacked lock invalidation.",
+    "fix": "Authenticate ciphertext/sentinel, encrypt and restore all three financial sections, separate credential backups, preserve watchlist objects, respect public-PC storage, propagate persist acknowledgements, invalidate pending operations on lock, and hold AI allocation/return without coherent currency/time/price evidence. Journal notes require their disclosed consent.",
+    "violated_rule": "R294 and R670; new {R} financial boundary contract.",
+    "prevention": "QA-SEMANTIC-VAULT-01; ci-portfolio-vault-e2e and ci-esm-core-unit-check.",
+    "verification": "Initial production-bridge isolated Chromium checks passed 44/44. Expanded lock-race/public-PC cases and integrated main certification are recorded separately in the semantic audit report; real user storage is untouched."
+  },
+  "r": {
+    "id": 678,
+    "title": "Financial security follows purpose and asynchronous lifetime",
+    "rule": "Positions, ledger and FX declarations share authentication, encryption, storage selection, lock invalidation and reload restoration. Provider credential backups exclude financial records. Lock or storage-mode changes invalidate asynchronous continuations. Failed persistence is never success; AI valuation requires coherent price, currency and observation evidence.",
+    "validation": "P1350; ci-portfolio-vault-e2e, ci-esm-core-unit-check and headless fixtures."
+  },
+  "qa": [
+    {
+      "id": "QA-SEMANTIC-VAULT-01",
+      "text": "Production Vault authenticates PIN, protects/restores all financial declarations, separates credential backups, preserves watchlists and prevents missing valuation evidence from becoming AI percentages.",
+      "verify_by": "P1350/R678 ci-portfolio-vault-e2e + ci-esm-core-unit-check + headless T960",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**금융 보호 (P1350/R678):** 실제 PIN 인증·금융 3개 섹션 보호·공용PC 격리·비동기 잠금 취소·백업 복원·AI 결측 보류."
+  ],
+  "qa_section": "Semantic, financial and operating-budget audit",
+  "note": "v56.87 — P1349 observation sessions; P1350 financial security; P1351 provenance; P1352 UI meaning; P1353 monthly reservation."
+}

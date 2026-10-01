@@ -205,6 +205,22 @@ try {
     check(`${label}: no ledger file changed (QA-OPS-REC-13)`, JSON.stringify(snapshot(d)) === JSON.stringify(snap));
   };
   rejected('duplicate QA id', (e, d) => { const existing = /^- \[[ x]\] (QA-[^:]+):/m.exec(read(d, FILES[2]))[1]; e.qa[0].id = existing; }, /already exist/);
+  // P1347: an explicit update closes one existing item, without creating duplicates.
+  {
+    const d = makeRoot();
+    const id = /^- \[[ x]\] (QA-[^:]+):/m.exec(read(d, FILES[2]))[1];
+    const entry = baseEntry();
+    entry.qa = [{ id, update: true, text: 'Verified existing fixture', verify_by: 'P1347 ci-record-fix-check.mjs', done: true }];
+    const result = run(d, entry);
+    const rows = read(d, FILES[2]).split('\n').filter((line) => line.includes(` ${id}:`));
+    check('P1347 explicit QA update changes exactly one existing row', result.code === 0 && rows.length === 1 && rows[0].startsWith(`- [x] ${id}: Verified existing fixture.`), result.err);
+  }
+  rejected('P1347 missing update target', (e) => { e.qa[0].id = 'QA-NONEXISTENT-999'; e.qa[0].update = true; }, /exactly one existing row/);
+  rejected('P1347 ambiguous update target', (e, d) => {
+    const row = /^- \[[ x]\] (QA-[^:]+):.*$/m.exec(read(d, FILES[2]));
+    e.qa[0].id = row[1]; e.qa[0].update = true;
+    writeFileSync(join(d, FILES[2]), `${read(d, FILES[2])}\n${row[0]}\n`);
+  }, /exactly one existing row/);
   rejected('missing verify_by', (e) => { delete e.qa[1].verify_by; }, /verify_by is required/);
   rejected('missing version heading in CHANGELOG', (e) => { e.version = 'v99.2'; }, /bump-version/);
   rejected('version.json not bumped', (e, d) => { writeFileSync(join(d, 'version.json'), '{"version":"v98.0","built":"x","note":"y"}\n'); }, /bump-version/);

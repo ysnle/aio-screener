@@ -68,7 +68,7 @@ jobs:
             run_id="$DISPATCH_RUN_ID"
             expected_sha="$DISPATCH_SHA"
           fi
-          case "$run_id" in ''|null) echo "::error::deploy requires a CI run id"; exit 1;; esac
+          case "$run_id" in ''|null|*[!0-9]*) echo "::error::deploy requires a numeric CI run id"; exit 1;; esac
           case "$expected_sha" in *[!0-9a-f]*) echo "::error::expected sha must be lowercase hex: $expected_sha"; exit 1;; esac
           [ "${#expected_sha}" -eq 40 ] || { echo "::error::expected sha must be 40 hex characters: $expected_sha"; exit 1; }
 
@@ -76,8 +76,11 @@ jobs:
           # workflow_run path enforces, so the extra entry point cannot publish a
           # revision that CI never validated.
           gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" \
-            --jq '[.conclusion, (.head_branch // ""), (.head_sha // "")] | @tsv' > "$RUNNER_TEMP/ci-run.tsv"
-          IFS="$(printf '\t')" read -r ci_conclusion ci_branch ci_sha < "$RUNNER_TEMP/ci-run.tsv"
+            --jq '[.name, .conclusion, (.head_branch // ""), (.head_sha // ""), (.head_repository.full_name // ""), (.event // "")] | @tsv' > "$RUNNER_TEMP/ci-run.tsv"
+          IFS="$(printf '\t')" read -r ci_name ci_conclusion ci_branch ci_sha ci_repo ci_event < "$RUNNER_TEMP/ci-run.tsv"
+          [ "$ci_name" = 'CI' ] || { echo "::error::release requires the CI workflow"; exit 1; }
+          [ "$ci_repo" = "$GITHUB_REPOSITORY" ] || { echo "::error::release CI must come from this repository"; exit 1; }
+          case "$ci_event" in push|workflow_dispatch) ;; *) echo "::error::release CI must be a main push or dispatch"; exit 1;; esac
           [ "$ci_conclusion" = 'success' ] || { echo "::error::CI run $run_id concluded '$ci_conclusion', expected success"; exit 1; }
           [ "$ci_branch" = 'main' ] || { echo "::error::CI run $run_id ran on '$ci_branch', expected main"; exit 1; }
           [ "$ci_sha" = "$expected_sha" ] || { echo "::error::CI run $run_id tested '$ci_sha', expected $expected_sha"; exit 1; }
@@ -98,10 +101,11 @@ jobs:
         id: release
         env:
           WORKFLOW_SHA: ${{ steps.source.outputs.expected_sha }}
+          EXPECTED_RUN_ID: ${{ steps.source.outputs.run_id }}
         run: |
           set -euo pipefail
           file="$RUNNER_TEMP/release-attestation/aio-release-attestation.json"
-          sha="$(node -e "const a=require(process.argv[1]); if(a.schemaVersion!=='aio-release-attestation.v1'||!/^([0-9a-f]{40})$/.test(a.testedSha)) process.exit(1); process.stdout.write(a.testedSha)" "$file")"
+          sha="$(node -e "const a=require(process.argv[1]); if(a.schemaVersion!=='aio-release-attestation.v1'||!/^([0-9a-f]{40})$/.test(a.testedSha)||String(a.runId)!==process.env.EXPECTED_RUN_ID||a.repository!==process.env.GITHUB_REPOSITORY) process.exit(1); process.stdout.write(a.testedSha)" "$file")"
           test "$sha" = "$WORKFLOW_SHA"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
@@ -149,8 +153,25 @@ jobs:
         with:
           path: ${{ runner.temp }}/pages-dist
 
+      # P1351: a delayed attested release must never overwrite a newer main revision.
+      - name: Recheck main head immediately before Pages mutation
+        id: latest-main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          current_main_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          if [ "$current_main_sha" = "$EXPECTED_SHA" ]; then
+            echo 'safe=true' >> "$GITHUB_OUTPUT"
+          else
+            echo "Main advanced to $current_main_sha; skipping stale Pages release for $EXPECTED_SHA."
+            echo 'safe=false' >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.latest-main.outputs.safe == 'true'
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
         continue-on-error: true
 
@@ -158,24 +179,42 @@ jobs:
         if: steps.deployment.outcome == 'failure'
         run: sleep 30
 
+      - name: Recheck main head before Pages retry
+        id: retry-main
+        if: steps.deployment.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          current_main_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          if [ "$current_main_sha" = "$EXPECTED_SHA" ]; then
+            echo 'safe=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'safe=false' >> "$GITHUB_OUTPUT"
+            echo "Skipping stale Pages retry for $EXPECTED_SHA; main=$current_main_sha."
+          fi
+
       - name: Deploy to GitHub Pages (retry)
         id: deployment_retry
-        if: steps.deployment.outcome == 'failure'
+        if: steps.deployment.outcome == 'failure' && steps.retry-main.outputs.safe == 'true'
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
 
       - name: Fail if both deploy attempts failed
-        if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome != 'success'
+        if: steps.deployment.outcome == 'failure' && steps.retry-main.outputs.safe == 'true' && steps.deployment_retry.outcome != 'success'
         run: |
           echo "::error::GitHub Pages deploy failed twice."
           exit 1
 
       - name: Verify released Pages and all external planes
+        if: steps.latest-main.outputs.safe == 'true' && (steps.deployment.outcome == 'success' || steps.deployment_retry.outcome == 'success')
         env:
           AIO_EXTERNAL_RETRY_MS: '5000'
           AIO_EXPECTED_SHA: ${{ steps.release.outputs.sha }}
         run: node scripts/ci-external-pipeline-check.mjs --mode release
 
       - name: Verify live standing invariants
+        if: steps.latest-main.outputs.safe == 'true' && (steps.deployment.outcome == 'success' || steps.deployment_retry.outcome == 'success')
         env:
           LIVE_HEADER_POLICY: operator-required
         run: node scripts/ci-live-invariant-check.mjs

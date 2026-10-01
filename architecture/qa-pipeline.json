@@ -387,6 +387,18 @@
           "script": "scripts/ci-esm-core-unit-check.mjs"
         },
         {
+          "id": "page-decision-reference",
+          "script": "scripts/ci-page-decision-reference-check.mjs"
+        },
+        {
+          "id": "rotation-history",
+          "script": "scripts/ci-rotation-history-check.mjs"
+        },
+        {
+          "id": "fundamental-watchlist-timeline",
+          "script": "scripts/ci-fundamental-watchlist-timeline-check.mjs"
+        },
+        {
           "id": "artifact-cache",
           "script": "scripts/ci-artifact-cache-check.mjs"
         },

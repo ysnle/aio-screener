@@ -1,0 +1,29 @@
+{
+  "version": "v56.86",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1348,
+    "title": "Shared canonical aliases across compatibility navigation",
+    "symptom": "Legacy chart/news/help could select DOM routes while native router recorded home.",
+    "root_cause": "Compatibility and showPage consumed different alias maps.",
+    "fix": "Share complete canonical aliases and retain theme-detail inline handling and retired options-to-sentiment mapping.",
+    "violated_rule": "Single navigation authority.",
+    "prevention": "QA-OPS-NAV-01: P1348 ESM navigation fixture + architecture-browser gate",
+    "verification": "Independent static review found no alias/theme-detail regression; browser/runtime closeout recorded in REPORT.md."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-OPS-NAV-01",
+      "text": "Compatibility and native navigation share aliases and preserve theme-detail and retired options handling",
+      "verify_by": "P1348 ESM navigation fixture + architecture-browser gate",
+      "done": true
+    }
+  ],
+  "qa_section": "continued reconstruction audit",
+  "changelog": [
+    "**호환 라우트 정합성: chart/news/help 등 별칭을 native와 공유하고 theme-detail 예외 유지. (P1348):** 검증 근거와 잔여 항목은 codex-audit-20260930/REPORT.md."
+  ],
+  "note": "v56.86 — P1345 completed-close inputs/late snapshot; P1346 briefing; P1347 tooling; P1348 aliases.",
+  "status": null
+}

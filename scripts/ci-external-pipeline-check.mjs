@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isTrustedDeploymentRun, resolveProvenanceRun } from './deployment-provenance.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const args = process.argv.slice(2);
@@ -140,11 +141,22 @@ async function observeOnce() {
         check(`github-${id}-latest-completed`, run?.conclusion === 'success' || isCurrentReleaseRun, run ? `conclusion=${run.conclusion} run=${run.html_url}${latest?.status === 'in_progress' ? ` active=${latest.html_url}` : ''}` : (isCurrentReleaseRun ? `current release=${latest.html_url}` : 'no completed workflow run'), severity);
       });
       if (result.pages?.sourceSha && result.pages?.attestationRunId) {
-        const attestedCi = observedWorkflowRuns.ci?.runs?.find?.((run) => Number(run.id) === Number(result.pages.attestationRunId));
-        check('pages-source-matches-attested-ci', attestedCi?.conclusion === 'success' && attestedCi?.head_sha === result.pages.sourceSha, `deployment=${result.pages.sourceSha} attestationRun=${result.pages.attestationRunId} observed=${attestedCi?.head_sha || 'missing'} conclusion=${attestedCi?.conclusion || 'missing'}`);
-        const deploymentRun = observedWorkflowRuns.pages?.runs?.find?.((run) => Number(run.id) === Number(result.pages.deploymentRunId));
-        const currentDeploymentRun = mode === 'release' && deploymentRun?.status === 'in_progress' && (!process.env.GITHUB_RUN_ID || String(deploymentRun.id) === String(process.env.GITHUB_RUN_ID));
-        check('pages-deployment-run-provenance', deploymentRun?.conclusion === 'success' || currentDeploymentRun, `deploymentRun=${result.pages.deploymentRunId} conclusion=${deploymentRun?.conclusion || 'missing'} status=${deploymentRun?.status || 'missing'}`);
+        // P1351: exact run IDs remain verifiable even when the discovery list is stale/truncated.
+        const readExact = async (runId) => (await fetchJson(`https://api.github.com/repos/ysnle/aio-screener/actions/runs/${runId}`, { headers: githubHeaders })).body;
+        for (const [key, id, name, runs] of [
+          ['pages-source-matches-attested-ci', result.pages.attestationRunId, 'CI', observedWorkflowRuns.ci?.runs],
+          ['pages-deployment-run-provenance', result.pages.deploymentRunId, 'Deploy GitHub Pages', observedWorkflowRuns.pages?.runs]
+        ]) {
+          try {
+            const run = await resolveProvenanceRun(runs, id, readExact);
+            const currentRelease = name === 'Deploy GitHub Pages' && mode === 'release'
+              && String(id) === String(process.env.GITHUB_RUN_ID || '');
+            check(key, isTrustedDeploymentRun(run, { repository: 'ysnle/aio-screener', name, sha: result.pages.sourceSha, runId: id, allowInProgress: currentRelease }),
+              `run=${id} sha=${run?.head_sha || 'missing'} conclusion=${run?.conclusion || 'missing'} status=${run?.status || 'missing'}`);
+          } catch (error) {
+            check(key, false, `verification-unavailable run=${id}: ${error.message}`);
+          }
+        }
       }
     } else result.warnings.push(`GitHub Actions observation unavailable: ${github.reason?.message || String(github.reason)}`);
   } else if (github.status === 'fulfilled') {

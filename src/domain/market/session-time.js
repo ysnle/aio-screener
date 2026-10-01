@@ -15,7 +15,15 @@ export function timeZoneForMarket(market) {
 }
 
 // 세션 날짜 = 주어진 시각이 속한, 해당 시장의 달력상 날짜. 시각이 없으면 null.
+export function isValidMarketDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return false;
+  const ms = Date.parse(`${value}T12:00:00Z`);
+  return Number.isFinite(ms) && new Date(ms).toISOString().slice(0, 10) === value;
+}
+
 export function sessionDateInMarket(isoTimestamp, market) {
+  // P1349: Date.parse normalizes impossible dates instead of rejecting them.
+  if (!isValidMarketDate(String(isoTimestamp || '').slice(0, 10))) return null;
   const ms = Date.parse(isoTimestamp || '');
   if (!Number.isFinite(ms)) return null;
   try {

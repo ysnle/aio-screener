@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.85';
+const APP_VERSION = 'v56.87';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1093,9 +1093,9 @@ window.AIO.readSnapshotField = window.AIO.readSnapshotField || function(key, fal
   return value == null ? fallback : value;
 };
 window.AIO.storageAdapter = window.AIO.storageAdapter || {
-  get: function(key, fallback) { try { return typeof window.safeLSGetSync === 'function' ? window.safeLSGetSync(key, fallback) : (window.localStorage.getItem(key) == null ? fallback : window.localStorage.getItem(key)); } catch(_) { return fallback; } },
-  set: function(key, value) { try { if (typeof window.safeLSSet === 'function') return window.safeLSSet(key, value); window.localStorage.setItem(key, String(value)); return true; } catch(_) { return false; } },
-  remove: function(key) { try { window.localStorage.removeItem(key); return true; } catch(_) { return false; } }
+  get: function(key, fallback) { try { return safeLSGetSync(key, fallback); } catch(_) { return fallback; } },
+  set: function(key, value) { try { var store = _AioVault.getStorage(); if (_AIO_SENSITIVE_KEYS.has(key) && store.getItem('aio_vault_salt') && !(typeof _pfVaultOptedOut === 'function' && _pfVaultOptedOut() && /^aio_portfolio_(?:data|ledger|fx_legs)$/.test(key))) return false; store.setItem(key, String(value)); return store.getItem(key) === String(value); } catch(_) { return false; } },
+  remove: function(key) { try { _AioVault.getStorage().removeItem(key); return true; } catch(_) { return false; } }
 };
 
 // ═══ v48.94: _aioSafeMD — AI 마크다운 DOMPurify 2차 게이트웨이 ════════════════
@@ -1119,7 +1119,7 @@ window._aioRenderNum = function(v, suffix, decimals) {
 };
 
 window._aioSafeFixed = function(v, decimals, fallback) {
-  var n = Number(v);
+  var n = _aioStrictFinite(v); // P1354: null, blanks, booleans and objects are not numeric observations.
   var d = (typeof decimals === 'number' && decimals >= 0) ? decimals : 2;
   return Number.isFinite(n) ? n.toFixed(d) : (fallback == null ? '—' : fallback);
 };
@@ -2918,10 +2918,10 @@ if (typeof document !== 'undefined') {
       var phaseEl = document.getElementById('cycle-dynamic-phase');
       var inputsEl = document.getElementById('cycle-dynamic-inputs');
       var rationaleEl = document.getElementById('cycle-dynamic-rationale');
-      if (phaseEl) phaseEl.textContent = cycle.phase;
+      if (phaseEl) phaseEl.textContent = cycle.phase + ' ·  시장 지표 조합 참고';
       var cycleInputs = cycle.inputs || {};
-      if (inputsEl) inputsEl.textContent = 'VIX ' + window._aioSafeFixed(cycleInputs.vix, 1, '—') + ' · Breadth50 ' + (cycleInputs.breadth50 != null && Number.isFinite(Number(cycleInputs.breadth50)) ? Number(cycleInputs.breadth50) + '%' : '—') + ' · 2s10s ' + window._aioSafeFixed(cycleInputs.yield2s10s, 2, '0.00') + ' · SPX ' + (cycleInputs.spxTrend || '—');
-      if (rationaleEl) rationaleEl.textContent = '근거: ' + cycle.rationale.join(' · ');
+      if (inputsEl) inputsEl.textContent = 'VIX ' + window._aioSafeFixed(cycleInputs.vix, 1, '—') + ' · Breadth50 ' + (cycleInputs.breadth50 != null && Number.isFinite(Number(cycleInputs.breadth50)) ? Number(cycleInputs.breadth50) + '%' : '—') + ' · 2s10s ' + window._aioSafeFixed(cycleInputs.yield2s10s, 2, '—') + ' · SPX ' + (cycleInputs.spxTrend || '—');
+      if (rationaleEl) rationaleEl.textContent = '참고 근거: ' + cycle.rationale.join(' · ') + ' · 공식 경기 국면이나 예측 확률을 뜻하지 않습니다.';
     } catch(_e) { /* themes 페이지 진입 동적 사이클 실패 — 정적 진단으로 폴백 */ }
   };
   _aioPageBus.register('core-themes-cycle-dynamic', 'aio:pageShown', function(e){
@@ -4719,7 +4719,7 @@ function _aioDecisionAsOf(kind) {
 
 window.AIO_PAGE_EVIDENCE_CONTRACT = {
   home: { caveat: '시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다.' },
-  signal: { caveat: '신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다.' },
+  signal: { caveat: '직전 미국장 종가의 시장 환경을 참고합니다. 점수는 매수 가능 여부나 비중을 결정하지 않습니다.' },
   breadth: { maxSourceKind: 'SNAPSHOT', caveat: 'Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다.' },
   sentiment: { maxSourceKind: 'SNAPSHOT', caveat: 'F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다.' },
   briefing: { maxSourceKind: 'DELAYED', caveat: '브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다.' },
@@ -4907,16 +4907,14 @@ function _aioDefaultDecision(pageId) {
       action: _band.action + ' 신규 진입은 ATR 손절선과 이벤트 리스크를 먼저 정한다.'
     },
     signal: {
-      title: '신규 매수 가능 여부',
-      decision: _sc == null ? '판단 보류 · 핵심 입력 부족' : _sc >= 75 ? '매수 우호 · 분할 진입 검토' : _sc >= 60 ? '선별 진입 가능' : _sc >= 45 ? '신규 진입 보류' : '진입 금지 · 방어',
+      title: '시장 환경 참고',
+      decision: _sc == null ? '산출 보류 · 핵심 입력 부족' : _band.label + ' · ' + _scoreText,
       reasons: [
         '스코어 ' + _scoreText + ' → ' + _band.label,
-        'Lockout/OPEX 같은 고급 조건보다 손절·헤지가 먼저',
+        '직전 미국장 종가 기준 · 입력별 기준일과 결측을 확인',
         _fomcReason
       ],
-      action: _sc != null && _sc >= 60
-        ? '분할 매수, 손절선 타이트, VIX 20 상향 돌파 시 신규 매수 중단.'
-        : '신규 매수 자제. 스코어 60+ 복귀와 VIX 안정 확인 후 재진입.'
+      action: '점수와 구성 지표의 변화를 참고합니다. 종목·계좌별 거래 판단을 대신하지 않습니다.'
     },
     breadth: {
       title: '시장 폭 판단',
@@ -5082,13 +5080,13 @@ window._aioBuildPageDecision = function(pageId) {
       d.reasons.unshift('현재성·필수 입력이 확인되지 않아 행동 결론을 보류합니다.');
       d.reasons = d.reasons.slice(0, 3);
     }
-    // v52.49/WO-6: 페이지 계약의 정적 caveat와 score의 동적 결측 caveat는 서로 다른 정보이므로
-    // 덮어쓰지 않고 병기한다(정적 caveat만 있으면 그대로, 동적 caveat만 있으면 그대로, 둘 다 있으면 결합).
     d.caveat = (evidence.caveat && d.caveat && evidence.caveat !== d.caveat)
       ? (evidence.caveat + ' · ' + d.caveat)
       : (evidence.caveat || d.caveat);
     d.evidence = evidence;
   }
+  if (typeof window._aioFinalizePageDecision === 'function') d = window._aioFinalizePageDecision(d); // P1357
+  else d.confidence = '근거 확인 필요 · 예측 검증 미확립';
   var typedEvidence = window.AIO.createTypedEvidence ? window.AIO.createTypedEvidence({
     key: 'page-decision:' + (d.pageId || pageId), value: d.decision, sourceKind: d.sourceKind,
     evidenceId: d.provenanceBundle && d.provenanceBundle.bundleId,
@@ -5116,6 +5114,7 @@ window._aioBuildPageDecision = function(pageId) {
     provenance: d.provenance || null,
     provenanceBundle: d.provenanceBundle || null,
     evidence: d.evidence || null,
+    referenceSummary: d.referenceSummary || null,
     tacticalTraderFramework: d.tacticalTraderFramework || null
   };
 };
@@ -5153,12 +5152,12 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'시장 Cockpit',
     subtitle:'시장 레짐, 리스크, 주도 흐름을 한 화면에서 교차 확인합니다.',
     cards:[['핵심 지표','SPX·VIX·F&G·금리·주도 섹터'],['운용 포인트','포지션 크기와 신규 매수 가능 여부 확인'],['AI 분석','시장 요약과 리스크 3가지를 분석']],
-    links:[['매매 시그널','signal'],['브리핑','briefing'],['뉴스','market-news']]
+    links:[['시장 환경','signal'],['브리핑','briefing'],['뉴스','market-news']]
   },
   signal: {
-    title:'매매 실행 화면',
-    subtitle:'상단은 신규 매수 가능 여부, 포지션 크기, 손절/헤지만 남깁니다.',
-    cards:[['핵심 지표','거래 점수 · VIX · breadth · 추세'],['운용 포인트','신규 진입/추가매수/축소 중 하나로 판단'],['상세 도구','Lockout/OPEX/기관 용어는 상세 섹션에서 확인']],
+    title:'시장 환경 참고',
+    subtitle:'직전 미국장 종가의 환경 점수와 구성 지표·결측을 함께 확인합니다.',
+    cards:[['핵심 지표','환경 점수 · VIX · breadth · 추세'],['확인 항목','입력별 기준일과 근거 범위 비교'],['상세 도구','이벤트·위험 지표를 별도로 확인']],
     links:[['스크리너','screener'],['차트 분석','technical'],['AI 분석','ai']]
   },
   breadth: {
@@ -6071,43 +6070,17 @@ window.AIO.buildAIUntrustedBlock = function(kind, payload, options) {
 };
 
 
-function _aioAIFinite(value) {
-  var n = Number(value);
-  return isFinite(n) ? n : null;
-}
-
+// P1350: absent prices and mixed valuation bases are never converted to zero or cost weights.
 window.AIO.redactPortfolioForAI = function(positions, options) {
-  options = options || {};
   var rows = Array.isArray(positions) ? positions : [];
-  var live = options.liveData || window._liveData || {};
-  var values = rows.map(function(row) {
-    var liveRow = live[row && row.ticker] || {};
-    var price = _aioAIFinite(liveRow.price);
-    var qty = _aioAIFinite(row && row.qty);
-    var cost = _aioAIFinite(row && row.cost);
-    return price != null && qty != null ? price * qty : (qty != null && cost != null ? qty * cost : 0);
-  });
-  var total = values.reduce(function(sum, value) { return sum + value; }, 0);
-  return rows.map(function(row, index) {
-    if (!row || !row.ticker) return null;
-    var liveRow = live[row.ticker] || {};
-    var price = _aioAIFinite(liveRow.price);
-    var cost = _aioAIFinite(row.cost);
-    var returnPct = _aioAIFinite(row.returnPct);
-    if (returnPct == null && price != null && cost != null && cost > 0) returnPct = Number(((price - cost) / cost * 100).toFixed(1));
-    var allocationPct = total > 0 ? Number((values[index] / total * 100).toFixed(1)) : _aioAIFinite(row.allocationPct);
-    return {
-      ticker: String(row.ticker).toUpperCase().slice(0, 16),
-      sector: String(row.sector || row.industry || 'unknown').slice(0, 48),
-      allocationPct: allocationPct,
-      returnPct: returnPct
-    };
-  }).filter(Boolean);
+  return window._aioFinancialSecurity ? window._aioFinancialSecurity.redactPortfolioForAI(rows, Object.assign({ liveData: window._liveData || {} }, options || {})) : rows.filter(function(row) { return row && row.ticker; }).map(function(row) { return { ticker: row.ticker, sector: 'unknown', allocationPct: null, returnPct: null }; });
 };
 
 var _aioPortfolioAIConsentMemory = false;
+var _aioPortfolioJournalAIConsentMemory = false; // P1350: notes are a separate, explicit grant.
 window.AIO.setPortfolioAIConsent = function(enabled) {
   _aioPortfolioAIConsentMemory = enabled === true;
+  if (!enabled) window.AIO.setPortfolioJournalAIConsent(false);
   try {
     if (_aioPortfolioAIConsentMemory) sessionStorage.setItem('aio_portfolio_ai_consent_v1', '1');
     else sessionStorage.removeItem('aio_portfolio_ai_consent_v1');
@@ -6118,6 +6091,8 @@ window.AIO.hasPortfolioAIConsent = function() {
   if (_aioPortfolioAIConsentMemory) return true;
   try { return sessionStorage.getItem('aio_portfolio_ai_consent_v1') === '1'; } catch(_) { return false; }
 };
+window.AIO.setPortfolioJournalAIConsent = function(enabled) { _aioPortfolioJournalAIConsentMemory = enabled === true && window.AIO.hasPortfolioAIConsent(); return _aioPortfolioJournalAIConsentMemory; };
+window.AIO.hasPortfolioJournalAIConsent = function() { return _aioPortfolioJournalAIConsentMemory && window.AIO.hasPortfolioAIConsent(); };
 window.AIO.getPortfolioAIPrivacyPreview = function(positions, options) {
   options = options || {};
   var consent = options.consent === true || window.AIO.hasPortfolioAIConsent();
@@ -6125,11 +6100,11 @@ window.AIO.getPortfolioAIPrivacyPreview = function(positions, options) {
   return {
     version: _AIO_AI_PORTFOLIO_PRIVACY_VERSION,
     status: consent ? 'ready' : 'consent-required',
-    sendable: consent && redacted.length > 0,
+    sendable: consent && redacted.length > 0 && (options.includeJournal !== true || window.AIO.hasPortfolioJournalAIConsent()),
     recordCount: redacted.length,
-    fields: _AIO_AI_PORTFOLIO_FIELDS.slice(),
-    excludedFields: _AIO_AI_PORTFOLIO_EXCLUDED_FIELDS.slice(),
-    noteIncluded: consent && options.includeJournal === true,
+    fields: _AIO_AI_PORTFOLIO_FIELDS.concat(options.includeJournal === true && window.AIO.hasPortfolioJournalAIConsent() ? ['currentJournal', 'recentJournal'] : []),
+    excludedFields: _AIO_AI_PORTFOLIO_EXCLUDED_FIELDS.filter(function(field) { return field !== 'journal' || options.includeJournal !== true || !window.AIO.hasPortfolioJournalAIConsent(); }),
+    noteIncluded: consent && options.includeJournal === true && window.AIO.hasPortfolioJournalAIConsent(),
     storage: 'session-consent-only'
   };
 };
@@ -6621,7 +6596,6 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   var sharedCutHtml = sharedCut && sharedCut.end
     ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '공통컷 ' : '공통컷 지연 · ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
     : '<span class="aio-confidence-badge" title="서버 24시간 컷 메타데이터 대기">공통컷 대기</span>';
-  // v51.57: 3카드 그리드(왜/오늘행동/데이터기준시각) 제거 — 상단 판단 strip + AI 버튼만 유지
   if (sharedCutHtml && sharedCut && sharedCut.end) {
     sharedCutHtml = sharedCutHtml.replace(
       'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '"',
@@ -6639,7 +6613,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
     + '  <section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(sourceKind) + '" data-as-of="' + _aioDecisionEsc(d.asOf || '') + '" data-market-revision="' + _aioDecisionEsc(marketEpoch && marketEpoch.revision || '') + '" data-market-cut-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.cutEnd || '') + '" data-field-timeline-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.status || 'REFERENCE') + '" data-field-observation-start="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationStart || '') + '" data-field-observation-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationEnd || '') + '">'
     + '  <div class="aio-decision-top">'
     + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
-    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span>' + sharedCutHtml + marketEpochHtml + '<span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
+    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span>' + (d.referenceSummary ? '<span class="aio-confidence-badge" data-reference-close-basis="true">' + _aioDecisionEsc(d.asOf) + '</span>' : '') + sharedCutHtml + marketEpochHtml + '<span class="aio-confidence-badge">근거 상태 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
     + '  </div>'
     + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : caveatHtml) + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
     + (_fomcFootNote && caveatHtml ? '<div class="aio-decision-foot aio-decision-evidence-foot">' + caveatHtml + '</div>' : '')
@@ -11322,7 +11296,7 @@ window.AIO_MACRO_CALENDAR = {
     // BLS Employment Situation release instead of surfacing a past event.
     'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-09-04', nextRelease: '2026-10-02', dataField: 'usUnemploy', source: 'BLS official schedule', sourceUrl: 'https://www.bls.gov/schedule/news_release/empsit.htm' },
     'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-09-11', nextRelease: '2026-10-14', dataField: 'cpi', source: 'BLS official schedule', sourceUrl: 'https://www.bls.gov/schedule/news_release/cpi.htm' },
-    'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-08-26', nextRelease: '2026-09-30', dataField: 'pce', source: 'BEA official schedule', sourceUrl: 'https://www.bea.gov/news/schedule/' },
+    'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-08-26', nextRelease: '2026-10-29', dataField: 'pce', source: 'BEA official schedule (reviewed 2026-10-01; P1356)', sourceUrl: 'https://www.bea.gov/news/schedule/' },
     'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'official-first-business-day',  lastRelease: '2026-09-01', nextRelease: '2026-10-01', dataField: 'ismPmi', source: 'ISM official calendar', sourceUrl: 'https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/' },
     'us-ism-svc':   { name: 'ISM Services',   frequency: 'official-third-business-day',  lastRelease: '2026-09-03', nextRelease: '2026-10-05', dataField: 'ismSvc', source: 'ISM official calendar', sourceUrl: 'https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/' },
     'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-09-16', nextRelease: '2026-10-15', dataField: 'retailSales', source: 'U.S. Census official schedule' },
@@ -11341,7 +11315,7 @@ window.AIO_MACRO_CALENDAR = {
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02'],
   'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14'],
-  'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30'],
+  'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30', '2026-10-29', '2026-11-25', '2026-12-23'],
   'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01'],
   'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05'],
   'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16', '2026-10-15'],
@@ -12348,13 +12322,13 @@ window.AIO.getThresholdLabelAudit = function() {
 window.AIO.getCycleFromMacro = function(macro) {
   macro = macro || {};
   var ld = window._liveData || {};
-  var vix = Number(macro.vix != null ? macro.vix : (ld['^VIX'] ? ld['^VIX'].price : NaN));
+  var vix = _aioStrictFinite(macro.vix != null ? macro.vix : (ld['^VIX'] ? ld['^VIX'].price : NaN));
   var breadthEvidence = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
-  var breadthCandidate = macro.breadth50 != null ? Number(macro.breadth50) : (breadthEvidence.available ? Number(breadthEvidence.sma50) : NaN);
+  var breadthCandidate = macro.breadth50 != null ? _aioStrictFinite(macro.breadth50) : (breadthEvidence.available ? _aioStrictFinite(breadthEvidence.sma50) : NaN);
   var breadth50 = Number.isFinite(breadthCandidate) && breadthCandidate >= 0 && breadthCandidate <= 100 ? breadthCandidate : NaN;
   var yieldCandidate = macro.yield2s10s;
-  var yield2s10s = yieldCandidate != null && Number.isFinite(Number(yieldCandidate)) ? Number(yieldCandidate) : null;
-  var liveSpxPct = ld['^GSPC'] && Number.isFinite(Number(ld['^GSPC'].pct)) ? Number(ld['^GSPC'].pct) : null;
+  var yield2s10s = _aioStrictFinite(yieldCandidate);
+  var liveSpxPct = ld['^GSPC'] ? _aioStrictFinite(ld['^GSPC'].pct) : null;
   var spxTrend = macro.spxTrend === 'up' || macro.spxTrend === 'down' ? macro.spxTrend : liveSpxPct == null ? null : liveSpxPct > 0 ? 'up' : 'down';
 
   var rationale = [];
@@ -12387,28 +12361,28 @@ window.AIO.getCycleFromMacro = function(macro) {
 
   var phase;
   if (inverted && nVix < 0) {
-    phase = 'Recession Risk';
-    rationale.push('수익률 곡선 역전(2s10s ' + yield2s10s.toFixed(2) + ') + 변동성 상승 = 침체 선행');
+    phase = '환경 약화';
+    rationale.push('수익률 곡선 역전(2s10s ' + yield2s10s.toFixed(2) + ')과 변동성 상승 동시 관측');
   } else if (cyclePos >= 72 && nTrend > 0 && nVix > 0.2) {
-    phase = 'Late Cycle (Peak)';
-    rationale.push('경기위치 ' + cyclePos + '/100 — 낮은 변동성+넓은 시장폭+상승 추세 = 과열 구간');
+    phase = '환경 양호';
+    rationale.push('참고 조합 ' + cyclePos + '/100 · 낮은 변동성·넓은 시장폭·상승 추세');
   } else if (cyclePos >= 55) {
-    phase = 'Mid Cycle (Expansion)';
-    rationale.push('경기위치 ' + cyclePos + '/100 — 확장 국면(시장폭/변동성 양호)');
+    phase = '환경 양호';
+    rationale.push('참고 조합 ' + cyclePos + '/100 · 시장폭·변동성 양호');
   } else if (cyclePos >= 42 && nTrend > 0) {
-    phase = 'Early Cycle (Recovery)';
-    rationale.push('경기위치 ' + cyclePos + '/100 — 약한 시장폭 + 반등 추세 = 회복 초기');
+    phase = '지표 혼재';
+    rationale.push('참고 조합 ' + cyclePos + '/100 · 약한 시장폭과 상승 추세 동시 관측');
   } else if (cyclePos >= 30) {
-    phase = 'Mid Cycle';
-    rationale.push('경기위치 ' + cyclePos + '/100 — 신호 혼재(중기)');
+    phase = '지표 혼재';
+    rationale.push('참고 조합 ' + cyclePos + '/100 · 입력 방향 혼재');
   } else if (nTrend < 0 && nVix < -0.2) {
-    phase = 'Bear Market';
-    rationale.push('경기위치 ' + cyclePos + '/100 — 하락 추세 + 높은 변동성 = 약세장');
+    phase = '환경 약화';
+    rationale.push('참고 조합 ' + cyclePos + '/100 · 하락 추세와 높은 변동성');
   } else {
-    phase = 'Recession Risk';
-    rationale.push('경기위치 ' + cyclePos + '/100 — 약한 시장폭/변동성 = 침체 위험');
+    phase = '환경 약화';
+    rationale.push('참고 조합 ' + cyclePos + '/100 · 시장폭·변동성 약화');
   }
-  if (inverted && phase !== 'Recession Risk') rationale.push('수익률 곡선 역전 → 침체 선행 신호(보조)');
+  if (inverted) rationale.push('수익률 곡선 역전 관측 · 경기 국면 확정 근거가 아닙니다');
 
   return {
     phase: phase,
@@ -13157,11 +13131,14 @@ if (typeof Chart !== 'undefined') {
 
 window._aioVaultPublicMode = function(el) {
   var lbl = document.getElementById('vault-public-label');
+  // P1350: const Vault is lexical, not window._AioVault; switching origins must clear caches.
+  _AioVault.lock();
+  window.AIO.setPortfolioAIConsent(false);
   if (el && el.checked) {
-    if (window._AioVault && typeof window._AioVault.enablePublicMode === 'function') window._AioVault.enablePublicMode();
+    _AioVault.enablePublicMode();
     if (lbl) lbl.textContent = '공용 PC 모드 ON';
   } else {
-    if (window._AioVault) window._AioVault._publicMode = false;
+    _AioVault._publicMode = false;
     if (lbl) lbl.textContent = '';
   }
 };
@@ -13715,6 +13692,8 @@ const AIO_VAULT_KDF_VERSION = 2;
 const AIO_VAULT_KDF_ITERATIONS = 310000;
 const AIO_VAULT_LEGACY_KDF_ITERATIONS = 100000;
 const AIO_VAULT_V2_MAGIC = [0x41, 0x49, 0x4f, AIO_VAULT_KDF_VERSION];
+// P1350: authentication and personal-data coverage are independent of provider credentials.
+const _AIO_PORTFOLIO_VAULT_KEYS = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs'];
 const _AioVault = {
   _pin: null, _derivedKey: null, _legacyDerivedKey: null, _salt: null, _publicMode: false,
   _lastDecryptVersion: null,
@@ -13730,17 +13709,17 @@ const _AioVault = {
 
   async encrypt(plaintext) {
     if (!this._derivedKey) return plaintext;
-    var enc = new TextEncoder();
+    var enc = new TextEncoder(), generation = this._generation;
     var iv = crypto.getRandomValues(new Uint8Array(12));
     var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, this._derivedKey, enc.encode(plaintext));
-    var buf = new Uint8Array(4 + 12 + 16 + ct.byteLength);
+    if (generation !== this._generation) throw new Error('vault-operation-cancelled'); var buf = new Uint8Array(4 + 12 + 16 + ct.byteLength);
     buf.set(AIO_VAULT_V2_MAGIC, 0); buf.set(iv, 4); buf.set(this._salt, 16); buf.set(new Uint8Array(ct), 32);
     return 'aio_enc::' + btoa(String.fromCharCode.apply(null, buf));
   },
 
   async decrypt(stored) {
     if (!stored || !stored.startsWith('aio_enc::')) return stored;
-    this._lastDecryptVersion = null;
+    this._lastDecryptVersion = null; var generation = this._generation;
     try {
       var raw = atob(stored.slice(9));
       var buf = new Uint8Array(raw.length);
@@ -13751,32 +13730,20 @@ const _AioVault = {
       var iv = isV2 ? buf.slice(4, 16) : buf.slice(0, 12);
       var ct = isV2 ? buf.slice(32) : buf.slice(28);
       var dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ct);
-      this._lastDecryptVersion = isV2 ? AIO_VAULT_KDF_VERSION : 1;
+      if (generation !== this._generation) return null; this._lastDecryptVersion = isV2 ? AIO_VAULT_KDF_VERSION : 1;
       return new TextDecoder().decode(dec);
     } catch(e) { return null; }
   },
 
   async unlock(pin) {
-    this._pin = pin;
-    var existing = localStorage.getItem('aio_vault_salt');
-    if (existing) {
-      var r = atob(existing); this._salt = new Uint8Array(r.length);
-      for (var i = 0; i < r.length; i++) this._salt[i] = r.charCodeAt(i);
-    } else {
-      this._salt = crypto.getRandomValues(new Uint8Array(16));
-      try {
-        localStorage.setItem('aio_vault_salt', btoa(String.fromCharCode.apply(null, this._salt)));
-      } catch(e) { _aioLog('warn', 'vault', 'salt 저장 실패 (개인정보 보호 모드?): ' + e.message); }
-    }
-    this._derivedKey = await this.deriveKey(pin, this._salt, AIO_VAULT_KDF_ITERATIONS);
-    this._legacyDerivedKey = await this.deriveKey(pin, this._salt, AIO_VAULT_LEGACY_KDF_ITERATIONS);
-    return true;
+    if (!window._aioFinancialSecurity) { this.lock(); throw new Error('vault-module-unavailable'); }
+    return window._aioFinancialSecurity.authenticateVault(this, pin, { storage: this.getStorage(), saltStorage: this.getStorage(), sensitiveKeys: Array.from(_AIO_SENSITIVE_KEYS) });
   },
 
-  isUnlocked: function() { return !!this._derivedKey; },
-  enablePublicMode: function() { this._publicMode = true; },
+  isUnlocked: function() { return !!this._derivedKey && this._authenticating !== true; },
+  enablePublicMode: function() { this.lock(); this._publicMode = true; },
   // v47.9: lock 시 모든 런타임 캐시 초기화 (Claude 단일 필드 → 통합 객체)
-  lock: function() { this._pin = null; this._derivedKey = null; this._legacyDerivedKey = null; this._lastDecryptVersion = null; this._claudeKeyRuntime = ''; this._keyRuntime = {}; },
+  lock: function() { this._generation = (this._generation || 0) + 1; this._pin = null; this._derivedKey = null; this._legacyDerivedKey = null; this._authenticating = false; this._lastDecryptVersion = null; this._claudeKeyRuntime = ''; this._keyRuntime = {}; },
   getStorage: function() { return this._publicMode ? sessionStorage : localStorage; },
   // v47.7: Claude API 키 런타임 메모리 캐시 (Vault 잠금 해제 시 복호화 결과 저장, getApiKey에서 우선 참조)
   _claudeKeyRuntime: '',
@@ -13953,7 +13920,7 @@ const _AIO_SENSITIVE_KEYS = new Set([
   'aio_claude_api_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fmp_key',
   'aio_perplexity_key', 'aio_google_cse_key', 'aio_google_cse_cx',
   'aio_fred_key', 'aio_td_key', 'aio_newsdata_key', 'aio_rss2json_key', 'aio_bok_key', 'aio_kosis_key', 'aio_cf_worker_url',
-  'aio_portfolio_data'
+  'aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs'
 ]);
 
 // 비동기 저장 (암호화)
@@ -13961,6 +13928,8 @@ async function safeLS(key, value) {
   try {
     var storage = _AioVault.getStorage();
     if (value == null || value === '') { storage.removeItem(key); return { ok: true, key: key, removed: true, encrypted: false }; } // v46.9: 0/false falsy 함정 방지
+    // P1350: a locked protected Vault cannot overwrite ciphertext with plaintext.
+    if (_AIO_SENSITIVE_KEYS.has(key) && storage.getItem('aio_vault_salt') && !_AioVault.isUnlocked()) throw new Error('vault-locked');
     var encrypted = false;
     if (_AIO_SENSITIVE_KEYS.has(key) && _AioVault.isUnlocked()) {
       storage.setItem(key, await _AioVault.encrypt(value));
@@ -14100,26 +14069,8 @@ async function _aioSaveCredential(lsKey, value) {
 
 // 마이그레이션: 평문 → 암호화 (PIN 설정 후 호출)
 async function _migrateToEncrypted() {
-  try {
-    var plainKeys = {};
-    _AIO_SENSITIVE_KEYS.forEach(function(key) {
-      var val = localStorage.getItem(key);
-      if (val && !val.startsWith('aio_enc::')) plainKeys[key] = val;
-    });
-    if (Object.keys(plainKeys).length === 0) return;
-    for (var key in plainKeys) await safeLS(key, plainKeys[key]);
-    // 검증
-    var testKey = Object.keys(plainKeys)[0];
-    var dec = await safeLSGet(testKey);
-    if (dec === plainKeys[testKey]) {
-      console.log('[AIO Vault] 마이그레이션 성공: ' + Object.keys(plainKeys).length + '개 키 암호화됨');
-    } else {
-      for (var k in plainKeys) localStorage.setItem(k, plainKeys[k]);
-      _aioLog('error', 'vault', '마이그레이션 실패 — 평문 복원됨');
-    }
-  } catch(e) {
-    _aioLog('error', 'vault', '마이그레이션 오류: ' + (e && e.message || e));
-  }
+  if (!window._aioFinancialSecurity) throw new Error('vault-module-unavailable');
+  return window._aioFinancialSecurity.migrateVault(_AioVault, { storage: _AioVault.getStorage(), sensitiveKeys: Array.from(_AIO_SENSITIVE_KEYS), personalOptedOut: typeof _pfVaultOptedOut === 'function' && _pfVaultOptedOut() });
 }
 
 // v30.11: API 키 저장 헬퍼 (인라인 onclick → safeLS 비동기 브릿지)
@@ -14175,7 +14126,7 @@ try { window._aioRetirePlaintextIdbBackup(); } catch(_e) {}
 // 현재 모든 API 키 snapshot 수집 (평문 또는 cache 복호화 값)
 window._aioCollectKeySnapshot = function() {
   var snap = {};
-  var keys = (typeof _AIO_SENSITIVE_KEYS !== 'undefined') ? Array.from(_AIO_SENSITIVE_KEYS) :
+  var keys = (typeof _AIO_PROVIDER_REGISTRY !== 'undefined') ? _AIO_PROVIDER_REGISTRY.map(function(provider) { return provider.credentialKey; }) :
     ['aio_claude_api_key','aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
      'aio_google_cse_key','aio_google_cse_cx','aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_bok_key','aio_kosis_key','aio_cf_worker_url'];
   keys.forEach(function(k) {
@@ -14914,6 +14865,8 @@ function _vaultUnlock() {
   if (!v) { msg.textContent = 'PIN을 입력하세요'; msg.style.color = '#ff5b50'; return; }
   msg.textContent = '잠금 해제 중…'; msg.style.color = '#00bcd4';
   _AioVault.unlock(v).then(function() {
+    return _migrateToEncrypted(); // P1350: upgrade existing financial plaintext on sidebar unlock too.
+  }).then(function() {
     // 복호화된 키를 input 필드에 복원
     return _restoreDecryptedKeys();
   }).then(function() {
@@ -14921,7 +14874,7 @@ function _vaultUnlock() {
     pin.value = '';
     _updateVaultStatus();
   }).catch(function(e) {
-    msg.textContent = 'PIN이 올바르지 않습니다'; msg.style.color = '#ff5b50';
+    msg.textContent = e && e.message === 'vault-auth-evidence-missing' ? 'PIN 검증 정보가 없습니다. 저장 자료를 백업한 뒤 Vault 복구가 필요합니다.' : 'PIN 또는 저장된 암호문을 확인할 수 없습니다'; msg.style.color = '#ff5b50';
   });
 }
 
@@ -14930,7 +14883,7 @@ function _vaultUnlock() {
 // v47.9: 11개 모든 민감 키를 _AioVault._keyRuntime에 동기화 — fetcher들이 _getApiKey()로 조회
 // v47.9: rss2json 키 추가 (기존 누락) — 뉴스 소스 호출에 필요
 async function _restoreDecryptedKeys() {
-  try {
+  var generation = _AioVault._generation; try {
     var keyMap = [
       ['aio_claude_api_key', 'sidebar-api-key'],  // v47.7: Claude 키 포함
       ['aio_av_key', 'aio_av_key_input'],
@@ -14952,7 +14905,7 @@ async function _restoreDecryptedKeys() {
     for (var i = 0; i < keyMap.length; i++) {
       var lsKey = keyMap[i][0];
       var inputId = keyMap[i][1];
-      var val = await safeLSGet(lsKey);
+      var val = await safeLSGet(lsKey); if (generation !== _AioVault._generation) throw new Error('vault-operation-cancelled');
       var el = document.getElementById(inputId);
       // v47.9: 복호화된 값은 반드시 _keyRuntime에 저장 (fetcher들의 _getApiKey 참조 대상)
       if (val) _AioVault._keyRuntime[lsKey] = val;
@@ -14965,8 +14918,15 @@ async function _restoreDecryptedKeys() {
         el.dataset.secretStored = 'true';
       }
     }
+    await _restoreDecryptedPortfolio();
     console.log('[AIO Vault] _restoreDecryptedKeys: ' + Object.keys(_AioVault._keyRuntime).length + '개 키 캐시 복원');
-  } catch(e) { _aioLog('warn', 'vault', '_restoreDecryptedKeys error: ' + e.message); }
+  } catch(e) { if (generation === _AioVault._generation) _AioVault.lock(); _aioLog('warn', 'vault', '_restoreDecryptedKeys error: ' + e.message); throw e; }
+}
+
+// P1350: a hard reload restores every financial declaration after PIN authentication.
+async function _restoreDecryptedPortfolio() {
+  if (!window._aioFinancialSecurity) throw new Error('vault-module-unavailable');
+  return window._aioFinancialSecurity.restorePortfolioVault(_AioVault, { storage: _AioVault.getStorage(), readDecrypted: safeLSGet });
 }
 
 function _updateVaultStatus() {
@@ -14974,7 +14934,7 @@ function _updateVaultStatus() {
   var setPanel = document.getElementById('vault-set-panel');
   var unlockPanel = document.getElementById('vault-unlock-panel');
   if (!badge) return;
-  var hasSalt = !!localStorage.getItem('aio_vault_salt');
+  var hasSalt = !!_AioVault.getStorage().getItem('aio_vault_salt');
   var isUnlocked = _AioVault.isUnlocked();
   if (!hasSalt) {
     badge.textContent = ' 미설정'; badge.style.color = '#7b8599';
@@ -19158,9 +19118,7 @@ function _ldSafe(sym, prop, hardFallback) {
 // ── Trading Score Computation ─────────────────────────────────────
 function computeTradingScore(mode, opts) {
   opts = opts || {};
-  // v37.1: 데이터 소스 이원화
-  // - 주가(SPX, SPY, RSP): 종가 기준 → 장중 등락으로 점수 흔들림 방지
-  // - 시장 환경(VIX, DXY, TNX, HYG, 유가): 실시간 → 현재 시장 상태 즉각 반영
+  // R670/P1357: 점수는 직전 미국장 종가 기준이며 장중 참고 관측과 분리한다.
   // P553/R244: 호출부 16곳(헤더 텍스트·게이지·카드 등)이 각자 다른 이벤트(aio:liveQuotes vs
   // aio:marketStateUpdated)에서 독립적으로 이 함수를 재호출하면, 그 사이 실시간 입력값
   // (breadth200/putCallRatio/뉴스감성 등)이 바뀌어 같은 화면에 서로 다른 점수가 동시에 노출되는
@@ -19169,7 +19127,8 @@ function computeTradingScore(mode, opts) {
   var _cacheKey = mode || 'default';
   window._aioScoreCache = window._aioScoreCache || {};
   var _cached = window._aioScoreCache[_cacheKey];
-  if (!opts.forceFresh && _cached && (Date.now() - _cached.ts) < 20000) return _cached.result;
+  var _canonicalScore = window.AIO_ARCH && window.AIO_ARCH.getState ? window.AIO_ARCH.getState()?.analysis?.tradingScore || null : null;
+  if (!opts.forceFresh && _cached && _cached.canonicalScore === _canonicalScore && (Date.now() - _cached.ts) < 20000) return _cached.result;
   // P1328/R670: one input path. The native reader (src/data/runtime-readers.js decisionInputs)
   // selects decision-grade evidence first and otherwise the latest completed US regular close
   // ("직전 미국장 종가 기준", the v37.1 intent), so this wrapper no longer assembles its own copy.
@@ -19190,7 +19149,7 @@ function computeTradingScore(mode, opts) {
   var _result = Object.assign({}, modelResult, { neutralizedMissing: [], evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit,
     fgEvidenceStatus: _fgMetric ? _fgMetric.status : 'UNAVAILABLE', fgEvidenceAllowedUse: _fgMetric ? (_fgMetric.allowedUse === 'decision' ? 'decision' : 'reference') : 'none',
     evidenceId: provenanceBundle && provenanceBundle.bundleId || '', provenanceBundle: provenanceBundle });
-  window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now() };
+  window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now(), canonicalScore: _canonicalScore };
   return _result;
 }
 
@@ -21935,7 +21894,7 @@ var breadcrumbMap = {
   portfolio: ['AIO','포트폴리오'], macro: ['AIO','매크로'],
   technical: ['AIO','기술적 분석'], fundamental: ['AIO','기업 분석'],
   briefing: ['AIO','데일리 브리핑'], fxbond: ['AIO','FX·채권'],
-  'market-news': ['AIO','시장 소식'], signal: ['AIO','매매 시그널'], breadth: ['AIO','시장 흐름'], sentiment: ['AIO','투자 심리'],
+  'market-news': ['AIO','시장 소식'], signal: ['AIO','시장 환경'], breadth: ['AIO','시장 흐름'], sentiment: ['AIO','투자 심리'],
   guide: ['AIO','입문 가이드'], principles: ['AIO','시장 원리'], masters: ['AIO','대가의 포트폴리오'], atlas: ['AIO','AI 시대 지식 지도'],
   screener: ['AIO','퀀트 스크리너'],
   'theme-detail': ['AIO','테마','—'],
@@ -22237,7 +22196,7 @@ window._pageState = window._pageState || (function() {
 // showPage · popstate 핸들러의 복제된 if-분기 전체를 이 테이블이 대체
 window.PAGES = {
   'home':           { label: '홈 대시보드',     init: null,                                          chatCtx: null },
-  'signal':         { label: '매매 시그널',     init: null, chatCtx: 'signal' },
+  'signal':         { label: '시장 환경',       init: null, chatCtx: 'signal' },
   'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
   'briefing':       { label: '데일리 브리핑',    init: null, chatCtx: 'briefing' },
@@ -22275,7 +22234,7 @@ window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
     REMOVED: ['kr-home','kr-supply','kr-themes','kr-macro','kr-technical','options'],
     OVERLAY: ['glossary']
   },
-  canonical: { 'theme-detail': 'themes', options: 'sentiment', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical' },
+  canonical: { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'macro', 'kr-theme': 'themes', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical', options: 'sentiment' , 'theme-detail': 'themes' },
   registrySources: ['AIO_PAGE_CONTRACTS.routePageIds','AIO_ALL_ROUTE_PAGE_IDS','PAGES','showPage','history.state.page','location.hash','guide TOC']
 };
 // P1137/R623: NAV_ROUTE is the canonical 20 minus the derived-view and reference classes — derived, not re-listed.
@@ -22415,47 +22374,8 @@ window._aioEnsureKrThemeProgressive = function() {
 };
 
 var _initBriefingPage = function() {
-  if (typeof _aioNotifyNewsSurfaceInvalidated === "function") _aioNotifyNewsSurfaceInvalidated("briefing-page-input");
-  var brBadge = document.getElementById('briefing-regime-badge');
-  if (brBadge && typeof classifyMarketRegime === 'function') {
-    try {
-      var rg = classifyMarketRegime();
-      // v52.65: 배지 표시는 한국어 라벨(rg.label)로 — rg.regime은 UPTREND/DOWNTREND 같은 내부 enum
-      // 코드라 그대로 노출하면 터미널 클리셰 영문 라벨이 된다(핸드오프 §1/§4). 분기 판정 자체는 유지.
-      var rgText = rg.regime || '';
-      var rgLabelText = rg.label || '분석중';
-      if (rgText.indexOf('BEAR') >= 0 || rgText.indexOf('DOWN') >= 0 || rgText.indexOf('하락') >= 0) { brBadge.textContent = rgLabelText; brBadge.className = 'status-pill sp-risk-off'; }
-      else if (rgText.indexOf('CORR') >= 0 || rgText.indexOf('조정') >= 0) { brBadge.textContent = rgLabelText; brBadge.className = 'status-pill sp-risk-off'; }
-      else if (rgText.indexOf('BULL') >= 0 || rgText.indexOf('상승') >= 0 || rgText.indexOf('UP') >= 0) { brBadge.textContent = rgLabelText; brBadge.className = 'status-pill sp-risk-on'; }
-    } catch(e) {}
-  }
-  // v50.76: 시장 현황 스트립 업데이트 (briefing-market-strip)
-  try {
-    var bsv = document.getElementById('briefing-score-val');
-    var tsRes = typeof computeTradingScore === 'function' ? computeTradingScore() : null; // P1339: the one score path (close basis), not the refreshHomeDashboard snapshot
-    var ts = tsRes && tsRes.total != null ? tsRes.total : null;
-    if (bsv && ts != null) {
-      var bsCol = ts >= 75 ? 'var(--data-green)' : ts >= 60 ? 'var(--data-green)' : ts >= 45 ? 'var(--data-amber)' : ts >= 30 ? '#fb923c' : 'var(--data-red)';
-      bsv.textContent = ts;
-      bsv.style.color = bsCol;
-    }
-    var bfg = document.getElementById('briefing-fg-val');
-    // v52.55/H3-A: briefing도 canonical currentness selector를 소비한다.
-    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-    var fg = fgMetric && fgMetric.value != null ? fgMetric.value : null;
-    if (bfg && fg != null) {
-      var fgCol = fg >= 60 ? 'var(--data-green)' : fg >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
-      bfg.textContent = fg;
-      bfg.style.color = fgCol;
-    }
-    var brb3 = document.getElementById('briefing-regime-badge3');
-    if (brb3 && typeof classifyMarketRegime === 'function') {
-      var rg3 = classifyMarketRegime();
-      var rt3 = rg3.regime || '';
-      brb3.textContent = rg3.label || '분석중'; // v52.65: 한국어 라벨(영문 enum 노출 금지, 핸드오프 §1/§4)
-      brb3.className = (rt3.indexOf('BULL') >= 0 || rt3.indexOf('상승') >= 0) ? 'status-pill sp-risk-on' : 'status-pill sp-risk-off';
-    }
-  } catch(_) {}
+  // P1346: news.js owns the summary, score/F&G strip and check list.
+  if (typeof _aioNotifyNewsSurfaceInvalidated === 'function') _aioNotifyNewsSurfaceInvalidated('briefing-page-input');
   setTimeout(function() {
     if (typeof _aioNotifyNewsSurfaceInvalidated === "function") _aioNotifyNewsSurfaceInvalidated("briefing-timeout-input");
   }, 45000);
@@ -22757,18 +22677,7 @@ function _aioRenderBriefingMarketAnalysis() {
   if (breadthEl) breadthEl.innerHTML = (breadth50 != null ? '50일선 상회 종목 ' + b(fx(breadth50, 0) + '%') + (wideBreadth ? '로 확산이 확인됩니다.' : '로 가격 대비 미확인 상태입니다.') : '시장 폭 데이터 수신 대기 중.') +
     (rspSpy != null ? ' RSP/SPY ' + b(fx(rspSpy, 3)) + '.' : '') + (kospi != null ? ' 코스피 ' + b(fx(kospi, 2)) + ' ' + b(pct(kospiChg), tone(kospiChg)) + '.' : '');
 
-  // 행동
-  var actEl = document.getElementById('briefing-action-list');
-  var metaEl = document.getElementById('briefing-action-meta');
-  if (actEl && window.AIO_ACTION_RULES) {
-    var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: breadth50 });
-    var acts = (plan && plan.actions) || [];
-    actEl.innerHTML = acts.map(function(a, i) {
-      return '<div style="display:flex;gap:12px;"><span style="font-size:12px;font-weight:600;color:var(--text-dim);flex-shrink:0;">' + String(i + 1).padStart(2, '0') + '</span>' +
-        '<span style="font-size:13px;color:var(--text-secondary);line-height:1.65;">' + escHtml(a) + '</span></div>';
-    }).join('');
-    if (metaEl) metaEl.textContent = 'SCORE ' + (window._tradingScore != null ? window._tradingScore : '—') + (plan && plan.sentiment ? ' · ' + plan.sentiment.action : '');
-  }
+  // P1346: briefing actions are rendered natively from the six-axis model.
 
   // 오늘 일정 — v52.65: AIO_MACRO_CALENDAR.upcoming/_upcomingMacroEvents는 어디서도 채워지지 않는
   // 죽은 참조라 이 섹션이 항상 안내문 폴백으로 빠졌음(디제스트의 "다가오는 일정" 계산과 동일 로직으로 교체).
@@ -22861,8 +22770,8 @@ function showPage(id, navEl) {
   var _themeDetailRouteRequested = id === 'theme-detail';
   // v34.5: 해시 별칭 매핑 — 잘못된 해시로 진입 시 올바른 페이지로 리다이렉트
   // v53.7 (P725): KR 전용 5페이지 퇴역 — 구 해시/링크는 통합 섹션이 있는 페이지로 리다이렉트
-  var _hashAlias = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'macro', 'kr-theme': 'themes', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical', options: 'sentiment' };
-  if (_hashAlias[id]) id = _hashAlias[id];
+  var _hashAlias = window.AIO_ROUTE_REGISTRY.canonical; // P1348: one alias authority for both navigation paths.
+  if (id !== 'theme-detail' && _hashAlias[id]) id = _hashAlias[id];
   // v52.27 P642: theme-detail is an inline panel on #themes, not a separate user route.
   if (id === 'theme-detail') {
     try {

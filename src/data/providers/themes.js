@@ -1,4 +1,5 @@
 import { computeRelativeRotation } from '../../domain/themes/rrg.js';
+import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -57,6 +58,7 @@ export function createThemesProvider({
   readLiveData = () => ({}),
   readHistory = () => ({}),
   readWeeklyPerf = () => ({}),
+  readRotationHistory = () => null,
   readDefinitions = () => ({}),
   readSelectedId = () => null,
   now = () => new Date().toISOString()
@@ -75,6 +77,8 @@ export function createThemesProvider({
       const live = readLiveData() || {};
       const historyBySymbol = readHistory() || {};
       const weeklyPerf = readWeeklyPerf() || {};
+      const producedArtifact = readRotationHistory();
+      const observationNow = typeof now() === 'number' ? now() : Date.parse(now());
       const definitions = asDefinitions(readDefinitions());
       const sources = [
         ...definitions.sectors.map((item) => ({ ...item, view: 'sectors' })),
@@ -95,25 +99,26 @@ export function createThemesProvider({
           hasBenchmarkQuote: !!live.SPY
         });
         const currentQuote = runtimeQuote(live, symbol);
-        const dailyPct = currentQuote.pct;
+        const produced = selectProducedRotation(producedArtifact, symbol, observationNow);
+        const dailyPct = currentQuote.pct ?? produced?.dailyPct;
         return {
           id: String(item?.id || symbol),
           symbol,
           label: item?.name || item?.label || symbol,
           price: currentQuote.price,
           pct: finite(dailyPct),
-          weeklyPct: finite(weeklyPerf[symbol]),
-          rsRatio: finite(rotation?.rsRatio ?? item?.rsRatio),
-          rsMomentum: finite(rotation?.rsMom ?? item?.rsMomentum),
-          quadrant: rotation?.quadrant || item?.quadrant || 'neutral',
+          weeklyPct: finite(weeklyPerf[symbol]) ?? finite(produced?.weeklyPct),
+          rsRatio: finite(produced?.rsRatio ?? rotation?.rsRatio ?? item?.rsRatio),
+          rsMomentum: finite(produced?.rsMomentum ?? rotation?.rsMom ?? item?.rsMomentum),
+          quadrant: produced?.quadrant || rotation?.quadrant || item?.quadrant || 'neutral',
           view: item?.view || 'sectors',
-          source: currentQuote.source,
-          sourceKind: currentQuote.price == null ? 'unavailable' : 'runtime-quote',
-          observedAt: currentQuote.observedAt,
-          fetchedAt: currentQuote.fetchedAt,
-          revision: currentQuote.revision,
-          changeBasis: currentQuote.changeBasis,
-          directionCompatible: currentQuote.directionCompatible,
+          source: currentQuote.directionCompatible ? currentQuote.source : produced?.source || currentQuote.source,
+          sourceKind: currentQuote.directionCompatible ? 'runtime-quote' : produced?.sourceKind || 'unavailable',
+          observedAt: currentQuote.directionCompatible ? currentQuote.observedAt : produced?.observedAt || null,
+          fetchedAt: currentQuote.directionCompatible ? currentQuote.fetchedAt : produced?.fetchedAt || null,
+          revision: produced?.revision || currentQuote.revision,
+          changeBasis: currentQuote.directionCompatible ? currentQuote.changeBasis : produced?.changeBasis || 'unknown',
+          directionCompatible: currentQuote.directionCompatible || !!produced,
           rotationSource: rotation?.modelVersion ? `native-rrg:${rotation.modelVersion}` : (item?.source || 'native-rrg')
         };
       });
@@ -123,7 +128,7 @@ export function createThemesProvider({
         .find((theme) => String(theme?.id || '') === String(selectedId || '')) || null;
       let selectedDetail = null;
       if (selectedTheme) {
-        const quotePct = (symbol) => runtimeQuote(live, symbol).pct;
+        const quotePct = (symbol) => runtimeQuote(live, symbol).pct ?? selectProducedRotation(producedArtifact, symbol, observationNow)?.dailyPct ?? null;
         const etfPct = selectedTheme.etf ? quotePct(selectedTheme.etf) : null;
         const basePct = selectedTheme.compositeBase ? quotePct(selectedTheme.compositeBase) : null;
         const leaderPcts = (selectedTheme.leaders || []).map(quotePct).filter((value) => value != null);

@@ -15,7 +15,7 @@
 //     "p": { "id"?: 1322, "title", "symptom", "root_cause", "fix",
 //            "violated_rule", "prevention", "verification" },
 //     "r": { "id"?: 667, "title", "rule", "validation" } | null,
-//     "qa": [ { "id": "QA-UX-05", "text", "verify_by", "done"?: true } ],
+//     "qa": [ { "id": "QA-UX-05", "text", "verify_by", "done"?: true, "update"?: true } ],
 //     "qa_section": "short title",
 //     "changelog": [ "**Lead (P…/R…):** text" ],
 //     "note": "version.json note",
@@ -142,6 +142,7 @@ function validateEntry(entry) {
       else seen.add(row.id);
       if (!nonEmpty(row.text)) errors.push(`${at}.text is required`);
       if (!nonEmpty(row.verify_by)) errors.push(`${at}.verify_by is required (every QA row must say how it is re-verified)`);
+      if (row.update != null && typeof row.update !== 'boolean') errors.push(`${at}.update must be a boolean (P1347)`);
     });
     if (qa.length && !nonEmpty(entry.qa_section)) errors.push('qa_section is required when qa rows are given (used for the "## <version> <qa_section> (<date>)" heading)');
   }
@@ -261,13 +262,23 @@ export function computeRecord(root, entry) {
   if (qaRows.length) {
     const qa = need('qa');
     const existing = new Set([...qa.text.matchAll(/^- \[[ xX]\]\s+(QA-[^:\s]+)\s*:/gm)].map((m) => m[1]));
-    const dup = qaRows.filter((row) => existing.has(row.id)).map((row) => row.id);
+    const dup = qaRows.filter((row) => existing.has(row.id) && row.update !== true).map((row) => row.id);
     if (dup.length) throw new RecordFixError(`QA id(s) already exist in ${PATHS.qa}: ${dup.join(', ')}; refusing duplicate`);
-    const rows = qaRows.map((row) => {
+    const formatRow = (row) => {
       let text = one(row.text);
       if (!/[.!?)。]$/.test(text)) text += '.';
       return `- [${row.done === false ? ' ' : 'x'}] ${row.id}: ${text} verify_by: ${one(row.verify_by)}`;
-    });
+    };
+    // P1347: updating a named existing item is explicit; inserts still reject duplicates.
+    for (const row of qaRows.filter((item) => item.update === true)) {
+      const pattern = new RegExp(`^- \\[[ xX]\\]\\s+${escapeRe(row.id)}\\s*:[^\\n]*`, 'gm');
+      const matches = [...qa.text.matchAll(pattern)];
+      if (matches.length !== 1) throw new RecordFixError(`QA update ${row.id} requires exactly one existing row; found ${matches.length}`);
+      const updated = formatRow(row);
+      qa.text = qa.text.replace(pattern, () => updated);
+      record(PATHS.qa, updated);
+    }
+    const rows = qaRows.filter((row) => row.update !== true).map(formatRow);
     const lines = qa.text.split('\n');
     const { front } = splitFrontmatter(qa.text);
     const bodyStart = front ? front.split('\n').length - 1 : 0;
@@ -279,7 +290,7 @@ export function computeRecord(root, entry) {
       while (last > sectionIdx && lines[last].trim() === '') last -= 1;
       lines.splice(last + 1, 0, ...rows);
       record(PATHS.qa, `${rows.join('\n')}\n  (appended to existing section "${lines[sectionIdx]}")\n`);
-    } else {
+    } else if (rows.length) {
       const firstH2 = lines.findIndex((line, i) => i >= bodyStart && line.startsWith('## '));
       const at = firstH2 >= 0 ? firstH2 : lines.length;
       const section = [`## ${version} ${one(entry.qa_section)} (${date})`, '', ...rows, ''];

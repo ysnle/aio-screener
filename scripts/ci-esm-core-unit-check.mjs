@@ -28,6 +28,115 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
 const { renderSentimentSummaryProjection } = await load('src/ui/projections/sentiment-summary.js');
 const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/pages/entity.js');
 
+// P1355: generated version alignment never restamps market data or live Worker observations.
+{
+  const { alignGeneratedVersion, GENERATED_VERSION_FILES } = await load('scripts/lib/align-generated-version.mjs');
+  const revision = 'market-snapshot:2026-10-01T00:34:01Z:fixture';
+  const docs = Object.fromEntries(GENERATED_VERSION_FILES.map((path) => [path, { appRevision: 'v56.83', workerRevision: 'sw:v56.83', dataRevision: revision, generatedAt: '2026-10-01T00:34:01Z', planes: { browser: { revision: 'v56.83' } }, health: { sourceSha: 'a'.repeat(40), revision: 'v56.83' } }]));
+  const aligned = alignGeneratedVersion(docs, { version: 'v56.87', snapshotRevision: revision });
+  if (Object.values(aligned).some((doc) => doc.appRevision !== 'v56.87' || doc.generatedAt !== docs[GENERATED_VERSION_FILES[0]].generatedAt || doc.health.revision !== 'v56.83' || doc.dataRevision !== revision) || docs[GENERATED_VERSION_FILES[0]].appRevision !== 'v56.83') fail('P1355 alignment mutated data/live identity or source documents');
+  if (aligned['public-data/operations-status.json'].planes.browser.revision !== 'v56.87') fail('P1355 actual nested browser metadata was not aligned');
+  for (const extra of [{ dataRevision: 'market-snapshot:other' }, { appRevision: 'v57.01' }]) {
+    let refused = false;
+    try { alignGeneratedVersion({ ...docs, [GENERATED_VERSION_FILES[0]]: { ...docs[GENERATED_VERSION_FILES[0]], ...extra } }, { version: 'v56.87', snapshotRevision: revision }); } catch (_) { refused = true; }
+    if (!refused) fail('P1355 mixed producer batch or newer revision was accepted');
+  }
+}
+
+// P1359: original and translated text decode once at the normalization boundary.
+{
+  const { normalizeNews } = await load('src/data/normalize/news.js');
+  const item = normalizeNews({ items: [{ title: '&#036;NBIS &amp;#036;DOUBLE', ko_title: '&#036;NBIS 한글 &amp;#036;DOUBLE', ko_summary: '&#60;script&#62;문자열' }] }).items[0];
+  if (item.title !== '$NBIS &#036;DOUBLE' || item.ko_title !== '$NBIS 한글 &#036;DOUBLE' || item.ko_summary !== '<script>문자열') fail('P1359 translated/original text decoding boundary');
+}
+
+// P1358: durable derived rotation drives the native provider without exposing raw prices.
+{
+  const { selectProducedRotation } = await load('src/domain/themes/produced-rotation.js');
+  const { createThemesProvider } = await load('src/data/providers/themes.js');
+  const now = Date.parse('2026-10-01T00:34:00Z');
+  const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v2', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
+  if (!selectProducedRotation(artifact, 'XLK', now)) fail('P1358 coherent producer rotation was lost');
+  for (const extra of [{ quadrant: 'Lagging' }, { sessionDate: '2026-09-29' }, { rsRatio: NaN }, { fetchedAt: null }, { alignedSessionCount: 2 }]) {
+    if (selectProducedRotation({ ...artifact, items: { XLK: { ...artifact.items.XLK, ...extra } } }, 'XLK', now)) fail('P1358 invalid producer rotation was promoted');
+  }
+  const provider = createThemesProvider({ readRotationHistory: () => artifact, readDefinitions: () => ({ sectors: [{ sym: 'XLK', name: '기술' }] }), now: () => now });
+  const item = provider.readCurrent().items[0];
+  if (item.rsRatio !== 101 || item.pct !== 1.2 || item.weeklyPct !== 3.5 || item.price !== null || item.changeBasis !== 'adjusted-close-total-return') fail('P1358 provider bypassed durable rotation or fabricated a raw price');
+}
+
+// P1357: delayed observations inform reference cards without becoming score/trade evidence.
+{
+  const { selectReferenceObservation } = await load('src/domain/market/reference-observation.js');
+  const nowMs = Date.parse('2026-10-01T00:34:00Z');
+  const oil = { value: 90.4, source: 'Yahoo chart', observedAt: '2026-10-01T00:24:00Z', session: 'DELAYED_IN_SESSION', quality: 'DELAYED', allowedUse: 'current-with-session-and-delay-gate' };
+  const selected = selectReferenceObservation([oil], { nowMs });
+  if (selected?.value !== 90.4 || selected.allowedUse !== 'reference' || selected.decisionEligible !== false) fail('P1357 latest delayed observation lost or granted a trade decision');
+  for (const bad of [{ value: true }, { source: '' }, { observedAt: '2026-10-01T01:00:00Z' }, { observedAt: '2026-09-01T00:00:00Z' }, { quality: 'BLOCKED' }, { allowedUse: 'none' }]) {
+    if (selectReferenceObservation([{ ...oil, ...bad }], { nowMs })) fail('P1357 invalid reference observation was accepted');
+  }
+  const { buildBriefingDecisionSummary } = await load('src/domain/briefing/decision-summary.js');
+  const summary = buildBriefingDecisionSummary({ observations: { oilPrice: [oil], kospi: [{ ...oil, value: 6813.15 }] }, nowMs });
+  if (summary.axes.find((row) => row.id === 'oil').values[0].value !== 90.4 || !summary.axes.find((row) => row.id === 'korea').basisLabel.includes('각 값의 관측')) fail('P1357 continuous market/Korea observations hidden by a US-close clock');
+  const previouslyBlocked = buildBriefingDecisionSummary({ scoreInputs: { decisionEvidence: { oilPrice: { ...oil, value: null, allowedUse: 'none', status: 'blocked' } } }, observations: { oilPrice: [oil] }, nowMs });
+  if (previouslyBlocked.axes.find((row) => row.id === 'oil').values[0].value !== 90.4) fail('P1357 same-timestamp score rejection hid a valid reference observation');
+}
+
+// P1353: refuse unsupported paid search before incrementing counters; personal-key cost stays separate.
+{
+  const { preparePaidWebSearch } = await load('src/ai/policies/budget.js');
+  const state = {};
+  let refused = false, counters = 0;
+  try { preparePaidWebSearch({ serverKey: true, state, bumpCounter: () => counters++ }); } catch (error) { refused = /월 예산.*유료 웹 검색/.test(error.message); }
+  if (!refused || state._aioWebSearchStats || counters !== 0) fail('P1353 shared paid search must fail before request/statistics');
+  preparePaidWebSearch({ serverKey: false, state, bumpCounter: () => counters++, now: 1000 });
+  if (state._aioWebSearchStats.calls !== 1 || counters !== 1) fail('P1353 personal paid search statistics');
+}
+
+// P1352: the production legacy model describes inputs, not an inferred economic expansion/recession.
+{
+  const core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const source = core.match(/window\.AIO\.getCycleFromMacro = function\(macro\) \{[\s\S]*?\n\};/)[0];
+  const window = { AIO: { getCurrentBreadthEvidence: () => ({ available: false }) } };
+  const finite = (value) => typeof value === 'number' || typeof value === 'string' && value.trim() ? Number.isFinite(Number(value)) ? Number(value) : null : null;
+  const model = new Function('window', '_aioStrictFinite', `${source}; return window.AIO.getCycleFromMacro;`)(window, finite);
+  const formatterSource = core.match(/window\._aioSafeFixed = function\(v, decimals, fallback\) \{[\s\S]*?\n\};/)[0];
+  const formatter = new Function('window', '_aioStrictFinite', `${formatterSource}; return window._aioSafeFixed;`)(window, finite);
+  for (const value of [null, undefined, '', ' ', true, false, {}, NaN, Infinity]) {
+    if (formatter(value, 2, '미수신') !== '미수신') fail('P1354 missing observation formatted as a numeric value');
+  }
+  if (formatter(0, 2, '—') !== '0.00' || formatter('1.25', 2, '—') !== '1.25') fail('P1354 formatter rejected real zero/numeric string');
+  for (const vix of [16, 30, 35]) {
+    const result = model({ vix, breadth50: 35, yield2s10s: -0.3, spxTrend: 'down' });
+    if (!['환경 양호', '지표 혼재', '환경 약화'].includes(result.phase) || /경기위치|침체 선행|확장 국면/.test(result.rationale.join(' '))) fail('P1352 market inputs promoted to economic-cycle assertion');
+  }
+  for (const breadth50 of [true, '', ' ', {}, null]) {
+    if (model({ vix: 18, breadth50, spxTrend: 'up' }).score !== null) fail('P1352 invalid breadth produced a score');
+  }
+}
+
+// P1350: incomplete valuation evidence must not turn into 0% or -100% in AI context.
+{
+  const { redactPortfolioForAI } = await load('src/storage/financial-security.js');
+  const now = Date.parse('2026-09-30T13:00:00Z');
+  const positions = [{ ticker: 'AAPL', qty: 2, cost: 100, costCurrency: 'USD' }, { ticker: 'MSFT', qty: 1, cost: 200, costCurrency: 'USD' }];
+  const quote = (price) => ({ price, currency: 'USD', observedAt: '2026-09-30T12:00:00Z' });
+  const full = redactPortfolioForAI(positions, { now, liveData: { AAPL: quote(150), MSFT: quote(300) } });
+  if (full.some((row) => row.allocationPct !== 50 || row.returnPct !== 50)) fail('P1350 full homogeneous valuation fixture');
+  for (const price of [null, '', ' ', true, Infinity, {}]) {
+    const result = redactPortfolioForAI(positions, { now, liveData: { AAPL: quote(150), MSFT: quote(price) } });
+    if (result.some((row) => row.allocationPct !== null) || result[1].returnPct !== null) fail('P1350 incomplete valuation fabricated allocation/return');
+  }
+  for (const extra of [{ currency: '' }, { currency: 'KRW' }, { observedAt: null, fetchedAt: quote(150).observedAt }, { observedAt: '2026-10-01T12:00:00Z' }, { observedAt: '2026-09-29T12:00:00Z' }, { stale: true }]) {
+    const result = redactPortfolioForAI(positions, { now, liveData: { AAPL: quote(150), MSFT: { ...quote(300), ...extra } } });
+    if (result.some((row) => row.allocationPct !== null)) fail(`P1350 incoherent valuation evidence: ${JSON.stringify(extra)}`);
+  }
+  const { buildPortfolioBackup, parsePortfolioBackup } = await load('src/data/portfolio-backup.js');
+  const watchlists = [{ id: 'both', name: '양시장', tickers: [{ sym: 'NVDA', note: '메모', addedAt: 100 }, { sym: '005930.KS', note: '한국', addedAt: 200 }] }];
+  const round = parsePortfolioBackup(JSON.stringify(buildPortfolioBackup({ watchlists, activeWatchlistId: 'both' })));
+  if (!round.ok || JSON.stringify(round.contents.watchlists) !== JSON.stringify(watchlists)) fail('P1350 actual watchlist object round trip loses metadata');
+}
+
 // P1205/LC-18/LC-27: ticker range controls are one native calendar-window contract.
 {
   const end = Date.parse('2026-09-24T00:00:00Z');
@@ -725,6 +834,23 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (fakeRoot.AIO_ARCH?.version !== 'test.v1' || fakeRoot.AIO_ARCH?.status !== 'MIGRATION_IN_PROGRESS') fail('facade: exposeArchitecture did not expose the expected fields onto root.AIO_ARCH');
 }
 
+// P1348: use the shipped compatibility registry, not a fixture alias map.
+{
+  const source = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const begin = source.indexOf('window.AIO_ROUTE_REGISTRY =');
+  const end = source.indexOf('window.AIO_ROUTE_REGISTRY.classes.NAV_ROUTE', begin);
+  const shipped = {};
+  new Function('window', source.slice(begin, end))(shipped);
+  const committed = [];
+  const aliasRoot = { AIO_ROUTE_REGISTRY: shipped.AIO_ROUTE_REGISTRY, showPage: () => true };
+  const facade = createLegacyFacade(aliasRoot, new EventTarget());
+  const navigation = facade.installNavigation({ transition: (route) => { committed.push(route); return true; } });
+  for (const alias of ['chart', 'news', 'help', 'options']) aliasRoot.showPage(alias);
+  navigation.restore();
+  if (committed.join(',') !== 'technical,market-news,guide,sentiment'
+    || shipped.AIO_ROUTE_REGISTRY.canonical['theme-detail'] !== 'themes') fail('P1348: shipped aliases disagreed with native navigation');
+}
+
 // ── data/orchestrators/screener.js ──────────────────────────────────────────────────────────
 {
   const { createScreenerOrchestrator } = await load('src/data/orchestrators/screener.js');
@@ -1070,8 +1196,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (partial.status !== 'partial' || partial.displayScore !== '43*' || partial.tier !== 'reference-only' || partial.action !== 'NO_ACTION' || partial.decisionEligible !== false) fail(`signal: partial presentation must remain descriptive/fail-closed, got ${JSON.stringify(partial)}`);
   const blocked = deriveSignalDecisionFromTradingScore({ score: computeTradingScoreModel({}), inputVersion: 'unit.v1' });
   if (blocked.status !== 'blocked' || blocked.action !== 'NO_ACTION' || blocked.score !== null || blocked.decisionEligible !== false || blocked.presentation?.status !== 'blocked' || blocked.presentation?.action !== 'NO_ACTION' || blocked.presentation?.displayScore !== '—') fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
-  // P1322: a blocked score names the real cause (no decision-grade input), not "not received".
-  if (blocked.presentation?.decision !== '판정 보류 — 판단 등급 입력 없음' || !/실시간·검증된 입력이 없어/.test(blocked.presentation?.description || '') || /아래에서/.test(blocked.presentation?.description || '')) fail(`signal: blocked presentation wording drifted (P1322), got ${JSON.stringify(blocked.presentation)}`);
+  // P1349: a reference score needs completed-close evidence, not real-time decision-grade inputs.
+  if (blocked.presentation?.decision !== '점수 보류 — 완료 종가 근거 부족' || !/완료 종가 기준의 필수 근거/.test(blocked.presentation?.description || '') || /실시간·검증된 입력/.test(blocked.presentation?.description || '')) fail(`P1349: blocked presentation contradicts the close-basis reference policy ${JSON.stringify(blocked.presentation)}`);
   // ── P1328/R670: the reference score is computed on the latest completed US regular close ──
   {
     const { resolveCloseBasis, evaluateCloseBasisInput, describeCloseBasis } = await load('src/domain/signal/close-basis.js');
@@ -1079,9 +1205,19 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     const basis = resolveCloseBasis(now);
     if (basis?.date !== '2026-09-28' || basis.previousDate !== '2026-09-25' || new Date(basis.closeMs).toISOString() !== '2026-09-28T20:00:00.000Z' || basis.inSession) fail(`close basis: wrong latest session ${JSON.stringify(basis)} (P1328)`);
     if (describeCloseBasis(basis) !== '9/28 미국 정규장 종가 기준') fail('close basis: label drifted (P1328)');
-    const verdict = (key, observedAt) => evaluateCloseBasisInput({ key, value: 1, observedAt, basis, nowMs: now }).ok;
-    const expectations = [['spxPrice', '2026-09-28T20:36:11Z', true], ['tnx', '2026-09-28T18:59:52Z', true], ['dxy', '2026-09-29T01:48:32Z', true], ['spxPrice', '2026-09-28T15:00:00Z', false], ['fg', '2026-09-28T23:59:50Z', true], ['pcr', '2026-09-25', true], ['pcr', '2026-09-24', false], ['hyBp', null, false]];
+    const verdict = (key, observedAt) => evaluateCloseBasisInput({ key, value: 1, observedAt, valueBasis: 'latest-completed-close', basis, nowMs: now }).ok;
+    const expectations = [['spxPrice', '2026-09-28T20:00:00Z', true], ['tnx', '2026-09-28T18:59:52Z', true], ['dxy', '2026-09-29T01:48:32Z', false], ['spxPrice', '2026-09-28T15:00:00Z', false], ['fg', '2026-09-28T23:59:50Z', true], ['pcr', '2026-09-25', true], ['pcr', '2026-09-24', false], ['hyBp', null, false]];
     for (const [key, observedAt, expected] of expectations) if (verdict(key, observedAt) !== expected) fail(`close basis: ${key} @ ${observedAt} expected ${expected} (P1328)`);
+    // P1345: the next session and continuous-market post-close values are not the prior US close.
+    const intradayNow = Date.parse('2026-09-30T14:00:00Z');
+    const priorBasis = resolveCloseBasis(intradayNow);
+    if (evaluateCloseBasisInput({ key: 'spxPrice', value: 7777, observedAt: '2026-09-30T13:55:00Z', basis: priorBasis, nowMs: intradayNow }).ok
+      || evaluateCloseBasisInput({ key: 'dxy', value: 101, observedAt: '2026-09-29T23:30:00Z', session: 'DELAYED_IN_SESSION', valueBasis: 'provider-current-value', basis: priorBasis, nowMs: intradayNow }).ok
+      || describeCloseBasis(priorBasis) !== '9/29 미국 정규장 종가 기준') fail('P1345: live values changed the fixed completed-close basis');
+    if (!evaluateCloseBasisInput({ key: 'spxPrice', value: 500, observedAt: '2026-09-28T20:36:11Z', session: 'MARKET_CLOSED', valueBasis: 'provider-current-value', basis, nowMs: now }).ok) fail('P1345: provider-confirmed closed SPX was rejected');
+    if (evaluateCloseBasisInput({ key: 'pcr', value: 1, observedAt: '2026-02-30', basis: { date: '2026-03-02', previousDate: '2026-02-27' }, nowMs: Date.parse('2026-03-03T00:00Z') }).ok) fail('P1349: impossible calendar date was normalized into valid evidence');
+    if (evaluateCloseBasisInput({ key: 'spxPrice', value: 500, observedAt: '2026-09-28', session: 'CURRENT_SESSION', valueBasis: 'latest-completed-close', basis, nowMs: now }).ok
+      || evaluateCloseBasisInput({ key: 'spxPrice', value: true, observedAt: '2026-09-28T20:00:00Z', basis, nowMs: now }).ok) fail('P1345: contradictory session or nonnumeric close accepted');
     if (resolveCloseBasis(Date.parse('2026-09-07T15:00:00Z'))?.date !== '2026-09-04') fail('close basis: Labor Day must fall back to the prior session (P1328)');
     if (new Date(resolveCloseBasis(Date.parse('2026-11-27T19:00:00Z')).closeMs).toISOString() !== '2026-11-27T18:00:00.000Z') fail('close basis: half-day close must be 13:00 ET (P1328)');
     if (resolveCloseBasis(Date.parse('2031-03-03T15:00:00Z')) !== null) fail('close basis: unknown calendar year must fail closed (P1328)');
@@ -1120,6 +1256,72 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     const ma = spxMovingAveragesFromHistory([...rows].reverse().concat([{ date: 'bad', spx: 1e9 }, { date: '2027-01-01', spx: null }]));
     if (!ma || ma[50] !== 200 || ma[200] !== 125 || ma.asOf !== rows[199].date) fail(`moving average: expected 200/125 on sorted valid closes, got ${JSON.stringify(ma)} (P1339)`);
     if (spxMovingAveragesFromHistory(rows.slice(1)) !== null || spxMovingAveragesFromHistory(null) !== null) fail('moving average: fewer than 200 closes must not produce a 200-day MA (P1339)');
+    if (spxMovingAveragesFromHistory([...rows, rows[199]], { asOf: rows[198].date }) !== null
+      || spxMovingAveragesFromHistory([...rows.slice(0,199), { ...rows[199], fieldMeta: { spx: { valueBasis: 'provider-current-value' } } }]) !== null) fail('P1345: duplicate/future/partial closes were counted in the MA');
+    const provenanceRows = rows.map((row) => ({ ...row, fieldMeta: { spx: { observedAt: row.date, observationRelation: 'latest-completed-close' } } }));
+    const proven = spxMovingAveragesFromHistory([...provenanceRows, { date: '2027-01-01', spx: 1e9, fieldMeta: { spx: { observationRelation: 'carried-forward' } } }]);
+    if (proven?.[200] !== 125 || proven.asOf !== rows[199].date) fail('P1345: completed historical relation rejected or carried-forward bar counted');
+    // P1349: different collection buckets must not count the same observed session twice.
+    const duplicateBucket = { ...provenanceRows[198], date: rows[199].date };
+    if (spxMovingAveragesFromHistory([...provenanceRows.slice(0, 199), duplicateBucket]) !== null) fail('P1349: weekend collection inflated the number of MA sessions');
+    const repeated = spxMovingAveragesFromHistory([...provenanceRows, { ...provenanceRows[198], date: '2026-09-20' }]);
+    if (repeated?.[200] !== 125 || repeated.asOf !== rows[199].date) fail('P1349: collection bucket changed the observation endpoint or moving average');
+    for (const invalid of [true, Infinity, {}, '', ' ']) {
+      if (spxMovingAveragesFromHistory([...rows.slice(0, 199), { ...rows[199], spx: invalid }]) !== null) fail('P1349: nonnumeric close entered the moving average');
+    }
+    if (spxMovingAveragesFromHistory([...provenanceRows, { ...provenanceRows[199], spx: 999 }]) !== null
+      || spxMovingAveragesFromHistory([...provenanceRows.slice(0,199), { ...provenanceRows[199], fieldMeta: { spx: { observationRelation: 'latest-completed-close', observedAt: '2026-99-99' } } }]) !== null) fail('P1349: conflicting or unparseable sessions entered the MA');
+    const laterBucket = { ...provenanceRows[199], date: '2026-09-20' };
+    if (spxMovingAveragesFromHistory([...provenanceRows.slice(0,199), laterBucket], { asOf: rows[199].date })?.[200] !== 125) fail('P1349: collection cutoff discarded an eligible observed close');
+    if (spxMovingAveragesFromHistory([{ date: '2025-12-31', spx: 100 }, ...provenanceRows, { ...provenanceRows[198], spx: 999 }]) !== null
+      || spxMovingAveragesFromHistory([...provenanceRows.slice(0,199), { ...provenanceRows[199], fieldMeta: { spx: { observedAt: '2026-09-31T13:30:00Z', valueBasis: 'latest-completed-close' } } }]) !== null) fail('P1349: conflict/rollover gap was filled with an older observation');
+  }
+  // P1345: current SPX cannot launder an undated/stale live-chart MA.
+  {
+    const { createRuntimeReaders } = await load('src/data/runtime-readers.js');
+    const nowMs = Date.parse('2026-09-30T02:00:00Z');
+    const root = { _spxMA: { 50: 100, 200: 90 }, _spxMATs: Date.parse('2026-01-01'), _spxMASource: 'old-live-chart',
+      AIO: { getTradingDecisionInputEvidence: () => ({ rows: [{ id: 'spx-price', value: 500, observedAt: '2026-09-29T20:00:00Z', valueBasis: 'latest-completed-close' }] }) } };
+    const input = createRuntimeReaders({ root, now: () => nowMs }).readTradingScoreInputs();
+    if (input.spxPrice !== 500 || input.spx50ma !== null || input.spx200ma !== null || input.decisionEvidence.spx50ma.allowedUse !== 'none') fail('P1345: stale/undated MA entered the reference score');
+    const active = createRuntimeReaders({ root: { _liveData: { '^GSPC': { marketState: 'REGULAR', quoteEnvelope: { price: 500, observedAt: '2026-09-29T19:55:00Z', valueBasis: 'provider-current-value' } } } }, now: () => nowMs }).readTradingScoreInputs();
+    const unproven = createRuntimeReaders({ root: { _liveData: { '^GSPC': { quoteEnvelope: { price: 500, observedAt: '2026-09-29T20:00:00Z' } } } }, now: () => nowMs }).readTradingScoreInputs();
+    if (active.spxPrice !== null || unproven.spxPrice !== null) fail('P1349: active or unproven near-close tick was promoted to a completed close');
+    const proven = createRuntimeReaders({ root: { _liveData: { '^GSPC': { marketState: 'CLOSED', quoteEnvelope: { price: '500', observedAt: '2026-09-29T20:00:00Z', valueBasis: 'latest-completed-close' } } } }, now: () => nowMs }).readTradingScoreInputs();
+    if (proven.spxPrice !== 500 || typeof proven.decisionEvidence.spxPrice.value !== 'number') fail('P1349: valid completed close did not normalize its numeric type');
+  }
+  // P1346/QA-UX-11: six reference axes, one missing input, basis label and no buy/sell actions.
+  {
+    const { buildBriefingDecisionSummary } = await load('src/domain/briefing/decision-summary.js');
+    const { resolveCloseBasis } = await load('src/domain/signal/close-basis.js');
+    const nowMs = Date.parse('2026-09-30T02:00:00Z');
+    const closeBasis = resolveCloseBasis(nowMs);
+    const closeEv = (value) => ({ value, observedAt: '2026-09-29T20:00:00Z', status: 'session_close', allowedUse: 'close-basis' });
+    const scoreInputs = { closeBasis, decisionEvidence: Object.fromEntries(Object.entries({ spxPrice: 500, vix: 16, fg: 32, tnx: 4.2, dxy: 101, oilPrice: 80 }).map(([key,value]) => [key,closeEv(value)])) };
+    const quote = (value) => ({ value, observedAt: '2026-09-29T20:00:00Z', session: 'MARKET_CLOSED', valueBasis: 'latest-completed-close' });
+    const observations = { usdJpy: quote(150), nvda: quote(200), smh: quote(250), kospi: { ...quote(3000), observedAt: '2026-09-29T06:30:00Z' } };
+    const full = buildBriefingDecisionSummary({ scoreInputs, observations, nowMs });
+    const held = buildBriefingDecisionSummary({ scoreInputs, observations: { ...observations, smh: null }, nowMs });
+    if (full.axes.length !== 6 || full.axes.some(axis => axis.tone === 'held') || full.decisionEligible || full.basisLabel !== '9/29 미국 정규장 종가 기준'
+      || held.axes.filter(axis => axis.tone === 'held').map(axis => axis.id).join() !== 'ai'
+      || full.checks.some(check => /매수|매도|분할.*진입/.test(check))) fail('P1346: briefing summary axis/basis/missing-input/action contract failed');
+    const krNow = Date.parse('2026-09-30T08:00:00Z');
+    const korean = (kospi, at = krNow) => buildBriefingDecisionSummary({ scoreInputs, observations: { ...observations, kospi }, nowMs: at }).axes.find(axis => axis.id === 'korea');
+    const currentKr = { ...quote(3100), observedAt: '2026-09-30T06:30:00Z' };
+    if (korean([observations.kospi, currentKr]).values[0].value !== 3100 || !/2026-09-30 한국/.test(korean([observations.kospi, currentKr]).basisLabel)
+      || korean({ ...currentKr, observedAt: '2026-09-30T00:05:00Z' }).tone !== 'held'
+      || korean({ ...currentKr, observedAt: '2026-09-24T06:30:00Z' }, Date.parse('2026-09-24T08:00:00Z')).tone !== 'held') fail('P1349: Korean session/candidate order/close window contract failed');
+    if (korean({ ...currentKr, observedAt: '2026-09-30' }).values[0].value !== 3100
+      || korean({ ...currentKr, valueBasis: 'previous-completed-close' }).tone !== 'held'
+      || korean({ ...currentKr, valueBasis: 'provider-current-value', observedAt: '2026-09-30T06:26:00Z' }).tone !== 'held') fail('P1349: Korean completed-date declaration or pre-close boundary failed');
+    const dubai = buildBriefingDecisionSummary({ scoreInputs, observations, nowMs, items: [{ title: 'Dubai tourism recovery', summary: 'Tourism demand improved and visitor arrivals increased over the prior quarter.' }] });
+    if (dubai.axes.find(axis => axis.id === 'ai').newsLabel !== '관련 기사 미확보'
+      || !full.axes.find(axis => axis.id === 'ai').values.some(row => /SMH.*ETF/.test(row.label))) fail('P1349: AI article false-positive or unlabelled ETF proxy');
+    const numeric = buildBriefingDecisionSummary({ scoreInputs: { ...scoreInputs, decisionEvidence: Object.fromEntries(Object.entries(scoreInputs.decisionEvidence).map(([key,row]) => [key, { ...row, value: String(row.value) }])) }, observations, nowMs });
+    if (numeric.axes[0].tone === 'held') fail('P1349: numeric string evidence disagreed between score and briefing');
+    const completeBase = computeTradingScoreModel({ vix: 18, fg: 50, dxy: 100, tnx: 3.5, maCurrent: true, spxPrice: 500, spx50ma: 480, spx200ma: 450, breadthAvailable: true, breadth200: 60 });
+    if (completeBase.componentCoveragePct !== 100 || completeBase.missingOptionalInputs.length !== 4
+      || !/보조·위험보정 근거 미확보/.test(deriveTradingScoreDecisionPresentation({ score: completeBase }).description)) fail('P1349: base-axis coverage hid missing optional risk observations');
   }
   // ── P1339: company names resolve exactly; ticker-shaped input is never rewritten through an alias ──
   {
@@ -3046,6 +3248,59 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!Object.isFrozen(proxies) || !Object.isFrozen(proxies[0]) || proxies[0].sourceKind !== 'REFERENCE' || proxies[0].observedAt !== '2026-08-31') fail(`ai-inference: an unstamped provider was promoted to LIVE or projection stayed mutable, got ${JSON.stringify(proxies[0])}`);
 }
 
+// P1345: a late canonical close must re-derive analysis with or without a bridge.
+{
+  const { createAIOArchitecture } = await load('src/app/bootstrap.js');
+  const { createMarketSnapshot, validateMarketSnapshot, TIER_0_INSTRUMENTS } = await load('src/data/contracts/market-snapshot.js');
+  const { createRuntimeReaders } = await load('src/data/runtime-readers.js');
+  const { computeTradingScoreModel } = await load('src/domain/signal/trading-score.js');
+  const now = Date.parse('2026-09-30T02:00:00Z');
+  const observedAt = '2026-09-29T20:00:00Z';
+  const values = { '^GSPC': 7670, '^VIX': 16, '^TNX': 4.2, 'DX-Y.NYB': 101, 'CL=F': 70 };
+  const snapshot = createMarketSnapshot({ status: 'published', revision: 'P1345-late-close', generatedAt: observedAt,
+    attemptedAt: observedAt, lastSuccessfulAt: observedAt, source: 'P1345-fixture',
+    coverage: { required: TIER_0_INSTRUMENTS.length, observed: TIER_0_INSTRUMENTS.length },
+    quotes: TIER_0_INSTRUMENTS.map((identity) => ({ ...identity, value: values[identity.instrumentId] ?? 100,
+      observedAt, fetchedAt: observedAt, source: 'P1345-fixture', sourceKind: 'T3_PUBLIC_DELAYED',
+      session: 'MARKET_CLOSED', quality: 'CLOSED_CURRENT', valueBasis: 'regular-session-close', changePct: 0 })) });
+  const validation = validateMarketSnapshot(snapshot);
+  if (!validation.ok) fail(`P1345: invalid late-close fixture ${validation.errors.join('|')}`);
+  for (const withBridge of [true, false]) {
+    const runtimeRoot = new EventTarget();
+    const timers = new Map();
+    let nextTimer = 0;
+    let resolveFetch;
+    Object.assign(runtimeRoot, { location: { hash: '#home' }, visibilityState: 'visible',
+      getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], _liveData: {},
+      _aioHistory: Array.from({ length: 200 }, (_, i) => ({ date: new Date(Date.parse('2026-09-29T00:00:00Z') - (199-i)*86400000).toISOString().slice(0,10), spx: 7000 })),
+      setTimeout: (task, delay) => { const id = ++nextTimer; timers.set(id, { task, delay }); return id; },
+      clearTimeout: (id) => timers.delete(id),
+      AIO: { getTradingDecisionInputEvidence: () => ({ rows: [['dxy-dollar',101],['tnx-yield',4.2],['fg-sentiment',34]]
+        .map(([id,value]) => ({ id, value, observedAt, source: 'P1345-fixture' })) }) } });
+    runtimeRoot.document = runtimeRoot;
+    if (withBridge) runtimeRoot._aioSetLiveData = (symbol, quote) => { runtimeRoot._liveData[symbol] = quote; return true; };
+    const architecture = createAIOArchitecture({ root: runtimeRoot, documentRef: runtimeRoot, now: () => now,
+      fetchImpl: () => new Promise((resolve) => { resolveFetch = resolve; }) });
+    const stop = architecture.start();
+    try {
+      const before = architecture.getState().analysis.signal.score;
+      await Promise.resolve();
+      if (typeof resolveFetch !== 'function') fail('P1345: canonical snapshot fetch did not start');
+      resolveFetch({ ok: true, status: 200, json: async () => snapshot });
+      const loaded = await stop.ready;
+      const after = architecture.getState().analysis.signal.score;
+      const expected = computeTradingScoreModel(createRuntimeReaders({ root: runtimeRoot, now: () => now }).readTradingScoreInputs()).total;
+      runtimeRoot.computeTradingScore = () => ({ total: 99 }); // P1357: stale legacy cache must not feed sentiment.
+      if (createRuntimeReaders({ root: runtimeRoot, now: () => now }).readSentiment().tradingScoreTotal !== expected) fail('P1357 sentiment must derive the canonical current inputs before analysis sync');
+      runtimeRoot.computeTradingScore = () => ({ total: 99 }); // P1357: stale legacy cache must not feed sentiment.
+      if (createRuntimeReaders({ root: runtimeRoot, now: () => now }).readSentiment().tradingScoreTotal !== expected) fail('P1357 sentiment must derive the canonical current inputs before analysis sync');
+      if (before !== null || loaded.ok !== true || typeof after !== 'number' || !Number.isFinite(after) || after !== expected)
+        fail(`P1345: late close left analysis stale ${JSON.stringify({ withBridge, before, after, expected, ok: loaded.ok })}`);
+    } finally { stop(); }
+    if (timers.size) fail('P1345: late snapshot fixture leaked startup timers');
+  }
+}
+
 // ── bootstrap.js (stop cancels late startup publication) ─────────────────────────────────────
 {
   const { createAIOArchitecture } = await load('src/app/bootstrap.js');
@@ -3143,7 +3398,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     ['ledger survives through its own normalizer', c.ledger && c.ledger.transactions.length === 1 && c.ledger.currency === 'KRW'],
     ['fx legs survive through their own normalizer', c.fxLegs?.length === 1 && c.fxLegs[0].rate === 1390.5],
     ['cash, journal and watchlists survive', c.cash === '250000' && c.journal?.length === 1 && c.watchlists?.length === 1 && c.activeWatchlistId === 'wl_1'],
-    ['invalid watchlist ticker is dropped', c.watchlists?.[0].tickers.length === 1 && c.watchlists[0].tickers[0] === 'NVDA'],
+    ['invalid watchlist ticker is dropped (P1350)', c.watchlists?.[0].tickers.length === 1 && c.watchlists[0].tickers[0].sym === 'NVDA'],
     ['valid assumptions restore; invalid ones are not resurrected', c.assumptions?.baseCurrency === 'KRW' && c.assumptions.cashReturn === '3.1' && c.assumptions.rebalancePolicy === 'monthly' && !('riskFreeRate' in c.assumptions)],
     ['legacy positions array still imports positions only', legacy.ok === true && legacy.kind === 'positions' && legacy.contents.positions.length === 1 && legacy.contents.positions[0].ticker === 'AAPL' && !('ledger' in legacy.contents)],
     ['unknown format, future version and empty inputs are refused', parsePortfolioBackup('{"format":"other"}', deps).ok === false
@@ -3184,6 +3439,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     ['P1317 an explicit suffix is kept as declared', n('005930.ks') === '005930.KS'],
     ['P1317 an exact Korean name resolves; spaces are ignored', n('삼성전자') === '005930.KS' && n('SK 하이닉스') === '000660.KS'],
     ['P1317 an ambiguous partial name is never guessed', n('삼성') === '삼성'.toUpperCase()],
+    ['P1345 even a unique Korean company-name prefix is never guessed', n('에코프로') === '에코프로' && n('SK하이') === 'SK하이'.toUpperCase()],
     ['P1317 US tickers are unchanged', n(' nvda ') === 'NVDA' && n('BRK.B') === 'BRK.B'],
     ['P1317 display name comes from the KR registry only', tickerDisplayName('005930.KS', { krStockDb }) === '삼성전자' && tickerDisplayName('NVDA', { krStockDb }) === null],
     ['P1318 SEC shares x artifact close gives a USD reference cap', nvdaRef && nvdaRef.billions > 5000 && nvdaRef.allowedUse === 'reference-only'],

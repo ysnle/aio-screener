@@ -1,5 +1,22 @@
 # 전체 실사 핸드오프 실행 현황 — 2026-09-27
 
+### 2026-10-01 Codex 의미·최신 관측·금융·운영 보강 인계 (v56.87)
+
+- P1349~P1362를 main 작업 트리에 통합하고 공식 기록·버전·현재 상태를 동기화했다. 원래 staged `.gitattributes`와 기존 수정은 보존했다. 커밋·push·배포 없음.
+- 실제 브리핑에서 점수 58과 DXY·WTI·KOSPI의 각 관측 시각을 확인했다. native/runtime 회귀 및 금융 Vault Chromium 55개 시나리오 PASS. durable RRG는 생산 코드·consumer·mock을 구현했으나 실제 Actions 생산과 실데이터 화면은 미검증이다.
+- full QA는 126 신규 PASS+11 캐시/1 headless FAIL/0 SKIP였으며 T895 수정 후 G087 PASS. 통합 affected는 122 신규 PASS+16 캐시/1 a11y FAIL/8 external watchdog SKIP. 뉴스 클릭 영역과 비동기 설정 버튼 수정 후 최종 19-route a11y PASS, 실패 배치 해소. 문서·버전·미러·기록 검사 PASS. SKIP 8개와 실생산/배포 인증은 미검증으로 남는다. 실행 ID·증거는 새 REPORT를 확인한다.
+- [Claude 최신 인계](../codex-semantic-audit-20260930/NEXT-SESSION-20261001.md) · [수정·검증 보고서](../codex-semantic-audit-20260930/REPORT.md). 아래 과거 현황은 덮어쓰지 않고 시점별 이력으로 보존한다.
+
+### 2026-09-30 12:00 KST Codex continuation audit (v56.86)
+
+- P1345–P1348 implemented with separate static/runtime/browser/live evidence. Original dirty edits preserved. No commit/push/deploy.
+
+### 2026-09-30 13:10 KST main 직접 작업 전환 + 줄바꿈 LF 통일 + 브리핑 카드 복원 인계 (v56.85, Claude Opus 5.5)
+
+- 사용자 결정: 앞으로 main에서 직접 작업(PR 없음, push는 요청 시, 배포는 CI 통과 SHA만). 로컬 main을 v56.85로 fast-forward(원격보다 16커밋 앞, push 안 함).
+- 작업 트리 568개 파일을 LF로 통일하고 .gitattributes에 고정 — 저장소 내용 변화 없음.
+- 브리핑 '시장 상황 요약 / 오늘 행동' 카드가 네이티브 전환(P770) 이후 사라진 것을 확인. 종가 기준으로 복원하는 작업을 QA-UX-11로 인계.
+
 ### 2026-09-30 12:40 KST 병렬 코드 정리 + 하네스 구조 개편 (v56.85, Claude Opus 5.5 + Sonnet 5.5 worktree agents)
 
 - Sonnet 에이전트 2개가 별도 worktree에서 aio-data / ui·pages·workspace의 도달 불가 코드를 정리했고, 메인이 통합과 게이트를 담당. 약 660줄 순감, 도달성 도구를 저장소로 옮김(scripts/dead-code.mjs).

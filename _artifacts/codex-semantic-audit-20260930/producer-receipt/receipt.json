@@ -1,0 +1,68 @@
+{
+  "sourceCommit": "9896adec45cc5de78fba2af481554602f3e89c6d",
+  "revision": "market-snapshot:2026-10-01T00:34:01.108Z:e00476d3",
+  "excluded": "public-config.json",
+  "files": [
+    {
+      "path": "public-data/data.json",
+      "gitBlobSha": "4ded4b69b712d90d32158f4b9842b35905562b7e",
+      "bytes": 126274
+    },
+    {
+      "path": "public-data/history.json",
+      "gitBlobSha": "0359587a23dc404628d2290d8fbc9d9a32cec127",
+      "bytes": 2182528
+    },
+    {
+      "path": "public-data/market-snapshot.json",
+      "gitBlobSha": "87b54c316f150af764fbe2b6f0e7c0eb8a26b362",
+      "bytes": 14152
+    },
+    {
+      "path": "public-data/market-snapshot-status.json",
+      "gitBlobSha": "c83af1471370066f9ba280edd022de62d9e81b46",
+      "bytes": 475
+    },
+    {
+      "path": "public-data/operations-status.json",
+      "gitBlobSha": "5a5093cf7f483aa52cf58fc9ab12b78623213013",
+      "bytes": 17876
+    },
+    {
+      "path": "public-data/reconciliation-status.json",
+      "gitBlobSha": "e8f66927991a534b70ea14c4eae43ed81801d6f7",
+      "bytes": 63878
+    },
+    {
+      "path": "public-data/score-backtest-history.json",
+      "gitBlobSha": "5308d3eb6ed5423aac703314c16bd6f71b640ed5",
+      "bytes": 92024
+    },
+    {
+      "path": "public-data/telegram-digest.json",
+      "gitBlobSha": "8c1d9ec2b736e493db855989d3c948fae42cfff6",
+      "bytes": 1048422
+    },
+    {
+      "path": "public-data/atlas/index.json",
+      "gitBlobSha": "3837cbd54243730cf23f3ad977ee3ac050281d94",
+      "bytes": 3104
+    },
+    {
+      "path": "architecture/asset-manifest.json",
+      "gitBlobSha": "3cbd6e896244ea1d3857258247ed8cefa4ee75b3",
+      "bytes": 973
+    },
+    {
+      "path": "architecture/release-manifest.json",
+      "gitBlobSha": "b4f84eec74e2d9cbf5f2939d42b63d6f0094d87e",
+      "bytes": 857
+    },
+    {
+      "path": "public-data/screener.json",
+      "gitBlobSha": "38f35b37339c9ae5518f330a5a75cdbfbaa6282a",
+      "bytes": 1662484,
+      "reason": "transitive reconciliation source at the same fixed commit"
+    }
+  ]
+}

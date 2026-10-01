@@ -5508,7 +5508,7 @@ async function _aioLoadServerData() {
       : (!_marketCyclePublished ? 'market-cycle-not-published'
         : (!isFinite(_liveCoreAgeHours) ? 'generatedAt-missing-or-invalid' : 'market-cycle-freshness-sla-exceeded'));
     window._serverDataMeta = {
-      generatedAt: d.meta.generatedAt,
+      generatedAt: d.meta.generatedAt, rotationHistory: d.rotationHistory || null,
       attemptedAt: d.meta.attemptedAt || d.meta.generatedAt || null,
       artifactGeneratedAt: d.meta.artifactGeneratedAt || d.meta.generatedAt || null,
       ageMin: ageMin,
@@ -10472,7 +10472,7 @@ async function freeTranslateNews(items) {
   var statusMsg = '✓ ' + translated + '건 번역 완료 (무료)';
   if (failed > 0) statusMsg += ' · <span style="color:#f87171;">' + failed + '건 번역 실패</span>';
   statusMsg += ' · ';
-  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<span style="cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">Claude 키 입력 시 AI 해석 추가</span>';
+  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" style="display:inline-flex;align-items:center;min-height:28px;padding:2px 6px;background:none;border:0;font:inherit;cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">Claude 키 입력 시 AI 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
   if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(failed > 0 ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
   // P4 수정: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
@@ -14607,7 +14607,7 @@ function applyLiveQuotes(quotes) {
       venue: q.fullExchangeName || q.exchangeName || null,
       regularMarketPreviousClose: q.regularMarketPreviousClose || q.chartPreviousClose || null,
       changeBasis: _quoteChangeBasis,
-      valueBasis: q.valueBasis || _quoteChangeBasis
+      valueBasis: q.valueBasis || _quoteChangeBasis, session: q.session || q.marketState || null, marketState: q.marketState || null
     });
     if (!accepted) return;
     if (q.symbol === '^VVIX' && window.DATA_SNAPSHOT) {

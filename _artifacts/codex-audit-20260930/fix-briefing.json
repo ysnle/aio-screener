@@ -1,0 +1,30 @@
+{
+  "version": "v56.86",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1346,
+    "title": "Native six-axis briefing and top descriptive checklist",
+    "symptom": "Native cutover removed six-axis summary and left actions below long narratives with stale entry-only writers.",
+    "root_cause": "News migration omitted summary/action consumers and event lifecycle.",
+    "fix": "Add pure reference model/native six-axis component with labels and per-axis holds; connect proven snapshot/broader quote candidates; count same completed news window; label analysis eligibility; move checks to top and remove competing legacy writers.",
+    "violated_rule": "R670 and QA-UX-11.",
+    "prevention": "QA-UX-11: P1346 ESM fixtures + architecture-browser gate + real Chrome screenshots in codex-audit-20260930",
+    "verification": "ESM PASS; real Chrome shows all six axes and top checks. Actual provider success for missing quote sources remains unverified."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-UX-11",
+      "text": "Briefing shows native six-axis summary and 오늘 행동 above narratives, labels close basis, holds missing evidence, counts the same news window and uses descriptive checks",
+      "verify_by": "P1346 ESM fixtures + architecture-browser gate + real Chrome screenshots in codex-audit-20260930",
+      "done": true,
+      "update": true
+    }
+  ],
+  "qa_section": "continued reconstruction audit",
+  "changelog": [
+    "**브리핑 6축·오늘 행동 복원: 종가 근거·보류와 분석 가능 기사 건수 표시, 상단 확인 목록 및 native 갱신 연결. (P1346):** 검증 근거와 잔여 항목은 codex-audit-20260930/REPORT.md."
+  ],
+  "note": "v56.86 — P1345 completed-close inputs/late snapshot; P1346 briefing; P1347 tooling; P1348 aliases.",
+  "status": null
+}

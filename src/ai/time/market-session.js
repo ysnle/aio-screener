@@ -109,6 +109,22 @@ export const MARKET_CALENDAR_ADAPTERS = Object.freeze({
   KRX: Object.freeze({ market: 'KR', timezone: 'Asia/Seoul', regularOpen: '09:00', regularClose: '15:30', dstAware: false }),
 });
 
+// P1349: Korean observations use the latest completed KRX session independently
+// of the US basis. Unknown calendars and pre-close observations cannot certify it.
+export function latestCompletedKrSession(now = Date.now()) {
+  const nowMs = Number(now);
+  if (!Number.isFinite(nowMs)) return null;
+  let date = dateInTimezone(nowMs, 'Asia/Seoul');
+  for (let i = 0; i < 12 && date; i += 1) {
+    const session = resolveMarketCalendarSession({ market: 'KR', date });
+    if (session.status === 'unknown') return null;
+    const closeMs = session.status === 'open' ? Date.parse(`${date}T${session.close}:00+09:00`) : null;
+    if (closeMs != null && closeMs <= nowMs) return Object.freeze({ date, closeMs });
+    date = new Date(Date.parse(`${date}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+  }
+  return null;
+}
+
 function dateOnly(value) {
   const text = String(value || '').slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;

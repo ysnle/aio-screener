@@ -27,5 +27,5 @@ export function normalizeAnalysis(raw = {}) {
       : deriveTradingScoreDecisionPresentation({ score: tradingScore, inputVersion: raw.inputVersion })
   });
   const home = raw.home?.modelVersion ? raw.home : deriveHomeSummary({ sentiment: raw.sentiment, signal, market: raw.market, newsCount: raw.newsCount, inputVersion: raw.inputVersion });
-  return Object.freeze({ technical, signal, home, status: [technical, signal, home].some((item) => item?.status !== 'unavailable') ? 'current' : 'unavailable', updatedAt: raw.updatedAt || null });
+  return Object.freeze({ tradingScore, technical, signal, home, status: [technical, signal, home].some((item) => item?.status !== 'unavailable') ? 'current' : 'unavailable', updatedAt: raw.updatedAt || null });
 }

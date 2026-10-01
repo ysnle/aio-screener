@@ -1,0 +1,33 @@
+{
+  "version": "v56.87",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1351,
+    "title": "Exact deployment provenance and stale-release guards",
+    "symptom": "Rollback selected missing/tied timestamps, observer lists omitted exact runs, and Pages/Worker paths could verify or mutate a stale main revision.",
+    "root_cause": "Deployment identity relied on partial lists/SHA alone and latest-main checks did not cover mutation/retry boundaries.",
+    "fix": "Require valid unique latest rollback dates, exact-run fallback with repository/main/workflow/SHA/status checks, bind attestations to run ID and repository, and guard deploy/retry against stale main. The separately proposed dispatch-driven automatic convergence expansion remains unapplied pending specific approval.",
+    "violated_rule": "R674 and exact release-attestation boundaries.",
+    "prevention": "QA-SEMANTIC-DEPLOY-01; ci-cloudflare-deployment-contract-check and ci-deployment-convergence-check.",
+    "verification": "Deployment contract and convergence unit gates, actual YAML parser, syntax and diff checks pass. No dispatch, deployment or rollback occurred; live convergence is not certified."
+  },
+  "qa": [
+    {
+      "id": "QA-SEMANTIC-DEPLOY-01",
+      "text": "Rollback ambiguity, stale main mutation and repository/run/SHA attestation substitution fail closed.",
+      "verify_by": "P1351 ci-cloudflare-deployment-contract-check + ci-deployment-convergence-check",
+      "done": true
+    },
+    {
+      "id": "QA-SEMANTIC-DEPLOY-02",
+      "text": "Bot-advanced main converges Pages and both Workers using specifically approved dispatch CI consumption; proposal is pending and not applied.",
+      "verify_by": "P1351 approved DEPLOYMENT-PROPOSAL.md implementation + isolated driver regression + CI-attested live probe",
+      "done": false
+    }
+  ],
+  "changelog": [
+    "**배포 근거 (P1351):** exact run/repository/SHA 검증·최신 main 보호·모호한 rollback 차단. 자동 수렴 확대 제안은 보류."
+  ],
+  "qa_section": "Semantic, financial and operating-budget audit",
+  "note": "v56.87 — P1349 observation sessions; P1350 financial security; P1351 provenance; P1352 UI meaning; P1353 monthly reservation."
+}

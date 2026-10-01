@@ -225,6 +225,7 @@ function _pfVaultOptedOut() {
 }
 function getPortfolioData() {
   try {
+    if (isPortfolioLocked()) return []; // P1350: a failed locked write cannot expose its runtime cache.
     if (!_pfVaultOptedOut() && typeof _AioVault !== 'undefined' && _AioVault._keyRuntime && _AioVault._keyRuntime[PF_STORAGE_KEY] !== undefined) {
       return JSON.parse(_AioVault._keyRuntime[PF_STORAGE_KEY] || '[]');
     }
@@ -250,7 +251,7 @@ function savePortfolioData(positions) {
   if (_pfVaultOptedOut() || typeof safeLS !== 'function') {
     try {
       var adapter = window.AIO && window.AIO.storageAdapter;
-      if (adapter) adapter.set(PF_STORAGE_KEY, json);
+      if (adapter) { if (adapter.set(PF_STORAGE_KEY, json) === false) throw new Error('storage-write-failed'); }
       else localStorage.setItem(PF_STORAGE_KEY, json);
       persist = Promise.resolve({ ok: true });
     } catch(e) { persist = Promise.resolve({ ok: false, reason: 'storage-write-failed' }); }
@@ -352,13 +353,13 @@ function _pfDeclarations() {
   });
   return _pfDeclarationStore;
 }
-function getPortfolioLedger() { var store = _pfDeclarations(); return store ? store.read(PF_LEDGER_KEY) : null; }
+function getPortfolioLedger() { var store = _pfDeclarations(); return !isPortfolioLocked() && store ? store.read(PF_LEDGER_KEY) : null; }
 function _pfDeclarationWrite(key, value) {
   var store = _pfDeclarations();
   return store ? store.write(key, value) : Promise.resolve({ ok: false, reason: 'declaration-store-unavailable' });
 }
 function savePortfolioLedger(ledger) { return _pfDeclarationWrite(PF_LEDGER_KEY, ledger); }
-function getPortfolioFxLegs() { var store = _pfDeclarations(); var legs = store ? store.read(PF_FX_KEY) : null; return Array.isArray(legs) ? legs : []; }
+function getPortfolioFxLegs() { var store = _pfDeclarations(); var legs = !isPortfolioLocked() && store ? store.read(PF_FX_KEY) : null; return Array.isArray(legs) ? legs : []; }
 function savePortfolioFxLegs(legs) { return _pfDeclarationWrite(PF_FX_KEY, Array.isArray(legs) ? legs : []); }
 function _pfLedgerRead() {
   var api = _pfLedgerApi();
@@ -507,7 +508,8 @@ window.setLedgerFlowTiming = setLedgerFlowTiming;
 function isPortfolioLocked() {
   if (_pfVaultOptedOut()) return false;
   try {
-    var hasProtection = !!localStorage.getItem('aio_vault_salt') || !!localStorage.getItem(PF_PIN_KEY);
+    var storage = typeof _AioVault !== 'undefined' ? _AioVault.getStorage() : localStorage;
+    var hasProtection = !!storage.getItem('aio_vault_salt') || !!storage.getItem(PF_PIN_KEY);
     if (!hasProtection) return false;
     return !(typeof _AioVault !== 'undefined' && _AioVault.isUnlocked());
   } catch(e) { return false; }
@@ -516,43 +518,23 @@ async function unlockPortfolio() {
   const input = document.getElementById('pf-pin-input');
   if (!input) return;
   const pin = input.value.trim();
-  if (!/^\d{4,}$/.test(pin)) {
-    input.style.borderColor = 'var(--data-red)';
-    setTimeout(() => input.style.borderColor = '', T.UI_FEEDBACK);
-    return;
+  if (!/^\d{4,}$/.test(pin)) { showToast('PIN은 숫자 4자리 이상 입력하세요.'); return; }
+  if (typeof _AioVault === 'undefined') { showToast('보안 모듈을 불러오지 못했습니다.'); return; }
+  var optedOut = _pfVaultOptedOut();
+  var storage = _AioVault.getStorage();
+  try {
+    await _AioVault.unlock(pin);
+    storage.removeItem(PF_VAULT_OPTOUT_KEY);
+    await _migrateToEncrypted();
+    await _restoreDecryptedKeys();
+    storage.removeItem(PF_PIN_KEY);
+    input.value = '';
+    showPortfolioMain();
+  } catch (error) {
+    if (error && error.message === 'vault-operation-cancelled') return; _AioVault.lock(); // P1350: do not re-lock a newer unlock operation.
+    if (optedOut) { try { storage.setItem(PF_VAULT_OPTOUT_KEY, '1'); } catch (_) {} }
+    showToast(error && error.message === 'vault-auth-evidence-missing' ? 'PIN 검증 정보가 없습니다. 저장 자료를 백업한 뒤 Vault 복구가 필요합니다.' : 'PIN 또는 저장된 암호문을 확인할 수 없습니다.');
   }
-  if (typeof _AioVault === 'undefined') { showPortfolioMain(); return; }
-  const hadVault = !!localStorage.getItem('aio_vault_salt');
-  await _AioVault.unlock(pin);
-  if (hadVault) {
-    // 기존 Vault 존재 — 저장된 암호문 복호화로 PIN 정확성 검증(틀린 PIN이면 AES-GCM 인증 실패로 null)
-    const raw = localStorage.getItem(PF_STORAGE_KEY);
-    if (raw && raw.indexOf('aio_enc::') === 0) {
-      const dec = await _AioVault.decrypt(raw);
-      if (dec === null) {
-        _AioVault.lock();
-        input.style.borderColor = 'var(--data-red)';
-        setTimeout(() => input.style.borderColor = '', T.UI_FEEDBACK);
-        showToast('PIN이 올바르지 않습니다.');
-        return;
-      }
-      if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
-      _AioVault._keyRuntime[PF_STORAGE_KEY] = dec;
-    }
-    if (typeof _restoreDecryptedKeys === 'function') { try { await _restoreDecryptedKeys(); } catch(_e){} }
-  } else {
-    // Vault 최초 생성 — 기존 평문 데이터(있다면)를 그대로 암호화로 승격
-    const raw = localStorage.getItem(PF_STORAGE_KEY);
-    if (raw && raw.indexOf('aio_enc::') !== 0) {
-      await safeLS(PF_STORAGE_KEY, raw);
-      if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
-      _AioVault._keyRuntime[PF_STORAGE_KEY] = raw;
-    }
-    if (typeof _migrateToEncrypted === 'function') { try { await _migrateToEncrypted(); } catch(_e){} }
-  }
-  try { localStorage.removeItem(PF_PIN_KEY); } catch(e) {} // 레거시 평문 PIN은 이제 무의미
-  input.value = '';
-  showPortfolioMain();
 }
 function setupPortfolioPin() {
   var pinInput = document.getElementById('pf-pin-input');
@@ -564,35 +546,22 @@ function setupPortfolioPin() {
   pinInput.value = '';
   // v52.46: 별도 keydown 핸들러 제거 — input의 data-on-enter="unlockPortfolio"가 이미 동일 로직 처리
   // (신규 Vault 생성/기존 Vault 잠금해제 모두 unlockPortfolio() 한 경로로 통합)
-  pinInput.placeholder = localStorage.getItem('aio_vault_salt') ? '기존 PIN 입력' : '새 PIN(4자리+)';
+  pinInput.placeholder = _AioVault.getStorage().getItem('aio_vault_salt') ? '기존 PIN 입력' : '새 PIN(4자리+)';
   pinInput.focus();
 }
 function resetPortfolioPin() {
-  var hasProtection = !!localStorage.getItem('aio_vault_salt') || !!localStorage.getItem(PF_PIN_KEY);
+  var storage = _AioVault.getStorage(), hasProtection = !!storage.getItem('aio_vault_salt') || !!storage.getItem(PF_PIN_KEY);
   if (!hasProtection) { showToast('설정된 PIN이 없습니다.'); return; }
   var isUnlocked = typeof _AioVault !== 'undefined' && _AioVault.isUnlocked();
-  var warnMsg = isUnlocked
-    ? '포트폴리오를 다시 평문으로 저장하고 PIN 보호를 해제합니다. (사이드바의 API 키 Vault 자체는 영향받지 않습니다.) 계속하시겠습니까?'
-    : 'PIN을 모르는 상태에서 초기화하면 암호화된 기존 포트폴리오 데이터는 복구할 수 없습니다(실제 암호화이므로 복호화 없이 초기화 시 데이터 자체가 사라집니다). 계속하시겠습니까?';
-  showConfirmModal('PIN 보호 해제', warnMsg, function() {
-    if (isUnlocked && _AioVault._keyRuntime && _AioVault._keyRuntime[PF_STORAGE_KEY] !== undefined) {
-      try { localStorage.setItem(PF_STORAGE_KEY, _AioVault._keyRuntime[PF_STORAGE_KEY]); } catch(e) {}
-    } else if (!isUnlocked) {
-      try { localStorage.removeItem(PF_STORAGE_KEY); } catch(e) {} // 복호화 불가 — 암호문 자체 제거(빈 포트폴리오로 재시작)
-    }
+  var warnMsg = isUnlocked ? '포지션·원장·환율 거래를 평문으로 저장하고 PIN 보호를 해제합니다. API 키 Vault 보호는 유지합니다. 계속하시겠습니까?' : 'PIN을 모르면 포지션·원장·환율 거래를 복구할 수 없어 모두 삭제합니다. API 키 Vault 보호는 유지합니다. 계속하시겠습니까?';
+  showConfirmModal('PIN 보호 해제', warnMsg, async function() {
     try {
-      var adapter = window.AIO && window.AIO.storageAdapter;
-      if (adapter) adapter.set(PF_VAULT_OPTOUT_KEY, '1');
-      else localStorage.setItem(PF_VAULT_OPTOUT_KEY, '1');
-    } catch(e) {}
-    try {
-      var adapter2 = window.AIO && window.AIO.storageAdapter;
-      if (adapter2) adapter2.remove(PF_PIN_KEY);
-      else localStorage.removeItem(PF_PIN_KEY);
-    } catch(e) {}
-    if (typeof _AioVault !== 'undefined') _AioVault.lock();
-    showToast('포트폴리오 PIN 보호를 해제했습니다.');
-    showPortfolioMain();
+      var storage = _AioVault.getStorage(), originals = {}, values = {};
+      for (var key of _AIO_PORTFOLIO_VAULT_KEYS) { var raw = storage.getItem(key); originals[key] = raw; if (isUnlocked && raw) { values[key] = raw.startsWith('aio_enc::') ? await _AioVault.decrypt(raw) : raw; if (values[key] === null) throw new Error('vault-auth-failed'); } }
+      try { for (var key of _AIO_PORTFOLIO_VAULT_KEYS) { if (isUnlocked && values[key] != null) storage.setItem(key, values[key]); else storage.removeItem(key); } storage.setItem(PF_VAULT_OPTOUT_KEY, '1'); storage.removeItem(PF_PIN_KEY); }
+      catch (error) { for (var key of _AIO_PORTFOLIO_VAULT_KEYS) { try { if (originals[key] == null) storage.removeItem(key); else storage.setItem(key, originals[key]); } catch (_) {} } throw error; }
+      _AioVault.lock(); showToast('포트폴리오 PIN 보호를 해제했습니다.'); showPortfolioMain();
+    } catch (error) { showToast('보호 해제를 저장하지 못했습니다. 기존 자료를 확인하세요.'); }
   }, '');
 }
 function showPortfolioMain() {
@@ -1727,10 +1696,12 @@ window._aioSavePortfolioJournal = function() {
   };
   entries.unshift(entry);
   entries = entries.slice(0, 80);
-  try { localStorage.setItem(PF_JOURNAL_KEY, JSON.stringify(entries)); } catch(_) {}
+  // P1350: a failed durable write is never reported as a saved journal.
+  try { var json = JSON.stringify(entries); localStorage.setItem(PF_JOURNAL_KEY, json); if (localStorage.getItem(PF_JOURNAL_KEY) !== json) throw new Error('write-readback-failed'); }
+  catch (_) { if (statusEl) statusEl.textContent = '노트를 저장하지 못했습니다. 작성 내용은 입력란에 남아 있습니다.'; if (typeof showToast === 'function') showToast('매매 복기 노트 저장 실패'); return { ok: false, entry: entry }; }
   if (statusEl) statusEl.textContent = '최근 노트 저장: ' + new Date(entry.ts).toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
   if (typeof showToast === 'function') showToast('매매 복기 노트 저장 완료');
-  return entry;
+  return { ok: true, entry: entry };
 };
 
 window._aioSyncPortfolioAiWorkbench = function() {
@@ -1769,7 +1740,7 @@ function _aioBuildPortfolioActionPrompt(kind) {
   var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
   var ticker = _aioSelectedPortfolioTicker();
   var noteEl = document.getElementById('pf-journal-note');
-  var consent = window.AIO && typeof window.AIO.hasPortfolioAIConsent === 'function' && window.AIO.hasPortfolioAIConsent();
+  var consent = kind === 'journal' && window.AIO && typeof window.AIO.hasPortfolioJournalAIConsent === 'function' && window.AIO.hasPortfolioJournalAIConsent();
   var safeRows = window.AIO && typeof window.AIO.redactPortfolioForAI === 'function' ? window.AIO.redactPortfolioForAI(positions) : positions.map(function(p) { return { ticker: p.ticker }; });
   var noteRaw = noteEl ? String(noteEl.value || '').trim() : '';
   var note = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(noteRaw, { maxChars: 800 }).text : '';
@@ -1812,9 +1783,10 @@ window._aioPortfolioAsk = function(kind) {
       return;
     }
     showConfirmModal('포트폴리오 AI 전송 미리보기',
-      'AI에는 종목명·섹터·비중·수익률만 전송합니다. 계좌ID·사용자ID·이메일·수량·매수가·목표가·메모는 제외됩니다. 이번 세션에서만 동의할까요?',
+      'AI에는 종목명·섹터·검증 가능한 비중·수익률만 전송합니다. 계좌ID·사용자ID·이메일·수량·매수가·목표가·메모는 제외됩니다.' + (kind === 'journal' ? ' 이번 복기 요청에는 현재 작성 노트와 최근 저장 노트 최대 3개도 전송합니다. 노트의 개인정보는 직접 확인하세요.' : '') + ' 이번 세션에서만 동의할까요?',
       function() {
         if (window.AIO && typeof window.AIO.setPortfolioAIConsent === 'function') window.AIO.setPortfolioAIConsent(true);
+        if (kind === 'journal' && window.AIO && typeof window.AIO.setPortfolioJournalAIConsent === 'function') window.AIO.setPortfolioJournalAIConsent(true);
         window._aioPortfolioAsk(kind);
       }, '취소');
     return;
@@ -1828,7 +1800,8 @@ window._aioPortfolioAsk = function(kind) {
       if (noteEl) noteEl.focus();
       return;
     }
-    if (note) window._aioSavePortfolioJournal();
+    // P1350: send the explicitly previewed notes; saving now would duplicate the current
+    // note and change the set of recent notes after the consent preview.
   }
   var prompt = _aioBuildPortfolioActionPrompt(kind || 'overview');
   if (typeof updateAIPanelContext === 'function') updateAIPanelContext('portfolio');
@@ -1852,7 +1825,7 @@ function _pfBackupSnapshot() { var keys = (_pfAssumptionApi() || {}).keys || {},
   return { positions: getPortfolioData(), ledger: getPortfolioLedger(), fxLegs: getPortfolioFxLegs(), cash: cash, assumptions: assumptions, journal: _aioPortfolioJournalEntries(), watchlists: getWatchlists(), activeWatchlistId: getActiveWatchlistId() || null }; }
 function exportPortfolio() {
   var api = window._pfPortfolioBackup, rt = _pfVaultRuntime() || {}; // 잠긴(암호화·미해제) 섹션은 빈 값으로 읽혀 불완전한 백업이 되므로 거부한다.
-  var locked = [PF_STORAGE_KEY, PF_LEDGER_KEY, PF_FX_KEY].some(function(k) { try { var raw = localStorage.getItem(k); return !!raw && raw.indexOf('aio_enc::') === 0 && rt[k] === undefined; } catch(e) { return false; } });
+  var locked = [PF_STORAGE_KEY, PF_LEDGER_KEY, PF_FX_KEY].some(function(k) { try { var raw = _AioVault.getStorage().getItem(k); return !!raw && raw.indexOf('aio_enc::') === 0 && rt[k] === undefined; } catch(e) { return false; } });
   if (!api || locked) { showToast(!api ? '백업 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도하세요.' : 'PIN 잠금을 해제한 뒤 내보내세요 — 잠긴 데이터는 백업에 넣을 수 없습니다.'); return; }
   var bundle = api.build(_pfBackupSnapshot(), { appVersion: typeof APP_VERSION !== 'undefined' ? APP_VERSION : null, origin: location.origin }), a = document.createElement('a');
   if (!bundle.counts.total) { showToast('내보낼 데이터가 없습니다.'); return; }
@@ -2708,4 +2681,3 @@ function _getV48IntegratedContext(pageFocus) {
     '내장된 과거 리서치·날짜별 시장 서사는 사용하지 않습니다. 현재 런타임 데이터와 공식 원천만 사용하고, 부족하면 웹 확인 또는 판단 보류를 선택합니다.\n' +
     _getInstitutionalFrameworkContext(pageFocus) + profile;
 }
-

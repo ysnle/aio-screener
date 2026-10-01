@@ -31,6 +31,77 @@ function startServer() {
   });
 }
 
+// P1350: invoke the production helper with deferred crypto dependencies, never a substitute helper.
+export async function runFinancialSecurityRaceFixtures(api = window._aioFinancialSecurity) {
+  const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
+  const memory = (initial = {}) => {
+    const values = new Map(Object.entries(initial));
+    return { writes: 0, getItem(key) { return values.get(key) || null; }, setItem(key, value) { this.writes++; values.set(key, value); }, removeItem(key) { this.writes++; values.delete(key); } };
+  };
+  const makeVault = () => ({
+    _generation: 0, _keyRuntime: {},
+    lock() { this._generation++; this._derivedKey = null; this._legacyDerivedKey = null; this._authenticating = false; this._pin = null; this._keyRuntime = {}; },
+    isUnlocked() { return !!this._derivedKey && this._authenticating !== true; },
+    async deriveKey(pin) { return { pin }; },
+    async encrypt(value) { return 'aio_enc::' + value; },
+    async decrypt(value) { return value.slice(9); }
+  });
+  const intercept = (vault, method, at = 1) => {
+    const ready = deferred(), release = deferred(), original = vault[method];
+    let calls = 0;
+    vault[method] = async function(...args) {
+      if (++calls === at) { ready.resolve(); await release.promise; }
+      return original.apply(this, args);
+    };
+    return { ready, release };
+  };
+  const settle = (promise) => promise.then(() => 'unexpected-success', (error) => error.message);
+  const outcomes = {};
+  for (const [label, method, at, initial] of [
+    ['derive-current', 'deriveKey', 1, {}], ['derive-legacy', 'deriveKey', 2, {}],
+    ['verify-decrypt', 'decrypt', 1, { aio_vault_salt: btoa(String.fromCharCode(...new Uint8Array(16))), aio_vault_verify_v1: 'aio_enc::AIO Vault authenticated v1' }],
+    ['sentinel-encrypt', 'encrypt', 1, {}]
+  ]) {
+    const vault = makeVault(), storage = memory(initial), stop = intercept(vault, method, at);
+    const pending = settle(api.authenticateVault(vault, '2468', { storage, saltStorage: storage }));
+    await stop.ready.promise;
+    vault.lock(); vault._publicMode = true;
+    stop.release.resolve();
+    outcomes[label] = await pending === 'vault-operation-cancelled' && !vault.isUnlocked() && vault._pin === null && storage.writes === 0;
+  }
+  {
+    const vault = makeVault(), privateStorage = memory(), publicStorage = memory(), stop = intercept(vault, 'deriveKey');
+    const old = settle(api.authenticateVault(vault, '2468', { storage: privateStorage, saltStorage: privateStorage }));
+    await stop.ready.promise;
+    vault.lock(); vault._publicMode = true;
+    await api.authenticateVault(vault, '1357', { storage: publicStorage, saltStorage: publicStorage });
+    const publicWrites = publicStorage.writes;
+    stop.release.resolve();
+    outcomes['superseded-auth-keeps-new-unlock'] = await old === 'vault-operation-cancelled' && vault.isUnlocked() && vault._pin === '1357' && privateStorage.writes === 0 && publicStorage.writes === publicWrites;
+  }
+  for (const method of ['encrypt', 'decrypt']) {
+    const vault = makeVault(), storage = memory({ aio_portfolio_data: '[{"ticker":"AAPL"}]' });
+    vault._derivedKey = { pin: '2468' };
+    const stop = intercept(vault, method);
+    const pending = settle(api.migrateVault(vault, { storage, sensitiveKeys: ['aio_portfolio_data'] }));
+    await stop.ready.promise;
+    vault.lock(); vault._publicMode = true;
+    const writesAtLock = storage.writes;
+    stop.release.resolve();
+    outcomes['migration-' + method] = await pending === 'vault-operation-cancelled' && storage.writes === writesAtLock && Object.keys(vault._keyRuntime).length === 0;
+  }
+  {
+    const vault = makeVault(), storage = memory({ aio_portfolio_data: 'aio_enc::[]' }), ready = deferred(), release = deferred();
+    vault._derivedKey = { pin: '2468' };
+    const pending = settle(api.restorePortfolioVault(vault, { storage, readDecrypted: async () => { ready.resolve(); await release.promise; return '[]'; } }));
+    await ready.promise;
+    vault.lock(); vault._derivedKey = { pin: '1357' }; vault._pin = '1357'; vault._keyRuntime = { newSession: 'keep' };
+    release.resolve();
+    outcomes['restore-keeps-new-session'] = await pending === 'vault-operation-cancelled' && vault.isUnlocked() && vault._keyRuntime.newSession === 'keep' && !('aio_portfolio_data' in vault._keyRuntime);
+  }
+  return outcomes;
+}
+
 async function main() {
   mkdirSync(artifactDir, { recursive: true });
   const server = isLive ? null : await startServer();
@@ -59,6 +130,8 @@ async function main() {
     });
     if (isLive) check('P1277 live served revision bound', !!report.appRevision, 'live /version.json');
     await page.waitForFunction(() => typeof window.AIO === 'object' && typeof window.AIO.loadTests === 'function', { timeout: 30000 });
+    // P1350: test the production bridge, never inject a substitute implementation.
+    await page.waitForFunction(() => typeof window._aioFinancialSecurity?.authenticateVault === 'function', { timeout: 30000 });
     const capability = await page.evaluate(() => ({
       get: typeof window.getPortfolioData,
       lock: typeof window.isPortfolioLocked,
@@ -192,6 +265,8 @@ async function main() {
     // E3/P1181 (11 P11-01): durable acknowledgement — 메모리 반영과 영구 저장은 다른 사건이다.
     // persist가 거부되면 ack는 실패로 돌아야 하며(거짓 완료 금지), 저장 경로는 성공 ack를 양성 대조로 남긴다.
     const durableAck = await page.evaluate(async () => {
+      // P1350: this fixture tests quota failure on an unprotected repository, not a locked Vault.
+      localStorage.clear(); _AioVault.lock();
       localStorage.setItem('aio_portfolio_vault_optout', '1');
       const originalSafeLS = window.safeLS;
       let failureAck = null;
@@ -672,6 +747,127 @@ async function main() {
       varCertFlow.long.certification === 'certified' && varCertFlow.long.sampleN >= 36 && varCertFlow.long.label === '인증'
       && varCertFlow.short.certification === 'held' && String(varCertFlow.short.label).startsWith('인증 보류'),
       JSON.stringify({ long: varCertFlow.long, short: varCertFlow.short }));
+    const races = await page.evaluate(runFinancialSecurityRaceFixtures);
+    for (const [name, ok] of Object.entries(races)) check('P1350 cancelled Vault operation ' + name, ok, JSON.stringify(races));
+    const security = await page.evaluate(async () => {
+      localStorage.clear(); sessionStorage.clear(); _AioVault.lock(); _AioVault._publicMode = false;
+      const keys = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs'];
+      const values = [JSON.stringify([{ticker:'AAPL',qty:2,cost:100,costCurrency:'USD'}]), JSON.stringify({transactions:[{amount:321}],valuations:[]}), JSON.stringify([{from:'USD',to:'KRW',rate:1400}])];
+      keys.forEach((key, index) => localStorage.setItem(key, values[index]));
+      localStorage.setItem('aio_claude_api_key','sk-ant-fixture-credential-only');
+      await _AioVault.unlock('2468'); await _migrateToEncrypted(); await _restoreDecryptedKeys();
+      const migrated = keys.every((key) => localStorage.getItem(key).startsWith('aio_enc::'));
+      const sentinel = localStorage.getItem('aio_vault_verify_v1');
+      const keyBackup = window._aioCollectKeySnapshot();
+      const backupSeparated = !keys.some((key) => key in keyBackup) && keyBackup.aio_claude_api_key === 'sk-ant-fixture-credential-only';
+      const stored = keys.map((key) => localStorage.getItem(key));
+      _AioVault.lock();
+      let rejected = false, overwriteRejected = false;
+      try { await _AioVault.unlock('0000'); } catch (_) { rejected = true; }
+      try { await safeLS(keys[1], 'overwrite'); } catch (_) { overwriteRejected = true; }
+      const wrongSafe = rejected && overwriteRejected && !_AioVault.isUnlocked() && keys.every((key,index) => localStorage.getItem(key) === stored[index]) && window.getPortfolioData().length === 0 && window.getPortfolioLedger() === null;
+      await _AioVault.unlock('2468'); await _restoreDecryptedKeys();
+      const restored = keys.every((key,index) => _AioVault._keyRuntime[key] === values[index]);
+      const originalConfirm = window.showConfirmModal;
+      window.showConfirmModal = async (_title,_message,confirm) => { await confirm(); };
+      try { window.resetPortfolioPin(); } finally { window.showConfirmModal = originalConfirm; }
+      await new Promise((resolve) => setTimeout(resolve,150));
+      const reset = keys.every((key,index) => localStorage.getItem(key) === values[index]) && localStorage.getItem('aio_portfolio_vault_optout') === '1' && localStorage.getItem('aio_claude_api_key').startsWith('aio_enc::') && localStorage.getItem('aio_vault_verify_v1') === sentinel;
+      localStorage.removeItem('aio_portfolio_vault_optout');
+      await _AioVault.unlock('2468'); await _migrateToEncrypted(); await _restoreDecryptedKeys();
+      const reprotected = keys.every((key) => localStorage.getItem(key).startsWith('aio_enc::'));
+      _AioVault.lock(); localStorage.removeItem('aio_vault_verify_v1');
+      await _AioVault.unlock('2468');
+      const legacySentinel = !!localStorage.getItem('aio_vault_verify_v1');
+      // P1350: salt-only legacy state cannot establish whether a supplied PIN is correct.
+      _AioVault.lock(); localStorage.clear(); localStorage.setItem('aio_vault_salt',btoa(String.fromCharCode(...new Uint8Array(16))));
+      let saltOnly = false;
+      try { await _AioVault.unlock('2468'); } catch (error) { saltOnly = error.message === 'vault-auth-evidence-missing' && !_AioVault.isUnlocked(); }
+      // P1350: switching to public-PC session storage never reuses private-origin caches.
+      localStorage.clear(); await _AioVault.unlock('2468'); await safeLS('aio_portfolio_data',values[0]); _AioVault._keyRuntime.aio_portfolio_data=values[0];
+      const privateStored = localStorage.getItem('aio_portfolio_data');
+      window._aioVaultPublicMode({checked:true});
+      const publicIsolated = _AioVault._publicMode && !_AioVault.isUnlocked() && window.getPortfolioData().length === 0;
+      await _AioVault.unlock('1357'); await safeLS('aio_portfolio_data','[]');
+      const publicStored = sessionStorage.getItem('aio_portfolio_data')?.startsWith('aio_enc::') && localStorage.getItem('aio_portfolio_data') === privateStored;
+      const privateBeforeOptout = keys.map((key) => localStorage.getItem(key));
+      const publicConfirm = window.showConfirmModal;
+      window.showConfirmModal = async (_title,_message,confirm) => { await confirm(); };
+      try { window.resetPortfolioPin(); } finally { window.showConfirmModal = publicConfirm; }
+      await new Promise((resolve) => setTimeout(resolve,150));
+      const publicPositions = JSON.stringify([{ticker:'AAPL',qty:777,cost:100,costCurrency:'USD'}]);
+      const publicLedger = {transactions:[{amount:999}],valuations:[]}, publicFx = [{from:'USD',to:'KRW',rate:1400}];
+      const publicAcks = await Promise.all([window.savePortfolioData(JSON.parse(publicPositions)),window.savePortfolioLedger(publicLedger),window.savePortfolioFxLegs(publicFx)]);
+      const publicOptout = publicAcks.every((ack) => ack.ok === true) && sessionStorage.getItem('aio_portfolio_vault_optout') === '1'
+        && sessionStorage.getItem(keys[0]) === publicPositions && sessionStorage.getItem(keys[1]) === JSON.stringify(publicLedger) && sessionStorage.getItem(keys[2]) === JSON.stringify(publicFx)
+        && keys.every((key,index) => localStorage.getItem(key) === privateBeforeOptout[index]);
+      window._aioVaultPublicMode({checked:false});
+      localStorage.clear(); sessionStorage.clear();
+      await _AioVault.unlock('2468'); await safeLS('aio_claude_api_key','sk-ant-only-fixture'); _AioVault.lock();
+      let keyOnlyRejected=false;
+      try { await _AioVault.unlock('0000'); } catch (_) { keyOnlyRejected=!_AioVault.isUnlocked(); }
+      await _AioVault.unlock('2468');
+      keys.forEach((key,index)=>localStorage.setItem(key,values[index]));
+      const originalSet=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(key,value){ if(key===keys[2] && String(value).startsWith('aio_enc::')) throw new DOMException('quota','QuotaExceededError'); return originalSet.call(this,key,value); };
+      let rollback=false;
+      try { await _migrateToEncrypted(); } catch (_) { rollback=keys.every((key,index)=>localStorage.getItem(key)===values[index]) && !_AioVault.isUnlocked(); }
+      finally { Storage.prototype.setItem=originalSet; }
+      await _AioVault.unlock('2468'); await _migrateToEncrypted();
+      return { migrated, backupSeparated, wrongSafe, restored, reset, reprotected, legacySentinel, saltOnly, publicIsolated, publicStored, publicOptout, keyOnlyRejected, rollback };
+    });
+    check('P1350 financial_three_section_encryption',security.migrated,JSON.stringify(security));
+    check('P1350 key_backup_excludes_personal_sections',security.backupSeparated,JSON.stringify(security));
+    check('P1350 wrong_pin_no_plaintext_overwrite',security.wrongSafe,JSON.stringify(security));
+    check('P1350 financial_cache_restore_after_lock',security.restored,JSON.stringify(security));
+    check('P1350 reset_and_reprotect_preserve_credentials',security.reset && security.reprotected,JSON.stringify(security));
+    check('P1350 legacy_auth_and_salt_only_fail_closed',security.legacySentinel && security.saltOnly,JSON.stringify(security));
+    check('P1350 public_pc_storage_isolation',security.publicIsolated && security.publicStored,JSON.stringify(security));
+    check('P1350 public_pc_optout_financial_writers_preserve_private_storage',security.publicOptout,JSON.stringify(security));
+    check('P1350 credential_only_vault_authenticates_pin',security.keyOnlyRejected,JSON.stringify(security));
+    check('P1350 migration_failure_restores_original_sections',security.rollback,JSON.stringify(security));
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>typeof window._aioFinancialSecurity?.authenticateVault==='function' && typeof window.unlockPortfolio==='function',{timeout:30000});
+    const financialReload=await page.evaluate(async()=>{ document.getElementById('pf-pin-input').value='2468'; await window.unlockPortfolio(); return window.getPortfolioData()[0]?.ticker==='AAPL' && window.getPortfolioLedger()?.transactions?.[0]?.amount===321 && window.getPortfolioFxLegs()[0]?.rate===1400; });
+    check('P1350 financial_three_sections_restore_after_reload',financialReload,String(financialReload));
+
+    const aiPrivacy = await page.evaluate(() => {
+      localStorage.clear(); sessionStorage.clear(); _AioVault.lock();
+      const now = new Date().toISOString();
+      const rows = [{ticker:'AAPL',qty:2,cost:100,costCurrency:'USD'},{ticker:'MSFT',qty:1,cost:200,costCurrency:'USD'}];
+      const partial = window.AIO.redactPortfolioForAI(rows,{liveData:{AAPL:{price:150,currency:'USD',observedAt:now},MSFT:{price:null,currency:'USD',observedAt:now}}});
+      const full = window.AIO.redactPortfolioForAI(rows,{liveData:{AAPL:{price:150,currency:'USD',observedAt:now},MSFT:{price:300,currency:'USD',observedAt:now}}});
+      const mixed = window.AIO.redactPortfolioForAI(rows,{liveData:{AAPL:{price:150,currency:'USD',observedAt:now},MSFT:{price:300,currency:'KRW',observedAt:now}}});
+      const stale = window.AIO.redactPortfolioForAI(rows,{liveData:{AAPL:{price:150,currency:'USD',observedAt:'2020-01-01T12:00:00Z'},MSFT:{price:300,currency:'USD',observedAt:'2020-01-01T12:00:00Z'}}});
+      const invalidCalendar = window.AIO.redactPortfolioForAI(rows,{now:Date.parse('2026-03-02T12:00:00Z'),liveData:{AAPL:{price:150,currency:'USD',observedAt:'2026-02-30T12:00:00Z'},MSFT:{price:300,currency:'USD',observedAt:'2026-02-30T12:00:00Z'}}});
+      localStorage.setItem('aio_portfolio_data',JSON.stringify(rows));
+      localStorage.setItem('aio_portfolio_journal_v1',JSON.stringify([{ts:Date.now(),date:now,note:'RECENT_EXPLICIT_NOTE'}]));
+      const note = document.getElementById('pf-journal-note'); note.value='CURRENT_EXPLICIT_NOTE';
+      window.AIO.setPortfolioAIConsent(true); window.AIO.setPortfolioJournalAIConsent(false);
+      const deniedJournal = !_aioBuildPortfolioActionPrompt('journal').includes('EXPLICIT_NOTE');
+      window.AIO.setPortfolioJournalAIConsent(true);
+      const normal = _aioBuildPortfolioActionPrompt('overview') + _aioBuildPortfolioActionPrompt('rebalance');
+      const journal = _aioBuildPortfolioActionPrompt('journal');
+      const noUnexpectedNotes = !normal.includes('EXPLICIT_NOTE') && deniedJournal && journal.includes('CURRENT_EXPLICIT_NOTE') && journal.includes('RECENT_EXPLICIT_NOTE');
+      const preview = window.AIO.getPortfolioAIPrivacyPreview(rows,{includeJournal:true});
+      window.AIO.setPortfolioAIConsent(false);
+      const revoked = !window.AIO.hasPortfolioJournalAIConsent();
+      const originalSet = Storage.prototype.setItem, originalToast = window.showToast, toasts=[];
+      window.showToast=(value)=>toasts.push(String(value));
+      Storage.prototype.setItem=function(key,value){ if(key==='aio_portfolio_journal_v1') throw new DOMException('quota','QuotaExceededError'); return originalSet.call(this,key,value); };
+      let ack;
+      try { ack=window._aioSavePortfolioJournal(); } finally { Storage.prototype.setItem=originalSet; window.showToast=originalToast; }
+      const journalSuccess=window._aioSavePortfolioJournal()?.ok===true;
+      return {partial,full,mixed,stale,invalidCalendar,noUnexpectedNotes,preview,revoked,journalFailure:ack?.ok===false && !toasts.some((value)=>value.includes('저장 완료')),journalSuccess};
+    });
+    check('P1350 AI_missing_price_keeps_unknown',aiPrivacy.partial.every((row)=>row.allocationPct===null) && aiPrivacy.partial[1].returnPct===null,JSON.stringify(aiPrivacy.partial));
+    check('P1350 AI_matching_current_valuation_positive_control',aiPrivacy.full.every((row)=>row.allocationPct===50 && row.returnPct===50),JSON.stringify(aiPrivacy.full));
+    check('P1350 AI_currency_mismatch_holds_weights',aiPrivacy.mixed.every((row)=>row.allocationPct===null),JSON.stringify(aiPrivacy.mixed));
+    check('P1350 AI_identical_stale_dates_hold_valuation',aiPrivacy.stale.every((row)=>row.allocationPct===null && row.returnPct===null),JSON.stringify(aiPrivacy.stale));
+    check('P1350 AI_calendar_rollover_is_not_an_observation',aiPrivacy.invalidCalendar.every((row)=>row.allocationPct===null && row.returnPct===null),JSON.stringify(aiPrivacy.invalidCalendar));
+    check('P1350 journal_separate_consent_and_preview',aiPrivacy.noUnexpectedNotes && aiPrivacy.preview.noteIncluded && aiPrivacy.preview.fields.includes('currentJournal') && aiPrivacy.revoked,JSON.stringify(aiPrivacy));
+    check('P1350 journal_storage_failure_is_not_success',aiPrivacy.journalFailure,JSON.stringify(aiPrivacy));
+    check('P1350 journal_storage_success_positive_control',aiPrivacy.journalSuccess,JSON.stringify(aiPrivacy));
     report.page = await page.evaluate(() => ({ encryptedMarker: localStorage.getItem('aio_portfolio_data')?.slice(0, 9), optOut: localStorage.getItem('aio_portfolio_vault_optout') }));
   } catch (error) {
     report.errors.push(String(error && error.stack || error));
@@ -685,4 +881,6 @@ async function main() {
   if (report.errors.length || failed.length) process.exitCode = 1;
 }
 
-main().catch((error) => { console.error(error.stack || error.message); process.exit(1); });
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => { console.error(error.stack || error.message); process.exit(1); });
+}

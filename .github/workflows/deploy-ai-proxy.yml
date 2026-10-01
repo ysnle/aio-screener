@@ -63,13 +63,14 @@ jobs:
         id: release
         env:
           EXPECTED_SHA: ${{ steps.ci.outputs.sha }}
+          EXPECTED_RUN_ID: ${{ steps.ci.outputs.run_id }}
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const file = `${process.env.RUNNER_TEMP}/aio-worker-attestation/aio-release-attestation.json`;
           const attestation = JSON.parse(fs.readFileSync(file, 'utf8'));
-          if (attestation.schemaVersion !== 'aio-release-attestation.v1' || attestation.testedSha !== process.env.EXPECTED_SHA) {
+          if (attestation.schemaVersion !== 'aio-release-attestation.v1' || attestation.testedSha !== process.env.EXPECTED_SHA || String(attestation.runId) !== process.env.EXPECTED_RUN_ID || attestation.repository !== process.env.GITHUB_REPOSITORY) {
             throw new Error('CI attestation does not match the successful run SHA');
           }
           if (typeof attestation.workerDeploy?.aiProxy !== 'boolean') throw new Error('CI attestation has no AI-proxy change result');
@@ -187,7 +188,6 @@ jobs:
           EXPECTED_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then echo 'safe=true' >> "$GITHUB_OUTPUT"; exit 0; fi
           current_main_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
           if [ "$current_main_sha" = "$EXPECTED_SHA" ]; then
             echo 'safe=true' >> "$GITHUB_OUTPUT"

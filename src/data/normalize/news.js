@@ -35,6 +35,9 @@ export function normalizeNews(raw = {}) {
     headline: decodeNewsText(item?.headline || item?.title),
     desc: decodeNewsText(item?.desc || item?.summary || item?.description),
     summary: decodeNewsText(item?.summary || item?.desc || item?.description),
+    // P1359: translated fields cross the same single decoding boundary as originals.
+    ko_title: decodeNewsText(item?.ko_title),
+    ko_summary: decodeNewsText(item?.ko_summary),
     source: item?.source || item?.feed || 'unknown',
     link: item?.link == null && item?.url == null ? '' : String(item?.link || item?.url),
     pubDate: item?.pubDate || item?.date || null,

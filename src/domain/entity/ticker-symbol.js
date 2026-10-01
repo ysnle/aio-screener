@@ -31,9 +31,7 @@ export function normalizeTickerInput(raw, { krStockDb = {}, krToYahoo = null } =
     const entries = Object.entries(krStockDb && typeof krStockDb === 'object' ? krStockDb : {});
     const exact = entries.find(([, info]) => compact(info && info.name) === wanted);
     if (exact) return toYahoo(exact[0]);
-    // A partial name resolves only when it is unambiguous — never guess between two issuers.
-    const prefixed = entries.filter(([, info]) => compact(info && info.name).startsWith(wanted));
-    if (prefixed.length === 1) return toYahoo(prefixed[0][0]);
+    // P1345: even a unique prefix is not an exact registered company name.
   }
   return upper;
 }

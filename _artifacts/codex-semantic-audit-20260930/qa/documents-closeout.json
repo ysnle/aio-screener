@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "aio-handoff-closeout.v1",
+  "recordedAt": "2026-10-01T01:39:41.861Z",
+  "version": "v56.87",
+  "branch": "main",
+  "head": "6441a2c6595bed848c0d7b58d3f407e698daaee3",
+  "commit": false,
+  "push": false,
+  "deploy": false,
+  "evidenceLevel": "local-static-contract",
+  "warnings": [
+    "Two historical July context documents retain replacement-character damage; semantic truth and live certification are separate."
+  ],
+  "checks": [
+    {
+      "command": "node scripts/generate-workspace-state.mjs --check",
+      "exitCode": 0,
+      "output": "Workspace state OK: v56.87, 19 routes, 74 context documents.\n"
+    },
+    {
+      "command": "node scripts/ci-workspace-contract-check.mjs",
+      "exitCode": 0,
+      "output": "Workspace contract OK: v56.87, 74 context docs, 6 skills, 4 agent profiles, 13 workflows.\n"
+    },
+    {
+      "command": "node scripts/ci-knowledge-lint-check.mjs",
+      "exitCode": 0,
+      "output": "Knowledge lint warnings:\n - _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md contains replacement-character encoding damage: historical evidence remains explicit-only until recovered from Git history\n - _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md contains replacement-character encoding damage: historical evidence remains explicit-only until recovered from Git history\nKnowledge lint OK: 74 context documents, 32 prescriptive surfaces, 2 warning(s). Mechanical PASS does not certify semantic truth.\n"
+    },
+    {
+      "command": "node scripts/ci-skill-contract-check.mjs",
+      "exitCode": 0,
+      "output": "Skill contract check OK: 6 skill(s), 6 command wrapper(s).\n"
+    },
+    {
+      "command": "node scripts/ci-skill-eval-fixture-check.mjs",
+      "exitCode": 0,
+      "output": "Skill eval fixtures OK: 6 skills, 18 cases; behavioral execution remains a separate evidence level.\n"
+    },
+    {
+      "command": "node scripts/ci-ledger-integrity-check.mjs",
+      "exitCode": 0,
+      "output": "[ledger-integrity] QA open items: 222 | without verify_by: 168 (baseline 168) | RULES R680, gaps 65\nLedger integrity OK: R gap set is frozen and every new open QA item must declare how it will be re-verified.\n"
+    },
+    {
+      "command": "node scripts/ci-assertion-trace-check.mjs",
+      "exitCode": 0,
+      "output": "Assertion trace OK: 2907 labelled assertions, 1180 grandfathered (baseline 1225), 0 new untraced.\n"
+    },
+    {
+      "command": "node scripts/sync-agent-profiles.mjs --check",
+      "exitCode": 0,
+      "output": "Agent profiles verified: 4 profile(s), Claude and Codex surfaces.\n"
+    },
+    {
+      "command": "node scripts/sync-agent-skills.mjs --check",
+      "exitCode": 0,
+      "output": "Agent skill mirror OK: 20 file(s) synchronized.\n"
+    },
+    {
+      "command": "node scripts/ci-version-check.mjs",
+      "exitCode": 0,
+      "output": "Version sync OK: v56.87 (13 cachebusters)\n"
+    },
+    {
+      "command": "node scripts/ci-syntax-check.mjs",
+      "exitCode": 0,
+      "output": "Syntax check OK: 455 JS/ESM files (8 workers).\n"
+    },
+    {
+      "command": "node scripts/ci-runtime-contract-check.mjs",
+      "exitCode": 0,
+      "output": "Runtime contract check OK: v56.87, 95 AI callable reference(s), digest contract wired.\n"
+    },
+    {
+      "command": "node scripts/ci-decomp-hotspot-check.mjs",
+      "exitCode": 0,
+      "output": "Decomposition hotspot check OK: ratchet holds for 12 file(s); ceiling headroom index.html 22229, js/aio-core.js 5131, js/aio-data.js 1322.\n"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "output": ""
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { renderBriefingSummary } from '../components/briefing-summary.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
 import { subscribeToSlices } from '../../state/memoize.js';
@@ -352,6 +353,8 @@ function render({ documentRef, root, store, route }) {
       windowEnd: windowInfo.end,
       anchorDate: windowInfo.anchorDate?.toISOString?.().slice(0, 10)
     } : {}) || { items: [], eligibleCount: 0, emptyReason: 'native-model-unavailable' };
+    // P1346: summary article counts use the same completed news window as the feed.
+    if (page) renderBriefingSummary({ documentRef, root, page, items: model.eligibleItems || model.items || [] });
     const container = documentRef?.getElementById('briefing-live-news-list');
     if (container) {
       container.dataset.aioBriefingRenderer = 'native';
@@ -389,10 +392,11 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
         bag.add(() => suppliedMaterialBridge.remove());
       }
       renderNow();
-      const unsubscribe = store && subscribeToSlices(store, ['news'], renderNow);
+      const unsubscribe = store && subscribeToSlices(store, route === 'briefing' ? ['news', 'analysis', 'marketSnapshot'] : ['news'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
-      ['aio:newsUpdated', 'aio:newsSurfaceInvalidated', 'aio:refresh:done', 'aio:serverDataLoaded'].forEach((eventName) => {
+      ['aio:newsUpdated', 'aio:newsSurfaceInvalidated', 'aio:refresh:done', 'aio:serverDataLoaded',
+        ...(route === 'briefing' ? ['aio:historyLoaded', 'aio:sentimentUpdated', 'aio:liveQuotes', 'aio:marketSnapshot'] : [])].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });
@@ -411,6 +415,7 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
          bag.add(() => briefingMore.removeEventListener('click', onToggle));
        }
       bag.add(() => {
+        if (route === 'briefing') documentRef?.getElementById('briefing-decision-summary')?.remove();
         if (page?.dataset.aioArchitectureSlice === 'news') delete page.dataset.aioArchitectureSlice;
         if (page?.dataset.aioArchitectureState) delete page.dataset.aioArchitectureState;
          if ((route === 'market-news' || route === 'briefing') && page?.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;

@@ -34,7 +34,7 @@ target_version: version.json
 
 ## Task routing
 
-Current handoff (2026-09-27 full audit, supersedes the August handoffs): [`HANDOFF.md`](../_artifacts/full-audit-20260927/HANDOFF.md), live progress in [`EXECUTION-STATUS.md`](../_artifacts/full-audit-20260927/EXECUTION-STATUS.md), target design in `FOUNDATION-DESIGN.md` / `V2-BLUEPRINT.md` beside it. Earlier audit: [`REPORT.md`](../_artifacts/deep-audit-20260831/REPORT.md) (historical). Inventory coverage, semantic review, local browser checks and deployed certification are explicitly separate.
+Next-session handoff: [`NEXT-SESSION-20261001.md`](../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md) (Codex → Claude; current-reference, financial, semantic and operating-budget continuation). Latest findings: [`REPORT.md`](../_artifacts/codex-semantic-audit-20260930/REPORT.md). Foundation handoff (2026-09-27 full audit, supersedes the August handoffs): [`HANDOFF.md`](../_artifacts/full-audit-20260927/HANDOFF.md), progress/history in [`EXECUTION-STATUS.md`](../_artifacts/full-audit-20260927/EXECUTION-STATUS.md), target design in `FOUNDATION-DESIGN.md` / `V2-BLUEPRINT.md` beside it. Earlier audit: [`REPORT.md`](../_artifacts/deep-audit-20260831/REPORT.md) (historical). Inventory coverage, semantic review, local browser checks and deployed certification are explicitly separate.
 
 Latest desktop journey evidence and open boundaries: [`user-flow-remediation-20260830.md`](../_artifacts/user-flow-remediation-20260830.md). The route walkthrough is not whole-content semantic or deployment certification (P1010/R572).
 
@@ -70,7 +70,7 @@ The exact classification for every `_context/*.md|json` file is in `CONTEXT-CATA
 
 - Earlier all-line/history audit (historical): `../_artifacts/exhaustive-audit-20260831/REPORT.md` and `coverage-summary.json`. Inventory/parse coverage is separate from semantic completion; unresolved work is not closed by a passing gate.
 
-- **Agent handoff (current): `../_artifacts/full-audit-20260927/HANDOFF.md`** — 마지막 작업, 열린 항목과 다음 행동, 반복 금지. 실행 로그는 같은 디렉터리의 `EXECUTION-STATUS.md`. 이전 `full-review-20260916/`은 역사 기록이다.
+- **Agent handoff (current): `../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md`** — 마지막 작업, 열린 항목과 다음 행동, 반복 금지. 수정 근거·검증은 같은 디렉터리의 `REPORT.md`, 누적 실행 이력은 `../_artifacts/full-audit-20260927/EXECUTION-STATUS.md`. 이전 `full-review-20260916/`은 역사 기록이다.
 
 - **데이터 의미·정합성 전수 감사 (2026-09-18): `../_artifacts/data-semantic-consistency-20260918/REPORT.md`** — 상위 23개 산출물(§1~§9, P1096~P1108/R614)에 이어 **중첩 산출물까지 전부** 검사했다(§10, P1109~P1114/R615): 8,908개 참조·37개 매니저 농도 재계산·629 객체 해시·퇴역 범위 정리·중첩 신선도 측정면 신설·미사용 sw 등록부 삭제. 전환 면제 만료는 **2026-10-18**. 남은 OPEN: 날짜 없는 중첩 산출물 12건, `objects/**` 592/629 미참조 blob 보존 정책, 실제 소비 산출물의 캐시 라우팅 누락, `factorObservedAt` 계층별 이름 분리.
 

@@ -14,6 +14,13 @@ const live = read('scripts/ci-live-invariant-check.mjs');
 const operations = read('scripts/build-operations-status.mjs');
 const fail = (message) => { throw new Error(`[deployment-convergence] ${message}`); };
 
+// P1351: exact identity checks and current-main guards cover retries and manual redeploys.
+if (!pages.includes('Recheck main head immediately before Pages mutation') || !pages.includes('Recheck main head before Pages retry') || !pages.includes("steps.retry-main.outputs.safe == 'true'")) fail('P1351 Pages lacks latest-main mutation/retry guards');
+if (!external.includes('resolveProvenanceRun') || !external.includes('verification-unavailable')) fail('P1351 observer lacks exact-run fallback or unavailable-evidence boundary');
+for (const workflow of [pages, proxyWorkflow, fastWorkflow]) {
+  if (!workflow.includes('EXPECTED_RUN_ID') || !workflow.includes('attestation.repository') && !workflow.includes('a.repository')) fail('P1351 deployment attestation is not bound to its run and repository');
+}
+
 if (policy.schemaVersion !== 'deployment-convergence.v1' || policy.evidenceBoundary?.localCannotCertifyLive !== true) fail('policy identity/evidence boundary drifted');
 if (!/schemaVersion:'aio-deployment\.v1'/.test(pages) || !/AIO_SOURCE_SHA:\s*\$\{\{ steps\.release\.outputs\.sha \}\}/.test(pages) || !/AIO_EXPECTED_SHA:\s*\$\{\{ steps\.release\.outputs\.sha \}\}/.test(pages)) fail('Pages does not publish and verify the exact attested SHA');
 for (const [name, workflow] of [['aiProxy', proxyWorkflow], ['fastDataPlane', fastWorkflow]]) {

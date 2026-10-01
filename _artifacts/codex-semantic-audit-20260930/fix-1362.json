@@ -1,0 +1,16 @@
+{
+  "version": "v56.87", "date": "2026-10-01",
+  "p": {
+    "id": 1362,
+    "title": "Make delayed news key-configuration action a real accessible button",
+    "symptom": "The accessibility failed-batch rerun exposed a 17px Claude key-configuration action in the delayed market-news status footer.",
+    "root_cause": "The async status renderer created an interactive data-action span with no button role, keyboard focus or minimum hit target. Its late arrival made it absent in some earlier audits.",
+    "fix": "Render a native type=button with the existing delegated action and explicit minimum hit area; preserve the label and configuration behavior.",
+    "violated_rule": "Existing keyboard and desktop target-size browser contracts.",
+    "prevention": "Existing 19-route real Chromium accessibility audit checks named controls and hit-target size. P1362 is cited in the delayed production renderer.",
+    "verification": "Actual browser rerun reproduced the footer target failure after P1361 headline repair; final rerun is recorded in REPORT.md."
+  },
+  "qa": [],
+  "changelog": ["**비동기 뉴스 설정 동작 (P1362):** 키 설정 링크를 실제 버튼으로 바꿔 키보드 접근과 클릭 영역을 보강. 기존 위임 동작 유지."],
+  "note": "v56.87 — P1349–P1362 observation integrity, financial security, provenance, budget, durable reference paths, SEC scope and news accessibility."
+}

@@ -23,6 +23,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 Owner decisions that every agent (Claude, Codex, subagents) applies without re-asking. Change them only when the user says so.
 
 - Audience: the operator's family and friends (~5 users, 2–4 concurrent). Free to run, operated by one person, automated. No public-SaaS features (sign-up, billing, multi-tenant).
+- Budget: prefer free public sources; target total operating spend $10/month, ceiling $20/month. AI API allocation is at most $10/month; data/source spending is at most $10/month and requires a demonstrated quality or coverage gap. Public discoverability does not establish automated reuse rights or historical-data quality. Request-count limits are not billing caps; shared Worker reservations do not cover personal-key or GitHub Actions calls.
 - Scores are reference descriptions of the market on the **latest completed US regular-session close** ("직전 미국장 종가 기준", R670), labelled with that basis and never decision-grade. Missing inputs hold the score; they are never guessed.
 - Desktop only. Mobile layouts and code were removed on purpose; do not add breakpoints or mobile handling back.
 - The options route is retired (`#options` aliases to `sentiment`). Do not revive it.
@@ -52,8 +53,10 @@ Owner decisions that every agent (Claude, Codex, subagents) applies without re-a
 - Generated workspace files are never hand-edited: run `node scripts/generate-workspace-state.mjs --write`, `node scripts/sync-agent-profiles.mjs`, and `node scripts/sync-agent-skills.mjs` as applicable.
 - Static, runtime/headless, browser and live evidence are separate. Never promote a lower evidence level to a higher one.
 - No commit or deployment is implied by “finish”, “fix all”, QA completion, or a passing local gate.
-- Change flow: a `claude/vX.Y-<topic>` (or `codex/...`) branch → PR → CI → merge only when the user asked to ship. Merging `origin/main` into a version branch always conflicts on the generated release manifests (the data bot rewrites them); run `node scripts/resolve-generated-conflicts.mjs` and the release gates it prints instead of hand-editing.
-- Parallel agents get separate worktrees and disjoint file ownership; the main agent integrates and runs the gates once.
+- Change flow (owner decision 2026-09-30): work on `main` directly. Local full QA (`npm run qa:full`) → commit on `main` → push `main` only when the user asks. CI on main is the release gate: Pages and the Workers deploy only the CI-attested SHA, so a red CI never ships. No PR step for routine work.
+- Before pushing, `git pull --no-rebase origin main`; the data bot's commits conflict on the generated release manifests, so run `node scripts/resolve-generated-conflicts.mjs` and the release gates it prints instead of hand-editing.
+- Branches are only for parallel agents or risky experiments: one worktree per agent (`git worktree add <dir> -b <agent>/<topic> main`), disjoint file ownership; the main agent merges them back into `main` and runs the gates once.
+- Line endings are LF everywhere (`.gitattributes`, P1344); do not add CRLF files except `*.cmd`/`*.ps1`.
 
 ## Closeout
 

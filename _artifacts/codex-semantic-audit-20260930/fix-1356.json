@@ -1,0 +1,6 @@
+{
+  "version":"v56.87","date":"2026-10-01",
+  "p":{"id":1356,"title":"Advance PCE schedule from verified official future dates","symptom":"After the UTC date changed, the PCE calendar still named September 30 as its next release and the expiry gate failed.","root_cause":"The hand-curated official schedule stopped at the September release and did not include the next published dates.","fix":"Verify the BEA release schedule and register October 29, November 25 and December 23. Advance nextRelease only; leave lastRelease and released macro results tied to their existing evidence.","violated_rule":"R650 schedule advancement is separate from verified release results.","prevention":"The existing static-db calendar expiry gate remains mandatory and detects stale nextRelease; the macro-calendar review workflow remains the scheduled review path.","verification":"ci-static-db-expiry-check passed after the update. Official source: https://www.bea.gov/news/schedule (page modified 2026-09-30). No data producer or remote workflow was executed."},
+  "qa":[],"changelog":["**PCE 공식 일정 (P1356):** BEA 공식 발표일로 nextRelease를 10/29에 맞추고 연말 일정까지 보강. 발표 결과·관측값은 추정하지 않음."],
+  "note":"v56.87 — P1349–P1356 evidence, Vault, provenance, UI, budget and producer/calendar integrity."
+}

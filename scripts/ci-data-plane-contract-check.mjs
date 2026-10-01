@@ -28,12 +28,12 @@ if (!/fetch-depth:\s*0/.test(workflow) || !/convergence-health\.json/.test(workf
 const rollbackFixtureVersion = 'a1a1a1a1-1111-4111-8111-a1a1a1a1a1a1';
 // P1335: Wrangler returns deployments oldest-first; the newest (by created_on) is the active one.
 if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ created_on: '2026-07-27T00:00:00Z', versions: [{ percentage: 100, version_id: '11111111-1111-4111-8111-111111111111' }] }, { created_on: '2026-09-20T00:00:00Z', versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) throw new Error('rollback resolver must pick the newest deployment, not the first listed (P1335)');
-if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) {
+if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ created_on: '2026-09-20T00:00:00Z', versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) { // P1351: even a single rollback target must carry a valid date.
   fail('P1307/R652/QA-DATA-49 single active rollback target was not resolved');
 }
 let splitRollbackRefused = false;
 try {
-  rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ versions: [{ percentage: 50, version_id: rollbackFixtureVersion }, { percentage: 50, version_id: 'b2b2b2b2-2222-4222-8222-b2b2b2b2b2b2' }] }] });
+  rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ created_on: '2026-09-20T00:00:00Z', versions: [{ percentage: 50, version_id: rollbackFixtureVersion }, { percentage: 50, version_id: 'b2b2b2b2-2222-4222-8222-b2b2b2b2b2b2' }] }] });
 } catch { splitRollbackRefused = true; }
 if (!splitRollbackRefused) fail('P1307/R652/QA-DATA-49 split active traffic must refuse automatic rollback selection');
 const deploymentInputs = workerImpact.getWorkerDeploymentInputs();

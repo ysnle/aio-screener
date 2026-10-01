@@ -1,0 +1,33 @@
+{
+  "version": "v56.87",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1349,
+    "title": "Observation-session identity and independent KRX briefing evidence",
+    "symptom": "SPX history collection buckets counted the same close repeatedly; the briefing used a missing SOX symbol and a US session for KRX observations.",
+    "root_cause": "Collection dates, observation dates and market session identity were conflated, and candidates were selected before their complete evidence contract was validated.",
+    "fix": "Deduplicate MA inputs by actual observed session, hold conflicting recent observations, reject invalid calendar dates and unsupported close provenance; validate all KRX candidates against its own completed calendar; explicitly use the available SMH semiconductor ETF; disclose optional missing score inputs.",
+    "violated_rule": "R670 and R294; new {R} observation identity contract.",
+    "prevention": "QA-SEMANTIC-DATA-01; ci-esm-core-unit-check and ci-native-decision-evidence-check.",
+    "verification": "Deterministic positive/negative unit and native decision evidence gates pass. Current history independently yields MA50 7645.16 and MA200 7213.34 on 2026-09-29. Deployed state is separate."
+  },
+  "r": {
+    "id": 677,
+    "title": "Observation identity precedes collection chronology",
+    "rule": "Price history windows count distinct eligible market observation sessions, never collection buckets. Conflicting recent observations hold the derived result. Each market owns its completed-session calendar. Validate every candidate before selecting one; missing metadata cannot manufacture completed-close eligibility.",
+    "validation": "P1349; ci-esm-core-unit-check and ci-native-decision-evidence-check."
+  },
+  "qa": [
+    {
+      "id": "QA-SEMANTIC-DATA-01",
+      "text": "MA uses eligible distinct observed sessions and recent conflicts hold; KRX uses its own completed close and valid later candidates; missing optional inputs remain visible.",
+      "verify_by": "P1349/R677 ci-esm-core-unit-check + ci-native-decision-evidence-check",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**시장 근거 (P1349/R677):** 관측 세션 기준 이동평균, KRX 독립 종가, SMH 명시, 보조 결측 안내."
+  ],
+  "qa_section": "Semantic, financial and operating-budget audit",
+  "note": "v56.87 — P1349 observation sessions; P1350 financial security; P1351 provenance; P1352 UI meaning; P1353 monthly reservation."
+}

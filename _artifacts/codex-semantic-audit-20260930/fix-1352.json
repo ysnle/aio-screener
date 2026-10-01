@@ -1,0 +1,33 @@
+{
+  "version": "v56.87",
+  "date": "2026-09-30",
+  "p": {
+    "id": 1352,
+    "title": "Descriptive market UI without default scores or economic-cycle overclaims",
+    "symptom": "Held signal scores became 50 in the pulse; legacy headings implied buy permission; RRG counts claimed growth/defensive leadership and market indicators claimed economic expansion/recession; translated news entities leaked into text.",
+    "root_cause": "Sibling UI writers applied neutral defaults and copied stronger meaning than their measured inputs could support.",
+    "fix": "Propagate held scores, preserve true zero, unify market-environment labels, describe RRG counts as relative strength, label the cycle map as educational and the heuristic as a market-input combination, preserve missing yields and decode translated news display values.",
+    "violated_rule": "R670 and R671; new {R} presentation meaning contract.",
+    "prevention": "QA-SEMANTIC-UI-01; ci-esm-core-unit-check, headless T213/T819 and architecture-browser pulse regression.",
+    "verification": "Unit market-model checks pass; actual in-app browser confirms revised theme/signal text. Integrated browser and full QA certification are tracked in the report without substituting static evidence for visual review."
+  },
+  "r": {
+    "id": 679,
+    "title": "Presentation cannot strengthen evidence meaning",
+    "rule": "A descriptive score never grants buying permission. A held score stays held in sibling summaries; zero is not missing. Relative-strength quadrant counts do not establish sector identity or an economic-cycle phase. Model input coverage is not predictive accuracy. UI copy must name the measured object and preserve its limits.",
+    "validation": "P1352; ci-esm-core-unit-check, ci-architecture-browser-check and headless model fixtures."
+  },
+  "qa": [
+    {
+      "id": "QA-SEMANTIC-UI-01",
+      "text": "Signal/pulse preserve null and zero, market models do not claim economic phases, and RRG labels describe their actual measured distribution.",
+      "verify_by": "P1352/R679 ci-esm-core-unit-check + ci-architecture-browser-check + headless T213/T819 + manual browser screenshot",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**화면 의미 (P1352/R679):** 점수 보류 일관성·시장 환경 명칭·경기 국면 단정 제거·RRG 분포 표현·뉴스 문자 디코딩."
+  ],
+  "qa_section": "Semantic, financial and operating-budget audit",
+  "note": "v56.87 — P1349 observation sessions; P1350 financial security; P1351 provenance; P1352 UI meaning; P1353 monthly reservation."
+}

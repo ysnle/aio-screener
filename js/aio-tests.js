@@ -4922,8 +4922,8 @@
     // T213: getCycleFromMacro VIX 35 + breadth 30 → Bear/Recession 판정
     var cycle2 = window.AIO && window.AIO.getCycleFromMacro
       ? window.AIO.getCycleFromMacro({ vix: 35, breadth50: 30, yield2s10s: -0.2, spxTrend: 'down' }) : null;
-    _assert('T213 cycle_bear: 약세 매크로 → Bear/Recession Risk phase',
-      cycle2 && /Bear|Recession/.test(cycle2.phase), cycle2 ? cycle2.phase : 'undefined');
+    _assert('T213 market_environment (P1352): 약화 관측은 경기 침체 확정이 아님',
+      cycle2 && cycle2.phase === '환경 약화' && !/침체 선행|경기위치/.test(cycle2.rationale.join(' ')), cycle2 ? cycle2.phase : 'undefined');
 
     // T214: WEIGHT_REGISTRY MARKET_REGIME bands 4단계
     var mrBands = wr && wr.MARKET_REGIME ? wr.MARKET_REGIME.bands.length : 0;
@@ -6460,7 +6460,7 @@
       var cycleModelOk = !!(c && typeof c.score === 'number' && c.score >= 0 && c.score <= 100 && c.components && typeof c.components.vix === 'number' && typeof c.phase === 'string' && Array.isArray(c.rationale));
       // 곡선 역전 + 변동성 상승 → Recession Risk 선행
       var cInv = window.AIO.getCycleFromMacro({ vix: 30, breadth50: 35, yield2s10s: -0.3, spxTrend: 'down' });
-      var invOk = !!(cInv && (cInv.phase === 'Recession Risk' || cInv.phase === 'Bear Market'));
+      var invOk = !!(cInv && cInv.phase === '환경 약화'); // P1352
       // riskScore 정규화 + F&G U자: 극단공포(fg=10)와 극단탐욕(fg=90) 모두 고위험 성분
       // computeMarketState는 라이브 fg를 쓰므로 소스 검증 + getCycle 경계 안정성으로 대체
       var srcCMS2 = window.AIO.computeMarketState.toString();
@@ -6468,7 +6468,7 @@
       var ms819 = window.AIO.computeMarketState();
       var riskFieldOk = !!(ms819 && ('riskScore' in ms819) && ('cycleScore' in ms819) && (ms819.riskScore == null || (ms819.riskScore >= 0 && ms819.riskScore <= 100)));
       // 경계 입력에서 phase가 항상 유효 문자열(naive 캐스케이드의 'unknown' 누락 회귀 가드)
-      var phasesValid = ['Late Cycle (Peak)','Mid Cycle (Expansion)','Early Cycle (Recovery)','Mid Cycle','Recession Risk','Bear Market','unknown'];
+      var phasesValid = ['환경 양호','지표 혼재','환경 약화','판정 보류']; // P1352
       var edge = window.AIO.getCycleFromMacro({ vix: 22, breadth50: 35, yield2s10s: 0, spxTrend: 'down' });
       var edgeOk = !!(edge && phasesValid.indexOf(edge.phase) >= 0);
       t819ok = cycleModelOk && invOk && riskNormOk && riskFieldOk && edgeOk;
@@ -7902,8 +7902,8 @@
     // T895: unlockPortfolio이 복호화 결과 null(오PIN)을 실제로 판별해 거부하는지
     if (typeof unlockPortfolio === 'function') {
       var unlockSrc895 = unlockPortfolio.toString();
-      _assert('T895 wrong_pin_detected (WO-1A): unlockPortfolio이 decrypt() 결과가 null이면(AES-GCM 인증 실패=오PIN) 잠금 유지 후 거부',
-        /dec\s*===\s*null/.test(unlockSrc895) && /_AioVault\.lock\(\)/.test(unlockSrc895));
+      _assert('T895 P1350 wrong PIN: production portfolio delegates authenticated Vault unlock and keeps failure locked',
+        /await\s+_AioVault\.unlock\(pin\)/.test(unlockSrc895) && typeof window._aioFinancialSecurity?.authenticateVault === 'function' && /_AioVault\.lock\(\)/.test(unlockSrc895));
     } else {
       _assert('T895 wrong_pin_detected (WO-1A): unlockPortfolio 미존재', false);
     }
@@ -8416,11 +8416,11 @@
       untrustedBlock.indexOf('[AIO UNTRUSTED DATA START kind=NEWS_TELEGRAM') >= 0 && untrustedBlock.indexOf('sourceKind=UNTRUSTED') >= 0 && untrustedBlock.indexOf('quarantined=true') >= 0 && untrustedBlock.indexOf('accountId') < 0,
       untrustedBlock);
 
-    var fixture = [{ ticker: 'NVDA', qty: 3, cost: 120, target: 200, memo: 'private note', sector: 'Technology' }];
-    var redacted = window.AIO.redactPortfolioForAI(fixture, { liveData: { NVDA: { price: 150 } } });
+    var fixture = [{ ticker: 'NVDA', qty: 3, cost: 120, costCurrency: 'USD', target: 200, memo: 'private note', sector: 'Technology' }];
+    var redacted = window.AIO.redactPortfolioForAI(fixture, { liveData: { NVDA: { price: 150, currency: 'USD', observedAt: new Date().toISOString() } } });
     var preview = window.AIO.getPortfolioAIPrivacyPreview(fixture, { consent: false });
     _assert('T960 portfolio_redaction_allowlist (WP-AI5): account and exact position fields never enter AI context',
-      redacted.length === 1 && redacted[0].ticker === 'NVDA' && redacted[0].allocationPct === 100 && !('qty' in redacted[0]) && !('cost' in redacted[0]) && preview.sendable === false && preview.excludedFields.indexOf('memo') >= 0,
+      redacted.length === 1 && redacted[0].ticker === 'NVDA' && redacted[0].allocationPct === 100 && window.AIO.redactPortfolioForAI(fixture, { liveData: { NVDA: { price: 150 } } })[0].allocationPct === null && !('qty' in redacted[0]) && !('cost' in redacted[0]) && preview.sendable === false && preview.excludedFields.indexOf('memo') >= 0, // P1350
       JSON.stringify({ redacted: redacted, preview: preview }));
 
     var oldConsent = window.AIO.hasPortfolioAIConsent();

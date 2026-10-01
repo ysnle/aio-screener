@@ -27,7 +27,7 @@ export const PAGE_DATA_TIMELINE_CONTRACTS = Object.freeze({
   'theme-detail': Object.freeze([requirement('themeDetail.quoteCoverage', 4 * DAY, { direction: true })]),
   macro: Object.freeze([requirement('macro.cpi', 50 * DAY), requirement('macro.pce', 75 * DAY), requirement('macro.employment', 50 * DAY), requirement('macro.fedRate', 50 * DAY), requirement('market.^TNX', 4 * DAY, { marketRevision: true })]),
   fxbond: Object.freeze([requirement('market.DX-Y.NYB', 2 * DAY, { direction: true, marketRevision: true }), requirement('market.KRW=X', 2 * DAY, { direction: true, marketRevision: true }), requirement('market.^TNX', 4 * DAY, { marketRevision: true }), requirement('market.^IRX', 4 * DAY, { marketRevision: true }), requirement('sentiment.hySpread', 4 * DAY)]),
-  fundamental: Object.freeze([requirement('entity.fundamental', 450 * DAY)]),
+  fundamental: Object.freeze([requirement('fundamental.referenceScope', 450 * DAY)]), // P1360: selected issuer or actual watchlist scope.
   options: Object.freeze([requirement('market.^VIX', 4 * DAY, { marketRevision: true }), requirement('sentiment.putCall', 4 * DAY), requirement('market.^SKEW', 4 * DAY, { required: false, marketRevision: true })])
 });
 

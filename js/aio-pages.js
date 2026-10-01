@@ -997,14 +997,14 @@ function updateMarketPulse() {
   // 1) 시그널 스코어
   try {
     var sc = computeTradingScore('swing');
-    var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : 50;
-    var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-    var sLabel = t >= 75 ? '환경 우호' : t >= 60 ? '환경 양호' : t >= 45 ? '중립' : t >= 30 ? '환경 불리' : '환경 극단';
+    var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null; // P1352
+    var sColor = t == null ? 'var(--text-muted)' : t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
+    var sLabel = t == null ? '산출 보류' : t >= 75 ? '환경 우호' : t >= 60 ? '환경 양호' : t >= 45 ? '중립' : t >= 30 ? '환경 불리' : '환경 극단';
     var el1 = document.getElementById('mp-signal-score');
     var el1b = document.getElementById('mp-signal-label');
-    if (el1) { el1.textContent = t; el1.style.color = sColor; }
+    if (el1) { el1.textContent = t == null ? '—' : t; el1.style.color = sColor; }
     if (el1b) { el1b.textContent = sLabel; el1b.style.color = sColor; }
-  } catch(e) {}
+  } catch(e) { ['mp-signal-score','mp-signal-label'].forEach(function(id, i) { var el = document.getElementById(id); if (el) { el.textContent = i ? '산출 보류' : '—'; el.style.color = 'var(--text-muted)'; } }); }
 
   // P1267: 시장폭은 timestamp가 확인된 canonical AIO 5/20/50SMA evidence만 사용한다.
   // 20SMA, 스냅샷, 섹터 ETF 일간 등락률은 모집단·기간·현재성이 달라 50SMA 대신 쓰지 않는다.

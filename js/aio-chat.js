@@ -2182,13 +2182,9 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   }
   // v49.57 P318: Claude web_search 조건부 활성화 — opts.webSearch === true 일 때만
   if (opts.webSearch === true) {
+    if (!window._aioAIBudgetPolicy) throw new Error('AI budget policy unavailable'); // P1353
+    window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: _claudeTarget.serverKey, state: window, bumpCounter: typeof _bumpApiCounter === 'function' ? _bumpApiCounter : null });
     reqBody.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }];
-    // 통계 추적
-    window._aioWebSearchStats = window._aioWebSearchStats || { calls: 0, lastUsedAt: null };
-    window._aioWebSearchStats.calls++;
-    window._aioWebSearchStats.lastUsedAt = new Date().toISOString();
-    // v50.10: 공유 유료 키 일일 사용량 카운트 (80% 경고/도달 로그는 _bumpApiCounter 기존 동작)
-    try { if (typeof _bumpApiCounter === 'function') _bumpApiCounter('claudeWebSearch'); } catch(e) {}
   }
 
   // v48.8: anthropic-beta 헤더 호환성 — 2024년 11월 이후 prompt caching이 정식 기능으로 승격되어

@@ -1,0 +1,18 @@
+{
+  "version": "v56.87",
+  "date": "2026-10-01",
+  "p": {
+    "id": 1354,
+    "title": "Shared numeric formatting preserves missing observations",
+    "symptom": "The actual theme screen still displayed missing VIX as 0.0 and missing yield spread as 0.00 despite a held model and explicit missing-value fallback.",
+    "root_cause": "The shared _aioSafeFixed presenter used Number(value), coercing null, blank text and booleans into numeric observations before checking finiteness.",
+    "fix": "Use the shared strict finite-number boundary in the common presenter. Invalid types reach the caller fallback; real numeric zero and numeric strings remain valid across sibling consumers.",
+    "violated_rule": "R294 and R679 presentation meaning boundaries.",
+    "prevention": "QA-SEMANTIC-FORMAT-01; production-function positive and negative fixtures in ci-esm-core-unit-check.mjs.",
+    "verification": "Native units pass for null, undefined, blanks, booleans, objects, NaN and infinity plus numeric zero and string positive controls. Browser recheck and integrated QA are separately recorded in REPORT.md."
+  },
+  "qa": [{ "id": "QA-SEMANTIC-FORMAT-01", "text": "The shared formatter preserves missing observations through fallback while accepting real zero and numeric strings.", "verify_by": "P1354/R679 ci-esm-core-unit-check + actual theme browser screenshot", "done": true }],
+  "qa_section": "Semantic, financial and operating-budget audit",
+  "changelog": ["**공통 숫자 표시 (P1354):** null·공백·boolean을 0으로 표시하던 공통 formatter를 엄격한 수치 경계로 수정."],
+  "note": "v56.87 — P1349 observation sessions; P1350 Vault; P1351 provenance; P1352 UI; P1353 monthly budget; P1354 missing numeric formatting."
+}

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v56.85 — 올인원 투자 터미널</title>
+  <title>AIO Screener v56.87 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=56.85" defer></script>
-<script src="./js/aio-macro-tech.js?v=56.85" defer></script>
-<script src="./js/aio-kr-data.js?v=56.85" defer></script>
-<script src="./js/aio-pages.js?v=56.85" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=56.85">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=56.85">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=56.85">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=56.85">
+<script src="./js/aio-workspace.js?v=56.87" defer></script>
+<script src="./js/aio-macro-tech.js?v=56.87" defer></script>
+<script src="./js/aio-kr-data.js?v=56.87" defer></script>
+<script src="./js/aio-pages.js?v=56.87" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=56.87">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=56.87">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=56.87">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=56.87">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2734,7 +2734,7 @@ html { scrollbar-width: thin; scrollbar-color: rgba(33,29,22,0.12) transparent; 
    keep a visible focus ring, and do not underline (the row keeps its hairline look). */
 /* min-height keeps the anchor a >=24px pointer target (text-only links measured 16px tall and
    tripped the accessibility small-target rule). */
-.news-item-link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; min-height: 24px; }
+.news-item-link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; min-height: 28px; } /* P1361: keep the clickable headline above the 24px threshold after subpixel layout. */
 .news-item-link:hover { text-decoration: underline; }
 .news-item-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .news-item-dot { display: none; }
@@ -5634,7 +5634,7 @@ button[data-filter-active="true"] {
               <div id="llm-prog-fill" class="llm-prog-fill" style="width:0%"></div>
             </div>
             <div id="llm-daily-cost" style="font-size:11px;color:var(--text-muted);margin-top:3px;"></div>
-            <div class="llm-budget-note">$50 / 5명 · 인당 $10/월 · 매일 자정 리셋</div>
+            <div class="llm-budget-note">전체 운영 목표 $10/월 · 상한 $20/월 · AI 예산 최대 $10/월<br>일일 호출 수와 월 비용은 별도입니다. 개인 키·자동 수집 비용은 공급자 청구 내역에서 함께 확인하세요.</div>
           <div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);">
             <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:3px;">RSS2JSON KEY <span style="color:var(--data-cyan);">(뉴스 한도 해제)</span></div>
             <div class="llm-key-row">
@@ -5785,7 +5785,7 @@ button[data-filter-active="true"] {
             </div>
             <!-- v49.58 P322 R108: web_search 토글 GUI -->
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(33,29,22,0.15);display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:11px;color:var(--text-muted);">Claude 웹 검색</span>
+              <span style="font-size:11px;color:var(--text-muted);" title="공유 AI에서는 월 예산 보호를 위해 차단합니다. 개인 키는 별도 공급자 예산을 확인하세요.">Claude 유료 웹 검색 · 개인 키</span>
               <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;">
                 <input type="checkbox" id="aio-web-search-toggle" aria-label="Claude 웹 검색 사용" data-on-change="_aioWebSearchToggle" checked style="cursor:pointer;">
                 <span id="aio-web-search-status" style="color:var(--data-green);font-size:10px;">ON</span>
@@ -5837,8 +5837,8 @@ button[data-filter-active="true"] {
         <div id="aio-regime-drift-banner" role="status" aria-live="polite" style="display:none;"></div>
         <!-- v42.1: 마켓 펄스 바 — 페이지 간 시장 상태 요약 -->
         <div class="market-pulse-bar" id="market-pulse-bar" style="display:none;">
-          <div class="pulse-seg" data-action="showPage" data-arg="signal" role="button" tabindex="0" title="매매 시그널 상세" aria-label="매매 시그널 페이지 이동">
-            <span class="ps-label">시그널</span>
+          <div class="pulse-seg" data-action="showPage" data-arg="signal" role="button" tabindex="0" title="시장 환경 상세" aria-label="시장 환경 페이지 이동">
+            <span class="ps-label">환경</span>
             <span class="ps-val" id="mp-signal-score" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-signal-label" style="color:var(--text-muted);">수신 대기</span>
           </div>
@@ -5870,7 +5870,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v56.85</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v56.87</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6135,7 +6135,7 @@ button[data-filter-active="true"] {
   <!-- ─ 헤더 — v52.65 아이보리 2a: serif 27px 타이틀 + 무채 필 모드토글 ─ -->
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
-      <div class="page-title">지금 거래해야 할까?</div>
+      <div class="page-title">시장 환경</div>
       <div class="page-subtitle">변동성(VIX) 25% · 추세(이동평균) 20% · 심리(공포·탐욕·풋콜) 25% · 시장 폭(20일선) 20% · 거시 10% 가중 합산</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
@@ -7381,7 +7381,17 @@ button[data-filter-active="true"] {
     </div>
 
     </div><!-- /aio-section 시장현황바 -->
-
+    <!-- v52.63: 행동 -->
+    <div class="aio-section">
+      <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:18px 24px;display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
+        <div style="flex-shrink:0;">
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">시장 확인 목록</div>
+          <div id="briefing-action-meta" style="font-size:11px;color:var(--text-muted);margin-top:4px;">—</div>
+        </div>
+        <div style="width:1px;align-self:stretch;background:var(--border-strong);"></div>
+        <div id="briefing-action-list" style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div><!-- /aio-section 행동 -->
     <!-- v52.63 아이보리 리디자인 2b: 시장 분석(심층) -->
     <div class="aio-section" style="border-top:1px solid var(--border-strong);padding-top:20px;">
       <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
@@ -7454,17 +7464,6 @@ button[data-filter-active="true"] {
       </div>
     </div><!-- /aio-section 브리핑 리서치 연결고리 -->
 
-    <!-- v52.63: 행동 -->
-    <div class="aio-section">
-      <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:18px 24px;display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
-        <div style="flex-shrink:0;">
-          <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">행동</div>
-          <div id="briefing-action-meta" style="font-size:11px;color:var(--text-muted);margin-top:4px;">—</div>
-        </div>
-        <div style="width:1px;align-self:stretch;background:var(--border-strong);"></div>
-        <div id="briefing-action-list" style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:8px;"></div>
-      </div>
-    </div><!-- /aio-section 행동 -->
 
     <!-- ── v16: 실시간 24시간 뉴스 섹션 ──────────────────────────── -->
     <div class="aio-section">
@@ -10075,7 +10074,7 @@ button[data-filter-active="true"] {
     <!-- ═══════════════ PAGE: THEMES (테마 분석) ═══════════════ -->
   <div class="page" id="page-themes">
   <div class="insight-box box-collapsed">
-    <strong>지금 어떤 테마가 주도하나? — 경기 사이클 판정 · RRG 상대회전 3뷰(11섹터·서브섹터·전체 25 ETF) · 섹터 퍼포먼스 · 칩에서 여는 상세 14종</strong>
+    <strong>어떤 테마가 강한가? — 시장 지표 조합 참고 · RRG 상대회전 3뷰(11섹터·서브섹터·전체 25 ETF) · 섹터 퍼포먼스 · 칩에서 여는 상세 14종</strong>
   </div>
 
   <!-- 헤더 — v52.71 아이보리 3g: serif 27px 타이틀(시안 구조) -->
@@ -10083,7 +10082,7 @@ button[data-filter-active="true"] {
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
       <div class="page-title">테마 · 트렌드</div>
-      <div class="page-subtitle">경기 사이클 판정 · RRG 상대회전(11섹터·서브섹터·전체 25 ETF) · 섹터 퍼포먼스(20일/YTD) · 상세 14종(구성·리더·브레드스·벤치마크) · 요약 전용 11종</div>
+      <div class="page-subtitle">시장 지표 조합 참고 · RRG 상대회전(11섹터·서브섹터·전체 25 ETF) · 섹터 퍼포먼스(20일/YTD) · 상세 14종(구성·리더·브레드스·벤치마크) · 요약 전용 11종</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div id="rrg-view-tabs" style="display:flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--bg-card);">
@@ -10199,9 +10198,9 @@ button[data-filter-active="true"] {
 
     <!-- ══ SECTION 3: 경기 사이클 위치 ══════════════════════════════ -->
     <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">경기 사이클 — 지금 어디?</span></div>
+    <div class="aio-section-hd"><span class="aio-section-label">섹터 순환 참고 지도</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px 18px;margin-bottom:14px;">
-      <div style="font-size:14px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;"> 경기 사이클 — 지금 어디?</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">섹터 순환 학습용 예시 · 현재 경기 국면을 확정하지 않습니다</div>
       <div style="position:relative;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:12px;">
         <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;text-align:center;">
           <div style="padding:10px 4px;border-right:1px solid var(--border);">
@@ -10220,7 +10219,7 @@ button[data-filter-active="true"] {
             <div style="font-size:12px;font-weight:700;color:var(--text-muted);">피크</div>
             <div style="font-size:11px;color:var(--data-amber);margin-top:4px;">원자재·에너지·필수소비</div>
           </div>
-          <div id="cycle-late" data-cycle-phase="late" style="padding:10px 4px;border-right:1px solid var(--border);background:rgba(33,29,22,0.04);border-radius:4px;" title="현재 경기 사이클 단계는 상단 동적 판정 참조">
+          <div id="cycle-late" data-cycle-phase="late" style="padding:10px 4px;border-right:1px solid var(--border);background:rgba(33,29,22,0.04);border-radius:4px;" title="학습용 섹터 순환 예시 · 현재 경기 국면 확정 아님">
             <div style="font-size:12px;font-weight:700;color:var(--text-muted);">Late (참고)</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">에너지·필수소비·유틸</div>
           </div>
@@ -10232,7 +10231,7 @@ button[data-filter-active="true"] {
       </div>
       <div id="cycle-dynamic-readout" style="margin-bottom:8px;padding:8px 10px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.25);border-radius:3px;font-size:11px;color:var(--text-secondary);">
         <span data-narrative-stamp="themes" style="float:right;font-size:11px;color:var(--text-muted);font-family:var(--font-mono);" title="이 분석 텍스트는 시세·지표가 갱신될 때 자동으로 다시 계산됩니다">자동 갱신</span>
-        <strong style="color:var(--accent);">동적 사이클 판정:</strong>
+        <strong style="color:var(--accent);">시장 지표 조합 (참고):</strong>
         <span id="cycle-dynamic-phase" style="color:var(--data-amber);font-weight:700;">판정 입력 대기...</span> ·
         <span id="cycle-dynamic-inputs" style="font-size:10px;color:var(--text-muted);">매크로 입력 수신 대기</span>
         <div id="cycle-dynamic-rationale" style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.5;"></div>
@@ -12605,15 +12604,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=56.85" defer></script>
-  <script src="./js/aio-data.js?v=56.85" defer></script>
-  <script src="./js/aio-ui.js?v=56.85" defer></script>
+  <script src="./js/aio-core.js?v=56.87" defer></script>
+  <script src="./js/aio-data.js?v=56.87" defer></script>
+  <script src="./js/aio-ui.js?v=56.87" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=56.85" defer></script>
+<script src="./js/aio-chat.js?v=56.87" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -12675,7 +12674,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=56.85" defer></script>
+<script src="./js/aio-glossary.js?v=56.87" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

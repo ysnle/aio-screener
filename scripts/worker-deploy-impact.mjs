@@ -61,9 +61,10 @@ export function isAncestorCommit(ancestorSha, descendantSha) {
 export function shouldDeployWorker({ plane, manual = false, attestedChanged = false, liveSha, testedSha, latestMainSha, cumulativeChanges, isAncestor = isAncestorCommit }) {
   if (!SHA_PATTERN.test(testedSha || '')) throw new Error('tested SHA must be a lowercase 40-character commit id');
   if (!['dataPlane', 'aiProxy'].includes(plane)) throw new Error('deployment plane must be dataPlane or aiProxy');
-  if (manual) return true;
   if (!SHA_PATTERN.test(latestMainSha || '')) throw new Error('latest main SHA is unavailable; automatic deployment is blocked');
   if (latestMainSha !== testedSha) return false;
+  // P1351: an explicit redeploy still cannot overwrite a newer main revision.
+  if (manual) return true;
   if (liveSha === testedSha) return false;
   if (!SHA_PATTERN.test(liveSha || '')) throw new Error('live Worker source SHA is unavailable; cannot resolve deployment convergence');
   if (!isAncestor(liveSha, testedSha)) {
