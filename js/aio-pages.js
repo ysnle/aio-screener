@@ -959,10 +959,6 @@ function refreshSignalDashboard() {
       var ts77 = totalFinite ? displayTotal : null;
       var vixCol77 = vixVal == null ? 'var(--text-muted)' : vixVal < 20 ? 'var(--data-green)' : vixVal < 25 ? 'var(--data-amber)' : 'var(--data-red)';
       var fgCol77 = fg77 != null ? (fg77 >= 60 ? 'var(--data-green)' : fg77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
-      var tsGrade77 = ts77 == null ? '—' : ts77 >= 75 ? 'A' : ts77 >= 60 ? 'B' : ts77 >= 45 ? 'C' : ts77 >= 30 ? 'D' : 'F';
-      var m7Up77 = 0, m7Tot77 = 0;
-      ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'].forEach(function(t){ var d = ld77[t]; if(d){m7Tot77++;if(d.pct != null && d.pct > 0)m7Up77++;} });
-      var m7Col77 = m7Tot77 > 0 ? (m7Up77/m7Tot77 >= 0.7 ? 'var(--data-green)' : m7Up77/m7Tot77 >= 0.4 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
       var spyChg77 = (ld77['SPY'] && ld77['SPY'].pct != null) ? ld77['SPY'].pct : null;
       var spyStr77 = spyChg77 != null ? ((spyChg77 >= 0 ? '+' : '') + spyChg77.toFixed(2) + '%') : '—';
       var spyCol77 = spyChg77 != null ? (spyChg77 >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
@@ -971,10 +967,7 @@ function refreshSignalDashboard() {
         '<span class="mv-pill"><span class="mv-pill-lbl">F&amp;G</span><span style="color:' + fgCol77 + ';">' + (fg77 != null ? fg77 : '—') + '</span></span>' +
         '<span class="mv-pill"><span class="mv-pill-lbl">SPY</span><span style="color:' + spyCol77 + ';">' + spyStr77 + '</span></span>' +
         '<span class="mv-pill-sep"></span>' +
-         '<span class="mv-pill"><span class="mv-pill-lbl">SCORE</span><span style="color:' + (ts77 == null ? 'var(--text-muted)' : 'var(--data-cyan)') + ';font-weight:900;">' + (ts77 == null ? '—' : ts77) + '</span></span>' +
-         '<span class="mv-pill"><span class="mv-pill-lbl">TPR</span><span class="mv-grade mv-grade-' + tsGrade77 + '">' + tsGrade77 + '</span></span>' +
-        '<span class="mv-pill-sep"></span>' +
-        '<span class="mv-pill"><span class="mv-pill-lbl">M7</span><span style="color:' + m7Col77 + ';">' + m7Up77 + '/' + m7Tot77 + '</span></span>';
+         '<span class="mv-pill"><span class="mv-pill-lbl">SCORE</span><span style="color:' + (ts77 == null ? 'var(--text-muted)' : 'var(--data-cyan)') + ';font-weight:900;">' + (ts77 == null ? '—' : ts77) + '</span></span>'; // 2026-10-01: TPR letter grade and partial M7 count removed (no calibration / 1-of-7 coverage)
     }
     if (phaseEl) {
       var phaseClass77, phaseText77;

@@ -1,0 +1,15 @@
+{ "version": "v56.89", "date": "2026-10-01",
+  "p": { "id": 1371, "title": "Sourceless widgets and ungrounded grades no longer read as data",
+    "symptom": "Production v56.83 showed SKEW as '— 현재 원천 미수신' although the live quote (141.92) had arrived; a hidden risk-monitor fallback wrote Fear & Greed '18' when the value was missing; MOVE, consumer confidence and five KR macro rows had no source at all and showed a permanent '—'; the signal/ticker strips showed a TPR letter grade derived from the reference score/rank, an 'M7 1/1' count from 1 of 7 quotes, a SIG BUY/SELL pill with no data behind it, an un-normalised RSP/SPY price ratio, and the themes cycle line an uncalibrated 'n/100'.",
+    "root_cause": "SKEW had two writers: the snapshot projection reset data-snap='skew' to '—' and the regime badge looked for its status in the value row instead of the cell. The other items were legacy widgets kept as 'pending' placeholders or decorative grades after their sources/calibration were found missing.",
+    "fix": "SKEW uses the live price sink and the badge finds the cell status; the F&G '18' fallback is removed; MOVE (no free official source), consumer confidence, KR PPI/core CPI/service price/service PMI/unemployment rows, RSP/SPY ratio, TPR, M7, SIG and the cycle 'n/100' are removed. T767/T876, the masters navigation marker and the fxbond architecture expectation now assert the retirement.",
+    "violated_rule": "Product decision 2026-10-01: hide widgets whose source does not exist; no grades without calibration; missing values are never guessed.",
+    "prevention": "T767 (no MOVE sinks, SKEW live sink), T876 (RSP/SPY retired), ci-architecture-browser-check fxbond rawMoveSinkCount === 0.",
+    "verification": "Browser QA groups browser-unit/runtime/knowledge/resilience/viewport/surface PASS; production read of v56.83 confirmed which values exist (VVIX, SKEW) and which do not (MOVE, VIX9D, VIX6M)." },
+  "qa": [ { "id": "QA-UX-SOURCE-01", "text": "No visible widget shows a permanent placeholder for a value that has no producer, and no letter grade/composite n/100 is shown without calibration.", "verify_by": "Browser route sweep for '현재 원천 미수신' placeholders + T767/T876", "done": true } ],
+  "qa_section": "Screen honesty",
+  "changelog": [
+    "**8화면 정보구조 1단계:** 사이드바를 오늘 · 시장 상태 · 거시 · 테마 · 종목 · 스크리너 · 포트폴리오 · 배우기로 통합하고, 각 화면의 하위 페이지는 상단 탭으로 전환(기존 주소 유지, `src/ui/navigation/route-hubs.js`). 브레드크럼도 화면 기준으로 변경.",
+    "**원천 없는 위젯·근거 없는 등급 정리 (P1371):** SKEW 실시간 값 표시 수정, F&G 18 대체값 제거, MOVE·소비자심리·한국 거시 5개 행·RSP/SPY 비율·TPR·M7·SIG·테마 'n/100' 제거."
+  ],
+  "note": "v56.89 — 8-screen navigation (phase 1), sourceless widget/grade cleanup (P1371)." }

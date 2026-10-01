@@ -948,7 +948,7 @@ try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e
     var arg = n.dataset && n.dataset.arg;
     var legacy = n.getAttribute('onclick');
     n.classList.toggle('active',
-      arg === id || (legacy && legacy.includes("'" + id + "'")));
+      arg === id || String(n.dataset && n.dataset.hubRoutes || '').split(' ').indexOf(id) >= 0 || (legacy && legacy.includes("'" + id + "'")));
   });
   const parts = breadcrumbMap[id] || ['AIO', id];
   setBreadcrumb(parts);

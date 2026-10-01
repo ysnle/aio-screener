@@ -23,6 +23,7 @@ import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
+import { installRouteHubTabs } from '../ui/navigation/route-hubs.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
@@ -838,6 +839,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     documentRef?.addEventListener?.('visibilitychange', onVisibilityTimelineCheck);
     // W00-B: the initial route commits through the same typed boundary. router.start()
     // first so observers of aio:navigationCommitted see the very first commit.
+    const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
     const initialRoute = resolveInitialRoute({ root });
     router.start();
     if (!router.active()) {
@@ -907,6 +909,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopShown();
       stopTimelineStore();
       stopDecisionHeaders();
+      stopHubTabs();
       compatibilityEvents.dispose();
       clearInterval(timelineWatchdog);
       documentRef?.removeEventListener?.('visibilitychange', onVisibilityTimelineCheck);

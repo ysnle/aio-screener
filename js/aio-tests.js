@@ -5516,20 +5516,17 @@
       var regOk = liveSyms505.indexOf('^MOVE') >= 0 && liveSyms505.indexOf('^SKEW') >= 0;
       var bridgeFn = window._aioBridgeVolIndicesLive;
       if (regOk && typeof bridgeFn === 'function') {
-        window._liveData = window._liveData || {};
-        window._liveData['^MOVE'] = { price: 71.11, pct: 0.1 };
-        bridgeFn();
-        // 비archive move sink가 live로 갱신되고 archive sink는 보존되는지
-        var nonArch = Array.prototype.filter.call(document.querySelectorAll('[data-snap="move"]'), function(el){ return !el.closest('[data-aio-archive="true"]'); });
-        var liveUpdated = nonArch.some(function(el){ return el.textContent.indexOf('71.11') >= 0 && el.getAttribute('data-source-kind') === 'live'; });
-        t767ok = regOk && liveUpdated;
-        t767detail = 'reg=' + regOk + ' nonArchMoveSinks=' + nonArch.length + ' liveUpdated=' + liveUpdated;
-        try { delete window._liveData['^MOVE']; if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
+        // 2026-10-01: MOVE has no free official source (Yahoo ^MOVE returns nothing in production),
+        // so its permanent "—" sinks were retired; SKEW renders through the live price sink.
+        var moveSinks = document.querySelectorAll('[data-snap="move"]').length;
+        var skewLive = !!document.querySelector('#rm-skew-val[data-live-price="^SKEW"]');
+        t767ok = regOk && moveSinks === 0 && skewLive;
+        t767detail = 'reg=' + regOk + ' moveSinks=' + moveSinks + ' skewLive=' + skewLive;
       } else {
         t767detail = 'reg=' + regOk + ' fn=' + (typeof bridgeFn);
       }
     } catch(e) { t767detail = 'err: ' + (e && e.message); }
-    _assert('T767 v505_skew_move_auto_fetch_bridge: ^MOVE/^SKEW registered + live bridge updates non-archived move sink', t767ok, t767detail);
+    _assert('T767 v505_skew_move_auto_fetch_bridge: ^SKEW live sink + sourceless MOVE sinks retired', t767ok, t767detail);
 
     // ── v50.6: Breadth = 5/20/50일선만 (200일선은 추세 전용, breadth participation 제외) ──
     // T768: breadth 시장 폭에서 200일선 제거 — 데이터 시드 + 표시 텍스트 가드
@@ -7635,15 +7632,16 @@
 
     // T876 (EF-11/P1010): RSP/SPY 결측 상태 + 잘못된 VXX 선물구조 표면 퇴역
     try {
-      if (typeof updateRiskMonitor === 'function' && document.getElementById('rm-rspratio-status')) {
+      if (typeof updateRiskMonitor === 'function') {
         var savedLive876 = window._liveData;
         window._liveData = {}; // VXX/VIX/RSP/SPY 전부 결측 시뮬레이션
         updateRiskMonitor();
         var retiredVix876 = !document.getElementById('rm-vixstr-status');
-        var rspState876 = document.getElementById('rm-rspratio-status').getAttribute('data-value-state');
+        // 2026-10-01: an un-normalised RSP/SPY price ratio carried no user meaning and was retired.
+        var retiredRsp876 = !document.getElementById('rm-rspratio-status') && !document.getElementById('rm-rspratio-val');
         window._liveData = savedLive876;
-        _assert('T876 risk_monitor_pending_state_v5241 (EF-11): VXX 추정 퇴역·RSP/SPY 미수신 pending',
-          retiredVix876 && rspState876 === 'pending', 'retiredVix=' + retiredVix876 + ' rsp=' + rspState876);
+        _assert('T876 risk_monitor_pending_state_v5241 (EF-11): VXX 추정·RSP/SPY 가격비율 퇴역',
+          retiredVix876 && retiredRsp876, 'retiredVix=' + retiredVix876 + ' retiredRsp=' + retiredRsp876);
       } else {
         _assert('T876 risk_monitor_pending_state_v5241 (EF-11)', false, 'updateRiskMonitor or elements missing');
       }

@@ -17,6 +17,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 사용자 지시가 스킬 지침보다 우선한다. 스킬 때문에 멈출 때는 정확한 파일과 해당 문구, 실제 적용 이유를 밝힌다. 로컬 수정·생성·격리 테스트에는 중복 확인을 요구하지 않는다. 아래 commit/push/deploy 경계는 유지한다.
 - 독립적인 조사·리뷰를 병렬 위임하면 실제로 도움이 되는 큰 작업에서는 범위가 명확한 서브에이전트를 사용한다. 파일 소유권을 분리하고 기존 변경을 보존하며, 작은 일이나 같은 조사에는 위임을 늘리지 않는다. 결과는 주 담당자가 통합 검증한다.
 - 한국어로 결과와 근거를 간결하게 설명한다. 에이전트 간 메시지도 정상적인 문장과 띄어쓰기를 사용한다. 통과한 검사는 새 변경·실패·미해결 위험이 있을 때만 다시 실행한다.
+- **협업 원칙 (owner 2026-10-01):** 소유자는 스크리너 개발·운영 비전문가이며 명령-수행 관계가 아니라 함께 판단하는 관계를 원한다. 요청·기존 설계·이전 에이전트 작업을 무조건 옳다고 가정하지 않는다. 데이터 무결성·비용·권리·사용자 가치와 충돌하면 근거(실측·공식 문서)와 함께 반대 의견과 대안을 먼저 제시하고, 소유자 전제가 사실과 다르면 바로잡는다(예: 13D는 분기 공시가 아니라 수시 공시). 기능을 없애거나 합치는 제품 결정은 제안 후 승인받아 진행한다.
 
 ## Product decisions (fixed)
 
@@ -31,6 +32,11 @@ Owner decisions that every agent (Claude, Codex, subagents) applies without re-a
 - Data producers (`scripts/fetch-*`, `build-*`, `sync-*`, `refresh-*`) run only in GitHub Actions; locally, read artifacts and run gates.
 - Korean themes and Korean-market content are user-facing features, not experiments.
 - Work in large batches: implement several items, then verify and record once. Use scoped parallel subagents for independent areas.
+- **Information architecture (2026-10-01):** consolidate the 19 routes into 8 screens — 오늘(home+briefing+market-news), 시장 상태(signal+breadth+sentiment), 거시(macro+fxbond), 종목(ticker+fundamental+technical), 테마(themes+theme-detail), 스크리너, 포트폴리오, 배우기(principles+masters+atlas+guide+glossary). Each merge also moves that page's legacy `js/` ownership to `src/` and deletes the replaced legacy code; old route ids stay as aliases. Plan and progress: `_artifacts/claude-continuation-20261001/STRUCTURE-PROPOSAL.md`.
+- **Screen honesty without clutter:** keep evidence status, but as one status per card (최신/지연/참고/없음) with details on demand and one global disclaimer — not repeated caveats. Hide widgets whose source does not exist instead of showing a permanent "—". Remove grades/scores that have no calibration or source (e.g. letter grades derived from the reference score, uncalibrated composite "n/100" readings); a reference score is shown only with its basis.
+- **Slow-changing data is static:** 13F (quarterly, filing-season import), knowledge base, principles and glossary are versioned static JSON updated only when the source changes. Content-addressed artifacts hash content only, never build/review timestamps (P1370). 13D/G is event-driven, so its light daily ownership poll stays (P1309/R654).
+- **Filling data gaps (agent recommendation 2026-10-01, awaiting owner confirmation; the owner asked whether a daily web-search fill would be better):** prefer official free structured sources (FRED, Treasury, BLS, BEA, SEC, CBOE, BOK/ECOS, KOSIS, KRX) over scraping. LLM web search may add cited qualitative context only; it never supplies numeric inputs to scores, tables or charts (hallucination, missing observation time, unclear reuse rights, ~$10 per 1,000 searches against a ≤$10/month AI budget).
+- **AI provider/budget (open):** the shared-Worker budget settlement and translation cap are implemented but held (`_artifacts/claude-continuation-20261001/held-ai-budget-settlement.patch`). Model/provider choice (current Haiku 4.5 + Sonnet 4.6; Sonnet 5.5 is cheaper than 4.6; GPT-6 Luna was proposed) is undecided — do not switch providers or apply the held patch without an explicit owner decision.
 
 ## Task routing
 

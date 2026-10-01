@@ -4,6 +4,10 @@ last_verified: 2026-10-01
 confidence: medium
 ---
 
+## v56.89 Screen honesty (2026-10-01)
+
+- [x] QA-UX-SOURCE-01: No visible widget shows a permanent placeholder for a value that has no producer, and no letter grade/composite n/100 is shown without calibration. verify_by: Browser route sweep for '현재 원천 미수신' placeholders + T767/T876
+
 ## v56.88 Page decision scope (2026-10-01)
 
 - [x] QA-SEMANTIC-SCOPE-01: Page headers outside home/signal/sentiment/briefing never carry the market-score verdict or its input caveat; partial evidence is not labelled 미수신. verify_by: Actual browser decision-header sweep across 13 routes + ci-runtime-contract-check P1364

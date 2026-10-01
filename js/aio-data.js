@@ -14065,11 +14065,6 @@ function _applyRiskMonitorFallbacks() {
     rmRsp.style.color = 'var(--text-muted)';
   }
   // Fear & Greed (극단적 공포 구간)
-  const rmFg = document.getElementById('rm-fg-val');
-  if (rmFg && rmFg.textContent === '—') {
-    rmFg.textContent = '18';
-    rmFg.style.color = '#ff5b50';
-  }
   // HY Spread 홈 카드 (FRED 미도착 시)
   const hySpread = document.getElementById('hy-spread-val');
   if (hySpread && hySpread.textContent === '—') {

@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1371 - v56.89 - Sourceless widgets and ungrounded grades no longer read as data (2026-10-01)
+
+- symptom/reproduction: Production v56.83 showed SKEW as '— 현재 원천 미수신' although the live quote (141.92) had arrived; a hidden risk-monitor fallback wrote Fear & Greed '18' when the value was missing; MOVE, consumer confidence and five KR macro rows had no source at all and showed a permanent '—'; the signal/ticker strips showed a TPR letter grade derived from the reference score/rank, an 'M7 1/1' count from 1 of 7 quotes, a SIG BUY/SELL pill with no data behind it, an un-normalised RSP/SPY price ratio, and the themes cycle line an uncalibrated 'n/100'.
+- root_cause: SKEW had two writers: the snapshot projection reset data-snap='skew' to '—' and the regime badge looked for its status in the value row instead of the cell. The other items were legacy widgets kept as 'pending' placeholders or decorative grades after their sources/calibration were found missing.
+- fix: SKEW uses the live price sink and the badge finds the cell status; the F&G '18' fallback is removed; MOVE (no free official source), consumer confidence, KR PPI/core CPI/service price/service PMI/unemployment rows, RSP/SPY ratio, TPR, M7, SIG and the cycle 'n/100' are removed. T767/T876, the masters navigation marker and the fxbond architecture expectation now assert the retirement.
+- violated_rule: Product decision 2026-10-01: hide widgets whose source does not exist; no grades without calibration; missing values are never guessed.
+- prevention: T767 (no MOVE sinks, SKEW live sink), T876 (RSP/SPY retired), ci-architecture-browser-check fxbond rawMoveSinkCount === 0.
+- verification/residual: Browser QA groups browser-unit/runtime/knowledge/resilience/viewport/surface PASS; production read of v56.83 confirmed which values exist (VVIX, SKEW) and which do not (MOVE, VIX9D, VIX6M).
+
 ## P1370 - v56.88 - 13F manager projections stop re-hashing unchanged quarters every day (2026-10-01)
 
 - symptom/reproduction: public-data/objects/masters held 1,110 projection files (252MB) for 37 managers: one new copy per manager per daily run for 30 days, of which only the latest 37 (~9MB) are referenced. Each run added ~250k lines to git history and ~8MB to the Pages site, heading for the 1GB Pages limit.

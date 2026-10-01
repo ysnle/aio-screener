@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.88';
+const APP_VERSION = 'v56.89';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12364,22 +12364,22 @@ window.AIO.getCycleFromMacro = function(macro) {
     rationale.push('수익률 곡선 역전(2s10s ' + yield2s10s.toFixed(2) + ')과 변동성 상승 동시 관측');
   } else if (cyclePos >= 72 && nTrend > 0 && nVix > 0.2) {
     phase = '환경 양호';
-    rationale.push('참고 조합 ' + cyclePos + '/100 · 낮은 변동성·넓은 시장폭·상승 추세');
+    rationale.push('낮은 변동성·넓은 시장폭·상승 추세');
   } else if (cyclePos >= 55) {
     phase = '환경 양호';
-    rationale.push('참고 조합 ' + cyclePos + '/100 · 시장폭·변동성 양호');
+    rationale.push('시장폭·변동성 양호');
   } else if (cyclePos >= 42 && nTrend > 0) {
     phase = '지표 혼재';
-    rationale.push('참고 조합 ' + cyclePos + '/100 · 약한 시장폭과 상승 추세 동시 관측');
+    rationale.push('약한 시장폭과 상승 추세 동시 관측');
   } else if (cyclePos >= 30) {
     phase = '지표 혼재';
-    rationale.push('참고 조합 ' + cyclePos + '/100 · 입력 방향 혼재');
+    rationale.push('입력 방향 혼재');
   } else if (nTrend < 0 && nVix < -0.2) {
     phase = '환경 약화';
-    rationale.push('참고 조합 ' + cyclePos + '/100 · 하락 추세와 높은 변동성');
+    rationale.push('하락 추세와 높은 변동성');
   } else {
     phase = '환경 약화';
-    rationale.push('참고 조합 ' + cyclePos + '/100 · 시장폭·변동성 약화');
+    rationale.push('시장폭·변동성 약화');
   }
   if (inverted) rationale.push('수익률 곡선 역전 관측 · 경기 국면 확정 근거가 아닙니다');
 
@@ -18805,7 +18805,7 @@ function applyDataSnapshot() {
         var skewValEl = document.getElementById('rm-skew-val');
         var liveSkew = window._liveData && window._liveData['^SKEW'] && Number(window._liveData['^SKEW'].price);
         if (skewValEl && NARRATIVE_ENGINE.getSKEWRegime && isFinite(liveSkew)) {
-          var skewStatus = skewValEl.parentElement && skewValEl.parentElement.querySelector('.rm-status');
+          var skewStatus = skewValEl.closest('.risk-mon-cell') && skewValEl.closest('.risk-mon-cell').querySelector('.rm-status'); // 2026-10-01: status sits beside the value row
           var sreg = NARRATIVE_ENGINE.getSKEWRegime(liveSkew);
           if (skewStatus && sreg) {
             skewStatus.textContent = sreg.label;
@@ -21888,18 +21888,18 @@ if (typeof document !== 'undefined') {
 // P845: showPage can be called by the compatibility facade before this map is
 // initialized, so the early route path must not observe a lexical TDZ.
 var breadcrumbMap = {
-  home: ['AIO','대시보드'], themes: ['AIO','테마 분석'],
+  home: ['오늘','대시보드'], themes: ['테마 · 섹터','테마 분석'],
   // P1129/R619: 퇴역한 KR 5라우트 항목 제거(DOM 0개, AIO_ROUTE_REGISTRY REMOVED).
-  portfolio: ['AIO','포트폴리오'], macro: ['AIO','매크로'],
-  technical: ['AIO','기술적 분석'], fundamental: ['AIO','기업 분석'],
-  briefing: ['AIO','데일리 브리핑'], fxbond: ['AIO','FX·채권'],
-  'market-news': ['AIO','시장 소식'], signal: ['AIO','시장 환경'], breadth: ['AIO','시장 흐름'], sentiment: ['AIO','투자 심리'],
-  guide: ['AIO','입문 가이드'], principles: ['AIO','시장 원리'], masters: ['AIO','대가의 포트폴리오'], atlas: ['AIO','AI 시대 지식 지도'],
+  portfolio: ['AIO','포트폴리오'], macro: ['거시 · 금리','거시경제'],
+  technical: ['종목','차트 · 기술'], fundamental: ['종목','기업 분석'],
+  briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','환율 · 채권'],
+  'market-news': ['오늘','뉴스'], signal: ['시장 상태','환경 점수'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
+  guide: ['배우기','사용 설명서'], principles: ['배우기','시장 원리'], masters: ['배우기','대가의 포트폴리오'], atlas: ['배우기','지식 지도'],
   screener: ['AIO','퀀트 스크리너'],
-  'theme-detail': ['AIO','테마','—'],
+  'theme-detail': ['테마 · 섹터','테마','—'],
   // A direct ticker-route visit has no selected symbol yet; do not present a
   // stale-looking placeholder symbol as if it were the current entity.
-  ticker: ['AIO','종목 분석'],
+  ticker: ['종목','종목 분석'],
 };
 
 // ═══ v49.1 P184: AIO.state — 전역 변수 namespace 초기화 ═══════════════════════
@@ -22819,7 +22819,7 @@ function showPage(id, navEl) {
   if(navEl) { navEl.classList.add('active'); navEl.setAttribute('aria-current', 'page'); }
   else {
     // v48.57: onclick 0건(v48.32+) 대응 — data-arg 기반으로 전환
-    var matchingNav = document.querySelector('.nav-item[data-arg="' + String(id).replace(/"/g, '\\"') + '"]');
+    var matchingNav = document.querySelector('.nav-item[data-arg="' + String(id).replace(/"/g, '\\"') + '"], .nav-item[data-hub-routes~="' + String(id).replace(/"/g, '\\"') + '"]'); // 8-screen hubs own sub-routes
     if (matchingNav) { matchingNav.classList.add('active'); matchingNav.setAttribute('aria-current', 'page'); }
   }
   const parts = (breadcrumbMap && breadcrumbMap[id]) || ['AIO', id];
@@ -23068,7 +23068,7 @@ function showTicker(tkr) {
     ecDiv.innerHTML = html;
   }
 
-  // v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·TPR·SIG)
+  // v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·MOM)
   try {
     var mvEl = document.getElementById('ticker-mv-strip');
     if (mvEl) {
@@ -23076,24 +23076,18 @@ function showTicker(tkr) {
       var sd77 = sdRows77.find(function(r){ return r.sym === tkr; }) || null;
       if (sd77) {
         var rk77 = typeof sd77.rank === 'number' ? sd77.rank : null;
-        var g77 = rk77 != null ? (rk77 >= 80 ? 'A' : rk77 >= 65 ? 'B' : rk77 >= 50 ? 'C' : rk77 >= 35 ? 'D' : 'F') : '—';
         var rsi77 = sd77.rsi != null ? sd77.rsi : '—';
         var rsiCol77 = sd77.rsi != null ? (sd77.rsi >= 70 ? 'var(--data-red)' : sd77.rsi <= 30 ? 'var(--data-green)' : 'var(--data-amber)') : 'var(--text-muted)';
         var r3m77 = typeof sd77.ret3m === 'number' ? ((sd77.ret3m >= 0 ? '+' : '') + sd77.ret3m.toFixed(1) + '%') : '—';
         var r3mCol77 = typeof sd77.ret3m === 'number' ? (sd77.ret3m >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-        var sig77 = sd77.signal || '—';
-        var sigCol77 = sig77 === 'BUY' ? 'var(--data-green)' : sig77 === 'SELL' ? 'var(--data-red)' : sig77 === 'WATCH' ? 'var(--data-amber)' : 'var(--text-muted)';
         var fs77 = sd77.factorScores || {};
         var mom77 = fs77.momentum != null ? fs77.momentum : null;
         mvEl.innerHTML =
           '<span class="mv-pill"><span class="mv-pill-lbl">SR</span><span style="color:var(--data-cyan);">' + (rk77 != null ? rk77 : '—') + '</span></span>' +
-          '<span class="mv-pill"><span class="mv-pill-lbl">TPR</span><span class="mv-grade mv-grade-' + g77 + '">' + g77 + '</span></span>' +
           '<span class="mv-pill-sep"></span>' +
           '<span class="mv-pill"><span class="mv-pill-lbl">RSI</span><span style="color:' + rsiCol77 + ';">' + rsi77 + '</span></span>' +
           '<span class="mv-pill"><span class="mv-pill-lbl">3M</span><span style="color:' + r3mCol77 + ';">' + r3m77 + '</span></span>' +
-          (mom77 != null ? '<span class="mv-pill"><span class="mv-pill-lbl">MOM</span><span style="color:' + (mom77 >= 60 ? 'var(--data-green)' : mom77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') + ';">' + mom77 + '</span></span>' : '') +
-          '<span class="mv-pill-sep"></span>' +
-          '<span class="mv-pill"><span class="mv-pill-lbl">SIG</span><span style="color:' + sigCol77 + ';font-weight:900;">' + sig77 + '</span></span>';
+          (mom77 != null ? '<span class="mv-pill"><span class="mv-pill-lbl">MOM</span><span style="color:' + (mom77 >= 60 ? 'var(--data-green)' : mom77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') + ';">' + mom77 + '</span></span>' : ''); // 2026-10-01: rank-derived TPR grade and sourceless BUY/SELL 'SIG' removed
       } else {
         mvEl.innerHTML = '<span style="font-size:10px;color:var(--text-muted);">SCREENER_DB 미등록 — 시장 데이터 기반 기본 분석 사용</span>';
       }
