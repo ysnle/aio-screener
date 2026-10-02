@@ -1,0 +1,19 @@
+{
+  "version": "v56.93",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.93 — score v4 and macro plumbing, briefing rebuilt as a connected read, supplied-material frameworks, news important/full split (P1388-P1391).",
+  "p": {
+    "id": 1388,
+    "title": "Reference score: macro/oil/credit inputs reach the model and F&G is no longer double-counted",
+    "symptom": "The home score showed '거시 —/10' every day, said 'WTI 근거 미확보' while WTI 91 was on the card, and its rows summed to 53 against a total of 58 with no explanation. CNN F&G (which already contains VIX and put/call) filled the 25-point sentiment axis.",
+    "root_cause": "DXY/WTI trade nearly around the clock, so the producer records the last completed daily bar (midnight-ET stamp) on the next row and the close-basis matcher never matched them; the HY/put-call daily publications were judged on the pending basis instead of the basis in use; the composite renormalised over the available weight without saying so; F&G re-entered VIX and put/call already used elsewhere.",
+    "fix": "runtime-readers finds the completed DXY/WTI bar dated on the basis and judges daily publications on the effective basis; trading-score.v4 replaces the F&G axis with a risk-appetite axis (put/call + HY OAS) and drops the duplicate PCR and HY corrections; the hero lists post-sum corrections and the description states the renormalisation ('나머지 항목(90점 만점)을 100점으로 환산').",
+    "violated_rule": "R670 unchanged (completed close only). Owner decision 2026-10-02: remove the double counting.",
+    "prevention": "ci-esm-core-unit-check: reference put/call+HY blocks the axis; F&G cannot move the total. Golden scenarios re-baselined via AIO_REGEN_TRADING_GOLDEN=1 (ci-domain-parity-check).",
+    "verification": "Local browser: all five axes present (거시 5/10, 위험선호 16/25), WTI correction −5 shown, total 59."
+  },
+  "changelog": [
+    "**시장 환경 점수 v4 (P1388):** 거시·유가·신용 입력이 실제로 반영되도록 종가 연결을 고치고, VIX를 이중 반영하던 F&G 대신 풋/콜·HY 스프레드로 위험선호 축 구성. 보정 내역과 환산 기준 표시."
+  ]
+}

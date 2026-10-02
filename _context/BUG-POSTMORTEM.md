@@ -4,6 +4,42 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1391 - v56.93 - News screen leads with important stories; titles are real headlines; developer markers removed (2026-10-02)
+
+- symptom/reproduction: News cards showed '매크로 · Reuters 기사 · 중요도 48' as titles, '요약 보류 — 헤드라인 전용…', '헤드라인 전용 · 단독 분석 근거 사용 금지 … 선별 점수 54', '본문 미수신', a GitHub Actions timestamp bar and a keyword sentiment/risk strip; the owner asked for important vs general news on the news screen.
+- root_cause: getDisplayTitle returned a generated category sentence whenever no translation existed (v51.81); card and page copy carried internal pipeline markers.
+- fix: getDisplayTitle returns the original headline when untranslated (generator removed); cards show title, earnings line (estimate/actual), source · topic · time; a 중요 뉴스 section (highest-scored item per topic, score ≥ 50, max 6) leads and the full feed excludes it; the Telegram channel feed moved below; the sentiment/risk strip and timestamp bar were removed.
+- violated_rule: Owner principles: no developer text on user surfaces; no grades without grounds.
+- prevention: ci-data-pipeline P1391 gate (no generated fallback title); runtime gates updated for the headline-only and feed-topic contracts.
+- verification/residual: Local browser: important list shows Micron (with 실적 line), 10Y/gold macro story, Hormuz story; full feed excludes them.
+
+## P1390 - v56.93 - Supplied-material frameworks integrated into the briefing read (real yield, curve, breadth, credit) (2026-10-02)
+
+- symptom/reproduction: Owner-supplied material (윤지호 2026-09-30, @laylaperfume 9/28-9/30) explained the tape through real yields, the long end, index defence vs decliners and credit vs small caps; the screener had none of these readings and did not collect real yield or breakevens.
+- root_cause: Only nominal yields and single-day deltas were collected; the read had no rules for these relationships.
+- fix: FRED DFII10/T10YIE added with 5-observation changes (also DGS2/DGS10/HY OAS); engine rules: real-yield-led vs breakeven-led, bear steepening/flattening, weak dollar with higher long rates, index defended with <45% advancers, broad de-risking, small caps lagging with calm credit, gold down with rates up, orderly at rate highs, HY widening. Level and trend of HY are shown together (sources disagree). Frameworks, disagreements, invalidation and data gaps recorded in KNOWLEDGE-BASE TM-XVIII.
+- violated_rule: R26/integrate: frameworks extracted, transient opinions (box range, 2028 cycle, FOMC odds) not promoted to current signals.
+- prevention: Rules stay silent when an input series is missing; the FRED fields flow through the existing macro freshness contract.
+- verification/residual: Engine fixture with sample FRED changes produced real-yield-led and bear-steepening statements; live history produced index-defended, gold-down-rates-up, orderly-at-rate-high and smallcap-lags. FRED fields appear after the next Actions run.
+
+## P1389 - v56.93 - Briefing rebuilt as schedule → connected read → asset drivers → next checks (2026-10-02)
+
+- symptom/reproduction: Owner review: the briefing restated the same numbers in five blocks (strip, six-axis summary, checklist, analysis, August research bridge), showed generic sentences, a 50-day-old comparison, a 2026-04 archive and the news list, with the schedule at the bottom.
+- root_cause: Each block was added by a different packet with its own reader; none connected cross-asset evidence and no owner decided the reading order.
+- fix: src/domain/briefing/market-read.js derives cross-asset statements from the completed-close history (rates vs equities, index vs breadth, F&G vs credit, leadership, dollar/gold, oil/yields, Korea) with next-check conditions; src/domain/briefing/schedule.js lists official releases (KST times, why it matters, previous value) and S&P 500 earnings; src/ui/components/briefing-read.js owns the page; the old blocks, archive and news list were removed.
+- violated_rule: Owner principles: no repeated or sourceless content; analysis must connect evidence; one reading flow.
+- prevention: Architecture browser check asserts schedule-first order, a non-empty read and the retired ids; T234/T186/T242/T335/T349 updated.
+- verification/residual: Local browser: '이번 주 일정' (10/2 21:30 고용보고서 · 직전 +162천 명 · 실업률 4.1%), headline '지수는 고점권인데 50일선 위 종목 26%뿐 — 좁은 장세', drivers and checks render.
+
+## P1388 - v56.93 - Reference score: macro/oil/credit inputs reach the model and F&G is no longer double-counted (2026-10-02)
+
+- symptom/reproduction: The home score showed '거시 —/10' every day, said 'WTI 근거 미확보' while WTI 91 was on the card, and its rows summed to 53 against a total of 58 with no explanation. CNN F&G (which already contains VIX and put/call) filled the 25-point sentiment axis.
+- root_cause: DXY/WTI trade nearly around the clock, so the producer records the last completed daily bar (midnight-ET stamp) on the next row and the close-basis matcher never matched them; the HY/put-call daily publications were judged on the pending basis instead of the basis in use; the composite renormalised over the available weight without saying so; F&G re-entered VIX and put/call already used elsewhere.
+- fix: runtime-readers finds the completed DXY/WTI bar dated on the basis and judges daily publications on the effective basis; trading-score.v4 replaces the F&G axis with a risk-appetite axis (put/call + HY OAS) and drops the duplicate PCR and HY corrections; the hero lists post-sum corrections and the description states the renormalisation ('나머지 항목(90점 만점)을 100점으로 환산').
+- violated_rule: R670 unchanged (completed close only). Owner decision 2026-10-02: remove the double counting.
+- prevention: ci-esm-core-unit-check: reference put/call+HY blocks the axis; F&G cannot move the total. Golden scenarios re-baselined via AIO_REGEN_TRADING_GOLDEN=1 (ci-domain-parity-check).
+- verification/residual: Local browser: all five axes present (거시 5/10, 위험선호 16/25), WTI correction −5 shown, total 59.
+
 ## P1387 - v56.92 - Home headline cards show the point move and the secondary row shows changes (2026-10-02)
 
 - symptom/reproduction: Owner review: the headline cards showed only '+0.17%' without the point/dollar move, and VIX, DXY, gold, KOSPI and BTC showed no change at all; the ▲/▼ glyph appeared on some changes but not others.

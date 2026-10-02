@@ -1,0 +1,19 @@
+{
+  "version": "v56.93",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.93 — score v4 and macro plumbing, briefing rebuilt as a connected read, supplied-material frameworks, news important/full split (P1388-P1391).",
+  "p": {
+    "id": 1391,
+    "title": "News screen leads with important stories; titles are real headlines; developer markers removed",
+    "symptom": "News cards showed '매크로 · Reuters 기사 · 중요도 48' as titles, '요약 보류 — 헤드라인 전용…', '헤드라인 전용 · 단독 분석 근거 사용 금지 … 선별 점수 54', '본문 미수신', a GitHub Actions timestamp bar and a keyword sentiment/risk strip; the owner asked for important vs general news on the news screen.",
+    "root_cause": "getDisplayTitle returned a generated category sentence whenever no translation existed (v51.81); card and page copy carried internal pipeline markers.",
+    "fix": "getDisplayTitle returns the original headline when untranslated (generator removed); cards show title, earnings line (estimate/actual), source · topic · time; a 중요 뉴스 section (highest-scored item per topic, score ≥ 50, max 6) leads and the full feed excludes it; the Telegram channel feed moved below; the sentiment/risk strip and timestamp bar were removed.",
+    "violated_rule": "Owner principles: no developer text on user surfaces; no grades without grounds.",
+    "prevention": "ci-data-pipeline P1391 gate (no generated fallback title); runtime gates updated for the headline-only and feed-topic contracts.",
+    "verification": "Local browser: important list shows Micron (with 실적 line), 10Y/gold macro story, Hormuz story; full feed excludes them."
+  },
+  "changelog": [
+    "**뉴스 화면 (P1391):** 중요 뉴스(주제별 핵심)와 전체 뉴스 분리, 번역이 없으면 생성 문장 대신 원문 제목 표시, 개발자용 문구·근거 없는 감성 지표 제거."
+  ]
+}

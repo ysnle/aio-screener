@@ -66,7 +66,7 @@ function renderSignalDecision({ documentRef, signal }) {
 // breakdown reconciles with the visible total.
 const SIGNAL_ADJUSTMENT_LABELS = {
   'credit-stress': '신용 스트레스',
-  'geopolitical-oil': '지정학 (유가)',
+  'geopolitical-oil': '유가 부담 (WTI 90달러 초과)',
   'news-sentiment': '뉴스 심리',
   'news-risk': '뉴스 리스크'
 };
@@ -126,17 +126,25 @@ function renderHomeSummary({ documentRef, signal }) {
   const container = documentRef?.getElementById('home-hero-components');
   if (container) {
     container.replaceChildren();
-    for (const component of presentation?.components || []) {
+    const addRow = (labelText, valueText) => {
       const row = documentRef.createElement('div');
       row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:14px;';
       const label = documentRef.createElement('span');
-      label.textContent = component.label;
+      label.textContent = labelText;
       label.style.cssText = 'font-size:11.5px;color:var(--text-muted);';
       const value = documentRef.createElement('span');
-      value.textContent = `${component.contribution == null ? '—' : component.contribution} / ${component.weight}`;
+      value.textContent = valueText;
       value.style.cssText = 'font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;';
       row.append(label, value);
       container.append(row);
+    };
+    for (const component of presentation?.components || []) {
+      addRow(component.label, `${component.contribution == null ? '—' : component.contribution} / ${component.weight}`);
+    }
+    // P1388: post-sum corrections are shown so the rows reconcile with the total.
+    for (const adjustment of presentation?.breakdown?.adjustments || []) {
+      const delta = finite(adjustment?.delta) || 0;
+      if (delta) addRow(SIGNAL_ADJUSTMENT_LABELS[adjustment?.key] || '보정', `${delta > 0 ? '+' : ''}${delta}`);
     }
   }
   if (!presentation?.modelVersion) {

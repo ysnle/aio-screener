@@ -83,13 +83,17 @@ const FRED_SERIES = {
   housingStarts: { id: 'HOUST',          kind: 'level', scale: 0.001 }, // 천 단위→백만 단위 (DATA_SNAPSHOT.housingStarts는 1.47M 형태)
   retailSales:   { id: 'RSAFS',          kind: 'mom_pct' },             // 소매판매 MoM% (레벨 $ 시리즈에서 파생)
   usWageGrowth:  { id: 'CES0500000003',  kind: 'yoy' },                 // 시간당 평균임금 YoY%
-  hyOAS:         { id: 'BAMLH0A0HYM2',   kind: 'level', scale: 1 },     // FRED percent; UI converts to bp at the renderer boundary
-  dgs2:          { id: 'DGS2',            kind: 'level' },               // 미 국채 2Y (%), 공식 FRED 일별 관측
+  hyOAS:         { id: 'BAMLH0A0HYM2',   kind: 'level', scale: 1, delta5: true }, // FRED percent; UI converts to bp at the renderer boundary
+  dgs2:          { id: 'DGS2',            kind: 'level', delta5: true }, // 미 국채 2Y (%), 공식 FRED 일별 관측
   dgs5:          { id: 'DGS5',            kind: 'level' },               // 미 국채 5Y (%)
-  dgs10:         { id: 'DGS10',           kind: 'level' },               // 미 국채 10Y (%)
+  dgs10:         { id: 'DGS10',           kind: 'level', delta5: true }, // 미 국채 10Y (%)
   dgs20:         { id: 'DGS20',           kind: 'level' },               // 미 국채 20Y (%)
   dgs30:         { id: 'DGS30',           kind: 'level' },               // 미 국채 30Y (%)
   t10y2y:        { id: 'T10Y2Y',          kind: 'level' },               // 10Y-2Y 스프레드 (%p), 단일 만기에서 추정 금지
+  // P1390: decompose a nominal 10Y move into real yield (TIPS) and inflation compensation; a real-yield-led
+  // rise compresses equity multiples, a breakeven-led rise runs through the oil/inflation channel.
+  realYield10:   { id: 'DFII10',          kind: 'level', delta5: true }, // 10Y TIPS 실질금리 (%)
+  breakeven10:   { id: 'T10YIE',          kind: 'level', delta5: true }, // 10Y 기대인플레이션(BEI, %)
 };
 
 // BLS Public Data API v1 is a separate official observation path from FRED.
@@ -414,6 +418,11 @@ async function fetchFred(key) {
         if (obs.length >= 2) {
           const delta = round((obs[0].v - obs[1].v) * scale, 3);
           if (delta !== null) out[field + 'Delta'] = delta;
+        }
+        // P1390: a one-week change (5 observations) for daily series that drive the briefing read.
+        if (spec.delta5 && obs.length >= 6) {
+          const delta5 = round((obs[0].v - obs[5].v) * scale, 3);
+          if (delta5 !== null) out[field + 'Delta5'] = delta5;
         }
       } else if (spec.kind === 'mom_pct') {
         // v51.97/Phase 2 [B2]: 레벨(예: RSAFS 소매판매 $) 시리즈의 전월 대비 변화율(%).

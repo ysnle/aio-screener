@@ -805,8 +805,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const full = { vix: decision(18), vvix: decision(90), dxy: decision(100), tnx: decision(3.5), oilPrice: decision(80), fg: decision(50), spx200ma: decision(450), spx50ma: decision(480), spxPrice: decision(500), breadth200: decision(60), pcr: decision(1), hyBp: decision(300) };
   const valid = computeTradingScoreModel({ decisionEvidence: full });
   if (valid.total == null || valid.decisionBlocked || valid.componentCoveragePct !== 100) fail(`truth-boundary: full decision evidence should produce a current score: ${JSON.stringify(valid)}`);
-  const blocked = computeTradingScoreModel({ decisionEvidence: { ...full, fg: reference(50) } });
-  if (blocked.total !== null || !blocked.decisionBlocked || !blocked.componentMissing.includes('momentum')) fail(`truth-boundary: reference F&G must not drive Trading Score: ${JSON.stringify(blocked)}`);
+  // P1388 (v4): the risk-appetite axis reads put/call + HY; reference-only values must not drive it.
+  const blocked = computeTradingScoreModel({ decisionEvidence: { ...full, pcr: reference(1), hyBp: reference(300) } });
+  if (blocked.total !== null || !blocked.decisionBlocked || !blocked.componentMissing.includes('momentum')) fail(`truth-boundary: reference put/call + HY must not drive Trading Score: ${JSON.stringify(blocked)}`);
+  const fgIgnored = computeTradingScoreModel({ decisionEvidence: { ...full, fg: decision(5) } });
+  if (fgIgnored.total !== valid.total) fail(`P1388: F&G must not enter the composite (it already contains VIX and put/call): ${fgIgnored.total} vs ${valid.total}`);
   const newsBypass = computeTradingScoreModel({ decisionEvidence: full, newsSentimentScore: 100, newsRiskSignals: [{ impact: 30 }] });
   if (newsBypass.total !== valid.total || newsBypass.newsAdjustmentApplied) fail(`truth-boundary: raw news heuristic bypassed decision evidence: ${JSON.stringify(newsBypass)}`);
   const newsReference = computeTradingScoreModel({ decisionEvidence: { ...full, newsSentimentScore: reference(100), newsRiskSignals: reference([{ impact: 30 }]) }, newsSentimentScore: 100, newsRiskSignals: [{ impact: 30 }] });
@@ -1324,9 +1327,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
       || !full.axes.find(axis => axis.id === 'ai').values.some(row => /SMH.*ETF/.test(row.label))) fail('P1349: AI article false-positive or unlabelled ETF proxy');
     const numeric = buildBriefingDecisionSummary({ scoreInputs: { ...scoreInputs, decisionEvidence: Object.fromEntries(Object.entries(scoreInputs.decisionEvidence).map(([key,row]) => [key, { ...row, value: String(row.value) }])) }, observations, nowMs });
     if (numeric.axes[0].tone === 'held') fail('P1349: numeric string evidence disagreed between score and briefing');
-    const completeBase = computeTradingScoreModel({ vix: 18, fg: 50, dxy: 100, tnx: 3.5, maCurrent: true, spxPrice: 500, spx50ma: 480, spx200ma: 450, breadthAvailable: true, breadth200: 60 });
-    if (completeBase.componentCoveragePct !== 100 || completeBase.missingOptionalInputs.length !== 4
-      || !/보조·위험보정 근거 미확보/.test(deriveTradingScoreDecisionPresentation({ score: completeBase }).description)) fail('P1349: base-axis coverage hid missing optional risk observations');
+    const completeBase = computeTradingScoreModel({ vix: 18, pcr: 1, dxy: 100, tnx: 3.5, maCurrent: true, spxPrice: 500, spx50ma: 480, spx200ma: 450, breadthAvailable: true, breadth200: 60 });
+    if (completeBase.componentCoveragePct !== 100 || completeBase.missingOptionalInputs.length !== 3
+      || !/보조 입력 미수신/.test(deriveTradingScoreDecisionPresentation({ score: completeBase }).description)) fail('P1349: base-axis coverage hid missing optional risk observations');
   }
   // ── P1339: company names resolve exactly; ticker-shaped input is never rewritten through an alias ──
   {
@@ -1352,7 +1355,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     if (!/var CN=window\.AIO_KR_THEME_LABELS/.test(krData) || /var CN=\{'defense'/.test(krData)) fail('kr themes: the theme detail must read the single label owner (P1327/R672)');
   }
   const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, pcr: -1, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
-  if (invalidScore.total !== null || invalidScore.modelVersion !== 'trading-score.v3' || !Object.isFrozen(invalidScore) || !Object.isFrozen(invalidScore.componentMissing)) fail(`signal: out-of-domain inputs must fail closed in an immutable v3 result, got ${JSON.stringify(invalidScore)}`);
+  if (invalidScore.total !== null || invalidScore.modelVersion !== 'trading-score.v4' || !Object.isFrozen(invalidScore) || !Object.isFrozen(invalidScore.componentMissing)) fail(`signal: out-of-domain inputs must fail closed in an immutable v4 result, got ${JSON.stringify(invalidScore)}`);
 }
 
 // ── E2/LC-26 (P1214): the signal score mode is one revision consumed by both readers ───────────
@@ -3280,7 +3283,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
       _aioHistory: Array.from({ length: 200 }, (_, i) => ({ date: new Date(Date.parse('2026-09-29T00:00:00Z') - (199-i)*86400000).toISOString().slice(0,10), spx: 7000 })),
       setTimeout: (task, delay) => { const id = ++nextTimer; timers.set(id, { task, delay }); return id; },
       clearTimeout: (id) => timers.delete(id),
-      AIO: { getTradingDecisionInputEvidence: () => ({ rows: [['dxy-dollar',101],['tnx-yield',4.2],['fg-sentiment',34]]
+      AIO: { getTradingDecisionInputEvidence: () => ({ rows: [['dxy-dollar',101],['tnx-yield',4.2],['fg-sentiment',34],['pcr-putcall',0.9]]
         .map(([id,value]) => ({ id, value, observedAt, source: 'P1345-fixture' })) }) } });
     runtimeRoot.document = runtimeRoot;
     if (withBridge) runtimeRoot._aioSetLiveData = (symbol, quote) => { runtimeRoot._liveData[symbol] = quote; return true; };
@@ -3342,6 +3345,27 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (architecture.getState().marketSnapshot !== beforeStop || lateSnapshotEvents !== 0 || timers.size !== 0) {
     fail(`bootstrap: stop allowed late startup publication: ${JSON.stringify({ lateSnapshotEvents, pendingTimers: timers.size })}`);
   }
+}
+
+// ── P1389/P1390: briefing connected read + schedule ─────────────────────────────────────────
+{
+  const { buildMarketRead, buildCloseSeries } = await load('src/domain/briefing/market-read.js');
+  const { buildBriefingSchedule } = await load('src/domain/briefing/schedule.js');
+  const day = (i) => new Date(Date.UTC(2026, 6, 1) + i * 86400000).toISOString().slice(0, 10);
+  const rows = Array.from({ length: 260 }, (_, i) => ({ date: day(i), spx: 7000 + i * 3, tnx: i === 10 ? 0 : 4.6 + i * 0.0025 + (i > 254 ? (i - 254) * 0.04 : 0), breadth50: 26, vix: 16, gold: 4400 - i, nasdaq: 26000 + i * 4 }));
+  const read = buildMarketRead({ history: rows, credit: { hyBp: 308, fg: 28, hyDelta5Bp: null } });
+  const ids = read.statements.map((row) => row.id);
+  if (!read.available || !ids.includes('narrow-rally') || !ids.includes('fear-without-credit-stress')) fail(`P1389 briefing read missed cross-asset statements: ${ids}`);
+  if (buildCloseSeries(rows, 'tnx').some((point) => point.value === 0)) fail('P1389 a zero yield is a producer gap, not a close');
+  if (/HY 5일/.test(read.statements.find((row) => row.id === 'fear-without-credit-stress').text)) fail('P1389 a missing HY change must not print as 0bp');
+  if (ids.some((id) => ['real-yield-led', 'breakeven-led', 'bear-steepening', 'bear-flattening'].includes(id))) fail('P1390 rate decomposition must stay silent without FRED inputs');
+  const decomposed = buildMarketRead({ history: rows, credit: { hyBp: 308, fg: 28 }, rates: { realYield10Delta5: 0.14, breakeven10Delta5: 0.03, dgs2Delta5: -0.02, dgs10Delta5: 0.17 } }).statements.map((row) => row.id);
+  if (!decomposed.includes('real-yield-led') || !decomposed.includes('bear-steepening')) fail(`P1390 rate decomposition rules did not fire: ${decomposed}`);
+  if (!read.headline || read.points.includes(read.headline) || read.drivers.some((row) => row.reads.some((text) => text === read.headline || read.points.includes(text)))) fail('P1389 a statement must appear once on the page');
+  const nowMs = Date.parse('2026-10-02T01:00:00Z');
+  const schedule = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' }, 'us-cpi': { nextRelease: '2026-10-14' } }, snapshot: { nfp: 162, unemployment: 4.1 }, nowMs,
+    earnings: [{ symbol: 'NKE', date: '2026-10-05', hour: 'amc', epsEstimate: 0.44 }, { symbol: 'TINY', date: '2026-10-05', hour: 'amc' }], names: { NKE: 'Nike' } });
+  if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30' || !/162천 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
 }
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));

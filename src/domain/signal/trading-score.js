@@ -6,7 +6,7 @@
 // wrapper gated it before. The formula itself (thresholds, weights,
 // corrections, order of operations) is transcribed unchanged — this is code motion, not a new
 // model (R352/F-03: legacy and native must not diverge into two different formulas).
-export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v3';
+export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v4';
 export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
 export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v2';
 
@@ -45,7 +45,7 @@ function freezeEvidenceMap(value) {
 export function deriveTradingScoreComponents(score = {}) {
   return Object.freeze([
     ['volScore', '변동성', 25], ['trendScore', '추세', 20],
-    ['momScore', '심리', 25], ['breadthScore', '시장 폭', 20], ['macroScore', '거시', 10]
+    ['momScore', '위험선호', 25], ['breadthScore', '시장 폭', 20], ['macroScore', '거시', 10]
   ].map(([key, label, weight]) => {
     const value = finiteNumber(score[key]);
     return Object.freeze({ key, label, weight, value, contribution: value == null ? null : Math.round(Math.max(0, Math.min(100, value)) * weight / 100) });
@@ -60,7 +60,7 @@ export function deriveTradingScoreComponents(score = {}) {
  * @param {number|null} input.dxy        clamped 80-130
  * @param {number|null} input.tnx        clamped 0-8
  * @param {number|null} input.oilPrice   clamped 0-300
- * @param {number|null} input.fg         clamped 0-100, already evidence-gated (allowedUse==='decision')
+ * @param {number|null} input.fg         accepted for compatibility; not a composite input since v4 (P1388)
  * @param {boolean} input.maCurrent      whether the legacy `_spxMA` global is fresh (<=4 days old)
  * @param {number|null} input.spx200ma   legacy `_spxMA[200]` when maCurrent, else null
  * @param {number|null} input.spx50ma    legacy `_spxMA[50]` when maCurrent, else null
@@ -106,7 +106,6 @@ export function computeTradingScoreModel(input = {}) {
   const dxy = decisionValue('dxy', input.dxy, 80, 130);
   const tnx = decisionValue('tnx', input.tnx, 0, 8);
   const oilPrice = decisionValue('oilPrice', input.oilPrice, 0, 300);
-  const fg = decisionValue('fg', input.fg, 0, 100);
   const spx200ma = decisionValue('spx200ma', input.spx200ma, Number.MIN_VALUE, Number.MAX_VALUE);
   const spx50ma = decisionValue('spx50ma', input.spx50ma, Number.MIN_VALUE, Number.MAX_VALUE);
   const spxPrice = decisionValue('spxPrice', input.spxPrice, Number.MIN_VALUE, Number.MAX_VALUE);
@@ -137,14 +136,14 @@ export function computeTradingScoreModel(input = {}) {
     if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
   }
 
-  // 2. Momentum Score (25%) — Fear&Greed as proxy, inverted-U (extreme greed fades)
-  let momScore = null;
-  if (fg == null) momScore = null;
-  else if (fg >= 75) momScore = 66;
-  else if (fg >= 55) momScore = 74;
-  else if (fg >= 45) momScore = 52;
-  else if (fg >= 25) momScore = 34;
-  else momScore = 25;
+  // 2. Risk-appetite Score (25%) — P1388 (v4): CBOE put/call hedging demand and HY credit spread.
+  // CNN Fear & Greed already blends VIX, put/call, junk-bond demand, breadth and momentum, so
+  // using it here counted VIX twice (volatility axis) and put/call three times (plus the old PCR
+  // correction). F&G is still shown on its own; it no longer enters the composite.
+  const pcrScore = pcr == null ? null : pcr < 0.7 ? 75 : pcr < 0.85 ? 66 : pcr < 1.0 ? 54 : pcr < 1.15 ? 40 : pcr < 1.3 ? 28 : 15;
+  const creditScore = hyBp == null ? null : hyBp < 300 ? 80 : hyBp < 350 ? 70 : hyBp < 450 ? 55 : hyBp < 550 ? 35 : hyBp < 700 ? 20 : 8;
+  const appetiteParts = [pcrScore, creditScore].filter((part) => part != null);
+  let momScore = appetiteParts.length ? Math.round(appetiteParts.reduce((sum, part) => sum + part, 0) / appetiteParts.length) : null;
 
   // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
   let trendCalcScore = null;
@@ -172,13 +171,8 @@ export function computeTradingScoreModel(input = {}) {
   if (macroScore != null && dxy > 107) macroScore -= 12;
   if (macroScore != null && dxy > 110) macroScore -= 8;
   if (macroScore != null && tnx > 4.5) macroScore -= 10;
-  if (macroScore != null && fg != null && fg < 20) macroScore -= 5;
   if (macroScore != null && vvix > 110) macroScore -= 8;
   if (macroScore != null) macroScore = Math.max(10, Math.min(90, macroScore));
-
-  // Put/Call ratio correction
-  if (pcr != null && momScore != null && pcr > 1.3) { momScore = Math.max(5, momScore - 8); }
-  else if (pcr != null && momScore != null && pcr > 1.1) { momScore = Math.max(5, momScore - 4); }
 
   // 교차변수 보정 — 복합 리스크 시 추가 감점
   let crossRiskCount = 0;
@@ -224,10 +218,7 @@ export function computeTradingScoreModel(input = {}) {
     adjustments.push({ key, delta });
   };
 
-  // Credit Stress 보정 (HY Spread bp, 실측 우선)
-  if (compositeScore != null && hyBp != null && hyBp > 500) applyAdjustment('credit-stress', -15);
-  else if (compositeScore != null && hyBp != null && hyBp > 400) applyAdjustment('credit-stress', -8);
-  else if (compositeScore != null && hyBp != null && hyBp > 350) applyAdjustment('credit-stress', -3);
+  // P1388: credit stress now lives in the risk-appetite axis; no second HY adjustment.
 
   // 지정학 위험 보정 (유가)
   if (compositeScore != null && oilPrice != null && oilPrice > 100) applyAdjustment('geopolitical-oil', -10);
@@ -262,7 +253,7 @@ export function computeTradingScoreModel(input = {}) {
     componentMissing: Object.freeze(componentMissing),
     partial: availableWeight < 100,
     // P1349: base-axis coverage does not certify the optional stress corrections.
-    missingOptionalInputs: Object.freeze(Object.entries({ vvix, pcr, hyBp, oilPrice }).filter(([, value]) => value == null).map(([key]) => key)),
+    missingOptionalInputs: Object.freeze(Object.entries({ vvix, oilPrice, pcr, hyBp }).filter(([, value]) => value == null).map(([key]) => key)),
     decisionBlocked: hasDecisionEvidence && total == null,
     decisionCoverageThreshold,
     rawCompositeScore,
@@ -352,7 +343,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const components = deriveTradingScoreComponents(score);
   const optionalLabels = { vvix: 'VVIX', pcr: 'Put/Call', hyBp: 'HY 스프레드', oilPrice: 'WTI' };
   const optionalMissing = Array.isArray(score.missingOptionalInputs) ? score.missingOptionalInputs : [];
-  const optionalText = optionalMissing.length ? ` 보조·위험보정 근거 미확보: ${optionalMissing.map(key => optionalLabels[key] || key).join(' · ')}.` : '';
+  const optionalText = optionalMissing.length ? ` 보조 입력 미수신: ${optionalMissing.map(key => optionalLabels[key] || key).join(' · ')}.` : '';
   // P1118: the published total is not the weighted component sum — post-composite
   // adjustments and the [5,100] clamp move it afterwards. Carry the exact terms into the
   // presentation so the visible hero can reconcile the components it already shows with
@@ -362,7 +353,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
     ? PREDICTIVE_VALIDATION_ESTABLISHED
     : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
   const decisionEligible = score?.decisionEligible === true && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED;
-  const missingLabels = { volatility: '변동성', momentum: '심리', trend: '추세', breadth: '시장 폭', macro: '거시' };
+  const missingLabels = { volatility: '변동성', momentum: '위험선호', trend: '추세', breadth: '시장 폭', macro: '거시' };
   const missingText = missing.map((key) => missingLabels[key] || key).join(' · ');
   const reasons = missing.map((key) => `missing:${key}`);
   // P1328: the basis the inputs were read on (e.g. "9/28 미국 정규장 종가 기준") is part of the statement.
@@ -407,7 +398,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       breakdown,
       basisLabel,
       decision: `시장환경 관찰 — ${CONDITION_BAND_LABELS[conditionBand]} 구간 · 예측 검증 미확립`,
-      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText ? `${missingText} 제외 · ` : ''}기본 5축의 확보된 입력을 요약한 참고 지표입니다.${optionalText} 예측 신호·매매 권고로 사용하지 않습니다.`,
+      description: `${basisLabel ? `${basisLabel}. ` : ''}${missingText ? `${missingText} 자료가 없어 나머지 항목(${breakdown?.availableWeight ?? '—'}점 만점)을 100점으로 환산했습니다. ` : ''}변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값이며 매매 신호가 아닙니다.${optionalText}`,
       reasons: Object.freeze(['predictive-validation-not-established', ...reasons])
     });
   }

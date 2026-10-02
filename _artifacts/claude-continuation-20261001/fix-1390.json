@@ -1,0 +1,19 @@
+{
+  "version": "v56.93",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.93 — score v4 and macro plumbing, briefing rebuilt as a connected read, supplied-material frameworks, news important/full split (P1388-P1391).",
+  "p": {
+    "id": 1390,
+    "title": "Supplied-material frameworks integrated into the briefing read (real yield, curve, breadth, credit)",
+    "symptom": "Owner-supplied material (윤지호 2026-09-30, @laylaperfume 9/28-9/30) explained the tape through real yields, the long end, index defence vs decliners and credit vs small caps; the screener had none of these readings and did not collect real yield or breakevens.",
+    "root_cause": "Only nominal yields and single-day deltas were collected; the read had no rules for these relationships.",
+    "fix": "FRED DFII10/T10YIE added with 5-observation changes (also DGS2/DGS10/HY OAS); engine rules: real-yield-led vs breakeven-led, bear steepening/flattening, weak dollar with higher long rates, index defended with <45% advancers, broad de-risking, small caps lagging with calm credit, gold down with rates up, orderly at rate highs, HY widening. Level and trend of HY are shown together (sources disagree). Frameworks, disagreements, invalidation and data gaps recorded in KNOWLEDGE-BASE TM-XVIII.",
+    "violated_rule": "R26/integrate: frameworks extracted, transient opinions (box range, 2028 cycle, FOMC odds) not promoted to current signals.",
+    "prevention": "Rules stay silent when an input series is missing; the FRED fields flow through the existing macro freshness contract.",
+    "verification": "Engine fixture with sample FRED changes produced real-yield-led and bear-steepening statements; live history produced index-defended, gold-down-rates-up, orderly-at-rate-high and smallcap-lags. FRED fields appear after the next Actions run."
+  },
+  "changelog": [
+    "**자료 통합 (P1390):** 제공 자료의 해석 틀(실질금리·장단기 금리·지수 방어 vs 하락 종목·신용 vs 소형주·금과 금리)을 브리핑 해석 규칙으로 통합하고 FRED 실질금리·기대인플레 수집 추가."
+  ]
+}

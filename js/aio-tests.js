@@ -1501,7 +1501,7 @@
     var jensenSpan = document.getElementById('jensen-interview-stale-days');
     var jensenParent = jensenSpan ? jensenSpan.parentElement.parentElement.innerHTML : '';
     _assert('T335 briefing_jensen_static_removed: "58일 경과 (60일 임박)" 정적 텍스트 제거',
-      !!jensenSpan && !/58일 경과 \(60일 임박\)/.test(jensenParent),
+      !jensenSpan && !/58일 경과 \(60일 임박\)/.test(jensenParent), // P1389: archived interview cards retired with the briefing rebuild
       'span exists + static text removed');
 
     // T336 (P306/R94 보강): technical RSI 카드 data-threshold-key="RSI" 마커
@@ -1587,7 +1587,7 @@
     // T349 (P316 일반화): 현재 briefing lifecycle element + registry 연결
     var brWeekEl = document.querySelector('#page-briefing [data-lifecycle-id]');
     var brWeekId = brWeekEl && brWeekEl.getAttribute('data-lifecycle-id');
-    _assert('T349 archived_briefing_marker_is_reference_only', !!document.querySelector('[data-lifecycle-id="jensen-computex-202606"][data-aio-archive="true"]'), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T349 archived_briefing_marker_is_reference_only', !document.querySelector('#page-briefing [data-aio-archive="true"]'), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T350~T354: 5 페이지 subSections enumerate
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
@@ -4644,7 +4644,7 @@
     // T242: Jensen 인터뷰 archive 마킹
     var jensenEl = document.querySelector('[data-lifecycle-id="jensen-interview-202603"]');
     _assert('T242 jensen_archive: Jensen 인터뷰 data-lifecycle-id + data-aio-archive=true',
-      !!jensenEl && jensenEl.getAttribute('data-aio-archive') === 'true',
+      !jensenEl, // P1389: retired with the briefing archive (stale 2026-03/06 reference cards)
       jensenEl ? 'archive=' + jensenEl.getAttribute('data-aio-archive') : 'missing');
 
     // T243: macro 유가 시나리오 일반화
@@ -4736,8 +4736,8 @@
     // T234 (v52.65 구조): 중복 상단 블록 제거 + 현재 브리핑의 시장/행동/뉴스/일정 흐름 존재
     var top5 = document.getElementById('briefing-top-5-watch');
     var brAction = document.getElementById('briefing-action-item-card');
-    var flow234 = ['briefing-market-strip','briefing-analysis-lead','briefing-action-list','briefing-live-news-list','briefing-schedule-list']
-      .every(function(id) { return !!document.getElementById(id); });
+    var flow234 = ['briefing-schedule-rows' /* P1389: 일정 → 해석 → 자산별 흐름 → 다음 확인; old ids retired */,'briefing-read-headline','briefing-driver-rows','briefing-check-list'].every(function(id) { return !!document.getElementById(id); })
+      && ['briefing-market-strip','briefing-analysis-lead','briefing-action-list','briefing-live-news-list'].every(function(id) { return !document.getElementById(id); });
     _assert('T234 briefing_consolidated: 중복 블록 제거 + 시장→행동→뉴스→일정 단일 흐름 존재',
       !top5 && !brAction && flow234,
       'top5=' + !!top5 + ' action=' + !!brAction + ' flow=' + flow234);
@@ -5199,7 +5199,7 @@
       if ((el.textContent || '').indexOf('May 4') !== -1) hasWeekArchive = true;
     });
     _assert('T186 briefing_archive: Week of May 4-10 section is marked data-aio-archive',
-      hasWeekArchive || briefingEls.length > 0,
+      !hasWeekArchive && briefingEls.length === 0, // P1389: the dated archive left the briefing entirely
       hasWeekArchive ? 'ok' : 'archive marker missing on Week of May 4-10 section');
   }
 

@@ -63,35 +63,16 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 81,
-        "score": 81,
+        "total": 79,
+        "score": 79,
         "volScore": 90,
-        "momScore": 74,
+        "momScore": 67,
         "trendScore": 82,
         "breadthScore": 88,
         "macroScore": 55,
         "componentCoveragePct": 100,
-        "componentMissing": [],
         "partial": false,
-        "neutralizedMissing": [],
-        "evidenceStatus": "ok",
-        "evidenceAudit": {
-          "status": "ok",
-          "rows": [
-            {
-              "id": "pcr-putcall",
-              "status": "verified_current"
-            },
-            {
-              "id": "hy-spread-bp",
-              "status": "verified_current"
-            }
-          ]
-        },
-        "fgEvidenceStatus": "CURRENT",
-        "fgEvidenceAllowedUse": true,
-        "evidenceId": "",
-        "provenanceBundle": null
+        "componentMissing": []
       }
     },
     {
@@ -165,32 +146,13 @@
         "total": 5,
         "score": 5,
         "volScore": 8,
-        "momScore": 17,
+        "momScore": 25,
         "trendScore": 15,
         "breadthScore": 12,
         "macroScore": 10,
         "componentCoveragePct": 100,
-        "componentMissing": [],
         "partial": false,
-        "neutralizedMissing": [],
-        "evidenceStatus": "ok",
-        "evidenceAudit": {
-          "status": "ok",
-          "rows": [
-            {
-              "id": "pcr-putcall",
-              "status": "verified_current"
-            },
-            {
-              "id": "hy-spread-bp",
-              "status": "verified_current"
-            }
-          ]
-        },
-        "fgEvidenceStatus": "CURRENT",
-        "fgEvidenceAllowedUse": true,
-        "evidenceId": "",
-        "provenanceBundle": null
+        "componentMissing": []
       }
     },
     {
@@ -224,24 +186,14 @@
         "breadthScore": null,
         "macroScore": null,
         "componentCoveragePct": 0,
+        "partial": true,
         "componentMissing": [
           "volatility",
           "momentum",
           "trend",
           "breadth",
           "macro"
-        ],
-        "partial": true,
-        "neutralizedMissing": [],
-        "evidenceStatus": "ok",
-        "evidenceAudit": {
-          "status": "ok",
-          "rows": []
-        },
-        "fgEvidenceStatus": "UNAVAILABLE",
-        "fgEvidenceAllowedUse": false,
-        "evidenceId": "",
-        "provenanceBundle": null
+        ]
       }
     },
     {
@@ -274,30 +226,21 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 57,
-        "score": 57,
+        "total": 62,
+        "score": 62,
         "volScore": 62,
-        "momScore": 52,
+        "momScore": null,
         "trendScore": null,
         "breadthScore": null,
         "macroScore": null,
-        "componentCoveragePct": 50,
+        "componentCoveragePct": 25,
+        "partial": true,
         "componentMissing": [
+          "momentum",
           "trend",
           "breadth",
           "macro"
-        ],
-        "partial": true,
-        "neutralizedMissing": [],
-        "evidenceStatus": "ok",
-        "evidenceAudit": {
-          "status": "ok",
-          "rows": []
-        },
-        "fgEvidenceStatus": "CURRENT",
-        "fgEvidenceAllowedUse": true,
-        "evidenceId": "",
-        "provenanceBundle": null
+        ]
       }
     },
     {
@@ -361,35 +304,16 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 60,
-        "score": 60,
+        "total": 61,
+        "score": 61,
         "volScore": 54,
-        "momScore": 52,
+        "momScore": 55,
         "trendScore": 68,
         "breadthScore": 72,
         "macroScore": 55,
         "componentCoveragePct": 100,
-        "componentMissing": [],
         "partial": false,
-        "neutralizedMissing": [],
-        "evidenceStatus": "ok",
-        "evidenceAudit": {
-          "status": "ok",
-          "rows": [
-            {
-              "id": "pcr-putcall",
-              "status": "verified_current"
-            },
-            {
-              "id": "hy-spread-bp",
-              "status": "verified_current"
-            }
-          ]
-        },
-        "fgEvidenceStatus": "CURRENT",
-        "fgEvidenceAllowedUse": true,
-        "evidenceId": "",
-        "provenanceBundle": null
+        "componentMissing": []
       }
     },
     {
@@ -453,35 +377,16 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 60,
-        "score": 60,
+        "total": 57,
+        "score": 57,
         "volScore": 78,
-        "momScore": 74,
+        "momScore": 62,
         "trendScore": 72,
         "breadthScore": 12,
         "macroScore": 55,
         "componentCoveragePct": 100,
-        "componentMissing": [],
         "partial": false,
-        "neutralizedMissing": [],
-        "evidenceStatus": "ok",
-        "evidenceAudit": {
-          "status": "ok",
-          "rows": [
-            {
-              "id": "pcr-putcall",
-              "status": "verified_current"
-            },
-            {
-              "id": "hy-spread-bp",
-              "status": "verified_current"
-            }
-          ]
-        },
-        "fgEvidenceStatus": "CURRENT",
-        "fgEvidenceAllowedUse": true,
-        "evidenceId": "",
-        "provenanceBundle": null
+        "componentMissing": []
       }
     },
     {
@@ -544,36 +449,19 @@
         "newsRiskImpacts": []
       },
       "legacyOutput": {
-        "total": 44,
-        "score": 44,
+        "total": 49,
+        "score": 49,
         "volScore": 42,
-        "momScore": 34,
+        "momScore": 55,
         "trendScore": 15,
         "breadthScore": 80,
         "macroScore": 55,
         "componentCoveragePct": 100,
-        "componentMissing": [],
         "partial": false,
-        "neutralizedMissing": [],
-        "evidenceStatus": "ok",
-        "evidenceAudit": {
-          "status": "ok",
-          "rows": [
-            {
-              "id": "pcr-putcall",
-              "status": "verified_current"
-            },
-            {
-              "id": "hy-spread-bp",
-              "status": "verified_current"
-            }
-          ]
-        },
-        "fgEvidenceStatus": "CURRENT",
-        "fgEvidenceAllowedUse": true,
-        "evidenceId": "",
-        "provenanceBundle": null
+        "componentMissing": []
       }
     }
-  ]
+  ],
+  "rebaselinedAt": "2026-10-02T01:23:52.490Z",
+  "rebaselineReason": "P1388 trading-score.v4: risk-appetite axis = put/call + HY; F&G removed from the composite"
 }

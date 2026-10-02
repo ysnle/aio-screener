@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
@@ -106,6 +106,18 @@ const goldenPath = path.join(root, 'architecture/fixtures/trading-score-golden.j
 const golden = JSON.parse(readFileSync(goldenPath, 'utf8'));
 if (!Array.isArray(golden.fixtures) || golden.fixtures.length < 5) fail('trading-score golden fixture missing or too small — re-run scripts/dump-trading-score-fixtures.mjs');
 const SCORE_FIELDS = ['total', 'score', 'volScore', 'momScore', 'trendScore', 'breadthScore', 'macroScore', 'componentCoveragePct', 'partial'];
+// P1388: an intentional model change (trading-score.v4) re-baselines the scenarios through the same
+// input resolver. The legacy wrapper now reads close-basis runtime evidence, so the Chromium dump
+// can no longer inject scenario inputs; AIO_REGEN_TRADING_GOLDEN=1 rewrites expected outputs only.
+if (process.env.AIO_REGEN_TRADING_GOLDEN === '1') {
+  for (const fixture of golden.fixtures) {
+    const out = computeTradingScoreModel({ ...resolveTradingScoreInputs(fixture.inputs), mode: fixture.mode });
+    fixture.legacyOutput = Object.fromEntries([...SCORE_FIELDS, 'componentMissing'].map((field) => [field, out[field]]));
+  }
+  golden.rebaselinedAt = new Date().toISOString();
+  golden.rebaselineReason = 'P1388 trading-score.v4: risk-appetite axis = put/call + HY; F&G removed from the composite';
+  writeFileSync(goldenPath, `${JSON.stringify(golden, null, 2)}\n`);
+}
 for (const fixture of golden.fixtures) {
   const resolved = resolveTradingScoreInputs(fixture.inputs);
   resolved.mode = fixture.mode;

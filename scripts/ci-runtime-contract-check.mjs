@@ -255,7 +255,7 @@ check('LC-49/P1228 macro curve availability is independent of the official sprea
 // LC-31/P1230: the feed query's topic is kept separate from an article-level topic.
 check('LC-31/P1230 news keeps feed topic separate from an article topic', /topicReviewRequired/.test(newsNormalize) && /feedTopic/.test(newsNormalize) && /topic: item\?\.articleTopic \|\| item\?\.topic/.test(newsNormalize) && /검토 필요/.test(newsPage));
 // LC-32/P1231/P1268: a headline-only status is a content boundary even if depth metadata disagrees.
-check('LC-32/P1231/P1268 headline-only status withholds the summary claim', /요약 보류 — 헤드라인 전용/.test(newsPage) && /isNewsHeadlineOnly\(item\)/.test(newsPage) && /verificationStatus/.test(newsScoring));
+check('LC-32/P1231/P1268 headline-only status withholds the summary claim', /summary && !headlineOnly/.test(newsPage) && /isNewsHeadlineOnly\(item\)/.test(newsPage) && /verificationStatus/.test(newsScoring));
 // LC-07/LC-87/P1268: native owns the visible summary; compatibility producers remain available,
 // but the registry count, analyzed sample and risk signals keep distinct denominators.
 const legacyNewsSummaryWriter = data.match(/function _aioUpdateNewsSummaryFromItems\(items, meta\) \{[\s\S]*?\n\}/)?.[0] || '';
@@ -273,7 +273,7 @@ check('LC-07/LC-87/P1268 one owner for market-news summary and source-count deno
 check('LC-31/P1230/P1268 feed-query topics do not drive article-topic risk signals',
   /isNewsTopicReviewRequired/.test(newsScoring)
   && /topicEvidence = recent\.filter\(hasReviewedArticleTopic\)/.test(newsScoring)
-  && /피드 분류 · 검토 필요/.test(newsPage));
+  && /피드 분류 검토 필요/.test(newsPage)); // P1391: the card no longer prints the flag; category grouping keeps it
 // LC-35/P1257: the hidden legacy themes sections are classified (retire / public re-home / dev
 // bundle) and the decision is recorded in the stylesheet — public copy promises only what ships.
 check('LC-35/P1257 themes hidden sections classified with the decision recorded', /P1257\/LC-35 제품 결정/.test(html) && /퇴역\(삭제\)/.test(html) && /공개 경로로 이전/.test(html) && /개발자 번들로 이전/.test(html) && !/45개 세분화 테마 실시간/.test(html));
@@ -1049,7 +1049,8 @@ check('R340/P712: Treasury maturity fields are separated and 2s10s uses the cano
 check('R340/P712: KR theme breadth and market-health claims fail closed on missing current inputs',
   /evaluateKrThemeQuoteCoverage/.test(krData) && /weightedCoverage\s*>=\s*0\.7/.test(krData) && /테마 종합판정 보류/.test(krData) && /currentInputs\s*<\s*4/.test(ui) && /판정 보류 · 현재 입력/.test(ui));
 check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
-  /renderOfficialFutureCalendar/.test(macroTech + core) && /id="official-future-calendar"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
+  // P1389: the briefing schedule (buildBriefingSchedule over AIO_MACRO_CALENDAR) replaced the archived calendar block.
+  /export function buildBriefingSchedule/.test(read('src/domain/briefing/schedule.js')) && /id="briefing-schedule-rows"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
 check('R340/P712: semantic market-integrity tests cover curve exactness and KR missingness',
   /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_native_tabs_and_ranges/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_required_inputs_fail_closed/.test(tests));
 check('R340/P712: synthetic market-series formulas are absent from decision paths',

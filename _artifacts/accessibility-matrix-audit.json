@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-02T01:00:29.615Z",
-  "appRevision": "v56.92",
-  "gitHead": "91c26dc450e2e90ebf40219cc70c8130d7e4ec09",
+  "observedAt": "2026-10-02T01:56:30.949Z",
+  "appRevision": "v56.93",
+  "gitHead": "1905f9d56247db2e54a027314b36904e7dfe444f",
   "scope": "desktop-only",
   "viewport": {
     "name": "desktop1440",
@@ -95,8 +95,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "뉴스",
+          "width": 23,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -107,7 +115,7 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 2,
+      "canvasCount": 0,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],

@@ -3,7 +3,7 @@ import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/s
 import { QUOTE_IDENTITIES } from './contracts/market-snapshot.js';
 import { readPortfolioAssumptions } from './portfolio-assumptions.js';
 import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
-import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis, CLOSE_BASIS_QUOTE_KEYS } from '../domain/signal/close-basis.js';
+import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis, CLOSE_BASIS_QUOTE_KEYS, CLOSE_BASIS_DAILY_KEYS } from '../domain/signal/close-basis.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 
@@ -529,6 +529,17 @@ function decisionInputs(root, nowMs = Date.now()) {
     fg: ['fg'], breadth200: ['breadth200'], pcr: ['pcr'], hyBp: ['hySpread'] };
   const snapshot = root?.DATA_SNAPSHOT || {};
   const daily = { fg: fearGreedObservation(root, snapshot), pcr: putCallObservation(root, snapshot), hyBp: hySpreadObservation(root, snapshot) };
+  // P1388: DXY and WTI trade almost around the clock, so the producer records the last COMPLETED
+  // daily bar (stamped with its midnight-ET bar start) on the next row; the 9/30 settlement sits on the
+  // 10/1 row. Without this lookup the macro axis and the oil correction were never scored.
+  const nyDate = (iso) => { const ms = Date.parse(String(iso || '')); return Number.isFinite(ms) ? new Date(ms).toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) : null; };
+  const completedBar = (selectedBasis, key, field) => {
+    if (!['dxy', 'oilPrice'].includes(key) || !selectedBasis?.date) return null;
+    const item = history.find((row) => row?.date >= selectedBasis.date && finite(row[field]) != null
+      && row.fieldMeta?.[field]?.observationRelation === 'previous-completed-close'
+      && row.fieldMeta[field].observedAtSource === 'provider-previous-close' && nyDate(row.fieldMeta[field].observedAt) === selectedBasis.date);
+    return item ? { ...item.fieldMeta[field], value: item[field], observedAt: selectedBasis.date, valueBasis: 'latest-completed-close', session: 'COMPLETED' } : null;
+  };
   const pick = (selectedBasis, key, id) => {
     const [field, symbol] = fields[key];
     const row = selectedBasis === basis ? closeRow : history.findLast((item) => item?.date === selectedBasis?.date);
@@ -536,7 +547,7 @@ function decisionInputs(root, nowMs = Date.now()) {
     const live = symbol && root?._liveData?.[symbol];
     const envelope = live?.quoteEnvelope || live;
     const historical = meta ? { ...meta, value: row[field], session: meta.observedMarketSession } : null;
-    return selectCloseBasisObservation({ key, basis: selectedBasis, nowMs, candidates: [daily[key], historical,
+    return selectCloseBasisObservation({ key, basis: selectedBasis, nowMs, candidates: [daily[key], historical, completedBar(selectedBasis, key, field),
       snapshotQuotes.find((quote) => quote.instrumentId === symbol),
       envelope && { ...envelope, value: envelope.value ?? envelope.price,
         session: envelope.session || envelope.marketState || live.session || live.marketState }, byId.get(id)] });
@@ -555,6 +566,8 @@ function decisionInputs(root, nowMs = Date.now()) {
       effectiveBasis = previous;
       pendingBasis = basis;
       for (const key of CLOSE_BASIS_QUOTE_KEYS) chosenByKey[key] = previousChosen[key];
+      // P1388: daily publications (HY, put/call) lag a day; judge them on the basis actually used.
+      for (const key of CLOSE_BASIS_DAILY_KEYS) chosenByKey[key] = chosenByKey[key] || previousChosen[key];
     }
   }
   for (const [key] of Object.entries(evidenceKeys)) {

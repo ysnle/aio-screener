@@ -5687,13 +5687,13 @@ async function _aioLoadServerData() {
       // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 서버 FRED 자동화 편입.
       // consConf(Conf. Board)는 제외 유지 — FRED엔 해당 시리즈가 없고, UMCSENT(미시간대)는
       // 별개 지표라 혼입 금지(P593).
-      ['cpi','coreCpi','cpiSa','coreCpiSa','pce','corePce','fedRate','fedTargetLower','fedTargetUpper','unemployment','nfp','housingStarts','retailSales','usWageGrowth','dgs2','dgs5','dgs10','dgs20','dgs30','t10y2y'].forEach(function(k){
+      ['cpi','coreCpi','cpiSa','coreCpiSa','pce','corePce','fedRate','fedTargetLower','fedTargetUpper','unemployment','nfp','housingStarts','retailSales','usWageGrowth','dgs2','dgs5','dgs10','dgs20','dgs30','t10y2y','realYield10','breakeven10'].forEach(function(k){
         var _blsCanonicalCpi = d.macro._bls && d.macro._bls.series && d.macro._bls.series[k];
         var _canonicalCpiDefinitionBlocked = (k === 'cpi' || k === 'coreCpi')
           && _blsCanonicalCpi
           && String(_blsCanonicalCpi.seasonalAdjustment || '').toUpperCase() !== 'NSA';
         if (!_canonicalCpiDefinitionBlocked && typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
-          window.DATA_SNAPSHOT[k] = d.macro[k];
+          window.DATA_SNAPSHOT[k] = d.macro[k]; if (typeof d.macro[k + 'Delta5'] === 'number' && isFinite(d.macro[k + 'Delta5'])) window.DATA_SNAPSHOT['_' + k + 'Delta5'] = d.macro[k + 'Delta5']; // P1390: one-week change for the briefing read
           // P1142: 선언된 스냅샷 필드는 `usUnemploy`(aio-core DATA_SNAPSHOT 키)지만 서버 매크로 키는
           // `unemployment`라 미러가 없었고, 선언 키를 읽는 가용성 소비자(aio-ui 매크로 컨텍스트)는
           // 데이터가 있어도 null을 봤다 — 감사에서 발견된 키 3중 drift 통합.
@@ -5727,7 +5727,7 @@ async function _aioLoadServerData() {
       // success path. Do not wait for the browser's CORS/proxy fetch and never
       // derive OAS from HYG's dollar price (duration-contaminated proxy).
       if (typeof d.macro.hyOAS === 'number' && isFinite(d.macro.hyOAS)) {
-        var _serverHySpreadBp = Math.round(d.macro.hyOAS * 100);
+        var _serverHySpreadBp = Math.round(d.macro.hyOAS * 100); if (window.DATA_SNAPSHOT && typeof d.macro.hyOASDelta5 === 'number' && isFinite(d.macro.hyOASDelta5)) window.DATA_SNAPSHOT._hySpreadDelta5Bp = Math.round(d.macro.hyOASDelta5 * 100); // P1390
         var _serverHySource = d.macro._source_hyOAS || 'last-known-good';
         var _serverHyOfficial = _serverHySource === 'fred-official-public-csv' || _serverHySource === 'fred-official-primary';
         var _serverHyEvidence = {
@@ -10768,33 +10768,17 @@ function localEnrichSingle(item) {
 }
 
 /* ── v30.12: 뉴스 표시 텍스트 (한국어 우선 + 해석 + 티커 + 실패 표시) ─── */
-function _aioBuildNewsVisibleFallbackTitle(item, cached) {
-  item = item || {};
-  cached = cached || {};
-  var direct = item.ko_title || cached.ko_title || '';
-  if (direct && isKoreanText(direct)) return direct;
-  var topic = _aioNewsTopicKo(item.topic || (typeof classifyTopic === 'function' ? classifyTopic(item) : 'general'));
-  var source = item.source || item.feed || '외신';
-  var score = isFinite(Number(item.score)) ? ' · 중요도 ' + Number(item.score) : '';
-  var tickers = [];
-  try { tickers = typeof getDisplayTickers === 'function' ? getDisplayTickers(item) : []; } catch(_) {}
-  var tickerText = Array.isArray(tickers) && tickers.length ? ' · ' + tickers.slice(0, 3).join(', ') : '';
-  return topic + ' · ' + source + ' 기사' + score + tickerText;
-}
-
 function getDisplayTitle(item) {
   item = item || {};
   if (_translationCache.has(_tcKey(item.title))) {
     var cached = _translationCache.get(_tcKey(item.title));
-    // P2: 번역 실패 시에도 화면 제목은 한국어 상태/분류 문장으로 유지
-    if (cached._failed || !cached.ko_title || !isKoreanText(cached.ko_title)) return _aioBuildNewsVisibleFallbackTitle(item, cached);
+    // P1391: no translation → the original headline, never a generated '매크로 · Reuters 기사 · 중요도 48' line
+    if (cached._failed || !cached.ko_title || !isKoreanText(cached.ko_title)) return item.title || '';
     return cached.ko_title;
   }
   if (item.ko_title && isKoreanText(item.ko_title)) return item.ko_title;
-  // v51.81: 번역 미완료 외신은 원문 제목 대신 한국어 분류 폴백을 표시
-  if (item.title && !isKoreanText(item.title)) {
-    return _aioBuildNewsVisibleFallbackTitle(item, null);
-  }
+  // P1391 (owner review 2026-10-02): an untranslated foreign headline is shown as written; the
+  // generated category sentence (v51.81) carried no information and hid the actual story.
   return item.title || '';
 }
 function getDisplayDesc(item) {

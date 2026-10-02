@@ -1,5 +1,5 @@
 import { deriveTechnicalStageFromOhlcv } from '../../domain/technical/stage.js';
-import { computeTradingScoreModel, deriveSignalDecisionFromTradingScore, deriveTradingScoreDecisionPresentation } from '../../domain/signal/trading-score.js';
+import { computeTradingScoreModel, deriveSignalDecisionFromTradingScore, deriveTradingScoreDecisionPresentation, TRADING_SCORE_MODEL_VERSION } from '../../domain/signal/trading-score.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode } from '../../domain/signal/mode.js';
 import { deriveHomeSummary } from '../../domain/home/summary.js';
 
@@ -8,7 +8,7 @@ export function normalizeAnalysis(raw = {}) {
   const technical = raw.technical?.health
     ? Object.freeze({ ...technicalBase, health: raw.technical.health })
     : technicalBase;
-  const tradingScore = raw.tradingScore?.modelVersion === 'trading-score.v3'
+  const tradingScore = raw.tradingScore?.modelVersion === TRADING_SCORE_MODEL_VERSION
     ? raw.tradingScore
     : computeTradingScoreModel(raw.tradingScoreInputs || {});
   const signalBase = raw.signal?.modelVersion

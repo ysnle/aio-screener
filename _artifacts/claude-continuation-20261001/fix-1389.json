@@ -1,0 +1,19 @@
+{
+  "version": "v56.93",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.93 — score v4 and macro plumbing, briefing rebuilt as a connected read, supplied-material frameworks, news important/full split (P1388-P1391).",
+  "p": {
+    "id": 1389,
+    "title": "Briefing rebuilt as schedule → connected read → asset drivers → next checks",
+    "symptom": "Owner review: the briefing restated the same numbers in five blocks (strip, six-axis summary, checklist, analysis, August research bridge), showed generic sentences, a 50-day-old comparison, a 2026-04 archive and the news list, with the schedule at the bottom.",
+    "root_cause": "Each block was added by a different packet with its own reader; none connected cross-asset evidence and no owner decided the reading order.",
+    "fix": "src/domain/briefing/market-read.js derives cross-asset statements from the completed-close history (rates vs equities, index vs breadth, F&G vs credit, leadership, dollar/gold, oil/yields, Korea) with next-check conditions; src/domain/briefing/schedule.js lists official releases (KST times, why it matters, previous value) and S&P 500 earnings; src/ui/components/briefing-read.js owns the page; the old blocks, archive and news list were removed.",
+    "violated_rule": "Owner principles: no repeated or sourceless content; analysis must connect evidence; one reading flow.",
+    "prevention": "Architecture browser check asserts schedule-first order, a non-empty read and the retired ids; T234/T186/T242/T335/T349 updated.",
+    "verification": "Local browser: '이번 주 일정' (10/2 21:30 고용보고서 · 직전 +162천 명 · 실업률 4.1%), headline '지수는 고점권인데 50일선 위 종목 26%뿐 — 좁은 장세', drivers and checks render."
+  },
+  "changelog": [
+    "**브리핑 재구성 (P1389):** 일정 → 오늘의 시장 해석(교차자산 연결) → 자산별 흐름 → 다음 확인 포인트 순서로 재구성. 반복 수치·8월 자료 대조·과거 참고·주요 뉴스 블록 제거(뉴스는 뉴스 화면으로)."
+  ]
+}
