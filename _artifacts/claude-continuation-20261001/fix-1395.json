@@ -1,0 +1,19 @@
+{
+  "version": "v56.95",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.95 — USD/JPY and range-relative oil in the regime, 시장 폭 trend charts, 투자 심리 five-card board (P1394-P1396).",
+  "p": {
+    "id": 1395,
+    "title": "시장 폭 shows each participation measure as a trend chart with labelled axes",
+    "symptom": "Owner review: the breadth page showed single numbers with source strings ('github-actions:yahoo-1y-adjusted-close'), a static five-step protocol text and a 'McClellan … 공식 McClellan 아님' card; the change could not be followed. The first chart version stretched text and had no axes.",
+    "root_cause": "The page rendered the latest value per window; history charts existed only as unlabelled canvases and duplicated the signal page block.",
+    "fix": "src/ui/components/breadth-board.js renders the breadth judgement (same rule as 시장 상태) and six trend cards — 50/20/200-day participation, 10-day advancers, cumulative A/D line, S&P 500 for comparison — each with 5/20-day change; src/ui/components/trend-chart.js draws a fixed-ratio SVG with a Y axis, gridlines, month ticks, dashed thresholds and a hover readout. The legacy breadth renderer (251 lines) and page markup were removed.",
+    "violated_rule": "Owner principles: trends over snapshots; no developer source strings; no claims without a source (McClellan).",
+    "prevention": "Architecture/epoch browser checks assert six cards with charts, the population note and no McClellan claim.",
+    "verification": "Local browser: 50일선 위 26% (5일 -7.1%p, 20일 -24.5%p) with 0-100% axis, 4~9월 ticks; hover shows '8/7 · 65%'."
+  },
+  "changelog": [
+    "**시장 폭 추이 차트 (P1395):** 50·20·200일선 위 종목 비율, 상승 종목 비율, A/D 라인, S&P 500을 Y축·월 눈금·기준선·마우스 오버가 있는 6개월 차트로 표시."
+  ]
+}

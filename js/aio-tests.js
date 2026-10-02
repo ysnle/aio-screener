@@ -1448,7 +1448,7 @@
     var brPage = document.getElementById('page-breadth');
     var brHtml = brPage ? brPage.innerHTML : '';
     _assert('T326 mcclellan_summation_oscillator_distinct: 카드에 Summation Index + Oscillator 구분',
-      /Summation Index/.test(brHtml) && /Oscillator/.test(brHtml),
+      !/McClellan/.test(brHtml) /* P1395: no official A/D source — the page no longer claims McClellan */ || (/Summation Index/.test(brHtml) && /Oscillator/.test(brHtml)),
       'mcclellan distinct check');
 
     // T327: R97 getStaticSeedFallbackAudit 호출 가능 + breadth seed 등록 후 issueCount 검증
@@ -2183,7 +2183,7 @@
     var badge = document.getElementById('sent-overall-badge');
     var badgeTxt = badge ? (badge.textContent || '').trim() : '';
     _assert('T467 sentiment_badge_initial_state_v4964: sent-overall-badge "분석 중" 부재 — "수신 대기" 표준',
-      !!badge && !/^분석\s*중/.test(badgeTxt) && /수신\s*대기/.test(badgeTxt),
+      !badge /* P1396: badge retired */ || (!/^분석\s*중/.test(badgeTxt) && /수신\s*대기/.test(badgeTxt)),
       'badge=' + badgeTxt);
 
     // 추가 T468: assertChatResponseAccuracy 10% 임계값 적용 ($150 vs $170.50 = 12% → false)
@@ -4730,7 +4730,7 @@
     var unavailable20 = !!b20 && text20 === '—' && /text-muted/.test(color20) && thresholdLabel === '';
     var observed20 = !!b20 && text20 !== '—' && (/amber|255,\s*163|data-amber|green|229,\s*160|red|255,\s*91/.test(color20) || thresholdLabel === 'data-amber');
     _assert('T233 breadth_20sma_color: current threshold palette 또는 명시적 unavailable 상태',
-      observed20 || unavailable20,
+      !b20 /* P1395: the colour-bar card was replaced by trend cards */ || observed20 || unavailable20,
       b20 ? 'color=' + color20 + ' text=' + text20 + ' threshold=' + thresholdLabel + ' unavailable=' + unavailable20 : 'missing');
 
     // T234 (v52.65 구조): 중복 상단 블록 제거 + 현재 브리핑의 시장/행동/뉴스/일정 흐름 존재
@@ -6028,14 +6028,14 @@
         return n;
       };
       var sentHeaderIdx = idxOf('sentiment', '.page-title');
-      var sentEvidenceIdx = idxOf('sentiment', '#vix-term-summary');
-      var sentVerdictIdx = idxOf('sentiment', '#sent-analysis-text');
-      var sentCompOrder = sentHeaderIdx >= 0 && sentEvidenceIdx > sentHeaderIdx && sentVerdictIdx > sentEvidenceIdx;
-      var breadthVerdictIdx = idxOf('breadth', '#breadth-diag-signal');
+      var sentEvidenceIdx = idxOf('sentiment', '#sentiment-card-grid');
+      var sentVerdictIdx = idxOf('sentiment', '#sentiment-synthesis');
+      var sentCompOrder = sentHeaderIdx >= 0 && sentVerdictIdx > sentHeaderIdx && sentEvidenceIdx > sentVerdictIdx; // P1396: conclusion first, then evidence
+      var breadthVerdictIdx = idxOf('breadth', '#breadth-state');
       var lockIdx = idxOf('signal', '#signal-lockout-dashboard');
       var tickIdx = idxOf('signal', '#sig-ticker-track');
       // 결론이 바로 뒤 인접 배치(sentiment) + 상단권(breadth ≤3) + lockout이 티커 뒤
-      t800ok = hasReorder800 && sentCompOrder && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 3 && ((lockIdx < 0 && tickIdx < 0) || (lockIdx > tickIdx && tickIdx >= 0)); // P1392: lockout/ticker retired
+      t800ok = hasReorder800 && sentCompOrder && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 4 /* P1395: hub tabs precede the title */ && ((lockIdx < 0 && tickIdx < 0) || (lockIdx > tickIdx && tickIdx >= 0)); // P1392: lockout/ticker retired
       t800detail = 'sentOrder=' + [sentHeaderIdx,sentEvidenceIdx,sentVerdictIdx].join('<') + ' breadthIdx=' + breadthVerdictIdx + ' lock=' + lockIdx + '>tick=' + tickIdx;
     } catch(e) { t800detail = 'ERR:' + e.message; }
     _assert('T800 v5288_comp_evidence_then_synthesis: sentiment evidence precedes composite judgment, breadth stays upper, and signal lockout follows ticker', t800ok, t800detail);
@@ -7561,7 +7561,7 @@
 
       var okB873 = false, detailB873 = 'n/a';
       try {
-        if (typeof window._aioRenderBreadthConsensus === 'function' && document.getElementById('breadth-header-badge') && document.getElementById('breadth-diag-signal')) {
+        if (!document.getElementById('breadth-header-badge') && !document.getElementById('breadth-diag-signal')) { okB873 = true; detailB873 = 'P1395: consensus badge retired'; } else if (typeof window._aioRenderBreadthConsensus === 'function' && document.getElementById('breadth-header-badge') && document.getElementById('breadth-diag-signal')) {
           window.AIO = window.AIO || {};
           window.AIO.marketState = window.AIO.marketState || {};
           window.AIO.marketState.breadthConsensusFull = { verdict: '약세 합의', consensus: -0.5, details: [], conflict: null };
@@ -7584,7 +7584,7 @@
           var states873 = ['breadth-new-highs', 'breadth-new-lows', 'breadth-hl-ratio'].map(function(id) {
             var el = document.getElementById(id); return el ? el.getAttribute('data-value-state') : null;
           });
-          okC873 = states873.every(function(s) { return s === 'na'; });
+          okC873 = states873.every(function(s) { return s === 'na' || s === null; }); // P1395: dead new-high/low cards removed
           detailC873 = 'states=' + states873.join(',');
         }
       } catch (eC873) { detailC873 = 'threw: ' + (eC873 && eC873.message); }

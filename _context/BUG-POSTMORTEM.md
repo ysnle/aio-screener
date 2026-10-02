@@ -1,8 +1,35 @@
 ---
-last_verified: 2026-10-02
+last_verified: 2026-10-03
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
+
+## P1396 - v56.95 - 투자 심리 is five equal cards and one synthesis; retired score and sourceless SKEW removed (2026-10-03)
+
+- symptom/reproduction: Owner review: uneven proportions (gauge column vs wide VIX block, cards of different heights), contradictory '기간구조 판정: 판정 보류' beside both VIX values, 'SOURCE 확인 대기'/'심리: 판정 보류' badges, an empty SKEW card and a 복합 판단 paragraph quoting the retired '트레이딩 스코어 59/100'.
+- root_cause: Reference-only gating blanked judgements even when the inputs were present; widgets were added without a shared grid.
+- fix: src/ui/components/sentiment-board.js: F&G (band, 1/5/20-day change, chart) and VIX/VIX3M term structure (chart) in one row, HY (same bands as the credit axis), put/call and AAII (vs long-run 37.5%/31.0% averages) in another; a synthesis separates price-driven fear from credit/volatility stress. Badges, SKEW card and the score paragraph removed.
+- violated_rule: Owner principles: no sourceless widgets; one consistent judgement vocabulary across screens.
+- prevention: Architecture check asserts the board renderer, five cards and no overall badge; LIVE3-05 asserts the SKEW sink stays retired.
+- verification/residual: Local browser: 'F&G 31 · AAII 약세 46.5% 공포, 신용 308bp·변동성 구조 0.89 안정 — 가격·시장 폭 약세에서 나온 공포'.
+
+## P1395 - v56.95 - 시장 폭 shows each participation measure as a trend chart with labelled axes (2026-10-03)
+
+- symptom/reproduction: Owner review: the breadth page showed single numbers with source strings ('github-actions:yahoo-1y-adjusted-close'), a static five-step protocol text and a 'McClellan … 공식 McClellan 아님' card; the change could not be followed. The first chart version stretched text and had no axes.
+- root_cause: The page rendered the latest value per window; history charts existed only as unlabelled canvases and duplicated the signal page block.
+- fix: src/ui/components/breadth-board.js renders the breadth judgement (same rule as 시장 상태) and six trend cards — 50/20/200-day participation, 10-day advancers, cumulative A/D line, S&P 500 for comparison — each with 5/20-day change; src/ui/components/trend-chart.js draws a fixed-ratio SVG with a Y axis, gridlines, month ticks, dashed thresholds and a hover readout. The legacy breadth renderer (251 lines) and page markup were removed.
+- violated_rule: Owner principles: trends over snapshots; no developer source strings; no claims without a source (McClellan).
+- prevention: Architecture/epoch browser checks assert six cards with charts, the population note and no McClellan claim.
+- verification/residual: Local browser: 50일선 위 26% (5일 -7.1%p, 20일 -24.5%p) with 0-100% axis, 4~9월 ticks; hover shows '8/7 · 65%'.
+
+## P1394 - v56.95 - Regime FX axis adds USD/JPY; oil is judged against its own 1-year range (2026-10-03)
+
+- symptom/reproduction: Owner asked for the yen in the FX reading. Re-audit of the P1392 rules found the dollar/commodities axis used a fixed 'WTI >= $90' line — the same constant-in-regime flaw as the old 10Y > 4.5% penalty — so 90.42 read as 부담 although WTI sat at 61% of its 1-year range.
+- root_cause: USD/JPY was quoted live but never written to history.json; the oil rule used an absolute level.
+- fix: history producer records JPY=X as usdjpy (plausibility 50-400; the <60-observation rule backfills one year on the next Actions run); the FX axis (원 · 엔) turns 부담 on a 20-day yen rally of 3%+ (carry unwind) or won weakness of 2%+; oil is 부담 at >= 85% of its 1-year range or +10% in 20 days, and the briefing oil statement uses the same rule.
+- violated_rule: Thresholds must be relative to the series regime when a fixed level would become a constant.
+- prevention: The evidence row shows WTI 1년 범위 내 위치 next to the price; the yen row reads 수집 시작 대기 until history exists.
+- verification/residual: Local: dollar/commodities axis now 중립 (WTI 61% of range); overall 혼조 (우호 3 · 중립 1 · 부담 2).
 
 ## P1393 - v56.94 - Leftover developer copy removed (AI helper status, briefing date line, repeated disclaimers) (2026-10-02)
 

@@ -248,7 +248,8 @@ check('LC-45/P1225 portfolio table is currency-aware', /const priceCurrency = St
 // LC-46/P1226: the macro banner state follows the rendered inflation cards.
 check('LC-46/P1226 macro banner reflects the rendered inflation cards', /macro-fred-stale-banner/.test(marketPage) && /renderedCards/.test(marketPage) && /dataset\.runtimeState = received \? 'partial'/.test(marketPage));
 // LC-47/P1227: the 50SMA readout is owned by the native renderer and the advance share is named.
-check('LC-47/P1227 breadth readout single-owner and share label', /breadth-50sma-readout/.test(marketPage) && /50일선 상회 \$\{Math\.round\(b50\)\}%/.test(marketPage) && /상승 종목 비중 \(보합 제외\)/.test(html) && /상승 종목 비중\)/.test(html));
+// P1395: one owner (breadth-board.js) labels every measure with its population and window.
+check('LC-47/P1227 breadth readout single-owner and share label', !/breadth-50sma-readout/.test(html) && /50일선 위 종목 비율/.test(read('src/ui/components/breadth-board.js')) && /상승 종목 비율 \(10일 평균\)/.test(read('src/ui/components/breadth-board.js')) && /AIO 미국 주식 유니버스/.test(html));
 // LC-48/P1227: the signal sector-breadth cell names its own population.
 check('LC-48/P1227 signal sector breadth names its population', !/SPDR 11 ETF/.test(html) || (/SPDR 11 ETF 당일/.test(html) && /Breadth의 AIO 종목 5\/20\/50일선 폭과 다른 모집단/.test(html))); // P1392: retired with the checklist
 // LC-49/P1228: the macro curve's availability is independent of the official 2s10s spread.
@@ -321,7 +322,7 @@ check('decision header renders page evidence caveat', /aio-decision-caveat/.test
 check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
 check('home public readiness audit remains available only in developer mode', /id="aio-public-readiness"/.test(html) && /_aioBuildPublicShareReadiness/.test(data) && /getPublicShareReadiness/.test(data) && /getShareReadinessAudit/.test(core) && /body\.aio-dev-mode \.aio-public-readiness/.test(html) && /classList\.contains\('aio-dev-mode'\)/.test(data));
 check('visible static labels do not overstate live/action state', !/\u25cf\s*LIVE|LIVE RSS|BUY\s*\/\s*LONG|공격적 매매|\(실시간\)|실시간 감지|실시간 수급|FMP 실시간|FINNHUB\s*실시간/.test(visibleHtml));
-check('runtime evidence labels start unavailable and recent-news copy does not claim realtime', /id="breadth-source"[^>]*>원천 미수신 · 판정 보류<\/div>/.test(html)
+check('runtime evidence labels start unavailable and recent-news copy does not claim realtime', (!/id="breadth-source"/.test(html) || /id="breadth-source"[^>]*>원천 미수신 · 판정 보류<\/div>/.test(html)) /* P1395: retired */
   && !/id="breadth-source"[^>]*>\s*Live Data\s*<\/div>/i.test(html)
   && !/최근 7일 뉴스\s*\(실시간/.test(html)
   && !/Finnhub \(실시간 시세\)/.test(html));
@@ -490,7 +491,9 @@ check('value slot renderer encodes value/pending/failed/na states and touched ma
   const legacyTouched = html.includes('_aioRenderValueSlot(elM') && core.includes('_aioRenderValueSlot(el, (v9dLive || v3mLive)');
   const nativeTouched = sentimentPage.includes('renderCanvasStates') && sentimentPage.includes('state.vix9d, state.vix, state.vix3m, state.vix6m')
     && sentimentPage.includes('setMetric(documentRef') && sentimentPage.includes('^VIX9D') && sentimentPage.includes('sentiment.vix3m') && sentimentPage.includes('sentiment.vix6m');
-  return (valueSlotBase && legacyTouched) || (valueSlotBase && nativeTouched);
+  // P1396: the sentiment board renders the VIX term structure only from paired dated closes (no seed values).
+  const boardTouched = /ratioSeries = vix\.filter/.test(read('src/ui/components/sentiment-board.js'));
+  return (valueSlotBase && legacyTouched) || (valueSlotBase && nativeTouched) || (valueSlotBase && boardTouched);
 })());
 check('briefing decision summary F&G uses canonical currentness source, not dead snap fields', /getCanonicalMetric\('fg'\)/.test(data) && !/snap\.fg\.value|snap\.fearGreed/.test(data));
 // P1134/R620: the VKOSPI failure-state helpers now live in js/aio-kr-data.js (block C) while
@@ -714,6 +717,7 @@ check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19)', /_testV
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/15/16) structural gates
 check('EF-06: VIX term-structure seed fallback values render a distinguishable na state instead of the same value state as a live number',
   (/_aioRenderVixTermRegime/.test(core) && /\(정적\)/.test(core) && /라이브 미수신 — DATA_SNAPSHOT 시드값/.test(core))
+  || /ratioSeries = vix\.filter\(\(point\) => vix3m\.get\(point\.date\)\)/.test(read('src/ui/components/sentiment-board.js')) /* P1396: no seed path exists */
   || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && /points:\s*(?:Object\.freeze\()?\{ short, spot, medium, long \}/.test(sentimentDomain) && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
 check('EF-07: kr-home supply title dates are overridden to an honest fallback label when the failure state renders, instead of coexisting with a confident "N/D 기준" date next to the failure warning', /_showKrSupplyFailureState/.test(krData) && /#page-kr-home \.kr-supply-title/.test(krData) && /폴백 데이터/.test(krData + ui));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /window\._aioSafeSourceLabel\(n\.source\)/.test(core));
@@ -987,7 +991,7 @@ check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial 
 check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
 check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /window\._breadthLiveData\s*=/.test(data) && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
 check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
-check('LIVE3-05: MOVE/SKEW regimes require live observations, missing values render unavailable, and SKEW has one native read model', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core) && /market\.volatility\.skew/.test(sentimentPage + read('src/data/runtime-readers.js')) && /sent-skew-value/.test(html) && !/_bridge\('\^SKEW'/.test(ui));
+check('LIVE3-05: MOVE/SKEW regimes require live observations, missing values render unavailable, and SKEW has one native read model', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core) && !/sent-skew-value/.test(html) /* P1396: the sourceless SKEW card and its page read model were retired */ && !/_bridge\('\^SKEW'/.test(ui));
 check('LIVE3-06: late breadth producer refreshes breadth, signal, and home consumers atomically', /updateBreadthBars\(\)/.test(data) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
 check('LIVE3-04: briefing labels the actual S&P index and reads the canonical pct field', /var spx = _ldSafe\('\^GSPC', 'price'\), spxChg = _ldSafe\('\^GSPC', 'pct'\)/.test(core) && /S&amp;P 500 지수/.test(core) && !/_ldSafe\('SPY', 'chgPct'\)/.test(core));
 check('LIVE3-05: KR supply parses formatted values and renders missing as unknown rather than zero', /String\(v\)\.replace\(\/\[,\+\\s\]\/g/.test(krData) && /streakEl\.textContent = '수급 미수신'/.test(krData) && /미수신을 0원\/매도 우위로 해석하지 않는다/.test(krData) && /기관 세부 수급 미수신/.test(krData) && /프로그램 매매 미수신/.test(krData));

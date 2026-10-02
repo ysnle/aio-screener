@@ -159,12 +159,14 @@ try {
   const sentimentRoute = await page.evaluate(() => ({
     active: window.AIO_ARCH.router.active(),
     storeRoute: window.AIO_ARCH.getState().route,
-    state: document.getElementById('sent-overall-badge')?.dataset.aioArchitectureState,
+    // P1396: the five-card board replaced the overall badge; the page publishes its own state.
+    state: document.getElementById('page-sentiment')?.dataset.aioArchitectureState,
     renderer: document.getElementById('page-sentiment')?.dataset.aioArchitectureRenderer,
-    evidenceId: document.getElementById('sent-overall-badge')?.dataset.aioEvidenceId || null,
-    badgeText: document.getElementById('sent-overall-badge')?.textContent || ''
+    boardRenderer: document.getElementById('page-sentiment')?.dataset.aioSentimentBoardRenderer || null,
+    cards: document.querySelectorAll('#page-sentiment .trend-card').length,
+    badge: !!document.getElementById('sent-overall-badge')
   }));
-  if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || sentimentRoute.state !== 'blocked' || sentimentRoute.renderer !== 'native' || sentimentRoute.badgeText !== '심리: 판정 보류') throw new Error(`sentiment lifecycle failed: ${JSON.stringify(sentimentRoute)}`);
+  if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || !['blocked', 'observed'].includes(sentimentRoute.state) || sentimentRoute.renderer !== 'native' || sentimentRoute.boardRenderer !== 'native' || sentimentRoute.cards !== 5 || sentimentRoute.badge) throw new Error(`sentiment lifecycle failed: ${JSON.stringify(sentimentRoute)}`);
 
   const staleDateRoute = await page.evaluate(() => {
     window._aioRenderSnapshotDates();
@@ -174,57 +176,9 @@ try {
   });
   if (staleDateRoute.tnxDate !== '2026-09-24' || staleDateRoute.tnxStale === staleDateRoute.briefingStale || !staleDateRoute.tnxStale.includes('일 경과')) throw new Error(`snapshot date item binding failed: ${JSON.stringify(staleDateRoute)}`);
 
-  const skewRevision = 'browser-skew-revision';
-  const skewObservedAt = new Date(Date.now() - 1000).toISOString();
-  await page.evaluate(({ revision, observedAt }) => {
-    window._liveData = window._liveData || {};
-    window._liveData['^SKEW'] = {
-      price: 146.15,
-      pct: 1.2,
-      observedAt,
-      fetchedAt: observedAt,
-      revisionId: revision,
-      revision,
-      source: 'browser:^SKEW',
-      sourceKind: 'T3_PUBLIC_DELAYED',
-      allowedUse: 'reference',
-      allowedUseCeiling: 'reference',
-      quality: { status: 'delayed', maxAgeMs: 4 * 86400000 },
-      qualityStatus: 'DELAYED',
-      rightsId: 'PUBLIC_REFERENCE',
-      changeBasis: 'previous-close',
-      valueBasis: 'previous-close',
-      quoteEnvelope: {
-        price: 146.15,
-        pct: 1.2,
-        observedAt,
-        fetchedAt: observedAt,
-        revisionId: revision,
-        source: 'browser:^SKEW',
-        sourceKind: 'T3_PUBLIC_DELAYED',
-        allowedUse: 'reference',
-        allowedUseCeiling: 'reference',
-        quality: { status: 'delayed', maxAgeMs: 4 * 86400000 },
-        qualityStatus: 'DELAYED',
-        rightsId: 'PUBLIC_REFERENCE',
-        changeBasis: 'previous-close',
-        valueBasis: 'previous-close'
-      }
-    };
-    const event = new CustomEvent('aio:liveQuotes', { detail: { fixture: 'skew' } });
-    document.dispatchEvent(event);
-    window.dispatchEvent(event);
-  }, { revision: skewRevision, observedAt: skewObservedAt });
-  await page.waitForFunction(() => document.getElementById('sent-skew-value')?.textContent === '146.15', null, { timeout: 10000 });
-  const sentimentSkew = await page.evaluate(() => ({
-    value: document.getElementById('sent-skew-value')?.textContent || '',
-    metricId: document.getElementById('sent-skew-value')?.getAttribute('data-metric-id') || null,
-    instrumentId: document.getElementById('sent-skew-value')?.getAttribute('data-instrument-id') || null,
-    unit: document.getElementById('sent-skew-value')?.getAttribute('data-unit') || null,
-    observedAt: document.getElementById('sent-skew-value')?.getAttribute('data-observed-at') || null,
-    revision: document.getElementById('sent-skew-value')?.getAttribute('data-revision') || null
-  }));
-  if (sentimentSkew.value !== '146.15' || sentimentSkew.metricId !== 'market.volatility.skew' || sentimentSkew.instrumentId !== '^SKEW' || sentimentSkew.unit !== 'index' || sentimentSkew.observedAt !== skewObservedAt || sentimentSkew.revision !== skewRevision) throw new Error(`sentiment SKEW native observation failed: ${JSON.stringify(sentimentSkew)}`);
+  // P1396: the SKEW card had no current producer and was retired with the sentiment rebuild;
+  // the page must not re-introduce an empty SKEW sink.
+  if (await page.evaluate(() => !!document.getElementById('sent-skew-value'))) throw new Error('retired SKEW sink reappeared');
 
   await page.evaluate(() => window.AIO_ARCH.navigate('guide'));
   await page.waitForFunction(() => document.getElementById('page-guide')?.dataset.aioArchitectureRoute === 'guide');
@@ -378,24 +332,16 @@ try {
   if (fxbondRoute.spreadRenderer !== 'native' || fxbondRoute.spreadValue !== macroRoute.spreadValue || fxbondRoute.spreadCutId !== macroRoute.spreadCutId || fxbondRoute.spreadUnit !== 'percentage-point' || fxbondRoute.spreadComparable !== 'true') throw new Error(`macro/fxbond Treasury curve parity failed: ${JSON.stringify({ macro: macroRoute, fxbond: fxbondRoute })}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
+  // P1395: the breadth page is the native trend-card board (six dated series + one judgement).
   const breadthRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-breadth'),
     renderer: document.getElementById('page-breadth')?.dataset.aioArchitectureRenderer || null,
     breadthRenderer: document.getElementById('page-breadth')?.dataset.aioBreadthRenderer || null,
-    signalRenderer: document.getElementById('breadth-signal-val')?.dataset.aioBreadthSignalRenderer || null,
-    signalText: document.getElementById('breadth-signal-val')?.textContent || '',
-    diagnosticRenderer: document.getElementById('breadth-diag-text')?.dataset.aioBreadthDiagnosticRenderer || null,
-    diagnosticSignal: document.getElementById('breadth-diag-signal')?.textContent || '',
-    diagnosticText: document.getElementById('breadth-diag-text')?.textContent || '',
-    stageRenderer: document.getElementById('breadth-stage-summary')?.dataset.aioBreadthStageRenderer || null,
-    stageText: document.getElementById('breadth-stage-summary')?.textContent || '',
-    mcclellanRenderer: document.getElementById('breadth-mcclellan-summary')?.dataset.aioBreadthMcclellanRenderer || null,
-    mcclellanText: document.getElementById('breadth-mcclellan-summary')?.textContent || '',
-    nativeChartMarkers: ['bp-price-chart', 'bp-ad-ratio-chart', 'bp-5ma-chart', 'bp-20ma-chart', 'bp-50ma-chart'].map((id) => document.getElementById(id)?.dataset.aioBreadthChartRenderer || null),
-    chartKinds: ['bp-price-chart', 'bp-ad-ratio-chart', 'bp-5ma-chart', 'bp-20ma-chart', 'bp-50ma-chart'].map((id) => document.getElementById(id)?.getAttribute('data-source-kind') || null),
-    rawPrimarySinkCount: document.querySelectorAll('#page-breadth [data-snap="breadth-5sma"], #page-breadth [data-snap="breadth-20sma"], #page-breadth [data-snap="breadth-50sma"], #page-breadth #breadth-advance-ratio').length,
-    nativePrimarySinkCount: document.querySelectorAll('#page-breadth[data-aio-architecture-renderer="native"] [data-snap="breadth-5sma"], #page-breadth[data-aio-architecture-renderer="native"] [data-snap="breadth-20sma"], #page-breadth[data-aio-architecture-renderer="native"] [data-snap="breadth-50sma"], #page-breadth[data-aio-architecture-renderer="native"] #breadth-advance-ratio').length,
-    primaryValues: ['breadth-5sma-big', 'breadth-20sma-big', 'breadth-50sma-big', 'breadth-advance-ratio'].map((id) => document.getElementById(id)?.textContent || null)
+    boardRenderer: document.getElementById('page-breadth')?.dataset.aioBreadthBoardRenderer || null,
+    state: document.getElementById('breadth-state')?.textContent || '',
+    cards: document.querySelectorAll('#breadth-chart-grid .trend-card').length,
+    charts: document.querySelectorAll('#breadth-chart-grid svg.trend-chart').length,
+    retired: ['breadth-signal-val', 'breadth-diag-text', 'breadth-mcclellan-summary', 'bp-50ma-chart'].filter((id) => document.getElementById(id))
   }));
   await page.evaluate(() => window.AIO_ARCH.navigate('themes'));
   await page.waitForFunction(() => document.getElementById('page-themes')?.dataset.aioArchitectureRoute === 'themes');
@@ -790,10 +736,10 @@ try {
     ,homeRenderer: home.renderer
     ,homeSummaryRenderer: home.homeRenderer
   }), { market: marketRoute, macro: macroRoute, fxbond: fxbondRoute, breadth: breadthRoute, themes: themesRoute, themeDetail: themeDetailRoute, ticker: tickerRoute, fundamental: fundamentalRoute, portfolio: portfolioRoute, technical: technicalRoute, signal: signalRoute, home: homeRoute });
-  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native-read' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.breadthPrimaryRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || macroRoute.primarySnapSinkCount < 1 || macroRoute.fedMeaningRenderer !== 'native' || !macroRoute.fedMeaningText.trim() || fxbondRoute.nativeLiveSinkCount < 1 || fxbondRoute.rawMoveSinkCount !== 0 /* 2026-10-01: sourceless MOVE sinks retired */ || fxbondRoute.riskRenderer !== 'native' || !fxbondRoute.riskText.trim() || breadthRoute.rawPrimarySinkCount < 1 || breadthRoute.nativePrimarySinkCount !== breadthRoute.rawPrimarySinkCount || breadthRoute.signalRenderer !== 'native' || !breadthRoute.signalText.trim() || breadthRoute.diagnosticRenderer !== 'native' || !breadthRoute.diagnosticSignal.trim() || !breadthRoute.diagnosticText.trim() || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.symbolRenderer !== 'native' || !tickerRoute.candleSymbol.trim() || !tickerRoute.entrySymbol.trim() || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.summaryRenderer !== 'native' || !fundamentalRoute.summaryText.trim() || !fundamentalRoute.summarySourceKind || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !fundamentalRoute.reportMeta.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute })}`);
+  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native-read' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || macroRoute.primarySnapSinkCount < 1 || macroRoute.fedMeaningRenderer !== 'native' || !macroRoute.fedMeaningText.trim() || fxbondRoute.nativeLiveSinkCount < 1 || fxbondRoute.rawMoveSinkCount !== 0 /* 2026-10-01: sourceless MOVE sinks retired */ || fxbondRoute.riskRenderer !== 'native' || !fxbondRoute.riskText.trim() || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.symbolRenderer !== 'native' || !tickerRoute.candleSymbol.trim() || !tickerRoute.entrySymbol.trim() || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.summaryRenderer !== 'native' || !fundamentalRoute.summaryText.trim() || !fundamentalRoute.summarySourceKind || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !fundamentalRoute.reportMeta.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute })}`);
 
   if (fxbondRoute.curveRenderer !== 'native' || !fxbondRoute.curveText.trim() || fxbondRoute.carryRenderer !== 'native' || !fxbondRoute.carryText.trim() || fxbondRoute.carryScoreRenderer !== 'native' || !fxbondRoute.carryScoreText.trim() || !fxbondRoute.carryScoreBar.trim() || !fxbondRoute.carryVerdict.trim() || fxbondRoute.camRenderer !== 'native' || !fxbondRoute.camText.trim() || fxbondRoute.curveStatusRenderer !== 'native' || !fxbondRoute.curveStatusText.trim() || fxbondRoute.twoYearRenderer !== 'native' || !fxbondRoute.twoYearText.trim() || fxbondRoute.nativeChartMarkers.some((marker) => marker !== 'native') || fxbondRoute.chartKinds.some((kind) => !chartKindAllowed(kind))) throw new Error(`fxbond secondary surface failed: ${JSON.stringify(fxbondRoute)}`);
-  if (breadthRoute.stageRenderer !== 'native' || !breadthRoute.stageText.trim() || breadthRoute.mcclellanRenderer !== 'native' || !breadthRoute.mcclellanText.trim() || breadthRoute.nativeChartMarkers.some((marker) => marker !== 'native') || breadthRoute.chartKinds.some((kind) => !chartKindAllowed(kind))) throw new Error(`breadth secondary surface failed: ${JSON.stringify(breadthRoute)}`);
+  if (breadthRoute.boardRenderer !== 'native' || breadthRoute.cards !== 6 || breadthRoute.charts !== 6 || !breadthRoute.state.trim() || breadthRoute.retired.length) throw new Error(`P1395 breadth board failed: ${JSON.stringify(breadthRoute)}`);
 
   // RM-05 item 2: two full 17-route A→B→...→A laps, asserting no resource accumulation between
   // lap 1 and lap 2. Two laps (not one before/after snapshot) because window._aioTimerRegistry

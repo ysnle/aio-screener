@@ -1,0 +1,19 @@
+{
+  "version": "v56.95",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.95 — USD/JPY and range-relative oil in the regime, 시장 폭 trend charts, 투자 심리 five-card board (P1394-P1396).",
+  "p": {
+    "id": 1394,
+    "title": "Regime FX axis adds USD/JPY; oil is judged against its own 1-year range",
+    "symptom": "Owner asked for the yen in the FX reading. Re-audit of the P1392 rules found the dollar/commodities axis used a fixed 'WTI >= $90' line — the same constant-in-regime flaw as the old 10Y > 4.5% penalty — so 90.42 read as 부담 although WTI sat at 61% of its 1-year range.",
+    "root_cause": "USD/JPY was quoted live but never written to history.json; the oil rule used an absolute level.",
+    "fix": "history producer records JPY=X as usdjpy (plausibility 50-400; the <60-observation rule backfills one year on the next Actions run); the FX axis (원 · 엔) turns 부담 on a 20-day yen rally of 3%+ (carry unwind) or won weakness of 2%+; oil is 부담 at >= 85% of its 1-year range or +10% in 20 days, and the briefing oil statement uses the same rule.",
+    "violated_rule": "Thresholds must be relative to the series regime when a fixed level would become a constant.",
+    "prevention": "The evidence row shows WTI 1년 범위 내 위치 next to the price; the yen row reads 수집 시작 대기 until history exists.",
+    "verification": "Local: dollar/commodities axis now 중립 (WTI 61% of range); overall 혼조 (우호 3 · 중립 1 · 부담 2)."
+  },
+  "changelog": [
+    "**환율 축에 엔/달러 추가 (P1394):** 엔 급강세(캐리 청산) 신호 반영, 유가는 고정 90달러 대신 1년 범위 위치로 판정."
+  ]
+}

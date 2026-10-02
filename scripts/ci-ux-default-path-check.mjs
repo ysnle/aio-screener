@@ -43,7 +43,7 @@ check(
 );
 check(
   'rally-quality legacy sink must remain hidden if runtime still references it',
-  /id="rally-quality-verdict"[^>]*style="display:none;"[^>]*aria-hidden="true"/.test(html)
+  !/id="rally-quality-verdict"/.test(html) /* P1395: removed with the breadth rebuild */ || /id="rally-quality-verdict"[^>]*style="display:none;"[^>]*aria-hidden="true"/.test(html)
 );
 const operatorNoteIndex = html.indexOf('id="home-operator-note"');
 const staleWarningIndex = html.indexOf('id="snapshot-stale-warning"');

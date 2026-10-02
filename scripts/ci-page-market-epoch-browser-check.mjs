@@ -78,15 +78,13 @@ try {
       fieldTimeline: window.AIO_ARCH?.getPageDataTimelineAudit?.() || null,
       headers,
       reconciliation: window.AIO.getDataReconciliationStatus(),
+      // P1395: the breadth page is a set of dated trend cards over the AIO history artifact; it
+      // states its population and never claims an official exchange A/D or McClellan series.
       breadthHistory: (() => {
-        const summary = document.querySelector('#breadth-mcclellan-summary');
-        const diagnostic = document.querySelector('#breadth-diag-text');
+        const page = document.getElementById('page-breadth');
         return {
-          summary: summary?.textContent?.trim() || '',
-          signal: summary?.getAttribute('data-mcclellan-signal') || null,
-          sourceKind: summary?.getAttribute('data-source-kind') || null,
-          sourceLabel: summary?.getAttribute('data-source-label') || null,
-          diagnostic: diagnostic?.textContent?.trim() || ''
+          cards: page ? page.querySelectorAll('.trend-card').length : 0,
+          text: page?.textContent || ''
         };
       })()
     };
@@ -119,9 +117,7 @@ try {
   if (requiredHeaders.length !== pageIds.length) throw new Error(`decision headers ${requiredHeaders.length}/${pageIds.length}`);
   const badHeaders = requiredHeaders.filter((header) => header.revision !== report.audit.sharedRevision || !header.cutEnd || !header.epoch);
   if (badHeaders.length) throw new Error(`decision header epoch missing: ${JSON.stringify(badHeaders)}`);
-  if (!/AIO 50일선 참여도 \d+일 이력/.test(report.breadthHistory.summary) || !/공식 McClellan 아님/.test(report.breadthHistory.summary)) throw new Error(`breadth history summary mismatch: ${JSON.stringify(report.breadthHistory)}`);
-  if (report.breadthHistory.signal !== 'aio-history-not-mcclellan' || report.breadthHistory.sourceKind !== 'derived-research' || !/AIO US screener universe/.test(report.breadthHistory.sourceLabel || '')) throw new Error(`breadth history lineage mismatch: ${JSON.stringify(report.breadthHistory)}`);
-  if (!/동일 AIO 유니버스 \d+일 이력/.test(report.breadthHistory.diagnostic) || !/공식 거래소 A\/D·McClellan/.test(report.breadthHistory.diagnostic)) throw new Error(`breadth history diagnostic mismatch: ${JSON.stringify(report.breadthHistory)}`);
+  if (report.breadthHistory.cards !== 6 || !/AIO 미국 주식 유니버스/.test(report.breadthHistory.text) || !/거래소 공식 통계가 아닙니다/.test(report.breadthHistory.text) || /McClellan/.test(report.breadthHistory.text)) throw new Error(`breadth board lineage mismatch: ${JSON.stringify({ cards: report.breadthHistory.cards })}`);
   console.log(JSON.stringify({
     ok: true,
     pageCount: pageIds.length,

@@ -1668,8 +1668,10 @@ const HIST_SYMBOLS = {
   // CORS를 처리)로 일별 히스토리를 갖는다. 새 출처·새 키·새 약관이 없고, 백테스트 랩의 통화 축이
   // 요구하던 "과거 FX 시계열 공급원"이 이 열이다. 교차검증은 FRED DEXKOUS(공식 bilateral)가 한다.
   'KRW=X': 'usdkrw',
+  // P1394: USD/JPY joins the FX axis (yen carry / BOJ channel); the <60-observation rule backfills 1y on the next run.
+  'JPY=X': 'usdjpy',
 };
-const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','usdkrw','fg'];
+const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','usdkrw','usdjpy','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -1680,6 +1682,7 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   // 원/달러는 1997년 외환위기 이후 800~2000원대를 벗어난 적이 없다. 공급자 오류(예: 지수/배율
   // 혼동)로 한 자리·두 자리 수가 들어오면 그대로 히스토리에 남아 백테스트 환산을 오염시킨다.
   usdkrw: [800, 2000],
+  usdjpy: [50, 400],
 });
 export function histValueWithinPlausibility(field, value) {
   const range = HIST_FIELD_PLAUSIBILITY[field];

@@ -26,7 +26,7 @@ export function buildCloseSeries(history = [], field) {
   const rows = [...(Array.isArray(history) ? history : [])].sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   for (const row of rows) {
     const value = finite(row?.[field]);
-    if (value == null || (value <= 0 && !field.startsWith('breadth'))) continue; // a 0 yield/price is a producer gap, not a close
+    if (value == null || (value <= 0 && !/^(breadth|advance)/.test(field))) continue; // a 0 yield/price is a producer gap, not a close
     const meta = row.fieldMeta?.[field];
     if (meta?.observationRelation === 'carried-forward') continue;
     const date = meta?.observedAt ? nyDate(meta.observedAt) : row.date;
@@ -160,7 +160,7 @@ export function buildMarketRead({ history = [], credit = {}, rates = {} } = {}) 
   // 6. Oil and yields — the inflation channel.
   const wti20 = s.wti ? pct(s.wti.value, s.wti.d20) : null;
   if (wti20 != null && tnx20 != null && wti20 >= 8 && tnx20 >= 15) add('oil-rates-inflation', 80, `WTI 20일 ${signed(wti20)}·10년물 ${signed(tnx20, 0, 'bp')} 동반 상승 — 유가가 물가 기대를 거쳐 금리를 밀어 올리는 경로입니다.`, 'commodities');
-  else if (s.wti && s.wti.value >= 90) add('oil-high', 50, `WTI ${fmt(s.wti.value)}달러 — 90달러대 유가는 물가와 금리 부담 요인입니다.`, 'commodities', 'WTI가 90달러 위를 유지하는지 — 유지되면 다음 물가 지표 부담');
+  else if (s.wti?.yearPosition != null && s.wti.yearPosition >= 0.85) add('oil-high', 50, `WTI ${fmt(s.wti.value)}달러 — 1년 범위 상단(${fmt(s.wti.yearPosition * 100, 0)}%)의 유가는 물가와 금리 부담 요인입니다.`, 'commodities', 'WTI가 1년 범위 상단에 머무는지 — 머물면 다음 물가 지표 부담'); // P1394: range-relative
 
   // 7. Korea relative to the US, with the currency.
   const kospi5 = s.kospi ? pct(s.kospi.value, s.kospi.d5) : null;
@@ -211,7 +211,7 @@ export function buildMarketRegime({ history = [], credit = {}, rates = {} } = {}
   const get = (field) => stats(buildCloseSeries(history, field));
   const spx = get('spx');
   if (!spx) return { available: false, axes: [], reason: 'history-missing' };
-  const s = Object.fromEntries(['nasdaq', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'breadth50', 'breadth200', 'advanceRatio']
+  const s = Object.fromEntries(['nasdaq', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'usdjpy', 'breadth50', 'breadth200', 'advanceRatio']
     .map((field) => [field, get(field)]));
   const axis = (id, title, state, evidence, read, flip) => ({ id, title, state, stateLabel: STATE_LABELS[state], evidence: evidence.filter(([, value]) => value != null && value !== '—'), read, flip });
   const axes = [];
@@ -321,36 +321,48 @@ export function buildMarketRegime({ history = [], credit = {}, rates = {} } = {}
     ], read, hyBp != null ? `HY 스프레드 ${state === 'burden' ? '400bp 아래로 축소되면 완화' : '350bp를 넘거나 5일 +25bp 확대 시 부담'}` : null));
   }
   // 6. Dollar & commodities — oil (inflation channel), the dollar and gold.
+  // P1394: oil is judged against its own 1-year range and 20-day change, not a fixed $90 line
+  // (a fixed level becomes a constant in a high-price regime — the same flaw as the old 10Y > 4.5%).
   {
     const dxy20 = s.dxy ? pct(s.dxy.value, s.dxy.d20) : null;
     const wti = s.wti;
     const wti20 = wti ? pct(wti.value, wti.d20) : null;
+    const wtiHigh = wti?.yearPosition != null && wti.yearPosition >= 0.85;
     const gold20 = s.gold ? pct(s.gold.value, s.gold.d20) : null;
     let state = 'neutral';
     if (!wti && !s.dxy) state = 'unknown';
-    else if ((wti && wti.value >= 90) || (wti20 != null && wti20 >= 10) || (dxy20 != null && dxy20 >= 2)) state = 'burden';
+    else if (wtiHigh || (wti20 != null && wti20 >= 10) || (dxy20 != null && dxy20 >= 2)) state = 'burden';
     else if ((wti20 == null || wti20 <= -5) && (dxy20 == null || dxy20 <= 0)) state = 'favorable';
-    const read = state === 'burden' ? (wti && wti.value >= 90 ? '90달러대 유가가 물가·금리 부담으로 작용합니다.' : dxy20 != null && dxy20 >= 2 ? '달러 강세가 해외 매출 기업과 신흥국 자금 흐름에 부담입니다.' : '유가가 빠르게 오르고 있습니다.')
+    const read = state === 'burden' ? (wti20 != null && wti20 >= 10 ? '유가가 빠르게 오르며 물가·금리 부담을 키우고 있습니다.' : wtiHigh ? `유가가 1년 범위 상단(${fmt(wti.yearPosition * 100, 0)}%)에 머물러 물가·금리 부담입니다.` : '달러 강세가 해외 매출 기업과 신흥국 자금 흐름에 부담입니다.')
       : state === 'favorable' ? '유가와 달러가 내려오며 물가·금융 여건 부담이 줄고 있습니다.'
         : state === 'unknown' ? '원자재·달러 기록이 없습니다.' : '유가·달러가 중립 범위입니다.';
     axes.push(axis('commodities', '달러 · 원자재', state, [
       ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)})` : null],
+      ['WTI 1년 범위 내 위치', wti?.yearPosition == null ? null : `${fmt(wti.yearPosition * 100, 0)}%`],
       ['달러 인덱스', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)})` : null],
       ['금', s.gold ? `${fmt(s.gold.value, 0)}달러 (20일 ${signed(gold20)})` : null]
-    ], read, wti ? (wti.value >= 90 ? 'WTI가 90달러 아래로 내려오면 완화' : 'WTI 90달러 이상 또는 20일 +10% 상승 시 부담') : null));
+    ], read, wti ? (state === 'burden' ? 'WTI가 1년 범위 85% 아래로, 20일 상승률 +10% 아래로 내려오면 완화' : 'WTI가 1년 범위 85% 위 또는 20일 +10% 상승 시 부담') : null));
   }
-  // Korea — beside the six US axes; the won is the channel for foreign flows.
+  // 7. FX — the won (foreign flows into Korea) and the yen (carry trade; a fast yen rally has
+  // preceded global de-risking, e.g. August 2024). P1394 adds USD/JPY at the owner's request.
   {
     const krw20 = s.usdkrw ? pct(s.usdkrw.value, s.usdkrw.d20) : null;
+    const jpy20 = s.usdjpy ? pct(s.usdjpy.value, s.usdjpy.d20) : null;
     const kospi20 = s.kospi ? pct(s.kospi.value, s.kospi.d20) : null;
-    const state = krw20 == null ? 'unknown' : krw20 >= 2 ? 'burden' : krw20 <= -2 ? 'favorable' : 'neutral';
-    const read = state === 'burden' ? '원화 약세 — 외국인 수급과 수입 물가에 부담입니다.'
-      : state === 'favorable' ? '원화 강세 — 외국인 자금 유입에 우호적이지만 수출 기업 이익에는 부담일 수 있습니다.'
-        : state === 'unknown' ? '환율 기록이 없습니다.' : '원/달러가 중립 범위입니다.';
-    axes.push(axis('korea', '한국 (원/달러)', state, [
+    const yenSurge = jpy20 != null && jpy20 <= -3;
+    let state = 'neutral';
+    if (krw20 == null && jpy20 == null) state = 'unknown';
+    else if ((krw20 != null && krw20 >= 2) || yenSurge) state = 'burden';
+    else if (krw20 != null && krw20 <= -2) state = 'favorable';
+    const read = yenSurge ? `엔화가 20일 ${signed(-jpy20)} 강세 — 엔 캐리 청산은 과거 글로벌 위험자산 매도를 앞당긴 경로입니다.`
+      : state === 'burden' ? '원화 약세 — 외국인 수급과 수입 물가에 부담입니다.'
+        : state === 'favorable' ? '원화 강세 — 외국인 자금 유입에 우호적이지만 수출 기업 이익에는 부담일 수 있습니다.'
+          : state === 'unknown' ? '환율 기록이 없습니다.' : '원/달러·엔/달러가 중립 범위입니다.';
+    axes.push(axis('korea', '환율 (원 · 엔)', state, [
       ['원/달러', s.usdkrw ? `${fmt(s.usdkrw.value, 1)}원 (20일 ${signed(krw20)})` : null],
+      ['엔/달러', s.usdjpy ? `${fmt(s.usdjpy.value, 2)}엔 (20일 ${signed(jpy20)})` : '수집 시작 대기'],
       ['코스피', s.kospi ? `${fmt(s.kospi.value)} (20일 ${signed(kospi20)})` : null]
-    ], read, krw20 != null ? '원/달러 20일 ±2% 이상 변동 시 판정 전환' : null));
+    ], read, '원/달러 20일 ±2% 또는 엔/달러 20일 -3%(엔 급강세) 시 판정 전환'));
   }
 
   const us = axes.filter((row) => row.id !== 'korea' && row.state !== 'unknown');

@@ -1,0 +1,19 @@
+{
+  "version": "v56.95",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.95 — USD/JPY and range-relative oil in the regime, 시장 폭 trend charts, 투자 심리 five-card board (P1394-P1396).",
+  "p": {
+    "id": 1396,
+    "title": "투자 심리 is five equal cards and one synthesis; retired score and sourceless SKEW removed",
+    "symptom": "Owner review: uneven proportions (gauge column vs wide VIX block, cards of different heights), contradictory '기간구조 판정: 판정 보류' beside both VIX values, 'SOURCE 확인 대기'/'심리: 판정 보류' badges, an empty SKEW card and a 복합 판단 paragraph quoting the retired '트레이딩 스코어 59/100'.",
+    "root_cause": "Reference-only gating blanked judgements even when the inputs were present; widgets were added without a shared grid.",
+    "fix": "src/ui/components/sentiment-board.js: F&G (band, 1/5/20-day change, chart) and VIX/VIX3M term structure (chart) in one row, HY (same bands as the credit axis), put/call and AAII (vs long-run 37.5%/31.0% averages) in another; a synthesis separates price-driven fear from credit/volatility stress. Badges, SKEW card and the score paragraph removed.",
+    "violated_rule": "Owner principles: no sourceless widgets; one consistent judgement vocabulary across screens.",
+    "prevention": "Architecture check asserts the board renderer, five cards and no overall badge; LIVE3-05 asserts the SKEW sink stays retired.",
+    "verification": "Local browser: 'F&G 31 · AAII 약세 46.5% 공포, 신용 308bp·변동성 구조 0.89 안정 — 가격·시장 폭 약세에서 나온 공포'."
+  },
+  "changelog": [
+    "**투자 심리 재구성 (P1396):** 같은 크기 카드 5개(공포·탐욕, VIX 기간 구조, HY, 풋/콜, AAII)와 한 줄 종합. 판정 보류 배지·원천 없는 SKEW·은퇴한 점수 문단 제거."
+  ]
+}
