@@ -1,0 +1,19 @@
+{
+  "version": "v56.94",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.94 — 시장 상태 rebuilt as a six-axis regime board; score and swing/day toggle retired from user surfaces; leftover developer copy removed (P1392-P1393).",
+  "p": {
+    "id": 1393,
+    "title": "Leftover developer copy removed (AI helper status, briefing date line, repeated disclaimers)",
+    "symptom": "The sidebar showed 'Worker 확인 필요' and '저장: 미저장 · 인증: NOT_CHECKED · 연결: NOT_CHECKED'; the briefing date line still said '08:00 KST 기준 24시간 브리핑 · 어제 생성분' after its news list moved; the home score repeated the disclaimer already in the footer.",
+    "root_cause": "Status enums were printed raw and copy was not updated when the surfaces it described moved.",
+    "fix": "Route readiness labels in plain Korean ('연결 확인 중', '사용 가능', '개인 키 사용'); the key status line is empty until a key exists and then shows only storage plus a verified/failed result; the briefing date line shows the date; the home card no longer carries its own disclaimer.",
+    "violated_rule": "Owner principle: no developer text on user surfaces.",
+    "prevention": "T871/EF-04 date-line contract kept (mockable now, pre-cutoff basis).",
+    "verification": "Local browser: sidebar shows no enum values before a key is saved."
+  },
+  "changelog": [
+    "**남은 개발자 문구 정리 (P1393):** 사이드바 AI 도우미 상태(Worker·NOT_CHECKED), 브리핑 날짜 줄의 뉴스 기준 문구, 홈 점수의 중복 면책 문구 제거."
+  ]
+}

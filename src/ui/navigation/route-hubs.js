@@ -3,7 +3,7 @@
 // route ids, deep links and page owners stay unchanged until each screen is merged.
 export const ROUTE_HUBS = Object.freeze([
   { id: 'today', label: '오늘', routes: [{ id: 'home', label: '대시보드' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
-  { id: 'market', label: '시장 상태', routes: [{ id: 'signal', label: '환경 점수' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }] },
+  { id: 'market', label: '시장 상태', routes: [{ id: 'signal', label: '국면 판정' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }] },
   { id: 'macro', label: '거시 · 금리', routes: [{ id: 'macro', label: '거시경제' }, { id: 'fxbond', label: '환율 · 채권' }] },
   { id: 'themes', label: '테마 · 섹터', routes: [{ id: 'themes', label: '테마 · 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
   { id: 'stock', label: '종목', routes: [{ id: 'fundamental', label: '기업 분석' }, { id: 'technical', label: '차트 · 기술' }, { id: 'ticker', label: '종목 상세', tab: false }] },

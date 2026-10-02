@@ -4,6 +4,24 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1393 - v56.94 - Leftover developer copy removed (AI helper status, briefing date line, repeated disclaimers) (2026-10-02)
+
+- symptom/reproduction: The sidebar showed 'Worker 확인 필요' and '저장: 미저장 · 인증: NOT_CHECKED · 연결: NOT_CHECKED'; the briefing date line still said '08:00 KST 기준 24시간 브리핑 · 어제 생성분' after its news list moved; the home score repeated the disclaimer already in the footer.
+- root_cause: Status enums were printed raw and copy was not updated when the surfaces it described moved.
+- fix: Route readiness labels in plain Korean ('연결 확인 중', '사용 가능', '개인 키 사용'); the key status line is empty until a key exists and then shows only storage plus a verified/failed result; the briefing date line shows the date; the home card no longer carries its own disclaimer.
+- violated_rule: Owner principle: no developer text on user surfaces.
+- prevention: T871/EF-04 date-line contract kept (mockable now, pre-cutoff basis).
+- verification/residual: Local browser: sidebar shows no enum values before a key is saved.
+
+## P1392 - v56.94 - 시장 상태 is a six-axis regime board; the 0-100 score and swing/day toggle leave user surfaces (2026-10-02)
+
+- symptom/reproduction: Owner review: the screen repeated VIX five times and the score twice, showed a second composite ('시장건강 점수 55+'), a checklist that was 3/5 '미수신', a risk monitor of '?' values, a generic principles list, an outdated weight legend ('심리(공포·탐욕·풋콜) 25% · 시장 폭(20일선)') and a swing/day toggle whose only effect was +12 on the volatility axis for a close-basis score. Rates direction, real yields, FX and VIX term structure were not assessed at all.
+- root_cause: The page accreted widgets from many packets around a score that P714 showed has no predictive power; no single model owned the market-condition reading.
+- fix: buildMarketRegime (src/domain/briefing/market-read.js) evaluates trend (S&P vs 50/200-day, 50-day slope, distance from high), breadth (50/200-day participation, advancers, small caps), volatility (VIX 18/25 bands, one-week change, VIX/VIX3M), rates (10Y level, 5/20-day bp, 1y position, real yield vs breakeven), credit (HY level/trend, put/call) and dollar/commodities (WTI, DXY, gold), plus Korea (USD/KRW) — each with evidence, a reading and a flip condition; an overall label and cross-axis conflicts. src/ui/components/market-regime.js renders the 시장 상태 board and the home card; the score hero, toggle, checklist, risk monitor, regime diagnosis, principles and the duplicated breadth/exit blocks (707 lines) were removed.
+- violated_rule: Owner decisions 2026-10-02: retire the score from user surfaces (P714) and the swing/day toggle; no duplicated or sourceless widgets.
+- prevention: Architecture browser check fences the board against the legacy writer and asserts six axes with evidence and flip conditions and the retired ids; ci-desktop-continuity asserts the home card waits without history. computeTradingScore remains an internal input (AI context, research artifacts) until a separate retirement.
+- verification/residual: Local browser: '혼조 환경 · 우호 3 · 중립 0 · 부담 3'; 추세 우호, 시장 폭 부담(50일선 위 26%), 변동성 우호(VIX/3M 0.89), 금리 부담(10Y 5.29%, 20일 +49bp, 1년 최고권), 신용 우호(HY 308bp), 달러·원자재 부담(WTI 90.4), 한국 중립; home shows the same states.
+
 ## P1391 - v56.93 - News screen leads with important stories; titles are real headlines; developer markers removed (2026-10-02)
 
 - symptom/reproduction: News cards showed '매크로 · Reuters 기사 · 중요도 48' as titles, '요약 보류 — 헤드라인 전용…', '헤드라인 전용 · 단독 분석 근거 사용 금지 … 선별 점수 54', '본문 미수신', a GitHub Actions timestamp bar and a keyword sentiment/risk strip; the owner asked for important vs general news on the news screen.

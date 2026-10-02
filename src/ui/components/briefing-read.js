@@ -32,9 +32,9 @@ function shortDate(date) {
   return month && day ? `${month}/${day}` : '';
 }
 
-export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() }) {
-  const page = doc?.getElementById('page-briefing');
-  if (!page) return;
+// P1392: one input reader for the briefing read and the 시장 상태 regime board, so the two
+// screens judge the same closes, credit and rate changes.
+export function collectMarketInputs(root) {
   const snapshot = root.DATA_SNAPSHOT || {};
   let fg = null;
   try { fg = finite(root.AIO?.getCanonicalMetric?.('fg')?.value); } catch (_) {}
@@ -47,7 +47,14 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   // P1390: FRED one-week changes (producer-published); a missing series keeps its rule silent.
   const rates = Object.fromEntries(['realYield10', 'realYield10Delta5', 'breakeven10Delta5', 'dgs2Delta5', 'dgs10Delta5']
     .map((key) => [key, finite(key.endsWith('Delta5') ? snapshot[`_${key}`] : snapshot[key])]));
-  const read = buildMarketRead({ history: root._aioHistory || [], credit, rates });
+  return { history: root._aioHistory || [], credit, rates };
+}
+
+export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() }) {
+  const page = doc?.getElementById('page-briefing');
+  if (!page) return;
+  const snapshot = root.DATA_SNAPSHOT || {};
+  const read = buildMarketRead(collectMarketInputs(root));
 
   // 1. Schedule
   if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioBriefingEarningsRequested) {

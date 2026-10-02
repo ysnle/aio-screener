@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-02T01:54:01.979Z",
+  "generatedAt": "2026-10-02T14:45:48.930Z",
   "routes": [
     {
       "id": "home",
@@ -24,6 +24,10 @@
         },
         {
           "tag": "A",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "A",
           "name": "Crude oil exports through the Strait of Hormuz hit prewar levels, but fuel shipments remain constrained - CNBC"
         },
         {
@@ -36,41 +40,30 @@
         }
       ],
       "headings": [
-        "시장 현황 v56.93"
+        "시장 현황 v56.94"
       ]
     },
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
-          "tag": "BUTTON",
-          "name": "스윙"
+          "tag": "A",
+          "name": "시장 폭"
         },
         {
-          "tag": "BUTTON",
-          "name": "데이트레이딩"
+          "tag": "A",
+          "name": "투자 심리"
         },
         {
-          "tag": "BUTTON",
-          "name": "투자 심리에서 확인"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 분석 →\n      5·20·50SMA · 상승 종목 비중 · McClellan(원천 대기)"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "섹터 로테이션 RRG →\n      RRG 3뷰(11섹터·서브섹터·전체 25 ETF) · 상세 14종"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 →\n      F&G · VIX · AAII · Put/Call · HY OAS"
+          "tag": "A",
+          "name": "환율 · 채권"
         }
       ],
       "headings": [
-        "시장 환경"
+        "시장 상태",
+        "판정 대기"
       ]
     },
     {
@@ -112,7 +105,7 @@
     {
       "id": "technical",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
         {
           "tag": "INPUT",

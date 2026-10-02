@@ -204,7 +204,8 @@ check('LC-41/P1212 legacy factor-backtest does not promote missing values to zer
 // and the facade — and the copy must not promise a per-mode threshold the model does not produce.
 check('E2/LC-26/P1214 signal mode has one writer and one descriptor', /bridge\.set\(/.test(data) && /bridge\.describe\(/.test(data) && /aio:signalScoreModeChanged/.test(data) && !/임계값 65점/.test(data));
 check('E2/LC-26/P1214 legacy signal dashboard and checklist consume the declared mode', /AIO_ARCH\.signalScoreMode\.get\(\)/.test(pagesSource) && /states\.push\(/.test(pagesSource));
-check('E2/LC-26/P1214 checklist is stated independent of the score mode', /시장 환경 체크리스트/.test(html) && !/스윙 환경 체크리스트/.test(html));
+// P1392: the swing/day toggle and the entry checklist were retired with the 0-100 score (owner decision 2026-10-02).
+check('E2/LC-26/P1214 checklist is stated independent of the score mode', !/스윙 환경 체크리스트/.test(html) && !/id="sig-sw-btn"/.test(html) && !/id="sig-dy-btn"/.test(html));
 // QA-SIG-27/P1263: the market-health checklist is mode-independent by product decision and its
 // 3-state aggregate is owned by one revision-bound domain function; the shell renders through
 // the bootstrap bridge and never invents a threshold copy.
@@ -249,7 +250,7 @@ check('LC-46/P1226 macro banner reflects the rendered inflation cards', /macro-f
 // LC-47/P1227: the 50SMA readout is owned by the native renderer and the advance share is named.
 check('LC-47/P1227 breadth readout single-owner and share label', /breadth-50sma-readout/.test(marketPage) && /50일선 상회 \$\{Math\.round\(b50\)\}%/.test(marketPage) && /상승 종목 비중 \(보합 제외\)/.test(html) && /상승 종목 비중\)/.test(html));
 // LC-48/P1227: the signal sector-breadth cell names its own population.
-check('LC-48/P1227 signal sector breadth names its population', /SPDR 11 ETF 당일/.test(html) && /Breadth의 AIO 종목 5\/20\/50일선 폭과 다른 모집단/.test(html));
+check('LC-48/P1227 signal sector breadth names its population', !/SPDR 11 ETF/.test(html) || (/SPDR 11 ETF 당일/.test(html) && /Breadth의 AIO 종목 5\/20\/50일선 폭과 다른 모집단/.test(html))); // P1392: retired with the checklist
 // LC-49/P1228: the macro curve's availability is independent of the official 2s10s spread.
 check('LC-49/P1228 macro curve availability is independent of the official spread', /const curveLegsPresent = Number\.isFinite\(twoYear\)/.test(marketPage) && /const curveSpreadComparable =/.test(marketPage) && /2s10s cut 미확정/.test(marketPage));
 // LC-31/P1230: the feed query's topic is kept separate from an article-level topic.
@@ -677,7 +678,7 @@ const newsMoreAt = html.indexOf('id="news-load-more-wrap"');
 const marketNewsAt = html.indexOf('id="page-market-news"');
 const screenerAt = html.indexOf('id="page-screener"');
 const homeOrder = ['home-kpi-strip', 'home-cross-assets', 'home-score-hero', 'home-market-summary-banner'].map((id) => html.indexOf(`id="${id}"`));
-check('home leads with numbers: KPI strip, cross assets, score, then today summary in static order with no runtime reorder (P1322)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && !/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = presentation\.status/.test(read('src/ui/pages/analysis.js')));
+check('home leads with numbers: KPI strip, cross assets, score, then today summary in static order with no runtime reorder (P1322)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && !/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
 check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < screenerAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
 check('fundamental search has one bounded total deadline and parallel bounded primary providers', /var _fundDeadline = Date\.now\(\) \+ 8000/.test(chat) && /Promise\.all\(\[[\s\S]{0,500}dynamicTickerLookup[\s\S]{0,500}fetchSECFilings[\s\S]{0,500}fetchSECFinancials/.test(chat) && /_fundRemaining\(5200\)/.test(chat) && /_fundRemaining\(1400\)/.test(chat));
 check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));
@@ -1023,7 +1024,7 @@ check('QA-GLOSSARY-SWEEP/P1261 every figure source row declares kind, source and
 check('P1315 KR theme detail reads the optional KR_THEME_INSIGHTS global behind a typeof guard', !/var kti = KR_THEME_INSIGHTS\[/.test(krData) && /typeof KR_THEME_INSIGHTS !== 'undefined'/.test(krData));
 check('P1315 KR index cards carry no hardcoded direction class/colour; direction follows the live previous-close delta', !/kr-idx-card (?:up|down)"/.test(html) && !/id="kr-(?:kospi|kosdaq|krw)-price" style="color:var\(--(?:green|red)\)"/.test(html) && /_krIdxCard\.classList\.toggle\('up', atomicDelta > 0\)/.test(data));
 check('P1315 a11y direction classes carry colour, not only a glyph', /\.a11y-up \{ color: var\(--data-green\); \}/.test(html) && /\.a11y-dn \{ color: var\(--data-red\); \}/.test(html));
-check('P1315 signal weight legend uses the canonical 심리 component (F&G + put/call), not 모멘텀/추세추종', !/모멘텀\(F&G·추세추종\)/.test(html + ui) && /심리\(공포·탐욕·풋콜\) 25%/.test(html));
+check('P1315 signal weight legend uses the canonical 심리 component (F&G + put/call), not 모멘텀/추세추종', !/모멘텀\(F&G·추세추종\)/.test(html + ui) && !/심리\(공포·탐욕·풋콜\) 25%/.test(html)); // P1392: the weighted legend left with the score
 check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed)', !/querySelector\('\.search-bar input'\)/.test(ui) && /#scr-text-search, #fund-search-input, #ticker-direct-search, #guide-search-input/.test(ui) && !/<span class="kbd-desc">한국장<\/span>/.test(html));
 check('P1315 KOSPI sell tax states securities-transaction tax plus rural special tax; Piotroski is dated 2000 with 8-9/0-2 original bins', /농어촌특별세 0\.15%가 더해져 합계 0\.20%/.test(glossary) && /Piotroski\(2000\)/.test(glossary) && !/Piotroski\(1998\)/.test(glossary) && /8~9점을 강한 그룹/.test(glossary));
 check('QA-GLOSSARY-SWEEP/P1261 unattributed aphorism and sourced superlative stay unasserted', !/— 아인슈타인\./.test(glossary) && !/역사상 가장 강력한 주가 부양 수단/.test(glossary) && /출처가 확정된 문헌이 없어/.test(glossary));
@@ -1204,11 +1205,13 @@ check('P1116: quote-plane evidence cites the artifact that actually publishes qu
 check('P1118: signal presentation carries the reconciliation terms',
   /breakdown,/.test(tradingScoreDomain)
     && /scoreBreakdown && typeof score\.scoreBreakdown === 'object'/.test(tradingScoreDomain));
+// P1392 supersedes P1118: the score and its adjustment rows left the 시장 상태 screen; the six-axis
+// board is native-owned and states each axis's evidence and flip condition.
 check('P1118: signal page renders post-composite adjustments in a native-owned sink',
-  /id="score-adjustments-container"/.test(html)
-    && /renderScoreAdjustments\(\{ documentRef, signal \}\)/.test(read('src/ui/pages/analysis.js'))
-    && /aioSignalAdjustmentsRenderer/.test(read('src/ui/pages/analysis.js'))
-    && /#page-signal #score-adjustments-container/.test(read('architecture/route-owners.json')));
+  !/id="score-adjustments-container"/.test(html)
+    && /renderRegimePage\(\{ documentRef, root \}\)/.test(read('src/ui/pages/analysis.js'))
+    && /export function buildMarketRegime/.test(read('src/domain/briefing/market-read.js'))
+    && /id="regime-board"/.test(html));
 
 // P1274: native breadth card and theme cycle must read the same dated US universe.
 // Exercise the actual compatibility selector, including an absent legacy projection.

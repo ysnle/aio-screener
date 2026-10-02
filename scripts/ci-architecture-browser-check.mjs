@@ -672,37 +672,36 @@ try {
   if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.rawPrimarySinkCount !== 11 || technicalRoute.nativePrimarySinkCount !== 11 || !technicalRoute.score.trim() || !technicalRoute.grade.trim() || !technicalRoute.regime.trim() || technicalRoute.candleMetaRenderer !== 'native' || !technicalRoute.candleTitle.trim() || !technicalRoute.candleMeta.trim() || technicalRoute.fenceValue !== 'NATIVE-FENCE') throw new Error(`technical health/candle-meta native surface/fence failed: ${JSON.stringify(technicalRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('signal'));
   await page.waitForFunction(() => document.getElementById('page-signal')?.dataset.aioArchitectureRoute === 'signal');
+  // P1392: the 시장 상태 screen is the native six-axis regime board; the legacy signal dashboard
+  // writer must not overwrite it (fence), and every axis states evidence and a flip condition.
+  await page.waitForFunction(() => document.querySelectorAll('#regime-board [data-axis]').length >= 6, null, { timeout: 30000 });
   const signalRoute = await page.evaluate(() => {
-    const primarySelectors = '#score-gauge-val, #score-decision-badge, #score-decision-sub';
-    const score = document.getElementById('score-gauge-val');
-    const badge = document.getElementById('score-decision-badge');
-    const sub = document.getElementById('score-decision-sub');
-    const before = { score: score?.textContent || '', badge: badge?.textContent || '', sub: sub?.textContent || '' };
-    if (score) score.textContent = 'NATIVE-FENCE';
-    if (badge) badge.textContent = 'NATIVE-FENCE';
-    if (sub) sub.textContent = 'NATIVE-FENCE';
+    const primarySelectors = '#regime-overall, #regime-basis, #regime-board';
+    const overall = document.getElementById('regime-overall');
+    const before = overall?.textContent || '';
+    if (overall) overall.textContent = 'NATIVE-FENCE';
     window.refreshSignalDashboard?.();
-    const fenceValue = { score: score?.textContent || '', badge: badge?.textContent || '', sub: sub?.textContent || '' };
-    if (score) score.textContent = before.score;
-    if (badge) badge.textContent = before.badge;
-    if (sub) sub.textContent = before.sub;
+    const fenceValue = { overall: overall?.textContent || '' };
+    if (overall) overall.textContent = before;
+    const axes = [...document.querySelectorAll('#regime-board [data-axis]')];
     return {
       pageExists: !!document.getElementById('page-signal'),
       renderer: document.getElementById('page-signal')?.dataset.aioArchitectureRenderer || null,
       signalRenderer: document.getElementById('page-signal')?.dataset.aioSignalRenderer || null,
+      regimeRenderer: document.getElementById('page-signal')?.dataset.aioRegimeRenderer || null,
       rawPrimarySinkCount: document.querySelectorAll(`#page-signal ${primarySelectors}`).length,
       nativePrimarySinkCount: document.querySelectorAll(`#page-signal[data-aio-architecture-renderer="native"] ${primarySelectors}`).length,
-      // P1118: the post-composite adjustment rows are a separate native sink. They are not
-      // written by refreshSignalDashboard, so they are observed instead of fence-tested.
-      adjustmentsRenderer: document.getElementById('score-adjustments-container')?.dataset.aioSignalAdjustmentsRenderer || null,
-      adjustmentRowCount: document.querySelectorAll('#score-adjustments-container > div').length,
-      score: before.score,
-      badge: before.badge,
+      axes: axes.map((node) => ({ id: node.dataset.axis, state: node.dataset.state, flip: !!node.querySelector('.regime-flip'), evidence: node.querySelectorAll('dd').length })),
+      retired: ['score-gauge-val', 'score-adjustments-container', 'sig-sw-btn', 'entry-check-summary'].filter((id) => document.getElementById(id)),
+      overall: before,
       fenceValue
     };
   });
-  if (signalRoute.renderer !== 'native' || signalRoute.signalRenderer !== 'native' || signalRoute.rawPrimarySinkCount !== 3 || signalRoute.nativePrimarySinkCount !== 3 || Object.values(signalRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`signal native hero/fence failed: ${JSON.stringify(signalRoute)}`);
-  if (signalRoute.adjustmentsRenderer !== 'native' || signalRoute.adjustmentRowCount < 1) throw new Error(`signal adjustment sink failed: ${JSON.stringify(signalRoute)}`);
+  if (signalRoute.renderer !== 'native' || signalRoute.signalRenderer !== 'native' || signalRoute.regimeRenderer !== 'native'
+    || signalRoute.rawPrimarySinkCount !== 3 || signalRoute.nativePrimarySinkCount !== 3 || signalRoute.fenceValue.overall !== 'NATIVE-FENCE'
+    || signalRoute.retired.length || !signalRoute.overall.trim()
+    || signalRoute.axes.length < 6 || signalRoute.axes.some((row) => row.state !== 'unknown' && (!row.evidence || !row.flip)))
+    throw new Error(`P1392 signal regime board failed: ${JSON.stringify(signalRoute)}`);
   // P1352: a blocked primary score must not become the pulse's default 50; zero remains a real observation.
   const pulseSemantics = await page.evaluate(() => {
     const original = window.computeTradingScore;
@@ -873,7 +872,8 @@ try {
   const placeholderPattern = /^(—|-|• • •|)$/;
   const koreanPattern = /[가-힣]/;
   if (homeSurface.renderer !== 'native' || homeSurface.homeRenderer !== 'native') throw new Error(`home renderer marker regressed after round trip: ${JSON.stringify(homeSurface)}`);
-  if (!placeholderPattern.test(homeSurface.heroTotal || '') && !/^\d{1,3}\*?$/.test(homeSurface.heroTotal || '')) throw new Error(`home hero score is neither a placeholder nor an integer 0-100: ${JSON.stringify(homeSurface)}`);
+  // P1392: the home card shows the regime label (the 0-100 score was retired), never a number.
+  if (!['판정 대기', '우호적 환경', '대체로 우호적', '혼조 환경', '경계 환경', '방어적 환경'].includes(homeSurface.heroTotal || '')) throw new Error(`home hero regime label invalid: ${JSON.stringify(homeSurface)}`);
   if (!placeholderPattern.test(homeSurface.tradingSignal || '') && !koreanPattern.test(homeSurface.tradingSignal || '')) throw new Error(`home-trading-signal is neither a placeholder nor a Korean label: ${JSON.stringify(homeSurface)}`);
 
   await page.evaluate(() => window.showPage('sentiment'));

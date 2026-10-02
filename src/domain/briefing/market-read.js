@@ -200,3 +200,175 @@ export function buildMarketRead({ history = [], credit = {}, rates = {} } = {}) 
     drivers
   };
 }
+
+// P1392 (owner decision 2026-10-02): the 0-100 environment score showed no predictive power
+// (P714), double-counted VIX and missed the rates trend, real yields, FX and term structure. The
+// 시장 상태 screen now shows six axes, each with a state, the evidence numbers, one reading and
+// the condition that would flip it. States are descriptive (우호/중립/부담), never instructions.
+const STATE_LABELS = Object.freeze({ favorable: '우호', neutral: '중립', burden: '부담', unknown: '확인 불가' });
+
+export function buildMarketRegime({ history = [], credit = {}, rates = {} } = {}) {
+  const get = (field) => stats(buildCloseSeries(history, field));
+  const spx = get('spx');
+  if (!spx) return { available: false, axes: [], reason: 'history-missing' };
+  const s = Object.fromEntries(['nasdaq', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'breadth50', 'breadth200', 'advanceRatio']
+    .map((field) => [field, get(field)]));
+  const axis = (id, title, state, evidence, read, flip) => ({ id, title, state, stateLabel: STATE_LABELS[state], evidence: evidence.filter(([, value]) => value != null && value !== '—'), read, flip });
+  const axes = [];
+
+  // 1. Trend — S&P 500 against its own averages and the 50-day slope.
+  {
+    const series = buildCloseSeries(history, 'spx');
+    const ma50Then = series.length >= 70 ? series.slice(-70, -20).reduce((sum, point) => sum + point.value, 0) / 50 : null;
+    const rising = spx.ma50 != null && ma50Then != null ? spx.ma50 > ma50Then : null;
+    const fromHigh = pct(spx.value, spx.yearMax);
+    let state = 'neutral';
+    if (spx.ma50 == null || spx.ma200 == null) state = 'unknown';
+    else if (spx.value > spx.ma50 && spx.ma50 > spx.ma200 && rising) state = 'favorable';
+    else if (spx.value < spx.ma200 || (spx.value < spx.ma50 && rising === false)) state = 'burden';
+    const nd20 = s.nasdaq ? pct(s.nasdaq.value, s.nasdaq.d20) : null;
+    const read = state === 'favorable' ? '지수가 오르는 50일선 위에 있고 50일선이 200일선 위 — 상승 추세가 유지되고 있습니다.'
+      : state === 'burden' ? (spx.value < spx.ma200 ? 'S&P 500이 200일선 아래 — 장기 추세가 꺾였습니다.' : 'S&P 500이 하락하는 50일선 아래 — 단기 추세가 약해졌습니다.')
+        : state === 'unknown' ? '이동평균 계산에 필요한 종가 기록이 부족합니다.' : '추세는 유지되지만 50일선 기울기나 위치가 뚜렷하지 않은 혼조 상태입니다.';
+    axes.push(axis('trend', '추세', state, [
+      ['S&P 500', `${fmt(spx.value)} (20일 ${signed(pct(spx.value, spx.d20))})`],
+      ['50일선 / 200일선', spx.ma50 != null && spx.ma200 != null ? `${fmt(spx.ma50, 0)} / ${fmt(spx.ma200, 0)}` : null],
+      ['50일선 방향', rising == null ? null : rising ? '상승' : '하락'],
+      ['1년 고점 대비', fromHigh == null ? null : signed(fromHigh)],
+      ['나스닥 20일', nd20 == null ? null : signed(nd20)]
+    ], read, spx.ma50 != null ? `S&P 500이 50일선(${fmt(spx.ma50, 0)}) ${spx.value > spx.ma50 ? '아래로 마감하면 약화' : '위로 회복하면 개선'}` : null));
+  }
+  // 2. Breadth — participation behind the index.
+  {
+    const b50 = s.breadth50?.value ?? null;
+    const b200 = s.breadth200?.value ?? null;
+    const adv = s.advanceRatio?.value ?? null;
+    const advPct = adv == null ? null : adv <= 1 ? adv * 100 : adv;
+    const rut20 = s.rut ? pct(s.rut.value, s.rut.d20) : null;
+    const spx20 = pct(spx.value, spx.d20);
+    let state = 'neutral';
+    if (b50 == null && b200 == null) state = 'unknown';
+    else if ((b50 ?? 100) >= 60 && (b200 ?? 100) >= 60) state = 'favorable';
+    else if ((b50 ?? 100) < 40 || (b200 ?? 100) < 40) state = 'burden';
+    const fromHigh = pct(spx.value, spx.yearMax);
+    const narrow = state === 'burden' && fromHigh != null && fromHigh > -3;
+    const read = state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
+      : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 참여 종목이 적은 좁은 장세 — 소수 대형주 의존도가 높습니다.` : '하락이 시장 전반에 퍼져 있습니다.')
+        : state === 'unknown' ? '시장 폭 기록이 없습니다.' : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.';
+    axes.push(axis('breadth', '시장 폭', state, [
+      ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`],
+      ['200일선 위 종목', b200 == null ? null : `${fmt(b200, 0)}%`],
+      ['최근 상승 종목 비율', advPct == null ? null : `${fmt(advPct, 0)}%`],
+      ['러셀 2000 vs S&P 500 (20일)', rut20 == null || spx20 == null ? null : `${signed(rut20)} vs ${signed(spx20)}`]
+    ], read, b50 != null ? `50일선 위 종목이 ${b50 < 40 ? '40% 위로 회복하면 개선' : b50 >= 60 ? '60% 아래로 내려가면 약화' : '60%를 넘으면 개선, 40% 아래면 약화'}` : null));
+  }
+  // 3. Volatility — level (canonical 18/25 bands), one-week change and term structure.
+  {
+    const vix = s.vix;
+    const ratio = vix && s.vix3m?.value ? vix.value / s.vix3m.value : null;
+    const vix5 = vix ? pct(vix.value, vix.d5) : null;
+    let state = 'neutral';
+    if (!vix) state = 'unknown';
+    else if (vix.value >= 25 || (ratio != null && ratio >= 1) || (vix5 != null && vix5 >= 25)) state = 'burden';
+    else if (vix.value < 18 && (ratio == null || ratio < 0.95)) state = 'favorable';
+    const read = state === 'favorable' ? '변동성이 낮고 기간 구조가 정상 — 시장이 단기 충격을 크게 반영하지 않고 있습니다.'
+      : state === 'burden' ? (ratio != null && ratio >= 1 ? '단기 변동성이 중기보다 높은 역전 — 단기 스트레스 구간입니다.' : vix5 != null && vix5 >= 25 ? '변동성이 한 주 사이 급등했습니다.' : 'VIX 25 이상 — 경계 구간입니다.')
+        : state === 'unknown' ? 'VIX 기록이 없습니다.' : 'VIX 18~25 주의 구간이거나 기간 구조가 평탄합니다.';
+    axes.push(axis('volatility', '변동성', state, [
+      ['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null],
+      ['VIX / 3개월 VIX', ratio == null ? null : `${fmt(ratio)} ${ratio >= 1 ? '(역전)' : '(정상)'}`]
+    ], read, vix ? (state === 'burden' ? 'VIX가 25 아래, 3개월 VIX보다 낮게 내려오면 완화' : 'VIX 25 돌파 또는 기간 구조 역전 시 부담') : null));
+  }
+  // 4. Rates — level, direction and what drives it (real yield vs breakeven).
+  {
+    const tnx = s.tnx;
+    const tnx5 = tnx ? bp(tnx.value, tnx.d5) : null;
+    const tnx20 = tnx ? bp(tnx.value, tnx.d20) : null;
+    const real5 = finite(rates.realYield10Delta5) == null ? null : rates.realYield10Delta5 * 100;
+    const bei5 = finite(rates.breakeven10Delta5) == null ? null : rates.breakeven10Delta5 * 100;
+    let state = 'neutral';
+    if (!tnx) state = 'unknown';
+    else if ((tnx20 != null && tnx20 >= 25) || (tnx.yearPosition != null && tnx.yearPosition >= 0.9 && (tnx5 ?? 0) > 0)) state = 'burden';
+    else if (tnx20 != null && tnx20 <= -25) state = 'favorable';
+    const realLed = real5 != null && bei5 != null && real5 > 0 && Math.abs(real5) >= Math.abs(bei5);
+    const atHigh = tnx?.yearPosition != null && tnx.yearPosition >= 0.9;
+    const read = state === 'burden' ? `장기금리가 오르는 구간${atHigh ? '(1년 최고권)' : ''} — 주식 할인율 부담${realLed ? '. 상승분 대부분이 실질금리라 밸류에이션(PER)에 더 직접적입니다' : ''}.`
+      : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
+        : state === 'unknown' ? '금리 기록이 없습니다.' : '금리가 뚜렷한 방향 없이 움직이고 있습니다.';
+    axes.push(axis('rates', '금리', state, [
+      ['미 10년물', tnx ? `${fmt(tnx.value)}% (5일 ${signed(tnx5, 0, 'bp')}, 20일 ${signed(tnx20, 0, 'bp')})` : null],
+      ['1년 범위 내 위치', tnx?.yearPosition == null ? null : `${fmt(tnx.yearPosition * 100, 0)}%`],
+      ['실질금리 / 기대인플레 (5일)', real5 == null || bei5 == null ? null : `${signed(real5, 0, 'bp')} / ${signed(bei5, 0, 'bp')}`],
+      ['실질금리 (10년 TIPS)', finite(rates.realYield10) == null ? null : `${fmt(rates.realYield10)}%`]
+    ], read, tnx ? (state === 'burden' ? `10년물 20일 변화가 하락으로 돌아서면 완화(현재 ${signed(tnx20, 0, 'bp')})` : '10년물 20일 +25bp 이상 상승 시 부담') : null));
+  }
+  // 5. Credit & risk appetite — the funding market and hedging demand.
+  {
+    const hyBp = finite(credit.hyBp);
+    const hy5 = finite(credit.hyDelta5Bp);
+    const pcr = finite(credit.pcr);
+    let state = 'neutral';
+    if (hyBp == null) state = 'unknown';
+    else if (hyBp >= 450 || (hy5 != null && hy5 >= 25)) state = 'burden';
+    else if (hyBp < 350 && (hy5 == null || hy5 <= 0) && (pcr == null || pcr < 1.1)) state = 'favorable';
+    const read = state === 'favorable' ? `신용 시장이 안정적 — 주식 약세가 신용 위험으로 번지지 않았습니다${hyBp >= 300 ? '(다만 3%대 스프레드는 자금 조달이 쉽지 않은 수준)' : ''}.`
+      : state === 'burden' ? '신용 스프레드가 넓거나 빠르게 확대 — 자금 조달 여건이 나빠지고 있습니다.'
+        : state === 'unknown' ? '신용 스프레드 기록이 없습니다.' : '신용은 크게 나쁘지 않지만 스프레드 수준이나 헤지 수요가 경계선입니다.';
+    axes.push(axis('credit', '신용 · 위험선호', state, [
+      ['HY 신용 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5일 ${signed(hy5, 0, 'bp')})` : ''}`],
+      ['풋/콜 비율', pcr == null ? null : fmt(pcr)],
+      ['F&G (참고)', finite(credit.fg) == null ? null : fmt(finite(credit.fg), 0)]
+    ], read, hyBp != null ? `HY 스프레드 ${state === 'burden' ? '400bp 아래로 축소되면 완화' : '350bp를 넘거나 5일 +25bp 확대 시 부담'}` : null));
+  }
+  // 6. Dollar & commodities — oil (inflation channel), the dollar and gold.
+  {
+    const dxy20 = s.dxy ? pct(s.dxy.value, s.dxy.d20) : null;
+    const wti = s.wti;
+    const wti20 = wti ? pct(wti.value, wti.d20) : null;
+    const gold20 = s.gold ? pct(s.gold.value, s.gold.d20) : null;
+    let state = 'neutral';
+    if (!wti && !s.dxy) state = 'unknown';
+    else if ((wti && wti.value >= 90) || (wti20 != null && wti20 >= 10) || (dxy20 != null && dxy20 >= 2)) state = 'burden';
+    else if ((wti20 == null || wti20 <= -5) && (dxy20 == null || dxy20 <= 0)) state = 'favorable';
+    const read = state === 'burden' ? (wti && wti.value >= 90 ? '90달러대 유가가 물가·금리 부담으로 작용합니다.' : dxy20 != null && dxy20 >= 2 ? '달러 강세가 해외 매출 기업과 신흥국 자금 흐름에 부담입니다.' : '유가가 빠르게 오르고 있습니다.')
+      : state === 'favorable' ? '유가와 달러가 내려오며 물가·금융 여건 부담이 줄고 있습니다.'
+        : state === 'unknown' ? '원자재·달러 기록이 없습니다.' : '유가·달러가 중립 범위입니다.';
+    axes.push(axis('commodities', '달러 · 원자재', state, [
+      ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)})` : null],
+      ['달러 인덱스', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)})` : null],
+      ['금', s.gold ? `${fmt(s.gold.value, 0)}달러 (20일 ${signed(gold20)})` : null]
+    ], read, wti ? (wti.value >= 90 ? 'WTI가 90달러 아래로 내려오면 완화' : 'WTI 90달러 이상 또는 20일 +10% 상승 시 부담') : null));
+  }
+  // Korea — beside the six US axes; the won is the channel for foreign flows.
+  {
+    const krw20 = s.usdkrw ? pct(s.usdkrw.value, s.usdkrw.d20) : null;
+    const kospi20 = s.kospi ? pct(s.kospi.value, s.kospi.d20) : null;
+    const state = krw20 == null ? 'unknown' : krw20 >= 2 ? 'burden' : krw20 <= -2 ? 'favorable' : 'neutral';
+    const read = state === 'burden' ? '원화 약세 — 외국인 수급과 수입 물가에 부담입니다.'
+      : state === 'favorable' ? '원화 강세 — 외국인 자금 유입에 우호적이지만 수출 기업 이익에는 부담일 수 있습니다.'
+        : state === 'unknown' ? '환율 기록이 없습니다.' : '원/달러가 중립 범위입니다.';
+    axes.push(axis('korea', '한국 (원/달러)', state, [
+      ['원/달러', s.usdkrw ? `${fmt(s.usdkrw.value, 1)}원 (20일 ${signed(krw20)})` : null],
+      ['코스피', s.kospi ? `${fmt(s.kospi.value)} (20일 ${signed(kospi20)})` : null]
+    ], read, krw20 != null ? '원/달러 20일 ±2% 이상 변동 시 판정 전환' : null));
+  }
+
+  const us = axes.filter((row) => row.id !== 'korea' && row.state !== 'unknown');
+  const count = (state) => us.filter((row) => row.state === state).length;
+  const burden = count('burden');
+  const favorable = count('favorable');
+  const overall = burden >= 4 || (burden >= 3 && favorable <= 1) ? '방어적 환경' : favorable >= 4 && burden === 0 ? '우호적 환경' : favorable >= 3 && burden <= 1 ? '대체로 우호적' : burden >= 2 && favorable <= 1 ? '경계 환경' : '혼조 환경';
+  const byId = Object.fromEntries(axes.map((row) => [row.id, row]));
+  const conflicts = [];
+  if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('추세는 우호인데 시장 폭은 부담 — 지수가 소수 종목에 기대고 있습니다.');
+  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') conflicts.push('금리는 부담인데 변동성은 낮음 — 금리 충격이 아직 공포로 번지지 않았습니다.');
+  if (byId.credit?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('시장 폭은 약하지만 신용은 안정 — 약세의 원인이 신용 위험보다 금리·순환에 가깝습니다.');
+  return {
+    available: true,
+    asOf: spx.date,
+    overall,
+    counts: { favorable, neutral: count('neutral'), burden, unknown: axes.filter((row) => row.id !== 'korea' && row.state === 'unknown').length },
+    conflicts,
+    axes
+  };
+}

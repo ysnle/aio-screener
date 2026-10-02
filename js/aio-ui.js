@@ -497,17 +497,17 @@ function getLLMRouteReadiness() {
   var personalKey = '';
   try { personalKey = typeof _getApiKey === 'function' ? String(_getApiKey('aio_claude_api_key') || '').trim() : ''; } catch (_) {}
   var target = typeof _aioClaudeTarget === 'function' ? _aioClaudeTarget(personalKey) : null;
-  if ((!target || !target.serverKey) && personalKey) return { ready: true, reason: 'PERSONAL_KEY', label: '개인 키 준비' };
+  if ((!target || !target.serverKey) && personalKey) return { ready: true, reason: 'PERSONAL_KEY', label: '개인 키 사용' };
   var workerUrl = target && target.serverKey ? target.workerUrl : '';
-  if (!workerUrl) return { ready: false, reason: 'NO_ROUTE', label: '라우트 없음' };
+  if (!workerUrl) return { ready: false, reason: 'NO_ROUTE', label: '연결 없음' };
   var health = window._aioLastClaudeRouteState;
   if (health && health.target && health.target.workerUrl === workerUrl && health.ok === true) {
-    return { ready: true, reason: 'SHARED_WORKER', label: '공유 Worker 준비' };
+    return { ready: true, reason: 'SHARED_WORKER', label: '사용 가능' };
   }
   if (health && health.target && health.target.workerUrl === workerUrl && health.reason === 'WORKER_NOT_READY') {
-    return { ready: false, reason: 'WORKER_NOT_READY', label: 'Worker 준비 안 됨' };
+    return { ready: false, reason: 'WORKER_NOT_READY', label: '일시 사용 불가' };
   }
-  return { ready: false, reason: 'WORKER_NOT_CHECKED', label: 'Worker 확인 필요' };
+  return { ready: false, reason: 'WORKER_NOT_CHECKED', label: '연결 확인 중' };
 }
 
 // P1070/R592: switch state, route readiness, and quota are independent dimensions. A missing route must

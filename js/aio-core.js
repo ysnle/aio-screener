@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.93';
+const APP_VERSION = 'v56.94';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -13881,7 +13881,7 @@ function _aioRefreshProviderStatuses() {
     STORAGE_DENIED: '저장소 거부', PERSISTENCE_FAILED: '저장 확인 실패'
   }[claude.storage] || '확인 안 됨';
   var keyStatus = document.getElementById('claude-key-status');
-  if (keyStatus) keyStatus.textContent = '저장: ' + storageLabel + ' · 인증: ' + (claude.authentication || '확인 안 됨') + ' · 연결: ' + (claude.connection || '확인 안 됨');
+  if (keyStatus) keyStatus.textContent = !claude.storage || claude.storage === 'MISSING' ? '' : '키 ' + storageLabel + ({ VERIFIED: ' · 연결 확인됨', FAILED: ' · 연결 실패' }[claude.connection] || { VERIFIED: ' · 인증 확인됨', FAILED: ' · 인증 실패' }[claude.authentication] || ''); // P1393: no raw NOT_CHECKED enums; nothing to say before a key exists
   var summary = document.getElementById('provider-status-summary');
   if (summary) {
     var values = Object.keys(snapshot).map(function(id) { return snapshot[id]; });
@@ -21894,7 +21894,7 @@ var breadcrumbMap = {
   portfolio: ['AIO','포트폴리오'], macro: ['거시 · 금리','거시경제'],
   technical: ['종목','차트 · 기술'], fundamental: ['종목','기업 분석'],
   briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','환율 · 채권'],
-  'market-news': ['오늘','뉴스'], signal: ['시장 상태','환경 점수'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
+  'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
   guide: ['배우기','사용 설명서'], principles: ['배우기','시장 원리'], masters: ['배우기','대가의 포트폴리오'], atlas: ['배우기','지식 지도'],
   screener: ['AIO','퀀트 스크리너'],
   'theme-detail': ['테마 · 섹터','테마','—'],
@@ -22196,7 +22196,7 @@ window._pageState = window._pageState || (function() {
 // showPage · popstate 핸들러의 복제된 if-분기 전체를 이 테이블이 대체
 window.PAGES = {
   'home':           { label: '홈 대시보드',     init: null,                                          chatCtx: null },
-  'signal':         { label: '시장 환경',       init: null, chatCtx: 'signal' },
+  'signal':         { label: '시장 상태',       init: null, chatCtx: 'signal' },
   'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
   'briefing':       { label: '데일리 브리핑',    init: null, chatCtx: 'briefing' },

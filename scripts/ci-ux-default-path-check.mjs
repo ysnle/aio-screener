@@ -34,7 +34,8 @@ for (const [label, pattern] of forbiddenVisiblePatterns) {
 
 check(
   'signal lockout legacy sink must remain hidden if runtime still references it',
-  /id="signal-lockout-control"[^>]*style="display:none;"[^>]*aria-hidden="true"/.test(html)
+  // P1392: the 시장 상태 rebuild removed the sink entirely, which also satisfies the contract.
+  !/id="signal-lockout-control"/.test(html) || /id="signal-lockout-control"[^>]*style="display:none;"[^>]*aria-hidden="true"/.test(html)
 );
 check(
   'signal lockout hidden sink must not be revived by page folding',

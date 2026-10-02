@@ -4,6 +4,7 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { normalizeChartBar } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
+import { renderRegimePage, renderHomeRegime } from '../components/market-regime.js';
 
 function finite(value) {
   if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
@@ -40,143 +41,8 @@ function setBar(documentRef, id, width, color) {
   element.style.background = color;
 }
 
-function renderSignalDecision({ documentRef, signal }) {
-  const presentation = signal?.presentation;
-  if (!presentation?.modelVersion) {
-    setText(documentRef, 'score-gauge-val', '—', 'var(--text-muted)');
-    setText(documentRef, 'score-decision-badge', '판정 보류 — 입력 대기', 'var(--text-muted)');
-    setText(documentRef, 'score-decision-sub', '시장 환경 입력 수신 후 판정을 표시합니다.', 'var(--text-muted)');
-    return;
-  }
-  const scoreColor = presentation.status === 'blocked'
-    ? 'var(--text-muted)'
-    : presentation.action === 'WATCH'
-      ? 'var(--data-green)'
-      : presentation.action === 'REDUCE'
-        ? 'var(--data-red)'
-        : 'var(--data-amber)';
-  setText(documentRef, 'score-gauge-val', presentation.displayScore, scoreColor);
-  setText(documentRef, 'score-decision-badge', presentation.decision, scoreColor);
-  setText(documentRef, 'score-decision-sub', presentation.description, 'var(--text-secondary)');
-}
-
-// P1118: the published total is not the weighted component sum. The five factor bars
-// beside it therefore did not add up to the number they were shown against. Render the
-// post-composite adjustments and the [5,100] clamp as explicit rows so the visible
-// breakdown reconciles with the visible total.
-const SIGNAL_ADJUSTMENT_LABELS = {
-  'credit-stress': '신용 스트레스',
-  'geopolitical-oil': '유가 부담 (WTI 90달러 초과)',
-  'news-sentiment': '뉴스 심리',
-  'news-risk': '뉴스 리스크'
-};
-
-function renderScoreAdjustments({ documentRef, signal }) {
-  const container = documentRef?.getElementById('score-adjustments-container');
-  if (!container) return;
-  const breakdown = signal?.presentation?.breakdown || null;
-  const adjustments = Array.isArray(breakdown?.adjustments) ? breakdown.adjustments : [];
-  const floorApplied = breakdown?.floorApplied === true;
-  const ceilingApplied = breakdown?.ceilingApplied === true;
-  const row = (label, value, color) => {
-    const line = documentRef.createElement('div');
-    line.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;';
-    const name = documentRef.createElement('span');
-    name.textContent = label;
-    name.style.cssText = 'font-size:11.5px;color:var(--text-muted);';
-    const amount = documentRef.createElement('span');
-    amount.textContent = value;
-    amount.style.cssText = `font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:${color};`;
-    line.append(name, amount);
-    return line;
-  };
-  const nodes = [];
-  if (!breakdown) {
-    nodes.push(row('보정 내역', '수신 대기', 'var(--text-muted)'));
-  } else {
-    const head = documentRef.createElement('div');
-    head.textContent = '총점 보정 — 팩터 합계 이후 적용';
-    head.style.cssText = 'font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;';
-    nodes.push(head);
-    if (!adjustments.length && !floorApplied && !ceilingApplied) {
-      nodes.push(row('적용된 보정', '없음', 'var(--text-muted)'));
-    }
-    for (const adjustment of adjustments) {
-      const delta = finite(adjustment?.delta) || 0;
-      nodes.push(row(
-        SIGNAL_ADJUSTMENT_LABELS[adjustment?.key] || String(adjustment?.key || '보정'),
-        `${delta > 0 ? '+' : ''}${delta}`,
-        delta < 0 ? 'var(--data-red)' : 'var(--data-green)'
-      ));
-    }
-    if (floorApplied) nodes.push(row('최소 5점 바닥 적용', '→ 5', 'var(--data-amber)'));
-    if (ceilingApplied) nodes.push(row('100점 상한 적용', '→ 100', 'var(--data-amber)'));
-    const raw = finite(breakdown.rawCompositeScore);
-    const total = finite(breakdown.total);
-    nodes.push(row('가중 합계 → 총점', raw != null && total != null ? `${raw} → ${total}` : '—', 'var(--text-secondary)'));
-  }
-  container.replaceChildren(...nodes);
-  container.dataset.aioSignalAdjustmentsRenderer = 'native';
-  container.setAttribute('data-source-kind', breakdown ? 'native-runtime' : 'unavailable');
-  container.setAttribute('data-operational-use', 'reference-only');
-}
-
-function renderHomeSummary({ documentRef, signal }) {
-  const presentation = signal?.presentation;
-  const container = documentRef?.getElementById('home-hero-components');
-  if (container) {
-    container.replaceChildren();
-    const addRow = (labelText, valueText) => {
-      const row = documentRef.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:14px;';
-      const label = documentRef.createElement('span');
-      label.textContent = labelText;
-      label.style.cssText = 'font-size:11.5px;color:var(--text-muted);';
-      const value = documentRef.createElement('span');
-      value.textContent = valueText;
-      value.style.cssText = 'font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;';
-      row.append(label, value);
-      container.append(row);
-    };
-    for (const component of presentation?.components || []) {
-      addRow(component.label, `${component.contribution == null ? '—' : component.contribution} / ${component.weight}`);
-    }
-    // P1388: post-sum corrections are shown so the rows reconcile with the total.
-    for (const adjustment of presentation?.breakdown?.adjustments || []) {
-      const delta = finite(adjustment?.delta) || 0;
-      if (delta) addRow(SIGNAL_ADJUSTMENT_LABELS[adjustment?.key] || '보정', `${delta > 0 ? '+' : ''}${delta}`);
-    }
-  }
-  if (!presentation?.modelVersion) {
-    setText(documentRef, 'home-hero-total', '—', 'var(--text-muted)');
-    setText(documentRef, 'home-hero-headline', '판정 보류 — 입력 대기', 'var(--text-muted)');
-    setText(documentRef, 'home-hero-desc', '시장 환경 입력 수신 후 판정을 표시합니다.', 'var(--text-muted)');
-    setText(documentRef, 'home-trading-signal', '판정 보류 — 입력 대기', 'var(--text-muted)');
-    return;
-  }
-  // P1322: a blocked score collapses to one line under the numbers instead of an empty panel.
-  const hero = documentRef?.getElementById('home-score-hero');
-  if (hero) {
-    hero.dataset.state = presentation.status || 'pending';
-    // Keep only the headline column; restore each child's own inline display when unblocked.
-    [...hero.children].forEach((child, index) => {
-      if (index === 2) return;
-      if (child.dataset.aioDisplay === undefined) child.dataset.aioDisplay = child.style.display || '';
-      child.style.display = presentation.status === 'blocked' ? 'none' : child.dataset.aioDisplay;
-    });
-  }
-  const color = presentation.status === 'blocked'
-    ? 'var(--text-muted)'
-    : presentation.action === 'WATCH'
-      ? 'var(--data-green)'
-      : presentation.action === 'REDUCE'
-        ? 'var(--data-red)'
-        : 'var(--data-amber)';
-  setText(documentRef, 'home-hero-total', presentation.displayScore, color);
-  setText(documentRef, 'home-hero-headline', presentation.status === 'blocked' ? '시장 환경 점수 · 보류 (판단 등급 입력 없음)' : presentation.decision, color);
-  setText(documentRef, 'home-hero-desc', presentation.description, 'var(--text-secondary)');
-  setText(documentRef, 'home-trading-signal', presentation.decision, color);
-}
+// P1392: the score hero, adjustment rows and home score summary were retired; the 시장 상태
+// board and the home regime card are rendered by ../components/market-regime.js.
 
 function renderHomeFearGreed({ documentRef, sentimentValues }) {
   const element = documentRef?.getElementById('home-fg-score');
@@ -398,19 +264,14 @@ function render({ root, documentRef, store, route, charts }) {
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioHomeRenderer = 'native';
-      renderHomeSummary({ documentRef, signal });
+      renderHomeRegime({ documentRef, root });
       renderHomeFearGreed({ documentRef, sentimentValues });
       renderHomeQuality({ documentRef, home });
     }
     if (route === 'signal') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioSignalRenderer = 'native';
-      // E2/LC-26: publish the mode revision that produced this hero so the declared pill and the
-      // rendered score cannot silently disagree (browser/gate evidence reads this attribute).
-      page.dataset.aioSignalScoreMode = signal?.scoreMode || 'swing';
-      page.dataset.aioSignalScoreModeRevision = signal?.scoreModeRevision || '';
-      renderSignalDecision({ documentRef, signal });
-      renderScoreAdjustments({ documentRef, signal });
+      renderRegimePage({ documentRef, root });
     }
   }
 }
@@ -429,12 +290,11 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       eventTarget?.addEventListener?.('aio:refresh:done', renderNow);
       eventTarget?.addEventListener?.('aio:serverDataLoaded', renderNow);
-      // E2/LC-26: the mode change re-derives the analysis slice; re-render the hero from it.
-      eventTarget?.addEventListener?.('aio:signalScoreModeChanged', renderNow);
+      eventTarget?.addEventListener?.('aio:historyLoaded', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));
       bag.add(() => eventTarget?.removeEventListener?.('aio:refresh:done', renderNow));
       bag.add(() => eventTarget?.removeEventListener?.('aio:serverDataLoaded', renderNow));
-      bag.add(() => eventTarget?.removeEventListener?.('aio:signalScoreModeChanged', renderNow));
+      bag.add(() => eventTarget?.removeEventListener?.('aio:historyLoaded', renderNow));
       const page = documentRef?.getElementById(`page-${route}`);
       let suppliedMaterialBridge = page?.querySelector?.(`[data-aio-supplied-material-route="${route}"]`) || null;
       if (page && !suppliedMaterialBridge) {
@@ -494,16 +354,6 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
         if (route === 'signal' && page?.dataset.aioSignalRenderer === 'native') {
           delete page.dataset.aioSignalRenderer;
           delete page.dataset.aioArchitectureRenderer;
-          delete page.dataset.aioSignalScoreMode;
-          delete page.dataset.aioSignalScoreModeRevision;
-        }
-        if (route === 'signal') {
-          const adjustments = documentRef?.getElementById('score-adjustments-container');
-          if (adjustments?.dataset.aioSignalAdjustmentsRenderer === 'native') delete adjustments.dataset.aioSignalAdjustmentsRenderer;
-          if (adjustments) {
-            adjustments.removeAttribute('data-source-kind');
-            adjustments.removeAttribute('data-operational-use');
-          }
         }
         if (route === 'home' && page?.dataset.aioHomeRenderer === 'native') {
           delete page.dataset.aioHomeRenderer;

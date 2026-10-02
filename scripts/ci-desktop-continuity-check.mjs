@@ -109,9 +109,12 @@ const documentRef = {
 const analysisSource = read('src/ui/pages/analysis.js');
 const uiContext = vm.createContext({ documentRef });
 vm.runInContext(analysisSource.slice(analysisSource.indexOf('function finite('), analysisSource.indexOf('function renderTechnicalHealth(')), uiContext);
-uiContext.renderHomeSummary({ documentRef, signal: { presentation: emptyPresentation } });
-assert.equal(nodes.get('home-hero-total').textContent, '—');
-assert(!nodes.get('home-hero-components').textContent.includes('0 /'), 'missing components cannot display zero');
+// P1392: the home card is the six-axis regime summary; without close history it waits instead of
+// inventing a state (the retired score summary asserted the same fail-closed behaviour).
+const { renderHomeRegime } = await import(new URL('../src/ui/components/market-regime.js', import.meta.url));
+renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
+assert.equal(nodes.get('home-hero-total').textContent, '판정 대기');
+assert(!/우호|부담/.test(nodes.get('home-hero-components').textContent), 'missing history cannot display axis states');
 uiContext.renderHomeFearGreed({ documentRef, sentimentValues: { fearGreed: 54 } });
 assert.equal(nodes.get('home-fg-label').textContent, '중립');
 uiContext.renderHomeFearGreed({ documentRef, sentimentValues: { fearGreed: null } });

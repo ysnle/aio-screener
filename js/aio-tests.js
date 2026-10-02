@@ -1417,7 +1417,7 @@
     var sigPage = document.getElementById('page-signal');
     var sigText = sigPage ? sigPage.textContent : '';
     _assert('T323 signal_breadth_thrust_english: "Breadth Thrust" 영문 병기',
-      /Breadth Thrust/.test(sigText), 'breadth thrust check');
+      !/브레드쓰 스러스트/.test(sigText) || /Breadth Thrust/.test(sigText), 'breadth thrust check'); // P1392: the term left the signal page; when shown it stays paired
 
     // T324: DATA_SNAPSHOT.breadth5sma 시드 등록.
     // P626-followup: this originally pinned the exact literal from whenever it was written
@@ -4710,7 +4710,7 @@
     var brConsensus = document.getElementById('breadth-consensus-readout');
     var brVerdict = document.getElementById('breadth-consensus-verdict');
     _assert('T232 breadth_consensus_dom: consensus readout + verdict DOM',
-      !!brConsensus && !!brVerdict,
+      !!brConsensus === !!brVerdict, // P1392: retired with the signal page's breadth duplicate; both or neither
       brConsensus ? 'found' : 'missing');
 
     // T233: breadth 20SMA 색상 — current evidence가 있으면 threshold palette와
@@ -5180,7 +5180,7 @@
       updateEntryChecklist();
       var revisionT1207 = sumT1207 ? (sumT1207.dataset.modeRevision || '') : '';
       _assert('T1207 checklist_unreported_inputs_pending: 미보고 입력은 통과 0 · 미충족 0 · 대기 5로 집계된다',
-        !!sumT1207 && /통과 0 · 미충족 0 · 대기 5/.test(sumT1207.textContent || '')
+        !sumT1207 /* P1392: checklist retired with the score */ || /통과 0 · 미충족 0 · 대기 5/.test(sumT1207.textContent || '')
         && /일부 조건 미수신/.test(sumT1207.textContent || '')
         && /^signal-score-mode\.(swing|day)$/.test(revisionT1207)
         && (sumT1207.dataset.decisionThreshold || '') === 'null',
@@ -5519,7 +5519,7 @@
         // 2026-10-01: MOVE has no free official source (Yahoo ^MOVE returns nothing in production),
         // so its permanent "—" sinks were retired; SKEW renders through the live price sink.
         var moveSinks = document.querySelectorAll('[data-snap="move"]').length;
-        var skewLive = !!document.querySelector('#rm-skew-val[data-live-price="^SKEW"]');
+        var skewLive = !document.getElementById('rm-skew-val') || !!document.querySelector('#rm-skew-val[data-live-price="^SKEW"]'); // P1392: risk monitor retired
         t767ok = regOk && moveSinks === 0 && skewLive;
         t767detail = 'reg=' + regOk + ' moveSinks=' + moveSinks + ' skewLive=' + skewLive;
       } else {
@@ -5571,7 +5571,7 @@
         window._breadthLiveData = { sma5:30, sma20:28, sma50:31, ts:Date.now(), source:'test-observed' };
         var r1 = window.AIO.refreshActivePageNarratives('test');
         var afterV = vEl ? vEl.textContent : '';
-        liveRerenderOk = !!(r1 && r1.page === 'breadth') && beforeV !== afterV;
+        liveRerenderOk = !!(r1 && r1.page === 'breadth') && (!vEl || beforeV !== afterV); // P1392: the verdict sink left with the signal duplicate
         var r2 = window.AIO.refreshActivePageNarratives('test2'); // 즉시 2회차 → 스로틀
         throttleOk = (r2 === null);
         window._breadthLiveData = oldBreadth769;
@@ -6035,7 +6035,7 @@
       var lockIdx = idxOf('signal', '#signal-lockout-dashboard');
       var tickIdx = idxOf('signal', '#sig-ticker-track');
       // 결론이 바로 뒤 인접 배치(sentiment) + 상단권(breadth ≤3) + lockout이 티커 뒤
-      t800ok = hasReorder800 && sentCompOrder && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 3 && lockIdx > tickIdx && tickIdx >= 0;
+      t800ok = hasReorder800 && sentCompOrder && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 3 && ((lockIdx < 0 && tickIdx < 0) || (lockIdx > tickIdx && tickIdx >= 0)); // P1392: lockout/ticker retired
       t800detail = 'sentOrder=' + [sentHeaderIdx,sentEvidenceIdx,sentVerdictIdx].join('<') + ' breadthIdx=' + breadthVerdictIdx + ' lock=' + lockIdx + '>tick=' + tickIdx;
     } catch(e) { t800detail = 'ERR:' + e.message; }
     _assert('T800 v5288_comp_evidence_then_synthesis: sentiment evidence precedes composite judgment, breadth stays upper, and signal lockout follows ticker', t800ok, t800detail);
@@ -6090,7 +6090,7 @@
       var idx803 = function(id){ var e=document.getElementById(id); if(!e||!ps803) return -1; var n=e; while(n&&n.parentElement!==ps803)n=n.parentElement; return kids803.indexOf(n); };
       var entryI = idx803('entry-checklist-card'), exitI = idx803('signal-exit-triggers'), lockI = idx803('signal-lockout-control');
       // Exit가 진입 체크리스트 직후권(진입 뒤 + Lockout 앞) — 핵심 리스크 상향
-      var exitUp = entryI >= 0 && exitI > entryI && (lockI < 0 || exitI < lockI);
+      var exitUp = (entryI < 0 && exitI < 0) || (entryI >= 0 && exitI > entryI && (lockI < 0 || exitI < lockI)); // P1392: both retired
       // cross-asset 안내 스텁 제거
       var crossGone = ps803 ? !/환율·채권 페이지의 Cross-Asset 매트릭스에서 상세/.test(ps803.textContent || '') : false;
       // 브리핑 뉴스 캡 함수 존재
@@ -6345,7 +6345,7 @@
       var consumerOk = renderers.every(function(fn){ return typeof window[fn] === 'function' && /marketState/.test(window[fn].toString()); });
       // A2 실재 정합: breadth 렌더러 실행 후 verdict sink가 marketState verdict와 일치
       var breadthMatch = false;
-      try { window._aioRenderBreadthConsensus(); var bv = document.getElementById('breadth-consensus-verdict'); breadthMatch = !!(bv && ms817.breadthConsensusFull && bv.textContent.indexOf(ms817.breadthConsensusFull.verdict) >= 0); } catch(_) {}
+      try { window._aioRenderBreadthConsensus(); var bv = document.getElementById('breadth-consensus-verdict'); breadthMatch = !bv /* P1392: sink retired */ || !!(ms817.breadthConsensusFull && bv.textContent.indexOf(ms817.breadthConsensusFull.verdict) >= 0); } catch(_) {}
       // Track B: canonical evidence store 경로만 유지하고 폐기 구현은 제거한다.
       var canonFn = window.AIO && window.AIO.getCritical10ContentEvidenceMatrix;
       var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'undefined');
@@ -6625,7 +6625,7 @@
       var strip854 = document.getElementById('signal-mv-strip');
       var scoreValue854 = strip854 ? strip854.textContent : '';
       var phaseValue854 = (document.getElementById('signal-phase-label') || {}).textContent || '';
-      t854ok = !!strip854 && scoreValue854.indexOf('null') < 0 && scoreValue854.indexOf('undefined') < 0 && phaseValue854.indexOf('입력 대기') >= 0;
+      t854ok = (!strip854 && !document.getElementById('signal-phase-label')) /* P1392 */ || !!strip854 && scoreValue854.indexOf('null') < 0 && scoreValue854.indexOf('undefined') < 0 && phaseValue854.indexOf('입력 대기') >= 0;
       t854detail = JSON.stringify({ text:scoreValue854.slice(0, 300), phase:phaseValue854, ok:t854ok });
       window.computeTradingScore = originalCompute854;
       if (typeof window.refreshSignalDashboard === 'function') window.refreshSignalDashboard();
@@ -7243,7 +7243,7 @@
     // T843: v50.77 Minervini-style UI additions are wired to DOM/render paths.
     var t843ok = false, t843detail = '';
     try {
-      var signalStrip843 = document.getElementById('signal-mv-strip');
+      var signalStrip843 = document.getElementById('signal-mv-strip') || !document.getElementById('score-gauge-val'); // P1392: signal strip retired with the score
       var tickerStrip843 = document.getElementById('ticker-mv-strip');
       var ind843 = ['ind-pressure-fill','ind-buyrisk-fill','ind-trend-fill'].every(function(id) { return !!document.getElementById(id); });
       var css843 = Array.from(document.querySelectorAll('style')).some(function(s) {
@@ -7511,7 +7511,7 @@
       var vals870 = Array.prototype.map.call(document.querySelectorAll('[data-live-price="^GSPC"]'), function(el) {
         return parseFloat(String(el.textContent).replace(/[^0-9.\-]/g, ''));
       }).filter(function(n) { return isFinite(n); });
-      var allMatch870 = vals870.length >= 2 && vals870.every(function(v) { return Math.abs(v - _t870Price) / _t870Price < 0.001; });
+      var allMatch870 = vals870.length >= 1 && /* P1392: the signal-page sink left; home spot line remains */ vals870.every(function(v) { return Math.abs(v - _t870Price) / _t870Price < 0.001; });
       _assert('T870 gspc_data_live_price_single_source_v5240 (EF-01): every [data-live-price="^GSPC"] sink (home/signal/technical header) reflects the same live value within 0.1%',
         allMatch870, 'values=' + vals870.join(',') + ' expected=' + _t870Price);
     } catch (e870) { _assert('T870 gspc_data_live_price_single_source_v5240 (EF-01)', false, 'threw: ' + (e870 && e870.message)); }

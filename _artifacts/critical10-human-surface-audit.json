@@ -1,5 +1,5 @@
 {
-  "version": "v56.93",
+  "version": "v56.94",
   "viewport": {
     "width": 1440,
     "height": 1000
@@ -8,8 +8,8 @@
     {
       "routeId": "home",
       "status": "ok",
-      "focusableCount": 17,
-      "pageTitle": "시장 현황 v56.93",
+      "focusableCount": 18,
+      "pageTitle": "시장 현황 v56.94",
       "audit": {
         "status": "ok",
         "hierarchy": {
@@ -39,7 +39,7 @@
               "headerText": "오늘 결론시장환경 관찰 — 중립 구간 · 예측 검증 미확립 · 59/100 데이터: 참고9/30 미국 정규장 종가 기준 · 10/1 종가 수집 대기공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 참고 관측 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치)현재 결과로 AI 분석9/30 미국 정규장 종가 기준 · 10/1 종가 "
             }
           ],
-          "generatedAt": "2026-10-02T01:56:15.473Z"
+          "generatedAt": "2026-10-02T14:48:23.035Z"
         },
         "accessibility": {
           "status": "ok",
@@ -62,9 +62,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:15.474Z"
+          "generatedAt": "2026-10-02T14:48:23.038Z"
         },
-        "generatedAt": "2026-10-02T01:56:15.474Z"
+        "generatedAt": "2026-10-02T14:48:23.038Z"
       },
       "tabSequence": [
         {
@@ -154,6 +154,12 @@
         {
           "tag": "A",
           "id": "",
+          "name": "시장 상태 →",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
           "name": "Crude oil exports through the Strait of Hormuz hit prewar levels, but fuel shipments remain constrai",
           "tabindex": ""
         },
@@ -204,22 +210,16 @@
           "id": "",
           "name": "테마 · 섹터 페이지",
           "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "종목 페이지",
-          "tabindex": "0"
         }
       ]
     },
     {
       "routeId": "signal",
-      "status": "ok",
-      "focusableCount": 9,
-      "pageTitle": "시장 환경",
+      "status": "warn",
+      "focusableCount": 3,
+      "pageTitle": "시장 상태",
       "audit": {
-        "status": "ok",
+        "status": "warn",
         "hierarchy": {
           "status": "ok",
           "pagesChecked": 1,
@@ -235,7 +235,7 @@
               "decisionHeader": true,
               "compHeaderHidden": true,
               "decisionFirst": true,
-              "firstVisibleSelector": "#page-signal div",
+              "firstVisibleSelector": "#page-signal-label",
               "conclusion": true,
               "evidenceAndStatus": true,
               "actionAffordance": true,
@@ -247,86 +247,73 @@
               "headerText": "시장 환경 참고시장환경 관찰 — 중립 구간 · 예측 검증 미확립 · 59/100 데이터: 참고9/30 미국 정규장 종가 기준 · 10/1 종가 수집 대기공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 참고 관측 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치)현재 결과로 AI 분석9/30 미국 정규장 종가 기준 · 10/1 "
             }
           ],
-          "generatedAt": "2026-10-02T01:56:16.839Z"
+          "generatedAt": "2026-10-02T14:48:24.035Z"
         },
         "accessibility": {
-          "status": "ok",
+          "status": "warn",
           "pagesChecked": 1,
           "issueCount": 0,
-          "warningCount": 0,
+          "warningCount": 1,
           "blockers": [],
-          "warnings": [],
+          "warnings": [
+            "small-targets:3"
+          ],
           "pages": [
             {
               "pageId": "signal",
               "pageExists": true,
               "active": true,
               "blockers": [],
-              "warnings": [],
+              "warnings": [
+                "small-targets:3"
+              ],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
-              "smallTargets": [],
+              "smallTargets": [
+                {
+                  "id": "",
+                  "selector": "#page-signal p.briefing-footnote > a",
+                  "width": 38,
+                  "height": 15
+                },
+                {
+                  "id": "",
+                  "selector": "#page-signal p.briefing-footnote > a",
+                  "width": 49,
+                  "height": 15
+                },
+                {
+                  "id": "",
+                  "selector": "#page-signal p.briefing-footnote > a",
+                  "width": 55,
+                  "height": 15
+                }
+              ],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:16.841Z"
+          "generatedAt": "2026-10-02T14:48:24.035Z"
         },
-        "generatedAt": "2026-10-02T01:56:16.841Z"
+        "generatedAt": "2026-10-02T14:48:24.035Z"
       },
       "tabSequence": [
         {
-          "tag": "BUTTON",
-          "id": "sig-sw-btn",
-          "name": "스윙",
+          "tag": "A",
+          "id": "",
+          "name": "시장 폭",
           "tabindex": ""
         },
         {
-          "tag": "BUTTON",
-          "id": "sig-dy-btn",
-          "name": "데이트레이딩",
+          "tag": "A",
+          "id": "",
+          "name": "투자 심리",
           "tabindex": ""
         },
         {
-          "tag": "SPAN",
+          "tag": "A",
           "id": "",
-          "name": "시장 환경 설명",
-          "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "투자 심리에서 확인",
-          "tabindex": ""
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "SKEW 설명",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "Put/Call 설명",
-          "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "시장 폭 분석 → 5·20·50SMA · 상승 종목 비중 · McClellan(원천 대기)",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "섹터 로테이션 RRG → RRG 3뷰(11섹터·서브섹터·전체 25 ETF) · 상세 14종",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "투자 심리 → F&G · VIX · AAII · Put/Call · HY OAS",
+          "name": "환율 · 채권",
           "tabindex": ""
         },
         {
@@ -418,6 +405,42 @@
           "id": "",
           "name": "저장",
           "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "연결·키 보안 설정",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-toggle-btn",
+          "name": "메뉴 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "topbar-ai-btn",
+          "name": "AI 베타 열기/닫기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "국면 판정",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": ""
         }
       ]
     },
@@ -455,7 +478,7 @@
               "headerText": "시장 폭 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다.현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-10-02T01:56:18.317Z"
+          "generatedAt": "2026-10-02T14:48:26.211Z"
         },
         "accessibility": {
           "status": "ok",
@@ -478,9 +501,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:18.317Z"
+          "generatedAt": "2026-10-02T14:48:26.212Z"
         },
-        "generatedAt": "2026-10-02T01:56:18.317Z"
+        "generatedAt": "2026-10-02T14:48:26.212Z"
       },
       "tabSequence": [
         {
@@ -600,7 +623,7 @@
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "환경 점수",
+          "name": "국면 판정",
           "tabindex": ""
         },
         {
@@ -663,7 +686,7 @@
               "headerText": "심리 결론판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 9/30 미국 정규장 종가 기준 · 10/1 종가 수집 대기. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값이며 매매 신호가 아닙"
             }
           ],
-          "generatedAt": "2026-10-02T01:56:19.803Z"
+          "generatedAt": "2026-10-02T14:48:28.563Z"
         },
         "accessibility": {
           "status": "ok",
@@ -686,9 +709,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:19.804Z"
+          "generatedAt": "2026-10-02T14:48:28.564Z"
         },
-        "generatedAt": "2026-10-02T01:56:19.804Z"
+        "generatedAt": "2026-10-02T14:48:28.564Z"
       },
       "tabSequence": [
         {
@@ -871,7 +894,7 @@
               "headerText": "시장 요약시장환경 관찰 — 중립 구간 · 예측 검증 미확립 · 59/100 데이터: 참고9/30 미국 정규장 종가 기준 · 10/1 종가 수집 대기공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 참고 관측 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치)현재 결과로 AI 분석9/30 미국 정규장 종가 기준 · 10/1 종가 "
             }
           ],
-          "generatedAt": "2026-10-02T01:56:21.923Z"
+          "generatedAt": "2026-10-02T14:48:30.729Z"
         },
         "accessibility": {
           "status": "warn",
@@ -905,9 +928,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:21.923Z"
+          "generatedAt": "2026-10-02T14:48:30.729Z"
         },
-        "generatedAt": "2026-10-02T01:56:21.923Z"
+        "generatedAt": "2026-10-02T14:48:30.729Z"
       },
       "tabSequence": [
         {
@@ -1090,7 +1113,7 @@
               "headerText": "차트 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다.현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-10-02T01:56:23.956Z"
+          "generatedAt": "2026-10-02T14:48:32.557Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1113,9 +1136,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:23.957Z"
+          "generatedAt": "2026-10-02T14:48:32.559Z"
         },
-        "generatedAt": "2026-10-02T01:56:23.957Z"
+        "generatedAt": "2026-10-02T14:48:32.559Z"
       },
       "tabSequence": [
         {
@@ -1298,7 +1321,7 @@
               "headerText": "오늘 매크로 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치)현재 결과로 AI 분석FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다."
             }
           ],
-          "generatedAt": "2026-10-02T01:56:26.034Z"
+          "generatedAt": "2026-10-02T14:48:34.776Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1321,9 +1344,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:26.035Z"
+          "generatedAt": "2026-10-02T14:48:34.777Z"
         },
-        "generatedAt": "2026-10-02T01:56:26.035Z"
+        "generatedAt": "2026-10-02T14:48:34.777Z"
       },
       "tabSequence": [
         {
@@ -1506,7 +1529,7 @@
               "headerText": "FX/Rates 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 2026-09-16: 25bp 인상 · 3.75-4.00% (12-0 만장일치)현재 결과로 AI 분석금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다."
             }
           ],
-          "generatedAt": "2026-10-02T01:56:26.658Z"
+          "generatedAt": "2026-10-02T14:48:35.417Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1529,9 +1552,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:26.659Z"
+          "generatedAt": "2026-10-02T14:48:35.417Z"
         },
-        "generatedAt": "2026-10-02T01:56:26.659Z"
+        "generatedAt": "2026-10-02T14:48:35.417Z"
       },
       "tabSequence": [
         {
@@ -1714,7 +1737,7 @@
               "headerText": "기업 분석 준비판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-10-02T01:56:27.549Z"
+          "generatedAt": "2026-10-02T14:48:36.245Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1737,9 +1760,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:27.553Z"
+          "generatedAt": "2026-10-02T14:48:36.248Z"
         },
-        "generatedAt": "2026-10-02T01:56:27.553Z"
+        "generatedAt": "2026-10-02T14:48:36.248Z"
       },
       "tabSequence": [
         {
@@ -1922,7 +1945,7 @@
               "headerText": "테마 회전 지도판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 지연 · 10/01/08:00 KST시점 불일치근거 상태 입력 확인 필요 · 예측 검증 미확립 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다.현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-10-02T01:56:28.735Z"
+          "generatedAt": "2026-10-02T14:48:37.427Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1945,9 +1968,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-02T01:56:28.748Z"
+          "generatedAt": "2026-10-02T14:48:37.442Z"
         },
-        "generatedAt": "2026-10-02T01:56:28.748Z"
+        "generatedAt": "2026-10-02T14:48:37.442Z"
       },
       "tabSequence": [
         {
@@ -2066,12 +2089,6 @@
         },
         {
           "tag": "BUTTON",
-          "id": "scroll-top-btn",
-          "name": "맨 위로 스크롤",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
           "id": "",
           "name": "확인했습니다",
           "tabindex": ""
@@ -2093,11 +2110,17 @@
           "id": "",
           "name": "시장 상태 페이지",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시 · 금리 페이지",
+          "tabindex": "0"
         }
       ]
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-10-02T01:56:13.516Z",
+  "generatedAt": "2026-10-02T14:48:20.238Z",
   "status": "pass"
 }

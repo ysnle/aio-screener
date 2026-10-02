@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-02T01:56:30.949Z",
-  "appRevision": "v56.93",
-  "gitHead": "1905f9d56247db2e54a027314b36904e7dfe444f",
+  "observedAt": "2026-10-02T14:48:38.407Z",
+  "appRevision": "v56.94",
+  "gitHead": "cdb02857d62543b9e2e77c88b69889bd03fdfd46",
   "scope": "desktop-only",
   "viewport": {
     "name": "desktop1440",
@@ -41,8 +41,30 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 3,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "시장 폭",
+          "width": 38,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "투자 심리",
+          "width": 49,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "환율 · 채권",
+          "width": 55,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
