@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v56.95 — 올인원 투자 터미널</title>
+  <title>AIO Screener v56.96 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=56.95" defer></script>
-<script src="./js/aio-macro-tech.js?v=56.95" defer></script>
-<script src="./js/aio-kr-data.js?v=56.95" defer></script>
-<script src="./js/aio-pages.js?v=56.95" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=56.95">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=56.95">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=56.95">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=56.95">
+<script src="./js/aio-workspace.js?v=56.96" defer></script>
+<script src="./js/aio-macro-tech.js?v=56.96" defer></script>
+<script src="./js/aio-kr-data.js?v=56.96" defer></script>
+<script src="./js/aio-pages.js?v=56.96" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=56.96">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=56.96">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=56.96">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=56.96">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2004,6 +2004,19 @@ body {
 .trend-chart-cursor { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 2 3; }
 .trend-chart-dot { fill: var(--text-primary); stroke: var(--bg-card); stroke-width: 2; }
 .trend-chart-axis, .trend-chart-empty { font-size: 12.5px; fill: var(--text-muted); font-family: inherit; font-variant-numeric: tabular-nums; }
+/* P1397: stock chart */
+.stock-chart-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+.stock-chart-chip { min-height: 32px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-card); color: var(--text-secondary); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.stock-chart-form input { flex: 1; min-width: 200px; max-width: 320px; min-height: 34px; padding: 0 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-elevated); color: var(--text-primary); font-size: 13px; }
+.stock-chart-submit { min-height: 34px; padding: 0 18px; border: none; border-radius: 8px; background: var(--text-primary); color: var(--bg-base); font-size: 13px; font-weight: 600; cursor: pointer; }
+.stock-chart-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.stock-chart-head .briefing-h2 { margin: 0; }
+.stock-chart-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+.stock-chart-canvas { width: 100%; height: 440px; }
+.stock-chart-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+.stock-chart-legend .lg-ema8 { color: #2f9e8f; } .stock-chart-legend .lg-ema { color: #3b6fb6; } .stock-chart-legend .lg-50 { color: #c7892a; } .stock-chart-legend .lg-200 { color: #8a4fa3; } .stock-chart-legend .lg-pivot { color: #c7892a; font-weight: 700; }
+.stock-chart-evidence { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: var(--bg-card); }
+@media (max-width: 1100px) { .stock-chart-layout { grid-template-columns: 1fr; } }
 .trend-chart-tip { position: absolute; transform: translateX(-50%); padding: 3px 8px; border-radius: 4px; background: var(--text-primary); color: var(--bg-card); font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none; }
 .aio-hub-tab { appearance: none; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 10px 0; min-height: 38px; font: inherit; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
 .aio-hub-tab:hover { color: var(--text-primary); }
@@ -5934,7 +5947,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v56.95</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v56.96</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6357,39 +6370,30 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  <!-- symbol selector — v52.69 아이보리 3c: 시안 구조(SPY/QQQ pill + 티커 입력) -->
-  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--border-strong);padding-top:22px;margin-bottom:22px;">
-    <div id="tech-sym-toggle" style="display:flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--bg-card);flex-shrink:0;">
-      <span data-action="_aioTechSymSwitch" data-arg="SPY" class="is-interactive" style="font-size:12.5px;font-weight:600;color:var(--bg-base);background:var(--text-primary);padding:7px 18px;cursor:pointer;">SPY</span>
-      <span data-action="_aioTechSymSwitch" data-arg="QQQ" class="is-interactive" style="font-size:12.5px;color:var(--text-secondary);padding:7px 18px;cursor:pointer;">QQQ</span>
+  <!-- P1397 (owner review 2026-10-03): 종목 차트 — 캔들 위에 VCP 수축·피벗·전일 고저·52주 고점을 그리고, 옆에 근거와
+       셋업 상태(등급 없음)를 둔다. Lightweight Charts(Apache-2.0, 셸이 이미 로드). 옛 종가선 캔버스·SPY/QQQ 토글을 대체. -->
+  <section class="briefing-block stock-chart" id="stock-chart-section" aria-labelledby="stock-chart-title">
+    <form class="stock-chart-form" id="stock-chart-form" role="search">
+      <button type="button" class="stock-chart-chip" data-stock-chart-symbol="SPY">SPY</button>
+      <button type="button" class="stock-chart-chip" data-stock-chart-symbol="QQQ">QQQ</button>
+      <input id="stock-chart-input" type="text" value="SPY" placeholder="티커 입력 (예: NVDA, 005930.KS)" aria-label="차트로 볼 종목 티커" autocomplete="off">
+      <button type="submit" class="stock-chart-submit">차트 보기</button>
+    </form>
+    <div class="stock-chart-head">
+      <h2 class="briefing-h2" id="stock-chart-title">SPY 일봉</h2>
+      <span class="briefing-h2-note" id="stock-chart-status"></span>
+      <span class="regime-state is-unknown" id="stock-chart-state">판정 대기</span>
     </div>
-    <div style="width:1px;height:22px;background:var(--border-subtle);flex-shrink:0;"></div>
-    <input id="ticker-analysis-input" type="text" placeholder="개별 종목 분석 — 티커 입력 (예: NVDA, AAPL)" aria-label="미국 종목 간이 분석 티커 입력"
-           style="flex:1;min-width:220px;max-width:360px;padding:9px 16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;"
-           data-on-enter="analyzeTickerDeep:__value_upper"/>
-    <button data-action="_aioTickerSubmit" class="is-interactive" style="font-size:13px;font-weight:600;color:var(--bg-base);background:var(--text-primary);border:none;border-radius:8px;padding:9px 22px;cursor:pointer;flex-shrink:0;">차트 분석</button>
-    <span style="font-size:12.5px;color:var(--text-dim);">지수와 동일한 캔들 · 지표 · 지지/저항 분석이 개별 종목에 그대로 적용됩니다</span>
-  </div>
-  <div id="ticker-analysis-result" style="min-height:0;margin-bottom:22px;"></div>
-
-  <!-- chart + Weinstein — v52.69 아이보리 3c: 시안 구조(캔들+MA5/10/20/50/200 · S/R · Weinstein 수직 리스트) -->
-  <div style="display:grid;grid-template-columns:1fr 320px;gap:32px;margin-bottom:26px;">
-    <div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px;">
-        <span id="tech-candle-title" style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">SPY 일봉 캔들 · 이동평균</span>
-        <span id="tech-candle-meta" style="font-size:12.5px;color:var(--text-dim);font-variant-numeric:tabular-nums;">최근 90거래일</span>
+    <div class="stock-chart-layout">
+      <div>
+        <div class="stock-chart-canvas" id="stock-chart-canvas" role="img" aria-label="일봉 캔들 차트와 이동평균·피벗·거래량"></div>
+        <div class="stock-chart-legend"><span class="lg-ema8">━ 8일 EMA</span><span class="lg-ema">━ 21일 EMA</span><span class="lg-50">━ 50일선</span><span class="lg-200">┅ 200일선</span><span class="lg-pivot">━ 피벗(마지막 수축 고점)</span><span>▲▼ 수축 저점·8일선 이탈/회복·거래량 갭·변동성 압축·과열</span></div>
       </div>
-      <canvas id="tech-candle-chart" role="img" aria-label="일봉 캔들 및 이동평균 차트" style="width:100%;height:220px;"></canvas>
-      <canvas id="tech-candle-volume" role="img" aria-label="일별 거래량 차트" style="width:100%;height:46px;margin-top:4px;"></canvas>
-      <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;">
-        <span style="font-size:12px;color:var(--data-green);">■ 양봉</span><span style="font-size:12px;color:var(--data-red);">■ 음봉</span>
-        <span style="font-size:12px;color:var(--text-secondary);">— MA5</span><span style="font-size:12px;color:var(--text-muted);">— MA10</span><span style="font-size:12px;color:var(--text-dim);">— MA20</span><span style="font-size:12px;color:var(--border-strong);">— MA50</span><span style="font-size:12px;color:var(--border-strong);">╌ MA200</span>
-      </div>
-      <div style="background:var(--surface-1);border-radius:4px;padding:10px 14px;margin-top:12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">지지·저항 레벨</div>
-        <div id="sr-levels-container"><!-- 동적: updateSRLevels()에서 렌더 --></div>
-      </div>
+      <aside class="stock-chart-evidence" id="stock-chart-evidence" aria-label="차트 근거"></aside>
     </div>
+    <p class="briefing-footnote">셋업 상태는 공개된 기법(미너비니 VCP·추세 템플릿, 오닐 피벗 돌파, 와일더 ADX)으로 계산한 설명이며 매매 권고가 아닙니다.</p>
+  </section>
+  <div style="margin-bottom:26px;max-width:520px;">
     <div>
       <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">Weinstein 4단계</div>
       <div style="display:flex;flex-direction:column;">
@@ -11206,15 +11210,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=56.95" defer></script>
-  <script src="./js/aio-data.js?v=56.95" defer></script>
-  <script src="./js/aio-ui.js?v=56.95" defer></script>
+  <script src="./js/aio-core.js?v=56.96" defer></script>
+  <script src="./js/aio-data.js?v=56.96" defer></script>
+  <script src="./js/aio-ui.js?v=56.96" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=56.95" defer></script>
+<script src="./js/aio-chat.js?v=56.96" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -11272,7 +11276,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=56.95" defer></script>
+<script src="./js/aio-glossary.js?v=56.96" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

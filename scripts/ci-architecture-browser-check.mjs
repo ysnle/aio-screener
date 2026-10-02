@@ -609,13 +609,14 @@ try {
       score: before,
       grade: document.getElementById('health-grade-display')?.textContent || '',
       regime: document.getElementById('health-regime-display')?.textContent || '',
-      candleMetaRenderer: document.getElementById('tech-candle-meta')?.dataset.aioTechnicalCandleMetaRenderer || null,
-      candleTitle: document.getElementById('tech-candle-title')?.textContent || '',
-      candleMeta: document.getElementById('tech-candle-meta')?.textContent || '',
+      // P1397: the stock chart section (Lightweight Charts + evidence panel) replaced the candle-meta canvases.
+      stockChartForm: document.getElementById('stock-chart-form')?.dataset.aioStockChart || null,
+      candleTitle: document.getElementById('stock-chart-title')?.textContent || '',
+      retiredCandle: !!document.getElementById('tech-candle-chart'),
       fenceValue
     };
   });
-  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.rawPrimarySinkCount !== 11 || technicalRoute.nativePrimarySinkCount !== 11 || !technicalRoute.score.trim() || !technicalRoute.grade.trim() || !technicalRoute.regime.trim() || technicalRoute.candleMetaRenderer !== 'native' || !technicalRoute.candleTitle.trim() || !technicalRoute.candleMeta.trim() || technicalRoute.fenceValue !== 'NATIVE-FENCE') throw new Error(`technical health/candle-meta native surface/fence failed: ${JSON.stringify(technicalRoute)}`);
+  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.rawPrimarySinkCount !== 11 || technicalRoute.nativePrimarySinkCount !== 11 || !technicalRoute.score.trim() || !technicalRoute.grade.trim() || !technicalRoute.regime.trim() || technicalRoute.stockChartForm !== 'installed' || !technicalRoute.candleTitle.trim() || technicalRoute.retiredCandle || technicalRoute.fenceValue !== 'NATIVE-FENCE') throw new Error(`technical health/candle-meta native surface/fence failed: ${JSON.stringify(technicalRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('signal'));
   await page.waitForFunction(() => document.getElementById('page-signal')?.dataset.aioArchitectureRoute === 'signal');
   // P1392: the 시장 상태 screen is the native six-axis regime board; the legacy signal dashboard

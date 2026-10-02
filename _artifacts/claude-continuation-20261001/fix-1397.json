@@ -1,0 +1,19 @@
+{
+  "version": "v56.96",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.96 — stock chart with evidence drawn on price and a setup state; supplied chart techniques and a16z State of Markets II integrated (P1397-P1398).",
+  "p": {
+    "id": 1397,
+    "title": "차트 · 기술: candlestick chart with VCP, pivot, events and an evidence panel (no grade)",
+    "symptom": "The technical page drew a 90-day close line for SPY/QQQ only ('차트 데이터 수신 대기') with no candles, no patterns and no per-stock reading; the owner supplied LazyAlpha/OpenMarket references and asked to bring a free trading chart into the screener.",
+    "root_cause": "No module turned daily bars into a pattern/evidence reading; the chart used Chart.js line mode on a native slice that rarely had OHLCV.",
+    "fix": "src/domain/technical/chart-analysis.js (Minervini VCP run + trend template 8 checks, O'Neil pivot breakout on 1.4x volume, Wilder ADX, RS vs S&P 500, 8-EMA lost/reclaimed, volume gap, Bollinger squeeze, extension above the 8-EMA, up/down-volume pressure, prior-day high/low, invalidation price) and src/ui/components/stock-chart.js (Lightweight Charts already loaded by the shell: candles, EMA 8/21, SMA 50/200, volume, price lines, markers; stale-response guard). Setup state only — no letter grade, no entry/stop/target/pyramid instructions (owner decision). OpenMarket was not embedded: its terms forbid scraping/reverse engineering.",
+    "violated_rule": "Owner decisions 2026-10-03: evidence + state, no composite grade; no trade instructions.",
+    "prevention": "ci-esm-core-unit-check P1397 (VCP run detection, evidence rows, <60 bars refused, no grade); architecture check asserts the installed chart form and the retired canvases.",
+    "verification": "Local browser with S&P 500 closes as test candles: candles, four averages, volume, pivot/prior-day/52-week lines and event markers render; evidence panel shows template n/8, extension, pressure, invalidation. Real tickers need the production quote relay."
+  },
+  "changelog": [
+    "**종목 차트 (P1397):** 캔들 위에 VCP 수축·피벗·전일 고저가·52주 고점·8일선 이탈/회복·거래량 갭·변동성 압축·과열을 표시하고, 옆에 추세 템플릿·상대강도·ADX·거래량 근거와 셋업 상태(등급 없음)를 보여 줌."
+  ]
+}

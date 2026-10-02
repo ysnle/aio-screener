@@ -1,0 +1,19 @@
+{
+  "version": "v56.96",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.96 — stock chart with evidence drawn on price and a setup state; supplied chart techniques and a16z State of Markets II integrated (P1397-P1398).",
+  "p": {
+    "id": 1398,
+    "title": "Supplied research integrated: a16z State of Markets II, chart techniques, Raschke rules, earnings-slope principle",
+    "symptom": "Owner supplied the a16z State of Markets II PDF (90 pages), LazyAlpha chart screens, Linda Raschke's 12 rules (Ian Lee), a trader note on earnings slope and an information-delivery principle, and asked for structural integration.",
+    "root_cause": "The knowledge base had no entry for these frameworks; design principles lived only in chat.",
+    "fix": "KNOWLEDGE-BASE TM-XIX (profit-driven market: S&P 500 +12.7% = EPS +27.7% and P/E -11.7%; hyperscaler capex $416B -> ~$780B -> ~$1.1T; $100 AI capex flow; TrendForce lead-time bottleneck map; FCF trough and debt funding vs ROIC > WACC; GPU rental prices; narrow chip cycle; SaaS prove-it; retail leveraged ETFs; invalidation) and TM-XX (implemented chart methods, excluded trade instructions, Raschke daily-verifiable rules, earnings-slope next step); AGENTS.md records the screen-design and no-grade/no-instruction principles.",
+    "violated_rule": "R26/integrate: frameworks with sources and dates; transient figures stay REFERENCE.",
+    "prevention": "Knowledge lint; figures carry their original source and as-of date.",
+    "verification": "PDF text (90 pages) and 16 key chart images read; X posts read in full."
+  },
+  "changelog": [
+    "**자료 통합 (P1398):** a16z State of Markets II(이익 주도 시장·AI 설비투자 흐름·병목 리드타임·자금 조달), 차트 기법, 라슈케 12원칙, 이익 기울기 원칙을 지식베이스에 구조화하고 화면 설계 원칙을 규칙 파일에 기록."
+  ]
+}

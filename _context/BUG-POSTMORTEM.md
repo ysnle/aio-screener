@@ -4,6 +4,24 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1398 - v56.96 - Supplied research integrated: a16z State of Markets II, chart techniques, Raschke rules, earnings-slope principle (2026-10-03)
+
+- symptom/reproduction: Owner supplied the a16z State of Markets II PDF (90 pages), LazyAlpha chart screens, Linda Raschke's 12 rules (Ian Lee), a trader note on earnings slope and an information-delivery principle, and asked for structural integration.
+- root_cause: The knowledge base had no entry for these frameworks; design principles lived only in chat.
+- fix: KNOWLEDGE-BASE TM-XIX (profit-driven market: S&P 500 +12.7% = EPS +27.7% and P/E -11.7%; hyperscaler capex $416B -> ~$780B -> ~$1.1T; $100 AI capex flow; TrendForce lead-time bottleneck map; FCF trough and debt funding vs ROIC > WACC; GPU rental prices; narrow chip cycle; SaaS prove-it; retail leveraged ETFs; invalidation) and TM-XX (implemented chart methods, excluded trade instructions, Raschke daily-verifiable rules, earnings-slope next step); AGENTS.md records the screen-design and no-grade/no-instruction principles.
+- violated_rule: R26/integrate: frameworks with sources and dates; transient figures stay REFERENCE.
+- prevention: Knowledge lint; figures carry their original source and as-of date.
+- verification/residual: PDF text (90 pages) and 16 key chart images read; X posts read in full.
+
+## P1397 - v56.96 - 차트 · 기술: candlestick chart with VCP, pivot, events and an evidence panel (no grade) (2026-10-03)
+
+- symptom/reproduction: The technical page drew a 90-day close line for SPY/QQQ only ('차트 데이터 수신 대기') with no candles, no patterns and no per-stock reading; the owner supplied LazyAlpha/OpenMarket references and asked to bring a free trading chart into the screener.
+- root_cause: No module turned daily bars into a pattern/evidence reading; the chart used Chart.js line mode on a native slice that rarely had OHLCV.
+- fix: src/domain/technical/chart-analysis.js (Minervini VCP run + trend template 8 checks, O'Neil pivot breakout on 1.4x volume, Wilder ADX, RS vs S&P 500, 8-EMA lost/reclaimed, volume gap, Bollinger squeeze, extension above the 8-EMA, up/down-volume pressure, prior-day high/low, invalidation price) and src/ui/components/stock-chart.js (Lightweight Charts already loaded by the shell: candles, EMA 8/21, SMA 50/200, volume, price lines, markers; stale-response guard). Setup state only — no letter grade, no entry/stop/target/pyramid instructions (owner decision). OpenMarket was not embedded: its terms forbid scraping/reverse engineering.
+- violated_rule: Owner decisions 2026-10-03: evidence + state, no composite grade; no trade instructions.
+- prevention: ci-esm-core-unit-check P1397 (VCP run detection, evidence rows, <60 bars refused, no grade); architecture check asserts the installed chart form and the retired canvases.
+- verification/residual: Local browser with S&P 500 closes as test candles: candles, four averages, volume, pivot/prior-day/52-week lines and event markers render; evidence panel shows template n/8, extension, pressure, invalidation. Real tickers need the production quote relay.
+
 ## P1396 - v56.95 - 투자 심리 is five equal cards and one synthesis; retired score and sourceless SKEW removed (2026-10-03)
 
 - symptom/reproduction: Owner review: uneven proportions (gauge column vs wide VIX block, cards of different heights), contradictory '기간구조 판정: 판정 보류' beside both VIX values, 'SOURCE 확인 대기'/'심리: 판정 보류' badges, an empty SKEW card and a 복합 판단 paragraph quoting the retired '트레이딩 스코어 59/100'.

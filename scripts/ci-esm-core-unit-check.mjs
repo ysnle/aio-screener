@@ -3368,6 +3368,25 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30' || !/162천 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
 }
 
+// ── P1397: chart analysis — VCP run, pivot, state (no grade) ─────────────────────────────────
+{
+  const { analyzeChart, detectContractions } = await load('src/domain/technical/chart-analysis.js');
+  // Uptrend, then a base whose pullbacks shrink 15% → 8% → 4% with the close just under the last high.
+  const path = [];
+  let p = 100;
+  for (let i = 0; i < 220; i++) path.push(p *= 1.004);
+  const legs = [[1.0, 0.85], [0.85, 0.96], [0.96, 0.883], [0.883, 0.955], [0.955, 0.917], [0.917, 0.95]];
+  const top = p;
+  for (const [a, b] of legs) for (let k = 1; k <= 8; k++) path.push(top * (a + (b - a) * k / 8));
+  const bars = path.map((close, i) => ({ time: new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10), open: close * 0.999, high: close * 1.004, low: close * 0.996, close, volume: 1e6 }));
+  const vcp = detectContractions(bars);
+  if (!vcp.valid || vcp.contractions.length < 3 || !(vcp.contractions[0].depth > vcp.contractions[vcp.contractions.length - 1].depth)) fail(`P1397 VCP run not detected: ${JSON.stringify(vcp.contractions.map((row) => row.depth.toFixed(1)))}`);
+  const result = analyzeChart(bars);
+  if (!result.available || !['setup', 'none', 'extended', 'breakout', 'failed', 'downtrend'].includes(result.state) || /등급|grade/i.test(JSON.stringify(result.evidence))) fail(`P1397 chart analysis contract: ${result.state}`);
+  if (!result.evidence.some(([label]) => label === '추세 템플릿 (미너비니)') || !result.evidence.some(([label]) => label === '무효화 가격 (마지막 수축 저점)')) fail('P1397 evidence rows missing');
+  if (analyzeChart(bars.slice(0, 40)).available) fail('P1397 fewer than 60 bars must not be analysed');
+}
+
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));
 
 // P1040: missing facts and mismatched fiscal periods remain distinct.

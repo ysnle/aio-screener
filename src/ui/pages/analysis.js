@@ -5,6 +5,7 @@ import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { normalizeChartBar } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderRegimePage, renderHomeRegime } from '../components/market-regime.js';
+import { installStockChart } from '../components/stock-chart.js';
 
 function finite(value) {
   if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
@@ -260,6 +261,7 @@ function render({ root, documentRef, store, route, charts }) {
       renderTechnicalHealth({ documentRef, technical });
       renderTechnicalCandleMeta({ documentRef, technical });
       renderTechnicalCharts({ root, page, technical, charts });
+      installStockChart({ documentRef, root }); // P1397: idempotent (installs once per form)
     }
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';

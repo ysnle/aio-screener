@@ -28,6 +28,8 @@ Owner decisions that every agent (Claude, Codex, subagents) applies without re-a
 - Scores are reference descriptions of the market on the **latest completed US regular-session close** ("직전 미국장 종가 기준", R670), labelled with that basis and never decision-grade. Missing inputs hold the score; they are never guessed.
 - Desktop only. Mobile layouts and code were removed on purpose; do not add breakpoints or mobile handling back.
 - The options route is retired (`#options` aliases to `sentiment`). Do not revive it.
+- Screen design (owner 2026-10-02~03): conclusion first (one line), then the chart, then the evidence; information reaches users best as short well-organised text → an image understood in 3 seconds → narrated visuals. Trends are shown as charts with labelled axes, not single numbers. No developer copy on user surfaces.
+- No composite grades or letter scores without predictive evidence (0-100 market score retired from UI; stock charts show evidence + a setup state, never A~D). No trade instructions (entry/stop/target/pyramid/trim); show facts such as the pivot, the invalidation price and extension instead.
 - No ticker guessing: company names resolve only by exact registry match, and a ticker-shaped input is never rewritten to another issuer (P1339).
 - Data producers (`scripts/fetch-*`, `build-*`, `sync-*`, `refresh-*`) run only in GitHub Actions; locally, read artifacts and run gates.
 - Korean themes and Korean-market content are user-facing features, not experiments.

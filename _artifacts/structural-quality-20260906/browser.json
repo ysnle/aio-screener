@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-02T15:27:05.944Z",
+  "generatedAt": "2026-10-02T16:07:22.486Z",
   "routes": [
     {
       "id": "home",
@@ -40,7 +40,7 @@
         }
       ],
       "headings": [
-        "시장 현황 v56.95"
+        "시장 현황 v56.96"
       ]
     },
     {
@@ -115,20 +115,25 @@
       "moduleState": "ready",
       "controls": [
         {
+          "tag": "BUTTON",
+          "name": "SPY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "QQQ"
+        },
+        {
           "tag": "INPUT",
-          "name": "미국 종목 간이 분석 티커 입력"
+          "name": "차트로 볼 종목 티커"
         },
         {
           "tag": "BUTTON",
-          "name": "차트 분석"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "↻ 데이터 재시도"
+          "name": "차트 보기"
         }
       ],
       "headings": [
-        "차트 · 기술 분석"
+        "차트 · 기술 분석",
+        "SPY 일봉"
       ]
     },
     {
@@ -1225,7 +1230,7 @@
     {
       "id": "screener",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
@@ -1246,30 +1251,6 @@
         {
           "tag": "BUTTON",
           "name": "조건 실행"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "균형 상대 랭킹"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "모멘텀 지속"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "추세 정렬"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "저변동 방어"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "퀄리티 결합"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "돌파 관찰"
         },
         {
           "tag": "SELECT",
@@ -1370,134 +1351,6 @@
         {
           "tag": "BUTTON",
           "name": "컬럼 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "상대 점수 정렬 내림차순"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "가격 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1M 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "3M 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RSI 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VCP 구조 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 AMC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMC 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 ILMN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ILMN 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 ARKG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARKG 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 357780.KQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "357780.KQ 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 229640.KQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "229640.KQ 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 BE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BE 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 MRNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 DNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DNA 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 MPC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MPC 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 AES"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AES 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 000500.KS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "000500.KS 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 192820.KQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "192820.KQ 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "12개 더 보기"
         },
         {
           "tag": "BUTTON",
