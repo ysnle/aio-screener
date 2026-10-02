@@ -137,10 +137,13 @@ if (homeNewsStart >= 0 && homeNewsEnd > homeNewsStart) {
   };
   try {
     const headline = renderFixture({ title: 'Original wire headline', link: 'https://example.com/article', score: 62, topic: 'semi', source: 'Reuters', contentDepth: 'headline-only', pubDate: '2026-09-25T20:00:00Z' });
+    const translated = renderFixture({ title: 'Original wire headline', ko_title: '한국어 번역 제목', link: 'https://example.com/article', score: 62, topic: 'semi', source: 'Reuters', contentDepth: 'headline-only', pubDate: '2026-09-25T20:00:00Z' });
     homeHeadlineBoundary = headline.html.includes('Original wire headline')
       && headline.html.includes('href="https://example.com/article"')
-      && headline.html.includes('헤드라인 전용·본문 미검증')
-      && headline.html.includes('선별 점수 62 (노출 우선순위·감성/본문 검증 점수 아님)')
+      // P1380: developer rank/verification notes are not user content; source and time remain.
+      && !headline.html.includes('헤드라인 전용·본문 미검증') && !headline.html.includes('선별 점수')
+      && headline.html.includes('Reuters · 방금')
+      && translated.html.includes('한국어 번역 제목') && !translated.html.includes('근거 없는 번역 제목')
       && !headline.html.includes('근거 없는 번역 제목')
       && !headline.html.includes('확인되지 않은 시장 영향과 수혜 해석')
       && !headline.html.includes('$FAKE')
@@ -388,6 +391,21 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
     detail = JSON.stringify({ english: english.issues, closedWording: closedWording.issues, intraday: intraday.issues });
   } catch (error) { detail = error.message; }
   check('P1372 market analysis must be Korean, heading-free, and never call an in-session value a close', ok, detail.slice(0, 1600));
+}
+{
+  // P1385: a FRED series added after the previous artifact (fedTargetLower/Upper) must still get an
+  // explicit freshness marker; the semantics gate rejects `_source_*` without `_freshness_*`.
+  let ok = false;
+  let detail = '';
+  try {
+    const { mergeMacroLastKnownGood } = await import('./fetch-data.mjs');
+    const merged = mergeMacroLastKnownGood({ _source: 'fred', fedTargetUpper: 4, _source_fedTargetUpper: 'fred-official-primary', cpi: 3.1 },
+      { cpi: 3.0, _freshness_cpi: 'observed', unemployment: 4.1, _source_unemployment: 'fred-official-primary' });
+    ok = merged._freshness_fedTargetUpper === 'observed' && merged._freshness_cpi === 'observed'
+      && merged._source_unemployment === 'last-known-good' && merged._freshness_unemployment === 'stale-reference';
+    detail = JSON.stringify({ fedTargetUpper: merged._freshness_fedTargetUpper, cpi: merged._freshness_cpi, unemployment: merged._freshness_unemployment });
+  } catch (error) { detail = error.message; }
+  check('P1385 newly added macro series publish an observed freshness marker', ok, detail);
 }
 {
   // P1119/P1122: the headline-only rights boundary stays (no article body is retained), but

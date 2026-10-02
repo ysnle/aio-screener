@@ -3,7 +3,7 @@ import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/s
 import { QUOTE_IDENTITIES } from './contracts/market-snapshot.js';
 import { readPortfolioAssumptions } from './portfolio-assumptions.js';
 import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
-import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis } from '../domain/signal/close-basis.js';
+import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis, CLOSE_BASIS_QUOTE_KEYS } from '../domain/signal/close-basis.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 
@@ -529,31 +529,52 @@ function decisionInputs(root, nowMs = Date.now()) {
     fg: ['fg'], breadth200: ['breadth200'], pcr: ['pcr'], hyBp: ['hySpread'] };
   const snapshot = root?.DATA_SNAPSHOT || {};
   const daily = { fg: fearGreedObservation(root, snapshot), pcr: putCallObservation(root, snapshot), hyBp: hySpreadObservation(root, snapshot) };
-  for (const [key, id] of Object.entries(evidenceKeys)) {
+  const pick = (selectedBasis, key, id) => {
     const [field, symbol] = fields[key];
-    const meta = closeRow?.fieldMeta?.[field];
+    const row = selectedBasis === basis ? closeRow : history.findLast((item) => item?.date === selectedBasis?.date);
+    const meta = row?.fieldMeta?.[field];
     const live = symbol && root?._liveData?.[symbol];
     const envelope = live?.quoteEnvelope || live;
-    const historical = meta ? { ...meta, value: closeRow[field], session: meta.observedMarketSession } : null;
-    const chosen = selectCloseBasisObservation({ key, basis, nowMs, candidates: [daily[key], historical,
+    const historical = meta ? { ...meta, value: row[field], session: meta.observedMarketSession } : null;
+    return selectCloseBasisObservation({ key, basis: selectedBasis, nowMs, candidates: [daily[key], historical,
       snapshotQuotes.find((quote) => quote.instrumentId === symbol),
       envelope && { ...envelope, value: envelope.value ?? envelope.price,
         session: envelope.session || envelope.marketState || live.session || live.marketState }, byId.get(id)] });
+  };
+  const choose = (selectedBasis) => Object.fromEntries(Object.keys(evidenceKeys).map((key) => [key, pick(selectedBasis, key, evidenceKeys[key])]));
+  const chosenByKey = choose(basis);
+  // P1384: between a US close and the producer cycle that records it, the new basis has no
+  // completed-close evidence and every Korean morning showed "보류". The quote inputs then use
+  // the previous completed session, labelled as such; daily publications keep their own clock.
+  let effectiveBasis = basis;
+  let pendingBasis = null;
+  if (basis && chosenByKey.spxPrice == null) {
+    const previous = resolveCloseBasis(basis.closeMs - 1);
+    const previousChosen = previous ? choose(previous) : null;
+    if (previousChosen?.spxPrice) {
+      effectiveBasis = previous;
+      pendingBasis = basis;
+      for (const key of CLOSE_BASIS_QUOTE_KEYS) chosenByKey[key] = previousChosen[key];
+    }
+  }
+  for (const [key] of Object.entries(evidenceKeys)) {
+    const chosen = chosenByKey[key];
     input[key] = chosen ? finite(Number(chosen.value)) : null;
     decisionEvidence[key] = chosen || { ...decisionEvidence[key], value: null, status: 'blocked',
       allowedUse: 'none', blockedReasons: ['completed_close_evidence_missing'] };
   }
   // P1345: a current SPX quote cannot grant freshness to an old/undated MA.
-  const closeMa = basis && spxMovingAveragesFromHistory(history, { asOf: basis.date });
+  const closeMa = effectiveBasis && spxMovingAveragesFromHistory(history, { asOf: effectiveBasis.date });
   for (const [key, period] of [['spx50ma', 50], ['spx200ma', 200]]) {
-    const value = input.spxPrice != null && closeMa?.asOf === basis?.date ? closeMa[period] : null;
+    const value = input.spxPrice != null && closeMa?.asOf === effectiveBasis?.date ? closeMa[period] : null;
     input[key] = value;
     decisionEvidence[key] = { value, source: 'public-data/history.json:SPX completed closes',
-      observedAt: value == null ? null : basis.date, asOf: value == null ? null : basis.date,
+      observedAt: value == null ? null : effectiveBasis.date, asOf: value == null ? null : effectiveBasis.date,
       status: value == null ? 'blocked' : 'session_close', allowedUse: value == null ? 'none' : 'close-basis',
       allowedUseCeiling: 'reference', blockedReasons: value == null ? ['completed_close_ma_missing'] : [] };
   }
-  input.closeBasis = basis ? Object.freeze({ ...basis, label: describeCloseBasis(basis) }) : null;
+  const pendingText = pendingBasis ? ` · ${Number(pendingBasis.date.slice(5, 7))}/${Number(pendingBasis.date.slice(8, 10))} 종가 수집 대기` : '';
+  input.closeBasis = effectiveBasis ? Object.freeze({ ...effectiveBasis, label: describeCloseBasis(effectiveBasis) + pendingText, pendingDate: pendingBasis?.date || null }) : null;
   input.decisionEvidence = decisionEvidence;
   try { input.newsSentimentScore = finite(root?.computeNewsSentimentScore?.()?.score); } catch (_) { input.newsSentimentScore = null; }
   try { input.newsRiskSignals = root?.computeNewsRiskSignals?.() || []; } catch (_) { input.newsRiskSignals = []; }

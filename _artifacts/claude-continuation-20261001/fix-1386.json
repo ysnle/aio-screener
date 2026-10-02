@@ -1,0 +1,19 @@
+{
+  "version": "v56.92",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.92 — static calendar gate follows the official schedule (P1386).",
+  "p": {
+    "id": 1386,
+    "title": "Static-db calendar gate honours the official schedule instead of breaking on each release day",
+    "symptom": "static-db-expiry failed 'past nextRelease still registered: us-ism-mfg=2026-10-01' on the release day itself, although the runtime already advances nextRelease from AIO_MACRO_OFFICIAL_SCHEDULES.",
+    "root_cause": "The gate read only the AIO_MACRO_CALENDAR literal and ignored the official schedule table the runtime uses (P1301); the schedule also ended at October for NFP/ISM.",
+    "fix": "A past literal is stale only when the official schedule for that key has no later date; schedules extended with NFP 11/6, 12/4 (BLS) and ISM manufacturing 11/2, 12/1 / services 11/4, 12/3 (first/third business day rule); us-ism-mfg literal nextRelease advanced to 11/2 with lastRelease unchanged (R650).",
+    "violated_rule": "R650: schedule advance never implies a completed result.",
+    "prevention": "Gate fails again once a schedule runs out of future dates, forcing data-refresh to extend it. Home news contract test T749 now expects 4 items; T834 accepts the retired small risk banner (P1380/P1381).",
+    "verification": "node scripts/ci-static-db-expiry-check.mjs PASS."
+  },
+  "changelog": [
+    "**정적 캘린더 게이트 (P1386):** 발표일마다 CI가 깨지던 문제를 공식 일정표 기준 판정으로 바꾸고 11·12월 고용·ISM 일정 추가."
+  ]
+}

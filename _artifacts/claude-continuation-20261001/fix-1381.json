@@ -1,0 +1,19 @@
+{
+  "version": "v56.92",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.92 — 오늘 screen review: futures cards, bp yields, 4 diverse news with earnings context, score previous-basis fallback, macro freshness fix (P1380-P1385).",
+  "p": {
+    "id": 1381,
+    "title": "오늘 headline cards: index futures, rates and oil",
+    "symptom": "The headline cards were S&P 500/NASDAQ cash indices plus VIX and F&G; during Korean hours the cash indices are frozen at the prior close and the 10Y change read '+0.64%'. The owner asked for futures and rates/oil as headline drivers.",
+    "root_cause": "The home quote plan never requested ES=F/NQ=F although LIVE_SYMBOLS listed them; yields were formatted as a percent change.",
+    "fix": "Cards: S&P 500 futures (ES) and Nasdaq-100 futures (NQ) with the cash value beneath, US 10Y yield with a basis-point change (data-chg-unit=bp) and a note that the cash yield freezes after 15:00 ET, WTI futures. VIX and F&G move to the secondary row with their ids kept; the developer version badge is hidden.",
+    "violated_rule": "Owner review 2026-10-02.",
+    "prevention": "Home native/legacy owner ids unchanged (architecture browser check).",
+    "verification": "Local browser: bp formatting (-5.6bp) and layout verified. Futures values need the production quote relay (no relay on localhost); to be checked on the live site."
+  },
+  "changelog": [
+    "**오늘 주요 지표 카드 (P1381):** S&P 500·나스닥 100 선물을 대표 값으로(현물 병기), 美 10년물 금리(bp 등락)·WTI 선물을 메인으로, VIX·F&G는 아래 줄로 이동."
+  ]
+}

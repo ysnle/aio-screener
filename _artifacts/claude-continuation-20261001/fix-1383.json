@@ -1,0 +1,19 @@
+{
+  "version": "v56.92",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.92 — 오늘 screen review: futures cards, bp yields, 4 diverse news with earnings context, score previous-basis fallback, macro freshness fix (P1380-P1385).",
+  "p": {
+    "id": 1383,
+    "title": "Home summary uses only a verified Korean server analysis; no '?' template, no fabricated 50",
+    "symptom": "The home summary line used a third VIX band (15/20 주의) and a mood guess; the template synthesis printed '? 변동성 · ? 심리 · 리스크 높음(75/100)'; a missing score was replaced by 50 in the legacy dashboard.",
+    "root_cause": "Two writers for one sink and a template that renders missing inputs as '?' with an uncalibrated composite.",
+    "fix": "home-summary-text is a server-only analysis sink (Korean, heading-free verified analysis, hidden otherwise); VIX band aligned to P1367; the '|| 50' fallback removed.",
+    "violated_rule": "Missing values are never guessed; one VIX band.",
+    "prevention": "data-analysis-server-only contract in the sink renderer.",
+    "verification": "Local browser: summary hidden while the local artifact still has the pre-P1372 English analysis."
+  },
+  "changelog": [
+    "**오늘 요약 문단 (P1383):** 검증된 한국어 서버 분석이 있을 때만 표시하고, '?'로 채우던 템플릿 요약과 점수 50 대체값 제거."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "version": "v56.92",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.92 — 오늘 screen review: futures cards, bp yields, 4 diverse news with earnings context, score previous-basis fallback, macro freshness fix (P1380-P1385).",
+  "p": {
+    "id": 1382,
+    "title": "Headline-only earnings news carries estimate/actual context",
+    "symptom": "'Micron beats on earnings…' showed no numbers — how much it beat was invisible — because article bodies are not retained (rights).",
+    "root_cause": "The earnings calendar artifact stored only estimates and no consumer joined it to news headlines.",
+    "fix": "fetch-earnings-calendar keeps Finnhub epsActual/revenueActual; src/domain/news/earnings-context.js matches a headline to a recent (<=3 days) report via the universe company name and renders '실적(9/30 장 마감 후) · EPS 35.10 (예상 32.56 대비 +7.8%) · 매출 …' (estimates only until actuals are published).",
+    "violated_rule": "Missing values are never invented; the context is structured provider data, not inferred from the headline.",
+    "prevention": "Module checked with estimate-only, actual and non-matching fixtures.",
+    "verification": "Local browser: Micron item shows '실적(9/30 장 마감 후) · EPS 예상 32.56 · 매출 예상 $52.6B'; actuals appear after the next earnings producer run."
+  },
+  "changelog": [
+    "**실적 기사 보강 (P1382):** 실적 발표 기사에 EPS·매출 예상치와(발표 후) 실제치·상회율을 함께 표시."
+  ]
+}

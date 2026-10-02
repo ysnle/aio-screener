@@ -818,7 +818,9 @@ export function mergeMacroLastKnownGood(current, previous) {
       // after every source recovered. All 19 macro fields were published as stale
       // while `_source_*` named a live official primary fetch, which made a real
       // last-known-good indistinguishable from a refreshed value.
-      if (previous?.[`_freshness_${field}`]) merged[`_freshness_${field}`] = 'observed';
+      // P1385: unconditional — a newly added series (fedTargetLower/Upper, P1375) had no previous
+      // marker, so it was published with `_source_*` but no `_freshness_*` and CI went red.
+      merged[`_freshness_${field}`] = 'observed';
       continue;
     }
     if (!Number.isFinite(previousValue)) continue;

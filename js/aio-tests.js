@@ -5329,7 +5329,7 @@
 
     var newsContracts = window.AIO_NEWS_SURFACE_CONTRACTS || {};
     _assert('T749 v502_news_surface_contracts: home/briefing/market-news policies exist',
-      newsContracts.home && newsContracts.home.windowHours === 24 && newsContracts.home.newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts.home.maxItems === 3 &&
+      newsContracts.home && newsContracts.home.windowHours === 24 && newsContracts.home.newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts.home.maxItems === 4 &&
         newsContracts.briefing && newsContracts.briefing.windowHours === 24 && newsContracts.briefing.newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts.briefing.aiPolicy === 'verified-current-only' &&
         newsContracts['market-news'] && newsContracts['market-news'].windowHours === 24 && newsContracts['market-news'].newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts['market-news'].maxItems === 150,
       JSON.stringify(newsContracts));
@@ -7051,7 +7051,7 @@
       var unifiedSrc834 = typeof window.chatSendUnified === 'function' ? String(window.chatSendUnified) : '';
       var bodyText834 = document.body ? document.body.textContent : '';
       var noForcedOnboard834 = !banner834 && bodyText834.indexOf('실시간 시세·기업 분석·경제지표를 사용하려면') < 0;
-      var compactRisk834 = !!(risk834 && String(risk834.getAttribute('style') || '').indexOf('position:static') >= 0 && risk834.textContent.length < 80);
+      var compactRisk834 = !risk834 || !!(String(risk834.getAttribute('style') || '').indexOf('position:static') >= 0 && risk834.textContent.length < 80); // 2026-10-01: duplicate banner retired; sticky disclaimer is the single notice
       var compactAi834 = toggleSrc834.indexOf('AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.') >= 0 &&
         toggleSrc834.indexOf('매매 시그널, 차트 분석, 매크로, 기업 분석') < 0;
       var compactKeyMsg834 = unifiedSrc834.indexOf('AI 답변을 쓰려면 Claude 키를 저장하세요.') >= 0;
@@ -8183,7 +8183,7 @@
       window._serverMarketAnalysis = { status: 'blocked-unverified', full: 'unverified prose', oneLine: 'unverified prose' };
       if (render935) window._aioRenderMarketAnalysisSinks();
       blockedSource935 = !!(sink935 && sink935.getAttribute('data-analysis-source') === 'template');
-      window._serverMarketAnalysis = { status: 'verified', full: 'verified prose', oneLine: 'verified prose' };
+      window._serverMarketAnalysis = { status: 'verified', full: '검증된 분석 문단', oneLine: '검증된 분석 문단' };
       if (render935) window._aioRenderMarketAnalysisSinks();
       verifiedSource935 = !!(sink935 && sink935.getAttribute('data-analysis-source') === 'server-llm');
     } finally {

@@ -1,0 +1,19 @@
+{
+  "version": "v56.92",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.92 — 오늘 cards show the point move; secondary row shows percent changes (P1387).",
+  "p": {
+    "id": 1387,
+    "title": "Home headline cards show the point move and the secondary row shows changes",
+    "symptom": "Owner review: the headline cards showed only '+0.17%' without the point/dollar move, and VIX, DXY, gold, KOSPI and BTC showed no change at all; the ▲/▼ glyph appeared on some changes but not others.",
+    "root_cause": "The change sink formatted percent only; the secondary row had no change sinks; the direction glyph was added by a separate later sweep (applyA11yIndicators) that missed values rendered after it ran.",
+    "fix": "data-chg-unit='abs' renders '+0.82 (+0.91%)' for index/oil futures (yields keep bp); change sinks added to VIX, DXY, gold, KOSPI and BTC; the live-quote writer sets the a11y-up/dn glyph class together with pos/neg.",
+    "violated_rule": "Owner review 2026-10-02.",
+    "prevention": "The move is derived from the same observation as the price (LC-63/P1250 still withholds it when the price is missing).",
+    "verification": "Local browser: WTI '+0.82 (+0.91%)', 10Y '+3.4bp', VIX/DXY/gold/KOSPI/BTC with ▲ percent changes; futures values need the production relay."
+  },
+  "changelog": [
+    "**오늘 지표 변동값 (P1387):** 주요 카드에 변동값과 등락률을 함께(예: +0.82 (+0.91%)), VIX·DXY·금·KOSPI·BTC에도 등락률 표시, ▲/▼ 표시 누락 수정."
+  ]
+}

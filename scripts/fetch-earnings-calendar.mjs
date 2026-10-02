@@ -89,7 +89,10 @@ async function main() {
       date: row.date || null,
       hour: row.hour || null,
       epsEstimate: typeof row.epsEstimate === 'number' ? row.epsEstimate : null,
-      revenueEstimate: typeof row.revenueEstimate === 'number' ? row.revenueEstimate : null
+      revenueEstimate: typeof row.revenueEstimate === 'number' ? row.revenueEstimate : null,
+      // P1382: after the report Finnhub returns the actuals; headline-only earnings news cites them.
+      epsActual: typeof row.epsActual === 'number' ? row.epsActual : null,
+      revenueActual: typeof row.revenueActual === 'number' ? row.revenueActual : null
     })),
     ipos: ipos.map((row) => ({
       symbol: row.symbol || null,

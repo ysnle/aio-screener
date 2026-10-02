@@ -11077,7 +11077,7 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
     newsCyclePolicy: 'kst-0800-completed-24h',
     anchor: '08:00 KST',
     windowHours: 24,
-    maxItems: 3,
+    maxItems: 4, minCount: 4, maxPerTopic: 1, // P1380: one 71-point item used to satisfy the cascade and fill the whole surface
     minScoreCascade: [90, 70, 50],
     excludedTopics: ['analyst'],
     staleStaticPolicy: 'reference-only',
@@ -11399,7 +11399,7 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
     scored = [];
     contract.minScoreCascade.some(function(th) {
       scored = windowRows.filter(function(i) { return i.score >= th; });
-      return scored.length > 0;
+      return scored.length >= Math.min(contract.minCount || 1, windowRows.length);
     });
   } else {
     scored = windowRows.filter(function(i) { return i.score >= (contract.minScore || 0); });
@@ -11435,6 +11435,7 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
     deduped.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
   }
 
+  if (contract.maxPerTopic) { var perTopic = {}; deduped = deduped.filter(function(i) { var t = i.topic || 'other'; perTopic[t] = (perTopic[t] || 0) + 1; return perTopic[t] <= contract.maxPerTopic; }); }
   var visible = deduped.slice(0, contract.maxItems || deduped.length);
   var reviewItems = surfaceId === 'briefing' ? deduped.filter(function(i) { return !i.eligibleForAi; }) : [];
   var aiItems = surfaceId === 'briefing' ? visible.filter(function(i) { return i.eligibleForAi; }) : visible;
@@ -11574,15 +11575,18 @@ function renderHomeFeed(items) {
         var sent = headlineOnly ? null : getSentimentFromText(item.title + ' ' + (item.desc || ''));
         var sentIcon = headlineOnly ? '' : sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
         var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
-        var displayTitle = escHtml(headlineOnly ? (item.title || '제목 없음') : getDisplayTitle(item));
+        // P1380: a real translation of the headline may be shown; without one keep the original headline (never a generated fallback sentence).
+        var koTitle = ''; try { var tc = _translationCache.has(_tcKey(item.title)) ? _translationCache.get(_tcKey(item.title)) : null; var kt = (tc && !tc._failed && tc.ko_title) || item.ko_title; koTitle = kt && isKoreanText(kt) ? kt : ''; } catch (_) { koTitle = item.ko_title && /[가-힣]/.test(item.ko_title) ? item.ko_title : ''; }
+        var displayTitle = escHtml(headlineOnly ? (koTitle || item.title || '제목 없음') : getDisplayTitle(item));
         var articleUrl = escUrl(item.link || '');
         var titleMarkup = headlineOnly && articleUrl
           ? '<a href="' + escHtml(articleUrl) + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;min-height:24px;line-height:1.4;" aria-label="' + displayTitle + ' — 원문 새 창에서 열기">' + displayTitle + '</a>'
           : displayTitle;
         var displaySummary = headlineOnly ? '' : escHtml(getDisplaySummary(item));
+        var earn = null; try { if (window._aioEarningsSnapshot === undefined && typeof _fetchEarningsCalendarSnapshot === 'function') { window._aioEarningsSnapshot = null; _fetchEarningsCalendarSnapshot().then(function(snap) { window._aioEarningsSnapshot = snap || false; if (snap) renderHomeFeed(items); }); } if (window._aioEarningsSnapshot && window._aioEarningsContext) { if (!window._aioSymNames) { window._aioSymNames = {}; (typeof SCREENER_DB !== 'undefined' ? SCREENER_DB : []).forEach(function(r) { if (r && r.sym) window._aioSymNames[r.sym] = r.name; }); } earn = window._aioEarningsContext(item.title, { earnings: window._aioEarningsSnapshot.earnings, names: window._aioSymNames }); } } catch (_) { earn = null; } // P1382
         var summaryLine = headlineOnly
-          ? '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;line-height:1.35;">헤드라인 전용·본문 미검증 — 원문 확인 전 영향 해석 보류</div>'
-          : displaySummary ? '<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">' + displaySummary + '</div>' : '';
+          ? (earn ? '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.4;font-variant-numeric:tabular-nums;" title="' + escHtml(earn.source) + '">' + escHtml(earn.text) + '</div>' : '')
+          : displaySummary ?'<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">' + displaySummary + '</div>' : '';
       var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'];
         var tickers = headlineOnly || hMacroTopics.indexOf(item.topic) !== -1 ? [] : getDisplayTickers(item);
         var tickerStr = tickers.length > 0
@@ -11593,7 +11597,7 @@ function renderHomeFeed(items) {
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + tickerStr + titleMarkup + '</div>' +
             summaryLine +
-            '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;font-family:var(--font-mono);">' + (isFinite(Number(item.score)) ? '선별 점수 ' + escHtml(Number(item.score)) + ' (노출 우선순위·감성/본문 검증 점수 아님) · ' : '') + escHtml(item.source || '') + ' · ' + escHtml(timeAgo) + '</div>' +
+            '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;font-family:var(--font-mono);">' + escHtml(item.source || '') + ' · ' + escHtml(timeAgo) + '</div>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -14348,10 +14352,10 @@ window.AIO.applyLiveDataToDom = function(opts) {
       if (pct != null && _aioLivePrice(d) == null) pct = null;
       stats.touched += 1;
       if (pct != null) {
-        el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+        el.textContent = (function(unit, p) { var move = p - p / (1 + pct / 100), pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%'; return unit === 'bp' ? (move >= 0 ? '+' : '') + (move * 100).toFixed(1) + 'bp' : unit === 'abs' ? (move >= 0 ? '+' : '') + move.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + pctText + ')' : pctText; })(el.getAttribute('data-chg-unit'), _aioLivePrice(d)); // P1381/P1387: yields move in basis points; headline cards show the point move with the percent
         if (el.classList) {
-          el.classList.remove('pos', 'neg');
-          el.classList.add(pct >= 0 ? 'pos' : 'neg');
+          el.classList.remove('pos', 'neg', 'a11y-up', 'a11y-dn', 'a11y-hold');
+          el.classList.add(pct >= 0 ? 'pos' : 'neg', pct > 0 ? 'a11y-up' : pct < 0 ? 'a11y-dn' : 'a11y-hold'); // P1387: ▲/▼ glyph set with the value, not by a later sweep
         }
         _aioMarkLiveSink(el, sym, d, 'quote', false);
         stats.filled += 1;
@@ -15654,15 +15658,7 @@ function refreshHomeDashboard() {
   const _homeNum = function(v) { const n = Number(v); return Number.isFinite(n) ? n : null; };
   const spxPct = _homeNum(spx.pct);
   const vixPrice = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
-  const spxChg = spxPct != null ? _homeFixed(spxPct, 2, '—') : '—'; // R15: null vs 0% 구분
-  const vixLevel = vixPrice != null ? _homeFixed(vixPrice, 2, String(DATA_SNAPSHOT.vix || '—')) : String(DATA_SNAPSHOT.vix || '—');
-  const vixStatus = vixPrice != null ? (vixPrice < 15 ? '안정' : vixPrice < 20 ? '주의' : vixPrice < 25 ? '경계' : vixPrice < 30 ? '공포' : '극단공포') : '—';
-  const marketMood = spxPct != null ? (spxPct > 0.5 ? '낙관' : spxPct < -0.5 ? '경계' : '관망') : '—';
-  const summarytxt = spxChg !== '—'
-    ? `S&P 500 ${parseFloat(spxChg) >= 0 ? '+' : ''}${spxChg}%, VIX ${vixLevel} ${vixStatus} — 시장 분위기: ${marketMood}`
-    : `VIX ${vixLevel} ${vixStatus} — 시장 분위기: ${marketMood}`;
-  const summaryEl = document.getElementById('home-summary-text');
-  if (summaryEl) summaryEl.textContent = summarytxt;
+  if (typeof window._aioRenderMarketAnalysisSinks === 'function') window._aioRenderMarketAnalysisSinks(); // P1383: the verified server analysis owns the home summary (old S&P/VIX mood line removed)
   const summaryTimeEl = document.getElementById('home-summary-time');
   if (summaryTimeEl) summaryTimeEl.textContent = ts.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
 
@@ -15673,9 +15669,9 @@ function refreshHomeDashboard() {
       const freshScores = computeTradingScore();
       tradingScore = freshScores.total;
       window._tradingScore = tradingScore;
-    } catch(e) { tradingScore = window._tradingScore || 50; }
+    } catch(e) { tradingScore = window._tradingScore ?? null; }
   } else {
-    tradingScore = window._tradingScore || 50;
+    tradingScore = window._tradingScore ?? null; // P1383: a missing score is never 50
   }
   // P553/R244: "오늘 결론" 헤더(_aioRenderPageDecisionHeader)와 이 게이지가 서로 다른 이벤트
   // (aio:liveQuotes vs aio:marketStateUpdated)에서 독립 갱신되어 같은 화면에 다른 점수가

@@ -1,8 +1,80 @@
 ---
-last_verified: 2026-10-01
+last_verified: 2026-10-02
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
+
+## P1387 - v56.92 - Home headline cards show the point move and the secondary row shows changes (2026-10-02)
+
+- symptom/reproduction: Owner review: the headline cards showed only '+0.17%' without the point/dollar move, and VIX, DXY, gold, KOSPI and BTC showed no change at all; the ▲/▼ glyph appeared on some changes but not others.
+- root_cause: The change sink formatted percent only; the secondary row had no change sinks; the direction glyph was added by a separate later sweep (applyA11yIndicators) that missed values rendered after it ran.
+- fix: data-chg-unit='abs' renders '+0.82 (+0.91%)' for index/oil futures (yields keep bp); change sinks added to VIX, DXY, gold, KOSPI and BTC; the live-quote writer sets the a11y-up/dn glyph class together with pos/neg.
+- violated_rule: Owner review 2026-10-02.
+- prevention: The move is derived from the same observation as the price (LC-63/P1250 still withholds it when the price is missing).
+- verification/residual: Local browser: WTI '+0.82 (+0.91%)', 10Y '+3.4bp', VIX/DXY/gold/KOSPI/BTC with ▲ percent changes; futures values need the production relay.
+
+## P1386 - v56.92 - Static-db calendar gate honours the official schedule instead of breaking on each release day (2026-10-02)
+
+- symptom/reproduction: static-db-expiry failed 'past nextRelease still registered: us-ism-mfg=2026-10-01' on the release day itself, although the runtime already advances nextRelease from AIO_MACRO_OFFICIAL_SCHEDULES.
+- root_cause: The gate read only the AIO_MACRO_CALENDAR literal and ignored the official schedule table the runtime uses (P1301); the schedule also ended at October for NFP/ISM.
+- fix: A past literal is stale only when the official schedule for that key has no later date; schedules extended with NFP 11/6, 12/4 (BLS) and ISM manufacturing 11/2, 12/1 / services 11/4, 12/3 (first/third business day rule); us-ism-mfg literal nextRelease advanced to 11/2 with lastRelease unchanged (R650).
+- violated_rule: R650: schedule advance never implies a completed result.
+- prevention: Gate fails again once a schedule runs out of future dates, forcing data-refresh to extend it. Home news contract test T749 now expects 4 items; T834 accepts the retired small risk banner (P1380/P1381).
+- verification/residual: node scripts/ci-static-db-expiry-check.mjs PASS.
+
+## P1385 - v56.92 - Newly added macro series publish an observed freshness marker (2026-10-02)
+
+- symptom/reproduction: After P1375 shipped, every bot data commit failed CI: 'macro publishes an explicit freshness marker for every sourced field' — _source_fedTargetLower/Upper had no _freshness_*.
+- root_cause: mergeMacroLastKnownGood set 'observed' only when the previous artifact already had a marker for that field, so a new series never received one.
+- fix: A finite current value always gets _freshness_* = observed.
+- violated_rule: Adding a producer field must satisfy the existing artifact contracts (P1375 omission).
+- prevention: ci-data-pipeline-contract-check P1385 fixture.
+- verification/residual: Fixture PASS; origin artifact shows fedTargetLower 3.75 / Upper 4 collected.
+
+## P1384 - v56.92 - Reference score shows the previous completed close while the new close is pending (2026-10-02)
+
+- symptom/reproduction: Every Korean morning after the US close the score read '보류 (판단 등급 입력 없음)' for hours: the basis advanced to the new session but no producer cycle had recorded its close yet.
+- root_cause: The close-basis selection used only the latest completed session; between the close and the next producer cycle no candidate qualified.
+- fix: If the latest basis has no completed-close S&P evidence, quote inputs and moving averages use the previous completed session; daily publications keep their own clock; the label reads '9/30 미국 정규장 종가 기준 · 10/1 종가 수집 대기'.
+- violated_rule: R670 meaning unchanged (completed close only); the score never mixes intraday values.
+- prevention: closeBasis.pendingDate is exposed with the label.
+- verification/residual: Local browser at 09:09 KST: 58* with the pending label instead of 보류.
+
+## P1383 - v56.92 - Home summary uses only a verified Korean server analysis; no '?' template, no fabricated 50 (2026-10-02)
+
+- symptom/reproduction: The home summary line used a third VIX band (15/20 주의) and a mood guess; the template synthesis printed '? 변동성 · ? 심리 · 리스크 높음(75/100)'; a missing score was replaced by 50 in the legacy dashboard.
+- root_cause: Two writers for one sink and a template that renders missing inputs as '?' with an uncalibrated composite.
+- fix: home-summary-text is a server-only analysis sink (Korean, heading-free verified analysis, hidden otherwise); VIX band aligned to P1367; the '|| 50' fallback removed.
+- violated_rule: Missing values are never guessed; one VIX band.
+- prevention: data-analysis-server-only contract in the sink renderer.
+- verification/residual: Local browser: summary hidden while the local artifact still has the pre-P1372 English analysis.
+
+## P1382 - v56.92 - Headline-only earnings news carries estimate/actual context (2026-10-02)
+
+- symptom/reproduction: 'Micron beats on earnings…' showed no numbers — how much it beat was invisible — because article bodies are not retained (rights).
+- root_cause: The earnings calendar artifact stored only estimates and no consumer joined it to news headlines.
+- fix: fetch-earnings-calendar keeps Finnhub epsActual/revenueActual; src/domain/news/earnings-context.js matches a headline to a recent (<=3 days) report via the universe company name and renders '실적(9/30 장 마감 후) · EPS 35.10 (예상 32.56 대비 +7.8%) · 매출 …' (estimates only until actuals are published).
+- violated_rule: Missing values are never invented; the context is structured provider data, not inferred from the headline.
+- prevention: Module checked with estimate-only, actual and non-matching fixtures.
+- verification/residual: Local browser: Micron item shows '실적(9/30 장 마감 후) · EPS 예상 32.56 · 매출 예상 $52.6B'; actuals appear after the next earnings producer run.
+
+## P1381 - v56.92 - 오늘 headline cards: index futures, rates and oil (2026-10-02)
+
+- symptom/reproduction: The headline cards were S&P 500/NASDAQ cash indices plus VIX and F&G; during Korean hours the cash indices are frozen at the prior close and the 10Y change read '+0.64%'. The owner asked for futures and rates/oil as headline drivers.
+- root_cause: The home quote plan never requested ES=F/NQ=F although LIVE_SYMBOLS listed them; yields were formatted as a percent change.
+- fix: Cards: S&P 500 futures (ES) and Nasdaq-100 futures (NQ) with the cash value beneath, US 10Y yield with a basis-point change (data-chg-unit=bp) and a note that the cash yield freezes after 15:00 ET, WTI futures. VIX and F&G move to the secondary row with their ids kept; the developer version badge is hidden.
+- violated_rule: Owner review 2026-10-02.
+- prevention: Home native/legacy owner ids unchanged (architecture browser check).
+- verification/residual: Local browser: bp formatting (-5.6bp) and layout verified. Futures values need the production quote relay (no relay on localhost); to be checked on the live site.
+
+## P1380 - v56.92 - Home core news shows 4 diverse, translated headlines without developer notes (2026-10-02)
+
+- symptom/reproduction: 오늘 showed a single core news item (Micron, 71 points), in English, followed by '헤드라인 전용·본문 미검증 — 원문 확인 전 영향 해석 보류' and '선별 점수 71 (노출 우선순위·감성/본문 검증 점수 아님)'.
+- root_cause: The minScoreCascade stopped at the first threshold with any item, so one 71-point article filled the surface; headline-only items skipped the translation entirely; developer rank/verification notes were rendered as user content.
+- fix: Cascade must fill minCount (4) before stopping; one item per topic; a real ko_title translation is shown (never a generated fallback sentence), otherwise the original headline; only source and time remain.
+- violated_rule: Owner review 2026-10-02: 3-4 important, diverse market stories; no developer text on user surfaces.
+- prevention: ci-data-pipeline-contract-check P1273/P1380 fixture: no rank/verification notes, source/time shown, translated headline shown, generated fallback title never shown.
+- verification/residual: Local browser: macro/geo/semi stories with translated titles; fxbond/credit appear once the P1373 producer has run.
 
 ## P1379 - v56.91 - F&G semantics gate accepts a newer intraday headline (2026-10-01)
 

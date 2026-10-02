@@ -77,8 +77,15 @@ check('static-db:universe-record-count', Number(meta.recordCount) >= 100, `recor
 // keep lastRelease tied to a verified result and require only nextRelease to advance.
 const todayIso = new Date(nowMs).toISOString().slice(0, 10);
 const calBlock = core.match(/window\.AIO_MACRO_CALENDAR = \{[\s\S]*?\n\};/)?.[0] || '';
+// P1386: the runtime advances nextRelease from AIO_MACRO_OFFICIAL_SCHEDULES (P1301); a past literal is
+// stale only when that official schedule has no later date either (CI otherwise broke on every release day).
+const scheduleBlock = core.match(/window\.AIO_MACRO_OFFICIAL_SCHEDULES = \{[\s\S]*?\n\};/)?.[0] || '';
+const officialNext = (key) => {
+  const line = scheduleBlock.split('\n').find((row) => row.includes(`'${key}':`)) || '';
+  return (line.match(/\d{4}-\d{2}-\d{2}/g) || []).find((date) => date >= todayIso) || null;
+};
 const staleNext = [...calBlock.matchAll(/'([^']+)':\s*\{[^}]*?nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/g)]
-  .filter(([, , date]) => date < todayIso)
+  .filter(([, key, date]) => date < todayIso && !officialNext(key))
   .map(([full, key, date]) => `${key}=${date}`);
 check('static-db:calendar-no-past-nextRelease', staleNext.length === 0, `past nextRelease still registered: ${staleNext.join(', ')} (R650: advance the schedule without inferring a completed result)`);
 

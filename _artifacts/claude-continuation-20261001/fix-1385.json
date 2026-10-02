@@ -1,0 +1,19 @@
+{
+  "version": "v56.92",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.92 — 오늘 screen review: futures cards, bp yields, 4 diverse news with earnings context, score previous-basis fallback, macro freshness fix (P1380-P1385).",
+  "p": {
+    "id": 1385,
+    "title": "Newly added macro series publish an observed freshness marker",
+    "symptom": "After P1375 shipped, every bot data commit failed CI: 'macro publishes an explicit freshness marker for every sourced field' — _source_fedTargetLower/Upper had no _freshness_*.",
+    "root_cause": "mergeMacroLastKnownGood set 'observed' only when the previous artifact already had a marker for that field, so a new series never received one.",
+    "fix": "A finite current value always gets _freshness_* = observed.",
+    "violated_rule": "Adding a producer field must satisfy the existing artifact contracts (P1375 omission).",
+    "prevention": "ci-data-pipeline-contract-check P1385 fixture.",
+    "verification": "Fixture PASS; origin artifact shows fedTargetLower 3.75 / Upper 4 collected."
+  },
+  "changelog": [
+    "**거시 신선도 표시 수정 (P1385):** 새로 추가한 연준 목표범위 필드에 신선도 표시가 빠져 데이터 커밋 CI가 실패하던 문제 수정."
+  ]
+}

@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.91';
+const APP_VERSION = 'v56.92';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3790,10 +3790,10 @@ if (typeof document !== 'undefined') {
       var sinks = document.querySelectorAll('[data-market-analysis-sink]');
       if (!sinks.length) return;
       var syn = window.AIO.synthesizeMarketAnalysis();
-      var serverLLM = (window._serverMarketAnalysis && window._serverMarketAnalysis.status === 'verified' && typeof window._serverMarketAnalysis.full === 'string') ? window._serverMarketAnalysis : null;
+      var serverLLM = (window._serverMarketAnalysis && window._serverMarketAnalysis.status === 'verified' && typeof window._serverMarketAnalysis.full === 'string' && /[가-힣]/.test(window._serverMarketAnalysis.full) && !/^#/.test(window._serverMarketAnalysis.oneLine || '')) ? window._serverMarketAnalysis : null;
       var esc = (typeof escHtml === 'function') ? escHtml : function(s){ return String(s); };
       sinks.forEach(function(el){
-        var mode = el.getAttribute('data-market-analysis-sink') || 'one';
+        var mode = el.getAttribute('data-market-analysis-sink') || 'one'; if (el.hasAttribute('data-analysis-server-only') && !serverLLM) { el.textContent = ''; el.hidden = true; return; } el.hidden = false; // P1383: the template synthesis printed '?' slots and an uncalibrated n/100
         var src = serverLLM || syn;
         var txt = mode === 'full' ? (src.full || syn.full) : (src.oneLine || syn.oneLine);
         // P1122: a published narrative carries its own boundary note; show it with the full text.
@@ -11296,7 +11296,7 @@ window.AIO_MACRO_CALENDAR = {
     'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-09-04', nextRelease: '2026-10-02', dataField: 'usUnemploy', source: 'BLS official schedule', sourceUrl: 'https://www.bls.gov/schedule/news_release/empsit.htm' },
     'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-09-11', nextRelease: '2026-10-14', dataField: 'cpi', source: 'BLS official schedule', sourceUrl: 'https://www.bls.gov/schedule/news_release/cpi.htm' },
     'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-08-26', nextRelease: '2026-10-29', dataField: 'pce', source: 'BEA official schedule (reviewed 2026-10-01; P1356)', sourceUrl: 'https://www.bea.gov/news/schedule/' },
-    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'official-first-business-day',  lastRelease: '2026-09-01', nextRelease: '2026-10-01', dataField: 'ismPmi', source: 'ISM official calendar', sourceUrl: 'https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/' },
+    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'official-first-business-day',  lastRelease: '2026-09-01', nextRelease: '2026-11-02', dataField: 'ismPmi', source: 'ISM official calendar', sourceUrl: 'https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/' },
     'us-ism-svc':   { name: 'ISM Services',   frequency: 'official-third-business-day',  lastRelease: '2026-09-03', nextRelease: '2026-10-05', dataField: 'ismSvc', source: 'ISM official calendar', sourceUrl: 'https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/' },
     'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-09-16', nextRelease: '2026-10-15', dataField: 'retailSales', source: 'U.S. Census official schedule' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
@@ -11312,11 +11312,11 @@ window.AIO_MACRO_CALENDAR = {
   }
 };
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
-  'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02'],
+  'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02', '2026-11-06', '2026-12-04'], // BLS empsit schedule (verified 2026-10-02)
   'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14'],
   'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30', '2026-10-29', '2026-11-25', '2026-12-23'],
-  'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01'],
-  'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05'],
+  'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01', '2026-11-02', '2026-12-01'], // Nov/Dec: ISM rule 1st business day (official calendar login-gated)
+  'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05', '2026-11-04', '2026-12-03'], // Nov/Dec: ISM rule 3rd business day
   'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16', '2026-10-15'],
   'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
   'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
@@ -12644,7 +12644,7 @@ window.AIO.getShareReadinessAudit = function(opts) {
 // The app cannot force every third-party API to succeed, but it can know exactly
 // which data each page/chat answer needs and proactively refresh stale layers.
 window.AIO.DATA_REQUIREMENT_PROFILES = {
-  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD'] },
+  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['ES=F','NQ=F','^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD'] },
   signal:      { tasks: ['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], symbols: ['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD'] },
   signals:     { alias: 'signal' },
   breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
@@ -17736,7 +17736,7 @@ window._aioRefreshFreshness = function() {
 };
 
 // v48.80/P150 + v48.81/P151 + v48.82/P152: one-call operational/data/pipeline snapshot for live checks.
-window.AIO.CORE_LIVE_SYMBOLS = ['^GSPC', '^IXIC', '^VIX', '^SKEW', 'CL=F', 'GC=F', 'KRW=X', 'DX-Y.NYB', '^KS11', '^KQ11'];
+window.AIO.CORE_LIVE_SYMBOLS = ['ES=F', 'NQ=F', '^GSPC', '^IXIC', '^VIX', '^SKEW', 'CL=F', 'GC=F', 'KRW=X', 'DX-Y.NYB', '^KS11', '^KQ11'];
 
 window.AIO.getLiveCoverage = function(requiredSymbols) {
   var required = requiredSymbols || window.AIO.CORE_LIVE_SYMBOLS || [];

@@ -1,0 +1,19 @@
+{
+  "version": "v56.92",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.92 — 오늘 screen review: futures cards, bp yields, 4 diverse news with earnings context, score previous-basis fallback, macro freshness fix (P1380-P1385).",
+  "p": {
+    "id": 1380,
+    "title": "Home core news shows 4 diverse, translated headlines without developer notes",
+    "symptom": "오늘 showed a single core news item (Micron, 71 points), in English, followed by '헤드라인 전용·본문 미검증 — 원문 확인 전 영향 해석 보류' and '선별 점수 71 (노출 우선순위·감성/본문 검증 점수 아님)'.",
+    "root_cause": "The minScoreCascade stopped at the first threshold with any item, so one 71-point article filled the surface; headline-only items skipped the translation entirely; developer rank/verification notes were rendered as user content.",
+    "fix": "Cascade must fill minCount (4) before stopping; one item per topic; a real ko_title translation is shown (never a generated fallback sentence), otherwise the original headline; only source and time remain.",
+    "violated_rule": "Owner review 2026-10-02: 3-4 important, diverse market stories; no developer text on user surfaces.",
+    "prevention": "ci-data-pipeline-contract-check P1273/P1380 fixture: no rank/verification notes, source/time shown, translated headline shown, generated fallback title never shown.",
+    "verification": "Local browser: macro/geo/semi stories with translated titles; fxbond/credit appear once the P1373 producer has run."
+  },
+  "changelog": [
+    "**오늘 핵심 뉴스 (P1380):** 1건만 나오던 선별을 주제별 1건씩 4건으로, 번역 제목 표시, 개발자용 선별 점수·검증 문구 제거."
+  ]
+}

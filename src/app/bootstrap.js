@@ -24,6 +24,7 @@ import { selectForDecision, selectForDisplay, selectLastKnown, selectCompletenes
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs } from '../ui/navigation/route-hubs.js';
+import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
@@ -363,6 +364,7 @@ function reducer(state, action) {
 export function createAIOArchitecture({ root = globalThis, documentRef = root.document, now = () => Date.now(), fetchImpl = root.fetch } = {}) {
   root._aioFinancialSecurity = financialSecurity;
   root._aioAIBudgetPolicy = aiBudgetPolicy;
+  root._aioEarningsContext = earningsContextForHeadline; // P1382 headline-only earnings news context
   const clock = createClock(now);
   const evidenceStore = createEvidenceStore();
   const defaultSavedScreens = createSavedScreenCollection(createDefaultScreenDefinitions().map((definition) => ({ definition })));

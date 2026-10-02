@@ -1,0 +1,19 @@
+{
+  "version": "v56.92",
+  "date": "2026-10-02",
+  "qa": [],
+  "note": "v56.92 — 오늘 screen review: futures cards, bp yields, 4 diverse news with earnings context, score previous-basis fallback, macro freshness fix (P1380-P1385).",
+  "p": {
+    "id": 1384,
+    "title": "Reference score shows the previous completed close while the new close is pending",
+    "symptom": "Every Korean morning after the US close the score read '보류 (판단 등급 입력 없음)' for hours: the basis advanced to the new session but no producer cycle had recorded its close yet.",
+    "root_cause": "The close-basis selection used only the latest completed session; between the close and the next producer cycle no candidate qualified.",
+    "fix": "If the latest basis has no completed-close S&P evidence, quote inputs and moving averages use the previous completed session; daily publications keep their own clock; the label reads '9/30 미국 정규장 종가 기준 · 10/1 종가 수집 대기'.",
+    "violated_rule": "R670 meaning unchanged (completed close only); the score never mixes intraday values.",
+    "prevention": "closeBasis.pendingDate is exposed with the label.",
+    "verification": "Local browser at 09:09 KST: 58* with the pending label instead of 보류."
+  },
+  "changelog": [
+    "**점수 대기 시간 보완 (P1384):** 새 종가가 수집되기 전에는 직전 종가 기준 점수를 '종가 수집 대기' 표시와 함께 보여 줌(한국 아침 '보류' 해소)."
+  ]
+}
