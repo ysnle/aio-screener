@@ -1,0 +1,19 @@
+{
+  "version": "v57.04",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v57.04 — 스크리너 position instead of letter grades, post-hoc validation of the default ranking, yen carry score replaced by the yen 20-day rule (P1419).",
+  "p": {
+    "id": 1419,
+    "title": "Screener 상위 N% instead of A-F, ranking post-hoc validation panel, yen carry score removed (Bank of Korea rate used as the Japan gap)",
+    "symptom": "Codex review: the screener showed an A-F grade, the yen carry card a 58/100 score. Open-source comparison: xang1234 validates published picks on a Backtest page; the screener had the backtest artifact but no user view. Checking the carry score: its rate gap was US 10Y minus the Bank of KOREA policy rate, labelled a US-Japan gap (BOJ) in both the native and the legacy renderer.",
+    "root_cause": "rankGrade cut the tie-aware percentile at uncalibrated bands; the carry proxy summed arbitrary points (35/30/20/15) and took the wrong rate; backtest-history.json was produced daily but never shown.",
+    "fix": "src/ui/pages/screener.js shows the percentile position (상위 N%) and labels the rank filter the same way. src/ui/components/screener-validation.js summarizes public-data/backtest-history.json (top minus bottom quintile 21-session return net of cost over six past rebalances, wins, IC, a daily trend) with the model-validation status (present-day universe, survivorship bias) and is rendered on the screener page. src/ui/pages/market.js reports the yen's own 20-day move on the close basis with the 시장 상태 FX-axis rule (3%+ yen rally = burden), VIX and HY as context, and no rate gap; js/aio-data.js no longer prints TNX minus the BoK rate as a US-Japan gap; labels updated.",
+    "violated_rule": "Owner decisions: no ungrounded grade or composite score; a label names what was measured.",
+    "prevention": "ci-esm-core-unit-check P1419 (position not letter, validation summary wins/tone/series/survivorship note, empty history not a result).",
+    "verification": "Local browser: rank column 상위, filter 80 이상 (상위 20%); validation summary 상위−하위 20% -3.27% · 2/6회 앞섬 with trend chart and survivorship note."
+  },
+  "changelog": [
+    "**스크리너·엔캐리 (P1419):** A~F 등급 대신 \"상위 N%\" 표시, 기본 순위의 과거 성과를 그대로 보여 주는 \"순위 사후 검증\" 추가(최근: 상위 20%가 하위 20%보다 -3.27%). 엔캐리 58/100 점수는 한국은행 금리를 일본 금리처럼 쓰고 있어 제거하고, 엔화 20일 변화 기준으로 교체."
+  ]
+}

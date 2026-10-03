@@ -266,8 +266,10 @@ check('AAII weekly reference refresh is automated with bounded publisher-direct/
 check('HY OAS has a keyless official FRED public-download adapter with LKG and typed lineage',
   /parseFredHyOasCsv/.test(fetchData) && /fetchFredHyOasPublic/.test(fetchData) && /fredgraph\.csv\?id=BAMLH0A0HYM2/.test(fetchData) &&
   /FRED_HY_OAS_CACHE_MAX_AGE_MS/.test(fetchData) && /fred-official-public-csv/.test(fetchData) && /fredHyOasObservedAt/.test(fetchData));
-check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress to BOJ',
-  /DATA_SNAPSHOT\?\.bokRate/.test(marketPage) && /DATA_SNAPSHOT:BOK/.test(marketPage) && !/DATA_SNAPSHOT\?\.bojRate/.test(marketPage));
+// P1419: the carry card measured "US-Japan" as US 10Y minus the Bank of KOREA rate; no Japanese yield
+// is collected, so the card reports the yen's own 20-day move (the 시장 상태 FX-axis rule) and no gap.
+check('P1419 FX/bond carry reads the yen 20-day move and never a Korea-rate gap labelled US-Japan',
+  /buildCloseSeries\(history, 'usdjpy'/.test(marketPage) && /yenStrength >= 3/.test(marketPage) && !/tnx - bokRate/.test(marketPage) && !/DATA_SNAPSHOT\?\.bokRate/.test(marketPage));
 {
   let ok = false;
   let detail = '';

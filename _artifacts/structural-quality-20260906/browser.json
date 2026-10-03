@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-03T06:09:25.994Z",
+  "generatedAt": "2026-10-03T06:21:03.927Z",
   "routes": [
     {
       "id": "home",
@@ -40,7 +40,7 @@
         }
       ],
       "headings": [
-        "시장 현황 v57.03"
+        "시장 현황 v57.04"
       ]
     },
     {
@@ -1342,7 +1342,7 @@
     {
       "id": "screener",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
@@ -1363,30 +1363,6 @@
         {
           "tag": "BUTTON",
           "name": "조건 실행"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "균형 상대 랭킹"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "모멘텀 지속"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "추세 정렬"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "저변동 방어"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "퀄리티 결합"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "돌파 관찰"
         },
         {
           "tag": "SELECT",
@@ -1487,134 +1463,6 @@
         {
           "tag": "BUTTON",
           "name": "컬럼 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "상대 점수 정렬 내림차순"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "가격 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1M 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "3M 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RSI 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VCP 구조 정렬 적용"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 AMC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMC 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 ILMN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ILMN 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 AES"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AES 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 ARKG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARKG 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 357780.KQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "357780.KQ 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 BE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BE 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 MRNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 DNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DNA 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 GME"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GME 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 VLO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VLO 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 MPC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MPC 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "워치리스트 추가 000500.KS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "000500.KS 비교 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "12개 더 보기"
         },
         {
           "tag": "BUTTON",

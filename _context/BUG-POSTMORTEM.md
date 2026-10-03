@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1419 - v57.04 - Screener 상위 N% instead of A-F, ranking post-hoc validation panel, yen carry score removed (Bank of Korea rate used as the Japan gap) (2026-10-03)
+
+- symptom/reproduction: Codex review: the screener showed an A-F grade, the yen carry card a 58/100 score. Open-source comparison: xang1234 validates published picks on a Backtest page; the screener had the backtest artifact but no user view. Checking the carry score: its rate gap was US 10Y minus the Bank of KOREA policy rate, labelled a US-Japan gap (BOJ) in both the native and the legacy renderer.
+- root_cause: rankGrade cut the tie-aware percentile at uncalibrated bands; the carry proxy summed arbitrary points (35/30/20/15) and took the wrong rate; backtest-history.json was produced daily but never shown.
+- fix: src/ui/pages/screener.js shows the percentile position (상위 N%) and labels the rank filter the same way. src/ui/components/screener-validation.js summarizes public-data/backtest-history.json (top minus bottom quintile 21-session return net of cost over six past rebalances, wins, IC, a daily trend) with the model-validation status (present-day universe, survivorship bias) and is rendered on the screener page. src/ui/pages/market.js reports the yen's own 20-day move on the close basis with the 시장 상태 FX-axis rule (3%+ yen rally = burden), VIX and HY as context, and no rate gap; js/aio-data.js no longer prints TNX minus the BoK rate as a US-Japan gap; labels updated.
+- violated_rule: Owner decisions: no ungrounded grade or composite score; a label names what was measured.
+- prevention: ci-esm-core-unit-check P1419 (position not letter, validation summary wins/tone/series/survivorship note, empty history not a result).
+- verification/residual: Local browser: rank column 상위, filter 80 이상 (상위 20%); validation summary 상위−하위 20% -3.27% · 2/6회 앞섬 with trend chart and survivorship note.
+
 ## P1418 - v57.03 - 포트폴리오 점검 (single holding, single currency, region/type/sector/cash shares) and hidden currency mix in the totals (2026-10-03)
 
 - symptom/reproduction: Open-source comparison: Ghostfolio X-ray flags single-currency, single-account, asset-class, regional, emergency-fund and fee risks; the portfolio screen showed only a sector donut. While building it: holdings without a declared currency (US-listed + .KS) were summed by the totals model as one unit (an undeclared-single basis), the same class as P1407.

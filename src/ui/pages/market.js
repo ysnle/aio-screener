@@ -1,6 +1,7 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { renderBreadthBoard } from '../components/breadth-board.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveMacroTransmissionEvidence, MACRO_FUNDING_LIQUIDITY_REFERENCE, MACRO_LAGGED_SUPPLY_DEMAND_REFERENCE } from '../../domain/macro/transmission.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/quote-presentation.js';
@@ -709,27 +710,30 @@ function renderFxbond(root, page, charts) {
   const carryVerdictNode = page.querySelector('#carry-verdict');
   const jpy = quoteValue(root, 'JPY=X')?.price;
   const vix = quoteValue(root, '^VIX')?.price;
-  const bokRate = finite(root?.DATA_SNAPSHOT?.bokRate);
   const directHyOasBp = finite(root?._hySpreadBp);
   const fredHyOasPct = finite(root?._fredData?.BAMLH0A0HYM2?.value);
   const hyOasBp = directHyOasBp ?? (fredHyOasPct == null ? null : fredHyOasPct * 100);
-  const carryEvidence = [jpy, vix, tnx, bokRate, hyOasBp].every((value) => Number.isFinite(value));
+  // P1419 (Codex review: ungrounded 0-100 scores): the carry "proxy score" added arbitrary points
+  // (35/30/20/15) and measured the rate gap as US 10Y minus the Bank of KOREA rate. It now reports the
+  // yen's own 20-day move on the close basis — the same rule as the 시장 상태 FX axis (a yen rally of
+  // 3%+ in 20 sessions preceded the August 2024 carry unwind) — with VIX and HY as context. The
+  // US-Japan rate gap is not shown: no Japanese yield is collected.
+  const history = root?._aioHistory || [];
+  const yen = buildCloseSeries(history, 'usdjpy', { through: closeBasis(history) });
+  const yenNow = yen[yen.length - 1] || null;
+  const yen20 = yen.length > 20 ? (yenNow.value / yen[yen.length - 21].value - 1) * 100 : null;
+  const yenStrength = yen20 == null ? null : -yen20; // a falling USD/JPY is a stronger yen
+  const carryEvidence = yen20 != null;
   let carryText = '보류';
   let carryColor = 'var(--text-muted)';
   let carryScore = null;
-  let carryVerdict = '판정 보류 · USD/JPY·VIX·미일 정책금리·HY OAS 입력 미수신';
+  let carryVerdict = '판정 보류 · 엔/달러 20거래일 기록 수집 중';
   if (carryEvidence) {
-    const rateDiff = tnx - bokRate;
-    let score = 0;
-    score += jpy > 158 ? 35 : jpy > 152 ? 25 : jpy > 145 ? 15 : 30;
-    score += vix > 30 ? 30 : vix > 22 ? 20 : vix > 15 ? 10 : 5;
-    score += rateDiff < 2.5 ? 20 : rateDiff < 3.5 ? 10 : 5;
-    score += hyOasBp > 450 ? 15 : hyOasBp > 350 ? 8 : 3;
-    score = Math.min(100, score);
-    carryScore = score;
-    carryText = score >= 70 ? '높음' : score >= 45 ? '주의' : '참고';
-    carryColor = score >= 70 ? 'var(--data-red)' : score >= 45 ? 'var(--data-amber)' : 'var(--data-green)';
-    carryVerdict = `관측 프록시 ${carryScore}/100 · 방향·비중 신호가 아니며 원인과 지속성을 교차 확인합니다.`;
+    const surge = yenStrength >= 3;
+    carryText = surge ? '부담' : '관찰';
+    carryColor = surge ? 'var(--data-red)' : 'var(--text-secondary)';
+    carryScore = Math.round(Math.max(0, Math.min(100, yenStrength / 3 * 100))); // share of the 3% rule reached (bar width only)
+    carryVerdict = `엔/달러 ${yenNow.value.toFixed(2)}엔 · 20일 ${yen20 >= 0 ? '+' : ''}${yen20.toFixed(1)}% (${yenStrength > 0 ? '엔 강세' : '엔 약세'})${Number.isFinite(vix) ? ` · VIX ${vix.toFixed(1)}` : ''}${Number.isFinite(hyOasBp) ? ` · HY ${Math.round(hyOasBp)}bp` : ''} — 엔화가 20일에 3% 이상 강해지면 캐리 청산 위험 신호(시장 상태 환율 축과 같은 기준). 미·일 금리차는 일본 금리 자료가 없어 표시하지 않습니다.`;
   }
   writeText(carryNode, carryText);
   if (carryNode) {
@@ -737,7 +741,7 @@ function renderFxbond(root, page, charts) {
     carryNode.style.color = carryColor;
     writeLineage(carryNode, carryEvidence ? 'derived-reference' : 'unavailable', carryEvidence ? 'runtime:JPY+^VIX+^TNX · DATA_SNAPSHOT:BOK · FRED:HY-OAS' : 'carry proxy evidence unavailable');
   }
-  writeText(carryScoreNode, carryScore == null ? '—' : String(carryScore));
+  writeText(carryScoreNode, yen20 == null ? '—' : `엔 ${yenStrength >= 0 ? '+' : ''}${yenStrength.toFixed(1)}%`);
   if (carryBarNode) {
     carryBarNode.style.width = `${carryScore == null ? 0 : carryScore}%`;
     carryBarNode.style.background = carryScore == null ? 'var(--text-muted)' : carryColor;

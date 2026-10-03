@@ -1,4 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { renderScreenerValidation } from '../components/screener-validation.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
@@ -39,7 +41,8 @@ const REGIME_DESCRIPTIONS = {
 export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'watchlist', label: '관심·비교', sortable: false, align: 'center', width: 96, group: 'utility' },
   { key: 'rank', label: '상대 점수', sortable: true, align: 'center', width: 72, group: 'ranking' },
-  { key: 'grade', label: '등급', sortable: false, align: 'center', width: 48, group: 'ranking' },
+  // P1419: the column shows the percentile position the rank already is (상위 N%), not a letter grade.
+  { key: 'grade', label: '상위', sortable: false, align: 'center', width: 56, group: 'ranking' },
   { key: 'sym', label: '종목', sortable: true, align: 'left', width: 142, group: 'identity', sticky: true },
   { key: 'sector', label: '섹터', sortable: true, align: 'left', width: 116, group: 'identity' },
   { key: 'momentum', label: '모멘텀', sortable: true, align: 'right', width: 74, group: 'factor' },
@@ -259,12 +262,15 @@ export function visibleRank(row) {
   return row?.screenStatus === 'unavailable' || row?.screenStatus === 'rejected' ? null : finite(row?.rank);
 }
 
-// Single source of truth for the displayed grade. A rejected row keeps its raw
-// rank, so the grade cell must read the same visible rank the rank cell shows —
-// otherwise a row labelled 조건 미충족 displays a grade (P1078).
+// Single source of truth for the displayed position. A rejected row keeps its raw
+// rank, so the cell must read the same visible rank the rank cell shows —
+// otherwise a row labelled 조건 미충족 displays a position (P1078).
+// P1419 (Codex review / owner decision): the rank is a tie-aware percentile among eligible rows
+// under the chosen criteria; an A-F letter cut those percentiles at uncalibrated bands and read as
+// a quality grade. The position itself is shown instead.
 export function rankGrade(rank) {
   const value = finite(rank);
-  return value == null ? null : value >= 80 ? 'A' : value >= 65 ? 'B' : value >= 50 ? 'C' : value >= 35 ? 'D' : 'F';
+  return value == null ? null : `상위 ${Math.max(1, Math.round(100 - value))}%`;
 }
 
 // The rank filter used to label thresholds with a different grade scale than the
@@ -276,8 +282,8 @@ export function syncRankFilterLabels(documentRef) {
   Array.prototype.slice.call(select.options).forEach((option) => {
     const threshold = Number(option.value || 0);
     if (!Number.isFinite(threshold) || threshold <= 0) return;
-    const grade = rankGrade(threshold);
-    if (grade) option.textContent = `${threshold} (${grade})`;
+    const position = rankGrade(threshold);
+    if (position) option.textContent = `${threshold} 이상 (${position})`;
   });
   return true;
 }
@@ -1137,6 +1143,21 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       bag.add(() => { mountActive = false; });
       const page = documentRef?.getElementById('page-screener');
       if (!page) return () => {};
+      // P1419: post-hoc validation of the default ranking (small daily artifacts, read once per mount).
+      renderScreenerValidation({ documentRef, root });
+      {
+        const fetchFn = root?.fetch || globalThis.fetch;
+        if (typeof fetchFn === 'function') {
+          Promise.all([
+            loadJsonArtifact(fetchFn.bind(root), './public-data/backtest-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
+            loadJsonArtifact(fetchFn.bind(root), './public-data/model-validation-status.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 256 * 1024 }).catch(() => null)
+          ]).then(([history, status]) => {
+            if (Array.isArray(history)) root._aioScreenerBacktestHistory = history;
+            if (status && typeof status === 'object') root._aioModelValidationStatus = status;
+            if (mountActive) renderScreenerValidation({ documentRef, root });
+          });
+        }
+      }
       let suppliedMaterialBridge = page.querySelector('[data-aio-supplied-material-route="screener"]');
       if (!suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {

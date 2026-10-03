@@ -16331,14 +16331,14 @@ function _aioRenderCarryUnwindRisk() {
   var riskColor = 'var(--text-secondary)';
   var jpyRisk  = 'USD/JPY ' + jpy.toFixed(1) + ' (수준 관측)';
   var vixRisk  = 'VIX ' + vix.toFixed(1) + ' (변동성 관측)';
-  var rateRisk = '미일 정책금리 차 ' + rateDiff.toFixed(1) + '%p (BOJ 수동 확인값 기준)';
+  var rateRisk = '일본 금리 미수집 — 미·일 금리차는 표시하지 않음'; // P1419: TNX − Bank of KOREA rate is not a US-Japan gap
   var hygRisk  = 'HY OAS ' + Math.round(hyOasBp) + 'bp';
   var verdict = '관측 프록시 ' + score + '/100 — USD/JPY·VIX·미일 정책금리 차·HY OAS의 단순 규칙값입니다. 엔캐리 포지션 규모, 당국 조치, 청산 확률 및 자산가격 방향은 이 값만으로 판단하지 않습니다.';
 
   var e;
   e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = jpyRisk;
   e = document.getElementById('carry-vix-risk');   if (e) e.textContent = vixRisk;
-  e = document.getElementById('carry-rate-diff');  if (e) e.textContent = rateDiff.toFixed(1) + '%p';
+  e = document.getElementById('carry-rate-diff');  if (e) e.textContent = '—';
   e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk;
   e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = hygRisk;
   e = document.getElementById('carry-risk-level'); if (e && e.dataset.aioFxbondCarryRenderer !== 'native') { e.textContent = riskLevel; e.style.color = riskColor; }

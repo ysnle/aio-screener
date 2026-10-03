@@ -3476,6 +3476,16 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (hidden.totalAssets === 100100 || hidden.currencyState !== 'mixed-without-conversion') fail(`P1418 undeclared USD + KRW holdings were summed: ${hidden.totalAssets} ${hidden.currencyState}`);
 }
 
+// ── P1419: screener position instead of a letter grade; post-hoc validation summary ─────────
+{
+  const { rankGrade } = await load('src/ui/pages/screener.js');
+  if (rankGrade(85) !== '상위 15%' || rankGrade(100) !== '상위 1%' || rankGrade(null) !== null || /^[A-F]$/.test(String(rankGrade(90)))) fail('P1419 the rank cell must show the percentile position, not a letter grade');
+  const { summarizeValidation } = await load('src/ui/components/screener-validation.js');
+  const sample = summarizeValidation([{ date: '2026-09-30', n: 800, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 } }, { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: -3.27, netHitRate: 33.3, transactionCostPct: 0.23, ic: { composite: -0.039 } }], { status: 'BLOCKED', predictiveValidation: 'not-established' });
+  if (sample.wins !== 2 || sample.tone !== 'burden' || sample.series.length !== 2 || !/생존 편향/.test(sample.validation)) fail(`P1419 validation summary wrong: ${JSON.stringify(sample)}`);
+  if (summarizeValidation([], null).available) fail('P1419 no history must not read as a result');
+}
+
 // ── P1397: chart analysis — VCP run, pivot, state (no grade) ─────────────────────────────────
 {
   const { analyzeChart, detectContractions } = await load('src/domain/technical/chart-analysis.js');
