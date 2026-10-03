@@ -282,11 +282,14 @@ try {
     impactAxes: [...document.querySelectorAll('#macro-axes .macro-axis')].map((node) => node.dataset.axis),
     chainNodes: document.querySelectorAll('#macro-chain .macro-chain-row .macro-chain-node').length,
     regimeLabel: document.querySelector('#macro-regime .macro-regime-label')?.textContent || '',
+    gauges: document.querySelectorAll('#macro-axes .macro-gauge').length,
+    tiles: document.querySelectorAll('#macro-regime .macro-tile').length,
+    quadrant: !!document.querySelector('#macro-regime svg.macro-quadrant'),
     rawLiveSinkCount: document.querySelectorAll('#page-macro [data-live-price], #page-macro [data-live-chg]').length,
     nativeLiveSinkCount: document.querySelectorAll('#page-macro[data-aio-architecture-renderer="native"] [data-live-price], #page-macro[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     retired: ['macro-storyline', 'macro-regime-pill', 'yieldCurveChart', 'macro-2y-value', 'macro-spread-value', 'thermometer-fill', 'macro-scenario-sum'].filter((id) => document.getElementById(id))
   }));
-  if (macroRoute.boardRenderer !== 'native' || macroRoute.groups.join(',') !== 'policy,inflation,labor,activity' || !/3\.1%/.test(macroRoute.cpiCard) || !/8월분/.test(macroRoute.cpiCard) || !/연준 목표 2% 대비 \+0\.9%p, \+0\.8%p/.test(macroRoute.inflationFact) || macroRoute.impactAxes.join(',') !== 'growth,inflation,policy,rates,commodities,credit' || macroRoute.chainNodes !== 5 || !macroRoute.regimeLabel.trim() || macroRoute.retired.length || macroRoute.rawLiveSinkCount !== macroRoute.nativeLiveSinkCount) throw new Error(`P1425/P1426 거시 경제 board failed: ${JSON.stringify(macroRoute)}`);
+  if (macroRoute.boardRenderer !== 'native' || macroRoute.groups.join(',') !== 'policy,inflation,labor,activity' || !/3\.1%/.test(macroRoute.cpiCard) || !/8월분/.test(macroRoute.cpiCard) || !/연준 목표 2% 대비 \+0\.9%p, \+0\.8%p/.test(macroRoute.inflationFact) || macroRoute.impactAxes.join(',') !== 'growth,inflation,policy,rates,commodities,credit' || macroRoute.chainNodes !== 5 || !macroRoute.regimeLabel.trim() || macroRoute.gauges < 5 || macroRoute.tiles !== 6 || !macroRoute.quadrant || macroRoute.retired.length || macroRoute.rawLiveSinkCount !== macroRoute.nativeLiveSinkCount) throw new Error(`P1425/P1426 거시 경제 board failed: ${JSON.stringify(macroRoute)}`);
 
   // QA-CRED-05/P1264: 공유 Worker만 있는 환경에서 (a) 매크로의 FRED 계열 값은 출처 라벨과 함께
   // 표시되고, (b) 개인 키를 실은 URL은 공유 Worker로 중계되지 않으며 PRIVATE_ROUTE_REQUIRED

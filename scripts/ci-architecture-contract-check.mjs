@@ -231,6 +231,11 @@ if (!marketPageSource.includes("page.dataset.aioMacroRenderer = 'native'") || !m
   }
   const shell = read('index.html');
   // P1426: regime, impact axes, transmission chain and oil/gold charts on 거시 경제; impact axes on 금리 · 환율.
+  // P1427: visual layer — threshold gauges on the deciding variable, the regime map and the traffic-light tiles.
+  for (const marker of ['export function gaugeBar', 'function bandOf', 'function quadrantChart', 'function overviewTiles', 'macro-gauge-note']) {
+    if (!macroBoardSource.includes(marker)) fail(`P1427 거시 visual marker missing: ${marker}`);
+  }
+  if (!read('src/domain/macro/macro-read.js').includes('function sharedGauges({ macro, rateFx, regime })')) fail('P1427 shared gauges must follow the deciding variable');
   for (const marker of ['buildMacroRead', 'readMarketRegime', "getElementById('macro-axes')", "getElementById('macro-chain')", "getElementById('rates-axes')", "getElementById('macro-commodities')"]) {
     if (!macroBoardSource.includes(marker)) fail(`P1426 거시 read marker missing: ${marker}`);
   }

@@ -28,8 +28,8 @@ export const MACRO_GROUPS = Object.freeze([
   }),
   Object.freeze({
     id: 'inflation', title: '물가', items: Object.freeze([
-      Object.freeze({ id: 'cpi', history: { field: 'cpiIndex', derive: 'yoy' }, key: 'cpi', label: 'CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '소비자물가지수, 계절조정 전 공식 보도 기준입니다.' }),
-      Object.freeze({ id: 'coreCpi', history: { field: 'coreCpiIndex', derive: 'yoy' }, key: 'coreCpi', label: '근원 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '식품·에너지를 뺀 CPI입니다.' }),
+      Object.freeze({ id: 'cpi', history: { field: 'cpiIndexNsa', derive: 'yoy' }, key: 'cpi', label: 'CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '소비자물가지수, 계절조정 전 공식 보도 기준입니다.' }),
+      Object.freeze({ id: 'coreCpi', history: { field: 'coreCpiIndexNsa', derive: 'yoy' }, key: 'coreCpi', label: '근원 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '식품·에너지를 뺀 CPI입니다.' }),
       Object.freeze({ id: 'pce', history: { field: 'pceIndex', derive: 'yoy' }, key: 'pce', label: 'PCE 물가 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '연준 물가 목표(2%)가 기준으로 삼는 지표입니다.' }),
       Object.freeze({ id: 'corePce', history: { field: 'corePceIndex', derive: 'yoy' }, key: 'corePce', label: '근원 PCE (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '식품·에너지를 뺀 PCE 물가입니다.' })
     ])
@@ -165,8 +165,12 @@ function trendOf(item, series) {
   const digits = item.digits ?? 1;
   const unit = item.unit === '%' ? '%' : item.unit;
   const fmt = (value) => `${item.signed ? signed(value, digits) : value.toFixed(digits)}${unit}`;
-  const move = last.value - half.value;
-  const flat = Math.abs(move) < (item.unit === '%' ? 0.15 : Math.abs(half.value) * 0.03);
+  // P1427: direction compares 3-month averages (latest vs six months earlier) so one noisy month does not flip it.
+  const avg = (rows) => rows.reduce((sum, row) => sum + row.value, 0) / rows.length;
+  const recent = avg(series.slice(-3));
+  const earlier = avg(series.slice(-9, -6));
+  const move = recent - earlier;
+  const flat = Math.abs(move) < (item.unit === '%' ? 0.15 : Math.max(Math.abs(earlier) * 0.05, item.id === 'nfp' ? 25 : 0));
   return { series, trendText: `1년 전 ${fmt(year.value)} · 6개월 전 ${fmt(half.value)}`, direction: flat ? 'flat' : move > 0 ? 'up' : 'down' };
 }
 

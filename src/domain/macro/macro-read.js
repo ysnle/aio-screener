@@ -91,13 +91,19 @@ function claimsTrend(claims) {
 
 function lastOf(series) { return series.length ? series[series.length - 1] : null; }
 
+/** A threshold gauge: the value on a fixed scale with its rule's bands (tone = effect on stocks). */
+export function gauge({ label, value, min, max, unit = '', digits = 1, bands = [], markers = [] }) {
+  if (value == null || !Number.isFinite(value)) return null;
+  return { label, value, min, max, unit, digits, bands, markers, clipped: value < min || value > max };
+}
+
 function changeOver(series, sessions) {
   if (series.length <= sessions) return null;
   return series[series.length - 1].value - series[series.length - 1 - sessions].value;
 }
 
-function axis(id, title, state, { evidence = [], read, flip, link, asOf, detail = null }) {
-  return { id, title, state, stateLabel: STATE_LABELS[state], evidence: evidence.filter(([, value]) => value != null && value !== '—'), read, flip, link, asOf, detail };
+function axis(id, title, state, { evidence = [], read, flip, link, asOf, detail = null, gauge = null, headline = null }) {
+  return { id, title, state, stateLabel: STATE_LABELS[state], evidence: evidence.filter(([, value]) => value != null && value !== '—'), read, flip, link, asOf, detail, gauge, headline };
 }
 
 function growthAxis({ macro, mh }) {
@@ -119,13 +125,19 @@ function growthAxis({ macro, mh }) {
     : state === 'favorable' ? '고용이 꾸준히 늘고 실업률이 안정적입니다 — 기업 이익의 바탕이 되는 소비가 버티는 환경입니다.'
       : state === 'unknown' ? '고용 자료를 기다리는 중입니다.'
         : `고용 증가가 느려졌거나 실업률이 조금씩 오르는 중간 구간입니다.${partial}`;
+  const payrollTriggered = state === 'burden' && !(sahm && sahm.value >= 0.5);
+  const growthGauge = sahm && !payrollTriggered ? gauge({ label: 'Sahm 지표 (실업률 3개월 평균 − 1년 저점)', value: sahm.value, min: 0, max: 1, unit: '%p', digits: 2, bands: [{ from: 0, to: 0.3, tone: 'favorable' }, { from: 0.3, to: 0.5, tone: 'neutral' }, { from: 0.5, to: 1, tone: 'burden' }], markers: [{ at: 0.3, label: '0.3' }, { at: 0.5, label: '침체 신호 0.5' }] })
+    : payroll ? gauge({ label: '일자리 3개월 평균 (천 명)', value: payroll.avg3, min: -100, max: 300, unit: '천 명', digits: 0, bands: [{ from: -100, to: 0, tone: 'burden' }, { from: 0, to: 100, tone: 'neutral' }, { from: 100, to: 300, tone: 'favorable' }], markers: [{ at: 0, label: '0' }, { at: 100, label: '10만' }] })
+      : nfp != null ? gauge({ label: '일자리 증감 (최근 1개월, 천 명)', value: nfp, min: -100, max: 300, unit: '천 명', digits: 0, bands: [{ from: -100, to: 0, tone: 'burden' }, { from: 0, to: 100, tone: 'neutral' }, { from: 100, to: 300, tone: 'favorable' }], markers: [{ at: 0, label: '0' }, { at: 100, label: '10만' }] }) : null;
   return axis('growth', '성장 (고용 · 소비)', state, {
+    gauge: growthGauge,
+    headline: sahm ? `Sahm ${sahm.value.toFixed(2)}%p` : unrate == null ? null : `실업률 ${unrate.toFixed(1)}%`,
     evidence: [
       ['실업률', unrate == null ? null : `${unrate.toFixed(1)}%${finite(macro.unemploymentDelta) != null ? ` (전월 ${signed(finite(macro.unemploymentDelta), 1, '%p')})` : ''}`],
       ['Sahm 지표', sahm ? `${sahm.value.toFixed(2)}%p (0.5 이상이면 침체 신호)` : null],
       [payroll ? '일자리 3개월 평균' : '일자리 (최근 1개월)', payroll ? `${signed(payroll.avg3, 0)}천 명 (그 전 3개월 ${signed(payroll.prior3, 0)}천 명)` : nfp == null ? null : `${signed(nfp, 0)}천 명`],
       ['신규 실업수당 청구 (4주 평균)', claims ? `${(claims.avg4 / 10000).toFixed(1)}만 건 (1년 저점 대비 ${signed(claims.aboveLow, 0, '%')})` : null],
-      ['소매판매 (전년 대비)', retailYoy ? `${signed(retailYoy.value, 1, '%')}` : finite(macro.retailSales) == null ? null : `전월 대비 ${signed(finite(macro.retailSales), 1, '%')}`]
+      ['소매판매 (전년 대비, 명목)', retailYoy ? `${signed(retailYoy.value, 1, '%')}` : finite(macro.retailSales) == null ? null : `전월 대비 ${signed(finite(macro.retailSales), 1, '%')}`]
     ],
     read,
     flip: state === 'unknown' ? null : 'Sahm 지표 0.5%p 이상 또는 일자리 3개월 평균 감소면 부담 · Sahm 0.3%p 미만이면서 3개월 평균 10만 명 이상이면 우호 (10만 명은 노동력 증가를 흡수하는 수준으로 흔히 쓰는 기준)',
@@ -156,6 +168,8 @@ function inflationAxis({ macro, mh }) {
       : state === 'unknown' ? '물가 자료를 기다리는 중입니다.'
         : `근원 PCE 물가 ${yoy.toFixed(1)}% — 목표보다 높지만 다시 빨라지는 신호는 뚜렷하지 않습니다.${pace ? '' : ' 3개월 속도는 월별 기록이 쌓이면 반영됩니다.'}`;
   return axis('inflation', '물가', state, {
+    gauge: state === 'burden' && yoy < 3 && pace ? gauge({ label: '근원 PCE 3개월 속도 − 1년치 (재가속 폭)', value: pace.value - yoy, min: -2, max: 3, unit: '%p', digits: 1, bands: [{ from: -2, to: 0, tone: 'favorable' }, { from: 0, to: 0.5, tone: 'neutral' }, { from: 0.5, to: 3, tone: 'burden' }], markers: [{ at: 0, label: '0' }, { at: 0.5, label: '+0.5 재가속' }] }) : gauge({ label: '근원 PCE 물가 (전년 대비)', value: yoy, min: 0, max: 5, unit: '%', digits: 1, bands: [{ from: 0, to: 2.5, tone: 'favorable' }, { from: 2.5, to: 3, tone: 'neutral' }, { from: 3, to: 5, tone: 'burden' }], markers: [{ at: 2, label: '목표 2%' }, { at: 3, label: '3%' }] }),
+    headline: yoy == null ? null : `근원 PCE ${yoy.toFixed(1)}%`,
     evidence: [
       ['근원 PCE (전년 대비)', yoy == null ? null : `${yoy.toFixed(1)}% (목표 2% 대비 ${signed(gap, 1, '%p')})`],
       ['근원 PCE 3개월 속도 (연율)', pace ? `${pace.value.toFixed(1)}% ${pace.value > yoy ? '— 1년 평균보다 빠름' : '— 1년 평균보다 느림'}` : null],
@@ -191,6 +205,8 @@ function policyAxis({ macro, inflationState }) {
       : state === 'unknown' ? '정책금리나 2년물 자료를 기다리는 중입니다.'
         : `시장은 당분간 ${pricingText || '큰 변화 없는 경로'}하고 있습니다.`;
   return axis('policy', '통화정책', state, {
+    gauge: state === 'burden' && (pricing == null || pricing < 0.25) && realPolicy != null ? gauge({ label: '실질 기준금리 (중간값 − 근원 PCE)', value: realPolicy, min: -2, max: 4, unit: '%', digits: 1, bands: [{ from: -2, to: 2, tone: 'neutral' }, { from: 2, to: 4, tone: 'burden' }], markers: [{ at: 1, label: '중립 약 1%' }, { at: 2, label: '2%' }] }) : gauge({ label: '2년물 − 기준금리 중간값 (시장이 보는 금리 경로)', value: pricing, min: -1.5, max: 1.5, unit: '%p', digits: 2, bands: [{ from: -1.5, to: -0.25, tone: 'favorable' }, { from: -0.25, to: 0.25, tone: 'neutral' }, { from: 0.25, to: 1.5, tone: 'burden' }], markers: [{ at: -0.25, label: '인하 반영' }, { at: 0.25, label: '인상 반영' }] }),
+    headline: pricing == null ? null : pricing >= 0.25 ? '시장: 인상 반영' : pricing <= -0.25 ? '시장: 인하 반영' : '시장: 동결 반영',
     evidence: [
       ['연준 목표 범위', upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`],
       ['2년물 − 기준금리 중간값', pricing == null ? null : `${signed(pricing, 2, '%p')} (${pricingText})`],
@@ -204,11 +220,49 @@ function policyAxis({ macro, inflationState }) {
   });
 }
 
-function reuse(regime, id, title, link) {
+function reuse(regime, id, title, link, extras = {}) {
   const row = regime?.axes?.find((item) => item.id === id);
   if (!row) return axis(id, title, 'unknown', { read: '종가 기록을 불러오는 중입니다.', link });
-  return { ...row, title, link, shared: true };
+  return { ...row, title, link, shared: true, gauge: extras.gauge || null, headline: extras.headline || null };
 }
+
+// Gauges for the 시장 상태 axes. P1427: each gauge shows the variable that actually decided the state —
+// a burden triggered by a fast 5-day credit widening is drawn on the 5-day change, not the level, so the
+// pin never sits in the green band of a card that reads 부담.
+function sharedGauges({ macro, rateFx, regime }) {
+  const stateOf = (id) => regime?.axes?.find((row) => row.id === id)?.state || 'unknown';
+  const hy = finite(macro.hyOAS);
+  const hyBp = hy == null ? null : hy * 100;
+  const hy5 = finite(macro.hyOASDelta5) == null ? null : finite(macro.hyOASDelta5) * 100;
+  const creditByChange = stateOf('credit') === 'burden' && (hyBp == null || hyBp < 450) && hy5 != null && hy5 >= 25;
+  const credit = creditByChange
+    ? gauge({ label: '하이일드 스프레드 5일 변화', value: hy5, min: -50, max: 100, unit: 'bp', digits: 0, bands: [{ from: -50, to: 0, tone: 'favorable' }, { from: 0, to: 25, tone: 'neutral' }, { from: 25, to: 100, tone: 'burden' }], markers: [{ at: 0, label: '0' }, { at: 25, label: '+25 급확대' }] })
+    : gauge({ label: '하이일드 스프레드', value: hyBp, min: 200, max: 700, unit: 'bp', digits: 0, bands: [{ from: 200, to: 350, tone: 'favorable' }, { from: 350, to: 450, tone: 'neutral' }, { from: 450, to: 700, tone: 'burden' }], markers: [{ at: 350, label: '350' }, { at: 450, label: '450' }] });
+  const tnx20 = rateFx?.tnx20 ?? null;
+  const ratesByRange = stateOf('rates') === 'burden' && (tnx20 == null || tnx20 < 25) && rateFx?.tnxPosition != null;
+  const rates = ratesByRange
+    ? gauge({ label: '10년물 1년 범위 내 위치', value: rateFx.tnxPosition * 100, min: 0, max: 100, unit: '%', digits: 0, bands: [{ from: 0, to: 90, tone: 'neutral' }, { from: 90, to: 100, tone: 'burden' }], markers: [{ at: 90, label: '상단 90%' }] })
+    : gauge({ label: '10년물 20일 변화', value: tnx20, min: -75, max: 75, unit: 'bp', digits: 0, bands: [{ from: -75, to: -25, tone: 'favorable' }, { from: -25, to: 25, tone: 'neutral' }, { from: 25, to: 75, tone: 'burden' }], markers: [{ at: -25, label: '−25' }, { at: 25, label: '+25' }] });
+  const wti20 = rateFx?.wti20 ?? null;
+  const dxy20 = rateFx?.dxy20 ?? null;
+  const commodityTrigger = stateOf('commodities') !== 'burden' ? 'dollar'
+    : rateFx?.wtiHigh ? 'oil-range' : wti20 != null && wti20 >= 10 ? 'oil-change' : 'dollar';
+  const commodities = commodityTrigger === 'oil-range'
+    ? gauge({ label: 'WTI 1년 범위 내 위치', value: rateFx.wtiPosition * 100, min: 0, max: 100, unit: '%', digits: 0, bands: [{ from: 0, to: 85, tone: 'neutral' }, { from: 85, to: 100, tone: 'burden' }], markers: [{ at: 85, label: '85%' }] })
+    : commodityTrigger === 'oil-change'
+      ? gauge({ label: 'WTI 20일 변화', value: wti20, min: -20, max: 20, unit: '%', digits: 1, bands: [{ from: -20, to: -5, tone: 'favorable' }, { from: -5, to: 10, tone: 'neutral' }, { from: 10, to: 20, tone: 'burden' }], markers: [{ at: -5, label: '−5%' }, { at: 10, label: '+10%' }] })
+      : gauge({ label: '달러 인덱스 20일 변화', value: dxy20, min: -5, max: 5, unit: '%', digits: 1, bands: [{ from: -5, to: 0, tone: 'favorable' }, { from: 0, to: 2, tone: 'neutral' }, { from: 2, to: 5, tone: 'burden' }], markers: [{ at: 2, label: '+2%' }] });
+  return {
+    rates: { gauge: rates, headline: tnx20 == null ? null : `10년물 20일 ${signed(tnx20, 0, 'bp')}` },
+    commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI 20일 ${signed(wti20, 1, '%')} · 달러 ${signed(dxy20, 1, '%')}` },
+    credit: { gauge: credit, headline: hyBp == null ? null : `HY ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5일 ${signed(hy5, 0, 'bp')})`}` },
+    korea: stateOf('korea') === 'burden' && (rateFx?.krw20 == null || rateFx.krw20 < 2) && rateFx?.jpy20 != null && rateFx.jpy20 <= -3
+      ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -rateFx.jpy20, min: -5, max: 8, unit: '%', digits: 1, bands: [{ from: -5, to: 3, tone: 'neutral' }, { from: 3, to: 8, tone: 'burden' }], markers: [{ at: 3, label: '+3% 엔 급강세' }] }), headline: `엔화 20일 ${signed(-rateFx.jpy20, 1, '%')} 강세` }
+      : { gauge: gauge({ label: '원/달러 20일 변화', value: rateFx?.krw20 ?? null, min: -5, max: 5, unit: '%', digits: 1, bands: [{ from: -5, to: -2, tone: 'favorable' }, { from: -2, to: 2, tone: 'neutral' }, { from: 2, to: 5, tone: 'burden' }], markers: [{ at: -2, label: '−2%' }, { at: 2, label: '+2%' }] }), headline: rateFx?.krw20 == null ? null : `원/달러 20일 ${signed(rateFx.krw20, 1, '%')}` }
+  };
+}
+
+export const REGIME_CRITERIA = '성장 방향: Sahm 지표 0.3%p 이상이거나 최근 3개월 일자리 증가가 그 전 3개월보다 2.5만 명 넘게 적으면 둔화, 아니면 견조 · 물가 방향: 근원 PCE의 최근 3개월 속도(연율)가 1년치보다 빠르면 상승, 아니면 둔화.';
 
 /** Growth × inflation direction — the classic four-regime frame, with its historical tendency as 해석. */
 function buildRegime(growth, inflation) {
@@ -228,8 +282,8 @@ function buildRegime(growth, inflation) {
   const key = growthDir && inflationDir ? `${growthDir}/${inflationDir}` : null;
   const picked = key ? table[key] : null;
   return picked
-    ? { ...picked, available: true, provisional, growthDir, inflationDir }
-    : { available: false, label: '국면 판정 보류', tone: 'unknown', reading: '성장과 물가의 방향을 모두 확인한 뒤 국면을 표시합니다.', provisional: true, growthDir, inflationDir };
+    ? { ...picked, available: true, provisional, growthDir, inflationDir, criteria: REGIME_CRITERIA }
+    : { available: false, label: '국면 판정 보류', tone: 'unknown', reading: '성장과 물가의 방향을 모두 확인한 뒤 국면을 표시합니다.', provisional: true, growthDir, inflationDir, criteria: REGIME_CRITERIA };
 }
 
 /** The transmission chain: oil → inflation expectations → policy path → long rates → valuations, plus
@@ -247,25 +301,27 @@ function buildChain({ macro, regime, rateFx }) {
   const hy5 = finite(macro.hyOASDelta5);
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
   const nodes = [
-    { id: 'oil', label: '유가 (WTI)', value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}`, dir: dir(wti20, 5, -5) },
+    { id: 'oil', label: '유가 (WTI)', value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}`, dir: fx.wtiHigh && wti20 != null && wti20 > -5 ? 'up' : dir(wti20, 10, -5) },
     { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? '—' : `1주 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, 5, -5) },
     { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= 0.25 ? '인상 반영' : pricing <= -0.25 ? '인하 반영' : '동결 반영', dir: dir(pricing, 0.25, -0.25) },
-    { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, 15, -15) },
+    { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, 25, -25) },
     { id: 'valuation', label: '주식 밸류에이션', value: axisById.rates ? `금리 축 ${axisById.rates.stateLabel}` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }
   ];
   const links = [];
   if (nodes[0].dir !== 'unknown' && nodes[0].dir !== 'flat' && nodes[0].dir === nodes[1].dir) links.push(`유가와 기대인플레이션이 함께 ${nodes[0].dir === 'up' ? '오르고' : '내리고'} 있습니다 — 유가가 물가 예상으로 옮겨 가는 경로가 작동 중입니다.`);
   if (nodes[2].dir === 'up') links.push('2년물이 기준금리보다 높아 시장이 추가 인상 가능성을 가격에 넣고 있습니다.');
   if (nodes[2].dir === 'down') links.push('2년물이 기준금리보다 낮아 시장이 금리 인하를 가격에 넣고 있습니다.');
+  if (nodes[0].dir === 'up' && nodes[1].dir !== 'up') links.push(fx.wtiHigh ? '유가가 1년 범위 상단에 있어 물가 부담 요인입니다.' : `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 아직 기대인플레이션으로 크게 번지지는 않았습니다.`);
   if (nodes[3].dir === 'up') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 올랐습니다${real5 != null && bei5 != null && real5 > bei5 && real5 > 0 ? ' — 상승 대부분이 실질금리라 성장주 밸류에이션에 더 직접적입니다' : ''}.`);
   if (nodes[3].dir === 'down') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
   const branches = [
-    { id: 'dollar', label: '달러', value: dxy20 == null ? '—' : `20일 ${signed(dxy20, 1, '%')}`, dir: dir(dxy20, 1, -1), effect: dxy20 == null ? null : dxy20 >= 1 ? '달러 강세 → 미국 다국적 기업의 해외 매출 환산 감소, 신흥국·원화 약세(외국인 순매도 압력)' : dxy20 <= -1 ? '달러 약세 → 해외 매출 환산 증가, 신흥국·원화에 우호적' : '달러는 큰 방향 없이 움직이고 있습니다' },
-    { id: 'credit', label: '신용 스프레드', value: hy5 == null ? '—' : `1주 ${signed(hy5 * 100, 0, 'bp')}`, dir: dir(hy5 == null ? null : hy5 * 100, 15, -15), effect: hy5 == null ? null : hy5 * 100 >= 15 ? '스프레드 확대 → 기업 자금 조달 비용 상승, 주식 위험 프리미엄 상승' : hy5 * 100 <= -15 ? '스프레드 축소 → 자금 조달 여건 개선' : '신용 시장은 안정적입니다' }
+    { id: 'dollar', label: '달러', value: dxy20 == null ? '—' : `20일 ${signed(dxy20, 1, '%')}`, dir: dir(dxy20, 2, -2), effect: dxy20 == null ? null : dxy20 >= 2 ? '달러 강세 → 미국 다국적 기업의 해외 매출 환산 감소, 신흥국·원화 약세(외국인 순매도 압력)' : dxy20 <= -2 ? '달러 약세 → 해외 매출 환산 증가, 신흥국·원화에 우호적' : '달러는 큰 방향 없이 움직이고 있습니다' },
+    { id: 'credit', label: '신용 스프레드', value: hy5 == null ? '—' : `1주 ${signed(hy5 * 100, 0, 'bp')}`, dir: dir(hy5 == null ? null : hy5 * 100, 25, -25), effect: hy5 == null ? null : hy5 * 100 >= 25 ? '스프레드 확대 → 기업 자금 조달 비용 상승, 주식 위험 프리미엄 상승' : hy5 * 100 <= -25 ? '스프레드 축소 → 자금 조달 여건 개선' : '신용 시장은 안정적입니다' }
   ];
   // Colour by effect on stocks: every node rising is a headwind except valuation, where a fall is.
   const impact = (node) => node.dir === 'unknown' || node.dir === 'flat' ? node.dir : (node.id === 'valuation' ? node.dir === 'down' : node.dir === 'up') ? 'burden' : 'favorable';
-  return { nodes: nodes.map((node) => ({ ...node, impact: impact(node) })), links, branches: branches.map((node) => ({ ...node, impact: impact(node) })) };
+  const legend = '화살표 기준(시장 상태와 같음): 유가 20일 +10% 이상 또는 1년 범위 85% 이상 / −5% 이하 · 기대인플레이션 1주 ±5bp · 2년물 − 기준금리 ±0.25%p · 10년물 20일 ±25bp · 달러 20일 ±2% · 신용 스프레드 1주 ±25bp. 빨간 테두리는 주식에 부담, 초록은 우호.';
+  return { nodes: nodes.map((node) => ({ ...node, impact: impact(node) })), links, branches: branches.map((node) => ({ ...node, impact: impact(node) })), legend };
 }
 
 /** 20-session changes on the completed-close basis (the 시장 상태 basis). */
@@ -278,21 +334,32 @@ export function closeChanges(history = []) {
     const back = series[series.length - 21].value;
     return kind === 'bp' ? (last - back) * 100 : (last / back - 1) * 100;
   };
-  return { basis, wti20: change('wti'), dxy20: change('dxy'), tnx20: change('tnx', 'bp'), gold20: change('gold') };
+  const wti = buildCloseSeries(history, 'wti', { through: basis });
+  const last = wti[wti.length - 1];
+  const year = last ? wti.filter((row) => Date.parse(row.date) >= Date.parse(last.date) - 365 * 86400000).map((row) => row.value) : [];
+  const wtiPosition = year.length > 20 ? (last.value - Math.min(...year)) / ((Math.max(...year) - Math.min(...year)) || 1) : null;
+  const position = (field) => {
+    const series = buildCloseSeries(history, field, { through: basis });
+    const end = series[series.length - 1];
+    const year = end ? series.filter((row) => Date.parse(row.date) >= Date.parse(end.date) - 365 * 86400000).map((row) => row.value) : [];
+    return year.length > 20 ? (end.value - Math.min(...year)) / ((Math.max(...year) - Math.min(...year)) || 1) : null;
+  };
+  return { basis, wti20: change('wti'), dxy20: change('dxy'), tnx20: change('tnx', 'bp'), gold20: change('gold'), krw20: change('usdkrw'), jpy20: change('usdjpy'), wtiPosition, wtiHigh: wtiPosition != null && wtiPosition >= 0.85, tnxPosition: position('tnx') };
 }
 
 export function buildMacroRead({ macro = null, macroHistory = null, regime = null, rateFx = null, history = null } = {}) {
   if (!rateFx && Array.isArray(history)) rateFx = closeChanges(history);
   const m = macro && typeof macro === 'object' ? macro : {};
   const mh = macroHistory?.schemaVersion === 'macro-history.v1' ? macroHistory : null;
+  const gauges = sharedGauges({ macro: m, rateFx, regime });
   const growth = growthAxis({ macro: m, mh });
   const inflation = inflationAxis({ macro: m, mh });
   const policy = policyAxis({ macro: m, inflationState: inflation.state });
   const axes = [
     growth, inflation, policy,
-    reuse(regime, 'rates', '금리 · 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.'),
-    reuse(regime, 'commodities', '유가 · 달러', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.'),
-    reuse(regime, 'credit', '신용', '하이일드 스프레드가 넓어지면 기업 자금 조달이 어려워지고, 주식 하락이 신용 위험으로 번지고 있다는 신호가 됩니다.')
+    reuse(regime, 'rates', '금리 · 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),
+    reuse(regime, 'commodities', '유가 · 달러', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.', gauges.commodities),
+    reuse(regime, 'credit', '신용', '하이일드 스프레드가 넓어지면 기업 자금 조달이 어려워지고, 주식 하락이 신용 위험으로 번지고 있다는 신호가 됩니다.', gauges.credit)
   ];
   const known = axes.filter((row) => row.state !== 'unknown');
   const count = (state) => known.filter((row) => row.state === state).length;
@@ -306,6 +373,7 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
     axes,
     counts: { favorable: count('favorable'), neutral: count('neutral'), burden: count('burden'), unknown: axes.length - known.length },
     chain: buildChain({ macro: m, regime, rateFx }),
+    sharedGauges: gauges,
     labels: { monthDay, monthLabel }
   };
 }

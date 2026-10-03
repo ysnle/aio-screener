@@ -3700,6 +3700,9 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
 export const MACRO_HISTORY_SERIES = Object.freeze({
   cpiIndex:       { id: 'CPIAUCSL',      frequency: 'monthly', limit: 40,  unit: 'index', label: 'CPI-U (계절조정 지수)' },
   coreCpiIndex:   { id: 'CPILFESL',      frequency: 'monthly', limit: 40,  unit: 'index', label: '근원 CPI-U (계절조정 지수)' },
+  // P1427: the official headline YoY is the NSA index; cards plot NSA so their history matches the value shown.
+  cpiIndexNsa:    { id: 'CPIAUCNS',      frequency: 'monthly', limit: 40,  unit: 'index', label: 'CPI-U (계절조정 전 지수)' },
+  coreCpiIndexNsa:{ id: 'CPILFENS',      frequency: 'monthly', limit: 40,  unit: 'index', label: '근원 CPI-U (계절조정 전 지수)' },
   pceIndex:       { id: 'PCEPI',         frequency: 'monthly', limit: 40,  unit: 'index', label: 'PCE 물가지수' },
   corePceIndex:   { id: 'PCEPILFE',      frequency: 'monthly', limit: 40,  unit: 'index', label: '근원 PCE 물가지수' },
   unemployment:   { id: 'UNRATE',        frequency: 'monthly', limit: 40,  unit: 'percent', label: '실업률' },

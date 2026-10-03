@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.08 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.09 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.08" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.08" defer></script>
-<script src="./js/aio-kr-data.js?v=57.08" defer></script>
-<script src="./js/aio-pages.js?v=57.08" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.08">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.08">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.08">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.08">
+<script src="./js/aio-workspace.js?v=57.09" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.09" defer></script>
+<script src="./js/aio-kr-data.js?v=57.09" defer></script>
+<script src="./js/aio-pages.js?v=57.09" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.09">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.09">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.09">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.09">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2126,6 +2126,51 @@ body {
 .macro-spark-dot { fill: var(--text-primary); }
 .macro-spark-zero { stroke: var(--border-strong); stroke-width: 1; stroke-dasharray: 3 3; }
 .macro-spark-label { font-size: 10px; fill: var(--text-muted); font-variant-numeric: tabular-nums; }
+/* P1427: 한눈에 — 국면 지도 · 신호등 타일 · 기준 게이지 · 접힌 근거 */
+.macro-overview { display: grid; grid-template-columns: minmax(260px, 320px) 1fr; gap: 22px; align-items: start; }
+.macro-quadrant { width: 100%; height: auto; aspect-ratio: 300 / 230; display: block; }
+.macro-quadrant-cell { fill: var(--surface-1, var(--bg-card)); stroke: var(--border-subtle); stroke-width: 1; }
+.macro-quadrant-cell.is-partial { fill-opacity: 1; stroke: var(--border-strong); stroke-dasharray: 4 3; }
+.macro-quadrant-cell.is-current.is-burden { fill: var(--data-red); fill-opacity: .16; stroke: var(--data-red); stroke-width: 2; }
+.macro-quadrant-cell.is-current.is-favorable { fill: var(--data-green); fill-opacity: .16; stroke: var(--data-green); stroke-width: 2; }
+.macro-quadrant-cell.is-current.is-neutral { fill: var(--text-secondary); fill-opacity: .12; stroke: var(--text-secondary); stroke-width: 2; }
+.macro-quadrant-name { font-size: 12.5px; font-weight: 700; fill: var(--text-primary); }
+.macro-quadrant-sub { font-size: 11px; fill: var(--text-muted); }
+.macro-quadrant-axis { font-size: 10.5px; fill: var(--text-muted); }
+.macro-quadrant-dot { fill: var(--text-primary); }
+.macro-quadrant-now { font-size: 11px; font-weight: 700; fill: var(--text-primary); }
+.macro-overview-side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.macro-tally { display: flex; gap: 6px; flex-wrap: wrap; }
+.macro-tally-chip { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 10px; border: 1px solid currentColor; font-variant-numeric: tabular-nums; }
+.macro-tally-chip.is-favorable, .macro-tile.is-favorable .macro-tile-state { color: var(--data-green); }
+.macro-tally-chip.is-burden, .macro-tile.is-burden .macro-tile-state { color: var(--data-red); }
+.macro-tally-chip.is-neutral, .macro-tile.is-neutral .macro-tile-state { color: var(--text-secondary); }
+.macro-tally-chip.is-unknown, .macro-tile.is-unknown .macro-tile-state { color: var(--text-muted); }
+.macro-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.macro-tile { font: inherit; text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 9px 11px; min-height: 24px; border: 1px solid var(--border); border-left-width: 4px; border-radius: 6px; background: var(--bg-card); cursor: pointer; color: var(--text-primary); }
+.macro-tile.is-favorable { border-left-color: var(--data-green); }
+.macro-tile.is-burden { border-left-color: var(--data-red); }
+.macro-tile.is-neutral { border-left-color: var(--text-muted); }
+.macro-tile.is-unknown { border-left-style: dashed; }
+.macro-tile-title { font-size: 12px; color: var(--text-muted); }
+.macro-tile-state { font-size: 15px; font-weight: 700; }
+.macro-tile-value { font-size: 11.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.macro-axis-headline { font-size: 19px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; margin: 2px 0 4px; }
+.macro-gauge-wrap { margin: 0 0 6px; }
+.macro-gauge-caption { font-size: 11.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.macro-gauge { width: 100%; max-width: 420px; height: auto; aspect-ratio: 320 / 46; display: block; overflow: visible; }
+.macro-gauge-band.is-favorable { fill: var(--data-green); opacity: .55; }
+.macro-gauge-band.is-neutral { fill: var(--border-strong); opacity: .7; }
+.macro-gauge-band.is-burden { fill: var(--data-red); opacity: .55; }
+.macro-gauge-tick { stroke: var(--text-secondary); stroke-width: 1; }
+.macro-gauge-label { font-size: 10.5px; fill: var(--text-muted); }
+.macro-gauge-pin { fill: var(--text-primary); }
+.macro-gauge-needle { stroke: var(--text-primary); stroke-width: 2; }
+.macro-axis-more { border-top: 1px solid var(--border-subtle); padding-top: 6px; margin-top: 4px; }
+.macro-axis-more summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-secondary); min-height: 24px; display: list-item; }
+.macro-axis-more[open] summary { margin-bottom: 6px; }
+.macro-chain-legend { margin-top: 10px; }
+.macro-gauge-note { font-size: 11.5px; color: var(--text-muted); margin: -2px 0 6px; }
 .rates-guide { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 8px 12px; margin: 0 0 18px; background: var(--surface-1, var(--bg-card)); }
 .rates-guide summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-primary); min-height: 24px; display: list-item; }
 .rates-guide ul { margin: 8px 0 2px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 1.7; color: var(--text-secondary); }
@@ -6072,7 +6117,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.08</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.09</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -10272,15 +10317,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.08" defer></script>
-  <script src="./js/aio-data.js?v=57.08" defer></script>
-  <script src="./js/aio-ui.js?v=57.08" defer></script>
+  <script src="./js/aio-core.js?v=57.09" defer></script>
+  <script src="./js/aio-data.js?v=57.09" defer></script>
+  <script src="./js/aio-ui.js?v=57.09" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.08" defer></script>
+<script src="./js/aio-chat.js?v=57.09" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -10338,7 +10383,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.08" defer></script>
+<script src="./js/aio-glossary.js?v=57.09" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

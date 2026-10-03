@@ -1,0 +1,19 @@
+{
+  "version": "v57.09",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v57.09 — 거시 logic re-check (chain thresholds = 시장 상태 rules, NSA CPI history, nominal retail label, regime criteria shown, 3-month-average direction) and a visual layer: growth × inflation map, traffic-light tiles, threshold gauges drawn on the variable that decided each verdict, folded evidence, and one-year lines on the rate level cards (P1427).",
+  "p": {
+    "id": 1427,
+    "title": "거시: one rule set across the page, and every verdict shown as a picture plus a sentence",
+    "symptom": "Owner asked whether the macro/rates/FX logic had been re-checked and asked for an easy, intuitive page balanced between text and visuals. Re-check found: the transmission chain coloured arrows on thresholds (oil ±5%, 10Y ±15bp, dollar ±1%, HY ±15bp) different from the 시장 상태 rules shown in the cards beside it; CPI card history would use seasonally adjusted YoY while the value shown is the official NSA headline; nominal retail sales unlabelled; the regime's direction rules hidden; direction marks compared single months. Visually the axis cards were walls of text, and a first gauge draft pinned 신용 in the green level band while the card read 부담 (the verdict came from a +44bp five-day widening).",
+    "root_cause": "The chain and the axes were written separately; the gauge drew one fixed variable per axis while several rules have more than one trigger; there was no overview visual.",
+    "fix": "macro-read: chain node thresholds now equal the axis rules (oil 20d +10% or 1-year range 85% / -5%, 10Y ±25bp, dollar ±2%, HY ±25bp per 5 days; breakeven ±5bp stated) with a legend; gauges on each axis, chosen from the variable that decided the state (HY level or 5-day change, 10Y 20-day change or 1-year range, WTI range/change or dollar, won or yen surge, Sahm or payrolls, core PCE level or re-acceleration, pricing or real policy rate); REGIME_CRITERIA shown. Producer adds NSA CPI/core CPI indices for the card history. indicators: 3-month-average direction. macro-board: half-open bands matching the rules, threshold gauge component, compact axis card (headline number, gauge, one sentence, folded evidence/link/rule, a note when a multi-condition rule leaves the bar in another band), 2 x 2 regime map, six traffic-light tiles that jump to their card, chain legend, one-year FRED lines on the real yield / breakeven / HY cards.",
+    "violated_rule": "Owner decisions: one source of truth across screens; judgements by published rules; easy and intuitive surfaces balancing text and visuals.",
+    "prevention": "ci-architecture-contract-check P1427 (gauge, band, quadrant, tiles, mismatch note, trigger-aware shared gauges); ci-architecture-browser-check P1427 (at least five gauges, six tiles, regime map).",
+    "verification": "Local browser at 1440px: 거시 경제 overview map + tally + six tiles; every axis card's bar agrees with its verdict (credit drawn on the 5-day change +44bp; inflation 3.0% now in the 부담 band); 금리 · 환율 five axes with gauges, rate level cards with one-year lines once FRED history is published."
+  },
+  "changelog": [
+    "**거시 재점검 · 시각화 (P1427):** 연결 지도 기준을 시장 상태 규칙과 통일, CPI 추이는 공식 발표와 같은 계절조정 전 기준, 국면 판정 기준 공개. 성장×물가 국면 지도, 6개 신호등 타일, 판정을 만든 지표 그대로 그린 기준 막대(게이지), 근거는 접어 두기 — 그림 하나 + 한 문장 + 자세히 구성."
+  ]
+}

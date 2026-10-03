@@ -82,26 +82,88 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   return card;
 }
 
+const TONE_WORD = Object.freeze({ favorable: '우호', neutral: '중립', burden: '부담' });
+
+// Bands are half-open [from, to) like the rules (core PCE 3.0% is already 부담); the last band is closed.
+function bandOf(g) {
+  const last = g.bands[g.bands.length - 1];
+  if (g.value < g.min) return g.bands[0];
+  if (g.value >= last.to) return last;
+  return g.bands.find((item) => g.value >= item.from && g.value < item.to) || last;
+}
+
+// P1427: a threshold gauge — the rule's bands coloured by their effect on stocks, with the current value pinned.
+export function gaugeBar(doc, g) {
+  if (!g) return null;
+  const W = 320;
+  const H = 46;
+  const left = 8;
+  const right = W - 8;
+  const x = (value) => left + (Math.min(g.max, Math.max(g.min, value)) - g.min) / (g.max - g.min) * (right - left);
+  const svg = doc.createElementNS(SVG, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('class', 'macro-gauge');
+  svg.setAttribute('role', 'img');
+  const add = (tag, attrs, text) => {
+    const node = doc.createElementNS(SVG, tag);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+    if (text != null) node.textContent = text;
+    svg.append(node);
+    return node;
+  };
+  for (const band of g.bands) add('rect', { x: x(band.from), y: 16, width: Math.max(0, x(band.to) - x(band.from)), height: 8, class: `macro-gauge-band is-${band.tone}` });
+  for (const marker of g.markers) {
+    add('line', { x1: x(marker.at), x2: x(marker.at), y1: 13, y2: 27, class: 'macro-gauge-tick' });
+    add('text', { x: x(marker.at), y: 40, 'text-anchor': 'middle', class: 'macro-gauge-label' }, marker.label);
+  }
+  const px = x(g.value);
+  add('path', { d: `M${px - 6},4 L${px + 6},4 L${px},14 Z`, class: 'macro-gauge-pin' });
+  add('line', { x1: px, x2: px, y1: 14, y2: 26, class: 'macro-gauge-needle' });
+  const band = bandOf(g);
+  const valueText = `${g.value > 0 && g.min < 0 ? '+' : ''}${g.value.toFixed(g.digits)}${g.unit}`;
+  svg.setAttribute('aria-label', `${g.label}: ${valueText}${band ? `, ${TONE_WORD[band.tone]} 구간` : ''}${g.clipped ? ' (눈금 밖)' : ''}`);
+  const wrap = doc.createElement('div');
+  wrap.className = 'macro-gauge-wrap';
+  const caption = doc.createElement('div');
+  caption.className = 'macro-gauge-caption';
+  caption.textContent = `${g.label} · ${valueText}${g.clipped ? ' (눈금 밖)' : ''}`;
+  wrap.append(caption, svg);
+  return wrap;
+}
+
 function axisCard(doc, row) {
   const card = el(doc, 'section', null, 'regime-axis macro-axis');
+  card.id = `macro-axis-${row.id}`;
   card.dataset.axis = row.id;
   card.dataset.state = row.state;
   const head = el(doc, 'div', null, 'regime-axis-head');
   head.append(el(doc, 'h3', row.title, 'regime-axis-title'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
   card.append(head);
-  if (row.shared) card.append(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
+  if (row.headline) card.append(el(doc, 'div', row.headline, 'macro-axis-headline'));
+  const bar = gaugeBar(doc, row.gauge);
+  if (bar) {
+    card.append(bar);
+    // A multi-condition rule can leave the drawn variable in a different band than the verdict; say so.
+    const g = row.gauge;
+    const band = bandOf(g);
+    if (band && row.state !== 'unknown' && band.tone !== row.state) card.append(el(doc, 'p', `막대는 ${TONE_WORD[band.tone]} 구간이지만 다른 조건 때문에 ${row.stateLabel}입니다 — 아래 판정 기준 참고.`, 'macro-gauge-note'));
+  }
+  card.append(el(doc, 'p', row.read, 'regime-read'));
+  const more = el(doc, 'details', null, 'macro-axis-more');
+  more.append(el(doc, 'summary', '근거 · 증시 연결 · 판정 기준'));
+  if (row.shared) more.append(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
   if (row.evidence?.length) {
     const list = el(doc, 'dl', null, 'regime-evidence');
     for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
-    card.append(list);
+    more.append(list);
   }
-  card.append(el(doc, 'p', row.read, 'regime-read'));
   if (row.link) {
     const link = el(doc, 'p', null, 'macro-axis-link');
     link.append(el(doc, 'span', '증시 연결', 'briefing-hypothesis-tag'), doc.createTextNode(` ${row.link}`));
-    card.append(link);
+    more.append(link);
   }
-  if (row.flip) card.append(el(doc, 'p', `판정 기준: ${row.flip}`, 'regime-flip'));
+  if (row.flip) more.append(el(doc, 'p', `판정 기준: ${row.flip}`, 'regime-flip'));
+  card.append(more);
   return card;
 }
 
@@ -128,25 +190,95 @@ function renderChain(doc, chain) {
     box.append(chainNode(doc, branch), el(doc, 'p', branch.effect || '자료 대기', 'macro-chain-effect'));
     branches.append(box);
   });
-  host.replaceChildren(row, links, branches);
+  host.replaceChildren(row, links, branches, el(doc, 'p', chain.legend || '', 'briefing-footnote macro-chain-legend'));
+}
+
+// P1427: growth × inflation as a 2 × 2 map — the current quadrant filled and marked, a known half shaded
+// when only one direction is established, nothing marked when neither is.
+const QUADRANTS = Object.freeze([
+  { key: 'down/up', label: '스태그플레이션 위험', sub: '성장↓ 물가↑', tone: 'burden', col: 0, row: 0 },
+  { key: 'up/up', label: '과열 · 리플레이션', sub: '성장↑ 물가↑', tone: 'neutral', col: 1, row: 0 },
+  { key: 'down/down', label: '둔화 · 디스인플레이션', sub: '성장↓ 물가↓', tone: 'neutral', col: 0, row: 1 },
+  { key: 'up/down', label: '골디락스', sub: '성장↑ 물가↓', tone: 'favorable', col: 1, row: 1 }
+]);
+
+function quadrantChart(doc, regime) {
+  const W = 300;
+  const H = 230;
+  const pad = { left: 26, top: 10, right: 6, bottom: 24 };
+  const cw = (W - pad.left - pad.right) / 2;
+  const ch = (H - pad.top - pad.bottom) / 2;
+  const svg = doc.createElementNS(SVG, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('class', 'macro-quadrant');
+  svg.setAttribute('role', 'img');
+  const add = (tag, attrs, text) => {
+    const node = doc.createElementNS(SVG, tag);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+    if (text != null) node.textContent = text;
+    svg.append(node);
+    return node;
+  };
+  const current = regime.growthDir && regime.inflationDir ? `${regime.growthDir}/${regime.inflationDir}` : null;
+  for (const q of QUADRANTS) {
+    const [g, i] = q.key.split('/');
+    const partial = !current && ((regime.growthDir && regime.growthDir === g) || (regime.inflationDir && regime.inflationDir === i));
+    const state = current === q.key ? 'is-current' : partial ? 'is-partial' : '';
+    const x = pad.left + q.col * cw;
+    const y = pad.top + q.row * ch;
+    add('rect', { x: x + 2, y: y + 2, width: cw - 4, height: ch - 4, rx: 6, class: `macro-quadrant-cell is-${q.tone} ${state}` });
+    add('text', { x: x + cw / 2, y: y + ch / 2 - 4, 'text-anchor': 'middle', class: 'macro-quadrant-name' }, q.label);
+    add('text', { x: x + cw / 2, y: y + ch / 2 + 13, 'text-anchor': 'middle', class: 'macro-quadrant-sub' }, q.sub);
+    if (current === q.key) {
+      add('circle', { cx: x + cw / 2, cy: y + ch / 2 + 32, r: 6, class: 'macro-quadrant-dot' });
+      add('text', { x: x + cw / 2 + 11, y: y + ch / 2 + 36, class: 'macro-quadrant-now' }, '지금');
+    }
+  }
+  add('text', { x: pad.left + cw, y: H - 6, 'text-anchor': 'middle', class: 'macro-quadrant-axis' }, '← 성장 둔화 · 성장 견조 →');
+  add('text', { x: 10, y: pad.top + ch, 'text-anchor': 'middle', transform: `rotate(-90 10 ${pad.top + ch})`, class: 'macro-quadrant-axis' }, '← 물가 둔화 · 물가 상승 →');
+  svg.setAttribute('aria-label', current ? `거시 국면: ${regime.label}` : '거시 국면 판정 보류');
+  return svg;
+}
+
+function overviewTiles(doc, axes) {
+  const strip = el(doc, 'div', null, 'macro-tiles');
+  for (const row of axes) {
+    const tile = el(doc, 'button', null, `macro-tile is-${row.state}`);
+    tile.type = 'button';
+    tile.dataset.axis = row.id;
+    tile.append(el(doc, 'span', row.title.replace(/ \(.*\)$/, ''), 'macro-tile-title'), el(doc, 'span', row.stateLabel, 'macro-tile-state'), el(doc, 'span', row.headline || '—', 'macro-tile-value'));
+    tile.addEventListener('click', () => doc.getElementById(`macro-axis-${row.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    strip.append(tile);
+  }
+  return strip;
 }
 
 function renderRegime(doc, read) {
   const host = doc.getElementById('macro-regime');
   if (!host) return;
   const r = read.regime;
+  const left = el(doc, 'div', null, 'macro-overview-map');
+  left.append(quadrantChart(doc, r));
+  const right = el(doc, 'div', null, 'macro-overview-side');
   const head = el(doc, 'div', null, 'macro-regime-head');
   head.append(el(doc, 'span', r.label, `macro-regime-label is-${r.tone}`));
   if (r.available && r.provisional) head.append(el(doc, 'span', '잠정 — 월별 추세 일부 미반영', 'basis-chip is-off'));
-  const dirs = el(doc, 'div', null, 'macro-regime-dirs');
-  const word = { up: '가속', down: '둔화' };
-  dirs.append(el(doc, 'span', `성장 ${r.growthDir ? word[r.growthDir] : '확인 중'}`, 'macro-regime-dir'), el(doc, 'span', `물가 ${r.inflationDir ? (r.inflationDir === 'up' ? '상승' : '둔화') : '확인 중'}`, 'macro-regime-dir'));
   const counts = read.counts;
-  dirs.append(el(doc, 'span', `증시 영향 6개 축: 우호 ${counts.favorable} · 중립 ${counts.neutral} · 부담 ${counts.burden}${counts.unknown ? ` · 판정 보류 ${counts.unknown}` : ''}`, 'macro-regime-dir'));
+  const tally = el(doc, 'div', null, 'macro-tally');
+  for (const [state, label] of [['favorable', '우호'], ['neutral', '중립'], ['burden', '부담'], ['unknown', '보류']]) {
+    if (state === 'unknown' && !counts.unknown) continue;
+    tally.append(el(doc, 'span', `${label} ${counts[state]}`, `macro-tally-chip is-${state}`));
+  }
   const reading = el(doc, 'p', null, 'briefing-read-reading');
   reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${r.reading}`));
-  const note = read.historyStatus === 'ok' ? null : el(doc, 'p', '월별 경제 기록(FRED)이 다음 자동 수집부터 쌓입니다. 그 전까지 성장·물가의 3개월 추세와 국면 판정은 일부 보류됩니다.', 'briefing-footnote');
-  host.replaceChildren(...[head, dirs, reading, note].filter(Boolean));
+  right.append(head, tally, overviewTiles(doc, read.axes), reading);
+  const criteria = el(doc, 'details', null, 'macro-axis-more');
+  criteria.append(el(doc, 'summary', '국면 판정 기준'), el(doc, 'p', r.criteria || '', 'regime-flip'));
+  right.append(criteria);
+  if (read.historyStatus !== 'ok') right.append(el(doc, 'p', '월별 경제 기록(FRED)이 다음 자동 수집부터 쌓입니다. 그 전까지 성장·물가의 3개월 추세와 국면 판정은 일부 보류됩니다.', 'briefing-footnote'));
+  const grid = el(doc, 'div', null, 'macro-overview');
+  grid.append(left, right);
+  host.replaceChildren(grid);
 }
 
 function renderCommodities(doc, root) {
@@ -275,7 +407,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     const read = buildMacroRead({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null, regime: regime.available ? regime : null, history: root._aioHistory || [] });
     const byId = Object.fromEntries(read.axes.map((row) => [row.id, row]));
     const fxAxis = regime.available ? regime.axes.find((row) => row.id === 'korea') : null;
-    const rows = [byId.policy, byId.rates, byId.commodities, byId.credit, fxAxis && { ...fxAxis, shared: true, link: '원화가 약해지면 외국인이 한국 주식을 팔 유인이 커지고 수입 물가가 오릅니다. 엔화가 짧은 기간에 급등하면 엔으로 빌려 투자한 자금(엔 캐리)이 청산되며 전 세계 위험자산이 함께 흔들릴 수 있습니다.' }].filter(Boolean);
+    const rows = [byId.policy, byId.rates, byId.commodities, byId.credit, fxAxis && { ...fxAxis, shared: true, gauge: read.sharedGauges?.korea?.gauge || null, headline: read.sharedGauges?.korea?.headline || null, link: '원화가 약해지면 외국인이 한국 주식을 팔 유인이 커지고 수입 물가가 오릅니다. 엔화가 짧은 기간에 급등하면 엔으로 빌려 투자한 자금(엔 캐리)이 청산되며 전 세계 위험자산이 함께 흔들릴 수 있습니다.' }].filter(Boolean);
     axesHost.replaceChildren(...rows.map((row) => axisCard(doc, row)));
   }
   set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준 · 국채 금리는 ${t.asOf ? `${shortDate(t.asOf)} ` : ''}미 재무부 공식 고시` : '종가 기록을 불러오는 중입니다.');
@@ -313,14 +445,22 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   // 2. Real yield, breakeven, credit
   const levels = doc.getElementById('rates-levels');
   if (levels) {
-    levels.replaceChildren(...[...model.real, model.credit].map((row) => statCard(doc, {
-      label: row.label,
-      valueText: row.valueText,
-      lines: [row.weekText],
-      meta: row.asOf ? `${shortDate(row.asOf)} · FRED` : null,
-      note: row.note,
-      status: row.value == null ? 'missing' : row.stale ? 'stale' : 'observed'
-    })));
+    // P1427: each level card carries its one-year daily line from the FRED history (text + picture).
+    const historyField = { realYield10: 'realYield10', breakeven10: 'breakeven10', hyOAS: 'hyOas' };
+    levels.replaceChildren(...[...model.real, model.credit].map((row) => {
+      const daily = seriesOf(root._aioMacroHistory, historyField[row.id]).slice(-260).map((point) => ({ date: point.date, value: row.id === 'hyOAS' ? point.value * 100 : point.value }));
+      const year = daily.length > 200 ? daily[daily.length - 1].value - daily[0].value : null;
+      return statCard(doc, {
+        label: row.label,
+        valueText: row.valueText,
+        lines: [row.weekText, year == null ? null : `1년 전보다 ${signed(year, row.id === 'hyOAS' ? 0 : 2, row.id === 'hyOAS' ? 'bp' : '%p')}`],
+        meta: row.asOf ? `${shortDate(row.asOf)} · FRED` : null,
+        note: row.note,
+        status: row.value == null ? 'missing' : row.stale ? 'stale' : 'observed',
+        series: daily.length >= 20 ? daily : null,
+        unit: row.id === 'hyOAS' ? null : '%'
+      });
+    }));
   }
 
   // 3. Dollar, won, yen and the 10-year on the close basis
