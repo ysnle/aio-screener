@@ -10,12 +10,12 @@
     "healthPath": "/health",
     "maxTokens": "worker-advertised",
     "routeStatus": "DISABLED",
-    "routeReason": "OPENAI_MIGRATION_DEPLOY_REQUIRED",
+    "routeReason": "WORKER_AI_PROVIDER_MISMATCH",
     "routeEvidence": {
       "status": "OPERATOR_REQUIRED",
-      "source": "local-provider-migration",
-      "observedAt": null,
-      "observationStatus": "NOT_ATTEMPTED"
+      "source": "periodic-live-health",
+      "observedAt": "2026-10-03T12:29:30.228Z",
+      "observationStatus": "SUCCESS"
     }
   },
   "marketData": {
