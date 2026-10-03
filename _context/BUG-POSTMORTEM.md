@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1420 - v57.05 - 차트 · 기술: retired market-health score replaced by the six-axis summary; stock chart first (2026-10-03)
+
+- symptom/reproduction: Codex review: the technical page still showed a 0-100 market-health score (added and subtracted points for the day's SPY/QQQ move) with a grade and a component breakdown, the same kind of composite the 시장 상태 screen retired; the evidence-based stock chart sat below it and SPY-only indicator cards.
+- root_cause: P1392 retired the score on 시장 상태 and home only; the technical hero kept its own score.
+- fix: index.html: the health hero and its component/interpretation block are removed; a 시장 상태 summary (overall label, basis and counts, seven axis chips, link to the full board) sits at the top, the stock chart follows, the SPY indicator cards move into a collapsed details block; subtitle updated. analysis.js renderTechnicalHealth renders the summary from readMarketRegime (one source of truth with 시장 상태) and sets the header pill; unused score helpers removed. The legacy health writer stays fenced by the native marker.
+- violated_rule: Owner decision 2026-10-02: no 0-100 total score on user surfaces.
+- prevention: ci-architecture-contract-check P1420 (summary markers present, score surface absent); ci-architecture-browser-check P1420 (seven chips, summary before the stock chart, no retired score nodes).
+- verification/residual: Local browser: 혼조 환경, 10/2 basis with counts, seven chips, then the stock chart; header pill 시장 상태 · 혼조 환경.
+
 ## P1419 - v57.04 - Screener 상위 N% instead of A-F, ranking post-hoc validation panel, yen carry score removed (Bank of Korea rate used as the Japan gap) (2026-10-03)
 
 - symptom/reproduction: Codex review: the screener showed an A-F grade, the yen carry card a 58/100 score. Open-source comparison: xang1234 validates published picks on a Backtest page; the screener had the backtest artifact but no user view. Checking the carry score: its rate gap was US 10Y minus the Bank of KOREA policy rate, labelled a US-Japan gap (BOJ) in both the native and the legacy renderer.

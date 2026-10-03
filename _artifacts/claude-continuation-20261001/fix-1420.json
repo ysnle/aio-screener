@@ -1,0 +1,19 @@
+{
+  "version": "v57.05",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v57.05 — 차트 · 기술 leads with the stock chart and shows the 시장 상태 six-axis summary instead of the 0-100 market-health score (P1420).",
+  "p": {
+    "id": 1420,
+    "title": "차트 · 기술: retired market-health score replaced by the six-axis summary; stock chart first",
+    "symptom": "Codex review: the technical page still showed a 0-100 market-health score (added and subtracted points for the day's SPY/QQQ move) with a grade and a component breakdown, the same kind of composite the 시장 상태 screen retired; the evidence-based stock chart sat below it and SPY-only indicator cards.",
+    "root_cause": "P1392 retired the score on 시장 상태 and home only; the technical hero kept its own score.",
+    "fix": "index.html: the health hero and its component/interpretation block are removed; a 시장 상태 summary (overall label, basis and counts, seven axis chips, link to the full board) sits at the top, the stock chart follows, the SPY indicator cards move into a collapsed details block; subtitle updated. analysis.js renderTechnicalHealth renders the summary from readMarketRegime (one source of truth with 시장 상태) and sets the header pill; unused score helpers removed. The legacy health writer stays fenced by the native marker.",
+    "violated_rule": "Owner decision 2026-10-02: no 0-100 total score on user surfaces.",
+    "prevention": "ci-architecture-contract-check P1420 (summary markers present, score surface absent); ci-architecture-browser-check P1420 (seven chips, summary before the stock chart, no retired score nodes).",
+    "verification": "Local browser: 혼조 환경, 10/2 basis with counts, seven chips, then the stock chart; header pill 시장 상태 · 혼조 환경."
+  },
+  "changelog": [
+    "**차트 · 기술 화면 (P1420):** 0~100 시장 건강도 점수를 내리고 시장 상태 6축 요약으로 교체, 종목 차트를 맨 위로, SPY 보조 지표는 접어 둠."
+  ]
+}

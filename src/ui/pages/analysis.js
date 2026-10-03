@@ -4,7 +4,7 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { normalizeChartBar } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
-import { renderRegimePage, renderHomeRegime } from '../components/market-regime.js';
+import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js';
 import { installStockChart } from '../components/stock-chart.js';
 
 function finite(value) {
@@ -21,25 +21,11 @@ function finite(value) {
 // meter as a fail-closed surface because the legacy implementation was incorrectly reusing
 // the trading score under a different title. P822 transfers only the technical chart title/
 // metadata; the canvas and indicator calculations remain compatibility-owned.
-function scoreColor(score) {
-  if (score >= 65) return 'var(--data-green)';
-  if (score >= 50) return 'var(--data-amber)';
-  if (score >= 35) return '#57513f';
-  return 'var(--data-red)';
-}
-
 function setText(documentRef, id, value, color = null) {
   const element = documentRef?.getElementById(id);
   if (!element) return;
   element.textContent = value;
   if (color) element.style.color = color;
-}
-
-function setBar(documentRef, id, width, color) {
-  const element = documentRef?.getElementById(id);
-  if (!element) return;
-  element.style.width = `${Math.max(0, Math.min(100, Number(width) || 0))}%`;
-  element.style.background = color;
 }
 
 // P1392: the score hero, adjustment rows and home score summary were retired; the 시장 상태
@@ -94,71 +80,39 @@ function renderHomeQuality({ documentRef, home }) {
   }
 }
 
-function renderTechnicalHealth({ documentRef, technical }) {
-  const health = technical?.health;
-  if (!health?.available) {
-    setText(documentRef, 'health-score-display', '—', 'var(--text-muted)');
-    setText(documentRef, 'health-grade-display', '판정 보류', 'var(--text-muted)');
-    setText(documentRef, 'health-regime-display', '필수 현재값 미수신', 'var(--text-muted)');
-    setText(documentRef, 'tech-health-pill', '시장 건강도 판정 보류');
-    setBar(documentRef, 'hc-spy-bar', 50, 'var(--border-strong)');
-    setBar(documentRef, 'hc-qqq-bar', 50, 'var(--border-strong)');
-    setBar(documentRef, 'hc-vix-bar', 0, 'var(--border-strong)');
-    setBar(documentRef, 'ind-pressure-fill', 0, 'var(--border-strong)');
-    setBar(documentRef, 'ind-buyrisk-fill', 0, 'var(--border-strong)');
-    setBar(documentRef, 'ind-trend-fill', 50, 'var(--border-strong)');
-    const interpretation = documentRef?.getElementById('health-interpretation');
-    if (interpretation) {
-      interpretation.replaceChildren();
-      const title = documentRef.createElement('div');
-      title.className = 'dc-title';
-      title.textContent = '시장 건강도 판정 보류';
-      const body = documentRef.createElement('div');
-      body.style.cssText = 'font-size:12px;color:var(--text-muted);line-height:1.7;';
-      body.textContent = `필수 현재 입력 미수신: ${(health?.missing || []).join(', ') || '시장 건강도 입력'}. 결측값을 0%·중립값으로 대체하지 않습니다.`;
-      interpretation.append(title, body);
-    }
-    return;
+// P1420 (owner decision 2026-10-02 extended): the technical page's 0-100 market-health score added
+// and subtracted points for the day's SPY/QQQ move — the same kind of composite the 시장 상태 screen
+// retired. The page now shows that screen's six-axis judgement (one source of truth) and leads with
+// the stock chart. The legacy health writer stays fenced by the native renderer marker.
+function renderTechnicalHealth({ documentRef, root }) {
+  const regime = readMarketRegime(root);
+  const overall = documentRef?.getElementById('tech-regime-overall');
+  if (overall) { overall.textContent = regime.available ? regime.overall : '판정 대기'; overall.dataset.overall = regime.overall || ''; }
+  const basis = documentRef?.getElementById('tech-regime-basis');
+  if (basis) {
+    const [, month, day] = String(regime.asOf || '').split('-').map(Number);
+    const counts = regime.counts || {};
+    basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준 · 우호 ${counts.favorable ?? 0} · 중립 ${counts.neutral ?? 0} · 부담 ${counts.burden ?? 0}${counts.unknown ? ` · 확인 불가 ${counts.unknown}` : ''}` : '종가 기록을 불러오는 중입니다.';
   }
-
-  const color = scoreColor(health.score);
-  setText(documentRef, 'health-score-display', health.score, color);
-  setText(documentRef, 'health-grade-display', health.grade, color);
-  setText(documentRef, 'health-regime-display', health.regime, color);
-  setText(documentRef, 'tech-health-pill', `${health.grade} ${health.regime}`);
-  setBar(documentRef, 'hc-spy-bar', health.bars.spy, health.inputs.spyPct >= 0 ? 'var(--data-green)' : 'var(--data-red)');
-  setBar(documentRef, 'hc-qqq-bar', health.bars.qqq, health.inputs.qqqPct >= 0 ? 'var(--data-green)' : 'var(--data-red)');
-  setBar(documentRef, 'hc-vix-bar', health.bars.vix, health.inputs.vix < 20 ? 'var(--data-green)' : health.inputs.vix < 25 ? 'var(--data-amber)' : 'var(--data-red)');
-  setBar(documentRef, 'ind-pressure-fill', health.bars.pressure, health.inputs.vix < 20 ? 'var(--data-green)' : health.inputs.vix < 25 ? 'var(--data-amber)' : 'var(--data-red)');
-  setBar(documentRef, 'ind-buyrisk-fill', health.bars.buyRisk, health.bars.buyRisk > 60 ? 'var(--data-green)' : health.bars.buyRisk > 40 ? 'var(--data-amber)' : 'var(--data-red)');
-  // W08-A/P1147: a dimension with insufficient coverage reports null; render it as an
-  // unavailable bar rather than colouring a fabricated neutral value as if it were observed.
-  const trendBar = health.bars.trend;
-  if (trendBar == null) {
-    setBar(documentRef, 'ind-trend-fill', 0, 'var(--border-strong)');
-    const trendFill = documentRef?.getElementById('ind-trend-fill');
-    trendFill?.setAttribute('data-source-kind', 'unavailable');
-  } else {
-    setBar(documentRef, 'ind-trend-fill', trendBar, trendBar >= 70 ? 'var(--data-cyan)' : trendBar >= 50 ? 'var(--data-amber)' : 'var(--data-red)');
+  const chips = documentRef?.getElementById('tech-regime-chips');
+  if (chips) {
+    chips.replaceChildren(...(regime.axes || []).map((row) => {
+      const chip = documentRef.createElement('div');
+      chip.className = 'regime-chip';
+      chip.dataset.state = row.state;
+      const label = documentRef.createElement('span');
+      label.className = 'regime-chip-label';
+      label.textContent = row.title;
+      const state = documentRef.createElement('span');
+      state.className = `regime-state is-${row.state}`;
+      state.textContent = row.stateLabel;
+      chip.append(label, state);
+      return chip;
+    }));
   }
-  const interpretation = documentRef?.getElementById('health-interpretation');
-  if (!interpretation) return;
-  interpretation.replaceChildren();
-  const title = documentRef.createElement('div');
-  title.className = 'dc-title';
-  title.textContent = '시장 건강 진단 결과';
-  const body = documentRef.createElement('div');
-  body.style.cssText = 'font-size:12px;color:var(--text-secondary);line-height:1.7;';
-  const evidence = health.details.length ? ` · ${health.details.join(' · ')}` : '';
-  // W08-A/P1147 (H01): a composite score built from partially observed inputs must not be
-  // converted into allocation/stop-loss instructions. Describe the observation and name the
-  // additional evidence a reader would need; the decision stays with the user.
-  const scope = health.status === 'partial'
-    ? `관측 해석: 일부 입력의 표본이 부족합니다(${(health.partialComponents || []).join(', ') || '구성 요소'}). 점수는 수신된 구성 요소만 반영하며, 누락 차원은 중립값으로 대체하지 않습니다.`
-    : '관측 해석: 필수·선택 구성 요소가 모두 최소 표본을 충족했습니다.';
-  const nextEvidence = '확인할 추가 근거: 시장폭 확산/축소, 섹터 로테이션, 개별 종목 근거. 이 화면은 연구 참고값이며 매수·매도 지침이 아닙니다.';
-  body.textContent = `점수 ${health.score}/100 (${health.grade}) — ${health.regime}${evidence}\n\n${scope}\n${nextEvidence}`;
-  interpretation.append(title, body);
+  const pill = documentRef?.getElementById('tech-health-pill');
+  if (pill) pill.textContent = regime.available ? `시장 상태 · ${regime.overall}` : '시장 상태 판정 대기';
+  documentRef?.getElementById('tech-regime-summary')?.setAttribute('data-aio-tech-regime-renderer', 'native');
 }
 
 function renderTechnicalCandleMeta({ documentRef, technical }) {
@@ -258,7 +212,7 @@ function render({ root, documentRef, store, route, charts }) {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioTechnicalRenderer = 'native';
       page.dataset.aioTechnicalChartRenderer = 'native';
-      renderTechnicalHealth({ documentRef, technical });
+      renderTechnicalHealth({ documentRef, root });
       renderTechnicalCandleMeta({ documentRef, technical });
       renderTechnicalCharts({ root, page, technical, charts });
       installStockChart({ documentRef, root }); // P1397: idempotent (installs once per form)

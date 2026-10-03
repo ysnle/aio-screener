@@ -6125,7 +6125,7 @@
       var idxIn = function(page, el){ return (page && el) ? Array.prototype.indexOf.call(page.children, el) : -2; };
       // technical: 헤더 직후 = 시장 건강도(결론)
       var ptT = document.getElementById('page-technical');
-      var hdrT = dchild(ptT, '.page-title'), verT = dchild(ptT, '#market-health-dashboard');
+      var hdrT = dchild(ptT, '.page-title'), verT = dchild(ptT, '#tech-regime-summary'); // P1420: the six-axis summary is the conclusion block
       var techOk = !!(hdrT && verT) && idxIn(ptT, verT) === idxIn(ptT, hdrT) + 1;
       // themes: 헤더 직후 = 사이클 국면 판정(결론)
       var ptH = document.getElementById('page-themes');

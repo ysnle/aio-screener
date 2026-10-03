@@ -453,9 +453,12 @@ if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSour
 for (const marker of ['MARKET_HEALTH_MODEL_VERSION', 'export function computeMarketHealth', 'bars:', 'details:']) {
   if (!marketHealthSource.includes(marker)) fail(`market-health model marker missing: ${marker}`);
 }
-for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", 'health-score-display', 'health-interpretation']) {
-  if (!analysisPageSource.includes(marker)) fail(`native technical health renderer marker missing: ${marker}`);
+// P1420: the technical page shows the 시장 상태 six-axis summary instead of the 0-100 health score;
+// the score surface must not return to the page.
+for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", 'readMarketRegime(root)', 'tech-regime-chips']) {
+  if (!analysisPageSource.includes(marker)) fail(`native technical regime summary marker missing: ${marker}`);
 }
+if (read('index.html').includes('id="health-score-display"') || analysisPageSource.includes('health.score')) fail('P1420 retired technical health score returned to the page');
 const htmlSource = read('index.html');
 // P1135/R620: the inline market-health model and its native fence moved with block B to js/aio-macro-tech.js.
 if (!macroTechSource.includes('function _aioIsNativeTechnicalHealth') || !macroTechSource.includes('window.AIO_ARCH.computeMarketHealth') || !macroTechSource.includes('_aioIsNativeTechnicalHealth()')) fail('legacy technical health model/fence missing');
@@ -465,7 +468,7 @@ if (!macroTechSource.includes('function _aioIsNativeTechnicalHealth') || !macroT
 // are retired from user surfaces). analysis.js routes both to it; the score hero renderers stay gone.
 {
   const regimeSource = read('src/ui/components/market-regime.js');
-  for (const marker of ["import { renderRegimePage, renderHomeRegime } from '../components/market-regime.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage({ documentRef, root })', "page.dataset.aioHomeRenderer = 'native'", 'renderHomeRegime({ documentRef, root })']) {
+  for (const marker of ["import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage({ documentRef, root })', "page.dataset.aioHomeRenderer = 'native'", 'renderHomeRegime({ documentRef, root })']) {
     if (!analysisPageSource.includes(marker)) fail(`analysis.js regime routing marker missing: ${marker}`);
   }
   for (const marker of ["page.dataset.aioRegimeRenderer = 'native'", "hero.dataset.aioRegimeRenderer = 'native'", 'regime.holdReason', 'row.basis']) {

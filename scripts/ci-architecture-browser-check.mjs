@@ -604,31 +604,27 @@ try {
   if (portfolioMath.missing.pnl !== '—' || portfolioMath.missing.cells[5] !== '—' || portfolioMath.daily.daily !== '—' || portfolioMath.daily.pct !== '—' || portfolioMath.live.value !== '$2,100' || portfolioMath.live.pnl !== '+$1,200' || portfolioMath.live.daily !== '$0' || !portfolioMath.live.cells.includes('$200.00')) throw new Error('portfolio valuation regression: ' + JSON.stringify(portfolioMath));
   await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
   await page.waitForFunction(() => document.getElementById('page-technical')?.dataset.aioArchitectureRoute === 'technical');
+  // P1420: the 0-100 health score was retired; the page shows the 시장 상태 six-axis summary and
+  // leads with the stock chart, and the legacy health writer must still not paint the page.
   const technicalRoute = await page.evaluate(() => {
-    const primarySelectors = '#tech-health-pill, #health-score-display, #health-grade-display, #health-regime-display, #hc-spy-bar, #hc-qqq-bar, #hc-vix-bar, #ind-pressure-fill, #ind-buyrisk-fill, #ind-trend-fill, #health-interpretation';
-    const score = document.getElementById('health-score-display');
-    const before = score?.textContent || '';
-    if (score) score.textContent = 'NATIVE-FENCE';
     window.computeMarketHealth?.();
-    const fenceValue = score?.textContent || '';
-    if (score) score.textContent = before;
+    const pageNode = document.getElementById('page-technical');
+    const order = [...(pageNode?.children || [])].map((node) => node.id).filter(Boolean);
     return {
-      pageExists: !!document.getElementById('page-technical'),
-      renderer: document.getElementById('page-technical')?.dataset.aioArchitectureRenderer || null,
-      technicalRenderer: document.getElementById('page-technical')?.dataset.aioTechnicalRenderer || null,
-      rawPrimarySinkCount: document.querySelectorAll(`#page-technical ${primarySelectors}`).length,
-      nativePrimarySinkCount: document.querySelectorAll(`#page-technical[data-aio-architecture-renderer="native"] ${primarySelectors}`).length,
-      score: before,
-      grade: document.getElementById('health-grade-display')?.textContent || '',
-      regime: document.getElementById('health-regime-display')?.textContent || '',
-      // P1397: the stock chart section (Lightweight Charts + evidence panel) replaced the candle-meta canvases.
+      pageExists: !!pageNode,
+      renderer: pageNode?.dataset.aioArchitectureRenderer || null,
+      technicalRenderer: pageNode?.dataset.aioTechnicalRenderer || null,
+      summaryRenderer: document.getElementById('tech-regime-summary')?.dataset.aioTechRegimeRenderer || null,
+      overall: document.getElementById('tech-regime-overall')?.textContent || '',
+      chips: document.querySelectorAll('#tech-regime-chips .regime-chip').length,
+      retiredScore: !!document.getElementById('health-score-display') || !!document.getElementById('health-components'),
+      chartFirst: order.indexOf('tech-regime-summary') >= 0 && order.indexOf('tech-regime-summary') < order.indexOf('stock-chart-section'),
       stockChartForm: document.getElementById('stock-chart-form')?.dataset.aioStockChart || null,
       candleTitle: document.getElementById('stock-chart-title')?.textContent || '',
-      retiredCandle: !!document.getElementById('tech-candle-chart'),
-      fenceValue
+      retiredCandle: !!document.getElementById('tech-candle-chart')
     };
   });
-  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.rawPrimarySinkCount !== 11 || technicalRoute.nativePrimarySinkCount !== 11 || !technicalRoute.score.trim() || !technicalRoute.grade.trim() || !technicalRoute.regime.trim() || technicalRoute.stockChartForm !== 'installed' || !technicalRoute.candleTitle.trim() || technicalRoute.retiredCandle || technicalRoute.fenceValue !== 'NATIVE-FENCE') throw new Error(`technical health/candle-meta native surface/fence failed: ${JSON.stringify(technicalRoute)}`);
+  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.summaryRenderer !== 'native' || !technicalRoute.overall.trim() || technicalRoute.chips !== 7 || technicalRoute.retiredScore || !technicalRoute.chartFirst || technicalRoute.stockChartForm !== 'installed' || !technicalRoute.candleTitle.trim() || technicalRoute.retiredCandle) throw new Error(`P1420 technical regime summary / stock chart surface failed: ${JSON.stringify(technicalRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('signal'));
   await page.waitForFunction(() => document.getElementById('page-signal')?.dataset.aioArchitectureRoute === 'signal');
   // P1392: the 시장 상태 screen is the native six-axis regime board; the legacy signal dashboard

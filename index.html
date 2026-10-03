@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.04 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.05 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.04" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.04" defer></script>
-<script src="./js/aio-kr-data.js?v=57.04" defer></script>
-<script src="./js/aio-pages.js?v=57.04" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.04">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.04">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.04">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.04">
+<script src="./js/aio-workspace.js?v=57.05" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.05" defer></script>
+<script src="./js/aio-kr-data.js?v=57.05" defer></script>
+<script src="./js/aio-pages.js?v=57.05" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.05">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.05">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.05">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.05">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2056,6 +2056,12 @@ body {
 .pf-check-value { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 .pf-check-detail { font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin: 0; }
 .pf-check-basis { font-size: 11px; color: var(--text-muted); }
+/* P1420: 차트 · 기술 — 시장 상태 요약 */
+.tech-regime { margin-bottom: 18px; }
+.tech-regime-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tech-regime-overall { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary); }
+.tech-regime-head .theme-strength-basis { margin: 0; }
+.tech-regime-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 /* P1419: 스크리너 순위 사후 검증 */
 .screener-validation { margin: 0 0 14px; }
 .screener-validation-details { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 12px; background: var(--surface-1, var(--bg-card)); }
@@ -6019,7 +6025,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.04</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.05</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6380,68 +6386,20 @@ button[data-filter-active="true"] {
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
       <div class="page-title">차트 · 기술 분석</div>
-      <div class="page-subtitle">RSI · MACD · 이동평균 · 지지/저항 · Weinstein 4단계</div>
+      <div class="page-subtitle">종목 차트와 셋업 근거 · 시장 상태 요약 · 보조 지표(RSI·MACD·ADX) · Weinstein 4단계</div>
       <!-- v50.84: SPY 가격 포지션 -->
       <div id="vis-technical" style="margin-top:10px;max-width:560px;"><div class="aio-vis-card"><div class="aio-vis-card-title">SPY 가격 포지션 · 지지/저항</div><div id="vis-technical-price"></div></div></div>
     </div>
     <span id="tech-health-pill" class="status-pill sp-neutral">— 시장 건강도 수신 대기</span>
   </div>
 
-  <!-- health hero — v52.69 아이보리 3c: 시안 구조(serif54 점수 + SPY/QQQ/VIX 바 + M7 리더십)
-       id="market-health-dashboard" 유지: T806(헤더 직후=결론 배치 검증)이 이 id를 헤더 바로 다음
-       직속 자식에서 찾음 — 시안 리빌드 전엔 이 id가 붙은 구 grid 카드가 이 위치였음. -->
-  <div id="market-health-dashboard" style="display:flex;align-items:center;gap:36px;flex-wrap:wrap;border-bottom:1px solid var(--border-strong);padding-bottom:26px;margin-bottom:26px;">
-    <div style="flex-shrink:0;">
-      <div style="font-size:12px;font-weight:600;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:8px;">시장 건강도</div>
-      <div style="display:flex;align-items:baseline;gap:9px;">
-        <span id="health-score-display" style="font-family:var(--font-display);font-size:54px;font-weight:600;color:var(--text-primary);line-height:1;font-variant-numeric:tabular-nums;">—</span>
-        <span style="font-size:15px;color:var(--text-dim);">/100</span>
-      </div>
-      <div id="health-regime-display" style="font-size:12px;color:var(--text-secondary);font-weight:600;margin-top:8px;">판정 대기</div>
-      <span id="health-grade-display" style="display:none;"></span>
-    </div>
-    <div style="width:1px;align-self:stretch;background:var(--border-subtle);"></div>
-    <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:220px;max-width:420px;">
-      <div style="display:flex;align-items:center;gap:14px;"><span style="font-size:12.5px;color:var(--text-dim);width:36px;">SPY</span><div style="flex:1;height:3px;background:var(--border-subtle);border-radius:2px;"><div id="hc-spy-bar" style="width:50%;height:100%;background:var(--data-green);border-radius:2px;"></div></div><span id="hc-spy" style="font-size:12.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;width:64px;text-align:right;" data-live-chg="SPY">—</span></div>
-      <div style="display:flex;align-items:center;gap:14px;"><span style="font-size:12.5px;color:var(--text-dim);width:36px;">QQQ</span><div style="flex:1;height:3px;background:var(--border-subtle);border-radius:2px;"><div id="hc-qqq-bar" style="width:50%;height:100%;background:var(--data-green);border-radius:2px;"></div></div><span id="hc-qqq" style="font-size:12.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;width:64px;text-align:right;" data-live-chg="QQQ">—</span></div>
-      <div style="display:flex;align-items:center;gap:14px;"><span style="font-size:12.5px;color:var(--text-dim);width:36px;">VIX</span><div style="flex:1;height:3px;background:var(--border-subtle);border-radius:2px;"><div id="hc-vix-bar" style="width:30%;height:100%;background:var(--data-amber);border-radius:2px;"></div></div><span id="hc-vix" style="font-size:12.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;width:64px;text-align:right;" data-live-price="^VIX">—</span></div>
-    </div>
-    <div style="flex-shrink:0;min-width:260px;">
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">Magnificent 7 리더십</div>
-      <div id="m7-health-row" style="display:flex;gap:4px;flex-wrap:wrap;max-width:300px;"><!-- 동적: M7 건강도 렌더 --></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
-        <span style="font-size:11px;color:var(--text-dim);">섹터 ETF 상승 비율</span>
-        <div id="breadth-gauge" style="flex:1;display:flex;align-items:center;gap:6px;">
-          <div style="flex:1;height:4px;background:var(--border-subtle);border-radius:2px;overflow:hidden;"><div id="breadth-bar" style="height:100%;background:var(--data-green);width:50%;transition:width 0.5s;"></div></div>
-          <span id="breadth-pct" style="font-size:11px;font-weight:600;font-family:var(--font-mono);color:var(--text-secondary);width:32px;">—</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- indicators — v52.69 아이보리 3c: 4카드(시안 구조), RSI/MACD/Stochastic/ADX -->
-  <div id="tech-indicators-live" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;">
-    <div data-threshold-key="RSI" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;" title="RSI 임계값: &lt;30 과매도 · 30~40 약세 · 40~60 중립 · 60~70 강세 · 70~80 과매수 · 80+ 극단 과매수">
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">RSI (14)</div>
-      <div id="tech-rsi-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">&lt;30 과매도 · 70+ 과매수</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">MACD</div>
-      <div id="tech-macd-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">시그널선 대비 추세 방향</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">Stochastic %K</div>
-      <div id="tech-stoch-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">&lt;20 과매도 · 80+ 과매수</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">ADX</div>
-      <div id="tech-adx-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">25+ 추세 강함 · 20- 약함</div>
-    </div>
-  </div>
+  <!-- P1420: the retired 0-100 market-health score is replaced by the 시장 상태 six-axis summary
+       (same judgement as the 시장 상태 screen); the stock chart leads the page. -->
+  <section class="aio-section tech-regime" id="tech-regime-summary" aria-label="시장 상태 요약">
+    <div class="tech-regime-head"><span class="tech-regime-overall" id="tech-regime-overall">판정 대기</span><span class="theme-strength-basis" id="tech-regime-basis"></span>
+    <button type="button" class="theme-strength-more" data-action="showPage" data-arg="signal">시장 상태에서 근거 보기</button></div>
+    <div class="tech-regime-chips" id="tech-regime-chips"></div>
+  </section>
 
   <!-- P1397 (owner review 2026-10-03): 종목 차트 — 캔들 위에 VCP 수축·피벗·전일 고저·52주 고점을 그리고, 옆에 근거와
        셋업 상태(등급 없음)를 둔다. Lightweight Charts(Apache-2.0, 셸이 이미 로드). 옛 종가선 캔버스·SPY/QQQ 토글을 대체. -->
@@ -6466,6 +6424,36 @@ button[data-filter-active="true"] {
     </div>
     <p class="briefing-footnote">셋업 상태는 공개된 기법(미너비니 VCP·추세 템플릿, 오닐 피벗 돌파, 와일더 ADX)으로 계산한 설명이며 매매 권고가 아닙니다.</p>
   </section>
+
+  <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
+    <summary>S&amp;P 500(SPY) 보조 지표 — RSI · MACD · 스토캐스틱 · ADX</summary>
+    <div class="aio-page-advanced-body">
+  <!-- indicators — v52.69 아이보리 3c: 4카드(시안 구조), RSI/MACD/Stochastic/ADX -->
+  <div id="tech-indicators-live" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;">
+    <div data-threshold-key="RSI" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;" title="RSI 임계값: &lt;30 과매도 · 30~40 약세 · 40~60 중립 · 60~70 강세 · 70~80 과매수 · 80+ 극단 과매수">
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">RSI (14)</div>
+      <div id="tech-rsi-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">&lt;30 과매도 · 70+ 과매수</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">MACD</div>
+      <div id="tech-macd-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">시그널선 대비 추세 방향</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">Stochastic %K</div>
+      <div id="tech-stoch-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">&lt;20 과매도 · 80+ 과매수</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">ADX</div>
+      <div id="tech-adx-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">25+ 추세 강함 · 20- 약함</div>
+    </div>
+  </div>
+
+    </div>
+  </details>
   <div style="margin-bottom:26px;max-width:520px;">
     <div>
       <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">Weinstein 4단계</div>
@@ -6519,29 +6507,6 @@ button[data-filter-active="true"] {
       <span>종가: <span data-tvohlc-close>—</span></span>
       <span>변동: <span data-tvohlc-chg>—</span></span>
       <span style="margin-left:auto;opacity:0.7;">실시간 차트가 안 보일 때만 표시됩니다</span>
-    </div>
-  </div>
-    </div>
-  </details>
-
-  <!-- v52.69 아이보리: 시장 건강도 구성요소(수평 바) + 해석 — 원본 유지, details로 접음 -->
-  <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
-    <summary>시장 건강도 구성 요소 · 해석 보기</summary>
-    <div class="aio-page-advanced-body">
-  <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">시장 건강도 종합 점수 — 구성 요소</span><span style="font-size:10px;color:var(--text-muted);">RSI·MACD·이동평균·차트 가중 합산</span></div>
-    <div class="aio-why" style="margin-bottom:10px;">아래 12가지 기술 지표를 각각 점수화해 합산합니다.</div>
-    <div id="health-components" style="display:flex;flex-direction:column;gap:6px;max-width:420px;">
-      <div style="display:grid;grid-template-columns:60px 1fr 52px;align-items:center;gap:8px;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:600;">SPY</div>
-        <div style="height:5px;background:rgba(33,29,22,0.08);border-radius:3px;overflow:hidden;"><div style="height:100%;width:50%;background:var(--data-green);border-radius:3px;"></div></div>
-        <div style="font-size:11px;font-weight:800;font-family:var(--font-mono);text-align:right;" data-live-chg="SPY">—</div>
-      </div>
-    </div>
-    <!-- 건강도 해석 -->
-    <div id="health-interpretation" class="fxb-dynamic-comment" style="margin-top:10px;">
-      <div class="dc-title">시장 건강도란?</div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">SPY/QQQ 이평 + 골든크로스 + RSI + VIX 종합 점수. 80+=기술 환경 우호, 30-=약세 경계. 단독 매수 신호가 아니며 시그널 점수와 시장폭을 함께 확인합니다.</div>
     </div>
   </div>
     </div>
@@ -11293,15 +11258,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.04" defer></script>
-  <script src="./js/aio-data.js?v=57.04" defer></script>
-  <script src="./js/aio-ui.js?v=57.04" defer></script>
+  <script src="./js/aio-core.js?v=57.05" defer></script>
+  <script src="./js/aio-data.js?v=57.05" defer></script>
+  <script src="./js/aio-ui.js?v=57.05" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.04" defer></script>
+<script src="./js/aio-chat.js?v=57.05" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -11359,7 +11324,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.04" defer></script>
+<script src="./js/aio-glossary.js?v=57.05" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

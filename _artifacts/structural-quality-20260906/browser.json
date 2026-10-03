@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-03T06:21:03.927Z",
+  "generatedAt": "2026-10-03T06:35:01.431Z",
   "routes": [
     {
       "id": "home",
@@ -40,7 +40,7 @@
         }
       ],
       "headings": [
-        "시장 현황 v57.04"
+        "시장 현황 v57.05"
       ]
     },
     {
@@ -114,6 +114,10 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태에서 근거 보기"
+        },
         {
           "tag": "BUTTON",
           "name": "SPY"
