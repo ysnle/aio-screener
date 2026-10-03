@@ -276,9 +276,10 @@ export function createCompatibilityEventAdapter({ root = globalThis, eventTarget
         if (disposed) return;
         const at = readNow();
         const key = eventKey(name, event);
-        const duplicate = isDuplicate(key, source, at);
+        // P1408: only a delivered event is remembered. Remembering the suppressed mirror rewrote the
+        // record's source, so the next genuine update from the original target was dropped too.
+        if (isDuplicate(key, source, at)) return;
         remember(key, source, at);
-        if (duplicate) return;
         [...subscription.listeners].forEach((callback) => callback(event));
       };
       targets.forEach((target) => {

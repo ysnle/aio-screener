@@ -52,8 +52,13 @@ function finite(value) {
   return Number.isFinite(number) ? number : null;
 }
 
-function formatMoney(value) {
-  return value == null ? '—' : `$${Math.abs(value).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+// P1407: the totals are in the surface's base currency (the same rule as the holdings table: an
+// undeclared single basis is shown as USD, and the currency note says it was assumed).
+export function formatMoney(value, currency = 'USD') {
+  if (value == null) return '—';
+  const code = String(currency || 'USD').trim().toUpperCase();
+  const amount = Math.abs(value).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  return code === 'USD' ? `$${amount}` : code === 'KRW' ? `₩${amount}` : `${amount} ${code}`;
 }
 
 function renderPortfolioHero(documentRef, surface) {
@@ -63,14 +68,14 @@ function renderPortfolioHero(documentRef, surface) {
   const totalValue = surface.valuationState === 'cash-only' || surface.valuationState === 'complete' ? surface.totalAssets : null;
   const totalPnl = surface.valuationState === 'complete' ? surface.totalPnl : null;
   if (valueElement) {
-    valueElement.textContent = formatMoney(totalValue);
+    valueElement.textContent = formatMoney(totalValue, surface.baseCurrency || 'USD');
     valueElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
     valueElement.setAttribute('data-source-kind', totalValue == null ? 'unavailable' : 'portfolio-state');
     valueElement.setAttribute('data-source-label', totalValue == null ? 'portfolio-value-unavailable' : 'native-portfolio-totals');
     valueElement.setAttribute('data-operational-use', 'reference-only');
   }
   if (pnlElement) {
-    pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl)}`;
+    pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl, surface.baseCurrency || 'USD')}`;
     pnlElement.style.color = totalPnl == null ? 'var(--text-dim)' : totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
     pnlElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
     pnlElement.setAttribute('data-source-kind', totalPnl == null ? 'unavailable' : 'portfolio-state');

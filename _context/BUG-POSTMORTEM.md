@@ -4,6 +4,42 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1409 - v56.98 - Return contract rejects unparseable times and mixed horizons (2026-10-03)
+
+- symptom/reproduction: Codex structural review: createReturnObservation accepted startValuationAt 'nonsense' / endValuationAt 'nope' (ok=true) and assertComparableReturns compared a one-month with a six-year return.
+- root_cause: NaN >= NaN is false, so the order check passed; comparability checked kind, currency and adjustment but not the horizon.
+- fix: src/domain/screener/return-contract.js: valuation-times-invalid for unparseable times; mixed-horizons-in-one-comparison when horizons differ by more than three days.
+- violated_rule: A contract checks meaning, not only presence.
+- prevention: ci-esm-core-unit-check P1409.
+- verification/residual: Unit tests; screener workbench contract OK.
+
+## P1408 - v56.98 - Event dedupe keeps the next genuine update; earnings retry; HTTP status kept; news mount cleanup (2026-10-03)
+
+- symptom/reproduction: Codex structural review: document original → window mirror → document update (same detail, < 250ms) delivered once instead of twice; the briefing earnings request set a global flag before the call and never cleared it, so one failure blocked retries for the tab and a late response re-rendered after leaving; a 503 HTML body became status 0 / HTTP_FAILED; a news mount that threw left its bridge DOM.
+- root_cause: The adapter remembered suppressed mirrors (rewriting the record source); the flag had no failure path; response.json() failure fell into the transport catch; the page bag was never disposed on a throwing mount.
+- fix: bootstrap.js remembers only delivered events; briefing-read.js clears the request flag in finally, retries after 60s, re-renders a late response only while the briefing is open; http.js keeps the status and reports HTTP_PARSE_FAILED for an unparseable 2xx body; news.js disposes its bag when the first render throws.
+- violated_rule: Lifecycle: a failure path restores retry; a transport error keeps its cause.
+- prevention: ci-esm-core-unit-check P1408 (adapter sequence, HTTP 503 HTML and bad-body cases).
+- verification/residual: Unit tests.
+
+## P1407 - v56.98 - Portfolio risk weights and totals carry one base currency (2026-10-03)
+
+- symptom/reproduction: Codex structural review: with allowed quotes, $100 of a US stock and ₩100,000 of Samsung were summed to 100,100 (Samsung weight 99.9%) and the whole-account risk was reported ready; the hero total printed $ for a KRW valuation.
+- root_cause: assembleRiskEstimateInput multiplied quantity by price in each holding's own currency and summed; the totals model had a currency/FX contract but the risk path did not use it. formatMoney hard-coded $.
+- fix: src/ui/panels/portfolio-risk-input.js values each holding in the declared base currency (or the single shared price currency) through the declared FX legs (convertWithDeclaredRates), from the declared price currency or the listing market (.KS/.KQ → KRW); mixed currencies without a base or a usable rate hold with currency-mixed-no-base / currency-unconverted; the snapshot receives base-currency unit values and the result declares valueCurrency and returnCurrencyBasis (returns stay local). The shell passes getPortfolioFxLegs() and explains the hold. Hero totals format in surface.baseCurrency (₩ for KRW).
+- violated_rule: Amounts travel with their currency; the totals and the risk path share one unit contract.
+- prevention: ci-esm-core-unit-check P1407 (unconverted mix held; with a 1,400 KRW/USD leg equity = $171.43; formatMoney ₩/$).
+- verification/residual: Function reproduction: no FX → currency-unconverted; with FX → AAPL $100, Samsung $71.43.
+
+## P1406 - v56.98 - AI entity resolution: whole-word names and registry-confirmed symbols (2026-10-03)
+
+- symptom/reproduction: Codex structural review (reproduced): '애플리케이션 사용법' and 'pineapple industry' resolved to AAPL, 'BRK.B 분석' to BRK, 'nvda 분석' to nothing; also '메타버스 테마' → META and 'IT 섹터' → IT. The AI could research a company the question never named.
+- root_cause: src/ai/entity/resolver.js matched aliases by lower-case substring and symbols by an uppercase regex, apart from the ticker screen, which confirms names by exact registry match (resolveRegisteredName) and KRX codes by normalizeTickerInput.
+- fix: resolver v2: candidates and confirmation are separate. English names match as whole words, Korean names as the whole token or token + particle; symbols (BRK.B-style classes, KRX codes, lowercase symbols) are confirmed through AIO_TICKER_NAME_REGISTRY / SCREENER_DB / KR_STOCK_DB using the screen's normalizeTickerInput and resolveRegisteredName; lowercase common words are not symbols; an all-caps symbol no registry knows stays with verified:false; sector/index words stay topics.
+- violated_rule: One identity rule for the screen and the AI; no ticker guessing.
+- prevention: ci-ai-intelligence-contract-check P1406 (nine phrasing cases incl. the false positives).
+- verification/residual: Function reproduction of all reported and additional cases; AI intelligence contract OK.
+
 ## P1405 - v56.97 - 차트 · 기술 follows the stock opened on the 종목 screen (2026-10-03)
 
 - symptom/reproduction: Codex review: after opening a company on the 종목 screen, the chart tab reset to SPY.

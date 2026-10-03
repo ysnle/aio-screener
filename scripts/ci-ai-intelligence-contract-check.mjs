@@ -201,6 +201,14 @@ check('theme-outlook-is-current-but-does-not-depend-on-web-only', themeOutlookPl
 const compositePlan = createQuestionPlan({ query: 'AAPL과 MSFT 실적 마진 차트 비교', route: 'home', now: '2026-07-28T12:00:00Z' });
 check('composite-question-retains-every-evidence-axis', ['entity-quote','fundamentals','technical'].every((item) => compositePlan.requiredEvidence.includes(item)));
 check('finance-acronyms-are-not-tickers', createQuestionPlan({ query:'삼성전자 PER와 지난 FOMC 비교', route:'home', now:'2026-07-28T12:00:00Z' }).entities.entities.every((entity) => !['PER','FOMC'].includes(entity.symbol)));
+// P1406: names match whole words / Korean token + particle, symbols are confirmed through the screen's registry functions.
+{
+  const registryRoot = { AIO_TICKER_NAME_REGISTRY: { entries: { AAPL: { en: 'Apple', kr: '애플', alt: ['apple', 'aapl'] }, NVDA: { en: 'NVIDIA', kr: '엔비디아', alt: ['nvidia', 'nvda'] }, 'BRK.B': { en: 'Berkshire Hathaway', kr: '버크셔해서웨이', alt: ['berkshire', 'brk.b'] }, META: { en: 'Meta', kr: '메타', alt: ['meta'] }, NOW: { en: 'ServiceNow', kr: '서비스나우', alt: ['now'] } } } };
+  const symbolsOf = (query) => createQuestionPlan({ query, route: 'home', root: registryRoot, now: '2026-07-28T12:00:00Z' }).entities.entities.map((entity) => entity.symbol).join(',');
+  const cases = [['애플리케이션 사용법', ''], ['pineapple industry', ''], ['메타버스 테마', ''], ['IT 섹터 전망', ''], ['what is happening now', ''], ['BRK.B 분석', 'BRK.B'], ['nvda 분석', 'NVDA'], ['애플의 실적', 'AAPL'], ["Apple's margin", 'AAPL']];
+  const misses = cases.filter(([query, expected]) => symbolsOf(query) !== expected).map(([query]) => `${query}=${symbolsOf(query)}`);
+  check(`P1406 entity resolution confirms identity instead of matching substrings ${misses.join(' | ')}`, misses.length === 0);
+}
 const mixedMarketPlan = createQuestionPlan({ query:'삼성전자와 AAPL 현재 비교', route:'home', now:'2026-07-28T12:00:00Z' });
 check('mixed-market-question-is-not-forced-into-one-session', mixedMarketPlan.market === 'MIXED' && mixedMarketPlan.markets.includes('KR') && mixedMarketPlan.markets.includes('US') && mixedMarketPlan.sessionEvidence?.status === 'unknown');
 check('resolved-alias-is-not-reported-as-unresolved', !mixedMarketPlan.entities.unresolvedTerms.some((term) => term.includes('삼성전자')));

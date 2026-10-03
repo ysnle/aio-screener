@@ -1,0 +1,19 @@
+{
+  "version": "v56.98",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.98 — Codex structural review step 1: AI entity identity confirmed through the screen registry, portfolio risk weights in one base currency, event dedupe / earnings retry / HTTP status / mount cleanup, return-contract dates and horizons (P1406-P1409).",
+  "p": {
+    "id": 1409,
+    "title": "Return contract rejects unparseable times and mixed horizons",
+    "symptom": "Codex structural review: createReturnObservation accepted startValuationAt 'nonsense' / endValuationAt 'nope' (ok=true) and assertComparableReturns compared a one-month with a six-year return.",
+    "root_cause": "NaN >= NaN is false, so the order check passed; comparability checked kind, currency and adjustment but not the horizon.",
+    "fix": "src/domain/screener/return-contract.js: valuation-times-invalid for unparseable times; mixed-horizons-in-one-comparison when horizons differ by more than three days.",
+    "violated_rule": "A contract checks meaning, not only presence.",
+    "prevention": "ci-esm-core-unit-check P1409.",
+    "verification": "Unit tests; screener workbench contract OK."
+  },
+  "changelog": [
+    "**수익률 비교 계약 (P1409):** 잘못된 날짜와 기간이 다른 수익률 비교를 거부."
+  ]
+}

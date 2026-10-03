@@ -1171,7 +1171,7 @@ async function refreshPortfolioRisk() {
     validTickers: validTickers,
     commonDates: commonDates,
     cashValue: cashValue,
-    declarations: declarations
+    declarations: declarations, fxLegs: getPortfolioFxLegs() // P1407: one base currency for weights
   }) : null;
   if (!assembled || !assembled.ok) {
     var holdCode = (assembled && assembled.code) || 'risk-input-unavailable';
@@ -1179,7 +1179,7 @@ async function refreshPortfolioRisk() {
       holdCode === 'missing-current'
         ? '현재 시세가 없는 종목은 원가로 평가액을 대체하지 않습니다. 갱신 후 다시 시도하세요: ' + _escHtmlSafe(((assembled && assembled.tickers) || []).join(', ')) + '.'
         : holdCode === 'no-current-value' ? '현재 평가액을 산출할 수 없어 리스크 계산을 보류합니다.'
-          : holdCode === 'common-dates-insufficient' ? '종목 간 공통 거래일이 6일 미만이라 리스크 계산을 보류합니다.'
+          : holdCode === 'common-dates-insufficient' ? '종목 간 공통 거래일이 6일 미만이라 리스크 계산을 보류합니다.' : holdCode === 'currency-mixed-no-base' ? '통화가 다른 종목이 섞여 있어 기준 통화를 선언해야 비중·위험을 계산할 수 있습니다.' : holdCode === 'currency-unconverted' ? '환율 근거가 없거나 오래돼(' + _escHtmlSafe(((assembled && assembled.pairs) || []).join(', ')) + ') 비중·위험 계산을 보류합니다. 포트폴리오 설정에서 환율을 선언하세요.'
             : '위험 추정 입력을 확정하지 못해 보류합니다: ' + _escHtmlSafe(holdCode) + '.'
     ) + '</div>';
     return;

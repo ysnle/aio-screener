@@ -203,16 +203,21 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   windowTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'same-target-repeat' } }));
   windowTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'same-target-repeat' } }));
   if (calls !== 4) fail(`compatibility event adapter: same-target events were incorrectly deduplicated (${calls})`);
+  // P1408: document original → window mirror → document update (same detail, inside the window) delivers twice.
+  documentTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'p1408' } }));
+  windowTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'p1408' } }));
+  documentTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'p1408' } }));
+  if (calls !== 6) fail(`P1408 a suppressed mirror must not swallow the next genuine update (${calls})`);
   windowTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', payload: { revision: 'one' } } }));
   documentTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', payload: { revision: 'two' } } }));
-  if (calls !== 6) fail(`compatibility event adapter: distinct nested details were incorrectly deduplicated (${calls})`);
+  if (calls !== 8) fail(`compatibility event adapter: distinct nested details were incorrectly deduplicated (${calls})`);
   now += 251;
   documentTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'same-cycle' } }));
-  if (calls !== 7) fail(`compatibility event adapter: expired dedupe record blocked a new event (${calls})`);
+  if (calls !== 9) fail(`compatibility event adapter: expired dedupe record blocked a new event (${calls})`);
   stop();
   stopHistory();
   documentTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'after-stop' } }));
-  if (calls !== 7) fail('compatibility event adapter: disposed subscription still received events');
+  if (calls !== 9) fail('compatibility event adapter: disposed subscription still received events');
   adapter.dispose();
 
   const routeRoot = {
@@ -437,6 +442,27 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (timed?.error !== 'HTTP_TIMEOUT' || (await timeout).ok) fail('http: ignored abort published late success or never settled');
   const bodyTimeout = await createHttpClient({ defaultTimeoutMs: 5, fetchImpl: async () => ({ ok: true, status: 200, json: () => new Promise(() => {}) }) }).requestJson('fixture');
   if (bodyTimeout.error !== 'HTTP_TIMEOUT') fail('http: deadline excludes JSON body wait');
+  // P1408: a 503 with an HTML body keeps its status; a 200 with an unparseable body is a parse failure.
+  const htmlError = await createHttpClient({ fetchImpl: async () => ({ ok: false, status: 503, json: async () => { throw new SyntaxError('Unexpected token <'); } }) }).requestJson('fixture');
+  const badBody = await createHttpClient({ fetchImpl: async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError('bad'); } }) }).requestJson('fixture');
+  if (htmlError.status !== 503 || htmlError.error !== 'HTTP_503' || badBody.ok || badBody.status !== 200 || badBody.error !== 'HTTP_PARSE_FAILED') fail(`P1408 http status lost: ${JSON.stringify([htmlError.status, htmlError.error, badBody.error])}`);
+  // P1409: unparseable valuation times and mixed horizons are not comparable.
+  const { createReturnObservation, assertComparableReturns } = await load('src/domain/screener/return-contract.js');
+  const obs = (start, end) => ({ kind: 'price', adjustment: 'split', currency: 'USD', startValuationAt: start, endValuationAt: end, value: 0.1 });
+  if (createReturnObservation(obs('nonsense', 'nope')).ok) fail('P1409 unparseable valuation times accepted');
+  if (assertComparableReturns([obs('2026-08-30', '2026-09-30'), obs('2020-09-30', '2026-09-30')]).comparable) fail('P1409 one-month and six-year returns treated as comparable');
+  if (!assertComparableReturns([obs('2026-08-29', '2026-09-30'), obs('2026-08-30', '2026-09-30')]).comparable) fail('P1409 same-horizon returns refused');
+  // P1407: mixed-currency risk weights are valued in one base currency or held.
+  const { assembleRiskEstimateInput } = await load('src/ui/panels/portfolio-risk-input.js');
+  const riskDates = ['2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25', '2026-09-28', '2026-09-29'];
+  const riskHist = (base) => Object.fromEntries(riskDates.map((d, i) => [d, base * (1 + 0.01 * Math.sin(i))]));
+  const riskEv = (value) => ({ allowedUse: true, value, ts: Date.parse('2026-09-30T00:00:00Z') });
+  const riskBase = { positions: [{ ticker: 'AAPL', qty: 1 }, { ticker: '005930.KS', qty: 1 }], priceEvidenceMap: { AAPL: riskEv(100), '005930.KS': riskEv(100000) }, historyMap: { AAPL: riskHist(100), '005930.KS': riskHist(100000) }, validTickers: ['AAPL', '005930.KS'], commonDates: riskDates, cashValue: 0, nowIso: '2026-09-30T00:00:00Z' };
+  const unconverted = assembleRiskEstimateInput({ ...riskBase, declarations: { baseCurrency: 'USD' } });
+  const converted = assembleRiskEstimateInput({ ...riskBase, declarations: { baseCurrency: 'USD' }, fxLegs: [{ from: 'USD', to: 'KRW', rate: 1400, observedAt: '2026-09-29T12:00:00Z' }] });
+  if (unconverted.ok || unconverted.code !== 'currency-unconverted' || !converted.ok || Math.round(converted.snapshot.equityValue) !== 171) fail(`P1407 mixed-currency risk weights: ${unconverted.code} ${converted.snapshot?.equityValue}`);
+  const { formatMoney } = await load('src/ui/pages/portfolio.js');
+  if (formatMoney(100000, 'KRW') !== '₩100,000' || formatMoney(100, 'USD') !== '$100') fail('P1407 portfolio totals must carry their currency');
 }
 
 {
@@ -2584,7 +2610,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   // P1258: 위험 입력 조립이 네이티브 모듈로 분해됐다 — 선언 전달 계약은 모듈이, 셸은 브리지 배선이 소유한다.
   const p1188RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
   if (!/cash: \{ amount: cashAmount, currency: decl\.cashCurrency \}/.test(p1188RiskInput)
-    || !/baseCurrency: decl\.baseCurrency/.test(p1188RiskInput)
+    || !/const baseCurrency = String\(decl0\.baseCurrency \|\| ''\)/.test(p1188RiskInput) // P1407: declared base wins, then the single shared price currency
     || !/cashReturn: decl\.cashReturn != null/.test(p1188RiskInput)
     || !/rfAnnual: decl\.riskFreeRate/.test(p1188RiskInput)) {
     fail('P1188/11 P11-02 the risk path must pass the declared currency/return/RF instead of nulls');
