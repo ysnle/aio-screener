@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1416 - v57.01 - 시장 폭: 52-week highs/lows, 4% movers, 40-day ratio, distribution days and a contributor drilldown (2026-10-03)
+
+- symptom/reproduction: Open-source comparison (xang1234/stock-screener breadth revision 3, StockBee Market Monitor, IBD distribution days): the 시장 폭 screen showed only moving-average ratios and advance/decline, so leadership narrowing (new lows outnumbering new highs near an index high), forced selling (4% decliners on volume) and index distribution were not visible, and no count showed which stocks made it.
+- root_cause: The producer reduced each symbol to adjusted closes; highs, lows and volumes were fetched but not used for breadth, and the index volume was not kept.
+- fix: src/domain/market/breadth-signals.js (pure, reimplemented from the published definitions): StockBee 4% movers on rising volume >= 100k shares, split-adjusted 52-week highs/lows (>= 240 prior sessions inside a one-year download), % above the 40-day average, O'Neil distribution days over 25 sessions; each count with its own eligible denominator. fetch-data.mjs computeScreenerBreadthHistory aggregates them per completed session into history.json (breadth40, breadthUp4/Down4, breadthNewHighs/Lows, distributionDays from ^GSPC daily bars) and writes public-data/breadth-contributors.json (latest 20 sessions, symbols and day change); refresh-screener stages it. The 시장 폭 board groups cards into participation / leadership / index confirmation with a per-card drilldown (date picker, symbol -> 종목 screen) that keeps its open state across re-renders; 시장 상태 shows the new figures as evidence on the breadth and trend axes (state rules unchanged) and the briefing gains highs-lows divergence, broadening leadership and distribution-cluster statements (observation + 해석). Composite exposure scores from the reference were not adopted.
+- violated_rule: Owner decisions: evidence + state, no ungrounded composite score; one close basis (P1399).
+- prevention: ci-esm-core-unit-check P1416 (mover needs rising volume, missing volume unknown, split not a new low, no 52-week signal without ~1 year, distribution window, producer aggregation and contributor list).
+- verification/residual: Local browser with synthetic leadership fields: three groups render, highs/lows and movers cards show today counts and the drilldown lists AAPL/MSFT/NKE with names and day change; 시장 상태 breadth/trend evidence rows appear. Real values arrive with the next refresh-screener run.
+
 ## P1415 - v56.99 - Refresh promotion gate: producer deletions are part of the candidate (2026-10-03)
 
 - symptom/reproduction: Both operator workflow_dispatch runs of refresh-data on 2026-10-03 (02:43Z, 04:58Z) failed at Validate (record) and the fail-closed promotion gate (CANDIDATE MISMATCH, 1203 files) while schedule runs passed with 12 files.

@@ -3414,6 +3414,37 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30' || !/162천 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
 }
 
+// ── P1416: breadth signals — 4% movers, 52-week highs/lows, 40-day ratio, distribution days ────
+{
+  const { evaluateSymbolSignals, distributionDaySeries } = await load('src/domain/market/breadth-signals.js');
+  const n = 260;
+  const closes = Array.from({ length: n }, (_, i) => 100 + Math.sin(i / 9) * 5);
+  closes[n - 1] = closes[n - 2] * 1.05; // +5% last session
+  const volumes = closes.map((_, i) => (i === n - 1 ? 900000 : 500000));
+  const highs = closes.map((c, i) => (i === n - 1 ? 130 : c * 1.01));
+  const lows = closes.map((c) => c * 0.99);
+  const signals = evaluateSymbolSignals({ closes, adjCloses: closes, highs, lows, volumes });
+  const last = signals[n - 1];
+  if (last.mover !== 'up' || !last.highLowEligible || !last.newHigh || last.newLow || !last.above40Eligible) fail(`P1416 last-session signals wrong: ${JSON.stringify(last)}`);
+  if (signals[100].highLowEligible) fail('P1416 a session without ~1 year of prior bars must not count as a 52-week high/low');
+  const quiet = evaluateSymbolSignals({ closes, adjCloses: closes, highs, lows, volumes: volumes.map(() => 500000) });
+  if (quiet[n - 1].mover !== null) fail('P1416 a 4% move without rising volume is not a StockBee mover');
+  const noVolume = evaluateSymbolSignals({ closes, adjCloses: closes, highs, lows, volumes: [] });
+  if (noVolume[n - 1].moverEligible) fail('P1416 missing volume must be unknown, not a zero count');
+  // A 2:1 split (raw halves, adjusted continuous) is not a 52-week low.
+  const raw = closes.map((c, i) => (i >= n - 5 ? c / 2 : c));
+  const split = evaluateSymbolSignals({ closes: raw, adjCloses: closes, highs: highs.map((h, i) => (i >= n - 5 ? h / 2 : h)), lows: lows.map((l, i) => (i >= n - 5 ? l / 2 : l)), volumes });
+  if (split[n - 2].newLow) fail('P1416 a split must not register as a 52-week low');
+  const bars = Array.from({ length: 40 }, (_, i) => ({ date: `2026-08-${String(i + 1).padStart(2, '0')}`, close: 100 - (i % 3 === 0 ? i * 0.5 : 0), volume: 1000 + i * 10 }));
+  const dist = distributionDaySeries(bars);
+  if (dist[10].count !== null || !Number.isInteger(dist[39].count) || dist[39].count < 1) fail(`P1416 distribution count wrong: ${JSON.stringify(dist.slice(-2))}`);
+  const { computeScreenerBreadthHistory } = await import('./fetch-data.mjs');
+  const dates = Array.from({ length: n }, (_, i) => new Date(Date.UTC(2025, 8, 1) + i * 86400000).toISOString().slice(0, 10));
+  const rows = computeScreenerBreadthHistory(['AAA'], [{ sym: 'AAA', dates, closes, adjCloses: closes, highs, lows, volumes }], 252, Date.parse('2027-01-01T00:00:00Z'));
+  const point = rows[rows.length - 1].us;
+  if (point.breadthUp4 !== 1 || point.breadthNewHighs !== 1 || point.contributors.up4[0][0] !== 'AAA' || point.breadth40 == null) fail(`P1416 producer aggregation wrong: ${JSON.stringify({ up4: point.breadthUp4, nh: point.breadthNewHighs, b40: point.breadth40 })}`);
+}
+
 // ── P1397: chart analysis — VCP run, pivot, state (no grade) ─────────────────────────────────
 {
   const { analyzeChart, detectContractions } = await load('src/domain/technical/chart-analysis.js');

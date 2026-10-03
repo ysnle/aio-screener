@@ -35,7 +35,7 @@ export function buildCloseSeries(history = [], field, { through = null } = {}) {
   const rows = [...(Array.isArray(history) ? history : [])].sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   for (const row of rows) {
     const value = finite(row?.[field]);
-    if (value == null || (value <= 0 && !/^(breadth|advance)/.test(field))) continue; // a 0 yield/price is a producer gap, not a close
+    if (value == null || (value <= 0 && !/^(breadth|advance|distribution)/.test(field))) continue; // a 0 yield/price is a producer gap, not a close (a 0 count is real)
     const meta = row.fieldMeta?.[field];
     if (meta?.observationRelation === 'carried-forward') continue;
     const date = meta?.observedAt ? nyDate(meta.observedAt) : row.date;
@@ -109,7 +109,9 @@ const bp = (now, then) => now != null && then != null ? (now - then) * 100 : nul
 const signed = (value, digits = 1, unit = '%') => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
 const fmt = (value, digits = 2) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
-const SERIES_FIELDS = ['spx', 'nasdaq', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'usdjpy', 'breadth50', 'breadth20', 'breadth200', 'advanceRatio'];
+const SERIES_FIELDS = ['spx', 'nasdaq', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'usdjpy', 'breadth50', 'breadth20', 'breadth200', 'advanceRatio',
+  // P1416: leadership and index-confirmation evidence (src/domain/market/breadth-signals.js).
+  'breadth40', 'breadthNewHighs', 'breadthNewLows', 'breadthUp4', 'breadthDown4', 'distributionDays'];
 
 /**
  * The input contract shared by the briefing read, the regime board and the sentiment board.
@@ -205,6 +207,15 @@ export function buildMarketRead(input = {}) {
     else if (b50 >= 60 && spx20 != null && spx20 > 0) add('broad-rally', 55, `50일선 위 종목 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
     else if (b50 < 30 && spx20 != null && spx20 < 0) add('broad-weakness', 70, `50일선 위 종목 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
   }
+  // P1416: leadership and distribution (definitions in src/domain/market/breadth-signals.js).
+  const nh = s.breadthNewHighs?.date === spx.date ? s.breadthNewHighs.value : null;
+  const nl = s.breadthNewLows?.date === spx.date ? s.breadthNewLows.value : null;
+  if (nh != null && nl != null && spxFromHigh != null) {
+    if (spxFromHigh > -3 && nl > nh && nl >= 10) add('highs-lows-divergence', 76, `S&P 500은 고점권(${signed(spxFromHigh)})인데 52주 신저가 종목 ${fmt(nl, 0)}개가 신고가 ${fmt(nh, 0)}개보다 많습니다.`, 'index', { reading: '지수 아래에서 약해지는 종목이 늘고 있습니다 — 주도주 폭이 좁아지는 괴리입니다.', check: `52주 신고가 종목이 신저가보다 다시 많아지는지(현재 ${fmt(nh, 0)} / ${fmt(nl, 0)})` });
+    else if (nh >= 20 && nh >= 3 * Math.max(1, nl)) add('leadership-broadening', 52, `52주 신고가 종목 ${fmt(nh, 0)}개, 신저가 ${fmt(nl, 0)}개.`, 'index', { reading: '신고가를 내는 종목이 넓게 늘어나는 모습입니다.' });
+  }
+  const dd = s.distributionDays?.value ?? null;
+  if (dd != null && dd >= 5) add('distribution-cluster', 74, `S&P 500 최근 25거래일 중 ${fmt(dd, 0)}일이 0.2% 이상 하락하면서 거래량이 늘어난 날(분배일)입니다.`, 'index', { reading: '매도 압력이 쌓이는 모습입니다 — 오닐 방식에서는 5~6회 이상을 추세 약화 경고로 봅니다.', check: '분배일이 줄어드는지, 지수가 거래량을 동반해 반등하는지' });
   // 3. Leadership: tech and small caps relative to the S&P over a month.
   const ndx20 = s.nasdaq ? pct(s.nasdaq.value, s.nasdaq.d20) : null;
   const rut20 = s.rut ? pct(s.rut.value, s.rut.d20) : null;
@@ -340,7 +351,9 @@ export function buildMarketRegime(input = {}) {
       ['50일선 / 200일선', spx.ma50 != null && spx.ma200 != null ? `${fmt(spx.ma50, 0)} / ${fmt(spx.ma200, 0)}` : null],
       ['50일선 방향', rising == null ? null : rising ? '상승' : '하락'],
       ['1년 고점 대비', fromHigh == null ? null : signed(fromHigh)],
-      ['나스닥 20일', nd20 == null ? null : signed(nd20)]
+      ['나스닥 20일', nd20 == null ? null : signed(nd20)],
+      // P1416: O'Neil distribution days — evidence only; the trend rule is unchanged.
+      ['분배일 (최근 25거래일)', s.distributionDays ? `${fmt(s.distributionDays.value, 0)}일` : null]
     ], read, flip, alignments.spx));
   }
   // 2. Breadth — participation behind the index. Both windows must be present to call it broad.
@@ -369,6 +382,10 @@ export function buildMarketRegime(input = {}) {
       ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`],
       ['200일선 위 종목', b200 == null ? null : `${fmt(b200, 0)}%`],
       ['최근 상승 종목 비율', advPct == null ? null : `${fmt(advPct, 0)}%`],
+      // P1416: leadership evidence beside the moving-average ratios (the state rule is unchanged).
+      ['40일선 위 종목', s.breadth40 ? `${fmt(s.breadth40.value, 0)}%` : null],
+      ['52주 신고가 / 신저가', s.breadthNewHighs && s.breadthNewLows ? `${fmt(s.breadthNewHighs.value, 0)} / ${fmt(s.breadthNewLows.value, 0)}` : null],
+      ['4% 이상 상승 / 하락', s.breadthUp4 && s.breadthDown4 ? `${fmt(s.breadthUp4.value, 0)} / ${fmt(s.breadthDown4.value, 0)}` : null],
       ['러셀 2000 vs S&P 500 (20일)', rut20 == null || spx20 == null ? null : `${signed(rut20)} vs ${signed(spx20)}`]
     ], read, flip, alignments.breadth50));
   }

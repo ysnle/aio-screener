@@ -120,6 +120,7 @@ jobs:
           git add -- public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
           stage_if_exists public-data/backtest-history.json
+          stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown
           node scripts/verify-refresh-candidate.mjs --expect-staged "$RUNNER_TEMP/aio-refresh-screener-candidate.json"
           if git diff --staged --quiet; then
             echo "No screener changes to commit"

@@ -117,7 +117,7 @@ try {
   if (requiredHeaders.length !== pageIds.length) throw new Error(`decision headers ${requiredHeaders.length}/${pageIds.length}`);
   const badHeaders = requiredHeaders.filter((header) => header.revision !== report.audit.sharedRevision || !header.cutEnd || !header.epoch);
   if (badHeaders.length) throw new Error(`decision header epoch missing: ${JSON.stringify(badHeaders)}`);
-  if (report.breadthHistory.cards !== 6 || !/AIO 미국 주식 유니버스/.test(report.breadthHistory.text) || !/거래소 공식 통계가 아닙니다/.test(report.breadthHistory.text) || /McClellan/.test(report.breadthHistory.text)) throw new Error(`breadth board lineage mismatch: ${JSON.stringify({ cards: report.breadthHistory.cards })}`);
+  if (report.breadthHistory.cards !== 10 || !/AIO 미국 주식 유니버스/.test(report.breadthHistory.text) || !/거래소 공식 통계가 아닙니다/.test(report.breadthHistory.text) || /McClellan/.test(report.breadthHistory.text)) throw new Error(`breadth board lineage mismatch: ${JSON.stringify({ cards: report.breadthHistory.cards })}`);
   console.log(JSON.stringify({
     ok: true,
     pageCount: pageIds.length,

@@ -26,6 +26,7 @@ import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js'; // P1402
+import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
 import { collectRotationHistory } from './lib/rotation-history.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -1696,7 +1697,7 @@ const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
 // deleted the key when a window had too few eligible symbols. Rows then had
 // different key sets and a one-row breadth lag was indistinguishable from
 // "unavailable" (P1101). Both lanes now publish every column; absence is null.
-const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline'];
+const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline','breadth40','breadthUp4','breadthDown4','breadthNewHighs','breadthNewLows','distributionDays']; // P1416
 const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS];
 // Per-row cycle metadata. Rows seeded by the historical backfill never carried
 // it, so the column set differed by row; null records "not recorded" instead.
@@ -3134,7 +3135,14 @@ export async function enrichScreener() {
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
   const breadth = computeScreenerBreadth(syms, results);
   const breadthHistory = computeScreenerBreadthHistory(syms, results);
-  const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now());
+  // P1416: distribution days need the index's own volume; one extra daily-bar request.
+  let distribution = null;
+  try {
+    const spxBars = await fetchHistory('^GSPC', '6mo');
+    distribution = { series: distributionDaySeries((spxBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
+  } catch (e) { console.warn('[fetch-data] distribution-day bars unavailable:', e && e.message || e); }
+  const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now(), distribution);
+  await writeBreadthContributors(breadthHistory, Date.now());
   const usUniverse = syms.filter(s => !/\.(KS|KQ)$/i.test(s)).length;
   const fundamentalCount = syms.filter(sym => {
     const row = data[sym] || {};
@@ -3647,10 +3655,25 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     us: [...symbolSet].filter((sym) => segmentFor(sym) === 'us').length,
     kr: [...symbolSet].filter((sym) => segmentFor(sym) === 'kr').length
   };
-  const blank = () => ({ eligible: 0, advances: 0, declines: 0, unchanged: 0, observedAt: null, above: { 20: 0, 50: 0, 200: 0 }, eligibleByWindow: { 20: 0, 50: 0, 200: 0 } });
+  const blank = () => ({ eligible: 0, advances: 0, declines: 0, unchanged: 0, observedAt: null, above: { 20: 0, 40: 0, 50: 0, 200: 0 }, eligibleByWindow: { 20: 0, 40: 0, 50: 0, 200: 0 },
+    // P1416: StockBee 4% movers, 52-week highs/lows; each with its own eligible denominator.
+    up4: 0, down4: 0, moverEligible: 0, newHighs: 0, newLows: 0, highLowEligible: 0, contributors: { up4: [], down4: [], newHigh: [], newLow: [] } });
   const getBucket = (date) => {
     if (!buckets.has(date)) buckets.set(date, { all: blank(), us: blank(), kr: blank() });
     return buckets.get(date);
+  };
+  const addSignals = (bucket, signal, sym) => {
+    if (!signal) return;
+    if (signal.above40Eligible) { bucket.eligibleByWindow[40] += 1; if (signal.above40) bucket.above[40] += 1; }
+    if (signal.moverEligible) bucket.moverEligible += 1;
+    const change = signal.change == null ? null : round(signal.change * 100, 2);
+    if (signal.mover === 'up') { bucket.up4 += 1; bucket.contributors.up4.push([sym, change]); }
+    if (signal.mover === 'down') { bucket.down4 += 1; bucket.contributors.down4.push([sym, change]); }
+    if (signal.highLowEligible) {
+      bucket.highLowEligible += 1;
+      if (signal.newHigh) { bucket.newHighs += 1; bucket.contributors.newHigh.push([sym, change]); }
+      if (signal.newLow) { bucket.newLows += 1; bucket.contributors.newLow.push([sym, change]); }
+    }
   };
   const update = (bucket, values, prefix, finitePrefix, index, observedAt) => {
     const value = values[index];
@@ -3681,6 +3704,9 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       finitePrefix.push(finitePrefix[finitePrefix.length - 1] + (Number.isFinite(value) ? 1 : 0));
     }
     const market = segmentFor(row.sym);
+    const signals = Array.isArray(row.closes) && row.closes.length === values.length
+      ? evaluateSymbolSignals({ closes: row.closes, adjCloses: row.adjCloses, highs: row.highs || [], lows: row.lows || [], volumes: row.volumes || [] })
+      : [];
     for (let index = 1; index < values.length; index += 1) {
       const date = String(row.dates[index] || '');
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !isSessionComplete(date, market, nowMs)) continue;
@@ -3688,6 +3714,8 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       const bucket = getBucket(date);
       update(bucket.all, values, prefix, finitePrefix, index, observedAt);
       update(bucket[market], values, prefix, finitePrefix, index, observedAt);
+      addSignals(bucket.all, signals[index], row.sym);
+      addSignals(bucket[market], signals[index], row.sym);
     }
   }
 
@@ -3701,6 +3729,13 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       coveragePct: pct(bucket.eligible, universeSize),
       eligibleByWindow: { ...bucket.eligibleByWindow },
       breadth20: pct(bucket.above[20], bucket.eligibleByWindow[20]),
+      breadth40: pct(bucket.above[40], bucket.eligibleByWindow[40]),
+      breadthUp4: bucket.moverEligible > 0 ? bucket.up4 : null,
+      breadthDown4: bucket.moverEligible > 0 ? bucket.down4 : null,
+      breadthNewHighs: bucket.highLowEligible > 0 ? bucket.newHighs : null,
+      breadthNewLows: bucket.highLowEligible > 0 ? bucket.newLows : null,
+      signalEligible: { movers: bucket.moverEligible, highLow: bucket.highLowEligible },
+      contributors: bucket.contributors,
       breadth50: pct(bucket.above[50], bucket.eligibleByWindow[50]),
       breadth200: pct(bucket.above[200], bucket.eligibleByWindow[200]),
       advanceRatio: directional > 0 ? round(bucket.advances / directional, 4) : null,
@@ -3716,12 +3751,39 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     .map(([date, segments]) => ({ date, all: finalize(segments.all, universe.all), us: finalize(segments.us, universe.us), kr: finalize(segments.kr, universe.kr) }));
 }
 
-async function updateScreenerBreadthHistory(rows, nowMs = Date.now()) {
+// P1416: which stocks made each count — the latest 20 completed sessions, US segment. Names come
+// from the screener universe on the client; this artifact carries symbols and the day's change only.
+const BREADTH_CONTRIBUTORS_OUT = `${__dir}/../public-data/breadth-contributors.json`;
+async function writeBreadthContributors(rows, nowMs = Date.now()) {
+  const sessions = (Array.isArray(rows) ? rows : [])
+    .filter((point) => point?.date && point?.us?.contributors && isSessionComplete(point.date, 'us', nowMs))
+    .slice(-20)
+    .map((point) => ({
+      date: point.date,
+      eligible: point.us.signalEligible || null,
+      signals: Object.fromEntries(Object.entries(point.us.contributors).map(([key, list]) => [key, [...list].sort((a, b) => Math.abs(b[1] ?? 0) - Math.abs(a[1] ?? 0)).slice(0, 80)])),
+      counts: { up4: point.us.breadthUp4, down4: point.us.breadthDown4, newHigh: point.us.breadthNewHighs, newLow: point.us.breadthNewLows }
+    }));
+  if (!sessions.length) return { written: false };
+  const payload = { schemaVersion: 'breadth-contributors.v1', model: BREADTH_SIGNAL_MODEL_VERSION, generatedAt: new Date(nowMs).toISOString(), universeScope: 'aio-us-screener-universe-not-official-exchange', columns: ['symbol', 'dayChangePct'], sessions };
+  await atomicWriteFile(BREADTH_CONTRIBUTORS_OUT, JSON.stringify(payload));
+  return { written: true, sessions: sessions.length };
+}
+
+async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distribution = null) {
   if (!Array.isArray(rows) || rows.length < 60) return { updated: false, rows: rows?.length || 0 };
   let history = [];
   try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) history = raw; } catch { /* first producer run */ }
   const fetchedAt = new Date().toISOString();
-  const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline'];
+  const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline', 'breadth40', 'breadthUp4', 'breadthDown4', 'breadthNewHighs', 'breadthNewLows'];
+  // P1416: each count is judged against its own eligible population.
+  const eligibleFor = (segment, field) => {
+    const window = /^breadth(20|40|50|200)$/.exec(field)?.[1];
+    if (window) return Number(segment.eligibleByWindow?.[window]);
+    if (field === 'breadthUp4' || field === 'breadthDown4') return Number(segment.signalEligible?.movers);
+    if (field === 'breadthNewHighs' || field === 'breadthNewLows') return Number(segment.signalEligible?.highLow);
+    return Number(segment.eligible);
+  };
   // P1399: an earlier in-session run may have written today's partial breadth; clear it.
   for (const row of history) {
     if (!row?.date || isSessionComplete(row.date, 'us', nowMs)) continue;
@@ -3734,8 +3796,7 @@ async function updateScreenerBreadthHistory(rows, nowMs = Date.now()) {
     if (!target) { target = { date: point.date, fieldMeta: {} }; history.push(target); }
     target.fieldMeta = target.fieldMeta || {};
     for (const field of fields) {
-      const window = /^breadth(20|50|200)$/.exec(field)?.[1];
-      const eligible = window ? Number(segment.eligibleByWindow?.[window]) : Number(segment.eligible);
+      const eligible = eligibleFor(segment, field);
       const universe = Number(segment.universe);
       const minimumEligible = Math.max(20, Math.ceil(universe * 0.5));
       const rawValue = segment[field];
@@ -3767,10 +3828,26 @@ async function updateScreenerBreadthHistory(rows, nowMs = Date.now()) {
       };
     }
   }
+  // P1416: S&P 500 distribution days (25-session count) from the index's own completed bars.
+  let distributionRows = 0;
+  for (const point of Array.isArray(distribution?.series) ? distribution.series : []) {
+    if (!point?.date || point.count == null || !isSessionComplete(point.date, 'us', nowMs)) continue;
+    const target = history.find((row) => row?.date === point.date);
+    if (!target) continue;
+    target.distributionDays = point.count;
+    target.fieldMeta = target.fieldMeta || {};
+    target.fieldMeta.distributionDays = {
+      observedAt: `${point.date}T20:00:00.000Z`, fetchedAt, lastSuccessfulAt: fetchedAt,
+      source: 'Yahoo chart ^GSPC daily bars', sourceKind: 'derived-research', allowedUse: 'research-history',
+      observationRelation: 'latest-completed-close', observedAtSource: 'derived-from-index-daily-bars',
+      model: BREADTH_SIGNAL_MODEL_VERSION, rule: 'close <= -0.2% on volume above the prior session; latest 25 sessions'
+    };
+    distributionRows += 1;
+  }
   history.sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   if (history.length > 420) history = history.slice(-420);
   await atomicWriteFile(HIST, JSON.stringify(normalizeHistoryRows(history)));
-  return { updated: true, rows: rows.length, totalHistoryRows: history.length };
+  return { updated: true, rows: rows.length, totalHistoryRows: history.length, distributionRows };
 }
 
 function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketAnalysisEvidence(data), newsEvidence = buildMarketAnalysisNewsEvidence(data)) {

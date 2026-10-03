@@ -1,5 +1,6 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { renderBreadthBoard } from '../components/breadth-board.js';
+import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveMacroTransmissionEvidence, MACRO_FUNDING_LIQUIDITY_REFERENCE, MACRO_LAGGED_SUPPLY_DEMAND_REFERENCE } from '../../domain/macro/transmission.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/quote-presentation.js';
@@ -875,6 +876,17 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         if (route === 'breadth') renderBreadthBoard({ documentRef, root });
       };
       renderNow();
+      // P1416: the breadth drilldown (which stocks made each count) is a separate small artifact.
+      if (route === 'breadth' && !root._aioBreadthContributors) {
+        const fetchFn = root?.fetch || globalThis.fetch;
+        let alive = true;
+        bag.add(() => { alive = false; });
+        if (typeof fetchFn === 'function') {
+          loadJsonArtifact(fetchFn.bind(root), './public-data/breadth-contributors.json', { maxAgeMs: 30 * 60 * 1000, maxBytes: 1024 * 1024 })
+            .then((payload) => { if (payload?.schemaVersion === 'breadth-contributors.v1') root._aioBreadthContributors = payload; if (alive) renderNow(); })
+            .catch(() => {});
+        }
+      }
       const unsubscribe = store && subscribeToSlices(store, ['market', 'marketSnapshot', 'screener'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
