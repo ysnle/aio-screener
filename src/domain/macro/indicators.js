@@ -5,6 +5,8 @@
 // SPY +/-0.6% = market tone) and the hand-written cycle timeline/thermometer are retired. The one
 // comparison drawn is against a published target (the FOMC's 2% PCE inflation objective).
 
+import { seriesOf, yoySeries } from './macro-read.js';
+
 export const FED_PCE_TARGET = 2; // FOMC Statement on Longer-Run Goals: 2% on the PCE price index
 
 const SOURCE_LABELS = Object.freeze({
@@ -21,29 +23,29 @@ export const MACRO_GROUPS = Object.freeze([
   Object.freeze({
     id: 'policy', title: '정책금리', items: Object.freeze([
       Object.freeze({ id: 'fedTarget', label: '연준 목표 범위', range: ['fedTargetLower', 'fedTargetUpper'], unit: '%', digits: 2, release: 'us-fomc', daily: true, note: 'FOMC가 정하는 연방기금금리 목표 범위입니다.' }),
-      Object.freeze({ id: 'fedRate', key: 'fedRate', label: '실효 연방기금금리 (월평균)', unit: '%', digits: 2, deltaUnit: '%p', note: '은행 간 하루짜리 대출 금리의 월평균(FRED FEDFUNDS)입니다.' })
+      Object.freeze({ id: 'fedRate', history: { field: 'fedFunds', derive: 'level' }, key: 'fedRate', label: '실효 연방기금금리 (월평균)', unit: '%', digits: 2, deltaUnit: '%p', note: '은행 간 하루짜리 대출 금리의 월평균(FRED FEDFUNDS)입니다.' })
     ])
   }),
   Object.freeze({
     id: 'inflation', title: '물가', items: Object.freeze([
-      Object.freeze({ id: 'cpi', key: 'cpi', label: 'CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '소비자물가지수, 계절조정 전 공식 보도 기준입니다.' }),
-      Object.freeze({ id: 'coreCpi', key: 'coreCpi', label: '근원 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '식품·에너지를 뺀 CPI입니다.' }),
-      Object.freeze({ id: 'pce', key: 'pce', label: 'PCE 물가 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '연준 물가 목표(2%)가 기준으로 삼는 지표입니다.' }),
-      Object.freeze({ id: 'corePce', key: 'corePce', label: '근원 PCE (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '식품·에너지를 뺀 PCE 물가입니다.' })
+      Object.freeze({ id: 'cpi', history: { field: 'cpiIndex', derive: 'yoy' }, key: 'cpi', label: 'CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '소비자물가지수, 계절조정 전 공식 보도 기준입니다.' }),
+      Object.freeze({ id: 'coreCpi', history: { field: 'coreCpiIndex', derive: 'yoy' }, key: 'coreCpi', label: '근원 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '식품·에너지를 뺀 CPI입니다.' }),
+      Object.freeze({ id: 'pce', history: { field: 'pceIndex', derive: 'yoy' }, key: 'pce', label: 'PCE 물가 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '연준 물가 목표(2%)가 기준으로 삼는 지표입니다.' }),
+      Object.freeze({ id: 'corePce', history: { field: 'corePceIndex', derive: 'yoy' }, key: 'corePce', label: '근원 PCE (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '식품·에너지를 뺀 PCE 물가입니다.' })
     ])
   }),
   Object.freeze({
     id: 'labor', title: '고용', items: Object.freeze([
-      Object.freeze({ id: 'unemployment', key: 'unemployment', label: '실업률', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: 'BLS 가계 조사 기준입니다.' }),
-      Object.freeze({ id: 'nfp', key: 'nfp', label: '비농업 고용 증감', unit: '천 명', digits: 0, signed: true, priorPrint: true, release: 'us-nfp', note: '전월 대비 늘어난 일자리 수(BLS 사업체 조사)입니다.' }),
-      Object.freeze({ id: 'usWageGrowth', key: 'usWageGrowth', label: '시간당 임금 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: '민간 부문 평균 시간당 임금 상승률입니다.' }),
+      Object.freeze({ id: 'unemployment', history: { field: 'unemployment', derive: 'level' }, key: 'unemployment', label: '실업률', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: 'BLS 가계 조사 기준입니다.' }),
+      Object.freeze({ id: 'nfp', history: { field: 'payrolls', derive: 'diff' }, key: 'nfp', label: '비농업 고용 증감', unit: '천 명', digits: 0, signed: true, priorPrint: true, release: 'us-nfp', note: '전월 대비 늘어난 일자리 수(BLS 사업체 조사)입니다.' }),
+      Object.freeze({ id: 'usWageGrowth', history: { field: 'hourlyEarnings', derive: 'yoy' }, key: 'usWageGrowth', label: '시간당 임금 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: '민간 부문 평균 시간당 임금 상승률입니다.' }),
       Object.freeze({ id: 'participation', key: 'blsLaborForceParticipation', blsSeries: 'laborForceParticipation', label: '경제활동참가율', unit: '%', digits: 1, release: 'us-nfp', note: '16세 이상 인구 중 일하거나 구직 중인 비율입니다.' })
     ])
   }),
   Object.freeze({
     id: 'activity', title: '소비 · 주택', items: Object.freeze([
-      Object.freeze({ id: 'retailSales', key: 'retailSales', label: '소매판매 (전월 대비)', unit: '%', digits: 1, signed: true, release: 'us-retail', note: '미 인구조사국 소매판매 증감률입니다.' }),
-      Object.freeze({ id: 'housingStarts', key: 'housingStarts', label: '주택 착공 (연율)', unit: '만 호', scale: 100, digits: 1, deltaUnit: '만 호', note: '착공된 신규 주택 수의 연간 환산치입니다.' })
+      Object.freeze({ id: 'retailSales', history: { field: 'retailSales', derive: 'mom' }, key: 'retailSales', label: '소매판매 (전월 대비)', unit: '%', digits: 1, signed: true, release: 'us-retail', note: '미 인구조사국 소매판매 증감률입니다.' }),
+      Object.freeze({ id: 'housingStarts', history: { field: 'housingStarts', derive: 'level', scale: 0.1 }, key: 'housingStarts', label: '주택 착공 (연율)', unit: '만 호', scale: 100, digits: 1, deltaUnit: '만 호', note: '착공된 신규 주택 수의 연간 환산치입니다.' })
     ])
   })
 ]);
@@ -87,7 +89,19 @@ function releaseInfo({ releases, schedules, id, asOf, daily, releasedAt }) {
   return { last: dates.find((date) => date > monthEnd) || null, next };
 }
 
-function buildItem(macro, releases, schedules, item) {
+// P1426: the plotted 24-month series for one indicator, derived from the raw FRED observations.
+function derivedSeries(macroHistory, spec) {
+  if (!spec) return [];
+  const raw = seriesOf(macroHistory, spec.field);
+  const scale = spec.scale || 1;
+  const rows = spec.derive === 'yoy' ? yoySeries(raw)
+    : spec.derive === 'diff' ? raw.slice(1).map((row, index) => ({ date: row.date, value: row.value - raw[index].value }))
+      : spec.derive === 'mom' ? raw.slice(1).map((row, index) => ({ date: row.date, value: raw[index].value ? (row.value / raw[index].value - 1) * 100 : null })).filter((row) => row.value != null)
+        : raw.map((row) => ({ date: row.date, value: row.value * scale }));
+  return rows.slice(-24);
+}
+
+function buildItem(macro, releases, schedules, item, macroHistory = null) {
   const keys = item.range || [item.key];
   const values = keys.map((key) => finite(macro[key]));
   const blsSeries = item.blsSeries ? macro._bls?.series?.[item.blsSeries] : null;
@@ -117,6 +131,7 @@ function buildItem(macro, releases, schedules, item) {
     valueText,
     deltaText,
     targetText: targetGap == null ? null : `목표 2%보다 ${Math.abs(targetGap).toFixed(1)}%p ${targetGap >= 0 ? '높음' : '낮음'}`,
+    ...trendOf(item, derivedSeries(macroHistory, item.history)),
     meta
   };
 }
@@ -141,10 +156,24 @@ function groupFact(group, items) {
   return shown.length ? shown.map((item) => `${item.label.replace(/ \(.*\)$/, '')} ${item.valueText}`).join(' · ') : '자료를 기다리는 중입니다.';
 }
 
-export function buildMacroBoard({ macro = null, releases = {}, schedules = {} } = {}) {
+// One line on where the indicator came from: a year ago and six months ago, from its own series.
+function trendOf(item, series) {
+  if (series.length < 13) return { series, trendText: null, direction: null };
+  const last = series[series.length - 1];
+  const year = series[series.length - 13];
+  const half = series[series.length - 7];
+  const digits = item.digits ?? 1;
+  const unit = item.unit === '%' ? '%' : item.unit;
+  const fmt = (value) => `${item.signed ? signed(value, digits) : value.toFixed(digits)}${unit}`;
+  const move = last.value - half.value;
+  const flat = Math.abs(move) < (item.unit === '%' ? 0.15 : Math.abs(half.value) * 0.03);
+  return { series, trendText: `1년 전 ${fmt(year.value)} · 6개월 전 ${fmt(half.value)}`, direction: flat ? 'flat' : move > 0 ? 'up' : 'down' };
+}
+
+export function buildMacroBoard({ macro = null, releases = {}, schedules = {}, macroHistory = null } = {}) {
   if (!macro || typeof macro !== 'object') return { available: false, groups: [] };
   const groups = MACRO_GROUPS.map((group) => {
-    const items = group.items.map((item) => buildItem(macro, releases, schedules, item));
+    const items = group.items.map((item) => buildItem(macro, releases, schedules, item, macroHistory));
     return { id: group.id, title: group.title, fact: groupFact(group, items), items };
   });
   const dates = groups.flatMap((group) => group.items.map((item) => item.asOf)).filter(Boolean).sort();

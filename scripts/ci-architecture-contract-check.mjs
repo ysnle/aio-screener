@@ -140,8 +140,9 @@ const indexSource = read('index.html');
 if (!inferenceEfficiencySource.includes('const rawPct = quote?.pct ?? quote?.regularMarketChangePercent') || !inferenceEfficiencySource.includes("rawPct == null || rawPct === '' ? null : Number(rawPct)")) {
   fail('AI inference proxy must preserve missing pct as null rather than Number(null)=0');
 }
-if (marketPageContractSource.includes('number === 0 ? null') || !marketPageContractSource.includes('const observedNumber = (value) => finite(value)')) {
-  fail('macro transmission renderer must preserve finite zero observations');
+// P1426: the transmission lens left with the 거시 rebuild; the macro read must still keep a real zero.
+if (marketPageContractSource.includes('number === 0 ? null') || !read('src/domain/macro/macro-read.js').includes("return value != null && value !== '' && Number.isFinite(number) ? number : null;") || read('index.html').includes('id="macro-transmission-lens"')) {
+  fail('macro read must preserve finite zero observations and the retired transmission lens must stay off the page');
 }
 if (!dataSource.includes("var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'];")) {
   fail('home news ticker suppression must cover credit and fxbond topics');
@@ -229,7 +230,11 @@ if (!marketPageSource.includes("page.dataset.aioMacroRenderer = 'native'") || !m
     if (!macroBoardSource.includes(marker)) fail(`P1425 거시 board marker missing: ${marker}`);
   }
   const shell = read('index.html');
-  for (const id of ['macro-board', 'rates-yields', 'rates-curve', 'rates-spreads', 'rates-levels', 'rates-fx-grid']) {
+  // P1426: regime, impact axes, transmission chain and oil/gold charts on 거시 경제; impact axes on 금리 · 환율.
+  for (const marker of ['buildMacroRead', 'readMarketRegime', "getElementById('macro-axes')", "getElementById('macro-chain')", "getElementById('rates-axes')", "getElementById('macro-commodities')"]) {
+    if (!macroBoardSource.includes(marker)) fail(`P1426 거시 read marker missing: ${marker}`);
+  }
+  for (const id of ['macro-board', 'macro-regime', 'macro-axes', 'macro-chain', 'macro-commodities', 'rates-axes', 'rates-yields', 'rates-curve', 'rates-spreads', 'rates-levels', 'rates-fx-grid']) {
     if (!shell.includes(`id="${id}"`)) fail(`P1425 거시 board host missing: ${id}`);
   }
   for (const retired of ['macro-storyline', 'macro-regime-pill', 'thermometer-fill', 'yieldCurveChart', 'fxbond-risk-pill', 'cam-verdict-text', 'carry-score-bar', 'yc-inversion-badge', 'macro-scenario-sum', 'carry-unwind-risk', 'fred-charts-grid']) {

@@ -4,6 +4,10 @@ last_verified: 2026-10-03
 confidence: medium
 ---
 
+## v57.08 거시 direction reads (2026-10-03)
+
+- [ ] QA-MACRO-HISTORY-LIVE-01: P1426: after the next refresh-data run, public-data/macro-history.json carries FRED observations for all 18 series and the 거시 경제 regime, Sahm gap, payroll trend and 3-month inflation pace render from it. verify_by: refresh-data run log 'macro history' line + 거시 경제 regime label not '국면 판정 보류'
+
 ## v57.06 GPT-6 Luna shared AI migration (2026-10-03)
 
 - [x] QA-AI-LUNA-01: P1421: chat, translation and Actions use only the shared GPT-6 Luna route and one monthly budget ledger. verify_by: ci-ai-budget-scope-check + ci-worker-anthropic-check + ci-ai-chat-public-route-browser-check

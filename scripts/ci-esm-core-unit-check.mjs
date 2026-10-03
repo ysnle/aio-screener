@@ -1091,9 +1091,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { deriveSentimentSummary } = await load('src/domain/sentiment/metrics.js');
   const sentiment = deriveSentimentSummary({ fearGreed: 101, vix9d: -1, vix: 17, vix3m: 20, vix6m: 22 });
   if (!sentiment.blocked || !Object.isFrozen(sentiment.vixTermStructure.points)) fail('sentiment: out-of-domain inputs were promoted or mutable');
-  const { deriveMacroTransmissionEvidence } = await load('src/domain/macro/transmission.js');
-  const macro = deriveMacroTransmissionEvidence({ treasurySupply: '' });
-  if (macro.observed.issuance || !Object.isFrozen(macro) || !Object.isFrozen(macro.chain)) fail('macro: blank evidence was observed or projection remained mutable');
+  // P1426: the transmission lens was retired; the macro read's direction helpers are pure and checked here.
+  const { sahmGap, annualised3m, yoySeries } = await load('src/domain/macro/macro-read.js');
+  const months = (values) => values.map((value, index) => ({ date: new Date(Date.UTC(2025, index, 1)).toISOString().slice(0, 10), value }));
+  const sahm = sahmGap(months([4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4.4, 4.6, 4.8]));
+  if (!sahm || Math.abs(sahm.value - 0.6) > 1e-9) fail('macro: Sahm gap is not the 3-month average minus the prior 12-month low');
+  if (Math.abs(annualised3m(months([100, 100, 100, 101])).value - (1.01 ** 4 - 1) * 100) > 1e-9) fail('macro: the 3-month pace is not annualised');
+  if (yoySeries(months(Array(13).fill(0))).length !== 0) fail('macro: a zero base produced a year-over-year rate');
   const { classifyNewsTextStance, computeNewsSentimentScore, computeNewsRiskSignals, deriveNewsSummary, MIN_NEWS_ANALYSIS_SAMPLE, NEWS_SCORING_MODEL_VERSION, normalizeNewsSentimentHistory } = await load('src/domain/news/scoring.js');
   if (classifyNewsTextStance('The commissioner dismissed Bullard from the panel') !== 'neut' || classifyNewsTextStance('Stocks surged after earnings beat') !== 'bull') fail('news: substring collision or valid inflection regression');
   const fixedNewsNow = Date.parse('2026-09-08T01:00:00Z');

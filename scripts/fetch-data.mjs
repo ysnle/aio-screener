@@ -3692,6 +3692,74 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     .map(([date, segments]) => ({ date, all: finalize(segments.all, universe.all), us: finalize(segments.us, universe.us), kr: finalize(segments.kr, universe.kr) }));
 }
 
+// P1426 (owner review 2026-10-03): the 거시 screen needs direction, not just the latest print — the
+// three-month pace of inflation, the Sahm-rule unemployment gap, the payroll trend, weekly claims and
+// a year of daily rates/credit. One raw-observation artifact from FRED (the operator key in Actions);
+// every derived figure is computed in src/domain/macro so the rule and its inputs stay inspectable.
+// A series that fails keeps its previous observations, marked stale, instead of disappearing.
+export const MACRO_HISTORY_SERIES = Object.freeze({
+  cpiIndex:       { id: 'CPIAUCSL',      frequency: 'monthly', limit: 40,  unit: 'index', label: 'CPI-U (계절조정 지수)' },
+  coreCpiIndex:   { id: 'CPILFESL',      frequency: 'monthly', limit: 40,  unit: 'index', label: '근원 CPI-U (계절조정 지수)' },
+  pceIndex:       { id: 'PCEPI',         frequency: 'monthly', limit: 40,  unit: 'index', label: 'PCE 물가지수' },
+  corePceIndex:   { id: 'PCEPILFE',      frequency: 'monthly', limit: 40,  unit: 'index', label: '근원 PCE 물가지수' },
+  unemployment:   { id: 'UNRATE',        frequency: 'monthly', limit: 40,  unit: 'percent', label: '실업률' },
+  payrolls:       { id: 'PAYEMS',        frequency: 'monthly', limit: 40,  unit: 'thousands', label: '비농업 고용자 수' },
+  hourlyEarnings: { id: 'CES0500000003', frequency: 'monthly', limit: 40,  unit: 'usd-per-hour', label: '평균 시간당 임금' },
+  retailSales:    { id: 'RSAFS',         frequency: 'monthly', limit: 40,  unit: 'usd-millions', label: '소매판매' },
+  housingStarts:  { id: 'HOUST',         frequency: 'monthly', limit: 40,  unit: 'thousands-saar', label: '주택 착공' },
+  fedFunds:       { id: 'FEDFUNDS',      frequency: 'monthly', limit: 40,  unit: 'percent', label: '실효 연방기금금리' },
+  initialClaims:  { id: 'ICSA',          frequency: 'weekly',  limit: 110, unit: 'claims', label: '신규 실업수당 청구' },
+  fedTargetUpper: { id: 'DFEDTARU',      frequency: 'daily',   limit: 400, unit: 'percent', label: '연준 목표 상단' },
+  dgs2:           { id: 'DGS2',          frequency: 'daily',   limit: 280, unit: 'percent', label: '미 국채 2년' },
+  dgs10:          { id: 'DGS10',         frequency: 'daily',   limit: 280, unit: 'percent', label: '미 국채 10년' },
+  t10y3m:         { id: 'T10Y3M',        frequency: 'daily',   limit: 280, unit: 'percentage-point', label: '10년-3개월 금리차' },
+  realYield10:    { id: 'DFII10',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 실질금리 (TIPS)' },
+  breakeven10:    { id: 'T10YIE',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기대인플레이션' },
+  hyOas:          { id: 'BAMLH0A0HYM2',  frequency: 'daily',   limit: 280, unit: 'percent', label: '하이일드 스프레드' }
+});
+const MACRO_HISTORY_OUT = `${__dir}/../public-data/macro-history.json`;
+
+export function parseFredObservations(payload) {
+  return (payload?.observations || [])
+    .map((row) => ({ date: String(row?.date || ''), value: Number.parseFloat(row?.value) }))
+    .filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row.date) && Number.isFinite(row.value))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date.now() } = {}) {
+  let previous = null;
+  try { previous = JSON.parse(await readFile(MACRO_HISTORY_OUT, 'utf8')); } catch { /* first producer run */ }
+  if (!key) return { written: false, reason: 'api-key-not-configured' };
+  const series = {};
+  const failed = [];
+  for (const [field, spec] of Object.entries(MACRO_HISTORY_SERIES)) {
+    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}&api_key=${key}&file_type=json&sort_order=desc&limit=${spec.limit}`;
+    try {
+      const observations = parseFredObservations(await fetchFn(url));
+      if (observations.length < 3) throw new Error('too-few-observations');
+      series[field] = { id: spec.id, label: spec.label, frequency: spec.frequency, unit: spec.unit, fetchedAt: new Date(nowMs).toISOString(), stale: false, observations: observations.map((row) => [row.date, row.value]) };
+    } catch (error) {
+      failed.push(field);
+      const kept = previous?.series?.[field];
+      if (kept?.observations?.length) series[field] = { ...kept, stale: true };
+      console.warn(`[fetch-data] macro history ${spec.id} failed: ${error?.message || error}`);
+    }
+  }
+  if (!Object.keys(series).length) return { written: false, reason: 'all-series-failed' };
+  const payload = {
+    schemaVersion: 'macro-history.v1',
+    generatedAt: new Date(nowMs).toISOString(),
+    source: 'FRED, Federal Reserve Bank of St. Louis',
+    sourceKind: 'T1_OFFICIAL',
+    status: failed.length ? 'partial' : 'ok',
+    failed,
+    columns: ['date', 'value'],
+    series
+  };
+  await atomicWriteFile(MACRO_HISTORY_OUT, JSON.stringify(payload));
+  return { written: true, series: Object.keys(series).length, failed };
+}
+
 // P1416: which stocks made each count — the latest 20 completed sessions, US segment. Names come
 // from the screener universe on the client; this artifact carries symbols and the day's change only.
 const BREADTH_CONTRIBUTORS_OUT = `${__dir}/../public-data/breadth-contributors.json`;
@@ -3874,6 +3942,8 @@ async function main() {
   // This independent lane reuses the existing free delayed Yahoo path; it
   // publishes only derived rotation/returns, preserving P715 raw-price stripping.
   const rotationHistoryTask = collectRotationHistory({ fetchHistory, previous: previous?.rotationHistory, now: Date.parse(attemptedAt) });
+  // P1426: monthly/weekly/daily macro observations for the 거시 direction reads (independent lane).
+  const macroHistoryTask = writeMacroHistory(process.env.FRED_API_KEY).catch((error) => ({ written: false, reason: error?.message || String(error) }));
   const settled = await Promise.allSettled([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
@@ -4303,6 +4373,8 @@ async function main() {
   });
   data.rotationHistory = await rotationHistoryTask;
   await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
+  const macroHistoryInfo = await macroHistoryTask;
+  console.log(`[fetch-data] macro history: ${JSON.stringify(macroHistoryInfo)}`);
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   const histInfo = await updateHistory(data, marketSnapshotForConsumers, fredDexkous);
   // P1246: FX 교차검증 — 히스토리 레인이 기록한 **공식 관측일과 같은 날짜**의 완료 종가를 공식

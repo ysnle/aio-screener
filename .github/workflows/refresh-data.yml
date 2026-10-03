@@ -220,6 +220,7 @@ jobs:
             fi
           }
           git add -- public-data/data.json public-data/history.json
+          stage_if_exists public-data/macro-history.json # P1426: 거시 direction reads
           stage_if_exists public-data/market-snapshot.json
           stage_if_exists public-data/market-snapshot-status.json
           stage_if_exists public-data/operations-status.json

@@ -103,6 +103,7 @@ const POLICIES = {
   'earnings-calendar.json': { kind: 'weekly-calendar-reference', timestamp: ['generatedAt'], custom: 'earnings-week', maxAgeHours: 24 * 8 },
   'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'] },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
+  'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1426: FRED observations behind the 거시 direction reads (refresh-data)
   'market-snapshot.json': { kind: 'live-core', timestamp: ['generatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'market-snapshot-status.json': { kind: 'operational-status', timestamp: ['updatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'operator-note.json': { kind: 'editorial-reference', custom: 'operator-updated', maxAgeHours: 24 * 30 },

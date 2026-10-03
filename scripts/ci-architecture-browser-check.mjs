@@ -279,11 +279,14 @@ try {
     groups: [...document.querySelectorAll('#macro-board .macro-group')].map((node) => node.dataset.group),
     cpiCard: [...document.querySelectorAll('#macro-board .macro-stat')].find((node) => /^CPI/.test(node.querySelector('.macro-stat-label')?.textContent || ''))?.textContent || '',
     inflationFact: document.querySelector('#macro-board [data-group="inflation"] .macro-group-fact')?.textContent || '',
+    impactAxes: [...document.querySelectorAll('#macro-axes .macro-axis')].map((node) => node.dataset.axis),
+    chainNodes: document.querySelectorAll('#macro-chain .macro-chain-row .macro-chain-node').length,
+    regimeLabel: document.querySelector('#macro-regime .macro-regime-label')?.textContent || '',
     rawLiveSinkCount: document.querySelectorAll('#page-macro [data-live-price], #page-macro [data-live-chg]').length,
     nativeLiveSinkCount: document.querySelectorAll('#page-macro[data-aio-architecture-renderer="native"] [data-live-price], #page-macro[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     retired: ['macro-storyline', 'macro-regime-pill', 'yieldCurveChart', 'macro-2y-value', 'macro-spread-value', 'thermometer-fill', 'macro-scenario-sum'].filter((id) => document.getElementById(id))
   }));
-  if (macroRoute.boardRenderer !== 'native' || macroRoute.groups.join(',') !== 'policy,inflation,labor,activity' || !/3\.1%/.test(macroRoute.cpiCard) || !/8월분/.test(macroRoute.cpiCard) || !/연준 목표 2% 대비 \+0\.9%p, \+0\.8%p/.test(macroRoute.inflationFact) || macroRoute.retired.length || macroRoute.rawLiveSinkCount !== macroRoute.nativeLiveSinkCount) throw new Error(`P1425 거시 경제 board failed: ${JSON.stringify(macroRoute)}`);
+  if (macroRoute.boardRenderer !== 'native' || macroRoute.groups.join(',') !== 'policy,inflation,labor,activity' || !/3\.1%/.test(macroRoute.cpiCard) || !/8월분/.test(macroRoute.cpiCard) || !/연준 목표 2% 대비 \+0\.9%p, \+0\.8%p/.test(macroRoute.inflationFact) || macroRoute.impactAxes.join(',') !== 'growth,inflation,policy,rates,commodities,credit' || macroRoute.chainNodes !== 5 || !macroRoute.regimeLabel.trim() || macroRoute.retired.length || macroRoute.rawLiveSinkCount !== macroRoute.nativeLiveSinkCount) throw new Error(`P1425/P1426 거시 경제 board failed: ${JSON.stringify(macroRoute)}`);
 
   // QA-CRED-05/P1264: 공유 Worker만 있는 환경에서 (a) 매크로의 FRED 계열 값은 출처 라벨과 함께
   // 표시되고, (b) 개인 키를 실은 URL은 공유 Worker로 중계되지 않으며 PRIVATE_ROUTE_REQUIRED
@@ -318,12 +321,13 @@ try {
     curveFact: document.getElementById('rates-curve-fact')?.textContent || '',
     curveDots: document.querySelectorAll('#rates-curve .rates-curve-dot').length,
     levels: document.querySelectorAll('#rates-levels .macro-stat').length,
+    impactAxes: [...document.querySelectorAll('#rates-axes .macro-axis')].map((node) => node.dataset.axis),
     fxCards: [...document.querySelectorAll('#rates-fx-grid .trend-card')].map((node) => node.dataset.metric),
     rawLiveSinkCount: document.querySelectorAll('#page-fxbond [data-live-price], #page-fxbond [data-live-chg]').length,
     nativeLiveSinkCount: document.querySelectorAll('#page-fxbond[data-aio-architecture-renderer="native"] [data-live-price], #page-fxbond[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     retired: ['fxbond-risk-pill', 'yc-inversion-badge', 'carry-score-bar', 'cam-verdict-text', 'sc-2s10s', 'fxbond-tnx-trend', 'koreaCurveChart'].filter((id) => document.getElementById(id))
   }));
-  if (fxbondRoute.boardRenderer !== 'native' || fxbondRoute.yields.join(',') !== '4.85%,4.99%,5.11%,5.45%,5.40%' || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) || fxbondRoute.curveDots !== 5 || fxbondRoute.levels !== 3 || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy,tnx' || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리 · 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
+  if (fxbondRoute.boardRenderer !== 'native' || fxbondRoute.yields.join(',') !== '4.85%,4.99%,5.11%,5.45%,5.40%' || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) || fxbondRoute.curveDots !== 5 || fxbondRoute.levels !== 3 || fxbondRoute.impactAxes.join(',') !== 'policy,rates,commodities,credit,korea' || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy,tnx' || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리 · 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
   // P1395: the breadth page is the native trend-card board (P1416: ten dated series in three groups + one judgement).
