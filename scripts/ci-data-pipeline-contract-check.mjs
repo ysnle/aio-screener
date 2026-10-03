@@ -301,8 +301,13 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   /FRED_HY_OAS_CACHE_MAX_AGE_MS/.test(fetchData) && /fred-official-public-csv/.test(fetchData) && /fredHyOasObservedAt/.test(fetchData));
 // P1419: the carry card measured "US-Japan" as US 10Y minus the Bank of KOREA rate; no Japanese yield
 // is collected, so the card reports the yen's own 20-day move (the 시장 상태 FX-axis rule) and no gap.
-check('P1419 FX/bond carry reads the yen 20-day move and never a Korea-rate gap labelled US-Japan',
-  /buildCloseSeries\(history, 'usdjpy'/.test(marketPage) && /yenStrength >= 3/.test(marketPage) && !/tnx - bokRate/.test(marketPage) && !/DATA_SNAPSHOT\?\.bokRate/.test(marketPage));
+// P1425: the rule lives in the 금리 · 환율 domain module; the legacy composite writer is deleted.
+{
+  const ratesFx = read('src/domain/macro/rates-fx.js');
+  check('P1419 FX/bond carry reads the yen 20-day move and never a Korea-rate gap labelled US-Japan',
+    /buildCloseSeries\(history, spec\.id/.test(ratesFx) && /YEN_RALLY_RULE = 3/.test(ratesFx) && /yenStrength >= YEN_RALLY_RULE/.test(ratesFx)
+      && !/bokRate/.test(ratesFx) && !/tnx - bokRate/.test(marketPage) && !/function _aioRenderCarryUnwindRisk/.test(read('js/aio-data.js')));
+}
 {
   let ok = false;
   let detail = '';

@@ -34,7 +34,8 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `src/data/orchestrators/screener.js` | 100 | screener state orchestration + factor-rank/setup-profile wiring |
 | `src/domain/screener/setup-profile.js` | 114 | reference-only relative-strength pullback, support/200SMA stretch, volume-evidence, and climax setup labels |
 | `src/ui/pages/news.js` | 320 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
-| `src/ui/pages/market.js` | 986 | native macro/fxbond/breadth primary metric renderers, curve/chart lifecycles, native screener-metadata breadth fallback, and macro transmission evidence lens |
+| `src/ui/pages/market.js` | 514 | native macro/fxbond/breadth slice controller: live-quote and KR snapshot cells, macro transmission evidence lens; delegates the 거시 boards to `src/ui/components/macro-board.js` (P1425) |
+| `src/ui/components/macro-board.js` | 192 | P1425 거시 경제 indicator board and 금리 · 환율 board (official curve SVG, level cards, close-basis trend cards); domain in `src/domain/macro/indicators.js` and `src/domain/macro/rates-fx.js` |
 | `src/ui/pages/themes.js` | 1,117 | native bounded RRG quadrant/rotation-read renderer plus accessible theme-detail triggers, theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark/insights, RRG chart lifecycle and AI inference/deal-loop reference lens; deeper legacy-only surfaces remain bounded |
 | `src/domain/ai/inference-efficiency.js` | 105 | reference-only inference efficiency axes, workload fit, architecture archetypes, AI deal-map nodes/role-level edges and public proxy resolver |
 | `src/domain/macro/transmission.js` | 65 | pure macro funding-to-hedge causal chain, observed/blocked evidence states and missing-producer registry; no synthetic risk score |
@@ -190,28 +191,27 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | id | line |
 |----|-----:|
 | `page-home` | 5635 |
-| `page-signal` | 5890 |
-| `page-breadth` | 6609 |
-| `page-sentiment` | 6873 |
-| `page-briefing` | 7057 |
-| `page-technical` | 7371 |
-| `page-macro` | 8028 |
-| `page-fxbond` | 8785 |
-| `page-fundamental` | 9478 |
-| `page-themes` | 9810 |
-| `page-theme-detail` | 10155 |
-| `page-portfolio` | 10283 |
-| `page-ticker` | 10746 |
-| `page-market-news` | 11046 |
+| `page-signal` | 6280 |
+| `page-breadth` | 6294 |
+| `page-sentiment` | 6309 |
+| `page-briefing` | 6324 |
+| `page-technical` | 6391 |
+| `page-macro` | 6998 |
+| `page-fxbond` | 7321 |
+| `page-fundamental` | 7361 |
+| `page-themes` | 7690 |
+| `page-theme-detail` | 7969 |
+| `page-portfolio` | 8096 |
+| `page-ticker` | 8684 |
+| `page-market-news` | 8917 |
 | `page-options` (retired v56.79) | 11183 |
-| `page-screener` | 11221 |
-| `page-guide` | 11423 |
+| `page-screener` | 9049 |
+| `page-guide` | 9425 |
 
 ### Current high-value runtime anchors
 
 | Symbol | Location |
 |--------|----------|
-| `updateFxBondPage` | `index.html:20942` |
 | `APP_VERSION` | `js/aio-core.js:2` |
 | `AIO_MANUAL_REFERENCE` / `DATA_SNAPSHOT` | `js/aio-core.js:20784` / `20813` |
 | `applyDataSnapshot` | `js/aio-core.js:21329` |
@@ -263,9 +263,9 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `js/aio-tests.js` | CI/로컬 브라우저 회귀 테스트 전용(110그룹). Pages·service worker 배포 대상에서 제외 |
 | `js/aio-qa-audits.js` | P1329/R673 자기 감사·QA 기계(aio-core에서 분리). `AIO.loadQaAudits()`로 자동화 브라우저·?qa=1·상세 감사 모드·운영자 자가 진단 위젯·`AIO.loadTests()`에서만 로드. Pages·service worker 배포 제외 |
 | `js/aio-glossary.js` | 용어사전 데이터 리터럴 |
-| `js/aio-pages.js` | **P1133으로 index.html 인라인 블록 D에서 추출한 페이지 렌더러** — 신호 대시보드, FX/채권, 크로스에셋, 기업분석 레거시 위젯, RRG/섹터/테마 맵, `showThemeDetail` 네이티브 브리지, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드. `defer`로 로드되며 `index.html`의 `data-action` 위임이 그대로 호출한다 |
+| `js/aio-pages.js` | **P1133으로 index.html 인라인 블록 D에서 추출한 페이지 렌더러** — 신호 대시보드, 기업분석 레거시 위젯(P1425: FX/채권·크로스에셋 렌더러 삭제), RRG/섹터/테마 맵, `showThemeDetail` 네이티브 브리지, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드. `defer`로 로드되며 `index.html`의 `data-action` 위임이 그대로 호출한다 |
 | `js/aio-workspace.js` | **P1136으로 index.html 인라인 블록 A에서 추출한 사용자 상태·워크스페이스 계층** — 포트폴리오(`updatePortfolioSummary`/`refreshPortfolioPrices`/`refreshPortfolioRisk`/`exportPortfolio`/`importPortfolio`), 백테스트 랩(`_aioRenderPortfolioBacktestLab`/`runPortfolioBacktestLab`), 워치리스트(`getWatchlists`/`createWatchlist`/`switchWatchlist`/`addToWatchlist`), 투자 일지·채팅 이력(`PF_JOURNAL_KEY`/`CHAT_HISTORY_LS`/`CHAT_DEFAULT_CHIPS`), 공용 헬퍼(`showToast`/`_escHtmlSafe`). **`defer` 그룹의 첫 번째** — core·data·ui가 자기 평가 시점에 이 전역들을 읽는다(P1136/R622) |
-| `js/aio-macro-tech.js` | **P1135로 index.html 인라인 블록 B에서 추출한 매크로/기술 렌더 계층** — 인라인 `computeMarketHealth` 구현과 네이티브 fence(`_aioIsNativeTechnicalHealth`), `updateTechIndicators`/`updateSRLevels`/`loadTechCandleChart`/`updatePatternSignals`, `renderEconCalendar`/`generateMacroStoryline`, `renderYieldCurve`/`destroyYieldCurveOwner`, `computeEconomicTemperature`, `updateMacroRegimePill`/`updateWtiBrentSpread`, `_aioSyncMacroLiveSpxMini`, `renderOfficialFutureCalendar`. **`defer`이지만 core·aio-ui.js보다 먼저 로드된다** — `aio-ui.js`가 자기 모듈 평가 시점에 `computeMarketHealth`를 호출하기 때문(P1135 실브라우저 회귀) |
+| `js/aio-macro-tech.js` | **P1135로 index.html 인라인 블록 B에서 추출한 매크로/기술 렌더 계층** — 인라인 `computeMarketHealth` 구현과 네이티브 fence(`_aioIsNativeTechnicalHealth`), `updateTechIndicators`/`updateSRLevels`/`loadTechCandleChart`/`updatePatternSignals`, `renderOfficialFutureCalendar` (P1425: 거시 렌더러 `generateMacroStoryline`/`renderEconCalendar`/`renderYieldCurve`/`computeEconomicTemperature`/`updateMacroRegimePill`/`updateWtiBrentSpread`/`_aioSyncMacroLiveSpxMini` 삭제 — native `macro-board.js`가 대체). **`defer`이지만 core·aio-ui.js보다 먼저 로드된다** — `aio-ui.js`가 자기 모듈 평가 시점에 `computeMarketHealth`를 호출하기 때문(P1135 실브라우저 회귀) |
 | `js/aio-kr-data.js` | **P1134로 index.html 인라인 블록 C에서 추출한 KR/SEC 데이터 플레인** — KR 테마 카드·심층분석(`initKoreaThemes`/`showKrThemeDetail`), KR 수급(`fetchKrSupplyData`/`updateKrSupplyDOM`), VKOSPI 동적 수집·이력(`fetchVkospiDynamic`/`AIO_VKOSPI_HIST_KEY`), KR 투자자 TOP10과 캐시, `KR_STOCK_DB`/`KR_THEME_MAP`/`_KR_SECTOR_MAP`, SEC 공시·재무(`fetchSECFilings`/`fetchSECFinancials`). 렌더러가 아니라 수집·정규화 계층이다 |
 
 ---
@@ -307,25 +307,25 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | 페이지 | id | 시작 line |
 |--------|----|----------:|
 | 홈 대시보드 | `page-home` | 6,367 |
-| 매매 시그널 | `page-signal` | 6,622 |
-| 시장 폭 | `page-breadth` | 7,344 |
-| 투자 심리 | `page-sentiment` | 7,608 |
-| 데일리 브리핑 | `page-briefing` | 7,792 |
-| 차트·기술 | `page-technical` | 8,142 |
-| 거시경제 | `page-macro` | 8,799 |
-| 환율·채권 | `page-fxbond` | 9,561 |
-| 기업 분석 | `page-fundamental` | 10,254 |
-| 테마/섹터 | `page-themes` | 10,593 |
-| 테마 상세 | `page-theme-detail` | 10,956 |
-| 포트폴리오 | `page-portfolio` | 11,083 |
-| 티커 상세 | `page-ticker` | 11,546 |
-| 시장 뉴스 | `page-market-news` | 11,778 |
+| 매매 시그널 | `page-signal` | 6,280 |
+| 시장 폭 | `page-breadth` | 6,294 |
+| 투자 심리 | `page-sentiment` | 6,309 |
+| 데일리 브리핑 | `page-briefing` | 6,324 |
+| 차트·기술 | `page-technical` | 6,391 |
+| 거시 경제 | `page-macro` | 6,998 |
+| 금리 · 환율 | `page-fxbond` | 7,321 |
+| 기업 분석 | `page-fundamental` | 7,361 |
+| 테마/섹터 | `page-themes` | 7,690 |
+| 테마 상세 | `page-theme-detail` | 7,969 |
+| 포트폴리오 | `page-portfolio` | 8,096 |
+| 티커 상세 | `page-ticker` | 8,684 |
+| 시장 뉴스 | `page-market-news` | 8,917 |
 | 옵션 분석(v56.79 퇴역 — 셸 삭제, `#options`는 sentiment alias) | `page-options` | 11,915 |
-| 퀀트 스크리너 | `page-screener` | 11,956 |
-| 시장 원리 | `page-principles` | 12,259 |
-| 대가의 포트폴리오 | `page-masters` | 12,278 |
-| AI 시대 지식 지도 | `page-atlas` | 12,296 |
-| 사용 설명서 | `page-guide` | 12,314 |
+| 퀀트 스크리너 | `page-screener` | 9,049 |
+| 시장 원리 | `page-principles` | 9,368 |
+| 대가의 포트폴리오 | `page-masters` | 9,389 |
+| AI 시대 지식 지도 | `page-atlas` | 9,407 |
+| 사용 설명서 | `page-guide` | 9,425 |
 
 > 한국 5라우트(`page-kr-*`)는 v53.7/P725에서 퇴역해 **DOM이 0개**다(`AIO_ROUTE_REGISTRY`
 > `REMOVED`). `principles`·`masters`·`atlas`·`guide`는 정적 shell(hero + `data-*-content`

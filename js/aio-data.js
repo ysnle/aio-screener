@@ -3348,8 +3348,6 @@ function applyFredToUI(data) {
     const rate2y = data['DGS2'].value;
     window._live2Y = rate2y;
     if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT.tnx2y = rate2y;
-    // Update yield curve if visible
-    if (typeof updateFxBondPage === 'function') updateFxBondPage();
   }
 
   // Keep every Treasury maturity available to both the legacy curve renderer
@@ -3462,67 +3460,8 @@ function applyFredToUI(data) {
   }
 }
 
-// v46.6: FRED 경제지표 시계열 차트 (실업률/CPI/기준금리)
-var _fredChartInstances = {};
-async function _renderFredCharts() {
-  var statusEl = document.getElementById('fred-chart-status');
-  var series = [
-    { id:'UNRATE', canvas:'fred-unrate-chart', color:'#ff5b50', label:'실업률 (%)' },
-    { id:'CPIAUCNS', canvas:'fred-cpi-chart', color:'#ffa31a', label:'CPI-U headline YoY (NSA) (%)', transform:'yoy' },
-    { id:'FEDFUNDS', canvas:'fred-fedfunds-chart', color:'#00bcd4', label:'연방기금금리 월평균 (%)' }
-  ];
-  function markUnavailable(s, reason) {
-    var canvas = document.getElementById(s.canvas);
-    if (!canvas) return;
-    canvas.setAttribute('data-source-kind', 'unavailable');
-    canvas.setAttribute('data-operational-use', 'blocked');
-    canvas.setAttribute('data-source-label', s.id + ' unavailable');
-    canvas.setAttribute('aria-label', s.label + ' 시계열 미수신');
-    canvas.title = reason || 'FRED 시계열 미수신';
-  }
-  var fredKey = (typeof DATA_APIS !== 'undefined' && DATA_APIS.fred) ? DATA_APIS.fred.key() : '';
-  if (!fredKey) {
-    series.forEach(function(s) { markUnavailable(s, 'FRED API 키 미설정'); });
-    if (statusEl) statusEl.textContent = 'FRED 시계열 미수신 · 차트 판단 보류';
-    return;
-  }
-  if (statusEl) statusEl.textContent = 'FRED 공식 시계열 수집 중…';
-  var rendered = 0;
-  for (var si = 0; si < series.length; si++) {
-    var s = series[si];
-    try {
-      var obs = await fetchFredSeries(s.id, s.transform === 'yoy' ? 25 : 13);
-      if (!obs || obs.length < (s.transform === 'yoy' ? 13 : 3)) throw new Error('insufficient observations');
-      obs = obs.slice().reverse();
-      var labels = obs.map(function(o) { return o.date.slice(5); });
-      var values = obs.map(function(o) { var v = Number(o.value); return Number.isFinite(v) ? v : null; });
-      if (s.transform === 'yoy') {
-        values = values.slice(12).map(function(v, i) {
-          var prev = values[i];
-          return v != null && prev > 0 ? (v - prev) / prev * 100 : null;
-        });
-        labels = labels.slice(12);
-      }
-      var canvas = document.getElementById(s.canvas);
-      if (!canvas || typeof Chart === 'undefined' || values.filter(Number.isFinite).length < 3) throw new Error('chart unavailable');
-      if (_fredChartInstances[s.id]) { try { _fredChartInstances[s.id].destroy(); } catch (_) {} }
-      _fredChartInstances[s.id] = new Chart(canvas, {
-        type:'line',
-        data:{ labels:labels, datasets:[{ label:s.label, data:values, borderColor:s.color, backgroundColor:s.color + '18', borderWidth:2, pointRadius:2, fill:true, tension:0.3 }] },
-        options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ grid:{ color:'var(--surface-4)' }, ticks:{ color:'#a0b4c8', font:{ size:11 } } }, x:{ grid:{ display:false }, ticks:{ color:'#a0b4c8', font:{ size:11 }, maxTicksLimit:6 } } }, plugins:{ legend:{ display:false } } }
-      });
-      canvas.setAttribute('data-source-kind', 'official-api');
-      canvas.setAttribute('data-operational-use', 'decision');
-      canvas.setAttribute('data-source-label', 'FRED ' + s.id);
-      canvas.setAttribute('data-source-ts', new Date().toISOString());
-      rendered++;
-    } catch (e) {
-      markUnavailable(s, e && e.message || 'FRED fetch failed');
-      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'FRED chart unavailable: ' + s.id);
-    }
-  }
-  if (statusEl) statusEl.textContent = rendered + '/' + series.length + '개 FRED 공식 시계열 표시';
-}
+// P1425: the FRED 12-month browser charts (personal-key only since P1422) left with the 거시 rebuild;
+// the 거시 경제 board shows the producer-published official releases.
 
 // ═══ 6. Finnhub — 실시간 뉴스 & 기업 뉴스 ═══════════════════
 async function fetchFinnhubNews(category = 'general') {
@@ -5685,7 +5624,7 @@ async function _aioLoadServerData() {
     var _serverMacroApplied = 0;
     var _serverFredApplied = 0;
     var _serverBeaApplied = 0;
-    globalThis._serverMacroEvidence = window._serverMacroEvidence || {};
+    globalThis._serverMacroEvidence = window._serverMacroEvidence || {}; globalThis._aioServerMacro = d.macro && typeof d.macro === 'object' ? d.macro : null; // P1425: native 거시 boards read the published macro block (dates, deltas, freshness)
     if (d.macro && window.DATA_SNAPSHOT) {
       // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 서버 FRED 자동화 편입.
       // consConf(Conf. Board)는 제외 유지 — FRED엔 해당 시리즈가 없고, UMCSENT(미시간대)는
@@ -15815,10 +15754,6 @@ _aioPageBus.register('data-page-activation', 'aio:pageShown', function(e) {
       }
     }, 500);
   }
-  // v51.07: 엔캐리 언와인드 위험도 — FRED 로드 후 렌더 (600ms 지연)
-  if (pageId === 'fxbond') {
-    setTimeout(function(){ try { if (typeof window._aioRenderCarryUnwindRisk === 'function') window._aioRenderCarryUnwindRisk(); } catch(_){} }, 600);
-  }
   if (pageId === 'macro') { // v53.7 (P725): KR 매크로 데이터는 macro 페이지 통합 섹션에서 사용
     setTimeout(function(){
       if (typeof fetchAllBokData === 'function' && !window._bokData) {
@@ -16298,86 +16233,9 @@ function _aioRenderGxLFrame() {
 }
 window._aioRenderGxLFrame = _aioRenderGxLFrame;
 
-// ═══ v51.07: 엔캐리 언와인드 위험 복합 스코어 ══════════════════════════════════
-// FxBond 페이지 carry-unwind-risk 패널 갱신. fxbond showPage 훅으로 호출.
-function _aioRenderCarryUnwindRisk() {
-  var ld = window._liveData || {};
-  var jpy = Number(ld['JPY=X'] && ld['JPY=X'].price);
-  var vix = Number(ld['^VIX'] && ld['^VIX'].price);
-  var tnx = Number(ld['^TNX'] && ld['^TNX'].price);
-  // P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격("가격 프록시" 자체 라벨) 대신 FRED HY OAS(bp) 실측 사용
-  var hyOasBp = Number(window._hySpreadBp);
-  // DATA_SNAPSHOT의 BOK 정책금리는 수동 확인 필드이며 fieldTS(60일)로 별도 검증된다.
-  var bokRate = Number(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.bokRate);
-  var inputsComplete = [jpy, vix, tnx, hyOasBp, bokRate].every(Number.isFinite);
-  if (!inputsComplete) {
-    var missing = [];
-    if (!Number.isFinite(jpy)) missing.push('USD/JPY');
-    if (!Number.isFinite(vix)) missing.push('VIX');
-    if (!Number.isFinite(tnx)) missing.push('미 10Y');
-    if (!Number.isFinite(hyOasBp)) missing.push('HY OAS');
-    if (!Number.isFinite(bokRate)) missing.push('BOK 정책금리');
-    var missingText = '관측 프록시 보류 — 현재 입력 미수신: ' + missing.join(' · ');
-    var e;
-    e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = Number.isFinite(jpy) ? 'USD/JPY ' + jpy.toFixed(1) : '—';
-    e = document.getElementById('carry-vix-risk');   if (e) e.textContent = Number.isFinite(vix) ? 'VIX ' + vix.toFixed(1) : '—';
-    e = document.getElementById('carry-rate-diff');  if (e) e.textContent = '—';
-    e = document.getElementById('carry-rate-risk');  if (e) e.textContent = '미일 금리차 산출 보류';
-    e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = Number.isFinite(hyOasBp) ? 'HY OAS ' + Math.round(hyOasBp) + 'bp' : '—';
-    e = document.getElementById('carry-risk-level'); if (e && e.dataset.aioFxbondCarryRenderer !== 'native') { e.textContent = '보류'; e.style.color = 'var(--text-muted)'; }
-    return;
-  }
-
-  var rateDiff = parseFloat(tnx) - bokRate;
-
-  // 스코어 (0~100, 높을수록 언와인드 위험 높음)
-  var score = 0;
-  // USD/JPY 수준·VIX·금리차·HYG를 같은 시점에 비교하는 단순 규칙값(포지션/옵션 데이터 아님)
-  if (jpy > 158) score += 35; else if (jpy > 152) score += 25; else if (jpy > 145) score += 15; else score += 30;
-  // VIX: 변동성 수준 관측
-  if (vix > 30) score += 30; else if (vix > 22) score += 20; else if (vix > 15) score += 10; else score += 5;
-  // 미일 정책금리 차: 수준 관측
-  if (rateDiff < 2.5) score += 20; else if (rateDiff < 3.5) score += 10; else score += 5;
-  // HY OAS: 크레딧 스프레드 확대 시 리스크-오프 연동 (bp 상승 = 위험 가산)
-  if (hyOasBp > 450) score += 15; else if (hyOasBp > 350) score += 8; else score += 3;
-  score = Math.min(100, score);
-
-  // 이 지표는 포지션·옵션·당국조치 데이터를 포함하지 않는 단순 관측 프록시다.
-  var riskLevel = '참고';
-  var riskColor = 'var(--text-secondary)';
-  var jpyRisk  = 'USD/JPY ' + jpy.toFixed(1) + ' (수준 관측)';
-  var vixRisk  = 'VIX ' + vix.toFixed(1) + ' (변동성 관측)';
-  var rateRisk = '일본 금리 미수집 — 미·일 금리차는 표시하지 않음'; // P1419: TNX − Bank of KOREA rate is not a US-Japan gap
-  var hygRisk  = 'HY OAS ' + Math.round(hyOasBp) + 'bp';
-  var verdict = '관측 프록시 ' + score + '/100 — USD/JPY·VIX·미일 정책금리 차·HY OAS의 단순 규칙값입니다. 엔캐리 포지션 규모, 당국 조치, 청산 확률 및 자산가격 방향은 이 값만으로 판단하지 않습니다.';
-
-  var e;
-  e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = jpyRisk;
-  e = document.getElementById('carry-vix-risk');   if (e) e.textContent = vixRisk;
-  e = document.getElementById('carry-rate-diff');  if (e) e.textContent = '—';
-  e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk;
-  e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = hygRisk;
-  e = document.getElementById('carry-risk-level'); if (e && e.dataset.aioFxbondCarryRenderer !== 'native') { e.textContent = riskLevel; e.style.color = riskColor; }
-}
-window._aioRenderCarryUnwindRisk = _aioRenderCarryUnwindRisk;
-// v52.41 (P656/EF-08): 라이브 실측(Chrome MCP, v52.34)으로 확인한 진짜 원인 — 이 함수 자체는
-// 콘솔에서 수동 호출 시 즉시 정상 렌더(점수 58, rate-diff 4.0%p 등)되므로 계산 로직 문제가 아니라
-// P605(VKOSPI)와 동일한 "오펀 함수" 패턴: window.showPage 몽키패치의 setTimeout(600ms) 트리거가
-// 콜드 로드(#fxbond 직접 진입) 경로에서 신뢰할 수 없었다. 이 파일의 다른 페이지들이 이미 쓰는
-// 검증된 _aioPageBus('aio:pageShown') 패턴을 보조 트리거로 추가 — 기존 showPage 훅은 그대로 둔 채
-// 더 신뢰할 수 있는 경로를 하나 더 확보(둘 중 하나만 발화해도 게이지가 채워짐).
-try {
-  if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
-    _aioPageBus.register('data-carry-unwind-shown', 'aio:pageShown', function(e) {
-      if (e.detail !== 'fxbond') return;
-      setTimeout(function() { try { _aioRenderCarryUnwindRisk(); } catch(_) {} }, 300);
-    });
-    _aioPageBus.register('data-carry-unwind-live', 'aio:liveQuotes', function() {
-      var p = document.getElementById('page-fxbond');
-      if (p && p.classList.contains('active')) { try { _aioRenderCarryUnwindRisk(); } catch(_) {} }
-    });
-  }
-} catch(_registerCarryErr) {}
+// P1425: the legacy carry-unwind composite (arbitrary points for USD/JPY level, VIX, a US 10Y minus
+// BOK-rate gap and HY OAS — the 58/100 score P1419 retired on the native side) was deleted with its
+// panel; the 금리 · 환율 board states the yen 20-day rule shared with 시장 상태.
 
 // ── 스크리너 질의 엔진 — aio-chat.js에서 이동 (v51.17) ─────────────────────────────
 const _SECTOR_KEYWORDS = {

@@ -1106,7 +1106,6 @@ async function globalRefresh() {
         if (typeof updateRallyQualityVerdict === 'function') setTimeout(updateRallyQualityVerdict, 300);
       }
       if (activeId === 'signal' && typeof initSignalDashboard === 'function') initSignalDashboard();
-      if (activeId === 'fxbond' && typeof updateFxBondPage === 'function') updateFxBondPage();
       if (btn) {
         btn.textContent = result && result.status === 'warn' ? '확인 필요' : '완료';
         btn.disabled = false;
@@ -1134,7 +1133,6 @@ async function globalRefresh() {
   const activeId = activePage ? activePage.id.replace('page-','') : prevPage;
   if (activeId === 'breadth')   { initBreadthPage(true); setTimeout(updateRallyQualityVerdict, 300); }
   if (activeId === 'signal')    initSignalDashboard();
-  if (activeId === 'fxbond')    updateFxBondPage();
 
   await Promise.allSettled(tasks);
 

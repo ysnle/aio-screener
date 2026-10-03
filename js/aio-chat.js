@@ -4327,7 +4327,7 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
         else if (p === 'breadth') pushPage('시장 폭');
         else if (p === 'sentiment') pushPage('투자 심리');
         else if (p === 'macro' || p === 'kr-macro') pushPage('매크로');
-        else if (p === 'fxbond') pushPage('환율·채권');
+        else if (p === 'fxbond') pushPage('금리 · 환율');
         else if (p === 'fundamental') pushPage('기업 분석');
         else if (p === 'themes' || p === 'theme-detail' || p === 'kr-themes') pushPage('테마·섹터');
         else if (p === 'portfolio') pushPage('포트폴리오');

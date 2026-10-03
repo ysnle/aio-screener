@@ -246,14 +246,16 @@ check('LC-44/P1224 portfolio import is keyboard reachable', /data-action="_aioTr
 // LC-45/P1225: the holdings table prints each row's declared currency instead of a fixed `$`.
 check('LC-45/P1225 portfolio table is currency-aware', /const priceCurrency = String\(holding\?\.currency/.test(portfolioPage) && /const costCurrency = String\(holding\?\.costCurrency/.test(portfolioPage) && !/avgCost == null \? '—' : `\$\$\{avgCost/.test(portfolioPage));
 // LC-46/P1226: the macro banner state follows the rendered inflation cards.
-check('LC-46/P1226 macro banner reflects the rendered inflation cards', /macro-fred-stale-banner/.test(marketPage) && /renderedCards/.test(marketPage) && /dataset\.runtimeState = received \? 'partial'/.test(marketPage));
+// P1425: the banner was replaced by a per-card state on the 거시 경제 board (a stale release is labelled on its own card).
+check('LC-46/P1226 macro release state is shown on each indicator card', !/macro-fred-stale-banner/.test(html) && /_freshness_\$\{keys\[0\]\}/.test(read('src/domain/macro/indicators.js')) && /이번 수집 실패 · 직전 발표값/.test(read('src/ui/components/macro-board.js')));
 // LC-47/P1227: the 50SMA readout is owned by the native renderer and the advance share is named.
 // P1395: one owner (breadth-board.js) labels every measure with its population and window.
 check('LC-47/P1227 breadth readout single-owner and share label', !/breadth-50sma-readout/.test(html) && /50일선 위 종목 비율/.test(read('src/ui/components/breadth-board.js')) && /상승 종목 비율 \(10일 평균\)/.test(read('src/ui/components/breadth-board.js')) && /AIO 미국 주식 유니버스/.test(html));
 // LC-48/P1227: the signal sector-breadth cell names its own population.
 check('LC-48/P1227 signal sector breadth names its population', !/SPDR 11 ETF/.test(html) || (/SPDR 11 ETF 당일/.test(html) && /Breadth의 AIO 종목 5\/20\/50일선 폭과 다른 모집단/.test(html))); // P1392: retired with the checklist
 // LC-49/P1228: the macro curve's availability is independent of the official 2s10s spread.
-check('LC-49/P1228 macro curve availability is independent of the official spread', /const curveLegsPresent = Number\.isFinite\(twoYear\)/.test(marketPage) && /const curveSpreadComparable =/.test(marketPage) && /2s10s cut 미확정/.test(marketPage));
+// P1425: the curve lives on the 금리 · 환율 board; spreads are computed only from one official cut.
+check('LC-49/P1228 curve spreads come from one official Treasury cut', /const sameCut = dates\.length === 1/.test(read('src/domain/macro/rates-fx.js')) && /official2s10s \?\? \(sameCut/.test(read('src/domain/macro/rates-fx.js')));
 // LC-31/P1230: the feed query's topic is kept separate from an article-level topic.
 check('LC-31/P1230 news keeps feed topic separate from an article topic', /topicReviewRequired/.test(newsNormalize) && /feedTopic/.test(newsNormalize) && /topic: item\?\.articleTopic \|\| item\?\.topic/.test(newsNormalize) && /검토 필요/.test(newsPage));
 // LC-32/P1231/P1268: a headline-only status is a content boundary even if depth metadata disagrees.
@@ -649,17 +651,9 @@ check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holding
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
 check('runtime-injected decision headers and related-news strips stay out of the 13-route default surface', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && /#page-signal > \.aio-page-news-strip[\s\S]{0,1200}display:none !important/.test(html));
 check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
-check('macro route uses one native yield-curve owner and replays both official calendars after the shared cut', (() => {
-  const start = core.indexOf("_lazyInitChartPage('macro', 'yieldCurveChart'");
-  const macroInit = start >= 0 ? core.slice(start, start + 1200) : '';
-  return /renderYieldCurve\(\)/.test(macroInit)
-    && /aioMacroChartRenderer/.test(macroInit)
-    && !/initYieldCurveChart\s*\(/.test(macroInit)
-    && /renderOfficialFutureCalendar\(\)/.test(core)
-    && /aio:sharedMarketCut/.test(core);
-})());
+check('P1425 macro route has no legacy yield-curve owner and replays both official calendars after the shared cut', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && /renderOfficialFutureCalendar\(\)/.test(core) && /aio:sharedMarketCut/.test(core)); // P1425
 check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', /AIO_MACRO_CALENDAR[\s\S]{0,900}Object\.keys\(registry\)/.test(macroTech) && /item\.nextRelease/.test(macroTech) && /renderMacroNextRelease/.test(core));
-check('yield-curve renderer has a native-owner fence and destroys legacy/Chart.js canvas owners before fallback recreation', /nativeMacroPage\.dataset\.aioMacroChartRenderer === 'native'/.test(macroTech) && /destroyYieldCurveOwner/.test(macroTech) && /Chart\.getChart\(canvasEl\)/.test(macroTech) && /_ycCharts\.yieldCurveChart/.test(core));
+check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /_scrVisibleLimit\s*=\s*12/.test(data) && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 check('briefing news wall is capped and can be explicitly expanded', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && /_aioCapBriefingNews/.test(core) && /_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
@@ -699,12 +693,12 @@ check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called
 check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', /_aioRenderBreadthConsensus\s*=\s*function/.test(core) && /breadth-header-badge/.test(core) && /breadth-diag-signal/.test(core));
 check('EF-02b: home market-pulse breadth strip uses NARRATIVE_ENGINE.getBreadthRegime instead of an independent 60/30 threshold', /NARRATIVE_ENGINE\.getBreadthRegime\(bVal\)/.test(pagesSource));
 check('EF-02c: NYSE new-high/new-low/hl-ratio cards render an explicit na state instead of a perpetual unstated dash', /breadth-new-highs.*breadth-new-lows.*breadth-hl-ratio|breadth-new-highs['"]\s*,\s*['"]breadth-new-lows/.test(ui.replace(/\s+/g, ' ')));
-check('EF-01: macro "now/live" mini-card reads window._liveData first and falls back to the snapshot with an explicit fallback title, instead of an always-snapshot data-snap binding', /function _aioSyncMacroLiveSpxMini/.test(macroTech) && /id="macro-now-spx"/.test(html + macroTech) && !/id="macro-now-spx"\s+data-snap="spx"/.test(html + macroTech));
+check('EF-01/P1425: the macro "now/live" mini-card stays retired with the hand-written cycle timeline', !/function _aioSyncMacroLiveSpxMini/.test(macroTech) && !/id="macro-now-spx"/.test(html));
 check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV5240Batch1Efficacy/.test(tests) && /T870/.test(tests) && /T871/.test(tests) && /T872/.test(tests) && /T873/.test(tests));
 
 // v52.41 (P656): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2 (EF-08/10/11/12/19) structural gates
-check('EF-08: carry-unwind-risk render function has an independent aio:pageShown/aio:liveQuotes trigger, not only the showPage-monkeypatch setTimeout path that live-audit proved unreliable on cold load', /data-carry-unwind-shown/.test(data) && /data-carry-unwind-live/.test(data) && /_aioPageBus\.register\('data-carry-unwind-shown'/.test(data));
-check('EF-08/P1419: carry observation proxy discloses that no Japanese rate is collected (never a Korea rate labelled BOJ) and holds when current inputs are absent', /일본 금리 미수집/.test(data) && !/BOJ 수동 확인값 기준/.test(data) && /관측 프록시 보류/.test(data) && /inputsComplete/.test(data));
+check('EF-08/P1425: the legacy carry-unwind composite and its page-bus triggers stay retired', !/data-carry-unwind-shown/.test(data) && !/function _aioRenderCarryUnwindRisk/.test(data) && !/id="carry-unwind-risk"/.test(html));
+check('EF-08/P1419: the carry read never labels a Korea rate as a US-Japan gap', !/BOJ 수동 확인값 기준/.test(data) && !/bokRate/.test(read('src/domain/macro/rates-fx.js')) && /YEN_RALLY_RULE/.test(read('src/domain/macro/rates-fx.js')));
 check('EF-10/P1010: retired dead ticker metrics and action slots route to the shared SEC report', !/_tickerGapIds|ticker-action-btn|ticker-m-mcap/.test(core) && /id="ticker-fundamental-link"[^>]*data-arg="fundamental"/.test(html) && !/id="ticker-f-ni"|id="tab-financials"/.test(html));
 check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(pagesSource) && /RSP 또는 SPY 라이브 시세 미수신/.test(pagesSource));
 check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(ui) && /html-tv-ohlc-fallback-shown/.test(ui) && /html-tv-ohlc-fallback-live/.test(ui));
@@ -1064,12 +1058,10 @@ check('R340/P712: KR yields and US breadth require timestamped current evidence 
   /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 P1274 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
   && (/_breadthSeriesReferenceAsOf\s*=\s*null/.test(ui) || (/getCurrentBreadthEvidence/.test(ui) && /if\s*\(!currentBreadth\.available\)/.test(ui) && /현재 원천 미수신/.test(ui)))
   && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
-check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink while live status stays in the canonical updater',
-  // P1133/R620: the fxbond page renderer moved to js/aio-pages.js. Repointing the absence checks
-  // matters too — pinned to index.html they would now pass vacuously.
-  !/function\s+(?:updateFxDynamicComments|generateFxBondCommentary)\s*\(/.test(pagesSource) &&
+check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink (P1425: the whole legacy updater is gone)',
+  !/function\s+(?:updateFxDynamicComments|generateFxBondCommentary|updateFxBondPage|updateCrossAssetMatrix)\s*\(/.test(pagesSource) &&
   !/(?:getElementById|querySelector)\(['"](?:fx-dc-|bond-dc-)/.test(pagesSource) &&
-  /function\s+updateFxBondPage\([\s\S]{0,9000}?fxbond-risk-pill[\s\S]{0,3000}?yc-inversion-badge[\s\S]{0,3000}?updateCrossAssetMatrix\(\)/.test(pagesSource));
+  !/updateFxBondPage\(/.test(data + ui + core));
 check('R344/P727: alert polling has no unregistered raw interval fallback',
   /_aioRegisterTimer\('alerts-check'/.test(chat) && !/\bsetInterval\s*\(/.test(chat));
 check('R345/P728: quote batches defer per-symbol lineage scans and keep one canonical DOM bind',
@@ -1110,7 +1102,7 @@ check('P875: quote change/value basis survives snapshot bridge, PriceStore, lega
 check('P1105: the history series feeds the field metadata its chart consumes',
   /valueBasis: meta\.valueBasis \|\| null/.test(data) &&
   /fieldMeta: arr\[i\]\.fieldMeta \|\| null/.test(data) &&
-  /row\?\.fieldMeta\?\.valueBasis/.test(read('src/ui/pages/market.js')));
+  /row\.fieldMeta\?\.\[field\]/.test(read('src/domain/briefing/market-read.js'))); // P1425: close series read per-field metadata
 // P1106: the FRED series table declares each series' display unit. Three series
 // were declared twice, so the earlier declaration was silently dead — editing it
 // had no effect. Every series must also declare the unit key explicitly, even

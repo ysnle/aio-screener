@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v57.06';
+const APP_VERSION = 'v57.07';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2989,42 +2989,7 @@ if (typeof document !== 'undefined') {
     setTimeout(window._aioRenderSignalScenario, 200);
   });
 
-  // v49.28 L6 적용: macro SCENARIO_REGISTRY 정보 표시 (v50.7: named 함수 추출)
-  window._aioRenderMacroScenario = function() {
-      try {
-        var reg = window.AIO_SCENARIO_REGISTRY;
-        if (!reg) return;
-        if (reg.status === 'unavailable') {
-          var unavailableSum = document.getElementById('macro-scenario-sum');
-          var unavailableUpdated = document.getElementById('macro-scenario-updated');
-          var unavailableStale = document.getElementById('macro-scenario-stale-days');
-          if (unavailableSum) unavailableSum.textContent = '—';
-          if (unavailableUpdated) unavailableUpdated.textContent = '—';
-          if (unavailableStale) unavailableStale.textContent = '원천 미연결';
-          return;
-        }
-        // 가장 늦은 lastUpdated 찾기
-        var latest = null;
-        Object.keys(reg.scenarios).forEach(function(k) {
-          var ts = new Date(reg.scenarios[k].lastUpdated).getTime();
-          if (latest == null || ts > latest) latest = ts;
-        });
-        var updEl = document.getElementById('macro-scenario-updated');
-        if (updEl && latest) updEl.textContent = new Date(latest).toISOString().slice(0, 10);
-        var staleEl = document.getElementById('macro-scenario-stale-days');
-        if (staleEl && latest) {
-          var days = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(latest) : Math.floor((Date.now() - latest) / 86400000);
-          staleEl.textContent = days + '일 경과' + (days > reg.staleDaysThreshold ? ' ⚠️ STALE' : '');
-        }
-        var sumEl = document.getElementById('macro-scenario-sum');
-        var sumCheck = reg.validateSum();
-        if (sumEl) sumEl.textContent = window._aioSafeFixed(sumCheck && sumCheck.sum, 2, '—') + (sumCheck && sumCheck.valid ? ' ✓' : ' ⚠️');
-      } catch(_e) {}
-  };
-  _aioPageBus.register('core-macro-scenario', 'aio:pageShown', function(e){
-    if (e.detail !== 'macro') return;
-    setTimeout(window._aioRenderMacroScenario, 200);
-  });
+  // P1425: the macro scenario tree (fixed probabilities) was retired with the 거시 page rebuild.
 
   // ════════════════════════════════════════════════════════════════════
   // v50.7: 페이지별 "현재 시장 분석" 텍스트 라이브 동기화
@@ -3036,7 +3001,6 @@ if (typeof document !== 'undefined') {
     signal:    function(){ window._aioRenderSignalRegime && window._aioRenderSignalRegime(); window._aioRenderSignalScenario && window._aioRenderSignalScenario(); },
     breadth:   function(){ window._aioRenderBreadthConsensus && window._aioRenderBreadthConsensus(); },
     themes:    function(){ window._aioRenderThemesCycle && window._aioRenderThemesCycle(); },
-    macro:     function(){ window._aioRenderMacroScenario && window._aioRenderMacroScenario(); },
     // Native sentiment owns the full page render; its store/event projection
     // is already refreshed by the architecture bootstrap on live updates.
     sentiment: function(){ return true; }
@@ -3887,7 +3851,6 @@ if (typeof document !== 'undefined') {
         // v50.51 A3: 잔여 내러티브 소비자도 단일 두뇌 갱신에 동기화 (선순환 완결).
         //   둘 다 liveQuotes/pageShown/boot에서 이미 반복 호출되는 idempotent 렌더러 → additive·저위험.
         if (window.AIO && typeof window.AIO.renderDynamicMarketNarratives === 'function') window.AIO.renderDynamicMarketNarratives();
-        if (typeof window.generateMacroStoryline === 'function') window.generateMacroStoryline();
         window._aioRenderActivePageNewsStrip();
       } catch(_){}
     });
@@ -4258,7 +4221,7 @@ var AIO_PAGE_BRIEFS = {
     use: '매크로는 시장 국면의 배경 설명입니다.',
     steps: ['FOMC·CPI·PCE·고용의 방향 확인', '달러·유가·금리와 연결', '주식에 우호/비우호인지 결론만 남기기'],
     focus: '좋은 뉴스인지보다 연준 반응 함수와 금리 방향을 먼저 보세요.',
-    links: [['fxbond','환율·채권'], ['briefing','브리핑'], ['themes','테마']]
+    links: [['fxbond','금리 · 환율'], ['briefing','브리핑'], ['themes','테마']]
   },
   fxbond: {
     title: '달러와 금리로 위험자산의 압박 정도 확인',
@@ -5125,7 +5088,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'매크로 판단',
     subtitle:'정책, 물가, 고용, 이벤트가 오늘 시장에 주는 압력을 먼저 봅니다.',
     cards:[['핵심 지표','FOMC 결과 · 금리 · 달러 · 유가 · 고용/물가'],['운용 포인트','다음 체크포인트와 시장 반응 분리'],['AI 분석','FOMC/이란/유가 포지션 영향']],
-    links:[['환율·채권','fxbond'],['브리핑','briefing'],['AI 분석','ai']]
+    links:[['금리 · 환율','fxbond'],['브리핑','briefing'],['AI 분석','ai']]
   },
   fxbond: {
     title:'FX·Rates·Credit',
@@ -5143,7 +5106,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'시장 원리 학습',
     subtitle:'구조적 참고 콘텐츠를 Tree·Graph·Path로 탐색합니다.',
     cards:[['핵심 축','금리 · AI workload · 메모리 · 전력'],['운용 포인트','출처와 검토일을 먼저 확인'],['주의','현재 가격·목표가·매매 신호를 제공하지 않음']],
-    links:[['환율·채권','fxbond'],['테마·트렌드','themes'],['사용 설명서','guide']]
+    links:[['금리 · 환율','fxbond'],['테마·트렌드','themes'],['사용 설명서','guide']]
   },
   // v53.7 (P725): KR 전용 5페이지 액션 허브 제거 — 통합 섹션은 themes/macro/technical 허브를 따름
   guide: {
@@ -21753,9 +21716,9 @@ if (typeof document !== 'undefined') {
 var breadcrumbMap = {
   home: ['오늘','대시보드'], themes: ['테마 · 섹터','테마 분석'],
   // P1129/R619: 퇴역한 KR 5라우트 항목 제거(DOM 0개, AIO_ROUTE_REGISTRY REMOVED).
-  portfolio: ['AIO','포트폴리오'], macro: ['거시 · 금리','거시경제'],
+  portfolio: ['AIO','포트폴리오'], macro: ['거시 · 금리','거시 경제'],
   technical: ['종목','차트 · 기술'], fundamental: ['종목','기업 분석'],
-  briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','환율 · 채권'],
+  briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','금리 · 환율'],
   'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
   guide: ['배우기','사용 설명서'], principles: ['배우기','시장 원리'], masters: ['배우기','대가의 포트폴리오'], atlas: ['배우기','지식 지도'],
   screener: ['AIO','퀀트 스크리너'],
@@ -21881,11 +21844,6 @@ function destroyPageCharts(pageId) {
         }
       } catch(e) {}
       // P1257/P1260: 퇴역한 20일 섹터 차트의 인스턴스 정리 가드도 함께 제거했다.
-      // FRED 차트도 destroy (LWC compat wrapper도 destroy 호출 가능)
-      if (typeof _fredChartInstances !== 'undefined') {
-        Object.values(_fredChartInstances).forEach(function(c) { try { c.destroy(); } catch(e){} });
-        Object.keys(_fredChartInstances).forEach(function(k) { delete _fredChartInstances[k]; });
-      }
     }
     // v38.3: technical 페이지 차트 정리
     if (pageId === 'technical') {
@@ -22063,8 +22021,8 @@ window.PAGES = {
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
   'briefing':       { label: '데일리 브리핑',    init: null, chatCtx: 'briefing' },
   'technical':      { label: '차트·기술',        init: null, chatCtx: 'technical' },
-  'macro':          { label: '거시경제',         init: null, chatCtx: 'macro' },
-  'fxbond':         { label: '환율·채권',        init: null, chatCtx: 'fxbond' },
+  'macro':          { label: '거시 경제',        init: null, chatCtx: 'macro' },
+  'fxbond':         { label: '금리 · 환율',      init: null, chatCtx: 'fxbond' },
   'fundamental':    { label: '기업 분석',        init: null, chatCtx: 'fundamental', contextScope: 'entity' },
   'themes':         { label: '테마/섹터',        init: null, chatCtx: 'themes' },
   'theme-detail':   { label: '테마 상세',        init: null, chatCtx: 'theme-detail' },
@@ -22129,9 +22087,6 @@ window._aioRenderKrMacroFreshnessBadges = function() {
 
 var _aioMacroCalendarSyncBound = false;
 var _initMacroPage = function() {
-  // storyline/달력은 즉시 (텍스트 — 초기 로드 가벼움)
-  if (typeof generateMacroStoryline === 'function') { try { generateMacroStoryline(); } catch(e) {} }
-  if (typeof renderEconCalendar === 'function') { try { renderEconCalendar(); } catch(e) {} }
   // P875: the release registry and the server snapshot are loaded on separate
   // lanes. Re-render both calendar surfaces on entry and when the shared cut
   // arrives so a cold direct route cannot remain stuck on "계산 중".
@@ -22143,26 +22098,13 @@ var _initMacroPage = function() {
     _aioMacroCalendarSyncBound = true;
     document.addEventListener('aio:sharedMarketCut', function() {
       if (!document.getElementById('page-macro')?.classList.contains('active')) return;
-      try { if (typeof renderEconCalendar === 'function') renderEconCalendar(); } catch(e) {}
       try { if (typeof renderOfficialFutureCalendar === 'function') renderOfficialFutureCalendar(); } catch(e) {}
       try { if (window.AIO && typeof window.AIO.renderMacroNextRelease === 'function') window.AIO.renderMacroNextRelease(); } catch(e) {}
     });
   }
   // v53.7 (P725): 한국 매크로 통합 섹션 — 구 PAGES['kr-macro'].init에서 이관
   if (typeof _aioRenderKrMacroFreshnessBadges === 'function') { try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }
-  // v48.15 (P2-C): Chart.js 무거운 작업은 IntersectionObserver 기반 lazy
-  // yield curve 차트는 macro 페이지 중상단, FRED 12개월 시계열은 하단 — 각각 분리
-  _lazyInitChartPage('macro', 'yieldCurveChart', function() {
-    // P875: native macro renderer is the sole owner of yieldCurveChart (the legacy initializer is deleted, P1342).
-    var nativeMacro = document.getElementById('page-macro');
-    if (nativeMacro && nativeMacro.dataset.aioMacroChartRenderer === 'native') return;
-    if (typeof renderYieldCurve === 'function') { try { renderYieldCurve(); } catch(e) {} }
-  });
-  _lazyInitChartPage('macro', 'fred-unrate-chart', function() {
-    if (typeof _renderFredCharts === 'function') {
-      try { _renderFredCharts(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'FRED 차트 에러: ' + (e && e.message || e)); }
-    }
-  });
+  // P1425: the yield-curve canvas and the FRED 12-month charts left the 거시 page with the native boards.
 }
 
 var _initFundamentalPage = function() {
@@ -22573,15 +22515,6 @@ function _aioRenderBriefingMarketAnalysis() {
     } else {
       schedEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">7일 이내 예정된 공식 일정이 없습니다.</div>';
     }
-  }
-}
-
-function _lazyInitChartPage(pageId, canvasId, initFn) {
-  var canvas = document.getElementById(canvasId);
-  if (canvas && typeof _lazyInit === 'function') {
-    _lazyInit(pageId, canvas, initFn);
-  } else {
-    try { initFn(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'lazyInit', pageId + ' fallback: ' + e.message); }
   }
 }
 

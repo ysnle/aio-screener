@@ -177,7 +177,9 @@ const fullNative = byOrder.filter((id) => {
   const dims = ['chartOwner', 'narrativeOwner'];
   const ok = (v) => v === 'native' || v === 'not-applicable';
   return r.lifecycleOwner === 'native' && r.rendererOwner === 'native' && r.dataOwner === 'native'
-    && dims.every((d) => ok(r[d])) && r.loadingStrategy === 'route-dynamic-import';
+    && dims.every((d) => ok(r[d])) && r.loadingStrategy === 'route-dynamic-import'
+    // P1425: the documented policy also requires zero contested ids and zero legacy writer evidence.
+    && (r.contestedIds || []).length === 0 && (r.legacyWriterEvidence || []).length === 0;
 });
 const counts = {
   totalRoutes: byOrder.length,

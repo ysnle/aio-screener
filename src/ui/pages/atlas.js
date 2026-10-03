@@ -352,7 +352,7 @@ const ATLAS_STATUS_LABELS = Object.freeze({
 
 const ATLAS_RELATIONSHIP_KIND_LABELS = Object.freeze({ concept: '핵심 개념', metric: '관찰 지표', company_claim: '기업 주장', evidence: '검증 근거', market: '시장 연결', financial: '재무 결과', constraint: '제약 조건' });
 const ATLAS_CRITICALITY_LABELS = Object.freeze({ structural: '구조 관계', conditional: '조건부 관계', claim: '기업 주장' });
-const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '시장 원리', atlas: 'AI 시대', masters: '기관 공시', fundamental: '기업 분석', themes: '테마·산업', macro: '거시경제', fxbond: '환율·채권', technical: '차트·기술 분석' });
+const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '시장 원리', atlas: 'AI 시대', masters: '기관 공시', fundamental: '기업 분석', themes: '테마·산업', macro: '거시 경제', fxbond: '금리 · 환율', technical: '차트·기술 분석' });
 
 const ATLAS_PACKET_DISPLAY = Object.freeze({
   'ATLAS-00': { title: 'AI 산업 지도 읽는 법', scope: '노드·관계·출처·검토 상태를 읽는 공통 언어' },

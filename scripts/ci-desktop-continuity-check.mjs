@@ -53,7 +53,7 @@ assert(deriveQuotePresentation({ price: 5, quality: 'UNAVAILABLE' }).displayStat
 // An envelope/raw price disagreement is disputed, not a coherent quote.
 assert(deriveQuotePresentation({ price: 9, quoteEnvelope: { price: 5, quality: 'CURRENT' } }).displayState === 'disputed');
 for (const value of [null, '', undefined, false]) assert.equal(context.finite(value), null);
-assert(source.includes('renderMacro(documentRef, root, page, charts)'));
+assert(source.includes('renderMacro(documentRef, root, page)') && source.includes('renderMacroBoard({ documentRef, root })')); // P1425
 assert(source.includes('renderMacroTransmissionLens(documentRef, root, page)'));
 assert(!/function renderMacroTransmissionLens[\s\S]*document\.createElement/.test(source));
 const themes = read('src/ui/pages/themes.js');

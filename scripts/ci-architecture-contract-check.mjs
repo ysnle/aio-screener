@@ -218,61 +218,34 @@ if (!dataSource.includes("return 'headline-only'") || !dataSource.includes("row.
 for (const marker of ['isNewsAnalysisEligible', 'isNewsHeadlineOnly(item)', "label: '본문 미수신'", '본문/검증 필요']) {
   if (!newsPageSource.includes(marker)) fail(`native news evidence-depth boundary missing: ${marker}`);
 }
-// P771: market.js owns macro primary quote/FRED metric sinks. The legacy global passes must
-// retain an explicit native-element fence so a later refresh cannot win by last-writer timing.
-if (!marketPageSource.includes("page.dataset.aioArchitectureRenderer = 'native'") || !marketPageSource.includes('renderLiveQuotes') || !marketPageSource.includes('renderSnapshotMetrics')) fail('market.js native macro primary renderer marker missing');
-if (!marketPageSource.includes("page.dataset.aioFxbondRenderer = 'native'") || !marketPageSource.includes('renderFxbond')) fail('market.js native fxbond primary renderer marker missing');
+// P1425: the 거시 hub is two native boards (src/ui/components/macro-board.js). The fixed-threshold
+// sinks they replaced (storyline, regime pill, thermometer, risk pill, 4-axis verdict, carry score,
+// curve bands) and their legacy writers stay retired. Live-quote and KR snapshot cells on the macro
+// page keep the native-element fence below.
+if (!marketPageSource.includes("page.dataset.aioMacroRenderer = 'native'") || !marketPageSource.includes("page.dataset.aioFxbondRenderer = 'native'") || !marketPageSource.includes('renderMacroBoard') || !marketPageSource.includes('renderRatesFxBoard') || !marketPageSource.includes('renderLiveQuotes') || !marketPageSource.includes('renderSnapshotMetrics')) fail('P1425 market.js must render the 거시 boards natively');
+{
+  const macroBoardSource = read('src/ui/components/macro-board.js');
+  for (const marker of ["getElementById('macro-board')", "getElementById('rates-yields')", "getElementById('rates-fx-grid')", 'buildMacroBoard', 'buildRatesFx', 'aioMacroBoardRenderer', 'aioRatesBoardRenderer']) {
+    if (!macroBoardSource.includes(marker)) fail(`P1425 거시 board marker missing: ${marker}`);
+  }
+  const shell = read('index.html');
+  for (const id of ['macro-board', 'rates-yields', 'rates-curve', 'rates-spreads', 'rates-levels', 'rates-fx-grid']) {
+    if (!shell.includes(`id="${id}"`)) fail(`P1425 거시 board host missing: ${id}`);
+  }
+  for (const retired of ['macro-storyline', 'macro-regime-pill', 'thermometer-fill', 'yieldCurveChart', 'fxbond-risk-pill', 'cam-verdict-text', 'carry-score-bar', 'yc-inversion-badge', 'macro-scenario-sum', 'carry-unwind-risk', 'fred-charts-grid']) {
+    if (shell.includes(`id="${retired}"`)) fail(`P1425 retired 거시 node returned: ${retired}`);
+  }
+  for (const retired of ['function generateMacroStoryline', 'function computeEconomicTemperature', 'function updateMacroRegimePill', 'function renderYieldCurve', 'function renderEconCalendar']) {
+    if (macroTechSource.includes(retired)) fail(`P1425 retired legacy 거시 writer returned: ${retired}`);
+  }
+  if (pagesSource.includes('function updateFxBondPage') || pagesSource.includes('function updateCrossAssetMatrix') || dataSource.includes('function _aioRenderCarryUnwindRisk') || dataSource.includes('function _renderFredCharts')) fail('P1425 retired legacy FX/bond writer returned');
+}
 if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('_aioIsNativeMacroElement(el)') || !dataSource.includes('function _aioIsNativeFxbondElement')) fail('legacy macro/fxbond native-element writer fence missing');
 // P1133/R620: the fxbond MOVE snapshot writer moved from index.html's inline block D to js/aio-pages.js.
 if (!pagesSource.includes("el.closest('#page-fxbond[data-aio-architecture-renderer=\"native\"]')")) fail('legacy inline MOVE snapshot writer fence missing');
-// P804: market.js owns the bounded FX/bond risk pill from DXY and US 10Y evidence;
-// the legacy fxbond updater remains a fenced compatibility path.
-if (!marketPageSource.includes('fxbond-risk-pill') || !marketPageSource.includes('aioFxbondRiskRenderer')) fail('native fxbond risk renderer marker missing');
-if (!pagesSource.includes("pill.dataset.aioFxbondRiskRenderer !== 'native'")) fail('legacy fxbond risk pill writer fence missing');
-// P805: market.js owns the bounded 3M/10Y curve inversion badge; the legacy curve updater is fenced.
-if (!marketPageSource.includes('yc-inversion-badge') || !marketPageSource.includes('aioFxbondCurveRenderer')) fail('native fxbond curve renderer marker missing');
-if (!pagesSource.includes("invBadge.dataset.aioFxbondCurveRenderer !== 'native'")) fail('legacy fxbond inversion writer fence missing');
-// P807: market.js owns only the bounded carry-risk-level label; the legacy composite proxy is fenced.
-if (!marketPageSource.includes('carry-risk-level') || !marketPageSource.includes('aioFxbondCarryRenderer')) fail('native fxbond carry renderer marker missing');
-if (!dataSource.includes('aioFxbondCarryRenderer') || !dataSource.includes("dataset.aioFxbondCarryRenderer !== 'native'")) fail('legacy fxbond carry writer fence missing');
-if (!marketPageSource.includes('yc-2y-track') || !marketPageSource.includes('aioFxbondTwoYearRenderer')) fail('native fxbond 2Y renderer marker missing');
-if (!dataSource.includes('aioFxbondTwoYearRenderer')) fail('legacy fxbond 2Y writer fence missing');
-// P812: the bounded FX/bond carry score surface is native; the legacy score/bar/verdict
-// writers were deleted while the carry-risk-level compatibility boundary remains explicit.
-for (const marker of ['carry-score-text', 'carry-score-bar', 'carry-verdict', 'aioFxbondCarryScoreRenderer']) {
-  if (!marketPageSource.includes(marker)) fail(`native fxbond carry score marker missing: ${marker}`);
-}
-if (dataSource.includes("document.getElementById('carry-score-text')") || dataSource.includes("document.getElementById('carry-score-bar')") || dataSource.includes("document.getElementById('carry-verdict')")) fail('legacy fxbond carry score writer returned after P812 cutover');
-// P813: the integrated cross-asset verdict is native; the legacy matrix keeps its
-// individual compatibility cells but no longer writes the aggregate verdict.
-if (!marketPageSource.includes('cam-verdict-text') || !marketPageSource.includes('aioFxbondCamRenderer')) fail('native fxbond CAM renderer marker missing');
-if (pagesSource.includes("document.getElementById('cam-verdict-text')")) fail('legacy fxbond CAM verdict writer returned after P813 cutover');
-// P814: the fxbond curve chart status label is native; the chart canvas itself remains
-// a legacy compatibility surface and the old status writer must stay deleted.
-if (!marketPageSource.includes('yc-chart-status') || !marketPageSource.includes('aioFxbondCurveStatusRenderer')) fail('native fxbond curve status marker missing');
-if (pagesSource.includes("document.getElementById('yc-chart-status')")) fail('legacy fxbond curve status writer returned after P814 cutover');
 if (!marketPageSource.includes("page.dataset.aioBreadthRenderer = 'native'") || !marketPageSource.includes('renderBreadth')) fail('market.js native breadth primary renderer marker missing');
 if (!dataSource.includes('function _aioIsNativeBreadthElement') || !dataSource.includes('_aioIsNativeBreadthElement(el)') || !uiSource.includes('_aioIsNativeBreadthElement(el)') || !coreSource.includes('#page-breadth[data-aio-architecture-renderer="native"]')) fail('legacy breadth native-element writer fence missing');
-// P806/LC-23: macro and fxbond consume one Treasury-curve v2 view-model. The fxbond
-// 2s10s sink is native, both routes publish percentage-point, and the legacy writer is gone.
-if (!marketPageSource.includes('macro-spread-value') || !marketPageSource.includes('sc-2s10s') || !marketPageSource.includes('aioFxbondSpreadRenderer') || !marketPageSource.includes("data-spread-unit") || !marketPageSource.includes("data-curve-cut-id")) fail('native Treasury curve %p/cut contract missing');
-if (pagesSource.includes("document.getElementById('sc-2s10s')")) fail('legacy fxbond 2s10s writer returned after LC-23 cutover');
 if (!read('src/domain/macro/treasury-curve.js').includes("TREASURY_CURVE_SPREAD_VERSION = 'treasury-curve-spread.v2'")) fail('Treasury curve v2 domain contract missing');
-// P1135/R620: the macro spread writer moved with block B into js/aio-macro-tech.js.
-if (!macroTechSource.includes('blockedSpread.dataset.aioMacroSpreadRenderer') || !macroTechSource.includes('nativeSpread')) fail('legacy macro spread writer fence missing');
-if (!marketPageSource.includes('macro-2y-value') || !marketPageSource.includes('aioMacroTwoYearRenderer')) fail('native macro 2Y renderer marker missing');
-// P811: market.js owns the bounded curve status/meaning labels; the legacy yield-curve
-// function retains chart compatibility but must not reintroduce the prose writers.
-if (!marketPageSource.includes('curve-status') || !marketPageSource.includes('curve-meaning') || !marketPageSource.includes('aioMacroCurveRenderer')) fail('native macro curve renderer marker missing');
-// P1135/R620: the yield-curve renderer moved to js/aio-pages.js, so the reintroduction guard must
-// cover both owners — pinned to the shell alone it would have gone vacuous.
-if ((read('index.html') + pagesSource + macroTechSource).includes("document.getElementById('curve-status')") || (read('index.html') + pagesSource + macroTechSource).includes("document.getElementById('curve-meaning')")) fail('legacy macro curve status/meaning writer returned after P811 cutover');
-// P816: market.js owns the bounded Fed/FOMC context line; event freshness keeps
-// compatibility metadata but must not overwrite the native macro sink.
-for (const marker of ['macro-fed-meaning', 'aioMacroFedMeaningRenderer', 'AIO_EVENT_FRESHNESS_REGISTRY']) {
-  if (!marketPageSource.includes(marker)) fail(`native macro Fed meaning renderer marker missing: ${marker}`);
-}
-if (!coreSource.includes("fed.dataset.aioMacroFedMeaningRenderer !== 'native'")) fail('legacy macro Fed meaning writer fence missing');
 // P817: entity.js owns the ticker candle/entry symbol labels from normalized entity id;
 // showTicker remains a compatibility path but must skip the native-marked sinks.
 for (const marker of ['renderTickerSecondarySymbols', 'ticker-candle-symbol', 'ticker-entry-symbol', 'aioTickerSymbolRenderer']) {
@@ -381,15 +354,8 @@ if (routeOwners.routes?.breadth?.chartOwner !== 'native' || (routeOwners.routes?
     if (read('index.html').includes(`id="${retired}"`)) fail(`retired breadth canvas returned: ${retired}`);
   }
 }
-// P828: fxbond trend and current curve chart lifecycles are native, with source-labelled
-// unavailable states instead of fabricated fallback values.
+// P828 → P1425: the fxbond route draws its curve and trend charts as native SVG in the 금리 · 환율 board.
 if (routeOwners.routes?.fxbond?.chartOwner !== 'native' || (routeOwners.routes?.fxbond?.contestedIds || []).length) fail('fxbond chart ownership remains contested');
-for (const marker of ['renderNativeHistoryChart', 'renderNativeCurveChart', 'aioFxbondChartRenderer']) {
-  if (!marketPageSource.includes(marker)) fail(`native fxbond chart marker missing: ${marker}`);
-}
-// P1342: the legacy yield-curve writer (initYieldCurveChart) was deleted; a returning legacy writer must carry the fence.
-if (/function initYieldCurveChart\b/.test(pagesSource) && !pagesSource.includes("ctx.dataset.aioFxbondChartRenderer === 'native'")) fail('legacy fxbond chart writer fence missing');
-if (!pagesSource.includes('nativeFxbondPage')) fail('legacy fxbond trend writer must yield to the native fxbond page');
 // P829: entity.js owns extended-session and portfolio P&L hero sinks; compatibility writers
 // remain available for action/overview behavior but cannot overwrite native-marked nodes.
 for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value', 'aioTickerExtensionRenderer', 'aioTickerPnlRenderer']) {

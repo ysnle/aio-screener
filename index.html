@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.06 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.07 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.06" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.06" defer></script>
-<script src="./js/aio-kr-data.js?v=57.06" defer></script>
-<script src="./js/aio-pages.js?v=57.06" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.06">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.06">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.06">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.06">
+<script src="./js/aio-workspace.js?v=57.07" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.07" defer></script>
+<script src="./js/aio-kr-data.js?v=57.07" defer></script>
+<script src="./js/aio-pages.js?v=57.07" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.07">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.07">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.07">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.07">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2062,6 +2062,38 @@ body {
 .tech-regime-overall { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary); }
 .tech-regime-head .theme-strength-basis { margin: 0; }
 .tech-regime-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+/* P1425: 거시 — 경제 지표판 · 금리 · 환율 */
+.macro-next-release { font-size: 12px; color: var(--text-dim, var(--text-muted)); margin: 2px 0 16px; }
+.macro-group { margin: 0 0 22px; }
+.macro-group-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px; }
+.macro-group-fact { font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 10px; font-variant-numeric: tabular-nums; }
+.macro-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.macro-stat { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--bg-card); display: flex; flex-direction: column; gap: 4px; }
+.macro-stat.is-missing { border-style: dashed; }
+.macro-stat-label { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin: 0; }
+.macro-stat-value { font-size: 21px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.macro-stat-line { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.macro-stat-meta { font-size: 11.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.macro-stat-note { font-size: 11.5px; color: var(--text-muted); line-height: 1.55; margin: 2px 0 0; }
+.rates-block { margin-bottom: 18px; }
+.rates-yields { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-subtle); margin-bottom: 12px; }
+.rates-yield, .rates-other-cell { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-right: 1px solid var(--border-subtle); }
+.rates-yield:last-child, .rates-other-cell:last-child { border-right: 0; }
+.rates-yield-label { font-size: 12px; color: var(--text-muted); }
+.rates-yield-value { font-size: 18px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.rates-yield-change { font-size: 11.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.rates-curve-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(240px, 2fr); gap: 24px; align-items: start; }
+.rates-curve { width: 100%; height: auto; aspect-ratio: 520 / 150; display: block; overflow: visible; }
+.rates-curve-dot { fill: var(--text-primary); }
+.rates-curve-label { font-size: 12px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.rates-spreads { display: flex; flex-direction: column; }
+.rates-spread { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-top: 1px solid var(--border-subtle); font-size: 13px; }
+.rates-spread:last-child { border-bottom: 1px solid var(--border-subtle); }
+.rates-spread-label { color: var(--text-secondary); }
+.rates-spread-value { font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.rates-curve-fact { font-size: 13px; line-height: 1.7; color: var(--text-primary); margin: 10px 0 6px; }
+.rates-other { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+.rates-other-note { font-size: 11.5px; font-weight: 500; color: var(--text-muted); margin-left: 6px; }
 /* P1419: 스크리너 순위 사후 검증 */
 .screener-validation { margin: 0 0 14px; }
 .screener-validation-details { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 12px; background: var(--surface-1, var(--bg-card)); }
@@ -6005,7 +6037,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.06</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.07</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6256,7 +6288,7 @@ button[data-filter-active="true"] {
     <ul class="briefing-read-points" id="regime-conflicts"></ul>
   </section>
   <div class="regime-board" id="regime-board"></div>
-  <p class="briefing-footnote">각 축은 종가 기록의 상태를 설명할 뿐 매매 권고가 아닙니다. 세부는 <a href="#breadth" data-action="showPage" data-arg="breadth">시장 폭</a> · <a href="#sentiment" data-action="showPage" data-arg="sentiment">투자 심리</a> · <a href="#fxbond" data-action="showPage" data-arg="fxbond">환율 · 채권</a>에서 봅니다.</p>
+  <p class="briefing-footnote">각 축은 종가 기록의 상태를 설명할 뿐 매매 권고가 아닙니다. 세부는 <a href="#breadth" data-action="showPage" data-arg="breadth">시장 폭</a> · <a href="#sentiment" data-action="showPage" data-arg="sentiment">투자 심리</a> · <a href="#fxbond" data-action="showPage" data-arg="fxbond">금리 · 환율</a>에서 봅니다.</p>
 </div><!-- fix: page-signal outer close -->
 
     <div class="page" id="page-breadth">
@@ -6964,42 +6996,14 @@ button[data-filter-active="true"] {
   </details>
 </div>
 <div class="page" id="page-macro">
-  <div class="insight-box box-collapsed">
-    <strong>경제 전체 지도 — 금리·유가·달러·인플레의 인과 관계를 한눈에</strong>
-  </div>
-
-  <!-- v48.62: 페이지 결론 바 (숨김 유지, 위 히어로 판단문과 중복) -->
-  <div id="macro-conclusion-bar" style="display:none;" aria-hidden="true"></div>
-
-  <!-- 헤더 — v52.70 아이보리 3d: serif 27px 타이틀(시안 구조) -->
+  <!-- P1425 (owner review 2026-10-03): 거시 경제 = 공식 발표 지표판(정책금리 · 물가 · 고용 · 소비·주택, 발표월·발표일·다음 발표·출처).
+       고정 임계값 서사(10년물 4.4% = 금리 부담 등)·레짐 배지·수기 경기 사이클 타임라인·체온계·인터커넥션 맵·시나리오 트리·
+       중복 금리/환율 카드는 퇴역했고, 금리·환율·신용은 금리 · 환율 탭이 맡는다. -->
   <div id="tg-feed-macro"></div>
-  <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
-    <div>
-      <div class="page-title">거시경제</div>
-      <div class="page-subtitle">금리 · 인플레이션 · 달러 · 원유 · 고용 — 상호 연결 분석</div>
-      <div id="macro-next-release" style="font-size:11px;color:var(--text-dim);margin-top:6px;">다음 주요 발표 일정 계산 중</div>
-    </div>
-    <span id="macro-regime-pill" class="status-pill sp-risk-off">— 레짐 분석 중</span>
-  </div>
-  <div id="macro-regime-detail" style="font-size:12px;color:var(--text-dim);line-height:1.6;margin:-14px 0 22px;"></div>
-
-  <!-- 오늘의 거시 브리핑 — v52.70 아이보리 3d: 시안 구조(서사형 결론, 기존 generateMacroStoryline() 재사용) -->
-  <div style="margin-bottom:26px;">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
-      <span style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">오늘의 거시 브리핑</span>
-      <span id="macro-fred-ts" style="font-size:12px;color:var(--text-dim);font-family:var(--font-mono);"></span>
-    </div>
-    <div id="macro-storyline" data-static-narrative="macro-storyline" style="font-size:14px;color:var(--text-secondary);line-height:1.85;max-width:960px;">
-      <div style="padding:8px 10px;background:var(--surface-1);border-radius:3px;border:1px dashed var(--border);">
-        <strong style="color:var(--accent);">매크로 결론 준비 중</strong>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.6;">
-          핵심 수치와 뉴스 맥락을 연결해 오늘의 금리·유가·달러·위험심리 결론을 표시합니다.<br>
-          <b>출처</b>: 실시간 시세·매크로 데이터 · <b>예상 시간</b>: 1~2초 내 표시(원천 미수신 시 판단 보류)
-        </div>
-      </div>
-    </div>
-    <div id="macro-summary-line" style="font-size:13px;color:var(--data-amber);font-weight:600;line-height:1.6;margin-top:10px;"></div>
-  </div>
+  <div class="page-title">거시 경제</div>
+  <div class="page-subtitle" id="macro-board-basis">공식 발표 자료를 불러오는 중입니다.</div>
+  <div class="macro-next-release" id="macro-next-release">다음 주요 발표 일정 계산 중</div>
+  <div class="macro-board" id="macro-board" aria-label="미국 경제 지표"></div>
 
   <!-- v54.44: supplied X macro-risk framework; live evidence + explicit blocked gaps -->
   <div id="macro-transmission-lens" style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:6px;padding:16px 18px;margin-bottom:26px;" aria-label="시장 위험 전이 렌즈">
@@ -7025,385 +7029,6 @@ button[data-filter-active="true"] {
       <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-top:10px;">금 가격은 실질금리·환율·중앙은행 수요·위험선호 등 복수 요인의 영향을 받습니다. 단일 원인으로 해석하지 않습니다.</div>
     </div>
   </div>
-
-  <!-- 금리·환율 6열 — v52.70 아이보리 3d: 시안 구조(헤어라인 구분, 기존 카드/스냅샷 id 재사용) -->
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--border-strong);border-bottom:1px solid var(--border-strong);margin-bottom:26px;">
-    <div style="padding:20px 16px 20px 0;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">Fed 연방기금금리 월평균</div><div style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="fed-rate" title="FRED FEDFUNDS 월평균 · NY Fed 일별 EFFR 및 FOMC 목표범위와 다른 지표">—</span></div><div id="macro-fed-meaning" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">FOMC 결정·목표범위: <span data-snap="fomc">—</span></div></div>
-    <div style="padding:20px 16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">2년물</div><div id="macro-2y-value" style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div><div id="macro-2y-source" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">FRED DGS2 수신 대기</div></div>
-    <div style="padding:20px 16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">10년물</div><div style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^TNX">—</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;" data-live-chg="^TNX">—</div></div>
-    <div style="padding:20px 16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">2s10s</div><div id="macro-spread-value" style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div><div id="macro-spread-meaning" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">역전 여부</div></div>
-    <div style="padding:20px 16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">DXY</div><div style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="DX-Y.NYB">—</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;" data-live-chg="DX-Y.NYB">—</div></div>
-    <div style="padding:20px 0 20px 16px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">USD/KRW</div><div style="font-size:18px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="KRW=X">—</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;" data-live-chg="KRW=X">—</div></div>
-  </div>
-
-  <!-- 인플레이션·고용 5열 — v52.70 아이보리 3d: 시안 구조(4카드→5카드, 기존 data-snap 재사용) -->
-  <div id="macro-fred-stale-banner" data-runtime-state="unavailable" data-operational-use="blocked" style="font-size:12px;color:var(--data-amber);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:4px;padding:8px 14px;margin-bottom:12px;">CPI/PCE: FRED·BLS 원천 수신 대기 · 미수신 값은 현재 판단에 사용하지 않습니다.</div>
-  <!-- P1142: 파싱 시점에 window._fredData가 아직 비어 있어 결코 실행 효과가 없던 인라인 은닉 스크립트를 제거했다.
-       배너는 정적 fail-closed 상태(unavailable/blocked)로 항상 표시되며, 현재 이 상태를 동적으로 갱신하는 코드는 없다. -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;">
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">CPI-U YoY · 공식 보도 기준 (NSA)</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="cpi-yoy" title="BLS CUUR0000SA0 · 비계절조정 CPI-U 전년비">—</span> <span id="cpi-yoy-delta" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BLS NSA headline · 분석용 SA 전년비 <span data-snap="cpi-sa-yoy" title="BLS CUSR0000SA0 · 계절조정 지수 전년비">—</span></div></div>
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">근원 CPI-U YoY · 공식 보도 기준 (NSA)</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="core-cpi-yoy" title="BLS CUUR0000SA0L1E · 비계절조정 근원 CPI-U 전년비">—</span> <span id="core-cpi-yoy-delta" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BLS NSA core · 분석용 SA 전년비 <span data-snap="core-cpi-sa-yoy" title="BLS CUSR0000SA0L1E · 계절조정 근원 지수 전년비">—</span></div></div>
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">근원 PCE</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="core-pce-yoy">—</span> <span id="core-pce-yoy-delta" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BEA 발표 기준 · 추세 확인</div></div>
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">NFP 신규고용</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="nfp">—</span> <span id="nfp-delta-tag" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BLS 발표 기준 · 임금·실업률과 교차 확인</div></div>
-  </div>
-
-  <!-- 수익률 곡선 + 원자재·사이클 2열 — v52.70 아이보리 3d: 시안 구조(기존 yieldCurveChart 캔버스 재사용) -->
-  <div style="display:grid;grid-template-columns:1fr 320px;gap:32px;border-top:1px solid var(--border-strong);padding-top:24px;margin-bottom:26px;">
-    <div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
-        <span style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">수익률 곡선</span>
-        <span id="curve-status" style="font-size:12.5px;font-weight:600;color:var(--data-green);">정상 곡선</span>
-      </div>
-      <canvas id="yieldCurveChart" role="img" aria-label="미국 국채 수익률 곡선 차트" style="max-width:100%;height:160px;"></canvas>
-      <div id="curve-meaning" style="font-size:12.5px;color:var(--text-dim);line-height:1.7;margin-top:12px;">경제 약세 신호 없음</div>
-    </div>
-    <div>
-      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">원자재 · 사이클</div>
-      <div style="display:flex;flex-direction:column;">
-        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);"><span style="font-size:13px;color:var(--text-secondary);">WTI 원유</span><span style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="CL=F">—</span></div>
-        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);"><span style="font-size:13px;color:var(--text-secondary);">금</span><span style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="GC=F">—</span></div>
-      </div>
-      <div style="margin-top:18px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">금리 사이클</div>
-        <div id="spread-status" style="font-size:12px;color:var(--text-secondary);">2s10s: —</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- v52.70 아이보리: 시안 3d 범위 밖 — 인터커넥션 맵 · 경제 사이클 타임라인 · FRED 12개월 차트 ·
-       8카드 라이브 지표 · 추가 매크로지표(소매판매 등) · 글로벌 경기 체온계를 details로 접음(삭제 아님) -->
-  <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
-    <summary>인터커넥션 맵 · 경제 사이클 · FRED 차트 · 유가·에너지 모니터 · 시나리오 트리 · 경제 캘린더 (전체 보기)</summary>
-    <div class="aio-page-advanced-body">
-  <!-- ══ SECTION 1: 매크로 인터커넥션 맵 ═══════════════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">인터커넥션 맵</span>
-    <button data-action="_aioMacroInterconToggle" data-pass-el="1" class="btn-accent --blue" style="font-size:10px;padding:2px 8px;margin-left:4px;">설명 ▼</button>
-  </div>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px;">
-      <!-- Fed 금리 -->
-      <div style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:4px;padding:10px;position:relative;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-red);"> Fed 연방기금금리 월평균</div>
-        <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);"><span data-snap="fed-rate">—</span></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
-          중앙은행 기준금리. 높으면 대출비용↑ → 주식↓ 달러↑<br>
-          <b style="color:var(--data-amber);">→ 영향:</b> 채권금리↑ · 주택↓ · 달러↑ · 성장주↓
-        </div>
-      </div>
-
-      <!-- 인플레이션 -->
-      <div style="background:var(--surface-1);border:1px solid rgba(33,29,22,0.18);border-radius:4px;padding:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-amber);">인플레이션 (CPI/PCE)</div>
-        <div style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);">모니터링 중</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
-          물가상승률(Fed 목표 2%). 높으면 금리인상 압력 → 주식↓<br>
-          <b style="color:var(--data-red);">→ 위험:</b> 유가↑ = CPI↑ = 금리인하 후퇴
-        </div>
-      </div>
-
-      <!-- 달러 -->
-      <div style="background:var(--surface-1);border:1px solid rgba(33,29,22,0.18);border-radius:4px;padding:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-cyan);"> 미국 달러 (DXY)</div>
-        <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">—</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
-          세계 기준 통화. 달러 강세 = 미국 금리 높아 자금이 미국으로 몰림(미국주식↑) / 약세 = 자금이 신흥국·원자재로(신흥국↑·원자재↑)<br>
-          <b style="color:var(--data-green);">→ 약세 시:</b> 금↑ · EM↑ · 수출주↑ · 원화↑
-        </div>
-      </div>
-
-      <!-- 원유 -->
-      <div style="background:var(--surface-1);border:1px solid rgba(177,58,48,0.22);border-radius:4px;padding:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-red);"> 원유 (WTI/Brent)</div>
-        <div style="display:flex;gap:8px;align-items:baseline;">
-          <div style="font-size:16px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);" data-live-price="CL=F">—</div>
-          <div style="font-size:11px;font-family:var(--font-mono);" data-live-chg="CL=F">—</div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
-          물가의 근원. 유가↑ = 인플레↑ = 금리↑ = 주식↓<br>
-          <b style="color:var(--data-red);">→ $100+:</b> 수요파괴 → 경기침체 우려
-        </div>
-      </div>
-
-      <!-- 채권 10년 -->
-      <div style="background:var(--surface-1);border:1px solid rgba(33,29,22,0.18);border-radius:4px;padding:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-purple);">미국 10년 국채 금리</div>
-        <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);" data-live-price="^TNX">—</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
-          시장의 미래 금리 기대. 금리↑ = 대출비용↑(부동산↓) + 미래 이익을 깎아 평가(성장주↓)<br>
-          <b style="color:var(--data-purple);">→ 핵심:</b> 2년물 금리 > 10년물 금리(역전) = 경기침체 경고. <b>→ 그러면: 현금 비중↑·방어주 강화.</b>
-        </div>
-      </div>
-
-      <!-- 고용 -->
-      <div style="background:var(--surface-1);border:1px solid rgba(34,117,76,0.18);border-radius:4px;padding:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-green);"> 고용 시장</div>
-        <div style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">모니터링 중</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
-          고용강=소비유지, 실업률↑=침체신호. NFP 매월 첫 금요일<br>
-          <b style="color:var(--data-amber);">→ 딜레마:</b> 고용 강세 → Fed 금리동결 → 주식↓
-        </div>
-      </div>
-    </div>
-
-    <!-- 인터커넥션 요약 (항상 보임) -->
-    <div style="background:var(--surface-2);border-radius:3px;padding:8px 12px;margin-top:8px;font-size:11px;color:var(--text-secondary);text-align:center;font-weight:600;">
-      유가↑ → 인플레↑ → 금리↑ → 달러↑ → 주식↓ → 수요파괴 → 유가↓ → 반복
-    </div>
-    <!-- 상세 설명 (기본 숨김) -->
-    <div id="macro-intercon-detail" style="display:none;margin-top:8px;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;font-size:11px;color:var(--text-muted);line-height:1.8;">
-      각 지표는 도미노처럼 연결. <b style="color:var(--data-cyan);">현재 사이클 위치 파악이 핵심.</b> AI 채팅에서 상세 분석 가능.
-    </div>
-  </div>
-
-  <!-- ══ SECTION 1-B: 경제 사이클 타임라인 (Economic Cycle Timeline) ══ -->
-  <div class="aio-section" style="overflow-x:auto;">
-    <div class="aio-section-hd">
-      <span class="aio-section-label">경제 사이클 타임라인</span>
-      <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border-subtle);">Phase 1~5 역사 · Phase 6 실시간</span>
-    </div>
-
-    <div style="display:flex;flex-wrap:wrap;gap:6px 0;min-width:0;width:100%;padding-bottom:8px;position:relative;align-items:flex-end;">
-      <!-- Phase 1: 2020 코로나 -->
-      <div style="flex:1 1 140px;min-width:0;text-align:center;padding:0 4px;">
-        <div style="background:rgba(177,58,48,0.1);border:1px solid rgba(177,58,48,0.2);border-radius:3px;padding:8px 6px;margin-bottom:4px;">
-          <div style="font-size:11px;color:var(--data-red);font-weight:700;">2020</div>
-          <div style="font-size:10px;font-weight:800;color:var(--data-red);">코로나</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.3;">S&P: 2,200<br>Fed: 0%<br>VIX: 80+</div>
-        </div>
-      </div>
-      <div style="flex:0 0 18px;border-top:2px solid rgba(33,29,22,0.1);margin-bottom:20px;"></div>
-
-      <!-- Phase 2: 2021 V자회복 -->
-      <div style="flex:1 1 140px;min-width:0;text-align:center;padding:0 4px;">
-        <div style="background:rgba(34,117,76,0.1);border:1px solid rgba(34,117,76,0.2);border-radius:3px;padding:8px 6px;margin-bottom:4px;">
-          <div style="font-size:11px;color:var(--data-green);font-weight:700;">2021</div>
-          <div style="font-size:10px;font-weight:800;color:var(--data-green);">회복</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.3;">S&P: 4,700<br>Fed: 0%<br>VIX: 12</div>
-        </div>
-      </div>
-      <div style="flex:0 0 18px;border-top:2px solid rgba(33,29,22,0.1);margin-bottom:20px;"></div>
-
-      <!-- Phase 3: 2022 인플레 -->
-      <div style="flex:1 1 140px;min-width:0;text-align:center;padding:0 4px;">
-        <div style="background:rgba(33,29,22,0.1);border:1px solid rgba(33,29,22,0.2);border-radius:3px;padding:8px 6px;margin-bottom:4px;">
-          <div style="font-size:11px;color:var(--data-amber);font-weight:700;">2022</div>
-          <div style="font-size:10px;font-weight:800;color:var(--data-amber);">인플레</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.3;">S&P: 3,600<br>Fed: 4.5%<br>VIX: 25+</div>
-        </div>
-      </div>
-      <div style="flex:0 0 18px;border-top:2px solid rgba(33,29,22,0.1);margin-bottom:20px;"></div>
-
-      <!-- Phase 4: 2023 긴축 -->
-      <div style="flex:1 1 140px;min-width:0;text-align:center;padding:0 4px;">
-        <div style="background:rgba(33,29,22,0.1);border:1px solid rgba(33,29,22,0.2);border-radius:3px;padding:8px 6px;margin-bottom:4px;">
-          <div style="font-size:11px;color:var(--data-cyan);font-weight:700;">2023</div>
-          <div style="font-size:10px;font-weight:800;color:var(--data-cyan);"> 긴축</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.3;">S&P: 4,800<br>Fed: 5.5%<br>VIX: 18</div>
-        </div>
-      </div>
-      <div style="flex:0 0 18px;border-top:2px solid rgba(33,29,22,0.1);margin-bottom:20px;"></div>
-
-      <!-- Phase 5: 2024 디스인플레 전환 -->
-      <div style="flex:1 1 140px;min-width:0;text-align:center;padding:0 4px;">
-        <div style="background:rgba(33,29,22,0.1);border:1px solid rgba(33,29,22,0.2);border-radius:3px;padding:8px 6px;margin-bottom:4px;">
-          <div style="font-size:11px;color:var(--data-purple);font-weight:700;">2024</div>
-          <div style="font-size:10px;font-weight:800;color:var(--data-purple);">디스인플레 전환</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.3;">주식 강세<br>Fed 완화 전환<br>변동성 정상화</div>
-        </div>
-      </div>
-      <div style="flex:0 0 18px;border-top:2px dashed rgba(33,29,22,0.2);margin-bottom:20px;"></div>
-
-      <!-- Phase 6: 2025-26 현재 (PULSING) — v48.14 실시간 데이터 주입 -->
-      <div style="flex:1 1 140px;min-width:0;text-align:center;padding:0 4px;">
-        <div style="background:linear-gradient(135deg,rgba(34,117,76,0.2),rgba(34,117,76,0.08));border:2px solid var(--data-green);border-radius:3px;padding:8px 6px;margin-bottom:4px;animation:pulse 2s infinite;">
-          <div style="font-size:11px;color:var(--data-green);font-weight:700;"> 지금</div>
-          <div style="font-size:10px;font-weight:800;color:var(--data-green);"> 라이브</div>
-          <!-- v52.40 (P655/EF-01): "지금·라이브" 카드는 원래 data-snap="spx"(스냅샷 전용)라 "라이브" 라벨과
-               모순됐다 — 전용 id로 분리해 _aioSyncMacroLiveSpxMini()가 window._liveData['^GSPC'] 우선으로 채움. -->
-          <div style="font-size:11px;color:var(--data-green);margin-top:2px;line-height:1.3;">S&P: <span id="macro-now-spx">—</span><br>Fed 목표: <span data-snap="fed-target">—</span><br>VIX: <span data-snap="vix">—</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding:8px;background:var(--surface-4);border-radius:3px;line-height:1.5;">
-      <b style="color:var(--data-purple);">해석:</b> 역사적 사이클은 참고용입니다. 현재 국면은 위 런타임 지표와 공식 발표를 기준으로만 판단합니다.
-    </div>
-  </div>
-
-  <!-- v46.6: FRED 경제지표 시계열 차트 (12개월) -->
-  <div class="aio-section">
-    <div class="aio-section-hd">
-      <span class="aio-section-label">핵심 경제지표 시계열 (12개월)</span>
-      <span style="font-size:10px;color:var(--text-muted);">FRED API · 월간 · <span data-text-role="operational-status">자동 갱신</span></span>
-      <span id="fred-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);margin-left:auto;">수집 대기</span>
-    </div>
-    <div id="fred-charts-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;">
-      <div style="background:var(--surface-1);border-radius:4px;padding:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:6px;">실업률 (UNRATE)</div>
-        <div style="position:relative;height:120px;"><canvas id="fred-unrate-chart" role="img" aria-label="실업률 12개월 시계열 차트 (FRED UNRATE)"></canvas></div>
-      </div>
-      <div style="background:var(--surface-1);border-radius:4px;padding:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:6px;">CPI 인플레이션 (YoY%)</div>
-        <div style="position:relative;height:120px;"><canvas id="fred-cpi-chart" role="img" aria-label="CPI-U 인플레이션 전년 동월 대비 시계열 차트 (BLS/FRED CPIAUCNS, 비계절조정)"></canvas></div>
-      </div>
-      <div style="background:var(--surface-1);border-radius:4px;padding:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:6px;">기준금리 (Fed Funds)</div>
-        <div style="position:relative;height:120px;"><canvas id="fred-fedfunds-chart" role="img" aria-label="연방기금 기준금리 12개월 시계열 차트 (FRED FEDFUNDS)"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- v52.70 아이보리: 구 8카드 라이브 매크로 지표 + 인플레이션 5카드 그리드는 위 primary view의
-       금리·환율 6열 / 인플레이션·고용 5열 블록으로 대체 — 동일 id(macro-spread-value/macro-fed-meaning
-       등)·동일 data-snap 재사용이라 중복 방지를 위해 구 마크업 제거(렌더러 함수는 무변경). PCE 헤드라인
-       단독 카드(근원PCE와 별개, data-snap="pce-yoy")만 comp 카드 슬롯이 없어 이번 축소 대상 — 원시 계산은
-       그대로 유지되고 화면 노출만 빠짐(시간 압박 하 축소 검증, 후속 세션에서 재검토 가능). -->
-
-  <!-- v40.9: 추가 매크로 지표 (소비·고용·주택) -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
-    <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;"> 소매판매</div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);" data-snap="retail-sales">—</div>
-      <div style="font-size:11px;color:var(--text-muted);">MoM</div>
-      <div style="font-size:11px;color:var(--green);margin-top:3px;">소비 체력 → 기업 이익 선행</div>
-    </div>
-    <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">임금 상승</div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);" data-snap="wage-growth">—</div>
-      <div style="font-size:11px;color:var(--text-muted);">YoY</div>
-      <div style="font-size:11px;color:var(--data-amber);margin-top:3px;">인플레 선행, 3%↓=둔화</div>
-    </div>
-    <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">주택착공</div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);" data-snap="housing">—</div>
-      <div style="font-size:11px;color:var(--text-muted);">연환산</div>
-      <div style="font-size:11px;color:var(--cyan);margin-top:3px;">금리 민감, 경기 선행지표</div>
-    </div>
-    <!-- v52.70: PCE 헤드라인(근원PCE와 별개) — comp 카드 슬롯은 없지만 T764/T765가 data-snap="pce-yoy" sink
-         존재를 요구해 유지. 위 primary view에는 근원PCE만 노출(comp 5카드 슬롯), 이 헤드라인은 details 안에만. -->
-    <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">PCE (헤드라인)</div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);"><span data-snap="pce-yoy">—</span> <span id="pce-yoy-delta" class="aio-metric-delta" style="display:none;font-size:11px;"></span></div>
-      <div style="font-size:11px;color:var(--text-muted);">YoY</div>
-    </div>
-  </div>
-
-  <!-- ══ SECTION 3: 외환·채권 요약 ════════════════════════════════ -->
-  <div class="aio-section">
-    <div class="aio-section-hd">
-      <span class="aio-section-label">외환·채권 현황</span>
-      <button data-action="showPage" data-arg="fxbond" class="btn-accent --blue" style="margin-left:4px;">전체 대시보드 →</button>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(85px,1fr));gap:6px;">
-      <div class="mfx-cell"><div class="mfx-l">DXY</div><div class="mfx-v" data-live-price="DX-Y.NYB">—</div><div class="mfx-c" data-live-chg="DX-Y.NYB">—</div></div>
-      <div class="mfx-cell"><div class="mfx-l">USD/KRW</div><div class="mfx-v" data-live-price="KRW=X">—</div><div class="mfx-c" data-live-chg="KRW=X">—</div></div>
-      <div class="mfx-cell"><div class="mfx-l">USD/JPY</div><div class="mfx-v" data-live-price="JPY=X">—</div><div class="mfx-c" data-live-chg="JPY=X">—</div></div>
-      <div class="mfx-cell"><div class="mfx-l">EUR/USD</div><div class="mfx-v" data-live-price="EURUSD=X">—</div><div class="mfx-c" data-live-chg="EURUSD=X">—</div></div>
-      <div class="mfx-cell" style="border-color:rgba(177,58,48,0.2);"><div class="mfx-l">US 10Y</div><div class="mfx-v" style="color:var(--data-red);" data-live-price="^TNX">—</div><div class="mfx-c" data-live-chg="^TNX">—</div></div>
-      <div class="mfx-cell"><div class="mfx-l">Gold</div><div class="mfx-v" data-live-price="GC=F">—</div><div class="mfx-c" data-live-chg="GC=F">—</div></div>
-    </div>
-  </div>
-
-  <!-- v52.70 아이보리: 구 SECTION 3-A(수익률 곡선 분석기)는 위 primary view의 "수익률 곡선 + 원자재·
-       사이클" 2열 블록으로 대체 — yieldCurveChart/curve-status/curve-meaning/spread-status id를 그대로
-       이전해 재사용하므로 중복 방지를 위해 구 마크업 제거(renderYieldCurve() 등 렌더러 함수는 무변경). -->
-
-  <!-- ══ SECTION 3-B: 글로벌 경기 체온계 (Economic Thermometer) ════ -->
-  <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">글로벌 경기 체온계</span></div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <!-- Thermometer Visual -->
-      <div style="display:flex;align-items:center;justify-content:center;padding:20px;">
-        <div style="position:relative;width:60px;height:220px;background:var(--border);border:2px solid rgba(33,29,22,0.2);border-radius:30px;overflow:hidden;">
-          <div id="thermometer-fill" style="position:absolute;bottom:0;width:100%;background:var(--text-primary);height:50%;border-radius:30px;transition:height 0.5s ease, background 0.3s ease;"></div>
-          <div id="thermometer-label" style="position:absolute;top:-30px;left:-30px;width:120px;text-align:center;font-size:12px;font-weight:700;color:var(--data-green);">—</div>
-        </div>
-      </div>
-
-      <!-- Temperature Details -->
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:3px;padding:10px;">
-          <div style="font-size:11px;color:var(--data-cyan);font-weight:700;">온도 계산</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;">
-            <b>VIX 수준</b> 30% · <b>수익률 곡선</b> 25% · <b>유가</b> 20% · <b>달러</b> 15% · <b>신용</b> 10%
-          </div>
-        </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:3px;padding:10px;">
-          <div style="font-size:11px;color:var(--data-green);font-weight:700;">현재 온도</div>
-          <div id="temp-score" style="font-size:16px;font-weight:900;color:var(--data-green);font-family:var(--font-mono);">—</div>
-          <div id="temp-narrative" style="font-size:11px;color:var(--text-muted);margin-top:4px;">거시 입력 수신 대기</div>
-        </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:3px;padding:10px;">
-          <div style="font-size:11px;color:var(--text-secondary);font-weight:700;">0~100 해석</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.3;">
-            0-30: 극도로 차가움 (침체) · 30-50: 차가움 · 50-70: 정상 · 70-85: 뜨거움 · 85+: 과열
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- v34.9: 지정학적 시나리오 분석 — 특정 국가 참조는 분석 시점의 실제 리스크를 반영합니다. 주기적으로 현행화 필요. -->
-  <!-- ══ SECTION 4: 유가·에너지 위기 대시보드 ═══════════════════════ -->
-  <div class="aio-section">
-    <div class="aio-section-hd">
-      <span class="aio-section-label">유가·에너지 위기 모니터</span>
-      <span style="font-size:10px;color:var(--text-muted);">지정학적 리스크 모니터링</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);">WTI</div>
-        <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-live-price="CL=F">—</div>
-        <div style="font-size:11px;" data-live-chg="CL=F">—</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);">Brent</div>
-        <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-live-price="BZ=F">—</div>
-        <div style="font-size:11px;" data-live-chg="BZ=F">—</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid rgba(177,58,48,0.3);border-radius:3px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);">WTI-Brent 스프레드</div>
-        <div id="wti-brent-spread" style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">—</div>
-        <div style="font-size:11px;color:var(--data-red);">높을수록 미국 개입 증거</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);">Gold 안전자산</div>
-        <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);" data-live-price="GC=F">—</div>
-        <div style="font-size:11px;" data-live-chg="GC=F">—</div>
-      </div>
-    </div>
-    <div id="energy-crisis-interpretation" style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:3px;padding:10px 12px;">
-      <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">에너지 전이 경로</div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">현재 WTI·Brent·금리·달러 관측치를 함께 확인합니다. 과거 수요파괴 수치나 정책 대응 상태를 내장값으로 현재 판단에 사용하지 않습니다.</div>
-    </div>
-  </div>
-
-  <!-- ══ SECTION 5: 매크로 시나리오 트리 (v49.28/R72 SCENARIO_REGISTRY 적용) ════════════════════════════ -->
-  <div class="aio-section">
-    <div class="aio-section-hd">
-      <span class="aio-section-label">시나리오 트리</span>
-      <span style="font-size:10px;color:var(--text-muted);">확률 합 = <span id="macro-scenario-sum">—</span> · 갱신 <span id="macro-scenario-updated">—</span> (<span id="macro-scenario-stale-days">원천 미연결</span>)</span>
-    </div>
-
-    <div data-scenario-provider-state="unavailable" data-runtime-state="unavailable" data-operational-use="blocked" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;color:var(--text-muted);font-size:11px;">
-      정량 시나리오 공급자가 연결되지 않아 확률·현재 조건·자산 영향 판단을 표시하지 않습니다.
-    </div>
-  </div>
-
-  <!-- ══ SECTION 6: 경제 캘린더 ═════════════════════════════════════ -->
-  <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">경제 지표 캘린더</span></div>
-    <div id="macro-econ-calendar" style="font-size:10px;">
-      <!-- JS에서 동적 생성 -->
-    </div>
-    <div style="margin-top:8px;font-size:11px;color:var(--text-muted);text-align:right;">
-      실시간 캘린더: <a href="https://www.investing.com/economic-calendar/" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">Investing.com</a> | <a href="https://tradingeconomics.com/calendar" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">TradingEconomics</a>
-    </div>
-  </div>
-    </div>
-  </details>
 
   <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-macro) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
   <details class="aio-page-advanced-toggle" id="kr-integrated-macro" style="margin-top:16px;">
@@ -7694,683 +7319,43 @@ button[data-filter-active="true"] {
     <!-- ═══════════════ PAGE: FX·BOND (환율 채권) ═══════════════ -->
 
   <div class="page" id="page-fxbond">
-  <div class="insight-box box-collapsed">
-    <strong>달러와 채권이 주식에 미치는 영향 — 금리↑ = 성장주↓, 원/달러↑ = 외인 매도</strong>
-  </div>
-
-  <!-- 헤더 — v52.71 아이보리 3e: serif 27px 타이틀(시안 구조) -->
+  <!-- P1425 (owner review 2026-10-03): 금리 · 환율 = 미 재무부 공식 수익률 곡선 · 실질금리/기대인플레/하이일드(FRED) ·
+       달러/원/엔/10년물 종가 추이(시장 상태와 같은 종가 기준). 고정 수준 판정 배지(DXY 107/10년물 5%), 4축 상승/하락 집계,
+       정적 브리핑 문장·자산군 영향 매트릭스·수기 금리 사이클 타임라인·미연결 글로벌 금리표는 퇴역. -->
   <div id="tg-feed-fxbond"></div>
-  <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
-    <div>
-      <div class="page-title">환율 · 채권</div>
-      <div class="page-subtitle">달러 · 주요 통화쌍 · 수익률 곡선 · 크레딧 시장</div>
-    </div>
-    <span id="fxbond-risk-pill" class="status-pill sp-risk-off">— 달러 강세 · 금리 압박</span>
-  </div>
-
-  <!-- 오늘의 환율·채권 브리핑 — v52.71 아이보리 3e: 시안 구조(서사형 결론, 실데이터 span 재사용) -->
-  <div style="margin-bottom:26px;">
-    <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">오늘의 환율 · 채권 브리핑</div>
-    <div style="font-size:14px;color:var(--text-secondary);line-height:1.85;max-width:960px;">
-      달러 인덱스(DXY)가 <b style="color:var(--text-primary);" data-live-price="DX-Y.NYB">—</b>를 기록 중입니다. 미 10년물 금리는
-      <b style="color:var(--text-primary);" data-live-price="^TNX">—</b>%입니다. 금리 수준은 할인율 민감도를 비교하는 입력이며 자산 방향을 단독으로 결정하지 않습니다.
-      USD/JPY는 <b style="color:var(--text-primary);" data-live-price="JPY=X">—</b>, USD/KRW는 <b style="color:var(--text-primary);" data-live-price="KRW=X">—</b>입니다. 수준과 변화율을 정책·수급 자료와 함께 확인하세요.
-    </div>
-  </div>
-
-  <!-- 10Y금리·엔화 3개월 추이 — v52.71 아이보리 3e: 시안 구조(신규 미니 라인차트) -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px;">
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:22px 26px;">
-      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;font-weight:600;color:var(--text-primary);">미 10년물 금리</span><span style="font-size:12px;color:var(--text-dim);">최근 3개월 추이</span></div>
-      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;"><span style="font-family:var(--font-display);font-size:30px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;line-height:1;" data-live-price="^TNX">—</span><span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;" data-live-chg="^TNX">—</span></div>
-      <canvas id="fxbond-tnx-trend" role="img" aria-label="미 10년물 금리 3개월 추이 차트" style="width:100%;height:110px;"></canvas>
-      <div style="font-size:12.5px;color:var(--text-dim);line-height:1.7;margin-top:8px;">금리 수준은 할인율 민감도를 비교하는 입력입니다. 업종·종목 반응은 실적·수급과 함께 확인하세요.</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:22px 26px;">
-      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;font-weight:600;color:var(--text-primary);">USD/JPY 엔 환율</span><span style="font-size:12px;color:var(--text-dim);">최근 3개월 추이</span></div>
-      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;"><span style="font-family:var(--font-display);font-size:30px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;line-height:1;" data-live-price="JPY=X">—</span><span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;" data-live-chg="JPY=X">—</span></div>
-      <canvas id="fxbond-jpy-trend" role="img" aria-label="USD/JPY 엔 환율 3개월 추이 차트" style="width:100%;height:110px;"></canvas>
-      <div style="font-size:12.5px;color:var(--text-dim);line-height:1.7;margin-top:8px;">환율 수준만으로 당국 조치나 캐리 청산을 단정하지 않습니다. 정책 발언·금리차·포지션 자료를 함께 확인하세요.</div>
-    </div>
-  </div>
-
-  <!-- 크로스에셋 4축 정렬 — v52.71 아이보리 3e: 시안 구조(달러/금리/엔/크레딧), 기존 cam-*/carry-jpy 재사용 -->
-  <div style="margin-bottom:26px;">
-    <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">크로스에셋 4축 정렬</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
-      <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">달러 (DXY)</div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span id="cam-dxy-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="DX-Y.NYB">—</span><span id="cam-dxy-chg" style="font-size:12px;font-weight:600;" data-live-chg="DX-Y.NYB">—</span></div>
-        <div id="cam-dxy-signal" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">판정: —</div>
-      </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">금리 (10년물)</div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span id="cam-10y-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^TNX">—</span><span id="cam-10y-chg" style="font-size:12px;font-weight:600;" data-live-chg="^TNX">—</span></div>
-        <div id="cam-10y-signal" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">판정: —</div>
-      </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">엔 (USD/JPY)</div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span id="carry-jpy-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="JPY=X">—</span><span style="font-size:12px;font-weight:600;" data-live-chg="JPY=X">—</span></div>
-        <div id="carry-jpy-risk" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BOJ 정책 압박</div>
-      </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">크레딧 (HYG)</div>
-        <div style="display:flex;align-items:baseline;gap:6px;"><span id="cam-hyg-val" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="HYG">—</span><span id="cam-hyg-chg" style="font-size:12px;font-weight:600;" data-live-chg="HYG">—</span></div>
-        <div id="cam-hyg-signal" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">판정: —</div>
+  <div class="page-title">금리 · 환율</div>
+  <div class="page-subtitle" id="rates-basis">종가 기록을 불러오는 중입니다.</div>
+  <section class="briefing-block rates-block" aria-labelledby="rates-treasury-title">
+    <h2 class="briefing-h2" id="rates-treasury-title">미 국채 수익률 곡선</h2>
+    <div class="rates-yields" id="rates-yields"></div>
+    <div class="rates-curve-row">
+      <div class="rates-curve-wrap" id="rates-curve"></div>
+      <div class="rates-curve-side">
+        <div class="rates-spreads" id="rates-spreads"></div>
+        <p class="rates-curve-fact" id="rates-curve-fact"></p>
+        <p class="briefing-read-reading" id="rates-curve-reading"></p>
       </div>
     </div>
-    <div style="font-size:13.5px;color:var(--text-secondary);line-height:1.75;margin-top:14px;max-width:960px;"><b style="color:var(--text-primary);">통합 판정:</b> <span id="cam-verdict-text">4축 데이터 수신 대기 — 정렬 확인 필요</span></div>
-  </div>
-  <div id="cam-verdict" style="display:none;" aria-hidden="true"></div>
-  <div id="vis-fxbond" style="display:none;" aria-hidden="true"><div id="vis-fxbond-yield"></div></div>
-
-  <!-- v52.71 아이보리: 시안 3e 범위 밖 — 엔캐리 세부(VIX·금리차 카드)·카드형 게이지는 details로 접음(삭제 아님).
-       carry-score-bar/carry-score-text/carry-verdict/carry-risk-level는 아래 "크레딧·변동성" 열에서 재사용. -->
-  <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
-    <summary>엔 캐리 청산 위험 — 엔화 20일 변화와 참고 지표 (VIX · HY)</summary>
-    <div class="aio-page-advanced-body">
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">엔 캐리 청산 위험</span></div>
-  <div id="carry-unwind-risk" style="background:var(--surface-1);border:1px solid rgba(33,29,22,0.2);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
-      <div>
-        <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">엔 캐리 청산 위험</span>
-        <span style="font-size:10px;color:var(--text-muted);margin-left:8px;">엔화 20일에 3% 이상 강세면 부담 (시장 상태 환율 축과 같은 기준) · 포지션·옵션 데이터 미포함</span>
-      </div>
+  </section>
+  <section class="briefing-block rates-block" aria-labelledby="rates-levels-title">
+    <h2 class="briefing-h2" id="rates-levels-title">실질금리 · 기대인플레이션 · 신용</h2>
+    <div class="macro-stat-grid" id="rates-levels"></div>
+  </section>
+  <section class="briefing-block rates-block" aria-labelledby="rates-fx-title">
+    <h2 class="briefing-h2" id="rates-fx-title">달러 · 원화 · 엔화 · 10년물 — 최근 6개월</h2>
+    <div class="trend-grid" id="rates-fx-grid"></div>
+  </section>
+  <section class="briefing-block rates-block" aria-labelledby="rates-other-title">
+    <h2 class="briefing-h2" id="rates-other-title">그 밖의 통화 <span class="rates-other-note">실시간 시세 · 지연 가능</span></h2>
+    <div class="rates-other">
+      <div class="rates-other-cell"><span class="rates-yield-label">EUR/USD</span><span class="rates-yield-value" data-live-price="EURUSD=X">—</span><span class="rates-yield-change" data-live-chg="EURUSD=X">—</span></div>
+      <div class="rates-other-cell"><span class="rates-yield-label">GBP/USD</span><span class="rates-yield-value" data-live-price="GBPUSD=X">—</span><span class="rates-yield-change" data-live-chg="GBPUSD=X">—</span></div>
+      <div class="rates-other-cell"><span class="rates-yield-label">USD/CNY</span><span class="rates-yield-value" data-live-price="CNY=X">—</span><span class="rates-yield-change" data-live-chg="CNY=X">—</span></div>
+      <div class="rates-other-cell"><span class="rates-yield-label">AUD/USD</span><span class="rates-yield-value" data-live-price="AUDUSD=X">—</span><span class="rates-yield-change" data-live-chg="AUDUSD=X">—</span></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
-      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">USD/JPY</div>
-        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);" data-live-price="JPY=X">—</div>
-      </div>
-      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VIX</div>
-        <div id="carry-vix-val" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);" data-live-price="^VIX">—</div>
-        <div id="carry-vix-risk" style="font-size:10px;color:var(--text-muted);margin-top:2px;">변동성 충격 강도</div>
-      </div>
-      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">미·일 금리차 (일본 금리 미수집)</div>
-        <div id="carry-rate-diff" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
-        <div id="carry-rate-risk" style="font-size:10px;color:var(--text-muted);margin-top:2px;">US-JP 수익률 스프레드</div>
-      </div>
-      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">크레딧 (HYG)</div>
-        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);" data-live-price="HYG">—</div>
-        <div id="carry-hyg-risk" style="font-size:10px;color:var(--text-muted);margin-top:2px;">크레딧 위험 신호</div>
-      </div>
-    </div>
-    <div style="font-size:11px;color:var(--text-muted);">값은 관측 프록시일 뿐이며, 실제 캐리 포지션·청산 확률을 뜻하지 않습니다.</div>
-  </div>
-  </div>
-    </div>
-  </details>
-
-  <!-- 주요 통화쌍 6열 — v52.71 아이보리 3e: 시안 구조(헤어라인 구분, 기존 data-live-price/chg 재사용) -->
-  <div style="border-top:1px solid var(--border-strong);padding-top:24px;margin-bottom:26px;">
-    <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">주요 통화쌍</div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);">
-      <div style="padding:18px 16px 18px 0;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">USD/KRW</div><div style="font-size:16px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="KRW=X">—</div><div style="font-size:12px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;" data-live-chg="KRW=X">—</div><div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">수준·변화율 관측</div></div>
-      <div style="padding:18px 16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">USD/JPY</div><div style="font-size:16px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="JPY=X">—</div><div style="font-size:12px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;" data-live-chg="JPY=X">—</div><div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">정책 발언·금리차 확인</div></div>
-      <div style="padding:18px 16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">EUR/USD</div><div style="font-size:16px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="EURUSD=X">—</div><div style="font-size:12px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;" data-live-chg="EURUSD=X">—</div><div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">레인지</div></div>
-      <div style="padding:18px 16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">GBP/USD</div><div style="font-size:16px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="GBPUSD=X">—</div><div style="font-size:12px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;" data-live-chg="GBPUSD=X">—</div><div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">중립</div></div>
-      <div style="padding:18px 16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">USD/CNY</div><div style="font-size:16px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="CNY=X">—</div><div style="font-size:12px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;" data-live-chg="CNY=X">—</div><div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">수준·변화율 관측</div></div>
-      <div style="padding:18px 0 18px 16px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">AUD/USD</div><div style="font-size:16px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="AUDUSD=X">—</div><div style="font-size:12px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;" data-live-chg="AUDUSD=X">—</div><div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">수준·변화율 관측</div></div>
-    </div>
-  </div>
-
-  <!-- 스프레드 | 크레딧·변동성 2열 — v52.71 아이보리 3e: 시안 구조, 기존 sc-*/MOVE·LQD·TLT/엔캐리게이지 재사용 -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:44px;border-top:1px solid var(--border-strong);padding-top:24px;margin-bottom:26px;">
-    <div>
-      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">스프레드</div>
-      <div style="display:flex;flex-direction:column;">
-        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);"><span style="font-size:13px;color:var(--text-secondary);">2s10s (2년–10년)</span><span id="sc-2s10s" style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</span></div>
-        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);"><span style="font-size:13px;color:var(--text-secondary);">3M10Y (연준 선호)</span><span id="sc-3m10y" style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</span></div>
-        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);"><span style="font-size:13px;color:var(--text-secondary);">5s30s (스티프너)</span><span id="sc-5s30s" style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</span></div>
-      </div>
-      <div style="font-size:12.5px;color:var(--text-dim);line-height:1.7;margin-top:12px;">양수·음수는 곡선의 기울기만 나타냅니다. 경기 확장·침체는 스티프닝 원인, 고용, 물가, 신용과 함께 판정합니다.</div>
-    </div>
-    <div>
-      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">크레딧 · 변동성</div>
-      <div style="display:flex;flex-direction:column;">
-        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);"><span style="font-size:13px;color:var(--text-secondary);">LQD (투자등급)</span><span style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="LQD">—</span></div>
-        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);"><span style="font-size:13px;color:var(--text-secondary);">TLT (장기 국채)</span><span style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="TLT">—</span></div>
-      </div>
-      <div style="margin-top:18px;">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;"><span style="font-size:12px;color:var(--text-dim);">엔 캐리 청산 위험 (엔화 20일)</span><span style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span id="carry-score-text">—</span> / 100 · <span id="carry-risk-level">—</span></span></div>
-        <div style="height:4px;background:var(--border-subtle);border-radius:2px;"><div id="carry-score-bar" style="width:0%;height:100%;background:var(--text-primary);border-radius:2px;transition:width 0.4s;"></div></div>
-        <div id="carry-verdict" style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-top:10px;">엔/달러 20거래일 기록 수신 대기</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- v52.71 아이보리: 시안 3e 범위 밖 — 구 SECTION A~H(DXY 히어로+국기 카드·만기별 수익률곡선·MOVE/HYG/LQD/EMB
-       4카드·국채ETF·글로벌금리비교표·자산군영향매트릭스·4장 내러티브·종합트래커·금리사이클타임라인)를 details로 접음.
-       sc-2s10s/sc-3m10y/sc-5s30s(구 SECTION B 내부)는 위 "스프레드" 열로 이전 재사용 — 중복 방지 위해
-       구 위치에서는 제거(계산 함수 updateFxBondPage()는 무변경, id만 이전). -->
-  <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
-    <summary>외환시장 상세 · 만기별 수익률곡선 · 크레딧 지표 전체 · 글로벌 금리비교 · 시장 내러티브 보기</summary>
-    <div class="aio-page-advanced-body">
-  <!-- ══ SECTION A: 달러 인덱스 & 주요 외환 ══════════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">외환시장 — FX Market</span></div>
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
-      <div>
-        <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">외환시장 — FX Market<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="FX 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">외환시장 핵심 해석</span>DXY가 <strong>100 위면 달러 강세</strong> (Risk-Off, EM 주식 압박). 100 아래면 약세(상품·신흥국 유리). USDKRW 1,400↑ 약세, 1,300↓ 강세. EURUSD 1.10 이상이면 유럽 회복 국면.</span></span></span>
-        <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">주요 통화쌍 실시간 · 달러인덱스(DXY)</span>
-      </div>
-      <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);background:var(--surface-2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;">
-        Yahoo Finance API — 15분 지연 가능
-      </div>
-    </div>
-
-    <!-- DXY 메인 표시 -->
-    <div style="background:linear-gradient(135deg,rgba(33,29,22,0.06),rgba(33,29,22,0.02));border:1px solid rgba(33,29,22,0.2);border-radius:4px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-      <div>
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:4px;">달러 인덱스 (DXY)</div>
-        <div style="display:flex;align-items:baseline;gap:8px;">
-          <span style="font-size:32px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);" data-live-price="DX-Y.NYB">—</span>
-          <span style="font-size:14px;font-weight:700;" data-live-chg="DX-Y.NYB">—</span>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">EUR 57.6% · JPY 13.6% · GBP 11.9% · CAD 9.1% · SEK 4.2% · CHF 3.6%</div>
-      </div>
-      <div style="margin-left:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-        <div style="text-align:center;background:var(--surface-2);border-radius:3px;padding:8px 12px;">
-          <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">1개월 변동</div>
-          <div id="dxy-1m" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);">—</div>
-        </div>
-        <div style="text-align:center;background:var(--surface-2);border-radius:3px;padding:8px 12px;">
-          <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">52주 범위</div>
-          <div style="font-size:11px;font-weight:700;font-family:var(--font-mono);color:var(--text-secondary);">—</div>
-        </div>
-        <div style="text-align:center;background:var(--surface-2);border-radius:3px;padding:8px 12px;">
-          <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">추세 신호</div>
-          <div id="dxy-signal" style="font-size:11px;font-weight:800;color:var(--data-amber);">수신 대기</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 주요 통화쌍 그리드 -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
-      <!-- USD/KRW -->
-      <div class="fx-card" id="fx-krw">
-        <div class="fx-flag"></div>
-        <div class="fx-pair">USD/KRW</div>
-        <div class="fx-rate" data-live-price="KRW=X">—</div>
-        <div class="fx-chg" data-live-chg="KRW=X">—</div>
-        <div class="fx-note" id="fx-note-krw">USD/KRW 라이브 수신 후 원화 강약 자동 판정</div>
-        <div class="fx-signal fx-warn">수신 대기</div>
-      </div>
-      <!-- USD/JPY -->
-      <div class="fx-card" id="fx-jpy">
-        <div class="fx-flag">🇯🇵</div>
-        <div class="fx-pair">USD/JPY</div>
-        <div class="fx-rate" data-live-price="JPY=X">—</div>
-        <div class="fx-chg" data-live-chg="JPY=X">—</div>
-        <div class="fx-note" id="fx-note-jpy">BOJ 정책·미일 금리차·변동성 자료를 함께 확인</div>
-        <div class="fx-signal fx-warn">정책 확인</div>
-      </div>
-      <!-- EUR/USD -->
-      <div class="fx-card" id="fx-eur">
-        <div class="fx-flag">🇪🇺</div>
-        <div class="fx-pair">EUR/USD</div>
-        <div class="fx-rate" data-live-price="EURUSD=X">—</div>
-        <div class="fx-chg" data-live-chg="EURUSD=X">—</div>
-        <div class="fx-note">ECB 정책·미국 금리차 자료를 함께 확인</div>
-        <div class="fx-signal fx-neutral">수신 대기</div>
-      </div>
-      <!-- GBP/USD -->
-      <div class="fx-card" id="fx-gbp">
-        <div class="fx-flag">🇬🇧</div>
-        <div class="fx-pair">GBP/USD</div>
-        <div class="fx-rate" data-live-price="GBPUSD=X">—</div>
-        <div class="fx-chg" data-live-chg="GBPUSD=X">—</div>
-        <div class="fx-note">BOE 정책·미국 금리차 자료를 함께 확인</div>
-        <div class="fx-signal fx-neutral">수신 대기</div>
-      </div>
-      <!-- USD/CNY -->
-      <div class="fx-card" id="fx-cny">
-        <div class="fx-flag">🇨🇳</div>
-        <div class="fx-pair">USD/CNY</div>
-        <div class="fx-rate" data-live-price="CNY=X">—</div>
-        <div class="fx-chg" data-live-chg="CNY=X">—</div>
-        <div class="fx-note">PBOC 정책·위안화 변동 자료를 함께 확인</div>
-        <div class="fx-signal fx-bear">수신 대기</div>
-      </div>
-      <!-- AUD/USD -->
-      <div class="fx-card" id="fx-aud">
-        <div class="fx-flag">🇦🇺</div>
-        <div class="fx-pair">AUD/USD</div>
-        <div class="fx-rate" data-live-price="AUDUSD=X">—</div>
-        <div class="fx-chg" data-live-chg="AUDUSD=X">—</div>
-        <div class="fx-note">중국 수요 연동 · 원자재 가격 의존도 높음</div>
-        <div class="fx-signal fx-warn">수신 대기</div>
-      </div>
-      <!-- DXY repeat in grid -->
-      <div class="fx-card fx-dxy-card" id="fx-dxy-card">
-        <div class="fx-flag">🇺🇸</div>
-        <div class="fx-pair">DXY Index</div>
-        <div class="fx-rate" data-live-price="DX-Y.NYB">—</div>
-        <div class="fx-chg" data-live-chg="DX-Y.NYB">—</div>
-        <div class="fx-note">달러 강세 = 신흥국 압박 · 원자재 하락 요인</div>
-        <div id="dxy-card-signal" class="fx-signal fx-warn">수신 대기</div>
-      </div>
-      <!-- BTC as alternative currency -->
-      <div class="fx-card">
-        <div class="fx-flag"></div>
-        <div class="fx-pair">BTC/USD</div>
-        <div class="fx-rate" data-live-price="BTC-USD">—</div>
-        <div class="fx-chg" data-live-chg="BTC-USD">—</div>
-        <div class="fx-note">달러 대안 자산. 위험선호 지표 역할</div>
-        <div class="fx-signal fx-neutral">수신 대기</div>
-      </div>
-    </div>
-
-
-    <!--  환율 분석 가이드 -->
-  </div>
-
-  </div><!-- /aio-section FX -->
-
-  <!-- ══ SECTION B: 미 국채 수익률 곡선 ══════════════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">미 국채 수익률 곡선</span></div>
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
-      <div>
-        <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">미 국채 수익률 곡선 — US Treasury Yield Curve<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="Yield Curve 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">국채 수익률 곡선</span>정상: 단기&lt;장기 (스티프닝 · 경기 확장). <strong>역전</strong>: 단기&gt;장기 (플랫/역전 · 침체 선행, 역사적 18개월 내 경기침체 90% 확률). 2Y-10Y 스프레드가 -20bp 이하면 침체 경보.</span></span></span>
-        <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">단기→장기 금리 구조 · 경기침체 선행지표</span>
-      </div>
-      <div id="yc-inversion-badge" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:4px;background:rgba(177,58,48,0.12);color:var(--data-red);border:1px solid rgba(177,58,48,0.25);">
-        곡선 수신 대기
-      </div>
-    </div>
-
-    <!-- 수익률 곡선 시각화 -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;">
-      <!-- 3M -->
-      <div class="yc-cell">
-        <div class="yc-term">3개월</div>
-        <div class="yc-en">3M T-Bill</div>
-        <div class="yc-rate" id="yc-3m" data-live-price="^IRX">—</div>
-        <div class="yc-chg" data-live-chg="^IRX">—</div>
-        <div class="yc-bar-wrap"><div class="yc-bar" id="yc-bar-3m" style="height:0%;background:var(--data-cyan);"></div></div>
-        <div class="yc-note">단기 자금 금리. Fed 금리에 직결.</div>
-      </div>
-      <!-- 2Y (FRED DGS2 — Yahoo 무료 미제공, DATA_SNAPSHOT 스냅샷) -->
-      <div class="yc-cell">
-        <div class="yc-term">2년</div>
-        <div class="yc-en">2Y Treasury</div>
-        <div class="yc-rate" id="yc-2y" style="color:var(--data-amber);" data-snap="tnx-2y">—</div>
-        <div class="yc-chg" data-aio-archive="true" style="color:var(--text-muted);font-size:11px;">참고용 스냅샷 only, not live · <span data-snap-date="tnx-2y">기준일 미수신</span> (<span id="tnx-2y-stale-days" style="font-weight:700;">기준일 산출 대기...</span>)</div>
-        <div class="yc-bar-wrap"><div class="yc-bar" id="yc-bar-2y" style="height:0%;background:var(--data-amber);"></div></div>
-        <div class="yc-note">시장 금리인하 기대 반영. 가장 민감.</div>
-      </div>
-      <!-- 5Y -->
-      <div class="yc-cell">
-        <div class="yc-term">5년</div>
-        <div class="yc-en">5Y Treasury</div>
-        <div class="yc-rate" data-live-price="^FVX">—</div>
-        <div class="yc-chg" data-live-chg="^FVX">—</div>
-        <div class="yc-bar-wrap"><div class="yc-bar" id="yc-bar-5y" style="height:0%;background:var(--data-cyan);"></div></div>
-        <div class="yc-note">중기 성장·인플레 기대치 반영.</div>
-      </div>
-      <!-- 10Y -->
-      <div class="yc-cell">
-        <div class="yc-term">10년</div>
-        <div class="yc-en">10Y Treasury</div>
-        <div class="yc-rate" id="yc-10y" data-live-price="^TNX" style="color:var(--data-red);">—</div>
-        <div class="yc-chg" data-live-chg="^TNX" style="color:var(--data-red);">—</div>
-        <div class="yc-bar-wrap"><div class="yc-bar" id="yc-bar-10y" style="height:0%;background:var(--data-red);"></div></div>
-        <div class="yc-note">글로벌 벤치마크. 주식 밸류에이션 기준.</div>
-      </div>
-      <!-- 30Y -->
-      <div class="yc-cell">
-        <div class="yc-term">30년</div>
-        <div class="yc-en">30Y Treasury</div>
-        <div class="yc-rate" data-live-price="^TYX">—</div>
-        <div class="yc-chg" data-live-chg="^TYX">—</div>
-        <div class="yc-bar-wrap"><div class="yc-bar" id="yc-bar-30y" style="height:0%;background:var(--data-red);"></div></div>
-        <div class="yc-note">장기 인플레 기대·재정 위험 반영.</div>
-      </div>
-    </div>
-
-    <!--  수익률 곡선 Canvas 차트 (Chart.js) -->
-    <div class="yc-chart-wrap">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">수익률 곡선 그래프 (source 확인)</span>
-        <span id="yc-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기…</span>
-      </div>
-      <canvas id="koreaCurveChart" role="img" aria-label="미 국채(US Treasury) 수익률 곡선 차트"></canvas>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--text-muted);">
-        <span> 정상 곡선: 단기 < 장기 (경기 확장)</span>
-        <span> 역전 곡선: 단기 > 장기 (경기 침체 경고)</span>
-      </div>
-    </div>
-
-    <!-- v52.71 아이보리: 스프레드 3카드는 위 primary view "스프레드" 열(sc-2s10s/sc-3m10y/sc-5s30s)로
-         이전 재사용 — 동일 id 중복 방지를 위해 구 위치에서 제거(updateFxBondPage() 계산 로직은 무변경). -->
-  </div>
-
-  </div><!-- /aio-section 수익률곡선 -->
-
-  <!-- ══ SECTION C: MOVE Index + 크레딧 스프레드 ══════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">채권 변동성 · 크레딧 시장</span></div>
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">
-      채권 변동성 · 크레딧 시장 모니터
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;"><!-- 2026-10-01: MOVE 카드 제거(무료 공식 원천 없음) -->
-      <!-- HYG -->
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">HYG ETF</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">하이일드 채권 ETF</div>
-        <div style="font-size:26px;font-weight:900;font-family:var(--font-mono);" data-live-price="HYG">—</div>
-        <div style="font-size:11px;margin-top:2px;" data-live-chg="HYG">—</div>
-        <div style="margin:6px 0;height:4px;background:rgba(33,29,22,0.07);border-radius:3px;overflow:hidden;">
-          <div id="hyg-bar-fxbond" style="width:0%;height:100%;background:var(--data-amber);border-radius:3px;"></div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">ETF 가격은 신용 스프레드 자체가 아닙니다. 공식 OAS 관측치를 별도로 확인합니다.</div>
-      </div>
-      <!-- LQD -->
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">LQD ETF</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">투자등급 회사채 ETF</div>
-        <div style="font-size:26px;font-weight:900;font-family:var(--font-mono);" data-live-price="LQD">—</div>
-        <div style="font-size:11px;margin-top:2px;" data-live-chg="LQD">—</div>
-        <div style="margin:6px 0;height:4px;background:rgba(33,29,22,0.07);border-radius:3px;overflow:hidden;">
-          <div id="lqd-bar-fxbond" style="width:0%;height:100%;background:var(--data-cyan);border-radius:3px;"></div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">IG 스프레드 확대 감시. HYG와 동반 하락 시 광범위 신용 이벤트.</div>
-      </div>
-      <!-- EMB -->
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">EMB ETF</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">이머징마켓 달러 채권</div>
-        <div style="font-size:26px;font-weight:900;font-family:var(--font-mono);" data-live-price="EMB">—</div>
-        <div style="font-size:11px;margin-top:2px;" data-live-chg="EMB">—</div>
-        <div style="margin:6px 0;height:4px;background:rgba(33,29,22,0.07);border-radius:3px;overflow:hidden;">
-          <div style="width:0%;height:100%;background:var(--data-red);border-radius:3px;"></div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">달러 강세 + 美 금리 상승 = EM 채권 이중고. 한국·신흥국 자금유출 위험.</div>
-      </div>
-    </div>
-
-    <!-- TLT / IEF / SHY -->
-    <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:7px;">미 국채 ETF 수익률 모니터</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
-      <div class="bond-etf-row">
-        <div>
-          <div class="bei-name">TLT — 20+년 미 국채</div>
-          <div class="bei-desc">장기 금리 방향성 벤치마크. 금리↑ = TLT↓</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="bei-price" data-live-price="TLT">—</div>
-          <div class="bei-chg" data-live-chg="TLT">—</div>
-        </div>
-      </div>
-      <div class="bond-etf-row">
-        <div>
-          <div class="bei-name">IEF — 7~10년 미 국채</div>
-          <div class="bei-desc">중장기 금리 헷지. 10Y 기준금리 추종</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="bei-price" data-live-price="IEF">—</div>
-          <div class="bei-chg" data-live-chg="IEF">—</div>
-        </div>
-      </div>
-      <div class="bond-etf-row">
-        <div>
-          <div class="bei-name">SHY — 1~3년 미 국채</div>
-          <div class="bei-desc">단기채 안전자산. 리스크오프 피신처</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="bei-price" data-live-price="SHY">—</div>
-          <div class="bei-chg" data-live-chg="SHY">—</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- HY-IG Spread Gauge -->
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 14px;">
-      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">크레딧 스프레드 시각화 (FRED HY OAS)</div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:200px;">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:4px;">
-            <span>HY 스프레드</span>
-            <span id="hy-spread-est">— · FRED OAS 미수신</span>
-          </div>
-          <div style="height:8px;background:rgba(33,29,22,0.07);border-radius:4px;overflow:hidden;position:relative;">
-            <div id="hy-spread-bar" style="height:100%;width:0%;background:var(--text-secondary);border-radius:4px;transition:width 1s ease;"></div>
-            <!-- markers -->
-            <div style="position:absolute;top:0;left:25%;height:100%;width:1px;background:rgba(33,29,22,0.2);"></div>
-            <div style="position:absolute;top:0;left:60%;height:100%;width:1px;background:rgba(33,29,22,0.2);"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:2px;">
-            <span>2% (타이트)</span><span>4% (보통)</span><span>8%+ (스트레스)</span>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;max-width:280px;">
-          공식 OAS 관측치가 수신된 경우에만 표시합니다. ETF 가격비율을 신용 스프레드로 환산하지 않습니다.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  </div><!-- /aio-section 채권변동성 -->
-
-  <!-- v34.9: 지정학적 시나리오 분석 -->
-  <!-- ══ SECTION D: 글로벌 주요국 금리 비교 ══════════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">글로벌 주요국 기준금리 · 10년물</span></div>
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">글로벌 주요국 기준금리 · 10년물 비교</div>
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead>
-          <tr style="border-bottom:1px solid var(--border);">
-            <th style="text-align:left;padding:6px 10px;color:var(--text-muted);font-weight:700;font-size:11px;">국가</th>
-            <th style="text-align:center;padding:6px 10px;color:var(--text-muted);font-weight:700;font-size:11px;">중앙은행</th>
-            <th style="text-align:center;padding:6px 10px;color:var(--text-muted);font-weight:700;font-size:11px;">기준금리</th>
-            <th style="text-align:center;padding:6px 10px;color:var(--text-muted);font-weight:700;font-size:11px;">10년 국채</th>
-            <th style="text-align:center;padding:6px 10px;color:var(--text-muted);font-weight:700;font-size:11px;">통화정책 방향</th>
-            <th style="text-align:center;padding:6px 10px;color:var(--text-muted);font-weight:700;font-size:11px;">다음 결정</th>
-            <th style="text-align:left;padding:6px 10px;color:var(--text-muted);font-weight:700;font-size:11px;">핵심 이슈</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="7" data-runtime-state="unavailable" data-operational-use="blocked" style="padding:16px;text-align:center;color:var(--text-muted);">글로벌 정책금리·국채 비교 공급자가 연결되지 않았습니다. 공식 중앙은행 원천과 현재 국채 시세가 함께 수신될 때만 표를 표시합니다.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  </div><!-- /aio-section 글로벌금리 -->
-
-  <!-- ══ SECTION E: 금리 민감 자산 영향 분석 ══════════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">금리·환율 변동 → 자산군별 영향</span></div>
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:4px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">금리·환율 변동 → 자산군별 영향 매트릭스</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-      <div style="background:rgba(177,58,48,0.05);border:1px solid rgba(177,58,48,0.15);border-radius:3px;padding:10px 12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:6px;">금리 상승 시 관찰 경로</div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">
-          성장주 (NASDAQ) 밸류에이션 ↓<br>
-          TLT/IEF 채권 ETF ↓<br>
-          XLRE 리츠 배당 매력 ↓<br>
-          XLF 금융 NIM 확대 (단기 중립)<br>
-          SHY 단기채 안정적<br>
-          XLE 에너지 (인플레 헷지)
-        </div>
-      </div>
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:3px;padding:10px 12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:6px;">달러 강세 시 관찰 경로</div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">
-          이머징 통화·채권 (EMB) ↓<br>
-          원자재 (Gold, Oil) 달러 역풍<br>
-          글로벌 다국적기업 수익 환산 손실<br>
-          USD/KRW 원화 추가 약세<br>
-          미 수입 기업 마진 유리<br>
-          달러 예금·단기채 보유 유리
-        </div>
-      </div>
-      <div style="background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.15);border-radius:3px;padding:10px 12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:6px;">금리 인하 전환 시나리오</div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">
-          성장주·AI 섹터 밸류에이션 ↑<br>
-          TLT/IEF 장기채 ETF 가격 ↑<br>
-          XLRE 리츠 배당 매력 ↑<br>
-          EMB 이머징채권 반등<br>
-          DXY 약화 → 원자재 헷지 가치 ↑<br>
-          금·원자재의 달러 민감도 확인
-        </div>
-      </div>
-    </div>
-  </div>
-
-  </div><!-- /aio-section 영향매트릭스 -->
-
-  <!-- ══ SECTION F: 환율·채권 스토리텔링 내러티브 ══════════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">시장 내러티브</span></div>
-  <div style="background:var(--surface-1);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:18px 20px;margin-bottom:12px;">
-    <div style="font-size:13px;font-weight:800;color:#211d16;margin-bottom:14px;">시장 내러티브 — 지금 환율·채권 시장에서 무슨 일이 벌어지고 있나?</div>
-
-    <div id="fxbond-narrative" style="font-size:12px;color:var(--text-secondary);line-height:2.0;">
-      <!-- 이 섹션은 JS에서 동적으로 채워짐 -->
-      <div id="fxbond-dynamic-thesis" style="margin-bottom:14px;padding:10px 12px;border-radius:4px;background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.16);color:var(--text-primary);font-size:11px;line-height:1.8;">
-        라이브 금리·달러·변동성 데이터를 수신하면 현재 시장 국면 문장이 자동으로 갱신됩니다.
-      </div>
-      <div style="margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:6px;"> Chapter 1: 달러의 두 얼굴</div>
-        <p style="margin:0;color:var(--text-muted);font-size:11px;line-height:1.9;">
-          달러 인덱스(DXY)가 <b style="color:var(--data-cyan);" data-live-price="DX-Y.NYB">—</b>을 기록하고 있습니다.
-          달러가 강해지면 미국 다국적 기업의 해외 수익이 환산 시 줄어들어 실적에 부담이 됩니다.
-          반면 한국 수출기업은 원화 약세 덕분에 달러로 받는 수출 대금의 원화 환산 가치가 높아져 수혜를 받습니다.
-          현재 원/달러 환율 <b style="color:var(--data-amber);" data-live-price="KRW=X">—</b>원대는 수출기업에겐 호재,
-          수입 의존 기업과 해외여행자에겐 비용 부담이 커지는 양날의 검입니다.
-        </p>
-      </div>
-
-      <div style="margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:6px;">Chapter 2: 채권시장이 보내는 경고 신호</div>
-        <p style="margin:0;color:var(--text-muted);font-size:11px;line-height:1.9;">
-          미국 10년 국채 수익률이 <b style="color:var(--data-red);" data-live-price="^TNX">—</b>%를 기록 중입니다.
-          이 숫자가 중요한 이유는 모든 자산의 할인율 기준이기 때문입니다.
-          10년물이 4.5%를 넘어서면 주식시장, 특히 성장주(나스닥)의 밸류에이션에 직접적인 하방 압력을 줍니다.
-          30년물(<b data-live-price="^TYX">—</b>%)이 10년물보다 높다는 것은 시장이 장기 인플레이션 리스크를
-          아직 심각하게 보고 있다는 의미입니다. 정부 재정적자 확대와 국채 발행 증가가 장기 금리를 끌어올리는 구조적 요인입니다.
-        </p>
-      </div>
-
-      <div style="margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:6px;"> Chapter 3: 엔-캐리 트레이드의 관찰 변수</div>
-        <p style="margin:0;color:var(--text-muted);font-size:11px;line-height:1.9;">
-          일본 엔화가 달러당 <b style="color:var(--data-amber);" data-live-price="JPY=X">—</b>엔대에서 거래되고 있습니다.
-          엔-캐리 트레이드란 저금리 엔화를 빌려 고금리 달러 자산에 투자하는 전략인데,
-          BOJ 정책 변화나 엔화 변동이 커질 때는 레버리지 포지션의 변동성이 커질 수 있어,
-          실제 포지션·옵션시장·신용스프레드 자료를 함께 확인해야 합니다.
-          과거 사례는 참고용이며 현재의 청산·개입 확률을 뜻하지 않습니다.
-          특정 환율 수준만으로 일본 당국의 발언이나 실제 외환조치를 예측할 수 없습니다.
-        </p>
-      </div>
-
-      <div style="margin-bottom:0;color:var(--text-muted);font-size:11px;line-height:1.9;" data-runtime-state="unavailable" data-operational-use="blocked">확률·정책 경로·지정학 시나리오는 검증된 현재 공급자가 연결된 경우에만 생성합니다.</div>
-    </div>
-  </div>
-
-  </div><!-- /aio-section 내러티브 -->
-
-  <!-- ══ SECTION G: 실시간 환율·채권 종합 대시보드 ══════════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">주요 금리·환율 종합 트래커</span></div>
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">주요 금리·환율 변동 종합 트래커</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">DXY 달러인덱스</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);margin:4px 0;" data-live-price="DX-Y.NYB">—</div>
-        <div style="font-size:11px;" data-live-chg="DX-Y.NYB">—</div>
-      </div>
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">USD/KRW 원달러</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);margin:4px 0;" data-live-price="KRW=X">—</div>
-        <div style="font-size:11px;" data-live-chg="KRW=X">—</div>
-      </div>
-      <div style="background:rgba(177,58,48,0.05);border:1px solid rgba(177,58,48,0.15);border-radius:4px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">10Y 미국채</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);margin:4px 0;" data-live-price="^TNX">—</div>
-        <div style="font-size:11px;" data-live-chg="^TNX">—</div>
-      </div>
-      <div style="background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.15);border-radius:4px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">2Y 미국채 <span style="font-size:11px;color:var(--data-amber);">(FRED/DGS2 스냅샷)</span></div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);margin:4px 0;" id="yc-2y-track" data-snap="tnx-2y" title="2Y Treasury snapshot; do not map to ^IRX 13-week bill">—</div>
-        <div style="font-size:11px;color:var(--text-muted);">Fed 기대 반영 · 실시간 13W와 혼동 금지</div>
-      </div>
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">HYG 하이일드</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);margin:4px 0;" data-live-price="HYG">—</div>
-        <div style="font-size:11px;" data-live-chg="HYG">—</div>
-      </div>
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">TLT 장기국채</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);margin:4px 0;" data-live-price="TLT">—</div>
-        <div style="font-size:11px;" data-live-chg="TLT">—</div>
-      </div>
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">USD/JPY 엔달러</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);margin:4px 0;" data-live-price="JPY=X">—</div>
-        <div style="font-size:11px;" data-live-chg="JPY=X">—</div>
-      </div>
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">EUR/USD 유로</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);margin:4px 0;" data-live-price="EURUSD=X">—</div>
-        <div style="font-size:11px;" data-live-chg="EURUSD=X">—</div>
-      </div>
-    </div>
-  </div>
-
-  </div><!-- /aio-section 트래커 -->
-
-  <!-- ══ SECTION H: 금리 싸이클 타임라인 ══════════════════════ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">글로벌 금리 사이클 타임라인</span></div>
-  <div data-aio-archive="true" data-text-role="reference-archive" data-operational-use="reference-only" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;" data-text-role="reference-archive"> 글로벌 금리 사이클 타임라인 (참고용)</div>
-    <div style="position:relative;padding:0 10px;">
-      <!-- Timeline line -->
-      <div style="position:absolute;top:18px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--data-green),var(--data-amber),var(--data-red),var(--data-cyan));border-radius:2px;"></div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;position:relative;">
-        <div style="text-align:center;padding-top:28px;">
-          <div style="width:10px;height:10px;background:var(--data-green);border-radius:50%;margin:0 auto 6px;position:relative;top:-18px;border:2px solid var(--bg-card);"></div>
-          <div style="font-size:11px;font-weight:700;color:var(--data-green);" data-aio-archive="true" title="과거 금리 사이클 참고 시점">2024.06</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">ECB 첫 인하<br>시작</div>
-        </div>
-        <div style="text-align:center;padding-top:28px;">
-          <div style="width:10px;height:10px;background:var(--data-green);border-radius:50%;margin:0 auto 6px;position:relative;top:-18px;border:2px solid var(--bg-card);"></div>
-          <div style="font-size:11px;font-weight:700;color:var(--data-green);" data-aio-archive="true" title="과거 금리 사이클 참고 시점">2024.09</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">Fed 첫 50bp<br>빅컷 인하</div>
-        </div>
-        <div style="text-align:center;padding-top:28px;">
-          <div style="width:10px;height:10px;background:var(--data-amber);border-radius:50%;margin:0 auto 6px;position:relative;top:-18px;border:2px solid var(--bg-card);"></div>
-          <div style="font-size:11px;font-weight:700;color:var(--data-amber);" data-aio-archive="true">2025.01</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">Fed 동결 전환<br>인플레 점착</div>
-        </div>
-        <div style="text-align:center;padding-top:28px;">
-          <div style="width:10px;height:10px;background:var(--data-red);border-radius:50%;margin:0 auto 6px;position:relative;top:-18px;border:2px solid var(--bg-card);"></div>
-          <div style="font-size:11px;font-weight:700;color:var(--data-red);" data-aio-archive="true">2025.06</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">BOJ 0.5% 인상<br>엔-캐리 긴장</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div><!-- /aio-section 타임라인 -->
-    </div>
-  </details>
-
-</div><!-- fix: page-fxbond outer close -->
+  </section>
+  <p class="briefing-footnote">금리와 환율은 주식의 할인율과 해외 자금 흐름을 읽는 배경 자료이며 매매 신호가 아닙니다.</p>
+</div><!-- page-fxbond -->
 
 
   <div class="page" id="page-fundamental">
@@ -11238,15 +10223,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.06" defer></script>
-  <script src="./js/aio-data.js?v=57.06" defer></script>
-  <script src="./js/aio-ui.js?v=57.06" defer></script>
+  <script src="./js/aio-core.js?v=57.07" defer></script>
+  <script src="./js/aio-data.js?v=57.07" defer></script>
+  <script src="./js/aio-ui.js?v=57.07" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.06" defer></script>
+<script src="./js/aio-chat.js?v=57.07" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -11304,7 +10289,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.06" defer></script>
+<script src="./js/aio-glossary.js?v=57.07" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

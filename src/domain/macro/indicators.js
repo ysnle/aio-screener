@@ -43,7 +43,7 @@ export const MACRO_GROUPS = Object.freeze([
   Object.freeze({
     id: 'activity', title: '소비 · 주택', items: Object.freeze([
       Object.freeze({ id: 'retailSales', key: 'retailSales', label: '소매판매 (전월 대비)', unit: '%', digits: 1, signed: true, release: 'us-retail', note: '미 인구조사국 소매판매 증감률입니다.' }),
-      Object.freeze({ id: 'housingStarts', key: 'housingStarts', label: '주택 착공 (연율)', unit: '백만 호', digits: 2, deltaUnit: '백만 호', note: '착공된 신규 주택 수의 연간 환산치입니다.' })
+      Object.freeze({ id: 'housingStarts', key: 'housingStarts', label: '주택 착공 (연율)', unit: '만 호', scale: 100, digits: 1, deltaUnit: '만 호', note: '착공된 신규 주택 수의 연간 환산치입니다.' })
     ])
   })
 ]);
@@ -72,32 +72,44 @@ function sourceLabel(macro, key) {
   return raw ? SOURCE_LABELS[raw] || raw : null;
 }
 
-function releaseInfo(releases, id) {
+// The release that published a monthly reference period is the first official scheduled date after
+// that month ends (CPI, jobs, PCE and retail sales all publish the following month). The registry's
+// hand-kept lastRelease is not used: it names the latest release, which may cover a later month than
+// the value on screen. BEA's own release timestamp wins for PCE when the producer recorded it.
+function releaseInfo({ releases, schedules, id, asOf, daily, releasedAt }) {
   const entry = id ? releases?.[id] : null;
-  return { last: isoDate(entry?.lastRelease), next: isoDate(entry?.nextRelease) };
+  const next = isoDate(entry?.nextRelease);
+  if (daily || !asOf) return { last: null, next };
+  if (isoDate(releasedAt)) return { last: isoDate(releasedAt), next };
+  const [year, month] = asOf.split('-').map(Number);
+  const monthEnd = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+  const dates = (Array.isArray(schedules?.[id]) ? schedules[id] : []).map(isoDate).filter(Boolean).sort();
+  return { last: dates.find((date) => date > monthEnd) || null, next };
 }
 
-function buildItem(macro, releases, item) {
+function buildItem(macro, releases, schedules, item) {
   const keys = item.range || [item.key];
   const values = keys.map((key) => finite(macro[key]));
   const blsSeries = item.blsSeries ? macro._bls?.series?.[item.blsSeries] : null;
   const asOf = isoDate(macro[`_asOf_${keys[0]}`]) || isoDate(blsSeries?.observedAt) || null;
-  const release = releaseInfo(releases, item.release);
+  const release = releaseInfo({ releases, schedules, id: item.release, asOf, daily: item.daily, releasedAt: item.release === 'us-pce' ? macro._bea?.releasedAt : null });
   const base = { id: item.id, label: item.label, note: item.note, unit: item.unit, release, asOf };
   if (values.some((value) => value == null)) return { ...base, status: 'missing', valueText: '—', deltaText: null, meta: '수집된 값이 없습니다.' };
   const freshness = macro[`_freshness_${keys[0]}`];
   const stale = freshness && freshness !== 'observed';
-  const value = values[0];
+  const scale = item.scale || 1;
+  const value = values[0] * scale;
   const valueText = item.range
     ? `${values[0].toFixed(item.digits)}–${values[1].toFixed(item.digits)}${item.unit}`
-    : item.signed ? `${signed(value, item.digits)}${item.unit === '%' ? '%' : ` ${item.unit}`}` : `${value.toFixed(item.digits)}${item.unit === '%' ? '%' : ` ${item.unit}`}`;
-  const delta = finite(macro[`${keys[0]}Delta`]);
+    : `${item.signed ? signed(value, item.digits) : value.toFixed(item.digits)}${item.unit}`;
+  const rawDelta = finite(macro[`${keys[0]}Delta`]);
+  const delta = rawDelta == null ? null : rawDelta * scale;
   let deltaText = null;
-  if (item.priorPrint && delta != null) deltaText = `전월 ${signed(value - delta, item.digits)} ${item.unit}`;
-  else if (item.deltaUnit && delta != null && !item.range) deltaText = `전월 대비 ${signed(delta, item.digits)}${item.deltaUnit === '%p' ? '%p' : ` ${item.deltaUnit}`}`;
+  if (item.priorPrint && delta != null) deltaText = `전월 ${signed(value - delta, item.digits)}${item.unit}`;
+  else if (item.deltaUnit && delta != null && !item.range) deltaText = `전월 대비 ${signed(delta, item.digits)}${item.deltaUnit}`;
   const targetGap = item.target != null ? value - item.target : null;
   const period = !asOf ? null : item.daily ? `${monthDay(asOf)} 기준` : `${Number(asOf.slice(5, 7))}월분`;
-  const meta = [period, release.last && !item.daily ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, sourceLabel(macro, keys[0])].filter(Boolean).join(' · ');
+  const meta = [period, release.last && !item.daily ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, sourceLabel(macro, keys[0]) || (blsSeries ? 'BLS' : null)].filter(Boolean).join(' · ');
   return {
     ...base,
     status: stale ? 'stale' : 'observed',
@@ -129,10 +141,10 @@ function groupFact(group, items) {
   return shown.length ? shown.map((item) => `${item.label.replace(/ \(.*\)$/, '')} ${item.valueText}`).join(' · ') : '자료를 기다리는 중입니다.';
 }
 
-export function buildMacroBoard({ macro = null, releases = {} } = {}) {
+export function buildMacroBoard({ macro = null, releases = {}, schedules = {} } = {}) {
   if (!macro || typeof macro !== 'object') return { available: false, groups: [] };
   const groups = MACRO_GROUPS.map((group) => {
-    const items = group.items.map((item) => buildItem(macro, releases, item));
+    const items = group.items.map((item) => buildItem(macro, releases, schedules, item));
     return { id: group.id, title: group.title, fact: groupFact(group, items), items };
   });
   const dates = groups.flatMap((group) => group.items.map((item) => item.asOf)).filter(Boolean).sort();

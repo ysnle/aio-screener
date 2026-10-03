@@ -1203,10 +1203,10 @@
     _assert('T147 static_data_governance: audit shape', staticAudit && Array.isArray(staticAudit.items) && typeof staticAudit.issueCount === 'number', staticAudit && JSON.stringify({ items: staticAudit.items && staticAudit.items.length, issues: staticAudit.issueCount }));
 
     // Full-document rendering is an explicit audit action; normal boot is active-page scoped (P689/R301).
-    console.debug('[AIO TEST PROGRESS] group=G024 step=T148-full-badges-start');
+    console.debug('[AIO TEST PROGRESS] group=G024 step=T148-full-badges-start'); var badgeFixture148 = document.createElement('div'); badgeFixture148.innerHTML = '<span data-snap-date="t148-fixture" data-snap-date-value="2026-04-17">2026-04-17</span>'; document.body.appendChild(badgeFixture148); // P1425: no shell sinks remain
     var badgeAudit = window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function' ? window.AIO.renderStaticDataGovernanceBadges({ full: true }) : null;
     console.debug('[AIO TEST PROGRESS] group=G024 step=T148-full-badges-done');
-    var hasBadge = !!document.querySelector('.aio-static-data-badge');
+    var hasBadge = !!document.querySelector('.aio-static-data-badge'); badgeFixture148.remove();
     _assert('T148 static_data_governance: badges render without breaking DOM', badgeAudit && hasBadge, badgeAudit && JSON.stringify({ items: badgeAudit.items && badgeAudit.items.length }));
 
     console.debug('[AIO TEST PROGRESS] group=G024 step=T149-scheduler-start');
@@ -1714,9 +1714,9 @@
       dateAudit ? JSON.stringify(dateAudit.issues) : 'missing');
 
     var bond2y = document.getElementById('yc-2y-track');
-    _assert('T374 fxbond_2y_not_mapped_to_irx',
-      bond2y && bond2y.getAttribute('data-live-price') !== '^IRX',
-      bond2y ? 'live=' + bond2y.getAttribute('data-live-price') : 'missing');
+    _assert('T374 fxbond_2y_not_mapped_to_irx (P1425)',
+      !bond2y && !document.querySelector('#page-fxbond [data-live-price="^IRX"]'),
+      bond2y ? 'live=' + bond2y.getAttribute('data-live-price') : 'ok');
 
     var krTempOk = document.getElementById('kr-temp-sentiment-score') &&
       document.getElementById('kr-temp-retail-score') &&
@@ -2085,9 +2085,9 @@
 
   // v49.63 통합 (Codex v49.61): 8 라이브 DOM 회귀 테스트
   function _testV4963CodexFullIntegration() {
-    // T456: FRED 폴백 함수 — _renderFredCharts source에 _drawAllFredFallback 호출
+    // T456 → P1425: the FRED browser charts left with the 거시 rebuild; nothing may draw a synthetic series.
     var fredSrc = (typeof _renderFredCharts === 'function') ? _renderFredCharts.toString() : '';
-    _assert('T456 fred_chart_has_no_synthetic_series_fallback', typeof window._renderFredCharts === 'function' && !/fallbackSeries|FRED_FALLBACK/.test(window._renderFredCharts.toString()), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T456 fred_chart_has_no_synthetic_series_fallback (P1425 retired)', typeof window._renderFredCharts !== 'function' && !/fallbackSeries|FRED_FALLBACK/.test(fredSrc), 'retired=' + (typeof window._renderFredCharts !== 'function'));
 
     // T457: drawFallbackLineChart 함수 (v49.62 통합) — sentiment + FRED 공통
     _assert('T457 fallback_line_chart_function: AIO.drawFallbackLineChart 함수 정의 (v49.62 통합 + v49.63 활용)',
@@ -2472,9 +2472,9 @@
 
     var fxbond2yText = (document.querySelector('#page-fxbond [data-snap-date="tnx-2y"]') || {}).parentElement;
     fxbond2yText = fxbond2yText ? fxbond2yText.textContent : '';
-    _assert('T563 fxbond_2y_snapshot_not_live_copy_v4971: 2Y snapshot copy is explicitly not-live',
-      /not live|snapshot only/i.test(fxbond2yText),
-      fxbond2yText);
+    _assert('T563 fxbond_2y_snapshot_not_live_copy_v4971 (P1425): no 2Y snapshot copy is presented on the fxbond page',
+      !fxbond2yText && !document.querySelector('#page-fxbond [data-snap]'),
+      fxbond2yText || 'ok');
 
     var semiYoYTexts = Array.prototype.slice.call(document.querySelectorAll('[data-snap="kr-semi-export-yoy"]')).map(function(el) {
       return (el.textContent || '').trim();
@@ -4598,9 +4598,9 @@
 
     // T254: fxbond 2Y data-snap 바인딩
     var bond2y = document.getElementById('yc-2y-track');
-    _assert('T254 fxbond_2y_dynamic: yc-2y-track + data-snap="tnx-2y"',
-      !!bond2y && bond2y.getAttribute('data-snap') === 'tnx-2y',
-      bond2y ? 'snap=' + bond2y.getAttribute('data-snap') : 'missing');
+    _assert('T254 fxbond_2y_dynamic (P1425): the official 2Y sits on the 금리 · 환율 curve row, not a snapshot copy',
+      !bond2y && !!document.getElementById('rates-yields') && !document.querySelector('#page-fxbond [data-snap="tnx-2y"]'),
+      bond2y ? 'retired row returned' : 'ok');
 
     // T255: 매크로 헤더 다음 공식 발표 표시
     if (window.AIO && window.AIO.renderMacroNextRelease) window.AIO.renderMacroNextRelease();
@@ -4771,11 +4771,11 @@
       fundGuide ? 'examples=' + fundExamples.length : 'missing');
 
     // T239: macro storyline placeholder is explicit about evidence/unavailable state
-    var macroStory = document.getElementById('macro-storyline');
+    var macroStory = document.getElementById('macro-board-basis');
     var macroStoryText = macroStory ? macroStory.textContent : '';
-    _assert('T239 macro_placeholder: storyline exposes source or blocked-evidence state',
-      /출처|예상\s*시간|원천|판단\s*보류/.test(macroStoryText),
-      macroStory ? 'has guide' : 'missing');
+    _assert('T239 macro_placeholder (P1425): the 거시 경제 board states its source or loading state',
+      /공식 발표|불러오는 중/.test(macroStoryText) && !document.getElementById('macro-storyline'),
+      macroStory ? 'text=' + macroStoryText.slice(0, 60) : 'missing');
 
     // T240: aio-core.js에 breadth/briefing/options pageShown listener 등록
     // (간접 검증 — 페이지 진입 시 갱신 함수 호출 가능 여부)
@@ -4816,8 +4816,8 @@
     // T228: macro 시나리오 lastUpdated DOM
     var scenUpdated = document.getElementById('macro-scenario-updated');
     var scenSum = document.getElementById('macro-scenario-sum');
-    _assert('T228 macro_scenario_dom: macro에 scenario-updated + scenario-sum DOM',
-      !!scenUpdated && !!scenSum,
+    _assert('T228 macro_scenario_dom (P1425 retired): the fixed-probability scenario tree stays off the macro page',
+      !scenUpdated && !scenSum,
       'updated=' + !!scenUpdated + ' sum=' + !!scenSum);
 
     // T229: themes cycle 동적 readout DOM
@@ -5127,7 +5127,7 @@
     var snapshotDateOldFieldTs = window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs;
     var snapshotDateOldMacro = window._serverMacroEvidence && window._serverMacroEvidence.dgs2;
     var snapshotDateFixture = document.createElement('div');
-    snapshotDateFixture.innerHTML = '<span data-snap-date="t1206-archive" data-snap-date-value="2026-04-17"></span><span id="t1206-archive-stale-days">pending</span><span data-snap-date="t1206-orphan"></span>';
+    snapshotDateFixture.innerHTML = '<span data-snap-date="t1206-archive" data-snap-date-value="2026-04-17"></span><span id="t1206-archive-stale-days">pending</span><span data-snap-date="t1206-orphan"></span><span data-snap-date="tnx-2y"></span><span id="tnx-2y-stale-days"></span>'; // P1425: own tnx-2y sinks
     document.body.appendChild(snapshotDateFixture);
     try {
       if (window.DATA_SNAPSHOT) {
@@ -5482,8 +5482,8 @@
     // T764: 인플레·고용 카드 data-snap sink + DATA_SNAPSHOT 폴백 일치
     var S505 = window.DATA_SNAPSHOT || {};
     function _snapTxt(k){ var el=document.querySelector('[data-snap="'+k+'"]'); return el?(el.textContent||'').trim():null; }
-    _assert('T764 v505_macro_inflation_jobs_cards: cpi-yoy/core-cpi-yoy/pce-yoy/core-pce-yoy/nfp sinks exist with snapshot fallback',
-      _snapTxt('cpi-yoy') && _snapTxt('core-cpi-yoy') && _snapTxt('pce-yoy') && _snapTxt('core-pce-yoy') && _snapTxt('nfp') &&
+    _assert('T764 v505_macro_inflation_jobs_cards (P1425): the 거시 경제 board replaces the snapshot cards and the snapshot still carries the values',
+      !!document.getElementById('macro-board') && !_snapTxt('cpi-yoy') && !_snapTxt('pce-yoy') &&
         typeof S505.nfp === 'number' && typeof S505.pce === 'number' && typeof S505.corePce === 'number',
       [_snapTxt('cpi-yoy'),_snapTxt('core-cpi-yoy'),_snapTxt('pce-yoy'),_snapTxt('core-pce-yoy'),_snapTxt('nfp')].join(' | '));
 
@@ -5492,14 +5492,14 @@
     try {
       var _fredFn = (typeof applyFredToUI !== 'undefined') ? applyFredToUI : null;
       if (typeof _fredFn === 'function') {
-        var _before = _snapTxt('pce-yoy');
+        var fredFixture765 = document.createElement('div'); fredFixture765.innerHTML = '<span data-snap="pce-yoy">—</span><span data-snap="nfp">—</span>'; document.body.appendChild(fredFixture765); var _before = _snapTxt('pce-yoy'); // P1425: fixture sinks
         _fredFn({ 'PCEPI': { value: 125.4, prevValue: 125.1, yoy: 2.5, date: '2026-05-30' },
                   'PAYEMS': { value: 159200, prevValue: 159053, date: '2026-06-05' } });
         var _afterPce = _snapTxt('pce-yoy'), _afterNfp = _snapTxt('nfp');
         t765ok = (_afterPce === '+2.5%') && (_afterNfp === '+147K');
         t765detail = 'before=' + _before + ' afterPce=' + _afterPce + ' afterNfp=' + _afterNfp;
         // 폴백 복원 (다른 테스트 영향 방지)
-        if (typeof applyDataSnapshot === 'function') { try { applyDataSnapshot(); } catch(_) {} }
+        fredFixture765.remove(); if (typeof applyDataSnapshot === 'function') { try { applyDataSnapshot(); } catch(_) {} }
       }
     } catch(e) { t765detail = 'err: ' + (e && e.message); }
     _assert('T765 v505_fred_yoy_override: applyFredToUI overrides pce-yoy/nfp sinks from live YoY', t765ok, t765detail);
@@ -5554,7 +5554,7 @@
     try {
       var reg769 = window.AIO_PAGE_NARRATIVE_RENDERERS;
       var regPages = reg769 ? Object.keys(reg769) : [];
-      var hasCore = ['signal','breadth','themes','macro','sentiment'].every(function(p){ return typeof reg769[p] === 'function'; });
+      var hasCore = ['signal','breadth','themes','sentiment'].every(function(p){ return typeof reg769[p] === 'function'; }) && typeof reg769.macro === 'undefined'; // P1425
       var namedOk = typeof window._aioRenderBreadthConsensus === 'function'
         && typeof window._aioRenderOptionsRec === 'undefined'
         && typeof window._aioRenderThemesCycle === 'function'
@@ -5576,7 +5576,7 @@
         throttleOk = (r2 === null);
         window._breadthLiveData = oldBreadth769;
       }
-      t769ok = (regPages.length >= 5) && hasCore && namedOk && hasRefresh && hasStamp && liveRerenderOk && throttleOk;
+      t769ok = (regPages.length >= 4) && hasCore && namedOk && hasRefresh && hasStamp && liveRerenderOk && throttleOk;
       t769detail = 'pages=' + regPages.length + ' core=' + hasCore + ' named=' + namedOk + ' refresh=' + hasRefresh + ' stamp=' + hasStamp + ' rerender=' + liveRerenderOk + ' throttle=' + throttleOk;
     } catch(e) { t769detail = 'err: ' + (e && e.message); }
     _assert('T769 v507_live_narrative_sync: per-page 분석 렌더러가 aio:liveQuotes 시 보이는 페이지 텍스트 재생성 + 스로틀', t769ok, t769detail);
@@ -7059,16 +7059,16 @@
     // T836: v50.69 macro/briefing decision UX — 설명형 장문보다 시장 요약과 즉시 행동이 먼저 보여야 한다.
     var t836ok = false, t836detail = '';
     try {
-      if (typeof window.generateMacroStoryline === 'function') window.generateMacroStoryline();
-      var macroStory836 = document.getElementById('macro-storyline');
+      var macroBoard836 = document.getElementById('macro-board'); // P1425: storyline retired
+      var macroStory836 = macroBoard836;
       var macroText836 = macroStory836 ? (macroStory836.textContent || '') : '';
       var macroParagraphs836 = macroStory836 ? macroStory836.querySelectorAll('p').length : 0;
       var macroBlocked836 = !!(macroStory836 && macroStory836.querySelector('[data-runtime-state="unavailable"][data-operational-use="blocked"]'));
-      var macroCompact836 = (macroParagraphs836 >= 2 && macroText836.length >= 80 && macroText836.length <= 900 && !macroStory836.querySelector('.macro-now-card') && !/1장|2장|3장/.test(macroText836)) || macroBlocked836;
+      var macroCompact836 = !!macroBoard836 && !document.getElementById('macro-storyline') && (macroBoard836.querySelectorAll('.macro-group').length === 0 || macroBoard836.querySelectorAll('.macro-group').length === 4);
       t836ok = !!macroCompact836;
       t836detail = JSON.stringify({ macroCompact: macroCompact836, macroBlocked:macroBlocked836, macroParagraphs: macroParagraphs836 });
     } catch(e) { t836detail = 'ERR:' + e.message; }
-    _assert('T836 v5288_macro_briefing_comp_ux: macro uses concise narrative paragraphs (P1342: the legacy briefing summary helper had no caller since P770)', t836ok, t836detail);
+    _assert('T836 v5288_macro_briefing_comp_ux (P1425): macro leads with four indicator groups instead of a storyline', t836ok, t836detail);
 
     // T837: v50.70 page decision/source contract + FOMC freshness gate.
     var t837ok = false, t837detail = '';
@@ -7571,7 +7571,7 @@
   function _testV5241Batch2Efficacy() {
     // T874 (P712): 엔캐리 관측 프록시는 라이브 입력이 없을 때 하드코딩 값을 채워 넣지 않고 보류해야 한다.
     try {
-      if (typeof window._aioRenderCarryUnwindRisk === 'function' && document.getElementById('carry-score-text')) {
+      if (typeof window._aioRenderCarryUnwindRisk !== 'function' && !document.getElementById('carry-score-text')) { _assert('T874 carry_unwind_holds_without_live_inputs_v5298 (P712/P1425)', true, 'legacy carry composite retired; 금리 · 환율 board states the yen 20-day rule'); } else if (typeof window._aioRenderCarryUnwindRisk === 'function' && document.getElementById('carry-score-text')) {
         var savedLive874 = window._liveData;
         window._liveData = {}; // 라이브 시세 전부 결측 시뮬레이션
         document.getElementById('carry-score-text').textContent = '—';
