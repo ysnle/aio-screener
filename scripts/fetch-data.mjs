@@ -28,6 +28,7 @@ import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js'; // P1402
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
 import { collectRotationHistory } from './lib/rotation-history.mjs';
+import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
@@ -3423,67 +3424,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
   };
 }
 
-// v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
-//   raw fetch 사용 — Action에 anthropic SDK 의존성 미추가. best-effort: 실패해도 data.json은 정상(클라가 템플릿 합성으로 폴백).
-//   Haiku 4.5(최저가). 수집한 시세/매크로/F&G/뉴스 헤드라인으로 간결 프롬프트 → 4~5줄 한국어 분석.
-async function genMarketAnalysisLegacy(data) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  try {
-    const metricEvidence = buildMarketAnalysisEvidence(data);
-    if (metricEvidence.length < 2) {
-      console.warn('[fetch-data] LLM market analysis blocked: insufficient typed metric evidence');
-      return null;
-    }
-  if (!key) return null; // 키 없으면 스킵 — 클라이언트 템플릿이 처리
-    const q = {};
-    (data.quotes || []).forEach(x => { if (x && x.symbol) q[x.symbol] = x.regularMarketPrice ?? x.price; });
-    const newsEvidence = buildMarketAnalysisNewsEvidence(data);
-    const heads = newsEvidence.map(n => '- ' + (n.title || '') + ' [' + (n.source || 'unknown') + ' | ' + (n.observedAt || 'unknown') + ']').join('\n');
-    const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.metricId} label=${row.label} value=${row.value} unit=${row.unit} asOf=${row.asOf} source=${row.source}`).join('\n');
-    const nfp = Number(data.macro?.nfp);
-    const nfpUnit = data.macro?._bls?.series?.nonfarmPayroll?.unit || 'thousands';
-    const nfpObservedAt = data.macro?._bls?.series?.nonfarmPayroll?.observedAt || data.macro?._asOf_nfp || '—';
-    const nfpContext = Number.isFinite(nfp)
-      ? `NFP MoM ${nfp} ${nfpUnit} persons (${nfp * 1000}명; observedAt ${nfpObservedAt}; ${nfp}천명을 ${nfp}만명으로 쓰지 말 것)`
-      : `NFP ${data.macro?.nfp ?? '—'} ${nfpUnit} persons (observedAt ${nfpObservedAt})`;
-    const ctx = [
-      `SPX ${q['^GSPC'] ?? '—'} VIX ${q['^VIX'] ?? '—'} 10Y ${q['^TNX'] ?? '—'} DXY ${q['DX-Y.NYB'] ?? '—'} WTI ${q['CL=F'] ?? '—'} Gold ${q['GC=F'] ?? '—'} KOSPI ${q['^KS11'] ?? '—'}`,
-      `F&G ${data.fearGreed?.score ?? '—'}`,
-      `CPI ${data.macro?.cpi ?? '—'} FedRate ${data.macro?.fedRate ?? '—'} ${nfpContext}`,
-      `최근 뉴스 헤드라인:\n${heads || '없음'}`,
-    ].join('\n');
-    const prompt = `다음 실시간 시장 데이터로 "현재 시장 분석"을 한국어 4~5줄로 작성하라. 객관적·간결·투자 조언 단정 금지. 수치는 위 데이터만 인용(추측 금지). 형식: 한 줄 요약 + ①변동성/심리 ②거시/금리 ③주도 뉴스/리스크.\n\n${ctx}`;
-    // 모델 정책: AI 채팅과 동일 — Haiku 기본, "필요할 때"만 Sonnet 승격(Opus 미사용). 승격 조건:
-    //   VIX 고변동(≥25) · 지정학/위기 뉴스 헤드라인 · 강제(LLM_MARKET_ANALYSIS_MODEL=sonnet). 그 외 Haiku(저비용).
-    const vix = Number(q['^VIX']);
-    const crisisNews = /\b(war|conflict|crash|crisis|sanction|invasion|military|선전포고|전쟁|급락|위기|폭락|제재)\b/i.test(heads);
-    const force = (process.env.LLM_MARKET_ANALYSIS_MODEL || '').toLowerCase() === 'sonnet';
-    const escalate = force || (isFinite(vix) && vix >= 25) || crisisNews;
-    const model = escalate ? 'claude-sonnet-4-6' : 'claude-haiku-4-5';
-    const enforcedPrompt = prompt + '\n\nTyped metric evidence (mandatory):\n' + evidenceLines + '\nVIX and Fear&Greed are distinct metrics. Preserve metric identity, unit, scale, asOf, and source for every numeric or causal claim.';
-    const ac = new AbortController();
-    const to = setTimeout(() => ac.abort(), 20000);
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model, max_tokens: 500, messages: [{ role: 'user', content: enforcedPrompt }] }),
-      signal: ac.signal,
-    });
-    clearTimeout(to);
-    if (!r.ok) { console.warn(`[fetch-data] LLM 분석 생성 실패 HTTP ${r.status} (템플릿 폴백)`); return null; }
-    const j = await r.json();
-    const text = (j.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
-    if (!text) return null;
-    const semantic = validateMarketAnalysisText(text, data);
-    if (!semantic.ok) {
-      console.warn(`[fetch-data] LLM 분석 semantic gate 차단: ${semantic.issues.join(',')}`);
-      return null;
-    }
-    const oneLine = text.split('\n').map(s => s.trim()).filter(Boolean)[0] || text.slice(0, 120);
-    console.log(`[fetch-data] LLM 분석 생성: ${model}${escalate ? ' (승격: VIX/위기뉴스)' : ' (기본)'}`);
-    return { full: text, oneLine, generatedAt: new Date().toISOString(), model, semanticStatus: 'verified', semanticIssues: [], metricEvidence: semantic.metricEvidence, causalEvidenceCount: semantic.causalEvidenceCount };
-  } catch (e) { console.warn('[fetch-data] LLM 분석 생성 예외(템플릿 폴백):', e && e.message); return null; }
-}
+// AI commentary shares the Worker budget with chat and translation (P1421).
 
 const MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS = new Set(['', 'headline', 'headline-only', 'title-only', 'snippet']);
 
@@ -3862,16 +3803,12 @@ export async function genMarketAnalysis(data, snapshot = null) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence);
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return buildMarketAnalysisFallback(data, 'anthropic-key-not-configured', metricEvidence, newsEvidence);
+  if (!resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence);
   try {
-    const q = {};
-    (data.quotes || []).forEach(row => { if (row?.symbol) q[row.symbol] = row.regularMarketPrice ?? row.price; });
     const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
-    const vix = Number(q['^VIX']);
-    const model = vix >= 25 ? 'claude-sonnet-4-6' : 'claude-haiku-4-5';
+    const model = SHARED_AI_MODEL;
     const prompt = [
       '아래 근거로 시장 요약을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 4~5줄 평문으로 쓴다. Write the whole answer in Korean.',
       'session=DELAYED_IN_SESSION/IN_SESSION 값은 "장중"이라고 쓰고 "마감·종가"라고 쓰지 마라. Only MARKET_CLOSED/COMPLETED values may be called a close.',
@@ -3882,18 +3819,9 @@ export async function genMarketAnalysis(data, snapshot = null) {
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none'),
       'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
     ].join('\n\n');
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model, max_tokens: 500, messages: [{ role: 'user', content: prompt }] }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-    if (!response.ok) return buildMarketAnalysisFallback(data, `provider-http-${response.status}`, metricEvidence, newsEvidence);
-    const payload = await response.json();
-    const text = (payload.content || []).filter(block => block.type === 'text').map(block => block.text).join('\n').trim();
+    const result = await requestSharedAnalysis(prompt);
+    if (!result.text) return buildMarketAnalysisFallback(data, result.reason, metricEvidence, newsEvidence);
+    const text = result.text;
     const semantic = validateMarketAnalysisText(text, data, snapshot);
     if (!text || !semantic.ok) return buildMarketAnalysisFallback(data, semantic.issues.join(','), metricEvidence, newsEvidence);
     return buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic });
@@ -4285,7 +4213,7 @@ async function main() {
   // 9 series succeed) previously passed this check silently — the exact mechanism that let
   // individual stale/broken series (Fed/BOJ/BOK/BOE rates) go unnoticed for weeks.
   if (fredHasKey && fredFailedSeries.length > 0) console.warn(`[fetch-data] 경고: FRED 시리즈 ${fredFailedSeries.length}건 실패 — ${fredFailedSeries.join(', ')}`);
-  if (!process.env.ANTHROPIC_API_KEY) console.warn('[fetch-data] 경고: ANTHROPIC_API_KEY 미등록 — AI 분석 비활성. 클라이언트 템플릿 폴백 사용.');
+  if (!resolveSharedAiConfig()) console.warn('[fetch-data] 경고: 공유 AI Worker/자동화 인증 미설정 — AI 분석 보류. 검증된 관측치만 표시.');
 
   // Fail closed before touching the last-known-good public artifact. A transient
   // provider/network outage must never replace data.json with an empty payload.

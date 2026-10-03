@@ -154,7 +154,9 @@ export function derivePublicAiConfig(previous = {}, {
       return parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash ? endpoint : null;
     } catch (_) { return null; }
   })();
-  const published = Boolean(endpointUsable && proxyHealthy);
+  // P1421: an old provider's healthy route cannot certify the OpenAI migration.
+  const providerMatches = proxyEvidence.proxyAiProvider === 'openai' && proxyEvidence.proxyAiModel === 'gpt-6-luna';
+  const published = Boolean(endpointUsable && proxyHealthy && providerMatches);
   const failureReason = endpoint && !endpointUsable
     ? 'WORKER_ENDPOINT_INVALID'
     : proxyEvidence.proxyObservationStatus === 'FAILED'
@@ -165,14 +167,16 @@ export function derivePublicAiConfig(previous = {}, {
         ? 'WORKER_HEALTH_STALE'
       : proxyEvidence.proxyHealthStatus == null
         ? 'WORKER_HEALTH_UNOBSERVED'
-        : 'WORKER_NOT_READY';
+        : !providerMatches ? 'WORKER_AI_PROVIDER_MISMATCH' : 'WORKER_NOT_READY';
   return {
     schemaVersion: 'ai-public-config.v1',
     appRevision: String(appRevision),
     ai: {
-      chatPolicy: published ? 'personal-key-or-public-worker' : 'personal-key-only',
-      workerUrl: published ? endpointUsable : null,
-      serverMode: published ? 'shared-worker-fallback' : 'personal-key-only',
+      chatPolicy: 'shared-worker-only',
+      provider: 'openai',
+      model: 'gpt-6-luna',
+      workerUrl: endpointUsable,
+      serverMode: 'shared-worker-only',
       healthPath: priorAi.healthPath || '/health',
       maxTokens: priorAi.maxTokens || 'worker-advertised',
       routeStatus: published ? 'PUBLISHED' : 'DISABLED',
@@ -347,6 +351,8 @@ export function reuseWorkerHealthEvidence(previous = {}, now = new Date().toISOS
     proxyEvidenceSource: 'last-observed-live-health',
     proxyObservationStatus: 'NOT_ATTEMPTED',
     proxyAiConfigured: proxy.configured === true,
+    proxyAiProvider: proxy.provider || null,
+    proxyAiModel: proxy.model || null,
     proxyQuotaConfigured: proxy.quotaConfigured === true,
     proxyAuthorityReady: proxy.authorityReady === true,
     proxyAuthorityJurisdiction: proxy.authorityJurisdiction || null,
@@ -379,6 +385,8 @@ export async function observeWorkerHealth(workerEndpoints = {}, now = new Date()
       proxyHealthRevision: body?.revision || null,
       proxySourceSha: body?.sourceSha || null,
       proxyAiConfigured: body?.ai?.configured === true,
+      proxyAiProvider: body?.ai?.provider || null,
+      proxyAiModel: body?.ai?.model || null,
       proxyQuotaConfigured: body?.ai?.quotaConfigured === true,
       proxyAuthorityReady: body?.ai?.authorityReady === true,
       proxyAuthorityJurisdiction: body?.ai?.authorityJurisdiction || null,
@@ -475,6 +483,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const proxyConfigured = !!workerEndpoints.proxy?.baseUrl;
   const proxyHealthStatus = Number(fastEvidence.proxyHealthStatus ?? fastEvidence.proxyHealthPathObserved);
   const proxyHealthy = fastEvidence.proxyEvidenceFresh === true && proxyHealthStatus === 200
+    && fastEvidence.proxyAiProvider === 'openai'
+    && fastEvidence.proxyAiModel === 'gpt-6-luna'
     && fastEvidence.proxyAiReady === true
     && fastEvidence.proxyAuthorityReady === true
     && fastEvidence.proxyAuthorityJurisdiction === 'us';
@@ -592,7 +602,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', statusCode: deriveOperationalState({ configured: true, healthy: scheduledAnalysisOk }), source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, generatedAt: data?.meta?.generatedAt || null } },
       publicChat: {
         status: proxyHealthy ? 'CURRENT' : 'NO_ROUTE', statusCode: deriveOperationalState({ configured: proxyConfigured, healthy: proxyHealthy, stale: proxyConfigured && fastEvidence.proxyHealthStatus != null && fastEvidence.proxyEvidenceFresh !== true }),
-        personalKey: 'EXPLICIT_USER_CONFIG',
+        personalKey: 'UNSUPPORTED',
         sharedWorker: proxyHealthy ? 'CURRENT' : (proxyConfigured ? 'OPERATOR_REQUIRED' : 'NOT_CONFIGURED'),
         workerEndpoint: workerEndpoints.proxy?.baseUrl || null,
         health: {
@@ -602,6 +612,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
           revision: fastEvidence.proxyHealthRevision || null,
           sourceSha: fastEvidence.proxySourceSha || null,
           configured: fastEvidence.proxyAiConfigured === true,
+          provider: fastEvidence.proxyAiProvider || null,
+          model: fastEvidence.proxyAiModel || null,
           quotaConfigured: fastEvidence.proxyQuotaConfigured === true,
           authorityReady: fastEvidence.proxyAuthorityReady === true,
           authorityJurisdiction: fastEvidence.proxyAuthorityJurisdiction || null,

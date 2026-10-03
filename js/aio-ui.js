@@ -340,20 +340,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // 모델 가격과 환율은 시점 의존 데이터이므로 코드에 저장하지 않는다.
 // 비용 표시는 공급자 청구 내역을 연결하기 전까지 unavailable로 유지한다.
 const LLM_MODELS = {
-  haiku: {
-    id: 'claude-haiku-4-5-20251001',
-    label: 'Haiku 4.5'
-  },
-  sonnet: {
-    id: 'claude-sonnet-4-6',
-    label: 'Sonnet 4.6'
-  },
-  'sonnet-thinking': {
-    id: 'claude-sonnet-4-6',
-    label: 'Sonnet 4.6 Thinking',
-    thinking: true,
-    thinkingBudget: 5000
-  }
+  luna: { id: 'gpt-6-luna', label: 'GPT-6 Luna', reasoningEffort: 'none' },
+  'luna-low': { id: 'gpt-6-luna', label: 'GPT-6 Luna · 심층', reasoningEffort: 'low', thinking: true }
 };
 // v31.3: 질문 복잡도 감지 → 모델 자동 선택
 function _detectQueryComplexity(query, ctxId) {
@@ -362,97 +350,93 @@ function _detectQueryComplexity(query, ctxId) {
 
   // ─── 1단계: 컨텍스트별 특화 판단 ───────────────────────────
   // 포트폴리오: 기본 Sonnet, 심층 Thinking
-  if (ctxId === 'portfolio') {
-    var pfThinking = /리밸런싱|전체.*분석|리스크.*진단|상관관계|최적화|헤지.*전략|시나리오|백테스트|팩터|배분.*전략|변동성.*분석|샤프.*비율|드로다운|베타.*조정|수익률.*기여|attribution|rebalanc|optimize|drawdown|sharpe|risk.?parity/;
-    if (pfThinking.test(q)) return 'sonnet-thinking';
-    return 'sonnet';
-  }
+  if (ctxId === 'portfolio') return 'luna-low';
   // 기업분석(fundamental): 기본 Sonnet, 심층 분석은 Thinking
   if (ctxId === 'fundamental') {
     var fundThinking = /DCF|밸류에이션.*모델|적정.*주가|내재.*가치|WACC|잔여.*이익|EV\/EBITDA.*비교|피어.*그룹|산업.*비교.*분석|sum.?of.?parts|comp.*analysis|intrinsic.*value|free.?cash.?flow.*model|종합.*기업.*분석|종합.*분석.*해줘|15개.*관점|심층.*분석/;
-    if (fundThinking.test(q)) return 'sonnet-thinking';
+    if (fundThinking.test(q)) return 'luna-low';
     // v34.5: fundamental 컨텍스트에서 티커가 감지되면 기본적으로 sonnet 사용 (15개 관점 분석 품질 보장)
     var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
     var fundSonnet = /재무.*분석|실적.*분석|매출.*성장|이익률|부채.*비율|경쟁.*우위|해자|moat|경영진|사업.*모델|revenue|earnings|margin|competitive|valuation|분석|어때|전망|투자|알려/;
-    if (hasTicker || fundSonnet.test(q)) return 'sonnet';
+    if (hasTicker || fundSonnet.test(q)) return 'luna-low';
     //  fall through to 범용 판단 (구조적 분석 포함)
   }
   // 기술적분석(technical): 전략 수립은 Sonnet, 멀티타임프레임 심층은 Thinking
   else if (ctxId === 'technical') {
     var techThinking = /멀티.*타임프레임|다중.*시간|엘리어트.*파동|피보나치.*되돌림.*정밀|와이코프|wyckoff|elliott|intermarket.*analysis|상호.*시장.*분석|divergence.*종합|다이버전스.*종합/;
-    if (techThinking.test(q)) return 'sonnet-thinking';
+    if (techThinking.test(q)) return 'luna-low';
     // v34.5: 티커 감지 시 기본 Sonnet (비교 분석 포함)
     var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
     var techSonnet = /진입.*시점|매수.*타이밍|손절.*설정|목표가|지지.*저항|추세.*분석|패턴.*분석|RSI|MACD|볼린저|이동평균|골든크로스|데드크로스|weinstein|stage.*분석|support|resistance|entry|stop.?loss|target|비교|vs|VS|분석|어때|전망/;
-    if (hasTicker || techSonnet.test(q)) return 'sonnet';
+    if (hasTicker || techSonnet.test(q)) return 'luna-low';
   }
   // 매매시그널(signal): 스코어 해석은 Sonnet, 시나리오 분석은 Thinking
   else if (ctxId === 'signal') {
     var sigThinking = /시나리오.*분석|스코어.*변동.*예측|컴포넌트.*종합.*진단|포지션.*사이징|position.*sizing|scenario|전략.*수립.*해줘/;
-    if (sigThinking.test(q)) return 'sonnet-thinking';
+    if (sigThinking.test(q)) return 'luna-low';
     var sigSonnet = /스코어.*해석|왜.*이.*점수|매매.*판단|매수.*매도|지금.*사도|지금.*팔아|진입|청산|비중.*조절|포지션|대응.*전략|지금.*어때|매수.*해도|매도.*해야|사도.*될까|팔아도.*될까|들어가도|나가야/;
-    if (sigSonnet.test(q)) return 'sonnet';
+    if (sigSonnet.test(q)) return 'luna-low';
   }
   // 매크로(macro): 금리/환율 영향 분석은 Sonnet, 멀티팩터 시나리오는 Thinking
   else if (ctxId === 'macro') {
     var macThinking = /금리.*인상.*시나리오|연준.*경로|다중.*시나리오|인플레.*디플레.*비교|경기.*침체.*확률|스태그플레이션|yield.*curve.*inversion|멀티팩터|macro.*scenario|recession.*probability/;
-    if (macThinking.test(q)) return 'sonnet-thinking';
+    if (macThinking.test(q)) return 'luna-low';
     var macSonnet = /금리.*영향|환율.*전망|달러.*방향|유가.*영향|인플레|디플레|연준|FOMC|CPI|고용|GDP|경기.*사이클|섹터.*로테이션|rate|inflation|fed|dollar|oil.*impact/;
-    if (macSonnet.test(q)) return 'sonnet';
+    if (macSonnet.test(q)) return 'luna-low';
   }
   // 시장폭(breadth): 종합 진단은 Sonnet, 다이버전스 심층은 Thinking
   else if (ctxId === 'breadth') {
     var brThinking = /다이버전스.*심층|시장폭.*vs.*지수.*괴리.*분석|McClellan.*종합|과거.*비교.*분석|히스토리컬|역사적.*비교|breadth.*divergence.*deep/;
-    if (brThinking.test(q)) return 'sonnet-thinking';
+    if (brThinking.test(q)) return 'luna-low';
     var brSonnet = /시장폭.*해석|건강.*상태|참여.*종목|다이버전스|괴리|A\/D|McClellan|종합.*판단|지금.*건강|breadth.*analysis/;
-    if (brSonnet.test(q)) return 'sonnet';
+    if (brSonnet.test(q)) return 'luna-low';
   }
   // 투자심리(sentiment): 종합 판단은 Sonnet, 역사적 비교 심층은 Thinking
   else if (ctxId === 'sentiment') {
     var senThinking = /공포.*단계.*비교|역사적.*패닉.*비교|바닥.*확인.*체크리스트|capitulation.*분석|항복.*매도.*분석|스마트머니.*vs.*덤머니|sentiment.*extreme.*analysis/;
-    if (senThinking.test(q)) return 'sonnet-thinking';
+    if (senThinking.test(q)) return 'luna-low';
     var senSonnet = /공포.*탐욕|지금.*바닥|바닥.*신호|VIX.*해석|AAII|NAAIM|풋콜|put.*call|심리.*분석|과매수|과매도|fear.*greed/;
-    if (senSonnet.test(q)) return 'sonnet';
+    if (senSonnet.test(q)) return 'luna-low';
   }
   // v34.6: 한국 시장 컨텍스트 — 기본 Sonnet (한국 시장 분석 품질 보장)
   else if (ctxId === 'kr-tech') {
     var krTechThinking = /멀티.*타임프레임|엘리어트|와이코프|피보나치.*정밀|wyckoff|elliott|intermarket|상호.*시장/;
-    if (krTechThinking.test(q)) return 'sonnet-thinking';
-    return 'sonnet'; // kr-tech는 항상 Sonnet 이상
+    if (krTechThinking.test(q)) return 'luna-low';
+    return 'luna-low'; // kr-tech는 항상 Sonnet 이상
   }
   else if (ctxId === 'kr-themes') {
     var krThThinking = /교차.*분석|테마.*간.*상관|밸류.*체인|value.*chain|종합.*비교/;
-    if (krThThinking.test(q)) return 'sonnet-thinking';
-    return 'sonnet'; // kr-themes는 항상 Sonnet 이상
+    if (krThThinking.test(q)) return 'luna-low';
+    return 'luna-low'; // kr-themes는 항상 Sonnet 이상
   }
   else if (ctxId === 'kr-macro') {
     var krMacThinking = /금리.*시나리오|다중.*시나리오|경기.*침체.*확률|스태그플레이션|환율.*시나리오|한미.*금리차.*시나리오/;
-    if (krMacThinking.test(q)) return 'sonnet-thinking';
-    return 'sonnet'; // kr-macro는 항상 Sonnet 이상
+    if (krMacThinking.test(q)) return 'luna-low';
+    return 'luna-low'; // kr-macro는 항상 Sonnet 이상
   }
   else if (ctxId === 'kr-supply') {
     var krSupThinking = /수급.*시나리오|외국인.*전환.*시나리오|공매도.*종합.*분석|프로그램.*매매.*심층/;
-    if (krSupThinking.test(q)) return 'sonnet-thinking';
-    return 'sonnet'; // kr-supply는 항상 Sonnet 이상
+    if (krSupThinking.test(q)) return 'luna-low';
+    return 'luna-low'; // kr-supply는 항상 Sonnet 이상
   }
   // 테마(themes, theme-detail): 섹터/테마 분석은 Sonnet, 교차 분석은 Thinking
   else if (ctxId === 'themes' || ctxId === 'theme-detail') {
     var thThinking = /교차.*분석|테마.*간.*상관|밸류.*체인.*분석|업스트림.*다운스트림|수혜주.*종합|value.*chain|cross.*theme|supply.*chain.*analysis/;
-    if (thThinking.test(q)) return 'sonnet-thinking';
+    if (thThinking.test(q)) return 'luna-low';
     var thSonnet = /테마.*분석|섹터.*전망|수혜주|관련주|성장.*동력|시장.*규모|트렌드|theme|sector.*outlook|beneficiary/;
-    if (thSonnet.test(q)) return 'sonnet';
+    if (thSonnet.test(q)) return 'luna-low';
   }
 
   // ─── 2단계: 범용 심층 요청 패턴 (컨텍스트 무관) ─────────────
   // Thinking급: 깊은 추론이 필요한 패턴
   var thinkingKw = /심층.*분석|근본.*원인|시나리오.*확률|멀티팩터|DCF|밸류에이션.*모델|포지션.*사이징|감마.*익스포저|옵션.*전략.*설계|리스크.*관리.*전략|비교.*분석.*해줘|왜.*그런지.*자세히|깊이.*분석|종합.*진단|체계적.*분석|정밀.*분석|단계별.*분석/;
   var thinkingEn = /deep.?analysis|root.?cause|scenario.?model|multi.?factor|position.?sizing|risk.?management.?strategy|comprehensive.*diagnosis|systematic.*analysis|step.?by.?step.*analy/;
-  if (thinkingKw.test(q) || thinkingEn.test(q)) return 'sonnet-thinking';
+  if (thinkingKw.test(q) || thinkingEn.test(q)) return 'luna-low';
 
   // Sonnet급: 분석/전략/판단이 필요한 패턴
   var sonnetKw = /전략.*제안|매수.*타이밍|진입.*시점|손절|목표가.*설정|섹터.*로테이션|어떻게.*대응|포트폴리오|종합.*판단|비교.*해줘|분석.*해줘|전망.*해줘|평가.*해줘|진단.*해줘|추천.*해줘|왜.*그래|왜.*떨어|왜.*올라|원인.*뭐|이유.*뭐|어떻게.*해야|장단점|리스크.*뭐|영향.*분석/;
   var sonnetEn = /strategy|recommend|analyze|forecast|evaluate|diagnose|compare|pros.*cons|impact.*analysis|what.*should|why.*drop|why.*rise|how.*respond/;
-  if (sonnetKw.test(q) || sonnetEn.test(q)) return 'sonnet';
+  if (sonnetKw.test(q) || sonnetEn.test(q)) return 'luna-low';
 
   // ─── 3단계: 구조적 복잡도 분석 ─────────────────────────────
   // 질문이 길거나 여러 조건을 포함하면 Sonnet 승격
@@ -461,14 +445,14 @@ function _detectQueryComplexity(query, ctxId) {
   var conditions = (q.match(/만약|경우|가정|~면|한다면|된다면|if|when|assuming|suppose/g) || []).length;
 
   // 복합 질문 (여러 물음표 or 접속사+길이) → Sonnet
-  if (questionMarks >= 2 || (conjunctions >= 2 && qLen > 80)) return 'sonnet';
+  if (questionMarks >= 2 || (conjunctions >= 2 && qLen > 80)) return 'luna-low';
   // 조건문 포함 → 시나리오 사고 필요 → Sonnet
-  if (conditions >= 1 && qLen > 60) return 'sonnet';
+  if (conditions >= 1 && qLen > 60) return 'luna-low';
   // 긴 질문 (150자+) → 복잡한 의도 가능성 → Sonnet
-  if (qLen > 150) return 'sonnet';
+  if (qLen > 150) return 'luna-low';
 
   // ─── 기본: Haiku ───────────────────────────────────────────
-  return 'haiku';
+  return 'luna';
 }
 
 const LLM_BUDGET = {
@@ -476,11 +460,11 @@ const LLM_BUDGET = {
   pricingAvailable: false
 };
 function getSelectedModel() {
-  return 'haiku'; // v31.3: 기본 Haiku (질문별 자동 승격은 chatSend에서 처리)
+  return 'luna'; // v31.3: 기본 Haiku (질문별 자동 승격은 chatSend에서 처리)
 }
 
 function getModelConfig(modelKey) {
-  return LLM_MODELS[modelKey || getSelectedModel()] || LLM_MODELS.haiku;
+  return LLM_MODELS[modelKey || getSelectedModel()] || LLM_MODELS.luna;
 }
 
 function calcDailyLimit() {
@@ -494,10 +478,9 @@ function getLLMState() {
 // v53.59 P855: quota is not capability.  The UI must not advertise available
 // calls when neither a personal key nor a healthy shared Worker route exists.
 function getLLMRouteReadiness() {
-  var personalKey = '';
-  try { personalKey = typeof _getApiKey === 'function' ? String(_getApiKey('aio_claude_api_key') || '').trim() : ''; } catch (_) {}
-  var target = typeof _aioClaudeTarget === 'function' ? _aioClaudeTarget(personalKey) : null;
-  if ((!target || !target.serverKey) && personalKey) return { ready: true, reason: 'PERSONAL_KEY', label: '개인 키 사용' };
+  var config = window.AIO && typeof window.AIO.getPublicConfig === 'function' ? window.AIO.getPublicConfig() : null;
+  if (config && config.ai && config.ai.routeStatus === 'DISABLED') return { ready: false, reason: 'NO_ROUTE', label: '공용 연결 준비 중' }; // P1424
+  var target = typeof _aioClaudeTarget === 'function' ? _aioClaudeTarget() : null;
   var workerUrl = target && target.serverKey ? target.workerUrl : '';
   if (!workerUrl) return { ready: false, reason: 'NO_ROUTE', label: '연결 없음' };
   var health = window._aioLastClaudeRouteState;
@@ -574,7 +557,7 @@ function updateQuotaBadge() {
     if (remEl) { remEl.textContent = '—'; remEl.className = 'llm-quota-val empty'; }
     if (progEl) { progEl.style.width = '0%'; progEl.className = 'llm-prog-fill empty'; }
     if (badge) badge.textContent = route.reason === 'NO_ROUTE' ? 'NO ROUTE' : '확인 필요';
-    if (costEl) costEl.textContent = route.reason === 'NO_ROUTE' ? '개인 Claude 키 또는 운영자 공유 Worker가 필요합니다.' : '공유 Worker 상태 확인 후 사용할 수 있습니다.';
+    if (costEl) costEl.textContent = route.reason === 'NO_ROUTE' ? '운영자의 공용 AI 연결이 필요합니다.' : '공유 Worker 상태 확인 후 사용할 수 있습니다.';
     if (hdrBadge) { hdrBadge.textContent = 'AI · ' + route.label; hdrBadge.style.color = 'var(--text-muted)'; hdrBadge.style.borderColor = 'var(--border)'; hdrBadge.style.background = 'var(--surface-3)'; }
     return;
   }
@@ -582,7 +565,7 @@ function updateQuotaBadge() {
   if (track)   { track.classList.toggle('on', isOn); }
   if (swLabel) { swLabel.textContent = isOn ? 'ON' : 'OFF'; swLabel.className = 'llm-switch-label' + (isOn ? ' on' : ''); }
   if (capEl)   capEl.textContent = dailyLimit + '회';
-  if (modelEl) modelEl.textContent = '기본 Haiku · 심층 Sonnet · 번역 Haiku';
+  if (modelEl) modelEl.textContent = '채팅·심층·번역 GPT-6 Luna';
 
   if (!isOn) {
     if (remEl)   { remEl.textContent = '∞'; remEl.className = 'llm-quota-val'; }
@@ -665,10 +648,14 @@ function consumeLLMQuery() {
 document.addEventListener('DOMContentLoaded', () => {
   loadSidebarApiKey();
   loadRss2jsonKey();
+  var fredRelayConsent = document.getElementById('aio-fred-relay-consent');
+  if (fredRelayConsent && typeof _aioFredRelayConsent === 'function') fredRelayConsent.checked = _aioFredRelayConsent();
   // v31.3: 적응형 모델 — 기본 Haiku, 질문 복잡도에 따라 Sonnet/Thinking 자동 승격
   updateQuotaBadge();
 
   // ── 확장 API 키 상태 복원 ──
+  // P1424: readiness is checked even when cached news needs no translation.
+  if (typeof _aioEnsureClaudeRoute === 'function') _aioEnsureClaudeRoute('').then(updateQuotaBadge).catch(updateQuotaBadge);
   // 실제 비밀값은 런타임 조회 경로만 사용한다. password input의 value에 원문을 넣으면
   // 접근성 트리/브라우저 자동화 스냅샷에서 노출될 수 있다.
   var _keyMap = [
@@ -3647,7 +3634,7 @@ function _renderFundSources(d) {
   if (!el || !body) return;
   var html = '';
   d.sources.forEach(function(s) { html += '• ' + s + '<br>'; });
-  html += '• <b>AI 분석:</b> 위 수집 데이터를 Claude에 전달하여 17개 관점 종합 분석';
+  html += '• <b>AI 분석:</b> 위 수집 데이터를 GPT-6 Luna에 전달하여 17개 관점 종합 분석';
   body.innerHTML = html;
   el.style.display = 'block';
 }

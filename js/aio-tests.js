@@ -1945,8 +1945,8 @@
     _assert('T403 shouldUseClaudeWebSearch_defined: function 정의',
       typeof fnWS === 'function', typeof fnWS);
     if (typeof fnWS === 'function') {
-      _assert('T404 shouldUseClaudeWebSearch_temporal: "오늘 NVDA 뉴스" → true',
-        fnWS('오늘 NVDA 뉴스', 'ticker', ['NVDA']) === true, 'temporal trigger');
+      _assert('T404 P1421 shared paid native search remains disabled for temporal queries',
+        fnWS('오늘 NVDA 뉴스', 'ticker', ['NVDA']) === false, 'shared monthly budget hold');
       _assert('T405 shouldUseClaudeWebSearch_concept: "PER이 뭐야" → false (정의 질문)',
         fnWS('PER이 뭐야', 'ticker', []) === false, 'concept false');
     }
@@ -3124,7 +3124,7 @@
       'ctx=' + (chatSendSrc.indexOf('채팅 컨텍스트 미정의') >= 0) + ' streaming=' + (chatSendSrc.indexOf('이전 답변 스트리밍 중') >= 0));
     // T604: callClaude 실패 시 에러 분류 + friendly 안내
     _assert('T604 call_claude_error_classification_v4977: chatSend onError에 401/429/500 분류 + 권장 조치 ul',
-      chatSendSrc.indexOf('API 키 무효') >= 0 && chatSendSrc.indexOf('rate.*limit') >= 0 && chatSendSrc.indexOf('Anthropic 서버 일시 오류') >= 0,
+      chatSendSrc.indexOf('API 키 무효') >= 0 && chatSendSrc.indexOf('rate.*limit') >= 0 && chatSendSrc.indexOf('AI 서버 일시 오류') >= 0,
       'class401=' + (chatSendSrc.indexOf('API 키 무효') >= 0));
     // T605: _aioRefreshAllData 핸들러 정의
     _assert('T605 refresh_all_data_handler_v4977: window._aioRefreshAllData 함수 정의',
@@ -5631,27 +5631,12 @@
     _assert('T771 v509_lowconf_disclosure: _aioLowConfPerspectives가 highRiskFields 레지스트리 기반 통합 고지 동적 생성(하드코딩 X)', t771ok, t771detail);
 
     // ── v50.10: 정성 데이터 커버리지 확장 — Claude web research ──
-    // T772: _shouldUseClaudeWebSearch 트리거 — 정성+티커→true / 순수시세→false / 일일한도 초과→false+capped
-    var t772ok = false, t772detail = '';
-    try {
-      var wsFn = window._shouldUseClaudeWebSearch;
-      if (typeof wsFn === 'function') {
-        var qualTrue = wsFn('엔비디아 공급망 분석해줘', 'fundamental', ['NVDA']) === true;
-        var priceFalse = wsFn('엔비디아 주가 얼마', 'fundamental', ['NVDA']) === false;
-        // 일일 한도 초과 mock (localStorage aio_quota_claudeWebSearch)
-        var _today = new Date().toISOString().slice(0,10);
-        var _savedQ = null, cappedFalse = false;
-        try {
-          _savedQ = localStorage.getItem('aio_quota_claudeWebSearch');
-          localStorage.setItem('aio_quota_claudeWebSearch', JSON.stringify({ date: _today, count: 999 }));
-          cappedFalse = (wsFn('엔비디아 경쟁 구조 분석', 'fundamental', ['NVDA']) === false) && window._aioWebSearchCapped === true;
-        } catch(e) {}
-        try { if (_savedQ === null) localStorage.removeItem('aio_quota_claudeWebSearch'); else localStorage.setItem('aio_quota_claudeWebSearch', _savedQ); } catch(e) {}
-        t772ok = qualTrue && priceFalse && cappedFalse;
-        t772detail = 'qual+ticker=' + qualTrue + ' pureQuote=' + priceFalse + ' quotaCapped=' + cappedFalse;
-      } else { t772detail = '_shouldUseClaudeWebSearch 미정의'; }
-    } catch(e) { t772detail = 'err: ' + (e && e.message); }
-    _assert('T772 v5010_websearch_trigger: 정성+티커→true / 순수시세→false / 일일한도→false+capped', t772ok, t772detail);
+    // P1421: all query shapes retain the shared native-search budget hold.
+    var t772ok = typeof window._shouldUseClaudeWebSearch === 'function' &&
+      ['엔비디아 공급망 분석해줘', '엔비디아 주가 얼마', '최신 뉴스 검색해줘'].every(function(query) {
+        return window._shouldUseClaudeWebSearch(query, 'fundamental', ['NVDA']) === false;
+      });
+    _assert('T772 P1421 shared_paid_native_search_disabled', t772ok, 'shared GPT-6 Luna excludes paid native search');
 
     // T773: chatSend이 web search 활성 시 정성 리서치 지시를 systemPrompt에 주입 (소스 검증)
     var t773ok = false, t773detail = '';
@@ -5669,7 +5654,7 @@
     try {
       var ccHtml = (typeof _searchCitationsHTML === 'function') ? _searchCitationsHTML({ citations: ['https://reuters.com/article'], engine: 'claude' }) :
                    (typeof window._searchCitationsHTML === 'function' ? window._searchCitationsHTML({ citations: ['https://reuters.com/article'], engine: 'claude' }) : '');
-      var renderOk = ccHtml.indexOf('Claude 웹검색') >= 0 && ccHtml.indexOf('reuters.com') >= 0;
+      var renderOk = ccHtml.indexOf('AI 웹검색') >= 0 && ccHtml.indexOf('reuters.com') >= 0;
       var csSrc2 = (typeof chatSend === 'function') ? String(chatSend) : (typeof window.chatSend === 'function' ? String(window.chatSend) : '');
       var badgeUpgradeOk = csSrc2.indexOf('웹검색 출처 기반') >= 0 && csSrc2.indexOf('출처 미확정') >= 0 && csSrc2.indexOf('_webCited') >= 0;
       var ccFn = (typeof callClaude === 'function') ? callClaude : (typeof window.callClaude === 'function' ? window.callClaude : null);
@@ -6978,8 +6963,7 @@
         wsAudit832.externalSearchReady === (wsAudit832.perplexityConfigured || wsAudit832.googleCseReady) &&
         sensitive832 &&
         snapshotSrc832.indexOf('aio_google_cse_cx') >= 0 &&
-        shouldSrc832.indexOf('aio_google_cse_cx') >= 0 &&
-        shouldSrc832.indexOf('gKey && gCx') >= 0);
+        typeof window._needsWebSearch === 'function' && /gKey && gCx/.test(String(window._needsWebSearch)) && /return false/.test(shouldSrc832));
       t832detail = JSON.stringify({
         auditFields: !!wsAudit832,
         googleReady: wsAudit832 && wsAudit832.googleCseReady,
@@ -6988,7 +6972,7 @@
         claudeFallbackChecksCx: shouldSrc832.indexOf('gKey && gCx') >= 0
       });
     } catch(e) { t832detail = 'ERR:' + e.message; }
-    _assert('T832 v5064_websearch_google_cx_integrity: Google CSE cx persists and incomplete Google setup does not block Claude web_search fallback', t832ok, t832detail);
+    _assert('T832 v5064_websearch_google_cx_integrity: P1421 Google CSE cx persists and incomplete setup cannot enable paid native search', t832ok, t832detail);
 
     // T833: v50.65 unified AI panel parity — 통합 패널도 chatSend() 수준의 데이터 주입/페이지 매핑을 유지해야 한다.
     var t833ok = false, t833detail = '';
@@ -7796,14 +7780,9 @@
     // T887: _aioFetchClaudeWithRetry가 서버키 게이트·403 감지·forbidden 포맷 판별·maxRetries 한도·재시도 fetch를 모두 갖췄는지
     if (typeof window._aioFetchClaudeWithRetry === 'function') {
       var fnSrc887 = window._aioFetchClaudeWithRetry.toString();
-      var hasStatusGate887 = /res\.status\s*===\s*403/.test(fnSrc887);
-      var hasServerKeyGate887 = /serverKey\s*&&\s*res\.status/.test(fnSrc887);
-      var hasForbiddenCheck887 = /_peek\.error\.type\s*===\s*'forbidden'/.test(fnSrc887);
-      var hasMaxRetries887 = /maxRetries/.test(fnSrc887) && /attempt\s*<\s*maxRetries/.test(fnSrc887);
-      var hasRetryFetch887 = (fnSrc887.match(/fetch\(url,\s*fetchOpts\)/g) || []).length >= 2;
-      _assert('T887 claude_worker_403_retry_helper (B8): _aioFetchClaudeWithRetry가 서버키 게이트·403 감지·forbidden 포맷 판별·maxRetries 한도·재시도 fetch를 모두 갖춤',
-        hasStatusGate887 && hasServerKeyGate887 && hasForbiddenCheck887 && hasMaxRetries887 && hasRetryFetch887,
-        'status=' + hasStatusGate887 + ' serverKeyGate=' + hasServerKeyGate887 + ' forbidden=' + hasForbiddenCheck887 + ' maxRetries=' + hasMaxRetries887 + ' retryFetch=' + hasRetryFetch887);
+      _assert('T887 P1421 paid_transport_no_blind_retry',
+        /_aioThrowIfChatAborted/.test(fnSrc887) && (fnSrc887.match(/fetch\(url,\s*fetchOpts\)/g) || []).length === 1,
+        'cancel-aware single upstream attempt');
     } else {
       _assert('T887 claude_worker_403_retry_helper (B8): _aioFetchClaudeWithRetry 미존재', false);
     }
@@ -7812,8 +7791,8 @@
     if (typeof callClaude === 'function') {
       var fnSrc888 = callClaude.toString();
       var callCount888 = (fnSrc888.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length;
-      _assert('T888 claude_chat_uses_retry_helper (B8): callClaude의 최초 요청 + 400-beta 폴백 재요청 2곳 모두 _aioFetchClaudeWithRetry 경유',
-        callCount888 === 2, 'callCount=' + callCount888);
+      _assert('T888 claude_chat_uses_retry_helper (B8): callClaude의 P1421 단일 Responses 요청이 _aioFetchClaudeWithRetry 경유',
+        callCount888 === 1, 'callCount=' + callCount888);
     } else {
       _assert('T888 claude_chat_uses_retry_helper (B8): callClaude 미존재', false);
     }
@@ -8865,7 +8844,7 @@
 
     var rights = window.AIO.getAIRightsRegistry();
     var localRights = window.AIO.evaluateAIDataRights({ registryId: 'local-reference' });
-    var liveRights = window.AIO.evaluateAIDataRights({ registryId: 'anthropic-direct' });
+    var liveRights = window.AIO.evaluateAIDataRights({ registryId: 'openai-shared-worker' });
     _assert('T1010 rights_registry_provider_data_output (WP-AI20): rights registry distinguishes locally approved from live-unverified provider entries',
       rights.version === 'wp-ai20.rights.v1' && rights.entries.length === 4 && localRights.status === 'PASS' && liveRights.status === 'REVIEW_REQUIRED' && liveRights.issues.some(function(issue) { return issue.indexOf('registry-status-') === 0; }),
       JSON.stringify({ registry: rights, local: localRights, live: liveRights }));

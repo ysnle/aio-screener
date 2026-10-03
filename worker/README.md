@@ -2,39 +2,45 @@
 
 This directory holds both Worker deployments. Only the fast quote plane is described
 below; the `aio-proxy` Worker (source: `../cloudflare-worker-proxy.js`, config:
-`wrangler.proxy.toml`) serves the CORS data proxy, the optional `/anthropic`
-server-key route, and — since v56 — the `/relay` server-side key relay.
+`wrangler.proxy.toml`) serves the CORS data proxy, the shared `/openai`
+server-key route, and the `/relay` server-side key relay. AI generation uses
+`gpt-6-luna` and the operator's `OPENAI_API_KEY` Worker secret. Browser chat,
+translation and Actions analysis share one atomic UTC-month reservation budget
+of at most $10. Paid AI search is disabled. The provider key never enters the
+browser or Actions; Actions authenticates with a separate `AIO_AUTOMATION_TOKEN`.
+See [_context/OPERATOR-RUNBOOK.md](../_context/OPERATOR-RUNBOOK.md) for provisioning.
 
-## `/relay` — server-side operator-key relay (v56, P1151)
+## `/relay` — fixed-provider relay (P1151/P1422)
 
-`GET /relay?provider=<fred|bok|kosis>&<params>` fetches a browser-blocked source with
-an **operator-held key** so users need no key of their own. FRED blocks the browser by
-CORS; BOK ECOS and KOSIS send no CORS headers at all — before `/relay`, all three were
-configurable in the sidebar and unreachable in practice.
+`GET /relay?provider=<fred|bok|kosis>&<params>` fetches a browser-blocked source.
+BOK/KOSIS use operator secrets. FRED uses the querying user's own key in
+`X-AIO-Provider-Key`, only after explicit browser opt-in; the operator key is never
+substituted. Reading the scheduled operator artifact does not require a personal key.
 
 Design boundaries (all enforced by `node scripts/ci-worker-relay-check.mjs`):
 
 - Upstream host and path are **hardcoded per provider**. The client cannot name a
   destination, so the route cannot be used as an SSRF relay.
-- Keys come only from `env.FRED_API_KEY` / `env.BOK_API_KEY` / `env.KOSIS_API_KEY`.
-  The browser never sends a key, and the key is redacted from any upstream body that
-  echoes it. `/health` reports per-provider presence, never a value.
+- BOK/KOSIS keys come only from `env.BOK_API_KEY` / `env.KOSIS_API_KEY`.
+  FRED's personal header is validated, never stored/logged, and redacted from bodies.
+  FRED upstream/response caching is disabled and redirects are refused.
+  `/health` lists `personalKeyRequired` separately from operator key presence.
 - Parameters pass a per-provider regex whitelist; anything else is a 400.
 - Origin allowlist, optional `AIO_APP_TOKEN`, and a 60/min per-IP limit apply before
   the upstream call. A per-provider daily cap (`RELAY_DAILY_CAP`, default 2000) is
   reserved atomically through `AIO_QUOTA_DO`.
-- A missing operator key, a missing quota binding, or a failed upstream returns
-  503/502 for **that provider only** — the relay never falls back to a client key.
+- Missing BOK/KOSIS secrets or quota bindings fail closed (503). A missing personal
+  FRED key returns 400. There is no cross-user credential substitution.
 
 Deployment: `deploy-ai-proxy.yml` publishes the relay secrets with
-`wrangler secret put` (FRED required, BOK/KOSIS optional and skipped when unset) and
-smoke-tests `/relay` for a real FRED series, a refused non-allowlisted Origin, and an
-unknown provider.
+`wrangler secret put` (BOK/KOSIS optional), checks a keyless FRED rejection, and may
+smoke-test the operator's own FRED key in a request header. No workflow was run locally.
 
 ### What these gates are, and are not (v56, P1156)
 
-Every route on this Worker — the `?url=` data proxy, `/anthropic`, `/relay` — now refuses a
-request whose `Origin` is not in the allowlist. That is a *minimum* barrier, not
+Browser requests on this Worker — the `?url=` data proxy, `/openai`, `/relay` — refuse an
+Origin outside the allowlist. Only `/openai` also accepts origin-less Actions requests
+authenticated with a private automation token. The browser Origin check is a *minimum* barrier, not
 authentication: `Origin` is a request header that any non-browser client can set freely, and
 `AIO_APP_TOKEN` (checked only when configured, and exported as a constant by the public
 client bundle) is a speed bump against naive scraping. The per-IP rate limiter lives in
@@ -43,14 +49,14 @@ isolate-local `Map`s, so its real ceiling is `limit × distinct IPs × live isol
 The bounds that are *not* per-isolate:
 
 - the **Workers Rate Limiting bindings** declared in `wrangler.proxy.toml`
-  (`RATE_LIMIT_PROXY` 300/min, `RATE_LIMIT_ANTHROPIC` 20/min, `RATE_LIMIT_RELAY` 60/min,
+  (`RATE_LIMIT_PROXY` 300/min, `RATE_LIMIT_OPENAI` 20/min, `RATE_LIMIT_RELAY` 60/min,
   `period = 60`). These share counters across every isolate **within one Cloudflare location**,
   which is why they replaced the old advice to create a WAF rate limiting rule: `workers.dev`
   has no zone, so that rule was never available to this deployment. They are not global and are
   eventually consistent by design, and they are invisible in the dashboard — observe them as 429s
   in Workers Logs. A missing or throwing binding falls back to the in-isolate `Map`.
-- the atomic Durable Object daily cap (`ANTHROPIC_DAILY_CAP`, `RELAY_DAILY_CAP`) — **volume,
-  not identity**, and only on `/anthropic` and `/relay`; the generic `?url=` proxy has none.
+- the atomic Durable Object daily cap (`AI_DAILY_CAP`, `RELAY_DAILY_CAP`) — **volume,
+  not identity**, and only on `/openai` and `/relay`; the generic `?url=` proxy has none.
 
 Because `/relay` spends the operator's FRED/BOK/KOSIS quota, treat a forged-Origin client as
 a quota-exhaustion risk up to the daily cap rather than as a blocked attacker.
@@ -89,7 +95,7 @@ Required operator setup:
    set the public `AIO_FAST_QUOTES_URL` repository variable to
    `https://aio-screener-data-plane.zmfhd007.workers.dev` (the currently observed
    deployed data-plane endpoint). Do not point it at the existing
-   `https://aio-proxy.zmfhd007.workers.dev` API/Anthropic proxy; the value must
+   `https://aio-proxy.zmfhd007.workers.dev` data/shared-AI proxy; the value must
    serve this Worker's `/health` and `/quotes` routes and must not include either
    path suffix.
 4. Run the manual `Deploy fast data plane` workflow, then run its smoke check.

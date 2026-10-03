@@ -45,7 +45,8 @@ jobs:
         id: fetch-market
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+          AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           AIO_OBSERVE_PROXY_HEALTH: '1'
         run: node scripts/fetch-data.mjs
@@ -177,7 +178,7 @@ jobs:
               `| Treasury curve | ${m.treasuryStatus === 'ok' || m.treasuryStatus === 'cached-fresh' ? 'OK' : 'WARN'} | status=${m.treasuryStatus || 'unavailable'} observed=${m.treasuryObservedAt || 'none'} same-date 10Y-2Y only |`,
               `| AAII weekly | ${m.aaiiStatus === 'current-reference' ? 'REFERENCE' : 'WARN'} | observed=${m.aaiiObservedAt || 'none'} relay=${m.aaiiRelayUsed ? 'bounded-reader' : 'direct/none'} decisionUse=false |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
-              `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'ANTHROPIC_API_KEY missing or generation failed'} |`,
+              `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'Shared AI Worker credentials missing, monthly budget exhausted, or generation failed'} |`,
               `| Fundamentals | ${Number(m.fundamentalCoveragePct || 0) >= 80 ? 'OK' : 'PARTIAL'} | free SEC companyfacts=${m.secFundamentalsCount || 0} coverage=${m.fundamentalCoveragePct || 0}% · paid FMP not required |`,
               `| Elapsed | ${elapsedStatus} | ${Number.isFinite(elapsedMs) ? elapsedMs : 'n/a'}ms |`,
             ].join('\n');

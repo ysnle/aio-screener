@@ -1,8 +1,17 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-01
+last_verified: 2026-10-03
 confidence: medium
 ---
+
+## v57.06 GPT-6 Luna shared AI migration (2026-10-03)
+
+- [x] QA-AI-LUNA-01: P1421: chat, translation and Actions use only the shared GPT-6 Luna route and one monthly budget ledger. verify_by: ci-ai-budget-scope-check + ci-worker-anthropic-check + ci-ai-chat-public-route-browser-check
+- [ ] QA-AI-LUNA-LIVE-01: P1421: provision OpenAI and automation secrets, explicitly deploy the CI-attested revision, verify browser/Actions upstream smoke and real answer/translation quality. Local fixture PASS does not certify this. verify_by: deploy-ai-proxy.yml exact-SHA smoke and operator quality review
+- [x] QA-PROVIDER-OWNERSHIP-01: P1422: personal settings, FMP stable/response/quota, weighted Twelve Data, RSS priority/fallback and consented personal FRED relay execute correctly in deterministic fixtures. verify_by: ci-extension-api-runtime-check + ci-worker-relay-check + settings browser
+- [ ] QA-PROVIDER-LIVE-01: P1422: verify each actual personal/free account's dataset access, quota headers, timestamps and series/data display rights after explicit CI-attested deployment; fixtures do not establish this. verify_by: operator provider dashboard and deployed live route evidence
+- [x] QA-PROVIDER-STRUCTURE-01: P1423: native personal-provider transport preserves runtime contracts without legacy growth; its dependencies select QA, and concurrent translation items reach completion. verify_by: ci-extension-api-runtime-check + ci-decomp-hotspot-check + ci-qa-pipeline-contract-check + ci-ai-chat-public-route-browser-check
+- [x] QA-AI-READINESS-01: P1424: held public AI configuration shows a preparation status and no usable capacity; boot checks readiness independently of translation. verify_by: ci-extension-api-runtime-check + local settings browser + ci-ai-chat-public-route-browser-check
 
 ## v56.89 Screen honesty (2026-10-01)
 

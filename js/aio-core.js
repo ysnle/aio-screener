@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v57.05';
+const APP_VERSION = 'v57.06';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -196,7 +196,7 @@ function _aioNormalizeAiError(error, context) {
     regional_forbidden: '현재 네트워크 지역에서 AI 요청이 거부되었습니다.',
     auth_or_origin: 'AI 인증 또는 허용 출처 확인이 필요합니다.',
     upstream_unavailable: 'AI 서버를 일시적으로 사용할 수 없습니다.',
-    missing_credentials: 'AI 키 또는 운영자 서버 경로가 설정되지 않았습니다.',
+    missing_credentials: '공용 AI 연결이 설정되지 않았습니다.',
     malformed_response: 'AI 서버 응답을 해석하지 못했습니다.',
     network: 'AI 네트워크 연결에 실패했습니다.',
     unknown: 'AI 요청에 실패했습니다.'
@@ -205,10 +205,10 @@ function _aioNormalizeAiError(error, context) {
     success: '결과를 확인하세요.',
     timeout: '잠시 후 다시 시도하세요.',
     rate_limit: '1분 후 다시 시도하거나 사용량을 확인하세요.',
-    regional_forbidden: '다시 시도하고 계속되면 개인 키 또는 다른 Worker 경로를 사용하세요.',
-    auth_or_origin: 'API 키·Worker URL·Origin 설정을 확인하세요.',
+    regional_forbidden: '다시 시도하고 계속되면 운영자에게 공용 연결 확인을 요청하세요.',
+    auth_or_origin: '운영자에게 공용 연결의 인증·허용 출처 확인을 요청하세요.',
     upstream_unavailable: '잠시 후 다시 시도하거나 로컬/참고용 폴백을 확인하세요.',
-    missing_credentials: '개인 Claude 키를 저장하거나 운영자 Worker 모드를 설정하세요.',
+    missing_credentials: '운영자가 공용 AI 연결을 설정한 뒤 다시 시도하세요.',
     malformed_response: '잠시 후 다시 시도하세요.',
     network: '네트워크를 확인한 뒤 다시 시도하세요.',
     unknown: '잠시 후 다시 시도하세요.'
@@ -991,7 +991,7 @@ window.AIO.evaluateAIToolPermission = function(options) {
 };
 var _AIO_AI_RIGHTS_REGISTRY = [
   { id: 'local-reference', provider: 'local-browser', dataUse: 'reference-only', outputUse: 'internal-ui', retention: 'session', region: 'browser-local', trainingAllowed: false, redistributionAllowed: false, status: 'APPROVED_LOCAL', notice: 'Reference data is for this local UI only; no provider training or redistribution is assumed.' },
-  { id: 'anthropic-direct', provider: 'anthropic', dataUse: 'prompt-and-evidence', outputUse: 'user-display', retention: 'provider-policy', region: 'provider-policy', trainingAllowed: 'provider-policy', redistributionAllowed: false, status: 'UNVERIFIED_LIVE', notice: 'Live provider retention/training/region terms require operator verification before public certification.' },
+  { id: 'openai-shared-worker', provider: 'openai', dataUse: 'prompt-and-evidence', outputUse: 'user-display', retention: 'provider-policy', region: 'provider-policy', trainingAllowed: 'provider-policy', redistributionAllowed: false, status: 'UNVERIFIED_LIVE', notice: 'Live provider retention/training/region terms require operator verification before public certification.' },
   { id: 'cloudflare-worker', provider: 'cloudflare-worker', dataUse: 'proxied-prompt-and-evidence', outputUse: 'user-display', retention: 'operator-config', region: 'edge/operator-config', trainingAllowed: 'operator-policy', redistributionAllowed: false, status: 'UNVERIFIED_LIVE', notice: 'Worker route rights and regional retention require deployment/operator verification.' },
   { id: 'market-data-live', provider: 'upstream-market-data', dataUse: 'live-quote-evidence', outputUse: 'analysis-display', retention: 'source-policy', region: 'source-policy', trainingAllowed: 'not-assumed', redistributionAllowed: 'not-assumed', status: 'REVIEW_REQUIRED', notice: 'Upstream market-data rights and redistribution scope are not inferred from availability.' }
 ];
@@ -1177,10 +1177,8 @@ window._aioRedactPII = function(record) {
 // 조회 계약을 유지해 두 실행 순서를 모두 안전하게 지원한다.
 window.getApiKey = function(name) {
   try {
-    var keyName = (name == null || name === '') ? 'aio_claude_api_key' : name;
-    if ((name == null || name === '') && typeof _AioVault !== 'undefined' && _AioVault._claudeKeyRuntime) {
-      return _AioVault._claudeKeyRuntime;
-    }
+    if (name == null || name === '' || name === 'aio_claude_api_key' || name === 'aio_perplexity_key') return '';
+    var keyName = name;
     return (typeof _getApiKey === 'function') ? (_getApiKey(keyName) || '') :
       ((typeof safeLSGetSync === 'function') ? safeLSGetSync(keyName, '') : '');
   } catch(e) { return ''; }
@@ -1189,11 +1187,7 @@ window.getApiKey = function(name) {
 // 인자 1개 legacy 호출은 Claude 전용 setApiKey(key) 호환 경로로 위임하고
 // Promise를 반환해 saveSidebarApiKey()의 결과/readback 검증을 보존한다.
 window.setApiKey = function(name, value) {
-  if (arguments.length < 2) {
-    return (typeof _aioSaveCredential === 'function')
-      ? _aioSaveCredential('aio_claude_api_key', name == null ? '' : name)
-      : Promise.resolve({ ok: false, state: 'KEYSTORE_UNAVAILABLE' });
-  }
+  if (arguments.length < 2 || name === 'aio_claude_api_key' || name === 'aio_perplexity_key') return Promise.resolve({ ok: false, state: 'SERVER_ONLY_AI' });
   try {
     if (typeof safeLSSet === 'function') { safeLSSet(name, value); }
     else { (window.localStorage || window.sessionStorage).setItem(name, value); }
@@ -3950,7 +3944,7 @@ if (typeof document !== 'undefined') {
       var dismissed = localStorage.getItem('aio_onboarding_dismissed') === '1';
       var laterUntil = parseInt(localStorage.getItem('aio_onboarding_later_until') || '0', 10);
       var hasAnyKey = false;
-      ['aio_claude_api_key', 'aio_finnhub_key', 'aio_fmp_key', 'aio_fred_key'].forEach(function(k){
+      ['aio_finnhub_key', 'aio_fmp_key', 'aio_fred_key'].forEach(function(k){
         if (localStorage.getItem(k)) hasAnyKey = true;
       });
       // 키 하나라도 있으면 온보딩 불필요
@@ -7803,7 +7797,7 @@ window.AIO.getWebSearchAudit = function() {
     nativeCitationCount: nativeCitations.length,
     nativeToolErrorCode: nativeToolError ? 'NATIVE_TOOL_ERROR' : null,
     researchCapability: {
-      provider: hasPerplexity ? 'perplexity' : hasGoogleKey && hasGoogleCx ? 'google-cse' : routeState && routeState.reason === 'SHARED_WORKER' ? 'claude-native' : 'none',
+      provider: hasPerplexity ? 'perplexity' : hasGoogleKey && hasGoogleCx ? 'google-cse' : 'none',
       routeReady: routeState ? (routeState.ok ? 'READY' : 'NOT_READY') : 'UNKNOWN',
       authReady: hasPerplexity || (hasGoogleKey && hasGoogleCx) || !!(routeState && routeState.ok) ? 'READY' : 'UNKNOWN',
       toolReady: hasPerplexity || (hasGoogleKey && hasGoogleCx) || nativeToolReady ? 'READY' : nativeToolError ? 'NOT_READY' : 'UNKNOWN',
@@ -11455,7 +11449,7 @@ window.AIO.fetchFMPEarningsCallTranscript = async function(ticker) {
     var url = 'https://financialmodelingprep.com/api/v3/earning_call_transcript/' + encodeURIComponent(ticker) + '?apikey=' + encodeURIComponent(key);
     var ctrl = new AbortController();
     var to = setTimeout(function(){ ctrl.abort(); }, 5000);
-    var res = await fetch(url, { signal: ctrl.signal });
+    var res = await fetchWithTimeout(url, { signal: ctrl.signal }, 5000);
     clearTimeout(to);
     if (!res.ok) {
       var msg = 'FMP HTTP ' + res.status + ' (paid tier required for ' + ticker + ' or rate limit)';
@@ -13662,7 +13656,6 @@ const _AioVault = {
 // for storage, masking, export/import, and status inventory. Runtime health and
 // authentication are deliberately separate from browser persistence.
 var _AIO_PROVIDER_REGISTRY = [
-  { id: 'claude', label: 'Claude AI', credentialKey: 'aio_claude_api_key', inputId: 'sidebar-api-key', kind: 'ai', format: 'anthropic' },
   { id: 'rss2json', label: 'RSS2JSON', credentialKey: 'aio_rss2json_key', inputId: 'rss2json-api-key', kind: 'news', format: 'opaque' },
   { id: 'alpha-vantage', label: 'Alpha Vantage', credentialKey: 'aio_av_key', inputId: 'aio_av_key_input', kind: 'market', format: 'opaque' },
   { id: 'finnhub', label: 'Finnhub', credentialKey: 'aio_finnhub_key', inputId: 'aio_finnhub_key_input', kind: 'market', format: 'opaque' },
@@ -13675,7 +13668,6 @@ var _AIO_PROVIDER_REGISTRY = [
   // 웹 검색 제공자. 기본 경로는 Claude 네이티브 web_search이고, 아래 키는 그보다 먼저
   // 시도되는 선택 경로다(aio-chat.js 의 검색 디스패처). v56.0 이전에는 이 키들을 코드가
   // 읽고 export/Vault 목록에도 있었지만 사이드바 입력란이 없어 도달할 수 없었다.
-  { id: 'perplexity', label: 'Perplexity', credentialKey: 'aio_perplexity_key', inputId: 'aio_perplexity_key_input', kind: 'search', format: 'opaque' },
   { id: 'google-cse-key', label: 'Google CSE Key', credentialKey: 'aio_google_cse_key', inputId: 'aio_google_cse_key_input', kind: 'search', format: 'opaque' },
   { id: 'google-cse-cx', label: 'Google CSE Engine ID', credentialKey: 'aio_google_cse_cx', inputId: 'aio_google_cse_cx_input', kind: 'search', format: 'opaque' },
   { id: 'cloudflare-worker', label: 'CF Worker', credentialKey: 'aio_cf_worker_url', inputId: 'aio_cf_worker_input', kind: 'worker', format: 'url' }
@@ -13749,7 +13741,7 @@ if (!window.AIO_PUBLIC_CONFIG) {
   _aioSetPublicConfig({
     schemaVersion: 'ai-public-config.v1',
     appRevision: window.APP_VERSION || null,
-    ai: { chatPolicy: 'personal-key-or-public-worker', workerUrl: 'https://aio-proxy.zmfhd007.workers.dev', serverMode: 'shared-worker-fallback', healthPath: '/health', maxTokens: 'worker-advertised' },
+    ai: { chatPolicy: 'shared-worker-only', provider: 'openai', model: 'gpt-6-luna', workerUrl: 'https://aio-proxy.zmfhd007.workers.dev', serverMode: 'shared-worker-only', healthPath: '/health', maxTokens: 'worker-advertised' },
     marketData: { workerUrl: 'https://aio-proxy.zmfhd007.workers.dev', routeStatus: 'CONFIGURED', availability: 'verify-per-request' },
     privacy: { clientKeysStayBrowserLocal: true, networkTransmission: 'provider-or-public-worker' }
   });
@@ -13766,7 +13758,7 @@ window.AIO.loadPublicConfig = async function() {
     if (!cfg || cfg.schemaVersion !== 'ai-public-config.v1') throw new Error('public_config_schema');
     var workerUrl = cfg.ai && typeof cfg.ai.workerUrl === 'string' ? cfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
     if (workerUrl && !/^https:\/\/[^\s]+$/i.test(workerUrl)) workerUrl = '';
-    cfg.ai = Object.assign({ chatPolicy: 'personal-key-or-public-worker', workerUrl: 'https://aio-proxy.zmfhd007.workers.dev', serverMode: 'shared-worker-fallback', healthPath: '/health', maxTokens: 'worker-advertised' }, cfg.ai || {}, { workerUrl: workerUrl || null });
+    cfg.ai = Object.assign({ healthPath: '/health', maxTokens: 'worker-advertised' }, cfg.ai || {}, { workerUrl: workerUrl || null, chatPolicy: 'shared-worker-only', serverMode: 'shared-worker-only', provider: 'openai', model: 'gpt-6-luna' });
     cfg._loaded = true;
     _aioSetPublicConfig(cfg);
     try { window.dispatchEvent(new CustomEvent('aio:publicConfig', { detail: cfg })); } catch(_) {}
@@ -13939,6 +13931,7 @@ window.LS_SCHEMAS = LS_SCHEMAS;
 // 2순위: localStorage 평문 값 (PIN 미설정 사용자)
 // 3순위: 빈 문자열 ('aio_enc::' 만 있고 캐시 비어있음 = Vault 잠김)
 function _getApiKey(lsKey) {
+  if (lsKey === 'aio_claude_api_key' || lsKey === 'aio_perplexity_key') return ''; // Retired AI credentials stay stored but inactive.
   if (_AioVault && _AioVault._keyRuntime && _AioVault._keyRuntime[lsKey]) return _AioVault._keyRuntime[lsKey];
   try {
     var storage = (_AioVault && _AioVault.getStorage) ? _AioVault.getStorage() : localStorage;
@@ -13949,6 +13942,7 @@ function _getApiKey(lsKey) {
 }
 
 async function _aioSaveCredential(lsKey, value) {
+  if (lsKey === 'aio_claude_api_key' || lsKey === 'aio_perplexity_key') return { ok: false, key: lsKey, state: 'SERVER_ONLY_AI' };
   var clean = value == null ? '' : String(value).trim();
   var format = _aioValidateCredential(lsKey, clean);
   if (!format.ok) return { ok: false, key: lsKey, state: format.reason || 'INVALID_FORMAT' };
@@ -14034,7 +14028,7 @@ try { window._aioRetirePlaintextIdbBackup(); } catch(_e) {}
 window._aioCollectKeySnapshot = function() {
   var snap = {};
   var keys = (typeof _AIO_PROVIDER_REGISTRY !== 'undefined') ? _AIO_PROVIDER_REGISTRY.map(function(provider) { return provider.credentialKey; }) :
-    ['aio_claude_api_key','aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
+    ['aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
      'aio_google_cse_key','aio_google_cse_cx','aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_bok_key','aio_kosis_key','aio_cf_worker_url'];
   keys.forEach(function(k) {
     var v = (typeof _getApiKey === 'function') ? _getApiKey(k) : (localStorage.getItem(k) || '');
@@ -14646,7 +14640,7 @@ window._aioWebSearchToggle = function(checked, el) {
   // 위젯 새로고침
   try { window._aioRefreshAuditWidget(); } catch(_e) {}
   if (typeof showToast === 'function') {
-    showToast(enabled ? '🔍 Claude 웹 검색 활성화' : '⊘ 웹 검색 비활성화 — 학습 데이터만 사용');
+    showToast(enabled ? '🔍 외부 검색 사용 설정' : '⊘ 외부 검색 비활성화 — 수집 자료 범위만 사용');
   }
 };
 // 페이지 로드 시 토글 초기 상태 동기화
@@ -14665,47 +14659,8 @@ setTimeout(function() {
   } catch(_e) {}
 }, 2000);
 
-// v56.0: 개인 Worker 서버 키 모드 토글.
-// aio-chat.js 의 _aioClaudeTarget 은 이 플래그가 켜져 있고 개인 Worker URL이 있으면 입력한
-// 개인 Claude 키를 사용하지 않고 Worker 키를 쓴다. 그런데 v56.0 이전에는 이 값을 바꿀 UI가
-// 없어 localStorage 를 직접 편집해야 했고, 켜져 있으면 개인 키가 조용히 무시됐다.
-var CLAUDE_SERVER_MODE_KEY = 'aio_claude_server_mode';
-
-function _aioClaudeServerModeEnabled() {
-  try { return localStorage.getItem(CLAUDE_SERVER_MODE_KEY) === '1'; } catch (_e) { return false; }
-}
-
-function _aioSyncClaudeServerModeUI() {
-  var enabled = _aioClaudeServerModeEnabled();
-  var box = document.getElementById('aio-claude-server-mode-toggle');
-  if (box) box.checked = enabled;
-  var hint = document.getElementById('aio-claude-server-mode-hint');
-  if (hint) {
-    var hasPersonalWorker = typeof _getApiKey === 'function' ? !!_getApiKey('aio_cf_worker_url') : false;
-    // Say which key actually wins, so "my key is being ignored" is never a silent surprise.
-    hint.textContent = !enabled ? '' : (hasPersonalWorker
-      ? 'ON — 개인 Claude 키보다 Worker 키가 우선'
-      : '개인 Worker URL 없음 — 이 설정은 효과가 없습니다');
-  }
-  return enabled;
-}
-
-window._aioClaudeServerModeToggle = function(checked, el) {
-  var enabled = (el && typeof el.checked === 'boolean') ? el.checked : !!checked;
-  try {
-    if (enabled) localStorage.setItem(CLAUDE_SERVER_MODE_KEY, '1');
-    else localStorage.removeItem(CLAUDE_SERVER_MODE_KEY);
-  } catch (_e) {}
-  _aioSyncClaudeServerModeUI();
-  var hasPersonalWorker = typeof _getApiKey === 'function' ? !!_getApiKey('aio_cf_worker_url') : false;
-  if (enabled && !hasPersonalWorker && typeof showToast === 'function') {
-    showToast('개인 Worker URL이 없어 서버 키 모드는 효과가 없습니다');
-  }
-  if (typeof _aioLog === 'function') _aioLog('info', 'config', 'Claude 서버 키 모드 ' + (enabled ? 'ON' : 'OFF'));
-  return enabled;
-};
-try { window._aioSyncClaudeServerModeUI = _aioSyncClaudeServerModeUI; } catch (_e) {}
-
+// P1421: AI routing is fixed to the published shared authority.
+// Data-source Worker overrides remain separate.
 window._aioExportKeys = function() {
   try {
     var r = window.AIO.exportApiKeys({ masked: false });
@@ -14792,7 +14747,6 @@ function _vaultUnlock() {
 async function _restoreDecryptedKeys() {
   var generation = _AioVault._generation; try {
     var keyMap = [
-      ['aio_claude_api_key', 'sidebar-api-key'],  // v47.7: Claude 키 포함
       ['aio_av_key', 'aio_av_key_input'],
       ['aio_finnhub_key', 'aio_finnhub_key_input'],
       ['aio_fred_key', 'aio_fred_key_input'],

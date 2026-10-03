@@ -18,10 +18,12 @@ for (const [name, toml] of [['proxy', proxyToml], ['data-plane', dataToml]]) {
   check(`${name} declares a bounded sampling rate`, /head_sampling_rate\s*=\s*(?:0(?:\.\d+)?|1(?:\.0+)?)/.test(toml));
 }
 check('proxy health exposes its deployment revision', /AIO_APP_REVISION/.test(proxyToml) && /env\.AIO_APP_REVISION/.test(worker));
-check('P1312/R658/QA-OPS-02 private Anthropic usage route and Durable Object query are explicit without changing public health requirements',
+check('P1312/R658/QA-OPS-02 private AI usage route and Durable Object query are explicit without changing public health requirements',
   workerEndpoints.proxy?.operatorAiUsagePath === '/_ops/ai-usage'
   && workerEndpoints.security?.operatorObservationRequires?.includes('AIO_OPERATOR_TOKEN')
-  && workerEndpoints.security?.proxyQuotaContract?.operations?.join('|') === 'reserve|release|usage'
+  && workerEndpoints.security?.proxyQuotaContract?.operations?.join('|') === 'reserve|release|usage|start|settle'
+  && /operation === 'settle'/.test(worker)
+  && /operation === 'start'/.test(worker)
   && /handleOperatorAiUsage/.test(worker)
   && /AIO_OPERATOR_TOKEN/.test(worker)
   && /operation === 'usage'/.test(worker));

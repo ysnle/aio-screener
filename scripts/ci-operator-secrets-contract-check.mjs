@@ -95,7 +95,7 @@ for (const file of WORKER_DEPLOY_WORKFLOWS) {
     && /exact-SHA/i.test(runbook));
 }
 const proxyWorkflow = readFileSync(join(WORKFLOW_DIR, 'deploy-ai-proxy.yml'), 'utf8');
-check('P1308/R653 AI-proxy repository API secret publication stays explicit-dispatch only', /Publish Anthropic and server-side relay secrets[\s\S]*?github\.event_name == 'workflow_dispatch'/.test(proxyWorkflow));
+check('P1308/R653 AI-proxy repository API secret publication stays explicit-dispatch only', /Publish OpenAI, automation, and server-side relay secrets[\s\S]*?github\.event_name == 'workflow_dispatch'/.test(proxyWorkflow));
 
 if (existsSync(CATALOG)) {
   const catalog = JSON.parse(readFileSync(CATALOG, 'utf8'));

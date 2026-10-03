@@ -1,0 +1,27 @@
+{
+  "version": "v56.99",
+  "date": "2026-10-03",
+  "note": "v56.99 — Shared GPT-6 Luna AI with one monthly $10 budget; optional personal data connections use explicit credential ownership, current FMP contracts, weighted quota guards and RSS fallback. Production provisioning and deployment remain operator-owned (P1410/P1411).",
+  "p": {
+    "id": 1411,
+    "title": "Personal data connections preserve provider contracts and credential ownership",
+    "symptom": "The settings hid RSS under operator controls and implied personal keys were universally required or universally covered by shared secrets. RSS preferred conversion despite a shared Worker; FMP used unsupported legacy routes and a mismatched quota key; Twelve Data batching counted HTTP calls instead of weighted credits; FRED substituted the operator key for personal queries.",
+    "root_cause": "Scheduled artifacts, optional browser queries and provider plan/credential rules were conflated. Legacy clients had separate quota paths and FMP response names, and live connection claims were derived from key presence.",
+    "fix": "Keep AI keyless and move RSS to optional personal settings. Prefer shared RSS then conversion fallback, omit key-required count for keyless requests. Translate documented FMP legacy caller contracts to stable, preserve ticker/reporting period, normalize explicit field renames, count every dispatch and reject provider error bodies; never guess missing ownership/transcript dates. Reserve Twelve Data indicator credits, stop quota/auth retry storms. FRED queries require a personal key and shared relay opt-in, use a private no-store header route without redirects, and never borrow an operator key. Tag NewsData plan-dependent free delay and document Actions/Worker/personal key roles.",
+    "violated_rule": "R627 credential isolation and provider-specific relay boundaries; R681 shared AI credential and budget scope; provider contract verification must use current official evidence.",
+    "prevention": "ci-extension-api-runtime-check executes current callers with mocked upstreams; ci-worker-relay-check verifies credential refusal, CORS, private cache and redaction. The QA manifest selects these gates for affected clients/Worker surfaces.",
+    "verification": "Deterministic runtime fixtures and local browser checks are recorded separately from real provider access, redistribution permissions and deployed behavior. No provider key value was read, no producer was run locally and no deployment was performed."
+  },
+  "r": {
+    "id": 682,
+    "title": "Distinguish operator artifacts from optional personal provider queries",
+    "rule": "A registered operator secret does not configure a browser user's optional provider account. FRED user queries require that user's own key; forwarding through the trusted AIO relay requires explicit opt-in and no log/cache/persistence/redirect. BOK/KOSIS operator relay keys remain isolated. This personal-header exception supersedes the env-only FRED assumption in R627/P1151 while preserving fixed destinations and redaction. Current provider endpoint and response contracts must preserve identity, units and reporting periods; unprovided dates and unavailable plan data are held. HTTP batching is not a weighted-credit discount, and local browser counters cannot certify account-wide quota or billing. Settings expose only active optional inputs and clearly distinguish keyless common artifacts and AI from personal queries.",
+    "validation": "P1411; ci-extension-api-runtime-check, ci-worker-relay-check, ci-operator-secrets-contract-check and local settings browser evidence. Live provider and data licensing checks remain distinct."
+  },
+  "qa": [
+    { "id": "QA-PROVIDER-OWNERSHIP-01", "text": "P1411: personal settings, FMP stable/response/quota, weighted Twelve Data, RSS priority/fallback and consented personal FRED relay execute correctly in deterministic fixtures.", "verify_by": "ci-extension-api-runtime-check + ci-worker-relay-check + settings browser", "done": true },
+    { "id": "QA-PROVIDER-LIVE-01", "text": "P1411: verify each actual personal/free account's dataset access, quota headers, timestamps and series/data display rights after explicit CI-attested deployment; fixtures do not establish this.", "verify_by": "operator provider dashboard and deployed live route evidence", "done": false }
+  ],
+  "qa_section": "Personal provider contracts and credentials",
+  "changelog": ["**개인 데이터 연결 정합성 (P1411/R682):** 공용 AI 키 입력 제거 유지, RSS 입력 복원 및 공용 경로 우선, FMP 현행 API·모든 호출 한도 통일, Twelve Data 지표별 credit 반영, FRED 본인 키·동의 중계와 NewsData 지연 안내. 실제 무료 계정 접근권·라이브 품질은 별도 검증."]
+}

@@ -2096,20 +2096,9 @@ const API_KEY_CONFIG = [
 ];
 
 // ── 유틸리티: 타임아웃 fetch ──────────────────────────────────
+// P1423: transport and provider contracts belong to the native module.
 function fetchWithTimeout(url, opts = {}, ms = 8000) {
-  opts = opts || {};
-  const ctrl = new AbortController();
-  const externalSignal = opts.signal;
-  const relayAbort = () => { try { ctrl.abort(); } catch(_) {} };
-  if (externalSignal) {
-    if (externalSignal.aborted) relayAbort();
-    else if (typeof externalSignal.addEventListener === 'function') externalSignal.addEventListener('abort', relayAbort, { once: true });
-  }
-  const timer = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => {
-    clearTimeout(timer);
-    if (externalSignal && typeof externalSignal.removeEventListener === 'function') externalSignal.removeEventListener('abort', relayAbort);
-  });
+  return window._aioPersonalProviderTransport.fetchWithTimeout(url, opts, ms);
 }
 
 // ── v30.11 Task 11: CORS 프록시 레지스트리 (단일 진실 원천) ──────────────────
@@ -2147,9 +2136,16 @@ const _aioRelayUrl = (provider, params) => {
 
 // The relay destination is the AIO Worker itself, never a third-party relay, so a
 // direct fetch with the shared app token is the correct transport.
-function _aioRelayFetch(url, timeoutMs) {
+function _aioSetFredRelayConsent(el) {
+  try { localStorage.setItem('aio_fred_relay_consent', el && el.checked ? 'true' : 'false'); } catch (_) {}
+}
+function _aioFredRelayConsent() {
+  try { return localStorage.getItem('aio_fred_relay_consent') === 'true'; } catch (_) { return false; }
+}
+function _aioRelayFetch(url, timeoutMs, personalKey) {
   const headers = {};
   try { if (typeof _aioAppToken === 'function') headers['X-AIO-App-Token'] = _aioAppToken(); } catch (_) {}
+  if (personalKey) headers['X-AIO-Provider-Key'] = personalKey;
   return fetchWithTimeout(url, { headers }, timeoutMs || 8000);
 }
 
@@ -2604,9 +2600,9 @@ function initFinnhubWebSocket() {
 
 // ═══ 2. Twelve Data — 기술적 지표 & 차트 데이터 ═══════════════
 // v47.11: 6 sequential → 1 POST /complex_data 일괄 요청으로 교체
-// 기존: 15분마다 6회 × 24h = 576/day (무료 800/day 72% 소모)
-// 변경: 15분마다 1회 × 24h = 96/day (83% 쿼터 확보, 레이턴시 6배 단축)
+// P1422: batching reduces HTTP overhead, not weighted provider credits.
 // 폴백: complex_data 응답 파싱 실패 시 개별 순차 호출로 복귀 (계정 플랜 미지원 대비)
+function _aioReserveTwelveCredits(weight) { return window._aioPersonalProviderTransport.reserveTwelveCredits(weight); }
 async function fetchTechnicalIndicators(symbol = 'SPY') {
   const key = DATA_APIS.twelveData.key();
   if (!key) return null;
@@ -2621,14 +2617,16 @@ async function fetchTechnicalIndicators(symbol = 'SPY') {
       methods: indicators.map(function(n){ return { name: n }; })
     };
     const url = `${DATA_APIS.twelveData.base}/complex_data?apikey=${key}`;
+    if (!_aioReserveTwelveCredits(indicators.length)) return null;
     const r = await fetchWithTimeout(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     }, 10000);
+    if (r.status === 429 || r.status === 401 || r.status === 403) return null;
     if (r.ok) {
-      if (typeof _bumpApiCounter === 'function') _bumpApiCounter('twelveData');
       const json = await r.json();
+      if (json && (json.code === 429 || json.code === 401 || json.code === 403)) return null;
       if (json && Array.isArray(json.data) && json.data.length > 0) {
         const entry = json.data[0];
         const results = {};
@@ -2644,8 +2642,10 @@ async function fetchTechnicalIndicators(symbol = 'SPY') {
   try {
     const results = {};
     for (const ind of indicators) {
+      if (!_aioReserveTwelveCredits(1)) break;
       const url2 = `${DATA_APIS.twelveData.base}/${ind}?symbol=${symbol}&interval=1day&apikey=${key}`;
       const r2 = await fetchWithTimeout(url2, {}, 6000);
+      if (r2.status === 429 || r2.status === 401 || r2.status === 403) break;
       if (r2.ok) results[ind] = await r2.json();
       await new Promise(ok => setTimeout(ok, 200));
     }
@@ -2666,11 +2666,11 @@ async function fetchOHLCV(symbol, interval, bars) {
   var key = DATA_APIS.twelveData.key();
   if (!key) return null;
   if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('twelveData')) return null;
+  if (!_aioReserveTwelveCredits(1)) return null;
   try {
     var url = DATA_APIS.twelveData.base + '/time_series?symbol=' + encodeURIComponent(symbol) +
               '&interval=' + interval + '&outputsize=' + bars + '&apikey=' + key;
     var r = await fetchWithTimeout(url, {}, 12000);
-    if (typeof _bumpApiCounter === 'function') _bumpApiCounter('twelveData');
     if (typeof window._markFetch === 'function') window._markFetch('twelveData');
     if (!r.ok) return null;
     var json = await r.json();
@@ -2893,6 +2893,9 @@ async function fetchNaverUSData(sym, includeFinance) {
 // ═══ 5. FRED — 매크로 경제 지표 실시간 ═══════════════════════
 async function fetchFredSeries(seriesId, limit = 30) {
   const key = DATA_APIS.fred.key();
+  // P1422: FRED requires an application's users to supply their own keys.
+  // Scheduled operator artifacts remain separate from a personal live query.
+  if (!key) return null;
   const url = key ? `${DATA_APIS.fred.base}?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}` : '';
 
   // v31.5: JSON 응답에서 observations 추출 (allorigins 래핑 자동 해제)
@@ -2915,17 +2918,16 @@ async function fetchFredSeries(seriesId, limit = 30) {
     } catch(e) { /* CF Worker failed — try the shared relay */ }
   }
 
-  // 2차: Worker 릴레이 — 운영자 키로 조회하므로 사용자 개인 키가 없어도 동작한다.
-  //   v56 이전에는 이 경로가 없어서 FRED가 개인 Worker 없이는 항상 죽어 있었다.
+  // P1422: trusted AIO relay forwards this user's key in a header; no URL/log/cache copy.
   const relayUrl = _aioRelayUrl('fred', { series_id: seriesId, sort_order: 'desc', limit: limit });
-  if (relayUrl) {
+  if (relayUrl && _aioFredRelayConsent()) {
     try {
-      const r = await _aioRelayFetch(relayUrl, 8000);
+      const r = await _aioRelayFetch(relayUrl, 8000, key);
       if (r.ok) {
         const obs = _extractObs(await r.json());
         if (obs.length) {
           if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
-            window.AIO.updateProviderStatus('aio_fred_key', { authentication:'CONFIGURED', connection:'VERIFIED', lastSuccessAt: Date.now(), lastError: null });
+            window.AIO.updateProviderStatus('aio_fred_key', { authentication:'VERIFIED', connection:'VERIFIED', lastSuccessAt: Date.now(), lastError: null });
           }
           return obs;
         }
@@ -3657,7 +3659,8 @@ async function fetchNewsDataIO(category = 'business') {
         tier: 1,
         flag: '',
         topics: ['macro', 'equity'],
-        _api: 'newsdata'
+        _api: 'newsdata',
+        sourceKind: 'personal-provider', operationalUse: 'reference-only', providerDelayPolicy: 'plan-dependent-free-12h'
       })).filter(i => i.title.length > 10);
     }
   } catch(e) { _aioLog('warn', 'fetch', 'NewsData.io error: ' + (e.message || String(e))); }
@@ -6591,7 +6594,7 @@ function _aioRenderPipelineStatus() {
       msgs.push({ icon: '⚠️', text: '시장 스냅샷 미발행', detail: '최근 refresh 시도는 완전한 시장 cycle로 발행되지 않았습니다. 현재 시세는 마지막 성공본 참고자료입니다.', color: '#ef4444' });
     }
     if (meta.marketAnalysisOk === false) {
-      msgs.push({ icon: '🤖', text: 'AI 시장 분석 비활성', detail: 'GitHub Secrets → ANTHROPIC_API_KEY 등록 시 자동 활성화', color: '#f59e0b' });
+      msgs.push({ icon: '🤖', text: 'AI 시장 분석 비활성', detail: '운영자의 공용 AI 연결 설정 후 자동 분석을 사용할 수 있습니다.', color: '#f59e0b' });
     }
     if (meta.fmpHasKey && meta.fmpOk === false && (meta.fundamentalCoveragePct == null || Number(meta.fundamentalCoveragePct) < 80)) {
       var coverageValue = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
@@ -9817,7 +9820,7 @@ function setNewsSortMode(mode, el) {
 /* ══════════════════════════════════════════════════════════════════
    v21: 자동 한국어 번역 시스템
    - 뉴스 fetch 완료 후 자동으로 영어 뉴스를 한국어로 번역
-   - Claude Haiku 4.5 API 사용 (뉴스/번역 배치 전용)
+   - 공유 GPT-6 Luna API 사용 (뉴스/번역 배치 전용)
    - 한국어 뉴스는 번역 스킵
    - 번역 결과 캐시하여 중복 번역 방지
    ══════════════════════════════════════════════════════════════════ */
@@ -10532,7 +10535,7 @@ async function freeTranslateNews(items) {
   var statusMsg = '✓ ' + translated + '건 번역 완료 (무료)';
   if (failed > 0) statusMsg += ' · <span style="color:#f87171;">' + failed + '건 번역 실패</span>';
   statusMsg += ' · ';
-  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" style="display:inline-flex;align-items:center;min-height:28px;padding:2px 6px;background:none;border:0;font:inherit;cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">Claude 키 입력 시 AI 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
+  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" style="display:inline-flex;align-items:center;min-height:28px;padding:2px 6px;background:none;border:0;font:inherit;cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">공용 AI 연결 시 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
   if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(failed > 0 ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
   // P4 수정: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
@@ -10547,15 +10550,13 @@ async function autoTranslateNews(items) {
     _aioQueueDeferredNewsTranslation(items);
     return;
   }
-  const apiKey = getApiKey();
-  // v50.53 2C: 서버 키 모드(CF Worker) 지원 — 개인 키 없어도 Worker 경유. 둘 다 없으면 무료 번역.
-  const _ct = (typeof _aioClaudeTarget === 'function') ? _aioClaudeTarget(apiKey) : { url: 'https://api.anthropic.com/v1/messages', serverKey: false };
-  if (!apiKey && !_ct.serverKey) {
-    console.log('[AIO v29] Claude API 키 미설정 → Google Translate 무료 번역 실행');
+  const route = typeof _aioEnsureClaudeRoute === 'function' ? await _aioEnsureClaudeRoute('') : { ok: false };
+  const _ct = route.target;
+  if (!route.ok || !_ct || !_ct.serverKey) {
     await freeTranslateNews(items);
     return;
   }
-  if (_translationInProgress) return;
+  if (_translationInProgress) { _aioQueueDeferredNewsTranslation(items); return; }
   _translationInProgress = true;
 
   const statusEl = document.getElementById('translate-status');
@@ -10627,14 +10628,16 @@ async function autoTranslateNews(items) {
         ? _aioCreateAIRequestObject('auto-translation', { ctxId: 'news-translation', query: prompt })
         : null;
       if (!_translationRequest || typeof _aioRunAIResponsePipeline !== 'function') throw new Error('AI response pipeline unavailable');
-      if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_translationRequest, 'claude-haiku-4-5-20251001');
+      if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_translationRequest, 'gpt-6-luna');
       const resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
         method: 'POST',
-        headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? { 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : '') } : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
+        signal: AbortSignal.timeout(45000),
+        headers: { 'Content-Type': 'application/json', 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : ''), 'X-AIO-Idempotency-Key': _translationRequest.requestId },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 4000,
-          messages: [{
+          model: 'gpt-6-luna',
+          max_output_tokens: Math.min(4000, Number(route.health?.ai?.maxTokens) || 4000),
+          reasoning: { effort: 'none' }, store: false, stream: false,
+          input: [{
             role: 'user',
             content: `다음 영어 금융/시장 뉴스를 한국어로 번역하고, 한국 투자자가 바로 읽을 수 있는 브리핑 문장으로 재작성하세요.
 
@@ -10661,7 +10664,9 @@ ${prompt}`
 
       if (resp.ok) {
         const data = await resp.json();
-        const text = data.content?.[0]?.text || '';
+        if (data.status !== 'completed') throw new Error('AI translation incomplete');
+        const text = (data.output || []).flatMap(item => item.content || []).filter(item => item.type === 'output_text').map(item => item.text || '').join('');
+        if (typeof window._aioTrackApiUsage === 'function' && data.usage) window._aioTrackApiUsage({ model: 'gpt-6-luna', inputTokens: data.usage.input_tokens, outputTokens: data.usage.output_tokens });
         const _translationResult = _aioRunAIResponsePipeline(text, {
           request: _translationRequest,
           entrypoint: 'auto-translation',
@@ -10732,6 +10737,7 @@ ${prompt}`
 
   _translationInProgress = false;
   console.log(`[AIO v30.12] 번역+해석 완료: ${translated}건`);
+  _aioReleaseDeferredNewsTranslation(); // P1423: process items queued during an active batch.
   if (statusEl) statusEl.textContent = `✓ ${_translationCache.size}건 번역·해석 완료`;
   if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(translated < needTranslation.length ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
 
@@ -11905,15 +11911,16 @@ async function fetchOneFeed(source) {
   }
   // v31.5: CF Worker가 있으면 CF Worker XML 파싱 우선 → rss2json은 CF Worker 없을 때만 폴백
   // (rss2json 무료 플랜 429 rate limit 방지)
-  const _hasCfWorker = !!(_getApiKey('aio_cf_worker_url'));
+  const _hasCfWorker = !!_cfWorkerUrl();
 
   // CF Worker 없을 때만 rss2json 시도 (또는 CF Worker 실패 시 폴백)
   // v48.9: 공유 키 쿼터 사전 체크 (10000/day 도달 시 스킵)
-  if (!_hasCfWorker && _rss2jsonFailed < 2 && !(typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('rss2json'))) {
+  async function rss2jsonFallback() {
+  if (_rss2jsonFailed < 2 && !(typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('rss2json'))) {
     try {
       const apiKey = _getApiKey('aio_rss2json_key') || '';
-      const keyParam = apiKey ? '&api_key=' + apiKey : '';
-      const r2jUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(source.url) + '&count=12' + keyParam;
+      const keyParam = apiKey ? '&api_key=' + encodeURIComponent(apiKey) + '&count=12' : '';
+      const r2jUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(source.url) + keyParam;
       const r = await fetchWithTimeout(r2jUrl, {}, 5000);
       if (r.ok) {
         if (typeof _bumpApiCounter === 'function') _bumpApiCounter('rss2json');
@@ -11935,6 +11942,12 @@ async function fetchOneFeed(source) {
       }
       _rss2jsonFailed++;
     } catch(e) { _rss2jsonFailed++; }
+  }
+  return null;
+  }
+  if (!_hasCfWorker) {
+    const rssItems = await rss2jsonFallback();
+    if (rssItems && rssItems.length) return rssItems;
   }
 
   // CORS 프록시 폴백 (XML 파싱) — v31.5: CF Worker 우선
@@ -11967,9 +11980,12 @@ async function fetchOneFeed(source) {
     const raw = await fetchViaProxy(source.url, { parseText:true, timeout:4000, totalTimeout:10000,
       accept: function(body) { return parseXml(body).length > 0; } });
     const items = parseXml(raw);
-    _rssMarkOk(source.name);
-    return items;
+    if (items.length) { _rssMarkOk(source.name); return items; }
   } catch (_) {}
+  if (_hasCfWorker) {
+    const rssItems = await rss2jsonFallback();
+    if (rssItems && rssItems.length) return rssItems;
+  }
   _rssMarkFail(source.name); // v30.12 P4: 모든 프록시 실패
   if (window.NewsStore) NewsStore.reportDeadFeed(source.url, 'all-proxies-failed');
   return [];

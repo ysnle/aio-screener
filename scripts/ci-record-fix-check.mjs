@@ -167,7 +167,11 @@ try {
     const beforeFront = frontOf(before[rel] && readFileSync(join(repo, rel), 'utf8'));
     return stripLv(frontOf(text)) === stripLv(beforeFront) && (!/^last_verified:/m.test(beforeFront) || /^last_verified: (2026-10-01|20\d\d-\d\d-\d\d)$/m.test(frontOf(text)));
   }));
-  check('last_verified is bumped to the entry date in RULES and QA-CHECKLIST when present (QA-OPS-REC-09)', /^last_verified: 2026-10-01$/m.test(frontOf(rules)) && /^last_verified: 2026-10-01$/m.test(frontOf(qa)));
+  check('P1421/QA-OPS-REC-09 last_verified advances to the entry date without rewinding later verification', [[FILES[1], rules], [FILES[2], qa]].every(([rel, text]) => {
+    const prior = /^last_verified:\s*(\d{4}-\d{2}-\d{2})$/m.exec(frontOf(lf(readFileSync(join(repo, rel), 'utf8'))))?.[1];
+    const expected = prior && prior > '2026-10-01' ? prior : '2026-10-01';
+    return /^last_verified:\s*(\d{4}-\d{2}-\d{2})$/m.exec(frontOf(lf(text)))?.[1] === expected;
+  }));
   check('no .tmp files are left behind (QA-OPS-REC-10)', (() => {
     const leftovers = [];
     const walk = (d) => { for (const e of readdirSync(d, { withFileTypes: true })) { if (e.isDirectory()) walk(join(d, e.name)); else if (e.name.endsWith('.tmp')) leftovers.push(e.name); } };

@@ -39,7 +39,11 @@ export function getWorkerDeploymentInputs() {
       ...[...collectStaticModuleGraph('worker/data-plane.js')].map(toRepoPath),
       'worker/wrangler.example.toml'
     ].sort(),
-    aiProxy: ['cloudflare-worker-proxy.js', 'worker/wrangler.proxy.toml'].sort()
+    // P1421: pricing/receipt modules are deployable Worker code too.
+    aiProxy: [
+      ...[...collectStaticModuleGraph('cloudflare-worker-proxy.js')].map(toRepoPath),
+      'worker/wrangler.proxy.toml'
+    ].sort()
   };
 }
 

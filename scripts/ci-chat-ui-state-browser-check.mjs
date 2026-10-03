@@ -17,7 +17,7 @@ try {
   await page.setContent('<div id="chat-home-msgs"></div><div><button id="chat-home-btn">전송</button></div>');
   await page.addScriptTag({ content:
     section('const chatState = {};', '// ── Text processing helpers') + '\n' +
-    section('function chatAppendMsg(', '// ── Claude API streaming')
+    section('function chatAppendMsg(', '// Responses streaming uses the published shared Worker route and budget.')
   });
   await page.evaluate(() => {
     const state = getChatState('home');

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.05 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.06 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.05" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.05" defer></script>
-<script src="./js/aio-kr-data.js?v=57.05" defer></script>
-<script src="./js/aio-pages.js?v=57.05" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.05">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.05">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.05">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.05">
+<script src="./js/aio-workspace.js?v=57.06" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.06" defer></script>
+<script src="./js/aio-kr-data.js?v=57.06" defer></script>
+<script src="./js/aio-pages.js?v=57.06" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.06">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.06">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.06">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.06">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -5758,23 +5758,15 @@ button[data-filter-active="true"] {
             </div>
           </div>
 
-          <!-- API 키 입력 -->
-          <div class="llm-key-row">
-            <input type="password" id="sidebar-api-key" class="llm-key-input"
-              placeholder="sk-ant-api03-…"
-              title="Anthropic Claude API 키 입력 후 저장">
-            <button class="llm-key-save" data-action="saveSidebarApiKey">저장</button>
-          </div>
-          <div style="font-size:11px;color:var(--yellow);line-height:1.4;padding:2px 0;">개인 PC에서만 저장하세요. 키는 브라우저에 저장되며 요청 시 선택한 공급자 또는 명시된 Worker로 전송됩니다.</div>
-          <div id="claude-key-status" role="status" aria-live="polite" style="font-size:10px;color:var(--text-muted);line-height:1.4;padding:1px 0;"></div>
+          <div class="llm-key-row" style="font-size:11px;color:var(--text-muted);line-height:1.5;">GPT-6 Luna · 공용 AI 연결<br>개인 AI 키 입력 없이 이용합니다.</div>
 
           <!-- 모델 선택 + 할당량 패널 -->
           <div class="llm-quota-panel aio-operator-control">
-            <!-- v31.3: 적응형 모델 — 기본 Haiku, 복잡도에 따라 Sonnet/Thinking 자동 승격 -->
+            <!-- P1421: One shared GPT-6 Luna provider for all AI tasks. -->
             <div class="llm-quota-row" style="margin-bottom:5px;">
               <span class="llm-quota-lbl">채팅 AI</span>
               <span style="font-size:10px;color:var(--text-primary);font-weight:600;">적응형</span>
-              <span id="llm-model-label" style="font-size:11px;color:var(--text-muted);margin-left:4px;">기본 Haiku · 심층 Sonnet · 번역 Haiku</span>
+              <span id="llm-model-label" style="font-size:11px;color:var(--text-muted);margin-left:4px;">채팅·심층·번역 GPT-6 Luna</span>
             </div>
             <div class="llm-quota-row">
               <span class="llm-quota-lbl">일일 가능</span>
@@ -5788,14 +5780,7 @@ button[data-filter-active="true"] {
               <div id="llm-prog-fill" class="llm-prog-fill" style="width:0%"></div>
             </div>
             <div id="llm-daily-cost" style="font-size:11px;color:var(--text-muted);margin-top:3px;"></div>
-            <div class="llm-budget-note">전체 운영 목표 $10/월 · 상한 $20/월 · AI 예산 최대 $10/월<br>일일 호출 수와 월 비용은 별도입니다. 개인 키·자동 수집 비용은 공급자 청구 내역에서 함께 확인하세요.</div>
-          <div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);">
-            <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:3px;">RSS2JSON KEY <span style="color:var(--data-cyan);">(뉴스 한도 해제)</span></div>
-            <div class="llm-key-row">
-              <input type="password" id="rss2json-api-key" class="llm-key-input" placeholder="rss2json.com API Key" title="rss2json.com 무료 가입 → API Key 입력 시 뉴스 갱신 한도 1000→10000">
-              <button class="llm-key-save" data-action="saveRss2jsonKey">저장</button>
-            </div>
-          </div>
+            <div class="llm-budget-note">전체 운영 목표 $10/월 · 상한 $20/월 · AI 예산 최대 $10/월<br>일일 호출 수와 월 비용은 별도입니다. 채팅·번역·자동 분석은 공용 AI 월 한도를 함께 사용합니다.</div>
           </div>
 
           <!-- Optional personal connections stay out of the primary research path. -->
@@ -5831,10 +5816,14 @@ button[data-filter-active="true"] {
             </div>
 
             <div style="font-size:11px;color:var(--data-cyan);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
-               확장 API 키 설정 <span class="arrow">▼</span>
+               개인 데이터 연결 (선택) <span class="arrow">▼</span>
             </div>
             <div style="display:none;">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">선택 API입니다. FRED·BOK ECOS·KOSIS는 공유 Worker가 운영자 키로 대신 조회하므로 입력 없이 동작하고, 나머지는 키가 없으면 무료/캐시 데이터로 표시합니다.</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">AI와 공용 수집 자료는 개인 키 없이 이용합니다. 아래 키는 본인 계정으로 추가 조회할 때만 입력하세요. 연결 가능한 데이터와 한도는 각 제공자의 요금제에 따라 다릅니다.</div>
+              <div class="llm-key-row" style="margin-bottom:3px;">
+                <input type="password" id="rss2json-api-key" class="llm-key-input" placeholder="rss2json (RSS 변환 · 선택)" title="본인 rss2json 키 · 공용 RSS 연결을 우선 사용하며, 요청 한도는 본인 요금제를 따릅니다.">
+                <button class="llm-key-save" data-action="saveRss2jsonKey">저장</button>
+              </div>
               <div id="provider-status-summary" role="status" aria-live="polite" style="font-size:10px;color:var(--text-muted);line-height:1.4;margin-bottom:4px;">저장 0개 · 실제 호출 성공 0개 · 최신성/사용 권한과 분리됨</div>
               <button data-action="_aioRefreshProviderStatuses" style="width:100%;margin-bottom:5px;background:rgba(33,29,22,0.12);border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:3px 6px;border-radius:3px;cursor:pointer;">공급자 상태 새로고침</button>
               <div class="llm-key-row" style="margin-bottom:3px;">
@@ -5846,19 +5835,21 @@ button[data-filter-active="true"] {
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_finnhub_key" data-arg2="aio_finnhub_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_fred_key_input" class="llm-key-input" placeholder="FRED (매크로 지표)" title="fred.stlouisfed.org 무료 키" style="font-size:11px;">
+                <input type="password" id="aio_fred_key_input" class="llm-key-input" placeholder="FRED (개인 조회 · 선택)" title="FRED는 사용자별 본인 키를 요구합니다. 공용 수집 자료 열람에는 입력하지 않아도 됩니다." style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_fred_key" data-arg2="aio_fred_key_input" data-pass-el="1">저장</button>
               </div>
+              <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:5px;"><input type="checkbox" id="aio-fred-relay-consent" data-on-change="_aioSetFredRelayConsent" aria-label="공용 연결로 내 FRED 키 조회 허용"> 이 앱의 공용 연결로 내 FRED 키 조회 허용</label>
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">허용하면 조회할 때만 키를 앱 서버에 전송합니다. 서버에 저장하지 않습니다. 허용하지 않으면 본인 프록시 또는 직접 연결을 사용합니다.</div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_td_key_input" class="llm-key-input" placeholder="Twelve Data (차트/지표)" title="twelvedata.com 무료 키" style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_td_key" data-arg2="aio_td_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_fmp_key_input" class="llm-key-input" placeholder="FMP (재무제표 · 무료 250/일)" title="financialmodelingprep.com 무료 티어 250 req/day — 공유 키일 경우 4명 사용자 분산 소진 주의. v48.8 세션 캐시 30분으로 보호" style="font-size:11px;">
+                <input type="password" id="aio_fmp_key_input" class="llm-key-input" placeholder="FMP (재무 자료 · 선택)" title="본인 FMP 키 · 현행 API를 사용합니다. 무료 요금제에서 허용되는 자료만 조회되며 모든 재무 자료를 제공하지는 않습니다." style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_fmp_key" data-arg2="aio_fmp_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_newsdata_key_input" class="llm-key-input" placeholder="NewsData.io (뉴스 API)" title="newsdata.io 무료 가입 → API 키" style="font-size:11px;">
+                <input type="password" id="aio_newsdata_key_input" class="llm-key-input" placeholder="NewsData.io (뉴스 · 선택)" title="본인 NewsData 키 · 무료 요금제는 뉴스가 12시간 지연됩니다." style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_newsdata_key" data-arg2="aio_newsdata_key_input" data-pass-el="1">저장</button>
               </div>
               <!-- v48.59: BOK ECOS + KOSIS 한국 공공 API 무료 키 -->
@@ -5870,11 +5861,7 @@ button[data-filter-active="true"] {
                 <input type="password" id="aio_kosis_key_input" class="llm-key-input" placeholder="KOSIS (통계청 CPI/GDP)" title="kosis.kr/openapi 무료 가입 → Open API Key" style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_kosis_key" data-arg2="aio_kosis_key_input" data-pass-el="1">저장</button>
               </div>
-              <!-- 웹 검색 제공자(선택). 기본은 Claude 네이티브 web_search이고, 여기에 키가 있으면 그 제공자가 우선한다. -->
-              <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_perplexity_key_input" class="llm-key-input" placeholder="Perplexity (선택 · 웹 검색)" title="perplexity.ai Pro 구독 후 발급 (pplx-…) · 미설정 시 Claude 네이티브 웹 검색을 사용" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_perplexity_key" data-arg2="aio_perplexity_key_input" data-pass-el="1">저장</button>
-              </div>
+              <!-- 웹 검색 제공자(선택). 개인 Google CSE 키로 외부 검색을 사용할 수 있다. -->
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_google_cse_key_input" class="llm-key-input" placeholder="Google CSE API 키 (선택)" title="console.cloud.google.com → Custom Search JSON API 키" style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_google_cse_key" data-arg2="aio_google_cse_key_input" data-pass-el="1">저장</button>
@@ -5886,13 +5873,6 @@ button[data-filter-active="true"] {
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_cf_worker_input" class="llm-key-input" placeholder="CF Worker URL (자체 프록시)" title="Cloudflare Worker 프록시 URL — 설정 시 모든 데이터 수집이 공용 CORS 프록시 대신 자체 Worker를 최우선(Tier-0) 사용해 가용성·무결성이 개선됩니다. 저장 즉시 적용." style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_cf_worker_url" data-arg2="aio_cf_worker_input" data-pass-el="1">저장</button>
-              </div>
-              <div style="margin-top:2px;font-size:10px;line-height:1.4;">
-                <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:var(--text-muted);">
-                  <input type="checkbox" id="aio-claude-server-mode-toggle" aria-label="개인 Worker 서버 키 모드" data-on-change="_aioClaudeServerModeToggle" style="cursor:pointer;">
-                  <span>개인 Worker 서버 키 모드 (개인 Claude 키보다 Worker 키 우선)</span>
-                </label>
-                <span id="aio-claude-server-mode-hint" style="color:var(--data-amber);margin-left:16px;"></span>
               </div>
               <div style="font-size:11px;color:var(--accent);margin-top:3px;line-height:1.5;">키 발급 링크는 사용 설명서에서 확인하세요.</div>
             </div>
@@ -5939,9 +5919,9 @@ button[data-filter-active="true"] {
             </div>
             <!-- v49.58 P322 R108: web_search 토글 GUI -->
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(33,29,22,0.15);display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:11px;color:var(--text-muted);" title="공유 AI에서는 월 예산 보호를 위해 차단합니다. 개인 키는 별도 공급자 예산을 확인하세요.">Claude 유료 웹 검색 · 개인 키</span>
+              <span style="font-size:11px;color:var(--text-muted);" title="Google CSE 연결이 있을 때 외부 검색을 사용합니다. 공용 AI의 유료 검색은 사용하지 않습니다.">외부 검색 · 선택 연결</span>
               <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;">
-                <input type="checkbox" id="aio-web-search-toggle" aria-label="Claude 웹 검색 사용" data-on-change="_aioWebSearchToggle" checked style="cursor:pointer;">
+                <input type="checkbox" id="aio-web-search-toggle" aria-label="외부 검색 사용" data-on-change="_aioWebSearchToggle" checked style="cursor:pointer;">
                 <span id="aio-web-search-status" style="color:var(--data-green);font-size:10px;">ON</span>
               </label>
             </div>
@@ -6025,7 +6005,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.05</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.06</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9110,7 +9090,7 @@ button[data-filter-active="true"] {
     <div class="aio-chat" id="chat-theme-detail" style="margin-top:16px;">
       <div class="acp-header">
         <span class="acp-title">Theme Deep Dive</span>
-        <span style="margin-left:auto;font-size:11px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
+        <span style="margin-left:auto;font-size:11px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">GPT-6 Luna</span>
         <button class="acp-expand-btn" data-action="toggleChatExpand" data-arg="theme-detail" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" data-action="chatClear" data-arg="theme-detail" title="대화 초기화" aria-label="대화 초기화">지움</button>
       </div>
       <div class="acp-messages" id="chat-theme-detail-msgs"></div>
@@ -10571,7 +10551,7 @@ button[data-filter-active="true"] {
       <div class="widget-title">데이터 연결 설정</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
         <div style="background:rgba(34,117,76,0.08);border:1px solid rgba(34,117,76,0.2);border-radius:4px;padding:10px;margin-bottom:10px;">
-          기본 화면은 별도 설정 없이 사용할 수 있습니다. 더 빠른 시세, AI 답변, 웹검색이 필요할 때만 아래 항목을 추가하세요.
+          AI·번역과 공용 수집 자료는 개인 키 없이 이용합니다. 본인 데이터 계정으로 추가 조회하거나 선택 웹검색을 사용할 때만 아래 연결을 설정하세요.
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:10px;">
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
@@ -10580,15 +10560,15 @@ button[data-filter-active="true"] {
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:800;color:var(--data-purple);margin-bottom:4px;">AI/번역</div>
-            <div style="font-size:11px;color:var(--text-muted);">AI 답변 · 선택 기능</div>
+            <div style="font-size:11px;color:var(--text-muted);">GPT-6 Luna · 공용 연결 · 개인 키 불필요</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:800;color:var(--data-amber);margin-bottom:4px;">뉴스/웹검색</div>
-            <div style="font-size:11px;color:var(--text-muted);">RSS2JSON · Google CSE · Perplexity</div>
+            <div style="font-size:11px;color:var(--text-muted);">rss2json · NewsData · Google CSE (선택)</div>
           </div>
         </div>
         <div style="font-size:10px;color:var(--text-muted);background:var(--surface-2);padding:8px;border-radius:4px;">
-          키는 이 브라우저에만 저장됩니다. 공용 PC에서는 사용 후 삭제하세요.
+          개인 키는 이 브라우저에 저장되며 조회 시 해당 제공자 또는 본인 프록시로 전송됩니다. 공용 PC에서는 사용 후 삭제하세요. 공급자별 한도와 제공 지연을 확인하세요.
         </div>
       </div>
     </div>
@@ -11027,11 +11007,11 @@ button[data-filter-active="true"] {
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. AI 채팅이 작동하지 않아요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. AI 답변을 쓰려면 사이드바의 Claude 항목에 키를 저장하세요. 키가 없으면 페이지 데이터와 뉴스는 그대로 볼 수 있습니다.</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. AI 답변은 운영자의 공용 GPT-6 Luna 연결로 제공됩니다. 개인 AI 키를 입력할 필요가 없습니다. 연결이 없어도 페이지 데이터와 뉴스는 볼 수 있습니다.</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 뉴스가 영어로 나와요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. AI 키가 있으면 외신 뉴스 번역을 보강합니다. 키가 없으면 원문 중심으로 표시됩니다.</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 공용 AI 연결과 남은 월 예산이 있으면 외신 뉴스 번역을 보강합니다. 연결이 없거나 한도에 도달하면 원문을 표시합니다.</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 포트폴리오/설정이 사라졌어요</div>
@@ -11258,15 +11238,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.05" defer></script>
-  <script src="./js/aio-data.js?v=57.05" defer></script>
-  <script src="./js/aio-ui.js?v=57.05" defer></script>
+  <script src="./js/aio-core.js?v=57.06" defer></script>
+  <script src="./js/aio-data.js?v=57.06" defer></script>
+  <script src="./js/aio-ui.js?v=57.06" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.05" defer></script>
+<script src="./js/aio-chat.js?v=57.06" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -11324,7 +11304,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.05" defer></script>
+<script src="./js/aio-glossary.js?v=57.06" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

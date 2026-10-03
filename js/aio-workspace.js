@@ -16,104 +16,13 @@
 // AI Chat Engine — callClaude · chatSend · chatClear · chatFromChip
 // ════════════════════════════════════════════════════════════════════════
 
-// ── API key helpers ────────────────────────────────────────────────────
+// AI credentials are server-only. Existing saved secrets are preserved but
+// cannot be read or used by these compatibility helpers.
 const CLAUDE_KEY_LS = 'aio_claude_api_key';
-
-// v29: API 키 유효성 검증 및 sanitize
-function _sanitizeApiKey(raw) {
-  if (!raw) return '';
-  // 비-ASCII 문자 제거 (BOM, zero-width space, 말줄임표 등)
-  return raw.replace(/[^\x20-\x7E]/g, '').trim();
-}
-function _isValidApiKey(key) {
-  // Claude API 키: sk-ant- 접두사, 최소 40자 이상
-  if (!key || key.length < 40) return false;
-  if (!/^sk-ant-/.test(key)) return false;
-  if (/[…·]/.test(key)) return false; // 마스킹된 키 감지
-  return true;
-}
-function getApiKey() {
-  // v47.7: Vault 잠금 해제 시 복호화된 메모리 캐시 우선 (P109 수정)
-  if (typeof _AioVault !== 'undefined' && _AioVault._claudeKeyRuntime && _isValidApiKey(_AioVault._claudeKeyRuntime)) {
-    return _AioVault._claudeKeyRuntime;
-  }
-  const raw = typeof _getApiKey === 'function' ? (_getApiKey(CLAUDE_KEY_LS) || '') : (localStorage.getItem(CLAUDE_KEY_LS) || '');
-  if (!raw && typeof _aioProviderStatusForKey === 'function') {
-    var _claudeState = _aioProviderStatusForKey(CLAUDE_KEY_LS);
-    if (_claudeState.storage === 'LOCKED') _aioLog('warn', 'vault', 'Claude API 키가 Vault에 암호화되어 있음. 사이드바에서 PIN 입력으로 잠금 해제 필요.');
-  }
-  // v47.7: 암호화된 키 감지 — Vault PIN 입력 필요
-  if (raw && raw.startsWith('aio_enc::')) {
-    _aioLog('warn', 'vault', 'Claude API 키가 Vault에 암호화되어 있음. 사이드바에서 PIN 입력으로 잠금 해제 필요.');
-    return '';
-  }
-  const clean = _sanitizeApiKey(raw);
-  // v29: 마스킹/오염된 키 자동 감지 → 경고
-  if (raw && !_isValidApiKey(clean)) {
-    _aioLog('warn', 'vault', '저장된 API 키가 손상됨 (마스킹 버전이 저장됨?). 키를 다시 입력하세요.');
-    return '';
-  }
-  return clean;
-}
-async function setApiKey(key) {
-  try {
-    const clean = _sanitizeApiKey(key);
-    if (!clean) {
-      return typeof _aioSaveCredential === 'function'
-        ? await _aioSaveCredential(CLAUDE_KEY_LS, '')
-        : { ok: false, state: 'KEYSTORE_UNAVAILABLE' };
-    }
-    // v29: 마스킹된 키 저장 방지
-    if (!_isValidApiKey(clean)) {
-      _aioLog('warn', 'vault', '유효하지 않은 API 키 — 저장 거부: ' + clean.slice(0, 15) + '...');
-      return { ok: false, state: 'INVALID_FORMAT' };
-    }
-    return typeof _aioSaveCredential === 'function'
-      ? await _aioSaveCredential(CLAUDE_KEY_LS, clean)
-      : { ok: false, state: 'KEYSTORE_UNAVAILABLE' };
-  } catch(e) {
-    _aioLog('warn', 'vault', 'localStorage 저장 실패 (Safari 개인정보 보호 모드?): ' + (e && e.message || e));
-    return { ok: false, state: 'PERSISTENCE_FAILED', error: e && e.message || e };
-  }
-}
-
-// ── 사이드바 API 키 저장/로드 ──────────────────────────────
-async function saveSidebarApiKey() {
-  const input = document.getElementById('sidebar-api-key');
-  if (!input) return;
-  const key = input.value.trim();
-  // v29: 마스킹된 값이 다시 저장되는 것 방지
-  if (key && !_isValidApiKey(_sanitizeApiKey(key))) {
-    showToast('유효하지 않은 API 키입니다.\nClaude API 키는 sk-ant- 로 시작하는 긴 문자열이어야 합니다.\n다시 입력해주세요.');
-    input.value = '';
-    input.focus();
-    return;
-  }
-  const result = await setApiKey(key);
-  if (!result || !result.ok) {
-    showToast('API 키 저장에 실패했습니다.\n브라우저 저장소 쓰기·재읽기를 확인하지 못했습니다.');
-    return result;
-  }
-  // 저장 피드백
-  const btn = input.nextElementSibling;
-  if (btn) {
-    const orig = btn.textContent;
-    btn.textContent = key ? '저장됨' : '삭제됨';
-    btn.style.color = 'var(--data-green)';
-    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, T.UI_FEEDBACK);
-  }
-  // 부분 문자열도 접근성 트리에 남기지 않는다.
-  if (key) { input.value = '••••••••'; input.dataset.secretStored = 'true'; input.setAttribute('aria-label', 'Claude API 키 · 저장됨'); }
-  else { input.value = ''; input.dataset.secretStored = ''; input.setAttribute('aria-label', 'Claude API 키 · 미저장'); }
-  return result;
-}
-
-function loadSidebarApiKey() {
-  const input = document.getElementById('sidebar-api-key');
-  if (!input) return;
-  const key = getApiKey();
-  if (key) { input.value = '••••••••'; input.dataset.secretStored = 'true'; }
-}
+function getApiKey() { return ''; }
+async function setApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
+async function saveSidebarApiKey() { return { ok: false, state: 'SERVER_ONLY_AI' }; }
+function loadSidebarApiKey() {}
 async function saveRss2jsonKey() {
   const inp = document.getElementById('rss2json-api-key');
   if (!inp) return;
@@ -196,12 +105,7 @@ function openApiKeyConfig() {
     var toggleBtn = document.getElementById('sidebar-toggle-btn');
     if (toggleBtn) toggleBtn.textContent = '';
   }
-  var apiInput = document.getElementById('sidebar-api-key');
-  if (apiInput) {
-    apiInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(function() { apiInput.focus(); apiInput.select(); }, 300);
-    showToast('사이드바에서 Claude API 키를 입력하세요');
-  }
+  showToast('AI는 운영자의 공용 연결로 제공됩니다. 개인 AI 키는 입력하지 않습니다.');
 }
 
 // ══════════════════════════════════════════════════════════════════════

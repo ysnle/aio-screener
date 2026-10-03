@@ -111,10 +111,13 @@ function runFocusedRegression() {
     proxyEvidence: { proxyObservationStatus: 'FAILED', proxyEvidenceFresh: false },
     now: '2026-08-30T00:00:00.000Z'
   });
-  check('regression:market-data-independent-of-ai-health', config.marketData?.workerUrl === 'https://relay.example.test'
+  check('P1421 regression:market-data-independent-of-ai-health', config.marketData?.workerUrl === 'https://relay.example.test'
     && config.marketData?.routeStatus === 'CONFIGURED'
     && config.marketData?.availability === 'verify-per-request'
-    && config.ai?.workerUrl === null
+    && config.ai?.workerUrl === 'https://relay.example.test'
+    && config.ai?.provider === 'openai' && config.ai?.model === 'gpt-6-luna'
+    && config.ai?.chatPolicy === 'shared-worker-only' && config.ai?.serverMode === 'shared-worker-only'
+    && config.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED'
     && config.ai?.routeStatus === 'DISABLED', JSON.stringify({ marketData: config.marketData, ai: config.ai }));
   const invalid = derivePublicAiConfig({}, { workerEndpoint: 'http://relay.example.test', proxyHealthy: true });
   check('regression:invalid-relay-is-unavailable', invalid.marketData?.workerUrl === null && invalid.marketData?.routeStatus === 'UNAVAILABLE', JSON.stringify(invalid.marketData));

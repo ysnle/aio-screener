@@ -186,16 +186,16 @@ async function main() {
       payload.set(iv, 0);
       payload.set(_AioVault._salt, 12);
       payload.set(new Uint8Array(encrypted), 28);
-      localStorage.setItem('aio_claude_api_key', 'aio_enc::' + btoa(String.fromCharCode.apply(null, payload)));
+      localStorage.setItem('aio_finnhub_key', 'aio_enc::' + btoa(String.fromCharCode.apply(null, payload)));
       _AioVault.lock();
       window.showPage('portfolio');
       document.getElementById('pf-pin-input').value = '2468';
       await window.unlockPortfolio();
       await new Promise((resolve) => setTimeout(resolve, 180));
-      const raw = localStorage.getItem('aio_claude_api_key') || '';
+      const raw = localStorage.getItem('aio_finnhub_key') || '';
       const decoded = raw.startsWith('aio_enc::') ? atob(raw.slice(9)) : '';
       return {
-        legacyValueRestored: _AioVault._keyRuntime?.aio_claude_api_key === plaintext,
+        legacyValueRestored: _AioVault._keyRuntime?.aio_finnhub_key === plaintext,
         reencryptedV2: decoded.charCodeAt(0) === 0x41 && decoded.charCodeAt(1) === 0x49 && decoded.charCodeAt(2) === 0x4f && decoded.charCodeAt(3) === 2,
         decryptVersion: _AioVault._lastDecryptVersion
       };
@@ -754,12 +754,12 @@ async function main() {
       const keys = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs'];
       const values = [JSON.stringify([{ticker:'AAPL',qty:2,cost:100,costCurrency:'USD'}]), JSON.stringify({transactions:[{amount:321}],valuations:[]}), JSON.stringify([{from:'USD',to:'KRW',rate:1400}])];
       keys.forEach((key, index) => localStorage.setItem(key, values[index]));
-      localStorage.setItem('aio_claude_api_key','sk-ant-fixture-credential-only');
+      localStorage.setItem('aio_finnhub_key','fixturefinnhubcredential01');
       await _AioVault.unlock('2468'); await _migrateToEncrypted(); await _restoreDecryptedKeys();
       const migrated = keys.every((key) => localStorage.getItem(key).startsWith('aio_enc::'));
       const sentinel = localStorage.getItem('aio_vault_verify_v1');
       const keyBackup = window._aioCollectKeySnapshot();
-      const backupSeparated = !keys.some((key) => key in keyBackup) && keyBackup.aio_claude_api_key === 'sk-ant-fixture-credential-only';
+      const backupSeparated = !keys.some((key) => key in keyBackup) && keyBackup.aio_finnhub_key === 'fixturefinnhubcredential01';
       const stored = keys.map((key) => localStorage.getItem(key));
       _AioVault.lock();
       let rejected = false, overwriteRejected = false;
@@ -772,7 +772,7 @@ async function main() {
       window.showConfirmModal = async (_title,_message,confirm) => { await confirm(); };
       try { window.resetPortfolioPin(); } finally { window.showConfirmModal = originalConfirm; }
       await new Promise((resolve) => setTimeout(resolve,150));
-      const reset = keys.every((key,index) => localStorage.getItem(key) === values[index]) && localStorage.getItem('aio_portfolio_vault_optout') === '1' && localStorage.getItem('aio_claude_api_key').startsWith('aio_enc::') && localStorage.getItem('aio_vault_verify_v1') === sentinel;
+      const reset = keys.every((key,index) => localStorage.getItem(key) === values[index]) && localStorage.getItem('aio_portfolio_vault_optout') === '1' && localStorage.getItem('aio_finnhub_key').startsWith('aio_enc::') && localStorage.getItem('aio_vault_verify_v1') === sentinel;
       localStorage.removeItem('aio_portfolio_vault_optout');
       await _AioVault.unlock('2468'); await _migrateToEncrypted(); await _restoreDecryptedKeys();
       const reprotected = keys.every((key) => localStorage.getItem(key).startsWith('aio_enc::'));
@@ -810,7 +810,7 @@ async function main() {
         && keys.every((key,index) => localStorage.getItem(key) === privateBeforeOptout[index]);
       window._aioVaultPublicMode({checked:false});
       localStorage.clear(); sessionStorage.clear();
-      await _AioVault.unlock('2468'); await safeLS('aio_claude_api_key','sk-ant-only-fixture'); _AioVault.lock();
+      await _AioVault.unlock('2468'); await safeLS('aio_finnhub_key','fixturefinnhubonly0001'); _AioVault.lock();
       let keyOnlyRejected=false;
       try { await _AioVault.unlock('0000'); } catch (_) { keyOnlyRejected=!_AioVault.isUnlocked(); }
       await _AioVault.unlock('2468');

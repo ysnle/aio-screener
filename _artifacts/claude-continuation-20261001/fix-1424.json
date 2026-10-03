@@ -1,0 +1,27 @@
+{
+  "version": "v57.06",
+  "date": "2026-10-03",
+  "note": "v57.06 — Shared GPT-6 Luna with one monthly $10 budget; explicit personal provider ownership, current contracts, native transport, queued translation and honest readiness (P1421–P1424). Production provisioning and deployment remain operator-owned.",
+  "p": {
+    "id": 1424,
+    "title": "Initialize shared AI readiness independently of translation activity",
+    "symptom": "The local sidebar could keep showing a connection check even though migration was held, when cached news required no AI translation and no chat had been sent.",
+    "root_cause": "The passive quota badge read the default route before public configuration and health were initialized; checking depended on a later consumer request.",
+    "fix": "Initialize the shared route once at UI boot with a health-only check, then update its badge. Disabled public configuration explicitly shows that the shared connection is being prepared and advertises no capacity.",
+    "violated_rule": "P1070/R592 separate route readiness from user switch and quota; P1421 do not certify old deployed provider readiness.",
+    "prevention": "ci-extension-api-runtime-check verifies the held-route label and unavailable capacity; the local settings screen and offline published-route browser fixture provide separate UI evidence.",
+    "verification": "No generation request or key is needed for boot readiness. Held configuration and published Responses transport are verified separately from actual deployed migration."
+  },
+  "qa": [
+    {
+      "id": "QA-AI-READINESS-01",
+      "text": "P1424: held public AI configuration shows a preparation status and no usable capacity; boot checks readiness independently of translation.",
+      "verify_by": "ci-extension-api-runtime-check + local settings browser + ci-ai-chat-public-route-browser-check",
+      "done": true
+    }
+  ],
+  "qa_section": "Shared AI readiness",
+  "changelog": [
+    "**공용 AI 상태 초기화 (P1424):** 번역·채팅 요청 전에도 연결 상태를 확인하고 전환 보류 상태를 준비 중으로 표시."
+  ]
+}

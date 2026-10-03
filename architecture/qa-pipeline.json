@@ -1027,6 +1027,9 @@
       "phase": 1,
       "kind": "static",
       "inputs": [
+        "js/**",
+        "src/**",
+        "scripts/fetch-data.mjs",
         "cloudflare-worker-proxy.js",
         "worker/**",
         ".github/workflows/ci.yml",
@@ -1038,6 +1041,11 @@
         "src/data/contracts/market-snapshot.js",
         "src/data/contracts/source-kind.js",
         "scripts/ci-worker-anthropic-check.mjs",
+        "scripts/ci-ai-budget-scope-check.mjs",
+        "scripts/lib/ai-shared-analysis.mjs",
+        "scripts/build-operations-status.mjs",
+        "public-config.json",
+        ".github/workflows/refresh-data.yml",
         "scripts/ci-worker-relay-check.mjs",
         "scripts/operations-alert/collect-observations.mjs",
         "scripts/ci-operations-alert-source-check.mjs",
@@ -1048,6 +1056,16 @@
         {
           "id": "worker-anthropic",
           "script": "scripts/ci-worker-anthropic-check.mjs"
+        },
+        {
+          "id": "extension-api-runtime",
+          "script": "scripts/ci-extension-api-runtime-check.mjs",
+          "inputs": ["js/aio-data.js", "js/aio-chat.js", "js/aio-ui.js", "js/aio-core.js", "index.html", "cloudflare-worker-proxy.js", "src/data/providers/personal-transport.js", "src/app/bootstrap.js", "scripts/ci-extension-api-runtime-check.mjs"]
+        },
+        {
+          "id": "ai-budget-scope",
+          "script": "scripts/ci-ai-budget-scope-check.mjs",
+          "inputs": ["js/**", "src/**", "cloudflare-worker-proxy.js", ".github/workflows/**", "scripts/fetch-data.mjs", "scripts/lib/ai-shared-analysis.mjs", "scripts/build-operations-status.mjs", "public-config.json"]
         },
         {
           "id": "worker-relay",
@@ -1408,6 +1426,11 @@
     }
   },
   "impactRules": [
+    {
+      "patterns": ["index.html", "js/**", "src/**", "scripts/ci-extension-api-runtime-check.mjs", "scripts/fetch-data.mjs", "scripts/lib/ai-shared-analysis.mjs", "scripts/build-operations-status.mjs", "scripts/ci-ai-budget-scope-check.mjs", "public-config.json", ".github/workflows/refresh-data.yml"],
+      "groups": ["cloudflare"],
+      "gates": ["ai-budget-scope"]
+    },
     {
       "patterns": [
         "version.json"

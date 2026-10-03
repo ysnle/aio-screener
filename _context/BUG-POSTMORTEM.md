@@ -4,6 +4,42 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1424 - v57.06 - Initialize shared AI readiness independently of translation activity (2026-10-03)
+
+- symptom/reproduction: The local sidebar could keep showing a connection check even though migration was held, when cached news required no AI translation and no chat had been sent.
+- root_cause: The passive quota badge read the default route before public configuration and health were initialized; checking depended on a later consumer request.
+- fix: Initialize the shared route once at UI boot with a health-only check, then update its badge. Disabled public configuration explicitly shows that the shared connection is being prepared and advertises no capacity.
+- violated_rule: P1070/R592 separate route readiness from user switch and quota; P1421 do not certify old deployed provider readiness.
+- prevention: ci-extension-api-runtime-check verifies the held-route label and unavailable capacity; the local settings screen and offline published-route browser fixture provide separate UI evidence.
+- verification/residual: No generation request or key is needed for boot readiness. Held configuration and published Responses transport are verified separately from actual deployed migration.
+
+## P1423 - v57.06 - Native provider transport and lossless concurrent translation handoff (2026-10-03)
+
+- symptom/reproduction: The new provider adapter grew a legacy hotspot and its UI dependency did not select the Cloudflare QA group. A browser translation fixture also revealed that news arriving during another translation batch could be dropped.
+- root_cause: Provider contracts lived in a growing classic file, gate dependencies lacked complete impact coverage, and the translation busy branch returned without preserving the new items.
+- fix: Move FMP normalization, timeout transport and weighted Twelve Data reservations into an injected native module. Preserve the legacy line-count ratchet, cover every declared gate input, and explicitly request quarterly analyst estimates. Queue new translation items during active batches and drain them after completion; the browser fixture waits for the correlated item to complete.
+- violated_rule: R620 decomposition ratchet; P1173 QA dependency reachability; P1421 completed shared-provider response validation.
+- prevention: ci-extension-api-runtime-check imports the real native transport with injected fixture boundaries. ci-decomp-hotspot-check and ci-qa-pipeline-contract-check enforce structure and reachability; ci-ai-chat-public-route-browser-check exercises queued translation completion.
+- verification/residual: The native provider fixture, decomposition ratchet, QA registry reachability and offline Responses browser fixture pass. Real provider answer quality and deployed route behavior remain unverified.
+
+## P1422 - v57.06 - Personal data connections preserve provider contracts and credential ownership (2026-10-03)
+
+- symptom/reproduction: The settings hid RSS under operator controls and implied personal keys were universally required or universally covered by shared secrets. RSS preferred conversion despite a shared Worker; FMP used unsupported legacy routes and a mismatched quota key; Twelve Data batching counted HTTP calls instead of weighted credits; FRED substituted the operator key for personal queries.
+- root_cause: Scheduled artifacts, optional browser queries and provider plan/credential rules were conflated. Legacy clients had separate quota paths and FMP response names, and live connection claims were derived from key presence.
+- fix: Keep AI keyless and move RSS to optional personal settings. Prefer shared RSS then conversion fallback, omit key-required count for keyless requests. Translate documented FMP legacy caller contracts to stable, preserve ticker/reporting period, normalize explicit field renames, count every dispatch and reject provider error bodies; never guess missing ownership/transcript dates. Reserve Twelve Data indicator credits, stop quota/auth retry storms. FRED queries require a personal key and shared relay opt-in, use a private no-store header route without redirects, and never borrow an operator key. Tag NewsData plan-dependent free delay and document Actions/Worker/personal key roles.
+- violated_rule: R627 credential isolation and provider-specific relay boundaries; R681 shared AI credential and budget scope; provider contract verification must use current official evidence.
+- prevention: ci-extension-api-runtime-check executes current callers with mocked upstreams; ci-worker-relay-check verifies credential refusal, CORS, private cache and redaction. The QA manifest selects these gates for affected clients/Worker surfaces.
+- verification/residual: Deterministic runtime fixtures and local browser checks are recorded separately from real provider access, redistribution permissions and deployed behavior. No provider key value was read, no producer was run locally and no deployment was performed.
+
+## P1421 - v57.06 - AI migration preserves one budget and credential boundary (2026-10-03)
+
+- symptom/reproduction: Owner selected GPT-6 Luna for all AI with a monthly maximum of $10. Personal browser keys and Actions direct-provider calls bypassed the shared budget; a model-string change alone would leave the Anthropic protocol active.
+- root_cause: Provider-specific chat, translation, scheduled generation, credentials, deployment smoke and accounting were spread across callers. Request counts did not cover their dollar costs.
+- fix: All generation uses GPT-6 Luna Responses through /openai with a Worker-only provider key. Actions authenticates separately but shares the Durable Object ledger. Validate priced text/format/tool inputs, bound output, settle only verified complete usage, and retain uncertain reservations. Preserve past monthly spend and inactive legacy-key protection. Disable paid native search and Perplexity AI. Publish only matching OpenAI provider/model readiness.
+- violated_rule: R680: all active paid AI paths must be inside the declared budget and migration must preserve credential, cancellation and evidence boundaries.
+- prevention: ci-ai-budget-scope-check; OpenAI handler/receipt/quota regressions through ci-worker-anthropic-check; Actions protocol fixtures; client Responses fixtures and public-route browser gate.
+- verification/residual: Local deterministic/browser evidence is recorded separately in the migration report. Real API, producer refresh, commit, push and deployment are not implied. Live provisioning and quality review remain open.
+
 ## P1420 - v57.05 - 차트 · 기술: retired market-health score replaced by the six-axis summary; stock chart first (2026-10-03)
 
 - symptom/reproduction: Codex review: the technical page still showed a 0-100 market-health score (added and subtracted points for the day's SPY/QQQ move) with a grade and a component breakdown, the same kind of composite the 시장 상태 screen retired; the evidence-based stock chart sat below it and SPY-only indicator cards.

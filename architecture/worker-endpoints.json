@@ -17,21 +17,24 @@
     "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
     "healthPath": "/health",
     "operatorAiUsagePath": "/_ops/ai-usage",
-    "role": "cors-proxy-and-optional-anthropic-route",
+    "role": "cors-proxy-and-shared-openai-route",
+    "aiPath": "/openai",
+    "aiProvider": "openai",
+    "aiModel": "gpt-6-luna",
     "readiness": "verify-at-runtime"
   },
   "relay": {
     "name": "aio-proxy",
     "path": "/relay",
     "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
-    "role": "server-side-operator-key-relay",
+    "role": "fixed-provider-key-relay",
     "providers": {
-      "fred": { "keyEnv": "FRED_API_KEY", "clientCredentialKey": "aio_fred_key" },
+      "fred": { "credentialHeader": "X-AIO-Provider-Key", "clientCredentialKey": "aio_fred_key", "consentRequired": true, "cache": "private-no-store" },
       "bok": { "keyEnv": "BOK_API_KEY", "clientCredentialKey": "aio_bok_key" },
       "kosis": { "keyEnv": "KOSIS_API_KEY", "clientCredentialKey": "aio_kosis_key" }
     },
-    "boundary": "upstream-host-is-hardcoded; client never supplies a key or a destination",
-    "missingKeyBehavior": "fail-closed-503-per-provider"
+    "boundary": "upstream-host-is-hardcoded; client never supplies a destination; FRED personal header requires opt-in and is neither logged nor cached; BOK/KOSIS use operator secrets",
+    "missingKeyBehavior": "FRED-personal-key-required-400; BOK/KOSIS-missing-operator-secret-503"
   },
   "security": {
     "secretsStayOutOfRepo": true,
@@ -42,24 +45,26 @@
       "AIO_CRON_SECRET"
     ],
     "proxyRequires": [
-      "ANTHROPIC_API_KEY",
+      "OPENAI_API_KEY",
       "AIO_QUOTA_DO",
       "AIO_DEV_ORIGINS"
     ],
     "operatorObservationRequires": ["AIO_OPERATOR_TOKEN"],
+    "automationAiRequires": ["AIO_AUTOMATION_TOKEN"],
     "relayRequires": [
       "RELAY_DAILY_CAP"
     ],
     "relayKeySecrets": [
-      "FRED_API_KEY",
       "BOK_API_KEY",
       "KOSIS_API_KEY"
     ],
     "proxyQuotaContract": {
       "binding": "AIO_QUOTA_DO",
       "authority": "single durable object",
-      "operations": ["reserve", "release", "usage"],
-      "operatorUsage": "GET /_ops/ai-usage; separate AIO_OPERATOR_TOKEN; no CORS; no-store; never add counts or Anthropic cap to public /health",
+      "operations": ["reserve", "release", "usage", "start", "settle"],
+      "operatorUsage": "GET /_ops/ai-usage; separate AIO_OPERATOR_TOKEN; no CORS; no-store; never add counts or AI cap to public /health",
+      "budgetScope": "browser chat, translation and Actions analysis share one UTC-month $10 reservation ledger; paid AI search is disabled",
+      "automationAuthentication": "origin-less POST /openai requires X-AIO-Automation-Token; not a public browser credential",
       "idempotency": "X-AIO-Idempotency-Key or SHA-256 request-body digest",
       "legacyKv": "unsupported-fail-closed",
       "productionOrigins": ["https://ysnle.github.io"],

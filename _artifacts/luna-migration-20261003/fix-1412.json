@@ -1,0 +1,20 @@
+{
+  "version": "v56.99",
+  "date": "2026-10-03",
+  "note": "v56.99 — Shared GPT-6 Luna with one monthly $10 budget; explicit personal provider ownership, current FMP contracts, weighted credits, native provider transport and queued translation (P1410–P1412). Production provisioning and deployment remain operator-owned.",
+  "p": {
+    "id": 1412,
+    "title": "Native provider transport and lossless concurrent translation handoff",
+    "symptom": "The new provider adapter grew a legacy hotspot and its UI dependency did not select the Cloudflare QA group. A browser translation fixture also revealed that news arriving during another translation batch could be dropped.",
+    "root_cause": "Provider contracts lived in a growing classic file, gate dependencies lacked complete impact coverage, and the translation busy branch returned without preserving the new items.",
+    "fix": "Move FMP normalization, timeout transport and weighted Twelve Data reservations into an injected native module. Preserve the legacy line-count ratchet, cover every declared gate input, and explicitly request quarterly analyst estimates. Queue new translation items during active batches and drain them after completion; the browser fixture waits for the correlated item to complete.",
+    "violated_rule": "R620 decomposition ratchet; P1173 QA dependency reachability; P1410 completed shared-provider response validation.",
+    "prevention": "ci-extension-api-runtime-check imports the real native transport with injected fixture boundaries. ci-decomp-hotspot-check and ci-qa-pipeline-contract-check enforce structure and reachability; ci-ai-chat-public-route-browser-check exercises queued translation completion.",
+    "verification": "The native provider fixture, decomposition ratchet, QA registry reachability and offline Responses browser fixture pass. Real provider answer quality and deployed route behavior remain unverified."
+  },
+  "qa": [
+    { "id": "QA-PROVIDER-STRUCTURE-01", "text": "P1412: native personal-provider transport preserves runtime contracts without legacy growth; its dependencies select QA, and concurrent translation items reach completion.", "verify_by": "ci-extension-api-runtime-check + ci-decomp-hotspot-check + ci-qa-pipeline-contract-check + ci-ai-chat-public-route-browser-check", "done": true }
+  ],
+  "qa_section": "Personal provider contracts and credentials",
+  "changelog": ["**API 구조와 번역 동시성 (P1412):** 개인 API 전송·정규화를 native ESM으로 분리하고 QA 의존성 누락을 수정. 번역 중 새 기사 요청을 대기열에서 이어 처리하며 분기 전망의 API 기간을 명시."]
+}

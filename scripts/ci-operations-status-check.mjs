@@ -73,6 +73,8 @@ const publishedConfig = derivePublicAiConfig({}, {
   proxyHealthy: true,
   proxyEvidence: {
     proxyHealthStatus: 200,
+    proxyAiProvider: 'openai',
+    proxyAiModel: 'gpt-6-luna',
     proxyHealthObserved: '2026-08-27T00:00:00.000Z',
     proxyObservationStatus: 'SUCCESS',
     proxyEvidenceSource: 'periodic-live-health'
@@ -91,7 +93,16 @@ const disabledConfig = derivePublicAiConfig(publishedConfig, {
   },
   now: '2026-08-27T00:02:00.000Z'
 });
-if (disabledConfig.ai.workerUrl !== null || disabledConfig.ai.serverMode !== 'personal-key-only' || disabledConfig.ai.chatPolicy !== 'personal-key-only' || disabledConfig.ai.routeStatus !== 'DISABLED' || disabledConfig.ai.routeReason !== 'WORKER_HEALTH_UNAVAILABLE' || disabledConfig.ai.routeEvidence.status !== 'OPERATOR_REQUIRED') throw new Error('[operations-status] failed Worker observation left a public route published');
+if (disabledConfig.ai.workerUrl !== 'https://proxy.example.test' || disabledConfig.ai.serverMode !== 'shared-worker-only' || disabledConfig.ai.chatPolicy !== 'shared-worker-only' || disabledConfig.ai.routeStatus !== 'DISABLED' || disabledConfig.ai.routeReason !== 'WORKER_HEALTH_UNAVAILABLE' || disabledConfig.ai.routeEvidence.status !== 'OPERATOR_REQUIRED') throw new Error('[P1421 operations-status] failed Worker observation must hold AI while retaining its configured endpoint');
+// P1421: an old healthy Anthropic deployment must never publish the new Luna route.
+for (const evidence of [{ proxyAiProvider: 'anthropic', proxyAiModel: 'claude-haiku-4-5' }, { proxyAiProvider: 'openai', proxyAiModel: 'gpt-6-sol' }, {}]) {
+  const incompatible = derivePublicAiConfig({}, {
+    workerEndpoint: 'https://proxy.example.test/', proxyHealthy: true,
+    proxyEvidence: { proxyHealthStatus: 200, proxyEvidenceFresh: true, proxyObservationStatus: 'SUCCESS', ...evidence },
+    now: '2026-08-27T00:00:00.000Z',
+  });
+  if (incompatible.ai.workerUrl !== 'https://proxy.example.test' || incompatible.ai.routeStatus !== 'DISABLED' || incompatible.ai.chatPolicy !== 'shared-worker-only') throw new Error('[operations-status] P1421 incompatible provider escaped the shared Luna policy');
+}
 const staleConfig = derivePublicAiConfig({}, {
   appRevision: 'v-test',
   workerEndpoint: 'https://proxy.example.test/',
@@ -99,7 +110,7 @@ const staleConfig = derivePublicAiConfig({}, {
   proxyEvidence: { proxyHealthStatus: 200, proxyEvidenceFresh: false, proxyObservationStatus: 'NOT_ATTEMPTED', proxyHealthObserved: '2026-08-25T00:00:00.000Z' },
   now: '2026-08-27T00:00:00.000Z'
 });
-if (staleConfig.ai.workerUrl !== null || staleConfig.ai.routeReason !== 'WORKER_HEALTH_STALE') throw new Error('[operations-status] stale Worker evidence did not disable the public route');
+if (staleConfig.ai.workerUrl !== 'https://proxy.example.test' || staleConfig.ai.routeStatus !== 'DISABLED' || staleConfig.ai.routeReason !== 'WORKER_HEALTH_STALE') throw new Error('[P1421 operations-status] stale Worker evidence did not hold AI at the configured endpoint');
 const invalidEndpointConfig = derivePublicAiConfig({}, {
   appRevision: 'v-test',
   workerEndpoint: 'http://proxy.example.test/',

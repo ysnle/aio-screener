@@ -1607,22 +1607,6 @@ function _aioLinkChatAbortSignal(source, target) {
   return function() { if (typeof source.removeEventListener === 'function') source.removeEventListener('abort', onAbort); };
 }
 
-function _aioChatAbortableDelay(ms, signal) {
-  _aioThrowIfChatAborted(signal);
-  return new Promise(function(resolve, reject) {
-    var timer = setTimeout(function() {
-      if (signal && typeof signal.removeEventListener === 'function') signal.removeEventListener('abort', onAbort);
-      resolve();
-    }, Math.max(0, Number(ms) || 0));
-    function onAbort() {
-      clearTimeout(timer);
-      if (signal && typeof signal.removeEventListener === 'function') signal.removeEventListener('abort', onAbort);
-      reject(_aioChatAbortError(signal && signal.reason || 'aborted'));
-    }
-    if (signal && typeof signal.addEventListener === 'function') signal.addEventListener('abort', onAbort, { once: true });
-  });
-}
-
 function _aioBeginChatRequest(ctxId, query, options) {
   options = options || {};
   var state = getChatState(ctxId);
@@ -1937,25 +1921,17 @@ function chatShowLoading(ctxId) {
   );
 }
 
-// ── Claude API streaming ───────────────────────────────────────────────
-// v31.3: opts = { modelKey: 'haiku'|'sonnet'|'sonnet-thinking' }
-// Claude endpoint precedence is explicit and shared by readiness + UI:
-// manual Worker override -> personal key -> public Worker fallback. A public
-// route address is not authentication; the Worker enforces origin and quota.
-function _aioClaudeTarget(apiKey) {
+// Responses streaming uses the published shared Worker route and budget.
+// Legacy function names remain the compatibility boundary; personal AI keys are inactive.
+function _aioClaudeTarget() {
   try {
-    var localWorker = (typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '').trim().replace(/\/+$/, '');
     var publicCfg = window.AIO && typeof window.AIO.getPublicConfig === 'function' ? window.AIO.getPublicConfig() : null;
+    if (publicCfg && publicCfg.ai && publicCfg.ai.routeStatus === 'DISABLED') return null; // P1424: a held route is not a generation entitlement.
     var publicWorker = publicCfg && publicCfg.ai && typeof publicCfg.ai.workerUrl === 'string' ? publicCfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
-    var serverMode = false;
-    try { serverMode = localStorage.getItem('aio_claude_server_mode') === '1'; } catch(_) {}
     var healthPath = (publicCfg && publicCfg.ai && publicCfg.ai.healthPath) || '/health';
-    if (localWorker && serverMode) return { url: localWorker + '/anthropic', healthUrl: localWorker + healthPath, workerUrl: localWorker, serverKey: true, source: 'local-config' };
-    if (apiKey) return { url: 'https://api.anthropic.com/v1/messages', serverKey: false, source: 'personal-key' };
-    if (localWorker) return { url: localWorker + '/anthropic', healthUrl: localWorker + healthPath, workerUrl: localWorker, serverKey: true, source: 'local-config' };
-    if (publicWorker) return { url: publicWorker + '/anthropic', healthUrl: publicWorker + healthPath, workerUrl: publicWorker, serverKey: true, source: 'public-config' };
+    if (publicWorker) return { url: publicWorker + '/openai', healthUrl: publicWorker + healthPath, workerUrl: publicWorker, serverKey: true, source: 'public-config' };
   } catch(_) {}
-  return { url: 'https://api.anthropic.com/v1/messages', serverKey: false, source: 'personal-key' };
+  return null;
 }
 window._aioClaudeTarget = _aioClaudeTarget;
 
@@ -1968,7 +1944,7 @@ window._aioAppToken = _aioAppToken;
 
 function _aioHasClaudeRoute(apiKey) {
   var target = _aioClaudeTarget(apiKey);
-  return !!(apiKey || (target && target.serverKey));
+  return !!(target && target.serverKey);
 }
 window._aioHasClaudeRoute = _aioHasClaudeRoute;
 
@@ -1986,13 +1962,7 @@ async function _aioEnsureClaudeRoute(apiKey) {
   _aioThrowIfChatAborted(routeSignal);
   var target = _aioClaudeTarget(apiKey);
   if (!target || !target.serverKey) {
-    if (!apiKey) {
-      var locked = typeof _aioProviderStatusForKey === 'function' && _aioProviderStatusForKey('aio_claude_api_key').storage === 'LOCKED';
-      _aioSetChatRuntimeState('_aioLastClaudeRouteState', { ok: false, reason: locked ? 'VAULT_LOCKED' : 'NO_ROUTE', target: target, checkedAt: Date.now() });
-      return window._aioLastClaudeRouteState;
-    }
-    if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_claude_api_key', { authentication: 'CONFIGURED', connection: 'NOT_CHECKED' });
-    _aioSetChatRuntimeState('_aioLastClaudeRouteState', { ok: true, target: target, reason: 'PERSONAL_KEY', checkedAt: Date.now() });
+    _aioSetChatRuntimeState('_aioLastClaudeRouteState', { ok: false, target: target, reason: 'NO_ROUTE', checkedAt: Date.now() });
     return window._aioLastClaudeRouteState;
   }
   var now = Date.now();
@@ -2009,7 +1979,7 @@ async function _aioEnsureClaudeRoute(apiKey) {
       try {
         var response = await fetch(target.healthUrl, { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal });
         var payload = await response.json().catch(function() { return null; });
-        var ready = response.ok && !!(payload && payload.ai && payload.ai.ready === true);
+        var ready = response.ok && !!(payload && payload.ai && payload.ai.ready === true && payload.ai.provider === 'openai' && payload.ai.model === 'gpt-6-luna');
         var result = { ok: ready, reason: ready ? 'SHARED_WORKER' : 'WORKER_NOT_READY', target: target, checkedAt: Date.now(), health: payload };
         _aioWorkerHealthCache[target.workerUrl] = result;
         if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_cf_worker_url', { connection: ready ? 'READY' : 'NOT_READY', lastError: ready ? null : result.reason });
@@ -2036,46 +2006,21 @@ async function _aioEnsureClaudeRoute(apiKey) {
 Object.defineProperty(window, '_aioRouteNotice', {
   value: function(reason) {
   return ({
-    NO_ROUTE: '현재 사용할 수 있는 AI 연결이 없습니다. 사이드바의 연결·키 보안 설정에서 Claude 개인 키를 연결하거나 공용 AI 연결이 제공된 뒤 다시 시도해 주세요. 작성한 질문은 유지됩니다.',
-    VAULT_LOCKED: 'Claude 키가 Vault에 잠겨 있습니다. 사이드바에서 PIN으로 잠금 해제한 뒤 다시 시도하세요.',
-    WORKER_NOT_READY: '공용 AI 연결이 현재 응답할 준비가 되지 않았습니다. 잠시 후 다시 시도하거나 사이드바에서 Claude 개인 키를 연결해 주세요. 작성한 질문은 유지됩니다.',
+    NO_ROUTE: '현재 사용할 수 있는 AI 연결이 없습니다. 운영자가 공용 AI 연결을 설정한 뒤 다시 시도해 주세요. 작성한 질문은 유지됩니다.',
+    VAULT_LOCKED: '공용 AI 연결을 확인하고 다시 시도하세요.',
+    WORKER_NOT_READY: '공용 AI 연결이 현재 응답할 준비가 되지 않았습니다. 잠시 후 다시 시도해 주세요. 작성한 질문은 유지됩니다.',
     RATE_LIMIT: 'AI 요청 한도에 도달했습니다. 잠시 후 다시 시도하세요.',
-    AUTH_FAILED: 'AI 인증에 실패했습니다. 키 형식과 공급자 권한을 확인하세요.'
+    AUTH_FAILED: 'AI 인증에 실패했습니다. 운영자에게 공용 연결 확인을 요청하세요.'
   })[reason] || 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.';
   },
   configurable: true,
   writable: true
 });
 
-// v52.44 B8: Cloudflare Workers 무료 플랜은 리전 고정이 불가해 anycast 라우팅이 요청마다 다른 엣지
-// 데이터센터를 탈 수 있다 — 그중 홍콩(HKG) 경유 요청을 Anthropic이 정책상 403(forbidden)으로 거부하는
-// 사례를 curl로 3회 재현 확인(도쿄 NRT 경유는 200, 홍콩 HKG 경유는 403, 응답 포맷이 Worker 자체
-// errorResponse()의 {error,status}가 아니라 Anthropic이 직접 반환하는 {error:{type,message}} 형태임을
-// 확인해 확정). 레포·시크릿·배포는 전부 정상이라 코드로 완전히 없앨 수는 없지만, 새 인바운드 요청은
-// 매번 새로 anycast 라우팅되므로 즉시 재시도하면 다른(정상) 데이터센터로 갈 가능성이 높다.
-// 서버 키 모드(Worker 경유)일 때만, 그리고 Anthropic 자체 403 forbidden 포맷일 때만 재시도 —
-// 키 만료 등 다른 원인의 실패는 재시도해도 무의미하므로 그대로 통과시켜 기존 에러 처리로 넘긴다.
+// An interrupted paid response may already be billed: no blind retry.
 async function _aioFetchClaudeWithRetry(url, fetchOpts, serverKey, maxRetries, options) {
-  maxRetries = (typeof maxRetries === 'number') ? maxRetries : 2;
-  options = options || {};
-  var signal = options.signal || fetchOpts && fetchOpts.signal;
-  _aioThrowIfChatAborted(signal);
-  var res = await fetch(url, fetchOpts);
-  var attempt = 0;
-  while (serverKey && res.status === 403 && attempt < maxRetries) {
-    _aioThrowIfChatAborted(signal);
-    var isRegionBlock = false;
-    try {
-      var _peek = await res.clone().json();
-      isRegionBlock = !!(_peek && _peek.error && _peek.error.type === 'forbidden');
-    } catch(_) {}
-    if (!isRegionBlock) break;
-    attempt++;
-    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'Worker anycast 403(forbidden) 감지 — 재시도 ' + attempt + '/' + maxRetries + ' (다른 엣지 데이터센터 기대)');
-    await _aioChatAbortableDelay(Math.min(500 * attempt, 1500), signal);
-    res = await fetch(url, fetchOpts);
-  }
-  return res;
+  _aioThrowIfChatAborted(options && options.signal || fetchOpts && fetchOpts.signal);
+  return fetch(url, fetchOpts);
 }
 window._aioFetchClaudeWithRetry = _aioFetchClaudeWithRetry;
 
@@ -2141,95 +2086,21 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var connectionTimedOut = false;
   var connectTimer = setTimeout(function() { connectionTimedOut = true; ctrl.abort(); }, timeoutMs);
 
-  // v48.0: 시스템 프롬프트를 정적/동적 2블록으로 분할하여 cache_control 적용
-  //   정적 블록: CHAT_CONTEXTS 기본 지시문 + 응답 형식 + 금지 조항 (반복 재사용 → cache hit 시 input -90%)
-  //   동적 블록: DATA_SNAPSHOT · _liveData · 뉴스 컨텍스트 · 티커 데이터 (매 요청마다 달라짐)
-  //   분할 기준: '【데이터 검증 상태 — 반드시 준수】' 이후를 동적 블록으로 취급
-  //   Anthropic 공식: 최소 1024토큰 이상이어야 cache 효력, 미달 시 일반 요청으로 폴백
-  var _sysStr = system || '';
-  var _systemField;
-  var _CACHE_SPLIT_MARKER = '【데이터 검증 상태';
-  var _splitIdx = _sysStr.indexOf(_CACHE_SPLIT_MARKER);
-  if (_splitIdx > 2000 && _splitIdx < _sysStr.length - 100) {
-    // 정적 부분이 최소 길이 이상 + 이후 동적 부분 존재
-    var _staticPart = _sysStr.slice(0, _splitIdx);
-    var _dynamicPart = _sysStr.slice(_splitIdx);
-    _systemField = [
-      { type: 'text', text: _staticPart, cache_control: { type: 'ephemeral' } },
-      { type: 'text', text: _dynamicPart }
-    ];
-  } else {
-    _systemField = _sysStr;  // 짧거나 마커 없음 → 캐싱 생략
-  }
-  var requestedMaxTokens = opts.maxTokens || (modelCfg.thinking ? 16000 : 12000);
+  var requestedMaxTokens = opts.maxTokens || 4000;
   var workerMaxTokens = Number(routeState && routeState.health && routeState.health.ai && routeState.health.ai.maxTokens);
-  var effectiveMaxTokens = _claudeTarget.serverKey && isFinite(workerMaxTokens) && workerMaxTokens > 0
-    ? Math.min(requestedMaxTokens, workerMaxTokens) : requestedMaxTokens;
-  var useExtendedThinking = !!(modelCfg.thinking && (!_claudeTarget.serverKey || effectiveMaxTokens > (modelCfg.thinkingBudget || 5000) + 256));
+  var effectiveMaxTokens = isFinite(workerMaxTokens) && workerMaxTokens > 0 ? Math.min(requestedMaxTokens, workerMaxTokens) : requestedMaxTokens;
+  var useExtendedThinking = modelCfg.reasoningEffort === 'low';
   var reqBody = {
-    model: modelCfg.id,
-    max_tokens: effectiveMaxTokens,
-    stream: true,
-    system: _systemField,
-    messages: _trimmedMessages
+    model: 'gpt-6-luna', instructions: system || '',
+    input: _trimmedMessages.map(function(message) { return { role: message.role, content: String(message.content || '') }; }),
+    max_output_tokens: effectiveMaxTokens, reasoning: { effort: modelCfg.reasoningEffort || 'none' }, store: false, stream: true
   };
-  // Extended Thinking 설정
-  if (useExtendedThinking) {
-    reqBody.thinking = {
-      type: 'enabled',
-      budget_tokens: modelCfg.thinkingBudget || 5000
-    };
-  }
-  // v49.57 P318: Claude web_search 조건부 활성화 — opts.webSearch === true 일 때만
-  if (opts.webSearch === true) {
-    if (!window._aioAIBudgetPolicy) throw new Error('AI budget policy unavailable'); // P1353
-    window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: _claudeTarget.serverKey, state: window, bumpCounter: typeof _bumpApiCounter === 'function' ? _bumpApiCounter : null });
-    reqBody.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }];
-  }
-
-  // v48.8: anthropic-beta 헤더 호환성 — 2024년 11월 이후 prompt caching이 정식 기능으로 승격되어
-  //        beta 헤더 없이도 cache_control 필드만으로 동작. 구버전 SDK 호환 위해 헤더는 유지하되
-  //        400 에러 시 자동 폴백 (beta 헤더 제거 후 재시도).
-  // v50.52 B5: 서버 키 모드면 키 헤더 생략(Worker가 x-api-key/anthropic-version 부여). 직접 호출이면 개인 키.
-  var _claudeHeaders = { 'Content-Type': 'application/json' };
-  if (!_claudeTarget.serverKey) {
-    _claudeHeaders['x-api-key'] = apiKey;
-    _claudeHeaders['anthropic-version'] = '2023-06-01';
-    _claudeHeaders['anthropic-dangerous-direct-browser-access'] = 'true';
-  } else {
-    // v52.47 WO-1B: Worker가 env.AIO_APP_TOKEN을 설정했을 때만 실제로 검사(미설정 배포는 무시) —
-    // 공개 JS라 진짜 비밀은 아니지만 "URL만 아는" curl/스크립트 남용을 거르는 최소 방어선.
-    _claudeHeaders['X-AIO-App-Token'] = _aioAppToken();
-  }
-  // cache_control 사용 시에만 beta 헤더 포함 (array system field 감지)
-  if (Array.isArray(_systemField) && _systemField.some(function(b){ return b.cache_control; })) {
-    _claudeHeaders['anthropic-beta'] = 'prompt-caching-2024-07-31';
-  }
+  var _claudeHeaders = { 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() };
+  if (_streamRequestId) _claudeHeaders['X-AIO-Idempotency-Key'] = _streamRequestId;
   try {
     var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
-      method: 'POST',
-      signal: ctrl.signal,
-      headers: _claudeHeaders,
-      body: JSON.stringify(reqBody)
-    }, _claudeTarget.serverKey, 2, { signal: _chatSignal });
-    // v48.8: beta 헤더 400 에러 자동 폴백 (서버가 beta를 정식 기능으로 대체한 경우)
-    if (res.status === 400 && _claudeHeaders['anthropic-beta']) {
-      var _errTxt = await res.text();
-      if (/beta|cache.*control|invalid.*header/i.test(_errTxt)) {
-        _aioLog('warn', 'fetch', 'anthropic-beta 헤더 호환성 오류 — beta 제거 후 재시도');
-        delete _claudeHeaders['anthropic-beta'];
-          res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
-            method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
-         }, _claudeTarget.serverKey, 2, { signal: _chatSignal });
-      } else {
-        // beta 관련 아닌 400 — 원래 에러 흐름 유지
-        var badRequest = _aioChatError({ message: _errTxt.slice(0, 200), status: 400 }, 400);
-         onError(badRequest.displayMessage || badRequest.userMessage);
-         clearTimeout(connectTimer);
-         _unlinkChatAbort();
-         return;
-      }
-    }
+      method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
+    }, true, 0, { signal: _chatSignal });
     if (!res.ok) {
       var errText = await res.text();
       clearTimeout(connectTimer);
@@ -2252,6 +2123,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     var fullText = '';
     var stopReason = null;
     var sawMessageStop = false;
+    var responseUsage = null;
     window._lastClaudeUsage = null;
 
     // v50.10: native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
@@ -2262,7 +2134,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
       _streamState.researchError = null;
     }
     function _pushWebCite(url, title) {
-      if (!url || typeof url !== 'string') return;
+      if (!url || typeof url !== 'string' || !/^https?:\/\//i.test(url)) return;
       // P1245: 소유자(요청 id) 없는 스트림은 인용을 수집하지 않는다 — 임의의 전역에 붙이지 않는다.
       if (!_streamState) return;
       var arr = _streamState.citations;
@@ -2298,70 +2170,48 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
           if (data === '[DONE]') continue;
           var evt;
           try { evt = JSON.parse(data); } catch (invalidEvent) { throw new Error('Invalid AI stream event'); }
-          if (evt.type === 'error') throw new Error(evt.error && evt.error.message || 'AI provider stream error');
-          if (evt.type === 'message_stop') sawMessageStop = true;
-          try {
-            if (evt.type === 'content_block_delta' && evt.delta) {
-              // v31.3: text_delta만 수집 (thinking_delta는 무시 — 사용자에게 불필요)
-              if (evt.delta.type === 'text_delta') {
-                fullText += evt.delta.text;
-                // v48.14 (W12): 50KB 초과 시 truncated 마지막 chunk 보장 + 취소
-                 if (fullText.length > 50000) {
-                   fullText = fullText.slice(0, 50000) + '\n\n[응답이 50,000자를 초과하여 잘렸습니다]';
-                   stopReason = 'client_output_limit';
-                  try { onChunk(fullText); } catch(e) {}  // 마지막 truncated 텍스트도 반드시 렌더
-                  if (typeof _aioLog === 'function') _aioLog('warn', 'ai', 'response truncated at 50KB', { model: opts && opts.model });
-                  try { reader.cancel(); } catch(e) {}
-                  break;
-                }
-                onChunk(fullText);
-              }
-              // v50.10: web_search 인용 (Claude가 실제 인용한 출처) 수집
-              else if (evt.delta.type === 'citations_delta' && evt.delta.citation) {
-                _pushWebCite(evt.delta.citation.url, evt.delta.citation.title);
-              }
-              // thinking_delta는 의도적으로 건너뜀 — 내부 추론 과정이므로 표시하지 않음
+          if (evt.type === 'error' || evt.type === 'response.failed') {
+            var providerError = evt.error || evt.response && evt.response.error || {};
+            if (_streamState) _streamState.researchError = providerError.message || 'AI provider stream error';
+            throw new Error(providerError.message || 'AI provider stream error');
+          }
+          if (evt.type === 'response.output_text.delta' && typeof evt.delta === 'string') {
+            fullText += evt.delta;
+            if (fullText.length > 50000) {
+              fullText = fullText.slice(0, 50000) + '\n\n[응답이 50,000자를 초과하여 잘렸습니다]';
+              stopReason = 'client_output_limit'; onChunk(fullText);
+              void reader.cancel().catch(function() {}); break;
             }
-            // v50.10: web_search_tool_result 블록 (Claude가 검색해 찾은 결과 목록) 수집
-            else if (evt.type === 'content_block_start' && evt.content_block && evt.content_block.type === 'web_search_tool_result') {
-              var _wsr = evt.content_block.content;
-              if (Array.isArray(_wsr)) {
-                for (var _wi = 0; _wi < _wsr.length; _wi++) {
-                  if (_wsr[_wi] && _wsr[_wi].url) _pushWebCite(_wsr[_wi].url, _wsr[_wi].title);
-                }
-              }
+            onChunk(fullText);
+          } else if (evt.type === 'response.output_text.annotation.added' && evt.annotation) {
+            if (evt.annotation.type === 'url_citation') _pushWebCite(evt.annotation.url, evt.annotation.title);
+          } else if (evt.type === 'response.completed' || evt.type === 'response.incomplete') {
+            var completed = evt.response || {};
+            sawMessageStop = true;
+            stopReason = evt.type === 'response.incomplete' ? (completed.incomplete_details && completed.incomplete_details.reason === 'max_output_tokens' ? 'max_output_tokens' : 'incomplete') : 'end_turn';
+            if (completed.usage) {
+              responseUsage = Object.assign({}, completed.usage);
+              window._lastClaudeUsage = responseUsage;
             }
-            // Anthropic server tools may return an error block inside an HTTP
-            // 200 stream. Promote it to Research failure instead of treating
-            // the request as a successful no-search answer.
-            else if (evt.type === 'content_block_start' && evt.content_block && /web_search_tool_result.*error|web_search.*error/i.test(evt.content_block.type || '')) {
-              var _toolError = evt.content_block.error || evt.content_block.message || evt.content_block.content || 'web_search_tool_error';
-              if (_streamState) _streamState.researchError = typeof _toolError === 'string' ? _toolError : JSON.stringify(_toolError);
-            }
-            else if (evt.type === 'web_search_tool_result_error' || evt.type === 'server_tool_error') {
-              if (_streamState) _streamState.researchError = evt.error?.message || evt.message || evt.type;
-            }
-            // v48.0: usage 추적 — message_start에는 input/cache_creation/cache_read_input_tokens, message_delta에는 output_tokens
-            else if (evt.type === 'message_start' && evt.message && evt.message.usage) {
-              window._lastClaudeUsage = Object.assign({}, evt.message.usage);
-            }
-            else if (evt.type === 'message_delta') {
-              if (evt.delta && evt.delta.stop_reason) stopReason = String(evt.delta.stop_reason);
-              if (evt.usage && window._lastClaudeUsage) Object.assign(window._lastClaudeUsage, evt.usage);
-            }
-          } catch(e) {}
+            (completed.output || []).forEach(function(output) {
+              (output.content || []).forEach(function(content) {
+                (content.annotations || []).forEach(function(annotation) { if (annotation.type === 'url_citation') _pushWebCite(annotation.url, annotation.title); });
+              });
+            });
+          }
+
         }
         if (result.done || stopReason === 'client_output_limit') break;
       }
-      if (!sawMessageStop && stopReason !== 'client_output_limit') throw new Error('AI stream ended before message_stop');
+      if (!sawMessageStop && stopReason !== 'client_output_limit') throw new Error('AI stream ended before response completion');
       // v48.0: usage 기반 실제 쿼터 정산 + cache hit rate 로그
-      if (window._lastClaudeUsage) {
-        var _u = window._lastClaudeUsage;
+      if (responseUsage) {
+        var _u = responseUsage;
         var _inp = _u.input_tokens || 0;
         var _out = _u.output_tokens || 0;
-        var _cacheR = _u.cache_read_input_tokens || 0;
-        var _cacheC = _u.cache_creation_input_tokens || 0;
-        var _totalInput = _inp + _cacheR + _cacheC;
+        var _cacheR = _u.input_tokens_details && _u.input_tokens_details.cached_tokens || 0;
+        var _cacheC = 0;
+        var _totalInput = _inp;
         var _hitRate = _totalInput > 0 ? Math.round(_cacheR / _totalInput * 100) : 0;
         console.log('[AIO] usage: input=' + _inp + ' / cache_read=' + _cacheR + ' / cache_create=' + _cacheC + ' / output=' + _out + ' / cache-hit=' + _hitRate + '%');
         // 실제 토큰 기반 비용 계산 (modelCfg.inputCostPer1M / outputCostPer1M 필드 존재 시)
@@ -2371,25 +2221,25 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
         // v49.79 P427/R164: 누적 비용 추적 (AIO.getApiUsage() 조회 가능)
         try {
           if (typeof window._aioTrackApiUsage === 'function') {
-            window._aioTrackApiUsage({ model: (modelCfg && modelCfg.key) || selectedModelKey || 'sonnet', inputTokens: _totalInput, outputTokens: _out });
+            window._aioTrackApiUsage({ model: 'gpt-6-luna', inputTokens: _totalInput, outputTokens: _out });
           }
         } catch(_) {}
       }
       if (window.AIO && typeof window.AIO.recordAISLOSample === 'function') {
         var _aiEndedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-        var _sloUsage = window._lastClaudeUsage || {};
+        var _sloUsage = responseUsage || {};
         window.AIO.recordAISLOSample({
           requestId: _streamRequestId,
           entrypoint: opts.entrypoint || 'chat',
           model: (modelCfg && modelCfg.key) || opts.modelKey || 'unknown',
-          status: stopReason === 'max_tokens' || stopReason === 'client_output_limit' ? 'degraded' : 'success', latencyMs: Math.round(_aiEndedAt - _aiStartedAt),
-          inputTokens: (_sloUsage.input_tokens || 0) + (_sloUsage.cache_read_input_tokens || 0) + (_sloUsage.cache_creation_input_tokens || 0),
+          status: stopReason === 'max_tokens' || stopReason === 'max_output_tokens' || stopReason === 'incomplete' || stopReason === 'client_output_limit' ? 'degraded' : 'success', latencyMs: Math.round(_aiEndedAt - _aiStartedAt),
+          inputTokens: _sloUsage.input_tokens || 0,
           outputTokens: _sloUsage.output_tokens || 0
         });
       }
       onDone(fullText, {
         stopReason: stopReason || 'end_turn',
-        truncated: stopReason === 'max_tokens' || stopReason === 'client_output_limit',
+        truncated: stopReason === 'max_tokens' || stopReason === 'max_output_tokens' || stopReason === 'incomplete' || stopReason === 'client_output_limit',
         requestedMaxTokens: requestedMaxTokens,
         effectiveMaxTokens: effectiveMaxTokens,
         workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null,
@@ -3762,7 +3612,7 @@ async function _fetchDeepCompareData(tickers) {
         _fmpGet('v4/stock_peers?symbol=' + t),
         _fmpGet('v3/earnings-surprises/' + t),
         _fmpGet('v3/enterprise-values/' + t + '?limit=1'),
-        _fmpGet('v3/analyst-estimates/' + t + '?limit=4'),
+        _fmpGet('v3/analyst-estimates/' + t + '?period=quarter&limit=4'),
         _fmpGet('v4/price-target-consensus?symbol=' + t),
         _fmpGet('v3/discounted-cash-flow/' + t)
       ]);
@@ -4627,7 +4477,7 @@ window._buildChatAnswerCoverageContext = _buildChatAnswerCoverageContext;
 window._shouldSingleDeepAnalyzeChat = _shouldSingleDeepAnalyzeChat;
 
 function _needsWebSearch(query, ctxId) {
-  var pKey = _getApiKey('aio_perplexity_key') || '';
+  var pKey = ''; // Perplexity AI is retired.
   var gKey = _getApiKey('aio_google_cse_key') || '';
   var gCx = _getApiKey('aio_google_cse_cx') || '';
   if (!pKey && !(gKey && gCx)) return null; // 검색 API 없으면 비활성
@@ -4692,76 +4542,10 @@ function _needsWebSearch(query, ctxId) {
 // 비용 가드: max_uses:3 + 사용자 토글 (localStorage.aio_web_search_enabled = 'off')
 // ─────────────────────────────────────────────────────────────────
 function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers, questionPlan, researchState) {
-  if (!query) return false;
   window._aioWebSearchCapped = false;
-  // 사용자 명시 opt-out
-  try {
-    if (localStorage.getItem('aio_web_search_enabled') === 'off') return false;
-  } catch(e) {}
-  // An external ResearchPlan result already owns this turn's web evidence.
-  // Do not pay for a second native search unless the evidence floor explicitly
-  // failed. The plan id check prevents a stale global preparation from
-  // suppressing search for a new question.
-  var _researchState = researchState || null;
-  var _preparedState = _researchState && _researchState.preparation || _researchState;
-  var _planId = questionPlan && questionPlan.researchPlan && questionPlan.researchPlan.planId;
-  var _samePlan = !!(_planId && _preparedState && _preparedState.planId && _planId === _preparedState.planId);
-  if (_researchState && (_researchState.externalEvidenceReady === true || (_samePlan && _preparedState.externalEvidenceReady === true))) return false;
-  if (_researchState && !_samePlan && _researchState.externalResult && _aioResearchResultUsable(_researchState.externalResult)) return false;
-  if (_samePlan && _preparedState.externalResult && _aioResearchResultUsable(_preparedState.externalResult) && _preparedState.externalEvidenceReady === true) return false;
-  var q = String(query).toLowerCase();
-  var _want = false;
-  // ResearchDecision is intentionally independent from provider keys. When a
-  // current/causal question is REQUIRED and no external provider is ready,
-  // native Claude search is the only eligible fallback; optional heuristics
-  // must not silently downgrade it to a memory-only answer.
-  var _activeResearchDecision = questionPlan && questionPlan.researchDecision;
-  var _researchRequired = _activeResearchDecision && _activeResearchDecision.requirement === 'REQUIRED' && !_activeResearchDecision.userOptOut;
-  if (_researchRequired) _want = true;
-  var _hasTicker = Array.isArray(detectedTickers) && detectedTickers.length > 0;
-  // A: 시점 키워드
-  if (/최근|최신|오늘|어제|이번\s*주|이번\s*달|금주|지난주|방금|지금|현재|latest|recent|today|just now|breaking/.test(q)) _want = true;
-  // B: 페이지 컨텍스트 (뉴스성)
-  if (!_want && (ctxId === 'market-news' || ctxId === 'briefing' || ctxId === 'macro')) {
-    if (/뉴스|news|소식|발표|상황|동향/.test(q)) _want = true;
-  }
-  // C: 티커 + 이벤트
-  if (!_want && _hasTicker) {
-    if (/뉴스|news|발표|announce|실적|earnings|어닝|M&A|인수|합병|파트너십|partnership|소송|lawsuit|CEO|이사회|board|guidance|가이던스|investor\s*day|analyst\s*day/i.test(q)) _want = true;
-  }
-  // E (v50.10): 정성 분석 의도 → web research로 placeholder/정적/휴리스틱 데이터 보강.
-  //   AIO_ANALYSIS_FRAMEWORK_REGISTRY 고위험 7관점(공급망/TAM/경쟁/해자/13F/CEO전략/사업구조)에 대응.
-  //   (티커 有 OR 정성 컨텍스트) AND 정성 키워드. 순수 시세 키워드(주가/시세/얼마)만 있으면 qualIntent 미포함 → 미발화.
-  if (!_want) {
-    var _qualCtx = ctxId === 'fundamental' || ctxId === 'ticker' || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'market-news' || ctxId === 'briefing' || ctxId === 'macro';
-    var _qualIntent = /공급망|supply\s*chain|밸류체인|value\s*chain|tam|시장\s*규모|시장규모|점유율|market\s*share|경쟁|competitor|경쟁사|competition|해자|moat|경쟁\s*우위|기관|13f|지분|institutional|holdings|사업\s*구조|사업구조|비즈니스\s*모델|business\s*model|수익\s*구조|수익구조|경영진|ceo|경영\s*전략|management|전략|strategy|파트너십|partnership|투자\s*포인트|투자포인트|thesis|전망|outlook|평가|왜\s|분석|analyze|analysis/i.test(q);
-    if ((_hasTicker || _qualCtx) && _qualIntent) _want = true;
-  }
-  // D: 검색 의도 폴백 (Perplexity/Google 키 없을 때)
-  if (!_want) {
-    try {
-      if (typeof _needsWebSearch === 'function') {
-        var pKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_perplexity_key') : '';
-        var gKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_google_cse_key') : '';
-        var gCx = (typeof _getApiKey === 'function') ? _getApiKey('aio_google_cse_cx') : '';
-        // 완성된 Perplexity/Google CSE 설정이 없을 때만 Claude native web_search 폴백.
-        // Google API key만 있고 cx가 빠진 반쪽 설정은 _needsWebSearch가 실행하지 못하므로 여기서 막지 않는다.
-        if (!pKey && !(gKey && gCx)) {
-          if (/검색|찾아|search|look\s*up|알아봐|조사/i.test(q)) _want = true;
-        }
-      }
-    } catch(e) {}
-  }
-  if (!_want) return false;
-  // 비용 안전 상한 (v50.10) — 5명 공유 유료 Claude 키 보호. 일일 한도 도달 시 미발화 + UI note 플래그.
-  try {
-    if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('claudeWebSearch')) {
-      window._aioWebSearchCapped = true;
-      return false;
-    }
-  } catch(e) {}
-  return true;
+  return false; // Shared paid native search stays disabled; evidence is mandatory.
 }
+
 window._shouldUseClaudeWebSearch = _shouldUseClaudeWebSearch;
 
 /** 검색 쿼리 최적화 — v36.5: 내러티브/이벤트 컨텍스트 강화 */
@@ -4819,68 +4603,7 @@ function _aioRecordExternalSearchAudit(query, status, result, failures) {
 /** Perplexity Sonar API 호출 */
 async function _perplexitySearch(searchQuery, searchOptions) {
   _aioThrowIfChatAborted(searchOptions && searchOptions.signal);
-  var apiKey = _getApiKey('aio_perplexity_key') || '';
-  if (!apiKey) throw new Error('Perplexity API 키 없음');
-
-  var now = new Date();
-  var kst = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 9 * 3600000);
-  var dateStr = kst.getFullYear() + '-' + String(kst.getMonth()+1).padStart(2,'0') + '-' + String(kst.getDate()).padStart(2,'0');
-
-  // v48.2: 웹검색 결과 5분 캐시 — 동일 쿼리 반복 시 Perplexity 호출 생략
-  if (!window._pplxCache) window._pplxCache = {};
-  // Current-sensitive research cannot reuse a result solely by query text.
-  // Include the date plus the plan/session/revision boundary in the cache key.
-  var _researchRevision = searchOptions && (searchOptions.planId || searchOptions.sourceRevision || searchOptions.session || searchOptions.recency) || 'default';
-  var _cKey = searchQuery.trim().toLowerCase() + '|' + dateStr + '|' + String(_researchRevision).toLowerCase();
-  var _cached = window._pplxCache[_cKey];
-  if (_cached && (Date.now() - _cached._ts < 300000)) {
-    _aioThrowIfChatAborted(searchOptions && searchOptions.signal);
-    console.log('[AIO] Perplexity 캐시 히트 (5분 내):', searchQuery.substring(0,40));
-    return { answer: _cached.answer, citations: _cached.citations, searchQuery: searchQuery, _cached: true };
-  }
-
-  var res = await fetch('https://api.perplexity.ai/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-    signal: searchOptions && searchOptions.signal,
-    body: JSON.stringify({
-      model: 'sonar',
-      messages: [
-        { role: 'system', content: '오늘은 ' + dateStr + '이다. 금융/투자/시장 전문 리서치 어시스턴트로서, 아래 우선순위로 정보를 탐색·정리하라:\n① 시장 내러티브·테마 플레이 (사스포칼립스, turbo quant, ARM everywhere, AI 버블/윈터 등 월가에서 회자되는 투자 스토리)\n② 주요 컨퍼런스·이벤트 시사점 (GTC, CES, WWDC, Davos, Jackson Hole 등에서 발표된 내용과 시장 반응)\n③ 투자 대가·기관 포지션 변화 (버핏, 달리오, ARK, 골드만 등의 최근 매매·견해·리포트)\n④ 이벤트 드리븐 (실적 서프라이즈, 규제 변화, M&A, IPO, 지정학 리스크 등 시장 촉매)\n일반 뉴스보다 위 유형의 "외부에서만 알 수 있는 최신 정보"를 우선 추출하라. 출처 반드시 포함. 팩트 위주 600자 이내. 한국어로 정리.' },
-        { role: 'user', content: searchQuery }
-      ],
-      max_tokens: 1024,
-      temperature: 0.1,
-      return_citations: true,
-      // v48.2: 금융 도메인 화이트리스트 — 노이즈 제거 + 공신력 있는 출처 우선
-      search_domain_filter: searchOptions && Array.isArray(searchOptions.allowedDomains) && searchOptions.allowedDomains.length
-        ? searchOptions.allowedDomains
-        : ['reuters.com','apnews.com','federalreserve.gov','fred.stlouisfed.org','sec.gov','bls.gov','bea.gov','cboe.com','bok.or.kr','kosis.kr'],
-      // v48.11: recency 동적 — "오늘/지금/금일/방금/현재/당일/today/now" 키워드 포함 시 day, 그 외 week
-      search_recency_filter: (searchOptions && searchOptions.recency) || (/오늘|지금|금일|방금|현재|당일|today|now|just\s/i.test(searchQuery) ? 'day' : 'week'),
-      return_related_questions: false
-    })
-  });
-
-  if (!res.ok) {
-    var errText = await res.text();
-    throw new Error('Perplexity API (' + res.status + '): ' + errText.substring(0, 100));
-  }
-
-  var data = await res.json();
-  _aioThrowIfChatAborted(searchOptions && searchOptions.signal);
-  var answer = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
-  var citations = data.citations || [];
-  // v48.2: 캐시 저장 (최대 20개 유지, LRU 간이 관리)
-  try {
-    if (_aioResearchResultUsable({ answer: answer, citations: citations })) window._pplxCache[_cKey] = { answer: answer, citations: citations, _ts: Date.now() };
-    var keys = Object.keys(window._pplxCache);
-    if (keys.length > 20) {
-      keys.sort(function(a,b){ return (window._pplxCache[a]._ts||0) - (window._pplxCache[b]._ts||0); });
-      for (var i = 0; i < keys.length - 20; i++) delete window._pplxCache[keys[i]];
-    }
-  } catch(e) {}
-  return { answer: answer, citations: citations, searchQuery: searchQuery };
+  return null; // Retired AI provider; all inference uses shared GPT-6 Luna.
 }
 
 /** 검색 결과 → 시스템 프롬프트 주입 문자열 — v36.5: 내러티브 중심 지시 강화 */
@@ -4927,7 +4650,7 @@ function _searchCitationsHTML(sr) {
   if (!sr || !sr.citations || sr.citations.length === 0) return '';
   var html = '<div class="aio-search-sources" style="margin-top:6px;padding:8px;border-left:2px solid var(--accent);border-radius:0 4px 4px 0;font-size:12px;min-width:0;">';
   // v50.10: Claude native web_search 출처도 동일 렌더 (engine === 'claude')
-  var engName = sr.engine === 'perplexity' ? 'Perplexity' : sr.engine === 'claude' ? 'Claude 웹검색' : 'Google';
+  var engName = sr.engine === 'perplexity' ? 'Perplexity' : sr.engine === 'claude' ? 'AI 웹검색' : 'Google';
   html += '<div style="color:var(--text-secondary);font-weight:600;margin-bottom:3px;">' + engName + ' 참고 링크</div>';
   html += '<div style="color:var(--text-muted);margin-bottom:4px;">검색된 링크이며, 답변의 근거로 검증됐다는 뜻은 아닙니다.</div>';
   var seen = {};
@@ -4997,7 +4720,7 @@ async function _aiWebSearch(searchQuery, searchOptions) {
   _aioThrowIfChatAborted(searchOptions.signal);
   var providerFailures = [];
   // 1순위: Perplexity Sonar (AI 요약 포함)
-  var pKey = _getApiKey('aio_perplexity_key') || '';
+  var pKey = ''; // Perplexity AI is retired.
   if (pKey) {
     try {
       var pResult = await _aioRunChatTask(function(signal) { return _perplexitySearch(searchQuery, Object.assign({}, searchOptions, { signal: signal })); }, searchOptions);
@@ -5036,7 +4759,7 @@ async function _aiWebSearch(searchQuery, searchOptions) {
 
   var providerError = new Error(providerFailures.length
     ? 'RESEARCH_PROVIDER_FAILED: 구성된 외부 검색 공급자 요청이 실패했습니다.'
-    : 'RESEARCH_PROVIDER_UNAVAILABLE: Perplexity 또는 완전한 Google CSE 설정이 없습니다.');
+    : 'RESEARCH_PROVIDER_UNAVAILABLE: 완전한 Google CSE 설정이 없습니다.');
   providerError.code = providerFailures.length ? 'RESEARCH_PROVIDER_FAILED' : 'RESEARCH_PROVIDER_UNAVAILABLE';
   providerError.failures = providerFailures;
   _aioRecordExternalSearchAudit(searchQuery, providerError.code, null, providerFailures);
@@ -5059,7 +4782,7 @@ function _aioResearchFailureForUser(error) {
   var messages = {
     DISABLED_BY_USER: 'Web Research가 사용자 설정에서 비활성화되어 있습니다.',
     RESEARCH_PLAN_EMPTY: '검색 계획을 만들지 못했습니다.',
-    RESEARCH_PROVIDER_UNAVAILABLE: '외부 검색 공급자가 구성되지 않아 Claude 네이티브 검색으로 전환했습니다.',
+    RESEARCH_PROVIDER_UNAVAILABLE: '외부 검색 연결이 없어 최신 출처를 확인하지 못했습니다. 수집된 자료 범위만 사용할 수 있습니다.',
     RESEARCH_PROVIDER_FAILED: '구성된 외부 검색 공급자 요청이 실패했습니다.',
     RESEARCH_RESULTS_EMPTY: '모든 Research 하위 검색이 실패했습니다.',
     RESEARCH_TIMEOUT: 'Web Research가 제한 시간 안에 완료되지 않았습니다.'
@@ -5068,7 +4791,7 @@ function _aioResearchFailureForUser(error) {
 }
 
 function _aioGetResearchCapabilitySnapshot() {
-  var pKey = _getApiKey('aio_perplexity_key') || '';
+  var pKey = ''; // Perplexity AI is retired.
   var gKey = _getApiKey('aio_google_cse_key') || '';
   var gCx = _getApiKey('aio_google_cse_cx') || '';
   var audit = null;
@@ -5078,7 +4801,7 @@ function _aioGetResearchCapabilitySnapshot() {
     externalSearchReady: externalSearchReady,
     externalProvider: pKey ? 'perplexity' : (gKey && gCx) ? 'google-cse' : 'none',
     nativeRouteReadiness: audit && audit.researchReadiness || 'NOT_CHECKED',
-    nativeCandidate: !!(typeof getApiKey === 'function' && getApiKey()) || !!(_getApiKey('aio_cf_worker_url') || ''),
+    nativeCandidate: false, // Paid native research is disabled by shared budget policy.
     checkedAt: new Date().toISOString()
   };
 }
@@ -5260,7 +4983,7 @@ async function _aioPrepareAIResearch(questionPlan, options) {
 async function _aiDeepSearch(query, ctxId) {
   var options = arguments.length > 2 && arguments[2] ? arguments[2] : {};
   _aioThrowIfChatAborted(options.signal);
-  var pKey = _getApiKey('aio_perplexity_key') || '';
+  var pKey = ''; // Perplexity AI is retired.
   var gKey = _getApiKey('aio_google_cse_key') || '';
   var gCx = _getApiKey('aio_google_cse_cx') || '';
   if (!pKey && !(gKey && gCx)) return null;
@@ -6291,21 +6014,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   if (!_chatRoute.ok) {
     chatAppendMsg(ctxId, 'ai', '<div style="color:#f87171;padding:8px 12px;background:rgba(248,113,113,0.1);border-left:3px solid #f87171;border-radius:4px;">' +
       '<b>⚠ AI 라우트 확인 필요</b><br>' +
-      (typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_chatRoute.reason) : 'Claude 개인 키 또는 명시된 Worker 라우트가 필요합니다.') + '<br>' +
-      '사이드바 → "Claude API 키" 입력란에 <code>sk-ant-...</code> 형식 키 입력 후 저장하세요.<br>' +
-      '<a href="https://console.anthropic.com" target="_blank" style="color:#00d4ff;">→ console.anthropic.com에서 무료 발급 ($5 크레딧)</a>' +
-      '</div>');
-    // 사이드바 input 강조 (1회 pulse)
-    try {
-      var keyInput = document.getElementById('sidebar-api-key');
-      if (keyInput) {
-        var origBorder = keyInput.style.border;
-        keyInput.style.transition = 'border 0.3s';
-        keyInput.style.border = '2px solid #f87171';
-        keyInput.focus();
-        setTimeout(function(){ keyInput.style.border = origBorder; }, 3000);
-      }
-    } catch(_) {}
+      (typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_chatRoute.reason) : '운영자의 공용 AI 연결을 확인해 주세요.') + '</div>');
     _aioReleaseChatRequest(_aioChatRun);
     return;
   }
@@ -6749,12 +6458,12 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 
   // v31.3: 사용 모델 표시
   var modelLabel = selectedModelCfg.label;
-  var modelColor = selectedModelKey === 'sonnet-thinking' ? '#a855f7' : selectedModelKey === 'sonnet' ? '#00d4ff' : 'var(--text-muted)';
+  var modelColor = selectedModelKey === 'luna-low' ? '#a855f7' : 'var(--text-muted)';
   var modelBadge = '<div style="font-size:11px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:-4px 0 4px;opacity:0.7;">' + modelLabel + (selectedModelCfg.thinking ? ' (추론 중…)' : '') + '</div>';
 
   // v36.2: 웹검색 수행 시 검색 알림 배지
   if (webSearchResult) {
-    var _engBadge = webSearchResult.engine === 'perplexity' ? 'Perplexity' : webSearchResult.engine === 'claude' ? 'Claude 웹검색' : 'Research Plan';
+    var _engBadge = webSearchResult.engine === 'perplexity' ? 'Perplexity' : webSearchResult.engine === 'claude' ? 'AI 웹검색' : 'Research Plan';
     chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">Web Research: 결과 확인 ' + (webSearchResult.citations ? webSearchResult.citations.length : 0) + '건 · ' + _engBadge + '</div>');
   }
 
@@ -7392,7 +7101,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
       if (!_isCurrentChatRun()) return;
       var _retryable = /시간 초과|timeout|네트워크|AbortError|500|502|503|529|overloaded/i.test(errMsg);
       var _retried = state._retryCount || 0;
-      var _fallbackOrder = ['sonnet-thinking','sonnet','haiku'];
+      var _fallbackOrder = ['luna-low','luna'];
       var _currentIdx = _fallbackOrder.indexOf(selectedModelKey);
 
       if (_retryable && _retried < 2) {
@@ -7431,13 +7140,13 @@ async function chatSend(ctxId, _aioDispatchOptions) {
       var _errCat, _errIcon, _errGuide;
       if (/401|unauthorized|invalid.*key|API.*key/i.test(errMsg)) {
         _errCat = 'API 키 무효'; _errIcon = '🔑';
-        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>사이드바의 Claude API 키 입력란을 확인하세요.</li><li><a href="https://console.anthropic.com" target="_blank" style="color:#00d4ff;">Anthropic Console</a>에서 키 발급/만료 상태를 확인하세요.</li><li>키를 다시 저장한 뒤 같은 질문을 재시도하세요.</li></ul>';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>운영자에게 공용 AI 연결 확인을 요청하세요.</li><li><a href="https://platform.openai.com" target="_blank" style="color:#00d4ff;">OpenAI Platform</a>에서 공용 연결 상태를 확인하세요.</li><li>연결 확인 후 같은 질문을 재시도하세요.</li></ul>';
       } else if (/429|rate.*limit|too many/i.test(errMsg)) {
         _errCat = 'API 사용량 한도 초과'; _errIcon = '⏱';
-        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1분 후 재시도 (Anthropic rate limit 회복 대기)</li><li>console.anthropic.com에서 사용량/한도 확인</li><li>모델 변경: Sonnet → Haiku (사이드바 모델 선택)</li></ul>';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1분 후 재시도 (공용 요청 한도 회복 대기)</li><li>platform.openai.com에서 사용량/한도 확인</li><li>공용 예산 한도가 회복된 뒤 다시 시도하세요.</li></ul>';
       } else if (/500|502|503|529|overloaded|server.*error/i.test(errMsg)) {
-        _errCat = 'Anthropic 서버 일시 오류'; _errIcon = '⚠';
-        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1~2분 후 재시도 (Anthropic 일시 부하)</li><li><a href="https://status.anthropic.com" target="_blank" style="color:#00d4ff;">status.anthropic.com</a> 상태 확인</li><li>모델 변경: Sonnet-Thinking → Sonnet → Haiku 순서로 fallback 권장</li></ul>';
+        _errCat = 'AI 서버 일시 오류'; _errIcon = '⚠';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1~2분 후 재시도 (AI 일시 부하)</li><li><a href="https://status.openai.com" target="_blank" style="color:#00d4ff;">status.openai.com</a> 상태 확인</li><li>같은 오류가 반복되면 운영자에게 알려주세요.</li></ul>';
       } else if (/network|fetch|cors/i.test(errMsg)) {
         _errCat = '네트워크 오류'; _errIcon = '📡';
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>인터넷 연결을 확인하세요.</li><li>잠시 후 다시 시도하세요.</li><li>계속 실패하면 데이터 연결 상태를 새로고침하세요.</li></ul>';
@@ -7554,7 +7263,7 @@ window._fundAnalysisData = null;
 // v48.8: FMP 무료 250/day 쿼터 카운터 — 하루 단위 리셋. 200+ 시 UI 경고.
 // v48.9: 범용 쿼터 카운터로 확장 — 공유 키 API 전체 커버 (Twelve Data/AV/Google CSE/NewsData/Perplexity)
 //        각 API의 공식 무료 한도를 _QUOTA_LIMITS에 선언. localStorage aio_quota_{provider} 일일 키별 관리.
-//        4명 공유 키 환경에서 개별 사용자가 다른 사용자의 쿼터 소진을 조기 인지 가능 (console 경고).
+// P1422: local counters do not observe another browser or another application.
 var _QUOTA_LIMITS = {
   fmp:        { daily: 250,  label: 'FMP 재무제표' },
   twelveData: { daily: 800,  label: 'Twelve Data 지표' },
@@ -7564,7 +7273,7 @@ var _QUOTA_LIMITS = {
   rss2json:   { daily: 10000,label: 'rss2json' },
   // v50.10: Claude native web_search 비용 안전 상한 (검색 1회당 과금 — 5명 공유 유료 키 보호).
   //   관대한 기본값. 운영자가 localStorage 'aio_quota_claudeWebSearch' 또는 본 daily 값으로 조정 가능.
-  claudeWebSearch: { daily: 120, label: 'Claude 웹검색' }
+  claudeWebSearch: { daily: 120, label: 'AI 웹검색' }
 };
 function _bumpApiCounter(providerKey) {
   try {
@@ -7601,29 +7310,15 @@ function _isQuotaExceeded(providerKey) {
     return q.date === today && q.count >= lim.daily;
   } catch(e) { return false; }
 }
-// 하위 호환 — v48.8의 _bumpFmpCounter 호출하는 곳 유지
-function _bumpFmpCounter() { return _bumpApiCounter('fmp'); }
-
 async function _fmpFetch(endpoint) {
   var key = _getApiKey('aio_fmp_key') || '';
   if (!key) return null;
   // v48.8: 쿼터 사전 체크 — 한도 도달 시 즉시 중단 (네트워크 낭비 방지)
-  try {
-    var qRaw = localStorage.getItem('aio_fmp_quota');
-    if (qRaw) {
-      var q = JSON.parse(qRaw);
-      var today = new Date().toISOString().slice(0,10);
-      if (q.date === today && q.count >= 250) {
-        _aioLog('warn', 'fetch', 'FMP 일일 한도 도달 — 호출 스킵: ' + endpoint);
-        return null;
-      }
-    }
-  } catch(e) {}
+  if (_isQuotaExceeded('fmp')) return null;
   try {
     var url = 'https://financialmodelingprep.com/api/' + endpoint + (endpoint.indexOf('?') >= 0 ? '&' : '?') + 'apikey=' + key;
     var r = await fetchWithTimeout(url, {}, 10000);
     if (r.ok) {
-      _bumpFmpCounter();  // 성공 호출만 카운트
       return await r.json();
     }
   } catch(e) { _aioLog('warn', 'fetch', 'FMP ' + endpoint + ': ' + e.message); }
@@ -8040,7 +7735,7 @@ async function fundamentalSearch() {
       { url: 'v3/key-executives/' + ticker, handler: function(r){ if(r&&r.length){collected.fmpExecutives=r.slice(0,10); collected.sources.push('FMP (경영진)'); updateProgress('경영진: '+r.length+'명 데이터');} } },
       { url: 'v4/insider-trading?symbol=' + ticker + '&limit=20', handler: function(r){ if(r&&r.length){collected.fmpInsiderTrades=r.slice(0,15); collected.sources.push('FMP (내부자 거래)'); updateProgress('내부자 거래: 최근 '+Math.min(15,r.length)+'건');} } },
       { url: 'v3/institutional-holder/' + ticker, handler: function(r){ if(r&&r.length){collected.fmpInstitutional=r.slice(0,15); collected.sources.push('FMP (기관 보유)'); updateProgress('기관 투자자: 상위 '+Math.min(15,r.length)+'개 기관');} } },
-      { url: 'v3/analyst-estimates/' + ticker + '?limit=4', handler: function(r){ if(r&&r.length){collected.fmpEstimates=r; collected.sources.push('FMP (애널리스트 추정)'); updateProgress('애널리스트 추정: '+r.length+'개 분기 전망');} } },
+      { url: 'v3/analyst-estimates/' + ticker + '?period=quarter&limit=4', handler: function(r){ if(r&&r.length){collected.fmpEstimates=r; collected.sources.push('FMP (애널리스트 추정)'); updateProgress('애널리스트 추정: '+r.length+'개 분기 전망');} } },
       { url: 'v4/price-target-consensus?symbol=' + ticker, handler: function(r){ if(r&&r[0]){collected.fmpPriceTarget=r[0]; collected.sources.push('FMP (목표가)'); updateProgress('목표가 컨센서스: $'+(r[0].targetConsensus||'N/A'));} } },
       { url: 'v4/revenue-product-segmentation?symbol=' + ticker + '&structure=flat&period=annual', handler: function(r){ if(r&&r.length){collected.fmpRevSegment=r.slice(0,3); collected.sources.push('FMP (매출 세그먼트)'); updateProgress('매출 세그먼트: 제품별 분해');} } },
       { url: 'v4/revenue-geographic-segmentation?symbol=' + ticker + '&structure=flat', handler: function(r){ if(r&&r.length){collected.fmpRevGeo=r.slice(0,3); collected.sources.push('FMP (지역별 매출)'); updateProgress('지역별 매출 분해');} } },
@@ -8985,8 +8680,8 @@ async function chatSendUnified(_aioDispatchOptions) {
   sysPrompt += '규칙: 또는 표시된 데이터는 "확인되지 않음" 또는 "데이터 미수집"이라고 명시적으로 밝혀야 한다. 추측하거나 꾸며내지 마라.\n';
 
   // 7. 모델 자동 선택 (질문 복잡도 기반)
-  var selectedModelKey = 'haiku';
-  try { selectedModelKey = typeof _detectQueryComplexity === 'function' ? _detectQueryComplexity(q, ctxId) : 'haiku'; } catch(e) {}
+  var selectedModelKey = 'luna';
+  try { selectedModelKey = typeof _detectQueryComplexity === 'function' ? _detectQueryComplexity(q, ctxId) : 'luna'; } catch(e) {}
   var selectedModelCfg = typeof getModelConfig === 'function' ? getModelConfig(selectedModelKey) : { label: selectedModelKey };
   var modelOpts = { modelKey: selectedModelKey, maxTokens: (_uniDeepData) ? 16000 : undefined };
   var _uniUseClaudeWebSearch = false;
@@ -9098,7 +8793,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     // v46.10: 모델 배지
     var _bubbleParent = (aiBubble ? aiBubble.parentNode : null) || (streamEl ? streamEl.querySelector('.ai-msg-content') : null);
     if (_bubbleParent) {
-      var modelColor = selectedModelKey === 'sonnet-thinking' ? 'var(--data-purple)' : selectedModelKey === 'sonnet' ? 'var(--data-cyan)' : 'var(--text-muted)';
+      var modelColor = selectedModelKey === 'luna-low' ? 'var(--data-purple)' : 'var(--text-muted)';
       var badgeEl = document.createElement('div');
       badgeEl.style.cssText = 'font-size:11px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:2px 0 0;opacity:0.6;';
       badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
@@ -9128,7 +8823,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       if (_uniDomainData) _bItems.push('<span style="color:var(--data-green);">페이지 데이터</span>');
       _bItems.push(_uniNewsCtx ? '<span style="color:var(--data-green);">뉴스</span>' : '<span style="color:var(--text-muted);">뉴스</span>');
       if (_uniWebResult) _bItems.push('<span style="color:var(--data-purple);">웹검색</span>');
-      if (_uniUseClaudeWebSearch) _bItems.push('<span style="color:var(--data-purple);">Claude 웹검색</span>');
+      if (_uniUseClaudeWebSearch) _bItems.push('<span style="color:var(--data-purple);">AI 웹검색</span>');
       if (_uniDeepData) _bItems.push('<span style="color:var(--data-cyan);">심층</span>');
       _srcBadge.innerHTML = _bItems.join('');
       _bubbleParent.appendChild(_srcBadge);
@@ -9180,7 +8875,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (_uniSignal && _uniSignal.aborted) { _releaseUnifiedRun(); return; }
     var _retryable = /시간 초과|timeout|네트워크|AbortError|500|502|503|529|overloaded/i.test(errMsg);
     var _retried = state._retryCount || 0;
-    var _fallbackOrder = ['sonnet-thinking','sonnet','haiku'];
+    var _fallbackOrder = ['luna-low','luna'];
     var _currentIdx = _fallbackOrder.indexOf(selectedModelKey);
 
     if (_retryable && _retried < 2) {

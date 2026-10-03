@@ -1,0 +1,29 @@
+{
+  "version": "v56.99",
+  "date": "2026-10-03",
+  "qa": [
+    { "id": "QA-AI-LUNA-01", "text": "P1410: chat, translation and Actions use only the shared GPT-6 Luna route and one monthly budget ledger.", "verify_by": "ci-ai-budget-scope-check + ci-worker-anthropic-check + ci-ai-chat-public-route-browser-check", "done": true },
+    { "id": "QA-AI-LUNA-LIVE-01", "text": "P1410: provision OpenAI and automation secrets, explicitly deploy the CI-attested revision, verify browser/Actions upstream smoke and real answer/translation quality. Local fixture PASS does not certify this.", "verify_by": "deploy-ai-proxy.yml exact-SHA smoke and operator quality review", "done": false }
+  ],
+  "qa_section": "GPT-6 Luna shared AI migration",
+  "note": "v56.99 — All AIO AI uses GPT-6 Luna through the shared Worker and one atomic monthly $10 budget; chat, translation and Actions have no direct provider-key bypass. Production provisioning/deployment remains operator-owned (P1410).",
+  "p": {
+    "id": 1410,
+    "title": "AI migration preserves one budget and credential boundary",
+    "symptom": "Owner selected GPT-6 Luna for all AI with a monthly maximum of $10. Personal browser keys and Actions direct-provider calls bypassed the shared budget; a model-string change alone would leave the Anthropic protocol active.",
+    "root_cause": "Provider-specific chat, translation, scheduled generation, credentials, deployment smoke and accounting were spread across callers. Request counts did not cover their dollar costs.",
+    "fix": "All generation uses GPT-6 Luna Responses through /openai with a Worker-only provider key. Actions authenticates separately but shares the Durable Object ledger. Validate priced text/format/tool inputs, bound output, settle only verified complete usage, and retain uncertain reservations. Preserve past monthly spend and inactive legacy-key protection. Disable paid native search and Perplexity AI. Publish only matching OpenAI provider/model readiness.",
+    "violated_rule": "R680: all active paid AI paths must be inside the declared budget and migration must preserve credential, cancellation and evidence boundaries.",
+    "prevention": "ci-ai-budget-scope-check; OpenAI handler/receipt/quota regressions through ci-worker-anthropic-check; Actions protocol fixtures; client Responses fixtures and public-route browser gate.",
+    "verification": "Local deterministic/browser evidence is recorded separately in the migration report. Real API, producer refresh, commit, push and deployment are not implied. Live provisioning and quality review remain open."
+  },
+  "r": {
+    "id": 681,
+    "title": "All AIO AI shares one metered server credential boundary",
+    "rule": "Chat, translation, automated analysis and deployment smoke call only the shared GPT-6 Luna Worker. No personal-key, direct Actions-provider or alternate paid-AI fallback bypasses it. Reserve conservative cost atomically against one UTC-month budget of at most $10 before dispatch. Verified complete usage may settle once; unknown, failed or cancelled receipts never create credit. Preserve the prior ledger and inactive stored-key protection. Reservation accounting is not a provider invoice or protection for other applications using the project. Unsupported paid tools/expansions fail closed. Published readiness must match provider/model.",
+    "validation": "P1410; ci-ai-budget-scope-check, ci-worker-anthropic-check, ci-data-pipeline-contract-check, ci-ai-chat-public-route-browser-check, ci-operations-status-check and exact-SHA deployment smoke."
+  },
+  "changelog": [
+    "**GPT-6 Luna 공용 AI (P1410/R681):** 채팅·번역·자동 분석을 Worker 서버 키와 월 $10 원자적 예산으로 통합. 개인 AI 키와 다른 유료 AI 우회 제거, 완료 사용량 정산 및 기존 원장·키 보호 유지. 실제 서비스 전환은 키 등록과 명시적 배포 후 검증."
+  ]
+}

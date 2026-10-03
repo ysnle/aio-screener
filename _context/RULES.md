@@ -1,11 +1,23 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-09-30
+last_verified: 2026-10-03
 confidence: medium
-target_version: v57.05
+target_version: v57.06
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R682. Distinguish operator artifacts from optional personal provider queries (v57.06, P1422)
+
+**Rule**: A registered operator secret does not configure a browser user's optional provider account. FRED user queries require that user's own key; forwarding through the trusted AIO relay requires explicit opt-in and no log/cache/persistence/redirect. BOK/KOSIS operator relay keys remain isolated. This personal-header exception supersedes the env-only FRED assumption in R627/P1151 while preserving fixed destinations and redaction. Current provider endpoint and response contracts must preserve identity, units and reporting periods; unprovided dates and unavailable plan data are held. HTTP batching is not a weighted-credit discount, and local browser counters cannot certify account-wide quota or billing. Settings expose only active optional inputs and clearly distinguish keyless common artifacts and AI from personal queries.
+
+**Validation**: P1422; ci-extension-api-runtime-check, ci-worker-relay-check, ci-operator-secrets-contract-check and local settings browser evidence. Live provider and data licensing checks remain distinct.
+
+## R681. All AIO AI shares one metered server credential boundary (v57.06, P1421)
+
+**Rule**: Chat, translation, automated analysis and deployment smoke call only the shared GPT-6 Luna Worker. No personal-key, direct Actions-provider or alternate paid-AI fallback bypasses it. Reserve conservative cost atomically against one UTC-month budget of at most $10 before dispatch. Verified complete usage may settle once; unknown, failed or cancelled receipts never create credit. Preserve the prior ledger and inactive stored-key protection. Reservation accounting is not a provider invoice or protection for other applications using the project. Unsupported paid tools/expansions fail closed. Published readiness must match provider/model.
+
+**Validation**: P1421; ci-ai-budget-scope-check, ci-worker-anthropic-check, ci-data-pipeline-contract-check, ci-ai-chat-public-route-browser-check, ci-operations-status-check and exact-SHA deployment smoke.
 
 ## R680. Budget scope, reservation and invoice remain distinct (v56.87, P1353)
 

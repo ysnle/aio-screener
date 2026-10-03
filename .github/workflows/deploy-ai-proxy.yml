@@ -123,8 +123,8 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLAUDE_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          FRED_RELAY_KEY: ${{ secrets.FRED_API_KEY }}
+          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
         run: |
           set -euo pipefail
           for pair in "CLOUDFLARE_API_TOKEN=$CF_TOKEN" "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT"; do
@@ -134,10 +134,11 @@ jobs:
           # Repository API keys are used only by an explicitly dispatched secret sync.
           # Automatic code deploys retain Cloudflare's existing secret bindings.
           if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
-            for pair in "ANTHROPIC_API_KEY=$CLAUDE_KEY" "FRED_API_KEY=$FRED_RELAY_KEY"; do
+            for pair in "OPENAI_API_KEY=$OPENAI_KEY" "AIO_AUTOMATION_TOKEN=$AUTOMATION_TOKEN"; do
               name="${pair%%=*}"; value="${pair#*=}"
               if [ -z "$value" ]; then echo "::error::operator_required: $name is not configured for manual secret sync"; exit 1; fi
             done
+            if [ "${#AUTOMATION_TOKEN}" -lt 32 ]; then echo '::error::operator_required: AIO_AUTOMATION_TOKEN must have at least 32 characters'; exit 1; fi
           fi
 
       - name: Setup Node
@@ -205,19 +206,20 @@ jobs:
           SOURCE_SHA: ${{ steps.release.outputs.sha }}
         run: wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA"
 
-      - name: Publish Anthropic and server-side relay secrets
+      - name: Publish OpenAI, automation, and server-side relay secrets
         id: publish-secrets
         if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && github.event_name == 'workflow_dispatch'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
           BOK_API_KEY: ${{ secrets.BOK_API_KEY }}
           KOSIS_API_KEY: ${{ secrets.KOSIS_API_KEY }}
         run: |
           set -euo pipefail
-          printf '%s' "$ANTHROPIC_API_KEY" | wrangler secret put ANTHROPIC_API_KEY --config worker/wrangler.proxy.deploy.toml
+          printf '%s' "$OPENAI_API_KEY" | wrangler secret put OPENAI_API_KEY --config worker/wrangler.proxy.deploy.toml
+          printf '%s' "$AIO_AUTOMATION_TOKEN" | wrangler secret put AIO_AUTOMATION_TOKEN --config worker/wrangler.proxy.deploy.toml
           publish_optional() {
             local name="$1" value="$2"
             if [ -z "$value" ]; then
@@ -226,7 +228,6 @@ jobs:
             fi
             printf '%s' "$value" | wrangler secret put "$name" --config worker/wrangler.proxy.deploy.toml
           }
-          publish_optional FRED_API_KEY "$FRED_API_KEY"
           publish_optional BOK_API_KEY "$BOK_API_KEY"
           publish_optional KOSIS_API_KEY "$KOSIS_API_KEY"
 
@@ -236,31 +237,42 @@ jobs:
         env:
           AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
           EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+          AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: |
           set -euo pipefail
           ready="0"
           for attempt in $(seq 1 12); do
             status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-ai-health.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
-            if [ "$status" = '200' ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync(process.argv[1]));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.EXPECTED_SHA||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true||h.relay?.configured?.fred!==true||h.relay?.quotaConfigured!==true)process.exit(1)" "$RUNNER_TEMP/aio-ai-health.json"; then
+            if [ "$status" = '200' ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync(process.argv[1]));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.EXPECTED_SHA||h.ai?.provider!=='openai'||h.ai?.model!=='gpt-6-luna'||h.ai?.automationConfigured!==true||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true||!h.relay?.personalKeyRequired?.includes('fred')||h.relay?.quotaConfigured!==true)process.exit(1)" "$RUNNER_TEMP/aio-ai-health.json"; then
               ready="1"
               break
             fi
             sleep 5
           done
           if [ "$ready" != '1' ]; then cat "$RUNNER_TEMP/aio-ai-health.json" || true; echo "::error::ai_proxy_not_ready: HTTP $status"; exit 1; fi
-          cors_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-ai-cors.txt" --output /dev/null --write-out '%{http_code}' -X OPTIONS -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/anthropic")"
+          cors_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-ai-cors.txt" --output /dev/null --write-out '%{http_code}' -X OPTIONS -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/openai")"
           if [ "$cors_status" != '204' ]; then echo "::error::ai_proxy_cors_failed: HTTP $cors_status"; exit 1; fi
           node -e "const fs=require('fs');const h=fs.readFileSync(process.argv[1],'utf8').toLowerCase();if(!/^access-control-allow-origin:\\s*https:\\/\\/ysnle\\.github\\.io\\s*$/m.test(h))process.exit(1)" "$RUNNER_TEMP/aio-ai-cors.txt"
-          blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' -H 'Content-Type: application/json' -d '{"model":"claude-haiku-4-5","max_tokens":1,"messages":[]}' "$AI_PROXY_URL/anthropic")"
+          blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' -H 'Content-Type: application/json' -d '{"model":"gpt-6-luna","max_output_tokens":16,"input":[],"store":false}' "$AI_PROXY_URL/openai")"
           if [ "$blocked" != '403' ]; then echo "::error::ai_proxy_origin_gate_failed: HTTP $blocked"; exit 1; fi
-          upstream_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-ai-upstream-headers.txt" --output "$RUNNER_TEMP/aio-ai-upstream.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' -H 'Content-Type: application/json' -H "X-AIO-Idempotency-Key: deploy-${EXPECTED_SHA}-${GITHUB_RUN_ATTEMPT}" -d '{"model":"claude-haiku-4-5","max_tokens":8,"messages":[{"role":"user","content":"Reply exactly OK"}]}' "$AI_PROXY_URL/anthropic")"
+          upstream_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-ai-upstream-headers.txt" --output "$RUNNER_TEMP/aio-ai-upstream.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' -H 'Content-Type: application/json' -H "X-AIO-Idempotency-Key: deploy-${EXPECTED_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" -d '{"model":"gpt-6-luna","max_output_tokens":32,"reasoning":{"effort":"none"},"input":[{"role":"user","content":"Reply exactly OK"}],"store":false}' "$AI_PROXY_URL/openai")"
           if [ "$upstream_status" != '200' ]; then cat "$RUNNER_TEMP/aio-ai-upstream.json" || true; echo "::error::ai_proxy_upstream_failed: HTTP $upstream_status"; exit 1; fi
-          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(!Array.isArray(r.content)||!r.content.some(x=>x?.type==='text'&&typeof x.text==='string'))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream.json"
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(r.status!=='completed'||!Array.isArray(r.output)||!r.output.some(x=>x?.type==='message'&&x.content?.some(p=>p?.type==='output_text'&&typeof p.text==='string')))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream.json"
           node -e "const fs=require('fs');const h=fs.readFileSync(process.argv[1],'utf8').toLowerCase();if(!/^x-aio-upstream-authority:\\s*durable-object-us\\s*$/m.test(h))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream-headers.txt"
-          relay_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-relay-headers.txt" --output "$RUNNER_TEMP/aio-relay.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
+          automation_blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Content-Type: application/json' -d '{"model":"gpt-6-luna","max_output_tokens":32,"input":"Reply exactly OK","store":false}' "$AI_PROXY_URL/openai")"
+          if [ "$automation_blocked" != '403' ]; then echo "::error::ai_proxy_automation_gate_failed: HTTP $automation_blocked"; exit 1; fi
+          automation_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-ai-automation.json" --write-out '%{http_code}' -H 'Content-Type: application/json' -H "X-AIO-Automation-Token: $AIO_AUTOMATION_TOKEN" -H "X-AIO-Idempotency-Key: deploy-automation-${EXPECTED_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" -d '{"model":"gpt-6-luna","max_output_tokens":32,"reasoning":{"effort":"none"},"input":"Reply exactly OK","store":false}' "$AI_PROXY_URL/openai")"
+          if [ "$automation_status" != '200' ]; then echo "::error::ai_proxy_automation_upstream_failed: HTTP $automation_status"; exit 1; fi
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(r.status!=='completed'||!r.output?.some(x=>x?.type==='message'&&x.content?.some(p=>p?.type==='output_text'&&typeof p.text==='string')))process.exit(1)" "$RUNNER_TEMP/aio-ai-automation.json"
+          relay_keyless="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
+          if [ "$relay_keyless" != '400' ]; then echo '::error::FRED must require a personal credential'; exit 1; fi
+          if [ -n "$FRED_API_KEY" ]; then
+          relay_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-relay-headers.txt" --output "$RUNNER_TEMP/aio-relay.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' -H "X-AIO-Provider-Key: $FRED_API_KEY" "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
           if [ "$relay_status" != '200' ]; then cat "$RUNNER_TEMP/aio-relay.json" || true; echo "::error::ai_proxy_relay_failed: HTTP $relay_status"; exit 1; fi
           node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(!Array.isArray(r.observations))process.exit(1)" "$RUNNER_TEMP/aio-relay.json"
           node -e "const fs=require('fs');const h=fs.readFileSync(process.argv[1],'utf8');if(/api_key/i.test(h)||/api_key=/i.test(h))process.exit(1)" "$RUNNER_TEMP/aio-relay-headers.txt"
+          fi
           relay_blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
           if [ "$relay_blocked" != '403' ]; then echo "::error::ai_proxy_relay_origin_gate_failed: HTTP $relay_blocked"; exit 1; fi
           relay_unknown="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=evil&series_id=DGS10")"

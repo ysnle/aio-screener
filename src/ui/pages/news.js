@@ -237,7 +237,9 @@ function createNewsCard(documentRef, root, item, index) {
   // user content; the card keeps source, topic and time. LC-31 still holds — a feed-query topic is
   // shown only as a plain label, never as a verified sector assignment elsewhere.
   const topicLabel = TOPIC_LABELS[item?.topic || item?.feedTopic] || '';
-  meta.textContent = [source, topicLabel, timeAgo]
+  const providerDelay = item?.providerDelayPolicy === 'plan-dependent-free-12h' ? '지연 가능' : '';
+  if (providerDelay) meta.title = 'NewsData 무료 요금제는 12시간 지연됩니다. 게시 시각과 전달 지연은 다릅니다.';
+  meta.textContent = [source, topicLabel, timeAgo, providerDelay]
     .filter(Boolean)
     .join(' · ');
   body.appendChild(meta);

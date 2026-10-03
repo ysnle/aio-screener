@@ -9,6 +9,8 @@
 //   3. the operator key never reaches the response body, headers, or logs.
 import worker from '../cloudflare-worker-proxy.js';
 import { readFileSync } from 'node:fs';
+// All upstreams in this contract use deterministic fixtures, including early auth checks.
+globalThis.fetch = async () => Response.json({ observations: [{ date: '2026-10-01', value: '4.0' }] });
 
 const errors = [];
 const check = (label, condition, detail) => {
@@ -20,7 +22,7 @@ const SECRET = 'relay-fixture-secret-value';
 function relayRequest(query, { origin = PROD_ORIGIN, method = 'GET', headers = {} } = {}) {
   return new Request('https://worker.example/relay?' + query, {
     method,
-    headers: new Headers({ Origin: origin, ...headers }),
+    headers: new Headers({ Origin: origin, ...(query.includes('provider=fred') ? { 'X-AIO-Provider-Key': SECRET } : {}), ...headers }),
   });
 }
 
@@ -54,7 +56,7 @@ async function main() {
   for (const host of ['api.stlouisfed.org', 'ecos.bok.or.kr', 'kosis.kr']) {
     check(`P1151 relay hardcodes upstream host ${host}`, relayBlock.includes(host));
   }
-  check('P1151 relay sources keys from env only', ['FRED_API_KEY', 'BOK_API_KEY', 'KOSIS_API_KEY'].every((name) => relayBlock.includes(`'${name}'`)));
+  check('P1422 BOK/KOSIS retain operator-secret isolation and FRED declares its personal header', ['BOK_API_KEY', 'KOSIS_API_KEY'].every((name) => relayBlock.includes(`'${name}'`)) && relayBlock.includes("'X-AIO-Provider-Key'"));
   check('P1151 relay exposes no client-supplied destination parameter', !/params\.(url|host|endpoint|target)\b/.test(relayBlock) && !/url:\s*\{\s*required/.test(relayBlock));
 
   const env = {
@@ -95,8 +97,8 @@ async function main() {
 
   // A provider whose operator key is absent must fail alone, not degrade open.
   const partialEnv = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() };
-  const keylessFred = await worker.fetch(relayRequest('provider=fred&series_id=DGS10'), partialEnv);
-  check('P1151 provider without an operator key fails closed', keylessFred.status === 503, keylessFred.status);
+  const keylessFred = await worker.fetch(relayRequest('provider=fred&series_id=DGS10', { headers: { 'X-AIO-Provider-Key': '' } }), env);
+  check('P1422 FRED never substitutes the operator key when a personal key is absent', keylessFred.status === 400, keylessFred.status);
   check('P1151 keyless failure names the provider', /fred/i.test(await keylessFred.text()));
 
   // ── Daily cap ──────────────────────────────────────────────────────────────
@@ -116,6 +118,7 @@ async function main() {
     const firstBody = await first.json();
     check('P1151 relay returns the upstream payload unchanged', Array.isArray(firstBody.observations) && firstBody.observations.length === 1, firstBody);
     check('P1151 relay marks its own provider in the response', first.headers.get('X-AIO-Relay-Provider') === 'fred', first.headers.get('X-AIO-Relay-Provider'));
+    check('P1422 personal FRED response is private and cannot be cached', first.headers.get('Cache-Control') === 'private, no-store');
 
     const second = await worker.fetch(relayRequest('provider=fred&series_id=DGS10&limit=1'), capEnv);
     check('P1151 daily cap exhaustion returns 429', second.status === 429, second.status);
@@ -165,9 +168,13 @@ async function main() {
     const oversized = await worker.fetch(relayRequest('provider=fred&series_id=DGS10'), relayEnv());
     check('P1413 a streamed body over 5MB without Content-Length is refused', oversized.status === 502 && /too large/i.test(await oversized.text()), oversized.status);
     let hop = 0;
+    globalThis.fetch = async (url) => { hop += 1; return hop === 1 ? new Response('', { status: 301, headers: { location: String(url) + '/' } }) : new Response(JSON.stringify({ StatisticSearch: { row: [] } }), { status: 200 }); };
+    const sameHost = await worker.fetch(relayRequest('provider=bok&statCode=722Y001&cycle=M&start=202601&end=202602&item=0101000'), { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() });
+    check('P1413 a same-host https redirect is still followed for an operator relay', sameHost.status === 200 && hop === 2, `${sameHost.status} ${hop}`);
+    hop = 0;
     globalThis.fetch = async (url) => { hop += 1; return hop === 1 ? new Response('', { status: 301, headers: { location: String(url).replace('/series/observations', '/series/observations/') } }) : new Response(JSON.stringify({ observations: [] }), { status: 200 }); };
-    const sameHost = await worker.fetch(relayRequest('provider=fred&series_id=DGS10'), relayEnv());
-    check('P1413 a same-host https redirect is still followed', sameHost.status === 200 && hop === 2, `${sameHost.status} ${hop}`);
+    const fredSameHost = await worker.fetch(relayRequest('provider=fred&series_id=DGS10'), relayEnv());
+    check('P1422 a personal FRED key never follows even a same-host redirect', fredSameHost.status === 502 && hop === 1, `${fredSameHost.status} ${hop}`);
   } finally {
     globalThis.fetch = realFetch;
   }
@@ -189,7 +196,7 @@ async function main() {
   // These bindings are the strongest bound it can carry, and a missing/throwing binding must
   // degrade to the in-isolate Map rather than admitting or rejecting blindly.
   const proxyToml = readFileSync(new URL('../worker/wrangler.proxy.toml', import.meta.url), 'utf8');
-  for (const name of ['RATE_LIMIT_PROXY', 'RATE_LIMIT_ANTHROPIC', 'RATE_LIMIT_RELAY']) {
+  for (const name of ['RATE_LIMIT_PROXY', 'RATE_LIMIT_OPENAI', 'RATE_LIMIT_RELAY']) {
     check(`P1157 the proxy config declares the ${name} binding`, new RegExp(`name\\s*=\\s*"${name}"`).test(proxyToml));
   }
   check('P1157 every declared rate limit period is 10 or 60', [...proxyToml.matchAll(/period\s*=\s*(\d+)/g)].every((match) => ['10', '60'].includes(match[1])));
@@ -223,12 +230,12 @@ async function main() {
   }
 
   // ── Health surface ─────────────────────────────────────────────────────────
-  const healthEnv = { FRED_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), ANTHROPIC_DAILY_CAP: '321', AIO_OPERATOR_TOKEN: 'operator-private-fixture-' + 'x'.repeat(32) };
+  const healthEnv = { FRED_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), AI_DAILY_CAP: '321', AIO_OPERATOR_TOKEN: 'operator-private-fixture-' + 'x'.repeat(32) };
   const health = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), healthEnv);
   const healthText = await health.text();
   const healthBody = JSON.parse(healthText);
   check('P1151 health lists the relay providers', Array.isArray(healthBody.relay?.providers) && healthBody.relay.providers.includes('fred'), healthBody.relay);
-  check('P1151 health reports per-provider key presence', healthBody.relay?.configured?.fred === true && healthBody.relay?.configured?.bok === false, healthBody.relay?.configured);
+  check('P1422 health reports FRED personal credential policy separately from operator key presence', healthBody.relay?.configured?.fred === false && healthBody.relay?.configured?.bok === false && healthBody.relay?.personalKeyRequired?.includes('fred'), healthBody.relay);
   check('P1151 health never exposes a relay key', !healthText.includes(SECRET));
   // The token check is `if (env.AIO_APP_TOKEN && …)`, so an unset token means no check at all.
   // /health has to say which state the operator is in instead of implying the gate is closed.
@@ -239,14 +246,14 @@ async function main() {
     healthBody.ai?.requestCount === undefined
       && healthBody.ai?.anthropicDailyCap === undefined
       && healthBody.ai?.dailyCap === undefined
-      && !healthText.includes('ANTHROPIC_DAILY_CAP'), healthBody.ai);
+      && !healthText.includes('AI_DAILY_CAP'), healthBody.ai);
 
   if (errors.length) {
     console.error('Worker relay contract failed:');
     errors.forEach((error) => console.error(' - ' + error));
     process.exit(1);
   }
-  console.log('Worker relay contract OK: env-only operator keys, hardcoded destinations, fail-closed per provider, atomic daily cap, and key redaction.');
+  console.log('Worker relay contract OK: personal FRED header, operator BOK/KOSIS keys, hardcoded destinations, private FRED cache, atomic daily cap, and key redaction.');
   process.exit(0);
 }
 

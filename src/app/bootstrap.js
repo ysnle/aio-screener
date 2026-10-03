@@ -1,4 +1,5 @@
 import { createClock } from '../platform/clock.js';
+import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import * as financialSecurity from '../storage/financial-security.js';
 import * as aiBudgetPolicy from '../ai/policies/budget.js';
 import { createHttpClient } from '../platform/http.js';
@@ -93,6 +94,7 @@ import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './ro
 // Classic-shell compatibility belongs at the app boundary. Domain modules
 // remain pure and reusable in Node/worker contexts without browser globals.
 if (typeof window !== 'undefined') {
+  window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args), localStorage: window.localStorage, _isQuotaExceeded: (...args) => window._isQuotaExceeded(...args), _bumpApiCounter: (...args) => window._bumpApiCounter(...args), _QUOTA_LIMITS: window._QUOTA_LIMITS });
   window._statMean = _statMean;
   window._statStdDev = _statStdDev;
   window._calcDailyReturns = _calcDailyReturns;

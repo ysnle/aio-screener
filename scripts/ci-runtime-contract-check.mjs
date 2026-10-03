@@ -740,8 +740,8 @@ check('EF-18: kr-supply fetch uses the confirmed-live /api/index/{market}/trend 
 check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Batch4Efficacy/.test(tests) && /T884/.test(tests) && /T885/.test(tests) && /T886/.test(tests));
 
 // v52.44 (P659): B8 Cloudflare Worker anycast 403(forbidden) auto-retry mitigation
-check('B8: shared _aioFetchClaudeWithRetry helper exists with a server-key gate, a 403 status check, and Anthropic-native forbidden-shape detection before retrying', /async function _aioFetchClaudeWithRetry\(url, fetchOpts, serverKey, maxRetries, options\)/.test(chat) && /serverKey\s*&&\s*res\.status\s*===\s*403/.test(chat) && /_peek\.error\.type\s*===\s*'forbidden'/.test(chat));
-check('B8: callClaude routes both its initial request and its 400-beta-header fallback retry through the shared helper instead of a bare fetch to the Worker/Anthropic endpoint', (chat.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length === 2);
+check('P1421: shared fetch helper has cancellation and no blind paid retry', /async function _aioFetchClaudeWithRetry\(url, fetchOpts, serverKey, maxRetries, options\)/.test(chat) && chat.includes('return fetch(url, fetchOpts);') && !chat.includes("_peek.error.type === 'forbidden'"));
+check('P1421: chat sends one Responses request through the shared helper', (chat.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length === 1 && chat.includes("model: 'gpt-6-luna'") && chat.includes('max_output_tokens: effectiveMaxTokens'));
 check('B8: the remaining aio-data.js Claude translation call site routes through the shared retry helper with a defensive typeof fallback; the retired briefing call site is absent', (data.match(/_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/g) || []).length === 1 && !/function\s+_generateAIBriefing\b/.test(data));
 check('headless tests cover the B8 Worker-retry mitigation', /_testV5244WorkerAnycastRetry/.test(tests) && /T887/.test(tests) && /T888/.test(tests) && /T889/.test(tests) && /T890/.test(tests));
 
@@ -765,9 +765,9 @@ check('P838: automatic plaintext API-key IndexedDB backup is retired without reo
 // app token when routed through the Worker; the Worker's own behavior is verified separately by
 // scripts/ci-worker-anthropic-check.mjs (a real handler-invocation test, not just a static contract).
 check('WO-1B: _aioAppToken() helper exists and is exposed for cross-file reuse', /function _aioAppToken\(\)/.test(chat) && /window\._aioAppToken = _aioAppToken/.test(chat));
-check('WO-1B: callClaude() sends the app token header specifically on the server-key (Worker) branch, not the direct-personal-key branch', /_claudeHeaders\['X-AIO-App-Token'\] = _aioAppToken\(\)/.test(chat));
+check('P1421: shared-only chat always sends the app token and never a provider key', /'X-AIO-App-Token': _aioAppToken\(\)/.test(chat) && !chat.includes('anthropic-dangerous-direct-browser-access'));
 check('WO-1B: the remaining aio-data.js Claude translation call sends the app token when server-key routed; the retired briefing call site is absent', (data.match(/'X-AIO-App-Token':\s*\(typeof _aioAppToken === 'function' \? _aioAppToken\(\) : ''\)/g) || []).length === 1 && !/function\s+_generateAIBriefing\b/.test(data));
-check('WO-1B: cloudflare-worker-proxy.js enforces exact Origin, optional app-token, dedicated rate limit, and fail-closed atomic quota', /resolveAllowedOrigin\(origin, env\)/.test(worker) && /env\.AIO_APP_TOKEN/.test(worker) && /ANTHROPIC_RATE_LIMIT/.test(worker) && /hasAtomicQuotaBinding\(env\)/.test(worker) && /ANTHROPIC_KILL_SWITCH/.test(worker));
+check('P1421: cloudflare-worker-proxy.js enforces exact Origin, optional app-token, dedicated rate limit, and fail-closed atomic quota', /resolveAllowedOrigin\(origin, env\)/.test(worker) && /env\.AIO_APP_TOKEN/.test(worker) && /OPENAI_RATE_LIMIT/.test(worker) && /hasAtomicQuotaBinding\(env\)/.test(worker) && /AI_KILL_SWITCH/.test(worker));
 check('WO-1B: CORS preflight allows the new X-AIO-App-Token header (otherwise browsers block it before the Worker ever sees it)', /Access-Control-Allow-Headers['"]?:\s*'[^']*X-AIO-App-Token/.test(worker));
 
 // v52.49 (P664/WO-6): Trading Score provenance/freshness — computeTradingScore()'s own evidenceAudit

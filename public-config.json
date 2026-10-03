@@ -1,19 +1,21 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v57.05",
+  "appRevision": "v57.06",
   "ai": {
-    "chatPolicy": "personal-key-or-public-worker",
+    "chatPolicy": "shared-worker-only",
+    "provider": "openai",
+    "model": "gpt-6-luna",
     "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",
-    "serverMode": "shared-worker-fallback",
+    "serverMode": "shared-worker-only",
     "healthPath": "/health",
     "maxTokens": "worker-advertised",
-    "routeStatus": "PUBLISHED",
-    "routeReason": null,
+    "routeStatus": "DISABLED",
+    "routeReason": "OPENAI_MIGRATION_DEPLOY_REQUIRED",
     "routeEvidence": {
-      "status": "CURRENT",
-      "source": "periodic-live-health",
-      "observedAt": "2026-10-03T00:02:03.612Z",
-      "observationStatus": "SUCCESS"
+      "status": "OPERATOR_REQUIRED",
+      "source": "local-provider-migration",
+      "observedAt": null,
+      "observationStatus": "NOT_ATTEMPTED"
     }
   },
   "marketData": {

@@ -3883,7 +3883,7 @@ window.AIO.getDataPipelineAudit = function() {
     if (!serverPublicData.fearGreedOk) issues.push('server public-data Fear & Greed unavailable');
     if (!serverPublicData.fredHasKey) issues.push('server FRED_API_KEY not configured; macro auto-refresh is client-key dependent');
     else if (!serverPublicData.fredFetchOk) issues.push('server FRED fetch failed despite configured key');
-    if (!serverPublicData.marketAnalysisOk) issues.push('server LLM market analysis unavailable; ANTHROPIC_API_KEY likely missing');
+    if (!serverPublicData.marketAnalysisOk) issues.push('server AI market analysis unavailable; shared Worker configuration, budget or provider response needs verification');
     if (serverPublicData.telegramDigestStatus && serverPublicData.telegramDigestStatus !== 'ready') issues.push('telegram digest artifact not ready: ' + serverPublicData.telegramDigestStatus);
     if (serverPublicData.screenerStatus && serverPublicData.screenerStatus !== 'ready') issues.push('screener enrichment not ready: ' + serverPublicData.screenerStatus);
   }

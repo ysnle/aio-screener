@@ -49,7 +49,7 @@ const controller=new AbortController(); controller.abort();
 await assert.rejects(root._aiWebSearch('test',{signal:controller.signal}),{name:'AbortError'});
 const plan={researchDecision:{requirement:'REQUIRED'},researchPlan:{planId:'p',stopConditions:{minimumIndependentSources:1,minimumPrimarySources:1}}};
 assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'p',externalEvidenceReady:true}}),false);
-assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'old',externalEvidenceReady:true}}),true);
+assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'old',externalEvidenceReady:true}}),false);
 const doc={canonicalUrl:'https://sec.gov/report',contentDepth:'EXCERPT',rights:'PUBLIC_REFERENCE'};
 const floor=evaluateResearchEvidenceFloor({questionPlan:plan,externalResult:{citations:[{url:doc.canonicalUrl}],researchEvidence:{currentClaimsAllowed:true,evidenceDocuments:[doc,{canonicalUrl:'https://example.org/snippet',contentDepth:'SNIPPET'}]}}});
 assert(floor.ready && floor.eligibleEvidenceCount===1 && floor.excludedEvidenceCount===1);

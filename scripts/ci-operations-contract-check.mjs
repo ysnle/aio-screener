@@ -143,8 +143,8 @@ check('all GitHub Actions refs are SHA pinned', uses.length > 0 && uses.every((r
 check('Wrangler install is exact-versioned', /npm install --global wrangler@\d+\.\d+\.\d+/.test(read('.github/workflows/deploy-data-plane.yml')));
 check('AI proxy Wrangler install is exact-versioned', /npm install --global wrangler@\d+\.\d+\.\d+/.test(aiProxyWorkflow));
 check('AI proxy deploy owns canonical source and atomic quota binding', aiProxyWrangler.includes('main = "../cloudflare-worker-proxy.js"') && aiProxyWrangler.includes('name = "AIO_QUOTA_DO"') && aiProxyWrangler.includes('class_name = "AIOQuotaDurableObject"'));
-check('AI provider outbound is executed by the guaranteed US Durable Object authority', worker.includes("jurisdiction('us')") && worker.includes("getByName('anthropic-authority-v1')") && worker.includes("'X-AIO-Upstream-Authority': 'durable-object-us'") && worker.includes('fetchAnthropicThroughDurableObject') && !worker.includes("locationHint: 'enam'"));
-check('AI proxy deploy requires secrets and blocks on executed US readiness/upstream', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'ANTHROPIC_API_KEY', 'aio-worker-health.v1', 'quotaConfigured', 'authorityReady', 'authorityJurisdiction', 'durable-object-us', 'ai_proxy_origin_gate_failed', 'ai_proxy_upstream_failed'].every((token) => aiProxyWorkflow.includes(token)));
+check('AI provider outbound is executed by the guaranteed US Durable Object authority', worker.includes("jurisdiction('us')") && worker.includes("getByName('anthropic-authority-v1')") && worker.includes("'X-AIO-Upstream-Authority': 'durable-object-us'") && worker.includes('fetchOpenAiThroughDurableObject') && !worker.includes("locationHint: 'enam'"));
+check('P1421 AI proxy deploy requires secrets and blocks on executed US readiness/upstream', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'OPENAI_API_KEY', 'AIO_AUTOMATION_TOKEN', 'aio-worker-health.v1', 'quotaConfigured', 'authorityReady', 'authorityJurisdiction', 'durable-object-us', 'ai_proxy_origin_gate_failed', 'ai_proxy_upstream_failed'].every((token) => aiProxyWorkflow.includes(token)));
 check('operations producer observes both Worker planes while provider smoke remains deployment-owned', ['AIO_OBSERVE_PROXY_HEALTH', 'observeWorkerHealth', 'fastHealthStatus', 'proxyAuthorityReady', 'proxyAuthorityJurisdiction', 'blocking-deployment-workflow-only'].every((token) => read('scripts/build-operations-status.mjs').includes(token)) && read('.github/workflows/refresh-data.yml').includes("AIO_OBSERVE_PROXY_HEALTH: '1'") && /ai_proxy_upstream_failed/.test(aiProxyWorkflow));
 check('public AI route state is generated from the same Worker observation and committed with operations status', ['derivePublicAiConfig', 'syncPublicAiConfig', 'routeStatus', 'WORKER_HEALTH_STALE'].every((token) => read('scripts/build-operations-status.mjs').includes(token))
   && read('.github/workflows/refresh-data.yml').includes('public-config.json')
@@ -152,20 +152,21 @@ check('public AI route state is generated from the same Worker observation and c
 const normalizeWorkerUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
 const publicWorkerUrl = normalizeWorkerUrl(publicConfig.ai?.workerUrl);
 const operationsWorkerUrl = normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint);
-const publicRoutePublished = /^https:\/\//i.test(publicWorkerUrl);
-const publicRouteDisabled = !publicWorkerUrl
-  && publicConfig.ai?.routeStatus === 'DISABLED'
-  && publicConfig.ai?.serverMode === 'personal-key-only'
-  && publicConfig.ai?.chatPolicy === 'personal-key-only'
+const publicRoutePublished = /^https:\/\//i.test(publicWorkerUrl) && publicConfig.ai?.routeStatus === 'PUBLISHED';
+const publicRouteDisabled = publicConfig.ai?.routeStatus === 'DISABLED'
+  && publicConfig.ai?.serverMode === 'shared-worker-only'
+  && publicConfig.ai?.chatPolicy === 'shared-worker-only'
   && typeof publicConfig.ai?.routeReason === 'string'
   && publicConfig.ai.routeReason.length > 0
-  && publicConfig.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED'
-  && operations.ai?.publicChat?.statusCode !== 'CONFIGURED_HEALTHY';
-check('public AI route policy is revision-bound and any published route matches operations evidence', publicConfig.appRevision === version
+  && publicConfig.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED';
+check('P1421 public AI route policy is revision-bound and any published route matches provider-specific operations evidence', publicConfig.appRevision === version
+  && publicConfig.ai?.provider === 'openai' && publicConfig.ai?.model === 'gpt-6-luna'
   && ((publicRoutePublished
     && operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY'
     && publicWorkerUrl === operationsWorkerUrl
     && publicConfig.ai?.routeStatus === 'PUBLISHED'
+    && operations.ai?.publicChat?.health?.provider === 'openai'
+    && operations.ai?.publicChat?.health?.model === 'gpt-6-luna'
     && publicConfig.ai?.routeEvidence?.status === 'CURRENT')
     || publicRouteDisabled));
 check('lockfile exists', existsSync(join(root, 'package-lock.json')));

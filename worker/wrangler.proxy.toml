@@ -8,16 +8,17 @@ enabled = true
 head_sampling_rate = 0.1
 
 [vars]
-ANTHROPIC_DAILY_CAP = "300"
-# P1353: UTC-month conservative reservation limit, not the invoiced account total.
-# Personal browser keys and GitHub Actions direct APIs bypass this Worker.
-# Configure the provider workspace spend limit as well. Values above $10 fail closed.
-ANTHROPIC_MONTHLY_BUDGET_USD = "10"
-ANTHROPIC_MAX_TOKENS = "1500"
+AI_DAILY_CAP = "300"
+# P1421: all AIO browser + GitHub Actions AI shares one UTC-month authority.
+# Reserve worst input/output cost before dispatch, settle only verified usage.
+# Failed/cancelled/unknown usage retains its full reservation. Never an invoice.
+# A dedicated OpenAI project/key must not be used outside this Worker.
+AI_MONTHLY_BUDGET_USD = "10"
+AI_MAX_OUTPUT_TOKENS = "4000"
 # Per-provider daily ceiling for /relay (operator-key server-side fetches).
 RELAY_DAILY_CAP = "2000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v57.05"
+AIO_APP_REVISION = "v57.06"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 [[durable_objects.bindings]]
@@ -37,7 +38,7 @@ new_sqlite_classes = ["AIOQuotaDurableObject"]
 #
 # Two honest limits remain: a binding is per Cloudflare location (not global), and it is
 # eventually consistent by design. It is a stronger bound, not an accounting system.
-# The Durable Object daily caps (ANTHROPIC_DAILY_CAP / RELAY_DAILY_CAP) stay the global authority.
+# The Durable Object daily caps (AI_DAILY_CAP / RELAY_DAILY_CAP) stay the global authority.
 #
 # `namespace_id` must be a positive integer, unique per Cloudflare account; bindings that share
 # one share their counters (deliberate, so a limit can span Workers) — do not reuse these three.
@@ -52,7 +53,7 @@ limit = 300
 period = 60
 
 [[ratelimits]]
-name = "RATE_LIMIT_ANTHROPIC"
+name = "RATE_LIMIT_OPENAI"
 namespace_id = "1002"
 [ratelimits.simple]
 limit = 20
@@ -66,12 +67,13 @@ limit = 60
 period = 60
 
 # Secrets injected with `wrangler secret put` by deploy-ai-proxy.yml:
-#   ANTHROPIC_API_KEY  — server-key Claude route (/anthropic)
-#   FRED_API_KEY       — /relay provider "fred"
+#   OPENAI_API_KEY      — shared GPT-6 Luna route (/openai)
+#   AIO_AUTOMATION_TOKEN — 32+ chars; authenticated originless Actions requests
+# FRED /relay uses the user's opt-in X-AIO-Provider-Key; no operator substitution.
 #   BOK_API_KEY        — /relay provider "bok"   (ecos.bok.or.kr)
 #   KOSIS_API_KEY      — /relay provider "kosis"
 # A provider whose key is absent makes only that relay provider fail closed (503);
-# /relay never falls back to a client-supplied key.
+# BOK/KOSIS never fall back to a client-supplied key.
 # AIO_APP_TOKEN and AIO_DEV_ORIGINS remain optional operator-managed settings.
 # Optional private quota observation uses the Cloudflare Worker secret AIO_OPERATOR_TOKEN;
 # it is deliberately excluded from public /health and is not synchronized from repository secrets.

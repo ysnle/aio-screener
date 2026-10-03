@@ -6,6 +6,7 @@ auto_refresh: true
 target_version: version.json
 size_table_policy: historical-snapshot
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
+personal_provider_boundary: P1423 — src/data/providers/personal-transport.js owns FMP contracts, abort cleanup and weighted Twelve Data reservations; src/app/bootstrap.js injects quota/storage; js/aio-data.js retains thin callers.
 target_lines: refreshed after P892 gate
 current_override: P958 keeps user-supplied market commentary reference-only, blocks missing macro transmission variables rather than substituting proxies, composes cancellation/focus ownership, and separates screener factor/SEC provenance; P950 detail-loading boundary and SEC/knowledge review gates remain active
 current_checkpoint: P963 correlated public-AI browser request plus ticker empty-state/accessibility truth, route-owned native hydration, cancellation/focus ownership, full-row semantic separation, bounded LRU reuse and failed-detail recovery

@@ -7,6 +7,7 @@ import { backtestFactors, deriveCyclePublication, deriveFactorQuality, deriveTic
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
+import { SHARED_AI_MODEL, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -179,7 +180,39 @@ check('P1309/R654/QA-DATA-51 candidate and exact-SHA CI handoff remain after the
     && /final_sha="\$\(git rev-parse HEAD\)"/.test(refresh)
     && /release_sha="\$final_sha"/.test(refresh));
 check('refresh workflow has write permission and no cancel-in-progress', /contents:\s*write/.test(refresh) && /cancel-in-progress:\s*false/.test(refresh));
-check('refresh workflow fetches market data with free/official optional secrets', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && !/FMP_API_KEY/.test(refresh) && /ANTHROPIC_API_KEY/.test(refresh));
+check('P1421 refresh workflow fetches market data with official optional secrets and shared AI budget', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && !/FMP_API_KEY/.test(refresh) && /AIO_AUTOMATION_TOKEN/.test(refresh) && /AI_PROXY_URL/.test(refresh) && !/OPENAI_API_KEY|ANTHROPIC_API_KEY/.test(refresh));
+{
+  const env = { AI_PROXY_URL: 'https://fixture.workers.dev', AIO_AUTOMATION_TOKEN: 'fixture-only-automation-token-32-characters', GITHUB_RUN_ID: '42' };
+  const complete = { model: SHARED_AI_MODEL, status: 'completed', output: [
+    { type: 'reasoning', summary: [] },
+    { type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: '검증된 시장 요약' }] },
+  ] };
+  check('P1421 Actions rejects missing automation credentials and unsafe Worker URLs',
+    !resolveSharedAiConfig({ ...env, AIO_AUTOMATION_TOKEN: 'short' })
+    && !resolveSharedAiConfig({ ...env, AI_PROXY_URL: 'http://fixture.workers.dev' })
+    && !resolveSharedAiConfig({ ...env, AI_PROXY_URL: 'https://token@fixture.workers.dev' }));
+  check('P1421 Responses extraction accepts completed Luna alias and snapshot text, rejects incomplete and refusal',
+    extractCompletedResponseText(complete) === '검증된 시장 요약'
+    && extractCompletedResponseText({ ...complete, model: 'gpt-6-luna-2026-09-22' }) === '검증된 시장 요약'
+    && !extractCompletedResponseText({ ...complete, status: 'incomplete', incomplete_details: { reason: 'max_output_tokens' } })
+    && !extractCompletedResponseText({ ...complete, model: 'other-provider' })
+    && !extractCompletedResponseText({ ...complete, output: [{ type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'refusal', refusal: '拒否' }] }] }));
+  const requests = [];
+  const fetchImpl = async (url, options) => { requests.push({ url, options }); return new Response(JSON.stringify(complete), { status: 200 }); };
+  const first = await requestSharedAnalysis('fixture', { env, fetchImpl });
+  const second = await requestSharedAnalysis('fixture', { env, fetchImpl });
+  const requestBody = JSON.parse(requests[0].options.body);
+  check('P1421 Actions AI always uses shared budget and fresh reservations without provider key or paid tools',
+    first.text === '검증된 시장 요약' && second.text === first.text
+    && requests.every(row => row.url === 'https://fixture.workers.dev/openai' && row.options.redirect === 'error'
+      && row.options.headers['X-AIO-Automation-Token'] === env.AIO_AUTOMATION_TOKEN && !row.options.headers.Origin)
+    && requests[0].options.headers['X-AIO-Idempotency-Key'] !== requests[1].options.headers['X-AIO-Idempotency-Key']
+    && requestBody.model === SHARED_AI_MODEL && requestBody.max_output_tokens === 1500
+    && requestBody.store === false && requestBody.reasoning.effort === 'none' && !requestBody.tools
+    && !/api\.anthropic\.com|api\.openai\.com|ANTHROPIC_API_KEY|OPENAI_API_KEY/.test(fetchData));
+  const limited = await requestSharedAnalysis('fixture', { env, fetchImpl: async () => new Response('{}', { status: 429 }) });
+  check('P1421 monthly quota exhaustion fails closed without direct provider retry', limited.text === null && limited.reason === 'provider-http-429');
+}
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
 check('P1204 core refresh workflow stages core public-data artifacts and validates the Git index', /(?:git add -- )?public-data\/data\.json public-data\/history\.json/.test(refresh) && /stage_if_exists public-data\/telegram-digest\.json/.test(refresh) && /stage_if_exists public-data\/score-backtest-history\.json/.test(refresh) && /stage_if_exists public-data\/masters\/index\.json/.test(refresh) && /node scripts\/ci-masters-contract-check\.mjs --staged/.test(refresh));
 check('Telegram producer atomically synchronizes and stages Atlas lineage', /atlasIndex\.telegramObservedLineage\s*=\s*lineageCount/.test(fetchTelegram) && /public-data\/atlas\/index\.json/.test(refresh));
@@ -852,7 +885,7 @@ check('app gates and applies screener breadth with observation time and coverage
 check('quant readiness blocks trading claims until model parity and predictive validation pass', /getQuantReadinessAudit/.test(data) && /liveModelParity/.test(data) && /predictiveValidation/.test(data) && /research-relative-ranking-only/.test(data) && /매매 신호 아님/.test(data));
 check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && /legacy_kalman_scale/.test(data));
 check('app exposes public-data operational meta', /window\._serverDataMeta/.test(data) && /fredHasKey/.test(data) && /marketAnalysisOk/.test(data) && /telegramMemoOverlay/.test(data));
-check('core data pipeline audit exposes publicData', /getDataPipelineAudit/.test(core) && /publicData/.test(core) && /server FRED_API_KEY not configured/.test(core) && /server LLM market analysis unavailable/.test(core));
+check('P1421 core data pipeline audit exposes publicData and shared AI availability', /getDataPipelineAudit/.test(core) && /publicData/.test(core) && /server FRED_API_KEY not configured/.test(core) && /if \(!serverPublicData\.marketAnalysisOk\)/.test(core) && /server AI market analysis unavailable; shared Worker configuration, budget or provider response needs verification/.test(core));
 check('operational health includes data pipeline', /getOperationalHealth/.test(core) && /dataPipeline/.test(core));
 
 check('chat consumes news context and screener memo', /_buildNewsContext/.test(chat) && /newsCache/.test(chat) && /SCREENER_DB Memo/.test(chat) && /_aioGetMemoForTicker/.test(chat));

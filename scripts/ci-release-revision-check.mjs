@@ -58,23 +58,22 @@ if (!errors.length) {
   check('data artifact has generatedAt', Boolean(data.meta?.generatedAt));
   check('screener artifact has asOf and research-only contract', Boolean(screener.asOf) && screener.rankingContract?.tradingSignal === false && screener.rankingContract?.allowedUse === 'research-relative-ranking-only');
   const publicWorkerUrl = String(publicConfig.ai?.workerUrl || '').trim().replace(/\/+$/, '');
-  const publicRoutePublished = /^https:\/\//i.test(publicWorkerUrl);
-  const publicRouteDisabled = !publicWorkerUrl
-    && publicConfig.ai?.routeStatus === 'DISABLED'
-    && publicConfig.ai?.serverMode === 'personal-key-only'
-    && publicConfig.ai?.chatPolicy === 'personal-key-only'
+  const publicRoutePublished = /^https:\/\//i.test(publicWorkerUrl) && publicConfig.ai?.routeStatus === 'PUBLISHED';
+  const publicRouteDisabled = publicConfig.ai?.routeStatus === 'DISABLED'
     && typeof publicConfig.ai?.routeReason === 'string'
     && publicConfig.ai.routeReason.length > 0
     && publicConfig.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED';
-  check('public AI config is revision-bound, non-secret, and either fresh-browser usable or explicitly operator-disabled', publicConfig.schemaVersion === 'ai-public-config.v1'
+  check('P1421 public AI config is revision-bound, non-secret, and either fresh-browser usable or explicitly operator-disabled', publicConfig.schemaVersion === 'ai-public-config.v1'
     && publicConfig.appRevision === version.version
     && (publicRoutePublished
       ? publicConfig.ai?.routeStatus === 'PUBLISHED'
         && publicConfig.ai?.routeEvidence?.status === 'CURRENT'
-        && publicConfig.ai?.serverMode === 'shared-worker-fallback'
-        && publicConfig.ai?.chatPolicy === 'personal-key-or-public-worker'
       : publicRouteDisabled)
-    && !text('public-config.json').includes('ANTHROPIC_API_KEY'));
+    && publicConfig.ai?.serverMode === 'shared-worker-only'
+    && publicConfig.ai?.chatPolicy === 'shared-worker-only'
+    && publicConfig.ai?.provider === 'openai'
+    && publicConfig.ai?.model === 'gpt-6-luna'
+    && !/(?:ANTHROPIC|OPENAI)_API_KEY/.test(text('public-config.json')));
   const publicRuntimeScripts = ['js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-glossary.js'];
   check('Pages allowlist includes only runtime/data artifacts', Array.isArray(allowlist.publicRootAllowlist)
     && allowlist.publicRootAllowlist.includes('index.html')
