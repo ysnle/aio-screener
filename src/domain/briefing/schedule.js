@@ -2,6 +2,8 @@
 // AIO_MACRO_CALENDAR (advanced by AIO_MACRO_OFFICIAL_SCHEDULES); release clock times are the
 // agencies' standing times (BLS/BEA/Census 08:30 ET, ISM 10:00 ET, FOMC statement 14:00 ET).
 // No consensus figure is shown — none is collected, and an invented one would be worse than none.
+// P1399 (Codex review 2026-10-03): a passed clock time is not a received result. status is
+// 'received' only when the result itself is in hand (an EPS actual); otherwise 'time-passed'.
 
 const RELEASE_PROFILES = Object.freeze({
   'us-nfp': { label: '미국 고용보고서 (비농업 고용·실업률)', et: [8, 30], why: '고용이 강하면 금리 인하 기대가 줄어 금리·달러 상승 요인', last: (snap) => snap.nfp != null && snap.unemployment != null ? `직전 +${snap.nfp}천 명 · 실업률 ${snap.unemployment}%` : null },
@@ -40,7 +42,7 @@ export function formatKstWhen(ms) {
 }
 
 /**
- * @returns {Array<{ id, kind, atMs, when, label, why, last, today }>}
+ * @returns {Array<{ id, kind, atMs, when, label, why, last, today, passed, status }>} the next `days` days
  */
 export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], names = {}, nowMs = Date.now(), days = 7, maxEarnings = 6 } = {}) {
   const rows = [];
@@ -59,7 +61,7 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     if (!Number.isFinite(atMs) || atMs < nowMs - 6 * 3600000 || atMs > nowMs + days * 86400000) continue;
     const when = formatKstWhen(atMs);
     rows.push({ id: key, kind: 'macro', atMs, when: when.label, label: profile.label, why: profile.why,
-      last: profile.last(snapshot || {}, { policyRange }), today: when.date === today, passed: atMs < nowMs });
+      last: profile.last(snapshot || {}, { policyRange }), today: when.date === today, passed: atMs < nowMs, status: atMs < nowMs ? 'time-passed' : 'upcoming' });
   }
   const earningRows = (Array.isArray(earnings) ? earnings : [])
     .filter((row) => row?.symbol && names[row.symbol] && row.date)
@@ -78,7 +80,7 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     const actual = row.epsActual != null && Number.isFinite(Number(row.epsActual)) ? Number(row.epsActual) : null;
     const estimate = actual != null ? `EPS ${actual.toFixed(2)}${est != null ? ` (예상 ${est.toFixed(2)})` : ''}` : est != null ? `EPS 예상 ${est.toFixed(2)}` : null;
     rows.push({ id: `earnings-${row.symbol}`, kind: 'earnings', atMs, when: when.label, label: `${names[row.symbol]} (${row.symbol}) 실적`,
-      why: session, last: estimate, today: when.date === today, passed: atMs < nowMs });
+      why: session, last: estimate, today: when.date === today, passed: atMs < nowMs, status: actual != null ? 'received' : atMs < nowMs ? 'time-passed' : 'upcoming' });
   }
   return rows.sort((a, b) => a.atMs - b.atMs);
 }

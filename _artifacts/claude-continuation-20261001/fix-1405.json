@@ -1,0 +1,19 @@
+{
+  "version": "v56.97",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.97 — Codex review fixes: one close basis for every market input, missing never read as a verdict, observation apart from interpretation, date-aligned charts; architecture contract updated; portfolio PIN and schedule status; SEC parent-company equity; stale news backstop; glossary definitions; stock chart follows the opened stock (P1399-P1405).",
+  "p": {
+    "id": 1405,
+    "title": "차트 · 기술 follows the stock opened on the 종목 screen",
+    "symptom": "Codex review: after opening a company on the 종목 screen, the chart tab reset to SPY.",
+    "root_cause": "installStockChart ran once per form and always started from the input default (SPY).",
+    "fix": "src/ui/pages/entity.js records root._aioLastOpenedSymbol (display continuity only; the AI context scope _currentTickerId is still cleared outside entity routes). src/ui/components/stock-chart.js starts from it and re-runs when a different stock was opened; a symbol typed on the chart stays until then.",
+    "violated_rule": "One stock carries across screens.",
+    "prevention": "Browser check in this batch.",
+    "verification": "Local browser: open NVDA on the 종목 screen, then 차트 · 기술 opens on NVDA; MSFT next opens MSFT; _currentTickerId (AI scope) stays null outside entity routes."
+  },
+  "changelog": [
+    "**종목 연결 (P1405):** 종목 화면에서 연 종목이 차트·기술 화면으로 이어짐."
+  ]
+}

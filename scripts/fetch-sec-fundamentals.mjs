@@ -202,9 +202,12 @@ function buildPointInTimeFacts(companyFacts, submissions) {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
   });
+  // P1402: parent-company equity first (the ROE/P-B denominator, matching NetIncomeLoss); the
+  // NCI-inclusive total is a fallback. Agilent's FY2025 10-K tagged the NCI-inclusive total with
+  // its accumulated OCI (-$226M against $6,741M parent equity).
   const equityRows = factRows(companyFacts, 'us-gaap', [
-    'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest',
-    'StockholdersEquity'
+    'StockholdersEquity',
+    'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'
   ], 'USD').filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
   const shareRows = factRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares')
     .filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
@@ -280,8 +283,8 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const priorRevenue = revenues.find(row => isPriorAnnualPeriod(currentRevenue, row));
   const currentIncome = incomes.find(row => sameFiscalPeriod(currentRevenue, row)) || null;
   const equities = instantRows(companyFacts, 'us-gaap', [
-    'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest',
-    'StockholdersEquity'
+    'StockholdersEquity', // P1402: parent equity first; see buildPointInTimeFacts
+    'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'
   ], 'USD');
   const shares = instantRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares');
   const currentEquity = closestEnd(equities, currentRevenue.end) || null;

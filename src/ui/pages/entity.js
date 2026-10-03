@@ -85,6 +85,9 @@ function renderTickerHero(documentRef, state, root) {
 
 function renderTickerSecondarySymbols(documentRef, state, root) {
   const symbol = state?.id || String(root?._currentTickerId || '').trim().toUpperCase() || '—';
+  // P1405: display continuity only (the 차트 · 기술 chart opens on it). The AI context scope stays
+  // _currentTickerId, which the router clears outside entity routes.
+  if (state?.id && root) root._aioLastOpenedSymbol = String(state.id).toUpperCase();
   ['ticker-candle-symbol', 'ticker-entry-symbol'].forEach((id) => {
     const element = setText(documentRef, id, symbol);
     if (!element) return;

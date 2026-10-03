@@ -518,7 +518,7 @@ async function unlockPortfolio() {
   const input = document.getElementById('pf-pin-input');
   if (!input) return;
   const pin = input.value.trim();
-  if (!/^\d{4,}$/.test(pin)) { showToast('PIN은 숫자 4자리 이상 입력하세요.'); return; }
+  if (pin.length < 4 || pin.length > 20) { showToast('PIN은 4~20자로 입력하세요.'); return; } // P1399: same contract as the vault setup
   if (typeof _AioVault === 'undefined') { showToast('보안 모듈을 불러오지 못했습니다.'); return; }
   var optedOut = _pfVaultOptedOut();
   var storage = _AioVault.getStorage();
@@ -546,7 +546,7 @@ function setupPortfolioPin() {
   pinInput.value = '';
   // v52.46: 별도 keydown 핸들러 제거 — input의 data-on-enter="unlockPortfolio"가 이미 동일 로직 처리
   // (신규 Vault 생성/기존 Vault 잠금해제 모두 unlockPortfolio() 한 경로로 통합)
-  pinInput.placeholder = _AioVault.getStorage().getItem('aio_vault_salt') ? '기존 PIN 입력' : '새 PIN(4자리+)';
+  pinInput.placeholder = _AioVault.getStorage().getItem('aio_vault_salt') ? '기존 PIN 입력' : '새 PIN(4~20자)';
   pinInput.focus();
 }
 function resetPortfolioPin() {

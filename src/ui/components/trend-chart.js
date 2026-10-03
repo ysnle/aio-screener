@@ -2,6 +2,9 @@
 // 2026-10-03: the first version stretched text (preserveAspectRatio="none") and had no axes. This
 // one keeps a fixed aspect ratio, draws a labelled Y axis with gridlines, month ticks on the time
 // axis, dashed reference lines, and a hover readout (date · value) so a change can be followed.
+// P1399 (Codex review 2026-10-03): x is placed by calendar date, not array index. Charts shown side
+// by side pass one `range`, so the same horizontal position is the same date on every card and a
+// series whose record starts later begins later on the axis.
 const SVG = 'http://www.w3.org/2000/svg';
 const W = 520;
 const H = 210;
@@ -27,14 +30,17 @@ function shortDate(date) {
 
 /**
  * @param {Document} doc
- * @param {{ series: Array<{date:string,value:number}>, refLines?: number[], format?: (v:number)=>string, label?: string, domain?: [number, number] }} options
+ * @param {{ series: Array<{date:string,value:number}>, refLines?: number[], format?: (v:number)=>string, label?: string, domain?: [number, number], range?: [string, string] }} options
  */
-export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null } = {}) {
+export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null } = {}) {
   const wrap = doc.createElement('div');
   wrap.className = 'trend-chart-wrap';
   const svg = svgEl(doc, 'svg', { viewBox: `0 0 ${W} ${H}`, class: 'trend-chart', role: 'img' });
   wrap.append(svg);
-  const points = series.filter((point) => Number.isFinite(point?.value));
+  const dayMs = (date) => Date.parse(`${date}T12:00:00Z`);
+  const start = range?.[0] || series[0]?.date;
+  const end = range?.[1] || series[series.length - 1]?.date;
+  const points = series.filter((point) => Number.isFinite(point?.value) && point.date >= start && point.date <= end);
   if (points.length < 2) {
     svg.setAttribute('aria-label', `${label} 추이 기록 부족`);
     const text = svgEl(doc, 'text', { x: W / 2, y: H / 2, 'text-anchor': 'middle', class: 'trend-chart-empty' });
@@ -51,7 +57,10 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   hi = domain ? domain[1] : Math.ceil(hi / step) * step;
   const plotW = W - PAD.left - PAD.right;
   const plotH = H - PAD.top - PAD.bottom;
-  const x = (index) => PAD.left + (index / (points.length - 1)) * plotW;
+  const t0 = dayMs(start);
+  const span = Math.max(1, dayMs(end) - t0);
+  const xd = (date) => PAD.left + ((dayMs(date) - t0) / span) * plotW;
+  const x = (index) => xd(points[index].date);
   const y = (value) => PAD.top + (1 - (value - lo) / (hi - lo)) * plotH;
 
   // Y axis: gridlines + labels.
@@ -61,22 +70,19 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     text.textContent = format(tick);
     svg.append(text);
   }
-  // X axis: one tick at the first session of each month.
+  // X axis: one tick on the first day of each month.
   svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: PAD.top + plotH, y2: PAD.top + plotH, class: 'trend-chart-baseline' }));
-  let lastMonth = null;
-  points.forEach((point, index) => {
-    const month = point.date.slice(0, 7);
-    if (month === lastMonth) return;
-    lastMonth = month;
-    if (index === 0 && points.length > 1 && points[1].date.slice(0, 7) === month && Number(point.date.slice(8, 10)) > 10) return;
-    const xm = x(index);
-    if (xm > W - PAD.right - 20) return;
+  const first = new Date(t0);
+  for (let cursor = Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 1); cursor <= t0 + span; cursor = Date.UTC(new Date(cursor).getUTCFullYear(), new Date(cursor).getUTCMonth() + 1, 1)) {
+    const month = new Date(cursor).toISOString().slice(0, 7);
+    const xm = xd(`${month}-01`);
+    if (xm < PAD.left + 12 || xm > W - PAD.right - 20) continue;
     svg.append(svgEl(doc, 'line', { x1: xm, x2: xm, y1: PAD.top + plotH, y2: PAD.top + plotH + 4, class: 'trend-chart-baseline' }));
     const text = svgEl(doc, 'text', { x: xm, y: H - 8, 'text-anchor': 'middle', class: 'trend-chart-axis' });
     const m = Number(month.slice(5, 7));
     text.textContent = m === 1 ? `${month.slice(2, 4)}년 1월` : `${m}월`;
     svg.append(text);
-  });
+  }
   // Reference lines (thresholds), labelled at the left edge of the plot.
   for (const ref of refLines) {
     if (ref < lo || ref > hi) continue;
@@ -84,7 +90,7 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   }
   // Area + line.
   const line = points.map((point, index) => `${index ? 'L' : 'M'}${x(index).toFixed(1)},${y(point.value).toFixed(1)}`).join(' ');
-  svg.append(svgEl(doc, 'path', { d: `${line} L${x(points.length - 1).toFixed(1)},${PAD.top + plotH} L${PAD.left},${PAD.top + plotH} Z`, class: 'trend-chart-area' }));
+  svg.append(svgEl(doc, 'path', { d: `${line} L${x(points.length - 1).toFixed(1)},${PAD.top + plotH} L${x(0).toFixed(1)},${PAD.top + plotH} Z`, class: 'trend-chart-area' }));
   svg.append(svgEl(doc, 'path', { d: line, class: 'trend-chart-line' }));
   const last = points[points.length - 1];
   svg.append(svgEl(doc, 'circle', { cx: x(points.length - 1), cy: y(last.value), r: 4, class: 'trend-chart-dot' }));
@@ -103,7 +109,9 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     const box = svg.getBoundingClientRect();
     if (!box.width) return;
     const vx = ((event.clientX - box.left) / box.width) * W;
-    const index = Math.max(0, Math.min(points.length - 1, Math.round(((vx - PAD.left) / plotW) * (points.length - 1))));
+    const target = t0 + ((vx - PAD.left) / plotW) * span;
+    let index = 0;
+    for (let i = 1; i < points.length; i += 1) if (Math.abs(dayMs(points[i].date) - target) < Math.abs(dayMs(points[index].date) - target)) index = i;
     const point = points[index];
     cursor.setAttribute('x1', x(index)); cursor.setAttribute('x2', x(index)); cursor.setAttribute('visibility', 'visible');
     marker.setAttribute('cx', x(index)); marker.setAttribute('cy', y(point.value)); marker.setAttribute('visibility', 'visible');

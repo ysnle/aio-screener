@@ -25,6 +25,7 @@ import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
+import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js'; // P1402
 import { collectRotationHistory } from './lib/rotation-history.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -1731,6 +1732,7 @@ async function backfillHistory(hist) {
       // P1246: 품질 경계는 백필 레인에도 똑같이 적용된다. 선언된 타당 범위를 벗어난 공급자 값은
       // 관측으로 승격하지 않는다 — 그 날짜의 행 자체를 만들지 않는다(값도 fieldMeta도 없음).
       if (!histValueWithinPlausibility(field, row.close)) continue;
+      if (!isSessionComplete(row.date, /^\^?(KS|KQ)/.test(r.sym) ? 'kr' : 'us')) continue; // P1399: no partial bar
       if (!byDate[row.date]) byDate[row.date] = { date: row.date };
       byDate[row.date][field] = row.close;
       byDate[row.date].fieldMeta = byDate[row.date].fieldMeta || {};
@@ -2671,7 +2673,7 @@ async function enrichSecFundamentals(syms, priceData, priceResults = null) {
       if (typeof last === 'number' && Number.isFinite(last) && last > 0) priceBySym.set(r.sym, last);
     }
     for (const sym of syms) {
-      const row = rows[sym];
+      const row = reconcileSecEquity(rows[sym]); // P1402: parent-company equity for ROE/P-B
       if (!row || !row.fetchedAt || Date.now() - new Date(row.fetchedAt).getTime() > maxFetchAge) continue;
       const rec = {};
       ['pe','pb','roe','margin','revGrowth'].forEach(key => {
@@ -3132,7 +3134,7 @@ export async function enrichScreener() {
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
   const breadth = computeScreenerBreadth(syms, results);
   const breadthHistory = computeScreenerBreadthHistory(syms, results);
-  const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory);
+  const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now());
   const usUniverse = syms.filter(s => !/\.(KS|KQ)$/i.test(s)).length;
   const fundamentalCount = syms.filter(sym => {
     const row = data[sym] || {};
@@ -3618,11 +3620,24 @@ function buildStructuredMarketAnalysis({ data, text, model, status, reason, metr
   };
 }
 
+// P1399: a daily bar is a completed close only after its session ends. A run during the US
+// session (or before the KR close) sees a partial bar for today; breadth built from it was
+// stamped 'latest-completed-close' while the index inputs used the previous close.
+export function isSessionComplete(date, segment, nowMs = Date.now()) {
+  const zone = segment === 'kr' ? 'Asia/Seoul' : 'America/New_York';
+  const closeMinutes = segment === 'kr' ? 15 * 60 + 45 : 16 * 60 + 15;
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+    .formatToParts(new Date(nowMs)).map((part) => [part.type, part.value]));
+  const today = `${parts.year}-${parts.month}-${parts.day}`;
+  if (date !== today) return date < today;
+  return Number(parts.hour) * 60 + Number(parts.minute) >= closeMinutes;
+}
+
 // Reconstruct daily breadth from the same dated adjusted-close rows used by
 // the screener. Date alignment is explicit; array position is never used to
 // align different securities. This remains AIO-universe research data, not
 // official exchange advance/decline data.
-export function computeScreenerBreadthHistory(syms, results, maxRows = 252) {
+export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowMs = Date.now()) {
   const symbolSet = new Set(syms || []);
   const buckets = new Map();
   const windows = [20, 50, 200];
@@ -3668,7 +3683,7 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252) {
     const market = segmentFor(row.sym);
     for (let index = 1; index < values.length; index += 1) {
       const date = String(row.dates[index] || '');
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !isSessionComplete(date, market, nowMs)) continue;
       const observedAt = row.observedAts?.[index] || `${date}T00:00:00.000Z`;
       const bucket = getBucket(date);
       update(bucket.all, values, prefix, finitePrefix, index, observedAt);
@@ -3701,12 +3716,17 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252) {
     .map(([date, segments]) => ({ date, all: finalize(segments.all, universe.all), us: finalize(segments.us, universe.us), kr: finalize(segments.kr, universe.kr) }));
 }
 
-async function updateScreenerBreadthHistory(rows) {
+async function updateScreenerBreadthHistory(rows, nowMs = Date.now()) {
   if (!Array.isArray(rows) || rows.length < 60) return { updated: false, rows: rows?.length || 0 };
   let history = [];
   try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) history = raw; } catch { /* first producer run */ }
   const fetchedAt = new Date().toISOString();
   const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline'];
+  // P1399: an earlier in-session run may have written today's partial breadth; clear it.
+  for (const row of history) {
+    if (!row?.date || isSessionComplete(row.date, 'us', nowMs)) continue;
+    for (const field of fields) { if (field in row) row[field] = null; if (row.fieldMeta) delete row.fieldMeta[field]; }
+  }
   for (const point of rows) {
     const segment = point?.us;
     if (!segment || !point?.date) continue;

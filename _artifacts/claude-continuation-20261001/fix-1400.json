@@ -1,0 +1,19 @@
+{
+  "version": "v56.97",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.97 — Codex review fixes: one close basis for every market input, missing never read as a verdict, observation apart from interpretation, date-aligned charts; architecture contract updated for the rebuilt screens; portfolio PIN and schedule status (P1399-P1401).",
+  "p": {
+    "id": 1400,
+    "title": "Architecture contract updated for the rebuilt briefing, 시장 상태, 시장 폭 and news screens",
+    "symptom": "Codex review: ci-architecture-contract-check failed with 'news.js native briefing feed marker missing'; it also failed on the stock-chart domain module (a local variable named window) and still required the retired score hero, the five breadth canvases and a developer news marker. The gate sits in the QA preflight group, which the v56.92-96 local QA runs did not include.",
+    "root_cause": "P1389-P1397 rebuilt the screens without updating the ownership contract; local verification ran the core..browser groups but not preflight.",
+    "fix": "The contract now asserts the new owners — news.js routes the briefing to components/briefing-read.js (native-read marker), market.js routes breadth to components/breadth-board.js (close-basis series, shared range), analysis.js routes 시장 상태 and the home hero to components/market-regime.js — and asserts the retired score hero renderers, breadth canvases and briefing feed helpers stay gone. The news evidence-depth marker follows the shipped label (본문 미수신). chart-analysis.js renames its local window variable.",
+    "violated_rule": "R3/QA: the full gate set, preflight included, runs before a batch is reported as verified.",
+    "prevention": "qa-runner --group preflight is part of the pre-push run for this batch.",
+    "verification": "node scripts/ci-architecture-contract-check.mjs ok:true; qa-runner --group preflight."
+  },
+  "changelog": [
+    "**구조 계약 갱신 (P1400):** 다시 만든 브리핑·시장 상태·시장 폭·뉴스 화면의 새 소유 모듈과 퇴역 코드 부재를 검사하도록 구조 검증 게이트를 갱신."
+  ]
+}

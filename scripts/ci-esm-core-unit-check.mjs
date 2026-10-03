@@ -3353,15 +3353,35 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { buildBriefingSchedule } = await load('src/domain/briefing/schedule.js');
   const day = (i) => new Date(Date.UTC(2026, 6, 1) + i * 86400000).toISOString().slice(0, 10);
   const rows = Array.from({ length: 260 }, (_, i) => ({ date: day(i), spx: 7000 + i * 3, tnx: i === 10 ? 0 : 4.6 + i * 0.0025 + (i > 254 ? (i - 254) * 0.04 : 0), breadth50: 26, vix: 16, gold: 4400 - i, nasdaq: 26000 + i * 4 }));
-  const read = buildMarketRead({ history: rows, credit: { hyBp: 308, fg: 28, hyDelta5Bp: null } });
+  const last = day(259);
+  const read = buildMarketRead({ history: rows, credit: { hyBp: 308, hyAsOf: last, fg: 28, fgAsOf: last, hyDelta5Bp: null } });
   const ids = read.statements.map((row) => row.id);
   if (!read.available || !ids.includes('narrow-rally') || !ids.includes('fear-without-credit-stress')) fail(`P1389 briefing read missed cross-asset statements: ${ids}`);
   if (buildCloseSeries(rows, 'tnx').some((point) => point.value === 0)) fail('P1389 a zero yield is a producer gap, not a close');
   if (/HY 5일/.test(read.statements.find((row) => row.id === 'fear-without-credit-stress').text)) fail('P1389 a missing HY change must not print as 0bp');
   if (ids.some((id) => ['real-yield-led', 'breakeven-led', 'bear-steepening', 'bear-flattening'].includes(id))) fail('P1390 rate decomposition must stay silent without FRED inputs');
-  const decomposed = buildMarketRead({ history: rows, credit: { hyBp: 308, fg: 28 }, rates: { realYield10Delta5: 0.14, breakeven10Delta5: 0.03, dgs2Delta5: -0.02, dgs10Delta5: 0.17 } }).statements.map((row) => row.id);
+  const decomposed = buildMarketRead({ history: rows, credit: { hyBp: 308, hyAsOf: last, fg: 28, fgAsOf: last }, rates: { asOf: last, realYield10Delta5: 0.14, breakeven10Delta5: 0.03, dgs2Delta5: -0.02, dgs10Delta5: 0.17 } }).statements.map((row) => row.id);
   if (!decomposed.includes('real-yield-led') || !decomposed.includes('bear-steepening')) fail(`P1390 rate decomposition rules did not fire: ${decomposed}`);
-  if (!read.headline || read.points.includes(read.headline) || read.drivers.some((row) => row.reads.some((text) => text === read.headline || read.points.includes(text)))) fail('P1389 a statement must appear once on the page');
+  const texts = [read.headline, ...read.points.map((row) => row.text), ...read.drivers.flatMap((row) => row.reads.map((statement) => statement.text))];
+  if (!read.headline || new Set(texts).size !== texts.length) fail('P1389 a statement must appear once on the page');
+
+  // P1399: one basis, missing is not a reading, stale inputs are excluded, observation apart from interpretation.
+  const { buildMarketRegime, alignInput } = await load('src/domain/briefing/market-read.js');
+  const { buildSentimentModel } = await load('src/ui/components/sentiment-board.js');
+  const sparse = buildMarketRegime({ history: [{ date: '2026-09-30', spx: 6600, wti: 70 }] });
+  if (sparse.overall !== '판정 보류' || sparse.axes.find((row) => row.id === 'commodities').state === 'favorable') fail(`P1399 one S&P and one WTI value produced a verdict: ${sparse.overall}`);
+  if (!/^(우호|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
+  if (buildSentimentModel({}).synthesis.includes('치우치지 않은')) fail('P1399 no sentiment input must not read as balanced');
+  if (/신용 스프레드.*(악화|경계)/.test(buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] }).synthesis)) fail('P1399 F&G alone must not claim credit stress');
+  const intraday = [...rows, { date: day(260), breadth50: 80, fieldMeta: { breadth50: { observedAt: `${day(260)}T13:30:00.000Z` } } }];
+  if (buildMarketRead({ history: intraday }).drivers[0].values.some(([label, value]) => label === '50일선 위 종목' && value === '80%')) fail('P1399 an observation after the S&P 500 close basis must be dropped');
+  const staleHy = buildMarketRegime({ history: rows, credit: { hyBp: 300, hyAsOf: day(240), hyDelta5Bp: -3 } }).axes.find((row) => row.id === 'credit');
+  if (staleHy.state !== 'unknown' || !/판정에서 제외/.test(staleHy.read)) fail(`P1399 a stale HY reading must be excluded: ${staleHy.state}`);
+  if (alignInput('2026-09-29', '2026-09-30').status !== 'lagged' || alignInput('2026-10-01T13:51:11Z', '2026-09-30').status !== 'ahead' || alignInput('2026-09-30T00:00:00.000Z', '2026-09-30').status !== 'aligned') fail('P1399 input alignment states wrong');
+  const smallcap = buildMarketRead({ history: rows.map((row, i) => ({ ...row, rut: 2400 - i * 4 })), credit: { hyBp: 300, hyAsOf: last, hyDelta5Bp: -2 } }).statements.find((row) => row.id === 'smallcap-lags');
+  if (!smallcap || /원인은/.test(smallcap.text) || !/그럴듯한 설명/.test(smallcap.reading || '')) fail('P1399 an interpretation must be worded as a hypothesis apart from the observation');
+  const { isSessionComplete } = await import('./fetch-data.mjs');
+  if (isSessionComplete('2026-10-01', 'us', Date.parse('2026-10-01T13:52:00Z')) || !isSessionComplete('2026-10-01', 'us', Date.parse('2026-10-01T20:30:00Z')) || !isSessionComplete('2026-09-30', 'us', Date.parse('2026-10-01T13:52:00Z'))) fail('P1399 an in-session bar must not count as a completed close');
   const nowMs = Date.parse('2026-10-02T01:00:00Z');
   const schedule = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' }, 'us-cpi': { nextRelease: '2026-10-14' } }, snapshot: { nfp: 162, unemployment: 4.1 }, nowMs,
     earnings: [{ symbol: 'NKE', date: '2026-10-05', hour: 'amc', epsEstimate: 0.44 }, { symbol: 'TINY', date: '2026-10-05', hour: 'amc' }], names: { NKE: 'Nike' } });
@@ -3403,6 +3423,14 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const result = selectSecFundamentalsAsOf(record,'2026-03-01');
   if (result.revenue !== 100 || result.netIncome !== null || result.equity !== null || result.margin != null || result.revGrowth != null) fail('SEC mismatched years created ratios or annual growth');
   if (deriveSecReport({coverage:['netIncome'],netIncome:-10}).status === 'quarantined') fail('SEC loss quarantined');
+  // P1402: Agilent FY2025 — the NCI-inclusive tag carried accumulated OCI (-$226M) beside $6,741M parent equity.
+  const eqRow = (value, concept) => ({ field: 'equity', value, periodEnd: '2025-10-31', accession: 'acc-1', acceptedAt: '2025-12-19T23:00:46Z', concept });
+  const agilent = { symbol: 'A', observedAt: '2025-10-31', accession: 'acc-1', revenue: 6948e6, netIncome: 1303e6, equity: -226e6, coverage: ['revenue', 'netIncome', 'equity'],
+    pit: { observations: { revenue: [{ value: 6948e6, periodStart: '2024-11-01', periodEnd: '2025-10-31', acceptedAt: '2025-12-19T23:00:46Z' }], equity: [eqRow(-226e6, 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'), eqRow(6741e6, 'StockholdersEquity')] } } };
+  const agReport = deriveSecReport(agilent);
+  const agEquity = agReport.metrics.find((row) => row.key === 'equity')?.value;
+  if (agEquity !== 6741e6 || agReport.metrics.find((row) => row.key === 'roe')?.value !== 19.3) fail(`P1402 parent equity must replace a conflicting NCI-inclusive tag: ${agEquity}`);
+  if (selectSecFundamentalsAsOf(agilent, '2026-01-01').equity !== 6741e6) fail('P1402 point-in-time equity must prefer the parent concept');
 }
 {
   const { createLearningState } = await load('src/domain/knowledge/learning-state.js');

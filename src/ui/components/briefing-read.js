@@ -27,6 +27,14 @@ function universeNames(root) {
   return names;
 }
 
+// P1399: the observation and its interpretation are shown apart; the interpretation is tagged.
+function statementNode(doc, tag, { text, reading }, className) {
+  const node = el(doc, tag, null, className);
+  node.append(doc.createTextNode(text));
+  if (reading) node.append(doc.createTextNode(' '), el(doc, 'span', '해석', 'briefing-hypothesis-tag'), el(doc, 'span', ` ${reading}`, 'briefing-hypothesis'));
+  return node;
+}
+
 function shortDate(date) {
   const [, month, day] = String(date || '').split('-').map(Number);
   return month && day ? `${month}/${day}` : '';
@@ -34,19 +42,28 @@ function shortDate(date) {
 
 // P1392: one input reader for the briefing read and the 시장 상태 regime board, so the two
 // screens judge the same closes, credit and rate changes.
+// P1399: every value travels with its observation date; the domain aligns them to one basis.
 export function collectMarketInputs(root) {
   const snapshot = root.DATA_SNAPSHOT || {};
-  let fg = null;
-  try { fg = finite(root.AIO?.getCanonicalMetric?.('fg')?.value); } catch (_) {}
+  const fieldTs = snapshot._fieldTs || {};
+  let fgMetric = null;
+  try { fgMetric = root.AIO?.getCanonicalMetric?.('fg') || null; } catch (_) {}
+  const fg = finite(fgMetric?.value);
+  const putCall = root._lastPutCallPayload || null;
   const credit = {
     hyBp: finite(root._hySpreadBp) ?? finite(snapshot.hySpread),
-    pcr: finite(root._lastPutCallPayload?.totalPutCall) ?? finite(snapshot.pcr),
+    hyAsOf: root._hySpreadDate || fieldTs.hySpread || null,
+    pcr: finite(putCall?.totalPutCall) ?? finite(snapshot.pcr),
+    pcrAsOf: putCall?.asOf || fieldTs.pcr || null,
     fg: fg > 0 ? fg : finite(snapshot.fearGreedValue),
-    hyDelta5Bp: finite(snapshot._hySpreadDelta5Bp)
+    fgAsOf: fg > 0 ? fgMetric?.asOf || null : fieldTs.fg || null,
+    hyDelta5Bp: finite(snapshot._hySpreadDelta5Bp),
+    aaiiAsOf: fieldTs.aaii || null
   };
   // P1390: FRED one-week changes (producer-published); a missing series keeps its rule silent.
   const rates = Object.fromEntries(['realYield10', 'realYield10Delta5', 'breakeven10Delta5', 'dgs2Delta5', 'dgs10Delta5']
     .map((key) => [key, finite(key.endsWith('Delta5') ? snapshot[`_${key}`] : snapshot[key])]));
+  rates.asOf = fieldTs.macro_realYield10 || fieldTs.macro_dgs10 || null;
   return { history: root._aioHistory || [], credit, rates };
 }
 
@@ -77,7 +94,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     scheduleRows.replaceChildren(...(schedule.length ? schedule.map((row) => {
       const item = el(doc, 'div', null, `briefing-event${row.today ? ' is-today' : ''}${row.passed ? ' is-passed' : ''}`);
       item.dataset.kind = row.kind;
-      const when = el(doc, 'span', row.passed ? `${row.when} · 발표됨` : row.when, 'briefing-event-when');
+      const when = el(doc, 'span', row.status === 'received' ? `${row.when} · 발표됨` : row.status === 'time-passed' ? `${row.when} · 예정 시각 지남` : row.when, 'briefing-event-when');
       const body = el(doc, 'div', null, 'briefing-event-body');
       body.append(el(doc, 'span', row.label, 'briefing-event-label'));
       const meta = [row.why, row.last].filter(Boolean).join(' · ');
@@ -92,8 +109,10 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   if (basis) basis.textContent = read.available ? `${shortDate(read.asOf)} 미국 종가 기준 · 자동 해석` : '';
   const headline = doc.getElementById('briefing-read-headline');
   if (headline) headline.textContent = read.available ? (read.headline || '두드러진 교차 신호가 없는 평이한 장세입니다.') : '종가 기록을 불러오는 중입니다.';
+  const headlineReading = doc.getElementById('briefing-read-reading');
+  if (headlineReading) headlineReading.replaceChildren(...(read.headlineReading ? [el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${read.headlineReading}`)] : []));
   const points = doc.getElementById('briefing-read-points');
-  if (points) points.replaceChildren(...(read.points || []).map((text) => el(doc, 'li', text)));
+  if (points) points.replaceChildren(...(read.points || []).map((row) => statementNode(doc, 'li', row)));
 
   // 3. Drivers
   const drivers = doc.getElementById('briefing-driver-rows');
@@ -110,7 +129,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       }
       box.append(values);
       if (row.context) box.append(el(doc, 'div', row.context, 'briefing-driver-context'));
-      for (const text of row.reads || []) box.append(el(doc, 'p', text, 'briefing-driver-read'));
+      for (const statement of row.reads || []) box.append(statementNode(doc, 'p', statement, 'briefing-driver-read'));
       return box;
     }));
   }

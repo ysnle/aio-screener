@@ -1,0 +1,19 @@
+{
+  "version": "v56.97",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.97 — Codex review fixes: one close basis for every market input, missing never read as a verdict, observation apart from interpretation, date-aligned charts; architecture contract updated; portfolio PIN and schedule status; SEC parent-company equity; stale news backstop; glossary definitions; stock chart follows the opened stock (P1399-P1405).",
+  "p": {
+    "id": 1402,
+    "title": "SEC equity: parent-company equity first; a conflicting NCI-inclusive tag no longer becomes the reported equity",
+    "symptom": "Codex review: Agilent (A) showed equity -$226M; the same filing reported $6,741M for another equity concept and the SEC balance sheet shows -$226M as accumulated other comprehensive loss. ROE and P/B were therefore missing.",
+    "root_cause": "Agilent's FY2025 10-K tagged StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest with -226M (also -305M/-327M for the comparatives) beside StockholdersEquity 6,741M. The producer listed the NCI-inclusive concept first, so it won for the same period and filing. A scan of the artifact found 16 records where the two concepts differ materially (A, AES, AMT, APO, ARES, BX, CL, CLX, HCA, KKR, LNG, LYV, MAS, MDLN, TKO, FCX), mostly real minority interests.",
+    "fix": "fetch-sec-fundamentals.mjs lists StockholdersEquity (parent) first for both the record and the point-in-time facts — the ROE/P-B denominator consistent with NetIncomeLoss. src/domain/fundamental/sec-report.js ranks the parent concept first in selectObservationAsOf and adds reconcileSecEquity, which takes the same filing's parent equity from the record's own PIT facts, re-derives ROE and rescales P/B (market cap unchanged), clears both when parent equity is not positive and flags equityConceptConflict when the two differ by more than half. deriveSecReport and the producer's screener enrichment apply it, so the correction holds before the SEC batch refreshes each record.",
+    "violated_rule": "An official source label does not establish semantic correctness; concept choice follows the ratio definition.",
+    "prevention": "ci-esm-core-unit-check P1402 (Agilent shape: equity 6,741M, ROE 19.3%, PIT prefers parent).",
+    "verification": "Artifact scan with reconcileSecEquity: A -226M -> 6,741M (ROE 19.3%); MAS parent equity negative -> ROE/P-B cleared."
+  },
+  "changelog": [
+    "**SEC 자기자본 (P1402):** 자기자본은 지배주주 지분(StockholdersEquity)을 우선 사용. 애질런트 FY2025 10-K는 비지배지분 포함 합계 태그에 기타포괄손실(-2.26억 달러)이 들어가 자기자본이 음수로 표시되던 문제를 해결하고 ROE를 다시 계산."
+  ]
+}

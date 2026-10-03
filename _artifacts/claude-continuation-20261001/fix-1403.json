@@ -1,0 +1,19 @@
+{
+  "version": "v56.97",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.97 — Codex review fixes: one close basis for every market input, missing never read as a verdict, observation apart from interpretation, date-aligned charts; architecture contract updated; portfolio PIN and schedule status; SEC parent-company equity; stale news backstop; glossary definitions; stock chart follows the opened stock (P1399-P1405).",
+  "p": {
+    "id": 1403,
+    "title": "News: a server backstop item from an older cycle is not restored as current",
+    "symptom": "Codex review: a 43.2-hour-old article became current=true through the server fallback (its AI use stayed excluded).",
+    "root_cause": "_aioNormalizeNewsItem trusted any _serverBackstop item's own newsCycleStart/End and capped its age at the window, without checking that the cycle was still the latest one.",
+    "fix": "js/aio-data.js: serverCycleTrusted also requires the item cycle to have ended within one news window (24h) of now.",
+    "violated_rule": "A fallback never upgrades freshness.",
+    "prevention": "ci-architecture-browser-check P1403 (30h-old cycle + 43.2h item -> untrusted and stale; latest cycle -> trusted).",
+    "verification": "Browser probe through the page function."
+  },
+  "changelog": [
+    "**오래된 뉴스 (P1403):** 서버 백업 뉴스는 가장 최근 주기일 때만 현재 뉴스로 인정."
+  ]
+}

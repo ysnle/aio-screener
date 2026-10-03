@@ -75,20 +75,20 @@ function swings(bars, span) {
  */
 export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
   const start = Math.max(0, bars.length - lookback);
-  const window = bars.slice(start);
-  if (window.length < 30) return { contractions: [], valid: false, pivot: null };
+  const recent = bars.slice(start);
+  if (recent.length < 30) return { contractions: [], valid: false, pivot: null };
   let baseIndex = 0;
-  window.forEach((bar, index) => { if (bar.high > window[baseIndex].high) baseIndex = index; });
-  const { highs, lows } = swings(window, span);
+  recent.forEach((bar, index) => { if (bar.high > recent[baseIndex].high) baseIndex = index; });
+  const { highs, lows } = swings(recent, span);
   const contractions = [];
   let cursorHigh = baseIndex;
   for (let guard = 0; guard < 8; guard++) {
     const lowIndex = lows.find((index) => index > cursorHigh);
     if (lowIndex == null) break;
-    const segment = window.slice(cursorHigh, lowIndex + 1);
+    const segment = recent.slice(cursorHigh, lowIndex + 1);
     const low = Math.min(...segment.map((bar) => bar.low));
-    const depth = (window[cursorHigh].high - low) / window[cursorHigh].high * 100;
-    contractions.push({ highIndex: start + cursorHigh, lowIndex: start + lowIndex, high: window[cursorHigh].high, low, depth });
+    const depth = (recent[cursorHigh].high - low) / recent[cursorHigh].high * 100;
+    contractions.push({ highIndex: start + cursorHigh, lowIndex: start + lowIndex, high: recent[cursorHigh].high, low, depth });
     const nextHigh = highs.find((index) => index > lowIndex);
     if (nextHigh == null) break;
     cursorHigh = nextHigh;
@@ -101,7 +101,7 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
   const meaningful = all.slice(Math.max(0, startRun));
   const valid = meaningful.length >= 2 && meaningful[meaningful.length - 1].depth <= 12 && meaningful[0].depth <= 40;
   const last = meaningful[meaningful.length - 1] || null;
-  return { contractions: meaningful, valid, pivot: last ? last.high : null, baseHigh: window[baseIndex].high };
+  return { contractions: meaningful, valid, pivot: last ? last.high : null, baseHigh: recent[baseIndex].high };
 }
 
 const STATE_LABELS = Object.freeze({

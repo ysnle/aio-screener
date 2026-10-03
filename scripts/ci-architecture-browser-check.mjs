@@ -245,6 +245,18 @@ try {
     };
   });
   if (!newsEntityRoute.text.includes('네비우스 $NBIS 한글 안전') || newsEntityRoute.imgCount || newsEntityRoute.scriptCount || newsEntityRoute.onerrorCount || newsEntityRoute.doubleDecoded || newsEntityRoute.xssExecuted) throw new Error(`news text entity/XSS contract failed: ${JSON.stringify(newsEntityRoute)}`);
+  // P1403: a server backstop item from an older cycle stays stale; only the latest cycle is trusted.
+  const backstopCycle = await page.evaluate(() => {
+    const contract = { newsCyclePolicy: 'kst-0800-completed-24h', windowHours: 24 };
+    const nowMs = Date.now();
+    const item = (cycleEndAgoH, pubAgoH) => ({ title: 'backstop fixture', source: 'Reuters', link: 'https://example.test/b', score: 80, topic: 'equity', contentDepth: 'summary', summary: 'x'.repeat(60),
+      pubDate: new Date(nowMs - pubAgoH * 3600000).toISOString(), _serverBackstop: true, newsCyclePolicy: contract.newsCyclePolicy,
+      newsCycleStart: new Date(nowMs - (cycleEndAgoH + 24) * 3600000).toISOString(), newsCycleEnd: new Date(nowMs - cycleEndAgoH * 3600000).toISOString() });
+    const old = window._aioNormalizeNewsItem('market-news', item(30, 43.2), contract, nowMs, null);
+    const latest = window._aioNormalizeNewsItem('market-news', item(2, 10), contract, nowMs, null);
+    return { oldTrusted: old.serverCycleTrusted, oldStatus: old.verificationStatus, latestTrusted: latest.serverCycleTrusted };
+  });
+  if (backstopCycle.oldTrusted || backstopCycle.oldStatus !== 'stale' || !backstopCycle.latestTrusted) throw new Error(`P1403 server backstop cycle trust wrong: ${JSON.stringify(backstopCycle)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('macro'));
   await page.waitForFunction(() => document.getElementById('page-macro')?.dataset.aioArchitectureRoute === 'macro');
   const macroRoute = await page.evaluate(() => ({

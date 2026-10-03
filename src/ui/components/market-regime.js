@@ -20,8 +20,8 @@ export function readMarketRegime(root) {
 }
 
 function summaryLine(regime) {
-  const { favorable, neutral, burden } = regime.counts;
-  return `우호 ${favorable} · 중립 ${neutral} · 부담 ${burden}`;
+  const { favorable, neutral, burden, unknown } = regime.counts;
+  return `우호 ${favorable} · 중립 ${neutral} · 부담 ${burden}${unknown ? ` · 확인 불가 ${unknown}` : ''}`;
 }
 
 export function renderRegimePage({ documentRef: doc, root }) {
@@ -33,9 +33,9 @@ export function renderRegimePage({ documentRef: doc, root }) {
   set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 6개 축의 상태와 판정이 바뀌는 조건` : '종가 기록을 불러오는 중입니다.');
   const overall = set('regime-overall', regime.available ? regime.overall : '판정 대기');
   if (overall) overall.dataset.overall = regime.overall || '';
-  set('regime-counts', regime.available ? summaryLine(regime) : '');
+  set('regime-counts', regime.available ? (regime.holdReason || summaryLine(regime)) : '');
   const read = regime.available ? buildMarketRead(inputs) : null;
-  set('regime-headline', read?.headline || '');
+  set('regime-headline', read?.headline ? `${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : '');
   const conflicts = doc.getElementById('regime-conflicts');
   if (conflicts) conflicts.replaceChildren(...(regime.conflicts || []).map((text) => el(doc, 'li', text)));
   const board = doc.getElementById('regime-board');
@@ -47,6 +47,8 @@ export function renderRegimePage({ documentRef: doc, root }) {
       const head = el(doc, 'div', null, 'regime-axis-head');
       head.append(el(doc, 'h3', row.title, 'regime-axis-title'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
       card.append(head);
+      // P1399: one basis chip per card — the axis's own observation date against the close basis.
+      if (row.basis) card.append(el(doc, 'span', row.basis, `basis-chip${row.basisStatus === 'aligned' ? '' : ' is-off'}`));
       const list = el(doc, 'dl', null, 'regime-evidence');
       for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
       card.append(list, el(doc, 'p', row.read, 'regime-read'));
@@ -65,7 +67,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
   const regime = readMarketRegime(root);
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
-  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · ${summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
+  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
   set('home-hero-desc', regime.conflicts?.[0] || '');
   const chips = doc.getElementById('home-hero-components');
   if (chips) {

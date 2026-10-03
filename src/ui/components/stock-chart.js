@@ -110,13 +110,22 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
   return analysis;
 }
 
+// P1405 (Codex review 2026-10-03): the chart follows the stock last opened on the 종목 screen
+// (root._aioLastOpenedSymbol, display-only) instead of resetting to SPY; a symbol typed here stays
+// until another stock is opened there.
 export function installStockChart({ documentRef: doc, root }) {
   const form = doc.getElementById('stock-chart-form');
-  if (!form || form.dataset.aioStockChart === 'installed') return;
-  form.dataset.aioStockChart = 'installed';
+  if (!form) return;
   const input = doc.getElementById('stock-chart-input');
   const run = (symbol) => { if (input && symbol) input.value = symbol; renderStockChart({ documentRef: doc, root, symbol: symbol || input?.value }); };
+  const entity = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
+  if (form.dataset.aioStockChart === 'installed') {
+    if (entity && entity !== form.dataset.aioStockChartEntity) { form.dataset.aioStockChartEntity = entity; run(entity); }
+    return;
+  }
+  form.dataset.aioStockChart = 'installed';
+  form.dataset.aioStockChartEntity = entity;
   form.addEventListener('submit', (event) => { event.preventDefault(); run(); });
   doc.querySelectorAll('[data-stock-chart-symbol]').forEach((chip) => chip.addEventListener('click', () => run(chip.dataset.stockChartSymbol)));
-  run(input?.value || 'SPY');
+  run(entity || input?.value || 'SPY');
 }

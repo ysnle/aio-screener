@@ -11270,7 +11270,7 @@ function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow) {
   var inNewsCycle = !!(cycleWindow && pubMs && pubMs >= cycleWindow.start && pubMs < cycleWindow.end);
   var itemCycleStart = item && item.newsCycleStart ? new Date(item.newsCycleStart).getTime() : 0;
   var itemCycleEnd = item && item.newsCycleEnd ? new Date(item.newsCycleEnd).getTime() : 0;
-  var serverCycleTrusted = !!(item && item._serverBackstop && item.newsCyclePolicy === contract.newsCyclePolicy && isFinite(itemCycleStart) && isFinite(itemCycleEnd) && itemCycleEnd > itemCycleStart);
+  var serverCycleTrusted = !!(item && item._serverBackstop && item.newsCyclePolicy === contract.newsCyclePolicy && isFinite(itemCycleStart) && isFinite(itemCycleEnd) && itemCycleEnd > itemCycleStart && nowMs - itemCycleEnd <= (contract.windowHours || 24) * 3600000); // P1403: only the latest cycle (an older one restored a 43h-old headline as current)
   if (!inNewsCycle && serverCycleTrusted && pubMs && pubMs >= itemCycleStart && pubMs < itemCycleEnd) inNewsCycle = true;
   var statusAgeHours = inNewsCycle && contract.newsCyclePolicy === 'kst-0800-completed-24h' ? Math.min(ageHours, contract.windowHours || 24) : ageHours;
   var tickers = [];

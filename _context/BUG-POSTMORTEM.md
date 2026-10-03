@@ -4,6 +4,69 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1405 - v56.97 - 차트 · 기술 follows the stock opened on the 종목 screen (2026-10-03)
+
+- symptom/reproduction: Codex review: after opening a company on the 종목 screen, the chart tab reset to SPY.
+- root_cause: installStockChart ran once per form and always started from the input default (SPY).
+- fix: src/ui/pages/entity.js records root._aioLastOpenedSymbol (display continuity only; the AI context scope _currentTickerId is still cleared outside entity routes). src/ui/components/stock-chart.js starts from it and re-runs when a different stock was opened; a symbol typed on the chart stays until then.
+- violated_rule: One stock carries across screens.
+- prevention: Browser check in this batch.
+- verification/residual: Local browser: open NVDA on the 종목 screen, then 차트 · 기술 opens on NVDA; MSFT next opens MSFT; _currentTickerId (AI scope) stays null outside entity routes.
+
+## P1404 - v56.97 - Glossary: market/limit orders, VWAP, accumulation/distribution, institutional streaks, breadth screen (2026-10-03)
+
+- symptom/reproduction: Codex review: 시장가 was 'executes at the current price', 지정가 read as guaranteed to fill, VWAP as 'institutions\' average entry price', Acc/Dist as institutional accumulation, a 10-day institutional streak as a strong accumulation signal; the breadth entry still said the 200-day ratio was not provided.
+- root_cause: Early glossary text was written as trading folklore and not reviewed against the SEC order-type bulletin or the indicator formulas.
+- fix: js/aio-glossary.js: market order = fills at available quotes, price not guaranteed; limit order = at the price or better, fill not guaranteed; VWAP formula and use as an execution benchmark, not an investor cost basis; Chaikin A/D formula, buyer identity unknown; streak as an observation; breadth entry lists the measures the screen shows.
+- violated_rule: Definitions state what a measure is, not who is behind it.
+- prevention: Knowledge lint; glossary changes reviewed against a primary definition.
+- verification/residual: Text review.
+
+## P1403 - v56.97 - News: a server backstop item from an older cycle is not restored as current (2026-10-03)
+
+- symptom/reproduction: Codex review: a 43.2-hour-old article became current=true through the server fallback (its AI use stayed excluded).
+- root_cause: _aioNormalizeNewsItem trusted any _serverBackstop item's own newsCycleStart/End and capped its age at the window, without checking that the cycle was still the latest one.
+- fix: js/aio-data.js: serverCycleTrusted also requires the item cycle to have ended within one news window (24h) of now.
+- violated_rule: A fallback never upgrades freshness.
+- prevention: ci-architecture-browser-check P1403 (30h-old cycle + 43.2h item -> untrusted and stale; latest cycle -> trusted).
+- verification/residual: Browser probe through the page function.
+
+## P1402 - v56.97 - SEC equity: parent-company equity first; a conflicting NCI-inclusive tag no longer becomes the reported equity (2026-10-03)
+
+- symptom/reproduction: Codex review: Agilent (A) showed equity -$226M; the same filing reported $6,741M for another equity concept and the SEC balance sheet shows -$226M as accumulated other comprehensive loss. ROE and P/B were therefore missing.
+- root_cause: Agilent's FY2025 10-K tagged StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest with -226M (also -305M/-327M for the comparatives) beside StockholdersEquity 6,741M. The producer listed the NCI-inclusive concept first, so it won for the same period and filing. A scan of the artifact found 16 records where the two concepts differ materially (A, AES, AMT, APO, ARES, BX, CL, CLX, HCA, KKR, LNG, LYV, MAS, MDLN, TKO, FCX), mostly real minority interests.
+- fix: fetch-sec-fundamentals.mjs lists StockholdersEquity (parent) first for both the record and the point-in-time facts — the ROE/P-B denominator consistent with NetIncomeLoss. src/domain/fundamental/sec-report.js ranks the parent concept first in selectObservationAsOf and adds reconcileSecEquity, which takes the same filing's parent equity from the record's own PIT facts, re-derives ROE and rescales P/B (market cap unchanged), clears both when parent equity is not positive and flags equityConceptConflict when the two differ by more than half. deriveSecReport and the producer's screener enrichment apply it, so the correction holds before the SEC batch refreshes each record.
+- violated_rule: An official source label does not establish semantic correctness; concept choice follows the ratio definition.
+- prevention: ci-esm-core-unit-check P1402 (Agilent shape: equity 6,741M, ROE 19.3%, PIT prefers parent).
+- verification/residual: Artifact scan with reconcileSecEquity: A -226M -> 6,741M (ROE 19.3%); MAS parent equity negative -> ROE/P-B cleared.
+
+## P1401 - v56.97 - Portfolio PIN accepts the vault contract (4-20 characters); schedule separates time passed from result received (2026-10-03)
+
+- symptom/reproduction: Codex review: the vault setup accepts a 4-20 character PIN, but the portfolio unlock field allowed 4 digits only (maxlength=4, numeric pattern, /^\d{4,}$/), locking out 6-digit or alphanumeric PINs. The briefing schedule marked an event '발표됨' once its clock time passed, and the heading said '이번 주' for a next-7-days window.
+- root_cause: Two PIN inputs were written with different contracts; the schedule derived status from the clock alone.
+- fix: index.html pf-pin-input minlength 4 / maxlength 20 without the numeric pattern; aio-workspace.js unlockPortfolio checks length 4-20. schedule.js status = received (EPS actual in hand) / time-passed / upcoming; the briefing shows '발표됨' only for received and '예정 시각 지남' otherwise; heading '앞으로 7일 일정'.
+- violated_rule: One contract per secret input; a status names what was observed.
+- prevention: ci-portfolio-vault-e2e keeps the 4-digit path; the input attributes and schedule status are asserted by inspection in this batch.
+- verification/residual: Local browser briefing schedule shows future rows without 발표됨; PIN field accepts 20 characters.
+
+## P1400 - v56.97 - Architecture contract updated for the rebuilt briefing, 시장 상태, 시장 폭 and news screens (2026-10-03)
+
+- symptom/reproduction: Codex review: ci-architecture-contract-check failed with 'news.js native briefing feed marker missing'; it also failed on the stock-chart domain module (a local variable named window) and still required the retired score hero, the five breadth canvases and a developer news marker. The gate sits in the QA preflight group, which the v56.92-96 local QA runs did not include.
+- root_cause: P1389-P1397 rebuilt the screens without updating the ownership contract; local verification ran the core..browser groups but not preflight.
+- fix: The contract now asserts the new owners — news.js routes the briefing to components/briefing-read.js (native-read marker), market.js routes breadth to components/breadth-board.js (close-basis series, shared range), analysis.js routes 시장 상태 and the home hero to components/market-regime.js — and asserts the retired score hero renderers, breadth canvases and briefing feed helpers stay gone. The news evidence-depth marker follows the shipped label (본문 미수신). chart-analysis.js renames its local window variable.
+- violated_rule: R3/QA: the full gate set, preflight included, runs before a batch is reported as verified.
+- prevention: qa-runner --group preflight is part of the pre-push run for this batch.
+- verification/residual: node scripts/ci-architecture-contract-check.mjs ok:true; qa-runner --group preflight.
+
+## P1399 - v56.97 - Market inputs share one close basis; missing is not a verdict; interpretation is tagged as a hypothesis (2026-10-03)
+
+- symptom/reproduction: Codex review 2026-10-03 (reproduced): the 9/30 S&P 500 close was read together with 10/1 breadth collected 22 minutes after the US open (stamped 'latest-completed-close') and an intraday 10/1 F&G, under one '10/1 기준' label. One S&P and one WTI value produced '혼조 환경' with five of six axes unknown and a favourable commodity axis ('유가와 달러가 내려오며' with no dollar data); no sentiment input read as '치우치지 않은 상태'; F&G 20 alone claimed '신용 스프레드도 악화'. The new boards took globals without observation dates. HY flip text said 350bp while the rule used 450bp/+25bp. Breadth charts stretched series of different lengths to the same width. Statements asserted causes ('원인은 금리', '긴축 공포', '대형 기술주가 방어').
+- root_cause: The producer had no completed-session filter for breadth/backfill bars; the consumer modules (P1389-P1396) read each value independently, without dates, and let a null input pass favourable/neutral branches ((b50 ?? 100), (wti20 == null || ...)); flip text was hand-written apart from the thresholds; the trend chart placed points by array index.
+- fix: scripts/fetch-data.mjs isSessionComplete(date, segment, nowMs) drops partial US/KR bars from breadth history and the history backfill and clears a partial row an earlier in-session run wrote. src/domain/briefing/market-read.js alignMarketInputs: basis = last S&P 500 completed close; every series runs through the basis; each input (HY, put/call, F&G, FRED changes) carries its date and is aligned/lagged (<=2 sessions)/stale/ahead/missing; only aligned or lagged inputs are judged. Axis states need their own inputs (breadth favourable needs both windows, commodities easing needs oil and the dollar, credit calm needs the 5-day change, volatility calm needs the term structure, rates need the 20-day change); the overall label needs 4 of 6 US axes or shows '판정 보류'. Flip text quotes the rule thresholds. Statements split into text (observation) and reading (hypothesis, tagged '해석'). Each regime and sentiment card shows one basis chip; stale or ahead inputs show '판정 제외'. Sentiment synthesis claims credit/volatility only when measured. trend-chart places x by calendar date with a shared range; a later-starting series says '기록 시작'. Midnight-UTC date-only stamps keep their trading date.
+- violated_rule: AGENTS.md close-basis scores (R670) and evidence-state per card; owner decision 2026-10-02 (states are descriptive).
+- prevention: ci-esm-core-unit-check P1399: sparse inputs give 판정 보류 and no favourable commodity axis; empty sentiment is not balanced; F&G alone claims no credit stress; an observation after the basis is dropped; stale HY is excluded; alignment states; interpretation worded as a hypothesis; isSessionComplete rejects an in-session bar.
+- verification/residual: Local browser: 시장 상태 9/30 basis on every axis (HY and FX 9/29 · 1거래일 전), breadth 26.7% (9/30) instead of the 10/1 intraday 25.6%, F&G 30 (9/30) instead of the intraday 32; briefing shows observation + 해석 tag; 200일선 chart starts at 7/20 on the shared axis.
+
 ## P1398 - v56.96 - Supplied research integrated: a16z State of Markets II, chart techniques, Raschke rules, earnings-slope principle (2026-10-03)
 
 - symptom/reproduction: Owner supplied the a16z State of Markets II PDF (90 pages), LazyAlpha chart screens, Linda Raschke's 12 rules (Ian Lee), a trader note on earnings slope and an information-delivery principle, and asked for structural integration.

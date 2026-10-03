@@ -50,13 +50,17 @@ function observationEffectiveAt(row) {
   return row?.acceptedAt || row?.effectiveAt || row?.filedAt || null;
 }
 
+// P1402: for the same period and filing, parent-company equity outranks the NCI-inclusive total.
+const CONCEPT_RANK = Object.freeze({ StockholdersEquity: 0, StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest: 1 });
+const conceptRank = (row) => CONCEPT_RANK[row?.concept] ?? 0;
+
 function selectObservationAsOf(rows, asOfMs, period = null) {
   const eligible = (Array.isArray(rows) ? rows : []).filter((row) => {
     const effectiveMs = Date.parse(observationEffectiveAt(row) || '');
     const periodMs = Date.parse(row?.periodEnd || '');
     return Number.isFinite(effectiveMs) && effectiveMs <= asOfMs && Number.isFinite(periodMs) && periodMs <= asOfMs && finite(row?.value) != null && (!period || sameFiscalPeriod(row, period));
   });
-  eligible.sort((a, b) => String(b.periodEnd || '').localeCompare(String(a.periodEnd || '')) || Date.parse(observationEffectiveAt(b)) - Date.parse(observationEffectiveAt(a)));
+  eligible.sort((a, b) => String(b.periodEnd || '').localeCompare(String(a.periodEnd || '')) || Date.parse(observationEffectiveAt(b)) - Date.parse(observationEffectiveAt(a)) || conceptRank(a) - conceptRank(b));
   return eligible[0] || null;
 }
 
@@ -113,8 +117,35 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   return Object.freeze(result);
 }
 
+// P1402: an artifact written before the concept order changed carries the NCI-inclusive total.
+// Use the same filing's parent-company equity (the ROE/P-B denominator, consistent with
+// NetIncomeLoss) and re-derive ROE and P/B from it; a non-positive parent equity leaves both empty.
+export function reconcileSecEquity(record) {
+  if (!record || typeof record !== 'object') return record;
+  const rows = Array.isArray(record.pit?.observations?.equity) ? record.pit.observations.equity : [];
+  const sameFiling = (row) => row.periodEnd === record.observedAt && (!record.accession || row.accession === record.accession);
+  const parent = rows.find((row) => sameFiling(row) && row.concept === 'StockholdersEquity' && finite(row.value) != null);
+  const total = finite(record.equity);
+  if (!parent || finite(parent.value) === total) return record;
+  const parentValue = finite(parent.value);
+  const corrected = { ...record, equity: parentValue, equityConcept: 'StockholdersEquity' };
+  if (total != null && Math.abs(total - parentValue) > Math.abs(parentValue) * 0.5) corrected.equityConceptConflict = { reported: total, parent: parentValue };
+  delete corrected.roe;
+  delete corrected.pb;
+  const netIncome = finite(record.netIncome);
+  if (netIncome != null && parentValue > 0) corrected.roe = Math.round(netIncome / parentValue * 1000) / 10;
+  // P/B = market cap / equity, so the stored ratio rescales exactly by the equity change.
+  if (finite(record.pb) != null && total > 0 && parentValue > 0) corrected.pb = Math.round(finite(record.pb) * total / parentValue * 100) / 100;
+  const coverage = new Set((Array.isArray(record.coverage) ? record.coverage : []).filter((key) => key !== 'roe' && key !== 'pb'));
+  coverage.add('equity');
+  if (corrected.roe != null) coverage.add('roe');
+  if (corrected.pb != null) coverage.add('pb');
+  corrected.coverage = [...coverage];
+  return corrected;
+}
+
 export function deriveSecReport(fundamentals = null) {
-  const input = fundamentals && typeof fundamentals === 'object' ? fundamentals : {};
+  const input = reconcileSecEquity(fundamentals && typeof fundamentals === 'object' ? fundamentals : {});
   const knownMetrics = new Set(METRIC_DEFINITIONS.map(([key]) => key));
   const coverage = Array.isArray(input.coverage) ? input.coverage.filter((field) => typeof field === 'string' && knownMetrics.has(field)) : [];
   const metrics = METRIC_DEFINITIONS

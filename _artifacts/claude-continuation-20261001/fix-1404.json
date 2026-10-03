@@ -1,0 +1,19 @@
+{
+  "version": "v56.97",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.97 — Codex review fixes: one close basis for every market input, missing never read as a verdict, observation apart from interpretation, date-aligned charts; architecture contract updated; portfolio PIN and schedule status; SEC parent-company equity; stale news backstop; glossary definitions; stock chart follows the opened stock (P1399-P1405).",
+  "p": {
+    "id": 1404,
+    "title": "Glossary: market/limit orders, VWAP, accumulation/distribution, institutional streaks, breadth screen",
+    "symptom": "Codex review: 시장가 was 'executes at the current price', 지정가 read as guaranteed to fill, VWAP as 'institutions\\' average entry price', Acc/Dist as institutional accumulation, a 10-day institutional streak as a strong accumulation signal; the breadth entry still said the 200-day ratio was not provided.",
+    "root_cause": "Early glossary text was written as trading folklore and not reviewed against the SEC order-type bulletin or the indicator formulas.",
+    "fix": "js/aio-glossary.js: market order = fills at available quotes, price not guaranteed; limit order = at the price or better, fill not guaranteed; VWAP formula and use as an execution benchmark, not an investor cost basis; Chaikin A/D formula, buyer identity unknown; streak as an observation; breadth entry lists the measures the screen shows.",
+    "violated_rule": "Definitions state what a measure is, not who is behind it.",
+    "prevention": "Knowledge lint; glossary changes reviewed against a primary definition.",
+    "verification": "Text review."
+  },
+  "changelog": [
+    "**용어사전 (P1404):** 시장가·지정가 주문, VWAP, 누적/분배선, 기관 연속 순매수, 시장 폭 정의를 바로잡음."
+  ]
+}

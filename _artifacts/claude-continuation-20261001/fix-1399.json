@@ -1,0 +1,19 @@
+{
+  "version": "v56.97",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.97 — Codex review fixes: one close basis for every market input, missing never read as a verdict, observation apart from interpretation, date-aligned charts; architecture contract updated for the rebuilt screens; portfolio PIN and schedule status (P1399-P1401).",
+  "p": {
+    "id": 1399,
+    "title": "Market inputs share one close basis; missing is not a verdict; interpretation is tagged as a hypothesis",
+    "symptom": "Codex review 2026-10-03 (reproduced): the 9/30 S&P 500 close was read together with 10/1 breadth collected 22 minutes after the US open (stamped 'latest-completed-close') and an intraday 10/1 F&G, under one '10/1 기준' label. One S&P and one WTI value produced '혼조 환경' with five of six axes unknown and a favourable commodity axis ('유가와 달러가 내려오며' with no dollar data); no sentiment input read as '치우치지 않은 상태'; F&G 20 alone claimed '신용 스프레드도 악화'. The new boards took globals without observation dates. HY flip text said 350bp while the rule used 450bp/+25bp. Breadth charts stretched series of different lengths to the same width. Statements asserted causes ('원인은 금리', '긴축 공포', '대형 기술주가 방어').",
+    "root_cause": "The producer had no completed-session filter for breadth/backfill bars; the consumer modules (P1389-P1396) read each value independently, without dates, and let a null input pass favourable/neutral branches ((b50 ?? 100), (wti20 == null || ...)); flip text was hand-written apart from the thresholds; the trend chart placed points by array index.",
+    "fix": "scripts/fetch-data.mjs isSessionComplete(date, segment, nowMs) drops partial US/KR bars from breadth history and the history backfill and clears a partial row an earlier in-session run wrote. src/domain/briefing/market-read.js alignMarketInputs: basis = last S&P 500 completed close; every series runs through the basis; each input (HY, put/call, F&G, FRED changes) carries its date and is aligned/lagged (<=2 sessions)/stale/ahead/missing; only aligned or lagged inputs are judged. Axis states need their own inputs (breadth favourable needs both windows, commodities easing needs oil and the dollar, credit calm needs the 5-day change, volatility calm needs the term structure, rates need the 20-day change); the overall label needs 4 of 6 US axes or shows '판정 보류'. Flip text quotes the rule thresholds. Statements split into text (observation) and reading (hypothesis, tagged '해석'). Each regime and sentiment card shows one basis chip; stale or ahead inputs show '판정 제외'. Sentiment synthesis claims credit/volatility only when measured. trend-chart places x by calendar date with a shared range; a later-starting series says '기록 시작'. Midnight-UTC date-only stamps keep their trading date.",
+    "violated_rule": "AGENTS.md close-basis scores (R670) and evidence-state per card; owner decision 2026-10-02 (states are descriptive).",
+    "prevention": "ci-esm-core-unit-check P1399: sparse inputs give 판정 보류 and no favourable commodity axis; empty sentiment is not balanced; F&G alone claims no credit stress; an observation after the basis is dropped; stale HY is excluded; alignment states; interpretation worded as a hypothesis; isSessionComplete rejects an in-session bar.",
+    "verification": "Local browser: 시장 상태 9/30 basis on every axis (HY and FX 9/29 · 1거래일 전), breadth 26.7% (9/30) instead of the 10/1 intraday 25.6%, F&G 30 (9/30) instead of the intraday 32; briefing shows observation + 해석 tag; 200일선 chart starts at 7/20 on the shared axis."
+  },
+  "changelog": [
+    "**하나의 기준일 (P1399):** 모든 시장 입력을 S&P 500의 마지막 완료 종가 날짜에 맞추고, 장중 시장 폭·F&G는 제외, 지연 입력은 카드에 날짜 표시, 오래된 입력은 판정 제외. 결측은 우호·중립·악화로 읽지 않고, 6개 축 중 4개 미만이면 전체 판정 보류. 전환 조건 문구를 실제 판정식과 일치시키고, 관측과 해석(가설)을 분리. 시장 폭·심리 차트는 실제 날짜 축 공유."
+  ]
+}

@@ -203,10 +203,17 @@ for (const [name, source, markers] of [
 // content remains a compatibility/narrative boundary.
 if (!newsPageSource.includes("page.dataset.aioArchitectureRenderer = 'native'")) fail('news.js native market-news renderer marker missing');
 if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fail('news.js native feed marker missing');
-if (!newsPageSource.includes("container.dataset.aioBriefingRenderer = 'native'")) fail('news.js native briefing feed marker missing');
+// P1399: since P1389 the briefing is a connected read owned by components/briefing-read.js (the
+// news screen owns the article feed); news.js routes to it and the retired feed helpers stay gone.
+{
+  const briefingReadSource = read('src/ui/components/briefing-read.js');
+  if (!newsPageSource.includes("import { renderBriefingRead } from '../components/briefing-read.js'") || !newsPageSource.includes('renderBriefingRead({ documentRef, root })')) fail('news.js must route the briefing to the native briefing read owner');
+  if (!briefingReadSource.includes("page.dataset.aioBriefingRenderer = 'native-read'")) fail('briefing-read.js native briefing read marker missing');
+  for (const retired of ['appendBriefingNews', 'getBriefingWindow']) if (newsPageSource.includes(retired)) fail(`news.js retired briefing feed helper returned: ${retired}`);
+}
 if (newsPageSource.includes('renderStories')) fail('news.js content-rendering helper (renderStories) returned after RM-01 removed it');
 if (!dataSource.includes("return 'headline-only'") || !dataSource.includes("row.contentDepth !== 'headline-only'") || !dataSource.includes("bodyText.length >= 40 ? 'summary' : 'headline-only'")) fail('headline-only news must remain outside verified/AI evidence');
-for (const marker of ['isNewsAnalysisEligible', '헤드라인 전용 · 단독 분석 근거 사용 금지', '본문/검증 필요']) {
+for (const marker of ['isNewsAnalysisEligible', 'isNewsHeadlineOnly(item)', "label: '본문 미수신'", '본문/검증 필요']) {
   if (!newsPageSource.includes(marker)) fail(`native news evidence-depth boundary missing: ${marker}`);
 }
 // P771: market.js owns macro primary quote/FRED metric sinks. The legacy global passes must
@@ -358,18 +365,20 @@ for (const marker of ['renderPortfolioHero', 'pf-total-value', 'pf-total-pnl', '
   if (!portfolioPageSource.includes(marker)) fail(`native portfolio hero renderer marker missing: ${marker}`);
 }
 if (read('index.html').includes("document.getElementById('pf-total-value')") || read('index.html').includes("document.getElementById('pf-total-pnl')")) fail('legacy portfolio hero writer returned after P810 cutover');
-// P827/P1033: breadth stage/McClellan status and all five breadth chart lifecycles are native.
-// A marker alone is insufficient: each canvas must execute through the native chart registry,
-// while the unavailable breadth5 series remains an explicit blocked input rather than a seed.
-if (routeOwners.routes?.breadth?.chartOwner !== 'native' || (routeOwners.routes?.breadth?.contestedIds || []).length) fail('breadth secondary chart ownership remains contested');
-for (const marker of ['renderNativeHistoryChart', 'aioBreadthChartRenderer', 'aioBreadthStageRenderer', 'aioBreadthMcclellanRenderer']) {
-  if (!marketPageSource.includes(marker)) fail(`native breadth secondary marker missing: ${marker}`);
+// P1399: since P1395 the 시장 폭 screen is the trend board in components/breadth-board.js — one
+// date-aligned chart per participation measure on the S&P 500 close basis. The five Chart.js
+// canvases and their native history-chart lifecycle (P827/P1033) are retired and must not return.
+if (routeOwners.routes?.breadth?.chartOwner !== 'native' || (routeOwners.routes?.breadth?.contestedIds || []).length) fail('breadth chart ownership remains contested');
+{
+  const breadthBoardSource = read('src/ui/components/breadth-board.js');
+  if (!marketPageSource.includes("if (route === 'breadth') renderBreadthBoard({ documentRef, root });")) fail('market.js must route breadth to the native breadth board');
+  for (const marker of ["page.dataset.aioBreadthBoardRenderer = 'native'", 'buildCloseSeries(history, field, { through })', 'breadthRange(cards)']) {
+    if (!breadthBoardSource.includes(marker)) fail(`breadth board contract missing: ${marker}`);
+  }
+  for (const retired of ['bp-price-chart', 'bp-ad-ratio-chart', 'bp-5ma-chart', 'bp-20ma-chart', 'bp-50ma-chart']) {
+    if (read('index.html').includes(`id="${retired}"`)) fail(`retired breadth canvas returned: ${retired}`);
+  }
 }
-for (const marker of ["id: 'bp-price-chart', field: 'spx'", "id: 'bp-ad-ratio-chart', field: 'advanceRatio'", "id: 'bp-5ma-chart', field: 'breadth5'", "id: 'bp-20ma-chart', field: 'breadth20'", "id: 'bp-50ma-chart', field: 'breadth50'", "if (route === 'breadth') renderBreadth(root, page, charts, store);"]) {
-  if (!marketPageSource.includes(marker)) fail(`native breadth chart execution missing: ${marker}`);
-}
-if (!uiSource.includes('aioBreadthStageRenderer') || !uiSource.includes('aioBreadthMcclellanRenderer') || !uiSource.includes('aioBreadthChartRenderer')) fail('legacy breadth secondary writer fence missing');
-if (!coreSource.includes('aioBreadthChartRenderer') || !coreSource.includes('dataset.aioBreadthChartRenderer === \'native\'')) fail('legacy breadth canvas fallback fence missing');
 // P828: fxbond trend and current curve chart lifecycles are native, with source-labelled
 // unavailable states instead of fabricated fallback values.
 if (routeOwners.routes?.fxbond?.chartOwner !== 'native' || (routeOwners.routes?.fxbond?.contestedIds || []).length) fail('fxbond chart ownership remains contested');
@@ -449,24 +458,22 @@ const htmlSource = read('index.html');
 // P1135/R620: the inline market-health model and its native fence moved with block B to js/aio-macro-tech.js.
 if (!macroTechSource.includes('function _aioIsNativeTechnicalHealth') || !macroTechSource.includes('window.AIO_ARCH.computeMarketHealth') || !macroTechSource.includes('_aioIsNativeTechnicalHealth()')) fail('legacy technical health model/fence missing');
 // P1339: the orphaned legacy technical initializer (and its native-health fence) was deleted.
-// P786: signal owns the score/decision hero. The legacy dashboard remains active for
-// secondary score bars, execution-window widgets, risk monitor, and narrative, but its three
-// primary text sinks must be fenced when the native signal marker is present. P1118 adds the
-// post-composite adjustment rows to the native set so the factor bars and the total reconcile.
-for (const marker of ['deriveTradingScoreDecisionPresentation', 'SIGNAL_PRESENTATION_MODEL_VERSION']) {
-  if (!analysisPageSource.includes(marker) && !read('src/domain/signal/trading-score.js').includes(marker)) fail(`signal presentation model marker missing: ${marker}`);
+// P1399: since P1392 the 시장 상태 screen and the home hero are the six-axis regime board in
+// components/market-regime.js (owner decision 2026-10-02: the 0-100 score and its decision badge
+// are retired from user surfaces). analysis.js routes both to it; the score hero renderers stay gone.
+{
+  const regimeSource = read('src/ui/components/market-regime.js');
+  for (const marker of ["import { renderRegimePage, renderHomeRegime } from '../components/market-regime.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage({ documentRef, root })', "page.dataset.aioHomeRenderer = 'native'", 'renderHomeRegime({ documentRef, root })']) {
+    if (!analysisPageSource.includes(marker)) fail(`analysis.js regime routing marker missing: ${marker}`);
+  }
+  for (const marker of ["page.dataset.aioRegimeRenderer = 'native'", "hero.dataset.aioRegimeRenderer = 'native'", 'regime.holdReason', 'row.basis']) {
+    if (!regimeSource.includes(marker)) fail(`regime board contract missing: ${marker}`);
+  }
+  for (const retired of ['function renderSignalDecision', 'function renderScoreAdjustments', 'function renderHomeSummary']) {
+    if (analysisPageSource.includes(retired)) fail(`retired score hero renderer returned: ${retired}`);
+  }
 }
-for (const marker of ['renderSignalDecision', 'renderScoreAdjustments', "page.dataset.aioSignalRenderer = 'native'", 'score-gauge-val', 'score-decision-badge', 'score-decision-sub', 'score-adjustments-container', 'aioSignalAdjustmentsRenderer']) {
-  if (!analysisPageSource.includes(marker)) fail(`native signal hero renderer marker missing: ${marker}`);
-}
-if (!pagesSource.includes('function _aioIsNativeSignalHero') || !pagesSource.includes('_aioIsNativeSignalHero()')) fail('legacy signal hero writer fence missing');
-// P787: home owns only the four score/decision summary sinks. The quality meter, Fear & Greed,
-// regime, factor detail, chart, and narrative surfaces remain compatibility-owned.
-for (const marker of ['renderHomeSummary', "page.dataset.aioHomeRenderer = 'native'", 'home-hero-total', 'home-hero-headline', 'home-hero-desc', 'home-trading-signal']) {
-  if (!analysisPageSource.includes(marker)) fail(`native home summary renderer marker missing: ${marker}`);
-}
-if (!dataSource.includes('function _aioIsNativeHomeSummaryElement') || !dataSource.includes('_aioIsNativeHomeSummaryElement(signalEl)')) fail('legacy home summary writer fence missing');
-if (dataSource.includes('function _aioRenderHomeHero') || dataSource.includes("getElementById('home-hero-components')")) fail('retired home score writer returned');
+if (dataSource.includes('function _aioRenderHomeHero')) fail('retired home score writer returned');
 
 // P788-P797: the derived theme-detail panel keeps an empty compatibility child while
 // explicit native children own the selected summary, composition/breadth, leaders, temperature,

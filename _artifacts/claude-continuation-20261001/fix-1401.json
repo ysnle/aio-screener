@@ -1,0 +1,19 @@
+{
+  "version": "v56.97",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.97 — Codex review fixes: one close basis for every market input, missing never read as a verdict, observation apart from interpretation, date-aligned charts; architecture contract updated for the rebuilt screens; portfolio PIN and schedule status (P1399-P1401).",
+  "p": {
+    "id": 1401,
+    "title": "Portfolio PIN accepts the vault contract (4-20 characters); schedule separates time passed from result received",
+    "symptom": "Codex review: the vault setup accepts a 4-20 character PIN, but the portfolio unlock field allowed 4 digits only (maxlength=4, numeric pattern, /^\\d{4,}$/), locking out 6-digit or alphanumeric PINs. The briefing schedule marked an event '발표됨' once its clock time passed, and the heading said '이번 주' for a next-7-days window.",
+    "root_cause": "Two PIN inputs were written with different contracts; the schedule derived status from the clock alone.",
+    "fix": "index.html pf-pin-input minlength 4 / maxlength 20 without the numeric pattern; aio-workspace.js unlockPortfolio checks length 4-20. schedule.js status = received (EPS actual in hand) / time-passed / upcoming; the briefing shows '발표됨' only for received and '예정 시각 지남' otherwise; heading '앞으로 7일 일정'.",
+    "violated_rule": "One contract per secret input; a status names what was observed.",
+    "prevention": "ci-portfolio-vault-e2e keeps the 4-digit path; the input attributes and schedule status are asserted by inspection in this batch.",
+    "verification": "Local browser briefing schedule shows future rows without 발표됨; PIN field accepts 20 characters."
+  },
+  "changelog": [
+    "**PIN·일정 (P1401):** 포트폴리오 PIN 입력을 Vault 설정과 같은 4~20자로 맞추고, 일정은 예정 시각 경과와 결과 수신을 구분."
+  ]
+}
