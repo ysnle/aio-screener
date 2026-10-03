@@ -4,6 +4,19 @@
 // DOM 문구·렌더는 셸이 남는다. 입력 자격 판정(공통 거래일·현재 시세·평가액)도 같은 계약에서
 // 수행해, 보류 사유를 코드로 돌려주고 셸이 사유별 문구를 고른다.
 import { createCompositionSnapshot, deriveRiskEstimate } from '../../domain/portfolio/risk.js';
+import { convertWithDeclaredRates } from '../../domain/portfolio/fx.js';
+
+// P1407 (Codex review 2026-10-03): quantity × price is in the holding's price currency. The listing
+// market fixes it when the position does not declare one (a .KS quote is in won); it is not a guess
+// about which company a symbol is.
+const LISTING_CURRENCY = Object.freeze([[/\.(KS|KQ)$/i, 'KRW'], [/\.T$/i, 'JPY'], [/\.HK$/i, 'HKD'], [/\.TW$/i, 'TWD']]);
+export function holdingPriceCurrency(position, evidence = null) {
+  const declared = String(position?.currency || position?.priceCurrency || evidence?.currency || '').trim().toUpperCase();
+  if (declared) return declared;
+  const ticker = String(position?.ticker || '');
+  const listed = LISTING_CURRENCY.find(([pattern]) => pattern.test(ticker));
+  return listed ? listed[1] : 'USD';
+}
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -17,6 +30,7 @@ export function assembleRiskEstimateInput({
   commonDates,
   cashValue,
   declarations,
+  fxLegs = [],
   nowIso
 }) {
   const dates = Array.isArray(commonDates) ? commonDates : [];
@@ -28,15 +42,36 @@ export function assembleRiskEstimateInput({
   // timestamped decision-authorized quote for each live portfolio weight.
   const currentValueMap = {};
   const missingCurrent = [];
+  const currencyByTicker = {};
   (Array.isArray(positions) ? positions : []).forEach((p) => {
     const evidence = priceEvidenceMap ? priceEvidenceMap[p.ticker] : null;
     const price = evidence && evidence.allowedUse === true ? finite(evidence.value) : null;
+    currencyByTicker[p.ticker] = holdingPriceCurrency(p, evidence);
     if (price == null || price <= 0) missingCurrent.push(p.ticker);
     else currentValueMap[p.ticker] = price * Number(p.qty);
   });
   if (missingCurrent.length) {
     return { ok: false, code: 'missing-current', tickers: missingCurrent };
   }
+  // P1407: weights and the account denominator need one unit. Every holding is valued in the declared
+  // base currency (or the single shared price currency); a missing or stale rate holds the estimate
+  // instead of adding dollars to won.
+  const decl0 = declarations || {};
+  const currencies = [...new Set(Object.values(currencyByTicker))];
+  const baseCurrency = String(decl0.baseCurrency || '').trim().toUpperCase() || (currencies.length === 1 ? currencies[0] : null);
+  if (!baseCurrency) return { ok: false, code: 'currency-mixed-no-base', currencies };
+  const baseValueMap = {};
+  const heldPairs = [];
+  const asOfMs = Date.parse(nowIso || '') || Date.now();
+  Object.entries(currentValueMap).forEach(([ticker, value]) => {
+    const from = currencyByTicker[ticker];
+    if (from === baseCurrency) { baseValueMap[ticker] = value; return; }
+    const converted = convertWithDeclaredRates({ value, from, to: baseCurrency, legs: Array.isArray(fxLegs) ? fxLegs : [], asOfMs });
+    if (converted.ok) baseValueMap[ticker] = converted.value;
+    else if (!heldPairs.includes(`${from}/${baseCurrency}`)) heldPairs.push(`${from}/${baseCurrency}`);
+  });
+  if (heldPairs.length) return { ok: false, code: 'currency-unconverted', pairs: heldPairs, baseCurrency };
+  Object.assign(currentValueMap, baseValueMap);
   const totalCurrentValue = (Array.isArray(positions) ? positions : []).reduce((s, p) => s + (currentValueMap[p.ticker] || 0), 0);
   if (!(totalCurrentValue > 0)) {
     return { ok: false, code: 'no-current-value' };
@@ -59,14 +94,16 @@ export function assembleRiskEstimateInput({
   const decl = declarations || {};
   const cashAmount = Math.max(0, Number(cashValue) || 0);
   const cashDeclarable = cashAmount === 0
-    || (decl.cashCurrency != null && decl.baseCurrency != null && decl.cashCurrency === decl.baseCurrency);
+    || (decl.cashCurrency != null && String(decl.cashCurrency).toUpperCase() === baseCurrency);
   const snapshot = createCompositionSnapshot({
     members: (Array.isArray(positions) ? positions : []).map((p) => {
       const ev = priceEvidenceMap ? priceEvidenceMap[p.ticker] : null;
       return {
         ticker: p.ticker,
         qty: Number(p.qty),
-        price: ev ? finite(ev.value) : null,
+        // P1407: the base-currency unit value, so the snapshot's quantity × price is in one currency.
+        price: currentValueMap[p.ticker] != null && Number(p.qty) > 0 ? currentValueMap[p.ticker] / Number(p.qty) : null,
+        priceCurrency: currencyByTicker[p.ticker],
         priceObservedAt: ev && ev.ts != null ? new Date(ev.ts).toISOString() : null,
         priceSource: ev && ev.source != null ? String(ev.source) : null
       };
@@ -74,7 +111,7 @@ export function assembleRiskEstimateInput({
     cash: { amount: cashAmount, currency: decl.cashCurrency },
     asOf: nowIso || new Date().toISOString(),
     weightBasis: cashDeclarable ? 'whole_account' : 'invested_sleeve',
-    baseCurrency: decl.baseCurrency
+    baseCurrency
   });
 
   // E4/P1193: 측정 경로와 리밸런싱 정책도 선언 입력이다. 전략 경로는 포지션이 선언한 목표비중
@@ -110,6 +147,9 @@ export function assembleRiskEstimateInput({
 
   return {
     ok: true,
+    valueCurrency: baseCurrency,
+    // Returns stay in each holding's own currency; FX moves are not in the volatility estimate.
+    returnCurrencyBasis: currencies.length > 1 ? 'local-currency-per-holding' : baseCurrency,
     returnsMap,
     snapshot,
     estimate,

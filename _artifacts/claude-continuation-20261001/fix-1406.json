@@ -1,0 +1,19 @@
+{
+  "version": "v56.98",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.98 — Codex structural review step 1: AI entity identity confirmed through the screen registry, portfolio risk weights in one base currency, event dedupe / earnings retry / HTTP status / mount cleanup, return-contract dates and horizons (P1406-P1409).",
+  "p": {
+    "id": 1406,
+    "title": "AI entity resolution: whole-word names and registry-confirmed symbols",
+    "symptom": "Codex structural review (reproduced): '애플리케이션 사용법' and 'pineapple industry' resolved to AAPL, 'BRK.B 분석' to BRK, 'nvda 분석' to nothing; also '메타버스 테마' → META and 'IT 섹터' → IT. The AI could research a company the question never named.",
+    "root_cause": "src/ai/entity/resolver.js matched aliases by lower-case substring and symbols by an uppercase regex, apart from the ticker screen, which confirms names by exact registry match (resolveRegisteredName) and KRX codes by normalizeTickerInput.",
+    "fix": "resolver v2: candidates and confirmation are separate. English names match as whole words, Korean names as the whole token or token + particle; symbols (BRK.B-style classes, KRX codes, lowercase symbols) are confirmed through AIO_TICKER_NAME_REGISTRY / SCREENER_DB / KR_STOCK_DB using the screen's normalizeTickerInput and resolveRegisteredName; lowercase common words are not symbols; an all-caps symbol no registry knows stays with verified:false; sector/index words stay topics.",
+    "violated_rule": "One identity rule for the screen and the AI; no ticker guessing.",
+    "prevention": "ci-ai-intelligence-contract-check P1406 (nine phrasing cases incl. the false positives).",
+    "verification": "Function reproduction of all reported and additional cases; AI intelligence contract OK."
+  },
+  "changelog": [
+    "**AI 종목 식별 (P1406):** 이름은 단어 전체(한글은 조사 포함)로만, 티커는 화면과 같은 종목 목록으로 확인. \"애플리케이션\"·\"pineapple\"·\"메타버스\"가 애플·메타로, \"BRK.B\"가 BRK로 잘못 잡히던 문제 해결."
+  ]
+}

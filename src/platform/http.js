@@ -46,16 +46,21 @@ export function createHttpClient({
           signal: controller.signal,
           headers
         });
-        return { response, data: await response.json() };
+        // P1408: the HTTP status survives a body that is not JSON (a 503 HTML error page used to
+        // become status 0 / HTTP_FAILED, indistinguishable from a dropped connection).
+        let data = null;
+        let parseFailed = false;
+        try { data = await response.json(); } catch (_) { parseFailed = true; }
+        return { response, data, parseFailed };
       });
-      const { response, data } = await Promise.race([operation, aborted]);
+      const { response, data, parseFailed } = await Promise.race([operation, aborted]);
       return Object.freeze({
-        ok: response.ok,
+        ok: response.ok && !parseFailed,
         status: response.status,
         data,
         fetchedAt: clock.iso(),
         elapsedMs: Math.max(0, clock.now() - startedAt),
-        error: response.ok ? null : `HTTP_${response.status}`
+        error: !response.ok ? `HTTP_${response.status}` : parseFailed ? 'HTTP_PARSE_FAILED' : null
       });
     } catch (error) {
       return Object.freeze({

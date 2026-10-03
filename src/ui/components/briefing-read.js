@@ -74,12 +74,18 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   const read = buildMarketRead(collectMarketInputs(root));
 
   // 1. Schedule
-  if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioBriefingEarningsRequested) {
+  // P1408: one request at a time; a failed or empty response clears the flag so a later render can
+  // retry (after a minute), and a late response re-renders only while the briefing is the open page.
+  const lastTry = Number(root._aioBriefingEarningsRequestedAt) || 0;
+  if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioBriefingEarningsRequested && nowMs - lastTry >= 60000) {
     root._aioBriefingEarningsRequested = true;
+    root._aioBriefingEarningsRequestedAt = nowMs;
     Promise.resolve(root._fetchEarningsCalendarSnapshot()).then((snap) => {
       if (snap && !root._aioEarningsSnapshot) root._aioEarningsSnapshot = snap;
-      renderBriefingRead({ documentRef: doc, root });
-    }).catch(() => {});
+    }).catch(() => {}).finally(() => {
+      root._aioBriefingEarningsRequested = false;
+      if (root._aioEarningsSnapshot && page.classList?.contains('active')) renderBriefingRead({ documentRef: doc, root });
+    });
   }
   const schedule = buildBriefingSchedule({
     releases: root.AIO_MACRO_CALENDAR?.releases || {},

@@ -369,7 +369,9 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge.remove());
       }
-      renderNow();
+      // P1408: a render that throws during mount releases what this page already attached; the
+      // router disposes only its own scope.
+      try { renderNow(); } catch (error) { bag.dispose(); throw error; }
       const unsubscribe = store && subscribeToSlices(store, route === 'briefing' ? ['news', 'analysis', 'marketSnapshot'] : ['news'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;

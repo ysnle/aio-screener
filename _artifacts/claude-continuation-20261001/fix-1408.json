@@ -1,0 +1,19 @@
+{
+  "version": "v56.98",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.98 — Codex structural review step 1: AI entity identity confirmed through the screen registry, portfolio risk weights in one base currency, event dedupe / earnings retry / HTTP status / mount cleanup, return-contract dates and horizons (P1406-P1409).",
+  "p": {
+    "id": 1408,
+    "title": "Event dedupe keeps the next genuine update; earnings retry; HTTP status kept; news mount cleanup",
+    "symptom": "Codex structural review: document original → window mirror → document update (same detail, < 250ms) delivered once instead of twice; the briefing earnings request set a global flag before the call and never cleared it, so one failure blocked retries for the tab and a late response re-rendered after leaving; a 503 HTML body became status 0 / HTTP_FAILED; a news mount that threw left its bridge DOM.",
+    "root_cause": "The adapter remembered suppressed mirrors (rewriting the record source); the flag had no failure path; response.json() failure fell into the transport catch; the page bag was never disposed on a throwing mount.",
+    "fix": "bootstrap.js remembers only delivered events; briefing-read.js clears the request flag in finally, retries after 60s, re-renders a late response only while the briefing is open; http.js keeps the status and reports HTTP_PARSE_FAILED for an unparseable 2xx body; news.js disposes its bag when the first render throws.",
+    "violated_rule": "Lifecycle: a failure path restores retry; a transport error keeps its cause.",
+    "prevention": "ci-esm-core-unit-check P1408 (adapter sequence, HTTP 503 HTML and bad-body cases).",
+    "verification": "Unit tests."
+  },
+  "changelog": [
+    "**갱신·재시도·오류 원인 (P1408):** 중복 이벤트 억제가 다음 정상 갱신을 버리지 않게 하고, 실적 일정 요청 실패 후 재시도, HTTP 오류의 상태 코드 보존, 뉴스 화면 마운트 실패 시 정리."
+  ]
+}

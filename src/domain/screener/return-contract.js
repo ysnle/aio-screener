@@ -23,8 +23,12 @@ export function createReturnObservation(input = {}) {
   if (!RETURN_KINDS.includes(kind)) errors.push('return-kind-not-declared');
   if (!ADJUSTMENT_SCOPES.includes(adjustment)) errors.push('adjustment-scope-not-declared');
   if (!currency) errors.push('currency-not-declared');
+  const startMs = Date.parse(startValuationAt || '');
+  const endMs = Date.parse(endValuationAt || '');
   if (!startValuationAt || !endValuationAt) errors.push('valuation-times-not-declared');
-  if (Date.parse(startValuationAt || '') >= Date.parse(endValuationAt || '')) errors.push('valuation-times-not-ordered');
+  // P1409: an unparseable time is not a declared time (NaN >= NaN is false, so it used to pass).
+  else if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) errors.push('valuation-times-invalid');
+  else if (startMs >= endMs) errors.push('valuation-times-not-ordered');
   if (kind === 'total' && adjustment !== 'split+dividend') errors.push('total-return-requires-dividend-adjustment');
   if (Number.isFinite(input.value) === false) errors.push('return-value-missing');
   // A provider field name is not a declaration of what was adjusted.
@@ -99,6 +103,10 @@ export function assertComparableReturns(observations = []) {
   if (kinds.size > 1) return Object.freeze({ comparable: false, reason: 'price-and-total-return-mixed-without-declaration', errors: Object.freeze([]) });
   if (currencies.size > 1) return Object.freeze({ comparable: false, reason: 'multiple-currency-bases-in-one-comparison', errors: Object.freeze([]) });
   if (adjustments.size > 1) return Object.freeze({ comparable: false, reason: 'mixed-adjustment-scope-in-one-comparison', errors: Object.freeze([]) });
+  // P1409: a one-month and a six-year return are not one comparison. Horizons may differ only by the
+  // market-calendar slack between exchanges (three days).
+  const horizons = rows.map((row) => (Date.parse(row.endValuationAt) - Date.parse(row.startValuationAt)) / 86400000);
+  if (Math.max(...horizons) - Math.min(...horizons) > 3) return Object.freeze({ comparable: false, reason: 'mixed-horizons-in-one-comparison', errors: Object.freeze([]) });
   return Object.freeze({ comparable: true, reason: null, kind: [...kinds][0], currency: [...currencies][0], adjustment: [...adjustments][0], errors: Object.freeze([]) });
 }
 
