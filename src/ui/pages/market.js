@@ -894,6 +894,12 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });
+        // P1417: history.json announces itself on window (js/aio-data.js), not on document.
+        const windowTarget = root && root !== eventTarget ? root : null;
+        if (windowTarget?.addEventListener) {
+          windowTarget.addEventListener('aio:historyLoaded', renderNow);
+          bag.add(() => windowTarget.removeEventListener?.('aio:historyLoaded', renderNow));
+        }
       bag.add(() => {
         if (page.dataset.aioArchitectureRoute === route) delete page.dataset.aioArchitectureRoute;
         if (page.dataset.aioArchitectureSlice === 'market') delete page.dataset.aioArchitectureSlice;

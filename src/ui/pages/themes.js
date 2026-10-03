@@ -1,6 +1,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
 import { subscribeToSlices } from '../../state/memoize.js';
+import { renderThemeStrength } from '../components/theme-strength.js';
 import {
   AI_INFERENCE_EFFICIENCY_REFERENCE,
   AI_INFERENCE_ARCHITECTURE_REFERENCE,
@@ -1065,15 +1066,22 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderThemeDetailBenchmark({ documentRef, root, store });
            renderThemeDetailInsights({ documentRef, root, store });
            renderAiInfrastructureLens({ documentRef, root, route });
+           renderThemeStrength({ documentRef, root, store }); // P1417
          };
         renderNow();
-        const unsubscribe = store && subscribeToSlices(store, ['themes'], renderNow);
+        const unsubscribe = store && subscribeToSlices(store, ['themes', 'screener'], renderNow);
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;
         ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged'].forEach((eventName) => {
           eventTarget?.addEventListener?.(eventName, renderNow);
           bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
         });
+        // P1417: history.json announces itself on window (js/aio-data.js), not on document.
+        const windowTarget = root && root !== eventTarget ? root : null;
+        if (windowTarget?.addEventListener) {
+          windowTarget.addEventListener('aio:historyLoaded', renderNow);
+          bag.add(() => windowTarget.removeEventListener?.('aio:historyLoaded', renderNow));
+        }
         const onThemeDetailShown = (event) => {
           // P800: the native detail surfaces consume the normalized store selection;
           // the legacy event payload remains a compatibility notification only.

@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1417 - v57.02 - 테마: sub-theme relative strength table and AI capex flow; history event also heard on window (2026-10-03)
+
+- symptom/reproduction: Codex review: the 테마 screen depended on live quotes for RRG/ETF/Korean themes and offered little to check day to day. Open-source comparison: xang1234/stock-screener ranks industry groups with rank changes; the a16z capex flow and TrendForce lead times (TM-XIX) were planned but not on screen. While verifying, the S&P 500 comparison stayed empty because history.json announces aio:historyLoaded on window and the 테마/시장 폭 pages listened on document only.
+- root_cause: No group-level view was built from the daily screener artifact; the capex material lived only in the knowledge base; page listeners targeted document while the legacy history loader dispatches on window.
+- fix: src/domain/themes/group-strength.js ranks THEME_MAP sub-themes by the MEDIAN member return over a chosen 1/3/6-month window (>= 3 priced members), with the S&P 500 return beside it, % of members above the 50-day average, the strongest member, and a direction from the 1-month vs 3-month rank (RRG idea, no stored history). The reference's weighted 1-99 RS rating was not adopted (composite score). src/domain/themes/ai-capex-flow.js holds the BNP Paribas split (00: semis 50, power 20, network 15, cooling 7.5, facility 7.5) and TrendForce lead times as REFERENCE, each layer linked to our theme categories with their current median return. src/ui/components/theme-strength.js renders both on the 테마 screen (window tabs, top 15 / all, leader -> 종목, theme -> 테마 상세); themes.js subscribes to the screener slice. themes.js and market.js also listen for aio:historyLoaded on window.
+- violated_rule: Owner decisions: evidence and state, no ungrounded composite score; REFERENCE material is labelled with source and date.
+- prevention: ci-esm-core-unit-check P1417 (median, exclusion under 3 members, ranking by median, no rating field, theme-level de-duplication).
+- verification/residual: Local browser: 53 ranked sub-themes (13 excluded), 10/1 basis, S&P 500 3M +2.5% after the window listener; capex flow bar and five layer cards with linked themes and lead-time meters.
+
 ## P1416 - v57.01 - 시장 폭: 52-week highs/lows, 4% movers, 40-day ratio, distribution days and a contributor drilldown (2026-10-03)
 
 - symptom/reproduction: Open-source comparison (xang1234/stock-screener breadth revision 3, StockBee Market Monitor, IBD distribution days): the 시장 폭 screen showed only moving-average ratios and advance/decline, so leadership narrowing (new lows outnumbering new highs near an index high), forced selling (4% decliners on volume) and index distribution were not visible, and no count showed which stocks made it.

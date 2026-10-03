@@ -3445,6 +3445,21 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (point.breadthUp4 !== 1 || point.breadthNewHighs !== 1 || point.contributors.up4[0][0] !== 'AAA' || point.breadth40 == null) fail(`P1416 producer aggregation wrong: ${JSON.stringify({ up4: point.breadthUp4, nh: point.breadthNewHighs, b40: point.breadth40 })}`);
 }
 
+// ── P1417: sub-theme relative strength — medians, exclusion, direction (no composite rating) ──
+{
+  const { buildGroupStrength, median } = await load('src/domain/themes/group-strength.js');
+  if (median([3, 1, 2]) !== 2 || median([1, 2, 3, 4]) !== 2.5 || median([null]) !== null) fail('P1417 median wrong');
+  const themes = [{ id: 't1', nameKr: '테마1', subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3'] }, { name: 'B', tickers: ['B1', 'B2', 'B3'] }, { name: 'C', tickers: ['C1', 'C2'] }] }];
+  const row = (sym, ret1m, ret3m) => ({ sym, ret1m, ret3m, ret6m: ret3m, pctSma50: ret1m });
+  const rows = [row('A1', 10, 5), row('A2', 12, 6), row('A3', 8, 4), row('B1', -5, 30), row('B2', -4, 28), row('B3', -6, 25), row('C1', 1, 1), row('C2', 1, 1)];
+  const model = buildGroupStrength({ themes, rows, sortKey: 'ret3m', benchmark: { ret3m: 2 } });
+  const [first, second] = model.groups;
+  if (model.groups.length !== 2 || model.excluded[0]?.name !== 'C') fail('P1417 a sub-theme with fewer than 3 priced members must be excluded');
+  if (first.name !== 'B' || first.ret3m !== 28 || first.vsBenchmark !== 26 || second.name !== 'A') fail(`P1417 ranking by median wrong: ${JSON.stringify(model.groups.map((g) => [g.name, g.ret3m]))}`);
+  if (/score|rating|grade/i.test(Object.keys(first).join(','))) fail('P1417 group strength must not publish a composite rating');
+  if (model.themes.t1.members !== 8) fail('P1417 theme-level summary must count each member once');
+}
+
 // ── P1397: chart analysis — VCP run, pivot, state (no grade) ─────────────────────────────────
 {
   const { analyzeChart, detectContractions } = await load('src/domain/technical/chart-analysis.js');
