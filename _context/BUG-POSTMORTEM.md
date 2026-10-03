@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1415 - v56.99 - Refresh promotion gate: producer deletions are part of the candidate (2026-10-03)
+
+- symptom/reproduction: Both operator workflow_dispatch runs of refresh-data on 2026-10-03 (02:43Z, 04:58Z) failed at Validate (record) and the fail-closed promotion gate (CANDIDATE MISMATCH, 1203 files) while schedule runs passed with 12 files.
+- root_cause: An operator dispatch always runs the full 13F chain; build-masters-runtime-artifacts.mjs garbage-collects unreferenced content-addressed projections (fs.unlink). verify-refresh-candidate.mjs hashed every changed path with readFileSync, so a deleted tracked file was recorded as MISSING and --record exited 1, failing every dispatch.
+- fix: verify-refresh-candidate.mjs records tracked files absent from the worktree as deletions (deleted list in the candidate, hashed as DELETED); --expect re-derives them; --expect-staged/--expect-commit require a recorded deletion to be absent from the tree. Unreadable existing files still fail closed.
+- violated_rule: A fail-closed gate distinguishes a deletion from an unreadable file.
+- prevention: verify-refresh-candidate --self-test P1415 (deleted tracked file through record, expect, staged and committed).
+- verification/residual: Self-test OK; GitHub run logs 37090815253 / 37098299226 show the 13F chain and the 1203-file candidate.
+
 ## P1414 - v56.99 - Fast-quote snapshot revision covers previous close, session and quality (2026-10-03)
 
 - symptom/reproduction: Codex structural review: the fast-plane revision hashed instrument, price and time only, so a corrected previous close (and change) or a session transition could be skipped as an unchanged snapshot.

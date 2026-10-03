@@ -1,0 +1,19 @@
+{
+  "version": "v56.99",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.99 — operator refresh dispatch: the promotion gate records producer deletions (P1415).",
+  "p": {
+    "id": 1415,
+    "title": "Refresh promotion gate: producer deletions are part of the candidate",
+    "symptom": "Both operator workflow_dispatch runs of refresh-data on 2026-10-03 (02:43Z, 04:58Z) failed at Validate (record) and the fail-closed promotion gate (CANDIDATE MISMATCH, 1203 files) while schedule runs passed with 12 files.",
+    "root_cause": "An operator dispatch always runs the full 13F chain; build-masters-runtime-artifacts.mjs garbage-collects unreferenced content-addressed projections (fs.unlink). verify-refresh-candidate.mjs hashed every changed path with readFileSync, so a deleted tracked file was recorded as MISSING and --record exited 1, failing every dispatch.",
+    "fix": "verify-refresh-candidate.mjs records tracked files absent from the worktree as deletions (deleted list in the candidate, hashed as DELETED); --expect re-derives them; --expect-staged/--expect-commit require a recorded deletion to be absent from the tree. Unreadable existing files still fail closed.",
+    "violated_rule": "A fail-closed gate distinguishes a deletion from an unreadable file.",
+    "prevention": "verify-refresh-candidate --self-test P1415 (deleted tracked file through record, expect, staged and committed).",
+    "verification": "Self-test OK; GitHub run logs 37090815253 / 37098299226 show the 13F chain and the 1203-file candidate."
+  },
+  "changelog": [
+    "**데이터 수동 갱신 (P1415):** 수동 실행 때 13F 정리 과정에서 지워진 파일을 검사기가 \"읽을 수 없는 파일\"로 오인해 갱신이 매번 실패하던 문제 해결."
+  ]
+}

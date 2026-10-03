@@ -41,11 +41,22 @@ function candidateFiles(cwd, explicitPaths) {
   return [...new Set([...gitLines(cwd, ['diff', '--name-only', 'HEAD']), ...gitLines(cwd, ['ls-files', '--others', '--exclude-standard'])])].sort();
 }
 
-function digestCandidate(cwd, files) {
+// P1415: a producer may delete files (the masters builder garbage-collects unreferenced 13F
+// projections). A tracked file that is gone from the worktree is a deletion in the candidate, not an
+// unreadable file — treating it as MISSING failed every operator dispatch (it always runs the full
+// 13F chain) while schedule runs, which rarely do, passed.
+function deletedFiles(cwd, files) {
+  return files.filter((file) => !existsSync(join(cwd, file))
+    && spawnSync('git', ['cat-file', '-e', `HEAD:${file}`], { cwd }).status === 0);
+}
+
+function digestCandidate(cwd, files, deleted = []) {
   const hash = createHash('sha256');
   const missing = [];
+  const deletedSet = new Set(deleted);
   for (const file of files) {
     hash.update(`\0${file}\0`);
+    if (deletedSet.has(file)) { hash.update('DELETED'); continue; }
     try {
       hash.update(createHash('sha256').update(readFileSync(join(cwd, file))).digest('hex'));
     } catch {
@@ -56,14 +67,17 @@ function digestCandidate(cwd, files) {
   return { digest: hash.digest('hex'), missing };
 }
 
-function digestGitTree(cwd, files, revision) {
+function digestGitTree(cwd, files, revision, deleted = []) {
   const hash = createHash('sha256');
   const missing = [];
+  const deletedSet = new Set(deleted);
   for (const file of files) {
     hash.update(`\0${file}\0`);
     const objectSpec = `${revision}:${file}`;
     const sizeResult = spawnSync('git', ['cat-file', '-s', objectSpec], { cwd, encoding: 'utf8', maxBuffer: 4096 });
     const expectedBytes = Number(String(sizeResult.stdout || '').trim());
+    // P1415: a recorded deletion must be absent from the staged/committed tree.
+    if (deletedSet.has(file)) { hash.update(sizeResult.status === 0 ? 'PRESENT' : 'DELETED'); continue; }
     if (sizeResult.status !== 0 || !Number.isSafeInteger(expectedBytes) || expectedBytes < 0) {
       missing.push(file);
       hash.update('MISSING');
@@ -96,10 +110,11 @@ function atomicWrite(path, value) {
 
 function record(cwd, outPath, explicitPaths) {
   const files = candidateFiles(cwd, explicitPaths);
-  const { digest, missing } = digestCandidate(cwd, files);
-  const payload = { schemaVersion: 'aio-refresh-candidate.v1', recordedAt: new Date().toISOString(), cwd, files, digest, missing };
+  const deleted = deletedFiles(cwd, files);
+  const { digest, missing } = digestCandidate(cwd, files, deleted);
+  const payload = { schemaVersion: 'aio-refresh-candidate.v1', recordedAt: new Date().toISOString(), cwd, files, deleted, digest, missing };
   atomicWrite(outPath, payload);
-  console.log(`[refresh-candidate] recorded ${files.length} file(s) digest=${digest.slice(0, 12)} at ${outPath}`);
+  console.log(`[refresh-candidate] recorded ${files.length} file(s) (${deleted.length} deleted) digest=${digest.slice(0, 12)} at ${outPath}`);
   if (missing.length) {
     console.error(`[refresh-candidate] WARN unreadable file(s) recorded as MISSING: ${missing.join(', ')}`);
     process.exit(1);
@@ -123,7 +138,7 @@ function expect(cwd, expectPath, explicitPaths) {
     process.exit(2);
   }
   const files = explicitPaths && explicitPaths.length ? candidateFiles(cwd, explicitPaths) : baseline.files;
-  const { digest, missing } = digestCandidate(cwd, files);
+  const { digest, missing } = digestCandidate(cwd, files, deletedFiles(cwd, files));
   const changedSet = candidateFiles(cwd, explicitPaths);
   const drift = [];
   if (digest !== baseline.digest) drift.push('content-or-set drift since the recorded candidate');
@@ -154,7 +169,7 @@ function expectGitTree(cwd, expectPath, revision) {
     process.exit(2);
   }
   const files = revision === '' ? gitLines(cwd, ['diff', '--cached', '--name-only', 'HEAD']) : baseline.files;
-  const { digest, missing } = digestGitTree(cwd, baseline.files, revision);
+  const { digest, missing } = digestGitTree(cwd, baseline.files, revision, Array.isArray(baseline.deleted) ? baseline.deleted : []);
   const drift = [];
   if (revision === '' && files.sort().join('\n') !== [...baseline.files].sort().join('\n')) drift.push('staged file set differs from the validated candidate');
   if (digest !== baseline.digest) drift.push('staged/committed content differs from the validated candidate');
@@ -213,7 +228,18 @@ function selfTest() {
     git('commit', '-m', 'validated');
     const committed = runCli('--expect-commit', baselinePath);
     if (committed.status !== 0) throw new Error(`P1299/QA-DATA-42 committed candidate with >1 MiB blob was rejected: ${committed.stderr}`);
-    console.log('[refresh-candidate] self-test OK: tamper rejection, clean accept, set-drift rejection, >1 MiB staged/committed blob support and missing-baseline fail-closed');
+    // P1415: a producer deletion is part of the candidate through every gate.
+    rmSync(join(repo, 'artifact.json'));
+    record(repo, baselinePath, null);
+    const deletedExpect = runCli('--expect', baselinePath);
+    if (deletedExpect.status !== 0) throw new Error(`P1415 a deleted tracked file was treated as unreadable: ${deletedExpect.stderr}`);
+    git('add', '-A');
+    const deletedStaged = runCli('--expect-staged', baselinePath);
+    if (deletedStaged.status !== 0) throw new Error(`P1415 staged deletion rejected: ${deletedStaged.stderr}`);
+    git('commit', '-m', 'gc');
+    const deletedCommitted = runCli('--expect-commit', baselinePath);
+    if (deletedCommitted.status !== 0) throw new Error(`P1415 committed deletion rejected: ${deletedCommitted.stderr}`);
+    console.log('[refresh-candidate] self-test OK: tamper rejection, clean accept, set-drift rejection, >1 MiB staged/committed blob support, producer deletions and missing-baseline fail-closed');
   } finally {
     rmSync(temp, { recursive: true, force: true });
   }
