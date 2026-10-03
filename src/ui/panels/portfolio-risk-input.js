@@ -4,18 +4,14 @@
 // DOM 문구·렌더는 셸이 남는다. 입력 자격 판정(공통 거래일·현재 시세·평가액)도 같은 계약에서
 // 수행해, 보류 사유를 코드로 돌려주고 셸이 사유별 문구를 고른다.
 import { createCompositionSnapshot, deriveRiskEstimate } from '../../domain/portfolio/risk.js';
-import { convertWithDeclaredRates } from '../../domain/portfolio/fx.js';
+import { convertWithDeclaredRates, listingCurrency } from '../../domain/portfolio/fx.js';
 
 // P1407 (Codex review 2026-10-03): quantity × price is in the holding's price currency. The listing
 // market fixes it when the position does not declare one (a .KS quote is in won); it is not a guess
-// about which company a symbol is.
-const LISTING_CURRENCY = Object.freeze([[/\.(KS|KQ)$/i, 'KRW'], [/\.T$/i, 'JPY'], [/\.HK$/i, 'HKD'], [/\.TW$/i, 'TWD']]);
+// about which company a symbol is. The listing rule lives in domain/portfolio/fx.js (P1418).
 export function holdingPriceCurrency(position, evidence = null) {
   const declared = String(position?.currency || position?.priceCurrency || evidence?.currency || '').trim().toUpperCase();
-  if (declared) return declared;
-  const ticker = String(position?.ticker || '');
-  const listed = LISTING_CURRENCY.find(([pattern]) => pattern.test(ticker));
-  return listed ? listed[1] : 'USD';
+  return declared || listingCurrency(position?.ticker);
 }
 
 function finite(value) {

@@ -2,6 +2,7 @@ import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
+import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
@@ -362,6 +363,41 @@ function render({ root, documentRef, store, charts }) {
   renderPortfolioStatus(documentRef, state, surface);
   renderPortfolioTable(documentRef, page, state, surface);
   renderPortfolioChart({ root, page, surface, charts });
+  renderPortfolioChecks(documentRef, root, surface);
+}
+
+// P1418: 점검 — only rules with a published default carry a verdict; the rest are shares.
+const CHECK_TONE = Object.freeze({ ok: ['양호', 'favorable'], attention: ['주의', 'burden'], info: ['참고', 'neutral'], unknown: ['측정 안 함', 'unknown'] });
+function renderPortfolioChecks(documentRef, root, surface) {
+  const host = documentRef?.getElementById('pf-checks');
+  if (!host) return;
+  const universe = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : [];
+  const rowOf = (symbol) => universe.find((row) => String(row?.sym || '').toUpperCase() === symbol) || null;
+  const result = derivePortfolioChecks({
+    surface,
+    // Sector ETFs (XLE …) carry index 'ETF' with their real sector; broad ETFs carry sector 'ETF'.
+    assetTypeOf: (symbol) => { const row = rowOf(symbol); return row ? (row.index === 'ETF' || row.sector === 'ETF' ? 'ETF' : '개별 주식') : (/\.(KS|KQ)$/.test(symbol) ? '개별 주식' : null); },
+    sectorOf: (symbol) => { const row = rowOf(symbol); return row ? (row.sector === 'ETF' ? '광범위 ETF' : row.sector) : null; }
+  });
+  const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
+  host.replaceChildren(el('h2', '포트폴리오 점검', 'briefing-h2'));
+  host.dataset.aioPortfolioChecksRenderer = 'native';
+  if (result.status !== 'current') {
+    host.append(el('p', result.reason === 'currency-unconverted' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.' : '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
+    return;
+  }
+  host.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? ` · 평가액이 없는 ${result.excluded}종목 제외` : ''} · 공개된 기준값이 있는 항목만 양호/주의로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
+  const list = el('div', null, 'pf-checks-list');
+  for (const check of result.checks) {
+    const card = el('section', null, 'pf-check');
+    card.dataset.check = check.id;
+    const head = el('div', null, 'pf-check-head');
+    const tone = CHECK_TONE[check.status] || CHECK_TONE.info;
+    head.append(el('span', check.label, 'pf-check-label'), el('span', tone[0], `regime-state is-${tone[1]}`));
+    card.append(head, el('div', check.value, 'pf-check-value'), el('p', check.detail, 'pf-check-detail'), el('span', check.basis, 'pf-check-basis'));
+    list.append(card);
+  }
+  host.append(list);
 }
 
 export function createPortfolioPage({ root = globalThis, documentRef, store } = {}) {

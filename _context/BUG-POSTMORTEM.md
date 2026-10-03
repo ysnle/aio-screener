@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1418 - v57.03 - 포트폴리오 점검 (single holding, single currency, region/type/sector/cash shares) and hidden currency mix in the totals (2026-10-03)
+
+- symptom/reproduction: Open-source comparison: Ghostfolio X-ray flags single-currency, single-account, asset-class, regional, emergency-fund and fee risks; the portfolio screen showed only a sector donut. While building it: holdings without a declared currency (US-listed + .KS) were summed by the totals model as one unit (an undeclared-single basis), the same class as P1407.
+- root_cause: No cross-dimension check existed; the surface model detected a currency mix only from declared currencies.
+- fix: src/domain/portfolio/checks.js (pure): verdicts only where a published default exists — single holding by the existing 10/15/25% tiers, single currency above 50% (Ghostfolio CurrencyClusterRiskCurrentInvestment default); region (listing market), individual stock vs ETF, sector and cash are shares with no verdict (Ghostfolio regional/asset-class bands are world market-cap target allocations); fees and accounts are reported as not measured. Shares use the surface base-currency values and exclude unvalued holdings by count; an unconverted mix holds the checks. domain/portfolio/fx.js now owns listingCurrency/listingRegion (shared with the risk input). surface.js counts undeclared rows with their listing currency when detecting a mix (a single inferred currency keeps the disclosed undeclared-single assumption). 포트폴리오 screen renders the cards; sector ETFs (index ETF) count as ETF.
+- violated_rule: Amounts travel with their currency (P1407); verdicts need a stated basis.
+- prevention: ci-esm-core-unit-check P1418 (verdict only for published defaults, excluded count, unconverted mix holds, undeclared USD + KRW not summed).
+- verification/residual: Local browser with three test holdings (restored afterwards): NVDA 37.9% attention, USD 100% reference, 미국 상장 100%, 개별 주식 62% · ETF 38%, Technology 62% · Energy 38%.
+
 ## P1417 - v57.02 - 테마: sub-theme relative strength table and AI capex flow; history event also heard on window (2026-10-03)
 
 - symptom/reproduction: Codex review: the 테마 screen depended on live quotes for RRG/ETF/Korean themes and offered little to check day to day. Open-source comparison: xang1234/stock-screener ranks industry groups with rank changes; the a16z capex flow and TrendForce lead times (TM-XIX) were planned but not on screen. While verifying, the S&P 500 comparison stayed empty because history.json announces aio:historyLoaded on window and the 테마/시장 폭 pages listened on document only.

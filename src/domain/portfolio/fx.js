@@ -29,6 +29,21 @@ function cleanObservedAt(value) {
   return Number.isFinite(ms) ? new Date(ms).toISOString() : null;
 }
 
+// P1407/P1418: the listing market fixes an undeclared quote currency and region (.KS/.KQ = won,
+// Korea); a symbol without an exchange suffix is US-listed. Shared by the risk input and the
+// portfolio checks so the two never disagree.
+const LISTING_MARKETS = Object.freeze([
+  [/\.(KS|KQ)$/i, 'KRW', '한국'], [/\.T$/i, 'JPY', '일본'], [/\.HK$/i, 'HKD', '홍콩'], [/\.TW$/i, 'TWD', '대만']
+]);
+export function listingCurrency(ticker) {
+  const listed = LISTING_MARKETS.find(([pattern]) => pattern.test(String(ticker || '')));
+  return listed ? listed[1] : 'USD';
+}
+export function listingRegion(ticker) {
+  const listed = LISTING_MARKETS.find(([pattern]) => pattern.test(String(ticker || '')));
+  return listed ? listed[2] : '미국 상장';
+}
+
 export function normalizeFxLegs(raw) {
   return (Array.isArray(raw) ? raw : [])
     .map((leg) => ({

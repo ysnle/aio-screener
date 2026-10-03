@@ -1,0 +1,19 @@
+{
+  "version": "v57.03",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v57.03 — 포트폴리오 점검 in the manner of Ghostfolio X-ray (published defaults only) and hidden currency mixes detected in the totals model (P1418).",
+  "p": {
+    "id": 1418,
+    "title": "포트폴리오 점검 (single holding, single currency, region/type/sector/cash shares) and hidden currency mix in the totals",
+    "symptom": "Open-source comparison: Ghostfolio X-ray flags single-currency, single-account, asset-class, regional, emergency-fund and fee risks; the portfolio screen showed only a sector donut. While building it: holdings without a declared currency (US-listed + .KS) were summed by the totals model as one unit (an undeclared-single basis), the same class as P1407.",
+    "root_cause": "No cross-dimension check existed; the surface model detected a currency mix only from declared currencies.",
+    "fix": "src/domain/portfolio/checks.js (pure): verdicts only where a published default exists — single holding by the existing 10/15/25% tiers, single currency above 50% (Ghostfolio CurrencyClusterRiskCurrentInvestment default); region (listing market), individual stock vs ETF, sector and cash are shares with no verdict (Ghostfolio regional/asset-class bands are world market-cap target allocations); fees and accounts are reported as not measured. Shares use the surface base-currency values and exclude unvalued holdings by count; an unconverted mix holds the checks. domain/portfolio/fx.js now owns listingCurrency/listingRegion (shared with the risk input). surface.js counts undeclared rows with their listing currency when detecting a mix (a single inferred currency keeps the disclosed undeclared-single assumption). 포트폴리오 screen renders the cards; sector ETFs (index ETF) count as ETF.",
+    "violated_rule": "Amounts travel with their currency (P1407); verdicts need a stated basis.",
+    "prevention": "ci-esm-core-unit-check P1418 (verdict only for published defaults, excluded count, unconverted mix holds, undeclared USD + KRW not summed).",
+    "verification": "Local browser with three test holdings (restored afterwards): NVDA 37.9% attention, USD 100% reference, 미국 상장 100%, 개별 주식 62% · ETF 38%, Technology 62% · Energy 38%."
+  },
+  "changelog": [
+    "**포트폴리오 점검 (P1418):** 한 종목·한 통화 쏠림(공개 기준값이 있는 항목만 양호/주의 판정)과 지역·자산 유형·섹터·현금 비중을 보여 주는 점검 카드 추가. 통화를 선언하지 않은 미국·한국 종목이 한 통화로 더해지던 문제도 함께 해결."
+  ]
+}

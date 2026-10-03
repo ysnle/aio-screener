@@ -1,4 +1,4 @@
-import { FX_LEG_MAX_AGE_MS, convertWithDeclaredRates } from './fx.js';
+import { FX_LEG_MAX_AGE_MS, convertWithDeclaredRates, listingCurrency } from './fx.js';
 
 export const PORTFOLIO_SURFACE_MODEL_VERSION = 'portfolio-surface.v3';
 
@@ -204,6 +204,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       dailyPctEligible: quote.dailyPctEligible,
       changeBasis: quote.changeBasis,
       currency: String(holding?.currency || holding?.priceCurrency || '').trim().toUpperCase() || null,
+      // P1418: the listing market's currency (.KS = KRW, US-listed = USD), used only to detect a mix
+      // the declarations hide — without it a won holding and a dollar holding were summed as one unit.
+      listingCurrency: symbol ? listingCurrency(symbol) : null,
       // E3/P1181 (11 P11-02): cost and price are different axes. A declared cost currency that
       // differs from the price currency means the P&L subtraction has no conversion basis.
       costCurrency: String(holding?.costCurrency || '').trim().toUpperCase() || null
@@ -220,7 +223,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     declaredCashCurrency,
     declaredBaseCurrency
   ].filter(Boolean))];
-  const currencyBasis = declaredCurrencies.length > 1 ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
+  // P1418: undeclared rows count with their listing currency, so a hidden mix is still a mix.
+  const effectiveCurrencies = [...new Set([...rows.map((row) => row.currency || row.listingCurrency), declaredCashCurrency, declaredBaseCurrency].filter(Boolean))];
+  const currencyBasis = declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
   const cashValue = firstFinite(state?.cash, totals.cash);
   const cashKnown = readState === 'ready' && (state?.cashKnown === true || cashValue != null || holdingsKnown);
   let cash = cashKnown && cashValue != null && cashValue >= 0 ? cashValue : (cashValue === 0 ? 0 : null);
@@ -274,8 +279,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     if (currencyBasis === 'mixed') {
       const convertedRows = rows.map((row) => ({
         ...row,
-        value: convert(row.value, row.currency, held),
-        convertedFrom: row.currency && row.currency !== declaredBaseCurrency ? row.currency : null
+        value: convert(row.value, row.currency || row.listingCurrency, held),
+        convertedFrom: (row.currency || row.listingCurrency) && (row.currency || row.listingCurrency) !== declaredBaseCurrency ? (row.currency || row.listingCurrency) : null
       }));
       const convertedCash = convert(cash, declaredCashCurrency, held);
       if (!held.length) {

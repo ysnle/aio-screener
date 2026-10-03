@@ -3460,6 +3460,22 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (model.themes.t1.members !== 8) fail('P1417 theme-level summary must count each member once');
 }
 
+// ── P1418: portfolio 점검 — published-default verdicts only, hidden currency mix detected ─────
+{
+  const { derivePortfolioChecks } = await load('src/domain/portfolio/checks.js');
+  const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
+  const surface = { currencyState: 'declared-single', baseCurrency: 'USD', totalAssets: 1100, positionValue: 1000, rows: [
+    { symbol: 'AAA', value: 600, currency: 'USD', sector: 'Technology' }, { symbol: 'BBB', value: 300, currency: 'USD', sector: 'Technology' }, { symbol: 'CCC', value: 100, currency: 'USD', sector: 'Energy' }, { symbol: 'DDD', value: null, currency: 'USD' }] };
+  const result = derivePortfolioChecks({ surface, assetTypeOf: () => '개별 주식' });
+  const byId = Object.fromEntries(result.checks.map((check) => [check.id, check]));
+  if (result.excluded !== 1 || byId['single-holding'].status !== 'attention' || !/AAA 60\.0%/.test(byId['single-holding'].value)) fail(`P1418 single-holding check wrong: ${JSON.stringify(byId['single-holding'])}`);
+  if (byId['single-currency'].status !== 'info' || byId.region.status !== 'info' || byId.fees.status !== 'unknown') fail('P1418 only rules with a published default may carry a verdict');
+  if (derivePortfolioChecks({ surface: { ...surface, currencyState: 'mixed-without-conversion' } }).status !== 'unavailable') fail('P1418 an unconverted currency mix must hold the checks');
+  // Undeclared US + Korean holdings are a hidden mix: held, not summed as one unit.
+  const hidden = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, status: 'current', cash: 0, cashKnown: true, holdings: [{ symbol: 'AAPL', shares: 1, price: 100 }, { symbol: '005930.KS', shares: 1, price: 100000 }] }, liveData: {}, vix: null });
+  if (hidden.totalAssets === 100100 || hidden.currencyState !== 'mixed-without-conversion') fail(`P1418 undeclared USD + KRW holdings were summed: ${hidden.totalAssets} ${hidden.currencyState}`);
+}
+
 // ── P1397: chart analysis — VCP run, pivot, state (no grade) ─────────────────────────────────
 {
   const { analyzeChart, detectContractions } = await load('src/domain/technical/chart-analysis.js');
