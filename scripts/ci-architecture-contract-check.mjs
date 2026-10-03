@@ -210,6 +210,8 @@ if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fa
   if (!newsPageSource.includes("import { renderBriefingRead } from '../components/briefing-read.js'") || !newsPageSource.includes('renderBriefingRead({ documentRef, root })')) fail('news.js must route the briefing to the native briefing read owner');
   if (!briefingReadSource.includes("page.dataset.aioBriefingRenderer = 'native-read'")) fail('briefing-read.js native briefing read marker missing');
   for (const retired of ['appendBriefingNews', 'getBriefingWindow']) if (newsPageSource.includes(retired)) fail(`news.js retired briefing feed helper returned: ${retired}`);
+  // P1411: the hidden legacy digest (and its page-shown / live-quote hooks) must not come back.
+  if (/_aioRenderBriefingDigest\s*=|briefing-digest'/.test(coreSource + dataSource)) fail('legacy briefing digest renderer returned');
 }
 if (newsPageSource.includes('renderStories')) fail('news.js content-rendering helper (renderStories) returned after RM-01 removed it');
 if (!dataSource.includes("return 'headline-only'") || !dataSource.includes("row.contentDepth !== 'headline-only'") || !dataSource.includes("bodyText.length >= 40 ? 'summary' : 'headline-only'")) fail('headline-only news must remain outside verified/AI evidence');

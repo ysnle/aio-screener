@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v56.98';
-const SW_BUILD = '2026-10-03T10:01:00+09:00';
+const SW_VERSION = 'v56.99';
+const SW_BUILD = '2026-10-03T10:19:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -144,8 +144,20 @@ function staleResponse(ageMs, maxAgeMs) {
 
 // 나이를 알 수 있는 항목(x-cache-time/ttl)에만 상한을 적용한다. 헤더가 없는
 // 구버전 캐시 항목은 나이 판정이 불가능하므로 그대로 사용한다.
+// P1410: `?t=` is a client-clock cache-buster (data.json per minute, history.json per hour), not a
+// revision. Keying the data cache by the full URL missed the previous minute's copy when offline and
+// added one entry per minute. Same-origin artifacts are stored and looked up without it.
+function dataCacheKey(request) {
+  try {
+    var u = new URL(request.url);
+    if (u.origin !== self.location.origin || !u.searchParams.has('t')) return request;
+    u.searchParams.delete('t');
+    return new Request(u.toString(), { method: 'GET' });
+  } catch (e) { return request; }
+}
+
 async function cachedWithinMaxAge(request, isReference) {
-  const cached = await caches.match(request);
+  const cached = await caches.match(dataCacheKey(request));
   if (!cached) return { cached: null };
   const cachedAt = parseInt(cached.headers.get('x-cache-time') || '0', 10);
   const ttlSeconds = parseInt(cached.headers.get('x-cache-ttl') || '0', 10);
@@ -226,7 +238,7 @@ self.addEventListener('fetch', function(event) {
         // 두 c.put 경로가 서로 다른 규칙을 쓰던 비대칭이다.
         if (resp && resp.ok && !isSensitiveUrl(url)) {
           var clone = resp.clone();
-          caches.open(SHELL_CACHE).then(function(c) { c.put(request, clone); });
+          event.waitUntil(caches.open(SHELL_CACHE).then(function(c) { return c.put(request, clone); }).catch(function() {}));
         }
         return resp;
       }).catch(function() {
@@ -248,22 +260,22 @@ self.addEventListener('fetch', function(event) {
         if (resp && resp.ok && resp.status === 200 && !isSensitiveUrl(url)) {
           var ttl = isReference ? REFERENCE_CACHE_TTL : isCoreData ? CORE_DATA_CACHE_TTL : isNews ? NEWS_CACHE_TTL : DATA_CACHE_TTL;
           var now = String(Date.now());
-          // TTL 헤더를 주입한 래핑 응답 저장 (body 복사 필요)
-          resp.clone().arrayBuffer().then(function(body) {
-            try {
-              var headers = new Headers(resp.headers);
-              headers.set('x-cache-time', now);
-              headers.set('x-cache-ttl', String(ttl));
-              var wrapped = new Response(body, { status: resp.status, statusText: resp.statusText, headers: headers });
-              caches.open(DATA_CACHE).then(function(c) {
-                c.put(request, wrapped);
+          // TTL 헤더를 주입한 래핑 응답 저장 (body 복사 필요). P1410: the write is tied to the event's
+          // lifetime (waitUntil) so the worker is not stopped before the copy lands.
+          event.waitUntil(resp.clone().arrayBuffer().then(function(body) {
+            var headers = new Headers(resp.headers);
+            headers.set('x-cache-time', now);
+            headers.set('x-cache-ttl', String(ttl));
+            var wrapped = new Response(body, { status: resp.status, statusText: resp.statusText, headers: headers });
+            return caches.open(DATA_CACHE).then(function(c) {
+              return c.put(dataCacheKey(request), wrapped).then(function() {
                 purgeExpiredData(c); // TTL 만료 항목 비동기 정리
-                c.keys().then(function(keys) {
-                  if (keys.length > 500) c.delete(keys[0]); // FIFO 폴백
+                return c.keys().then(function(keys) {
+                  if (keys.length > 500) return c.delete(keys[0]); // FIFO 폴백
                 });
               });
-            } catch(e) {}
-          }).catch(function() {});
+            });
+          }).catch(function() {}));
         }
         return resp;
       }).catch(function() {

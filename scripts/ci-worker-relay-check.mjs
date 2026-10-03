@@ -154,6 +154,20 @@ async function main() {
     globalThis.fetch = async () => new Response('<!doctype html><title>Access denied</title>', { status: 200, headers: { 'content-type': 'text/html' } });
     const blocked = await worker.fetch(relayRequest('provider=kosis&orgId=101&tblId=DT_1J17001&itmId=T10'), { KOSIS_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() });
     check('P1151 an HTML block page is surfaced as 502', blocked.status === 502, blocked.status);
+
+    // ── Transport boundary (P1413) ───────────────────────────────────────────
+    const relayEnv = () => ({ FRED_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() });
+    const followed = [];
+    globalThis.fetch = async (url) => { followed.push(String(url)); return new Response('', { status: 302, headers: { location: 'https://evil.example/steal' } }); };
+    const redirected = await worker.fetch(relayRequest('provider=fred&series_id=DGS10'), relayEnv());
+    check('P1413 a relay redirect off the provider host is refused', redirected.status === 502 && followed.length === 1, `${redirected.status} ${followed.join(',')}`);
+    globalThis.fetch = async () => new Response(new ReadableStream({ start(controller) { for (let i = 0; i < 6; i += 1) controller.enqueue(new Uint8Array(1024 * 1024)); controller.close(); } }), { status: 200 });
+    const oversized = await worker.fetch(relayRequest('provider=fred&series_id=DGS10'), relayEnv());
+    check('P1413 a streamed body over 5MB without Content-Length is refused', oversized.status === 502 && /too large/i.test(await oversized.text()), oversized.status);
+    let hop = 0;
+    globalThis.fetch = async (url) => { hop += 1; return hop === 1 ? new Response('', { status: 301, headers: { location: String(url).replace('/series/observations', '/series/observations/') } }) : new Response(JSON.stringify({ observations: [] }), { status: 200 }); };
+    const sameHost = await worker.fetch(relayRequest('provider=fred&series_id=DGS10'), relayEnv());
+    check('P1413 a same-host https redirect is still followed', sameHost.status === 200 && hop === 2, `${sameHost.status} ${hop}`);
   } finally {
     globalThis.fetch = realFetch;
   }

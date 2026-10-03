@@ -173,7 +173,9 @@ export async function publishQuotes({ env, now = Date.now() } = {}) {
   const quotes = results.filter((quote) => Number.isFinite(quote?.value) && quote.value > 0);
   const coverage = tier0Coverage(quotes);
   const complete = coverage.observed === coverage.required;
-  const snapshotRevision = shaLike(quotes.map((quote) => [quote.instrumentId, quote.value, quote.observedAt]));
+  // P1414: the revision covers every published value — a corrected previous close (and so the change)
+  // or a session/quality transition is a new snapshot, not a no-op the KV write skips.
+  const snapshotRevision = shaLike(quotes.map((quote) => [quote.instrumentId, quote.value, quote.observedAt, quote.previousValue, quote.session, quote.quality]));
   const snapshot = createMarketSnapshot({
     status: complete ? 'published' : 'failed',
     revision: `fast-quotes:${snapshotRevision}`,

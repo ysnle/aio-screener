@@ -229,7 +229,10 @@ function createNewsCard(documentRef, root, item, index) {
   }
   const meta = documentRef.createElement('div');
   meta.className = 'news-item-meta';
-  const source = item?._tgChannel ? `TG · ${item?.source || ''}` : item?.source || '';
+  // EF-14/P1411: the source-name script guard moved here with the retired digest — a Cyrillic/CJK
+  // feed name is shown as '외신' instead of leaking untranslated.
+  const rawSource = typeof root?._aioSafeSourceLabel === 'function' ? root._aioSafeSourceLabel(item?.source || '') : item?.source || '';
+  const source = item?._tgChannel ? `TG · ${rawSource}` : rawSource;
   // P1391: developer markers (selection score, headline-only boundary, feed-review flag) are not
   // user content; the card keeps source, topic and time. LC-31 still holds — a feed-query topic is
   // shown only as a plain label, never as a verified sector assignment elsewhere.

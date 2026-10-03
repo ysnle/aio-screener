@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.98';
+const APP_VERSION = 'v56.99';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3041,7 +3041,6 @@ if (typeof document !== 'undefined') {
   window.AIO_PAGE_NARRATIVE_RENDERERS = {
     signal:    function(){ window._aioRenderSignalRegime && window._aioRenderSignalRegime(); window._aioRenderSignalScenario && window._aioRenderSignalScenario(); },
     breadth:   function(){ window._aioRenderBreadthConsensus && window._aioRenderBreadthConsensus(); },
-    briefing:  function(){ window._aioRenderBriefingDigest && window._aioRenderBriefingDigest(); },
     themes:    function(){ window._aioRenderThemesCycle && window._aioRenderThemesCycle(); },
     macro:     function(){ window._aioRenderMacroScenario && window._aioRenderMacroScenario(); },
     // Native sentiment owns the full page render; its store/event projection
@@ -3261,9 +3260,9 @@ if (typeof document !== 'undefined') {
 // (A) _aioReorderCoreSections — 묻혀 있던 기존 "결론" 섹션을 페이지 상단으로 재배치:
 //     sentiment "시장 심리 복합 판단"(7번째→결론바 직후) · breadth "시장 폭 종합 진단"(6번째→헤더 직후)
 //     · signal Lockout 컨트롤(전문 도구)을 점수·티커 아래로 후순위.
-// (B) _aioRenderBriefingDigest — 브리핑 페이지가 Claude 키 없이도 "실제 브리핑"을 하도록,
-//     이미 로드된 데이터(레짐·ACTION_RULES·뉴스 surface 모델·MACRO_CALENDAR)를 4줄로 합성.
-//     키가 있으면 기존 AI 브리핑이 그대로 아래에 추가됨(대체 아님).
+// (B) 브리핑 다이제스트 — P1411에서 퇴역(브리핑은 native connected read가 소유).
+//
+//
 // ════════════════════════════════════════════════════════════════════
 (function(){
   function _directChildOf(page, innerSel) {
@@ -3359,94 +3358,8 @@ if (typeof document !== 'undefined') {
     } catch(e) { return false; }
   };
 
-  // 브리핑 다이제스트 — 기존 데이터만 합성 (키 불필요·결정론적)
-  window._aioRenderBriefingDigest = function(){
-    try {
-      var page = document.getElementById('page-briefing');
-      if (!page) return;
-      var section = _directChildOf(page, '#briefing-date-line');
-      if (!section) return;
-      var host = document.getElementById('briefing-digest');
-      if (!host) {
-        host = document.createElement('div');
-        host.id = 'briefing-digest';
-        // v52.65 아이보리 2b: v52.63에서 신설된 시장분석/행동/오늘의뉴스/오늘일정 상세 섹션(시안 2b 구조)과
-        // 완전 중복 콘텐츠라 시각만 숨김(DOM/텍스트는 유지 — T234/T795가 존재+렌더만 확인, 표시 여부는 미확인).
-        // 잔존 하드코딩 cyan(rgba(0,212,255,...))도 핸드오프 §8 grep 대상이었으므로 함께 무채화.
-        host.style.cssText = 'display:none;margin:10px 0 14px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;font-size:12.5px;line-height:1.8;color:var(--text-secondary);';
-        var headRow = section.firstElementChild;
-        if (headRow) headRow.insertAdjacentElement('afterend', host); else section.insertBefore(host, section.firstChild);
-      }
-      var rows = [];
-      // 1) 시장 상태 한 줄 (라이브 레짐)
-      var r = window._aioRegimeNow ? window._aioRegimeNow() : null;
-      if (r && (r.vix != null || r.fg != null)) {
-        var rvix = Number(r.vix);
-        var vixTxt = Number.isFinite(rvix) ? ('VIX ' + window._aioSafeFixed(rvix, 1, '—') + (rvix < 18 ? ' (안정)' : rvix < 25 ? ' (보통)' : rvix < 32 ? ' (경계)' : ' (패닉)')) : '';
-        var fgTxt = r.fg == null ? '' : ('공포탐욕 ' + Math.round(r.fg) + (r.fg < 25 ? ' (극단공포)' : r.fg < 45 ? ' (공포)' : r.fg < 55 ? ' (중립)' : r.fg < 75 ? ' (탐욕)' : ' (극단탐욕)'));
-        var spxTxt = (window._liveData && window._liveData['^GSPC'] && typeof window._liveData['^GSPC'].pct === 'number') ? ('S&P500 ' + (window._liveData['^GSPC'].pct >= 0 ? '+' : '') + window._liveData['^GSPC'].pct.toFixed(2) + '%') : '';
-        rows.push('<b style="color:var(--text-primary);">시장</b> · ' + [spxTxt, vixTxt, fgTxt].filter(Boolean).join(' · '));
-      }
-      // 2) 오늘 행동 (기존 ACTION_RULES — home 액션 카드와 동일 출처. position={sizePct,note}, sentiment={note} 구조)
-      try {
-        if (window.AIO_ACTION_RULES && typeof window.AIO_ACTION_RULES.getActionPlan === 'function' && r) {
-          var breadthEv = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
-          var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: r.vix, fg: r.fg, breadth50: breadthEv.available ? breadthEv.sma50 : null });
-          var actParts = [];
-          var pos = plan && plan.position;
-          if (pos) actParts.push(pos.note ? pos.note : (pos.sizePct != null ? '포지션 ' + pos.sizePct + '%' : '')); // note가 사이즈 포함 문장
-          var sen = plan && plan.sentiment;
-          if (sen) actParts.push(typeof sen === 'string' ? sen : (sen.note || sen.action || ''));
-          actParts = actParts.filter(function(s){ return s && typeof s === 'string' && s.trim(); });
-          if (actParts.length) rows.push('<b style="color:var(--text-primary);">행동</b> · ' + actParts.join(' / '));
-        }
-      } catch(_){}
-      // 3) 핵심 뉴스 Top3 (이미 수집된 뉴스 캐시의 브리핑 surface 모델)
-      try {
-        var items = [];
-        if (window.AIO && typeof window.AIO.buildNewsSurfaceModel === 'function' && Array.isArray(window._allNewsItems) && window._allNewsItems.length) {
-          var bw = (typeof _getBriefingWindowKST === 'function') ? _getBriefingWindowKST() : null;
-          var model = window.AIO.buildNewsSurfaceModel('briefing', window._allNewsItems, bw ? { windowStart: bw.start, windowEnd: bw.end } : {});
-          items = (model && model.items || []).slice(0, 3);
-        }
-        if (items.length) {
-          // P602-followup/R245 계열: 이 Top3 선택도 초기 6건 배치 번역/지연로딩 옵저버 대상이 아니라
-          // [번역 대기]가 영구 고정될 수 있었다 — 아직 캐시에 없으면 즉시 우선 번역을 요청한다.
-          try {
-            var _digestUntranslated = items.filter(function(n) { return n && n.title && !(typeof _tcHas === 'function' && _tcHas(n.title)); });
-            if (_digestUntranslated.length && typeof autoTranslateNews === 'function') autoTranslateNews(_digestUntranslated).catch(function(){});
-          } catch(_) {}
-          var newsHtml = items.map(function(n){
-            var t = (typeof getDisplayTitle === 'function' ? getDisplayTitle(n) : n.title) || n.title || '';
-            // v52.42 (P657/EF-14): 제목은 getDisplayTitle의 isKoreanText 가드를 거치지만 소스명은
-            // 번역 대상이 아니라 그 가드를 안 거침 — 실측(브리핑)에서 키릴 소스명 원문 노출 확인.
-            var srcLabel = typeof window._aioSafeSourceLabel === 'function' ? window._aioSafeSourceLabel(n.source) : (n.source || '');
-            return '· ' + String(t).slice(0, 70) + ' <span style="color:var(--text-muted);">(' + srcLabel + ')</span>';
-          }).join('<br>');
-          rows.push('<b style="color:var(--text-primary);">핵심 뉴스</b><br>' + newsHtml);
-        }
-      } catch(_){}
-      // 4) 다가오는 일정 (기존 MACRO_CALENDAR — 7일 이내 최대 3건)
-      try {
-        var cal = window.AIO_MACRO_CALENDAR || window.MACRO_CALENDAR;
-        var rels = cal && (cal.releases || cal);
-        if (rels && typeof rels === 'object') {
-          var now = Date.now(), week = 7 * 86400000, ups = [];
-          Object.keys(rels).forEach(function(k){
-            var rel = rels[k];
-            var d = rel && (rel.nextRelease || rel.next);
-            if (!d) return;
-            var t = new Date(String(d) + 'T09:00:00+09:00').getTime();
-            if (isFinite(t) && t >= now - 86400000 && t <= now + week) ups.push({ t: t, label: (rel.name || rel.label || k) + ' ' + String(d).slice(5) });
-          });
-          ups.sort(function(a,b){ return a.t - b.t; });
-          if (ups.length) rows.push('<b style="color:var(--text-primary);">일정</b> · ' + ups.slice(0, 3).map(function(u){ return u.label; }).join(' · '));
-        }
-      } catch(_){}
-      if (rows.length) host.innerHTML = rows.join('<br>');
-      else host.innerHTML = '<span style="color:var(--text-muted);">데이터 수신 대기 — 시세·뉴스가 로드되면 자동으로 요약됩니다.</span>';
-    } catch(_){}
-  };
+  // P1411: the legacy briefing digest (#briefing-digest) was retired; the briefing is the native
+  // connected read (src/ui/components/briefing-read.js) and no hidden copy is built any more.
 
   // v50.33: 브리핑 뉴스 벽(40건·~5900px) 캡 — 렌더 로직(카테고리 그룹)은 그대로 두고 표현 레벨에서
   // 기본 높이를 제한 + 페이드 + "전체 N건 보기" 토글. 디제스트가 Top3를 이미 주므로 "핵심만"에 부합.
@@ -3958,18 +3871,13 @@ if (typeof document !== 'undefined') {
       // route surfaces already paint the decision state, so release these
       // DOM-heavy projections after the interactive boot budget.
       window._aioPageBus.register('core-page-news-strip', 'aio:pageShown', function(e){ var pid = e && e.detail; if (pid) setTimeout(function(){ window._aioRenderPageNewsStrip(pid); }, 2300); });
-      window._aioPageBus.register('core-briefing-digest', 'aio:pageShown', function(e){ if ((e && e.detail) === 'briefing') { setTimeout(window._aioRenderBriefingDigest, 2300); setTimeout(window._aioCapBriefingNews, 3000); } });
-      window._aioPageBus.register('core-briefing-digest-live', 'aio:liveQuotes', function(){
-        var p = document.getElementById('page-briefing');
-        if (p && p.classList.contains('active')) { window._aioRenderBriefingDigest(); setTimeout(window._aioCapBriefingNews, 200); }
-      });
       window._aioPageBus.register('core-verdict-guard-page', 'aio:pageShown', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
       window._aioPageBus.register('core-verdict-guard-live', 'aio:liveQuotes', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
       // v50.42: Market State Core — 시세/뉴스/페이지 진입 시 단일 상태 재계산(throttle 2s)
       window._aioPageBus.register('core-market-state-live', 'aio:liveQuotes', function(){ window._aioScheduleMarketState(300); });
       window._aioPageBus.register('core-market-state-page', 'aio:pageShown', function(){ window._aioScheduleMarketState(200); });
     }
-    window.addEventListener('aio:serverDataLoaded', function(){ try { setTimeout(function(){ window._aioScheduleMarketState(100); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); }, 2300); } catch(_){} });
+    window.addEventListener('aio:serverDataLoaded', function(){ try { setTimeout(function(){ window._aioScheduleMarketState(100); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); }, 2300); } catch(_){} });
     window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} });  // v50.41/42/47: 뉴스 갱신 → marketState + 스트립 + 분석 합성
     // v50.42/43/44: 단일 두뇌 갱신 → 소비자 동기화. 선순환 전파 단계.
     //   드리프트 배너·결론 가드·뉴스 스트립·home Action Item(v43) + breadth/themes/briefing/options 페이지 렌더러(v44).
@@ -3989,7 +3897,7 @@ if (typeof document !== 'undefined') {
         window._aioRenderActivePageNewsStrip();
       } catch(_){}
     });
-    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 2300);
+    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 2300);
     setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
 })();

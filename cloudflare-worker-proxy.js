@@ -235,6 +235,55 @@ function isPrivateHost(hostname) {
   return false;
 }
 
+// P1413 (Codex structural review): one transport boundary for the relay and the generic proxy. The
+// deadline covers the body as well as the headers, the size cap counts the bytes actually streamed
+// (Content-Length is optional), and every redirect hop passes the same host policy before it is
+// followed (fetch's default redirect follow never re-checked the destination).
+const MAX_UPSTREAM_BYTES = 5 * 1024 * 1024;
+const MAX_UPSTREAM_REDIRECTS = 3;
+function transportError(code) { const error = new Error(code); error.code = code; return error; }
+
+async function readUpstreamText(response, maxBytes = MAX_UPSTREAM_BYTES) {
+  const declared = Number(response.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > maxBytes) throw transportError('too-large');
+  if (!response.body || typeof response.body.getReader !== 'function') {
+    const text = await response.text();
+    if (new TextEncoder().encode(text).byteLength > maxBytes) throw transportError('too-large');
+    return text;
+  }
+  const reader = response.body.getReader();
+  const chunks = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) { try { await reader.cancel(); } catch (_) {} throw transportError('too-large'); }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  return new TextDecoder().decode(bytes);
+}
+
+async function fetchUpstream(url, init, isAllowedUrl) {
+  let current = String(url);
+  for (let hop = 0; hop <= MAX_UPSTREAM_REDIRECTS; hop += 1) {
+    const response = await fetch(current, { ...init, redirect: 'manual' });
+    const location = response.headers.get('location');
+    if (response.status < 300 || response.status >= 400 || !location) return response;
+    const next = new URL(location, current);
+    if (!isAllowedUrl(next)) throw transportError('redirect-refused');
+    current = next.toString();
+  }
+  throw transportError('redirect-limit');
+}
+
+function transportFailureMessage(error) {
+  return error?.name === 'AbortError' ? 'timeout' : error?.code === 'too-large' ? 'too-large' : error?.code === 'redirect-refused' || error?.code === 'redirect-limit' ? 'redirect-refused' : 'upstream-error';
+}
+
 function targetExpectsJson(parsedUrl) {
   const s = `${parsedUrl.hostname}${parsedUrl.pathname}`.toLowerCase();
   return /\/api\/|finance\/chart|query1\.finance\.yahoo\.com|query2\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com|production\.dataviz\.cnn\.io|api\.fear-and-greed\.com|api\.alternative\.me/.test(s);
@@ -1049,20 +1098,22 @@ async function handleRelay(request, env, origin) {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
-    const response = await fetch(provider.build(key, params), {
-      method: 'GET',
-      headers: { 'Accept': 'application/json,text/plain,*/*', 'User-Agent': 'AIO-Screener-relay/1.0' },
-      signal: controller.signal,
-      cf: { cacheTtl: provider.cacheTtl || 600 },
-    });
-    clearTimeout(timeoutId);
-
-    const contentLength = response.headers.get('content-length');
-    if (contentLength && parseInt(contentLength) > 5 * 1024 * 1024) {
-      if (ownedReservation) await releaseQuota(env, dayKey, requestId);
-      return errorResponse('Response too large', 502, origin);
+    const providerUrl = new URL(provider.build(key, params));
+    let response;
+    let rawBody;
+    try {
+      // A relay hop may only stay on the provider's own host over https.
+      response = await fetchUpstream(providerUrl, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json,text/plain,*/*', 'User-Agent': 'AIO-Screener-relay/1.0' },
+        signal: controller.signal,
+        cf: { cacheTtl: provider.cacheTtl || 600 },
+      }, (next) => next.protocol === 'https:' && next.hostname === providerUrl.hostname);
+      rawBody = await readUpstreamText(response);
+    } finally {
+      clearTimeout(timeoutId);
     }
-    const body = redactRelayKey(await response.text(), key);
+    const body = redactRelayKey(rawBody, key);
     if (looksLikeHtml(body)) {
       if (ownedReservation) await releaseQuota(env, dayKey, requestId);
       return errorResponse('Upstream returned HTML block page', 502, origin);
@@ -1080,7 +1131,8 @@ async function handleRelay(request, env, origin) {
     });
   } catch (error) {
     if (ownedReservation) await releaseQuota(env, dayKey, requestId);
-    return errorResponse(error.name === 'AbortError' ? 'Relay timeout' : 'Relay upstream error', 502, origin);
+    const kind = transportFailureMessage(error);
+    return errorResponse(kind === 'timeout' ? 'Relay timeout' : kind === 'too-large' ? 'Response too large' : kind === 'redirect-refused' ? 'Relay redirect refused' : 'Relay upstream error', 502, origin);
   }
 }
 
@@ -1192,22 +1244,23 @@ export default {
         upstreamHeaders.Origin = 'https://m.stock.naver.com';
       }
 
-      const response = await fetch(targetUrl, {
-        method: 'GET',
-        headers: upstreamHeaders,
-        signal: controller.signal,
-        cf: { cacheTtl: _cacheTtl },
-      });
-
-      clearTimeout(timeoutId);
-
-      // 대용량 응답 차단 (5MB)
-      const contentLength = response.headers.get('content-length');
-      if (contentLength && parseInt(contentLength) > 5 * 1024 * 1024) {
-        return errorResponse('Response too large', 502, requestOrigin);
+      // P1413: every hop passes the same private-host and domain allowlist; the deadline and the 5MB
+      // cap cover the streamed body.
+      const allowedHop = (next) => ['http:', 'https:'].includes(next.protocol) && !isPrivateHost(next.hostname)
+        && ALLOWED_DOMAINS.some(d => next.hostname.toLowerCase() === d || next.hostname.toLowerCase().endsWith('.' + d));
+      let response;
+      let data;
+      try {
+        response = await fetchUpstream(targetUrl, {
+          method: 'GET',
+          headers: upstreamHeaders,
+          signal: controller.signal,
+          cf: { cacheTtl: _cacheTtl },
+        }, allowedHop);
+        data = await readUpstreamText(response);
+      } finally {
+        clearTimeout(timeoutId);
       }
-
-      const data = await response.text();
       const contentType = response.headers.get('content-type') || 'application/json';
       if (_expectsJson && looksLikeHtml(data)) {
         return errorResponse('Upstream returned HTML block page for JSON endpoint', 502, requestOrigin);
@@ -1225,7 +1278,8 @@ export default {
         },
       });
     } catch (error) {
-      const msg = error.name === 'AbortError' ? 'Request timeout' : 'Upstream error';
+      const kind = transportFailureMessage(error);
+      const msg = kind === 'timeout' ? 'Request timeout' : kind === 'too-large' ? 'Response too large' : kind === 'redirect-refused' ? 'Redirect refused' : 'Upstream error';
       return errorResponse(msg, 502, requestOrigin);
     }
   },

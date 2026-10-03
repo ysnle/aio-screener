@@ -1,10 +1,13 @@
-import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
+import { createResourceBag, createChartRegistry, coalesceMicrotask } from '../../app/lifecycle.js';
 import { renderSentimentBoard } from '../components/sentiment-board.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
-import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { subscribeToSlice } from '../../state/memoize.js';
 
 // P1396: the page is the five-card sentiment board (../components/sentiment-board.js).
+// P1412 (Codex structural review): the board's inputs come from one adapter, collectMarketInputs
+// (components/briefing-read.js), aligned by alignMarketInputs — the store slice is a change signal
+// only, so the render takes no store values it would ignore. Triggers in one tick (store, document
+// and its window mirror) coalesce into one render.
 function renderSentiment(documentRef) {
   const model = renderSentimentBoard({ documentRef, root: documentRef?.defaultView || globalThis });
   const page = documentRef?.getElementById('page-sentiment');
@@ -30,16 +33,17 @@ export function createSentimentPage({ documentRef, evidenceStore, store, chartFa
         root.dataset.aioArchitectureRoute = 'sentiment';
         root.dataset.aioArchitectureRenderer = 'native';
       }
-      const render = () => renderSentiment(documentRef, selectSentimentValues(store?.getState?.() || {}), evidenceStore, chartFactory, charts, bag);
+      let active = true;
+      bag.add(() => { active = false; });
+      const render = coalesceMicrotask(() => renderSentiment(documentRef), { isActive: () => active });
       // RM-02: subscribe to the sentiment slice reference, not every dispatch — a
       // portfolio/screener/news/etc. dispatch leaves state.sentiment's reference
       // unchanged (every reducer is spread-based), so it no longer triggers a
       // sentiment re-render/chart redraw it has no data for.
       if (store) {
         bag.add(subscribeToSlice(store, (state) => state.sentiment, render));
-      } else {
-        render();
       }
+      renderSentiment(documentRef);
       const eventTargets = [...new Set([documentRef, documentRef?.defaultView].filter(Boolean))];
       ['aio:refresh:done', 'aio:historyLoaded', 'aio:sentimentUpdated'].forEach((eventName) => eventTargets.forEach((eventTarget) => {
         eventTarget.addEventListener?.(eventName, render);

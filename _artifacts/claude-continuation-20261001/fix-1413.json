@@ -1,0 +1,19 @@
+{
+  "version": "v56.99",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.99 — Codex structural review steps 2-4: offline cache keyed without the client cache-buster, legacy briefing digest retired, sentiment renders coalesced from one input adapter, Worker transport boundary (body deadline, streamed size cap, redirect policy), fast-quote revision covers every published value (P1410-P1414).",
+  "p": {
+    "id": 1413,
+    "title": "Worker transport boundary: body deadline, streamed size cap, redirect policy",
+    "symptom": "Codex structural review: the relay and the generic proxy cleared their timeout once headers arrived, capped size only through Content-Length, and followed redirects without re-checking the destination.",
+    "root_cause": "Each fetch path handled transport inline with fetch defaults.",
+    "fix": "cloudflare-worker-proxy.js fetchUpstream() follows at most three redirects manually, checking each hop (relay: same provider host over https; proxy: private-host block + domain allowlist); readUpstreamText() streams the body under the same deadline and refuses more than 5MB; errors keep their kind (timeout / too large / redirect refused).",
+    "violated_rule": "One transport boundary owns time, size and destination.",
+    "prevention": "ci-worker-relay-check P1413 (off-host redirect refused, 6MB stream without Content-Length refused, same-host redirect followed).",
+    "verification": "Worker relay, proxy continuity and quota gates pass."
+  },
+  "changelog": [
+    "**Worker 전송 경계 (P1413):** 응답 본문까지 제한 시간 적용, 실제 수신 바이트로 5MB 제한, redirect 도착지를 매번 허용 목록으로 재검사."
+  ]
+}

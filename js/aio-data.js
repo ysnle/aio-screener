@@ -10592,7 +10592,6 @@ async function autoTranslateNews(items) {
     renderHomeFeed(newsCache);
     renderBriefingFeed(newsCache);
     if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
-    if (typeof _aioRenderBriefingDigest === 'function') _aioRenderBriefingDigest();
     return;
   }
 
@@ -10728,7 +10727,6 @@ ${prompt}`
       _aioNotifyNewsSurfaceInvalidated('news-translation-progress');
       renderHomeFeed(newsCache);
       if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
-      if (typeof _aioRenderBriefingDigest === 'function') _aioRenderBriefingDigest();
     }
   }
 
@@ -10745,7 +10743,6 @@ ${prompt}`
   renderHomeFeed(newsCache);
   renderBriefingFeed(newsCache);
   if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
-  if (typeof _aioRenderBriefingDigest === 'function') _aioRenderBriefingDigest();
 }
 
 function localEnrichSingle(item) {

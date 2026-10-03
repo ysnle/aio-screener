@@ -4,6 +4,51 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1414 - v56.99 - Fast-quote snapshot revision covers previous close, session and quality (2026-10-03)
+
+- symptom/reproduction: Codex structural review: the fast-plane revision hashed instrument, price and time only, so a corrected previous close (and change) or a session transition could be skipped as an unchanged snapshot.
+- root_cause: The revision tuple omitted published fields.
+- fix: worker/data-plane.js hashes previousValue, session and quality with the price and time.
+- violated_rule: A revision identifies everything published under it.
+- prevention: Data-plane contract gates (the plane is disabled in public-config).
+- verification/residual: ci-data-plane-contract-check OK.
+
+## P1413 - v56.99 - Worker transport boundary: body deadline, streamed size cap, redirect policy (2026-10-03)
+
+- symptom/reproduction: Codex structural review: the relay and the generic proxy cleared their timeout once headers arrived, capped size only through Content-Length, and followed redirects without re-checking the destination.
+- root_cause: Each fetch path handled transport inline with fetch defaults.
+- fix: cloudflare-worker-proxy.js fetchUpstream() follows at most three redirects manually, checking each hop (relay: same provider host over https; proxy: private-host block + domain allowlist); readUpstreamText() streams the body under the same deadline and refuses more than 5MB; errors keep their kind (timeout / too large / redirect refused).
+- violated_rule: One transport boundary owns time, size and destination.
+- prevention: ci-worker-relay-check P1413 (off-host redirect refused, 6MB stream without Content-Length refused, same-host redirect followed).
+- verification/residual: Worker relay, proxy continuity and quota gates pass.
+
+## P1412 - v56.99 - Sentiment page: one input adapter, coalesced renders (2026-10-03)
+
+- symptom/reproduction: Codex structural review: the page passed selector values and the evidence store to a render that ignored them, and subscribed to the store and to both document and window events, so one update rebuilt the cards and SVGs several times.
+- root_cause: P1396 swapped the renderer but kept the old call signature and subscriptions.
+- fix: src/ui/pages/sentiment.js: the store slice is a change signal only; inputs come from collectMarketInputs (aligned by alignMarketInputs, P1399); store, document and window triggers in one tick coalesce through coalesceMicrotask; the unused selector import and arguments are removed. A full provider → slice migration of history/credit inputs remains a later step.
+- violated_rule: One input path per screen.
+- prevention: Architecture contract; browser runtime group.
+- verification/residual: QA browser groups.
+
+## P1411 - v56.99 - Legacy briefing digest retired (hidden DOM, page/live hooks, translation requests) (2026-10-03)
+
+- symptom/reproduction: Codex structural review: opening the rebuilt briefing still created a hidden #briefing-digest (display:none, 276 chars) on page-shown and every live-quote tick, and requested translation of the hidden news.
+- root_cause: P1389 replaced the briefing surface but left _aioRenderBriefingDigest and its five call sites in aio-core.js / aio-data.js.
+- fix: Removed the renderer, the narrative-renderer entry, both page-bus hooks, the serverDataLoaded/boot calls and the three aio-data.js call sites; the obsolete T795 browser test removed; the architecture contract asserts the renderer stays gone. The list-height adapters (_aioCapBriefingNews/_aioToggleBriefingNews) stay because a runtime contract still uses them.
+- violated_rule: A screen integration is complete when the old-only execution paths are gone.
+- prevention: ci-architecture-contract-check P1411.
+- verification/residual: No reference to _aioRenderBriefingDigest or briefing-digest remains in js/src.
+
+## P1410 - v56.99 - Service worker: data cache keyed without the ?t= cache-buster; writes tied to the event (2026-10-03)
+
+- symptom/reproduction: Codex structural review: data.json?t=<minute> and history.json?t=<hour> were cached under the full URL, so the next minute's offline request missed a valid copy (same query 200, next minute 503 with the real handler over an in-memory CacheStorage), and the cache gained one entry per minute up to the 500-entry FIFO. Cache writes were not passed to event.waitUntil.
+- root_cause: The data branch used the request itself as the cache key and looked it up with caches.match(request); the write promise was detached from the fetch event.
+- fix: sw.js dataCacheKey() drops the same-origin `t` parameter for both put and the age-bounded lookup; data and shell writes run under event.waitUntil.
+- violated_rule: A cache-buster is not a revision.
+- prevention: ci-service-worker-cache-policy-check P1410 runs the real fetch handler in a VM over an in-memory CacheStorage (fails on the previous sw.js with 200/200/503).
+- verification/residual: Behavioural check passes on the new handler and fails on the old one.
+
 ## P1409 - v56.98 - Return contract rejects unparseable times and mixed horizons (2026-10-03)
 
 - symptom/reproduction: Codex structural review: createReturnObservation accepted startValuationAt 'nonsense' / endValuationAt 'nope' (ok=true) and assertComparableReturns compared a one-month with a six-year return.

@@ -1,0 +1,19 @@
+{
+  "version": "v56.99",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.99 — Codex structural review steps 2-4: offline cache keyed without the client cache-buster, legacy briefing digest retired, sentiment renders coalesced from one input adapter, Worker transport boundary (body deadline, streamed size cap, redirect policy), fast-quote revision covers every published value (P1410-P1414).",
+  "p": {
+    "id": 1412,
+    "title": "Sentiment page: one input adapter, coalesced renders",
+    "symptom": "Codex structural review: the page passed selector values and the evidence store to a render that ignored them, and subscribed to the store and to both document and window events, so one update rebuilt the cards and SVGs several times.",
+    "root_cause": "P1396 swapped the renderer but kept the old call signature and subscriptions.",
+    "fix": "src/ui/pages/sentiment.js: the store slice is a change signal only; inputs come from collectMarketInputs (aligned by alignMarketInputs, P1399); store, document and window triggers in one tick coalesce through coalesceMicrotask; the unused selector import and arguments are removed. A full provider → slice migration of history/credit inputs remains a later step.",
+    "violated_rule": "One input path per screen.",
+    "prevention": "Architecture contract; browser runtime group.",
+    "verification": "QA browser groups."
+  },
+  "changelog": [
+    "**심리 화면 입력 (P1412):** 같은 틱의 store·document·window 갱신을 한 번의 렌더로 합치고, 쓰지 않던 store 값 전달을 정리."
+  ]
+}

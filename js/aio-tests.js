@@ -5554,7 +5554,7 @@
     try {
       var reg769 = window.AIO_PAGE_NARRATIVE_RENDERERS;
       var regPages = reg769 ? Object.keys(reg769) : [];
-      var hasCore = ['signal','breadth','briefing','themes','macro','sentiment'].every(function(p){ return typeof reg769[p] === 'function'; });
+      var hasCore = ['signal','breadth','themes','macro','sentiment'].every(function(p){ return typeof reg769[p] === 'function'; });
       var namedOk = typeof window._aioRenderBreadthConsensus === 'function'
         && typeof window._aioRenderOptionsRec === 'undefined'
         && typeof window._aioRenderThemesCycle === 'function'
@@ -5576,7 +5576,7 @@
         throttleOk = (r2 === null);
         window._breadthLiveData = oldBreadth769;
       }
-      t769ok = (regPages.length >= 6) && hasCore && namedOk && hasRefresh && hasStamp && liveRerenderOk && throttleOk;
+      t769ok = (regPages.length >= 5) && hasCore && namedOk && hasRefresh && hasStamp && liveRerenderOk && throttleOk;
       t769detail = 'pages=' + regPages.length + ' core=' + hasCore + ' named=' + namedOk + ' refresh=' + hasRefresh + ' stamp=' + hasStamp + ' rerender=' + liveRerenderOk + ' throttle=' + throttleOk;
     } catch(e) { t769detail = 'err: ' + (e && e.message); }
     _assert('T769 v507_live_narrative_sync: per-page 분석 렌더러가 aio:liveQuotes 시 보이는 페이지 텍스트 재생성 + 스로틀', t769ok, t769detail);
@@ -5926,18 +5926,6 @@
     } catch(e) { t794detail = 'ERR:' + e.message; }
     _assert('T794 v5030_beginner_panel_removed: #aio-beginner-panel + 핸들러 제거 (추가형 안내 패널 금지)', t794ok, t794detail);
 
-    // T795 (v50.30 대체): 브리핑 다이제스트 — 키 없이 기존 데이터 합성으로 "실제 브리핑" 렌더
-    var t795ok = false, t795detail = '';
-    try {
-      var hasDigestFn795 = typeof window._aioRenderBriefingDigest === 'function';
-      if (hasDigestFn795) window._aioRenderBriefingDigest();
-      var dEl795 = document.getElementById('briefing-digest');
-      var dTxt795 = dEl795 ? (dEl795.textContent || '') : '';
-      // 레짐 데이터가 있으면 "시장" 행 합성, 없으면 대기 문구 — 둘 다 렌더로 인정
-      t795ok = hasDigestFn795 && !!dEl795 && dTxt795.length > 10;
-      t795detail = 'fn=' + hasDigestFn795 + ' el=' + !!dEl795 + ' txt="' + dTxt795.slice(0, 40) + '"';
-    } catch(e) { t795detail = 'ERR:' + e.message; }
-    _assert('T795 v5030_briefing_digest: _aioRenderBriefingDigest가 #briefing-digest에 기존 데이터 합성 브리핑 렌더 (키 불필요)', t795ok, t795detail);
 
     // ─── v50.27 WO-7 히스토리 소비자 레이어 + WO-9 페이로드 ───
     // T796 (WO-7): 히스토리 데이터 레이어 — 로더/시리즈/audit + minPoints 게이트(부족 시 null→시드 폴백)

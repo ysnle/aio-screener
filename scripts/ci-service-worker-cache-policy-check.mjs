@@ -106,4 +106,42 @@ if (CORE_DATA_ARTIFACTS.some((name) => !coreTableFlat.includes(`/public-data/${n
 }
 if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core data table must not route shell assets');
 
+// P1410: behaviour, not text — run the real fetch handler over an in-memory CacheStorage. A copy
+// cached under one minute's `?t=` must still answer the next minute's request when the network fails.
+{
+  const vm = await import('node:vm');
+  const stores = new Map();
+  const keyOf = (input) => (typeof input === 'string' ? input : input.url);
+  const caches = {
+    async open(name) {
+      if (!stores.has(name)) stores.set(name, new Map());
+      const store = stores.get(name);
+      return { put: async (req, res) => { store.set(keyOf(req), res.clone()); }, match: async (req) => store.get(keyOf(req))?.clone(), keys: async () => [...store.keys()].map((url) => new Request(url)), delete: async (req) => store.delete(keyOf(req)) };
+    },
+    async match(req) { for (const store of stores.values()) { const hit = store.get(keyOf(req)); if (hit) return hit.clone(); } return undefined; },
+    async keys() { return [...stores.keys()]; },
+    async delete(name) { return stores.delete(name); }
+  };
+  const handlers = {};
+  let online = true;
+  const origin = 'https://example.test';
+  const self = { addEventListener: (type, fn) => { handlers[type] = fn; }, registration: { scope: `${origin}/aio/` }, location: { origin }, clients: { claim: async () => {} }, skipWaiting: async () => {} };
+  const fetchImpl = async () => { if (!online) throw new TypeError('offline'); return new Response(JSON.stringify({ ok: 1 }), { status: 200, headers: { 'content-type': 'application/json' } }); };
+  vm.runInNewContext(source, { self, caches, fetch: fetchImpl, Request, Response, Headers, URL, console, setTimeout, Date });
+  const dispatch = async (url) => {
+    let responded; const pending = [];
+    handlers.fetch({ request: new Request(url), respondWith: (p) => { responded = p; }, waitUntil: (p) => pending.push(p) });
+    const response = await responded;
+    await Promise.all(pending);
+    return response;
+  };
+  const first = await dispatch(`${origin}/aio/public-data/data.json?t=100`);
+  online = false;
+  const sameMinute = await dispatch(`${origin}/aio/public-data/data.json?t=100`);
+  const nextMinute = await dispatch(`${origin}/aio/public-data/data.json?t=101`);
+  const dataKeys = [...(stores.get([...stores.keys()].find((name) => /data/i.test(name))) || new Map()).keys()];
+  if (first.status !== 200 || sameMinute.status !== 200 || nextMinute.status !== 200) fail(`P1410 offline fallback lost across cache-busters: ${first.status}/${sameMinute.status}/${nextMinute.status}`);
+  if (dataKeys.some((key) => /[?&]t=/.test(key))) fail(`P1410 data cache keyed by the cache-buster: ${dataKeys.join(', ')}`);
+}
+
 console.log(`Service-worker cache policy OK: ${critical.length} critical assets; ${routedPaths.length} routed artifacts all have a client consumer; ${CORE_DATA_ARTIFACTS.length} consumed core artifacts are age-bounded with their own TTL; route modules are request-driven.`);

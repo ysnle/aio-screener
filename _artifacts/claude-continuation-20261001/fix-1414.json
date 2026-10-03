@@ -1,0 +1,19 @@
+{
+  "version": "v56.99",
+  "date": "2026-10-03",
+  "qa": [],
+  "note": "v56.99 — Codex structural review steps 2-4: offline cache keyed without the client cache-buster, legacy briefing digest retired, sentiment renders coalesced from one input adapter, Worker transport boundary (body deadline, streamed size cap, redirect policy), fast-quote revision covers every published value (P1410-P1414).",
+  "p": {
+    "id": 1414,
+    "title": "Fast-quote snapshot revision covers previous close, session and quality",
+    "symptom": "Codex structural review: the fast-plane revision hashed instrument, price and time only, so a corrected previous close (and change) or a session transition could be skipped as an unchanged snapshot.",
+    "root_cause": "The revision tuple omitted published fields.",
+    "fix": "worker/data-plane.js hashes previousValue, session and quality with the price and time.",
+    "violated_rule": "A revision identifies everything published under it.",
+    "prevention": "Data-plane contract gates (the plane is disabled in public-config).",
+    "verification": "ci-data-plane-contract-check OK."
+  },
+  "changelog": [
+    "**빠른 시세 변경 감지 (P1414):** 전일 종가·세션·품질 변화도 새 스냅샷으로 저장(현재 기능은 비활성)."
+  ]
+}
