@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-10-04T00:39:01.451Z",
+  "generatedAt": "2026-10-04T06:00:55.113Z",
   "appRevision": "v57.14",
   "dataRevision": "market-snapshot:2026-10-04T00:38:55.398Z:975297d6",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -191,9 +191,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-10-04T00:38:55.398Z",
-        "ageHours": 0,
+        "ageHours": 5.37,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-10-04T00:39:01.451Z",
+        "evaluatedAt": "2026-10-04T06:00:55.113Z",
         "reason": null
       },
       "readiness": {
@@ -216,11 +216,11 @@
         "revision": "fast-quotes:2026-10-04T00:35:30.012Z:3b29cea2",
         "sourceSha": null,
         "observedAt": "2026-10-04T00:39:01.451Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-04T00:39:01.451Z"
+        "evidenceEvaluatedAt": "2026-10-04T06:00:55.113Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -283,11 +283,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-04T00:39:01.451Z"
+        "evidenceEvaluatedAt": "2026-10-04T06:00:55.113Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -311,9 +311,9 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "filing-evidence",
-      "coveragePct": 85.8,
-      "stored": 562,
-      "eligible": 655
+      "coveragePct": 80.5,
+      "stored": 585,
+      "eligible": 727
     }
   },
   "reconciliation": {
@@ -327,8 +327,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 13,
-      "MATCH": 7,
+      "PARTIAL": 14,
+      "MATCH": 6,
       "BLOCKED": 2
     },
     "closure": {
@@ -348,6 +348,7 @@
         "news",
         "commodities-fx",
         "global-indices",
+        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -363,7 +364,8 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices"
+        "global-indices",
+        "crypto"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
