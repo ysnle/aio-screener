@@ -16,7 +16,7 @@ const SCREENER_REFERENCE_FRAMEWORK_IDS = Object.freeze([
   ])
 ]);
 
-export function createScreenerOrchestrator({ provider, commands, getState = () => ({}), ranker = null, rankingContext = () => ({}) } = {}) {
+export function createScreenerOrchestrator({ provider, commands, getState = () => ({}), ranker = null, rankingContext = () => ({}), onRankingResult = null } = {}) {
   if (!provider?.readCurrent || !commands?.setData) throw new Error('SCREENER_ORCHESTRATOR_DEPENDENCY_INVALID');
   // ARX-04: provider.readCurrent() now performs a real fetch (src/data/providers/screener.js),
   // so this orchestrator awaits it instead of treating it as a synchronous legacy projection.
@@ -49,6 +49,11 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       now: Number.isFinite(context.now) ? context.now : Date.now(),
       inputVersion: normalized.revision || 'unknown'
     }) : null;
+    // P1452: a failed or successful re-rank publishes/discards the hold the same way on both
+    // surfaces (the legacy wrapper and the native orchestrator share the semantics, not copies).
+    if (typeof onRankingResult === 'function') {
+      try { onRankingResult(ranking, context); } catch (_) {}
+    }
     const bySymbol = new Map((ranking?.rows || []).map((row) => [row.sym || row.symbol, row]));
     const rankedRows = normalized.rows.map((row) => {
       const result = bySymbol.get(row.sym || row.symbol);

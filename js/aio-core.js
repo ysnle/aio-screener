@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v57.17';
+const APP_VERSION = 'v57.18';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2082,12 +2082,22 @@ window._aioAddToPortfolio = function(ticker) {
     if (inp) inp.value = ticker;
   }, 50);
 };
-// LC-39: one bridge from any route into the technical deep analysis. The two legacy bridges wrote
-// a `deep-ticker-*` input id that does not exist (the real input is `#deep-sym-input`) and never
-// triggered the analysis — so the user landed on the technical page still showing the previous
-// symbol (SPY). Both now fill the real input and run the shared entry point.
+// LC-39 (bridge) + P1430/P1449: one bridge from any route into the technical deep analysis —
+// and the 종목 screen's company must follow. The native 차트 tab follows the subject
+// (root._aioLastOpenedSymbol / _aioChartRequest, stock-chart.js), so this bridge now names the
+// subject AND requests the chart; writing only the legacy #deep-sym-input left the native chart
+// on SPY while the legacy analysis widget moved (P1215 residual).
 function _aioOpenTechnicalAnalysis(ticker) {
   var sym = String(ticker == null ? '' : ticker).toUpperCase().trim();
+  try {
+    if (sym && typeof window.AIO_ARCH?.setStockSubject === 'function') {
+      var ok = window.AIO_ARCH.setStockSubject({ root: window, symbol: sym });
+      if (sym && ok && typeof document.dispatchEvent === 'function') {
+        document.dispatchEvent(new CustomEvent('aio:subjectChanged', { detail: { symbol: sym } }));
+      }
+    }
+  } catch (_) {}
+  if (sym) window._aioChartRequest = sym;
   if (typeof window.showPage === 'function') window.showPage('technical');
   if (!sym) return;
   setTimeout(function() {
@@ -2362,8 +2372,11 @@ window._aioDetectTickerPattern = function(symbol, requestEpoch) {
   if (typeof window.fetchOHLCVWithFallback !== 'function') { renderPattern([]); return; }
   Promise.resolve(window.fetchOHLCVWithFallback(sym, '1day', 5)).then(function(rows) {
     if (epoch !== window._aioTickerSelectionEpoch || sym !== window._currentTickerId) return;
-    window._tickerHistory = window._tickerHistory || {};
-    window._tickerHistory[sym] = Array.isArray(rows) ? rows : [];
+    // P1449 (검토판 부가·가격 기간): 5 bars is a PATTERN-DETECTOR view, not the chart's history.
+    // It used to land in window._tickerHistory — the runtime-readers chart-history fallback —
+    // so every 1M/3M/6M/1Y tab showed the same 5 observations. Pattern bars get their own key.
+    window._aioPatternBars = window._aioPatternBars || {};
+    window._aioPatternBars[sym] = Array.isArray(rows) ? rows : [];
     renderPattern(Array.isArray(rows) ? rows : []);
   }).catch(function() { renderPattern([]); });
 };
@@ -5106,8 +5119,22 @@ function _aioFoldDensePageControls(pageId) {
   // ID 기반 직접 지정 — 텍스트/인라인 스타일 의존 제거
   var selectors = [];
   if (pageId === 'market-news') selectors = ['#news-source-guide', '#news-progress-wrap'];
-  // screener: 텍스트 백테스트 패널만 접기. vis-screener(SVG 다이어그램)는 항상 노출 유지.
-  if (pageId === 'screener') selectors = ['#screener-backtest-panel'];
+  // P1449: the screener backtest panel is the primary native IC view inside its own named tab
+  // (P1443). Folding it into a closed <details> was the pre-P1443 legacy text-log policy — the
+  // legacy text log no longer exists, so the screener folds nothing. New primary panels may
+  // also declare data-aio-fold="never"; this fold skips such nodes defensively.
+  if (pageId === 'screener') selectors = [];
+  // P1449: restore a screen state where a previous-fold contract already tucked the panel into
+  // a closed <details> — the panel goes back to its document position and the stale toggle goes.
+  var legacyFold = page.querySelector('.aio-page-advanced-toggle[data-fold-page="screener"]');
+  if (legacyFold) {
+    var foldedPanel = page.querySelector('#screener-backtest-panel');
+    if (foldedPanel && legacyFold.parentNode) {
+      foldedPanel.classList.remove('aio-page-dense-folded');
+      legacyFold.parentNode.insertBefore(foldedPanel, legacyFold);
+    }
+    legacyFold.remove();
+  }
   // v51.40/P532: signal lockout is a hidden legacy sink, not a collapsible default-route section.
   if (pageId === 'signal') selectors = [];
   if (pageId === 'fxbond') selectors = ['.insight-box.box-collapsed'];
@@ -5116,7 +5143,7 @@ function _aioFoldDensePageControls(pageId) {
   selectors.forEach(function(sel) {
     try {
       page.querySelectorAll(sel).forEach(function(node) {
-        if (node && nodes.indexOf(node) < 0 && !node.closest('.aio-page-advanced-toggle')) nodes.push(node);
+        if (node && nodes.indexOf(node) < 0 && !node.closest('.aio-page-advanced-toggle') && node.dataset.aioFold !== 'never') nodes.push(node);
       });
     } catch(_) {}
   });
@@ -7307,6 +7334,9 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'ADI':   { en: 'Analog Devices',   kr: '아날로그디바이스', alt: ['analog devices', 'adi'] },
     'INTU':  { en: 'Intuit',           kr: '인튜이트',     alt: ['intuit', 'intu'] },
     'ADBE':  { en: 'Adobe',            kr: '어도비',       alt: ['adobe', 'adbe'] },
+    // P1449: 'A'는 Agilent다 (SEC entityName: AGILENT TECHNOLOGIES, INC.). Avantor는 AVTR이며
+    // 이 레지스터에 넣지 않는다(P1339: 티커를 다른 발행자로 추정하지 않는다).
+    'A':     { en: 'Agilent Technologies', kr: '아질런트',   alt: ['agilent', 'agilent technologies'] },
     'AMT':   { en: 'American Tower',   kr: '아메리칸타워', alt: ['american tower', 'amt'] },
     'CCI':   { en: 'Crown Castle',     kr: '크라운캐슬',   alt: ['crown castle', 'cci'] },
     'CME':   { en: 'CME Group',        kr: 'CME그룹',      alt: ['cme', 'cme group'] },
@@ -22721,6 +22751,15 @@ function showTicker(tkr) {
   window._currentTickerId = tkr;
   window._currentTickerName = (tickerData[tkr] && tickerData[tkr].name) || (typeof window._aioTickerDisplayName === 'function' && window._aioTickerDisplayName(tkr)) || tkr;
   try { document.dispatchEvent(new CustomEvent('aio:entityChanged', { detail: { id: tkr, source: 'ticker-selection' } })); } catch (_) {}
+  // P1449 (검토판 9): the three 종목-screen search boxes must move with the selection. A previous
+  // typed query ("ZZZZ") that failed to resolve survived the entity switch, so the next visit of
+  // the same screen silently reported the old subject. Sync: the selected symbol rules the box.
+  ['#ticker-direct-search', '#fund-search-input', '#stock-chart-input'].forEach(function(selector) {
+    try {
+      var input = document.querySelector(selector);
+      if (input && input.value !== tkr) input.value = tkr;
+    } catch (_) {}
+  });
   const d = tickerData[tkr] || {name:tkr, value:'—', action:'hold'};
   // v48.47: 캔들/진입 섹션 심볼 라벨 동기화 + 자동 감지
   var _tcs = document.getElementById('ticker-candle-symbol');

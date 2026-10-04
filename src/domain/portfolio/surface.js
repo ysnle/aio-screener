@@ -368,6 +368,11 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     costCurrencyState,
     baseCurrency: conversion.applied ? declaredBaseCurrency : (currencyBasis === 'declared-single' ? declaredCurrencies[0] : null),
     declaredCurrencies: Object.freeze(declaredCurrencies),
+    // P1449: 환산이 보류여도 "선언된" 통화는 참이므로 그대로 공개한다. 표기자(현금 hero·일간
+    // 변동 등)가 합계 미성립과 무관하게 선언 통화로 기입할 수 있게 하는 표시용 라벨이며,
+    // 미성립 합계를 만들어내는 근거로 쓰지 않는다(baseCurrency는 여전히 환산 성립 시에만 유효).
+    declaredBaseCurrency: declaredBaseCurrency || null,
+    declaredCashCurrency: declaredCashCurrency || null,
     // E3/P1194: 환산을 했다면 그 근거(사용한 leg·출처·관측 시각·창), 못 했다면 이유를 함께 발행한다.
     conversion: Object.freeze({
       ...conversion,

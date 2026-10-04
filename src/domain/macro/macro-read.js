@@ -209,15 +209,20 @@ function policyAxis({ macro, inflationState }) {
   if (mid == null || (pricing == null && realPolicy == null)) state = 'unknown';
   else if ((pricing != null && pricing >= P.pricedMovePp) || (realPolicy != null && realPolicy >= P.restrictiveRealPct)) state = 'burden';
   else if (pricing != null && pricing <= -P.pricedMovePp && inflationState !== 'burden') state = 'favorable';
-  const pricingText = pricing == null ? null : pricing >= P.pricedMovePp ? '추가 인상 가능성을 반영' : pricing <= -P.pricedMovePp ? '금리 인하를 반영' : '동결에 가까운 경로를 반영';
+  // P1449: 2년물 − 기준금리 중간값은 정책 경로와 기간·위험 프리미엄을 분리하지 못한 대용 지표다.
+  // 관측(수준)은 그대로 말하고, "시장이 인상/인하를 반영"이라는 해석은 프리미엄 미분해를 명시한다.
+  const PRICING_BASIS = '기간·위험 프리미엄 분해 자료가 없는 대용 지표(2년물 − 기준금리 중간값)';
+  const pricingText = pricing == null ? null : pricing >= P.pricedMovePp ? '정책 경로 이상 수준' : pricing <= -P.pricedMovePp ? '정책 경로 이하 수준' : '동결 경로에 가까운 수준';
   const read = state === 'burden'
-    ? (pricing != null && pricing >= P.pricedMovePp ? `2년물(${twoYear.toFixed(2)}%)이 기준금리 중간값(${mid.toFixed(2)}%)보다 ${pricing.toFixed(2)}%p 높습니다 — 시장이 금리를 더 올릴 수 있다고 보고 있습니다.` : `물가를 뺀 실질 기준금리가 ${realPolicy.toFixed(1)}%로 중립 수준(약 1%)보다 훨씬 높은 긴축 상태입니다.`)
-    : state === 'favorable' ? `2년물이 기준금리보다 ${Math.abs(pricing).toFixed(2)}%p 낮습니다 — 시장이 금리 인하를 내다보고 있습니다.`
+    ? (pricing != null && pricing >= P.pricedMovePp
+      ? `2년물(${twoYear.toFixed(2)}%)이 기준금리 중간값(${mid.toFixed(2)}%)보다 ${pricing.toFixed(2)}%p 높습니다. "시장이 추가 인상을 반영"이라고 단정할 만한 프리미엄 분해 자료는 이 화면에 없고, 관측된 사실은 경로 이상의 수준(부담 방향)입니다.`
+      : `물가를 뺀 실질 기준금리가 ${realPolicy.toFixed(1)}%로 중립 수준(약 1%)보다 훨씬 높은 긴축 상태입니다.`)
+    : state === 'favorable' ? `2년물이 기준금리보다 ${Math.abs(pricing).toFixed(2)}%p 낮습니다. "시장이 금리 인하를 내다봤다"는 해석은 ${PRICING_BASIS}라기보다 관측된 현상이며, 인하 경로 이하 수준이라는 사실만 말하고 있습니다.`
       : state === 'unknown' ? '정책금리나 2년물 자료를 기다리는 중입니다.'
-        : `시장은 당분간 ${pricingText || '큰 변화 없는 경로'}하고 있습니다.`;
+        : `시장이 보는 2년물은 당분간 ${pricingText || '큰 변화 없는'} 수준입니다(${PRICING_BASIS}).`;
   return axis('policy', '통화정책', state, {
     gauge: state === 'burden' && (pricing == null || pricing < P.pricedMovePp) && realPolicy != null ? gauge({ label: '실질 기준금리 (중간값 − 근원 PCE)', value: realPolicy, unit: '%', digits: 1, ...cuts(-2, 4, [P.restrictiveRealPct], ['neutral', 'burden'], [[P.neutralRealPct, `중립 약 ${P.neutralRealPct}%`], [P.restrictiveRealPct, `${P.restrictiveRealPct}%`]]) }) : gauge({ label: '2년물 − 기준금리 중간값 (시장이 보는 금리 경로)', value: pricing, unit: '%p', digits: 2, ...cuts(-1.5, 1.5, [-P.pricedMovePp, P.pricedMovePp], ['favorable', 'neutral', 'burden'], [[-P.pricedMovePp, '인하 반영'], [P.pricedMovePp, '인상 반영']]) }),
-    headline: pricing == null ? null : pricing >= P.pricedMovePp ? '시장: 인상 반영' : pricing <= -P.pricedMovePp ? '시장: 인하 반영' : '시장: 동결 반영',
+    headline: pricing == null ? null : pricing >= P.pricedMovePp ? '시장: 인상 구간 (프리미엄 미분해)' : pricing <= -P.pricedMovePp ? '시장: 인하 구간 (프리미엄 미분해)' : '시장: 동결 근접',
     evidence: [
       ['연준 목표 범위', upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`],
       ['2년물 − 기준금리 중간값', pricing == null ? null : `${signed(pricing, 2, '%p')} (${pricingText})`],
@@ -288,7 +293,7 @@ function buildRegime(growth, inflation) {
     'up/down': { id: 'goldilocks', label: '성장 견조 · 물가 둔화', tone: 'favorable', reading: '이익이 늘면서 금리 부담은 줄어드는 조합으로, 역사적으로 주식에 가장 우호적인 국면입니다(성장주가 상대적으로 강한 경향).' },
     'up/up': { id: 'reflation', label: '성장 견조 · 물가 상승', tone: 'neutral', reading: '이익은 늘지만 금리가 오르기 쉬운 조합입니다. 에너지·금융·가치주가 상대적으로 강하고, 금리에 민감한 성장주는 흔들리기 쉬운 경향이 있습니다.' },
     'down/up': { id: 'stagflation', label: '성장 둔화 · 물가 상승', tone: 'burden', reading: '이익은 줄고 연준은 금리를 내리기 어려운 조합으로, 주식과 채권이 함께 약했던 경우가 많습니다(1970년대, 2022년). 현금·원자재·방어주가 상대적으로 버틴 국면입니다.' },
-    'down/down': { id: 'disinflation-slowdown', label: '성장 둔화 · 물가 둔화', tone: 'neutral', reading: '금리 인하 기대로 채권이 강해지고, 주식은 경기 둔화의 깊이에 따라 엇갈립니다. 방어주와 우량 성장주가 경기민감주보다 나았던 경향이 있습니다.' }
+    'down/down': { id: 'disinflation-slowdown', label: '성장 둔화 · 물가 둔화', tone: 'neutral', reading: '역사적으로 금리 인하 기대에 채권이 강해진 국면이었고, 주식은 경기 둔화의 깊이에 따라 엇갈렸습니다(방어주·우량 성장주가 경기민감주보다 나았던 경향). 이 설명은 사례 기반의 역사적 경향이며, 지금 관측된 10년물 움직임과 별개입니다 — 금리의 현재 상태는 시장 상태 화면(금리 축)에서 확인해도 더 명확합니다.' }
   };
   const key = growthDir && inflationDir ? `${growthDir}/${inflationDir}` : null;
   const picked = key ? table[key] : null;
@@ -314,16 +319,17 @@ function buildChain({ macro, regime, rateFx }) {
   const nodes = [
     { id: 'oil', label: '유가 (WTI)', value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
     { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? '—' : `1주 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
-    { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? '인상 반영' : pricing <= -P.pricedMovePp ? '인하 반영' : '동결 반영', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
+    { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? `경로 이상 ${signed(pricing, 2, '%p')}` : pricing <= -P.pricedMovePp ? `경로 이하 ${signed(pricing, 2, '%p')}` : '동결 근접', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
     { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, RULES.rates.move20dBp, -RULES.rates.move20dBp) },
     { id: 'valuation', label: '주식 밸류에이션', value: axisById.rates ? `금리 축 ${axisById.rates.stateLabel}` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }
   ];
   const links = [];
   if (nodes[0].dir !== 'unknown' && nodes[0].dir !== 'flat' && nodes[0].dir === nodes[1].dir) links.push(`유가와 기대인플레이션이 함께 ${nodes[0].dir === 'up' ? '오르고' : '내리고'} 있습니다 — 유가가 물가 예상으로 옮겨 가는 경로가 작동 중입니다.`);
-  if (nodes[2].dir === 'up') links.push('2년물이 기준금리보다 높아 시장이 추가 인상 가능성을 가격에 넣고 있습니다.');
-  if (nodes[2].dir === 'down') links.push('2년물이 기준금리보다 낮아 시장이 금리 인하를 가격에 넣고 있습니다.');
+  // P1449: 2년물은 프리미엄을 분리하지 못한 대용 지표 — 링크 문장도 해석 단정 대신 관측을 말한다.
+  if (nodes[2].dir === 'up') links.push('2년물이 기준금리 중간값보다 높습니다(기간 프리미엄 분해 자료 없음 — "추가 인상 반영"이라고 단정하는 문장이 아니라 경로 이상 수준의 관측입니다).');
+  if (nodes[2].dir === 'down') links.push('2년물이 기준금리 중간값보다 낮습니다(기간 프리미엄 분해 자료 없음 — 관측된 것은 경로 이하 수준입니다).');
   if (nodes[0].dir === 'up' && nodes[1].dir !== 'up') links.push(fx.wtiHigh ? '유가가 1년 범위 상단에 있어 물가 부담 요인입니다.' : `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 아직 기대인플레이션으로 크게 번지지는 않았습니다.`);
-  if (nodes[3].dir === 'up') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 올랐습니다${real5 != null && bei5 != null && real5 > bei5 && real5 > 0 ? ' — 상승 대부분이 실질금리라 성장주 밸류에이션에 더 직접적입니다' : ''}.`);
+  if (nodes[3].dir === 'up') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 올랐습니다${real5 != null && bei5 != null && real5 > bei5 && real5 > 0 ? ' — 실질금리 우위는 5일 관측 기준이며(20일 전체 분해는 자료가 없음), 그 관측은 성장주 밸류에이션 부담 쪽과 같은 방향입니다' : ''}.`);
   if (nodes[3].dir === 'down') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
   const branches = [
     { id: 'dollar', label: '달러', value: dxy20 == null ? '—' : `20일 ${signed(dxy20, 1, '%')}`, dir: dir(dxy20, RULES.dollar.rise20dPct, RULES.dollar.fall20dPct), effect: dxy20 == null ? null : dxy20 >= RULES.dollar.rise20dPct ? '달러 강세 → 미국 다국적 기업의 해외 매출 환산 감소, 신흥국·원화 약세(외국인 순매도 압력)' : dxy20 <= RULES.dollar.fall20dPct ? '달러 약세 → 해외 매출 환산 증가, 신흥국·원화에 우호적' : '달러는 큰 방향 없이 움직이고 있습니다' },

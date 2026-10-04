@@ -11,8 +11,10 @@ export const RULES = Object.freeze({
   volatility: Object.freeze({ calmBelow: 18, stressAt: 25, calmRatioBelow: 0.95, invertedRatioAt: 1, spike5dPct: 25 }),
   // 10-year Treasury: a 25bp move in 20 sessions, or the top 10% of its one-year range while still rising.
   rates: Object.freeze({ move20dBp: 25, rangeHighAt: 0.9 }),
-  // ICE BofA US High Yield OAS: below 350bp tight, 450bp+ stressed, +25bp in five sessions a fast widening.
-  credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, putCallHedgeAt: 1.1 }),
+  // ICE BofA US High Yield OAS: below 350bp tight, 450bp+ stressed, +25bp in five sessions a fast widening;
+  // +15bp in five sessions is the early-watch level (P1449: HY 324bp +44bp must read as widening
+  // stress forming, not calm), and ≤5bp / five sessions counts as calm for the smallcap reading.
+  credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, putCallHedgeAt: 1.1 }),
   // WTI against its own one-year range (P1394) and 20-session change; the dollar index 20-session change.
   oil: Object.freeze({ rise20dPct: 10, fall20dPct: -5, rangeHighAt: 0.85 }),
   dollar: Object.freeze({ rise20dPct: 2, fall20dPct: -2 }),

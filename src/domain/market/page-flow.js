@@ -184,7 +184,12 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   const parts = [];
   if (quadrant) parts.push(`테마 ETF ${etf}는 섹터 회전에서 ${quadrant}`);
   if (byThree.length >= 2) parts.push(`3개월 기준 가장 강한 곳은 ${strongest.name}(${pct(strongest.ret3m)}), 가장 약한 곳은 ${weakest.name}(${pct(weakest.ret3m)})`);
-  if (moving.length && moving.length === mine.length && mine.length >= 2) parts.push('하위 테마 전부가 1개월 순위를 크게 끌어올려, 특정 종목이 아니라 테마 전체로 자금이 들어오는 모습');
+  if (moving.length && moving.length === mine.length && mine.length >= 2) {
+    // P1449/R679: an improving 1-month vs 3-month rank is a RELATIVE PRICE observation. Without a
+    // volume/flow input this is not evidence of money inflow (the house wording used by the
+    // themes page itself: 테마 페이지의 '자금 유입은 별도 근거가 필요합니다').
+    parts.push('하위 테마 전부가 1개월 순위를 크게 끌어올렸습니다 — 특정 종목이 아니라 테마 전체의 상대 강세가 같은 방향입니다(가격 기준 관측이며 자금 유입의 증거는 아닙니다)');
+  }
   else if (moving.length) parts.push(`1개월 흐름은 ${moving.map((group) => group.name).join(' · ')} 쪽으로 옮겨 가는 중`);
   const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
   if (cooling.length) parts.push(`${cooling.map((group) => group.name).join(' · ')}${topic(cooling[cooling.length - 1].name)} 최근 1개월 강세가 식는 중`);

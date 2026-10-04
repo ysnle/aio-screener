@@ -1,6 +1,8 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { renderScreenerValidation } from '../components/screener-validation.js';
+import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { renderScreenerRead } from '../components/screener-read.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../state/memoize.js';
@@ -314,8 +316,19 @@ export function vcpStageLabel(stage) {
   return ({ not_stage2: '추세 조건 미충족', breakout: '피벗 돌파', near_pivot: '피벗 근접', contracting: '변동폭 수축', basing: '기반 형성', stage2_only: '추세 조건 충족' })[stage] || '관측';
 }
 
-function createRankNode(documentRef, row) {
+function createRankNode(documentRef, row, hold = null) {
   const wrap = documentRef.createElement('div');
+  // P1452: when the current epoch's re-rank is held, the previous run's relative score and
+  // rank must not stay on the table as if they answered the new selection — the row cell
+  // says 순위 보류 with the reason, matching the banner on the same screen.
+  if (hold) {
+    const rankCellHold = documentRef.createElement('span');
+    rankCellHold.textContent = '순위 보류';
+    rankCellHold.style.cssText = 'font-size:10px;color:var(--data-amber);font-weight:700;white-space:nowrap;';
+    rankCellHold.title = `지금 선택에 대한 순위 계산이 보류 중입니다(${hold.reason || '사유 미확인'}). 남아 있던 숫자는 이전 계산의 결과라 표시하지 않습니다.`;
+    wrap.appendChild(rankCellHold);
+    return wrap;
+  }
   if (row.screenStatus === 'unavailable' || row.screenStatus === 'rejected') {
     wrap.textContent = row.screenStatus === 'rejected' ? '조건 미충족' : '근거 부족';
     wrap.title = '필수 데이터가 모두 준비되기 전에는 순위를 표시하지 않습니다.';
@@ -344,7 +357,7 @@ function createRankNode(documentRef, row) {
   return wrap;
 }
 
-function createColumnContent(documentRef, row, key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols } = {}) {
+function createColumnContent(documentRef, row, key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold } = {}) {
   const live = liveRow(row, readLiveData);
   row = live;
   const inWatchlist = (readWatchlist?.() || []).includes(row.sym);
@@ -370,7 +383,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     wrap.append(star, compare);
     return wrap;
   }
-  if (key === 'rank') return createRankNode(documentRef, row);
+  if (key === 'rank') return createRankNode(documentRef, row, rankHold);
   if (key === 'grade') return rankGrade(visibleRank(row)) || '—';
   if (key === 'sym') {
     const identity = documentRef.createElement('div');
@@ -507,7 +520,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
       td.style.fontFamily = 'var(--font-mono)';
       td.style.fontVariantNumeric = 'tabular-nums';
     }
-    const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols });
+    const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold: root._aioRankingHold || null });
     td.appendChild(content && content.nodeType ? content : text(documentRef, content));
     const fieldId = FIELD_BY_COLUMN.get(column.key);
     const field = fieldId && row.fieldReadiness?.fields?.[fieldId];
@@ -538,6 +551,21 @@ export function describeStaleDates(dates = []) {
   if (!unique.length) return '';
   const span = unique.length === 1 ? unique[0] : `${unique[0]} ~ ${unique[unique.length - 1]}`;
   return `흐리게 표시된 값은 ${span} 기준 관측값으로 최신이 아닙니다(참고용). 셀에 마우스를 올리면 출처·관측 시각이 보입니다.`;
+}
+
+// P1449: user copy for a held re-rank — the same vocabulary as the model's own fail-closed
+// semantics (결측은 중립 취급하지 않음, W07-A/P1146).
+export function describeRankingHold(hold) {
+  if (!hold || !hold.reason) return null;
+  const coverage = hold.requestedWeightCoveragePct != null ? `${hold.requestedWeightCoveragePct}%` : null;
+  const requested = hold.requestedFactorWeights && Object.keys(hold.requestedFactorWeights).length
+    ? Object.entries(hold.requestedFactorWeights).map(([key, value]) => `${key} ${((Number(value) || 0) * 100).toFixed(0)}%`).join(' · ')
+    : null;
+  if (hold.reason === 'requested-factor-coverage-below-threshold') {
+    return `순위 보류 — "${hold.requestedProfile || '선택한 프로필'}"의 요청 가중(${requested || '가중치 확인 필요'}) 중 계산 가능 비중이 ${coverage ?? '확인 필요'}로 80% 미만입니다(결측 팩터는 중립값으로 대체하지 않습니다). 이전 계산은 폐기됐습니다 — 표의 순위·점수 칸은 비워 둡니다.`;
+  }
+  if (/coverage/.test(hold.reason)) return `순위 보류 — 팩터 커버리지가 최소 기준(80%)에 못 미칩니다(결측 팩터는 중립값으로 대체하지 않습니다). 이전 계산은 폐기됐습니다.`;
+  return `순위 보류 — 요청한 조건에서 팩터 계산 기준을 충족하지 못해 순위를 매기지 않았습니다(결측 팩터는 중립값으로 대체하지 않습니다). 이전 계산은 폐기됐습니다.`;
 }
 
 function renderStaleNote(documentRef, body) {
@@ -646,12 +674,17 @@ function renderBacktest(documentRef, metadata, root = globalThis) {
     return;
   }
   const ic = backtest.ic || {};
+  // P1449: the "same calculation" claim must be proven by the stored model fingerprint, not by
+  // prose — a hand-written parity sentence drifted from the applied weights once (37.0/27.4/
+  // 21.9/13.7 vs 39.0/28.0/22.0/11.0 renormalized) while both claimed one model.
+  const fingerprintMatches = backtest.modelFingerprint != null ? backtest.modelFingerprint === liveScreenerModelFingerprint() : false;
   const composite = finite(ic.composite);
   const net = finite(backtest.quantileSpreadNet);
   const gross = finite(backtest.quantileSpread);
   const rebalances = finite(backtest.rebalancesCounted) ?? (Array.isArray(backtest.rebalanceDates) ? backtest.rebalanceDates.length : null);
   const wins = finite(backtest.hitRate) != null && rebalances ? Math.round(backtest.hitRate / 100 * rebalances) : null;
-  const parity = backtest.modelParity?.composite ? '현재 화면 순위와 같은 계산(섹터 기준 정규화·같은 가중)으로 과거 시점을 다시 매긴 결과' : '현재 화면 순위와 다른 단순화 모델로 계산된 이전 결과 — 다음 데이터 갱신부터 같은 모델로 계산됩니다';
+  const parity = fingerprintMatches ? '현재 화면 순위와 같은 모델(같은 팩터 정의 · 같은 가중 지문 · 같은 유니버스 정책)으로 과거 시점을 다시 매긴 결과입니다'
+    : '저장된 검증 기록의 모델 지문이 지금 화면 순위와 다릅니다 — 이 기록은 지금 순위의 검증으로 읽지 않습니다(다음 데이터 갱신부터 같은 모델의 기록이 쌓입니다)';
   const verdict = composite == null ? '종합 IC가 계산되지 않았습니다.'
     : composite > 0.03 && net != null && net > 0 ? `최근 ${rebalances ?? '—'}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 표본이 작아 우연과 구분되지는 않습니다.`
       : `최근 ${rebalances ?? '—'}번의 시점에서 순위와 이후 수익률의 관계가 확인되지 않았습니다(종합 IC ${composite.toFixed(3)}, 상위−하위 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`}). 이 실험에서 순위의 우월성이 보이지 않았다는 뜻이며, 전략이 영구히 무효라는 증명은 아닙니다.`;
@@ -896,7 +929,7 @@ function renderBuilderConditions(documentRef, conditions = []) {
   if (!conditions.length) {
     const empty = documentRef.createElement('span');
     empty.className = 'scr-builder-empty';
-    empty.textContent = '실행 조건(rank·RSI·3M 수익률)을 추가하면 이곳에 표시되고 실행 정의 hash에 포함됩니다. 섹터·분류·검색은 표시 필터로만 표 범위를 바꿉니다.';
+    empty.textContent = '실행 조건(rank·RSI·3M 수익률)을 추가하면 이곳에 표시되고 실행 정의에 포함됩니다. 섹터·분류·검색은 표시 필터로만 표 범위를 바꿉니다.';
     list.appendChild(empty);
     return;
   }
@@ -906,7 +939,7 @@ function renderBuilderConditions(documentRef, conditions = []) {
     chip.className = 'scr-filter-chip';
     chip.dataset.aioScreenerAction = 'remove-builder-condition';
     chip.dataset.aioScreenerArg = String(index);
-    chip.setAttribute('aria-label', `실행 조건 ${condition.label} ${condition.value} 제거 (정의 hash 변경)`);
+    chip.setAttribute('aria-label', `실행 조건 ${condition.label} ${condition.value} 제거 (실행 정의 변경)`);
     chip.textContent = `${condition.label}: ${condition.value} ×`;
     list.appendChild(chip);
   });
@@ -960,12 +993,12 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
     : origin === 'pipeline' ? '파이프라인 실행'
       : origin === 'preview' ? '미리보기(미고정)' : null;
   setText('scr-funnel-runid', executed
-    ? `${String(runId).slice(0, 18)}${originLabel ? ` · ${originLabel}` : ''}`
+    ? `실행 기록 ${String(runId).slice(-12).toUpperCase()}${originLabel ? ` · ${originLabel}` : ''}`
     : '실행 전');
   const scope = documentRef.getElementById('scr-funnel-scope-note');
   if (scope) {
     scope.textContent = executed
-      ? `실행 판정 · run ${String(runId).slice(0, 12)} ${originLabel ? `(${originLabel})` : ''} · 분모 ${runRow != null ? runRow : '미확인'} · 통과 ${passed} · 부족 ${unavailable} / 표시 범위 · 현재 필터 ${filtered}행 (다른 모집단)`
+      ? `실행 판정 · 실행 기록 ${String(runId).slice(-12).toUpperCase()} ${originLabel ? `(${originLabel})` : ''} · 분모 ${runRow != null ? runRow : '미확인'} · 통과 ${passed} · 부족 ${unavailable} / 표시 범위 · 현재 필터 ${filtered}행 (다른 모집단)`
       : '실행 전 — 조건을 실행하면 실행 판정 분모가 고정됩니다. 표시 범위는 현재 필터 결과입니다.';
   }
 }
@@ -1036,7 +1069,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (buy) buy.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && row.signal === 'BUY').length);
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
-  if (asOf) asOf.textContent = workbenchResult?.run?.snapshotId ? `스크린 스냅샷 ${String(workbenchResult.run.snapshotId).slice(0, 18)}` : state?.metadata?.factorObservedAt ? `팩터 세션 ${String(state.metadata.factorObservedAt).slice(0, 10)} · 생성 ${state?.metadata?.asOf ? String(state.metadata.asOf).slice(0, 10) : '—'}` : state?.metadata?.asOf ? `생성 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
+  if (asOf) asOf.textContent = workbenchResult?.run?.snapshotId ? `데이터 세트 ${String(workbenchResult.run.snapshotId).slice(0, 18)}` : state?.metadata?.factorObservedAt ? `팩터 세션 ${String(state.metadata.factorObservedAt).slice(0, 10)} · 생성 ${state?.metadata?.asOf ? String(state.metadata.asOf).slice(0, 10) : '—'}` : state?.metadata?.asOf ? `생성 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
   const provenance = page.querySelector('[data-screener-provenance]');
   if (provenance) {
     const metadata = state?.metadata || {};
@@ -1109,12 +1142,26 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   });
   renderFilterChips(documentRef);
   const coverage = documentRef.getElementById('screener-factor-coverage');
+  const holdEl = documentRef.getElementById('screener-rank-hold');
+  const hold = root?._aioRankingHold || null;
   if (coverage) {
     const ranking = state?.metadata?.ranking || {};
     const active = ranking.activeFactors || [];
     const reasons = ranking.inactiveFactorReasons || {};
     const omitted = ['size', 'value', 'quality'].filter((key) => !active.includes(key));
     coverage.textContent = active.length ? `활성 팩터 ${active.length}개: ${active.join(' · ')}${omitted.length ? ` | 제외: ${omitted.map((key) => `${key}${reasons[key] ? ` (${reasons[key]})` : ''}`).join(' · ')}` : ''}` : '활성 팩터 없음 — 서버 팩터 파일 미수신';
+    coverage.title = hold ? `순위 보류 사유: ${hold.reason} — 이전 계산은 폐기됐습니다` : '';
+  }
+  if (holdEl) {
+    // LC-73 style (P1449): when a re-rank is held, the visible summary (not just a tooltip)
+    // discloses that the previous calculation was discarded and why.
+    const holdCopy = describeRankingHold(hold);
+    holdEl.hidden = !holdCopy;
+    if (holdCopy) {
+      holdEl.textContent = holdCopy;
+      holdEl.dataset.rankHoldReason = hold.reason || '';
+      holdEl.dataset.rankHoldAt = String(hold.at || '');
+    }
   }
   const rankingState = state?.metadata?.ranking || {};
   renderFactorTab(documentRef, state?.metadata);
@@ -1170,6 +1217,18 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       bag.add(() => { mountActive = false; });
       const page = documentRef?.getElementById('page-screener');
       if (!page) return () => {};
+      // P1449 (검토판 9): a link that came here with its own 조사 맥락 (e.g. 같은 섹터에서 비교)
+      // fills the display search/scope from that context once, instead of surfacing whatever
+      // query/sector chips the previous visit left behind.
+      const handoff = consumeResearchHandoff({ root, routeId: 'screener' });
+      if (handoff?.context) {
+        const scopeMap = [['q', 'scr-text-search']];
+        for (const [key, targetId] of scopeMap) {
+          const value = handoff.context[key];
+          const field = value != null && value !== '' ? documentRef?.getElementById(targetId) : null;
+          if (field) field.value = String(value);
+        }
+      }
       // P1437: the lead reading of the ranking — recomputed only when the ranked set or validation changes.
       let readSignature = '';
       const renderRead = () => {
@@ -1482,14 +1541,13 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           if (workbenchStatus && !activeResult) {
             const pipelineRun = state.lastRun;
             const pipelineId = pipelineRun?.screenId ? String(pipelineRun.screenId) : null;
-            const pipelineHash = pipelineRun?.definitionHash ? String(pipelineRun.definitionHash).slice(0, 12) : null;
             workbenchStatus.textContent = pipelineRun
-              ? `조건 적용 전 계산 가능 ${pipelineRun.passed}개 (조건 없는 미리보기 정의 ${pipelineId || '—'}${pipelineHash ? ' · ' + pipelineHash : ''}) · 실행하면 선택한 정의로 다시 계산합니다`
+              ? `조건 적용 전 계산 가능 ${pipelineRun.passed}개 (조건 없는 미리보기 정의 ${pipelineId || '—'}) · 실행하면 선택한 정의로 다시 계산합니다`
               : '실행 전 미리보기';
           }
          if (runHistory && !runHistory.dataset.archiveLoaded) refreshRunArchive();
-         if (outcomeLab) outcomeLab.textContent = state.outcomes?.length ? `Outcome · ${state.outcomes.length}개 관측 · T+1/T+5/T+21/T+63` : 'Outcome · 자동 추적 미연결 · 보관 입력 재현만 지원';
-         if (operationsState) operationsState.textContent = state.refreshPlan ? `Operations · refresh ${state.refreshPlan.queued?.length || 0}건 · quota/circuit` : `Operations · 데이터 sync ${state.snapshotId ? String(state.snapshotId).slice(0, 18) : '미수신'} · 사용자 실행과 분리`;
+         if (outcomeLab) outcomeLab.textContent = state.outcomes?.length ? `실행 후 결과 · ${state.outcomes.length}개 관측 · 1/5/21/63거래일 후` : '실행 후 결과 · 자동 추적 미연결 · 보관 입력 재현만 지원';
+         if (operationsState) operationsState.textContent = state.refreshPlan ? `데이터 갱신 · 대기 ${state.refreshPlan.queued?.length || 0}건 · 한도 차단 체크됨` : `데이터 갱신 · ${state.snapshotId ? `데이터 세트 ${String(state.snapshotId).slice(0, 18)}` : '미수신'} · 사용자 실행과 분리`;
        };
        const renderCompareTray = () => {
          const tray = documentRef.getElementById('scr-compare-tray');
@@ -1763,7 +1821,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            if (target) target.value = condition.value;
            if (workbenchStatus) {
              workbenchStatus.textContent = RUN_CONDITION_FIELDS.includes(condition.field)
-               ? `${condition.label}: ${condition.value} — 실행 조건으로 추가됨 (정의 hash 변경 · 미리보기 갱신)`
+               ? `${condition.label}: ${condition.value} — 실행 조건으로 추가됨 (실행 정의 변경 · 미리보기 갱신)`
                : `${condition.label}: ${condition.value} — 표시 필터로만 적용 (표 범위만 · 실행 정의 미포함)`;
            }
            renderNow();

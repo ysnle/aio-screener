@@ -1,4 +1,6 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
+import { consumeResearchHandoff } from '../../app/research-handoff.js';
+import { parseKnowledgeTargetContext } from '../../app/knowledge-route-state.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
@@ -193,7 +195,7 @@ function formatTickerChartDate(epochMs) {
   return epochMs == null ? '—' : new Date(epochMs).toISOString().slice(0, 10);
 }
 
-function renderTickerControls(documentRef, page, activeTab = 'overview', requestedRange = '1m') {
+function renderTickerControls(documentRef, page, activeTab = 'overview', requestedRange = '1m', state = null) {
   if (!page) return;
   const tab = activeTab === 'chart' ? 'chart' : 'overview';
   const range = TICKER_CHART_RANGES[requestedRange] ? requestedRange : '1m';
@@ -205,10 +207,29 @@ function renderTickerControls(documentRef, page, activeTab = 'overview', request
     button.setAttribute('aria-selected', selected ? 'true' : 'false');
     button.tabIndex = selected ? 0 : -1;
   });
+  // P1449 (검토판·가격 기간): a range tab is clickable only when the available history can actually
+  // span it. Being available decides the truth — the 1M/3M/6M/1Y tabs all showing the same few
+  // observations read as "선택 기간 ≠ 확보 기간", which is exactly what the review caught.
+  const ordered = (Array.isArray(state?.history) ? state.history : [])
+    .map((row) => finite(canonicalEpochMs(row?.epochMs ?? row?.time ?? row?.date ?? row?.timestamp)))
+    .filter((value) => value != null)
+    .sort((left, right) => left - right);
+  const availableDays = ordered.length >= 2 ? Math.round((ordered.at(-1) - ordered[0]) / DAY_MS) : 0;
   page.querySelectorAll?.('[data-ticker-range]').forEach((button) => {
-    const selected = button.getAttribute('data-ticker-range') === range;
+    const key = button.getAttribute('data-ticker-range');
+    const selected = key === range;
     button.classList?.toggle('active', selected);
     button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    const tooShort = TICKER_CHART_RANGES[key] && availableDays > 0 && TICKER_CHART_RANGES[key].days > availableDays;
+    if (tooShort) {
+      button.setAttribute('disabled', 'disabled');
+      button.setAttribute('aria-disabled', 'true');
+      button.title = `확보된 가격 이력이 ${availableDays}일분입니다 — ${TICKER_CHART_RANGES[key].label} 관측 요구(${TICKER_CHART_RANGES[key].days}일)를 채우지 못해 비활성화했습니다(선택 기간과 확보 기간을 구분합니다).`;
+    } else {
+      button.removeAttribute('disabled');
+      button.removeAttribute('aria-disabled');
+      button.title = '';
+    }
   });
   const overview = documentRef?.getElementById('tab-overview');
   const chart = documentRef?.getElementById('tab-chart');
@@ -451,6 +472,31 @@ function markSecReportElement(element, report) {
   else element.removeAttribute('data-observed-at');
 }
 
+// P1449: the arrival note for a learning link — user vocabulary only (ROIC·CAPEX·FCF 본 labels);
+// a metric this page does not present keeps the note hidden instead of leaking a raw id.
+const FUNDAMENTAL_METRIC_LABELS = Object.freeze({
+  roe: 'ROE(자본 효율)',
+  revenue: '매출',
+  margin: '순이익률',
+  pe: 'PER(밸류에이션)',
+  pb: 'PBR',
+  ocf: '영업현금흐름',
+  capex: '설비투자(CAPEX)',
+  fcf: '잉여현금흐름(FCF)',
+  roic: 'ROIC(투하자본 수익률)',
+  debt: '부채',
+  shares: '주식 수'
+});
+function renderFundamentalArrival(documentRef, { metric, question, symbol, fromRoute }) {
+  const note = documentRef?.getElementById('fund-arrival-question');
+  if (!note) return;
+  const metricLabel = metric ? FUNDAMENTAL_METRIC_LABELS[String(metric).toLowerCase()] || null : null;
+  const text = metricLabel || question;
+  if (!text) { note.hidden = true; return; }
+  note.textContent = `${fromRoute ? `${fromRoute} 링크에서 넘어온 확인 대상: ` : '이 화면으로 건너온 확인 대상: '}${text}${symbol ? ` · 대상 종목 ${symbol}(아래 보고에서 함께 확인)` : ' · 종목을 선택해 아래 보고에서 함께 확인하세요'}${metricLabel && question ? ` — ${question}` : ''}`;
+  note.hidden = false;
+}
+
 function renderFundamentalReport(documentRef, page, state) {
   const report = deriveSecReport(state?.fundamentals);
   // P1365: no selected issuer is not an SEC receipt failure; the watchlist below carries SEC rows.
@@ -526,13 +572,26 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderTickerSecondarySymbols(documentRef, state, root);
     renderTickerActivity(documentRef, root, state, portfolioState);
     renderTickerNavigation(documentRef, state, root);
-    renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange);
+    renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '' }); // P1434
   }
   if (route === 'fundamental') {
     // P1430: 재무 공시 is the same company as 요약 · 차트.
     if (state?.id) setStockSubject({ root, documentRef, symbol: state.id, name: state.name && state.name !== state.id ? state.name : '' });
+    // P1449 (검토판 9): a learning link (ROIC · CAPEX · FCF) that arrives must say what it
+    // came to check and on which company — the route opened is not the same as the question
+    // continuing. One-shot consume; unknown metrics show nothing rather than dev vocabulary.
+    const handoff = consumeResearchHandoff({ root, routeId: 'fundamental' });
+    const knowledge = parseKnowledgeTargetContext({ root });
+    const arrivingTicker = handoff?.context?.ticker || null;
+    if (arrivingTicker) setStockSubject({ root, documentRef, symbol: arrivingTicker });
+    renderFundamentalArrival(documentRef, {
+      metric: handoff?.context?.metric || knowledge?.metric || null,
+      question: handoff?.context?.question || null,
+      symbol: state?.id || arrivingTicker || null,
+      fromRoute: handoff?.fromRoute || (knowledge ? '배우기' : null)
+    });
     renderFundamentalStatus(documentRef, state);
     renderFundamentalSummary(documentRef, state);
     renderFundamentalWatchlist(documentRef, state);

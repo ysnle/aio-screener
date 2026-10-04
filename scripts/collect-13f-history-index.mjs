@@ -23,25 +23,41 @@ for (const manager of filings.managers.filter((item) => item.cik && item.latestF
     filedAt: recent.filings.recent.filingDate[index],
     periodOfReport: recent.filings.recent.reportDate[index],
     primaryDocument: recent.filings.recent.primaryDocument[index]
-  })).filter((item) => /^13F-HR(?:\/A)?$/.test(item.form) && item.periodOfReport).sort((a, b) => String(b.periodOfReport).localeCompare(String(a.periodOfReport)));
-  const periods = [];
-  const seenPeriods = new Set();
+  })).filter((item) => /^13F-HR(?:\/A)?$/.test(item.form) && item.periodOfReport);
+  // P1449: 같은 분기의 모든 13F-HR / HR-A 제출을 하나의 그룹으로 수집한다. EDGAR recent 목록은
+  // 새로 filed된 것이 먼저 나오므로, 이전 구현처럼 같은 분기에서 첫 번째 항목만 대표로 삼으면
+  // 부분 행 추가형 정정(HR/A)이 원본 전체를 대체해 버린다(러셀헤이저 2025Q1=4행 $11억, 2023Q4=1행
+  // $45억 사례). 원본 여부와 정정행 수를 함꼐 기록해 행 수집기가 R499/P948 정책으로 합성하게 한다.
+  const periodGroups = new Map();
   for (const entry of entries) {
-    if (seenPeriods.has(entry.periodOfReport)) continue;
-    seenPeriods.add(entry.periodOfReport);
-    const base = archiveBase(manager.cik, entry.accession);
+    const group = periodGroups.get(entry.periodOfReport) || [];
+    group.push(entry);
+    periodGroups.set(entry.periodOfReport, group);
+  }
+  const periodKeys = [...periodGroups.keys()].sort((left, right) => String(right).localeCompare(String(left))).slice(0, 12);
+  const periods = [];
+  for (const periodOfReport of periodKeys) {
+    const group = periodGroups.get(periodOfReport)
+      .sort((a, b) => String(a.filedAt).localeCompare(String(b.filedAt)) || String(a.accession).localeCompare(String(b.accession)));
+    const original = group.find((item) => /^13F-HR$/.test(item.form));
+    // 대표 항목은 원본 13F-HR이 기본이고, 없으면 최소 filed 정정. 행 수집기가 분기 전체를
+    // submissions 목록 기준으로 합성하므로 대표 필드는 화면 표기(원문 링크)용이다.
+    const representative = original || group[0];
+    const base = archiveBase(manager.cik, representative.accession);
     periods.push({
-      form: entry.form,
-      accession: entry.accession,
-      periodOfReport: entry.periodOfReport,
-      filedAt: entry.filedAt,
-      indexUrl: `${base}/${entry.accession}-index.html`,
-      primaryDocumentXml: `${base}/${entry.primaryDocument}`,
-      rowImportStatus: entry.periodOfReport === manager.latestFiling?.periodOfReport ? 'IMPORTED_CURRENT' : entry.periodOfReport === manager.priorFiling?.periodOfReport ? 'IMPORTED_PRIOR' : 'METADATA_ONLY',
-      shareHistoryStatus: entry.periodOfReport === manager.latestFiling?.periodOfReport || entry.periodOfReport === manager.priorFiling?.periodOfReport ? 'CONNECTED_TO_HOLDINGS_ARTIFACT' : 'PENDING_ROW_IMPORT',
+      form: representative.form,
+      accession: representative.accession,
+      periodOfReport,
+      filedAt: representative.filedAt,
+      indexUrl: `${base}/${representative.accession}-index.html`,
+      primaryDocumentXml: `${base}/${representative.primaryDocument}`,
+      submissionCount: group.length,
+      submissions: group.map((item) => ({ form: item.form, accession: item.accession, filedAt: item.filedAt, primaryDocument: item.primaryDocument })),
+      compositionStatus: original ? 'ORIGINAL_CONNECTED' : 'AMENDMENT_ONLY',
+      rowImportStatus: periodOfReport === manager.latestFiling?.periodOfReport ? 'IMPORTED_CURRENT' : periodOfReport === manager.priorFiling?.periodOfReport ? 'IMPORTED_PRIOR' : 'METADATA_ONLY',
+      shareHistoryStatus: periodOfReport === manager.latestFiling?.periodOfReport || periodOfReport === manager.priorFiling?.periodOfReport ? 'CONNECTED_TO_HOLDINGS_ARTIFACT' : 'PENDING_ROW_IMPORT',
       sourceKind: 'SEC_EDGAR'
     });
-    if (periods.length >= 12) break;
   }
   managers.push({
     managerId: manager.id,
@@ -54,12 +70,13 @@ for (const manager of filings.managers.filter((item) => item.cik && item.latestF
 }
 
 const result = {
-  schemaVersion: 'masters-13f-history-index.v1',
+  schemaVersion: 'masters-13f-history-index.v3',
   revision: `${reviewedAt}-${appVersion}`,
   reviewedAt,
   status: 'FILING_METADATA_HISTORY_CONNECTED',
   publication: 'EDUCATIONAL_REFERENCE_ONLY',
-  boundary: '분기별 SEC filing metadata와 원문 링크를 연결한다. 현재 보유·전체 포트폴리오·분기별 shares history는 해당 기간의 information table row import와 security master 검증 후에만 공개한다.',
+  boundary: '분기별 SEC filing metadata와 원문 링크를 연결한다. 각 분기는 같은 기간의 전체 제출 목록(원본+정정)을 함께 보존하며, 보유 행 수·보고가치는 information table row import와 security master 검증 후에만 공개한다.',
+  compositionPolicy: 'ORIGINAL_PLUS_NEW_HOLDINGS_OR_LATEST_RESTATEMENT (scripts/lib/13f-compose.mjs)',
   historyDepthTarget: 12,
   managers,
   connectedManagers: managers.length,

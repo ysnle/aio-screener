@@ -449,7 +449,31 @@ check(
 for (const pageId of ['home','signal','market-news','technical','screener','ticker','portfolio','macro','fxbond','fundamental','kr-home','kr-supply','kr-themes','kr-macro','kr-technical']) {
   check(`page redesign config exists for ${pageId}`, new RegExp(`${pageId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`).test(core) || core.includes(`'${pageId}':`));
 }
-check('non-primary market-news/screener/signal controls are folded behind advanced details', /_aioFoldDensePageControls/.test(core) && /market-news/.test(core) && /screener-backtest-panel/.test(core) && /signal-lockout-control/.test(core));
+// P1449 (R483: golden gates move atomically with the contract change): the post-P1443
+// backtest panel is the primary native IC view in its own named tab — the fold contract no
+// longer owns it, and the fold must contribute no selector for the screener page.
+check(
+  'P1449 screener backtest IC panel is unfolded primary content (fold lists no screener selector)',
+  /_aioFoldDensePageControls/.test(core)
+    && !/pageId === 'screener'\)\s*selectors = \['#[^']*'\]/.test(core)
+    && /screener-backtest-panel/.test(core)
+    && /aio-page-advanced-toggle/.test(core),
+  'the P1449 panel must render in #scr-tab-backtest; the pre-P1443 fold must not re-home it'
+);
+check(
+  'P1449 fold honors data-aio-fold=never escape hatch',
+  /dataset\.aioFold !== 'never'/.test(core),
+  'new primary panels need a fold escape hatch so legacy boot logic cannot re-home them again'
+);
+check('v51.40/P532 signal lockout remains a hidden legacy sink', /signal-lockout-control/.test(core));
+// P1449 (P1216 NEWS_EMPTY_REASON_COPY 패턴): screener workbench developer vocabulary must stay
+// out of the user copy — Outcome/Operations/실행 정의 hash/identity are internal terms.
+check('P1449 screener labels use user vocabulary (no Outcome/Operations/hash/identity leaks)',
+  !/'Outcome ·/.test(screenerPage) && !/'Operations ·/.test(screenerPage)
+    && !/실행 정의 hash에 포함/.test(screenerPage) && !/정의 hash 변경/.test(screenerPage)
+    && !/Outcome · 실행 후/.test(html) && !/Operations · 데이터 sync/.test(html)
+    && !/종목 identity는/.test(html),
+  'screener user copy leaked developer terms again — route raw enums through a Korean copy map');
 check('core news and screener filters remain active on the main screen', !/#news-country-chips|#news-topic-chips|#news-type-tabs|#scr-market/.test(core));
 // P1131/R619: the _aiCtxMap literals moved with inline block G into js/aio-chat.js.
 check('unified AI panel covers home/screener/ticker/KR contexts (v53.7 P725)', /'home'\s*:\s*'home'/.test(chat) && /'screener'\s*:\s*'screener'/.test(chat) && /'ticker'\s*:\s*'ticker'/.test(chat) && /'kr-themes'\s*:\s*'kr-themes'/.test(chat) && /'kr-macro'\s*:\s*'kr-macro'/.test(chat));
@@ -599,7 +623,16 @@ try {
 
 // [C] P1443 (supersedes the P538 COMP_W key check): the backtest composite is the live ranking model —
 // computeFactorRanks on the rebalance-date factor values — not a separately weighted re-implementation.
+// P1449: "same model" must be provable, not merely stated — the ranking model keeps exactly one
+// default weight vector (factor-weights.js), a model fingerprint is attached to the stored
+// backtest, and the validation generator passes that vector explicitly.
 check('P1443 backtest composite uses the live computeFactorRanks model', fetchScript.includes('var live = computeFactorRanks({') && !/var\s+COMP_W\s*=/.test(fetchScript) && fetchScript.includes('sectorOf(r.sym)'), 'backtest composite is not the live ranking model');
+check('P1449 backtest passes the live model default weights (one weights module, no second copy)',
+  fetchScript.includes('weights: MODEL_DEFAULT_WEIGHTS') && fetchScript.includes("weightsPolicy: 'model-default'") && !/const\s+DEFAULT_WEIGHTS\s*=\s*\{/.test(read('src/domain/screener/factor-ranks.js')),
+  'the validation generator must pass the shared NEUTRAL weights explicitly; a duplicated vector is the exact P1443 drift');
+check('P1449 stored backtest carries a model fingerprint the UI compares with the live model',
+  fetchScript.includes('modelFingerprint: modelFingerprint') && fetchScript.includes('modelFingerprint: backtest.modelFingerprint'),
+  'without the identity, stored rows cannot prove which model produced them');
 
 // [D] Scheduler fn typeof 가드 함수들이 실제로 정의됨 (P524 패턴 재발 방지)
 // REFRESH_SCHEDULE.*.fn = () => { return (typeof X === 'function') ? X() : null; } 패턴에서

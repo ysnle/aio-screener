@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFile, rename, writeFile } from 'node:fs/promises';
+import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js';
 
 const SOURCE = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 const OUTPUT = new URL('../public-data/sec-fundamentals-summary.json', import.meta.url);
@@ -38,8 +39,25 @@ function fiscalHistory(observations = {}) {
         const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart || '')) / 86400000;
         if (!(days >= 330 && days <= 380)) continue;
       }
-      const entry = byEnd.get(row.periodEnd) || { periodEnd: row.periodEnd, filedAt: {} };
-      if (!entry.filedAt[field] || String(row.filedAt) > entry.filedAt[field]) { entry[field] = row.value; entry.filedAt[field] = String(row.filedAt || ''); }
+      const entry = byEnd.get(row.periodEnd) || { periodEnd: row.periodEnd, filedAt: {}, conceptRank: {} };
+      const rowRank = row.concept === 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest' ? 1 : 0;
+      const storedFiledAt = entry.filedAt[field];
+      const storedRank = entry.conceptRank[field];
+      // P1449: the ROE / P-B denominators need a parent-company equity series. A later
+      // filing can carry only the NCI-inclusive total for a period whose parent row was
+      // already filed (Agilent FY2025 did this for FY2023/FY2024 with its AOCI value),
+      // so parent equity must outrank the NCI tagging across filings, not just within
+      // one filing; among equal ranks the latest filedAt wins.
+      let take = !storedFiledAt;
+      if (field === 'equity') {
+        if (storedRank != null && rowRank < storedRank) take = true;
+        else if (storedRank === rowRank && String(row.filedAt) > storedFiledAt) take = true;
+      } else {
+        take = take || String(row.filedAt) > storedFiledAt;
+      }
+      if (take) {
+        entry[field] = row.value; entry.filedAt[field] = String(row.filedAt || ''); entry.conceptRank[field] = rowRank;
+      }
       byEnd.set(row.periodEnd, entry);
     }
   }
@@ -59,17 +77,21 @@ function fiscalHistory(observations = {}) {
     .map((entry) => [entry.periodEnd, m(entry.revenue), m(entry.netIncome), m(entry.equity), m(entry.operatingCashFlow), m(entry.capex), m(entry.longTermDebt), m(sharesAfter(entry.periodEnd))].join(':'))
     .join(';');
 }
+// P1449: the page projection is the shipped path. reconcileSecEquity (P1402) repairs top-level
+// equity when the same filing carries a parent-company StockholdersEquity row, so the repair must
+// happen here — the PIT observations that the page-side reconcile needs are stripped below.
 const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => {
-  const pit = record?.pit && typeof record.pit === 'object'
-    ? Object.fromEntries(Object.entries(record.pit).filter(([key]) => key !== 'observations'))
+  const reconciled = reconcileSecEquity(record);
+  const pit = reconciled?.pit && typeof reconciled.pit === 'object'
+    ? Object.fromEntries(Object.entries(reconciled.pit).filter(([key]) => key !== 'observations'))
     : null;
-  return [symbol, { ...record, ...(pit ? { pit } : {}) }];
+  return [symbol, { ...reconciled, ...(pit ? { pit } : {}) }];
 }));
 const projection = {
   schemaVersion: 'sec-fundamentals-runtime-summary.v1',
   sourceSchemaVersion: source.schemaVersion,
   artifactRole: 'BOUNDED_PAGE_PROJECTION',
-  projectionPolicy: 'Latest normalized annual facts plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path.',
+  projectionPolicy: 'Latest normalized annual facts reconciled for parent-company equity (P1402/P1449) plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path.',
   generatedAt: source.generatedAt,
   source: source.source,
   sourceUrl: source.sourceUrl,

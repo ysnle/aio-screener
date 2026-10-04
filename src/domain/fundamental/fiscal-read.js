@@ -37,8 +37,10 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
     const marginThen = history[Math.max(0, history.length - 4)].margin;
     if (marginNow != null && marginThen != null) {
       const delta = marginNow - marginThen;
+      // P1449: this read sees revenue and net income only. It cannot split interest, tax or
+      // one-offs from operations, so attribution like "영업 레버리지" is withheld (P1441 family).
       points.push({ id: 'margin', tone: delta >= 0 ? 'favorable' : 'burden', title: '수익성',
-        text: `순이익률 ${marginNow.toFixed(1)}%(${history.length >= 4 ? '3년 전' : '첫 해'} ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < 2 ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? '매출이 늘수록 이익이 더 크게 남는 구조로 바뀌었습니다(영업 레버리지)' : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
+        text: `순이익률 ${marginNow.toFixed(1)}%(${history.length >= 4 ? '3년 전' : '첫 해'} ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < 2 ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? `${Math.abs(delta).toFixed(1)}%p 높아졌습니다(순이익 기준 관측이며, 세금·이자·일회성 항목과 영업 효과의 구분은 이 화면의 자료로 검증하지 않습니다)` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
     }
     const niNow = latest.netIncome;
     const niPrev = history[history.length - 2].netIncome;
@@ -65,11 +67,21 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
   // P1446: the cash chain — earnings → operating cash → capital spending → free cash → debt and share count.
   const ocf = finite(latest?.operatingCashFlow);
   const capex = finite(latest?.capex);
-  if (ocf != null && latest?.netIncome) {
-    const conversion = ocf / latest.netIncome;
+  if (ocf != null && latest?.netIncome != null) {
+    // P1449: the OCF/netIncome ratio only means "earnings arrive as cash" when BOTH numbers are
+    // positive. A net loss with an operating-cash outflow (or either sign flipped) divides to a
+    // positive ratio that means nothing of the sort — read the two facts separately there.
+    const creditableConversion = latest.netIncome > 0 && ocf > 0;
+    const conversion = creditableConversion ? ocf / latest.netIncome : null;
     const fcf = capex != null ? ocf - capex : null;
-    points.push({ id: 'cash', tone: conversion >= 0.8 && (fcf == null || fcf > 0) ? 'favorable' : 'neutral', title: '현금 전환',
-      text: `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${formatUsdShort(capex)}를 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.` });
+    points.push({
+      id: 'cash',
+      tone: creditableConversion && conversion >= 0.8 && (fcf == null || fcf > 0) ? 'favorable' : 'neutral',
+      title: '현금 전환',
+      text: !creditableConversion
+        ? `영업현금흐름 ${formatUsdShort(ocf)} · 순이익 ${formatUsdShort(latest.netIncome)} — 둘 중 하나가 마이너스면 "순이익 대비 현금 %" 비율 해석은 성립하지 않아 적용하지 않고, 두 사실을 따로 봐야 합니다(순손실 구간과 영업현금 유출은 별개의 문제입니다).`
+        : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${formatUsdShort(capex)}를 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
+    });
   }
   const debtNow = finite(latest?.longTermDebt);
   const debtPrev = finite(prevYear?.longTermDebt);

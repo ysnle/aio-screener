@@ -6,6 +6,10 @@ export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v3';
 const NEUTRAL = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0.08, value: 0.10, quality: 0.09, kalman: 0.10 });
 const RISK_OFF = Object.freeze({ momentum: 0.12, trend: 0.18, lowvol: 0.28, size: 0.05, value: 0.10, quality: 0.18, kalman: 0.09 });
 const RISK_ON = Object.freeze({ momentum: 0.33, trend: 0.24, lowvol: 0.09, size: 0.08, value: 0.07, quality: 0.07, kalman: 0.12 });
+// P1449: the ranking model falls back to exactly this vector when its caller passes no weights
+// (factor-ranks.js imports it, backtestFactors passes it explicitly). One canonical model default —
+// the second hand-picked copy that drifted from it (P584/C1, P1443 gate blindness) is gone.
+export const MODEL_DEFAULT_WEIGHTS = NEUTRAL;
 
 function normalizeWeights(weights = {}) {
   const keys = Object.keys(weights);

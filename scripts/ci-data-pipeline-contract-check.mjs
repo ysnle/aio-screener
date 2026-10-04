@@ -930,6 +930,34 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
   const sync = spawnSync(process.execPath, [join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8' });
   check('public-data/screener-universe.json is in sync with js/aio-data.js SCREENER_DB', sync.status === 0, (sync.stdout + sync.stderr).trim().slice(0, 400));
 }
+// ── P1449: 종목 identity — SCREENER_DB/registry name vs the issuer's own SEC entity name. ──
+// A ticker must name one issuer everywhere (P1339/R95/R85). The 2026-10 review caught 'A' being
+// labelled Avantor on themes/screener while the 재무 screen correctly showed Agilent (AVTR is a
+// different, absent ticker). Model names drift between vendor forms, so the comparison is a
+// normalized (corporation/INC suffix-insensitive, case/hyphen-insensitive) token-first-name match,
+// with the light fixture pinning the concrete incident and warnings for newly observed drifts.
+try {
+  const secFund = JSON.parse(read('public-data/sec-fundamentals.json') || '{}');
+  const universeRows = JSON.parse(read('public-data/screener-universe.json')).universe || [];
+  const normalizeIssuerName = (value) => String(value || '')
+    .toUpperCase().replace(/[,.\(\)]/g, ' ').replace(/\b(INC|INCORPORATED|CORPORATION|CORP|LTD|LIMITED|CO|COMPANY|PLC|NV|SA|CLASS)\b/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+  // Gating needs to stay cheap and readable — the incident pin only ('A').
+  const agilentUniverse = universeRows.find((row) => row?.sym === 'A');
+  check("P1460 screener universe ticker 'A' is Agilent (not Avantor — that is AVTR)",
+    !/AVANTOR/i.test(String(agilentUniverse?.name || '')) && /AGILENT/i.test(String(agilentUniverse?.name || '')),
+    `A maps to ${agilentUniverse?.name}`);
+  // Warn (not fail): many SEC entity names legitimately differ from vendor short names, so a
+  // hard equality gate would be noise; the printed warning keeps the drift visible each run.
+  const secSymbols = universeRows.filter((row) => secFund.data?.[row.sym]?.entityName);
+  const drifts = secSymbols.filter((row) => normalizeIssuerName(row.name).split(' ')[0] && normalizeIssuerName(secFund.data[row.sym].entityName).split(' ')[0]
+    && normalizeIssuerName(row.name).split(' ')[0] !== normalizeIssuerName(secFund.data[row.sym].entityName).split(' ')[0]);
+  if (drifts.length) {
+    console.warn(`[data-pipeline] P1449 issuer-name drift between SCREENER_DB and SEC entityName (information): ${drifts.slice(0, 8).map((row) => `${row.sym}: "${row.name}" vs "${secFund.data[row.sym].entityName}"`).join(' | ')}${drifts.length > 8 ? ` (+${drifts.length - 8} more)` : ''}`);
+  }
+} catch (error) {
+  console.warn(`[data-pipeline] P1449 issuer identity cross-check could not read its artifacts: ${error.message}`);
+}
 
 check('data pipeline contract is wired into CI', qaPipeline.profiles?.full?.includes('core') && Object.values(qaPipeline.groups || {}).flatMap((group) => group.gates || []).some((gate) => gate.script === 'scripts/ci-data-pipeline-contract-check.mjs'));
 check('data pipeline contract documented in QA/rules/postmortem', /P517/.test(qa) && /R222/.test(rules) && /P517/.test(postmortem) && /P531/.test(qa) && /R230/.test(rules) && /P531/.test(postmortem) && /P535/.test(qa) && /R232/.test(rules) && /P535/.test(postmortem));

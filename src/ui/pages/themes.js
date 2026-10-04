@@ -151,7 +151,13 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   const pill = documentRef?.getElementById('theme-cycle-pill');
   if (!pill) return;
   pill.dataset.aioThemeCycleRenderer = 'native';
-  const items = viewItems(selectThemesItems(store?.getState?.() || {}), 'sectors');
+  // P1449/R631: the denominator must be the RENDERED view's population, not a hard-coded
+  // sector set. The cards switch between sectors / sub-themes / all items; a pill still
+  // reporting the 11-sector denominator while dozens of sub-theme chips render above is the
+  // same "summary on another scope" defect P1149 fixed elsewhere.
+  const view = activeView(root);
+  const viewLabel = { sectors: '섹터', subsectors: '하위 테마', all: '전체 관측' }[view] || '섹터';
+  const items = viewItems(selectThemesItems(store?.getState?.() || {}), view);
   const counts = { Leading: 0, Improving: 0, Weakening: 0, Lagging: 0 };
   items.forEach((item) => {
     const quadrant = String(item?.quadrant || '');
@@ -161,13 +167,13 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
   if (total < 6) {
     pill.className = 'status-pill sp-neutral';
-    pill.textContent = `RRG 관측 보류 · 근거 ${total}/11`;
+    pill.textContent = `RRG 관측 보류 · 근거 ${total}개(${viewLabel} 관측 ${items.length}개 중 ${finite(items.length) != null ? `집계 ${total}` : '—'})`;
     return;
   }
   const riskOn = counts.Leading + counts.Improving >= counts.Weakening + counts.Lagging;
   pill.className = `status-pill ${riskOn ? 'sp-risk-on' : 'sp-risk-off'}`;
   // P1352: quadrant counts describe relative strength, not sector identity or the business cycle.
-  pill.textContent = `섹터 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}`;
+  pill.textContent = `${viewLabel} 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}`;
 }
 
 function renderThemePerformanceNarrative({ documentRef, root, store, route }) {

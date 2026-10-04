@@ -5,6 +5,7 @@
 // quintile won. The predictive-validity status (public-data/model-validation-status.json) is shown
 // with it: a present-day universe means survivorship bias, so this is accountability, not proof.
 import { createTrendChart } from './trend-chart.js';
+import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -21,6 +22,12 @@ export function summarizeValidation(history = [], status = null) {
   const series = rows.filter((row) => Number.isFinite(Number(row.quantileSpreadNet))).map((row) => ({ date: row.date, value: Number(row.quantileSpreadNet) }));
   const wins = last && Number.isFinite(Number(last.netHitRate)) && Number.isFinite(Number(last.dates)) ? Math.round(Number(last.netHitRate) / 100 * Number(last.dates)) : null;
   const tone = !last || !Number.isFinite(Number(last.quantileSpreadNet)) ? 'unknown' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
+  // P1449: stored rows must carry the model fingerprint. A mismatch — or no fingerprint at all
+  // (rows produced before this identity existed) — means the record was NOT produced by the
+  // model on screen, so it cannot be presented as that ranking's validation.
+  const modelFingerprint = last?.modelFingerprint != null ? String(last.modelFingerprint) : null;
+  const liveFingerprint = liveScreenerModelFingerprint();
+  const modelMatch = modelFingerprint == null || liveFingerprint == null ? false : modelFingerprint === liveFingerprint;
   return {
     available: !!last,
     date: last?.date || null,
@@ -31,8 +38,10 @@ export function summarizeValidation(history = [], status = null) {
     wins,
     ic: last?.ic?.composite ?? null,
     series,
+    modelMatch,
     tone,
     verdict: !last ? '사후 검증 기록 수신 대기'
+      : !modelMatch ? `이 과거 기록은 지금 화면의 순위와 가중치·정의(모델 지문)가 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다. 같은 모델의 기록이 쌓인 뒤 이 영역이 다시 성과를 말합니다.`
       : tone === 'favorable' ? `최근 ${last.dates}번의 과거 시점에서 기본 복합 순위 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} 앞섰습니다(비용 반영).`
         : `최근 ${last.dates}번의 과거 시점에서 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} — 기본 복합 순위(모멘텀·추세·저변동·칼만)는 이 기간 동안 뒤처졌습니다(비용 반영).`,
     validation: status?.status === 'BLOCKED' || status?.predictiveValidation === 'not-established'

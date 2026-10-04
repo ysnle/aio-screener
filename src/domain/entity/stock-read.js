@@ -119,6 +119,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const next = [{ route: 'technical', label: '차트', why: trend ? `${trend.label}의 셋업 — 이동평균·피벗·거래량으로 지금 자리가 돌파 전인지 확인` : '일봉과 이동평균 위치' },
     { route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }];
   if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마 · ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
-  next.push({ route: 'screener', label: '스크리너', why: `같은 섹터(${sector?.label || row.sector || '—'})에서 상대 순위가 높은 종목과 비교` });
+  const sectorName = sector?.label || row.sector || '';
+  next.push({ route: 'screener', label: '스크리너', why: `같은 섹터(${sectorName || '—'})에서 상대 순위가 높은 종목과 비교`, ctx: sectorName ? { q: sectorName, ticker: symbol } : { ticker: symbol } });
   return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, benchmarkLabel: benchmark?.label || 'S&P 500' };
 }

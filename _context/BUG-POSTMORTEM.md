@@ -4,6 +4,125 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+
+
+## P1461 - v57.18 - Screener workbench user copy uses user vocabulary (2026-10-04)
+
+- symptom/reproduction: Outcome / Operations / 실행 정의 hash / 종목 identity developer terms rendered on the screener screen.
+- root_cause: Workbench labels were written straight from internal enums without the user-copy translation map the P1216 pattern established for news enums.
+- fix: Outcome → 실행 후 결과 (1/5/21/63거래일 후), Operations → 데이터 갱신, run hash → 실행 기록 (user-visible ids keep traceability), definition hash sentences → 실행 정의, 종목 identity → 종목 식별 컬럼. ci-runtime-contract-check asserts the vocabulary stays out.
+- violated_rule: P1216 (internal enums must be translated for users) / R679.
+- prevention: The leak check runs on every build and names the forbidden literals.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs OK.
+
+## P1460 - v57.18 - Screener workbench user copy uses user vocabulary (2026-10-04)
+
+- symptom/reproduction: Outcome / Operations / 실행 정의 hash / 종목 identity developer terms rendered on the screener screen.
+- root_cause: Workbench labels were written straight from internal enums without the user-copy translation map the P1216 pattern established for news enums.
+- fix: Outcome → 실행 후 결과 (1/5/21/63거래일 후), Operations → 데이터 갱신, run hash → 실행 기록 (user-visible ids keep traceability), definition hash sentences → 실행 정의, 종목 identity → 종목 식별 컬럼. ci-runtime-contract-check asserts the vocabulary stays out.
+- violated_rule: P1216 (internal enums must be translated for users) / R679.
+- prevention: The leak check runs on every build and names the forbidden literals.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs OK.
+
+## P1459 - v57.18 - Ticker A is Agilent everywhere; chart range tabs respect the available history; news aliases match on word boundaries (2026-10-04)
+
+- symptom/reproduction: (1) Themes/스크리너 showed A as Avantor while the 재무 screen showed Agilent (A=Agilent, AVTR=Avantor; AVTR is not in the universe at all). (2) AAPL's 1M/3M/6M/1Y selectors all showed the same 5 observations. (3) Artificial Intelligence linked INTC via intel, downside linked DIA via dow; the 더 보기 button stayed after every article had been shown.
+- root_cause: (1) SCREENER_DB had the wrong hand-written name for 'A' and the universe artifact faithfully copies it; the SEC entityName path was right — two name sources. (2) The pattern detector's 5-bar fetch was cached into window._tickerHistory, which runtime-readers uses as the chart-history fallback, so the chart never had a real period selection. (3) The alias step of extractTickers matched with plain lowercase includes (R17's word-boundary mandate applies only to tickers) and the load-more predicate compared against the whole-window eligibleCount instead of the contract-capped renderable pool.
+- fix: 'A' is labelled Agilent Technologies in SCREENER_DB (universe artifact regenerated; registry gains an Agilent entry; a ci-data-pipeline-contract-check fixture pins the incident and prints informational issuer-name drift). Range tabs are disabled with a Korean reason when history cannot span them, and the pattern bars cache moved to its own key so it no longer poses as chart history. Alias matching uses ASCII word boundaries (Hangul aliases keep includes — JS \b is ASCII-blind for Hangul); 더 보기 hides when the renderable pool is exhausted and says so in its tooltip.
+- violated_rule: P1339 (ticker guessing is forbidden — one ticker, one issuer) / R17 (word boundaries in extractTickers) / P1205 (native range ownership).
+- prevention: The identity pin runs in ci-data-pipeline-contract-check each build; range availability is computed from the same state the chart renders; alias matching boundary rule is in code where R17 already lives.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs OK (A=Agilent in the regenerated artifact); node scripts/ci-esm-core-unit-check.mjs OK.
+
+## P1458 - v57.18 - Macro sparkline says its date span and cadence; the theme cycle pill uses the rendered view's denominator (2026-10-04)
+
+- symptom/reproduction: A daily rates series of 260 observations was announced as 최근 260개월; the theme cycle pill kept the 11-sector denominator while the cards above switched to sub-themes or the full item view.
+- root_cause: The sparkline aria label assumed a monthly cadence from series length; the pill hard-coded viewItems(…, 'sectors') and the 11-sector divisor instead of the active view.
+- fix: sparkline derives cadence from the observation dates (월별/일별) and reports the actual span (최근 12개월(일별 관측 260개)); the pill consumes activeView(root), counts the rendered population and labels it 섹터/하위 테마/전체 관측 with the real denominator.
+- violated_rule: R570 (관측 주기를 소비자까지 보존) / R631 (분모를 선언한다) / P1352 family.
+- prevention: Both renderers derive their labels from the same state the cards render — no second hand-written scope.
+- verification/residual: node --check passed; accessibility copy verified by reading the generated strings.
+
+## P1457 - v57.18 - Breadth contributors carry asset type and a corporate-action suspicion flag (2026-10-04)
+
+- symptom/reproduction: In the 10/1 신저가 detail, CTVA appeared at -83.8% on the day Corteva completed the Vylor spin-off — a move that must not be read as a market-level crash before its corporate-action basis is checked. The 미국 주식 universe also mixes ETFs (QQQ, XLK, EWJ) with individual names while the basis line claimed a stock universe (~700종목).
+- root_cause: The contributor artifact carried bare [symbol, dayChangePct] pairs with no asset-type identity and no corporate-action awareness (the instrument registry itself documents the missing corporate-action source), so neither the drilldown nor the basis line could say what each entry was or flag an adjustment-unverified extreme move.
+- fix: breadth-contributors.json (schema v2) emits objects {symbol, dayChangePct, assetType (ETF/stock), corporateActionSuspected (|day change| >= 20%)} with the declared policy that suspicion is only an instruction to check the filing — never an adjustment or confirmation. The drilldown badges ETF rows (같이 집계됩니다) and CA-suspected rows (조정 여부 미확인), and the basis line says the universe mixes 개별 주식 + ETF.
+- violated_rule: R570/R631 (관측의 종목·주기·출처·범위를 소비자까지 보존) / corporate-action audit remains BLOCKED — suspicion must not read as adjustment.
+- prevention: The artifact schema carries the flags and policy string; the drilldown renders both without extra logic; a future corporate-action ledger integrates at this boundary.
+- verification/residual: Artifact regeneration happens with the next data refresh (Actions); the shape and policy strings are pinned in the producer code, and ci-data-pipeline-contract-check continues to cover computeScreenerBreadthHistory.
+
+## P1456 - v57.18 - Causal narrative sentences name level, direction and window on one observation basis (2026-10-04)
+
+- symptom/reproduction: HY 324bp at +44bp/5일 was read as 공포가 아직 신용시장으로 번지지 않음; 금리 인하 기대 채권 강세 contradicted the on-screen rising 10y; a 20-day 10y rise was explained with 5-day real-rate data; 2y−policy gap asserted 인상 반영 without term-premium separation; rank improvements were worded as 자금 유입; a net-margin rise asserted 영업 레버리지.
+- root_cause: Narrative blocks are condition+template code without a stated (level·direction·window) contract: the credit reading gated on the level alone (a 350bp threshold cannot disprove contagion; +44bp/5일 is stress forming), explanation-of-a-state used inputs of a different window, substitutes were presented as direct interpretations, and relative-price observations were worded as flows — violating the house wording already present in the same repo (sentiment-board, themes page caveats).
+- fix: (1) market-read: the credit reading splits on the 5-day widening and cites 현 수준 + 방향 + 멈춤 확인 조건; literals 350/20/15/5 moved into RULES (thresholds credit widenWatch5dBp/calm5dBp, volatility.calmBelow). The rates-axis real-rate suffix states its 5-day basis and the absence of a 20-day decomposition. (2) macro-read: 2y−policy is labelled 기간·위험 프리미엄 미분해 대용 지표 — headlines/chain read 경로 이상/이하 수준 관측, and the regime table's generic template is worded as a historical tendency distinct from today's 10-year move. (3) page-flow: 테마 전체 자금 유입 → 상대강세 관측(자금 유입 증거 아님), the wording the themes page already uses. (4) fiscal-read: margin attribution (영업 레버리지) withheld with an observed-only sentence, and the OCF/netIncome cash-conversion ratio is only claimed when both are positive (a net loss with a cash outflow used to produce a positive ratio that meant nothing).
+- violated_rule: R679 (presentation cannot strengthen evidence meaning) / R628 / the fact-vs-interpretation contract already documented in market-read comments.
+- prevention: All published thresholds now come from one table (src/domain/rules/thresholds.js); new narrative templates follow the {level/direction/window + hypothesis reading + check flip} shape; fiscal stats keep sign-aware guards.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs OK; node scripts/ci-domain-parity-check.mjs OK (golden fixture narratives unchanged where rules preserved); narrative sentence texts recomputed only at render time.
+
+## P1455 - v57.18 - Ledger account performance reaches the screen even when the price-history check holds, and 수정 opens the form (2026-10-04)
+
+- symptom/reproduction: Deposits, valuations and ledger conventions were saved, but the TWR/MWR summary never appeared because refreshPortfolioRisk's Yahoo 3-month price gates (missing adjusted closes / fewer than 6 common dates) returned early and the ledger engine was only reachable after them. Separately, AAPL 수정 showed a toast but never opened the (hidden) entry form; the user had to press 종목 추가 to edit.
+- root_cause: assessAccountPerformance is a ledger-only engine (trades/flows/valuations/fees/fx/valuation-cuts + conventions) that needs no price history, but its call sat inside the price-history-gated risk refresh. The edit bridge set form values and focused them while #pf-entry-section stayed display:none.
+- fix: refreshPortfolioLedgerPerformance is its own refresh: the engine runs on ledger/convention changes (via renderPortfolioLedger) and unconditionally at risk-refresh entry, renders into #pf-ledger-performance with the engine's own messages, and the risk declaration block points at it; the price-history gates now only hold the price-based metrics (VaR/Sharpe/MDD/corr). editPosition opens #pf-entry-section via window._aioTogglePortfolioEntry(true) before scrolling/focusing.
+- violated_rule: A hold on one evidence tier must not hold a different tier's result (E3/E4 distinct evidence levels) / R632 (the edit path preserves declared fields and must reach the user).
+- prevention: The engine's inputs are still the six declared ledger inputs; the panel renders hold reasons straight from the engine (no fabricated performance). The R632 contract tests keep covering the edit path's field preservation.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs OK (P1188/fixtures); browser repos (ledger-only TWR with no Yahoo history; 수정 opens the entry section) deferred to closeout.
+
+## P1454 - v57.18 - Portfolio read: one currency hold, one value-weight denominator per dimension, one benchmark population (2026-10-04)
+
+- symptom/reproduction: A mixed-currency portfolio displayed 상승 추세 비중 100% and index-relative performance measured over silently different subsets, with no statement of how much of the holdings each figure covered; Samsung's Technology bucket was judged against US sector-ETF rotation quadrants.
+- root_cause: buildPortfolioRead summed raw row.value (local units on a mixed surface — the P1175-class sum the checks panel refuses) with no currency hold; the trend denominator silently shrank to SMA-reported holdings; book weights (needs ret3m) and benchmark weights (needs bench.ret3m) filtered independently so the two sides of one gap statement could cover different populations; the sector→rotation mapping had the P1447 market-class guard on the stock page but not here.
+- fix: The read holds on mixed-without-conversion (printed with the reason instead of vanishing); every share states its value-weight basis — 추세 판정 가능 보유액 X% 기준 annotation on the trend share and headline, and the relative panel intersects book and benchmark facts ONE population (금융 이력이 확인된 보유액 X% 기준). KRX-containing sector buckets do not inherit the XLK-style quadrant and say 한국 보유는 미국 섹터 회전 기준으로 분류하지 않습니다; the exclusion note now carries the excluded value share.
+- violated_rule: R631 (분모·표본을 선언하지 않으면 인증하지 않는다) / P1447 (market-class awareness) / P1175 (단위 성립 전 합계 금지).
+- prevention: ci-esm-core-unit-check covers the surface mixed hold (P1418 fixture) and the read is consequenced from surface.currencyState; the basis notes are part of the returned read contract.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs OK; browser repro (AAPL+005930.KS mixed) deferred to closeout — the currency-hold path is a new return reachable in the same scenario the review used.
+
+## P1453 - v57.18 - Portfolio surface writers print the declared currency, not a hard-coded $ (2026-10-04)
+
+- symptom/reproduction: With base/cash currency declared KRW the cash hero still showed $100,000; a Samsung (KRW) price/target printed with a dollar sign in sibling cells; mixed-currency summaries labelled their numbers as dollars.
+- root_cause: formatSurfaceMoney took no currency and hard-coded $, and the surface published no declared currency when a conversion was held (baseCurrency null on a mixed surface) — the LC-45 residual: per-row cells were fixed while sibling writers (cash hero, daily change, target cells, legacy fallback table) kept assuming USD.
+- fix: The surface publishes declaredBaseCurrency/declaredCashCurrency even while a conversion is held (display labels only — the hold on fabricated totals is unchanged). Cash hero uses the declared cash currency; daily change uses the declared base currency; the target cell uses the position's cost/price currency and only diffs against price in the same currency; the legacy fallback cells use a currency-aware money helper keyed on the position's declared currency.
+- violated_rule: LC-45 residual (합계·현금·히어로 금액의 통화 표기는 기존 surface 요약을 따른다) / P1418 family (unit lies in presentation).
+- prevention: The surface contract keeps the declared-currency fields and the writers derive every money label from them; the check panel's currency hold remains the gate for sums (checks.js untouched).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs OK (P1418/P1407 fixtures intact); ci-desktop-continuity-check OK.
+
+## P1452 - v57.18 - A failed re-rank discards the previous ranking; the backtest IC panel is visible again (2026-10-04)
+
+- symptom/reproduction: Clicking 저리스크 showed 계산된 종목이 20개 미만 and 팩터 —, but the table kept the previous run's relative scores and ranks as if they answered the new selection. Separately, the 팩터 검증(IC) tab showed a title and an empty area — the human-readable content existed in the DOM but sat inside a closed legacy <details> element.
+- root_cause: (1) The legacy ranking wrapper returned null on available:false while the earlier run's projection (rank/_compositeZ/factorScores/quantSignal/_z_* fields and the window factor state) stayed on SCREENER_DB rows — no stale-note ever covered a dead weighting model. (2) _aioFoldDensePageControls still owned the pre-P1443 fold contract for #screener-backtest-panel and moved the new primary IC panel (which renders in its own named tab since P1443) into a collapsed details block; ci-runtime-contract-check enforced the fold, making the trap contractual.
+- fix: On a failed re-rank the wrapper deletes the dead projection from SCREENER_DB, clears the window ranking state, publishes the typed hold ({reason, requestedProfile, requestedFactorWeights, excludedFactorWeights, requestedWeightCoveragePct, at}) and dispatches aio:ranks-invalidated; the native screener renders a hold banner (#screener-rank-hold, LC-73 style user copy) that names the hold reason. R628/R586 semantics (결측은 중립값이 아니며 이전 계산을 새 선택의 답으로 재사용하지 않는다). Nothing on the screener folds any more; a legacy toggle from a previous-fold state is restored and removed, and new primary panels can declare data-aio-fold="never" so legacy boot logic cannot re-home them.
+- violated_rule: R628 (결측은 조건·구간·관측값을 만족시키지 않는다) / R631 (보류는 사유·분모를 이름 그대로 표시) / R483 (golden gates move atomically with the contract).
+- prevention: ci-runtime-contract-check asserts the fold lists no screener selector, that the data-aio-fold=never escape hatch exists, and that screener user copy contains no developer vocabulary; the hold copy is user-facing text over raw enums.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs OK. Browser repro (저리스크 click → banner+empty rank cells; IC tab content visible) pending operator/front-end closeout.
+
+## P1451 - v57.18 - Stored screener validation carries the model fingerprint; one weights module everywhere (2026-10-04)
+
+- symptom/reproduction: The screener lead text claimed 현재 순위를 과거 6번 시점에 매겼을 때…, but the stored validation was produced with different weights: live ranking renormalizes NEUTRAL to momentum/trend/lowvol/kalman 37.0/27.4/21.9/13.7 while backtestFactors called computeFactorRanks with no weights and fell back to its own DEFAULT_WEIGHTS (39.0/28.0/22.0/11.0). The two statements coexisted inside one file — the function comment said single source of truth, the compWeights field named the other vector.
+- root_cause: Two hand-copies of the same weights vector drifted (the P584/C1 pattern), and the P1443 gate only checked that the backtest used computeFactorRanks — never the vector. Same calc function is not the same model.
+- fix: factor-ranks.js imports the ranking default from factor-weights.js (NEUTRAL; the local copy is deleted) and backtestFactors passes weights: MODEL_DEFAULT_WEIGHTS with weightsPolicy 'model-default' explicitly. New src/domain/screener/model-fingerprint.js builds a canonical model identity (rank/weight model versions, renormalized applied vector, active factors, price basis, rebalance offsets, hold horizon, cost bps). The screener.json backtest, every backtest-history row and the 10y longrun methodology all carry modelFingerprint; the UI (screener-read trust point, screener-validation verdict, backtest parity sentence) compares the stored fingerprint with the live model and replaces same-model claims with an explicit 다른 이전 모델 disclosure on mismatch or on pre-fingerprint records.
+- violated_rule: R631 (성과·검증 결과는 측정 경로·분모·표본을 선언해야 인증한다) / R619 (같은 의미의 구현은 하나만) / R602-type label-identity trap.
+- prevention: ci-runtime-contract-check asserts the validation generator passes the shared vector explicitly, that no second DEFAULT_WEIGHTS literal exists in factor-ranks.js, and that artifacts carry modelFingerprint; ci-esm-core-unit-check pins the renormalized vector (0.3699/0.274/0.2192/0.137), match/mismatch/pre-fingerprint consumption semantics; backtest-history rows and the longrun artifact carry the identity with the data refresh.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs, node scripts/ci-runtime-contract-check.mjs, node scripts/ci-domain-parity-check.mjs (golden fixtures) all pass. Stored artifact parity becomes claimable after the next data refresh writes matching fingerprints.
+
+## P1450 - v57.18 - 13F history lane composes amendments with the same policy as the reference lane (2026-10-04)
+
+- symptom/reproduction: Berkshire 분기 추이 showed 2025Q1 as 4 rows (~$1.107B) and 2023Q4 as 1 row (~$4.543B) — quarter collapses that do not exist. Those filings are 13F-HR/A amendments adding new holdings entries, and Fisher 2024Q4, Scion/Soros 2023Q4 rode the same defect (6 of 84 imported manager-periods were partial amendments standing in for the whole quarter).
+- root_cause: collect-13f-history-index.mjs deduped same-period filings keeping the first entry per quarter; EDGAR lists newest-filed first, so the amendment always replaced the original for the same period, and the quarter was aggregated from the amendment's rows alone. R499/P948's composition policy (ORIGINAL + NEW HOLDINGS rows, covers summed; RESTATEMENT replaces; unclassified fails closed) existed only in collect-13f-reference.mjs — two lanes, two semantics.
+- fix: The composition core is now scripts/lib/13f-compose.mjs (composeAmendmentChain, one policy, one implementation — R619) used by both collectors. The history index keeps the full same-period submission group (schema v3, compositionStatus ORIGINAL_CONNECTED/AMENDMENT_ONLY); the history row collector composes every same-period filing, tags each row with accession + filingRole (ORIGINAL/RESTATEMENT/NEW_HOLDINGS_ADD, schema v2), recreates totals against the summed covers, recomposes stale periods, and closes unclassified-amendment periods REVIEW_REQUIRED (rows removed, no quarter total published) instead of silently publishing a partial quarter.
+- violated_rule: R499 (13F-HR/A는 정정 유형별로 합성한다 — history lane이 위반) / a period whose composition is unverified must not publish a quarter total.
+- prevention: ci-13f-currentness-check imports the shared policy and pins add/append-sums/restatement-replace/unclassified-fails fixtures, and requires the history lane to use it; ci-masters-contract-check asserts (under schema v3+) that every composed period has an ORIGINAL/RESTATEMENT base, REVIEW_REQUIRED periods publish no totals, and rows record accession+filingRole; masters.js 분기 추이 rows show 원본+정정행 합성 / 합성 검토 필요 states.
+- verification/residual: node scripts/ci-13f-currentness-check.mjs OK; node scripts/ci-masters-contract-check.mjs OK (current pre-backfill artifact; the v3 assertions activate with the next refresh-data dispatch). The shipped quarter value correction itself requires the Actions backfill — blocked on operator dispatch approval.
+
+## P1449 - v57.18 - The shipped SEC projection reconciles parent-company equity itself (2026-10-04)
+
+- symptom/reproduction: The fundamental page showed Agilent (ticker A) 자기자본 as -$226M. The FY2025 10-K total stockholders' equity is $6,741M; -226M is accumulated other comprehensive loss, which Agilent's XBRL itself carried on the NCI-inclusive tag (same accession 0001090872-25-000087, same periodEnd).
+- root_cause: P1402's runtime repair (reconcileSecEquity) requires record.pit.observations.equity, but build-sec-runtime-projection.mjs strips pit.observations before writing the page projection — so on the artifact the browser actually fetches (sec-fundamentals-summary.json) the repair was a silent no-op and -226M stayed authoritative. The fiscal history series inherited the same problem: same-filed equity ties kept whichever concept row the artifact listed first, and a later filing can re-tag a period with only the NCI/AOCI value.
+- fix: The projection builder runs reconcileSecEquity per record before stripping observations; fiscalHistory prefers the parent StockholdersEquity concept across filings (not only identical filedAt); the SEC producer heals stored top-level records at publish time so the fix does not wait out each symbol's 28-day re-fetch. This is the accounting-item selection P1402 prescribed — the correct value was already in the raw source.
+- violated_rule: P1402 (concept choice must follow the ratio definition) / R-.Accounting-basis: a repair that only exists on a path whose inputs another gate strips does not exist.
+- prevention: ci-sec-runtime-projection-check now asserts per-symbol that projection equity equals reconcileSecEquity(source record), pins Agilent A to 6741000000, and requires the builder to import reconcileSecEquity; ci-esm-core-unit-check gains the observations-less shipped-shape and idempotence fixtures.
+- verification/residual: node scripts/build-sec-runtime-projection.mjs: A equity=6741000000 concept=StockholdersEquity; fiscal series 2020-2025 equity rows are the parent values (4873/5389/5305/5845/5898/6741). node scripts/ci-sec-runtime-projection-check.mjs OK; node scripts/ci-esm-core-unit-check.mjs OK.
+
 ## P1448 - v57.17 - Live invariant check accepts the shared-Worker-only AI policy (2026-10-04)
 
 - symptom/reproduction: Pages deploys of v57.16 published correctly but ended in failure at 'Verify live standing invariants': 'live public AI config exposes an HTTPS shared fallback or an explicit disabled state' with serverMode/chatPolicy 'shared-worker-only'.

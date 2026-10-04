@@ -187,6 +187,7 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       icInferenceCaveat: 'Forward windows (up to 63 trading days) overlap across 21-day rebalances, so the IC observations are serially dependent while se = std/sqrt(n) assumes independence. Every tStat/ci95 here is therefore a naive descriptive figure, not a validated significance test. No HAC or block-bootstrap correction has been applied; choosing and versioning one is required before any inferential claim.',
       priceBasisCaveat: 'Only tickers whose Yahoo adjusted-close series is complete over the requested range are ranked (universe.adjustedCloseExcluded counts the rest). Raw and adjusted closes are never mixed in one return series, and no automatic corporate-action repair is attempted.',
       liveModelParity: 'This still validates only 4 of the live _aioComputeFactorRanks() model\'s 7 factors, always at the production-fixed NEUTRAL weights (same limitation already documented in fetch-data.mjs backtestFactors() since P586/C2) — marketState proposal tilts are not promoted or validated here.',
+      modelFingerprint: baselineRef.modelFingerprint, // P1449: same model identity contract as the daily backtest artifact (its rebalance offsets differ, so its canonical string may differ from the daily one)
     },
     universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize: universe.length, dataRange: range, priceBasis: 'adjusted-close-only', adjustedCloseExcluded },
     rebalanceDates: { count: offsetsAsc.length, comparedToProductionBacktest: 6 },

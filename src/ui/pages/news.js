@@ -330,10 +330,19 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
 
   const count = documentRef.getElementById('market-news-count');
   if (count) count.textContent = model?.eligibleCount > displayed.length ? `${displayed.length}건 표시 / ${model.eligibleCount}건 일치` : `${displayed.length}건`;
-  const more = documentRef.getElementById('news-load-more-wrap');
-  if (more) more.hidden = displayed.length >= (model?.eligibleCount || 0);
   const summary = documentRef.getElementById('news-visible-summary');
   if (summary) summary.textContent = `전체 ${model?.eligibleCount || 0}건 중 ${displayed.length}건 표시`;
+  const more = documentRef.getElementById('news-load-more-wrap');
+  if (more) {
+    // P1449: "더 보기"는 렌더 가능한 풀(model.items, maxItems 계약)을 기준으로 숨긴다 —
+    // eligibleCount(전체 창 개수)는 계약 캡보다 클 수 있어, 모든 기사를 표시한 뒤에도 버튼이
+    // 남아 클릭해도 아무것도 추가되지 않는 결함이 나왔다. 남은 이유는 요약이 말한다.
+    const poolSize = eligible.length;
+    const capped = Number(model?.eligibleCount || 0) > poolSize;
+    more.hidden = displayed.length >= poolSize;
+    if (capped) more.title = '일치 N건 중 계약 상한만 이 화면에 표시됩니다(더 보기로 확장되지 않습니다).';
+    else more.title = '';
+  }
 }
 
 function render({ documentRef, root, store, route }) {

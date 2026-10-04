@@ -24,7 +24,7 @@ import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
-import { installRouteHubTabs } from '../ui/navigation/route-hubs.js';
+import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { openMarketChart } from '../ui/components/stock-chart.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
@@ -559,6 +559,26 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       // W07-A/P1146: an explicit user profile is a requested model; the neutral default is
       // the versioned default model and keeps renormalizing over available factors.
       return { weights: resolved?.weights || null, weightsPolicy: resolved?.source === 'explicit-user-profile' ? 'explicit' : 'model-default', regimeLabel: resolved?.regimeLabel || null, now: clock.now() };
+    },
+    // P1452: the native path discards a dead run the same way the legacy wrapper does — the
+    // hold (reason + requested/excluded weights) is published for the screener's hold banner
+    // and the window state markers are cleared, so a failed re-rank never leaves the old
+    // ranking displayed under the new selection on either surface.
+    onRankingResult: (ranking, context) => {
+      const profileKey = typeof root?._aioGetActiveProfile === 'function' ? root._aioGetActiveProfile() : null;
+      if (ranking && ranking.available === false) {
+        root._aioRankingHold = Object.freeze({
+          at: Date.now(),
+          reason: ranking.rankingUnavailableReason || 'ranking-unavailable',
+          requestedProfile: profileKey || null,
+          requestedFactorWeights: ranking.requestedFactorWeights || null,
+          excludedFactorWeights: ranking.excludedFactorWeights || null,
+          requestedWeightCoveragePct: ranking.requestedWeightCoveragePct ?? null,
+          weightsPolicy: context?.weightsPolicy || null
+        });
+      } else {
+        delete root._aioRankingHold;
+      }
     }
   });
   const analysisCommands = createAnalysisCommands({ store });
@@ -1033,6 +1053,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // consumers can use the same implementation without importing legacy globals (R352/F-03).
     ,computeFactorRanks
     ,deriveFactorWeights
+    // P1449: the legacy bridge (LC-39/P1215 family) needs the same subject continuity the native
+    // renders use — the 차트·기술 분석 button names the company for the whole 종목 screen.
+    ,setStockSubject
     // P785: single pure market-health model for the technical primary surface; the legacy
     // computeMarketHealth wrapper consumes this API and only renders when the native fence is absent.
     ,computeMarketHealth

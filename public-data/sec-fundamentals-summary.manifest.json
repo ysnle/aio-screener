@@ -4,13 +4,14 @@
   "runtimeArtifact": "public-data/sec-fundamentals-summary.json",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
   "sourceSha256": "2fac70f913ddd0338a474f7f52f1ff248a8ebba60fb7cd27da642046c2fc7d84",
-  "runtimeSha256": "d9170d3cce4cdcba28ce08ad71909c6ca1816e0e20149324262985f97b04f602",
+  "runtimeSha256": "d6302407ea668fa61d19406930242ae81e6dba139e6fd37b53d107e721b4efe4",
   "sourceBytes": 33831715,
-  "runtimeBytes": 1024526,
+  "runtimeBytes": 1037366,
   "records": 608,
   "fiscalHistory": {
     "path": "public-data/sec-fiscal-history.json",
-    "records": 592
+    "records": 592,
+    "format": "periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions (USD millions)"
   },
   "generatedAt": "2026-10-04T06:18:01.821Z"
 }

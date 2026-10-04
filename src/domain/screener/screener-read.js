@@ -52,12 +52,20 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   }
   if (validation?.available) {
     const spread = finite(validation.spreadNet);
-    points.push({ id: 'trust', tone: spread != null && spread > 0 ? 'favorable' : 'burden', title: '순위의 과거 성과',
-      text: spread != null && spread > 0
-        ? `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread.toFixed(2)}% 앞섰습니다(${validation.wins}/${validation.rebalances}회). 다만 지금 종목 구성으로 본 결과라 생존 편향이 있습니다.`
-        : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread == null ? '—' : spread.toFixed(2)}%로 뒤처졌고 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
+    // P1449: past performance is a claim about THIS model only when the stored record's model
+    // fingerprint matches the live model. On mismatch (or a pre-fingerprint record) the
+    // trust point says why it is not validation instead of quoting the old model's spread.
+    if (validation.modelMatch === false) {
+      points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
+        text: '과거 기록이 지금 순위와 다른 모델(가중치·정의 지문 불일치)로 계산되어, 이 화면의 순위 검증으로 읽지 않습니다 — 기록이 다시 쌓이기 전까지 성과 문구는 표시하지 않습니다.' });
+    } else {
+      points.push({ id: 'trust', tone: spread != null && spread > 0 ? 'favorable' : 'burden', title: '순위의 과거 성과',
+        text: spread != null && spread > 0
+          ? `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread.toFixed(2)}% 앞섰습니다(${validation.wins}/${validation.rebalances}회). 다만 지금 종목 구성으로 본 결과라 생존 편향이 있습니다.`
+          : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread == null ? '—' : spread.toFixed(2)}%로 뒤처졌고 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
+    }
   }
-  const headline = `${ranked.length}종목 중 상위 20% ${top.length}종목${over.length ? ` · ${over.map((row) => row.label).join('·')} 쏠림` : ''}${validation?.available && finite(validation.spreadNet) != null ? ` · 과거 상위−하위 ${validation.spreadNet >= 0 ? '+' : ''}${Number(validation.spreadNet).toFixed(2)}%` : ''}`;
+  const headline = `${ranked.length}종목 중 상위 20% ${top.length}종목${over.length ? ` · ${over.map((row) => row.label).join('·')} 쏠림` : ''}${validation?.available && validation.modelMatch !== false && finite(validation.spreadNet) != null ? ` · 과거 상위−하위 ${validation.spreadNet >= 0 ? '+' : ''}${Number(validation.spreadNet).toFixed(2)}%` : ''}`;
   const next = [];
   if (over[0]) next.push({ route: 'themes', label: '테마 · 섹터', why: `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });
   next.push({ action: 'showTicker', arg: top[0].sym, route: 'ticker', label: `1위 ${top[0].sym}`, why: '상위 종목 하나를 요약·차트·재무로 확인' });

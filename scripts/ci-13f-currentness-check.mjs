@@ -65,6 +65,36 @@ const secClient = read('scripts/lib/sec-edgar.mjs');
 if (!/requestQueue/.test(secClient)) fail('SEC client requests are not serialized under the fair-access rate limit');
 const referenceCollector = read('scripts/collect-13f-reference.mjs');
 if (!/ORIGINAL_PLUS_NEW_HOLDINGS/.test(referenceCollector) || !/LATEST_RESTATEMENT_ROWS/.test(referenceCollector) || !/STALE_LAST_KNOWN_GOOD/.test(referenceCollector)) fail('amendment semantics or last-known-good preservation is missing');
+// ── P1449: history lane composes amendments with the same shared policy, and the composition
+// policy itself is pinned (no silently published partial amendment quarters).
+const historyRowsCollector = read('scripts/collect-13f-history-rows.mjs');
+if (!/lib\/13f-compose\.mjs/.test(historyRowsCollector) || !/parse13fAmendmentMetadata/.test(historyRowsCollector) || !/REVIEW_REQUIRED/.test(historyRowsCollector)) fail('the 13F history lane must classify amendments and fail closed (REVIEW_REQUIRED) via the shared composition policy');
+const composePolicy = await import('./lib/13f-compose.mjs');
+{
+  const bundle = (accession, form, rows, cover) => ({ filing: { accession, form, isAmendment: form.includes('/A') }, rows, cover });
+  const originalRows = [{ cusip: '002064030', value: 100, shares: 10 }];
+  const addRows = [{ cusip: '02665W108', value: 1106550356, shares: 388 }];
+  const composed = composePolicy.composeAmendmentChain([
+    bundle('acc-1', '13F-HR', originalRows, { tableEntryTotal: 1, tableValueTotal: 100 }),
+    bundle('acc-2', '13F-HR/A', addRows, { tableEntryTotal: 1, tableValueTotal: 1106550356, amendmentType: 'NEW HOLDINGS' })
+  ]);
+  if (composed.rows.length !== 2 || composed.cover.tableValueTotal !== 1106550456 || composed.cover.tableEntryTotal !== 2) fail('13F composition policy must append NEW HOLDINGS rows and sum the covers');
+  if (composed.rowProvenance[1].role !== 'NEW_HOLDINGS_ADD' || composed.rowProvenance[1].accession !== 'acc-2') fail('13F composition policy must tag each composed row with its filing role');
+  const restated = composePolicy.composeAmendmentChain([
+    bundle('acc-1', '13F-HR', originalRows, { tableEntryTotal: 1, tableValueTotal: 100 }),
+    bundle('acc-2', '13F-HR/A', addRows, { tableEntryTotal: 1, tableValueTotal: 1106550356, amendmentType: 'NEW HOLDINGS' }),
+    bundle('acc-3', '13F-HR/A', [{ cusip: '999999999', value: 5, shares: 5 }], { tableEntryTotal: 1, tableValueTotal: 5, amendmentType: 'RESTATEMENT' })
+  ]);
+  if (restated.rows.length !== 1 || restated.rowProvenance[0].role !== 'RESTATEMENT') fail('13F composition policy must replace entirely on a RESTATEMENT');
+  let unclassifiedFailed = false;
+  try {
+    composePolicy.composeAmendmentChain([
+      bundle('acc-1', '13F-HR', originalRows, { tableEntryTotal: 1, tableValueTotal: 100 }),
+      bundle('acc-4', '13F-HR/A', [{ cusip: 'x', value: 1, shares: 1 }], { tableEntryTotal: 1 })
+    ]);
+  } catch { unclassifiedFailed = true; }
+  if (!unclassifiedFailed) fail('13F composition policy must fail closed on an unclassified amendment');
+}
 const mastersGate = read('scripts/ci-masters-contract-check.mjs');
 if (!/filing-discovery\.json/.test(mastersGate)) fail('masters gate does not consume filing discovery');
 const tickerIndexBuilder = read('scripts/build-13f-reference-ticker-index.mjs');

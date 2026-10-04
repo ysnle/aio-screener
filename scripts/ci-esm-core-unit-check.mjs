@@ -3490,6 +3490,30 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (summarizeValidation([], null).available) fail('P1419 no history must not read as a result');
 }
 
+// ── P1449: stored validation rows must prove they were produced by the live model ───────────
+{
+  const { summarizeValidation } = await load('src/ui/components/screener-validation.js');
+  const { buildScreenerModelFingerprint, renormalizedWeightsOver } = await load('src/domain/screener/model-fingerprint.js');
+  const { MODEL_DEFAULT_WEIGHTS } = await load('src/domain/screener/factor-weights.js');
+  // The canonical renormalization over the backtest's computable factors is pinned so a second
+  // weights vector cannot drift in silently (the 37.0/27.4/21.9/13.7 vs 39.0/28.0/22.0/11.0 split).
+  const renormed = renormalizedWeightsOver(MODEL_DEFAULT_WEIGHTS);
+  if (JSON.stringify(renormed) !== JSON.stringify({ momentum: 0.3699, trend: 0.274, lowvol: 0.2192, kalman: 0.137 })) {
+    fail(`P1449 the model-default renormalization shifted: ${JSON.stringify(renormed)}`);
+  }
+  const live = buildScreenerModelFingerprint();
+  const matchRow = { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 }, modelFingerprint: live };
+  if (summarizeValidation([matchRow], { status: 'BLOCKED' }).modelMatch !== true) fail('P1449 a same-fingerprint record must read as the live ranking validation');
+  const stale = summarizeValidation([matchRow], { status: 'BLOCKED' });
+  if (!/같은 순위를|앞섰습니다/.test(stale.verdict)) fail('P1449 a matched record keeps the performance claim');
+  const mismatchRow = { ...matchRow, modelFingerprint: buildScreenerModelFingerprint({ weights: { momentum: 0.39, trend: 0.28, lowvol: 0.22, kalman: 0.11 } }) };
+  const mismatch = summarizeValidation([mismatchRow], { status: 'BLOCKED' });
+  if (mismatch.modelMatch !== false || !/다른 이전 모델|모델 지문/.test(mismatch.verdict)) fail(`P1449 a mismatching fingerprint must read as a different-model disclosure: ${JSON.stringify(mismatch)}`);
+  const legacyRow = { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 } };
+  const legacy = summarizeValidation([legacyRow], { status: 'BLOCKED' });
+  if (legacy.modelMatch !== false || !/다른 이전 모델|모델 지문/.test(legacy.verdict)) fail('P1449 a pre-fingerprint record must read as a different-model disclosure');
+}
+
 // ── P1397: chart analysis — VCP run, pivot, state (no grade) ─────────────────────────────────
 {
   const { analyzeChart, detectContractions } = await load('src/domain/technical/chart-analysis.js');
@@ -3519,7 +3543,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   }
   if (finiteFact(-10) !== -10 || finiteFact('0') !== 0) fail('SEC valid loss or zero rejected');
   if (sameFiscalPeriod({end:'2025-12-31',start:'2025-01-01'}, {end:'2025-12-31',start:'2025-10-01'})) fail('SEC annual/quarterly period joined');
-  const { selectSecFundamentalsAsOf, deriveSecReport } = await load('src/domain/fundamental/sec-report.js');
+  const { selectSecFundamentalsAsOf, deriveSecReport, reconcileSecEquity } = await load('src/domain/fundamental/sec-report.js');
   const fact = (value, periodEnd) => ({value, periodEnd, filedAt:'2026-02-01'});
   const record = {pit:{observations:{revenue:[fact(100,'2025-12-31'),fact(50,'2023-12-31')],netIncome:[fact(10,'2024-12-31')],equity:[fact(40,'2024-12-31')]}}};
   const result = selectSecFundamentalsAsOf(record,'2026-03-01');
@@ -3533,6 +3557,13 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const agEquity = agReport.metrics.find((row) => row.key === 'equity')?.value;
   if (agEquity !== 6741e6 || agReport.metrics.find((row) => row.key === 'roe')?.value !== 19.3) fail(`P1402 parent equity must replace a conflicting NCI-inclusive tag: ${agEquity}`);
   if (selectSecFundamentalsAsOf(agilent, '2026-01-01').equity !== 6741e6) fail('P1402 point-in-time equity must prefer the parent concept');
+  // P1449: the shipped projection strips PIT observations, so the reconcile must have run on
+  // the builder side; reconcile must be idempotent and must survive an observations-less shape.
+  const shippedShape = { ...agilent, equity: 6741e6, equityConcept: 'StockholdersEquity', pit: { status: 'present', observationCount: 2, acceptedTimeCount: 2 } };
+  const shippedReport = deriveSecReport(shippedShape);
+  if (shippedReport.metrics.find((row) => row.key === 'equity')?.value !== 6741e6) fail('P1449 a reconciled record stripped of PIT observations must keep the parent equity');
+  if (JSON.stringify(reconcileSecEquity(shippedShape)) !== JSON.stringify(shippedShape)) fail('P1449 reconcile must be a no-op on an already-reconciled records-shape');
+  if (reconcileSecEquity(agilent) === agilent) fail('P1449 reconcile must repair the pre-fix shipped record');
 }
 {
   const { createLearningState } = await load('src/domain/knowledge/learning-state.js');

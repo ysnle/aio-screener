@@ -1,5 +1,7 @@
 // P1431: the two connective pieces every analysis page uses — a section lead (what this section
 // adds to the page's conclusion) and "이어서 볼 곳" (where the same reading continues, and why).
+import { setResearchHandoff } from '../../app/research-handoff.js';
+
 export function sectionLead(doc, text) {
   const node = doc.createElement('p');
   node.className = 'flow-lead';
@@ -18,6 +20,7 @@ export function renderNextSteps(doc, host, items = []) {
   head.textContent = '이어서 볼 곳';
   const list = doc.createElement('ul');
   list.className = 'flow-next-list';
+  const root = doc?.defaultView || globalThis;
   for (const item of items) {
     const li = doc.createElement('li');
     const button = doc.createElement('button');
@@ -26,6 +29,14 @@ export function renderNextSteps(doc, host, items = []) {
     button.dataset.action = item.action || 'showPage';
     button.dataset.arg = item.arg || item.route;
     button.textContent = `${item.label} →`;
+    // P1449: a link that names its own 조사 맥락 (종목·검색어·질문) carries it as a typed
+    // handoff the destination route consumes once — not as the previous screen's leftovers.
+    if (item.ctx && item.route) {
+      button.dataset.hasCtx = '1';
+      button.addEventListener('click', () => {
+        setResearchHandoff({ root, routeId: item.route, context: item.ctx, label: item.label });
+      });
+    }
     const why = doc.createElement('span');
     why.className = 'flow-next-why';
     why.textContent = item.why || '';

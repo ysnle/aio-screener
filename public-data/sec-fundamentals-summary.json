@@ -2,7 +2,7 @@
   "schemaVersion": "sec-fundamentals-runtime-summary.v1",
   "sourceSchemaVersion": "2.0",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
-  "projectionPolicy": "Latest normalized annual facts plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path.",
+  "projectionPolicy": "Latest normalized annual facts reconciled for parent-company equity (P1402/P1449) plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path.",
   "generatedAt": "2026-10-04T06:18:01.821Z",
   "source": "SEC EDGAR companyfacts",
   "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
@@ -80,7 +80,7 @@
       "accession": "0001090872-25-000087",
       "revenue": 6948000000,
       "netIncome": 1303000000,
-      "equity": -226000000,
+      "equity": 6741000000,
       "sharesOutstanding": 283498871,
       "sharesObservedAt": "2025-12-10",
       "coverage": [
@@ -89,7 +89,8 @@
         "equity",
         "sharesOutstanding",
         "revGrowth",
-        "margin"
+        "margin",
+        "roe"
       ],
       "pit": {
         "schemaVersion": "sec-pit-facts.v1",
@@ -98,7 +99,13 @@
         "acceptedTimeCount": 110
       },
       "revGrowth": 6.7,
-      "margin": 18.8
+      "margin": 18.8,
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": -226000000,
+        "parent": 6741000000
+      },
+      "roe": 19.3
     },
     "AA": {
       "symbol": "AA",
@@ -274,7 +281,7 @@
       "accession": "0001551152-26-000008",
       "revenue": 61160000000,
       "netIncome": 4226000000,
-      "equity": -3228000000,
+      "equity": -3270000000,
       "sharesOutstanding": 1768169012,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -292,7 +299,8 @@
         "acceptedTimeCount": 116
       },
       "revGrowth": 8.6,
-      "margin": 6.9
+      "margin": 6.9,
+      "equityConcept": "StockholdersEquity"
     },
     "ABNB": {
       "symbol": "ABNB",
@@ -369,7 +377,7 @@
       "accession": "0001628280-26-010185",
       "revenue": 44328000000,
       "netIncome": 6524000000,
-      "equity": 52771000000,
+      "equity": 52130000000,
       "sharesOutstanding": 1737682887,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -389,7 +397,8 @@
       },
       "revGrowth": 5.7,
       "margin": 14.7,
-      "roe": 12.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 12.5
     },
     "ACGL": {
       "symbol": "ACGL",
@@ -467,7 +476,7 @@
       "accession": "0001467373-25-000217",
       "revenue": 69672977000,
       "netIncome": 7678433000,
-      "equity": 32240967000,
+      "equity": 31195446000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -486,7 +495,8 @@
       },
       "revGrowth": 7.4,
       "margin": 11,
-      "roe": 23.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 24.6
     },
     "ADBE": {
       "symbol": "ADBE",
@@ -858,7 +868,7 @@
       "accession": "0000004904-26-000013",
       "revenue": 21702000000,
       "netIncome": 3696000000,
-      "equity": 32218000000,
+      "equity": 31138000000,
       "sharesOutstanding": 540861473,
       "sharesObservedAt": "2025-12-31",
       "coverage": [
@@ -878,7 +888,8 @@
       },
       "revGrowth": 8.7,
       "margin": 17,
-      "roe": 11.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.9
     },
     "AES": {
       "symbol": "AES",
@@ -907,7 +918,7 @@
       "accession": "0000874761-26-000063",
       "revenue": 12233000000,
       "netIncome": 910000000,
-      "equity": 9105000000,
+      "equity": 4063000000,
       "sharesOutstanding": 712558860,
       "sharesObservedAt": "2026-02-24",
       "coverage": [
@@ -927,7 +938,12 @@
       },
       "revGrowth": -0.4,
       "margin": 7.4,
-      "roe": 10
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 9105000000,
+        "parent": 4063000000
+      },
+      "roe": 22.4
     },
     "AFL": {
       "symbol": "AFL",
@@ -1101,7 +1117,7 @@
       "accession": "0000005272-26-000023",
       "revenue": 26775000000,
       "netIncome": 3096000000,
-      "equity": 41162000000,
+      "equity": 41139000000,
       "sharesOutstanding": 536559663,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -1121,6 +1137,7 @@
       },
       "revGrowth": -1.7,
       "margin": 11.6,
+      "equityConcept": "StockholdersEquity",
       "roe": 7.5
     },
     "AIZ": {
@@ -1199,7 +1216,7 @@
       "accession": "0001628280-26-008662",
       "revenue": 13942000000,
       "netIncome": 1494000000,
-      "equity": 23347000000,
+      "equity": 23321000000,
       "sharesOutstanding": 257100000,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -1219,6 +1236,7 @@
       },
       "revGrowth": 20.7,
       "margin": 10.7,
+      "equityConcept": "StockholdersEquity",
       "roe": 6.4
     },
     "AKAM": {
@@ -1248,7 +1266,7 @@
       "accession": "0001086222-18-000052",
       "revenue": 2502996000,
       "netIncome": 222766000,
-      "equity": 3362469000,
+      "equity": 3310723000,
       "sharesOutstanding": 144888114,
       "sharesObservedAt": "2026-02-16",
       "coverage": [
@@ -1268,7 +1286,8 @@
       },
       "revGrowth": 7,
       "margin": 8.9,
-      "roe": 6.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 6.7
     },
     "ALAB": {
       "symbol": "ALAB",
@@ -1346,7 +1365,7 @@
       "accession": "0000915913-26-000018",
       "revenue": 5142733000,
       "netIncome": -510628000,
-      "equity": 9781461000,
+      "equity": 9533365000,
       "sharesOutstanding": 117847220,
       "sharesObservedAt": "2026-02-04",
       "coverage": [
@@ -1366,7 +1385,8 @@
       },
       "revGrowth": -4.4,
       "margin": -9.9,
-      "roe": -5.2
+      "equityConcept": "StockholdersEquity",
+      "roe": -5.4
     },
     "ALGN": {
       "symbol": "ALGN",
@@ -1444,7 +1464,7 @@
       "accession": "0000899051-26-000031",
       "revenue": 67685000000,
       "netIncome": 10282000000,
-      "equity": 30589000000,
+      "equity": 30610000000,
       "sharesOutstanding": 259535842,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -1464,6 +1484,7 @@
       },
       "revGrowth": 5.6,
       "margin": 15.2,
+      "equityConcept": "StockholdersEquity",
       "roe": 33.6
     },
     "ALLE": {
@@ -1934,7 +1955,7 @@
       "accession": "0001047127-26-000014",
       "revenue": 6707981000,
       "netIncome": 373895000,
-      "equity": 4506287000,
+      "equity": 4471106000,
       "sharesOutstanding": 247309063,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -1954,7 +1975,8 @@
       },
       "revGrowth": 6.2,
       "margin": 5.6,
-      "roe": 8.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 8.4
     },
     "AMT": {
       "symbol": "AMT",
@@ -2008,7 +2030,7 @@
       "accession": "0001053507-26-000035",
       "revenue": 935900000,
       "netIncome": 2628500000,
-      "equity": 10355300000,
+      "equity": 3652500000,
       "sharesOutstanding": 466084820,
       "sharesObservedAt": "2026-02-17",
       "coverage": [
@@ -2028,7 +2050,12 @@
       },
       "revGrowth": 20.8,
       "margin": 280.9,
-      "roe": 25.4
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 10355300000,
+        "parent": 3652500000
+      },
+      "roe": 72
     },
     "AMZN": {
       "symbol": "AMZN",
@@ -2230,7 +2257,7 @@
       "accession": "0001628280-26-008116",
       "revenue": 17181000000,
       "netIncome": 3695000000,
-      "equity": 9459000000,
+      "equity": 9352000000,
       "sharesOutstanding": 214254496,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -2250,7 +2277,8 @@
       },
       "revGrowth": 9.4,
       "margin": 21.5,
-      "roe": 39.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 39.5
     },
     "APD": {
       "symbol": "APD",
@@ -2304,7 +2332,7 @@
       "accession": "0000002969-25-000055",
       "revenue": 12037300000,
       "netIncome": -394500000,
-      "equity": 17349800000,
+      "equity": 15024900000,
       "sharesOutstanding": 222590241,
       "sharesObservedAt": "2025-10-31",
       "coverage": [
@@ -2324,7 +2352,8 @@
       },
       "revGrowth": -0.5,
       "margin": -3.3,
-      "roe": -2.3
+      "equityConcept": "StockholdersEquity",
+      "roe": -2.6
     },
     "APH": {
       "symbol": "APH",
@@ -2378,7 +2407,7 @@
       "accession": "0001104659-26-013549",
       "revenue": 23094700000,
       "netIncome": 4270300000,
-      "equity": 13500400000,
+      "equity": 13413100000,
       "sharesOutstanding": 1229214930,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -2398,7 +2427,8 @@
       },
       "revGrowth": 51.7,
       "margin": 18.5,
-      "roe": 31.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 31.8
     },
     "APO": {
       "symbol": "APO",
@@ -2452,7 +2482,7 @@
       "accession": "0001858681-26-000013",
       "revenue": 32049000000,
       "netIncome": 3492000000,
-      "equity": 42515000000,
+      "equity": 23341000000,
       "sharesOutstanding": 578247338,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -2472,7 +2502,12 @@
       },
       "revGrowth": 22.7,
       "margin": 10.9,
-      "roe": 8.2
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 42515000000,
+        "parent": 23341000000
+      },
+      "roe": 15
     },
     "APP": {
       "symbol": "APP",
@@ -2599,7 +2634,7 @@
       "accession": "0001521332-26-000009",
       "revenue": 20398000000,
       "netIncome": 165000000,
-      "equity": 9397000000,
+      "equity": 9207000000,
       "sharesOutstanding": 212748401,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -2619,6 +2654,7 @@
       },
       "revGrowth": 3.5,
       "margin": 0.8,
+      "equityConcept": "StockholdersEquity",
       "roe": 1.8
     },
     "ARES": {
@@ -2673,7 +2709,7 @@
       "accession": "0001628280-26-011413",
       "revenue": 5601482000,
       "netIncome": 527362000,
-      "equity": 8676092000,
+      "equity": 4275463000,
       "sharesOutstanding": 82758558,
       "sharesObservedAt": "2018-02-15",
       "coverage": [
@@ -2693,7 +2729,12 @@
       },
       "revGrowth": 44.2,
       "margin": 9.4,
-      "roe": 6.1
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 8676092000,
+        "parent": 4275463000
+      },
+      "roe": 12.3
     },
     "ARM": {
       "symbol": "ARM",
@@ -2930,13 +2971,14 @@
       "accession": "0000915912-26-000004",
       "revenue": 7042000,
       "netIncome": 1056599000,
-      "equity": 11834317000,
+      "equity": 11611340000,
       "sharesOutstanding": 140083473,
       "coverage": [
         "revenue",
         "netIncome",
         "revGrowth",
         "margin",
+        "equity",
         "roe"
       ],
       "pit": {
@@ -2947,7 +2989,8 @@
       },
       "revGrowth": -0.6,
       "margin": 15004.2,
-      "roe": 8.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 9.1
     },
     "AVGO": {
       "symbol": "AVGO",
@@ -3369,7 +3412,7 @@
       "accession": "0001628280-26-004357",
       "revenue": 89463000000,
       "netIncome": 2235000000,
-      "equity": 5457000000,
+      "equity": 5454000000,
       "sharesOutstanding": 785347096,
       "sharesObservedAt": "2026-01-23",
       "coverage": [
@@ -3389,6 +3432,7 @@
       },
       "revGrowth": 34.5,
       "margin": 2.5,
+      "equityConcept": "StockholdersEquity",
       "roe": 41
     },
     "BABA": {
@@ -3443,7 +3487,7 @@
       "accession": "0001193125-26-231755",
       "revenue": 148401000000,
       "netIncome": 15018000000,
-      "equity": 162138000000,
+      "equity": 153796000000,
       "sharesOutstanding": 1858037427,
       "sharesObservedAt": "2026-03-31",
       "coverage": [
@@ -3463,7 +3507,8 @@
       },
       "revGrowth": 8.1,
       "margin": 10.1,
-      "roe": 9.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 9.8
     },
     "BAC": {
       "symbol": "BAC",
@@ -3664,7 +3709,7 @@
       "accession": "0001628280-26-007733",
       "revenue": 11244000000,
       "netIncome": -957000000,
-      "equity": 6102000000,
+      "equity": 6129000000,
       "sharesOutstanding": 514490045,
       "sharesObservedAt": "2026-02-05",
       "coverage": [
@@ -3684,7 +3729,8 @@
       },
       "revGrowth": 5.7,
       "margin": -8.5,
-      "roe": -15.7
+      "equityConcept": "StockholdersEquity",
+      "roe": -15.6
     },
     "BBWI": {
       "symbol": "BBWI",
@@ -3738,7 +3784,7 @@
       "accession": "0000701985-26-000008",
       "revenue": 7291000000,
       "netIncome": 649000000,
-      "equity": -1279000000,
+      "equity": -1281000000,
       "sharesOutstanding": 201134265,
       "sharesObservedAt": "2026-03-06",
       "coverage": [
@@ -3756,7 +3802,8 @@
         "acceptedTimeCount": 131
       },
       "revGrowth": -0.2,
-      "margin": 8.9
+      "margin": 8.9,
+      "equityConcept": "StockholdersEquity"
     },
     "BDX": {
       "symbol": "BDX",
@@ -3884,7 +3931,7 @@
       "accession": "0001628280-26-006516",
       "revenue": 2001614000,
       "netIncome": -87140000,
-      "equity": 792963000,
+      "equity": 768641000,
       "sharesOutstanding": 280548215,
       "sharesObservedAt": "2026-02-02",
       "coverage": [
@@ -3904,7 +3951,8 @@
       },
       "revGrowth": 38.9,
       "margin": -4.4,
-      "roe": -11
+      "equityConcept": "StockholdersEquity",
+      "roe": -11.3
     },
     "BG": {
       "symbol": "BG",
@@ -3958,7 +4006,7 @@
       "accession": "0001628280-26-009842",
       "revenue": 16944000000,
       "netIncome": 816000000,
-      "equity": 17369000000,
+      "equity": 15904000000,
       "sharesOutstanding": 193509080,
       "sharesObservedAt": "2026-02-17",
       "coverage": [
@@ -3978,7 +4026,8 @@
       },
       "revGrowth": 9,
       "margin": 4.8,
-      "roe": 4.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 5.1
     },
     "BIDU": {
       "symbol": "BIDU",
@@ -4032,7 +4081,7 @@
       "accession": "0001193125-26-109289",
       "revenue": 18458000000,
       "netIncome": 799000000,
-      "equity": 39548000000,
+      "equity": 38085000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -4051,7 +4100,8 @@
       },
       "revGrowth": 1.2,
       "margin": 4.3,
-      "roe": 2
+      "equityConcept": "StockholdersEquity",
+      "roe": 2.1
     },
     "BIIB": {
       "symbol": "BIIB",
@@ -4252,7 +4302,7 @@
       "accession": "0001701605-26-000007",
       "revenue": 27733000000,
       "netIncome": 2588000000,
-      "equity": 19010000000,
+      "equity": 18834000000,
       "sharesOutstanding": 988236510,
       "sharesObservedAt": "2026-01-27",
       "coverage": [
@@ -4272,7 +4322,8 @@
       },
       "revGrowth": -0.3,
       "margin": 9.3,
-      "roe": 13.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 13.7
     },
     "BKSY": {
       "symbol": "BKSY",
@@ -4474,7 +4525,7 @@
       "accession": "0001193125-26-071966",
       "revenue": 24216000000,
       "netIncome": 5553000000,
-      "equity": 56115000000,
+      "equity": 55888000000,
       "sharesOutstanding": 155253443,
       "sharesObservedAt": "2025-01-31",
       "coverage": [
@@ -4494,6 +4545,7 @@
       },
       "revGrowth": 18.7,
       "margin": 22.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 9.9
     },
     "BMY": {
@@ -4548,7 +4600,7 @@
       "accession": "0000014272-26-000004",
       "revenue": 48194000000,
       "netIncome": 7054000000,
-      "equity": 18506000000,
+      "equity": 18473000000,
       "sharesOutstanding": 2036473705,
       "sharesObservedAt": "2026-02-04",
       "coverage": [
@@ -4568,7 +4620,8 @@
       },
       "revGrowth": -0.2,
       "margin": 14.6,
-      "roe": 38.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 38.2
     },
     "BR": {
       "symbol": "BR",
@@ -4696,7 +4749,7 @@
       "accession": "0001193125-26-083899",
       "revenue": 247244000000,
       "netIncome": 66968000000,
-      "equity": 719703000000,
+      "equity": 717419000000,
       "sharesOutstanding": 943242,
       "sharesObservedAt": "2011-02-17",
       "coverage": [
@@ -4716,6 +4769,7 @@
       },
       "revGrowth": -1,
       "margin": 27.1,
+      "equityConcept": "StockholdersEquity",
       "roe": 9.3
     },
     "BRK.B": {
@@ -4770,7 +4824,7 @@
       "accession": "0001193125-26-083899",
       "revenue": 247244000000,
       "netIncome": 66968000000,
-      "equity": 719703000000,
+      "equity": 717419000000,
       "sharesOutstanding": 943242,
       "sharesObservedAt": "2011-02-17",
       "coverage": [
@@ -4790,6 +4844,7 @@
       },
       "revGrowth": -1,
       "margin": 27.1,
+      "equityConcept": "StockholdersEquity",
       "roe": 9.3
     },
     "BRO": {
@@ -4918,7 +4973,7 @@
       "accession": "0001866581-26-000006",
       "revenue": 1638159000,
       "netIncome": 79842000,
-      "equity": 897869000,
+      "equity": 680818000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -4937,7 +4992,8 @@
       },
       "revGrowth": 27.9,
       "margin": 4.9,
-      "roe": 8.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.7
     },
     "BWA": {
       "symbol": "BWA",
@@ -4991,7 +5047,7 @@
       "accession": "0000908255-26-000011",
       "revenue": 14316000000,
       "netIncome": 277000000,
-      "equity": 5614000000,
+      "equity": 5442000000,
       "sharesOutstanding": 207048768,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -5011,7 +5067,8 @@
       },
       "revGrowth": 1.6,
       "margin": 1.9,
-      "roe": 4.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 5.1
     },
     "BX": {
       "symbol": "BX",
@@ -5065,7 +5122,7 @@
       "accession": "0001193125-26-082531",
       "revenue": 14450265000,
       "netIncome": 3019214000,
-      "equity": 20500669000,
+      "equity": 8665526000,
       "sharesOutstanding": 742180737,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -5085,7 +5142,12 @@
       },
       "revGrowth": 9.2,
       "margin": 20.9,
-      "roe": 14.7
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 20500669000,
+        "parent": 8665526000
+      },
+      "roe": 34.8
     },
     "BXP": {
       "symbol": "BXP",
@@ -5139,7 +5201,7 @@
       "accession": "0001037540-26-000006",
       "revenue": 3482279000,
       "netIncome": 276800000,
-      "equity": 7684702000,
+      "equity": 5147190000,
       "sharesOutstanding": 158629124,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -5159,7 +5221,8 @@
       },
       "revGrowth": 2.2,
       "margin": 7.9,
-      "roe": 3.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 5.4
     },
     "C": {
       "symbol": "C",
@@ -5213,7 +5276,7 @@
       "accession": "0000831001-26-000011",
       "revenue": 85225000000,
       "netIncome": 14306000000,
-      "equity": 213822000000,
+      "equity": 212291000000,
       "sharesOutstanding": 1749319009,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -5233,6 +5296,7 @@
       },
       "revGrowth": 5.6,
       "margin": 16.8,
+      "equityConcept": "StockholdersEquity",
       "roe": 6.7
     },
     "CAG": {
@@ -5361,7 +5425,7 @@
       "accession": "0000721371-26-000038",
       "revenue": 254248000000,
       "netIncome": 1714000000,
-      "equity": -2724000000,
+      "equity": -2883000000,
       "sharesOutstanding": 232575728,
       "sharesObservedAt": "2026-07-31",
       "coverage": [
@@ -5379,7 +5443,8 @@
         "acceptedTimeCount": 132
       },
       "revGrowth": 14.2,
-      "margin": 0.7
+      "margin": 0.7,
+      "equityConcept": "StockholdersEquity"
     },
     "CARR": {
       "symbol": "CARR",
@@ -5655,7 +5720,7 @@
       "accession": "0000896159-26-000005",
       "revenue": 59402000000,
       "netIncome": 10310000000,
-      "equity": 79779000000,
+      "equity": 73757000000,
       "sharesOutstanding": 390156552,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -5675,7 +5740,8 @@
       },
       "revGrowth": 6.5,
       "margin": 17.4,
-      "roe": 12.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 14
     },
     "CBOE": {
       "symbol": "CBOE",
@@ -5803,7 +5869,7 @@
       "accession": "0001138118-26-000005",
       "revenue": 39900000000,
       "netIncome": 1157000000,
-      "equity": 9193000000,
+      "equity": 8878000000,
       "sharesOutstanding": 295158554,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -5823,7 +5889,8 @@
       },
       "revGrowth": 13.4,
       "margin": 2.9,
-      "roe": 12.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 13
     },
     "CCL": {
       "symbol": "CCL",
@@ -6099,7 +6166,7 @@
       "accession": "0001306830-26-000031",
       "revenue": 9544000000,
       "netIncome": -1165000000,
-      "equity": 4472000000,
+      "equity": 4049000000,
       "sharesOutstanding": 109571972,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -6119,7 +6186,8 @@
       },
       "revGrowth": -7.1,
       "margin": -12.2,
-      "roe": -26.1
+      "equityConcept": "StockholdersEquity",
+      "roe": -28.8
     },
     "CEG": {
       "symbol": "CEG",
@@ -6173,7 +6241,7 @@
       "accession": "0001868275-26-000032",
       "revenue": 22663000000,
       "netIncome": 2319000000,
-      "equity": 14853000000,
+      "equity": 14517000000,
       "sharesOutstanding": 361990335,
       "sharesObservedAt": "2026-02-01",
       "coverage": [
@@ -6193,7 +6261,8 @@
       },
       "revGrowth": 19.5,
       "margin": 10.2,
-      "roe": 15.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 16
     },
     "CELH": {
       "symbol": "CELH",
@@ -6543,7 +6612,7 @@
       "accession": "0001091667-26-000017",
       "revenue": 54774000000,
       "netIncome": 4987000000,
-      "equity": 20519000000,
+      "equity": 16054000000,
       "sharesOutstanding": 112438828,
       "sharesObservedAt": "2015-12-31",
       "coverage": [
@@ -6563,7 +6632,8 @@
       },
       "revGrowth": -0.6,
       "margin": 9.1,
-      "roe": 24.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 31.1
     },
     "CI": {
       "symbol": "CI",
@@ -6617,7 +6687,7 @@
       "accession": "0001739940-26-000006",
       "revenue": 274900000000,
       "netIncome": 5957000000,
-      "equity": 41874000000,
+      "equity": 41713000000,
       "sharesOutstanding": 263528277,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -6637,7 +6707,8 @@
       },
       "revGrowth": 11.2,
       "margin": 2.2,
-      "roe": 14.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 14.3
     },
     "CIEN": {
       "symbol": "CIEN",
@@ -6765,7 +6836,7 @@
       "accession": "0000021665-26-000006",
       "revenue": 20382000000,
       "netIncome": 2132000000,
-      "equity": 365000000,
+      "equity": 54000000,
       "sharesOutstanding": 801548028,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -6785,7 +6856,12 @@
       },
       "revGrowth": 1.4,
       "margin": 10.5,
-      "roe": 584.1
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 365000000,
+        "parent": 54000000
+      },
+      "roe": 3948.1
     },
     "CLS": {
       "symbol": "CLS",
@@ -6987,7 +7063,7 @@
       "accession": "0000021076-25-000039",
       "revenue": 7104000000,
       "netIncome": 810000000,
-      "equity": 482000000,
+      "equity": 321000000,
       "sharesOutstanding": 122309414,
       "sharesObservedAt": "2025-07-23",
       "coverage": [
@@ -7007,7 +7083,12 @@
       },
       "revGrowth": 0.2,
       "margin": 11.4,
-      "roe": 168
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 482000000,
+        "parent": 321000000
+      },
+      "roe": 252.3
     },
     "CMCSA": {
       "symbol": "CMCSA",
@@ -7061,7 +7142,7 @@
       "accession": "0001628280-26-004994",
       "revenue": 123707000000,
       "netIncome": 19998000000,
-      "equity": 97151000000,
+      "equity": 96903000000,
       "sharesOutstanding": 2063073161,
       "sharesObservedAt": "2009-12-31",
       "coverage": [
@@ -7081,6 +7162,7 @@
       },
       "revGrowth": 0,
       "margin": 16.2,
+      "equityConcept": "StockholdersEquity",
       "roe": 20.6
     },
     "CME": {
@@ -7283,7 +7365,7 @@
       "accession": "0000811156-26-000004",
       "revenue": 8305000000,
       "netIncome": 1071000000,
-      "equity": 9711000000,
+      "equity": 9144000000,
       "sharesOutstanding": 306420901,
       "sharesObservedAt": "2026-01-16",
       "coverage": [
@@ -7303,7 +7385,8 @@
       },
       "revGrowth": 13.5,
       "margin": 12.9,
-      "roe": 11
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.7
     },
     "CNC": {
       "symbol": "CNC",
@@ -7357,7 +7440,7 @@
       "accession": "0001071739-26-000049",
       "revenue": 174581000000,
       "netIncome": -6674000000,
-      "equity": 20033000000,
+      "equity": 19953000000,
       "sharesOutstanding": 491771000,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -7377,7 +7460,8 @@
       },
       "revGrowth": 20,
       "margin": -3.8,
-      "roe": -33.3
+      "equityConcept": "StockholdersEquity",
+      "roe": -33.4
     },
     "COF": {
       "symbol": "COF",
@@ -7505,7 +7589,7 @@
       "accession": "0000820318-26-000020",
       "revenue": 7118181000,
       "netIncome": 804998000,
-      "equity": 11238200000,
+      "equity": 10903495000,
       "sharesOutstanding": 195832246,
       "sharesObservedAt": "2026-08-10",
       "coverage": [
@@ -7525,7 +7609,8 @@
       },
       "revGrowth": 22.5,
       "margin": 11.3,
-      "roe": 7.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 7.4
     },
     "COIN": {
       "symbol": "COIN",
@@ -7652,7 +7737,7 @@
       "accession": "0001628280-25-055615",
       "revenue": 4092400000,
       "netIncome": 374900000,
-      "equity": 8239100000,
+      "equity": 8238900000,
       "sharesOutstanding": 195978026,
       "sharesObservedAt": "2025-12-01",
       "coverage": [
@@ -7672,6 +7757,7 @@
       },
       "revGrowth": 5.1,
       "margin": 9.2,
+      "equityConcept": "StockholdersEquity",
       "roe": 4.6
     },
     "COP": {
@@ -7800,7 +7886,7 @@
       "accession": "0001140859-25-000131",
       "revenue": 321332819000,
       "netIncome": 1554169000,
-      "equity": 1747085000,
+      "equity": 1508019000,
       "sharesOutstanding": 193993444,
       "sharesObservedAt": "2025-10-31",
       "coverage": [
@@ -7820,7 +7906,8 @@
       },
       "revGrowth": 9.3,
       "margin": 0.5,
-      "roe": 89
+      "equityConcept": "StockholdersEquity",
+      "roe": 103.1
     },
     "CORZ": {
       "symbol": "CORZ",
@@ -8020,7 +8107,7 @@
       "accession": "0000016732-25-000112",
       "revenue": 10253000000,
       "netIncome": 602000000,
-      "equity": 3904000000,
+      "equity": 3902000000,
       "sharesOutstanding": 297992525,
       "sharesObservedAt": "2025-09-10",
       "coverage": [
@@ -8040,6 +8127,7 @@
       },
       "revGrowth": 6.4,
       "margin": 5.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 15.4
     },
     "CPNG": {
@@ -8241,7 +8329,7 @@
       "accession": "0001628280-26-007697",
       "revenue": 12967000,
       "netIncome": 384462000,
-      "equity": 4438253000,
+      "equity": 4362523000,
       "sharesOutstanding": 103408210,
       "sharesObservedAt": "2026-02-05",
       "coverage": [
@@ -8261,7 +8349,8 @@
       },
       "revGrowth": 81.7,
       "margin": 2964.9,
-      "roe": 8.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 8.8
     },
     "CRDO": {
       "symbol": "CRDO",
@@ -8389,7 +8478,7 @@
       "accession": "0001628280-26-009043",
       "revenue": 37447000000,
       "netIncome": 3753000000,
-      "equity": 25048000000,
+      "equity": 24004000000,
       "sharesOutstanding": 668250818,
       "sharesObservedAt": "2026-02-04",
       "coverage": [
@@ -8409,7 +8498,8 @@
       },
       "revGrowth": 5.3,
       "margin": 10,
-      "roe": 15
+      "equityConcept": "StockholdersEquity",
+      "roe": 15.6
     },
     "CRL": {
       "symbol": "CRL",
@@ -8463,7 +8553,7 @@
       "accession": "0001100682-26-000022",
       "revenue": 4015382000,
       "netIncome": -144338000,
-      "equity": 3169931000,
+      "equity": 3164630000,
       "sharesOutstanding": 49227800,
       "sharesObservedAt": "2026-01-24",
       "coverage": [
@@ -8483,6 +8573,7 @@
       },
       "revGrowth": -0.9,
       "margin": -3.6,
+      "equityConcept": "StockholdersEquity",
       "roe": -4.6
     },
     "CRM": {
@@ -9054,7 +9145,7 @@
       "accession": "0001755672-26-000004",
       "revenue": 17401000000,
       "netIncome": 1094000000,
-      "equity": 24386000000,
+      "equity": 24144000000,
       "sharesOutstanding": 672524000,
       "sharesObservedAt": "2026-02-05",
       "coverage": [
@@ -9074,6 +9165,7 @@
       },
       "revGrowth": 2.9,
       "margin": 6.3,
+      "equityConcept": "StockholdersEquity",
       "roe": 4.5
     },
     "CVNA": {
@@ -9128,7 +9220,7 @@
       "accession": "0001690820-26-000009",
       "revenue": 20322000000,
       "netIncome": 1407000000,
-      "equity": 4203000000,
+      "equity": 3441000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -9147,7 +9239,8 @@
       },
       "revGrowth": 48.6,
       "margin": 6.9,
-      "roe": 33.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 40.9
     },
     "CVS": {
       "symbol": "CVS",
@@ -9201,7 +9294,7 @@
       "accession": "0000064803-26-000010",
       "revenue": 402067000000,
       "netIncome": 1768000000,
-      "equity": 75382000000,
+      "equity": 75214000000,
       "sharesOutstanding": 1272211063,
       "sharesObservedAt": "2026-02-04",
       "coverage": [
@@ -9221,7 +9314,8 @@
       },
       "revGrowth": 7.8,
       "margin": 0.4,
-      "roe": 2.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 2.4
     },
     "CVX": {
       "symbol": "CVX",
@@ -9275,7 +9369,7 @@
       "accession": "0000093410-26-000078",
       "revenue": 184432000000,
       "netIncome": 12299000000,
-      "equity": 192176000000,
+      "equity": 186450000000,
       "sharesOutstanding": 1995385539,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -9295,7 +9389,8 @@
       },
       "revGrowth": -4.6,
       "margin": 6.7,
-      "roe": 6.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 6.6
     },
     "CZR": {
       "symbol": "CZR",
@@ -9349,7 +9444,7 @@
       "accession": "0001590895-26-000011",
       "revenue": 11486000000,
       "netIncome": -502000000,
-      "equity": 3686000000,
+      "equity": 3504000000,
       "sharesOutstanding": 203521021,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -9369,7 +9464,8 @@
       },
       "revGrowth": 2.1,
       "margin": -4.4,
-      "roe": -13.6
+      "equityConcept": "StockholdersEquity",
+      "roe": -14.3
     },
     "D": {
       "symbol": "D",
@@ -9423,7 +9519,7 @@
       "accession": "0001193125-26-063120",
       "revenue": 16523000000,
       "netIncome": 2998000000,
-      "equity": 33417000000,
+      "equity": 29083000000,
       "sharesOutstanding": 878785631,
       "sharesObservedAt": "2026-02-16",
       "coverage": [
@@ -9443,7 +9539,8 @@
       },
       "revGrowth": 16.5,
       "margin": 18.1,
-      "roe": 9
+      "equityConcept": "StockholdersEquity",
+      "roe": 10.3
     },
     "DAL": {
       "symbol": "DAL",
@@ -9644,7 +9741,7 @@
       "accession": "0001666700-26-000013",
       "revenue": 6849000000,
       "netIncome": -779000000,
-      "equity": 14103000000,
+      "equity": 13919000000,
       "sharesOutstanding": 408923857,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -9664,7 +9761,8 @@
       },
       "revGrowth": 1.9,
       "margin": -11.4,
-      "roe": -5.5
+      "equityConcept": "StockholdersEquity",
+      "roe": -5.6
     },
     "DDOG": {
       "symbol": "DDOG",
@@ -9791,7 +9889,7 @@
       "accession": "0001104659-25-122321",
       "revenue": 45684000000,
       "netIncome": 5027000000,
-      "equity": 25956000000,
+      "equity": 25950000000,
       "sharesOutstanding": 270445437,
       "sharesObservedAt": "2025-11-28",
       "coverage": [
@@ -9811,6 +9909,7 @@
       },
       "revGrowth": -11.7,
       "margin": 11,
+      "equityConcept": "StockholdersEquity",
       "roe": 19.4
     },
     "DECK": {
@@ -10084,7 +10183,7 @@
       "accession": "0001022079-26-000015",
       "revenue": 11035000000,
       "netIncome": 992000000,
-      "equity": 7206000000,
+      "equity": 7170000000,
       "sharesOutstanding": 109866320,
       "sharesObservedAt": "2026-02-02",
       "coverage": [
@@ -10104,6 +10203,7 @@
       },
       "revGrowth": 11.8,
       "margin": 9,
+      "equityConcept": "StockholdersEquity",
       "roe": 13.8
     },
     "DHI": {
@@ -10158,7 +10258,7 @@
       "accession": "0000882184-25-000081",
       "revenue": 34250400000,
       "netIncome": 3585200000,
-      "equity": 24742200000,
+      "equity": 24190400000,
       "sharesOutstanding": 292060538,
       "sharesObservedAt": "2025-11-13",
       "coverage": [
@@ -10178,7 +10278,8 @@
       },
       "revGrowth": -6.9,
       "margin": 10.5,
-      "roe": 14.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 14.8
     },
     "DHR": {
       "symbol": "DHR",
@@ -10232,7 +10333,7 @@
       "accession": "0000313616-26-000062",
       "revenue": 24568000000,
       "netIncome": 3614000000,
-      "equity": 52541000000,
+      "equity": 52534000000,
       "sharesOutstanding": 707139356,
       "sharesObservedAt": "2026-02-02",
       "coverage": [
@@ -10252,6 +10353,7 @@
       },
       "revGrowth": 2.9,
       "margin": 14.7,
+      "equityConcept": "StockholdersEquity",
       "roe": 6.9
     },
     "DIS": {
@@ -10306,7 +10408,7 @@
       "accession": "0001744489-25-000155",
       "revenue": 94425000000,
       "netIncome": 12404000000,
-      "equity": 114612000000,
+      "equity": 109869000000,
       "sharesOutstanding": 1785288846,
       "sharesObservedAt": "2025-11-05",
       "coverage": [
@@ -10326,7 +10428,8 @@
       },
       "revGrowth": 3.4,
       "margin": 13.1,
-      "roe": 10.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.3
     },
     "DLR": {
       "symbol": "DLR",
@@ -10380,7 +10483,7 @@
       "accession": "0001104659-26-015365",
       "revenue": 6112692000,
       "netIncome": 1308589000,
-      "equity": 23346999000,
+      "equity": 22925663000,
       "sharesOutstanding": 343615444,
       "sharesObservedAt": "2026-02-09",
       "coverage": [
@@ -10400,7 +10503,8 @@
       },
       "revGrowth": 10,
       "margin": 21.4,
-      "roe": 5.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 5.7
     },
     "DLTR": {
       "symbol": "DLTR",
@@ -10820,7 +10924,7 @@
       "accession": "0000927066-26-000012",
       "revenue": 13643069000,
       "netIncome": 746803000,
-      "equity": -373728000,
+      "equity": -651082000,
       "sharesOutstanding": 66800000,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -10838,7 +10942,8 @@
         "acceptedTimeCount": 115
       },
       "revGrowth": 6.5,
-      "margin": 5.5
+      "margin": 5.5,
+      "equityConcept": "StockholdersEquity"
     },
     "DVN": {
       "symbol": "DVN",
@@ -11089,7 +11194,7 @@
       "accession": "0001104659-26-018357",
       "revenue": 16081200000,
       "netIncome": 2075600000,
-      "equity": 9804500000,
+      "equity": 9770800000,
       "sharesOutstanding": 281969448,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -11109,6 +11214,7 @@
       },
       "revGrowth": 2.2,
       "margin": 12.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 21.2
     },
     "ED": {
@@ -11187,7 +11293,7 @@
       "accession": "0000033185-26-000010",
       "revenue": 6074500000,
       "netIncome": 660300000,
-      "equity": 4623800000,
+      "equity": 4604300000,
       "sharesOutstanding": 120269998,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -11207,6 +11313,7 @@
       },
       "revGrowth": 6.9,
       "margin": 10.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 14.3
     },
     "EG": {
@@ -11285,7 +11392,7 @@
       "accession": "0000827052-26-000012",
       "revenue": 19317000000,
       "netIncome": 4459000000,
-      "equity": 19259000000,
+      "equity": 17579000000,
       "sharesOutstanding": 384790927,
       "sharesObservedAt": "2026-02-11",
       "coverage": [
@@ -11305,7 +11412,8 @@
       },
       "revGrowth": 9.8,
       "margin": 23.1,
-      "roe": 23.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 25.4
     },
     "ELV": {
       "symbol": "ELV",
@@ -11334,7 +11442,7 @@
       "accession": "0001156039-26-000013",
       "revenue": 199125000000,
       "netIncome": 5662000000,
-      "equity": 44026000000,
+      "equity": 43882000000,
       "sharesOutstanding": 220704667,
       "sharesObservedAt": "2026-02-01",
       "coverage": [
@@ -11354,6 +11462,7 @@
       },
       "revGrowth": 12.5,
       "margin": 2.8,
+      "equityConcept": "StockholdersEquity",
       "roe": 12.9
     },
     "EMN": {
@@ -11383,7 +11492,7 @@
       "accession": "0000915389-26-000013",
       "revenue": 8752000000,
       "netIncome": 474000000,
-      "equity": 6037000000,
+      "equity": 5961000000,
       "sharesOutstanding": 114097314,
       "sharesObservedAt": "2025-12-31",
       "coverage": [
@@ -11403,7 +11512,8 @@
       },
       "revGrowth": -6.7,
       "margin": 5.4,
-      "roe": 7.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 8
     },
     "EMR": {
       "symbol": "EMR",
@@ -11432,7 +11542,7 @@
       "accession": "0000032604-25-000087",
       "revenue": 18016000000,
       "netIncome": 2293000000,
-      "equity": 20298000000,
+      "equity": 20282000000,
       "sharesOutstanding": 561800000,
       "sharesObservedAt": "2025-10-31",
       "coverage": [
@@ -11452,6 +11562,7 @@
       },
       "revGrowth": 3,
       "margin": 12.7,
+      "equityConcept": "StockholdersEquity",
       "roe": 11.3
     },
     "ENPH": {
@@ -11579,7 +11690,7 @@
       "accession": "0001352010-26-000015",
       "revenue": 5457056000,
       "netIncome": 377678000,
-      "equity": 3677808000,
+      "equity": 3677226000,
       "sharesOutstanding": 54139969,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -11599,6 +11710,7 @@
       },
       "revGrowth": 15.4,
       "margin": 6.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 10.3
     },
     "EPD": {
@@ -11674,7 +11786,7 @@
       "accession": "0001101239-26-000032",
       "revenue": 9217000000,
       "netIncome": 1350000000,
-      "equity": 14153000000,
+      "equity": 14156000000,
       "sharesOutstanding": 98254928,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -11694,6 +11806,7 @@
       },
       "revGrowth": 5.4,
       "margin": 14.6,
+      "equityConcept": "StockholdersEquity",
       "roe": 9.5
     },
     "EQT": {
@@ -11723,7 +11836,7 @@
       "accession": "0000033213-26-000018",
       "revenue": 8644211000,
       "netIncome": 2039247000,
-      "equity": 27360148000,
+      "equity": 23752677000,
       "sharesOutstanding": 624274000,
       "sharesObservedAt": "2026-02-11",
       "coverage": [
@@ -11743,7 +11856,8 @@
       },
       "revGrowth": 63.9,
       "margin": 23.6,
-      "roe": 7.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 8.6
     },
     "ES": {
       "symbol": "ES",
@@ -11821,7 +11935,7 @@
       "accession": "0000920522-26-000003",
       "revenue": 9381000,
       "netIncome": 702773000,
-      "equity": 5708632000,
+      "equity": 5541372000,
       "sharesOutstanding": 64475506,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -11841,7 +11955,8 @@
       },
       "revGrowth": -8.6,
       "margin": 7491.5,
-      "roe": 12.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 12.7
     },
     "ESTC": {
       "symbol": "ESTC",
@@ -11968,7 +12083,7 @@
       "accession": "0001551182-26-000007",
       "revenue": 27448000000,
       "netIncome": 4087000000,
-      "equity": 19469000000,
+      "equity": 19425000000,
       "sharesOutstanding": 387900000,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -11988,6 +12103,7 @@
       },
       "revGrowth": 10.3,
       "margin": 14.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 21
     },
     "ETR": {
@@ -12017,7 +12133,7 @@
       "accession": "0000065984-26-000174",
       "revenue": 12946686000,
       "netIncome": 1773328000,
-      "equity": 17014167000,
+      "equity": 16923076000,
       "sharesOutstanding": 452989837,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -12037,7 +12153,8 @@
       },
       "revGrowth": 9,
       "margin": 13.7,
-      "roe": 10.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 10.5
     },
     "ETSY": {
       "symbol": "ETSY",
@@ -12113,7 +12230,7 @@
       "accession": "0001711269-26-000017",
       "revenue": 5705100000,
       "netIncome": 855600000,
-      "equity": 10267800000,
+      "equity": 10221300000,
       "sharesOutstanding": 230281586,
       "sharesObservedAt": "2026-02-11",
       "coverage": [
@@ -12133,7 +12250,8 @@
       },
       "revGrowth": 0,
       "margin": 15,
-      "roe": 8.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 8.4
     },
     "EW": {
       "symbol": "EW",
@@ -12260,7 +12378,7 @@
       "accession": "0001193125-26-071569",
       "revenue": 11069009000,
       "netIncome": 810332000,
-      "equity": 2358093000,
+      "equity": 2355633000,
       "sharesOutstanding": 133503678,
       "sharesObservedAt": "2026-02-19",
       "coverage": [
@@ -12280,6 +12398,7 @@
       },
       "revGrowth": 4.4,
       "margin": 7.3,
+      "equityConcept": "StockholdersEquity",
       "roe": 34.4
     },
     "EXR": {
@@ -12309,7 +12428,7 @@
       "accession": "0001289490-26-000011",
       "revenue": 129476000,
       "netIncome": 973999000,
-      "equity": 14324036000,
+      "equity": 13433166000,
       "sharesOutstanding": 211137672,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -12329,7 +12448,8 @@
       },
       "revGrowth": 7.1,
       "margin": 752.3,
-      "roe": 6.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 7.3
     },
     "F": {
       "symbol": "F",
@@ -12358,7 +12478,7 @@
       "accession": "0000037996-26-000015",
       "revenue": 187267000000,
       "netIncome": -8162000000,
-      "equity": 35980000000,
+      "equity": 35952000000,
       "sharesOutstanding": 3711858859,
       "sharesObservedAt": "2011-02-14",
       "coverage": [
@@ -12378,6 +12498,7 @@
       },
       "revGrowth": 1.2,
       "margin": -4.4,
+      "equityConcept": "StockholdersEquity",
       "roe": -22.7
     },
     "FANG": {
@@ -12407,7 +12528,7 @@
       "accession": "0001539838-26-000010",
       "revenue": 15026000000,
       "netIncome": 1664000000,
-      "equity": 42967000000,
+      "equity": 36972000000,
       "sharesOutstanding": 282078989,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -12427,7 +12548,8 @@
       },
       "revGrowth": 35.8,
       "margin": 11.1,
-      "roe": 3.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 4.5
     },
     "FAST": {
       "symbol": "FAST",
@@ -12603,7 +12725,7 @@
       "accession": "0001031296-26-000046",
       "revenue": 15090000000,
       "netIncome": 1020000000,
-      "equity": 13926000000,
+      "equity": 12510000000,
       "sharesOutstanding": 577932879,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -12623,7 +12745,8 @@
       },
       "revGrowth": 12,
       "margin": 6.8,
-      "roe": 7.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 8.2
     },
     "FERG": {
       "symbol": "FERG",
@@ -12944,7 +13067,7 @@
       "accession": "0001628280-26-053960",
       "revenue": 17126000000,
       "netIncome": 1727000000,
-      "equity": 11728000000,
+      "equity": 11628000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -12963,7 +13086,8 @@
       },
       "revGrowth": 5.1,
       "margin": 10.1,
-      "roe": 14.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 14.9
     },
     "FOXA": {
       "symbol": "FOXA",
@@ -12992,7 +13116,7 @@
       "accession": "0001628280-26-053960",
       "revenue": 17126000000,
       "netIncome": 1727000000,
-      "equity": 11728000000,
+      "equity": 11628000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -13011,7 +13135,8 @@
       },
       "revGrowth": 5.1,
       "margin": 10.1,
-      "roe": 14.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 14.9
     },
     "FRT": {
       "symbol": "FRT",
@@ -13040,7 +13165,7 @@
       "accession": "0000034903-26-000017",
       "revenue": 1278975000,
       "netIncome": 411077000,
-      "equity": 3318986000,
+      "equity": 3248731000,
       "sharesOutstanding": 86276033,
       "sharesObservedAt": "2026-02-09",
       "coverage": [
@@ -13060,7 +13185,8 @@
       },
       "revGrowth": 6.4,
       "margin": 32.1,
-      "roe": 12.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 12.7
     },
     "FSLR": {
       "symbol": "FSLR",
@@ -13285,7 +13411,7 @@
       "accession": "0000040545-26-000008",
       "revenue": 45855000000,
       "netIncome": 8704000000,
-      "equity": 18898000000,
+      "equity": 18677000000,
       "sharesOutstanding": 1048813612,
       "sharesObservedAt": "2026-01-15",
       "coverage": [
@@ -13305,7 +13431,8 @@
       },
       "revGrowth": 18.5,
       "margin": 19,
-      "roe": 46.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 46.6
     },
     "GEHC": {
       "symbol": "GEHC",
@@ -13334,7 +13461,7 @@
       "accession": "0001932393-26-000007",
       "revenue": 20625000000,
       "netIncome": 2084000000,
-      "equity": 10390000000,
+      "equity": 10379000000,
       "sharesOutstanding": 455749767,
       "sharesObservedAt": "2026-01-28",
       "coverage": [
@@ -13354,6 +13481,7 @@
       },
       "revGrowth": 4.8,
       "margin": 10.1,
+      "equityConcept": "StockholdersEquity",
       "roe": 20.1
     },
     "GEN": {
@@ -13432,7 +13560,7 @@
       "accession": "0001996810-26-000015",
       "revenue": 38068000000,
       "netIncome": 4884000000,
-      "equity": 12296000000,
+      "equity": 11178000000,
       "sharesOutstanding": 269529464,
       "sharesObservedAt": "2025-12-31",
       "coverage": [
@@ -13452,7 +13580,8 @@
       },
       "revGrowth": 9,
       "margin": 12.8,
-      "roe": 39.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 43.7
     },
     "GILD": {
       "symbol": "GILD",
@@ -13481,7 +13610,7 @@
       "accession": "0000882095-26-000006",
       "revenue": 29443000000,
       "netIncome": 8510000000,
-      "equity": 22618000000,
+      "equity": 22703000000,
       "sharesOutstanding": 1241420528,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -13501,7 +13630,8 @@
       },
       "revGrowth": 2.4,
       "margin": 28.9,
-      "roe": 37.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 37.5
     },
     "GIS": {
       "symbol": "GIS",
@@ -13530,7 +13660,7 @@
       "accession": "0001628280-26-046466",
       "revenue": 18424600000,
       "netIncome": -87600000,
-      "equity": 7380600000,
+      "equity": 7368400000,
       "sharesOutstanding": 533708396,
       "sharesObservedAt": "2026-06-15",
       "coverage": [
@@ -13550,6 +13680,7 @@
       },
       "revGrowth": -5.4,
       "margin": -0.5,
+      "equityConcept": "StockholdersEquity",
       "roe": -1.2
     },
     "GL": {
@@ -13628,7 +13759,7 @@
       "accession": "0001467858-26-000013",
       "revenue": 167971000000,
       "netIncome": 2697000000,
-      "equity": 63168000000,
+      "equity": 61119000000,
       "sharesOutstanding": 903967853,
       "sharesObservedAt": "2026-01-15",
       "coverage": [
@@ -13648,7 +13779,8 @@
       },
       "revGrowth": -2.1,
       "margin": 1.6,
-      "roe": 4.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 4.4
     },
     "GME": {
       "symbol": "GME",
@@ -13726,7 +13858,7 @@
       "accession": "0001437749-26-004568",
       "revenue": 4209147000,
       "netIncome": 159554000,
-      "equity": 2638304000,
+      "equity": 2632422000,
       "sharesOutstanding": 58675827,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -13746,7 +13878,8 @@
       },
       "revGrowth": -2,
       "margin": 3.8,
-      "roe": 6
+      "equityConcept": "StockholdersEquity",
+      "roe": 6.1
     },
     "GOOG": {
       "symbol": "GOOG",
@@ -13871,7 +14004,7 @@
       "accession": "0001123360-26-000008",
       "revenue": 7705878000,
       "netIncome": 1400107000,
-      "equity": 23578478000,
+      "equity": 22888767000,
       "sharesOutstanding": 279901327,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -13891,7 +14024,8 @@
       },
       "revGrowth": -0.4,
       "margin": 18.2,
-      "roe": 5.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 6.1
     },
     "GRMN": {
       "symbol": "GRMN",
@@ -14017,7 +14151,7 @@
       "accession": "0001628280-26-018731",
       "revenue": 955224000,
       "netIncome": -55956000,
-      "equity": 1036248000,
+      "equity": 990668000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -14036,7 +14170,8 @@
       },
       "revGrowth": 25.8,
       "margin": -5.9,
-      "roe": -5.4
+      "equityConcept": "StockholdersEquity",
+      "roe": -5.6
     },
     "GWW": {
       "symbol": "GWW",
@@ -14065,7 +14200,7 @@
       "accession": "0000277135-26-000011",
       "revenue": 17942000000,
       "netIncome": 1706000000,
-      "equity": 4141000000,
+      "equity": 3736000000,
       "sharesOutstanding": 47373024,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -14085,7 +14220,8 @@
       },
       "revGrowth": 4.5,
       "margin": 9.5,
-      "roe": 41.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 45.7
     },
     "HAL": {
       "symbol": "HAL",
@@ -14163,7 +14299,7 @@
       "accession": "0001193125-26-044769",
       "revenue": 75600000000,
       "netIncome": 6784000000,
-      "equity": -2771000000,
+      "equity": -6027000000,
       "sharesOutstanding": 223622200,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -14181,7 +14317,12 @@
         "acceptedTimeCount": 104
       },
       "revGrowth": 7.1,
-      "margin": 9
+      "margin": 9,
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": -2771000000,
+        "parent": -6027000000
+      }
     },
     "HD": {
       "symbol": "HD",
@@ -14259,7 +14400,7 @@
       "accession": "0001193125-25-158722",
       "revenue": 25636300000,
       "netIncome": 7883500000,
-      "equity": 100935200000,
+      "equity": 89861800000,
       "sharesOutstanding": 7652221674,
       "sharesObservedAt": "2025-03-31",
       "coverage": [
@@ -14279,7 +14420,8 @@
       },
       "revGrowth": 15.2,
       "margin": 30.8,
-      "roe": 7.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 8.8
     },
     "HEI": {
       "symbol": "HEI",
@@ -14308,7 +14450,7 @@
       "accession": "0000046619-25-000082",
       "revenue": 4485044000,
       "netIncome": 690385000,
-      "equity": 4379175000,
+      "equity": 4305319000,
       "sharesOutstanding": 26905966,
       "sharesObservedAt": "2015-12-15",
       "coverage": [
@@ -14328,7 +14470,8 @@
       },
       "revGrowth": 16.3,
       "margin": 15.4,
-      "roe": 15.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 16
     },
     "HIG": {
       "symbol": "HIG",
@@ -14503,7 +14646,7 @@
       "accession": "0001585689-26-000007",
       "revenue": 12039000000,
       "netIncome": 1457000000,
-      "equity": -5359000000,
+      "equity": -5388000000,
       "sharesOutstanding": 229291615,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -14521,7 +14664,8 @@
         "acceptedTimeCount": 124
       },
       "revGrowth": 7.7,
-      "margin": 12.1
+      "margin": 12.1,
+      "equityConcept": "StockholdersEquity"
     },
     "HON": {
       "symbol": "HON",
@@ -14550,7 +14694,7 @@
       "accession": "0000773840-26-000013",
       "revenue": 37442000000,
       "netIncome": 4729000000,
-      "equity": 15030000000,
+      "equity": 13904000000,
       "sharesOutstanding": 635675701,
       "sharesObservedAt": "2026-01-23",
       "coverage": [
@@ -14570,7 +14714,8 @@
       },
       "revGrowth": 7.8,
       "margin": 12.6,
-      "roe": 31.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 34
     },
     "HPE": {
       "symbol": "HPE",
@@ -14599,7 +14744,7 @@
       "accession": "0001645590-25-000130",
       "revenue": 34296000000,
       "netIncome": 57000000,
-      "equity": 24754000000,
+      "equity": 24688000000,
       "sharesOutstanding": 1334533171,
       "sharesObservedAt": "2025-12-10",
       "coverage": [
@@ -14619,6 +14764,7 @@
       },
       "revGrowth": 13.8,
       "margin": 0.2,
+      "equityConcept": "StockholdersEquity",
       "roe": 0.2
     },
     "HPQ": {
@@ -14743,7 +14889,7 @@
       "accession": "0001000228-26-000013",
       "revenue": 13184000000,
       "netIncome": 398000000,
-      "equity": 3899000000,
+      "equity": 3245000000,
       "sharesOutstanding": 114704121,
       "sharesObservedAt": "2026-02-17",
       "coverage": [
@@ -14763,7 +14909,8 @@
       },
       "revGrowth": 4,
       "margin": 3,
-      "roe": 10.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 12.3
     },
     "HSY": {
       "symbol": "HSY",
@@ -14841,7 +14988,7 @@
       "accession": "0001628280-26-007500",
       "revenue": 5844600000,
       "netIncome": 887100000,
-      "equity": 3857900000,
+      "equity": 3847900000,
       "sharesOutstanding": 53161602,
       "sharesObservedAt": "2026-02-05",
       "coverage": [
@@ -14861,7 +15008,8 @@
       },
       "revGrowth": 3.8,
       "margin": 15.2,
-      "roe": 23
+      "equityConcept": "StockholdersEquity",
+      "roe": 23.1
     },
     "HUM": {
       "symbol": "HUM",
@@ -14890,7 +15038,7 @@
       "accession": "0000049071-26-000009",
       "revenue": 129664000000,
       "netIncome": 1188000000,
-      "equity": 17737000000,
+      "equity": 17657000000,
       "sharesOutstanding": 120595967,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -14910,6 +15058,7 @@
       },
       "revGrowth": 10.1,
       "margin": 0.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 6.7
     },
     "HWM": {
@@ -14988,7 +15137,7 @@
       "accession": "0000051143-26-000010",
       "revenue": 67535000000,
       "netIncome": 10593000000,
-      "equity": 32740000000,
+      "equity": 32648000000,
       "sharesOutstanding": 938034404,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -15008,6 +15157,7 @@
       },
       "revGrowth": 7.6,
       "margin": 15.7,
+      "equityConcept": "StockholdersEquity",
       "roe": 32.4
     },
     "ICE": {
@@ -15037,7 +15187,7 @@
       "accession": "0001571949-26-000004",
       "revenue": 12640000000,
       "netIncome": 3315000000,
-      "equity": 28969000000,
+      "equity": 28915000000,
       "sharesOutstanding": 567896513,
       "sharesObservedAt": "2026-02-02",
       "coverage": [
@@ -15057,7 +15207,8 @@
       },
       "revGrowth": 7.5,
       "margin": 26.2,
-      "roe": 11.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.5
     },
     "IDXX": {
       "symbol": "IDXX",
@@ -15135,7 +15286,7 @@
       "accession": "0000832101-26-000003",
       "revenue": 3457500000,
       "netIncome": 483200000,
-      "equity": 4026200000,
+      "equity": 4027500000,
       "sharesOutstanding": 74347824,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -15155,6 +15306,7 @@
       },
       "revGrowth": 5.8,
       "margin": 14,
+      "equityConcept": "StockholdersEquity",
       "roe": 12
     },
     "IFF": {
@@ -15184,7 +15336,7 @@
       "accession": "0000051253-26-000006",
       "revenue": 10890000000,
       "netIncome": -359000000,
-      "equity": 14186000000,
+      "equity": 14154000000,
       "sharesOutstanding": 255477487,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -15204,6 +15356,7 @@
       },
       "revGrowth": -5.2,
       "margin": -3.3,
+      "equityConcept": "StockholdersEquity",
       "roe": -2.5
     },
     "ILMN": {
@@ -15331,7 +15484,7 @@
       "accession": "0000050863-26-000011",
       "revenue": 52853000000,
       "netIncome": -267000000,
-      "equity": 126360000000,
+      "equity": 114281000000,
       "sharesOutstanding": 4995000000,
       "sharesObservedAt": "2026-01-16",
       "coverage": [
@@ -15351,6 +15504,7 @@
       },
       "revGrowth": -0.5,
       "margin": -0.5,
+      "equityConcept": "StockholdersEquity",
       "roe": -0.2
     },
     "INTU": {
@@ -15429,7 +15583,7 @@
       "accession": "0001193125-26-071562",
       "revenue": 130016000,
       "netIncome": -510378000,
-      "equity": 3813692000,
+      "equity": 3799517000,
       "sharesOutstanding": 366640756,
       "sharesObservedAt": "2026-02-18",
       "coverage": [
@@ -15449,6 +15603,7 @@
       },
       "revGrowth": 201.9,
       "margin": -392.6,
+      "equityConcept": "StockholdersEquity",
       "roe": -13.4
     },
     "IQV": {
@@ -15478,7 +15633,7 @@
       "accession": "0001628280-26-008322",
       "revenue": 16310000000,
       "netIncome": 1360000000,
-      "equity": 6630000000,
+      "equity": 6503000000,
       "sharesOutstanding": 169700000,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -15498,7 +15653,8 @@
       },
       "revGrowth": 5.9,
       "margin": 8.3,
-      "roe": 20.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 20.9
     },
     "IRDM": {
       "symbol": "IRDM",
@@ -15624,7 +15780,7 @@
       "accession": "0001020569-26-000013",
       "revenue": 6901737000,
       "netIncome": 152254000,
-      "equity": -709331000,
+      "equity": -981007000,
       "sharesOutstanding": 295835206,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -15642,7 +15798,8 @@
         "acceptedTimeCount": 93
       },
       "revGrowth": 12.2,
-      "margin": 2.2
+      "margin": 2.2,
+      "equityConcept": "StockholdersEquity"
     },
     "ISRG": {
       "symbol": "ISRG",
@@ -15671,7 +15828,7 @@
       "accession": "0001035267-26-000010",
       "revenue": 10064700000,
       "netIncome": 2856000000,
-      "equity": 17941700000,
+      "equity": 17824000000,
       "sharesOutstanding": 355130237,
       "sharesObservedAt": "2026-01-28",
       "coverage": [
@@ -15691,7 +15848,8 @@
       },
       "revGrowth": 20.5,
       "margin": 28.4,
-      "roe": 15.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 16
     },
     "IT": {
       "symbol": "IT",
@@ -15916,7 +16074,7 @@
       "accession": "0001628280-25-045293",
       "revenue": 29802000000,
       "netIncome": 657000000,
-      "equity": 1517000000,
+      "equity": 1513000000,
       "sharesOutstanding": 106837337,
       "sharesObservedAt": "2025-10-10",
       "coverage": [
@@ -15936,7 +16094,8 @@
       },
       "revGrowth": 3.2,
       "margin": 2.2,
-      "roe": 43.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 43.4
     },
     "JCI": {
       "symbol": "JCI",
@@ -15965,7 +16124,7 @@
       "accession": "0000833444-25-000097",
       "revenue": 23596000000,
       "netIncome": 3291000000,
-      "equity": 12954000000,
+      "equity": 12927000000,
       "sharesOutstanding": 611135655,
       "sharesObservedAt": "2025-10-31",
       "coverage": [
@@ -15985,7 +16144,8 @@
       },
       "revGrowth": 2.8,
       "margin": 13.9,
-      "roe": 25.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 25.5
     },
     "JD": {
       "symbol": "JD",
@@ -16014,7 +16174,7 @@
       "accession": "0001193125-26-157870",
       "revenue": 187197000000,
       "netIncome": 3309000000,
-      "equity": 42010000000,
+      "equity": 32180000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -16033,7 +16193,8 @@
       },
       "revGrowth": 17.9,
       "margin": 1.8,
-      "roe": 7.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 10.3
     },
     "JNJ": {
       "symbol": "JNJ",
@@ -16258,7 +16419,7 @@
       "accession": "0001193125-26-054016",
       "revenue": 3364050000,
       "netIncome": 354569000,
-      "equity": 3382793000,
+      "equity": 3380512000,
       "sharesOutstanding": 53646000,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -16278,6 +16439,7 @@
       },
       "revGrowth": 3,
       "margin": 10.5,
+      "equityConcept": "StockholdersEquity",
       "roe": 10.5
     },
     "KEY": {
@@ -16356,7 +16518,7 @@
       "accession": "0001193125-26-060760",
       "revenue": 2140116000,
       "netIncome": 584741000,
-      "equity": 10543372000,
+      "equity": 10391836000,
       "sharesOutstanding": 674066654,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -16376,7 +16538,8 @@
       },
       "revGrowth": 5.1,
       "margin": 27.3,
-      "roe": 5.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 5.6
     },
     "KKR": {
       "symbol": "KKR",
@@ -16405,7 +16568,7 @@
       "accession": "0001404912-26-000007",
       "revenue": 19464307000,
       "netIncome": 2370463000,
-      "equity": 78921669000,
+      "equity": 30902561000,
       "sharesOutstanding": 891550894,
       "sharesObservedAt": "2026-02-24",
       "coverage": [
@@ -16425,7 +16588,12 @@
       },
       "revGrowth": -11,
       "margin": 12.2,
-      "roe": 3
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 78921669000,
+        "parent": 30902561000
+      },
+      "roe": 7.7
     },
     "KLAC": {
       "symbol": "KLAC",
@@ -16503,7 +16671,7 @@
       "accession": "0001506307-26-000011",
       "revenue": 15202000000,
       "netIncome": 3056000000,
-      "equity": 32449000000,
+      "equity": 31162000000,
       "sharesOutstanding": 2224806397,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -16523,7 +16691,8 @@
       },
       "revGrowth": 12.7,
       "margin": 20.1,
-      "roe": 9.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 9.8
     },
     "KO": {
       "symbol": "KO",
@@ -16552,7 +16721,7 @@
       "accession": "0001628280-26-010047",
       "revenue": 47941000000,
       "netIncome": 13107000000,
-      "equity": 34275000000,
+      "equity": 32169000000,
       "sharesOutstanding": 4300723069,
       "sharesObservedAt": "2026-02-18",
       "coverage": [
@@ -16572,7 +16741,8 @@
       },
       "revGrowth": 1.9,
       "margin": 27.3,
-      "roe": 38.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 40.7
     },
     "KR": {
       "symbol": "KR",
@@ -16601,7 +16771,7 @@
       "accession": "0001104659-26-037723",
       "revenue": 147642000000,
       "netIncome": 1016000000,
-      "equity": 5936000000,
+      "equity": 5927000000,
       "sharesOutstanding": 612575611,
       "sharesObservedAt": "2026-03-25",
       "coverage": [
@@ -16621,6 +16791,7 @@
       },
       "revGrowth": 0.4,
       "margin": 0.7,
+      "equityConcept": "StockholdersEquity",
       "roe": 17.1
     },
     "KRMN": {
@@ -16845,7 +17016,7 @@
       "accession": "0001336920-26-000030",
       "revenue": 17107000000,
       "netIncome": 1448000000,
-      "equity": 4962000000,
+      "equity": 4916000000,
       "sharesOutstanding": 126392684,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -16865,7 +17036,8 @@
       },
       "revGrowth": 3.2,
       "margin": 8.5,
-      "roe": 29.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 29.5
     },
     "LHX": {
       "symbol": "LHX",
@@ -16894,7 +17066,7 @@
       "accession": "0000202058-26-000015",
       "revenue": 21325000000,
       "netIncome": 1502000000,
-      "equity": 19579000000,
+      "equity": 19514000000,
       "sharesOutstanding": 186776263,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -16914,6 +17086,7 @@
       },
       "revGrowth": 9.8,
       "margin": 7,
+      "equityConcept": "StockholdersEquity",
       "roe": 7.7
     },
     "LII": {
@@ -16992,7 +17165,7 @@
       "accession": "0001628280-26-011430",
       "revenue": 33986000000,
       "netIncome": 6898000000,
-      "equity": 39728000000,
+      "equity": 38245000000,
       "sharesOutstanding": 463394156,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -17012,7 +17185,8 @@
       },
       "revGrowth": 3,
       "margin": 20.3,
-      "roe": 17.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 18
     },
     "LITE": {
       "symbol": "LITE",
@@ -17090,7 +17264,7 @@
       "accession": "0001065696-26-000012",
       "revenue": 13651000000,
       "netIncome": 608000000,
-      "equity": 6561000000,
+      "equity": 6537000000,
       "sharesOutstanding": 255132267,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -17110,6 +17284,7 @@
       },
       "revGrowth": -1.2,
       "margin": 4.5,
+      "equityConcept": "StockholdersEquity",
       "roe": 9.3
     },
     "LLY": {
@@ -17237,7 +17412,7 @@
       "accession": "0000003570-26-000005",
       "revenue": 19464000000,
       "netIncome": 5330000000,
-      "equity": 12942000000,
+      "equity": 7915000000,
       "sharesOutstanding": 210202883,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -17257,7 +17432,12 @@
       },
       "revGrowth": 26.3,
       "margin": 27.4,
-      "roe": 41.2
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 12942000000,
+        "parent": 7915000000
+      },
+      "roe": 67.3
     },
     "LNT": {
       "symbol": "LNT",
@@ -17529,7 +17709,7 @@
       "accession": "0001628280-26-019865",
       "revenue": 207132000,
       "netIncome": -83294000,
-      "equity": -754447000,
+      "equity": -754964000,
       "sharesOutstanding": 84172557,
       "sharesObservedAt": "2023-03-29",
       "coverage": [
@@ -17547,7 +17727,8 @@
         "acceptedTimeCount": 38
       },
       "revGrowth": -9.2,
-      "margin": -40.2
+      "margin": -40.2,
+      "equityConcept": "StockholdersEquity"
     },
     "LUV": {
       "symbol": "LUV",
@@ -17625,7 +17806,7 @@
       "accession": "0001335258-26-000009",
       "revenue": 25201406000,
       "netIncome": 495972000,
-      "equity": 894375000,
+      "equity": 271007000,
       "sharesOutstanding": 234801922,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -17645,7 +17826,12 @@
       },
       "revGrowth": 8.8,
       "margin": 2,
-      "roe": 55.5
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 894375000,
+        "parent": 271007000
+      },
+      "roe": 183
     },
     "MA": {
       "symbol": "MA",
@@ -17674,7 +17860,7 @@
       "accession": "0001141391-26-000013",
       "revenue": 32791000000,
       "netIncome": 14968000000,
-      "equity": 7746000000,
+      "equity": 7737000000,
       "sharesOutstanding": 110441542,
       "sharesObservedAt": "2010-02-11",
       "coverage": [
@@ -17694,7 +17880,8 @@
       },
       "revGrowth": 16.4,
       "margin": 45.6,
-      "roe": 193.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 193.5
     },
     "MAA": {
       "symbol": "MAA",
@@ -17723,7 +17910,7 @@
       "accession": "0001193125-26-041208",
       "revenue": 2209126000,
       "netIncome": 446909000,
-      "equity": 5819243000,
+      "equity": 5662851000,
       "sharesOutstanding": 116901020,
       "sharesObservedAt": "2026-02-03",
       "coverage": [
@@ -17743,7 +17930,8 @@
       },
       "revGrowth": 0.8,
       "margin": 20.2,
-      "roe": 7.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 7.9
     },
     "MAR": {
       "symbol": "MAR",
@@ -17819,7 +18007,7 @@
       "accession": "0001507605-26-000007",
       "revenue": 58704000,
       "netIncome": -1311480000,
-      "equity": 3477090000,
+      "equity": 3471720000,
       "sharesOutstanding": 380234635,
       "sharesObservedAt": "2026-02-19",
       "coverage": [
@@ -17839,7 +18027,8 @@
       },
       "revGrowth": -39.2,
       "margin": -2234.1,
-      "roe": -37.7
+      "equityConcept": "StockholdersEquity",
+      "roe": -37.8
     },
     "MAS": {
       "symbol": "MAS",
@@ -17868,7 +18057,7 @@
       "accession": "0000062996-26-000005",
       "revenue": 7562000000,
       "netIncome": 810000000,
-      "equity": 76000000,
+      "equity": -185000000,
       "sharesOutstanding": 203607085,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -17877,8 +18066,7 @@
         "equity",
         "sharesOutstanding",
         "revGrowth",
-        "margin",
-        "roe"
+        "margin"
       ],
       "pit": {
         "schemaVersion": "sec-pit-facts.v1",
@@ -17888,7 +18076,11 @@
       },
       "revGrowth": -3.4,
       "margin": 10.7,
-      "roe": 1065.8
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 76000000,
+        "parent": -185000000
+      }
     },
     "MCD": {
       "symbol": "MCD",
@@ -18013,7 +18205,7 @@
       "accession": "0000927653-26-000069",
       "revenue": 403430000000,
       "netIncome": 4762000000,
-      "equity": -1777000000,
+      "equity": -2172000000,
       "sharesOutstanding": 120204051,
       "sharesObservedAt": "2026-04-30",
       "coverage": [
@@ -18031,7 +18223,8 @@
         "acceptedTimeCount": 120
       },
       "revGrowth": 12.4,
-      "margin": 1.2
+      "margin": 1.2,
+      "equityConcept": "StockholdersEquity"
     },
     "MCO": {
       "symbol": "MCO",
@@ -18060,7 +18253,7 @@
       "accession": "0001628280-26-009136",
       "revenue": 7718000000,
       "netIncome": 2459000000,
-      "equity": 4205000000,
+      "equity": 4054000000,
       "sharesOutstanding": 177300000,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -18080,7 +18273,8 @@
       },
       "revGrowth": 8.9,
       "margin": 31.9,
-      "roe": 58.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 60.7
     },
     "MDB": {
       "symbol": "MDB",
@@ -18158,7 +18352,7 @@
       "accession": "0002046386-26-000009",
       "revenue": 28432000000,
       "netIncome": 1159000000,
-      "equity": 19286000000,
+      "equity": 10737000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -18177,7 +18371,12 @@
       },
       "revGrowth": 11.5,
       "margin": 4.1,
-      "roe": 6
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 19286000000,
+        "parent": 10737000000
+      },
+      "roe": 10.8
     },
     "MDLZ": {
       "symbol": "MDLZ",
@@ -18206,7 +18405,7 @@
       "accession": "0001628280-26-005345",
       "revenue": 38537000000,
       "netIncome": 2451000000,
-      "equity": 25891000000,
+      "equity": 25838000000,
       "sharesOutstanding": 1281845669,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -18226,6 +18425,7 @@
       },
       "revGrowth": 5.8,
       "margin": 6.4,
+      "equityConcept": "StockholdersEquity",
       "roe": 9.5
     },
     "MDT": {
@@ -18255,7 +18455,7 @@
       "accession": "0001628280-26-044354",
       "revenue": 36364000000,
       "netIncome": 4801000000,
-      "equity": 50072000000,
+      "equity": 49463000000,
       "sharesOutstanding": 1280045190,
       "sharesObservedAt": "2026-06-12",
       "coverage": [
@@ -18275,7 +18475,8 @@
       },
       "revGrowth": 8.4,
       "margin": 13.2,
-      "roe": 9.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 9.7
     },
     "MELI": {
       "symbol": "MELI",
@@ -18353,7 +18554,7 @@
       "accession": "0001099219-26-000013",
       "revenue": 2436000000,
       "netIncome": 3379000000,
-      "equity": 28680000000,
+      "equity": 28398000000,
       "sharesOutstanding": 652053867,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -18373,7 +18574,8 @@
       },
       "revGrowth": 8.5,
       "margin": 138.7,
-      "roe": 11.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.9
     },
     "META": {
       "symbol": "META",
@@ -18450,7 +18652,7 @@
       "accession": "0000789570-26-000018",
       "revenue": 17537683000,
       "netIncome": 205862000,
-      "equity": 3254541000,
+      "equity": 2429917000,
       "sharesOutstanding": 255828519,
       "sharesObservedAt": "2026-02-09",
       "coverage": [
@@ -18470,7 +18672,8 @@
       },
       "revGrowth": 1.7,
       "margin": 1.2,
-      "roe": 6.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 8.5
     },
     "MHK": {
       "symbol": "MHK",
@@ -18499,7 +18702,7 @@
       "accession": "0000851968-26-000011",
       "revenue": 10785400000,
       "netIncome": 369900000,
-      "equity": 8378700000,
+      "equity": 8373300000,
       "sharesOutstanding": 61460358,
       "sharesObservedAt": "2026-02-19",
       "coverage": [
@@ -18519,6 +18722,7 @@
       },
       "revGrowth": -0.5,
       "margin": 3.4,
+      "equityConcept": "StockholdersEquity",
       "roe": 4.4
     },
     "MKTX": {
@@ -18597,7 +18801,7 @@
       "accession": "0000066740-26-000014",
       "revenue": 24948000000,
       "netIncome": 3250000000,
-      "equity": 4747000000,
+      "equity": 4702000000,
       "sharesOutstanding": 526700000,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -18617,7 +18821,8 @@
       },
       "revGrowth": 1.5,
       "margin": 13,
-      "roe": 68.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 69.1
     },
     "MNST": {
       "symbol": "MNST",
@@ -18695,7 +18900,7 @@
       "accession": "0000764180-26-000017",
       "revenue": 23279000000,
       "netIncome": 6947000000,
-      "equity": -3452000000,
+      "equity": -3502000000,
       "sharesOutstanding": 1671898087,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -18713,7 +18918,8 @@
         "acceptedTimeCount": 135
       },
       "revGrowth": -3.1,
-      "margin": 29.8
+      "margin": 29.8,
+      "equityConcept": "StockholdersEquity"
     },
     "MOH": {
       "symbol": "MOH",
@@ -18840,7 +19046,7 @@
       "accession": "0001510295-26-000009",
       "revenue": 132699000000,
       "netIncome": 4047000000,
-      "equity": 24086000000,
+      "equity": 17314000000,
       "sharesOutstanding": 294740164,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -18860,7 +19066,8 @@
       },
       "revGrowth": -4.4,
       "margin": 3,
-      "roe": 16.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 23.4
     },
     "MPLX": {
       "symbol": "MPLX",
@@ -18984,7 +19191,7 @@
       "accession": "0000310158-26-000063",
       "revenue": 65011000000,
       "netIncome": 18254000000,
-      "equity": 52662000000,
+      "equity": 52606000000,
       "sharesOutstanding": 2472392003,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -19004,6 +19211,7 @@
       },
       "revGrowth": 1.3,
       "margin": 28.1,
+      "equityConcept": "StockholdersEquity",
       "roe": 34.7
     },
     "MRNA": {
@@ -19276,7 +19484,7 @@
       "accession": "0000068505-26-000010",
       "revenue": 11682000000,
       "netIncome": 2154000000,
-      "equity": 2427000000,
+      "equity": 2410000000,
       "sharesOutstanding": 165658912,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -19296,7 +19504,8 @@
       },
       "revGrowth": 8,
       "margin": 18.4,
-      "roe": 88.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 89.4
     },
     "MSTR": {
       "symbol": "MSTR",
@@ -19422,7 +19631,7 @@
       "accession": "0000891103-26-000025",
       "revenue": 3487197000,
       "netIncome": 613461000,
-      "equity": -253396000,
+      "equity": -253504000,
       "sharesOutstanding": 232644477,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -19440,7 +19649,8 @@
         "acceptedTimeCount": 94
       },
       "revGrowth": 0.2,
-      "margin": 17.6
+      "margin": 17.6,
+      "equityConcept": "StockholdersEquity"
     },
     "MTD": {
       "symbol": "MTD",
@@ -19516,7 +19726,7 @@
       "accession": "0000015615-26-000020",
       "revenue": 14299171000,
       "netIncome": 399042000,
-      "equity": 3334521000,
+      "equity": 3259309000,
       "sharesOutstanding": 78894830,
       "sharesObservedAt": "2026-02-23",
       "coverage": [
@@ -19536,7 +19746,8 @@
       },
       "revGrowth": 16.2,
       "margin": 2.8,
-      "roe": 12
+      "equityConcept": "StockholdersEquity",
+      "roe": 12.2
     },
     "MU": {
       "symbol": "MU",
@@ -19711,7 +19922,7 @@
       "accession": "0001628280-26-007703",
       "revenue": 8262000000,
       "netIncome": 1788000000,
-      "equity": 12232000000,
+      "equity": 12227000000,
       "sharesOutstanding": 568443856,
       "sharesObservedAt": "2026-02-03",
       "coverage": [
@@ -19731,6 +19942,7 @@
       },
       "revGrowth": 11.6,
       "margin": 21.6,
+      "equityConcept": "StockholdersEquity",
       "roe": 14.6
     },
     "NDSN": {
@@ -19858,7 +20070,7 @@
       "accession": "0001164727-26-000010",
       "revenue": 22669000000,
       "netIncome": 7085000000,
-      "equity": 34042000000,
+      "equity": 33867000000,
       "sharesOutstanding": 1087874212,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -19878,7 +20090,8 @@
       },
       "revGrowth": 21.3,
       "margin": 31.3,
-      "roe": 20.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 20.9
     },
     "NET": {
       "symbol": "NET",
@@ -20004,7 +20217,7 @@
       "accession": "0001111711-26-000027",
       "revenue": 6522800000,
       "netIncome": 929500000,
-      "equity": 11659900000,
+      "equity": 9450100000,
       "sharesOutstanding": 478533171,
       "sharesObservedAt": "2026-02-04",
       "coverage": [
@@ -20024,7 +20237,8 @@
       },
       "revGrowth": 23.5,
       "margin": 14.3,
-      "roe": 8
+      "equityConcept": "StockholdersEquity",
+      "roe": 9.8
     },
     "NKE": {
       "symbol": "NKE",
@@ -20347,7 +20561,7 @@
       "accession": "0001104659-26-043468",
       "revenue": 16105276000,
       "netIncome": 4976016000,
-      "equity": 23596501000,
+      "equity": 22922040000,
       "sharesOutstanding": 3192111251,
       "sharesObservedAt": "2025-12-31",
       "coverage": [
@@ -20367,7 +20581,8 @@
       },
       "revGrowth": 11.6,
       "margin": 30.9,
-      "roe": 21.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 21.7
     },
     "NTRS": {
       "symbol": "NTRS",
@@ -20445,7 +20660,7 @@
       "accession": "0001193125-26-071575",
       "revenue": 32494000000,
       "netIncome": 1744000000,
-      "equity": 22124000000,
+      "equity": 20936000000,
       "sharesOutstanding": 227774615,
       "sharesObservedAt": "2026-02-18",
       "coverage": [
@@ -20465,7 +20680,8 @@
       },
       "revGrowth": 5.7,
       "margin": 5.4,
-      "roe": 7.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 8.3
     },
     "NVDA": {
       "symbol": "NVDA",
@@ -20689,7 +20905,7 @@
       "accession": "0001564708-26-000175",
       "revenue": 9028000000,
       "netIncome": 573000000,
-      "equity": 9236000000,
+      "equity": 8526000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -20708,7 +20924,8 @@
       },
       "revGrowth": 6.8,
       "margin": 6.3,
-      "roe": 6.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 6.7
     },
     "NWSA": {
       "symbol": "NWSA",
@@ -20737,7 +20954,7 @@
       "accession": "0001564708-26-000175",
       "revenue": 9028000000,
       "netIncome": 573000000,
-      "equity": 9236000000,
+      "equity": 8526000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -20756,7 +20973,8 @@
       },
       "revGrowth": 6.8,
       "margin": 6.3,
-      "roe": 6.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 6.7
     },
     "NXPI": {
       "symbol": "NXPI",
@@ -20785,7 +21003,7 @@
       "accession": "0001413447-26-000008",
       "revenue": 12269000000,
       "netIncome": 2021000000,
-      "equity": 10451000000,
+      "equity": 10056000000,
       "sharesOutstanding": 252692845,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -20805,7 +21023,8 @@
       },
       "revGrowth": -2.7,
       "margin": 16.5,
-      "roe": 19.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 20.1
     },
     "O": {
       "symbol": "O",
@@ -20834,7 +21053,7 @@
       "accession": "0000726728-26-000011",
       "revenue": 5749377000,
       "netIncome": 1058590000,
-      "equity": 40123968000,
+      "equity": 39438695000,
       "sharesOutstanding": 932440218,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -20854,7 +21073,8 @@
       },
       "revGrowth": 9.1,
       "margin": 18.4,
-      "roe": 2.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 2.7
     },
     "OKE": {
       "symbol": "OKE",
@@ -20883,7 +21103,7 @@
       "accession": "0001039684-26-000006",
       "revenue": 33629000000,
       "netIncome": 3393000000,
-      "equity": 22569000000,
+      "equity": 22485000000,
       "sharesOutstanding": 629783634,
       "sharesObservedAt": "2026-02-16",
       "coverage": [
@@ -20903,7 +21123,8 @@
       },
       "revGrowth": 55,
       "margin": 10.1,
-      "roe": 15
+      "equityConcept": "StockholdersEquity",
+      "roe": 15.1
     },
     "ON": {
       "symbol": "ON",
@@ -20932,7 +21153,7 @@
       "accession": "0001097864-26-000006",
       "revenue": 5995400000,
       "netIncome": 121000000,
-      "equity": 7691900000,
+      "equity": 7673300000,
       "sharesOutstanding": 394020530,
       "sharesObservedAt": "2026-02-04",
       "coverage": [
@@ -20952,6 +21173,7 @@
       },
       "revGrowth": -15.3,
       "margin": 2,
+      "equityConcept": "StockholdersEquity",
       "roe": 1.6
     },
     "ONTO": {
@@ -21030,7 +21252,7 @@
       "accession": "0001193125-26-277521",
       "revenue": 67357000000,
       "netIncome": 17087000000,
-      "equity": 43056000000,
+      "equity": 42508000000,
       "sharesOutstanding": 2880471000,
       "sharesObservedAt": "2026-06-12",
       "coverage": [
@@ -21050,7 +21272,8 @@
       },
       "revGrowth": 17.3,
       "margin": 25.4,
-      "roe": 39.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 40.2
     },
     "ORLY": {
       "symbol": "ORLY",
@@ -21126,7 +21349,7 @@
       "accession": "0001781335-26-000011",
       "revenue": 14431000000,
       "netIncome": 1384000000,
-      "equity": -5346000000,
+      "equity": -5392000000,
       "sharesOutstanding": 388720773,
       "sharesObservedAt": "2026-01-22",
       "coverage": [
@@ -21144,7 +21367,8 @@
         "acceptedTimeCount": 96
       },
       "revGrowth": 1.2,
-      "margin": 9.6
+      "margin": 9.6,
+      "equityConcept": "StockholdersEquity"
     },
     "OXY": {
       "symbol": "OXY",
@@ -21173,7 +21397,7 @@
       "accession": "0001628280-26-009059",
       "revenue": 21569000000,
       "netIncome": 2369000000,
-      "equity": 36598000000,
+      "equity": 36034000000,
       "sharesOutstanding": 986266656,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -21193,7 +21417,8 @@
       },
       "revGrowth": -5,
       "margin": 11,
-      "roe": 6.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 6.6
     },
     "PANW": {
       "symbol": "PANW",
@@ -21417,7 +21642,7 @@
       "accession": "0001292814-11-001552",
       "revenue": 150852000000,
       "netIncome": 19475000000,
-      "equity": 183397000000,
+      "equity": 181494000000,
       "sharesOutstanding": 7442454142,
       "sharesObservedAt": "2010-12-31",
       "coverage": [
@@ -21437,7 +21662,8 @@
       },
       "revGrowth": 30.2,
       "margin": 12.9,
-      "roe": 10.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 10.7
     },
     "PCAR": {
       "symbol": "PCAR",
@@ -21612,7 +21838,7 @@
       "accession": "0000077476-26-000007",
       "revenue": 93925000000,
       "netIncome": 8240000000,
-      "equity": 20547000000,
+      "equity": 20406000000,
       "sharesOutstanding": 1366649053,
       "sharesObservedAt": "2026-01-23",
       "coverage": [
@@ -21632,7 +21858,8 @@
       },
       "revGrowth": 2.3,
       "margin": 8.8,
-      "roe": 40.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 40.4
     },
     "PFE": {
       "symbol": "PFE",
@@ -21661,7 +21888,7 @@
       "accession": "0000078003-26-000026",
       "revenue": 62579000000,
       "netIncome": 7771000000,
-      "equity": 86775000000,
+      "equity": 86476000000,
       "sharesOutstanding": 5686267431,
       "sharesObservedAt": "2026-02-19",
       "coverage": [
@@ -21681,6 +21908,7 @@
       },
       "revGrowth": -1.6,
       "margin": 12.4,
+      "equityConcept": "StockholdersEquity",
       "roe": 9
     },
     "PFG": {
@@ -21710,7 +21938,7 @@
       "accession": "0001104659-26-017031",
       "revenue": 15625500000,
       "netIncome": 1185100000,
-      "equity": 11917000000,
+      "equity": 11883900000,
       "sharesOutstanding": 216835141,
       "sharesObservedAt": "2026-02-11",
       "coverage": [
@@ -21730,7 +21958,8 @@
       },
       "revGrowth": -3.1,
       "margin": 7.6,
-      "roe": 9.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 10
     },
     "PG": {
       "symbol": "PG",
@@ -21857,7 +22086,7 @@
       "accession": "0000076334-26-000105",
       "revenue": 21499000000,
       "netIncome": 3649000000,
-      "equity": 15413000000,
+      "equity": 15404000000,
       "sharesOutstanding": 126047469,
       "sharesObservedAt": "2026-07-31",
       "coverage": [
@@ -21877,6 +22106,7 @@
       },
       "revGrowth": 8.3,
       "margin": 17,
+      "equityConcept": "StockholdersEquity",
       "roe": 23.7
     },
     "PHM": {
@@ -22100,7 +22330,7 @@
       "accession": "0001140361-25-045801",
       "revenue": 849294000,
       "netIncome": 136405000,
-      "equity": 1597307000,
+      "equity": 1173589000,
       "sharesOutstanding": 59064641,
       "sharesObservedAt": "2025-12-11",
       "coverage": [
@@ -22120,7 +22350,8 @@
       },
       "revGrowth": -2,
       "margin": 16.1,
-      "roe": 8.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.6
     },
     "PLBY": {
       "symbol": "PLBY",
@@ -22198,7 +22429,7 @@
       "accession": "0001193125-26-051453",
       "revenue": 8790127000,
       "netIncome": 3328231000,
-      "equity": 57754008000,
+      "equity": 53193178000,
       "sharesOutstanding": 929559000,
       "sharesObservedAt": "2026-02-11",
       "coverage": [
@@ -22218,7 +22449,8 @@
       },
       "revGrowth": 7.2,
       "margin": 37.9,
-      "roe": 5.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 6.3
     },
     "PLTR": {
       "symbol": "PLTR",
@@ -22247,7 +22479,7 @@
       "accession": "0001321655-26-000011",
       "revenue": 4475446000,
       "netIncome": 1625033000,
-      "equity": 7488011000,
+      "equity": 7387268000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -22266,7 +22498,8 @@
       },
       "revGrowth": 56.2,
       "margin": 36.3,
-      "roe": 21.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 22
     },
     "PM": {
       "symbol": "PM",
@@ -22295,7 +22528,7 @@
       "accession": "0001628280-26-005939",
       "revenue": 40648000000,
       "netIncome": 11348000000,
-      "equity": -8028000000,
+      "equity": -9994000000,
       "sharesOutstanding": 1556679579,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -22313,7 +22546,8 @@
         "acceptedTimeCount": 116
       },
       "revGrowth": 7.3,
-      "margin": 27.9
+      "margin": 27.9,
+      "equityConcept": "StockholdersEquity"
     },
     "PNW": {
       "symbol": "PNW",
@@ -22342,7 +22576,7 @@
       "accession": "0000764622-26-000011",
       "revenue": 5339939000,
       "netIncome": 631643000,
-      "equity": 7087075000,
+      "equity": 7046458000,
       "sharesOutstanding": 120905390,
       "sharesObservedAt": "2026-02-19",
       "coverage": [
@@ -22362,7 +22596,8 @@
       },
       "revGrowth": 4.2,
       "margin": 11.8,
-      "roe": 8.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 9
     },
     "PODD": {
       "symbol": "PODD",
@@ -22538,7 +22773,7 @@
       "accession": "0000079879-26-000046",
       "revenue": 15875000000,
       "netIncome": 1576000000,
-      "equity": 8097000000,
+      "equity": 7941000000,
       "sharesOutstanding": 223494714,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -22558,7 +22793,8 @@
       },
       "revGrowth": 0.2,
       "margin": 9.9,
-      "roe": 19.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 19.8
     },
     "PPL": {
       "symbol": "PPL",
@@ -22636,7 +22872,7 @@
       "accession": "0001628280-26-007696",
       "revenue": 4824113000,
       "netIncome": 1784348000,
-      "equity": 9341834000,
+      "equity": 9248128000,
       "sharesOutstanding": 175506447,
       "sharesObservedAt": "2026-02-05",
       "coverage": [
@@ -22656,7 +22892,8 @@
       },
       "revGrowth": 2.7,
       "margin": 37,
-      "roe": 19.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 19.3
     },
     "PSKY": {
       "symbol": "PSKY",
@@ -22685,7 +22922,7 @@
       "accession": "0002041610-26-000011",
       "revenue": 29213000000,
       "netIncome": -6190000000,
-      "equity": 16782000000,
+      "equity": 16320000000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -22704,7 +22941,8 @@
       },
       "revGrowth": -1.5,
       "margin": -21.2,
-      "roe": -36.9
+      "equityConcept": "StockholdersEquity",
+      "roe": -37.9
     },
     "PSX": {
       "symbol": "PSX",
@@ -22733,7 +22971,7 @@
       "accession": "0001534701-26-000006",
       "revenue": 132376000000,
       "netIncome": 4403000000,
-      "equity": 30241000000,
+      "equity": 29093000000,
       "sharesOutstanding": 400744022,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -22753,7 +22991,8 @@
       },
       "revGrowth": -7.5,
       "margin": 3.3,
-      "roe": 14.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 15.1
     },
     "PTC": {
       "symbol": "PTC",
@@ -22831,7 +23070,7 @@
       "accession": "0001050915-26-000006",
       "revenue": 28479697000,
       "netIncome": 1028378000,
-      "equity": 9027874000,
+      "equity": 8938249000,
       "sharesOutstanding": 149619428,
       "sharesObservedAt": "2026-02-16",
       "coverage": [
@@ -22851,7 +23090,8 @@
       },
       "revGrowth": 20.3,
       "margin": 3.6,
-      "roe": 11.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.5
     },
     "PYPL": {
       "symbol": "PYPL",
@@ -23076,7 +23316,7 @@
       "accession": "0001315098-26-000024",
       "revenue": 4890551000,
       "netIncome": -1065057000,
-      "equity": 374980000,
+      "equity": 394484000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -23095,7 +23335,8 @@
       },
       "revGrowth": 35.8,
       "margin": -21.8,
-      "roe": -284
+      "equityConcept": "StockholdersEquity",
+      "roe": -270
     },
     "RCL": {
       "symbol": "RCL",
@@ -23124,7 +23365,7 @@
       "accession": "0000884887-26-000007",
       "revenue": 17935000000,
       "netIncome": 4268000000,
-      "equity": 10245000000,
+      "equity": 10037000000,
       "sharesOutstanding": 270528303,
       "sharesObservedAt": "2026-02-09",
       "coverage": [
@@ -23144,7 +23385,8 @@
       },
       "revGrowth": 8.8,
       "margin": 23.8,
-      "roe": 41.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 42.5
     },
     "RDDT": {
       "symbol": "RDDT",
@@ -23270,7 +23512,7 @@
       "accession": "0001193125-26-051668",
       "revenue": 1553524000,
       "netIncome": 527460000,
-      "equity": 7181606000,
+      "equity": 6906890000,
       "sharesOutstanding": 182906561,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -23290,7 +23532,8 @@
       },
       "revGrowth": 6.9,
       "margin": 34,
-      "roe": 7.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 7.6
     },
     "REGN": {
       "symbol": "REGN",
@@ -23709,7 +23952,7 @@
       "accession": "0001024478-25-000116",
       "revenue": 8342000000,
       "netIncome": 869000000,
-      "equity": 3711000000,
+      "equity": 3654000000,
       "sharesOutstanding": 112273567,
       "sharesObservedAt": "2025-10-31",
       "coverage": [
@@ -23729,7 +23972,8 @@
       },
       "revGrowth": 0.9,
       "margin": 10.4,
-      "roe": 23.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 23.8
     },
     "ROKU": {
       "symbol": "ROKU",
@@ -23904,7 +24148,7 @@
       "accession": "0001060391-26-000094",
       "revenue": 16591000000,
       "netIncome": 2139249000,
-      "equity": 11969000000,
+      "equity": 11968000000,
       "sharesOutstanding": 308804970,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -23924,6 +24168,7 @@
       },
       "revGrowth": 3.5,
       "margin": 12.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 17.9
     },
     "RTX": {
@@ -23953,7 +24198,7 @@
       "accession": "0000101829-26-000006",
       "revenue": 88603000000,
       "netIncome": 6732000000,
-      "equity": 67102000000,
+      "equity": 65245000000,
       "sharesOutstanding": 1342287676,
       "sharesObservedAt": "2025-12-31",
       "coverage": [
@@ -23973,7 +24218,8 @@
       },
       "revGrowth": 9.7,
       "margin": 7.6,
-      "roe": 10
+      "equityConcept": "StockholdersEquity",
+      "roe": 10.3
     },
     "RUN": {
       "symbol": "RUN",
@@ -24002,7 +24248,7 @@
       "accession": "0001628280-26-012289",
       "revenue": 2956997000,
       "netIncome": 449947000,
-      "equity": 4274719000,
+      "equity": 3132484000,
       "sharesOutstanding": 234492403,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -24022,7 +24268,8 @@
       },
       "revGrowth": 45.1,
       "margin": 15.2,
-      "roe": 10.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 14.4
     },
     "RVTY": {
       "symbol": "RVTY",
@@ -24196,7 +24443,7 @@
       "accession": "0000829224-25-000114",
       "revenue": 37184400000,
       "netIncome": 1856400000,
-      "equity": -8089200000,
+      "equity": -8096600000,
       "sharesOutstanding": 1137100000,
       "sharesObservedAt": "2025-11-07",
       "coverage": [
@@ -24214,7 +24461,8 @@
         "acceptedTimeCount": 120
       },
       "revGrowth": 2.8,
-      "margin": 5
+      "margin": 5,
+      "equityConcept": "StockholdersEquity"
     },
     "SCCO": {
       "symbol": "SCCO",
@@ -24243,7 +24491,7 @@
       "accession": "0001104659-26-021492",
       "revenue": 13420000000,
       "netIncome": 4348200000,
-      "equity": 11104900000,
+      "equity": 11038100000,
       "sharesOutstanding": 819103082,
       "sharesObservedAt": "2026-02-26",
       "coverage": [
@@ -24263,7 +24511,8 @@
       },
       "revGrowth": 17.4,
       "margin": 32.4,
-      "roe": 39.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 39.4
     },
     "SCHW": {
       "symbol": "SCHW",
@@ -24341,7 +24590,7 @@
       "accession": "0001140361-26-015366",
       "revenue": 19625021000,
       "netIncome": 1578149000,
-      "equity": 12648328000,
+      "equity": 12526503000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -24360,7 +24609,8 @@
       },
       "revGrowth": 33.2,
       "margin": 8,
-      "roe": 12.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 12.6
     },
     "SEDG": {
       "symbol": "SEDG",
@@ -24438,7 +24688,7 @@
       "accession": "0001628280-26-012501",
       "revenue": 622205000,
       "netIncome": 30169000,
-      "equity": 827251000,
+      "equity": 564338000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -24457,7 +24707,8 @@
       },
       "revGrowth": 98.7,
       "margin": 4.8,
-      "roe": 3.6
+      "equityConcept": "StockholdersEquity",
+      "roe": 5.3
     },
     "SHOP": {
       "symbol": "SHOP",
@@ -24632,7 +24883,7 @@
       "accession": "0001193125-26-021017",
       "revenue": 35708000000,
       "netIncome": 3374000000,
-      "equity": 27291000000,
+      "equity": 26109000000,
       "sharesOutstanding": 1495331485,
       "sharesObservedAt": "2025-12-31",
       "coverage": [
@@ -24652,7 +24903,8 @@
       },
       "revGrowth": -1.6,
       "margin": 9.4,
-      "roe": 12.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 12.9
     },
     "SLV": {
       "symbol": "SLV",
@@ -24727,7 +24979,7 @@
       "accession": "0001375365-26-000022",
       "revenue": 39063072000,
       "netIncome": 2230453000,
-      "equity": 14479616000,
+      "equity": 14479452000,
       "sharesOutstanding": 656965384,
       "sharesObservedAt": "2026-07-31",
       "coverage": [
@@ -24747,6 +24999,7 @@
       },
       "revGrowth": 77.8,
       "margin": 5.7,
+      "equityConcept": "StockholdersEquity",
       "roe": 15.4
     },
     "SMR": {
@@ -24776,7 +25029,7 @@
       "accession": "0001822966-26-000018",
       "revenue": 31479000,
       "netIncome": -355794000,
-      "equity": 1113551000,
+      "equity": 1168841000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -24795,7 +25048,8 @@
       },
       "revGrowth": -15,
       "margin": -1130.3,
-      "roe": -32
+      "equityConcept": "StockholdersEquity",
+      "roe": -30.4
     },
     "SNA": {
       "symbol": "SNA",
@@ -24824,7 +25078,7 @@
       "accession": "0000091440-26-000045",
       "revenue": 4709300000,
       "netIncome": 1016900000,
-      "equity": 5956800000,
+      "equity": 5931800000,
       "sharesOutstanding": 51913121,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -24844,6 +25098,7 @@
       },
       "revGrowth": 0.7,
       "margin": 21.6,
+      "equityConcept": "StockholdersEquity",
       "roe": 17.1
     },
     "SNAP": {
@@ -25019,7 +25274,7 @@
       "accession": "0000883241-25-000028",
       "revenue": 7054178000,
       "netIncome": 1332220000,
-      "equity": 28327015000,
+      "equity": 28327602000,
       "sharesOutstanding": 191318206,
       "sharesObservedAt": "2025-12-15",
       "coverage": [
@@ -25039,6 +25294,7 @@
       },
       "revGrowth": 15.1,
       "margin": 18.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 4.7
     },
     "SO": {
@@ -25068,7 +25324,7 @@
       "accession": "0000092122-26-000006",
       "revenue": 29553000000,
       "netIncome": 4341000000,
-      "equity": 38867000000,
+      "equity": 36016000000,
       "sharesOutstanding": 1119391291,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -25088,7 +25344,8 @@
       },
       "revGrowth": 10.6,
       "margin": 14.7,
-      "roe": 11.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 12.1
     },
     "SOFI": {
       "symbol": "SOFI",
@@ -25215,7 +25472,7 @@
       "accession": "0001104659-26-019419",
       "revenue": 6364505000,
       "netIncome": 5364120000,
-      "equity": 6472087000,
+      "equity": 5208268000,
       "sharesOutstanding": 0,
       "sharesObservedAt": "2010-01-31",
       "coverage": [
@@ -25235,7 +25492,8 @@
       },
       "revGrowth": 6.7,
       "margin": 84.3,
-      "roe": 82.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 103
     },
     "SPGI": {
       "symbol": "SPGI",
@@ -25264,7 +25522,7 @@
       "accession": "0000064040-26-000013",
       "revenue": 15336000000,
       "netIncome": 4471000000,
-      "equity": 31235000000,
+      "equity": 31127000000,
       "sharesOutstanding": 298800000,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -25284,7 +25542,8 @@
       },
       "revGrowth": 7.9,
       "margin": 29.2,
-      "roe": 14.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 14.4
     },
     "SPIR": {
       "symbol": "SPIR",
@@ -25361,7 +25620,7 @@
       "accession": "0001032208-26-000010",
       "revenue": 12418000000,
       "netIncome": 1837000000,
-      "equity": 38793000000,
+      "equity": 31594000000,
       "sharesOutstanding": 653284140,
       "sharesObservedAt": "2026-02-19",
       "coverage": [
@@ -25381,7 +25640,8 @@
       },
       "revGrowth": 5.1,
       "margin": 14.8,
-      "roe": 4.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 5.8
     },
     "STE": {
       "symbol": "STE",
@@ -25410,7 +25670,7 @@
       "accession": "0001628280-26-039136",
       "revenue": 5935900000,
       "netIncome": 782300000,
-      "equity": 7197200000,
+      "equity": 7183600000,
       "sharesOutstanding": 97602485,
       "sharesObservedAt": "2026-05-27",
       "coverage": [
@@ -25430,6 +25690,7 @@
       },
       "revGrowth": 8.7,
       "margin": 13.2,
+      "equityConcept": "StockholdersEquity",
       "roe": 10.9
     },
     "STLD": {
@@ -25459,7 +25720,7 @@
       "accession": "0001104659-26-021395",
       "revenue": 18176581000,
       "netIncome": 1185595000,
-      "equity": 8789185000,
+      "equity": 8957182000,
       "sharesOutstanding": 144882401,
       "sharesObservedAt": "2026-02-25",
       "coverage": [
@@ -25479,7 +25740,8 @@
       },
       "revGrowth": 3.6,
       "margin": 6.5,
-      "roe": 13.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 13.2
     },
     "STT": {
       "symbol": "STT",
@@ -25606,7 +25868,7 @@
       "accession": "0000016918-26-000011",
       "revenue": 9139000000,
       "netIncome": 1686700000,
-      "equity": 8386900000,
+      "equity": 8082400000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -25625,7 +25887,8 @@
       },
       "revGrowth": -10.5,
       "margin": 18.5,
-      "roe": 20.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 20.9
     },
     "SWK": {
       "symbol": "SWK",
@@ -25850,7 +26113,7 @@
       "accession": "0001193125-26-183379",
       "revenue": 8925000000,
       "netIncome": 4762000000,
-      "equity": 24663000000,
+      "equity": 24427000000,
       "sharesOutstanding": 649583574,
       "sharesObservedAt": "2025-12-31",
       "coverage": [
@@ -25870,7 +26133,8 @@
       },
       "revGrowth": 22.2,
       "margin": 53.4,
-      "roe": 19.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 19.5
     },
     "TDG": {
       "symbol": "TDG",
@@ -25899,7 +26163,7 @@
       "accession": "0001260221-25-000081",
       "revenue": 8831000000,
       "netIncome": 2074000000,
-      "equity": -9679000000,
+      "equity": -9686000000,
       "sharesOutstanding": 56318584,
       "sharesObservedAt": "2025-10-31",
       "coverage": [
@@ -25917,7 +26181,8 @@
         "acceptedTimeCount": 113
       },
       "revGrowth": 11.2,
-      "margin": 23.5
+      "margin": 23.5,
+      "equityConcept": "StockholdersEquity"
     },
     "TEAM": {
       "symbol": "TEAM",
@@ -26336,7 +26601,7 @@
       "accession": "0001193125-26-071651",
       "revenue": 4735151000,
       "netIncome": 195403000,
-      "equity": 9215667000,
+      "equity": 3737381000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -26355,7 +26620,12 @@
       },
       "revGrowth": -3.1,
       "margin": 4.1,
-      "roe": 2.1
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 9215667000,
+        "parent": 3737381000
+      },
+      "roe": 5.2
     },
     "TLN": {
       "symbol": "TLN",
@@ -26433,7 +26703,7 @@
       "accession": "0001193125-13-268044",
       "revenue": 234601000000,
       "netIncome": 10230000000,
-      "equity": 135809000000,
+      "equity": 129166000000,
       "sharesOutstanding": 3167428668,
       "sharesObservedAt": "2013-03-31",
       "coverage": [
@@ -26453,7 +26723,8 @@
       },
       "revGrowth": 3.8,
       "margin": 4.4,
-      "roe": 7.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 7.9
     },
     "TMO": {
       "symbol": "TMO",
@@ -26482,7 +26753,7 @@
       "accession": "0000097745-26-000018",
       "revenue": 44556000000,
       "netIncome": 6704000000,
-      "equity": 53415000000,
+      "equity": 53407000000,
       "sharesOutstanding": 371484244,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -26502,6 +26773,7 @@
       },
       "revGrowth": 3.9,
       "margin": 15,
+      "equityConcept": "StockholdersEquity",
       "roe": 12.6
     },
     "TMUS": {
@@ -26726,7 +26998,7 @@
       "accession": "0001193125-26-059296",
       "revenue": 17028300000,
       "netIncome": 1923000000,
-      "equity": 3198200000,
+      "equity": 3067900000,
       "sharesOutstanding": 214951798,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -26746,7 +27018,8 @@
       },
       "revGrowth": 3.9,
       "margin": 11.3,
-      "roe": 60.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 62.7
     },
     "TROW": {
       "symbol": "TROW",
@@ -26775,7 +27048,7 @@
       "accession": "0001628280-26-008002",
       "revenue": 7314800000,
       "netIncome": 2087100000,
-      "equity": 11017200000,
+      "equity": 10860100000,
       "sharesOutstanding": 218072901,
       "sharesObservedAt": "2026-02-11",
       "coverage": [
@@ -26795,7 +27068,8 @@
       },
       "revGrowth": 3.1,
       "margin": 28.5,
-      "roe": 18.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 19.2
     },
     "TRV": {
       "symbol": "TRV",
@@ -26922,7 +27196,7 @@
       "accession": "0001628280-26-003952",
       "revenue": 94827000000,
       "netIncome": 3794000000,
-      "equity": 82807000000,
+      "equity": 82137000000,
       "sharesOutstanding": 3752431984,
       "sharesObservedAt": "2026-01-23",
       "coverage": [
@@ -26942,6 +27216,7 @@
       },
       "revGrowth": -2.9,
       "margin": 4,
+      "equityConcept": "StockholdersEquity",
       "roe": 4.6
     },
     "TT": {
@@ -26971,7 +27246,7 @@
       "accession": "0001628280-26-005731",
       "revenue": 21321900000,
       "netIncome": 2918600000,
-      "equity": 8600900000,
+      "equity": 8579200000,
       "sharesOutstanding": 221331905,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -26991,7 +27266,8 @@
       },
       "revGrowth": 7.5,
       "margin": 13.7,
-      "roe": 33.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 34
     },
     "TTD": {
       "symbol": "TTD",
@@ -27264,7 +27540,7 @@
       "accession": "0000074208-26-000013",
       "revenue": 11361000,
       "netIncome": 377704000,
-      "equity": 3288797000,
+      "equity": 3288462000,
       "sharesOutstanding": 328571965,
       "sharesObservedAt": "2026-02-11",
       "coverage": [
@@ -27284,6 +27560,7 @@
       },
       "revGrowth": 36.6,
       "margin": 3324.6,
+      "equityConcept": "StockholdersEquity",
       "roe": 11.5
     },
     "UNH": {
@@ -27411,7 +27688,7 @@
       "accession": "0001628280-26-008432",
       "revenue": 88661000000,
       "netIncome": 5572000000,
-      "equity": 16255000000,
+      "equity": 16227000000,
       "sharesOutstanding": 713924267,
       "sharesObservedAt": "2010-02-17",
       "coverage": [
@@ -27431,6 +27708,7 @@
       },
       "revGrowth": -2.6,
       "margin": 6.3,
+      "equityConcept": "StockholdersEquity",
       "roe": 34.3
     },
     "UPST": {
@@ -27558,7 +27836,7 @@
       "accession": "0000036104-26-000011",
       "revenue": 28656000000,
       "netIncome": 7570000000,
-      "equity": 65651000000,
+      "equity": 65193000000,
       "sharesOutstanding": 1553695799,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -27578,7 +27856,8 @@
       },
       "revGrowth": 4.4,
       "margin": 26.4,
-      "roe": 11.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.6
     },
     "USO": {
       "symbol": "USO",
@@ -27702,7 +27981,7 @@
       "accession": "0001047469-13-003771",
       "revenue": 48753000000,
       "netIncome": 5511000000,
-      "equity": 75876000000,
+      "equity": 74241000000,
       "sharesOutstanding": 3256724482,
       "sharesObservedAt": "2012-12-31",
       "coverage": [
@@ -27722,7 +28001,8 @@
       },
       "revGrowth": -21.8,
       "margin": 11.3,
-      "roe": 7.3
+      "equityConcept": "StockholdersEquity",
+      "roe": 7.4
     },
     "VIAV": {
       "symbol": "VIAV",
@@ -27800,7 +28080,7 @@
       "accession": "0001967680-26-000011",
       "revenue": 5503000000,
       "netIncome": 940000000,
-      "equity": 3106000000,
+      "equity": 3105000000,
       "sharesOutstanding": 247843360,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -27820,6 +28100,7 @@
       },
       "revGrowth": 6,
       "margin": 17.1,
+      "equityConcept": "StockholdersEquity",
       "roe": 30.3
     },
     "VOYG": {
@@ -27849,7 +28130,7 @@
       "accession": "0001628280-26-016543",
       "revenue": 166419000,
       "netIncome": -104814000,
-      "equity": 429533000,
+      "equity": 383720000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -27868,7 +28149,8 @@
       },
       "revGrowth": 15.4,
       "margin": -63,
-      "roe": -24.4
+      "equityConcept": "StockholdersEquity",
+      "roe": -27.3
     },
     "VRSK": {
       "symbol": "VRSK",
@@ -27897,7 +28179,7 @@
       "accession": "0001437749-26-004452",
       "revenue": 3072700000,
       "netIncome": 908300000,
-      "equity": 309800000,
+      "equity": 309000000,
       "sharesOutstanding": 137941888,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -27917,7 +28199,8 @@
       },
       "revGrowth": 6.6,
       "margin": 29.6,
-      "roe": 293.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 293.9
     },
     "VRSN": {
       "symbol": "VRSN",
@@ -28091,7 +28374,7 @@
       "accession": "0001193125-26-248290",
       "revenue": 4640280000,
       "netIncome": -34086000,
-      "equity": 4729262000,
+      "equity": 4660301000,
       "sharesOutstanding": 136568953,
       "sharesObservedAt": "2026-05-08",
       "coverage": [
@@ -28111,6 +28394,7 @@
       },
       "revGrowth": 2.7,
       "margin": -0.7,
+      "equityConcept": "StockholdersEquity",
       "roe": -0.7
     },
     "VST": {
@@ -28140,7 +28424,7 @@
       "accession": "0001692819-26-000006",
       "revenue": 17586000000,
       "netIncome": 944000000,
-      "equity": 5110000000,
+      "equity": 5097000000,
       "sharesOutstanding": 336954256,
       "sharesObservedAt": "2026-02-18",
       "coverage": [
@@ -28160,6 +28444,7 @@
       },
       "revGrowth": 19.1,
       "margin": 5.4,
+      "equityConcept": "StockholdersEquity",
       "roe": 18.5
     },
     "VTR": {
@@ -28189,7 +28474,7 @@
       "accession": "0000740260-26-000006",
       "revenue": 5833980000,
       "netIncome": 261518000,
-      "equity": 12585808000,
+      "equity": 12527253000,
       "sharesOutstanding": 474965224,
       "sharesObservedAt": "2026-02-03",
       "coverage": [
@@ -28209,6 +28494,7 @@
       },
       "revGrowth": 18.5,
       "margin": 4.5,
+      "equityConcept": "StockholdersEquity",
       "roe": 2.1
     },
     "VTRS": {
@@ -28336,7 +28622,7 @@
       "accession": "0001628280-26-008067",
       "revenue": 11167000000,
       "netIncome": 1170000000,
-      "equity": 11190000000,
+      "equity": 11142000000,
       "sharesOutstanding": 170517190,
       "sharesObservedAt": "2026-02-09",
       "coverage": [
@@ -28356,6 +28642,7 @@
       },
       "revGrowth": 7.5,
       "margin": 10.5,
+      "equityConcept": "StockholdersEquity",
       "roe": 10.5
     },
     "WAT": {
@@ -28434,7 +28721,7 @@
       "accession": "0001437107-26-000020",
       "revenue": 37296000000,
       "netIncome": 727000000,
-      "equity": 37147000000,
+      "equity": 35919000000,
       "sharesOutstanding": 2479929515,
       "sharesObservedAt": "2026-02-12",
       "coverage": [
@@ -28454,6 +28741,7 @@
       },
       "revGrowth": -5.1,
       "margin": 1.9,
+      "equityConcept": "StockholdersEquity",
       "roe": 2
     },
     "WCN": {
@@ -28679,7 +28967,7 @@
       "accession": "0000766704-26-000010",
       "revenue": 8452996000,
       "netIncome": 961837000,
-      "equity": 42939716000,
+      "equity": 42129498000,
       "sharesOutstanding": 697752530,
       "sharesObservedAt": "2026-02-06",
       "coverage": [
@@ -28699,7 +28987,8 @@
       },
       "revGrowth": 40.2,
       "margin": 11.4,
-      "roe": 2.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 2.3
     },
     "WFC": {
       "symbol": "WFC",
@@ -28728,7 +29017,7 @@
       "accession": "0000072971-20-000217",
       "revenue": 85063000000,
       "netIncome": 19715000000,
-      "equity": 187702000000,
+      "equity": 187146000000,
       "sharesOutstanding": 3085635641,
       "sharesObservedAt": "2026-02-13",
       "coverage": [
@@ -28748,6 +29037,7 @@
       },
       "revGrowth": -1.6,
       "margin": 23.2,
+      "equityConcept": "StockholdersEquity",
       "roe": 10.5
     },
     "WM": {
@@ -28777,7 +29067,7 @@
       "accession": "0001104659-26-012049",
       "revenue": 25204000000,
       "netIncome": 2708000000,
-      "equity": 9991000000,
+      "equity": 9990000000,
       "sharesOutstanding": 403335781,
       "sharesObservedAt": "2026-02-05",
       "coverage": [
@@ -28797,6 +29087,7 @@
       },
       "revGrowth": 14.2,
       "margin": 10.7,
+      "equityConcept": "StockholdersEquity",
       "roe": 27.1
     },
     "WMB": {
@@ -28826,7 +29117,7 @@
       "accession": "0000107263-26-000006",
       "revenue": 14899000000,
       "netIncome": 2618000000,
-      "equity": 14995000000,
+      "equity": 12807000000,
       "sharesOutstanding": 1221563111,
       "sharesObservedAt": "2026-02-19",
       "coverage": [
@@ -28846,7 +29137,8 @@
       },
       "revGrowth": 17.9,
       "margin": 17.6,
-      "roe": 17.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 20.4
     },
     "WMT": {
       "symbol": "WMT",
@@ -28875,7 +29167,7 @@
       "accession": "0000104169-26-000055",
       "revenue": 706413000000,
       "netIncome": 21893000000,
-      "equity": 105887000000,
+      "equity": 99617000000,
       "sharesOutstanding": 7972402501,
       "sharesObservedAt": "2026-03-11",
       "coverage": [
@@ -28895,7 +29187,8 @@
       },
       "revGrowth": 4.7,
       "margin": 3.1,
-      "roe": 20.7
+      "equityConcept": "StockholdersEquity",
+      "roe": 22
     },
     "WOLF": {
       "symbol": "WOLF",
@@ -28971,7 +29264,7 @@
       "accession": "0000011544-26-000005",
       "revenue": 14707856000,
       "netIncome": 1779403000,
-      "equity": 9711894000,
+      "equity": 9700818000,
       "sharesOutstanding": 374490856,
       "sharesObservedAt": "2026-02-23",
       "coverage": [
@@ -28991,6 +29284,7 @@
       },
       "revGrowth": 7.8,
       "margin": 12.1,
+      "equityConcept": "StockholdersEquity",
       "roe": 18.3
     },
     "WSO": {
@@ -29020,7 +29314,7 @@
       "accession": "0001193125-26-082486",
       "revenue": 7239290000,
       "netIncome": 496994000,
-      "equity": 3222061000,
+      "equity": 2781376000,
       "sharesOutstanding": null,
       "sharesObservedAt": null,
       "coverage": [
@@ -29039,7 +29333,8 @@
       },
       "revGrowth": -5,
       "margin": 6.9,
-      "roe": 15.4
+      "equityConcept": "StockholdersEquity",
+      "roe": 17.9
     },
     "WST": {
       "symbol": "WST",
@@ -29117,7 +29412,7 @@
       "accession": "0001193125-26-069307",
       "revenue": 9516000000,
       "netIncome": 1605000000,
-      "equity": 8052000000,
+      "equity": 7976000000,
       "sharesOutstanding": 94545903,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -29137,7 +29432,8 @@
       },
       "revGrowth": -2.3,
       "margin": 16.9,
-      "roe": 19.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 20.1
     },
     "WY": {
       "symbol": "WY",
@@ -29507,7 +29803,7 @@
       "accession": "0001915657-26-000016",
       "revenue": 26869000000,
       "netIncome": 579000000,
-      "equity": 9249000000,
+      "equity": 9184000000,
       "sharesOutstanding": 180273187,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -29527,6 +29823,7 @@
       },
       "revGrowth": -6,
       "margin": 2.2,
+      "equityConcept": "StockholdersEquity",
       "roe": 6.3
     },
     "RBRK": {
@@ -29602,7 +29899,7 @@
       "accession": "0001104659-26-020651",
       "revenue": 14294300000,
       "netIncome": 739400000,
-      "equity": 7179500000,
+      "equity": 7170100000,
       "sharesOutstanding": 51733277,
       "sharesObservedAt": "2026-02-20",
       "coverage": [
@@ -29622,6 +29919,7 @@
       },
       "revGrowth": 3.3,
       "margin": 5.2,
+      "equityConcept": "StockholdersEquity",
       "roe": 10.3
     },
     "BKNG": {
@@ -29695,7 +29993,7 @@
       "accession": "0000885725-26-000010",
       "revenue": 20074000000,
       "netIncome": 2892000000,
-      "equity": 24472000000,
+      "equity": 24233000000,
       "sharesOutstanding": 1483885456,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -29715,7 +30013,8 @@
       },
       "revGrowth": 19.9,
       "margin": 14.4,
-      "roe": 11.8
+      "equityConcept": "StockholdersEquity",
+      "roe": 11.9
     },
     "CINF": {
       "symbol": "CINF",
@@ -29793,7 +30092,7 @@
       "accession": "0000026172-26-000009",
       "revenue": 33670000000,
       "netIncome": 2957000000,
-      "equity": 13408000000,
+      "equity": 12349000000,
       "sharesOutstanding": 138165463,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -29813,7 +30112,8 @@
       },
       "revGrowth": -1.3,
       "margin": 8.8,
-      "roe": 22.1
+      "equityConcept": "StockholdersEquity",
+      "roe": 23.9
     },
     "CPAY": {
       "symbol": "CPAY",
@@ -29842,7 +30142,7 @@
       "accession": "0001175454-26-000018",
       "revenue": 4528403000,
       "netIncome": 1069826000,
-      "equity": 3926677000,
+      "equity": 3883864000,
       "sharesOutstanding": 68050296,
       "sharesObservedAt": "2026-02-17",
       "coverage": [
@@ -29862,7 +30162,8 @@
       },
       "revGrowth": 13.9,
       "margin": 23.6,
-      "roe": 27.2
+      "equityConcept": "StockholdersEquity",
+      "roe": 27.5
     },
     "DOW": {
       "symbol": "DOW",
@@ -29891,7 +30192,7 @@
       "accession": "0001751788-26-000018",
       "revenue": 39968000000,
       "netIncome": -2444000000,
-      "equity": 17522000000,
+      "equity": 16008000000,
       "sharesOutstanding": 717534072,
       "sharesObservedAt": "2026-01-15",
       "coverage": [
@@ -29911,7 +30212,8 @@
       },
       "revGrowth": -7,
       "margin": -6.1,
-      "roe": -13.9
+      "equityConcept": "StockholdersEquity",
+      "roe": -15.3
     },
     "DUK": {
       "symbol": "DUK",
@@ -30024,7 +30326,7 @@
       "accession": "0000831259-26-000012",
       "revenue": 25186000000,
       "netIncome": 4152000000,
-      "equity": 30766000000,
+      "equity": 18899000000,
       "sharesOutstanding": 1437201606,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -30044,7 +30346,12 @@
       },
       "revGrowth": 0.1,
       "margin": 16.5,
-      "roe": 13.5
+      "equityConcept": "StockholdersEquity",
+      "equityConceptConflict": {
+        "reported": 30766000000,
+        "parent": 18899000000
+      },
+      "roe": 22
     },
     "GLW": {
       "symbol": "GLW",
@@ -30073,7 +30380,7 @@
       "accession": "0000024741-26-000124",
       "revenue": 15629000000,
       "netIncome": 1596000000,
-      "equity": 12307000000,
+      "equity": 11807000000,
       "sharesOutstanding": 857948109,
       "sharesObservedAt": "2026-01-30",
       "coverage": [
@@ -30093,7 +30400,8 @@
       },
       "revGrowth": 19.1,
       "margin": 10.2,
-      "roe": 13
+      "equityConcept": "StockholdersEquity",
+      "roe": 13.5
     },
     "HOOD": {
       "symbol": "HOOD",
@@ -30317,7 +30625,7 @@
       "accession": "0000713676-26-000020",
       "revenue": 23099000000,
       "netIncome": 6997000000,
-      "equity": 60636000000,
+      "equity": 60585000000,
       "sharesOutstanding": 403370923,
       "sharesObservedAt": "2026-02-03",
       "coverage": [
@@ -30337,6 +30645,7 @@
       },
       "revGrowth": 7.2,
       "margin": 30.3,
+      "equityConcept": "StockholdersEquity",
       "roe": 11.5
     },
     "PRU": {
@@ -30366,7 +30675,7 @@
       "accession": "0001137774-26-000048",
       "revenue": 60774000000,
       "netIncome": 3576000000,
-      "equity": 32787000000,
+      "equity": 32438000000,
       "sharesOutstanding": 348000000,
       "sharesObservedAt": "2026-01-31",
       "coverage": [
@@ -30386,7 +30695,8 @@
       },
       "revGrowth": -13.7,
       "margin": 5.9,
-      "roe": 10.9
+      "equityConcept": "StockholdersEquity",
+      "roe": 11
     },
     "STAG": {
       "symbol": "STAG",
@@ -30415,7 +30725,7 @@
       "accession": "0001479094-26-000009",
       "revenue": 845184000,
       "netIncome": 273519000,
-      "equity": 3671029000,
+      "equity": 3595697000,
       "sharesOutstanding": 191036305,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -30435,7 +30745,8 @@
       },
       "revGrowth": 10.1,
       "margin": 32.4,
-      "roe": 7.5
+      "equityConcept": "StockholdersEquity",
+      "roe": 7.6
     },
     "T": {
       "symbol": "T",
@@ -30562,7 +30873,7 @@
       "accession": "0001543151-26-000015",
       "revenue": 52017000000,
       "netIncome": 10053000000,
-      "equity": 27918000000,
+      "equity": 27041000000,
       "sharesOutstanding": 2058115983,
       "sharesObservedAt": "2026-02-10",
       "coverage": [
@@ -30582,7 +30893,8 @@
       },
       "revGrowth": 18.3,
       "margin": 19.3,
-      "roe": 36
+      "equityConcept": "StockholdersEquity",
+      "roe": 37.2
     },
     "AEE": {
       "symbol": "AEE",

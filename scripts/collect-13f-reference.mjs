@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createSecClient, parse13fAmendmentMetadata } from './lib/sec-edgar.mjs';
+import { composeAmendmentChain } from './lib/13f-compose.mjs';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
@@ -183,43 +184,15 @@ async function fetchFilingBundle(filing) {
 }
 
 async function composePeriodFilings(fallbackFiling, periodSubmissions = []) {
+  // P1449: the composition policy itself lives in scripts/lib/13f-compose.mjs (one policy,
+  // one implementation — R619). This wrapper only fetches the bundles in filedAt order.
   const candidates = (periodSubmissions || [])
     .filter((filing) => filing?.baseForm === '13F-HR' && filing.informationTableXml)
     .sort((left, right) => String(left.filedAt).localeCompare(String(right.filedAt)) || String(left.accession).localeCompare(String(right.accession)));
   if (!candidates.some((filing) => filing.accession === fallbackFiling?.accession) && fallbackFiling?.informationTableXml) candidates.push(fallbackFiling);
   const bundles = [];
   for (const filing of candidates.length ? candidates : [fallbackFiling]) bundles.push(await fetchFilingBundle(filing));
-  let effective = null;
-  const amendmentChain = [];
-  for (const bundle of bundles) {
-    const amended = bundle.filing.isAmendment || /\/A$/.test(String(bundle.filing.form || '')) || String(bundle.cover.isAmendment).toLowerCase() === 'true';
-    const type = String(bundle.cover.amendmentType || '').trim().toUpperCase();
-    if (!amended) {
-      effective = { ...bundle, rows: [...bundle.rows] };
-      amendmentChain.push({ accession: bundle.filing.accession, type: 'ORIGINAL', rows: bundle.rows.length });
-    } else if (/RESTATEMENT/.test(type)) {
-      effective = { ...bundle, rows: [...bundle.rows] };
-      amendmentChain.push({ accession: bundle.filing.accession, type: 'RESTATEMENT', rows: bundle.rows.length });
-    } else if (/NEW HOLDINGS/.test(type) && effective) {
-      const existingValue = Number(effective.cover.tableValueTotal ?? effective.rows.reduce((sum, row) => sum + row.value, 0));
-      const addedValue = Number(bundle.cover.tableValueTotal ?? bundle.rows.reduce((sum, row) => sum + row.value, 0));
-      effective = {
-        ...bundle,
-        rows: [...effective.rows, ...bundle.rows],
-        cover: {
-          ...bundle.cover,
-          tableEntryTotal: Number(effective.cover.tableEntryTotal ?? effective.rows.length) + Number(bundle.cover.tableEntryTotal ?? bundle.rows.length),
-          tableValueTotal: existingValue + addedValue,
-          compositeAmendment: true
-        }
-      };
-      amendmentChain.push({ accession: bundle.filing.accession, type: 'NEW HOLDINGS', rows: bundle.rows.length });
-    } else {
-      throw new Error(`Unsupported 13F amendment semantics for ${bundle.filing.accession}: ${type || 'UNCLASSIFIED'}`);
-    }
-  }
-  if (!effective) throw new Error(`No effective 13F holdings rows for ${fallbackFiling?.accession || 'unknown filing'}`);
-  return { ...effective, amendmentChain };
+  return composeAmendmentChain(bundles);
 }
 
 const verified = filings.managers.filter((manager) => manager.latestFiling?.informationTableXml && manager.cik);

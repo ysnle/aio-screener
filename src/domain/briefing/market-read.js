@@ -239,7 +239,7 @@ export function buildMarketRead(input = {}) {
   const rut20 = s.rut ? pct(s.rut.value, s.rut.d20) : null;
   if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= 2) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 20일 ${signed(ndx20)} vs S&P 500 ${signed(spx20)} — ${ndx20 > spx20 ? '기술주가 상승을 주도' : '기술주가 시장보다 약함'}.`, 'index');
   const hyWeek = c.hy5;
-  const creditCalm = hyBp != null && hyWeek != null && hyBp < RULES.credit.tightBelowBp && hyWeek <= 5;
+  const creditCalm = hyBp != null && hyWeek != null && hyBp < RULES.credit.tightBelowBp && hyWeek <= RULES.credit.calm5dBp;
   if (rut20 != null && spx20 != null && Math.abs(rut20 - spx20) >= 3) {
     const lags = rut20 < spx20;
     add(lags ? 'smallcap-lags' : 'smallcap-leads', lags && creditCalm ? 55 : 45, `러셀 2000 20일 ${signed(rut20)} vs S&P 500 ${signed(spx20)}.`, 'index', {
@@ -257,12 +257,22 @@ export function buildMarketRead(input = {}) {
 
   // 4. Fear gauge vs credit: is the fear priced in credit too?
   const vix = s.vix;
-  if (fg != null && fg < 35 && hyBp != null && hyBp < 350 && vix && vix.value < 20) {
-    add('fear-without-credit-stress', 80, `F&G ${fmt(fg, 0)}(공포)인데 HY 신용 스프레드 ${fmt(hyBp, 0)}bp·VIX ${fmt(vix.value)}는 안정적입니다${hyWeek != null ? ` (HY 5일 ${signed(hyWeek, 0, 'bp')})` : ''}.`, 'risk', { reading: '공포가 아직 신용 시장으로 번지지 않았습니다.', check: `HY 스프레드가 350bp(경계 구간)를 넘는지(현재 ${fmt(hyBp, 0)}bp)` });
+  // P1449: level and direction are both observed facts; only (수준 + 방향 + 관측창) together can
+  // support the "not yet spread to credit" reading. HY 324bp +44bp/5일 is stress forming, and a
+  // level-only gate cannot prove contagion absence — the reading splits on the 5-day change
+  // (KNOWLEDGE-BASE: the HY 350bp breakout inverts ' 공포는 신용으로 번지지 않았다').
+  if (fg != null && fg < 35 && hyBp != null && hyBp < RULES.credit.tightBelowBp && vix && vix.value < RULES.volatility.calmBelow) {
+    const widening = hyWeek != null && hyWeek >= RULES.credit.widen5dBp / 2;
+    add('fear-without-credit-stress', 80, `F&G ${fmt(fg, 0)}(공포)인데 HY 신용 스프레드 ${fmt(hyBp, 0)}bp·VIX ${fmt(vix.value)}는 경계선 아래입니다${hyWeek != null ? ` (HY 5일 ${signed(hyWeek, 0, 'bp')})` : ''}.`, 'risk', {
+      reading: widening
+        ? `아직 ${RULES.credit.tightBelowBp}bp 아래지만 5일 ${signed(hyWeek, 0, 'bp')} 확대 중입니다 — 공포가 신용으로 번지지 않았다고 말하려면 확대가 멈추는지 확인이 필요합니다.`
+        : '공포가 아직 신용 시장으로 번지지 않았습니다.',
+      check: `HY 스프레드가 ${RULES.credit.tightBelowBp}bp(경계 구간)를 넘는지(현재 ${fmt(hyBp, 0)}bp), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
+    });
   } else if (fg != null && fg > 70 && vix && vix.value < 14) {
     add('complacency', 60, `F&G ${fmt(fg, 0)}(탐욕)·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });
   }
-  if (hyWeek != null && hyWeek >= 15 && hyBp != null && hyBp < 450) add('credit-widening', 72, `HY 신용 스프레드 5일 ${signed(hyWeek, 0, 'bp')} 확대(${fmt(hyBp, 0)}bp).`, 'risk', { reading: '자금 조달 여건이 빠듯해지는 신호입니다.', check: 'HY 스프레드 확대가 이어지는지 — 이어지면 주식보다 신용이 먼저 위험을 반영' });
+  if (hyWeek != null && hyWeek >= RULES.credit.widenWatch5dBp && hyBp != null && hyBp < RULES.credit.stressAtBp) add('credit-widening', 72, `HY 신용 스프레드 5일 ${signed(hyWeek, 0, 'bp')} 확대(${fmt(hyBp, 0)}bp).`, 'risk', { reading: '자금 조달 여건이 빠듯해지는 신호입니다.', check: 'HY 스프레드 확대가 이어지는지 — 이어지면 주식보다 신용이 먼저 위험을 반영' });
   if (hyBp != null && hyBp >= RULES.credit.stressAtBp) add('credit-stress', 85, `HY 신용 스프레드 ${fmt(hyBp, 0)}bp(${RULES.credit.stressAtBp}bp 이상 스트레스 구간).`, 'risk', { reading: '신용 시장이 위험을 가격에 반영하고 있습니다.' });
   if (vix && s.vix3m && s.vix3m.date === vix.date && vix.value / s.vix3m.value > 1) add('vix-inversion', 75, `VIX(${fmt(vix.value)})가 3개월 VIX(${fmt(s.vix3m.value)})보다 높은 역전 상태입니다.`, 'risk', { reading: '단기 스트레스가 중기 기대보다 큽니다.' });
   if (tnx?.yearPosition != null && tnx.yearPosition >= 0.95 && vix && vix.value < 20) add('orderly-at-rate-high', 58, `10년물 금리는 1년 최고권인데 VIX는 ${fmt(vix.value)}.`, 'risk', { reading: '금리 부담에도 공포성 매도 신호는 아직 없습니다.' });
@@ -442,7 +452,7 @@ export function buildMarketRegime(input = {}) {
     else if (tnx20 >= RULES.rates.move20dBp || (atHigh && tnx5 != null && tnx5 > 0)) state = 'burden';
     else if (tnx20 <= -RULES.rates.move20dBp) state = 'favorable';
     const realLed = real5 != null && bei5 != null && real5 > 0 && Math.abs(real5) >= Math.abs(bei5);
-    const read = state === 'burden' ? `장기금리가 오르는 구간${atHigh ? '(1년 범위 상단)' : ''} — 주식 할인율 부담${realLed ? '. 상승분 대부분이 실질금리라 밸류에이션(PER)에 더 직접적입니다' : ''}.`
+    const read = state === 'burden' ? `장기금리가 오르는 구간${atHigh ? '(1년 범위 상단)' : ''} — 주식 할인율 부담${realLed ? '. 실질금리 주도 여부는 5일 관측 기준이며(20일 전체를 분해한 자료는 없습니다), 최근 5일 상승분 대부분이 실질금리였습니다' : ''}.`
       : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
         : state === 'unknown' ? (tnx ? '10년물 20일 변화를 계산할 기록이 부족합니다.' : staleRead('금리', alignments.tnx)) : '금리가 뚜렷한 방향 없이 움직이고 있습니다.';
     const flip = state === 'unknown' ? null
@@ -539,7 +549,7 @@ export function buildMarketRegime(input = {}) {
   const byId = Object.fromEntries(axes.map((row) => [row.id, row]));
   const conflicts = [];
   if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('추세는 우호인데 시장 폭은 부담 — 지수가 소수 종목에 기대고 있을 가능성이 큽니다.');
-  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') conflicts.push('금리는 부담인데 변동성은 낮음 — 금리 부담이 아직 공포로 번지지 않았습니다.');
+  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') conflicts.push('금리는 부담인데 변동성은 낮음 — 금리 부담을 가격에 반영한 공포성 매도는 아직 관측되지 않았습니다. 다만 HY 5일 확대가 이어지면(수준·방향 별도 확인이 필요한 지점) 결론이 바뀔 수 있습니다.');
   if (byId.credit?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('시장 폭은 약하지만 신용은 안정 — 신용 위험이 약세를 이끈다는 신호는 없습니다.');
   return {
     available: true,

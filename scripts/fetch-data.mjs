@@ -25,6 +25,8 @@ import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS, computeFactorRanks } from '../src/domain/screener/factor-ranks.js';
+import { MODEL_DEFAULT_WEIGHTS } from '../src/domain/screener/factor-weights.js';
+import { buildScreenerModelFingerprint } from '../src/domain/screener/model-fingerprint.js';
 import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js'; // P1402
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
 import { collectRotationHistory } from './lib/rotation-history.mjs';
@@ -2024,6 +2026,9 @@ async function getScreenerUniverse() {
       symbols: [...new Set(syms)],
       // P1443: the backtest ranks with the live model, which normalizes within sectors.
       sectors: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, r.sector || null])),
+      // P1449: breadth contributors must say which entries are ETFs (asset type), not silently
+      // mix them into "미국 주식" counts — ETFs are already inside the screener universe.
+      assetType: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, String(r.sector || '').toUpperCase() === 'ETF' ? 'ETF' : 'stock'])),
       meta: j.meta && typeof j.meta === 'object' ? j.meta : {},
       generatedFrom: j.generatedFrom || 'unknown',
       generatedBy: j.generatedBy || 'unknown'
@@ -2288,6 +2293,13 @@ export function backtestFactors(stockData, opts) {
   //   why two independent copies of the same "thing" drift apart over time).
   var sectorOf = opts && typeof opts.sectorOf === 'function' ? opts.sectorOf : function() { return null; };
   var liveActiveFactorsSeen = [];
+  // P1449: model identity — the canonical string the UI compares against its live model before
+  // presenting stored rows as validation of the current ranking.
+  var modelFingerprint = buildScreenerModelFingerprint({
+    rebalanceOffsets: OFFSETS,
+    fwdDays: FWD,
+    transactionCostBps: transactionCostBps
+  });
   var EXCLUDED_FACTORS = ['size', 'value', 'quality'];
   var EXCLUDED_FACTORS_REASON = 'size needs historical shares-outstanding data this pipeline does not fetch; value/quality are FMP today-only TTM snapshots with no historical time series, so backtesting them would use look-ahead information';
   var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
@@ -2365,13 +2377,17 @@ export function backtestFactors(stockData, opts) {
       var ic = _spearman(ps.map(function(r){ return r[pair[0]]; }), ps.map(function(r){ return r.fwd; }));
       if (isNum(ic)) { icS[pair[1]] += ic; icN[pair[1]]++; icByDate[pair[1]].push(ic); }
     });
-    // P1443 (review 2026-10-04): the composite is the live model itself — computeFactorRanks with the
-    // same raw definitions (trend 60/40 of the 50/200-day distances), sector-relative z-scores, coverage
-    // gates and default weights — run on the factor values known at the rebalance date. The former
+    // P1443/I P1449: the composite is the live model itself — computeFactorRanks with the
+    // same raw definitions (trend 60/40 of the 50/200-day distances), sector-relative z-scores,
+    // coverage gates and the live model default weights (factor-weights.js NEUTRAL, one
+    // weights module) — run on the factor values known at the rebalance date. The former
     // percentile-weighted re-implementation (trend as a plain mean, universe percentiles) ranked a
-    // different model, so its IC did not validate the ranking on screen.
+    // different model, so its IC did not validate the ranking on screen; the weights are now
+    // passed explicitly so the validation can never drift back to a second copy of the vector.
     var asOf = rebalanceDate + 'T21:00:00.000Z';
     var live = computeFactorRanks({
+      weights: MODEL_DEFAULT_WEIGHTS,
+      weightsPolicy: 'model-default',
       rows: rows.map(function(r) {
         return { sym: r.sym, sector: sectorOf(r.sym), ret1m: r.f.ret1m, ret3m: r.f.ret3m, ret6m: r.f.ret6m,
           pctSma50: r.f.pctSma50, pctSma200: r.f.pctSma200, vol: r.f.vol, kalmanVel: r.f.kalmanVel, kalmanVelConf: r.f.kalmanVelConf,
@@ -2453,6 +2469,7 @@ export function backtestFactors(stockData, opts) {
   };
   return {
     asOf: new Date().toISOString(), fwdDays: FWD, dates: spreadN,
+    modelFingerprint: modelFingerprint,
     status: calculationStatus,
     calculationStatus: calculationStatus,
     readiness: validationReadiness,
@@ -2548,7 +2565,7 @@ export function backtestFactors(stockData, opts) {
       blockedReasons: ['historical-universe-point-in-time-not-available', 'survivorship-bias-uncontrolled-current-membership'],
       allowedUse: 'research-reference-not-predictive-validation'
     },
-    compWeights: 'live-model-default (factor-ranks.js DEFAULT_WEIGHTS, renormalized over computable factors)', // P1443
+    compWeights: 'factor-weights.js NEUTRAL renormalized over the computable factors — the same live model default ranking uses (P1449 fingerprint below)', // P1443/I P1449: it was a hand copy of the same thing that drifted
     weightPolicy: 'fixed-neutral-until-explicit-promotion',
     weightRegime: 'NEUTRAL',
     excludedFactors: EXCLUDED_FACTORS,
@@ -2571,6 +2588,7 @@ async function updateBacktestHistory(backtest) {
     const rec = {
       date: today,
       asOf: backtest.asOf,
+      modelFingerprint: backtest.modelFingerprint,
       n: backtest.n,
       dates: backtest.dates,
       ic: backtest.ic,
@@ -3166,7 +3184,9 @@ export async function enrichScreener() {
   }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
   const breadth = computeScreenerBreadth(syms, results);
-  const breadthHistory = computeScreenerBreadthHistory(syms, results);
+  // P1449: breadth contributors carry each symbol's asset type so the drilldown can say which
+  // rows are ETFs and which single-day moves need a corporate-action check.
+  const breadthHistory = computeScreenerBreadthHistory(syms, results, undefined, Date.now(), (sym) => universeInfo.assetType?.[sym] ?? null);
   // P1416: distribution days need the index's own volume; one extra daily-bar request.
   let distribution = null;
   try {
@@ -3617,7 +3637,7 @@ export function isSessionComplete(date, segment, nowMs = Date.now()) {
 // the screener. Date alignment is explicit; array position is never used to
 // align different securities. This remains AIO-universe research data, not
 // official exchange advance/decline data.
-export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowMs = Date.now()) {
+export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowMs = Date.now(), assetTypeOf = null) {
   const symbolSet = new Set(syms || []);
   const buckets = new Map();
   const windows = [20, 50, 200];
@@ -3639,12 +3659,17 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     if (signal.above40Eligible) { bucket.eligibleByWindow[40] += 1; if (signal.above40) bucket.above[40] += 1; }
     if (signal.moverEligible) bucket.moverEligible += 1;
     const change = signal.change == null ? null : round(signal.change * 100, 2);
-    if (signal.mover === 'up') { bucket.up4 += 1; bucket.contributors.up4.push([sym, change]); }
-    if (signal.mover === 'down') { bucket.down4 += 1; bucket.contributors.down4.push([sym, change]); }
+    // P1449: contributors carry their asset type; a ≥20% one-day move is flagged as
+    // possibly corporate-action-affected (spin-off etc.) — the audit source does not exist yet,
+    // so the UI must show this as '조정 여부 미확인', not as a crash reading.
+    const assetType = typeof assetTypeOf === 'function' ? (assetTypeOf(sym) || null) : null;
+    const caSuspected = change != null && Math.abs(change) >= 20;
+    if (signal.mover === 'up') { bucket.up4 += 1; bucket.contributors.up4.push([sym, change, assetType, caSuspected]); }
+    if (signal.mover === 'down') { bucket.down4 += 1; bucket.contributors.down4.push([sym, change, assetType, caSuspected]); }
     if (signal.highLowEligible) {
       bucket.highLowEligible += 1;
-      if (signal.newHigh) { bucket.newHighs += 1; bucket.contributors.newHigh.push([sym, change]); }
-      if (signal.newLow) { bucket.newLows += 1; bucket.contributors.newLow.push([sym, change]); }
+      if (signal.newHigh) { bucket.newHighs += 1; bucket.contributors.newHigh.push([sym, change, assetType, caSuspected]); }
+      if (signal.newLow) { bucket.newLows += 1; bucket.contributors.newLow.push([sym, change, assetType, caSuspected]); }
     }
   };
   const update = (bucket, values, prefix, finitePrefix, index, observedAt) => {
@@ -3804,11 +3829,19 @@ async function writeBreadthContributors(rows, nowMs = Date.now()) {
     .map((point) => ({
       date: point.date,
       eligible: point.us.signalEligible || null,
-      signals: Object.fromEntries(Object.entries(point.us.contributors).map(([key, list]) => [key, [...list].sort((a, b) => Math.abs(b[1] ?? 0) - Math.abs(a[1] ?? 0)).slice(0, 80)])),
+      // P1449: contributor entries become objects — asset type (ETF/stock) plus the
+      // corporate-action suspicion flag (|day change| >= 20%). "미국 주식" counts bundle ETFs
+      // with individual names, so the drilldown must say which is which.
+      signals: Object.fromEntries(Object.entries(point.us.contributors).map(([key, list]) => [key,
+        [...list]
+          .sort((a, b) => Math.abs(b[1] ?? 0) - Math.abs(a[1] ?? 0))
+          .slice(0, 80)
+          .map((entry) => ({ symbol: entry[0], dayChangePct: entry[1] ?? null, assetType: entry[2] ?? null, corporateActionSuspected: entry[3] === true }))
+      ])),
       counts: { up4: point.us.breadthUp4, down4: point.us.breadthDown4, newHigh: point.us.breadthNewHighs, newLow: point.us.breadthNewLows }
     }));
   if (!sessions.length) return { written: false };
-  const payload = { schemaVersion: 'breadth-contributors.v1', model: BREADTH_SIGNAL_MODEL_VERSION, generatedAt: new Date(nowMs).toISOString(), universeScope: 'aio-us-screener-universe-not-official-exchange', columns: ['symbol', 'dayChangePct'], sessions };
+  const payload = { schemaVersion: 'breadth-contributors.v2', model: BREADTH_SIGNAL_MODEL_VERSION, generatedAt: new Date(nowMs).toISOString(), universeScope: 'aio-us-screener-universe-not-official-exchange', universeAssetTypes: 'stocks-and-etfs-mixed', columns: ['symbol', 'dayChangePct', 'assetType', 'corporateActionSuspected'], corporateActionPolicy: 'none-adjusted — a >=20% one-day move is flagged only as a suspicion to check against the filing, not adjusted or confirmed', sessions };
   await atomicWriteFile(BREADTH_CONTRIBUTORS_OUT, JSON.stringify(payload));
   return { written: true, sessions: sessions.length };
 }

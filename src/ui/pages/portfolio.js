@@ -70,14 +70,14 @@ function renderPortfolioHero(documentRef, surface) {
   const totalValue = surface.valuationState === 'cash-only' || surface.valuationState === 'complete' ? surface.totalAssets : null;
   const totalPnl = surface.valuationState === 'complete' ? surface.totalPnl : null;
   if (valueElement) {
-    valueElement.textContent = formatMoney(totalValue, surface.baseCurrency || 'USD');
+    valueElement.textContent = formatMoney(totalValue, surface.baseCurrency || surface.declaredBaseCurrency || 'USD');
     valueElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
     valueElement.setAttribute('data-source-kind', totalValue == null ? 'unavailable' : 'portfolio-state');
     valueElement.setAttribute('data-source-label', totalValue == null ? 'portfolio-value-unavailable' : 'native-portfolio-totals');
     valueElement.setAttribute('data-operational-use', 'reference-only');
   }
   if (pnlElement) {
-    pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl, surface.baseCurrency || 'USD')}`;
+    pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl, surface.baseCurrency || surface.declaredBaseCurrency || 'USD')}`;
     pnlElement.style.color = totalPnl == null ? 'var(--text-dim)' : totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
     pnlElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
     pnlElement.setAttribute('data-source-kind', totalPnl == null ? 'unavailable' : 'portfolio-state');
@@ -86,9 +86,16 @@ function renderPortfolioHero(documentRef, surface) {
   }
 }
 
-function formatSurfaceMoney(value) {
+// P1449 (LC-45 residual): surface writers stopped hard-coding `$`. A KRW cash or KRW daily
+// change labeled with a dollar sign is a lie about its unit, not a formatting choice; the
+// surface's DECLARED currency is the unit those amounts are denominated in — even while a
+// mixed-currency conversion is held (the hold blocks the total, not the unit of each number).
+function formatSurfaceMoney(value, currency = 'USD') {
   if (value == null) return '—';
-  return `${value < 0 ? '-' : ''}$${Math.abs(value).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+  const code = String(currency || 'USD').trim().toUpperCase();
+  const sign = value < 0 ? '-' : '';
+  const amount = Math.abs(value).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  return code === 'USD' ? `${sign}$${amount}` : code === 'KRW' ? `${sign}₩${amount}` : `${sign}${amount} ${code}`;
 }
 
 function markSurfaceElement(element, value, sourceKind, sourceLabel, observedAt) {
@@ -127,9 +134,11 @@ function renderPortfolioSurface(documentRef, page, surface) {
   page.dataset.aioPortfolioPromotion = surface.promotionBlocked === false ? 'eligible' : 'blocked';
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
   setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${surface.totalPnlPct >= 0 ? '+' : ''}${surface.totalPnlPct.toFixed(1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
-  setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
+  setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${surface.dailyPct >= 0 ? '+' : ''}${surface.dailyPct.toFixed(2)}% today`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
-  setSurfaceText(documentRef, 'pf-cash-hero', formatSurfaceMoney(surface.cash), surface.cash, surface);
+  // P1449: cash is denominated in the declared cash currency, not the base currency — that
+  // is exactly the "cash currency = KRW로 선언했는데 $100,000" repro this fixes.
+  setSurfaceText(documentRef, 'pf-cash-hero', formatSurfaceMoney(surface.cash, surface.declaredCashCurrency || surface.declaredBaseCurrency), surface.cash, surface);
   setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? '—' : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
   // E3/P1181 (11 P11-02): 통화 상태를 표시에 드러낸다 — 혼합 통화는 환산근거가 없어 합계를 만들지
   // 않았고, 그 이유를 화면이 말해야 '값 소실'과 '의도된 보류'를 구분할 수 있다.
@@ -284,8 +293,11 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     // 저장된 0은 옛 "빈 칸" sentinel이고, $0.00 + -100% 잠재수익으로 그리지 않는다.
     const targetValue = finite(holding?.target);
     const targetSet = targetValue != null && targetValue > 0 ? targetValue : null;
-    const targetCell = tableCell(documentRef, 'pf-th-target', targetSet == null ? '미설정' : `$${targetSet.toFixed(2)}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;');
-    if (targetSet != null && price != null && price > 0) {
+    // P1449: the target is entered in the position's own currency (cost currency when declared,
+    // price currency otherwise) — a KRW target must not print with `$`.
+    const targetCurrency = costCurrency || priceCurrency;
+    const targetCell = tableCell(documentRef, 'pf-th-target', targetSet == null ? '미설정' : money(targetSet, targetCurrency), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;');
+    if (targetSet != null && price != null && price > 0 && targetCurrency === priceCurrency) {
       const upside = (targetSet - price) / price * 100;
       const upsideNode = documentRef.createElement('div');
       upsideNode.textContent = `${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%`;

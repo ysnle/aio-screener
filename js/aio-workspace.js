@@ -366,6 +366,8 @@ function renderPortfolioLedger() {
     ledger: ledger,
     coverageState: api && typeof api.coverageState === 'function' ? api.coverageState(ledger) : { inputs: [] }
   });
+  // P1449: ledger·규약이 바뀌면 계좌 성과 요약도 같은 epoch에서 다시 계산한다.
+  try { refreshPortfolioLedgerPerformance(); } catch(e) {}
 }
 window._aioAddLedgerEntry = function() { return addLedgerEntry('transaction'); };
 window._aioAddLedgerValuation = function() { return addLedgerEntry('valuation'); };
@@ -570,6 +572,9 @@ function editPosition(ticker) {
   const positions = getPortfolioData();
   const p = positions.find(pos => pos.ticker === ticker);
   if (!p) return;
+  // P1449: "수정"은 안내만 던지지 않는다 — 편집 입력 폼이 닫혀 있으면 열어 준다.
+  // (그렇지 않으면 스크롤+포커스가 접힌 섹션을 목표로 하고, 사용자는 어디를 편집하는지 못 본다.)
+  try { if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(true); } catch(e) {}
   var tkEl = document.getElementById('pf-add-ticker');
   var qtyEl = document.getElementById('pf-add-qty');
   var costEl = document.getElementById('pf-add-cost');
@@ -783,14 +788,15 @@ function renderPortfolio() {
     // v48.3 CRITICAL FIX: 기존 return `<tr...>`; 세미콜론+닫기 backtick 조기 종료로 이하 <td> 라인이 JS SyntaxError
     //                     → <script> 블록 전체 로드 실패 → save/render/add/edit/remove 전부 undefined
     //                     → 사용자 체감 "저장 안 됨 / 초기화". 단일 template literal로 재구성 + font-size 9px→11px/12px (R17/P37).
+    var _cur = _pfLegacyCurrencyOf(p); // P1449: row cells are denominated in the position's currency
     return `<tr style="border-bottom:1px solid var(--border);cursor:pointer;" data-action="showTicker" data-arg="${_eTk}">
       <td headers="pf-th-ticker" style="padding:8px 10px;font-size:12px;"><b style="color:var(--text-primary);">${escHtml(p.ticker)}</b>${p.memo ? '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">'+escHtml(p.memo)+'</div>' : ''}</td>
       <td headers="pf-th-qty" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.qty}</td>
-      <td headers="pf-th-cost" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">$${p.cost.toFixed(2)}</td>
-      <td headers="pf-th-price" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:${priceColor};">${currentPrice == null ? '—' : '$'+currentPrice.toFixed(2)}${liveTag}</td>
-      <td headers="pf-th-pnl" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:${pnlColor};">${pnl == null ? '—' : pnlSign+'$'+Math.abs(pnl).toLocaleString('en',{maximumFractionDigits:0})}</td>
+      <td headers="pf-th-cost" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${_pfLegacyMoney(p.cost, _cur)}</td>
+      <td headers="pf-th-price" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:${priceColor};">${currentPrice == null ? '—' : _pfLegacyMoney(currentPrice, _cur)}${liveTag}</td>
+      <td headers="pf-th-pnl" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:${pnlColor};">${pnl == null ? '—' : pnlSign+_pfLegacyMoney(Math.abs(pnl), _cur, 0)}</td>
       <td headers="pf-th-pct" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:${pnlColor};">${pnlPct == null ? '—' : pnlSign+pnlPct.toFixed(1)+'%'}</td>
-      <td headers="pf-th-target" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.target && p.target > 0 ? (currentPrice != null ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return '$'+p.target.toFixed(0)+'<div style="font-size:10px;color:'+uColor+';font-weight:600;">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : '$'+p.target.toFixed(0)+'<div style="font-size:10px;color:var(--text-muted);">상승여력 대기</div>') : '<span style="color:var(--text-muted);font-size:10px;">미설정</span>'}</td>
+      <td headers="pf-th-target" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.target && p.target > 0 ? (currentPrice != null ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return _pfLegacyMoney(p.target, _cur, 0)+'<div style="font-size:10px;color:'+uColor+';font-weight:600;">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : _pfLegacyMoney(p.target, _cur, 0)+'<div style="font-size:10px;color:var(--text-muted);">상승여력 대기</div>') : '<span style="color:var(--text-muted);font-size:10px;">미설정</span>'}</td>
       <td headers="pf-th-weight" style="text-align:center;padding:8px 6px;font-size:11px;font-weight:700;" id="pf-weight-${_eTk}">—</td>
       <td headers="pf-th-manage" style="text-align:center;padding:8px 6px;white-space:nowrap;">
         <button data-action="_aioTechnicalTicker" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="차트 분석" aria-label="차트 분석">차트</button>
@@ -925,6 +931,20 @@ function _aioRenderPortfolioHoldingCharts(positions, ld) {
 }
 window._aioRenderPortfolioHoldingCharts = _aioRenderPortfolioHoldingCharts;
 
+// P1449 (LC-45 residual): legacy fallback table cells stop hard-coding `$`. A position's cost/
+// price/target are denominated in their own declared currency — raw `$` labels are wrong when a
+// .KS holding's cost/target is KRW.
+function _pfLegacyMoney(amount, currency, digits = 2) {
+  var code = String(currency || 'USD').trim().toUpperCase();
+  if (amount == null) return '—';
+  var fix = Number.isFinite(Number(digits)) ? Number(digits) : 2;
+  var text = Math.abs(Number(amount)).toLocaleString('en', { minimumFractionDigits: fix, maximumFractionDigits: fix });
+  return code === 'USD' ? '$' + text : code === 'KRW' ? '₩' + Math.round(Number(amount)).toLocaleString('en') : text + ' ' + code;
+}
+function _pfLegacyCurrencyOf(position) {
+  return String((position && (position.costCurrency || position.currency)) || '').trim().toUpperCase()
+    || (/\.KS|\.KQ/.test(String((position && position.ticker) || '')) ? 'KRW' : 'USD');
+}
 function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDailyChg) {
   totalValue = totalValue || 0;
   totalCost = totalCost || 0;
@@ -1001,7 +1021,38 @@ function refreshPortfolioPrices() {
 
 // ══ v48.88: 포트폴리오 리스크 분석 (data:statistical-analysis 방법론) ══
 
+// E4/P1191 + P1449: 원장 계좌 성과(TWR/MWR)는 ledger·규약 선언만으로 계산되는 자체 엔진이다.
+// Yahoo 시세 이력 게이트(조정주가·공통 거래일)와 무관하게 도달해야 하므로, 시세 기반 리스크
+// refresh에서 분리해 별도 요약으로 렌더한다 — 보류 사유도 이 엔진 자신의 message를 그대로 쓴다.
+function refreshPortfolioLedgerPerformance() {
+  var host = document.getElementById('pf-ledger-performance');
+  if (!host) return null;
+  var accountLedger = (typeof getPortfolioLedger === 'function') ? getPortfolioLedger() : null;
+  var declarations = (typeof readPortfolioAssumptionDeclarations === 'function') ? readPortfolioAssumptionDeclarations() : {};
+  var accountPerf = (typeof window._pfAssessAccountPerformance === 'function')
+    ? window._pfAssessAccountPerformance({
+      ledger: accountLedger ? Object.assign({}, accountLedger, { currency: accountLedger.currency || declarations.baseCurrency || null }) : null
+    }) : null;
+  window._lastPortfolioLedgerPerformance = accountPerf || null;
+  if (!accountPerf) { host.hidden = true; return null; }
+  var perfPct = function(v) { return v == null ? '보류' : (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%'; };
+  var html;
+  if (accountPerf.status === 'ready') {
+    html = '<b>실제 계좌 성과 TWR ' + _escHtmlSafe(perfPct(accountPerf.twr)) + ' · MWR ' + _escHtmlSafe(perfPct(accountPerf.mwr)) + '</b> — '
+      + _escHtmlSafe(accountPerf.currency + ' · ' + accountPerf.flowTiming + ' · ' + accountPerf.sample.periods + '기간 ' + accountPerf.sample.from + '~' + accountPerf.sample.to)
+      + (accountPerf.mwr == null ? ' · ' + _escHtmlSafe((accountPerf.warnings && accountPerf.warnings[0]) || 'MWR 계산 불가') : '')
+      + ' (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)';
+  } else {
+    html = '<b>실제 계좌 성과(TWR/MWR) 보류</b> — ' + _escHtmlSafe(accountPerf.message || '원장 규약이 선언되지 않았습니다') + '. 원장 항목·규약을 선언하면 시세 이력과 무관하게 계산됩니다.';
+  }
+  host.innerHTML = html;
+  host.hidden = false;
+  return accountPerf;
+}
+
 async function refreshPortfolioRisk() {
+  // P1449: 원장 계좌 성과는 시세 이력 게이트와 독립 계산 — 어떤 보류에서도 항상 갱신한다.
+  try { refreshPortfolioLedgerPerformance(); } catch(e) {}
   const el = document.getElementById('pf-risk-metrics');
   if (!el) return;
   const positions = getPortfolioData();
@@ -1112,17 +1163,14 @@ async function refreshPortfolioRisk() {
   const corrRes = (validTickers.length >= 2 && typeof _calcCorrelationMatrix === 'function')
     ? _calcCorrelationMatrix(returnsMap) : null;
 
-  // E4/P1191: 원장이 선언되면 실제 계좌 성과를 계산한다. 없거나 규약이 미선언이면 엔진이
-  // 자기 사유로 보류하고, 패널은 그 사유를 그대로 게시한다 — 없는 성과를 만들지 않는다.
-  var accountLedger = (typeof getPortfolioLedger === 'function') ? getPortfolioLedger() : null;
-  var accountPerf = (typeof window._pfAssessAccountPerformance === 'function')
-    ? window._pfAssessAccountPerformance({
-      ledger: accountLedger ? { ...accountLedger, currency: accountLedger.currency || declarations.baseCurrency || null } : null
-    }) : null;
+  // E4/P1191 → P1449: 원장 계좌 성과는 시세 이력과 무관한 자체 패널(pf-ledger-performance)로
+  // 분리됐다(refreshPortfolioLedgerPerformance) — 시세 이력이 없어도 TWR/MWR에 도달한다.
+  var accountPerf = window._lastPortfolioLedgerPerformance || null;
   window._lastPortfolioRiskEstimate = { estimate: estimate, snapshot: snapshot, accountPerformance: accountPerf, rfAnnual: rfAnnual, checkedAt: Date.now() };
   _renderRiskMetrics(el, { var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
     corrRes: corrRes, validTickers: validTickers, n: minLen, rfAnnual: rfAnnual,
-    estimate: estimate, accountPerf: accountPerf });
+    estimate: estimate });
+  try { el.insertAdjacentHTML('beforeend', '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">실제 계좌 성과(TWR/MWR)는 원장 성과 요약에서 시세 이력과 무관하게 표시합니다.</div>'); } catch(e) {}
   if (assembled && assembled.fxIncluded === false) el.insertAdjacentHTML('beforeend', '<div style="font-size:11px;color:var(--data-amber);margin-top:6px;">해외 종목 수익률에 환율 변동이 빠져 있습니다(같은 기간 원/달러 종가 부족) — 계좌 통화 기준 전체 위험보다 작게 나올 수 있습니다.</div>'); // P1445
   try { _aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
   try { _aioRenderPortfolioStress(positions); } catch(_) {}                 // v50.54 3E
@@ -1292,20 +1340,9 @@ function _renderRiskMetrics(el, data) {
     return v >= 0.3 ? '위험' : v >= 0.15 ? '주의' : '양호';
   }
 
-  // 선언 블록 — 계좌 성과 보류 + 측정 경로/분모/RF/표본/snapshot.
+  // 선언 블록 — 측정 경로/분모/RF/표본/snapshot. 실제 계좌 성과(TWR/MWR)는 P1449부터
+  // pf-ledger-performance 요약으로 분리됐다(시세 이력 게이트와 무관).
   var declLines = [];
-  if (data.accountPerf && data.accountPerf.status === 'ready') {
-    // E4/P1191: 원장 계약을 통과한 실제 계좌 성과 — 규약·기간·표본을 수치와 함께 게시한다.
-    var perf = data.accountPerf;
-    var perfPct = function(v) { return (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%'; };
-    declLines.push('<b>실제 계좌 성과 TWR ' + _escHtmlSafe(perfPct(perf.twr)) + ' · MWR ' +
-      (perf.mwr == null ? '보류' : _escHtmlSafe(perfPct(perf.mwr))) + '</b> — ' +
-      _escHtmlSafe(perf.currency + ' · ' + perf.flowTiming + ' · ' + perf.sample.periods + '기간 ' + perf.sample.from + '~' + perf.sample.to) +
-      (perf.mwr == null ? ' · ' + _escHtmlSafe((perf.warnings && perf.warnings[0]) || 'MWR 계산 불가') : ''));
-  } else if (data.accountPerf) {
-    declLines.push('<b>실제 계좌 성과(TWR/MWR) 보류</b> — ' + _escHtmlSafe(data.accountPerf.message || '원장 없음') +
-      ' 아래 지표는 현재 구성을 과거에 적용한 참고도입니다.');
-  }
   if (est) {
     var declParts = [
       '경로 ' + est.exposureHistoryMode,

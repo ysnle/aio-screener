@@ -196,8 +196,49 @@ if (tickerIndexReference.schema !== 'masters-13f-reference-ticker-index.v1' || t
 if (tickerIndexReference.records?.some((record) => !record.tickerReference || record.mappingStatus !== 'REFERENCE_ONLY' || !record.rows?.length || record.rows.some((row) => !row.managerId || !row.reportPeriod || !row.cusip || row.sourceUrl == null))) fail('reference-only 13F ticker index rows are incomplete');
 if (mastersIndex.tickerIndexArtifact !== 'public-data/masters/ticker-index-reference.json' || mastersIndex.tickerIndexStatus !== 'REFERENCE_ONLY' || mastersIndex.tickerIndexReferenceCount !== tickerIndexReference.records.length || mastersIndex.tickerIndexMatchedRows !== expectedReferenceTickerMatches) fail('masters index does not expose the reference-only 13F ticker index metadata');
 if (!core.includes('mappingStatus') || !core.includes('reference-rows-found') || !core.includes('reference-mapping-not-found') || !core.includes('tickerReference is not SEC-provided')) fail('13F chat reverse lookup lacks explicit reference-only/missing-mapping boundaries');
-if (historyIndex.status !== 'FILING_HISTORY_ROWS_CONNECTED' || historyIndex.connectedManagers !== 7 || historyIndex.historyDepthTarget !== 12 || historyIndex.totalPeriods !== 84 || historyIndex.rowImportedPeriods !== 84 || historyIndex.pendingRowImportPeriods !== 0 || historyIndex.historicalRowsArtifact !== 'public-data/masters/history-holdings.json' || historyIndex.managers.some((manager) => manager.periods.length !== 12 || manager.periods.some((period) => !period.indexUrl || !period.accession || !period.periodOfReport || !period.informationTableXml || !period.rowCount || period.rowImportStatus === 'METADATA_ONLY'))) fail('13F filing history rows boundary drifted');
-if (historyRows.status !== 'RAW_SEC_HISTORY_CONNECTED' || historyRows.periodsImported !== 70 || historyRows.rowsImported <= 0 || historyRows.rows?.some((row) => !row.managerId || !row.reportPeriod || !row.cusipNormalized || !row.sourceUrl)) fail('13F historical row artifact boundary drifted');
+const isHistoryComposed = historyIndex.schemaVersion === 'masters-13f-history-index.v3';
+if (historyIndex.status !== 'FILING_HISTORY_ROWS_CONNECTED' || historyIndex.connectedManagers !== 7 || historyIndex.historyDepthTarget !== 12 || historyIndex.historicalRowsArtifact !== 'public-data/masters/history-holdings.json') fail('13F filing history boundary drifted');
+if (!isHistoryComposed) {
+  // v2 (pre-composition) artifact: legacy pinned shape, still true until the next data refresh.
+  if (historyIndex.totalPeriods !== 84 || historyIndex.rowImportedPeriods !== 84 || historyIndex.pendingRowImportPeriods !== 0 || historyIndex.managers.some((manager) => manager.periods.length !== 12 || manager.periods.some((period) => !period.indexUrl || !period.accession || !period.periodOfReport || !period.informationTableXml || !period.rowCount || period.rowImportStatus === 'METADATA_ONLY'))) fail('13F filing history rows boundary drifted');
+  if (historyRows.periodsImported !== 70) fail('13F historical row artifact boundary drifted');
+  // P1449: pre-composition artifacts are grandfathered, but a regression that re-splits the
+  // composition policy back into two separate lane implementations is still caught here.
+  if (!read('scripts/collect-13f-reference.mjs').includes('lib/13f-compose.mjs') || !read('scripts/collect-13f-history-rows.mjs').includes('lib/13f-compose.mjs')) fail('13F amendment composition must use the single shared policy script');
+} else {
+  // v3: every period keeps the full same-period submission group and composed periods prove
+  // their chain; a partially-amended period must exist in REVIEW_REQUIRED state, never as a
+  // silently published quarter total.
+  if (historyIndex.managers.length !== 7 || historyIndex.managers.some((manager) => manager.periods.length !== 12)) fail('13F filing history v3 manager/depth coverage drifted');
+  for (const manager of historyIndex.managers) {
+    for (const period of manager.periods) {
+      if (!period.accession || !period.periodOfReport || !Array.isArray(period.submissions) || period.submissions.length < 1 || (period.submissionCount || 0) !== period.submissions.length) fail(`13F history v3 submissions group missing for ${manager.managerId} ${period.periodOfReport}`);
+      if (period.compositionStatus === 'REVIEW_REQUIRED') {
+        if (period.rowCount != null || period.reportedValueTotal != null || period.countReconciled !== false) fail(`13F REVIEW_REQUIRED period must not publish a calculable quarter total: ${manager.managerId} ${period.periodOfReport}`);
+      } else if (period.rowImportStatus !== 'METADATA_ONLY') {
+        const composedRoles = (period.amendmentChain || []).map((entry) => entry.role);
+        if (!composedRoles.includes('ORIGINAL') && !composedRoles.includes('RESTATEMENT')) fail(`13F composed period without an ORIGINAL/RESTATEMENT base: ${manager.managerId} ${period.periodOfReport}`);
+        if (!period.rowCount || !period.reportedValueTotal || !period.informationTableXml) fail(`13F imported period row totals missing: ${manager.managerId} ${period.periodOfReport}`);
+      }
+    }
+  }
+}
+if (historyRows.status !== 'RAW_SEC_HISTORY_CONNECTED' || historyRows.periodsImported <= 0 || historyRows.rowsImported <= 0 || historyRows.rows?.some((row) => !row.managerId || !row.reportPeriod || !row.cusipNormalized || !row.sourceUrl)) fail('13F historical row artifact boundary drifted');
+// P1449: rows written under v2 carry the accession + filingRole of each composed sub-filing.
+// Old v1 rows (no roles) are tolerated only until the next data refresh regenerates the artifact.
+const historyRowsIsV2 = historyRows.schemaVersion === 'masters-13f-history-holdings.v2';
+if (historyRowsIsV2) {
+  if (historyRows.rows?.some((row) => !row.filingRole || !['ORIGINAL', 'RESTATEMENT', 'NEW_HOLDINGS_ADD'].includes(row.filingRole) || !row.accession)) fail('13F composed history rows must record accession and filingRole');
+  const v2PeriodKeys = new Set(historyRows.rows.map((row) => `${row.managerId}|${row.reportPeriod}`));
+  if (v2PeriodKeys.size !== historyRows.periodsImported) fail('13F history rows periodsImported must equal the distinct imported periods actually stored');
+  const mixed = [...v2PeriodKeys].some((key) => {
+    const rows = historyRows.rows.filter((row) => `${row.managerId}|${row.reportPeriod}` === key);
+    return rows.length > 1 && rows.every((row) => row.filingRole) === false;
+  });
+  if (mixed) fail('13F composed periods must not mix role-tagged and role-less rows');
+} else if (historyRows.periodsImported !== 70) {
+  fail('13F historical row artifact boundary drifted');
+}
 const liveManagers = filings.managers.filter((manager) => manager.cik);
 if (holdings.latestAvailablePeriod !== '2026-06-30') fail('latest connected 13F period drifted');
 for (const manager of liveManagers) {

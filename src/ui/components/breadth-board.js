@@ -120,12 +120,20 @@ function renderDrill(doc, root, card, contributors, basis) {
       column.append(el(doc, 'h4', `${DRILL_LABELS[key]} ${session?.counts?.[key] ?? list.length}`, 'breadth-drill-title'));
       if (!list.length) column.append(el(doc, 'p', '해당 종목 없음', 'breadth-drill-empty'));
       const ul = el(doc, 'ul', null, 'breadth-drill-list');
-      for (const [symbol, change] of list.slice(0, 40)) {
+      for (const entry of list.slice(0, 40)) {
+        const symbol = Array.isArray(entry) ? entry[0] : entry?.symbol;
+        const change = Array.isArray(entry) ? entry[1] : entry?.dayChangePct;
+        const assetType = Array.isArray(entry) ? entry[2] : entry?.assetType;
+        const caSuspected = Array.isArray(entry) ? entry[3] === true : entry?.corporateActionSuspected === true;
+        if (!symbol) continue;
         const li = el(doc, 'li');
         const button = el(doc, 'button', symbol, 'breadth-drill-symbol');
         button.type = 'button';
         button.addEventListener('click', () => { if (typeof root?.showTicker === 'function') root.showTicker(symbol); });
-        li.append(button, el(doc, 'span', nameOf(root, symbol), 'breadth-drill-name'), el(doc, 'span', change == null ? '' : `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`, `breadth-drill-chg ${change >= 0 ? 'is-up' : 'is-down'}`));
+        li.append(button, el(doc, 'span', [assetType === 'ETF' ? 'ETF' : '', nameOf(root, symbol)].filter(Boolean).join(' '), 'breadth-drill-name'), el(doc, 'span', change == null ? '' : `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`, `breadth-drill-chg ${change >= 0 ? 'is-up' : 'is-down'}`));
+        const badge = (text) => { const node = el(doc, 'span', text, 'breadth-drill-ca'); node.style.cssText = 'font-size:10px;color:var(--data-amber);line-height:1.5;'; return node; };
+        if (assetType === 'ETF') li.append(badge('ETF — 개별 주식 수에 함께 집계됩니다'));
+        else if (caSuspected) li.append(badge('기업행사 가능성 — 분사·합병 등 조정 여부는 공시 원문으로 확인되지 않았습니다'));
         ul.append(li);
       }
       column.append(ul);
@@ -145,7 +153,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   const regime = buildMarketRegime(inputs);
   const axis = regime.axes?.find((row) => row.id === 'breadth');
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''} · AIO 미국 주식 유니버스(약 700종목, 거래소 전체 집계 아님)` : '종가 기록을 불러오는 중입니다.');
+  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''} · AIO 미국 스크리너 유니버스(개별 주식 + ETF 혼합 · 거래소 전체 집계 아님 — 신고가·신저가 수를 시장 내부 건강도로 읽을 때 ETF 포함과 기업행사 여부를 함께 확인하세요)` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
   if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'}`; }
   set('breadth-read', axis?.read || '');

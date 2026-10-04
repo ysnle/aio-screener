@@ -310,7 +310,10 @@ var SCREENER_DB = [
   { sym:'HCA', name:'HCA Healthcare', sector:'Healthcare', index:'SP500' },
   { sym:'ROP', name:'Roper Technologies', sector:'Industrials', index:'SP500' },
   { sym:'DHR', name:'Danaher', sector:'Industrials', index:'SP500' },
-  { sym:'A', name:'Avantor', sector:'Healthcare', index:'SP500' },
+  // P1449: 'A'는 Agilent Technologies이다 (INC0001090872, SEC name: AGILENT TECHNOLOGIES, INC.).
+  // Avantor는 AVTR이고 SCREENER_DB에 없다 — 테마 화면이 'A'를 Avantor로 표기하면 요약/재무 화면
+  // 과 같은 티커가 두 회사를 가리켰다(P1339: 티커 추측 금지).
+  { sym:'A', name:'Agilent Technologies', sector:'Healthcare', index:'SP500' },
   { sym:'CMG', name:'Chipotle Mexican Grill', sector:'Consumer', index:'SP500' },
   { sym:'CARR', name:'Carrier Global', sector:'Industrials', index:'SP500' },
   { sym:'MNST', name:'Monster Beverage', sector:'Consumer Defensive', index:'SP500' },
@@ -10907,13 +10910,25 @@ function extractTickers(item) {
     });
   }
 
-  // 3) 한국어 기업명/키워드 → 티커 매핑
+  // 3) 한국어 기업명·키워드 / 영문 별칭 → 티커 매핑
+  // P1449/R17: 영문 별칭은 단어 경계를 지킨다. plain includes는 "Artificial Intelligence"에서
+  // INTC(intel), "downside"에서 DIA(dow) 같은 부분 문자열 오판을 만들었다. 한글 별칭은 JS \b가
+  // 비ASCII 단어 경계를 인식하지 못하므로 기존 includes를 쓴다(한글 하위 문자열 오판은 관측된 급사 없음).
   if (typeof KR_TICKER_MAP !== 'undefined' && found.size < 5) {
     var lowerText = text.toLowerCase();
     for (var krName in KR_TICKER_MAP) {
-      if (KR_TICKER_MAP.hasOwnProperty(krName) && lowerText.includes(krName.toLowerCase()) && found.size < 5 && !_aioNewsNameIsAttribution(lowerText, krName.toLowerCase())) {
-        found.add(KR_TICKER_MAP[krName]);
+      if (!KR_TICKER_MAP.hasOwnProperty(krName) || found.size >= 5) break;
+      var aliasLower = String(krName).toLowerCase();
+      if (/[^a-z0-9]/.test(aliasLower)) {
+        // 한글 별칭 — JS \b가 비ASCII 경계를 인식하지 못해 기존 includes 유지.
+        if (lowerText.includes(aliasLower) && !_aioNewsNameIsAttribution(lowerText, aliasLower)) found.add(KR_TICKER_MAP[krName]);
+        continue;
       }
+      if (!lowerText.includes(aliasLower)) continue;
+      var aliasPattern = _getTickerRegex(aliasLower.replace(/[.*+?^${}()|[\]\\]/g, '$&'));
+      if (aliasLower.length <= 2 || !aliasPattern.test(lowerText)) continue;
+      if (_aioNewsNameIsAttribution(lowerText, aliasLower)) continue;
+      found.add(KR_TICKER_MAP[krName]);
     }
   }
 
@@ -15273,7 +15288,39 @@ function _aioComputeFactorRanks() {
     now: Date.now(),
     inputVersion: window._aioScreenerFactorAsOf || 'legacy-runtime'
   });
-  if (!result || result.available === false) return null;
+  if (!result || result.available === false) {
+    // P1449 (저리스크 재현): a failed re-rank (e.g. an explicit profile whose computable
+    // coverage is below the threshold) previously returned null while the PREVIOUS run's
+    // relative scores, ranks and factor window state stayed projected on SCREENER_DB rows —
+    // so the summary said "계산 보류 / 팩터 —" while the table still displayed the dead run's
+    // ranks as if they answered the current selection. Fail closed instead: clear the dead
+    // projection, keep a typed hold for the UI banners, and null the window scale state.
+    SCREENER_DB.forEach(function(row){
+      if (!row) return;
+      ['_compositeZ','factorScores','rank','quantSignal'].forEach(function(key){ if (key in row) delete row[key]; });
+      var knownFactors = (window._aioActiveFactors && Array.isArray(window._aioActiveFactors)) ? window._aioActiveFactors : ['momentum','trend','lowvol','size','value','quality','kalman'];
+      knownFactors.forEach(function(key){ if (('_z_' + key) in row) delete row['_z_' + key]; });
+    });
+    window._aioRankingHold = {
+      at: Date.now(),
+      reason: (result && result.rankingUnavailableReason) || 'ranking-unavailable',
+      requestedProfile: (function(){ try { var key = localStorage.getItem('aio_trader_profile'); return key || null; } catch(_) { return null; } })(),
+      requestedFactorWeights: result?.requestedFactorWeights || null,
+      excludedFactorWeights: result?.excludedFactorWeights || null,
+      requestedWeightCoveragePct: result?.requestedWeightCoveragePct ?? null,
+      weightsPolicy: W ? W.source : null
+    };
+    window._aioActiveFactorRegime = null;
+    window._aioAppliedFactorWeights = null;
+    window._aioActiveFactorWeights = null;
+    window._aioFactorWeightPolicy = null;
+    window._aioActiveFactors = null;
+    window._aioInactiveFactorReasons = null;
+    window._aioFactorRanksAsOf = null;
+    document.dispatchEvent && document.dispatchEvent(new CustomEvent('aio:screener:rankingHold', { detail: window._aioRankingHold }));
+    try { window.dispatchEvent && window.dispatchEvent(new Event('aio:ranks-invalidated')); } catch(_) {}
+    return null;
+  }
   var bySym = {};
   (result.rows || []).forEach(function(row){ bySym[row.sym] = row; });
   SCREENER_DB.forEach(function(row){

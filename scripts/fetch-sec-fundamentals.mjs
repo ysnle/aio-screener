@@ -10,6 +10,7 @@ import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod } from '../src/domain/fundamental/period.js';
+import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 
 // P1256: 도메인 receipt 계약은 이제 모든 수집 도메인이 공유한다(SEC는 첫 수용자).
@@ -541,6 +542,16 @@ export async function refreshSecFundamentals(priceHints = null) {
     await new Promise(resolve => setTimeout(resolve, 150));
   }
 
+  // P1449: heal stored rows at publish time. Records written before the P1402 parent-first
+  // concept order (for example Agilent, whose NCI-inclusive tag carried its AOCI value) keep
+  // shipping -226M until their 28-day re-fetch; when the same filing's parent
+  // StockholdersEquity row is in the stored PIT observations, use it without waiting.
+  let healedCount = 0;
+  for (const [symbol, record] of Object.entries(data)) {
+    const healed = reconcileSecEquity(record);
+    if (healed !== record) { data[symbol] = healed; healedCount++; }
+  }
+
   const payload = {
     schemaVersion: '2.0',
     generatedAt: new Date().toISOString(),
@@ -584,7 +595,7 @@ export async function refreshSecFundamentals(priceHints = null) {
     data
   };
   await atomicWrite(OUT, payload);
-  console.log(`[sec-fundamentals] stored=${payload.stored}/${payload.eligible} attempted=${payload.attempted} updated=${updated} failed=${payload.failures.length} terminalUnsupported=${payload.terminalUnsupported.length}`);
+  console.log(`[sec-fundamentals] stored=${payload.stored}/${payload.eligible} attempted=${payload.attempted} updated=${updated} failed=${payload.failures.length} terminalUnsupported=${payload.terminalUnsupported.length} healed=${healedCount}`);
   return payload;
 }
 

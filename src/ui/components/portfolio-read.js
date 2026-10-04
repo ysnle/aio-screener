@@ -20,10 +20,17 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
   const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, root?._aioHistory || []), rotation: root?._serverDataMeta?.rotationHistory?.items || {}, regime: readMarketRegime(root) });
   const next = doc.getElementById('pf-next');
-  if (!read.available) { host.hidden = true; host.replaceChildren(); renderNextSteps(doc, next, []); return read; }
+  if (!read.available) {
+    // P1449: a hold is not an absence — the reason (currency mix without declared rates) is
+    // user-facing content, printed here instead of silently removing the section.
+    host.hidden = false;
+    host.replaceChildren(el(doc, 'h2', '내 포트폴리오와 시장', 'briefing-h2'), el(doc, 'p', read.reason, 'daily-empty'));
+    renderNextSteps(doc, next, []);
+    return read;
+  }
   host.hidden = false;
   host.replaceChildren(el(doc, 'h2', '내 포트폴리오와 시장', 'briefing-h2'));
-  if (read.excluded) host.querySelector('h2').append(el(doc, 'span', `스크리너 기록이 없는 ${read.excluded}종목 제외`, 'briefing-h2-note'));
+  if (read.excluded) host.querySelector('h2').append(el(doc, 'span', `스크리너 기록이 없는 ${read.excluded}종목 제외${read.total > 0 && read.excludedValue != null ? ` — 제외 보유액은 평가액의 ${(read.excludedValue / read.total * 100).toFixed(0)}%` : ''}`, 'briefing-h2-note'));
   if (read.headline) host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
   const visuals = el(doc, 'div', null, 'stock-read-visuals');
   if (read.trendMix.length) {

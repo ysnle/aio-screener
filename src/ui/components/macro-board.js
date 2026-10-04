@@ -64,7 +64,13 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null } = {}) {
   const last = series[series.length - 1].date.slice(2, 7).replace('-', '.');
   add('text', { x: 4, y: H - 1, class: 'macro-spark-label' }, first);
   add('text', { x: W - 4, y: H - 1, 'text-anchor': 'end', class: 'macro-spark-label' }, last);
-  svg.setAttribute('aria-label', `최근 ${series.length}개월 추이 ${first}~${last}, 범위 ${rawLo.toFixed(1)}~${rawHi.toFixed(1)}${unitLabel}`);
+  // P1449: the cadence comes from the dates, not an assumption. A daily rates series of 260
+  // observations is one year, not "260개월" — the declared frequency of the series decides the
+  // unit, and it is preserved (R570) because the aria label is part of the observation record.
+  const spanDays = Math.round((Date.parse(series[series.length - 1].date) - Date.parse(series[0].date)) / 86400000);
+  const cadence = series.length >= 2 && spanDays / (series.length - 1) > 20 ? '월별' : '일별';
+  const spanLabel = cadence === '월별' ? `${Math.min(Math.round(spanDays / 30.4), 999)}개월` : `${Math.min(Math.round(spanDays / 30.4), 999)}개월(일별 관측 ${series.length}개)`;
+  svg.setAttribute('aria-label', `최근 ${spanLabel} 추이 ${first}~${last}, 범위 ${rawLo.toFixed(1)}~${rawHi.toFixed(1)}${unitLabel}`);
   return svg;
 }
 

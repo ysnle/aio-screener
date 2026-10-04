@@ -15,6 +15,7 @@
 //   - optional prior-rank/regime stability diagnostics (never used to auto-promote weights).
 import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
 import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
+import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
 
 export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v6';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
@@ -42,7 +43,12 @@ const ROBUST_Z_THRESHOLD = 6;
 const ROBUST_CLIP_Z = 5;
 const UNKNOWN_SECTOR = null;
 
-const DEFAULT_WEIGHTS = { momentum: 0.32, trend: 0.23, lowvol: 0.18, size: 0.18, value: 0, quality: 0, kalman: 0.09 };
+// P1449: the model default is the shared NEUTRAL vector from factor-weights.js (one weights
+// module). A local backup copy drifted from it (spot-check: momentum .32 vs .27 renormalized
+// over the 4 computable factors 39.0% vs 37.0%), and the backtest generator's P1443 promise
+// ("the live model runs the same weights") silently validated the wrong model — see
+// scripts/lib and ci-data-pipeline-contract-check for the fixture pinning the two together.
+const DEFAULT_WEIGHTS = MODEL_DEFAULT_WEIGHTS;
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;

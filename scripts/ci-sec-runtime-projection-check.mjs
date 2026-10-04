@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildDomainReceipt } from './fetch-sec-fundamentals.mjs';
+import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js';
 
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
 const sourceText = read('public-data/sec-fundamentals.json');
@@ -28,6 +29,29 @@ for (const symbol of sourceSymbols) {
   }
   if (projected?.pit?.observations) fail(`${symbol} leaked append-only PIT observations into the page projection`);
   if ((projected?.pit?.observationCount || 0) !== (canonical?.pit?.observationCount || 0)) fail(`${symbol} PIT coverage count drifted`);
+}
+
+// ── P1449: the projection is the shipped path, so the P1402 parent-equity reconcile must run
+// here. A projection that copied a pre-fix record verbatim ships the NCI/AOCI mis-tag that the
+// runtime catch cannot repair — the page-side reconcile needs the observations that are stripped.
+const projectionSource = read('scripts/build-sec-runtime-projection.mjs');
+for (const token of ['reconcileSecEquity', "from '../src/domain/fundamental/sec-report.js'"]) {
+  if (!projectionSource.includes(token)) fail(`the runtime projection builder must reconcile parent equity itself (${token} missing)`);
+}
+for (const symbol of sourceSymbols) {
+  const canonical = source.data[symbol];
+  const projected = runtime.data[symbol];
+  const reconciled = reconcileSecEquity(canonical);
+  if (projected?.equity !== reconciled?.equity || projected?.equityConcept !== reconciled?.equityConcept) {
+    fail(`${symbol} projection equity must equal reconcileSecEquity(source record): projected=${projected?.equity} reconciled=${reconciled?.equity}`);
+  }
+  // P1449 incident pin: Agilent FY2025 shipped -226M (AOCI-tagged NCI total) while the same
+  // filing's parent StockholdersEquity row holds 6,741,000,000.
+  if (symbol === 'A' && canonical?.pit?.observations?.equity?.some((row) => row.concept === 'StockholdersEquity' && Number.isFinite(row.value))) {
+    if (runtime.data.A.equity !== 6741000000 || runtime.data.A.equityConcept !== 'StockholdersEquity') {
+      fail(`Agilent A shipped equity must be the parent value 6741000000: ${runtime.data.A.equity}`);
+    }
+  }
 }
 if (manifest.sourceSha256 !== sha256(sourceText) || manifest.runtimeSha256 !== sha256(runtimeText)) fail('projection digest manifest drifted');
 if (manifest.sourceBytes !== canonicalBytes(sourceText) || manifest.runtimeBytes !== canonicalBytes(runtimeText) || manifest.records !== runtimeSymbols.length) fail('projection byte/count manifest drifted');

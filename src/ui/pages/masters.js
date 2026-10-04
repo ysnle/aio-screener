@@ -715,11 +715,17 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
   const rows = (historyManager?.periods || importedRows.map((row) => ({ periodOfReport: row.period }))).map((period) => {
     const imported = importedByPeriod.get(period.periodOfReport);
     const historical = historicalByPeriod.get(period.periodOfReport);
-    return { period: period.periodOfReport, count: imported?.count ?? period.rowCount ?? historical?.count ?? '—', value: imported?.value ?? period.reportedValueTotal ?? historical?.value ?? null, reconciliation: imported?.reconciliation ?? period.countReconciled ?? false, filedAt: period.filedAt, accession: period.accession, rowImportStatus: period.rowImportStatus, indexUrl: period.indexUrl };
+    return { period: period.periodOfReport, count: imported?.count ?? period.rowCount ?? historical?.count ?? '—', value: imported?.value ?? period.reportedValueTotal ?? historical?.value ?? null, reconciliation: imported?.reconciliation ?? period.countReconciled ?? false, filedAt: period.filedAt, accession: period.accession, rowImportStatus: period.rowImportStatus, indexUrl: period.indexUrl, composition: period.composition || null };
   });
   const table = createTable(documentRef, ['보고분기', '정보표 행', '보고 가치 합계', 'row 상태', '원문'], rows, (row) => {
     const tr = element(documentRef, 'tr', '');
-    [row.period, String(row.count ?? '—'), formatReportedValue(row.value), row.rowImportStatus === 'IMPORTED_CURRENT' || row.rowImportStatus === 'IMPORTED_PRIOR' || row.rowImportStatus === 'IMPORTED_HISTORICAL' ? (row.reconciliation ? '행·cover 일치' : '검토 필요') : '공시 메타데이터만'].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
+    let state;
+    if (row.rowImportStatus === 'REVIEW_REQUIRED') state = '합성 검토 필요 — 분기 전체 행을 구성하지 못했습니다';
+    else if (row.rowImportStatus === 'IMPORTED_CURRENT' || row.rowImportStatus === 'IMPORTED_PRIOR' || row.rowImportStatus === 'IMPORTED_HISTORICAL') {
+      const reconciledLabel = row.reconciliation ? '행·cover 일치' : '검토 필요';
+      state = row.composition?.composite ? `${reconciledLabel} · ${row.composition.label}` : reconciledLabel;
+    } else state = '공시 메타데이터만';
+    [row.period, String(row.count ?? '—'), formatReportedValue(row.value), state].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
     const sourceCell = element(documentRef, 'td', '');
     if (row.indexUrl) {
       const link = element(documentRef, 'a', 'masters-source-link', 'SEC');
@@ -1290,7 +1296,13 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         if (action === 'retry-ticker-index') { state.tickerIndexError = false; loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS); }
         if (action === 'goto-ticker-lookup') loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS);
         if (action === 'filter') { state.filter = value; }
-        if (action === 'select-manager') { state.selectedId = value; state.view = 'changes'; state.actionFilter = 'ALL'; state.holdingsQuery = ''; state.page = 1; }
+        // P1449 (검토판·대가 학습): a different manager's detail must not inherit the previous
+        // manager's 비교 selection — the compare view that stayed was written about other people.
+        if (action === 'select-manager') {
+          const managerChanged = state.selectedId !== value;
+          state.selectedId = value; state.view = 'changes'; state.actionFilter = 'ALL'; state.holdingsQuery = ''; state.page = 1;
+          if (managerChanged) state.compareIds = [];
+        }
         if (action === 'view') { state.view = value; state.page = 1; }
         if (action === 'toggle-compare') {
           state.compareIds = state.compareIds.includes(value) ? state.compareIds.filter((id) => id !== value) : [...state.compareIds, value].slice(0, 4);
