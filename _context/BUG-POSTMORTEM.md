@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1433 - v57.11 - AI proxy: owner acknowledgement of a legacy month's spend, and propagation-safe deploy verification (2026-10-04)
+
+- symptom/reproduction: After AIO_AUTOMATION_TOKEN was added (2026-10-04), the manual AI-proxy deploy synced the secrets but was rolled back twice: first the origin-gate probe got HTTP 405 from an edge still serving v56.91 (no /openai route) right after health had answered with the new SHA; then the upstream smoke got HTTP 429 legacy-month-spend-unknown. The P1353 migration had reserved the whole $10 October budget because the old request counters cannot reconstruct past spend, so server AI (briefing interpretation, translation, chat) would stay blocked until 1 November while the site (v57.10) already called /openai.
+- root_cause: The migration has no way for the owner to state a known prior spend; the deploy check treated one matching health answer as full propagation.
+- fix: cloudflare-worker-proxy.js AIOQuotaDurableObject.load(): AI_LEGACY_MONTH_ACK = "YYYY-MM:<micro-USD>" clears the unknown flag for that month only, setting the ledger to the stated spend plus all recorded reservations; ignored for other months or once cleared; the monthly cap and daily cap still apply. worker/wrangler.proxy.toml: AI_LEGACY_MONTH_ACK = "2026-10:0" (owner confirmed $0 OpenAI usage in October; the new route never served before this date). deploy-ai-proxy.yml: health must match the new SHA three times in a row, and the origin-gate probe retries while an edge still answers 405.
+- violated_rule: Owner decision 2026-10-04: use the charged OpenAI API now, within the existing $10 monthly cap.
+- prevention: worker/openai-contract.test.mjs P1433: acknowledgement clears the month and the next charge is metered from the stated spend; an acknowledgement for another month is ignored; a stated spend at the cap still blocks.
+- verification/residual: Worker contract test 84 assertions PASS (no live API requests); live verification is the manual Deploy AI proxy run after this commit.
+
 ## P1432 - v57.10 - 오늘 daily loop: 어제와 달라진 점 · 내 종목 · 다가오는 일정 · 내 종목 뉴스 (2026-10-04)
 
 - symptom/reproduction: The 오늘 screen showed the market verdict and index quotes but nothing a returning trader needs first: which axis flipped since the last session, what moved most, and how the watchlist and holdings stand.

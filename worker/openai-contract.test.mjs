@@ -114,6 +114,15 @@ async function main() {
     check('P1353/P1421 migration never resets Anthropic spend history', prior.saved().months[currentMonth] === 9000000 + charge && prior.saved().days['claude:' + currentDay] === 5);
     const legacy = harness({ days: { ['claude:' + currentDay]: 4 }, reservations: {} });
     check('P1353/P1421 old unpriced month protected until rollover', (await worker.fetch(req(), legacy.env)).status === 429 && legacy.saved().legacyUnknownMonths[currentMonth] === true);
+    // P1433: the owner's one-time statement of the blocked month's prior spend clears the flag; the cap still applies.
+    const unknownMonth = { schemaVersion: 2, months: { [currentMonth]: 10000000 }, legacyUnknownMonths: { [currentMonth]: true }, days: {}, reservations: {} };
+    const acknowledged = harness(structuredClone(unknownMonth), { AI_LEGACY_MONTH_ACK: `${currentMonth}:0` }); upstream = async () => Response.json(usageResponse());
+    const ackResponse = await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.33' } }), acknowledged.env); await ackResponse.arrayBuffer();
+    check('P1433 owner acknowledgement clears the unknown month and the cap applies from the stated spend', ackResponse.status === 200 && acknowledged.saved().legacyUnknownMonths[currentMonth] === undefined && acknowledged.saved().months[currentMonth] === charge);
+    const otherMonth = harness(structuredClone(unknownMonth), { AI_LEGACY_MONTH_ACK: '1999-01:0' });
+    check('P1433 acknowledgement for another month is ignored', (await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.33' } }), otherMonth.env)).status === 429 && otherMonth.saved().legacyUnknownMonths[currentMonth] === true);
+    const overCap = harness(structuredClone(unknownMonth), { AI_LEGACY_MONTH_ACK: `${currentMonth}:10000000` });
+    check('P1433 a stated spend at the cap still blocks', (await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.33' } }), overCap.env)).status === 429);
     const release = harness(), reserved = payload('fixture-before-start'); await release.durable.mutateQuota('reserve', reserved); await release.durable.mutateQuota('release', reserved);
     check('P1421 pre-dispatch cancellation may release', release.saved().months[currentMonth] === 0);
     const started = payload('fixture-started'); await release.durable.mutateQuota('reserve', started); await release.durable.mutateQuota('start', started); await release.durable.mutateQuota('release', started);

@@ -647,6 +647,20 @@ export class AIOQuotaDurableObject {
       sums[reservation.monthKey] = (sums[reservation.monthKey] || 0) + reservation.reservationMicroUsd;
     }
     for (const [month, sum] of Object.entries(sums)) if (sum > this.counts.months[month]) throw new Error('monthly ledger was reset or undercounts reservations');
+    // P1433 (owner decision 2026-10-04): the P1353 migration blocks a month whose past spend the old
+    // request counters cannot reconstruct. The owner may state that month's prior spend once through
+    // AI_LEGACY_MONTH_ACK = "YYYY-MM:<micro-USD>"; the ledger then holds that amount plus every
+    // reservation already recorded, the flag clears, and the monthly cap applies as usual. The value
+    // is ignored for any other month and once the flag is gone.
+    const ack = String(this.env?.AI_LEGACY_MONTH_ACK || '').match(/^(\d{4}-(?:0[1-9]|1[0-2])):(\d{1,8})$/);
+    if (ack && this.counts.legacyUnknownMonths[ack[1]] === true) {
+      const stated = Number(ack[2]);
+      if (Number.isSafeInteger(stated) && stated <= 10000000) {
+        this.counts.months[ack[1]] = Math.min(10000000, stated + (sums[ack[1]] || 0));
+        delete this.counts.legacyUnknownMonths[ack[1]];
+        await this.save();
+      }
+    }
     for (const [day, count] of Object.entries(this.counts.days)) {
       if (count > 0 && day.startsWith('claude:') && Date.parse(day.slice(7) + 'T00:00:00Z') >= Date.now() - QUOTA_STATE_RETENTION_MS
         && !Object.hasOwn(this.counts.months, day.slice(7, 14))) throw new Error('monthly ledger missing for existing AI usage');

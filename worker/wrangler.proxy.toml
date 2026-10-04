@@ -14,11 +14,14 @@ AI_DAILY_CAP = "300"
 # Failed/cancelled/unknown usage retains its full reservation. Never an invoice.
 # A dedicated OpenAI project/key must not be used outside this Worker.
 AI_MONTHLY_BUDGET_USD = "10"
+# P1433 (owner, 2026-10-04): October 2026 prior spend on this OpenAI path was $0 (the new route never
+# served before this date); clears the P1353 unknown-month block once. Ignored for other months.
+AI_LEGACY_MONTH_ACK = "2026-10:0"
 AI_MAX_OUTPUT_TOKENS = "4000"
 # Per-provider daily ceiling for /relay (operator-key server-side fetches).
 RELAY_DAILY_CAP = "2000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v57.10"
+AIO_APP_REVISION = "v57.11"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 [[durable_objects.bindings]]

@@ -1,0 +1,19 @@
+{
+  "version": "v57.11",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.11 — server AI unblocked for October: the owner stated the month's prior spend on the new OpenAI path ($0), and the AI-proxy deploy check waits for every edge to serve the new revision (P1433).",
+  "p": {
+    "id": 1433,
+    "title": "AI proxy: owner acknowledgement of a legacy month's spend, and propagation-safe deploy verification",
+    "symptom": "After AIO_AUTOMATION_TOKEN was added (2026-10-04), the manual AI-proxy deploy synced the secrets but was rolled back twice: first the origin-gate probe got HTTP 405 from an edge still serving v56.91 (no /openai route) right after health had answered with the new SHA; then the upstream smoke got HTTP 429 legacy-month-spend-unknown. The P1353 migration had reserved the whole $10 October budget because the old request counters cannot reconstruct past spend, so server AI (briefing interpretation, translation, chat) would stay blocked until 1 November while the site (v57.10) already called /openai.",
+    "root_cause": "The migration has no way for the owner to state a known prior spend; the deploy check treated one matching health answer as full propagation.",
+    "fix": "cloudflare-worker-proxy.js AIOQuotaDurableObject.load(): AI_LEGACY_MONTH_ACK = \"YYYY-MM:<micro-USD>\" clears the unknown flag for that month only, setting the ledger to the stated spend plus all recorded reservations; ignored for other months or once cleared; the monthly cap and daily cap still apply. worker/wrangler.proxy.toml: AI_LEGACY_MONTH_ACK = \"2026-10:0\" (owner confirmed $0 OpenAI usage in October; the new route never served before this date). deploy-ai-proxy.yml: health must match the new SHA three times in a row, and the origin-gate probe retries while an edge still answers 405.",
+    "violated_rule": "Owner decision 2026-10-04: use the charged OpenAI API now, within the existing $10 monthly cap.",
+    "prevention": "worker/openai-contract.test.mjs P1433: acknowledgement clears the month and the next charge is metered from the stated spend; an acknowledgement for another month is ignored; a stated spend at the cap still blocks.",
+    "verification": "Worker contract test 84 assertions PASS (no live API requests); live verification is the manual Deploy AI proxy run after this commit."
+  },
+  "changelog": [
+    "**서버 AI 재개 (P1433):** 10월 사용액을 소유자가 $0로 확인해 예산 안전장치의 '이번 달 사용액 미상' 차단을 풀었습니다. 월 $10·일 300회 한도는 그대로입니다. AI 프록시 배포 검증은 모든 엣지가 새 버전으로 바뀐 뒤에 확인합니다."
+  ]
+}
