@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1448 - v57.17 - Live invariant check accepts the shared-Worker-only AI policy (2026-10-04)
+
+- symptom/reproduction: Pages deploys of v57.16 published correctly but ended in failure at 'Verify live standing invariants': 'live public AI config exposes an HTTPS shared fallback or an explicit disabled state' with serverMode/chatPolicy 'shared-worker-only'.
+- root_cause: P1421 renamed the published AI route policy to shared-worker-only; ci-live-invariant-check.mjs still required 'shared-worker-fallback' / 'personal-key-or-public-worker', a combination no producer writes any more. It only surfaced once the Worker route was healthy and published.
+- fix: The invariant accepts the current shared-worker-only names (and the older names for configs published before P1421); the health, source-SHA and output-cap checks are unchanged.
+- violated_rule: A policy rename updates every gate that reads the policy.
+- prevention: The live invariant now passes against the live site with the current config; the other P1421 gates already used the new names.
+- verification/residual: node scripts/ci-live-invariant-check.mjs against https://ysnle.github.io/aio-screener: OK (version v57.16, 4 operator-required header warnings).
+
 ## P1447 - v57.16 - Benchmarks by market (2026-10-04)
 
 - symptom/reproduction: Every stock and the whole portfolio were compared with the S&P 500, including KRX listings and mixed books; KRX stocks were read against US sector rotation.

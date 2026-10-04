@@ -91,8 +91,10 @@ async function main() {
   check('live public AI config exposes an HTTPS shared fallback or an explicit disabled state', liveRoutePublished
     ? publicConfig?.ai?.routeStatus === 'PUBLISHED'
       && publicConfig?.ai?.routeEvidence?.status === 'CURRENT'
-      && publicConfig?.ai?.serverMode === 'shared-worker-fallback'
-      && publicConfig?.ai?.chatPolicy === 'personal-key-or-public-worker'
+      // P1448: P1421 made the shared Worker the only server route ('shared-worker-only'); the older
+      // personal-key fallback names remain accepted for configs published before that change.
+      && ['shared-worker-only', 'shared-worker-fallback'].includes(publicConfig?.ai?.serverMode)
+      && ['shared-worker-only', 'personal-key-or-public-worker'].includes(publicConfig?.ai?.chatPolicy)
     : liveRouteDisabled, JSON.stringify(publicConfig?.ai || {}));
   if (liveRoutePublished) {
     try {
