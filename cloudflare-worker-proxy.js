@@ -563,10 +563,17 @@ async function fetchOpenAiWithDeadline(apiKey, budget, callerSignal, settle) {
   try {
     if (controller.signal.aborted) throw controller.signal.reason;
     const upstream = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST', redirect: 'error',
+      // P1433: Cloudflare Workers reject redirect: 'error' with a TypeError before any request leaves
+      // (live 2026-10-04: every /openai call failed in under 0.5 s). 'manual' plus refusing any 3xx keeps
+      // the same "never follow a redirect with the key" guarantee.
+      method: 'POST', redirect: 'manual',
       headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + apiKey },
       body: JSON.stringify(body), signal: controller.signal,
     });
+    if (upstream.status >= 300 && upstream.status < 400) {
+      void upstream.body?.cancel().catch(() => {});
+      throw new TypeError('OpenAI redirect refused');
+    }
     if (controller.signal.aborted) {
       void upstream.body?.cancel().catch(() => {});
       throw controller.signal.reason;

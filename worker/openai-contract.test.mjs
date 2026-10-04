@@ -69,7 +69,7 @@ async function main() {
     const nonUsUsage = await nonUsAuthority.fetch(new Request('https://aio-quota.internal/usage', { method: 'POST', body: JSON.stringify({ dayKey: 'claude:' + currentDay }) }));
     check('P1421 non-US authority rejects proxy and usage without upstream or ledger mutation', nonUsProxy.status === 503 && nonUsUsage.status === 503 && upstreamCalls === nonUsBefore && nonUsFixture.saved() === undefined);
     const automation = await worker.fetch(req(body, { origin: '', headers: { 'X-AIO-Automation-Token': TOKEN } }), fixture.env); const automationJson = await automation.json();
-    check('P1421 automation shares DO and private Authorization; redirects refused', automation.status === 200 && automationJson.output[0].content[0].text === 'ok' && fixture.name() === 'anthropic-authority-v1' && lastRequest.init.headers.Authorization === 'Bearer fake-not-a-live-key' && lastRequest.init.redirect === 'error' && !JSON.stringify(lastRequest.init).includes(TOKEN));
+    check('P1421 automation shares DO and private Authorization; redirects refused', automation.status === 200 && automationJson.output[0].content[0].text === 'ok' && fixture.name() === 'anthropic-authority-v1' && lastRequest.init.headers.Authorization === 'Bearer fake-not-a-live-key' && lastRequest.init.redirect === 'manual' && !JSON.stringify(lastRequest.init).includes(TOKEN));
     check('P1421 verified JSON settles atomically', fixture.saved().months[currentMonth] === charge && Object.values(fixture.saved().reservations)[0].settled === true);
     const browser = await worker.fetch(req(), fixture.env); await browser.arrayBuffer();
     check('P1421 browser and Actions share monthly/day ledger', fixture.saved().months[currentMonth] === charge * 2 && fixture.saved().days['claude:' + currentDay] === 2);
@@ -127,6 +127,10 @@ async function main() {
     upstream = async (_, init) => { sentAuth = init.headers.Authorization; return Response.json(usageResponse()); };
     const padded = await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.34' } }), paddedKey.env); await padded.arrayBuffer();
     check('P1433 a secret saved with a trailing newline is trimmed before the Authorization header', padded.status === 200 && sentAuth === 'Bearer fake-not-a-live-key');
+    // P1433: Workers reject redirect:'error' (TypeError) — the handler uses 'manual' and refuses any 3xx itself.
+    const redirected = harness(); upstream = async () => new Response(null, { status: 302, headers: { location: 'https://attacker.example/' } });
+    const redirectResponse = await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.35' } }), redirected.env); await redirectResponse.arrayBuffer();
+    check('P1433 an upstream redirect is refused, never followed with the key', redirectResponse.status === 502);
     const release = harness(), reserved = payload('fixture-before-start'); await release.durable.mutateQuota('reserve', reserved); await release.durable.mutateQuota('release', reserved);
     check('P1421 pre-dispatch cancellation may release', release.saved().months[currentMonth] === 0);
     const started = payload('fixture-started'); await release.durable.mutateQuota('reserve', started); await release.durable.mutateQuota('start', started); await release.durable.mutateQuota('release', started);
