@@ -117,6 +117,8 @@ const POLICIES = {
   'sec-fundamentals.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
   'sec-fundamentals-summary.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
   'sec-fundamentals-summary.manifest.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
+  // P1436: compact SEC fiscal-year series for the 재무 공시 page, written with the summary.
+  'sec-fiscal-history.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt'], maxAgeHours: 48 },
   'telegram-digest.json': { kind: 'reference-digest', timestamp: ['generatedAt', 'lastSuccessfulAt', 'meta.generatedAt'], maxAgeHours: 12 },
   'telegram-reference-window.json': { kind: 'research-reference', timestamp: ['reviewedAt', 'generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'user-research-digest.json': { kind: 'research-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },

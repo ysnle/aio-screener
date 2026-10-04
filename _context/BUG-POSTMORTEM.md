@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1440 - v57.14 - Fiscal history as its own artifact; sub-theme ranking reading (2026-10-04)
+
+- symptom/reproduction: After P1439 unblocked the screener refresh, the next run failed at ci-sec-runtime-projection-check: 'runtime projection exceeds 1 MiB: 1515652' — the P1436 fiscalHistory objects inflated the pretty-printed summary. Separately, the 하위 테마 순위 table listed ranks and directions without saying what they add up to.
+- root_cause: P1436 put the multi-year series inside the bounded runtime summary instead of a separate projection.
+- fix: build-sec-runtime-projection.mjs writes public-data/sec-fiscal-history.json (compact, one 'YYYY-MM-DD:revenue:netIncome;…' string per issuer in USD millions, ~80 KB) and leaves the summary unchanged; lineage policy and refresh-screener staging added; fiscal-read.js loads it once via loadJsonArtifact and parses it (one-year fallback until it exists). page-flow themeStrengthLead: top three, leaders cooling (1-month rank well behind 3-month), sub-themes where momentum is moving, and how many leaders keep most members above the 50-day line.
+- violated_rule: Runtime artifact budgets are part of the interactive-path contract; a new series ships as its own bounded projection.
+- prevention: ci-sec-runtime-projection-check keeps the 1 MiB summary budget; ci-data-lineage-audit registers sec-fiscal-history.json (48 h).
+- verification/residual: Local: projection functions produce '2021-01-31:16675:4332;…;2026-01-25:215938:120067' for NVDA; parser round-trips; theme lead reads '3개월 상위는 정유 · 서버/HW · 사이버보안. 그중 … 식는 중. 반대로 AI 칩/GPU · 메모리 · 파운드리/성숙공정은 …'. Live verification is the next refresh-screener run.
+
 ## P1439 - v57.13 - Screener refresh blocked by a hardcoded universe size (2026-10-04)
 
 - symptom/reproduction: refresh-screener failed on every scheduled run on 2026-10-03 (11:58, 16:41, 21:43 UTC): SCR-OS-00 'published baseline is self-consistent' with universe 931, ok 918 and full factor coverage. The live screener stayed on the 2026-10-01 factor session and the SEC runtime projection was not regenerated.

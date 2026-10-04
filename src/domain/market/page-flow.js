@@ -149,3 +149,22 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   next.push({ route: 'macro', label: '거시 경제', why: '금리·유가·달러가 어느 업종에 유리한 국면인지' });
   return { read, next };
 }
+
+// 테마 · 섹터: what the sub-theme ranking says beyond its order — where short-term momentum is moving
+// (1-month rank well ahead of 3-month) and which leaders are cooling.
+export function themeStrengthLead(model = null) {
+  const groups = Array.isArray(model?.groups) ? model.groups : [];
+  if (groups.length < 5) return '';
+  const label = (group) => group.name;
+  const top = groups.slice(0, 5);
+  const improving = groups.filter((group) => group.direction === 'improving').slice(0, 3);
+  const cooling = top.filter((group) => group.direction === 'weakening');
+  const healthy = top.filter((group) => group.above50Pct != null && group.above50Pct >= 75).length;
+  const parts = [`${model.windowLabel || '기간'} 상위는 ${top.slice(0, 3).map(label).join(' · ')}`];
+  const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
+  const joined = (list) => list.map(label).join(' · ');
+  if (cooling.length) parts.push(`그중 ${joined(cooling)}${topic(label(cooling[cooling.length - 1]))} 1개월 순위가 3개월보다 크게 낮아 강세가 식는 중`);
+  if (improving.length) parts.push(`반대로 ${joined(improving)}${topic(label(improving[improving.length - 1]))} 1개월 순위가 크게 올라 단기 흐름이 옮겨 가는 곳`);
+  parts.push(`상위 5개 중 ${healthy}개는 구성 종목 대부분이 50일선 위`);
+  return `${parts.join('. ')}입니다.`;
+}

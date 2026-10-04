@@ -1,5 +1,7 @@
 // P1417: the 테마 screen's daily "what changed" — sub-theme relative strength from the published
 // screener returns (no live quotes needed), and the AI capital-spending flow linked to those themes.
+import { themeStrengthLead } from '../../domain/market/page-flow.js';
+import { sectionLead } from './page-flow.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { buildGroupStrength, GROUP_WINDOWS } from '../../domain/themes/group-strength.js';
 import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
@@ -52,6 +54,9 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   }
   head.append(controls);
   host.append(head);
+  // P1431: what the order says, beyond the order — momentum moving and leaders cooling.
+  const lead = themeStrengthLead(model);
+  if (lead) host.append(sectionLead(doc, lead));
   host.append(el(doc, 'p', `${basis ? `${shortDate(basis)} 종가 기준` : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 방향은 1개월 순위와 3개월 순위 비교(1개월이 크게 앞서면 개선)`, 'theme-strength-basis'));
   if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }
   const table = el(doc, 'table', null, 'theme-strength-table');

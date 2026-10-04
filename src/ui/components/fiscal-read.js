@@ -3,6 +3,27 @@
 import { buildFiscalRead, formatUsdShort } from '../../domain/fundamental/fiscal-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
+import { loadJsonArtifact } from '../../data/artifact-cache.js';
+
+// P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
+export function parseFiscalHistory(text) {
+  return String(text || '').split(';').map((part) => part.split(':')).filter((cells) => /^\d{4}-\d{2}-\d{2}$/.test(cells[0] || ''))
+    .map(([periodEnd, revenue, netIncome]) => ({ periodEnd, revenue: revenue === '' ? null : Number(revenue) * 1e6, netIncome: netIncome === '' || netIncome == null ? null : Number(netIncome) * 1e6 }));
+}
+
+function requestFiscalHistory(root, onReady) {
+  if (root._aioSecFiscalHistory !== undefined || root._aioSecFiscalHistoryRequested) return;
+  const fetchFn = root?.fetch || globalThis.fetch;
+  if (typeof fetchFn !== 'function') return;
+  root._aioSecFiscalHistoryRequested = true;
+  const load = (url, maxBytes) => loadJsonArtifact(fetchFn.bind(root), url, { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes });
+  // P1440: the summary manifest names the fiscal artifact once the producer has written it.
+  load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
+    .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
+    .then((artifact) => { root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; })
+    .catch(() => { root._aioSecFiscalHistory = null; })
+    .finally(() => { root._aioSecFiscalHistoryRequested = false; onReady(); });
+}
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -50,7 +71,10 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   let rows = [];
   try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
   const row = rows.find((item) => item?.sym === symbol) || null;
-  const read = buildFiscalRead({ symbol, fundamentals: state?.fundamentals || null, row });
+  requestFiscalHistory(root, () => renderFiscalRead({ documentRef: doc, root, state }));
+  const series = root?._aioSecFiscalHistory?.[symbol];
+  const fundamentals = series ? { ...(state?.fundamentals || {}), fiscalHistory: parseFiscalHistory(series) } : state?.fundamentals || null;
+  const read = buildFiscalRead({ symbol, fundamentals, row });
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
   if (!read.available) {
     host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상(미국 상장 기업)이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF·해외 상장 종목은 공시 재무가 없습니다.', compact: true }));
