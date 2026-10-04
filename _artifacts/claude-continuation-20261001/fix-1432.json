@@ -1,0 +1,19 @@
+{
+  "version": "v57.10",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.10 — 오늘 answers what changed since the last session and what happened to my names, right under the market verdict (P1432).",
+  "p": {
+    "id": 1432,
+    "title": "오늘 daily loop: 어제와 달라진 점 · 내 종목 · 다가오는 일정 · 내 종목 뉴스",
+    "symptom": "The 오늘 screen showed the market verdict and index quotes but nothing a returning trader needs first: which axis flipped since the last session, what moved most, and how the watchlist and holdings stand.",
+    "root_cause": "The home page was built as a market dashboard, not as a daily loop around the user's own names.",
+    "fix": "src/domain/briefing/daily-diff.js: buildDailyChanges compares the last two S&P 500 trading dates through buildCloseSeries (weekend carried-forward rows are not sessions), lists ten measures with level and change, and reports axis flips computed on the same close-only inputs for both sessions; buildMyNames merges watchlist and holdings with the published screener rows (50-day position, 52-week high distance, RSI extremes, day move when a live quote exists) and ties the count below the 50-day line to the breadth axis. src/ui/components/daily-loop.js renders the four blocks; the schedule shows the next three days and links to the briefing; news is filtered to the user's tickers. Performance: market-read nyDate used toLocaleDateString (a new time-zone formatter per call) for every row × field, so one regime build took ≈0.5 s and the 오늘 render ≈1.1 s (boot gate: long task 3.0 s); a shared Intl.DateTimeFormat with a memo brings the regime build to ≈13 ms and the daily loop to ≈50 ms, which speeds every screen that builds the regime.",
+    "violated_rule": "Owner direction: 오늘 as the daily screen (conclusion → my names → schedule → my news).",
+    "prevention": "Home renders through the native analysis page; the browser runtime/surface groups cover the home route.",
+    "verification": "Real history: '10/1 → 10/2 종가 · 축 판정은 그대로이고, 크게 움직인 것은 나스닥 +1.19% · WTI -1.90%'; over the last 80 sessions 33 days report an axis flip (e.g. '금리 중립 → 부담'); a four-name watchlist renders with positions and NVDA news. Browser boot gate green again after the formatter change (regime 514 ms → 13 ms measured in the preview)."
+  },
+  "changelog": [
+    "**오늘 = 하루 루프 (P1432):** 시장 판정 바로 아래에 '어제와 달라진 점(축 판정 변화·크게 움직인 지표)', '내 종목(관심·보유 종목의 50일선·52주 고점·RSI 위치)', '다가오는 일정', '내 종목 뉴스'를 보여줍니다."
+  ]
+}

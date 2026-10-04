@@ -330,6 +330,24 @@ try {
     nativeLiveSinkCount: document.querySelectorAll('#page-fxbond[data-aio-architecture-renderer="native"] [data-live-price], #page-fxbond[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     retired: ['fxbond-risk-pill', 'yc-inversion-badge', 'carry-score-bar', 'cam-verdict-text', 'sc-2s10s', 'fxbond-tnx-trend', 'koreaCurveChart'].filter((id) => document.getElementById(id))
   }));
+  // P1428 (Codex review): the same measure must read the same on every screen. F&G's day change came from
+  // CNN's previous_close on home and from the completed-close history on 투자 심리 (+3 vs +2), and the
+  // sentiment summary used 350bp/+15bp beside cards using 450bp/+25bp.
+  await page.evaluate(() => window.AIO_ARCH.navigate('home'));
+  await page.waitForFunction(() => document.getElementById('page-home')?.classList.contains('active'));
+  const homeFg = await page.evaluate(() => document.getElementById('home-fg-delta')?.textContent || '');
+  await page.evaluate(() => window.AIO_ARCH.navigate('sentiment'));
+  await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioSentimentBoardRenderer === 'native');
+  const sentimentFg = await page.evaluate(() => document.querySelector('#page-sentiment [data-metric="fg"] .trend-card-change')?.textContent || '');
+  const fgNumber = (text, label) => { const m = new RegExp(`${label}\\s*([+−-]?\\d+)`).exec(text); return m ? Number(m[1].replace('−', '-')) : null; };
+  const homeFgDelta = fgNumber(homeFg, '전일 대비');
+  const sentimentFgDelta = fgNumber(sentimentFg, '전일');
+  if (homeFgDelta != null && sentimentFgDelta != null && homeFgDelta !== sentimentFgDelta) throw new Error(`P1428 F&G day change differs across screens: home=${homeFg} sentiment=${sentimentFg}`);
+  const rulesShared = await page.evaluate(async () => {
+    const { RULES } = await import(new URL('src/domain/rules/thresholds.js', document.baseURI).href);
+    return RULES.credit.stressAtBp === 450 && RULES.credit.widen5dBp === 25;
+  });
+  if (!rulesShared) throw new Error('P1428 shared rule table missing or changed without updating the guide');
   if (fxbondRoute.boardRenderer !== 'native' || fxbondRoute.yields.join(',') !== '4.85%,4.99%,5.11%,5.45%,5.40%' || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) || fxbondRoute.curveDots !== 5 || fxbondRoute.levels !== 3 || fxbondRoute.impactAxes.join(',') !== 'policy,rates,commodities,credit,korea' || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy,tnx' || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리 · 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
@@ -439,24 +457,18 @@ try {
     chartSourceKind: document.getElementById('ticker-price-chart')?.dataset.sourceKind || null,
     symbolRenderer: document.getElementById('ticker-candle-symbol')?.dataset.aioTickerSymbolRenderer || null,
     candleSymbol: document.getElementById('ticker-candle-symbol')?.textContent || '',
-    entrySymbol: document.getElementById('ticker-entry-symbol')?.textContent || ''
+    entrySymbol: null // P1430: the manual 가격·추세 위치 점검 calculator (ticker-entry-symbol) was retired
   }));
   if (tickerRoute.chartRenderer !== 'native' || !['unavailable', 'native-runtime'].includes(tickerRoute.chartSourceKind)) throw new Error(`ticker native chart surface failed: ${JSON.stringify(tickerRoute)}`);
-  await page.locator('#ticker-tab-chart').click();
-  await page.waitForFunction(() => {
-    const pageNode = document.getElementById('page-ticker');
-    const overview = document.getElementById('tab-overview');
-    const chart = document.getElementById('tab-chart');
-    return pageNode?.dataset.activeTickerTab === 'chart'
-      && pageNode?.dataset.activeTickerRange === '1m'
-      && document.getElementById('ticker-tab-chart')?.getAttribute('aria-selected') === 'true'
-      && overview?.style.display === 'none'
-      && chart?.style.display !== 'none';
-  });
-  await page.locator('#ticker-tab-chart').press('ArrowLeft');
-  await page.waitForFunction(() => document.getElementById('page-ticker')?.dataset.activeTickerTab === 'overview' && document.activeElement?.id === 'ticker-tab-overview');
-  await page.locator('#ticker-tab-overview').press('ArrowRight');
-  await page.waitForFunction(() => document.getElementById('page-ticker')?.dataset.activeTickerTab === 'chart' && document.activeElement?.id === 'ticker-tab-chart');
+  // P1430: the ticker page's inner tabs (재무 공시 · 가격 이력) were retired — the 종목 hub tabs own that
+  // split, and the price chart is part of 요약 next to the price/theme/factor rail.
+  const tickerLayout = await page.evaluate(() => ({
+    innerTabs: document.querySelectorAll('#page-ticker [data-ticker-tab]').length,
+    chartVisible: !!document.getElementById('ticker-price-chart')?.getClientRects().length,
+    externalChart: !!document.getElementById('tv-widget-ticker'),
+    hubTabs: [...document.querySelectorAll('#aio-hub-tabs .aio-hub-tab')].map((tab) => tab.dataset.arg)
+  }));
+  if (tickerLayout.innerTabs !== 0 || !tickerLayout.chartVisible || tickerLayout.externalChart || tickerLayout.hubTabs.join(',') !== 'ticker,technical,fundamental') throw new Error(`P1430 ticker summary layout failed: ${JSON.stringify(tickerLayout)}`);
   const tickerRangeEvidence = [];
   for (const [range, expectedRows] of [['1m', 31], ['3m', 91], ['6m', 181], ['1y', 366]]) {
     await page.evaluate(() => {
@@ -497,8 +509,6 @@ try {
       };
     }));
   }
-  await page.locator('#ticker-tab-overview').click();
-  await page.waitForFunction(() => document.getElementById('page-ticker')?.dataset.activeTickerTab === 'overview' && document.getElementById('tab-overview')?.style.display !== 'none' && document.getElementById('tab-chart')?.style.display === 'none');
   if (tickerRangeEvidence.map((item) => item.rows).join(',') !== '31,91,181,366'
     || new Set(tickerRangeEvidence.map((item) => item.range)).size !== 4
     || tickerRangeEvidence.some((item) => item.sourceKind !== 'native-runtime' || !item.rendered)) throw new Error(`ticker native range windows failed: ${JSON.stringify(tickerRangeEvidence)}`);
@@ -692,18 +702,18 @@ try {
   if (homeRoute.renderer !== 'native' || homeRoute.homeRenderer !== 'native' || homeRoute.rawPrimarySinkCount !== 4 || homeRoute.nativePrimarySinkCount !== 4 || homeRoute.fearGreedRenderer !== 'native' || !homeRoute.fearGreedScore.trim() || homeRoute.qualityRenderer !== 'native' || !homeRoute.qualityScore.trim() || !homeRoute.qualityLabel.trim() || Object.values(homeRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`home native summary/Fear & Greed/quality/fence failed: ${JSON.stringify(homeRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('briefing'));
   await page.waitForFunction(() => document.getElementById('page-briefing')?.dataset.aioArchitectureRoute === 'briefing');
-  // P1389 (supersedes P1346): schedule first, then the connected read, drivers and next checks.
+  // P1431 (supersedes P1389 order): the connected read first (conclusion), then drivers, next checks, and the schedule.
   const briefingSummary = await page.evaluate(() => {
     const schedule = document.getElementById('briefing-schedule');
     const read = document.getElementById('briefing-read');
     const checks = document.getElementById('briefing-check-list');
     return { native: document.getElementById('page-briefing')?.dataset.aioBriefingRenderer,
-      scheduleFirst: !!schedule && !!read && !!(schedule.compareDocumentPosition(read) & Node.DOCUMENT_POSITION_FOLLOWING),
+      readFirst: !!schedule && !!read && !!(read.compareDocumentPosition(schedule) & Node.DOCUMENT_POSITION_FOLLOWING),
       headline: document.getElementById('briefing-read-headline')?.textContent || '',
       drivers: document.querySelectorAll('#briefing-driver-rows [data-axis]').length,
       checks: checks?.textContent || '', retired: ['briefing-decision-summary', 'briefing-market-strip', 'briefing-live-news-list'].filter((id) => document.getElementById(id)) };
   });
-  if (briefingSummary.native !== 'native-read' || !briefingSummary.scheduleFirst || !briefingSummary.headline.trim()
+  if (briefingSummary.native !== 'native-read' || !briefingSummary.readFirst || !briefingSummary.headline.trim()
     || briefingSummary.retired.length || /매수|매도|BUY|SELL/.test(briefingSummary.checks + briefingSummary.headline))
     throw new Error(`P1389 briefing read failed: ${JSON.stringify(briefingSummary)}`);
   const contentRoutes = await page.evaluate(({ market, macro, fxbond, breadth, themes, themeDetail, ticker, fundamental, portfolio, technical, signal, home }) => ({
@@ -734,7 +744,7 @@ try {
     ,homeRenderer: home.renderer
     ,homeSummaryRenderer: home.homeRenderer
   }), { market: marketRoute, macro: macroRoute, fxbond: fxbondRoute, breadth: breadthRoute, themes: themesRoute, themeDetail: themeDetailRoute, ticker: tickerRoute, fundamental: fundamentalRoute, portfolio: portfolioRoute, technical: technicalRoute, signal: signalRoute, home: homeRoute });
-  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native-read' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || fxbondRoute.nativeLiveSinkCount < 1 || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.symbolRenderer !== 'native' || !tickerRoute.candleSymbol.trim() || !tickerRoute.entrySymbol.trim() || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.summaryRenderer !== 'native' || !fundamentalRoute.summaryText.trim() || !fundamentalRoute.summarySourceKind || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !fundamentalRoute.reportMeta.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute })}`);
+  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native-read' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || fxbondRoute.nativeLiveSinkCount < 1 || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.symbolRenderer !== 'native' || !tickerRoute.candleSymbol.trim() || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.summaryRenderer !== 'native' || !fundamentalRoute.summaryText.trim() || !fundamentalRoute.summarySourceKind || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !fundamentalRoute.reportMeta.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute })}`);
 
   if (breadthRoute.boardRenderer !== 'native' || breadthRoute.cards !== 10 || breadthRoute.charts !== 10 || !breadthRoute.state.trim() || breadthRoute.retired.length) throw new Error(`P1395 breadth board failed: ${JSON.stringify(breadthRoute)}`);
 

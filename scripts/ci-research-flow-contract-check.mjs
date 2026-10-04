@@ -104,7 +104,7 @@ const themes = read('src/ui/pages/themes.js');
 check(themes.includes("catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록')") && themes.includes('appendUnclassified();'), 'missing RRG observations do not remove the independent theme exploration path');
 
 check(!core.includes('getAdrEstimate(') && !data.includes('function getAdrEstimate('), 'market-cap-derived fake ADR is retired');
-check(core.includes('_calcEMA(closes, 20)') && !core.includes('p * 0.99'), 'ticker trend input uses observed OHLCV and the canonical EMA');
+check(!core.includes('window._aioFillEntryFromTicker =') && !core.includes('p * 0.99'), 'P1430: the manual entry calculator (synthetic-EMA risk) stays retired');
 // P1132/R619: the relative-strength and deep-analysis renderers moved to js/aio-ui.js. Repointing these
 // matters for the absence check too — pinned to index.html it would now pass vacuously.
 check(!ui.includes('모멘텀 강세(비중 확대)') && !ui.includes('Leading</strong>: 초강세'), 'relative strength labels do not prescribe trades');

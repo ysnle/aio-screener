@@ -35,7 +35,9 @@ export function earningsContextForHeadline(title, { earnings = [], names = {}, n
     const parts = [vsLine('EPS', row.epsActual, row.epsEstimate, (v) => v.toFixed(2)), vsLine('매출', row.revenueActual, row.revenueEstimate, money)].filter(Boolean);
     if (!parts.length) continue;
     const when = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}${row.hour === 'amc' ? ' 장 마감 후' : row.hour === 'bmo' ? ' 장 시작 전' : ''}`;
-    return Object.freeze({ symbol: row.symbol, text: `실적(${when}) · ${parts.join(' · ')}`, hasActual: typeof row.epsActual === 'number' || typeof row.revenueActual === 'number', source: 'Finnhub 실적 달력' });
+    // P1428 (Codex review): the line names its company — a Nike earnings story tagged with an analyst's
+    // firm ($MS) read as Morgan Stanley's results.
+    return Object.freeze({ symbol: row.symbol, name, text: `${name} (${row.symbol}) 실적(${when}) · ${parts.join(' · ')}`, hasActual: typeof row.epsActual === 'number' || typeof row.revenueActual === 'number', source: 'Finnhub 실적 달력' });
   }
   return null;
 }

@@ -129,6 +129,9 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
   const last = bars[n];
   const prev = bars[n - 1];
   const vcp = detectContractions(bars);
+  // P1428 (Codex review): fewer than 252 sessions is not a 52-week range; the label says how long it is.
+  const fullYear = bars.length >= 252;
+  const rangeLabel = fullYear ? '52주' : `최근 ${bars.length}거래일`;
   const high52 = Math.max(...bars.slice(-252).map((bar) => bar.high));
   const fromHigh = (last.close / high52 - 1) * 100;
   const volRatio = vol50[n] ? volumes[n] / vol50[n] : null;
@@ -173,13 +176,14 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
   const low52 = Math.min(...bars.slice(-252).map((bar) => bar.low));
   const sma200Then = sma200[n - 21];
   const templateChecks = [
-    ['종가 > 150·200일선', sma150[n] != null && sma200[n] != null && last.close > sma150[n] && last.close > sma200[n]],
-    ['150일선 > 200일선', sma150[n] != null && sma200[n] != null && sma150[n] > sma200[n]],
-    ['200일선 1개월 이상 상승', sma200[n] != null && sma200Then != null && sma200[n] > sma200Then],
-    ['50일선 > 150·200일선', sma50[n] != null && sma150[n] != null && sma50[n] > sma150[n] && sma50[n] > sma200[n]],
-    ['종가 > 50일선', sma50[n] != null && last.close > sma50[n]],
-    ['52주 저점 대비 +30% 이상', last.close >= low52 * 1.3],
-    ['52주 고점 대비 -25% 이내', last.close >= Math.max(...bars.slice(-252).map((bar) => bar.high)) * 0.75],
+    // P1428: a check whose moving average is not yet computable is unknown (null), never 'unmet'.
+    ['종가 > 150·200일선', sma150[n] == null || sma200[n] == null ? null : last.close > sma150[n] && last.close > sma200[n]],
+    ['150일선 > 200일선', sma150[n] == null || sma200[n] == null ? null : sma150[n] > sma200[n]],
+    ['200일선 1개월 이상 상승', sma200[n] == null || sma200Then == null ? null : sma200[n] > sma200Then],
+    ['50일선 > 150·200일선', sma50[n] == null || sma150[n] == null || sma200[n] == null ? null : sma50[n] > sma150[n] && sma50[n] > sma200[n]],
+    ['종가 > 50일선', sma50[n] == null ? null : last.close > sma50[n]],
+    ['52주 저점 대비 +30% 이상', fullYear ? last.close >= low52 * 1.3 : null],
+    ['52주 고점 대비 -25% 이내', fullYear ? last.close >= high52 * 0.75 : null],
     ['상대강도 (S&P 500 대비 6개월 우위)', null]
   ];
   // Buy/sell pressure: volume on up days versus down days over 20 sessions.
@@ -199,10 +203,13 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
   const wn = wCloses.length - 1;
   const weeklyTrend = w10[wn] == null || w30[wn] == null ? null : wCloses[wn] > w10[wn] && w10[wn] > w30[wn] ? '정배열' : wCloses[wn] < w10[wn] && w10[wn] < w30[wn] ? '역배열' : '혼조';
   // Relative strength: 6-month return minus the S&P 500's over the same dates.
-  const bench = new Map((benchmark || []).map((point) => [point.date, point.value]));
+  // P1428: each end of the comparison uses the benchmark close on or just before the stock's date (≤ 3 days);
+  // a missing date is no comparison, not the benchmark's latest value.
+  const benchRows = (benchmark || []).filter((point) => point?.date && Number.isFinite(point.value)).sort((a, b) => a.date.localeCompare(b.date));
+  const benchAt = (date) => { let hit = null; for (const point of benchRows) { if (point.date <= date) hit = point; else break; } return hit && (Date.parse(date) - Date.parse(hit.date)) <= 3 * 86400000 ? hit.value : null; };
   const ago = bars[Math.max(0, n - 126)];
   const ret6 = (last.close / ago.close - 1) * 100;
-  const b0 = bench.get(ago.time); const b1 = bench.get(last.time) ?? [...bench.values()].pop();
+  const b0 = benchAt(ago.time); const b1 = benchAt(last.time);
   const rs = b0 && b1 ? ret6 - (b1 / b0 - 1) * 100 : null;
   const strength = adx(bars);
   templateChecks[7][1] = rs == null ? null : rs > 0;
@@ -215,7 +222,9 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
   const brokeOut = pivot != null && recent.some((bar, i) => bar.close > pivot && (i === 0 ? bars[n - 10].close : recent[i - 1].close) <= pivot);
   if (sma200[n] != null && (last.close < sma200[n] || (sma50[n] < sma200[n] && last.close < sma50[n]))) state = 'downtrend';
   else if (pivot != null && brokeOut && last.close < pivot) state = 'failed';
-  else if (pivot != null && last.close > pivot && last.close <= pivot * 1.05 && bars.slice(-3).some((bar, i) => vol50[n - 2 + i] && volumes[n - 2 + i] >= 1.4 * vol50[n - 2 + i])) state = 'breakout';
+  // P1428 (Codex review): the heavy-volume day must itself close up and above the pivot — a heavy sell-off
+  // below the pivot two days earlier is not breakout volume.
+  else if (pivot != null && last.close > pivot && last.close <= pivot * 1.05 && [n - 2, n - 1, n].some((i) => i > 0 && vol50[i] && volumes[i] >= 1.4 * vol50[i] && bars[i].close > pivot && bars[i].close > bars[i - 1].close)) state = 'breakout';
   else if (pivot != null && last.close > pivot * 1.05) state = 'extended';
   else if (vcp.valid && pivot != null && last.close >= pivot * 0.92 && last.close <= pivot) state = 'setup';
   const fmt = (value, digits = 2) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -226,8 +235,8 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
     ['S&P 500 대비 6개월', rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],
     ['거래량 (50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? ` · 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
-    ['52주 고점 대비', signed(fromHigh)],
-    ['추세 템플릿 (미너비니)', `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? ` · 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}`],
+    [`${rangeLabel} 고점 대비`, signed(fromHigh)],
+    ['추세 템플릿 (미너비니)', `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? ` · 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}${templateChecks.some(([, ok]) => ok == null) ? ` · 확인 불가 ${templateChecks.filter(([, ok]) => ok == null).length}개(기록 부족)` : ''}`],
     ['8일선 대비 거리', extension == null ? '—' : `${signed(extension)}${extension >= 10 ? ' (과열권)' : extension <= -5 ? ' (8일선 아래 이탈)' : ''}`],
     ['매수·매도 압력 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(매수 우위)' : pressure <= 0.77 ? '(매도 우위)' : '(균형)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],

@@ -51,6 +51,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'value', label: '밸류', sortable: true, align: 'right', width: 70, group: 'factor' },
   { key: 'quality', label: '퀄리티', sortable: true, align: 'right', width: 78, group: 'factor' },
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
+  { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
   { key: 'ret1m', label: '1M', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret3m', label: '3M', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret6m', label: '6M', sortable: true, align: 'right', width: 70, group: 'market' },
@@ -64,9 +65,13 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'news', label: '최신뉴스·근거', sortable: false, align: 'left', width: 190, group: 'evidence' }
 ]);
 
+// P1429: 가격 comes only from the visible-row live quote (P715: the artifact publishes no per-symbol
+// price), and on 2026-10-04 the live site showed 미수신 on 10 of 12 rows while the Worker deploy was
+// blocked. 52주 고점 대비 comes from the artifact itself, so the default presets always carry a
+// price-position reading even when the quote is missing.
 const COLUMN_PRESETS = Object.freeze({
-  discovery: ['watchlist', 'rank', 'grade', 'sym', 'price', 'ret1m', 'ret3m', 'rsi', 'vcpScore'],
-  fundamentals: ['watchlist', 'rank', 'grade', 'sym', 'value', 'quality', 'price', 'ret3m', 'signal', 'news'],
+  discovery: ['watchlist', 'rank', 'grade', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'vcpScore'],
+  fundamentals: ['watchlist', 'rank', 'grade', 'sym', 'value', 'quality', 'price', 'pctFrom52wHigh', 'ret3m', 'signal', 'news'],
   trend: ['watchlist', 'rank', 'grade', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'entry'],
   risk: ['watchlist', 'rank', 'grade', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'signal', 'news'],
   events: ['watchlist', 'rank', 'grade', 'sym', 'signal', 'entry', 'vcpScore', 'news'],
@@ -417,6 +422,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   if (['ret1m', 'ret3m', 'ret6m'].includes(key)) return returnText(row[key]);
   if (key === 'rsi') return numberText(row.rsi, 1);
   if (key === 'pctSma50') return returnText(row.pctSma50);
+  if (key === 'pctFrom52wHigh') return returnText(row.pctFrom52wHigh);
   if (key === 'vcpScore') {
     const node = documentRef.createElement('span');
     node.textContent = row.vcpScore == null ? '—' : `${row.vcpScore} · ${vcpStageLabel(row.vcpStage)}`;
@@ -496,7 +502,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
     td.className = `scr-column-cell scr-column-${column.key}${column.sticky ? ' scr-column-sticky' : ''}`;
     td.style.cssText = `text-align:${column.align};min-width:${column.width}px;padding:7px 8px;`;
     if (column.sticky) td.style.left = `${stickyLeft}px`;
-    if (['price', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap'].includes(column.key)) {
+    if (['price', 'pctFrom52wHigh', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap'].includes(column.key)) {
       td.style.fontFamily = 'var(--font-mono)';
       td.style.fontVariantNumeric = 'tabular-nums';
     }
@@ -1569,7 +1575,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          // P1165 (12 U01): 실행 전 상태 줄도 선택한 정의의 미리보기를 인용한다 — 파이프라인 기본
          // 수치를 '선택한 정의의 통과'로 읽히게 두지 않는다. 실행하면 activeResult가 대신한다.
          if (!activeResult && preview && workbenchStatus) {
-           workbenchStatus.textContent = `조건 적용 전 미리보기 · ${preview.definition?.screenId || '—'}(${String(preview.definition?.definitionHash || '').slice(0, 8)}) · 계산 가능 ${preview.readiness?.eligibleCount ?? 0} · 조건 통과 ${preview.run?.passed ?? 0} / 계산 보류 ${preview.run?.unavailable ?? 0} · 실행 버튼이 이 입력을 고정합니다`;
+           // P1431: plain status; the definition id/hash stay on the element for audit, not in the sentence.
+           const screenLabel = documentRef.getElementById('scr-screen-select')?.selectedOptions?.[0]?.textContent || preview.definition?.screenId || '선택한 조건';
+           workbenchStatus.textContent = `${screenLabel} 미리보기 · 계산 가능 ${preview.readiness?.eligibleCount ?? 0}종목 중 조건 통과 ${preview.run?.passed ?? 0} · 데이터 부족 ${preview.run?.unavailable ?? 0}`;
+           workbenchStatus.title = `${preview.definition?.screenId || '—'} · ${String(preview.definition?.definitionHash || '').slice(0, 8)} · 조건 실행을 누르면 이 입력으로 고정합니다`;
          }
          renderCompareTray();
        };

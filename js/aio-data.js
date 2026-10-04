@@ -1511,9 +1511,9 @@ function _aioRenderTelegramFeedHtml(pageId) {
     var html = '<div class="' + feedCls + '">' + statusMarkup(feedState, filtered.length, maxItems);
 
     var sentBar = '';
-    if (sentCounts.bull)    sentBar += '<span class="tg-sb-bull">▲' + sentCounts.bull + '</span>';
-    if (sentCounts.neutral) sentBar += '<span class="tg-sb-neu">●' + sentCounts.neutral + '</span>';
-    if (sentCounts.bear)    sentBar += '<span class="tg-sb-bear">▼' + sentCounts.bear + '</span>';
+    if (sentCounts.bull)    sentBar += '<span class="tg-sb-bull" title="긍정 어조 글 수 (가격 방향 아님)">긍정 ' + sentCounts.bull + '</span>';
+    if (sentCounts.neutral) sentBar += '<span class="tg-sb-neu" title="중립 어조 글 수">중립 ' + sentCounts.neutral + '</span>';
+    if (sentCounts.bear)    sentBar += '<span class="tg-sb-bear" title="부정 어조 글 수 (가격 방향 아님)">부정 ' + sentCounts.bear + '</span>';
 
     html += '<div class="tg-live-feed-hd">'
           + '<span class="tg-live-dot"></span>'
@@ -1525,7 +1525,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
     // 카드 렌더
     cards.forEach(function(item) {
       var it = item.it, info = item.info;
-      var sentLabel = { bull:'▲ 상승', bear:'▼ 하락', neutral:'● 중립' }[info.sent];
+      var sentLabel = { bull:'긍정 어조', bear:'부정 어조', neutral:'중립 어조' }[info.sent]; // P1428: word-count tone of the text, not a price direction
       var sentCls   = { bull:'tg-sent-bull', bear:'tg-sent-bear', neutral:'tg-sent-neutral' }[info.sent];
       var src = _TG_CH_SRC[it.channel] || (it.channel || '');
       var date = (it.localDateKst || '').slice(5, 10);
@@ -6117,8 +6117,7 @@ function _aioRenderLiveFearGreedDelta(score, previousScore) {
     ? Math.round(current) - Math.round(previous)
     : null;
   _aioSetDeltaEl('sentiment-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0, label: '전일 대비' });
-  _aioSetDeltaEl('home-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0, label: '전일 대비' });
-  return _fgLiveDelta;
+  return _fgLiveDelta; // P1428: home-fg-delta is native (completed-close basis, same as 투자 심리)
 }
 window._aioRenderLiveFearGreedDelta = _aioRenderLiveFearGreedDelta;
 
@@ -6142,7 +6141,6 @@ function _aioRenderDeltas() {
   // 2) Fear & Greed 전일 delta (서버 CNN API previousScore 기반)
   var _fgDeltaForRender = _fgLiveDelta != null ? _fgLiveDelta : snap._fearGreedDelta;
   _aioSetDeltaEl('sentiment-fg-delta', _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0, label: '전일 대비' });
-  _aioSetDeltaEl('home-fg-delta',      _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0, label: '전일 대비' });
 
   // 3) 트레이딩 스코어 전일 delta (localStorage)
   if (prev && typeof prev.tradingScore === 'number') {
@@ -9651,7 +9649,8 @@ function scoreItem(item) {
   return _scoreItemCachePut(item, _finalScore);
 }
 
-/* ── classifyTopic(): 뉴스 토픽 분류 ───────────────────────── */
+/* ── classifyTopic(): 뉴스 토픽 분류 ── P1428: ASCII keywords need word boundaries ('AI' matched inside 'said', 'ARM' in 'pharma', 'gas' in 'Vegas'); Korean keywords keep substring matching ── */
+var _aioTopicKwCache = new Map(); function _aioTopicKeywordHit(text, kw) { var key = String(kw); if (!/^[\x00-\x7F]+$/.test(key)) return text.includes(key.toLowerCase()); var re = _aioTopicKwCache.get(key); if (!re) { re = new RegExp('(^|[^a-z0-9])' + key.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-z0-9])'); _aioTopicKwCache.set(key, re); } return re.test(text); }
 function classifyTopic(item) {
   const text = ((item.title || '') + ' ' + (item.desc || '')).toLowerCase();
   let bestTopic = 'general';
@@ -9659,9 +9658,7 @@ function classifyTopic(item) {
 
   Object.entries(TOPIC_KEYWORDS).forEach(([topic, keywords]) => {
     let hits = 0;
-    keywords.forEach(kw => {
-      if (text.includes(kw.toLowerCase())) hits++;
-    });
+    keywords.forEach(kw => { if (_aioTopicKeywordHit(text, kw)) hits++; }); // P1428: 'AI' no longer matches inside 'said', 'Meta' inside 'metal'
     if (hits > bestScore) {
       bestScore = hits;
       bestTopic = topic;
@@ -10735,8 +10732,10 @@ function getDisplayDesc(item) {
 }
 /* v27.2: 투자자 관점 해석 반환 — v27.4: 폴백 추가 */
 function getDisplaySummary(item) {
-  const translated = _aioGetNewsTranslation(item);
-  if (translated.ko_summary) return translated.ko_summary;
+  // P1428 (Codex review): only a real translation or the article's own description — the local template
+  // ("○○ 뉴스입니다. 헤드라인 기준 톤은…") repeated the same generic sentence on every card.
+  const cachedSummary = item && item.title ? _translationCache.get(_tcKey(item.title)) : null;
+  if (cachedSummary && !cachedSummary._failed && cachedSummary.ko_summary) return cachedSummary.ko_summary;
   // 폴백: 번역 완료 전이라도 빈 문자열 대신 원문 설명 축약 표시
   const desc = item.desc || item.description || '';
   if (desc.length > 0) {
@@ -10874,6 +10873,7 @@ function _getTickerRegex(ticker) {
   return cached;
 }
 
+function _aioNewsNameIsAttribution(lowerText, name) { if (!/[a-z]/.test(name) || name.length < 4) return false; var n = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); return new RegExp('(?:according to|says|said|by|from|at|via|per)\\s+' + n + '|' + n + "(?:'s)?\\s+(?:analysts?|strategists?|economists?|says|said|note|notes|sees|expects|upgrades?|downgrades?|raises|cuts|rates|initiates|reiterates)").test(lowerText); } // P1428: a broker cited as the source of a view ("..., Morgan Stanley says") is not the story's subject
 function extractTickers(item) {
   var text = (item.title || '') + ' ' + (item.desc || '');
   var found = new Set();
@@ -10911,7 +10911,7 @@ function extractTickers(item) {
   if (typeof KR_TICKER_MAP !== 'undefined' && found.size < 5) {
     var lowerText = text.toLowerCase();
     for (var krName in KR_TICKER_MAP) {
-      if (KR_TICKER_MAP.hasOwnProperty(krName) && lowerText.includes(krName.toLowerCase()) && found.size < 5) {
+      if (KR_TICKER_MAP.hasOwnProperty(krName) && lowerText.includes(krName.toLowerCase()) && found.size < 5 && !_aioNewsNameIsAttribution(lowerText, krName.toLowerCase())) {
         found.add(KR_TICKER_MAP[krName]);
       }
     }

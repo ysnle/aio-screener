@@ -12,6 +12,9 @@ import {
   selectAiInferenceProxies
 } from '../../domain/ai/inference-efficiency.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
+import { rotationFlow } from '../../domain/market/page-flow.js';
+import { readMarketRegime } from '../components/market-regime.js';
+import { renderNextSteps } from '../components/page-flow.js';
 
 const QUADRANTS = Object.freeze([
   { key: 'Leading', label: '선도 Leading', sub: '상대강도 우위', note: '상대강도·모멘텀 모두 우위' },
@@ -270,7 +273,7 @@ function createChip(documentRef, item, root) {
   // LC-54: 상세 제공 여부를 데이터 계약으로 드러낸다 — 읽기 전용 칩과 상세 버튼이
   // 같은 외형이면 사용자가 눌러도 아무 일도 없는 이유를 알 수 없다.
   chip.dataset.detailAvailability = detailId ? 'available' : 'summary-only';
-  chip.textContent = `${symbol} ${String(item?.label || symbol)} ${pct == null ? '—' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`}${detailId ? '' : ' · 요약만'}`;
+  chip.textContent = `${symbol} ${String(item?.label || symbol)}${pct == null ? '' : ` ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`}${detailId ? '' : ' · 요약만'}`;
   chip.style.cssText = `font-size:12px;border:1px ${detailId ? 'solid' : 'dashed'} var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : 'opacity:0.85;'}`;
   if (detailId) {
     chip.type = 'button';
@@ -356,10 +359,11 @@ function renderThemes({ documentRef, root, store, route }) {
     container.appendChild(card);
   });
   appendUnclassified();
-  const leading = (groups.get('Leading') || []).map((item) => item.label || item.symbol).join('·') || '없음';
-  const improving = (groups.get('Improving') || []).map((item) => item.label || item.symbol).join('·') || '없음';
+  // P1431: one reading of all four quadrants, tied to the 시장 상태 breadth axis.
+  const flow = rotationFlow({ groups: Object.fromEntries(groups), regime: readMarketRegime(root) });
   const read = documentRef.getElementById('rrg-rotation-read');
-  if (read) read.textContent = `선도 사분면: ${leading}. 개선 사분면: ${improving}. 차트는 별도 레거시 secondary surface입니다.`;
+  if (read) read.textContent = flow.read;
+  renderNextSteps(documentRef, documentRef.getElementById('themes-next'), flow.next);
 }
 
 function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) {
@@ -466,7 +470,7 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
   const breadthValue = finite(detail.breadth);
   breadth.textContent = breadthValue == null
     ? '브레드스: 시세 대기 — 충분한 구성종목 가격이 확인되면 계산됩니다.'
-    : `브레드스(양봉비율): ${breadthValue}% · ${detail.leaders.length}종목 기준`;
+    : `상승 종목 비율(전일 대비): ${breadthValue}% · ${detail.leaders.length}종목 기준`;
   breadth.style.cssText = 'font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:8px;';
 
   const subThemes = documentRef.createElement('div');
@@ -901,7 +905,7 @@ function renderAiInfrastructureLens({ documentRef, root, route }) {
   proxyRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;';
   proxies.forEach((item) => {
     const chip = documentRef.createElement('span');
-    chip.textContent = `${item.symbol} ${item.pct == null ? '—' : `${item.pct >= 0 ? '+' : ''}${item.pct.toFixed(2)}%`}`;
+    chip.textContent = item.pct == null ? item.symbol : `${item.symbol} ${item.pct >= 0 ? '+' : ''}${item.pct.toFixed(2)}%`;
     chip.style.cssText = 'font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:3px;padding:4px 7px;';
     chip.setAttribute('data-source-kind', item.sourceKind);
     chip.setAttribute('data-operational-use', item.pct == null ? 'blocked' : 'reference-only');

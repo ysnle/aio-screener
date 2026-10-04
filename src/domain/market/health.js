@@ -85,7 +85,7 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   const details = [];
 
   if (spyPct > 1) { score += 10; details.push(`SPY 강세 +${spyPct.toFixed(1)}%`); }
-  else if (spyPct > 0.05) { score += 5; details.push('SPY 소폭 양봉'); }
+  else if (spyPct > 0.05) { score += 5; details.push('SPY 전일 대비 소폭 상승'); }
   else if (spyPct >= -0.05) details.push('SPY 보합');
   else if (spyPct > -1) { score -= 5; details.push('SPY 소폭 음봉'); }
   else { score -= 10; details.push(`SPY 약세 ${spyPct.toFixed(1)}%`); }

@@ -6447,35 +6447,7 @@ async function analyzeKrTickerDeep(ticker) {
   }
 }
 
-// Entry Quality Calculator
-function calculateEntryQualityLocal() {
-  var price = parseFloat(document.getElementById('eq-price').value);
-  var ema20 = parseFloat(document.getElementById('eq-ema20').value);
-  var rsi = parseFloat(document.getElementById('eq-rsi').value);
-
-  if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(ema20) || ema20 <= 0 || !Number.isFinite(rsi) || rsi < 0 || rsi > 100) {
-    showToast('양수 가격·EMA와 0~100 RSI를 입력하세요');
-    return;
-  }
-
-  var gap = (price - ema20) / ema20 * 100;
-  var near20 = Math.abs(gap) <= 2.0;
-  var above20 = gap >= 0;
-  var neutralRSI = rsi >= 40 && rsi <= 70;
-  var score = (near20 ? 1 : 0) + (above20 ? 1 : 0) + (neutralRSI ? 1 : 0);
-  var grade = score === 3 ? '정렬 관찰' : score === 2 ? '혼합' : '주의';
-  var gradeColor = score === 3 ? 'var(--data-green)' : score === 2 ? 'var(--data-amber)' : 'var(--data-red)';
-
-  document.getElementById('entry-quality-result').style.display = 'block';
-  document.getElementById('eq-grade-display').textContent = grade;
-  document.getElementById('eq-grade-display').style.color = gradeColor;
-  var barDiv = document.getElementById('eq-grade-bar').querySelector('div');
-  if (barDiv) barDiv.style.width = (score / 3 * 100) + '%';
-  document.getElementById('eq-fib-level').textContent = (gap >= 0 ? '+' : '') + gap.toFixed(2) + '%';
-  document.getElementById('eq-stoploss').textContent = rsi < 40 ? '약한 모멘텀' : rsi > 70 ? '과열 관찰' : '중립 범위';
-
-  document.getElementById('eq-explanation').textContent = '현재가와 20일 EMA의 거리, RSI만 비교한 관측값입니다. 거래량·변동성·시장 국면·무효화 가격이 없으므로 진입 승인이나 손절가를 산출하지 않습니다.';
-}
+// P1430: calculateEntryQualityLocal retired with the ticker 가격·추세 위치 점검 calculator.
 
 // Risk/Reward Calculator
 function calculateRR() {
@@ -7242,68 +7214,7 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
   else mountDisclaimer();
 })();
 
-// ── A-2 (2026-07-17, IA 잔여): 첫 방문 온보딩 — 브리핑/시장/학습 3버튼 ──
-// v50.71 결정(첫 화면을 모달로 차단 금지)을 존중해 home 콘텐츠 상단의 비차단 인라인 카드로
-// 1회 표시. 버튼 클릭(목적 달성) 또는 ✕로 닫으면 localStorage 플래그로 재표시 안 함.
-(function() {
-  try {
-    if (localStorage.getItem('aio_onboarding_nav_v1') === '1') return;
-  } catch(_e) { return; } // storage 불가 환경에서는 조용히 생략(P714 면책 바와 동일 정책)
-  function dismissOnboarding() {
-    try { localStorage.setItem('aio_onboarding_nav_v1', '1'); } catch(_e) {}
-    var el = document.getElementById('aio-first-visit-onboarding');
-    if (el && el.parentNode) el.parentNode.removeChild(el);
-  }
-  function goPage(page) {
-    dismissOnboarding();
-    try {
-      var navEl = document.querySelector('[data-action="showPage"][data-arg="' + page + '"]');
-      if (typeof window.showPage === 'function') window.showPage(page, navEl);
-    } catch(_e) {}
-  }
-  function mountOnboarding() {
-    if (document.getElementById('aio-first-visit-onboarding')) return;
-    var anchor = document.getElementById('home-kpi-strip');
-    if (!anchor || !anchor.parentNode) return;
-    var card = document.createElement('div');
-    card.id = 'aio-first-visit-onboarding';
-    card.setAttribute('role', 'region');
-    card.setAttribute('aria-label', '시작 안내');
-    card.style.cssText = 'display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--surface-1,#faf7f0);border:1px solid var(--border-strong,#c9c2b2);border-radius:6px;padding:14px 16px;margin-bottom:var(--space-3,16px);';
-    var txt = document.createElement('div');
-    txt.style.cssText = 'flex:1;min-width:220px;font-size:12.5px;line-height:1.7;color:var(--text-secondary,#57513f);';
-    txt.innerHTML = '<b style="color:var(--text-primary,#211d16);">처음 오셨나요?</b> — 어디서 시작할지 골라보세요. 이 카드는 한 번만 표시됩니다.';
-    var btnWrap = document.createElement('div');
-    btnWrap.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
-    [
-      { label: '오늘 브리핑', desc: '시장 요약부터', page: 'briefing' },
-      { label: '시장 환경', desc: '지표 한눈에', page: 'signal' },
-      { label: '학습 가이드', desc: '용어·사용법', page: 'guide' }
-    ].forEach(function(b) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.innerHTML = '<span style="font-weight:600;">' + b.label + '</span><span style="display:block;font-size:10.5px;font-weight:400;color:var(--text-muted,#8a8471);margin-top:2px;">' + b.desc + '</span>';
-      btn.style.cssText = 'font-size:12.5px;color:var(--text-primary,#211d16);background:var(--surface-2,#ece7db);border:1px solid var(--border,#d8d2c4);border-radius:6px;padding:8px 14px;cursor:pointer;text-align:left;';
-      btn.addEventListener('click', function() { goPage(b.page); });
-      btnWrap.appendChild(btn);
-    });
-    var closeBtn = document.createElement('button');
-    closeBtn.type = 'button';
-    closeBtn.setAttribute('aria-label', '시작 안내 닫기');
-    closeBtn.textContent = '✕';
-    // Keep the dismiss affordance keyboard/touch reachable even though the
-    // visual glyph is intentionally compact (WCAG 2.5.8 target floor).
-    closeBtn.style.cssText = 'flex-shrink:0;align-self:flex-start;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-muted,#8a8471);background:none;border:none;cursor:pointer;padding:2px 6px;';
-    closeBtn.addEventListener('click', dismissOnboarding);
-    card.appendChild(txt);
-    card.appendChild(btnWrap);
-    card.appendChild(closeBtn);
-    anchor.parentNode.insertBefore(card, anchor);
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountOnboarding);
-  else mountOnboarding();
-})();
-
+// P1429 (owner 2026-10-04): the first-visit "처음 오셨나요?" onboarding card was removed — users are active traders; no how-to prompts.
 // ── 초기화 ──
 document.addEventListener('DOMContentLoaded', function() {
   window._globalUpdateInterval = _aioRegisterTimer('globalUpdate', function() {

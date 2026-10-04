@@ -1,0 +1,19 @@
+{
+  "version": "v57.10",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.10 — Codex review of the latest work, re-checked against HEAD: one threshold registry, honest verdict inputs, cleaner news attribution and a guide rebuilt as a menu map plus the generated rule table (P1428).",
+  "p": {
+    "id": 1428,
+    "title": "Meaning fixes: one rule registry, no verdict from a missing input, guide describes the screens that exist",
+    "symptom": "Codex review (2026-10-04) of the newest commits: thresholds for the same indicator differed between 시장 상태, 투자 심리, 거시 and the guide; a missing put/call ratio read as low hedging; RS benchmark and stale n-sessions-back values could compare different dates; a breakout counted on a heavy down day; 50/200-day checks passed with missing inputs; the chart analysed today's unfinished bar; news earnings badges named the wrong company and analyst-house names were tagged as tickers; the guide still described the retired 0~100 score, Action Item and swing/day modes; the home F&G delta came from a legacy writer.",
+    "root_cause": "Rules were literals scattered across domain modules and the guide was hand-written prose, so they drifted; several template checks treated null as a pass.",
+    "fix": "src/domain/rules/thresholds.js is the single RULES registry used by market-read, sentiment-board, macro-read, rates-fx and the guide rule table; stats().back(n) refuses points too far from the requested session; sentiment greed needs a measured put/call; chart-analysis: missing template inputs return null, RS benchmark within 3 days, breakout needs an up close above the pivot, '최근 N거래일' when fewer than 252 bars; completedBars drops today's live bar until close + 20 minutes; news: earnings symbol resolved before ticker badges, attribution phrases are not tickers, ASCII topic keywords need word boundaries, importance follows the country/topic filter, KST time on two lines; guide = 메뉴 지도 from ROUTE_HUBS + 판정 기준표 generated from RULES + folded reference sections; onboarding card removed; home F&G delta from the history artifact.",
+    "violated_rule": "Owner decisions: one source of truth across screens; no verdict from an unmeasured input; no retired concepts on user surfaces.",
+    "prevention": "ci-architecture-browser-check P1428 (cross-screen F&G and RULES import), ci-capability-claim-contract-check (retired guide terms), ci-user-journey-quality-check (8 guide cards, no score element), ci-runtime-contract-check LC-19/EF-15, T869.",
+    "verification": "All 13 QA groups green after stage 1; guide rule table rows equal RULES values; news no longer tags analyst houses (Morgan Stanley, Goldman) as tickers."
+  },
+  "changelog": [
+    "**판정 기준 단일화 (P1428):** 시장 상태·투자 심리·거시·금리·가이드가 같은 기준표(RULES) 하나를 씁니다. 빠진 입력은 판정에 넣지 않고, 장중 미완성 봉은 차트 분석에서 제외합니다. 사용 설명서는 실제 메뉴 지도 + 자동 생성 판정 기준표로 다시 만들었습니다."
+  ]
+}

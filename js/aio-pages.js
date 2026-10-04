@@ -2629,7 +2629,7 @@ function showSubThemeDetail(subThemeId) {
           '<div style="width:' + Math.round(flat/totalValid*100) + '%;background:#888;"></div>' +
           '<div style="width:' + Math.round(below/totalValid*100) + '%;background:var(--data-red);"></div>' +
         '</div>' +
-        '<span style="font-size:11px;color:' + (breadth>50?'var(--data-green)':'var(--data-red)') + ';font-weight:700;">' + breadth + '% 양봉</span>' +
+        '<span style="font-size:11px;color:' + (breadth>50?'var(--data-green)':'var(--data-red)') + ';font-weight:700;">' + breadth + '% 상승(전일 대비)</span>' +
       '</div>' +
       '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">상승 ' + above + ' · 보합 ' + flat + ' · 하락 ' + below + ' / ' + totalValid + '종목</div>' +
     '</div>';

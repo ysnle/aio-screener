@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v57.09';
+const APP_VERSION = 'v57.10';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2368,49 +2368,7 @@ window._aioDetectTickerPattern = function(symbol, requestEpoch) {
   }).catch(function() { renderPattern([]); });
 };
 
-// Ticker 페이지 — 관측된 가격·OHLCV로만 계산기 입력. 합성 EMA는 금지한다.
-window._aioFillEntryFromTicker = function(skipFetch) {
-  var sym = String(window._currentTickerId || '').trim().toUpperCase();
-  var ld = window._liveData || {};
-  var live = ld[sym];
-  var pEl = document.getElementById('eq-price');
-  if (!pEl) return;
-  if (live && live.price != null && isFinite(live.price) && Number(live.price) > 0) {
-    pEl.value = Number(live.price).toFixed(2);
-    pEl.dataset.evidenceSource = live.source || 'live-quote';
-  }
-  var emaEl = document.getElementById('eq-ema20');
-  var rsiEl = document.getElementById('eq-rsi');
-  var history = (window._technicalOHLCV && window._technicalOHLCV[sym]) || (window._tickerHistory && window._tickerHistory[sym]) || [];
-  var closes = (Array.isArray(history) ? history : []).map(function(row) { return Number(row && row.close); }).filter(function(value) { return isFinite(value) && value > 0; });
-  if (emaEl && closes.length >= 20) {
-    var ema = _calcEMA(closes, 20);
-    if (ema != null) { emaEl.value = ema.toFixed(2); emaEl.dataset.evidenceSource = 'daily-ohlcv'; }
-  }
-  if (rsiEl && closes.length >= 15) {
-    var rsi = _calcRSILast(closes, 14);
-    if (rsi != null) { rsiEl.value = rsi.toFixed(1); rsiEl.dataset.evidenceSource = 'daily-ohlcv'; }
-  } else if (rsiEl) {
-    var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    var scr = scrRows.find(function(r){return r.sym===sym;}) || null;
-    var rsiEvidence = scr && scr.fieldReadiness && scr.fieldReadiness.fields && scr.fieldReadiness.fields['price.rsi14'];
-    if (scr && scr.rsi != null && rsiEvidence && ['CURRENT','DELAYED','LAST_GOOD'].includes(rsiEvidence.status)) {
-      rsiEl.value = scr.rsi;
-      rsiEl.dataset.evidenceSource = rsiEvidence.sourceId || 'screener-observation';
-    }
-  }
-  if (closes.length < 20 && skipFetch !== true && typeof window.fetchOHLCVWithFallback === 'function') {
-    var epoch = window._aioTickerSelectionEpoch;
-    Promise.resolve(window.fetchOHLCVWithFallback(sym, '1day', 40)).then(function(rows) {
-      if (epoch !== window._aioTickerSelectionEpoch || sym !== window._currentTickerId) return;
-      window._tickerHistory = window._tickerHistory || {};
-      window._tickerHistory[sym] = Array.isArray(rows) ? rows : [];
-      window._aioFillEntryFromTicker(true);
-    }).catch(function() {});
-  }
-  if ((!live || !isFinite(live.price)) && closes.length) pEl.value = closes[closes.length - 1].toFixed(2);
-  if (!pEl.value && typeof showToast === 'function') showToast('현재가 근거를 수신하지 못했습니다.');
-};
+// P1430: the manual 가격·추세 위치 점검 calculator (_aioFillEntryFromTicker) was retired with its ticker section.
 
 // v48.47: Portfolio 페이지 — 보유 포지션 선택 시 R:R 계산기 진입가 자동 입력
 window._aioRRFillFromPosition = function(el) {
@@ -3307,7 +3265,7 @@ if (typeof document !== 'undefined') {
       var pth = document.getElementById('page-themes');
       if (pth) {
         var hdrTh = _directChildOf(pth, '.page-title');
-        var verdictTh = _directChildOf(pth, '#cycle-dynamic-readout');
+        var verdictTh = _directChildOf(pth, '#themes-verdict'); // P1431: the sector-rotation verdict replaced the textbook cycle map
         if (hdrTh && verdictTh && verdictTh.parentElement === pth && hdrTh.nextElementSibling !== verdictTh) {
           hdrTh.insertAdjacentElement('afterend', verdictTh);
         }
@@ -3666,7 +3624,7 @@ if (typeof document !== 'undefined') {
       sinks.forEach(function(el){
         var mode = el.getAttribute('data-market-analysis-sink') || 'one'; if (el.hasAttribute('data-analysis-server-only') && !serverLLM) { el.textContent = ''; el.hidden = true; return; } el.hidden = false; // P1383: the template synthesis printed '?' slots and an uncalibrated n/100
         var src = serverLLM || syn;
-        var txt = mode === 'full' ? (src.full || syn.full) : (src.oneLine || syn.oneLine);
+        var txt = String(mode === 'full' ? (src.full || syn.full) : (src.oneLine || syn.oneLine) || '').replace(/\s*\(?\b(?:market-analysis:[^\s,)]+|[a-z]+(?:[.-][a-z0-9]+)+:[0-9a-f]{8})\b\)?/gi, '').replace(/\s*\(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)/g, '').replace(/[ \t]{2,}/g, ' '); // P1428: evidence ids and raw ISO stamps stay in the evidence store, not in the reader's text
         // P1122: a published narrative carries its own boundary note; show it with the full text.
         var note = (mode === 'full' && serverLLM && typeof serverLLM.disclosure === 'string') ? serverLLM.disclosure : '';
         // full은 줄바꿈을 <br>로, 한 줄은 그대로.
@@ -21717,7 +21675,7 @@ var breadcrumbMap = {
   home: ['오늘','대시보드'], themes: ['테마 · 섹터','테마 분석'],
   // P1129/R619: 퇴역한 KR 5라우트 항목 제거(DOM 0개, AIO_ROUTE_REGISTRY REMOVED).
   portfolio: ['AIO','포트폴리오'], macro: ['거시 · 금리','거시 경제'],
-  technical: ['종목','차트 · 기술'], fundamental: ['종목','기업 분석'],
+  technical: ['종목','차트'], fundamental: ['종목','재무 공시'],
   briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','금리 · 환율'],
   'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
   guide: ['배우기','사용 설명서'], principles: ['배우기','시장 원리'], masters: ['배우기','대가의 포트폴리오'], atlas: ['배우기','지식 지도'],
@@ -21725,7 +21683,7 @@ var breadcrumbMap = {
   'theme-detail': ['테마 · 섹터','테마','—'],
   // A direct ticker-route visit has no selected symbol yet; do not present a
   // stale-looking placeholder symbol as if it were the current entity.
-  ticker: ['종목','종목 분석'],
+  ticker: ['종목','요약'],
 };
 
 // ═══ v49.1 P184: AIO.state — 전역 변수 namespace 초기화 ═══════════════════════
@@ -22020,14 +21978,14 @@ window.PAGES = {
   'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
   'briefing':       { label: '데일리 브리핑',    init: null, chatCtx: 'briefing' },
-  'technical':      { label: '차트·기술',        init: null, chatCtx: 'technical' },
+  'technical':      { label: '차트',            init: null, chatCtx: 'technical' },
   'macro':          { label: '거시 경제',        init: null, chatCtx: 'macro' },
   'fxbond':         { label: '금리 · 환율',      init: null, chatCtx: 'fxbond' },
-  'fundamental':    { label: '기업 분석',        init: null, chatCtx: 'fundamental', contextScope: 'entity' },
+  'fundamental':    { label: '재무 공시',       init: null, chatCtx: 'fundamental', contextScope: 'entity' },
   'themes':         { label: '테마/섹터',        init: null, chatCtx: 'themes' },
   'theme-detail':   { label: '테마 상세',        init: null, chatCtx: 'theme-detail' },
   'portfolio':      { label: '포트폴리오',       init: null, chatCtx: 'portfolio' },
-  'ticker':         { label: '티커 상세',        init: null, chatCtx: null, contextScope: 'entity' },
+  'ticker':         { label: '요약',            init: null, chatCtx: null, contextScope: 'entity' },
   'market-news':    { label: '시장 뉴스',        init: null, chatCtx: null },
   // v53.7 (P725): kr-home/kr-supply/kr-themes/kr-macro/kr-technical 라우트 퇴역 —
   // 콘텐츠는 themes/macro/technical의 "한국 시장" 통합 섹션으로 이관(요소 id 보존),
@@ -22738,7 +22696,7 @@ function showTicker(tkr) {
   // Entity switches within ticker retain that origin; the native renderer owns navigation.
   var tickerOrigin = document.querySelector('.page.active');
   var tickerOriginRoute = tickerOrigin && tickerOrigin.id.replace(/^page-/, '');
-  if (window.AIO && window.AIO.state && tickerOriginRoute && tickerOriginRoute !== 'ticker') {
+  if (window.AIO && window.AIO.state && tickerOriginRoute && !/^(ticker|technical|fundamental)$/.test(tickerOriginRoute)) { // P1430: 종목 tabs keep the outer origin
     window.AIO.state.tickerReturnRoute = tickerOriginRoute === 'theme-detail' ? 'themes' : tickerOriginRoute;
   }
   tkr = typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(tkr) : String(tkr || '').trim().toUpperCase(); // P1317: 005930/삼성전자 → 005930.KS

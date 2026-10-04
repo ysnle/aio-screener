@@ -305,7 +305,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
 {
   const ratesFx = read('src/domain/macro/rates-fx.js');
   check('P1419 FX/bond carry reads the yen 20-day move and never a Korea-rate gap labelled US-Japan',
-    /buildCloseSeries\(history, spec\.id/.test(ratesFx) && /YEN_RALLY_RULE = 3/.test(ratesFx) && /yenStrength >= YEN_RALLY_RULE/.test(ratesFx)
+    /buildCloseSeries\(history, spec\.id/.test(ratesFx) && /YEN_RALLY_RULE = RULES\.fx\.yenRally20dPct/.test(ratesFx) && /yenRally20dPct: 3/.test(read('src/domain/rules/thresholds.js')) && /yenStrength >= YEN_RALLY_RULE/.test(ratesFx)
       && !/bokRate/.test(ratesFx) && !/tnx - bokRate/.test(marketPage) && !/function _aioRenderCarryUnwindRisk/.test(read('js/aio-data.js')));
 }
 {

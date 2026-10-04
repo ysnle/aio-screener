@@ -18,7 +18,7 @@ AI_MAX_OUTPUT_TOKENS = "4000"
 # Per-provider daily ceiling for /relay (operator-key server-side fetches).
 RELAY_DAILY_CAP = "2000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v57.09"
+AIO_APP_REVISION = "v57.10"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 [[durable_objects.bindings]]

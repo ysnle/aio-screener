@@ -73,7 +73,8 @@ check('quote status comes from one presenter; the data layer no longer writes cl
   'UX-10 single presenter missing');
 check('home decision header must render below operator note when present', /operatorNote[\s\S]{0,240}insertAdjacentHTML\('afterend', html\)/.test(core));
 check('guide must preserve compact methodology reference', /id="guide-methodology"/.test(html));
-check('methodology reference must preserve core decision concepts', /SIGNAL 점수 산식/.test(html) && /시장폭·랠리 품질/.test(html) && /종목 발굴\/검증 루프/.test(html));
+// P1428: the guide's 판정 읽는 법 replaces the retired SIGNAL-score methodology.
+check('methodology reference must preserve core decision concepts', /우호[\s\S]{0,600}중립[\s\S]{0,600}부담[\s\S]{0,600}판정 보류/.test(html) && /판정 기준/.test(html) && /기준일 칩/.test(html) && /상위 N%/.test(html) && !/SIGNAL 점수 산식/.test(html));
 
 const divOpen = (html.match(/<div\b/g) || []).length;
 const divClose = (html.match(/<\/div>/g) || []).length;

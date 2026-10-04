@@ -6114,7 +6114,7 @@
       var techOk = !!(hdrT && verT) && idxIn(ptT, verT) === idxIn(ptT, hdrT) + 1;
       // themes: 헤더 직후 = 사이클 국면 판정(결론)
       var ptH = document.getElementById('page-themes');
-      var hdrH = dchild(ptH, '.page-title'), verH = dchild(ptH, '#cycle-dynamic-readout');
+      var hdrH = dchild(ptH, '.page-title'), verH = dchild(ptH, '#themes-verdict'); // P1431
       var themesOk = !!(hdrH && verH) && idxIn(ptH, verH) === idxIn(ptH, hdrH) + 1;
       // 죽은 설명서 소스 정리: 전 페이지(guide 제외)에서 .aio-explain/.beginner-tip = 0
       var deadCount = 0;
@@ -7386,7 +7386,7 @@
       var ia = window.AIO_ROUTE_REGISTRY && window.AIO_ROUTE_REGISTRY.classes;
       if (!ia || ia.NAV_ROUTE.length !== 17 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 0 || ia.OVERLAY.length !== 1 || (ia.REMOVED || []).length !== 6) failures869.push('surface-count-contract');
       var guideChapters = document.querySelectorAll('#page-guide > .aio-guide-chapter');
-      if (guideChapters.length < 8) failures869.push('guide-chapters=' + guideChapters.length);
+      if (guideChapters.length < 4 || !document.getElementById('guide-screen-cards') || !document.getElementById('guide-rules-table')) failures869.push('guide-chapters=' + guideChapters.length); // P1428: compact reference — map + rule table open, the rest folded
       if (Array.prototype.filter.call(guideChapters, function(el){ return el.open; }).length) failures869.push('guide-chapter-default-open');
       var krThemeCards = document.querySelectorAll('#kr-theme-container .kr-theme-card');
       var krThemeVisible = Array.prototype.filter.call(krThemeCards, function(el){ return getComputedStyle(el).display !== 'none'; }).length;
@@ -7588,17 +7588,17 @@
       }
     } catch (e874) { _assert('T874 carry_unwind_holds_without_live_inputs_v5298 (P712)', false, 'threw: ' + (e874 && e874.message)); }
 
-    // T875 (EF-10/P1010): 미연결 재무 슬롯 대신 동일 종목의 SEC 보고서로 연결
+    // T875 (EF-10/P1010 → P1430): 미연결 재무 슬롯은 퇴역, 재무 공시는 종목 화면 상단 탭이 같은 종목으로 연다
     try {
-      if (typeof window.showTicker === 'function' && document.getElementById('ticker-fundamental-link')) {
+      if (typeof window.showTicker === 'function') {
         window.showTicker('NVDA');
-        var gapIds875 = ['ticker-m-mcap','ticker-m-pe','ticker-m-pb','ticker-m-roe','ticker-m-div','ticker-f-rev','ticker-f-gp','ticker-f-op','ticker-f-ni'];
+        var gapIds875 = ['ticker-m-mcap','ticker-m-pe','ticker-m-pb','ticker-m-roe','ticker-m-div','ticker-f-rev','ticker-f-gp','ticker-f-op','ticker-f-ni','ticker-fundamental-link'];
         var allRetired875 = gapIds875.every(function(id) { return !document.getElementById(id); });
-        var link875 = document.getElementById('ticker-fundamental-link');
+        var hubTab875 = document.querySelector('#aio-hub-tabs .aio-hub-tab[data-arg="fundamental"]');
         _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10): 미배선 슬롯 퇴역·SEC 공통 보고서 연결',
-          allRetired875 && link875.getAttribute('data-action') === 'showPage' && link875.getAttribute('data-arg') === 'fundamental', 'retired=' + allRetired875);
+          allRetired875 && !!hubTab875 && hubTab875.getAttribute('data-action') === 'showPage', 'retired=' + allRetired875 + ' hubTab=' + !!hubTab875);
       } else {
-        _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'showTicker or #ticker-fundamental-link missing');
+        _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'showTicker missing');
       }
     } catch (e875) { _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'threw: ' + (e875 && e875.message)); }
 
@@ -8917,7 +8917,7 @@
     var tickerTabCount = document.querySelectorAll('#page-ticker [data-ticker-tab]').length;
     var tickerRangeCount = document.querySelectorAll('#page-ticker [data-ticker-range]').length;
     _assert('T1029 ticker_chart_native_tabs_and_ranges (P1205)',
-      tickerTabCount === 2 && tickerRangeCount === 4
+      tickerTabCount === 0 && tickerRangeCount === 4 // P1430: inner tabs retired; ranges stay on the 요약 price chart
         && !document.querySelector('#page-ticker [data-action="switchTab"]')
         && !document.querySelector('#page-ticker [data-action="loadTickerChart"]')
         && typeof loadTickerChart !== 'function',

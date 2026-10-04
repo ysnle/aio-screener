@@ -9,6 +9,8 @@
 import { buildCloseSeries, buildMarketRegime, closeBasis } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
+import { breadthFlow } from '../../domain/market/page-flow.js';
+import { renderNextSteps, sectionLead } from './page-flow.js';
 
 const WINDOW = 126; // about six months of sessions
 
@@ -181,10 +183,13 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
     };
     // A re-render (live quotes, history) keeps an opened drilldown and its chosen date.
     const opened = new Map([...grid.querySelectorAll('details.breadth-drill[open]')].map((node) => [node.closest('[data-metric]')?.dataset.metric, node.querySelector('select')?.value]));
+    // P1431: each group opens with what it adds to the verdict above, from the same series.
+    const flow = breadthFlow({ cards, regime });
     grid.replaceChildren(...BREADTH_GROUPS.flatMap((group) => {
       const members = cards.filter((card) => card.group === group.id);
-      return members.length ? [el(doc, 'h2', group.title, 'breadth-group-title'), ...members.map(renderCard)] : [];
+      return members.length ? [el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, flow.leads[group.id]), ...members.map(renderCard)] : [];
     }));
+    renderNextSteps(doc, doc.getElementById('breadth-next'), flow.next);
     for (const [metric, date] of opened) {
       const details = grid.querySelector(`[data-metric="${metric}"] details.breadth-drill`);
       if (!details) continue;

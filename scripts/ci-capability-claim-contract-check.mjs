@@ -25,7 +25,10 @@ const forbiddenLegacyGuideClaims = [
   'Fed 금리가 핵심. 인상기=방어, 인하기=공격',
   '10Y 급등=주식↓, 곡선 역전=침체 신호',
   '50+소스 실시간 뉴스',
-  '외인+기관 동반매수=강상승'
+  '외인+기관 동반매수=강상승',
+  // P1428 (Codex review): retired surfaces and scores must not return to the guide.
+  '환경 점수', '환경 스코어', '시장 건강도', 'Action Item', '스윙/데이', '데이 모드', '0~100 환경', '시장 환경 점수',
+  '10단계 매매 결정 루틴', '기능 범위 검증 통과', 'guide-score-components', '환율·채권 페이지', '매매 신호 (SIGNAL)', '진입 등급'
 ];
 for (const claim of forbiddenLegacyGuideClaims) check(!guide.includes(claim), `retired guide claim remains: ${claim}`);
 

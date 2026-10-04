@@ -6,6 +6,7 @@ import { normalizeChartBar } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js';
 import { installStockChart } from '../components/stock-chart.js';
+import { renderDailyLoop } from '../components/daily-loop.js';
 
 function finite(value) {
   if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
@@ -221,6 +222,7 @@ function render({ root, documentRef, store, route, charts }) {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioHomeRenderer = 'native';
       renderHomeRegime({ documentRef, root });
+      renderDailyLoop({ documentRef, root, store }); // P1432
       renderHomeFearGreed({ documentRef, sentimentValues });
       renderHomeQuality({ documentRef, home });
     }

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-03T12:15:01.849Z",
-  "appRevision": "v57.09",
-  "gitHead": "8dec34bfea965d06086b1d4d6c9280d93ecb4ba3",
+  "observedAt": "2026-10-04T01:55:37.426Z",
+  "appRevision": "v57.10",
+  "gitHead": "02d9ccfd595a2354ba541e741d9ac8dc9075d8d9",
   "scope": "desktop-only",
   "viewport": {
     "name": "desktop1440",
@@ -41,30 +41,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "시장 폭",
-          "width": 38,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "투자 심리",
-          "width": 49,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "금리 · 환율",
-          "width": 55,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -263,7 +241,7 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 1,
+      "canvasCount": 2,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],

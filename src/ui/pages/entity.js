@@ -5,6 +5,7 @@ import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
 import { canonicalEpochMs } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
+import { setStockSubject } from '../navigation/route-hubs.js';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -87,7 +88,7 @@ function renderTickerSecondarySymbols(documentRef, state, root) {
   const symbol = state?.id || String(root?._currentTickerId || '').trim().toUpperCase() || '—';
   // P1405: display continuity only (the 차트 · 기술 chart opens on it). The AI context scope stays
   // _currentTickerId, which the router clears outside entity routes.
-  if (state?.id && root) root._aioLastOpenedSymbol = String(state.id).toUpperCase();
+  if (state?.id && root) setStockSubject({ root, documentRef, symbol: state.id, name: state.name && state.name !== state.id ? state.name : '' });
   ['ticker-candle-symbol', 'ticker-entry-symbol'].forEach((id) => {
     const element = setText(documentRef, id, symbol);
     if (!element) return;
@@ -166,7 +167,7 @@ function renderTickerNavigation(documentRef, state, root) {
     if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '← 돌아가기'); }
     return;
   }
-  const origins = { screener: '스크리너', themes: '테마 분석', portfolio: '포트폴리오', fundamental: '기업 분석', technical: '기술 분석', 'market-news': '시장 뉴스', briefing: '오늘의 브리핑', masters: '대가의 포트폴리오', home: '대시보드' };
+  const origins = { screener: '스크리너', themes: '테마 분석', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '시장 뉴스', briefing: '오늘의 브리핑', masters: '대가의 포트폴리오', home: '대시보드' };
   const requestedOrigin = root?.AIO?.state?.tickerReturnRoute;
   const origin = Object.hasOwn(origins, requestedOrigin) ? requestedOrigin : 'fundamental';
   const label = origins[origin];
@@ -527,6 +528,8 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
   }
   if (route === 'fundamental') {
+    // P1430: 재무 공시 is the same company as 요약 · 차트.
+    if (state?.id) setStockSubject({ root, documentRef, symbol: state.id, name: state.name && state.name !== state.id ? state.name : '' });
     renderFundamentalStatus(documentRef, state);
     renderFundamentalSummary(documentRef, state);
     renderFundamentalWatchlist(documentRef, state);
@@ -553,6 +556,17 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         const shownRoute = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
         if (route === 'ticker' && shownRoute === 'ticker') refresh();
       };
+      // P1430: 재무 공시 opened from 요약 · 차트 loads the company those tabs show (the legacy search owns
+      // the input and the full report). Leaving the entity routes clears the selection, so the subject
+      // (display continuity) re-requests it on mount unless that company's report was already requested.
+      if (route === 'fundamental') {
+        const subject = String(root?._aioLastOpenedSymbol || '').trim().toUpperCase();
+        if (subject && root._aioFundRequestedSymbol !== subject && typeof root?._aioFundSearchFill === 'function') {
+          root._aioFundRequestedSymbol = subject;
+          const timer = setTimeout(() => root._aioFundSearchFill(subject), 0);
+          bag.add(() => clearTimeout(timer));
+        }
+      }
       ['aio:liveQuotes', 'aio:refresh:done', 'aio:sentimentUpdated', 'aio:serverDataLoaded'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, refresh);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, refresh));

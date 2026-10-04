@@ -570,7 +570,7 @@ function updatePatternSignals() {
   if (chg > 0.5 && chg <= 1) {
     signals.push({ name: '일간 상승 모멘텀', type: 'bullish', icon: '',
       color: 'var(--data-green)',
-      detail: 'SPY +' + chg.toFixed(2) + '% 양봉 형성 중. 섹터 참여도(시장폭)와 함께 확인하면 추세 지속 가능성 판단 가능.',
+      detail: 'SPY 전일 대비 +' + chg.toFixed(2) + '% 상승 중. 섹터 참여도(시장폭)와 함께 확인하면 추세 지속 가능성 판단 가능.',
       why: '건강한 상승은 대형주·중소형주 모두 참여할 때 지속력이 있습니다.',
       importance: 'LOW' });
   } else if (chg < -0.5 && chg >= -1) {

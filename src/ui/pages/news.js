@@ -116,6 +116,15 @@ export function formatAbsoluteTime(value, timeZone = 'Asia/Seoul') {
   }
 }
 
+// P1428 (Codex review): the 44px time column wrapped "2026. 10. 03. 14:20 GMT+9" over four lines.
+// It shows month/day over HH:mm in KST; the full stamp stays in the tooltip and data attribute.
+export function compactKstTime(value) {
+  const ms = Date.parse(value || '');
+  if (!Number.isFinite(ms)) return null;
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
+  return { date: `${Number(parts.month)}/${Number(parts.day)}`, time: `${parts.hour}:${parts.minute}` };
+}
+
 function publicationIso(item) {
   const raw = item?.publishedAt || item?.pubDate || item?.published || null;
   const ms = raw instanceof Date ? raw.getTime() : Date.parse(raw || '');
@@ -159,7 +168,7 @@ function createNewsCard(documentRef, root, item, index) {
   const timeAgo = item?.pubDate ? displayValue(root, 'getTimeAgo', new Date(item.pubDate), '') : '';
   const title = displayValue(root, 'getDisplayTitle', item, '') || realTitle(root, item);
   const summary = displayValue(root, 'getDisplaySummary', item, item?.summary || item?.desc || '');
-  const tickers = displayValue(root, 'getDisplayTickers', item, []);
+  const extractedTickers = displayValue(root, 'getDisplayTickers', item, []);
 
   card.className = 'news-item-card';
   card.dataset.newsId = item?.newsId || item?.id || `news-${index}`;
@@ -171,12 +180,18 @@ function createNewsCard(documentRef, root, item, index) {
   timeColumn.className = 'news-time-col';
   const absolute = documentRef.createElement('span');
   absolute.className = 'news-time-abs';
-  absolute.textContent = absTime || timeAgo || '—';
+  const compact = compactKstTime(publishedIso);
+  if (compact) {
+    const day = documentRef.createElement('span');
+    day.className = 'news-time-day';
+    day.textContent = compact.date;
+    absolute.append(day, documentRef.createTextNode(compact.time));
+  } else absolute.textContent = absTime || timeAgo || '—';
   // W09-C/P1148: keep the raw publication instant and its timezone representation on the node so
   // the absolute time survives independently of the display string and the original article link.
   if (publishedIso) {
     absolute.dataset.publishedAt = publishedIso;
-    absolute.setAttribute('title', `발행 ${publishedIso} · 기준 시간대 Asia/Seoul`);
+    absolute.setAttribute('title', `발행 ${absTime || publishedIso} (한국 시간)`);
   }
   if (link) absolute.dataset.articleUrl = link;
   const dot = documentRef.createElement('span');
@@ -188,6 +203,14 @@ function createNewsCard(documentRef, root, item, index) {
   body.className = 'news-item-body';
   const headline = documentRef.createElement('div');
   headline.className = 'news-item-headline';
+  // P1382/P1391: earnings headlines carry the structured estimate/actual line on the news screen too.
+  // P1428: it is resolved first so an earnings story is tagged with the reporting company only — a
+  // mentioned analyst's firm (Morgan Stanley on a Nike story) is not the article's subject.
+  let earnings = null;
+  try {
+    if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: root._aioSymNames || (root._aioSymNames = Object.fromEntries((Array.isArray(root.SCREENER_DB) ? root.SCREENER_DB : []).filter((row) => row?.sym && row?.name).map((row) => [row.sym, row.name]))) });
+  } catch (_) { earnings = null; }
+  const tickers = earnings?.symbol ? [`$${earnings.symbol}`] : extractedTickers;
   if (Array.isArray(tickers)) tickers.slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, ticker)));
   // LC-34: the original article was reachable only through the card's `data-open-url` click
   // delegation, so keyboard/AT users had no focusable link. The headline is now a real anchor
@@ -215,11 +238,6 @@ function createNewsCard(documentRef, root, item, index) {
     summaryNode.textContent = summary;
     body.appendChild(summaryNode);
   }
-  // P1382/P1391: earnings headlines carry the structured estimate/actual line on the news screen too.
-  let earnings = null;
-  try {
-    if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: root._aioSymNames || (root._aioSymNames = Object.fromEntries((Array.isArray(root.SCREENER_DB) ? root.SCREENER_DB : []).filter((row) => row?.sym && row?.name).map((row) => [row.sym, row.name]))) });
-  } catch (_) { earnings = null; }
   if (earnings?.text) {
     const earningsNode = documentRef.createElement('div');
     earningsNode.className = 'news-item-summary';
@@ -343,7 +361,11 @@ function render({ documentRef, root, store, route }) {
   const configuredLimit = Number(root?._aioNewsVisibleLimit);
   const visibleLimit = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 12;
   renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
-  const importantModel = root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });
+  // P1428 (Codex review): the important list follows the same country/topic filter as the feed — a 한국
+  // filter that emptied the feed still showed overseas stories above it.
+  const importantModel = root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });
+  const tgScope = documentRef?.getElementById('news-tg-scope');
+  if (tgScope) tgScope.textContent = (controls.countryFilter && controls.countryFilter !== 'all') || (controls.topicFilter && controls.topicFilter !== 'all') ? '선택한 필터는 텔레그램 채널 소식에는 적용되지 않습니다.' : '';
   const important = pickImportantNews(importantModel?.items || []);
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {

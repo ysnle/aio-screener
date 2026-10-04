@@ -25,6 +25,7 @@ import { selectForDecision, selectForDisplay, selectLastKnown, selectCompletenes
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs } from '../ui/navigation/route-hubs.js';
+import { openMarketChart } from '../ui/components/stock-chart.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
@@ -845,6 +846,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // W00-B: the initial route commits through the same typed boundary. router.start()
     // first so observers of aio:navigationCommitted see the very first commit.
     const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
+    root.aioOpenMarketChart = (symbol) => openMarketChart(root, symbol); // P1430: 오늘 index cards → that index's chart
     const initialRoute = resolveInitialRoute({ root });
     router.start();
     if (!router.active()) {

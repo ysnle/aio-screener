@@ -41,9 +41,9 @@ const rows = [
     forbiddenClaims: ['뉴스 감성 = 주가 예측', '감성 점수 매수 신호']
   },
   {
-    id: 'market-health', label: '시장 점수', status: 'reference',
+    id: 'market-health', label: '시장 상태 판정', status: 'reference', // P1428: the 0-100 market score is retired
     evidence: 'breadth, sentiment, volatility inputs with coverage',
-    wording: '시장 환경 설명 지표',
+    wording: '공개 기준의 상태 설명',
     forbiddenClaims: ['매수 승인', '매도 승인', '시장 점수로 수익 보장']
   },
   {

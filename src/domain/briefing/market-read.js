@@ -9,6 +9,8 @@
 // lag and are excluded once stale; missing is never read as calm or as stress; a statement keeps
 // the observation (text) apart from the interpretation (reading), which is worded as a hypothesis.
 
+import { RULES } from '../rules/thresholds.js';
+
 const DAY_MS = 86400000;
 
 function finite(value) {
@@ -19,11 +21,20 @@ function finite(value) {
 
 // A date-only stamp (YYYY-MM-DD or midnight UTC) already names the trading date; converting
 // midnight UTC to New York would move it to the previous day.
+// P1432: toLocaleDateString builds a time-zone formatter on every call, and this runs for every
+// row × field of the close history on each render (≈0.5 s per regime build); one shared formatter
+// plus a small memo keeps the same result at a fraction of the cost.
+const NY_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
+const NY_DATE_MEMO = new Map();
 function nyDate(iso) {
   const text = String(iso || '');
   if (/^\d{4}-\d{2}-\d{2}$/.test(text) || /^\d{4}-\d{2}-\d{2}T00:00:00(\.000)?Z$/.test(text)) return text.slice(0, 10);
+  if (NY_DATE_MEMO.has(text)) return NY_DATE_MEMO.get(text);
   const ms = Date.parse(text);
-  return Number.isFinite(ms) ? new Date(ms).toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) : null;
+  const date = Number.isFinite(ms) ? NY_DATE.format(new Date(ms)) : null;
+  if (NY_DATE_MEMO.size > 20000) NY_DATE_MEMO.clear();
+  NY_DATE_MEMO.set(text, date);
+  return date;
 }
 
 // One value per trading date. The producer stamps a close either near the bell or at its bar start,
@@ -92,7 +103,14 @@ export function alignmentLabel(alignment) {
 function stats(series) {
   if (!series.length) return null;
   const last = series[series.length - 1];
-  const back = (n) => series.length > n ? series[series.length - 1 - n].value : null;
+  // P1428 (Codex review): n observations are n sessions only when no day is missing. If the weekday span
+  // to that point exceeds n plus holiday slack, the producer skipped days and the "5일/20일" change is
+  // withheld rather than silently covering a longer period.
+  const back = (n) => {
+    if (series.length <= n) return null;
+    const point = series[series.length - 1 - n];
+    return sessionsBetween(point.date, last.date) > n + Math.max(2, Math.ceil(n * 0.15)) ? null : point.value;
+  };
   const year = series.filter((point) => Date.parse(point.date) >= Date.parse(last.date) - 365 * DAY_MS).map((point) => point.value);
   const mean = (n) => series.length >= n ? series.slice(-n).reduce((sum, point) => sum + point.value, 0) / n : null;
   const max = Math.max(...year);
@@ -221,7 +239,7 @@ export function buildMarketRead(input = {}) {
   const rut20 = s.rut ? pct(s.rut.value, s.rut.d20) : null;
   if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= 2) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 20일 ${signed(ndx20)} vs S&P 500 ${signed(spx20)} — ${ndx20 > spx20 ? '기술주가 상승을 주도' : '기술주가 시장보다 약함'}.`, 'index');
   const hyWeek = c.hy5;
-  const creditCalm = hyBp != null && hyWeek != null && hyBp < 350 && hyWeek <= 5;
+  const creditCalm = hyBp != null && hyWeek != null && hyBp < RULES.credit.tightBelowBp && hyWeek <= 5;
   if (rut20 != null && spx20 != null && Math.abs(rut20 - spx20) >= 3) {
     const lags = rut20 < spx20;
     add(lags ? 'smallcap-lags' : 'smallcap-leads', lags && creditCalm ? 55 : 45, `러셀 2000 20일 ${signed(rut20)} vs S&P 500 ${signed(spx20)}.`, 'index', {
@@ -245,7 +263,7 @@ export function buildMarketRead(input = {}) {
     add('complacency', 60, `F&G ${fmt(fg, 0)}(탐욕)·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });
   }
   if (hyWeek != null && hyWeek >= 15 && hyBp != null && hyBp < 450) add('credit-widening', 72, `HY 신용 스프레드 5일 ${signed(hyWeek, 0, 'bp')} 확대(${fmt(hyBp, 0)}bp).`, 'risk', { reading: '자금 조달 여건이 빠듯해지는 신호입니다.', check: 'HY 스프레드 확대가 이어지는지 — 이어지면 주식보다 신용이 먼저 위험을 반영' });
-  if (hyBp != null && hyBp >= 450) add('credit-stress', 85, `HY 신용 스프레드 ${fmt(hyBp, 0)}bp(450bp 이상 스트레스 구간).`, 'risk', { reading: '신용 시장이 위험을 가격에 반영하고 있습니다.' });
+  if (hyBp != null && hyBp >= RULES.credit.stressAtBp) add('credit-stress', 85, `HY 신용 스프레드 ${fmt(hyBp, 0)}bp(${RULES.credit.stressAtBp}bp 이상 스트레스 구간).`, 'risk', { reading: '신용 시장이 위험을 가격에 반영하고 있습니다.' });
   if (vix && s.vix3m && s.vix3m.date === vix.date && vix.value / s.vix3m.value > 1) add('vix-inversion', 75, `VIX(${fmt(vix.value)})가 3개월 VIX(${fmt(s.vix3m.value)})보다 높은 역전 상태입니다.`, 'risk', { reading: '단기 스트레스가 중기 기대보다 큽니다.' });
   if (tnx?.yearPosition != null && tnx.yearPosition >= 0.95 && vix && vix.value < 20) add('orderly-at-rate-high', 58, `10년물 금리는 1년 최고권인데 VIX는 ${fmt(vix.value)}.`, 'risk', { reading: '금리 부담에도 공포성 매도 신호는 아직 없습니다.' });
   const vix5 = vix ? pct(vix.value, vix.d5) : null;
@@ -366,8 +384,8 @@ export function buildMarketRegime(input = {}) {
     const spx20 = pct(spx.value, spx.d20);
     let state = 'neutral';
     if (b50 == null && b200 == null) state = 'unknown';
-    else if ((b50 != null && b50 < 40) || (b200 != null && b200 < 40)) state = 'burden';
-    else if (b50 != null && b200 != null && b50 >= 60 && b200 >= 60) state = 'favorable';
+    else if ((b50 != null && b50 < RULES.breadth.weakBelow) || (b200 != null && b200 < RULES.breadth.weakBelow)) state = 'burden';
+    else if (b50 != null && b200 != null && b50 >= RULES.breadth.broadAtLeast && b200 >= RULES.breadth.broadAtLeast) state = 'favorable';
     const fromHigh = pct(spx.value, spx.yearMax);
     const narrow = state === 'burden' && fromHigh != null && fromHigh > -3;
     const partial = state !== 'unknown' && (b50 == null || b200 == null) ? ` (${b50 == null ? '50일선' : '200일선'} 비율 미수신 — 나머지 하나로만 판단)` : '';
@@ -375,9 +393,9 @@ export function buildMarketRegime(input = {}) {
       : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 참여 종목이 적은 좁은 장세 — 소수 대형주 의존도가 높아 보입니다.` : '약세가 시장 전반에 퍼져 있습니다.')
         : state === 'unknown' ? staleRead('시장 폭', alignments.breadth50) : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.') + partial;
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? '50일선·200일선 위 종목 비율이 모두 40% 이상이면 중립, 모두 60% 이상이면 우호'
-        : state === 'favorable' ? '둘 중 하나라도 60% 아래면 중립, 40% 아래면 부담'
-          : '50일선·200일선 위 종목 비율이 모두 60% 이상이면 우호, 하나라도 40% 아래면 부담';
+      : state === 'burden' ? `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.weakBelow}% 이상이면 중립, 모두 ${RULES.breadth.broadAtLeast}% 이상이면 우호`
+        : state === 'favorable' ? `둘 중 하나라도 ${RULES.breadth.broadAtLeast}% 아래면 중립, ${RULES.breadth.weakBelow}% 아래면 부담`
+          : `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상이면 우호, 하나라도 ${RULES.breadth.weakBelow}% 아래면 부담`;
     axes.push(axis('breadth', '시장 폭', state, [
       ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`],
       ['200일선 위 종목', b200 == null ? null : `${fmt(b200, 0)}%`],
@@ -396,16 +414,16 @@ export function buildMarketRegime(input = {}) {
     const vix5 = vix ? pct(vix.value, vix.d5) : null;
     let state = 'neutral';
     if (!vix) state = 'unknown';
-    else if (vix.value >= 25 || (ratio != null && ratio >= 1) || (vix5 != null && vix5 >= 25)) state = 'burden';
-    else if (vix.value < 18 && ratio != null && ratio < 0.95) state = 'favorable';
+    else if (vix.value >= RULES.volatility.stressAt || (ratio != null && ratio >= RULES.volatility.invertedRatioAt) || (vix5 != null && vix5 >= RULES.volatility.spike5dPct)) state = 'burden';
+    else if (vix.value < RULES.volatility.calmBelow && ratio != null && ratio < RULES.volatility.calmRatioBelow) state = 'favorable';
     const read = state === 'favorable' ? '변동성이 낮고 기간 구조가 정상 — 시장이 단기 충격을 크게 반영하지 않고 있습니다.'
       : state === 'burden' ? (ratio != null && ratio >= 1 ? '단기 변동성이 중기보다 높은 역전 — 단기 스트레스 구간입니다.' : vix5 != null && vix5 >= 25 ? '변동성이 한 주 사이 급등했습니다.' : 'VIX 25 이상 — 경계 구간입니다.')
         : state === 'unknown' ? staleRead('VIX', alignments.vix)
           : ratio == null ? 'VIX는 낮은 편이지만 3개월 VIX가 없어 기간 구조를 확인하지 못했습니다.' : 'VIX 18~25 주의 구간이거나 기간 구조가 평탄합니다.';
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? 'VIX 25 미만, VIX/3개월 VIX 1 미만, 5일 상승률 +25% 미만이 모두 충족되면 완화'
-        : state === 'favorable' ? 'VIX 18 이상 또는 VIX/3개월 VIX 0.95 이상이면 중립 · VIX 25 이상, 역전(1 이상), 5일 +25% 급등 중 하나면 부담'
-          : 'VIX 18 미만이면서 VIX/3개월 VIX 0.95 미만이면 우호 · VIX 25 이상, 역전, 5일 +25% 급등 중 하나면 부담';
+      : state === 'burden' ? `VIX ${RULES.volatility.stressAt} 미만, VIX/3개월 VIX ${RULES.volatility.invertedRatioAt} 미만, 5일 상승률 +${RULES.volatility.spike5dPct}% 미만이 모두 충족되면 완화`
+        : state === 'favorable' ? `VIX ${RULES.volatility.calmBelow} 이상 또는 VIX/3개월 VIX ${RULES.volatility.calmRatioBelow} 이상이면 중립 · VIX ${RULES.volatility.stressAt} 이상, 역전(${RULES.volatility.invertedRatioAt} 이상), 5일 +${RULES.volatility.spike5dPct}% 급등 중 하나면 부담`
+          : `VIX ${RULES.volatility.calmBelow} 미만이면서 VIX/3개월 VIX ${RULES.volatility.calmRatioBelow} 미만이면 우호 · VIX ${RULES.volatility.stressAt} 이상, 역전, 5일 +${RULES.volatility.spike5dPct}% 급등 중 하나면 부담`;
     axes.push(axis('volatility', '변동성', state, [
       ['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null],
       ['VIX / 3개월 VIX', ratio == null ? null : `${fmt(ratio)} ${ratio >= 1 ? '(역전)' : '(정상)'}`]
@@ -418,19 +436,19 @@ export function buildMarketRegime(input = {}) {
     const tnx20 = tnx ? bp(tnx.value, tnx.d20) : null;
     const real5 = r.realYield10Delta5 == null ? null : r.realYield10Delta5 * 100;
     const bei5 = r.breakeven10Delta5 == null ? null : r.breakeven10Delta5 * 100;
-    const atHigh = tnx?.yearPosition != null && tnx.yearPosition >= 0.9;
+    const atHigh = tnx?.yearPosition != null && tnx.yearPosition >= RULES.rates.rangeHighAt;
     let state = 'neutral';
     if (!tnx || tnx20 == null) state = 'unknown';
-    else if (tnx20 >= 25 || (atHigh && tnx5 != null && tnx5 > 0)) state = 'burden';
-    else if (tnx20 <= -25) state = 'favorable';
+    else if (tnx20 >= RULES.rates.move20dBp || (atHigh && tnx5 != null && tnx5 > 0)) state = 'burden';
+    else if (tnx20 <= -RULES.rates.move20dBp) state = 'favorable';
     const realLed = real5 != null && bei5 != null && real5 > 0 && Math.abs(real5) >= Math.abs(bei5);
     const read = state === 'burden' ? `장기금리가 오르는 구간${atHigh ? '(1년 범위 상단)' : ''} — 주식 할인율 부담${realLed ? '. 상승분 대부분이 실질금리라 밸류에이션(PER)에 더 직접적입니다' : ''}.`
       : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
         : state === 'unknown' ? (tnx ? '10년물 20일 변화를 계산할 기록이 부족합니다.' : staleRead('금리', alignments.tnx)) : '금리가 뚜렷한 방향 없이 움직이고 있습니다.';
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? `10년물 20일 변화 +25bp 미만(현재 ${signed(tnx20, 0, 'bp')}), 1년 범위 상단(90% 이상)에서의 5일 상승이 멈추면 완화`
-        : state === 'favorable' ? '10년물 20일 변화가 -25bp 위로 올라오면 중립, +25bp 이상이면 부담'
-          : '10년물 20일 +25bp 이상 또는 1년 범위 90% 이상에서 5일 상승 시 부담 · 20일 -25bp 이하면 우호';
+      : state === 'burden' ? `10년물 20일 변화 +${RULES.rates.move20dBp}bp 미만(현재 ${signed(tnx20, 0, 'bp')}), 1년 범위 상단(${RULES.rates.rangeHighAt * 100}% 이상)에서의 5일 상승이 멈추면 완화`
+        : state === 'favorable' ? `10년물 20일 변화가 -${RULES.rates.move20dBp}bp 위로 올라오면 중립, +${RULES.rates.move20dBp}bp 이상이면 부담`
+          : `10년물 20일 +${RULES.rates.move20dBp}bp 이상 또는 1년 범위 ${RULES.rates.rangeHighAt * 100}% 이상에서 5일 상승 시 부담 · 20일 -${RULES.rates.move20dBp}bp 이하면 우호`;
     axes.push(axis('rates', '금리', state, [
       ['미 10년물', tnx ? `${fmt(tnx.value)}% (5일 ${signed(tnx5, 0, 'bp')}, 20일 ${signed(tnx20, 0, 'bp')})` : null],
       ['1년 범위 내 위치', tnx?.yearPosition == null ? null : `${fmt(tnx.yearPosition * 100, 0)}%`],
@@ -443,16 +461,16 @@ export function buildMarketRegime(input = {}) {
     const { hyBp, hy5, pcr } = c;
     let state = 'neutral';
     if (hyBp == null) state = 'unknown';
-    else if (hyBp >= 450 || (hy5 != null && hy5 >= 25)) state = 'burden';
-    else if (hyBp < 350 && hy5 != null && hy5 <= 0 && (pcr == null || pcr < 1.1)) state = 'favorable';
+    else if (hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp)) state = 'burden';
+    else if (hyBp < RULES.credit.tightBelowBp && hy5 != null && hy5 <= 0 && (pcr == null || pcr < RULES.credit.putCallHedgeAt)) state = 'favorable';
     const read = state === 'favorable' ? '신용 시장이 안정적 — 주식 약세가 신용 위험으로 번지지 않았습니다.'
       : state === 'burden' ? '신용 스프레드가 넓거나 빠르게 확대 — 자금 조달 여건이 나빠지고 있습니다.'
         : state === 'unknown' ? staleRead('신용 스프레드', alignments.hy)
-          : hy5 == null && hyBp < 350 ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : '신용은 크게 나쁘지 않지만 스프레드 수준·방향이나 헤지 수요가 경계선입니다.';
+          : hy5 == null && hyBp < RULES.credit.tightBelowBp ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : '신용은 크게 나쁘지 않지만 스프레드 수준·방향이나 헤지 수요가 경계선입니다.';
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? 'HY 스프레드가 450bp 아래이고 5일 확대가 +25bp 미만이면 완화'
-        : state === 'favorable' ? 'HY 350bp 이상, 5일 확대, 풋/콜 1.1 이상 중 하나면 중립 · 450bp 이상 또는 5일 +25bp 확대 시 부담'
-          : 'HY 350bp 미만에 5일 축소·보합, 풋/콜 1.1 미만이면 우호 · 450bp 이상 또는 5일 +25bp 확대 시 부담';
+      : state === 'burden' ? `HY 스프레드가 ${RULES.credit.stressAtBp}bp 아래이고 5일 확대가 +${RULES.credit.widen5dBp}bp 미만이면 완화`
+        : state === 'favorable' ? `HY ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 풋/콜 ${RULES.credit.putCallHedgeAt} 이상 중 하나면 중립 · ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 확대 시 부담`
+          : `HY ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 풋/콜 ${RULES.credit.putCallHedgeAt} 미만이면 우호 · ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 확대 시 부담`;
     axes.push(axis('credit', '신용 · 위험선호', state, [
       ['HY 신용 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5일 ${signed(hy5, 0, 'bp')})` : ''}`],
       ['풋/콜 비율', pcr == null ? null : fmt(pcr)],
@@ -466,20 +484,20 @@ export function buildMarketRegime(input = {}) {
     const dxy20 = s.dxy ? pct(s.dxy.value, s.dxy.d20) : null;
     const wti = s.wti;
     const wti20 = wti ? pct(wti.value, wti.d20) : null;
-    const wtiHigh = wti?.yearPosition != null && wti.yearPosition >= 0.85;
+    const wtiHigh = wti?.yearPosition != null && wti.yearPosition >= RULES.oil.rangeHighAt;
     const gold20 = s.gold ? pct(s.gold.value, s.gold.d20) : null;
     let state = 'neutral';
     if (wti20 == null && dxy20 == null && !wtiHigh) state = 'unknown';
-    else if (wtiHigh || (wti20 != null && wti20 >= 10) || (dxy20 != null && dxy20 >= 2)) state = 'burden';
-    else if (wti20 != null && dxy20 != null && wti20 <= -5 && dxy20 <= 0) state = 'favorable';
+    else if (wtiHigh || (wti20 != null && wti20 >= RULES.oil.rise20dPct) || (dxy20 != null && dxy20 >= RULES.dollar.rise20dPct)) state = 'burden';
+    else if (wti20 != null && dxy20 != null && wti20 <= RULES.oil.fall20dPct && dxy20 <= 0) state = 'favorable';
     const missing = state !== 'unknown' && (wti20 == null || dxy20 == null) ? ` (${wti20 == null ? 'WTI' : '달러'} 20일 변화 미수신)` : '';
-    const read = (state === 'burden' ? (wti20 != null && wti20 >= 10 ? '유가가 빠르게 오르며 물가·금리 부담을 키우고 있습니다.' : wtiHigh ? `유가가 1년 범위 상단(${fmt(wti.yearPosition * 100, 0)}%)에 머물러 물가·금리 부담입니다.` : '달러 강세가 해외 매출 기업과 신흥국 자금 흐름에 부담입니다.')
+    const read = (state === 'burden' ? (wti20 != null && wti20 >= RULES.oil.rise20dPct ? '유가가 빠르게 오르며 물가·금리 부담을 키우고 있습니다.' : wtiHigh ? `유가가 1년 범위 상단(${fmt(wti.yearPosition * 100, 0)}%)에 머물러 물가·금리 부담입니다.` : '달러 강세가 해외 매출 기업과 신흥국 자금 흐름에 부담입니다.')
       : state === 'favorable' ? '유가와 달러가 함께 내려오며 물가·금융 여건 부담이 줄고 있습니다.'
         : state === 'unknown' ? staleRead('유가·달러', alignments.wti) : '유가·달러가 중립 범위입니다.') + missing;
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? 'WTI 1년 범위 85% 미만, WTI 20일 +10% 미만, 달러 20일 +2% 미만이 모두 충족되면 완화'
-        : state === 'favorable' ? 'WTI 20일 -5% 위 또는 달러 20일 상승이면 중립 · WTI 1년 범위 85% 이상, WTI 20일 +10%, 달러 20일 +2% 중 하나면 부담'
-          : 'WTI 20일 -5% 이하이면서 달러 20일 하락이면 우호 · WTI 1년 범위 85% 이상, WTI 20일 +10%, 달러 20일 +2% 중 하나면 부담';
+      : state === 'burden' ? `WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 미만, WTI 20일 +${RULES.oil.rise20dPct}% 미만, 달러 20일 +${RULES.dollar.rise20dPct}% 미만이 모두 충족되면 완화`
+        : state === 'favorable' ? `WTI 20일 ${RULES.oil.fall20dPct}% 위 또는 달러 20일 상승이면 중립 · WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${RULES.dollar.rise20dPct}% 중 하나면 부담`
+          : `WTI 20일 ${RULES.oil.fall20dPct}% 이하이면서 달러 20일 하락이면 우호 · WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${RULES.dollar.rise20dPct}% 중 하나면 부담`;
     axes.push(axis('commodities', '달러 · 원자재', state, [
       ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)})` : null],
       ['WTI 1년 범위 내 위치', wti?.yearPosition == null ? null : `${fmt(wti.yearPosition * 100, 0)}%`],
@@ -493,11 +511,11 @@ export function buildMarketRegime(input = {}) {
     const krw20 = s.usdkrw ? pct(s.usdkrw.value, s.usdkrw.d20) : null;
     const jpy20 = s.usdjpy ? pct(s.usdjpy.value, s.usdjpy.d20) : null;
     const kospi20 = s.kospi ? pct(s.kospi.value, s.kospi.d20) : null;
-    const yenSurge = jpy20 != null && jpy20 <= -3;
+    const yenSurge = jpy20 != null && jpy20 <= -RULES.fx.yenRally20dPct;
     let state = 'neutral';
     if (krw20 == null && jpy20 == null) state = 'unknown';
-    else if ((krw20 != null && krw20 >= 2) || yenSurge) state = 'burden';
-    else if (krw20 != null && krw20 <= -2) state = 'favorable';
+    else if ((krw20 != null && krw20 >= RULES.fx.krwMove20dPct) || yenSurge) state = 'burden';
+    else if (krw20 != null && krw20 <= -RULES.fx.krwMove20dPct) state = 'favorable';
     const read = yenSurge ? `엔화가 20일 ${signed(-jpy20)} 강세 — 2024년 8월 엔 캐리 청산 때는 글로벌 위험자산 매도가 함께 나타났습니다.`
       : state === 'burden' ? '원화 약세 — 외국인 수급과 수입 물가에 부담입니다.'
         : state === 'favorable' ? '원화 강세 — 외국인 자금 유입에 우호적이지만 수출 기업 이익에는 부담일 수 있습니다.'
@@ -506,7 +524,7 @@ export function buildMarketRegime(input = {}) {
       ['원/달러', s.usdkrw ? `${fmt(s.usdkrw.value, 1)}원 (20일 ${signed(krw20)})` : null],
       ['엔/달러', s.usdjpy ? `${fmt(s.usdjpy.value, 2)}엔 (20일 ${signed(jpy20)})` : '수집 시작 대기'],
       ['코스피', s.kospi ? `${fmt(s.kospi.value)} (20일 ${signed(kospi20)})` : null]
-    ], read, state === 'unknown' ? null : '원/달러 20일 +2% 이상 또는 엔/달러 20일 -3% 이하(엔 급강세)면 부담 · 원/달러 20일 -2% 이하면 우호', alignments.usdkrw));
+    ], read, state === 'unknown' ? null : `원/달러 20일 +${RULES.fx.krwMove20dPct}% 이상 또는 엔/달러 20일 -${RULES.fx.yenRally20dPct}% 이하(엔 급강세)면 부담 · 원/달러 20일 -${RULES.fx.krwMove20dPct}% 이하면 우호`, alignments.usdkrw));
   }
 
   const us = axes.filter((row) => row.id !== 'korea');

@@ -109,7 +109,7 @@ try {
     const note = document.getElementById('screener-readiness-note') || {};
     return {
       title: note.title || '',
-      status: document.getElementById('scr-workbench-status')?.textContent || '',
+      status: `${document.getElementById('scr-workbench-status')?.textContent || ''} ${document.getElementById('scr-workbench-status')?.title || ''}`, // P1431: the definition id moved to the title
       history: document.getElementById('scr-run-history')?.textContent || '',
       funnel: ['universe', 'ready', 'passed', 'unavailable'].map((key) => document.getElementById(`scr-funnel-${key}`)?.textContent).join('/')
     };
@@ -169,6 +169,8 @@ try {
   const historyAfterReentry = await page.evaluate(runHistoryLens);
   if (historyAfterReentry.length > historyBeforeReentry.length) throw new Error(`P1168 screener re-entry accumulated identical pipeline runs: ${historyBeforeReentry.length} -> ${historyAfterReentry.length}`);
   if (historyAfterReentry.some((entry) => entry.startsWith('untagged|'))) throw new Error(`P1168 machine runs must be tagged in the run history: ${JSON.stringify(historyAfterReentry)}`);
+  // P1431: the visual builder lives in the folded 조건 직접 조합 details on the user path.
+  await page.evaluate(() => { const advanced = document.getElementById('scr-workbench-advanced'); if (advanced) advanced.open = true; });
   await page.locator('#scr-builder-field').selectOption('rsi');
   await page.locator('#scr-builder-value').fill('55');
   await page.locator('[data-aio-screener-action="add-builder-condition"]').click();
@@ -219,6 +221,7 @@ try {
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.AIO_ARCH?.getScreenerState?.()?.rows?.length >= 800);
   await page.evaluate(() => window.showPage('screener'));
+  await page.evaluate(() => { const advanced = document.getElementById('scr-workbench-advanced'); if (advanced) advanced.open = true; }); // P1431: run history sits in the folded panel
   await page.getByRole('button', { name: '저장 입력으로 재현', exact: true }).first().click();
   await page.waitForFunction(() => document.getElementById('scr-workbench-status')?.textContent.includes('보관한 입력으로 재현됨'));
   const replayed = await page.locator('#scr-workbench-status').evaluate(node => ({ resultHash: node.dataset.resultHash, explanationsHash: node.dataset.explanationsHash, rows: Number(node.dataset.rowCount) }));

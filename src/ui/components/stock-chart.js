@@ -3,6 +3,8 @@
 import { analyzeChart } from '../../domain/technical/chart-analysis.js';
 import { buildCloseSeries, buildMarketRegime } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
+import { emptyState } from './empty-state.js';
+import { setStockSubject } from '../navigation/route-hubs.js';
 
 const STATE_TONE = Object.freeze({ breakout: 'favorable', setup: 'favorable', extended: 'neutral', none: 'neutral', failed: 'burden', downtrend: 'burden' });
 
@@ -15,6 +17,22 @@ function el(doc, tag, text, className) {
 
 function cssVar(root, name, fallback) {
   try { return root.getComputedStyle(root.document.body).getPropertyValue(name).trim() || fallback; } catch (_) { return fallback; }
+}
+
+// P1428 (Codex review): during the session Yahoo's last daily bar is still moving; it was analysed and
+// labelled 종가. A bar dated today in the exchange's zone is kept only after the close (+20 minutes for the
+// official print); the regular-session end comes from the payload when present (16:00 by default).
+export function completedBars(bars, payload, nowMs = Date.now()) {
+  if (!bars.length) return { bars, droppedLive: false };
+  const tz = payload?.meta?.exchangeTimezoneName || 'America/New_York';
+  const today = new Date(nowMs).toLocaleDateString('en-CA', { timeZone: tz });
+  const last = bars[bars.length - 1];
+  if (last.time !== today) return { bars, droppedLive: false };
+  const end = Number(payload?.meta?.currentTradingPeriod?.regular?.end) * 1000;
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(nowMs)).map((p) => [p.type, p.value]));
+  const minutes = Number(parts.hour) * 60 + Number(parts.minute);
+  const closed = Number.isFinite(end) && end > 0 ? nowMs >= end + 20 * 60000 : minutes >= 16 * 60 + 20;
+  return closed ? { bars, droppedLive: false } : { bars: bars.slice(0, -1), droppedLive: true };
 }
 
 export function barsFromYahoo(payload) {
@@ -87,17 +105,29 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
   let payload = null;
   try { payload = await root._aioFetchYahooChartData?.(sym, '2y', '1d'); } catch (_) { payload = null; }
   if (ticket !== root.__aioStockChartTicket) return null;
-  const bars = barsFromYahoo(payload);
+  const { bars, droppedLive } = completedBars(barsFromYahoo(payload), payload);
   const benchmark = buildCloseSeries(root._aioHistory || [], 'spx');
   const analysis = analyzeChart(bars, { benchmark });
   if (!analysis.available) {
-    set('stock-chart-status', bars.length ? '일봉 기록이 60개 미만이라 분석할 수 없습니다.' : '시세를 받지 못했습니다. 티커를 확인하거나 잠시 후 다시 시도하세요.');
-    panel.replaceChildren();
+    set('stock-chart-status', '');
+    // P1429: say which failure it is — no connection, an unknown ticker, or too little history.
+    const retry = { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) };
+    const state = payload == null
+      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 중계 서버가 응답하지 않았습니다.', next: '잠시 후 다시 시도하거나 다른 종목으로 확인해 보세요.', action: retry })
+      : bars.length === 0
+        ? emptyState(doc, { title: `${sym}의 일봉이 없습니다`, reason: '티커가 맞는지 확인하세요. 한국 종목은 6자리 코드(예: 005930)로 검색합니다.' })
+        : emptyState(doc, { title: `${sym}의 일봉이 ${bars.length}개뿐입니다`, reason: '추세·셋업 분석에는 최소 60거래일이 필요합니다.', next: '상장 직후 종목은 기록이 쌓인 뒤 분석됩니다.' });
+    panel.replaceChildren(state);
     host.replaceChildren();
+    // P1428: a failed lookup clears the previous symbol's setup badge and chart instance too.
+    const staleBadge = doc.getElementById('stock-chart-state');
+    if (staleBadge) { staleBadge.textContent = ''; staleBadge.className = 'regime-state is-unknown'; }
+    if (root.__aioStockChartInstance?.chart) { try { root.__aioStockChartInstance.chart.remove(); } catch (_) {} }
+    root.__aioStockChartInstance = null;
     return null;
   }
   const change = analysis.prev ? (analysis.last.close / analysis.prev.close - 1) * 100 : null;
-  set('stock-chart-status', `${analysis.asOf} 종가 ${analysis.last.close.toLocaleString('en-US', { maximumFractionDigits: 2 })} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%)`);
+  set('stock-chart-status', `${analysis.asOf} 종가 ${analysis.last.close.toLocaleString('en-US', { maximumFractionDigits: 2 })} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%)${droppedLive ? ' · 장중인 오늘 봉은 분석에서 제외' : ''}`);
   const badge = doc.getElementById('stock-chart-state');
   if (badge) { badge.textContent = analysis.stateLabel; badge.className = `regime-state is-${STATE_TONE[analysis.state] || 'neutral'}`; }
   root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance);
@@ -110,22 +140,36 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
   return analysis;
 }
 
-// P1405 (Codex review 2026-10-03): the chart follows the stock last opened on the 종목 screen
-// (root._aioLastOpenedSymbol, display-only) instead of resetting to SPY; a symbol typed here stays
-// until another stock is opened there.
+// P1405/P1430: the chart follows the 종목 screen's company (root._aioLastOpenedSymbol, display-only).
+// A symbol typed here becomes that company for 요약 · 재무 공시 too; the SPY/QQQ chips and an index
+// card on 오늘 (root._aioChartRequest) open a market chart without changing the company.
 export function installStockChart({ documentRef: doc, root }) {
   const form = doc.getElementById('stock-chart-form');
   if (!form) return;
   const input = doc.getElementById('stock-chart-input');
   const run = (symbol) => { if (input && symbol) input.value = symbol; renderStockChart({ documentRef: doc, root, symbol: symbol || input?.value }); };
+  const request = String(root._aioChartRequest || '').trim().toUpperCase();
+  root._aioChartRequest = null;
   const entity = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
   if (form.dataset.aioStockChart === 'installed') {
-    if (entity && entity !== form.dataset.aioStockChartEntity) { form.dataset.aioStockChartEntity = entity; run(entity); }
+    if (request) run(request);
+    else if (entity && entity !== form.dataset.aioStockChartEntity) { form.dataset.aioStockChartEntity = entity; run(entity); }
     return;
   }
   form.dataset.aioStockChart = 'installed';
   form.dataset.aioStockChartEntity = entity;
-  form.addEventListener('submit', (event) => { event.preventDefault(); run(); });
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const typed = String(input?.value || '').trim().toUpperCase();
+    if (setStockSubject({ root, documentRef: doc, symbol: typed })) form.dataset.aioStockChartEntity = typed;
+    run();
+  });
   doc.querySelectorAll('[data-stock-chart-symbol]').forEach((chip) => chip.addEventListener('click', () => run(chip.dataset.stockChartSymbol)));
-  run(entity || input?.value || 'SPY');
+  run(request || entity || input?.value || 'SPY');
+}
+
+// P1430: 오늘's S&P 500 / 나스닥 cards open the index chart they show, not the last company.
+export function openMarketChart(root, symbol) {
+  root._aioChartRequest = String(symbol || 'SPY').toUpperCase();
+  if (typeof root.showPage === 'function') root.showPage('technical');
 }

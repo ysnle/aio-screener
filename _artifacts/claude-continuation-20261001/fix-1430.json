@@ -1,0 +1,19 @@
+{
+  "version": "v57.10",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.10 — 종목 becomes one screen with three tabs about the same company, and the selected company and its origin travel across clicks (P1430).",
+  "p": {
+    "id": 1430,
+    "title": "종목 integration: 요약 · 차트 · 재무 공시 share one company; index cards open their own chart",
+    "symptom": "The 종목 menu opened 기업 분석, the hub tabs were 기업 분석 / 차트 · 기술 with 종목 상세 hidden, and each of the three pages kept its own symbol (재무 showed '선택 기업 없음' after opening a stock and visiting the chart); the S&P 500 / Nasdaq futures cards opened whatever stock was last viewed; the ticker page repeated its own inner tabs, an external TradingView iframe, a static candle gallery, a manual entry calculator and an 진입 적합성 block that still printed the retired '시장 건강도 NN점'.",
+    "root_cause": "The three routes were built as separate pages before the 8-screen IA, with no shared notion of the current company.",
+    "fix": "ROUTE_HUBS stock = 요약(ticker) · 차트(technical) · 재무 공시(fundamental); the menu opens 요약. route-hubs setStockSubject/readStockSubject: one company (set by showTicker/entity selection, the 재무 공시 search and a symbol typed on the chart), shown beside the tabs with a '← origin' link; 요약 from 차트/재무 공시 re-opens that company, 재무 공시 loads it on mount, showTicker keeps the outer origin across the three tabs. openMarketChart: futures cards open SPY/QQQ without changing the company. Ticker page: insight box, entry check, TradingView iframe, inner tabs, static candle cards and the manual calculator removed (calculateEntryQualityLocal / _aioFillEntryFromTicker deleted); its own price chart now sits next to the price/theme/factor rail; candle detection kept as one line. Labels: 요약 / 종목 차트 / 재무 공시.",
+    "violated_rule": "Owner decisions: 8-screen IA, context continuity, no retired scores on user surfaces.",
+    "prevention": "ci-architecture-browser-check P1430 (no inner ticker tabs, chart visible, no external chart, hub tabs ticker,technical,fundamental); ci-runtime-contract-check EF-10 checks the 재무 공시 hub tab; T875/T1029 updated; research-flow keeps the calculator retired.",
+    "verification": "Local preview: screener → AAPL → 차트 → 재무 공시 → 요약 keeps AAPL everywhere with '← 스크리너'; 재무 공시 loads Apple's SEC 10-K after the chart; the 오늘 Nasdaq card opens QQQ while the company stays AAPL."
+  },
+  "changelog": [
+    "**종목 화면 통합 (P1430):** 종목 = 요약 · 차트 · 재무 공시 세 탭이 같은 종목을 보여줍니다. 어디서 왔는지(← 스크리너 등) 표시, 오늘 화면의 지수 카드는 해당 지수 차트로 이동. 요약의 외부 TradingView 창·중복 탭·수동 계산기·퇴역 점수 블록 제거."
+  ]
+}

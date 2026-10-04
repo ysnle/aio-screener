@@ -1,0 +1,19 @@
+{
+  "version": "v57.10",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.10 — missing data says what is missing, why, and what still works; duplicated or always-empty cells removed (P1429).",
+  "p": {
+    "id": 1429,
+    "title": "Missing-data experience: one empty state, no wall of dashes, a reading even when the live quote is absent",
+    "symptom": "Live check 2026-10-04: the themes page's 12-cell 섹터 ETF 라이브 등락 strip showed '—' in every cell (it duplicated the completed-session sector bars above it); the screener 가격 column read 미수신 on 10 of 12 rows; the stock chart failed to a blank card; the home futures cells were empty when ES/NQ quotes were missing.",
+    "root_cause": "Each surface invented its own placeholder, and several cells depended only on the live quote tier, which covers the index/sector core and not every row.",
+    "fix": "src/ui/components/empty-state.js (title, reason, next step, optional action) used by the stock chart for no payload / no bars / fewer than 60 bars; home futures cells fall back to the last completed S&P 500 / Nasdaq close with the cell marked; the duplicated sector live strip removed; theme chips drop the placeholder dash; screener default presets add 52주 고점 대비 (from the artifact itself) next to 가격, which stays a live-quote column (P715: the artifact publishes no per-symbol price).",
+    "violated_rule": "Owner decisions: no sourceless or empty widgets; fill needed data, remove useless content.",
+    "prevention": "ci-screener-auto-refresh-browser-check keeps the visible-row quote contract; T1029 ranges; browser surface checks cover the empty-state CSS.",
+    "verification": "Local preview: themes page has no dash cells; screener rows show 52주 고점 대비 for every row; the stock chart for a symbol without bars shows the reason and a retry button."
+  },
+  "changelog": [
+    "**데이터 없음 처리 (P1429):** 비어 있는 칸 대신 무엇이 왜 없는지와 대안을 보여줍니다. 테마의 중복 섹터 줄 제거, 스크리너에 '52주 고점 대비' 열 추가, 선물 시세가 없으면 직전 종가 표시."
+  ]
+}

@@ -5,8 +5,9 @@
 // observed level, its change and its date. The only rule shown is the one 시장 상태 already uses:
 // a yen rally of 3% or more in 20 sessions marks the FX axis as a burden.
 import { buildCloseSeries, closeBasis } from '../briefing/market-read.js';
+import { RULES } from '../rules/thresholds.js';
 
-export const YEN_RALLY_RULE = 3; // % in 20 sessions — same threshold as the 시장 상태 FX axis
+export const YEN_RALLY_RULE = RULES.fx.yenRally20dPct; // % in 20 sessions — the 시장 상태 FX-axis rule (P1428 registry)
 const CHART_SESSIONS = 126; // about six months of completed sessions
 
 export const TREASURY_TENORS = Object.freeze([

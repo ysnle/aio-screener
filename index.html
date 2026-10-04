@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.09 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.10 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.09" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.09" defer></script>
-<script src="./js/aio-kr-data.js?v=57.09" defer></script>
-<script src="./js/aio-pages.js?v=57.09" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.09">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.09">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.09">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.09">
+<script src="./js/aio-workspace.js?v=57.10" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.10" defer></script>
+<script src="./js/aio-kr-data.js?v=57.10" defer></script>
+<script src="./js/aio-pages.js?v=57.10" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.10">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.10">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.10">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.10">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2171,6 +2171,38 @@ body {
 .macro-axis-more[open] summary { margin-bottom: 6px; }
 .macro-chain-legend { margin-top: 10px; }
 .macro-gauge-note { font-size: 11.5px; color: var(--text-muted); margin: -2px 0 6px; }
+/* P1429: home futures fallback — the last completed index close when futures quotes are missing */
+.kpi-fallback { display: flex; flex-direction: column; gap: 2px; }
+.page .kpi-fallback-value { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.page .kpi-fallback-note { font-size: 11.5px; color: var(--text-muted); }
+.page #home-kpi-strip [data-futures-missing="true"] > [data-live-price], .page #home-kpi-strip [data-futures-missing="true"] > [data-live-chg], .page #home-kpi-strip [data-futures-missing="true"] > div:last-child { display: none; }
+/* P1429: one empty state */
+.empty-state { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; border: 1px dashed var(--border); border-radius: 8px; padding: 12px 14px; background: var(--surface-1, var(--bg-card)); }
+.empty-state.is-compact { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; padding: 8px 12px; }
+.empty-state-title { font-size: 13px; color: var(--text-primary); }
+.empty-state-reason, .empty-state-next { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+.empty-state .aio-btn-table { margin-top: 4px; font-size: 12px; min-height: 24px; }
+/* P1428: 사용 설명서 */
+.guide-nav { background: var(--surface-1, var(--bg-card)); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin: 0 0 18px; display: flex; flex-direction: column; gap: 8px; }
+.guide-search { display: flex; gap: 8px; }
+.guide-search input { flex: 1; min-width: 200px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); color: var(--text-primary); font: inherit; font-size: 13px; }
+.guide-jumps { display: flex; gap: 6px; flex-wrap: wrap; }
+.guide-jumps .aio-btn-table, .guide-screen-tabs .aio-btn-table { font-size: 12px; padding: 4px 10px; min-height: 24px; }
+.guide-search-result { padding: 8px 10px; background: var(--surface-2, var(--bg-card)); border-radius: 4px; font-size: 12px; color: var(--text-muted); }
+.guide-block { margin-bottom: 22px; }
+.guide-screen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.guide-screen { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--bg-card); display: flex; flex-direction: column; gap: 6px; }
+.guide-screen-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0; }
+.guide-screen-question { font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.6; }
+.guide-screen-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+.guide-legend-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 10px; }
+.guide-legend-note { font-size: 12px; color: var(--text-muted); }
+.guide-rules { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.guide-rules th { text-align: left; font-size: 11.5px; color: var(--text-muted); font-weight: 700; padding: 6px 8px; border-bottom: 1px solid var(--border-strong); }
+.guide-rules td { padding: 7px 8px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); vertical-align: top; font-variant-numeric: tabular-nums; }
+.guide-rules td.is-favorable { color: var(--data-green); }
+.guide-rules td.is-burden { color: var(--data-red); }
+.guide-ref summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-secondary); min-height: 24px; display: list-item; }
 .rates-guide { border: 1px solid var(--border-subtle); border-radius: 6px; padding: 8px 12px; margin: 0 0 18px; background: var(--surface-1, var(--bg-card)); }
 .rates-guide summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-primary); min-height: 24px; display: list-item; }
 .rates-guide ul { margin: 8px 0 2px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 1.7; color: var(--text-secondary); }
@@ -2212,6 +2244,48 @@ body {
 .aio-hub-tab:hover { color: var(--text-primary); }
 .aio-hub-tab[aria-current="page"] { color: var(--text-primary); font-weight: 600; border-bottom-color: var(--accent); }
 .aio-hub-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.page .daily-loop { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px 28px; margin: 18px 0 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+.page .daily-block { min-width: 0; }
+.page .daily-block[hidden] { display: none; }
+.page .daily-headline { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); margin: 2px 0 10px; }
+.page .daily-moves { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.page .daily-move { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--border-subtle); border-radius: 6px; }
+.page .daily-move.is-big { border-color: var(--accent); }
+.page .daily-move-label, .page .daily-move-level { font-size: 11.5px; color: var(--text-muted); }
+.page .daily-move-value { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.page .daily-move-value.is-up, .page .daily-name-day.is-up { color: var(--data-green); }
+.page .daily-move-value.is-down, .page .daily-name-day.is-down { color: var(--data-red); }
+.page .daily-names, .page .daily-schedule, .page .daily-news { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.page .daily-name { display: grid; grid-template-columns: 74px minmax(0, 1fr) 64px; gap: 2px 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); }
+.page .daily-name-symbol { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-family: var(--font-mono); font-weight: 700; color: var(--text-primary); cursor: pointer; text-align: left; }
+.page .daily-name-name { font-size: 12.5px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.page .daily-name-day { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+.page .daily-name-notes { grid-column: 2 / -1; font-size: 12px; color: var(--text-muted); }
+.page .daily-event { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 2px 10px; font-size: 13px; }
+.page .daily-event.is-today .daily-event-when { color: var(--accent); font-weight: 600; }
+.page .daily-event-when { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.page .daily-event-why { grid-column: 2; font-size: 12px; color: var(--text-muted); }
+.page .daily-news-item { display: flex; gap: 10px; font-size: 13px; align-items: baseline; }
+.page .daily-news-symbol { font-family: var(--font-mono); font-weight: 700; font-size: 12px; min-width: 52px; }
+.page .daily-news-link { color: var(--text-primary); text-decoration: none; }
+.page .daily-news-link:hover { text-decoration: underline; }
+.page .daily-empty { font-size: 13px; color: var(--text-muted); }
+.page .flow-lead { margin: 4px 0 14px; font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); max-width: 920px; grid-column: 1 / -1; }
+.page .flow-next { margin: 28px 0 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+.page .flow-next[hidden] { display: none; }
+.page .flow-next-title { font-size: 15px; font-weight: 600; margin: 0 0 10px; color: var(--text-primary); }
+.page .flow-next-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.page .flow-next-list li { display: flex; align-items: baseline; gap: 12px; }
+.page .flow-next-link { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--accent); cursor: pointer; white-space: nowrap; }
+.page .flow-next-link:hover { text-decoration: underline; }
+.page .flow-next-why { font-size: 13px; color: var(--text-secondary); }
+.page .scr-data-status { margin: -10px 0 14px; }
+.page .scr-data-status > summary, .page .scr-workbench-advanced > summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); min-height: 28px; }
+.page .scr-workbench-advanced { margin-top: 10px; }
+.aio-hub-subject { margin-left: auto; align-self: center; display: inline-flex; align-items: baseline; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+.aio-hub-subject strong { font-family: var(--font-mono); color: var(--text-primary); }
+.aio-hub-subject-from { appearance: none; background: none; border: 0; margin-left: 10px; padding: 0; font: inherit; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+.aio-hub-subject-from:hover { color: var(--text-primary); text-decoration: underline; }
 .nav-section + .nav-section { border-top: 1px solid rgba(33,29,22,0.07); margin-top: 4px; }
 .nav-label {
   font-size: var(--fs-xs);
@@ -3023,8 +3097,9 @@ html { scrollbar-width: thin; scrollbar-color: rgba(33,29,22,0.12) transparent; 
   display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
   flex-shrink: 0; width: 44px; padding-top: 1px;
 }
+.news-time-day { display: block; font-size: 11px; color: var(--text-muted); }
 .news-time-abs {
-  font-size: 12px; font-weight: 500; color: var(--text-dim);
+  font-size: 12px; font-weight: 500; color: var(--text-dim); line-height: 1.35;
   font-family: inherit; letter-spacing: normal; font-variant-numeric: tabular-nums;
 }
 .news-time-dot { display: none; }
@@ -5819,7 +5894,7 @@ button[data-filter-active="true"] {
       </div>
       <div class="nav-section">
         <div class="nav-label">내 투자</div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="fundamental" data-hub="stock" data-hub-routes="fundamental technical ticker" data-pass-el="1"><span class="nav-icon"></span><span class="label">종목</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="ticker" data-hub="stock" data-hub-routes="ticker technical fundamental" data-pass-el="1"><span class="nav-icon"></span><span class="label">종목</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="screener" data-hub="screener" data-hub-routes="screener" data-pass-el="1"><span class="nav-icon"></span><span class="label">스크리너</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="portfolio" data-hub="portfolio" data-hub-routes="portfolio" data-pass-el="1"><span class="nav-icon"></span><span class="label">포트폴리오</span></div>
       </div>
@@ -6117,7 +6192,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.09</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.10</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6161,14 +6236,16 @@ button[data-filter-active="true"] {
 
   <!-- v52.65 아이보리 리디자인 1b: KPI 4열 셀-스트립 (시안 — 카드 박스 대신 헤어라인 구분선). data-live-price/chg 훅은 유지. -->
   <div id="home-kpi-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px;">
-    <div class="is-interactive" data-action="showPage" data-arg="technical" role="button" tabindex="0" title="S&P 500 선물(ES, CME) — 거의 24시간 거래 · 현물 종가는 아래 줄" style="padding:18px 20px 18px 0;border-right:1px solid var(--border-subtle);cursor:pointer;">
+    <div class="is-interactive" data-action="aioOpenMarketChart" data-arg="SPY" role="button" tabindex="0" title="S&P 500 선물(ES, CME) — 거의 24시간 거래 · 현물 종가는 아래 줄" style="padding:18px 20px 18px 0;border-right:1px solid var(--border-subtle);cursor:pointer;">
       <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">S&amp;P 500 선물</div>
+      <div class="kpi-fallback" id="home-kpi-es-fallback" hidden></div>
       <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="ES=F">—</div>
       <div style="font-size:12.5px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="ES=F" data-chg-unit="abs">—</div>
       <div style="font-size:11.5px;color:var(--text-muted);margin-top:6px;">현물 <span data-live-price="^GSPC">—</span> <span data-live-chg="^GSPC">—</span></div>
     </div>
-    <div class="is-interactive" data-action="showPage" data-arg="technical" role="button" tabindex="0" title="나스닥 100 선물(NQ, CME) — 거의 24시간 거래 · 아래는 나스닥 종합 현물" style="padding:18px 20px;border-right:1px solid var(--border-subtle);cursor:pointer;">
+    <div class="is-interactive" data-action="aioOpenMarketChart" data-arg="QQQ" role="button" tabindex="0" title="나스닥 100 선물(NQ, CME) — 거의 24시간 거래 · 아래는 나스닥 종합 현물" style="padding:18px 20px;border-right:1px solid var(--border-subtle);cursor:pointer;">
       <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">나스닥 100 선물</div>
+      <div class="kpi-fallback" id="home-kpi-nq-fallback" hidden></div>
       <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="NQ=F">—</div>
       <div style="font-size:12.5px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="NQ=F" data-chg-unit="abs">—</div>
       <div style="font-size:11.5px;color:var(--text-muted);margin-top:6px;">나스닥 종합 현물 <span data-live-price="^IXIC">—</span> <span data-live-chg="^IXIC">—</span></div>
@@ -6213,6 +6290,14 @@ button[data-filter-active="true"] {
       <div id="home-hero-desc" style="font-size:13.5px;color:var(--text-secondary);line-height:1.75;"></div>
     </div>
     <div id="home-hero-components" class="regime-chips"></div>
+  </div>
+
+  <!-- P1432: 하루 루프 — 판정 바로 아래에서 어제와 달라진 점 → 내 종목 → 다가오는 일정 → 내 종목 뉴스 -->
+  <div id="home-daily-loop" class="daily-loop">
+    <section class="daily-block" id="home-daily-changes" aria-label="어제와 달라진 점"></section>
+    <section class="daily-block" id="home-my-names" aria-label="내 종목"></section>
+    <section class="daily-block" id="home-schedule" aria-label="다가오는 일정"></section>
+    <section class="daily-block" id="home-my-news" aria-label="내 종목 뉴스" hidden></section>
   </div>
 
   <!-- ═══ v48.42: SECTION 0 — 오늘의 시장 ═══ -->
@@ -6367,8 +6452,13 @@ button[data-filter-active="true"] {
     <p class="briefing-read-headline" id="regime-headline"></p>
     <ul class="briefing-read-points" id="regime-conflicts"></ul>
   </section>
+  <h2 class="briefing-h2 regime-board-title">미국 시장 6개 축</h2>
   <div class="regime-board" id="regime-board"></div>
-  <p class="briefing-footnote">각 축은 종가 기록의 상태를 설명할 뿐 매매 권고가 아닙니다. 세부는 <a href="#breadth" data-action="showPage" data-arg="breadth">시장 폭</a> · <a href="#sentiment" data-action="showPage" data-arg="sentiment">투자 심리</a> · <a href="#fxbond" data-action="showPage" data-arg="fxbond">금리 · 환율</a>에서 봅니다.</p>
+  <!-- P1428 (Codex review): the won · yen card is Korea context and is not part of the six-axis tally; it sits apart and says so. -->
+  <h2 class="briefing-h2 regime-board-title">한국 시장 참고 <span class="briefing-h2-note">위 6개 축 합계에는 넣지 않습니다</span></h2>
+  <div class="regime-board" id="regime-board-kr"></div>
+  <nav class="flow-next" id="regime-next" aria-label="이어서 볼 곳" hidden></nav>
+  <p class="briefing-footnote">각 축은 종가 기록의 상태를 설명할 뿐 매매 권고가 아닙니다.</p>
 </div><!-- fix: page-signal outer close -->
 
     <div class="page" id="page-breadth">
@@ -6381,6 +6471,7 @@ button[data-filter-active="true"] {
     <p class="regime-flip" id="breadth-flip"></p>
   </section>
   <div class="trend-grid" id="breadth-chart-grid"></div>
+  <nav class="flow-next" id="breadth-next" aria-label="이어서 볼 곳" hidden></nav>
   <p class="briefing-footnote">AIO 미국 주식 유니버스의 1년 조정 종가로 계산한 값이며 거래소 공식 통계가 아닙니다.</p>
 </div>
 
@@ -6395,9 +6486,11 @@ button[data-filter-active="true"] {
     <h2 class="briefing-h2" id="sentiment-synthesis-title">심리 종합</h2>
     <p class="briefing-read-headline" id="sentiment-synthesis"></p>
     <p class="briefing-footnote" id="sentiment-aaii-note"></p>
+    <p class="flow-lead" id="sentiment-bridge"></p>
   </section>
   <div class="trend-grid" id="sentiment-card-grid"></div>
   <div class="trend-grid trend-grid-3" id="sentiment-mini-grid"></div>
+  <nav class="flow-next" id="sentiment-next" aria-label="이어서 볼 곳" hidden></nav>
   <p class="briefing-footnote">심리 지표는 과열·과매도를 가늠하는 참고이며 매매 시점을 알려 주지 않습니다.</p>
   </div>
     <!-- ═══════════════ PAGE: BRIEFING (데일리 브리핑) ═══════════════ -->
@@ -6445,10 +6538,6 @@ button[data-filter-active="true"] {
 
     <!-- P1389 (owner review 2026-10-02): 일정 → 오늘의 해석 → 자산별 흐름 → 다음 확인. 같은 수치를 반복하던
          시장 바·6축 요약·확인 목록·시장 분석·8월 자료 대조·과거 참고·주요 뉴스(→ 뉴스 화면)를 이 흐름으로 대체. -->
-    <section class="aio-section briefing-block" id="briefing-schedule" aria-labelledby="briefing-schedule-title">
-      <h2 class="briefing-h2" id="briefing-schedule-title">앞으로 7일 일정 <span class="briefing-h2-note">한국 시간</span></h2>
-      <div id="briefing-schedule-rows"><div class="briefing-empty">일정 확인 중</div></div>
-    </section>
     <section class="aio-section briefing-block briefing-read" id="briefing-read" aria-labelledby="briefing-read-title">
       <h2 class="briefing-h2" id="briefing-read-title">오늘의 시장 해석 <span class="briefing-h2-note" id="briefing-read-basis"></span></h2>
       <p class="briefing-read-headline" id="briefing-read-headline">종가 기록을 불러오는 중입니다.</p>
@@ -6465,6 +6554,11 @@ button[data-filter-active="true"] {
       <ul class="briefing-check-list" id="briefing-check-list"></ul>
       <p class="briefing-footnote">자동 해석은 종가 기록의 교차 관계를 설명할 뿐 매매 권고가 아닙니다. 주요 뉴스는 <a href="#market-news" data-action="showPage" data-arg="market-news">뉴스</a> 화면에서 봅니다.</p>
     </section>
+    <!-- P1431: 일정은 확인 포인트 다음 — 결론(해석) → 근거(자산별 흐름) → 무엇을 볼지 → 언제 나오는지 -->
+    <section class="aio-section briefing-block" id="briefing-schedule" aria-labelledby="briefing-schedule-title">
+      <h2 class="briefing-h2" id="briefing-schedule-title">앞으로 7일 일정 <span class="briefing-h2-note">한국 시간</span></h2>
+      <div id="briefing-schedule-rows"><div class="briefing-empty">일정 확인 중</div></div>
+    </section>
 
   </div>
     <!-- ═══════════════ PAGE: TECHNICAL (기술적 분석) ═══════════════ -->
@@ -6477,8 +6571,8 @@ button[data-filter-active="true"] {
   <div id="tg-feed-technical"></div>
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
-      <div class="page-title">차트 · 기술 분석</div>
-      <div class="page-subtitle">종목 차트와 셋업 근거 · 시장 상태 요약 · 보조 지표(RSI·MACD·ADX) · Weinstein 4단계</div>
+      <div class="page-title">종목 차트</div>
+      <div class="page-subtitle">이 종목의 추세·셋업과, 그 셋업이 놓인 시장 상태</div>
       <!-- v50.84: SPY 가격 포지션 -->
       <div id="vis-technical" style="margin-top:10px;max-width:560px;"><div class="aio-vis-card"><div class="aio-vis-card-title">SPY 가격 포지션 · 지지/저항</div><div id="vis-technical-price"></div></div></div>
     </div>
@@ -7461,8 +7555,8 @@ button[data-filter-active="true"] {
   <div id="tg-feed-fundamental"></div>
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
-      <div class="page-title">기업 분석</div>
-      <div class="page-subtitle">SEC EDGAR · FMP · Yahoo Finance 데이터 기반 딥 다이브</div>
+      <div class="page-title">재무 공시</div>
+      <div class="page-subtitle">SEC 공시 재무 — 매출·이익·현금흐름이 같은 기간에 어떻게 움직였는지</div>
     </div>
     <span id="fund-data-status" class="freshness-badge fb-static">● DATA 확인 대기</span>
   </div>
@@ -7782,16 +7876,13 @@ button[data-filter-active="true"] {
   </div>
     <!-- ═══════════════ PAGE: THEMES (테마 분석) ═══════════════ -->
   <div class="page" id="page-themes">
-  <div class="insight-box box-collapsed">
-    <strong>어떤 테마가 강한가? — 시장 지표 조합 참고 · RRG 상대회전 3뷰(11섹터·서브섹터·전체 25 ETF) · 섹터 퍼포먼스 · 칩에서 여는 상세 14종</strong>
-  </div>
 
   <!-- 헤더 — v52.71 아이보리 3g: serif 27px 타이틀(시안 구조) -->
   <div id="tg-feed-themes"></div>
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
       <div class="page-title">테마 · 트렌드</div>
-      <div class="page-subtitle">시장 지표 조합 참고 · RRG 상대회전(11섹터·서브섹터·전체 25 ETF) · 섹터 퍼포먼스(20일/YTD) · 상세 14종(구성·리더·브레드스·벤치마크) · 요약 전용 11종</div>
+      <div class="page-subtitle">업종·테마 사이에서 돈이 어디로 움직이는지 — 섹터 상대강도 회전과 하위 테마 순위</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div id="rrg-view-tabs" style="display:flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--bg-card);">
@@ -7803,8 +7894,11 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  <!-- P1417: daily sub-theme relative strength (published screener returns) -->
-  <section class="aio-section theme-strength" id="theme-strength-board" aria-label="하위 테마 상대강도 순위"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
+  <!-- P1431: 페이지 결론 — 네 사분면을 한 문장으로 읽고 시장 상태의 시장 폭과 잇는다(아래 섹션들이 근거). -->
+  <section class="briefing-block" id="themes-verdict" aria-labelledby="themes-verdict-title" data-aio-themes-verdict-renderer="native">
+    <h2 class="briefing-h2" id="themes-verdict-title">섹터 회전 판정</h2>
+    <p class="briefing-read-headline" id="rrg-rotation-read">섹터 상대강도 기록을 읽는 중입니다.</p>
+  </section>
 
   <!-- 섹터 로테이션 (RRG) — v52.71 아이보리 3g: 시안 구조(4분면 텍스트 카드), 기존 calcLiveRS() 재사용 -->
   <div style="margin-bottom:26px;">
@@ -7817,32 +7911,39 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  <!-- 섹터 ETF 라이브 등락 6열 — v52.71 아이보리 3g: 시안 구조, 기존 data-live-chg 재사용 -->
-  <div style="border-top:1px solid var(--border-strong);padding-top:24px;margin-bottom:26px;">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
-      <span style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">섹터 ETF 라이브 등락</span>
+    <!-- P1431: 같은 11개 섹터의 1일·1주 성과 — RRG 사분면 바로 아래에서 같은 섹터를 숫자로 확인 -->
+    <!-- ══ SECTION 2: GICS 11섹터 + 서브섹터 ETF 퍼포먼스 ══════════ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">섹터 ETF 퍼포먼스</span></div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px 18px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:14px;font-weight:700;color:var(--text-secondary);">성과와 사분면 상태<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="섹터 RS 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 RS (Relative Strength)</span>SPY 대비 각 섹터 ETF의 상대 강도. RS &gt;1 = 시장 초과, &lt;1 = 부진. <strong>Early-cycle</strong>: XLY/XLK 주도. <strong>Mid</strong>: XLI/XLB. <strong>Late</strong>: XLE/XLP/XLV. <strong>Recession</strong>: XLU/XLP 방어.</span></span></span>
+        <div style="display:flex;gap:4px;">
+          <div style="display:flex;gap:3px;" id="sector-perf-view-tabs">
+            <button class="news-sort-btn active" data-action="setSectorPerfView" data-arg="sectors" data-pass-el="1">11섹터</button>
+            <button class="news-sort-btn" data-action="setSectorPerfView" data-arg="all" data-pass-el="1">+서브섹터</button>
+          </div>
+          <div style="display:flex;gap:3px;" id="sector-perf-tabs">
+            <button class="news-sort-btn active" data-action="setSectorPerfMode" data-arg="1d" data-pass-el="1">1일</button>
+            <button class="news-sort-btn" data-action="setSectorPerfMode" data-arg="1w" data-pass-el="1">1주</button>
+          </div>
+        </div>
+      </div>
+      <div id="sector-perf-bars" style="display:flex;flex-direction:column;gap:5px;">
+        <!-- 동적: renderSectorPerfBars() -->
+      </div>
+      <div class="fxb-dynamic-comment" id="sector-perf-comment" style="margin-top:12px;">
+        <div class="dc-title">섹터 흐름 분석</div>
+        <div id="sector-perf-analysis" style="font-size:12px;color:var(--text-muted);line-height:1.7;">분석 입력 수신 대기…</div>
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);">
-      <div style="padding:16px 16px 16px 0;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLK 기술</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLK">—</div></div>
-      <div style="padding:16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLF 금융</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLF">—</div></div>
-      <div style="padding:16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLE 에너지</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLE">—</div></div>
-      <div style="padding:16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLV 헬스케어</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLV">—</div></div>
-      <div style="padding:16px;border-right:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLI 산업재</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLI">—</div></div>
-      <div style="padding:16px 0 16px 16px;"><div style="font-size:12px;color:var(--text-dim);">XLY 소비재</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLY">—</div></div>
-      <div style="padding:16px 16px 16px 0;border-right:1px solid var(--border-subtle);border-top:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLP 필수소비</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLP">—</div></div>
-      <div style="padding:16px;border-right:1px solid var(--border-subtle);border-top:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLRE 부동산</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLRE">—</div></div>
-      <div style="padding:16px;border-right:1px solid var(--border-subtle);border-top:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLB 원자재</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLB">—</div></div>
-      <div style="padding:16px;border-right:1px solid var(--border-subtle);border-top:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLU 유틸리티</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLU">—</div></div>
-      <div style="padding:16px;border-right:1px solid var(--border-subtle);border-top:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">XLC 통신</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="XLC">—</div></div>
-      <div style="padding:16px 0 16px 16px;border-top:1px solid var(--border-subtle);"><div style="font-size:12px;color:var(--text-dim);">GLD 금</div><div style="font-size:15px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="GLD">—</div></div>
-    </div>
-  </div>
+    </div><!-- /aio-section 섹터퍼포먼스 -->
 
-  <!-- 로테이션 해석 — v52.71 아이보리 3g: 시안 구조, native themes.js renderer가 갱신 -->
-  <div style="margin-bottom:26px;">
-    <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">로테이션 해석</div>
-    <div id="rrg-rotation-read" style="font-size:14px;color:var(--text-secondary);line-height:1.85;max-width:960px;">섹터 데이터 수신 대기 중…</div>
-  </div>
+  <!-- P1417: daily sub-theme relative strength (published screener returns) -->
+  <section class="aio-section theme-strength" id="theme-strength-board" aria-label="하위 테마 상대강도 순위"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
+
+  <!-- P1429: 섹터 ETF 라이브 등락 6열 제거 — 위 섹터 퍼포먼스 막대(완료 세션 1일/1주)와 같은 11개 섹터를 중복 표시하고, 실시간 시세가 없으면 12칸이 "—"로 남았다. -->
+
 
   <!-- P1417: AI capital-spending flow and bottleneck lead times (REFERENCE, a16z SoM II) -->
   <section class="aio-section capex-flow" id="ai-capex-flow" aria-label="AI 설비투자 흐름"></section>
@@ -7883,33 +7984,48 @@ button[data-filter-active="true"] {
     </div>
   </details>
 
-    <!-- ══ SECTION 2: GICS 11섹터 + 서브섹터 ETF 퍼포먼스 ══════════ -->
+
+
+      <!-- 테마 상세 패널 -->
+      <div id="theme-detail-panel" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px;margin-top:12px;position:relative;">
+        <button data-action="closeThemeDetail" class="btn-close" aria-label="닫기"></button>
+        <div id="theme-detail-native-summary" class="theme-detail-native-section" data-aio-theme-detail-surface="native" aria-live="polite" hidden></div>
+        <div id="theme-detail-native-composition" class="theme-detail-native-section" data-aio-theme-detail-surface="native-composition" hidden></div>
+        <div id="theme-detail-native-leaders" class="theme-detail-native-section" data-aio-theme-detail-surface="native-leaders" hidden></div>
+        <div id="theme-detail-native-temperature" class="theme-detail-native-section" data-aio-theme-detail-surface="native-temperature" hidden></div>
+        <div id="theme-detail-native-spread" class="theme-detail-native-section" data-aio-theme-detail-surface="native-spread" hidden></div>
+        <div id="theme-detail-native-breadth-health" class="theme-detail-native-section" data-aio-theme-detail-surface="native-breadth-health" hidden></div>
+        <div id="theme-detail-native-subtheme-gap" class="theme-detail-native-section" data-aio-theme-detail-surface="native-subtheme-gap" hidden></div>
+        <div id="theme-detail-native-benchmark" class="theme-detail-native-section" data-aio-theme-detail-surface="native-benchmark" hidden></div>
+        <div id="theme-detail-native-insights" class="theme-detail-native-section" data-aio-theme-detail-surface="native-insights" hidden></div>
+        <div id="theme-detail-legacy-content"></div>
+      </div>
+
+  <details class="aio-page-advanced-toggle" id="themes-subthemes-advanced" style="margin-top:16px;">
+    <summary>세분화 테마 — 45개 분류 · 대장주 · 상세 (개발자 모드 전용)</summary>
+    <div class="aio-page-advanced-body">
+    <!-- ══ SECTION 5: 세분화 테마 — 시장 핵심 트렌드 ════════════════ -->
     <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">섹터 ETF 퍼포먼스</span></div>
+    <div class="aio-section-hd"><span class="aio-section-label">세분화 테마 — 시장 전체 테마별 분류 & 대장주</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px 18px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
-        <span style="font-size:14px;font-weight:700;color:var(--text-secondary);">섹터 ETF 퍼포먼스 + RS 상태<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="섹터 RS 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 RS (Relative Strength)</span>SPY 대비 각 섹터 ETF의 상대 강도. RS &gt;1 = 시장 초과, &lt;1 = 부진. <strong>Early-cycle</strong>: XLY/XLK 주도. <strong>Mid</strong>: XLI/XLB. <strong>Late</strong>: XLE/XLP/XLV. <strong>Recession</strong>: XLU/XLP 방어.</span></span></span>
-        <div style="display:flex;gap:4px;">
-          <div style="display:flex;gap:3px;" id="sector-perf-view-tabs">
-            <button class="news-sort-btn active" data-action="setSectorPerfView" data-arg="sectors" data-pass-el="1">11섹터</button>
-            <button class="news-sort-btn" data-action="setSectorPerfView" data-arg="all" data-pass-el="1">+서브섹터</button>
-          </div>
-          <div style="display:flex;gap:3px;" id="sector-perf-tabs">
-            <button class="news-sort-btn active" data-action="setSectorPerfMode" data-arg="1d" data-pass-el="1">1일</button>
-            <button class="news-sort-btn" data-action="setSectorPerfMode" data-arg="1w" data-pass-el="1">1주</button>
-          </div>
-        </div>
+      <div id="sub-themes-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <!-- 동적: renderSubThemesGrid() -->
+        <div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">세분화 테마 수집 대기…</div>
       </div>
-      <div id="sector-perf-bars" style="display:flex;flex-direction:column;gap:5px;">
-        <!-- 동적: renderSectorPerfBars() -->
-      </div>
-      <div class="fxb-dynamic-comment" id="sector-perf-comment" style="margin-top:12px;">
-        <div class="dc-title">섹터 흐름 분석</div>
-        <div id="sector-perf-analysis" style="font-size:12px;color:var(--text-muted);line-height:1.7;">분석 입력 수신 대기…</div>
+      <!-- v38.3: 세분화 테마 심층 분석 패널 -->
+      <div id="sub-theme-detail-panel" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px;margin-top:12px;position:relative;">
+        <button data-action="closeSubThemeDetail" class="btn-close" aria-label="닫기"></button>
       </div>
     </div>
-    </div><!-- /aio-section 섹터퍼포먼스 -->
+    </div><!-- /aio-section 세분화테마 -->
+    </div>
+  </details>
 
+  <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-themes) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
+  <nav class="flow-next" id="themes-next" aria-label="이어서 볼 곳" hidden></nav>
+  <!-- P1431: 교과서식 섹터 순환 지도(학습용 예시, 현재 국면 판정 아님)는 사용자 경로에서 내리고 개발자 모드에만 둔다. -->
+  <details class="aio-page-advanced-toggle" id="themes-cycle-reference">
+  <summary>섹터 순환 참고 지도 (학습용)</summary>
     <!-- ══ SECTION 3: 경기 사이클 위치 ══════════════════════════════ -->
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">섹터 순환 참고 지도</span></div>
@@ -7952,43 +8068,7 @@ button[data-filter-active="true"] {
       </div>
     </div>
     </div><!-- /aio-section 경기사이클 -->
-
-      <!-- 테마 상세 패널 -->
-      <div id="theme-detail-panel" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px;margin-top:12px;position:relative;">
-        <button data-action="closeThemeDetail" class="btn-close" aria-label="닫기"></button>
-        <div id="theme-detail-native-summary" class="theme-detail-native-section" data-aio-theme-detail-surface="native" aria-live="polite" hidden></div>
-        <div id="theme-detail-native-composition" class="theme-detail-native-section" data-aio-theme-detail-surface="native-composition" hidden></div>
-        <div id="theme-detail-native-leaders" class="theme-detail-native-section" data-aio-theme-detail-surface="native-leaders" hidden></div>
-        <div id="theme-detail-native-temperature" class="theme-detail-native-section" data-aio-theme-detail-surface="native-temperature" hidden></div>
-        <div id="theme-detail-native-spread" class="theme-detail-native-section" data-aio-theme-detail-surface="native-spread" hidden></div>
-        <div id="theme-detail-native-breadth-health" class="theme-detail-native-section" data-aio-theme-detail-surface="native-breadth-health" hidden></div>
-        <div id="theme-detail-native-subtheme-gap" class="theme-detail-native-section" data-aio-theme-detail-surface="native-subtheme-gap" hidden></div>
-        <div id="theme-detail-native-benchmark" class="theme-detail-native-section" data-aio-theme-detail-surface="native-benchmark" hidden></div>
-        <div id="theme-detail-native-insights" class="theme-detail-native-section" data-aio-theme-detail-surface="native-insights" hidden></div>
-        <div id="theme-detail-legacy-content"></div>
-      </div>
-
-  <details class="aio-page-advanced-toggle" id="themes-subthemes-advanced" style="margin-top:16px;">
-    <summary>세분화 테마 — 45개 분류 · 대장주 · 상세 (개발자 모드 전용)</summary>
-    <div class="aio-page-advanced-body">
-    <!-- ══ SECTION 5: 세분화 테마 — 시장 핵심 트렌드 ════════════════ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">세분화 테마 — 시장 전체 테마별 분류 & 대장주</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px 18px;margin-bottom:14px;">
-      <div id="sub-themes-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-        <!-- 동적: renderSubThemesGrid() -->
-        <div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">세분화 테마 수집 대기…</div>
-      </div>
-      <!-- v38.3: 세분화 테마 심층 분석 패널 -->
-      <div id="sub-theme-detail-panel" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px;margin-top:12px;position:relative;">
-        <button data-action="closeSubThemeDetail" class="btn-close" aria-label="닫기"></button>
-      </div>
-    </div>
-    </div><!-- /aio-section 세분화테마 -->
-    </div>
   </details>
-
-  <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-themes) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
   <details class="aio-page-advanced-toggle" id="kr-integrated-themes" style="margin-top:16px;">
     <summary>한국 시장 — 국내 테마 분석 (KRX 28개 테마 · 등락률 · 대장주)</summary>
     <div class="aio-page-advanced-body">
@@ -8198,7 +8278,7 @@ button[data-filter-active="true"] {
       <div class="page-title">포트폴리오</div>
       <!-- LC-43: the separate #pf-freshness-strip is hidden in the public 기본 화면, so the intro must
            not promise it. The visible evidence is the per-row price cell (통화·관측시각·출처 툴팁). -->
-      <div class="page-subtitle">보유 자산 · 수신 시세 기준 손익 · 리밸런싱 — 행별 시세 출처·관측시각을 툴팁으로 표시하며 로컬 저장, 서버 전송 없음</div>
+      <div class="page-subtitle">보유 자산의 비중·손익·위험 — 행별 시세 출처·관측시각은 툴팁에 있고, 보유 내역은 이 브라우저에만 저장됩니다</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <button class="aio-btn-table primary is-interactive" data-action="_aioTogglePortfolioEntry" style="font-size:12.5px;border-radius:6px;padding:6px 14px;">종목 추가</button>
@@ -8776,9 +8856,6 @@ button[data-filter-active="true"] {
   </div>
     <!-- ═══════════════ PAGE: TICKER (종목 상세) ═══════════════ -->
   <div class="page" id="page-ticker">
-  <div class="insight-box box-collapsed">
-    <strong>종목 심층 분석 — 재무·차트·뉴스·실적을 한 곳에서 확인</strong>
-  </div>
 
   <!-- v50.70: Ticker 페이지 기관급 해설 (17개 관점 심층 분석 가이드) -->
     <div class="aio-section">
@@ -8830,8 +8907,7 @@ button[data-filter-active="true"] {
       <span style="font-size:10px;color:var(--text-muted);">종목 선택 대기</span>
     </div>
 
-    <!-- 진입 적합성 판단 (Jeff Sun CFTe) -->
-    <div id="ticker-entry-check" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:10px;"></div>
+    <!-- P1430: 진입 적합성(시장 건강도 점수·BUY 분류) 블록 제거 — 퇴역한 점수 체계를 다시 보여주던 화면이다. -->
     </div><!-- /aio-section 종목검색 -->
 
     <!-- ══ v53.6: 종목 개요 — 좌 요약 레일 + 우 TradingView 대형 차트 (밸리AI 참조, 실데이터만 표기) ══ -->
@@ -8868,144 +8944,39 @@ button[data-filter-active="true"] {
           </div>
         </div>
         <div style="min-width:0;">
-          <div id="tv-widget-ticker" style="height:520px;border-radius:4px;overflow:hidden;background:var(--bg-elevated);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
-            <span style="font-size:12px;color:var(--text-muted);">종목 검색 시 TradingView 실시간 차트가 로드됩니다</span>
-          </div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">TradingView 위젯(외부 iframe) — 로드 실패 시 아래 Chart 탭의 자체 차트(관측 이력 기반)를 사용하세요. 한국 종목은 KRX 데이터 제한으로 미지원.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="page-tabs" role="tablist" aria-label="티커 상세 보기">
-      <button id="ticker-tab-overview" type="button" role="tab" aria-controls="tab-overview" aria-selected="true" data-ticker-tab="overview" class="page-tab tab active">재무 공시</button>
-      <button id="ticker-tab-chart" type="button" role="tab" aria-controls="tab-chart" aria-selected="false" data-ticker-tab="chart" class="page-tab tab">가격 이력</button>
-    </div>
-
-    <!-- Tab: Overview -->
-    <div id="tab-overview" role="tabpanel" aria-labelledby="ticker-tab-overview" class="tab-content">
-      <div class="aio-widget" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
-        <span style="font-size:12px;color:var(--text-secondary);">매출·이익·현금흐름 · 공시 기간과 제출일을 함께 확인</span>
-        <button id="ticker-fundamental-link" class="aio-btn-table primary" data-action="showPage" data-arg="fundamental" disabled>종목 선택 후 SEC 재무 보기</button>
-      </div>
-    </div>
-
-    <!-- Tab: Chart -->
-    <div id="tab-chart" role="tabpanel" aria-labelledby="ticker-tab-chart" class="tab-content" style="display:none;">
-      <div class="aio-widget">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div class="widget-title" style="margin-bottom:0;">Price Chart</div>
-          <div style="display:flex;gap:4px;" id="ticker-chart-period-tabs" role="group" aria-label="가격 이력 기간">
-            <button type="button" class="news-sort-btn active" data-ticker-range="1m" aria-pressed="true" aria-controls="ticker-price-chart">1M</button>
-            <button type="button" class="news-sort-btn" data-ticker-range="3m" aria-pressed="false" aria-controls="ticker-price-chart">3M</button>
-            <button type="button" class="news-sort-btn" data-ticker-range="6m" aria-pressed="false" aria-controls="ticker-price-chart">6M</button>
-            <button type="button" class="news-sort-btn" data-ticker-range="1y" aria-pressed="false" aria-controls="ticker-price-chart">1Y</button>
-          </div>
-        </div>
-        <div id="ticker-chart-meta" style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">차트 기간과 관측 범위를 확인하는 중...</div>
-        <div style="position:relative;height:300px;">
-          <canvas id="ticker-price-chart" role="img" aria-label="종목 가격 차트" style="width:100%;height:100%;"></canvas>
-          <div id="ticker-chart-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px;">
-            <span class="aio-spinner" style="margin-right:8px;"></span> 차트 데이터 요청 준비 중...
+          <!-- P1430: 외부 TradingView iframe 대신 자체 관측 가격 흐름. 셋업·지표 분석은 종목 > 차트 탭이 소유한다. -->
+          <div class="aio-widget" id="ticker-price-panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div class="widget-title" style="margin-bottom:0;">가격 흐름</div>
+              <div style="display:flex;gap:4px;" id="ticker-chart-period-tabs" role="group" aria-label="가격 이력 기간">
+                <button type="button" class="news-sort-btn active" data-ticker-range="1m" aria-pressed="true" aria-controls="ticker-price-chart">1M</button>
+                <button type="button" class="news-sort-btn" data-ticker-range="3m" aria-pressed="false" aria-controls="ticker-price-chart">3M</button>
+                <button type="button" class="news-sort-btn" data-ticker-range="6m" aria-pressed="false" aria-controls="ticker-price-chart">6M</button>
+                <button type="button" class="news-sort-btn" data-ticker-range="1y" aria-pressed="false" aria-controls="ticker-price-chart">1Y</button>
+              </div>
+            </div>
+            <div id="ticker-chart-meta" style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">차트 기간과 관측 범위를 확인하는 중...</div>
+            <div style="position:relative;height:380px;">
+              <canvas id="ticker-price-chart" role="img" aria-label="종목 가격 차트" style="width:100%;height:100%;"></canvas>
+              <div id="ticker-chart-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px;">
+                <span class="aio-spinner" style="margin-right:8px;"></span> 차트 데이터 요청 준비 중...
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ══ v48.47: 캔들 패턴 갤러리 (Ticker 전용 현재 데이터 감지) — from technical ══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">캔들 패턴 갤러리</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-top:12px;margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">캔들 패턴 갤러리 (<span id="ticker-candle-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span> source 확인)</div>
-        <button class="aio-btn-table" data-action="_aioDetectTickerPattern" style="font-size:11px;">패턴 감지 ↻</button>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
-        <div style="background:linear-gradient(135deg,rgba(34,117,76,0.05),rgba(34,117,76,0.02));border:1px solid rgba(34,117,76,0.2);border-radius:3px;padding:10px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">망치형</div>
-          <div style="font-size:11px;color:var(--text-muted);">하락 후 긴 아래꼬리 형태 관측</div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(177,58,48,0.05),rgba(177,58,48,0.02));border:1px solid rgba(177,58,48,0.2);border-radius:3px;padding:10px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:4px;">교수형</div>
-          <div style="font-size:11px;color:var(--text-muted);">상승 후 긴 아래꼬리 형태 관측</div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(34,117,76,0.05),rgba(34,117,76,0.02));border:1px solid rgba(34,117,76,0.2);border-radius:3px;padding:10px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">강세장악형</div>
-          <div style="font-size:11px;color:var(--text-muted);">음봉을 큰 양봉이 감싸기</div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(34,117,76,0.05),rgba(34,117,76,0.02));border:1px solid rgba(34,117,76,0.2);border-radius:3px;padding:10px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">샛별형</div>
-          <div style="font-size:11px;color:var(--text-muted);">3봉 반전 형태 관측 (하락 구간 뒤)</div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(177,58,48,0.05),rgba(177,58,48,0.02));border:1px solid rgba(177,58,48,0.2);border-radius:3px;padding:10px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:4px;">석별형</div>
-          <div style="font-size:11px;color:var(--text-muted);">3봉 반전 형태 관측 (상승 구간 뒤)</div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(33,29,22,0.05),rgba(33,29,22,0.02));border:1px solid rgba(33,29,22,0.2);border-radius:3px;padding:10px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">현재 데이터 감지</div>
-          <div id="realtime-pattern-indicator" style="font-size:13px;margin:6px 0;font-weight:700;color:var(--text-primary);">종목 검색 필요</div>
-          <div style="font-size:11px;color:var(--text-muted);">최근 3봉</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text-muted);padding:8px;background:var(--surface-1);border-radius:3px;line-height:1.6;">
-          최근 실제 OHLCV의 봉 형태만 분류한 <strong>형태 관측</strong>입니다 — 향후 방향 예측이나 매매 신호가 아닙니다. 감지 결과에는 관측 봉 수·기준일·원천이 함께 표시되며, 거래량·추세·시장 국면과 함께 검토해야 합니다.
-      </div>
-    </div>
-    </div><!-- /aio-section 캔들패턴 -->
+    <!-- P1430: 내부 탭(재무 공시 · 가격 이력) 제거 — 종목 화면 상단 탭[요약 · 차트 · 재무 공시]이 같은 역할을 한다. -->
 
-    <!-- 가격·추세 위치 관찰 도구 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">가격·추세 위치 점검</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">관측값 비교 (<span id="ticker-entry-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span>)</div>
-        <button class="aio-btn-table" data-action="_aioFillEntryFromTicker" style="font-size:11px;">관측값 불러오기 ↻</button>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
-        <div>
-          <label for="eq-price" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">현재가</label>
-          <input id="eq-price" type="number" placeholder="450.00" step="0.01" aria-label="진입품질 현재가"
-                 style="width:100%;padding:6px 8px;background:var(--surface-4);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
-        </div>
-        <div>
-          <label for="eq-ema20" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">20일 EMA</label>
-          <input id="eq-ema20" type="number" placeholder="445.00" step="0.01" aria-label="진입품질 20일 EMA"
-                 style="width:100%;padding:6px 8px;background:var(--surface-4);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
-        </div>
-        <div>
-          <label for="eq-rsi" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">RSI (14)</label>
-          <input id="eq-rsi" type="number" placeholder="55" min="0" max="100" aria-label="진입품질 14일 RSI"
-                 style="width:100%;padding:6px 8px;background:var(--surface-4);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
-        </div>
-      </div>
-      <button data-action="calculateEntryQualityLocal"
-              style="width:100%;padding:8px;background:var(--data-cyan);color:white;border:none;border-radius:3px;font-weight:700;font-size:11px;cursor:pointer;margin-bottom:10px;">
-        계산하기
-      </button>
-      <div id="entry-quality-result" style="display:none;">
-        <div style="margin-bottom:8px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--text-muted);">관측 상태</span>
-            <span id="eq-grade-display" style="font-size:13px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);">입력 대기</span>
-          </div>
-          <div id="eq-grade-bar" style="height:6px;background:var(--surface-4);border-radius:3px;overflow:hidden;">
-            <div style="height:100%;background:var(--data-green);width:0%;transition:width 0.3s;"></div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;color:var(--text-muted);">
-          <div style="background:rgba(34,117,76,0.08);padding:6px;border-radius:4px;">
-            <div style="color:var(--text-secondary);margin-bottom:2px;">현재가 vs 20EMA</div>
-            <div id="eq-fib-level" style="font-family:var(--font-mono);font-weight:700;">—</div>
-          </div>
-          <div style="background:rgba(33,29,22,0.08);padding:6px;border-radius:4px;">
-            <div style="color:var(--text-secondary);margin-bottom:2px;">RSI 상태</div>
-            <div id="eq-stoploss" style="font-family:var(--font-mono);font-weight:700;">—</div>
-          </div>
-        </div>
-        <div id="eq-explanation" style="font-size:11px;color:var(--text-muted);padding:8px;background:var(--surface-1);border-radius:4px;margin-top:8px;line-height:1.5;"></div>
-      </div>
+    <!-- P1430: 캔들 형태 — 정적 5종 설명 카드는 걷어내고, 이 종목의 최근 3봉 감지 결과만 남긴다. -->
+    <div class="aio-section" id="ticker-candle-section">
+    <div class="aio-section-hd"><span class="aio-section-label">최근 3봉 형태 · <span id="ticker-candle-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span></span><button class="aio-btn-table" data-action="_aioDetectTickerPattern" style="font-size:11px;margin-left:auto;">다시 감지 ↻</button></div>
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 16px;margin-bottom:12px;">
+      <div id="realtime-pattern-indicator" style="font-size:14px;font-weight:700;color:var(--text-primary);">종목 검색 필요</div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.6;flex:1;min-width:260px;">망치형·교수형·장악형·샛별형·석별형 중 최근 3봉이 어떤 형태인지 분류합니다. 형태는 방향 예측이 아니며, 차트 탭의 추세(50·200일선)와 거래량이 같은 쪽을 가리킬 때 의미가 커집니다.</div>
     </div>
-    </div><!-- /aio-section 진입품질 -->
+    </div><!-- /aio-section 캔들 형태 -->
   </div>
     <!-- ═══════════════ PAGE: MARKET-NEWS (시장 소식) ═══════════════ -->
   <div class="page" id="page-market-news">
@@ -9135,7 +9106,7 @@ button[data-filter-active="true"] {
       <span id="news-visible-summary" style="font-size:12px;color:var(--text-dim);"></span>
       <button class="aio-btn-table" data-action="_aioNewsLoadMore">12개 더 보기</button>
     </div>
-    <div class="aio-section-hd" style="margin-top:22px;"><span class="aio-section-label">채널 소식 (텔레그램)</span></div>
+    <div class="aio-section-hd" style="margin-top:22px;"><span class="aio-section-label">채널 소식 (텔레그램)</span><span class="briefing-h2-note" id="news-tg-scope"></span></div>
     <div id="tg-feed-market-news"></div>
     </div><!-- /aio-section 뉴스피드 -->
   </div>
@@ -9146,7 +9117,7 @@ button[data-filter-active="true"] {
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
       <div>
         <div class="page-title">퀀트 스크리너</div>
-        <div class="page-subtitle">일봉 기반 멀티팩터 상대 랭킹 · 모멘텀 + 추세(Kalman) + 저변동 + VCP · 헤더 클릭으로 정렬</div>
+        <div class="page-subtitle">가격 흐름(모멘텀·추세·저변동)으로 매긴 상대 순위 — 그 순위가 과거에 통했는지는 바로 아래 사후 검증</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
         <span data-factor-asof style="font-size:12px;color:var(--text-dim);">팩터 데이터 대기</span>
@@ -9156,10 +9127,14 @@ button[data-filter-active="true"] {
         </span>
       </div>
     </div>
+    <!-- P1431: 데이터 기준·식별·검증 상태 원문은 접어 둔다(값은 그대로, 사용자 기본 동선에서는 한 줄 요약만). -->
+    <details class="scr-data-status" id="scr-data-status">
+      <summary>데이터 기준 · 검증 상태</summary>
     <div data-screener-provenance data-source-kind="reference" data-operational-use="reference-only" role="note" style="margin:-10px 0 10px;padding:8px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:10px;line-height:1.6;color:var(--text-dim);">관측시각·생성시각·출처 확인 대기</div>
     <div id="screener-readiness-note" role="status" style="margin:-10px 0 18px;padding:9px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:11px;line-height:1.6;color:var(--text-muted);">
       팩터 산출물과 검증 상태 확인 중…
     </div>
+    </details>
     <!-- SCR-UX-00~05: workflow-first Workbench. JSON remains a developer
          surface; the visual builder, explicit run, and result explanation are
          the primary user path. -->
@@ -9168,24 +9143,26 @@ button[data-filter-active="true"] {
     <div id="screener-workbench" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:18px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <div>
-          <div class="aio-subhd">스크리너 작업공간</div>
-          <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">조건을 만들고 실행 snapshot을 고정한 뒤, 결과의 순위·근거·데이터 상태를 함께 확인합니다.</div>
+          <div class="aio-subhd">찾는 조건</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span id="scr-workbench-status" role="status" style="font-size:12px;color:var(--text-secondary);">실행 전 미리보기</span>
           <button class="aio-btn-table scr-focus-toggle" data-aio-screener-action="focus-mode" aria-pressed="false">집중 모드</button>
         </div>
       </div>
+      <div class="scr-builder-row">
+        <label for="scr-screen-select" style="font-size:12px;color:var(--text-secondary);font-weight:700;">저장 화면</label>
+        <select id="scr-screen-select" class="scr-column-select" aria-label="저장된 스크리너 화면 선택"></select>
+        <button class="aio-btn-table" data-aio-screener-action="screen-new">새 화면</button>
+        <button class="aio-btn-table" data-aio-screener-action="screen-save">저장</button>
+        <button class="aio-btn-table primary" data-aio-screener-action="screen-run-visual">조건 실행</button>
+      </div>
+      <div id="scr-workbench-presets" style="display:flex;gap:6px;flex-wrap:wrap;" aria-label="저장된 스크리너 프리셋"></div>
+      <!-- P1431: 직접 조합·결과 범위·실행 기록은 접힌 상세로 — 기본은 위 조건 버튼 하나로 결과를 본다. -->
+      <details id="scr-workbench-advanced" class="scr-workbench-advanced">
+      <summary>조건 직접 조합 · 결과 범위 · 실행 기록</summary>
       <div class="scr-workflow-grid" style="margin-top:12px;">
         <div class="scr-workflow-controls">
-          <div class="scr-builder-row">
-            <label for="scr-screen-select" style="font-size:12px;color:var(--text-secondary);font-weight:700;">저장 화면</label>
-            <select id="scr-screen-select" class="scr-column-select" aria-label="저장된 스크리너 화면 선택"></select>
-            <button class="aio-btn-table" data-aio-screener-action="screen-new">새 화면</button>
-            <button class="aio-btn-table" data-aio-screener-action="screen-save">저장</button>
-            <button class="aio-btn-table primary" data-aio-screener-action="screen-run-visual">조건 실행</button>
-          </div>
-          <div id="scr-workbench-presets" style="display:flex;gap:6px;flex-wrap:wrap;" aria-label="저장된 스크리너 프리셋"></div>
           <div class="scr-builder-panel" aria-labelledby="scr-builder-title">
             <div id="scr-builder-title" style="font-size:12px;color:var(--text-primary);font-weight:800;">시각 조건 빌더 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">AND 조건 · rank/RSI/3M 수익률은 실행 정의에 포함, 섹터·분류·검색은 표시 필터만</span></div>
             <div class="scr-builder-row">
@@ -9246,6 +9223,7 @@ button[data-filter-active="true"] {
         <div id="scr-outcome-lab" style="padding:9px;border:1px solid var(--border);border-radius:4px;font-size:12px;color:var(--text-muted);">Outcome · 실행 후 관측 대기</div>
         <div id="scr-ops-state" style="padding:9px;border:1px solid var(--border);border-radius:4px;font-size:12px;color:var(--text-muted);">Operations · 데이터 sync와 사용자 실행 분리</div>
       </div>
+      </details>
     </div>
     <aside id="scr-why-drawer" class="scr-why-drawer" hidden aria-labelledby="scr-why-title" aria-live="polite">
       <div class="scr-why-head">
@@ -9265,7 +9243,7 @@ button[data-filter-active="true"] {
     </aside>
     <!-- 프리셋(트레이더 프로파일) + 통계 압축 한 줄 — v52.72 아이보리 4c: 시안 구조(pill행 + 우측 요약) -->
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
-      <span style="font-size:12px;color:var(--text-dim);">프리셋</span>
+      <span style="font-size:12px;color:var(--text-dim);" title="조건 화면과 별개로, 같은 결과를 어떤 팩터에 무게를 두어 줄 세울지">순위 가중치</span>
       <button class="scr-profile-btn active" data-aio-screener-action="profile" data-aio-screener-arg="balanced">균형 (기본)</button>
       <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="momentum">모멘텀</button>
       <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="swing">스윙</button>
@@ -9517,112 +9495,44 @@ button[data-filter-active="true"] {
   </div>
 
   <div class="page" id="page-guide">
-  <div class="insight-box box-collapsed">
-    <strong>AIO 사용 설명서 — 각 페이지 활용법 + 용어 사전 + 투자 기초</strong>
-  </div>
-
-  <!-- H2-06: public data handling, terms, disclaimer, and contact are visible from
-       the guide without adding an unregistered route. -->
-  <details id="guide-public-policy" class="aio-fund" style="margin:10px 0 14px;">
-    <summary style="cursor:pointer;font-weight:700;">공개 이용 정책 · 개인정보 · 면책 · 문의</summary>
-    <div style="font-size:11px;line-height:1.8;color:var(--text-secondary);padding-top:8px;">
-      <p><b>개인정보/데이터 처리:</b> 포트폴리오·메모·API 키는 기본적으로 이 브라우저의 저장소에만 보관됩니다. PIN을 설정한 민감 데이터는 AES-GCM으로 암호화하며, 외부 API를 직접 연결하면 해당 API 제공자에게 요청이 전송됩니다. API 키·개인정보를 공개 저장소나 공용 PC에 입력하지 마세요.</p>
-      <p><b>이용약관:</b> AIO Screener는 시장 정보와 교육용 분석 화면을 제공하며 주문·체결·자산운용 서비스를 제공하지 않습니다. 사용자는 각 데이터 제공자의 이용약관과 API 한도를 준수해야 합니다.</p>
-      <p><b>투자 면책:</b> 표시되는 수치·뉴스·시그널은 지연·스냅샷·참고용일 수 있으며 투자 권유, 수익 보장, 매매 지시가 아닙니다. 중요한 결정 전 원문·공식 공시·현재 시세를 별도로 확인하세요.</p>
-      <p><b>문의/오류 신고:</b> <a href="https://github.com/ysnle/aio-screener/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>에 재현 경로와 화면·브라우저 정보를 남겨 주세요. API 키나 개인정보는 첨부하지 마세요.</p>
-    </div>
-  </details>
-
-  <!-- Wave 4: every guide claim is tied to a capability and an observable
-       evidence boundary. The native guide module audits these markers on mount. -->
-  <section id="guide-capability-manifest" class="aio-widget" data-aio-capability-manifest="wave4.capability.v1" aria-labelledby="guide-capability-title" style="border-left:3px solid var(--data-cyan);margin:10px 0 14px;padding:12px 14px;">
-    <div id="guide-capability-title" class="widget-title">기능 범위와 문구 정책</div>
-    <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;margin-bottom:8px;">아래 상태는 기능의 약속 범위입니다. 수치·뉴스·AI 답변은 기준시각, 출처, 신선도와 결측 상태를 확인하고, 행동은 관측·확인 체크리스트로만 정리합니다.</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px;">
-      <div data-aio-capability-claim data-capability="quote-currentness" data-claim-mode="conditional"><b>시세 현재성</b><br>source-aware 시세 참고 · observedAt/freshness 확인</div>
-      <div data-aio-capability-claim data-capability="translation" data-claim-mode="optional"><b>뉴스 번역</b><br>선택적 AI 번역 보강 · 원문 우선</div>
-      <div data-aio-capability-claim data-capability="ai-analysis" data-claim-mode="optional"><b>AI 분석</b><br>교육·리서치 보조 · 매매 지시 없음</div>
-      <div data-aio-capability-claim data-capability="rrg" data-claim-mode="reference"><b>RRG</b><br>상대강도 로테이션 참고 분류 · 일봉 이력 확인</div>
-      <div data-aio-capability-claim data-capability="stage" data-claim-mode="conditional"><b>Stage</b><br>Weinstein 방식 추세 단계 참고 · OHLCV 필요</div>
-      <div data-aio-capability-claim data-capability="news-sentiment" data-claim-mode="reference"><b>뉴스 감성</b><br>휴리스틱 점수 참고 · 원문·날짜 확인</div>
-      <div data-aio-capability-claim data-capability="market-health" data-claim-mode="reference"><b>시장 점수</b><br>시장 환경 설명 지표 · 매매 승인 아님</div>
-      <div data-aio-capability-claim data-capability="macro-causality" data-claim-mode="reference"><b>금리·물가·역전·공포</b><br>관측된 관계와 확인 항목 · 단선 인과 아님</div>
-      <div data-aio-capability-claim data-capability="decision-checklist" data-claim-mode="observation"><b>행동 안내</b><br>관측·확인·무효화 체크리스트</div>
-    </div>
-    <div id="guide-capability-status" data-aio-capability-status="pending" style="margin-top:8px;color:var(--text-muted);">기능 범위 검증 대기</div>
-  </section>
-
-  <!-- v48.58: Guide 페이지 내비게이션 (TOC + 검색) — 18K줄 탐색성 개선 -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">빠른 이동</span></div>
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 14px;margin-bottom:14px;position:sticky;top:8px;z-index:10;">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
-      <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">빠른 이동</span>
-      <input id="guide-search-input" type="search" placeholder="용어/페이지 검색 (예: VCP, RRG, 피보나치)" aria-label="가이드 검색" style="flex:1;min-width:200px;padding:6px 10px;background:var(--surface-3);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:11px;"/>
-      <button data-action="_aioGuideSearchTrigger" class="aio-btn-table primary" style="font-size:11px;padding:6px 12px;">검색</button>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:4px;">
-      <button data-action="_aioGuideJump" data-arg="explain-guide-overview" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">10단계 루틴</button>
-      <button data-action="_aioGuideJump" data-arg="guide-valuechain" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">밸류체인</button>
-      <button data-action="_aioGuideJump" data-arg="guide-methodology" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">판단 방법론</button>
-      <button data-action="_aioGuideJump" data-arg="guide-glossary" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">용어사전</button>
-      <button data-action="_aioGuideJump" data-arg="guide-strategies" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">매매 전략</button>
-      <button data-action="_aioGuideJump" data-arg="guide-faq" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">FAQ</button>
-      <button data-action="_aioGuideJump" data-arg="guide-api" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">API 설정</button>
-      <button data-action="showPage" data-arg="home" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">초보자 시작: 홈 대시보드</button>
-    </div>
-    <div id="guide-search-result" style="display:none;margin-top:8px;padding:8px 10px;background:var(--surface-2);border-radius:3px;font-size:10px;color:var(--text-muted);"></div>
-  </div>
-  </div><!-- /aio-section 빠른이동 -->
-
-  <!-- ═══ v48.46: 가이드 페이지 — 밸류체인 요약 ═══ -->
-  <div class="aio-explain" id="explain-guide-overview">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-guide-overview">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>AIO Screener 핵심 사용 루틴</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">10단계 매매 결정 루틴</div>
-        <div class="explain-body">
-          아래 순서만 보면 시장 판단부터 종목 점검, 포트폴리오 관리까지 빠르게 이어집니다.
-          <ul>
-            <li><strong>1. 오늘의 브리핑</strong> — 전일 이벤트 + Action Item 5개 확인 (5분)</li>
-            <li><strong>2. 홈 대시보드 KPI</strong> — SPX/NASDAQ/VIX/F&amp;G 수치 읽기 (1분)</li>
-            <li><strong>3. 매매 신호</strong> — 0~100 환경 스코어 참고 (75~100 우호 · 60~74 양호 · 45~59 중립 · 30~44 주의 · 0~29 위험 — 매매 지시 아님)</li>
-            <li><strong>4. 시장 품질 + 국면</strong> — Broad/Narrow · UPTREND/TOPPING/DOWN/BOTTOM 확인</li>
-            <li><strong>5. 매크로</strong> — CPI/NFP/FOMC 일정 + Yield Curve (역전 여부)</li>
-            <li><strong>6. 센티먼트</strong> — F&amp;G + AAII + Put/Call 극단값 체크</li>
-            <li><strong>7. 시장 폭</strong> — % Above 50MA + Divergence 탐지</li>
-            <li><strong>8. 섹터 로테이션 (RRG)</strong> — 상대강도·모멘텀 사분면 분류 확인</li>
-            <li><strong>9. 기업 분석</strong> — 17개 관점 통과 여부 + F-Score</li>
-            <li><strong>10. 포트폴리오</strong> — 위험 기준(예: 2% 룰)·ATR 기반 손절·분할 매수 등 교육용 방법론 점검</li>
-          </ul>
-          <div class="explain-callout">
-            <strong>Value Chain</strong>: 연준 정책 → 금리 → DXY → 유동성 → 위험자산 Flow → 지수 → 섹터 → 개별주.
-            <br>이 연결은 관측 프레임이며, 각 단계의 기준시각·출처·반대 증거를 함께 확인합니다.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">사용 설명서</span></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
         <div class="page-title">AIO Screener 사용 설명서</div>
-        <div class="page-subtitle">사용 방법 · 유의사항 · 투자 배경지식 · 용어 사전</div>
+        <div class="page-subtitle">메뉴 지도 · 판정 기준표 · 유의사항 · 용어 사전</div>
       </div>
       <button data-action="openGlossary" style="background:rgba(33,29,22,0.12);border:1px solid rgba(33,29,22,0.3);color:var(--data-purple);font-size:10px;padding:6px 14px;border-radius:3px;cursor:pointer;font-weight:700;">용어 사전 열기</button>
     </div>
     </div><!-- /aio-section 사용설명서 -->
 
+  <!-- P1428 + owner 2026-10-04: users are active adult traders — the guide is a reference (menu map, rule table, folds), not a tutorial. -->
+  <div class="guide-nav">
+    <div class="guide-search"><input id="guide-search-input" type="search" placeholder="검색 (예: 시장 폭, 하이일드, 상위 N%)" aria-label="설명서 검색"><button data-action="_aioGuideSearchTrigger" class="aio-btn-table primary">검색</button></div>
+    <div class="guide-jumps">
+      <button data-action="_aioGuideJump" data-arg="guide-screens" class="aio-btn-table">메뉴 지도</button>
+      <button data-action="_aioGuideJump" data-arg="guide-methodology" class="aio-btn-table">판정 기준표</button>
+      <button data-action="_aioGuideJump" data-arg="guide-api" class="aio-btn-table">연결 설정</button>
+      <button data-action="_aioGuideJump" data-arg="guide-cautions" class="aio-btn-table">유의사항</button>
+      <button data-action="_aioGuideJump" data-arg="guide-faq" class="aio-btn-table">FAQ</button>
+      <button data-action="openGlossary" class="aio-btn-table">용어 사전</button>
+    </div>
+    <div id="guide-search-result" class="guide-search-result" style="display:none;"></div>
+  </div>
+  <section class="briefing-block guide-block" id="guide-screens" aria-labelledby="guide-screens-title">
+    <h2 class="briefing-h2" id="guide-screens-title">메뉴 지도</h2>
+    <div class="guide-screen-grid" id="guide-screen-cards"></div>
+  </section>
+  <section class="briefing-block guide-block" aria-labelledby="guide-rules-title">
+    <h2 class="briefing-h2" id="guide-rules-title">판정 기준표 <span class="briefing-h2-note">시장 상태 · 투자 심리 · 거시 · 금리 · 환율이 함께 쓰는 기준</span></h2>
+    <div class="guide-methodology" id="guide-methodology">
+      <div class="guide-legend-row"><span class="regime-state is-favorable">우호</span><span class="regime-state is-neutral">중립</span><span class="regime-state is-burden">부담</span><span class="regime-state is-unknown">판정 보류</span><span class="guide-legend-note">판정 기준은 관행값이며 예측력이 검증된 값이 아닙니다 · 기준일 칩은 관측일 · 상위 N%는 같은 조건 안의 상대 위치 · 시장 판정은 미국 정규장 종가 기준</span></div>
+      <table class="guide-rules"><thead><tr><th>영역</th><th>지표</th><th>우호</th><th>부담</th><th>근거</th></tr></thead><tbody id="guide-rules-table"></tbody></table>
+    </div>
+  </section>
+
     <!-- Desktop research workspace: optional connections only. -->
-    <div class="aio-section">
+    <div class="aio-section" id="guide-api">
     <div class="aio-section-hd"><span class="aio-section-label">연결 설정</span></div>
 
     <!-- ═══ 섹션 0-B: API 키 설정 가이드 (v50.68 UX compact) ═══ -->
@@ -9653,283 +9563,232 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /aio-section 시스템설정 -->
 
-    <!-- ═══ 섹션 1: 대시보드별 사용법 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">대시보드 사용법</span></div>
-    <div class="aio-widget">
-      <div class="widget-title"> 대시보드별 사용법</div>
-      <div class="aio-guide-group-header">시장 현황 판단</div>
-
-      <!-- HOME (종합) -->
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">종합 (HOME)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 화면 확인만으로 시장 분위기 30초 파악.<br>
-          <b>주요 정보:</b> 시장 환경 점수(0~100), VIX, F&G, 지수, 뉴스, 브리핑<br>
-           <b>유의사항:</b> 점수 45 미만은 입력과 시장 환경을 다시 확인할 상태입니다. 빨간 배너도 매매 지시가 아니라 확인 항목입니다.
-        </div>
-      </div>
-
-      <!-- SIGNAL -->
-      <div style="background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--data-green);margin-bottom:6px;">시그널 (SIGNAL)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 시장 환경 점수와 구성요소·입력 부족 상태를 확인합니다.<br>
-          <b>점수 해석:</b> 75~100=환경 우호 | 60~74=환경 양호 | 45~59=중립 | 30~44=주의 | 0~29=위험 (환경 설명값)<br>
-          <b>유의사항:</b> 예측/매매 신호 아님 — 부분 백테스트(2016~2026)에서 선행수익률과 음(−)의 상관이 관측됨. 타이밍 근거로 사용 금지.
-        </div>
-      </div>
-
-      <!-- BREADTH -->
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">시장 폭 (BREADTH)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 시장 건강도 대시보드. 이평선 위 종목 비율 차트 제공.<br>
-          <b>핵심:</b> 제공되는 5/20/50일선 위 비율에서 70% 이상/30% 이하를 참여 폭 관찰 구간으로 봅니다(200일선 비율·공식 McClellan은 현재 미제공). 비율↓+지수↑는 괴리 확인 항목입니다.<br>
-          <b>Weinstein:</b> Stage 2·3·4는 OHLCV 기반 추세 단계 참고 분류이며, 단독 매매 신호가 아닙니다.
-        </div>
-      </div>
-
-      <!-- SENTIMENT -->
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--data-amber);margin-bottom:6px;"> 센티먼트 (SENTIMENT)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> VIX/P-C비율/AAII/크레딧 종합 심리 측정(NAAIM은 현재 원천 미수신).<br>
-          <b>관찰:</b> 극단 공포(VIX 30+, F&G 20-)는 과거 사례와 현재 유동성·시장폭을 함께 확인할 구간입니다.<br>
-          <b>유의사항:</b> 극단값에서는 기준시각, 신선도, 포지션 노출, 무효화 조건을 체크리스트로 기록합니다.
-        </div>
-      </div>
-
-      <div class="aio-guide-group-header">분석 도구</div>
-
-      <!-- BRIEFING -->
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--data-purple);margin-bottom:6px;">브리핑 (BRIEFING)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 24시간 이내 핵심 뉴스 시간순 표시 + 한국어 해석 + 관련 티커.<br>
-          <b>AI 분석:</b> 선택 기능을 켜면 뉴스 요약과 투자자 관점 해석을 보강합니다.<br>
-          <b>유의사항:</b> RSS 기반으로 속보와 수분 차이 가능. 중요 결정은 원문 확인.
-        </div>
-      </div>
-
-      <!-- TECHNICAL -->
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">기술적 분석 (TECHNICAL)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> RSI/MACD/이평선 종합 기술 분석. AI 채팅으로 지표 질문 가능.<br>
-          <b>학습 팁:</b> AI 채팅에 "RSI가 뭐야?" 등 자유롭게 질문.<br>
-          <b>유의사항:</b> 과거 데이터 기반 -- 여러 지표 종합 판단 필수.
-        </div>
-      </div>
-
-      <!-- MACRO -->
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">매크로 (MACRO)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> GDP/CPI/금리/PMI + 경기 사이클 큰 그림 파악.<br>
-          <b>핵심:</b> Fed 금리와 성장·물가·유동성의 동시 변화를 관찰합니다. 인상기/인하기의 시장 반응은 국면에 따라 달라질 수 있습니다.<br>
-          <b>학습 팁:</b> AI 채팅에 경기 사이클/CPI 영향 등 질문.
-        </div>
-      </div>
-
-      <!-- FX & BOND -->
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">환율·채권 (FX & BOND)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> DXY, USD/KRW, 국채 수익률(2Y/10Y/30Y), 수익률 곡선 표시.<br>
-          <b>핵심:</b> 환율·채권은 주식과 함께 관찰하는 위험 선호 맥락입니다. 10Y 변화와 곡선 역전은 성장·물가·신용 자료와 교차 확인합니다.<br>
-          <b>유의사항:</b> DXY·원/달러·미국 대형주 움직임의 방향과 기준시각을 각각 확인합니다.
-        </div>
-      </div>
-
-      <div class="aio-guide-group-header">종목 발굴 · 관리</div>
-
-      <!-- PORTFOLIO -->
-      <div style="background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--data-green);margin-bottom:6px;">포트폴리오 (PORTFOLIO)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 보유 종목 입력 → 수익률/섹터 배분/도넛 차트 자동 표시.<br>
-           <b>방법:</b> "종목 추가" → 매수가/수량 입력 → source-aware 현재성 상태가 있는 수익률 계산.<br>
-          <b>유의사항:</b> localStorage 저장 -- 기기 간 동기화 안 됨. 별도 백업 권장.
-        </div>
-      </div>
-
-      <!-- SCREENER -->
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">스크리너 (SCREENER)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 섹터/RS 순위/기술 조건별 종목 필터링.<br>
-          <b>활용 팁:</b> RS 80+ / 거래량↑ / 50일선 위 = 모멘텀 강한 종목 조건.<br>
-          <b>유의사항:</b> 매수 추천 아님 -- 후보 발굴 후 개별 분석 필수.
-        </div>
-      </div>
-
-      <!-- OPTIONS -->
-      <div style="background:rgba(177,58,48,0.05);border:1px solid rgba(177,58,48,0.2);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--data-red);margin-bottom:6px;">옵션 (OPTIONS) — 고급 기능</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>제공:</b> VIX·Put/Call·Skew 등 수신 가능한 시장 변동성 참고 지표.<br>
-          <b>범위:</b> 실시간 옵션 체인·Greeks·GEX·개별 종목 IV Rank는 미제공. VIX 이력 통계는 별도로 구분합니다.
-        </div>
-      </div>
-
-      <!-- THEMES -->
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">테마 (THEMES)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 테마별 ETF/종목 성과 + 히트맵으로 강세 테마 파악.<br>
-           <b>RRG:</b> 4사분면(선도/개선/약화/후행) 상대강도 로테이션 참고 분류. 우상단도 매매 승인이나 확정 순위가 아닙니다.<br>
-          <b>유의사항:</b> 테마 집중 금물 -- 트렌드 변화 시 급락 위험. 분산 필수.
-        </div>
-      </div>
-
-      <!-- MARKET NEWS -->
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">시장 뉴스 (MARKET NEWS)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-           <b>사용법:</b> 등록된 원천의 뉴스와 채널 자료를 출처·시각별로 확인합니다. 시간/중요도 정렬 + 국가/토픽 필터.<br>
-           <b>AI 번역:</b> 선택 기능을 켜면 원문을 유지한 채 한국어 번역과 티커 해석을 보강할 수 있습니다.<br>
-          <b>유의사항:</b> 뉴스 즉시 매매 위험 -- 큰 흐름 파악용으로 활용.
-        </div>
-      </div>
-
-      <div class="aio-guide-group-header">한국 시장 통합 섹션 · 개별 종목</div>
-
-      <!-- v53.7: KR 전용 독립 페이지는 통합 섹션으로 전환됨 -->
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:800;color:var(--data-purple);margin-bottom:6px;"> 한국 시장 통합 (거시경제 / 차트·기술 분석 / 테마·트렌드)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-           <b>사용법:</b> 거시경제에서 KOSPI/KOSDAQ·원화·한국 매크로를, 차트·기술 분석에서 한국 지수 기술·폭을, 테마·트렌드에서 국내 테마 연결 정보를 확인합니다.<br>
-           <b>수급:</b> 외인·기관 수급은 연결된 원천과 기준시각이 표시될 때만 참고하며, 장중·장마감 데이터의 차이를 구분합니다.<br>
-          <b>유의사항:</b> 구 KR-HOME/KR-SUPPLY/KR-THEMES/KR-MACRO 독립 경로는 현재 통합 섹션으로 운영됩니다. 미수신·스냅샷·참고 전용 상태를 숨기지 않습니다.
-        </div>
-      </div>
-
-      <!-- TICKER -->
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:12px;">
-        <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;"> 종목 상세 (TICKER)</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 종목 클릭 → 차트/기술지표/재무/뉴스 통합 상세 페이지.<br>
-          <b>활용 팁:</b> 수신된 가격 이력과 팩터를 비교하고, 재무는 기업 분석의 SEC 보고서에서 기준일과 함께 확인합니다.
-        </div>
-      </div>
-    </div>
-    </div><!-- /aio-section 대시보드사용법 -->
-
-    <!-- ═══ 섹션 2: 공통 기능 사용법 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">공통 기능 · 한국 시장</span></div>
-    <div class="aio-widget">
-      <div class="widget-title"> 공통 기능 사용법</div>
+    <!-- ═══ 섹션 3: 핵심 유의사항 ═══ -->
+    <div class="aio-section" id="guide-cautions">
+    <details class="guide-ref"><summary>유의사항</summary>
+    <div class="aio-widget" style="border-left:3px solid var(--data-amber);">
+      <div class="widget-title">반드시 읽어야 할 유의사항</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">AI 채팅 (각 페이지 하단)</div>
-          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">각 페이지 하단 AI 채팅으로 용어·시장 질문 가능. AI 답변은 선택 기능입니다.</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(177,58,48,0.06);border:1px solid rgba(177,58,48,0.15);border-radius:3px;">
+          <span style="font-size:16px;flex-shrink:0;"></span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:2px;">투자 권유가 아닙니다</div>
+            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">모든 수치·점수·AI 분석은 참고 자료. 투자 결정은 본인 판단과 책임.</div>
+          </div>
         </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;"> 데이터 갱신 주기</div>
-          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;"><b>자동 수집:</b> GitHub Actions/public-data가 시세, 뉴스, Fear&Greed, FRED를 주기 갱신<br><b>스냅샷/참고:</b> 자동 소스가 비거나 지연될 때만 표시되는 보조 데이터<br><b>FRED 데이터:</b> CPI, GDP, 금리 등은 발표 일정과 수신 성공 여부에 따라 갱신</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(177,58,48,0.06);border:1px solid rgba(177,58,48,0.15);border-radius:3px;">
+          <span style="font-size:16px;flex-shrink:0;"></span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:2px;">잃어도 되는 돈만 투자하세요</div>
+            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">생활비, 비상금, 대출금은 절대 투자하지 마세요. 여유자금 중에서도 일부만 투자하세요. 모든 투자에는 원금 손실 위험이 있습니다.</div>
+          </div>
         </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">통합 전문 분석</div>
-          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">멀티팩터 교차검증을 제공하며, 시나리오는 검증된 확률 원천이 연결된 경우에만 표시합니다.</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
+          <span style="font-size:16px;flex-shrink:0;"></span>
+          <div>
+             <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">무효화 기준과 포지션 노출을 기록하세요</div>
+             <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">포지션을 검토하기 전에 변동성에 맞는 무효화 기준 후보와 노출 한도를 기록하세요. 특정 비율이 손실을 막는다고 보장하지 않으며, 계획과 실제 변동을 사후 비교합니다.</div>
+          </div>
         </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:4px;"> 오류 신고 · 문의</div>
-          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">피드백 보드는 운영하지 않습니다. 가이드의 공개 이용 정책에서 GitHub Issues 문의 경로와 개인정보 주의사항을 확인하세요.</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
+          <span style="font-size:16px;flex-shrink:0;"></span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:2px;">AI는 도구일 뿐, 만능이 아닙니다</div>
+            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">AI 채팅과 자동 분석은 학습과 참고 용도입니다. AI도 틀릴 수 있으며, 과거 데이터 기반으로 미래를 정확히 예측할 수 없습니다. 최종 판단은 항상 본인이 해야 합니다.</div>
+          </div>
         </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">용어 사전 (플로팅 버튼)</div>
-          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">우하단 버튼 = 투자 용어 사전. 드래그 이동 + 카테고리 필터 + 검색 가능.</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(34,117,76,0.06);border:1px solid rgba(34,117,76,0.15);border-radius:3px;">
+          <span style="font-size:16px;flex-shrink:0;"></span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:2px;">점수가 낮으면 쉬는 것도 전략입니다</div>
+            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">SIGNAL 점수는 시장 환경 관측값이며 매매 승인이 아닙니다. 점수가 낮은 구간에서는 진입 근거·손절 기준·비중을 다시 확인하고, 확신이 없으면 관망도 하나의 선택입니다.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
+          <span style="font-size:16px;flex-shrink:0;"></span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:2px;">보안 유의사항</div>
+            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">연결 설정은 브라우저에만 저장됩니다. 공용 PC에서는 사용 후 삭제하세요. 포트폴리오 데이터도 로컬 저장이므로 정기적으로 백업하세요. 이 스크리너를 통해 실제 거래(주문/체결)는 이루어지지 않습니다.</div>
+          </div>
         </div>
       </div>
     </div>
+    </details>
+    </div><!-- /aio-section 유의사항 -->
 
-    <!-- ═══ 섹션 2-B: 한국 시장 통합 섹션 안내 (v53.7) ═══ -->
-    <div class="aio-widget" style="border-left:3px solid #b13a30;">
-      <div class="widget-title"> 한국 시장 통합 섹션 안내</div>
+    <!-- ═══ 섹션 3-A: FAQ / 자주 묻는 질문 (v38.8) ═══ -->
+    <div class="aio-section" id="guide-faq">
+    <details class="guide-ref"><summary>FAQ · 문제 해결</summary>
+    <div class="aio-widget" style="border-left:3px solid var(--data-cyan);">
+      <div class="widget-title"> 자주 묻는 질문 (FAQ)</div>
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-            <div style="font-size:11px;font-weight:700;color:#b13a30;margin-bottom:4px;">거시경제 내 한국 시장</div>
-            <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">KOSPI/KOSDAQ·원화·한국 금리·수출입 등 연결된 관측을 기준시각과 함께 확인.</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 데이터가 "수신 대기"에서 멈춰요</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 네트워크 연결 확인 → Ctrl+Shift+R로 강제 새로고침 → 상단 public-data 갱신 시각과 파이프라인 상태를 확인하세요. 일부 보조 API가 실패해도 GitHub Actions 캐시가 있으면 핵심 화면은 계속 표시됩니다.</div>
           </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-            <div style="font-size:11px;font-weight:700;color:#b13a30;margin-bottom:4px;">차트·기술 분석 내 한국 지수</div>
-            <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">KOSPI/KOSDAQ의 추세·시장폭·기술 관측을 수신 상태와 함께 확인.</div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 차트가 비어 있어요 / 안 나와요</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. Chart.js CDN 수신 실패일 수 있습니다. 회사/학교 네트워크에서 CDN이 차단된 경우 발생합니다. VPN을 사용하거나, 개인 네트워크에서 다시 시도하세요.</div>
           </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-            <div style="font-size:11px;font-weight:700;color:#b13a30;margin-bottom:4px;">테마·트렌드 내 국내 테마</div>
-            <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">국내 테마가 연결된 경우 카드·종목 상세로 이동하며, 미수신 데이터는 판정을 보류.</div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. AI 채팅이 작동하지 않아요</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. AI 답변은 운영자의 공용 GPT-6 Luna 연결로 제공됩니다. 개인 AI 키를 입력할 필요가 없습니다. 연결이 없어도 페이지 데이터와 뉴스는 볼 수 있습니다.</div>
           </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
-            <div style="font-size:11px;font-weight:700;color:#b13a30;margin-bottom:4px;">환율·채권 연결</div>
-            <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">USD/KRW와 글로벌 금리·달러를 한국 시장 맥락으로 교차 확인하되, 원천별 기준시각을 구분.</div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 뉴스가 영어로 나와요</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 공용 AI 연결과 남은 월 예산이 있으면 외신 뉴스 번역을 보강합니다. 연결이 없거나 한도에 도달하면 원문을 표시합니다.</div>
           </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);background:var(--surface-2);padding:8px;border-radius:4px;">
-          <b>팁:</b> 한국 종목은 6자리 코드(예: 005930=삼성전자)로 검색할 수 있습니다. 실제 수급·시세 원천이 연결된 경우에만 표시되며, 프록시·거래소·발표 주기 차이로 지연 또는 미수신일 수 있습니다.
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 포트폴리오/설정이 사라졌어요</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 모든 데이터는 브라우저 localStorage에 저장됩니다. 시크릿/프라이빗 모드, 브라우저 데이터 삭제, 다른 기기에서는 데이터가 없습니다. 포트폴리오는 JSON 내보내기로 정기 백업하세요.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 한국 종목 가격이 안 나와요</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 한국 종목은 Yahoo Finance (코드.KS/.KQ)를 통해 시세를 가져옵니다. CORS 프록시가 모두 실패하면 정적 데이터로 대체됩니다. Cloudflare Worker 자체 프록시를 설정하면 안정성이 크게 향상됩니다.</div>
+          </div>
         </div>
       </div>
     </div>
-    </div><!-- /aio-section 공통기능·한국시장 -->
 
-    <!-- ═══ v51.30/P529: 기본 화면에서 제거한 설명성 판단 흐름을 가이드로 통합 보존 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">판단 방법론</span></div>
-    <div class="aio-widget" id="guide-methodology" style="border-left:3px solid var(--data-cyan);">
-      <div class="widget-title">판단 방법론 레퍼런스</div>
-      <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;margin-bottom:10px;">
-        기본 화면에서 관측값·입력 부족·확인할 항목을 읽고, 산식과 해석의 한계는 여기에서 확인합니다.
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:8px;">
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">HOME 결론 구조</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">시장 가격·기준시각 → 주요 이벤트 → 구성요소와 결측 → 추가 확인 항목 순서로 읽습니다. 점수와 입력 커버리지는 수익 확률이나 포지션 크기 지시가 아닙니다.</div>
+    <!-- ═══ 섹션 3-B: 문제 해결 (v50.68 compact) ═══ -->
+    <div class="aio-widget" style="border-left:3px solid var(--data-purple);">
+      <div class="widget-title">문제 해결</div>
+      <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;">
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:3px;">화면이 멈춘 경우</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">Ctrl+Shift+R로 강제 새로고침 후 다시 확인하세요.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:3px;">데이터가 비어 있는 경우</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">사이드바의 데이터 연결 상태와 네트워크를 확인하세요.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:3px;">문의/점검용</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">필요할 때만 로그를 내려받아 원인 확인에 사용합니다.</div>
+          </div>
         </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:5px;">SIGNAL 점수 산식</div>
-          <div id="guide-score-components" style="font-size:11px;color:var(--text-muted);line-height:1.6;">시장 환경 점수의 구성요소를 불러오는 중입니다.</div>
-        </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:5px;">고급 진입 제한</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">RSI 70+는 자동 매도 신호가 아닙니다. 20MA/ATR 이격, 갭, 윗꼬리, 상대 거래량, OPEX·감마, 시장폭 확장 실패를 함께 봅니다.</div>
-        </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">기술적 분석 흐름</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">가격 위치와 추세선 → RSI/MACD/이평선/볼린저밴드 → 지지·저항과 거래량 확인 → 시장 건강도와 종목 타이밍 결합.</div>
-        </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-purple);margin-bottom:5px;">매크로/FX·채권 흐름</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">금리·유가·달러 상호작용 → 선행지표와 시장물가 → DXY·원화·2Y/10Y·신용 스프레드 → 주식 위험선호 판단.</div>
-        </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:5px;">시장폭·랠리 품질</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">5/20/50일선 위 종목 비율과 AIO 유니버스 기준 참여도 변화를 봅니다(200일선 비율·공식 McClellan은 현재 미제공). 지수 상승 중 폭이 줄면 추세보다 확인을 우선합니다.</div>
-        </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:5px;">심리 게이지 해석</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">Fear &amp; Greed, VIX, AAII, Put/Call, HY spread의 기준시각을 함께 확인합니다(NAAIM·Investors Intelligence는 현재 원천 미수신). 극단 공포도 가격 반전이나 매수 적기를 보장하지 않습니다.</div>
-        </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:5px;">종목 발굴/검증 루프</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">스크리너 팩터 → 기업 펀더멘털(F-Score·EPS·밸류) → Ticker 차트 → 포지션 사이징/ATR 손절. 후보 발굴과 매수 판단을 분리합니다.</div>
-        </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:#b13a30;margin-bottom:5px;">한국장 판단 루프</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">KOSPI/KOSDAQ/KRW → 외국인·기관 수급 → 한국 매크로 → 기술 분석. 6자리 코드 기반 종목 확인 후 테마와 수급을 교차검증합니다.</div>
-        </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:5px;">성장·유동성 체크</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">성장 모멘텀은 EPS·매출·가이던스, 유동성은 금리·달러·시장폭·거래대금으로 확인합니다. 둘 중 하나만 강하면 근거가 불완전한 상태라는 관찰이며, 포지션 크기 조정 같은 대응은 개인 판단과 계좌 상황에 따릅니다.</div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <button data-action="_aioLogsDownload" style="background:rgba(33,29,22,0.1);border:1px solid rgba(33,29,22,0.3);color:var(--data-cyan);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 JSON 파일로 다운로드">로그 다운로드</button>
+          <button data-action="_aioLogsClear" style="background:rgba(177,58,48,0.08);border:1px solid rgba(177,58,48,0.2);color:var(--data-red);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 초기화">로그 초기화</button>
+          <button data-action="_aioRefreshFreshness" style="background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);color:var(--data-cyan);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;">데이터 상태 갱신</button>
         </div>
       </div>
     </div>
-    </div><!-- /aio-section 판단방법론 -->
+    </details>
+    </div><!-- /aio-section FAQ·문제해결 -->
+
+  <!-- H2-06: public data handling, terms, disclaimer, and contact are visible from
+       the guide without adding an unregistered route. -->
+  <details id="guide-public-policy" class="aio-fund" style="margin:10px 0 14px;">
+    <summary style="cursor:pointer;font-weight:700;">공개 이용 정책 · 개인정보 · 면책 · 문의</summary>
+    <div style="font-size:11px;line-height:1.8;color:var(--text-secondary);padding-top:8px;">
+      <p><b>개인정보/데이터 처리:</b> 포트폴리오·메모·API 키는 기본적으로 이 브라우저의 저장소에만 보관됩니다. PIN을 설정한 민감 데이터는 AES-GCM으로 암호화하며, 외부 API를 직접 연결하면 해당 API 제공자에게 요청이 전송됩니다. API 키·개인정보를 공개 저장소나 공용 PC에 입력하지 마세요.</p>
+      <p><b>이용약관:</b> AIO Screener는 시장 정보와 교육용 분석 화면을 제공하며 주문·체결·자산운용 서비스를 제공하지 않습니다. 사용자는 각 데이터 제공자의 이용약관과 API 한도를 준수해야 합니다.</p>
+      <p><b>투자 면책:</b> 표시되는 수치·뉴스·시그널은 지연·스냅샷·참고용일 수 있으며 투자 권유, 수익 보장, 매매 지시가 아닙니다. 중요한 결정 전 원문·공식 공시·현재 시세를 별도로 확인하세요.</p>
+      <p><b>문의/오류 신고:</b> <a href="https://github.com/ysnle/aio-screener/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>에 재현 경로와 화면·브라우저 정보를 남겨 주세요. API 키나 개인정보는 첨부하지 마세요.</p>
+    </div>
+  </details>
+  <details class="guide-ref" id="guide-capability-fold"><summary>문구 범위 — AIO가 말하는 것과 말하지 않는 것</summary>
+  <!-- Wave 4: every guide claim is tied to a capability and an observable
+       evidence boundary. The native guide module audits these markers on mount. -->
+  <section id="guide-capability-manifest" class="aio-widget" data-aio-capability-manifest="wave4.capability.v1" aria-labelledby="guide-capability-title" style="border-left:3px solid var(--data-cyan);margin:10px 0 14px;padding:12px 14px;">
+    <div id="guide-capability-title" class="widget-title">AIO가 말하는 것과 말하지 않는 것</div>
+    <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;margin-bottom:8px;">아래 상태는 기능의 약속 범위입니다. 수치·뉴스·AI 답변은 기준시각, 출처, 신선도와 결측 상태를 확인하고, 행동은 관측·확인 체크리스트로만 정리합니다.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px;">
+      <div data-aio-capability-claim data-capability="quote-currentness" data-claim-mode="conditional"><b>시세 현재성</b><br>source-aware 시세 참고 · observedAt/freshness 확인</div>
+      <div data-aio-capability-claim data-capability="translation" data-claim-mode="optional"><b>뉴스 번역</b><br>선택적 AI 번역 보강 · 원문 우선</div>
+      <div data-aio-capability-claim data-capability="ai-analysis" data-claim-mode="optional"><b>AI 분석</b><br>교육·리서치 보조 · 매매 지시 없음</div>
+      <div data-aio-capability-claim data-capability="rrg" data-claim-mode="reference"><b>RRG</b><br>상대강도 로테이션 참고 분류 · 일봉 이력 확인</div>
+      <div data-aio-capability-claim data-capability="stage" data-claim-mode="conditional"><b>Stage</b><br>Weinstein 방식 추세 단계 참고 · OHLCV 필요</div>
+      <div data-aio-capability-claim data-capability="news-sentiment" data-claim-mode="reference"><b>뉴스 감성</b><br>휴리스틱 점수 참고 · 원문·날짜 확인</div>
+      <div data-aio-capability-claim data-capability="market-health" data-claim-mode="reference"><b>시장 상태 판정</b><br>공개 기준의 상태 설명 · 매매 승인 아님</div>
+      <div data-aio-capability-claim data-capability="macro-causality" data-claim-mode="reference"><b>금리·물가·역전·공포</b><br>관측된 관계와 확인 항목 · 단선 인과 아님</div>
+      <div data-aio-capability-claim data-capability="decision-checklist" data-claim-mode="observation"><b>행동 안내</b><br>관측·확인·무효화 체크리스트</div>
+    </div>
+    <div id="guide-capability-status" data-aio-capability-status="pending" hidden></div>
+  </section>
+  </details>
+
+
+    <!-- ═══ 섹션 4: 투자 필수 배경지식 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">투자 배경지식</span></div>
+    <details class="aio-page-advanced-toggle">
+      <summary>투자 필수 배경지식 — 주식·금리·외환·채권·기술분석·매크로 기초</summary>
+      <div class="aio-page-advanced-body">
+    <div class="aio-widget">
+      <div class="widget-title">알아두면 좋은 투자 배경지식</div>
+
+      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">주식 시장의 기본 구조</div>
+        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
+          미국 3대 지수: S&P500(대형 500개), 나스닥(기술주 중심), 다우존스(우량 30개). 한국: KOSPI(대형), KOSDAQ(중소형/기술).<br>
+          거래 시간: 미국 정규장 9:30~16:00 미국 동부시간 — 표준시(EST)에는 한국시간 23:30~06:00, 서머타임(EDT)에는 22:30~05:00입니다(계절에 따라 1시간 달라집니다). 프리마켓(04:00~09:30), 애프터마켓(16:00~20:00)도 존재.<br>
+          주가는 "수요와 공급"으로 결정됩니다. 사려는 사람이 많으면 오르고, 팔려는 사람이 많으면 내립니다. 기업의 실적, 거시경제, 시장 심리가 수요/공급에 영향을 줍니다.
+        </div>
+      </div>
+
+      <div style="background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:6px;"> 경제·금리의 기초</div>
+        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
+          <b>중앙은행(Fed)의 역할:</b> 기준금리를 조정해 경제 여건에 대응합니다. 금리·대출 비용·기업 투자·주가의 연결은 국면과 기대에 따라 달라지므로 각 지표의 기준일을 함께 확인합니다.<br>
+          <b>인플레이션:</b> 물가가 오르는 현상. CPI(소비자물가지수)로 측정합니다. 목표와 실제 수치, 정책 기대, 공급 요인을 구분해 관찰합니다.<br>
+          <b>경기 사이클:</b> 확장기 → 과열기 → 침체기 → 회복기를 하나의 설명 틀로 사용합니다. 자산·섹터 반응은 고정되지 않으므로 현재 지표와 반대 증거를 함께 기록합니다.<br>
+          <b>GDP와 고용:</b> GDP 성장률과 비농업 고용(NFP)은 경제 상태를 설명하는 관측값입니다. 발표일·수정치·시장 기대와 실제 반응을 구분합니다.
+        </div>
+      </div>
+
+      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:6px;">외환(FX)의 기초</div>
+        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
+          <b>달러 인덱스(DXY):</b> 유로, 엔, 파운드 등 6개 통화 대비 달러 가치. DXY↑는 달러 강세를 뜻하지만, 수준(예: 100)은 임계값이 아니라 기간별 비교·다른 통화·금리 조건과 함께 확인하는 참고값입니다.<br>
+          <b>원/달러 환율:</b> 환율 1,300원이면 $1=₩1,300. 환율↑는 원화 약세를 뜻하며 수출·수입·원자재·해외자산의 서로 다른 노출을 나눠 확인합니다.<br>
+          <b>캐리 트레이드:</b> 저금리 국가에서 빌려 고금리 국가에 투자하는 구조입니다. 되감기 구간은 환율·금리·변동성 자료를 함께 관찰합니다.<br>
+          <b>안전자산:</b> 불안 구간의 달러·엔·금 움직임은 위험 선호를 확인하는 참고 항목입니다. 동시 상승도 원인과 기간을 별도로 확인합니다.
+        </div>
+      </div>
+
+      <div style="background:rgba(177,58,48,0.05);border:1px solid rgba(177,58,48,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:6px;">채권의 기초</div>
+        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
+          <b>채권 가격과 수익률은 반비례:</b> 수익률↑=채권 가격↓. 채권을 팔면 수익률이 오르고, 채권을 사면 수익률이 내립니다.<br>
+          <b>수익률 곡선:</b> 정상: 장기물(10Y) &gt; 단기물(2Y). 역전은 과거 경기 국면과 함께 연구된 참고 신호이며, 시차·오탐·현재 데이터 상태를 별도로 확인합니다.<br>
+          <b>신용 스프레드:</b> 회사채 수익률 - 국채 수익률은 신용 위험 선호를 관찰하는 지표입니다. 확대 시 원인·등급·기간과 주식 반응을 교차 확인합니다.<br>
+          <b>MOVE 지수:</b> 채권 시장의 VIX. MOVE↑=금리 변동 큼=불확실성 높음. 주식보다 채권이 먼저 움직이는 경우가 많습니다.
+        </div>
+      </div>
+
+      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:800;color:var(--data-purple);margin-bottom:6px;">차트(기술적 분석)의 기초</div>
+        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
+          <b>이동평균선:</b> 추세 확인에 널리 쓰이는 도구. 50일선(단기 추세), 200일선(장기 추세). 가격이 이동평균선 위에 있으면 상승 추세로 해석하는 경우가 많으나, 횡보 구간에서는 신호가 자주 뒤집힙니다.<br>
+          <b>골든크로스/데드크로스:</b> 50일선이 200일선을 위로 돌파=골든크로스(추세 전환 후보), 아래로 돌파=데드크로스(추세 전환 후보). '강세/약세 시작'을 확정하는 신호가 아니며 거래량·기간·반례를 함께 봅니다.<br>
+          <b>RSI(상대강도지수):</b> 0~100. 70↑=과매수(단기 하락 가능), 30↓=과매도(반등 기대). 50 위=강세, 50 아래=약세.<br>
+          <b>거래량:</b> 거래량은 가격 움직임에 참여한 규모를 확인하는 보조 지표입니다. 거래량 증가·감소는 매수 주체(기관/개인)를 식별하지 않으므로, 추세 지속·반전 여부는 가격 구조·기간·반례와 함께 판단합니다.<br>
+          <b>지지선/저항선:</b> 가격이 반복적으로 멈추는 수준. 지지선 이탈=급락, 저항선 돌파=급등. 돌파 시 거래량이 동반되어야 신뢰도가 높습니다.
+        </div>
+      </div>
+
+      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;">
+        <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">매크로(거시경제) 지표 읽는 법</div>
+        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
+          <b>FOMC 회의:</b> 연 8회. 금리 결정 + 점도표(향후 금리 전망) 발표. 시장에 가장 큰 영향을 주는 이벤트.<br>
+          <b>CPI 발표:</b> 매월. 예상보다 높으면 금리 인상 우려가 커지는 경우가 많지만, 이미 반영된 기대·성장 지표·연준 반응에 따라 주가 방향은 달라질 수 있습니다(발표 전 기대와 실제 반응을 분리).<br>
+          <b>PMI:</b> 50을 확장/수축의 관례로 씁니다. 48 미만을 침체 확정으로 읽지 않고, 신규주문·고용 등 세부 항목과 추세를 함께 확인합니다.<br>
+          <b>실업률/NFP:</b> 실업률↑=경기 악화. 하지만 "적당한 약화"는 금리 인하 기대로 주가에 긍정적(Bad news is good news)일 수 있습니다.<br>
+          <b>ISM 제조업/서비스업:</b> PMI와 유사. 신규주문(New Orders) 지수가 특히 중요 — 미래 경기를 선행합니다.
+        </div>
+      </div>
+    </div>
+      </div>
+    </details>
+    </div><!-- /aio-section 투자배경지식 -->
 
     <!-- ═══ 섹션: 매매 전략 (Qullamaggie + Minervini) ═══ -->
     <div class="aio-section" id="guide-strategies">
-    <div class="aio-section-hd"><span class="aio-section-label">실전 매매 전략</span></div>
+    <details class="guide-ref"><summary>참고 자료 — 차트 셋업 방법론 (Qullamaggie · Minervini, 교육용 · 매매 권유 아님)</summary>
     <div class="aio-widget" style="border-left:3px solid var(--data-green);">
       <div class="widget-title">기관급 스윙트레이딩 프레임워크 — Qullamaggie · Minervini</div>
       <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">
@@ -10015,195 +9874,8 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
-    </div><!-- /aio-section 매매전략 -->
-
-    <!-- ═══ 섹션 3: 핵심 유의사항 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">유의사항</span></div>
-    <div class="aio-widget" style="border-left:3px solid var(--data-amber);">
-      <div class="widget-title">반드시 읽어야 할 유의사항</div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(177,58,48,0.06);border:1px solid rgba(177,58,48,0.15);border-radius:3px;">
-          <span style="font-size:16px;flex-shrink:0;"></span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:2px;">투자 권유가 아닙니다</div>
-            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">모든 수치·점수·AI 분석은 참고 자료. 투자 결정은 본인 판단과 책임.</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(177,58,48,0.06);border:1px solid rgba(177,58,48,0.15);border-radius:3px;">
-          <span style="font-size:16px;flex-shrink:0;"></span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:2px;">잃어도 되는 돈만 투자하세요</div>
-            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">생활비, 비상금, 대출금은 절대 투자하지 마세요. 여유자금 중에서도 일부만 투자하세요. 모든 투자에는 원금 손실 위험이 있습니다.</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
-          <span style="font-size:16px;flex-shrink:0;"></span>
-          <div>
-             <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">무효화 기준과 포지션 노출을 기록하세요</div>
-             <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">포지션을 검토하기 전에 변동성에 맞는 무효화 기준 후보와 노출 한도를 기록하세요. 특정 비율이 손실을 막는다고 보장하지 않으며, 계획과 실제 변동을 사후 비교합니다.</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
-          <span style="font-size:16px;flex-shrink:0;"></span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:2px;">AI는 도구일 뿐, 만능이 아닙니다</div>
-            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">AI 채팅과 자동 분석은 학습과 참고 용도입니다. AI도 틀릴 수 있으며, 과거 데이터 기반으로 미래를 정확히 예측할 수 없습니다. 최종 판단은 항상 본인이 해야 합니다.</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(34,117,76,0.06);border:1px solid rgba(34,117,76,0.15);border-radius:3px;">
-          <span style="font-size:16px;flex-shrink:0;"></span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:2px;">점수가 낮으면 쉬는 것도 전략입니다</div>
-            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">SIGNAL 점수는 시장 환경 관측값이며 매매 승인이 아닙니다. 점수가 낮은 구간에서는 진입 근거·손절 기준·비중을 다시 확인하고, 확신이 없으면 관망도 하나의 선택입니다.</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
-          <span style="font-size:16px;flex-shrink:0;"></span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:2px;">보안 유의사항</div>
-            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">연결 설정은 브라우저에만 저장됩니다. 공용 PC에서는 사용 후 삭제하세요. 포트폴리오 데이터도 로컬 저장이므로 정기적으로 백업하세요. 이 스크리너를 통해 실제 거래(주문/체결)는 이루어지지 않습니다.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div><!-- /aio-section 유의사항 -->
-
-    <!-- ═══ 섹션 3-A: FAQ / 자주 묻는 질문 (v38.8) ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">FAQ · 문제 해결</span></div>
-    <div class="aio-widget" style="border-left:3px solid var(--data-cyan);">
-      <div class="widget-title"> 자주 묻는 질문 (FAQ)</div>
-      <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 데이터가 "수신 대기"에서 멈춰요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 네트워크 연결 확인 → Ctrl+Shift+R로 강제 새로고침 → 상단 public-data 갱신 시각과 파이프라인 상태를 확인하세요. 일부 보조 API가 실패해도 GitHub Actions 캐시가 있으면 핵심 화면은 계속 표시됩니다.</div>
-          </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 차트가 비어 있어요 / 안 나와요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. Chart.js CDN 수신 실패일 수 있습니다. 회사/학교 네트워크에서 CDN이 차단된 경우 발생합니다. VPN을 사용하거나, 개인 네트워크에서 다시 시도하세요.</div>
-          </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. AI 채팅이 작동하지 않아요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. AI 답변은 운영자의 공용 GPT-6 Luna 연결로 제공됩니다. 개인 AI 키를 입력할 필요가 없습니다. 연결이 없어도 페이지 데이터와 뉴스는 볼 수 있습니다.</div>
-          </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 뉴스가 영어로 나와요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 공용 AI 연결과 남은 월 예산이 있으면 외신 뉴스 번역을 보강합니다. 연결이 없거나 한도에 도달하면 원문을 표시합니다.</div>
-          </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 포트폴리오/설정이 사라졌어요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 모든 데이터는 브라우저 localStorage에 저장됩니다. 시크릿/프라이빗 모드, 브라우저 데이터 삭제, 다른 기기에서는 데이터가 없습니다. 포트폴리오는 JSON 내보내기로 정기 백업하세요.</div>
-          </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 한국 종목 가격이 안 나와요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 한국 종목은 Yahoo Finance (코드.KS/.KQ)를 통해 시세를 가져옵니다. CORS 프록시가 모두 실패하면 정적 데이터로 대체됩니다. Cloudflare Worker 자체 프록시를 설정하면 안정성이 크게 향상됩니다.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ 섹션 3-B: 문제 해결 (v50.68 compact) ═══ -->
-    <div class="aio-widget" style="border-left:3px solid var(--data-purple);">
-      <div class="widget-title">문제 해결</div>
-      <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;">
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:3px;">화면이 멈춘 경우</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">Ctrl+Shift+R로 강제 새로고침 후 다시 확인하세요.</div>
-          </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:3px;">데이터가 비어 있는 경우</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">사이드바의 데이터 연결 상태와 네트워크를 확인하세요.</div>
-          </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
-            <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:3px;">문의/점검용</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">필요할 때만 로그를 내려받아 원인 확인에 사용합니다.</div>
-          </div>
-        </div>
-        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-          <button data-action="_aioLogsDownload" style="background:rgba(33,29,22,0.1);border:1px solid rgba(33,29,22,0.3);color:var(--data-cyan);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 JSON 파일로 다운로드">로그 다운로드</button>
-          <button data-action="_aioLogsClear" style="background:rgba(177,58,48,0.08);border:1px solid rgba(177,58,48,0.2);color:var(--data-red);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 초기화">로그 초기화</button>
-          <button data-action="_aioRefreshFreshness" style="background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);color:var(--data-cyan);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;">데이터 상태 갱신</button>
-        </div>
-      </div>
-    </div>
-    </div><!-- /aio-section FAQ·문제해결 -->
-
-    <!-- ═══ 섹션 4: 투자 필수 배경지식 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">투자 배경지식</span></div>
-    <details class="aio-page-advanced-toggle">
-      <summary>투자 필수 배경지식 — 주식·금리·외환·채권·기술분석·매크로 기초</summary>
-      <div class="aio-page-advanced-body">
-    <div class="aio-widget">
-      <div class="widget-title">알아두면 좋은 투자 배경지식</div>
-
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">주식 시장의 기본 구조</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          미국 3대 지수: S&P500(대형 500개), 나스닥(기술주 중심), 다우존스(우량 30개). 한국: KOSPI(대형), KOSDAQ(중소형/기술).<br>
-          거래 시간: 미국 정규장 9:30~16:00 미국 동부시간 — 표준시(EST)에는 한국시간 23:30~06:00, 서머타임(EDT)에는 22:30~05:00입니다(계절에 따라 1시간 달라집니다). 프리마켓(04:00~09:30), 애프터마켓(16:00~20:00)도 존재.<br>
-          주가는 "수요와 공급"으로 결정됩니다. 사려는 사람이 많으면 오르고, 팔려는 사람이 많으면 내립니다. 기업의 실적, 거시경제, 시장 심리가 수요/공급에 영향을 줍니다.
-        </div>
-      </div>
-
-      <div style="background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:6px;"> 경제·금리의 기초</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>중앙은행(Fed)의 역할:</b> 기준금리를 조정해 경제 여건에 대응합니다. 금리·대출 비용·기업 투자·주가의 연결은 국면과 기대에 따라 달라지므로 각 지표의 기준일을 함께 확인합니다.<br>
-          <b>인플레이션:</b> 물가가 오르는 현상. CPI(소비자물가지수)로 측정합니다. 목표와 실제 수치, 정책 기대, 공급 요인을 구분해 관찰합니다.<br>
-          <b>경기 사이클:</b> 확장기 → 과열기 → 침체기 → 회복기를 하나의 설명 틀로 사용합니다. 자산·섹터 반응은 고정되지 않으므로 현재 지표와 반대 증거를 함께 기록합니다.<br>
-          <b>GDP와 고용:</b> GDP 성장률과 비농업 고용(NFP)은 경제 상태를 설명하는 관측값입니다. 발표일·수정치·시장 기대와 실제 반응을 구분합니다.
-        </div>
-      </div>
-
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:6px;">외환(FX)의 기초</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>달러 인덱스(DXY):</b> 유로, 엔, 파운드 등 6개 통화 대비 달러 가치. DXY↑는 달러 강세를 뜻하지만, 수준(예: 100)은 임계값이 아니라 기간별 비교·다른 통화·금리 조건과 함께 확인하는 참고값입니다.<br>
-          <b>원/달러 환율:</b> 환율 1,300원이면 $1=₩1,300. 환율↑는 원화 약세를 뜻하며 수출·수입·원자재·해외자산의 서로 다른 노출을 나눠 확인합니다.<br>
-          <b>캐리 트레이드:</b> 저금리 국가에서 빌려 고금리 국가에 투자하는 구조입니다. 되감기 구간은 환율·금리·변동성 자료를 함께 관찰합니다.<br>
-          <b>안전자산:</b> 불안 구간의 달러·엔·금 움직임은 위험 선호를 확인하는 참고 항목입니다. 동시 상승도 원인과 기간을 별도로 확인합니다.
-        </div>
-      </div>
-
-      <div style="background:rgba(177,58,48,0.05);border:1px solid rgba(177,58,48,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:6px;">채권의 기초</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>채권 가격과 수익률은 반비례:</b> 수익률↑=채권 가격↓. 채권을 팔면 수익률이 오르고, 채권을 사면 수익률이 내립니다.<br>
-          <b>수익률 곡선:</b> 정상: 장기물(10Y) &gt; 단기물(2Y). 역전은 과거 경기 국면과 함께 연구된 참고 신호이며, 시차·오탐·현재 데이터 상태를 별도로 확인합니다.<br>
-          <b>신용 스프레드:</b> 회사채 수익률 - 국채 수익률은 신용 위험 선호를 관찰하는 지표입니다. 확대 시 원인·등급·기간과 주식 반응을 교차 확인합니다.<br>
-          <b>MOVE 지수:</b> 채권 시장의 VIX. MOVE↑=금리 변동 큼=불확실성 높음. 주식보다 채권이 먼저 움직이는 경우가 많습니다.
-        </div>
-      </div>
-
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-purple);margin-bottom:6px;">차트(기술적 분석)의 기초</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>이동평균선:</b> 추세 확인에 널리 쓰이는 도구. 50일선(단기 추세), 200일선(장기 추세). 가격이 이동평균선 위에 있으면 상승 추세로 해석하는 경우가 많으나, 횡보 구간에서는 신호가 자주 뒤집힙니다.<br>
-          <b>골든크로스/데드크로스:</b> 50일선이 200일선을 위로 돌파=골든크로스(추세 전환 후보), 아래로 돌파=데드크로스(추세 전환 후보). '강세/약세 시작'을 확정하는 신호가 아니며 거래량·기간·반례를 함께 봅니다.<br>
-          <b>RSI(상대강도지수):</b> 0~100. 70↑=과매수(단기 하락 가능), 30↓=과매도(반등 기대). 50 위=강세, 50 아래=약세.<br>
-          <b>거래량:</b> 거래량은 가격 움직임에 참여한 규모를 확인하는 보조 지표입니다. 거래량 증가·감소는 매수 주체(기관/개인)를 식별하지 않으므로, 추세 지속·반전 여부는 가격 구조·기간·반례와 함께 판단합니다.<br>
-          <b>지지선/저항선:</b> 가격이 반복적으로 멈추는 수준. 지지선 이탈=급락, 저항선 돌파=급등. 돌파 시 거래량이 동반되어야 신뢰도가 높습니다.
-        </div>
-      </div>
-
-      <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">매크로(거시경제) 지표 읽는 법</div>
-        <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>FOMC 회의:</b> 연 8회. 금리 결정 + 점도표(향후 금리 전망) 발표. 시장에 가장 큰 영향을 주는 이벤트.<br>
-          <b>CPI 발표:</b> 매월. 예상보다 높으면 금리 인상 우려가 커지는 경우가 많지만, 이미 반영된 기대·성장 지표·연준 반응에 따라 주가 방향은 달라질 수 있습니다(발표 전 기대와 실제 반응을 분리).<br>
-          <b>PMI:</b> 50을 확장/수축의 관례로 씁니다. 48 미만을 침체 확정으로 읽지 않고, 신규주문·고용 등 세부 항목과 추세를 함께 확인합니다.<br>
-          <b>실업률/NFP:</b> 실업률↑=경기 악화. 하지만 "적당한 약화"는 금리 인하 기대로 주가에 긍정적(Bad news is good news)일 수 있습니다.<br>
-          <b>ISM 제조업/서비스업:</b> PMI와 유사. 신규주문(New Orders) 지수가 특히 중요 — 미래 경기를 선행합니다.
-        </div>
-      </div>
-    </div>
-      </div>
     </details>
-    </div><!-- /aio-section 투자배경지식 -->
+    </div><!-- /aio-section 매매전략 -->
 
   </div>
 
@@ -10317,15 +9989,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.09" defer></script>
-  <script src="./js/aio-data.js?v=57.09" defer></script>
-  <script src="./js/aio-ui.js?v=57.09" defer></script>
+  <script src="./js/aio-core.js?v=57.10" defer></script>
+  <script src="./js/aio-data.js?v=57.10" defer></script>
+  <script src="./js/aio-ui.js?v=57.10" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.09" defer></script>
+<script src="./js/aio-chat.js?v=57.10" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -10383,7 +10055,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.09" defer></script>
+<script src="./js/aio-glossary.js?v=57.10" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

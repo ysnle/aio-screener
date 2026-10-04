@@ -29,14 +29,14 @@ try {
   }
   await page.evaluate(() => window.showPage('guide', null));
   await page.waitForFunction(() => document.querySelector('#page-guide')?.dataset.aioArchitectureRenderer === 'native');
-  await page.locator('#guide-search-input').fill('점수');
+  await page.locator('#guide-search-input').fill('판정');
   await page.locator('#guide-search-input').press('Enter');
   const first = page.locator('#guide-search-result [data-guide-target]').first();
   check('guide results', await first.count() > 0);
   const target = await first.getAttribute('data-guide-target');
   await first.click({ force: true });
   check('guide focused paragraph', await page.evaluate(id => document.activeElement?.id === id && id !== 'page-guide', target));
-  check('guide canonical weights', await page.locator('#guide-score-components').textContent().then(x => x.includes('25%') && x.includes('20%')));
+  check('guide screen cards follow the menu (P1428)', await page.locator('#guide-screen-cards .guide-screen').count() === 8 && await page.locator('#guide-score-components').count() === 0);
   const fixtures = await page.evaluate(async () => {
     const { createLearningState } = await import('/src/domain/knowledge/learning-state.js');
     const { createKnowledgeLearningControls } = await import('/src/ui/knowledge/learning-controls.js');

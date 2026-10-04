@@ -1,8 +1,53 @@
 ---
-last_verified: 2026-10-03
+last_verified: 2026-10-04
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
+
+## P1432 - v57.10 - 오늘 daily loop: 어제와 달라진 점 · 내 종목 · 다가오는 일정 · 내 종목 뉴스 (2026-10-04)
+
+- symptom/reproduction: The 오늘 screen showed the market verdict and index quotes but nothing a returning trader needs first: which axis flipped since the last session, what moved most, and how the watchlist and holdings stand.
+- root_cause: The home page was built as a market dashboard, not as a daily loop around the user's own names.
+- fix: src/domain/briefing/daily-diff.js: buildDailyChanges compares the last two S&P 500 trading dates through buildCloseSeries (weekend carried-forward rows are not sessions), lists ten measures with level and change, and reports axis flips computed on the same close-only inputs for both sessions; buildMyNames merges watchlist and holdings with the published screener rows (50-day position, 52-week high distance, RSI extremes, day move when a live quote exists) and ties the count below the 50-day line to the breadth axis. src/ui/components/daily-loop.js renders the four blocks; the schedule shows the next three days and links to the briefing; news is filtered to the user's tickers. Performance: market-read nyDate used toLocaleDateString (a new time-zone formatter per call) for every row × field, so one regime build took ≈0.5 s and the 오늘 render ≈1.1 s (boot gate: long task 3.0 s); a shared Intl.DateTimeFormat with a memo brings the regime build to ≈13 ms and the daily loop to ≈50 ms, which speeds every screen that builds the regime.
+- violated_rule: Owner direction: 오늘 as the daily screen (conclusion → my names → schedule → my news).
+- prevention: Home renders through the native analysis page; the browser runtime/surface groups cover the home route.
+- verification/residual: Real history: '10/1 → 10/2 종가 · 축 판정은 그대로이고, 크게 움직인 것은 나스닥 +1.19% · WTI -1.90%'; over the last 80 sessions 33 days report an axis flip (e.g. '금리 중립 → 부담'); a four-name watchlist renders with positions and NVDA news. Browser boot gate green again after the formatter change (regime 514 ms → 13 ms measured in the preview).
+
+## P1431 - v57.10 - Page logic flow: section leads, verdict first, next steps with reasons (2026-10-04)
+
+- symptom/reproduction: Owner (2026-10-04): sections inside one page feel independent; cut how-to prose but keep and deepen analysis that connects the numbers. Concretely: 시장 폭 groups had no reading of their own; 투자 심리 did not say which of its numbers feed the 시장 상태 axes; 시장 상태 ended with a static link list; 테마 printed '차트는 별도 레거시 secondary surface입니다' as its rotation reading and opened with a textbook sector-cycle example; the briefing put the schedule before its conclusion; the screener opened with run hashes, identification-metadata counts and operations text.
+- root_cause: Pages were assembled card by card; the connective sentences were never computed.
+- fix: src/domain/market/page-flow.js: breadthFlow (participation / leadership / index leads), sentimentFlow (ties HY and VIX term structure to the 신용 and 변동성 axes), regimeFlow (each non-favourable axis → the screen that explains it, with the axis state), rotationFlow (all four RRG quadrants, defensive vs cyclical, concentration tied to the breadth axis). src/ui/components/page-flow.js renders section leads and '이어서 볼 곳'. Themes: 섹터 회전 판정 at the top (the verdict-first reorder now targets it), RRG then the same sectors' performance, sub-theme strength, AI capex; the cycle map moved out of the user path. Briefing: read → drivers → checks → schedule. Screener: data/validation status folded, builder/funnel/run history folded under '조건 직접 조합', plain-language status, '순위 가중치' label. Stock pages: subtitles say what the page reads, not how to use it.
+- violated_rule: Owner direction: minimal usage guidance, connected analysis on every page.
+- prevention: T806 checks the themes verdict block; ci-architecture-browser-check briefing order (read before schedule); ci-screener-auto-refresh-browser-check opens the folded builder and reads the definition id from the status title.
+- verification/residual: Local preview: 시장 폭 shows three data-driven leads ('S&P 500 20일 -0.3%, 50일선 위 종목 비율 20일 -24.5%p — 괴리') and four next steps; 투자 심리 bridge names HY 324bp (신용 부담) and VIX/VIX3M 0.85 (변동성 우호); 테마 verdict reads '선도 기술 · 개선 통신 … 11개 중 선도는 1개뿐 … 시장 폭 부담과 같은 그림'.
+
+## P1430 - v57.10 - 종목 integration: 요약 · 차트 · 재무 공시 share one company; index cards open their own chart (2026-10-04)
+
+- symptom/reproduction: The 종목 menu opened 기업 분석, the hub tabs were 기업 분석 / 차트 · 기술 with 종목 상세 hidden, and each of the three pages kept its own symbol (재무 showed '선택 기업 없음' after opening a stock and visiting the chart); the S&P 500 / Nasdaq futures cards opened whatever stock was last viewed; the ticker page repeated its own inner tabs, an external TradingView iframe, a static candle gallery, a manual entry calculator and an 진입 적합성 block that still printed the retired '시장 건강도 NN점'.
+- root_cause: The three routes were built as separate pages before the 8-screen IA, with no shared notion of the current company.
+- fix: ROUTE_HUBS stock = 요약(ticker) · 차트(technical) · 재무 공시(fundamental); the menu opens 요약. route-hubs setStockSubject/readStockSubject: one company (set by showTicker/entity selection, the 재무 공시 search and a symbol typed on the chart), shown beside the tabs with a '← origin' link; 요약 from 차트/재무 공시 re-opens that company, 재무 공시 loads it on mount, showTicker keeps the outer origin across the three tabs. openMarketChart: futures cards open SPY/QQQ without changing the company. Ticker page: insight box, entry check, TradingView iframe, inner tabs, static candle cards and the manual calculator removed (calculateEntryQualityLocal / _aioFillEntryFromTicker deleted); its own price chart now sits next to the price/theme/factor rail; candle detection kept as one line. Labels: 요약 / 종목 차트 / 재무 공시.
+- violated_rule: Owner decisions: 8-screen IA, context continuity, no retired scores on user surfaces.
+- prevention: ci-architecture-browser-check P1430 (no inner ticker tabs, chart visible, no external chart, hub tabs ticker,technical,fundamental); ci-runtime-contract-check EF-10 checks the 재무 공시 hub tab; T875/T1029 updated; research-flow keeps the calculator retired.
+- verification/residual: Local preview: screener → AAPL → 차트 → 재무 공시 → 요약 keeps AAPL everywhere with '← 스크리너'; 재무 공시 loads Apple's SEC 10-K after the chart; the 오늘 Nasdaq card opens QQQ while the company stays AAPL.
+
+## P1429 - v57.10 - Missing-data experience: one empty state, no wall of dashes, a reading even when the live quote is absent (2026-10-04)
+
+- symptom/reproduction: Live check 2026-10-04: the themes page's 12-cell 섹터 ETF 라이브 등락 strip showed '—' in every cell (it duplicated the completed-session sector bars above it); the screener 가격 column read 미수신 on 10 of 12 rows; the stock chart failed to a blank card; the home futures cells were empty when ES/NQ quotes were missing.
+- root_cause: Each surface invented its own placeholder, and several cells depended only on the live quote tier, which covers the index/sector core and not every row.
+- fix: src/ui/components/empty-state.js (title, reason, next step, optional action) used by the stock chart for no payload / no bars / fewer than 60 bars; home futures cells fall back to the last completed S&P 500 / Nasdaq close with the cell marked; the duplicated sector live strip removed; theme chips drop the placeholder dash; screener default presets add 52주 고점 대비 (from the artifact itself) next to 가격, which stays a live-quote column (P715: the artifact publishes no per-symbol price).
+- violated_rule: Owner decisions: no sourceless or empty widgets; fill needed data, remove useless content.
+- prevention: ci-screener-auto-refresh-browser-check keeps the visible-row quote contract; T1029 ranges; browser surface checks cover the empty-state CSS.
+- verification/residual: Local preview: themes page has no dash cells; screener rows show 52주 고점 대비 for every row; the stock chart for a symbol without bars shows the reason and a retry button.
+
+## P1428 - v57.10 - Meaning fixes: one rule registry, no verdict from a missing input, guide describes the screens that exist (2026-10-04)
+
+- symptom/reproduction: Codex review (2026-10-04) of the newest commits: thresholds for the same indicator differed between 시장 상태, 투자 심리, 거시 and the guide; a missing put/call ratio read as low hedging; RS benchmark and stale n-sessions-back values could compare different dates; a breakout counted on a heavy down day; 50/200-day checks passed with missing inputs; the chart analysed today's unfinished bar; news earnings badges named the wrong company and analyst-house names were tagged as tickers; the guide still described the retired 0~100 score, Action Item and swing/day modes; the home F&G delta came from a legacy writer.
+- root_cause: Rules were literals scattered across domain modules and the guide was hand-written prose, so they drifted; several template checks treated null as a pass.
+- fix: src/domain/rules/thresholds.js is the single RULES registry used by market-read, sentiment-board, macro-read, rates-fx and the guide rule table; stats().back(n) refuses points too far from the requested session; sentiment greed needs a measured put/call; chart-analysis: missing template inputs return null, RS benchmark within 3 days, breakout needs an up close above the pivot, '최근 N거래일' when fewer than 252 bars; completedBars drops today's live bar until close + 20 minutes; news: earnings symbol resolved before ticker badges, attribution phrases are not tickers, ASCII topic keywords need word boundaries, importance follows the country/topic filter, KST time on two lines; guide = 메뉴 지도 from ROUTE_HUBS + 판정 기준표 generated from RULES + folded reference sections; onboarding card removed; home F&G delta from the history artifact.
+- violated_rule: Owner decisions: one source of truth across screens; no verdict from an unmeasured input; no retired concepts on user surfaces.
+- prevention: ci-architecture-browser-check P1428 (cross-screen F&G and RULES import), ci-capability-claim-contract-check (retired guide terms), ci-user-journey-quality-check (8 guide cards, no score element), ci-runtime-contract-check LC-19/EF-15, T869.
+- verification/residual: All 13 QA groups green after stage 1; guide rule table rows equal RULES values; news no longer tags analyst houses (Morgan Stanley, Goldman) as tickers.
 
 ## P1427 - v57.09 - 거시: one rule set across the page, and every verdict shown as a picture plus a sentence (2026-10-03)
 

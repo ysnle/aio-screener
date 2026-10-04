@@ -1,7 +1,9 @@
 // P1392: 시장 상태 = six-axis regime board (owner decision 2026-10-02: the 0-100 score and the
 // swing/day toggle are retired from user surfaces). The home card shows the same board compactly.
-import { buildMarketRegime, buildMarketRead } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, buildMarketRegime, buildMarketRead, closeBasis } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
+import { regimeFlow } from '../../domain/market/page-flow.js';
+import { renderNextSteps } from './page-flow.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -39,8 +41,10 @@ export function renderRegimePage({ documentRef: doc, root }) {
   const conflicts = doc.getElementById('regime-conflicts');
   if (conflicts) conflicts.replaceChildren(...(regime.conflicts || []).map((text) => el(doc, 'li', text)));
   const board = doc.getElementById('regime-board');
+  const boardKr = doc.getElementById('regime-board-kr');
   if (board) {
-    board.replaceChildren(...regime.axes.map((row) => {
+    // P1428: the US six axes and the Korea FX card are drawn apart (the tally counts only the six).
+    const card = (row) => {
       const card = el(doc, 'section', null, 'regime-axis');
       card.dataset.axis = row.id;
       card.dataset.state = row.state;
@@ -54,8 +58,12 @@ export function renderRegimePage({ documentRef: doc, root }) {
       card.append(list, el(doc, 'p', row.read, 'regime-read'));
       if (row.flip) card.append(el(doc, 'p', `전환 조건: ${row.flip}`, 'regime-flip'));
       return card;
-    }));
+    };
+    board.replaceChildren(...regime.axes.filter((row) => row.id !== 'korea').map(card));
+    if (boardKr) boardKr.replaceChildren(...regime.axes.filter((row) => row.id === 'korea').map(card));
+    else board.append(...regime.axes.filter((row) => row.id === 'korea').map(card));
   }
+  renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime }).next); // P1431
   page.dataset.aioRegimeRenderer = 'native';
   return regime;
 }
@@ -69,6 +77,44 @@ export function renderHomeRegime({ documentRef: doc, root }) {
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
   set('home-hero-desc', regime.conflicts?.[0] || '');
+  // P1429 (Codex review): the two futures cells were the largest items on home and often empty. When a
+  // futures quote is missing the cell shows the cash index's last completed close (same history as 시장 상태)
+  // and says the futures quote is unavailable; a live futures quote restores the cell.
+  for (const [cellId, futures, field, label] of [['home-kpi-es-fallback', 'ES=F', 'spx', 'S&P 500'], ['home-kpi-nq-fallback', 'NQ=F', 'nasdaq', '나스닥 종합']]) {
+    const fallback = doc.getElementById(cellId);
+    if (!fallback) continue;
+    const cell = fallback.parentElement;
+    const live = Number(root._liveData?.[futures]?.price);
+    if (Number.isFinite(live) && live > 0) { fallback.hidden = true; cell?.removeAttribute('data-futures-missing'); continue; }
+    const history = root._aioHistory || [];
+    const series = buildCloseSeries(history, field, { through: closeBasis(history) });
+    const last = series[series.length - 1];
+    const prev = series[series.length - 2];
+    if (!last) { fallback.hidden = true; continue; }
+    const change = prev ? (last.value / prev.value - 1) * 100 : null;
+    const [, month, day] = last.date.split('-').map(Number);
+    fallback.replaceChildren();
+    const value = doc.createElement('span');
+    value.className = 'kpi-fallback-value';
+    value.textContent = last.value.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    const note = doc.createElement('span');
+    note.className = 'kpi-fallback-note';
+    note.textContent = `${label} ${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`} · 선물 시세 없음`;
+    fallback.append(value, note);
+    fallback.hidden = false;
+    cell?.setAttribute('data-futures-missing', 'true');
+  }
+  // P1428: the F&G day change on home uses the completed-close history, the same basis as 투자 심리
+  // (it used CNN's own previous_close, so the two screens showed +3 and +2 for the same 31).
+  const fgDelta = doc.getElementById('home-fg-delta');
+  if (fgDelta) {
+    const history = root._aioHistory || [];
+    const fg = buildCloseSeries(history, 'fg', { through: closeBasis(history) });
+    const change = fg.length > 1 ? Math.round(fg[fg.length - 1].value) - Math.round(fg[fg.length - 2].value) : null;
+    fgDelta.textContent = change == null ? '' : `전일 대비 ${change > 0 ? '+' : ''}${change}`;
+    fgDelta.className = 'aio-metric-delta';
+    fgDelta.dataset.aioFgDeltaRenderer = 'native';
+  }
   const chips = doc.getElementById('home-hero-components');
   if (chips) {
     chips.replaceChildren(...regime.axes.map((row) => {

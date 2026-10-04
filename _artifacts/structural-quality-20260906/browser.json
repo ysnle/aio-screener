@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-03T12:11:08.872Z",
+  "generatedAt": "2026-10-04T01:53:11.591Z",
   "routes": [
     {
       "id": "home",
@@ -7,63 +7,57 @@
       "moduleState": "ready",
       "controls": [
         {
-          "tag": "BUTTON",
-          "name": "오늘 브리핑시장 요약부터"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 환경지표 한눈에"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "학습 가이드용어·사용법"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시작 안내 닫기"
-        },
-        {
           "tag": "A",
           "name": "시장 상태 →"
         },
         {
-          "tag": "A",
-          "name": "Oil Prices Lower On G-7 Fuel Release Plan - WSJ — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "NVIDIA (NVDA) at $205: Why Jensen Huang’s $1 Trillion Blackwell-Rubin Vision Matters More Than the Pullback - "
-        },
-        {
-          "tag": "A",
-          "name": "Gold heads for weekly drop as strong dollar, elevated Treasury yields weigh - CNBC — 원문 새 창에서 열기"
+          "tag": "BUTTON",
+          "name": "7일 일정과 시장 해석 → 브리핑"
         }
       ],
       "headings": [
-        "시장 현황 v57.09"
+        "시장 현황 v57.10",
+        "어제와 달라진 점10/1 → 10/2 종가",
+        "내 종목",
+        "다가오는 일정3일 · 한국 시간",
+        "내 종목 뉴스"
       ]
     },
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
         {
-          "tag": "A",
-          "name": "시장 폭"
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
         },
         {
-          "tag": "A",
-          "name": "투자 심리"
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
         },
         {
-          "tag": "A",
-          "name": "금리 · 환율"
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
         }
       ],
       "headings": [
         "시장 상태",
-        "판정 대기"
+        "방어적 환경",
+        "미국 시장 6개 축",
+        "추세",
+        "시장 폭",
+        "변동성",
+        "금리",
+        "신용 · 위험선호",
+        "달러 · 원자재",
+        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
+        "환율 (원 · 엔)",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -80,7 +74,20 @@
       "id": "sentiment",
       "exists": true,
       "moduleState": "ready",
-      "controls": [],
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        }
+      ],
       "headings": [
         "투자 심리",
         "심리 종합",
@@ -88,7 +95,8 @@
         "VIX 기간 구조 (VIX ÷ 3개월 VIX)",
         "HY 신용 스프레드",
         "풋/콜 비율",
-        "AAII 개인 설문"
+        "AAII 개인 설문",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -103,16 +111,16 @@
       ],
       "headings": [
         "오늘의 브리핑",
-        "앞으로 7일 일정 한국 시간",
         "오늘의 시장 해석",
         "자산별 흐름",
-        "다음 확인 포인트"
+        "다음 확인 포인트",
+        "앞으로 7일 일정 한국 시간"
       ]
     },
     {
       "id": "technical",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
@@ -136,7 +144,7 @@
         }
       ],
       "headings": [
-        "차트 · 기술 분석",
+        "종목 차트",
         "SPY 일봉"
       ]
     },
@@ -229,7 +237,7 @@
         }
       ],
       "headings": [
-        "기업 분석"
+        "재무 공시"
       ]
     },
     {
@@ -237,6 +245,62 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "통신 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "소비재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "원자재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "부동산 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금융 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "11섹터"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "+서브섹터"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1일"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1주"
+        },
         {
           "tag": "BUTTON",
           "name": "1개월"
@@ -315,46 +379,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "통신 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "에너지 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헬스케어 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "소비재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "산업재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "원자재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "부동산 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금융 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
           "name": "반도체 +0.7%"
         },
         {
@@ -383,19 +407,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "11섹터"
+          "name": "스크리너 →"
         },
         {
           "tag": "BUTTON",
-          "name": "+서브섹터"
+          "name": "시장 폭 →"
         },
         {
           "tag": "BUTTON",
-          "name": "1일"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1주"
+          "name": "거시 경제 →"
         },
         {
           "tag": "A",
@@ -448,13 +468,15 @@
       ],
       "headings": [
         "테마 · 트렌드",
+        "섹터 회전 판정",
         "하위 테마 상대강도 순위",
         "AI 설비투자 100달러는 어디로 가나",
         "반도체",
         "전력",
         "네트워크",
         "냉각",
-        "시설·건설"
+        "시설·건설",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -524,39 +546,23 @@
         },
         {
           "tag": "BUTTON",
-          "name": "재무 공시"
+          "name": "1M"
         },
         {
           "tag": "BUTTON",
-          "name": "가격 이력"
+          "name": "3M"
         },
         {
           "tag": "BUTTON",
-          "name": "종목 선택 후 SEC 재무 보기"
+          "name": "6M"
         },
         {
           "tag": "BUTTON",
-          "name": "패턴 감지 ↻"
+          "name": "1Y"
         },
         {
           "tag": "BUTTON",
-          "name": "관측값 불러오기 ↻"
-        },
-        {
-          "tag": "INPUT",
-          "name": "진입품질 현재가"
-        },
-        {
-          "tag": "INPUT",
-          "name": "진입품질 20일 EMA"
-        },
-        {
-          "tag": "INPUT",
-          "name": "진입품질 14일 RSI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "계산하기"
+          "name": "다시 감지 ↻"
         }
       ],
       "headings": [
@@ -573,28 +579,12 @@
           "name": "새로고침"
         },
         {
-          "tag": "A",
-          "name": "NVIDIA (NVDA) at $205: Why Jensen Huang’s $1 Trillion Blackwell-Rubin Vision Matters More Than the Pullback - "
-        },
-        {
-          "tag": "A",
-          "name": "Oil Prices Lower On G-7 Fuel Release Plan - WSJ — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold heads for weekly drop as strong dollar, elevated Treasury yields weigh - CNBC — 원문 새 창에서 열기"
-        },
-        {
           "tag": "BUTTON",
           "name": "최신순"
         },
         {
           "tag": "BUTTON",
           "name": "중요도순"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "공용 AI 연결 시 해석 추가"
         },
         {
           "tag": "BUTTON",
@@ -614,103 +604,51 @@
         },
         {
           "tag": "A",
-          "name": "Gold Set for Fifth Weekly Loss in Six as Dollar and Yields Overwhelm Weak Jobs Data - finance.biggo.com — 원문 새"
+          "name": "시장소식중립 어조Insider·US · 10-03NEXT STOP: ALABAMA 🇺🇸"
         },
         {
           "tag": "A",
-          "name": "Stock Market Today: Weak Jobs Report Lifts Stocks as Fed Rate-Hike Bets Fade, Nasdaq and Dow Rally - Eurasia B"
+          "name": "시장소식중립 어조Insider·US · 10-03폴란드 일간지 제치포스폴리타에 따르면 폴란드 국방부가 국가의 완전한 방위태세 구축을 위한 새로운 법안을 마련 중. 법안이 시행될 경우 계엄령 선포 이"
         },
         {
           "tag": "A",
-          "name": "Teradyne Stock Climbs As AI Test And Robotics Catalysts Stack Up - stockstotrade.com — 원문 새 창에서 열기"
+          "name": "지정학중립 어조Insider·US · 10-03⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뉴욕타임즈에 따르면 러시아의 에너지 인프라 공격으로 우크라이나가 전쟁 발발 이후 가장 혹독한 겨울을 맞을 가능성이 있다"
         },
         {
           "tag": "A",
-          "name": "Stock Market Rallies on Friday, Oct. 2, 2026 - stl.news — 원문 새 창에서 열기"
+          "name": "지정학중립 어조Insider·US · 10-03악시오스에 따르면 미군이 사우디아라비아와 카타르의 석유·가스 시설을 보호하기 위해 패트리엇 방공미사일 포대를 추가 배치. 미국 당국자 2명과 역내 소식"
         },
         {
           "tag": "A",
-          "name": "G7 countries to release up to 100 million barrels of diesel and crude oil reserves - NBC News — 원문 새 창에서 열기"
+          "name": "지정학중립 어조Insider·US · 10-03⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 영국 해사무역기구(UKMTO)에 따르면 10월 2일 호르무즈 해협에서 유조선 피격 사건 발생. 해당 유조선 선장은 호르"
         },
         {
           "tag": "A",
-          "name": "Iranian Oil Starts Flowing to Tajikistan Despite U.S. Sanctions Risk - oilprice.com — 원문 새 창에서 열기"
+          "name": "시장소식중립 어조Insider·US · 10-03로이터에 따르면 미국 국가핵안보국(NNSA)이 수요일 네바다 국가안보시설에서 저위력 핵폭발 탐지 능력을 향상하기 위한 비핵 화학 고폭발 실험을 실시."
         },
         {
           "tag": "A",
-          "name": "Paul Hickey details why the 10-year Treasury yield is now easing - Fox Business — 원문 새 창에서 열기"
+          "name": "전력인프라중립 어조Insider·US · 10-03미국 해안경비대(USCG) 발표에 따르면 쿠바로 향하던 선박 M/V 그레이스를 차단. M/V 그레이스는 9월 초 연료를 싣고 쿠바로 이동하던 중 차"
         },
         {
           "tag": "A",
-          "name": "The Dollar refuses to fall: What it means for Gold - FXStreet — 원문 새 창에서 열기"
+          "name": "지정학긍정 어조Insider·US · 10-03G7 정상들이 급등하는 글로벌 에너지 가격을 완화하기 위한 긴급 조치로 향후 4개월간 전략 비축유에서 원유 및 정제연료 1억 배럴을 방출하기로 합의. "
         },
         {
           "tag": "A",
-          "name": "화면에 보이는 금액의 의미부터 짚는 홀덤사이트 인포 - Calgary Roughnecks — 원문 새 창에서 열기"
+          "name": "실적중립 어조Insider·US · 10-03차주 실적 발표 리스트"
         },
         {
           "tag": "A",
-          "name": "S&P 500, Nasdaq Climb as 29K Jobs Miss Sends Stocks Higher - CryptoRank — 원문 새 창에서 열기"
+          "name": "시장소식중립 어조HANA·China/EM · 10-03•중국 중간재 점유율 (신흥vs전통) •중간재 증시 시총도 계속 확대"
         },
         {
           "tag": "A",
-          "name": "Samsung Stock Plummets Nearly 10%: Earnings Preview Brings Mixed Outlook, Facing Potential Technical Breakdown"
+          "name": "매크로긍정 어조Insider·US · 10-032026년 10월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF"
         },
         {
           "tag": "A",
-          "name": "FGC Forecast — Price Target — Prediction for 2027 - TradingView — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "12개 더 보기"
-        },
-        {
-          "tag": "A",
-          "name": "시장소식● 중립Insider·US · 10-03NEXT STOP: ALABAMA 🇺🇸"
-        },
-        {
-          "tag": "A",
-          "name": "시장소식● 중립Insider·US · 10-03폴란드 일간지 제치포스폴리타에 따르면 폴란드 국방부가 국가의 완전한 방위태세 구축을 위한 새로운 법안을 마련 중. 법안이 시행될 경우 계엄령 선포 이전"
-        },
-        {
-          "tag": "A",
-          "name": "지정학● 중립Insider·US · 10-03⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뉴욕타임즈에 따르면 러시아의 에너지 인프라 공격으로 우크라이나가 전쟁 발발 이후 가장 혹독한 겨울을 맞을 가능성이 있다는"
-        },
-        {
-          "tag": "A",
-          "name": "지정학● 중립Insider·US · 10-03악시오스에 따르면 미군이 사우디아라비아와 카타르의 석유·가스 시설을 보호하기 위해 패트리엇 방공미사일 포대를 추가 배치. 미국 당국자 2명과 역내 소식통"
-        },
-        {
-          "tag": "A",
-          "name": "지정학● 중립Insider·US · 10-03⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 영국 해사무역기구(UKMTO)에 따르면 10월 2일 호르무즈 해협에서 유조선 피격 사건 발생. 해당 유조선 선장은 호르무"
-        },
-        {
-          "tag": "A",
-          "name": "시장소식● 중립Insider·US · 10-03로이터에 따르면 미국 국가핵안보국(NNSA)이 수요일 네바다 국가안보시설에서 저위력 핵폭발 탐지 능력을 향상하기 위한 비핵 화학 고폭발 실험을 실시. "
-        },
-        {
-          "tag": "A",
-          "name": "전력인프라● 중립Insider·US · 10-03미국 해안경비대(USCG) 발표에 따르면 쿠바로 향하던 선박 M/V 그레이스를 차단. M/V 그레이스는 9월 초 연료를 싣고 쿠바로 이동하던 중 차단"
-        },
-        {
-          "tag": "A",
-          "name": "지정학▲ 상승Insider·US · 10-03G7 정상들이 급등하는 글로벌 에너지 가격을 완화하기 위한 긴급 조치로 향후 4개월간 전략 비축유에서 원유 및 정제연료 1억 배럴을 방출하기로 합의. 국"
-        },
-        {
-          "tag": "A",
-          "name": "실적● 중립Insider·US · 10-03차주 실적 발표 리스트"
-        },
-        {
-          "tag": "A",
-          "name": "시장소식● 중립HANA·China/EM · 10-03•중국 중간재 점유율 (신흥vs전통) •중간재 증시 시총도 계속 확대"
-        },
-        {
-          "tag": "A",
-          "name": "매크로▲ 상승Insider·US · 10-032026년 10월 2일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF "
-        },
-        {
-          "tag": "A",
-          "name": "시장소식● 중립HANA·China/EM · 10-03•중국 수출 물량 vs 수출 가격 기여도 •물량 기여도 안정적이나 점차 축소"
+          "name": "시장소식중립 어조HANA·China/EM · 10-03•중국 수출 물량 vs 수출 가격 기여도 •물량 기여도 안정적이나 점차 축소"
         }
       ],
       "headings": [
@@ -1340,7 +1278,7 @@
         },
         {
           "tag": "INPUT",
-          "name": "가이드 검색"
+          "name": "설명서 검색"
         },
         {
           "tag": "BUTTON",
@@ -1348,23 +1286,19 @@
         },
         {
           "tag": "BUTTON",
-          "name": "10단계 루틴"
+          "name": "메뉴 지도"
         },
         {
           "tag": "BUTTON",
-          "name": "밸류체인"
+          "name": "판정 기준표"
         },
         {
           "tag": "BUTTON",
-          "name": "판단 방법론"
+          "name": "연결 설정"
         },
         {
           "tag": "BUTTON",
-          "name": "용어사전"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "매매 전략"
+          "name": "유의사항"
         },
         {
           "tag": "BUTTON",
@@ -1372,15 +1306,79 @@
         },
         {
           "tag": "BUTTON",
-          "name": "API 설정"
+          "name": "용어 사전"
         },
         {
           "tag": "BUTTON",
-          "name": "초보자 시작: 홈 대시보드"
+          "name": "대시보드"
         },
         {
           "tag": "BUTTON",
-          "name": "?\n        AIO Screener 핵심 사용 루틴\n      \n      ▼"
+          "name": "브리핑"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "뉴스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "국면 판정"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "요약"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "차트"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "재무 공시"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "포트폴리오"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 원리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "대가의 포트폴리오"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "지식 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "사용 설명서"
         },
         {
           "tag": "BUTTON",
@@ -1400,7 +1398,17 @@
         }
       ],
       "headings": [
-        "AIO Screener 사용 설명서"
+        "AIO Screener 사용 설명서",
+        "메뉴 지도",
+        "오늘",
+        "시장 상태",
+        "거시 · 금리",
+        "테마 · 섹터",
+        "종목",
+        "스크리너",
+        "포트폴리오",
+        "배우기",
+        "판정 기준표 시장 상태 · 투자 심리 · 거시 · 금리 · 환율이 함께 쓰는 기준"
       ]
     },
     {
@@ -1624,7 +1632,7 @@
       "ok": true
     },
     {
-      "name": "guide canonical weights",
+      "name": "guide screen cards follow the menu (P1428)",
       "ok": true
     },
     {

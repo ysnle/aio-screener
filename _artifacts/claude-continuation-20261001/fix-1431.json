@@ -1,0 +1,19 @@
+{
+  "version": "v57.10",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.10 — each analysis page reads as one argument: section leads computed from the same data, a verdict first, and '이어서 볼 곳' with the reason (P1431).",
+  "p": {
+    "id": 1431,
+    "title": "Page logic flow: section leads, verdict first, next steps with reasons",
+    "symptom": "Owner (2026-10-04): sections inside one page feel independent; cut how-to prose but keep and deepen analysis that connects the numbers. Concretely: 시장 폭 groups had no reading of their own; 투자 심리 did not say which of its numbers feed the 시장 상태 axes; 시장 상태 ended with a static link list; 테마 printed '차트는 별도 레거시 secondary surface입니다' as its rotation reading and opened with a textbook sector-cycle example; the briefing put the schedule before its conclusion; the screener opened with run hashes, identification-metadata counts and operations text.",
+    "root_cause": "Pages were assembled card by card; the connective sentences were never computed.",
+    "fix": "src/domain/market/page-flow.js: breadthFlow (participation / leadership / index leads), sentimentFlow (ties HY and VIX term structure to the 신용 and 변동성 axes), regimeFlow (each non-favourable axis → the screen that explains it, with the axis state), rotationFlow (all four RRG quadrants, defensive vs cyclical, concentration tied to the breadth axis). src/ui/components/page-flow.js renders section leads and '이어서 볼 곳'. Themes: 섹터 회전 판정 at the top (the verdict-first reorder now targets it), RRG then the same sectors' performance, sub-theme strength, AI capex; the cycle map moved out of the user path. Briefing: read → drivers → checks → schedule. Screener: data/validation status folded, builder/funnel/run history folded under '조건 직접 조합', plain-language status, '순위 가중치' label. Stock pages: subtitles say what the page reads, not how to use it.",
+    "violated_rule": "Owner direction: minimal usage guidance, connected analysis on every page.",
+    "prevention": "T806 checks the themes verdict block; ci-architecture-browser-check briefing order (read before schedule); ci-screener-auto-refresh-browser-check opens the folded builder and reads the definition id from the status title.",
+    "verification": "Local preview: 시장 폭 shows three data-driven leads ('S&P 500 20일 -0.3%, 50일선 위 종목 비율 20일 -24.5%p — 괴리') and four next steps; 투자 심리 bridge names HY 324bp (신용 부담) and VIX/VIX3M 0.85 (변동성 우호); 테마 verdict reads '선도 기술 · 개선 통신 … 11개 중 선도는 1개뿐 … 시장 폭 부담과 같은 그림'."
+  },
+  "changelog": [
+    "**페이지 로직 흐름 (P1431):** 시장 상태·시장 폭·투자 심리·테마에 데이터로 계산한 섹션 해석과 '이어서 볼 곳(이유 포함)'을 붙였습니다. 테마는 섹터 회전 판정이 맨 위, 브리핑은 해석 → 근거 → 확인 포인트 → 일정 순, 스크리너의 내부 운영 정보는 접었습니다."
+  ]
+}

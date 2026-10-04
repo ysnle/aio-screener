@@ -8,6 +8,10 @@
 import { alignInput, alignMarketInputs, alignmentLabel, buildCloseSeries, isUsable } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
+import { RULES } from '../../domain/rules/thresholds.js';
+import { buildMarketRegime } from '../../domain/briefing/market-read.js';
+import { sentimentFlow } from '../../domain/market/page-flow.js';
+import { renderNextSteps } from './page-flow.js';
 
 // AAII published long-run averages (since 1987): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
@@ -70,7 +74,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       note: '1 미만이면 단기 공포가 중기보다 작은 정상 상태, 1을 넘으면 당장의 충격을 크게 반영하는 역전' },
     { id: 'hy', title: 'HY 신용 스프레드', value: shown.hyBp == null ? '—' : `${Math.round(shown.hyBp)}bp`, basis: alignmentLabel(alignments.hy), basisStatus: alignments.hy.status,
       // Same bands as the 시장 상태 credit axis (P1392): < 350bp calm, 350-450 watch, >= 450 stress.
-      state: shown.hyBp == null ? null : judged(hyBp, hyBp >= 450 || (hy5 != null && hy5 >= 25) ? { label: '신용 스트레스', tone: 'burden' } : hyBp >= 350 ? { label: '경계', tone: 'neutral' } : { label: '안정', tone: 'favorable' }),
+      state: shown.hyBp == null ? null : judged(hyBp, hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp) ? { label: '신용 스트레스', tone: 'burden' } : hyBp >= RULES.credit.tightBelowBp ? { label: '경계', tone: 'neutral' } : { label: '안정', tone: 'favorable' }),
       change: shown.hy5 == null ? '' : `5일 ${shown.hy5 >= 0 ? '+' : ''}${Math.round(shown.hy5)}bp`, note: '고위험 회사채가 국채보다 더 받는 금리 — 돈을 빌리기 어려워질수록 커짐 · 350bp 이상 경계, 450bp 이상 스트레스' },
     { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status,
       state: shown.pcr == null ? null : judged(pcr, pcr > 1 ? { label: '헤지 수요 높음', tone: 'burden' } : pcr < 0.7 ? { label: '낙관 (콜 우위)', tone: 'favorable' } : { label: '중립', tone: 'neutral' }),
@@ -84,10 +88,13 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   // is claimed only when it was measured.
   const moodKnown = fg != null || bear != null;
   const fearful = (fg != null && fg < 45) || (bear != null && bear >= 45);
-  const greedy = fg != null && fg > 75 && (pcr == null || pcr < 0.7);
+  // P1428: greed needs a measured put/call; a missing one is '미확인', never 'low hedging'.
+  const greedy = fg != null && fg > RULES.fearGreed.extremeGreedAbove;
+  const hedgeLow = pcr != null && pcr < 0.7;
   const creditKnown = hyBp != null;
-  const creditCalm = creditKnown && hyBp < 350 && (hy5 == null || hy5 < 15);
-  const creditStress = creditKnown && (hyBp >= 350 || (hy5 != null && hy5 >= 15));
+  // P1428: the same credit bands as 시장 상태 (the summary used 350bp / +15bp beside cards using 450bp / +25bp).
+  const creditCalm = creditKnown && hyBp < RULES.credit.tightBelowBp && (hy5 == null || hy5 < RULES.credit.widen5dBp);
+  const creditStress = creditKnown && (hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp));
   const volKnown = ratio != null;
   const volCalm = volKnown && ratio < 1;
   const parts = [fg != null ? `F&G ${Math.round(fg)}` : null, bear != null ? `AAII 약세 ${bear.toFixed(1)}%` : null].filter(Boolean).join(' · ');
@@ -96,7 +103,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   else if (fearful && creditCalm && volCalm) synthesis = `심리 지표(${parts})는 공포인데 신용(${Math.round(hyBp)}bp)과 변동성 구조(${ratio.toFixed(2)})는 안정 — 공포가 가격에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.`;
   else if (fearful && (creditStress || (volKnown && !volCalm))) synthesis = `심리(${parts})와 함께 ${[creditStress ? `신용 스프레드(${Math.round(hyBp)}bp${hy5 != null ? `, 5일 ${hy5 >= 0 ? '+' : ''}${Math.round(hy5)}bp` : ''})도 경계 구간` : null, volKnown && !volCalm ? `변동성 구조도 역전(${ratio.toFixed(2)})` : null].filter(Boolean).join(', ')} — 위험 회피가 가격을 넘어 퍼지고 있습니다.`;
   else if (fearful) synthesis = `심리(${parts})는 공포지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 공포가 번졌는지 확인하지 못했습니다.`;
-  else if (greedy) synthesis = `낙관이 강하고(F&G ${Math.round(fg)}) 헤지 수요가 낮음 — 충격에 대비가 얇은 배치입니다.`;
+  else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 헤지 수요가 낮음(풋/콜 ${pcr.toFixed(2)}) — 충격에 대비가 얇은 배치입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 헤지 수요는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 헤지 수요가 낮지는 않습니다`}.`;
   else synthesis = `심리 지표(${parts})가 한쪽으로 치우치지 않은 상태입니다.`;
   const mixed = cards.filter((card) => card.value !== '—' && card.basisStatus !== 'aligned').map((card) => card.title);
   return { asOf: basis, mixed, cards, synthesis, aaiiNote: bear != null && bear >= 45 ? `AAII 약세 응답 ${bear.toFixed(1)}%는 장기 평균(${AAII_AVERAGE.bear}%)보다 크게 높음 — 개인 투자자 비관이 강한 편입니다.` : null };
@@ -111,6 +118,10 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준${model.mixed.length ? ' · 날짜가 다른 지표는 카드에 표시' : ''} · 공포·탐욕, 변동성 구조, 신용, 옵션, 개인 설문` : '기록을 불러오는 중입니다.');
   set('sentiment-synthesis', model.synthesis);
   set('sentiment-aaii-note', model.aaiiNote || '');
+  // P1431: tie the synthesis back to the 시장 상태 axes that use the same numbers.
+  const flow = sentimentFlow({ model, regime: buildMarketRegime(inputs) });
+  set('sentiment-bridge', flow.bridge);
+  renderNextSteps(doc, doc.getElementById('sentiment-next'), flow.next);
   // Charted cards share one row and the value-only cards another, so card heights match.
   const grids = { chart: doc.getElementById('sentiment-card-grid'), mini: doc.getElementById('sentiment-mini-grid') };
   const charted = model.cards.filter((card) => card.series);
