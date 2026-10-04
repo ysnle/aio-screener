@@ -1,0 +1,19 @@
+{
+  "version": "v57.16",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.16 — 13F ledger scope and turnover label; KR themes read from completed closes (P1444).",
+  "p": {
+    "id": 1444,
+    "title": "13F ledger scope and turnover label; KR themes read from completed closes",
+    "symptom": "Berkshire's change ledger showed the 10-row embedded preview first and 30 rows only after another view loaded the manager shard; \"회전율 대용치 7.8%\" was the distance between reported-value weights (price moves alone change it); the KR theme block promised 수급·모멘텀·성과 while live coverage was 0/28.",
+    "root_cause": "The ledger used whatever comparison rows were loaded; the KR block depended only on live quotes.",
+    "fix": "masters: when the preview is shorter than the verified comparison count, the ledger says \"전체 비교 N행 중 미리보기 M행\" with a button that loads the full shard (initial-load budget unchanged); the metric is renamed \"보고가치 비중 변화(회전율 아님)\". kr-themes krThemeArtifactRead: median 1-/3-month return and 50-day share per KRX theme from the screener artifact (25 of 28 themes covered), rendered at the top of the KR block with the coverage in its summary.",
+    "violated_rule": "Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.",
+    "prevention": "ci-three-page-artifact-budget-check keeps the deferred shard; browser groups cover themes and masters.",
+    "verification": "Local: KR block reads \"강한 테마는 반도체(+27.5%) · 에너지(+9.6%) · 로봇(+4.5%)…\" with 12 bars."
+  },
+  "changelog": [
+    "**13F·국내 테마 (P1444):** 변화 원장이 미리보기만 보여줄 때 그 범위를 밝히고 전체 원장 불러오기를 제공, '회전율 대용치'는 '보고가치 비중 변화(회전율 아님)'로. 국내 테마는 스크리너 완료 종가로 1·3개월 흐름을 보여줍니다."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "version": "v57.16",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.16 — Ranking and validation use one model; the validation view says what it measured (P1443).",
+  "p": {
+    "id": 1443,
+    "title": "Ranking and validation use one model; the validation view says what it measured",
+    "symptom": "The back-test re-implemented the composite (universe percentiles, trend = plain mean of the 50/200-day distances) while the screen ranks with sector-relative z-scores and a 60/40 trend, so its IC did not validate the screen; the spread came from $1 long + $1 short while cost was charged on ±0.5 legs; the visible graphic read 계산 불가 while the artifact had ICs; 방향 적중률 33.3% was the share of rebalances where the top quintile beat the bottom; the Why drawer called different numbers 합성; two preset systems sat side by side.",
+    "root_cause": "The back-test predates the v6 ranking model and kept its own formula and labels.",
+    "fix": "backtestFactors ranks each rebalance date with computeFactorRanks (same raw definitions, sector-relative z-scores, coverage gates, default weights; sectors from screener-universe.json) and keeps single-factor ICs on the live definitions; long/short legs are ±1 so spread and cost share the exposure; output adds hitRateMeaning, rebalancesCounted and modelParity. Screener 검증 tab: one native view — per-factor and composite IC bars, gross/net spread, \"상위가 하위를 앞선 횟수\" with its meaning, sample and bias notes, overlapping-factor note, and the 10-year 120-stock study with its limits; the legacy SVG is removed. Why drawer: ① sector-normalized bars → ② weighted sum → ③ percentile = 상대 점수 → ④ order among passing rows, with the overlap and \"not quality or probability\" note; \"등록된 반대 조건에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다\". Weight profiles moved into a fold (only the default is validated).",
+    "violated_rule": "Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.",
+    "prevention": "ci-runtime-contract-check P1443 (composite = computeFactorRanks, no COMP_W, sector map); ci-data-pipeline-contract-check (disclosure, fixtures).",
+    "verification": "Synthetic 40-stock back-test: composite IC 0.356 via the live model, cost on ±1 legs; the local screener 검증 tab renders the verdict, bars and facts."
+  },
+  "changelog": [
+    "**순위와 검증을 같은 모델로 (P1443):** 백테스트가 화면 순위 함수를 그대로 써서 과거 시점을 다시 매기고, 수익률 차이와 거래비용을 같은 노출로 계산합니다. 검증 탭은 IC·상하위 차이·'상위가 앞선 횟수(종목 적중률 아님)'·10년 연구의 한계를 한 화면에 보여주고, Why 설명은 막대 → 가중 합 → 백분위 → 순위 순서를 밝힙니다."
+  ]
+}

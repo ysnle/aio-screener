@@ -926,7 +926,9 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     createMetric(documentRef, '고유 신고 포지션', holdingMeta?.verification?.reportedPositionCount != null ? `${holdingMeta.verification.reportedPositionCount}개` : '확인 필요'),
     createMetric(documentRef, 'Top 5 / Top 10', `${formatPercent(holdingMeta?.verification?.top5ConcentrationPct)} / ${formatPercent(holdingMeta?.verification?.top10ConcentrationPct)}`),
     createMetric(documentRef, '변화 요약', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '비교 필요'),
-    createMetric(documentRef, '회전율 대용치', formatPercent(holdingMeta?.verification?.turnoverProxyPct)),
+    // P1444: the proxy is the distance between reported-value weights — price moves alone change it — and
+    // split/merger adjustments are pending review, so it is not trading turnover.
+    createMetric(documentRef, '보고가치 비중 변화(회전율 아님)', formatPercent(holdingMeta?.verification?.turnoverProxyPct)),
     createMetric(documentRef, '총액 대조', valueReconciliationStatus(holdingMeta?.verification)),
     createMetric(documentRef, '원문 미리보기', previewRows.length ? `${previewRows.length}행` : '없음'),
     createMetric(documentRef, '데이터 상태', statusLabel(dataStatus)),
@@ -996,7 +998,18 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     const summary = createChangeSummary(documentRef, holdingMeta?.verification);
     if (summary) detail.appendChild(summary);
     if (compactRows.length) detail.appendChild(createTopHoldingTable(documentRef, manager, holdingMeta, compactRows));
-    if (comparisonRows.length) detail.appendChild(createChangeLedger(documentRef, comparisonRows, state));
+    if (comparisonRows.length) {
+      const expected = Number(holdingMeta?.verification?.comparisonRowCount) || null;
+      // P1444 (review 2026-10-04): the ledger first shows the embedded preview (the full manager shard is
+      // loaded only on request — artifact budget). Say how much of the comparison is on screen and offer
+      // the full ledger instead of letting the scope change silently after another view loads it.
+      if (expected && comparisonRows.length < expected) {
+        const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', `전체 비교 ${expected}행 중 미리보기 ${comparisonRows.length}행만 표시 중입니다. `);
+        scope.appendChild(button(documentRef, 'masters-route-button is-secondary', state.loadingManagers?.has?.(manager.id) ? '전체 원장 불러오는 중…' : `전체 ${expected}행 변화 원장 불러오기`, 'load-manager', manager.id));
+        detail.appendChild(scope);
+      }
+      detail.appendChild(createChangeLedger(documentRef, comparisonRows, state));
+    }
     if (!compactRows.length && previewRows.length) detail.appendChild(createRowPreviewView(documentRef, manager, previewMeta, previewRows));
   } else if (state.view === 'holdings') {
     detail.appendChild(fullRows.length ? createFullHoldingsView(documentRef, fullRows, state, managerShard) : managerShard?.url ? createDeferredRowsState() : previewRows.length ? createRowPreviewView(documentRef, manager, previewMeta, previewRows) : element(documentRef, 'div', 'masters-empty-state', '보유 행 웹 투영이 아직 연결되지 않았습니다.'));

@@ -23,13 +23,18 @@ const source = JSON.parse(sourceText);
 // six full years of revenue / net income from 10-K FY facts of about twelve months, one row per period end —
 // the latest filing wins) is written as its own small artifact, sec-fiscal-history.json, loaded only by the
 // 재무 공시 page; the 1 MiB runtime summary stays as it was. PIT observations stay producer-side.
-const FY_FIELDS = ['revenue', 'netIncome', 'equity'];
+// P1446: the series also carries the cash chain — operating cash flow, capital spending, long-term debt —
+// and the share count reported on the cover page after each fiscal year end (buybacks / dilution).
+const FY_FIELDS = ['revenue', 'netIncome', 'equity', 'operatingCashFlow', 'capex', 'longTermDebt'];
+const DURATION_FIELDS = new Set(['revenue', 'netIncome', 'operatingCashFlow', 'capex']);
+export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions (USD millions)';
 function fiscalHistory(observations = {}) {
   const byEnd = new Map();
   for (const field of FY_FIELDS) {
     for (const row of Array.isArray(observations[field]) ? observations[field] : []) {
-      if (row?.fiscalPeriod !== 'FY' || !/^10-K/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) continue;
-      if (field !== 'equity') {
+      if (!/^10-K/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) continue;
+      if (DURATION_FIELDS.has(field)) {
+        if (row?.fiscalPeriod !== 'FY') continue;
         const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart || '')) / 86400000;
         if (!(days >= 330 && days <= 380)) continue;
       }
@@ -38,13 +43,20 @@ function fiscalHistory(observations = {}) {
       byEnd.set(row.periodEnd, entry);
     }
   }
+  const shares = (Array.isArray(observations.sharesOutstanding) ? observations.sharesOutstanding : [])
+    .filter((row) => Number.isFinite(row?.value) && row.periodEnd).sort((x, y) => String(x.periodEnd).localeCompare(String(y.periodEnd)));
+  const sharesAfter = (end) => {
+    const t = Date.parse(end);
+    const hit = shares.find((row) => { const d = (Date.parse(row.periodEnd) - t) / 86400000; return d >= 0 && d <= 150; });
+    return hit ? hit.value : null;
+  };
+  const m = (value) => (value == null ? '' : Math.round(value / 1e6));
   return [...byEnd.values()]
     .filter((entry) => entry.revenue != null || entry.netIncome != null)
-    .sort((a, b) => a.periodEnd.localeCompare(b.periodEnd))
+    .sort((x, y) => x.periodEnd.localeCompare(y.periodEnd))
     .slice(-6)
-    // One compact line per issuer ("YYYY-MM-DD:revenue:netIncome;…", USD millions, empty = missing) so the
-    // series fits the 1 MiB runtime budget (ci-sec-runtime-projection-check) next to the latest facts.
-    .map(({ periodEnd, revenue = null, netIncome = null }) => [periodEnd, revenue, netIncome].map((value, index) => (index === 0 ? value : value == null ? '' : Math.round(value / 1e6))).join(':'))
+    // One compact line per issuer (see FISCAL_HISTORY_FORMAT; empty = not reported).
+    .map((entry) => [entry.periodEnd, m(entry.revenue), m(entry.netIncome), m(entry.equity), m(entry.operatingCashFlow), m(entry.capex), m(entry.longTermDebt), m(sharesAfter(entry.periodEnd))].join(':'))
     .join(';');
 }
 const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => {
@@ -77,7 +89,7 @@ const fiscal = {
   schemaVersion: 'sec-fiscal-history.v1',
   generatedAt: source.generatedAt,
   source: source.source,
-  unit: 'USD millions; each value is "YYYY-MM-DD:revenue:netIncome" joined by ";" (empty = not reported)',
+  format: FISCAL_HISTORY_FORMAT,
   allowedUse: source.allowedUse,
   data: Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => [symbol, fiscalHistory(record?.pit?.observations)]).filter(([, value]) => value))
 };
@@ -95,7 +107,7 @@ const manifest = {
   runtimeBytes: canonicalBytes(projectionText),
   records: Object.keys(data).length,
   // P1440: the client fetches the fiscal series only when this pointer exists (no 404 before the first run).
-  fiscalHistory: { path: 'public-data/sec-fiscal-history.json', records: Object.keys(fiscal.data).length },
+  fiscalHistory: { path: 'public-data/sec-fiscal-history.json', records: Object.keys(fiscal.data).length, format: FISCAL_HISTORY_FORMAT },
   generatedAt: projection.generatedAt
 };
 await writeAtomic(MANIFEST, manifest);

@@ -4,6 +4,7 @@ import { buildStockRead } from '../../domain/entity/stock-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
+import { benchmarkRowFor } from '../../domain/market/benchmarks.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -38,7 +39,7 @@ function rangeVisual(doc, read) {
 
 function relativeVisual(doc, read) {
   const box = el(doc, 'div', null, 'stock-read-relative');
-  box.append(el(doc, 'span', `수익률 — ${read.symbol} vs S&P 500`, 'stock-read-vis-title'));
+  box.append(el(doc, 'span', `수익률 — ${read.symbol} vs ${read.benchmarkLabel}`, 'stock-read-vis-title'));
   const rows = read.spans.filter((span) => span.stock != null);
   const max = Math.max(1, ...rows.flatMap((span) => [Math.abs(span.stock), Math.abs(span.bench ?? 0)]));
   for (const span of rows) {
@@ -49,7 +50,7 @@ function relativeVisual(doc, read) {
       if (value == null) continue;
       const bar = el(doc, 'div', null, `stock-read-bar is-${kind} ${value >= 0 ? 'is-up' : 'is-down'}`);
       bar.style.width = `${Math.max(2, Math.abs(value) / max * 100).toFixed(1)}%`;
-      bar.title = `${kind === 'stock' ? read.symbol : 'S&P 500'} ${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+      bar.title = `${kind === 'stock' ? read.symbol : read.benchmarkLabel} ${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
       const row = el(doc, 'div', null, 'stock-read-bar-row');
       row.append(bar, el(doc, 'span', `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`, 'stock-read-bar-value'));
       pair.append(row);
@@ -58,7 +59,7 @@ function relativeVisual(doc, read) {
     box.append(line);
   }
   const legend = el(doc, 'div', null, 'stock-read-legend');
-  legend.append(el(doc, 'span', read.symbol, 'is-stock'), el(doc, 'span', 'S&P 500', 'is-bench'));
+  legend.append(el(doc, 'span', read.symbol, 'is-stock'), el(doc, 'span', read.benchmarkLabel, 'is-bench'));
   box.append(legend);
   return box;
 }
@@ -74,7 +75,8 @@ export function renderStockRead({ documentRef: doc, root, symbol }) {
   const rows = call(root, '_aioGetCanonicalScreenerRows', []);
   const list = Array.isArray(rows) ? rows : [];
   const row = list.find((item) => item?.sym === sym) || null;
-  const benchmark = list.find((item) => item?.sym === 'SPY') || null;
+  // P1447: compare with the stock's own market index (KOSPI/KOSDAQ for KRX listings) over the same windows.
+  const benchmark = benchmarkRowFor(sym, root?._aioHistory || []);
   const rotation = root?._serverDataMeta?.rotationHistory?.items || {};
   const read = buildStockRead({ symbol: sym, row, benchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: list.length || null });
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));

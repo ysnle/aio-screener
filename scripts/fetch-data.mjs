@@ -24,7 +24,7 @@ import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
-import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
+import { FACTOR_FRESHNESS_MS, computeFactorRanks } from '../src/domain/screener/factor-ranks.js';
 import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js'; // P1402
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
 import { collectRotationHistory } from './lib/rotation-history.mjs';
@@ -2022,6 +2022,8 @@ async function getScreenerUniverse() {
     const syms = (j.universe || []).map(r => r && r.sym).filter(Boolean);
     return {
       symbols: [...new Set(syms)],
+      // P1443: the backtest ranks with the live model, which normalizes within sectors.
+      sectors: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, r.sector || null])),
       meta: j.meta && typeof j.meta === 'object' ? j.meta : {},
       generatedFrom: j.generatedFrom || 'unknown',
       generatedBy: j.generatedBy || 'unknown'
@@ -2284,7 +2286,8 @@ export function backtestFactors(stockData, opts) {
   //   (.27/.20/.16/.10, subset sum .73), renormalized to sum to 1 over just this subset — a single
   //   source of truth instead of an independently hand-picked second weight set (see P584/C1 for
   //   why two independent copies of the same "thing" drift apart over time).
-  var COMP_W = { mom: 0.370, trend: 0.274, lowvol: 0.219, kalman: 0.137 };
+  var sectorOf = opts && typeof opts.sectorOf === 'function' ? opts.sectorOf : function() { return null; };
+  var liveActiveFactorsSeen = [];
   var EXCLUDED_FACTORS = ['size', 'value', 'quality'];
   var EXCLUDED_FACTORS_REASON = 'size needs historical shares-outstanding data this pipeline does not fetch; value/quality are FMP today-only TTM snapshots with no historical time series, so backtesting them would use look-ahead information';
   var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
@@ -2338,14 +2341,17 @@ export function backtestFactors(stockData, opts) {
       ].filter(Boolean);
       var momSum = momParts.reduce(function(s,p){return s+p.w;},0);
       var mom = momParts.length ? momParts.reduce(function(s,p){return s+p.v*p.w;},0)/momSum : null;
-      var tr = [f.pctSma50, f.pctSma200].filter(isNum); tr = tr.length ? _mean(tr) : null;
+      // P1443: the same trend definition as the live model (50-day 60%, 200-day 40%).
+      var trParts = [isNum(f.pctSma50) ? { v: f.pctSma50, w: 0.6 } : null, isNum(f.pctSma200) ? { v: f.pctSma200, w: 0.4 } : null].filter(Boolean);
+      var trW = trParts.reduce(function(sum, p){ return sum + p.w; }, 0);
+      var tr = trW > 0 ? trParts.reduce(function(sum, p){ return sum + p.v * p.w; }, 0) / trW : null;
       var kalman = isNum(f.kalmanVelConf) ? f.kalmanVelConf : (isNum(f.kalmanVel) ? f.kalmanVel : null);
       var liquidity = _historicalLiquidity(s, p, liquidityWindowDays);
       rows.push({
         sym: s.sym || s.symbol || null,
         rebalanceDate: rebalanceDate,
         forwardDate: forwardDate,
-        mom: mom, trend: tr, lowvol: isNum(f.vol) ? -f.vol : null, kalman: kalman, fwd: fwd,
+        mom: mom, trend: tr, lowvol: isNum(f.vol) ? -f.vol : null, kalman: kalman, fwd: fwd, f: f,
         liquidity: liquidity && isNum(liquidity.averageNotional) ? liquidity.averageNotional : null,
         liquidityObservations: liquidity ? liquidity.observationCount : 0,
         liquidityCurrency: liquidity ? liquidity.currency : (s.currency || (/\.(KS|KQ)$/i.test(String(s.sym || '')) ? 'KRW' : 'USD'))
@@ -2359,22 +2365,26 @@ export function backtestFactors(stockData, opts) {
       var ic = _spearman(ps.map(function(r){ return r[pair[0]]; }), ps.map(function(r){ return r.fwd; }));
       if (isNum(ic)) { icS[pair[1]] += ic; icN[pair[1]]++; icByDate[pair[1]].push(ic); }
     });
-    // 복합 팩터: 라이브 가중과 동기화된 percentile 가중합
-    var rm  = rank01(rows.map(function(r){ return r.mom; }));
-    var rt  = rank01(rows.map(function(r){ return r.trend; }));
-    var rl  = rank01(rows.map(function(r){ return r.lowvol; }));
-    var rk  = rank01(rows.map(function(r){ return r.kalman; }));
-    rows.forEach(function(r, i){
-      // A missing factor is absent evidence, not the neutral percentile 0.5.
-      // Exclude its weight from this row so partial coverage cannot dilute the
-      // observed composite toward the cross-sectional midpoint.
-      var composite = 0, wTotal = 0;
-      if (isNum(r.mom)) { composite += COMP_W.mom * rm[i]; wTotal += COMP_W.mom; }
-      if (isNum(r.trend)) { composite += COMP_W.trend * rt[i]; wTotal += COMP_W.trend; }
-      if (isNum(r.lowvol)) { composite += COMP_W.lowvol * rl[i]; wTotal += COMP_W.lowvol; }
-      if (isNum(r.kalman)) { composite += COMP_W.kalman * rk[i]; wTotal += COMP_W.kalman; }
-      r.compositeWeightCoverage = wTotal;
-      r.comp = wTotal >= compositeWeightCoverageMin ? composite / wTotal : null;
+    // P1443 (review 2026-10-04): the composite is the live model itself — computeFactorRanks with the
+    // same raw definitions (trend 60/40 of the 50/200-day distances), sector-relative z-scores, coverage
+    // gates and default weights — run on the factor values known at the rebalance date. The former
+    // percentile-weighted re-implementation (trend as a plain mean, universe percentiles) ranked a
+    // different model, so its IC did not validate the ranking on screen.
+    var asOf = rebalanceDate + 'T21:00:00.000Z';
+    var live = computeFactorRanks({
+      rows: rows.map(function(r) {
+        return { sym: r.sym, sector: sectorOf(r.sym), ret1m: r.f.ret1m, ret3m: r.f.ret3m, ret6m: r.f.ret6m,
+          pctSma50: r.f.pctSma50, pctSma200: r.f.pctSma200, vol: r.f.vol, kalmanVel: r.f.kalmanVel, kalmanVelConf: r.f.kalmanVelConf,
+          adjustedCloseStatus: 'complete', observedAt: asOf, factorSourceKind: 'T3_PUBLIC_DELAYED',
+          factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT' } };
+      }),
+      now: Date.parse(asOf) + 3600000,
+      inputVersion: 'backtest:' + rebalanceDate
+    });
+    var liveRank = new Map((live && Array.isArray(live.rows) ? live.rows : []).map(function(row) { return [row.sym, isNum(row.rank) ? row.rank / 100 : null]; }));
+    if (live && live.activeFactors) liveActiveFactorsSeen.push(live.activeFactors.join('+'));
+    rows.forEach(function(r){
+      r.comp = r.sym && liveRank.has(String(r.sym).toUpperCase()) ? liveRank.get(String(r.sym).toUpperCase()) : null;
     });
     var icC = _spearman(rows.map(function(r){ return r.comp; }), rows.map(function(r){ return r.fwd; }));
     if (isNum(icC)) { icS.composite += icC; icN.composite++; icByDate.composite.push(icC); }
@@ -2390,7 +2400,9 @@ export function backtestFactors(stockData, opts) {
     if (isNum(topM) && isNum(botM)) {
       var grossSpread = topM - botM;
       var positions = new Map();
-      var longWeight = 0.5 / q, shortWeight = -0.5 / q;
+      // P1443: the spread (top mean − bottom mean) is the return of $1 long plus $1 short, so the
+      // positions — and therefore turnover and cost — use the same ±1 gross legs (was ±0.5).
+      var longWeight = 1 / q, shortWeight = -1 / q;
       sorted.slice(-q).forEach(function(r){ if (r.sym) positions.set(r.sym, longWeight); });
       sorted.slice(0, q).forEach(function(r){ if (r.sym) positions.set(r.sym, shortWeight); });
       var turnover = previousPositions == null
@@ -2486,11 +2498,20 @@ export function backtestFactors(stockData, opts) {
     transactionCostPct: spreadN ? round(costSum / spreadN * 100, 3) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
     netHitRate: hitN ? round(netHit / hitN * 100, 1) : null,
+    // P1443: what the two rates actually count — not a per-stock direction accuracy.
+    hitRateMeaning: 'share of rebalances where the top-quintile mean forward return exceeded the bottom quintile (gross / net of cost)',
+    rebalancesCounted: hitN,
+    modelParity: {
+      composite: 'live computeFactorRanks (factor-ranks.js) on factor values known at each rebalance date',
+      activeFactors: liveActiveFactorsSeen.length ? [...new Set(liveActiveFactorsSeen)] : [],
+      notValidated: ['size (no historical shares outstanding)', 'value / quality (no point-in-time fundamentals)'],
+      longShortGross: '±1 legs (spread and cost on the same exposure)'
+    },
     turnover: {
       rebalanceCount: turnoverValues.length,
       average: turnoverValues.length ? round(_mean(turnoverValues), 4) : null,
       maximum: turnoverValues.length ? round(Math.max(...turnoverValues), 4) : null,
-      unit: 'absolute portfolio-weight change; long/short equal-weight quintiles'
+      unit: 'absolute portfolio-weight change; ±1 gross long/short equal-weight quintiles'
     },
     compositeWeightCoverageMin: compositeWeightCoverageMin,
     liquidity: {
@@ -2527,7 +2548,7 @@ export function backtestFactors(stockData, opts) {
       blockedReasons: ['historical-universe-point-in-time-not-available', 'survivorship-bias-uncontrolled-current-membership'],
       allowedUse: 'research-reference-not-predictive-validation'
     },
-    compWeights: COMP_W,
+    compWeights: 'live-model-default (factor-ranks.js DEFAULT_WEIGHTS, renormalized over computable factors)', // P1443
     weightPolicy: 'fixed-neutral-until-explicit-promotion',
     weightRegime: 'NEUTRAL',
     excludedFactors: EXCLUDED_FACTORS,
@@ -2888,9 +2909,16 @@ export function deriveFactorQuality({ observedAt, computedAt } = {}) {
 async function _enrichPriceFactors(syms) {
   const computedAt = new Date().toISOString();
   const results = await mapLimit(syms, 5, async (sym) => {
-    const rows = await fetchHistory(_yhSym(sym), '1y');
+    // P1442 (review 2026-10-04): factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
+    // US open used the in-progress daily bar for returns, volume, ranges and VCP. Only bars whose session
+    // has closed (isSessionComplete, the same guard the breadth path uses) enter any factor.
+    const fetched = await fetchHistory(_yhSym(sym), '1y');
+    const market = /\.(KS|KQ)$/i.test(String(sym || '')) ? 'kr' : 'us';
+    const rows = (fetched || []).filter((row) => !row?.date || isSessionComplete(row.date, market));
+    const partialSessionDropped = (fetched || []).length - rows.length;
     return {
       sym,
+      partialSessionDropped,
       dates:     (rows || []).map(r => r.date),
       observedAts:(rows || []).map(r => r.observedAt || null),
       closes:    (rows || []).map(r => r.close),
@@ -2960,6 +2988,8 @@ async function _enrichPriceFactors(syms) {
       f.factorSourceKind = 'T3_PUBLIC_DELAYED';
       f.factorAllowedUse = 'research-relative-ranking-only';
       f.factorQuality = deriveFactorQuality({ observedAt: r.observedAt, computedAt });
+      f.factorBarCompleteness = 'completed-sessions-only';
+      if (r.partialSessionDropped) f.partialSessionDropped = r.partialSessionDropped;
       data[r.sym] = f; ok++;
     }
   }
@@ -3130,7 +3160,8 @@ export async function enrichScreener() {
   let backtest = null;
   try {
     backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148), {
-      universeMeta: universeLineage
+      universeMeta: universeLineage,
+      sectorOf: (sym) => universeInfo.sectors?.[sym] ?? null // P1443: live-model parity (sector-relative z-scores)
     });
   }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }

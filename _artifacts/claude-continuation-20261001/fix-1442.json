@@ -1,0 +1,19 @@
+{
+  "version": "v57.16",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.16 — Screener factors use completed sessions only (P1442).",
+  "p": {
+    "id": 1442,
+    "title": "Screener factors use completed sessions only",
+    "symptom": "Factors labelled \"세션 종가 기준\" were built from a refresh 22 minutes after the US open: the last daily bar was the in-progress session, feeding returns, volume, ranges and VCP (e.g. NVDA factorBarStart 2026-10-01T13:30Z, computed 13:52Z).",
+    "root_cause": "_enrichPriceFactors used every bar Yahoo returned; the isSessionComplete guard existed only on the breadth path.",
+    "fix": "fetch-data _enrichPriceFactors filters each history to bars whose session has closed (isSessionComplete, KR 15:45 KST / US 16:15 ET) before any factor, VCP or setup field is computed; rows carry factorBarCompleteness=completed-sessions-only and partialSessionDropped when a bar was removed.",
+    "violated_rule": "Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.",
+    "prevention": "ci-data-pipeline-contract-check (factor fixtures) and the next refresh-screener run.",
+    "verification": "Source review; the next screener refresh publishes the completeness fields."
+  },
+  "changelog": [
+    "**완료 종가만으로 팩터 계산 (P1442):** 장 시작 직후 갱신이 진행 중인 오늘 봉을 넣어 계산하던 문제를 고쳐, 모든 팩터·VCP가 마감된 세션만 씁니다."
+  ]
+}

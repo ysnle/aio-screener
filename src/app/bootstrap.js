@@ -79,6 +79,7 @@ import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation,
 import { FX_LEG_MAX_AGE_MS, appendFxLeg, fxLegsState, normalizeFxLegs, removeFxLeg } from '../domain/portfolio/fx.js';
 import { applyFxPanel, applyLedgerPanel, clearDeclaredFields, readDeclaredFields, showDeclarationStatus } from '../ui/panels/portfolio-declarations.js';
 import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js';
+import { baseValueRows, baseValueNote } from '../ui/panels/portfolio-base-values.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
 import { BACKUP_SECTIONS, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
 import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker-symbol.js';
@@ -114,6 +115,8 @@ if (typeof window !== 'undefined') {
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
   // 호출해 결과를 그대로 렌더한다.
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
+  window._pfBaseValues = (positions) => baseValueRows(window._aioPortfolioSurface || null, positions); // P1445
+  window._pfBaseNote = baseValueNote;
   // QA-SIG-27/P1263: 체크리스트 3상 집계의 단일 소유자(모드 revision 결속)를 셸에 빌려준다.
   window._sigSummarizeEntryChecklist = summarizeEntryChecklist;
   window._pfAssessAccountPerformance = assessAccountPerformance;

@@ -71,7 +71,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const ahead = compared.filter((span) => span.gap > 0).length;
     const consistency = ahead === compared.length ? '모든 기간에서 지수를 앞섰습니다' : ahead === 0 ? '모든 기간에서 지수에 뒤졌습니다' : `${compared.length}개 기간 중 ${ahead}개에서 앞섰습니다`;
     points.push({ id: 'relative', tone: anchor.gap > 0 ? 'favorable' : 'burden', title: '지수 대비',
-      text: `${anchor.label} ${signed(anchor.stock)} vs S&P 500 ${signed(anchor.bench)} — ${Math.abs(anchor.gap).toFixed(1)}%p ${anchor.gap >= 0 ? '강함' : '약함'}. ${consistency}.` });
+      text: `${anchor.label} ${signed(anchor.stock)} vs ${benchmark?.label || 'S&P 500'} ${signed(anchor.bench)} — ${Math.abs(anchor.gap).toFixed(1)}%p ${anchor.gap >= 0 ? '강함' : '약함'}. ${consistency}.` });
   }
 
   const rsi = finite(row.rsi);
@@ -80,7 +80,9 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
       text: rsi >= 70 ? `RSI ${rsi.toFixed(0)} — 과열권이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= 30 ? `RSI ${rsi.toFixed(0)} — 과매도권이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : `RSI ${rsi.toFixed(0)} — 과열도 과매도도 아닌 구간입니다.` });
   }
 
-  const etf = SECTOR_ETF[row.sector] || null;
+  // P1447: US sector ETFs describe US sectors; a KRX listing is not read against them.
+  const isKr = /\.(KS|KQ)$/i.test(String(symbol || ''));
+  const etf = isKr ? null : SECTOR_ETF[row.sector] || null;
   const sector = etf && rotation[etf] ? { etf, label: SECTOR_KO[etf] || etf, quadrant: QUADRANT[rotation[etf].quadrant] || null } : null;
   const themed = (themes || []).map((theme) => ({ ...theme, quadrant: theme.etf && rotation[theme.etf] ? QUADRANT[rotation[theme.etf].quadrant] || null : null }));
   const topTheme = themed.find((theme) => theme.quadrant) || themed[0] || null;
@@ -95,7 +97,9 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   }
 
   const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
-  if (regime?.available && regime.overall) {
+  if (regime?.available && regime.overall && isKr) {
+    points.push({ id: 'market', tone: 'neutral', title: '시장 환경', text: `미국 시장 상태는 ${regime.overall}입니다 — 한국 종목에는 환율·외국인 수급을 거쳐 간접적으로 작용합니다(시장 상태의 원·엔 카드 참고).` });
+  } else if (regime?.available && regime.overall) {
     const narrow = breadth?.state === 'burden';
     const text = narrow && trend?.id === 'up' ? `시장은 ${regime.overall}이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 소수에 속해 지수를 받치는 쪽입니다 — 주도주가 꺾이면 지수도 흔들린다는 뜻이기도 합니다.`
       : narrow ? `시장은 ${regime.overall}이고 시장 폭이 좁아, 추세가 약한 종목은 지수보다 먼저 흔들리기 쉬운 환경입니다.`
@@ -116,5 +120,5 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     { route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }];
   if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마 · ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
   next.push({ route: 'screener', label: '스크리너', why: `같은 섹터(${sector?.label || row.sector || '—'})에서 상대 순위가 높은 종목과 비교` });
-  return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next };
+  return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, benchmarkLabel: benchmark?.label || 'S&P 500' };
 }

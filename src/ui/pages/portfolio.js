@@ -359,6 +359,7 @@ function render({ root, documentRef, store, charts }) {
   }
   const liveData = root?._liveData || {};
   const surface = derivePortfolioSurface({ state, liveData, vix: liveData?.['^VIX'] || null });
+  if (root) root._aioPortfolioSurface = surface; // P1445: legacy exposure/stress panels share these base-currency values
   renderPortfolioSurface(documentRef, page, surface);
   renderPortfolioHero(documentRef, surface);
   renderPortfolioStatus(documentRef, state, surface);

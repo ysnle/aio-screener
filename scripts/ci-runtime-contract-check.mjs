@@ -597,27 +597,9 @@ try {
   check('public screener artifact includes VCP scores', false, error.message);
 }
 
-// [C] COMP_W 가중치 키 vs wTotal 계산식 정합 (P538 패턴 재발 방지)
-// COMP_W의 모든 키가 실제 r.comp 계산식에서 사용돼야 함.
-const compWMatch = fetchScript.match(/var\s+COMP_W\s*=\s*\{([^}]+)\}/);
-if (compWMatch) {
-  const compWKeys = [...compWMatch[1].matchAll(/(\w+)\s*:/g)].map(m => m[1]);
-  // The runtime declares `wTotal` beside `composite`; do not search for an
-  // impossible standalone `var wTotal` declaration.
-  const compositeFormulaIdx = fetchScript.indexOf('var composite = 0, wTotal = 0');
-  const compositeFormula = compositeFormulaIdx >= 0
-    ? fetchScript.slice(compositeFormulaIdx, compositeFormulaIdx + 1800)
-    : '';
-  for (const key of compWKeys) {
-    check(
-      `COMP_W.${key} is used in wTotal formula`,
-      new RegExp(`wTotal\\s*\\+=\\s*COMP_W\\.${key}`).test(compositeFormula),
-      `COMP_W.${key} declared but not used in wTotal computation — dead weight key`
-    );
-  }
-} else {
-  warnings.push('COMP_W not found in fetch-data.mjs — weight key validation skipped');
-}
+// [C] P1443 (supersedes the P538 COMP_W key check): the backtest composite is the live ranking model —
+// computeFactorRanks on the rebalance-date factor values — not a separately weighted re-implementation.
+check('P1443 backtest composite uses the live computeFactorRanks model', fetchScript.includes('var live = computeFactorRanks({') && !/var\s+COMP_W\s*=/.test(fetchScript) && fetchScript.includes('sectorOf(r.sym)'), 'backtest composite is not the live ranking model');
 
 // [D] Scheduler fn typeof 가드 함수들이 실제로 정의됨 (P524 패턴 재발 방지)
 // REFRESH_SCHEDULE.*.fn = () => { return (typeof X === 'function') ? X() : null; } 패턴에서

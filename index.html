@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.15 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.16 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.15" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.15" defer></script>
-<script src="./js/aio-kr-data.js?v=57.15" defer></script>
-<script src="./js/aio-pages.js?v=57.15" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.15">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.15">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.15">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.15">
+<script src="./js/aio-workspace.js?v=57.16" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.16" defer></script>
+<script src="./js/aio-kr-data.js?v=57.16" defer></script>
+<script src="./js/aio-pages.js?v=57.16" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.16">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.16">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.16">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.16">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2272,6 +2272,7 @@ body {
 .page .pf-sector-bar.is-neutral { background: var(--data-amber); }
 .page .pf-sector-bar.is-burden { background: var(--data-red); }
 .page .pf-sector-bar.is-unknown { background: rgba(120,112,95,.45); }
+.page .scr-ic-bars { display: grid; gap: 6px; margin: 10px 0 12px; } .page .scr-ic-row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 56px; gap: 10px; align-items: center; font-size: 12.5px; } .page .scr-ic-track { position: relative; height: 10px; background: var(--surface-1); border-radius: 3px; } .page .scr-ic-track::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--border); } .page .scr-ic-fill { position: absolute; top: 0; bottom: 0; border-radius: 2px; } .page .scr-ic-fill.is-up { background: var(--data-green); } .page .scr-ic-fill.is-down { background: var(--data-red); } .page .scr-ic-value { font-variant-numeric: tabular-nums; text-align: right; color: var(--text-secondary); }
 .page .fiscal-chart { margin: 12px 0 14px; }
 .page .fiscal-bars { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; align-items: end; height: 220px; padding: 0 4px; border-bottom: 1px solid var(--border); }
 .page .fiscal-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; min-width: 0; }
@@ -6264,7 +6265,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.15</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.16</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7665,7 +7666,7 @@ button[data-filter-active="true"] {
 
   <!-- P1436: 검색 가이드·외부 TradingView 차트 제거(차트 탭이 같은 역할). Yahoo·FMP 기반 구 리포트는 키 부재로 대부분 N/A라 접어 둔다. -->
   <details class="fund-legacy" id="fund-legacy-fold">
-    <summary>시세·외부 데이터 기반 상세 (Yahoo·FMP — 일부 항목 미수신)</summary>
+    <summary>시세·외부 데이터 기반 상세 (Yahoo·FMP — 일부 항목 미수신 · 공시 재무의 기준은 위 재무 흐름과 SEC 기본 보고)</summary>
     <!--  종합 기업 분석 리포트 영역 (검색 시 동적 생성) -->
     <div id="fund-report-container" style="display:none;">
       <!-- ── 헤더: 기업명 + 실시간 가격 ── -->
@@ -8126,8 +8127,10 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 경기사이클 -->
   </details>
   <details class="aio-page-advanced-toggle" id="kr-integrated-themes" style="margin-top:16px;">
-    <summary>한국 시장 — 국내 테마 분석 (KRX 28개 테마 · 등락률 · 대장주)</summary>
+    <summary id="kr-themes-summary">한국 시장 — 국내 테마 (KRX 28개 테마)</summary>
     <div class="aio-page-advanced-body">
+    <!-- P1444: 실시간 시세 커버리지와 무관하게 스크리너 완료 종가로 읽는 테마 흐름 (native) -->
+    <section class="briefing-block" id="kr-themes-artifact-read" aria-label="국내 테마 흐름" hidden></section>
 
 
   <!-- ═══ v48.46: KR 테마 심층 해설 ═══ -->
@@ -9307,23 +9310,29 @@ button[data-filter-active="true"] {
       </div>
       <div id="scr-why-preview" style="margin-top:9px;font-size:12px;color:var(--text-secondary);line-height:1.6;">Why 설명 텍스트 요약</div>
     </aside>
-    <!-- 프리셋(트레이더 프로파일) + 통계 압축 한 줄 — v52.72 아이보리 4c: 시안 구조(pill행 + 우측 요약) -->
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
+    <!-- P1443 (review 2026-10-04): one condition system on the user path. The weight profiles change the
+         ranking away from the validated default (균형), so they sit in a fold; the stats line stays visible. -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <span style="font-size:12.5px;color:var(--text-dim);">
+        <span id="scr-profile-desc" style="font-style:italic;">중립 고정 가중 · 레짐 후보는 진단만</span> ·
+        총 <span id="scr-kpi-total" style="color:var(--text-primary);font-weight:600;">—</span>종목 중
+        <b style="color:var(--text-primary);">상위 20% <span id="scr-kpi-top">—</span></b> ·
+        <span hidden>기존 편집 분류 강세 구조 <span id="scr-kpi-buy">—</span> · </span>
+        활성팩터 <span id="scr-kpi-factors">—</span>
+      </span>
+      <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="toggle-filters">고급 필터</button>
+    </div>
+    <details class="scr-workbench-advanced" id="scr-weight-profiles" style="margin-bottom:18px;">
+      <summary>순위 가중치 바꾸기 — 검증 대상은 기본값(균형)뿐입니다</summary>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;">
       <span style="font-size:12px;color:var(--text-dim);" title="조건 화면과 별개로, 같은 결과를 어떤 팩터에 무게를 두어 줄 세울지">순위 가중치</span>
       <button class="scr-profile-btn active" data-aio-screener-action="profile" data-aio-screener-arg="balanced">균형 (기본)</button>
       <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="momentum">모멘텀</button>
       <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="swing">스윙</button>
       <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="value">가치</button>
       <button class="scr-profile-btn" data-aio-screener-action="profile" data-aio-screener-arg="lowrisk">저리스크</button>
-      <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="toggle-filters">고급 필터</button>
-      <span style="margin-left:auto;font-size:12.5px;color:var(--text-dim);">
-        <span id="scr-profile-desc" style="font-style:italic;">중립 고정 가중 · 레짐 후보는 진단만</span> ·
-        총 <span id="scr-kpi-total" style="color:var(--text-primary);font-weight:600;">—</span>종목 중
-        <b style="color:var(--text-primary);">상위 20% <span id="scr-kpi-top">—</span></b> ·
-        기존 편집 분류 강세 구조 <span id="scr-kpi-buy" style="color:var(--text-primary);font-weight:600;">—</span> ·
-        활성팩터 <span id="scr-kpi-factors">—</span>
-      </span>
-    </div>
+      </div>
+    </details>
     <!-- v51.32: 서브-탭 내비게이션 -->
     <div role="tablist" aria-label="스크리너 보조 분석" style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <button id="scr-tab-button-ranking" role="tab" aria-selected="true" aria-controls="scr-tab-ranking" data-aio-screener-action="tab" data-aio-screener-arg="ranking" style="background:none;border:none;border-bottom:2px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">랭킹</button>
@@ -9371,7 +9380,6 @@ button[data-filter-active="true"] {
       <div class="aio-vis-card" style="margin-bottom:12px;">
         <div class="aio-vis-card-title">팩터 검증 · 백테스트 IC</div>
         <div id="screener-backtest-panel"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div></div>
-        <div id="vis-screener" style="margin-top:10px;"><div id="vis-screener-backtest"></div></div>
       </div>
     </div>
 
@@ -10056,15 +10064,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.15" defer></script>
-  <script src="./js/aio-data.js?v=57.15" defer></script>
-  <script src="./js/aio-ui.js?v=57.15" defer></script>
+  <script src="./js/aio-core.js?v=57.16" defer></script>
+  <script src="./js/aio-data.js?v=57.16" defer></script>
+  <script src="./js/aio-ui.js?v=57.16" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.15" defer></script>
+<script src="./js/aio-chat.js?v=57.16" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -10122,7 +10130,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.15" defer></script>
+<script src="./js/aio-glossary.js?v=57.16" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

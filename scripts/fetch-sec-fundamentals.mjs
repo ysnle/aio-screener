@@ -211,11 +211,20 @@ function buildPointInTimeFacts(companyFacts, submissions) {
   ], 'USD').filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
   const shareRows = factRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares')
     .filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  // P1446 (review 2026-10-04): the 재무 공시 reading needs the cash chain — operating cash flow, capital
+  // spending (→ free cash flow) and long-term debt — beside revenue and income. Annual 10-K facts only.
+  const annualFy = (row) => { const days = durationDays(row); return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400; };
+  const ocfRows = factRows(companyFacts, 'us-gaap', ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations'], 'USD').filter(annualFy);
+  const capexRows = factRows(companyFacts, 'us-gaap', ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets'], 'USD').filter(annualFy);
+  const debtRows = factRows(companyFacts, 'us-gaap', ['LongTermDebtNoncurrent', 'LongTermDebt'], 'USD').filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
   const observations = {
     revenue: compactPitRows(revenueRows, 'revenue', acceptedMap),
     netIncome: compactPitRows(incomeRows, 'netIncome', acceptedMap),
     equity: compactPitRows(equityRows, 'equity', acceptedMap),
-    sharesOutstanding: compactPitRows(shareRows, 'sharesOutstanding', acceptedMap)
+    sharesOutstanding: compactPitRows(shareRows, 'sharesOutstanding', acceptedMap),
+    operatingCashFlow: compactPitRows(ocfRows, 'operatingCashFlow', acceptedMap),
+    capex: compactPitRows(capexRows, 'capex', acceptedMap),
+    longTermDebt: compactPitRows(debtRows, 'longTermDebt', acceptedMap)
   };
   const all = Object.values(observations).flat();
   return {

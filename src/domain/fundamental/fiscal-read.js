@@ -53,8 +53,47 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
     const growth = finite(fundamentals?.revGrowth);
     points.push({ id: 'single', tone: growth == null ? 'neutral' : growth >= 0 ? 'favorable' : 'burden', title: '공시 기록', text: `회계연도 ${latest.periodEnd || '최근'} 매출 ${formatUsdShort(latest.revenue)}${growth != null ? `(전년 대비 ${signed(growth)})` : ''}${latest.margin != null ? `, 순이익률 ${latest.margin.toFixed(1)}%` : ''}. 여러 해 추이 그래프는 다음 재무 데이터 갱신 뒤 표시됩니다.` });
   }
-  const roe = finite(fundamentals?.roe);
-  if (roe != null) points.push({ id: 'roe', tone: roe >= 15 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율', text: `ROE ${roe.toFixed(1)}% — ${roe >= 20 ? '자기자본으로 높은 이익을 내는 회사' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 60 ? ' 다만 이 정도로 높으면 자사주 매입으로 자본이 줄어 수치가 커진 경우가 많아, 순이익률과 함께 봐야 합니다.' : ''}` });
+  // P1446 (review 2026-10-04): ROE was net income ÷ year-end equity; with two year-ends it is now over the
+  // average equity, and the basis is named. A very high value is read with the buyback/leverage caveat.
+  const prevYear = history.length >= 2 ? history[history.length - 2] : null;
+  const avgEquity = latest?.equity > 0 && prevYear?.equity > 0 ? (latest.equity + prevYear.equity) / 2 : null;
+  const roeAvg = avgEquity && latest?.netIncome != null ? latest.netIncome / avgEquity * 100 : null;
+  const roe = roeAvg ?? finite(fundamentals?.roe);
+  const roeBasis = roeAvg != null ? '평균 자기자본 기준' : '기말 자기자본 기준';
+  if (roe != null) points.push({ id: 'roe', tone: roe >= 15 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율',
+    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 60 ? ' 이 정도로 높으면 자사주 매입·배당으로 자본이 작아졌거나 부채가 큰 경우가 많아 이익의 질과 따로 봐야 합니다.' : ''}` });
+  // P1446: the cash chain — earnings → operating cash → capital spending → free cash → debt and share count.
+  const ocf = finite(latest?.operatingCashFlow);
+  const capex = finite(latest?.capex);
+  if (ocf != null && latest?.netIncome) {
+    const conversion = ocf / latest.netIncome;
+    const fcf = capex != null ? ocf - capex : null;
+    points.push({ id: 'cash', tone: conversion >= 0.8 && (fcf == null || fcf > 0) ? 'favorable' : 'neutral', title: '현금 전환',
+      text: `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${formatUsdShort(capex)}를 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.` });
+  }
+  const debtNow = finite(latest?.longTermDebt);
+  const debtPrev = finite(prevYear?.longTermDebt);
+  if (debtNow != null && debtPrev != null && debtPrev > 0) {
+    const change = (debtNow / debtPrev - 1) * 100;
+    points.push({ id: 'debt', tone: change > 25 ? 'burden' : 'neutral', title: '부채',
+      text: `장기부채 ${formatUsdShort(debtNow)}(전년 대비 ${signed(change)})${latest?.equity > 0 ? ` · 자기자본 대비 ${(debtNow / latest.equity * 100).toFixed(0)}%` : ''}.` });
+  }
+  // Share count across years, skipping year-over-year jumps that look like splits (near-integer ratios ≥ 1.9).
+  const shareYears = history.filter((year) => finite(year.shares) > 0);
+  if (shareYears.length >= 2) {
+    let factor = 1;
+    let splitSeen = false;
+    for (let k = 1; k < shareYears.length; k += 1) {
+      const ratio = shareYears[k].shares / shareYears[k - 1].shares;
+      const inverse = 1 / ratio;
+      const nearSplit = (x) => x >= 1.9 && Math.abs(x - Math.round(x)) / Math.round(x) < 0.06; // buybacks between cover dates blur exact ratios
+      if (nearSplit(ratio) || nearSplit(inverse)) { splitSeen = true; continue; }
+      factor *= ratio;
+    }
+    const change = (factor - 1) * 100;
+    points.push({ id: 'shares', tone: change <= -1 ? 'favorable' : change >= 3 ? 'burden' : 'neutral', title: '주식 수',
+      text: `${shareYears.length - 1}년 동안 발행 주식 수 ${signed(change)}${splitSeen ? '(주식 분할로 보이는 변화는 제외)' : ''} — ${change <= -1 ? '자사주 매입으로 주당 가치가 커지는 쪽' : change >= 3 ? '신주 발행·보상 주식으로 기존 주주 몫이 희석되는 쪽' : '거의 변하지 않았습니다'}.` });
+  }
 
   const ret6 = finite(row?.ret6m);
   const lastGrowth = history.length >= 2 ? (latest.revenue / history[history.length - 2].revenue - 1) * 100 : null;

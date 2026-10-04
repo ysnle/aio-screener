@@ -1075,7 +1075,9 @@ async function refreshPortfolioRisk() {
     validTickers: validTickers,
     commonDates: commonDates,
     cashValue: cashValue,
-    declarations: declarations, fxLegs: getPortfolioFxLegs() // P1407: one base currency for weights
+    declarations: declarations, fxLegs: getPortfolioFxLegs(), // P1407: one base currency for weights
+    // P1445: completed USD/KRW closes so foreign holdings' returns include the currency move
+    fxHistory: (window._aioHistory || []).map(function(r) { var m = r && r.fieldMeta && r.fieldMeta.usdkrw; return { date: String((m && m.observedAt) || (r && r.date) || '').slice(0, 10), value: r && r.usdkrw }; })
   }) : null;
   if (!assembled || !assembled.ok) {
     var holdCode = (assembled && assembled.code) || 'risk-input-unavailable';
@@ -1121,12 +1123,13 @@ async function refreshPortfolioRisk() {
   _renderRiskMetrics(el, { var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
     corrRes: corrRes, validTickers: validTickers, n: minLen, rfAnnual: rfAnnual,
     estimate: estimate, accountPerf: accountPerf });
+  if (assembled && assembled.fxIncluded === false) el.insertAdjacentHTML('beforeend', '<div style="font-size:11px;color:var(--data-amber);margin-top:6px;">해외 종목 수익률에 환율 변동이 빠져 있습니다(같은 기간 원/달러 종가 부족) — 계좌 통화 기준 전체 위험보다 작게 나올 수 있습니다.</div>'); // P1445
   try { _aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
   try { _aioRenderPortfolioStress(positions); } catch(_) {}                 // v50.54 3E
   try { refreshPortfolioTechnicalRisk(); } catch(_) {}
 }
 
-// v50.54 3D: 포트폴리오 리스크 귀속 + 익스포저 한도 — 섹터/종목 집중도·팩터 익스포저·상관 클러스터.
+// v50.54 3D: 포트폴리오 리스크 귀속 + 익스포저 한도 — 섹터/종목 집중도·팩터 익스포저·상관 클러스터. P1445: 비중은 _pfBaseValues(기준통화 평가액, src/ui/panels/portfolio-base-values.js).
 function _pfPearson(a, b) {
   var n = Math.min(a.length, b.length); if (n < 3) return null;
   a = a.slice(-n); b = b.slice(-n);
@@ -1139,13 +1142,11 @@ function _aioRenderPortfolioExposure(positions, returnsMap) {
   if (!positions || !positions.length) { el.innerHTML = ''; return; }
   var ld = window._liveData || {}, db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var find = function(s){ for (var i=0;i<db.length;i++) if (db[i].sym===s) return db[i]; return null; };
-  var rows = positions.map(function(p){
-    var evidence = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
-    var px = evidence && evidence.allowedUse === true ? evidence.value : null;
-    return { sym:p.ticker, value:px != null ? px*p.qty : null, stock:find(p.ticker) };
-  }).filter(function(r) { return r.value != null && isFinite(r.value) && r.value >= 0; });
+  var base = _pfBaseValues(positions);
+  if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
+  var rows = base.rows.map(function(r){ return { sym: r.sym, value: r.value, stock: find(r.sym) }; });
   var total = rows.reduce(function(s,r){return s+(r.value||0);},0);
-  if (total <= 0) { el.innerHTML = ''; return; }
+  if (total <= 0) { el.innerHTML = _pfBaseNote(base); return; }
   rows.forEach(function(r){ r.w = r.value/total; });
   var bySec = {}; rows.forEach(function(r){ var sec=(r.stock&&r.stock.sector)||'기타'; bySec[sec]=(bySec[sec]||0)+r.w; });
   var secArr = Object.keys(bySec).map(function(k){return [k,bySec[k]];}).sort(function(a,b){return b[1]-a[1];});
@@ -1175,6 +1176,7 @@ function _aioRenderPortfolioExposure(positions, returnsMap) {
       '</div>' +
     '</div>' +
     (warns.length ? '<div style="margin-top:6px;font-size:10px;color:var(--data-amber);line-height:1.5;">'+warns.map(_escHtmlSafe).join(' · ')+'</div>' : '<div style="margin-top:6px;font-size:10px;color:var(--data-green);">집중도·상관 한도 내</div>');
+  el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
 }
 // v50.54 3E: 포트폴리오 스트레스 시나리오 — 섹터 베타(주식/금리/유가) 기반 가상 충격 손익.
 function _aioRenderPortfolioStress(positions) {
@@ -1190,13 +1192,10 @@ function _aioRenderPortfolioStress(positions) {
     'Materials':{eq:1.10,rate:-0.2,oil:0.3}, 'Utilities':{eq:0.50,rate:-1.0,oil:-0.2}, 'Real Estate':{eq:0.90,rate:-1.2,oil:0.0}
   };
   var DEF = {eq:1.0,rate:-0.4,oil:0.0};
-  var rows = positions.map(function(p){
-    var evidence = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
-    var px = evidence && evidence.allowedUse === true ? evidence.value : null;
-    var st=find(p.ticker); var sr=(st&&SECTOR_RISK[st.sector])||DEF;
-    return { sym:p.ticker, value:px != null ? px*p.qty : null, sr:sr };
-  }).filter(function(r) { return r.value != null && isFinite(r.value) && r.value >= 0; });
-  var total = rows.reduce(function(s,r){return s+(r.value||0);},0); if (total<=0){ el.innerHTML=''; return; }
+  var base = _pfBaseValues(positions);
+  if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
+  var rows = base.rows.map(function(r){ var st=find(r.sym); return { sym: r.sym, value: r.value, sr: (st&&SECTOR_RISK[st.sector])||DEF }; });
+  var total = rows.reduce(function(s,r){return s+(r.value||0);},0); if (total<=0){ el.innerHTML=_pfBaseNote(base); return; }
   rows.forEach(function(r){ r.w=r.value/total; });
   // 시나리오: 주식충격(eq)·금리+100bp(rate)·유가+30%(oil×0.30)
   var SCEN = [
@@ -1215,6 +1214,7 @@ function _aioRenderPortfolioStress(positions) {
     '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">스트레스 시나리오 <span style="font-weight:400;color:var(--text-muted);">— 섹터 베타 기반 추정</span></div>' +
     lines +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">섹터 주식/금리/유가 베타 휴리스틱 추정치 — 실제 손익과 다를 수 있음.</div>';
+  el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
 }
 function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 

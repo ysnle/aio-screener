@@ -3,6 +3,7 @@
 import { buildPortfolioRead } from '../../domain/portfolio/portfolio-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
+import { benchmarkRowFor } from '../../domain/market/benchmarks.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -17,7 +18,7 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   host.dataset.aioPortfolioReadRenderer = 'native';
   let rows = [];
   try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
-  const read = buildPortfolioRead({ surface, rows, benchmark: rows.find((row) => row?.sym === 'SPY') || null, rotation: root?._serverDataMeta?.rotationHistory?.items || {}, regime: readMarketRegime(root) });
+  const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, root?._aioHistory || []), rotation: root?._serverDataMeta?.rotationHistory?.items || {}, regime: readMarketRegime(root) });
   const next = doc.getElementById('pf-next');
   if (!read.available) { host.hidden = true; host.replaceChildren(); renderNextSteps(doc, next, []); return read; }
   host.hidden = false;

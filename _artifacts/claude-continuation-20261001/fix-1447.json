@@ -1,0 +1,19 @@
+{
+  "version": "v57.16",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.16 — Benchmarks by market (P1447).",
+  "p": {
+    "id": 1447,
+    "title": "Benchmarks by market",
+    "symptom": "Every stock and the whole portfolio were compared with the S&P 500, including KRX listings and mixed books; KRX stocks were read against US sector rotation.",
+    "root_cause": "The summary used the SPY row for all symbols.",
+    "fix": "src/domain/market/benchmarks.js: KOSPI/KOSDAQ for KRX listings, S&P 500 for US, from completed closes over 21/63/126 sessions (dividend basis noted). The stock summary uses it and skips US sector ETFs for KRX stocks (US regime read as an indirect influence); the portfolio read compares with a same-weight blend of each holding's market index.",
+    "violated_rule": "Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.",
+    "prevention": "Browser runtime group covers the ticker and portfolio routes.",
+    "verification": "Local: 005930.KS reads \"3개월 -12.2% vs 코스피 -15.7% — 3.4%p 강함\"."
+  },
+  "changelog": [
+    "**시장별 비교 기준 (P1447):** 한국 종목은 코스피·코스닥, 미국 종목은 S&P 500과 비교하고, 섞인 포트폴리오는 같은 비중의 혼합 지수와 비교합니다."
+  ]
+}

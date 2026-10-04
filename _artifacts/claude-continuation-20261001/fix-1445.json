@@ -1,0 +1,19 @@
+{
+  "version": "v57.16",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.16 — Portfolio panels share one currency and denominator (P1445).",
+  "p": {
+    "id": 1445,
+    "title": "Portfolio panels share one currency and denominator",
+    "symptom": "The legacy exposure and stress panels summed native price × quantity, so $1,000 and ₩1,000,000 at ₩1,000/$ read 0.1 : 99.9; unpriced holdings silently left the denominator; foreign holdings' returns excluded the currency move; the account path with a cash target used fixed daily weights whatever the declared rebalance policy.",
+    "root_cause": "The legacy panels predate the base-currency surface (P1407); the risk input converted current values but not the return paths.",
+    "fix": "src/ui/panels/portfolio-base-values.js: exposure/stress use the native surface's base-currency values, refuse an unconverted mix and report exclusions. portfolio-risk-input: with completed USD/KRW closes covering the window, foreign holdings' price paths are converted day by day (returnCurrencyBasis …-incl-fx); otherwise the panel says FX is not included. risk.js: the cash-target account path runs cash as a member of the declared strategy path.",
+    "violated_rule": "Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.",
+    "prevention": "ci-decomp-hotspot-check (legacy file flat); core and runtime groups.",
+    "verification": "Source review and local QA; no real holdings were used."
+  },
+  "changelog": [
+    "**포트폴리오 통화·분모 통일 (P1445):** 비중·스트레스가 같은 기준통화 평가액을 쓰고, 해외 종목 수익률에 환율 변동을 반영하며, 현금 포함 전략은 선언한 리밸런싱 정책을 그대로 따릅니다."
+  ]
+}

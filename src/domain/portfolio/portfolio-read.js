@@ -17,7 +17,7 @@ function trendState(row) {
 }
 export const TREND_LABEL = Object.freeze({ up: '상승 추세', pullback: '추세 속 조정', rebound: '장기 추세 아래 반등', down: '하락 추세' });
 
-export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, rotation = {}, regime = null } = {}) {
+export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, rotation = {}, regime = null } = {}) {
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
   const holdings = (Array.isArray(surface?.rows) ? surface.rows : [])
     .map((row) => ({ symbol: String(row?.symbol || row?.ticker || '').toUpperCase(), value: finite(row?.value) }))
@@ -68,11 +68,23 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     return weight > 0 ? list.reduce((sum, row) => sum + row.value * row.data[key], 0) / weight : null;
   };
   const book3 = weighted('ret3m');
-  const bench3 = finite(benchmark?.ret3m);
+  // P1447: each holding against its own market's index at the same weight (S&P 500 for US, KOSPI/KOSDAQ
+  // for KRX), so a mixed book is not judged against the S&P 500 alone.
+  let bench3 = finite(benchmark?.ret3m);
+  let benchLabel = 'S&P 500';
+  if (typeof benchmarkFor === 'function') {
+    const parts = known.map((row) => ({ value: row.value, bench: benchmarkFor(row.symbol) })).filter((part) => finite(part.bench?.ret3m) != null && finite(part.value) != null);
+    const weight = parts.reduce((sum, part) => sum + part.value, 0);
+    if (weight > 0) {
+      bench3 = parts.reduce((sum, part) => sum + part.value * part.bench.ret3m, 0) / weight;
+      const labels = [...new Set(parts.map((part) => part.bench.label))];
+      benchLabel = labels.length > 1 ? `같은 비중의 ${labels.join('·')} 혼합` : labels[0];
+    }
+  }
   if (book3 != null && bench3 != null) {
     const gap = book3 - bench3;
     points.push({ id: 'relative', tone: gap >= 0 ? 'favorable' : 'burden', title: '지수 대비',
-      text: `지금 비중으로 계산한 3개월 수익률 ${signed(book3)} vs S&P 500 ${signed(bench3)} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
+      text: `지금 비중으로 계산한 3개월 수익률 ${signed(book3)} vs ${benchLabel} ${signed(bench3)} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
   }
   if (regime?.available) {
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경',

@@ -332,15 +332,12 @@ export function deriveRiskEstimate(input) {
     } else {
       cashTreatment = 'declared_strategy_cash_weight';
       var declaredCashWeight = strategyDeclaration.cashWeight;
-      wholeAccountReturns = [];
-      for (var ws = 0; ws < n; ws += 1) {
-        var sleeveReturn = 0;
-        for (var ms = 0; ms < memberSeries.length; ms += 1) {
-          sleeveReturn += sleeveWeights[ms] * memberSeries[ms].series[ws];
-        }
-        var declaredCashReturn = cashResolved.mode === 'explicit_assumption' ? cashResolved.dailyRate : cashResolved.series[ws];
-        wholeAccountReturns[ws] = sleeveReturn + declaredCashWeight * declaredCashReturn;
-      }
+      // P1445 (review 2026-10-04): the account path used fixed daily weights whatever the declared policy
+      // (buy-and-hold / monthly / quarterly). Cash is now one more member of the same strategy path, so
+      // drift and rebalancing apply to the stock legs and the cash leg alike.
+      var cashSeries = [];
+      for (var ws = 0; ws < n; ws += 1) cashSeries[ws] = cashResolved.mode === 'explicit_assumption' ? cashResolved.dailyRate : cashResolved.series[ws];
+      wholeAccountReturns = _pfStrategyPathReturns(memberSeries.concat([{ ticker: '__cash__', series: cashSeries }]), sleeveWeights.concat([declaredCashWeight]), rebalancePolicy, sampleDates);
     }
   } else if (strategyPath) {
     // A hypothetical strategy declares its sleeve allocation, not the account's

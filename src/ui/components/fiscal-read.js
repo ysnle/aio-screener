@@ -7,8 +7,13 @@ import { loadJsonArtifact } from '../../data/artifact-cache.js';
 
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
 export function parseFiscalHistory(text) {
+  // P1446: periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions (USD millions).
+  const num = (value, scale = 1e6) => (value === '' || value == null || !Number.isFinite(Number(value)) ? null : Number(value) * scale);
   return String(text || '').split(';').map((part) => part.split(':')).filter((cells) => /^\d{4}-\d{2}-\d{2}$/.test(cells[0] || ''))
-    .map(([periodEnd, revenue, netIncome]) => ({ periodEnd, revenue: revenue === '' ? null : Number(revenue) * 1e6, netIncome: netIncome === '' || netIncome == null ? null : Number(netIncome) * 1e6 }));
+    .map(([periodEnd, revenue, netIncome, equity, operatingCashFlow, capex, longTermDebt, shares]) => ({
+      periodEnd, revenue: num(revenue), netIncome: num(netIncome), equity: num(equity), operatingCashFlow: num(operatingCashFlow),
+      capex: num(capex), longTermDebt: num(longTermDebt), shares: num(shares)
+    }));
 }
 
 function requestFiscalHistory(root, onReady) {

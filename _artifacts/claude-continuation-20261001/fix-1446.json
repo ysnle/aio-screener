@@ -1,0 +1,19 @@
+{
+  "version": "v57.16",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.16 — 재무 공시: cash chain, ROE basis, share count (P1446).",
+  "p": {
+    "id": 1446,
+    "title": "재무 공시: cash chain, ROE basis, share count",
+    "symptom": "ROE 151.9% was net income ÷ year-end equity read as plain quality; the SEC reading stopped at revenue and income — no operating cash flow, capital spending, free cash flow, debt or share count.",
+    "root_cause": "The SEC producer collected only revenue, income, equity and shares.",
+    "fix": "fetch-sec-fundamentals adds annual operating cash flow, capital spending and long-term debt to the PIT facts; the fiscal series carries periodEnd:revenue:netIncome:equity:ocf:capex:debt:shares. fiscal-read: ROE on average equity when two year-ends exist (basis named) with a buyback/leverage caveat; cash conversion and free cash flow; debt change and debt/equity; share count change with split-like jumps excluded. SEC report label \"ROE (순이익 ÷ 기말 자기자본)\".",
+    "violated_rule": "Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.",
+    "prevention": "Fiscal reading unit check with NVDA figures; refresh-screener regenerates the series as issuers rotate through the SEC batch.",
+    "verification": "NVDA fixture: ROE 101.5% on average equity, OCF 86% of income, FCF $96.7B (44.8% of sales), shares -0.8% over five years excluding the 4:1 and 10:1 splits."
+  },
+  "changelog": [
+    "**재무 공시 현금흐름 사슬 (P1446):** 영업현금흐름·설비투자·잉여현금흐름·장기부채·주식 수(분할 제외)를 연결해 읽고, ROE는 평균 자기자본 기준으로 계산하며 기준을 표시합니다."
+  ]
+}

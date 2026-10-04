@@ -4,6 +4,60 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1447 - v57.16 - Benchmarks by market (2026-10-04)
+
+- symptom/reproduction: Every stock and the whole portfolio were compared with the S&P 500, including KRX listings and mixed books; KRX stocks were read against US sector rotation.
+- root_cause: The summary used the SPY row for all symbols.
+- fix: src/domain/market/benchmarks.js: KOSPI/KOSDAQ for KRX listings, S&P 500 for US, from completed closes over 21/63/126 sessions (dividend basis noted). The stock summary uses it and skips US sector ETFs for KRX stocks (US regime read as an indirect influence); the portfolio read compares with a same-weight blend of each holding's market index.
+- violated_rule: Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.
+- prevention: Browser runtime group covers the ticker and portfolio routes.
+- verification/residual: Local: 005930.KS reads "3개월 -12.2% vs 코스피 -15.7% — 3.4%p 강함".
+
+## P1446 - v57.16 - 재무 공시: cash chain, ROE basis, share count (2026-10-04)
+
+- symptom/reproduction: ROE 151.9% was net income ÷ year-end equity read as plain quality; the SEC reading stopped at revenue and income — no operating cash flow, capital spending, free cash flow, debt or share count.
+- root_cause: The SEC producer collected only revenue, income, equity and shares.
+- fix: fetch-sec-fundamentals adds annual operating cash flow, capital spending and long-term debt to the PIT facts; the fiscal series carries periodEnd:revenue:netIncome:equity:ocf:capex:debt:shares. fiscal-read: ROE on average equity when two year-ends exist (basis named) with a buyback/leverage caveat; cash conversion and free cash flow; debt change and debt/equity; share count change with split-like jumps excluded. SEC report label "ROE (순이익 ÷ 기말 자기자본)".
+- violated_rule: Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.
+- prevention: Fiscal reading unit check with NVDA figures; refresh-screener regenerates the series as issuers rotate through the SEC batch.
+- verification/residual: NVDA fixture: ROE 101.5% on average equity, OCF 86% of income, FCF $96.7B (44.8% of sales), shares -0.8% over five years excluding the 4:1 and 10:1 splits.
+
+## P1445 - v57.16 - Portfolio panels share one currency and denominator (2026-10-04)
+
+- symptom/reproduction: The legacy exposure and stress panels summed native price × quantity, so $1,000 and ₩1,000,000 at ₩1,000/$ read 0.1 : 99.9; unpriced holdings silently left the denominator; foreign holdings' returns excluded the currency move; the account path with a cash target used fixed daily weights whatever the declared rebalance policy.
+- root_cause: The legacy panels predate the base-currency surface (P1407); the risk input converted current values but not the return paths.
+- fix: src/ui/panels/portfolio-base-values.js: exposure/stress use the native surface's base-currency values, refuse an unconverted mix and report exclusions. portfolio-risk-input: with completed USD/KRW closes covering the window, foreign holdings' price paths are converted day by day (returnCurrencyBasis …-incl-fx); otherwise the panel says FX is not included. risk.js: the cash-target account path runs cash as a member of the declared strategy path.
+- violated_rule: Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.
+- prevention: ci-decomp-hotspot-check (legacy file flat); core and runtime groups.
+- verification/residual: Source review and local QA; no real holdings were used.
+
+## P1444 - v57.16 - 13F ledger scope and turnover label; KR themes read from completed closes (2026-10-04)
+
+- symptom/reproduction: Berkshire's change ledger showed the 10-row embedded preview first and 30 rows only after another view loaded the manager shard; "회전율 대용치 7.8%" was the distance between reported-value weights (price moves alone change it); the KR theme block promised 수급·모멘텀·성과 while live coverage was 0/28.
+- root_cause: The ledger used whatever comparison rows were loaded; the KR block depended only on live quotes.
+- fix: masters: when the preview is shorter than the verified comparison count, the ledger says "전체 비교 N행 중 미리보기 M행" with a button that loads the full shard (initial-load budget unchanged); the metric is renamed "보고가치 비중 변화(회전율 아님)". kr-themes krThemeArtifactRead: median 1-/3-month return and 50-day share per KRX theme from the screener artifact (25 of 28 themes covered), rendered at the top of the KR block with the coverage in its summary.
+- violated_rule: Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.
+- prevention: ci-three-page-artifact-budget-check keeps the deferred shard; browser groups cover themes and masters.
+- verification/residual: Local: KR block reads "강한 테마는 반도체(+27.5%) · 에너지(+9.6%) · 로봇(+4.5%)…" with 12 bars.
+
+## P1443 - v57.16 - Ranking and validation use one model; the validation view says what it measured (2026-10-04)
+
+- symptom/reproduction: The back-test re-implemented the composite (universe percentiles, trend = plain mean of the 50/200-day distances) while the screen ranks with sector-relative z-scores and a 60/40 trend, so its IC did not validate the screen; the spread came from $1 long + $1 short while cost was charged on ±0.5 legs; the visible graphic read 계산 불가 while the artifact had ICs; 방향 적중률 33.3% was the share of rebalances where the top quintile beat the bottom; the Why drawer called different numbers 합성; two preset systems sat side by side.
+- root_cause: The back-test predates the v6 ranking model and kept its own formula and labels.
+- fix: backtestFactors ranks each rebalance date with computeFactorRanks (same raw definitions, sector-relative z-scores, coverage gates, default weights; sectors from screener-universe.json) and keeps single-factor ICs on the live definitions; long/short legs are ±1 so spread and cost share the exposure; output adds hitRateMeaning, rebalancesCounted and modelParity. Screener 검증 tab: one native view — per-factor and composite IC bars, gross/net spread, "상위가 하위를 앞선 횟수" with its meaning, sample and bias notes, overlapping-factor note, and the 10-year 120-stock study with its limits; the legacy SVG is removed. Why drawer: ① sector-normalized bars → ② weighted sum → ③ percentile = 상대 점수 → ④ order among passing rows, with the overlap and "not quality or probability" note; "등록된 반대 조건에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다". Weight profiles moved into a fold (only the default is validated).
+- violated_rule: Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.
+- prevention: ci-runtime-contract-check P1443 (composite = computeFactorRanks, no COMP_W, sector map); ci-data-pipeline-contract-check (disclosure, fixtures).
+- verification/residual: Synthetic 40-stock back-test: composite IC 0.356 via the live model, cost on ±1 legs; the local screener 검증 tab renders the verdict, bars and facts.
+
+## P1442 - v57.16 - Screener factors use completed sessions only (2026-10-04)
+
+- symptom/reproduction: Factors labelled "세션 종가 기준" were built from a refresh 22 minutes after the US open: the last daily bar was the in-progress session, feeding returns, volume, ranges and VCP (e.g. NVDA factorBarStart 2026-10-01T13:30Z, computed 13:52Z).
+- root_cause: _enrichPriceFactors used every bar Yahoo returned; the isSessionComplete guard existed only on the breadth path.
+- fix: fetch-data _enrichPriceFactors filters each history to bars whose session has closed (isSessionComplete, KR 15:45 KST / US 16:15 ET) before any factor, VCP or setup field is computed; rows carry factorBarCompleteness=completed-sessions-only and partialSessionDropped when a bar was removed.
+- violated_rule: Review 2026-10-04 (institutional standard): what a number is called must match how it was computed — completed sessions, one model for ranking and validation, one currency and denominator, named definitions.
+- prevention: ci-data-pipeline-contract-check (factor fixtures) and the next refresh-screener run.
+- verification/residual: Source review; the next screener refresh publishes the completeness fields.
+
 ## P1441 - v57.15 - Theme detail flow from artifact data; sharper price-vs-results reading (2026-10-04)
 
 - symptom/reproduction: Live 2026-10-04: the theme detail panel read '시세 대기' for every sub-theme because constituent live quotes do not arrive, so the panel said nothing about the theme. On 재무 공시, AAPL (price +30.6% in six months, sales +6.4%) was read as 'results support the price', and an ROE of 151.9% was called plain high capital efficiency.

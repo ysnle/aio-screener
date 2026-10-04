@@ -27,6 +27,7 @@ export function assembleRiskEstimateInput({
   cashValue,
   declarations,
   fxLegs = [],
+  fxHistory = null,
   nowIso
 }) {
   const dates = Array.isArray(commonDates) ? commonDates : [];
@@ -75,8 +76,27 @@ export function assembleRiskEstimateInput({
 
   const minLen = dates.length - 1;
   const returnsMap = {};
+  // P1445 (review 2026-10-04): a USD holding in a KRW account earns the dollar's move too. When the
+  // completed USD/KRW closes cover every sample date, each foreign holding's price path is converted to
+  // the base currency day by day (price × KRW per USD, or ÷ for a KRW holding in a USD account); otherwise
+  // the returns stay local and the result says the FX move is not included.
+  const fxByDate = new Map((Array.isArray(fxHistory) ? fxHistory : []).filter((row) => row?.date && finite(row.value) > 0).map((row) => [row.date, row.value]));
+  const fxCovered = fxByDate.size > 0 && dates.every((day) => fxByDate.has(day));
+  const fxFactor = (ticker, day) => {
+    const from = currencyByTicker[ticker];
+    if (from === baseCurrency) return 1;
+    if (!fxCovered) return null;
+    if (from === 'USD' && baseCurrency === 'KRW') return fxByDate.get(day);
+    if (from === 'KRW' && baseCurrency === 'USD') return 1 / fxByDate.get(day);
+    return null;
+  };
+  let fxApplied = false;
+  let fxMissing = false;
   (Array.isArray(validTickers) ? validTickers : []).forEach((t) => {
-    const values = dates.map((day) => historyMap[t][day]);
+    const factors = dates.map((day) => fxFactor(t, day));
+    const convert = factors.every((factor) => factor != null);
+    if (currencyByTicker[t] !== baseCurrency) { if (convert) fxApplied = true; else fxMissing = true; }
+    const values = dates.map((day, i) => historyMap[t][day] * (convert ? factors[i] : 1));
     returnsMap[t] = values.slice(1).map((value, idx) => (value / values[idx]) - 1);
   });
 
@@ -144,8 +164,9 @@ export function assembleRiskEstimateInput({
   return {
     ok: true,
     valueCurrency: baseCurrency,
-    // Returns stay in each holding's own currency; FX moves are not in the volatility estimate.
-    returnCurrencyBasis: currencies.length > 1 ? 'local-currency-per-holding' : baseCurrency,
+    // P1445: base-currency returns when the FX history covered the window; otherwise local and labelled.
+    returnCurrencyBasis: currencies.length <= 1 ? baseCurrency : fxMissing ? 'local-currency-per-holding' : fxApplied ? `${baseCurrency}-incl-fx` : baseCurrency,
+    fxIncluded: currencies.length <= 1 ? null : !fxMissing,
     returnsMap,
     snapshot,
     estimate,

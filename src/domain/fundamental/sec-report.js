@@ -18,7 +18,7 @@ const METRIC_DEFINITIONS = Object.freeze([
   ['sharesOutstanding', 'Shares outstanding', 'shares'],
   ['revGrowth', 'Revenue growth', 'percent'],
   ['margin', 'Net margin', 'percent'],
-  ['roe', 'ROE', 'percent'],
+  ['roe', 'ROE (순이익 ÷ 기말 자기자본)', 'percent'], // P1446: basis named; the fiscal reading uses average equity when two year-ends exist
   ['pe', 'P/E', 'multiple'],
   ['pb', 'P/B', 'multiple']
 ]);

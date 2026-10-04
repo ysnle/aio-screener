@@ -13,6 +13,7 @@ import {
 } from '../../domain/ai/inference-efficiency.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js';
+import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { benchmarkReturns } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
@@ -187,6 +188,32 @@ function renderThemePerformanceNarrative({ documentRef, root, store, route }) {
   const laggards = rows.slice(-2).reverse().map((row) => `${row.label} ${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`).join(' · ');
   host.textContent = `정규화 섹터 성과 · 강세 ${leaders} · 약세 ${laggards} · 단일 수익률만으로 비중을 결정하지 않습니다.`;
   host.style.color = 'var(--text-secondary)';
+}
+
+// P1444: KR themes from the published screener rows; the summary states what is actually covered.
+function renderKrThemeArtifact({ documentRef, root, store }) {
+  const host = documentRef?.getElementById('kr-themes-artifact-read');
+  if (!host) return;
+  const themeMap = root?.KR_THEME_MAP && typeof root.KR_THEME_MAP === 'object' ? root.KR_THEME_MAP : null;
+  if (!themeMap) { host.hidden = true; return; }
+  const read = krThemeArtifactRead({ themeMap, rows: store?.getState?.()?.screener?.rows || [] });
+  const summary = documentRef.getElementById('kr-themes-summary');
+  if (summary) summary.textContent = `한국 시장 — 국내 테마 (KRX ${read.totalThemes}개 중 ${read.coveredThemes}개 테마를 완료 종가로 비교)`;
+  host.dataset.aioKrThemeArtifactRenderer = 'native';
+  host.hidden = false;
+  const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
+  host.replaceChildren(el('h2', '국내 테마 흐름', 'briefing-h2'), el('p', read.read, 'flow-lead'));
+  const max = Math.max(1, ...read.usable.map((theme) => Math.abs(theme.ret1m)));
+  for (const theme of read.usable.slice(0, 12)) {
+    const line = el('div', null, 'stock-read-bars');
+    const item = el('div', null, 'stock-read-bar-row');
+    const bar = el('div', null, `stock-read-bar is-stock ${theme.ret1m >= 0 ? 'is-up' : 'is-down'}`);
+    bar.style.width = `${Math.max(2, Math.abs(theme.ret1m) / max * 100).toFixed(1)}%`;
+    item.append(bar, el('span', `1개월 ${theme.ret1m >= 0 ? '+' : ''}${theme.ret1m.toFixed(1)}% · 3개월 ${theme.ret3m == null ? '—' : `${theme.ret3m >= 0 ? '+' : ''}${theme.ret3m.toFixed(1)}%`}${theme.above50Pct != null ? ` · 50일선 위 ${theme.above50Pct}%` : ''} · ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));
+    line.append(el('span', theme.label, 'stock-read-bar-label'), item);
+    host.append(line);
+  }
+  host.append(el('p', '아래 실시간 등락·수급 판정은 국내 시세가 충분히 수신될 때만 계산됩니다. 위 흐름은 스크리너 산출물의 완료 종가 기준입니다.', 'theme-strength-basis'));
 }
 
 function renderThemePerformanceBars({ documentRef, root, store, route }) {
@@ -1093,6 +1120,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           renderThemeCyclePill({ documentRef, root, store, route });
            renderThemePerformanceNarrative({ documentRef, root, store, route });
            renderThemePerformanceBars({ documentRef, root, store, route });
+           renderKrThemeArtifact({ documentRef, root, store });
           renderThemeDetailSummary({ documentRef, root, store });
           renderThemeDetailComposition({ documentRef, root, store });
           renderThemeDetailLeaders({ documentRef, root, store });
