@@ -9,13 +9,13 @@
     "serverMode": "shared-worker-only",
     "healthPath": "/health",
     "maxTokens": "worker-advertised",
-    "routeStatus": "DISABLED",
-    "routeReason": "WORKER_AI_PROVIDER_MISMATCH",
+    "routeStatus": "PUBLISHED",
+    "routeReason": null,
     "routeEvidence": {
-      "status": "OPERATOR_REQUIRED",
-      "source": "last-observed-live-health",
-      "observedAt": "2026-10-04T00:39:01.451Z",
-      "observationStatus": "NOT_ATTEMPTED"
+      "status": "CURRENT",
+      "source": "periodic-live-health",
+      "observedAt": "2026-10-04T06:27:25.055Z",
+      "observationStatus": "SUCCESS"
     }
   },
   "marketData": {
