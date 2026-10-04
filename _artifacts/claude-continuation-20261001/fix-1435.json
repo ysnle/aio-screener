@@ -1,0 +1,19 @@
+{
+  "version": "v57.12",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.12 — 종목 차트 reads state → why → market → flip, with this stock's own Weinstein stage and trend-template dots; the SPY-only legacy blocks leave the user path (P1435).",
+  "p": {
+    "id": 1435,
+    "title": "종목 차트: reading first, stage and template pictures, evidence folded",
+    "symptom": "The chart tab ended in a 14-row evidence list, and its Weinstein stage and multi-timeframe blocks were computed for SPY, not the selected stock (one said 판정 보류 forever without OHLCV).",
+    "root_cause": "The stage/MTF blocks predate the stock chart and were never moved onto its bars.",
+    "fix": "chart-analysis.js: Weinstein stage from the stock's weekly closes (30-week average and its 4-week slope) added to the analysis and evidence; chartReading() builds the state sentence, the reasons (stage, template, relative strength), the market sentence and the flip. stock-chart.js renders the reading, a four-step stage strip, eight template dots and the evidence in a fold, plus 이어서 볼 곳. The legacy SPY Weinstein and MTF blocks moved into developer-only folds.",
+    "violated_rule": "Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.",
+    "prevention": "T806 still checks the technical verdict-first order; contract checks keep the legacy ids.",
+    "verification": "Local preview with a fixture series: \"뚜렷한 셋업은 없습니다 · 근거: Weinstein 2단계, 추세 템플릿 8/8, 6개월 S&P 500 대비 +8.5%p · 시장은 방어적 환경…\""
+  },
+  "changelog": [
+    "**종목 차트 재설계 (P1435):** 상태 → 근거 → 시장 환경 → 전환 조건 순의 해석, 이 종목 주봉으로 계산한 Weinstein 단계 막대와 추세 템플릿 8칸, 근거 전체는 접기."
+  ]
+}

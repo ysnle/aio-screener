@@ -18,11 +18,37 @@ async function writeAtomic(url, value) {
 
 const sourceText = await readFile(SOURCE, 'utf8');
 const source = JSON.parse(sourceText);
+// P1436 (재무 공시 redesign): the page reads a trend, not one year. Ship a compact fiscal-year series
+// (at most six full years of revenue / net income / equity from 10-K FY facts of about twelve months,
+// one row per period end — the latest filing wins) next to the latest facts; the append-only PIT
+// observations themselves stay producer-side.
+const FY_FIELDS = ['revenue', 'netIncome', 'equity'];
+function fiscalHistory(observations = {}) {
+  const byEnd = new Map();
+  for (const field of FY_FIELDS) {
+    for (const row of Array.isArray(observations[field]) ? observations[field] : []) {
+      if (row?.fiscalPeriod !== 'FY' || !/^10-K/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) continue;
+      if (field !== 'equity') {
+        const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart || '')) / 86400000;
+        if (!(days >= 330 && days <= 380)) continue;
+      }
+      const entry = byEnd.get(row.periodEnd) || { periodEnd: row.periodEnd, filedAt: {} };
+      if (!entry.filedAt[field] || String(row.filedAt) > entry.filedAt[field]) { entry[field] = row.value; entry.filedAt[field] = String(row.filedAt || ''); }
+      byEnd.set(row.periodEnd, entry);
+    }
+  }
+  return [...byEnd.values()]
+    .filter((entry) => entry.revenue != null || entry.netIncome != null)
+    .sort((a, b) => a.periodEnd.localeCompare(b.periodEnd))
+    .slice(-6)
+    .map(({ periodEnd, revenue = null, netIncome = null, equity = null }) => ({ periodEnd, revenue, netIncome, equity }));
+}
 const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => {
   const pit = record?.pit && typeof record.pit === 'object'
     ? Object.fromEntries(Object.entries(record.pit).filter(([key]) => key !== 'observations'))
     : null;
-  return [symbol, { ...record, ...(pit ? { pit } : {}) }];
+  const history = fiscalHistory(record?.pit?.observations);
+  return [symbol, { ...record, ...(pit ? { pit } : {}), ...(history.length ? { fiscalHistory: history } : {}) }];
 }));
 const projection = {
   schemaVersion: 'sec-fundamentals-runtime-summary.v1',

@@ -6,6 +6,8 @@ import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
 import { canonicalEpochMs } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
+import { renderStockRead } from '../components/stock-read.js';
+import { renderFiscalRead } from '../components/fiscal-read.js';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -526,6 +528,7 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderTickerNavigation(documentRef, state, root);
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange);
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
+    renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '' }); // P1434
   }
   if (route === 'fundamental') {
     // P1430: 재무 공시 is the same company as 요약 · 차트.
@@ -534,6 +537,7 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderFundamentalSummary(documentRef, state);
     renderFundamentalWatchlist(documentRef, state);
     renderFundamentalReport(documentRef, routeNode, state);
+    renderFiscalRead({ documentRef, root, state }); // P1436
   }
 }
 

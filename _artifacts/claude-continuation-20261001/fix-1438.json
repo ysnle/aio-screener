@@ -1,0 +1,19 @@
+{
+  "version": "v57.12",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.12 — 포트폴리오 leads with the book against the market: trend-state share, sector weights by rotation quadrant, return vs the S&P 500 and the regime (P1438).",
+  "p": {
+    "id": 1438,
+    "title": "포트폴리오: the holdings read against the market",
+    "symptom": "The portfolio page listed holdings and concentration checks but never said how the book sits in the current market — trends, rotation, relative performance.",
+    "root_cause": "Checks were computed from weights only.",
+    "fix": "src/domain/portfolio/portfolio-read.js buildPortfolioRead (value-weighted trend states, sector weights with rotation quadrants, current-weight 3-month return vs SPY, regime); src/ui/components/portfolio-read.js: one stacked trend bar, sector bars coloured by quadrant, points, 이어서 볼 곳 (largest downtrend holding first).",
+    "violated_rule": "Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.",
+    "prevention": "Browser runtime/surface groups cover the portfolio route.",
+    "verification": "Local preview with five fixture holdings: 81% of value in uptrends, 53% in a leading sector, 3-month +21.4% vs S&P 500 +2.8%."
+  },
+  "changelog": [
+    "**포트폴리오 재설계 (P1438):** '내 포트폴리오와 시장' — 평가액 기준 추세 상태 막대, 섹터 비중을 섹터 회전 단계 색으로, 지수 대비 수익률과 시장 환경까지 한 흐름으로."
+  ]
+}

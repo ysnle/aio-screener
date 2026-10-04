@@ -1,0 +1,19 @@
+{
+  "version": "v57.12",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.12 — 스크리너 leads with what the ranking says: sector mix of the top fifth, rotation, trend health and past performance (P1437).",
+  "p": {
+    "id": 1437,
+    "title": "스크리너: the ranking explained before the table",
+    "symptom": "The screener opened straight into controls and a table; how far to trust the ranking (it trailed in 4 of the last 6 back-tests) sat in a folded panel.",
+    "root_cause": "No reading combined the ranked set with the rotation, the regime and the validation history.",
+    "fix": "src/domain/screener/screener-read.js buildScreenerRead: top-20% sector shares against the universe, over-weights against the sector RRG quadrant, share of the top above the 50-day line and near the 52-week high (tied to breadth), and the validation spread/hit rate with a candidate-list reading when it is negative. src/ui/components/screener-read.js: sector bars, points, 이어서 볼 곳; recomputed only when the ranked set, validation, history or rotation changes.",
+    "violated_rule": "Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.",
+    "prevention": "Browser runtime group covers the screener route; ci-screener-auto-refresh-browser-check unchanged.",
+    "verification": "Local preview: \"702종목 중 상위 20% 140종목 · 과거 상위−하위 -3.27%\", 59% of the top above the 50-day line, and the candidate-list reading."
+  },
+  "changelog": [
+    "**스크리너 재설계 (P1437):** 표 앞에 '지금 순위가 말하는 것' — 상위 20% 업종 쏠림, 섹터 회전과의 관계, 상위권 추세, 순위의 과거 성과를 막대와 문장으로."
+  ]
+}

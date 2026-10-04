@@ -1,0 +1,19 @@
+{
+  "version": "v57.12",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.12 — 재무 공시 leads with 재무 흐름: SEC 10-K revenue and net income by year, margins, PEG and whether the price trend agrees (P1436).",
+  "p": {
+    "id": 1436,
+    "title": "재무 공시: annual trend from SEC filings, tied to price",
+    "symptom": "The page opened with one year of SEC facts and a Yahoo/FMP report that read N/A in almost every cell (no FMP key), a how-to search guide and an external TradingView chart.",
+    "root_cause": "The runtime SEC summary shipped only the latest fiscal year; the multi-year PIT facts stayed producer-side.",
+    "fix": "build-sec-runtime-projection.mjs adds fiscalHistory (at most six full fiscal years of revenue / net income / equity from 10-K FY facts, latest filing per period end; ~0.3 MB). src/domain/fundamental/fiscal-read.js: growth (latest, CAGR, streak), net-margin change over three years, net income growth with P/E and PEG, ROE, price trend vs sales trend; one-year fallback until the projection is regenerated. src/ui/components/fiscal-read.js: revenue/net-income bars with margins and the reading, 이어서 볼 곳. The search guide and TradingView chart are removed; the old report is folded.",
+    "violated_rule": "Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.",
+    "prevention": "T238 now checks the guide is retired and the fiscal block exists.",
+    "verification": "Local preview NVDA with six FY rows: revenue $16.7B → $215.9B (CAGR +66.9%), net margin 16.2% → 55.6%, PER 46.8 / PEG 0.72, price and sales in the same direction."
+  },
+  "changelog": [
+    "**재무 공시 재설계 (P1436):** SEC 10-K 연간 매출·순이익 막대와 순이익률, 성장·수익성·PEG·주가와의 방향 일치를 한 흐름으로. 검색 안내·외부 차트 제거, N/A 투성이 구 리포트는 접기."
+  ]
+}

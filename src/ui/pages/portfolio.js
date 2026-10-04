@@ -3,6 +3,7 @@ import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
+import { renderPortfolioRead } from '../components/portfolio-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
@@ -364,6 +365,7 @@ function render({ root, documentRef, store, charts }) {
   renderPortfolioTable(documentRef, page, state, surface);
   renderPortfolioChart({ root, page, surface, charts });
   renderPortfolioChecks(documentRef, root, surface);
+  renderPortfolioRead({ documentRef, root, surface }); // P1438
 }
 
 // P1418: 점검 — only rules with a published default carry a verdict; the rest are shares.

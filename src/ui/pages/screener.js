@@ -1,6 +1,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { renderScreenerValidation } from '../components/screener-validation.js';
+import { renderScreenerRead } from '../components/screener-read.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
@@ -1149,6 +1150,15 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       bag.add(() => { mountActive = false; });
       const page = documentRef?.getElementById('page-screener');
       if (!page) return () => {};
+      // P1437: the lead reading of the ranking — recomputed only when the ranked set or validation changes.
+      let readSignature = '';
+      const renderRead = () => {
+        const rows = selectScreenerState(store?.getState?.() || {})?.rows || [];
+        const signature = `${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
+        if (signature === readSignature) return;
+        readSignature = signature;
+        renderScreenerRead({ documentRef, root, rows });
+      };
       // P1419: post-hoc validation of the default ranking (small daily artifacts, read once per mount).
       renderScreenerValidation({ documentRef, root });
       {
@@ -1160,7 +1170,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           ]).then(([history, status]) => {
             if (Array.isArray(history)) root._aioScreenerBacktestHistory = history;
             if (status && typeof status === 'object') root._aioModelValidationStatus = status;
-            if (mountActive) renderScreenerValidation({ documentRef, root });
+            if (mountActive) { renderScreenerValidation({ documentRef, root }); readSignature = ''; renderRead(); }
           });
         }
       }
@@ -1807,7 +1817,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         select.dataset.aioValues = signature;
       };
       const fillControls = () => { fillSelect('scr-market', 'index', '전체 지수'); fillSelect('scr-sector', 'sector', '전체 섹터'); };
-      const renderWithControls = () => { fillControls(); renderWorkbench(); rerender(); };
+      const renderWithControls = () => { fillControls(); renderWorkbench(); rerender(); renderRead(); };
       page.addEventListener('click', handleClick);
       page.addEventListener('input', handleInput);
       page.addEventListener('change', handleInput);

@@ -4,6 +4,51 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1438 - v57.12 - 포트폴리오: the holdings read against the market (2026-10-04)
+
+- symptom/reproduction: The portfolio page listed holdings and concentration checks but never said how the book sits in the current market — trends, rotation, relative performance.
+- root_cause: Checks were computed from weights only.
+- fix: src/domain/portfolio/portfolio-read.js buildPortfolioRead (value-weighted trend states, sector weights with rotation quadrants, current-weight 3-month return vs SPY, regime); src/ui/components/portfolio-read.js: one stacked trend bar, sector bars coloured by quadrant, points, 이어서 볼 곳 (largest downtrend holding first).
+- violated_rule: Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.
+- prevention: Browser runtime/surface groups cover the portfolio route.
+- verification/residual: Local preview with five fixture holdings: 81% of value in uptrends, 53% in a leading sector, 3-month +21.4% vs S&P 500 +2.8%.
+
+## P1437 - v57.12 - 스크리너: the ranking explained before the table (2026-10-04)
+
+- symptom/reproduction: The screener opened straight into controls and a table; how far to trust the ranking (it trailed in 4 of the last 6 back-tests) sat in a folded panel.
+- root_cause: No reading combined the ranked set with the rotation, the regime and the validation history.
+- fix: src/domain/screener/screener-read.js buildScreenerRead: top-20% sector shares against the universe, over-weights against the sector RRG quadrant, share of the top above the 50-day line and near the 52-week high (tied to breadth), and the validation spread/hit rate with a candidate-list reading when it is negative. src/ui/components/screener-read.js: sector bars, points, 이어서 볼 곳; recomputed only when the ranked set, validation, history or rotation changes.
+- violated_rule: Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.
+- prevention: Browser runtime group covers the screener route; ci-screener-auto-refresh-browser-check unchanged.
+- verification/residual: Local preview: "702종목 중 상위 20% 140종목 · 과거 상위−하위 -3.27%", 59% of the top above the 50-day line, and the candidate-list reading.
+
+## P1436 - v57.12 - 재무 공시: annual trend from SEC filings, tied to price (2026-10-04)
+
+- symptom/reproduction: The page opened with one year of SEC facts and a Yahoo/FMP report that read N/A in almost every cell (no FMP key), a how-to search guide and an external TradingView chart.
+- root_cause: The runtime SEC summary shipped only the latest fiscal year; the multi-year PIT facts stayed producer-side.
+- fix: build-sec-runtime-projection.mjs adds fiscalHistory (at most six full fiscal years of revenue / net income / equity from 10-K FY facts, latest filing per period end; ~0.3 MB). src/domain/fundamental/fiscal-read.js: growth (latest, CAGR, streak), net-margin change over three years, net income growth with P/E and PEG, ROE, price trend vs sales trend; one-year fallback until the projection is regenerated. src/ui/components/fiscal-read.js: revenue/net-income bars with margins and the reading, 이어서 볼 곳. The search guide and TradingView chart are removed; the old report is folded.
+- violated_rule: Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.
+- prevention: T238 now checks the guide is retired and the fiscal block exists.
+- verification/residual: Local preview NVDA with six FY rows: revenue $16.7B → $215.9B (CAGR +66.9%), net margin 16.2% → 55.6%, PER 46.8 / PEG 0.72, price and sales in the same direction.
+
+## P1435 - v57.12 - 종목 차트: reading first, stage and template pictures, evidence folded (2026-10-04)
+
+- symptom/reproduction: The chart tab ended in a 14-row evidence list, and its Weinstein stage and multi-timeframe blocks were computed for SPY, not the selected stock (one said 판정 보류 forever without OHLCV).
+- root_cause: The stage/MTF blocks predate the stock chart and were never moved onto its bars.
+- fix: chart-analysis.js: Weinstein stage from the stock's weekly closes (30-week average and its 4-week slope) added to the analysis and evidence; chartReading() builds the state sentence, the reasons (stage, template, relative strength), the market sentence and the flip. stock-chart.js renders the reading, a four-step stage strip, eight template dots and the evidence in a fold, plus 이어서 볼 곳. The legacy SPY Weinstein and MTF blocks moved into developer-only folds.
+- violated_rule: Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.
+- prevention: T806 still checks the technical verdict-first order; contract checks keep the legacy ids.
+- verification/residual: Local preview with a fixture series: "뚜렷한 셋업은 없습니다 · 근거: Weinstein 2단계, 추세 템플릿 8/8, 6개월 S&P 500 대비 +8.5%p · 시장은 방어적 환경…"
+
+## P1434 - v57.12 - 종목 요약: one connected reading of the stock with two pictures (2026-10-04)
+
+- symptom/reproduction: The 요약 tab showed a price rail, a factor radar and an abbreviation strip (SR · RSI · 3M · MOM) with no sentence saying what state the stock is in or how it relates to its sector and the market.
+- root_cause: The page was assembled from widgets; no module combined the screener row, the benchmark, the rotation and the regime.
+- fix: src/domain/entity/stock-read.js buildStockRead (trend from 50/200-day position, 52-week position from the artifact distances without a live quote, 1/3/6-month returns against the SPY row of the same artifact, RSI, sector ETF and theme ETF rotation quadrant with a 은/는-correct sentence, market regime and breadth) + rangePosition + SECTOR_ETF; src/ui/components/stock-read.js renders the headline, a 52-week bar, stock vs S&P 500 return bars, the points and 이어서 볼 곳 (차트 · 재무 공시 · 테마 · 스크리너). The abbreviation strip is hidden (legacy writer target only).
+- violated_rule: Owner direction 2026-10-04: every page reads as one connected argument (explain, analyse, connect), with balanced text and visuals; remove how-to and useless content.
+- prevention: T843 keeps the legacy strip node; browser architecture/runtime groups cover the ticker route.
+- verification/residual: Local preview NVDA: "상승 추세 · 52주 범위 93% 지점 · 3개월 지수 대비 +16.1%p · 섹터 선도" with bars and six points; screener rank 181/932.
+
 ## P1433 - v57.11 - AI proxy: owner acknowledgement of a legacy month's spend, and propagation-safe deploy verification (2026-10-04)
 
 - symptom/reproduction: After AIO_AUTOMATION_TOKEN was added (2026-10-04), the manual AI-proxy deploy synced the secrets but was rolled back twice: first the origin-gate probe got HTTP 405 from an edge still serving v56.91 (no /openai route) right after health had answered with the new SHA; then the upstream smoke got HTTP 429 legacy-month-spend-unknown. The P1353 migration had reserved the whole $10 October budget because the old request counters cannot reconstruct past spend, so server AI (briefing interpretation, translation, chat) would stay blocked until 1 November while the site (v57.10) already called /openai.

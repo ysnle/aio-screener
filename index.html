@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.11 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.12 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.11" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.11" defer></script>
-<script src="./js/aio-kr-data.js?v=57.11" defer></script>
-<script src="./js/aio-pages.js?v=57.11" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.11">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.11">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.11">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.11">
+<script src="./js/aio-workspace.js?v=57.12" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.12" defer></script>
+<script src="./js/aio-kr-data.js?v=57.12" defer></script>
+<script src="./js/aio-pages.js?v=57.12" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.12">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.12">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.12">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.12">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2187,7 +2187,7 @@ body {
 .guide-search { display: flex; gap: 8px; }
 .guide-search input { flex: 1; min-width: 200px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); color: var(--text-primary); font: inherit; font-size: 13px; }
 .guide-jumps { display: flex; gap: 6px; flex-wrap: wrap; }
-.guide-jumps .aio-btn-table, .guide-screen-tabs .aio-btn-table { font-size: 12px; padding: 4px 10px; min-height: 24px; }
+.guide-jumps .aio-btn-table, .guide-screen-tabs .aio-btn-table { font-size: 12px; padding: 4px 10px; min-height: 28px; /* P1428: CI viewport rounds 24px to 23.9 — keep the 24px target floor with margin */ }
 .guide-search-result { padding: 8px 10px; background: var(--surface-2, var(--bg-card)); border-radius: 4px; font-size: 12px; color: var(--text-muted); }
 .guide-block { margin-bottom: 22px; }
 .guide-screen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
@@ -2244,6 +2244,78 @@ body {
 .aio-hub-tab:hover { color: var(--text-primary); }
 .aio-hub-tab[aria-current="page"] { color: var(--text-primary); font-weight: 600; border-bottom-color: var(--accent); }
 .aio-hub-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.page .chart-read-headline { font-size: 14.5px; font-weight: 600; color: var(--text-primary); line-height: 1.6; margin: 0 0 6px; }
+.page .chart-read-why, .page .chart-read-market { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin: 0 0 4px; }
+.page .chart-read-visuals { display: grid; gap: 14px; margin: 14px 0 10px; }
+.page .chart-vis-title { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.page .chart-stage-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.page .chart-stage-step { text-align: center; font-size: 12px; padding: 6px 2px; border-radius: 4px; background: var(--surface-1); color: var(--text-muted); border: 1px solid var(--border-subtle); }
+.page .chart-stage-step.is-current[data-stage="2"] { background: rgba(34,117,76,.14); color: var(--data-green); border-color: var(--data-green); font-weight: 700; }
+.page .chart-stage-step.is-current[data-stage="4"] { background: rgba(177,58,48,.12); color: var(--data-red); border-color: var(--data-red); font-weight: 700; }
+.page .chart-stage-step.is-current[data-stage="1"], .page .chart-stage-step.is-current[data-stage="3"] { background: rgba(176,128,30,.12); color: var(--data-amber); border-color: var(--data-amber); font-weight: 700; }
+.page .chart-template-dots { list-style: none; margin: 0; padding: 0; display: flex; gap: 5px; }
+.page .chart-template-dot { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: help; }
+.page .chart-template-dot.is-pass { background: rgba(34,117,76,.15); color: var(--data-green); }
+.page .chart-template-dot.is-fail { background: rgba(177,58,48,.12); color: var(--data-red); }
+.page .chart-template-dot.is-unknown { background: var(--surface-1); color: var(--text-muted); }
+.page .chart-evidence-more > summary { cursor: pointer; font-size: 12.5px; color: var(--text-secondary); margin: 6px 0; }
+.page .screener-read-layout { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 18px 32px; align-items: start; margin-top: 10px; }
+.page .pf-trend-bar { display: flex; height: 22px; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.page .pf-trend-seg { display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
+.page .pf-trend-seg.is-up, .page .pf-trend-legend .is-up::before { background: var(--data-green); }
+.page .pf-trend-seg.is-pullback, .page .pf-trend-legend .is-pullback::before { background: var(--data-amber); }
+.page .pf-trend-seg.is-rebound, .page .pf-trend-legend .is-rebound::before { background: #8a8271; }
+.page .pf-trend-seg.is-down, .page .pf-trend-legend .is-down::before { background: var(--data-red); }
+.page .pf-trend-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11.5px; color: var(--text-muted); margin-top: 8px; }
+.page .pf-trend-legend span::before { content: ''; display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+.page .pf-sector-bar.is-favorable { background: var(--data-green); }
+.page .pf-sector-bar.is-neutral { background: var(--data-amber); }
+.page .pf-sector-bar.is-burden { background: var(--data-red); }
+.page .pf-sector-bar.is-unknown { background: rgba(120,112,95,.45); }
+.page .fiscal-chart { margin: 12px 0 14px; }
+.page .fiscal-bars { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; align-items: end; height: 220px; padding: 0 4px; border-bottom: 1px solid var(--border); }
+.page .fiscal-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; min-width: 0; }
+.page .fiscal-stack { position: relative; width: 70%; max-width: 64px; height: 150px; display: flex; align-items: flex-end; justify-content: center; }
+.page .fiscal-bar { position: absolute; bottom: 0; border-radius: 3px 3px 0 0; }
+.page .fiscal-bar.is-revenue { width: 100%; background: rgba(120,112,95,.28); }
+.page .fiscal-bar.is-income { width: 55%; background: var(--data-green); }
+.page .fiscal-bar.is-income.is-loss { background: var(--data-red); }
+.page .fiscal-value { font-size: 11.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.page .fiscal-year { font-size: 12px; color: var(--text-primary); font-weight: 600; margin-top: 4px; }
+.page .fiscal-margin { font-size: 11.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.page .fiscal-legend { display: flex; gap: 14px; font-size: 11.5px; color: var(--text-muted); margin-top: 8px; }
+.page .fiscal-legend span::before { content: ''; display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+.page .fiscal-legend .is-revenue::before { background: rgba(120,112,95,.28); }
+.page .fiscal-legend .is-income::before { background: var(--data-green); }
+.page .fiscal-legend .is-note::before { display: none; }
+.page .fund-legacy { margin: 18px 0 12px; }
+.page .fund-legacy > summary { cursor: pointer; font-size: 12.5px; color: var(--text-secondary); min-height: 28px; }
+.page #ticker-mv-strip[hidden] { display: none !important; }
+.page .stock-read-visuals { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px 32px; margin: 12px 0 14px; }
+.page .stock-read-vis-title { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.page .stock-read-track { position: relative; height: 10px; border-radius: 5px; background: linear-gradient(90deg, rgba(177,58,48,.25), rgba(140,130,110,.18) 50%, rgba(34,117,76,.28)); margin-top: 18px; }
+.page .stock-read-marker { position: absolute; top: -5px; width: 4px; height: 20px; margin-left: -2px; border-radius: 2px; background: var(--text-primary); }
+.page .stock-read-scale { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.page .stock-read-bars { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px; align-items: center; margin-bottom: 6px; }
+.page .stock-read-bar-label { font-size: 12px; color: var(--text-secondary); }
+.page .stock-read-bar-pair { display: grid; gap: 3px; }
+.page .stock-read-bar-row { display: flex; align-items: center; gap: 8px; }
+.page .stock-read-bar { height: 9px; border-radius: 2px; }
+.page .stock-read-bar.is-stock.is-up { background: var(--data-green); }
+.page .stock-read-bar.is-stock.is-down { background: var(--data-red); }
+.page .stock-read-bar.is-bench { background: rgba(120,112,95,.45); }
+.page .stock-read-bar-value { font-size: 11.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.page .stock-read-legend { display: flex; gap: 14px; font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+.page .stock-read-legend span::before { content: ''; display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+.page .stock-read-legend .is-stock::before { background: var(--data-green); }
+.page .stock-read-legend .is-bench::before { background: rgba(120,112,95,.45); }
+.page .stock-read-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.page .stock-read-point { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; padding: 7px 0 7px 10px; border-left: 3px solid var(--border); font-size: 13.5px; line-height: 1.6; }
+.page .stock-read-point.is-favorable { border-left-color: var(--data-green); }
+.page .stock-read-point.is-burden { border-left-color: var(--data-red); }
+.page .stock-read-point.is-neutral { border-left-color: var(--data-amber); }
+.page .stock-read-point-title { font-weight: 600; color: var(--text-primary); }
+.page .stock-read-point-text { color: var(--text-secondary); }
 .page .daily-loop { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px 28px; margin: 18px 0 22px; padding-top: 18px; border-top: 1px solid var(--border); }
 .page .daily-block { min-width: 0; }
 .page .daily-block[hidden] { display: none; }
@@ -6192,7 +6264,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.11</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.12</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6610,6 +6682,7 @@ button[data-filter-active="true"] {
     </div>
     <p class="briefing-footnote">셋업 상태는 공개된 기법(미너비니 VCP·추세 템플릿, 오닐 피벗 돌파, 와일더 ADX)으로 계산한 설명이며 매매 권고가 아닙니다.</p>
   </section>
+  <nav class="flow-next" id="technical-next" aria-label="이어서 볼 곳" hidden></nav>
 
   <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
     <summary>S&amp;P 500(SPY) 보조 지표 — RSI · MACD · 스토캐스틱 · ADX</summary>
@@ -6640,6 +6713,8 @@ button[data-filter-active="true"] {
 
     </div>
   </details>
+  <!-- P1435: SPY 기준 구 Weinstein·멀티타임프레임 계산은 선택 종목과 무관해 사용자 경로에서 내린다 — 같은 판정은 위 종목 차트 분석(주봉 30주선 단계·주봉 추세)이 이 종목의 봉으로 보여준다. -->
+  <details class="aio-page-advanced-toggle" style="margin-bottom:16px;"><summary>시장(SPY) Weinstein 단계 (구 계산)</summary>
   <div style="margin-bottom:26px;max-width:520px;">
     <div>
       <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">Weinstein 4단계</div>
@@ -6652,6 +6727,7 @@ button[data-filter-active="true"] {
       <div id="ws-analysis" style="font-size:12.5px;color:var(--text-dim);line-height:1.7;margin-top:14px;">분석 입력 수신 대기…</div>
     </div>
   </div>
+  </details>
 
   <!-- v52.69 아이보리: 시안 3c 범위 밖 — 시장 지표 스트립 · TradingView 위젯을 details로 접음(삭제 아님) -->
   <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
@@ -6830,6 +6906,7 @@ button[data-filter-active="true"] {
     </div>
   </details>
 
+  <details class="aio-page-advanced-toggle" style="margin-bottom:16px;"><summary>시장(SPY) 멀티타임프레임 (구 계산)</summary>
   <!-- MTF — v52.69 아이보리 3c: 시안 구조(4열, 구분선, 카드 아님) — updateMTF() 렌더러는 무변경, 컨테이너만 재스타일 -->
   <div id="mtf-analysis" class="tech-mtf-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);margin-bottom:10px;">
     <!-- 동적: updateMTF()에서 렌더 -->
@@ -6837,6 +6914,7 @@ button[data-filter-active="true"] {
   <div id="mtf-verdict" style="padding:14px 2px;margin-bottom:26px;">
     <div id="mtf-verdict-text" style="font-size:13px;color:var(--text-secondary);line-height:1.7;">분석 대기 중…</div>
   </div>
+  </details>
 
   <!-- v52.69 아이보리: 시안 3c 범위 밖 — 패턴 감지 · 심층 종목 기술 분석을 details로 접음(삭제 아님) -->
   <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
@@ -7547,10 +7625,6 @@ button[data-filter-active="true"] {
 
 
   <div class="page" id="page-fundamental">
-  <div class="insight-box box-collapsed">
-    <strong>이 회사 투자할 만한가? — SEC·FMP·Yahoo 데이터로 17개 관점 AI 분석</strong>
-  </div>
-
   <!-- 헤더 — v52.71 아이보리 3f: serif 27px 타이틀(시안 구조) -->
   <div id="tg-feed-fundamental"></div>
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
@@ -7559,18 +7633,6 @@ button[data-filter-active="true"] {
       <div class="page-subtitle">SEC 공시 재무 — 매출·이익·현금흐름이 같은 기간에 어떻게 움직였는지</div>
     </div>
     <span id="fund-data-status" class="freshness-badge fb-static">● DATA 확인 대기</span>
-  </div>
-
-  <div id="fund-native-sec-report" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
-    <div id="fund-native-sec-title" style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:5px;">SEC 기본 보고</div>
-    <div id="fund-native-sec-meta" style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:8px;">SEC EDGAR 연간 데이터 및 PIT 기준시점 수신 대기</div>
-    <div id="fund-native-sec-coverage" style="font-size:10px;color:var(--text-secondary);margin-bottom:10px;">관측 항목 없음</div>
-    <div id="fund-native-sec-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;"></div>
-  </div>
-
-  <!-- v50.82: 시각화 패널 (factor-radar) — 티커 검색 후 동적 렌더 -->
-  <div id="vis-fundamental" class="aio-vis-panel is-single" style="display:none;">
-    <div class="aio-vis-card"><div class="aio-vis-card-title">팩터 레이더 (종목 분석)</div><div id="vis-fundamental-radar"></div></div>
   </div>
 
   <!-- 검색 — v52.71 아이보리 3f: 시안 구조(입력+버튼 한 줄, 최근검색 pill) -->
@@ -7585,32 +7647,25 @@ button[data-filter-active="true"] {
     <div id="fund-recent-searches" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;"></div>
   </div>
 
-  <div class="aio-section">
+  <!-- P1436: 재무 공시의 결론 — SEC 10-K 연간 매출·순이익 추이와 주가와의 연결 (native fiscal-read.js) -->
+  <section class="briefing-block fiscal-read" id="fund-flow" aria-label="재무 흐름" hidden></section>
 
-    <!-- v49.29 I5/R68 검색 전 예시 카드 + placeholder 가이드 -->
-    <div id="fund-pre-search-guide" style="background:var(--surface-1);border:1px dashed rgba(33,29,22,0.3);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-      <div style="font-size:12px;font-weight:800;color:var(--accent);margin-bottom:8px;">검색 가이드 — 어떤 티커를 입력할까?</div>
-      <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;margin-bottom:8px;">
-        SEC/FMP/Yahoo 데이터를 모아 개요·재무·뉴스를 한 번에 보여줍니다.<br>
-        지원: S&P 500 · NASDAQ-100 · Russell 2000
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:6px;margin-top:8px;">
-        <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="NVDA" style="font-size:11px;padding:6px 10px;background:rgba(34,117,76,0.1);border:1px solid rgba(34,117,76,0.3);">예시: NVDA</button>
-        <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="AAPL" style="font-size:11px;padding:6px 10px;background:rgba(34,117,76,0.1);border:1px solid rgba(34,117,76,0.3);">예시: AAPL</button>
-        <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="TSLA" style="font-size:11px;padding:6px 10px;background:rgba(34,117,76,0.1);border:1px solid rgba(34,117,76,0.3);">예시: TSLA</button>
-        <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="MSFT" style="font-size:11px;padding:6px 10px;background:rgba(34,117,76,0.1);border:1px solid rgba(34,117,76,0.3);">예시: MSFT</button>
-      </div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">클릭 → 자동 검색 + F-Score(Piotroski) + 15가지 분석 관점 적용</div>
-    </div>
-
-  <!-- v34.9: TradingView 기업분석 차트 -->
-  <div id="tv-chart-fundamental" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:14px;display:none;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">TradingView 차트</div>
-    <div id="tv-widget-fundamental" style="height:350px;border-radius:4px;overflow:hidden;background:var(--bg-elevated);"></div>
+  <div id="fund-native-sec-report" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
+    <div id="fund-native-sec-title" style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:5px;">SEC 기본 보고</div>
+    <div id="fund-native-sec-meta" style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:8px;">SEC EDGAR 연간 데이터 및 PIT 기준시점 수신 대기</div>
+    <div id="fund-native-sec-coverage" style="font-size:10px;color:var(--text-secondary);margin-bottom:10px;">관측 항목 없음</div>
+    <div id="fund-native-sec-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;"></div>
   </div>
 
-    </div><!-- /aio-section 종목검색 -->
+  <!-- v50.82: 시각화 패널 (factor-radar) — 티커 검색 후 동적 렌더 -->
+  <div id="vis-fundamental" class="aio-vis-panel is-single" style="display:none;">
+    <div class="aio-vis-card"><div class="aio-vis-card-title">팩터 레이더 (종목 분석)</div><div id="vis-fundamental-radar"></div></div>
+  </div>
+  <nav class="flow-next" id="fund-next" aria-label="이어서 볼 곳" hidden></nav>
 
+  <!-- P1436: 검색 가이드·외부 TradingView 차트 제거(차트 탭이 같은 역할). Yahoo·FMP 기반 구 리포트는 키 부재로 대부분 N/A라 접어 둔다. -->
+  <details class="fund-legacy" id="fund-legacy-fold">
+    <summary>시세·외부 데이터 기반 상세 (Yahoo·FMP — 일부 항목 미수신)</summary>
     <!--  종합 기업 분석 리포트 영역 (검색 시 동적 생성) -->
     <div id="fund-report-container" style="display:none;">
       <!-- ── 헤더: 기업명 + 실시간 가격 ── -->
@@ -7779,6 +7834,7 @@ button[data-filter-active="true"] {
         <div id="fund-rpt-sources-body" style="font-size:10px;color:var(--text-secondary);line-height:1.6;"></div>
       </div>
     </div>
+  </details>
 
     <!-- v52.73 아이보리 3f: 시안엔 없는 관심종목 스캔 — details로 압축 (개별 종목 딥다이브가 시안의 본 목적) -->
     <details class="aio-page-advanced-toggle" style="margin-bottom:12px;">
@@ -8557,6 +8613,8 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /aio-section 비중·섹터 -->
 
+    <!-- P1438: 보유 종목을 시장과 잇는 결론 — 추세 상태 비중·섹터 회전·지수 대비·시장 환경 (native portfolio-read.js) -->
+    <section class="briefing-block pf-read" id="pf-read" aria-label="내 포트폴리오와 시장" hidden></section>
     <!-- P1418: portfolio 점검 (Ghostfolio X-ray style, published defaults only) -->
     <section class="aio-section pf-checks" id="pf-checks" aria-label="포트폴리오 점검"><div class="briefing-empty">포지션을 추가하면 쏠림·통화·지역 점검이 표시됩니다</div></section>
 
@@ -8852,6 +8910,7 @@ button[data-filter-active="true"] {
       </div>
     </details>
 
+    <nav class="flow-next" id="pf-next" aria-label="이어서 볼 곳" hidden></nav>
     </div><!-- pf-main -->
   </div>
     <!-- ═══════════════ PAGE: TICKER (종목 상세) ═══════════════ -->
@@ -8883,6 +8942,9 @@ button[data-filter-active="true"] {
 
     </div><!-- /aio-section 티커헤더 -->
 
+    <!-- P1434: 요약의 결론 — 추세·52주 위치·지수 대비·섹터 회전·시장 환경을 한 흐름으로 (native stock-read.js) -->
+    <section class="briefing-block stock-read" id="ticker-read" aria-label="이 종목의 지금" hidden></section>
+
     <!-- v50.96: Ticker 직접 검색창 (page 진입 시에도 검색 가능) -->
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">종목 검색</span></div>
@@ -8903,7 +8965,8 @@ button[data-filter-active="true"] {
     </div>
 
   <!-- v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·TPR·SIG) -->
-    <div id="ticker-mv-strip" class="mv-metric-strip" style="margin-bottom:10px;">
+    <!-- P1434: SR·RSI·3M·MOM 약어 줄은 위 '이 종목의 지금'이 같은 값을 문장과 그림으로 대신한다 (legacy writer 대상으로만 유지). -->
+    <div id="ticker-mv-strip" class="mv-metric-strip" style="margin-bottom:10px;" hidden>
       <span style="font-size:10px;color:var(--text-muted);">종목 선택 대기</span>
     </div>
 
@@ -8977,6 +9040,7 @@ button[data-filter-active="true"] {
       <div style="font-size:11px;color:var(--text-muted);line-height:1.6;flex:1;min-width:260px;">망치형·교수형·장악형·샛별형·석별형 중 최근 3봉이 어떤 형태인지 분류합니다. 형태는 방향 예측이 아니며, 차트 탭의 추세(50·200일선)와 거래량이 같은 쪽을 가리킬 때 의미가 커집니다.</div>
     </div>
     </div><!-- /aio-section 캔들 형태 -->
+    <nav class="flow-next" id="ticker-next" aria-label="이어서 볼 곳" hidden></nav>
   </div>
     <!-- ═══════════════ PAGE: MARKET-NEWS (시장 소식) ═══════════════ -->
   <div class="page" id="page-market-news">
@@ -9127,6 +9191,8 @@ button[data-filter-active="true"] {
         </span>
       </div>
     </div>
+    <!-- P1437: 표 앞의 결론 — 상위 20% 업종 쏠림·섹터 회전·추세 건강도·과거 성과를 한 흐름으로 (native screener-read.js) -->
+    <section class="briefing-block screener-read" id="screener-read" aria-label="지금 순위가 말하는 것"></section>
     <!-- P1431: 데이터 기준·식별·검증 상태 원문은 접어 둔다(값은 그대로, 사용자 기본 동선에서는 한 줄 요약만). -->
     <details class="scr-data-status" id="scr-data-status">
       <summary>데이터 기준 · 검증 상태</summary>
@@ -9432,6 +9498,7 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /scr-tab-ranking -->
     </div><!-- /aio-section 퀀트스크리너 -->
+    <nav class="flow-next" id="screener-next" aria-label="이어서 볼 곳" hidden></nav>
   </div>
 
 
@@ -9989,15 +10056,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.11" defer></script>
-  <script src="./js/aio-data.js?v=57.11" defer></script>
-  <script src="./js/aio-ui.js?v=57.11" defer></script>
+  <script src="./js/aio-core.js?v=57.12" defer></script>
+  <script src="./js/aio-data.js?v=57.12" defer></script>
+  <script src="./js/aio-ui.js?v=57.12" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.11" defer></script>
+<script src="./js/aio-chat.js?v=57.12" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -10055,7 +10122,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.11" defer></script>
+<script src="./js/aio-glossary.js?v=57.12" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

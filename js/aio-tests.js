@@ -4763,12 +4763,12 @@
     _assert('T237 technical_fallback: OHLC strip data-aio-fallback 마킹',
       !!ohlc, ohlc ? 'found' : 'missing');
 
-    // T238: fundamental 검색 가이드 + 예시 4개
+    // T238 (P1436): the how-to search guide was retired; the page leads with the native fiscal reading.
     var fundGuide = document.getElementById('fund-pre-search-guide');
-    var fundExamples = fundGuide ? fundGuide.querySelectorAll('[data-action="fundamentalSearch"]') : [];
-    _assert('T238 fund_pre_search: 검색 가이드 + 예시 4개',
-      !!fundGuide && fundExamples.length === 4,
-      fundGuide ? 'examples=' + fundExamples.length : 'missing');
+    var fundFlow = document.getElementById('fund-flow');
+    _assert('T238 fund_pre_search: 검색 가이드 퇴역 + 재무 흐름 블록 존재',
+      !fundGuide && !!fundFlow && !!document.getElementById('fund-search-input'),
+      'guide=' + !!fundGuide + ' flow=' + !!fundFlow);
 
     // T239: macro storyline placeholder is explicit about evidence/unavailable state
     var macroStory = document.getElementById('macro-board-basis');

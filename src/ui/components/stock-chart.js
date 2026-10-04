@@ -1,10 +1,11 @@
 // P1397: 종목 차트 — candles with the evidence drawn on the price (Lightweight Charts, Apache-2.0,
 // already loaded by the shell) and an evidence panel with a setup state. No composite grade.
-import { analyzeChart } from '../../domain/technical/chart-analysis.js';
+import { analyzeChart, chartReading } from '../../domain/technical/chart-analysis.js';
 import { buildCloseSeries, buildMarketRegime } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { emptyState } from './empty-state.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
+import { renderNextSteps } from './page-flow.js';
 
 const STATE_TONE = Object.freeze({ breakout: 'favorable', setup: 'favorable', extended: 'neutral', none: 'neutral', failed: 'burden', downtrend: 'burden' });
 
@@ -132,10 +133,52 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
   if (badge) { badge.textContent = analysis.stateLabel; badge.className = `regime-state is-${STATE_TONE[analysis.state] || 'neutral'}`; }
   root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance);
   const regime = buildMarketRegime(collectMarketInputs(root));
+  // P1435: reading first (state → why → market → flip), two pictures (Weinstein stage, trend template),
+  // and the full evidence list folded underneath.
+  const reading = chartReading(analysis, regime);
+  const read = el(doc, 'div', null, 'chart-read');
+  read.append(el(doc, 'p', reading.headline, 'chart-read-headline'));
+  if (reading.why) read.append(el(doc, 'p', `근거: ${reading.why}.`, 'chart-read-why'));
+  if (reading.market) read.append(el(doc, 'p', `${reading.market}.`, 'chart-read-market'));
+  if (reading.flip) read.append(el(doc, 'p', `전환 조건: ${reading.flip}`, 'regime-flip'));
+  const visuals = el(doc, 'div', null, 'chart-read-visuals');
+  if (analysis.weinstein) {
+    const stage = el(doc, 'div', null, 'chart-stage');
+    stage.append(el(doc, 'span', 'Weinstein 단계 (30주선)', 'chart-vis-title'));
+    const steps = el(doc, 'ol', null, 'chart-stage-steps');
+    ['바닥', '상승', '천장', '하락'].forEach((label, index) => {
+      const li = el(doc, 'li', `${index + 1} ${label}`, `chart-stage-step${analysis.weinstein.stage === index + 1 ? ' is-current' : ''}`);
+      li.dataset.stage = String(index + 1);
+      steps.append(li);
+    });
+    stage.append(steps);
+    visuals.append(stage);
+  }
+  const template = el(doc, 'div', null, 'chart-template');
+  template.append(el(doc, 'span', `추세 템플릿 ${analysis.templatePass}/8`, 'chart-vis-title'));
+  const dots = el(doc, 'ul', null, 'chart-template-dots');
+  for (const [label, ok] of analysis.templateChecks) {
+    const li = el(doc, 'li', ok === true ? '✓' : ok === false ? '✕' : '?', `chart-template-dot ${ok === true ? 'is-pass' : ok === false ? 'is-fail' : 'is-unknown'}`);
+    li.title = `${label} — ${ok === true ? '충족' : ok === false ? '미충족' : '확인 불가'}`;
+    dots.append(li);
+  }
+  template.append(dots);
+  visuals.append(template);
   const list = el(doc, 'dl', null, 'regime-evidence');
   for (const [label, value] of [...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (우호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
-  panel.replaceChildren(list);
-  if (analysis.flip) panel.append(el(doc, 'p', `전환 조건: ${analysis.flip}`, 'regime-flip'));
+  const more = el(doc, 'details', null, 'chart-evidence-more');
+  more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 1}개)`), list);
+  panel.replaceChildren(read, visuals, more);
+  // P1435: where the chart's question continues.
+  const isIndex = /^(SPY|QQQ|DIA|IWM)$/.test(sym);
+  renderNextSteps(doc, doc.getElementById('technical-next'), isIndex ? [
+    { route: 'signal', label: '시장 상태', why: `${sym}의 추세가 시장 폭·금리·신용과 같은 방향인지` },
+    { route: 'breadth', label: '시장 폭', why: '지수 움직임을 얼마나 많은 종목이 따라가는지' }
+  ] : [
+    { action: 'showTicker', arg: sym, route: 'ticker', label: '요약', why: '이 셋업이 섹터 회전·지수 대비 강도와 같은 방향인지' },
+    { route: 'fundamental', label: '재무 공시', why: '가격 추세를 매출·이익이 뒷받침하는지' },
+    { route: 'signal', label: '시장 상태', why: `셋업이 놓인 환경 — 지금은 ${regime.available ? regime.overall : '판정 대기'}` }
+  ]);
   doc.getElementById('stock-chart-section')?.setAttribute('data-symbol', sym);
   return analysis;
 }

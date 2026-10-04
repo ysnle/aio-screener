@@ -201,6 +201,24 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
   const wCloses = weekly.map((row) => row.close);
   const w10 = sma(wCloses, 10); const w30 = sma(wCloses, 30);
   const wn = wCloses.length - 1;
+  // P1435: Weinstein stage on this stock's own weekly closes (30-week average and its 4-week slope),
+  // replacing the page's old SPY-only stage block.
+  const w30Then = wn >= 4 ? w30[wn - 4] : null;
+  const w30Long = wn >= 26 ? w30[wn - 26] : null;
+  let weinstein = null;
+  if (w30[wn] != null && w30Then != null) {
+    const slope = (w30[wn] / w30Then - 1) * 100;
+    const above = wCloses[wn] > w30[wn];
+    const flat = Math.abs(slope) < 1;
+    const stage = flat ? (w30Long != null && w30[wn] > w30Long ? 3 : 1) : slope > 0 ? (above ? 2 : 3) : (above ? 1 : 4);
+    const reads = {
+      1: '바닥 형성 — 30주선이 평평하거나 아직 내려가는 중이고, 가격이 그 주변에서 다지는 단계',
+      2: '상승 추세 — 가격이 오르는 30주선 위에 있는 단계(추세 추종이 유효한 구간)',
+      3: '천장 형성 — 오르던 30주선이 평평해지거나 가격이 그 아래로 내려오는 단계',
+      4: '하락 추세 — 가격이 내려가는 30주선 아래에 있는 단계'
+    };
+    weinstein = { stage, slope, above, text: reads[stage] };
+  }
   const weeklyTrend = w10[wn] == null || w30[wn] == null ? null : wCloses[wn] > w10[wn] && w10[wn] > w30[wn] ? '정배열' : wCloses[wn] < w10[wn] && w10[wn] < w30[wn] ? '역배열' : '혼조';
   // Relative strength: 6-month return minus the S&P 500's over the same dates.
   // P1428: each end of the comparison uses the benchmark close on or just before the stock's date (≤ 3 days);
@@ -232,6 +250,7 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
   const evidence = [
     ['일봉 이동평균', aligned ? '정배열 (종가 > 21일 EMA > 50일 > 200일)' : ema21[n] && sma50[n] ? `혼조 (종가 ${last.close > sma50[n] ? '50일선 위' : '50일선 아래'})` : '기록 부족'],
     ['주봉 추세 (10·30주)', weeklyTrend || '기록 부족'],
+    ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계 · 30주선 4주 ${weinstein.slope >= 0 ? '+' : ''}${weinstein.slope.toFixed(1)}%` : '기록 부족'],
     ['S&P 500 대비 6개월', rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],
     ['거래량 (50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? ` · 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
@@ -252,6 +271,15 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
     lines: { ema8, ema21, sma50, sma200 },
     events: chartEvents,
     templateChecks,
+    templatePass,
+    weinstein,
+    weeklyTrend,
+    rs,
+    ret6,
+    pressure,
+    dryUp,
+    rangeLabel,
+    fromHigh,
     extension,
     vcp,
     pivot,
@@ -261,4 +289,30 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
     evidence,
     flip: state === 'setup' ? `피벗 ${fmt(pivot)} 위로 50일 평균의 1.4배 이상 거래량과 함께 마감하면 돌파` : state === 'breakout' ? `피벗 ${fmt(pivot)} 아래로 다시 마감하면 돌파 실패` : state === 'downtrend' ? '200일선 회복과 50일선 상향이 먼저 필요' : state === 'failed' ? `피벗 ${fmt(pivot)} 재돌파 전까지 관망 구간` : null
   };
+}
+
+// P1435: one connected reading of the chart — what state, why, what would change it, and how the market
+// around it agrees — so the evidence list underneath is support, not the message.
+export function chartReading(analysis, regime = null) {
+  if (!analysis?.available) return null;
+  const pct = (value, digits = 1) => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`;
+  const parts = [];
+  const w = analysis.weinstein;
+  if (w) parts.push(`주봉으로는 Weinstein ${w.stage}단계(${w.text.split(' — ')[0]})`);
+  parts.push(`추세 템플릿 ${analysis.templatePass}/8`);
+  if (analysis.rs != null) parts.push(`6개월 수익률이 S&P 500보다 ${Math.abs(analysis.rs).toFixed(1)}%p ${analysis.rs >= 0 ? '높음' : '낮음'}`);
+  const why = parts.join(', ');
+  const vcp = analysis.vcp?.contractions?.length ? `변동성 수축 ${analysis.vcp.contractions.map((row) => `-${row.depth.toFixed(0)}%`).join('→')}${analysis.dryUp != null && analysis.dryUp < 0.8 ? ', 거래량도 줄어드는 중' : ''}` : null;
+  const state = {
+    setup: `셋업이 만들어지는 중입니다 — ${vcp || '변동성 수축'}이고 피벗까지 ${analysis.pivot ? pct((analysis.pivot / analysis.last.close - 1) * 100) : '—'} 남았습니다`,
+    breakout: '피벗을 거래량과 함께 넘었습니다 — 돌파 직후는 피벗 위에서 버티는지가 관건입니다',
+    extended: `피벗에서 이미 ${analysis.pivot ? pct((analysis.last.close / analysis.pivot - 1) * 100) : '—'} 올라 추격 구간입니다 — 새 수축(쉬어 가기)을 기다리는 자리입니다`,
+    failed: '돌파 뒤 피벗 아래로 되돌아왔습니다 — 실패한 돌파는 매물이 남아 있다는 뜻입니다',
+    downtrend: '하락 추세라 셋업을 따지는 단계가 아닙니다 — 200일선 회복이 먼저입니다',
+    none: `뚜렷한 셋업은 없습니다${vcp ? ` (${vcp})` : ''}`
+  }[analysis.state];
+  const market = regime?.available ? (regime.overall === '방어적 환경' || regime.overall === '경계 환경'
+    ? `시장은 ${regime.overall}이라, 같은 셋업이라도 실패 확률이 높아지는 환경입니다`
+    : `시장은 ${regime.overall}입니다`) : null;
+  return { headline: state, why, market, flip: analysis.flip };
 }
