@@ -54,7 +54,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
     points.push({ id: 'single', tone: growth == null ? 'neutral' : growth >= 0 ? 'favorable' : 'burden', title: '공시 기록', text: `회계연도 ${latest.periodEnd || '최근'} 매출 ${formatUsdShort(latest.revenue)}${growth != null ? `(전년 대비 ${signed(growth)})` : ''}${latest.margin != null ? `, 순이익률 ${latest.margin.toFixed(1)}%` : ''}. 여러 해 추이 그래프는 다음 재무 데이터 갱신 뒤 표시됩니다.` });
   }
   const roe = finite(fundamentals?.roe);
-  if (roe != null) points.push({ id: 'roe', tone: roe >= 15 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율', text: `ROE ${roe.toFixed(1)}% — ${roe >= 20 ? '자기자본으로 높은 이익을 내는 회사' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.` });
+  if (roe != null) points.push({ id: 'roe', tone: roe >= 15 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율', text: `ROE ${roe.toFixed(1)}% — ${roe >= 20 ? '자기자본으로 높은 이익을 내는 회사' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 60 ? ' 다만 이 정도로 높으면 자사주 매입으로 자본이 줄어 수치가 커진 경우가 많아, 순이익률과 함께 봐야 합니다.' : ''}` });
 
   const ret6 = finite(row?.ret6m);
   const lastGrowth = history.length >= 2 ? (latest.revenue / history[history.length - 2].revenue - 1) * 100 : null;
@@ -62,7 +62,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
     const priceUp = ret6 > 0;
     const salesUp = lastGrowth > 0;
     points.push({ id: 'agree', tone: priceUp === salesUp ? 'favorable' : 'neutral', title: '주가와 실적',
-      text: priceUp && salesUp ? `주가 6개월 ${signed(ret6)}와 매출 성장 ${signed(lastGrowth)}가 같은 방향입니다 — 가격 추세를 실적이 뒷받침합니다.`
+      text: priceUp && salesUp && ret6 > lastGrowth * 2 + 10 ? `주가 6개월 ${signed(ret6)}와 매출 성장 ${signed(lastGrowth)}가 같은 방향이지만, 주가가 실적보다 훨씬 빨리 올라 기대(밸류에이션)가 앞서 있습니다 — 다음 실적이 그 기대를 채우는지가 관건입니다.`
+        : priceUp && salesUp ? `주가 6개월 ${signed(ret6)}와 매출 성장 ${signed(lastGrowth)}가 같은 방향입니다 — 가격 추세를 실적이 뒷받침합니다.`
         : priceUp && !salesUp ? `주가는 6개월 ${signed(ret6)} 올랐지만 최근 매출은 ${signed(lastGrowth)} — 가격이 실적 회복을 미리 반영하고 있는지 다음 공시가 확인합니다.`
           : !priceUp && salesUp ? `매출은 ${signed(lastGrowth)} 늘었지만 주가는 6개월 ${signed(ret6)} — 실적과 가격이 엇갈립니다(기대 하향 또는 밸류에이션 조정).`
             : `주가(6개월 ${signed(ret6)})와 매출(${signed(lastGrowth)})이 함께 약합니다.` });

@@ -12,7 +12,9 @@ import {
   selectAiInferenceProxies
 } from '../../domain/ai/inference-efficiency.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
-import { rotationFlow } from '../../domain/market/page-flow.js';
+import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js';
+import { buildGroupStrength } from '../../domain/themes/group-strength.js';
+import { benchmarkReturns } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
 import { renderNextSteps } from '../components/page-flow.js';
 
@@ -408,6 +410,37 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   if (membership.observedAt) provenance.setAttribute('data-observed-at', membership.observedAt);
 
   host.replaceChildren(header, leaders, provenance);
+  // P1440: the theme's own flow from the published screener medians — readable even when live quotes
+  // for the constituents have not arrived (the legacy panel below then reads 시세 대기).
+  const rows = store?.getState?.()?.screener?.rows || [];
+  const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey: 'ret3m', benchmark: benchmarkReturns(root?._aioHistory || []) });
+  const flow = themeDetailFlow({ themeId: detail.id, groups: model.groups, etf: detail.etf || null, rotation: root?._serverDataMeta?.rotationHistory?.items || {} });
+  if (flow.rows.length) {
+    const box = documentRef.createElement('div');
+    box.className = 'theme-detail-flow';
+    if (flow.read) { const p = documentRef.createElement('p'); p.className = 'flow-lead'; p.textContent = flow.read; box.append(p); }
+    const max = Math.max(1, ...flow.rows.map((group) => Math.abs(group.ret3m ?? 0)));
+    for (const group of flow.rows) {
+      const line = documentRef.createElement('div');
+      line.className = 'stock-read-bars';
+      const name = documentRef.createElement('span');
+      name.className = 'stock-read-bar-label';
+      name.textContent = group.name;
+      const item = documentRef.createElement('div');
+      item.className = 'stock-read-bar-row';
+      const bar = documentRef.createElement('div');
+      bar.className = `stock-read-bar is-stock ${(group.ret3m ?? 0) >= 0 ? 'is-up' : 'is-down'}`;
+      bar.style.width = `${Math.max(2, Math.abs(group.ret3m ?? 0) / max * 100).toFixed(1)}%`;
+      const value = documentRef.createElement('span');
+      value.className = 'stock-read-bar-value';
+      const dir = { improving: '개선', steady: '유지', weakening: '약화' }[group.direction] || '';
+      value.textContent = `3개월 ${group.ret3m == null ? '—' : `${group.ret3m >= 0 ? '+' : ''}${group.ret3m.toFixed(1)}%`} · 1개월 ${group.ret1m == null ? '—' : `${group.ret1m >= 0 ? '+' : ''}${group.ret1m.toFixed(1)}%`}${group.above50Pct != null ? ` · 50일선 위 ${group.above50Pct}%` : ''}${dir ? ` · ${dir}` : ''}`;
+      item.append(bar, value);
+      line.append(name, item);
+      box.append(line);
+    }
+    host.append(box);
+  }
   host.hidden = false;
 }
 

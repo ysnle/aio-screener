@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1441 - v57.15 - Theme detail flow from artifact data; sharper price-vs-results reading (2026-10-04)
+
+- symptom/reproduction: Live 2026-10-04: the theme detail panel read '시세 대기' for every sub-theme because constituent live quotes do not arrive, so the panel said nothing about the theme. On 재무 공시, AAPL (price +30.6% in six months, sales +6.4%) was read as 'results support the price', and an ROE of 151.9% was called plain high capital efficiency.
+- root_cause: The detail panel depended only on live quotes; the fiscal reading treated any same-sign move as agreement and ignored ROE distortion from a shrunken equity base.
+- fix: page-flow themeDetailFlow (sub-themes of the theme from buildGroupStrength: strongest/weakest 3-month median, sub-themes whose 1-month rank moved up or down, all-improving case, theme ETF rotation quadrant) rendered in the native theme detail summary with 3-month bars and 1-month / 50-day / direction labels. fiscal-read: price rising more than twice sales growth + 10pp reads as expectations running ahead; ROE >= 60% adds the buyback caveat.
+- violated_rule: Owner direction: analysis that connects data and stays correct; missing live data must not leave a section empty when published data can answer.
+- prevention: Browser runtime group covers themes and fundamental routes.
+- verification/residual: Local preview: semiconductor detail reads 'SMH 선도 · strongest AI 칩/GPU +7.4% · weakest 장비/소재 -4.1% · all five sub-themes improving'; AAPL fiscal history six years from the new sec-fiscal-history.json (569 issuers, 75 KB).
+
 ## P1440 - v57.14 - Fiscal history as its own artifact; sub-theme ranking reading (2026-10-04)
 
 - symptom/reproduction: After P1439 unblocked the screener refresh, the next run failed at ci-sec-runtime-projection-check: 'runtime projection exceeds 1 MiB: 1515652' — the P1436 fiscalHistory objects inflated the pretty-printed summary. Separately, the 하위 테마 순위 table listed ranks and directions without saying what they add up to.

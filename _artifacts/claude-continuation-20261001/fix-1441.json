@@ -1,0 +1,19 @@
+{
+  "version": "v57.15",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.15 — theme detail reads the theme from the published screener medians (sub-theme bars, momentum moving or cooling, ETF rotation); 재무 공시 separates 'price ahead of results' from 'results support price' and flags buyback-inflated ROE (P1441).",
+  "p": {
+    "id": 1441,
+    "title": "Theme detail flow from artifact data; sharper price-vs-results reading",
+    "symptom": "Live 2026-10-04: the theme detail panel read '시세 대기' for every sub-theme because constituent live quotes do not arrive, so the panel said nothing about the theme. On 재무 공시, AAPL (price +30.6% in six months, sales +6.4%) was read as 'results support the price', and an ROE of 151.9% was called plain high capital efficiency.",
+    "root_cause": "The detail panel depended only on live quotes; the fiscal reading treated any same-sign move as agreement and ignored ROE distortion from a shrunken equity base.",
+    "fix": "page-flow themeDetailFlow (sub-themes of the theme from buildGroupStrength: strongest/weakest 3-month median, sub-themes whose 1-month rank moved up or down, all-improving case, theme ETF rotation quadrant) rendered in the native theme detail summary with 3-month bars and 1-month / 50-day / direction labels. fiscal-read: price rising more than twice sales growth + 10pp reads as expectations running ahead; ROE >= 60% adds the buyback caveat.",
+    "violated_rule": "Owner direction: analysis that connects data and stays correct; missing live data must not leave a section empty when published data can answer.",
+    "prevention": "Browser runtime group covers themes and fundamental routes.",
+    "verification": "Local preview: semiconductor detail reads 'SMH 선도 · strongest AI 칩/GPU +7.4% · weakest 장비/소재 -4.1% · all five sub-themes improving'; AAPL fiscal history six years from the new sec-fiscal-history.json (569 issuers, 75 KB)."
+  },
+  "changelog": [
+    "**테마 상세·재무 해석 보강 (P1441):** 테마 상세에 하위 테마별 3개월·1개월 흐름 막대와 해석(실시간 시세 없이도 표시), 재무 공시에 '주가가 실적보다 앞서 있음' 구분과 자사주 매입으로 부풀려진 ROE 주의를 추가했습니다."
+  ]
+}

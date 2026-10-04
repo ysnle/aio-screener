@@ -168,3 +168,25 @@ export function themeStrengthLead(model = null) {
   parts.push(`상위 5개 중 ${healthy}개는 구성 종목 대부분이 50일선 위`);
   return `${parts.join('. ')}입니다.`;
 }
+
+// 테마 상세: inside one theme — which sub-themes carry it, where short-term momentum is moving, and how
+// the theme ETF sits in the sector rotation. Groups come from buildGroupStrength (screener artifact medians).
+export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {} } = {}) {
+  const mine = (groups || []).filter((group) => group.themeId === themeId);
+  if (!mine.length) return { read: '', rows: [] };
+  const byThree = [...mine].sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9));
+  const strongest = byThree[0];
+  const weakest = byThree[byThree.length - 1];
+  const moving = mine.filter((group) => group.direction === 'improving');
+  const cooling = mine.filter((group) => group.direction === 'weakening');
+  const quadrant = etf && rotation[etf] ? { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' }[rotation[etf].quadrant] : null;
+  const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
+  const parts = [];
+  if (quadrant) parts.push(`테마 ETF ${etf}는 섹터 회전에서 ${quadrant}`);
+  if (byThree.length >= 2) parts.push(`3개월 기준 가장 강한 곳은 ${strongest.name}(${pct(strongest.ret3m)}), 가장 약한 곳은 ${weakest.name}(${pct(weakest.ret3m)})`);
+  if (moving.length && moving.length === mine.length && mine.length >= 2) parts.push('하위 테마 전부가 1개월 순위를 크게 끌어올려, 특정 종목이 아니라 테마 전체로 자금이 들어오는 모습');
+  else if (moving.length) parts.push(`1개월 흐름은 ${moving.map((group) => group.name).join(' · ')} 쪽으로 옮겨 가는 중`);
+  const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
+  if (cooling.length) parts.push(`${cooling.map((group) => group.name).join(' · ')}${topic(cooling[cooling.length - 1].name)} 최근 1개월 강세가 식는 중`);
+  return { read: parts.length ? `${parts.join('. ')}입니다.` : '', rows: byThree };
+}
