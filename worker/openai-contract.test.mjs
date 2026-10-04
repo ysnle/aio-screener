@@ -123,6 +123,10 @@ async function main() {
     check('P1433 acknowledgement for another month is ignored', (await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.33' } }), otherMonth.env)).status === 429 && otherMonth.saved().legacyUnknownMonths[currentMonth] === true);
     const overCap = harness(structuredClone(unknownMonth), { AI_LEGACY_MONTH_ACK: `${currentMonth}:10000000` });
     check('P1433 a stated spend at the cap still blocks', (await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.33' } }), overCap.env)).status === 429);
+    const paddedKey = harness(undefined, { OPENAI_API_KEY: 'fake-not-a-live-key\n' }); let sentAuth = null;
+    upstream = async (_, init) => { sentAuth = init.headers.Authorization; return Response.json(usageResponse()); };
+    const padded = await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.34' } }), paddedKey.env); await padded.arrayBuffer();
+    check('P1433 a secret saved with a trailing newline is trimmed before the Authorization header', padded.status === 200 && sentAuth === 'Bearer fake-not-a-live-key');
     const release = harness(), reserved = payload('fixture-before-start'); await release.durable.mutateQuota('reserve', reserved); await release.durable.mutateQuota('release', reserved);
     check('P1421 pre-dispatch cancellation may release', release.saved().months[currentMonth] === 0);
     const started = payload('fixture-started'); await release.durable.mutateQuota('reserve', started); await release.durable.mutateQuota('start', started); await release.durable.mutateQuota('release', started);

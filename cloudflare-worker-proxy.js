@@ -877,10 +877,13 @@ async function dispatchOpenAi(env, budget, payload, signal, rpc) {
   }
   try { await rpc('start', payload); }
   catch (error) { await rpc('release', payload); throw error; }
-  try { return await fetchOpenAiWithDeadline(env.OPENAI_API_KEY, budget, signal,
+  // P1433: a secret pasted with a trailing newline/space makes the Authorization header invalid and fetch
+  // throws before any request leaves (live 2026-10-04: every call 502 in under 0.5 s). Trim it here.
+  try { return await fetchOpenAiWithDeadline(String(env.OPENAI_API_KEY).trim(), budget, signal,
     chargeMicroUsd => rpc('settle', { ...payload, chargeMicroUsd })); }
   catch (error) {
-    return Response.json({ error: { type: error.name === 'AbortError' ? 'timeout' : 'upstream_error', message: 'OpenAI upstream unavailable; monthly reservation retained' } }, { status: 502 });
+    // The error class only (no message, no key material) so an operator can tell a local throw from a network failure.
+    return Response.json({ error: { type: error.name === 'AbortError' ? 'timeout' : 'upstream_error', message: 'OpenAI upstream unavailable; monthly reservation retained', errorClass: String(error?.name || 'Error').slice(0, 40) } }, { status: 502 });
   }
 }
 
