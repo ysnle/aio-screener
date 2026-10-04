@@ -493,7 +493,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   return row[key] ?? '—';
 }
 
-function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns } = {}) {
+function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold } = {}) {
   const tr = documentRef.createElement('tr');
   const symbol = row.sym || row.symbol;
   tr.className = `aio-hover-row${selectedSymbols?.has(symbol) ? ' is-selected' : ''}`;
@@ -520,7 +520,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
       td.style.fontFamily = 'var(--font-mono)';
       td.style.fontVariantNumeric = 'tabular-nums';
     }
-    const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold: root._aioRankingHold || null });
+    const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold });
     td.appendChild(content && content.nodeType ? content : text(documentRef, content));
     const fieldId = FIELD_BY_COLUMN.get(column.key);
     const field = fieldId && row.fieldReadiness?.fields?.[fieldId];
@@ -1043,7 +1043,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
       empty.appendChild(cell(documentRef, emptyMessage, '', 'text-align:center;padding:20px;color:var(--text-muted);'));
       empty.firstChild.colSpan = visibleColumns.length;
       body.appendChild(empty);
-    } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns })));
+    } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: root._aioRankingHold || null })));
     if (focusedSymbol) {
       const row = [...body.querySelectorAll('[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === focusedSymbol);
       const action = row && [...row.querySelectorAll('button')].find((node) => node.getAttribute('aria-label') === focusedAction);

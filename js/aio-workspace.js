@@ -1170,7 +1170,6 @@ async function refreshPortfolioRisk() {
   _renderRiskMetrics(el, { var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
     corrRes: corrRes, validTickers: validTickers, n: minLen, rfAnnual: rfAnnual,
     estimate: estimate });
-  try { el.insertAdjacentHTML('beforeend', '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">실제 계좌 성과(TWR/MWR)는 원장 성과 요약에서 시세 이력과 무관하게 표시합니다.</div>'); } catch(e) {}
   if (assembled && assembled.fxIncluded === false) el.insertAdjacentHTML('beforeend', '<div style="font-size:11px;color:var(--data-amber);margin-top:6px;">해외 종목 수익률에 환율 변동이 빠져 있습니다(같은 기간 원/달러 종가 부족) — 계좌 통화 기준 전체 위험보다 작게 나올 수 있습니다.</div>'); // P1445
   try { _aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
   try { _aioRenderPortfolioStress(positions); } catch(_) {}                 // v50.54 3E
@@ -1444,6 +1443,9 @@ function _renderRiskMetrics(el, data) {
   var note = '<div style="font-size:10px;color:var(--text-muted);padding-top:8px;border-top:1px solid var(--border);">' +
     '역사적 시뮬레이션 VaR — ' + (scopeLabel ? _escHtmlSafe(scopeLabel) + ' 범위' : '선언된 범위') +
     '의 과거 수익률 분포 기반 참고값이며 인증 보류 상태입니다. 실제 손실은 이를 초과할 수 있습니다. 투자 결정 참고용으로만 활용하세요.</div>';
+  // P1449/P1458: the ledger account performance lives in its own panel — this panel says so
+  // in the SAME innerHTML pass (an appended node raced with re-renders and vanished).
+  note += '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">실제 계좌 성과(TWR/MWR)는 원장 성과 요약에서 시세 이력과 무관하게 표시합니다.</div>';
 
   el.innerHTML = declHtml + cards + heatHtml + note;
 }

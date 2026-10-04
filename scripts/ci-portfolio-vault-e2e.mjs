@@ -487,19 +487,27 @@ async function main() {
       await new Promise((resolve) => setTimeout(resolve, 120));
       return {
         currencyNote: (document.getElementById('pf-currency-note') || {}).textContent || '',
-        riskHtml: (document.getElementById('pf-risk-metrics') || {}).innerHTML || ''
+        riskHtml: (document.getElementById('pf-risk-metrics') || {}).innerHTML || '',
+        // P1449/P1458: ledger account performance is its own panel since the
+        // price-history gate stopped owning it — collect both render targets.
+        ledgerHtml: (document.getElementById('pf-ledger-performance') || {}).innerHTML || ''
       };
     });
-    check('PFE2-17 declared_currency_and_performance_render (P1188/P1191)',
-      rendered.currencyNote.includes('통화 USD')
-      && /실제 계좌 성과 TWR \+10\.00%/.test(rendered.riskHtml)
-      && /MWR \+8\.\d\d%/.test(rendered.riskHtml)
-      && /USD · end-of-period · \d+기간/.test(rendered.riskHtml)
-      && /계좌 전체/.test(rendered.riskHtml)
-      && /RF 입력/.test(rendered.riskHtml)
-      && /snapshot pfcomp-/.test(rendered.riskHtml)
-      && !/현금 보류/.test(rendered.riskHtml),
-      JSON.stringify({ currencyNote: rendered.currencyNote, riskHtml: rendered.riskHtml.slice(0, 700) }));
+    const cres = [
+      ['currencyNote', rendered.currencyNote.includes('통화 USD')],
+      ['twr-in-ledger-panel', /실제 계좌 성과 TWR \+10\.00%/.test(rendered.ledgerHtml)],
+      ['mwr-in-ledger-panel', /MWR \+8\.\d\d%/.test(rendered.ledgerHtml)],
+      ['period-in-ledger-panel', /USD · end-of-period · \d+기간/.test(rendered.ledgerHtml)],
+      ['no-price-claim', /시세 이력.*무관하게/.test(rendered.ledgerHtml)],
+      ['pointer-in-risk-panel', /원장 성과 요약/.test(rendered.riskHtml)],
+      ['whole-account-scope', /계좌 전체/.test(rendered.riskHtml)],
+      ['rf-declared', /RF 입력/.test(rendered.riskHtml)],
+      ['snapshot-declared', /snapshot pfcomp-/.test(rendered.riskHtml)],
+      ['no-cash-hold', !/현금 보류/.test(rendered.riskHtml)]
+    ];
+    check('PFE2-17 declared_currency_and_performance_render (P1188/P1191/P1458)',
+      cres.every(([, ok]) => ok),
+      JSON.stringify({ failed: cres.filter(([, ok]) => !ok).map(([name]) => name), currencyNote: rendered.currencyNote, ledgerHtml: rendered.ledgerHtml.slice(0, 300) }));
 
     // E4/P1193 + E3/P1181: 측정 경로를 전략으로 선언하면 패널이 그 경로와 목표비중·sleeve 분모를
     // 게시해야 하고, 통화가 혼합/원가 불일치면 네이티브 주석이 그 보류를 말해야 한다.

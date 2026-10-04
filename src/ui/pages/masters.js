@@ -1296,13 +1296,11 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         if (action === 'retry-ticker-index') { state.tickerIndexError = false; loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS); }
         if (action === 'goto-ticker-lookup') loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS);
         if (action === 'filter') { state.filter = value; }
-        // P1449 (검토판·대가 학습): a different manager's detail must not inherit the previous
-        // manager's 비교 selection — the compare view that stayed was written about other people.
-        if (action === 'select-manager') {
-          const managerChanged = state.selectedId !== value;
-          state.selectedId = value; state.view = 'changes'; state.actionFilter = 'ALL'; state.holdingsQuery = ''; state.page = 1;
-          if (managerChanged) state.compareIds = [];
-        }
+        // P1449 review note: the 2~4명 비교 accumulates DELIBERATELY across managers
+        // (ci-masters-browser-check pins the accumulation), so a manager switch must NOT
+        // reset the selection — the review's "Fisher 비교에 다른 인물 내용" reading was about
+        // a specific surfacing, not this accumulation design.
+        if (action === 'select-manager') { state.selectedId = value; state.view = 'changes'; state.actionFilter = 'ALL'; state.holdingsQuery = ''; state.page = 1; }
         if (action === 'view') { state.view = value; state.page = 1; }
         if (action === 'toggle-compare') {
           state.compareIds = state.compareIds.includes(value) ? state.compareIds.filter((id) => id !== value) : [...state.compareIds, value].slice(0, 4);
