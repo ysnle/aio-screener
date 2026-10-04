@@ -1,6 +1,6 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-10-04T12:24:00+09:00
+generated_from_build: 2026-10-04T12:38:00+09:00
 auto_refresh: true
 last_verified: 2026-10-04
 ---
@@ -11,7 +11,7 @@ last_verified: 2026-10-04
 
 ## Application
 
-- Version: `v57.12`
+- Version: `v57.13`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
 - App shell: 10,218 lines / 742,646 bytes
@@ -31,7 +31,7 @@ last_verified: 2026-10-04
 - Context documents: 74; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 6; command wrappers: 12; agent profiles: 4.
 - Workflows: 13; CI scripts: 140.
-- Ledgers: latest rule R682; latest postmortem P1438; open QA 207 unique IDs (211 rows, 5 explicitly superseded).
+- Ledgers: latest rule R682; latest postmortem P1439; open QA 207 unique IDs (211 rows, 5 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary

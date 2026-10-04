@@ -4,6 +4,15 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1439 - v57.13 - Screener refresh blocked by a hardcoded universe size (2026-10-04)
+
+- symptom/reproduction: refresh-screener failed on every scheduled run on 2026-10-03 (11:58, 16:41, 21:43 UTC): SCR-OS-00 'published baseline is self-consistent' with universe 931, ok 918 and full factor coverage. The live screener stayed on the 2026-10-01 factor session and the SEC runtime projection was not regenerated.
+- root_cause: ci-screener-workbench-contract.mjs asserted artifact.universe === 873, a literal from when the contract was written; the curated identity universe (public-data/screener-universe.json, recordCount) was expanded to 931 on 2026-10-01.
+- fix: SCR-OS-00 now requires 0 < artifact.universe <= the curated universe's recordCount, keeping the self-consistency, factor-coverage and fundamental-coverage conditions unchanged.
+- violated_rule: Gates check relations between artifacts, not literals that a routine data change invalidates.
+- prevention: The universe bound is read from the artifact the producer uses; a universe change no longer needs a code edit.
+- verification/residual: Local: ci-screener-workbench-contract passes on the committed 873-row artifact; the producer's 931-row artifact satisfies 931 <= 931. Live verification is the next refresh-screener run.
+
 ## P1438 - v57.12 - 포트폴리오: the holdings read against the market (2026-10-04)
 
 - symptom/reproduction: The portfolio page listed holdings and concentration checks but never said how the book sits in the current market — trends, rotation, relative performance.

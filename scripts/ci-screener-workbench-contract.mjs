@@ -379,7 +379,10 @@ async function run() {
   const factorRows = artifactRows.filter((row) => Number.isFinite(Number(row?.ret1m)) || Number.isFinite(Number(row?.rsi)));
   const expectedFundamentalCoverage = artifact.fundamentalCoverageDenominator > 0
     ? Math.round((Number(artifact.fundamentalCount || 0) / artifact.fundamentalCoverageDenominator) * 1000) / 10 : 0;
-  assert(artifact.universe === 873
+  // P1439: the curated universe grew 873 → 931 on 2026-10-01 and this literal failed every screener refresh
+  // since; the published universe may not exceed the curated identity universe it was built from.
+  const curatedUniverse = Number(readJson('public-data/screener-universe.json')?.meta?.recordCount || 0);
+  assert(artifact.universe > 0 && artifact.universe <= curatedUniverse
     && artifact.ok === artifactRows.length
     && factorRows.length === artifactRows.length
     && artifact.ok >= Math.ceil(artifact.universe * 0.8)

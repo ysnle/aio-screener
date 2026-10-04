@@ -1,0 +1,19 @@
+{
+  "version": "v57.13",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.13 — the screener refresh had failed every run since the curated universe grew to 931 symbols (a gate compared against the literal 873); the published screener was stuck at the 10-01 session (P1439).",
+  "p": {
+    "id": 1439,
+    "title": "Screener refresh blocked by a hardcoded universe size",
+    "symptom": "refresh-screener failed on every scheduled run on 2026-10-03 (11:58, 16:41, 21:43 UTC): SCR-OS-00 'published baseline is self-consistent' with universe 931, ok 918 and full factor coverage. The live screener stayed on the 2026-10-01 factor session and the SEC runtime projection was not regenerated.",
+    "root_cause": "ci-screener-workbench-contract.mjs asserted artifact.universe === 873, a literal from when the contract was written; the curated identity universe (public-data/screener-universe.json, recordCount) was expanded to 931 on 2026-10-01.",
+    "fix": "SCR-OS-00 now requires 0 < artifact.universe <= the curated universe's recordCount, keeping the self-consistency, factor-coverage and fundamental-coverage conditions unchanged.",
+    "violated_rule": "Gates check relations between artifacts, not literals that a routine data change invalidates.",
+    "prevention": "The universe bound is read from the artifact the producer uses; a universe change no longer needs a code edit.",
+    "verification": "Local: ci-screener-workbench-contract passes on the committed 873-row artifact; the producer's 931-row artifact satisfies 931 <= 931. Live verification is the next refresh-screener run."
+  },
+  "changelog": [
+    "**스크리너 갱신 복구 (P1439):** 종목 유니버스가 931개로 늘어난 뒤 검사 코드의 고정값(873) 때문에 스크리너 데이터 갱신이 10/3부터 계속 실패하던 문제를 고쳤습니다."
+  ]
+}
