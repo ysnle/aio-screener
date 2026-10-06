@@ -1,64 +1,16 @@
 {
- "generatedAt": "2026-10-04T09:26:55.735Z",
+ "generatedAt": "2026-10-06T00:50:34.869Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.",
  "summary": {
-  "n5d": 310,
-  "corr5d": -0.243,
-  "n21d": 294,
-  "corr21d": -0.348,
+  "n5d": 312,
+  "corr5d": -0.249,
+  "n21d": 296,
+  "corr21d": -0.349,
   "sampleSizeSufficient": true,
   "significanceStatus": "UNKNOWN",
   "statisticallyMeaningful": false
  },
  "records": [
-  {
-   "date": "2026-02-26",
-   "reconstructedScore": 64,
-   "subScores": {
-    "vol": 62,
-    "mom": 70,
-    "trend": null,
-    "breadth": null,
-    "macro": 55
-   },
-   "fwd5dReturn": -1.1311562254843728,
-   "fwd21dReturn": -7.816195436005352,
-   "dataCompleteness": {
-    "vix": true,
-    "dxy": true,
-    "tnx": true,
-    "wti": true,
-    "vvix": true,
-    "trend200maAvailable": false,
-    "breadthPcrFellBackToUnavailable": true,
-    "newsSentimentOmitted": true,
-    "componentCoveragePct": 60
-   }
-  },
-  {
-   "date": "2026-02-27",
-   "reconstructedScore": 63,
-   "subScores": {
-    "vol": 62,
-    "mom": 70,
-    "trend": null,
-    "breadth": null,
-    "macro": 47
-   },
-   "fwd5dReturn": -2.0186425697206474,
-   "fwd21dReturn": -7.779754843811782,
-   "dataCompleteness": {
-    "vix": true,
-    "dxy": true,
-    "tnx": true,
-    "wti": true,
-    "vvix": true,
-    "trend200maAvailable": false,
-    "breadthPcrFellBackToUnavailable": true,
-    "newsSentimentOmitted": true,
-    "componentCoveragePct": 60
-   }
-  },
   {
    "date": "2026-03-02",
    "reconstructedScore": 63,
@@ -1477,11 +1429,11 @@
   },
   {
    "date": "2026-05-27",
-   "reconstructedScore": 74,
+   "reconstructedScore": 71,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 82,
+    "trend": null,
     "breadth": null,
     "macro": 55
    },
@@ -1493,19 +1445,19 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": true,
+    "trend200maAvailable": false,
     "breadthPcrFellBackToUnavailable": true,
     "newsSentimentOmitted": true,
-    "componentCoveragePct": 80
+    "componentCoveragePct": 60
    }
   },
   {
    "date": "2026-05-28",
-   "reconstructedScore": 74,
+   "reconstructedScore": 71,
    "subScores": {
     "vol": 78,
     "mom": 70,
-    "trend": 82,
+    "trend": null,
     "breadth": null,
     "macro": 55
    },
@@ -1517,10 +1469,10 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": true,
+    "trend200maAvailable": false,
     "breadthPcrFellBackToUnavailable": true,
     "newsSentimentOmitted": true,
-    "componentCoveragePct": 80
+    "componentCoveragePct": 60
    }
   },
   {
@@ -3838,7 +3790,7 @@
     "macro": 45
    },
    "fwd5dReturn": -0.08462866560967332,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 0.8585630366019069,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -3862,7 +3814,7 @@
     "macro": 45
    },
    "fwd5dReturn": 0.40052598563251396,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 2.0206089779763237,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -4221,7 +4173,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": null,
+   "fwd5dReturn": 0.9302702462510852,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4245,7 +4197,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": null,
+   "fwd5dReturn": 1.4022135408174579,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4309,6 +4261,54 @@
   },
   {
    "date": "2026-10-04",
+   "reconstructedScore": 64,
+   "subScores": {
+    "vol": 78,
+    "mom": 70,
+    "trend": 68,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-10-05",
+   "reconstructedScore": 64,
+   "subScores": {
+    "vol": 78,
+    "mom": 70,
+    "trend": 68,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-10-06",
    "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
