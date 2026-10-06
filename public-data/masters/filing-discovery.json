@@ -2,8 +2,8 @@
   "schema": "masters-sec-filing-discovery.v2",
   "sourceKind": "SEC_EDGAR",
   "status": "CURRENT",
-  "reviewedAt": "2026-09-29",
-  "generatedAt": "2026-09-29T14:05:12.629Z",
+  "reviewedAt": "2026-10-06",
+  "generatedAt": "2026-10-06T02:46:57.800Z",
   "latestAvailablePeriod": "2026-06-30",
   "coverage": {
     "filerProfiles": 37,
@@ -14,15 +14,14 @@
     "ownershipManagers": 26,
     "holdingsRowsCurrent": 37,
     "holdingsRowsPending": 0,
-    "staleLastKnownGoodRows": 0,
-    "ownershipBlocked": 0
+    "staleLastKnownGoodRows": 0
   },
   "managers": [
     {
       "managerId": "blackrock-inc",
       "cik": "0002012383",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0002012383.json",
       "latestSubmission": {
@@ -108,17 +107,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "citigroup",
       "cik": "0000831001",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000831001.json",
       "latestSubmission": {
@@ -204,17 +203,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "goldman-sachs-group",
       "cik": "0000886982",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000886982.json",
       "latestSubmission": {
@@ -300,17 +299,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "jpmorgan-chase",
       "cik": "0000019617",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000019617.json",
       "latestSubmission": {
@@ -412,17 +411,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000093751.json",
       "latestSubmission": {
@@ -524,17 +523,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "vanguard-group",
       "cik": "0001680208",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001680208.json",
       "latestSubmission": {
@@ -636,17 +635,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "capital-international-investors",
       "cik": "0001562230",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001562230.json",
       "latestSubmission": {
@@ -732,6 +731,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -745,7 +745,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000085/0001562230-24-000085-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000085/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -759,7 +762,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000084/0001562230-24-000084-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000084/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 18.5
         },
         {
           "form": "SC 13G",
@@ -773,7 +779,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000083/0001562230-24-000083-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000083/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.7
         },
         {
           "form": "SC 13G",
@@ -787,7 +796,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000082/0001562230-24-000082-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000082/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.1
         },
         {
           "form": "SC 13G/A",
@@ -801,7 +813,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000080/0001562230-24-000080-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000080/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.4
         },
         {
           "form": "SC 13G/A",
@@ -815,7 +830,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000079/0001562230-24-000079-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000079/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -829,7 +847,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000078/0001562230-24-000078-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000078/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.2
         },
         {
           "form": "SC 13G/A",
@@ -843,7 +864,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000077/0001562230-24-000077-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000077/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -857,7 +881,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000076/0001562230-24-000076-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000076/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 1.4
         },
         {
           "form": "SC 13G/A",
@@ -871,19 +898,21 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000075/0001562230-24-000075-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223024000075/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.2
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "fidelity-fmr",
       "cik": "0000315066",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000315066.json",
       "latestSubmission": {
@@ -969,17 +998,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "t-rowe-price",
       "cik": "0000080255",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000080255.json",
       "latestSubmission": {
@@ -1065,6 +1094,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -1078,7 +1108,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001561/0000080255-24-001561-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001561/con13gnov24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 14
         },
         {
           "form": "SC 13G/A",
@@ -1092,7 +1125,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001560/0000080255-24-001560-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001560/upwk13ganov24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 11.1
         },
         {
           "form": "SC 13G/A",
@@ -1106,7 +1142,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001559/0000080255-24-001559-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001559/aap13ganov24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.8
         },
         {
           "form": "SC 13G",
@@ -1120,7 +1159,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001489/0000080255-24-001489-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001489/tel13gsep24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.8
         },
         {
           "form": "SC 13G",
@@ -1134,7 +1176,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001488/0000080255-24-001488-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001488/twfg13gsep24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.3
         },
         {
           "form": "SC 13G",
@@ -1148,7 +1193,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001487/0000080255-24-001487-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001487/hlxb13gsep24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6
         },
         {
           "form": "SC 13G/A",
@@ -1162,7 +1210,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001486/0000080255-24-001486-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001486/kvue13gasep24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 12.4
         },
         {
           "form": "SC 13G/A",
@@ -1176,7 +1227,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001485/0000080255-24-001485-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001485/crgx13gasep24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.9
         },
         {
           "form": "SC 13G/A",
@@ -1190,7 +1244,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001484/0000080255-24-001484-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001484/sdrl13gasep24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.1
         },
         {
           "form": "SC 13G/A",
@@ -1204,19 +1261,21 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001483/0000080255-24-001483-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025524001483/team13gasep24.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.1
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "wellington-management",
       "cik": "0000902219",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000902219.json",
       "latestSubmission": {
@@ -1302,6 +1361,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -1315,7 +1375,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000497/0000902219-24-000497-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000497/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.6
         },
         {
           "form": "SC 13G",
@@ -1329,7 +1392,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000496/0000902219-24-000496-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000496/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.61
         },
         {
           "form": "SC 13G/A",
@@ -1343,7 +1409,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000495/0000902219-24-000495-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000495/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 11.3
         },
         {
           "form": "SC 13G/A",
@@ -1357,7 +1426,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000494/0000902219-24-000494-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000494/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.88
         },
         {
           "form": "SC 13G/A",
@@ -1371,7 +1443,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000493/0000902219-24-000493-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000493/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.3
         },
         {
           "form": "SC 13G",
@@ -1385,7 +1460,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000492/0000902219-24-000492-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000492/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.42
         },
         {
           "form": "SC 13G/A",
@@ -1399,7 +1477,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000491/0000902219-24-000491-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000491/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.55
         },
         {
           "form": "SC 13G",
@@ -1413,7 +1494,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000490/0000902219-24-000490-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000490/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.74
         },
         {
           "form": "SC 13G/A",
@@ -1427,7 +1511,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000489/0000902219-24-000489-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000489/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.17
         },
         {
           "form": "SC 13G/A",
@@ -1441,19 +1528,21 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000488/0000902219-24-000488-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221924000488/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 12.08
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "dimensional-fund-advisors",
       "cik": "0000354204",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000354204.json",
       "latestSubmission": {
@@ -1539,6 +1628,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -1552,7 +1642,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004767/0000354204-24-004767-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004767/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.4
         },
         {
           "form": "SC 13G",
@@ -1566,7 +1659,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004766/0000354204-24-004766-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004766/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.1
         },
         {
           "form": "SC 13G",
@@ -1580,7 +1676,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004765/0000354204-24-004765-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004765/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.2
         },
         {
           "form": "SC 13G",
@@ -1594,7 +1693,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004764/0000354204-24-004764-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004764/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.4
         },
         {
           "form": "SC 13G",
@@ -1608,7 +1710,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004763/0000354204-24-004763-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004763/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.1
         },
         {
           "form": "SC 13G",
@@ -1622,7 +1727,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004762/0000354204-24-004762-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004762/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.3
         },
         {
           "form": "SC 13G",
@@ -1636,7 +1744,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004761/0000354204-24-004761-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004761/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.4
         },
         {
           "form": "SC 13G",
@@ -1650,7 +1761,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004760/0000354204-24-004760-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004760/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.1
         },
         {
           "form": "SC 13G",
@@ -1664,7 +1778,10 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004759/0000354204-24-004759-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004759/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.3
         },
         {
           "form": "SC 13G",
@@ -1678,19 +1795,21 @@
           "primaryDocDescription": "SEC SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004758/0000354204-24-004758-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420424004758/SEC13G_Filing.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "berkshire-hathaway",
       "cik": "0001067983",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001067983.json",
       "latestSubmission": {
@@ -1776,6 +1895,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -1789,7 +1909,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524265100/0001193125-24-265100-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524265100/d34884dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37.5
         },
         {
           "form": "SC 13G",
@@ -1803,7 +1926,10 @@
           "primaryDocDescription": "SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524258561/0001193125-24-258561-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524258561/d49764dsc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.7
         },
         {
           "form": "SC 13G/A",
@@ -1817,7 +1943,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524258557/0001193125-24-258557-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524258557/d836532dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.4
         },
         {
           "form": "SC 13G/A",
@@ -1831,7 +1960,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524258555/0001193125-24-258555-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524258555/d837380dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.5
         },
         {
           "form": "SC 13G/A",
@@ -1845,7 +1977,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524226917/0001193125-24-226917-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524226917/d158704dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -1859,7 +1994,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524226916/0001193125-24-226916-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524226916/d888586dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13D/A",
@@ -1873,7 +2011,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524197170/0001193125-24-197170-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524197170/d792254dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 43
         },
         {
           "form": "SC 13D/A",
@@ -1887,7 +2028,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524172349/0001193125-24-172349-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524172349/d792739dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37
         },
         {
           "form": "SC 13G/A",
@@ -1901,7 +2045,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524089047/0001193125-24-089047-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524089047/d820989dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 29.9
         },
         {
           "form": "SC 13G/A",
@@ -1915,19 +2062,21 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524089033/0001193125-24-089033-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312524089033/d822830dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 33.4
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "soros-fund-management",
       "cik": "0001029160",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001029160.json",
       "latestSubmission": {
@@ -2013,6 +2162,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -2026,7 +2176,10 @@
           "primaryDocDescription": "BOWLERO CORP.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266424001670/0000902664-24-001670-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266424001670/p24-0144sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -2040,7 +2193,10 @@
           "primaryDocDescription": "INDIE SEMICONDUCTOR, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266424001668/0000902664-24-001668-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266424001668/p24-0143sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.55
         },
         {
           "form": "SC 13G/A",
@@ -2054,7 +2210,10 @@
           "primaryDocDescription": "INDIE SEMICONDUCTOR, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266423001575/0000902664-23-001575-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266423001575/p23-0453sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7
         },
         {
           "form": "SC 13G/A",
@@ -2068,7 +2227,10 @@
           "primaryDocDescription": "BOWLERO CORP.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266423001571/0000902664-23-001571-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266423001571/p23-0452sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.42
         },
         {
           "form": "SC 13G/A",
@@ -2082,7 +2244,10 @@
           "primaryDocDescription": "TPB ACQUISITION CORP I",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266423001570/0000902664-23-001570-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266423001570/p23-0744sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G",
@@ -2096,7 +2261,10 @@
           "primaryDocDescription": "ACORDA THERAPEUTICS, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266422003258/0000902664-22-003258-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266422003258/p22-1612sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G",
@@ -2110,7 +2278,10 @@
           "primaryDocDescription": "INDIE SEMICONDUCTOR, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266422003121/0000902664-22-003121-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266422003121/p22-1545sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.09
         },
         {
           "form": "SC 13G/A",
@@ -2124,7 +2295,10 @@
           "primaryDocDescription": "TPB ACQUISITION CORPORATION I",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266422001551/0000902664-22-001551-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266422001551/p22-0605sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.28
         },
         {
           "form": "SC 13G",
@@ -2138,7 +2312,10 @@
           "primaryDocDescription": "BOWLERO CORP.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266421005275/0000902664-21-005275-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266421005275/p21-2693sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.4
         },
         {
           "form": "SC 13G",
@@ -2152,19 +2329,21 @@
           "primaryDocDescription": "TPB ACQUISITION CORPORATION I",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266421003982/0000902664-21-003982-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266421003982/p21-1988sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.28
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "bridgewater-associates",
       "cik": "0001350694",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001350694.json",
       "latestSubmission": {
@@ -2250,17 +2429,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "duquesne-family-office",
       "cik": "0001536411",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001536411.json",
       "latestSubmission": {
@@ -2346,6 +2525,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -2359,7 +2539,10 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914024000533/0000899140-24-000533-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914024000533/d73600936a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.4
         },
         {
           "form": "SC 13G",
@@ -2373,7 +2556,10 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914019000509/0000899140-19-000509-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914019000509/d13g082019a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G",
@@ -2387,7 +2573,10 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914019000180/0000899140-19-000180-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914019000180/d28088723a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6
         },
         {
           "form": "SC 13G/A",
@@ -2401,7 +2590,10 @@
           "primaryDocDescription": "SCHEDULE 13G/A, AMENDMENT #1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914017000222/0000899140-17-000222-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914017000222/d19863430.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 1.123
         },
         {
           "form": "SC 13G",
@@ -2415,19 +2607,21 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914015000753/0000899140-15-000753-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000089914015000753/p15475810a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.4
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "appaloosa-management",
       "cik": "0001656456",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001656456.json",
       "latestSubmission": {
@@ -2513,6 +2707,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -2526,7 +2721,10 @@
           "primaryDocDescription": "AMENDMENT NO. 1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000095014220001231/0000950142-20-001231-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000095014220001231/eh2000692_13da1-intelsat.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.9
         },
         {
           "form": "SC 13D",
@@ -2540,7 +2738,10 @@
           "primaryDocDescription": "APPALOOSA 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571820000263/0000905718-20-000263-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571820000263/intelsat_13dfeb182020.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.4
         },
         {
           "form": "SC 13G/A",
@@ -2554,7 +2755,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571818000231/0000905718-18-000231-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571818000231/atlantica_13gm2dec2017.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.5
         },
         {
           "form": "SC 13G/A",
@@ -2568,7 +2772,10 @@
           "primaryDocDescription": "ATLANTICA YIELD PLC SC 13G/AM1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571817000230/0000905718-17-000230-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571817000230/atlantica_13gm1dec2016.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.8
         },
         {
           "form": "SC 13G/A",
@@ -2582,7 +2789,10 @@
           "primaryDocDescription": "WMIH CORP. AMENDMENT NO. 1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571816001691/0000905718-16-001691-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571816001691/wmihcorp_13gam1oct2016.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.7
         },
         {
           "form": "SC 13G",
@@ -2596,7 +2806,10 @@
           "primaryDocDescription": "ABENGOA YIELD PLC",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571816001151/0000905718-16-001151-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571816001151/abengoayield_13gjan12016.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.3
         },
         {
           "form": "SC 13G",
@@ -2610,19 +2823,21 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571816001145/0000905718-16-001145-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000090571816001145/wmihcorp_13gjan12016.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.2
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "oaktree-capital-management",
       "cik": "0000949509",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000949509.json",
       "latestSubmission": {
@@ -2740,6 +2955,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -2753,7 +2969,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523204958/0001193125-23-204958-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523204958/d536339dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.6
         },
         {
           "form": "SC 13D/A",
@@ -2767,7 +2986,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523200620/0001193125-23-200620-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523200620/d321622dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3
         },
         {
           "form": "SC 13D/A",
@@ -2781,7 +3003,10 @@
           "primaryDocDescription": "AMENDMENT NO. 1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000095014223001785/0000950142-23-001785-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000095014223001785/eh230370678_13da1-sitio.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 0.007
         },
         {
           "form": "SC 13D/A",
@@ -2795,7 +3020,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523166916/0001193125-23-166916-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523166916/d814900dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.5
         },
         {
           "form": "SC 13D/A",
@@ -2809,7 +3037,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523163894/0001193125-23-163894-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523163894/d502431dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 11.8
         },
         {
           "form": "SC 13G",
@@ -2823,7 +3054,10 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000095014223001456/0000950142-23-001456-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000095014223001456/eh230356867_13g-magnachip.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.7
         },
         {
           "form": "SC 13D/A",
@@ -2837,7 +3071,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523103725/0001193125-23-103725-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523103725/d501044dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 19.1
         },
         {
           "form": "SC 13G/A",
@@ -2851,7 +3088,10 @@
           "primaryDocDescription": "AMENDMENT NO. 6",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000095014223000416/0000950142-23-000416-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000095014223000416/eh230328891_13ga6-nmi.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.9
         },
         {
           "form": "SC 13G/A",
@@ -2865,7 +3105,10 @@
           "primaryDocDescription": "AMENDMENT NO. 5",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000095014223000414/0000950142-23-000414-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000095014223000414/eh230325558_13ga5-berry.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 1.6
         },
         {
           "form": "SC 13D/A",
@@ -2879,19 +3122,21 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523020607/0001193125-23-020607-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000119312523020607/d445550dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.7
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "citadel-advisors",
       "cik": "0001423053",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001423053.json",
       "latestSubmission": {
@@ -2993,6 +3238,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -3006,7 +3252,10 @@
           "primaryDocDescription": "SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924128499/0001104659-24-128499-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924128499/tm2431054d2_sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.5
         },
         {
           "form": "SC 13G/A",
@@ -3020,7 +3269,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118989/0001104659-24-118989-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118989/tm2427061d10_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.7
         },
         {
           "form": "SC 13G/A",
@@ -3034,7 +3286,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118988/0001104659-24-118988-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118988/tm2427061d9_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.9
         },
         {
           "form": "SC 13G/A",
@@ -3048,7 +3303,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118982/0001104659-24-118982-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118982/tm2427061d8_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 1.8
         },
         {
           "form": "SC 13G/A",
@@ -3062,7 +3320,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118979/0001104659-24-118979-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118979/tm2427061d7_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.7
         },
         {
           "form": "SC 13G/A",
@@ -3076,7 +3337,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118978/0001104659-24-118978-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118978/tm2427061d18_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.7
         },
         {
           "form": "SC 13G/A",
@@ -3090,7 +3354,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118974/0001104659-24-118974-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118974/tm2427061d17_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4
         },
         {
           "form": "SC 13G/A",
@@ -3104,7 +3371,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118971/0001104659-24-118971-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118971/tm2427061d16_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.6
         },
         {
           "form": "SC 13G/A",
@@ -3118,7 +3388,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118970/0001104659-24-118970-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118970/tm2427061d6_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -3132,19 +3405,21 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118968/0001104659-24-118968-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465924118968/tm2427061d15_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.8
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "millennium-management",
       "cik": "0001273087",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001273087.json",
       "latestSubmission": {
@@ -3230,6 +3505,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -3243,7 +3519,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000119/0001273087-24-000119-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000119/MEG_SC13G.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.98
         },
         {
           "form": "SC 13G/A",
@@ -3257,7 +3536,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000117/0001273087-24-000117-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000117/OM_SC13GA1.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.6
         },
         {
           "form": "SC 13G/A",
@@ -3271,7 +3553,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000116/0001273087-24-000116-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000116/STEP_SC13GA1.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 1.7
         },
         {
           "form": "SC 13G",
@@ -3285,7 +3570,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000115/0001273087-24-000115-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000115/PACB_SC13G_Nov2024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.5
         },
         {
           "form": "SC 13G/A",
@@ -3299,7 +3587,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000114/0001273087-24-000114-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000114/SMTC_SC13GA1.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 1.9
         },
         {
           "form": "SC 13G/A",
@@ -3313,7 +3604,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000113/0001273087-24-000113-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000113/VERU_SC13GA1.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4
         },
         {
           "form": "SC 13G/A",
@@ -3327,7 +3621,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000112/0001273087-24-000112-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000112/SLDB_SC13GA1.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.9
         },
         {
           "form": "SC 13G/A",
@@ -3341,7 +3638,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000111/0001273087-24-000111-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000111/MBLY_SC13GA1.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.2
         },
         {
           "form": "SC 13G",
@@ -3355,7 +3655,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000110/0001273087-24-000110-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000110/OACC_SC13G.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.1
         },
         {
           "form": "SC 13G",
@@ -3369,19 +3672,21 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000109/0001273087-24-000109-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000109/BEAG_SC13G.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.2
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "renaissance-technologies",
       "cik": "0001037389",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001037389.json",
       "latestSubmission": {
@@ -3467,6 +3772,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -3480,7 +3786,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000070/0001037389-24-000070-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000070/wsbf-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.27
         },
         {
           "form": "SC 13G/A",
@@ -3494,7 +3803,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000069/0001037389-24-000069-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000069/wneb-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.55
         },
         {
           "form": "SC 13G/A",
@@ -3508,7 +3820,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000068/0001037389-24-000068-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000068/whg-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.15
         },
         {
           "form": "SC 13G/A",
@@ -3522,7 +3837,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000067/0001037389-24-000067-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000067/vnda-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.4
         },
         {
           "form": "SC 13G/A",
@@ -3536,7 +3854,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000066/0001037389-24-000066-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000066/vlgea-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.3
         },
         {
           "form": "SC 13G/A",
@@ -3550,7 +3871,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000065/0001037389-24-000065-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000065/utmd-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.64
         },
         {
           "form": "SC 13G/A",
@@ -3564,7 +3888,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000064/0001037389-24-000064-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000064/usna-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.27
         },
         {
           "form": "SC 13G/A",
@@ -3578,7 +3905,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000063/0001037389-24-000063-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000063/tbnk-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.22
         },
         {
           "form": "SC 13G/A",
@@ -3592,7 +3922,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000062/0001037389-24-000062-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000062/tait-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.65
         },
         {
           "form": "SC 13G/A",
@@ -3606,19 +3939,21 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000061/0001037389-24-000061-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000061/swbi-13g_20231231.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.85
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "two-sigma-investments",
       "cik": "0001179392",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001179392.json",
       "latestSubmission": {
@@ -3704,17 +4039,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "tudor-investment",
       "cik": "0000923093",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000923093.json",
       "latestSubmission": {
@@ -3800,6 +4135,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -3813,7 +4149,10 @@
           "primaryDocDescription": "INFINERA CORPORATION",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266424005715/0000902664-24-005715-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266424005715/p24-2903sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -3827,7 +4166,10 @@
           "primaryDocDescription": "AMENDMENT NO. 15",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787114000079/0000947871-14-000079-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787114000079/ss203071_sc13ga-progenics.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.8
         },
         {
           "form": "SC 13G/A",
@@ -3841,7 +4183,10 @@
           "primaryDocDescription": "AMENDMENT NO. 3 TO SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787114000078/0000947871-14-000078-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787114000078/ss202937_sc13ga.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -3855,7 +4200,10 @@
           "primaryDocDescription": "AMENDMENT NO. 2",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787113000111/0000947871-13-000111-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787113000111/ss165326_sc13ga-gain.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 1.3
         },
         {
           "form": "SC 13G/A",
@@ -3869,7 +4217,10 @@
           "primaryDocDescription": "AMENDMENT NO. 14",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787113000110/0000947871-13-000110-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787113000110/ss165325_sc13ga-progenics.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.2
         },
         {
           "form": "SC 13G/A",
@@ -3883,7 +4234,10 @@
           "primaryDocDescription": "AMENDMENT NO. 1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787112000122/0000947871-12-000122-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787112000122/ss137858_sc13ga-gain.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.5
         },
         {
           "form": "SC 13G/A",
@@ -3897,7 +4251,10 @@
           "primaryDocDescription": "AMENDMENT NO. 13",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787112000118/0000947871-12-000118-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787112000118/ss137856_sc13ga-progenics.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.2
         },
         {
           "form": "SC 13G",
@@ -3911,7 +4268,10 @@
           "primaryDocDescription": "SCHEDULE SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787111000083/0000947871-11-000083-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787111000083/ss111445_sc13g-gain.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.6
         },
         {
           "form": "SC 13G/A",
@@ -3925,7 +4285,10 @@
           "primaryDocDescription": "SCHEDULE SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787111000082/0000947871-11-000082-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787111000082/ss111443_sc13ga-progenics.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.4
         },
         {
           "form": "SC 13G/A",
@@ -3939,19 +4302,21 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787110000097/0000947871-10-000097-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000094787110000097/ss83896_sc13ga.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.7
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "pershing-square",
       "cik": "0001336528",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001336528.json",
       "latestSubmission": {
@@ -4035,6 +4400,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -4048,7 +4414,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000095017024116421/0000950170-24-116421-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000095017024116421/form_13da_seg_10.22.2024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 40.1
         },
         {
           "form": "SC 13D/A",
@@ -4062,7 +4431,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000095017024109381/0000950170-24-109381-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000095017024109381/form_13da_seg_09.25.2024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37.9
         },
         {
           "form": "SC 13D",
@@ -4076,7 +4448,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000093041324002266/0000930413-24-002266-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000093041324002266/c109608_sc13d.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37.9
         },
         {
           "form": "SC 13D/A",
@@ -4090,7 +4465,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000093041324002260/0000930413-24-002260-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000093041324002260/c109726_sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37.5
         },
         {
           "form": "SC 13D/A",
@@ -4104,7 +4482,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000093041324002192/0000930413-24-002192-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000093041324002192/c109598_sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37.5
         },
         {
           "form": "SC 13D/A",
@@ -4118,7 +4499,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000119312524181174/0001193125-24-181174-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000119312524181174/d869146dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.4
         },
         {
           "form": "SC 13D/A",
@@ -4132,7 +4516,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000119312524181173/0001193125-24-181173-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000119312524181173/d840581dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37.5
         },
         {
           "form": "SC 13D/A",
@@ -4146,7 +4533,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000119312524147209/0001193125-24-147209-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000119312524147209/d825469dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37.5
         },
         {
           "form": "SC 13D/A",
@@ -4160,7 +4550,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000095017024050065/0000950170-24-050065-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000095017024050065/form_13da_qsr_04.29.24.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.5
         },
         {
           "form": "SC 13D/A",
@@ -4174,19 +4567,21 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000095017024001844/0000950170-24-001844-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000095017024001844/form_13da_hhh_01.04.23.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 37.6
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "NOTICE_FILED",
-      "holdingsLag": true,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": true
     },
     {
       "managerId": "starboard-value",
       "cik": "0001517137",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001517137.json",
       "latestSubmission": {
@@ -4272,6 +4667,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -4285,7 +4681,10 @@
           "primaryDocDescription": "AMENDMENT NO. 3 TO THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524002922/0000921895-24-002922-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524002922/sc13da306297352_12102024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.4
         },
         {
           "form": "SC 13D/A",
@@ -4299,7 +4698,10 @@
           "primaryDocDescription": "AMENDMENT NO. 1 TO THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524002913/0000921895-24-002913-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524002913/sc13da106297371_12092024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.6
         },
         {
           "form": "SC 13D",
@@ -4313,7 +4715,10 @@
           "primaryDocDescription": "THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000119380524001416/0001193805-24-001416-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000119380524001416/sc13d06297371_11262024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.9
         },
         {
           "form": "SC 13D/A",
@@ -4327,7 +4732,10 @@
           "primaryDocDescription": "AMENDMENT NO. 4 TO THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524002743/0000921895-24-002743-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524002743/sc13da406297282_11142024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 62.8
         },
         {
           "form": "SC 13D",
@@ -4341,7 +4749,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000090266424004719/0000902664-24-004719-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000090266424004719/p24-2369sc13d.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.6
         },
         {
           "form": "SC 13D/A",
@@ -4355,7 +4766,10 @@
           "primaryDocDescription": "AMENDMENT NO. 5 TO THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000119380524000736/0001193805-24-000736-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000119380524000736/sc13da506297285_05312024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.4
         },
         {
           "form": "SC 13D/A",
@@ -4369,7 +4783,10 @@
           "primaryDocDescription": "AMENDMENT NO. 2 TO THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524001325/0000921895-24-001325-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524001325/sc13da206297346_05282024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.5
         },
         {
           "form": "SC 13D/A",
@@ -4383,7 +4800,10 @@
           "primaryDocDescription": "AMENDMENT NO. 2 TO THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524001042/0000921895-24-001042-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524001042/sc13da206297352_05062024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.2
         },
         {
           "form": "SC 13D/A",
@@ -4397,7 +4817,10 @@
           "primaryDocDescription": "AMENDMENT NO. 5 TO THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000119380524000585/0001193805-24-000585-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000119380524000585/sc13da506297315_05022024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.8
         },
         {
           "form": "SC 13D/A",
@@ -4411,19 +4834,21 @@
           "primaryDocDescription": "AMENDMENT NO. 5 TO THE SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524000887/0000921895-24-000887-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189524000887/sc13da506297338_04182024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "trian-fund-management",
       "cik": "0001345471",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001345471.json",
       "latestSubmission": {
@@ -4509,6 +4934,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -4522,7 +4948,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000095017024104437/0000950170-24-104437-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000095017024104437/wen_13d_amendment_no_62.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 15.19
         },
         {
           "form": "SC 13D/A",
@@ -4536,7 +4965,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000095017024095003/0000950170-24-095003-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000095017024095003/wen_13d_amendment_no_61.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 15.19
         },
         {
           "form": "SC 13D",
@@ -4550,7 +4982,10 @@
           "primaryDocDescription": "SC 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000095017024073806/0000950170-24-073806-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000095017024073806/ivz_13d_amendment_no_10.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.05
         },
         {
           "form": "SC 13G/A",
@@ -4564,7 +4999,10 @@
           "primaryDocDescription": "FERGUSON 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547124000013/0001345471-24-000013-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547124000013/ferg13g02-14-2024.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.5
         },
         {
           "form": "SC 13D/A",
@@ -4578,7 +5016,10 @@
           "primaryDocDescription": "THE WENDY'S COMPANY - 13D - AMENDMENT NO. 60",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000134/0001345471-23-000134-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000134/amend60.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 16.12
         },
         {
           "form": "SC 13D/A",
@@ -4592,7 +5033,10 @@
           "primaryDocDescription": "THE WENDY'S COMPANY - 13D - AMENDMENT NO. 59",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000110/0001345471-23-000110-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000110/amend59.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 17.39
         },
         {
           "form": "SC 13D/A",
@@ -4606,7 +5050,10 @@
           "primaryDocDescription": "INVESCO 13D AMENDMENT NO. 9",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000108/0001345471-23-000108-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000108/ivz13damend9.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.41
         },
         {
           "form": "SC 13D/A",
@@ -4620,7 +5067,10 @@
           "primaryDocDescription": "JHG13D/A - AMENDMENT NO. 12",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000107/0001345471-23-000107-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000107/jhg13d_amend12.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 19.24
         },
         {
           "form": "SC 13D/A",
@@ -4634,7 +5084,10 @@
           "primaryDocDescription": "THE WENDY'S COMPANY - 13D - AMENDMENT NO. 58",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000065/0001345471-23-000065-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000065/amend58.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 17.68
         },
         {
           "form": "SC 13D/A",
@@ -4648,19 +5101,21 @@
           "primaryDocDescription": "INVESCO 13D AMENDMENT NO. 8",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000061/0001345471-23-000061-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547123000061/ivz13damend8.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.68
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "valueact-holdings",
       "cik": "0001418814",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001418814.json",
       "latestSubmission": {
@@ -4746,17 +5201,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "third-point",
       "cik": "0001040273",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001040273.json",
       "latestSubmission": {
@@ -4842,6 +5297,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -4855,7 +5311,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000119312524244316/0001193125-24-244316-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000119312524244316/d874148dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.65
         },
         {
           "form": "SC 13G",
@@ -4869,7 +5328,10 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914024000640/0000899140-24-000640-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914024000640/t74523884a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.7
         },
         {
           "form": "SC 13D",
@@ -4883,7 +5345,10 @@
           "primaryDocDescription": "SCHEDULE 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914024000218/0000899140-24-000218-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914024000218/t71227998a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.9
         },
         {
           "form": "SC 13G/A",
@@ -4897,7 +5362,10 @@
           "primaryDocDescription": "SCHEDULE 13G/A, AMENDMENT #1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914024000217/0000899140-24-000217-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914024000217/t71224147a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.8
         },
         {
           "form": "SC 13G",
@@ -4911,7 +5379,10 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000776/0000899140-23-000776-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000776/t65230693a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.2
         },
         {
           "form": "SC 13G",
@@ -4925,7 +5396,10 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000731/0000899140-23-000731-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000731/t060723a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.7
         },
         {
           "form": "SC 13D/A",
@@ -4939,7 +5413,10 @@
           "primaryDocDescription": "SC 13D/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000119312523060708/0001193125-23-060708-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000119312523060708/d469765dsc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.02
         },
         {
           "form": "SC 13D/A",
@@ -4953,7 +5430,10 @@
           "primaryDocDescription": "SCHEDULE 13D (AMENDMENT NO. 1)",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000443/0000899140-23-000443-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000443/b022223a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.02
         },
         {
           "form": "SC 13G/A",
@@ -4967,7 +5447,10 @@
           "primaryDocDescription": "SCHEDULE 13G/A (AMENDMENT NO. 1)",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000273/0000899140-23-000273-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000273/m020123a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -4981,19 +5464,21 @@
           "primaryDocDescription": "SCHEDULE 13G/A, AMENDMENT #1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000270/0000899140-23-000270-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000089914023000270/t60869533.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "elliott-investment-management",
       "cik": "0001791786",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001791786.json",
       "latestSubmission": {
@@ -5079,6 +5564,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -5092,7 +5578,10 @@
           "primaryDocDescription": "SOUTHWEST AIRLINES CO.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424006082/0000902664-24-006082-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424006082/p24-3113sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.95
         },
         {
           "form": "SC 13D/A",
@@ -5106,7 +5595,10 @@
           "primaryDocDescription": "SOUTHWEST AIRLINES CO",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005965/0000902664-24-005965-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005965/p24-3063sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.2
         },
         {
           "form": "SC 13D/A",
@@ -5120,7 +5612,10 @@
           "primaryDocDescription": "SOUTHWEST AIRLINES CO",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005829/0000902664-24-005829-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005829/p24-2934sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.2
         },
         {
           "form": "SC 13D/A",
@@ -5134,7 +5629,10 @@
           "primaryDocDescription": "SOUTHWEST AIRLINES CO.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005604/0000902664-24-005604-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005604/p24-2831sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.2
         },
         {
           "form": "SC 13D/A",
@@ -5148,7 +5646,10 @@
           "primaryDocDescription": "SOUTHWEST AIRLINES CO.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005259/0000902664-24-005259-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005259/p24-2662sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.7
         },
         {
           "form": "SC 13D/A",
@@ -5162,7 +5663,10 @@
           "primaryDocDescription": "ELLIOTT INVESTMENT MANAGEMENT L.P.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005240/0000902664-24-005240-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005240/p24-2657sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.4
         },
         {
           "form": "SC 13D/A",
@@ -5176,7 +5680,10 @@
           "primaryDocDescription": "SOUTHWEST AIRLINES CO.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005096/0000902664-24-005096-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424005096/p24-2596sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.2
         },
         {
           "form": "SC 13D",
@@ -5190,7 +5697,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424004970/0000902664-24-004970-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424004970/p24-2469sc13d.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7
         },
         {
           "form": "SC 13D/A",
@@ -5204,7 +5714,10 @@
           "primaryDocDescription": "SEADRILL LIMITED",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424004270/0000902664-24-004270-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424004270/p24-2133sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.6
         },
         {
           "form": "SC 13D/A",
@@ -5218,19 +5731,21 @@
           "primaryDocDescription": "SEADRILL LTD",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424003437/0000902664-24-003437-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000090266424003437/p24-1700sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.8
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "tci-fund-management",
       "cik": "0001647251",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001647251.json",
       "latestSubmission": {
@@ -5316,6 +5831,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -5329,7 +5845,10 @@
           "primaryDocDescription": "CANADIAN NATIONAL RAILWAY COMPANY",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266424006201/0000902664-24-006201-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266424006201/p24-3188sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.2
         },
         {
           "form": "SC 13G/A",
@@ -5343,7 +5862,10 @@
           "primaryDocDescription": "CANADIAN PACIFIC KANSAS CITY LTD/CN",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266424001653/0000902664-24-001653-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266424001653/p24-0512sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.96
         },
         {
           "form": "SC 13G/A",
@@ -5357,7 +5879,10 @@
           "primaryDocDescription": "MOODYS CORP /DE/",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266424001652/0000902664-24-001652-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266424001652/p24-0514sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.58
         },
         {
           "form": "SC 13G/A",
@@ -5371,7 +5896,10 @@
           "primaryDocDescription": "MOODY'S CORP",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423005905/0000902664-23-005905-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423005905/p23-2974sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.54
         },
         {
           "form": "SC 13D/A",
@@ -5385,7 +5913,10 @@
           "primaryDocDescription": "CANADIAN NATIONAL RAILWAY CO",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423005418/0000902664-23-005418-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423005418/p23-2109sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.3
         },
         {
           "form": "SC 13G/A",
@@ -5399,7 +5930,10 @@
           "primaryDocDescription": "BOSTON PROPERTIES, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423001686/0000902664-23-001686-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423001686/p23-0772sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G",
@@ -5413,7 +5947,10 @@
           "primaryDocDescription": "MOODYS CORPORATION",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423001680/0000902664-23-001680-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423001680/p23-0784sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.03
         },
         {
           "form": "SC 13G/A",
@@ -5427,7 +5964,10 @@
           "primaryDocDescription": "CHARTER COMMUNICATIONS, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423001673/0000902664-23-001673-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266423001673/p23-0785sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -5441,7 +5981,10 @@
           "primaryDocDescription": "CANADIAN PACIFIC RAILWAY LIMITED",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266422001642/0000902664-22-001642-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266422001642/p22-0753sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.01
         },
         {
           "form": "SC 13G/A",
@@ -5455,19 +5998,21 @@
           "primaryDocDescription": "CHARTER COMMUNICATIONS, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266422001640/0000902664-22-001640-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000090266422001640/p22-0751sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.67
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "viking-global-investors",
       "cik": "0001103804",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001103804.json",
       "latestSubmission": {
@@ -5553,6 +6098,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -5566,7 +6112,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003171/0000905148-24-003171-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003171/sayw24111425_13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -5580,7 +6129,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003170/0000905148-24-003170-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003170/sayw24111429_13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.3
         },
         {
           "form": "SC 13G/A",
@@ -5594,7 +6146,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003169/0000905148-24-003169-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003169/sayw24111428_13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 1.6
         },
         {
           "form": "SC 13G/A",
@@ -5608,7 +6163,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003167/0000905148-24-003167-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003167/sayw24111427_13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.5
         },
         {
           "form": "SC 13G/A",
@@ -5622,7 +6180,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003166/0000905148-24-003166-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003166/sayw24111424_13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -5636,7 +6197,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003165/0000905148-24-003165-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003165/sayw24111430_13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.3
         },
         {
           "form": "SC 13G/A",
@@ -5650,7 +6214,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003164/0000905148-24-003164-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003164/sayw24111431_13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 0.6
         },
         {
           "form": "SC 13G/A",
@@ -5664,7 +6231,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003163/0000905148-24-003163-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824003163/sayw24111426_13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13D/A",
@@ -5678,7 +6248,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824002952/0000905148-24-002952-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824002952/bbio.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 13.4
         },
         {
           "form": "SC 13D/A",
@@ -5692,19 +6265,21 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824002951/0000905148-24-002951-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000090514824002951/cazoo.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 43.8
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "tiger-global-management",
       "cik": "0001167483",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001167483.json",
       "latestSubmission": {
@@ -5790,6 +6365,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -5803,7 +6379,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424004711/0000919574-24-004711-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424004711/d10966140_13g-a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.5
         },
         {
           "form": "SC 13G/A",
@@ -5817,7 +6396,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424001367/0000919574-24-001367-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424001367/d10966140_13g-a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.99
         },
         {
           "form": "SC 13G/A",
@@ -5831,7 +6413,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424001359/0000919574-24-001359-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424001359/d10944212_13g-a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.4
         },
         {
           "form": "SC 13G",
@@ -5845,7 +6430,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424001347/0000919574-24-001347-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424001347/d10966160_13-g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.5
         },
         {
           "form": "SC 13G/A",
@@ -5859,7 +6447,10 @@
           "primaryDocDescription": "PAGAYA TECHNOLOGIES LTD.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000090266423004235/0000902664-23-004235-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000090266423004235/p23-2155sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 2.6
         },
         {
           "form": "SC 13G/A",
@@ -5873,7 +6464,10 @@
           "primaryDocDescription": "PAGAYA TECHNOLOGIES LTD.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000090266423003588/0000902664-23-003588-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000090266423003588/p23-1777sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.7
         },
         {
           "form": "SC 13G/A",
@@ -5887,7 +6481,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423003680/0000919574-23-003680-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423003680/d10656308_13g-a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -5901,7 +6498,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423001616/0000919574-23-001616-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423001616/d9934616_13g-a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -5915,7 +6515,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423001609/0000919574-23-001609-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423001609/d9934595_13g-a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 0.9
         },
         {
           "form": "SC 13G/A",
@@ -5929,19 +6532,21 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423001600/0000919574-23-001600-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423001600/d9935063_13g-a.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "ark-investment-management",
       "cik": "0001697748",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001697748.json",
       "latestSubmission": {
@@ -6027,6 +6632,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -6040,7 +6646,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924127131/0001104659-24-127131-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924127131/tm2430446d2_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.69
         },
         {
           "form": "SC 13G/A",
@@ -6054,7 +6663,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924127128/0001104659-24-127128-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924127128/tm2430446d1_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.17
         },
         {
           "form": "SC 13G/A",
@@ -6068,7 +6680,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924116537/0001104659-24-116537-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924116537/tm2427988d1_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 12.27
         },
         {
           "form": "SC 13G",
@@ -6082,7 +6697,10 @@
           "primaryDocDescription": "SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924088193/0001104659-24-088193-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924088193/tm2421384d1_sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.75
         },
         {
           "form": "SC 13G/A",
@@ -6096,7 +6714,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924069969/0001104659-24-069969-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924069969/tm2416812d1_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.05
         },
         {
           "form": "SC 13G/A",
@@ -6110,7 +6731,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924059781/0001104659-24-059781-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924059781/tm2414091d4_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.31
         },
         {
           "form": "SC 13G/A",
@@ -6124,7 +6748,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924032907/0001104659-24-032907-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924032907/tm248428d1_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.6
         },
         {
           "form": "SC 13G/A",
@@ -6138,7 +6765,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924014017/0001104659-24-014017-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924014017/tm245872d2_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 11.08
         },
         {
           "form": "SC 13G/A",
@@ -6152,7 +6782,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924014015/0001104659-24-014015-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924014015/tm245872d1_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 10.18
         },
         {
           "form": "SC 13G/A",
@@ -6166,19 +6799,21 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924007711/0001104659-24-007711-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465924007711/tm244117d9_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.66
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "harvard-management-company",
       "cik": "0001082621",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001082621.json",
       "latestSubmission": {
@@ -6264,6 +6899,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -6277,7 +6913,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312521041401/0001193125-21-041401-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312521041401/d97848dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.3
         },
         {
           "form": "SC 13G",
@@ -6291,7 +6930,10 @@
           "primaryDocDescription": "SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312520038132/0001193125-20-038132-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312520038132/d885473dsc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.033
         },
         {
           "form": "SC 13G/A",
@@ -6305,7 +6947,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312519032219/0001193125-19-032219-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312519032219/d631137dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 0.807
         },
         {
           "form": "SC 13G",
@@ -6319,7 +6964,10 @@
           "primaryDocDescription": "SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312518021570/0001193125-18-021570-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312518021570/d529632dsc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.4
         },
         {
           "form": "SC 13G/A",
@@ -6333,7 +6981,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312516644481/0001193125-16-644481-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312516644481/d223511dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G",
@@ -6347,7 +6998,10 @@
           "primaryDocDescription": "SCHEDULE 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312516462312/0001193125-16-462312-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312516462312/d135362dsc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.3
         },
         {
           "form": "SC 13G/A",
@@ -6361,7 +7015,10 @@
           "primaryDocDescription": "SCHEDULE 13G AMENDMENT NO. 3",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312509029352/0001193125-09-029352-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312509029352/dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.7
         },
         {
           "form": "SC 13G/A",
@@ -6375,7 +7032,10 @@
           "primaryDocDescription": "SCHEDULE 13G AMENDMENT NO. 2",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312509029350/0001193125-09-029350-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312509029350/dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -6389,7 +7049,10 @@
           "primaryDocDescription": "SCHEDULE 13G AMENDMENT NO. 1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312509029349/0001193125-09-029349-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312509029349/dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -6403,19 +7066,21 @@
           "primaryDocDescription": "SCHEDULE 13G AMENDMENT NO. 1",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312509029348/0001193125-09-029348-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312509029348/dsc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "situational-awareness",
       "cik": "0002045724",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0002045724.json",
       "latestSubmission": {
@@ -6501,17 +7166,17 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "baupost-group",
       "cik": "0001061768",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001061768.json",
       "latestSubmission": {
@@ -6597,6 +7262,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -6610,7 +7276,10 @@
           "primaryDocDescription": "SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124048476/0001140361-24-048476-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124048476/ef20039586_sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 13.59
         },
         {
           "form": "SC 13G/A",
@@ -6624,7 +7293,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046476/0001140361-24-046476-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046476/ef20038520_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G",
@@ -6638,7 +7310,10 @@
           "primaryDocDescription": "SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046470/0001140361-24-046470-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046470/ef20038519_sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.38
         },
         {
           "form": "SC 13G",
@@ -6652,7 +7327,10 @@
           "primaryDocDescription": "SC 13G",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046445/0001140361-24-046445-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046445/ef20038515_sc13g.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.03
         },
         {
           "form": "SC 13G/A",
@@ -6666,7 +7344,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046444/0001140361-24-046444-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046444/ef20038525_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 9.57
         },
         {
           "form": "SC 13G/A",
@@ -6680,7 +7361,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046443/0001140361-24-046443-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124046443/ef20038523_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -6694,7 +7378,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124042871/0001140361-24-042871-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124042871/ef20036702_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -6708,7 +7395,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124040632/0001140361-24-040632-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124040632/ef20035682_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -6722,7 +7412,10 @@
           "primaryDocDescription": "SC 13G/A",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124036630/0001140361-24-036630-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000114036124036630/ef20033786_sc13ga.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.12
         },
         {
           "form": "SC 13G/A",
@@ -6736,19 +7429,21 @@
           "primaryDocDescription": "NONE",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000195/0001567619-24-000195-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000195/doc1.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 12.99
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "scion-asset-management",
       "cik": "0001649339",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0001649339.json",
       "latestSubmission": {
@@ -6757,7 +7452,7 @@
         "isAmendment": false,
         "accession": "0001649339-25-000007",
         "filedAt": "2025-11-03",
-        "acceptedAt": "2025-11-03T16:33:10.000Z",
+        "acceptedAt": "2025-11-03T21:33:10.000Z",
         "periodOfReport": "2025-09-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
@@ -6771,7 +7466,7 @@
         "isAmendment": false,
         "accession": "0001649339-25-000007",
         "filedAt": "2025-11-03",
-        "acceptedAt": "2025-11-03T16:33:10.000Z",
+        "acceptedAt": "2025-11-03T21:33:10.000Z",
         "periodOfReport": "2025-09-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
@@ -6787,7 +7482,7 @@
         "isAmendment": false,
         "accession": "0001879202-25-000038",
         "filedAt": "2025-08-14",
-        "acceptedAt": "2025-08-14T16:17:37.000Z",
+        "acceptedAt": "2025-08-14T20:17:37.000Z",
         "periodOfReport": "2025-06-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
@@ -6804,7 +7499,7 @@
           "isAmendment": false,
           "accession": "0001649339-25-000007",
           "filedAt": "2025-11-03",
-          "acceptedAt": "2025-11-03T16:33:10.000Z",
+          "acceptedAt": "2025-11-03T21:33:10.000Z",
           "periodOfReport": "2025-09-30",
           "primaryDocument": "xslForm13F_X02/primary_doc.xml",
           "primaryDocDescription": null,
@@ -6822,7 +7517,7 @@
           "isAmendment": false,
           "accession": "0001879202-25-000038",
           "filedAt": "2025-08-14",
-          "acceptedAt": "2025-08-14T16:17:37.000Z",
+          "acceptedAt": "2025-08-14T20:17:37.000Z",
           "periodOfReport": "2025-06-30",
           "primaryDocument": "xslForm13F_X02/primary_doc.xml",
           "primaryDocDescription": null,
@@ -6834,6 +7529,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -6847,7 +7543,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000571/0000905148-20-000571-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000571/efc20-416_sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 3.5
         },
         {
           "form": "SC 13D/A",
@@ -6861,7 +7560,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000563/0000905148-20-000563-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000563/efc20-411_sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.3
         },
         {
           "form": "SC 13D",
@@ -6875,7 +7577,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000491/0000905148-20-000491-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000491/efc20-335_sc13d.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.3
         },
         {
           "form": "SC 13D/A",
@@ -6889,7 +7594,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000458/0000905148-20-000458-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000458/efc20-314_sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 8.3
         },
         {
           "form": "SC 13D/A",
@@ -6903,7 +7611,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000435/0000905148-20-000435-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000090514820000435/efc20-303_sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 7.2
         },
         {
           "form": "SC 13D/A",
@@ -6917,7 +7628,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000114036119022529/0001140361-19-022529-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000114036119022529/efc19-736_sc13da.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.4
         },
         {
           "form": "SC 13D",
@@ -6931,19 +7645,21 @@
           "primaryDocDescription": "SC 13D",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000114036119015903/0001140361-19-015903-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000114036119015903/formsc13d.htm",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.1
         }
       ],
       "freshnessStatus": "STALE_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     },
     {
       "managerId": "fisher-asset-management",
       "cik": "0000850529",
       "status": "DISCOVERED",
-      "checkedAt": "2026-09-29T14:04:26.494Z",
+      "checkedAt": "2026-10-06T02:44:53.453Z",
       "sourceKind": "SEC_EDGAR",
       "sourceUrl": "https://data.sec.gov/submissions/CIK0000850529.json",
       "latestSubmission": {
@@ -7029,6 +7745,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
+      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -7042,7 +7759,10 @@
           "primaryDocDescription": "REVOLVE GROUP, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000005/0000850529-23-000005-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000005/RVLV2022.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.48
         },
         {
           "form": "SC 13G/A",
@@ -7056,7 +7776,10 @@
           "primaryDocDescription": "WINNEBAGO INDUSTRIES, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000004/0000850529-23-000004-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000004/WGO2022.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -7070,7 +7793,10 @@
           "primaryDocDescription": "G1 THERAPEUTICS, INC.",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000003/0000850529-23-000003-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000003/GTHX2022.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G/A",
@@ -7084,7 +7810,10 @@
           "primaryDocDescription": "AMENDED 13G FILING YELP",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052922000005/0000850529-22-000005-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052922000005/yelpamend13g.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 4.17
         },
         {
           "form": "SC 13G",
@@ -7098,7 +7827,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052922000004/0000850529-22-000004-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052922000004/GTHX.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G",
@@ -7112,7 +7844,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052922000003/0000850529-22-000003-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052922000003/WGO.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": null
         },
         {
           "form": "SC 13G",
@@ -7126,7 +7861,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052921000003/0000850529-21-000003-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052921000003/yelp13g.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.48
         },
         {
           "form": "SC 13G",
@@ -7140,7 +7878,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052920000002/0000850529-20-000002-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052920000002/stmp2019.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 6.32
         },
         {
           "form": "SC 13G/A",
@@ -7154,7 +7895,10 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052919000003/0000850529-19-000003-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052919000003/ssys2018.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.23
         },
         {
           "form": "SC 13G/A",
@@ -7168,14 +7912,15 @@
           "primaryDocDescription": null,
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052918000004/0000850529-18-000004-index.html",
           "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052918000004/ssys2017.txt",
-          "primaryDocumentXml": null
+          "primaryDocumentXml": null,
+          "subjectCompany": null,
+          "subjectCik": null,
+          "percentOfClass": 5.76
         }
       ],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
-      "holdingsLag": false,
-      "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+      "holdingsLag": false
     }
-  ],
-  "ownershipCheckedAt": "2026-10-04T13:10:46.436Z"
+  ]
 }

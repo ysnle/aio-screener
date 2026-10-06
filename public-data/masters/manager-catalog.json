@@ -1,7 +1,7 @@
 {
   "schema": "masters-13f-manager-catalog.v1",
   "status": "METADATA_AND_DISCOVERY_SEPARATED",
-  "reviewedAt": "2026-09-29",
+  "reviewedAt": "2026-10-06",
   "selectionPolicy": "BEGINNER_CORE: keep widely recognizable institutions/funds or major named operators, with SEC traceability where applicable, meaningful scale or educational value, and a teachable strategy. Famous method-only educators may appear in a separately labeled METHOD_ONLY layer; they never create 13F rows. Family filers are aggregated conceptually and not treated as one person portfolio.",
   "sourceBoundary": "SEC EDGAR filing index and SEC structured 13F data are canonical. Telegram/X are discovery-only and never create holdings, weights, or trade labels.",
   "coverage": {
@@ -22,7 +22,8 @@
     "ownershipEventCount": 249,
     "ownershipManagers": 26,
     "latestPeriod": "2026-06-30",
-    "staleLastKnownGoodRows": 0
+    "staleLastKnownGoodRows": 0,
+    "ownershipBlocked": 0
   },
   "managers": [
     {
@@ -116,7 +117,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "citigroup",
@@ -209,7 +210,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "goldman-sachs-group",
@@ -304,7 +305,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "jpmorgan-chase",
@@ -399,7 +400,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "state-street-investment-management",
@@ -492,7 +493,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "vanguard-group",
@@ -594,7 +595,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "capital-international-investors",
@@ -688,7 +689,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "fidelity-fmr",
@@ -780,7 +781,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "t-rowe-price",
@@ -874,7 +875,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "wellington-management",
@@ -966,7 +967,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "dimensional-fund-advisors",
@@ -1062,7 +1063,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "berkshire-hathaway",
@@ -1156,7 +1157,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "soros-fund-management",
@@ -1250,7 +1251,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "bridgewater-associates",
@@ -1344,7 +1345,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "duquesne-family-office",
@@ -1436,7 +1437,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "appaloosa-management",
@@ -1528,7 +1529,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "oaktree-capital-management",
@@ -1625,7 +1626,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "citadel-advisors",
@@ -1717,7 +1718,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "millennium-management",
@@ -1809,7 +1810,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "renaissance-technologies",
@@ -1903,7 +1904,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "two-sigma-investments",
@@ -1998,7 +1999,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "tudor-investment",
@@ -2090,7 +2091,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "pershing-square",
@@ -2182,7 +2183,7 @@
       "noticeStatus": "NOTICE_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "STALE_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "starboard-value",
@@ -2274,7 +2275,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "trian-fund-management",
@@ -2368,7 +2369,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "valueact-holdings",
@@ -2460,7 +2461,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "third-point",
@@ -2552,7 +2553,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "elliott-investment-management",
@@ -2646,7 +2647,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "tci-fund-management",
@@ -2738,7 +2739,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "viking-global-investors",
@@ -2830,7 +2831,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "tiger-global-management",
@@ -2922,7 +2923,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "ark-investment-management",
@@ -3014,7 +3015,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "harvard-management-company",
@@ -3107,7 +3108,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "situational-awareness",
@@ -3200,7 +3201,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "baupost-group",
@@ -3292,7 +3293,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "scion-asset-management",
@@ -3341,7 +3342,7 @@
         "isAmendment": false,
         "accession": "0001649339-25-000007",
         "filedAt": "2025-11-03",
-        "acceptedAt": "2025-11-03T16:33:10.000Z",
+        "acceptedAt": "2025-11-03T21:33:10.000Z",
         "periodOfReport": "2025-09-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
@@ -3357,7 +3358,7 @@
         "isAmendment": false,
         "accession": "0001649339-25-000007",
         "filedAt": "2025-11-03",
-        "acceptedAt": "2025-11-03T16:33:10.000Z",
+        "acceptedAt": "2025-11-03T21:33:10.000Z",
         "periodOfReport": "2025-09-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
@@ -3371,7 +3372,7 @@
         "isAmendment": false,
         "accession": "0001879202-25-000038",
         "filedAt": "2025-08-14",
-        "acceptedAt": "2025-08-14T16:17:37.000Z",
+        "acceptedAt": "2025-08-14T20:17:37.000Z",
         "periodOfReport": "2025-06-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
@@ -3384,7 +3385,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "STALE_REFERENCE",
       "rowFreshnessStatus": "STALE_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "fisher-asset-management",
@@ -3476,7 +3477,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-09-29T14:05:12.629Z"
+      "currentnessCheckedAt": "2026-10-06T02:46:57.800Z"
     },
     {
       "id": "mark-minervini",
@@ -3727,5 +3728,5 @@
       "reason": "The in-app web search returned an internal error and did not expose post content for verification."
     }
   ],
-  "generatedAt": "2026-09-29T14:05:12.629Z"
+  "generatedAt": "2026-10-06T02:46:57.800Z"
 }

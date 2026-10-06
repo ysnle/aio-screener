@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-rows.v1",
   "sourceKind": "SEC_EDGAR",
-  "reviewedAt": "2026-09-29",
-  "generatedAt": "2026-09-29T14:05:12.629Z",
+  "reviewedAt": "2026-10-06",
+  "generatedAt": "2026-10-06T02:46:57.800Z",
   "managerId": "ark-investment-management",
   "cik": "0001697748",
   "latestFiling": {
@@ -60,7 +60,29 @@
       "status": "ORIGINAL",
       "type": null,
       "number": null,
-      "policy": "ORIGINAL_ROWS"
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0001104659-26-096910",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 191
+        }
+      ]
+    },
+    "priorAmendmentSemantics": {
+      "status": "ORIGINAL",
+      "type": null,
+      "number": null,
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0001104659-26-059240",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 182
+        }
+      ]
     },
     "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
     "valueUnit": "USD as reported by Form 13F information table",

@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-rows.v1",
   "sourceKind": "SEC_EDGAR",
-  "reviewedAt": "2026-09-29",
-  "generatedAt": "2026-09-29T14:05:12.629Z",
+  "reviewedAt": "2026-10-06",
+  "generatedAt": "2026-10-06T02:46:57.800Z",
   "managerId": "scion-asset-management",
   "cik": "0001649339",
   "latestFiling": {
@@ -11,7 +11,7 @@
     "isAmendment": false,
     "accession": "0001649339-25-000007",
     "filedAt": "2025-11-03",
-    "acceptedAt": "2025-11-03T16:33:10.000Z",
+    "acceptedAt": "2025-11-03T21:33:10.000Z",
     "periodOfReport": "2025-09-30",
     "primaryDocument": "xslForm13F_X02/primary_doc.xml",
     "primaryDocDescription": null,
@@ -58,7 +58,29 @@
       "status": "ORIGINAL",
       "type": null,
       "number": null,
-      "policy": "ORIGINAL_ROWS"
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0001649339-25-000007",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 8
+        }
+      ]
+    },
+    "priorAmendmentSemantics": {
+      "status": "ORIGINAL",
+      "type": null,
+      "number": null,
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0001879202-25-000038",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 15
+        }
+      ]
     },
     "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
     "valueUnit": "USD as reported by Form 13F information table",

@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-rows.v1",
   "sourceKind": "SEC_EDGAR",
-  "reviewedAt": "2026-09-29",
-  "generatedAt": "2026-09-29T14:05:12.629Z",
+  "reviewedAt": "2026-10-06",
+  "generatedAt": "2026-10-06T02:46:57.800Z",
   "managerId": "state-street-investment-management",
   "cik": "0000093751",
   "latestFiling": {
@@ -65,12 +65,28 @@
         {
           "accession": "0000093751-26-000507",
           "type": "ORIGINAL",
+          "role": "ORIGINAL",
           "rows": 4177
         },
         {
           "accession": "0000093751-26-000583",
           "type": "RESTATEMENT",
+          "role": "RESTATEMENT",
           "rows": 4261
+        }
+      ]
+    },
+    "priorAmendmentSemantics": {
+      "status": "ORIGINAL",
+      "type": null,
+      "number": null,
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0000093751-26-000315",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 4269
         }
       ]
     },

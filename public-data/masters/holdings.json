@@ -1,7 +1,7 @@
 {
   "schema": "masters-13f-reference.v2",
-  "reviewedAt": "2026-09-29",
-  "generatedAt": "2026-09-29T14:05:12.629Z",
+  "reviewedAt": "2026-10-06",
+  "generatedAt": "2026-10-06T02:46:57.800Z",
   "sourceKind": "SEC_EDGAR",
   "status": "REFERENCE_ROWS_CONNECTED",
   "policy": "Reported period holdings only. Prior-period action labels compare reported shares by normalized CUSIP, put/call and share type; no current price, portfolio recommendation, Trading Score or BUY/SELL inference is generated.",
@@ -66,14 +66,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0002012383-26-003238",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 49968
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0002012383-26-001841",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 50651
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -134,14 +156,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000831001-26-000040",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 11343
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000831001-26-000022",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 11050
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -202,14 +246,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000886982-26-000519",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 14070
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000886982-26-000274",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 13579
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -270,14 +336,42 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000019617-26-000325",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 34064
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "AMENDED",
+          "type": "RESTATEMENT",
+          "number": 1,
+          "policy": "LATEST_RESTATEMENT_ROWS",
+          "chain": [
+            {
+              "accession": "0000019617-26-000212",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 378
+            },
+            {
+              "accession": "0000019617-26-000225",
+              "type": "RESTATEMENT",
+              "role": "RESTATEMENT",
+              "rows": 33063
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -343,12 +437,28 @@
             {
               "accession": "0000093751-26-000507",
               "type": "ORIGINAL",
+              "role": "ORIGINAL",
               "rows": 4177
             },
             {
               "accession": "0000093751-26-000583",
               "type": "RESTATEMENT",
+              "role": "RESTATEMENT",
               "rows": 4261
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000093751-26-000315",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 4269
             }
           ]
         },
@@ -357,7 +467,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -418,14 +528,42 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001680208-26-000016",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 2447
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "AMENDED",
+          "type": "NEW HOLDINGS",
+          "number": 1,
+          "policy": "ORIGINAL_PLUS_NEW_HOLDINGS",
+          "chain": [
+            {
+              "accession": "0001680208-26-000005",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 2395
+            },
+            {
+              "accession": "0001680208-26-000009",
+              "type": "NEW HOLDINGS",
+              "role": "NEW_HOLDINGS_ADD",
+              "rows": 38
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -486,14 +624,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001562230-26-000107",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 446
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001562230-26-000049",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 438
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -554,14 +714,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000315066-26-002260",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 13978
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000315066-26-001390",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 13282
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -622,14 +804,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000080255-26-000519",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 4722
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000080255-26-000381",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 4549
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -690,14 +894,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000902219-26-000311",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 7448
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000902219-26-000209",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 7458
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -758,14 +984,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000354204-26-000866",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 13716
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000354204-26-000581",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 13635
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -826,14 +1074,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001193125-26-352200",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 89
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001193125-26-226661",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 90
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -894,14 +1164,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000902664-26-003507",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 266
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000902664-26-002529",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 263
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -962,14 +1254,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001350694-26-000003",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 997
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001350694-26-000002",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 993
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1030,14 +1344,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001536411-26-000006",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 95
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001536411-26-000004",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 70
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1098,14 +1434,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001656456-26-000003",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 27
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001656456-26-000002",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 31
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1166,14 +1524,48 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000949509-26-000005",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 145
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "AMENDED",
+          "type": "RESTATEMENT",
+          "number": 2,
+          "policy": "LATEST_RESTATEMENT_ROWS",
+          "chain": [
+            {
+              "accession": "0000949509-26-000002",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 142
+            },
+            {
+              "accession": "0000949509-26-000003",
+              "type": "RESTATEMENT",
+              "role": "RESTATEMENT",
+              "rows": 142
+            },
+            {
+              "accession": "0000949509-26-000004",
+              "type": "RESTATEMENT",
+              "role": "RESTATEMENT",
+              "rows": 147
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1239,12 +1631,28 @@
             {
               "accession": "0001104659-26-097200",
               "type": "ORIGINAL",
+              "role": "ORIGINAL",
               "rows": 16127
             },
             {
               "accession": "0001104659-26-104387",
               "type": "RESTATEMENT",
+              "role": "RESTATEMENT",
               "rows": 16122
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001104659-26-062477",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 15589
             }
           ]
         },
@@ -1253,7 +1661,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1314,14 +1722,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001273087-26-000007",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 5798
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001273087-26-000004",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 5624
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1382,14 +1812,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001037389-26-000059",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 3140
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001037389-26-000033",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 3213
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1450,14 +1902,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000899140-26-000855",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 5017
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000899140-26-000547",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 4546
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1518,14 +1992,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000902664-26-003485",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 3458
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000902664-26-002516",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 3515
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1586,14 +2082,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001172661-26-002336",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 11
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001172661-26-001091",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 11
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-03-31",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "STALE_REFERENCE"
     },
     {
@@ -1654,14 +2172,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000921895-26-002172",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 22
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000921895-26-001402",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 26
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1720,14 +2260,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001345471-26-000035",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 9
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001345471-26-000026",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 9
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1788,14 +2350,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001418814-26-000003",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 18
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001418814-26-000002",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 18
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1856,14 +2440,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001040273-26-000003",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 43
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001040273-26-000002",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 33
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1924,14 +2530,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001013594-26-000915",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 29
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001013594-26-000613",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 33
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1992,14 +2620,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001647251-26-000007",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 11
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001647251-26-000004",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 10
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2060,14 +2710,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001103804-26-000006",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 90
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001103804-26-000004",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 77
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2128,14 +2800,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000919574-26-005427",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 46
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000919574-26-003362",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 54
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2196,14 +2890,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001104659-26-096910",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 191
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001104659-26-059240",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 182
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2264,14 +2980,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001193125-26-352412",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 19
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001193125-26-226658",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 17
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2332,14 +3070,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000935836-26-000418",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 26
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0002045724-26-000008",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 42
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2400,14 +3160,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001061768-26-000010",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 23
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001061768-26-000007",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 22
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2420,7 +3202,7 @@
         "isAmendment": false,
         "accession": "0001649339-25-000007",
         "filedAt": "2025-11-03",
-        "acceptedAt": "2025-11-03T16:33:10.000Z",
+        "acceptedAt": "2025-11-03T21:33:10.000Z",
         "periodOfReport": "2025-09-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
@@ -2466,14 +3248,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001649339-25-000007",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 8
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0001879202-25-000038",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 15
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2025-09-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "STALE_REFERENCE"
     },
     {
@@ -2534,14 +3338,36 @@
           "status": "ORIGINAL",
           "type": null,
           "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000850529-26-000006",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 1037
+            }
+          ]
+        },
+        "priorAmendmentSemantics": {
+          "status": "ORIGINAL",
+          "type": null,
+          "number": null,
+          "policy": "ORIGINAL_ROWS",
+          "chain": [
+            {
+              "accession": "0000850529-26-000004",
+              "type": "ORIGINAL",
+              "role": "ORIGINAL",
+              "rows": 1016
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-29T14:05:12.629Z",
+      "collectedAt": "2026-10-06T02:46:57.800Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     }
   ],
