@@ -826,7 +826,7 @@ try {
   const koreanPattern = /[가-힣]/;
   if (homeSurface.renderer !== 'native' || homeSurface.homeRenderer !== 'native') throw new Error(`home renderer marker regressed after round trip: ${JSON.stringify(homeSurface)}`);
   // P1392: the home card shows the regime label (the 0-100 score was retired), never a number.
-  if (!['판정 대기', '우호적 환경', '대체로 우호적', '혼조 환경', '경계 환경', '방어적 환경'].includes(homeSurface.heroTotal || '')) throw new Error(`home hero regime label invalid: ${JSON.stringify(homeSurface)}`);
+  if (!['판정 대기', '우호 우세', '우호 쪽으로 기움', '혼조', '부담 쪽으로 기움', '부담 우세'].includes(homeSurface.heroTotal || '')) throw new Error(`home hero regime label invalid: ${JSON.stringify(homeSurface)}`);
   if (!placeholderPattern.test(homeSurface.tradingSignal || '') && !koreanPattern.test(homeSurface.tradingSignal || '')) throw new Error(`home-trading-signal is neither a placeholder nor a Korean label: ${JSON.stringify(homeSurface)}`);
 
   await page.evaluate(() => window.showPage('sentiment'));

@@ -43,40 +43,10 @@
       "principles-lesson-L3"
     ],
     "sourceIds": [
-      "MP-NIST",
-      "PS-01",
-      "PS-02",
-      "WEB-ARXIV-TRANSFORMER-2017",
-      "WEB-ASML-EUV-2026",
-      "WEB-DOE-DATACENTER-PUE-2019"
+      "PS-01"
     ],
-    "researchEvidence": [
-      {
-        "factId": "fact:transformer:attention",
-        "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-        "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-        "scope": "Transformer architecture history and mechanism",
-        "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:asml:euv",
-        "sourceId": "WEB-ASML-EUV-2026",
-        "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-        "scope": "EUV lithography mechanism",
-        "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:doe:pue",
-        "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-        "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-        "scope": "Data-center facility efficiency",
-        "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-        "asOf": "2026-08-12"
-      }
-    ],
-    "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+    "researchEvidence": [],
+    "researchCoverage": "RESEARCH_REQUIRED"
   },
   "quality": {
     "coreTextCharacters": 329,

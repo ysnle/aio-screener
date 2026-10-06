@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { archiveBase, createSecClient, findInformationTableFiles, normalizeCik, recentOwnershipRows, select13fFilings, withArchiveUrls } from './lib/sec-edgar.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
-import { ownershipFailureFields, updateOwnershipOnlyDiscovery } from './lib/13f-discovery.mjs';
+import { enrichOwnershipEvents, ownershipFailureFields, updateOwnershipOnlyDiscovery } from './lib/13f-discovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
@@ -55,6 +55,8 @@ if (ownershipOnly) {
       return ownershipClient.json(`https://data.sec.gov/submissions/CIK${cik}.json`);
     }
   });
+  // P1309: the daily poll reads submissions JSON only; issuer/percent come from the cache of earlier full runs.
+  await enrichOwnershipEvents({ artifact, previous: previousDiscovery, fetchText: null, archiveBaseFor: archiveBase });
   await writeAtomic(discoveryPath, artifact);
   console.log(JSON.stringify({
     ok: artifact.coverage.ownershipBlocked === 0,
@@ -224,6 +226,7 @@ const artifact = {
   managers: discovered
 };
 
+await enrichOwnershipEvents({ artifact, previous: previousDiscovery, fetchText: client ? (url) => client.text(url) : null, archiveBaseFor: archiveBase });
 await writeAtomic(discoveryPath, artifact);
 if (offline) {
   console.log(JSON.stringify({ ok: false, blocked: true, output: 'public-data/masters/filing-discovery.json', coverage: artifact.coverage }));

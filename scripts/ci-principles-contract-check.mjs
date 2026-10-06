@@ -12,6 +12,9 @@ const routes = read('src/app/routes.js');
 const verticalSlices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
 const page = read('src/ui/pages/principles.js');
+const conceptsView = read('src/ui/knowledge/concepts-view.js');
+const frameView = read('src/ui/knowledge/analysis-frames.js');
+const researchShell = read('src/ui/knowledge/research-shell.js');
 const capabilityLoader = read('src/ui/knowledge/capability-loader.js');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const worker = read('sw.js');
@@ -43,10 +46,17 @@ for (const [label, source, marker] of [
   // covered by the route dynamic import and factory rows.
   ['service worker runtime-caches page modules', worker, '(?:js|src)'],
   ['native page factory', page, 'export function createPrinciplesPage'],
-  ['narrative mode', page, "['story', '이어 읽기', 'story']"],
-  ['tree mode', page, "['tree', '개념 지도', 'tree']"],
-  ['graph mode', page, "['graph', '관계 지도', 'graph']"],
-  ['path mode', page, "['path', '선택 학습', 'path']"],
+  // 2026-10-05 리서치 라이브러리: one contents·document·connections shell; the five reading groups replace the
+  // old story/tree/graph/path mode tabs.
+  ['library shell', page, 'renderConceptsPage'],
+  ['three-column shell', conceptsView, 'createResearchShell'],
+  ['analysis notes group', conceptsView, "{ id: 'frames', title: '분석 노트' }"],
+  ['column group', conceptsView, "{ id: 'story', title: '칼럼 · 돈에서 주식시장까지' }"],
+  ['dictionary group', conceptsView, "{ id: 'concept', title: '개념 사전' }"],
+  ['lesson group', conceptsView, "{ id: 'lesson', title: '원리 레슨' }"],
+  ['concept map group', conceptsView, "{ id: 'map', title: '개념 지도' }"],
+  ['lesson reading text', conceptsView, 'lesson.story'],
+  ['dictionary reading text', page, "import('../../domain/knowledge/concept-stories.js')"],
     ['reviewed content', page, 'reviewedAt: REVIEWED_AT'],
     ['deep article renderer', page, 'renderKnowledgeLesson'],
   ['per-lesson article shard', page, './public-data/knowledge/articles/principles/']
@@ -61,20 +71,18 @@ const narrativeChapters = narrative.parts?.flatMap((part) => part.chapters || []
 const expectedNarrativeOrder = ['money-is-choice', 'inflation-purchasing-power', 'interest-time-price', 'central-bank-transmission', 'bonds-dollar-trust', 'liquidity-asset-inflation', 'company-economic-machine', 'valuation-expectations', 'ai-physical-bottleneck', 'ai-capex-economics', 'market-expectations-prices', 'ownership-risk-process'];
 if (narrative.schemaVersion !== 'principles-narrative.v1' || narrative.parts?.length !== 6 || narrativeChapters.length !== 12 || narrativeChapters.map((chapter) => chapter.id).join(',') !== expectedNarrativeOrder.join(',')) fail('canonical money-to-market narrative order drifted');
 if (!narrative.thesis?.includes('무엇을 소유할지') || narrativeChapters.some((chapter) => !chapter.title || !chapter.lead || chapter.paragraphs?.length < 3 || chapter.chain?.length < 4 || !chapter.marketBridge || !chapter.checkpoint || !['STRUCTURAL', 'FRAMEWORK'].includes(chapter.classification) || !chapter.lessonIds?.length || !chapter.sources?.every((source) => /^https:\/\//.test(source.url)))) fail('narrative chapter depth, boundary, or source contract drifted');
-if (!page.includes('createNarrativeView') || !page.includes('NARRATIVE_URL') || !page.includes('selectedNarrativeChapterId') || !page.includes('principles-story:')) fail('narrative renderer, deep-link state, or learning state is disconnected');
+if (!conceptsView.includes('function renderStory') || !page.includes('NARRATIVE_URL') || !page.includes('selectedNarrativeChapterId') || !page.includes("chapter: state.view === 'story'")) fail('column renderer or its deep-link state is disconnected');
 if (!/data-principles-content/.test(index)) fail('page markup lacks renderer mount');
-if (!/sourceUrl/.test(page) || !/status: 'PARTIAL'/.test(page) || !/status: 'REVIEWED_CANDIDATE'/.test(page)) fail('content packet must carry source URLs and review status badges');
-if (!/RESEARCH_URL/.test(page) || !/CHAPTERS_URL/.test(page) || !/LESSON_LIBRARY_URL/.test(page) || !/NODE_GUIDES_URL/.test(page) || !/createChapterCurriculum/.test(page) || !/createLessonLibrary/.test(page) || !/createEvidenceBlock/.test(page) || !/createResearchAnalysis/.test(page) || !/aioPrinciplesResearch/.test(page) || !/aioPrinciplesChapters/.test(page) || !/aioPrinciplesLessonLibrary/.test(page) || !/aioPrinciplesNodeGuides/.test(page) || !/aioPrinciplesKnowledgeArticles/.test(page)) fail('principles page is not connected to the authored A~O curriculum, node knowledge base, deep article corpus, and reconciled evidence registry');
+// Sources and review status are verified in the build gates; the reading surface carries neither (owner, 2026-10-05).
+if (/출처|검토 질문|체크포인트|근거는 항목별 표시|텔레그램은 발견용/.test(conceptsView + frameView + researchShell)) fail('library reading surface must not show source notes, review questions or boundary chips');
+if (!/RESEARCH_URL/.test(page) || !/CHAPTERS_URL/.test(page) || !/LESSON_LIBRARY_URL/.test(page) || !/NODE_GUIDES_URL/.test(page) || !/aioPrinciplesResearch/.test(page) || !/aioPrinciplesChapters/.test(page) || !/aioPrinciplesLessonLibrary/.test(page) || !/aioPrinciplesNodeGuides/.test(page) || !/aioPrinciplesKnowledgeArticles/.test(page)) fail('principles page is not connected to the authored A~O curriculum, node knowledge base, deep article corpus, and reconciled evidence registry');
 if (!page.includes('article identity mismatch') || !page.includes('validateCurrentObservationsArtifact') || !page.includes('applySafeExternalLink')) fail('principles runtime artifact identity/schema/URL safety gates are missing');
 if (!/normalizeKnowledgeEdges/.test(page) || !/createKnowledgeCapabilityBatchLoader/.test(page) || !/loadKnowledgeCapabilities/.test(capabilityLoader) || /Promise\.all\(\[loadJson/.test(page)) fail('principles must use typed edge normalization and shared capability-level artifact loading');
-if (!/principles-analysis-claim/.test(page) || !/principles-reading-frame/.test(page) || !/createSelfGuidedExploration/.test(page) || !/observations/.test(page)) fail('principles page must render claim summaries, observations, and self-guided reading paths');
-if (!/createNodeExplanation/.test(page) || !/NODE_EXPLANATIONS/.test(page) || !/LEARNING_TRACKS/.test(page) || !/15·30·45분/.test(page)) fail('principles page must render user-facing concept explanations and learning tracks');
+if (!/renderFrameArticle/.test(conceptsView) || !/renderFrameConnections/.test(conceptsView) || !/observations/.test(page)) fail('principles page must render analysis notes with their connections and keep the observation boundary');
 if (!/MARKET_EXPANSION/.test(page) || !/SYSTEMS_EXPANSION/.test(page) || !/scarcity-choice/.test(page) || !/power-electricity-system/.test(page) || !/market-foundations/.test(page) || !/industry-and-korea/.test(page)) fail('market principles economic and systems spine is missing');
 if (!/nodesWithinHops/.test(page) || !/principlesGraphNodeCount/.test(page)) fail('principles graph depth must be a real selected subgraph');
-if (!/PATH_SOURCE_IDS_BY_NODE/.test(page)) fail('principles path source map missing');
-if (!/createPathSourceBadge/.test(page)) fail('principles path source badge missing');
 if (page.includes("sourceName: '학습 콘텐츠 검토 기록'") || page.includes("sourceName: '학습 콘텐츠 검토 기록', sourceUrl: 'https://www.sec.gov/edgar/search-and-access'")) fail('principles path must not expose a generic SEC search link');
-if (!/principles-edge-label/.test(page) || !/toggle-group/.test(page) || !/자료실/.test(page)) fail('principles learner map must expose relation labels, nested groups, and a separate library view');
+if (!/principles-edge-label/.test(page) || !/principles-graph-node-list/.test(page)) fail('principles concept map must expose relation labels and a keyboard-readable node list');
 if (research.status !== 'REFERENCE_CONNECTED' || research.sources.length !== 23 || research.claims.length !== 14 || research.nodes.length !== 12) fail('principles evidence artifact counts or status drifted');
 if (research.publication?.currentClaims !== 0 || research.publication?.allowedSurfaces?.includes('principles') !== true) fail('principles publication boundary drifted');
 const catalogNodeIds = new Set([...page.matchAll(/id: '([^']+)'/g)].map((match) => match[1]));
@@ -103,4 +111,4 @@ if (/data-live-price|data-live-chg|targetPrice|target-price|BUY|SELL/.test(page)
 if (!/aria-label.*그래프|aria-label.*graph/i.test(page)) fail('graph must expose an accessible name');
 if (!/replaceChildren/.test(page) || /innerHTML/.test(page)) fail('principles renderer must use safe DOM construction');
 
- console.log(JSON.stringify({ ok: true, route: 'principles', modes: ['story', 'tree', 'graph', 'path', 'library'], narrativeParts: narrative.parts.length, narrativeChapters: narrativeChapters.length, graphNodes: 60, lessons: 39, authoredLessonLibrary: lessonLibrary.lessons.length, deepArticles: principlesArticles.length, authoredNodeGuides: nodeGuides.nodes.length, authoredChapters: chapters.chapters.length, paths: 8, evidenceSources: research.sources.length, evidenceClaims: research.claims.length, reviewedAt: knowledgeArticles.articles.map((article) => article.reviewedAt).sort().at(-1) }));
+ console.log(JSON.stringify({ ok: true, route: 'principles', groups: ['frames', 'story', 'concept', 'lesson', 'map'], narrativeParts: narrative.parts.length, narrativeChapters: narrativeChapters.length, graphNodes: 60, lessons: 39, authoredLessonLibrary: lessonLibrary.lessons.length, deepArticles: principlesArticles.length, authoredNodeGuides: nodeGuides.nodes.length, authoredChapters: chapters.chapters.length, paths: 8, evidenceSources: research.sources.length, evidenceClaims: research.claims.length, reviewedAt: knowledgeArticles.articles.map((article) => article.reviewedAt).sort().at(-1) }));

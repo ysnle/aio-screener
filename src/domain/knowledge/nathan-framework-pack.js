@@ -4,6 +4,8 @@
 import { NATHAN_PREVIOUS_THREADS_REFERENCE } from '../research/nathan-previous-threads.js';
 import { compareStableText } from './order.js';
 
+const THREAD_BY_ID = new Map((NATHAN_PREVIOUS_THREADS_REFERENCE.threads || []).map((thread) => [thread.id, thread]));
+
 export const NATHAN_FRAMEWORK_PACK_VERSION = 'nathan-framework-pack.v1';
 
 const ROUTE_ALIASES = Object.freeze({
@@ -205,10 +207,15 @@ export const NATHAN_FRAMEWORK_ARTICLES = Object.freeze(NATHAN_FRAMEWORKS.map((fr
     metric: 'reference-framework',
     timeframe: framework.timeframe || ''
   }),
+  // P1478 (knowledge review 2026-10-04, 2차): every source read '직접 확인된 외부 연구자료' with no way to
+  // tell which post supports the framework. The retrieval artifact still does not replay raw X URLs
+  // (research-flow contract); each source now names the post it is, and points to the reference
+  // registry (Nathan Previous Threads) that publishes the canonical links.
   sources: Object.freeze((framework.sourceRefs || []).map((sourceRef) => Object.freeze({
     id: sourceRef,
     publisher: NATHAN_PREVIOUS_THREADS_REFERENCE.author,
-    title: '직접 확인된 외부 연구자료',
+    title: THREAD_BY_ID.get(sourceRef)?.title || '원문 게시물',
+    locator: 'nathan-previous-threads registry (canonical link by id)',
     url: '',
     allowedUse: 'REFERENCE_ONLY',
     directness: 'DIRECT_READ'

@@ -18,13 +18,6 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "MP-NIST",
-      "url": "https://www.nist.gov/ai",
-      "publisher": "NIST",
-      "title": "Artificial intelligence",
-      "sourceTier": null
-    },
-    {
       "sourceId": "PS-01",
       "url": "https://investor.tsmc.com/sites/ir/shareholders-meeting/2026-06-04/2026AGM_Minutes_wmn.pdf",
       "publisher": "TSMC",
@@ -39,27 +32,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
-      "sourceId": "WEB-ASML-EUV-2026",
-      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
-      "publisher": "ASML",
-      "title": "EUV lithography systems",
-      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
       "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
       "publisher": "NIST AI Resource Center",
@@ -67,20 +39,36 @@
       "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
       "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     }
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
@@ -91,41 +79,13 @@
       "title": "EUV lithography systems",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
       "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "ACADEMIC_TEXTBOOK_STANDARD",
-    "COMPANY_TECHNICAL_DOCUMENT",
-    "PRIMARY_OFFICIAL"
+    "PRIMARY_OFFICIAL",
+    "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
     {
@@ -135,11 +95,8 @@
     }
   ],
   "researchFactIds": [
-    "fact:transformer:attention",
-    "fact:asml:euv",
-    "fact:doe:pue",
     "fact:nist:ai-rmf-core",
-    "fact:ibm:silicon-doping"
+    "fact:sec:capex-depreciation"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

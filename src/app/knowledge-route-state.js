@@ -1,6 +1,6 @@
 import { isRouteId } from './routes.js';
 
-const ROUTE_KEYS = Object.freeze(['mode', 'node', 'path', 'step', 'chapter', 'lesson', 'domain', 'topic', 'guide', 'criticality', 'manager', 'period']);
+const ROUTE_KEYS = Object.freeze(['mode', 'node', 'path', 'step', 'chapter', 'lesson', 'domain', 'topic', 'guide', 'criticality', 'manager', 'period', 'view']);
 
 function locationUrl(locationLike) {
   if (locationLike?.href) return new URL(locationLike.href);
@@ -26,7 +26,8 @@ export function parseKnowledgeRouteState(locationLike) {
     guide: values.guide || null,
     criticality: values.criticality || null,
     manager: values.manager || null,
-    period: values.period || null
+    period: values.period || null,
+    view: values.view || null
   });
 }
 

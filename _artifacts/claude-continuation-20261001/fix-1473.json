@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — 분석 프레임: issue-led analysis notes in a professional register (P1473).",
+  "p": {
+    "id": 1473,
+    "title": "분석 프레임: issue-led analysis notes in a professional register",
+    "symptom": "Lessons ended at definitions and lists; worked examples and company/financial/valuation channels were empty in all 160 articles; finance, insurance, real estate, consumer, software, bio, energy, transport and agriculture had no frame for their revenue model; course-style labels (15·30·45분, 잠깐 멈춰 생각해 볼 질문) remained.",
+    "root_cause": "Articles were generated from short lesson drafts with no authored deep layer.",
+    "fix": "src/domain/knowledge/learning-core.js: 23 frames (issue → key point → structure diagram → mechanism → worked calculation → reverse condition → financial transmission → indicators with their screen → related concepts → direct sources), industries on one template (제공 가치 · 지불 주체 · 비용·자본 · 이익 변수), eight tracks, the column's three perspectives and six corrected expressions. The principles hub opens on 분석 프레임 in a three-column desktop layout; course and quiz wording removed across the learning surfaces (owner direction).",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check P1473; ci-principles-browser-check and ci-three-page-learning-flow-check cover the default view and the column tab.",
+    "verification": "Local principles: three-column view, 23 frames, worked calculations verified by hand."
+  },
+  "changelog": [
+    "**분석 프레임 (P1473):** 시장 원리 첫 화면을 쟁점·요지·구조도·작동 메커니즘·산출 예시·반대 조건·재무 전달 경로·점검 지표 순서의 분석 노트 23개로 구성하고, 은행·보험·리츠·소비·소프트웨어·바이오·에너지·운송·농업을 같은 수익 모델 틀로 비교합니다."
+  ]
+}

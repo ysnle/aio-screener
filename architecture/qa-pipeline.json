@@ -61,7 +61,8 @@
         "scripts/ci-source-registry-contract-check.mjs",
         "scripts/ci-professional-data-gap-check.mjs",
         "scripts/ci-static-data-contract-check.mjs",
-        "scripts/ci-sec-runtime-projection-check.mjs"
+        "scripts/ci-sec-runtime-projection-check.mjs",
+        "scripts/ci-candidate-archive-check.mjs"
       ],
       "requiredTokens": [
         "public-data/history.json"
@@ -723,6 +724,14 @@
           "script": "scripts/ci-sec-runtime-projection-check.mjs"
         },
         {
+          "id": "candidate-archive",
+          "script": "scripts/ci-candidate-archive-check.mjs"
+        },
+        {
+          "id": "review-integrity",
+          "script": "scripts/ci-review-integrity-unit-check.mjs"
+        },
+        {
           "id": "static-data",
           "script": "scripts/ci-static-data-contract-check.mjs"
         },
@@ -938,6 +947,10 @@
         {
           "id": "masters-contract",
           "script": "scripts/ci-masters-contract-check.mjs"
+        },
+        {
+          "id": "knowledge-review",
+          "script": "scripts/ci-knowledge-review-check.mjs"
         }
       ]
     },
@@ -1060,12 +1073,31 @@
         {
           "id": "extension-api-runtime",
           "script": "scripts/ci-extension-api-runtime-check.mjs",
-          "inputs": ["js/aio-data.js", "js/aio-chat.js", "js/aio-ui.js", "js/aio-core.js", "index.html", "cloudflare-worker-proxy.js", "src/data/providers/personal-transport.js", "src/app/bootstrap.js", "scripts/ci-extension-api-runtime-check.mjs"]
+          "inputs": [
+            "js/aio-data.js",
+            "js/aio-chat.js",
+            "js/aio-ui.js",
+            "js/aio-core.js",
+            "index.html",
+            "cloudflare-worker-proxy.js",
+            "src/data/providers/personal-transport.js",
+            "src/app/bootstrap.js",
+            "scripts/ci-extension-api-runtime-check.mjs"
+          ]
         },
         {
           "id": "ai-budget-scope",
           "script": "scripts/ci-ai-budget-scope-check.mjs",
-          "inputs": ["js/**", "src/**", "cloudflare-worker-proxy.js", ".github/workflows/**", "scripts/fetch-data.mjs", "scripts/lib/ai-shared-analysis.mjs", "scripts/build-operations-status.mjs", "public-config.json"]
+          "inputs": [
+            "js/**",
+            "src/**",
+            "cloudflare-worker-proxy.js",
+            ".github/workflows/**",
+            "scripts/fetch-data.mjs",
+            "scripts/lib/ai-shared-analysis.mjs",
+            "scripts/build-operations-status.mjs",
+            "public-config.json"
+          ]
         },
         {
           "id": "worker-relay",
@@ -1427,9 +1459,24 @@
   },
   "impactRules": [
     {
-      "patterns": ["index.html", "js/**", "src/**", "scripts/ci-extension-api-runtime-check.mjs", "scripts/fetch-data.mjs", "scripts/lib/ai-shared-analysis.mjs", "scripts/build-operations-status.mjs", "scripts/ci-ai-budget-scope-check.mjs", "public-config.json", ".github/workflows/refresh-data.yml"],
-      "groups": ["cloudflare"],
-      "gates": ["ai-budget-scope"]
+      "patterns": [
+        "index.html",
+        "js/**",
+        "src/**",
+        "scripts/ci-extension-api-runtime-check.mjs",
+        "scripts/fetch-data.mjs",
+        "scripts/lib/ai-shared-analysis.mjs",
+        "scripts/build-operations-status.mjs",
+        "scripts/ci-ai-budget-scope-check.mjs",
+        "public-config.json",
+        ".github/workflows/refresh-data.yml"
+      ],
+      "groups": [
+        "cloudflare"
+      ],
+      "gates": [
+        "ai-budget-scope"
+      ]
     },
     {
       "patterns": [

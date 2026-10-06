@@ -43,31 +43,14 @@
       "principles-lesson-L14"
     ],
     "sourceIds": [
-      "MP-NIST",
-      "PS-01",
-      "PS-02",
-      "WEB-ARXIV-TRANSFORMER-2017",
-      "WEB-ASML-EUV-2026",
+      "MP-DOE",
+      "SRC-DOE-DATACENTER",
       "WEB-DOE-DATACENTER-PUE-2019",
-      "WEB-NIST-AI-RMF-CORE-2023"
+      "WEB-NIST-AI-RMF-CORE-2023",
+      "WEB-SEC-GOOGLE-10K-2025",
+      "WEB-DOE-DATACENTER-DESIGN-2024"
     ],
     "researchEvidence": [
-      {
-        "factId": "fact:transformer:attention",
-        "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-        "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-        "scope": "Transformer architecture history and mechanism",
-        "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:asml:euv",
-        "sourceId": "WEB-ASML-EUV-2026",
-        "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-        "scope": "EUV lithography mechanism",
-        "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-        "asOf": "2026-08-12"
-      },
       {
         "factId": "fact:doe:pue",
         "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
@@ -83,6 +66,22 @@
         "scope": "AI risk-management framework structure",
         "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
         "asOf": "2026-08-12"
+      },
+      {
+        "factId": "fact:sec:capex-depreciation",
+        "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+        "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
+        "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
+        "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
+        "asOf": "2026-08-12"
+      },
+      {
+        "factId": "fact:doe:datacenter-kpi-denominators",
+        "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
+        "statement": "DOE guidance defines PUE as total annual facility energy divided by annual IT-equipment energy and recommends reading it with water, carbon and useful-work or utilization metrics. A lower PUE measures facility overhead, not model quality, accelerator utilization or token economics by itself.",
+        "scope": "Data-center efficiency denominators",
+        "invalidation": "Do not compare sites without matched measurement boundaries, climate, redundancy, workload, time window and IT utilization; a snapshot power ratio is not automatically annual PUE.",
+        "asOf": "2024-07-26"
       }
     ],
     "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"

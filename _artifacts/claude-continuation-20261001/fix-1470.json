@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — SEC page projection back under its 1 MiB bound (P1470).",
+  "p": {
+    "id": 1470,
+    "title": "SEC page projection back under its 1 MiB bound",
+    "symptom": "Every screener refresh after v57.18 failed: 'runtime projection exceeds 1 MiB: 1089778' (630 records with the P1446 cash-flow fields). The interrupted session's compact-serialization fix referenced mkdir/dirname without importing them (ReferenceError) and was never run.",
+    "root_cause": "The projection was pretty-printed and carried per-record source/model strings identical to its header.",
+    "fix": "The data block serializes compactly behind a pretty header; per-record source/model (uniform, restated by the header; consumers fall back to the same value) and the redundant StockholdersEquity concept are trimmed, keeping conflict evidence. The stray mkdir call is removed. 977 KB → 702 KB for 608 records.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "ci-sec-runtime-projection-check (bound, parent-equity identity with the trimmed concept).",
+    "verification": "node scripts/build-sec-runtime-projection.mjs then ci-sec-runtime-projection-check: OK, 701,596 bytes."
+  },
+  "changelog": [
+    "**SEC 요약 크기 한도 복구 (P1470):** 1MiB를 넘어 매 스크리너 갱신을 실패시키던 SEC 요약을 702KB로 줄였습니다."
+  ]
+}

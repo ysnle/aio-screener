@@ -1,0 +1,19 @@
+{
+  "version": "v57.21",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.21 — 리서치 라이브러리: one research shell replaces the four learning pages (P1480).",
+  "p": {
+    "id": 1480,
+    "title": "리서치 라이브러리: one research shell replaces the four learning pages",
+    "symptom": "The hub was named 배우기, its four pages each used a different layout, and chips such as 분석 참고 · 근거는 항목별 표시 · 텔레그램은 발견용 plus review questions and source badges sat on the reading surface.",
+    "root_cause": "Each page grew its own hero, tabs and disclosure chrome; no shared reading shell existed.",
+    "fix": "route-hubs/index/aio-core: hub renamed 리서치 라이브러리 with 개념·분석 프레임 · 산업·밸류체인 · 운용사·13F and 도움말 moved to the top bar. src/ui/knowledge/research-shell.js: contents·document·connections shell with one unified search; concepts-view, industry-view and managers-view render every page through it; sources, status badges, checkpoints and boundary chips removed from the reading surface (verification stays in the build gates). Old labels (AI 시대 지식 지도, 시장 원리, 기관 공시) renamed across routes, arrival contexts and AI retrieval context.",
+    "violated_rule": "Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.",
+    "prevention": "ci-principles-contract-check, ci-atlas-contract-check and ci-masters-contract-check migrated to the shell markers; principles/atlas/masters/learning-flow/artifact-budget browser checks rewritten for the new structure.",
+    "verification": "browser-knowledge group 6/6 PASS."
+  },
+  "changelog": [
+    "**리서치 라이브러리 재설계 (P1480):** 배우기 → 리서치 라이브러리. 개념·분석 프레임 · 산업·밸류체인 · 운용사·13F 세 화면을 목차 · 본문 · 연결 3단 골격과 통합 검색으로 통일하고, 출처 배지·검토 질문·경계 칩을 읽기 화면에서 뺐습니다. 도움말은 상단으로 옮겼습니다."
+  ]
+}

@@ -143,7 +143,7 @@ const result = {
   interpretation: '현재 required-field 존재 여부와 백과사전급 설명 깊이는 다른 계약이다. 문자 수는 하한선일 뿐이며 semantic field 충족과 구조화된 worked example을 함께 통과해야 한다.',
   naming: {
     routeId: 'atlas',
-    publicName: 'AI 시대 지식 지도',
+    publicName: '산업·밸류체인',
     pageKicker: 'AI 시대 지식 백과'
   },
   corpora,

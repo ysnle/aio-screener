@@ -46,7 +46,6 @@
       "MP-DOE",
       "MP-IEA",
       "WEB-DOE-DATACENTER-PUE-2019",
-      "WEB-FRED-INFLATION-EXPECTATIONS",
       "WEB-DOE-DATACENTER-DESIGN-2024"
     ],
     "researchEvidence": [
@@ -56,14 +55,6 @@
         "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
         "scope": "Data-center facility efficiency",
         "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:fred:real-rates",
-        "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-        "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-        "scope": "Inflation-expectation and real-rate data definitions",
-        "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
         "asOf": "2026-08-12"
       },
       {

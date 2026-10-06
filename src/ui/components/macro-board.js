@@ -467,6 +467,27 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         unit: row.id === 'hyOAS' ? null : '%'
       });
     }));
+    // P1469: the share of the 10-year yield that is compensation for holding duration rather than the
+    // expected path of short rates — a model estimate, shown only once the FRED series has arrived.
+    const premium = seriesOf(root._aioMacroHistory, 'termPremium10').slice(-260);
+    const lastPremium = premium[premium.length - 1] || null;
+    if (lastPremium) {
+      const tenYear = seriesOf(root._aioMacroHistory, 'dgs10').filter((point) => point.date <= lastPremium.date).pop() || null;
+      const back63 = premium.length > 63 ? premium[premium.length - 64] : null;
+      const year = premium.length > 200 ? lastPremium.value - premium[0].value : null;
+      const ageDays = (Date.now() - Date.parse(`${lastPremium.date}T00:00:00Z`)) / 86400000;
+      levels.append(statCard(doc, {
+        label: '10년 기간 프리미엄 (Kim-Wright)',
+        valueText: `${lastPremium.value.toFixed(2)}%`,
+        lines: [back63 ? `3개월 ${signed(lastPremium.value - back63.value, 2, '%p')}` : null, year == null ? null : `1년 전보다 ${signed(year, 2, '%p')}`,
+          tenYear ? `같은 날 10년 금리 ${tenYear.value.toFixed(2)}% 중 단기금리 예상분 약 ${(tenYear.value - lastPremium.value).toFixed(2)}%` : null],
+        meta: `${shortDate(lastPremium.date)} · FRED THREEFYTP10 (연준 이사회 모형)`,
+        note: '10년 금리 가운데 앞으로의 단기금리 예상이 아니라 오래 묶어 두는 위험에 대한 보상으로 추정되는 부분입니다. 관측값이 아닌 모형 추정치이고, 뉴욕 연준 ACM 등 다른 모형과는 수준이 다릅니다.',
+        status: ageDays > 30 ? 'stale' : 'observed',
+        series: premium.length >= 20 ? premium : null,
+        unit: '%'
+      }));
+    }
   }
 
   // 3. Dollar, won, yen and the 10-year on the close basis

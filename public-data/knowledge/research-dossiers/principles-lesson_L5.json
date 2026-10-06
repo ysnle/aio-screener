@@ -18,13 +18,6 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "MP-NIST",
-      "url": "https://www.nist.gov/ai",
-      "publisher": "NIST",
-      "title": "Artificial intelligence",
-      "sourceTier": null
-    },
-    {
       "sourceId": "PS-01",
       "url": "https://investor.tsmc.com/sites/ir/shareholders-meeting/2026-06-04/2026AGM_Minutes_wmn.pdf",
       "publisher": "TSMC",
@@ -32,51 +25,14 @@
       "sourceTier": null
     },
     {
-      "sourceId": "PS-02",
-      "url": "https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin",
-      "publisher": "Micron",
-      "title": "HBM4 and data-center memory/storage announcement",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
       "sourceId": "WEB-ASML-EUV-2026",
       "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
       "publisher": "ASML",
       "title": "EUV lithography systems",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
     {
       "sourceId": "WEB-ASML-EUV-2026",
       "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
@@ -84,32 +40,12 @@
       "title": "EUV lithography systems",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
       "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "ACADEMIC_TEXTBOOK_STANDARD",
-    "COMPANY_TECHNICAL_DOCUMENT",
-    "PRIMARY_OFFICIAL"
+    "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
     {
@@ -118,13 +54,8 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "researchFactIds": [
-    "fact:transformer:attention",
-    "fact:asml:euv",
-    "fact:doe:pue",
-    "fact:ibm:silicon-doping"
-  ],
-  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "researchFactIds": [],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -133,9 +64,9 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 설계 생태계 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCHED",
+  "status": "RESEARCH_IN_PROGRESS",
   "completion": {
-    "researchComplete": true,
+    "researchComplete": false,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

@@ -30,6 +30,7 @@ import { buildScreenerModelFingerprint } from '../src/domain/screener/model-fing
 import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js'; // P1402
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
 import { collectRotationHistory } from './lib/rotation-history.mjs';
+import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -699,9 +700,24 @@ export function parseTreasuryYieldCurveXml(xml, fetchedAt = new Date().toISOStri
     observedAt: latest.observedAt,
     fetchedAt,
     values: { ...latest.values, t10y2y: round(latest.values.dgs10 - latest.values.dgs2, 3) },
+    // Codex review 2026-10-05: earlier sessions of the same feed, so 1-day and 1-week changes are taken
+    // from the same official series as the level (newest first).
+    series: parsed.slice(0, 8).map((entry) => ({ observedAt: entry.observedAt, values: entry.values })),
     allowedUse: 'official-observation-and-derived-same-date-spread',
     decisionUse: false
   };
+}
+
+// Codex review 2026-10-05 (오늘 10년물 +4bp vs 금리·환율 −5bp): the Treasury feed replaced the FRED level
+// with a newer date but the FRED change (one session older) stayed beside it. A change is published only
+// when both ends come from the official feed, with the date it belongs to; otherwise it is removed.
+export function officialTreasuryDeltas(treasury, field) {
+  const entries = Array.isArray(treasury?.series) ? treasury.series.filter((entry) => entry?.observedAt < treasury.observedAt) : [];
+  const current = Number(treasury?.values?.[field]);
+  const at = (index) => Number(entries[index]?.values?.[field]);
+  const delta = entries.length >= 1 && Number.isFinite(current) && Number.isFinite(at(0)) ? round(current - at(0), 3) : null;
+  const delta5 = entries.length >= 5 && Number.isFinite(current) && Number.isFinite(at(4)) ? round(current - at(4), 3) : null;
+  return { delta, delta5, asOf: treasury?.observedAt || null };
 }
 
 export async function fetchTreasuryYieldCurve(previous = null) {
@@ -3271,6 +3287,12 @@ export async function enrichScreener() {
     backtest,
   };
   await atomicWriteFile(SCREENER_OUT, JSON.stringify(payload));
+  // P1465: record today's default-profile candidates (the page's own ranking path on the files just
+  // written) and fill the outcomes of entries whose 21-session window has closed. Non-fatal.
+  try {
+    const archiveInfo = await updateCandidateArchive({ root: new URL('../', import.meta.url), results, write: (url, text) => atomicWriteFile(fileURLToPath(url), text) });
+    console.log(`[fetch-data] candidate archive: ${archiveInfo.action} ${archiveInfo.date || '-'} · entries ${archiveInfo.entries} · measured ${archiveInfo.measured} (+${archiveInfo.filled})`);
+  } catch (e) { console.warn('[fetch-data] candidate archive 실패(무시):', e && e.message || e); }
   return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError, secFundamentalsOk: secResult.ok > 0, secFundamentalsCount: secResult.ok, fundamentalCount, fundamentalCoveragePct };
 }
 
@@ -3774,6 +3796,10 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   t10y3m:         { id: 'T10Y3M',        frequency: 'daily',   limit: 280, unit: 'percentage-point', label: '10년-3개월 금리차' },
   realYield10:    { id: 'DFII10',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 실질금리 (TIPS)' },
   breakeven10:    { id: 'T10YIE',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기대인플레이션' },
+  // P1469 (review 2026-10-04, term premium): the Federal Reserve Board's Kim-Wright 10-year term premium
+  // (model estimate, official FRED series). NY Fed ACM is published only as a spreadsheet, so the same
+  // concept is taken from the official FRED path and named by its model on screen.
+  termPremium10:  { id: 'THREEFYTP10',   frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기간 프리미엄 (Kim-Wright)' },
   hyOas:          { id: 'BAMLH0A0HYM2',  frequency: 'daily',   limit: 280, unit: 'percent', label: '하이일드 스프레드' }
 });
 const MACRO_HISTORY_OUT = `${__dir}/../public-data/macro-history.json`;
@@ -4109,9 +4135,18 @@ async function main() {
   if (['ok', 'cached-fresh'].includes(treasury.status) && treasury.values) {
     for (const field of ['dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y']) {
       if (!Number.isFinite(Number(treasury.values[field]))) continue;
+      const fredAsOf = String(macro[`_asOf_${field}`] || '');
       macro[field] = Number(treasury.values[field]);
       macro[`_asOf_${field}`] = treasury.observedAt;
       macro[`_source_${field}`] = 'us-treasury-official-primary';
+      if (field === 't10y2y') continue;
+      const official = officialTreasuryDeltas(treasury, field);
+      const fredSameDate = fredAsOf === String(treasury.observedAt || '');
+      for (const [suffix, value] of [['Delta', official.delta], ['Delta5', official.delta5]]) {
+        if (value != null) macro[`${field}${suffix}`] = value;
+        else if (!fredSameDate) delete macro[`${field}${suffix}`];
+      }
+      macro[`_deltaAsOf_${field}`] = official.delta != null || fredSameDate ? treasury.observedAt : null;
     }
   }
   if (bea.status === 'ok' && bea.values) {

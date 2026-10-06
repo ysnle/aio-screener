@@ -590,7 +590,7 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
       metric: handoff?.context?.metric || knowledge?.metric || null,
       question: handoff?.context?.question || null,
       symbol: state?.id || arrivingTicker || null,
-      fromRoute: handoff?.fromRoute || (knowledge ? '배우기' : null)
+      fromRoute: handoff?.fromRoute || (knowledge ? '리서치 라이브러리' : null)
     });
     renderFundamentalStatus(documentRef, state);
     renderFundamentalSummary(documentRef, state);

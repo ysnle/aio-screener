@@ -100,6 +100,21 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
   if (!sym) return null;
   const set = (id, value) => { const node = doc.getElementById(id); if (node) node.textContent = value; return node; };
   set('stock-chart-title', `${sym} 일봉`);
+  // Codex review 2026-10-05: switching the chart to SPY left the 종목 header on NVDA with nothing saying the
+  // two differ. A market chart now says so and offers the way back to the company's chart.
+  const subject = String(root?._aioLastOpenedSymbol || '').trim().toUpperCase();
+  const title = doc.getElementById('stock-chart-title');
+  doc.getElementById('stock-chart-context')?.remove();
+  if (title && subject && subject !== sym) {
+    const note = el(doc, 'span', `시장 비교 차트 · 요약·재무 탭의 종목은 ${subject} 그대로입니다 `, 'stock-chart-context');
+    note.id = 'stock-chart-context';
+    note.style.cssText = 'display:block;font-size:11.5px;font-weight:400;color:var(--text-muted);margin-top:2px;';
+    const back = el(doc, 'button', `${subject} 차트로`, 'aio-btn-table');
+    back.type = 'button';
+    back.addEventListener('click', () => { const input = doc.getElementById('stock-chart-input'); if (input) input.value = subject; renderStockChart({ documentRef: doc, root, symbol: subject }); });
+    note.append(back);
+    title.insertAdjacentElement('afterend', note);
+  }
   set('stock-chart-status', '불러오는 중…');
   // A slower earlier request must not overwrite the symbol the user asked for last.
   const ticket = (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1);

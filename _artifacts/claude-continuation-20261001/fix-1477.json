@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — Refresh cadence by kind of knowledge (P1477).",
+  "p": {
+    "id": 1477,
+    "title": "Refresh cadence by kind of knowledge",
+    "symptom": "Company roles and product families were judged against a 7-day window, so every registry row read as overdue and the rows that genuinely age were indistinguishable.",
+    "root_cause": "One freshness window was applied to principles, company roles, product status and observations alike.",
+    "fix": "src/domain/knowledge/knowledge-cadence.js: principles on change, company roles yearly, production status every 90 days, observations dated; the atlas boundary and its status follow the rule.",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check P1477; ci-atlas-browser-check.",
+    "verification": "Registry: 0 roles and 0 status rows overdue under the cadence."
+  },
+  "changelog": [
+    "**지식 갱신 기준 분리 (P1477):** 기본 원리·기업 역할·양산 상태·실적 수치에 각기 다른 갱신 기준을 적용해 불필요한 지연 표시를 없앴습니다."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — Glossary definitions corrected; one concept source shared with the learning screens (P1472).",
+  "p": {
+    "id": 1472,
+    "title": "Glossary definitions corrected; one concept source shared with the learning screens",
+    "symptom": "Beta read as a fixed daily ratio, YTM as total return, ETF as inherently diversified and low-risk, liquidity as \"money released → assets up\", BEI as pure expected inflation, R:R as \"ratio matters more than probability\", investor type as a buy signal, support/resistance breaks as crash/surge laws, a retired 0~100 tactical score; NIM, 합산비율, FFO, ROIC, HBM, photonics were not findable.",
+    "root_cause": "The legacy glossary predated the methodology sweep's definitions, and the learning screens kept separate copies of concepts.",
+    "fix": "About 110 glossary entries rewritten in place (figure-source table reconciled, file 423 → 408 lines) — regression definitions for beta, YTM (annualized discount rate under stated assumptions), ETF types, weighted/diluted EPS, Macaulay vs modified duration, IV Rank vs Percentile, BEI (risk and liquidity premia), liquidity (three meanings), FOMC/SEP cadence; the tactical score entry became the current market-state axes. src/domain/knowledge/concept-core.js holds 82 canonical concepts (finance math, accounting, macro, banks, insurance, REITs, consumer, software, bio, energy, transport, agriculture, Korea, AI hardware) merged into the glossary at boot so the glossary and the frames share one definition.",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check P1472; runtime-contract figure-source rows stay exact.",
+    "verification": "Local glossary: HBM, 포토닉스, ROIC, NIM, 합산비율 return canonical entries."
+  },
+  "changelog": [
+    "**용어 사전 교정과 개념 원본 통합 (P1472):** 베타·만기수익률·ETF·EPS·듀레이션·IV·BEI·유동성 등 오해를 만드는 정의 약 110개를 고치고, 금융수학·회계·은행·보험·리츠·소비·소프트웨어·바이오·에너지·운송·농업·AI 하드웨어 핵심 개념 82개를 사전과 학습 화면이 같은 원본으로 씁니다."
+  ]
+}

@@ -168,6 +168,20 @@ for (const manager of history.managers) {
       period.coverEntryTotal = isCurrent ? verification?.cover?.tableEntryTotal : null;
       period.coverValueTotal = isCurrent ? verification?.cover?.tableValueTotal : null;
       period.countReconciled = isCurrent ? verification?.countReconciled : verification?.priorCountReconciled;
+      // P1462: current/prior rows come from the reference lane, which composes the same-period
+      // submissions with the shared policy; its chain is carried here so every imported period
+      // states how it was assembled. No chain → the reference lane did not say, so none is claimed.
+      const semantics = isCurrent ? verification?.amendmentSemantics : verification?.priorAmendmentSemantics;
+      const chain = Array.isArray(semantics?.chain) && semantics.chain.length ? semantics.chain : null;
+      if (chain) {
+        period.amendmentChain = chain.map((entry) => ({ accession: entry.accession, type: entry.type, role: entry.role, rows: entry.rows }));
+        period.composition = describeComposition(chain);
+        period.compositionStatus = chain.length > 1 ? 'AMENDMENT_COMPOSED' : 'ORIGINAL_CONNECTED';
+        period.compositionSource = 'REFERENCE_LANE';
+      } else {
+        delete period.amendmentChain;
+        period.compositionSource = 'REFERENCE_LANE_UNSTATED';
+      }
       continue;
     }
     const periodKey = `${manager.managerId}|${period.periodOfReport}`;

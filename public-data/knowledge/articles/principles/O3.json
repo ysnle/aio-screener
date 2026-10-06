@@ -46,42 +46,33 @@
       "MP-BOK",
       "MP-KRX",
       "MP-SEC",
-      "WEB-FRED-INFLATION-EXPECTATIONS",
-      "WEB-SEC-INVESTOR-10K-2020",
-      "WEB-KRX-SECURITIES-INTRO",
-      "WEB-TSMC-3DFABRIC-2026"
+      "WEB-TSMC-3DFABRIC-2026",
+      "WEB-MICRON-HBM2E-2020",
+      "WEB-SEC-GOOGLE-10K-2025"
     ],
     "researchEvidence": [
-      {
-        "factId": "fact:fred:real-rates",
-        "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-        "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-        "scope": "Inflation-expectation and real-rate data definitions",
-        "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:sec:10k-reading",
-        "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-        "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-        "scope": "U.S. public-company filing navigation",
-        "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:krx:listed-products",
-        "sourceId": "WEB-KRX-SECURITIES-INTRO",
-        "statement": "KRX distinguishes ETF, ETN, and ELW as listed securities products with different legal and economic structures; a listed product should not be treated as identical to the underlying asset or index.",
-        "scope": "Korean exchange-listed product structure",
-        "invalidation": "Product terms, issuer credit, leverage, tracking, liquidity, fees, and applicable rules must be read from the current product documents; this is not a product recommendation.",
-        "asOf": "2026-08-12"
-      },
       {
         "factId": "fact:tsmc:3dfabric",
         "sourceId": "WEB-TSMC-3DFABRIC-2026",
         "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
         "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
         "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
+        "asOf": "2026-08-12"
+      },
+      {
+        "factId": "fact:micron:hbm2e",
+        "sourceId": "WEB-MICRON-HBM2E-2020",
+        "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
+        "scope": "High-bandwidth memory architecture and memory bottlenecks",
+        "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
+        "asOf": "2026-08-12"
+      },
+      {
+        "factId": "fact:sec:capex-depreciation",
+        "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+        "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
+        "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
+        "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
         "asOf": "2026-08-12"
       }
     ],

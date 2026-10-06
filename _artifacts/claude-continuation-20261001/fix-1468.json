@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — Factor overlap is measured, not asserted (P1468).",
+  "p": {
+    "id": 1468,
+    "title": "Factor overlap is measured, not asserted",
+    "symptom": "The Why drawer and 검증 view said momentum, trend and Kalman \"strongly overlap\" without a number.",
+    "root_cause": "No measurement existed.",
+    "fix": "src/domain/screener/factor-overlap.js measures pairwise Spearman correlation of the sector-normalized factor z-scores on the ranked universe and the effective number of independent signals (eigenvalue participation ratio). Today: momentum–trend 0.95, about 2.3 independent signals across 4 factors. Weights unchanged — a decorrelated model is a different model and needs its own forward record.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "ci-review-integrity-unit-check P1468.",
+    "verification": "Local screener: Why drawer and 검증 view print the measured correlations."
+  },
+  "changelog": [
+    "**팩터 중복 측정 (P1468):** 모멘텀–추세 순위 상관 0.95 등 겹침을 실제로 측정해, 지표 4개가 독립 신호 약 2.3개 분량임을 표시합니다(가중치는 검증 전이라 바꾸지 않음)."
+  ]
+}

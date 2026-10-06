@@ -162,6 +162,12 @@ export function alignMarketInputs({ history = [], credit = {}, rates = {} } = {}
   };
   const r = Object.fromEntries(['realYield10', 'realYield10Delta5', 'breakeven10Delta5', 'dgs2Delta5', 'dgs10Delta5']
     .map((key) => [key, take(rates[key], alignments.rates)]));
+  const day = (value) => String(value || '').slice(0, 10);
+  if (rates.realAsOf && rates.breakevenAsOf && day(rates.realAsOf) !== day(rates.breakevenAsOf)) {
+    r.realYield10Delta5 = null;
+    r.breakeven10Delta5 = null;
+    r.splitHeld = `실질금리(${day(rates.realAsOf)})와 기대인플레이션(${day(rates.breakevenAsOf)})의 기준일이 달라 나누지 않았습니다.`;
+  }
   return { basis, s, c, r, alignments, fgSeries };
 }
 
@@ -474,7 +480,11 @@ export function buildMarketRegime(input = {}) {
     else if (hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp)) state = 'burden';
     else if (hyBp < RULES.credit.tightBelowBp && hy5 != null && hy5 <= 0 && (pcr == null || pcr < RULES.credit.putCallHedgeAt)) state = 'favorable';
     const read = state === 'favorable' ? '신용 시장이 안정적 — 주식 약세가 신용 위험으로 번지지 않았습니다.'
-      : state === 'burden' ? '신용 스프레드가 넓거나 빠르게 확대 — 자금 조달 여건이 나빠지고 있습니다.'
+      // Codex review 2026-10-05: say which condition fired — HY 324bp is below the 450bp level line, so a
+      // "부담" from the 5-day widening must not read as a stressed level.
+      : state === 'burden' ? (hyBp >= RULES.credit.stressAtBp
+        ? `스프레드 수준이 ${fmt(hyBp, 0)}bp로 ${RULES.credit.stressAtBp}bp 이상 — 자금 조달 여건이 나쁜 구간입니다.`
+        : `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 5일 동안 ${signed(hy5, 0, 'bp')} 빠르게 넓어졌습니다 — 수준보다 확대 속도가 부담입니다.`)
         : state === 'unknown' ? staleRead('신용 스프레드', alignments.hy)
           : hy5 == null && hyBp < RULES.credit.tightBelowBp ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : '신용은 크게 나쁘지 않지만 스프레드 수준·방향이나 헤지 수요가 경계선입니다.';
     const flip = state === 'unknown' ? null
@@ -545,7 +555,9 @@ export function buildMarketRegime(input = {}) {
   // P1399: an overall label needs at least four of the six US axes; fewer is "판정 보류".
   const enough = known.length >= MIN_KNOWN_AXES;
   const overall = !enough ? '판정 보류'
-    : burden >= 4 || (burden >= 3 && favorable <= 1) ? '방어적 환경' : favorable >= 4 && burden === 0 ? '우호적 환경' : favorable >= 3 && burden <= 1 ? '대체로 우호적' : burden >= 2 && favorable <= 1 ? '경계 환경' : '혼조 환경';
+    : burden >= 4 || (burden >= 3 && favorable <= 1) ? '부담 우세' : favorable >= 4 && burden === 0 ? '우호 우세' : favorable >= 3 && burden <= 1 ? '우호 쪽으로 기움' : burden >= 2 && favorable <= 1 ? '부담 쪽으로 기움' : '혼조';
+  // Codex review 2026-10-05: '방어적 환경' read like a validated stance. The label now names only how the
+  // six conventional axes split (counts beside it); it is a description, not an allocation call.
   const byId = Object.fromEntries(axes.map((row) => [row.id, row]));
   const conflicts = [];
   if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('추세는 우호인데 시장 폭은 부담 — 지수가 소수 종목에 기대고 있을 가능성이 큽니다.');

@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — Portfolio return attribution — market, sector, stock, FX, cash (P1466).",
+  "p": {
+    "id": 1466,
+    "title": "Portfolio return attribution — market, sector, stock, FX, cash",
+    "symptom": "The portfolio read gave one 3-month gap to the index with no split of where it came from.",
+    "root_cause": "The read compared two weighted means and stopped.",
+    "fix": "src/domain/portfolio/attribution.js: on the current composition, book return = 지수 + 섹터 (US sector ETF vs market) + 종목 선택 + 환율 (USD/KRW 63-session move for converted holdings), and R − B = 섹터 + 종목 + 환율 + 현금 (−cash share × blended index) exactly. US market return is SPY adjusted (same basis as stocks and sector ETFs); KRX uses the KOSPI/KOSDAQ index. A converted holding without an FX return is skipped, not counted at zero. The 지수 대비 sentence and a bar breakdown come from this one computation.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "ci-review-integrity-unit-check P1466 (identity, FX inversion, skip rule, sentence source).",
+    "verification": "Synthetic book: 섹터 +1.8 · 종목 +3.0 · 환율 +1.32 · 현금 +0.3 = +6.42%p = R − B."
+  },
+  "changelog": [
+    "**성과 원인 분해 (P1466):** 포트폴리오의 지수 대비 3개월 차이를 섹터·종목 선택·환율·현금 효과로 나누고, 합이 차이와 정확히 맞게 표시합니다."
+  ]
+}

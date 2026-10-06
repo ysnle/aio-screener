@@ -1,0 +1,19 @@
+{
+  "version": "v57.21",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.21 — Atlas deep links: view and domain parameters ignored or overwritten (P1483).",
+  "p": {
+    "id": 1483,
+    "title": "Atlas deep links: view and domain parameters ignored or overwritten",
+    "symptom": "?domain=domain-power-grid&view=domain opened the 하이퍼스케일러 node; a node-only link kept domain=cloud in the URL.",
+    "root_cause": "view was not a route key; the default node cloud-hyperscaler made domain reconciliation pick the cloud domain; the URL was not re-synced after reconciliation.",
+    "fix": "knowledge-route-state adds view; atlas starts in the domain view unless a node is given, leaves the node empty when only a domain is given, and syncs the URL after reconciliation; the landing is now the first domain overview.",
+    "violated_rule": "Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.",
+    "prevention": "ci-atlas-browser-check deep links (domain/node/module/guide) and URL domain assertions.",
+    "verification": "4/4 deep links open the requested document."
+  },
+  "changelog": [
+    "**산업·밸류체인 링크 오류 (P1483):** 분야 개요·세부 영역 주소로 들어와도 기본 화면이 열리던 문제를 고치고, 첫 화면을 분야 개요로 바꿨습니다."
+  ]
+}

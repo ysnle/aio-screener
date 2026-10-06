@@ -39,62 +39,35 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-      "url": "https://fred.stlouisfed.org/release?rid=500",
-      "publisher": "Federal Reserve Bank of St. Louis",
-      "title": "Inflation Expectations release",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-KRX-SECURITIES-INTRO",
-      "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
-      "publisher": "Korea Exchange",
-      "title": "Securities products introduction",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-TSMC-3DFABRIC-2026",
       "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
       "publisher": "TSMC",
       "title": "3DFabric advanced packaging",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
-    }
-  ],
-  "selectedSources": [
-    {
-      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-      "url": "https://fred.stlouisfed.org/release?rid=500",
-      "publisher": "Federal Reserve Bank of St. Louis",
-      "title": "Inflation Expectations release",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
     {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
       "sourceId": "WEB-KRX-SECURITIES-INTRO",
       "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
       "publisher": "Korea Exchange",
       "title": "Securities products introduction",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
     {
       "sourceId": "WEB-TSMC-3DFABRIC-2026",
       "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
@@ -103,12 +76,39 @@
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-KRX-SECURITIES-INTRO",
+      "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
+      "publisher": "Korea Exchange",
+      "title": "Securities products introduction",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "COMPANY_TECHNICAL_DOCUMENT"
+    "COMPANY_TECHNICAL_DOCUMENT",
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
     {
@@ -118,10 +118,10 @@
     }
   ],
   "researchFactIds": [
-    "fact:fred:real-rates",
-    "fact:sec:10k-reading",
-    "fact:krx:listed-products",
-    "fact:tsmc:3dfabric"
+    "fact:tsmc:3dfabric",
+    "fact:micron:hbm2e",
+    "fact:sec:capex-depreciation",
+    "fact:krx:listed-products"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

@@ -1,0 +1,19 @@
+{
+  "version": "v57.21",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.21 — AI 기초: F0 modules stuck on loading; process modules and a duplicate listed (P1482).",
+  "p": {
+    "id": 1482,
+    "title": "AI 기초: F0 modules stuck on loading; process modules and a duplicate listed",
+    "symptom": "문제와 능력 · 학습 방식 and the other F0 modules showed 불러오는 중입니다 forever; 주장·출처·기준일 and 사람의 검토 were listed as reader topics; CAPEX와 감가상각 appeared twice.",
+    "root_cause": "The module view read only foundation-lessons.json, which has no F0 entries; the layer lists were rendered verbatim.",
+    "fix": "industry-view renders FOUNDATION_STORIES first (covering F0), hides FOUNDATION_HIDDEN_MODULES and lists each module once; the dead FOUNDATION_LESSON_GUIDES table was removed from atlas.js.",
+    "violated_rule": "Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.",
+    "prevention": "ci-atlas-contract-check foundation coverage reads the story module; ci-atlas-browser-check asserts unique modules, hidden process topics and F0 reading text.",
+    "verification": "52 modules listed once; F0 renders."
+  },
+  "changelog": [
+    "**AI 기초 오류 (P1482):** 문제와 능력 등 F0 6개가 계속 \"불러오는 중\"으로 남던 문제를 고치고, 내부 검증 주제(주장·출처·기준일, 사람의 검토)는 목차에서 빼고 중복 항목을 정리했습니다."
+  ]
+}

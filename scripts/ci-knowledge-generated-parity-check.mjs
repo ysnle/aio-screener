@@ -109,6 +109,7 @@ const builders = [
   ['scripts/build-knowledge-articles-and-learning-graph.mjs'],
   ['scripts/audit-knowledge-encyclopedia-depth.mjs'],
   ['scripts/build-knowledge-route-targets.mjs'],
+  ['scripts/build-knowledge-search-index.mjs'],
   ['scripts/build-ai-knowledge-retrieval-index.mjs'],
   ['scripts/build-knowledge-coverage-matrix.mjs'],
   ['scripts/build-knowledge-research-dossiers.mjs'],

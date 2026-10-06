@@ -3284,7 +3284,7 @@
         "mechanism": "이익 기대가 바뀌거나 할인율이 변하거나 투자자 포지션이 조정되면 같은 기업도 다른 가격을 가질 수 있다.",
         "example": "실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.",
         "counterScenario": "모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.",
-        "visualization": "이익 기대 × 배수·할인율 × 포지션"
+        "visualization": "주가 = 주당이익 × 배수(PER) — 금리·위험 선호·성장 기대는 배수 안에 반영되고, 수급·포지션은 단기적으로 가격을 이 관계에서 벗어나게 한다"
       },
       "article": {
         "intuition": "주가는 기업의 이익·현금흐름, 시장이 부여하는 배수, 자본비용과 유동성이라는 세 엔진의 결합으로 움직인다.",
@@ -3340,7 +3340,7 @@
         "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
       },
       "quality": {
-        "coreTextCharacters": 316,
+        "coreTextCharacters": 378,
         "contentForm": "SOURCE_SUMMARY",
         "semanticReview": "REQUIRED",
         "sourceDirectnessReview": "REQUIRED",
@@ -3359,7 +3359,7 @@
           "example": "실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.",
           "counterScenario": "모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.",
           "verificationQuestion": "수익 추정·배수·할인율 중 이번 가격 변화의 기여도를 어떤 기간 비교로 분해할 것인가?",
-          "visualization": "이익 기대 × 배수·할인율 × 포지션"
+          "visualization": "주가 = 주당이익 × 배수(PER) — 금리·위험 선호·성장 기대는 배수 안에 반영되고, 수급·포지션은 단기적으로 가격을 이 관계에서 벗어나게 한다"
         },
         "requiredBeforePromotion": [
           "independent research dossier",
@@ -3484,9 +3484,9 @@
       "summary": {
         "definition": "지수는 일정한 규칙으로 시장을 측정하는 바구니이고, 패시브 투자는 그 규칙을 따라 편입·비중을 복제한다.",
         "mechanism": "지수 편입과 비중 변화는 자동 자금 흐름을 만들지만, 지수는 기업의 질이나 미래 수익을 보증하지 않는다.",
-        "example": "시가총액 가중 지수에서는 주가가 오른 종목의 비중이 커져 추세를 따라가는 흐름이 생길 수 있다. 리밸런싱 날짜의 거래도 관찰해야 한다.",
+        "example": "시가총액 가중 지수에서 주가가 오른 종목은 비중이 저절로 커지지만, 추종 펀드의 보유 가치도 같은 비율로 커지므로 그 자체로는 추가 매수가 필요 없다. 실제 매수·매도는 신규 자금 유입·유출, 편입·편출, 주식 수 변화(증자·자사주 소각)와 정기 리밸런싱에서 생긴다.",
         "counterScenario": "지수 수익률을 개별 기업의 실적 성과로 동일시하거나 패시브 자금이 항상 가격을 효율적으로 만든다고 가정하면 편입 규칙을 놓친다.",
-        "visualization": "규칙 → 편입·비중 → 자동 자금 흐름"
+        "visualization": "규칙 → 편입·비중(가격 변동은 비중만 바꿈) → 신규 자금·편입·리밸런싱 때의 매매"
       },
       "article": {
         "intuition": "지수는 일정한 규칙으로 시장을 측정하는 바구니이고, 패시브 투자는 그 규칙을 따라 편입·비중을 복제한다.",
@@ -3497,7 +3497,7 @@
         "workedExampleOrRationale": {
           "kind": "SOURCE_EXAMPLE",
           "inputs": [
-            "시가총액 가중 지수에서는 주가가 오른 종목의 비중이 커져 추세를 따라가는 흐름이 생길 수 있다. 리밸런싱 날짜의 거래도 관찰해야 한다."
+            "시가총액 가중 지수에서 주가가 오른 종목은 비중이 저절로 커지지만, 추종 펀드의 보유 가치도 같은 비율로 커지므로 그 자체로는 추가 매수가 필요 없다. 실제 매수·매도는 신규 자금 유입·유출, 편입·편출, 주식 수 변화(증자·자사주 소각)와 정기 리밸런싱에서 생긴다."
           ],
           "assumptions": [],
           "steps": [],
@@ -3542,7 +3542,7 @@
         "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
       },
       "quality": {
-        "coreTextCharacters": 330,
+        "coreTextCharacters": 430,
         "contentForm": "SOURCE_SUMMARY",
         "semanticReview": "REQUIRED",
         "sourceDirectnessReview": "REQUIRED",
@@ -3558,10 +3558,10 @@
         "uniqueDraftSeed": {
           "definition": "지수는 일정한 규칙으로 시장을 측정하는 바구니이고, 패시브 투자는 그 규칙을 따라 편입·비중을 복제한다.",
           "mechanism": "지수 편입과 비중 변화는 자동 자금 흐름을 만들지만, 지수는 기업의 질이나 미래 수익을 보증하지 않는다.",
-          "example": "시가총액 가중 지수에서는 주가가 오른 종목의 비중이 커져 추세를 따라가는 흐름이 생길 수 있다. 리밸런싱 날짜의 거래도 관찰해야 한다.",
+          "example": "시가총액 가중 지수에서 주가가 오른 종목은 비중이 저절로 커지지만, 추종 펀드의 보유 가치도 같은 비율로 커지므로 그 자체로는 추가 매수가 필요 없다. 실제 매수·매도는 신규 자금 유입·유출, 편입·편출, 주식 수 변화(증자·자사주 소각)와 정기 리밸런싱에서 생긴다.",
           "counterScenario": "지수 수익률을 개별 기업의 실적 성과로 동일시하거나 패시브 자금이 항상 가격을 효율적으로 만든다고 가정하면 편입 규칙을 놓친다.",
           "verificationQuestion": "지수 편입·비중·리밸런싱이 실제 주식 수요에 미치는 규모와 기간은 무엇인가?",
-          "visualization": "규칙 → 편입·비중 → 자동 자금 흐름"
+          "visualization": "규칙 → 편입·비중(가격 변동은 비중만 바꿈) → 신규 자금·편입·리밸런싱 때의 매매"
         },
         "requiredBeforePromotion": [
           "independent research dossier",
@@ -3584,7 +3584,7 @@
       "reviewedAt": "2026-08-18",
       "summary": {
         "definition": "파생상품은 기초자산의 가격·변동성·금리·신용에 대한 노출을 계약으로 분리해 이전하는 도구다.",
-        "mechanism": "공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다.",
+        "mechanism": "공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다. 옵션 매수자의 최대 손실은 낸 프리미엄이지만, 옵션 매도자는 받은 프리미엄보다 훨씬 큰 손실을 질 수 있다.",
         "example": "옵션 내재변동성이 급등하면 주가 변화가 작아도 헤지 비용과 딜러의 델타 조정이 현물 수급에 영향을 줄 수 있다.",
         "counterScenario": "파생상품의 거래량을 현물 매수·매도 방향으로 단순 변환하면 만기·헤지·반대 포지션을 놓친다.",
         "visualization": "기초자산 ↔ 파생계약 → 헤지·증거금"
@@ -3593,7 +3593,7 @@
         "intuition": "파생상품은 기초자산의 가격·변동성·금리·신용에 대한 노출을 계약으로 분리해 이전하는 도구다.",
         "formalModelOrRationale": {
           "kind": "SOURCE_MECHANISM",
-          "text": "공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다."
+          "text": "공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다. 옵션 매수자의 최대 손실은 낸 프리미엄이지만, 옵션 매도자는 받은 프리미엄보다 훨씬 큰 손실을 질 수 있다."
         },
         "workedExampleOrRationale": {
           "kind": "SOURCE_EXAMPLE",
@@ -3618,6 +3618,7 @@
           "principles-lesson-G8"
         ],
         "sourceIds": [
+          "SRC-FINRA-OPTIONS",
           "MP-SEC",
           "WEB-SEC-FINANCIAL-STATEMENTS-2024",
           "WEB-SEC-INVESTOR-10K-2020"
@@ -3643,7 +3644,7 @@
         "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
       },
       "quality": {
-        "coreTextCharacters": 301,
+        "coreTextCharacters": 362,
         "contentForm": "SOURCE_SUMMARY",
         "semanticReview": "REQUIRED",
         "sourceDirectnessReview": "REQUIRED",
@@ -3658,7 +3659,7 @@
         ],
         "uniqueDraftSeed": {
           "definition": "파생상품은 기초자산의 가격·변동성·금리·신용에 대한 노출을 계약으로 분리해 이전하는 도구다.",
-          "mechanism": "공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다.",
+          "mechanism": "공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다. 옵션 매수자의 최대 손실은 낸 프리미엄이지만, 옵션 매도자는 받은 프리미엄보다 훨씬 큰 손실을 질 수 있다.",
           "example": "옵션 내재변동성이 급등하면 주가 변화가 작아도 헤지 비용과 딜러의 델타 조정이 현물 수급에 영향을 줄 수 있다.",
           "counterScenario": "파생상품의 거래량을 현물 매수·매도 방향으로 단순 변환하면 만기·헤지·반대 포지션을 놓친다.",
           "verificationQuestion": "계약의 기초 노출·만기·증거금·헤지 방향을 분해했는가, 현물 가격에 전달되는 경로를 확인했는가?",
@@ -5145,29 +5146,10 @@
         ],
         "sourceIds": [
           "MP-OECD-IND",
-          "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 306,
@@ -5248,27 +5230,9 @@
         "sourceIds": [
           "MP-OECD-IND",
           "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019",
           "WEB-NIST-AI-RMF-CORE-2023"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
@@ -5359,27 +5323,9 @@
         "sourceIds": [
           "MP-OECD-IND",
           "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019",
           "WEB-NIST-AI-RMF-CORE-2023"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
@@ -5469,29 +5415,10 @@
         ],
         "sourceIds": [
           "MP-OECD-IND",
-          "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 308,
@@ -5571,29 +5498,10 @@
         ],
         "sourceIds": [
           "MP-OECD-IND",
-          "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 298,
@@ -5673,29 +5581,10 @@
         ],
         "sourceIds": [
           "MP-OECD-IND",
-          "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 322,
@@ -5742,7 +5631,7 @@
         "definition": "공급 증설 시간은 수요 증가에 대응해 공장·장비·인력·인증·전력·물류를 준비하는 데 필요한 기간이다.",
         "mechanism": "짧은 증설은 경쟁자의 진입과 가격 하락을 빠르게 부르고, 긴 증설은 가격 급등과 초과이익을 만들지만 과잉투자 위험도 키운다.",
         "example": "첨단 패키징 라인은 장비뿐 아니라 고객별 공정 인증과 수율 안정화가 필요해, 발표된 CAPEX가 즉시 출하로 바뀌지 않는다.",
-        "counterScenario": "수요 전망에 증설 시간을 곱하지 않고 매출을 선형으로 외삽하면 공급 과잉이나 병목 지속을 잘못 예측한다.",
+        "counterScenario": "수요가 늘어난 시점과 새 설비가 실제 출하를 시작하는 시점(발주 → 설치 → 인증 → 수율 안정화) 사이의 시차를 빼고 매출을 선형으로 외삽하면 병목 지속이나 공급 과잉을 잘못 예측한다. 예: 증설 결정 후 출하까지 18개월이 걸리면, 그동안의 추가 수요는 기존 설비 가격 상승으로 흡수되고 증설분은 수요가 꺾인 뒤 한꺼번에 들어올 수 있다.",
         "visualization": "수요 신호 → CAPEX·인증 → 가동 가능한 공급"
       },
       "article": {
@@ -5768,7 +5657,7 @@
         "valuationChannel": "",
         "marketChannel": "",
         "tradingApplication": "수요가 늘어난 뒤 실제 생산 가능한 용량까지 어떤 승인·납기·수율 단계가 남아 있는가?",
-        "invalidation": "수요 전망에 증설 시간을 곱하지 않고 매출을 선형으로 외삽하면 공급 과잉이나 병목 지속을 잘못 예측한다.",
+        "invalidation": "수요가 늘어난 시점과 새 설비가 실제 출하를 시작하는 시점(발주 → 설치 → 인증 → 수율 안정화) 사이의 시차를 빼고 매출을 선형으로 외삽하면 병목 지속이나 공급 과잉을 잘못 예측한다. 예: 증설 결정 후 출하까지 18개월이 걸리면, 그동안의 추가 수요는 기존 설비 가격 상승으로 흡수되고 증설분은 수요가 꺾인 뒤 한꺼번에 들어올 수 있다.",
         "glossary": [],
         "claimIds": [
           "principles-lesson-K7"
@@ -5776,27 +5665,9 @@
         "sourceIds": [
           "MP-OECD-IND",
           "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019",
           "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:sec:capex-depreciation",
             "sourceId": "WEB-SEC-GOOGLE-10K-2025",
@@ -5809,7 +5680,7 @@
         "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
       },
       "quality": {
-        "coreTextCharacters": 333,
+        "coreTextCharacters": 466,
         "contentForm": "SOURCE_SUMMARY",
         "semanticReview": "REQUIRED",
         "sourceDirectnessReview": "REQUIRED",
@@ -5826,7 +5697,7 @@
           "definition": "공급 증설 시간은 수요 증가에 대응해 공장·장비·인력·인증·전력·물류를 준비하는 데 필요한 기간이다.",
           "mechanism": "짧은 증설은 경쟁자의 진입과 가격 하락을 빠르게 부르고, 긴 증설은 가격 급등과 초과이익을 만들지만 과잉투자 위험도 키운다.",
           "example": "첨단 패키징 라인은 장비뿐 아니라 고객별 공정 인증과 수율 안정화가 필요해, 발표된 CAPEX가 즉시 출하로 바뀌지 않는다.",
-          "counterScenario": "수요 전망에 증설 시간을 곱하지 않고 매출을 선형으로 외삽하면 공급 과잉이나 병목 지속을 잘못 예측한다.",
+          "counterScenario": "수요가 늘어난 시점과 새 설비가 실제 출하를 시작하는 시점(발주 → 설치 → 인증 → 수율 안정화) 사이의 시차를 빼고 매출을 선형으로 외삽하면 병목 지속이나 공급 과잉을 잘못 예측한다. 예: 증설 결정 후 출하까지 18개월이 걸리면, 그동안의 추가 수요는 기존 설비 가격 상승으로 흡수되고 증설분은 수요가 꺾인 뒤 한꺼번에 들어올 수 있다.",
           "verificationQuestion": "수요가 늘어난 뒤 실제 생산 가능한 용량까지 어떤 승인·납기·수율 단계가 남아 있는가?",
           "visualization": "수요 신호 → CAPEX·인증 → 가동 가능한 공급"
         },
@@ -5887,27 +5758,9 @@
         "sourceIds": [
           "MP-OECD-IND",
           "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019",
           "WEB-NIST-AI-RMF-CORE-2023"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
@@ -5997,29 +5850,10 @@
         ],
         "sourceIds": [
           "MP-OECD-IND",
-          "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 341,
@@ -6100,27 +5934,9 @@
         "sourceIds": [
           "MP-OECD-IND",
           "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019",
           "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:sec:capex-depreciation",
             "sourceId": "WEB-SEC-GOOGLE-10K-2025",
@@ -6210,29 +6026,10 @@
         ],
         "sourceIds": [
           "MP-OECD-IND",
-          "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 333,
@@ -6313,28 +6110,10 @@
         "sourceIds": [
           "MP-OECD-IND",
           "MP-SEC",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-DOE-DATACENTER-PUE-2019",
           "WEB-NIST-AI-RMF-CORE-2023",
           "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
@@ -6432,38 +6211,9 @@
         ],
         "sourceIds": [
           "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019",
           "WEB-NIST-AI-RMF-CORE-2023"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
@@ -6552,40 +6302,10 @@
           "principles-lesson-L2"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "MP-NIST"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 326,
@@ -6664,40 +6384,10 @@
           "principles-lesson-L3"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "PS-01"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 329,
@@ -6776,40 +6466,10 @@
           "principles-lesson-L4"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "PS-01"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 343,
@@ -6888,40 +6548,10 @@
           "principles-lesson-L5"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "PS-01"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 337,
@@ -7000,40 +6630,11 @@
           "principles-lesson-L6"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-ASML-LITHO",
+          "PS-01"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 298,
@@ -7112,40 +6713,10 @@
           "principles-lesson-L7"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "PS-01"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 344,
@@ -7224,40 +6795,10 @@
           "principles-lesson-L8"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "PS-01"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 350,
@@ -7336,45 +6877,35 @@
           "principles-lesson-L9"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
           "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-NIST-AI-RMF-CORE-2023"
+          "SRC-MICRON-HBM",
+          "WEB-NIST-AI-RMF-CORE-2023",
+          "WEB-TSMC-3DFABRIC-2026",
+          "WEB-MICRON-HBM2E-2020"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
             "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
             "scope": "AI risk-management framework structure",
             "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:tsmc:3dfabric",
+            "sourceId": "WEB-TSMC-3DFABRIC-2026",
+            "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
+            "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
+            "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:micron:hbm2e",
+            "sourceId": "WEB-MICRON-HBM2E-2020",
+            "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
+            "scope": "High-bandwidth memory architecture and memory bottlenecks",
+            "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
             "asOf": "2026-08-12"
           }
         ],
@@ -7457,45 +6988,26 @@
           "principles-lesson-L10"
         ],
         "sourceIds": [
-          "MP-NIST",
           "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-TSMC-3DFABRIC-2026"
+          "SRC-MICRON-HBM",
+          "WEB-TSMC-3DFABRIC-2026",
+          "WEB-MICRON-HBM2E-2020"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:tsmc:3dfabric",
             "sourceId": "WEB-TSMC-3DFABRIC-2026",
             "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
             "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
             "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:micron:hbm2e",
+            "sourceId": "WEB-MICRON-HBM2E-2020",
+            "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
+            "scope": "High-bandwidth memory architecture and memory bottlenecks",
+            "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
             "asOf": "2026-08-12"
           }
         ],
@@ -7578,40 +7090,10 @@
           "principles-lesson-L11"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "PS-01"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 344,
@@ -7690,45 +7172,25 @@
           "principles-lesson-L12"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-NIST-AI-RMF-CORE-2023"
+          "SRC-NVIDIA-NETWORKING",
+          "WEB-NIST-AI-RMF-CORE-2023",
+          "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
             "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
             "scope": "AI risk-management framework structure",
             "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:nvidia:cuda-parallel",
+            "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
+            "statement": "NVIDIA's CUDA guide models heterogeneous systems with CPU host code and GPU device code, describes GPUs as highly parallel processors, and exposes matrix, tile, tensor-core, and multi-level memory operations as separate performance mechanisms.",
+            "scope": "CPU/GPU division of work, parallel matrix computation, precision, and memory hierarchy",
+            "invalidation": "CUDA is an NVIDIA programming and hardware model; it is not a universal description of every GPU, ASIC, NPU, workload, or measured performance result.",
             "asOf": "2026-08-12"
           }
         ],
@@ -7811,40 +7273,10 @@
           "principles-lesson-L13"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "PS-02"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 372,
@@ -7923,31 +7355,14 @@
           "principles-lesson-L14"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
+          "MP-DOE",
+          "SRC-DOE-DATACENTER",
           "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-NIST-AI-RMF-CORE-2023"
+          "WEB-NIST-AI-RMF-CORE-2023",
+          "WEB-SEC-GOOGLE-10K-2025",
+          "WEB-DOE-DATACENTER-DESIGN-2024"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:doe:pue",
             "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
@@ -7963,6 +7378,22 @@
             "scope": "AI risk-management framework structure",
             "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
             "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:sec:capex-depreciation",
+            "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+            "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
+            "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
+            "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:doe:datacenter-kpi-denominators",
+            "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
+            "statement": "DOE guidance defines PUE as total annual facility energy divided by annual IT-equipment energy and recommends reading it with water, carbon and useful-work or utilization metrics. A lower PUE measures facility overhead, not model quality, accelerator utilization or token economics by itself.",
+            "scope": "Data-center efficiency denominators",
+            "invalidation": "Do not compare sites without matched measurement boundaries, climate, redundancy, workload, time window and IT utilization; a snapshot power ratio is not automatically annual PUE.",
+            "asOf": "2024-07-26"
           }
         ],
         "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
@@ -8044,45 +7475,26 @@
           "principles-lesson-L15"
         ],
         "sourceIds": [
-          "MP-NIST",
           "PS-01",
           "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-NIST-AI-RMF-CORE-2023"
+          "WEB-NIST-AI-RMF-CORE-2023",
+          "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
             "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
             "scope": "AI risk-management framework structure",
             "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:sec:capex-depreciation",
+            "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+            "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
+            "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
+            "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
             "asOf": "2026-08-12"
           }
         ],
@@ -8165,45 +7577,34 @@
           "principles-lesson-L16"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-01",
-          "PS-02",
-          "WEB-ARXIV-TRANSFORMER-2017",
-          "WEB-ASML-EUV-2026",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-TSMC-3DFABRIC-2026"
+          "MP-SEC",
+          "WEB-TSMC-3DFABRIC-2026",
+          "WEB-MICRON-HBM2E-2020",
+          "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:transformer:attention",
-            "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-            "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-            "scope": "Transformer architecture history and mechanism",
-            "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:asml:euv",
-            "sourceId": "WEB-ASML-EUV-2026",
-            "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-            "scope": "EUV lithography mechanism",
-            "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:tsmc:3dfabric",
             "sourceId": "WEB-TSMC-3DFABRIC-2026",
             "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
             "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
             "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:micron:hbm2e",
+            "sourceId": "WEB-MICRON-HBM2E-2020",
+            "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
+            "scope": "High-bandwidth memory architecture and memory bottlenecks",
+            "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:sec:capex-depreciation",
+            "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+            "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
+            "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
+            "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
             "asOf": "2026-08-12"
           }
         ],
@@ -8287,29 +7688,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 324,
@@ -8389,29 +7771,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 309,
@@ -8491,29 +7854,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 320,
@@ -8593,29 +7937,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 326,
@@ -8695,29 +8020,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 296,
@@ -8797,29 +8103,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 325,
@@ -8899,29 +8186,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 322,
@@ -9003,7 +8271,6 @@
           "MP-DOE",
           "MP-IEA",
           "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS",
           "WEB-DOE-DATACENTER-DESIGN-2024"
         ],
         "researchEvidence": [
@@ -9013,14 +8280,6 @@
             "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
             "scope": "Data-center facility efficiency",
             "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
             "asOf": "2026-08-12"
           },
           {
@@ -9112,29 +8371,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 328,
@@ -9214,29 +8454,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 312,
@@ -9316,29 +8537,10 @@
         ],
         "sourceIds": [
           "MP-DOE",
-          "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS"
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 329,
@@ -9419,27 +8621,9 @@
         "sourceIds": [
           "MP-DOE",
           "MP-IEA",
-          "WEB-DOE-DATACENTER-PUE-2019",
-          "WEB-FRED-INFLATION-EXPECTATIONS",
           "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:sec:capex-depreciation",
             "sourceId": "WEB-SEC-GOOGLE-10K-2025",
@@ -9528,31 +8712,11 @@
           "principles-lesson-N1"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-EIA-ENERGY",
+          "MP-IEA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 326,
@@ -9631,31 +8795,10 @@
           "principles-lesson-N2"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-USGS-MCS"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 334,
@@ -9734,31 +8877,11 @@
           "principles-lesson-N3"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-IFR",
+          "PS-16"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 319,
@@ -9837,31 +8960,10 @@
           "principles-lesson-N4"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-NHTSA-AV"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 315,
@@ -9940,31 +9042,10 @@
           "principles-lesson-N5"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-DOD-BUDGET"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 317,
@@ -10043,31 +9124,11 @@
           "principles-lesson-N6"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
           "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-NASA"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 321,
@@ -10146,31 +9207,10 @@
           "principles-lesson-N7"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-FDA-DRUG-DEV"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 307,
@@ -10249,31 +9289,10 @@
           "principles-lesson-N8"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-FDA-DEVICE"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 335,
@@ -10352,31 +9371,11 @@
           "principles-lesson-N9"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-BIS-BASEL3",
+          "SRC-FRED-USNIM"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 309,
@@ -10455,31 +9454,10 @@
           "principles-lesson-N10"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 353,
@@ -10558,31 +9536,10 @@
           "principles-lesson-N11"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-BEA-CONSUMER"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 308,
@@ -10661,31 +9618,10 @@
           "principles-lesson-N12"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-BTS"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 302,
@@ -10764,31 +9700,12 @@
           "principles-lesson-N13"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-CENSUS-CONSTRUCTION",
+          "SRC-NAREIT",
+          "SRC-NAREIT-FFO"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 309,
@@ -10867,30 +9784,10 @@
           "principles-lesson-N14"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019",
+          "SRC-FCC",
           "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:sec:capex-depreciation",
             "sourceId": "WEB-SEC-GOOGLE-10K-2025",
@@ -10979,31 +9876,10 @@
           "principles-lesson-N15"
         ],
         "sourceIds": [
-          "MP-NIST",
-          "PS-16",
-          "PS-18",
-          "WEB-NIST-AI-RMF-CORE-2023",
-          "WEB-DOE-DATACENTER-PUE-2019"
+          "SRC-USDA-WASDE"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:nist:ai-rmf-core",
-            "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-            "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-            "scope": "AI risk-management framework structure",
-            "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:doe:pue",
-            "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-            "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-            "scope": "Data-center facility efficiency",
-            "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 322,
@@ -11085,42 +9961,24 @@
           "MP-BOK",
           "MP-KRX",
           "MP-SEC",
-          "WEB-FRED-INFLATION-EXPECTATIONS",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-KRX-SECURITIES-INTRO",
-          "WEB-NIST-AI-RMF-CORE-2023"
+          "WEB-NIST-AI-RMF-CORE-2023",
+          "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:krx:listed-products",
-            "sourceId": "WEB-KRX-SECURITIES-INTRO",
-            "statement": "KRX distinguishes ETF, ETN, and ELW as listed securities products with different legal and economic structures; a listed product should not be treated as identical to the underlying asset or index.",
-            "scope": "Korean exchange-listed product structure",
-            "invalidation": "Product terms, issuer credit, leverage, tracking, liquidity, fees, and applicable rules must be read from the current product documents; this is not a product recommendation.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:nist:ai-rmf-core",
             "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
             "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
             "scope": "AI risk-management framework structure",
             "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:sec:capex-depreciation",
+            "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+            "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
+            "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
+            "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
             "asOf": "2026-08-12"
           }
         ],
@@ -11170,9 +10028,9 @@
       "summary": {
         "definition": "원/달러 환율은 한국 자산의 달러 기준 가치와 외국인 투자자의 환산 수익을 바꾸는 상대가격이다.",
         "mechanism": "외국인은 한국 주식 수익률과 원화 변동을 함께 부담하며, 금리차·위험회피·수출입·헤지 비용이 자금 유입·유출을 만든다.",
-        "example": "한국 주가가 올라도 원화가 크게 약세면 달러 기준 수익률은 낮을 수 있어 외국인의 순매수와 환율을 함께 봐야 한다.",
+        "example": "달러 기준 수익 = (1 + 원화 수익률) ÷ (1 + 원/달러 상승률) − 1. 원/달러는 1달러의 원화 가격이라 오르면 원화 약세다. 원화 주가가 10% 오르고 원/달러도 10% 오르면 달러 투자자의 수익은 1.10 ÷ 1.10 − 1 = 0%(비용 제외)다.",
         "counterScenario": "외국인 순매수를 국내 펀더멘털의 순수한 신호로 보면 글로벌 달러 포지션과 환헤지·패시브 리밸런싱을 놓친다.",
-        "visualization": "원화 주가 + 환율 → 외국인 달러 수익"
+        "visualization": "달러 기준 수익 = (1 + 원화 수익률) ÷ (1 + 원/달러 상승률) − 1"
       },
       "article": {
         "intuition": "원/달러 환율은 한국 자산의 달러 기준 가치와 외국인 투자자의 환산 수익을 바꾸는 상대가격이다.",
@@ -11183,7 +10041,7 @@
         "workedExampleOrRationale": {
           "kind": "SOURCE_EXAMPLE",
           "inputs": [
-            "한국 주가가 올라도 원화가 크게 약세면 달러 기준 수익률은 낮을 수 있어 외국인의 순매수와 환율을 함께 봐야 한다."
+            "달러 기준 수익 = (1 + 원화 수익률) ÷ (1 + 원/달러 상승률) − 1. 원/달러는 1달러의 원화 가격이라 오르면 원화 약세다. 원화 주가가 10% 오르고 원/달러도 10% 오르면 달러 투자자의 수익은 1.10 ÷ 1.10 − 1 = 0%(비용 제외)다."
           ],
           "assumptions": [],
           "steps": [],
@@ -11205,41 +10063,13 @@
         "sourceIds": [
           "MP-BOK",
           "MP-KRX",
-          "MP-SEC",
-          "WEB-FRED-INFLATION-EXPECTATIONS",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-KRX-SECURITIES-INTRO"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:krx:listed-products",
-            "sourceId": "WEB-KRX-SECURITIES-INTRO",
-            "statement": "KRX distinguishes ETF, ETN, and ELW as listed securities products with different legal and economic structures; a listed product should not be treated as identical to the underlying asset or index.",
-            "scope": "Korean exchange-listed product structure",
-            "invalidation": "Product terms, issuer credit, leverage, tracking, liquidity, fees, and applicable rules must be read from the current product documents; this is not a product recommendation.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
-        "coreTextCharacters": 320,
+        "coreTextCharacters": 425,
         "contentForm": "SOURCE_SUMMARY",
         "semanticReview": "REQUIRED",
         "sourceDirectnessReview": "REQUIRED",
@@ -11255,10 +10085,10 @@
         "uniqueDraftSeed": {
           "definition": "원/달러 환율은 한국 자산의 달러 기준 가치와 외국인 투자자의 환산 수익을 바꾸는 상대가격이다.",
           "mechanism": "외국인은 한국 주식 수익률과 원화 변동을 함께 부담하며, 금리차·위험회피·수출입·헤지 비용이 자금 유입·유출을 만든다.",
-          "example": "한국 주가가 올라도 원화가 크게 약세면 달러 기준 수익률은 낮을 수 있어 외국인의 순매수와 환율을 함께 봐야 한다.",
+          "example": "달러 기준 수익 = (1 + 원화 수익률) ÷ (1 + 원/달러 상승률) − 1. 원/달러는 1달러의 원화 가격이라 오르면 원화 약세다. 원화 주가가 10% 오르고 원/달러도 10% 오르면 달러 투자자의 수익은 1.10 ÷ 1.10 − 1 = 0%(비용 제외)다.",
           "counterScenario": "외국인 순매수를 국내 펀더멘털의 순수한 신호로 보면 글로벌 달러 포지션과 환헤지·패시브 리밸런싱을 놓친다.",
           "verificationQuestion": "외국인 수급 변화가 기업 전망·지수 리밸런싱·환율 헤지·글로벌 위험선호 중 어디에서 왔는가?",
-          "visualization": "원화 주가 + 환율 → 외국인 달러 수익"
+          "visualization": "달러 기준 수익 = (1 + 원화 수익률) ÷ (1 + 원/달러 상승률) − 1"
         },
         "requiredBeforePromotion": [
           "independent research dossier",
@@ -11318,42 +10148,33 @@
           "MP-BOK",
           "MP-KRX",
           "MP-SEC",
-          "WEB-FRED-INFLATION-EXPECTATIONS",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-KRX-SECURITIES-INTRO",
-          "WEB-TSMC-3DFABRIC-2026"
+          "WEB-TSMC-3DFABRIC-2026",
+          "WEB-MICRON-HBM2E-2020",
+          "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:krx:listed-products",
-            "sourceId": "WEB-KRX-SECURITIES-INTRO",
-            "statement": "KRX distinguishes ETF, ETN, and ELW as listed securities products with different legal and economic structures; a listed product should not be treated as identical to the underlying asset or index.",
-            "scope": "Korean exchange-listed product structure",
-            "invalidation": "Product terms, issuer credit, leverage, tracking, liquidity, fees, and applicable rules must be read from the current product documents; this is not a product recommendation.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:tsmc:3dfabric",
             "sourceId": "WEB-TSMC-3DFABRIC-2026",
             "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
             "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
             "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:micron:hbm2e",
+            "sourceId": "WEB-MICRON-HBM2E-2020",
+            "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
+            "scope": "High-bandwidth memory architecture and memory bottlenecks",
+            "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
+            "asOf": "2026-08-12"
+          },
+          {
+            "factId": "fact:sec:capex-depreciation",
+            "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+            "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
+            "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
+            "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
             "asOf": "2026-08-12"
           }
         ],
@@ -11439,36 +10260,9 @@
           "MP-BOK",
           "MP-KRX",
           "MP-SEC",
-          "WEB-FRED-INFLATION-EXPECTATIONS",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-KRX-SECURITIES-INTRO",
           "WEB-SEC-GOOGLE-10K-2025"
         ],
         "researchEvidence": [
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:krx:listed-products",
-            "sourceId": "WEB-KRX-SECURITIES-INTRO",
-            "statement": "KRX distinguishes ETF, ETN, and ELW as listed securities products with different legal and economic structures; a listed product should not be treated as identical to the underlying asset or index.",
-            "scope": "Korean exchange-listed product structure",
-            "invalidation": "Product terms, issuer credit, leverage, tracking, liquidity, fees, and applicable rules must be read from the current product documents; this is not a product recommendation.",
-            "asOf": "2026-08-12"
-          },
           {
             "factId": "fact:sec:capex-depreciation",
             "sourceId": "WEB-SEC-GOOGLE-10K-2025",
@@ -11559,38 +10353,10 @@
         "sourceIds": [
           "MP-BOK",
           "MP-KRX",
-          "MP-SEC",
-          "WEB-FRED-INFLATION-EXPECTATIONS",
-          "WEB-SEC-INVESTOR-10K-2020",
-          "WEB-KRX-SECURITIES-INTRO"
+          "MP-SEC"
         ],
-        "researchEvidence": [
-          {
-            "factId": "fact:fred:real-rates",
-            "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-            "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-            "scope": "Inflation-expectation and real-rate data definitions",
-            "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:sec:10k-reading",
-            "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-            "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-            "scope": "U.S. public-company filing navigation",
-            "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-            "asOf": "2026-08-12"
-          },
-          {
-            "factId": "fact:krx:listed-products",
-            "sourceId": "WEB-KRX-SECURITIES-INTRO",
-            "statement": "KRX distinguishes ETF, ETN, and ELW as listed securities products with different legal and economic structures; a listed product should not be treated as identical to the underlying asset or index.",
-            "scope": "Korean exchange-listed product structure",
-            "invalidation": "Product terms, issuer credit, leverage, tracking, liquidity, fees, and applicable rules must be read from the current product documents; this is not a product recommendation.",
-            "asOf": "2026-08-12"
-          }
-        ],
-        "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+        "researchEvidence": [],
+        "researchCoverage": "RESEARCH_REQUIRED"
       },
       "quality": {
         "coreTextCharacters": 324,

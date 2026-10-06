@@ -419,7 +419,7 @@ const definitions = [
   }
 ];
 
-const pageLabels = Object.freeze({ principles: '시장 원리', atlas: 'AI 시대 지식 지도' });
+const pageLabels = Object.freeze({ principles: '개념·분석 프레임', atlas: '산업·밸류체인' });
 const frameworks = Object.freeze(definitions.map((item) => Object.freeze({
   ...item,
   conceptId: `integrated-frameworks:${item.id}`,

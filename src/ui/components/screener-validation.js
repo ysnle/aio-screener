@@ -16,7 +16,7 @@ function el(doc, tag, text, className) {
 
 const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(value)) ? '—' : `${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(digits)}%`);
 
-export function summarizeValidation(history = [], status = null) {
+export function summarizeValidation(history = [], status = null, liveWeights = null) {
   const rows = (Array.isArray(history) ? history : []).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(String(row?.date || '')));
   const last = rows[rows.length - 1] || null;
   const series = rows.filter((row) => Number.isFinite(Number(row.quantileSpreadNet))).map((row) => ({ date: row.date, value: Number(row.quantileSpreadNet) }));
@@ -26,7 +26,7 @@ export function summarizeValidation(history = [], status = null) {
   // (rows produced before this identity existed) — means the record was NOT produced by the
   // model on screen, so it cannot be presented as that ranking's validation.
   const modelFingerprint = last?.modelFingerprint != null ? String(last.modelFingerprint) : null;
-  const liveFingerprint = liveScreenerModelFingerprint();
+  const liveFingerprint = liveScreenerModelFingerprint(liveWeights);
   const modelMatch = modelFingerprint == null || liveFingerprint == null ? false : modelFingerprint === liveFingerprint;
   return {
     available: !!last,
@@ -53,7 +53,7 @@ export function summarizeValidation(history = [], status = null) {
 export function renderScreenerValidation({ documentRef: doc, root }) {
   const host = doc?.getElementById('screener-validation');
   if (!host) return null;
-  const summary = summarizeValidation(root?._aioScreenerBacktestHistory || [], root?._aioModelValidationStatus || null);
+  const summary = summarizeValidation(root?._aioScreenerBacktestHistory || [], root?._aioModelValidationStatus || null, root?._aioRankingWeights || null);
   const open = host.querySelector('details')?.open || false;
   host.replaceChildren();
   const details = el(doc, 'details', null, 'screener-validation-details');

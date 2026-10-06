@@ -35,10 +35,19 @@ const principleFactIdsByChapter = Object.freeze({
   O: ['fact:fred:real-rates', 'fact:sec:10k-reading', 'fact:krx:listed-products']
 });
 
+// P1475 (knowledge review 2026-10-04): chapter-wide facts were attached to every lesson of a chapter, so a
+// lesson on semiconductor front-end processing listed the Transformer paper and data-center PUE as its
+// evidence. In the industry chapters (K–O) a chapter fact is attached only when the lesson itself is about
+// that fact's subject; the macro chapters (A–J) keep their chapter facts, which describe the whole chapter.
+const TOPIC_SCOPED_CHAPTERS = new Set(['K', 'L', 'M', 'N', 'O']);
 const factMatches = (lesson, surface) => {
-  const explicit = surface === 'principles' ? principleFactIdsByChapter[lesson.chapterId] || [] : [];
   const haystack = `${lesson.id} ${lesson.title || ''} ${lesson.definition || ''} ${lesson.mechanism || ''} ${lesson.example || ''}`.toLowerCase();
-  const inferred = researchFacts.filter((fact) => (fact.appliesTo || []).some((token) => haystack.includes(String(token).toLowerCase()))).map((fact) => fact.factId);
+  const matchesLesson = (fact) => (fact.appliesTo || []).some((token) => haystack.includes(String(token).toLowerCase()));
+  const chapterFacts = surface === 'principles' ? principleFactIdsByChapter[lesson.chapterId] || [] : [];
+  const explicit = TOPIC_SCOPED_CHAPTERS.has(lesson.chapterId)
+    ? chapterFacts.filter((id) => { const fact = researchFacts.find((item) => item.factId === id); return fact && matchesLesson(fact); })
+    : chapterFacts;
+  const inferred = researchFacts.filter(matchesLesson).map((fact) => fact.factId);
   const ids = [...new Set([...explicit, ...inferred])];
   return ids.map((id) => researchFacts.find((fact) => fact.factId === id)).filter(Boolean).slice(0, 4);
 };
@@ -162,7 +171,7 @@ for (const chapter of readJson('public-data/principles/chapters.json').chapters 
   paths.push({ id: `principles-chapter-${chapter.id}`, title: chapter.title, description: chapter.coreIdea, nodeIds: lessonIds, surface: 'principles', status: 'STRUCTURED_REFERENCE_DRAFT' });
 }
 const atlasById = new Set(atlas.map((lesson) => lesson.id));
-paths.push({ id: 'atlas-foundations-complete', title: 'AI 시대 지식 지도 기초 경로', description: 'AI 기초 48개 lesson을 물리·모델·시스템·경제성 순서로 연결한다.', nodeIds: atlas.map((lesson) => `atlas-foundations:${lesson.id}`), surface: 'atlas-foundations', status: 'STRUCTURED_REFERENCE_DRAFT' });
+paths.push({ id: 'atlas-foundations-complete', title: '산업·밸류체인 · AI 기초 경로', description: 'AI 기초 48개 lesson을 물리·모델·시스템·경제성 순서로 연결한다.', nodeIds: atlas.map((lesson) => `atlas-foundations:${lesson.id}`), surface: 'atlas-foundations', status: 'STRUCTURED_REFERENCE_DRAFT' });
 const pathIdsByNode = new Map();
 for (const pathEntry of paths) for (const nodeId of pathEntry.nodeIds) pathIdsByNode.set(nodeId, [...(pathIdsByNode.get(nodeId) || []), pathEntry.id]);
 for (const node of graphNodes) node.pathIds = pathIdsByNode.get(node.id) || [];

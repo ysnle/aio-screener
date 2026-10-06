@@ -43,12 +43,22 @@ function bp(value) {
   return value == null ? null : Math.round(value * 100);
 }
 
+// Codex review 2026-10-05: a Treasury level can be newer than the FRED change published beside it
+// (10/2 level with the 10/1−9/30 change). A change is used only when the producer stamped it with the
+// level's own date, or when level and change both come from FRED.
+export function alignedRateDelta(macro, key, suffix = 'Delta') {
+  const value = finite(macro?.[`${key}${suffix}`]);
+  if (value == null) return null;
+  if (macro?.[`_source_${key}`] !== 'us-treasury-official-primary') return value;
+  return isoDate(macro?.[`_deltaAsOf_${key}`]) && isoDate(macro[`_deltaAsOf_${key}`]) === isoDate(macro[`_asOf_${key}`]) ? value : null;
+}
+
 function treasury(macro) {
   const yields = TREASURY_TENORS.map((tenor) => ({
     ...tenor,
     value: finite(macro[tenor.id]),
-    day: finite(macro[`${tenor.id}Delta`]),
-    week: finite(macro[`${tenor.id}Delta5`]),
+    day: alignedRateDelta(macro, tenor.id, 'Delta'),
+    week: alignedRateDelta(macro, tenor.id, 'Delta5'),
     asOf: isoDate(macro[`_asOf_${tenor.id}`])
   }));
   const dates = [...new Set(yields.map((row) => row.asOf).filter(Boolean))];

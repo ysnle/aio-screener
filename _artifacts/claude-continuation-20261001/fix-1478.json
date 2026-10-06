@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — Nathan framework sources name the post they are (P1478).",
+  "p": {
+    "id": 1478,
+    "title": "Nathan framework sources name the post they are",
+    "symptom": "All 129 Nathan article sources read 직접 확인된 외부 연구자료 with an empty URL, so a reader could not tell which post supported a framework.",
+    "root_cause": "The pack wrote a fixed title; the empty URL is the research-flow policy (the retrieval artifact does not replay raw X URLs).",
+    "fix": "Each source carries its thread title and a locator to the Nathan Previous Threads registry, which publishes the canonical links; the URL policy is unchanged.",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check P1478; ci-research-flow-contract-check keeps the URL policy.",
+    "verification": "129/129 sources titled."
+  },
+  "changelog": [
+    "**Nathan 출처 표기 (P1478):** 129개 출처가 일괄 문구 대신 실제 게시물 제목과 원문 목록 위치를 표시합니다."
+  ]
+}

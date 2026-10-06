@@ -311,8 +311,8 @@ export function chartReading(analysis, regime = null) {
     downtrend: '하락 추세라 셋업을 따지는 단계가 아닙니다 — 200일선 회복이 먼저입니다',
     none: `뚜렷한 셋업은 없습니다${vcp ? ` (${vcp})` : ''}`
   }[analysis.state];
-  const market = regime?.available ? (regime.overall === '방어적 환경' || regime.overall === '경계 환경'
-    ? `시장은 ${regime.overall}이라, 같은 셋업이라도 실패 확률이 높아지는 환경입니다`
-    : `시장은 ${regime.overall}입니다`) : null;
+  const market = regime?.available ? (regime.overall === '부담 우세' || regime.overall === '부담 쪽으로 기움'
+    ? `시장 상태: ${regime.overall} — 시장 전체가 약할 때는 같은 셋업도 돌파가 이어지지 못하는 경우가 많습니다`
+    : `시장 상태: ${regime.overall}`) : null;
   return { headline: state, why, market, flip: analysis.flip };
 }

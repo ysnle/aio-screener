@@ -726,6 +726,9 @@ function clearAllPositions() {
 
 // Render Portfolio
 function renderPortfolio() {
+  // Codex review 2026-10-05: after deleting the last holding the table emptied but the sector concentration
+  // bubble kept "Technology 100%" until a reload — it was drawn only on page entry. It follows every render.
+  try { if (document.getElementById('page-portfolio')?.classList.contains('active') && typeof window._aioRenderPageDiagram === 'function') window._aioRenderPageDiagram('portfolio'); } catch (_) {}
   // v52.46 WO-1A: 실제 잠금 게이트 — 이전엔 이 자리를 지키던 checkPortfolioPin()이
   // 어디서도 호출되지 않는 고아 함수라 PIN이 설정돼도 진입 시 잠금화면이 뜬 적이 없었다(R294).
   if (typeof isPortfolioLocked === 'function' && isPortfolioLocked()) {

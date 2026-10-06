@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
+import { PRINCIPLE_STORIES, storyProblems } from './lib/principles-stories.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const chaptersPath = path.join(root, 'public-data/principles/chapters.json');
@@ -15,6 +16,18 @@ const sourceIdsByChapter = {
   G: ['MP-SEC'], H: ['MP-SEC'], I: ['MP-IMF'], J: ['MP-SEC'], K: ['MP-OECD-IND', 'MP-SEC'],
   L: ['MP-NIST', 'PS-01', 'PS-02'], M: ['MP-DOE', 'MP-IEA'],
   N: ['MP-NIST', 'PS-16', 'PS-18'], O: ['MP-BOK', 'MP-KRX', 'MP-SEC']
+};
+
+// P1475 (knowledge review 2026-10-04, 2차): a chapter-wide source list (e.g. NIST AI · Tesla AI · Rocket
+// Lab on every industry lesson from banking to agriculture) does not support each lesson's sentences.
+// Lessons get topic-matched official sources; the chapter list remains only where nothing better exists,
+// and every lesson declares sourceScope so the page can say whether its sources are lesson-specific.
+const lessonSourceIds = {
+  L1: ['MP-NIST'], L2: ['MP-NIST'], L3: ['PS-01'], L4: ['PS-01'], L5: ['PS-01'], L6: ['SRC-ASML-LITHO', 'PS-01'], L7: ['PS-01'], L8: ['PS-01'],
+  L9: ['PS-02', 'SRC-MICRON-HBM'], L10: ['PS-01', 'SRC-MICRON-HBM'], L11: ['PS-01'], L12: ['SRC-NVIDIA-NETWORKING'], L13: ['PS-02'], L14: ['MP-DOE', 'SRC-DOE-DATACENTER'], L15: ['PS-01', 'PS-02'], L16: ['MP-SEC'],
+  N1: ['SRC-EIA-ENERGY', 'MP-IEA'], N2: ['SRC-USGS-MCS'], N3: ['SRC-IFR', 'PS-16'], N4: ['SRC-NHTSA-AV'], N5: ['SRC-DOD-BUDGET'], N6: ['PS-18', 'SRC-NASA'],
+  G8: ['SRC-FINRA-OPTIONS', 'MP-SEC'], N7: ['SRC-FDA-DRUG-DEV'], N8: ['SRC-FDA-DEVICE'], N9: ['SRC-BIS-BASEL3', 'SRC-FRED-USNIM'], N10: ['MP-SEC'], N11: ['SRC-BEA-CONSUMER'], N12: ['SRC-BTS'],
+  N13: ['SRC-CENSUS-CONSTRUCTION', 'SRC-NAREIT', 'SRC-NAREIT-FFO'], N14: ['SRC-FCC'], N15: ['SRC-USDA-WASDE']
 };
 
 const lesson = (id, title, definition, mechanism, example, counterScenario, verificationQuestion, diagram, metadata = {}) => ({
@@ -68,10 +81,10 @@ const drafts = [
   lesson('G2', '주식은 무엇인가', '주식은 기업의 잔여 자산·이익·의결권에 대한 소유권이며, 가격은 미래 현금흐름과 위험에 대한 시장의 기대다.', '주주는 채권자보다 후순위로 잔여 가치를 받는 대신 상승 가능성과 의결권을 가진다. 발행·희석·배당·자사주가 권리를 바꾼다.', '회사가 성장을 위해 신주를 발행하면 현금은 늘지만 기존 주주의 지분율과 주당 가치가 어떻게 변하는지 따로 계산해야 한다.', '주가 상승을 기업의 현금 유입으로 보거나 시가총액을 회사가 보유한 현금과 동일시하면 1차·2차 시장을 혼동한다.', '주가 변화가 기업의 신규 자금 조달인지 기존 주식 간 거래인지, 주당 현금흐름과 지분 수가 어떻게 바뀌었는가?', '기업 잔여권리 → 기대 현금흐름·위험 → 주가'),
   lesson('G3', '기업이 자금을 조달하는 방식', '기업은 내부 현금, 은행대출, 회사채, 보통주·전환증권 발행으로 성장과 운영 자금을 조달한다.', '각 수단은 비용·만기·담보·희석·통제권의 조합이 다르다. 현금흐름의 안정성과 투자 기회의 불확실성이 선택을 좌우한다.', '반복 매출이 안정적인 기업은 채권을 사용할 여지가 있지만, 기술 개발 전 단계 기업은 희석을 감수하고 자기자본을 택할 수 있다.', '조달 규모만으로 재무 개선을 판단하면 고금리 차환·과도한 희석·운전자금 부족을 놓친다.', '조달된 자금의 만기와 비용은 투자 회수 기간에 맞는가, 신주 발행이 주당 가치에 미친 영향은 무엇인가?', '내부현금·부채·주식 → 투자·희석·상환'),
   lesson('G4', '1차시장과 2차시장', '1차시장은 기업이나 기존 주주가 증권을 새로 발행해 자금을 조달하는 곳이고, 2차시장은 투자자끼리 이미 발행된 증권을 거래하는 곳이다.', '1차 발행은 회사 현금과 주식 수를 바꾸며, 2차 거래는 가격 신호와 유동성을 제공하지만 회사에 현금이 직접 들어오지는 않는다.', '유상증자로 조달한 현금은 공장 투자에 쓰일 수 있지만, 장중 주가 거래량 증가는 회사의 자금 조달이 아니라 소유권 이동일 수 있다.', '거래대금과 기업으로 유입된 자금을 같은 것으로 보면 자금조달 효과를 잘못 계산한다.', '이번 자금이 회사의 재무상태표에 들어왔는지 기존 주주 간 거래였는지 발행 공시와 주식 수로 확인했는가?', '발행 → 회사 자금 / 거래 → 소유권 이동'),
-  lesson('G5', '주가의 세 엔진', '주가는 기업의 이익·현금흐름, 시장이 부여하는 배수, 자본비용과 유동성이라는 세 엔진의 결합으로 움직인다.', '이익 기대가 바뀌거나 할인율이 변하거나 투자자 포지션이 조정되면 같은 기업도 다른 가격을 가질 수 있다.', '실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.', '모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.', '수익 추정·배수·할인율 중 이번 가격 변화의 기여도를 어떤 기간 비교로 분해할 것인가?', '이익 기대 × 배수·할인율 × 포지션'),
+  lesson('G5', '주가의 세 엔진', '주가는 기업의 이익·현금흐름, 시장이 부여하는 배수, 자본비용과 유동성이라는 세 엔진의 결합으로 움직인다.', '이익 기대가 바뀌거나 할인율이 변하거나 투자자 포지션이 조정되면 같은 기업도 다른 가격을 가질 수 있다.', '실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.', '모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.', '수익 추정·배수·할인율 중 이번 가격 변화의 기여도를 어떤 기간 비교로 분해할 것인가?', '주가 = 주당이익 × 배수(PER) — 금리·위험 선호·성장 기대는 배수 안에 반영되고, 수급·포지션은 단기적으로 가격을 이 관계에서 벗어나게 한다'),
   lesson('G6', '밸류에이션', '밸류에이션은 기업의 미래 현금흐름·성장·위험을 현재 가격과 비교하는 방법이지, 하나의 정답 숫자가 아니다.', 'DCF·PER·EV/EBITDA·매출 배수는 서로 다른 현금흐름 단계와 가정을 사용한다. 핵심은 숫자보다 가정의 민감도다.', '고성장 기업의 매출 배수가 높아도 성장률·총마진·희석·현금 전환이 내려가면 적정 배수의 기반이 흔들린다.', '동종기업의 배수만 보고 저평가라고 결론 내리면 사업의 질·자본비용·회계 차이를 놓친다.', '현재 가격이 암시하는 성장률·마진·재투자율을 역산하고, 어떤 가정이 한 단계만 틀려도 결론이 바뀌는가?', '현금흐름 가정 → 할인 → 현재가치 ↔ 시장가격'),
-  lesson('G7', '지수와 패시브', '지수는 일정한 규칙으로 시장을 측정하는 바구니이고, 패시브 투자는 그 규칙을 따라 편입·비중을 복제한다.', '지수 편입과 비중 변화는 자동 자금 흐름을 만들지만, 지수는 기업의 질이나 미래 수익을 보증하지 않는다.', '시가총액 가중 지수에서는 주가가 오른 종목의 비중이 커져 추세를 따라가는 흐름이 생길 수 있다. 리밸런싱 날짜의 거래도 관찰해야 한다.', '지수 수익률을 개별 기업의 실적 성과로 동일시하거나 패시브 자금이 항상 가격을 효율적으로 만든다고 가정하면 편입 규칙을 놓친다.', '지수 편입·비중·리밸런싱이 실제 주식 수요에 미치는 규모와 기간은 무엇인가?', '규칙 → 편입·비중 → 자동 자금 흐름'),
-  lesson('G8', '공매도·옵션·파생', '파생상품은 기초자산의 가격·변동성·금리·신용에 대한 노출을 계약으로 분리해 이전하는 도구다.', '공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다.', '옵션 내재변동성이 급등하면 주가 변화가 작아도 헤지 비용과 딜러의 델타 조정이 현물 수급에 영향을 줄 수 있다.', '파생상품의 거래량을 현물 매수·매도 방향으로 단순 변환하면 만기·헤지·반대 포지션을 놓친다.', '계약의 기초 노출·만기·증거금·헤지 방향을 분해했는가, 현물 가격에 전달되는 경로를 확인했는가?', '기초자산 ↔ 파생계약 → 헤지·증거금'),
+  lesson('G7', '지수와 패시브', '지수는 일정한 규칙으로 시장을 측정하는 바구니이고, 패시브 투자는 그 규칙을 따라 편입·비중을 복제한다.', '지수 편입과 비중 변화는 자동 자금 흐름을 만들지만, 지수는 기업의 질이나 미래 수익을 보증하지 않는다.', '시가총액 가중 지수에서 주가가 오른 종목은 비중이 저절로 커지지만, 추종 펀드의 보유 가치도 같은 비율로 커지므로 그 자체로는 추가 매수가 필요 없다. 실제 매수·매도는 신규 자금 유입·유출, 편입·편출, 주식 수 변화(증자·자사주 소각)와 정기 리밸런싱에서 생긴다.', '지수 수익률을 개별 기업의 실적 성과로 동일시하거나 패시브 자금이 항상 가격을 효율적으로 만든다고 가정하면 편입 규칙을 놓친다.', '지수 편입·비중·리밸런싱이 실제 주식 수요에 미치는 규모와 기간은 무엇인가?', '규칙 → 편입·비중(가격 변동은 비중만 바꿈) → 신규 자금·편입·리밸런싱 때의 매매'),
+  lesson('G8', '공매도·옵션·파생', '파생상품은 기초자산의 가격·변동성·금리·신용에 대한 노출을 계약으로 분리해 이전하는 도구다.', '공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다. 옵션 매수자의 최대 손실은 낸 프리미엄이지만, 옵션 매도자는 받은 프리미엄보다 훨씬 큰 손실을 질 수 있다.', '옵션 내재변동성이 급등하면 주가 변화가 작아도 헤지 비용과 딜러의 델타 조정이 현물 수급에 영향을 줄 수 있다.', '파생상품의 거래량을 현물 매수·매도 방향으로 단순 변환하면 만기·헤지·반대 포지션을 놓친다.', '계약의 기초 노출·만기·증거금·헤지 방향을 분해했는가, 현물 가격에 전달되는 경로를 확인했는가?', '기초자산 ↔ 파생계약 → 헤지·증거금'),
 
   lesson('H1', '수요·공급과 주문장', '수요·공급은 사고팔려는 의사의 분포이고 주문장은 특정 가격에 쌓인 실제 매수·매도 주문의 순간적인 모습이다.', '새 주문이 유동성 공급자와 만나 체결되면서 가격이 이동한다. 주문의 크기·취소·호가 간격이 단기 가격발견을 바꾼다.', '실적 발표 직후 매수 주문이 호가를 여러 단계 소진하면 거래량이 크지 않아도 가격이 급히 이동할 수 있다.', '주문장에 보이는 수량을 확정 수요로 보면 취소 주문·숨은 유동성·시장가 주문의 영향을 과대평가한다.', '가격 이동 전후에 호가 스프레드·체결 방향·거래량·취소율이 어떻게 변했는가?', '정보 → 주문 → 호가 소진 → 체결가격'),
   lesson('H2', '기대와 서프라이즈', '시장 반응은 발표된 숫자 자체보다 사전에 형성된 기대와 실제 결과의 차이인 서프라이즈에 더 민감하다.', '같은 이익도 기대를 크게 웃돌면 가격이 오르고, 절대적으로 좋아도 기대보다 낮으면 하락할 수 있다.', '매출이 증가했지만 다음 분기 가이던스가 컨센서스를 밑돌면 현재 실적보다 미래 기대의 하향 조정이 더 큰 주가 반응을 만들 수 있다.', '헤드라인 숫자만 읽고 컨센서스·가이던스·기준효과를 확인하지 않으면 가격 변화의 방향을 설명하지 못한다.', '발표 전 기대는 무엇이었고, 실제 수치·가이던스·질의응답이 그 기대를 어느 방향으로 바꿨는가?', '기대 → 발표 → 서프라이즈 → 재가격'),
@@ -97,7 +110,7 @@ const drafts = [
   lesson('K4', '물리적·디지털 생산 단계', '생산 단계는 원재료·설계·제조·조립·소프트웨어·유통처럼 산출물이 다음 단계의 입력이 되는 순서다.', '각 단계의 수율·처리량·대기시간·재작업·데이터 형식이 다음 단계의 비용과 납기를 결정한다.', '반도체 설계 파일은 웨이퍼 공정과 패키징을 거쳐 테스트된 칩이 되어야 서버에 장착되므로, 설계 성능만으로 완제품 공급을 설명할 수 없다.', '가치사슬을 기업 로고의 나열로 보면 공정 간 호환·검증·재고·병목을 놓친다.', '제품이 고객에게 도착하기 전 단계별 입력·출력·수율·리드타임은 무엇이며 어느 단계가 생산량을 제한하는가?', '입력 → 공정·검증 → 출력 → 다음 단계'),
   lesson('K5', '핵심 투입요소', '핵심 투입요소는 생산량·품질·원가를 결정하며 단기간에 대체하기 어려운 재료·장비·전력·인력·데이터다.', '투입요소의 공급 집중·인증 기간·물류 경로·가격 계약이 최종 제품의 마진과 증설 속도를 제한한다.', '특수 가스가 전체 원가에서 작아도 공급 중단 시 웨이퍼 라인이 멈춘다면 매출보다 큰 경제적 중요성을 가진다.', '원가 비중이 높은 재료만 핵심이라고 보면 낮은 비용이지만 대체 불가능한 투입요소를 놓친다.', '공급 중단 시 대체까지 걸리는 시간과 재고 버퍼는 얼마이며, 비용·품질·인증을 함께 만족하는가?', '투입요소 → 공급 제약 → 생산·원가'),
   lesson('K6', '가격 결정권', '가격 결정권은 고객이 대체하기 어렵고 공급자가 차별화된 결과를 제공할 때 가격·계약·인상분을 방어할 수 있는 능력이다.', '브랜드·성능·인증·전환비용·공급 집중이 교섭력을 만들지만, 경쟁·과잉설비·고객 집중은 이를 약화한다.', '고객 공정에 인증된 장비 부품은 교체 검증 비용이 높아 가격을 방어할 수 있지만, 단일 고객 의존은 구매자의 협상력을 키운다.', '시장 점유율이나 독점적 기술 이름만으로 가격 결정력을 가정하면 실제 계약 조건과 총마진을 놓친다.', '가격 인상분이 물량·믹스·원가를 제외하고 총마진과 현금흐름에 남았는지 공시로 확인했는가?', '차별화·전환비용 → 교섭력 → 가격·마진'),
-  lesson('K7', '공급 증설 시간', '공급 증설 시간은 수요 증가에 대응해 공장·장비·인력·인증·전력·물류를 준비하는 데 필요한 기간이다.', '짧은 증설은 경쟁자의 진입과 가격 하락을 빠르게 부르고, 긴 증설은 가격 급등과 초과이익을 만들지만 과잉투자 위험도 키운다.', '첨단 패키징 라인은 장비뿐 아니라 고객별 공정 인증과 수율 안정화가 필요해, 발표된 CAPEX가 즉시 출하로 바뀌지 않는다.', '수요 전망에 증설 시간을 곱하지 않고 매출을 선형으로 외삽하면 공급 과잉이나 병목 지속을 잘못 예측한다.', '수요가 늘어난 뒤 실제 생산 가능한 용량까지 어떤 승인·납기·수율 단계가 남아 있는가?', '수요 신호 → CAPEX·인증 → 가동 가능한 공급'),
+  lesson('K7', '공급 증설 시간', '공급 증설 시간은 수요 증가에 대응해 공장·장비·인력·인증·전력·물류를 준비하는 데 필요한 기간이다.', '짧은 증설은 경쟁자의 진입과 가격 하락을 빠르게 부르고, 긴 증설은 가격 급등과 초과이익을 만들지만 과잉투자 위험도 키운다.', '첨단 패키징 라인은 장비뿐 아니라 고객별 공정 인증과 수율 안정화가 필요해, 발표된 CAPEX가 즉시 출하로 바뀌지 않는다.', '수요가 늘어난 시점과 새 설비가 실제 출하를 시작하는 시점(발주 → 설치 → 인증 → 수율 안정화) 사이의 시차를 빼고 매출을 선형으로 외삽하면 병목 지속이나 공급 과잉을 잘못 예측한다. 예: 증설 결정 후 출하까지 18개월이 걸리면, 그동안의 추가 수요는 기존 설비 가격 상승으로 흡수되고 증설분은 수요가 꺾인 뒤 한꺼번에 들어올 수 있다.', '수요가 늘어난 뒤 실제 생산 가능한 용량까지 어떤 승인·납기·수율 단계가 남아 있는가?', '수요 신호 → CAPEX·인증 → 가동 가능한 공급'),
   lesson('K8', '병목과 single point of failure', '병목은 전체 흐름의 처리량을 제한하는 단계이고 single point of failure는 한 구성요소의 고장이 전체 시스템을 멈출 수 있는 집중 위험이다.', '병목의 처리량과 대체 가능성이 가격·납기·협상력을 결정한다. 생산량을 늘리려면 병목을 찾아야 한다.', '서버가 충분해도 전력 접속 변압기나 특정 패키징 공정이 부족하면 데이터센터의 실제 서비스 용량은 늘지 않는다.', '가장 비싼 부품이나 가장 눈에 띄는 기업을 병목으로 착각하면 실제 제한 단계에 대한 투자와 재고를 놓친다.', '전체 리드타임에서 가장 긴 대기 단계는 무엇이며, 고장·지연 시 대체 공급·우회 경로가 있는가?', '흐름 → 제한 단계 → 전체 처리량'),
   lesson('K9', '반복매출과 일회성 매출', '반복매출은 계약·구독·소모품·유지보수로 일정 주기에 재발생하는 매출이고, 일회성 매출은 프로젝트·장비 판매처럼 거래 때마다 새 수주가 필요한 매출이다.', '반복성은 예측 가능성과 고객 잔존율을 높일 수 있지만, 갱신률·가격 인상·서비스 원가를 함께 봐야 한다.', '장비를 한 번 판매한 뒤 소프트웨어와 유지보수 계약이 붙으면 매출의 시간 구조와 마진 구조가 바뀐다.', '반복매출 비중만 보고 질을 판단하면 할인 판매·단기 계약·높은 지원비용으로 현금이 남지 않는 경우를 놓친다.', '계약 갱신률·순매출 유지율·고객 획득비용·서비스 원가가 반복매출의 실제 경제성을 지지하는가?', '신규 판매 → 설치·사용 → 갱신·소모품 → 현금'),
   lesson('K10', 'CAPEX·운전자본·수익성', 'CAPEX는 장기 생산능력에 쓰는 투자이고 운전자본은 재고·매출채권·매입채무처럼 운영 과정에서 묶이는 자금이다.', '설비투자는 감가상각과 가동률을 만들고 운전자본은 매출 성장과 회수 기간을 연결한다. 둘 다 회계 이익과 현금흐름 사이의 차이를 만든다.', '수주가 늘어 재고와 매출채권을 먼저 쌓으면 매출은 증가해도 현금은 감소할 수 있고, 이후 설비투자까지 겹치면 외부 조달이 필요하다.', 'CAPEX 증가를 곧바로 성장 투자로 보거나 감가상각을 현금 비용으로만 보면 회수 기간과 가동률 위험을 놓친다.', '투자 1원이 언제 매출·마진·현금으로 돌아오며, 재고·채권이 성장보다 빠르게 늘고 있지는 않은가?', 'CAPEX·운전자본 → 가동률·마진 → FCF'),
@@ -151,7 +164,7 @@ const drafts = [
   lesson('N15', '농업·식량', '농업·식량 산업은 토지·물·종자·비료·기계·물류를 기후와 계절 아래에서 식품으로 바꾸는 가치사슬이다.', '수확량·작황·재고·운송·환율과 소비자의 가격 민감도가 원재료 가격과 식품 기업의 마진을 움직인다.', '곡물 가격이 오르면 농가는 수혜를 볼 수 있지만 사료·가공·외식 기업은 원가 상승을 가격에 전가할 수 있는지에 따라 결과가 갈린다.', '농산물 가격의 방향 하나로 업종 전체를 판단하면 작황·재고·헤지·가공 믹스·환율을 놓친다.', '가격 충격이 생산자·가공업체·유통·소비자 중 누구에게 얼마나 전가되고 재고·계약은 이를 얼마나 완충하는가?', '기후·투입재 → 수확·재고 → 가공·유통·소비'),
 
   lesson('O1', '미국 시장과 한국 시장', '미국과 한국 시장은 통화·금리·산업 구성·회계·투자자 기반이 달라 같은 글로벌 충격도 다른 기업 현금흐름으로 번역된다.', '미국의 달러 유동성과 한국의 수출·외국인 흐름·원화 환율이 서로 연결되지만, 시장 규모와 공급망 위치가 반응을 다르게 만든다.', '미국 AI 인프라 CAPEX 증가는 한국 부품 수요를 늘릴 수 있지만 고객 집중·가격·환율·국내 CAPEX 위치가 국내 기업의 실제 이익을 결정한다.', '미국 기업의 주가 상승을 한국 공급업체의 이익 증가로 바로 옮기면 계약 구조·재고·환율·지분 희석을 놓친다.', '글로벌 수요가 한국 기업의 매출·마진·환산이익·외국인 수급으로 전달되는 각 단계를 어떤 공시로 확인할 것인가?', '글로벌 수요 → 공급망·환율 → 국내 기업·시장'),
-  lesson('O2', '원/달러와 외국인', '원/달러 환율은 한국 자산의 달러 기준 가치와 외국인 투자자의 환산 수익을 바꾸는 상대가격이다.', '외국인은 한국 주식 수익률과 원화 변동을 함께 부담하며, 금리차·위험회피·수출입·헤지 비용이 자금 유입·유출을 만든다.', '한국 주가가 올라도 원화가 크게 약세면 달러 기준 수익률은 낮을 수 있어 외국인의 순매수와 환율을 함께 봐야 한다.', '외국인 순매수를 국내 펀더멘털의 순수한 신호로 보면 글로벌 달러 포지션과 환헤지·패시브 리밸런싱을 놓친다.', '외국인 수급 변화가 기업 전망·지수 리밸런싱·환율 헤지·글로벌 위험선호 중 어디에서 왔는가?', '원화 주가 + 환율 → 외국인 달러 수익'),
+  lesson('O2', '원/달러와 외국인', '원/달러 환율은 한국 자산의 달러 기준 가치와 외국인 투자자의 환산 수익을 바꾸는 상대가격이다.', '외국인은 한국 주식 수익률과 원화 변동을 함께 부담하며, 금리차·위험회피·수출입·헤지 비용이 자금 유입·유출을 만든다.', '달러 기준 수익 = (1 + 원화 수익률) ÷ (1 + 원/달러 상승률) − 1. 원/달러는 1달러의 원화 가격이라 오르면 원화 약세다. 원화 주가가 10% 오르고 원/달러도 10% 오르면 달러 투자자의 수익은 1.10 ÷ 1.10 − 1 = 0%(비용 제외)다.', '외국인 순매수를 국내 펀더멘털의 순수한 신호로 보면 글로벌 달러 포지션과 환헤지·패시브 리밸런싱을 놓친다.', '외국인 수급 변화가 기업 전망·지수 리밸런싱·환율 헤지·글로벌 위험선호 중 어디에서 왔는가?', '달러 기준 수익 = (1 + 원화 수익률) ÷ (1 + 원/달러 상승률) − 1'),
   lesson('O3', '한국 반도체', '한국 반도체는 메모리·부품·장비·소재·패키징이 글로벌 고객과 연결된 수출 중심 가치사슬이다.', '메모리 가격·비트 출하·고객 재고·환율·CAPEX·공정 수율이 기업별 매출과 이익을 서로 다르게 움직인다.', 'HBM 수요가 증가해도 특정 고객 인증·패키징 슬롯·수율이 부족하면 출하와 현금 회수가 지연되고 기존 메모리 가격 주기가 동시에 악화될 수 있다.', '글로벌 AI 수요와 한국 반도체 기업 주가를 같은 것으로 보면 제품 믹스·고객 집중·환율·재고를 놓친다.', '기업별로 어떤 제품이 가격·수율·고객 인증의 병목에 있고, 다음 분기 출하·ASP·CAPEX가 가설과 맞는가?', '글로벌 workload → 메모리·장비 → 수출·원화 현금흐름'),
   lesson('O4', '한국 전력·산업정책', '한국 전력·산업정책은 전력 가격·망 투자·세제·보조금·규제로 제조와 데이터센터의 입지·원가·증설 속도를 바꾼다.', '정책은 수요를 만들 수 있지만 요금·재정·계통·허가·민간 투자와 함께 집행되어야 실제 생산능력으로 이어진다.', '산업단지의 전력 접속 지원이 발표되어도 변전소·선로·환경 허가·요금 계약이 늦으면 기업 CAPEX와 가동 시점은 달라진다.', '정책 발표액이나 목표 용량을 기업 매출로 바로 환산하면 집행률·수익자·비용 부담과 규제 변경을 놓친다.', '정책의 승인·예산·집행·상업 운전 단계가 어디이며, 비용과 이익은 정부·유틸리티·기업 중 누가 부담·회수하는가?', '정책·예산 → 전력·산업 인프라 → 기업 CAPEX·가동'),
   lesson('O5', '세금·계좌·환율 비용', '세금·계좌·환율 비용은 투자 수익률에서 보이지 않게 차감되는 거래·보유·환전·배당·이자·양도 비용이다.', '같은 명목 수익도 계좌 유형·거래 빈도·환전 스프레드·원천징수·환헤지에 따라 세후 실현 수익이 달라진다.', '달러 자산의 가격이 올라도 매수·매도 환전 스프레드와 배당 원천징수, 국내 신고·계좌 비용을 빼면 목표 수익률을 달성하지 못할 수 있다.', '세전 수익률과 앱에 표시된 가격만 비교하면 장기 복리에서 작은 비용이 만드는 누적 차이를 놓친다.', '투자 기간 전체에 발생하는 세금·수수료·환전·환헤지·계좌 비용을 순현금흐름으로 계산했는가?', '명목수익 → 세금·수수료·환율 → 세후 현금'),
@@ -184,8 +197,35 @@ const sources = [
   { id: 'PS-01', publisher: 'TSMC', title: '2026 AGM minutes / business report', url: 'https://investor.tsmc.com/sites/ir/shareholders-meeting/2026-06-04/2026AGM_Minutes_wmn.pdf' },
   { id: 'PS-02', publisher: 'Micron', title: 'HBM4 and data-center memory/storage announcement', url: 'https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin' },
   { id: 'PS-16', publisher: 'Tesla', title: 'AI and robotics overview', url: 'https://www.tesla.com/AI' },
-  { id: 'PS-18', publisher: 'Rocket Lab', title: 'Space systems and spacecraft portfolio', url: 'https://rocketlabcorp.com/space-systems/spacecraft/' }
+  { id: 'PS-18', publisher: 'Rocket Lab', title: 'Space systems and spacecraft portfolio', url: 'https://rocketlabcorp.com/space-systems/spacecraft/' },
+  { id: 'SRC-ASML-LITHO', publisher: 'ASML', title: 'Lithography principles', url: 'https://www.asml.com/en/technology/lithography-principles' },
+  { id: 'SRC-MICRON-HBM', publisher: 'Micron', title: 'High bandwidth memory', url: 'https://www.micron.com/products/memory/hbm' },
+  { id: 'SRC-NVIDIA-NETWORKING', publisher: 'NVIDIA', title: 'Networking for AI data centers (product description)', url: 'https://www.nvidia.com/en-us/networking/' },
+  { id: 'SRC-DOE-DATACENTER', publisher: 'U.S. Department of Energy', title: 'Data center energy efficiency', url: 'https://www.energy.gov/eere/buildings/data-centers-and-servers' },
+  { id: 'SRC-EIA-ENERGY', publisher: 'U.S. Energy Information Administration', title: 'Energy explained', url: 'https://www.eia.gov/energyexplained/' },
+  { id: 'SRC-USGS-MCS', publisher: 'U.S. Geological Survey', title: 'Mineral Commodity Summaries', url: 'https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries' },
+  { id: 'SRC-IFR', publisher: 'International Federation of Robotics', title: 'World Robotics', url: 'https://ifr.org/worldrobotics/' },
+  { id: 'SRC-NHTSA-AV', publisher: 'NHTSA', title: 'Automated vehicles for safety', url: 'https://www.nhtsa.gov/vehicle-safety/automated-vehicles-safety' },
+  { id: 'SRC-DOD-BUDGET', publisher: 'U.S. Department of Defense (Comptroller)', title: 'Budget materials', url: 'https://comptroller.defense.gov/Budget-Materials/' },
+  { id: 'SRC-NASA', publisher: 'NASA', title: 'NASA missions and programs', url: 'https://www.nasa.gov/' },
+  { id: 'SRC-FDA-DRUG-DEV', publisher: 'U.S. FDA', title: 'The drug development process', url: 'https://www.fda.gov/patients/learn-about-drug-and-device-approvals/drug-development-process' },
+  { id: 'SRC-FDA-DEVICE', publisher: 'U.S. FDA', title: 'Device approvals, denials and clearances', url: 'https://www.fda.gov/medical-devices/products-and-medical-procedures/device-approvals-denials-and-clearances' },
+  { id: 'SRC-BIS-BASEL3', publisher: 'Bank for International Settlements', title: 'Basel III', url: 'https://www.bis.org/bcbs/basel3.htm' },
+  { id: 'SRC-FRED-USNIM', publisher: 'FRED (Federal Reserve Bank of St. Louis)', title: 'Net interest margin for all U.S. banks', url: 'https://fred.stlouisfed.org/series/USNIM' },
+  { id: 'SRC-BEA-CONSUMER', publisher: 'U.S. Bureau of Economic Analysis', title: 'Consumer spending', url: 'https://www.bea.gov/data/consumer-spending/main' },
+  { id: 'SRC-BTS', publisher: 'U.S. Bureau of Transportation Statistics', title: 'Transportation statistics', url: 'https://www.bts.gov/' },
+  { id: 'SRC-CENSUS-CONSTRUCTION', publisher: 'U.S. Census Bureau', title: 'Construction spending', url: 'https://www.census.gov/construction/c30/c30index.html' },
+  { id: 'SRC-NAREIT', publisher: 'Nareit', title: 'REIT basics and FFO definition', url: 'https://www.reit.com/what-reit' },
+  { id: 'SRC-NAREIT-FFO', publisher: 'Nareit', title: 'Funds From Operations White Paper (2018)', url: 'https://www.reit.com/sites/default/files/2018-FFO-white-paper-(11-27-18).pdf' },
+  { id: 'SRC-FINRA-OPTIONS', publisher: 'FINRA', title: 'Options — buyer and seller risk', url: 'https://www.finra.org/investors/investing/investment-products/options' },
+  { id: 'SRC-FCC', publisher: 'Federal Communications Commission', title: 'Communications policy and data', url: 'https://www.fcc.gov/' },
+  { id: 'SRC-USDA-WASDE', publisher: 'U.S. Department of Agriculture', title: 'World Agricultural Supply and Demand Estimates', url: 'https://www.usda.gov/oce/commodity/wasde' }
 ];
+
+const storyIssues = Object.entries(PRINCIPLE_STORIES).flatMap(([id, story]) => storyProblems(id, story));
+if (storyIssues.length) throw new Error(`Lesson reading text outside the length standard: ${storyIssues.join('; ')}`);
+const unknownStories = Object.keys(PRINCIPLE_STORIES).filter((id) => !drafts.some((draft) => draft.id === id));
+if (unknownStories.length) throw new Error(`Reading text for unknown lessons: ${unknownStories.join(', ')}`);
 
 const lessons = drafts.map((draft) => {
   const { metadata, ...authored } = draft;
@@ -200,7 +240,8 @@ const lessons = drafts.map((draft) => {
     level: chapter.slug === 'adjacent-industry-map' ? '산업 응용' : chapter.slug === 'korea-investor-bridge' ? '한국 연결' : chapter.slug === 'ai-semiconductor-data-center' || chapter.slug === 'power-market-and-grid' ? 'AI 인프라' : '기초·시장 원리',
     status: 'AUTHORED_REFERENCE',
     prerequisites: metadata.prerequisites || (sequence === 1 ? ['해당 챕터의 핵심 질문'] : [`${chapterId}${sequence - 1}에서 앞선 개념`]),
-    sourceIds: metadata.sourceIds || sourceIdsByChapter[chapterId],
+    sourceIds: metadata.sourceIds || lessonSourceIds[draft.id] || sourceIdsByChapter[chapterId],
+    sourceScope: metadata.sourceIds || lessonSourceIds[draft.id] ? 'lesson' : 'chapter-background',
     route: 'principles',
     reviewedAt: metadata.reviewedAt || '2026-08-18',
     publication: 'EDUCATIONAL_REFERENCE_ONLY',
@@ -213,6 +254,7 @@ const lessons = drafts.map((draft) => {
       diagram: authored.diagram
     },
     claimIds: metadata.claimIds || [`principles-lesson-${draft.id}`],
+    ...(PRINCIPLE_STORIES[draft.id] ? { story: PRINCIPLE_STORIES[draft.id] } : {}),
     ...metadata
   };
 });

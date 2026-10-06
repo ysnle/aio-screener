@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — 13F current/prior quarters state how their rows were assembled (P1462).",
+  "p": {
+    "id": 1462,
+    "title": "13F current/prior quarters state how their rows were assembled",
+    "symptom": "After v57.18 the weekly 13F refresh failed at ci-masters-contract-check: '13F composed period without an ORIGINAL/RESTATEMENT base: berkshire-hathaway 2026-06-30'. The interrupted session had changed the gate to skip IMPORTED_CURRENT/IMPORTED_PRIOR periods, citing a currentness gate that does not assert amendment semantics.",
+    "root_cause": "The current and prior quarters come from the reference lane, which composes amendments with the shared policy but published only the current quarter's semantics and never copied a chain into the history index, so the v3 gate found no chain on those periods.",
+    "fix": "collect-13f-reference publishes amendmentSemantics (with its chain, ORIGINAL included) for the current quarter and priorAmendmentSemantics for the prior quarter via one amendmentSemanticsOf(). collect-13f-history-rows copies that chain, its label and compositionStatus onto the current/prior periods (compositionSource REFERENCE_LANE); when a last-known-good manager has no stated chain it is marked REFERENCE_LANE_UNSTATED. The masters gate checks every imported period: a chain must have an ORIGINAL/RESTATEMENT base, and a missing chain is allowed only when declared unstated.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "ci-review-integrity-unit-check P1462 pins the prior chain, the carry-over and the no-skip gate.",
+    "verification": "node scripts/ci-masters-contract-check.mjs OK on the current (v2) artifacts; the next refresh-data run exercises the v3 path."
+  },
+  "changelog": [
+    "**13F 최신·직전 분기 합성 근거 (P1462):** 최신·직전 분기도 원본·정정 합성 근거를 함께 기록해, 지난 갱신을 멈추게 한 검사 실패를 검사 생략 없이 해결했습니다."
+  ]
+}

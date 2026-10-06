@@ -1,0 +1,6792 @@
+{
+  "schemaVersion": "knowledge-search-index.v1",
+  "generatedFrom": [
+    "src/domain/knowledge/learning-core.js",
+    "src/domain/knowledge/concept-core.js",
+    "public-data/principles/lesson-library.json",
+    "src/ui/pages/principles.js",
+    "public-data/atlas/foundation-lessons.json",
+    "public-data/atlas/taxonomy-node-coverage.json",
+    "public-data/masters/manager-catalog.json"
+  ],
+  "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
+  "counts": {
+    "frame": 23,
+    "principles-lesson": 112,
+    "principles-node": 60,
+    "atlas-foundation": 48,
+    "atlas-node": 95,
+    "manager": 38
+  },
+  "entries": [
+    {
+      "id": "frame:geo-mean",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "산술평균 수익률과 실현 복리 수익률의 괴리",
+      "text": "어느 펀드가 \"지난 2년 평균 수익률 0%\"라고 광고한다. 본전은 지켰다는 말처럼 들린다. 그런데 계좌를 열어 보면 100만 원이 75만 원이 되어 있다. 광고가 거짓말을 한 것은 아니다. 평균을 내는 방법이 하나가 아닐 뿐이다.",
+      "group": "금융수학·통계",
+      "keys": [
+        "평균 수익률과 실제 자산",
+        "arith-vs-geo",
+        "compounding",
+        "pct-vs-pp",
+        "산술평균과 기하평균 수익률",
+        "연평균 복리 수익률",
+        "CAGR",
+        "기하평균 수익률"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "geo-mean"
+        }
+      }
+    },
+    {
+      "id": "frame:real-relative",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "명목·실질·상대 성과의 구분",
+      "text": "올해 내 계좌는 10% 올랐다. 그런데 친구는 같은 기간 20%를 벌었다며 웃는다. 그 순간 10%가 손해처럼 느껴진다. 자연스러운 감정이지만, 숫자로 풀어 보면 서로 다른 세 가지 질문이 한데 엉켜 있다.",
+      "group": "금융수학·통계",
+      "keys": [
+        "명목·실질·상대 수익",
+        "nominal-real-relative",
+        "pct-vs-pp",
+        "명목수익률",
+        "실질수익률",
+        "상대 수익",
+        "상대 성과"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "real-relative"
+        }
+      }
+    },
+    {
+      "id": "frame:three-statements",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "이익 증가와 현금 부족의 공존 — 운전자본과 설비투자",
+      "text": "분기마다 이익이 늘던 회사가 어느 날 급하게 돈을 빌리기 시작한다. 장부는 흑자인데 통장은 비어 간다. 이상해 보이지만 빠르게 성장하는 회사에서 흔히 벌어지는 일이다. 이익과 현금은 서로 다른 시계를 쓴다.",
+      "group": "재무제표·회계",
+      "keys": [
+        "이익과 현금이 다른 이유",
+        "three-statements",
+        "working-capital",
+        "fcf-vs-funding",
+        "capex",
+        "depreciation",
+        "운전자본",
+        "working capital",
+        "순운전자본",
+        "잉여현금흐름과 자금조달의 구분",
+        "잉여현금흐름과 자금조달"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "three-statements"
+        }
+      }
+    },
+    {
+      "id": "frame:capex-roic",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "AI 설비투자 확대기의 잉여현금흐름 감소와 ROIC",
+      "text": "빅테크가 데이터센터에 쏟아붓는 돈이 해마다 기록을 새로 쓴다. 그런데 같은 시기 이 회사들이 손에 쥐는 현금은 오히려 줄어든다. 투자를 늘렸으면 더 벌어야 하지 않나. 답은 돈이 나가는 때와 돌아오는 때가 다르다는 데 있다.",
+      "group": "기업 수익 구조",
+      "keys": [
+        "설비투자·ROIC·현금흐름",
+        "capex",
+        "depreciation",
+        "roic",
+        "accounting-vs-economic-profit",
+        "fcf-vs-funding",
+        "ROIC (투하자본이익률)",
+        "ROIC",
+        "투하자본이익률",
+        "return on invested capital",
+        "CAPEX (설비투자)",
+        "설비투자",
+        "자본적 지출",
+        "capital expenditure",
+        "감가상각",
+        "감가상각비"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "capex-roic"
+        }
+      }
+    },
+    {
+      "id": "frame:elasticity",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "가격 인상과 매출 감소 — 가격 탄력성",
+      "text": "한 커피 프랜차이즈가 원두값 상승을 이유로 가격을 10% 올렸다. 다음 분기 매출은 오히려 6% 넘게 줄었다. 값을 올렸는데 왜 덜 벌었을까.",
+      "group": "미시경제 기초",
+      "keys": [
+        "가격과 판매량",
+        "elasticity",
+        "competition-moat",
+        "price-volume-mix",
+        "가격 탄력성",
+        "수요의 가격 탄력성"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "elasticity"
+        }
+      }
+    },
+    {
+      "id": "frame:macro-reading",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "디스인플레이션 국면의 높은 물가 수준",
+      "text": "뉴스는 물가 상승률이 8%에서 4%로 반토막 났다고 전한다. 그런데 장을 보는 사람의 체감은 그대로다. 둘 중 누가 틀렸을까. 사실은 둘 다 맞다.",
+      "group": "통화·신용·물가",
+      "keys": [
+        "물가 상승률이 내려가도 생활비가 높은 이유",
+        "price-level-vs-rate",
+        "one-price-vs-general",
+        "cpi-vs-cost-of-living",
+        "wage-nominal-real",
+        "asset-vs-consumer-prices"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "macro-reading"
+        }
+      }
+    },
+    {
+      "id": "frame:credit-money",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "은행 신용 창출과 통화량",
+      "text": "돈은 어디에서 오는가. 흔히 중앙은행이 찍어 내고, 은행은 예금을 모아 빌려준다고 생각한다. 그런데 실제 경제에서 돈의 상당 부분은 훨씬 평범한 순간에 생긴다. 은행 창구에서 대출 서류에 도장을 찍는 순간이다.",
+      "group": "통화·신용·물가",
+      "keys": [
+        "은행 대출과 돈",
+        "credit-creation",
+        "nominal-real-relative",
+        "신용 창출(은행 대출과 예금)",
+        "신용창출",
+        "money creation",
+        "통화 창출"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "credit-money"
+        }
+      }
+    },
+    {
+      "id": "frame:long-bond",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "정책금리 인하 국면의 장기채 약세 — 기간 프리미엄",
+      "text": "중앙은행이 금리를 내렸다. 채권 투자자라면 반가워야 할 소식이다. 그런데 장기채 가격은 오히려 떨어진다. 금리 인하가 시작된 해에 장기채로 손실을 본 투자자는 생각보다 많다.",
+      "group": "금리·채권·환율",
+      "keys": [
+        "금리 인하와 장기채",
+        "policy-vs-long-rate",
+        "term-premium",
+        "기간 프리미엄",
+        "term premium"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "long-bond"
+        }
+      }
+    },
+    {
+      "id": "frame:fx-exporters",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "원화 약세의 업종 내 차별적 영향",
+      "text": "원/달러 환율이 1,300원에서 1,430원으로 뛰었다. 수출주에 호재라는 기사가 쏟아진다. 그런데 같은 수출 업종 안에서도 웃는 회사와 표정이 굳는 회사가 갈린다.",
+      "group": "금리·채권·환율",
+      "keys": [
+        "환율과 수출 기업",
+        "fx-revenue-cost",
+        "fx-return-for-foreigners",
+        "환율이 매출·원가·부채에 주는 영향",
+        "환율 영향"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "fx-exporters"
+        }
+      }
+    },
+    {
+      "id": "frame:expectations",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "실적 상회에도 주가가 하락하는 구조 — 기대 대비 결과",
+      "text": "실적 발표 날, 회사는 시장 예상을 5% 웃도는 이익을 내놓았다. 그런데 주가는 8% 떨어졌다. 좋은 실적에 주가가 빠지는 장면은 생각보다 자주 반복된다.",
+      "group": "가격·기대",
+      "keys": [
+        "좋은 실적과 기대 초과",
+        "competition-moat",
+        "base-rate"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "expectations"
+        }
+      }
+    },
+    {
+      "id": "frame:index-weight",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "시가총액 가중 지수의 비중 변화와 실제 매수 흐름",
+      "text": "한 종목이 급등하자 \"지수 비중이 커졌으니 인덱스 펀드가 더 사야 한다\"는 이야기가 돈다. 그럴듯하게 들리지만, 실제로 펀드는 아무것도 사지 않는다.",
+      "group": "가격·기대",
+      "keys": [
+        "시가총액 가중 지수의 비중",
+        "correlation"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "index-weight"
+        }
+      }
+    },
+    {
+      "id": "frame:semi-process",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "수율 개선이 원가·생산능력에 미치는 영향",
+      "text": "같은 공장, 같은 장비, 같은 웨이퍼. 그런데 한 회사는 웨이퍼 한 장에서 팔 수 있는 칩을 60개 얻고, 다른 회사는 80개를 얻는다. 반도체 원가 경쟁은 이 20개의 차이에서 시작된다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "반도체 공정과 수율",
+        "yield",
+        "front-back-end",
+        "qualification",
+        "수율",
+        "양품률",
+        "manufacturing yield",
+        "전공정과 후공정",
+        "전공정",
+        "후공정"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "semi-process"
+        }
+      }
+    },
+    {
+      "id": "frame:memory-optics",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "HBM과 광 인터커넥트의 역할 분담",
+      "text": "AI 열풍이 불자 \"이제는 광통신의 시대, 메모리는 끝났다\"는 식의 이야기가 돌았다. 그런데 데이터센터 안을 들여다보면 둘은 경쟁자가 아니라 같은 팀이다. 맡은 구간이 다를 뿐이다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "메모리와 광통신",
+        "hbm",
+        "bandwidth-vs-capacity",
+        "optical-interconnect",
+        "silicon-photonics",
+        "cpo",
+        "photonic-compute",
+        "workload",
+        "HBM (고대역폭 메모리)",
+        "HBM",
+        "고대역폭 메모리",
+        "high bandwidth memory",
+        "메모리 대역폭과 용량",
+        "광 인터커넥트(광통신)",
+        "optical interconnect",
+        "광 연결",
+        "실리콘 포토닉스",
+        "silicon photonics",
+        "실리콘포토닉스",
+        "CPO (공동 패키징 광학)",
+        "CPO",
+        "co-packaged optics",
+        "공동 패키징 광학"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "memory-optics"
+        }
+      }
+    },
+    {
+      "id": "frame:tech-vs-profit",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "기술의 필요성과 공급자 수익성의 분리",
+      "text": "세상을 바꿀 기술이 나타나면 투자자들은 그 기술을 가진 회사로 몰린다. 그런데 역사는 묘한 교훈을 남겼다. 철도도, 인터넷도 세상을 바꿨지만, 그 기술을 깐 회사들 상당수는 투자자에게 돈을 돌려주지 못했다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "기술의 중요성과 공급자의 이익",
+        "competition-moat",
+        "cost-curve",
+        "capex"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "tech-vs-profit"
+        }
+      }
+    },
+    {
+      "id": "frame:bank",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "금리 상승기 은행 순이자이익 감소 요인",
+      "text": "금리가 오르면 은행이 돈을 번다. 대출 이자가 오르니까. 상식처럼 들린다. 그런데 금리 상승기에 이익이 줄어든 은행이 적지 않았다. 상식에서 빠진 조각이 있다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "은행",
+        "nim",
+        "deposit-beta",
+        "credit-cost",
+        "bank-capital",
+        "credit-creation",
+        "순이자마진(NIM)",
+        "NIM",
+        "net interest margin"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "bank"
+        }
+      }
+    },
+    {
+      "id": "frame:insurance",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "보험료 성장과 언더라이팅 손익의 괴리",
+      "text": "한 보험사의 보험료 수입이 10% 늘었다. 판매 조직은 축제 분위기다. 그런데 연말 결산을 해 보니 보험 영업은 적자로 돌아섰다. 많이 팔았는데 왜 손해를 봤을까.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "보험",
+        "loss-ratio",
+        "expense-ratio",
+        "combined-ratio",
+        "insurance-reserves",
+        "alm",
+        "float",
+        "information-asymmetry",
+        "손해율",
+        "loss ratio",
+        "합산비율",
+        "combined ratio"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "insurance"
+        }
+      }
+    },
+    {
+      "id": "frame:reit",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "임대수입 증가와 자산가치 하락 — 자본환원율",
+      "text": "어느 오피스 빌딩의 임대수입이 작년보다 5% 늘었다. 공실도 없다. 그런데 감정평가를 받아 보니 건물값은 12% 넘게 떨어졌다. 장사는 잘되는데 가게 값은 떨어진 셈이다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "부동산·리츠·건설",
+        "occupancy",
+        "noi",
+        "cap-rate",
+        "ffo",
+        "refinancing",
+        "pf",
+        "NOI (순영업소득)",
+        "NOI",
+        "net operating income",
+        "순영업소득",
+        "자본환원율(캡레이트)",
+        "cap rate",
+        "캡레이트",
+        "자본환원율",
+        "FFO (운영자금)",
+        "FFO",
+        "funds from operations"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "reit"
+        }
+      }
+    },
+    {
+      "id": "frame:consumer",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "매출 성장의 가격·물량·믹스 분해",
+      "text": "한 식품회사가 매출 8% 성장을 발표했다. 숫자만 보면 순항이다. 그런데 같은 기간 가격을 10% 올렸다는 사실을 나란히 놓으면, 그림이 달라진다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "소비·유통",
+        "price-volume-mix",
+        "same-store-sales",
+        "inventory-turnover",
+        "elasticity",
+        "가격·수량·제품 구성(믹스)",
+        "가격 효과",
+        "물량 효과",
+        "믹스 효과"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "consumer"
+        }
+      }
+    },
+    {
+      "id": "frame:software",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "사용자 증가와 수익성 부재 — 유닛 이코노믹스",
+      "text": "앱 다운로드 1억 회, 월간 사용자 3천만 명. 화려한 숫자를 가진 회사가 해마다 적자를 낸다. 사용자가 이렇게 많은데 왜 돈을 못 벌까.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "소프트웨어·플랫폼",
+        "retention",
+        "cac-ltv",
+        "gmv-vs-revenue",
+        "rpo",
+        "marginal",
+        "순매출유지율(NRR)",
+        "NRR",
+        "net revenue retention",
+        "NDR",
+        "거래액(GMV)과 매출",
+        "GMV",
+        "거래액"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "software"
+        }
+      }
+    },
+    {
+      "id": "frame:biotech",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "임상 성공에서 매출 인식까지의 시차와 희석",
+      "text": "\"임상 3상 성공.\" 바이오 회사의 주가가 하루 만에 두 배가 된다. 그런데 1년 뒤에도 매출은 0원이고, 그 사이 회사는 증자를 발표한다. 성공했는데 왜 돈이 들어오지 않을까.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "바이오·의료",
+        "clinical-phases",
+        "endpoint",
+        "reimbursement",
+        "patent-cliff",
+        "dilution",
+        "임상 1·2·3상",
+        "임상 1상",
+        "임상 2상",
+        "임상 3상",
+        "clinical trial phases"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "biotech"
+        }
+      }
+    },
+    {
+      "id": "frame:energy",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "유가 상승의 밸류체인별 차별적 영향 — 스프레드",
+      "text": "국제 유가가 배럴당 80달러에서 95달러로 뛰었다. 에너지주 강세라는 제목이 걸린다. 그런데 같은 날 정유사 주가는 떨어진다. 같은 에너지 업종인데 왜 방향이 다를까.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "에너지·화학·소재",
+        "crack-spread",
+        "cost-curve",
+        "inventory-effect",
+        "정제마진(크랙 스프레드)",
+        "정제마진",
+        "crack spread"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "energy"
+        }
+      }
+    },
+    {
+      "id": "frame:transport",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "고운임의 지속성과 공급 증설 사이클",
+      "text": "팬데믹 직후 컨테이너선 운임이 몇 배로 뛰었다. 해운사들은 사상 최대 이익을 냈다. 그리고 몇 년 뒤, 운임은 다시 바닥으로 내려왔다. 해운 산업에서 되풀이되는 롤러코스터다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "운송·물류",
+        "freight-capacity",
+        "utilization-contract",
+        "cost-curve",
+        "운임과 공급 증설"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "transport"
+        }
+      }
+    },
+    {
+      "id": "frame:agri",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "곡물 가격 상승의 수혜·피해 구조 — 가격 전가",
+      "text": "가뭄 소식에 곡물 가격이 25% 뛰었다. 누가 웃고 누가 우는가. 답은 그 곡물을 파는 쪽인지, 사서 쓰는 쪽인지에 달려 있다.",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "농업·식품",
+        "stocks-to-use",
+        "pass-through",
+        "재고/사용 비율",
+        "재고율"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "agri"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:A1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "A1 희소성과 선택",
+      "text": "희소성은 원하는 것보다 시간·노동·자본·자원이 적기 때문에 선택과 포기가 동시에 생기는 조건이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "A1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:A2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "A2 생산성과 부",
+      "text": "생산성은 같은 투입으로 더 많은 산출이나 더 높은 품질을 만드는 능력이며, 장기적인 생활 수준의 핵심 경로다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "A2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:A3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "A3 자본주의의 엔진",
+      "text": "자본주의의 핵심은 소유·계약·가격 신호를 통해 자원을 여러 생산 프로젝트에 배분하고 결과를 다시 투자하는 제도적 과정이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "A3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:A4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "A4 경제주체의 순환",
+      "text": "가계·기업·정부·금융기관은 소득·지출·저축·세금·대출을 주고받으며 하나의 경제 순환을 만든다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "A4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:B1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "B1 돈이란 무엇인가",
+      "text": "돈은 교환의 매개, 가치의 계산 단위, 구매력을 보관하는 수단이라는 세 가지 기능을 수행하는 사회적 장치다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "B1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:B2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "B2 인플레이션과 디플레이션",
+      "text": "인플레이션은 경제 전반의 가격 수준이 지속적으로 오르는 현상이고, 디플레이션은 반대로 가격 수준이 지속 하락하는 현상이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "B2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:B3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "B3 구매력",
+      "text": "구매력은 같은 돈으로 살 수 있는 재화와 서비스의 양이며, 명목 소득보다 물가와 세금·주거비를 함께 봐야 한다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "B3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:B4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "B4 복리와 시간",
+      "text": "복리는 원금뿐 아니라 이전 기간의 이익에도 다시 수익이 붙는 구조이며, 시간·수익률·재투자율이 함께 결과를 만든다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "B4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:C1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "C1 신용은 미래 소득의 현재화",
+      "text": "신용은 미래의 상환 능력을 담보·금리·계약으로 현재의 지출이나 투자를 가능하게 하는 시간 연결 장치다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "C1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:C2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "C2 은행의 역할",
+      "text": "은행은 단기 예금과 결제망을 바탕으로 다양한 만기·위험의 대출을 중개하는 동시에 유동성과 신용 위험을 관리한다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "C2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:C3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "C3 부채와 레버리지",
+      "text": "레버리지는 자기자본보다 큰 자산이나 사업을 운용하기 위해 부채를 사용하는 구조로 수익과 손실을 함께 확대한다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "C3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:C4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "C4 금융위기의 기본 구조",
+      "text": "금융위기는 자산가격·신용·유동성의 선순환이 반전되어 담보·대출·현금화가 동시에 약해지는 과정이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "C4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:D1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "D1 금리는 돈의 가격",
+      "text": "금리는 현재 자금과 미래 상환을 교환할 때 적용되는 시간·위험·유동성의 가격이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "D1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:D2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "D2 명목금리와 실질금리",
+      "text": "명목금리는 계약에 표시된 금리이고, 실질금리는 물가 변화를 고려해 실제 구매력 기준으로 남는 수익 또는 비용이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "D2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:D3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "D3 기준금리와 시장금리",
+      "text": "기준금리는 중앙은행의 정책 신호이고, 시장금리는 성장·물가·재정·수급·위험 프리미엄을 반영해 거래에서 정해진다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "D3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:D4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "D4 중앙은행의 대차대조표",
+      "text": "중앙은행 대차대조표는 통화 발행과 지급결제, 국채·대출 등 자산을 통해 금융시스템 유동성이 어떻게 공급되는지 보여준다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "D4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:D5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "D5 중앙은행의 딜레마",
+      "text": "중앙은행의 딜레마는 물가 안정·고용·금융 안정처럼 서로 다른 목표가 한 정책 수단에 동시에 걸리는 상황이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "D5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:D6",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "D6 중립금리와 정책 스탠스",
+      "text": "실질 중립금리 r*는 경제가 잠재 수준에 있고 물가가 안정적일 때 경기를 자극하지도 억제하지도 않는 이론적 실질 단기금리다. 명목 중립금리는 대략 r*와 장기 기대인플레이션의 합으로 본다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "D6"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:E1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "E1 채권은 무엇인가",
+      "text": "채권은 발행자가 정해진 시점에 이자와 원금을 지급하겠다는 계약이며, 가격과 수익률은 서로 반대 방향으로 움직인다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "E1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:E2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "E2 수익률 곡선",
+      "text": "수익률 곡선은 같은 신용등급의 채권을 만기별로 배열해 시간에 따른 금리 기대와 기간 프리미엄을 보여준다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "E2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:E3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "E3 미국채가 중요한 이유",
+      "text": "미국채는 달러 금융시장의 기준 현금흐름이자 글로벌 담보·할인율·유동성의 기준으로 널리 사용된다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "E3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:E4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "E4 신용스프레드",
+      "text": "신용스프레드는 국채 등 기준금리 대비 회사채·대출이 추가로 요구하는 위험 보상이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "E4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:E5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "E5 달러 시스템",
+      "text": "달러 시스템은 무역 결제·은행 대차대조표·채권 발행·준비자산이 달러를 국제 금융의 공통 단위로 사용하는 구조다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "E5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:E6",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "E6 환율의 원리",
+      "text": "환율은 두 통화의 상대가격이며 금리·물가·무역·자본 흐름·위험 선호가 함께 결정한다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "E6"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:E7",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "E7 엔캐리",
+      "text": "엔캐리는 낮은 금리의 엔화로 자금을 조달해 더 높은 수익률의 자산에 투자하는 레버리지된 자금 흐름이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "E7"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:F1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "F1 정부의 수입과 지출",
+      "text": "정부 재정은 세금·사회보험·국유자산 수입과 이전·공공서비스·투자·이자 지출의 흐름이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "F1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:F2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "F2 재정정책과 승수",
+      "text": "재정승수는 정부 지출이나 세금 변화가 총소득에 미치는 누적 효과로, 경제 여유·통화정책·수입·집행 속도에 따라 달라진다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "F2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:F3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "F3 국가부채의 지속 가능성",
+      "text": "국가부채의 지속 가능성은 부채 규모 자체보다 성장률·이자율·기초재정수지·통화·만기 구조가 함께 결정한다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "F3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:F4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "F4 지정학과 자본",
+      "text": "지정학은 무역 경로·기술 접근·에너지·안보 지출과 자본의 위험 프리미엄을 바꾸는 제도적 충격이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "F4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:G1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "G1 기업은 무엇인가",
+      "text": "기업은 사람·자본·기술·계약을 조직해 고객에게 제품이나 서비스를 제공하고 현금흐름을 남기는 경제 단위다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "G1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:G2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "G2 주식은 무엇인가",
+      "text": "주식은 기업의 잔여 자산·이익·의결권에 대한 소유권이며, 가격은 미래 현금흐름과 위험에 대한 시장의 기대다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "G2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:G3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "G3 기업이 자금을 조달하는 방식",
+      "text": "기업은 내부 현금, 은행대출, 회사채, 보통주·전환증권 발행으로 성장과 운영 자금을 조달한다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "G3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:G4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "G4 1차시장과 2차시장",
+      "text": "1차시장은 기업이나 기존 주주가 증권을 새로 발행해 자금을 조달하는 곳이고, 2차시장은 투자자끼리 이미 발행된 증권을 거래하는 곳이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "G4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:G5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "G5 주가의 세 엔진",
+      "text": "주가는 기업의 이익·현금흐름, 시장이 부여하는 배수, 자본비용과 유동성이라는 세 엔진의 결합으로 움직인다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "G5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:G6",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "G6 밸류에이션",
+      "text": "밸류에이션은 기업의 미래 현금흐름·성장·위험을 현재 가격과 비교하는 방법이지, 하나의 정답 숫자가 아니다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "G6"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:G7",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "G7 지수와 패시브",
+      "text": "지수는 일정한 규칙으로 시장을 측정하는 바구니이고, 패시브 투자는 그 규칙을 따라 편입·비중을 복제한다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "G7"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:G8",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "G8 공매도·옵션·파생",
+      "text": "파생상품은 기초자산의 가격·변동성·금리·신용에 대한 노출을 계약으로 분리해 이전하는 도구다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "G8"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:H1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "H1 수요·공급과 주문장",
+      "text": "수요·공급은 사고팔려는 의사의 분포이고 주문장은 특정 가격에 쌓인 실제 매수·매도 주문의 순간적인 모습이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "H1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:H2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "H2 기대와 서프라이즈",
+      "text": "시장 반응은 발표된 숫자 자체보다 사전에 형성된 기대와 실제 결과의 차이인 서프라이즈에 더 민감하다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "H2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:H3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "H3 시장 효율성과 비효율",
+      "text": "시장 효율성은 정보가 가격에 반영되는 속도와 비용에 대한 가설이지, 모든 가격이 언제나 정확하다는 뜻이 아니다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "H3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:H4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "H4 군중심리",
+      "text": "군중심리는 개인이 다른 사람의 행동과 서사를 관찰하며 자신의 판단과 포지션을 강화하는 집단적 피드백이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "H4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:H5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "H5 유동성과 포지셔닝",
+      "text": "유동성은 큰 거래를 가격 충격을 적게 처리할 수 있는 능력이고, 포지셔닝은 투자자들이 이미 어느 방향에 얼마나 노출됐는지다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "H5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:I1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "I1 경기 사이클",
+      "text": "경기 사이클은 생산·고용·소비·재고가 같은 속도로 움직이지 않으며 확장과 둔화가 반복되는 과정이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "I1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:I2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "I2 이익 사이클",
+      "text": "이익 사이클은 매출·가격·원가·영업레버리지가 기업 이익을 통해 순환하는 과정이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "I2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:I3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "I3 유동성 사이클",
+      "text": "유동성 사이클은 금융기관의 대출 의지·시장 자금·담보 가치·정책 운영이 자산과 실물에 전달되는 변동이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "I3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:I4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "I4 섹터 로테이션",
+      "text": "섹터 로테이션은 경기·금리·이익·재고의 국면에 따라 산업별 상대 성장과 밸류에이션이 이동하는 현상이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "I4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:I5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "I5 자산 간 관계",
+      "text": "자산 간 관계는 금리·성장·물가·달러·위험 선호라는 공통 요인이 서로 다른 자산의 수익률을 연결하는 방식이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "I5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:J1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "J1 투자·투기·저축",
+      "text": "저축은 미래 소비를 위해 구매력을 보존하는 행위이고, 투자는 생산적 현금흐름에 자본을 배치하는 행위이며, 투기는 가격 변화 자체에 노출되는 행위다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "J1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:J2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "J2 패시브와 액티브",
+      "text": "패시브는 정해진 지수·규칙을 추종하고 액티브는 지수와 다른 선택으로 초과성과 위험을 추구한다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "J2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:J3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "J3 포지션 사이징",
+      "text": "포지션 사이징은 가설의 불확실성과 손실 가능성을 감당 가능한 자본 위험으로 바꾸는 과정이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "J3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:J4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "J4 손실과 생존",
+      "text": "투자에서 생존은 손실을 0으로 만드는 것이 아니라 큰 손실이 복구·판단·현금흐름을 망가뜨리지 않게 관리하는 것이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "J4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:J5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "J5 투자 프로세스",
+      "text": "투자 프로세스는 질문·증거·가설·포지션·반대 시나리오·사후 기록을 반복하는 의사결정 시스템이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "J5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K1 최종 고객",
+      "text": "최종 고객은 가치사슬의 마지막 단계에서 실제로 제품·서비스에 돈을 지불하고 사용 결과를 평가하는 주체다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K2 고객이 해결하려는 문제",
+      "text": "고객 문제는 제품 기능이 아니라 시간·비용·위험·수익성·규제 부담을 줄이거나 결과를 개선해야 하는 실제 업무다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K3 돈이 흐르는 방향",
+      "text": "가치사슬 분석은 고객의 예산이 어떤 계약·중간재·서비스를 거쳐 각 기업의 매출과 현금흐름으로 이동하는지 추적하는 일이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K4 물리적·디지털 생산 단계",
+      "text": "생산 단계는 원재료·설계·제조·조립·소프트웨어·유통처럼 산출물이 다음 단계의 입력이 되는 순서다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K5 핵심 투입요소",
+      "text": "핵심 투입요소는 생산량·품질·원가를 결정하며 단기간에 대체하기 어려운 재료·장비·전력·인력·데이터다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K6",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K6 가격 결정권",
+      "text": "가격 결정권은 고객이 대체하기 어렵고 공급자가 차별화된 결과를 제공할 때 가격·계약·인상분을 방어할 수 있는 능력이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K6"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K7",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K7 공급 증설 시간",
+      "text": "공급 증설 시간은 수요 증가에 대응해 공장·장비·인력·인증·전력·물류를 준비하는 데 필요한 기간이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K7"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K8",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K8 병목과 single point of failure",
+      "text": "병목은 전체 흐름의 처리량을 제한하는 단계이고 single point of failure는 한 구성요소의 고장이 전체 시스템을 멈출 수 있는 집중 위험이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K8"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K9",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K9 반복매출과 일회성 매출",
+      "text": "반복매출은 계약·구독·소모품·유지보수로 일정 주기에 재발생하는 매출이고, 일회성 매출은 프로젝트·장비 판매처럼 거래 때마다 새 수주가 필요한 매출이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K9"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K10",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K10 CAPEX·운전자본·수익성",
+      "text": "CAPEX는 장기 생산능력에 쓰는 투자이고 운전자본은 재고·매출채권·매입채무처럼 운영 과정에서 묶이는 자금이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K10"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K11",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K11 대체재·경쟁·규제 위험",
+      "text": "대체재·경쟁·규제는 기술이나 제품이 고객 예산에서 차지하는 몫과 허용되는 사업 방식을 바꾸는 외부 제약이다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K11"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:K12",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "K12 현재 확인할 AIO 데이터",
+      "text": "산업 분석에서 AIO 데이터는 뉴스나 시세 한 줄이 아니라 수요·가격·공급·재무·자금 흐름을 같은 기준일에 연결하는 관찰 도구다.",
+      "group": "기초·시장 원리",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "K12"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L1 AI 경제의 수요 구조",
+      "text": "AI 경제의 수요는 모델 학습·추론·데이터 처리·업무 자동화에 지불하는 고객 예산에서 시작하며, 모델 성능만으로 결정되지 않는다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L2 컴퓨팅 시스템",
+      "text": "컴퓨팅 시스템은 연산기·메모리·인터커넥트·소프트웨어가 데이터를 이동시키며 작업을 완료하는 전체 구조다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L3 반도체란 무엇인가",
+      "text": "반도체는 전기적 특성을 제어해 논리·기억·센싱·전력 변환 기능을 수행하는 재료와 소자의 산업이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L4 반도체 비즈니스 모델",
+      "text": "반도체 비즈니스 모델은 설계자산·제조능력·장비·패키징·제품 브랜드 중 어디에서 가치와 위험을 보유하는지에 따라 나뉜다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L5 설계 생태계",
+      "text": "설계 생태계는 아키텍처·EDA 도구·IP·설계서비스·검증·소프트웨어가 함께 칩을 제품으로 만드는 네트워크다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L6",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L6 전공정",
+      "text": "전공정은 웨이퍼 위에 트랜지스터와 배선을 반복 형성해 회로 구조를 만드는 제조 단계다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L6"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L7",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L7 소재",
+      "text": "반도체 소재는 웨이퍼·포토레지스트·가스·금속·화학액처럼 공정의 정밀도와 반복 가능성을 좌우하는 입력이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L7"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L8",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L8 파운드리",
+      "text": "파운드리는 다른 회사의 설계를 위탁받아 웨이퍼를 제조하고 공정·용량·수율·고객 생태계로 경쟁하는 사업이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L8"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L9",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L9 메모리",
+      "text": "메모리는 데이터를 저장하고 필요한 속도로 공급하는 장치이며, 용량·대역폭·지연·전력·비트당 비용의 조합으로 평가한다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L9"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L10",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L10 첨단 패키징",
+      "text": "첨단 패키징은 여러 다이와 메모리·기판을 짧고 넓은 연결로 묶어 하나의 시스템처럼 동작시키는 후공정이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L10"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L11",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L11 테스트와 수율",
+      "text": "테스트는 제조된 다이가 사양을 만족하는지 검사하는 과정이고, 수율은 투입된 다이 중 판매 가능한 비율이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L11"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L12",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L12 서버·네트워크·광통신",
+      "text": "AI 서버 시스템은 가속기만이 아니라 CPU·메모리·스위치·광모듈·케이블이 데이터를 정해진 지연과 전력으로 이동시키는 구조다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L12"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L13",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L13 스토리지와 데이터",
+      "text": "스토리지는 학습·추론에 필요한 데이터를 보관하고 전달하며, 용량·대역폭·지연·내구성·비용의 균형을 제공한다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L13"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L14",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L14 냉각",
+      "text": "냉각은 서버가 발생한 열을 안전한 온도와 전력 효율로 제거해 장비의 성능·수명·가동률을 유지하는 시스템이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L14"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L15",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L15 반도체 산업의 이익 풀",
+      "text": "반도체 이익 풀은 최종 시스템 고객이 지불한 돈이 설계·IP·웨이퍼·메모리·패키징·장비·서비스로 분배되는 구조다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L15"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:L16",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "L16 반도체 투자에서 확인할 것",
+      "text": "반도체 투자의 핵심은 수요 서사보다 출하·가격·재고·가동률·수율·CAPEX·고객 집중을 한 주기로 검증하는 것이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "L16"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M1 전기는 상품이면서 시스템",
+      "text": "전기는 생산과 소비가 실시간으로 맞아야 하는 상품이면서 발전·송전·변전·저장·수요가 연결된 물리적 시스템이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M2 발전",
+      "text": "발전은 연료·자원·설비를 전기로 바꾸는 과정이며, 기술마다 연료비·고정비·가동률·탄소·입지 조건이 다르다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M3 전력시장 가격",
+      "text": "전력시장 가격은 특정 시간·지역에서 수요를 충족시키는 마지막 발전기의 비용과 계통 제약을 반영한다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M4 송전",
+      "text": "송전은 대규모 발전과 수요 지역을 연결하는 고전압 네트워크이며, 용량·거리·안정도가 전력 이동을 제한한다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M5 변전·배전",
+      "text": "변전·배전은 송전 전압을 지역 수요에 맞춰 낮추고 각 시설·가정·데이터센터로 전력을 나누는 마지막 계층이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M6",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M6 전력 품질과 전력전자",
+      "text": "전력 품질은 전압·주파수·고조파·순간 정전이 장비의 안정적 동작을 만족하는 정도이고, 전력전자는 이를 변환·제어한다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M6"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M7",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M7 저장",
+      "text": "전력 저장은 생산 시점과 소비 시점을 분리해 계통의 피크·주파수·예비력을 조정하는 장치다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M7"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M8",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M8 데이터센터 전력",
+      "text": "데이터센터 전력은 IT 장비가 사용하는 전력과 냉각·전력변환·네트워크 등 시설 부하를 합친 수요다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M8"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M9",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M9 원자력",
+      "text": "원자력은 높은 이용률의 저탄소 전력을 제공할 수 있지만 건설·안전·연료·폐기·규제의 긴 시간축을 가진 발전 방식이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M9"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M10",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M10 재생에너지",
+      "text": "재생에너지는 햇빛·바람 같은 변동 자원을 전기로 바꾸며 연료비는 낮지만 출력 시간·입지·계통·저장 조건이 중요하다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M10"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M11",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M11 전력망 이익 풀",
+      "text": "전력망 이익 풀은 발전·송전·변전·배전·저장·전력전자·운영서비스에 대한 지불이 어떻게 분배되는지 보여준다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M11"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:M12",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "M12 전력 투자의 핵심 지표",
+      "text": "전력 투자는 연결 가능 용량·이용률·가격·CAPEX·허가·공급망·현금 회수 기간을 함께 보는 분석이다.",
+      "group": "AI 인프라",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "M12"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N1 에너지",
+      "text": "에너지는 산업·운송·건물의 일을 가능하게 하는 입력이며 연료·전력·열의 형태와 변환 손실을 함께 봐야 한다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N2 핵심광물",
+      "text": "핵심광물은 배터리·전력망·반도체·방산 등 전략 산업에 필요하고 공급 집중·정제 능력·대체 가능성이 위험을 만든다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N3 로봇·자동화",
+      "text": "로봇·자동화는 센서·제어·소프트웨어·기계가 반복 작업의 비용·품질·안전·처리량을 바꾸는 시스템이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N4 자율주행",
+      "text": "자율주행은 센서·지도·추론·제어·안전 운영이 결합되어 사람의 개입 없이 이동 작업을 수행하는 시스템이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N5 방산",
+      "text": "방산은 국가 안보 수요를 바탕으로 장기 조달·인증·유지보수 계약이 형성되는 산업이며 성능과 신뢰성이 가격만큼 중요하다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N5"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N6",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N6 우주",
+      "text": "우주 산업은 발사·위성·지상국·데이터 서비스가 긴 개발 주기와 높은 실패 비용을 가진 가치사슬이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N6"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N7",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N7 바이오·제약",
+      "text": "바이오·제약은 생물학적 가설을 임상·허가·생산·보험 지불로 전환하는 고위험 장기 개발 산업이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N7"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N8",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N8 의료기기·헬스케어",
+      "text": "의료기기·헬스케어는 임상 효용과 안전성을 병원 workflow·보험 지불·유지보수·환자 접근성으로 연결하는 산업이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N8"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N9",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N9 금융",
+      "text": "금융 산업은 결제·대출·보험·자산관리로 자금과 위험을 중개하고, 신뢰·규제·대차대조표가 수익성을 결정한다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N9"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N10",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N10 인터넷·소프트웨어",
+      "text": "인터넷·소프트웨어는 코드·데이터·네트워크를 반복 배포해 사용자의 업무와 거래를 처리하는 디지털 가치사슬이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N10"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N11",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N11 소비재",
+      "text": "소비재 산업은 가계의 빈도·브랜드·가격·유통 선택이 생산·재고·마진과 연결되는 시장이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N11"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N12",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N12 운송·물류",
+      "text": "운송·물류는 화물·사람·정보를 정해진 시간과 비용으로 이동시키며 자산 이용률과 네트워크 밀도가 경제성을 만든다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N12"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N13",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N13 건설·부동산",
+      "text": "건설·부동산은 토지·자본·허가·자재·노동을 장기 자산과 공간 서비스로 바꾸는 프로젝트 산업이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N13"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N14",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N14 통신",
+      "text": "통신은 주파수·망·데이터센터·고객 계약으로 연결성을 제공하며 가입자·사용량·요금·CAPEX가 경제성을 만든다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N14"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:N15",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "N15 농업·식량",
+      "text": "농업·식량 산업은 토지·물·종자·비료·기계·물류를 기후와 계절 아래에서 식품으로 바꾸는 가치사슬이다.",
+      "group": "산업 응용",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "N15"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:O1",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "O1 미국 시장과 한국 시장",
+      "text": "미국과 한국 시장은 통화·금리·산업 구성·회계·투자자 기반이 달라 같은 글로벌 충격도 다른 기업 현금흐름으로 번역된다.",
+      "group": "한국 연결",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "O1"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:O2",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "O2 원/달러와 외국인",
+      "text": "원/달러 환율은 한국 자산의 달러 기준 가치와 외국인 투자자의 환산 수익을 바꾸는 상대가격이다.",
+      "group": "한국 연결",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "O2"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:O3",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "O3 한국 반도체",
+      "text": "한국 반도체는 메모리·부품·장비·소재·패키징이 글로벌 고객과 연결된 수출 중심 가치사슬이다.",
+      "group": "한국 연결",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "O3"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:O4",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "O4 한국 전력·산업정책",
+      "text": "한국 전력·산업정책은 전력 가격·망 투자·세제·보조금·규제로 제조와 데이터센터의 입지·원가·증설 속도를 바꾼다.",
+      "group": "한국 연결",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "O4"
+        }
+      }
+    },
+    {
+      "id": "principles-lesson:O5",
+      "surface": "principles-lesson",
+      "surfaceLabel": "시장 원리 레슨",
+      "title": "O5 세금·계좌·환율 비용",
+      "text": "세금·계좌·환율 비용은 투자 수익률에서 보이지 않게 차감되는 거래·보유·환전·배당·이자·양도 비용이다.",
+      "group": "한국 연결",
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "lesson": "O5"
+        }
+      }
+    },
+    {
+      "id": "principles-node:ai-era",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "AI 시대",
+      "text": "문제·능력·모델·시스템·하드웨어·경제를 한 흐름으로 읽는 출발점.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "ai-era"
+        }
+      }
+    },
+    {
+      "id": "principles-node:ai-workload",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "AI workload",
+      "text": "학습과 추론은 서로 다른 계산·메모리·지연 요구를 만든다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "ai-workload"
+        }
+      }
+    },
+    {
+      "id": "principles-node:compute",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "계산",
+      "text": "병렬 연산과 특화 가속기가 모델의 처리량을 결정한다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "compute"
+        }
+      }
+    },
+    {
+      "id": "principles-node:memory-hbm",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "메모리·HBM",
+      "text": "데이터 이동과 대역폭이 계산 능력의 실제 활용도를 제한할 수 있다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "memory-hbm"
+        }
+      }
+    },
+    {
+      "id": "principles-node:advanced-packaging",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "첨단 패키징",
+      "text": "칩과 메모리를 가까이 묶어 대역폭·열·수율의 절충을 만든다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "advanced-packaging"
+        }
+      }
+    },
+    {
+      "id": "principles-node:storage",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "스토리지",
+      "text": "추론과 데이터 파이프라인에서 저장 용량·지연·쓰기 내구성이 비용 구조에 영향을 준다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "storage"
+        }
+      }
+    },
+    {
+      "id": "principles-node:power-cooling",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "전력·냉각",
+      "text": "데이터센터의 전력 공급과 열 제거가 물리적 확장의 전제다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "power-cooling"
+        }
+      }
+    },
+    {
+      "id": "principles-node:ai-capex",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "AI CAPEX",
+      "text": "서버·네트워크·전력 투자는 매출 성장과 감가상각·현금흐름 사이의 연결고리다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "ai-capex"
+        }
+      }
+    },
+    {
+      "id": "principles-node:visibility",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "매출 가시성",
+      "text": "수주·예약·사용량·고객 집중도는 미래 매출을 읽는 단서지만 확정 매출과 동일하지 않다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "visibility"
+        }
+      }
+    },
+    {
+      "id": "principles-node:financing",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "금융·신용",
+      "text": "금리와 신용 조건은 장기 투자 프로젝트의 할인율과 자금 조달 여건을 바꾼다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "financing"
+        }
+      }
+    },
+    {
+      "id": "principles-node:geo-rates",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "지정학·원자재·금리",
+      "text": "공급망·에너지·금융 조건이 서로 연결되며 산업의 병목을 재배치할 수 있다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "geo-rates"
+        }
+      }
+    },
+    {
+      "id": "principles-node:evaluation",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "검증 프레임",
+      "text": "성장률보다 먼저 출처·관찰기간·단위·대체 설명을 확인한다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "evaluation"
+        }
+      }
+    },
+    {
+      "id": "principles-node:scarcity-choice",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "희소성과 선택",
+      "text": "자원은 유한하고 선택에는 기회비용이 따른다는 경제의 출발점.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "scarcity-choice"
+        }
+      }
+    },
+    {
+      "id": "principles-node:productivity-wealth",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "생산성과 부",
+      "text": "노동·자본·기술·제도가 같은 자원으로 더 많은 가치를 만드는 과정.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "productivity-wealth"
+        }
+      }
+    },
+    {
+      "id": "principles-node:capitalism-engine",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "자본주의의 엔진",
+      "text": "소유·계약·경쟁·투자가 생산능력과 이익의 재투자를 연결하는 방식.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "capitalism-engine"
+        }
+      }
+    },
+    {
+      "id": "principles-node:money-purchasing-power",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "돈과 구매력",
+      "text": "돈은 교환·계산·저장의 기능을 가지며 물가 변화는 구매력을 바꾼다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "money-purchasing-power"
+        }
+      }
+    },
+    {
+      "id": "principles-node:inflation-deflation",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "인플레이션과 디플레이션",
+      "text": "평균 가격수준의 변화와 상대가격 변화를 구분해 수요·공급·기대의 전달을 읽는다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "inflation-deflation"
+        }
+      }
+    },
+    {
+      "id": "principles-node:credit-banks-debt",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "신용·은행·부채",
+      "text": "현재 지출과 미래 소득을 연결하지만 상환·담보·만기 위험도 만든다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "credit-banks-debt"
+        }
+      }
+    },
+    {
+      "id": "principles-node:interest-central-bank",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "금리와 중앙은행",
+      "text": "금리는 시간·위험·유동성의 가격이며 중앙은행은 금융조건과 물가 기대에 영향을 준다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "interest-central-bank"
+        }
+      }
+    },
+    {
+      "id": "principles-node:bonds-dollar-currency",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "채권·달러·환율",
+      "text": "채권의 현금흐름과 금리, 통화의 상대가격이 글로벌 자금 흐름과 연결된다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "bonds-dollar-currency"
+        }
+      }
+    },
+    {
+      "id": "principles-node:government-fiscal",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "정부·재정·국가",
+      "text": "세입·지출·차입과 정책 우선순위가 수요·공급·국가의 자본배분에 미치는 경로.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "government-fiscal"
+        }
+      }
+    },
+    {
+      "id": "principles-node:company-stock-valuation",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "기업·주식·밸류에이션",
+      "text": "기업의 생산·현금흐름·자금조달과 주식의 기대가치·가격을 분리해 읽는다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "company-stock-valuation"
+        }
+      }
+    },
+    {
+      "id": "principles-node:market-price-discovery",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "시장과 가격발견",
+      "text": "주문·유동성·기대·서프라이즈가 거래 가능한 가격에 반영되는 과정.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "market-price-discovery"
+        }
+      }
+    },
+    {
+      "id": "principles-node:cycles-allocation",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "경기순환과 자산배분",
+      "text": "경기·이익·유동성의 서로 다른 시간축이 산업과 자산의 상대가격에 전달된다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "cycles-allocation"
+        }
+      }
+    },
+    {
+      "id": "principles-node:investment-risk",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "투자와 리스크",
+      "text": "수익 가능성보다 먼저 손실·생존·포지션 크기·검증 절차를 설계한다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "investment-risk"
+        }
+      }
+    },
+    {
+      "id": "principles-node:industry-value-chain",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "산업 가치사슬",
+      "text": "수요에서 원재료·공정·제품·서비스·현금흐름으로 이어지는 이익 풀과 병목의 지도.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "industry-value-chain"
+        }
+      }
+    },
+    {
+      "id": "principles-node:power-electricity-system",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "전력 시스템",
+      "text": "발전·송전·배전·저장·수요반응이 하나의 물리적 시스템으로 전력을 공급합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "power-electricity-system"
+        }
+      }
+    },
+    {
+      "id": "principles-node:power-generation-market",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "발전 시장",
+      "text": "가스·석탄·원전·수력·재생에너지가 비용·안정성·탄소 제약을 두고 전력 믹스를 만듭니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "power-generation-market"
+        }
+      }
+    },
+    {
+      "id": "principles-node:grid-transmission-distribution",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "전력망과 접속",
+      "text": "송전망·배전망·변전소와 접속 대기시간이 발전소와 데이터센터의 실제 가동 시점을 결정합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "grid-transmission-distribution"
+        }
+      }
+    },
+    {
+      "id": "principles-node:energy-storage",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "저장과 수요반응",
+      "text": "배터리·양수·수요반응은 전력 생산과 소비의 시간 차이를 줄여 계통 유연성을 높입니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "energy-storage"
+        }
+      }
+    },
+    {
+      "id": "principles-node:data-center-power-demand",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "데이터센터 전력 수요",
+      "text": "AI 랙 밀도와 가동률은 데이터센터를 전력의 대형 산업 수요처로 바꿉니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "data-center-power-demand"
+        }
+      }
+    },
+    {
+      "id": "principles-node:industrial-energy-efficiency",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "산업 효율과 냉각",
+      "text": "효율·냉각·열관리 개선은 같은 전력으로 더 많은 계산과 생산을 가능하게 합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "industrial-energy-efficiency"
+        }
+      }
+    },
+    {
+      "id": "principles-node:critical-minerals",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "핵심 광물과 소재",
+      "text": "구리·리튬·희토류·웨이퍼 소재의 공급과 정제가 장비·전력·배터리 확장의 병목이 될 수 있습니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "critical-minerals"
+        }
+      }
+    },
+    {
+      "id": "principles-node:robotics-automation",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "로보틱스와 자동화",
+      "text": "센서·제어·모델·액추에이터를 결합해 소프트웨어 지능을 물리적 작업으로 전달합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "robotics-automation"
+        }
+      }
+    },
+    {
+      "id": "principles-node:defense-space",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "방산과 우주",
+      "text": "자율성·센서·통신·엣지 컴퓨팅이 높은 신뢰성·보안·조달 주기와 결합되는 산업입니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "defense-space"
+        }
+      }
+    },
+    {
+      "id": "principles-node:biotech-healthcare",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "바이오와 헬스케어",
+      "text": "AI가 발견·진단·임상·운영에 들어가지만 규제·검증·상환 구조가 상용화를 제한합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "biotech-healthcare"
+        }
+      }
+    },
+    {
+      "id": "principles-node:finance-software-consumer",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "금융·소프트웨어·소비자 서비스",
+      "text": "모델이 반복 업무와 의사결정을 바꾸면서 데이터·유통·신뢰·전환율이 가치 포착을 좌우합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "finance-software-consumer"
+        }
+      }
+    },
+    {
+      "id": "principles-node:us-korea-market",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "미국·한국 시장 연결",
+      "text": "글로벌 공급망·상장시장·고객·정책의 연결을 통해 AI 산업의 가치가 지역별로 분배됩니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "us-korea-market"
+        }
+      }
+    },
+    {
+      "id": "principles-node:krw-dollar-foreign-flow",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "원화·달러·외국인 자금",
+      "text": "환율·금리·외국인 수급은 같은 산업의 원화 수익과 달러 기준 자본비용을 다르게 보이게 합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "krw-dollar-foreign-flow"
+        }
+      }
+    },
+    {
+      "id": "principles-node:korea-semiconductor-policy",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "한국 반도체 정책과 공급망",
+      "text": "세제·인프라·인력·수출 규칙은 기업의 투자 위치와 공급망 회복력을 바꿉니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "korea-semiconductor-policy"
+        }
+      }
+    },
+    {
+      "id": "principles-node:tax-accounting-cashflow",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "세금·회계·현금흐름",
+      "text": "회계상 성장과 실제 현금 회수는 다를 수 있으므로 감가상각·운전자본·세금을 함께 읽어야 합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "tax-accounting-cashflow"
+        }
+      }
+    },
+    {
+      "id": "principles-node:physical-ai-perception",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "Physical AI 인지·센서 융합",
+      "text": "카메라·라이다·촉각·상태 신호를 하나의 세계 상태로 묶어 행동 가능한 입력으로 만드는 단계입니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "physical-ai-perception"
+        }
+      }
+    },
+    {
+      "id": "principles-node:physical-ai-planning",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "Physical AI 계획·경로 생성",
+      "text": "목표·제약·예측된 상태를 바탕으로 다음 행동의 순서를 고르는 소프트웨어 계층입니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "physical-ai-planning"
+        }
+      }
+    },
+    {
+      "id": "principles-node:physical-ai-control",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "Physical AI 제어·작동",
+      "text": "계획을 모터·차량·로봇의 실제 움직임으로 바꾸며 지연·안전·인간 개입을 함께 관리합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "physical-ai-control"
+        }
+      }
+    },
+    {
+      "id": "principles-node:robot-unit-economics",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "로봇 단위경제",
+      "text": "하드웨어 원가뿐 아니라 가동률·유지보수·현장 통합·작업 성공률을 함께 봐야 하는 경제성 문제입니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "robot-unit-economics"
+        }
+      }
+    },
+    {
+      "id": "principles-node:defense-autonomy",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "방산 자율화와 인간 통제",
+      "text": "탐지·판단·행동의 자동화 수준과 통신 단절·오판·인간 승인 경계를 함께 평가합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "defense-autonomy"
+        }
+      }
+    },
+    {
+      "id": "principles-node:defense-procurement",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "방산 조달과 생산 지속성",
+      "text": "시연 성능보다 반복 생산·정비·보급·계약 인식이 임무 지속성과 사업성을 결정합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "defense-procurement"
+        }
+      }
+    },
+    {
+      "id": "principles-node:space-launch-economics",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "우주 발사 서비스",
+      "text": "발사체 물리와 발사 성공률, 재사용 회전율, 발사장·보험·고객 일정이 하나의 운영 시스템을 이룹니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "space-launch-economics"
+        }
+      }
+    },
+    {
+      "id": "principles-node:space-systems-economics",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "우주 시스템 가치사슬",
+      "text": "발사·위성·부품·지상국·데이터 서비스를 분리해야 어느 단계가 반복 매출과 병목을 갖는지 보입니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "space-systems-economics"
+        }
+      }
+    },
+    {
+      "id": "principles-node:enterprise-ai-workflow",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "기업 AI 워크플로 통합",
+      "text": "모델보다 데이터 권한·업무 맥락·감사 로그·사람의 승인 흐름이 실제 도입의 경계를 만듭니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "enterprise-ai-workflow"
+        }
+      }
+    },
+    {
+      "id": "principles-node:ai-workflow-adoption",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "AI 업무 도입과 전환비용",
+      "text": "시간 절약이 매출이나 현금흐름으로 이어지려면 조직 재설계·교육·검수·전환비용을 함께 통과해야 합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "ai-workflow-adoption"
+        }
+      }
+    },
+    {
+      "id": "principles-node:application-roi-evidence",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "AI 애플리케이션 ROI 검증",
+      "text": "사용량이나 토큰 가격 대신 작업 성공률·처리시간·오류비용·유지비용을 기준선과 비교합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "application-roi-evidence"
+        }
+      }
+    },
+    {
+      "id": "principles-node:rare-earths-supply-chain",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "희토류·자석 공급망",
+      "text": "광석·분리·정제·자석·고객 인증은 서로 다른 단계이므로 자원 보유와 다운스트림 공급능력을 구분합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "rare-earths-supply-chain"
+        }
+      }
+    },
+    {
+      "id": "principles-node:refining-qualification",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "정제·재활용·고객 인증",
+      "text": "순도·회수율·공정 수율과 고객 인증 기간이 소재 사업의 실제 병목과 자본회수 속도를 결정합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "refining-qualification"
+        }
+      }
+    },
+    {
+      "id": "principles-node:materials-policy",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "핵심소재 산업정책",
+      "text": "보조금·수출통제·비축·지역화 정책은 소재의 가격뿐 아니라 공급망 선택과 투자 위치를 바꿉니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "materials-policy"
+        }
+      }
+    },
+    {
+      "id": "principles-node:hbm-system-bottleneck",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "HBM 시스템 병목",
+      "text": "대역폭·용량·전력·적층수율·패키지 연결을 함께 봐야 메모리 병목을 시스템 관점에서 설명할 수 있습니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "hbm-system-bottleneck"
+        }
+      }
+    },
+    {
+      "id": "principles-node:chiplet-economics",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "칩렛·패키지 경제성",
+      "text": "다이 분할은 설계 재사용과 수율의 이점을 줄 수 있지만 인터포저·검증·열·패키지 비용을 추가합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "chiplet-economics"
+        }
+      }
+    },
+    {
+      "id": "principles-node:quantum-platform",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "양자 플랫폼과 측정",
+      "text": "큐비트 하드웨어·회로 실행·오류·측정·클라우드 접근을 하나의 실험 루프로 평가해야 합니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "quantum-platform"
+        }
+      }
+    },
+    {
+      "id": "principles-node:photonic-link-economics",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "포토닉 링크와 전력/비트",
+      "text": "광 링크는 대역폭·거리·오류율뿐 아니라 전력/비트와 모듈 수율을 함께 봐야 네트워크 병목을 설명할 수 있습니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "photonic-link-economics"
+        }
+      }
+    },
+    {
+      "id": "principles-node:data-center-lease-burden",
+      "surface": "principles-node",
+      "surfaceLabel": "시장 원리 개념 지도",
+      "title": "데이터센터 임차·자금 부담",
+      "text": "AI 인프라 수요는 서버 CAPEX뿐 아니라 임차·전력계약·감가상각·금융비용으로 재무제표에 전달됩니다.",
+      "group": null,
+      "keys": [],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "tree",
+          "node": "data-center-lease-burden"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:energy-and-power",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "에너지와 전력",
+      "text": "에너지는 일을 할 수 있는 능력이고 전력은 에너지가 시간당 전달되는 속도다.",
+      "group": "F1",
+      "keys": [
+        "Energy and power"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F1",
+          "lesson": "energy-and-power"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:vectors-and-matrices",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "벡터와 행렬",
+      "text": "벡터는 수치 묶음이고 행렬은 벡터를 변환하는 배열이다.",
+      "group": "F1",
+      "keys": [
+        "Vectors and matrices"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F1",
+          "lesson": "vectors-and-matrices"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:probability-and-statistics",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "확률과 통계",
+      "text": "확률은 불확실성을 표현하고 통계는 관측 자료에서 패턴과 오차를 추정한다.",
+      "group": "F1",
+      "keys": [
+        "Probability and statistics"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F1",
+          "lesson": "probability-and-statistics"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:parallel-processing",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "병렬처리",
+      "text": "병렬처리는 독립적인 계산을 여러 연산 유닛이 동시에 수행하는 방식이다.",
+      "group": "F1",
+      "keys": [
+        "Parallel processing"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F1",
+          "lesson": "parallel-processing"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:silicon-and-doping",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "실리콘과 도핑",
+      "text": "실리콘은 반도체 재료이고 도핑은 전하 운반 특성을 조절하는 공정이다.",
+      "group": "F1",
+      "keys": [
+        "Silicon and doping"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F1",
+          "lesson": "silicon-and-doping"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:bottlenecks-and-scarcity",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "병목과 희소성",
+      "text": "병목은 전체 시스템의 처리량을 제한하는 가장 좁은 제약이고 희소성은 선택 가능한 자원이 제한된 상태다.",
+      "group": "F1",
+      "keys": [
+        "Bottlenecks and scarcity"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F1",
+          "lesson": "bottlenecks-and-scarcity"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:capex-and-depreciation",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "CAPEX와 감가상각",
+      "text": "CAPEX는 장기간 사용할 자산에 대한 투자이고 감가상각은 그 원가를 사용 기간에 배분하는 회계 처리다.",
+      "group": "F6",
+      "keys": [
+        "CAPEX and depreciation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F6",
+          "lesson": "capex-and-depreciation"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:rules-vs-learning",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "규칙 기반과 학습 시스템",
+      "text": "규칙 기반 프로그램은 사람이 조건을 작성하고 학습 시스템은 데이터에서 parameter를 조정한다.",
+      "group": "F2",
+      "keys": [
+        "Rules-based programs vs learning systems"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F2",
+          "lesson": "rules-vs-learning"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:model-parameters-training",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "모델·파라미터·학습",
+      "text": "모델은 입력을 출력으로 바꾸는 구조이고 parameter는 학습 과정에서 조정되는 수치다.",
+      "group": "F2",
+      "keys": [
+        "Models, parameters and training"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F2",
+          "lesson": "model-parameters-training"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:data-quality",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "데이터와 데이터 품질",
+      "text": "데이터 품질은 정확성뿐 아니라 대표성·중복·누락·시간 일관성·권리·라벨 품질을 포함한다.",
+      "group": "F2",
+      "keys": [
+        "Data and data quality"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F2",
+          "lesson": "data-quality"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:learning-types",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "지도·비지도·강화학습",
+      "text": "지도·비지도·강화학습은 supervision 신호와 최적화 목표가 서로 다르다.",
+      "group": "F2",
+      "keys": [
+        "Supervised, unsupervised and reinforcement learning"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F2",
+          "lesson": "learning-types"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:neural-networks",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "신경망",
+      "text": "신경망은 층별 함수의 조합으로 입력 표현을 변환하는 parameterized model이다.",
+      "group": "F2",
+      "keys": [
+        "Neural networks"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F2",
+          "lesson": "neural-networks"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:forward-backpropagation",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "순전파와 역전파",
+      "text": "forward pass는 출력을 계산하고 backpropagation은 손실의 영향을 각 층으로 전달한다.",
+      "group": "F2",
+      "keys": [
+        "Forward pass and backpropagation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F2",
+          "lesson": "forward-backpropagation"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:generalization-and-memory",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "일반화와 암기",
+      "text": "일반화는 보지 못한 입력에도 규칙을 적용하는 능력이고 memorization은 학습 표본을 그대로 기억하는 현상이다.",
+      "group": "F2",
+      "keys": [
+        "Generalization and memorization"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F2",
+          "lesson": "generalization-and-memory"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:hallucination-and-verification",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "환각과 검증",
+      "text": "환각은 모델이 충분한 근거 없이 그럴듯한 출력을 생성하는 오류다.",
+      "group": "F2",
+      "keys": [
+        "Hallucination and verification"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F2",
+          "lesson": "hallucination-and-verification"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:tokenization",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "토큰화",
+      "text": "토큰화는 문장을 모델이 처리할 작은 기호 단위로 나누는 과정이다.",
+      "group": "F3",
+      "keys": [
+        "Tokenization"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "tokenization"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:embedding-and-position",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "임베딩과 위치 정보",
+      "text": "embedding은 token을 벡터로 바꾸고 position 정보는 순서를 표현한다.",
+      "group": "F3",
+      "keys": [
+        "Embedding and position"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "embedding-and-position"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:self-attention",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "Self-Attention",
+      "text": "self-attention은 각 token이 다른 token의 정보를 가중합으로 참고하는 연산이다.",
+      "group": "F3",
+      "keys": [
+        "Self-attention"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "self-attention"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:multi-head-attention",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "Multi-Head Attention",
+      "text": "multi-head attention은 여러 projection 공간에서 관계를 병렬 계산한 뒤 결과를 합치는 구조다.",
+      "group": "F3",
+      "keys": [
+        "Multi-head attention"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "multi-head-attention"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:context-window",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "컨텍스트 윈도우",
+      "text": "context window는 모델이 한 번의 계산에서 직접 참고할 수 있는 token 범위다.",
+      "group": "F3",
+      "keys": [
+        "Context window"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "context-window"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:kv-cache",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "KV Cache",
+      "text": "KV cache는 autoregressive 생성에서 이미 계산한 각 attention layer의 key·value를 token·요청별로 저장해 반복 계산을 줄이는 동적 메모리 구조다.",
+      "group": "F3",
+      "keys": [
+        "KV cache"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "kv-cache"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:pretraining",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "사전학습",
+      "text": "사전학습은 대규모 데이터에서 다음 token 등 일반 목적의 예측 목표를 최적화하는 단계다.",
+      "group": "F3",
+      "keys": [
+        "Pretraining"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "pretraining"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:post-training",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "후속학습",
+      "text": "후속학습은 기본 모델의 출력을 사람의 지시·선호·도구 정책에 맞게 조정하는 단계다.",
+      "group": "F3",
+      "keys": [
+        "Post-training"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "post-training"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:evaluation",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "평가",
+      "text": "평가는 모델이 정한 업무 목표를 얼마나 안정적·공정·안전하게 수행하는지 측정하는 과정이다.",
+      "group": "F3",
+      "keys": [
+        "Evaluation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "evaluation"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:deployment",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "배포와 운영",
+      "text": "배포는 모델을 실제 사용자·권한·하드웨어·운영 환경에서 서비스하는 단계다.",
+      "group": "F3",
+      "keys": [
+        "Deployment"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F3",
+          "lesson": "deployment"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:parameter-vs-external-memory",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "파라미터 기억과 외부 기억",
+      "text": "parameter memory는 학습된 내부 표현이고 external memory는 문서·DB·검색 인덱스 같은 외부 정보다.",
+      "group": "F4",
+      "keys": [
+        "Parameter memory vs external memory"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F4",
+          "lesson": "parameter-vs-external-memory"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:retrieval-augmented-generation",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "RAG·검색 증강 생성",
+      "text": "RAG는 질문에 관련된 문서를 검색해 생성 모델 입력에 근거로 추가하는 pipeline이다.",
+      "group": "F4",
+      "keys": [
+        "Retrieval-augmented generation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F4",
+          "lesson": "retrieval-augmented-generation"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:tool-use",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "도구 사용",
+      "text": "tool use는 모델이 API·계산기·검색·파일 같은 외부 기능을 호출하는 패턴이다.",
+      "group": "F4",
+      "keys": [
+        "Tool use"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F4",
+          "lesson": "tool-use"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:agent-loop",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "Agent 행동 루프",
+      "text": "agent loop는 목표·관찰·계획·도구 실행·검증을 반복하는 시스템 구조다.",
+      "group": "F4",
+      "keys": [
+        "Agent loop"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F4",
+          "lesson": "agent-loop"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:state-action-dynamics",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "상태·행동·동역학",
+      "text": "상태는 현재 조건, action은 가능한 행동, dynamics는 행동 뒤 상태가 바뀌는 규칙이다.",
+      "group": "F4",
+      "keys": [
+        "State, action and dynamics"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F4",
+          "lesson": "state-action-dynamics"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:planning-and-control",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "계획과 제어",
+      "text": "계획은 목표까지의 행동 순서를 만들고 제어는 feedback으로 실제 행동을 조정한다.",
+      "group": "F4",
+      "keys": [
+        "Planning and control"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F4",
+          "lesson": "planning-and-control"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:world-model-limitations",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "World Model의 한계",
+      "text": "world model은 상태와 행동 결과를 예측하려는 내부 모델이지만 현실을 완전히 복제하지는 못한다.",
+      "group": "F4",
+      "keys": [
+        "World model limitations"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F4",
+          "lesson": "world-model-limitations"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:workload-shape",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "AI Workload의 형태",
+      "text": "AI workload shape는 학습·추론·batch·실시간·sequence 길이·동시성의 조합이다.",
+      "group": "F5",
+      "keys": [
+        "AI workload shape"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "workload-shape"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:cpu-gpu-asic-npu",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "CPU·GPU·ASIC·NPU",
+      "text": "CPU·GPU·ASIC·NPU는 범용성·병렬성·전용 최적화가 다른 계산 자원이다.",
+      "group": "F5",
+      "keys": [
+        "CPU, GPU, ASIC and NPU"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "cpu-gpu-asic-npu"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:precision-and-tensor-core",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "정밀도와 Tensor Core",
+      "text": "수치 정밀도는 계산에 쓰는 bit 폭이고 tensor core는 행렬·tensor 연산을 전용으로 가속하는 유닛이다.",
+      "group": "F5",
+      "keys": [
+        "Precision and tensor core"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "precision-and-tensor-core"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:memory-wall",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "Memory Wall",
+      "text": "memory wall은 계산 유닛보다 데이터를 가져오고 옮기는 속도가 시스템 성능을 제한하는 현상이다.",
+      "group": "F5",
+      "keys": [
+        "Memory wall"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "memory-wall"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:hbm",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "HBM",
+      "text": "HBM은 여러 DRAM die를 수직 적층하고 넓은 인터페이스로 가속기 가까이 연결하는 메모리다.",
+      "group": "F5",
+      "keys": [
+        "HBM"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "hbm"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:interconnect",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "Interconnect",
+      "text": "인터커넥트는 칩·메모리·서버·랙 사이에서 데이터를 이동시키는 연결 구조다.",
+      "group": "F5",
+      "keys": [
+        "Interconnect"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "interconnect"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:advanced-packaging",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "첨단 패키징",
+      "text": "첨단 패키징은 여러 die와 메모리를 하나의 시스템처럼 연결하는 조립·배선 기술이다.",
+      "group": "F5",
+      "keys": [
+        "Advanced packaging"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "advanced-packaging"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:rack-density-and-cooling",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "랙 밀도와 냉각",
+      "text": "랙 밀도는 한 랙에 배치하는 IT 전력·연산량이고 냉각은 발생한 열을 제거하는 시스템이다.",
+      "group": "F5",
+      "keys": [
+        "Rack density and cooling"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "rack-density-and-cooling"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:power-and-grid",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "전력과 전력망",
+      "text": "AI 인프라의 전력 문제는 장비 소비전력과 전력망의 발전·송전·접속·변압기 용량을 함께 보는 문제다.",
+      "group": "F5",
+      "keys": [
+        "Power and grid"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F5",
+          "lesson": "power-and-grid"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:unit-economics",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "단위경제성",
+      "text": "단위경제성은 한 고객·요청·GPU시간·제품 단위가 만드는 수익과 변동비를 비교하는 틀이다.",
+      "group": "F6",
+      "keys": [
+        "Unit economics"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F6",
+          "lesson": "unit-economics"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:utilization",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "가동률",
+      "text": "가동률은 보유한 설비·용량이 실제 workload를 처리한 정도다.",
+      "group": "F6",
+      "keys": [
+        "Utilization"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F6",
+          "lesson": "utilization"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:capacity-and-yield",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "생산능력과 수율",
+      "text": "capacity는 투입 가능한 생산·서비스 물량이고 yield는 투입 중 사양을 만족하는 양품 비율이다.",
+      "group": "F6",
+      "keys": [
+        "Capacity and yield"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F6",
+          "lesson": "capacity-and-yield"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:fcf-and-funding",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "FCF와 자금조달",
+      "text": "FCF는 영업활동에서 번 현금에서 필요한 투자를 뺀 현금 흐름이고 funding은 부족한 자금을 조달하는 구조다.",
+      "group": "F6",
+      "keys": [
+        "FCF and funding"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F6",
+          "lesson": "fcf-and-funding"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:roic-and-counter-scenario",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "ROIC와 반대 시나리오",
+      "text": "ROIC는 투자 자본이 영업 수익을 얼마나 만드는지 보는 틀이고 counter-scenario는 반대 경로를 먼저 시험하는 방법이다.",
+      "group": "F6",
+      "keys": [
+        "ROIC and counter-scenario"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F6",
+          "lesson": "roic-and-counter-scenario"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:claim-source-as-of",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "주장·출처·기준일",
+      "text": "claim-source-as-of 규칙은 주장마다 무엇을 언제 어떤 출처에서 확인했는지 기록하는 방식이다.",
+      "group": "F6",
+      "keys": [
+        "Claim, source and as-of discipline"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F6",
+          "lesson": "claim-source-as-of"
+        }
+      }
+    },
+    {
+      "id": "atlas-foundation:human-review",
+      "surface": "atlas-foundation",
+      "surfaceLabel": "AI 기초",
+      "title": "사람의 검토",
+      "text": "human review는 모델·자동화 결과를 기술·출처·위험·맥락 기준으로 사람이 승인하거나 수정하는 단계다.",
+      "group": "F6",
+      "keys": [
+        "Human review"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "foundations",
+          "chapter": "F6",
+          "lesson": "human-review"
+        }
+      }
+    },
+    {
+      "id": "atlas:cloud-hyperscaler",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "하이퍼스케일러 클라우드",
+      "text": "클라우드·AI 플랫폼 · Hyperscaler cloud",
+      "group": "클라우드·AI 플랫폼",
+      "keys": [
+        "Hyperscaler cloud",
+        "cloud hyperscaler"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "cloud-hyperscaler",
+          "domain": "domain-cloud-platform"
+        }
+      }
+    },
+    {
+      "id": "atlas:cloud-ai-service",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "관리형 AI 서비스",
+      "text": "클라우드·AI 플랫폼 · Managed AI service",
+      "group": "클라우드·AI 플랫폼",
+      "keys": [
+        "Managed AI service",
+        "cloud ai service"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "cloud-ai-service",
+          "domain": "domain-cloud-platform"
+        }
+      }
+    },
+    {
+      "id": "atlas:cloud-utilization",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "가동률·Workload 구성",
+      "text": "클라우드·AI 플랫폼 · Utilization / workload mix",
+      "group": "클라우드·AI 플랫폼",
+      "keys": [
+        "Utilization / workload mix",
+        "cloud utilization"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "cloud-utilization",
+          "domain": "domain-cloud-platform"
+        }
+      }
+    },
+    {
+      "id": "atlas:cloud-commitments",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "클라우드 장기 약정",
+      "text": "클라우드·AI 플랫폼 · Cloud commitments",
+      "group": "클라우드·AI 플랫폼",
+      "keys": [
+        "Cloud commitments",
+        "cloud commitments"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "cloud-commitments",
+          "domain": "domain-cloud-platform"
+        }
+      }
+    },
+    {
+      "id": "atlas:cloud-depreciation",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "감가상각 주기",
+      "text": "클라우드·AI 플랫폼 · Depreciation cycle",
+      "group": "클라우드·AI 플랫폼",
+      "keys": [
+        "Depreciation cycle",
+        "cloud depreciation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "cloud-depreciation",
+          "domain": "domain-cloud-platform"
+        }
+      }
+    },
+    {
+      "id": "atlas:neocloud-gpu-rental",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "GPU 임대",
+      "text": "네오클라우드·GPU 금융 · GPU rental",
+      "group": "네오클라우드·GPU 금융",
+      "keys": [
+        "GPU rental",
+        "neocloud gpu rental"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "neocloud-gpu-rental",
+          "domain": "domain-neocloud-finance"
+        }
+      }
+    },
+    {
+      "id": "atlas:neocloud-capacity-reservation",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "컴퓨트 용량 예약",
+      "text": "네오클라우드·GPU 금융 · Capacity reservation",
+      "group": "네오클라우드·GPU 금융",
+      "keys": [
+        "Capacity reservation",
+        "neocloud capacity reservation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "neocloud-capacity-reservation",
+          "domain": "domain-neocloud-finance"
+        }
+      }
+    },
+    {
+      "id": "atlas:neocloud-lease-burden",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "리스·고정비 부담",
+      "text": "네오클라우드·GPU 금융 · Lease burden",
+      "group": "네오클라우드·GPU 금융",
+      "keys": [
+        "Lease burden",
+        "neocloud lease burden"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "neocloud-lease-burden",
+          "domain": "domain-neocloud-finance"
+        }
+      }
+    },
+    {
+      "id": "atlas:neocloud-customer-concentration",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "고객 집중도",
+      "text": "네오클라우드·GPU 금융 · Customer concentration",
+      "group": "네오클라우드·GPU 금융",
+      "keys": [
+        "Customer concentration",
+        "neocloud customer concentration"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "neocloud-customer-concentration",
+          "domain": "domain-neocloud-finance"
+        }
+      }
+    },
+    {
+      "id": "atlas:neocloud-rental-yield",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "임대 수익률과 조달비용",
+      "text": "네오클라우드·GPU 금융 · Rental yield minus funding cost",
+      "group": "네오클라우드·GPU 금융",
+      "keys": [
+        "Rental yield minus funding cost",
+        "neocloud rental yield"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "neocloud-rental-yield",
+          "domain": "domain-neocloud-finance"
+        }
+      }
+    },
+    {
+      "id": "atlas:compute-gpu",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "GPU·범용 병렬 가속기",
+      "text": "AI 연산·주문형 반도체 · GPU",
+      "group": "AI 연산·주문형 반도체",
+      "keys": [
+        "GPU",
+        "compute gpu"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "compute-gpu",
+          "domain": "domain-compute-silicon"
+        }
+      }
+    },
+    {
+      "id": "atlas:compute-asic",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "ASIC·주문형 가속기",
+      "text": "AI 연산·주문형 반도체 · ASIC / custom accelerator",
+      "group": "AI 연산·주문형 반도체",
+      "keys": [
+        "ASIC / custom accelerator",
+        "compute asic"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "compute-asic",
+          "domain": "domain-compute-silicon"
+        }
+      }
+    },
+    {
+      "id": "atlas:compute-npu",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "NPU·엣지 가속기",
+      "text": "AI 연산·주문형 반도체 · NPU / edge accelerator",
+      "group": "AI 연산·주문형 반도체",
+      "keys": [
+        "NPU / edge accelerator",
+        "compute npu"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "compute-npu",
+          "domain": "domain-compute-silicon"
+        }
+      }
+    },
+    {
+      "id": "atlas:compute-precision",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "FP·BF·INT 연산 정밀도",
+      "text": "AI 연산·주문형 반도체 · FP/BF/INT precision",
+      "group": "AI 연산·주문형 반도체",
+      "keys": [
+        "FP/BF/INT precision",
+        "compute precision"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "compute-precision",
+          "domain": "domain-compute-silicon"
+        }
+      }
+    },
+    {
+      "id": "atlas:compute-interconnect",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "가속기 Interconnect",
+      "text": "AI 연산·주문형 반도체 · Accelerator interconnect",
+      "group": "AI 연산·주문형 반도체",
+      "keys": [
+        "Accelerator interconnect",
+        "compute interconnect"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "compute-interconnect",
+          "domain": "domain-compute-silicon"
+        }
+      }
+    },
+    {
+      "id": "atlas:memory-sram",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "SRAM·Cache",
+      "text": "메모리·스토리지·데이터 이동 · SRAM / cache",
+      "group": "메모리·스토리지·데이터 이동",
+      "keys": [
+        "SRAM / cache",
+        "memory sram"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "memory-sram",
+          "domain": "domain-memory-storage"
+        }
+      }
+    },
+    {
+      "id": "atlas:memory-dram-hbm",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "DRAM·HBM",
+      "text": "메모리·스토리지·데이터 이동 · DRAM / HBM",
+      "group": "메모리·스토리지·데이터 이동",
+      "keys": [
+        "DRAM / HBM",
+        "memory dram hbm",
+        "HBM (고대역폭 메모리)",
+        "HBM",
+        "고대역폭 메모리",
+        "high bandwidth memory",
+        "메모리 대역폭과 용량"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "memory-dram-hbm",
+          "domain": "domain-memory-storage"
+        }
+      }
+    },
+    {
+      "id": "atlas:memory-nand",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "NAND Flash",
+      "text": "메모리·스토리지·데이터 이동 · NAND flash",
+      "group": "메모리·스토리지·데이터 이동",
+      "keys": [
+        "NAND flash",
+        "memory nand"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "memory-nand",
+          "domain": "domain-memory-storage"
+        }
+      }
+    },
+    {
+      "id": "atlas:memory-enterprise-ssd",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "기업·데이터센터용 SSD",
+      "text": "메모리·스토리지·데이터 이동 · Enterprise / data-center SSD",
+      "group": "메모리·스토리지·데이터 이동",
+      "keys": [
+        "Enterprise / data-center SSD",
+        "memory enterprise ssd"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "memory-enterprise-ssd",
+          "domain": "domain-memory-storage"
+        }
+      }
+    },
+    {
+      "id": "atlas:memory-cxl",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "CXL·메모리 Pooling",
+      "text": "메모리·스토리지·데이터 이동 · CXL / pooled memory",
+      "group": "메모리·스토리지·데이터 이동",
+      "keys": [
+        "CXL / pooled memory",
+        "memory cxl"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "memory-cxl",
+          "domain": "domain-memory-storage"
+        }
+      }
+    },
+    {
+      "id": "atlas:foundry-design-ecosystem",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "EDA·IP·설계 생태계",
+      "text": "파운드리·장비·소재 · Design ecosystem",
+      "group": "파운드리·장비·소재",
+      "keys": [
+        "Design ecosystem",
+        "foundry design ecosystem"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "foundry-design-ecosystem",
+          "domain": "domain-foundry-equipment"
+        }
+      }
+    },
+    {
+      "id": "atlas:foundry-process-node",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "미세공정 Node",
+      "text": "파운드리·장비·소재 · Process node",
+      "group": "파운드리·장비·소재",
+      "keys": [
+        "Process node",
+        "foundry process node",
+        "전공정과 후공정",
+        "전공정",
+        "후공정"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "foundry-process-node",
+          "domain": "domain-foundry-equipment"
+        }
+      }
+    },
+    {
+      "id": "atlas:foundry-equipment",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "반도체 공정 장비",
+      "text": "파운드리·장비·소재 · Process equipment",
+      "group": "파운드리·장비·소재",
+      "keys": [
+        "Process equipment",
+        "foundry equipment"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "foundry-equipment",
+          "domain": "domain-foundry-equipment"
+        }
+      }
+    },
+    {
+      "id": "atlas:foundry-materials",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "반도체 소재·화학물질",
+      "text": "파운드리·장비·소재 · Materials / chemicals",
+      "group": "파운드리·장비·소재",
+      "keys": [
+        "Materials / chemicals",
+        "foundry materials"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "foundry-materials",
+          "domain": "domain-foundry-equipment"
+        }
+      }
+    },
+    {
+      "id": "atlas:foundry-capacity-yield",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "생산능력·수율·가동률",
+      "text": "파운드리·장비·소재 · Capacity / yield / utilization",
+      "group": "파운드리·장비·소재",
+      "keys": [
+        "Capacity / yield / utilization",
+        "foundry capacity yield",
+        "수율",
+        "양품률",
+        "manufacturing yield"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "foundry-capacity-yield",
+          "domain": "domain-foundry-equipment"
+        }
+      }
+    },
+    {
+      "id": "atlas:package-2-5d",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "2.5D 패키징",
+      "text": "첨단 패키징·기판 · 2.5D integration",
+      "group": "첨단 패키징·기판",
+      "keys": [
+        "2.5D integration",
+        "package 2 5d"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "package-2-5d",
+          "domain": "domain-packaging-substrate"
+        }
+      }
+    },
+    {
+      "id": "atlas:package-3d-stacking",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "3D 적층",
+      "text": "첨단 패키징·기판 · 3D stacking",
+      "group": "첨단 패키징·기판",
+      "keys": [
+        "3D stacking",
+        "package 3d stacking"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "package-3d-stacking",
+          "domain": "domain-packaging-substrate"
+        }
+      }
+    },
+    {
+      "id": "atlas:package-interposer",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "Interposer·Bridge",
+      "text": "첨단 패키징·기판 · Interposer / bridge",
+      "group": "첨단 패키징·기판",
+      "keys": [
+        "Interposer / bridge",
+        "package interposer"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "package-interposer",
+          "domain": "domain-packaging-substrate"
+        }
+      }
+    },
+    {
+      "id": "atlas:package-substrate",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "ABF·FC-BGA 기판",
+      "text": "첨단 패키징·기판 · ABF / FC-BGA substrate",
+      "group": "첨단 패키징·기판",
+      "keys": [
+        "ABF / FC-BGA substrate",
+        "package substrate"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "package-substrate",
+          "domain": "domain-packaging-substrate"
+        }
+      }
+    },
+    {
+      "id": "atlas:package-glass",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "유리기판",
+      "text": "첨단 패키징·기판 · Glass substrate",
+      "group": "첨단 패키징·기판",
+      "keys": [
+        "Glass substrate",
+        "package glass"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "package-glass",
+          "domain": "domain-packaging-substrate"
+        }
+      }
+    },
+    {
+      "id": "atlas:network-switch",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "스위치 반도체",
+      "text": "네트워크·광학·CPO · Switch silicon",
+      "group": "네트워크·광학·CPO",
+      "keys": [
+        "Switch silicon",
+        "network switch"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "network-switch",
+          "domain": "domain-network-photonics"
+        }
+      }
+    },
+    {
+      "id": "atlas:network-optical-module",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "광학 모듈",
+      "text": "네트워크·광학·CPO · Optical module",
+      "group": "네트워크·광학·CPO",
+      "keys": [
+        "Optical module",
+        "network optical module",
+        "광 인터커넥트(광통신)",
+        "optical interconnect",
+        "광 연결"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "network-optical-module",
+          "domain": "domain-network-photonics"
+        }
+      }
+    },
+    {
+      "id": "atlas:network-silicon-photonics",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "실리콘 포토닉스",
+      "text": "네트워크·광학·CPO · Silicon photonics",
+      "group": "네트워크·광학·CPO",
+      "keys": [
+        "Silicon photonics",
+        "network silicon photonics",
+        "실리콘 포토닉스",
+        "silicon photonics",
+        "실리콘포토닉스"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "network-silicon-photonics",
+          "domain": "domain-network-photonics"
+        }
+      }
+    },
+    {
+      "id": "atlas:network-cpo",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "CPO·공동 패키징 광학",
+      "text": "네트워크·광학·CPO · Co-packaged optics",
+      "group": "네트워크·광학·CPO",
+      "keys": [
+        "Co-packaged optics",
+        "network cpo",
+        "CPO (공동 패키징 광학)",
+        "CPO",
+        "co-packaged optics",
+        "공동 패키징 광학"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "network-cpo",
+          "domain": "domain-network-photonics"
+        }
+      }
+    },
+    {
+      "id": "atlas:network-fabric",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "AI Cluster Fabric",
+      "text": "네트워크·광학·CPO · AI cluster fabric",
+      "group": "네트워크·광학·CPO",
+      "keys": [
+        "AI cluster fabric",
+        "network fabric"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "network-fabric",
+          "domain": "domain-network-photonics"
+        }
+      }
+    },
+    {
+      "id": "atlas:aidc-rack-density",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "랙 전력 밀도",
+      "text": "AI 데이터센터·서버·냉각 · Rack density",
+      "group": "AI 데이터센터·서버·냉각",
+      "keys": [
+        "Rack density",
+        "aidc rack density"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "aidc-rack-density",
+          "domain": "domain-aidc-cooling"
+        }
+      }
+    },
+    {
+      "id": "atlas:aidc-liquid-cooling",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "액체 냉각",
+      "text": "AI 데이터센터·서버·냉각 · Liquid cooling",
+      "group": "AI 데이터센터·서버·냉각",
+      "keys": [
+        "Liquid cooling",
+        "aidc liquid cooling"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "aidc-liquid-cooling",
+          "domain": "domain-aidc-cooling"
+        }
+      }
+    },
+    {
+      "id": "atlas:aidc-thermal-design",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "열 설계",
+      "text": "AI 데이터센터·서버·냉각 · Thermal design",
+      "group": "AI 데이터센터·서버·냉각",
+      "keys": [
+        "Thermal design",
+        "aidc thermal design"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "aidc-thermal-design",
+          "domain": "domain-aidc-cooling"
+        }
+      }
+    },
+    {
+      "id": "atlas:aidc-server-platform",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "AI 서버 플랫폼",
+      "text": "AI 데이터센터·서버·냉각 · Server platform",
+      "group": "AI 데이터센터·서버·냉각",
+      "keys": [
+        "Server platform",
+        "aidc server platform"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "aidc-server-platform",
+          "domain": "domain-aidc-cooling"
+        }
+      }
+    },
+    {
+      "id": "atlas:aidc-pue",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "PUE·시설 에너지 효율",
+      "text": "AI 데이터센터·서버·냉각 · PUE / facility efficiency",
+      "group": "AI 데이터센터·서버·냉각",
+      "keys": [
+        "PUE / facility efficiency",
+        "aidc pue",
+        "PUE (전력 사용 효율)",
+        "PUE",
+        "power usage effectiveness"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "aidc-pue",
+          "domain": "domain-aidc-cooling"
+        }
+      }
+    },
+    {
+      "id": "atlas:power-it-load",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "가속기 IT 부하",
+      "text": "전력·에너지·전력망 · Accelerator IT load",
+      "group": "전력·에너지·전력망",
+      "keys": [
+        "Accelerator IT load",
+        "power it load"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "power-it-load",
+          "domain": "domain-power-grid"
+        }
+      }
+    },
+    {
+      "id": "atlas:power-generation",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "발전원 구성",
+      "text": "전력·에너지·전력망 · Generation mix",
+      "group": "전력·에너지·전력망",
+      "keys": [
+        "Generation mix",
+        "power generation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "power-generation",
+          "domain": "domain-power-grid"
+        }
+      }
+    },
+    {
+      "id": "atlas:power-transmission",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "송전·변전소",
+      "text": "전력·에너지·전력망 · Transmission / substation",
+      "group": "전력·에너지·전력망",
+      "keys": [
+        "Transmission / substation",
+        "power transmission"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "power-transmission",
+          "domain": "domain-power-grid"
+        }
+      }
+    },
+    {
+      "id": "atlas:power-interconnection",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "전력망 접속 대기열",
+      "text": "전력·에너지·전력망 · Interconnection queue",
+      "group": "전력·에너지·전력망",
+      "keys": [
+        "Interconnection queue",
+        "power interconnection"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "power-interconnection",
+          "domain": "domain-power-grid"
+        }
+      }
+    },
+    {
+      "id": "atlas:power-transformer",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "변압기·Switchgear",
+      "text": "전력·에너지·전력망 · Transformer / switchgear",
+      "group": "전력·에너지·전력망",
+      "keys": [
+        "Transformer / switchgear",
+        "power transformer"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "power-transformer",
+          "domain": "domain-power-grid"
+        }
+      }
+    },
+    {
+      "id": "atlas:edge-soc-npu",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "엣지 SoC·NPU",
+      "text": "온디바이스·Physical AI · Edge SoC / NPU",
+      "group": "온디바이스·Physical AI",
+      "keys": [
+        "Edge SoC / NPU",
+        "edge soc npu"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "edge-soc-npu",
+          "domain": "domain-on-device-physical-ai"
+        }
+      }
+    },
+    {
+      "id": "atlas:edge-memory-power",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "기기 메모리·전력 한계",
+      "text": "온디바이스·Physical AI · Memory / power envelope",
+      "group": "온디바이스·Physical AI",
+      "keys": [
+        "Memory / power envelope",
+        "edge memory power"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "edge-memory-power",
+          "domain": "domain-on-device-physical-ai"
+        }
+      }
+    },
+    {
+      "id": "atlas:physical-ai-sensing",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "센서·인지",
+      "text": "온디바이스·Physical AI · Sensors / perception",
+      "group": "온디바이스·Physical AI",
+      "keys": [
+        "Sensors / perception",
+        "physical ai sensing"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "physical-ai-sensing",
+          "domain": "domain-on-device-physical-ai"
+        }
+      }
+    },
+    {
+      "id": "atlas:physical-ai-control",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "제어·구동",
+      "text": "온디바이스·Physical AI · Control / actuation",
+      "group": "온디바이스·Physical AI",
+      "keys": [
+        "Control / actuation",
+        "physical ai control"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "physical-ai-control",
+          "domain": "domain-on-device-physical-ai"
+        }
+      }
+    },
+    {
+      "id": "atlas:physical-ai-digital-twin",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "시뮬레이션·Digital Twin",
+      "text": "온디바이스·Physical AI · Simulation / digital twin",
+      "group": "온디바이스·Physical AI",
+      "keys": [
+        "Simulation / digital twin",
+        "physical ai digital twin"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "physical-ai-digital-twin",
+          "domain": "domain-on-device-physical-ai"
+        }
+      }
+    },
+    {
+      "id": "atlas:economics-revenue-model",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "AI 수익모델",
+      "text": "AI CAPEX·ROIC·기업 재무 · Revenue model",
+      "group": "AI CAPEX·ROIC·기업 재무",
+      "keys": [
+        "Revenue model",
+        "economics revenue model"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "economics-revenue-model",
+          "domain": "domain-ai-economics"
+        }
+      }
+    },
+    {
+      "id": "atlas:economics-capex",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "CAPEX·리스",
+      "text": "AI CAPEX·ROIC·기업 재무 · CAPEX / lease",
+      "group": "AI CAPEX·ROIC·기업 재무",
+      "keys": [
+        "CAPEX / lease",
+        "economics capex",
+        "CAPEX (설비투자)",
+        "설비투자",
+        "자본적 지출",
+        "capital expenditure"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "economics-capex",
+          "domain": "domain-ai-economics"
+        }
+      }
+    },
+    {
+      "id": "atlas:economics-depreciation",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "감가상각·내용연수",
+      "text": "AI CAPEX·ROIC·기업 재무 · Depreciation / useful life",
+      "group": "AI CAPEX·ROIC·기업 재무",
+      "keys": [
+        "Depreciation / useful life",
+        "economics depreciation",
+        "감가상각",
+        "감가상각비",
+        "depreciation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "economics-depreciation",
+          "domain": "domain-ai-economics"
+        }
+      }
+    },
+    {
+      "id": "atlas:economics-fcf",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "FCF·자금조달",
+      "text": "AI CAPEX·ROIC·기업 재무 · FCF / funding",
+      "group": "AI CAPEX·ROIC·기업 재무",
+      "keys": [
+        "FCF / funding",
+        "economics fcf",
+        "잉여현금흐름과 자금조달의 구분",
+        "잉여현금흐름과 자금조달"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "economics-fcf",
+          "domain": "domain-ai-economics"
+        }
+      }
+    },
+    {
+      "id": "atlas:economics-roic",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "ROIC·반대 시나리오",
+      "text": "AI CAPEX·ROIC·기업 재무 · ROIC / counter-scenario",
+      "group": "AI CAPEX·ROIC·기업 재무",
+      "keys": [
+        "ROIC / counter-scenario",
+        "economics roic",
+        "ROIC (투하자본이익률)",
+        "ROIC",
+        "투하자본이익률",
+        "return on invested capital"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "economics-roic",
+          "domain": "domain-ai-economics"
+        }
+      }
+    },
+    {
+      "id": "atlas:physical-ai-perception",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "인지·센서 융합",
+      "text": "Physical AI·로보틱스·자율성 · Perception and sensor fusion",
+      "group": "Physical AI·로보틱스·자율성",
+      "keys": [
+        "Perception and sensor fusion",
+        "physical ai perception"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "physical-ai-perception",
+          "domain": "domain-physical-ai-robotics"
+        }
+      }
+    },
+    {
+      "id": "atlas:physical-ai-world-model",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "World Model·시뮬레이션",
+      "text": "Physical AI·로보틱스·자율성 · World model and simulation",
+      "group": "Physical AI·로보틱스·자율성",
+      "keys": [
+        "World model and simulation",
+        "physical ai world model"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "physical-ai-world-model",
+          "domain": "domain-physical-ai-robotics"
+        }
+      }
+    },
+    {
+      "id": "atlas:physical-ai-planning",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "계획·제어",
+      "text": "Physical AI·로보틱스·자율성 · Planning and control",
+      "group": "Physical AI·로보틱스·자율성",
+      "keys": [
+        "Planning and control",
+        "physical ai planning"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "physical-ai-planning",
+          "domain": "domain-physical-ai-robotics"
+        }
+      }
+    },
+    {
+      "id": "atlas:physical-ai-actuation",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "구동·안전",
+      "text": "Physical AI·로보틱스·자율성 · Actuation and safety",
+      "group": "Physical AI·로보틱스·자율성",
+      "keys": [
+        "Actuation and safety",
+        "physical ai actuation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "physical-ai-actuation",
+          "domain": "domain-physical-ai-robotics"
+        }
+      }
+    },
+    {
+      "id": "atlas:physical-ai-unit-economics",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "로봇 단위경제성",
+      "text": "Physical AI·로보틱스·자율성 · Robot unit economics",
+      "group": "Physical AI·로보틱스·자율성",
+      "keys": [
+        "Robot unit economics",
+        "physical ai unit economics"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "physical-ai-unit-economics",
+          "domain": "domain-physical-ai-robotics"
+        }
+      }
+    },
+    {
+      "id": "atlas:defense-kill-chain",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "탐지→결정 작전 사슬",
+      "text": "드론·방산·자율 시스템 · Detection-to-decision chain",
+      "group": "드론·방산·자율 시스템",
+      "keys": [
+        "Detection-to-decision chain",
+        "defense kill chain"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "defense-kill-chain",
+          "domain": "domain-drone-defense"
+        }
+      }
+    },
+    {
+      "id": "atlas:defense-c2-isr-ew",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "C2·ISR·전자전",
+      "text": "드론·방산·자율 시스템 · C2 / ISR / electronic warfare",
+      "group": "드론·방산·자율 시스템",
+      "keys": [
+        "C2 / ISR / electronic warfare",
+        "defense c2 isr ew"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "defense-c2-isr-ew",
+          "domain": "domain-drone-defense"
+        }
+      }
+    },
+    {
+      "id": "atlas:defense-autonomy",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "자율성·사람의 통제",
+      "text": "드론·방산·자율 시스템 · Autonomy and human control",
+      "group": "드론·방산·자율 시스템",
+      "keys": [
+        "Autonomy and human control",
+        "defense autonomy"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "defense-autonomy",
+          "domain": "domain-drone-defense"
+        }
+      }
+    },
+    {
+      "id": "atlas:defense-drone-production",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "드론 생산·소모",
+      "text": "드론·방산·자율 시스템 · Drone production and attrition",
+      "group": "드론·방산·자율 시스템",
+      "keys": [
+        "Drone production and attrition",
+        "defense drone production"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "defense-drone-production",
+          "domain": "domain-drone-defense"
+        }
+      }
+    },
+    {
+      "id": "atlas:defense-procurement-economics",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "방산 조달 경제성",
+      "text": "드론·방산·자율 시스템 · Procurement economics",
+      "group": "드론·방산·자율 시스템",
+      "keys": [
+        "Procurement economics",
+        "defense procurement economics"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "defense-procurement-economics",
+          "domain": "domain-drone-defense"
+        }
+      }
+    },
+    {
+      "id": "atlas:space-rocket-physics",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "로켓 물리·발사 에너지",
+      "text": "우주·항공·재사용 시스템 · Rocket physics and launch energy",
+      "group": "우주·항공·재사용 시스템",
+      "keys": [
+        "Rocket physics and launch energy",
+        "space rocket physics"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "space-rocket-physics",
+          "domain": "domain-space-aerospace"
+        }
+      }
+    },
+    {
+      "id": "atlas:space-reusability",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "로켓 재사용·Turnaround",
+      "text": "우주·항공·재사용 시스템 · Reusability and turnaround",
+      "group": "우주·항공·재사용 시스템",
+      "keys": [
+        "Reusability and turnaround",
+        "space reusability"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "space-reusability",
+          "domain": "domain-space-aerospace"
+        }
+      }
+    },
+    {
+      "id": "atlas:space-satellite-economics",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "위성 데이터 경제성",
+      "text": "우주·항공·재사용 시스템 · Satellite data economics",
+      "group": "우주·항공·재사용 시스템",
+      "keys": [
+        "Satellite data economics",
+        "space satellite economics"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "space-satellite-economics",
+          "domain": "domain-space-aerospace"
+        }
+      }
+    },
+    {
+      "id": "atlas:space-artemis-architecture",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "Artemis 프로그램 구조",
+      "text": "우주·항공·재사용 시스템 · Artemis architecture",
+      "group": "우주·항공·재사용 시스템",
+      "keys": [
+        "Artemis architecture",
+        "space artemis architecture"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "space-artemis-architecture",
+          "domain": "domain-space-aerospace"
+        }
+      }
+    },
+    {
+      "id": "atlas:space-aircraft-supply-chain",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "항공·우주 공급망",
+      "text": "우주·항공·재사용 시스템 · Aircraft and space supply chain",
+      "group": "우주·항공·재사용 시스템",
+      "keys": [
+        "Aircraft and space supply chain",
+        "space aircraft supply chain"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "space-aircraft-supply-chain",
+          "domain": "domain-space-aerospace"
+        }
+      }
+    },
+    {
+      "id": "atlas:application-healthcare",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "의료 Workflow",
+      "text": "AI 응용 산업 · Healthcare workflow",
+      "group": "AI 응용 산업",
+      "keys": [
+        "Healthcare workflow",
+        "application healthcare"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "application-healthcare",
+          "domain": "domain-ai-applications"
+        }
+      }
+    },
+    {
+      "id": "atlas:application-manufacturing",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "제조 Workflow",
+      "text": "AI 응용 산업 · Manufacturing workflow",
+      "group": "AI 응용 산업",
+      "keys": [
+        "Manufacturing workflow",
+        "application manufacturing"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "application-manufacturing",
+          "domain": "domain-ai-applications"
+        }
+      }
+    },
+    {
+      "id": "atlas:application-automotive",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "자동차 자율주행",
+      "text": "AI 응용 산업 · Automotive autonomy",
+      "group": "AI 응용 산업",
+      "keys": [
+        "Automotive autonomy",
+        "application automotive"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "application-automotive",
+          "domain": "domain-ai-applications"
+        }
+      }
+    },
+    {
+      "id": "atlas:application-finance",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "금융 의사결정 Workflow",
+      "text": "AI 응용 산업 · Financial decision workflow",
+      "group": "AI 응용 산업",
+      "keys": [
+        "Financial decision workflow",
+        "application finance"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "application-finance",
+          "domain": "domain-ai-applications"
+        }
+      }
+    },
+    {
+      "id": "atlas:application-roi-payer",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "구매자·ROI·도입률",
+      "text": "AI 응용 산업 · Payer, ROI and adoption",
+      "group": "AI 응용 산업",
+      "keys": [
+        "Payer, ROI and adoption",
+        "application roi payer"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "application-roi-payer",
+          "domain": "domain-ai-applications"
+        }
+      }
+    },
+    {
+      "id": "atlas:resources-copper",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "구리·도체",
+      "text": "자원·소재·산업재 · Copper and conductors",
+      "group": "자원·소재·산업재",
+      "keys": [
+        "Copper and conductors",
+        "resources copper"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "resources-copper",
+          "domain": "domain-resources-materials"
+        }
+      }
+    },
+    {
+      "id": "atlas:resources-lithium",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "리튬·저장 소재",
+      "text": "자원·소재·산업재 · Lithium and storage materials",
+      "group": "자원·소재·산업재",
+      "keys": [
+        "Lithium and storage materials",
+        "resources lithium"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "resources-lithium",
+          "domain": "domain-resources-materials"
+        }
+      }
+    },
+    {
+      "id": "atlas:resources-rare-earths",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "희토류·영구자석",
+      "text": "자원·소재·산업재 · Rare earths and magnets",
+      "group": "자원·소재·산업재",
+      "keys": [
+        "Rare earths and magnets",
+        "resources rare earths"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "resources-rare-earths",
+          "domain": "domain-resources-materials"
+        }
+      }
+    },
+    {
+      "id": "atlas:resources-refining",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "채굴·정제·재활용",
+      "text": "자원·소재·산업재 · Mining, refining and recycling",
+      "group": "자원·소재·산업재",
+      "keys": [
+        "Mining, refining and recycling",
+        "resources refining"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "resources-refining",
+          "domain": "domain-resources-materials"
+        }
+      }
+    },
+    {
+      "id": "atlas:resources-industrial-equipment",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "산업 장비 병목",
+      "text": "자원·소재·산업재 · Industrial equipment bottlenecks",
+      "group": "자원·소재·산업재",
+      "keys": [
+        "Industrial equipment bottlenecks",
+        "resources industrial equipment"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "resources-industrial-equipment",
+          "domain": "domain-resources-materials"
+        }
+      }
+    },
+    {
+      "id": "atlas:policy-export-controls",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "수출통제",
+      "text": "지정학·산업정책·보안 · Export controls",
+      "group": "지정학·산업정책·보안",
+      "keys": [
+        "Export controls",
+        "policy export controls"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "policy-export-controls",
+          "domain": "domain-geopolitics-policy-security"
+        }
+      }
+    },
+    {
+      "id": "atlas:policy-supply-chain-resilience",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "공급망 회복력",
+      "text": "지정학·산업정책·보안 · Supply-chain resilience",
+      "group": "지정학·산업정책·보안",
+      "keys": [
+        "Supply-chain resilience",
+        "policy supply chain resilience"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "policy-supply-chain-resilience",
+          "domain": "domain-geopolitics-policy-security"
+        }
+      }
+    },
+    {
+      "id": "atlas:policy-semiconductor-incentives",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "반도체 보조금·인센티브",
+      "text": "지정학·산업정책·보안 · Semiconductor incentives",
+      "group": "지정학·산업정책·보안",
+      "keys": [
+        "Semiconductor incentives",
+        "policy semiconductor incentives"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "policy-semiconductor-incentives",
+          "domain": "domain-geopolitics-policy-security"
+        }
+      }
+    },
+    {
+      "id": "atlas:policy-cybersecurity",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "사이버보안·Sovereign AI",
+      "text": "지정학·산업정책·보안 · Cybersecurity and sovereign AI",
+      "group": "지정학·산업정책·보안",
+      "keys": [
+        "Cybersecurity and sovereign AI",
+        "policy cybersecurity"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "policy-cybersecurity",
+          "domain": "domain-geopolitics-policy-security"
+        }
+      }
+    },
+    {
+      "id": "atlas:policy-national-security-risk",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "국가안보 위험",
+      "text": "지정학·산업정책·보안 · National-security risk",
+      "group": "지정학·산업정책·보안",
+      "keys": [
+        "National-security risk",
+        "policy national security risk"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "policy-national-security-risk",
+          "domain": "domain-geopolitics-policy-security"
+        }
+      }
+    },
+    {
+      "id": "atlas:capital-company-role",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "기업 역할·가치 포착",
+      "text": "자본시장·기업 지도 · Company role and value capture",
+      "group": "자본시장·기업 지도",
+      "keys": [
+        "Company role and value capture",
+        "capital company role"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "capital-company-role",
+          "domain": "domain-capital-markets-company-map"
+        }
+      }
+    },
+    {
+      "id": "atlas:capital-revenue-quality",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "매출 품질·가시성",
+      "text": "자본시장·기업 지도 · Revenue quality and visibility",
+      "group": "자본시장·기업 지도",
+      "keys": [
+        "Revenue quality and visibility",
+        "capital revenue quality"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "capital-revenue-quality",
+          "domain": "domain-capital-markets-company-map"
+        }
+      }
+    },
+    {
+      "id": "atlas:capital-margin-structure",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "마진·비용 구조",
+      "text": "자본시장·기업 지도 · Margin and cost structure",
+      "group": "자본시장·기업 지도",
+      "keys": [
+        "Margin and cost structure",
+        "capital margin structure"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "capital-margin-structure",
+          "domain": "domain-capital-markets-company-map"
+        }
+      }
+    },
+    {
+      "id": "atlas:capital-balance-sheet",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "대차대조표·자금조달",
+      "text": "자본시장·기업 지도 · Balance sheet and funding",
+      "group": "자본시장·기업 지도",
+      "keys": [
+        "Balance sheet and funding",
+        "capital balance sheet"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "capital-balance-sheet",
+          "domain": "domain-capital-markets-company-map"
+        }
+      }
+    },
+    {
+      "id": "atlas:capital-market-expectation",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "시장 기대·주가",
+      "text": "자본시장·기업 지도 · Expectation and price",
+      "group": "자본시장·기업 지도",
+      "keys": [
+        "Expectation and price",
+        "capital market expectation"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "capital-market-expectation",
+          "domain": "domain-capital-markets-company-map"
+        }
+      }
+    },
+    {
+      "id": "atlas:future-quantum",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "양자 컴퓨팅",
+      "text": "인접 미래 기술 · Quantum computing",
+      "group": "인접 미래 기술",
+      "keys": [
+        "Quantum computing",
+        "future quantum"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "future-quantum",
+          "domain": "domain-adjacent-future-tech"
+        }
+      }
+    },
+    {
+      "id": "atlas:future-photonic-compute",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "광자 컴퓨팅",
+      "text": "인접 미래 기술 · Photonic compute",
+      "group": "인접 미래 기술",
+      "keys": [
+        "Photonic compute",
+        "future photonic compute",
+        "광 컴퓨팅",
+        "photonic computing",
+        "광 연산"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "future-photonic-compute",
+          "domain": "domain-adjacent-future-tech"
+        }
+      }
+    },
+    {
+      "id": "atlas:future-neuromorphic",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "뉴로모픽 시스템",
+      "text": "인접 미래 기술 · Neuromorphic systems",
+      "group": "인접 미래 기술",
+      "keys": [
+        "Neuromorphic systems",
+        "future neuromorphic"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "future-neuromorphic",
+          "domain": "domain-adjacent-future-tech"
+        }
+      }
+    },
+    {
+      "id": "atlas:future-new-energy",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "차세대 에너지 시스템",
+      "text": "인접 미래 기술 · New energy systems",
+      "group": "인접 미래 기술",
+      "keys": [
+        "New energy systems",
+        "future new energy"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "future-new-energy",
+          "domain": "domain-adjacent-future-tech"
+        }
+      }
+    },
+    {
+      "id": "atlas:future-uncertainty-gate",
+      "surface": "atlas-node",
+      "surfaceLabel": "산업 지도",
+      "title": "미래 기술 불확실성 게이트",
+      "text": "인접 미래 기술 · Technology uncertainty gate",
+      "group": "인접 미래 기술",
+      "keys": [
+        "Technology uncertainty gate",
+        "future uncertainty gate"
+      ],
+      "route": {
+        "page": "atlas",
+        "params": {
+          "mode": "taxonomy",
+          "node": "future-uncertainty-gate",
+          "domain": "domain-adjacent-future-tech"
+        }
+      }
+    },
+    {
+      "id": "manager:blackrock-inc",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "BlackRock",
+      "text": "BlackRock, Inc. · 대형 패시브·ETF·다중 법인",
+      "group": "대형 패시브·ETF·다중 법인",
+      "keys": [
+        "BlackRock, Inc.",
+        "대형 패시브·ETF·다중 법인"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "blackrock-inc"
+        }
+      }
+    },
+    {
+      "id": "manager:citigroup",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Citi",
+      "text": "Citigroup Inc. · 대형 은행·다자산·시장조성",
+      "group": "대형 은행·다자산·시장조성",
+      "keys": [
+        "Citigroup Inc.",
+        "대형 은행·다자산·시장조성"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "citigroup"
+        }
+      }
+    },
+    {
+      "id": "manager:goldman-sachs-group",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Goldman Sachs",
+      "text": "The Goldman Sachs Group, Inc. · 대형 기관·프라임브로커·다중 전략",
+      "group": "대형 기관·프라임브로커·다중 전략",
+      "keys": [
+        "The Goldman Sachs Group, Inc.",
+        "대형 기관·프라임브로커·다중 전략"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "goldman-sachs-group"
+        }
+      }
+    },
+    {
+      "id": "manager:jpmorgan-chase",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "JPMorgan Asset Management",
+      "text": "JPMorgan Chase & Co · 대형 기관·다자산·분산",
+      "group": "대형 기관·다자산·분산",
+      "keys": [
+        "JPMorgan Chase & Co",
+        "대형 기관·다자산·분산"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "jpmorgan-chase"
+        }
+      }
+    },
+    {
+      "id": "manager:state-street-investment-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "State Street Investment Management",
+      "text": "State Street Corp / State Street Global Advisors family · 패시브·ETF·기관 인덱스",
+      "group": "패시브·ETF·기관 인덱스",
+      "keys": [
+        "State Street Corp / State Street Global Advisors family",
+        "패시브·ETF·기관 인덱스"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "state-street-investment-management"
+        }
+      }
+    },
+    {
+      "id": "manager:vanguard-group",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Vanguard",
+      "text": "Vanguard family · canonical filer: Vanguard Asset Management, Ltd · 초저비용 인덱스·ETF·분산",
+      "group": "초저비용 인덱스·ETF·분산",
+      "keys": [
+        "Vanguard family · canonical filer: Vanguard Asset Management, Ltd",
+        "초저비용 인덱스·ETF·분산"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "vanguard-group"
+        }
+      }
+    },
+    {
+      "id": "manager:capital-international-investors",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Capital Group",
+      "text": "Capital International Investors · 액티브·장기·분산",
+      "group": "액티브·장기·분산",
+      "keys": [
+        "Capital International Investors",
+        "액티브·장기·분산"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "capital-international-investors"
+        }
+      }
+    },
+    {
+      "id": "manager:fidelity-fmr",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Fidelity / FMR",
+      "text": "FMR LLC · 액티브·성장·리서치 기반",
+      "group": "액티브·성장·리서치 기반",
+      "keys": [
+        "FMR LLC",
+        "액티브·성장·리서치 기반"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "fidelity-fmr"
+        }
+      }
+    },
+    {
+      "id": "manager:t-rowe-price",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "T. Rowe Price",
+      "text": "Price T Rowe Associates Inc /MD/ · 액티브·성장·기본분석",
+      "group": "액티브·성장·기본분석",
+      "keys": [
+        "Price T Rowe Associates Inc /MD/",
+        "액티브·성장·기본분석"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "t-rowe-price"
+        }
+      }
+    },
+    {
+      "id": "manager:wellington-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Wellington Management",
+      "text": "Wellington Management Group LLP · 액티브·기관·리서치 플랫폼",
+      "group": "액티브·기관·리서치 플랫폼",
+      "keys": [
+        "Wellington Management Group LLP",
+        "액티브·기관·리서치 플랫폼"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "wellington-management"
+        }
+      }
+    },
+    {
+      "id": "manager:dimensional-fund-advisors",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Dimensional Fund Advisors",
+      "text": "Dimensional Fund Advisors LP · 학술 팩터·저비용·체계적 운용",
+      "group": "학술 팩터·저비용·체계적 운용",
+      "keys": [
+        "Dimensional Fund Advisors LP",
+        "학술 팩터·저비용·체계적 운용"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "dimensional-fund-advisors"
+        }
+      }
+    },
+    {
+      "id": "manager:berkshire-hathaway",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Warren Buffett",
+      "text": "Berkshire Hathaway Inc. · 집중·가치·장기 보유",
+      "group": "집중·가치·장기 보유",
+      "keys": [
+        "Berkshire Hathaway Inc.",
+        "집중·가치·장기 보유"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "berkshire-hathaway"
+        }
+      }
+    },
+    {
+      "id": "manager:soros-fund-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "George Soros / Dawn Fitzpatrick",
+      "text": "Soros Fund Management LLC · 글로벌 매크로·이벤트",
+      "group": "글로벌 매크로·이벤트",
+      "keys": [
+        "Soros Fund Management LLC",
+        "글로벌 매크로·이벤트"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "soros-fund-management"
+        }
+      }
+    },
+    {
+      "id": "manager:bridgewater-associates",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Ray Dalio",
+      "text": "Bridgewater Associates, LP · 글로벌 매크로·리스크 패리티",
+      "group": "글로벌 매크로·리스크 패리티",
+      "keys": [
+        "Bridgewater Associates, LP",
+        "글로벌 매크로·리스크 패리티"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "bridgewater-associates"
+        }
+      }
+    },
+    {
+      "id": "manager:duquesne-family-office",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Stanley Druckenmiller",
+      "text": "Duquesne Family Office LLC · 거시·성장·변화 대응",
+      "group": "거시·성장·변화 대응",
+      "keys": [
+        "Duquesne Family Office LLC",
+        "거시·성장·변화 대응"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "duquesne-family-office"
+        }
+      }
+    },
+    {
+      "id": "manager:appaloosa-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "David Tepper",
+      "text": "Appaloosa LP · 거시·가치·전환",
+      "group": "거시·가치·전환",
+      "keys": [
+        "Appaloosa LP",
+        "거시·가치·전환"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "appaloosa-management"
+        }
+      }
+    },
+    {
+      "id": "manager:oaktree-capital-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Howard Marks",
+      "text": "Oaktree Capital Management LP · 신용·가치·하방 방어",
+      "group": "신용·가치·하방 방어",
+      "keys": [
+        "Oaktree Capital Management LP",
+        "신용·가치·하방 방어"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "oaktree-capital-management"
+        }
+      }
+    },
+    {
+      "id": "manager:citadel-advisors",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Ken Griffin / Seth Levy",
+      "text": "Citadel Advisors LLC · 멀티전략·퀀트·시장중립",
+      "group": "멀티전략·퀀트·시장중립",
+      "keys": [
+        "Citadel Advisors LLC",
+        "멀티전략·퀀트·시장중립"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "citadel-advisors"
+        }
+      }
+    },
+    {
+      "id": "manager:millennium-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Millennium Management",
+      "text": "Millennium Management LLC · 멀티전략·리스크 분산·롱숏",
+      "group": "멀티전략·리스크 분산·롱숏",
+      "keys": [
+        "Millennium Management LLC",
+        "멀티전략·리스크 분산·롱숏"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "millennium-management"
+        }
+      }
+    },
+    {
+      "id": "manager:renaissance-technologies",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Renaissance Technologies",
+      "text": "Renaissance Technologies LLC · 퀀트·시스템·데이터 기반",
+      "group": "퀀트·시스템·데이터 기반",
+      "keys": [
+        "Renaissance Technologies LLC",
+        "퀀트·시스템·데이터 기반"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "renaissance-technologies"
+        }
+      }
+    },
+    {
+      "id": "manager:two-sigma-investments",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Two Sigma",
+      "text": "Two Sigma Investments, LP · 퀀트·멀티전략·대규모 데이터",
+      "group": "퀀트·멀티전략·대규모 데이터",
+      "keys": [
+        "Two Sigma Investments, LP",
+        "퀀트·멀티전략·대규모 데이터"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "two-sigma-investments"
+        }
+      }
+    },
+    {
+      "id": "manager:tudor-investment",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Tudor Investment",
+      "text": "Tudor Investment Corp et al · 매크로·선물·멀티전략",
+      "group": "매크로·선물·멀티전략",
+      "keys": [
+        "Tudor Investment Corp et al",
+        "매크로·선물·멀티전략"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "tudor-investment"
+        }
+      }
+    },
+    {
+      "id": "manager:pershing-square",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Bill Ackman",
+      "text": "Pershing Square Capital Management, L.P. · 집중·행동주의",
+      "group": "집중·행동주의",
+      "keys": [
+        "Pershing Square Capital Management, L.P.",
+        "집중·행동주의"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "pershing-square"
+        }
+      }
+    },
+    {
+      "id": "manager:starboard-value",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Starboard Value",
+      "text": "Starboard Value LP · 행동주의·촉매·기업 개선",
+      "group": "행동주의·촉매·기업 개선",
+      "keys": [
+        "Starboard Value LP",
+        "행동주의·촉매·기업 개선"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "starboard-value"
+        }
+      }
+    },
+    {
+      "id": "manager:trian-fund-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Trian Fund Management",
+      "text": "Trian Fund Management, L.P. · 행동주의·집중·소비재/산업",
+      "group": "행동주의·집중·소비재/산업",
+      "keys": [
+        "Trian Fund Management, L.P.",
+        "행동주의·집중·소비재/산업"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "trian-fund-management"
+        }
+      }
+    },
+    {
+      "id": "manager:valueact-holdings",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "ValueAct",
+      "text": "ValueAct Holdings, L.P. · 행동주의·집중·기업 개선",
+      "group": "행동주의·집중·기업 개선",
+      "keys": [
+        "ValueAct Holdings, L.P.",
+        "행동주의·집중·기업 개선"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "valueact-holdings"
+        }
+      }
+    },
+    {
+      "id": "manager:third-point",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Daniel Loeb",
+      "text": "Third Point LLC · 행동주의·이벤트",
+      "group": "행동주의·이벤트",
+      "keys": [
+        "Third Point LLC",
+        "행동주의·이벤트"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "third-point"
+        }
+      }
+    },
+    {
+      "id": "manager:elliott-investment-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Paul Singer",
+      "text": "Elliott Investment Management L.P. · 행동주의·이벤트·가치",
+      "group": "행동주의·이벤트·가치",
+      "keys": [
+        "Elliott Investment Management L.P.",
+        "행동주의·이벤트·가치"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "elliott-investment-management"
+        }
+      }
+    },
+    {
+      "id": "manager:tci-fund-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Chris Hohn",
+      "text": "TCI Fund Management Ltd · 집중·퀄리티·행동주의",
+      "group": "집중·퀄리티·행동주의",
+      "keys": [
+        "TCI Fund Management Ltd",
+        "집중·퀄리티·행동주의"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "tci-fund-management"
+        }
+      }
+    },
+    {
+      "id": "manager:viking-global-investors",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Andreas Halvorsen",
+      "text": "Viking Global Investors LP · 롱/숏·성장·퀄리티",
+      "group": "롱/숏·성장·퀄리티",
+      "keys": [
+        "Viking Global Investors LP",
+        "롱/숏·성장·퀄리티"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "viking-global-investors"
+        }
+      }
+    },
+    {
+      "id": "manager:tiger-global-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Chase Coleman",
+      "text": "Tiger Global Management LLC · 성장·기술·벤처",
+      "group": "성장·기술·벤처",
+      "keys": [
+        "Tiger Global Management LLC",
+        "성장·기술·벤처"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "tiger-global-management"
+        }
+      }
+    },
+    {
+      "id": "manager:ark-investment-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Cathie Wood",
+      "text": "ARK Investment Management LLC · 혁신·고성장·테마",
+      "group": "혁신·고성장·테마",
+      "keys": [
+        "ARK Investment Management LLC",
+        "혁신·고성장·테마"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "ark-investment-management"
+        }
+      }
+    },
+    {
+      "id": "manager:harvard-management-company",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Harvard Management Company",
+      "text": "Harvard Management Co Inc · 대학기금·다자산·장기 분산",
+      "group": "대학기금·다자산·장기 분산",
+      "keys": [
+        "Harvard Management Co Inc",
+        "대학기금·다자산·장기 분산"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "harvard-management-company"
+        }
+      }
+    },
+    {
+      "id": "manager:situational-awareness",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Leopold Aschenbrenner",
+      "text": "Situational Awareness LP · AI 인프라·반도체·성장 집중",
+      "group": "AI 인프라·반도체·성장 집중",
+      "keys": [
+        "Situational Awareness LP",
+        "AI 인프라·반도체·성장 집중"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "situational-awareness"
+        }
+      }
+    },
+    {
+      "id": "manager:baupost-group",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Seth Klarman",
+      "text": "Baupost Group LLC/MA · 가치·현금중시·하방 방어",
+      "group": "가치·현금중시·하방 방어",
+      "keys": [
+        "Baupost Group LLC/MA",
+        "가치·현금중시·하방 방어"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "baupost-group"
+        }
+      }
+    },
+    {
+      "id": "manager:scion-asset-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Michael Burry",
+      "text": "Scion Asset Management, LLC · 비대칭·헤지·이벤트",
+      "group": "비대칭·헤지·이벤트",
+      "keys": [
+        "Scion Asset Management, LLC",
+        "비대칭·헤지·이벤트"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "scion-asset-management"
+        }
+      }
+    },
+    {
+      "id": "manager:fisher-asset-management",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Ken Fisher",
+      "text": "Fisher Asset Management, LLC · 글로벌·분산·대형주",
+      "group": "글로벌·분산·대형주",
+      "keys": [
+        "Fisher Asset Management, LLC",
+        "글로벌·분산·대형주"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "fisher-asset-management"
+        }
+      }
+    },
+    {
+      "id": "manager:mark-minervini",
+      "surface": "manager",
+      "surfaceLabel": "운용사·13F",
+      "title": "Mark Minervini",
+      "text": "방법론 전용 프로필 · SEC 13F filer 아님 · 모멘텀·성장·손실 제한",
+      "group": "모멘텀·성장·손실 제한",
+      "keys": [
+        "방법론 전용 프로필 · SEC 13F filer 아님",
+        "모멘텀·성장·손실 제한"
+      ],
+      "route": {
+        "page": "masters",
+        "params": {
+          "manager": "mark-minervini"
+        }
+      }
+    }
+  ]
+}

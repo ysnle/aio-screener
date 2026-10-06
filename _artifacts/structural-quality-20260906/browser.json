@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-04T11:37:37.333Z",
+  "generatedAt": "2026-10-06T01:48:40.779Z",
   "routes": [
     {
       "id": "home",
@@ -9,26 +9,10 @@
         {
           "tag": "A",
           "name": "시장 상태 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "7일 일정과 시장 해석 → 브리핑"
-        },
-        {
-          "tag": "A",
-          "name": "NVIDIA (NVDA): Q1 FY2027 $81.6B Revenue, 85% Growth, Breakout to $224, $229.49 Resistance Next - TradingKey — "
-        },
-        {
-          "tag": "A",
-          "name": "Amazon’s $8B Nvidia Chip Leaseback Deal [2026] - shattered.io — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold Outlook: XAU/USD hit hard as US yields, dollar resume ascent - StoneX — 원문 새 창에서 열기"
         }
       ],
       "headings": [
-        "시장 현황 v57.18",
+        "시장 현황 v57.22",
         "어제와 달라진 점10/1 → 10/2 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
@@ -38,387 +22,23 @@
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "ready",
-      "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리 · 환율 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
-        }
-      ],
+      "moduleState": "loading",
+      "controls": [],
       "headings": [
         "시장 상태",
-        "방어적 환경",
+        "판정 대기",
         "미국 시장 6개 축",
-        "추세",
-        "시장 폭",
-        "변동성",
-        "금리",
-        "신용 · 위험선호",
-        "달러 · 원자재",
-        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
-        "환율 (원 · 엔)",
-        "이어서 볼 곳"
+        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다"
       ]
     },
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "ready",
-      "controls": [
-        {
-          "tag": "SELECT",
-          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HPE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ASX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NTAP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "P"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LITE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "JCI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KEYS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RBRK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PANW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EWJ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CRWD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NVDA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FTNT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "QQQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "XLK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NKE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AON"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FISV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FIS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CHTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WYNN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SNY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TCOM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BIDU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LULU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BSX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LVS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TTD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MKC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TMUS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MAA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ZTS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NOC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OTIS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PEP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "JOBY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CPNG"
-        },
-        {
-          "tag": "SELECT",
-          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WOLF"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TER"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HPE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KRMN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ECHO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ASX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ON"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMKR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MPWR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SATL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AEHR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NTAP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VIAV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SEI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RKLB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LUNR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TSLA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LBRT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "URI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "P"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TXN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GNRC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SMCI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "UMC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ONTO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CRDO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WDC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "STX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "QBTS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RHI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "XNDU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "테마 · 섹터 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "스크리너 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 →"
-        }
-      ],
+      "moduleState": "loading",
+      "controls": [],
       "headings": [
         "시장 폭",
-        "시장 폭 판정",
-        "참여도 — 이동평균 위 종목 비율",
-        "50일선 위 종목 비율",
-        "20일선 위 종목 비율",
-        "40일선 위 종목 비율 (T2108 계열)",
-        "200일선 위 종목 비율",
-        "상승 종목 비율 (10일 평균)",
-        "누적 상승-하락 종목 수 (A/D 라인)",
-        "리더십 — 신고가·신저가와 급등락 종목",
-        "52주 신고가 − 신저가 종목 수",
-        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
-        "지수 확인 — 분배일과 S&P 500",
-        "S&P 500 분배일 (최근 25거래일)",
-        "S&P 500 (같은 기간 비교)",
-        "이어서 볼 곳"
+        "시장 폭 판정"
       ]
     },
     {
@@ -518,7 +138,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "통화정책부담시장: 인상 구간 (프리미엄 미분해)"
+          "name": "통화정책부담2년물이 기준금리보다 0.96%p 높음"
         },
         {
           "tag": "BUTTON",
@@ -602,7 +222,7 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "통신 테마 상세 열기"
+          "name": "금융 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
@@ -614,11 +234,19 @@
         },
         {
           "tag": "BUTTON",
+          "name": "산업재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
           "name": "소비재 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "산업재 테마 상세 열기"
+          "name": "필수소비 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "부동산 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
@@ -630,15 +258,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "부동산 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금융 테마 상세 열기"
+          "name": "통신 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
@@ -761,18 +381,6 @@
           "name": "산업재/물류 -4.3%"
         },
         {
-          "tag": "BUTTON",
-          "name": "스크리너 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
-        },
-        {
           "tag": "A",
           "name": "네이버 테마별 시세 ↗"
         },
@@ -831,7 +439,6 @@
         "네트워크",
         "냉각",
         "시설·건설",
-        "이어서 볼 곳",
         "국내 테마 흐름"
       ]
     },
@@ -936,28 +543,12 @@
           "name": "새로고침"
         },
         {
-          "tag": "A",
-          "name": "NVIDIA (NVDA): Q1 FY2027 $81.6B Revenue, 85% Growth, Breakout to $224, $229.49 Resistance Next - TradingKey — "
-        },
-        {
-          "tag": "A",
-          "name": "Amazon’s $8B Nvidia Chip Leaseback Deal [2026] - shattered.io — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold Outlook: XAU/USD hit hard as US yields, dollar resume ascent - StoneX — 원문 새 창에서 열기"
-        },
-        {
           "tag": "BUTTON",
           "name": "최신순"
         },
         {
           "tag": "BUTTON",
           "name": "중요도순"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "공용 AI 연결 시 해석 추가"
         },
         {
           "tag": "BUTTON",
@@ -977,63 +568,7 @@
         },
         {
           "tag": "A",
-          "name": "Iran's currency crashes as the regime runs out of oil to sell and can’t get its money from customers - Fortune"
-        },
-        {
-          "tag": "A",
-          "name": "3분기 약달러에 ETF 상승률 1∼3위 모두 '달러 곱버스' 차지 - 연합뉴스 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold Market Weekly: The Dollar and Oil Still Have Control of the Gold Desk - The Dark Side Of The Boom — 원문 새 "
-        },
-        {
-          "tag": "A",
-          "name": "Gold Ends the Week at $4,144 as Record Bond Yields Overpower Asia's Holiday Buying - AD HOC NEWS — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Applied Materials (AMAT) Earnings Preview: AI Chip Demand, Capital Expenditure Trends, & Trade Setups - In Pro"
-        },
-        {
-          "tag": "A",
-          "name": "Iran Is Losing Some of Its Leverage Over the Strait of Hormuz - Crude Oil Prices Today | OilPrice.com — 원문 새 창"
-        },
-        {
-          "tag": "A",
-          "name": "CooperCompanies stock faces lower 2026 earnings guidance - AD HOC NEWS — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Microsoft (MSFT) Q4 FY2026 Preview: Alphabet's Ominous Signal and the July 30 Test - TradingKey — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold Tests $4,000 Floor as Record Bond Yields Collide With Central-Bank Buying - AD HOC NEWS — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Consequences of Iran Regime Oil Exports Falling to Zero - Iran Focus — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "NVIDIA Crushed Data Center at +92% — So Why Is the Stock Still Climbing Toward $229? - TradingKey — 원문 새 창에서 열"
-        },
-        {
-          "tag": "A",
-          "name": "Thinking About Buying 10-Year Treasury Notes Yielding 5.3% Instead of Dividend Stocks Like Coca-Cola? Consider"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "12개 더 보기"
-        },
-        {
-          "tag": "A",
           "name": "지정학중립 어조Insider·US · 10-04미국 중간선거를 앞두고 민주당이 전통적인 공화당 우세 지역에서 지지세를 확대 중. 민주당은 알래스카에서 공화당에 7%포인트, 텍사스에서 6%포인트, 오"
-        },
-        {
-          "tag": "A",
-          "name": "시장소식중립 어조Insider·US · 10-04받) 해당 도끼 사진"
         },
         {
           "tag": "A",
@@ -1046,10 +581,6 @@
         {
           "tag": "A",
           "name": "시장소식중립 어조Insider·US · 10-04세계 식량 가격이 2022년 이후 최고 수준에 도달"
-        },
-        {
-          "tag": "A",
-          "name": "시장소식중립 어조Insider·US · 10-04위 TOP 5 애널리스트들 취합해서 2번 이상 언급된 종목들 뽑아보니 이렇게 나오네용."
         },
         {
           "tag": "A",
@@ -1069,11 +600,19 @@
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조Insider·US · 10-04BE"
+          "name": "지정학중립 어조Insider·US · 10-03⚡️ ⚡️ ⚡️ 이란 방공망이 호르무즈 해협의 케슘섬 상공에서 비행체를 향해 지대공 미사일(SAM)을 발사함."
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조Insider·US · 10-03"
+          "name": "반도체중립 어조HANA·China/EM · 10-03>>머스크, TSMC의 Terafab 프로젝트 참여 가능성에 답변 •TSMC가 SpaceX·Tesla와 공동 투자해 추진하는 Terafab 프로젝"
+        },
+        {
+          "tag": "A",
+          "name": "반도체중립 어조Aether·JP · 10-03커스텀 HBM은 GPU 다이에서 연산(Compute)을 위한 공간을 더 확보해줍니다. Rubin에서는 HBM 컨트롤러와 PHY가 GPU 다이 면적의 약 "
+        },
+        {
+          "tag": "A",
+          "name": "매크로긍정 어조HANA·China/EM · 10-03>>NVIDIA, 장중 사상 최고치…시가총액 6조달러 육박, 추가 매수할 만한가? (대만경제일보) •NVIDIA 주가는 금요일 장중 3%까지 상승"
         }
       ],
       "headings": [
@@ -1087,8 +626,24 @@
       "moduleState": "ready",
       "controls": [
         {
+          "tag": "INPUT",
+          "name": "리서치 라이브러리 통합 검색"
+        },
+        {
           "tag": "BUTTON",
-          "name": "이어 읽기"
+          "name": "분석 노트  23"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "칼럼 · 돈에서 주식시장까지  12"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 사전  82"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "원리 레슨  112"
         },
         {
           "tag": "BUTTON",
@@ -1096,110 +651,131 @@
         },
         {
           "tag": "BUTTON",
-          "name": "관계 지도"
+          "name": "산술평균 수익률과 실현 복리 수익률의 괴리"
         },
         {
           "tag": "BUTTON",
-          "name": "선택 학습"
+          "name": "명목·실질·상대 성과의 구분"
         },
         {
           "tag": "BUTTON",
-          "name": "참고 자료실"
+          "name": "이익 증가와 현금 부족의 공존"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 시대 지식 지도에서 전체 연결 보기"
+          "name": "가격 인상과 매출 감소"
         },
         {
           "tag": "BUTTON",
-          "name": "1. 돈은 숫자가 아니라 미래의 선택권이다"
+          "name": "기술의 필요성과 공급자 수익성의 분리"
         },
         {
           "tag": "BUTTON",
-          "name": "2. 물가가 오르면 돈이 줄지 않아도 가난해진다"
+          "name": "은행 신용 창출과 통화량"
         },
         {
           "tag": "BUTTON",
-          "name": "3. 금리는 기다림과 위험에 붙는 가격이다"
+          "name": "디스인플레이션 국면의 높은 물가 수준"
         },
         {
           "tag": "BUTTON",
-          "name": "4. 중앙은행은 금리로 경제의 속도를 바꾼다"
+          "name": "정책금리 인하 국면의 장기채 약세"
         },
         {
           "tag": "BUTTON",
-          "name": "5. 미국채는 수익률이면서 금융시스템의 기준점이다"
+          "name": "원화 약세의 업종 내 차별적 영향"
         },
         {
           "tag": "BUTTON",
-          "name": "6. 돈이 풀려도 모든 곳으로 같은 속도로 가지 않는다"
+          "name": "AI 설비투자 확대기의 잉여현금흐름 감소와 ROIC"
         },
         {
           "tag": "BUTTON",
-          "name": "7. 기업은 자본을 투입해 현금흐름을 만드는 기계다"
+          "name": "이익 증가와 현금 부족의 공존"
         },
         {
           "tag": "BUTTON",
-          "name": "8. 좋은 기업과 좋은 가격은 같은 말이 아니다"
+          "name": "수율 개선이 원가·생산능력에 미치는 영향"
         },
         {
           "tag": "BUTTON",
-          "name": "9. 돈은 빠르지만 공장과 전력망은 느리다"
+          "name": "HBM과 광 인터커넥트의 역할 분담"
         },
         {
           "tag": "BUTTON",
-          "name": "10. 기술의 혁신성과 주주의 수익성은 따로 검증해야 한다"
+          "name": "은행"
         },
         {
           "tag": "BUTTON",
-          "name": "11. 시장은 합리성과 비합리성을 동시에 가진다"
+          "name": "보험"
         },
         {
           "tag": "BUTTON",
-          "name": "12. 리스크 관리는 미래를 맞히는 기술이 아니라 살아남는 구조다"
+          "name": "부동산·리츠·건설"
         },
         {
           "tag": "BUTTON",
-          "name": "A1 심화 원고"
+          "name": "소비·유통"
         },
         {
           "tag": "BUTTON",
-          "name": "A3 심화 원고"
+          "name": "소프트웨어·플랫폼"
         },
         {
           "tag": "BUTTON",
-          "name": "G1 심화 원고"
-        },
-        {
-          "tag": "A",
-          "name": "Federal Reserve · Economic education"
+          "name": "바이오·의료"
         },
         {
           "tag": "BUTTON",
-          "name": "처음입니다"
+          "name": "에너지·화학·소재"
         },
         {
           "tag": "BUTTON",
-          "name": "다음 · 물가가 오르면 돈이 줄지 않아도 가난해진다"
+          "name": "운송·물류"
         },
         {
           "tag": "BUTTON",
-          "name": "☆ 북마크"
-        },
-        {
-          "tag": "TEXTAREA",
-          "name": "돈은 숫자가 아니라 미래의 선택권이다 개인 메모"
+          "name": "농업·식품"
         },
         {
           "tag": "BUTTON",
-          "name": "메모 저장"
+          "name": "원화 약세의 업종 내 차별적 영향"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "실적 상회에도 주가가 하락하는 구조"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시가총액 가중 지수의 비중 변화와 실제 매수 흐름"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "포트폴리오펀드·전략 성과는 연평균 복리 수익률(CAGR)과 최대 낙폭을 함께 확인"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산술평균과 기하평균 수익률해마다 +50%와 −50%를 번갈아 내면 산술평균은 0%지만 실제 자산은 1.5 × 0.5 = 0.75로 25% 줄어든다. 실…"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "복리이전 기간의 수익에도 다시 수익이 붙는 구조. 연 7%로 10년이면 1.07^10 ≈ 1.97배로 약 두 배가 된다. 수익률이…"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "%와 %p(퍼센트포인트)%는 비율의 변화, %p는 두 비율의 차이다. 금리가 2%에서 3%로 오르면 1%p 오른 것이고, 비율로는 50% 오른 것이다…"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "명목·실질·상대 성과의 구분"
         }
       ],
       "headings": [
-        "세상을 움직이는 원리",
-        "시장 원리에서 AI 자본 흐름까지",
-        "돈의 가치에서 주식의 가치까지",
-        "돈은 숫자가 아니라 미래의 선택권이다"
+        "개념·분석 프레임",
+        "산술평균 수익률과 실현 복리 수익률의 괴리",
+        "흐름으로 보면",
+        "숫자로 따라가 보면",
+        "반대로 흘러가는 경우"
       ]
     },
     {
@@ -1208,196 +784,164 @@
       "moduleState": "ready",
       "controls": [
         {
-          "tag": "BUTTON",
-          "name": "전체"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "13F 연결"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "방법론 전용"
-        },
-        {
           "tag": "INPUT",
-          "name": "투자자 검색"
+          "name": "리서치 라이브러리 통합 검색"
         },
         {
           "tag": "BUTTON",
-          "name": "종목으로 역조회"
+          "name": "운용 방식 비교"
         },
         {
           "tag": "BUTTON",
-          "name": "Warren Buffett 2026-06-30 13F 보기"
+          "name": "BlackRock"
         },
         {
           "tag": "BUTTON",
-          "name": "Stanley Druckenmiller 2026-06-30 13F 보기"
+          "name": "State Street Investment Management"
         },
         {
           "tag": "BUTTON",
-          "name": "Ken Fisher 2026-06-30 13F 보기"
+          "name": "Vanguard"
         },
         {
           "tag": "BUTTON",
-          "name": "Bill Ackman 2026-03-31 13F 보기"
+          "name": "Warren Buffett"
         },
         {
           "tag": "BUTTON",
-          "name": "David Tepper 2026-06-30 13F 보기"
+          "name": "Chris Hohn"
         },
         {
           "tag": "BUTTON",
-          "name": "Seth Klarman 2026-06-30 13F 보기"
+          "name": "Seth Klarman"
         },
         {
           "tag": "BUTTON",
-          "name": "Michael Burry 2025-09-30 13F 보기"
+          "name": "Bill Ackman"
         },
         {
           "tag": "BUTTON",
-          "name": "BlackRock 2026-06-30 13F 보기"
+          "name": "Starboard Value"
         },
         {
           "tag": "BUTTON",
-          "name": "Citi 2026-06-30 13F 보기"
+          "name": "Trian Fund Management"
         },
         {
           "tag": "BUTTON",
-          "name": "Goldman Sachs 2026-06-30 13F 보기"
+          "name": "ValueAct"
         },
         {
           "tag": "BUTTON",
-          "name": "JPMorgan Asset Management 2026-06-30 13F 보기"
+          "name": "Daniel Loeb"
         },
         {
           "tag": "BUTTON",
-          "name": "State Street Investment Management 2026-06-30 13F 보기"
+          "name": "Paul Singer"
         },
         {
           "tag": "BUTTON",
-          "name": "Vanguard 2026-06-30 13F 보기"
+          "name": "Howard Marks"
         },
         {
           "tag": "BUTTON",
-          "name": "Capital Group 2026-06-30 13F 보기"
+          "name": "George Soros / Dawn Fitzpatrick"
         },
         {
           "tag": "BUTTON",
-          "name": "Fidelity / FMR 2026-06-30 13F 보기"
+          "name": "Ray Dalio"
         },
         {
           "tag": "BUTTON",
-          "name": "T. Rowe Price 2026-06-30 13F 보기"
+          "name": "Stanley Druckenmiller"
         },
         {
           "tag": "BUTTON",
-          "name": "Wellington Management 2026-06-30 13F 보기"
+          "name": "David Tepper"
         },
         {
           "tag": "BUTTON",
-          "name": "Dimensional Fund Advisors 2026-06-30 13F 보기"
+          "name": "Tudor Investment"
         },
         {
           "tag": "BUTTON",
-          "name": "George Soros / Dawn Fitzpatrick 2026-06-30 13F 보기"
+          "name": "Dimensional Fund Advisors"
         },
         {
           "tag": "BUTTON",
-          "name": "Ray Dalio 2026-06-30 13F 보기"
+          "name": "Ken Griffin / Seth Levy"
         },
         {
           "tag": "BUTTON",
-          "name": "Howard Marks 2026-06-30 13F 보기"
+          "name": "Millennium Management"
         },
         {
           "tag": "BUTTON",
-          "name": "Ken Griffin / Seth Levy 2026-06-30 13F 보기"
+          "name": "Renaissance Technologies"
         },
         {
           "tag": "BUTTON",
-          "name": "Millennium Management 2026-06-30 13F 보기"
+          "name": "Two Sigma"
         },
         {
           "tag": "BUTTON",
-          "name": "Renaissance Technologies 2026-06-30 13F 보기"
+          "name": "Fidelity / FMR"
         },
         {
           "tag": "BUTTON",
-          "name": "Two Sigma 2026-06-30 13F 보기"
+          "name": "T. Rowe Price"
         },
         {
           "tag": "BUTTON",
-          "name": "Tudor Investment 2026-06-30 13F 보기"
+          "name": "Andreas Halvorsen"
         },
         {
           "tag": "BUTTON",
-          "name": "Starboard Value 2026-06-30 13F 보기"
+          "name": "Chase Coleman"
         },
         {
           "tag": "BUTTON",
-          "name": "Trian Fund Management 2026-06-30 13F 보기"
+          "name": "Cathie Wood"
         },
         {
           "tag": "BUTTON",
-          "name": "ValueAct 2026-06-30 13F 보기"
+          "name": "Leopold Aschenbrenner"
         },
         {
           "tag": "BUTTON",
-          "name": "Daniel Loeb 2026-06-30 13F 보기"
+          "name": "Mark Minervini"
         },
         {
           "tag": "BUTTON",
-          "name": "Paul Singer 2026-06-30 13F 보기"
+          "name": "Michael Burry"
         },
         {
           "tag": "BUTTON",
-          "name": "Chris Hohn 2026-06-30 13F 보기"
+          "name": "Citi"
         },
         {
           "tag": "BUTTON",
-          "name": "Andreas Halvorsen 2026-06-30 13F 보기"
+          "name": "Goldman Sachs"
         },
         {
           "tag": "BUTTON",
-          "name": "Chase Coleman 2026-06-30 13F 보기"
+          "name": "JPMorgan Asset Management"
         },
         {
           "tag": "BUTTON",
-          "name": "Cathie Wood 2026-06-30 13F 보기"
+          "name": "Capital Group"
         },
         {
           "tag": "BUTTON",
-          "name": "Harvard Management Company 2026-06-30 13F 보기"
+          "name": "Wellington Management"
         },
         {
           "tag": "BUTTON",
-          "name": "Leopold Aschenbrenner 2026-06-30 13F 보기"
+          "name": "Harvard Management Company"
         },
         {
           "tag": "BUTTON",
-          "name": "Mark Minervini 방법론 전용 보기"
-        },
-        {
-          "tag": "A",
-          "name": "SEC EDGAR"
-        },
-        {
-          "tag": "A",
-          "name": "SEC filing index"
-        },
-        {
-          "tag": "A",
-          "name": "Information table XML"
-        },
-        {
-          "tag": "A",
-          "name": "Primary document"
-        },
-        {
-          "tag": "A",
-          "name": "이전 분기 정보표"
+          "name": "Ken Fisher"
         },
         {
           "tag": "BUTTON",
@@ -1437,7 +981,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "전체 30행 변화 원장 불러오기"
+          "name": "전체 30개 보기"
         },
         {
           "tag": "BUTTON",
@@ -1473,25 +1017,24 @@
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리 페이지에서 검증 프레임 보기"
+          "name": "개념·분석 프레임에서 이어 읽기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chris Hohn"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Seth Klarman"
         },
         {
           "tag": "INPUT",
           "name": "티커 또는 CUSIP 역조회"
-        },
-        {
-          "tag": "A",
-          "name": "SEC 13F 데이터셋"
-        },
-        {
-          "tag": "A",
-          "name": "텔레그램 발견 원문"
         }
       ],
       "headings": [
-        "대가의 포트폴리오",
-        "Warren Buffett",
-        "티커·CUSIP에서 공개 보유 행으로 역조회"
+        "운용사·13F",
+        "Warren Buffett"
       ]
     },
     {
@@ -1500,200 +1043,142 @@
       "moduleState": "ready",
       "controls": [
         {
-          "tag": "BUTTON",
-          "name": "학습 지도"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "관계 지도"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "산업·가치사슬"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "근거 자료실"
-        },
-        {
           "tag": "INPUT",
-          "name": "AI 시대 지식 지도 검색"
+          "name": "리서치 라이브러리 통합 검색"
         },
         {
           "tag": "BUTTON",
-          "name": "☆ 북마크"
-        },
-        {
-          "tag": "TEXTAREA",
-          "name": "에너지와 전력 개인 메모"
+          "name": "산업 지도  19"
         },
         {
           "tag": "BUTTON",
-          "name": "메모 저장"
+          "name": "AI 기초  7"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "관계 가이드  5"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "클라우드·AI 플랫폼"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "하이퍼스케일러 클라우드"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "관리형 AI 서비스"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "가동률·Workload 구성"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "클라우드 장기 약정"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "감가상각 주기"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "네오클라우드·GPU 금융"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "AI 연산·주문형 반도체"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "메모리·스토리지·데이터 이동"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "파운드리·장비·소재"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "첨단 패키징·기판"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "네트워크·광학·CPO"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "AI 데이터센터·서버·냉각"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "전력·에너지·전력망"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "온디바이스·Physical AI"
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리에서 이어 읽기"
+          "name": "AI CAPEX·ROIC·기업 재무"
         },
         {
           "tag": "BUTTON",
-          "name": "1문제·학습·시스템의 공통 언어6개 개념"
+          "name": "Physical AI·로보틱스·자율성"
         },
         {
           "tag": "BUTTON",
-          "name": "2물리·수학·반도체의 출발점7개 개념"
+          "name": "드론·방산·자율 시스템"
         },
         {
           "tag": "BUTTON",
-          "name": "3AI는 어떻게 학습하는가8개 개념"
+          "name": "우주·항공·재사용 시스템"
         },
         {
           "tag": "BUTTON",
-          "name": "4Transformer와 LLM의 생애주기10개 개념"
+          "name": "AI 응용 산업"
         },
         {
           "tag": "BUTTON",
-          "name": "5RAG·Agent·World Model7개 개념"
+          "name": "자원·소재·산업재"
         },
         {
           "tag": "BUTTON",
-          "name": "6칩에서 데이터센터·전력망까지9개 개념"
+          "name": "지정학·산업정책·보안"
         },
         {
           "tag": "BUTTON",
-          "name": "7산업 경제성과 투자 검증8개 개념"
+          "name": "자본시장·기업 지도"
         },
         {
           "tag": "BUTTON",
-          "name": "01에너지와 전력"
+          "name": "인접 미래 기술"
         },
         {
           "tag": "BUTTON",
-          "name": "02벡터와 행렬"
+          "name": "하이퍼스케일러 클라우드사업·수익 구조"
         },
         {
           "tag": "BUTTON",
-          "name": "03확률과 통계"
+          "name": "관리형 AI 서비스사업·수익 구조"
         },
         {
           "tag": "BUTTON",
-          "name": "04병렬처리"
+          "name": "가동률·Workload 구성재무·경제성 개념"
         },
         {
           "tag": "BUTTON",
-          "name": "05실리콘과 도핑"
+          "name": "클라우드 장기 약정사업·수익 구조"
         },
         {
           "tag": "BUTTON",
-          "name": "06병목과 희소성"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "07CAPEX와 감가상각"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 원문·출처 불러오기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "벡터와 행렬 →"
+          "name": "감가상각 주기재무·경제성 개념"
         }
       ],
       "headings": [
-        "AI 시대 지식 지도",
-        "시장 조건에서 AI 산업의 현금흐름까지",
-        "챗봇에서 에이전트로: 생산성의 단위",
-        "학습에서 추론으로: 효율과 수요의 반동",
-        "GPU가 아닌 시스템 처리량",
-        "전력은 컴퓨트의 외부 조건이 아니다",
-        "AI CAPEX와 신용시장",
-        "AI는 해자를 강화하기도 없애기도 한다",
-        "금융 자본과 물리 자본의 속도 차이",
-        "병목의 지속기간과 대체 가능성",
-        "AI 인프라의 자본 사이클",
-        "AI 가치사슬에서 현금흐름까지",
-        "AI 구축 인플레이션과 장기 디플레이션",
-        "AI의 수익화는 사용량보다 지불 구조",
-        "CAPEX·가동률·감가상각·FCF 연결",
-        "AI 유동성 집중과 되돌림",
-        "AI 생산성의 귀속과 노동 충격",
-        "AI 사이클의 종료 조건",
-        "정보 평준화 이후의 분석 소유권",
-        "AI 분류와 공통 언어",
-        "15분 · AI는 어떻게 작동하는가",
-        "30분 · 물리적 AI 인프라",
-        "World Model과 Agent",
-        "45분 · 경제성·산업·자본",
-        "지도에서 전문 페이지로 이동",
-        "검증과 공개 기준",
-        "AI를 이해하는 7단계",
-        "물리·수학·반도체의 출발점",
-        "에너지와 전력"
+        "산업·밸류체인",
+        "클라우드·AI 플랫폼",
+        "자주 빗나가는 해석"
       ]
     },
     {
@@ -1795,19 +1280,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "시장 원리"
+          "name": "개념·분석 프레임"
         },
         {
           "tag": "BUTTON",
-          "name": "대가의 포트폴리오"
+          "name": "산업·밸류체인"
         },
         {
           "tag": "BUTTON",
-          "name": "지식 지도"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "사용 설명서"
+          "name": "운용사·13F"
         },
         {
           "tag": "BUTTON",
@@ -1836,7 +1317,7 @@
         "종목",
         "스크리너",
         "포트폴리오",
-        "배우기",
+        "리서치 라이브러리",
         "판정 기준표 시장 상태 · 투자 심리 · 거시 · 금리 · 환율이 함께 쓰는 기준"
       ]
     },
@@ -1899,7 +1380,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "고급 필터"
+          "name": "표 범위 좁히기"
         },
         {
           "tag": "BUTTON",

@@ -4,6 +4,7 @@
 // surface's base-currency values; a holding without a value or a screener row is left out and counted.
 import { SECTOR_ETF } from '../entity/stock-read.js';
 import { sectorLabel } from '../screener/screener-read.js';
+import { buildAttribution } from './attribution.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
@@ -17,7 +18,7 @@ function trendState(row) {
 }
 export const TREND_LABEL = Object.freeze({ up: '상승 추세', pullback: '추세 속 조정', rebound: '장기 추세 아래 반등', down: '하락 추세' });
 
-export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, rotation = {}, regime = null } = {}) {
+export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, marketReturnFor = null, usdkrwReturnPct = null, rotation = {}, regime = null } = {}) {
   // P1449: like the checks panel, this read refuses sums it cannot honestly stand behind.
   // A mixed surface without declared FX legs holds only local-unit values — summing them is
   // the same fabrication the surface already refuses (P1175), while an undeclared-single
@@ -27,7 +28,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   }
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
   const holdings = (Array.isArray(surface?.rows) ? surface.rows : [])
-    .map((row) => ({ symbol: String(row?.symbol || row?.ticker || '').toUpperCase(), value: finite(row?.value) }))
+    .map((row) => ({ symbol: String(row?.symbol || row?.ticker || '').toUpperCase(), value: finite(row?.value), convertedFrom: row?.convertedFrom || null }))
     .filter((row) => row.symbol && row.value != null && row.value > 0)
     .map((row) => ({ ...row, data: bySymbol.get(row.symbol) || null }));
   const total = holdings.reduce((sum, row) => sum + row.value, 0);
@@ -80,30 +81,30 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
       text: `보유 비중의 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다 (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? ` ${row.quadrant.label}` : ''}`).join(' · ')}).${krNote}` });
   }
 
-  // P1449: book and benchmark must share ONE population — the rows where BOTH the holding's
-  // 3-month return and the matching benchmark return are known. Independently filtered subsets
-  // can drop different missing tickers, fabricating a comparison the book and the index
-  // never actually contested.
-  const parts = known
-    .filter((row) => finite(row.data.ret3m) != null)
-    .map((row) => ({ ...row, bench: typeof benchmarkFor === 'function' ? benchmarkFor(row.symbol) : null }))
-    .filter((part) => finite(part.bench?.ret3m) != null);
-  const relativeWeight = parts.reduce((sum, part) => sum + part.value, 0);
-  const relativeContainedPct = total > 0 ? relativeWeight / total * 100 : 0;
-  const book3 = relativeWeight > 0 ? parts.reduce((sum, part) => sum + part.value * part.data.ret3m, 0) / relativeWeight : null;
-  let bench3 = relativeWeight > 0 ? parts.reduce((sum, part) => sum + part.value * part.bench.ret3m, 0) / relativeWeight : finite(benchmark?.ret3m);
-  let benchLabel = 'S&P 500';
-  const labels = [...new Set(parts.map((part) => part.bench.label))];
-  if (relativeWeight > 0) benchLabel = labels.length > 1 ? `같은 비중의 ${labels.join('·')} 혼합` : labels[0];
-  const relativeBasisNote = parts.length && relativeContainedPct < 100 && relativeWeight > 0 ? ` (금융 이력이 확인된 보유액 ${relativeContainedPct.toFixed(0)}% 기준)` : '';
-  if (book3 != null && bench3 != null) {
-    const gap = book3 - bench3;
+  // P1466: one decomposition answers both "how did the book do against its index" and "why".
+  // Book and benchmark share one population (holdings with a 3-month return, a market return and,
+  // when converted, an FX return — P1449), and the gap is split into sector, stock, FX and cash.
+  const attribution = buildAttribution({
+    holdings: known,
+    cash: surface?.cash ?? null,
+    baseCurrency: surface?.baseCurrency || null,
+    rowFor: (symbol) => (symbol === undefined ? null : bySymbol.get(String(symbol).toUpperCase()) || null),
+    marketReturnFor: typeof marketReturnFor === 'function' ? marketReturnFor : typeof benchmarkFor === 'function' ? benchmarkFor : () => benchmark,
+    usdkrwReturnPct
+  });
+  const book3 = attribution.available ? attribution.totalPct : null;
+  const bench3 = attribution.available ? attribution.blendedPct : null;
+  const relativeBasisNote = attribution.available && attribution.coveredPct != null && attribution.coveredPct < 100 ? ` (수익률·비교 지수가 확인된 보유액 ${attribution.coveredPct.toFixed(0)}% 기준)` : '';
+  if (attribution.available) {
+    const gap = attribution.excessPct;
+    const parts = attribution.excess.filter((part) => Math.abs(part.pct) >= 0.05).map((part) => `${part.label} ${signed(part.pct, 1, '%p')}`).join(' · ');
+    const lead = attribution.topStock[0];
     points.push({ id: 'relative', tone: gap >= 0 ? 'favorable' : 'burden', title: '지수 대비',
-      text: `지금 비중으로 계산한 3개월 수익률 ${signed(book3)} vs ${benchLabel} ${signed(bench3)}${relativeBasisNote} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
+      text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율·현금 포함) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
   }
   if (regime?.available) {
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경',
-      text: `시장은 ${regime.overall}(우호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${regime.counts.burden >= 4 ? '부담 축이 많은 환경에서는 손절 기준과 현금 비중을 먼저 점검하는 편이 일반적입니다.' : '환경이 극단적이지 않아 종목별 추세가 더 중요한 국면입니다.'}` });
+      text: `시장 상태는 ‘${regime.overall}’(우호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${regime.counts.burden >= 4 ? '부담 축이 많은 환경에서는 손절 기준과 현금 비중을 먼저 점검하는 편이 일반적입니다.' : '환경이 극단적이지 않아 종목별 추세가 더 중요한 국면입니다.'}` });
   }
   const excluded = holdings.length - known.length;
   const excludedValue = total - knownValue;
@@ -114,5 +115,5 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 요약·차트' });
   next.push({ route: 'themes', label: '테마 · 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });
   next.push({ route: 'signal', label: '시장 상태', why: '부담 축이 무엇이고 무엇이 바뀌면 완화되는지' });
-  return { available: true, total, headline, points, trendMix, sectorMix, excluded, excludedValue, containedPct: trendContainedPct, next };
+  return { available: true, total, headline, points, trendMix, sectorMix, attribution, excluded, excludedValue, containedPct: trendContainedPct, next };
 }

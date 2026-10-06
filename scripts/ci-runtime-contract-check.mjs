@@ -235,7 +235,8 @@ check('LC-29/P1219 Fear & Greed delta is a named day-over-day change', /opts\.la
 // not advertise breadth/survey series the product does not provide.
 check('LC-19/21/P1220/P1428 Guide does not direct trades or claim unavailable breadth/surveys', !/45 미만이면 매매하지 않는/.test(html) && /예측력이 검증된 값이 아닙니다/.test(html) && !/200일선 위 비율 70%/.test(html) && !/AAII\/NAAIM\/크레딧/.test(html));
 // LC-22/P1221: Atlas showed one concept count beside a larger step-placement map.
-check('LC-22/P1221 Atlas separates distinct concepts from step placements', /기초 개념 \$\{foundationCount\}개\(고유\) · 단계 배치 \$\{foundationPlacements\}개/.test(atlasPage) && /다른 단계 재등장/.test(atlasPage));
+// 2026-10-05 리서치 라이브러리 redesign: the count header is gone; the contents column lists AI 기초 by layer, each module once.
+check('LC-22/P1221 Atlas separates distinct concepts from step placements', read('src/ui/knowledge/industry-view.js').includes('const modules = (layer.modules || []).filter((moduleId) => !listed.has(moduleId));') && !/단계 배치 \$\{foundationPlacements\}개/.test(atlasPage));
 // LC-30/P1222: the Masters history shard is verified against the index descriptor before it feeds
 // the change ledger.
 check('LC-30/P1222 Masters history shard identity is verified before use', /manager history shard identity mismatch/.test(mastersPage) && /runtimeShardSchema/.test(mastersPage) && /historySummary\?\.rawRowsAvailable !== descriptor\.historyRows/.test(mastersPage));
@@ -287,13 +288,16 @@ check('QA-THM-CLEANUP/P1260 retired theme ids have no surviving surface referenc
 // LC-36/P1233: the theme breadth panel names the price-eligible denominator.
 check('LC-36/P1233 theme breadth names its price-eligible denominator', /가격 적격 \$\{priceEligible\}\/\$\{leaderList\.length\}/.test(themesPage));
 // LC-50/P1234: the Atlas overview states what the search actually matches.
-check('LC-50/P1234 atlas states the search scope', /atlas-search-scope/.test(atlasPage) && /연구 패킷 metadata\(id·제목·범위·상태\)/.test(atlasPage));
+// 2026-10-05: the per-tab search and its scope note are replaced by one library search over every research surface.
+check('LC-50/P1234 atlas states the search scope', read('src/ui/knowledge/research-shell.js').includes('리서치 라이브러리 통합 검색') && read('src/ui/knowledge/research-shell.js').includes('searchKnowledgeIndex'));
 // LC-51/P1235: the Masters lookup exposes visible/total rows and can expand.
-check('LC-51/P1235 masters lookup exposes the visible/total rows', /masters-ticker-lookup-count/.test(mastersPage) && /나머지 \$\{allRows\.length - 8\}행 보기/.test(mastersPage));
+// P1488: the lookup answers "who holds it" — one summed line per manager with every raw row behind a disclosure.
+check('LC-51/P1235 masters lookup exposes the visible/total rows', /masters-ticker-lookup-count/.test(mastersPage) && /운용사 \$\{summaries\.length\}곳 · 원문 \$\{allRows\.length\}행/.test(mastersPage) && /masters-ticker-lookup-raw/.test(mastersPage));
 // LC-52/P1236: Guide background statements carry season/condition/evidence framing.
 check('LC-52/P1236 guide background statements carry conditions', !/기관 매집\)/.test(html) && /서머타임\(EDT\)에는 22:30~05:00/.test(html) && /확정하는 신호가 아니며/.test(html) && /예상보다 높으면 금리 인상 우려가 커지는 경우가 많지만/.test(html));
 // LC-53/P1237: the Principles page explains its non-additive learning layers.
-check('LC-53/P1237 principles explains the learning layers', /학습 단위:/.test(html) && /이야기 장\(12\)/.test(html) && /심화 레슨\(112\)/.test(html));
+// 2026-10-05: the layers are the contents groups themselves (분석 노트 · 칼럼 · 개념 사전 · 원리 레슨 · 개념 지도).
+check('LC-53/P1237 principles explains the learning layers', ['분석 노트', '칼럼 · 돈에서 주식시장까지', '개념 사전', '원리 레슨', '개념 지도'].every((label) => read('src/ui/knowledge/concepts-view.js').includes(label)) && !/학습 단위:/.test(html));
 // E2/S-C/P1241: one policy owns row resolution; both paths declare their intent and neither reaches
 // the retired `_aioScreenerRows` global.
 check('E2/S-C/P1241 screener row resolution has one owner and a declared intent', /function _aioGetCanonicalScreenerRows\(root\)/.test(data)
@@ -689,8 +693,10 @@ check('headless tests cover the redesigned default path', /T869 redesign_default
 const newsMoreAt = html.indexOf('id="news-load-more-wrap"');
 const marketNewsAt = html.indexOf('id="page-market-news"');
 const screenerAt = html.indexOf('id="page-screener"');
-const homeOrder = ['home-kpi-strip', 'home-cross-assets', 'home-score-hero', 'home-market-summary-banner'].map((id) => html.indexOf(`id="${id}"`));
-check('home leads with numbers: KPI strip, cross assets, score, then today summary in static order with no runtime reorder (P1322)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && !/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
+// P1494 (owner screen design 2026-10-02~03, Codex review 2026-10-05): conclusion first — the close-basis
+// verdict, then the labelled live-quote strip, cross assets and the today summary; static order, no runtime reorder.
+const homeOrder = ['home-score-hero', 'home-quote-basis', 'home-kpi-strip', 'home-cross-assets', 'home-market-summary-banner'].map((id) => html.indexOf(`id="${id}"`));
+check('home leads with the verdict, then labelled live numbers and today summary in static order with no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && !/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
 check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < screenerAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
 check('fundamental search has one bounded total deadline and parallel bounded primary providers', /var _fundDeadline = Date\.now\(\) \+ 8000/.test(chat) && /Promise\.all\(\[[\s\S]{0,500}dynamicTickerLookup[\s\S]{0,500}fetchSECFilings[\s\S]{0,500}fetchSECFinancials/.test(chat) && /_fundRemaining\(5200\)/.test(chat) && /_fundRemaining\(1400\)/.test(chat));
 check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));

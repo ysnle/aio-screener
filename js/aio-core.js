@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v57.18';
+const APP_VERSION = 'v57.22';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -4263,7 +4263,7 @@ var AIO_PAGE_BRIEFS = {
     use: '개념 정의를 읽고, 메커니즘과 반례를 확인한 뒤 그래프의 다음 연결로 이동합니다.',
     steps: ['Tree에서 개념의 위치 확인', 'Graph에서 1-hop·2-hop 연결 비교', 'Path에서 원인→결과 흐름 복습'],
     focus: '이 페이지는 현재 매매 신호가 아니라 시장·산업·AI의 구조를 학습하는 참고 레이어입니다.',
-    links: [['atlas','AI 시대 지식 지도'], ['guide','사용 가이드']]
+    links: [['atlas','산업·밸류체인'], ['guide','도움말']]
   },
   masters: {
     title: '공시된 보유와 데이터 한계를 함께 봅니다',
@@ -5093,15 +5093,15 @@ window.AIO_PAGE_ACTION_HUBS.masters = {
   title:'대가의 공개 포트폴리오',
   subtitle:'SEC 13F 신고주체·원본·분기 비교를 먼저 확인하고, 검증 전에는 holdings를 비워 둡니다.',
   cards:[['핵심 범위','분기 말 보고 보유 · 신고주체 · 원본 filing'],['데이터 경계','13F는 전체 자산·현재 보유·공매도·현금을 뜻하지 않음'],['검증 순서','SEC 원본 → CIK → XML → shares 비교 → action 분류']],
-  links:[['시장 원리','principles'],['사용 설명서','guide']]
+  links:[['개념·분석 프레임','principles'],['도움말','guide']]
 };
-// AI 시대 지식 지도는 교육용 reference-connected 화면이다. 내부 research
+// 산업·밸류체인은 교육용 reference-connected 화면이다. 내부 research
 // packet의 DESIGN_ONLY 상태는 evidence review 전 current claim 승격을 막는다.
 window.AIO_PAGE_ACTION_HUBS.atlas = {
-  title:'AI 시대 지식 지도',
+  title:'산업·밸류체인',
   subtitle:'기초 원리·산업 가치사슬·근거 자료를 순서대로 탐색합니다.',
   cards:[['현재 범위','교육용 reference-connected 지식 지도'],['Telegram','키워드·프레임워크·출처 발견용'],['현재 주장 승격','1차 출처 + evidence ledger + review gate 필요']],
-  links:[['시장 원리','principles'],['13F 경계','masters']]
+  links:[['개념·분석 프레임','principles'],['운용사·13F','masters']]
 };
 
 function _aioRenderPageActionHub(pageId) {
@@ -21708,7 +21708,7 @@ var breadcrumbMap = {
   technical: ['종목','차트'], fundamental: ['종목','재무 공시'],
   briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','금리 · 환율'],
   'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
-  guide: ['배우기','사용 설명서'], principles: ['배우기','시장 원리'], masters: ['배우기','대가의 포트폴리오'], atlas: ['배우기','지식 지도'],
+  guide: ['도움말','화면 안내'], principles: ['리서치 라이브러리','개념·분석 프레임'], masters: ['리서치 라이브러리','운용사·13F'], atlas: ['리서치 라이브러리','산업·밸류체인'],
   screener: ['AIO','퀀트 스크리너'],
   'theme-detail': ['테마 · 섹터','테마','—'],
   // A direct ticker-route visit has no selected symbol yet; do not present a
@@ -22023,7 +22023,7 @@ window.PAGES = {
   'guide':          { label: '사용 설명서',      init: null, chatCtx: null },
   'principles':     { label: '시장 원리',        init: null, chatCtx: null },
   'masters':        { label: '대가의 포트폴리오', init: null, chatCtx: null },
-  'atlas':          { label: 'AI 시대 지식 지도', init: null, chatCtx: null },
+  'atlas':          { label: '산업·밸류체인', init: null, chatCtx: null },
   'screener':       { label: '퀀트 스크리너',    init: null, chatCtx: 'screener' }
 };
 

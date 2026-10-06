@@ -73,9 +73,21 @@ export function buildScreenerModelFingerprint({
   return JSON.stringify(canonicalize(components));
 }
 
+// P1465: identity of a ranking as it was actually applied (the candidate archive records it per
+// day). Built from the ranking result itself — applied weights over the factors that were active —
+// so the archive and the screen compare the model that ran, not a declared default.
+export function buildRankingIdentity({ appliedFactorWeights = null, activeFactors = null } = {}) {
+  const active = Array.isArray(activeFactors) ? [...activeFactors].map(String).sort() : [];
+  if (!active.length || !appliedFactorWeights || typeof appliedFactorWeights !== 'object') return null;
+  const applied = Object.fromEntries(active.map((factor) => [factor, Math.round((Number(appliedFactorWeights[factor]) || 0) * 10000) / 10000]));
+  return JSON.stringify(canonicalize({ factorRanksModelVersion: FACTOR_RANKS_MODEL_VERSION, factorWeightsModelVersion: FACTOR_WEIGHTS_MODEL_VERSION, activeFactors: active, appliedWeights: applied }));
+}
+
 // Live runtime model identity. The UI compares this with the artifact's stored fingerprint;
 // a mismatch means the stored rows were produced by a different model and must read as
-// disclosure, not validation.
-export function liveScreenerModelFingerprint() {
-  return buildScreenerModelFingerprint();
+// disclosure, not validation. P1463: the identity is built from the weights the screen is
+// actually ranking with (a selected profile is a different model), not from the default.
+export function liveScreenerModelFingerprint(weights = null) {
+  const live = weights && typeof weights === 'object' && Object.keys(weights).length ? weights : null;
+  return buildScreenerModelFingerprint({ weights: live });
 }

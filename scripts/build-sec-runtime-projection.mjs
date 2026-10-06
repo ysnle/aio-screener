@@ -10,8 +10,14 @@ const canonicalText = (value) => value.replace(/\r\n?/g, '\n');
 const sha256 = (value) => createHash('sha256').update(canonicalText(value)).digest('hex');
 const canonicalBytes = (value) => Buffer.byteLength(canonicalText(value));
 
+// P1470 (bound): the header stays pretty-printed; an object's `data` block serializes compactly
+// via a one-shot placeholder so the 1 MiB public page bound keeps real headroom as the P1446-era
+// records grow. Atomicity is preserved (temp file + rename, P1049).
 async function writeAtomic(url, value) {
-  const text = `${JSON.stringify(value, null, 2)}\n`;
+  const hasData = Object.hasOwn(value || {}, 'data');
+  const serial = hasData ? { ...value, data: '@@DATA@@' } : value;
+  const header = JSON.stringify(serial, null, 2).replace('"@@DATA@@"', () => JSON.stringify(value.data));
+  const text = `${header}\n`;
   const temporary = new URL(`${url.pathname}.tmp`, url);
   await writeFile(temporary, text, 'utf8');
   await rename(temporary, url);
@@ -80,8 +86,17 @@ function fiscalHistory(observations = {}) {
 // P1449: the page projection is the shipped path. reconcileSecEquity (P1402) repairs top-level
 // equity when the same filing carries a parent-company StockholdersEquity row, so the repair must
 // happen here — the PIT observations that the page-side reconcile needs are stripped below.
+// P1470: the 1 MiB public page bound is kept. Per-record basis fields that a consumer derives
+// are trimmed when they are uniform with the artifact header — the projection's own header
+// carries the same declaration, and the consumers' fallback constants equal it (deriveSecReport:
+// source fallback 'SEC EDGAR companyfacts'). Fields whose consumer fallback differs from the
+// per-record value (sourceTier T1_OFFICIAL, periodType used by the report, allowedUse scoping)
+// are intentionally NOT trimmed, so no record silently loses its own declared basis.
 const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => {
   const reconciled = reconcileSecEquity(record);
+  if (reconciled && reconciled.equityConcept === 'StockholdersEquity') delete reconciled.equityConcept; // restates the projection policy; conflict evidence stays
+  delete reconciled.source; // uniform: equals the artifact header every record
+  delete reconciled.model; // uniform: sec-fy-normalized-v2; unused by the page render
   const pit = reconciled?.pit && typeof reconciled.pit === 'object'
     ? Object.fromEntries(Object.entries(reconciled.pit).filter(([key]) => key !== 'observations'))
     : null;
@@ -91,7 +106,7 @@ const projection = {
   schemaVersion: 'sec-fundamentals-runtime-summary.v1',
   sourceSchemaVersion: source.schemaVersion,
   artifactRole: 'BOUNDED_PAGE_PROJECTION',
-  projectionPolicy: 'Latest normalized annual facts reconciled for parent-company equity (P1402/P1449) plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path.',
+  projectionPolicy: 'Latest normalized annual facts reconciled for parent-company equity (P1402/P1449) plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path. Per-record uniform source/model restated by this header are trimmed; data serializes compactly (1 MiB bound headroom, P1470).',
   generatedAt: source.generatedAt,
   source: source.source,
   sourceUrl: source.sourceUrl,

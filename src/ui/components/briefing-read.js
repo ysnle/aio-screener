@@ -64,6 +64,10 @@ export function collectMarketInputs(root) {
   const rates = Object.fromEntries(['realYield10', 'realYield10Delta5', 'breakeven10Delta5', 'dgs2Delta5', 'dgs10Delta5']
     .map((key) => [key, finite(key.endsWith('Delta5') ? snapshot[`_${key}`] : snapshot[key])]));
   rates.asOf = fieldTs.macro_realYield10 || fieldTs.macro_dgs10 || null;
+  // Codex review 2026-10-05: nominal ≈ real + breakeven holds only on one date; TIPS (10/1) and breakeven
+  // (10/2) from different days are not split against each other.
+  rates.realAsOf = fieldTs.macro_realYield10 || null;
+  rates.breakevenAsOf = fieldTs.macro_breakeven10 || null;
   return { history: root._aioHistory || [], credit, rates };
 }
 

@@ -18,32 +18,18 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "MP-NIST",
-      "url": "https://www.nist.gov/ai",
-      "publisher": "NIST",
-      "title": "Artificial intelligence",
+      "sourceId": "SRC-EIA-ENERGY",
+      "url": "https://www.eia.gov/energyexplained/",
+      "publisher": "U.S. Energy Information Administration",
+      "title": "Energy explained",
       "sourceTier": null
     },
     {
-      "sourceId": "PS-16",
-      "url": "https://www.tesla.com/AI",
-      "publisher": "Tesla",
-      "title": "AI and robotics overview",
+      "sourceId": "MP-IEA",
+      "url": "https://www.iea.org/reports/electricity-2025",
+      "publisher": "IEA",
+      "title": "Electricity",
       "sourceTier": null
-    },
-    {
-      "sourceId": "PS-18",
-      "url": "https://rocketlabcorp.com/space-systems/spacecraft/",
-      "publisher": "Rocket Lab",
-      "title": "Space systems and spacecraft portfolio",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
@@ -53,53 +39,28 @@
       "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
+      "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
+      "publisher": "U.S. Department of Energy",
+      "title": "Best Practices Guide for Energy-Efficient Data Center Design",
       "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
       "publisher": "U.S. Department of Energy",
       "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
+      "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
+      "publisher": "U.S. Department of Energy",
+      "title": "Best Practices Guide for Energy-Efficient Data Center Design",
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
@@ -107,8 +68,7 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "ACADEMIC_TEXTBOOK_STANDARD"
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
     {
@@ -118,9 +78,7 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
-    "fact:doe:pue",
-    "fact:ibm:silicon-doping"
+    "fact:doe:pue"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

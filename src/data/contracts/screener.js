@@ -2,6 +2,7 @@
 // dependency-free so providers, the browser engine, AI adapters and scripts
 // can consume the same immutable shapes without importing the legacy shell.
 import { CANONICAL_SOURCE_TIERS, canonicalSourceTier } from './source-kind.js';
+import { latestCompletedUsSession, latestCompletedKrSession, nyParts } from '../../ai/time/market-session.js';
 
 export const SCREENER_CONTRACT_VERSION = 'screener-workbench.v1';
 export const FIELD_STATUS = Object.freeze([
@@ -342,7 +343,31 @@ function fieldObservationContext(row, definition) {
   };
 }
 
-export function classifyFieldStatus({ value, observedAt, now = Date.now(), freshnessBudgetMs = null, supported = true, rights = 'UNKNOWN', conflict = false, sourceKind = 'T3_PUBLIC_DELAYED', lastGood = false } = {}) {
+// Codex review 2026-10-05 (931종목 전부 순위 보류): session/eod fields were aged in calendar days, so the
+// Friday close counted as stale by Monday evening although no session had completed since. An
+// observation from the latest completed US (or KRX) session is within budget whatever the weekend
+// or holiday length.
+// The calendar lookups build Intl formatters; 900+ rows × dozens of fields made boot paint wait seconds.
+// The latest session per market is memoized per minute and the observation's NY date per timestamp.
+const sessionMemo = { minute: null, us: null, kr: null };
+const nyDateMemo = new Map();
+function latestSessions(now) {
+  const minute = Math.floor(Number(now) / 60000);
+  if (sessionMemo.minute !== minute) Object.assign(sessionMemo, { minute, us: latestCompletedUsSession(now, { requirePrevious: false }), kr: latestCompletedKrSession(now) });
+  return sessionMemo;
+}
+function nyDate(ms) {
+  if (!nyDateMemo.has(ms)) { if (nyDateMemo.size > 5000) nyDateMemo.clear(); nyDateMemo.set(ms, nyParts(ms).date); }
+  return nyDateMemo.get(ms);
+}
+export function isLatestSessionObservation(observedMs, now, market = 'US') {
+  if (!Number.isFinite(observedMs)) return false;
+  const { us, kr } = latestSessions(now);
+  if (market === 'KR') return Boolean(kr) && new Date(observedMs + 9 * 3600000).toISOString().slice(0, 10) >= kr.date;
+  return Boolean(us) && nyDate(observedMs) >= us.date;
+}
+
+export function classifyFieldStatus({ value, observedAt, now = Date.now(), freshnessBudgetMs = null, supported = true, rights = 'UNKNOWN', conflict = false, sourceKind = 'T3_PUBLIC_DELAYED', lastGood = false, cadence = null, market = 'US' } = {}) {
   if (!supported) return 'UNSUPPORTED';
   // A known public delayed source can support research while its redistribution
   // rights remain under review. UNKNOWN/denied access is still blocked, and the
@@ -353,7 +378,8 @@ export function classifyFieldStatus({ value, observedAt, now = Date.now(), fresh
   if (value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value))) return 'MISSING';
   const observedMs = observedAt ? Date.parse(observedAt) : NaN;
   if (!Number.isFinite(observedMs) || !Number.isFinite(now) || observedMs > now) return 'STALE';
-  if (freshnessBudgetMs != null && (!Number.isFinite(freshnessBudgetMs) || freshnessBudgetMs < 0 || now - observedMs > freshnessBudgetMs)) return lastGood ? 'LAST_GOOD' : 'STALE';
+  const sessionCurrent = cadence === 'session/eod' && isLatestSessionObservation(observedMs, now, market);
+  if (!sessionCurrent && freshnessBudgetMs != null && (!Number.isFinite(freshnessBudgetMs) || freshnessBudgetMs < 0 || now - observedMs > freshnessBudgetMs)) return lastGood ? 'LAST_GOOD' : 'STALE';
   return reviewedPublicReference || String(sourceKind) === 'T3_PUBLIC_DELAYED' ? 'DELAYED' : 'CURRENT';
 }
 
@@ -399,6 +425,8 @@ export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGIST
       observedAt,
       now,
       freshnessBudgetMs: definition.freshnessBudgetMs,
+      cadence: definition.cadence,
+      market: /\.(KS|KQ)$/i.test(String(row.sym || row.symbol || '')) || row.market === 'KR' ? 'KR' : 'US',
       supported: supported ? supported.has(definition.fieldId) : !row._unsupportedFields?.includes?.(definition.fieldId),
       rights: fieldRights,
       conflict: conflicts.has(definition.fieldId),

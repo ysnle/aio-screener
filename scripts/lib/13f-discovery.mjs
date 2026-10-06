@@ -1,4 +1,4 @@
-import { normalizeCik, recentOwnershipRows, select13fFilings, withArchiveUrls } from './sec-edgar.mjs';
+import { normalizeCik, parseOwnershipHeader, parsePercentOfClass, recentOwnershipRows, select13fFilings, withArchiveUrls } from './sec-edgar.mjs';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -139,4 +139,31 @@ export async function updateOwnershipOnlyDiscovery({
     managers
   };
   return { artifact, pending13fHrTriggers, in13fFilingSeason: is13FFilingSeason(checkedAt) };
+}
+
+// Codex review 2026-10-05: add the subject company and percent of class to each 13D/G event. Filings are
+// immutable, so values already parsed for an accession are reused and only new events are fetched.
+export async function enrichOwnershipEvents({ artifact, previous, fetchText, archiveBaseFor }) {
+  const known = new Map();
+  for (const manager of previous?.managers || []) {
+    for (const event of manager.ownershipEvents || []) if (event?.accession && 'subjectCompany' in event) known.set(event.accession, event);
+  }
+  let fetched = 0;
+  for (const manager of artifact?.managers || []) {
+    const events = manager.ownershipEvents || [];
+    for (let index = 0; index < events.length; index += 1) {
+      const event = events[index];
+      const cached = known.get(event.accession);
+      if (cached) { events[index] = { ...event, subjectCompany: cached.subjectCompany ?? null, subjectCik: cached.subjectCik ?? null, percentOfClass: cached.percentOfClass ?? null }; continue; }
+      if (typeof fetchText !== 'function') continue;
+      const base = archiveBaseFor(manager.cik, event.accession);
+      let header = { subjectCompany: null, subjectCik: null };
+      let percentOfClass = null;
+      try { header = parseOwnershipHeader(await fetchText(`${base}/${event.accession}.hdr.sgml`)); } catch { /* keep null */ }
+      try { if (event.primaryDocumentUrl) percentOfClass = parsePercentOfClass(await fetchText(event.primaryDocumentUrl)); } catch { /* keep null */ }
+      events[index] = { ...event, ...header, percentOfClass };
+      fetched += 1;
+    }
+  }
+  return { fetched };
 }

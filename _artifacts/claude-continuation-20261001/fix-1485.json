@@ -1,0 +1,19 @@
+{
+  "version": "v57.21",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.21 — Masters: fail-closed value reconciliation restored; lookup copy in plain language (P1485).",
+  "p": {
+    "id": 1485,
+    "title": "Masters: fail-closed value reconciliation restored; lookup copy in plain language",
+    "symptom": "After the notice was removed, a manager whose SEC cover total disagrees with the parsed rows (Duquesne) showed concentration, weight change and total from an unreconciled base; the ticker lookup read 경계: tickerReference is not SEC-provided… crosswalk.",
+    "root_cause": "The reconciliation notice carried the only mismatch handling; removing it removed the guard.",
+    "fix": "masters detail withholds 상위 5·10 비중, 보고가치 비중 변화 and 신고 가치 합계 as 보류 with one plain note when valueReconciliationStatus is MISMATCH; the 13F coverage disclosure moved into the style overview; the lookup states the quarter-end boundary in plain Korean; dead row-display code removed.",
+    "violated_rule": "Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.",
+    "prevention": "ci-masters-contract-check requires the MISMATCH branch; ci-masters-browser-check asserts the withheld values and the absence of developer copy.",
+    "verification": "Duquesne metrics show 보류 with the note."
+  },
+  "changelog": [
+    "**대가의 포트폴리오 안전장치 (P1485):** 공시 표지 합계와 보유 내역 합계가 다른 분기는 비중·합계를 \"보류\"로 표시하고, 종목 역조회 안내를 쉬운 말로 바꿨습니다."
+  ]
+}

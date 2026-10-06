@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — The validation identity follows the weights the screen ranks with (P1463).",
+  "p": {
+    "id": 1463,
+    "title": "The validation identity follows the weights the screen ranks with",
+    "symptom": "The 검증 view and the post-hoc validation summary compared the stored model fingerprint with the default weights' fingerprint, so after the user picked another weight profile the page still said the stored back-test was this ranking's validation.",
+    "root_cause": "liveScreenerModelFingerprint() took no arguments and always rebuilt the default model.",
+    "fix": "liveScreenerModelFingerprint(weights) builds the identity from the applied weights; the 검증 view passes metadata.ranking.appliedFactorWeights and the validation summary uses the ranking's requested weights (published by the ranking hook as _aioRankingWeights). A record without any fingerprint now says the model cannot be confirmed instead of calling it different.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "ci-review-integrity-unit-check P1463 (default applied weights match; another profile does not).",
+    "verification": "Local screener: the parity line reads the missing-fingerprint case for the pre-P1454 stored back-test."
+  },
+  "changelog": [
+    "**검증 모델 비교 기준 (P1463):** 저장된 검증 기록이 '지금 화면 순위'와 같은 모델인지를, 기본 가중치가 아니라 실제로 적용 중인 가중치로 비교합니다."
+  ]
+}

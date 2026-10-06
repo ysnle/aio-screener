@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — Learning screens: entry order, readable links, guide consistency (P1476).",
+  "p": {
+    "id": 1476,
+    "title": "Learning screens: entry order, readable links, guide consistency",
+    "symptom": "The AI map opened with 17 long lens cards before the basics and printed internal ids (atlas:application-finance); relation labels overlapped on the graph; ROI was defined as a difference and FCF drawn with borrowing as a source; scarcity was linked to the S&P 500 level; the guide still explained a retired SIGNAL score, \"기관급\" framing, dot plots at every FOMC, \"3개 독립 지표\", developer terms (observedAt, source-aware) and folds inside folds.",
+    "root_cause": "Older copy and render order predated the current product and the review.",
+    "fix": "Lens cards fold behind one summary and chips print node names; graph labels only on the selected node's edges; ROI / net benefit / payback separated and FCF drawn with funding as a separate flow; scarcity–S&P link removed; guide: inner duplicate folds removed (the runtime chapter fold remains), market-state axes replace the score, SEP four times a year, methodology retitled as the authors' method without unverified bios, indicators described as overlapping inputs, user-facing wording for currentness.",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check (guide copy), ci-atlas-browser-check, ci-principles-browser-check (no observation on scarcity).",
+    "verification": "Local guide: one fold per chapter; atlas basics first."
+  },
+  "changelog": [
+    "**배우기 화면 순서와 안내서 정합성 (P1476):** AI 지도의 분석 렌즈를 접어 기초를 앞에 두고 내부 ID 노출을 없앴으며, 안내서의 퇴역 점수·과장 표현·점도표 주기·이중 접기·개발 용어를 현재 제품에 맞췄습니다."
+  ]
+}

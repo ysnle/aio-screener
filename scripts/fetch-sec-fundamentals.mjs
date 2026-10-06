@@ -467,6 +467,10 @@ export async function refreshSecFundamentals(priceHints = null) {
     .map(symbol => ({
       symbol,
       fetchedAt: previous.data && previous.data[symbol] && previous.data[symbol].fetchedAt,
+      // Codex review 2026-10-05: P1446 added the cash chain (operating cash flow, capex, debt) to new
+      // fetches, but stored records only refresh after REFRESH_AFTER_MS, so all 592 published issuers
+      // still lacked it. A stored record without the cash-chain observations is due now.
+      cashChainMissing: Boolean(previous.data && previous.data[symbol] && !Array.isArray(previous.data[symbol]?.pit?.observations?.operatingCashFlow)),
       lastFailureAt: previousFailureAt.get(symbol) || null,
       priorFailure: previousFailureRecords.get(symbol) || null
     }))
@@ -476,7 +480,7 @@ export async function refreshSecFundamentals(priceHints = null) {
         && row.priorFailure?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION;
       if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported && !conceptSetChanged) return false;
       if (conceptSetChanged) return true;
-      const dataDue = !row.fetchedAt || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
+      const dataDue = !row.fetchedAt || row.cashChainMissing || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
       const retryDue = retryFailedNow || !row.lastFailureAt || now - new Date(row.lastFailureAt).getTime() >= FAILURE_RETRY_AFTER_MS;
       return dataDue && retryDue;
     })

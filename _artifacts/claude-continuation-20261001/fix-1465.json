@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — Forward candidate record of the ranking actually shown (P1465).",
+  "p": {
+    "id": 1465,
+    "title": "Forward candidate record of the ranking actually shown",
+    "symptom": "Validation was only the back-test, which re-ranks the past after the fact; nothing recorded what the screen ranked on a given day and how those names did afterwards.",
+    "root_cause": "No producer step archived the live ranking before outcomes existed.",
+    "fix": "scripts/lib/candidate-archive.mjs runs inside the screener refresh: it ranks the files just written through the page's own read path (createScreenerProvider → normalizeScreener → calculationRow → computeFactorRanks with the default weights), stores the top and bottom fifth for the completed session with the ranking identity, and 21 of each stock's own completed sessions later fills equal-weight adjusted-close returns of the top, bottom and the ranked universe (no costs; stale feeds listed but not measured). public-data/screener-candidate-archive.json; the 검증 view shows the record, averaging only entries of the current model identity.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "scripts/ci-candidate-archive-check.mjs (page-path ranking, no early outcome, exact mean, stale feed, no overwrite, retention, identity restart); refresh-screener runs it and stages the artifact; data-lineage policy added.",
+    "verification": "Gate on the repository artifacts: 918 ranked, 183 per fifth. Local 검증 view shows the record start message."
+  },
+  "changelog": [
+    "**실제 순위 기록 (P1465):** 매 거래일 화면의 기본 순위 상위·하위 20%를 먼저 기록하고, 21거래일 뒤 실제 수익률을 채워 같은 정의로 앞으로 검증합니다(사후 백테스트와 달리 결과를 보기 전에 기록)."
+  ]
+}

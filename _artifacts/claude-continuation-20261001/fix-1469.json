@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — Term premium (Kim-Wright) on the rates page (P1469).",
+  "p": {
+    "id": 1469,
+    "title": "Term premium (Kim-Wright) on the rates page",
+    "symptom": "The 10-year yield was split into real yield and breakeven but not into expected short rates and term premium.",
+    "root_cause": "No term premium series was collected.",
+    "fix": "The macro history producer adds FRED THREEFYTP10 (Federal Reserve Board Kim-Wright 10-year term premium). The rates page shows it with its 3-month and 1-year change and the implied expected-short-rate part of the same day's 10-year yield, labelled as a model estimate; NY Fed ACM is distributed only as a spreadsheet, so the official FRED series is used and named. The card appears only once the series has arrived.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "ci-review-integrity-unit-check P1469.",
+    "verification": "Local rates tab with an in-memory series: card renders; without the series no card."
+  },
+  "changelog": [
+    "**기간 프리미엄 (P1469):** 금리·환율 화면에 연준 이사회 Kim-Wright 10년 기간 프리미엄을 추가해, 10년 금리 중 단기금리 예상분과 보상분을 나눠 봅니다(모형 추정치로 표기)."
+  ]
+}

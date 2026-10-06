@@ -39,20 +39,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-      "url": "https://fred.stlouisfed.org/release?rid=500",
-      "publisher": "Federal Reserve Bank of St. Louis",
-      "title": "Inflation Expectations release",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-KRX-SECURITIES-INTRO",
       "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
       "publisher": "Korea Exchange",
@@ -62,31 +48,13 @@
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-      "url": "https://fred.stlouisfed.org/release?rid=500",
-      "publisher": "Federal Reserve Bank of St. Louis",
-      "title": "Inflation Expectations release",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-KRX-SECURITIES-INTRO",
       "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
       "publisher": "Korea Exchange",
       "title": "Securities products introduction",
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
@@ -101,8 +69,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:fred:real-rates",
-    "fact:sec:10k-reading",
     "fact:krx:listed-products"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",

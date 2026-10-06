@@ -10,7 +10,8 @@ export const ROUTE_HUBS = Object.freeze([
   { id: 'stock', label: '종목', routes: [{ id: 'ticker', label: '요약' }, { id: 'technical', label: '차트' }, { id: 'fundamental', label: '재무 공시' }] },
   { id: 'screener', label: '스크리너', routes: [{ id: 'screener', label: '스크리너' }] },
   { id: 'portfolio', label: '포트폴리오', routes: [{ id: 'portfolio', label: '포트폴리오' }] },
-  { id: 'learn', label: '배우기', routes: [{ id: 'principles', label: '시장 원리' }, { id: 'masters', label: '대가의 포트폴리오' }, { id: 'atlas', label: '지식 지도' }, { id: 'guide', label: '사용 설명서' }] }
+  // 2026-10-05 owner decision: 리서치 라이브러리 — three research pages; the product guide is help (topbar), not research.
+  { id: 'learn', label: '리서치 라이브러리', routes: [{ id: 'principles', label: '개념·분석 프레임' }, { id: 'atlas', label: '산업·밸류체인' }, { id: 'masters', label: '운용사·13F' }, { id: 'guide', label: '도움말', tab: false }] }
 ].map((hub) => Object.freeze({ ...hub, routes: Object.freeze(hub.routes.map((route) => Object.freeze({ ...route }))) })));
 
 export function hubForRoute(routeId) {

@@ -3,7 +3,7 @@ import { renderBriefingRead } from '../components/briefing-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { classifyNewsTextStance, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
+import { briefingWindowKST, classifyNewsTextStance, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -63,9 +63,15 @@ function renderNewsSummary(documentRef, root, model, status) {
   try { cut = root?.AIO?.getSharedMarketCut?.() || null; } catch (_) {}
   const generatedAt = root?._serverDataMeta?.generatedAt || null;
   const generatedLabel = generatedAt ? new Date(generatedAt).toLocaleString('ko-KR', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+  // Codex review 2026-10-05: the list is filtered to the 08:00 KST window of today, but the header named the
+  // data revision's older cut ("기준시각 경과 · 10/04 08:00") beside 10/5 articles. The header now names
+  // the window the list actually uses, and staleness is stated as the last collection time.
+  const newsWindow = briefingWindowKST(Date.now());
+  const fmt = (ms) => new Date(ms).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+  if (newsWindow.start != null) set('news-window-label', `오늘의 중요 뉴스와 전체 뉴스 · ${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
   set('last-fetch-time', cut?.status === 'stale' || status === 'stale'
-    ? `뉴스 기준시각 경과 · ${cut?.endLabel || '최신 완료컷 확인 필요'}`
-    : generatedLabel || (status === 'current' ? '정상 수신' : '수신 대기'));
+    ? `수집 지연 · 마지막 수집 ${generatedLabel || '확인 필요'}`
+    : generatedLabel ? `마지막 수집 ${generatedLabel}` : (status === 'current' ? '정상 수신' : '수신 대기'));
 }
 
 function safeUrl(value) {

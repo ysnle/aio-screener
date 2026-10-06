@@ -14,102 +14,20 @@
     "농업·식량 official data standard filing evidence",
     "농업·식량 disconfirming evidence limitations"
   ],
-  "searchedAt": "2026-08-18",
-  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "searchedAt": null,
+  "method": "NOT_STARTED",
   "candidateSources": [
     {
-      "sourceId": "MP-NIST",
-      "url": "https://www.nist.gov/ai",
-      "publisher": "NIST",
-      "title": "Artificial intelligence",
+      "sourceId": "SRC-USDA-WASDE",
+      "url": "https://www.usda.gov/oce/commodity/wasde",
+      "publisher": "U.S. Department of Agriculture",
+      "title": "World Agricultural Supply and Demand Estimates",
       "sourceTier": null
-    },
-    {
-      "sourceId": "PS-16",
-      "url": "https://www.tesla.com/AI",
-      "publisher": "Tesla",
-      "title": "AI and robotics overview",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "PS-18",
-      "url": "https://rocketlabcorp.com/space-systems/spacecraft/",
-      "publisher": "Rocket Lab",
-      "title": "Space systems and spacecraft portfolio",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
-  "selectedSources": [
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    }
-  ],
+  "selectedSources": [],
   "rejectedSources": [],
-  "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "ACADEMIC_TEXTBOOK_STANDARD"
-  ],
+  "sourceTiers": [],
   "claimCoverage": [
     {
       "claimId": "principles-lesson-N15",
@@ -117,12 +35,8 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "researchFactIds": [
-    "fact:nist:ai-rmf-core",
-    "fact:doe:pue",
-    "fact:ibm:silicon-doping"
-  ],
-  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "researchFactIds": [],
+  "consensus": "Not assessed.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -131,10 +45,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 농업·식량 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCHED",
+  "status": "RESEARCH_REQUIRED",
   "completion": {
-    "researchComplete": true,
-    "sourceProfileComplete": true,
+    "researchComplete": false,
+    "sourceProfileComplete": false,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

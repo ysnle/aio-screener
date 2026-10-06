@@ -43,31 +43,10 @@
       "principles-lesson-N11"
     ],
     "sourceIds": [
-      "MP-NIST",
-      "PS-16",
-      "PS-18",
-      "WEB-NIST-AI-RMF-CORE-2023",
-      "WEB-DOE-DATACENTER-PUE-2019"
+      "SRC-BEA-CONSUMER"
     ],
-    "researchEvidence": [
-      {
-        "factId": "fact:nist:ai-rmf-core",
-        "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-        "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
-        "scope": "AI risk-management framework structure",
-        "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:doe:pue",
-        "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-        "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-        "scope": "Data-center facility efficiency",
-        "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-        "asOf": "2026-08-12"
-      }
-    ],
-    "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+    "researchEvidence": [],
+    "researchCoverage": "RESEARCH_REQUIRED"
   },
   "quality": {
     "coreTextCharacters": 308,

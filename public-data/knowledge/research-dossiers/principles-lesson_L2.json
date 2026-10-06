@@ -25,27 +25,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "PS-01",
-      "url": "https://investor.tsmc.com/sites/ir/shareholders-meeting/2026-06-04/2026AGM_Minutes_wmn.pdf",
-      "publisher": "TSMC",
-      "title": "2026 AGM minutes / business report",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "PS-02",
-      "url": "https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin",
-      "publisher": "Micron",
-      "title": "HBM4 and data-center memory/storage announcement",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
       "sourceId": "WEB-ASML-EUV-2026",
       "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
       "publisher": "ASML",
@@ -53,11 +32,11 @@
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     },
     {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL"
+      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
     },
     {
       "sourceId": "WEB-NIST-AI-RMF-2023",
@@ -69,31 +48,22 @@
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-ASML-EUV-2026",
       "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
       "publisher": "ASML",
       "title": "EUV lithography systems",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
       "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     },
     {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL",
+      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
       "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     },
     {
       "sourceId": "WEB-NIST-AI-RMF-2023",
@@ -107,8 +77,8 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "ACADEMIC_TEXTBOOK_STANDARD",
     "COMPANY_TECHNICAL_DOCUMENT",
+    "ACADEMIC_TEXTBOOK_STANDARD",
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
@@ -119,9 +89,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:transformer:attention",
-    "fact:asml:euv",
-    "fact:doe:pue",
     "fact:ibm:silicon-doping"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",

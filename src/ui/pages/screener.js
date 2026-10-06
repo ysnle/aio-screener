@@ -2,13 +2,24 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { renderScreenerValidation } from '../components/screener-validation.js';
-import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
+import { buildRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
+import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
+import { measureFactorOverlap, overlapSentence } from '../../domain/screener/factor-overlap.js';
+
+// P1468: factor overlap measured once per ranked row set (the Why drawer and the 검증 view share it).
+const overlapCache = new WeakMap();
+function currentOverlap(rows, ranking) {
+  if (!Array.isArray(rows) || !rows.length) return null;
+  if (!overlapCache.has(rows)) overlapCache.set(rows, measureFactorOverlap(rows, ranking?.activeFactors || []));
+  return overlapCache.get(rows);
+}
 import { renderScreenerRead } from '../components/screener-read.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose } from '../../data/contracts/screener.js';
+import { latestCompletedUsSession } from '../../ai/time/market-session.js';
 import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 
@@ -43,7 +54,9 @@ const REGIME_DESCRIPTIONS = {
 // prevents the old header/cell drift (for example, VCP under the wrong label).
 export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'watchlist', label: '관심·비교', sortable: false, align: 'center', width: 96, group: 'utility' },
-  { key: 'rank', label: '상대 점수', sortable: true, align: 'center', width: 72, group: 'ranking' },
+  // P1464: the value is a percentile among rows that pass the criteria — "점수 100" read as a perfect
+  // score, so the header names what it is.
+  { key: 'rank', label: '백분위', sortable: true, align: 'center', width: 72, group: 'ranking' },
   // P1419: the column shows the percentile position the rank already is (상위 N%), not a letter grade.
   { key: 'grade', label: '상위', sortable: false, align: 'center', width: 56, group: 'ranking' },
   { key: 'sym', label: '종목', sortable: true, align: 'left', width: 142, group: 'identity', sticky: true },
@@ -340,6 +353,7 @@ function createRankNode(documentRef, row, hold = null) {
   else {
     const value = documentRef.createElement('div');
     value.textContent = String(rank);
+    wrap.title = `조건을 통과한 종목 중 백분위 ${rank} — 100은 맨 위라는 뜻이지 만점이나 확률이 아닙니다`;
     value.style.cssText = `font-family:var(--font-mono);font-weight:800;font-size:11px;color:${rankColor(rank)};`;
     const bar = documentRef.createElement('div');
     bar.style.cssText = 'height:3px;background:var(--border-subtle);border-radius:2px;margin-top:3px;overflow:hidden;';
@@ -555,8 +569,15 @@ export function describeStaleDates(dates = []) {
 
 // P1449: user copy for a held re-rank — the same vocabulary as the model's own fail-closed
 // semantics (결측은 중립 취급하지 않음, W07-A/P1146).
-export function describeRankingHold(hold) {
+export function describeRankingHold(hold, { factorSessionDate = null, now = Date.now() } = {}) {
   if (!hold || !hold.reason) return null;
+  // Codex review 2026-10-05: when the price inputs are simply one session behind, say that — not a
+  // generic coverage failure that reads as if the screener were broken.
+  const latest = latestCompletedUsSession(now, { requirePrevious: false });
+  const session = String(factorSessionDate || '').slice(0, 10);
+  if (/coverage|eligible/.test(hold.reason) && latest?.date && session && session < latest.date) {
+    return `순위 보류 — 가격 자료가 ${session.slice(5).replace('-', '/')} 종가 기준이고, 그 뒤 ${latest.date.slice(5).replace('-', '/')} 미국장이 끝났습니다. 다음 자료 갱신으로 최신 종가가 들어오면 순위를 다시 계산합니다(지난 값으로 순위를 매기지 않습니다).`;
+  }
   const coverage = hold.requestedWeightCoveragePct != null ? `${hold.requestedWeightCoveragePct}%` : null;
   const requested = hold.requestedFactorWeights && Object.keys(hold.requestedFactorWeights).length
     ? Object.entries(hold.requestedFactorWeights).map(([key, value]) => `${key} ${((Number(value) || 0) * 100).toFixed(0)}%`).join(' · ')
@@ -659,7 +680,7 @@ function renderFactorTab(documentRef, metadata) {
 // correlation between the ranking and the next 21 sessions' return), the top-minus-bottom quintile spread
 // gross and net of cost on the same ±1 exposure, how many rebalances the top quintile actually beat the
 // bottom (not a per-stock direction accuracy), the 10-year 120-stock study, and what the result means.
-function renderBacktest(documentRef, metadata, root = globalThis) {
+function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   const panel = documentRef.getElementById('screener-backtest-panel');
   if (!panel) return;
   panel.replaceChildren();
@@ -677,14 +698,15 @@ function renderBacktest(documentRef, metadata, root = globalThis) {
   // P1449: the "same calculation" claim must be proven by the stored model fingerprint, not by
   // prose — a hand-written parity sentence drifted from the applied weights once (37.0/27.4/
   // 21.9/13.7 vs 39.0/28.0/22.0/11.0 renormalized) while both claimed one model.
-  const fingerprintMatches = backtest.modelFingerprint != null ? backtest.modelFingerprint === liveScreenerModelFingerprint() : false;
+  const fingerprintMatches = backtest.modelFingerprint != null ? backtest.modelFingerprint === liveScreenerModelFingerprint(metadata?.ranking?.appliedFactorWeights) : false;
   const composite = finite(ic.composite);
   const net = finite(backtest.quantileSpreadNet);
   const gross = finite(backtest.quantileSpread);
   const rebalances = finite(backtest.rebalancesCounted) ?? (Array.isArray(backtest.rebalanceDates) ? backtest.rebalanceDates.length : null);
   const wins = finite(backtest.hitRate) != null && rebalances ? Math.round(backtest.hitRate / 100 * rebalances) : null;
   const parity = fingerprintMatches ? '현재 화면 순위와 같은 모델(같은 팩터 정의 · 같은 가중 지문 · 같은 유니버스 정책)으로 과거 시점을 다시 매긴 결과입니다'
-    : '저장된 검증 기록의 모델 지문이 지금 화면 순위와 다릅니다 — 이 기록은 지금 순위의 검증으로 읽지 않습니다(다음 데이터 갱신부터 같은 모델의 기록이 쌓입니다)';
+    : backtest.modelFingerprint == null ? '이 검증 기록은 모델 지문이 생기기 전에 만들어져 지금 화면 순위와 같은 모델인지 확인할 수 없습니다 — 지금 순위의 검증으로 읽지 않습니다(다음 데이터 갱신부터 지문이 붙습니다)'
+      : '저장된 검증 기록의 모델 지문이 지금 화면 순위와 다릅니다(다른 가중치 프로필이거나 이전 모델) — 이 기록은 지금 순위의 검증으로 읽지 않습니다';
   const verdict = composite == null ? '종합 IC가 계산되지 않았습니다.'
     : composite > 0.03 && net != null && net > 0 ? `최근 ${rebalances ?? '—'}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 표본이 작아 우연과 구분되지는 않습니다.`
       : `최근 ${rebalances ?? '—'}번의 시점에서 순위와 이후 수익률의 관계가 확인되지 않았습니다(종합 IC ${composite.toFixed(3)}, 상위−하위 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`}). 이 실험에서 순위의 우월성이 보이지 않았다는 뜻이며, 전략이 영구히 무효라는 증명은 아닙니다.`;
@@ -709,7 +731,7 @@ function renderBacktest(documentRef, metadata, root = globalThis) {
   add('표본', `${backtest.n ?? '—'}종목 · 리밸런스 ${rebalances ?? '—'}회 · 현재 종목 구성(생존 편향) · 거래비용은 가정값`);
   add('검증하지 않은 요인', (backtest.modelParity?.notValidated || backtest.excludedFactors || ['size', 'value · quality']).join(' · '));
   add('가중치', `${backtest.weightRegime || 'NEUTRAL'} 고정 — 레짐 틸트 후보는 검증·적용되지 않음`);
-  add('겹치는 근거', '모멘텀·추세·칼만 추세는 같은 가격 움직임에서 나온 지표라 서로 강하게 겹칩니다 — 세 개가 함께 높다고 독립된 근거가 세 개인 것은 아닙니다');
+  add('겹치는 근거', `${overlapSentence(currentOverlap(rows, metadata?.ranking))} 가중치는 바꾸지 않았습니다 — 겹침을 줄인 모델은 다른 모델이라 실제 순위 기록으로 따로 검증해야 합니다.`);
   panel.append(facts);
   const longrun = root?._aioFactorLongrun;
   const ref = longrun?.walkForward?.referencePeriod?.ic?.composite;
@@ -718,6 +740,48 @@ function renderBacktest(documentRef, metadata, root = globalThis) {
   if (longrun) {
     panel.append(el('p', `10년 연구(시가총액 상위 현재 생존 ${longrun.universe?.fullUniverseSize ?? 120}종목, 이전 모델): 21거래일 종합 IC ${fwd21 == null ? '—' : Number(fwd21).toFixed(3)}, 기준 기간 ${ref == null ? '—' : Number(ref).toFixed(3)}, 검증 기간(holdout) ${hold == null ? '—' : Number(hold).toFixed(3)}. 기간이 길어도 현재 살아남은 대형주만 담은 실험이라 검증된 전략이라고 부를 수 없습니다.`, 'theme-strength-basis'));
   }
+  renderCandidateRecord(panel, el, root?._aioCandidateArchive, metadata?.ranking);
+}
+
+// P1465: the forward record — what the default ranking listed each session, measured 21 of each
+// stock's own sessions later. Unlike the back-test, the list was written before the outcome existed.
+function renderCandidateRecord(panel, el, archive, ranking) {
+  const box = el('section', null, 'scr-candidate-record');
+  box.append(el('h3', '실제 순위 기록 — 앞으로 쌓이는 검증', 'stock-read-vis-title'));
+  if (!archive || !Array.isArray(archive.entries)) { box.append(el('p', '기록 파일을 아직 받지 못했습니다.', 'theme-strength-basis')); panel.append(box); return; }
+  const summary = summarizeCandidateArchive(archive);
+  const measured = measuredCandidateEntries(archive, 30);
+  const liveIdentity = ranking?.appliedFactorWeights ? buildRankingIdentity({ appliedFactorWeights: ranking.appliedFactorWeights, activeFactors: ranking.activeFactors }) : null;
+  const sameModel = summary.identity && liveIdentity ? summary.identity === liveIdentity : null;
+  if (!summary.recorded) {
+    box.append(el('p', '첫 기록은 다음 스크리너 갱신에서 시작됩니다. 매 거래일 기본 순위의 상위·하위 20%를 먼저 적어 두고, 21거래일 뒤 실제 수익률을 채웁니다.', 'theme-strength-basis'));
+  } else if (!summary.measured) {
+    box.append(el('p', `${summary.firstDate}부터 ${summary.recorded}일 기록 중 — 아직 21거래일이 지난 기록이 없어 결과가 없습니다. 첫 결과는 첫 기록 후 21거래일(약 한 달) 뒤에 나옵니다.`, 'briefing-read-headline'));
+  } else {
+    const spread = summary.meanSpreadPct;
+    const vsAll = summary.meanTopVsUniversePct;
+    box.append(el('p', `결과가 나온 ${summary.measured}일 평균: 상위 20%가 하위 20%보다 ${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%p, 전체 평균보다 ${vsAll >= 0 ? '+' : ''}${vsAll.toFixed(2)}%p(21거래일, 비용 제외). 상위가 전체를 앞선 날은 ${summary.measured}일 중 ${summary.topBeatUniverse}일입니다.${summary.measured < 20 ? ' 아직 날 수가 적고 이어지는 날끼리 기간이 겹쳐, 우연과 구분할 수 없습니다.' : ' 이어지는 날끼리 21거래일 기간이 겹쳐 독립된 표본 수는 날 수보다 훨씬 적습니다.'}`, 'briefing-read-headline'));
+    const bars = el('div', null, 'scr-ic-bars');
+    const max = Math.max(1, ...measured.map((entry) => Math.abs(entry.outcome.topVsUniversePct || 0)));
+    for (const entry of measured.slice(-12)) {
+      const value = entry.outcome.topVsUniversePct;
+      const line = el('div', null, 'scr-ic-row');
+      const track = el('div', null, 'scr-ic-track');
+      const fill = el('span', null, `scr-ic-fill ${value >= 0 ? 'is-up' : 'is-down'}`);
+      fill.style.width = `${Math.min(50, Math.abs(value) / max * 50).toFixed(1)}%`;
+      fill.style[value >= 0 ? 'left' : 'right'] = '50%';
+      track.append(fill);
+      line.append(el('span', entry.date.slice(5), 'scr-ic-label'), track, el('span', `${value >= 0 ? '+' : ''}${value.toFixed(2)}%p`, 'scr-ic-value'));
+      bars.append(line);
+    }
+    box.append(bars, el('p', '막대 = 그날 기록한 상위 20%의 21거래일 수익률 − 같은 날 순위가 매겨진 전체 평균', 'theme-strength-basis'));
+  }
+  const notes = ['기본 가중 순위로 기록합니다'];
+  if (sameModel === false) notes.push('지금 화면은 다른 가중치(프로필)로 순위를 매기고 있어 이 기록은 지금 화면 순위의 검증이 아닙니다');
+  if (summary.sameModelRecorded < summary.recorded) notes.push(`모델이 바뀐 뒤의 ${summary.sameModelRecorded}일만 평균에 넣었습니다`);
+  notes.push('종목마다 자기 시장의 거래일로 21일을 세고, 수정주가 기준·같은 비중·거래비용 제외입니다');
+  box.append(el('p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
+  panel.append(box);
 }
 
 function renderConditionalEvidence(documentRef, metadata) {
@@ -1155,7 +1219,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (holdEl) {
     // LC-73 style (P1449): when a re-rank is held, the visible summary (not just a tooltip)
     // discloses that the previous calculation was discarded and why.
-    const holdCopy = describeRankingHold(hold);
+    const holdCopy = describeRankingHold(hold, { factorSessionDate: state?.metadata?.factorSessionDateByMarket?.US || state?.metadata?.factorSessionDate || root?._aioScreenerFactorAsOf || null });
     holdEl.hidden = !holdCopy;
     if (holdCopy) {
       holdEl.textContent = holdCopy;
@@ -1165,7 +1229,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   }
   const rankingState = state?.metadata?.ranking || {};
   renderFactorTab(documentRef, state?.metadata);
-  renderBacktest(documentRef, state?.metadata, root);
+  renderBacktest(documentRef, state?.metadata, root, state?.rows);
   renderConditionalEvidence(documentRef, state?.metadata);
   page.querySelectorAll('[data-scr-sort]').forEach((header) => {
     const arrow = header.querySelector('.scr-arrow');
@@ -1246,12 +1310,19 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           Promise.all([
             loadJsonArtifact(fetchFn.bind(root), './public-data/backtest-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
             loadJsonArtifact(fetchFn.bind(root), './public-data/model-validation-status.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 256 * 1024 }).catch(() => null),
-            loadJsonArtifact(fetchFn.bind(root), './public-data/factor-backtest-longrun.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null)
-          ]).then(([history, status, longrun]) => {
+            loadJsonArtifact(fetchFn.bind(root), './public-data/factor-backtest-longrun.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
+            loadJsonArtifact(fetchFn.bind(root), './public-data/screener-candidate-archive.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null)
+          ]).then(([history, status, longrun, candidates]) => {
+            if (candidates && typeof candidates === 'object') root._aioCandidateArchive = candidates; // P1465: forward candidate record
             if (Array.isArray(history)) root._aioScreenerBacktestHistory = history;
             if (status && typeof status === 'object') root._aioModelValidationStatus = status;
             if (longrun && typeof longrun === 'object') root._aioFactorLongrun = longrun; // P1443: 10-year study shown with its limits
-            if (mountActive) { renderScreenerValidation({ documentRef, root }); readSignature = ''; renderRead(); }
+            if (mountActive) {
+              renderScreenerValidation({ documentRef, root }); readSignature = ''; renderRead();
+              // The 10-year study and the candidate record arrive after the first render of the 검증 view.
+              const latest = selectScreenerState(store?.getState?.() || {});
+              renderBacktest(documentRef, latest?.metadata, root, latest?.rows);
+            }
           });
         }
       }
@@ -1327,7 +1398,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             : rankingState === 'not-requested' ? '랭킹 미요청(필터 미통과)' : '랭킹 계산 불가';
           const title = filterState === 'passed'
             ? (rankingState === 'ranked' && ordinalRank != null ? '조건 통과 · 순위 계산 가능' : '조건 통과 · 순위 계산 보류')
-            : (filterState === 'rejected' ? 'WhyRejected — 조건 미충족' : '데이터 부족 — 판정 보류');
+            : (filterState === 'rejected' ? '조건 미충족' : '데이터 부족 — 판정 보류');
          const missing = explanation.missingEvidence || row.setupProfile?.missingEvidence || [];
          const contrary = explanation.contraryEvidence || [];
          setText('scr-why-title', `${row.sym || row.symbol || '종목'} · ${title}`);
@@ -1342,8 +1413,17 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const structureNote = structureEvidence.postEarningsBreakout === 'unavailable'
             ? '실적 후 돌파·Wedge Pop 확인: 이벤트/리테스트 데이터 미수신'
             : `실적 후 돌파·Wedge Pop: ${structureEvidence.postEarningsBreakout}`;
-          setText('scr-why-missing', `${missing.length ? missing.join(' · ') : '필수 필드 결측 없음'} · ${structureNote}`);
-         setText('scr-why-provenance', row.instrumentRef?.instrumentId ? `instrument ${row.instrumentRef.instrumentId}` : row.source || 'provenance 미수신');
+          // Codex review 2026-10-05: the table showed a dimmed past value while this list called the same
+          // field missing. A field with an older observation says so; only a field with no value is "없음".
+          const describeMissing = (fieldId) => {
+            if (fieldId === 'relative-rank' || fieldId === 'rank') return '상대 순위(이번 계산 보류)';
+            const label = SCREENER_FIELD_REGISTRY.get(fieldId)?.label || fieldId;
+            const field = row.fieldReadiness?.fields?.[fieldId];
+            if (field && ['STALE', 'LAST_GOOD'].includes(field.status) && field.value != null) return `${label}(${String(field.observedAt || '').slice(5, 10).replace('-', '/') || '이전'} 값만 있음 · 최신 아님)`;
+            return `${label}(값 없음)`;
+          };
+          setText('scr-why-missing', `${missing.length ? missing.map(describeMissing).join(' · ') : '필요한 값이 모두 있습니다'} · ${structureNote}`);
+         setText('scr-why-provenance', row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가` : '가격 기준일 확인 필요');
          setText('scr-why-preview', `${row.sym || row.symbol} · ${title} · ${missing.length ? `결측 ${missing.length}개` : '결측 없음'} · ${contrary.length ? `반대 근거 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '반대 근거 없음'}`);
          const factorList = documentRef.getElementById('scr-why-factor-list');
          if (factorList) {
@@ -1386,12 +1466,13 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const rankLine = documentRef.createElement('div');
            rankLine.className = 'scr-why-factor-note';
            rankLine.textContent = factors.length
-             ? `계산 순서: ① 팩터마다 같은 섹터 안에서 정규화(막대, 0~100 환산) → ② 가중 합 ${weightedSum.toFixed(1)} → ③ 계산 가능한 종목들 사이에서 그 합의 백분위 = 상대 점수 ${percentile == null ? '—' : percentile.toFixed(0)} → ④ 조건을 통과한 종목 중 ${ordinalRank == null ? '—' : `${ordinalRank}위`}. 가중 합과 상대 점수가 다른 것은 ③에서 다시 줄을 세우기 때문입니다.`
+             ? `계산 순서: ① 팩터마다 같은 섹터 안에서 정규화(막대, 0~100 환산) → ② 가중 합 ${weightedSum.toFixed(1)} → ③ 계산 가능한 종목들 사이에서 그 합의 백분위 ${percentile == null ? '—' : percentile.toFixed(0)}(100 = 맨 위, 만점이라는 뜻이 아님) → ④ 조건을 통과한 종목 중 ${ordinalRank == null ? '—' : `${ordinalRank}위`}. 가중 합과 백분위가 다른 것은 ③에서 다시 줄을 세우기 때문입니다.`
              : '팩터 점수 미수신 — 순위를 해석하지 않습니다.';
            factorList.appendChild(rankLine);
            const overlap = documentRef.createElement('div');
            overlap.className = 'scr-why-factor-note';
-           overlap.textContent = '모멘텀·추세·칼만 추세는 같은 가격 움직임에서 계산돼 서로 겹칩니다. 함께 높다고 독립된 근거가 여럿인 것은 아니며, 상대 점수는 기업의 질이나 상승 확률을 뜻하지 않습니다.';
+           const screenState = selectScreenerState(store?.getState?.() || {});
+           overlap.textContent = `${overlapSentence(currentOverlap(screenState?.rows, screenState?.metadata?.ranking))} 백분위는 기업의 질이나 상승 확률을 뜻하지 않습니다.`;
            factorList.appendChild(overlap);
          }
          const ticker = documentRef.querySelector('[data-aio-screener-action="open-ticker"]');

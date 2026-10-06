@@ -20,10 +20,10 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI infrastructure demand monitor: GPU availability/rental repricing, hyperscaler operating-cash-flow acceleration, frontier-lab growth, memory allocation and power/interconnection capacity must be read together. Any one bullish input is insufficient; persistent GPU price decline, OCF deceleration or lab-growth stagnation is a thesis-break candidate.' },
   { sym:'AAPL', name:'Apple', sector:'Technology', index:'SP500' },
-  { sym:'GOOGL', name:'Alphabet', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI capex must be separated into contracted cloud/backlog conversion, utilization, depreciation and power delivery. Verify current filings, FCF, debt capacity and customer economics; capex alone is not demand proof.' },
+  { sym:'GOOGL', name:'Alphabet', sector:'Communication Services', index:'SP500', memo:'[2026-08-09 REFERENCE] AI capex must be separated into contracted cloud/backlog conversion, utilization, depreciation and power delivery. Verify current filings, FCF, debt capacity and customer economics; capex alone is not demand proof.' },
   { sym:'MSFT', name:'Microsoft', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI demand monitor: distinguish contracted cloud/backlog conversion and operating-cash-flow acceleration from depreciation, financing and power-delivery constraints. Evidence must include current filings/earnings, not interview estimates alone.' },
-  { sym:'AMZN', name:'Amazon', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AWS/AI infrastructure thesis depends on utilization, custom silicon, memory allocation and power/site execution. Monitor CapEx-to-revenue conversion, cash flow, GPU/ASIC economics and interconnection rather than headline token growth.' },
-  { sym:'META', name:'Meta Platforms', sector:'Technology', index:'SP500' },
+  { sym:'AMZN', name:'Amazon', sector:'Consumer', index:'SP500', memo:'[2026-08-09 REFERENCE] AWS/AI infrastructure thesis depends on utilization, custom silicon, memory allocation and power/site execution. Monitor CapEx-to-revenue conversion, cash flow, GPU/ASIC economics and interconnection rather than headline token growth.' },
+  { sym:'META', name:'Meta Platforms', sector:'Communication Services', index:'SP500' },
   { sym:'TSM', name:'TSMC', sector:'Technology', index:'ADR', memo:'[2026-08-09 TG-REFERENCE] Insider/BornLupin/HANA observations point to N3 capacity, advanced packaging and TPU/ASIC allocation as a supply-chain branch. Verify wafer starts, customer allocation, pricing and utilization from company/industry primary evidence; channel recirculation is not independent confirmation.' },
   { sym:'AVGO', name:'Broadcom', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] Custom ASIC/TPU demand is a system-economics thesis: networking, interconnect and software integration can determine deployment value. Verify customer commitments, LTA structure, margin/cash-flow conversion and power availability rather than treating AI CapEx alone as demand proof.' },
   { sym:'TSLA', name:'Tesla', sector:'Consumer', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] HANA relayed higher Optimus production ambitions and Chinese humanoid-robot scaling claims. Treat shipment/production numbers as hypotheses until filings, customer deployments and unit economics confirm; data collection and industrial validation remain the key bottlenecks.' },
@@ -88,7 +88,7 @@ var SCREENER_DB = [
   { sym:'INTU', name:'Intuit', sector:'Technology', index:'SP500' },
   { sym:'BLK', name:'BlackRock', sector:'Financials', index:'SP500' },
   { sym:'ISRG', name:'Intuitive Surgical', sector:'Healthcare', index:'SP500' },
-  { sym:'UBER', name:'Uber Technologies', sector:'Technology', index:'SP500' },
+  { sym:'UBER', name:'Uber Technologies', sector:'Industrials', index:'SP500' },
   { sym:'AMAT', name:'Applied Materials', sector:'Technology', index:'SP500' },
   { sym:'SLB', name:'Schlumberger', sector:'Energy', index:'SP500' },
   { sym:'T', name:'AT&T', sector:'Communication Services', index:'SP500' },
@@ -243,7 +243,7 @@ var SCREENER_DB = [
   // ── 기타 주목 종목 ──
   { sym:'SHOP', name:'Shopify', sector:'Technology', index:'NASDAQ' },
   { sym:'ABNB', name:'Airbnb', sector:'Consumer', index:'SP500' },
-  { sym:'DASH', name:'DoorDash', sector:'Technology', index:'SP500' },
+  { sym:'DASH', name:'DoorDash', sector:'Consumer', index:'SP500' },
   { sym:'ROKU', name:'Roku', sector:'Communication Services', index:'NASDAQ100' },
   { sym:'DUOL', name:'Duolingo', sector:'Technology', index:'NASDAQ100' },
   { sym:'APP', name:'AppLovin', sector:'Technology', index:'SP500' },
@@ -269,7 +269,7 @@ var SCREENER_DB = [
   { sym:'TJX', name:'TJX Companies', sector:'Consumer', index:'SP500' },
   { sym:'C', name:'Citigroup', sector:'Financials', index:'SP500' },
   { sym:'SCHW', name:'Charles Schwab', sector:'Financials', index:'SP500' },
-  { sym:'ADP', name:'Automatic Data Processing', sector:'Technology', index:'SP500' },
+  { sym:'ADP', name:'Automatic Data Processing', sector:'Industrials', index:'SP500' },
   { sym:'BMY', name:'Bristol Myers Squibb', sector:'Healthcare', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] Insider relayed an FT-reported M&A discussion involving AstraZeneca/BMS. Treat as unconfirmed corporate-action context until company filings or authoritative reports confirm parties, terms, probability and regulatory path.' },
   { sym:'PLD', name:'Prologis', sector:'Real Estate', index:'SP500' },
   { sym:'BSX', name:'Boston Scientific', sector:'Healthcare', index:'SP500' },
@@ -328,13 +328,13 @@ var SCREENER_DB = [
   { sym:'YUM', name:'YUM! Brands', sector:'Consumer', index:'SP500' },
   { sym:'HUM', name:'Humana', sector:'Healthcare', index:'SP500' },
   { sym:'IDXX', name:'IDEXX Laboratories', sector:'Healthcare', index:'SP500' },
-  { sym:'PAYX', name:'Paychex', sector:'Technology', index:'SP500' },
+  { sym:'PAYX', name:'Paychex', sector:'Industrials', index:'SP500' },
   { sym:'IQV', name:'IQVIA Holdings', sector:'Healthcare', index:'SP500' },
   { sym:'BNY', name:'BNY Mellon', sector:'Financials', index:'SP500' },
   { sym:'STZ', name:'Constellation Brands', sector:'Consumer Defensive', index:'SP500' },
   { sym:'CNC', name:'Centene', sector:'Healthcare', index:'SP500' },
   { sym:'NXPI', name:'NXP Semiconductors', sector:'Technology', index:'SP500' },
-  { sym:'GPN', name:'Global Payments', sector:'Technology', index:'SP500' },
+  { sym:'GPN', name:'Global Payments', sector:'Financials', index:'SP500' },
   { sym:'CTSH', name:'Cognizant', sector:'Technology', index:'SP500' },
   { sym:'MSCI', name:'MSCI Inc', sector:'Financials', index:'SP500' },
   { sym:'OTIS', name:'Otis Worldwide', sector:'Industrials', index:'SP500' },
@@ -348,7 +348,7 @@ var SCREENER_DB = [
   { sym:'HUBB', name:'Hubbell Inc', sector:'Industrials', index:'SP500' },
 
   // ═══ v33.1: 시총 $10B+ 전종목 + 핵심 ETF + 유명 소형주 (368개) ═══
-  { sym:'GOOG', name:'Alphabet Class C', sector:'Technology', index:'SP500' },
+  { sym:'GOOG', name:'Alphabet Class C', sector:'Communication Services', index:'SP500' },
   { sym:'GEV', name:'GE Vernova', sector:'Utilities', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] Aether/BornLupin/HANA themes point to data-center power, grid, transmission and ESS constraints. Verify equipment backlog, utility orders, project timing, margin and permitted interconnection; announced demand is not recognized revenue.' },
   { sym:'TMUS', name:'T-Mobile US', sector:'Communication Services', index:'SP500' },
   { sym:'TXN', name:'Texas Instruments', sector:'Technology', index:'SP500' },
@@ -461,7 +461,7 @@ var SCREENER_DB = [
   { sym:'MTB', name:'M&T Bank', sector:'Financials', index:'SP500' },
   { sym:'LDOS', name:'Leidos Holdings', sector:'Industrials', index:'SP500' },
   { sym:'IT', name:'Gartner', sector:'Technology', index:'SP500' },
-  { sym:'CPAY', name:'Corpay', sector:'Technology', index:'SP500' },
+  { sym:'CPAY', name:'Corpay', sector:'Financials', index:'SP500' },
   { sym:'WST', name:'West Pharma', sector:'Healthcare', index:'SP500' },
   { sym:'PHM', name:'PulteGroup', sector:'Consumer', index:'SP500' },
   { sym:'SBAC', name:'SBA Communications', sector:'Real Estate', index:'SP500' },
@@ -492,7 +492,7 @@ var SCREENER_DB = [
   { sym:'LYV', name:'Live Nation', sector:'Consumer', index:'SP500' },
   { sym:'TYL', name:'Tyler Technologies', sector:'Technology', index:'SP500' },
   { sym:'CBOE', name:'Cboe Global Markets', sector:'Financials', index:'SP500' },
-  { sym:'BR', name:'Broadridge Financial', sector:'Technology', index:'SP500' },
+  { sym:'BR', name:'Broadridge Financial', sector:'Industrials', index:'SP500' },
   { sym:'STLD', name:'Steel Dynamics', sector:'Materials', index:'SP500', memo:'[2026-08-09 REFERENCE] Steel leadership is a relative-strength observation. Verify shipments, price/mix, input costs, margins, capital allocation and volume-backed continuation before treating it as a durable cycle signal.' },
   { sym:'FE', name:'FirstEnergy', sector:'Utilities', index:'SP500' },
   { sym:'J', name:'Jacobs Solutions', sector:'Industrials', index:'SP500' },
@@ -756,13 +756,13 @@ var SCREENER_DB = [
   { sym:'PNW', name:'Pinnacle West Capital', sector:'Utilities', index:'SP500' },
   { sym:'TPL', name:'Texas Pacific Land', sector:'Energy', index:'SP500' },
   // ── THEME↔SCREENER 불일치 보강 (v34.7 감사) ──
-  { sym:'AA', name:'Alcoa Corp', sector:'Basic Materials', index:'NYSE' },
+  { sym:'AA', name:'Alcoa Corp', sector:'Materials', index:'NYSE' },
   { sym:'BIIB', name:'Biogen', sector:'Healthcare', index:'SP500' },
   { sym:'CLSK', name:'CleanSpark', sector:'Technology', index:'NASDAQ' },
-  { sym:'ETSY', name:'Etsy', sector:'Consumer Cyclical', index:'NASDAQ' },
-  { sym:'LAC', name:'Lithium Americas', sector:'Basic Materials', index:'NYSE' },
+  { sym:'ETSY', name:'Etsy', sector:'Consumer', index:'NASDAQ' },
+  { sym:'LAC', name:'Lithium Americas', sector:'Materials', index:'NYSE' },
   { sym:'MASI', name:'Masimo Corp', sector:'Healthcare', index:'NASDAQ' },
-  { sym:'MP', name:'MP Materials', sector:'Basic Materials', index:'NYSE' },
+  { sym:'MP', name:'MP Materials', sector:'Materials', index:'NYSE' },
   { sym:'RUN', name:'Sunrun', sector:'Utilities', index:'NASDAQ' },
   { sym:'SEDG', name:'SolarEdge Technologies', sector:'Technology', index:'NASDAQ' },
   { sym:'STAG', name:'STAG Industrial', sector:'Real Estate', index:'NYSE' },
@@ -1453,6 +1453,16 @@ function _aioProcessTelegramItem(it) {
   return { sent: sent, cat: cat, hlHeadline: hlHeadline, body: body, tickerHtml: tickerHtml };
 }
 
+function _aioTelegramStandalone(text) {
+  var t = String(text || '').replace(/https?:\/\/\S+/g, '').replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu, '').replace(/\s+/g, ' ').trim();
+  if (t.length < 20) return false;
+  if (/^(받\)|위\s|위에\s|해당\s|이\s?사진|사진\s|↑|☝|\^)/.test(t)) return false;
+  if (/사진|이미지|첨부/.test(t) && t.length < 40) return false;
+  if (!/[가-힣]/.test(t) && t.length < 40) return false;
+  return true;
+}
+window._aioTelegramStandalone = _aioTelegramStandalone;
+
 function _aioRenderTelegramFeedHtml(pageId) {
   try {
     // User-facing Telegram feeds consume only the completed 24-hour lane. The
@@ -1474,9 +1484,10 @@ function _aioRenderTelegramFeedHtml(pageId) {
     };
     if (!items.length || !tags.length) return statusMarkup('unavailable', 0, maxItems);
 
-    // 태그 필터
+    // 태그 필터 + Codex review 2026-10-05: posts that only make sense beside the channel's previous message
+    // (a photo caption, "위 …", "해당 …", a two-letter reply like "BE") carry no information on their own.
     var filtered = items.filter(function(it) {
-      return (it.tags || []).some(function(t) { return tags.indexOf(t) >= 0; });
+      return (it.tags || []).some(function(t) { return tags.indexOf(t) >= 0; }) && _aioTelegramStandalone(it.text || it.summary || '');
     });
 
     // Filter out digest separators on all pages; keep long bank/research posts on analysis pages.
@@ -5638,7 +5649,7 @@ async function _aioLoadServerData() {
           && _blsCanonicalCpi
           && String(_blsCanonicalCpi.seasonalAdjustment || '').toUpperCase() !== 'NSA';
         if (!_canonicalCpiDefinitionBlocked && typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
-          window.DATA_SNAPSHOT[k] = d.macro[k]; if (typeof d.macro[k + 'Delta5'] === 'number' && isFinite(d.macro[k + 'Delta5'])) window.DATA_SNAPSHOT['_' + k + 'Delta5'] = d.macro[k + 'Delta5']; // P1390: one-week change for the briefing read
+          window.DATA_SNAPSHOT[k] = d.macro[k]; var _deltaAligned = d.macro['_source_' + k] !== 'us-treasury-official-primary' || (d.macro['_deltaAsOf_' + k] && d.macro['_deltaAsOf_' + k] === d.macro['_asOf_' + k]); /* Codex review 2026-10-05: no FRED change beside a newer Treasury level */ if (_deltaAligned && typeof d.macro[k + 'Delta5'] === 'number' && isFinite(d.macro[k + 'Delta5'])) window.DATA_SNAPSHOT['_' + k + 'Delta5'] = d.macro[k + 'Delta5']; else delete window.DATA_SNAPSHOT['_' + k + 'Delta5']; // P1390: one-week change for the briefing read
           // P1142: 선언된 스냅샷 필드는 `usUnemploy`(aio-core DATA_SNAPSHOT 키)지만 서버 매크로 키는
           // `unemployment`라 미러가 없었고, 선언 키를 읽는 가용성 소비자(aio-ui 매크로 컨텍스트)는
           // 데이터가 있어도 null을 봤다 — 감사에서 발견된 키 3중 drift 통합.
@@ -10343,9 +10354,15 @@ async function freeTranslateNews(items) {
   var statusEl = document.getElementById('translate-status');
   if (statusEl) statusEl.innerHTML = '번역 준비 중...';
 
+  // Codex review 2026-10-05: a failed or non-Korean cached translation still needs translation.
+  var _hasUsableTranslation = function(i) {
+    var cached = _translationCache.get(_tcKey(i.title));
+    return !!(cached && !cached._failed && cached.ko_title && isKoreanText(cached.ko_title));
+  };
   var needTrans = items.filter(function(i) {
-    return i.title && !isKoreanText(i.title) && !_translationCache.has(_tcKey(i.title));
+    return i.title && !isKoreanText(i.title) && !_hasUsableTranslation(i);
   });
+  var _foreignCount = items.filter(function(i) { return i.title && !isKoreanText(i.title); }).length;
   // 한국어 뉴스 먼저 처리
   items.filter(function(i) {
     return i.title && isKoreanText(i.title) && !_translationCache.has(_tcKey(i.title));
@@ -10356,7 +10373,7 @@ async function freeTranslateNews(items) {
   });
 
   if (needTrans.length === 0) {
-    if (statusEl) statusEl.textContent = '✓ 번역 불필요 (한국어 뉴스)';
+    if (statusEl) statusEl.textContent = _foreignCount ? '✓ 해외 기사 ' + _foreignCount + '건 번역 완료' : '한국어 기사만 있어 번역할 항목이 없습니다';
     if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError({ status: 200, message: 'success' }, { source: 'translation' });
     return;
   }
@@ -15278,8 +15295,13 @@ function _aioComputeFactorRanks() {
   // Keep the compatibility fallback aligned with the native resolver: adaptive/regime proposal
   // weights are metadata until an explicit promotion record is supplied.
   var weights = (W && W.weights) ? W.weights : { momentum:0.27, trend:0.20, lowvol:0.16, size:0.08, value:0.10, quality:0.09, kalman:0.10 };
+  // Codex review 2026-10-05 (931종목 전부 순위 보류): SCREENER_DB is the identity list; the factor inputs
+  // (returns, trend, volatility) live on the canonical rows the screener renders. Ranking SCREENER_DB
+  // found 0 eligible rows and published a hold over the native ranking.
+  var _rankRows = typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null;
+  if (!Array.isArray(_rankRows) || !_rankRows.length) _rankRows = SCREENER_DB;
   var result = _rankFn({
-    rows: SCREENER_DB,
+    rows: _rankRows,
     weights: weights,
     weightsPolicy: W && W.source === 'explicit-user-profile' ? 'explicit' : 'model-default', // W07-A/P1146: only a user profile is an explicit request; the neutral default keeps renormalizing.
     regimeLabel: W ? W.regimeLabel : null,
@@ -15288,6 +15310,8 @@ function _aioComputeFactorRanks() {
     now: Date.now(),
     inputVersion: window._aioScreenerFactorAsOf || 'legacy-runtime'
   });
+  // No factor data loaded yet is not a ranking decision: return without publishing a hold.
+  if (result && result.available === false && result.inputAudit && result.inputAudit.eligibleRows === 0) return null;
   if (!result || result.available === false) {
     // P1449 (저리스크 재현): a failed re-rank (e.g. an explicit profile whose computable
     // coverage is below the threshold) previously returned null while the PREVIOUS run's
@@ -15310,7 +15334,7 @@ function _aioComputeFactorRanks() {
       requestedWeightCoveragePct: result?.requestedWeightCoveragePct ?? null,
       weightsPolicy: W ? W.source : null
     };
-    window._aioActiveFactorRegime = null;
+    window._aioActiveFactorRegime = null; window._aioRankBySymbol = null;
     window._aioAppliedFactorWeights = null;
     window._aioActiveFactorWeights = null;
     window._aioFactorWeightPolicy = null;
@@ -15322,7 +15346,7 @@ function _aioComputeFactorRanks() {
     return null;
   }
   var bySym = {};
-  (result.rows || []).forEach(function(row){ bySym[row.sym] = row; });
+  (result.rows || []).forEach(function(row){ bySym[row.sym] = row; }); window._aioRankBySymbol = Object.fromEntries((result.rows || []).filter(function(r){ return typeof r.rank === 'number'; }).map(function(r){ return [r.sym, { rank: r.rank, quantSignal: r.quantSignal || null }]; }));
   SCREENER_DB.forEach(function(row){
     var ranked = bySym[row && row.sym];
     if (!ranked) return;
@@ -16572,6 +16596,7 @@ function _aioMakerCheckerVerify(tickers) {
       var s = sym.toUpperCase();
       var row = null;
       for (var i = 0; i < db.length; i++) { if (db[i].sym === s) { row = db[i]; break; } }
+      if (row && typeof row.rank !== 'number' && window._aioRankBySymbol && window._aioRankBySymbol[s]) row = Object.assign({}, row, window._aioRankBySymbol[s]); // P1490: rank map from the last canonical-row ranking
       if (!row || typeof row.rank !== 'number') return;
       var rank = row.rank, qs = row.quantSignal || null;
        var verdict = rank >= 60 ? 'RESEARCH_CANDIDATE' : rank >= 40 ? 'CAUTION' : 'REJECTED';

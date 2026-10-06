@@ -44,7 +44,7 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
     rows,
     rotation: root?._serverDataMeta?.rotationHistory?.items || {},
     regime: readMarketRegime(root),
-    validation: summarizeValidation(root?._aioScreenerBacktestHistory || [], root?._aioModelValidationStatus || null)
+    validation: summarizeValidation(root?._aioScreenerBacktestHistory || [], root?._aioModelValidationStatus || null, root?._aioRankingWeights || null)
   });
   host.replaceChildren(el(doc, 'h2', '지금 순위가 말하는 것', 'briefing-h2'));
   if (!read.available) { host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }

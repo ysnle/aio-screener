@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — Unified knowledge search from the glossary (P1474).",
+  "p": {
+    "id": 1474,
+    "title": "Unified knowledge search from the glossary",
+    "symptom": "Searching the glossary for HBM, 포토닉스 or ROIC found nothing although the industry map, principles lessons and atlas foundations explained them.",
+    "root_cause": "The glossary searched only its own array; no index spanned the learning surfaces.",
+    "fix": "scripts/build-knowledge-search-index.mjs (part of the knowledge parity set) writes public-data/knowledge/search-index.json — 338 entries across frames, principles lessons and nodes, AI foundations and industry-map nodes with canonical concept aliases. The glossary modal appends 다른 학습 영역 results with links that open the surface.",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check P1474; ci-knowledge-generated-parity-check covers the index.",
+    "verification": "Local: HBM → memory-optics frame, DRAM·HBM node; 합산비율 → insurance frame."
+  },
+  "changelog": [
+    "**통합 지식 검색 (P1474):** 용어 사전 검색이 분석 프레임·시장 원리 레슨·AI 기초·산업 지도까지 함께 찾아 해당 화면으로 연결합니다."
+  ]
+}

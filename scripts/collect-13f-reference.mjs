@@ -183,6 +183,16 @@ async function fetchFilingBundle(filing) {
   return { filing: { ...filing, primaryDocumentXml }, rows: parseRows(tableXml), cover: parseCover(primaryXml) };
 }
 
+// P1462: one description of how a period's rows were assembled, for the current and prior quarter.
+// The chain is always published (a single ORIGINAL entry included) so consumers never infer it.
+function amendmentSemanticsOf(bundle) {
+  const chain = bundle.amendmentChain || [];
+  const cover = bundle.cover || {};
+  return chain.some((entry) => entry.type !== 'ORIGINAL')
+    ? { status: 'AMENDED', type: cover.amendmentType || 'UNCLASSIFIED', number: cover.amendmentNumber, policy: cover.compositeAmendment ? 'ORIGINAL_PLUS_NEW_HOLDINGS' : /RESTATEMENT/i.test(cover.amendmentType || '') ? 'LATEST_RESTATEMENT_ROWS' : 'AMENDMENT_ROWS_REQUIRE_REVIEW', chain }
+    : { status: 'ORIGINAL', type: null, number: null, policy: 'ORIGINAL_ROWS', chain };
+}
+
 async function composePeriodFilings(fallbackFiling, periodSubmissions = []) {
   // P1449: the composition policy itself lives in scripts/lib/13f-compose.mjs (one policy,
   // one implementation — R619). This wrapper only fetches the bundles in filedAt order.
@@ -308,9 +318,10 @@ for (const manager of verified) {
       comparisonRowCount: comparisonRows.length,
       comparisonActionCounts: actionCounts,
       corporateActionReviewStatus: 'REVIEW_REQUIRED',
-      amendmentSemantics: currentBundle.amendmentChain.some((entry) => entry.type !== 'ORIGINAL')
-        ? { status: 'AMENDED', type: cover.amendmentType || 'UNCLASSIFIED', number: cover.amendmentNumber, policy: cover.compositeAmendment ? 'ORIGINAL_PLUS_NEW_HOLDINGS' : /RESTATEMENT/i.test(cover.amendmentType || '') ? 'LATEST_RESTATEMENT_ROWS' : 'AMENDMENT_ROWS_REQUIRE_REVIEW', chain: currentBundle.amendmentChain }
-        : { status: 'ORIGINAL', type: null, number: null, policy: 'ORIGINAL_ROWS' },
+      amendmentSemantics: amendmentSemanticsOf(currentBundle),
+      // P1462: the prior quarter is composed with the same policy; its chain is published so the
+      // history index can show how the comparison base was assembled (not only the current one).
+      priorAmendmentSemantics: priorBundle ? amendmentSemanticsOf(priorBundle) : null,
       comparisonKeyPolicy: 'NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE',
       valueUnit: 'USD as reported by Form 13F information table',
       displayPolicy: 'TOP_10_BY_REPORTED_VALUE'

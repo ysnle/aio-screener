@@ -1,0 +1,19 @@
+{
+  "version": "v57.21",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.21 — Library loads with no failure state or retry (P1484).",
+  "p": {
+    "id": 1484,
+    "title": "Library loads with no failure state or retry",
+    "symptom": "A failed lesson-library or column load stayed on 불러오는 중 forever (principles); the atlas had no retry path for any section.",
+    "root_cause": "The redesigned views rendered only loading and loaded states.",
+    "fix": "concepts-view and industry-view render a role=alert failure with a 다시 불러오기 button wired to retry-capability; atlas gained retryCapabilities per section.",
+    "violated_rule": "Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.",
+    "prevention": "ci-principles-browser-check and ci-atlas-browser-check abort the artifact, assert the alert, retry and reach the loaded state.",
+    "verification": "Both browser checks PASS on the failure path."
+  },
+  "changelog": [
+    "**불러오기 실패 처리 (P1484):** 레슨·칼럼·산업 지도·AI 기초·관계 가이드를 불러오지 못하면 실패를 알리고 다시 불러오기 버튼을 보여 줍니다."
+  ]
+}

@@ -27,7 +27,7 @@ check('P1303/R560/QA-DATA-47 lesson builder publishes through the shared atomic 
     && !/\bfs\.writeFileSync\s*\(|\bfs\.writeFile\s*\(/.test(builderSource));
 
 const isolatedRoot = mkdtempSync(join(tmpdir(), 'aio-principles-lesson-parity-'));
-const inputPaths = [builderPath, 'scripts/lib/atomic-write.mjs', 'public-data/principles/chapters.json'];
+const inputPaths = [builderPath, 'scripts/lib/atomic-write.mjs', 'scripts/lib/principles-stories.mjs', 'scripts/lib/principles-stories-a-d.mjs', 'scripts/lib/principles-stories-e-h.mjs', 'scripts/lib/principles-stories-i-k.mjs', 'scripts/lib/principles-stories-l-m.mjs', 'scripts/lib/principles-stories-n-o.mjs', 'public-data/principles/chapters.json'];
 try {
   for (const relativePath of inputPaths) {
     const target = join(isolatedRoot, relativePath);

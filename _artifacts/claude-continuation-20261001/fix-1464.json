@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — The percentile column is called 백분위 (P1464).",
+  "p": {
+    "id": 1464,
+    "title": "The percentile column is called 백분위",
+    "symptom": "The rank column was headed 상대 점수 and showed 100 for the top rows, which read as a perfect score.",
+    "root_cause": "The header kept the pre-P1419 score wording after the value became a percentile among passing rows.",
+    "fix": "The column, the Why chain and the overlap note say 백분위; the cell tooltip explains that 100 means the top, not a perfect score or a probability.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "ci-review-integrity-unit-check P1464.",
+    "verification": "Local screener: header 백분위, tooltip on the rank cell."
+  },
+  "changelog": [
+    "**'상대 점수' → '백분위' (P1464):** 순위 열이 만점처럼 읽히던 '상대 점수 100'을 '백분위'로 바꾸고, 100은 맨 위라는 뜻일 뿐임을 표시합니다."
+  ]
+}

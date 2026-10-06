@@ -46,42 +46,24 @@
       "MP-BOK",
       "MP-KRX",
       "MP-SEC",
-      "WEB-FRED-INFLATION-EXPECTATIONS",
-      "WEB-SEC-INVESTOR-10K-2020",
-      "WEB-KRX-SECURITIES-INTRO",
-      "WEB-NIST-AI-RMF-CORE-2023"
+      "WEB-NIST-AI-RMF-CORE-2023",
+      "WEB-SEC-GOOGLE-10K-2025"
     ],
     "researchEvidence": [
-      {
-        "factId": "fact:fred:real-rates",
-        "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
-        "statement": "The FRED Inflation Expectations release provides separate series for expected inflation and real interest rates across maturities; the release is a data reference and does not make the measures interchangeable.",
-        "scope": "Inflation-expectation and real-rate data definitions",
-        "invalidation": "Series frequency, maturity, observation date, construction method, and revisions must be preserved; no current value is embedded in this article fact.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:sec:10k-reading",
-        "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-        "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-        "scope": "U.S. public-company filing navigation",
-        "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:krx:listed-products",
-        "sourceId": "WEB-KRX-SECURITIES-INTRO",
-        "statement": "KRX distinguishes ETF, ETN, and ELW as listed securities products with different legal and economic structures; a listed product should not be treated as identical to the underlying asset or index.",
-        "scope": "Korean exchange-listed product structure",
-        "invalidation": "Product terms, issuer credit, leverage, tracking, liquidity, fees, and applicable rules must be read from the current product documents; this is not a product recommendation.",
-        "asOf": "2026-08-12"
-      },
       {
         "factId": "fact:nist:ai-rmf-core",
         "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
         "statement": "NIST AI RMF Core groups AI risk work into Govern, Map, Measure, and Manage. Governance is cross-cutting, while the other functions are applied throughout the AI lifecycle; the framework is voluntary and use-case agnostic.",
         "scope": "AI risk-management framework structure",
         "invalidation": "Do not treat the framework as a legal requirement, a model-quality guarantee, or evidence that a particular system is safe.",
+        "asOf": "2026-08-12"
+      },
+      {
+        "factId": "fact:sec:capex-depreciation",
+        "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+        "statement": "A filed 2025 Form 10-K example separates property-and-equipment capital expenditures in investing cash flow from depreciation recognized after assets are placed in service; capacity investment, accounting expense, and cash generation therefore need separate time and statement-line analysis.",
+        "scope": "CAPEX, depreciation, utilization, unit economics, and free-cash-flow interpretation",
+        "invalidation": "This is one issuer's filing example and not a universal accounting policy or current forecast; company disclosures, useful lives, capitalization policy, and reporting standards must be checked separately.",
         "asOf": "2026-08-12"
       }
     ],

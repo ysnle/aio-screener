@@ -49,7 +49,9 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
       const pe = finite(row?.pe);
       const peg = pe != null && pe > 0 && niGrowth > 0 ? pe / niGrowth : null;
       points.push({ id: 'earnings', tone: niGrowth >= 0 ? 'favorable' : 'burden', title: '이익과 가격',
-        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${pe != null ? `, 공시 이익 기준 PER ${pe.toFixed(1)}배` : ''}${peg != null ? ` — 이익 성장률 대비 PER(PEG) ${peg.toFixed(2)}: ${peg < 1 ? '성장 속도에 비해 가격 부담이 크지 않은 편' : peg < 2 ? '성장을 어느 정도 가격에 반영' : '성장보다 가격이 앞서 있음'}` : ''}. PEG는 지난 1년 성장률로 계산한 참고값입니다.` });
+        // Codex review 2026-10-05: a PEG from last year's income growth cannot say whether the price is a
+        // burden — that needs the growth ahead. The number is shown with its basis, without a verdict.
+        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${pe != null ? `, 공시 이익 기준 PER ${pe.toFixed(1)}배` : ''}${peg != null ? `, PEG ${peg.toFixed(2)}(PER ÷ 지난 1년 순이익 성장률)` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.` });
     }
   } else if (latest) {
     const growth = finite(fundamentals?.revGrowth);
@@ -83,6 +85,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
         : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${formatUsdShort(capex)}를 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
     });
   }
+  if (ocf == null && history.length) points.push({ id: 'cash', tone: 'neutral', title: '현금 전환', text: '영업현금흐름·설비투자 공시값이 아직 연결되지 않아 이익이 현금으로 들어오는지는 이 화면에서 판단하지 않습니다.' });
   const debtNow = finite(latest?.longTermDebt);
   const debtPrev = finite(prevYear?.longTermDebt);
   if (debtNow != null && debtPrev != null && debtPrev > 0) {
@@ -107,17 +110,15 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
       text: `${shareYears.length - 1}년 동안 발행 주식 수 ${signed(change)}${splitSeen ? '(주식 분할로 보이는 변화는 제외)' : ''} — ${change <= -1 ? '자사주 매입으로 주당 가치가 커지는 쪽' : change >= 3 ? '신주 발행·보상 주식으로 기존 주주 몫이 희석되는 쪽' : '거의 변하지 않았습니다'}.` });
   }
 
+  // Codex review 2026-10-05: a 6-month price move set against a fiscal-year revenue change compares
+  // different periods (the fiscal year may have ended a year ago). Both are stated with their periods
+  // and no conclusion ("실적이 뒷받침") is drawn from the pair.
   const ret6 = finite(row?.ret6m);
   const lastGrowth = history.length >= 2 ? (latest.revenue / history[history.length - 2].revenue - 1) * 100 : null;
   if (ret6 != null && lastGrowth != null) {
-    const priceUp = ret6 > 0;
-    const salesUp = lastGrowth > 0;
-    points.push({ id: 'agree', tone: priceUp === salesUp ? 'favorable' : 'neutral', title: '주가와 실적',
-      text: priceUp && salesUp && ret6 > lastGrowth * 2 + 10 ? `주가 6개월 ${signed(ret6)}와 매출 성장 ${signed(lastGrowth)}가 같은 방향이지만, 주가가 실적보다 훨씬 빨리 올라 기대(밸류에이션)가 앞서 있습니다 — 다음 실적이 그 기대를 채우는지가 관건입니다.`
-        : priceUp && salesUp ? `주가 6개월 ${signed(ret6)}와 매출 성장 ${signed(lastGrowth)}가 같은 방향입니다 — 가격 추세를 실적이 뒷받침합니다.`
-        : priceUp && !salesUp ? `주가는 6개월 ${signed(ret6)} 올랐지만 최근 매출은 ${signed(lastGrowth)} — 가격이 실적 회복을 미리 반영하고 있는지 다음 공시가 확인합니다.`
-          : !priceUp && salesUp ? `매출은 ${signed(lastGrowth)} 늘었지만 주가는 6개월 ${signed(ret6)} — 실적과 가격이 엇갈립니다(기대 하향 또는 밸류에이션 조정).`
-            : `주가(6개월 ${signed(ret6)})와 매출(${signed(lastGrowth)})이 함께 약합니다.` });
+    const fy = String(latest.periodEnd || '').slice(0, 7);
+    points.push({ id: 'agree', tone: 'neutral', title: '주가와 실적의 기간',
+      text: `주가는 최근 6개월 ${signed(ret6)}, 매출은 ${fy ? `${fy}에 끝난 ` : ''}회계연도에 ${signed(lastGrowth)}입니다. 두 숫자는 기간이 달라 직접 비교하지 않습니다 — 주가가 반영하는 것은 앞으로의 실적이고, 다음 분기 공시가 그 기대를 확인합니다.` });
   }
   const headline = !history.length ? null
     : [history.length >= 2 ? `매출 ${signed(lastGrowth)}` : null, latest.margin != null ? `순이익률 ${latest.margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%` : null].filter(Boolean).join(' · ');

@@ -181,18 +181,22 @@ function renderThemePerformanceNarrative({ documentRef, root, store, route }) {
   const host = documentRef?.getElementById('sector-perf-analysis');
   if (!host) return;
   host.dataset.aioThemePerformanceRenderer = 'native';
+  // Codex review 2026-10-05: the bars switched to 1주 while this summary kept the 1-day returns. Both read
+  // the same selected period now.
+  const mode = root?._sectorPerfMode === '1w' ? '1w' : '1d';
+  const periodLabel = mode === '1w' ? '1주' : '1일';
   const rows = viewItems(selectThemesItems(store?.getState?.() || {}), 'sectors')
-    .map((item) => ({ label: String(item?.label || item?.symbol || ''), pct: finite(item?.pct) }))
+    .map((item) => ({ label: String(item?.label || item?.symbol || ''), pct: finite(mode === '1w' ? item?.weeklyPct : item?.pct) }))
     .filter((row) => row.label && row.pct != null)
     .sort((a, b) => b.pct - a.pct);
   if (rows.length < 2) {
-    host.textContent = '섹터 성과 요약 보류 · 정규화된 섹터 등락률이 2개 이상 수신되면 표시합니다.';
+    host.textContent = `섹터 ${periodLabel} 성과 요약 보류 · 비교할 섹터 등락률이 2개 이상 필요합니다.`;
     host.style.color = 'var(--text-muted)';
     return;
   }
   const leaders = rows.slice(0, 2).map((row) => `${row.label} ${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`).join(' · ');
   const laggards = rows.slice(-2).reverse().map((row) => `${row.label} ${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`).join(' · ');
-  host.textContent = `정규화 섹터 성과 · 강세 ${leaders} · 약세 ${laggards} · 단일 수익률만으로 비중을 결정하지 않습니다.`;
+  host.textContent = `섹터 ETF ${periodLabel} 가격 성과 · 강세 ${leaders} · 약세 ${laggards}. 가격 성과는 자금 유입량과 같지 않습니다.`;
   host.style.color = 'var(--text-secondary)';
 }
 
@@ -219,7 +223,7 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
     line.append(el('span', theme.label, 'stock-read-bar-label'), item);
     host.append(line);
   }
-  host.append(el('p', '아래 실시간 등락·수급 판정은 국내 시세가 충분히 수신될 때만 계산됩니다. 위 흐름은 스크리너 산출물의 완료 종가 기준입니다.', 'theme-strength-basis'));
+  host.append(el('p', '위 흐름은 완료 종가 기준입니다. 장중 실시간 등락은 아래 접힌 칸에서 국내 시세가 들어올 때만 계산됩니다.', 'theme-strength-basis'));
 }
 
 function renderThemePerformanceBars({ documentRef, root, store, route }) {

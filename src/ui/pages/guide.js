@@ -112,7 +112,14 @@ function renderScreenCards(documentRef) {
 
 // P1428 + owner 2026-10-04: the guide's judgement section is the rule table itself, generated from the
 // registry every verdict uses — numbers a user can check against the screen, not prose about them.
+// Codex review 2026-10-05: every 부담 rule fires on any one condition, so those cells join with 또는;
+// a "·" there read as "all of these" (HY 324bp + 5일 +44bp looked like it should not be 부담).
+const anyOf = (text) => text.replace(/ · /g, ' 또는 ');
 export function guideRuleRows(R = RULES) {
+  return guideRuleRowsRaw(R).map(([area, metric, favorable, burden, basis]) => [area, metric, favorable, burden === '—' ? burden : anyOf(burden), basis]);
+}
+
+function guideRuleRowsRaw(R) {
   return [
     ['시장 상태', '추세 (S&P 500)', `오르는 ${R.trend.maShort}일선 위 · ${R.trend.maShort}일선 > ${R.trend.maLong}일선`, `${R.trend.maLong}일선 아래 또는 하락하는 ${R.trend.maShort}일선 아래`, '이동평균 추세'],
     ['시장 상태', `시장 폭 (${R.trend.maShort}·${R.trend.maLong}일선 위 종목 비율)`, `둘 다 ${R.breadth.broadAtLeast}% 이상`, `하나라도 ${R.breadth.weakBelow}% 미만`, '참여 폭'],
@@ -123,7 +130,7 @@ export function guideRuleRows(R = RULES) {
     ['한국 참고', '원/달러 · 엔/달러 (20일)', `원/달러 −${R.fx.krwMove20dPct}% 이하`, `원/달러 +${R.fx.krwMove20dPct}% · 엔 ${R.fx.yenRally20dPct}% 이상 강세`, '2024년 8월 엔 캐리 청산'],
     ['거시 · 성장', 'Sahm 지표 · 일자리 3개월 평균', `Sahm ${R.growth.sahmWatchAt}%p 미만 · ${R.growth.payrollSolidK / 10}만 명 이상`, `Sahm ${R.growth.sahmRecessionAt}%p 이상 · 3개월 평균 감소`, 'Sahm (2019)'],
     ['거시 · 물가', '근원 PCE (전년 대비 · 3개월 속도)', `${R.inflation.nearTargetPct}% 이하 · 속도 둔화`, `${R.inflation.missPct}% 이상 · 속도 +${R.inflation.reaccelPp}%p 재가속`, `FOMC 목표 ${R.inflation.targetPct}%`],
-    ['거시 · 정책', '2년물 − 기준금리 · 실질 기준금리', `−${R.policy.pricedMovePp}%p 이하 (인하 반영)`, `+${R.policy.pricedMovePp}%p 이상 · 실질 ${R.policy.restrictiveRealPct}% 이상`, 'FOMC 장기 금리 전망'],
+    ['거시 · 정책', '2년물 − 기준금리 · 실질 기준금리', `−${R.policy.pricedMovePp}%p 이하`, `+${R.policy.pricedMovePp}%p 이상 · 실질 ${R.policy.restrictiveRealPct}% 이상`, 'FOMC 장기 금리 전망'],
     ['투자 심리', 'CNN 공포·탐욕', '—', '—', `극단 공포 <${R.fearGreed.extremeFearBelow} · 공포 <${R.fearGreed.fearBelow} · 탐욕 >${R.fearGreed.greedAbove} · 극단 탐욕 >${R.fearGreed.extremeGreedAbove}`]
   ];
 }

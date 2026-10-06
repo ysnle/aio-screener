@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — Masters: what each way of managing money is for, and what 13F shows of it (P1479).",
+  "p": {
+    "id": 1479,
+    "title": "Masters: what each way of managing money is for, and what 13F shows of it",
+    "symptom": "The masters screen listed famous holdings without explaining how concentrated, passive, credit, macro and quant managers differ or what 13F cannot reveal about each.",
+    "root_cause": "No style frame existed.",
+    "fix": "src/domain/masters/style-frames.js: eight styles with the problem solved, return source, accepted risk, what 13F shows and what it cannot (shorts, bonds, futures, private assets); all 38 catalog managers mapped; rendered as a folded comparison table after the manager cards.",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check P1479; ci-masters-contract-check keeps manager cards first.",
+    "verification": "38/38 managers mapped."
+  },
+  "changelog": [
+    "**운용 방식 비교 (P1479):** 대가의 포트폴리오에서 집중·패시브·행동주의·신용·매크로·퀀트 등 방식별로 해결하려는 문제, 수익 원천, 감수하는 위험, 13F로 보이는 것과 보이지 않는 것을 비교합니다."
+  ]
+}

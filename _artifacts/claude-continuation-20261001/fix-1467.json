@@ -1,0 +1,19 @@
+{
+  "version": "v57.19",
+  "date": "2026-10-04",
+  "qa": [],
+  "note": "v57.19 — 재무 공시 compares the company with same-sector filers (P1467).",
+  "p": {
+    "id": 1467,
+    "title": "재무 공시 compares the company with same-sector filers",
+    "symptom": "Growth, margin and ROE were read in isolation (ROE 101.5% with no sense of what is normal for the sector).",
+    "root_cause": "The filings read had no peer set.",
+    "fix": "src/domain/fundamental/peer-read.js: revenue growth, net margin, free-cash margin and ROE on average equity, computed identically for every same-sector SEC filer in the universe from the fiscal series the page already loads; percentile and median among peers whose latest fiscal year ended within 12 months; at least 5 peers per metric. Notes: broad sectors, financials' margins not comparable.",
+    "violated_rule": "Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.",
+    "prevention": "ci-review-integrity-unit-check P1467.",
+    "verification": "Local NVDA: Technology 127 peers — growth top 9%, margin top 3%, ROE top 6%."
+  },
+  "changelog": [
+    "**동종 기업 비교 (P1467):** 재무 공시에서 같은 섹터 SEC 공시 기업과 매출 성장·순이익률·잉여현금 마진·ROE를 같은 정의로 비교해 백분위와 중앙값을 보여줍니다."
+  ]
+}

@@ -82,6 +82,7 @@ jobs:
         run: |
           node scripts/ci-screener-workbench-contract.mjs
           node scripts/ci-page-data-timeline-contract-check.mjs
+          node scripts/ci-candidate-archive-check.mjs # P1465
 
       # The screener refresh owns SEC fundamentals, factor rows and their
       # reconciliation only.  Market-survey/news freshness (notably AAII) is
@@ -122,6 +123,7 @@ jobs:
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown
           stage_if_exists public-data/sec-fiscal-history.json # P1436: 재무 공시 fiscal-year series
+          stage_if_exists public-data/screener-candidate-archive.json # P1465: forward candidate record
           node scripts/verify-refresh-candidate.mjs --expect-staged "$RUNNER_TEMP/aio-refresh-screener-candidate.json"
           if git diff --staged --quiet; then
             echo "No screener changes to commit"

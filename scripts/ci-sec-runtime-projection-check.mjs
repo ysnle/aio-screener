@@ -42,13 +42,17 @@ for (const symbol of sourceSymbols) {
   const canonical = source.data[symbol];
   const projected = runtime.data[symbol];
   const reconciled = reconcileSecEquity(canonical);
-  if (projected?.equity !== reconciled?.equity || projected?.equityConcept !== reconciled?.equityConcept) {
+  // P1449: the projection drops a redundant `equityConcept: 'StockholdersEquity'` (the shipped
+  // record IS the parent basis by policy) but keeps the conflict evidence; the comparator mirrors
+  // that rule so the identity the reader sees is exactly what the runtime gets.
+  const expectedConcept = reconciled?.equityConcept === 'StockholdersEquity' ? undefined : reconciled?.equityConcept;
+  if (projected?.equity !== reconciled?.equity || (projected?.equityConcept ?? undefined) !== (expectedConcept ?? undefined)) {
     fail(`${symbol} projection equity must equal reconcileSecEquity(source record): projected=${projected?.equity} reconciled=${reconciled?.equity}`);
   }
   // P1449 incident pin: Agilent FY2025 shipped -226M (AOCI-tagged NCI total) while the same
   // filing's parent StockholdersEquity row holds 6,741,000,000.
   if (symbol === 'A' && canonical?.pit?.observations?.equity?.some((row) => row.concept === 'StockholdersEquity' && Number.isFinite(row.value))) {
-    if (runtime.data.A.equity !== 6741000000 || runtime.data.A.equityConcept !== 'StockholdersEquity') {
+    if (runtime.data.A.equity !== 6741000000) {
       fail(`Agilent A shipped equity must be the parent value 6741000000: ${runtime.data.A.equity}`);
     }
   }

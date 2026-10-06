@@ -44,29 +44,10 @@
     ],
     "sourceIds": [
       "MP-OECD-IND",
-      "MP-SEC",
-      "WEB-SEC-INVESTOR-10K-2020",
-      "WEB-DOE-DATACENTER-PUE-2019"
+      "MP-SEC"
     ],
-    "researchEvidence": [
-      {
-        "factId": "fact:sec:10k-reading",
-        "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-        "statement": "Investor.gov describes Form 10-K as containing the business description, risk factors, MD&A, and audited financial statements; the sections answer different questions and should be read together.",
-        "scope": "U.S. public-company filing navigation",
-        "invalidation": "A 10-K is not a complete valuation, a forecast, or proof that management's narrative will occur; the filing date and reporting period must remain explicit.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:doe:pue",
-        "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-        "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-        "scope": "Data-center facility efficiency",
-        "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-        "asOf": "2026-08-12"
-      }
-    ],
-    "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
+    "researchEvidence": [],
+    "researchCoverage": "RESEARCH_REQUIRED"
   },
   "quality": {
     "coreTextCharacters": 333,

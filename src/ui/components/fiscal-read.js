@@ -1,6 +1,7 @@
 // P1436: 재무 공시's lead block — annual revenue and net income as bars, the margin under each year,
 // and the connected reading (growth → profitability → earnings vs price → price vs results).
 import { buildFiscalRead, formatUsdShort } from '../../domain/fundamental/fiscal-read.js';
+import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
@@ -65,6 +66,42 @@ function bars(doc, read) {
   return wrap;
 }
 
+// P1467: where the company sits among same-sector SEC filers on the same four definitions.
+function peerSection(doc, root, symbol, row, rows) {
+  const history = root?._aioSecFiscalHistory;
+  if (!history || !row?.sector) return null;
+  const parsed = new Map();
+  const seriesFor = (sym) => {
+    if (!parsed.has(sym)) parsed.set(sym, history[sym] ? parseFiscalHistory(history[sym]) : null);
+    return parsed.get(sym);
+  };
+  const peers = rows.filter((item) => item?.sector === row.sector && item.sym !== symbol && history[item.sym]).map((item) => item.sym);
+  const read = buildPeerRead({ symbol, sector: row.sector, peers, seriesFor });
+  if (!read.available) return null;
+  const box = el(doc, 'div', null, 'fiscal-peers');
+  box.append(el(doc, 'span', `같은 섹터와 비교 · ${row.sector} ${read.peers}곳`, 'stock-read-vis-title'), el(doc, 'p', read.summary, 'briefing-read-headline'));
+  for (const metric of read.rows) {
+    const line = el(doc, 'div', null, 'stock-read-bars');
+    line.append(el(doc, 'span', metric.label, 'stock-read-bar-label'));
+    const item = el(doc, 'div', null, 'stock-read-bar-row');
+    if (metric.percentile == null) {
+      item.append(el(doc, 'span', metric.value == null ? '이 회사 값 미수집' : `비교 가능한 기업 ${metric.n}곳 — 부족`, 'stock-read-bar-value'));
+    } else {
+      const tone = metric.percentile >= 75 ? 'favorable' : metric.percentile <= 25 ? 'burden' : 'neutral';
+      const bar = el(doc, 'div', null, `stock-read-bar is-${tone}`);
+      bar.style.width = `${Math.max(2, metric.percentile).toFixed(1)}%`;
+      item.append(bar, el(doc, 'span', `${metric.value.toFixed(1)}% · 중앙값 ${metric.median.toFixed(1)}% · 상위 ${Math.max(1, Math.round(100 - metric.percentile))}%`, 'stock-read-bar-value'));
+    }
+    line.append(item);
+    box.append(line);
+  }
+  const notes = ['막대 = 같은 섹터 기업 중 이 회사보다 낮은 비율(백분위)', '각 회사의 최근 회계연도 기준이며 회계연도 마감이 1년 이상 떨어진 기업은 제외', '섹터는 넓은 분류라 사업 구조가 다른 기업이 섞입니다'];
+  if (/financ/i.test(row.sector)) notes.push('금융사는 매출·현금흐름의 의미가 일반 기업과 달라 마진·잉여현금 비교를 그대로 읽지 않습니다');
+  if (read.rows.find((metric) => metric.id === 'fcfMargin')?.percentile == null) notes.push('잉여현금 마진은 현금흐름 공시가 수집되는 대로(약 1주) 채워집니다');
+  box.append(el(doc, 'p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
+  return box;
+}
+
 export function renderFiscalRead({ documentRef: doc, root, state }) {
   const host = doc?.getElementById('fund-flow');
   if (!host) return null;
@@ -94,6 +131,8 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
       list.append(li);
     }
     host.append(list);
+    const peerBox = peerSection(doc, root, symbol, row, rows);
+    if (peerBox) host.append(peerBox);
   }
   renderNextSteps(doc, next, [
     { action: 'showTicker', arg: symbol, route: 'ticker', label: '요약', why: '실적 흐름과 주가 추세·섹터 회전이 같은 방향인지' },

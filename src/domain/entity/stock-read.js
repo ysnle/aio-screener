@@ -98,12 +98,12 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
 
   const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
   if (regime?.available && regime.overall && isKr) {
-    points.push({ id: 'market', tone: 'neutral', title: '시장 환경', text: `미국 시장 상태는 ${regime.overall}입니다 — 한국 종목에는 환율·외국인 수급을 거쳐 간접적으로 작용합니다(시장 상태의 원·엔 카드 참고).` });
+    points.push({ id: 'market', tone: 'neutral', title: '시장 환경', text: `미국 시장 상태는 ‘${regime.overall}’ — 한국 종목에는 환율·외국인 수급을 거쳐 간접적으로 작용합니다(시장 상태의 원·엔 카드 참고).` });
   } else if (regime?.available && regime.overall) {
     const narrow = breadth?.state === 'burden';
-    const text = narrow && trend?.id === 'up' ? `시장은 ${regime.overall}이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 소수에 속해 지수를 받치는 쪽입니다 — 주도주가 꺾이면 지수도 흔들린다는 뜻이기도 합니다.`
-      : narrow ? `시장은 ${regime.overall}이고 시장 폭이 좁아, 추세가 약한 종목은 지수보다 먼저 흔들리기 쉬운 환경입니다.`
-        : `시장은 ${regime.overall}${breadth ? `, 시장 폭은 ${breadth.stateLabel}` : ''}입니다.`;
+    const text = narrow && trend?.id === 'up' ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 소수에 속해 지수를 받치는 쪽입니다 — 주도주가 꺾이면 지수도 흔들린다는 뜻이기도 합니다.`
+      : narrow ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁아, 추세가 약한 종목은 지수보다 먼저 흔들리기 쉬운 환경입니다.`
+        : `시장 상태는 ‘${regime.overall}’${breadth ? `, 시장 폭은 ${breadth.stateLabel}` : ''}입니다.`;
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경', text });
   }
 

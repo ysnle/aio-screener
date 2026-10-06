@@ -1,10 +1,307 @@
 ---
-last_verified: 2026-10-04
+last_verified: 2026-10-06
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1494 - v57.22 - 화면 간 해석 기준·문구 불일치 일괄 정리 (2026-10-06)
+
+- symptom/reproduction: ‘방어적 환경’이 검증된 투자 판단처럼 읽혔고, HY 324bp를 450bp 기준 설명 옆에서 ‘부담’으로 보여 이유가 불분명했다. 거시 화면은 ‘시장: 인상 구간’을 크게 쓰고 전달 경로 도식이 인과를 입증한 것처럼 보였다. 테마 1주를 골라도 아래 해설은 1일 값, ‘돈이 몰리는 곳’ 표현, 한국 테마 실시간 0/28이 전체 실패처럼 보임. 차트를 SPY로 바꿔도 종목 문맥은 NVDA라는 안내가 없었다. 포트폴리오는 통화·TWR·환율 설정이 먼저 보였고, 마지막 보유 삭제 뒤 섹터 집중도가 남았다. 오늘 화면은 실시간 시세 아래에 종가 판정이 있었고, 용어사전 시가총액 구간이 스크리너와 달랐으며, 도움말 판정표의 ‘·’가 ‘모두’로 읽혔다.
+- root_cause: 화면마다 따로 쓴 해석 문구가 판정 규칙(OR 조건, 관측 기간)을 밝히지 않았고, 레이아웃이 결론보다 설정·실시간 값을 앞세웠다.
+- fix: 시장 상태 판정명을 축 개수 서술(부담 우세·혼조 등)로, 신용 축은 수준/확대 속도 중 무엇이 발동했는지 표시. 거시 정책 카드는 관측 격차를 제목으로, 도식 범례에 ‘동시 관측이지 인과 확인 아님’. 테마 해설은 선택 기간과 동기화하고 가격 성과≠자금 유입 명시, 한국 실시간 블록은 접힘. 차트에 시장 비교 차트 안내와 종목 차트 복귀. 포트폴리오 계산 설정은 결과 아래 접힘, 렌더마다 집중도 갱신. 오늘 화면은 판정을 시세 위로, 시세 기준 한 줄. 용어사전 시총 구간을 스크리너와 일치, 도움말 부담 조건은 ‘또는’으로.
+- violated_rule: 결론 먼저, 근거는 같은 기준으로, 검증되지 않은 판정은 서술로(Product decisions — Screen design).
+- prevention: architecture browser check의 판정명 목록을 새 이름으로 갱신.
+- verification/residual: 로컬 미리보기에서 오늘·뉴스·테마·스크리너·포트폴리오(가상 보유 추가·삭제)·도움말 확인.
+
+## P1493 - v57.22 - 뉴스: 한국어 표시 아래 영어 기사, 오늘 08시 창과 10/4 기준시각 불일치, 맥락 없는 텔레그램 글 (2026-10-06)
+
+- symptom/reproduction: ‘번역 불필요(한국어 뉴스)’ 아래 영어 기사가 남았고, 머리글은 오늘 08:00 창인데 ‘기준시각 경과 · 10/04 08:00’을 함께 표시했다. ‘BE’, ‘받) 해당 도끼 사진’, ‘위 TOP 5…’ 같은 앞 글에 기대는 텔레그램 글이 노출됐다.
+- root_cause: 번역 대상 판정이 실패·빈 번역도 캐시에 있으면 완료로 셌고, 머리글이 데이터 리비전의 공유 컷을 표시했다. 텔레그램 피드는 글 단독 정보량을 보지 않았다.
+- fix: 번역 대상은 쓸 수 있는 한국어 제목이 있을 때만 완료로 보고 상태 문구를 사실대로 표시. 머리글은 실제 적용한 창(시작~끝 KST)과 마지막 수집 시각을 표시. _aioTelegramStandalone으로 짧은 글·사진 설명·앞 글 참조 글 제외.
+- violated_rule: 화면이 말하는 기준과 실제 목록의 기준은 같아야 한다.
+- prevention: 텔레그램 독립성 판정은 한 함수에서 모든 피드에 적용된다.
+- verification/residual: 독립성 판정 표본 5건 확인, 로컬 뉴스 화면에서 창 문구 확인.
+
+## P1492 - v57.22 - 재무 공시가 현금흐름 없이 매출·이익만, PEG에 가격 판단을 붙임 (2026-10-06)
+
+- symptom/reproduction: 592개 기업 모두 영업현금흐름·설비투자가 비어 있었고, 과거 1년 이익 성장률로 계산한 PEG에 ‘가격 부담이 크지 않음’을, 6개월 주가와 오래된 회계연도 매출 성장을 직접 비교해 ‘실적이 뒷받침’을 붙였다.
+- root_cause: P1446이 현금흐름 수집을 추가했지만 저장된 기록은 28일 주기로만 재수집돼 한 번도 채워지지 않았다. 해석 문장은 기간·근거가 다른 숫자에서 결론을 냈다.
+- fix: fetch-sec-fundamentals: 현금흐름 관측이 없는 저장 기록을 즉시 재수집 대상으로(배치 한도 안에서 점진 보강). fiscal-read: PEG는 근거와 함께 숫자만, 주가·매출은 각 기간을 밝히고 비교 결론을 빼며, 현금흐름 미연결은 한 줄 상태로 표시.
+- violated_rule: 근거 없는 등급·결론을 붙이지 않고, 기간이 다른 값은 직접 비교하지 않는다.
+- prevention: cashChainMissing 조건이 남은 기록을 매 실행 24개씩 채운다.
+- verification/residual: fiscal-read 모듈 로드 확인. 현금흐름 보강은 Actions 실행 뒤 확인 필요.
+
+## P1491 - v57.22 - META가 종목 화면에서 기술(XLK), 테마에서 통신(XLC) (2026-10-06)
+
+- symptom/reproduction: META·GOOGL·GOOG이 Technology, AMZN이 Technology로 분류돼 종목 화면의 비교 섹터 ETF가 테마 화면과 달랐다. UBER·DASH·ADP·PAYX·GPN·CPAY·BR도 2023년 GICS 개편 전 분류였고 Basic Materials·Consumer Cyclical 같은 다른 체계 이름이 섞였다.
+- root_cause: 손으로 관리하는 SCREENER_DB 섹터가 GICS 개편과 서로 다른 데이터 공급자 명칭을 반영하지 않았다.
+- fix: SCREENER_DB 15종목 섹터를 GICS 기준으로 교정하고 sync-screener-universe로 미러 동기화.
+- violated_rule: 같은 종목은 모든 화면에서 같은 섹터·비교 ETF를 쓴다.
+- prevention: sync-screener-universe --check가 원본과 미러의 일치를 검사한다.
+- verification/residual: META 종목 요약이 ‘섹터 통신(XLC)’, 관련 테마 ‘통신서비스’로 일치함을 로컬에서 확인.
+
+## P1490 - v57.22 - 스크리너 931종목 전부 순위 보류 (2026-10-06)
+
+- symptom/reproduction: 시험 실행에서 931종목 모두 ‘순위 보류’였고, 표에는 과거 값이 보이는데 ‘왜 들어왔나’는 같은 필드를 없다고 표시했다.
+- root_cause: (1) 레거시 순위 래퍼가 수익률이 없는 SCREENER_DB 식별 목록을 순위 입력으로 넘겨 적격 0행 보류를 발행했다. (2) 가격 필드 신선도를 달력 3일로 재서 금요일 종가가 주말·월요일 장중에 STALE로 분류돼 계산에서 빠졌다. (3) 설명 칸은 계산용 값만 보고 지난 관측값과 무관측을 구분하지 않았다.
+- fix: aio-data: 레거시 순위는 화면과 같은 정규 행을 쓰고, 데이터 미적재(적격 0행)는 보류로 발행하지 않는다. contracts/screener: session/eod 필드는 최신 완료 세션(미국·한국 각각) 관측이면 예산 안으로 본다. describeRankingHold: 가격이 최신 종가보다 한 세션 늦을 때 그 이유를 말한다. 설명 칸은 ‘이전 값만 있음 · 최신 아님’과 ‘값 없음’을 구분하고 개발자 용어를 걷어 냈다. 조건 화면/표 범위 필터 문구 구분.
+- violated_rule: 종가 기준 점수는 직전 완료 세션 기준이다 — 주말·휴장은 지연이 아니다(R670).
+- prevention: isLatestSessionObservation이 세션 달력(market-session)으로 판정한다. 구 산출물이 실제로 한 세션 늦으면 그 사실을 보류 문구로 밝힌다.
+- verification/residual: 로컬: 10/5 장중에는 10/2 관측이 DELAYED(계산 가능), 10/5 마감 뒤에는 STALE과 ‘10/02 종가 기준, 10/05 미국장 종료’ 보류 문구 확인.
+
+## P1489 - v57.22 - 같은 10년물에 오늘 +4bp, 금리·환율 −5bp (2026-10-06)
+
+- symptom/reproduction: 10/2 10년물 5.28%에 오늘 화면은 +4bp, 금리·환율 화면은 1일 −5bp·1주 +6bp를 붙였다. 실질금리(10/1)와 기대인플레이션(10/2)도 날짜가 달랐다.
+- root_cause: fetch-data가 재무부 공식 곡선으로 수준(10/2)만 덮어쓰고, 변화폭은 FRED의 한 세션 이전 값(10/1−9/30)을 그대로 남겼다. 브리핑은 날짜가 다른 실질금리·기대인플레이션 변화를 합산 분해했다.
+- fix: fetch-data: 재무부 피드의 이전 세션들로 1일·5일 변화를 같은 출처에서 계산(officialTreasuryDeltas)하고 _deltaAsOf를 기록, 계산할 수 없으면 변화를 지운다. rates-fx alignedRateDelta와 aio-data 스냅샷 복사도 _deltaAsOf가 수준 날짜와 같을 때만 변화를 쓴다. 브리핑은 실질금리·기대인플레이션 기준일이 다르면 분해를 보류한다.
+- violated_rule: 수준과 변화는 같은 출처·같은 기준일에서 나와야 한다(R670 종가 기준).
+- prevention: _deltaAsOf가 없는 재무부 수준에는 변화를 표시하지 않는다(구 산출물은 다음 생산 실행까지 변화 칸이 비어 있음).
+- verification/residual: officialTreasuryDeltas 단위 확인(10/2 +0.04, 5세션 +0.06), FRED DGS10 10/1=5.24로 +4bp가 맞음을 대조.
+
+## P1488 - v57.22 - 운용사·13F: 추가 보유만 담은 수정공시를 분기 전체처럼 비교 (2026-10-06)
+
+- symptom/reproduction: 버크셔 2025년 1분기가 4행·약 11억 달러·행/cover 일치로 표시돼 앞뒤 분기 수천억 달러와 나란히 놓였고, 종목 역조회는 같은 운용사를 여러 행으로 보여 줬다. 인물과 신고 법인을 같은 것으로 읽게 했고, 방법론 전용 프로필에 빈 13F 탭이 붙었으며, 표 머리글은 ISSUER·REPORTED VALUE 같은 영문, 섹터 탭은 참고 표 뒤에 ‘섹터 구성은 공개하지 않습니다’를 붙였다. DFA가 고회전·시장중립 설명의 퀀트 그룹에 묶였다.
+- root_cause: P1449에서 생산 스크립트는 원본+정정 합성으로 고쳐졌지만 공개된 history-index는 그 전에 만들어져 13F-HR/A 대표 행을 그대로 담고 있었고, 화면은 정정 유형을 확인하지 않았다. 역조회는 원문 행을 그대로 나열했고, 운용 방식 분류 정규식이 ‘팩터·체계적’ ‘롱/숏’을 퀀트에 넣었다.
+- fix: masters.js: isPartialAmendmentPeriod — 원본 합성 증거 없는 /A 대표 분기는 행 수·가치를 보류하고 부분 공시로 표시. 역조회는 운용사별 최신 분기 직접 보유 합산 + 옵션 별도 + 원문 행 펼치기. 법인 명의 안내, METHOD_ONLY는 원칙만 표시, 머리글·안내 한국어화, 변화 탭 중복 표 제거, 섹터 탭은 한 상태만. style-frames: 학술 팩터·역발상 프레임 추가, 롱/숏 퀀트 제외. 13D/G: sec-edgar 파서와 enrichOwnershipEvents로 발행사·지분율을 생산 단계에서 보강(접수번호 캐시), 화면은 발행사·지분율·13D/13G 의미·변경 여부 표시.
+- violated_rule: 분기 전체로 조합된 값만 추이 비교에 쓴다. 부분 공시는 보류하고 부분임을 표시한다.
+- prevention: 화면 측 isPartialAmendmentPeriod 가드가 오래된 산출물에서도 부분 정정을 분기 전체로 비교하지 않는다. 생산 측 합성은 13f-compose.mjs 단일 구현.
+- verification/residual: parseOwnershipHeader·parsePercentOfClass 픽스처 확인, 로컬 운용사 화면 렌더 확인. 13D/G 보강값은 다음 Actions 실행 뒤 채워진다.
+
+## P1487 - v57.22 - 리서치 라이브러리: 정의·계산·도식이 서로 다른 말을 하던 항목 교정 (2026-10-06)
+
+- symptom/reproduction: NIM을 이자 차액(금액)으로 설명, NRR 제목이 고객 수 유지율처럼 보이고 동의어에 이탈률 포함, FFO를 현금 창출력으로 단정, 기저율에서 적중률과 정확도 혼동, ROIC 평균과 한계 미구분, 허가와 보험 급여를 같은 문턱으로 서술, G8 옵션 손실 한정에 매수자 조건 누락, G5 곱셈식처럼 보이는 도식, O2 도식에 나눗셈 오류, 상대 성과 −10%와 %p 혼용, CAC·LTV 흐름식에 총이익률 누락, 가격 유지+판매량 증가를 가격결정력의 확실한 신호로 서술, 같은 뜻으로 쓰이는 말에 관련·반대 개념이 섞임.
+- root_cause: 쉬운 문장으로 다시 쓰는 과정에서 결론이 성립하는 조건과 정의의 경계가 빠졌고, 도식(diagram·figure)과 본문 공식이 별도로 작성돼 서로 검증되지 않았다. 개념 사전의 aliases 하나에 동의어·구성 요소·관련·반대 개념을 모두 넣어 용어사전 병합에서도 잘못된 항목을 대체할 수 있었다.
+- fix: concept-core.js: aliases(진짜 동의어)·related·contrast 분리, NIM·NRR·FFO·기저율·CAC/LTV·ROIC·보험 급여·임상·수율·HBM·임대율 정의 교정, 82개 정의 문체를 본문과 같은 평서체로 통일. concept-stories.js: 같은 항목 본문 교정과 기저율 2×2 가상 예시 표. learning-core.js: 상대 성과 %p, CAC 흐름식, 리츠 FFO 표현, 소비 가격결정력 문장, 금리 인하·장기채 힘의 균형 도식(forces), 노트별 확인할 변수·보강 출처. build-principles-lessons/principles-stories: G5·G8·O2 본문·도식, FINRA·Nareit 출처. 분석 노트·개념·레슨 끝에 접힌 ‘근거와 가정 보기’, 레슨 연결 칸을 앞·뒤 레슨/먼저 알아둘 개념/적용 노트로 재구성. 산업 세부 분기 50개를 한국어 본문으로 재작성.
+- violated_rule: 정의·계산·도식·실제 화면은 같은 이야기를 해야 하고, 결론에는 성립 조건을 붙인다(Codex 검토 2026-10-05).
+- prevention: 개념 사전 링크 필드 분리로 용어사전 병합은 동의어로만 대체한다. 레슨 원고는 build-principles-lessons의 길이 표준(storyProblems)을 계속 통과해야 한다.
+- verification/residual: 로컬 미리보기에서 기저율 개념(표·용어 3행·근거 접기)과 금리 인하·장기채 노트(힘의 균형 도식·확인할 변수) 렌더 확인.
+
+## P1486 - v57.21 - Relationship guides and the column link: old embedded view and an internal metric code (2026-10-05)
+
+- symptom/reproduction: The relationship guide repeated the guide list inside the document with 검토된 참고 기준일 and 근거·경계 보기 · 출처 6개; the column next-screen link read 연결 화면 BOTTLENECK_CAPACITY.
+- root_cause: The guide reused the legacy embedded view through stripReferenceChrome; the link printed routeTarget.metric.
+- fix: industry-view renderRelationshipGuide: stages as concept buttons, the open concept explained, typed links in words; the legacy view and its helper were pruned. The column link shows the target label and the destination hub/page from ROUTE_HUBS.
+- violated_rule: Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.
+- prevention: ci-atlas-browser-check asserts the guide document without the embedded list or source copy; ci-three-page-learning-flow-check rejects internal codes in the next-screen link.
+- verification/residual: learning-flow and atlas browser checks PASS.
+
+## P1485 - v57.21 - Masters: fail-closed value reconciliation restored; lookup copy in plain language (2026-10-05)
+
+- symptom/reproduction: After the notice was removed, a manager whose SEC cover total disagrees with the parsed rows (Duquesne) showed concentration, weight change and total from an unreconciled base; the ticker lookup read 경계: tickerReference is not SEC-provided… crosswalk.
+- root_cause: The reconciliation notice carried the only mismatch handling; removing it removed the guard.
+- fix: masters detail withholds 상위 5·10 비중, 보고가치 비중 변화 and 신고 가치 합계 as 보류 with one plain note when valueReconciliationStatus is MISMATCH; the 13F coverage disclosure moved into the style overview; the lookup states the quarter-end boundary in plain Korean; dead row-display code removed.
+- violated_rule: Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.
+- prevention: ci-masters-contract-check requires the MISMATCH branch; ci-masters-browser-check asserts the withheld values and the absence of developer copy.
+- verification/residual: Duquesne metrics show 보류 with the note.
+
+## P1484 - v57.21 - Library loads with no failure state or retry (2026-10-05)
+
+- symptom/reproduction: A failed lesson-library or column load stayed on 불러오는 중 forever (principles); the atlas had no retry path for any section.
+- root_cause: The redesigned views rendered only loading and loaded states.
+- fix: concepts-view and industry-view render a role=alert failure with a 다시 불러오기 button wired to retry-capability; atlas gained retryCapabilities per section.
+- violated_rule: Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.
+- prevention: ci-principles-browser-check and ci-atlas-browser-check abort the artifact, assert the alert, retry and reach the loaded state.
+- verification/residual: Both browser checks PASS on the failure path.
+
+## P1483 - v57.21 - Atlas deep links: view and domain parameters ignored or overwritten (2026-10-05)
+
+- symptom/reproduction: ?domain=domain-power-grid&view=domain opened the 하이퍼스케일러 node; a node-only link kept domain=cloud in the URL.
+- root_cause: view was not a route key; the default node cloud-hyperscaler made domain reconciliation pick the cloud domain; the URL was not re-synced after reconciliation.
+- fix: knowledge-route-state adds view; atlas starts in the domain view unless a node is given, leaves the node empty when only a domain is given, and syncs the URL after reconciliation; the landing is now the first domain overview.
+- violated_rule: Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.
+- prevention: ci-atlas-browser-check deep links (domain/node/module/guide) and URL domain assertions.
+- verification/residual: 4/4 deep links open the requested document.
+
+## P1482 - v57.21 - AI 기초: F0 modules stuck on loading; process modules and a duplicate listed (2026-10-05)
+
+- symptom/reproduction: 문제와 능력 · 학습 방식 and the other F0 modules showed 불러오는 중입니다 forever; 주장·출처·기준일 and 사람의 검토 were listed as reader topics; CAPEX와 감가상각 appeared twice.
+- root_cause: The module view read only foundation-lessons.json, which has no F0 entries; the layer lists were rendered verbatim.
+- fix: industry-view renders FOUNDATION_STORIES first (covering F0), hides FOUNDATION_HIDDEN_MODULES and lists each module once; the dead FOUNDATION_LESSON_GUIDES table was removed from atlas.js.
+- violated_rule: Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.
+- prevention: ci-atlas-contract-check foundation coverage reads the story module; ci-atlas-browser-check asserts unique modules, hidden process topics and F0 reading text.
+- verification/residual: 52 modules listed once; F0 renders.
+
+## P1481 - v57.21 - Reading text: lessons, AI foundations, industry nodes, domains and the dictionary read as short stories (2026-10-05)
+
+- symptom/reproduction: Principles lessons (112, ~250 chars), AI foundations (48, ~195 chars), industry node guides (95, one line plus a KPI list) and dictionary entries ended after one or two textbook lines.
+- root_cause: The structured draft fields were rendered directly; no reading layer or length standard existed.
+- fix: scripts/lib/principles-stories-*.mjs (112), src/domain/knowledge/foundation-stories.js (52), industry-node-stories-1..3.js (95), industry-domain-stories.js (19), concept-stories.js (82): lead scene → two body paragraphs → common misreading, each block 2–5 lines (60–230 chars), lessons 380–760 chars, long stories ≤ 980; build-principles-lessons validates the standard and ships story in lesson-library.json; node/domain/dictionary text loads by dynamic import.
+- violated_rule: Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.
+- prevention: ci-knowledge-review-check P1480 enforces coverage, block/total limits, no questions outside the lead and no source/quiz register; ci-principles-lesson-parity copies the story modules.
+- verification/residual: P1480 gate OK; lesson-library 112/112 with story.
+
+## P1480 - v57.21 - 리서치 라이브러리: one research shell replaces the four learning pages (2026-10-05)
+
+- symptom/reproduction: The hub was named 배우기, its four pages each used a different layout, and chips such as 분석 참고 · 근거는 항목별 표시 · 텔레그램은 발견용 plus review questions and source badges sat on the reading surface.
+- root_cause: Each page grew its own hero, tabs and disclosure chrome; no shared reading shell existed.
+- fix: route-hubs/index/aio-core: hub renamed 리서치 라이브러리 with 개념·분석 프레임 · 산업·밸류체인 · 운용사·13F and 도움말 moved to the top bar. src/ui/knowledge/research-shell.js: contents·document·connections shell with one unified search; concepts-view, industry-view and managers-view render every page through it; sources, status badges, checkpoints and boundary chips removed from the reading surface (verification stays in the build gates). Old labels (AI 시대 지식 지도, 시장 원리, 기관 공시) renamed across routes, arrival contexts and AI retrieval context.
+- violated_rule: Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.
+- prevention: ci-principles-contract-check, ci-atlas-contract-check and ci-masters-contract-check migrated to the shell markers; principles/atlas/masters/learning-flow/artifact-budget browser checks rewritten for the new structure.
+- verification/residual: browser-knowledge group 6/6 PASS.
+
+## P1479 - v57.20 - Masters: what each way of managing money is for, and what 13F shows of it (2026-10-05)
+
+- symptom/reproduction: The masters screen listed famous holdings without explaining how concentrated, passive, credit, macro and quant managers differ or what 13F cannot reveal about each.
+- root_cause: No style frame existed.
+- fix: src/domain/masters/style-frames.js: eight styles with the problem solved, return source, accepted risk, what 13F shows and what it cannot (shorts, bonds, futures, private assets); all 38 catalog managers mapped; rendered as a folded comparison table after the manager cards.
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check P1479; ci-masters-contract-check keeps manager cards first.
+- verification/residual: 38/38 managers mapped.
+
+## P1478 - v57.20 - Nathan framework sources name the post they are (2026-10-05)
+
+- symptom/reproduction: All 129 Nathan article sources read 직접 확인된 외부 연구자료 with an empty URL, so a reader could not tell which post supported a framework.
+- root_cause: The pack wrote a fixed title; the empty URL is the research-flow policy (the retrieval artifact does not replay raw X URLs).
+- fix: Each source carries its thread title and a locator to the Nathan Previous Threads registry, which publishes the canonical links; the URL policy is unchanged.
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check P1478; ci-research-flow-contract-check keeps the URL policy.
+- verification/residual: 129/129 sources titled.
+
+## P1477 - v57.20 - Refresh cadence by kind of knowledge (2026-10-05)
+
+- symptom/reproduction: Company roles and product families were judged against a 7-day window, so every registry row read as overdue and the rows that genuinely age were indistinguishable.
+- root_cause: One freshness window was applied to principles, company roles, product status and observations alike.
+- fix: src/domain/knowledge/knowledge-cadence.js: principles on change, company roles yearly, production status every 90 days, observations dated; the atlas boundary and its status follow the rule.
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check P1477; ci-atlas-browser-check.
+- verification/residual: Registry: 0 roles and 0 status rows overdue under the cadence.
+
+## P1476 - v57.20 - Learning screens: entry order, readable links, guide consistency (2026-10-05)
+
+- symptom/reproduction: The AI map opened with 17 long lens cards before the basics and printed internal ids (atlas:application-finance); relation labels overlapped on the graph; ROI was defined as a difference and FCF drawn with borrowing as a source; scarcity was linked to the S&P 500 level; the guide still explained a retired SIGNAL score, "기관급" framing, dot plots at every FOMC, "3개 독립 지표", developer terms (observedAt, source-aware) and folds inside folds.
+- root_cause: Older copy and render order predated the current product and the review.
+- fix: Lens cards fold behind one summary and chips print node names; graph labels only on the selected node's edges; ROI / net benefit / payback separated and FCF drawn with funding as a separate flow; scarcity–S&P link removed; guide: inner duplicate folds removed (the runtime chapter fold remains), market-state axes replace the score, SEP four times a year, methodology retitled as the authors' method without unverified bios, indicators described as overlapping inputs, user-facing wording for currentness.
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check (guide copy), ci-atlas-browser-check, ci-principles-browser-check (no observation on scarcity).
+- verification/residual: Local guide: one fold per chapter; atlas basics first.
+
+## P1475 - v57.20 - Lesson sources support the lesson; K7, O2, G7 corrected (2026-10-05)
+
+- symptom/reproduction: Every industry lesson from banking to agriculture cited NIST AI, Tesla AI and Rocket Lab; the semiconductor front-end lesson listed the Transformer paper and data-center PUE as evidence; K7 described an uncomputable "multiply by build time", O2 hid the composite FX return, G7 implied price-driven weight gains require buying.
+- root_cause: Chapter-wide source lists and chapter-wide research facts were attached to every lesson of a chapter.
+- fix: build-principles-lessons assigns topic-matched official sources per lesson (FDA, BIS, FRED USNIM, USDA WASDE, USGS, EIA, NHTSA, ASML, Micron …) and records sourceScope; the article builder attaches a chapter fact in the industry chapters only when the lesson is about its subject; the library labels chapter-background sources. K7 states the timing model with an example, O2 gives (1 + 원화 수익률) ÷ (1 + 원/달러 변화) − 1 with the 10%/10% → 0% case, G7 separates weight drift from buying.
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check P1475; knowledge parity regenerated.
+- verification/residual: N9 → BIS Basel III · FRED USNIM; L6 → ASML lithography · TSMC; no Transformer/PUE on L6.
+
+## P1474 - v57.20 - Unified knowledge search from the glossary (2026-10-05)
+
+- symptom/reproduction: Searching the glossary for HBM, 포토닉스 or ROIC found nothing although the industry map, principles lessons and atlas foundations explained them.
+- root_cause: The glossary searched only its own array; no index spanned the learning surfaces.
+- fix: scripts/build-knowledge-search-index.mjs (part of the knowledge parity set) writes public-data/knowledge/search-index.json — 338 entries across frames, principles lessons and nodes, AI foundations and industry-map nodes with canonical concept aliases. The glossary modal appends 다른 학습 영역 results with links that open the surface.
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check P1474; ci-knowledge-generated-parity-check covers the index.
+- verification/residual: Local: HBM → memory-optics frame, DRAM·HBM node; 합산비율 → insurance frame.
+
+## P1473 - v57.20 - 분석 프레임: issue-led analysis notes in a professional register (2026-10-05)
+
+- symptom/reproduction: Lessons ended at definitions and lists; worked examples and company/financial/valuation channels were empty in all 160 articles; finance, insurance, real estate, consumer, software, bio, energy, transport and agriculture had no frame for their revenue model; course-style labels (15·30·45분, 잠깐 멈춰 생각해 볼 질문) remained.
+- root_cause: Articles were generated from short lesson drafts with no authored deep layer.
+- fix: src/domain/knowledge/learning-core.js: 23 frames (issue → key point → structure diagram → mechanism → worked calculation → reverse condition → financial transmission → indicators with their screen → related concepts → direct sources), industries on one template (제공 가치 · 지불 주체 · 비용·자본 · 이익 변수), eight tracks, the column's three perspectives and six corrected expressions. The principles hub opens on 분석 프레임 in a three-column desktop layout; course and quiz wording removed across the learning surfaces (owner direction).
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check P1473; ci-principles-browser-check and ci-three-page-learning-flow-check cover the default view and the column tab.
+- verification/residual: Local principles: three-column view, 23 frames, worked calculations verified by hand.
+
+## P1472 - v57.20 - Glossary definitions corrected; one concept source shared with the learning screens (2026-10-05)
+
+- symptom/reproduction: Beta read as a fixed daily ratio, YTM as total return, ETF as inherently diversified and low-risk, liquidity as "money released → assets up", BEI as pure expected inflation, R:R as "ratio matters more than probability", investor type as a buy signal, support/resistance breaks as crash/surge laws, a retired 0~100 tactical score; NIM, 합산비율, FFO, ROIC, HBM, photonics were not findable.
+- root_cause: The legacy glossary predated the methodology sweep's definitions, and the learning screens kept separate copies of concepts.
+- fix: About 110 glossary entries rewritten in place (figure-source table reconciled, file 423 → 408 lines) — regression definitions for beta, YTM (annualized discount rate under stated assumptions), ETF types, weighted/diluted EPS, Macaulay vs modified duration, IV Rank vs Percentile, BEI (risk and liquidity premia), liquidity (three meanings), FOMC/SEP cadence; the tactical score entry became the current market-state axes. src/domain/knowledge/concept-core.js holds 82 canonical concepts (finance math, accounting, macro, banks, insurance, REITs, consumer, software, bio, energy, transport, agriculture, Korea, AI hardware) merged into the glossary at boot so the glossary and the frames share one definition.
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check P1472; runtime-contract figure-source rows stay exact.
+- verification/residual: Local glossary: HBM, 포토닉스, ROIC, NIM, 합산비율 return canonical entries.
+
+## P1471 - v57.20 - Industry map relations are typed; list order is no longer a supply chain (2026-10-05)
+
+- symptom/reproduction: Selecting ASIC showed 상류: GPU · 하류: NPU; copper → lithium → rare earths and healthcare → manufacturing → automotive → finance were drawn as stages. GPU was labelled 세부 공정 and numeric precision 제품·수익모델.
+- root_cause: mergeTaxonomyRelationships turned each domain's five-node list (domainChains) into directed upstream/downstream edges, and the node class came from a layer label unrelated to what the node is.
+- fix: src/domain/knowledge/atlas-relations.js: 72 canonical typed relations (포함·구성·다음 단계·공급·대체·보완·제약·조건부 영향·측정·학습 순서) plus the producer's typed cross-domain edges mapped to the same vocabulary; parallel members (alternative accelerators, separate commodities, separate applications) are alternatives or unlinked. The atlas shows relations grouped by type with a one-line reason, and nodes are classified by kind (기술·부품, 제조 공정, 장비·소재, 재무·경제성 개념 …).
+- violated_rule: Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.
+- prevention: ci-knowledge-review-check P1471 (ASIC alternatives, parallel members unlinked, no list-order derivation).
+- verification/residual: Local atlas: ASIC → 대체·경쟁 관계(특정 용도에서): GPU · NPU, classes 기술·부품 / 기술 속성.
+
+## P1470 - v57.19 - SEC page projection back under its 1 MiB bound (2026-10-04)
+
+- symptom/reproduction: Every screener refresh after v57.18 failed: 'runtime projection exceeds 1 MiB: 1089778' (630 records with the P1446 cash-flow fields). The interrupted session's compact-serialization fix referenced mkdir/dirname without importing them (ReferenceError) and was never run.
+- root_cause: The projection was pretty-printed and carried per-record source/model strings identical to its header.
+- fix: The data block serializes compactly behind a pretty header; per-record source/model (uniform, restated by the header; consumers fall back to the same value) and the redundant StockholdersEquity concept are trimmed, keeping conflict evidence. The stray mkdir call is removed. 977 KB → 702 KB for 608 records.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: ci-sec-runtime-projection-check (bound, parent-equity identity with the trimmed concept).
+- verification/residual: node scripts/build-sec-runtime-projection.mjs then ci-sec-runtime-projection-check: OK, 701,596 bytes.
+
+## P1469 - v57.19 - Term premium (Kim-Wright) on the rates page (2026-10-04)
+
+- symptom/reproduction: The 10-year yield was split into real yield and breakeven but not into expected short rates and term premium.
+- root_cause: No term premium series was collected.
+- fix: The macro history producer adds FRED THREEFYTP10 (Federal Reserve Board Kim-Wright 10-year term premium). The rates page shows it with its 3-month and 1-year change and the implied expected-short-rate part of the same day's 10-year yield, labelled as a model estimate; NY Fed ACM is distributed only as a spreadsheet, so the official FRED series is used and named. The card appears only once the series has arrived.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: ci-review-integrity-unit-check P1469.
+- verification/residual: Local rates tab with an in-memory series: card renders; without the series no card.
+
+## P1468 - v57.19 - Factor overlap is measured, not asserted (2026-10-04)
+
+- symptom/reproduction: The Why drawer and 검증 view said momentum, trend and Kalman "strongly overlap" without a number.
+- root_cause: No measurement existed.
+- fix: src/domain/screener/factor-overlap.js measures pairwise Spearman correlation of the sector-normalized factor z-scores on the ranked universe and the effective number of independent signals (eigenvalue participation ratio). Today: momentum–trend 0.95, about 2.3 independent signals across 4 factors. Weights unchanged — a decorrelated model is a different model and needs its own forward record.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: ci-review-integrity-unit-check P1468.
+- verification/residual: Local screener: Why drawer and 검증 view print the measured correlations.
+
+## P1467 - v57.19 - 재무 공시 compares the company with same-sector filers (2026-10-04)
+
+- symptom/reproduction: Growth, margin and ROE were read in isolation (ROE 101.5% with no sense of what is normal for the sector).
+- root_cause: The filings read had no peer set.
+- fix: src/domain/fundamental/peer-read.js: revenue growth, net margin, free-cash margin and ROE on average equity, computed identically for every same-sector SEC filer in the universe from the fiscal series the page already loads; percentile and median among peers whose latest fiscal year ended within 12 months; at least 5 peers per metric. Notes: broad sectors, financials' margins not comparable.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: ci-review-integrity-unit-check P1467.
+- verification/residual: Local NVDA: Technology 127 peers — growth top 9%, margin top 3%, ROE top 6%.
+
+## P1466 - v57.19 - Portfolio return attribution — market, sector, stock, FX, cash (2026-10-04)
+
+- symptom/reproduction: The portfolio read gave one 3-month gap to the index with no split of where it came from.
+- root_cause: The read compared two weighted means and stopped.
+- fix: src/domain/portfolio/attribution.js: on the current composition, book return = 지수 + 섹터 (US sector ETF vs market) + 종목 선택 + 환율 (USD/KRW 63-session move for converted holdings), and R − B = 섹터 + 종목 + 환율 + 현금 (−cash share × blended index) exactly. US market return is SPY adjusted (same basis as stocks and sector ETFs); KRX uses the KOSPI/KOSDAQ index. A converted holding without an FX return is skipped, not counted at zero. The 지수 대비 sentence and a bar breakdown come from this one computation.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: ci-review-integrity-unit-check P1466 (identity, FX inversion, skip rule, sentence source).
+- verification/residual: Synthetic book: 섹터 +1.8 · 종목 +3.0 · 환율 +1.32 · 현금 +0.3 = +6.42%p = R − B.
+
+## P1465 - v57.19 - Forward candidate record of the ranking actually shown (2026-10-04)
+
+- symptom/reproduction: Validation was only the back-test, which re-ranks the past after the fact; nothing recorded what the screen ranked on a given day and how those names did afterwards.
+- root_cause: No producer step archived the live ranking before outcomes existed.
+- fix: scripts/lib/candidate-archive.mjs runs inside the screener refresh: it ranks the files just written through the page's own read path (createScreenerProvider → normalizeScreener → calculationRow → computeFactorRanks with the default weights), stores the top and bottom fifth for the completed session with the ranking identity, and 21 of each stock's own completed sessions later fills equal-weight adjusted-close returns of the top, bottom and the ranked universe (no costs; stale feeds listed but not measured). public-data/screener-candidate-archive.json; the 검증 view shows the record, averaging only entries of the current model identity.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: scripts/ci-candidate-archive-check.mjs (page-path ranking, no early outcome, exact mean, stale feed, no overwrite, retention, identity restart); refresh-screener runs it and stages the artifact; data-lineage policy added.
+- verification/residual: Gate on the repository artifacts: 918 ranked, 183 per fifth. Local 검증 view shows the record start message.
+
+## P1464 - v57.19 - The percentile column is called 백분위 (2026-10-04)
+
+- symptom/reproduction: The rank column was headed 상대 점수 and showed 100 for the top rows, which read as a perfect score.
+- root_cause: The header kept the pre-P1419 score wording after the value became a percentile among passing rows.
+- fix: The column, the Why chain and the overlap note say 백분위; the cell tooltip explains that 100 means the top, not a perfect score or a probability.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: ci-review-integrity-unit-check P1464.
+- verification/residual: Local screener: header 백분위, tooltip on the rank cell.
+
+## P1463 - v57.19 - The validation identity follows the weights the screen ranks with (2026-10-04)
+
+- symptom/reproduction: The 검증 view and the post-hoc validation summary compared the stored model fingerprint with the default weights' fingerprint, so after the user picked another weight profile the page still said the stored back-test was this ranking's validation.
+- root_cause: liveScreenerModelFingerprint() took no arguments and always rebuilt the default model.
+- fix: liveScreenerModelFingerprint(weights) builds the identity from the applied weights; the 검증 view passes metadata.ranking.appliedFactorWeights and the validation summary uses the ranking's requested weights (published by the ranking hook as _aioRankingWeights). A record without any fingerprint now says the model cannot be confirmed instead of calling it different.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: ci-review-integrity-unit-check P1463 (default applied weights match; another profile does not).
+- verification/residual: Local screener: the parity line reads the missing-fingerprint case for the pre-P1454 stored back-test.
+
+## P1462 - v57.19 - 13F current/prior quarters state how their rows were assembled (2026-10-04)
+
+- symptom/reproduction: After v57.18 the weekly 13F refresh failed at ci-masters-contract-check: '13F composed period without an ORIGINAL/RESTATEMENT base: berkshire-hathaway 2026-06-30'. The interrupted session had changed the gate to skip IMPORTED_CURRENT/IMPORTED_PRIOR periods, citing a currentness gate that does not assert amendment semantics.
+- root_cause: The current and prior quarters come from the reference lane, which composes amendments with the shared policy but published only the current quarter's semantics and never copied a chain into the history index, so the v3 gate found no chain on those periods.
+- fix: collect-13f-reference publishes amendmentSemantics (with its chain, ORIGINAL included) for the current quarter and priorAmendmentSemantics for the prior quarter via one amendmentSemanticsOf(). collect-13f-history-rows copies that chain, its label and compositionStatus onto the current/prior periods (compositionSource REFERENCE_LANE); when a last-known-good manager has no stated chain it is marked REFERENCE_LANE_UNSTATED. The masters gate checks every imported period: a chain must have an ORIGINAL/RESTATEMENT base, and a missing chain is allowed only when declared unstated.
+- violated_rule: Takeover review of v57.18 (2026-10-04): a number must state what it was computed on, a validation claim must be about the model actually on screen, and a gate is fixed by making the producer state its evidence — never by skipping the records it rejects.
+- prevention: ci-review-integrity-unit-check P1462 pins the prior chain, the carry-over and the no-skip gate.
+- verification/residual: node scripts/ci-masters-contract-check.mjs OK on the current (v2) artifacts; the next refresh-data run exercises the v3 path.
 
 ## P1461 - v57.18 - Screener workbench user copy uses user vocabulary (2026-10-04)
 

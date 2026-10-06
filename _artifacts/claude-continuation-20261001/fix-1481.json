@@ -1,0 +1,19 @@
+{
+  "version": "v57.21",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.21 — Reading text: lessons, AI foundations, industry nodes, domains and the dictionary read as short stories (P1481).",
+  "p": {
+    "id": 1481,
+    "title": "Reading text: lessons, AI foundations, industry nodes, domains and the dictionary read as short stories",
+    "symptom": "Principles lessons (112, ~250 chars), AI foundations (48, ~195 chars), industry node guides (95, one line plus a KPI list) and dictionary entries ended after one or two textbook lines.",
+    "root_cause": "The structured draft fields were rendered directly; no reading layer or length standard existed.",
+    "fix": "scripts/lib/principles-stories-*.mjs (112), src/domain/knowledge/foundation-stories.js (52), industry-node-stories-1..3.js (95), industry-domain-stories.js (19), concept-stories.js (82): lead scene → two body paragraphs → common misreading, each block 2–5 lines (60–230 chars), lessons 380–760 chars, long stories ≤ 980; build-principles-lessons validates the standard and ships story in lesson-library.json; node/domain/dictionary text loads by dynamic import.",
+    "violated_rule": "Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.",
+    "prevention": "ci-knowledge-review-check P1480 enforces coverage, block/total limits, no questions outside the lead and no source/quiz register; ci-principles-lesson-parity copies the story modules.",
+    "verification": "P1480 gate OK; lesson-library 112/112 with story."
+  },
+  "changelog": [
+    "**읽기 원고 전면 보강 (P1481):** 원리 레슨 112, AI 기초 52, 산업 세부 영역 95, 산업 분야 개요 19, 개념 사전 82편을 장면 → 원리 → 시장에서 드러나는 방식 → 자주 빗나가는 해석의 이야기체로 다시 썼습니다. 단락당 3~5줄(약 130~230자), 레슨 한 편은 한 화면 분량입니다."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — Industry map relations are typed; list order is no longer a supply chain (P1471).",
+  "p": {
+    "id": 1471,
+    "title": "Industry map relations are typed; list order is no longer a supply chain",
+    "symptom": "Selecting ASIC showed 상류: GPU · 하류: NPU; copper → lithium → rare earths and healthcare → manufacturing → automotive → finance were drawn as stages. GPU was labelled 세부 공정 and numeric precision 제품·수익모델.",
+    "root_cause": "mergeTaxonomyRelationships turned each domain's five-node list (domainChains) into directed upstream/downstream edges, and the node class came from a layer label unrelated to what the node is.",
+    "fix": "src/domain/knowledge/atlas-relations.js: 72 canonical typed relations (포함·구성·다음 단계·공급·대체·보완·제약·조건부 영향·측정·학습 순서) plus the producer's typed cross-domain edges mapped to the same vocabulary; parallel members (alternative accelerators, separate commodities, separate applications) are alternatives or unlinked. The atlas shows relations grouped by type with a one-line reason, and nodes are classified by kind (기술·부품, 제조 공정, 장비·소재, 재무·경제성 개념 …).",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check P1471 (ASIC alternatives, parallel members unlinked, no list-order derivation).",
+    "verification": "Local atlas: ASIC → 대체·경쟁 관계(특정 용도에서): GPU · NPU, classes 기술·부품 / 기술 속성."
+  },
+  "changelog": [
+    "**산업 지도 관계 유형화 (P1471):** 목록 순서를 상류·하류로 잇던 방식을 없애고, 포함·구성·다음 단계·공급·대체·보완·제약·조건부 영향 등 관계의 종류와 이유를 표시합니다. GPU·ASIC·NPU는 대체 관계로, 나란한 원자재·응용 분야는 잇지 않습니다."
+  ]
+}

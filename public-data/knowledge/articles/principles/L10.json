@@ -43,45 +43,26 @@
       "principles-lesson-L10"
     ],
     "sourceIds": [
-      "MP-NIST",
       "PS-01",
-      "PS-02",
-      "WEB-ARXIV-TRANSFORMER-2017",
-      "WEB-ASML-EUV-2026",
-      "WEB-DOE-DATACENTER-PUE-2019",
-      "WEB-TSMC-3DFABRIC-2026"
+      "SRC-MICRON-HBM",
+      "WEB-TSMC-3DFABRIC-2026",
+      "WEB-MICRON-HBM2E-2020"
     ],
     "researchEvidence": [
-      {
-        "factId": "fact:transformer:attention",
-        "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-        "statement": "The Transformer paper proposed a sequence-transduction architecture based on attention rather than recurrence and convolutions, and emphasized greater parallelizability during training; this is an architecture result, not a claim that attention solves every reasoning or deployment problem.",
-        "scope": "Transformer architecture history and mechanism",
-        "invalidation": "The result depends on task, data, implementation, training setup, and evaluation; later systems add components and trade-offs beyond the original paper.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:asml:euv",
-        "sourceId": "WEB-ASML-EUV-2026",
-        "statement": "ASML describes EUV lithography as using 13.5 nm light, multilayer mirrors, and a high-vacuum optical path because EUV is absorbed by air and many materials; DUV remains part of the process mix.",
-        "scope": "EUV lithography mechanism",
-        "invalidation": "A lithography system description does not establish a customer's yield, node equivalence, production volume, or supplier economics without separate filing or process evidence.",
-        "asOf": "2026-08-12"
-      },
-      {
-        "factId": "fact:doe:pue",
-        "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-        "statement": "DOE defines PUE as total facility energy divided by IT-equipment energy. It is a facility-overhead metric, not a complete measure of compute productivity, cost, water use, carbon intensity, or business return.",
-        "scope": "Data-center facility efficiency",
-        "invalidation": "Measurement boundary, period, load, and site-versus-source energy definitions must match before comparing PUE values.",
-        "asOf": "2026-08-12"
-      },
       {
         "factId": "fact:tsmc:3dfabric",
         "sourceId": "WEB-TSMC-3DFABRIC-2026",
         "statement": "TSMC describes 3DFabric as a family of 3D silicon stacking and advanced-packaging technologies that integrates logic, memory, and other chiplets at the system level; packaging therefore affects bandwidth, latency, power, form factor, and cost rather than being only a final enclosure step.",
         "scope": "Advanced packaging, heterogeneous integration, chiplets, and system bottlenecks",
         "invalidation": "This is a vendor technology description; customer yield, capacity, pricing, supply availability, and product economics require independent filing and production evidence.",
+        "asOf": "2026-08-12"
+      },
+      {
+        "factId": "fact:micron:hbm2e",
+        "sourceId": "WEB-MICRON-HBM2E-2020",
+        "statement": "Micron's HBM2E technical brief describes a wide-interface stacked-memory design whose bandwidth and capacity characteristics differ from conventional graphics memory; system-level bandwidth depends on the memory stack, interface, package, and workload.",
+        "scope": "High-bandwidth memory architecture and memory bottlenecks",
+        "invalidation": "The cited HBM2E document is product-generation specific; it does not establish current HBM availability, pricing, yield, or performance for later generations.",
         "asOf": "2026-08-12"
       }
     ],

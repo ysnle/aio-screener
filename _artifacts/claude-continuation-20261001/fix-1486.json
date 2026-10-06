@@ -1,0 +1,19 @@
+{
+  "version": "v57.21",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.21 — Relationship guides and the column link: old embedded view and an internal metric code (P1486).",
+  "p": {
+    "id": 1486,
+    "title": "Relationship guides and the column link: old embedded view and an internal metric code",
+    "symptom": "The relationship guide repeated the guide list inside the document with 검토된 참고 기준일 and 근거·경계 보기 · 출처 6개; the column next-screen link read 연결 화면 BOTTLENECK_CAPACITY.",
+    "root_cause": "The guide reused the legacy embedded view through stripReferenceChrome; the link printed routeTarget.metric.",
+    "fix": "industry-view renderRelationshipGuide: stages as concept buttons, the open concept explained, typed links in words; the legacy view and its helper were pruned. The column link shows the target label and the destination hub/page from ROUTE_HUBS.",
+    "violated_rule": "Owner direction 2026-10-05: the learning hub reads as a professional research library — one contents·document·connections shell, no source/review/boundary chips on the reading surface, and story-form text of 3–5 lines per block that never stops at a one-line definition.",
+    "prevention": "ci-atlas-browser-check asserts the guide document without the embedded list or source copy; ci-three-page-learning-flow-check rejects internal codes in the next-screen link.",
+    "verification": "learning-flow and atlas browser checks PASS."
+  },
+  "changelog": [
+    "**관계 가이드·칼럼 연결 (P1486):** 관계 가이드를 단계 → 개념 설명 → 연결의 문서로 다시 그리고, 칼럼의 \"이어서 볼 화면\"에 내부 코드 대신 이동할 화면 이름을 보여 줍니다."
+  ]
+}

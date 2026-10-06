@@ -1,0 +1,19 @@
+{
+  "version": "v57.20",
+  "date": "2026-10-05",
+  "qa": [],
+  "note": "v57.20 — Lesson sources support the lesson; K7, O2, G7 corrected (P1475).",
+  "p": {
+    "id": 1475,
+    "title": "Lesson sources support the lesson; K7, O2, G7 corrected",
+    "symptom": "Every industry lesson from banking to agriculture cited NIST AI, Tesla AI and Rocket Lab; the semiconductor front-end lesson listed the Transformer paper and data-center PUE as evidence; K7 described an uncomputable \"multiply by build time\", O2 hid the composite FX return, G7 implied price-driven weight gains require buying.",
+    "root_cause": "Chapter-wide source lists and chapter-wide research facts were attached to every lesson of a chapter.",
+    "fix": "build-principles-lessons assigns topic-matched official sources per lesson (FDA, BIS, FRED USNIM, USDA WASDE, USGS, EIA, NHTSA, ASML, Micron …) and records sourceScope; the article builder attaches a chapter fact in the industry chapters only when the lesson is about its subject; the library labels chapter-background sources. K7 states the timing model with an example, O2 gives (1 + 원화 수익률) ÷ (1 + 원/달러 변화) − 1 with the 10%/10% → 0% case, G7 separates weight drift from buying.",
+    "violated_rule": "Knowledge review 2026-10-04 (1차·2차): a learning surface must define look-alike concepts apart, keep units and causal direction straight, give every link a meaning, cite sources that support the sentence, and read as a professional reference.",
+    "prevention": "ci-knowledge-review-check P1475; knowledge parity regenerated.",
+    "verification": "N9 → BIS Basel III · FRED USNIM; L6 → ASML lithography · TSMC; no Transformer/PUE on L6."
+  },
+  "changelog": [
+    "**출처의 직접성 (P1475):** 금융·바이오 등 산업 레슨이 주제와 무관한 장 공통 출처 대신 감독기관·공식 통계를 직접 인용하고, 공급 증설 시차·외국인 달러 수익·지수 비중 설명을 계산 예시로 바로잡았습니다."
+  ]
+}

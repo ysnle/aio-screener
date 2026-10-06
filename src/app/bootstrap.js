@@ -1,3 +1,4 @@
+import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
 import { createClock } from '../platform/clock.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import * as financialSecurity from '../storage/financial-security.js';
@@ -116,6 +117,7 @@ if (typeof window !== 'undefined') {
   // 호출해 결과를 그대로 렌더한다.
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
   window._pfBaseValues = (positions) => baseValueRows(window._aioPortfolioSurface || null, positions); // P1445
+  installGlossaryBridge({ root: window, documentRef: window.document }); // P1472/P1474: one concept source + cross-surface search
   window._pfBaseNote = baseValueNote;
   // QA-SIG-27/P1263: 체크리스트 3상 집계의 단일 소유자(모드 revision 결속)를 셸에 빌려준다.
   window._sigSummarizeEntryChecklist = summarizeEntryChecklist;
@@ -578,6 +580,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         });
       } else {
         delete root._aioRankingHold;
+        // P1463: the weights this ranking was requested with — the validation views compare the
+        // stored model fingerprint against THIS model, so a selected profile never reads as validated.
+        if (ranking?.requestedFactorWeights) root._aioRankingWeights = ranking.requestedFactorWeights;
       }
     }
   });

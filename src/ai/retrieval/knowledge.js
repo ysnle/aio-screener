@@ -239,7 +239,7 @@ export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } 
     .slice(0, limit);
   const lines = [
     '[AIO KNOWLEDGE REFERENCE v1]',
-    'sourceKind=REFERENCE | currentClaimsAllowed=false | surfaces=시장 원리,AI 시대 지식 지도,구조 분석 프레임',
+    'sourceKind=REFERENCE | currentClaimsAllowed=false | surfaces=개념·분석 프레임,산업·밸류체인,구조 분석 프레임',
     'Rule: 아래 자료는 구조·개념·전달 경로를 설명하는 교육용 reference다. 현재 시장·기업·가격·규제 사실은 별도 LIVE/SNAPSHOT/Web Research 근거로 확인하라.',
     'Rule: authoringStatus가 검토 완료를 뜻하지 않으므로 반대 시나리오와 확인 항목을 함께 제시하고, 현재 사실이나 매매 결론으로 승격하지 마라.'
     ,'Rule: 참고 원문은 directness 후보 링크이며 개별 요약을 직접 입증한다고 간주하지 마라. 인용 전 원문 범위와 기준일을 다시 확인하라.'
@@ -247,7 +247,7 @@ export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } 
   const matches = [];
   for (const row of ranked) {
     const article = row.article;
-    const surfaceLabel = article.surface === 'principles' ? '시장 원리' : article.surface === 'atlas-foundations' ? 'AI 시대 지식 지도' : article.surface === 'integrated-frameworks' ? '통합 구조 프레임' : '구조 분석 프레임';
+    const surfaceLabel = article.surface === 'principles' ? '개념·분석 프레임' : article.surface === 'atlas-foundations' ? '산업·밸류체인 · AI 기초' : article.surface === 'integrated-frameworks' ? '통합 구조 프레임' : '구조 분석 프레임';
     const block = [
       `- [${surfaceLabel} · ${article.articleId}] ${article.title} | status=${article.authoringStatus} | reviewedAt=${article.reviewedAt || '미확인'}`,
       `  정의: ${article.summary.definition}`,

@@ -160,3 +160,25 @@ export function assertNoPlaceholderSecUserAgents(source, label = 'source') {
     throw new Error(`${label} contains a placeholder SEC User-Agent`);
   }
 }
+
+// Codex review 2026-10-05: a 13D/G line with only a form and a date gives no reason to read it. The SEC
+// header names the subject company; the cover page states the percent of class. Both are parsed best
+// effort — a value that is not found stays null and the screen says so; it is never estimated.
+export function parseOwnershipHeader(sgml = '') {
+  const text = String(sgml);
+  const subject = text.split(/SUBJECT COMPANY:/i)[1] || '';
+  const name = subject.match(/COMPANY CONFORMED NAME:\s*([^\r\n]+)/i)?.[1]?.trim() || null;
+  const cik = subject.match(/CENTRAL INDEX KEY:\s*(\d+)/i)?.[1] || null;
+  return { subjectCompany: name, subjectCik: cik };
+}
+
+export function parsePercentOfClass(document = '') {
+  const text = String(document).replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/\s+/g, ' ');
+  const xml = String(document).match(/<(?:\w+:)?(?:percentOfClass|classPercent)>\s*([\d.]+)\s*</i)?.[1];
+  if (xml != null && Number.isFinite(Number(xml))) return Number(xml);
+  const index = text.search(/percent of class represented/i);
+  if (index < 0) return null;
+  const match = text.slice(index, index + 400).match(/(\d{1,2}(?:\.\d+)?)\s*%/);
+  const value = match ? Number(match[1]) : null;
+  return Number.isFinite(value) && value > 0 && value <= 100 ? value : null;
+}

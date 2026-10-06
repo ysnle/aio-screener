@@ -1,12 +1,17 @@
 import { chromium } from 'playwright';
-import { readFileSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// Atlas browser contract (2026-10-05 리서치 라이브러리 · 산업·밸류체인): the contents column holds the industry map
+// (19 domains → 95 nodes), AI 기초 by layer and the relationship guides; the document reads as lead → value flow →
+// body → misreading; the right column shows typed relations and related notes. Pinned here: the domain landing,
+// deep links and URL sync, the lazy reading text, F0 modules, hidden process modules, the relationship-guide
+// document, unified search, explicit failure with retry and the absence of internal copy.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_ATLAS_PORT || 8904);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
+const INTERNAL_COPY = /REVIEWED_CANDIDATE|REFERENCE_CONNECTED|PS-\d+|TG-C\d+|출처|source seed|텔레그램|근거·경계 보기|검토된 참고|최신성 검증 경계/;
 
 function startServer() {
   return new Promise((resolveServer, reject) => {
@@ -21,235 +26,114 @@ function startServer() {
   });
 }
 
-const server = await startServer();
-const browser = await chromium.launch();
-const errors = [];
-try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  page.on('pageerror', (error) => errors.push(String(error)));
-  page.on('console', (message) => { if (message.type() === 'error' && !/ERR_FAILED|favicon|AIO:api|proxy-primary/i.test(message.text())) errors.push(message.text()); });
-  await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
-  await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+async function openApp(page, query = '') {
+  await page.goto(`${baseUrl}${query}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
   const disclaimerButton = page.locator('#aio-first-visit-disclaimer button');
   if (await disclaimerButton.count()) await disclaimerButton.click();
+}
+
+const server = await startServer();
+const browser = await chromium.launch();
+const errors = [];
+const watch = (page) => {
+  page.on('pageerror', (error) => errors.push(String(error)));
+  page.on('console', (message) => { if (message.type() === 'error' && !/ERR_FAILED|favicon|AIO:api|proxy-primary/i.test(message.text())) errors.push(message.text()); });
+};
+const local = (page) => page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
+const article = (page) => page.evaluate(() => {
+  const node = document.querySelector('#page-atlas .rl-main .af-article');
+  return { node: node?.dataset.atlasNode || null, domain: node?.dataset.atlasDomain || null, module: node?.dataset.atlasModule || null, guide: node?.dataset.atlasRelationshipGuide || null, lead: node?.querySelector('.af-lead')?.textContent || '', paragraphs: node?.querySelectorAll('.af-prose p').length || 0, twist: node?.querySelector('.af-twist')?.textContent || '', text: node?.textContent || '' };
+});
+try {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  watch(page);
+  await local(page);
+  await openApp(page);
   await page.evaluate(() => window.AIO_ARCH.navigate('atlas'));
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioArchitectureRoute === 'atlas');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasFoundations === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasFoundationLessons === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasCurrentObservations === 'connected');
-  const overview = await page.evaluate(() => ({
-    active: document.getElementById('page-atlas')?.classList.contains('active'),
-    pageTitle: document.getElementById('atlas-page-title')?.textContent?.trim(),
-    pageKicker: document.querySelector('#page-atlas .atlas-kicker')?.textContent?.trim(),
-    searchLabel: document.querySelector('#page-atlas .atlas-search-input')?.getAttribute('aria-label'),
-    trackCards: document.querySelectorAll('#page-atlas .atlas-track-card').length,
-    modules: document.querySelectorAll('#page-atlas .atlas-module-lesson').length,
-    totalModules: Number(document.querySelector('#page-atlas [data-atlas-authored-lesson-total]')?.dataset.atlasAuthoredLessonTotal || 0),
-    layerButtons: document.querySelectorAll('#page-atlas [data-atlas-action="layer"]').length,
-    conceptButtons: document.querySelectorAll('#page-atlas .atlas-learning-concept').length,
-    pathClosed: !document.querySelector('#page-atlas .atlas-learning-paths')?.open,
-    sourceDetailsClosed: [...document.querySelectorAll('#page-atlas .atlas-module-source-details')].every((node) => !node.open),
-     rawInternalVisible: [...document.querySelectorAll('#page-atlas .atlas-module-source-details')].some((node) => node.open),
-     currentObservationCards: document.querySelectorAll('#page-atlas .knowledge-current-observation-card').length,
-     currentObservationValues: [...document.querySelectorAll('#page-atlas .knowledge-current-observation-value')].map((node) => node.textContent),
-     explorationPanel: document.querySelectorAll('#page-atlas .atlas-module-exploration').length,
-     questionPrompts: document.querySelectorAll('#page-atlas .atlas-module-question, #page-atlas .atlas-domain-verification-question, #page-atlas .atlas-domain-packet-questions').length,
-     overflow: document.documentElement.scrollWidth > window.innerWidth + 2
-   }));
-  if (!overview.active || overview.pageTitle !== 'AI 시대 지식 지도' || overview.pageKicker !== 'AI 산업과 자본을 읽는 지도' || overview.searchLabel !== 'AI 시대 지식 지도 검색' || overview.trackCards !== 7 || overview.modules !== 1 || overview.totalModules !== 48 || overview.layerButtons !== 7 || overview.conceptButtons !== 7 || overview.currentObservationCards !== 0 || overview.currentObservationValues.includes('3.625%') || overview.explorationPanel !== 1 || overview.questionPrompts !== 0 || !overview.pathClosed || !overview.sourceDetailsClosed || overview.rawInternalVisible || overview.overflow) throw new Error(`learner-first atlas contract failed: ${JSON.stringify(overview)}`);
 
-  await page.locator('#page-atlas .knowledge-learning-bookmark').click();
-  await page.locator('#page-atlas .knowledge-learning-note').fill('전력과 계산 병목을 구분');
-  await page.locator('#page-atlas .knowledge-learning-note-save').click();
-  const learningRecord = await page.evaluate(() => JSON.parse(localStorage.getItem('aio-knowledge-learning-v1') || 'null'));
-  if (!learningRecord?.bookmarks?.includes('atlas-foundations:energy-and-power') || learningRecord?.notes?.['atlas-foundations:energy-and-power']?.value !== '전력과 계산 병목을 구분') throw new Error(`atlas learning controls failed: ${JSON.stringify(learningRecord)}`);
-
-  const foundationSearch = page.locator('#page-atlas .atlas-search-input');
-  await foundationSearch.fill('행렬곱의 크기');
-  await page.waitForFunction(() => document.activeElement?.classList.contains('atlas-search-input') && document.querySelector('.atlas-search-input')?.value === '행렬곱의 크기' && document.querySelectorAll('#page-atlas .atlas-learning-concept').length > 0);
-  await foundationSearch.fill('');
-
-  await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="foundations"]').click();
-  await page.locator('#page-atlas [data-atlas-action="layer"][data-atlas-value="F0"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-learning-concept').length === 6 && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'problem-and-ability' && document.querySelector('#page-atlas .knowledge-learning-controls-label')?.textContent === '문제와 능력' && document.querySelectorAll('#page-atlas .atlas-deep-lesson').length === 0 && document.querySelector('#page-atlas .atlas-module-lesson')?.textContent.includes('출발점 프레임') && new URL(location.href).searchParams.get('chapter') === 'F0' && new URL(location.href).searchParams.get('lesson') === 'problem-and-ability');
-  await page.locator('#page-atlas .knowledge-learning-bookmark').click();
-  const f0LearningRecord = await page.evaluate(() => JSON.parse(localStorage.getItem('aio-knowledge-learning-v1') || 'null'));
-  if (!f0LearningRecord?.bookmarks?.includes('atlas-foundations:problem-and-ability') || f0LearningRecord?.bookmarks?.includes('atlas-foundations:')) throw new Error(`F0 learning key failed: ${JSON.stringify(f0LearningRecord)}`);
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.classList.contains('active') && document.getElementById('page-atlas')?.dataset.aioAtlasFoundations === 'connected' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'problem-and-ability' && document.querySelector('#page-atlas .knowledge-learning-controls-label')?.textContent === '문제와 능력' && document.querySelector('#page-atlas .knowledge-learning-bookmark')?.getAttribute('aria-pressed') === 'true');
-  await page.locator('#page-atlas [data-atlas-action="layer"][data-atlas-value="F3"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-learning-concept').length === 10 && document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === '토큰화' && document.querySelectorAll('#page-atlas .atlas-module-lesson').length === 1 && document.querySelectorAll('#page-atlas .atlas-module-question').length === 0 && document.querySelectorAll('#page-atlas .atlas-module-visualization').length === 1);
-  await page.locator('#page-atlas [data-atlas-action="module"][data-atlas-value="self-attention"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-action="load-article"][data-atlas-value="self-attention"]') && document.querySelectorAll('#page-atlas .atlas-deep-lesson').length === 0);
-  const articlePattern = '**/public-data/knowledge/articles/atlas-foundations/*.json';
-  await page.route(articlePattern, (route) => route.abort());
-  await page.locator('#page-atlas [data-atlas-action="load-article"][data-atlas-value="self-attention"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas [role="alert"]')?.textContent.includes('다시 시도'));
-  await page.unroute(articlePattern);
-  await page.locator('#page-atlas [data-atlas-action="load-article"][data-atlas-value="self-attention"]').click();
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasKnowledgeArticles === 'connected');
-  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === 'Self-Attention' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'self-attention' && document.querySelector('#page-atlas a[data-atlas-foundation-source="FND-GOOGLE-TRANSFORMER"]') && document.querySelector('#page-atlas .knowledge-professional-bridge-button[data-knowledge-route="themes"][data-knowledge-metric][data-knowledge-timeframe]'));
-  const atlasArticleText = await page.locator('#page-atlas .atlas-deep-lesson').innerText();
-  const sourceArticle = JSON.parse(readFileSync(resolve(root, 'public-data/knowledge/articles.json'), 'utf8')).articles.find((article) => article.articleId === 'atlas-foundations:self-attention');
-  if (!sourceArticle || !atlasArticleText.includes(sourceArticle.summary.definition) || !atlasArticleText.includes(sourceArticle.summary.mechanism) || !atlasArticleText.includes(sourceArticle.summary.example) || !atlasArticleText.includes('추가 집필 필요') || atlasArticleText.includes('{"term":') || atlasArticleText.includes('5분 심층')) throw new Error('atlas must preserve concept-specific source text without overstating depth');
-  await page.locator('#page-atlas .knowledge-professional-bridge-button').click();
-  await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.routeId === 'themes' && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.knowledgeNode === 'atlas:compute-gpu' && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.metric && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.timeframe && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.returnContext?.lesson === 'self-attention');
-  const bridgeContext = await page.evaluate(() => ({ href: location.href, context: window.AIO_KNOWLEDGE_ROUTE_CONTEXT }));
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.routeId === 'themes' && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.returnContext?.lesson === 'self-attention');
-  await page.goBack();
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.classList.contains('active') && document.getElementById('page-atlas')?.dataset.aioAtlasFoundations === 'connected');
-  await page.goForward();
-  await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.returnContext?.lesson === 'self-attention');
-  await page.goBack();
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.classList.contains('active') && document.getElementById('page-atlas')?.dataset.aioAtlasFoundations === 'connected');
-  await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="taxonomy"]').click();
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasResearch === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasDomainGuides === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasDeepTaxonomy === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasRegistry === 'connected');
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-level-card').length === 7);
-  await page.waitForFunction(() => Number(document.querySelector('#page-atlas [data-atlas-taxonomy-domain-total]')?.dataset.atlasTaxonomyDomainTotal) === 19 && Number(document.querySelector('#page-atlas [data-atlas-taxonomy-node-total]')?.dataset.atlasTaxonomyNodeTotal) === 95 && document.querySelectorAll('#page-atlas [data-atlas-action="domain"]').length === 19 && document.querySelectorAll('#page-atlas .atlas-domain-guide').length === 1 && document.querySelectorAll('#page-atlas [data-atlas-action="domain-node"]').length === 5 && document.querySelectorAll('#page-atlas .atlas-node-guide').length === 1);
-  const taxonomySearch = page.locator('#page-atlas .atlas-search-input');
-  await taxonomySearch.fill('Samsung Electronics');
-  await page.waitForTimeout(150);
-  const entitySearch = await page.evaluate(() => ({
-    domains: [...document.querySelectorAll('#page-atlas [data-atlas-action="domain"]')].map((node) => node.dataset.atlasValue),
-    query: document.querySelector('#page-atlas .atlas-search-input')?.value || ''
-  }));
-  if (!entitySearch.domains.includes('domain-memory-storage')) throw new Error(`taxonomy entity search failed: ${JSON.stringify(entitySearch)}`);
-  await page.locator('#page-atlas [data-atlas-action="domain"][data-atlas-value="domain-memory-storage"]').click();
-  await page.locator('#page-atlas [data-atlas-action="domain-node"][data-atlas-value="memory-dram-hbm"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-player-id="samsung-electronics"]'));
-  await taxonomySearch.fill('');
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas [data-atlas-action="domain"]').length === 19);
-  await page.locator('#page-atlas [data-atlas-action="domain"][data-atlas-value="domain-compute-silicon"]').click();
-  await page.locator('#page-atlas [data-atlas-action="domain-node"][data-atlas-value="compute-gpu"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas a[data-atlas-domain-guide-source="domain-compute-silicon"]')?.href === 'https://science.osti.gov/ascr' && document.querySelectorAll('#page-atlas .atlas-player-product-map').length === 1 && document.querySelectorAll('#page-atlas [data-atlas-player-id]').length > 0 && document.querySelectorAll('#page-atlas [data-atlas-product-id]').length > 0 && document.querySelectorAll('#page-atlas .atlas-coverage-card').length <= 1 && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.dataset.atlasCurrentnessBoundary === 'STALE_REFERENCE_REVIEW_REQUIRED' && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.textContent.includes('40행') && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.textContent.includes('주장 0개'));
-  const taxonomyDisclosure = await page.evaluate(() => ({
-    domainGuides: document.querySelectorAll('#page-atlas .atlas-domain-guide').length,
-    visibleNodes: document.querySelectorAll('#page-atlas [data-atlas-action="domain-node"]').length,
-    nodeGuides: document.querySelectorAll('#page-atlas .atlas-node-guide').length,
-    structuralClaims: document.querySelectorAll('#page-atlas .atlas-domain-claim').length,
-    claimBoundaryVisible: [...document.querySelectorAll('#page-atlas .atlas-domain-claim')].every((node) => node.textContent.includes('구조 참고') && node.textContent.includes('현재성 비적용') && node.textContent.includes('부분 검토')),
-    rawInternalVisible: /(?:source seed|\b(?:PP|PS|AT-[A-Z]{2})-\d+\b)/i.test(document.querySelector('#page-atlas .atlas-taxonomy-research')?.innerText || ''),
-    evidenceClosed: [...document.querySelectorAll('#page-atlas .atlas-domain-evidence')].every((node) => !node.open),
-    overflow: document.documentElement.scrollWidth > window.innerWidth + 2
-  }));
-  if (taxonomyDisclosure.domainGuides !== 1 || taxonomyDisclosure.visibleNodes !== 5 || taxonomyDisclosure.nodeGuides !== 1 || taxonomyDisclosure.structuralClaims !== 3 || !taxonomyDisclosure.claimBoundaryVisible || taxonomyDisclosure.rawInternalVisible || !taxonomyDisclosure.evidenceClosed || taxonomyDisclosure.overflow) throw new Error(`taxonomy progressive-disclosure contract failed: ${JSON.stringify(taxonomyDisclosure)}`);
-
-  await page.locator('#page-atlas [data-atlas-action="domain"][data-atlas-value="domain-foundry-equipment"]').click();
-  await page.locator('#page-atlas [data-atlas-action="domain-node"][data-atlas-value="foundry-process-node"]').click();
-  await page.waitForFunction(() => Number(document.querySelector('#page-atlas [data-atlas-deep-topic-total]')?.dataset.atlasDeepTopicTotal) === 10 && Number(document.querySelector('#page-atlas [data-atlas-deep-branch-total]')?.dataset.atlasDeepBranchTotal) === 50 && document.querySelectorAll('#page-atlas .atlas-deep-topic-button').length === 2 && document.querySelectorAll('#page-atlas .atlas-deep-branch').length === 6 && document.querySelectorAll('#page-atlas .atlas-deep-branch[open]').length === 1 && [...document.querySelectorAll('#page-atlas .atlas-deep-sources')].every((node) => !node.open) && document.querySelector('#page-atlas a[data-atlas-source-id="PS-01"]') && document.querySelectorAll('#page-atlas .atlas-reference-source-unresolved').length === 0);
-  await page.locator('#page-atlas [data-atlas-action="deep-topic"][data-atlas-value="deep-lithography-process"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas .atlas-deep-topic-title')?.textContent === 'DUV·EUV·High-NA와 반도체 전공정' && document.querySelectorAll('#page-atlas .atlas-deep-branch').length === 6);
-
-  await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="relationships"]').click();
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasRelationshipGuides === 'connected');
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-relationship-guide').length === 5 && document.querySelectorAll('#page-atlas .atlas-relationship-node').length === 6 && document.querySelectorAll('#page-atlas .atlas-relationship-edge').length === 5 && document.querySelector('#page-atlas .atlas-relationship-detail-title')?.textContent === '실질 중립금리 r*' && !document.querySelector('#page-atlas .atlas-relationship-sources')?.open);
-  await page.locator('#page-atlas [data-atlas-action="relationship-guide"][data-atlas-value="nand-inference-fcf"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-relationship-node').length === 9 && document.querySelectorAll('#page-atlas .atlas-relationship-edge').length === 8 && document.querySelector('#page-atlas .atlas-relationship-detail-title')?.textContent === '문맥·동시성 증가');
-  await page.locator('#page-atlas [data-atlas-action="relationship-criticality"][data-atlas-value="claim"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-relationship-node').length === 5 && document.querySelectorAll('#page-atlas .atlas-relationship-edge').length === 3);
-  const targetNode = page.locator('#page-atlas [data-atlas-action="relationship-node"][data-atlas-value="financial-targets"]');
-  await targetNode.focus();
-  await page.keyboard.press('Enter');
-  await page.waitForFunction(() => document.querySelector('#page-atlas .atlas-relationship-detail-title')?.textContent === 'FY28–30 회사 목표' && document.querySelector('#page-atlas [data-atlas-action="relationship-node"][data-atlas-value="financial-targets"]')?.getAttribute('aria-pressed') === 'true');
-  const financialTargetObservation = await page.evaluate(() => ({
-    provenance: [...document.querySelectorAll('#page-atlas .knowledge-current-observation-provenance')].map((node) => node.textContent),
-    units: [...document.querySelectorAll('#page-atlas .knowledge-current-observation-meta')].map((node) => node.textContent)
-  }));
-  if (!financialTargetObservation.provenance.some((text) => text.includes('회사 IR 미래 목표')) || financialTargetObservation.units.some((text) => /approximately-percent|percent-of-revenue/.test(text))) throw new Error(`financial target semantic labels failed: ${JSON.stringify(financialTargetObservation)}`);
-  await page.locator('#page-atlas .atlas-relationship-sources summary').click();
-  const relationshipSourceDisclosure = await page.locator('#page-atlas .atlas-relationship-sources').evaluate((node) => ({
-    open: node.open,
-    links: node.querySelectorAll('a').length,
-    unresolved: node.querySelectorAll('.atlas-reference-source-unresolved').length,
-    summary: node.querySelector('summary')?.textContent?.trim() || ''
-  }));
-  if (!relationshipSourceDisclosure.open || relationshipSourceDisclosure.links !== 6 || relationshipSourceDisclosure.unresolved !== 0 || !relationshipSourceDisclosure.summary.includes('출처 6개')) {
-    throw new Error(`relationship source disclosure failed: ${JSON.stringify(relationshipSourceDisclosure)}`);
-  }
-  const relationshipGuideSpecs = [
-    ['neutral-rate-policy-gap', 6, 5],
-    ['nand-inference-fcf', 9, 8],
-    ['semiconductor-supply-network', 7, 7],
-    ['ai-datacenter-gigawatt-to-token', 7, 6],
-    ['cpo-supply-map', 6, 5]
-  ];
-  const relationshipResponsive = [];
-  for (const width of [1280, 1920]) { // P1324: desktop-only viewports
-    await page.setViewportSize({ width, height: 900 });
-    await page.waitForTimeout(120);
-    await page.locator('#page-atlas [data-atlas-action="relationship-criticality"][data-atlas-value="all"]').click();
-    for (const [guideId, expectedNodes, expectedEdges] of relationshipGuideSpecs) {
-      await page.locator(`#page-atlas [data-atlas-action="relationship-guide"][data-atlas-value="${guideId}"]`).click();
-      await page.waitForFunction(({ nodes, edges }) => document.querySelectorAll('#page-atlas .atlas-relationship-node').length === nodes && document.querySelectorAll('#page-atlas .atlas-relationship-edge').length === edges, { nodes: expectedNodes, edges: expectedEdges });
-      relationshipResponsive.push(await page.evaluate(({ viewportWidth, activeGuide }) => ({
-        width: viewportWidth,
-        guide: activeGuide,
-        documentOverflow: document.documentElement.scrollWidth > window.innerWidth + 2,
-        workspaceWidth: Math.round(document.querySelector('#page-atlas .atlas-relationship-workspace')?.getBoundingClientRect().width || 0),
-        mapWidth: Math.round(document.querySelector('#page-atlas .atlas-relationship-map-panel')?.getBoundingClientRect().width || 0),
-        detailWidth: Math.round(document.querySelector('#page-atlas .atlas-relationship-detail')?.getBoundingClientRect().width || 0)
-      }), { viewportWidth: width, activeGuide: guideId }));
-    }
-  }
-  if (relationshipResponsive.some((entry) => entry.documentOverflow || entry.workspaceWidth <= 0 || entry.mapWidth <= 0 || entry.detailWidth <= 0)) throw new Error(`relationship responsive contract failed: ${JSON.stringify(relationshipResponsive)}`);
-  await page.setViewportSize({ width: 1440, height: 900 });
-
-  const relationshipSearch = page.locator('#page-atlas .atlas-search-input');
-  await relationshipSearch.fill('FCF');
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-relationship-view').length === 1 && document.querySelectorAll('#page-atlas .atlas-relationship-node').length > 0);
-  const filteredRelationship = await page.evaluate(() => {
-    const visible = new Set([...document.querySelectorAll('#page-atlas .atlas-relationship-node strong')].map((node) => node.textContent?.trim()));
-    const dangling = [...document.querySelectorAll('#page-atlas .atlas-relationship-edge')].filter((edge) => {
-      const labels = [...edge.querySelectorAll('strong')].map((node) => node.textContent?.trim());
-      return labels.some((label) => label && !visible.has(label));
-    }).length;
-    return { visibleNodes: visible.size, edges: document.querySelectorAll('#page-atlas .atlas-relationship-edge').length, dangling };
+  // Landing: the first domain overview with its reading text.
+  await page.waitForFunction(() => document.querySelector('#page-atlas .rl-main .af-article[data-atlas-domain]') && document.querySelector('#page-atlas .rl-main .af-article .af-twist'));
+  const landing = await page.evaluate(() => {
+    const host = document.getElementById('page-atlas');
+    return {
+      shell: Boolean(host.querySelector('.rl-nav') && host.querySelector('.rl-main') && host.querySelector('.rl-aside')),
+      title: host.querySelector('.rl-title')?.textContent || '',
+      domains: host.querySelectorAll('.rl-nav [data-atlas-action="domain"]').length,
+      sections: [...host.querySelectorAll('.rl-nav [data-atlas-action="section"]')].map((node) => node.dataset.atlasValue),
+      overflow: document.documentElement.scrollWidth > window.innerWidth + 2
+    };
   });
-  if (filteredRelationship.dangling) throw new Error(`relationship search left hidden-node edges: ${JSON.stringify(filteredRelationship)}`);
-  await relationshipSearch.fill('');
+  const landingDoc = await article(page);
+  if (!landing.shell || landing.title !== '산업·밸류체인' || landing.domains !== 19 || landing.sections.join(',') !== 'taxonomy,foundations,relationships' || landing.overflow || landingDoc.domain !== 'domain-cloud-platform' || landingDoc.lead.length < 80 || landingDoc.paragraphs < 2) throw new Error(`atlas landing incomplete: ${JSON.stringify({ landing, landingDoc })}`);
+  if (INTERNAL_COPY.test(landingDoc.text)) throw new Error('domain overview shows internal/source copy');
 
-  await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="overview"]').click();
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasTelegram === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasCurrentEvidenceLedger === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasKnowledgeStatus === 'connected');
-  await page.waitForFunction(() => {
-    const telegram = document.querySelector('#page-atlas .atlas-telegram-reference');
-    return document.querySelectorAll('#page-atlas .atlas-telegram-channel-card').length === 4
-      && document.querySelector('#page-atlas .atlas-telegram-status')?.textContent.includes('수집 상태: 4개 채널 관측 완료')
-      && telegram?.textContent.includes('성공 채널 4/4 · 수집 완료')
-      && !telegram?.textContent.includes('수집 실패·기존 원장 유지')
-      && document.querySelector('#page-atlas .atlas-current-evidence-ledger')?.textContent.includes('기준일이 있는 근거 40개')
-      && document.querySelector('#page-atlas .atlas-publication-readiness')?.dataset.atlasHumanReviewComplete === 'false'
-      && document.querySelector('#page-atlas .atlas-publication-readiness')?.dataset.atlasPublicationReady === 'false'
-      && document.querySelector('#page-atlas .atlas-publication-readiness')?.textContent.includes('사람 검수 미완료')
-      && document.querySelector('#page-atlas .atlas-publication-readiness')?.textContent.includes('출판 준비 미완료');
-  });
-  const publicationReadiness = await page.locator('#page-atlas .atlas-publication-readiness').innerText();
-  const search = page.locator('#page-atlas .atlas-search-input');
-  await search.fill('CPO');
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-packet-card').length === 1 && document.querySelector('#page-atlas [data-atlas-packet-id]')?.dataset.atlasPacketId === 'ATLAS-04');
+  // Node: open a domain, then a node; reading text loads lazily and the URL follows the selection.
+  await page.locator('#page-atlas .rl-nav [data-atlas-action="domain"][data-atlas-value="domain-power-grid"]').click();
+  await page.waitForFunction(() => document.querySelector('#page-atlas .rl-main .af-article')?.dataset.atlasDomain === 'domain-power-grid');
+  await page.locator('#page-atlas .rl-nav [data-atlas-action="domain-node"][data-atlas-value="power-transformer"]').click();
+  await page.waitForFunction(() => document.querySelector('#page-atlas .rl-main .af-article')?.dataset.atlasNode === 'power-transformer' && document.querySelector('#page-atlas .rl-main .af-article .af-twist'));
+  const nodeDoc = await article(page);
+  const nodeAside = await page.evaluate(() => [...document.querySelectorAll('#page-atlas .rl-aside .rl-aside-title, #page-atlas .rl-aside h3, #page-atlas .rl-aside strong')].map((node) => node.textContent).join(' | '));
+  const nodeUrl = new URL(page.url()).searchParams;
+  if (nodeDoc.lead.length < 80 || nodeDoc.paragraphs < 2 || !nodeDoc.text.includes('가치가 흘러가는 길') || nodeUrl.get('node') !== 'power-transformer' || nodeUrl.get('domain') !== 'domain-power-grid' || !/연결/.test(nodeAside)) throw new Error(`industry node document incomplete: ${JSON.stringify({ nodeDoc: { ...nodeDoc, text: undefined }, nodeAside, url: page.url() })}`);
+  if (INTERNAL_COPY.test(nodeDoc.text)) throw new Error('industry node shows internal/source copy');
+
+  // AI 기초: F0 modules read, process modules are not listed, every module appears once.
+  await page.locator('#page-atlas .rl-nav [data-atlas-action="section"][data-atlas-value="foundations"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .rl-nav [data-atlas-action="module"]').length > 40);
+  const modules = await page.evaluate(() => [...document.querySelectorAll('#page-atlas .rl-nav [data-atlas-action="module"]')].map((node) => node.dataset.atlasValue));
+  if (new Set(modules).size !== modules.length || modules.includes('claim-source-as-of') || modules.includes('human-review') || !modules.includes('problem-and-ability')) throw new Error(`AI foundation contents drifted: ${modules.length} modules`);
+  await page.locator('#page-atlas .rl-nav [data-atlas-action="module"][data-atlas-value="problem-and-ability"]').click();
+  await page.waitForFunction(() => document.querySelector('#page-atlas .rl-main .af-article')?.dataset.atlasModule === 'problem-and-ability' && document.querySelector('#page-atlas .rl-main .af-article .af-twist'));
+  const moduleDoc = await article(page);
+  if (moduleDoc.lead.length < 80 || moduleDoc.paragraphs < 2 || /불러오는 중/.test(moduleDoc.text)) throw new Error('F0 module has no reading text');
+
+  // Relationship guide document: stages, the open concept, typed links in words.
+  await page.locator('#page-atlas .rl-nav [data-atlas-action="section"][data-atlas-value="relationships"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .rl-nav [data-atlas-action="relationship-guide"]').length === 5);
+  await page.locator('#page-atlas .rl-nav [data-atlas-action="relationship-guide"][data-atlas-value="nand-inference-fcf"]').click();
+  await page.waitForFunction(() => document.querySelector('#page-atlas .rl-main .af-article')?.dataset.atlasRelationshipGuide === 'nand-inference-fcf');
+  await page.locator('#page-atlas .rl-main [data-atlas-action="relationship-node"][data-atlas-value="kv-cache"]').click();
+  await page.waitForFunction(() => document.querySelector('#page-atlas .rl-main [data-atlas-action="relationship-node"][data-atlas-value="kv-cache"]')?.getAttribute('aria-pressed') === 'true');
+  const guideDoc = await article(page);
+  if (!guideDoc.text.includes('단계별로 보면') || !guideDoc.text.includes('이 개념의 연결') || INTERNAL_COPY.test(guideDoc.text) || await page.locator('#page-atlas .rl-main .atlas-relationship-guide').count()) throw new Error('relationship guide document incomplete or still embeds the old guide list');
+
+  // Unified search.
+  const search = page.locator('#page-atlas .rl-search input');
+  await search.fill('포토닉스');
+  await page.waitForFunction(() => document.querySelector('#page-atlas .rl-results [data-research-result="atlas:network-silicon-photonics"]'));
   await search.fill('');
-  const failurePage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-  await failurePage.route('**/public-data/atlas/source-packets.json', (route) => route.abort());
-  await failurePage.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await failurePage.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
-  const failureDisclaimer = failurePage.locator('#aio-first-visit-disclaimer button');
-  if (await failureDisclaimer.count()) await failureDisclaimer.click();
-  await failurePage.evaluate(() => window.AIO_ARCH.navigate('atlas'));
-  await failurePage.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioArchitectureRoute === 'atlas');
-  await failurePage.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="taxonomy"]').click();
-  await failurePage.waitForFunction(() => document.querySelector('#page-atlas .atlas-taxonomy-structural-boundary[role="alert"]')?.textContent.includes('검증된 현재 산업 상태') && document.querySelector('#page-atlas [data-atlas-result-count]')?.textContent.includes('연구 수량 미확인'));
-  const taxonomyFailureBoundary = await failurePage.locator('#page-atlas .atlas-taxonomy-structural-boundary').innerText();
-  await failurePage.close();
-  await page.locator('#page-atlas [data-atlas-action="route"][data-atlas-value="principles"]').click();
-  await page.waitForFunction(() => document.getElementById('page-principles')?.classList.contains('active'));
-  if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, route: 'atlas', learnerTracks: overview.trackCards, visibleAuthoredLessons: overview.modules, authoredLessonTotal: overview.totalModules, curriculumLayers: 7, f0Restored: true, bridgeContext, publicationReadiness, taxonomyLevels: 7, taxonomyDomains: 19, visibleDomainGuides: taxonomyDisclosure.domainGuides, taxonomyNodes: 95, visibleNodeGuides: taxonomyDisclosure.nodeGuides, structuralClaimCards: taxonomyDisclosure.structuralClaims, rawInternalVisible: taxonomyDisclosure.rawInternalVisible, taxonomyFailureBoundary, deepTopics: 10, deepBranches: 50, relationshipGuides: 5, relationshipNodes: 35, relationshipEdges: 31, relationshipFocusedGuide: 'nand-inference-fcf', relationshipFocusedNode: 'financial-targets', relationshipResponsive, relationshipSearch: filteredRelationship, researchPackets: 11, evidenceClaims: 14, primarySources: 23, telegramChannels: 4, searchedPacket: 'ATLAS-04', routeCta: 'principles', errors }));
+
+  // Deep links on a fresh load.
+  const deep = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  watch(deep);
+  await local(deep);
+  for (const [query, check] of [
+    ['?mode=taxonomy&domain=domain-memory-storage&view=domain#atlas', (doc) => doc.domain === 'domain-memory-storage'],
+    ['?node=memory-dram-hbm#atlas', (doc) => doc.node === 'memory-dram-hbm'],
+    ['?mode=foundations&chapter=F3&lesson=kv-cache#atlas', (doc) => doc.module === 'kv-cache'],
+    ['?mode=relationships&guide=cpo-supply-map#atlas', (doc) => doc.guide === 'cpo-supply-map']
+  ]) {
+    await openApp(deep, query);
+    await deep.waitForFunction(() => document.querySelector('#page-atlas .rl-main .af-article .af-issue'), null, { timeout: 15000 });
+    await deep.waitForTimeout(300);
+    const doc = await article(deep);
+    if (!check(doc)) throw new Error(`deep link ${query} opened ${JSON.stringify({ node: doc.node, domain: doc.domain, module: doc.module, guide: doc.guide })}`);
+  }
+  if (new URL(deep.url()).searchParams.get('guide') !== 'cpo-supply-map') throw new Error('relationship deep link was not kept in the URL');
+
+  // A failed industry-map load ends in a stated failure with a working retry.
+  await deep.route('**/public-data/atlas/source-packets.json', (route) => route.abort());
+  await openApp(deep, '?mode=taxonomy#atlas');
+  await deep.waitForFunction(() => document.querySelector('#page-atlas .atlas-capability-errors[role="alert"] [data-atlas-action="retry-capability"]'), null, { timeout: 15000 });
+  await deep.unroute('**/public-data/atlas/source-packets.json');
+  await deep.locator('#page-atlas .atlas-capability-errors [data-atlas-action="retry-capability"]').first().click();
+  await deep.waitForFunction(() => document.querySelectorAll('#page-atlas .rl-nav [data-atlas-action="domain"]').length === 19, null, { timeout: 15000 });
+  await deep.close();
+
+  if (errors.filter((text) => !/source-packets/.test(text)).length) throw new Error(`browser errors: ${errors.join(' | ')}`);
+  console.log(JSON.stringify({ ok: true, route: 'atlas', landing, modules: modules.length, nodeUrl: Object.fromEntries(nodeUrl) }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;
