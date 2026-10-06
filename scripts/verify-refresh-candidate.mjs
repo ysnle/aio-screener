@@ -38,7 +38,7 @@ function gitLines(cwd, args) {
 
 function candidateFiles(cwd, explicitPaths) {
   if (explicitPaths && explicitPaths.length) return [...new Set(explicitPaths.map((value) => value.trim().replaceAll('\\', '/')).filter(Boolean))].sort();
-  return [...new Set([...gitLines(cwd, ['diff', '--name-only', 'HEAD']), ...gitLines(cwd, ['ls-files', '--others', '--exclude-standard'])])].sort();
+  return [...new Set([...gitLines(cwd, ['diff', '--no-renames', '--name-only', 'HEAD']), ...gitLines(cwd, ['ls-files', '--others', '--exclude-standard'])])].sort();
 }
 
 // P1415: a producer may delete files (the masters builder garbage-collects unreferenced 13F
@@ -168,12 +168,21 @@ function expectGitTree(cwd, expectPath, revision) {
     console.error('[refresh-candidate] recorded candidate schema or repository does not match this run');
     process.exit(2);
   }
-  const files = revision === '' ? gitLines(cwd, ['diff', '--cached', '--name-only', 'HEAD']) : baseline.files;
+  // P1497: content-addressed 13F objects are deleted and re-created with similar bytes; staged rename detection
+  // folded each deleted path into its successor, so the staged set lost 1,110 deletions the candidate recorded.
+  const files = revision === '' ? gitLines(cwd, ['diff', '--cached', '--no-renames', '--name-only', 'HEAD']) : baseline.files;
   const { digest, missing } = digestGitTree(cwd, baseline.files, revision, Array.isArray(baseline.deleted) ? baseline.deleted : []);
   const drift = [];
   if (revision === '' && files.sort().join('\n') !== [...baseline.files].sort().join('\n')) drift.push('staged file set differs from the validated candidate');
   if (digest !== baseline.digest) drift.push('staged/committed content differs from the validated candidate');
   if (missing.length) drift.push(`missing blob(s): ${missing.join(', ')}`);
+  if (revision === '' && drift.length) {
+    const want = new Set(baseline.files);
+    const have = new Set(files);
+    const extra = [...have].filter((file) => !want.has(file)).slice(0, 10);
+    const lost = [...want].filter((file) => !have.has(file)).slice(0, 10);
+    if (extra.length || lost.length) console.error(`[refresh-candidate] staged-only: ${extra.join(', ') || '-'} | candidate-only: ${lost.join(', ') || '-'}`);
+  }
   if (drift.length) {
     console.error(`[refresh-candidate] CANDIDATE MISMATCH at ${revision === '' ? 'index' : revision}: ${drift.join('; ')}`);
     process.exit(1);
@@ -239,6 +248,17 @@ function selfTest() {
     git('commit', '-m', 'gc');
     const deletedCommitted = runCli('--expect-commit', baselinePath);
     if (deletedCommitted.status !== 0) throw new Error(`P1415 committed deletion rejected: ${deletedCommitted.stderr}`);
+    // P1497: a deletion plus a near-identical new file (a content-addressed object replaced) is not a rename.
+    const body = `${'{"rows":['.padEnd(20, ' ')}${Array.from({ length: 200 }, (_, i) => i).join(',')}]}
+`;
+    writeFileSync(join(repo, 'obj-a.json'), body);
+    git('add', 'obj-a.json'); git('commit', '-m', 'object a');
+    rmSync(join(repo, 'obj-a.json'));
+    writeFileSync(join(repo, 'obj-b.json'), body.replace('199]', '199,200]'));
+    record(repo, baselinePath, null);
+    git('add', '-A');
+    const renamedStaged = runCli('--expect-staged', baselinePath);
+    if (renamedStaged.status !== 0) throw new Error(`P1497 replaced object read as a rename and rejected: ${renamedStaged.stderr}`);
     console.log('[refresh-candidate] self-test OK: tamper rejection, clean accept, set-drift rejection, >1 MiB staged/committed blob support, producer deletions and missing-baseline fail-closed');
   } finally {
     rmSync(temp, { recursive: true, force: true });

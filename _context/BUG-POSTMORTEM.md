@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1497 - v57.24 - 운영자 수동 데이터 갱신이 커밋 단계에서 계속 실패 (2026-10-06)
+
+- symptom/reproduction: 13F 전체 갱신을 포함한 refresh-data 수동 실행이 모든 검증을 통과한 뒤 커밋 단계에서 'CANDIDATE MISMATCH at index: staged file set differs'로 실패해 데이터가 발행되지 않았다(2026-10-06 run 37404195158, 후보 1,209개 중 삭제 1,110개).
+- root_cause: verify-refresh-candidate가 스테이징 목록을 rename 감지가 켜진 git diff --cached --name-only로 읽었다. 내용 주소 13F 객체는 지워지고 비슷한 내용으로 다시 생기므로 git이 이를 이름 변경으로 묶어 지워진 경로를 목록에서 뺐고, 기록된 후보 목록과 어긋났다.
+- fix: 후보 기록과 스테이징 비교 모두 --no-renames로 읽고, 어긋날 때 어느 파일이 어긋났는지 출력한다.
+- violated_rule: 후보 검증은 실제로 커밋될 파일 집합을 같은 기준으로 비교해야 한다(P1415 생산 삭제 포함).
+- prevention: 자체 테스트에 '객체 삭제 + 비슷한 새 객체' 시나리오를 추가했다(수정 전 코드에서 실패함을 확인).
+- verification/residual: verify-refresh-candidate --self-test 통과, 수정 전 코드로 새 시나리오가 실패함을 확인.
+
 ## P1496 - v57.23 - 재무 공시가 연간 10-K만 보여 최근 실적을 알 수 없음 (2026-10-06)
 
 - symptom/reproduction: 재무 공시 화면은 연간 회계연도만 보여, 1년 가까이 지난 회계연도가 ‘최근 실적’을 대신했다.
