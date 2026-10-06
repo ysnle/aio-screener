@@ -14,7 +14,8 @@
     "ownershipManagers": 26,
     "holdingsRowsCurrent": 37,
     "holdingsRowsPending": 0,
-    "staleLastKnownGoodRows": 0
+    "staleLastKnownGoodRows": 0,
+    "ownershipBlocked": 0
   },
   "managers": [
     {
@@ -107,7 +108,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -203,7 +204,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -299,7 +300,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -411,7 +412,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -523,7 +524,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -635,7 +636,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -731,7 +732,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -998,7 +999,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -1094,7 +1095,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -1361,7 +1362,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -1628,7 +1629,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -1895,7 +1896,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -1903,7 +1904,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-265100",
           "filedAt": "2024-11-25",
-          "acceptedAt": "2024-11-25T20:09:49.000Z",
+          "acceptedAt": "2024-11-26T01:09:49.000Z",
           "periodOfReport": null,
           "primaryDocument": "d34884dsc13da.htm",
           "primaryDocDescription": "SC 13D/A",
@@ -1920,7 +1921,7 @@
           "isAmendment": false,
           "accession": "0001193125-24-258561",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:06:56.000Z",
+          "acceptedAt": "2024-11-15T02:06:56.000Z",
           "periodOfReport": null,
           "primaryDocument": "d49764dsc13g.htm",
           "primaryDocDescription": "SC 13G",
@@ -1937,7 +1938,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-258557",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:06:31.000Z",
+          "acceptedAt": "2024-11-15T02:06:31.000Z",
           "periodOfReport": null,
           "primaryDocument": "d836532dsc13ga.htm",
           "primaryDocDescription": "SC 13G/A",
@@ -1954,7 +1955,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-258555",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:06:29.000Z",
+          "acceptedAt": "2024-11-15T02:06:29.000Z",
           "periodOfReport": null,
           "primaryDocument": "d837380dsc13ga.htm",
           "primaryDocDescription": "SC 13G/A",
@@ -1971,7 +1972,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-226917",
           "filedAt": "2024-09-26",
-          "acceptedAt": "2024-09-26T20:05:56.000Z",
+          "acceptedAt": "2024-09-27T00:05:56.000Z",
           "periodOfReport": null,
           "primaryDocument": "d158704dsc13ga.htm",
           "primaryDocDescription": "SC 13G/A",
@@ -1988,7 +1989,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-226916",
           "filedAt": "2024-09-26",
-          "acceptedAt": "2024-09-26T20:05:54.000Z",
+          "acceptedAt": "2024-09-27T00:05:54.000Z",
           "periodOfReport": null,
           "primaryDocument": "d888586dsc13ga.htm",
           "primaryDocDescription": "SC 13G/A",
@@ -2005,7 +2006,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-197170",
           "filedAt": "2024-08-08",
-          "acceptedAt": "2024-08-08T22:37:28.000Z",
+          "acceptedAt": "2024-08-09T02:37:28.000Z",
           "periodOfReport": null,
           "primaryDocument": "d792254dsc13da.htm",
           "primaryDocDescription": "SC 13D/A",
@@ -2022,7 +2023,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-172349",
           "filedAt": "2024-06-28",
-          "acceptedAt": "2024-06-28T20:35:25.000Z",
+          "acceptedAt": "2024-06-29T00:35:25.000Z",
           "periodOfReport": null,
           "primaryDocument": "d792739dsc13da.htm",
           "primaryDocDescription": "SC 13D/A",
@@ -2039,7 +2040,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-089047",
           "filedAt": "2024-04-08",
-          "acceptedAt": "2024-04-08T10:08:57.000Z",
+          "acceptedAt": "2024-04-08T14:08:57.000Z",
           "periodOfReport": null,
           "primaryDocument": "d820989dsc13ga.htm",
           "primaryDocDescription": "SC 13G/A",
@@ -2056,7 +2057,7 @@
           "isAmendment": true,
           "accession": "0001193125-24-089033",
           "filedAt": "2024-04-08",
-          "acceptedAt": "2024-04-08T10:03:57.000Z",
+          "acceptedAt": "2024-04-08T14:03:57.000Z",
           "periodOfReport": null,
           "primaryDocument": "d822830dsc13ga.htm",
           "primaryDocDescription": "SC 13G/A",
@@ -2162,7 +2163,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -2429,7 +2430,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -2525,7 +2526,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -2707,7 +2708,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -2955,7 +2956,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -3238,7 +3239,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -3505,7 +3506,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -3772,7 +3773,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -4039,7 +4040,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -4135,7 +4136,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -4400,7 +4401,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -4667,7 +4668,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -4934,7 +4935,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -5201,7 +5202,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -5297,7 +5298,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -5564,7 +5565,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -5831,7 +5832,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -6098,7 +6099,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -6106,7 +6107,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-003171",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:32:01.000Z",
+          "acceptedAt": "2024-11-15T02:32:01.000Z",
           "periodOfReport": null,
           "primaryDocument": "sayw24111425_13ga.htm",
           "primaryDocDescription": null,
@@ -6123,7 +6124,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-003170",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:31:49.000Z",
+          "acceptedAt": "2024-11-15T02:31:49.000Z",
           "periodOfReport": null,
           "primaryDocument": "sayw24111429_13ga.htm",
           "primaryDocDescription": null,
@@ -6140,7 +6141,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-003169",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:31:39.000Z",
+          "acceptedAt": "2024-11-15T02:31:39.000Z",
           "periodOfReport": null,
           "primaryDocument": "sayw24111428_13ga.htm",
           "primaryDocDescription": null,
@@ -6157,7 +6158,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-003167",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:31:29.000Z",
+          "acceptedAt": "2024-11-15T02:31:29.000Z",
           "periodOfReport": null,
           "primaryDocument": "sayw24111427_13ga.htm",
           "primaryDocDescription": null,
@@ -6174,7 +6175,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-003166",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:31:18.000Z",
+          "acceptedAt": "2024-11-15T02:31:18.000Z",
           "periodOfReport": null,
           "primaryDocument": "sayw24111424_13ga.htm",
           "primaryDocDescription": null,
@@ -6191,7 +6192,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-003165",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:31:06.000Z",
+          "acceptedAt": "2024-11-15T02:31:06.000Z",
           "periodOfReport": null,
           "primaryDocument": "sayw24111430_13ga.htm",
           "primaryDocDescription": null,
@@ -6208,7 +6209,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-003164",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:30:54.000Z",
+          "acceptedAt": "2024-11-15T02:30:54.000Z",
           "periodOfReport": null,
           "primaryDocument": "sayw24111431_13ga.htm",
           "primaryDocDescription": null,
@@ -6225,7 +6226,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-003163",
           "filedAt": "2024-11-14",
-          "acceptedAt": "2024-11-14T21:30:43.000Z",
+          "acceptedAt": "2024-11-15T02:30:43.000Z",
           "periodOfReport": null,
           "primaryDocument": "sayw24111426_13ga.htm",
           "primaryDocDescription": null,
@@ -6242,7 +6243,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-002952",
           "filedAt": "2024-11-06",
-          "acceptedAt": "2024-11-06T22:04:05.000Z",
+          "acceptedAt": "2024-11-07T03:04:05.000Z",
           "periodOfReport": null,
           "primaryDocument": "bbio.htm",
           "primaryDocDescription": null,
@@ -6259,7 +6260,7 @@
           "isAmendment": true,
           "accession": "0000905148-24-002951",
           "filedAt": "2024-11-06",
-          "acceptedAt": "2024-11-06T22:03:53.000Z",
+          "acceptedAt": "2024-11-07T03:03:53.000Z",
           "periodOfReport": null,
           "primaryDocument": "cazoo.htm",
           "primaryDocDescription": null,
@@ -6365,7 +6366,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -6632,7 +6633,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -6899,7 +6900,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G/A",
@@ -7166,7 +7167,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [],
       "freshnessStatus": "CURRENT_REFERENCE",
       "noticeStatus": "HOLDINGS_FILED",
@@ -7262,7 +7263,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -7529,7 +7530,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13D/A",
@@ -7745,7 +7746,7 @@
         }
       ],
       "ownershipStatus": "DISCOVERED",
-      "ownershipCheckedAt": "2026-10-06T02:44:53.453Z",
+      "ownershipCheckedAt": "2026-10-06T14:08:56.857Z",
       "ownershipEvents": [
         {
           "form": "SC 13G",
@@ -7922,5 +7923,6 @@
       "noticeStatus": "HOLDINGS_FILED",
       "holdingsLag": false
     }
-  ]
+  ],
+  "ownershipCheckedAt": "2026-10-06T14:08:56.857Z"
 }
