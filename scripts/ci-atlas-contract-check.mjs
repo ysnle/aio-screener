@@ -131,13 +131,14 @@ for (const guide of relationshipGuides.guides || []) {
 }
 if (data.relationshipGuides !== 5 || data.relationshipNodes !== 35 || data.relationshipEdges !== 31 || relationshipGuides.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || relationshipGuides.guides.length !== 5 || relationshipNodeCount !== 35 || relationshipEdgeCount !== 31 || invalidRelationshipGuides.length) errors.push(`relationship guide coverage${invalidRelationshipGuides.length ? `: ${invalidRelationshipGuides.join(',')}` : ''}`);
 const relationshipNode = (guideId, nodeId) => relationshipGuides.guides.find((guide) => guide.id === guideId)?.nodes?.find((node) => node.id === nodeId);
+// P1495: depth markers in reader Korean — the same models (state-space r*, KV bytes, OCF→FCF, recovery time, PUE, link budget).
 const relationshipDepthChecks = [
-  ['r-star estimation', relationshipNode('neutral-rate-policy-gap', 'rstar')?.mechanism?.includes('Kalman filter') && relationshipNode('neutral-rate-policy-gap', 'rstar')?.metrics?.includes('data vintage·모형 버전')],
-  ['KV capacity model', relationshipNode('nand-inference-fcf', 'kv-cache')?.mechanism?.includes('KV heads') && relationshipNode('nand-inference-fcf', 'kv-cache')?.metrics?.includes('bytes/token·active tokens')],
-  ['FCF bridge', relationshipNode('nand-inference-fcf', 'financial-targets')?.metrics?.includes('OCF-to-FCF bridge')],
-  ['supply-chain recovery', relationshipNode('semiconductor-supply-network', 'equipment-materials')?.metrics?.includes('time-to-recover')],
+  ['r-star estimation', relationshipNode('neutral-rate-policy-gap', 'rstar')?.mechanism?.includes('칼만 필터') && relationshipNode('neutral-rate-policy-gap', 'rstar')?.metrics?.includes('자료 발표 시점·모형 버전')],
+  ['KV capacity model', relationshipNode('nand-inference-fcf', 'kv-cache')?.mechanism?.includes('키·값 헤드 수') && relationshipNode('nand-inference-fcf', 'kv-cache')?.metrics?.includes('토큰당 바이트·활성 토큰 수')],
+  ['FCF bridge', relationshipNode('nand-inference-fcf', 'financial-targets')?.metrics?.includes('영업현금흐름 → 잉여현금흐름 연결')],
+  ['supply-chain recovery', relationshipNode('semiconductor-supply-network', 'equipment-materials')?.metrics?.includes('복구 기간')],
   ['data-center denominator', relationshipNode('ai-datacenter-gigawatt-to-token', 'thermal')?.mechanism?.includes('PUE =')],
-  ['CPO link budget', relationshipNode('cpo-supply-map', 'inp-laser')?.metrics?.includes('optical link budget')]
+  ['CPO link budget', relationshipNode('cpo-supply-map', 'inp-laser')?.metrics?.includes('광 연결 손실 여유')]
 ];
 for (const [name, ok] of relationshipDepthChecks) if (!ok) errors.push(`relationship academic depth: ${name}`);
 const hasGuide = (id) => atlas.includes(`'${id}': { definition`) || atlas.includes(`  ${id}: { definition`);

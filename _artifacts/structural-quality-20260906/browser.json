@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-06T01:48:40.779Z",
+  "generatedAt": "2026-10-06T02:24:26.986Z",
   "routes": [
     {
       "id": "home",
@@ -9,11 +9,23 @@
         {
           "tag": "A",
           "name": "시장 상태 →"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Prices Fall as G-7 Plans Crude, Diesel Release But Hormuz Shipping Risks Persist - WSJ — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "10-year Treasury yield rises to fresh 2002 high to start the week - CNBC — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Gold steady as stronger dollar and high yields offset waning Fed hike expectations - CNBC — 원문 새 창에서 열기"
         }
       ],
       "headings": [
-        "시장 현황 v57.22",
-        "어제와 달라진 점10/1 → 10/2 종가",
+        "시장 현황 v57.23",
+        "어제와 달라진 점10/2 → 10/5 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
         "내 종목 뉴스"
@@ -22,23 +34,387 @@
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "loading",
-      "controls": [],
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        }
+      ],
       "headings": [
         "시장 상태",
-        "판정 대기",
+        "혼조",
         "미국 시장 6개 축",
-        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다"
+        "추세",
+        "시장 폭",
+        "변동성",
+        "금리",
+        "신용 · 위험선호",
+        "달러 · 원자재",
+        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
+        "환율 (원 · 엔)",
+        "이어서 볼 곳"
       ]
     },
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "loading",
-      "controls": [],
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "SELECT",
+          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HPE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ASX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NTAP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "P"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LITE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AMD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "JCI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "KEYS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RBRK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PANW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "EWJ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CRWD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NVDA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FTNT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "QQQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XLK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NKE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AON"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FISV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FIS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CHTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WYNN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SNY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TCOM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BIDU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LULU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BSX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LVS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TTD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MKC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TMUS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MAA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ZTS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NOC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "OTIS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PEP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "JOBY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CPNG"
+        },
+        {
+          "tag": "SELECT",
+          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WOLF"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TER"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HPE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "KRMN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ECHO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ASX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ON"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AMKR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MPWR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SATL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AEHR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NTAP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ARM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VIAV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SEI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RKLB"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LUNR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TSLA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LBRT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "URI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "P"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TXN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "GNRC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SMCI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "UMC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ONTO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CRDO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WDC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "STX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "QBTS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RHI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XNDU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        }
+      ],
       "headings": [
         "시장 폭",
-        "시장 폭 판정"
+        "시장 폭 판정",
+        "참여도 — 이동평균 위 종목 비율",
+        "50일선 위 종목 비율",
+        "20일선 위 종목 비율",
+        "40일선 위 종목 비율 (T2108 계열)",
+        "200일선 위 종목 비율",
+        "상승 종목 비율 (10일 평균)",
+        "누적 상승-하락 종목 수 (A/D 라인)",
+        "리더십 — 신고가·신저가와 급등락 종목",
+        "52주 신고가 − 신저가 종목 수",
+        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
+        "지수 확인 — 분배일과 S&P 500",
+        "S&P 500 분배일 (최근 25거래일)",
+        "S&P 500 (같은 기간 비교)",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -46,10 +422,6 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "금리 · 환율 →"
-        },
         {
           "tag": "BUTTON",
           "name": "시장 폭 →"
@@ -142,15 +514,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "금리 · 할인율부담10년물 20일 +52bp"
+          "name": "금리 · 할인율부담10년물 20일 +53bp"
         },
         {
           "tag": "BUTTON",
-          "name": "유가 · 달러부담WTI 20일 −0.1% · 달러 +2.8%"
+          "name": "유가 · 달러부담WTI 20일 −0.4% · 달러 +2.8%"
         },
         {
           "tag": "BUTTON",
-          "name": "신용부담HY 324bp (5일 +44bp)"
+          "name": "신용중립HY 310bp (5일 +17bp)"
         }
       ],
       "headings": [
@@ -543,12 +915,28 @@
           "name": "새로고침"
         },
         {
+          "tag": "A",
+          "name": "Gold steady as stronger dollar and high yields offset waning Fed hike expectations - CNBC — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Prices Fall as G-7 Plans Crude, Diesel Release But Hormuz Shipping Risks Persist - WSJ — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "10-year Treasury yield rises to fresh 2002 high to start the week - CNBC — 원문 새 창에서 열기"
+        },
+        {
           "tag": "BUTTON",
           "name": "최신순"
         },
         {
           "tag": "BUTTON",
           "name": "중요도순"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "공용 AI 연결 시 해석 추가"
         },
         {
           "tag": "BUTTON",
@@ -568,51 +956,103 @@
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조Insider·US · 10-04미국 중간선거를 앞두고 민주당이 전통적인 공화당 우세 지역에서 지지세를 확대 중. 민주당은 알래스카에서 공화당에 7%포인트, 텍사스에서 6%포인트, 오"
+          "name": "Stock Market Today: 10-Year Treasury Yield Rises as Nasdaq Hits New Record - Eurasia Business News — 원문 새 창에서 "
         },
         {
           "tag": "A",
-          "name": "지정학긍정 어조Insider·US · 10-04💡 💡 💡 사우디아라비아가 예멘 홍해 연안과 전략적 요충지인 바브엘만데브 해협 일대에서 최근 후티 반군이 확보한 지역을 탈환하기 위한 대규모 반격"
+          "name": "Nasdaq Rallies to Record as Tech Strength Overrides 24-Year Treasury Yield Surge - finance.biggo.com — 원문 새 창에"
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조Insider·US · 10-04이란의 지대공 미사일(SAM) 사이야드-3 잔해가 케슘섬에 낙하."
+          "name": "Trump blames Democrats and Ukraine for soaring US fuel prices, not Iran war - Al Jazeera — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조Insider·US · 10-04세계 식량 가격이 2022년 이후 최고 수준에 도달"
+          "name": "Gold little changed as fading likelihood of U.S. rate hike offset by rising dollar and yields - Seeking Alpha "
         },
         {
           "tag": "A",
-          "name": "매크로긍정 어조Insider·US · 10-04위켄드 유가 & 나스닥 모두 소폭 상승 상태."
+          "name": "Is Iran charging a toll to allow oil traffic through Hormuz? - Al Jazeera — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "매크로중립 어조Insider·US · 10-04유로존 수석 이코노미스트 데이비드 파월은 “헤드라인 인플레이션이 시장 예상치를 웃돌았지만, 헤드라인과 근원 인플레이션의 분기 평균은 모두 유럽중앙은행("
+          "name": "Oil prices would have hit $200 a barrel if not for East-West pipeline, Aramco chief says - thenationalnews.com"
         },
         {
           "tag": "A",
-          "name": "자금조달긍정 어조Insider·US · 10-042026년 연초 대비 자산군별 총수익률 기준 원자재가 +79.4%로 압도적인 상승률 기록. MSCI 신흥국 지수 +23.5%, S&P 500 +12."
+          "name": "S&P 500 Climbs 0.66% to 7,773.95 as Tech Shrugs Off a 5.3% 10-Year Treasury Yield - BBN Times — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "매크로중립 어조Insider·US · 10-04트럼프 발언 및 미국 정치 관련 정리 - 2026년 10월 4일 📍 트럼프·중간선거 공약 · 트럼프, 공화당이 2026년 중간선거에서 상·하원을 모두"
+          "name": "Nasdaq Hits New Record as Bond Yields March Higher - WSJ — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조Insider·US · 10-03⚡️ ⚡️ ⚡️ 이란 방공망이 호르무즈 해협의 케슘섬 상공에서 비행체를 향해 지대공 미사일(SAM)을 발사함."
+          "name": "Singapore Eyes Nuclear Power as Iran War Exposes Its Import Problem - Crude Oil Prices Today | OilPrice.com — "
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조HANA·China/EM · 10-03>>머스크, TSMC의 Terafab 프로젝트 참여 가능성에 답변 •TSMC가 SpaceX·Tesla와 공동 투자해 추진하는 Terafab 프로젝"
+          "name": "Jim Rickards: Stabelcoins \"Dangerous\" For Bond Market - $10,000 Gold Outlook - Bitcoin Magazine — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조Aether·JP · 10-03커스텀 HBM은 GPU 다이에서 연산(Compute)을 위한 공간을 더 확보해줍니다. Rubin에서는 HBM 컨트롤러와 PHY가 GPU 다이 면적의 약 "
+          "name": "EXEC: Nike Faces Stock Price Cuts, Downgrade Following Disappointing Q1 Report - SGB Media — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "매크로긍정 어조HANA·China/EM · 10-03>>NVIDIA, 장중 사상 최고치…시가총액 6조달러 육박, 추가 매수할 만한가? (대만경제일보) •NVIDIA 주가는 금요일 장중 3%까지 상승"
+          "name": "Agree Realty stock reports higher Q2 earnings and guidance - AD HOC NEWS — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "12개 더 보기"
+        },
+        {
+          "tag": "A",
+          "name": "자금조달긍정 어조HANA·China/EM · 10-06• 폭스콘, 9월 연결 매출이 1조 1,500억 TWD를 기록하며 MoM+25.7%, YoY+38.4% 증가하며 대만 상장사 최초 월 매출 1조"
+        },
+        {
+          "tag": "A",
+          "name": "매크로긍정 어조HANA·China/EM · 10-06> 일본 파운드리 '라피더스'의 첨단 반도체 수주 경쟁력 강화 • 라피두스는 인텔과 삼성에 맞서기 위해 시놉시스, 케이던스 등 미국, 일본, 인도"
+        },
+        {
+          "tag": "A",
+          "name": "지정학중립 어조Insider·US · 10-06영국 보수당이 이스라엘의 아이언돔을 일부 모델로 삼은 100억 파운드 규모의 방공·미사일 방어체계 ‘브리타니아 실드’ 구축 계획 공개. 브리타니아 실드"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식중립 어조Insider·US · 10-06급진 좌파는 내가 광고를 내고 있다는 사실에 화가 나 있다. 나는 이 광고들이 위대한 미국을 긍정적으로 홍보하는 것이라고 생각하며, 미국 정부 자금으"
+        },
+        {
+          "tag": "A",
+          "name": "매크로중립 어조HANA·China/EM · 10-06>>미 연준 10월 금리 동결 확률 77.3% •CME ‘FedWatch’에 따르면 미 연준이 10월까지 금리를 동결할 확률은 77.3%, 누적 "
+        },
+        {
+          "tag": "A",
+          "name": "자금조달중립 어조HANA·China/EM · 10-06>>보도: Etched, 400억~500억달러 기업가치 기준 인수 제안 검토 •소식통에 따르면 AI 반도체 스타트업 Etched가 검토 중인 투"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식중립 어조HANA·China/EM · 10-06•사우디 수도 리야드에서 5일 밤 폭발음 발생 (CCTV) •사우디 주도 연합: 사나의 미사일 발사대를 파괴 (사우디 관영매체 SPA) >沙特阿"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식중립 어조Insider·US · 10-06사우디 리야드 공항에서는 현재 운항에 차질이 계속 발생."
+        },
+        {
+          "tag": "A",
+          "name": "매크로중립 어조Insider·US · 10-06⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 공화당이 2026년 중간선거에서 하원과 상원을 모두 장악하면, 미국의 모든 성인 시민에게 5,000달러씩 지급하겠다. "
+        },
+        {
+          "tag": "A",
+          "name": "매크로중립 어조Insider·US · 10-06오늘 아마존은 가을 프라임데이 (PBDD) 열리네요. K-뷰티 업체들 화이팅~&#33; > 한국시간으로 금일 16시부터 10월 8일 15시 59분까지입"
+        },
+        {
+          "tag": "A",
+          "name": "매크로긍정 어조HANA·China/EM · 10-06>>올해 기술 부호만 돈을 벌었다: AI 열풍으로 자산 8,450억달러 증가, 머스크가 약 40% 차지 •블룸버그 억만장자 지수에 따르면, 세계에"
+        },
+        {
+          "tag": "A",
+          "name": "매크로중립 어조HANA·China/EM · 10-06>>트럼프, G7 비축유 방출에 이어 중간선거 앞두고 다시 유가 압박: 면세 ‘적색 경유’ 사용 제한 완화 추진 •보도에 따르면 트럼프 행정부는 "
         }
       ],
       "headings": [

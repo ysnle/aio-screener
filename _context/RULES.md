@@ -2,7 +2,7 @@
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
 last_verified: 2026-10-03
 confidence: medium
-target_version: v57.22
+target_version: v57.23
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---

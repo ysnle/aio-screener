@@ -24,6 +24,47 @@ async function writeAtomic(url, value) {
   return text;
 }
 
+// Codex review 2026-10-05 (분기 추이): the last eight fiscal quarters of revenue and net income. Discrete
+// three-month facts are used as filed (latest filing wins per period end). A fourth quarter is derived
+// only when the fiscal year total and exactly three discrete quarters inside it exist, and is flagged 'd'.
+export const QUARTER_FORMAT = 'periodEnd:revenue:netIncome:basis (USD millions; basis r=reported, d=derived FY−Q1..Q3)';
+export function quarterlyHistory(observations = {}) {
+  const pick = (rows) => {
+    const byEnd = new Map();
+    for (const row of Array.isArray(rows) ? rows : []) {
+      if (!Number.isFinite(row?.value) || !row.periodEnd || !row.periodStart) continue;
+      const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart)) / 86400000;
+      if (!(days >= 80 && days <= 100)) continue;
+      const prev = byEnd.get(row.periodEnd);
+      if (!prev || String(row.filedAt) > String(prev.filedAt)) byEnd.set(row.periodEnd, row);
+    }
+    return byEnd;
+  };
+  const annual = (rows) => (Array.isArray(rows) ? rows : []).filter((row) => row?.fiscalPeriod === 'FY' && Number.isFinite(row.value) && row.periodStart && row.periodEnd
+    && (Date.parse(row.periodEnd) - Date.parse(row.periodStart)) / 86400000 >= 330);
+  const quarters = new Map();
+  for (const [field, qField, fyField] of [['revenue', 'revenueQ', 'revenue'], ['netIncome', 'netIncomeQ', 'netIncome']]) {
+    const discrete = pick(observations[qField]);
+    for (const [end, row] of discrete) {
+      const q = quarters.get(end) || { periodEnd: end, derived: false };
+      q[field] = row.value;
+      quarters.set(end, q);
+    }
+    for (const fy of annual(observations[fyField])) {
+      if (discrete.has(fy.periodEnd)) continue;
+      const inside = [...discrete.values()].filter((row) => row.periodEnd > fy.periodStart && row.periodEnd < fy.periodEnd);
+      if (inside.length !== 3) continue;
+      const q = quarters.get(fy.periodEnd) || { periodEnd: fy.periodEnd, derived: true };
+      q[field] = fy.value - inside.reduce((sum, row) => sum + row.value, 0);
+      q.derived = true;
+      quarters.set(fy.periodEnd, q);
+    }
+  }
+  const m = (value) => (value == null ? '' : Math.round(value / 1e6));
+  const rows = [...quarters.values()].filter((q) => q.revenue != null || q.netIncome != null).sort((a, b) => a.periodEnd.localeCompare(b.periodEnd)).slice(-8);
+  return rows.length >= 2 ? rows.map((q) => [q.periodEnd, m(q.revenue), m(q.netIncome), q.derived ? 'd' : 'r'].join(':')).join(';') : null;
+}
+
 const sourceText = await readFile(SOURCE, 'utf8');
 const source = JSON.parse(sourceText);
 // P1436 (재무 공시 redesign): the page reads a trend, not one year. A compact fiscal-year series (at most
@@ -128,7 +169,9 @@ const fiscal = {
   source: source.source,
   format: FISCAL_HISTORY_FORMAT,
   allowedUse: source.allowedUse,
-  data: Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => [symbol, fiscalHistory(record?.pit?.observations)]).filter(([, value]) => value))
+  data: Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => [symbol, fiscalHistory(record?.pit?.observations)]).filter(([, value]) => value)),
+  quarterFormat: QUARTER_FORMAT,
+  quarters: Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => [symbol, quarterlyHistory(record?.pit?.observations)]).filter(([, value]) => value))
 };
 await writeFile(new URL(`${FISCAL.pathname}.tmp`, FISCAL), `${JSON.stringify(fiscal)}
 `, 'utf8');

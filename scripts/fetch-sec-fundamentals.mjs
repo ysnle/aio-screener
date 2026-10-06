@@ -188,6 +188,12 @@ function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
 
 function buildPointInTimeFacts(companyFacts, submissions) {
   const acceptedMap = acceptedAtByAccession(submissions);
+  const REVENUE_CONCEPTS = ['RevenueFromContractWithCustomerExcludingAssessedTax', 'Revenues', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense'];
+  // Codex review 2026-10-05 (분기 추이): discrete-quarter facts (about three months) from 10-Q/10-K.
+  // A fourth quarter is rarely tagged on its own; the projection derives it from FY minus Q1–Q3 and labels it.
+  const quarterly = (row) => { const days = durationDays(row); return /^(10-Q|10-K)(\/A)?$/.test(row.form || '') && days != null && days >= 80 && days <= 100; };
+  const revenueQRows = factRows(companyFacts, 'us-gaap', REVENUE_CONCEPTS, 'USD').filter(quarterly);
+  const incomeQRows = factRows(companyFacts, 'us-gaap', ['NetIncomeLoss', 'ProfitLoss'], 'USD').filter(quarterly);
   const revenueRows = factRows(companyFacts, 'us-gaap', [
     'RevenueFromContractWithCustomerExcludingAssessedTax',
     'Revenues',
@@ -225,7 +231,9 @@ function buildPointInTimeFacts(companyFacts, submissions) {
     sharesOutstanding: compactPitRows(shareRows, 'sharesOutstanding', acceptedMap),
     operatingCashFlow: compactPitRows(ocfRows, 'operatingCashFlow', acceptedMap),
     capex: compactPitRows(capexRows, 'capex', acceptedMap),
-    longTermDebt: compactPitRows(debtRows, 'longTermDebt', acceptedMap)
+    longTermDebt: compactPitRows(debtRows, 'longTermDebt', acceptedMap),
+    revenueQ: compactPitRows(revenueQRows, 'revenueQ', acceptedMap, 16),
+    netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, 16)
   };
   const all = Object.values(observations).flat();
   return {
@@ -470,7 +478,7 @@ export async function refreshSecFundamentals(priceHints = null) {
       // Codex review 2026-10-05: P1446 added the cash chain (operating cash flow, capex, debt) to new
       // fetches, but stored records only refresh after REFRESH_AFTER_MS, so all 592 published issuers
       // still lacked it. A stored record without the cash-chain observations is due now.
-      cashChainMissing: Boolean(previous.data && previous.data[symbol] && !Array.isArray(previous.data[symbol]?.pit?.observations?.operatingCashFlow)),
+      cashChainMissing: Boolean(previous.data && previous.data[symbol] && (!Array.isArray(previous.data[symbol]?.pit?.observations?.operatingCashFlow) || !Array.isArray(previous.data[symbol]?.pit?.observations?.revenueQ))),
       lastFailureAt: previousFailureAt.get(symbol) || null,
       priorFailure: previousFailureRecords.get(symbol) || null
     }))

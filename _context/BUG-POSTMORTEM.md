@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1496 - v57.23 - 재무 공시가 연간 10-K만 보여 최근 실적을 알 수 없음 (2026-10-06)
+
+- symptom/reproduction: 재무 공시 화면은 연간 회계연도만 보여, 1년 가까이 지난 회계연도가 ‘최근 실적’을 대신했다.
+- root_cause: SEC 수집이 연간(FY) 사실만 저장했고, 분기 사실은 수집·투영하지 않았다.
+- fix: fetch-sec-fundamentals: 약 3개월 기간의 분기 매출·순이익(10-Q/10-K)을 수집하고, 분기 관측이 없는 저장 기록을 재수집 대상으로 했다. build-sec-runtime-projection: 최근 8개 분기를 투영하고, 4분기는 연간과 1~3분기가 모두 있을 때만 연간 − 1~3분기로 계산해 표시(d). quarter-read + fiscal-read: 분기 매출 막대와 전년 같은 분기 대비 변화, 계산값 표시.
+- violated_rule: 최근 실적은 기간을 밝혀 비교하고, 추정값은 추정이라고 표시한다.
+- prevention: quarterlyHistory는 연간·1~3분기가 모두 있을 때만 4분기를 계산하고, 그 외에는 비워 둔다.
+- verification/residual: quarterlyHistory 픽스처(4분기 = 460 − 330 = 130, 계산값), buildQuarterRead 전년 동기 비교 확인. 실제 분기 자료는 다음 Actions 실행 뒤 채워진다.
+
+## P1495 - v57.23 - 관계 가이드 노드가 영어 용어 위주로 쓰여 있음 (2026-10-06)
+
+- symptom/reproduction: 중립금리·NAND·반도체 공급망·데이터센터·CPO 관계 가이드 35개 노드가 Kalman filter, one-sided, KV heads, OCF-to-FCF bridge, firm MW 같은 영어 용어 위주로 쓰여 가족·지인 독자가 읽기 어려웠다.
+- root_cause: 애널리스트 메모 원문을 옮기면서 용어를 번역하지 않았고, 깊이 검사(ci-atlas-contract-check)가 영어 문자열 자체를 확인해 번역을 막았다.
+- fix: relationship-guides.json 35개 노드·가이드 요약·연결 라벨을 한국어 본문으로 다시 쓰고(원본 서식 유지), 깊이 검사는 같은 모형 개념(상태공간 r* 추정, KV 캐시 크기 분해, 영업→잉여현금흐름 연결, 복구 기간, PUE 식, 광 연결 손실 여유)을 한국어로 확인하게 했다.
+- violated_rule: 사용자 화면에는 개발자·영어 약어 위주 문구를 두지 않는다(Product decisions — Screen design).
+- prevention: 깊이 표지는 개념 단위로 남겨 번역 후에도 내용이 얕아지지 않게 한다.
+- verification/residual: ci-atlas-contract-check, ci-knowledge-generated-parity-check 통과.
+
 ## P1494 - v57.22 - 화면 간 해석 기준·문구 불일치 일괄 정리 (2026-10-06)
 
 - symptom/reproduction: ‘방어적 환경’이 검증된 투자 판단처럼 읽혔고, HY 324bp를 450bp 기준 설명 옆에서 ‘부담’으로 보여 이유가 불분명했다. 거시 화면은 ‘시장: 인상 구간’을 크게 쓰고 전달 경로 도식이 인과를 입증한 것처럼 보였다. 테마 1주를 골라도 아래 해설은 1일 값, ‘돈이 몰리는 곳’ 표현, 한국 테마 실시간 0/28이 전체 실패처럼 보임. 차트를 SPY로 바꿔도 종목 문맥은 NVDA라는 안내가 없었다. 포트폴리오는 통화·TWR·환율 설정이 먼저 보였고, 마지막 보유 삭제 뒤 섹터 집중도가 남았다. 오늘 화면은 실시간 시세 아래에 종가 판정이 있었고, 용어사전 시가총액 구간이 스크리너와 달랐으며, 도움말 판정표의 ‘·’가 ‘모두’로 읽혔다.

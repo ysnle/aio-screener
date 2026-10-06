@@ -2,6 +2,7 @@
 // and the connected reading (growth → profitability → earnings vs price → price vs results).
 import { buildFiscalRead, formatUsdShort } from '../../domain/fundamental/fiscal-read.js';
 import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
+import { buildQuarterRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
@@ -26,7 +27,7 @@ function requestFiscalHistory(root, onReady) {
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
   load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
     .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
-    .then((artifact) => { root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; })
+    .then((artifact) => { root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; })
     .catch(() => { root._aioSecFiscalHistory = null; })
     .finally(() => { root._aioSecFiscalHistoryRequested = false; onReady(); });
 }
@@ -64,6 +65,33 @@ function bars(doc, read) {
   const wrap = el(doc, 'div', null, 'fiscal-chart');
   wrap.append(box, legend);
   return wrap;
+}
+
+// Codex review 2026-10-05: the last eight fiscal quarters — revenue bars with the change against the same
+// quarter a year earlier underneath; a derived fourth quarter is marked.
+function quarterSection(doc, root, symbol) {
+  const text = root?._aioSecQuarterHistory?.[symbol];
+  if (!text) return null;
+  const read = buildQuarterRead(parseQuarterHistory(text));
+  if (!read.available) return null;
+  const box = el(doc, 'div', null, 'fiscal-quarters');
+  box.append(el(doc, 'span', `분기 흐름 · 최근 ${read.rows.length}개 분기`, 'stock-read-vis-title'), el(doc, 'p', read.headline, 'briefing-read-headline'));
+  const bars = el(doc, 'div', null, 'fiscal-bars');
+  const max = Math.max(...read.rows.map((q) => Math.abs(q.revenue || 0)), 1);
+  for (const q of read.rows) {
+    const col = el(doc, 'div', null, 'fiscal-col');
+    const stack = el(doc, 'div', null, 'fiscal-stack');
+    const bar = el(doc, 'div', null, 'fiscal-bar is-revenue');
+    bar.style.height = `${Math.max(2, (q.revenue || 0) / max * 100).toFixed(1)}%`;
+    bar.title = `매출 ${formatUsdShort(q.revenue)}${q.netIncome != null ? ` · 순이익 ${formatUsdShort(q.netIncome)}` : ''}${q.derived ? ' · 연간 − 1~3분기로 계산' : ''}`;
+    stack.append(bar);
+    col.append(el(doc, 'span', formatUsdShort(q.revenue), 'fiscal-value'), stack,
+      el(doc, 'span', `${q.periodEnd.slice(2, 7).replace('-', '.')}${q.derived ? '*' : ''}`, 'fiscal-year'),
+      el(doc, 'span', q.revenueYoy == null ? '' : `${q.revenueYoy >= 0 ? '+' : ''}${q.revenueYoy.toFixed(0)}%`, 'fiscal-margin'));
+    bars.append(col);
+  }
+  box.append(bars, el(doc, 'p', `아래 % = 전년 같은 분기 대비 매출 변화 · 분기 마감 월 기준${read.hasDerived ? ' · * 표시 분기는 연간 실적에서 1~3분기를 빼 계산한 값' : ''}.`, 'theme-strength-basis'));
+  return box;
 }
 
 // P1467: where the company sits among same-sector SEC filers on the same four definitions.
@@ -124,6 +152,8 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     host.querySelector('h2').append(el(doc, 'span', `SEC 10-K 연간 · ${read.history.length}개 회계연도`, 'briefing-h2-note'));
     if (read.headline) host.append(el(doc, 'p', `${symbol} — ${read.headline}`, 'briefing-read-headline'));
     if (read.history.length >= 2) host.append(bars(doc, read));
+    const quarterBox = quarterSection(doc, root, symbol);
+    if (quarterBox) host.append(quarterBox);
     const list = el(doc, 'ul', null, 'stock-read-points');
     for (const point of read.points) {
       const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
