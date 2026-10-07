@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-06T14:40:52.612Z",
+  "generatedAt": "2026-10-07T13:07:16.522Z",
   "routes": [
     {
       "id": "home",
@@ -16,11 +16,11 @@
         },
         {
           "tag": "A",
-          "name": "Oil Prices Fall as G-7 Plans Crude, Diesel Release But Hormuz Shipping Risks Persist — 원문 새 창에서 열기"
+          "name": "US EIA hikes oil price forecasts again as Iran war drains global stockpile — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "10-year Treasury yield rises to fresh 2002 high to start the week — 원문 새 창에서 열기"
+          "name": "What Marvell's rosy long-term guidance means for our AI chip stocks — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -29,7 +29,7 @@
       ],
       "headings": [
         "시장 현황 v57.26",
-        "어제와 달라진 점10/2 → 10/5 종가",
+        "어제와 달라진 점10/2 → 10/6 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
         "내 종목 뉴스"
@@ -75,42 +75,11 @@
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "ready",
-      "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "테마 · 섹터 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "스크리너 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 →"
-        }
-      ],
+      "moduleState": "loading",
+      "controls": [],
       "headings": [
         "시장 폭",
-        "시장 폭 판정",
-        "참여도 — 이동평균 위 종목 비율",
-        "50일선 위 종목 비율",
-        "20일선 위 종목 비율",
-        "40일선 위 종목 비율 (T2108 계열)",
-        "200일선 위 종목 비율",
-        "상승 종목 비율 (10일 평균)",
-        "누적 상승-하락 종목 수 (A/D 라인)",
-        "리더십 — 신고가·신저가와 급등락 종목",
-        "52주 신고가 − 신저가 종목 수",
-        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
-        "지수 확인 — 분배일과 S&P 500",
-        "S&P 500 분배일 (최근 25거래일)",
-        "S&P 500 (같은 기간 비교)",
-        "이어서 볼 곳"
+        "시장 폭 판정"
       ]
     },
     {
@@ -159,7 +128,7 @@
     {
       "id": "technical",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
@@ -180,10 +149,6 @@
         {
           "tag": "BUTTON",
           "name": "차트 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "다시 시도"
         }
       ],
       "headings": [
@@ -206,19 +171,19 @@
         },
         {
           "tag": "BUTTON",
-          "name": "통화정책부담2년물이 기준금리보다 0.96%p 높음"
+          "name": "통화정책부담2년물이 기준금리보다 0.92%p 높음"
         },
         {
           "tag": "BUTTON",
-          "name": "금리 · 할인율부담10년물 20일 +53bp"
+          "name": "금리 · 할인율부담10년물 20일 +49bp"
         },
         {
           "tag": "BUTTON",
-          "name": "유가 · 달러부담WTI 20일 −3.9% · 달러 +3.4%"
+          "name": "유가 · 달러부담WTI 20일 −3.9% · 달러 +3.0%"
         },
         {
           "tag": "BUTTON",
-          "name": "신용중립HY 310bp (5일 +17bp)"
+          "name": "신용중립HY 312bp (5일 +10bp)"
         }
       ],
       "headings": [
@@ -295,23 +260,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "통신 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
           "name": "헬스케어 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "원자재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금융 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
@@ -323,11 +272,27 @@
         },
         {
           "tag": "BUTTON",
+          "name": "부동산 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
           "name": "산업재 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "부동산 테마 상세 열기"
+          "name": "원자재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금융 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "통신 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
@@ -363,19 +328,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "SMCI"
+          "name": "HPE"
         },
         {
           "tag": "BUTTON",
-          "name": "CRWD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ESTC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TMO"
+          "name": "ZS"
         },
         {
           "tag": "BUTTON",
@@ -383,11 +340,15 @@
         },
         {
           "tag": "BUTTON",
+          "name": "ESTC"
+        },
+        {
+          "tag": "BUTTON",
           "name": "FCX"
         },
         {
           "tag": "BUTTON",
-          "name": "AMD"
+          "name": "A"
         },
         {
           "tag": "BUTTON",
@@ -395,7 +356,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "EMR"
+          "name": "AMD"
         },
         {
           "tag": "BUTTON",
@@ -403,15 +364,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "AMD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "T"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WAB"
+          "name": "EMR"
         },
         {
           "tag": "BUTTON",
@@ -419,39 +372,47 @@
         },
         {
           "tag": "BUTTON",
-          "name": "전체 53개 보기"
+          "name": "T"
         },
         {
           "tag": "BUTTON",
-          "name": "반도체 +3.7%"
+          "name": "JCI"
         },
         {
           "tag": "BUTTON",
-          "name": "유틸리티 -12.4%"
+          "name": "AMD"
         },
         {
           "tag": "BUTTON",
-          "name": "에너지 +11.1%"
+          "name": "전체 52개 보기"
         },
         {
           "tag": "BUTTON",
-          "name": "광통신/포토닉스 +6.3%"
+          "name": "반도체 -0.3%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +9.9%"
+          "name": "유틸리티 -9.5%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +9.9%"
+          "name": "에너지 +7.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "산업재/물류 -3.3%"
+          "name": "광통신/포토닉스 +13.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "스크리너 →"
+          "name": "AI 인프라/데이터센터 +9.6%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 인프라/데이터센터 +9.6%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재/물류 -2.6%"
         },
         {
           "tag": "BUTTON",
@@ -536,7 +497,7 @@
     {
       "id": "portfolio",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
         {
           "tag": "BUTTON",
@@ -568,7 +529,9 @@
         }
       ],
       "headings": [
-        "포트폴리오"
+        "포트폴리오",
+        "내 포트폴리오와 시장",
+        "포트폴리오 점검"
       ]
     },
     {
@@ -600,15 +563,15 @@
         },
         {
           "tag": "A",
+          "name": "What Marvell's rosy long-term guidance means for our AI chip stocks — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "Gold steady as stronger dollar and high yields offset waning Fed hike expectations — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Oil Prices Fall as G-7 Plans Crude, Diesel Release But Hormuz Shipping Risks Persist — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "10-year Treasury yield rises to fresh 2002 high to start the week — 원문 새 창에서 열기"
+          "name": "US EIA hikes oil price forecasts again as Iran war drains global stockpile — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -636,51 +599,51 @@
         },
         {
           "tag": "A",
-          "name": "Stock Market Today: 10-Year Treasury Yield Rises as Nasdaq Hits New Record — 원문 새 창에서 열기"
+          "name": "Stock Market Today: S&P 500 Hits New Record High as Treasury Yields Ease — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Gold little changed as fading likelihood of U.S. rate hike offset by rising dollar and yields — 원문 새 창에서 열기"
+          "name": "Penguin Solutions (NASDAQ:PENG) Issues FY 2027 Earnings Guidance — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "S&P 500 Climbs 0.66% to 7,773.95 as Tech Shrugs Off a 5.3% 10-Year Treasury Yield — 원문 새 창에서 열기"
+          "name": "S&P 500 Breaks Record Ahead of Crucial Fed Test — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Trump: Refinery disruptions, not Hormuz, are driving gas prices — 원문 새 창에서 열기"
+          "name": "Oil Futures Little Changed as Market Weighs Export Recovery, Shipping Risks — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Jim Rickards: Stabelcoins \"Dangerous\" For Bond Market - $10,000 Gold Outlook — 원문 새 창에서 열기"
+          "name": "Constellation Energy Leads S&P 500 to Record Peak — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Update: Nasdaq Composite Reaches New High, 10-Year Yield Tops 5.3% — 원문 새 창에서 열기"
+          "name": "Why Did Jabil (NYSE:JBL) Slip Despite Strong AI Data Center Results? — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Agree Realty stock reports higher Q2 earnings and guidance — 원문 새 창에서 열기"
+          "name": "Oil prices stable as market weighs supply risks, rising Middle East exports — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "UPS stock faces mixed analyst targets before October 27 earnings — 원문 새 창에서 열기"
+          "name": "Should Raised Earnings Guidance Require Action From Hokkaido Electric Power Company (TSE:9509) Investors? — 원문"
         },
         {
           "tag": "A",
-          "name": "Samsung Stock Plummets Nearly 10%: Earnings Preview Brings Mixed Outlook, Facing Potential Technical Breakdown"
+          "name": "Saudi East-West Pipeline Moves 5.8 Million Barrels as Red Sea Route Recovers — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "The Bond Market Moves Gold More Than the Fed Does — 원문 새 창에서 열기"
+          "name": "Newell Brands Q3 Results: Adj EPS Guidance Misses Analyst Estimate — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Crude Oil Prices Fall on Dollar Strength and Saudi Price Cuts — 원문 새 창에서 열기"
+          "name": "Gold Rises on Fed Hold Odds Despite High Yields — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Is Iran charging a toll to allow oil traffic through Hormuz? — 원문 새 창에서 열기"
+          "name": "Pfizer stock sets November 3 earnings date after guidance raise — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -688,51 +651,51 @@
         },
         {
           "tag": "A",
-          "name": "실적긍정 어조@HANAchina · 중국·신흥국 · 10-06• 폭스콘, 9월 연결 매출이 1조 1,500억 TWD를 기록하며 MoM+25.7%, YoY+38.4% 증가하며 대만 상장사 최초 월 매"
+          "name": "실적긍정 어조@bornlupin · 한국 반도체·증권사 자료 · 10-07안녕하세요. [전력기기/전선 3Q26 Preview & 2027년 연간전망 자료] 발간했습니다. 최근 전력기기 섹터는 높은 "
         },
         {
           "tag": "A",
-          "name": "반도체긍정 어조@HANAchina · 중국·신흥국 · 10-06> 일본 파운드리 '라피더스'의 첨단 반도체 수주 경쟁력 강화 • 라피두스는 인텔과 삼성에 맞서기 위해 시놉시스, 케이던스 등 미국, "
+          "name": "지정학부정 어조@insidertracking · 미국 속보 · 10-07아, 그리고..... 제가 외신 채널 수백 개를 팔로우하고 있는데, 러시아 페스트 사태에 대해 엄청나게 우려하는 분위기는 아닙"
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조@insidertracking · 미국 속보 · 10-06영국 보수당이 이스라엘의 아이언돔을 일부 모델로 삼은 100억 파운드 규모의 방공·미사일 방어체계 ‘브리타니아 실드’ 구축 계"
+          "name": "한국장중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-07\"LA 파괴돼도 작은 대가\"…\"제정신 아니다\" 반발NAVER"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-06급진 좌파는 내가 광고를 내고 있다는 사실에 화가 나 있다. 나는 이 광고들이 위대한 미국을 긍정적으로 홍보하는 것이라고 생"
+          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-07오늘 새벽에 진행된 마벨 인베스터 데이 1분 정리"
         },
         {
           "tag": "A",
-          "name": "매크로중립 어조@HANAchina · 중국·신흥국 · 10-06>>미 연준 10월 금리 동결 확률 77.3% •CME ‘FedWatch’에 따르면 미 연준이 10월까지 금리를 동결할 확률은 77.3"
+          "name": "반도체긍정 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-07우에다 가즈오 일본은행 총재 • 기조적 물가상승률이 2%에 근접한 가운데 금융환경이 완화적인 만큼 경제·물가·"
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조@HANAchina · 중국·신흥국 · 10-06>>보도: Etched, 400억~500억달러 기업가치 기준 인수 제안 검토 •소식통에 따르면 AI 반도체 스타트업 Etched가 검토"
+          "name": "매크로긍정 어조@HANAchina · 중국·신흥국 · 10-07>>베선트, 또다시 ‘부채 축소’ 강조…시장에서는 “비전일 뿐 계획은 아님” •미 베선트 재무장관은 GDP 성장률이 지속적으로 3%를 "
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-06•사우디 수도 리야드에서 5일 밤 폭발음 발생 (CCTV) •사우디 주도 연합: 사나의 미사일 발사대를 파괴 (사우디 관영매체 SPA"
+          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-07•중국 본토 AI 인프라 CapEx 상향 지속 (BAT+바이트댄스+화웨이+3대 통신사)"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-06사우디 리야드 공항에서는 현재 운항에 차질이 계속 발생."
+          "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-07>>난야테크 DRAM 계약가격 추가 인상…인상폭 최대 20% (대만경제일보) •중국 메모리 업체들의 증설에도 난야과기(2408)가 DRA"
         },
         {
           "tag": "A",
-          "name": "매크로중립 어조@insidertracking · 미국 속보 · 10-06공화당이 2026년 중간선거에서 하원과 상원을 모두 장악하면, 미국의 모든 성인 시민에게 5,000달러씩 지급하겠다. 이 사안"
+          "name": "반도체긍정 어조@HANAchina · 중국·신흥국 · 10-07>>대만 증시 사상 최고치. 장중 5만선 32포인트 차이로 돌파 실패 (대만경제일보) •대만 증시는 6일 장중 49,968pt까지 올라"
         },
         {
           "tag": "A",
-          "name": "매크로중립 어조@insidertracking · 미국 속보 · 10-06오늘 아마존은 가을 프라임데이 (PBDD) 열리네요. K-뷰티 업체들 화이팅~&#33; > 한국시간으로 금일 16시부터 10월"
+          "name": "매크로긍정 어조@HANAchina · 중국·신흥국 · 10-07>>브라질 9월 원유 수출 사상 최대…생산 증가와 강한 수요 영향 •브라질 정부, 9월 원유 수출량은 1,170만톤으로 사상 최대치 기"
         },
         {
           "tag": "A",
-          "name": "매크로긍정 어조@HANAchina · 중국·신흥국 · 10-06>>올해 기술 부호만 돈을 벌었다: AI 열풍으로 자산 8,450억달러 증가, 머스크가 약 40% 차지 •블룸버그 억만장자 지수에 따르"
+          "name": "지정학중립 어조@HANAchina · 중국·신흥국 · 10-07>>카타르, 미·이란 간접 협상 여전히 진행 중이라고 밝혀…트럼프 또 압박: 이란이 로스앤젤레스나 샌디에이고를 “파괴”하도록 허용할 수"
         },
         {
           "tag": "A",
-          "name": "매크로중립 어조@HANAchina · 중국·신흥국 · 10-06>>트럼프, G7 비축유 방출에 이어 중간선거 앞두고 다시 유가 압박: 면세 ‘적색 경유’ 사용 제한 완화 추진 •보도에 따르면 트럼프"
+          "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-07>>국경절 연휴, 일부 선전시 부동산 중개업체 매출 +200% 급증 •국경절 연휴 1-5일 선전 베이커연구원이 모니터링한 결과 베이커 선"
         }
       ],
       "headings": [
