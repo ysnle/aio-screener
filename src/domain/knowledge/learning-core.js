@@ -148,6 +148,20 @@ export const LESSONS = Object.freeze([
     concepts: ['policy-vs-long-rate', 'term-premium', 'credit-cost'],
     sources: [{ label: '영란은행 — Bank of England announces gilt market operation(2022-09-28)', url: 'https://www.bankofengland.co.uk/news/2022/september/bank-of-england-announces-gilt-market-operation', supports: '장기 국채 시장 기능 저하와 한시적 매입 조치' }],
     columnNote: '운용사 카드뉴스의 “주식 변동성(VIX)보다 채권 변동성(MOVE)이 더 중요하다”는 담보 경로를 강조한 관점입니다. MOVE 지수는 이 화면이 수집하지 않으므로, 10년 금리의 일간 변동 폭과 하이일드 스프레드의 속도로 같은 질문을 확인합니다.' }),
+  L({ id: 'hike-cycle', path: 'rates', kind: 'case', title: '금리가 올라도 주가가 오른 해', issue: '금리 인상기의 주가 — 왜 오르는지가 수준보다 중요하다',
+    answer: "금리가 오르면 주식은 떨어진다는 말을 흔히 듣는다. 그런데 연준이 1%에서 5.25%까지 금리를 올린 2004~2006년, 코스피는 2005년 한 해에만 54% 올랐다. 반대로 금리를 급하게 내린 2008년에는 41% 빠졌다. 금리의 방향보다 금리가 왜 움직이는지가 결과를 갈랐다.",
+    figure: { kind: 'flow', steps: ['경기가 좋아 금리 인상', '이익 증가가 할인율 부담보다 큼', '주가 상승', '경기가 꺾여 금리 인하', '이익 급감이 할인율 혜택보다 큼'] },
+    mechanism: [
+      "주가는 이익을 할인율로 나눈 값에 가깝다. 금리가 오르면 할인율이 올라 주가를 누르지만, 금리를 올리는 이유가 경기 확장이라면 이익도 함께 늘어난다. 이익 증가가 할인율 부담보다 크면 주가는 금리와 함께 오른다.",
+      "2005년이 그런 해였다. 연준은 그해 2.25%에서 4.25%로 금리를 올렸지만, 중국의 설비투자와 함께 한국의 중후장대 산업 이익이 크게 늘었다. 외국인이 그해 코스피를 순매도했는데도 지수는 895.92에서 1,379.37로 올랐다.",
+      "2008년은 반대다. 금리를 내린 이유가 금융위기와 이익 붕괴였기 때문에, 낮아진 할인율은 무너지는 이익을 상쇄하지 못했다. 같은 금리 인하라도 원인이 무엇이냐에 따라 주가에는 정반대로 작용한다."
+    ],
+    example: { inputs: ['코스피 2004년 말 895.92', '2005년 말 1,379.37', '연준 기준금리 2005년 2.25% → 4.25%'], steps: ['연간 수익률 = 1,379.37 ÷ 895.92 − 1 ≈ +54.0%', '같은 해 기준금리 +2.00%p'], result: '금리 인상 폭보다 이익 증가가 컸던 해에는 금리와 주가가 함께 올랐습니다.' },
+    reverse: "물가 때문에 금리를 올리는 경우는 다르다. 경기는 식는데 물가를 잡으려 금리를 올리면 이익은 늘지 않고 할인율만 오른다. 2022년처럼 주가와 채권이 함께 떨어진다. 지금 금리가 오르는 이유가 성장인지 물가인지, 그리고 실질금리가 계속 오르는지를 함께 봐야 한다.",
+    channels: ['투자', '현금'], indicators: [{ label: '실질금리·기대인플레이션과 10년 금리', route: 'fxbond', routeLabel: '금리·환율' }, { label: '성장·물가의 방향(거시 국면)', route: 'macro', routeLabel: '거시 경제' }],
+    concepts: ['policy-vs-long-rate', 'nominal-real-relative', 'present-value'],
+    sources: [{ label: 'FRED — Federal Funds Target Rate (DFEDTAR)', url: 'https://fred.stlouisfed.org/series/DFEDTAR', supports: '2004~2006년 기준금리 경로' }],
+    columnNote: '사례는 소유자 제공 자료(KOSPI 2027 아티클과 첨부 차트: Federal Reserve·FRED·KRX 재구성)를 바탕으로 했습니다. 연말 코스피 종가와 2005년 수익률은 자료의 수치(895.92 → 1,379.37, +53.96%)를 다시 계산해 확인했습니다.' }),
   L({ id: 'fx-exporters', path: 'rates', industry: 'korea', title: '환율과 수출 기업', issue: '원화 약세의 업종 내 차별적 영향',
     answer: "원/달러 환율이 1,300원에서 1,430원으로 뛰었다. 수출주에 호재라는 기사가 쏟아진다. 그런데 같은 수출 업종 안에서도 웃는 회사와 표정이 굳는 회사가 갈린다.",
     figure: { kind: 'flow', steps: ['원화 약세', '달러 매출의 원화 환산 ↑', '달러 원재료·부채 비용 ↑', '헤지·경쟁국 통화', '순효과'] },
@@ -200,6 +214,34 @@ export const LESSONS = Object.freeze([
     channels: ['매출', '현금'], indicators: [{ label: '분기 매출의 전년 같은 분기 대비 성장률과 그 추세', route: 'fundamental', routeLabel: '재무 공시' }, { label: '주가 추세와 지수 대비', route: 'ticker', routeLabel: '종목 요약' }],
     concepts: ['present-value', 'competition-moat', 'base-rate', 'expected-value'],
     columnNote: '칼럼의 “주가 = EPS 성장률 × 지속기간에 대한 믿음 × 불확실성의 감소”는 곱셈 공식이 아니라 배수가 정해지는 요소를 묶은 관점입니다. 지속 기간은 사후에야 확인되므로, 분기 성장률의 추세와 수주·계약 같은 선행 근거로 믿음의 근거를 따로 확인해야 합니다.' }),
+  // P1507 (owner materials 2026-10-07): valuation of a cyclical index, the hiking-cycle case, and what happens after a
+  // stock is picked (entry location, rotation, averaging down, cash). Column claims are kept as column notes.
+  L({ id: 'valuation-cycle', path: 'market', title: '싼데 오르지 않는 시장', issue: '낮은 PER과 넓은 일드갭이 상승으로 이어지지 않는 이유 — 이익 정점 의심',
+    answer: "지수의 선행 PER이 5년 평균의 절반 가까이 내려왔다. 예상 이익수익률은 국채 금리보다 10%p 넘게 높다. 숫자만 보면 역사적으로 싼 자리인데, 지수는 몇 달째 제자리다. 시장은 싸다는 걸 몰라서가 아니라, 그 이익이 내년에도 남아 있을지를 의심하고 있다.",
+    figure: { kind: 'flow', steps: ['선행 이익 급증', '선행 PER 하락', '이익 정점 의심', '배수 추가 하락', '이익 유지 확인 시 재평가'] },
+    mechanism: [
+      "지수 = 선행 주당이익 × 선행 PER이다. 이익 전망이 빠르게 오르는 동안 주가가 그만큼 따라가지 않으면 PER은 저절로 내려간다. 낮은 PER은 \"싸다\"는 결론이 아니라 \"이 이익을 시장이 얼마나 믿는가\"에 대한 답이다.",
+      "반도체처럼 이익이 경기를 따라 크게 출렁이는 업종의 비중이 큰 지수는 특히 그렇다. 이익이 가장 많을 때 PER이 가장 낮게 나오고, 시장은 그 숫자를 정점으로 보고 배수를 깎는다. 그래서 일드갭이 넓다는 사실만으로는 상승의 근거가 되지 않는다.",
+      "상승의 계기는 숫자가 반복되는 것이다. 다음 해 이익이 올해보다 낮아지지 않는다는 근거 — 장기 계약, 공급 제약, 고객의 투자 지속 — 가 쌓이면 시장은 정점 의심을 거두고 배수를 다시 올린다."
+    ],
+    example: { inputs: ['지수 6,971', '선행 PER 5.4배 (5년 평균 9.8배)', '국고채 3년 4.01%'], steps: ['이익수익률 = 100 ÷ 5.4 ≈ 18.5%', '일드갭 ≈ 18.5 − 4.01 ≈ 14.5%p', '선행 이익이 그대로이고 PER만 평균의 80%(7.8배)로 회복하면 지수 ≈ 6,971 × 7.8 ÷ 5.4 ≈ 10,070'], result: '이익이 유지된다는 믿음만 회복돼도 지수 여력은 큽니다. 반대로 선행 이익이 30% 줄면 같은 5.4배에서도 지수는 약 4,880까지 내려갑니다.' },
+    reverse: "정말로 이익이 정점이면 낮은 PER은 함정이다. 이익이 줄면 PER은 오히려 올라가 보이고, 주가는 이익 감소와 배수 하락을 동시에 맞는다. 낮은 PER을 근거로 사기 전에 물어야 할 것은 \"싼가\"가 아니라 \"이 이익이 내년에도 남는가\"다.",
+    channels: ['매출', '현금'], indicators: [{ label: '반도체·한국 테마의 1·3개월 흐름', route: 'themes', routeLabel: '테마·섹터' }, { label: '분기 매출의 전년 대비 성장률 추세', route: 'fundamental', routeLabel: '재무 공시' }],
+    concepts: ['yield-gap', 'cyclical-per', 'expected-value', 'base-rate'],
+    columnNote: '예시의 코스피 선행 PER 5.4배·5년 평균 9.8배·국고채 4.01%는 소유자 제공 자료(FnGuide·미래에셋증권 Earnings Revision 2026-10-02 재구성)의 2차 인용입니다. 칼럼의 "2027 코스피는 롱"은 관점이며, 이 노트는 그 판단이 성립하는 조건(이익 유지)과 깨지는 조건(이익 정점)을 함께 둡니다.' }),
+  L({ id: 'capital-allocation', path: 'market', title: '종목을 고른 다음', issue: '진입 위치·교체·추가 매수·현금 — 같은 종목에서 결과가 갈리는 이유',
+    answer: "같은 종목을 산 두 사람이 1년 뒤 전혀 다른 성적을 낸다. 한 사람은 바닥을 다진 뒤 돌파하는 날 샀고, 다른 사람은 한참 오른 뒤 따라 샀다. 고른 종목은 같았지만, 언제 어디서 들어갔고 그 뒤에 어떻게 움직였는지가 결과를 갈랐다.",
+    figure: { kind: 'flow', steps: ['좋은 장기 기회인가', '어디서 들어가나 (기준선과의 거리)', '논거가 유지되는가', '더 나은 위험조정 기회가 있는가', '없으면 현금도 포지션'] },
+    mechanism: [
+      "늦게 들어간 사람은 불리한 게임을 한다. 먼저 산 사람은 수익이라는 쿠션을 깔고 횡보와 흔들림을 견디지만, 늦게 들어간 사람은 쿠션 없이 같은 기간을 버텨야 한다. 주가가 기준선(50일선)에서 자기 일평균 변동폭의 몇 배나 떨어져 있는지가 그 늦음의 크기다.",
+      "보유 중인 종목이 떨어졌을 때 더 살지는 가격이 아니라 논거로 정한다. 하락 원인이 시장 심리·수급·매크로라면 기회일 수 있지만, 마진 하락·성장 둔화·희석처럼 처음 산 이유가 깨졌다면 더 낮은 가격은 실수를 키울 뿐이다.",
+      "교체는 \"이 종목이 나빠졌나\"가 아니라 \"이 돈이 지금 어디서 가장 나은가\"를 묻는다. 위험을 감안한 기대수익이 확실히 더 큰 대안이 있을 때만 옮기고, 마땅한 대안이 없으면 현금을 들고 기다리는 것도 하나의 포지션이다."
+    ],
+    example: { inputs: ['A: 기준선 근처 매수가 100, 손절가 94', 'B: 기준선에서 20% 떨어진 120에서 매수, 같은 손절 기준(기준선 −6%)'], steps: ['A의 손절 거리 = 6%', 'B의 손절 거리 = (120 − 94) ÷ 120 ≈ 21.7%', '같은 계좌 위험 1%를 지려면 A는 비중 16.7%, B는 4.6%'], result: '같은 종목·같은 손절 기준이라도 늦게 들어가면 같은 위험으로 살 수 있는 양이 3분의 1 이하로 줄어듭니다.' },
+    reverse: "기준선 근처라고 늘 안전한 것은 아니다. 추세가 깨지는 중이라면 기준선은 지지가 아니라 다음 하락의 출발점이 된다. 반대로 강한 추세는 오래 확장된 채로 더 오르기도 한다. 셋업은 완성돼야 유효하고, 거리는 위험의 크기를 알려 줄 뿐 방향을 알려 주지 않는다.",
+    channels: ['현금'], indicators: [{ label: '종목의 기준선 대비 거리(일평균 변동폭 배수)와 추세', route: 'ticker', routeLabel: '종목 요약' }, { label: '보유 비중과 집중도', route: 'portfolio', routeLabel: '포트폴리오' }],
+    concepts: ['opportunity-cost', 'expected-value', 'arith-vs-geo'],
+    columnNote: '진입 위치 사례는 Ian Lee(@tmmrwseoul)의 차트 설명, 자본 배분 원칙은 Edelbridge Alpha 아티클("Stock Picking Was Only Half the Battle")의 관점입니다. 아티클의 수익률 주장(+302%)은 검증 대상이 아니며 노트에 쓰지 않았습니다.' }),
   // ── 산업과 기술 (대표 레슨) ──
   L({ id: 'semi-process', path: 'industry', industry: 'semis', title: '반도체 공정과 수율', issue: '수율 개선이 원가·생산능력에 미치는 영향',
     answer: "같은 공장, 같은 장비, 같은 웨이퍼. 그런데 한 회사는 웨이퍼 한 장에서 팔 수 있는 칩을 60개 얻고, 다른 회사는 80개를 얻는다. 반도체 원가 경쟁은 이 20개의 차이에서 시작된다.",
@@ -367,10 +409,10 @@ export const PATHS = Object.freeze([
   { id: 'accounting', title: '재무제표·회계', why: '이익·현금·자본의 연결 구조.', lessons: ['three-statements'] },
   { id: 'economy', title: '미시경제 기초', why: '가격·경쟁·진입장벽과 초과이익의 지속성.', lessons: ['elasticity', 'tech-vs-profit'] },
   { id: 'money', title: '통화·신용·물가', why: '은행 신용 → 지출 → 물가 → 실질 소득의 전달 경로.', lessons: ['credit-money', 'macro-reading', 'crisis-response'] },
-  { id: 'rates', title: '금리·채권·환율', why: '동일한 금리·환율 변화가 자산·기업별로 다른 결과를 내는 경로.', lessons: ['long-bond', 'bond-collateral', 'fx-exporters'] },
+  { id: 'rates', title: '금리·채권·환율', why: '동일한 금리·환율 변화가 자산·기업별로 다른 결과를 내는 경로.', lessons: ['long-bond', 'bond-collateral', 'hike-cycle', 'fx-exporters'] },
   { id: 'business', title: '기업 수익 구조', why: '판매량·단가 → 마진 → 운전자본·투자 → 현금흐름 → 투하자본이익률.', lessons: ['capex-roic', 'three-statements'] },
   { id: 'industry', title: '산업별 수익 모델', why: '제공 가치 · 지불 주체 · 비용·자본 · 이익 변수의 동일 틀 비교.', lessons: ['semi-process', 'memory-optics', 'bank', 'insurance', 'reit', 'consumer', 'software', 'biotech', 'energy', 'transport', 'agri', 'fx-exporters'] },
-  { id: 'market', title: '가격·기대', why: '산업·기업·가격의 구분과 기대 대비 결과.', lessons: ['expectations', 'multiple-durability', 'index-weight'] }
+  { id: 'market', title: '가격·기대', why: '산업·기업·가격의 구분과 기대 대비 결과.', lessons: ['expectations', 'multiple-durability', 'valuation-cycle', 'capital-allocation', 'index-weight'] }
 ]);
 
 // Issues surfaced first (the frames most often needed to read the other screens).
@@ -414,6 +456,9 @@ export const FRAME_VARIABLES = Object.freeze({
   'multiple-durability': ['분기 매출 전년 대비 성장률', '성장률의 추세(가속·둔화)', '수주·계약 잔고', '주가배수(PER)'],
   'bond-collateral': ['10년 금리 일간 변동 폭', '기간 프리미엄', '하이일드 스프레드의 속도', '레버리지·담보 요구'],
   'crisis-response': ['정책금리', '실질금리', '자산 가격 상승률', '실질임금'],
+  'valuation-cycle': ['선행 PER', '선행 이익 전망 변화', '일드갭', '이익 정점 여부'],
+  'capital-allocation': ['기준선 대비 거리(일평균 변동폭 배수)', '손절 거리', '위험조정 기대수익', '현금 비중'],
+  'hike-cycle': ['금리 인상 이유(성장·물가)', '실질금리', '이익 증가율', '할인율'],
   'semi-process': ['공정 단계별 수율', '최종 수율', '고객 인증 일정', '가동률'],
   'memory-optics': ['HBM 적층 수율', '대역폭', '광모듈 속도·전력', '고객 인증'],
   'tech-vs-profit': ['공급자 수', '원가곡선 위치', '설비투자 강도', '가격 하락 속도'],

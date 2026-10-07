@@ -50,6 +50,12 @@ export function deriveScreenerSetupProfile(row = {}) {
   const stretch200 = pctSma200 != null && pctSma200 >= 70;
   const rsiOverheat = rsi != null && rsi >= 80;
   const climaxRisk = stretch200 || rsiOverheat;
+  // P1507 (owner materials 2026-10-07): how far price has run from the 50-day line, in units of its own average daily
+  // range. A late entry pays for the base-building time with no profit cushion; this says how late. ADR stands in for
+  // ATR (same idea, published already). Reference bands, not signals: under 2 near the line, 4+ extended, 7+ stretched.
+  const extensionMultiple = pctSma50 != null && adrPct != null && adrPct > 0 ? Math.round((pctSma50 / adrPct) * 10) / 10 : null;
+  const extensionState = extensionMultiple == null ? 'unavailable'
+    : extensionMultiple >= 7 ? 'stretched' : extensionMultiple >= 4 ? 'extended' : extensionMultiple <= 2 ? 'near-base' : 'normal';
   const relativeStrengthEvidenceAvailable = rank != null && benchmarkRelativeStrength != null && ret1m != null
     && (ret3m != null || ret6m != null) && pctSma200 != null && pctSma50 != null;
   const volumeEvidence = rvol20 == null ? 'unavailable'
@@ -98,6 +104,7 @@ export function deriveScreenerSetupProfile(row = {}) {
   if (relativeStrengthPullback) tags.push('상대강도 눌림 후보');
   if (support200 === 'near') tags.push('200일선 부근');
   if (climaxRisk) tags.push('클라이맥스 관찰');
+  if (extensionState === 'stretched') tags.push('추격 위험 (50일선에서 일평균 변동폭의 7배 이상)');
   if (volumeEvidence === 'unavailable') tags.push('거래량 확인 필요');
   if (!relativeStrengthPullback && support200 !== 'near' && !climaxRisk) tags.push('추가 셋업 근거 필요');
 
@@ -126,6 +133,7 @@ export function deriveScreenerSetupProfile(row = {}) {
     climaxRisk: climaxRisk ? 'watch' : (pctSma200 == null && rsi == null ? 'unavailable' : 'none'),
     stretch200,
     rsiOverheat,
+    extension: Object.freeze({ multiple: extensionMultiple, state: extensionState }),
     volumeEvidence,
     structureEvidence,
     referenceFrameworkIds: NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS,

@@ -101,6 +101,7 @@ const POLICIES = {
   // Mon~Fri window, so a stale artifact is a WARN (the client falls back to the
   // explicit key-required state), never a silent success (P1102).
   'earnings-calendar.json': { kind: 'weekly-calendar-reference', timestamp: ['generatedAt'], custom: 'earnings-week', maxAgeHours: 24 * 8 },
+  'cftc-positioning.json': { kind: 'weekly-positioning-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 10 }, // P1507
   'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'] },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
   'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1426: FRED observations behind the 거시 direction reads (refresh-data)

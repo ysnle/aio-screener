@@ -6403,6 +6403,8 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     _dataVerify += '질문이 교육/개념/시장 해석이면 짧은 결론 → 핵심 이유 3개 → 현재 시장에 적용하는 방법 순으로 답하라. 종목 매매 리포트 양식, Bull/Base/Bear, 기관 프레임 인용을 자동으로 강제하지 않는다.\n';
   }
 
+  // P1507 (owner materials: controlled-language writing, ASD-STE100 style, adapted to Korean): one fact per sentence.
+  _dataVerify += '\n【문장 규칙】 한 문장에는 한 가지 사실만 쓴다. 문장은 짧게(대략 40자 안팎) 쓰고 능동형으로 쓴다. 같은 대상에는 끝까지 같은 단어를 쓴다. 이모지와 장식 기호는 쓰지 않는다. 숫자에는 기준일을 붙인다.\n';
   _dataVerify += '\n【데이터 검증 상태 — 질문 범위별 준수】\n';
   _dataVerify += '• 실시간 시세: ' + _liveStatusCS + '\n';
   if (_answerPolicyCS.needsFullStockMemo || _answerPolicyCS.needsTickerFactAnswer) {

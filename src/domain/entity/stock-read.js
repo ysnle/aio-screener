@@ -74,6 +74,22 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
       text: `${anchor.label} ${signed(anchor.stock)} vs ${benchmark?.label || 'S&P 500'} ${signed(anchor.bench)} — ${Math.abs(anchor.gap).toFixed(1)}%p ${anchor.gap >= 0 ? '강함' : '약함'}. ${consistency}.` });
   }
 
+  // P1507: distance from the 50-day line in units of the stock's own average daily range — how late an entry
+  // here would be. Volatile names run further, so the raw % alone overstates or understates the stretch.
+  const pct50 = finite(row.pctSma50);
+  const adr = finite(row.adrPct);
+  if (pct50 != null && adr != null && adr > 0) {
+    const multiple = pct50 / adr;
+    const text = multiple >= 7
+      ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 많이 달려 온 자리라 여기서 들어가면 되돌림을 손익 여유 없이 견뎌야 합니다.`
+      : multiple >= 4
+        ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 추세는 살아 있지만 새로 들어가기엔 기준선에서 꽤 떨어져 있습니다.`
+        : multiple >= 0
+          ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 기준선에서 멀지 않아 실패했을 때 손절 거리가 짧은 자리입니다.`
+          : `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래 — 기준선을 되찾는지가 먼저입니다.`;
+    points.push({ id: 'extension', tone: multiple >= 7 ? 'burden' : multiple >= 0 && multiple < 4 ? 'favorable' : 'neutral', title: '기준선 대비 거리', text });
+  }
+
   const rsi = finite(row.rsi);
   if (rsi != null) {
     points.push({ id: 'rsi', tone: rsi >= 70 || rsi <= 30 ? 'neutral' : 'favorable', title: '단기 과열',

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-07T13:07:16.522Z",
+  "generatedAt": "2026-10-07T13:34:26.912Z",
   "routes": [
     {
       "id": "home",
@@ -28,7 +28,7 @@
         }
       ],
       "headings": [
-        "시장 현황 v57.26",
+        "시장 현황 v57.27",
         "어제와 달라진 점10/2 → 10/6 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
@@ -38,38 +38,14 @@
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "ready",
-      "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리 · 환율 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 →"
-        }
-      ],
+      "moduleState": "loading",
+      "controls": [],
       "headings": [
         "시장 상태",
-        "혼조",
+        "판정 대기",
         "미국 시장 6개 축",
-        "추세",
-        "시장 폭",
-        "변동성",
-        "금리",
-        "신용 · 위험선호",
-        "달러 · 원자재",
         "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
-        "환율 (원 · 엔)",
-        "이어서 볼 곳"
+        "기관 포지셔닝 선물 주간 보고 · 6개 축 합계에는 넣지 않습니다"
       ]
     },
     {
@@ -128,7 +104,7 @@
     {
       "id": "technical",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
         {
           "tag": "BUTTON",
@@ -149,6 +125,10 @@
         {
           "tag": "BUTTON",
           "name": "차트 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "다시 시도"
         }
       ],
       "headings": [
@@ -583,6 +563,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "공용 AI 연결 시 해석 추가"
+        },
+        {
+          "tag": "BUTTON",
           "name": "전체"
         },
         {
@@ -714,7 +698,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "분석 노트  26"
+          "name": "분석 노트  29"
         },
         {
           "tag": "BUTTON",
@@ -722,7 +706,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "개념 사전  82"
+          "name": "개념 사전  84"
         },
         {
           "tag": "BUTTON",
@@ -771,6 +755,10 @@
         {
           "tag": "BUTTON",
           "name": "국채 급변의 주식 전이"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 인상기의 주가"
         },
         {
           "tag": "BUTTON",
@@ -842,6 +830,14 @@
         },
         {
           "tag": "BUTTON",
+          "name": "낮은 PER과 넓은 일드갭이 상승으로 이어지지 않는 이유"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "진입 위치·교체·추가 매수·현금"
+        },
+        {
+          "tag": "BUTTON",
           "name": "시가총액 가중 지수의 비중 변화와 실제 매수 흐름"
         },
         {
@@ -863,6 +859,10 @@
         {
           "tag": "BUTTON",
           "name": "명목·실질·상대 성과의 구분"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "진입 위치·교체·추가 매수·현금"
         }
       ],
       "headings": [

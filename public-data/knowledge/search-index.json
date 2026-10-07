@@ -11,7 +11,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 26,
+    "frame": 29,
     "principles-lesson": 112,
     "principles-node": 60,
     "atlas-foundation": 48,
@@ -265,6 +265,27 @@
       }
     },
     {
+      "id": "frame:hike-cycle",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "금리 인상기의 주가 — 왜 오르는지가 수준보다 중요하다",
+      "text": "금리가 오르면 주식은 떨어진다는 말을 흔히 듣는다. 그런데 연준이 1%에서 5.25%까지 금리를 올린 2004~2006년, 코스피는 2005년 한 해에만 54% 올랐다. 반대로 금리를 급하게 내린 2008년에는 41% 빠졌다. 금리의 방향보다 금리가 왜 움직이는지가 …",
+      "group": "금리·채권·환율",
+      "keys": [
+        "금리가 올라도 주가가 오른 해",
+        "policy-vs-long-rate",
+        "nominal-real-relative",
+        "present-value"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "hike-cycle"
+        }
+      }
+    },
+    {
       "id": "frame:fx-exporters",
       "surface": "frame",
       "surfaceLabel": "분석 프레임",
@@ -344,6 +365,49 @@
         "params": {
           "mode": "frames",
           "node": "multiple-durability"
+        }
+      }
+    },
+    {
+      "id": "frame:valuation-cycle",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "낮은 PER과 넓은 일드갭이 상승으로 이어지지 않는 이유 — 이익 정점 의심",
+      "text": "지수의 선행 PER이 5년 평균의 절반 가까이 내려왔다. 예상 이익수익률은 국채 금리보다 10%p 넘게 높다. 숫자만 보면 역사적으로 싼 자리인데, 지수는 몇 달째 제자리다. 시장은 싸다는 걸 몰라서가 아니라, 그 이익이 내년에도 남아 있을지를 의심하고 있다.",
+      "group": "가격·기대",
+      "keys": [
+        "싼데 오르지 않는 시장",
+        "yield-gap",
+        "cyclical-per",
+        "expected-value",
+        "base-rate"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "valuation-cycle"
+        }
+      }
+    },
+    {
+      "id": "frame:capital-allocation",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "진입 위치·교체·추가 매수·현금 — 같은 종목에서 결과가 갈리는 이유",
+      "text": "같은 종목을 산 두 사람이 1년 뒤 전혀 다른 성적을 낸다. 한 사람은 바닥을 다진 뒤 돌파하는 날 샀고, 다른 사람은 한참 오른 뒤 따라 샀다. 고른 종목은 같았지만, 언제 어디서 들어갔고 그 뒤에 어떻게 움직였는지가 결과를 갈랐다.",
+      "group": "가격·기대",
+      "keys": [
+        "종목을 고른 다음",
+        "opportunity-cost",
+        "expected-value",
+        "arith-vs-geo"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "capital-allocation"
         }
       }
     },

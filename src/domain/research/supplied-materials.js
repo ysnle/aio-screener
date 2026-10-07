@@ -10,6 +10,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   reviewedAt: '2026-08-29',
   updatedAt: '2026-09-11',
   sourcePackets: Object.freeze([
+    Object.freeze({ id: '2026-10-07-x-history', reviewedAt: '2026-10-07', sourceKind: 'REFERENCE', linkCount: 18, readableSources: 18, unreadableSources: 0, mediaAuditCount: 30, note: 'X 기록 18건(최신~10/2 neropursue)을 Chrome으로 직접 확인. Article 2건 전문, 작성자 스레드, 댓글, 첨부 차트·표·카드 이미지 약 30장 확인. 시장 자료 9건은 노트·지표·포지셔닝 화면으로 반영하고, 개발·디자인 자료 9건은 제품 원칙 참고로만 둠(P1507).' }),
     Object.freeze({ id: '2026-09-11-supplied-materials', reviewedAt: '2026-09-11', sourceKind: 'REFERENCE', linkCount: 8, readableSources: 8, unreadableSources: 0, mediaAuditCount: 1, note: 'X 8건과 DELL 실적 후 돌파 첨부 차트를 직접 확인. UTC/KST 게시시각, 인용 게시물, 미디어 상태와 시계열을 분리하고 현재 데이터로 승격하지 않음' }),
     Object.freeze({ id: '2026-09-12-open-source-market-tooling', reviewedAt: '2026-09-12', sourceKind: 'REFERENCE', linkCount: 10, readableSources: 10, unreadableSources: 0, mediaAuditCount: 0, note: '0x1Rosy X 2건·LuxAlgo X 1건과 Neuberg·Edge Stats GitHub 및 라이선스/아키텍처 문서를 직접 확인. 합법적 데이터·차트·조건부 통계·실행 경계만 구조적으로 추출하고 라이선스 우회/배포물은 통합하지 않음' }),
     Object.freeze({ id: '2026-09-05-supplied-materials', reviewedAt: '2026-09-05', sourceKind: 'REFERENCE', linkCount: 18, readableSources: 18, unreadableSources: 0, mediaAuditCount: 11, note: '사용자 제공 X 17건·Vela GitHub 1건과 첨부 고노고 일보 이미지를 직접 확인. 게시시각·본문·이미지·시계열을 분리하고 현재 데이터로 승격하지 않음' }),
@@ -18,6 +19,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     Object.freeze({ id: '2026-08-29-market-research', reviewedAt: '2026-08-29', sourceKind: 'REFERENCE', note: 'X/GitHub·공식 문서·첨부 이미지·일부 403/부분 접근 자료를 읽기 상태별로 분리한 선행 패킷' })
   ]),
   sourceAudit: Object.freeze([
+    Object.freeze({ id: 'packet-2026-10-07', label: '2026-10-07 X 기록 — 코스피·금리·포지셔닝·메모리·자본배분', linkCount: 18, readableCount: 18, blockedCount: 0, status: 'DIRECT_READ', note: '수치 주장(예: 코스피 선행 PER 5.4배, HBM ASP +121%, BMO 30년물 6%)은 2차 인용으로 표시하고 원문 확인 전 판정에 쓰지 않음. 골드만 포지셔닝 77백분위는 집계 기준이 달라 CFTC 공개 자료로 별도 계산(P1507).' }),
     Object.freeze({ id: 'packet-2026-09-11', label: '2026-09-11 직접 확인 기술·리스크·매크로 자료', linkCount: 8, readableCount: 8, blockedCount: 0, status: 'DIRECT_READ', note: 'X 8건의 본문·UTC 게시시각·KST 환산·인용 게시물과 첨부 DELL 차트를 직접 확인. 날짜 종속 수치·목표·방향성 주장은 REFERENCE로 제한' }),
     Object.freeze({ id: 'packet-2026-09-12', label: '오픈소스 시장 터미널·통계·차트 자료', linkCount: 10, readableCount: 10, blockedCount: 1, status: 'DIRECT_READ_WITH_RIGHTS_BOUNDARY', note: 'X 스레드와 GitHub README·아키텍처·데이터 소스·라이선스를 직접 확인. Rosy의 라이선스 우회/키젠·다운로드 경로는 권리·보안 감사로만 기록하고 내용·자격증명·실행 코드는 보존하지 않음. Neuberg BSL-1.1은 코드 복사 없이 개념만 참고하고, Edge Stats MIT는 알고리즘 계약 후보로 한정' }),
     Object.freeze({ id: 'packet-2026-09-05', label: '2026-09-05 직접 확인 시장·AI·아키텍처 자료', linkCount: 18, readableCount: 18, blockedCount: 0, status: 'DIRECT_READ', note: 'X 17건과 LuxAlgo/Vela README·architecture·API 문서를 직접 읽고, Melvin/Trader/StockAnalyst 이미지와 첨부 고노고 일보를 시각 확인. 게시 시점과 현재 관측값을 분리' }),
@@ -90,6 +92,13 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     'https://github.com/LuxAlgo/edge-stats/blob/main/docs/catalog.md',
     'https://raw.githubusercontent.com/KoNananachan/Neuberg/main/LICENSE',
     'https://raw.githubusercontent.com/LuxAlgo/edge-stats/main/LICENSE'
+  ]),
+  packet20261007Observations: Object.freeze([
+    Object.freeze({ id: '1111kivin-2107766966476067009', author: '최기빈', sourceUrl: 'https://x.com/1111kivin/status/2107766966476067009', publishedAt: '2026-10-07T09:36:19.000Z', publishedAtKst: '2026-10-07T18:36:19+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: 'KOSPI 2027 아티클: 선행 PER 5.4배(5년 평균 9.8배)·일드갭 약 14.5%p, 2004~06 인상기 코스피 상승 사례, 고객의 투자비가 공급자 매출이라는 순환 점검, 메모리 공급 빡빡함. 칼럼 관점으로만 반영(P1507 노트 valuation-cycle·hike-cycle).' }),
+    Object.freeze({ id: 'babyfolio-2106126282719392214', author: 'Edelbridge Alpha', sourceUrl: 'https://x.com/babyfolio/status/2106126282719392214', publishedAt: '2026-10-02T20:56:50.000Z', publishedAtKst: '2026-10-03T05:56:50+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '자본 배분 5원칙: 장기 기회만 매수, 위험조정 기대수익이 크게 나을 때만 교체, 논거가 깨진 종목은 물타지 않음, 현금도 포지션, 타이밍 오류 인정. 수익률 주장(+302%)은 검증 대상 아님(P1507 노트 capital-allocation).' }),
+    Object.freeze({ id: 'tmmrwseoul-2107748275961094221', author: 'Ian Lee', sourceUrl: 'https://x.com/tmmrwseoul/status/2107748275961094221', publishedAt: '2026-10-07T08:22:03.000Z', publishedAtKst: '2026-10-07T17:22:03+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '늦은 진입은 손익 쿠션 없이 베이스 형성 기간을 견뎌야 함, 셋업은 완성돼야 유효. 이동평균 대비 확장(ATR 배수)을 보조 지표로 사용 — 스크리너 추격 위험 지표로 반영(P1507).' }),
+    Object.freeze({ id: 'laylaperfume-2107748236937277744', author: 'Humble', sourceUrl: 'https://x.com/laylaperfume/status/2107748236937277744', publishedAt: '2026-10-07T08:21:54.000Z', publishedAtKst: '2026-10-07T17:21:54+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '코스피 6,750 지지 확인, 외국인 대형주 순매도와 자사주 매입(기타법인 +9,880억) 의존 수급, 전력기기 ETF 급락 원인(데이터센터 중단 보도·환율 실적 하향·만기). 국내 투자자별 수급은 수집 대상이 아니라 참고로만 둠.' }),
+    Object.freeze({ id: 'GONOGO_Korea-2107802988979122650', author: 'GONOGO', sourceUrl: 'https://x.com/GONOGO_Korea/status/2107802988979122650', publishedAt: '2026-10-07T11:59:28.000Z', publishedAtKst: '2026-10-07T20:59:28+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '구독자 게시물 캡처: BMO 30년물 6% 전망, 아폴로 실질 임대료 재가속, 오라클·파라마운트 차입, 영국 고용 24개월 감소, 골드만 S&P 선물 포지셔닝(9/22~29 비딜러 105억 달러 순매도, 77백분위). 포지셔닝은 CFTC 공개 자료로 화면화(P1507), 나머지는 2차 인용.' }),
   ]),
   sourceObservations: Object.freeze([
     Object.freeze({ id: 'NathanYJLee-2097957777922793710', author: 'Nathan | Factomind', sourceUrl: 'https://x.com/NathanYJLee/status/2097957777922793710', publishedAt: '2026-09-10T07:58:07.000Z', publishedAtKst: '2026-09-10T16:58:07+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '금융 레버리지와 방향성 레버리지를 분리하고, 예측보다 자금조달·노출 한도·리스크 관리를 우선' }),

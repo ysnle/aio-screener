@@ -63,6 +63,8 @@ jobs:
             echo "::warning::FINNHUB_API_KEY is not configured — the earnings calendar keeps its previous file for this cycle"
           fi
           node scripts/fetch-earnings-calendar.mjs
+          # P1507: weekly CFTC futures positioning (public API, no key); keeps the previous file on failure.
+          node scripts/fetch-cftc-positioning.mjs
 
       - name: Build bounded SEC runtime projection
         run: |
@@ -120,6 +122,7 @@ jobs:
           }
           git add -- public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
+          stage_if_exists public-data/cftc-positioning.json # P1507: institutional futures positioning
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown
           stage_if_exists public-data/sec-fiscal-history.json # P1436: 재무 공시 fiscal-year series

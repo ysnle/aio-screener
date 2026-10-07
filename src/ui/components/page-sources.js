@@ -12,7 +12,7 @@ export const PAGE_SOURCES = Object.freeze({
   home: [QUOTES, '시장 판정·어제와 달라진 점: 종가 기록으로 자체 계산', '일정: BLS·BEA·연준 공식 일정과 거래소 규칙(만기·휴장)', NEWS],
   briefing: [QUOTES, FRED, '하이일드 스프레드: ICE BofA OAS (FRED)', '일정: BLS·BEA·연준 공식 일정과 거래소 규칙(만기·휴장)'],
   'market-news': [NEWS, TELEGRAM],
-  signal: ['추세·시장 폭: S&P 500·나스닥 종가와 스크리너 유니버스 수정 종가로 자체 계산', '변동성: VIX·VIX3M (Cboe)', '금리: 미 재무부 국채 수익률 (FRED DGS2·DGS10)', '신용: ICE BofA 하이일드 OAS (FRED) · CNN Fear & Greed', '달러·원자재·환율: Yahoo Finance'],
+  signal: ['추세·시장 폭: S&P 500·나스닥 종가와 스크리너 유니버스 수정 종가로 자체 계산', '변동성: VIX·VIX3M (Cboe)', '금리: 미 재무부 국채 수익률 (FRED DGS2·DGS10)', '신용: ICE BofA 하이일드 OAS (FRED) · CNN Fear & Greed', '달러·원자재·환율: Yahoo Finance', '기관 포지셔닝: CFTC Traders in Financial Futures (선물, 주간)'],
   macro: [FRED, 'ISM 제조업·서비스업 지수: ISM', '정책금리·회의 일정: 연방준비제도 FOMC'],
   fxbond: ['국채 수익률 곡선: 미 재무부 일별 par curve', '금리차·실질금리·기대인플레이션·기간 프리미엄: FRED (T10Y3M, DFII10, T10YIE, THREEFYTP10)', '하이일드 스프레드: ICE BofA OAS (FRED)', '환율·달러 인덱스: Yahoo Finance'],
   themes: ['섹터·테마 ETF와 종목 일봉: Yahoo Finance (상대강도는 자체 계산)'],

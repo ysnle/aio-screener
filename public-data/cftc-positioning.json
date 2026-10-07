@@ -1,0 +1,13 @@
+{
+ "schemaVersion": "aio-cftc-positioning.v1",
+ "generatedAt": "2026-10-07T13:32:09.347Z",
+ "attemptedAt": null,
+ "status": "awaiting-first-collection",
+ "source": "CFTC Traders in Financial Futures — futures only",
+ "sourceUrl": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+ "cadence": "weekly (Tuesday positions, released Friday 15:30 ET)",
+ "note": "P1507: empty contract file; the first Actions run of scripts/fetch-cftc-positioning.mjs fills markets.",
+ "percentileWeeks": 104,
+ "markets": [],
+ "failures": []
+}

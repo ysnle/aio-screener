@@ -73,6 +73,8 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'ret6m', label: '6M', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'rsi', label: 'RSI', sortable: true, align: 'right', width: 64, group: 'market' },
   { key: 'pctSma50', label: 'vs 50MA', sortable: true, align: 'right', width: 82, group: 'market' },
+  // P1507: the same 50-day distance in units of the stock's own average daily range — how late an entry would be.
+  { key: 'extension', label: '50일선 거리', sortable: true, align: 'right', width: 92, group: 'setup' },
   { key: 'kalman', label: '추세 신뢰도', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
   { key: 'vcpScore', label: 'VCP 구조', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
@@ -86,9 +88,9 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 // blocked. 52주 고점 대비 comes from the artifact itself, so the default presets always carry a
 // price-position reading even when the quote is missing.
 const COLUMN_PRESETS = Object.freeze({
-  discovery: ['watchlist', 'rank', 'grade', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'vcpScore'],
+  discovery: ['watchlist', 'rank', 'grade', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore'],
   fundamentals: ['watchlist', 'rank', 'grade', 'sym', 'value', 'quality', 'price', 'pctFrom52wHigh', 'ret3m', 'signal', 'news'],
-  trend: ['watchlist', 'rank', 'grade', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'entry'],
+  trend: ['watchlist', 'rank', 'grade', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'entry'],
   risk: ['watchlist', 'rank', 'grade', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'signal', 'news'],
   events: ['watchlist', 'rank', 'grade', 'sym', 'signal', 'entry', 'vcpScore', 'news'],
   all: SCREENER_COLUMN_REGISTRY.map((column) => column.key)
@@ -309,12 +311,20 @@ export function syncRankFilterLabels(documentRef) {
   return true;
 }
 
+// P1507: 50-day distance ÷ average daily range (ADR stands in for ATR). Null when either input is missing.
+export function extensionMultiple(row) {
+  const pct = finite(row?.pctSma50);
+  const adr = finite(row?.adrPct);
+  return pct != null && adr != null && adr > 0 ? pct / adr : null;
+}
+
 export function sortRows(rows, sortColumn, ascending, readLiveData) {
   return rows.map(row => ({ row, view: liveRow(row, readLiveData) })).sort(({ view: a }, { view: b }) => {
     const factorColumn = ['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'].includes(sortColumn);
     let av = factorColumn ? a.factorScores?.[sortColumn] : a[sortColumn];
     let bv = factorColumn ? b.factorScores?.[sortColumn] : b[sortColumn];
     if (sortColumn === 'price') { av = a.price; bv = b.price; }
+    if (sortColumn === 'extension') { av = extensionMultiple(a); bv = extensionMultiple(b); }
     if (sortColumn === 'rank') { av = visibleRank(a); bv = visibleRank(b); }
     const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
     if (missing(av) || missing(bv)) return missing(av) === missing(bv) ? 0 : missing(av) ? 1 : -1;
@@ -452,6 +462,14 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   if (['ret1m', 'ret3m', 'ret6m'].includes(key)) return returnText(row[key]);
   if (key === 'rsi') return numberText(row.rsi, 1);
   if (key === 'pctSma50') return returnText(row.pctSma50);
+  if (key === 'extension') {
+    const multiple = extensionMultiple(row);
+    const node = documentRef.createElement('span');
+    node.textContent = multiple == null ? '—' : `${multiple.toFixed(1)}배`;
+    node.title = multiple == null ? '50일선 거리 또는 일평균 변동폭 자료 없음' : `50일선 대비 ${Number(row.pctSma50).toFixed(1)}% ÷ 일평균 변동폭 ${Number(row.adrPct).toFixed(1)}% — 4배 이상은 확장, 7배 이상은 추격 위험(참고 구간)`;
+    node.style.color = multiple == null ? 'var(--text-muted)' : multiple >= 7 ? 'var(--data-red)' : multiple >= 4 ? 'var(--data-amber)' : 'var(--text-primary)';
+    return node;
+  }
   if (key === 'pctFrom52wHigh') return returnText(row.pctFrom52wHigh);
   if (key === 'vcpScore') {
     const node = documentRef.createElement('span');
