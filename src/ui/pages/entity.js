@@ -72,7 +72,7 @@ function renderTickerHero(documentRef, state, root) {
   const pct = finite(quote.pct);
   // P1317: Korean users recognise a KRX listing by its name, not its code — lead with the name.
   const krName = /\.(KS|KQ)$/.test(String(id || '')) && state?.name && state.name !== id ? state.name : null;
-  setText(documentRef, 'ticker-hero-name', krName || id || '종목 선택 대기');
+  setText(documentRef, 'ticker-hero-name', krName || id || '종목 분석');
   setText(documentRef, 'ticker-hero-fullname', id
     ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · 시세 수신 대기`)))
     : '종목을 검색하세요');
@@ -123,7 +123,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
   const pnlNode = tickerElement(documentRef, 'ticker-hero-pnl');
   const hasPosition = !!holding && shares != null && avgCost != null;
   if (valueNode) {
-    valueNode.textContent = !hasPosition ? '내 포트폴리오 외 종목' : pnl == null
+    valueNode.textContent = !hasPosition ? '보유 종목 아님' : pnl == null
       ? '손익 계산 대기'
       : `${pnl >= 0 ? '+' : '-'}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`}`;
     valueNode.dataset.aioTickerPnlRenderer = 'native';
@@ -166,6 +166,9 @@ function renderTickerNavigation(documentRef, state, root) {
     fundamentalLink.textContent = symbol ? `${symbol} SEC 재무 보기` : '종목 선택 후 SEC 재무 보기';
     fundamentalLink.setAttribute('aria-label', fundamentalLink.textContent);
   }
+  // P1505: with no symbol the page showed an empty price block, chart circle and factor panel; it now shows the
+  // search only (CSS on .is-empty), which is the one action available.
+  documentRef.getElementById?.('page-ticker')?.classList.toggle('is-empty', !hasSelection);
   if (!hasSelection) {
     if (breadcrumb) { breadcrumb.textContent = '종목 선택 대기'; breadcrumb.setAttribute('aria-label', '종목 선택 대기'); }
     if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '← 돌아가기'); }
@@ -446,7 +449,7 @@ function renderFundamentalWatchlist(documentRef, state) {
 
     const source = documentRef.createElement('div');
     source.textContent = `SEC ${row.form || 'annual filing'} · 제출 ${row.filedAt || '미상'} · 추정치 없음`;
-    source.style.cssText = 'font-size:9px;color:var(--text-muted);margin-top:10px;line-height:1.35;';
+    source.style.cssText = 'font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.35;';
     card.appendChild(source);
     grid.appendChild(card);
   }

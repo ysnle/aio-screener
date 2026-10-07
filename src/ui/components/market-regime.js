@@ -26,6 +26,18 @@ function summaryLine(regime) {
   return `우호 ${favorable} · 중립 ${neutral} · 부담 ${burden}${unknown ? ` · 확인 불가 ${unknown}` : ''}`;
 }
 
+// P1505 (owner 2026-10-06: no source text on the face of the screen): each axis keeps its source as a hover title and
+// in the page-level 데이터 출처 fold, so a user checking a number can still find the series.
+const AXIS_SOURCES = Object.freeze({
+  trend: 'S&P 500·나스닥 일봉 종가 (Yahoo Finance)',
+  breadth: '스크리너 유니버스 구성 종목의 수정 종가로 자체 계산',
+  volatility: 'VIX·VIX3M (Cboe 지수, Yahoo Finance 경유)',
+  rates: '미 국채 수익률 (미 재무부 공시 par curve · FRED DGS2/DGS10)',
+  credit: 'ICE BofA 하이일드 OAS (FRED BAMLH0A0HYM2) · CNN Fear & Greed',
+  commodities: 'WTI 선물·금 선물·달러 인덱스 (Yahoo Finance)',
+  korea: '원/달러·엔/달러·코스피 (Yahoo Finance)'
+});
+
 export function renderRegimePage({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-signal');
   if (!page) return null;
@@ -57,6 +69,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
       for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
       card.append(list, el(doc, 'p', row.read, 'regime-read'));
       if (row.flip) card.append(el(doc, 'p', `전환 조건: ${row.flip}`, 'regime-flip'));
+      if (AXIS_SOURCES[row.id]) card.title = `출처: ${AXIS_SOURCES[row.id]}`; // P1505: on hover, not on the face of the card
       return card;
     };
     board.replaceChildren(...regime.axes.filter((row) => row.id !== 'korea').map(card));
@@ -85,7 +98,10 @@ export function renderHomeRegime({ documentRef: doc, root }) {
     if (!fallback) continue;
     const cell = fallback.parentElement;
     const live = Number(root._liveData?.[futures]?.price);
-    if (Number.isFinite(live) && live > 0) { fallback.hidden = true; cell?.removeAttribute('data-futures-missing'); continue; }
+    // P1505: the label follows what the cell shows — the futures name with a futures quote, the cash index name with its close.
+    const labelNode = cell?.querySelector('.kpi-label');
+    if (labelNode && !labelNode.dataset.futuresLabel) labelNode.dataset.futuresLabel = labelNode.textContent;
+    if (Number.isFinite(live) && live > 0) { fallback.hidden = true; cell?.removeAttribute('data-futures-missing'); if (labelNode) labelNode.textContent = labelNode.dataset.futuresLabel; continue; }
     const history = root._aioHistory || [];
     const series = buildCloseSeries(history, field, { through: closeBasis(history) });
     const last = series[series.length - 1];
@@ -99,7 +115,8 @@ export function renderHomeRegime({ documentRef: doc, root }) {
     value.textContent = last.value.toLocaleString('en-US', { maximumFractionDigits: 2 });
     const note = doc.createElement('span');
     note.className = 'kpi-fallback-note';
-    note.textContent = `${label} ${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`} · 선물 시세 없음`;
+    note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`} · 선물 시세 미수신`;
+    if (labelNode) labelNode.textContent = label;
     fallback.append(value, note);
     fallback.hidden = false;
     cell?.setAttribute('data-futures-missing', 'true');

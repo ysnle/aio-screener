@@ -166,9 +166,11 @@ export function assertNoPlaceholderSecUserAgents(source, label = 'source') {
 // effort — a value that is not found stays null and the screen says so; it is never estimated.
 export function parseOwnershipHeader(sgml = '') {
   const text = String(sgml);
-  const subject = text.split(/SUBJECT COMPANY:/i)[1] || '';
-  const name = subject.match(/COMPANY CONFORMED NAME:\s*([^\r\n]+)/i)?.[1]?.trim() || null;
-  const cik = subject.match(/CENTRAL INDEX KEY:\s*(\d+)/i)?.[1] || null;
+  // P1498: the .hdr.sgml file uses tag form (<SUBJECT-COMPANY> … <CONFORMED-NAME>, <CIK>); the full .txt
+  // submission uses the colon form (SUBJECT COMPANY: … COMPANY CONFORMED NAME:). Read both.
+  const subject = (text.split(/<SUBJECT-COMPANY>|SUBJECT COMPANY:/i)[1] || '').split(/<\/SUBJECT-COMPANY>|<FILED-BY>|FILED BY:/i)[0];
+  const name = subject.match(/(?:COMPANY CONFORMED NAME:|<CONFORMED-NAME>)[ \t]*([^\r\n<]+)/i)?.[1]?.trim() || null;
+  const cik = subject.match(/(?:CENTRAL INDEX KEY:|<CIK>)[ \t]*(\d+)/i)?.[1] || null;
   return { subjectCompany: name, subjectCik: cik };
 }
 

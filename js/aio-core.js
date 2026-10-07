@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v57.24';
+const APP_VERSION = 'v57.26';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -58,7 +58,7 @@ document.addEventListener('error', function(e) {
     if (sum >= RATE_THRESHOLD) {
       var panel = document.getElementById('data-status-panel');
       if (panel) {
-        panel.innerHTML = '<span style="color:#f87171;font-size:10px;font-weight:700;">⚠ 에러 급증 — 최근 1분 ' + sum + '건 (error ' + _rateCounter.error + ', warn ' + _rateCounter.warn + ')</span>';
+        panel.innerHTML = '<span style="color:#f87171;font-size:10px;font-weight:700;">에러 급증 — 최근 1분 ' + sum + '건 (error ' + _rateCounter.error + ', warn ' + _rateCounter.warn + ')</span>';
       }
     }
   }
@@ -2124,12 +2124,12 @@ window._aioFundSearchFill = function(preset) {
     if (!e || !e.key) return;
     // API 키 변경 감지
     if (/^aio_(claude|fmp|finnhub|fred|naver|bok|kosis)_key$/.test(e.key)) {
-      if (typeof showToast === 'function') showToast('🔑 다른 탭에서 API 키 변경 감지 — 이 탭에도 자동 반영', 4000);
+      if (typeof showToast === 'function') showToast('다른 탭에서 API 키 변경 감지 — 이 탭에도 자동 반영', 4000);
       if (typeof console !== 'undefined' && console.info) console.info('[AIO v49.79 P426] Multi-tab API key change:', e.key);
       try { if (typeof window._aioRefreshAuditWidget === 'function') window._aioRefreshAuditWidget(); } catch(_) {}
     }
     if (e.key === 'aio_user_profile_v1') {
-      if (typeof showToast === 'function') showToast('👤 다른 탭에서 사용자 프로필 변경 감지', 3000);
+      if (typeof showToast === 'function') showToast('다른 탭에서 사용자 프로필 변경 감지', 3000);
     }
     if (e.key === 'aio_alerts_v1') {
       if (typeof console !== 'undefined' && console.info) console.info('[AIO v49.79 P426] Multi-tab alerts changed');
@@ -2207,19 +2207,19 @@ window._aioRefreshAllData = function() {
   try {
     if (window.AIO && typeof window.AIO.forceRefreshAllData === 'function') {
       window.AIO.forceRefreshAllData();
-      if (typeof showToast === 'function') showToast('🔄 전체 데이터 새로고침 시작 — 1~2초 대기 후 재질문 권장', 4000);
+      if (typeof showToast === 'function') showToast('전체 데이터 새로고침 시작 — 1~2초 대기 후 재질문 권장', 4000);
     } else if (typeof window.fetchLiveQuotes === 'function') {
       window.fetchLiveQuotes();
-      if (typeof showToast === 'function') showToast('🔄 시세 새로고침 시작', 3000);
+      if (typeof showToast === 'function') showToast('시세 새로고침 시작', 3000);
     } else {
-      if (typeof showToast === 'function') showToast('⚠ 새로고침 함수 미가용 — 페이지 새로고침 (Ctrl+Shift+R) 권장', 4000);
+      if (typeof showToast === 'function') showToast('새로고침 함수 미가용 — 페이지 새로고침 (Ctrl+Shift+R) 권장', 4000);
     }
   } catch(e) {
-    if (typeof showToast === 'function') showToast('⚠ 새로고침 오류: ' + (e && e.message || e), 4000);
+    if (typeof showToast === 'function') showToast('새로고침 오류: ' + (e && e.message || e), 4000);
   }
 };
 
-// v49.72 R139: 채팅 답변에 표시되는 "📊 [종목] 재무 차트 보기" 버튼 핸들러
+// v49.72 R139: 채팅 답변에 표시되는 "[종목] 재무 차트 보기" 버튼 핸들러
 // — fundamental 페이지로 이동 + 자동 검색 + 7 차트 자동 렌더 (P386 inline chart 대체)
 window._aioShowFundamentalChart = function(ticker) {
   if (!ticker) return;
@@ -2237,7 +2237,7 @@ window._aioShowFundamentalChart = function(ticker) {
     }, 800);
   }, 80);
 };
-// v50.38 트랙1b: 채팅 초보자 차트 읽기 카드 "📊 차트 자세히 보기" 버튼 핸들러
+// v50.38 트랙1b: 채팅 초보자 차트 읽기 카드 "차트 자세히 보기" 버튼 핸들러
 // — technical 페이지로 이동 + 심층 종목 기술 분석(캔들 + MA(5/20/60) + RSI) 자동 실행 + 스크롤. 초보자 시각 차트 분석.
 window._aioShowTechnicalChart = function(ticker) {
   if (!ticker) return;
@@ -2293,9 +2293,9 @@ window._aioRefreshActionPlan = function() {
     var posEl = document.getElementById('home-action-position');
     var sentEl = document.getElementById('home-action-sentiment');
     var brEl = document.getElementById('home-action-breadth');
-    if (posEl && plan.position) posEl.textContent = '💼 포지션 사이즈: ' + plan.position.sizePct + '% — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
-    if (sentEl && plan.sentiment) sentEl.textContent = '🧠 센티먼트 행동: ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
-    if (brEl && plan.actions && plan.actions.length > 2) brEl.textContent = '📊 ' + plan.actions[plan.actions.length - 1];
+    if (posEl && plan.position) posEl.textContent = '포지션 사이즈: ' + plan.position.sizePct + '% — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
+    if (sentEl && plan.sentiment) sentEl.textContent = '센티먼트 행동: ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
+    if (brEl && plan.actions && plan.actions.length > 2) brEl.textContent = '' + plan.actions[plan.actions.length - 1];
     // 갱신 시점 시각 표시
     if (posEl) posEl.setAttribute('data-refreshed-at', new Date().toISOString());
   } catch (e) {
@@ -2782,8 +2782,8 @@ if (typeof document !== 'undefined') {
       }
       var posEl = document.getElementById('briefing-action-position');
       var sentEl = document.getElementById('briefing-action-sentiment');
-      if (posEl && plan.position) posEl.textContent = '💼 ' + plan.position.sizePct + '% 포지션 — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
-      if (sentEl && plan.sentiment) sentEl.textContent = '🧠 ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
+      if (posEl && plan.position) posEl.textContent = '' + plan.position.sizePct + '% 포지션 — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
+      if (sentEl && plan.sentiment) sentEl.textContent = '' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
       try { if (typeof window._aioStaticContentLifecycleHook === 'function') window._aioStaticContentLifecycleHook(); } catch(_je) {}
     } catch(_e) {}
   };
@@ -2834,7 +2834,7 @@ if (typeof document !== 'undefined') {
       }
       if (conflictEl) {
         if (consensus.conflict) {
-          conflictEl.textContent = '⚠️ 모순 신호: ' + consensus.conflict.note;
+          conflictEl.textContent = '모순 신호: ' + consensus.conflict.note;
           conflictEl.style.color = 'var(--data-red)';
         } else {
           conflictEl.textContent = '✓ 모든 신호가 같은 방향';
@@ -2914,7 +2914,7 @@ if (typeof document !== 'undefined') {
         var tsEl = document.getElementById('scenario-outlook-ts');
         if (tsEl && latest) {
           var days = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(latest) : Math.floor((Date.now() - latest) / 86400000);
-          var staleSfx = (days > reg.staleDaysThreshold) ? ' ⚠️ ' + days + '일 경과' : ' (' + days + '일 전)';
+          var staleSfx = (days > reg.staleDaysThreshold) ? ' ' + days + '일 경과' : ' (' + days + '일 전)';
           tsEl.textContent = '최근 갱신: ' + new Date(latest).toISOString().slice(0, 10) + staleSfx;
         }
         // 3 카드 헤더 확률 갱신 (data-scenario-key="optimistic|base|pessimistic")
@@ -2923,14 +2923,14 @@ if (typeof document !== 'undefined') {
           if (!card) return;
           var headerEl = card.querySelector('.scenario-header');
           if (headerEl) {
-            var icon = key === 'optimistic' ? '🟢' : key === 'base' ? '🟡' : '🔴';
+            var icon = key === 'optimistic' ? '' : key === 'base' ? '' : '';
             headerEl.textContent = icon + ' ' + sst[key].label + ' (' + sst[key].probabilityRange + ')';
           }
         });
         // 확률 합 검증 표시 (선택 — #signal-scenario-sum 있으면)
         var sumEl = document.getElementById('signal-scenario-sum');
         var sumCheck = reg.validateSignalSum();
-        if (sumEl) sumEl.textContent = window._aioSafeFixed(sumCheck && sumCheck.sum, 2, '—') + (sumCheck && sumCheck.valid ? ' ✓' : ' ⚠️');
+        if (sumEl) sumEl.textContent = window._aioSafeFixed(sumCheck && sumCheck.sum, 2, '—') + (sumCheck && sumCheck.valid ? ' ✓' : ' ');
 
         // v49.41 P296/R77 보강: signal CP2 fed-rate / fomc lastUpdated 메타 표시
         // MACRO_CALENDAR.us-fed-rate의 nextRelease (다음 FOMC) 대비 경과일 표시 + 지나면 stale 경고.
@@ -2947,7 +2947,7 @@ if (typeof document !== 'undefined') {
                 metaEl.textContent = '(다음 FOMC ' + rel.nextRelease + ' · D-' + daysToNext + ')';
                 metaEl.style.color = 'var(--text-muted)';
               } else {
-                metaEl.textContent = '⚠️ FOMC 일정 갱신 필요 (' + (-daysToNext) + '일 경과)';
+                metaEl.textContent = 'FOMC 일정 갱신 필요 (' + (-daysToNext) + '일 경과)';
                 metaEl.style.color = 'var(--data-amber)';
               }
             }
@@ -2998,14 +2998,14 @@ if (typeof document !== 'undefined') {
       return null;
     }
   };
-  // 분석 영역 옆 "🔄 자동 갱신 · HH:MM:SS" 표식 갱신 (사용자가 라이브 동기화를 체감)
+  // 분석 영역 옆 "자동 갱신 · HH:MM:SS" 표식 갱신 (사용자가 라이브 동기화를 체감)
   window._aioStampNarrativeUpdate = function(pid, ts) {
     try {
       var d = new Date(ts || Date.now());
       var hh = String(d.getHours()).padStart(2, '0');
       var mm = String(d.getMinutes()).padStart(2, '0');
       var ss = String(d.getSeconds()).padStart(2, '0');
-      var txt = '🔄 자동 갱신 · ' + hh + ':' + mm + ':' + ss;
+      var txt = '자동 갱신 · ' + hh + ':' + mm + ':' + ss;
       document.querySelectorAll('[data-narrative-stamp="' + pid + '"]').forEach(function(el) {
         el.textContent = txt;
       });
@@ -3120,7 +3120,7 @@ if (typeof document !== 'undefined') {
           var dateStr = drift.stamp.date || '최근';
           var reasonsHtml = drift.reasons.filter(function(r){ return r.sev === 'severe'; }).map(function(r){ return r.msg; }).join(' · ');
           banner.style.cssText = 'display:block;margin:0 0 10px 0;padding:9px 12px;background:rgba(255,90,80,0.12);border:1px solid rgba(255,90,80,0.45);border-radius:4px;font-size:12px;line-height:1.55;color:var(--text-primary);';
-          banner.innerHTML = '<strong style="color:#ff7a70;">⚠ 정적 분석 텍스트는 ' + dateStr + ' 기준입니다 — 현재 시장이 그때와 크게 다릅니다.</strong>' +
+          banner.innerHTML = '<strong style="color:#ff7a70;">정적 분석 텍스트는 ' + dateStr + ' 기준입니다 — 현재 시장이 그때와 크게 다릅니다.</strong>' +
             '<span style="color:var(--text-secondary);"> ' + reasonsHtml + '. 시나리오·해설·주간 요약 텍스트는 <b>참고용</b>으로만 보시고, 상단의 실시간 시세·지표를 우선하세요.</span>' +
             ' <button data-action="_aioDismissRegimeDrift" style="margin-left:6px;background:none;border:1px solid rgba(255,90,80,0.5);color:#ff7a70;border-radius:3px;font-size:11px;padding:2px 8px;cursor:pointer;">닫기</button>';
         } else {
@@ -3136,7 +3136,7 @@ if (typeof document !== 'undefined') {
             var tag = document.createElement('div');
             tag.className = 'aio-regime-drift-tag';
             tag.style.cssText = 'font-size:11px;color:#ff7a70;margin-bottom:6px;font-weight:600;';
-            tag.textContent = '⚠ 작성 시점(' + (drift.stamp.date || '') + ')과 시장 급변 — 참고용';
+            tag.textContent = '작성 시점(' + (drift.stamp.date || '') + ')과 시장 급변 — 참고용';
             el.insertBefore(tag, el.firstChild);
           }
         } else {
@@ -3606,7 +3606,7 @@ if (typeof document !== 'undefined') {
         var biasKo = ns.bias === 'bullish' ? '긍정 우위' : ns.bias === 'bearish' ? '부정 우위' : '중립';
         newsPart = '뉴스 흐름 ' + biasKo + '(감성 ' + num(ns.sentimentScore, 0) + ')'
           + (ns.dominantTopic ? ' · 주도 테마 ' + (topicKo[ns.dominantTopic] || ns.dominantTopic) : '')
-          + (ns.eventFlags && ns.eventFlags.geopolitical ? ' · ⚠️ 지정학 이벤트 활성' : '');
+          + (ns.eventFlags && ns.eventFlags.geopolitical ? ' · 지정학 이벤트 활성' : '');
       }
       // 5) 행동 한 줄 (actionPlan 우선)
       var actionPart = '';
@@ -3694,7 +3694,7 @@ if (typeof document !== 'undefined') {
           ' <span style="color:var(--text-muted);font-size:10px;">(' + esc(n.source || '') + (ageH != null ? ' · ' + ageH + 'h' : '') + ')</span></div>';
       }).join('');
       host.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">' +
-          '<span style="min-width:0;font-size:10px;font-weight:700;color:var(--accent);overflow-wrap:anywhere;">📰 관련 뉴스 ' + rows.length + '건 <span style="font-weight:400;color:var(--text-muted);">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
+          '<span style="min-width:0;font-size:10px;font-weight:700;color:var(--accent);overflow-wrap:anywhere;">관련 뉴스 ' + rows.length + '건 <span style="font-weight:400;color:var(--text-muted);">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
           '<button data-action="showPage" data-arg="market-news" class="aio-btn-table" style="font-size:10px;padding:1px 6px;flex-shrink:0;">전체 뉴스 →</button></div>' + lines;
     } catch(_){}
   };
@@ -8503,7 +8503,7 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
       subSections: [
         { id: 'fundamental-explain-header', order: 1, topic: '헤더 + 15 분석 분야 심층 해설',     lines: 'L8160~8220' },
         { id: 'fundamental-search-input',   order: 2, topic: '종목 검색 input + 예시 4 종목 (v49.29 I5)', lines: 'L8222~8260' },
-        { id: 'fundamental-coverage-badge', order: 3, topic: '15 기준 가용성 배지 (v49.35 ✓6/⚠5/❌4 → v49.36 ✓14/⚠0/❌1)', lines: 'L8262~8295' },
+        { id: 'fundamental-coverage-badge', order: 3, topic: '15 기준 가용성 배지 (v49.35 ✓6/5/4 → v49.36 ✓14/0/1)', lines: 'L8262~8295' },
         { id: 'fundamental-result-cards',   order: 4, topic: '검색 결과 카드 (동적 렌더)',         lines: 'L8297~8320' },
         { id: 'fundamental-guide',          order: 5, topic: 'Buffett/Graham/Lynch 가이드 (collapsed)', lines: 'L8322~8335' }
       ],
@@ -10285,11 +10285,11 @@ window.AIO.diagnose = async function(ticker) {
   // 사용자 권장 조치
   var actions = [];
   if (!report.quote || !report.quote.result || !report.quote.result.price) {
-    actions.push('🔴 시세 fetch 실패 — 5분 후 재시도 또는 사이드바 🔄 클릭');
+    actions.push('시세 fetch 실패 — 5분 후 재시도 또는 사이드바 클릭');
     if (report.quoteDiag) actions.push('   진단: ' + report.quoteDiag.attempts.length + ' proxy 시도 → 모두 실패');
   }
   if (report.chatPanelDom && report.chatPanelDom.contextOnlyCount > 0) {
-    actions.push('⚠ CHAT_CONTEXTS ' + report.chatPanelDom.contextOnlyCount + '건 DOM 부재 (v49.74+ 일부 시정, 잔여는 v49.77+ 작업)');
+    actions.push('CHAT_CONTEXTS ' + report.chatPanelDom.contextOnlyCount + '건 DOM 부재 (v49.74+ 일부 시정, 잔여는 v49.77+ 작업)');
   }
   if (actions.length > 0) {
     console.log('\n권장 조치:');
@@ -10885,7 +10885,7 @@ window._aioStaleDaysLabel = function(baseDate, opts) {
     text = '오늘 갱신';
     color = 'var(--green)';
   } else {
-    var suffix = days > staleDays ? ' ⚠️' : days > warnDays ? ' (확인 필요)' : '';
+    var suffix = days > staleDays ? ' ' : days > warnDays ? ' (확인 필요)' : '';
     text = days + '일 경과' + suffix;
     color = days > staleDays ? 'var(--data-red)' : days > warnDays ? 'var(--data-amber)' : 'var(--text-muted)';
   }
@@ -10968,11 +10968,11 @@ window._aioStaticContentLifecycleHook = function(rootEl) {
       var replaceAt = content.replaceAfterDays != null ? content.replaceAfterDays : lc.defaultReplaceAfterDays;
       var label = st.ageDays + '일 경과';
       if (st.replaceDue) {
-        span.textContent = label + ' · ⚠️ 교체 권장 (' + replaceAt + '일+ 초과)';
+        span.textContent = label + ' · 교체 권장 (' + replaceAt + '일+ 초과)';
         span.style.color = 'var(--data-red)';
         span.style.fontWeight = '700';
       } else if (st.archiveDue) {
-        span.textContent = label + ' · 📦 archive 단계 (' + archiveAt + '일+ 초과)';
+        span.textContent = label + ' · archive 단계 (' + archiveAt + '일+ 초과)';
         span.style.color = 'var(--data-amber)';
         span.style.fontWeight = '600';
       } else {
@@ -11250,7 +11250,9 @@ window.AIO.renderMacroNextRelease = function() {
     el.setAttribute('data-operational-use', 'calendar-only');
     return null;
   }
-  el.textContent = '다음 주요 발표: ' + upcoming[0].name + ' · ' + upcoming[0].date + ' KST 기준';
+  // P1505: a release is named for the reader ("미국 CPI"), not by the agency code ("BLS CPI").
+  var _releaseLabels = { 'us-nfp': '미국 고용보고서', 'us-cpi': '미국 CPI', 'us-pce': '미국 PCE 물가', 'us-ism-mfg': 'ISM 제조업 지수', 'us-ism-svc': 'ISM 서비스업 지수', 'us-retail': '미국 소매판매', 'us-fomc': 'FOMC 금리 결정', 'us-fed-rate': 'FOMC 금리 결정', 'kr-bok': '한국은행 금리 결정', 'conf-gtc-dc': 'NVIDIA GTC' };
+  el.textContent = '다음 주요 발표: ' + (_releaseLabels[upcoming[0].key] || upcoming[0].name) + ' · ' + upcoming[0].date + ' KST 기준';
   el.setAttribute('data-runtime-state', 'official-reference');
   el.setAttribute('data-operational-use', 'calendar-only');
   return upcoming[0];
@@ -11697,9 +11699,9 @@ window.AIO_ACTION_RULES = {
       && ns && ns.sampleSufficient === true && ns.decisionEligible === true && Number(ns.total) >= minNewsSample
       && typeof ns.sentimentScore === 'number' && Number.isFinite(ns.sentimentScore);
     if (ns && ns.available === true && ns.allowedUse === true && nsSampleSufficient) {
-      if (ns.bias === 'bearish') { newsTilt = 'defensive'; actions.push('📰 뉴스 환경: 부정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 헤드라인 리스크가 큰 국면.'); }
-      else if (ns.bias === 'bullish') { newsTilt = 'constructive'; actions.push('📰 뉴스 환경: 긍정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 과열 여부를 함께 볼 국면.'); }
-      if (ns.eventFlags && ns.eventFlags.geopolitical) actions.push('⚠️ 지정학 뉴스 활성 — 이벤트 리스크 확인 필요.');
+      if (ns.bias === 'bearish') { newsTilt = 'defensive'; actions.push('뉴스 환경: 부정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 헤드라인 리스크가 큰 국면.'); }
+      else if (ns.bias === 'bullish') { newsTilt = 'constructive'; actions.push('뉴스 환경: 긍정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 과열 여부를 함께 볼 국면.'); }
+      if (ns.eventFlags && ns.eventFlags.geopolitical) actions.push('지정학 뉴스 활성 — 이벤트 리스크 확인 필요.');
     }
     return { actions: actions, position: pos, sentiment: sent, newsTilt: newsTilt, generatedAt: new Date().toISOString() };
   }
@@ -13493,7 +13495,7 @@ async function _retryAllFailedApis() {
   if (_retryAllInProgress) return;
   _retryAllInProgress = true;
   var btn = document.getElementById('btn-retry-all-apis');
-  if (btn) { btn.textContent = '⏳ 재연결 중...'; btn.disabled = true; }
+  if (btn) { btn.textContent = '재연결 중...'; btn.disabled = true; }
   try {
     var failedKeys = [];
     Object.keys(window._apiHealth).forEach(function(k) {
@@ -14058,7 +14060,7 @@ window._aioBuildSparklineSvg = async function(ticker, opts) {
       } catch(_) {}
     }
     if (closes.length < 5) {
-      return '<div style="font-size:10px;color:var(--text-muted);padding:4px 6px;">📉 ' + (typeof escHtml === 'function' ? escHtml(label) : label) + ' 차트 데이터 부족 (필요: 5+ closes)</div>';
+      return '<div style="font-size:10px;color:var(--text-muted);padding:4px 6px;">' + (typeof escHtml === 'function' ? escHtml(label) : label) + ' 차트 데이터 부족 (필요: 5+ closes)</div>';
     }
     var min = Math.min.apply(null, closes);
     var max = Math.max.apply(null, closes);
@@ -14087,13 +14089,13 @@ window._aioBuildSparklineSvg = async function(ticker, opts) {
         '</svg>' +
       '</div>' +
       '<div style="font-size:11px;color:var(--text-secondary);line-height:1.4;">' +
-        '<div style="font-weight:700;color:var(--text-bright);">📉 ' + safeLabel + ' · ' + closes.length + '일</div>' +
+        '<div style="font-weight:700;color:var(--text-bright);">' + safeLabel + ' · ' + closes.length + '일</div>' +
         '<div style="color:' + color + ';font-family:var(--font-mono);font-weight:600;">' + lastText + ' (' + pctText + ')</div>' +
         '<div style="color:var(--text-muted);font-size:10px;">range: ' + (min >= 1000 ? min.toFixed(0) : min.toFixed(2)) + ' ~ ' + (max >= 1000 ? max.toFixed(0) : max.toFixed(2)) + '</div>' +
       '</div>' +
     '</div>';
   } catch(e) {
-    return '<div style="font-size:10px;color:var(--data-amber);padding:4px 6px;">⚠ sparkline error: ' + (e && e.message || e) + '</div>';
+    return '<div style="font-size:10px;color:var(--data-amber);padding:4px 6px;">sparkline error: ' + (e && e.message || e) + '</div>';
   }
 };
 
@@ -14591,7 +14593,7 @@ window._aioWebSearchToggle = function(checked, el) {
   // 위젯 새로고침
   try { window._aioRefreshAuditWidget(); } catch(_e) {}
   if (typeof showToast === 'function') {
-    showToast(enabled ? '🔍 외부 검색 사용 설정' : '⊘ 외부 검색 비활성화 — 수집 자료 범위만 사용');
+    showToast(enabled ? '외부 검색 사용 설정' : '⊘ 외부 검색 비활성화 — 수집 자료 범위만 사용');
   }
 };
 // 페이지 로드 시 토글 초기 상태 동기화
@@ -14615,9 +14617,9 @@ setTimeout(function() {
 window._aioExportKeys = function() {
   try {
     var r = window.AIO.exportApiKeys({ masked: false });
-    if (typeof showToast === 'function') showToast('📥 키 백업 완료 — ' + r.exported + '개 다운로드');
+    if (typeof showToast === 'function') showToast('키 백업 완료 — ' + r.exported + '개 다운로드');
   } catch(e) {
-    if (typeof showToast === 'function') showToast('⚠ 백업 실패: ' + (e && e.message));
+    if (typeof showToast === 'function') showToast('백업 실패: ' + (e && e.message));
   }
 };
 
@@ -14634,13 +14636,13 @@ window._aioImportKeysPrompt = function() {
       try {
         var r = await window.AIO.importApiKeys(ev.target.result);
         if (r.ok) {
-          if (typeof showToast === 'function') showToast('📤 키 복원 완료 — ' + r.imported + '개 (백업: ' + (r.source || 'unknown') + ')');
+          if (typeof showToast === 'function') showToast('키 복원 완료 — ' + r.imported + '개 (백업: ' + (r.source || 'unknown') + ')');
           setTimeout(function(){ window.location.reload(); }, 1500); // 키 반영 위해 리로드
         } else {
-          if (typeof showToast === 'function') showToast('⚠ 복원 실패: ' + (r.error || 'unknown'));
+          if (typeof showToast === 'function') showToast('복원 실패: ' + (r.error || 'unknown'));
         }
       } catch(err) {
-        if (typeof showToast === 'function') showToast('⚠ 파일 파싱 실패: ' + (err && err.message));
+        if (typeof showToast === 'function') showToast('파일 파싱 실패: ' + (err && err.message));
       }
     };
     reader.readAsText(file);
@@ -17171,7 +17173,7 @@ if (!AIO_DEBUG) {
 // 철학:
 //   - 하드코딩 날짜 문자열 금지 (DATE_ENGINE.now() / .isoNow() 사용)
 //   - stale 판정은 isStale(ts, maxAgeMs)로 통일
-//   - UI 배지는 staleBadge(ts)로 자동 생성 (🟢 실시간 · 🟡 N분 전 · 🔴 N일 전)
+//   - UI 배지는 staleBadge(ts)로 자동 생성 (실시간 · N분 전 · N일 전)
 //   - 애널리스트 리포트는 staleBadge(ts, 'report')로 7일 이상이면 경고
 // ═══════════════════════════════════════════════════════════════════════════
 window.DATE_ENGINE = (function() {
@@ -17244,7 +17246,7 @@ window.DATE_ENGINE = (function() {
     }
   }
 
-  // 🟢 실시간 · 🟡 3분 전 · 🔴 3일 전 (stale 여부 기반 색상)
+  // 실시간 · 3분 전 · 3일 전 (stale 여부 기반 색상)
   function staleBadge(v, category, opts) {
     opts = opts || {};
     var t = toTs(v);
@@ -17252,9 +17254,9 @@ window.DATE_ENGINE = (function() {
     var a = ageMs(v);
     var threshold = STALE_THRESHOLDS[category] || STALE_THRESHOLDS.unknown;
     var icon, color;
-    if (a < threshold * 0.3) { icon = '🟢'; color = '#00e5a0'; }   // fresh (30% of threshold)
-    else if (a < threshold) { icon = '🟡'; color = '#ffa31a'; }    // aging
-    else { icon = '🔴'; color = '#ff5b50'; }                        // stale
+    if (a < threshold * 0.3) { icon = ''; color = '#00e5a0'; }   // fresh (30% of threshold)
+    else if (a < threshold) { icon = ''; color = '#ffa31a'; }    // aging
+    else { icon = ''; color = '#ff5b50'; }                        // stale
     var label = formatRelative(v);
     if (opts.asHtml === false) return icon + ' ' + label;
     return '<span style="color:' + color + ';font-size:' + (opts.fontSize || '11px') + ';font-family:var(--font-mono);" title="' + formatAbsolute(v) + '">' + icon + ' ' + label + '</span>';
@@ -17515,7 +17517,7 @@ window._aioRenderFreshness = function() {
     var fb = window.DATA_SNAPSHOT._isFallback;
     html += '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:4px;padding-top:4px;border-top:1px dashed var(--surface-5);">' +
       '<span>폴백 스냅샷 상태</span>' +
-      (fb ? '<span style="color:#fbbf24;">⚠️ 사용 중</span>' : '<span style="color:#3ddba5;">✅ 실시간</span>') +
+      (fb ? '<span style="color:#fbbf24;">사용 중</span>' : '<span style="color:#3ddba5;">실시간</span>') +
       '</div>';
   }
   // v48.38: RSS 피드 헬스 요약
@@ -17525,7 +17527,7 @@ window._aioRenderFreshness = function() {
       html += '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:4px;">' +
         '<span>RSS 피드 상태</span>' +
         '<span>' + (fh.ok ? '<span style="color:#3ddba5;">✓ ' + fh.ok + '</span>' : '') +
-        (fh.degraded ? ' <span style="color:#fbbf24;">⚠ ' + fh.degraded + '</span>' : '') +
+        (fh.degraded ? ' <span style="color:#fbbf24;">' + fh.degraded + '</span>' : '') +
         (fh.disabled ? ' <span style="color:#f87171;">✗ ' + fh.disabled + '</span>' : '') +
         ' / ' + fh.total + '</span></div>';
     }
@@ -22497,7 +22499,7 @@ function _aioRenderBriefingMarketAnalysis() {
       schedEl.innerHTML = cal.slice(0, 4).map(function(ev) {
         return '<div style="display:flex;align-items:baseline;gap:16px;padding:11px 0;border-top:1px solid var(--border-subtle);">' +
           '<span style="font-size:11px;color:var(--text-dim);flex-shrink:0;width:76px;">' + escHtml(ev.when || '') + '</span>' +
-          '<span style="font-size:13.5px;color:var(--text-secondary);flex:1;">' + escHtml(ev.label || '') + '</span>' +
+          '<span style="font-size:14px;color:var(--text-secondary);flex:1;">' + escHtml(ev.label || '') + '</span>' +
         '</div>';
       }).join('');
     } else {
@@ -22586,12 +22588,19 @@ function showPage(id, navEl) {
   const pg = document.getElementById('page-'+id);
   // Keep the browser title aligned with the visible route. A generic title makes
   // back/forward, screen-reader context, and copied tabs indistinguishable.
-  try {
-    var titleNode = pg && pg.querySelector('.page-title,h1,h2');
-    var routeTitle = titleNode ? (titleNode.textContent || '').replace(/\s+/g, ' ').trim() : '';
-    routeTitle = routeTitle.replace(/\bv\d+(?:\.\d+)?\b/ig, '').replace(/\s+/g, ' ').trim();
-    if (routeTitle) document.title = routeTitle + ' · AIO Screener';
-  } catch(_) {}
+  // P1499: native routes (research library, news) paint their heading after this call; read it again once
+  // they have, instead of leaving the previous route's or the shell's title in the tab.
+  var _syncRouteTitle = function(late) {
+    try {
+      if (!pg || (late && !pg.classList.contains('active'))) return true;
+      var titleNode = pg.querySelector('.page-title,h1,h2');
+      var routeTitle = titleNode ? (titleNode.textContent || '').replace(/\s+/g, ' ').trim() : '';
+      routeTitle = routeTitle.replace(/\bv\d+(?:\.\d+)?\b/ig, '').replace(/\s+/g, ' ').trim();
+      if (routeTitle) document.title = routeTitle + ' · AIO Screener';
+      return !!routeTitle;
+    } catch(_) { return true; }
+  };
+  if (!_syncRouteTitle(false)) { setTimeout(function() { if (!_syncRouteTitle(true)) setTimeout(function() { _syncRouteTitle(true); }, 1200); }, 300); }
   // P858: route transitions previously invalidated every page subtree on each
   // navigation. Only the current active page needs the class mutation; this
   // avoids a full-document style/layout pass on the 17-route shell.
@@ -22773,7 +22782,7 @@ function showTicker(tkr) {
   var pnlEl = document.getElementById('ticker-hero-pnl');
   var _thv = document.getElementById('ticker-hero-value');
   var hasPosition = d.value !== '—';
-  if (_thv && _thv.dataset.aioTickerPnlRenderer !== 'native') _thv.textContent = hasPosition ? d.value : '내 포트폴리오 외 종목';
+  if (_thv && _thv.dataset.aioTickerPnlRenderer !== 'native') _thv.textContent = hasPosition ? d.value : '보유 종목 아님';
   if (pnlEl && pnlEl.dataset.aioTickerPnlRenderer !== 'native') pnlEl.className = 'pnl' + (hasPosition ? ' pos' : '');
   // v53.6: 종목 개요(밸리AI 참조) — TV 대형 차트 + 가격/테마/팩터 좌측 레일 (index.html 정의)
   try { if (typeof window._aioRenderTickerOverview === 'function') window._aioRenderTickerOverview(tkr); } catch(_ovErr) {}

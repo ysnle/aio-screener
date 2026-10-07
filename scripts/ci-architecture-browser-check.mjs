@@ -324,6 +324,8 @@ try {
     curveFact: document.getElementById('rates-curve-fact')?.textContent || '',
     curveDots: document.querySelectorAll('#rates-curve .rates-curve-dot').length,
     levels: document.querySelectorAll('#rates-levels .macro-stat').length,
+    // P1498: the Kim-Wright term-premium card appears only once FRED THREEFYTP10 has arrived in macro history.
+    premiumCard: /기간 프리미엄/.test(document.getElementById('rates-levels')?.textContent || ''),
     impactAxes: [...document.querySelectorAll('#rates-axes .macro-axis')].map((node) => node.dataset.axis),
     fxCards: [...document.querySelectorAll('#rates-fx-grid .trend-card')].map((node) => node.dataset.metric),
     rawLiveSinkCount: document.querySelectorAll('#page-fxbond [data-live-price], #page-fxbond [data-live-chg]').length,
@@ -348,7 +350,7 @@ try {
     return RULES.credit.stressAtBp === 450 && RULES.credit.widen5dBp === 25;
   });
   if (!rulesShared) throw new Error('P1428 shared rule table missing or changed without updating the guide');
-  if (fxbondRoute.boardRenderer !== 'native' || fxbondRoute.yields.join(',') !== '4.85%,4.99%,5.11%,5.45%,5.40%' || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) || fxbondRoute.curveDots !== 5 || fxbondRoute.levels !== 3 || fxbondRoute.impactAxes.join(',') !== 'policy,rates,commodities,credit,korea' || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy,tnx' || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리 · 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
+  if (fxbondRoute.boardRenderer !== 'native' || fxbondRoute.yields.join(',') !== '4.85%,4.99%,5.11%,5.45%,5.40%' || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) || fxbondRoute.curveDots !== 5 || fxbondRoute.levels !== 3 + (fxbondRoute.premiumCard ? 1 : 0) || fxbondRoute.impactAxes.join(',') !== 'korea' /* P1505: duplicated macro axes removed */ || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy,tnx' || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리 · 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
   // P1395: the breadth page is the native trend-card board (P1416: ten dated series in three groups + one judgement).

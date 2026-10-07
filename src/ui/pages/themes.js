@@ -20,10 +20,10 @@ import { readMarketRegime } from '../components/market-regime.js';
 import { renderNextSteps } from '../components/page-flow.js';
 
 const QUADRANTS = Object.freeze([
-  { key: 'Leading', label: '선도 Leading', sub: '상대강도 우위', note: '상대강도·모멘텀 모두 우위' },
-  { key: 'Improving', label: '개선 Improving', sub: '개선 관찰', note: '상대모멘텀 개선 중' },
-  { key: 'Weakening', label: '약화 Weakening', sub: '둔화 관찰', note: '상대강도 대비 모멘텀 둔화' },
-  { key: 'Lagging', label: '후행 Lagging', sub: '상대 약세', note: '상대강도·모멘텀 모두 열위' }
+  { key: 'Leading', label: '선도', sub: '상대강도 우위', note: '상대강도·모멘텀 모두 우위' },
+  { key: 'Improving', label: '개선', sub: '개선 관찰', note: '상대모멘텀 개선 중' },
+  { key: 'Weakening', label: '약화', sub: '둔화 관찰', note: '상대강도 대비 모멘텀 둔화' },
+  { key: 'Lagging', label: '후행', sub: '상대 약세', note: '상대강도·모멘텀 모두 열위' }
 ]);
 
 function finite(value) {
@@ -107,10 +107,10 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.restore();
   context.font = 'bold 12px Inter, sans-serif';
   context.globalAlpha = 0.75;
-  context.fillStyle = '#22754c'; context.fillText('선도 Leading', width * 3 / 4, 22);
-  context.fillStyle = '#211d16'; context.fillText('개선 Improving', width / 4, 22);
-  context.fillStyle = '#211d16'; context.fillText('약화 Weakening', width * 3 / 4, height - 14);
-  context.fillStyle = '#b13a30'; context.fillText('후행 Lagging', width / 4, height - 14);
+  context.fillStyle = '#22754c'; context.fillText('선도 · 강도↑ 모멘텀↑', width * 3 / 4, 22);
+  context.fillStyle = '#211d16'; context.fillText('개선 · 강도↓ 모멘텀↑', width / 4, 22);
+  context.fillStyle = '#211d16'; context.fillText('약화 · 강도↑ 모멘텀↓', width * 3 / 4, height - 14);
+  context.fillStyle = '#b13a30'; context.fillText('후행 · 강도↓ 모멘텀↓', width / 4, height - 14);
   context.globalAlpha = 1;
   if (!validItems.length) {
     context.fillStyle = '#8a8271';
@@ -312,7 +312,15 @@ function createChip(documentRef, item, root) {
   // LC-54: 상세 제공 여부를 데이터 계약으로 드러낸다 — 읽기 전용 칩과 상세 버튼이
   // 같은 외형이면 사용자가 눌러도 아무 일도 없는 이유를 알 수 없다.
   chip.dataset.detailAvailability = detailId ? 'available' : 'summary-only';
-  chip.textContent = `${symbol} ${String(item?.label || symbol)}${pct == null ? '' : ` ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`}${detailId ? '' : ' · 요약만'}`;
+  // P1505: the quadrant says where a sector stands on relative strength; the period return is a separate number.
+  // Only the return is coloured, so a lagging sector that rose today no longer reads as a green chip in 후행.
+  chip.textContent = `${symbol} ${String(item?.label || symbol)}`;
+  if (pct != null) {
+    const change = documentRef.createElement('span');
+    change.textContent = ` ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+    change.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+    chip.append(change);
+  }
   chip.style.cssText = `font-size:12px;border:1px ${detailId ? 'solid' : 'dashed'} var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : 'opacity:0.85;'}`;
   if (detailId) {
     chip.type = 'button';
@@ -326,7 +334,6 @@ function createChip(documentRef, item, root) {
     chip.setAttribute('aria-label', `${String(item?.label || symbol)} — 요약 전용(상세 패널 없음)`);
     chip.title = '요약 전용 칩입니다 — 이 항목은 상세 패널이 제공되지 않습니다(ETF 정체성·관측 상태만 표시).';
   }
-  if (pct != null) chip.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
   return chip;
 }
 

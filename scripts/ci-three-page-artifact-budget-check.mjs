@@ -74,8 +74,9 @@ try {
   requests = [];
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="filings"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersFilings === 'connected');
+  // P1498: 13D/G events now carry issuer name, issuer CIK and percent of class (about +25 KB pretty-printed).
   const mastersFilings = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
-  if (mastersFilings.paths.length !== 1 || mastersFilings.paths[0] !== '/public-data/masters/filings.json' || mastersFilings.bytes > 400_000) throw new Error(`Masters filings lazy artifact contract failed: ${JSON.stringify(mastersFilings)}`);
+  if (mastersFilings.paths.length !== 1 || mastersFilings.paths[0] !== '/public-data/masters/filings.json' || mastersFilings.bytes > 460_000) throw new Error(`Masters filings lazy artifact contract failed: ${JSON.stringify(mastersFilings)}`);
   requests = [];
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="principles"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersPrinciples === 'connected');
@@ -91,7 +92,9 @@ try {
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="quarters"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersHistoryRows === 'connected');
   const mastersQuarter = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
-  assertBudget(mastersQuarter, 200_000, 'Masters selected-manager quarter artifacts');
+  // P1498: the first full 13F run with amendment composition (P1462) records ORIGINAL/RESTATEMENT/NEW HOLDINGS
+  // parts for every period; history-index grew 85 KB -> 156 KB. The quarter view still loads only the index and one shard.
+  assertBudget(mastersQuarter, 260_000, 'Masters selected-manager quarter artifacts');
   if (mastersQuarter.paths.some((path) => /\/(?:history-holdings|issuer-aggregates)\.json$/.test(path))) throw new Error(`Masters quarter view requested a canonical monolith: ${JSON.stringify(mastersQuarter.paths)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('screener'));
   await page.waitForFunction(() => document.getElementById('page-screener')?.classList.contains('active'));

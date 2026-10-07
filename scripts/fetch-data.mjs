@@ -1353,6 +1353,9 @@ const SERVER_NEWS_PRIORITY_RULES = [
   { label: 'earnings-guidance', points: 10, re: /\b(earnings|revenue|eps|guidance|outlook|margin|buyback|dividend|preannounces?)\b/i },
   { label: 'analyst-action', points: 8, re: /\b(upgrade|downgrade|price target|rating|initiates|overweight|underweight|buy rating|sell rating)\b/i },
   { label: 'fx-bonds-commodities', points: 8, re: /\b(dollar|yen|euro|yuan|won|dxy|forex|gold|copper|credit spread|yield curve)\b/i },
+  // P1504: broad market vocabulary — counts toward the topic floor with a small weight so 'Nasdaq hits new high,
+  // 10-year yield tops 5.3%' or 'global bond sell-off' are not dropped as off-topic.
+  { label: 'market-general', points: 4, re: /\b(stocks?|stock market|wall street|equities|s&p 500|nasdaq|dow jones|russell 2000|yields?|bonds?|10-year|30-year|treasur(?:y|ies)|oil|crude|commodit(?:y|ies)|futures|markets?)\b/i },
   { label: 'mega-cap', points: 8, re: /\b(aapl|apple|msft|microsoft|nvda|nvidia|amzn|amazon|meta|tesla|tsla|googl|google|avgo|broadcom|amd|oracle|orcl|jpm|exxon|xom)\b/i },
 ];
 
@@ -1360,7 +1363,20 @@ const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed 
 const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumor|reportedly|may be considering|is said to)\b/i;
 const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC)\b/i;
 const SERVER_NEWS_TIER2_SOURCE_RE = /\b(MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance)\b/i;
-const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad-hoc-news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks)\b/i;
+// P1504: the list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
+// that filled the 2026-10-06 cycle (TradingKey ×4, livetradingnews, BBN Times, simplywall.st).
+const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News)\b/i;
+// P1504: Korean headlines matched none of the English priority rules, so every Korean item scored on source and
+// recency alone. The same topics in Korean.
+const SERVER_NEWS_PRIORITY_RULES_KO = [
+  { label: 'ko-macro-rates', points: 14, re: /(금리|기준금리|물가|인플레|연준|FOMC|파월|국채|고용지표|경기침체|한국은행|금통위)/ },
+  { label: 'ko-fx', points: 10, re: /(환율|원·?달러|원화|달러|엔화|외환)/ },
+  { label: 'ko-semis', points: 13, re: /(반도체|메모리|HBM|D램|낸드|파운드리|삼성전자|SK하이닉스|하이닉스|삼전닉스)/ },
+  { label: 'ko-earnings', points: 10, re: /(실적|영업이익|매출|가이던스|잠정|어닝)/ },
+  { label: 'ko-flows', points: 9, re: /(외국인|기관|순매수|순매도|공매도|수급|리밸런싱|만기)/ },
+  { label: 'ko-market', points: 8, re: /(코스피|코스닥|증시|지수|상장|공모)/ },
+  { label: 'ko-geo-trade', points: 12, re: /(관세|제재|수출통제|중동|이란|호르무즈|전쟁|대미\s*투자)/ }
+];
 
 function getServerNewsSourceTier(source, feedTier) {
   const src = String(source || '');
@@ -1388,12 +1404,16 @@ function scoreServerNewsItem(item) {
   score += recency;
   reasons.push(`recency${recency >= 0 ? '+' : ''}${recency}`);
 
-  for (const rule of SERVER_NEWS_PRIORITY_RULES) {
+  let topicHits = 0;
+  for (const rule of [...SERVER_NEWS_PRIORITY_RULES, ...SERVER_NEWS_PRIORITY_RULES_KO]) {
     if (rule.re.test(text)) {
       score += rule.points;
+      topicHits += 1;
       reasons.push(`${rule.label}+${rule.points}`);
     }
   }
+  // P1504: a headline that touches no market topic is not market news, whatever feed returned it.
+  item.topicHits = topicHits;
 
   if (SERVER_NEWS_UNVERIFIED_RE.test(text)) {
     score -= 8;
@@ -1500,6 +1520,9 @@ async function fetchNews() {
           newsCycleLabel: cycle.label,
         };
         Object.assign(item, scoreServerNewsItem(item));
+        // P1504: selection floor — off-topic headlines (a lacrosse team surfaced through a "Red Sea" query) and
+        // low-quality sources are dropped before ranking instead of filling empty slots.
+        if (!(item.topicHits > 0) || item.tier >= 4 || !(item.score > 0)) continue;
         if (isKr) { krItems.push(item); } else { items.push(item); }
       }
     } catch (e) { /* 피드별 실패 무시 */ }
@@ -1509,9 +1532,21 @@ async function fetchNews() {
   krItems.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
   const seen = new Set();
   const out = [];
+  // P1504: one source may hold at most three of the forty slots (AD HOC NEWS held five).
+  const perSource = new Map();
+  const SOURCE_CAP = 3;
+  const sourceKey = (it) => String(it.source || it.feedSource || '').trim().toLowerCase();
+  const sourceFull = (it) => (perSource.get(sourceKey(it)) || 0) >= SOURCE_CAP;
+  // Google News appends " - Source" to every title; the source is shown separately.
+  const cleanTitle = (it) => {
+    const src = String(it.source || '').trim();
+    const title = String(it.title || '');
+    return src && title.endsWith(` - ${src}`) ? title.slice(0, -(src.length + 3)).trim() : title;
+  };
   function pushItem(it) {
+    perSource.set(sourceKey(it), (perSource.get(sourceKey(it)) || 0) + 1);
     out.push({
-      title: it.title, link: it.link, source: it.source,
+      title: cleanTitle(it), link: it.link, source: it.source,
       pubDate: it.pubDate, topic: it.topic, country: it.country,
       tier: it.tier, score: it.score, selectionReason: it.selectionReason,
       feedSource: it.feedSource,
@@ -1530,6 +1565,7 @@ async function fetchNews() {
   const KR_SLOTS = 3;
   for (const it of krItems) {
     if (out.length >= KR_SLOTS) break;
+    if (sourceFull(it)) continue;
     const k = it.title.toLowerCase().slice(0, 60);
     if (seen.has(k)) continue;
     seen.add(k);
@@ -1542,6 +1578,7 @@ async function fetchNews() {
     for (const it of items) {
       if (taken >= floor || out.length >= 40) break;
       if (it.topic !== topic) continue;
+      if (sourceFull(it)) continue;
       const k = it.title.toLowerCase().slice(0, 60);
       if (seen.has(k)) continue;
       seen.add(k);
@@ -1552,6 +1589,7 @@ async function fetchNews() {
   // 나머지 슬롯을 US/글로벌 뉴스로 채움
   for (const it of items) {
     if (out.length >= 40) break;
+    if (sourceFull(it)) continue;
     const k = it.title.toLowerCase().slice(0, 60);
     if (seen.has(k)) continue;
     seen.add(k);

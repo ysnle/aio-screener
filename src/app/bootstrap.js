@@ -199,6 +199,8 @@ import { PAGE_DATA_TIMELINE_CONTRACTS, auditPageDataTimelines, evaluatePageDataT
 import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, auditCapabilityClaims } from '../domain/content/capability-manifest.js';
 import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } from '../ai/policy/conduct.js';
 import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
+import { renderPageSources } from '../ui/components/page-sources.js';
+import { renderHomeKpiTrends } from '../ui/components/home-kpi-trend.js';
 import { SUPPLIED_MATERIALS_REFERENCE, SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/supplied-materials.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
@@ -820,6 +822,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
+    // P1505: one folded 데이터 출처 note per screen.
+    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') renderHomeKpiTrends({ documentRef, root }); }); });
+    const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) renderHomeKpiTrends({ documentRef, root }); });
+    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') renderHomeKpiTrends({ documentRef, root }); });
     // E2/LC-26: a mode change is a score input change, so re-derive the analysis slice instead of
     // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
     // event (not `aio:refresh:done`) so toggling the pill does not re-run every route provider.
@@ -937,6 +943,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisRefresh();
       stopAnalysisChanged();
       stopAnalysisShown();
+      stopSourcesShown();
+      stopKpiTrendHistory();
       stopAnalysisModeChange();
       stopAnalysisHistory();
       stopAnalysisSentiment();

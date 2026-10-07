@@ -37,7 +37,7 @@ const STYLE = `
 .rl-nav-group{margin:0 0 16px}
 .rl-nav-title{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--text-secondary);margin:0 0 4px;display:flex;justify-content:space-between}
 .rl-nav-title span{font-weight:400;color:var(--text-muted)}
-.rl-nav-item{display:block;width:100%;text-align:left;border:0;border-left:2px solid transparent;background:none;padding:5px 8px;font-size:12.5px;line-height:1.4;color:var(--text-secondary);cursor:pointer}
+.rl-nav-item{display:block;width:100%;text-align:left;border:0;border-left:2px solid transparent;background:none;padding:5px 8px;font-size:13px;line-height:1.4;color:var(--text-secondary);cursor:pointer}
 .rl-nav-item:hover{background:var(--surface-2)}
 .rl-nav-switch{display:flex;flex-direction:column;gap:2px;margin:0 0 14px;padding:0 0 10px;border-bottom:1px solid var(--border-subtle)}
 .rl-nav-group:empty{display:none}
@@ -55,8 +55,8 @@ const STYLE = `
 .rl-aside-block{border-top:1px solid var(--border-subtle);padding:10px 0 6px}
 .rl-aside-block:first-child{border-top:0;padding-top:0}
 .rl-aside-title{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--text-secondary);margin:0 0 6px}
-.rl-link{display:block;width:100%;text-align:left;border:0;background:none;padding:3px 0;font-size:12.5px;color:var(--text-primary);cursor:pointer;text-decoration:underline;text-underline-offset:2px;line-height:1.45}
-.rl-note{font-size:11.5px;color:var(--text-muted);line-height:1.5;margin:6px 0 0}
+.rl-link{display:block;width:100%;text-align:left;border:0;background:none;padding:3px 0;font-size:13px;color:var(--text-primary);cursor:pointer;text-decoration:underline;text-underline-offset:2px;line-height:1.45}
+.rl-note{font-size:12px;color:var(--text-muted);line-height:1.5;margin:6px 0 0}
 .rl-chip{display:inline-block;font-size:11px;padding:2px 7px;margin:0 4px 4px 0;border:1px solid var(--border-subtle);border-radius:3px;color:var(--text-secondary)}
 .rl-chip.is-on{border-color:var(--accent);color:var(--text-primary);font-weight:700}
 .rl-main .af-root .af-shell{grid-template-columns:minmax(0,1fr)}

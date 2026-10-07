@@ -1770,6 +1770,7 @@ function extractChips(text) {
 }
 
 function renderMarkdownLight(text) {
+  if (typeof window._aioStripPictographs === 'function') text = window._aioStripPictographs(text); // P1500: no emoji in answers
   // v30.14→v33.4: 마크다운 테이블·헤더·리스트·코드블록 완전 렌더링
   // v33.4: 코드 펜스(```) 처리 추가
   var lines = text.split('\n');
@@ -2074,7 +2075,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
       var _oldest = _trimmedMessages.shift();
       _totalChars -= (_oldest.content || '').length;
     }
-    _aioLog('warn', 'fetch', '⚠ 프롬프트 자동 트리밍: ' + messages.length + '→' + _trimmedMessages.length + '턴, ' + Math.round(_totalChars/1000) + 'K자');
+    _aioLog('warn', 'fetch', '프롬프트 자동 트리밍: ' + messages.length + '→' + _trimmedMessages.length + '턴, ' + Math.round(_totalChars/1000) + 'K자');
   }
   console.log('[AIO] callClaude: system=' + Math.round(_sysLen/1000) + 'K + msgs=' + Math.round((_totalChars-_sysLen)/1000) + 'K = ' + Math.round(_totalChars/1000) + 'K자 (' + modelCfg.label + ')');
 
@@ -2727,8 +2728,8 @@ window._aioLowConfPerspectives = window._aioLowConfPerspectives || function() {
     if (!labels.length) return null;
     return {
       labels: labels,
-      promptLine: '⚠️ [저신뢰 자동데이터 관점 — 수동확인 권장] ' + labels.join(' · ') + ' : 이 관점들은 placeholder/정적테이블/휴리스틱/연차필링 기반이므로 단정 금지. 답변에 "저신뢰 · 외부 직접확인 권장"을 반드시 명시 (R116/R117).',
-      badge: '🔸 고급 분석(' + labels.slice(0, 4).join('·') + ' 등)은 자동데이터 한계로 <b>저신뢰</b> — 수동 확인 권장'
+      promptLine: '[저신뢰 자동데이터 관점 — 수동확인 권장] ' + labels.join(' · ') + ' : 이 관점들은 placeholder/정적테이블/휴리스틱/연차필링 기반이므로 단정 금지. 답변에 "저신뢰 · 외부 직접확인 권장"을 반드시 명시 (R116/R117).',
+      badge: '고급 분석(' + labels.slice(0, 4).join('·') + ' 등)은 자동데이터 한계로 <b>저신뢰</b> — 수동 확인 권장'
     };
   } catch (_) { return null; }
 };
@@ -2762,7 +2763,7 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
       if (ohlcv && ohlcv.length) snap = calc(ohlcv);
     } catch (_) { snap = null; }
     if (!snap || !snap.ok) {
-      blocks.push('━━ [' + t + ' 기술적 데이터] ━━\n❌ OHLCV 미수신 — source 확인 기술지표 계산 불가. 추측 금지, "기술 데이터 수신 대기"로 답하라.');
+      blocks.push('━━ [' + t + ' 기술적 데이터] ━━\nOHLCV 미수신 — source 확인 기술지표 계산 불가. 추측 금지, "기술 데이터 수신 대기"로 답하라.');
       continue;
     }
     // v50.38 트랙1b: snapshot stash — chatSend onDone가 초보자 "차트 읽기" 카드 렌더에 재사용 (재계산 회피)
@@ -3048,7 +3049,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
         _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ') · 트레이딩 스코어 ' + (_ccS && _ccS.score != null ? _ccS.score : '—') + '/100\n\n';
       }
     } catch(_) {}
-    return '\n\n' + _ccHeader + '【사용자가 물어본 종목 source 확인 데이터 (cache hit · 5분 이내)】\n' + cachedBlocks.join('\n') + '\n\n⚠️ ABSOLUTE RULES (R122): 종목 답변은 위 "현재 시장 환경" 인용으로 시작. 캐시는 마지막 관측값의 참고 사본이므로 관측시각·출처를 확인하고 최신성은 원천에서 재검증하라.\n';
+    return '\n\n' + _ccHeader + '【사용자가 물어본 종목 source 확인 데이터 (cache hit · 5분 이내)】\n' + cachedBlocks.join('\n') + '\n\nABSOLUTE RULES (R122): 종목 답변은 위 "현재 시장 환경" 인용으로 시작. 캐시는 마지막 관측값의 참고 사본이므로 관측시각·출처를 확인하고 최신성은 원천에서 재검증하라.\n';
   }
   // miss만 처리 (기존 흐름 유지)
   tickers = cacheMissTickers;
@@ -3093,8 +3094,8 @@ async function _fetchTickerDataForChat(tickers, opts) {
         var _failData = data;
         data = null;
         // 진단 정보 추가 push — 사용자가 왜 실패했는지 즉시 인지
-        results.push('• ' + t + ' (' + _failData.tickerType + '): ❌ 시세 조회 실패 — ' + _failData.reason);
-        results.push('  💡 ' + _failData.suggestedAction);
+        results.push('• ' + t + ' (' + _failData.tickerType + '): 시세 조회 실패 — ' + _failData.reason);
+        results.push('  ' + _failData.suggestedAction);
       }
     }
     // v49.34 신규: SEC 10-K + Wikipedia 사전 fetch (병렬)
@@ -3343,13 +3344,13 @@ async function _fetchTickerDataForChat(tickers, opts) {
             results.push('  [SCREENER_DB Memo · ' + _memoData.freshness.label + (_memoData.freshness.dateStr ? ' · ' + _memoData.freshness.dateStr : '') + ']');
             results.push('    ' + _memoData.memo);
             if (_memoData.freshness.confidence === 'stale' || _memoData.freshness.confidence === 'low') {
-              results.push('  ⚠️ [Memo 가이드] 위 memo는 ' + _memoData.freshness.days + '일 전 작성 — AI 답변 시 "이 memo는 ' + _memoData.freshness.days + '일 전 데이터이므로 최근 변경 확인 권장" 명시 의무 (R135). [SEC 8-K] / [News] 최신 데이터 우선 인용.');
+              results.push('  [Memo 가이드] 위 memo는 ' + _memoData.freshness.days + '일 전 작성 — AI 답변 시 "이 memo는 ' + _memoData.freshness.days + '일 전 데이터이므로 최근 변경 확인 권장" 명시 의무 (R135). [SEC 8-K] / [News] 최신 데이터 우선 인용.');
             } else if (_memoData.freshness.confidence === 'unknown') {
-              results.push('  ⚠️ [Memo 가이드] memo 헤더에 날짜 패턴 없음 — 신선도 불명. AI 답변 시 "memo 작성일 미상" 명시 + [News] 최신 데이터 우선.');
+              results.push('  [Memo 가이드] memo 헤더에 날짜 패턴 없음 — 신선도 불명. AI 답변 시 "memo 작성일 미상" 명시 + [News] 최신 데이터 우선.');
             }
           } else {
-            results.push('  [SCREENER_DB Memo] ❌ ' + _memoData.fallback);
-            results.push('  ⚠️ [Memo 가이드] 위 종목은 수동 memo 미작성 — [SEC 10-K] / [Wikipedia] / [Naver] 3 소스 폴백만으로 분석. dataConfidence: medium. AI 답변 시 "정성 분석 한계 — 외부 직접 확인 권장" 경고 (R135/R136).');
+            results.push('  [SCREENER_DB Memo] ' + _memoData.fallback);
+            results.push('  [Memo 가이드] 위 종목은 수동 memo 미작성 — [SEC 10-K] / [Wikipedia] / [Naver] 3 소스 폴백만으로 분석. dataConfidence: medium. AI 답변 시 "정성 분석 한계 — 외부 직접 확인 권장" 경고 (R135/R136).');
           }
         }
       } catch(_memoErr) {}
@@ -3453,16 +3454,16 @@ async function _fetchTickerDataForChat(tickers, opts) {
       } catch(_tamErr) {}
     } else {
       // v49.32 B2/R82 HARD GUARDRAIL — fetch 실패 시 환각 절대 차단
-      results.push('• ' + t + ': ❌ 실시간 시세 조회 실패 (Yahoo Finance + 프록시 모두 fail)');
-      results.push('  ⛔ HARD GUARDRAIL: 이 종목에 대해 절대로 가격/등락률/시가총액/PER 등 정량 수치를 추측하거나 인용하지 마세요. 학습 데이터(2024~2025)의 과거 수치는 이미 stale 입니다.');
-      results.push('  ✅ 허용된 답변: "현재 ' + t + ' 실시간 데이터를 받아오지 못했습니다. Yahoo Finance(finance.yahoo.com/quote/' + t + ') 또는 Finnhub 등 외부 도구로 직접 확인을 권장합니다."');
-      results.push('  ✅ 허용된 분석: 가격을 인용하지 않는 일반론적 사업 모델/경쟁사 비교/섹터 트렌드 (수치 없이) 만 답변하세요.');
+      results.push('• ' + t + ': 실시간 시세 조회 실패 (Yahoo Finance + 프록시 모두 fail)');
+      results.push('  HARD GUARDRAIL: 이 종목에 대해 절대로 가격/등락률/시가총액/PER 등 정량 수치를 추측하거나 인용하지 마세요. 학습 데이터(2024~2025)의 과거 수치는 이미 stale 입니다.');
+      results.push('  허용된 답변: "현재 ' + t + ' 실시간 데이터를 받아오지 못했습니다. Yahoo Finance(finance.yahoo.com/quote/' + t + ') 또는 Finnhub 등 외부 도구로 직접 확인을 권장합니다."');
+      results.push('  허용된 분석: 가격을 인용하지 않는 일반론적 사업 모델/경쟁사 비교/섹터 트렌드 (수치 없이) 만 답변하세요.');
     }
     // v49.66 P350 + v49.67 P354: 이 종목 처리 결과를 5분 TTL 캐시에 저장 (실패 fetch는 캐시 금지)
     try {
       var _tickerLines = results.slice(_tickerBlockStart);
-      // v49.67 P354 R122: 시세 조회 실패 종목 (data === null 경로 — ❌ 표시 포함)은 캐시 저장 금지 (stale 응답 5분 반복 방지)
-      var _isFailedFetch = !data || (_tickerLines.length > 0 && /❌\s*시세 조회 실패/.test(_tickerLines[0]));
+      // v49.67 P354 R122: 시세 조회 실패 종목 (data === null 경로 — 표시 포함)은 캐시 저장 금지 (stale 응답 5분 반복 방지)
+      var _isFailedFetch = !data || (_tickerLines.length > 0 && /시세 조회 실패/.test(_tickerLines[0]));
       if (_tickerLines.length > 0 && !_isFailedFetch) {
         window._chatTickerCache[t] = { block: _tickerLines.join('\n'), ts: Date.now() };
         // v49.67 P354: TTL-based eviction 강화 — 매 save 시 만료 종목 자동 제거 (이전 LRU만 의존)
@@ -3503,10 +3504,10 @@ async function _fetchTickerDataForChat(tickers, opts) {
       var _score = (_s && _s.score != null) ? _s.score : '—';
       var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 32 ? '패닉' : _vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 18 ? '보통' : '안정')); // P1367 canonical band
       var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (_fg <= 25 ? '극단 공포' : _fg <= 45 ? '공포' : _fg <= 55 ? '중립' : _fg <= 75 ? '탐욕' : '극단 탐욕'));
-      // v49.68 R128 시각 단서 표준 — VIX/F&G 이모지 자동 적용
-      var _vixEmoji = _vix === '—' ? '⚪' : Number(_vix) >= 25 ? '🔴' : Number(_vix) >= 20 ? '🟡' : '🟢';
-      var _fgEmoji = _fg === '—' ? '⚪' : (_fg <= 25 || _fg >= 75) ? '🔴' : (_fg <= 45 || _fg >= 55) ? '🟡' : '🟢';
-      var _scoreEmoji = _score === '—' ? '⚪' : Number(_score) >= 65 ? '🟢' : Number(_score) >= 40 ? '🟡' : '🔴';
+      // v49.68 R128 시각 단서 표준 — P1500: 이모지 대신 [위험]/[주의]/[안정] 단어 표지
+      var _vixEmoji = _vix === '—' ? '[미수신]' : Number(_vix) >= 25 ? '[위험]' : Number(_vix) >= 20 ? '[주의]' : '[안정]';
+      var _fgEmoji = _fg === '—' ? '[미수신]' : (_fg <= 25 || _fg >= 75) ? '[위험]' : (_fg <= 45 || _fg >= 55) ? '[주의]' : '[안정]';
+      var _scoreEmoji = _score === '—' ? '[미수신]' : Number(_score) >= 65 ? '[안정]' : Number(_score) >= 40 ? '[주의]' : '[위험]';
       // Use producer observation timestamps when present.  The assembly clock
       // is not a data date, so an absent timestamp must remain explicit rather
       // than being replaced with `new Date()`.
@@ -3525,12 +3526,12 @@ async function _fetchTickerDataForChat(tickers, opts) {
       _mktHeader = '【현재 시장 환경 (v49.68 자동 헤더 · 관측시각: ' + _marketAsOf + ')】\n' +
         '• **SPX**: ' + _spx + ' · **VIX**: ' + _vixEmoji + ' ' + _vix + ' (' + _regime + ') · **10Y**: ' + _tnx + '% · **F&G**: ' + _fgEmoji + ' ' + _fg + ' (' + _fgLabel + ') · **트레이딩 스코어**: ' + _scoreEmoji + ' ' + _score + '/100\n' +
         (_forceScenarioAnswer
-          ? '⚠️ **답변 가이드 (R122/R127/R128)**: 매매 판단·전망·추천 질문이면 위 시장 환경을 연결하고, **Bull/Base/Bear** 3 시나리오의 트리거·반대 가설·무효화 조건을 제시하라. 보정(calibration) 모델 ID가 주입된 경우에만 확률 숫자를 표시하고, 그 외에는 확률을 만들지 마라. 데이터 출처 [Source · 기준일]과 필요한 시각 단서 🔴🟡🟢를 사용한다. 기관급 프레임은 도움이 될 때 1~2개만 인용한다.\n\n'
-          : 'ℹ️ **답변 가이드 (R122/R128)**: 단순 사실·용어·요약 질문이면 시장 환경은 배경으로만 짧게 쓰고, Bull/Base/Bear·기관 프레임을 강제하지 말라. 질문에 바로 답하고 필요한 출처·기준일만 붙인다.\n\n');
+          ? '**답변 가이드 (R122/R127/R128)**: 매매 판단·전망·추천 질문이면 위 시장 환경을 연결하고, **Bull/Base/Bear** 3 시나리오의 트리거·반대 가설·무효화 조건을 제시하라. 보정(calibration) 모델 ID가 주입된 경우에만 확률 숫자를 표시하고, 그 외에는 확률을 만들지 마라. 데이터 출처 [Source · 기준일]과 필요한 시각 단서 를 사용한다. 기관급 프레임은 도움이 될 때 1~2개만 인용한다.\n\n'
+          : '**답변 가이드 (R122/R128)**: 단순 사실·용어·요약 질문이면 시장 환경은 배경으로만 짧게 쓰고, Bull/Base/Bear·기관 프레임을 강제하지 말라. 질문에 바로 답하고 필요한 출처·기준일만 붙인다.\n\n');
     }
   } catch(_hdrErr) {}
   var _flexScope = '\n\n【최우선 답변·안전 계약】\n아래 유산 ABSOLUTE RULES와 충돌하면 이 계약을 우선한다. 질문의 QuestionPlan에 선택된 근거와 형식만 사용하고, Bull/Base/Bear·확률·기관 프레임을 일괄 강제하지 마라. 보정 모델이 없으면 확률 숫자를 만들지 않는다. 사용자가 투자·법률·세무 분석을 요청하면 회피하지 말고 전제, 관할, 기준일, 근거, 계산, 조건부 시나리오와 무효화 조건까지 답한다. 가격·비중·손절·목표 범위도 근거와 사용자 조건이 있으면 분석할 수 있지만 주문 실행이나 확정적 보장은 하지 않는다. 단순 사실·용어·요약 질문은 질문에 바로 답하고 필요한 출처·기준일·한계만 붙인다.\n';
-  return '\n\n' + _mktHeader + _flexScope + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 현재 시장 환경은 질문의 결론에 영향을 줄 때만 연결하고, 무관한 사실·용어·요약 질문에는 강제하지 않는다. 시세 미수신 시 현재 수치를 만들지 말고 일반 원리와 확인 방법은 계속 설명한다.\n9. Bull/Base/Bear 시나리오는 전망·의사결정 질문에서 유용할 때만 사용한다. 보정 모델 ID가 없으면 확률 숫자를 만들지 않고 조건·트리거·무효화 기준으로 표현한다.\n10. 시각 단서와 답변 구조는 질문 복잡도에 맞춘다. 핵심 결론, 근거, 출처·기준일, 조건과 한계를 우선하되 고정 형식을 강제하지 않는다.\n11. 기관급 프레임은 분석력을 실제로 높일 때만 1~2개 사용하고, 단순 질문이나 근거가 부족한 경우 억지로 인용하지 않는다.\n12. **데이터 소스 우선순위 명문화 (R128)**: 모든 수치 인용 시 출처 우선순위 — **1순위: _liveSnap() 실시간** (시세/VIX/금리/달러/유가, < 5분) → **2순위: _closeSnap() 일별 종가** (SPX/NASDAQ/DOW 분석 기준) → **3순위: DATA_SNAPSHOT 폴백** (실시간/종가 미수신 시 정적, 신선도 명시 의무) → **4순위: SEC/FMP/Naver/Finnhub fetched** (종목별 5분 캐시). 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n13. **[SCREENER_DB Memo] 신선도 인용 의무 (R135)**: 답변에 SCREENER_DB Memo 인용 시 반드시 위 [SCREENER_DB Memo · X일 전] 라벨의 일수 표기. 30일+ stale memo는 "이 memo는 N일 전 데이터 — 최근 [SEC 8-K]/[News]로 검증 후 인용" 경고 의무. 90일+ stale 또는 confidence:stale 표시 시 "memo만으로 결론 금지 — 외부 확인 필수" 강제. 날짜 미상 (unknown) memo는 "작성일 불명 — 보조 데이터로만 활용" 명시.\n14. **[SCREENER_DB Memo 없음] 종목 fallback 의무 (R136)**: SCREENER_DB.memo가 없는 종목 (위 ❌ 표시)은 [SEC 10-K]/[Wikipedia]/[Naver]/[News] 4 소스 폴백만 사용. 답변에 "이 종목은 수동 memo 미작성 — dataConfidence:medium" 명시 의무 + "memo 등록 종목 (예: NVDA/AAPL) 대비 정성 분석 한계 — 외부 확인 권장" 경고 강제.\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
+  return '\n\n' + _mktHeader + _flexScope + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\nABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 현재 시장 환경은 질문의 결론에 영향을 줄 때만 연결하고, 무관한 사실·용어·요약 질문에는 강제하지 않는다. 시세 미수신 시 현재 수치를 만들지 말고 일반 원리와 확인 방법은 계속 설명한다.\n9. Bull/Base/Bear 시나리오는 전망·의사결정 질문에서 유용할 때만 사용한다. 보정 모델 ID가 없으면 확률 숫자를 만들지 않고 조건·트리거·무효화 기준으로 표현한다.\n10. 시각 단서와 답변 구조는 질문 복잡도에 맞춘다. 핵심 결론, 근거, 출처·기준일, 조건과 한계를 우선하되 고정 형식을 강제하지 않는다.\n11. 기관급 프레임은 분석력을 실제로 높일 때만 1~2개 사용하고, 단순 질문이나 근거가 부족한 경우 억지로 인용하지 않는다.\n12. **데이터 소스 우선순위 명문화 (R128)**: 모든 수치 인용 시 출처 우선순위 — **1순위: _liveSnap() 실시간** (시세/VIX/금리/달러/유가, < 5분) → **2순위: _closeSnap() 일별 종가** (SPX/NASDAQ/DOW 분석 기준) → **3순위: DATA_SNAPSHOT 폴백** (실시간/종가 미수신 시 정적, 신선도 명시 의무) → **4순위: SEC/FMP/Naver/Finnhub fetched** (종목별 5분 캐시). 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n13. **[SCREENER_DB Memo] 신선도 인용 의무 (R135)**: 답변에 SCREENER_DB Memo 인용 시 반드시 위 [SCREENER_DB Memo · X일 전] 라벨의 일수 표기. 30일+ stale memo는 "이 memo는 N일 전 데이터 — 최근 [SEC 8-K]/[News]로 검증 후 인용" 경고 의무. 90일+ stale 또는 confidence:stale 표시 시 "memo만으로 결론 금지 — 외부 확인 필수" 강제. 날짜 미상 (unknown) memo는 "작성일 불명 — 보조 데이터로만 활용" 명시.\n14. **[SCREENER_DB Memo 없음] 종목 fallback 의무 (R136)**: SCREENER_DB.memo가 없는 종목 (위 표시)은 [SEC 10-K]/[Wikipedia]/[Naver]/[News] 4 소스 폴백만 사용. 답변에 "이 종목은 수동 memo 미작성 — dataConfidence:medium" 명시 의무 + "memo 등록 종목 (예: NVDA/AAPL) 대비 정성 분석 한계 — 외부 확인 권장" 경고 강제.\n\n17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\nfundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──
@@ -5373,7 +5374,7 @@ function _aioValidateFetchResult(result, requiredFields, sourceName) {
     }
     if (missing.length > 0) {
       // 일부 누락은 partial 처리
-      return { valid: true, partial: true, missingFields: missing, warningMsg: '⚠ ' + sourceName + ' partial — ' + missing.join(',') + ' 누락' };
+      return { valid: true, partial: true, missingFields: missing, warningMsg: '' + sourceName + ' partial — ' + missing.join(',') + ' 누락' };
     }
   }
   return { valid: true, partial: false };
@@ -5432,16 +5433,16 @@ function _aioParseMemoFreshness(memo) {
             days = Math.floor((Date.now() - parsedDate.getTime()) / 86400000);
           }
           var confidence = days <= 7 ? 'high' : days <= 30 ? 'medium' : days <= 90 ? 'low' : 'stale';
-          var label = days <= 7 ? '🟢 신선 (' + days + '일 전)' :
-                      days <= 30 ? '🟡 보통 (' + days + '일 전)' :
-                      days <= 90 ? '🟠 오래됨 (' + days + '일 전)' :
-                      '🔴 stale (' + days + '일 전 — 외부 확인 권장)';
+          var label = days <= 7 ? '신선 (' + days + '일 전)' :
+                      days <= 30 ? '보통 (' + days + '일 전)' :
+                      days <= 90 ? '오래됨 (' + days + '일 전)' :
+                      'stale (' + days + '일 전 — 외부 확인 권장)';
           return { hasDate: true, dateStr: dateStr, days: days, confidence: confidence, label: label };
         }
       }
     }
   }
-  return { hasDate: false, days: null, confidence: 'unknown', label: '⚪ 날짜 미상 (헤더 파싱 실패)' };
+  return { hasDate: false, days: null, confidence: 'unknown', label: '날짜 미상 (헤더 파싱 실패)' };
 }
 window._aioParseMemoFreshness = _aioParseMemoFreshness;
 
@@ -5495,9 +5496,9 @@ window._aioSetUserProfile = _aioSetUserProfile;
 // 14 CHAT_CONTEXTS system prompt에 자동 주입할 사용자 프로필 텍스트
 function _buildUserProfileContext() {
   var p = _aioGetUserProfile();
-  var riskLabel = p.riskTolerance === 'low' ? '🟢 보수적 (위험 최소화 + 자본 보존 우선)' :
-                  p.riskTolerance === 'high' ? '🔴 공격적 (높은 변동성 수용 + 성장 추구)' :
-                  '🟡 중립 (균형 잡힌 위험/수익)';
+  var riskLabel = p.riskTolerance === 'low' ? '보수적 (위험 최소화 + 자본 보존 우선)' :
+                  p.riskTolerance === 'high' ? '공격적 (높은 변동성 수용 + 성장 추구)' :
+                  '중립 (균형 잡힌 위험/수익)';
   var horizonLabel = p.timeHorizon === '1d' ? '단기 (1일~1주 — 데이트레이딩/스윙)' :
                      p.timeHorizon === '1m' ? '단기 (1개월 — 모멘텀/이벤트)' :
                      p.timeHorizon === '1y' ? '중기 (1년 — 자산 배분)' :
@@ -5511,7 +5512,7 @@ function _buildUserProfileContext() {
     '• 투자 시간축: ' + horizonLabel + '\n' +
     '• 선호 자산/섹터: ' + prefAssets + '\n' +
     '• 제외 자산/섹터: ' + excAssets + '\n' +
-    '⚠️ 답변 의무 (R132): 위 프로필에 맞춰 (1) 위험 성향과 맞는 포지션 사이즈/레버리지 추천 (2) 시간축에 맞는 진입 전략 + 보유 기간 (3) 선호 자산 우선 + 제외 자산 회피 + (4) 프로필과 충돌 시 명시 ("프로필이 보수적이라 이 종목은 비중 제한 권장").\n';
+    '답변 의무 (R132): 위 프로필에 맞춰 (1) 위험 성향과 맞는 포지션 사이즈/레버리지 추천 (2) 시간축에 맞는 진입 전략 + 보유 기간 (3) 선호 자산 우선 + 제외 자산 회피 + (4) 프로필과 충돌 시 명시 ("프로필이 보수적이라 이 종목은 비중 제한 권장").\n';
 }
 window._buildUserProfileContext = _buildUserProfileContext;
 
@@ -5554,56 +5555,56 @@ function _simulateMacroScenario(userQuery) {
     case 'fed-cut':
       var cutMag = scenario.magnitude / 50;
       impacts = {
-        SPX: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (5 * cutMag).toFixed(1) + '%', verdict: '🟢 우호 (성장주 듀레이션 확장)' },
-        '10Y': { direction: '-' + (30 * cutMag).toFixed(0) + '~' + (50 * cutMag).toFixed(0) + 'bp', verdict: '🟢 채권 우호 (가격 상승)' },
-        DXY: { direction: '-' + (1.5 * cutMag).toFixed(1) + '~' + (3 * cutMag).toFixed(1) + '%', verdict: '🟢 달러 약세 → EM 자산 우호' },
-        Gold: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (4 * cutMag).toFixed(1) + '%', verdict: '🟢 금 우호 (실질금리 ↓)' },
-        Sector: { direction: 'Tech/REIT/Utilities OW · Financials UW', verdict: '🟢 성장주 + 배당주 우호' }
+        SPX: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (5 * cutMag).toFixed(1) + '%', verdict: '우호 (성장주 듀레이션 확장)' },
+        '10Y': { direction: '-' + (30 * cutMag).toFixed(0) + '~' + (50 * cutMag).toFixed(0) + 'bp', verdict: '채권 우호 (가격 상승)' },
+        DXY: { direction: '-' + (1.5 * cutMag).toFixed(1) + '~' + (3 * cutMag).toFixed(1) + '%', verdict: '달러 약세 → EM 자산 우호' },
+        Gold: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (4 * cutMag).toFixed(1) + '%', verdict: '금 우호 (실질금리 ↓)' },
+        Sector: { direction: 'Tech/REIT/Utilities OW · Financials UW', verdict: '성장주 + 배당주 우호' }
       };
       break;
     case 'fed-hike':
       var hikeMag = scenario.magnitude / 50;
       impacts = {
-        SPX: { direction: '-' + (2 * hikeMag).toFixed(1) + '~' + (5 * hikeMag).toFixed(1) + '%', verdict: '🔴 압박 (멀티플 압축)' },
-        '10Y': { direction: '+' + (30 * hikeMag).toFixed(0) + '~' + (50 * hikeMag).toFixed(0) + 'bp', verdict: '🔴 채권 약세' },
-        DXY: { direction: '+' + (1.5 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '🔴 달러 강세 → EM 자금 유출' },
-        Gold: { direction: '-' + (1 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '🔴 금 약세 (실질금리 ↑)' },
-        Sector: { direction: 'Financials/Energy OW · Tech/REIT UW', verdict: '🔴 성장주 압박, 금융주 수혜' }
+        SPX: { direction: '-' + (2 * hikeMag).toFixed(1) + '~' + (5 * hikeMag).toFixed(1) + '%', verdict: '압박 (멀티플 압축)' },
+        '10Y': { direction: '+' + (30 * hikeMag).toFixed(0) + '~' + (50 * hikeMag).toFixed(0) + 'bp', verdict: '채권 약세' },
+        DXY: { direction: '+' + (1.5 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '달러 강세 → EM 자금 유출' },
+        Gold: { direction: '-' + (1 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '금 약세 (실질금리 ↑)' },
+        Sector: { direction: 'Financials/Energy OW · Tech/REIT UW', verdict: '성장주 압박, 금융주 수혜' }
       };
       break;
     case 'vix-spike':
       var vixDelta = scenario.magnitude - 18;
       impacts = {
-        SPX: { direction: '-' + (vixDelta * 0.3).toFixed(1) + '~' + (vixDelta * 0.6).toFixed(1) + '%', verdict: '🔴 변동성 spike → 위험자산 매도' },
-        '10Y': { direction: '-15~30bp', verdict: '🟢 안전자산 도피 → 채권 매수' },
-        Gold: { direction: '+1~3%', verdict: '🟢 안전자산 수혜' },
-        'Quality': { direction: 'Defensive OW · High-Beta UW', verdict: '🔴 방어주 OW, 베타↑ 종목 회피' },
-        'Marks Pendulum': { direction: '비관 극단 진입 — Marks 프레임워크가 6~12개월 비대칭 구간으로 서술', verdict: '🟢 역발상 프레임 주목 구간(Marks 귀속, 지시 아님)' }
+        SPX: { direction: '-' + (vixDelta * 0.3).toFixed(1) + '~' + (vixDelta * 0.6).toFixed(1) + '%', verdict: '변동성 spike → 위험자산 매도' },
+        '10Y': { direction: '-15~30bp', verdict: '안전자산 도피 → 채권 매수' },
+        Gold: { direction: '+1~3%', verdict: '안전자산 수혜' },
+        'Quality': { direction: 'Defensive OW · High-Beta UW', verdict: '방어주 OW, 베타↑ 종목 회피' },
+        'Marks Pendulum': { direction: '비관 극단 진입 — Marks 프레임워크가 6~12개월 비대칭 구간으로 서술', verdict: '역발상 프레임 주목 구간(Marks 귀속, 지시 아님)' }
       };
       break;
     case 'spx-crash':
       impacts = {
-        VIX: { direction: '+' + (scenario.magnitude * 1.5).toFixed(0) + '~' + (scenario.magnitude * 2.5).toFixed(0) + '%', verdict: '🔴 변동성 폭발' },
-        '10Y': { direction: '-30~60bp', verdict: '🟢 채권 강한 매수' },
-        Gold: { direction: '+2~5%', verdict: '🟢 안전자산 강한 수혜' },
-        Sector: { direction: 'Staples/Healthcare/Utilities OW · Cyclicals UW', verdict: '🔴 방어주 로테이션' },
-        'Buffett MoS': { direction: 'Margin of Safety 확보 시점 — 매수 검토', verdict: '🟢 역발상' }
+        VIX: { direction: '+' + (scenario.magnitude * 1.5).toFixed(0) + '~' + (scenario.magnitude * 2.5).toFixed(0) + '%', verdict: '변동성 폭발' },
+        '10Y': { direction: '-30~60bp', verdict: '채권 강한 매수' },
+        Gold: { direction: '+2~5%', verdict: '안전자산 강한 수혜' },
+        Sector: { direction: 'Staples/Healthcare/Utilities OW · Cyclicals UW', verdict: '방어주 로테이션' },
+        'Buffett MoS': { direction: 'Margin of Safety 확보 시점 — 매수 검토', verdict: '역발상' }
       };
       break;
     case 'dxy-strong':
       impacts = {
-        EM: { direction: '-5~15% (DXY ' + scenario.magnitude + ')', verdict: '🔴 EM 자산 강한 압박' },
-        SPX: { direction: '-2~5%', verdict: '🔴 다국적 기업 환율 역풍' },
-        Gold: { direction: '-3~7%', verdict: '🔴 달러 강세 → 금 약세' },
-        KOSPI: { direction: '-3~8%', verdict: '🔴 외국인 자금 유출' }
+        EM: { direction: '-5~15% (DXY ' + scenario.magnitude + ')', verdict: 'EM 자산 강한 압박' },
+        SPX: { direction: '-2~5%', verdict: '다국적 기업 환율 역풍' },
+        Gold: { direction: '-3~7%', verdict: '달러 강세 → 금 약세' },
+        KOSPI: { direction: '-3~8%', verdict: '외국인 자금 유출' }
       };
       break;
     case 'oil-spike':
       impacts = {
-        Energy: { direction: '+10~25%', verdict: '🟢 에너지 섹터 강세' },
-        Airlines: { direction: '-8~20%', verdict: '🔴 항공/운송 압박' },
-        CPI: { direction: '+0.3~0.8%p', verdict: '🔴 인플레 압력 ↑' },
-        'Stagflation': { direction: 'Bridgewater Quadrant: 성장↓+인플레↑', verdict: '🔴 스태그플레이션 리스크' }
+        Energy: { direction: '+10~25%', verdict: '에너지 섹터 강세' },
+        Airlines: { direction: '-8~20%', verdict: '항공/운송 압박' },
+        CPI: { direction: '+0.3~0.8%p', verdict: '인플레 압력 ↑' },
+        'Stagflation': { direction: 'Bridgewater Quadrant: 성장↓+인플레↑', verdict: '스태그플레이션 리스크' }
       };
       break;
   }
@@ -5676,19 +5677,19 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   var q = userQuery.toLowerCase();
   var intent = null;
   // 키워드 패턴 → 페이지 매핑
-  if (/(차트|chart|기술|technical|RSI|MACD|이동평균|MA|Weinstein)/i.test(q)) intent = { page: 'technical', label: '차트 분석', emoji: '📈' };
-  else if (/(시그널|signal|매매|trade|점수|score|ACTION)/i.test(q)) intent = { page: 'signal', label: '매매 시그널', emoji: '🎯' };
-  else if (/(시장 폭|breadth|McClellan|AD line|NHNL)/i.test(q)) intent = { page: 'breadth', label: '시장 폭', emoji: '📊' };
-  else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII|Put.?Call|PCR)/i.test(q)) intent = { page: 'sentiment', label: '투자 심리', emoji: '🧠' };
-  else if (/(매크로|macro|Fed|CPI|PCE|유가|달러|환율|FOMC|금리)/i.test(q)) intent = { page: 'macro', label: '거시경제', emoji: '🌍' };
-  else if (/(외환|FX|채권|bond|10Y|2Y|국채|금리)/i.test(q) && !/(macro|매크로)/i.test(q)) intent = { page: 'fxbond', label: '환율/채권', emoji: '💱' };
-  else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental', label: '기업 분석', emoji: '🏢' };
-  else if (/(테마|theme|섹터|sector|RRG|rotation)/i.test(q)) intent = { page: 'themes', label: '테마/섹터', emoji: '🔄' };
-  else if (/(포트폴리오|portfolio|보유|holdings|리밸런싱|rebalancing)/i.test(q)) intent = { page: 'portfolio', label: '포트폴리오', emoji: '💼' };
-  else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'sentiment', label: '옵션·변동성 지표', emoji: '⚙️' }; // P1321: options route retired
-  else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing', label: '데일리 브리핑', emoji: '📰' };
-  else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news', label: '실시간 뉴스', emoji: '🗞️' };
-  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro', label: '한국 거시(거시경제 페이지 통합 섹션)', emoji: '🇰🇷' };
+  if (/(차트|chart|기술|technical|RSI|MACD|이동평균|MA|Weinstein)/i.test(q)) intent = { page: 'technical', label: '차트 분석', emoji: '' };
+  else if (/(시그널|signal|매매|trade|점수|score|ACTION)/i.test(q)) intent = { page: 'signal', label: '매매 시그널', emoji: '' };
+  else if (/(시장 폭|breadth|McClellan|AD line|NHNL)/i.test(q)) intent = { page: 'breadth', label: '시장 폭', emoji: '' };
+  else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII|Put.?Call|PCR)/i.test(q)) intent = { page: 'sentiment', label: '투자 심리', emoji: '' };
+  else if (/(매크로|macro|Fed|CPI|PCE|유가|달러|환율|FOMC|금리)/i.test(q)) intent = { page: 'macro', label: '거시경제', emoji: '' };
+  else if (/(외환|FX|채권|bond|10Y|2Y|국채|금리)/i.test(q) && !/(macro|매크로)/i.test(q)) intent = { page: 'fxbond', label: '환율/채권', emoji: '' };
+  else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental', label: '기업 분석', emoji: '' };
+  else if (/(테마|theme|섹터|sector|RRG|rotation)/i.test(q)) intent = { page: 'themes', label: '테마/섹터', emoji: '' };
+  else if (/(포트폴리오|portfolio|보유|holdings|리밸런싱|rebalancing)/i.test(q)) intent = { page: 'portfolio', label: '포트폴리오', emoji: '' };
+  else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'sentiment', label: '옵션·변동성 지표', emoji: '' }; // P1321: options route retired
+  else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing', label: '데일리 브리핑', emoji: '' };
+  else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news', label: '실시간 뉴스', emoji: '' };
+  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro', label: '한국 거시(거시경제 페이지 통합 섹션)', emoji: '' };
   // 현재 컨텍스트와 동일하면 이동 불필요
   if (intent && intent.page === currentCtxId) return null;
   return intent;
@@ -5891,13 +5892,13 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   // 사용자 발견 — home 채팅 안 됨 등 silent fail 경험. 모든 early return에 toast/inline 안내.
   var ctx = CHAT_CONTEXTS[ctxId];
   if (!ctx) {
-    if (typeof showToast === 'function') showToast('⚠ 채팅 컨텍스트 미정의: ' + ctxId + ' — 새로고침 후 재시도', 5000);
+    if (typeof showToast === 'function') showToast('채팅 컨텍스트 미정의: ' + ctxId + ' — 새로고침 후 재시도', 5000);
     if (typeof console !== 'undefined' && console.warn) console.warn('[AIO chatSend] CHAT_CONTEXTS[' + ctxId + '] undefined. 정의된 ctxIds:', Object.keys(CHAT_CONTEXTS || {}).join(','));
     return;
   }
   var state = getChatState(ctxId);
   if (state.streaming) {
-    if (typeof showToast === 'function') showToast('⏳ 이전 답변 스트리밍 중 — 완료 후 재시도', 3000);
+    if (typeof showToast === 'function') showToast('이전 답변 스트리밍 중 — 완료 후 재시도', 3000);
     return;
   }
 
@@ -5905,7 +5906,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   var btn = document.getElementById('chat-' + ctxId + '-btn');
   if (!inp) {
     // DOM 부재 — v49.74 P398/R146 케이스. 사용자에게 명확 안내.
-    if (typeof showToast === 'function') showToast('⚠ 채팅 입력창 DOM 부재: chat-' + ctxId + '-inp — 페이지 새로고침 권장', 6000);
+    if (typeof showToast === 'function') showToast('채팅 입력창 DOM 부재: chat-' + ctxId + '-inp — 페이지 새로고침 권장', 6000);
     if (typeof console !== 'undefined' && console.error) console.error('[AIO chatSend] DOM input missing for ctxId=' + ctxId + '. CHAT_CONTEXTS 등록 후 DOM 패널 누락 가능성 (P398/R146).');
     return;
   }
@@ -5963,14 +5964,14 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   // 기존 L4335 streaming=true 설정까지 60줄+ 거리 → 빠른 더블 클릭 시 race window 존재
   // 검증 통과 직후 즉시 atomic lock — 이후 모든 prep는 lock 보호 영역
   if (state.streaming) {
-    if (typeof showToast === 'function') showToast('⏳ 이미 처리 중인 요청 있음 — 완료 후 재시도', 2500);
+    if (typeof showToast === 'function') showToast('이미 처리 중인 요청 있음 — 완료 후 재시도', 2500);
     return;
   }
   state._chatSendEntered = state._chatSendEntered || 0;
   state._chatSendEntered++;
   if (state._chatSendEntered > 1) {
     state._chatSendEntered--;
-    if (typeof showToast === 'function') showToast('⏳ 중복 요청 차단 — 첫 번째 요청 완료 후 재시도', 2500);
+    if (typeof showToast === 'function') showToast('중복 요청 차단 — 첫 번째 요청 완료 후 재시도', 2500);
     return;
   }
 
@@ -5991,7 +5992,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     state._fundDepth = (state._fundDepth || 0) + 1;
     if (state._fundDepth > 2) {
       state._fundDepth = 0;
-      chatAppendMsg(ctxId, 'ai', '<div style="font-size:12px;color:#fbbf24;padding:4px 8px;background:rgba(251,191,36,0.08);border-radius:4px;">⚠ 자동 분석 재귀 상한(2회)에 도달했습니다. 새 종목을 검색하거나 직접 질문해주세요.</div>');
+      chatAppendMsg(ctxId, 'ai', '<div style="font-size:12px;color:#fbbf24;padding:4px 8px;background:rgba(251,191,36,0.08);border-radius:4px;">자동 분석 재귀 상한(2회)에 도달했습니다. 새 종목을 검색하거나 직접 질문해주세요.</div>');
       _aioReleaseChatRequest(_aioChatRun);
       return;
     }
@@ -6013,7 +6014,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   if (!_isCurrentChatRun()) return;
   if (!_chatRoute.ok) {
     chatAppendMsg(ctxId, 'ai', '<div style="color:#f87171;padding:8px 12px;background:rgba(248,113,113,0.1);border-left:3px solid #f87171;border-radius:4px;">' +
-      '<b>⚠ AI 라우트 확인 필요</b><br>' +
+      '<b>AI 라우트 확인 필요</b><br>' +
       (typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_chatRoute.reason) : '운영자의 공용 AI 연결을 확인해 주세요.') + '</div>');
     _aioReleaseChatRequest(_aioChatRun);
     return;
@@ -6186,7 +6187,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     ? ((_researchPlanForChat && _researchPlanForChat.subQueries && _researchPlanForChat.subQueries[0] && _researchPlanForChat.subQueries[0].query) || _buildSearchQuery(q, ctxId))
     : _needsWebSearch(q, ctxId);
   if (_researchRequiredForChat && _researchDecisionForChat.userOptOut) {
-    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#fbbf24;padding:6px 8px;background:rgba(255,163,26,0.08);border-left:2px solid #ffa31a;border-radius:4px;margin-bottom:4px;">⚠ 현재성·원인 질문은 웹 리서치 없이는 확정할 수 없습니다. 검색을 다시 활성화하면 재시도할 수 있습니다.</div>');
+    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#fbbf24;padding:6px 8px;background:rgba(255,163,26,0.08);border-left:2px solid #ffa31a;border-radius:4px;margin-bottom:4px;">현재성·원인 질문은 웹 리서치 없이는 확정할 수 없습니다. 검색을 다시 활성화하면 재시도할 수 있습니다.</div>');
     // User opt-out blocks only unverified current/causal claims. Keep the
     // conceptual and conditional answer path alive instead of turning a
     // missing research capability into a full-chat outage.
@@ -6358,7 +6359,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   // v49.76 P406 R151: 시세 데이터 ✗ 시 가격 환각 절대 차단 — 사용자 좌절 발견 ("2025년 초 학습 데이터 기준 $400~500대")
   // v50.37 트랙3: HARD STOP은 "종목 지목 + 시세 미수신"에만 적용. 스크리너/일반·교육 질문은 별도 규칙으로 유연화.
   if (detectedTickers.length > 0 && (_liveStatusCS.indexOf('미수신') >= 0 || _liveStatusCS.indexOf('✗') >= 0)) {
-    _dataVerify += '\n🚨🚨🚨 【실시간 시세 ✗ — HARD STOP】 🚨🚨🚨\n' +
+    _dataVerify += '\n【실시간 시세 ✗ — HARD STOP】 \n' +
       '실시간 시세 미수신 상태다. 다음 사항 절대 위반 금지:\n' +
       '① 답변 전체에서 모든 $ 가격 수치 절대 금지 — "$XXX", "$400~500대", "$268", "약 $X" 등 일체 금지.\n' +
       '② "2024년", "2025년 초", "기억 속", "내가 알기로", "학습 데이터 기준" 표현 절대 금지 — 사용 시 답변 자동 폐기.\n' +
@@ -6412,10 +6413,10 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   }
   _dataVerify += '• 뉴스 컨텍스트: ' + (newsContextStr ? '✓ ' + newsContextStr.split('\n').filter(function(l){return l.match(/^\d/);}).length + '건 주입됨 (시간 표기 포함)' : '✗ 관련 뉴스 없음 — "최근 뉴스에 따르면"이라고 시작하지 마라') + '\n';
   _dataVerify += '• 웹검색: ' + (webSearchStr ? '✓ 검색 완료' : '✗ 미실행 — 검증되지 않은 최신 정보를 확정적으로 말하지 마라') + '\n';
-  if (_snapAge >= 72) _dataVerify += '• 정적 데이터: ⚠⚠ ' + _snapAge + '시간(' + Math.round(_snapAge/24) + '일) 경과 — **정적 수치 인용 자체 금지**. 실시간/웹검색만 사용\n';
+  if (_snapAge >= 72) _dataVerify += '• 정적 데이터: ' + _snapAge + '시간(' + Math.round(_snapAge/24) + '일) 경과 — **정적 수치 인용 자체 금지**. 실시간/웹검색만 사용\n';
   else if (_snapAge < 48) _dataVerify += '• 정적 데이터: ✓ ' + _snapAge + '시간 전 갱신\n';
-  else _dataVerify += '• 정적 데이터: ⚠ ' + _snapAge + '시간 경과 — 수치 인용 시 "N시간 전 스냅샷" 명시\n';
-  _dataVerify += '규칙: ✗ 또는 ⚠ 표시된 데이터는 "확인되지 않음"·"데이터 미수집"이라고 명시적으로 밝혀야 한다. 추측 금지.\n';
+  else _dataVerify += '• 정적 데이터: ' + _snapAge + '시간 경과 — 수치 인용 시 "N시간 전 스냅샷" 명시\n';
+  _dataVerify += '규칙: ✗ 또는 표시된 데이터는 "확인되지 않음"·"데이터 미수집"이라고 명시적으로 밝혀야 한다. 추측 금지.\n';
   systemPrompt += _dataVerify;
   systemPrompt = _aioNormalizeChatFreshnessLanguage(systemPrompt);
 
@@ -6481,12 +6482,12 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   } catch(_wsErr) { _useClaudeWebSearch = false; }
   if (_researchRequiredForChat && !_researchDecisionForChat.userOptOut && !window._aioWebSearchCapped && !_preparedResearchForChat.cancelled && _preparedResearchForChat.nativeFallbackRequired) _useClaudeWebSearch = true;
   if (_useClaudeWebSearch) {
-    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">🔍 Claude Web Research 요청 — 출처 검증 대기 (max 3회)</div>');
+    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">Claude Web Research 요청 — 출처 검증 대기 (max 3회)</div>');
     // v50.10 B: 정성 분석 web-research 지시 — placeholder/정적/휴리스틱 데이터 대신 검색으로 최신 사실+출처 확보
     systemPrompt += '\n\n【웹 리서치 지시 (정성 관점)】\n공급망/밸류체인·TAM/시장규모·경쟁구조·기술해자(Moat)·기관흐름(13F)·사업구조/비즈니스모델·경영진/CEO 전략 같은 정성 분석은 주입된 placeholder/정적테이블/휴리스틱 데이터에 의존하지 말고 web_search로 최신 사실을 확인하라. 각 핵심 주장에는 (출처·발행일)을 명시하고, 검색으로 확인하지 못한 항목은 "확인 불가"로 남겨라 — 학습데이터 기반 추측 금지.';
   } else if (window._aioWebSearchCapped) {
     // v50.10 E: 정성 질문이었으나 공유 키 일일 웹검색 한도 도달 → 기존 데이터로 답변 안내
-    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:var(--data-amber);padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;margin-bottom:4px;">🔍 오늘 웹검색 일일 한도 도달 — 정성 분석은 기존 데이터로 답변(저신뢰 관점 단정 주의). 내일 자동 재개.</div>');
+    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:var(--data-amber);padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;margin-bottom:4px;">오늘 웹검색 일일 한도 도달 — 정성 분석은 기존 데이터로 답변(저신뢰 관점 단정 주의). 내일 자동 재개.</div>');
   }
 
   // Keep the authoritative handling rule after every external block. This is
@@ -6547,7 +6548,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
       } else {
         // chatAppendMsg null 반환 — DOM 부재 silent fail 차단 (사용자 좌절 시정)
         if (typeof console !== 'undefined' && console.warn) console.warn('[AIO chatSend] aiBubble null — chat-' + ctxId + '-msgs DOM 부재. CHAT_CONTEXTS 등록 후 패널 누락 (P398/R146 일반화).');
-        if (typeof showToast === 'function') showToast('⚠ 채팅 응답 렌더 영역 부재: chat-' + ctxId + '-msgs — 페이지 새로고침 권장', 6000);
+        if (typeof showToast === 'function') showToast('채팅 응답 렌더 영역 부재: chat-' + ctxId + '-msgs — 페이지 새로고침 권장', 6000);
       }
       // v34.1c: 긴 답변 시 자동 확장 (200자 이상이면 자동으로 채팅 영역 확장 — 일반 LLM 채팅처럼)
       if (fullText.length > 200) {
@@ -6632,11 +6633,11 @@ async function chatSend(ctxId, _aioDispatchOptions) {
             var _missList = [];
             if (_liveMissing) _missList.push('실시간 시세');
             if (_financialMissing && detectedTickers && detectedTickers.length > 0) _missList.push('재무 데이터');
-            _dataMissBox.innerHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:4px;">⚠ 데이터 부재 — ' + _missList.map(escHtml).join(' / ') + ' 미수신</div>' +
+            _dataMissBox.innerHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:4px;">데이터 부재 — ' + _missList.map(escHtml).join(' / ') + ' 미수신</div>' +
               '<div style="color:var(--text-muted);font-size:11px;margin-bottom:6px;">위 답변은 정성 프레임워크만 적용 — 정량 수치 인용 시 환각 위험. 데이터 새로고침 후 재질문 권장.</div>' +
               '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-              '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.15);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;font-weight:600;">🔄 데이터 새로고침</button>' +
-              '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + _safeQ2 + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.15);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">🔁 동일 질문 재시도</button>' +
+              '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.15);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;font-weight:600;">데이터 새로고침</button>' +
+              '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + _safeQ2 + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.15);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">동일 질문 재시도</button>' +
               '</div>';
             aiBubble.parentNode.insertBefore(_dataMissBox, aiBubble);
           }
@@ -6646,15 +6647,15 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         _srcBadge.style.cssText = 'font-size:11px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
         var _bItems = [];
         var _hasFundamentals = /PER:|FCF Yield|Balance Sheet|EV\/EBITDA|Segments|income statement|재무제표/i.test(tickerDataStr || '');
-        if (tickerDataStr) _bItems.push('<span style="color:#3ddba5;">📊 종목 데이터 ✓</span>');
-        else _bItems.push('<span style="color:#7e8a9e;">📊 종목 데이터 ✗</span>');
+        if (tickerDataStr) _bItems.push('<span style="color:#3ddba5;">종목 데이터 ✓</span>');
+        else _bItems.push('<span style="color:#7e8a9e;">종목 데이터 ✗</span>');
         _bItems.push(_hasFundamentals ? '<span style="color:#3ddba5;">재무 ✓</span>' : '<span style="color:#7e8a9e;">재무 ✗</span>');
-        if (newsContextStr) _bItems.push('<span style="color:#3ddba5;">📰 뉴스 ✓</span>');
-        else _bItems.push('<span style="color:#7e8a9e;">📰 뉴스 ✗</span>');
-        if (webSearchStr) _bItems.push('<span style="color:#a78bfa;">🔍 웹검색 ✓</span>');
-        if (singleDeepStr || deepCompareStr) _bItems.push('<span style="color:#60a5fa;">🔬 심층 ✓</span>');
-        if (screenerResult && screenerResult.matched) _bItems.push('<span style="color:#fbbf24;" title="' + escHtml(screenerResult.criteria.join(' · ')) + '">📋 스크리너 ' + screenerResult.totalMatched + '종목</span>');  // v50.37 트랙1
-        if (domainDataStr) _bItems.push('<span style="color:#7dd3fc;">🌐 도메인 데이터 ✓</span>');  // v50.38 트랙2
+        if (newsContextStr) _bItems.push('<span style="color:#3ddba5;">뉴스 ✓</span>');
+        else _bItems.push('<span style="color:#7e8a9e;">뉴스 ✗</span>');
+        if (webSearchStr) _bItems.push('<span style="color:#a78bfa;">웹검색 ✓</span>');
+        if (singleDeepStr || deepCompareStr) _bItems.push('<span style="color:#60a5fa;">심층 ✓</span>');
+        if (screenerResult && screenerResult.matched) _bItems.push('<span style="color:#fbbf24;" title="' + escHtml(screenerResult.criteria.join(' · ')) + '">스크리너 ' + screenerResult.totalMatched + '종목</span>');  // v50.37 트랙1
+        if (domainDataStr) _bItems.push('<span style="color:#7dd3fc;">도메인 데이터 ✓</span>');  // v50.38 트랙2
         _srcBadge.innerHTML = _bItems.join('');
         aiBubble.parentNode.appendChild(_srcBadge);
 
@@ -6683,7 +6684,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
               if (_acc.accurate) {
                 _accItems.push('<span style="color:#3ddba5;" title="모든 인용 가격이 실시간 ±20% 이내">✓ 가격 정확성</span>');
               } else {
-                _accItems.push('<span style="color:#ff5b50;" title="severity=' + _acc.severity + ', max deviation ' + (_acc.deviation ? _acc.deviation.toFixed(1) : '?') + '%">⚠ 가격 괴리 ' + _acc.severity + '</span>');
+                _accItems.push('<span style="color:#ff5b50;" title="severity=' + _acc.severity + ', max deviation ' + (_acc.deviation ? _acc.deviation.toFixed(1) : '?') + '%">가격 괴리 ' + _acc.severity + '</span>');
                 if (typeof console !== 'undefined' && console.warn) {
                   console.warn('[AIO/R83] Chat response price inaccuracy:', _acc);
                 }
@@ -6695,7 +6696,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
             var _hall = window.AIO.getChatHallucinationAudit(visible);
             if (_hall.suspicionScore > 0) {
               var _hColor = _hall.verdict === 'high-risk' ? '#ff5b50' : _hall.verdict === 'medium-risk' ? '#ffa31a' : '#7e8a9e';
-              _accItems.push('<span style="color:' + _hColor + ';" title="패턴: ' + _hall.patterns.join(', ') + '">🧠 환각 ' + _hall.suspicionScore + '/10</span>');
+              _accItems.push('<span style="color:' + _hColor + ';" title="패턴: ' + _hall.patterns.join(', ') + '">환각 ' + _hall.suspicionScore + '/10</span>');
               if (_hall.suspicionScore >= 7 && typeof console !== 'undefined' && console.warn) {
                 console.warn('[AIO/R86] High hallucination risk:', _hall);
               }
@@ -6705,17 +6706,17 @@ async function chatSend(ctxId, _aioDispatchOptions) {
                 var _hallBox = document.createElement('div');
                 _hallBox.className = 'aio-hallucination-warning';
                 _hallBox.style.cssText = 'margin:6px 0;padding:10px 12px;background:rgba(255,91,80,0.12);border:1px solid #ff5b50;border-radius:3px;color:#ff5b50;font-size:12px;line-height:1.5;';
-                _hallBox.innerHTML = '<div style="font-weight:700;margin-bottom:4px;">⚠️ 환각 경고 (v49.74 R145)</div>' +
+                _hallBox.innerHTML = '<div style="font-weight:700;margin-bottom:4px;">환각 경고 (v49.74 R145)</div>' +
                   '<div style="color:#f87171;font-weight:500;margin-bottom:4px;">AI 답변에 "학습 데이터" / "기억 속" / "2025년 초" 등 자기 환각 자백 표현이 감지됐습니다. 이 답변의 가격·시점 정량 정보는 신뢰하지 마세요.</div>' +
                   '<div style="color:var(--text-muted);font-weight:500;font-size:11px;">검출 패턴: ' + _hall.patterns.join(' · ') + '</div>' +
                   '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">' +
-                  '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.15);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;font-weight:600;">🔄 시세 새로고침</button>' +
-                  '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + _safeQ + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.15);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">🔁 데이터 받고 재질문</button>' +
+                  '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.15);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;font-weight:600;">시세 새로고침</button>' +
+                  '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + _safeQ + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.15);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">데이터 받고 재질문</button>' +
                   '</div>';
                 aiBubble.parentNode.insertBefore(_hallBox, aiBubble);
               }
             } else {
-              _accItems.push('<span style="color:#3ddba5;" title="환각 패턴 0">🧠 클린</span>');
+              _accItems.push('<span style="color:#3ddba5;" title="환각 패턴 0">클린</span>');
             }
           }
           if (_accItems.length > 0) {
@@ -6734,12 +6735,12 @@ async function chatSend(ctxId, _aioDispatchOptions) {
                 var _confHtml, _confCss, _confTitle;
                 if (_webCited) {
                   // 웹검색 실제 발화 + 인용 ≥1 → 출처 기반 (cyan)
-                  _confHtml = '🔍 고급 분석(' + _lcBadgeData.labels.slice(0, 4).join('·') + ' 등)을 <b>웹검색 출처 기반</b>으로 보강 — 출처 확인 권장';
+                  _confHtml = '고급 분석(' + _lcBadgeData.labels.slice(0, 4).join('·') + ' 등)을 <b>웹검색 출처 기반</b>으로 보강 — 출처 확인 권장';
                   _confCss = 'font-size:10px;color:var(--text-muted);margin:3px 0;padding:4px 6px;background:rgba(0,212,255,0.07);border-left:2px solid var(--data-cyan);border-radius:4px;line-height:1.5;';
                   _confTitle = '웹검색 출처 ' + _claudeCites.length + '건 · 보강 관점: ' + _lcBadgeData.labels.join(' · ');
                 } else if (_useClaudeWebSearch) {
                   // 웹검색 시도했으나 인용 미확정 → 중간 상태 (amber)
-                  _confHtml = '🔍 고급 분석 웹검색 시도 — <b>출처 미확정</b>, 단정 금지 (수동 확인 권장)';
+                  _confHtml = '고급 분석 웹검색 시도 — <b>출처 미확정</b>, 단정 금지 (수동 확인 권장)';
                   _confCss = 'font-size:10px;color:var(--text-muted);margin:3px 0;padding:4px 6px;background:rgba(255,163,26,0.06);border-left:2px solid var(--data-amber);border-radius:4px;line-height:1.5;';
                   _confTitle = '저신뢰 관점 전체: ' + _lcBadgeData.labels.join(' · ');
                 } else {
@@ -6766,7 +6767,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
                 _sBadge.style.cssText = 'font-size:10px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:3px 0;padding:4px 6px;background:rgba(255,163,26,0.06);border-left:2px solid var(--data-amber);border-radius:4px;';
                 var _sItems = _struct.violations.map(function(v) {
                   var _vc = v.severity === 'critical' ? '#ff5b50' : v.severity === 'high' ? '#ffa31a' : '#7e8a9e';
-                  return '<span style="color:' + _vc + ';" title="' + escHtml(v.issue) + '">⚠ ' + v.rule + '</span>';
+                  return '<span style="color:' + _vc + ';" title="' + escHtml(v.issue) + '">' + v.rule + '</span>';
                 });
                 _sBadge.innerHTML = '<span style="color:var(--text-muted);font-weight:600;">v49.75 구조:</span> ' + _sItems.join(' · ') +
                   (_struct.passes && _struct.passes.length > 0 ? ' <span style="color:var(--data-green);">✓ ' + _struct.passes.length + '</span>' : '');
@@ -6780,8 +6781,8 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         var _fbDiv = document.createElement('div');
         _fbDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:2px 0;';
         var _fbId = 'fb-' + Date.now();
-        _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="AI 응답이 도움됨으로 평가">👍</button>' +
-          '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="AI 응답이 부정확함으로 평가">👎</button>';
+        _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="AI 응답이 도움됨으로 평가">도움됨</button>' +
+          '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="AI 응답이 부정확함으로 평가">부정확</button>';
         aiBubble.parentNode.appendChild(_fbDiv);
 
         // v49.70 P374 R134: 금액/SPX % 시나리오 시뮬레이션 ("1억 투자" / "SPX -5% 시")
@@ -6792,16 +6793,16 @@ async function chatSend(ctxId, _aioDispatchOptions) {
             _asDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(168,85,247,0.06);border-left:3px solid #a855f7;border-radius:4px;font-size:11px;color:var(--text-primary);';
             var _asHTML = '';
             if (_amtSim.amount) {
-              _asHTML += '<div style="font-weight:700;color:#a855f7;margin-bottom:6px;">💰 금액 시뮬레이션</div>';
+              _asHTML += '<div style="font-weight:700;color:#a855f7;margin-bottom:6px;">금액 시뮬레이션</div>';
               _asHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">' + escHtml(_amtSim.amount.note) + '</div>';
               _asHTML += '<div style="display:grid;gap:3px;font-size:10px;">';
-              _asHTML += '<div><strong>🟢 보수적</strong>: ' + escHtml(_amtSim.amount.allocation.conservative) + '</div>';
-              _asHTML += '<div><strong>🟡 균형</strong>: ' + escHtml(_amtSim.amount.allocation.balanced) + '</div>';
-              _asHTML += '<div><strong>🔴 공격적</strong>: ' + escHtml(_amtSim.amount.allocation.aggressive) + '</div>';
+              _asHTML += '<div><strong>보수적</strong>: ' + escHtml(_amtSim.amount.allocation.conservative) + '</div>';
+              _asHTML += '<div><strong>균형</strong>: ' + escHtml(_amtSim.amount.allocation.balanced) + '</div>';
+              _asHTML += '<div><strong>공격적</strong>: ' + escHtml(_amtSim.amount.allocation.aggressive) + '</div>';
               _asHTML += '</div>';
             }
             if (_amtSim.indexScenario) {
-              _asHTML += '<div style="font-weight:700;color:#a855f7;margin-top:6px;margin-bottom:6px;">📊 ' + escHtml(_amtSim.indexScenario.index) + ' ' + _amtSim.indexScenario.sign + _amtSim.indexScenario.pct + '% 시나리오 (' + _amtSim.indexScenario.direction + ')</div>';
+              _asHTML += '<div style="font-weight:700;color:#a855f7;margin-top:6px;margin-bottom:6px;">' + escHtml(_amtSim.indexScenario.index) + ' ' + _amtSim.indexScenario.sign + _amtSim.indexScenario.pct + '% 시나리오 (' + _amtSim.indexScenario.direction + ')</div>';
               _asHTML += '<div style="display:grid;grid-template-columns:1fr 2fr;gap:3px;font-size:10px;">';
               Object.keys(_amtSim.indexScenario.impacts).forEach(function(k) {
                 _asHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div>' + escHtml(_amtSim.indexScenario.impacts[k]) + '</div>';
@@ -6819,7 +6820,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           _dlDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:4px 0;font-size:10px;';
           var _dlId = 'dl-' + Date.now();
           window['_aioDlCtx_' + _dlId] = { ctxId: ctxId, fullText: fullText, tickers: detectedTickers };
-          _dlDiv.innerHTML = '<span style="color:var(--text-muted);">💾 다운로드:</span>' +
+          _dlDiv.innerHTML = '<span style="color:var(--text-muted);">다운로드:</span>' +
             '<button data-action="_aioExportFromBtn" data-arg="' + _dlId + '" data-arg2="markdown" style="cursor:pointer;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:2px 6px;font-size:10px;color:var(--text-primary);" title="Markdown 다운로드">MD</button>' +
             '<button data-action="_aioExportFromBtn" data-arg="' + _dlId + '" data-arg2="json" style="cursor:pointer;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:2px 6px;font-size:10px;color:var(--text-primary);" title="JSON 다운로드">JSON</button>' +
             '<button data-action="_aioExportFromBtn" data-arg="' + _dlId + '" data-arg2="csv" style="cursor:pointer;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:2px 6px;font-size:10px;color:var(--text-primary);" title="CSV 다운로드">CSV</button>';
@@ -6838,7 +6839,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
               }
               var _alDiv = document.createElement('div');
               _alDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:4px;font-size:11px;color:var(--text-primary);';
-              _alDiv.innerHTML = '🔔 <strong>알람 등록 완료</strong>: ' + escHtml(_newAlert.label) + ' · 1분마다 자동 점검합니다.<br><span style="font-size:10px;color:var(--text-muted);">브라우저 알림 권한을 허용하면 조건 충족 시 알림을 받을 수 있습니다.</span>';
+              _alDiv.innerHTML = '<strong>알람 등록 완료</strong>: ' + escHtml(_newAlert.label) + ' · 1분마다 자동 점검합니다.<br><span style="font-size:10px;color:var(--text-muted);">브라우저 알림 권한을 허용하면 조건 충족 시 알림을 받을 수 있습니다.</span>';
               aiBubble.parentNode.appendChild(_alDiv);
             }
           }
@@ -6850,7 +6851,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           if (_macro && _macro.scenario && _macro.impacts) {
             var _mcDiv = document.createElement('div');
             _mcDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(255,163,26,0.06);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-primary);';
-            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">🌍 매크로 시나리오 시뮬레이션 (' + escHtml(_macro.scenario.type) + ' · 크기: ' + _macro.scenario.magnitude + ')</div>';
+            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">매크로 시나리오 시뮬레이션 (' + escHtml(_macro.scenario.type) + ' · 크기: ' + _macro.scenario.magnitude + ')</div>';
             _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">프레임: ' + escHtml(_macro.scenario.framework) + '</div>';
             _mcHTML += '<div style="display:grid;grid-template-columns:1fr 1.5fr 1.5fr;gap:4px;font-size:10px;">';
             _mcHTML += '<div style="color:var(--text-muted);font-weight:600;">자산</div><div style="color:var(--text-muted);font-weight:600;">예상 방향</div><div style="color:var(--text-muted);font-weight:600;">판정</div>';
@@ -6859,7 +6860,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
               _mcHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div style="font-family:var(--font-mono);">' + escHtml(imp.direction) + '</div><div>' + escHtml(imp.verdict) + '</div>';
             });
             _mcHTML += '</div>';
-            _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">⚠ ' + escHtml(_macro.note) + '</div>';
+            _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">' + escHtml(_macro.note) + '</div>';
             _mcDiv.innerHTML = _mcHTML;
             aiBubble.parentNode.appendChild(_mcDiv);
           }
@@ -6884,7 +6885,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           if (_pfSim && _pfSim.available) {
             var _pfDiv = document.createElement('div');
             _pfDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(0,229,160,0.06);border-left:3px solid var(--data-green);border-radius:4px;font-size:11px;color:var(--text-primary);';
-            var _pfHTML = '<div style="font-weight:700;color:var(--data-green);margin-bottom:6px;">💼 포트폴리오 시뮬레이션 — ' + escHtml(_pfSim.target) + ' ' + _pfSim.percentToAdd + '% 추가</div>';
+            var _pfHTML = '<div style="font-weight:700;color:var(--data-green);margin-bottom:6px;">포트폴리오 시뮬레이션 — ' + escHtml(_pfSim.target) + ' ' + _pfSim.percentToAdd + '% 추가</div>';
             _pfHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">현재 총 가치: $' + _pfSim.currentTotal.toLocaleString() + ' → 신규 총 가치: $' + _pfSim.newTotal.toLocaleString() + ' (추가 ' + _pfSim.addQty + '주 × $' + _pfSim.targetPrice.toFixed(2) + ' = $' + _pfSim.addAmount.toLocaleString() + ')</div>';
             _pfHTML += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-family:var(--font-mono);font-size:10px;">';
             _pfHTML += '<div style="color:var(--text-muted);font-weight:600;">종목</div><div style="color:var(--text-muted);font-weight:600;text-align:right;">현재 %</div><div style="color:var(--text-muted);font-weight:600;text-align:right;">신규 %</div>';
@@ -6899,7 +6900,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           }
         } catch(_pfErr) {}
 
-        // v49.72 R139: 답변 종목 detect 시 "📊 [종목] 재무 차트 보기" 버튼 자동 삽입
+        // v49.72 R139: 답변 종목 detect 시 "[종목] 재무 차트 보기" 버튼 자동 삽입
         // — 7 섹션 5년 분기 (Growth/Profitability/Balance/CashFlow/Liquidity/WorkingCap/Valuation)
         try {
           if (detectedTickers && detectedTickers.length > 0) {
@@ -6915,7 +6916,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
               _btn.setAttribute('data-action', '_aioShowFundamentalChart');
               _btn.setAttribute('data-arg', t);
               _btn.style.cssText = 'cursor:pointer;padding:6px 8px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:4px;font-size:11px;color:var(--text-primary);transition:background 0.15s;';
-              _btn.innerHTML = '📊 <strong>' + escHtml(t) + ' 재무 차트 보기</strong> ↗ <span style="color:var(--text-muted);">— 7 섹션 5년 분기 (Growth/Profitability/Balance/CashFlow/Liquidity/WorkingCap/Valuation)</span>';
+              _btn.innerHTML = '<strong>' + escHtml(t) + ' 재무 차트 보기</strong> ↗ <span style="color:var(--text-muted);">— 7 섹션 5년 분기 (Growth/Profitability/Balance/CashFlow/Liquidity/WorkingCap/Valuation)</span>';
               _chartBtnContainer.appendChild(_btn);
             });
             if (_chartBtnContainer.children.length > 0) aiBubble.parentNode.appendChild(_chartBtnContainer);
@@ -6950,14 +6951,14 @@ async function chatSend(ctxId, _aioDispatchOptions) {
             var _bcDiv = document.createElement('div');
             _bcDiv.className = 'aio-beginner-chart-reading';
             _bcDiv.innerHTML = '<div style="margin:8px 0;padding:10px 12px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:3px;font-size:12px;line-height:1.6;color:var(--text-primary);">' +
-              '<div style="font-weight:800;color:var(--data-cyan);margin-bottom:6px;">📈 ' + escHtml(_tcP) + ' 차트 핵심 판독 <span style="font-weight:500;color:var(--text-muted);font-size:10px;">(라이브 OHLCV 실측)</span></div>' +
+              '<div style="font-weight:800;color:var(--data-cyan);margin-bottom:6px;">' + escHtml(_tcP) + ' 차트 핵심 판독 <span style="font-weight:500;color:var(--text-muted);font-size:10px;">(라이브 OHLCV 실측)</span></div>' +
               '<div style="display:grid;gap:3px;">' +
                 '<div><b style="color:' + _trendColor + ';">추세</b> · ' + escHtml(_trendTxt) + '</div>' +
                 '<div><b style="color:var(--text-secondary);">위치</b> · ' + escHtml(_posTxt) + '</div>' +
                 '<div><b style="color:var(--text-secondary);">모멘텀</b> · ' + escHtml(_rsiTxt) + (_macdTxt ? ' · ' + escHtml(_macdTxt) : '') + '</div>' +
                 '<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border);"><b style="color:var(--accent);">한 줄 결론</b> · ' + escHtml(_verdict) + '</div>' +
               '</div>' +
-              '<button data-action="_aioShowTechnicalChart" data-arg="' + escHtml(_tcP) + '" style="margin-top:6px;font-size:10px;padding:3px 10px;background:rgba(0,212,255,0.12);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">📊 ' + escHtml(_tcP) + ' 차트 자세히 보기 ↗ <span style="color:var(--text-muted);">— 캔들+MA+RSI</span></button>' +
+              '<button data-action="_aioShowTechnicalChart" data-arg="' + escHtml(_tcP) + '" style="margin-top:6px;font-size:10px;padding:3px 10px;background:rgba(0,212,255,0.12);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">' + escHtml(_tcP) + ' 차트 자세히 보기 ↗ <span style="color:var(--text-muted);">— 캔들+MA+RSI</span></button>' +
               '</div>';
             aiBubble.parentNode.appendChild(_bcDiv);
           }
@@ -7003,7 +7004,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
             var _fuqDiv = document.createElement('div');
             _fuqDiv.className = 'aio-followup-questions';
             _fuqDiv.style.cssText = 'margin:8px 0 4px;padding:6px 8px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:4px;';
-            var _fuqHTML = '<div style="font-size:11px;color:var(--data-cyan);font-weight:600;margin-bottom:4px;">💡 후속 질문 (클릭 시 자동 전송)</div>';
+            var _fuqHTML = '<div style="font-size:11px;color:var(--data-cyan);font-weight:600;margin-bottom:4px;">후속 질문 (클릭 시 자동 전송)</div>';
             _fuqHTML += '<div style="display:flex;flex-direction:column;gap:4px;">';
             _fuq.forEach(function(q) {
               var safeQ = escHtml(q).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
@@ -7061,7 +7062,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
               _mcHTML += '<div style="display:flex;flex-wrap:wrap;gap:5px;">';
               _mcr.forEach(function(r) {
                 var col = r.verdict === 'RESEARCH_CANDIDATE' ? '#60a5fa' : r.verdict === 'CAUTION' ? '#f59e0b' : '#ef4444';
-                var icon = r.verdict === 'RESEARCH_CANDIDATE' ? '◌' : r.verdict === 'CAUTION' ? '⚠' : '✗';
+                var icon = r.verdict === 'RESEARCH_CANDIDATE' ? '◌' : r.verdict === 'CAUTION' ? '' : '✗';
                 _mcHTML += '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:' + col + '18;border:1px solid ' + col + '44;border-radius:12px;font-size:11px;">' +
                   '<span style="color:' + col + ';font-weight:700;">' + icon + '</span>' +
                   '<b style="color:var(--text-primary);">' + escHtml(r.sym) + '</b>' +
@@ -7139,19 +7140,19 @@ async function chatSend(ctxId, _aioDispatchOptions) {
       // 에러 유형 분류: 401 API key / 429 rate limit / 5xx network / overloaded / other
       var _errCat, _errIcon, _errGuide;
       if (/401|unauthorized|invalid.*key|API.*key/i.test(errMsg)) {
-        _errCat = 'API 키 무효'; _errIcon = '🔑';
+        _errCat = 'API 키 무효'; _errIcon = '';
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>운영자에게 공용 AI 연결 확인을 요청하세요.</li><li><a href="https://platform.openai.com" target="_blank" style="color:#00d4ff;">OpenAI Platform</a>에서 공용 연결 상태를 확인하세요.</li><li>연결 확인 후 같은 질문을 재시도하세요.</li></ul>';
       } else if (/429|rate.*limit|too many/i.test(errMsg)) {
-        _errCat = 'API 사용량 한도 초과'; _errIcon = '⏱';
+        _errCat = 'API 사용량 한도 초과'; _errIcon = '';
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1분 후 재시도 (공용 요청 한도 회복 대기)</li><li>platform.openai.com에서 사용량/한도 확인</li><li>공용 예산 한도가 회복된 뒤 다시 시도하세요.</li></ul>';
       } else if (/500|502|503|529|overloaded|server.*error/i.test(errMsg)) {
-        _errCat = 'AI 서버 일시 오류'; _errIcon = '⚠';
+        _errCat = 'AI 서버 일시 오류'; _errIcon = '';
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1~2분 후 재시도 (AI 일시 부하)</li><li><a href="https://status.openai.com" target="_blank" style="color:#00d4ff;">status.openai.com</a> 상태 확인</li><li>같은 오류가 반복되면 운영자에게 알려주세요.</li></ul>';
       } else if (/network|fetch|cors/i.test(errMsg)) {
-        _errCat = '네트워크 오류'; _errIcon = '📡';
+        _errCat = '네트워크 오류'; _errIcon = '';
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>인터넷 연결을 확인하세요.</li><li>잠시 후 다시 시도하세요.</li><li>계속 실패하면 데이터 연결 상태를 새로고침하세요.</li></ul>';
       } else {
-        _errCat = '알 수 없는 오류'; _errIcon = '❓';
+        _errCat = '알 수 없는 오류'; _errIcon = '';
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>페이지를 새로고침한 뒤 다시 질문하세요.</li><li>다른 모델을 선택해 재시도하세요.</li><li>같은 문제가 반복되면 API 키와 네트워크 상태를 확인하세요.</li><li>브라우저 개발자 콘솔에서 <code style="background:rgba(0,0,0,0.25);padding:1px 4px;border-radius:2px;">AIO.diagnose()</code>를 실행하면 시세/채팅/데이터 상태를 한 번에 자가진단할 수 있습니다.</li></ul>';
       }
       var _errBox = '<div style="padding:10px 12px;background:rgba(248,113,113,0.08);border:1px solid #f87171;border-radius:3px;color:var(--text-primary);font-size:12px;line-height:1.5;">' +
@@ -7160,8 +7161,8 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);">권장 조치:</div>' +
         _errGuide +
         '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">' +
-        '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + escHtml(q).replace(/'/g, '\\\'') + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.12);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;">🔁 같은 질문 재시도</button>' +
-        '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.12);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;">🔄 데이터 새로고침</button>' +
+        '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + escHtml(q).replace(/'/g, '\\\'') + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.12);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;">같은 질문 재시도</button>' +
+        '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.12);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;">데이터 새로고침</button>' +
         '</div>' +
         '</div>';
       chatAppendMsg(ctxId, 'ai', _errBox);

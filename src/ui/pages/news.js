@@ -158,7 +158,10 @@ function realTitle(root, item) {
     const cached = root?._translationCache?.get?.(root?._tcKey?.(item?.title));
     ko = (cached && !cached._failed && cached.ko_title) || item?.ko_title || '';
   } catch (_) { ko = item?.ko_title || ''; }
-  return /[가-힣]/.test(ko) ? ko : (item?.title || item?.headline || '제목 없음');
+  const original = typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item) : item?.title;
+  const translated = /[가-힣]/.test(ko) && typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item, ko) : ko;
+  const title = /[가-힣]/.test(ko) ? translated : (original || item?.headline || '제목 없음');
+  return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(title) : title; // P1500
 }
 
 const TOPIC_LABELS = Object.freeze({ macro: '매크로', semi: '반도체·AI', geo: '지정학', energy: '에너지', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });

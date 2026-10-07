@@ -161,25 +161,27 @@ function decodeEntities(s) {
     .trim();
 }
 
+// P1503: short Latin keywords match whole words only (FedEx, soil, metal, buyback, software were tagged
+// macro/equity/geo); a primary tag for display is chosen by specificity in the renderer.
 function classify(text) {
   const raw = String(text || '');
   const tags = [];
   const add = v => { if (!tags.includes(v)) tags.push(v); };
-  if (/corporate bond|company bond|investment grade|ig credit|\boas\b|lqd|hyg|credit spread|project finance|rating downgrade|rating downshift|downgrade.*rating|funding cost|debt financing|capex funding|bond market|company debt|회사채|투자등급|크레딧|신용스프레드|스프레드|프로젝트\s*파이낸스|자금조달|조달비용|등급\s*하향|신용등급|신용공여/i.test(raw)) add('credit');
-  if (/boj|bank of japan|fomc|fed|federal reserve|cpi|ppi|pce|gdp|gdpnow|treasury|10y|yield|rate cut|rate hike|inflation|deflation|recession|stagflation|tariff|oil|crude|spr|ecb|employment|unemployment|payrolls|달러|금리|물가|인플레|경기침체|유가|중앙은행|관세|연준|고용|실업|국채|입찰/i.test(raw)) add('macro');
-  if (/iran|israel|hormuz|middle east|war|sanction|reconstruction|jcpoa|geopolitic|conflict|strait|호르무즈|이란|이스라엘|중동|전쟁|제재|지정학/i.test(raw)) add('geo');
-  if (/nvidia|nvda|amd|tsmc|hbm|dram|nand|micron|broadcom|avgo|marvell|mrvl|gpu|cpu|asic|cowos|socamm|hbm4|hbm4e|semiconductor|memory|sk hynix|samsung electronics|반도체|메모리|하이닉스|삼성전자|엔비디아|마이크론/i.test(raw)) add('semi');
-  if (/cpo|npo|optical|laser|eml|cw laser|coherent|lumentum|aaoi|mtsi|sive|photonics/i.test(raw)) add('optical');
-  if (/power|data center power|sofc|bloom energy|oracle|transformer|grid|gw|800v|fuel cell|electricity|hvdc|전력|데이터센터|변압기|송전|전력망|연료전지/i.test(raw)) add('power');
+  if (/corporate bond|company bond|investment grade|ig credit|\boas\b|\blqd\b|\bhyg\b|credit spread|project finance|rating downgrade|rating downshift|downgrade.*rating|funding cost|debt financing|capex funding|bond market|company debt|회사채|투자등급|크레딧|신용스프레드|스프레드|프로젝트\s*파이낸스|자금조달|조달비용|등급\s*하향|신용등급|신용공여/i.test(raw)) add('credit');
+  if (/\bboj\b|bank of japan|\bfomc\b|\bfed\b|federal reserve|\bcpi\b|\bppi\b|\bpce\b|\bgdp\b|\bgdpnow\b|treasury|10y|yield|rate cut|rate hike|inflation|deflation|recession|stagflation|tariff|\boil\b|crude|\bspr\b|\becb\b|employment|unemployment|payrolls|달러|금리|물가|인플레|경기침체|유가|중앙은행|관세|연준|고용|실업|국채|입찰/i.test(raw)) add('macro');
+  if (/\biran\b|\bisrael\b|hormuz|middle east|\bwar\b|sanction|reconstruction|jcpoa|geopolitic|conflict|strait|호르무즈|이란|이스라엘|중동|전쟁|제재|지정학/i.test(raw)) add('geo');
+  if (/nvidia|nvda|\bamd\b|tsmc|\bhbm\b|dram|nand|micron|broadcom|avgo|marvell|mrvl|\bgpu\b|\bcpu\b|\basic\b|cowos|socamm|hbm4|hbm4e|semiconductor|memory|sk hynix|samsung electronics|반도체|메모리|하이닉스|삼성전자|엔비디아|마이크론/i.test(raw)) add('semi');
+  if (/\bcpo\b|\bnpo\b|optical|laser|\beml\b|cw laser|coherent|lumentum|aaoi|mtsi|sive|photonics/i.test(raw)) add('optical');
+  if (/\bpower\b|data center power|sofc|bloom energy|transformer|\bgrid\b|\bgw\b|800v|fuel cell|electricity|hvdc|전력|데이터센터|변압기|송전|전력망|연료전지/i.test(raw)) add('power');
   if (/anthropic|openai|gpt-|chatgpt|gemini|llama|claude|sovereign ai|export control|ai policy|ai model|소버린|수출통제|AI\s*모델/i.test(raw)) add('ai-policy');
   if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|기관|코스피|코스닥|국장|한국장|선물|환율/i.test(raw)) add('kr-market');
-  if (/spacex|prime day|amazon|adobe|smci|meta|murata|ipo|buy|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
+  if (/spacex|prime day|amazon|adobe|\bsmci\b|\bmeta\b|murata|\bipo\b|\bbuy\b|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
   if (/crypto|bitcoin|ethereum|coinbase/i.test(raw)) add('crypto');
   if (/insider (?:buy|purchase|sale|selling|transaction)|open.market (?:buy|purchase)|form 4|director bought|executive bought|내부자|임원 매수|자사주/i.test(raw)) add('insider');
-  if (/earnings|revenue|eps|guidance|operating profit|quarterly results|실적|매출|영업이익|가이던스|컨센서스/i.test(raw)) add('earnings');
+  if (/earnings|revenue|\beps\b|guidance|operating profit|quarterly results|실적|매출|영업이익|가이던스|컨센서스/i.test(raw)) add('earnings');
   if (/fund flow|etf flow|positioning|short interest|gamma|option flow|foreign buying|institutional buying|수급|외국인|기관|순매수|포지셔닝/i.test(raw)) add('flows');
   if (/healthcare|pharma|biotech|glp.?1|wegovy|ozempic|mounjaro|novo nordisk|eli lilly|비만약|제약|바이오/i.test(raw)) add('healthcare');
-  if (/\bjapan\b|nikkei|topix|yen|jgb|tokyo stock|일본|닛케이|토픽스|엔화|일은/i.test(raw)) add('japan');
+  if (/\bjapan\b|nikkei|topix|\byen\b|\bjgb\b|tokyo stock|일본|닛케이|토픽스|엔화|일은/i.test(raw)) add('japan');
   return tags.length ? tags : ['market-note'];
 }
 
@@ -377,7 +379,10 @@ for (const it of [...previousObservedPool, ...freshItems]) {
   observedById.set(it.id, {
     id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst,
     score:Number(it.score || 0), tags:Array.isArray(it.tags) ? it.tags : [],
-    tickers:Array.isArray(it.tickers) ? it.tickers : [], hasText:it.hasText !== false && !!String(it.text || '').trim()
+    tickers:Array.isArray(it.tickers) ? it.tickers : [],
+    // P1503: carried-over lineage rows have no text field by design (P715); keep their recorded hasText instead of
+    // re-deriving it from an absent body, which turned every carried post into 'media only' run after run.
+    hasText: typeof it.text === 'string' || typeof it.summary === 'string' ? !!String(it.text || it.summary || '').trim() : it.hasText === true
   });
 }
 const observedItems = [...observedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));

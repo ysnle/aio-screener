@@ -70,6 +70,7 @@ function renderMyNames(doc, host, root, store) {
 
 function renderSchedule(doc, host, root) {
   const schedule = buildBriefingSchedule({
+    fomcDecisions: Array.isArray(root.AIO_MACRO_OFFICIAL_SCHEDULES?.['us-fomc']) ? root.AIO_MACRO_OFFICIAL_SCHEDULES['us-fomc'] : [],
     releases: root.AIO_MACRO_CALENDAR?.releases || {},
     snapshot: root.DATA_SNAPSHOT || {},
     policyRange: root.AIO_EVENT_FRESHNESS_REGISTRY?.fomc?.policyRange || null,

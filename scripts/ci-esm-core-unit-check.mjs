@@ -3416,6 +3416,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const schedule = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' }, 'us-cpi': { nextRelease: '2026-10-14' } }, snapshot: { nfp: 162, unemployment: 4.1 }, nowMs,
     earnings: [{ symbol: 'NKE', date: '2026-10-05', hour: 'amc', epsEstimate: 0.44 }, { symbol: 'TINY', date: '2026-10-05', hour: 'amc' }], names: { NKE: 'Nike' } });
   if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30' || !/162천 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
+  // P1501: rule-derived market-structure dates (FOMC minutes, KRX expiry, exchange holidays).
+  const week = buildBriefingSchedule({ fomcDecisions: ['2026-09-16', '2026-10-28'], nowMs: Date.parse('2026-10-06T12:00:00+09:00'), days: 7 });
+  const labels = week.map((row) => `${row.when} ${row.label}`);
+  if (labels.join('|') !== '10/8(목) 03:00 FOMC 의사록 (9/16 회의)|10/8(목) 15:20 국내 옵션 만기|10/9(금) 09:00 한국 증시 휴장 (한글날)') fail(`P1501 structure events wrong: ${JSON.stringify(labels)}`);
+  const december = buildBriefingSchedule({ fomcDecisions: [], nowMs: Date.parse('2026-12-07T00:00:00Z'), days: 14 }).map((row) => row.label);
+  if (!december.includes('국내 선물·옵션 동시 만기') || !december.includes('미국 지수 선물·옵션 분기 만기')) fail(`P1501 quarterly expiry missing: ${JSON.stringify(december)}`);
 }
 
 // ── P1416: breadth signals — 4% movers, 52-week highs/lows, 40-day ratio, distribution days ────

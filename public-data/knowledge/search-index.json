@@ -11,7 +11,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 23,
+    "frame": 26,
     "principles-lesson": 112,
     "principles-node": 60,
     "atlas-foundation": 48,
@@ -200,6 +200,28 @@
       }
     },
     {
+      "id": "frame:crisis-response",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "위기 대응의 분배 효과 — 자산 보유자와 현금·근로소득자",
+      "text": "위기가 터지면 중앙은행은 금리를 내리고 국채를 사들이며, 정부는 빚을 내 돈을 푼다. 몇 년 뒤 돌아보면 주가와 집값은 위기 전보다 높아져 있는데, 월급과 예금으로 사는 사람의 형편은 그만큼 나아지지 않았다. 같은 대응이 사람마다 다른 시차와 크기로 닿기 때문이다.",
+      "group": "통화·신용·물가",
+      "keys": [
+        "위기 대응과 자산 가격",
+        "asset-vs-consumer-prices",
+        "nominal-real-relative",
+        "credit-creation",
+        "wage-nominal-real"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "crisis-response"
+        }
+      }
+    },
+    {
       "id": "frame:long-bond",
       "surface": "frame",
       "surfaceLabel": "분석 프레임",
@@ -218,6 +240,27 @@
         "params": {
           "mode": "frames",
           "node": "long-bond"
+        }
+      }
+    },
+    {
+      "id": "frame:bond-collateral",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "국채 급변의 주식 전이 — 담보와 레버리지 축소",
+      "text": "주식시장이 조용한데 국채 금리가 며칠 사이 크게 뛴다. 주식 변동성 지수는 낮게 머문다. 그런데 이런 때 운용사들은 주식보다 채권 변동성을 먼저 걱정한다. 국채는 금융시스템에서 돈을 빌릴 때 맡기는 담보이기 때문이다.",
+      "group": "금리·채권·환율",
+      "keys": [
+        "채권 충격이 주식으로 번지는 길",
+        "policy-vs-long-rate",
+        "term-premium",
+        "credit-cost"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "bond-collateral"
         }
       }
     },
@@ -279,6 +322,28 @@
         "params": {
           "mode": "frames",
           "node": "index-weight"
+        }
+      }
+    },
+    {
+      "id": "frame:multiple-durability",
+      "surface": "frame",
+      "surfaceLabel": "분석 프레임",
+      "title": "성장률보다 성장의 지속에 붙는 주가배수",
+      "text": "내년 이익이 두 배로 뛴다는 회사보다 해마다 30%씩 자라는 회사의 주가배수가 더 높은 경우가 있다. 숫자만 보면 앞뒤가 맞지 않는다. 시장이 사는 것은 내년 한 해의 성장률이 아니라, 그 성장이 얼마나 오래, 얼마나 확실하게 이어지느냐다.",
+      "group": "가격·기대",
+      "keys": [
+        "성장률보다 성장의 지속",
+        "present-value",
+        "competition-moat",
+        "base-rate",
+        "expected-value"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "multiple-durability"
         }
       }
     },

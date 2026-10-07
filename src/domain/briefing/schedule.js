@@ -41,12 +41,71 @@ export function formatKstWhen(ms) {
   return { date, label: `${month}/${day}(${weekday}) ${time}` };
 }
 
+// P1501 (owner materials 2026-10-06): the week of 10/6 carried FOMC minutes, the KRX option expiry and a
+// KRX holiday, yet the schedule read "no events" — it listed only data releases. These dates follow fixed
+// rules, so they are derived rather than collected:
+// - FOMC minutes: three weeks after each decision day, 14:00 ET (Federal Reserve practice since 2005).
+// - KRX index futures/options expiry: the second Thursday of each month (the business day before when it is
+//   a holiday); March/June/September/December are the quarterly simultaneous expiry.
+// - US monthly listed options expiry: the third Friday (quarterly months: index futures expire the same day).
+// - Exchange holidays: the published 2026 KRX and NYSE closures still ahead.
+const KRX_HOLIDAYS_2026 = Object.freeze({ '2026-10-09': '한글날', '2026-12-25': '성탄절', '2026-12-31': '연말 휴장' });
+const NYSE_HOLIDAYS_2026 = Object.freeze({ '2026-11-26': '추수감사절', '2026-12-25': '성탄절' });
+const QUARTER_MONTHS = new Set([3, 6, 9, 12]);
+
+function isoDate(y, m, d) { return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
+function nthWeekday(y, m, weekday, n) {
+  const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+  return 1 + ((weekday - first + 7) % 7) + (n - 1) * 7;
+}
+function previousKrxBusinessDay(date) {
+  let ms = Date.parse(`${date}T12:00:00Z`);
+  for (;;) {
+    const day = new Date(ms).getUTCDay();
+    const iso = new Date(ms).toISOString().slice(0, 10);
+    if (day !== 0 && day !== 6 && !KRX_HOLIDAYS_2026[iso]) return iso;
+    ms -= 86400000;
+  }
+}
+
+export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), days = 7 } = {}) {
+  const rows = [];
+  const push = (id, atMs, label, why) => {
+    if (!Number.isFinite(atMs) || atMs < nowMs - 6 * 3600000 || atMs > nowMs + days * 86400000) return;
+    rows.push({ id, kind: 'structure', atMs, label, why, last: null });
+  };
+  for (const decision of fomcDecisions || []) {
+    const minutes = new Date(Date.parse(`${decision}T12:00:00Z`) + 21 * 86400000).toISOString().slice(0, 10);
+    push(`fomc-minutes-${minutes}`, etWallClockToMs(minutes, [14, 0]), `FOMC 의사록 (${Number(decision.slice(5, 7))}/${Number(decision.slice(8, 10))} 회의)`, '위원들의 금리 경로 논의 — 다음 결정 기대가 바뀌면 금리·달러가 먼저 움직임');
+  }
+  const start = new Date(nowMs);
+  for (let offset = 0; offset < 2; offset += 1) {
+    const y = start.getUTCFullYear() + Math.floor((start.getUTCMonth() + offset) / 12);
+    const m = ((start.getUTCMonth() + offset) % 12) + 1;
+    const krx = previousKrxBusinessDay(isoDate(y, m, nthWeekday(y, m, 4, 2)));
+    push(`krx-expiry-${krx}`, Date.parse(`${krx}T15:20:00+09:00`), QUARTER_MONTHS.has(m) ? '국내 선물·옵션 동시 만기' : '국내 옵션 만기',
+      '만기 정산과 지수 추종 자금의 리밸런싱이 장 마감 무렵 대형주 수급을 흔들 수 있음');
+    const us = isoDate(y, m, nthWeekday(y, m, 5, 3));
+    push(`us-expiry-${us}`, etWallClockToMs(us, [16, 0]), QUARTER_MONTHS.has(m) ? '미국 지수 선물·옵션 분기 만기' : '미국 월물 옵션 만기',
+      '대규모 옵션 포지션이 정리되며 만기 주간 지수 변동이 커지거나 눌릴 수 있음');
+  }
+  for (const [date, name] of Object.entries(KRX_HOLIDAYS_2026)) push(`krx-holiday-${date}`, Date.parse(`${date}T09:00:00+09:00`), `한국 증시 휴장 (${name})`, '국내 거래가 없는 날 — 해외 시장 변화는 다음 거래일에 한꺼번에 반영');
+  for (const [date, name] of Object.entries(NYSE_HOLIDAYS_2026)) push(`nyse-holiday-${date}`, etWallClockToMs(date, [9, 30]), `미국 증시 휴장 (${name})`, '미국 거래가 없는 날 — 다음 거래일 갭에 유의');
+  return rows;
+}
+
 /**
  * @returns {Array<{ id, kind, atMs, when, label, why, last, today, passed, status }>} the next `days` days
  */
-export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], names = {}, nowMs = Date.now(), days = 7, maxEarnings = 6 } = {}) {
+export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], names = {}, nowMs = Date.now(), days = 7, maxEarnings = 6, fomcDecisions = null } = {}) {
   const rows = [];
   const today = kstParts(nowMs).date;
+  if (Array.isArray(fomcDecisions)) {
+    for (const event of marketStructureEvents({ fomcDecisions, nowMs, days })) {
+      const when = formatKstWhen(event.atMs);
+      rows.push({ ...event, when: when.label, today: when.date === today, passed: event.atMs < nowMs, status: event.atMs < nowMs ? 'time-passed' : 'upcoming' });
+    }
+  }
   const seenDates = new Set();
   for (const [key, release] of Object.entries(releases || {})) {
     const profile = RELEASE_PROFILES[key === 'us-fed-rate' ? 'us-fomc' : key];

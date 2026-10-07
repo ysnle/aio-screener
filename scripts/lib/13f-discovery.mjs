@@ -154,7 +154,8 @@ export async function enrichOwnershipEvents({ artifact, previous, fetchText, arc
     for (let index = 0; index < events.length; index += 1) {
       const event = events[index];
       const cached = known.get(event.accession);
-      if (cached) { events[index] = { ...event, subjectCompany: cached.subjectCompany ?? null, subjectCik: cached.subjectCik ?? null, percentOfClass: cached.percentOfClass ?? null }; continue; }
+      // P1498: an accession cached with no issuer name is fetched again on a full run (the first parser missed the header form).
+      if (cached && (cached.subjectCompany || typeof fetchText !== 'function')) { events[index] = { ...event, subjectCompany: cached.subjectCompany ?? null, subjectCik: cached.subjectCik ?? null, percentOfClass: cached.percentOfClass ?? null }; continue; }
       if (typeof fetchText !== 'function') continue;
       const base = archiveBaseFor(manager.cik, event.accession);
       let header = { subjectCompany: null, subjectCik: null };

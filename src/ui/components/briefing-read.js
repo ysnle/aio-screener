@@ -31,7 +31,9 @@ function universeNames(root) {
 function statementNode(doc, tag, { text, reading }, className) {
   const node = el(doc, tag, null, className);
   node.append(doc.createTextNode(text));
-  if (reading) node.append(doc.createTextNode(' '), el(doc, 'span', '해석', 'briefing-hypothesis-tag'), el(doc, 'span', ` ${reading}`, 'briefing-hypothesis'));
+  // P1505: the observation stays on the first line and its reading sits under it in the secondary colour; one
+  // '해석' tag on the headline labels the convention instead of a tag on every line.
+  if (reading) node.append(el(doc, 'span', `→ ${reading}`, 'briefing-hypothesis is-line'));
   return node;
 }
 
@@ -92,6 +94,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     });
   }
   const schedule = buildBriefingSchedule({
+    fomcDecisions: Array.isArray(root.AIO_MACRO_OFFICIAL_SCHEDULES?.['us-fomc']) ? root.AIO_MACRO_OFFICIAL_SCHEDULES['us-fomc'] : [],
     releases: root.AIO_MACRO_CALENDAR?.releases || {},
     snapshot,
     policyRange: root.AIO_EVENT_FRESHNESS_REGISTRY?.fomc?.policyRange || null,

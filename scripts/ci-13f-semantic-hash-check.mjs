@@ -5,7 +5,8 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { is13FFilingSeason, ownershipFailureFields, updateOwnershipOnlyDiscovery } from './lib/13f-discovery.mjs';
+import { enrichOwnershipEvents, is13FFilingSeason, ownershipFailureFields, updateOwnershipOnlyDiscovery } from './lib/13f-discovery.mjs';
+import { parseOwnershipHeader } from './lib/sec-edgar.mjs';
 import {
   rawSha256,
   semanticDigest,
@@ -342,6 +343,36 @@ try {
   const projection = builder.slice(builder.indexOf("schema: 'masters-13f-manager-web-projection.v1'"), builder.indexOf('const projectionText'));
   check('P1370 projection-content-excludes-daily-stamps', projection.length > 0 && !/^\s*(?:generatedAt|reviewedAt)\s*[,:]/m.test(projection));
   check('P1370 builder-prunes-unreferenced-projections', /referencedProjections\.has\(name\)/.test(builder) && /fs\.unlink\(path\.join\(projectionDir, name\)\)/.test(builder));
+}
+
+{
+  // P1498: SEC .hdr.sgml files use the tag form; the first parser read only the colon form and left every issuer empty.
+  const tagForm = parseOwnershipHeader(`<SUBJECT-COMPANY>
+<COMPANY-DATA>
+<CONFORMED-NAME>APPLE INC
+<CIK>0000320193
+</COMPANY-DATA>
+</SUBJECT-COMPANY>
+<FILED-BY>
+<CONFORMED-NAME>FILER
+<CIK>0000000001
+`);
+  const colonForm = parseOwnershipHeader(`SUBJECT COMPANY:
+		COMPANY CONFORMED NAME:		APPLE INC
+		CENTRAL INDEX KEY:		0000320193
+FILED BY:
+		COMPANY CONFORMED NAME:		FILER
+`);
+  check('P1498 ownership-header-tag-form', tagForm.subjectCompany === 'APPLE INC' && tagForm.subjectCik === '0000320193');
+  check('P1498 ownership-header-colon-form', colonForm.subjectCompany === 'APPLE INC' && colonForm.subjectCik === '0000320193');
+  const artifact = { managers: [{ cik: '1', ownershipEvents: [{ accession: 'a-1' }] }] };
+  const previous = { managers: [{ ownershipEvents: [{ accession: 'a-1', subjectCompany: null, subjectCik: null, percentOfClass: 5 }] }] };
+  let fetches = 0;
+  await enrichOwnershipEvents({ artifact, previous, archiveBaseFor: () => 'x', fetchText: async () => { fetches += 1; return `<SUBJECT-COMPANY>
+<CONFORMED-NAME>APPLE INC
+<CIK>1
+`; } });
+  check('P1498 cached-null-issuer-refetched-on-full-run', fetches === 1 && artifact.managers[0].ownershipEvents[0].subjectCompany === 'APPLE INC');
 }
 
 console.log(JSON.stringify({ status: 'PASS', checks }));

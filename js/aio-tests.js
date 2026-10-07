@@ -2591,10 +2591,10 @@
       hasScenarioGuide,
       'scenario=' + hasScenarioGuide);
 
-    // T524: 시장 환경 헤더 + 이모지 표준 (🔴🟡🟢)
-    var hasEmojiStd = /🔴|🟡|🟢/.test(chatFn);
+    // T524: 시장 환경 헤더 + 이모지 표준 ()
+    var hasEmojiStd = /\[위험\]|\[주의\]|\[안정\]/.test(chatFn); // P1500: word cues replace emoji
     var hasMktHdrTimestamp = /기준일/.test(chatFn);
-    _assert('T524 chat_visual_cue_emoji_v4968: 시각 단서 표준 — VIX/F&G 이모지 (🔴/🟡/🟢) + 기준일 타임스탬프 + R128',
+    _assert('T524 chat_visual_cue_emoji_v4968: 시각 단서 표준 — VIX/F&G 단어 표지 ([위험]/[주의]/[안정]) + 기준일 타임스탬프 + R128',
       hasEmojiStd && hasMktHdrTimestamp && /R128/.test(chatFn),
       'emoji=' + hasEmojiStd + ' stamp=' + hasMktHdrTimestamp + ' R128=' + /R128/.test(chatFn));
 
@@ -2905,7 +2905,7 @@
     _assert('T566 fundamental_search_integrated_v4972: fundamentalSearch fetch + render 통합',
       fundSrc.indexOf('fetchQuarterlyFinancials') >= 0 && fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0,
       'fetch=' + (fundSrc.indexOf('fetchQuarterlyFinancials') >= 0) + ' render=' + (fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0));
-    // T567: chatSend에 "📊 차트 보기" 버튼 통합 (_aioShowFundamentalChart)
+    // T567: chatSend에 "차트 보기" 버튼 통합 (_aioShowFundamentalChart)
     var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
     _assert('T567 chat_chart_button_v4972: chatSend에 _aioShowFundamentalChart 버튼 통합',
       chatSendSrc.indexOf('_aioShowFundamentalChart') >= 0 && chatSendSrc.indexOf('aio-financial-chart-btn') >= 0,
@@ -3095,7 +3095,7 @@
       'diag=' + (dynSrc.indexOf('_aioTickerLookupDiag') >= 0));
     // T599: 시세 ✗ 시 가격 환각 HARD STOP system prompt
     var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
-    _assert('T599 price_hallucination_hard_stop_v4976: chatSend에 "🚨🚨🚨" + "HARD STOP" + "가격 수치 절대 금지" 강제',
+    _assert('T599 price_hallucination_hard_stop_v4976: chatSend에 "HARD STOP" + "가격 수치 절대 금지" 강제',
       chatSendSrc.indexOf('HARD STOP') >= 0 && chatSendSrc.indexOf('가격 수치 절대 금지') >= 0,
       'hardStop=' + (chatSendSrc.indexOf('HARD STOP') >= 0));
     // T600: AIO.diagnose() 통합 진단 명령
@@ -3130,7 +3130,7 @@
     _assert('T605 refresh_all_data_handler_v4977: window._aioRefreshAllData 함수 정의',
       typeof window._aioRefreshAllData === 'function',
       'typeof=' + typeof window._aioRefreshAllData);
-    // T606: 환각 검출 시 액션 버튼 (🔄 시세 새로고침 / 🔁 데이터 받고 재질문)
+    // T606: 환각 검출 시 액션 버튼 (시세 새로고침 / 데이터 받고 재질문)
     _assert('T606 hallucination_action_buttons_v4977: 환각 경고 박스 내 _aioRefreshAllData + chatFromChip 액션 버튼',
       chatSendSrc.indexOf('시세 새로고침') >= 0 && chatSendSrc.indexOf('데이터 받고 재질문') >= 0,
       'refresh=' + (chatSendSrc.indexOf('시세 새로고침') >= 0));
@@ -4299,13 +4299,13 @@
     _assert('T293 v4936_implFn_updated: 7 keys implFn 모두 갱신 (null 해제)',
       allUpdated, updatedKeys.filter(function(k){return !pc.criteria[k].implFn;}).join(',') || 'all updated');
 
-    // T294: 페이지 가용성 배지 ❌/⚠ → ✓ 갱신 (3개 ❌ 제거)
-    // v50.29: 배지 박스 자체가 declutter로 제거 — ❌ 0 단언은 부재 시에도 참(의도 유지)
+    // T294: 페이지 가용성 배지 /→ ✓ 갱신 (3개 제거)
+    // v50.29: 배지 박스 자체가 declutter로 제거 — 0 단언은 부재 시에도 참(의도 유지)
     var explainEl = document.querySelector('[data-fund-criteria-registry=\"AIO_FUNDAMENTAL_PAGE_CRITERIA\"]');
     var txt = explainEl ? explainEl.textContent : '';
-    var redCount = (txt.match(/\[❌/g) || []).length;
-    _assert('T294 v4936_page_badges: 페이지 ❌ 배지 0개 (모두 ✓ 갱신)',
-      redCount === 0, '❌ count=' + redCount);
+    var redCount = (txt.match(/[\u{1F300}-\u{1FAFF}]/gu) || []).length; // P1500: no pictographs at all
+    _assert('T294 v4936_page_badges: 페이지 배지 0개 (모두 ✓ 갱신)',
+      redCount === 0, 'count=' + redCount);
 
     // T295 (v50.29 스펙 갱신): 커버리지 "박스"는 declutter로 제거 — audit 함수가 커버리지를 보고하는지 검증
     var covAudit = window.AIO && window.AIO.getFundamentalPageCriteriaAudit ? window.AIO.getFundamentalPageCriteriaAudit() : null;
@@ -4475,7 +4475,7 @@
       /NOT absolute prices|RATIO\/DISTANCE thresholds|calibration\s+상수|가격이 아닌 calibration/i.test(sysText),
       sysText ? 'sysText length=' + sysText.length : 'no system text');
 
-    // T260: _fetchTickerDataForChat HARD GUARDRAIL — 함수 자체에 ⛔ 또는 HARD GUARDRAIL 텍스트 포함 (간접 검증)
+    // T260: _fetchTickerDataForChat HARD GUARDRAIL — 함수 자체에 또는 HARD GUARDRAIL 텍스트 포함 (간접 검증)
     var chatJsContains = false;
     try {
       // _fetchTickerDataForChat 함수가 정의되어 있고 toString에 GUARDRAIL 포함

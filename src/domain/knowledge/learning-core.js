@@ -107,6 +107,20 @@ export const LESSONS = Object.freeze([
     concepts: ['credit-creation', 'nominal-real-relative'],
     sources: [{ label: '영란은행 — Money creation in the modern economy(2014)', url: 'https://www.bankofengland.co.uk/quarterly-bulletin/2014/q1/money-creation-in-the-modern-economy', supports: '대출이 예금을 만드는 구조와 그 제약' }],
     columnNote: '칼럼의 “풀린 돈이 주식으로 들어가 자산가격을 올린다”는 표현은 통화량·은행 신용·시장 유동성·자금조달 여건·투자자 거래를 구분해 읽어야 합니다.' }),
+  L({ id: 'crisis-response', path: 'money', title: '위기 대응과 자산 가격', issue: '위기 대응의 분배 효과 — 자산 보유자와 현금·근로소득자',
+    answer: "위기가 터지면 중앙은행은 금리를 내리고 국채를 사들이며, 정부는 빚을 내 돈을 푼다. 몇 년 뒤 돌아보면 주가와 집값은 위기 전보다 높아져 있는데, 월급과 예금으로 사는 사람의 형편은 그만큼 나아지지 않았다. 같은 대응이 사람마다 다른 시차와 크기로 닿기 때문이다.",
+    figure: { kind: 'flow', steps: ['위기 · 신용 경색', '금리 인하 · 자산매입 · 재정 지출', '자산 가격 먼저 회복', '고용·임금은 나중에 회복', '보유 자산에 따라 결과가 갈림'] },
+    mechanism: [
+      "중앙은행이 국채를 사들이면 투자자는 받은 현금으로 회사채와 주식 같은 다른 자산을 산다. 금리가 내려가면 미래 이익을 지금 값으로 환산하는 할인율도 내려간다. 두 경로 모두 자산 가격을 먼저 끌어올린다. 고용과 임금은 기업이 실제로 사람을 다시 뽑을 때까지 기다려야 한다.",
+      "자산은 고르게 나뉘어 있지 않다. 영란은행은 2012년 보고서에서 연금을 뺀 가계 금융자산의 약 40%를 상위 5% 가구가 갖고 있어, 자산매입의 부(富) 효과가 주로 그들에게 돌아간다고 분석했다. 같은 정책이 자산이 많은 가구에는 큰 평가이익으로, 현금과 근로소득에 기대는 가구에는 낮은 예금 이자로 닿는다.",
+      "위기 때 부실해진 업종을 정부가 살리면, 그 업종에 돈을 댄 사람들의 손실도 함께 줄어든다. 손실이 사회 전체로 넘어간다는 기대가 생기면 다음 호황에 위험을 더 크게 지려는 유인이 생긴다. 이것이 도덕적 해이이고, 위기 뒤 신용이 다시 과하게 부풀어 오르는 배경이 된다."
+    ],
+    example: { inputs: ['가구 A: 주식·주택 등 자산 5억 원', '가구 B: 예금 5천만 원 + 근로소득', '대응 이후 자산 가격 +20%, 물가 +3%, 예금 금리 0.5%'], steps: ['A의 자산 = 5억 × 1.20 = 6억 (+1억)', 'B의 예금 실질 가치 ≈ 5,000만 × (1.005 ÷ 1.03) ≈ 4,879만 (−121만)'], result: '같은 정책 아래 A는 1억 원을 벌고, B는 예금의 실질 가치가 120만 원가량 줄어듭니다.' },
+    reverse: "그렇다고 개입하지 않는 쪽이 공정한 것은 아니다. 대응이 없었다면 실업이 더 길고 깊었을 것이고, 일자리를 잃는 비용은 근로소득에 기대는 가구에 가장 무겁게 떨어진다. 영란은행 보고서도 자산매입이 없었다면 모든 가구의 형편이 더 나빴을 것이라고 보았다. 비교 대상은 위기 전이 아니라 개입하지 않았을 때다. 또 2022년처럼 물가 때문에 금리를 올리는 국면에서는 자산 가격이 내려가고 예금 이자가 올라, 현금 보유자에게 상대적으로 유리해진다.",
+    channels: ['현금', '투자'], indicators: [{ label: '정책금리와 실질금리, 기대인플레이션', route: 'fxbond', routeLabel: '금리·환율' }, { label: '물가 수준과 실질 구매력', route: 'macro', routeLabel: '거시 경제' }],
+    concepts: ['asset-vs-consumer-prices', 'nominal-real-relative', 'credit-creation', 'wage-nominal-real'],
+    sources: [{ label: '영란은행 — The distributional effects of asset purchases(2012)', url: 'https://www.bankofengland.co.uk/news/2012/july/the-distributional-effects-of-asset-purchases-paper', supports: '자산매입이 자산 가격을 통해 보유 가구에 집중된 부(富) 효과와 반사실 비교' }],
+    columnNote: '칼럼의 “위기가 오면 국가는 결국 자산가를 살리고, 그 부담은 근로소득자와 현금 보유자가 진다”는 분배의 시차와 크기를 강조한 관점입니다. 개입하지 않았을 때의 실업 비용과 함께 비교해야 공정한 판단이 됩니다. 현금만 들고 위기를 기다리는 전략이 물가로 구매력을 잃는다는 지적은 실질 수익 계산과 같은 결론입니다.' }),
   L({ id: 'long-bond', path: 'rates', title: '금리 인하와 장기채', issue: '정책금리 인하 국면의 장기채 약세 — 기간 프리미엄',
     answer: "중앙은행이 금리를 내렸다. 채권 투자자라면 반가워야 할 소식이다. 그런데 장기채 가격은 오히려 떨어진다. 금리 인하가 시작된 해에 장기채로 손실을 본 투자자는 생각보다 많다.",
     figure: { kind: 'forces', lower: ['앞으로의 단기금리 예상 하락 (인하 경로·경기 둔화)'], raise: ['기간 프리미엄 상승 (물가 재상승 우려·국채 공급 증가·불확실성)'], sum: '두 힘의 합 = 장기금리 변화', effect: '장기채 가격 변화 ≈ −수정 듀레이션 × 장기금리 변화' },
@@ -120,6 +134,20 @@ export const LESSONS = Object.freeze([
     channels: ['투자', '현금'], indicators: [{ label: '10년 금리, 기간 프리미엄(Kim-Wright), 실질금리·기대인플레이션', route: 'fxbond', routeLabel: '금리·환율' }],
     concepts: ['policy-vs-long-rate', 'term-premium'],
     sources: [{ label: 'FRED THREEFYTP10 — 10년 기간 프리미엄', url: 'https://fred.stlouisfed.org/series/THREEFYTP10', supports: '기간 프리미엄 추정치' }] }),
+  L({ id: 'bond-collateral', path: 'rates', kind: 'case', title: '채권 충격이 주식으로 번지는 길', issue: '국채 급변의 주식 전이 — 담보와 레버리지 축소',
+    answer: "주식시장이 조용한데 국채 금리가 며칠 사이 크게 뛴다. 주식 변동성 지수는 낮게 머문다. 그런데 이런 때 운용사들은 주식보다 채권 변동성을 먼저 걱정한다. 국채는 금융시스템에서 돈을 빌릴 때 맡기는 담보이기 때문이다.",
+    figure: { kind: 'flow', steps: ['국채 가격 급락', '담보 가치 하락·증거금 상향', '추가 담보 요구(마진콜)', '팔기 쉬운 자산 매도', '주식·신용으로 전이'] },
+    mechanism: [
+      "레포 거래, 파생상품 증거금, 연기금의 부채 연계 전략은 국채를 담보로 맡기고 돈이나 포지션을 빌린다. 국채 가격이 떨어지면 맡긴 담보의 가치가 줄고, 빌려준 쪽은 담보를 더 넣으라고 요구한다. 변동성이 커지면 같은 국채에 적용하는 할인율(헤어컷)도 올라간다.",
+      "추가 담보를 마련하려면 무언가를 팔아야 한다. 이때 먼저 팔리는 것은 가장 나쁜 자산이 아니라 가장 팔기 쉬운 자산이다. 국채 자체, 그리고 거래가 활발한 대형 주식이 매물로 나온다. 채권에서 시작된 충격이 주식으로 번지는 길이다.",
+      "2022년 9월 영국이 실제 사례다. 감세안 발표 뒤 장기 국채 금리가 급등하자 부채 연계 전략을 쓰던 연기금 펀드에 담보 요구가 몰렸고, 펀드들이 국채를 팔면서 금리가 더 뛰는 악순환이 생겼다. 영란은행은 9월 28일 장기 국채를 한시적으로 사들이는 시장 안정 조치를 발표했다."
+    ],
+    example: { inputs: ['국채 100을 담보로 90을 빌린 포지션', '수정 듀레이션 20인 장기 국채', '장기금리 +1%p'], steps: ['담보 가치 ≈ 100 × (1 − 20 × 0.01) = 80', '빌린 90 대비 담보 부족 = 10', '부족분 10을 다른 자산 매도로 마련'], result: '금리 1%p 상승만으로 빌린 돈보다 담보가 작아지고, 그 차이만큼 다른 자산을 팔아야 합니다.' },
+    reverse: "채권 변동성이 커도 레버리지가 낮거나 중앙은행이 담보 시장에 유동성을 공급하면 전이는 제한된다. 금리가 급락하는 방향의 변동성은 담보 가치를 늘려 오히려 여유를 만든다. 시장가격이 매일 매겨지지 않는 사모 신용은 반대의 위험을 안는다. 손실이 가격에 바로 드러나지 않아 담보 요구도 늦게 오지만, 그만큼 문제가 커진 뒤에 한꺼번에 드러날 수 있다.",
+    channels: ['현금', '투자'], indicators: [{ label: '10년 금리의 일간 변동 폭과 기간 프리미엄', route: 'fxbond', routeLabel: '금리·환율' }, { label: '하이일드 스프레드의 수준과 속도', route: 'signal', routeLabel: '시장 상태' }],
+    concepts: ['policy-vs-long-rate', 'term-premium', 'credit-cost'],
+    sources: [{ label: '영란은행 — Bank of England announces gilt market operation(2022-09-28)', url: 'https://www.bankofengland.co.uk/news/2022/september/bank-of-england-announces-gilt-market-operation', supports: '장기 국채 시장 기능 저하와 한시적 매입 조치' }],
+    columnNote: '운용사 카드뉴스의 “주식 변동성(VIX)보다 채권 변동성(MOVE)이 더 중요하다”는 담보 경로를 강조한 관점입니다. MOVE 지수는 이 화면이 수집하지 않으므로, 10년 금리의 일간 변동 폭과 하이일드 스프레드의 속도로 같은 질문을 확인합니다.' }),
   L({ id: 'fx-exporters', path: 'rates', industry: 'korea', title: '환율과 수출 기업', issue: '원화 약세의 업종 내 차별적 영향',
     answer: "원/달러 환율이 1,300원에서 1,430원으로 뛰었다. 수출주에 호재라는 기사가 쏟아진다. 그런데 같은 수출 업종 안에서도 웃는 회사와 표정이 굳는 회사가 갈린다.",
     figure: { kind: 'flow', steps: ['원화 약세', '달러 매출의 원화 환산 ↑', '달러 원재료·부채 비용 ↑', '헤지·경쟁국 통화', '순효과'] },
@@ -156,6 +184,22 @@ export const LESSONS = Object.freeze([
     reverse: "다만 새 돈이 대량으로 들어오면 그 돈은 현재 비중대로 나뉜다. 이미 큰 종목에 더 많은 금액이 들어가므로, 큰 종목이 더 커지는 흐름은 비중 변화가 아니라 자금 유입에서 생긴다.",
     channels: ['현금'], indicators: [{ label: '시장 폭(지수를 소수 종목이 끄는지)', route: 'breadth', routeLabel: '시장 폭' }],
     concepts: ['correlation'] }),
+  // P1502 (owner materials 2026-10-06): three notes built from the supplied columns — growth durability and
+  // the multiple, the collateral channel from bond volatility to equities, and who gains first from crisis
+  // response. Each column's claim is kept as a column note and tested against its counter-case.
+  L({ id: 'multiple-durability', path: 'market', title: '성장률보다 성장의 지속', issue: '성장률보다 성장의 지속에 붙는 주가배수',
+    answer: "내년 이익이 두 배로 뛴다는 회사보다 해마다 30%씩 자라는 회사의 주가배수가 더 높은 경우가 있다. 숫자만 보면 앞뒤가 맞지 않는다. 시장이 사는 것은 내년 한 해의 성장률이 아니라, 그 성장이 얼마나 오래, 얼마나 확실하게 이어지느냐다.",
+    figure: { kind: 'flow', steps: ['이익 성장률', '성장이 이어질 기간에 대한 믿음', '불확실성의 감소', '주가배수(PER)'] },
+    mechanism: [
+      "주가는 앞으로 벌 이익 전체를 지금 값으로 환산한 것이다. 내년 한 해만 크게 버는 회사와 5년 동안 꾸준히 버는 회사를 비교하면, 뒤쪽이 쌓는 이익의 합이 더 클 수 있다. 30% 성장이 5년 이어지면 이익은 1.3의 다섯제곱, 약 3.7배가 된다.",
+      "같은 이익이라도 확실할수록 비싸다. 수요가 계약으로 잡혀 있거나 경쟁자가 들어오기 어려우면 미래 이익을 깎아 계산할 이유가 줄어든다. 불확실성이 줄어드는 것만으로 배수가 오르는 이유다.",
+      "그래서 주가를 움직이는 것은 이익의 크기보다 이익의 기울기와 그 기울기에 대한 시장 기대의 변화다. 성장률이 같아도 지속 기간에 대한 믿음이 커지면 배수가 오르고, 믿음이 흔들리면 배수부터 내려간다."
+    ],
+    example: { inputs: ['A: 내년 EPS +100% 뒤 성장 불확실, 현재 PER 20', 'B: EPS 5년간 연 +30%, 현재 PER 30', '5년 뒤 두 회사 모두 PER 15로 수렴 가정', '두 회사 현재 EPS 1'], steps: ['A: 주가 20 → 15 × 2.0 = 30 (+50%)', 'B: 주가 30 → 15 × 1.3⁵ ≈ 15 × 3.71 ≈ 55.7 (+86%)'], result: '지금 더 비싸 보이는 B가 5년 뒤에는 더 많이 오릅니다. 단, B의 성장이 실제로 5년 이어진다는 가정이 핵심입니다.' },
+    reverse: "지속성에 대한 믿음이 깨지면 손실은 두 번 온다. 이익 성장이 둔화되고, 동시에 그 성장에 매겨 둔 높은 배수가 내려간다. 예에서 B의 성장이 2년 만에 멈추고 PER이 15로 내려가면 주가는 30에서 15 × 1.69 ≈ 25로 오히려 떨어진다. 배수가 높을수록 지속성이 틀렸을 때의 대가가 크다.",
+    channels: ['매출', '현금'], indicators: [{ label: '분기 매출의 전년 같은 분기 대비 성장률과 그 추세', route: 'fundamental', routeLabel: '재무 공시' }, { label: '주가 추세와 지수 대비', route: 'ticker', routeLabel: '종목 요약' }],
+    concepts: ['present-value', 'competition-moat', 'base-rate', 'expected-value'],
+    columnNote: '칼럼의 “주가 = EPS 성장률 × 지속기간에 대한 믿음 × 불확실성의 감소”는 곱셈 공식이 아니라 배수가 정해지는 요소를 묶은 관점입니다. 지속 기간은 사후에야 확인되므로, 분기 성장률의 추세와 수주·계약 같은 선행 근거로 믿음의 근거를 따로 확인해야 합니다.' }),
   // ── 산업과 기술 (대표 레슨) ──
   L({ id: 'semi-process', path: 'industry', industry: 'semis', title: '반도체 공정과 수율', issue: '수율 개선이 원가·생산능력에 미치는 영향',
     answer: "같은 공장, 같은 장비, 같은 웨이퍼. 그런데 한 회사는 웨이퍼 한 장에서 팔 수 있는 칩을 60개 얻고, 다른 회사는 80개를 얻는다. 반도체 원가 경쟁은 이 20개의 차이에서 시작된다.",
@@ -322,11 +366,11 @@ export const PATHS = Object.freeze([
   { id: 'foundation', title: '금융수학·통계', why: '평균·복리·%와 %p·기대값 — 이후 모든 수치 해석의 전제입니다.', lessons: ['geo-mean', 'real-relative'] },
   { id: 'accounting', title: '재무제표·회계', why: '이익·현금·자본의 연결 구조.', lessons: ['three-statements'] },
   { id: 'economy', title: '미시경제 기초', why: '가격·경쟁·진입장벽과 초과이익의 지속성.', lessons: ['elasticity', 'tech-vs-profit'] },
-  { id: 'money', title: '통화·신용·물가', why: '은행 신용 → 지출 → 물가 → 실질 소득의 전달 경로.', lessons: ['credit-money', 'macro-reading'] },
-  { id: 'rates', title: '금리·채권·환율', why: '동일한 금리·환율 변화가 자산·기업별로 다른 결과를 내는 경로.', lessons: ['long-bond', 'fx-exporters'] },
+  { id: 'money', title: '통화·신용·물가', why: '은행 신용 → 지출 → 물가 → 실질 소득의 전달 경로.', lessons: ['credit-money', 'macro-reading', 'crisis-response'] },
+  { id: 'rates', title: '금리·채권·환율', why: '동일한 금리·환율 변화가 자산·기업별로 다른 결과를 내는 경로.', lessons: ['long-bond', 'bond-collateral', 'fx-exporters'] },
   { id: 'business', title: '기업 수익 구조', why: '판매량·단가 → 마진 → 운전자본·투자 → 현금흐름 → 투하자본이익률.', lessons: ['capex-roic', 'three-statements'] },
   { id: 'industry', title: '산업별 수익 모델', why: '제공 가치 · 지불 주체 · 비용·자본 · 이익 변수의 동일 틀 비교.', lessons: ['semi-process', 'memory-optics', 'bank', 'insurance', 'reit', 'consumer', 'software', 'biotech', 'energy', 'transport', 'agri', 'fx-exporters'] },
-  { id: 'market', title: '가격·기대', why: '산업·기업·가격의 구분과 기대 대비 결과.', lessons: ['expectations', 'index-weight'] }
+  { id: 'market', title: '가격·기대', why: '산업·기업·가격의 구분과 기대 대비 결과.', lessons: ['expectations', 'multiple-durability', 'index-weight'] }
 ]);
 
 // Issues surfaced first (the frames most often needed to read the other screens).
@@ -367,6 +411,9 @@ export const FRAME_VARIABLES = Object.freeze({
   'fx-exporters': ['매출 통화 비중', '원가 통화 비중', '외화부채', '환헤지 비율'],
   expectations: ['컨센서스 추정치', '실적 대비 추정치 차이', '가이던스', '포지셔닝'],
   'index-weight': ['시가총액 비중', '상위 종목 집중도', '동일가중 대비 성과'],
+  'multiple-durability': ['분기 매출 전년 대비 성장률', '성장률의 추세(가속·둔화)', '수주·계약 잔고', '주가배수(PER)'],
+  'bond-collateral': ['10년 금리 일간 변동 폭', '기간 프리미엄', '하이일드 스프레드의 속도', '레버리지·담보 요구'],
+  'crisis-response': ['정책금리', '실질금리', '자산 가격 상승률', '실질임금'],
   'semi-process': ['공정 단계별 수율', '최종 수율', '고객 인증 일정', '가동률'],
   'memory-optics': ['HBM 적층 수율', '대역폭', '광모듈 속도·전력', '고객 인증'],
   'tech-vs-profit': ['공급자 수', '원가곡선 위치', '설비투자 강도', '가격 하락 속도'],

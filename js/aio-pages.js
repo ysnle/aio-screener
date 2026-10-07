@@ -596,7 +596,7 @@ function updateBottomProcess() {
   if (c2) c2.innerHTML = (b5 ? '• 5SMA 위: ' + b5.toFixed(0) + '%' + (b5 > 50 ? ' (광범위)' : b5 > 30 ? ' (제한적)' : ' (숏커버링 의심)') : '—') +
     (belowSma200 ? '<br>• SPX < 200SMA → 반추세(countertrend) 행동' : '');
   if (c3) c3.innerHTML = b50 ? '• 50SMA 위: ' + b50.toFixed(0) + '%' + (b50 > 40 ? ' (매도 압력 감소)' : ' (매도 지속)') : '—';
-  if (c4) c4.innerHTML = isBreadthThrust ? '시장폭 확인 — 광범위 참여' : '⏳ 대기 중';
+  if (c4) c4.innerHTML = isBreadthThrust ? '시장폭 확인 — 광범위 참여' : '대기 중';
 
   // 행동 가이드 동적 업데이트
   if (actionEl) {
@@ -1470,7 +1470,7 @@ async function loadRiskRadar() {
       event: r.name,
       source: r.source || '',
       sourceUrl: r.sourceUrl || '',
-      flag: key.indexOf('kr-') === 0 ? '🇰🇷' : '🇺🇸',
+      flag: key.indexOf('kr-') === 0 ? '' : '',
       sourceKind: 'official-calendar'
     });
   });
@@ -1487,7 +1487,7 @@ async function loadRiskRadar() {
         return imp === 'high' || imp === 'medium';
       }).map(function(e) {
         var country = (e.country || 'US').toUpperCase();
-        var flag = country === 'US' ? '🇺🇸' : country === 'EU' ? '🇪🇺' : country === 'CN' ? '🇨🇳' : country === 'JP' ? '🇯🇵' : country === 'KR' ? '🇰🇷' : '';
+        var flag = country === 'US' ? '' : country === 'EU' ? '' : country === 'CN' ? '' : country === 'JP' ? '' : country === 'KR' ? '' : '';
         return {
           date: (e.time || '').slice(0, 10),
           impact: (e.impact || '').toLowerCase() === 'high' ? 'high' : 'medium',

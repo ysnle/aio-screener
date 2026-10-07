@@ -74,8 +74,19 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null } = {}) {
   return svg;
 }
 
+// P1505 (owner 2026-10-06): the face of a card carries the date only; the provider and series name move to the
+// card's hover title. "10/5 기준 · 다음 10/28 · FRED" shows "10/5 기준 · 다음 10/28" and hovers "출처: FRED".
+const SOURCE_TOKEN = /^(FRED|BLS|BEA|Cboe|CBOE|Yahoo|ISM|Census|SEC|CNN|ICE|KRX|ECOS|한국은행|미 재무부|연준|Fed)\b/;
+function splitMeta(meta) {
+  const parts = String(meta || '').split(' · ');
+  const shown = []; const sources = [];
+  for (const part of parts) (SOURCE_TOKEN.test(part.trim()) ? sources : shown).push(part);
+  return { shown: shown.join(' · '), sources };
+}
 function statCard(doc, { label, valueText, lines = [], meta, note, status, series = null, direction = null, unit = null }) {
   const card = el(doc, 'article', null, `macro-stat${status === 'missing' ? ' is-missing' : ''}`);
+  const { shown: metaShown, sources: metaSources } = splitMeta(meta);
+  if (metaSources.length) card.title = `출처: ${metaSources.join(' · ')}`;
   const head = el(doc, 'div', null, 'macro-stat-head');
   head.append(el(doc, 'h4', label, 'macro-stat-label'));
   if (direction) head.append(el(doc, 'span', DIRECTION_MARK[direction], `macro-dir is-${direction}`));
@@ -83,7 +94,7 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   lines.filter(Boolean).forEach((line) => card.append(el(doc, 'div', line, 'macro-stat-line')));
   if (series && series.length >= 6) card.append(sparkline(doc, series, { minSpan: unit === '%' ? 1 : null }));
   if (status === 'stale') card.append(el(doc, 'span', '이번 수집 실패 · 직전 발표값', 'basis-chip is-off'));
-  if (meta) card.append(el(doc, 'div', meta, 'macro-stat-meta'));
+  if (metaShown) card.append(el(doc, 'div', metaShown, 'macro-stat-meta'));
   if (note) card.append(el(doc, 'p', note, 'macro-stat-note'));
   return card;
 }
@@ -277,11 +288,14 @@ function renderRegime(doc, read) {
   }
   const reading = el(doc, 'p', null, 'briefing-read-reading');
   reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${r.reading}`));
-  right.append(head, tally, overviewTiles(doc, read.axes), reading);
+  // P1506: the quadrant reads the 3-month direction of growth and prices; the six cards judge today's level
+  // against a threshold. A disinflation quadrant beside a 부담 price card is consistent once that is said.
+  const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(3개월 방향), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가가 내려가는 중이어도 목표보다 높으면 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
+  right.append(head, tally, lens, overviewTiles(doc, read.axes), reading);
   const criteria = el(doc, 'details', null, 'macro-axis-more');
   criteria.append(el(doc, 'summary', '국면 판정 기준'), el(doc, 'p', r.criteria || '', 'regime-flip'));
   right.append(criteria);
-  if (read.historyStatus !== 'ok') right.append(el(doc, 'p', '월별 경제 기록(FRED)이 다음 자동 수집부터 쌓입니다. 그 전까지 성장·물가의 3개월 추세와 국면 판정은 일부 보류됩니다.', 'briefing-footnote'));
+  if (read.historyStatus !== 'ok') right.append(el(doc, 'p', '월별 경제 기록이 다음 자동 수집부터 쌓입니다. 그 전까지 성장·물가의 3개월 추세와 국면 판정은 일부 보류됩니다.', 'briefing-footnote'));
   const grid = el(doc, 'div', null, 'macro-overview');
   grid.append(left, right);
   host.replaceChildren(grid);
@@ -351,7 +365,7 @@ function curveSvg(doc, yields) {
   const points = yields.filter((row) => row.value != null);
   const W = 520;
   const H = 150;
-  const pad = { top: 18, right: 24, bottom: 26, left: 44 };
+  const pad = { top: 18, right: 24, bottom: 34, left: 54 }; // P1505: room between the lowest y label and the first tenor label
   const svg = doc.createElementNS(SVG, 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('class', 'rates-curve');
@@ -413,10 +427,12 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     const read = buildMacroRead({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null, regime: regime.available ? regime : null, history: root._aioHistory || [] });
     const byId = Object.fromEntries(read.axes.map((row) => [row.id, row]));
     const fxAxis = regime.available ? regime.axes.find((row) => row.id === 'korea') : null;
-    const rows = [byId.policy, byId.rates, byId.commodities, byId.credit, fxAxis && { ...fxAxis, shared: true, gauge: read.sharedGauges?.korea?.gauge || null, headline: read.sharedGauges?.korea?.headline || null, link: '원화가 약해지면 외국인이 한국 주식을 팔 유인이 커지고 수입 물가가 오릅니다. 엔화가 짧은 기간에 급등하면 엔으로 빌려 투자한 자금(엔 캐리)이 청산되며 전 세계 위험자산이 함께 흔들릴 수 있습니다.' }].filter(Boolean);
+    // P1505: only the FX axis is unique to this tab; the other four are on the 거시 경제 six-axis board.
+    void byId;
+    const rows = [fxAxis && { ...fxAxis, shared: true, gauge: read.sharedGauges?.korea?.gauge || null, headline: read.sharedGauges?.korea?.headline || null, link: '원화가 약해지면 외국인이 한국 주식을 팔 유인이 커지고 수입 물가가 오릅니다. 엔화가 짧은 기간에 급등하면 엔으로 빌려 투자한 자금(엔 캐리)이 청산되며 전 세계 위험자산이 함께 흔들릴 수 있습니다.' }].filter(Boolean);
     axesHost.replaceChildren(...rows.map((row) => axisCard(doc, row)));
   }
-  set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준 · 국채 금리는 ${t.asOf ? `${shortDate(t.asOf)} ` : ''}미 재무부 공식 고시` : '종가 기록을 불러오는 중입니다.');
+  set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준 · 국채 금리 ${t.asOf ? `${shortDate(t.asOf)} ` : ''}공식 고시 기준` : '종가 기록을 불러오는 중입니다.');
 
   // 1. Treasury curve
   const yieldRow = doc.getElementById('rates-yields');
@@ -444,7 +460,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   const t10y3m = seriesOf(root._aioMacroHistory, 't10y3m');
   const last3m = t10y3m[t10y3m.length - 1] || null;
   const spread3m = doc.getElementById('rates-spread-3m');
-  if (spread3m) spread3m.textContent = last3m ? `10년–3개월 금리차 ${signed(last3m.value, 2, '%p')} (${shortDate(last3m.date)}, FRED T10Y3M — 뉴욕 연준 경기침체 확률 모형이 쓰는 금리차)` : '';
+  if (spread3m) spread3m.textContent = last3m ? `10년–3개월 금리차 ${signed(last3m.value, 2, '%p')} (${shortDate(last3m.date)} — 뉴욕 연준 경기침체 확률 모형이 쓰는 금리차)` : '';
   const reading = doc.getElementById('rates-curve-reading');
   if (reading) reading.replaceChildren(...(t.reading ? [el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${t.reading}`)] : []));
 

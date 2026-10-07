@@ -1362,7 +1362,7 @@ var _TG_PAGE_CFG = {
 var _TG_CAT_MAP = {
   'kr-market':  { label:'한국장',     cls:'tg-cat-kr'     },
   'semi':       { label:'반도체',     cls:'tg-cat-semi'   },
-  'credit':     { label:'자금조달',   cls:'tg-cat-macro'  },
+  'credit':     { label:'신용·자금',  cls:'tg-cat-macro'  },
   'macro':      { label:'매크로',     cls:'tg-cat-macro'  },
   'geo':        { label:'지정학',     cls:'tg-cat-geo'    },
   'ai-policy':  { label:'AI정책',     cls:'tg-cat-ai'     },
@@ -1378,10 +1378,11 @@ _TG_CAT_MAP.japan = { label:'일본', cls:'tg-cat-macro' };
 _TG_CAT_MAP.flows = { label:'수급', cls:'tg-cat-macro' };
 _TG_CAT_MAP.insider = { label:'내부자', cls:'tg-cat-equity' };
 var _TG_CH_SRC = {
-  aetherjapanresearch: 'Aether·JP',
-  insidertracking:     'Insider·US',
-  bornlupin:           'BornLupin·KR',
-  HANAchina:           'HANA·China/EM',
+  // P1503: the channel's own handle plus its coverage, so a reader can find and judge the original.
+  aetherjapanresearch: '@aetherjapanresearch · 일본·아시아 반도체',
+  insidertracking:     '@insidertracking · 미국 속보',
+  bornlupin:           '@bornlupin · 한국 반도체·증권사 자료',
+  HANAchina:           '@HANAchina · 중국·신흥국',
 };
 var _TG_KR_NAME = {
   '005930.KS':'삼성전자','000660.KS':'SK하이닉스','009150.KS':'삼성전기',
@@ -1409,7 +1410,10 @@ function _aioProcessTelegramItem(it) {
   if (it.score && it.score < 45) sent = 'neutral';
 
   // 2) 1차 카테고리
-  var primaryTag = (it.tags || ['market-note'])[0];
+  // P1503: the card label is the most specific tag, not the first matched — a revenue note matched credit,
+  // macro and earnings in that order and read as 자금조달.
+  var _tgTags = it.tags || ['market-note'];
+  var primaryTag = ['earnings','insider','semi','optical','power','healthcare','ai-policy','crypto','kr-market','japan','credit','geo','flows','equity','macro','market-note'].find(function(t) { return _tgTags.indexOf(t) >= 0; }) || _tgTags[0] || 'market-note';
   var cat = _TG_CAT_MAP[primaryTag] || { label: primaryTag, cls: 'tg-cat-other' };
 
   // 3) 헤드라인 추출: 첫 의미 있는 문장(개행·대시 기준, ≥10자)
@@ -1478,7 +1482,9 @@ function _aioRenderTelegramFeedHtml(pageId) {
         ? window.AIO.normalizeExternalSourceState({ status: state, count: count, expected: expected })
         : { status: state, label: state === 'success' ? '정상 수신' : '외부 수집 실패', allowedUse: state === 'success' ? 'decision' : 'none' };
       var cls = n.status === 'success' ? 'is-ok' : n.status === 'partial' ? 'is-partial' : 'is-fail';
-      var note = n.status === 'success' ? '서버 수집 자료 · 관측 기간 확인' : n.status === 'partial' ? '표시 자료 일부 · 참고용' : '표시 가능한 서버 자료 없음';
+      // P1503: say what the reader is looking at — public channels, a completed 24-hour window, a link per post.
+      var _tgChannels = (window.AIO_TELEGRAM_WEEKLY_DIGEST && Array.isArray(window.AIO_TELEGRAM_WEEKLY_DIGEST.channels) && window.AIO_TELEGRAM_WEEKLY_DIGEST.channels.length) || 4;
+      var note = n.status === 'success' ? '텔레그램 공개 채널 ' + _tgChannels + '곳 · 완료된 24시간 · 글마다 원문 링크' : n.status === 'partial' ? '조건에 맞는 글 일부만 표시 · 참고용' : '완료된 24시간 안에 표시할 글 없음';
       return '<div class="tg-source-state ' + cls + '" data-external-source="telegram:' + escHtml(pageId) + '" data-state="' + n.status + '" title="' + escHtml(note) + '">' +
         '<span class="tg-source-state-dot"></span>' + escHtml(n.label) + ' · ' + escHtml(note) + '</div>';
     };
@@ -1913,11 +1919,11 @@ var SCR_KEYWORD_ALIASES = {
 
 // ARX-10: native screener owns controls, table, factor panel, and backtest DOM.
 var AIO_TRADER_PROFILES = {
-  balanced: { label:'⚖ 균형', desc:'레짐 기반 자동 가중 (권장)', weights:null },
-  momentum: { label:'🚀 모멘텀', desc:'단기 추세 추종 · 1~4주 보유', weights:{momentum:0.40,trend:0.25,lowvol:0.08,size:0.05,value:0.06,quality:0.06,kalman:0.10} },
-  swing: { label:'📈 스윙', desc:'중기 기술적 매매 · 2~8주 보유', weights:{momentum:0.30,trend:0.28,lowvol:0.12,size:0.07,value:0.07,quality:0.07,kalman:0.09} },
-  value: { label:'💎 가치', desc:'저평가 장기 투자 · 3~12개월 보유', weights:{momentum:0.12,trend:0.15,lowvol:0.15,size:0.08,value:0.30,quality:0.15,kalman:0.05} },
-  lowrisk: { label:'🛡 저리스크', desc:'방어적 저변동 우선 · 하락방어 포커스', weights:{momentum:0.10,trend:0.15,lowvol:0.38,size:0.05,value:0.12,quality:0.15,kalman:0.05} }
+  balanced: { label:'균형', desc:'레짐 기반 자동 가중 (권장)', weights:null },
+  momentum: { label:'모멘텀', desc:'단기 추세 추종 · 1~4주 보유', weights:{momentum:0.40,trend:0.25,lowvol:0.08,size:0.05,value:0.06,quality:0.06,kalman:0.10} },
+  swing: { label:'스윙', desc:'중기 기술적 매매 · 2~8주 보유', weights:{momentum:0.30,trend:0.28,lowvol:0.12,size:0.07,value:0.07,quality:0.07,kalman:0.09} },
+  value: { label:'가치', desc:'저평가 장기 투자 · 3~12개월 보유', weights:{momentum:0.12,trend:0.15,lowvol:0.15,size:0.08,value:0.30,quality:0.15,kalman:0.05} },
+  lowrisk: { label:'저리스크', desc:'방어적 저변동 우선 · 하락방어 포커스', weights:{momentum:0.10,trend:0.15,lowvol:0.38,size:0.05,value:0.12,quality:0.15,kalman:0.05} }
 };
 window.AIO_TRADER_PROFILES = AIO_TRADER_PROFILES;
 window._aioGetActiveProfile = function() {
@@ -2054,9 +2060,9 @@ function switchThemeMode(mode) {
 
 // ── Country flag mapping ────────────────────────────────────────
 const COUNTRY_FLAG = {
-  us: '🇺🇸', kr: '', asia: '', eu: '🇪🇺',
-  jp: '🇯🇵', cn: '🇨🇳', tw: '🇹🇼', sg: '🇸🇬',
-  gb: '🇬🇧', de: '🇩🇪', fr: '🇫🇷', au: '🇦🇺',
+  us: '', kr: '', asia: '', eu: '',
+  jp: '', cn: '', tw: '', sg: '',
+  gb: '', de: '', fr: '', au: '',
 };
 function getCountryFlag(country) {
   return COUNTRY_FLAG[country] || COUNTRY_FLAG[(country||'').toLowerCase()] || '';
@@ -4921,7 +4927,7 @@ function updateDataStatus() {
 
   // 프록시 stale 캐시 사용 중 표시
   const proxyStale = window._aioProxyStaleSince
-    ? ' · <span style="color:#f59e0b;">⚠ stale ' + (window._aioProxyStaleAgeMin || '?') + '분</span>'
+    ? ' · <span style="color:#f59e0b;">stale ' + (window._aioProxyStaleAgeMin || '?') + '분</span>'
     : '';
 
   // SW 버전 툴팁용 — 비동기 쿼리이므로 마지막으로 수신한 값 캐시
@@ -6273,7 +6279,7 @@ function _aioCheckManualFieldStaleness() {
       pill.className = 'stale-manual-pill';
       pill.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;cursor:default;';
       pill.title = r.label + ' — 마지막 업데이트 ' + r.date + ' (' + r.days + '일 경과). 정책 발표/공식 소스 확인 후 갱신됩니다.';
-      pill.textContent = '⏰ ' + r.label + ' ' + r.days + '일 경과';
+      pill.textContent = '' + r.label + ' ' + r.days + '일 경과';
       bar.appendChild(pill);
     });
     bar.style.display = 'flex';
@@ -6296,7 +6302,7 @@ function _aioUpdatePipelineStatusToggle() {
     if (count === 0) { toggle.style.display = 'none'; return; }
     bar.style.display = 'flex';
     toggle.style.display = 'block';
-    summary.textContent = '⚠ 주의 항목 ' + count + '건';
+    summary.textContent = '주의 항목 ' + count + '건';
   } catch (_e) {}
 }
 window._aioUpdatePipelineStatusToggle = _aioUpdatePipelineStatusToggle;
@@ -6510,15 +6516,15 @@ function _aioRenderServerDataAge() {
             + ' ' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' KST';
     var txt, cls, title;
     if (meta.marketCyclePublished !== true) {
-      txt = '🟠 ' + kst + ' 시도';
+      txt = '' + kst + ' 시도';
       cls = 'fb-static';
       title = '최근 서버 시도는 시장 스냅샷으로 발행되지 않았습니다. 현재 시세는 마지막 성공본(LKG) 참고자료일 수 있습니다.\n'
         + kst + ' | cycle=' + (meta.cycleStatus || 'unknown');
-    } else if (age < 60)       { txt = '🟢 ' + kst + ' 갱신'; cls = 'fb-live';   title = '서버(GitHub Actions)가 ' + age + '분 전 수집한 데이터 — 신선\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
-    else if (age < 180) { txt = '🟡 ' + kst + ' 갱신'; cls = 'fb-static'; title = '서버 데이터 ' + age + '분 경과 (자동 갱신 대기)\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
+    } else if (age < 60)       { txt = '' + kst + ' 갱신'; cls = 'fb-live';   title = '서버(GitHub Actions)가 ' + age + '분 전 수집한 데이터 — 신선\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
+    else if (age < 180) { txt = '' + kst + ' 갱신'; cls = 'fb-static'; title = '서버 데이터 ' + age + '분 경과 (자동 갱신 대기)\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
     else {
       var h = Math.floor(age / 60);
-      txt = '🔴 ' + kst + ' (' + h + 'h 전)'; cls = 'fb-stale';
+      txt = '' + kst + ' (' + h + 'h 전)'; cls = 'fb-stale';
       title = '서버 데이터 ' + h + '시간 경과 — GitHub Actions cron이 지연/중단됐을 수 있음\n' + kst;
     }
     el.textContent = txt;
@@ -6542,26 +6548,26 @@ function _aioRenderPipelineStatus() {
 
     var msgs = [];
     if (meta.marketCyclePublished !== true) {
-      msgs.push({ icon: '⚠️', text: '시장 스냅샷 미발행', detail: '최근 refresh 시도는 완전한 시장 cycle로 발행되지 않았습니다. 현재 시세는 마지막 성공본 참고자료입니다.', color: '#ef4444' });
+      msgs.push({ icon: '', text: '시장 스냅샷 미발행', detail: '최근 refresh 시도는 완전한 시장 cycle로 발행되지 않았습니다. 현재 시세는 마지막 성공본 참고자료입니다.', color: '#ef4444' });
     }
     if (meta.marketAnalysisOk === false) {
-      msgs.push({ icon: '🤖', text: 'AI 시장 분석 비활성', detail: '운영자의 공용 AI 연결 설정 후 자동 분석을 사용할 수 있습니다.', color: '#f59e0b' });
+      msgs.push({ icon: '', text: 'AI 시장 분석 비활성', detail: '운영자의 공용 AI 연결 설정 후 자동 분석을 사용할 수 있습니다.', color: '#f59e0b' });
     }
     if (meta.fmpHasKey && meta.fmpOk === false && (meta.fundamentalCoveragePct == null || Number(meta.fundamentalCoveragePct) < 80)) {
       var coverageValue = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
       var coverageLabel = isFinite(coverageValue) ? coverageValue.toFixed(1) + '%' : '미확인';
       var fmpDetail = '유료 FMP는 사용하지 않음 · 무료 SEC companyfacts 누적 커버리지 ' + coverageLabel;
-      msgs.push({ icon: '📊', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#ef4444' });
+      msgs.push({ icon: '', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#ef4444' });
     }
     var screenerUniverse = window._aioServerScreener || {};
     if (screenerUniverse.universeFreshnessStatus === 'stale') {
       msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#f59e0b' });
     }
     if (!meta.fredHasKey) {
-      msgs.push({ icon: '🏦', text: 'FRED 매크로 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화 (클라이언트 키로 대체 가능)', color: '#94a3b8' });
+      msgs.push({ icon: '', text: 'FRED 매크로 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화 (클라이언트 키로 대체 가능)', color: '#94a3b8' });
     }
     if (meta.fredHasKey && meta.fredFetchOk === false) {
-      msgs.push({ icon: '🏦', text: 'FRED 매크로 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
+      msgs.push({ icon: '', text: 'FRED 매크로 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
     }
 
     var reconciliation = meta.reconciliation || null;
@@ -6602,7 +6608,7 @@ function _aioRenderPipelineStatus() {
         scrFmpEl.style.display = 'inline-flex';
         if (scrFmpReason) {
           var noKeyCoverage = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
-          scrFmpReason.textContent = isFinite(noKeyCoverage) ? (noKeyCoverage >= 80 ? '무료 SEC 재무 팩터 사용' : '무료 SEC 재무 데이터 누적 중 (가격 팩터 모드)') : '무료 SEC 재무 커버리지 미확인 (가격 팩터 모드)';
+          scrFmpReason.textContent = isFinite(noKeyCoverage) ? (noKeyCoverage >= 80 ? '재무 팩터 포함' : '재무 데이터 누적 중 · 가격 팩터로 순위 계산') : '재무 데이터 범위 확인 중 · 가격 팩터로 순위 계산';
         }
       } else {
         scrFmpEl.style.display = 'none';
@@ -7063,7 +7069,7 @@ const AIO_NEWS_SOURCES = [
   // v31.8: 미국 시장 중점 — 주요 외신 대폭 확장 (US 40+ 소스)
   // ═══════════════════════════════════════════════════════════════════
 
-  // ═══ TIER 1: 🇺🇸 미국 주요 외신 (탑티어 — 최우선 노출) ═══
+  // ═══ TIER 1: 미국 주요 외신 (탑티어 — 최우선 노출) ═══
   {name:'Reuters Markets',     url:'https://rsshub.app/reuters/market',                           country:'us', tier:1, flag:'US', topics:['macro','equity']},
   {name:'CNBC Top News',       url:'https://www.cnbc.com/id/100003114/device/rss/rss.html',       country:'us', tier:1, flag:'US', topics:['macro','equity']},
   {name:'CNBC Investing',      url:'https://www.cnbc.com/id/15839069/device/rss/rss.html',        country:'us', tier:1, flag:'US', topics:['equity','earnings']},
@@ -7102,7 +7108,7 @@ const AIO_NEWS_SOURCES = [
   {name:'TG FirstSquawk',           url:'https://rsshub.app/telegram/channel/firstsquawk',           country:'us', tier:1, flag:'TG', topics:['macro','geo','energy','defense'],  type:'telegram', tgSlug:'firstsquawk'},
   {name:'TG FinancialJuice',        url:'https://rsshub.app/telegram/channel/financialjuicechannel', country:'us', tier:1, flag:'TG', topics:['macro','geo','energy'],            type:'telegram', tgSlug:'financialjuicechannel'},
 
-  // ═══ TIER 2: 🇺🇸 미국 투자/분석 전문 ═══
+  // ═══ TIER 2: 미국 투자/분석 전문 ═══
   {name:'Forbes Business',     url:'https://www.forbes.com/business/feed/',                       country:'us', tier:2, flag:'US', topics:['equity','macro']},
   {name:'Business Insider',    url:'https://markets.businessinsider.com/rss/news',                country:'us', tier:2, flag:'US', topics:['equity','macro']},
   {name:'Morningstar',         url:'https://www.morningstar.com/feeds/rss',                       country:'us', tier:2, flag:'US', topics:['equity','earnings']},
@@ -7156,7 +7162,7 @@ const AIO_NEWS_SOURCES = [
   // ═══ TIER 2: 아시아 외신 ═══
   {name:'Nikkei Asia',         url:'https://asia.nikkei.com/rss/feed/nar',                        country:'jp', tier:2, flag:'JP', topics:['macro','equity']},
   {name:'SCMP',                url:'https://www.scmp.com/rss/1/feed',                             country:'cn', tier:2, flag:'CN', topics:['macro','geo']},
-  {name:'Channel News Asia',   url:'https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511', country:'sg', tier:2, flag:'🇸🇬', topics:['macro']},
+  {name:'Channel News Asia',   url:'https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511', country:'sg', tier:2, flag:'', topics:['macro']},
 
   // ═══ TIER 1:  한국어 핵심 뉴스 (v34.6: tier 1로 승격 — 한국 시장 강화) ═══
   {name:'연합뉴스 경제',         url:'https://www.yna.co.kr/rss/economy.xml',                      country:'kr', tier:1, flag:'KR', topics:['macro','equity']},
@@ -7197,8 +7203,15 @@ window._aioUpdateNewsSourceMeta = _aioUpdateNewsSourceMeta;
 _aioUpdateNewsSourceMeta();
 
 // ── Global HTML escape ─────────────────────────────────────────
+// P1500 (owner 2026-10-06): no emoji or pictographs on screen. External text (headlines, the telegram
+// digest, AI answers) can carry them, so every escaped string drops them; arrows ↔ ↗ ↙ ▶ ◀ stay.
+var _AIO_PICTOGRAPH_RE = /(?:\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}])(?:️|⃣|‍\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}])*[  ]?/gu;
+function _aioStripPictographs(s) {
+  return String(s).replace(_AIO_PICTOGRAPH_RE, function(m) { return /^[↔↗↙▶◀]/u.test(m) ? m : ''; });
+}
+window._aioStripPictographs = _aioStripPictographs;
 function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return (typeof _aioStripPictographs === 'function' ? _aioStripPictographs(s) : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 // ── URL sanitizer (XSS: javascript:/data: protocol block) ─────
 function escUrl(url) {
@@ -10158,7 +10171,7 @@ function _aioRenderNewsKoreanRewriteBrief(items, targetId) {
       return '<div style="font-size:11px;line-height:1.58;color:var(--text-secondary);margin:3px 0;">· ' + escHtml(row.bullet) + '</div>';
     }).join('');
     return '<div style="padding:10px 12px;border-top:1px solid var(--border);">' +
-      '<div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">📍' + escHtml(sec.label) + '</div>' +
+      '<div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">' + escHtml(sec.label) + '</div>' +
       bullets +
       '</div>';
   }).join('');
@@ -10249,7 +10262,7 @@ function _aioRenderTgDigestBrief(targetId) {
 
   allSections.forEach(function(sec) {
     html += '<div style="padding:9px 12px;border-top:1px solid var(--border);">';
-    html += '<div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:5px;">📍 ' + escHtml(sec.label) + '</div>';
+    html += '<div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:5px;">' + escHtml(sec.label) + '</div>';
     sec.bullets.forEach(function(bullet) {
       html += '<div style="font-size:11px;line-height:1.62;color:var(--text-secondary);margin:3px 0 3px 6px;padding-left:8px;border-left:2px solid var(--border);">· ' + escHtml(bullet) + '</div>';
     });
@@ -10727,18 +10740,25 @@ function localEnrichSingle(item) {
 }
 
 /* ── v30.12: 뉴스 표시 텍스트 (한국어 우선 + 해석 + 티커 + 실패 표시) ─── */
+// P1504: Google News titles end with " - Source"; the source is printed beside the title already.
+function _aioTitleWithoutSource(item, text) {
+  var title = String(text != null ? text : (item && item.title) || '');
+  var src = String(item && item.source || '').trim();
+  return src && title.slice(-(src.length + 3)) === ' - ' + src ? title.slice(0, -(src.length + 3)).trim() : title;
+}
+window._aioTitleWithoutSource = _aioTitleWithoutSource;
 function getDisplayTitle(item) {
   item = item || {};
   if (_translationCache.has(_tcKey(item.title))) {
     var cached = _translationCache.get(_tcKey(item.title));
     // P1391: no translation → the original headline, never a generated '매크로 · Reuters 기사 · 중요도 48' line
-    if (cached._failed || !cached.ko_title || !isKoreanText(cached.ko_title)) return item.title || '';
-    return cached.ko_title;
+    if (cached._failed || !cached.ko_title || !isKoreanText(cached.ko_title)) return _aioTitleWithoutSource(item);
+    return _aioTitleWithoutSource(item, cached.ko_title);
   }
-  if (item.ko_title && isKoreanText(item.ko_title)) return item.ko_title;
+  if (item.ko_title && isKoreanText(item.ko_title)) return _aioTitleWithoutSource(item, item.ko_title);
   // P1391 (owner review 2026-10-02): an untranslated foreign headline is shown as written; the
   // generated category sentence (v51.81) carried no information and hid the actual story.
-  return item.title || '';
+  return _aioTitleWithoutSource(item);
 }
 function getDisplayDesc(item) {
   item = item || {};
@@ -11534,11 +11554,11 @@ function renderHomeFeed(items) {
         var sentIcon = headlineOnly ? '' : sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
         var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
         // P1380: a real translation of the headline may be shown; without one keep the original headline (never a generated fallback sentence).
-        var koTitle = ''; try { var tc = _translationCache.has(_tcKey(item.title)) ? _translationCache.get(_tcKey(item.title)) : null; var kt = (tc && !tc._failed && tc.ko_title) || item.ko_title; koTitle = kt && isKoreanText(kt) ? kt : ''; } catch (_) { koTitle = item.ko_title && /[가-힣]/.test(item.ko_title) ? item.ko_title : ''; }
-        var displayTitle = escHtml(headlineOnly ? (koTitle || item.title || '제목 없음') : getDisplayTitle(item));
+        var koTitle = ''; try { var tc = _translationCache.has(_tcKey(item.title)) ? _translationCache.get(_tcKey(item.title)) : null; var kt = (tc && !tc._failed && tc.ko_title) || item.ko_title; koTitle = kt && isKoreanText(kt) ? (typeof _aioTitleWithoutSource === 'function' ? _aioTitleWithoutSource(item, kt) : kt) : ''; } catch (_) { koTitle = item.ko_title && /[가-힣]/.test(item.ko_title) ? item.ko_title : ''; }
+        var displayTitle = escHtml(headlineOnly ? (koTitle || (typeof _aioTitleWithoutSource === 'function' ? _aioTitleWithoutSource(item) : item.title) || '제목 없음') : getDisplayTitle(item));
         var articleUrl = escUrl(item.link || '');
         var titleMarkup = headlineOnly && articleUrl
-          ? '<a href="' + escHtml(articleUrl) + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;min-height:24px;line-height:1.4;" aria-label="' + displayTitle + ' — 원문 새 창에서 열기">' + displayTitle + '</a>'
+          ? '<a href="' + escHtml(articleUrl) + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;min-height:24px;line-height:1.4;color:inherit;text-decoration:none;" aria-label="' + displayTitle + ' — 원문 새 창에서 열기">' + displayTitle + '</a>'
           : displayTitle;
         var displaySummary = headlineOnly ? '' : escHtml(getDisplaySummary(item));
         var earn = null; try { if (window._aioEarningsSnapshot === undefined && typeof _fetchEarningsCalendarSnapshot === 'function') { window._aioEarningsSnapshot = null; _fetchEarningsCalendarSnapshot().then(function(snap) { window._aioEarningsSnapshot = snap || false; if (snap) renderHomeFeed(items); }); } if (window._aioEarningsSnapshot && window._aioEarningsContext) { if (!window._aioSymNames) { window._aioSymNames = {}; (typeof SCREENER_DB !== 'undefined' ? SCREENER_DB : []).forEach(function(r) { if (r && r.sym) window._aioSymNames[r.sym] = r.name; }); } earn = window._aioEarningsContext(item.title, { earnings: window._aioEarningsSnapshot.earnings, names: window._aioSymNames }); } } catch (_) { earn = null; } // P1382
@@ -15754,10 +15774,10 @@ function refreshHomeDashboard() {
 
     // 홈 상단 리스크 뱃지 동적 업데이트 — ATH 거리 참고 관측이며 추세 모델이 아니다.
     if (riskBadgeEl) {
-      if (regime === 'DOWNTREND') { riskBadgeEl.textContent = '고점 대비 -20% 이상 · 참고 관측'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
-      else if (regime === 'CORRECTION') { riskBadgeEl.textContent = '고점 대비 -10% 이상 · 참고 관측'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
-      else if (regime === 'PULLBACK') { riskBadgeEl.textContent = '고점 대비 -5% 이상 · 참고 관측'; riskBadgeEl.className = 'status-pill sp-neutral'; }
-      else { riskBadgeEl.textContent = '고점 대비 ' + (pctFromATH >= -0.5 ? '근접' : pctFromATH.toFixed(1) + '%') + ' · 참고 관측'; riskBadgeEl.className = 'status-pill sp-neutral'; }
+      if (regime === 'DOWNTREND') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −20% 이하'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
+      else if (regime === 'CORRECTION') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −10% 이하'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
+      else if (regime === 'PULLBACK') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −5% 이하'; riskBadgeEl.className = 'status-pill sp-neutral'; }
+      else { riskBadgeEl.textContent = 'S&P 500 ' + (pctFromATH >= -0.5 ? '사상 최고치 부근' : '고점 대비 ' + pctFromATH.toFixed(1) + '%'); /* P1506: name the index */ riskBadgeEl.className = 'status-pill sp-neutral'; }
     }
   }
 
@@ -15768,7 +15788,7 @@ function refreshHomeDashboard() {
     const vp = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
     vixValueEl.textContent = _homeFixed(vp, 2, '—');
     const vixLabel = vp == null ? '—' : (vp >= 32 ? '패닉' : vp >= 25 ? '경계' : vp >= 18 ? '보통' : '안정'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
-    const vixCol = vp == null ? '#7b8599' : (vp >= 32 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 18 ? 'var(--text-secondary)' : '#00e5a0');
+    const vixCol = vp == null ? 'var(--text-muted)' : (vp >= 32 ? 'var(--data-red)' : vp >= 25 ? 'var(--data-amber)' : vp >= 18 ? 'var(--text-secondary)' : 'var(--data-green)'); // P1499: theme tokens, not the retired neon palette
     vixValueEl.style.color = vixCol;
     if (vixStatusEl) vixStatusEl.textContent = vixLabel;
   }

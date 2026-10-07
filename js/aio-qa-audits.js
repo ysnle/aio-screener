@@ -1361,7 +1361,7 @@ window.AIO.assertMemoCoverageAudit = function() {
 // ─────────────────────────────────────────────────────────────────
 // v49.75 P401 R149: assertFetchFailureSurfacingAudit — 17 fetch 실패 silent 검증
 // 사용자 정직 발견 — NVDA Yahoo fetch 실패 silent (R122 4단계 폴백 있어도 사용자 인지 어려움).
-// Pattern C 일반화: _fetchTickerDataForChat의 17 promise 각각 실패 시 ❌ 라벨 명시 검증.
+// Pattern C 일반화: _fetchTickerDataForChat의 17 promise 각각 실패 시 라벨 명시 검증.
 // ─────────────────────────────────────────────────────────────────
 window.AIO.assertFetchFailureSurfacingAudit = function() {
   var src = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
@@ -1380,7 +1380,7 @@ window.AIO.assertFetchFailureSurfacingAudit = function() {
   });
   var promiseTotal = perFetch.filter(function(p){ return p.hasPromise; }).length;
   var hasFailureSurfaceFn = typeof window._aioRenderFetchFailures === 'function';
-  var hasUserVisibleFailLabel = src.indexOf('❌') >= 0 || src.indexOf('실패') >= 0;
+  var hasUserVisibleFailLabel = src.indexOf('실패') >= 0;
   return {
     status: promiseTotal >= 14 && hasUserVisibleFailLabel ? 'ok' : promiseTotal >= 10 ? 'warn' : 'fail',
     totalExpectedFetches: keyFetches.length,
@@ -1523,7 +1523,7 @@ window.AIO.getChatContextConsistencyAudit = function() {
     // Bull/Base/Bear 시나리오 패턴 (system prompt 자체에 시나리오 가이드 명시 여부)
     scenarioHits[id] = /Bull.*Base.*Bear|시나리오.*분기|시나리오.*확률/i.test(scan);
     // 시각 단서 표준 (이모지 사용 여부)
-    visualCueHits[id] = /🔴|🟡|🟢|📈|📉|red|yellow|green/i.test(scan);
+    visualCueHits[id] = /\[위험\]|\[주의\]|\[안정\]|red|yellow|green/i.test(scan);
     // 출처 타임스탬프 (기준일/snapshot date)
     srcStampHits[id] = /기준|snapshot|asOfDate|sourceTs|\[Source|Source:/i.test(scan);
   });
@@ -1538,7 +1538,7 @@ window.AIO.getChatContextConsistencyAudit = function() {
   var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
   var chatHasMktHeader = chatFn.indexOf('현재 시장 환경') >= 0;
   var chatHasScenarioGuide = /Bull.*Base.*Bear|Bull \(.*%\)/.test(chatFn);
-  var chatHasVisualCue = /🔴|🟡|🟢/.test(chatFn);
+  var chatHasVisualCue = /\[위험\]|\[주의\]|\[안정\]/.test(chatFn); // P1500
   var chatHasSrcStamp = chatFn.indexOf('기준일') >= 0;
   var chatHasInstFw = chatFn.indexOf('기관급') >= 0 || chatFn.indexOf('Bridgewater') >= 0 || chatFn.indexOf('R126') >= 0;
   // 4. 종합 점수 (사용자 체감 기관급 퀄리티 0~100)
@@ -3282,18 +3282,18 @@ window._aioRenderAuditWidget = function() {
         if (entry) {
           var realPct = entry.totalEntries ? Math.round(entry.realEntries / entry.totalEntries * 100) : 0;
           var ok = entry.realEntries >= 380 && entry.placeholderCount <= 8;
-          var icon = ok ? '✓' : entry.realEntries >= 300 ? '⚠' : '✗';
+          var icon = ok ? '✓' : entry.realEntries >= 300 ? '!' : '✗';
           var color = ok ? 'var(--data-green)' : entry.realEntries >= 300 ? 'var(--data-amber)' : 'var(--data-red)';
           var aliasTxt = r ? ' · alias ' + r.coveragePct + '%' : '';
           regEl.innerHTML = '<span style="color:' + color + ';">' + icon + '</span> REGISTRY <b>' + entry.realEntries + '</b> real / ' + entry.totalEntries + ' total (' + realPct + '%)' + aliasTxt;
         } else if (r) {
-          var icon2 = r.coveragePct >= 80 ? '✓' : r.coveragePct >= 30 ? '⚠' : '✗';
+          var icon2 = r.coveragePct >= 80 ? '✓' : r.coveragePct >= 30 ? '!' : '✗';
           var color2 = r.coveragePct >= 80 ? 'var(--data-green)' : r.coveragePct >= 30 ? 'var(--data-amber)' : 'var(--data-red)';
           regEl.innerHTML = '<span style="color:' + color2 + ';">' + icon2 + '</span> ticker alias <b>' + r.registeredCount + '</b>/' + r.uniqueTickers + ' (' + r.coveragePct + '%)';
         } else {
           regEl.innerHTML = '<span style="color:var(--text-muted);">— ticker registry 미가용</span>';
         }
-      } catch(e) { regEl.textContent = '⚠ registry audit error'; }
+      } catch(e) { regEl.textContent = 'registry audit error'; }
     }
     // (2) web_search status
     var wsEl = container.querySelector('[data-audit-key="webSearch"]');
@@ -3301,13 +3301,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var ws = window.AIO && window.AIO.getWebSearchAudit && window.AIO.getWebSearchAudit();
         if (ws) {
-          var statusIcon = ws.enabled ? '🔍' : '⊘';
+          var statusIcon = ws.enabled ? '' : '⊘';
           var statusColor = ws.enabled ? 'var(--data-cyan)' : 'var(--text-muted)';
           wsEl.innerHTML = '<span style="color:' + statusColor + ';">' + statusIcon + '</span> web_search 설정 ' + (ws.enabled ? '<b>ON</b>' : 'OFF') + (ws.chatReadiness === 'SHARED_WORKER' || (window._aioLastClaudeRouteState && window._aioLastClaudeRouteState.reason === 'SHARED_WORKER') ? ' · 공유 Worker에서는 차단(P1353)' : '') + ' · 호출 ' + ws.calls + '회'; // P1369: a preference is not availability
         } else {
           wsEl.innerHTML = '<span style="color:var(--text-muted);">— web_search 미가용</span>';
         }
-      } catch(e) { wsEl.textContent = '⚠ web_search audit error'; }
+      } catch(e) { wsEl.textContent = 'web_search audit error'; }
     }
     // (3) Context freshness
     var fEl = container.querySelector('[data-audit-key="freshness"]');
@@ -3317,14 +3317,14 @@ window._aioRenderAuditWidget = function() {
         if (f) {
           var pct = f.freshnessPct != null ? f.freshnessPct : (f.totalContexts ? Math.round((f.totalContexts - (f.staleCount || 0)) / f.totalContexts * 100) : null);
           if (pct != null) {
-            var icon3 = pct >= 95 ? '✓' : pct >= 80 ? '⚠' : '✗';
+            var icon3 = pct >= 95 ? '✓' : pct >= 80 ? '!' : '✗';
             var color3 = pct >= 95 ? 'var(--data-green)' : pct >= 80 ? 'var(--data-amber)' : 'var(--data-red)';
             fEl.innerHTML = '<span style="color:' + color3 + ';">' + icon3 + '</span> 컨텍스트 신선도 <b>' + pct + '%</b>';
           } else if (typeof f.totalHits === 'number') {
             var activeHits = typeof f.currentHits === 'number' ? f.currentHits : f.totalHits;
             var archiveHits = typeof f.archiveHits === 'number' ? f.archiveHits : 0;
             var okFresh = activeHits === 0;
-            var icon3b = okFresh ? '✓' : '⚠';
+            var icon3b = okFresh ? '✓' : '!';
             var color3b = okFresh ? 'var(--data-green)' : 'var(--data-amber)';
             fEl.innerHTML = '<span style="color:' + color3b + ';">' + icon3b + '</span> 컨텍스트 current stale <b>' + activeHits + '</b>건' + (archiveHits ? ' · archive ref ' + archiveHits + '건' : '');
           } else {
@@ -3333,7 +3333,7 @@ window._aioRenderAuditWidget = function() {
         } else {
           fEl.innerHTML = '<span style="color:var(--text-muted);">— freshness audit 미가용</span>';
         }
-      } catch(e) { fEl.textContent = '⚠ freshness audit error'; }
+      } catch(e) { fEl.textContent = 'freshness audit error'; }
     }
     // (4) v49.59 P327 신규: CHAT_CONTEXTS 정합성 (auditAllChatContexts)
     var ccEl = container.querySelector('[data-audit-key="chatContexts"]');
@@ -3341,13 +3341,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var cc = window.AIO && window.AIO.auditAllChatContexts && window.AIO.auditAllChatContexts();
         if (cc) {
-          var icon4 = cc.status === 'ok' ? '✓' : cc.status === 'warn' ? '⚠' : '✗';
+          var icon4 = cc.status === 'ok' ? '✓' : cc.status === 'warn' ? '!' : '✗';
           var color4 = cc.status === 'ok' ? 'var(--data-green)' : cc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           ccEl.innerHTML = '<span style="color:' + color4 + ';">' + icon4 + '</span> 채팅 컨텍스트 <b>' + cc.validCount + '/' + cc.totalContexts + '</b> · 동적 ' + cc.dynamicCoveragePct + '%';
         } else {
           ccEl.innerHTML = '<span style="color:var(--text-muted);">— CHAT_CONTEXTS audit 미가용</span>';
         }
-      } catch(e) { ccEl.textContent = '⚠ chatContexts audit error'; }
+      } catch(e) { ccEl.textContent = 'chatContexts audit error'; }
     }
     // v49.65 P344 R116/R118: 5축 신규 — analysisFramework (17 관점 자동화 수준)
     var afEl = container.querySelector('[data-audit-key="analysisFramework"]');
@@ -3355,13 +3355,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var af = window.AIO && window.AIO.getAnalysisFrameworkCoverageAudit && window.AIO.getAnalysisFrameworkCoverageAudit();
         if (af) {
-          var icon5 = af.coveragePct >= 85 ? '✓' : af.coveragePct >= 60 ? '⚠' : '✗';
+          var icon5 = af.coveragePct >= 85 ? '✓' : af.coveragePct >= 60 ? '!' : '✗';
           var color5 = af.coveragePct >= 85 ? 'var(--data-green)' : af.coveragePct >= 60 ? 'var(--data-amber)' : 'var(--data-red)';
           afEl.innerHTML = '<span style="color:' + color5 + ';">' + icon5 + '</span> 분석 프레임워크 <b>' + af.implementedCount + '/' + af.totalCount + '</b> · ' + af.coveragePct + '% · 부분 ' + (af.partialCount || 0);
         } else {
           afEl.innerHTML = '<span style="color:var(--text-muted);">— framework audit 미가용</span>';
         }
-      } catch(e) { afEl.textContent = '⚠ analysisFramework audit error'; }
+      } catch(e) { afEl.textContent = 'analysisFramework audit error'; }
     }
     // v49.65 R119: 3대 본질 정렬 — 기관급/최신운영/초보직관 3축
     var essenceEl = container.querySelector('[data-audit-key="essence"]');
@@ -3369,13 +3369,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var es = window.AIO && window.AIO.getEssenceAlignmentAudit && window.AIO.getEssenceAlignmentAudit();
         if (es) {
-          var icon6 = es.status === 'ok' ? '✓' : es.status === 'warn' ? '⚠' : '✗';
+          var icon6 = es.status === 'ok' ? '✓' : es.status === 'warn' ? '!' : '✗';
           var color6 = es.status === 'ok' ? 'var(--data-green)' : es.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           essenceEl.innerHTML = '<span style="color:' + color6 + ';">' + icon6 + '</span> 3대 본질 <b>' + es.overallScore + '</b>점 · 기관 ' + es.goals.institutionalAllInOne.score + ' · 운영 ' + es.goals.accurateFreshAutoOps.score + ' · 직관 ' + es.goals.intuitiveBeginnerUse.score;
         } else {
           essenceEl.innerHTML = '<span style="color:var(--text-muted);">— essence audit 미가용</span>';
         }
-      } catch(e) { essenceEl.textContent = '⚠ essence audit error'; }
+      } catch(e) { essenceEl.textContent = 'essence audit error'; }
     }
     // v49.66 P351 R121: AI 채팅 함수 통합 — Dead code/Partial Integration/Silent Fail 자동 감지
     // v49.67 P358/R124: DOM-first full surface audit row.
@@ -3384,7 +3384,7 @@ window._aioRenderAuditWidget = function() {
       try {
         var fs = window.AIO && window.AIO.getFullSurfaceAudit && window.AIO.getFullSurfaceAudit();
         if (fs) {
-          var iconFs = fs.status === 'ok' ? '✓' : fs.status === 'warn' ? '⚠' : '✗';
+          var iconFs = fs.status === 'ok' ? '✓' : fs.status === 'warn' ? '!' : '✗';
           var colorFs = fs.status === 'ok' ? 'var(--data-green)' : fs.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           fsEl.title = fs.issueCount ? fs.issues.slice(0, 3).join(' | ') : 'Full surface audit passed';
           fsEl.innerHTML = '<span style="color:' + colorFs + ';">' + iconFs + '</span> full surface <b>' + fs.pageCount + '</b>p+' + (fs.totals.overlays || 0) + ' overlays · sections ' + fs.totals.sections + ' · sinks ' + fs.totals.dataSinks + ' · issues ' + fs.issueCount;
@@ -3398,7 +3398,7 @@ window._aioRenderAuditWidget = function() {
       try {
         var dr = window.AIO && window.AIO.getDeepReviewAudit && window.AIO.getDeepReviewAudit();
         if (dr) {
-          var iconDr = dr.status === 'ok' ? '✓' : dr.status === 'warn' ? '⚠' : '✗';
+          var iconDr = dr.status === 'ok' ? '✓' : dr.status === 'warn' ? '!' : '✗';
           var colorDr = dr.status === 'ok' ? 'var(--data-green)' : dr.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           var textTier = dr.tiers && dr.tiers.textMeaning ? dr.tiers.textMeaning : {};
           var intTier = dr.tiers && dr.tiers.interaction ? dr.tiers.interaction : {};
@@ -3431,7 +3431,7 @@ window._aioRenderAuditWidget = function() {
       try {
         var cfc = window.AIO && window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
         if (cfc) {
-          var icon7 = cfc.status === 'ok' ? '✓' : cfc.status === 'warn' ? '⚠' : '✗';
+          var icon7 = cfc.status === 'ok' ? '✓' : cfc.status === 'warn' ? '!' : '✗';
           var color7 = cfc.status === 'ok' ? 'var(--data-green)' : cfc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           var fnPart = '함수 <b>' + cfc.integratedFnCount + '/' + cfc.chatRelevantFnCount + '</b> (' + cfc.integrationPct + '%)';
           var ctxPart = '컨텍스트 ' + cfc.contextIntegrated + '/' + cfc.contextTotal + ' (' + cfc.contextIntegrationPct + '%)';
@@ -3440,7 +3440,7 @@ window._aioRenderAuditWidget = function() {
         } else {
           cfcEl.innerHTML = '<span style="color:var(--text-muted);">— chatFunctionCoverage audit 미가용</span>';
         }
-      } catch(e) { cfcEl.textContent = '⚠ chatFunctionCoverage error'; }
+      } catch(e) { cfcEl.textContent = 'chatFunctionCoverage error'; }
     }
     // v49.67 P355 R122: 시세 fetch 건강도 — REGISTRY 카테고리별 _liveData hit 비율 + chatTickerCache 통계
     var tfhEl = container.querySelector('[data-audit-key="tickerFetchHealth"]');
@@ -3448,7 +3448,7 @@ window._aioRenderAuditWidget = function() {
       try {
         var tfh = window.AIO && window.AIO.assertTickerFetchHealth && window.AIO.assertTickerFetchHealth();
         if (tfh) {
-          var icon8 = tfh.status === 'ok' ? '✓' : tfh.status === 'warn' ? '⚠' : '✗';
+          var icon8 = tfh.status === 'ok' ? '✓' : tfh.status === 'warn' ? '!' : '✗';
           var color8 = tfh.status === 'ok' ? 'var(--data-green)' : tfh.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           var usPct = tfh.byCategory && tfh.byCategory.us ? tfh.byCategory.us.coveragePct : '—';
           var krPct = tfh.byCategory && tfh.byCategory.kr ? tfh.byCategory.kr.coveragePct : '—';
@@ -3457,7 +3457,7 @@ window._aioRenderAuditWidget = function() {
         } else {
           tfhEl.innerHTML = '<span style="color:var(--text-muted);">— tickerFetchHealth audit 미가용</span>';
         }
-      } catch(e) { tfhEl.textContent = '⚠ tickerFetchHealth error'; }
+      } catch(e) { tfhEl.textContent = 'tickerFetchHealth error'; }
     }
     // v49.68 P362 R128: 14 CHAT_CONTEXTS 기관급 퀄리티 자동 진단 (사용자 "기관급 퀄리티 + 유기적 작동" 요구)
     var cccEl = container.querySelector('[data-audit-key="chatContextConsistency"]');
@@ -3465,13 +3465,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var ccc = window.AIO && window.AIO.getChatContextConsistencyAudit && window.AIO.getChatContextConsistencyAudit();
         if (ccc) {
-          var icon9 = ccc.status === 'ok' ? '✓' : ccc.status === 'warn' ? '⚠' : '✗';
+          var icon9 = ccc.status === 'ok' ? '✓' : ccc.status === 'warn' ? '!' : '✗';
           var color9 = ccc.status === 'ok' ? 'var(--data-green)' : ccc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           cccEl.innerHTML = '<span style="color:' + color9 + ';">' + icon9 + '</span> 프롬프트 구성 점검 <b>' + ccc.qualityScore + '/100</b> (규칙 문구 포함 여부 · 답변 품질 측정 아님) · 프레임 ' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total + ' · 시나리오 ' + (ccc.fetchChat.scenarioGuide ? '✓' : '✗') + ' · 시각 단서 ' + (ccc.fetchChat.visualCue ? '✓' : '✗');
         } else {
           cccEl.innerHTML = '<span style="color:var(--text-muted);">— chatContextConsistency audit 미가용</span>';
         }
-      } catch(e) { cccEl.textContent = '⚠ chatContextConsistency error'; }
+      } catch(e) { cccEl.textContent = 'chatContextConsistency error'; }
     }
     // v49.69 P370 R129~R131: AI 채팅 인터랙티브 기능 자동 진단 (후속 질문/자동 이동/시뮬레이션/fuzzy)
     var ciaEl = container.querySelector('[data-audit-key="chatInteractivity"]');
@@ -3479,13 +3479,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var cia = window.AIO && window.AIO.assertChatInteractivityAudit && window.AIO.assertChatInteractivityAudit();
         if (cia) {
-          var iconA = cia.status === 'ok' ? '✓' : cia.status === 'warn' ? '⚠' : '✗';
+          var iconA = cia.status === 'ok' ? '✓' : cia.status === 'warn' ? '!' : '✗';
           var colorA = cia.status === 'ok' ? 'var(--data-green)' : cia.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           ciaEl.innerHTML = '<span style="color:' + colorA + ';">' + iconA + '</span> 인터랙티브 <b>' + cia.coveragePct + '%</b> · 함수 ' + cia.fnCount + '/' + cia.fnTotal + ' · 통합 ' + cia.integCount + '/' + cia.integTotal;
         } else {
           ciaEl.innerHTML = '<span style="color:var(--text-muted);">— chatInteractivity audit 미가용</span>';
         }
-      } catch(e) { ciaEl.textContent = '⚠ chatInteractivity error'; }
+      } catch(e) { ciaEl.textContent = 'chatInteractivity error'; }
     }
     // v49.70 P375 R132~R134: AI 채팅 고급 기능 (사용자 프로필 + 알람 + 다운로드 + 금액 시뮬레이션)
     var cafEl = container.querySelector('[data-audit-key="chatAdvanced"]');
@@ -3493,15 +3493,15 @@ window._aioRenderAuditWidget = function() {
       try {
         var caf = window.AIO && window.AIO.assertChatAdvancedFeaturesAudit && window.AIO.assertChatAdvancedFeaturesAudit();
         if (caf) {
-          var iconB = caf.status === 'ok' ? '✓' : caf.status === 'warn' ? '⚠' : '✗';
+          var iconB = caf.status === 'ok' ? '✓' : caf.status === 'warn' ? '!' : '✗';
           var colorB = caf.status === 'ok' ? 'var(--data-green)' : caf.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          var alertStr = caf.activeAlerts > 0 ? ' · 🔔' + caf.activeAlerts : '';
-          var profileStr = caf.userProfileSet ? ' · 👤 ✓' : ' · 👤 default';
+          var alertStr = caf.activeAlerts > 0 ? ' · ' + caf.activeAlerts : '';
+          var profileStr = caf.userProfileSet ? ' · ✓' : ' · default';
           cafEl.innerHTML = '<span style="color:' + colorB + ';">' + iconB + '</span> 고급 기능 <b>' + caf.coveragePct + '%</b> · 함수 ' + caf.fnCount + '/' + caf.fnTotal + alertStr + profileStr;
         } else {
           cafEl.innerHTML = '<span style="color:var(--text-muted);">— chatAdvanced audit 미가용</span>';
         }
-      } catch(e) { cafEl.textContent = '⚠ chatAdvanced error'; }
+      } catch(e) { cafEl.textContent = 'chatAdvanced error'; }
     }
     // v49.71 P380 R135~R137: MEMO 커버리지 + 신선도 자동 진단 (사용자 정직 질의 4건 시정)
     var mcEl = container.querySelector('[data-audit-key="memoCoverage"]');
@@ -3509,14 +3509,14 @@ window._aioRenderAuditWidget = function() {
       try {
         var mc = window.AIO && window.AIO.assertMemoCoverageAudit && window.AIO.assertMemoCoverageAudit();
         if (mc) {
-          var iconC = mc.status === 'ok' ? '✓' : mc.status === 'warn' ? '⚠' : '✗';
+          var iconC = mc.status === 'ok' ? '✓' : mc.status === 'warn' ? '!' : '✗';
           var colorC = mc.status === 'ok' ? 'var(--data-green)' : mc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          var staleStr = mc.stalePct > 30 ? ' · 🔴 stale ' + mc.stalePct + '%' : mc.stalePct > 10 ? ' · 🟡 stale ' + mc.stalePct + '%' : ' · 🟢 신선';
+          var staleStr = mc.stalePct > 30 ? ' · stale ' + mc.stalePct + '%' : mc.stalePct > 10 ? ' · stale ' + mc.stalePct + '%' : ' · 신선';
           mcEl.innerHTML = '<span style="color:' + colorC + ';">' + iconC + '</span> MEMO <b>' + mc.withMemo + '/' + mc.totalRows + '</b> (' + mc.memoCoveragePct + '%)' + staleStr + ' · 통합 ' + (mc.chatIntegrated ? '✓' : '✗');
         } else {
           mcEl.innerHTML = '<span style="color:var(--text-muted);">— memoCoverage audit 미가용</span>';
         }
-      } catch(e) { mcEl.textContent = '⚠ memoCoverage error'; }
+      } catch(e) { mcEl.textContent = 'memoCoverage error'; }
     }
     // v49.72 P387 R138~R139: fundamental 7 차트 + 채팅 차트 보기 버튼 자동 진단
     var fcEl = container.querySelector('[data-audit-key="financialCharts"]');
@@ -3524,14 +3524,14 @@ window._aioRenderAuditWidget = function() {
       try {
         var fc = window.AIO && window.AIO.assertFinancialChartsAudit && window.AIO.assertFinancialChartsAudit();
         if (fc) {
-          var iconD = fc.status === 'ok' ? '✓' : fc.status === 'warn' ? '⚠' : '✗';
+          var iconD = fc.status === 'ok' ? '✓' : fc.status === 'warn' ? '!' : '✗';
           var colorD = fc.status === 'ok' ? 'var(--data-green)' : fc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           var cacheStr = fc.cacheSize > 0 ? ' · 캐시 ' + fc.cacheSize : '';
-          fcEl.innerHTML = '<span style="color:' + colorD + ';">' + iconD + '</span> 📊 차트 <b>' + fc.coveragePct + '%</b> · ' + fc.domCanvasFound + '/7 canvas' + cacheStr;
+          fcEl.innerHTML = '<span style="color:' + colorD + ';">' + iconD + '</span> 차트 <b>' + fc.coveragePct + '%</b> · ' + fc.domCanvasFound + '/7 canvas' + cacheStr;
         } else {
           fcEl.innerHTML = '<span style="color:var(--text-muted);">— financialCharts audit 미가용</span>';
         }
-      } catch(e) { fcEl.textContent = '⚠ financialCharts error'; }
+      } catch(e) { fcEl.textContent = 'financialCharts error'; }
     }
     // v49.73 P392 R140~R142: 답변 품질 3축 자동 진단 (현재성·정확성·직관성)
     var aqEl = container.querySelector('[data-audit-key="answerQuality"]');
@@ -3539,13 +3539,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var aq = window.AIO && window.AIO.assertChatAnswerQualityAudit && window.AIO.assertChatAnswerQualityAudit();
         if (aq) {
-          var iconE = aq.status === 'ok' ? '✓' : aq.status === 'warn' ? '⚠' : '✗';
+          var iconE = aq.status === 'ok' ? '✓' : aq.status === 'warn' ? '!' : '✗';
           var colorE = aq.status === 'ok' ? 'var(--data-green)' : aq.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          aqEl.innerHTML = '<span style="color:' + colorE + ';">' + iconE + '</span> 📋 답변 규칙 점검 <b>' + aq.overallScore + '점</b> (구조 기준 · 실제 답변 평가 아님) · 현재 ' + aq.freshness.score + ' · 정확 ' + aq.accuracy.score + ' · 직관 ' + aq.intuitiveness.score;
+          aqEl.innerHTML = '<span style="color:' + colorE + ';">' + iconE + '</span> 답변 규칙 점검 <b>' + aq.overallScore + '점</b> (구조 기준 · 실제 답변 평가 아님) · 현재 ' + aq.freshness.score + ' · 정확 ' + aq.accuracy.score + ' · 직관 ' + aq.intuitiveness.score;
         } else {
           aqEl.innerHTML = '<span style="color:var(--text-muted);">— answerQuality audit 미가용</span>';
         }
-      } catch(e) { aqEl.textContent = '⚠ answerQuality error'; }
+      } catch(e) { aqEl.textContent = 'answerQuality error'; }
     }
     // v49.82 P440/R167: XSS escHtml 커버리지 (14축)
     var xssEl = container.querySelector('[data-audit-key="xssSurface"]');
@@ -3553,13 +3553,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var xss = window.AIO && window.AIO.assertXssEscapeCoverageAudit && window.AIO.assertXssEscapeCoverageAudit();
         if (xss) {
-          var iconX = xss.status === 'ok' ? '✓' : xss.status === 'warn' ? '⚠' : '✗';
+          var iconX = xss.status === 'ok' ? '✓' : xss.status === 'warn' ? '!' : '✗';
           var colorX = xss.status === 'ok' ? 'var(--data-green)' : xss.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          xssEl.innerHTML = '<span style="color:' + colorX + ';">' + iconX + '</span> 🛡 XSS <b>' + xss.xssCoveragePct + '%</b> · 위험 ' + xss.unsafeAssignments + ' · hover ' + xss.inlineHoverHits + ' · lc-pair ' + xss.lineClampPairsOk;
+          xssEl.innerHTML = '<span style="color:' + colorX + ';">' + iconX + '</span> XSS <b>' + xss.xssCoveragePct + '%</b> · 위험 ' + xss.unsafeAssignments + ' · hover ' + xss.inlineHoverHits + ' · lc-pair ' + xss.lineClampPairsOk;
         } else {
           xssEl.innerHTML = '<span style="color:var(--text-muted);">— xssSurface audit 미가용</span>';
         }
-      } catch(e) { xssEl.textContent = '⚠ xssSurface error'; }
+      } catch(e) { xssEl.textContent = 'xssSurface error'; }
     }
     // v49.82 P441/R170: KR 종목코드 정합성 (15축)
     var krtEl = container.querySelector('[data-audit-key="krTickerMapping"]');
@@ -3567,13 +3567,13 @@ window._aioRenderAuditWidget = function() {
       try {
         var krt = window.AIO && window.AIO.assertKrTickerMappingAudit && window.AIO.assertKrTickerMappingAudit();
         if (krt) {
-          var iconK = krt.status === 'ok' ? '✓' : krt.status === 'warn' ? '⚠' : '✗';
+          var iconK = krt.status === 'ok' ? '✓' : krt.status === 'warn' ? '!' : '✗';
           var colorK = krt.status === 'ok' ? 'var(--data-green)' : krt.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          krtEl.innerHTML = '<span style="color:' + colorK + ';">' + iconK + '</span> 🇰🇷 KR 매핑 <b>' + krt.checkedTickers + '</b> · 충돌 <b>' + krt.conflictCount + '</b> · known ' + krt.knownMappingChecked + '/' + (krt.knownMappingChecked - krt.knownMismatchCount);
+          krtEl.innerHTML = '<span style="color:' + colorK + ';">' + iconK + '</span> KR 매핑 <b>' + krt.checkedTickers + '</b> · 충돌 <b>' + krt.conflictCount + '</b> · known ' + krt.knownMappingChecked + '/' + (krt.knownMappingChecked - krt.knownMismatchCount);
         } else {
           krtEl.innerHTML = '<span style="color:var(--text-muted);">— krTickerMapping audit 미가용</span>';
         }
-      } catch(e) { krtEl.textContent = '⚠ krTickerMapping error'; }
+      } catch(e) { krtEl.textContent = 'krTickerMapping error'; }
     }
     // v49.83 P444/R173: 자산 간 30일 correlation (16축)
     var corrEl = container.querySelector('[data-audit-key="crossAssetCorr"]');
@@ -3581,15 +3581,15 @@ window._aioRenderAuditWidget = function() {
       try {
         var corr = window.AIO && window.AIO.computeCrossAssetCorrelation && window.AIO.computeCrossAssetCorrelation();
         if (corr) {
-          var iconCo = corr.status === 'ok' ? '✓' : corr.status === 'insufficient_data' ? '⏳' : '⚠';
+          var iconCo = corr.status === 'ok' ? '✓' : corr.status === 'insufficient_data' ? '…' : '!';
           var colorCo = corr.status === 'ok' ? 'var(--data-green)' : corr.status === 'insufficient_data' ? 'var(--text-muted)' : 'var(--data-amber)';
           if (corr.status === 'ok') {
-            corrEl.innerHTML = '<span style="color:' + colorCo + ';">' + iconCo + '</span> 🔗 자산 <b>' + corr.availableAssets.length + '</b> · regime <b>' + corr.regime + '</b> · n=' + corr.sampleSize;
+            corrEl.innerHTML = '<span style="color:' + colorCo + ';">' + iconCo + '</span> 자산 <b>' + corr.availableAssets.length + '</b> · regime <b>' + corr.regime + '</b> · n=' + corr.sampleSize;
           } else {
-            corrEl.innerHTML = '<span style="color:' + colorCo + ';">' + iconCo + '</span> 🔗 자산 데이터 누적 중 (need ≥5)';
+            corrEl.innerHTML = '<span style="color:' + colorCo + ';">' + iconCo + '</span> 자산 데이터 누적 중 (need ≥5)';
           }
         }
-      } catch(e) { corrEl.textContent = '⚠ crossAssetCorr error'; }
+      } catch(e) { corrEl.textContent = 'crossAssetCorr error'; }
     }
     // v49.83 P445/R174: 답변 정량 비율 (17축)
     var qrEl = container.querySelector('[data-audit-key="quantRatio"]');
@@ -3597,15 +3597,15 @@ window._aioRenderAuditWidget = function() {
       try {
         var qr = window.AIO && window.AIO.assertQuantitativeRatioAudit && window.AIO.assertQuantitativeRatioAudit();
         if (qr) {
-          var iconQ = qr.status === 'ok' ? '✓' : qr.status === 'no_data' ? '⏳' : qr.status === 'warn' ? '⚠' : '✗';
+          var iconQ = qr.status === 'ok' ? '✓' : qr.status === 'no_data' ? '…' : qr.status === 'warn' ? '!' : '✗';
           var colorQ = qr.status === 'ok' ? 'var(--data-green)' : qr.status === 'no_data' ? 'var(--text-muted)' : qr.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
           if (qr.status === 'no_data') {
-            qrEl.innerHTML = '<span style="color:' + colorQ + ';">' + iconQ + '</span> 🎯 정량 비율 (채팅 후 측정)';
+            qrEl.innerHTML = '<span style="color:' + colorQ + ';">' + iconQ + '</span> 정량 비율 (채팅 후 측정)';
           } else {
-            qrEl.innerHTML = '<span style="color:' + colorQ + ';">' + iconQ + '</span> 🎯 정량 비율 <b>' + qr.quantitativeRatioPct + '%</b> · 토큰 ' + qr.quantTokens + '/' + qr.totalWords + ' · 샘플 ' + qr.sampleCount;
+            qrEl.innerHTML = '<span style="color:' + colorQ + ';">' + iconQ + '</span> 정량 비율 <b>' + qr.quantitativeRatioPct + '%</b> · 토큰 ' + qr.quantTokens + '/' + qr.totalWords + ' · 샘플 ' + qr.sampleCount;
           }
         }
-      } catch(e) { qrEl.textContent = '⚠ quantRatio error'; }
+      } catch(e) { qrEl.textContent = 'quantRatio error'; }
     }
     // v49.83 P443/R172: 거시 캘린더 auto-advance (18축)
     var mcaEl = container.querySelector('[data-audit-key="macroCalendarAuto"]');
@@ -3613,11 +3613,11 @@ window._aioRenderAuditWidget = function() {
       try {
         var mca = window.AIO && window.AIO._aioRecomputeMacroCalendar && window.AIO._aioRecomputeMacroCalendar({ dryRun: true });
         if (mca) {
-          var iconM = mca.advancedCount === 0 ? '✓' : '⚠';
+          var iconM = mca.advancedCount === 0 ? '✓' : '!';
           var colorM = mca.advancedCount === 0 ? 'var(--data-green)' : 'var(--data-amber)';
-          mcaEl.innerHTML = '<span style="color:' + colorM + ';">' + iconM + '</span> 📅 거시 캘린더 · 대기 advance <b>' + mca.advancedCount + '</b> (dry-run)';
+          mcaEl.innerHTML = '<span style="color:' + colorM + ';">' + iconM + '</span> 거시 캘린더 · 대기 advance <b>' + mca.advancedCount + '</b> (dry-run)';
         }
-      } catch(e) { mcaEl.textContent = '⚠ macroCalendarAuto error'; }
+      } catch(e) { mcaEl.textContent = 'macroCalendarAuto error'; }
     }
     // v49.89 P450/R180: 데이터 계보 (source→render) 19축
     var dlEl = container.querySelector('[data-audit-key="dataLineage"]');
@@ -3625,23 +3625,23 @@ window._aioRenderAuditWidget = function() {
       try {
         var dl = window.AIO && window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
         if (dl) {
-          var iconL = dl.status === 'ok' ? '✓' : '⚠';
+          var iconL = dl.status === 'ok' ? '✓' : '!';
           var colorL = dl.status === 'ok' ? 'var(--data-green)' : 'var(--data-amber)';
           var cl = dl.cellLevel || {};
           var cellTxt = cl.status ? ' · cell ' + (cl.totalOrphans === 0 ? '<span style="color:var(--data-green);">0 끊김</span>' : '<span style="color:var(--data-red);">끊김 ' + cl.totalOrphans + '</span>') + ' (' + (cl.liveSinkTotal||0) + '+' + (cl.snapSinkTotal||0) + ' sink)' : '';
-          dlEl.innerHTML = '<span style="color:' + colorL + ';">' + iconL + '</span> 🔗 데이터 계보 자동 <b>' + dl.connected + '</b>/' + dl.total + ' · gap ' + dl.gap + ' · 수동 ' + dl.manual + (dl.broken > 0 ? ' · <span style="color:var(--data-red);">끊김 ' + dl.broken + '</span>' : '') + cellTxt;
+          dlEl.innerHTML = '<span style="color:' + colorL + ';">' + iconL + '</span> 데이터 계보 자동 <b>' + dl.connected + '</b>/' + dl.total + ' · gap ' + dl.gap + ' · 수동 ' + dl.manual + (dl.broken > 0 ? ' · <span style="color:var(--data-red);">끊김 ' + dl.broken + '</span>' : '') + cellTxt;
         } else {
           dlEl.innerHTML = '<span style="color:var(--text-muted);">— dataLineage audit 미가용</span>';
         }
-      } catch(e) { dlEl.textContent = '⚠ dataLineage error'; }
+      } catch(e) { dlEl.textContent = 'dataLineage error'; }
     }
     // v49.83 P450/R178: failure status sticky top + pulse 애니메이션 (#9)
     try {
       var rows = Array.prototype.slice.call(container.querySelectorAll('[data-audit-key]'));
       rows.forEach(function(row) {
         var t = row.textContent || '';
-        // ✗ failure 우선 / ⚠ warn 두번째 / ✓ ok 마지막
-        var pri = /✗/.test(t) ? 0 : /⚠/.test(t) ? 1 : /⏳/.test(t) ? 2 : 3;
+        // ✗ failure 우선 / warn 두번째 / ✓ ok 마지막
+        var pri = /✗/.test(t) ? 0 : /!/.test(t.trim().charAt(0)) ? 1 : /…/.test(t.trim().charAt(0)) ? 2 : 3; // P1500: ! warn, … pending
         row.dataset.auditPri = pri;
         if (pri === 0) {
           row.style.background = 'rgba(255,91,80,0.06)';
@@ -3676,11 +3676,11 @@ window._aioRenderAuditWidget = function() {
       var allRows = container.querySelectorAll('[data-audit-key]');
       allRows.forEach(function(row) {
         if (!devMode) {
-          // simple mode: ✓ / ⚠ / ✗ / ⏳ 아이콘만 (첫 글자)
+          // simple mode: ✓ / / ✗ / 아이콘만 (첫 글자)
           var orig = row.dataset.auditFull;
           if (!orig) row.dataset.auditFull = row.innerHTML;
-          var icon = (row.textContent.match(/[✓⚠✗⏳]/) || ['?'])[0];
-          var labelMatch = row.textContent.match(/[🛡🇰🇷🔗🎯📅📋📊🔍📈💬🧠📑✨🛠]+\s*[^·<]*/);
+          var icon = (row.textContent.match(/[✓!✗…]/) || ['?'])[0];
+          var labelMatch = row.textContent.replace(/^\s*[✓!✗…?]\s*/, '').match(/^[^·<]+/);
           var lbl = labelMatch ? labelMatch[0].trim() : (row.dataset.auditKey || 'audit');
           row.innerHTML = '<span style="font-size:13px;">' + icon + '</span> ' + (typeof escHtml === 'function' ? escHtml(lbl) : lbl);
         } else if (row.dataset.auditFull) {

@@ -263,7 +263,8 @@ window.AIO.getKstDateParts = _aioGetKstDateParts;
 document.addEventListener('DOMContentLoaded', () => {
   // v34.2: APP_VERSION 단일 소스 → title + 배지 자동 반영
   if (typeof APP_VERSION === 'string') {
-    document.title = 'AIO Screener ' + APP_VERSION + ' — 올인원 투자 터미널';
+    // P1499: keep a route title the first showPage already set; this ran after it and reset deep links.
+    if (!/ · AIO Screener$/.test(document.title)) document.title = 'AIO Screener ' + APP_VERSION + ' — 올인원 투자 터미널';
     var vBadge = document.getElementById('app-version-badge');
     if (vBadge) vBadge.textContent = APP_VERSION;
   }
@@ -2731,7 +2732,7 @@ function _renderFundHeader(d) {
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">';
   html += '<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;min-width:0;">';
   html += '<span style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);">' + escHtml(d.name || d.ticker) + '</span>';
-  html += '<span style="font-size:12.5px;color:var(--text-muted);">' + escHtml(d.ticker) + (p.sector ? ' · ' + escHtml(p.sector) : '') + (p.exchangeShortName ? ' · ' + escHtml(p.exchangeShortName) : '') + '</span>';
+  html += '<span style="font-size:13px;color:var(--text-muted);">' + escHtml(d.ticker) + (p.sector ? ' · ' + escHtml(p.sector) : '') + (p.exchangeShortName ? ' · ' + escHtml(p.exchangeShortName) : '') + '</span>';
   html += '</div>';
   html += '<div style="display:flex;align-items:baseline;gap:10px;flex-shrink:0;">';
   if (d.price) {
@@ -2778,7 +2779,7 @@ function _renderFundQualitative(d) {
   function qrow(label, text) {
     return '<div style="display:flex;gap:14px;">' +
       '<span style="font-size:11px;font-weight:700;color:var(--text-dim);flex-shrink:0;width:64px;padding-top:2px;">' + escHtml(label) + '</span>' +
-      '<span style="font-size:12.5px;color:var(--text-secondary);line-height:1.7;">' + text + '</span></div>';
+      '<span style="font-size:13px;color:var(--text-secondary);line-height:1.7;">' + text + '</span></div>';
   }
   var rowsHtml = '';
   if (p.sector || p.industry) rowsHtml += qrow('섹터', escHtml(p.sector || '') + (p.industry ? ' · ' + escHtml(p.industry) : '') + (p.country ? ' · ' + escHtml(p.country) : ''));
@@ -4559,7 +4560,7 @@ setTimeout(function() {
 
 // ═══ v34: Bloomberg-Style Global Market Overview ═══════════════════════
 const GMO_MARKETS = [
-  { region: '🇺🇸 Americas', items: [
+  { region: 'Americas', items: [
     { sym: '^GSPC', label: 'S&P 500' },
     // v52.42 (P657/EF-17, 사용자 승인): 정규장 외(한국 아침 등) "오늘 미장 분위기" 첫 질문에 답하도록
     // ES=F/NQ=F 선물 2행 추가. renderGmoTable()이 정규장 시간대에는 이 2행을 시각적으로 절제하고
@@ -4586,7 +4587,7 @@ const GMO_MARKETS = [
     { sym: '000001.SS', label: 'Shanghai' },
     { sym: '^KS11', label: 'KOSPI' },
   ]},
-  { region: '🇪🇺 EMEA', items: [
+  { region: 'EMEA', items: [
     { sym: '^GDAXI', label: 'DAX' },
     { sym: '^FTSE',  label: 'FTSE 100' },
     { sym: '^FCHI',  label: 'CAC 40' },
@@ -7201,7 +7202,7 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = '확인했습니다';
-    btn.style.cssText = 'flex-shrink:0;font-size:12.5px;font-weight:600;color:var(--text-primary,#211d16);background:var(--surface-2,#ece7db);border:1px solid var(--border,#d8d2c4);border-radius:6px;padding:7px 16px;cursor:pointer;';
+    btn.style.cssText = 'flex-shrink:0;font-size:13px;font-weight:600;color:var(--text-primary,#211d16);background:var(--surface-2,#ece7db);border:1px solid var(--border,#d8d2c4);border-radius:6px;padding:7px 16px;cursor:pointer;';
     btn.addEventListener('click', function() {
       try { localStorage.setItem('aio_disclaimer_ack_v1', '1'); } catch(_e) {}
       if (bar.parentNode) bar.parentNode.removeChild(bar);

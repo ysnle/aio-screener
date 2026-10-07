@@ -133,6 +133,33 @@ if (process.argv.includes('--write-baseline')) {
   process.exit(0);
 }
 
+// ── 3) P1500 (owner 2026-10-06): no emoji or pictographs in product code ─────────────────────
+// The shell, legacy modules and native ESM render no emoji. Arrows ↔ ↗ ↙ ▶ ◀ are typography, not
+// emoji. Lines that remove pictographs from external text keep their character classes.
+{
+  const PICTOGRAPH = /\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]/u;
+  const ALLOWED = /[↔↗↙▶◀]/gu;
+  const FILTER_LINE = /_AIO_PICTOGRAPH_RE|replace\(\/\[\\u\{1F300\}|if \(\/\^\(받\\\)|if \(\/\^\[📍|PICTOGRAPH|redCount = \(txt\.match/;
+  const productFiles = ['index.html'];
+  for (const dir of ['js', 'src']) {
+    (function walk(rel) {
+      for (const entry of readdirSync(join(root, rel), { withFileTypes: true })) {
+        const next = `${rel}/${entry.name}`;
+        if (entry.isDirectory()) walk(next);
+        else if (/\.(m?js)$/.test(entry.name)) productFiles.push(next);
+      }
+    })(dir);
+  }
+  const hits = [];
+  for (const file of productFiles) {
+    read(file).split('\n').forEach((line, index) => {
+      if (FILTER_LINE.test(line)) return;
+      if (PICTOGRAPH.test(line.replace(ALLOWED, ''))) hits.push(`${file}:${index + 1}`);
+    });
+  }
+  if (hits.length) errors.push(`P1500 emoji/pictograph in product code (${hits.length}): ${hits.slice(0, 12).join(', ')}`);
+}
+
 if (errors.length) {
   console.error('Control character check failed:');
   errors.forEach((e) => console.error(' - ' + e));

@@ -23,7 +23,7 @@ export const MACRO_GROUPS = Object.freeze([
   Object.freeze({
     id: 'policy', title: '정책금리', items: Object.freeze([
       Object.freeze({ id: 'fedTarget', label: '연준 목표 범위', range: ['fedTargetLower', 'fedTargetUpper'], unit: '%', digits: 2, release: 'us-fomc', daily: true, note: 'FOMC가 정하는 연방기금금리 목표 범위입니다.' }),
-      Object.freeze({ id: 'fedRate', history: { field: 'fedFunds', derive: 'level' }, key: 'fedRate', label: '실효 연방기금금리 (월평균)', unit: '%', digits: 2, deltaUnit: '%p', note: '은행 간 하루짜리 대출 금리의 월평균(FRED FEDFUNDS)입니다.' })
+      Object.freeze({ id: 'fedRate', history: { field: 'fedFunds', derive: 'level' }, key: 'fedRate', label: '실효 연방기금금리 (월평균)', unit: '%', digits: 2, deltaUnit: '%p', note: '은행 간 하루짜리 대출 금리의 월평균입니다.' })
     ])
   }),
   Object.freeze({

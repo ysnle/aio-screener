@@ -241,7 +241,8 @@ check('LC-22/P1221 Atlas separates distinct concepts from step placements', read
 // the change ledger.
 check('LC-30/P1222 Masters history shard identity is verified before use', /manager history shard identity mismatch/.test(mastersPage) && /runtimeShardSchema/.test(mastersPage) && /historySummary\?\.rawRowsAvailable !== descriptor\.historyRows/.test(mastersPage));
 // LC-43/P1223: the portfolio intro must describe the visible evidence, not a strip hidden by CSS.
-check('LC-43/P1223 portfolio intro matches the visible freshness evidence', !/시세 지연\/출처를 별도 표시/.test(html) && /행별 시세 출처·관측시각/.test(html));
+// P1505 (owner 2026-10-06): source wording left the subtitle; the intro must still not claim a hidden strip.
+check('LC-43/P1223 portfolio intro matches the visible freshness evidence', !/시세 지연\/출처를 별도 표시/.test(html) && !/행별 시세 출처·관측시각은 툴팁/.test(html));
 // LC-44/P1224: the import trigger is a real button opening a hidden-but-focusable file input.
 check('LC-44/P1224 portfolio import is keyboard reachable', /data-action="_aioTriggerPortfolioImport"/.test(html) && /id="pf-import-file"/.test(html) && /_aioTriggerPortfolioImport = function/.test(core) && !/<label[^>]*>가져오기<input type="file"/.test(html));
 // LC-45/P1225: the holdings table prints each row's declared currency instead of a fixed `$`.

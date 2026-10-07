@@ -422,8 +422,10 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   if (key === 'price') {
     const price = finite(live.price);
     if (price == null) {
-      const missing = text(documentRef, '미수신');
-      missing.title = '가격 미수신 — 이 행의 현재가로 확정하지 않습니다.';
+      // P1499: raw prices are not republished (P715); an uncovered row shows a quiet dash, not a word on every line.
+      const missing = text(documentRef, '—');
+      missing.style.color = 'var(--text-muted)';
+      missing.title = '실시간 시세가 연결되지 않은 종목 — 공개 데이터에는 종목별 가격을 싣지 않습니다.';
       return missing;
     }
     const currency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null;
@@ -848,7 +850,7 @@ function renderConditionalEvidence(documentRef, metadata) {
     card.style.cssText = 'padding:7px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);';
     const name = documentRef.createElement('div');
     name.textContent = label;
-    name.style.cssText = 'font-size:9px;color:var(--text-muted);';
+    name.style.cssText = 'font-size:10px;color:var(--text-muted);';
     const result = documentRef.createElement('strong');
     result.textContent = String(value);
     result.style.cssText = 'display:block;font-size:12px;color:var(--text-primary);margin-top:2px;';
@@ -1129,6 +1131,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const buy = documentRef.getElementById('scr-kpi-buy');
   const factorCount = documentRef.getElementById('scr-kpi-factors');
   if (total) total.textContent = String(allRows.length);
+  const ranked = documentRef.getElementById('scr-kpi-ranked');
+  if (ranked) ranked.textContent = String(allRows.filter((row) => row.screenStatus === 'passed').length);
   if (top) top.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= 80).length);
   if (buy) buy.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && row.signal === 'BUY').length);
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');

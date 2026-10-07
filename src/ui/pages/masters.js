@@ -386,12 +386,30 @@ function formatReportedValue(value) {
   return value == null ? '—' : `$${new Intl.NumberFormat('en-US').format(value)}`;
 }
 
+// P1499: a metric tile shows the reported total in billions; the full dollar figure stays in the quarter table.
+function formatCompactUsd(value) {
+  const number = Number(value);
+  if (value == null || !Number.isFinite(number)) return '—';
+  if (Math.abs(number) >= 1e12) return `$${(number / 1e12).toFixed(2)}T`;
+  if (Math.abs(number) >= 1e9) return `$${(number / 1e9).toFixed(1)}B`;
+  if (Math.abs(number) >= 1e6) return `$${(number / 1e6).toFixed(1)}M`;
+  return formatReportedValue(number);
+}
+
+const SCALE_TIER_LABELS = { MEGA: '초대형', LARGE: '대형', MID: '중형', SPECIALIST: '특화 운용' };
+function formatScale(manager) {
+  const tier = SCALE_TIER_LABELS[manager?.scaleTier] || '';
+  const label = String(manager?.scaleMetric?.label || '');
+  if (/^\$/.test(label)) return tier ? `${tier} · ${label}` : label;
+  return tier ? `${tier} (공식 AUM 미공개)` : '—';
+}
+
 function formatPercent(value) {
   return Number.isFinite(Number(value)) ? `${Number(value).toFixed(1)}%` : '—';
 }
 
 function summarizeLatestChange(counts = {}) {
-  return `보고 수량상 신규 ${counts.NEW || 0} · 확대 ${counts.INCREASED || 0} · 축소 ${counts.REDUCED || 0} · 제외 ${counts.EXITED || 0}`;
+  return `신규 ${counts.NEW || 0} · 확대 ${counts.INCREASED || 0} · 축소 ${counts.REDUCED || 0} · 제외 ${counts.EXITED || 0}`;
 }
 
 function formatDelta(value, formatter = new Intl.NumberFormat('en-US')) {
@@ -898,11 +916,11 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     createMetric(documentRef, '최신 보고분기', filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || '—'),
     createMetric(documentRef, '보유 종목 수', holdingMeta?.verification?.reportedPositionCount != null ? `${holdingMeta.verification.reportedPositionCount}개` : '—'),
     createMetric(documentRef, '상위 5 · 10 비중', withheld(`${formatPercent(holdingMeta?.verification?.top5ConcentrationPct)} · ${formatPercent(holdingMeta?.verification?.top10ConcentrationPct)}`)),
-    createMetric(documentRef, '직전 분기 대비', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '—'),
+    createMetric(documentRef, '직전 분기 대비 (보고 수량)', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '—'),
     // P1444: the distance between reported-value weights — price moves alone change it — not trading turnover.
     createMetric(documentRef, '보고가치 비중 변화(회전율 아님)', withheld(formatPercent(holdingMeta?.verification?.turnoverProxyPct))),
-    createMetric(documentRef, '신고 가치 합계', withheld(formatReportedValue(holdingMeta?.verification?.parsedValueTotal))),
-    createMetric(documentRef, '운용 규모', manager.scaleMetric?.label || manager.scaleTier || '—'),
+    createMetric(documentRef, '신고 가치 합계', withheld(formatCompactUsd(holdingMeta?.verification?.parsedValueTotal))),
+    createMetric(documentRef, '운용 규모', formatScale(manager)),
     createMetric(documentRef, '전략 성격', manager.strategyProfile?.approach || manager.style || '—')
   );
   detail.append(metrics);
