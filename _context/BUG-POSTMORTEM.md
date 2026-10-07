@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1509 - v57.27 - 같은 날 공포·탐욕 1일 변화가 홈 +3, 투자 심리 +4 (2026-10-07)
+
+- symptom/reproduction: 10/7 데이터(43.71 → 47.34)에서 홈은 '전일 대비 +3', 투자 심리 카드는 '전일 +4'로 표시됐다. P1428 브라우저 게이트가 이를 잡았다.
+- root_cause: 홈은 보이는 정수끼리 뺐고(44 → 47), 투자 심리는 원값 차이를 반올림했다(3.63 → 4).
+- fix: 투자 심리 카드도 보이는 정수끼리 변화를 계산한다. 사용자는 화면의 두 숫자를 보고 차이를 읽기 때문이다.
+- violated_rule: 같은 지표의 변화는 화면이 달라도 하나의 계산 규칙을 쓴다(P1428).
+- prevention: ci-architecture-browser-check의 P1428 검사가 계속 두 화면을 비교한다.
+- verification/residual: browser-runtime 재실행 통과.
+
 ## P1508 - v57.27 - 데이터 증가가 다음 코드 CI에서야 드러나던 운영 공백과 상단 VIX 빈칸 (2026-10-07)
 
 - symptom/reproduction: 10/6 데이터 갱신 뒤 masters 파일 2개가 브라우저 예산 게이트를 넘었다. 데이터 작업은 통과했고, 실패는 다음 코드 CI에서야 드러났다. 이번 점검에서 filing-discovery.json도 400 KB 예산의 99.6%(398,273 B)인 것을 확인했다. 실시간 VIX가 없으면 상단 배지가 'VIX —'로 비었다.

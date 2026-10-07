@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-07T13:34:26.912Z",
+  "generatedAt": "2026-10-07T13:51:53.587Z",
   "routes": [
     {
       "id": "home",
@@ -17,6 +17,10 @@
         {
           "tag": "A",
           "name": "US EIA hikes oil price forecasts again as Iran war drains global stockpile — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Wall Street shares notch records as oil prices stabilize, bond yields retreat — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -38,24 +42,80 @@
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "loading",
-      "controls": [],
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        }
+      ],
       "headings": [
         "시장 상태",
-        "판정 대기",
+        "혼조",
         "미국 시장 6개 축",
+        "추세",
+        "시장 폭",
+        "변동성",
+        "금리",
+        "신용 · 위험선호",
+        "달러 · 원자재",
         "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
-        "기관 포지셔닝 선물 주간 보고 · 6개 축 합계에는 넣지 않습니다"
+        "환율 (원 · 엔)",
+        "기관 포지셔닝 선물 주간 보고 · 6개 축 합계에는 넣지 않습니다",
+        "이어서 볼 곳"
       ]
     },
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "loading",
-      "controls": [],
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        }
+      ],
       "headings": [
         "시장 폭",
-        "시장 폭 판정"
+        "시장 폭 판정",
+        "참여도 — 이동평균 위 종목 비율",
+        "50일선 위 종목 비율",
+        "20일선 위 종목 비율",
+        "40일선 위 종목 비율 (T2108 계열)",
+        "200일선 위 종목 비율",
+        "상승 종목 비율 (10일 평균)",
+        "누적 상승-하락 종목 수 (A/D 라인)",
+        "리더십 — 신고가·신저가와 급등락 종목",
+        "52주 신고가 − 신저가 종목 수",
+        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
+        "지수 확인 — 분배일과 S&P 500",
+        "S&P 500 분배일 (최근 25거래일)",
+        "S&P 500 (같은 기간 비교)",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -554,6 +614,10 @@
           "name": "US EIA hikes oil price forecasts again as Iran war drains global stockpile — 원문 새 창에서 열기"
         },
         {
+          "tag": "A",
+          "name": "Wall Street shares notch records as oil prices stabilize, bond yields retreat — 원문 새 창에서 열기"
+        },
+        {
           "tag": "BUTTON",
           "name": "최신순"
         },
@@ -587,11 +651,11 @@
         },
         {
           "tag": "A",
-          "name": "Penguin Solutions (NASDAQ:PENG) Issues FY 2027 Earnings Guidance — 원문 새 창에서 열기"
+          "name": "Hudbay Minerals: Analyst Updates & Stock Analysis — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "S&P 500 Breaks Record Ahead of Crucial Fed Test — 원문 새 창에서 열기"
+          "name": "Penguin Solutions (NASDAQ:PENG) Issues FY 2027 Earnings Guidance — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -607,15 +671,11 @@
         },
         {
           "tag": "A",
-          "name": "Oil prices stable as market weighs supply risks, rising Middle East exports — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
           "name": "Should Raised Earnings Guidance Require Action From Hokkaido Electric Power Company (TSE:9509) Investors? — 원문"
         },
         {
           "tag": "A",
-          "name": "Saudi East-West Pipeline Moves 5.8 Million Barrels as Red Sea Route Recovers — 원문 새 창에서 열기"
+          "name": "처음 접하는 기능을 하나씩 읽는 바카라 승률 계산 입문 해설 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -627,7 +687,11 @@
         },
         {
           "tag": "A",
-          "name": "Pfizer stock sets November 3 earnings date after guidance raise — 원문 새 창에서 열기"
+          "name": "Target Corporation stock reports stronger sales and higher guidance — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Gold rebounds from two-month lows as US Dollar, Treasury yields retreat — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -679,7 +743,7 @@
         },
         {
           "tag": "A",
-          "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-07>>국경절 연휴, 일부 선전시 부동산 중개업체 매출 +200% 급증 •국경절 연휴 1-5일 선전 베이커연구원이 모니터링한 결과 베이커 선"
+          "name": "전력인프라중립 어조@HANAchina · 중국·신흥국 · 10-07>>JP Morgan CEO: Anthropic ‘Mythos’ 모델 등장 이후 AI 위험 10배 증가 •JP Morgan Dimo"
         }
       ],
       "headings": [

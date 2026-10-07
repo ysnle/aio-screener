@@ -66,7 +66,9 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const cards = [
     { id: 'fg', title: 'CNN 공포·탐욕 지수', value: shown.fg == null ? '—' : String(Math.round(shown.fg)), basis: alignmentLabel(alignments.fg), basisStatus: alignments.fg.status,
       state: shown.fg == null ? null : judged(fg, fgBand), series: fgSeries, refLines: [25, 50, 75], domain: [0, 100], format: (value) => value.toFixed(0),
-      change: [[1, '전일'], [5, '5일'], [20, '20일']].map(([n, label]) => { const v = seriesChange(fgSeries, n, '', 0); return v ? `${label} ${v}` : null; }).filter(Boolean).join(' · '),
+      // P1508: the change is taken between the shown whole numbers (43 → 47 reads +4), the same rule as the home card;
+      // rounding the raw difference gave +3 on one screen and +4 on the other for the same day.
+      change: [[1, '전일'], [5, '5일'], [20, '20일']].map(([n, label]) => { const v = seriesChange(fgSeries.map((point) => ({ ...point, value: Math.round(point.value) })), n, '', 0); return v ? `${label} ${v}` : null; }).filter(Boolean).join(' · '),
       note: 'VIX·풋콜·정크본드 수요·시장 폭·모멘텀 등 7개 지표를 합친 지수 — 다른 지표와 겹치므로 단독 판단에 쓰지 않음' },
     { id: 'term', title: 'VIX 기간 구조 (VIX ÷ 3개월 VIX)', value: shown.ratio == null ? '—' : shown.ratio.toFixed(2), basis: alignmentLabel(ratioAlign), basisStatus: ratioAlign.status,
       state: shown.ratio == null ? null : judged(ratio, ratio >= 1 ? { label: '역전 · 단기 스트레스', tone: 'burden' } : ratio >= 0.95 ? { label: '평탄', tone: 'neutral' } : { label: '정상', tone: 'favorable' }),
