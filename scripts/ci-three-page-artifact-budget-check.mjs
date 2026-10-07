@@ -69,8 +69,9 @@ try {
   requests = [];
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="ownership"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersDiscovery === 'connected');
+  // P1508: 13D/G issuer names (P1498) fill on the next full 13F run; the file sat at 99.6% of the old 400 KB budget.
   const mastersOwnership = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
-  if (mastersOwnership.paths.length !== 1 || mastersOwnership.paths[0] !== '/public-data/masters/filing-discovery.json' || mastersOwnership.bytes > 400_000) throw new Error(`Masters ownership lazy artifact contract failed: ${JSON.stringify(mastersOwnership)}`);
+  if (mastersOwnership.paths.length !== 1 || mastersOwnership.paths[0] !== '/public-data/masters/filing-discovery.json' || mastersOwnership.bytes > 460_000) throw new Error(`Masters ownership lazy artifact contract failed: ${JSON.stringify(mastersOwnership)}`);
   requests = [];
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="filings"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersFilings === 'connected');

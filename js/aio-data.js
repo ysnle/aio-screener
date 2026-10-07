@@ -15049,7 +15049,10 @@ function applyLiveQuotes(quotes) {
       vixPctCell.setAttribute('data-source-label', 'derived:vix-percentile');
       vixPctCell.setAttribute('data-source-ts', _vixTs);
     }
-    document.querySelectorAll('[data-vix-badge]').forEach(el => el.textContent = 'VIX ' + _vixFixed(vp, 2, '—'));
+    // P1508: without a live quote the header showed 'VIX —' although the last close is in the daily history; show that close, labelled.
+    var _vixBadgeText = 'VIX ' + _vixFixed(vp, 2, '—');
+    if (vp == null) { try { var _vh = (window._aioHistory || []).filter(function(r) { return r && isFinite(Number(r.vix)) && Number(r.vix) > 0; }); var _vl = _vh[_vh.length - 1]; if (_vl) _vixBadgeText = 'VIX ' + Number(_vl.vix).toFixed(2) + ' 종가'; } catch (_) {} }
+    document.querySelectorAll('[data-vix-badge]').forEach(el => el.textContent = _vixBadgeText);
     // ── Options 페이지 VIX %ile 동적 업데이트 (v14: 하드코딩 90.9%ile 제거) ──
     const optVixLbl = vixRegime(vp).label;
     document.querySelectorAll('.options-vix-pct-label').forEach(el => {

@@ -842,6 +842,10 @@
             "scripts/build-masters-runtime-artifacts.mjs",
             ".github/workflows/refresh-data.yml"
           ]
+        },
+        {
+          "id": "artifact-headroom",
+          "script": "scripts/ci-artifact-size-headroom-check.mjs"
         }
       ]
     },
@@ -1421,6 +1425,11 @@
         {
           "id": "watchdog-data-refresh",
           "script": "scripts/ci-data-refresh-audit.mjs",
+          "cache": false
+        },
+        {
+          "id": "watchdog-artifact-headroom",
+          "script": "scripts/ci-artifact-size-headroom-check.mjs",
           "cache": false
         }
       ]
