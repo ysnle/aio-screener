@@ -62,11 +62,25 @@ export function isAncestorCommit(ancestorSha, descendantSha) {
   throw new Error(result.stderr.trim() || `git could not resolve ancestry ${ancestorSha}..${descendantSha}`);
 }
 
-export function shouldDeployWorker({ plane, manual = false, attestedChanged = false, liveSha, testedSha, latestMainSha, cumulativeChanges, isAncestor = isAncestorCommit }) {
+// P1351 forbids a delayed attested release from overwriting a newer main revision. Requiring main to still equal the
+// tested SHA also skipped runs whose only newer commits were data-refresh bot commits, and nothing re-drove the Worker
+// plane afterwards: the live proxy stayed on an old revision while every Pages release check failed on the drift.
+// A newer main is ignorable only when it descends from the tested SHA and no commit in between touches this plane's
+// deployment inputs, so the tested Worker bytes equal main's. Anything unknown fails closed to the old skip.
+export function getMainAdvanceWorkerChanges(testedSha, latestMainSha, diff = getWorkerChangesBetween) {
+  if (!SHA_PATTERN.test(testedSha || '') || !SHA_PATTERN.test(latestMainSha || '') || testedSha === latestMainSha) return undefined;
+  try { return diff(testedSha, latestMainSha); } catch { return undefined; }
+}
+
+export function shouldDeployWorker({ plane, manual = false, attestedChanged = false, liveSha, testedSha, latestMainSha, cumulativeChanges, newerMainChanges, isAncestor = isAncestorCommit }) {
   if (!SHA_PATTERN.test(testedSha || '')) throw new Error('tested SHA must be a lowercase 40-character commit id');
   if (!['dataPlane', 'aiProxy'].includes(plane)) throw new Error('deployment plane must be dataPlane or aiProxy');
   if (!SHA_PATTERN.test(latestMainSha || '')) throw new Error('latest main SHA is unavailable; automatic deployment is blocked');
-  if (latestMainSha !== testedSha) return false;
+  if (latestMainSha !== testedSha) {
+    let advanceLeavesWorkerUntouched = false;
+    try { advanceLeavesWorkerUntouched = newerMainChanges?.[plane] === false && isAncestor(testedSha, latestMainSha); } catch { advanceLeavesWorkerUntouched = false; }
+    if (!advanceLeavesWorkerUntouched) return false;
+  }
   // P1351: an explicit redeploy still cannot overwrite a newer main revision.
   if (manual) return true;
   if (liveSha === testedSha) return false;
@@ -95,9 +109,17 @@ export function getWorkerChangesBetween(baseSha, headSha) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    const [, , baseSha, headSha] = process.argv;
-    if (!baseSha || !headSha) throw new Error('usage: node scripts/worker-deploy-impact.mjs <base-sha> <head-sha>');
-    process.stdout.write(`${JSON.stringify(await getWorkerChangesBetween(baseSha, headSha))}\n`);
+    if (process.argv[2] === '--main-advance') {
+      // Immediate pre-mutation guard: prints true when main still equals the tested SHA or advanced without touching the plane.
+      const [, , , plane, testedSha, latestMainSha] = process.argv;
+      if (!['dataPlane', 'aiProxy'].includes(plane) || !SHA_PATTERN.test(testedSha || '') || !SHA_PATTERN.test(latestMainSha || '')) throw new Error('usage: node scripts/worker-deploy-impact.mjs --main-advance <dataPlane|aiProxy> <tested-sha> <latest-main-sha>');
+      const safe = testedSha === latestMainSha || getMainAdvanceWorkerChanges(testedSha, latestMainSha)?.[plane] === false;
+      process.stdout.write(`${safe}\n`);
+    } else {
+      const [, , baseSha, headSha] = process.argv;
+      if (!baseSha || !headSha) throw new Error('usage: node scripts/worker-deploy-impact.mjs <base-sha> <head-sha>');
+      process.stdout.write(`${JSON.stringify(await getWorkerChangesBetween(baseSha, headSha))}\n`);
+    }
   } catch (error) {
     console.error(`[worker-deploy-impact] ${error.message}`);
     process.exitCode = 1;

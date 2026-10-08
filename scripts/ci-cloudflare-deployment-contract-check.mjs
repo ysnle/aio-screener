@@ -120,6 +120,43 @@ check('P1308/R653/QA-DATA-50 cumulative reconciliation recovers only a still-mis
   !skipCoalescedDeployment && recoverCoalescedDeployment && !avoidCrossPlaneDeployment && !alreadyConverged);
 check('P1308/R653/QA-DATA-50 delayed CI events cannot overwrite a newer main/live Worker SHA or a divergent production identity', !staleCiRun && !liveWorkerIsNewer && divergentLiveWorker);
 
+// P1351: main advancing only by data-refresh commits must not strand the Worker planes. Observed 2026-10-07: the merge
+// push's CI run finished after the refresh bot's next commit, the exact-HEAD guard skipped every deploy step, bot CI runs
+// are workflow_dispatch (no workflow_run event, R606), so nothing re-drove the proxy and Pages release checks failed on
+// the revision drift for nine runs. A newer main is ignorable only when no commit in between touches the plane's inputs.
+{
+  const sha = (char) => char.repeat(40);
+  const base = { attestedChanged: true, liveSha: sha('1'), testedSha: sha('2'), latestMainSha: sha('3'), isAncestor: () => true };
+  const untouched = { dataPlane: false, aiProxy: false };
+  const deploys = (plane, patch) => workerImpact.shouldDeployWorker({ ...base, plane, ...patch });
+  check('P1351 a main advance that leaves the plane untouched still deploys the tested Worker', deploys('aiProxy', { newerMainChanges: untouched }) === true && deploys('dataPlane', { newerMainChanges: untouched }) === true);
+  check('P1351 a main advance that changes the same plane stays a stale skip', deploys('aiProxy', { newerMainChanges: { dataPlane: false, aiProxy: true } }) === false && deploys('dataPlane', { newerMainChanges: { dataPlane: true, aiProxy: false } }) === false);
+  check('P1351 a main advance that changes only the other plane does not block this plane', deploys('aiProxy', { newerMainChanges: { dataPlane: true, aiProxy: false } }) === true);
+  check('P1351 a main advance without change evidence fails closed', deploys('aiProxy', {}) === false && deploys('aiProxy', { newerMainChanges: {} }) === false && deploys('aiProxy', { newerMainChanges: { aiProxy: undefined } }) === false);
+  check('P1351 a newer main that is not a descendant of the tested SHA fails closed', deploys('aiProxy', { newerMainChanges: untouched, isAncestor: () => false }) === false);
+  check('P1351 a git ancestry failure while judging the advance fails closed instead of crashing the release', deploys('aiProxy', { newerMainChanges: untouched, isAncestor: () => { throw new Error('unknown revision'); } }) === false);
+  check('P1351 a manual redeploy follows the same rule and still refuses a Worker-changing main', deploys('aiProxy', { manual: true, newerMainChanges: untouched }) === true && deploys('aiProxy', { manual: true, newerMainChanges: { dataPlane: false, aiProxy: true } }) === false);
+  check('P1351 the advance classifier yields nothing for equal, malformed, or unreachable commits',
+    workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('2')) === undefined
+    && workerImpact.getMainAdvanceWorkerChanges('bad', sha('3')) === undefined
+    && workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => { throw new Error('not an ancestor'); }) === undefined
+    && workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => untouched) === untouched);
+  for (const [name, workflow, plane] of [['AI proxy', proxyWorkflow, 'aiProxy'], ['fast data plane', dataWorkflow, 'dataPlane']]) {
+    const convergence = workflow.slice(workflow.indexOf('id: convergence'), workflow.indexOf('Require Cloudflare operating configuration'));
+    const guardStart = workflow.indexOf('Recheck main head immediately before Worker mutation');
+    const guard = workflow.slice(guardStart, workflow.indexOf('      - name: Deploy', guardStart));
+    check(`P1351 ${name} convergence fetches the newer main and passes its Worker changes to the decision`,
+      /git fetch --no-tags --quiet origin "\$CURRENT_MAIN_SHA"/.test(convergence)
+      && /getMainAdvanceWorkerChanges\(process\.env\.EXPECTED_SHA, process\.env\.CURRENT_MAIN_SHA\)/.test(convergence)
+      && new RegExp(`newerMainChanges\\?\\.${plane} === false`).test(convergence)
+      && /cumulativeChanges, newerMainChanges \}/.test(convergence));
+    check(`P1351 ${name} pre-mutation guard asks the shared classifier instead of requiring an exact HEAD match`,
+      guard.includes(`--main-advance ${plane} "$EXPECTED_SHA" "$current_main_sha"`)
+      && /git fetch --no-tags --quiet origin "\$current_main_sha"/.test(guard)
+      && !/\[ "\$current_main_sha" = "\$EXPECTED_SHA" \]/.test(guard));
+  }
+}
+
 const activeVersionId = 'a1a1a1a1-1111-4111-8111-a1a1a1a1a1a1';
 let rejectsSplitRollback = false;
 try {

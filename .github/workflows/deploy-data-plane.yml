@@ -98,21 +98,26 @@ jobs:
           LIVE_SHA="$(node -e "const h=require(process.argv[1]);process.stdout.write(typeof h.sourceSha==='string'?h.sourceSha:'')" "$RUNNER_TEMP/aio-fast-convergence-health.json")"
           CURRENT_MAIN_SHA="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
           export LIVE_SHA CURRENT_MAIN_SHA
+          # A newer main must exist locally to classify what it changed; an unreachable commit fails closed to the stale skip.
+          git fetch --no-tags --quiet origin "$CURRENT_MAIN_SHA" || true
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          import { getWorkerChangesBetween, isAncestorCommit, shouldDeployWorker } from './scripts/worker-deploy-impact.mjs';
+          import { getMainAdvanceWorkerChanges, getWorkerChangesBetween, isAncestorCommit, shouldDeployWorker } from './scripts/worker-deploy-impact.mjs';
           const manual = process.env.EVENT_NAME === 'workflow_dispatch';
           const changed = process.env.ATTESTED_CHANGE === 'true';
           const liveSha = process.env.LIVE_SHA;
-          const liveIsAncestor = !manual && process.env.CURRENT_MAIN_SHA === process.env.EXPECTED_SHA
+          // P1351: a main that only gained data-refresh commits still carries the tested Worker bytes.
+          const newerMainChanges = process.env.CURRENT_MAIN_SHA === process.env.EXPECTED_SHA ? undefined : getMainAdvanceWorkerChanges(process.env.EXPECTED_SHA, process.env.CURRENT_MAIN_SHA);
+          const mainAdvanceSafe = process.env.CURRENT_MAIN_SHA === process.env.EXPECTED_SHA || newerMainChanges?.dataPlane === false;
+          const liveIsAncestor = !manual && mainAdvanceSafe
             && liveSha !== process.env.EXPECTED_SHA && /^[0-9a-f]{40}$/.test(liveSha)
             && isAncestorCommit(liveSha, process.env.EXPECTED_SHA);
           const cumulativeChanges = liveIsAncestor && !changed
             ? await getWorkerChangesBetween(liveSha, process.env.EXPECTED_SHA)
             : undefined;
-          const shouldDeploy = shouldDeployWorker({ plane: 'dataPlane', manual, attestedChanged: changed, liveSha, testedSha: process.env.EXPECTED_SHA, latestMainSha: process.env.CURRENT_MAIN_SHA, cumulativeChanges });
+          const shouldDeploy = shouldDeployWorker({ plane: 'dataPlane', manual, attestedChanged: changed, liveSha, testedSha: process.env.EXPECTED_SHA, latestMainSha: process.env.CURRENT_MAIN_SHA, cumulativeChanges, newerMainChanges });
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `should_deploy=${shouldDeploy}\n`);
-          const reason = !manual && process.env.CURRENT_MAIN_SHA !== process.env.EXPECTED_SHA ? 'stale-ci-run' : shouldDeploy ? 'worker-change-or-live-drift' : 'already-converged-or-no-worker-change';
+          const reason = !manual && process.env.CURRENT_MAIN_SHA !== process.env.EXPECTED_SHA && !mainAdvanceSafe ? 'stale-ci-run' : shouldDeploy ? 'worker-change-or-live-drift' : 'already-converged-or-no-worker-change';
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `reason=${reason}\n`);
           console.log(`Data-plane automatic convergence decision: ${shouldDeploy ? 'deploy' : 'skip'} (live=${liveSha || 'unknown'}, tested=${process.env.EXPECTED_SHA})`);
           NODE
@@ -186,11 +191,11 @@ jobs:
         run: |
           set -euo pipefail
           current_main_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
-          if [ "$current_main_sha" = "$EXPECTED_SHA" ]; then
-            echo 'safe=true' >> "$GITHUB_OUTPUT"
-          else
-            echo "Main advanced to $current_main_sha; skipping stale fast data-plane run for $EXPECTED_SHA."
-            echo 'safe=false' >> "$GITHUB_OUTPUT"
+          git fetch --no-tags --quiet origin "$current_main_sha" || true
+          safe="$(node scripts/worker-deploy-impact.mjs --main-advance dataPlane "$EXPECTED_SHA" "$current_main_sha")"
+          echo "safe=$safe" >> "$GITHUB_OUTPUT"
+          if [ "$safe" != 'true' ]; then
+            echo "Main advanced to $current_main_sha with changes to this Worker's inputs; skipping stale fast data-plane run for $EXPECTED_SHA."
           fi
 
       - name: Deploy Worker

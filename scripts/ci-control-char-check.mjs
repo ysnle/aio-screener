@@ -134,11 +134,14 @@ if (process.argv.includes('--write-baseline')) {
 }
 
 // ── 3) P1500 (owner 2026-10-06): no emoji or pictographs in product code ─────────────────────
-// The shell, legacy modules and native ESM render no emoji. Arrows ↔ ↗ ↙ ▶ ◀ are typography, not
-// emoji. Lines that remove pictographs from external text keep their character classes.
+// The shell, legacy modules and native ESM render no emoji. Arrows ↔ ↗ ↙ ▶ ◀ and the UI glyphs ★ ☆ ☰
+// (watchlist star, menu icon) are typography, not emoji. Lines that remove pictographs from external text
+// keep their character classes. The glyphs are listed explicitly because \p{Extended_Pictographic} is
+// Unicode-data dependent: Node 20.20.2 (Unicode 17) does not match ★ U+2605 or ☰ U+2630, Node 22.22.0
+// (Unicode 16) does, which made this preflight gate fail on one runtime and pass on the other.
 {
   const PICTOGRAPH = /\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]/u;
-  const ALLOWED = /[↔↗↙▶◀]/gu;
+  const ALLOWED = /[↔↗↙▶◀★☆☰]/gu;
   const FILTER_LINE = /_AIO_PICTOGRAPH_RE|replace\(\/\[\\u\{1F300\}|if \(\/\^\(받\\\)|if \(\/\^\[📍|PICTOGRAPH|redCount = \(txt\.match/;
   const productFiles = ['index.html'];
   for (const dir of ['js', 'src']) {
