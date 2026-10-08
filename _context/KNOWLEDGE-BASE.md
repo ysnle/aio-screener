@@ -1,8 +1,16 @@
 ---
-verified_by: Codex structural/runtime audit; semantic human review remains open
-last_verified: 2026-08-23
+verified_by: P1518 structural ownership and evidence-boundary review; historical entries and semantic human review remain open
+last_verified: 2026-10-08
 confidence: high
 ---
+
+## 2026-10-08 v57.29 shared ownership and evidence boundary (P1518)
+
+- 공유 artifact 요청은 최초 화면의 취소 신호가 소유하지 않는다. provider가 single-flight와 성공 완료 TTL을 관리하고, orchestrator가 현재 generation/scope만 발행한다.
+- mount·cleanup·이벤트 소비자는 다시 진입하거나 실패할 수 있다. 반환 시점에 현재 소유자를 확인하고 뒤늦은 disposer도 해제한다. 형제 소비자는 독립 실행한다.
+- HTTP 성공 헤더는 본문 완료가 아니다. Worker와 브라우저 JSON 전송은 본문까지 제한 시간을 유지하는 공통 경계를 사용한다.
+- 전체 QA 증명은 부분 검사 PASS·파일 hash 목록과 다르다. gate 범위와 manifest/runner identity, 실제 index 내용이 함께 일치해야 한다.
+- 이번 날짜는 이 구조 경계와 생성 workspace 계약의 재검토 날짜다. 아래 과거 투자 연구·수치·지식 본문의 의미 검수 날짜를 갱신하지 않는다.
 
 ## 2026-08-23 v54.57 generated workspace and knowledge-layer boundary
 

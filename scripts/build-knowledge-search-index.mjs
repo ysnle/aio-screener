@@ -22,7 +22,7 @@ const keysFor = new Map();
 for (const concept of CONCEPT_CORE) {
   for (const target of CONCEPT_SURFACES[concept.id] || []) {
     if (!keysFor.has(target)) keysFor.set(target, new Set());
-    [concept.term, ...concept.aliases].forEach((key) => keysFor.get(target).add(key));
+    [concept.term, ...concept.aliases, ...(concept.covers || [])].forEach((key) => keysFor.get(target).add(key));
   }
 }
 const keys = (id, extra = []) => [...new Set([...extra, ...(keysFor.get(id) || [])].filter(Boolean).map(String))];
@@ -31,7 +31,14 @@ const entries = [];
 const pathTitle = new Map(PATHS.map((item) => [item.id, item.title]));
 for (const lesson of LESSONS) {
   const id = `frame:${lesson.id}`;
-  entries.push({ id, surface: 'frame', surfaceLabel: '분석 프레임', title: lesson.issue, text: clip(lesson.answer), group: pathTitle.get(lesson.path) || null, keys: keys(id, [lesson.title, ...(lesson.concepts || [])]), route: { page: 'principles', params: { mode: 'frames', node: lesson.id } } });
+  entries.push({ id, surface: 'frame', surfaceLabel: '분석 노트', title: lesson.issue, text: clip(lesson.answer), group: pathTitle.get(lesson.path) || null, keys: keys(id, [lesson.title, ...(lesson.concepts || [])]), route: { page: 'principles', params: { mode: 'frames', node: lesson.id } } });
+}
+// Codex browser audit H52: the twelve column chapters were not searchable at all.
+for (const part of read('public-data/principles/narrative-journey.json').parts || []) {
+  for (const chapter of part.chapters || []) {
+    const id = `column:${chapter.id}`;
+    entries.push({ id, surface: 'column', surfaceLabel: '칼럼', title: chapter.title, text: clip(chapter.lead), group: part.title || null, keys: keys(id, [...(chapter.chain || [])]), route: { page: 'principles', params: { mode: 'story', chapter: chapter.id } } });
+  }
 }
 const principlesLessons = read('public-data/principles/lesson-library.json').lessons || [];
 for (const lesson of principlesLessons) {
@@ -63,7 +70,7 @@ for (const manager of read('public-data/masters/manager-catalog.json').managers 
 
 const output = {
   schemaVersion: 'knowledge-search-index.v1',
-  generatedFrom: ['src/domain/knowledge/learning-core.js', 'src/domain/knowledge/concept-core.js', 'public-data/principles/lesson-library.json', 'src/ui/pages/principles.js', 'public-data/atlas/foundation-lessons.json', 'public-data/atlas/taxonomy-node-coverage.json', 'public-data/masters/manager-catalog.json'],
+  generatedFrom: ['src/domain/knowledge/learning-core.js', 'src/domain/knowledge/concept-core.js', 'public-data/principles/narrative-journey.json', 'public-data/principles/lesson-library.json', 'src/ui/pages/principles.js', 'public-data/atlas/foundation-lessons.json', 'public-data/atlas/taxonomy-node-coverage.json', 'public-data/masters/manager-catalog.json'],
   boundary: 'Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.',
   counts: Object.fromEntries([...new Set(entries.map((entry) => entry.surface))].map((surface) => [surface, entries.filter((entry) => entry.surface === surface).length])),
   entries

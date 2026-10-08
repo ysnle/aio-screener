@@ -1,0 +1,29 @@
+{
+  "version": "v57.29",
+  "date": "2026-10-08",
+  "p": {
+    "id": 1519,
+    "title": "AI 공개 검증 정책을 native ESM으로 분리하고 모듈 부재를 안전하게 처리",
+    "symptom": "근거 결속·숫자 산문 필터·구조화 답변 복구가 legacy 채팅 구현에 종속되어 재사용과 독립 검증이 어려웠다. 공개 검증을 독립 모듈로 전환하면 모듈 부재 시 null plan을 다시 참조할 수 있었다.",
+    "root_cause": "순수 공개 정책과 UI adapter의 소유 경계가 분리되지 않았고 claim audit는 파싱 성공을 공개 성공으로 간주했다.",
+    "fix": "src/ai/response/publication.js가 evidence ID/tuple·출처 URL·시간·수치 결속·산문 필터·fallback 복구를 소유한다. legacy는 facade wrapper만 유지하고 orchestrator/compatibility facade를 통해 연결한다. 시간은 주입 가능하며 claim audit는 공개된 plan 존재를 기준으로 처리한다. 모듈 부재 시 원문 공개를 보류한다.",
+    "violated_rule": "R690 실행 증거 범위 구분. 기존 출처·관측 시각·근거 결속 정책과 current-sensitive 필터를 보존한다.",
+    "prevention": "ci-ai-intelligence-contract-check, ci-ai-chat-analysis-integration-check, ci-ai-quote-evidence-check, ci-ai-chat-public-route-browser-check의 P1519 회귀.",
+    "verification": "intelligence 30 routing cases와 domain engines, chat analysis integration, quote evidence 실행 검사 통과. 브라우저와 전체 QA 결과는 _artifacts/architecture-review-20261008/REPORT.md에 기록. 기존 공개 경로의 검증 우회가 발견됐다는 의미는 아님."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-AI-1519",
+      "text": "P1519 publication ESM 연결·주입 시각·모듈 부재·legacy 근거 수집 통합",
+      "verify_by": "node scripts/ci-ai-intelligence-contract-check.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "공유 기반 아키텍처 회귀",
+  "changelog": [
+    "**AI 공개 정책 경계 (P1519):** 근거·수치 검증과 안전한 문장 복구를 native ESM으로 분리. 레거시 채팅은 adapter만 유지하고 모듈 부재 시 원문 공개를 보류. 기존 모델·예산·시장 콘텐츠 정책 유지."
+  ],
+  "note": "v57.29 — 공유 런타임·Worker 본문 deadline·원자 저장·전체 QA 증명 보강 및 AI 공개 정책 ESM 분리.",
+  "status": null
+}

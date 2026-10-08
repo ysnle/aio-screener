@@ -39,8 +39,8 @@ export function renderManagersPage(doc, { root, catalog, registry, selectedId, o
   }
   if (overview) {
     const article = el(doc, 'article', 'af-article');
-    article.append(el(doc, 'p', 'af-kicker', '운용사·13F'), el(doc, 'h2', 'af-issue', '돈을 굴리는 여덟 가지 방식'),
-      el(doc, 'p', 'af-lead', '13F는 전체 포트폴리오가 아니다. 미국 상장 주식과 일부 옵션의 분기 말 롱 포지션만 45일 늦게 보여 주는 공시다. 그래서 같은 13F라도 누가 냈느냐에 따라 읽는 법이 완전히 다르다. 지수를 그대로 따라가는 운용사의 보유 변화는 판단이 아니라 자금 흐름의 결과이고, 퀀트 펀드의 보유 목록에는 숏 포지션이 빠져 있어 방향을 말해 주지 않는다. 매크로 펀드의 핵심 포지션인 선물·외환·국채는 아예 보이지 않는다. 보유 목록을 열기 전에, 그 운용사가 어떤 문제를 풀려고 하는지부터 보는 이유다.'));
+    article.append(el(doc, 'p', 'af-kicker', '운용사·13F'), el(doc, 'h2', 'af-issue', '돈을 굴리는 방식별로 13F 읽기'),
+      el(doc, 'p', 'af-lead', '13F는 전체 포트폴리오가 아니다. 미국 상장 주식과 일부 옵션의 분기 말 롱 포지션을, 통상 분기가 끝난 뒤 45일 이내에 신고하는 공시다. 운용사마다 실제 기준 분기와 제출일이 다르니 각 상세의 보고 분기를 함께 본다. 그래서 같은 13F라도 누가 냈느냐에 따라 읽는 법이 완전히 다르다. 지수를 그대로 따라가는 운용사의 보유 변화는 판단이 아니라 자금 흐름의 결과이고, 퀀트 펀드의 보유 목록에는 숏 포지션이 빠져 있어 방향을 말해 주지 않는다. 매크로 펀드의 핵심 포지션인 선물·외환·국채는 아예 보이지 않는다. 보유 목록을 열기 전에, 그 운용사가 어떤 문제를 풀려고 하는지부터 보는 이유다.'));
     if (styleTable) { styleTable.open = true; article.appendChild(styleTable); }
     main.appendChild(article);
   } else if (detail) {

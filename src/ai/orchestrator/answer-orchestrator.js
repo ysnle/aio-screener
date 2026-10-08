@@ -1,6 +1,7 @@
 import { createQuestionPlan } from './question-planner.js';
 import { createCapabilityPlan } from './capability-planner.js';
 import { createAnswerPlan, validateAnswerPlan, parseAnswerPlanText } from '../response/claim-ledger.js';
+import * as answerPublication from '../response/publication.js';
 import { renderAnswerPlan } from '../response/renderer.js';
 import { createDomainAnalysisRegistry } from '../analysis/registry.js';
 import { buildEvidenceAnalysisInputs } from '../analysis/evidence-inputs.js';
@@ -84,6 +85,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     validateAnswerPlan,
     parseAnswerPlanText,
     renderAnswerPlan,
+    answerPublication,
     createCapabilityPlan,
     buildAIKnowledgeContext: (query, options = {}) => knowledgeRetriever?.buildContext
       ? knowledgeRetriever.buildContext(query, options)

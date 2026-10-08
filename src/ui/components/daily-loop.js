@@ -25,7 +25,9 @@ function renderChanges(doc, host, history) {
   const model = buildDailyChanges(history);
   host.replaceChildren(el(doc, 'h2', '어제와 달라진 점', 'briefing-h2'));
   if (!model.available) { host.append(emptyState(doc, { title: '비교 대기', reason: model.reason, compact: true })); return model; }
-  host.querySelector('h2').append(el(doc, 'span', `${shortDate(model.prevDate)} → ${shortDate(model.date)} 종가`, 'briefing-h2-note'));
+  const gap = Array.isArray(model.missing) && model.missing.length > 0;
+  if (gap) host.querySelector('h2').firstChild.textContent = '직전 기록과 달라진 점';
+  host.querySelector('h2').append(el(doc, 'span', `${shortDate(model.prevDate)} → ${shortDate(model.date)} 종가${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}`, 'briefing-h2-note'));
   host.append(el(doc, 'p', model.headline, 'daily-headline'));
   const grid = el(doc, 'div', null, 'daily-moves');
   for (const move of model.moves) {

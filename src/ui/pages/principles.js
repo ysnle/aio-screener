@@ -590,7 +590,15 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
          const action = target.dataset.principlesAction;
          const value = target.dataset.principlesValue;
         if (action === 'group') {
-          state.openGroup = state.openGroup === value ? null : value;
+          const opening = state.openGroup !== value;
+          state.openGroup = opening ? value : null;
+          // Codex browser audit H53: switching the kind tab kept the previous document in the body, so a
+          // reader under "개념 사전" was still reading a lesson. Opening a kind now opens that kind's
+          // last-read document (or its first one); closing the open tab only folds the contents.
+          if (opening) {
+            state.view = value;
+            if (value === 'lesson') { state.lessonId = state.lessonId || state.activeLessonId || 'A1'; state.activeLessonId = state.lessonId; }
+          }
           if (value === 'lesson') ensureLibraryCapabilities();
         }
         if (action === 'frame') { state.view = 'frames'; state.frameId = value; state.openGroup = 'frames'; learning.markViewed(`principles-frame:${value}`); }

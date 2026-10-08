@@ -101,7 +101,16 @@ try {
       entrypoint: 'truncated-fixture', streamPhase: 'complete', completion: { stopReason: 'max_tokens', truncated: true }, record: false
     });
     const partial = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1"', { entrypoint: 'partial-fixture', streamPhase: 'partial', record: false });
-    return { config, routeState, routeDisabled, streamed, unbound, invalid, truncated, partial };
+    // P1519: an unavailable publication module must not dereference a null plan or expose raw output.
+    const architecture = Object.getOwnPropertyDescriptor(window, 'AIO_ARCH');
+    let unavailable;
+    try {
+      Object.defineProperty(window, 'AIO_ARCH', { ...architecture, value: { ...architecture.value, getAIOrchestrator: () => ({ ...architecture.value.getAIOrchestrator(), answerPublication: null }) } });
+      unavailable = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]' + JSON.stringify({
+        schemaVersion: 'answer-plan.v1', summary: '현재 주가 999 USD', claims: [], sections: [], citations: []
+      }) + '[/AI_ANSWER_PLAN]', { entrypoint: 'publication-unavailable-fixture', questionPlan, streamPhase: 'complete', record: false });
+    } finally { Object.defineProperty(window, 'AIO_ARCH', architecture); }
+    return { config, routeState, routeDisabled, streamed, unbound, invalid, truncated, partial, unavailable };
   });
 
   await page.waitForFunction(() => typeof autoTranslateNews === 'function' && !_translationInProgress);
@@ -150,6 +159,7 @@ try {
   assert('invalid numeric prose is removed but qualitative section survives', result.invalid?.blocked === false && /변동성과 위험 선호/.test(result.invalid.text) && !/15\.2/.test(result.invalid.text));
   assert('truncated JSON recovers prose and reports limitation', result.truncated?.blocked === false && /공급과 수요/.test(result.truncated.text) && result.truncated?.limitations?.includes('model-output-truncated'));
   assert('partial JSON never exposes control payload', result.partial?.text === 'AI 답변을 구성하고 근거를 검증하는 중…' && !/AI_ANSWER_PLAN/.test(result.partial.text));
+  assert('P1519 unavailable publication cannot expose raw numbers or control JSON', result.unavailable?.text && !/999|AI_ANSWER_PLAN/.test(result.unavailable.text));
   assert('no browser runtime errors', errors.length === 0);
   if (failures.length) throw new Error(`${failures.join(' | ')}\n${JSON.stringify({ result, publicRequest, observedRequests, errors }, null, 2)}`);
   console.log(JSON.stringify({ ok: true, route: result.routeDisabled ? 'disabled' : result.routeState.target.source, worker: result.config.ai.workerUrl, maxTokens: publicRequest?.body?.max_output_tokens || null, workerRequestCount: observedRequests.length, partialClaimDegradation: true, truncatedRecovery: true, errors }));

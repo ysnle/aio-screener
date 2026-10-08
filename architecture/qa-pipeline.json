@@ -223,7 +223,8 @@
             "architecture/**",
             "public-config.json",
             "public-data/operations-status.json",
-            "scripts/bump-version.mjs"
+            "scripts/bump-version.mjs",
+            "worker/wrangler.proxy.toml"
           ]
         },
         {
@@ -260,7 +261,8 @@
           "inputs": [
             "src/app/**",
             "architecture/route-owners.json",
-            "js/aio-core.js"
+            "js/aio-core.js",
+            "js/aio-qa-audits.js"
           ]
         },
         {
@@ -413,7 +415,24 @@
         },
         {
           "id": "ai-intelligence",
-          "script": "scripts/ci-ai-intelligence-contract-check.mjs"
+          "script": "scripts/ci-ai-intelligence-contract-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            "public-data/knowledge/ai-retrieval-index.json",
+            "public-data/principles/lesson-library.json",
+            "public-data/atlas/foundation-lessons.json",
+            "public-data/knowledge/nathan-frameworks.json",
+            "public-data/knowledge/integrated-market-ai-frameworks.json"
+          ]
         },
         {
           "id": "ai-premise",
@@ -441,7 +460,20 @@
         },
         {
           "id": "research-flow",
-          "script": "scripts/ci-research-flow-contract-check.mjs"
+          "script": "scripts/ci-research-flow-contract-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            "public-data/knowledge/nathan-frameworks.json"
+          ]
         },
         {
           "id": "proxy-continuity",
@@ -530,12 +562,26 @@
             "scripts/worker-deploy-impact.mjs",
             "scripts/ci-external-pipeline-check.mjs",
             "scripts/ci-live-invariant-check.mjs",
-            "scripts/build-operations-status.mjs"
+            "scripts/build-operations-status.mjs",
+            "scripts/ci-cloudflare-deployment-contract-check.mjs"
           ]
         },
         {
           "id": "retirement",
-          "script": "scripts/ci-retirement-contract.mjs"
+          "script": "scripts/ci-retirement-contract.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            "public-data/operations-status.json"
+          ]
         },
         {
           "id": "inference",
@@ -555,19 +601,94 @@
         },
         {
           "id": "desktop-scope",
-          "script": "scripts/ci-desktop-scope-check.mjs"
+          "script": "scripts/ci-desktop-scope-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
+            "_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md"
+          ]
         },
         {
           "id": "runtime",
-          "script": "scripts/ci-runtime-contract-check.mjs"
+          "script": "scripts/ci-runtime-contract-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            "cloudflare-worker-proxy.js",
+            "package.json",
+            ".github/workflows/ci.yml",
+            ".github/workflows/pages-deploy.yml",
+            ".github/workflows/knowledge-lint.yml",
+            "public-data/telegram-digest.json",
+            "_context/RULES.md",
+            "_context/QA-CHECKLIST.md",
+            "_context/BUG-POSTMORTEM.md",
+            "CHANGELOG.md",
+            "public-data/screener.json",
+            "public-data/score-backtest-longrun.json",
+            "public-data/factor-backtest-longrun.json"
+          ]
         },
         {
           "id": "ai-chat-reliability",
-          "script": "scripts/ci-ai-chat-reliability-contract-check.mjs"
+          "script": "scripts/ci-ai-chat-reliability-contract-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            "cloudflare-worker-proxy.js",
+            "public-data/operations-status.json"
+          ]
         },
         {
           "id": "data-pipeline",
-          "script": "scripts/ci-data-pipeline-contract-check.mjs"
+          "script": "scripts/ci-data-pipeline-contract-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            ".github/workflows/refresh-data.yml",
+            ".github/workflows/refresh-screener.yml",
+            ".github/workflows/data-watchdog.yml",
+            ".github/workflows/ci.yml",
+            "_context/QA-CHECKLIST.md",
+            "_context/RULES.md",
+            "_context/BUG-POSTMORTEM.md",
+            "public-data/sec-fundamentals.json",
+            "public-data/screener-universe.json",
+            "public-data/screener.json"
+          ]
         },
         {
           "id": "page-timeline",
@@ -575,7 +696,23 @@
         },
         {
           "id": "semantic-review",
-          "script": "scripts/ci-semantic-review-check.mjs"
+          "script": "scripts/ci-semantic-review-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            "_context/RULES.md",
+            "_context/QA-CHECKLIST.md",
+            "_context/BUG-POSTMORTEM.md",
+            "CHANGELOG.md"
+          ]
         }
       ]
     },
@@ -595,7 +732,18 @@
       "gates": [
         {
           "id": "macro-calendar-review",
-          "script": "scripts/ci-macro-calendar-review-contract-check.mjs"
+          "script": "scripts/ci-macro-calendar-review-contract-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "src/data/**",
+            "src/domain/**",
+            "src/state/**",
+            "js/aio-data.js",
+            "version.json",
+            ".github/workflows/macro-calendar-review.yml"
+          ]
         },
         {
           "id": "screener-workbench",
@@ -638,11 +786,39 @@
         },
         {
           "id": "data-plane",
-          "script": "scripts/ci-data-plane-contract-check.mjs"
+          "script": "scripts/ci-data-plane-contract-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "src/data/**",
+            "src/domain/**",
+            "src/state/**",
+            "js/aio-data.js",
+            "version.json",
+            "worker/data-plane.js",
+            "worker/wrangler.example.toml",
+            "worker/README.md",
+            ".github/workflows/deploy-data-plane.yml",
+            ".github/workflows/data-watchdog.yml",
+            ".github/workflows/refresh-data.yml",
+            "src/platform/http.js"
+          ]
         },
         {
           "id": "operations-status",
-          "script": "scripts/ci-operations-status-check.mjs"
+          "script": "scripts/ci-operations-status-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "src/data/**",
+            "src/domain/**",
+            "src/state/**",
+            "js/aio-data.js",
+            "version.json",
+            "public-config.json"
+          ]
         },
         {
           "id": "operations-alert-policy",
@@ -687,7 +863,18 @@
         },
         {
           "id": "professional-gap",
-          "script": "scripts/ci-professional-data-gap-check.mjs"
+          "script": "scripts/ci-professional-data-gap-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "src/data/**",
+            "src/domain/**",
+            "src/state/**",
+            "js/aio-data.js",
+            "version.json",
+            "js/aio-workspace.js"
+          ]
         },
         {
           "id": "operator-readiness",
@@ -729,11 +916,40 @@
         },
         {
           "id": "review-integrity",
-          "script": "scripts/ci-review-integrity-unit-check.mjs"
+          "script": "scripts/ci-review-integrity-unit-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "src/data/**",
+            "src/domain/**",
+            "src/state/**",
+            "js/aio-data.js",
+            "version.json",
+            "src/ui/pages/screener.js",
+            "src/ui/components/macro-board.js"
+          ]
         },
         {
           "id": "static-data",
-          "script": "scripts/ci-static-data-contract-check.mjs"
+          "script": "scripts/ci-static-data-contract-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "src/data/**",
+            "src/domain/**",
+            "src/state/**",
+            "js/aio-data.js",
+            "version.json",
+            "js/aio-core.js",
+            "js/aio-qa-audits.js",
+            "js/aio-ui.js",
+            "src/ui/pages/market.js",
+            "index.html",
+            "js/aio-chat.js",
+            "js/aio-kr-data.js"
+          ]
         },
         {
           "id": "artifact-semantics",
@@ -759,7 +975,8 @@
             "js/aio-kr-data.js",
             "index.html",
             "public-data/screener-universe.json",
-            "scripts/build-universe-review.mjs"
+            "scripts/build-universe-review.mjs",
+            "js/aio-qa-audits.js"
           ]
         },
         {
@@ -775,7 +992,10 @@
             "js/aio-data.js",
             "js/aio-kr-data.js",
             "version.json",
-            "index.html"
+            "index.html",
+            ".github/workflows/refresh-data.yml",
+            "js/aio-core.js",
+            "js/aio-qa-audits.js"
           ]
         },
         {
@@ -878,7 +1098,22 @@
         },
         {
           "id": "integrated-framework",
-          "script": "scripts/ci-integrated-framework-contract.mjs"
+          "script": "scripts/ci-integrated-framework-contract.mjs",
+          "inputs": [
+            "public-data/knowledge/**",
+            "public-data/principles/**",
+            "public-data/atlas/**",
+            "public-data/masters/**",
+            "src/domain/knowledge/**",
+            "src/ui/pages/principles.js",
+            "src/ui/pages/atlas.js",
+            "src/ui/pages/masters.js",
+            "src/ui/knowledge/**",
+            "scripts/**",
+            ".github/workflows/knowledge-build-candidate.yml",
+            "_context/**",
+            "src/ai/retrieval/knowledge.js"
+          ]
         },
         {
           "id": "knowledge-ontology",
@@ -942,19 +1177,103 @@
         },
         {
           "id": "atlas-contract",
-          "script": "scripts/ci-atlas-contract-check.mjs"
+          "script": "scripts/ci-atlas-contract-check.mjs",
+          "inputs": [
+            "public-data/knowledge/**",
+            "public-data/principles/**",
+            "public-data/atlas/**",
+            "public-data/masters/**",
+            "src/domain/knowledge/**",
+            "src/ui/pages/principles.js",
+            "src/ui/pages/atlas.js",
+            "src/ui/pages/masters.js",
+            "src/ui/knowledge/**",
+            "scripts/**",
+            ".github/workflows/knowledge-build-candidate.yml",
+            "_context/**",
+            "src/ui/navigation/route-hubs.js",
+            "src/domain/research/supplied-materials.js",
+            "index.html",
+            "js/aio-core.js",
+            "js/aio-qa-audits.js",
+            "src/app/routes.js",
+            "src/app/vertical-slices.js",
+            "src/app/bootstrap.js",
+            "public-data/telegram-digest.json"
+          ]
         },
         {
           "id": "principles-contract",
-          "script": "scripts/ci-principles-contract-check.mjs"
+          "script": "scripts/ci-principles-contract-check.mjs",
+          "inputs": [
+            "public-data/knowledge/**",
+            "public-data/principles/**",
+            "public-data/atlas/**",
+            "public-data/masters/**",
+            "src/domain/knowledge/**",
+            "src/ui/pages/principles.js",
+            "src/ui/pages/atlas.js",
+            "src/ui/pages/masters.js",
+            "src/ui/knowledge/**",
+            "scripts/**",
+            ".github/workflows/knowledge-build-candidate.yml",
+            "_context/**",
+            "index.html",
+            "src/app/routes.js",
+            "src/app/vertical-slices.js",
+            "src/app/bootstrap.js",
+            "src/domain/research/supplied-materials.js",
+            "sw.js",
+            "architecture/golden-routes.json",
+            "architecture/route-owners.json"
+          ]
         },
         {
           "id": "masters-contract",
-          "script": "scripts/ci-masters-contract-check.mjs"
+          "script": "scripts/ci-masters-contract-check.mjs",
+          "inputs": [
+            "public-data/knowledge/**",
+            "public-data/principles/**",
+            "public-data/atlas/**",
+            "public-data/masters/**",
+            "src/domain/knowledge/**",
+            "src/ui/pages/principles.js",
+            "src/ui/pages/atlas.js",
+            "src/ui/pages/masters.js",
+            "src/ui/knowledge/**",
+            "scripts/**",
+            ".github/workflows/knowledge-build-candidate.yml",
+            "_context/**",
+            "index.html",
+            "js/aio-core.js",
+            "js/aio-qa-audits.js",
+            "src/app/routes.js",
+            "src/app/vertical-slices.js",
+            "src/app/bootstrap.js",
+            "sw.js",
+            "architecture/golden-routes.json",
+            "architecture/route-owners.json"
+          ]
         },
         {
           "id": "knowledge-review",
-          "script": "scripts/ci-knowledge-review-check.mjs"
+          "script": "scripts/ci-knowledge-review-check.mjs",
+          "inputs": [
+            "public-data/knowledge/**",
+            "public-data/principles/**",
+            "public-data/atlas/**",
+            "public-data/masters/**",
+            "src/domain/knowledge/**",
+            "src/ui/pages/principles.js",
+            "src/ui/pages/atlas.js",
+            "src/ui/pages/masters.js",
+            "src/ui/knowledge/**",
+            "scripts/**",
+            ".github/workflows/knowledge-build-candidate.yml",
+            "_context/**",
+            "js/aio-glossary.js",
+            "index.html"
+          ]
         }
       ]
     },
@@ -981,7 +1300,22 @@
         },
         {
           "id": "workflow-compaction",
-          "script": "scripts/ci-workflow-compaction-check.mjs"
+          "script": "scripts/ci-workflow-compaction-check.mjs",
+          "inputs": [
+            "AGENTS.md",
+            "CLAUDE.md",
+            ".agents/**",
+            ".claude/**",
+            ".codex/**",
+            ".github/**",
+            "_context/**",
+            "architecture/agent-profiles.json",
+            "architecture/skill-eval-cases.json",
+            "architecture/qa-pipeline.json",
+            "scripts/**",
+            "version.json",
+            "CHANGELOG.md"
+          ]
         },
         {
           "id": "skill-contract",
@@ -1020,7 +1354,21 @@
         },
         {
           "id": "doc-currency",
-          "script": "scripts/ci-doc-currency-check.mjs"
+          "script": "scripts/ci-doc-currency-check.mjs",
+          "inputs": [
+            "AGENTS.md",
+            "CLAUDE.md",
+            ".agents/**",
+            ".claude/**",
+            ".codex/**",
+            ".github/**",
+            "_context/**",
+            "architecture/agent-profiles.json",
+            "architecture/skill-eval-cases.json",
+            "architecture/qa-pipeline.json",
+            "scripts/**",
+            "version.json"
+          ]
         },
         {
           "id": "ledger-integrity",
@@ -1036,7 +1384,21 @@
         },
         {
           "id": "qa-pipeline-contract",
-          "script": "scripts/ci-qa-pipeline-contract-check.mjs"
+          "script": "scripts/ci-qa-pipeline-contract-check.mjs",
+          "inputs": [
+            "AGENTS.md",
+            "CLAUDE.md",
+            ".agents/**",
+            ".claude/**",
+            ".codex/**",
+            ".github/**",
+            "_context/**",
+            "architecture/agent-profiles.json",
+            "architecture/skill-eval-cases.json",
+            "architecture/qa-pipeline.json",
+            "scripts/**",
+            "architecture/operations-alert-policy.json"
+          ]
         }
       ]
     },
@@ -1120,7 +1482,34 @@
         },
         {
           "id": "cloudflare-deployment",
-          "script": "scripts/ci-cloudflare-deployment-contract-check.mjs"
+          "script": "scripts/ci-cloudflare-deployment-contract-check.mjs",
+          "inputs": [
+            "js/**",
+            "src/**",
+            "scripts/fetch-data.mjs",
+            "cloudflare-worker-proxy.js",
+            "worker/**",
+            ".github/workflows/ci.yml",
+            ".github/workflows/deploy-ai-proxy.yml",
+            ".github/workflows/deploy-data-plane.yml",
+            "architecture/worker-endpoints.json",
+            "scripts/resolve-worker-rollback-version.mjs",
+            "scripts/worker-deploy-impact.mjs",
+            "src/data/contracts/market-snapshot.js",
+            "src/data/contracts/source-kind.js",
+            "scripts/ci-worker-anthropic-check.mjs",
+            "scripts/ci-ai-budget-scope-check.mjs",
+            "scripts/lib/ai-shared-analysis.mjs",
+            "scripts/build-operations-status.mjs",
+            "public-config.json",
+            ".github/workflows/refresh-data.yml",
+            "scripts/ci-worker-relay-check.mjs",
+            "scripts/operations-alert/collect-observations.mjs",
+            "scripts/ci-operations-alert-source-check.mjs",
+            "scripts/ci-data-plane-contract-check.mjs",
+            "scripts/ci-cloudflare-deployment-contract-check.mjs",
+            ".github/workflows/pages-deploy.yml"
+          ]
         }
       ]
     },
@@ -1395,7 +1784,14 @@
         {
           "id": "watchdog-operations",
           "script": "scripts/ci-operations-status-check.mjs",
-          "cache": false
+          "cache": false,
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "version.json",
+            "public-config.json"
+          ]
         },
         {
           "id": "watchdog-reconciliation",
@@ -1410,12 +1806,33 @@
         {
           "id": "watchdog-professional-gap",
           "script": "scripts/ci-professional-data-gap-check.mjs",
-          "cache": false
+          "cache": false,
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "version.json",
+            "js/aio-workspace.js"
+          ]
         },
         {
           "id": "watchdog-static-data",
           "script": "scripts/ci-static-data-contract-check.mjs",
-          "cache": false
+          "cache": false,
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "version.json",
+            "js/aio-core.js",
+            "js/aio-qa-audits.js",
+            "js/aio-data.js",
+            "js/aio-ui.js",
+            "src/ui/pages/market.js",
+            "index.html",
+            "js/aio-chat.js",
+            "js/aio-kr-data.js"
+          ]
         },
         {
           "id": "watchdog-web-research",
@@ -1425,7 +1842,18 @@
         {
           "id": "watchdog-data-refresh",
           "script": "scripts/ci-data-refresh-audit.mjs",
-          "cache": false
+          "cache": false,
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "version.json",
+            ".github/workflows/refresh-data.yml",
+            "js/aio-data.js",
+            "js/aio-core.js",
+            "js/aio-qa-audits.js",
+            "js/aio-kr-data.js"
+          ]
         },
         {
           "id": "watchdog-artifact-headroom",
@@ -1918,6 +2346,322 @@
         "browser-resilience",
         "browser-viewport",
         "browser-surface"
+      ]
+    },
+    {
+      "patterns": [
+        "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json"
+      ],
+      "groups": [],
+      "gates": [
+        "desktop-scope"
+      ]
+    },
+    {
+      "patterns": [
+        "_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md"
+      ],
+      "groups": [],
+      "gates": [
+        "desktop-scope"
+      ]
+    },
+    {
+      "patterns": [
+        "package.json"
+      ],
+      "groups": [],
+      "gates": [
+        "runtime"
+      ]
+    },
+    {
+      "patterns": [
+        ".github/workflows/knowledge-lint.yml"
+      ],
+      "groups": [],
+      "gates": [
+        "runtime"
+      ]
+    },
+    {
+      "patterns": [
+        "_context/RULES.md"
+      ],
+      "groups": [],
+      "gates": [
+        "runtime",
+        "data-pipeline",
+        "semantic-review"
+      ]
+    },
+    {
+      "patterns": [
+        "_context/QA-CHECKLIST.md"
+      ],
+      "groups": [],
+      "gates": [
+        "runtime",
+        "data-pipeline",
+        "semantic-review"
+      ]
+    },
+    {
+      "patterns": [
+        "_context/BUG-POSTMORTEM.md"
+      ],
+      "groups": [],
+      "gates": [
+        "runtime",
+        "data-pipeline",
+        "semantic-review"
+      ]
+    },
+    {
+      "patterns": [
+        "CHANGELOG.md"
+      ],
+      "groups": [],
+      "gates": [
+        "runtime",
+        "semantic-review",
+        "workflow-compaction"
+      ]
+    },
+    {
+      "patterns": [
+        ".github/workflows/data-watchdog.yml"
+      ],
+      "groups": [],
+      "gates": [
+        "data-pipeline",
+        "data-plane"
+      ]
+    },
+    {
+      "patterns": [
+        "src/platform/http.js"
+      ],
+      "groups": [],
+      "gates": [
+        "data-plane"
+      ]
+    },
+    {
+      "patterns": [
+        "js/aio-workspace.js"
+      ],
+      "groups": [],
+      "gates": [
+        "professional-gap"
+      ]
+    },
+    {
+      "patterns": [
+        "src/ui/pages/screener.js"
+      ],
+      "groups": [],
+      "gates": [
+        "review-integrity"
+      ]
+    },
+    {
+      "patterns": [
+        "src/ui/components/macro-board.js"
+      ],
+      "groups": [],
+      "gates": [
+        "review-integrity"
+      ]
+    },
+    {
+      "patterns": [
+        "js/aio-qa-audits.js"
+      ],
+      "groups": [],
+      "gates": [
+        "static-data",
+        "static-db-expiry",
+        "data-refresh",
+        "atlas-contract",
+        "masters-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "js/aio-ui.js"
+      ],
+      "groups": [],
+      "gates": [
+        "static-data"
+      ]
+    },
+    {
+      "patterns": [
+        "src/ui/pages/market.js"
+      ],
+      "groups": [],
+      "gates": [
+        "static-data"
+      ]
+    },
+    {
+      "patterns": [
+        "js/aio-chat.js"
+      ],
+      "groups": [],
+      "gates": [
+        "static-data"
+      ]
+    },
+    {
+      "patterns": [
+        "src/ai/retrieval/knowledge.js"
+      ],
+      "groups": [],
+      "gates": [
+        "integrated-framework"
+      ]
+    },
+    {
+      "patterns": [
+        "src/ui/navigation/route-hubs.js"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "src/domain/research/supplied-materials.js"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract",
+        "principles-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "index.html"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract",
+        "principles-contract",
+        "masters-contract",
+        "knowledge-review"
+      ]
+    },
+    {
+      "patterns": [
+        "js/aio-core.js"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract",
+        "masters-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "src/app/routes.js"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract",
+        "principles-contract",
+        "masters-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "src/app/vertical-slices.js"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract",
+        "principles-contract",
+        "masters-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "src/app/bootstrap.js"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract",
+        "principles-contract",
+        "masters-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "public-data/telegram-digest.json"
+      ],
+      "groups": [],
+      "gates": [
+        "atlas-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "sw.js"
+      ],
+      "groups": [],
+      "gates": [
+        "principles-contract",
+        "masters-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "architecture/golden-routes.json"
+      ],
+      "groups": [],
+      "gates": [
+        "principles-contract",
+        "masters-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "architecture/route-owners.json"
+      ],
+      "groups": [],
+      "gates": [
+        "principles-contract",
+        "masters-contract"
+      ]
+    },
+    {
+      "patterns": [
+        "js/aio-glossary.js"
+      ],
+      "groups": [],
+      "gates": [
+        "knowledge-review"
+      ]
+    },
+    {
+      "patterns": [
+        "version.json"
+      ],
+      "groups": [],
+      "gates": [
+        "workflow-compaction",
+        "doc-currency"
+      ]
+    },
+    {
+      "patterns": [
+        "architecture/operations-alert-policy.json"
+      ],
+      "groups": [],
+      "gates": [
+        "qa-pipeline-contract"
       ]
     }
   ]

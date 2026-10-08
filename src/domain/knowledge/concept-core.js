@@ -94,8 +94,31 @@ const LINKS = {
   'pue': [[], []]
 };
 
+// Codex browser audit H55 (2026-10-07): a compound entry (신주 발행과 구주 매출, 임상 1·2·3상) listed each
+// part under "같은 뜻", which erased the very distinction the entry teaches. Parts and loose names move to
+// `covers` ("이 글에서 다루는 용어"): still search and glossary-merge keys, never presented as synonyms.
+const COVERS = {
+  'arith-vs-geo': ['연평균 복리 수익률', 'CAGR', '기하평균 수익률'],
+  'correlation': ['상관계수'],
+  'working-capital': ['순운전자본'],
+  'accounting-vs-economic-profit': ['경제적 이익', 'economic profit', '회계 이익'],
+  'roi-vs-net-benefit': ['ROI', '투자수익률', '순편익', '회수기간', 'payback'],
+  'primary-vs-secondary': ['신주', '신주 발행', '구주', '구주 매출', 'primary offering', 'secondary offering'],
+  'nominal-real-relative': ['명목수익률', '실질수익률', '상대 수익', '상대 성과'],
+  'price-level-vs-rate': ['물가 수준', '물가 상승률'],
+  'policy-vs-long-rate': ['장단기 금리'],
+  'seasonal-revision': ['계절조정', '수정치', 'revision'],
+  'insurance-reserves': ['준비금'],
+  'occupancy': ['임대율', 'occupancy rate'],
+  'price-volume-mix': ['가격 효과', '물량 효과', '믹스 효과'],
+  'cac-ltv': ['CAC', 'LTV', '고객획득비용', '고객생애가치'],
+  'gmv-vs-revenue': ['GMV', '거래액'],
+  'clinical-phases': ['임상 1상', '임상 2상', '임상 3상'],
+  'shareholder-return': ['주주환원'],
+  'front-back-end': ['전공정', '후공정']
+};
 const c = (id, term, cat, aliases, def, extra = {}) => Object.freeze({
-  id, term, cat, aliases: Object.freeze(aliases), related: Object.freeze(LINKS[id]?.[0] || []), contrast: Object.freeze(LINKS[id]?.[1] || []), def, ...extra
+  id, term, cat, aliases: Object.freeze(aliases.filter((name) => !(COVERS[id] || []).includes(name))), covers: Object.freeze(COVERS[id] || []), related: Object.freeze(LINKS[id]?.[0] || []), contrast: Object.freeze(LINKS[id]?.[1] || []), def, ...extra
 });
 
 export const CONCEPT_CORE = Object.freeze([
@@ -109,7 +132,7 @@ export const CONCEPT_CORE = Object.freeze([
   c('base-rate', '기저율', '금융수학·통계', ['base rate', '사전확률'], '어떤 일이 원래 얼마나 자주 일어나는지를 말한다. 신호의 성적은 셋으로 나눠 봐야 한다 — 전체 정확도(맞힌 날 ÷ 전체 날), 신호가 켜졌을 때 실제로 맞을 확률(적중률), 사건이 없는데 신호가 켜지는 비율(거짓 경보율). 사건이 100번 중 1번뿐이면, 사건의 90%를 잡아내고 거짓 경보율이 10%인 신호도 켜졌을 때 맞을 확률은 약 8%에 그친다.'),
   // ── 회계·재무제표 ──
   c('three-statements', '손익·재무상태·현금흐름의 연결', '회계·재무제표', ['재무제표 연결', '3대 재무제표', 'financial statements'], '손익계산서는 한 기간의 수익과 비용(이익), 재무상태표는 한 시점의 자산·부채·자본, 현금흐름표는 실제 현금의 들고 남을 보여 준다. 순이익은 자본(이익잉여금)을 늘리고, 외상 매출·재고 증가처럼 현금이 묶이면 이익과 현금이 달라진다.'),
-  c('working-capital', '운전자본', '회계·재무제표', ['working capital', '순운전자본'], '사업을 돌리는 데 묶인 돈 = 매출채권 + 재고 − 매입채무. 매출이 빠르게 늘면 받을 돈과 재고가 먼저 늘어 이익은 나는데 현금은 부족해질 수 있다. 반대로 대금을 늦게 지급하면 일시적으로 현금이 늘어 보인다.'),
+  c('working-capital', '운전자본', '회계·재무제표', ['working capital', '순운전자본'], '사업을 돌리는 데 묶인 돈. 넓은 뜻의 순운전자본은 유동자산 − 유동부채이고, 영업 분석에서는 현금·단기차입금을 뺀 영업 운전자본(매출채권 + 재고 − 매입채무가 핵심, 선수금·미지급비용 등은 생략한 근사)을 주로 본다. 매출이 빠르게 늘면 받을 돈과 재고가 먼저 늘어 이익은 나는데 현금은 부족해질 수 있다. 반대로 대금을 늦게 지급하면 일시적으로 현금이 늘어 보인다.'),
   c('accounting-vs-economic-profit', '회계 이익과 경제적 이익', '회계·재무제표', ['경제적 이익', 'economic profit', '회계 이익'], '회계 이익은 수익에서 비용을 뺀 장부상 이익이고, 경제적 이익은 여기서 투입한 자본의 기회비용(그 돈을 다른 곳에 썼다면 벌었을 수익)까지 뺀 값이다. 회계상 흑자라도 투하자본이익률이 자본비용보다 낮으면 경제적으로는 가치를 깎고 있다.'),
   c('roic', 'ROIC (투하자본이익률)', '회계·재무제표', ['ROIC', '투하자본이익률', 'return on invested capital'], '세후 영업이익(NOPAT) ÷ 투하자본(영업에 들어간 순운전자본 + 설비 등 영업자산, 또는 자기자본 + 순차입금)이다. 예: 세후 영업이익 120억, 투하자본 1,000억이면 ROIC 12%. 자본비용(WACC)이 9%라면 3%p만큼 가치를 만들고 있다는 뜻이다. 다만 이것은 이미 깔린 사업의 평균이다. 성장이 가치를 만드는지는 새로 넣는 돈의 수익률, 즉 한계 ROIC가 자본비용보다 높은지로 판단한다. 부채 비율의 영향을 덜 받는다는 점이 ROE와 다르다.'),
   c('roi-vs-net-benefit', 'ROI·순편익·회수기간', '회계·재무제표', ['ROI', '투자수익률', '순편익', '회수기간', 'payback'], '셋은 다른 질문이다. 순편익 = 편익 − 비용(금액), ROI = (편익 − 비용) ÷ 비용(비율), 회수기간 = 투자금을 되찾는 데 걸리는 시간. 100을 들여 130을 얻으면 순편익 30, ROI 30%다. 같은 ROI라도 회수가 늦으면 할인과 위험 때문에 덜 매력적이다.'),
@@ -158,7 +181,7 @@ export const CONCEPT_CORE = Object.freeze([
   c('refinancing', '차환 위험', '부동산·리츠', ['차환', 'refinancing', '리파이낸싱'], '만기가 온 빚을 새 빚으로 갚는 것. 저금리 때 빌린 돈을 고금리에 다시 빌리면 이자비용이 급증해 임대수입이 그대로여도 주주에게 남는 돈이 줄어든다.'),
   c('pf', '부동산 PF', '부동산·리츠', ['PF', '프로젝트 파이낸싱'], '완공 후 분양·임대 수입을 담보로 공사 자금을 빌리는 방식. 분양이 안 되거나 공사비가 오르면 시행사·시공사(보증)·금융사로 손실이 번질 수 있다.'),
   // ── 소비·유통 ──
-  c('price-volume-mix', '가격·수량·제품 구성(믹스)', '소비·유통', ['가격 효과', '물량 효과', '믹스 효과'], '매출 증가 = 가격 인상 효과 + 판매량 증가 + 비싼 제품 비중 확대(믹스). 매출이 8% 늘어도 가격이 10% 올랐다면 판매량은 줄었을 수 있다. 가격 인상이 계속 통할지는 판매량 추세가 알려 준다.'),
+  c('price-volume-mix', '가격·수량·제품 구성(믹스)', '소비·유통', ['가격 효과', '물량 효과', '믹스 효과'], '매출 변화를 가격 인상 효과, 판매량 변화, 비싼 제품 비중 변화(믹스)로 나눈 것. 세 효과는 곱으로 쌓인다: 가격 +10%·물량 +8%면 매출은 1.10 × 1.08 = +18.8%이고, 단순 합 18%는 교차항을 뺀 근사다. 매출이 8% 늘어도 가격이 10% 올랐다면 판매량은 줄었을 수 있다. 가격 인상이 계속 통할지는 판매량 추세가 알려 준다.'),
   c('same-store-sales', '동일점포 매출', '소비·유통', ['same-store sales', 'comparable sales', 'SSS', '기존점 매출'], '1년 이상 영업한 점포만으로 본 매출 증가율. 새 점포 개점 효과를 빼서 기존 사업이 실제로 성장하는지 보여 준다.'),
   c('inventory-turnover', '재고회전', '소비·유통', ['재고회전율', 'inventory turnover'], '매출원가 ÷ 평균 재고. 회전이 느려지면 팔리지 않은 물건이 쌓였다는 뜻이고, 이후 할인 판매로 마진이 줄어드는 경우가 많다.'),
   // ── 소프트웨어·플랫폼 ──
@@ -204,7 +227,8 @@ export const CONCEPT_CORE = Object.freeze([
 export function conceptAliasIndex(concepts = CONCEPT_CORE) {
   const index = new Map();
   for (const concept of concepts) {
-    for (const key of [concept.term, ...concept.aliases]) index.set(String(key).toLowerCase(), concept);
+    // Terms a compound entry covers (신주, 임상 2상) find that entry too, as before the H55 split.
+    for (const key of [concept.term, ...concept.aliases, ...(concept.covers || [])]) index.set(String(key).toLowerCase(), concept);
   }
   // Related and look-alike names are search keys too, but never displace a concept's own name or synonym.
   for (const concept of concepts) {

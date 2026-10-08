@@ -330,9 +330,16 @@ function createChip(documentRef, item, root) {
     chip.setAttribute('aria-label', `${String(item?.label || symbol)} 테마 상세 열기`);
     chip.title = '테마 상세 열기';
   } else {
-    chip.setAttribute('role', 'text');
-    chip.setAttribute('aria-label', `${String(item?.label || symbol)} — 요약 전용(상세 패널 없음)`);
-    chip.title = '요약 전용 칩입니다 — 이 항목은 상세 패널이 제공되지 않습니다(ETF 정체성·관측 상태만 표시).';
+    // Codex browser audit H23: the leading sector (e.g. XLK) ended the "which sector → why → which company" path.
+    // A summary-only sector now takes the reader to the sub-theme ranking, where its themes and names are listed.
+    chip.setAttribute('role', 'button');
+    chip.tabIndex = 0;
+    chip.style.cursor = 'pointer';
+    chip.setAttribute('aria-label', `${String(item?.label || symbol)} — 상세 패널 없음, 하위 테마 순위로 이동`);
+    chip.title = '이 업종 자체의 상세 패널은 없습니다 — 눌러서 아래 하위 테마 순위에서 관련 테마와 대표 종목을 확인합니다.';
+    const jump = () => documentRef.getElementById('theme-strength-board')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    chip.addEventListener('click', jump);
+    chip.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); jump(); } });
   }
   return chip;
 }
@@ -356,7 +363,8 @@ function renderThemes({ documentRef, root, store, route }) {
   const detailCount = items.filter((item) => resolveThemeDetailId(root, item)).length;
   const legend = documentRef.createElement('div');
   legend.dataset.themeDetailLegend = 'true';
-  legend.textContent = `상세 제공 ${detailCount}개 · 요약 전용 ${Math.max(0, items.length - detailCount)}개 — 점선 칩은 요약만 제공하며 상세 패널이 없습니다.`;
+  // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
+  legend.textContent = `사분면 = SPY 대비 상대가격의 수준과 최근 변화(완료 종가, 30거래일 이상) · 칩 옆 % = 위에서 고른 기간의 수익률 — 그래서 후행 사분면 종목이 이번 기간에는 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
   legend.style.cssText = 'grid-column:1/-1;font-size:11px;color:var(--text-muted);padding:2px 0 6px;';
   container.appendChild(legend);
   const appendUnclassified = () => {
@@ -796,16 +804,25 @@ function renderThemeDetailBenchmark({ documentRef, root, store, themeId = null }
   heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
   const body = documentRef.createElement('div');
   body.style.cssText = 'font-size:11px;line-height:1.7;color:var(--text-secondary);';
-  const benchmarkSymbol = detail.etf || detail.compositeBase || null;
   const themePct = finite(detail.pct);
-  const benchmarkPct = benchmarkSymbol ? finite(detailQuote(detail, benchmarkSymbol)?.pct) : null;
-  if (!benchmarkSymbol || themePct == null || benchmarkPct == null) {
+  // Codex browser audit H25: when the theme's own return IS its representative ETF (반도체 = SMH), "SMH 대비
+  // +0.00%p · 유사" compared SMH with itself. The comparison then moves to the broad market (SPY); without a
+  // SPY quote it says why it is skipped instead of producing an empty "유사" verdict.
+  const ownSymbol = detail.etf || detail.compositeBase || null;
+  const ownPct = ownSymbol ? finite(detailQuote(detail, ownSymbol)?.pct) : null;
+  const selfCompare = Boolean(ownSymbol && themePct != null && ownPct != null && Math.abs(themePct - ownPct) < 0.005);
+  const marketPct = finite(detailQuote(detail, 'SPY')?.pct ?? root?._liveData?.SPY?.pct ?? root?._liveData?.SPY?.changePercent);
+  const benchmarkSymbol = selfCompare ? (marketPct != null ? 'SPY' : null) : ownSymbol;
+  const benchmarkPct = selfCompare ? marketPct : ownPct;
+  if (selfCompare && benchmarkPct == null) {
+    body.textContent = `이 테마의 수익률은 대표 ETF ${ownSymbol} 자체라 같은 ETF와는 비교하지 않습니다. 시장(SPY) 등락이 확인되면 시장 대비로 비교합니다.`;
+  } else if (!benchmarkSymbol || themePct == null || benchmarkPct == null) {
     body.textContent = '시세 대기 — 테마와 벤치마크의 등락률이 확인되면 비교합니다.';
   } else {
     const diff = themePct - benchmarkPct;
     const direction = diff > 0.5 ? '상회' : diff < -0.5 ? '하회' : '유사';
     const context = direction === '상회' ? '구성 테마의 상대 모멘텀이 우세합니다.' : direction === '하회' ? '벤치마크 대비 상대 약세를 확인하세요.' : '테마와 벤치마크가 유사하게 움직였습니다.';
-    body.textContent = `${benchmarkSymbol} 대비 ${diff >= 0 ? '+' : ''}${diff.toFixed(2)}%p · 테마 ${themePct >= 0 ? '+' : ''}${themePct.toFixed(2)}% / 벤치마크 ${benchmarkPct >= 0 ? '+' : ''}${benchmarkPct.toFixed(2)}% · ${direction} — ${context}`;
+    body.textContent = `${selfCompare ? `${ownSymbol}(테마 대표 ETF)의 시장(SPY) ` : `${benchmarkSymbol} `}대비 ${diff >= 0 ? '+' : ''}${diff.toFixed(2)}%p · 테마 ${themePct >= 0 ? '+' : ''}${themePct.toFixed(2)}% / 벤치마크 ${benchmarkPct >= 0 ? '+' : ''}${benchmarkPct.toFixed(2)}% · ${direction} — ${context}`;
   }
   host.replaceChildren(heading, body);
   host.hidden = false;
@@ -835,10 +852,11 @@ function renderThemeDetailInsights({ documentRef, root, store, themeId = null })
   ].filter(([, value]) => value);
   (insight.breakSignals || []).forEach((value, index) => rows.push([`깨지는 신호 ${index + 1}`, value]));
   if (!rows.length) {
-    const empty = documentRef.createElement('div');
-    empty.textContent = '테마 인사이트 데이터 대기';
-    empty.style.color = 'var(--text-muted)';
-    body.appendChild(empty);
+    // Codex browser audit H26: a permanent "데이터 대기" card for themes without an authored insight read as a
+    // pending load. No authored insight → the section is not shown.
+    host.replaceChildren();
+    host.hidden = true;
+    return;
   } else {
     rows.forEach(([label, value]) => {
       const row = documentRef.createElement('div');

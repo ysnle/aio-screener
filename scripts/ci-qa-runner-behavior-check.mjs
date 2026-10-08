@@ -291,6 +291,17 @@ try {
   const sawConcPass = runReports.some((report) => (report.results || []).some((item) => item.id === 'conc-pass' && item.status === 'PASS'));
   if (!sawConcFail || !sawConcPass) fail('per-run reports did not preserve both concurrent results independently', concFailRun);
 
+  // P1518: partial runs and failed-only recovery cannot mint or overwrite full evidence.
+  const releaseManifest = { ...base, groups: { fixture: { phase: 0, kind: 'static', gates: [
+    { id: 'release-pass', script: fixtureScript, inputs: ['dependency.txt', 'new-module.js'], args: ['--mode', 'pass'] }
+  ] } }, profiles: { full: ['fixture'], fast: ['fixture'] } };
+  writeFileSync(manifestPath, JSON.stringify(releaseManifest));
+  const fullProof = run('full', '--no-cache');
+  if (fullProof.status !== 0) fail('P1518 full fixture failed', fullProof);
+  const fullEvidence = readFileSync(join(cacheDir, 'verified-tree.json'), 'utf8');
+  if (JSON.parse(fullEvidence).schemaVersion !== 'aio-qa-verified-tree.v2') fail('P1518 missing full evidence schema');
+  const partialProof = run('fast', '--no-cache');
+  if (partialProof.status !== 0 || readFileSync(join(cacheDir, 'verified-tree.json'), 'utf8') !== fullEvidence) fail('P1518 partial run overwrote release evidence', partialProof);
   const candidateRepo = join(temp, 'candidate-repo');
   mkdirSync(candidateRepo, { recursive: true });
   const git = (...args) => spawnSync('git', args, { cwd: candidateRepo, encoding: 'utf8' });
@@ -303,12 +314,13 @@ try {
   git('config', 'user.email', 'fixture@aio.test');
   git('config', 'user.name', 'fixture');
   writeFileSync(join(candidateRepo, 'task.txt'), 'v1\n');
-  git('add', 'task.txt');
+  writeFileSync(join(candidateRepo, 'dependency.txt'), 'base\n');
+  git('add', 'task.txt', 'dependency.txt');
   const initCommit = git('commit', '-m', 'init');
   if (initCommit.status !== 0) fail('candidate fixture could not create its isolated repo', initCommit);
   const digest = (content) => createHash('sha256').update(content).digest('hex');
   const writeVerifiedTree = (runLabel, files) => writeFileSync(join(cacheDir, 'verified-tree.json'), JSON.stringify({
-    schemaVersion: 'aio-qa-verified-tree.v1', runId: runLabel, files, taskFiles: files
+    ...JSON.parse(fullEvidence), runId: runLabel, files: { 'dependency.txt': digest('base\n'), ...files }, taskFiles: files
   }, null, 2));
   writeVerifiedTree('fixture-verify-1', { 'task.txt': digest('v2\n') });
   writeFileSync(join(candidateRepo, 'task.txt'), 'v2\n');
@@ -324,9 +336,29 @@ try {
   git('add', 'extra.txt');
   const unverifiedFile = runCandidate('candidate', '--files', 'task.txt');
   if (unverifiedFile.status !== 1 || !/staged-file-not-verified/.test(unverifiedFile.stderr)) fail('candidate accepted an unverified staged file', unverifiedFile);
-  git('rm', '--cached', 'extra.txt');
+  // P1518: an extra file can match the verified WORKTREE while its INDEX is different.
+  writeFileSync(join(candidateRepo, 'extra.txt'), 'worktree-after-stage\n');
+  writeVerifiedTree('fixture-extra-partial', { 'task.txt': digest('v3\n'), 'extra.txt': digest('worktree-after-stage\n') });
+  const extraPartial = runCandidate('candidate', '--files', 'task.txt');
+  if (extraPartial.status !== 1 || !/staged-differs-from-worktree/.test(extraPartial.stderr)) fail('P1518 candidate accepted a partially staged extra file', extraPartial);
+  git('rm', '--cached', '-f', 'extra.txt');
+  writeVerifiedTree('fixture-clean', { 'task.txt': digest('v3\n') });
   const cleanCandidate = runCandidate('candidate', '--files', 'task.txt');
   if (cleanCandidate.status !== 0) fail('candidate rejected a staged tree identical to the QA-verified tree', cleanCandidate);
+
+  writeVerifiedTree('fixture-unstaged-dependency', { 'task.txt': digest('v3\n'), 'dependency.txt': digest('qa-only\n') });
+  writeFileSync(join(candidateRepo, 'dependency.txt'), 'qa-only\n');
+  const omittedDependency = runCandidate('candidate', '--files', 'task.txt');
+  if (omittedDependency.status !== 1 || !/index-dependency-not-verified/.test(omittedDependency.stderr)) fail('P1518 candidate ignored a QA-only dependency missing from index', omittedDependency);
+  writeVerifiedTree('fixture-new-dependency', { 'task.txt': digest('v3\n'), 'new-module.js': digest('new-code\n') });
+  const newDependency = runCandidate('candidate', '--files', 'task.txt');
+  if (newDependency.status !== 1 || !/qa-input-missing-from-index/.test(newDependency.stderr)) fail('P1518 candidate ignored an unstaged new module consumed by QA', newDependency);
+
+  const downgradedProof = JSON.parse(readFileSync(join(cacheDir, 'verified-tree.json'), 'utf8'));
+  downgradedProof.profile = 'rerun-failed';
+  writeFileSync(join(cacheDir, 'verified-tree.json'), JSON.stringify(downgradedProof));
+  const retryCandidate = runCandidate('candidate', '--files', 'task.txt');
+  if (retryCandidate.status !== 2 || !/full --no-cache/.test(retryCandidate.stderr)) fail('P1518 candidate accepted failed-only evidence', retryCandidate);
 
   // P1265/E2-C6 P1: gate-level impact entries add exactly the named gate without
   // widening to the whole group (single-owner dedup compensation).

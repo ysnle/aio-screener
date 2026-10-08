@@ -85,7 +85,7 @@ export function renderStockRead({ documentRef: doc, root, symbol }) {
     renderNextSteps(doc, next, [{ route: 'technical', label: '차트', why: '일봉과 이동평균 위치' }, { route: 'fundamental', label: '재무 공시', why: '매출·이익·현금흐름' }]);
     return read;
   }
-  host.querySelector('h2').append(el(doc, 'span', read.ranking ? `스크리너 상대 순위 ${read.ranking.rank}위 / ${read.ranking.of} (상위 ${read.ranking.topPct}%)` : '', 'briefing-h2-note'));
+  host.querySelector('h2').append(el(doc, 'span', read.ranking ? `스크리너 수집 대상 ${read.ranking.of}종목 중 ${read.ranking.rank}번째 (상위 약 ${read.ranking.topPct}%)` : '', 'briefing-h2-note'));
   host.append(el(doc, 'p', `${read.name} — ${read.headline}`, 'briefing-read-headline'));
   const visuals = el(doc, 'div', null, 'stock-read-visuals');
   if (read.position != null) visuals.append(rangeVisual(doc, read));

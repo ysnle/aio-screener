@@ -24,6 +24,7 @@ import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
+import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../src/ai/time/market-session.js';
 import { FACTOR_FRESHNESS_MS, computeFactorRanks } from '../src/domain/screener/factor-ranks.js';
 import { MODEL_DEFAULT_WEIGHTS } from '../src/domain/screener/factor-weights.js';
 import { buildScreenerModelFingerprint } from '../src/domain/screener/model-fingerprint.js';
@@ -1387,9 +1388,16 @@ function getServerNewsSourceTier(source, feedTier) {
   return 3;
 }
 
+// Codex browser audit H04 (2026-10-07): weather and baccarat posts were published as 실적/한국 news. The topic
+// rules ran over "title + source + feed topic", so every item from an earnings-query feed matched /earnings/
+// through its own feed label, and the floor (topicHits > 0) passed it. Topic evidence now comes from the
+// headline alone; the feed's topic and the source name are not evidence that the article is about markets.
+const SERVER_NEWS_OFFTOPIC_RE = /(바카라|카지노\s*게임|슬롯\s*머신|토토|승률\s*계산|베팅\s*전략|날씨|기온|한파|폭설|폭우|\bweather\b|\bsnowfall\b|\bchinook\b|winter planning|\bbaccarat\b|casino games?|sports betting|\bhoroscope\b)/i;
 function scoreServerNewsItem(item) {
-  const text = `${item.title || ''} ${item.source || ''} ${item.topic || ''}`;
-  if (SERVER_NEWS_CLICKBAIT_RE.test(text)) return { score: 0, selectionReason: 'clickbait-filter' };
+  const headline = String(item.title || '');
+  const text = `${headline} ${item.source || ''}`;
+  if (SERVER_NEWS_CLICKBAIT_RE.test(headline)) return { score: 0, selectionReason: 'clickbait-filter' };
+  if (SERVER_NEWS_OFFTOPIC_RE.test(headline)) { item.topicHits = 0; return { score: 0, selectionReason: 'off-topic-filter' }; }
 
   let score = 20;
   const reasons = ['base+20'];
@@ -1406,7 +1414,7 @@ function scoreServerNewsItem(item) {
 
   let topicHits = 0;
   for (const rule of [...SERVER_NEWS_PRIORITY_RULES, ...SERVER_NEWS_PRIORITY_RULES_KO]) {
-    if (rule.re.test(text)) {
+    if (rule.re.test(headline)) {
       score += rule.points;
       topicHits += 1;
       reasons.push(`${rule.label}+${rule.points}`);
@@ -1779,6 +1787,31 @@ export function normalizeHistoryRows(hist) {
 // v53.14/AR-07 Batch 0: history.json은 행의 공통 date만으로 관측시각을 대표하지 않는다.
 // 각 수치에 source/observedAt/fetchedAt/allowedUse를 보존해 미국·한국·24/7 자산의
 // 거래일·수집일을 섞지 않는다. 기존 숫자 필드는 하위 호환으로 유지한다.
+// Codex browser audit H02 (2026-10-07): no refresh ran between the US 10/5 close and the 10/6 open, so the 10/5
+// S&P 500 close never entered history and "어제와 달라진 점" compared 10/2 with 10/6. The daily backfill only ran
+// for thin histories. A completed US session missing from the last ten days now triggers the same backfill,
+// which writes the provider's daily bar for that session (completed bars only, P1399).
+export function missingRecentUsSessions(hist, nowMs = Date.now(), lookbackDays = 10) {
+  const basis = latestCompletedUsSession(nowMs);
+  if (!basis?.date) return [];
+  const have = new Set();
+  for (const row of Array.isArray(hist) ? hist : []) {
+    if (!Number.isFinite(Number(row?.spx))) continue;
+    const meta = row?.fieldMeta?.spx;
+    if (meta?.observationRelation === 'carried-forward') continue;
+    const at = meta?.observedAt ? Date.parse(meta.observedAt) : NaN;
+    have.add(Number.isFinite(at) ? nyParts(at).date : row.date);
+  }
+  const missing = [];
+  let cursor = basis.date;
+  for (let i = 0; i < lookbackDays; i += 1) {
+    const session = resolveMarketCalendarSession({ market: 'US', date: cursor });
+    if (session?.status === 'open' && !have.has(cursor)) missing.push(cursor);
+    cursor = new Date(Date.parse(`${cursor}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+  }
+  return missing.sort();
+}
+
 async function backfillHistory(hist) {
   const byDate = {};
   const syms = Object.keys(HIST_SYMBOLS);
@@ -2014,7 +2047,9 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
     let backfilled = 0;
     const needsFieldMeta = hist.some(row => HIST_MARKET_FIELDS.some(field => typeof row?.[field] === 'number' && !row?.fieldMeta?.[field]?.observedAt));
     const needsFieldBackfill = HIST_MARKET_FIELDS.some((field) => hist.filter((row) => typeof row?.[field] === 'number' && Number.isFinite(row[field])).length < 60);
-    if (hist.length < 60 || process.env.BACKFILL === '1' || needsFieldMeta || needsFieldBackfill) {
+    const missingSessions = missingRecentUsSessions(hist);
+    if (missingSessions.length) console.log(`[fetch-data] 최근 미국 거래일 종가 누락 ${missingSessions.join(',')} — 일봉 백필 실행`);
+    if (hist.length < 60 || process.env.BACKFILL === '1' || needsFieldMeta || needsFieldBackfill || missingSessions.length) {
       try { const bf = await backfillHistory(hist); hist = bf.hist; backfilled = bf.added; } catch (e) { console.warn('[fetch-data] backfill 실패(무시):', e && e.message || e); }
     }
     hist = carryForwardHistoryEvidence(hist);

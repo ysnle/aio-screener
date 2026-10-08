@@ -1404,8 +1404,11 @@ function _aioProcessTelegramItem(it) {
   var bearKw = ['급락','하락','하향','약세','사이드카','손실','주의','경계','붕괴','폭락','위험','매도','하락세','공포','리스크','충격','쇼크','제재','관세','위기'];
   var bullKw = ['급등','상승','상향','강세','호실적','목표주가 상향','매수','반등','돌파','신고가','수혜','호조','강한','증가','성장','상회','수주','호재','회복'];
   var t = raw;
-  var bScore = bearKw.reduce(function(s,k){ return s + (t.indexOf(k)>=0?1:0); }, 0);
-  var uScore = bullKw.reduce(function(s,k){ return s + (t.indexOf(k)>=0?1:0); }, 0);
+  // Codex browser audit H06: "하락하지 않았다", "위험은 없다" counted as negative words. A keyword directly
+  // followed by a negation is not counted toward either tone.
+  var _tgHit = function(k) { var at = t.indexOf(k); while (at >= 0) { var tail = t.slice(at + k.length, at + k.length + 6); if (!/^\S{0,2}\s?(?:않|없|아니|못)/.test(tail)) return 1; at = t.indexOf(k, at + k.length); } return 0; };
+  var bScore = bearKw.reduce(function(s,k){ return s + _tgHit(k); }, 0);
+  var uScore = bullKw.reduce(function(s,k){ return s + _tgHit(k); }, 0);
   var sent = bScore > uScore ? 'bear' : uScore > bScore ? 'bull' : 'neutral';
   if (it.score && it.score < 45) sent = 'neutral';
 
@@ -6603,12 +6606,12 @@ function _aioRenderPipelineStatus() {
       if (meta.fmpHasKey && meta.fmpOk === false) {
         scrFmpEl.style.display = 'inline-flex';
         var inlineCoverage = meta.fundamentalCoveragePct == null ? '미확인' : (isFinite(Number(meta.fundamentalCoveragePct)) ? Number(meta.fundamentalCoveragePct).toFixed(1) + '%' : '미확인');
-        if (scrFmpReason) scrFmpReason.textContent = '유료 플랜 미사용 · 무료 SEC companyfacts ' + inlineCoverage + ' 누적';
+        if (scrFmpReason) scrFmpReason.textContent = '공시 재무 자료가 있는 종목 ' + inlineCoverage + '만 재무 조건 판정 가능';
       } else if (!meta.fmpHasKey) {
         scrFmpEl.style.display = 'inline-flex';
         if (scrFmpReason) {
           var noKeyCoverage = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
-          scrFmpReason.textContent = isFinite(noKeyCoverage) ? (noKeyCoverage >= 80 ? '재무 팩터 포함' : '재무 데이터 누적 중 · 가격 팩터로 순위 계산') : '재무 데이터 범위 확인 중 · 가격 팩터로 순위 계산';
+          scrFmpReason.textContent = isFinite(noKeyCoverage) ? (noKeyCoverage >= 80 ? '재무 자료 충분' : '공시 재무 자료가 있는 종목 ' + noKeyCoverage.toFixed(1) + '%만 재무 조건 판정 가능') : '재무 자료 범위 확인 중';
         }
       } else {
         scrFmpEl.style.display = 'none';
@@ -10501,8 +10504,13 @@ async function freeTranslateNews(items) {
   }
 
   // P2 수정: 실패 건수 명확 표시
-  var statusMsg = '✓ ' + translated + '건 번역 완료 (무료)';
-  if (failed > 0) statusMsg += ' · <span style="color:#f87171;">' + failed + '건 번역 실패</span>';
+  // Codex browser audit H05: "N건 번역 완료" counted API responses, including ones that came back in English.
+  // The status counts only foreign headlines whose cached title is actually Korean; the rest stay original.
+  var _usableKo = items.filter(function(i) { return i.title && !isKoreanText(i.title) && _hasUsableTranslation(i); }).length;
+  var _stillOriginal = Math.max(0, _foreignCount - _usableKo);
+  var statusMsg = '✓ 해외 기사 ' + _usableKo + '/' + _foreignCount + '건 한국어 제목 확인';
+  if (_stillOriginal > 0) statusMsg += ' · <span style="color:#f87171;">' + _stillOriginal + '건은 원문 제목 그대로</span>';
+  failed = _stillOriginal;
   statusMsg += ' · ';
   if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" style="display:inline-flex;align-items:center;min-height:28px;padding:2px 6px;background:none;border:0;font:inherit;cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">공용 AI 연결 시 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
   if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(failed > 0 ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
@@ -10760,8 +10768,17 @@ function getDisplayTitle(item) {
   // generated category sentence (v51.81) carried no information and hid the actual story.
   return _aioTitleWithoutSource(item);
 }
+// Codex browser audit H05: Google News descriptions repeat the headline (plus the outlet), so the card showed
+// the same English sentence twice. A description that only repeats the title is not a summary.
+function _aioDescRepeatsTitle(item, text) {
+  var norm = function(v) { return String(v || '').replace(/<[^>]*>/g, ' ').toLowerCase().replace(/[^a-z0-9가-힣]/g, ''); };
+  var t = norm(item && item.title);
+  var d = norm(text);
+  return !!t && !!d && (d === t || (d.indexOf(t.slice(0, 40)) === 0 && d.length <= t.length + 40));
+}
 function getDisplayDesc(item) {
   item = item || {};
+  if (_aioDescRepeatsTitle(item, item.desc || item.description || '')) return _aioGetNewsTranslation(item).ko_summary || '';
   if (_translationCache.has(_tcKey(item.title))) {
     return _aioGetNewsTranslation(item).ko_desc || '';
   }
@@ -10778,6 +10795,7 @@ function getDisplaySummary(item) {
   if (cachedSummary && !cachedSummary._failed && cachedSummary.ko_summary) return cachedSummary.ko_summary;
   // 폴백: 번역 완료 전이라도 빈 문자열 대신 원문 설명 축약 표시
   const desc = item.desc || item.description || '';
+  if (_aioDescRepeatsTitle(item, desc)) return '';
   if (desc.length > 0) {
     const clean = desc.replace(/<[^>]*>/g, '').trim();
     return clean.length > 120 ? clean.slice(0, 117) + '…' : clean;
@@ -12499,6 +12517,9 @@ async function fetchAllNews(forceRefresh = false) {
   allItems = allItems
     .map(i => { const scored = { ...i }; scored.score = scoreItem(scored); scored.topic = classifyTopic(scored); scored.flag = scored.flag || getCountryFlag(scored.country); return scored; })
     .filter(i => !i._blacklisted)  // v27.4: 블랙리스트 뉴스 완전 제거
+    // Codex browser audit H04: the same floor as the server (P1504) — a headline that matches no market topic
+    // ('general') is not market news, whichever feed returned it. Fewer honest items beat filled slots.
+    .filter(i => i.topic !== 'general' || i._serverKrSlot)
     .sort((a, b) => {
       // 기본: 최신순 정렬 (renderFeed에서 모드에 따라 재정렬)
       const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0;
@@ -14257,8 +14278,15 @@ function _aioMarkLiveSink(el, sym, d, policyKey, unavailable) {
     el.setAttribute('data-truth-status', truth.status);
     el.setAttribute('data-truth-confidence', truth.confidence || '');
     el.setAttribute('data-truth-issues', (truth.issues || []).concat(truth.warnings || []).join('|'));
-    if (truth.status === 'blocked') el.title = 'Data truth blocked: ' + (truth.issues || []).join(', ');
-    else if (truth.status === 'warn' && !el.title) el.title = 'Data truth warning: ' + (truth.warnings || []).join(', ');
+    // Codex browser audit H114: "Data truth blocked: non_operational_source:snapshot" reached hover text and the
+    // accessibility tree. The verdict is about decision use, not about the number being false: the reader gets one
+    // plain status (참고·지연), and the raw codes stay in data-truth-issues for operators.
+    var _truthCodes = (truth.issues || []).concat(truth.warnings || []).join(' ');
+    var _truthWhen = ts ? new Date(Number(ts) < 1e12 ? Number(ts) * 1000 : Number(ts)) : null;
+    var _truthTime = _truthWhen && isFinite(_truthWhen.getTime()) ? ' · 관측 ' + _truthWhen.toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    if (truth.status === 'blocked' || truth.status === 'warn') {
+      el.title = (/stale/.test(_truthCodes) ? '지연된 값' : /snapshot|non_operational/.test(_truthCodes) ? '최근 수집본(참고용)' : '참고용 값') + _truthTime + ' — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.';
+    }
   }
   if (!unavailable && /unavailable|미수신|failed|실패/i.test(String(el.title || ''))) el.title = '';
 }

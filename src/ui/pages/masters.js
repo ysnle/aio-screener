@@ -3,6 +3,7 @@ import { renderManagersPage } from '../knowledge/managers-view.js';
 import { createResourceBag } from '../../app/lifecycle.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { detectValueScaleSuspects, withholdSuspectValues, describeValueScaleReview } from '../../domain/masters/value-scale.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
@@ -42,7 +43,7 @@ const ACTION_LABELS = Object.freeze({
 
 const VIEW_LABELS = Object.freeze({
   changes: '핵심 변화',
-  holdings: '전체 보유',
+  holdings: '보유 행 검색',
   sectors: '섹터 구성',
   quarters: '분기 추이',
   compare: '투자자 비교',
@@ -161,7 +162,7 @@ function createMetric(documentRef, label, value) {
   return card;
 }
 
-function createTickerLookup(documentRef, tickerIndex, registry, query, loadState = 'loading') {
+function createTickerLookup(documentRef, tickerIndex, registry, query, loadState = 'loading', summaryRows = []) {
   const section = element(documentRef, 'section', 'masters-ticker-lookup');
   section.dataset.mastersTickerLookup = 'reference-only';
   section.dataset.mastersTickerLoadState = tickerIndex ? 'ready' : loadState;
@@ -222,7 +223,14 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
         // classes, puts/calls) while the question is "who holds it". One line per manager: the latest
         // period's shares and value summed over direct holdings, with option positions named separately
         // (their share counts are underlying exposure, never added to holdings). Raw rows open on demand.
-        const allRows = Array.isArray(record.rows) ? record.rows : [];
+        // Codex browser audit H98: NVDA found Fisher, Tepper and Burry only, while BlackRock's and DFA's top
+        // holdings on this same page held NVDA. The reference index covers a subset of filers; the published
+        // top holdings of every filer (same CUSIP, same quarter) are merged in so one lookup covers both sources.
+        const recordCusips = new Set((record.cusips || []).map((cusip) => String(cusip).toUpperCase()));
+        const indexedRows = Array.isArray(record.rows) ? record.rows : [];
+        const indexedKeys = new Set(indexedRows.map((row) => `${row.managerId}|${row.reportPeriod}|${row.putCall || ''}`));
+        const extraRows = (summaryRows || []).filter((row) => recordCusips.has(String(row.cusipNormalized || row.cusip || '').toUpperCase()) && !indexedKeys.has(`${row.managerId}|${row.reportPeriod}|${row.putCall || ''}`));
+        const allRows = [...indexedRows, ...extraRows];
         const byManager = new Map();
         allRows.forEach((row) => {
           const list = byManager.get(row.managerId) || [];
@@ -235,14 +243,15 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           const direct = latest.filter((row) => !row.putCall);
           const options = latest.filter((row) => row.putCall);
           return { managerId, period, latest, shares: direct.reduce((sum, row) => sum + (Number(row.shares) || 0), 0), value: direct.reduce((sum, row) => sum + (Number(row.value) || 0), 0), direct: direct.length, options };
-        }).sort((a, b) => b.value - a.value);
+        }).sort((a, b) => (b.value || 0) - (a.value || 0) || b.shares - a.shares);
         const rows = element(documentRef, 'ul', 'masters-ticker-lookup-rows');
         summaries.forEach((summary) => {
           const manager = registryById.get(summary.managerId);
           const item = element(documentRef, 'li', 'masters-ticker-lookup-row');
           item.dataset.lookupManager = summary.managerId;
           const optionText = summary.options.length ? ` · 옵션 ${summary.options.map((row) => `${row.putCall === 'Put' ? '풋' : '콜'} ${Number(row.shares || 0).toLocaleString('en-US')}주 기준`).join(', ')}` : '';
-          const holding = summary.direct ? `${summary.shares.toLocaleString('en-US')}주 · ${formatReportedValue(summary.value)}` : '직접 보유 없음';
+          const withheldValue = summary.latest.some((row) => row.valueScaleStatus === 'SCALE_REVIEW');
+          const holding = summary.direct ? `${summary.shares.toLocaleString('en-US')}주 · ${withheldValue ? '금액 단위 확인 중' : formatReportedValue(summary.value)}` : '직접 보유 없음';
           const detail = element(documentRef, 'details', 'masters-ticker-lookup-detail');
           detail.appendChild(element(documentRef, 'summary', '', `${manager?.name || summary.managerId} · ${summary.period} · ${holding}${optionText}`));
           const raw = element(documentRef, 'ul', 'masters-ticker-lookup-raw');
@@ -258,7 +267,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           rows.appendChild(item);
         });
         card.appendChild(rows);
-        card.appendChild(element(documentRef, 'span', 'masters-ticker-lookup-count', `운용사 ${summaries.length}곳 · 원문 ${allRows.length}행`));
+        card.appendChild(element(documentRef, 'span', 'masters-ticker-lookup-count', `운용사 ${summaries.length}곳 · 원문 ${allRows.length}행 — 검색 범위: 참조 원장과 각 운용사의 상위 10개 보유. 그 밖의 보유는 운용사 상세에서 확인합니다.`));
         body.appendChild(card);
       });
     }
@@ -559,8 +568,8 @@ function createFullHoldingsView(documentRef, fullRows, state, descriptor = null)
   const section = element(documentRef, 'section', 'masters-holdings-section');
   const heading = element(documentRef, 'div', 'masters-holdings-heading');
   heading.append(
-    element(documentRef, 'h4', 'masters-holdings-title', '신고 보유 행 웹 투영'),
-    element(documentRef, 'p', 'masters-holdings-meta', `SEC 정보표 중 ${fullRows.length.toLocaleString('en-US')}행 투영 / 전체 ${Number(descriptor?.fullRows || fullRows.length).toLocaleString('en-US')}행 · 페이지당 25개 · 검색은 현재 투영 범위`),
+    element(documentRef, 'h4', 'masters-holdings-title', `불러온 보유 행 ${fullRows.length.toLocaleString('en-US')}개`),
+    element(documentRef, 'p', 'masters-holdings-meta', `이 분기 신고 전체 ${Number(descriptor?.fullRows || fullRows.length).toLocaleString('en-US')}행 가운데 ${fullRows.length.toLocaleString('en-US')}행을 불러왔습니다. 검색과 표는 불러온 행 안에서만 작동하므로, 여기서 찾지 못해도 보유하지 않았다는 뜻은 아닙니다.`),
     element(documentRef, 'p', 'masters-holdings-meta masters-raw-row-boundary', '원문 분할행은 이전 분기 행과 일대일 대응이 검증되지 않아 행별 변화를 표시하지 않습니다. 종목 집계 변화는 분기 변화 원장에서 확인하세요.')
   );
   const controls = element(documentRef, 'div', 'masters-holdings-controls');
@@ -568,7 +577,7 @@ function createFullHoldingsView(documentRef, fullRows, state, descriptor = null)
   search.type = 'search';
   search.placeholder = '발행사·CUSIP 검색';
   search.value = state.holdingsQuery;
-  search.setAttribute('aria-label', '전체 보유 검색');
+  search.setAttribute('aria-label', '불러온 보유 행 검색');
   search.dataset.mastersAction = 'holdings-search';
   controls.appendChild(search);
   const filtered = fullRows.filter((row) => !state.holdingsQuery || [row.issuer, row.cusipNormalized, row.titleOfClass].join(' ').toLowerCase().includes(state.holdingsQuery));
@@ -680,7 +689,7 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
   section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `최근 ${historyManager?.historyDepthTarget || 12}개 분기에 SEC에 신고한 보유 행 수와 신고 가치입니다. 정정 공시는 원본과 합쳐 분기 전체가 확인될 때만 추이에 넣습니다.`));
   const importedRows = [
     { period: verification?.priorReportPeriod, count: verification?.priorFullRowCount, value: verification?.priorParsedValueTotal, reconciliation: verification?.priorCountReconciled },
-    { period: verification?.reportPeriod, count: verification?.fullRowCount, value: verification?.parsedValueTotal, reconciliation: verification?.countReconciled }
+    { period: verification?.reportPeriod, count: verification?.fullRowCount, value: verification?.valueScaleReview ? null : verification?.parsedValueTotal, reconciliation: verification?.countReconciled }
   ].filter((row) => row.period);
   const importedByPeriod = new Map(importedRows.map((row) => [row.period, row]));
   const historicalByPeriod = new Map();
@@ -767,7 +776,9 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId) {
       return tr;
     }, 'masters-issuer-aggregate-table masters-holdings-table'));
   }
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `집계 상태 ${aggregateArtifact?.status || 'NOT_CONNECTED'} · 기준일 ${aggregateArtifact?.reviewedAt || '확인 필요'} · 범위 manager=${scope.managerId || '—'} · 보고기간 ${scope.reportPeriods.length}개 · 집계키 ${scope.aggregationKey} · 검토 대기 CUSIP는 공식 security master와 기업행동 원장 확인 전까지 ticker·sector로 승격하지 않습니다.`));
+  const aggregateMeta = element(documentRef, 'p', 'masters-holdings-meta', `종목별 분기 합산 · 기준일 ${aggregateArtifact?.reviewedAt || '확인 필요'} · 보고 분기 ${scope.reportPeriods.length}개. 종목 코드·업종은 공식 증권 원장과 대조한 뒤에만 붙입니다.`);
+  aggregateMeta.title = `집계 상태 ${aggregateArtifact?.status || 'NOT_CONNECTED'} · manager=${scope.managerId || '—'} · 집계키 ${scope.aggregationKey}`;
+  section.appendChild(aggregateMeta);
   return section;
 }
 
@@ -799,9 +810,13 @@ function createPrinciplesView(documentRef, manager, principlesArtifact) {
   const profile = principlesArtifact?.profiles?.find((item) => item.managerId === manager.id);
   section.append(
     element(documentRef, 'h4', 'masters-holdings-title', '공식 원칙과 관찰 패턴'),
+    // Codex browser audit H102: "not connected" showed while the principles file was still loading, so a profile
+    // that has official principles looked empty on first visit. Loading, absent and present are three states.
     element(documentRef, 'p', 'masters-holdings-meta', profile
       ? '공식 자료에서 확인되는 원칙과 공개 13F에서 관찰되는 패턴을 분리해 표시합니다.'
-      : '공식 원칙 원고가 아직 연결되지 않아 catalog의 전략 분류만 표시합니다. 이 분류를 본인의 직접 발언으로 해석하지 않습니다.')
+      : !principlesArtifact
+        ? '공식 원칙 자료를 불러오는 중입니다. 그동안 전략 분류만 표시합니다.'
+        : '이 운용사의 공식 원칙 원고는 아직 정리되지 않았습니다. 아래는 전략 분류이며, 본인의 직접 발언으로 해석하지 않습니다.')
   );
   const principles = profile?.statedPrinciples || [
     { title: '전략 분류', summary: manager.strategyProfile?.approach || manager.style || '분류 확인 필요' },
@@ -867,10 +882,20 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
     return section;
   }
   const commonPeriod = uniquePeriods[0];
+  // One key shape for shard rows and bootstrap rows (their stored `key` strings differ in layout).
+  const keyOf = (row) => `${String(row.cusipNormalized || row.cusip || '').toUpperCase()}|${row.putCall || ''}|${row.shareType || ''}`;
+  const missing = ids.filter((id) => !(rowsByManager.get(id)?.holdings || []).some((row) => row.reportPeriod === commonPeriod));
+  const scopeOf = (id) => (rowsByManager.get(id)?.basis === 'top' ? '상위 보유' : `불러온 ${(rowsByManager.get(id)?.holdings || []).length}행`);
+  const nameOf = (id) => registry.find((item) => item.id === id)?.name || id;
+  if (missing.length) {
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', `비교 미완료 — ${missing.map(nameOf).join(' · ')}의 ${commonPeriod} 보유 행을 아직 불러오지 못했습니다. 공통 보유가 없다는 뜻이 아닙니다.`));
+    return section;
+  }
   const rowMaps = ids.map((id) => new Map((rowsByManager.get(id)?.holdings || [])
     .filter((row) => row.reportPeriod === commonPeriod)
-    .map((row) => [row.key || `${row.cusipNormalized || row.cusip}|${row.putCall || ''}|${row.shareType || ''}`, row])));
+    .map((row) => [keyOf(row), row])));
   const commonKeys = rowMaps.length ? [...rowMaps[0].keys()].filter((key) => rowMaps.every((map) => map.has(key))) : [];
+  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `비교 범위: ${ids.map((id) => `${nameOf(id)} ${scopeOf(id)}`).join(' · ')} — 범위 밖의 보유는 비교에 들어가지 않습니다.`));
   if (commonKeys.length) {
     const common = commonKeys.slice(0, 25).map((key) => ({ key, rows: rowMaps.map((map) => map.get(key)) }));
     section.appendChild(createTable(documentRef, ['발행사', 'CUSIP(증권 코드)', '함께 보유한 운용사 수', '보고 분기'], common, ({ rows }) => {
@@ -879,7 +904,7 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
       return tr;
     }));
   } else {
-    section.appendChild(element(documentRef, 'div', 'masters-empty-state', '현재 연결된 동일 CUSIP 공통 보유가 없거나 선택 운용사의 전체 행 shard가 아직 로드되지 않았습니다.'));
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', '위 비교 범위 안에서는 같은 증권(CUSIP)을 함께 보유한 종목이 없습니다. 운용사 상세에서 전체 보유를 불러오면 범위가 넓어집니다.'));
   }
   return section;
 }
@@ -910,7 +935,9 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   const metrics = element(documentRef, 'div', 'masters-metric-grid');
   // Fail closed: when the SEC cover total and the parsed rows disagree, every reading built on reported-value
   // totals (concentration, weight change, total) is withheld rather than shown from an unreconciled base.
-  const valueMismatch = holdingMeta?.verification?.valueReconciliationStatus === 'MISMATCH';
+  // Codex browser audit H97: a filing whose amounts are ~1,000× off the other filers is withheld the same way.
+  const scaleReview = state?.valueScale?.has?.(`${manager.id}|${holdingMeta?.verification?.reportPeriod || ''}`) || false;
+  const valueMismatch = holdingMeta?.verification?.valueReconciliationStatus === 'MISMATCH' || scaleReview;
   const withheld = (text) => (valueMismatch ? '보류' : text);
   metrics.append(
     createMetric(documentRef, '최신 보고분기', filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || '—'),
@@ -924,7 +951,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     createMetric(documentRef, '전략 성격', manager.strategyProfile?.approach || manager.style || '—')
   );
   detail.append(metrics);
-  if (valueMismatch) detail.appendChild(element(documentRef, 'p', 'masters-note', '이 분기는 공시 표지의 합계와 보유 내역의 합계가 달라, 비중과 합계처럼 총액 기반 해석을 보류한다.'));
+  if (holdingMeta?.verification?.valueReconciliationStatus === 'MISMATCH') detail.appendChild(element(documentRef, 'p', 'masters-note', '이 분기는 공시 표지의 합계와 보유 내역의 합계가 달라, 비중과 합계처럼 총액 기반 해석을 보류한다.'));
   const compareToggle = button(documentRef, 'masters-route-button is-secondary', state.compareIds.includes(manager.id) ? '비교에서 제거' : '비교에 추가', 'toggle-compare', manager.id);
   compareToggle.disabled = !state.compareIds.includes(manager.id) && state.compareIds.length >= 4;
   detail.appendChild(compareToggle);
@@ -1148,9 +1175,12 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           const rowsByManager = new Map(state.managerRows);
           registry.forEach((item) => {
             if (rowsByManager.has(item.id)) return;
-            const rows = (state.holdings?.allHoldings || []).filter((row) => row.managerId === item.id);
+            // Codex browser audit H99: the fallback read `allHoldings`, which the page bootstrap does not carry, so
+            // every manager without a loaded shard had no rows and the compare said "no common holdings". The
+            // published top holdings are the fallback, and the basis is recorded so the result names its scope.
+            const rows = (state.holdings?.allHoldings || state.holdings?.holdings || []).filter((row) => row.managerId === item.id);
             const comparisons = (state.holdings?.comparisons || []).filter((row) => row.managerId === item.id);
-            if (rows.length || comparisons.length) rowsByManager.set(item.id, { holdings: rows, comparisons });
+            if (rows.length || comparisons.length) rowsByManager.set(item.id, { holdings: rows, comparisons, basis: state.holdings?.allHoldings ? 'full' : 'top' });
           });
           const ownershipDiscovery = selected ? state.discovery?.managers?.find((item) => item.managerId === selected.id) : null;
           if (selected) layout.append(list, createDetail(documentRef, selected, () => navigateKnowledgeTarget({ root, target: {
@@ -1161,6 +1191,15 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
             returnContext: { route: 'masters', manager: selected.id, mode: state.view, period: holdingMeta?.verification?.reportPeriod || null }
           } }), filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, state.securityMaster, state.referenceMaster, historyManager, quarterBundle ? { rows: quarterBundle.historyRows || [] } : null, quarterBundle?.issuerAggregates || null, state.principles, registry, state.holdings?.managers || [], rowsByManager));
           else layout.append(list, element(documentRef, 'div', 'masters-empty-state', '현재 필터에 표시할 상세 프로필이 없습니다. 필터나 검색어를 변경하세요.'));
+        if (selected && state.valueScale?.size) {
+          const scaleReview = state.valueScale.get(`${selected.id}|${holdingMeta?.verification?.reportPeriod || ''}`);
+          const detailNode = layout.lastElementChild;
+          if (scaleReview && detailNode) {
+            const notice = element(documentRef, 'div', 'masters-empty-state masters-scale-review', describeValueScaleReview(scaleReview));
+            notice.setAttribute('role', 'note');
+            detailNode.prepend(notice);
+          }
+        }
         if (state.filingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 공시 메타데이터를 불러오지 못했습니다. 기관 소개는 계속 볼 수 있습니다.'));
         if (state.holdingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 보유 행을 불러오지 못했습니다. 공시 메타데이터는 계속 볼 수 있습니다.'));
          if (state.securityMasterError || state.referenceMasterError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', '종목 분류 원장을 불러오지 못해 섹터를 임의로 추정하지 않습니다.'));
@@ -1192,7 +1231,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
            else if (state.arrivalContext?.returnContext?.route && typeof root?.showPage === 'function') root.showPage(state.arrivalContext.returnContext.route);
          });
           const tickerLoadState = state.tickerIndex ? 'ready' : (state.tickerIndexError && !state.loadingCapabilities.has('tickerIndex') ? 'error' : (state.loadingCapabilities.has('tickerIndex') ? 'loading' : 'idle'));
-          const tickerLookup = createTickerLookup(documentRef, state.tickerIndex, registry, state.tickerQuery, tickerLoadState);
+          const tickerLookup = createTickerLookup(documentRef, state.tickerIndex, registry, state.tickerQuery, tickerLoadState, state.holdings?.holdings || []);
           page.dataset.aioMastersTickerIndex = tickerLoadState === 'ready' ? 'connected' : (tickerLoadState === 'error' ? 'fallback' : 'loading');
           // P1325: manager cards (the investors) come first; the reverse lookup and the coverage
           // explanation are secondary and follow. The toolbar carries a jump link to the lookup.
@@ -1255,7 +1294,9 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           if (artifact?.managerId !== managerId || artifact?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || artifact?.holdings?.length !== descriptor.projectionRows || artifact?.comparisons?.length !== descriptor.comparisonProjectionRows || artifact?.fullRowsAvailable !== descriptor.fullRows || artifact?.fullComparisonsAvailable !== descriptor.comparisonRows || artifact?.latestFiling?.accession !== descriptor.accession) {
             throw new Error(`manager shard integrity mismatch: ${managerId}`);
           }
-          state.managerRows.set(managerId, artifact);
+          // Codex browser audit H97: a filing under scale review keeps its shares but not its dollar amounts.
+          const shardPeriod = artifact.reportPeriod || descriptor.reportPeriod || state.holdings?.managers?.find((item) => item.id === managerId)?.verification?.reportPeriod || null;
+          state.managerRows.set(managerId, state.valueScale?.size ? { ...artifact, holdings: withholdSuspectValues(artifact.holdings, state.valueScale, { managerId, period: shardPeriod }), comparisons: withholdSuspectValues(artifact.comparisons, state.valueScale, { managerId, period: shardPeriod }) } : artifact);
           state.managerRowErrors.delete(managerId);
           page.dataset.aioMastersSelectedShard = 'connected';
         } catch (error) {
@@ -1381,6 +1422,16 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
              const key = entries[index][0];
              if (result.status === 'fulfilled') {
                state[key] = result.value;
+               if (key === 'holdings' && Array.isArray(result.value?.holdings)) {
+                 // Codex browser audit H97: find filings whose amounts sit ~1,000× off the other filers of the same
+                 // security and period, and withhold their amounts before any table, total or weight is drawn.
+                 state.valueScale = detectValueScaleSuspects(result.value.holdings);
+                 if (state.valueScale.size) {
+                   const managers = (result.value.managers || []).map((manager) => (state.valueScale.has(`${manager.id}|${manager.verification?.reportPeriod || ''}`)
+                     ? { ...manager, verification: { ...manager.verification, valueScaleReview: true } } : manager));
+                   state[key] = { ...result.value, managers, holdings: withholdSuspectValues(result.value.holdings, state.valueScale), comparisons: withholdSuspectValues(result.value.comparisons || [], state.valueScale) };
+                 }
+               }
                page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'connected';
              } else {
                state[`${key}Error`] = true;

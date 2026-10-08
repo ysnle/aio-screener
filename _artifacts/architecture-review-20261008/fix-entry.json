@@ -1,0 +1,28 @@
+{
+  "version": "v57.29",
+  "date": "2026-10-08",
+  "p": {
+    "id": 1518,
+    "title": "공유 기반 소유권·본문 제한 시간·전체 QA 증명 경계 정비",
+    "symptom": "빠른 종목 전환에서 첫 route 취소가 새 소비자의 공유 재무 요청까지 비웠고, mount 중 재진입은 이전 disposer와 commit을 최신 화면에 덮었다. 이벤트 첫 소비자 오류가 형제 갱신을 중단했다. Worker는 헤더 이후 본문 대기를 제한하지 못했다. QA는 추가 staged 파일·미스테이징 의존 파일과 부분 실행 증명 및 실제 읽기 입력 누락을 놓쳤다.",
+    "root_cause": "공유 요청과 개별 소비자, mount 시작과 완료, 헤더와 본문, 파일 목록과 실제 전체 QA 통과 증명의 수명·소유 범위를 혼동했다. QA 입력과 impact 선언 및 gate 실제 읽기도 분리돼 있었다.",
+    "fix": "entity 요청은 provider 소유 single-flight와 성공 완료 TTL로 분리. 동기·lazy mount 뒤 현재 scope 재확인 및 late disposer 정리. compatibility event adapter를 별도 모듈로 이동하고 sync/async 소비자 오류 격리. Worker는 기존 createHttpClient를 재사용해 본문까지 deadline 보장. 3개 생산기 원자 저장을 atomicWriteFile로 통합(포맷 유지). QA candidate는 full/no-cache/PASS v2 증명 및 manifest/runner identity, 모든 index 의존 파일과 추가 staged bytes를 대조. 실제 literal read 입력과 영향 경로 보강 및 drift gate 추가.",
+    "violated_rule": "R571 요청·캐시 수명 구분, R589 gate 실제 읽기·입력·영향 범위 일치; R690 전체 QA 증명의 범위와 내용 결속.",
+    "prevention": "ci-esm-core-unit-check + fixtures/architecture-lifecycle-regressions, ci-data-plane-contract-check, ci-data-continuity-check, ci-qa-runner-behavior-check, ci-qa-pipeline-contract-check.",
+    "verification": "lifecycle Node 회귀, ESM unit, data-plane contract, data-continuity 66개 검사, QA pipeline contract 통과. 최종 전체 QA와 독립 리뷰 결과는 _artifacts/architecture-review-20261008/REPORT.md에 별도 기록. 생산기 실행·배포·실 공급자 검증은 수행하지 않음."
+  },
+  "r": {
+    "id": 690,
+    "title": "QA 증명은 실제 검사 범위·내용과 커밋 전체 index에 결속",
+    "rule": "fast/affected/실패 재검사 PASS로 전체 출시 증명을 새로 만들거나 덮지 않는다. candidate는 full --no-cache 전체 PASS 증명의 gate 집합·manifest·runner와 모든 tracked index 의존 내용 및 추가 staged bytes를 대조한다. gate가 실제 읽는 입력은 캐시 fingerprint와 영향 선택에 포함한다. literal read 검사는 최소 하한이며 동적·전이 의존성의 검토를 대체하지 않는다.",
+    "validation": "ci-qa-runner-behavior-check.mjs 및 ci-qa-pipeline-contract-check.mjs P1518/R690; 일반 작업은 session affected, 출시 직전에는 full --no-cache. 커밋/푸시/배포는 별도 명시 요청."
+  },
+  "qa": [
+    { "id": "QA-ARCH-1518", "text": "P1518 공유 요청·라우터 재진입·이벤트 오류 격리·Worker 본문 지연·원자 저장 연결 회귀", "verify_by": "node scripts/ci-esm-core-unit-check.mjs && node scripts/ci-data-plane-contract-check.mjs && node scripts/ci-data-continuity-check.mjs", "done": true },
+    { "id": "QA-RELEASE-1518", "text": "P1518/R690 부분 staging, 미스테이징 의존 파일, 부분 QA 증명 거부 및 literal read 입력 결속", "verify_by": "node scripts/ci-qa-runner-behavior-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs", "done": true }
+  ],
+  "qa_section": "공유 기반 아키텍처 회귀",
+  "changelog": ["**공통 기반 구조 개선 (P1518/R690):** 공유 재무 요청·화면 재진입·이벤트 오류 격리, Worker 본문 timeout 공통화, 3개 생산기 원자 저장 통합, QA 캐시 의존·전체 index·출시 증명 결속. Claude v57.28 콘텐츠 작업과 별개이며 로컬 검증 범위를 배포 완료로 간주하지 않음."],
+  "note": "v57.29 — 공유 런타임 수명주기·Worker 본문 deadline·원자 저장·전체 QA 증명과 캐시 의존 경계 보강.",
+  "status": null
+}

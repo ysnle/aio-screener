@@ -29,6 +29,7 @@ const STYLE = `
 .rl-result:hover,.rl-result:focus{background:var(--surface-2)}
 .rl-result-title{font-size:13px;font-weight:600;color:var(--text-primary)}
 .rl-result-meta{font-size:11px;color:var(--text-muted);margin-top:1px}
+.rl-result-summary{padding:6px 12px;border-bottom:1px solid var(--border-subtle);margin:0}
 .rl-result-text{font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.45}
 .rl-grid{display:grid;grid-template-columns:minmax(200px,236px) minmax(0,1fr) minmax(240px,300px);gap:var(--rl-gap);align-items:start}
 .rl-nav{position:sticky;top:12px;max-height:calc(100vh - 140px);overflow:auto;padding-right:6px}
@@ -90,13 +91,27 @@ function loadIndex(root) {
 }
 
 const normalize = (text) => String(text || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
-function conceptMatches(query, limit = 4) {
+// Codex browser audit H52: concepts were listed first regardless of fit, so the note whose title is
+// "…ROIC" sat below four loosely related concepts in a scrolled box. Concepts are scored on the same
+// scale as the index (exact name 100 · title 60 · synonym/covered term 50 · related 15) and merged.
+function conceptMatches(query, limit = 6) {
   const q = normalize(query);
   if (q.length < 2) return [];
-  return CONCEPT_CORE.filter((concept) => [concept.term, ...concept.aliases, ...(concept.related || []), ...(concept.contrast || [])].some((name) => normalize(name).includes(q)))
-    .slice(0, limit)
-    .map((concept) => ({ id: `concept:${concept.id}`, surfaceLabel: '개념', group: concept.cat, title: concept.term, text: concept.def.slice(0, 120), route: { page: 'principles', params: { mode: 'concept', node: concept.id } } }));
+  const scored = [];
+  for (const concept of CONCEPT_CORE) {
+    const title = normalize(concept.term);
+    const names = [...concept.aliases, ...(concept.covers || [])].map(normalize);
+    let score = 0;
+    if (title === q || names.includes(q)) score = 100;
+    else if (title.includes(q)) score = 60;
+    else if (names.some((name) => name.includes(q))) score = 50;
+    else if ([...(concept.related || []), ...(concept.contrast || [])].some((name) => normalize(name).includes(q))) score = 15;
+    if (score) scored.push({ concept, score });
+  }
+  return scored.sort((a, b) => b.score - a.score).slice(0, limit)
+    .map(({ concept, score }) => ({ id: `concept:${concept.id}`, surface: 'concept', surfaceLabel: '개념', group: concept.cat, title: concept.term, text: concept.def.slice(0, 120), score, route: { page: 'principles', params: { mode: 'concept', node: concept.id } } }));
 }
+const SURFACE_ORDER = ['frame', 'column', 'concept', 'principles-lesson', 'principles-node', 'atlas-node', 'atlas-foundation', 'manager'];
 
 export function routeHref(root, route) {
   const params = new URLSearchParams();
@@ -136,7 +151,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const search = el(doc, 'div', 'rl-search');
   const input = el(doc, 'input');
   input.type = 'search';
-  input.placeholder = '개념·산업·레슨 검색 (예: HBM, 합산비율, ROIC)';
+  input.placeholder = '노트·칼럼·개념·레슨·산업·운용사 검색 (예: ROIC, HBM, 합산비율)';
   input.setAttribute('aria-label', '리서치 라이브러리 통합 검색');
   const results = el(doc, 'div', 'rl-results');
   results.hidden = true;
@@ -146,9 +161,16 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
     if (query.length < 2) { results.hidden = true; results.replaceChildren(); return; }
     const index = await loadIndex(root);
     if (input.value.trim() !== query) return;
-    const items = [...conceptMatches(query), ...searchKnowledgeIndex(index, query, 10)].slice(0, 12);
+    const pool = [...conceptMatches(query), ...searchKnowledgeIndex(index, query, 40)];
+    const rank = (item) => { const at = SURFACE_ORDER.indexOf(item.surface); return at < 0 ? SURFACE_ORDER.length : at; };
+    const items = pool.sort((a, b) => (b.score || 0) - (a.score || 0) || rank(a) - rank(b)).slice(0, 12);
     results.replaceChildren();
     if (!items.length) results.appendChild(el(doc, 'div', 'rl-result', '일치하는 항목이 없습니다.'));
+    else {
+      const counts = new Map();
+      pool.forEach((item) => counts.set(item.surfaceLabel, (counts.get(item.surfaceLabel) || 0) + 1));
+      results.appendChild(el(doc, 'div', 'rl-result-meta rl-result-summary', `찾은 범위 · ${[...counts].map(([label, n]) => `${label} ${n}`).join(' · ')}${pool.length > items.length ? ` — 상위 ${items.length}개 표시` : ''}`));
+    }
     for (const item of items) {
       const row = el(doc, 'button', 'rl-result');
       row.type = 'button';

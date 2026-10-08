@@ -177,20 +177,13 @@ function _aioRecordAIResponseManifest(result) {
 }
 
 function _aioAIClaimEvidenceId(row) {
-  return String(row && (row.evidenceId || row.documentId || row.id) || '').trim();
+  var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
+  return publication ? publication.claimEvidenceId(row) : '';
 }
 
 function _aioAIClaimEvidenceTuple(row) {
-  row = row || {};
-  return JSON.stringify({
-    source: String(row.source || row.publisher || row.canonicalUrl || row.sourceUrl || '').trim(),
-    asOf: String(row.asOf || row.publishedAt || row.retrievedAt || '').trim(),
-    metric: String(row.metric || row.metricId || '').trim(),
-    entity: String(row.entity || row.entityId || row.ticker || row.symbol || '').trim(),
-    value: row.value == null ? null : (typeof row.value === 'number' ? row.value : String(row.value).trim()),
-    unit: String(row.unit || '').trim(),
-    scale: String(row.scale || 'raw').trim()
-  });
+  var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
+  return publication ? publication.claimEvidenceTuple(row) : '';
 }
 
 function _aioCollectAIClaimEvidence(meta) {
@@ -249,117 +242,23 @@ function _aioCollectAIClaimEvidence(meta) {
   return Array.from(byId.values());
 }
 function _aioEvidenceCanPublish(row) {
-  var status = String(row && (row.status || row.truthStatus) || '').toLowerCase();
-  var rights = String(row && row.rights || '').toUpperCase();
-  var allowedUse = String(row && row.allowedUse || '').toLowerCase();
-  var asOfTime = Date.parse(row && (row.asOf || row.observedAt || row.publishedAt || row.retrievedAt) || '');
-  var futureAsOf = Number.isFinite(asOfTime) && asOfTime > Date.now() + 60000;
-  return !!_aioAIClaimEvidenceId(row) &&
-    /^(ok|verified|fresh|live|reference|results_found)$/.test(status) &&
-    !/(blocked|missing|stale|mismatch|invalid|refresh_required|unavailable|conflict|contradicted)/.test(status) &&
-    !/^(SNIPPET|SUMMARY)$/.test(String(row && row.contentDepth || '')) &&
-    rights !== 'BLOCKED' && allowedUse !== 'none' && !futureAsOf;
-}
-
-function _aioClaimSourceUrl(value) {
-  try {
-    var url = new URL(String(value || ''));
-    if (url.protocol !== 'https:' || url.username || url.password) return '';
-    url.hash = '';
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'oc'].forEach(function(key) { url.searchParams.delete(key); });
-    return url.toString().replace(/\/$/, '');
-  } catch (_) { return ''; }
+  var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
+  return publication ? publication.evidenceCanPublish(row) : false;
 }
 
 function _aioHasCurrentNumericContent(value) {
-  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i.test(String(value || ''));
-}
-
-function _aioStripUnverifiedCurrentNumericSentences(value) {
-  var sentences = String(value || '').match(/[^.!?。！？\n]+[.!?。！？]?/g) || [];
-  return sentences.filter(function(sentence) { return !_aioHasCurrentNumericContent(sentence); }).join(' ').trim();
+  var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
+  return publication ? publication.hasCurrentNumericContent(value) : true;
 }
 
 function _aioExtractAIAnswerFallback(rawText, currentSensitive) {
-  var raw = String(rawText || '');
-  var hasControlBlock = /\[\/?AI_ANSWER_PLAN\]/i.test(raw);
-  if (!hasControlBlock) return currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(raw) : raw.trim();
-  var values = [];
-  var fieldRe = /"(?:summary|body)"\s*:\s*("(?:\\.|[^"\\])*")/g;
-  var match;
-  while ((match = fieldRe.exec(raw)) && values.length < 8) {
-    try {
-      var decoded = JSON.parse(match[1]);
-      if (decoded && values.indexOf(decoded) < 0) values.push(decoded);
-    } catch (_) {}
-  }
-  var fallback = values.join('\n\n').trim();
-  return currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(fallback) : fallback;
+  var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
+  return publication ? publication.extractAnswerFallback(rawText, currentSensitive) : '';
 }
 
 function _aioBuildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive) {
-  if (!plan) return { plan: null, droppedClaims: [], unboundEvidenceIds: [] };
-  var rows = (Array.isArray(bindingEvidence) ? bindingEvidence : []).filter(_aioEvidenceCanPublish);
-  var bindingIds = new Set(rows.map(_aioAIClaimEvidenceId));
-  var claims = plan.claims && Array.isArray(plan.claims.claims) ? plan.claims.claims : [];
-  var droppedClaims = [];
-  var unboundEvidenceIds = [];
-  var safeClaims = claims.filter(function(claim) {
-    var reasons = [];
-    var type = String(claim && claim.type || '');
-    var ids = Array.isArray(claim && claim.evidenceIds) ? claim.evidenceIds.map(String) : [];
-    if (/^(?:numeric|metric|percentage|probability)$/.test(type)) {
-      if (typeof claim.value !== 'number' || !isFinite(claim.value)) reasons.push('numeric-value');
-      if (!claim.unit || !claim.asOf || !claim.source || !ids.length) reasons.push('traceability');
-    }
-    if (currentSensitive && (!claim.asOf || !claim.source || !ids.length)) reasons.push('current-traceability');
-    if (type === 'probability' && !(claim.calibration && claim.calibration.modelId)) reasons.push('calibration');
-    if (claim.allowedUse === 'decision' && (!ids.length || claim.status !== 'verified')) reasons.push('decision-use');
-    ids.forEach(function(id) { if (!bindingIds.has(id)) { reasons.push('evidence-unbound'); unboundEvidenceIds.push(id); } });
-    var boundRows = rows.filter(function(row) { return ids.indexOf(_aioAIClaimEvidenceId(row)) >= 0; });
-    var numeric = /^(?:numeric|metric|percentage|probability)$/.test(type);
-    if (currentSensitive && !numeric && _aioHasCurrentNumericContent(claim.text)) reasons.push('untyped-numeric-content');
-    if ((numeric || currentSensitive || ids.length) && !boundRows.some(function(row) {
-      var source = String(claim.source || '').trim();
-      var sourceMatches = source && (source === String(row.source || '').trim() || source === String(row.publisher || '').trim() ||
-        (_aioClaimSourceUrl(source) && [_aioClaimSourceUrl(row.canonicalUrl), _aioClaimSourceUrl(row.sourceUrl)].indexOf(_aioClaimSourceUrl(source)) >= 0));
-      var claimTime = Date.parse(claim.asOf);
-      var rowTime = Date.parse(row.asOf || row.publishedAt || '');
-      var timeMatches = Number.isFinite(claimTime) && claimTime === rowTime;
-      var rowEntity = String(row.entity || row.ticker || row.symbol || '').trim();
-      var identityMatches = !!claim.metric && claim.metric === row.metric &&
-        String(claim.entity || '').trim() === rowEntity &&
-        String(claim.scale || 'raw') === String(row.scale || 'raw');
-      return sourceMatches && (!(numeric || currentSensitive) || timeMatches) &&
-        (!numeric || (identityMatches && typeof row.value === 'number' && claim.value === row.value && claim.unit === row.unit));
-    })) reasons.push('evidence-content-mismatch');
-    if (claim.status === 'blocked') reasons.push('claim-blocked');
-    if (reasons.length) {
-      droppedClaims.push({ claimId: claim.claimId || null, reasons: Array.from(new Set(reasons)) });
-      return false;
-    }
-    return true;
-  }).map(function(claim) {
-    if (!/^(?:numeric|metric|percentage|probability)$/.test(String(claim.type || ''))) return claim;
-    // Render the verified tuple separately; model prose must not smuggle a
-    // second, conflicting number alongside a valid structured value.
-    var label = [claim.entity, claim.metric].filter(Boolean).join(' · ');
-    return Object.assign({}, claim, { text: label || '검증된 수치' });
-  });
-  var summary = currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(plan.summary) : String(plan.summary || '').trim();
-  var sections = (Array.isArray(plan.sections) ? plan.sections : []).map(function(section) {
-    if (typeof section === 'string') return currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(section) : section;
-    if (!section || typeof section !== 'object') return null;
-    return Object.assign({}, section, { title: currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(section.title) : section.title, body: currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(section.body) : section.body });
-  }).filter(function(section) { return typeof section === 'string' ? !!section.trim() : !!(section && section.title && section.body); });
-  return {
-    plan: Object.assign({}, plan, { summary: summary, sections: sections, claims: { schemaVersion: 'claim-ledger.v1', claims: safeClaims }, citations: (Array.isArray(plan.citations) ? plan.citations : []).filter(function(citation) {
-      var url = _aioClaimSourceUrl(typeof citation === 'string' ? citation : citation && citation.url);
-      return url && rows.some(function(row) { return [_aioClaimSourceUrl(row.canonicalUrl), _aioClaimSourceUrl(row.sourceUrl), _aioClaimSourceUrl(row.source)].indexOf(url) >= 0; });
-    }) }),
-    droppedClaims: droppedClaims,
-    unboundEvidenceIds: Array.from(new Set(unboundEvidenceIds))
-  };
+  var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
+  return publication ? publication.buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive) : { plan: null, droppedClaims: plan ? [{ claimId: null, reasons: ['publication-unavailable'] }] : [], unboundEvidenceIds: [] };
 }
 
 function _aioRunAIResponsePipeline(rawText, meta) {
@@ -397,7 +296,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   var gate = (typeof _aioApplyAIActionGate === 'function')
     ? _aioApplyAIActionGate(visible, meta)
     : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', reasons: ['validator-unavailable'] };
-  var claimAudit = answerPlanAudit.plan
+  var claimAudit = publishablePlan.plan
     ? { status: publishablePlan.droppedClaims.length ? 'partial' : 'pass', blocked: false, claims: publishablePlan.plan.claims.claims, validCount: publishablePlan.plan.claims.claims.length, issues: publishablePlan.droppedClaims, source: 'answer-plan.v1' }
     : (typeof window !== 'undefined' && window.AIO && typeof window.AIO.validateAIResponseClaims === 'function')
     ? window.AIO.validateAIResponseClaims(raw, {
@@ -1241,6 +1140,11 @@ function _aioCreateEvidenceContext(title, focus) {
       if (focus === 'ticker' && !window._currentTicker && !window._currentTickerId) {
         lines.push('현재 종목이 미선택 상태입니다. 예: NVDA처럼 티커를 먼저 선택해야 종목별 분석이 가능합니다.');
         lines.push('HARD STOP: 시세 미수신 상태에서는 가격 인용·진입가·목표가 계산을 하지 않습니다.');
+      }
+      // Codex browser audit H104: market pages hand the model the screen's own close-basis readings first.
+      if (/^(home|briefing|signal|breadth|sentiment|macro|fxbond|themes|market-news)$/.test(String(focus || ''))) {
+        var screenBasis = typeof window._aioScreenBasisContext === 'function' ? window._aioScreenBasisContext() : '';
+        if (screenBasis) lines.push(screenBasis, 'Live or intraday values elsewhere in this context may differ from the screen basis; cite the screen basis for current facts, label any live value with its time, and never quote a truncated number.');
       }
       var framework = typeof _getV48IntegratedContext === 'function' ? _getV48IntegratedContext(focus) : '';
       var aiInfra = typeof _aioAIInfraCycleContext === 'function' ? _aioAIInfraCycleContext(focus) : '';
@@ -7821,9 +7725,10 @@ async function fundamentalSearch() {
     var _progressHtml = progressEl ? progressEl.innerHTML : '';
     var loadHtml = '';
     if (collected.sources.length) {
-      loadHtml = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">데이터 수집 완료 — ' + collected.sources.length + '개 소스</div>';
-      loadHtml += '<div style="font-size:11px;color:var(--text-muted);">' + collected.sources.join(' · ') + '</div>';
-      if (_progressHtml) loadHtml += '<details style="margin-top:8px;"><summary style="font-size:10px;color:var(--text-muted);cursor:pointer;">수집 과정 보기</summary><div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;margin-top:5px;">' + _progressHtml + '</div></details>';
+      // Codex browser audit H38: "수집 완료 — 21개 소스" read as 21 valid datasets beside rows of N/A. The line now
+      // says only that responses arrived; the provider list stays folded with the progress log.
+      loadHtml = '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">응답을 받은 외부 요청 ' + collected.sources.length + '건 — 받지 못한 지표는 아래 표에 N/A로 남습니다.</div>';
+      if (_progressHtml || collected.sources.length) loadHtml += '<details style="margin-top:8px;"><summary style="font-size:10px;color:var(--text-muted);cursor:pointer;">요청 내역 보기</summary><div style="font-size:10px;color:var(--text-muted);margin-top:5px;">' + escHtml(collected.sources.join(' · ')) + '</div><div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;margin-top:5px;">' + _progressHtml + '</div></details>';
     } else {
       loadHtml = '<div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:6px;">외부 데이터 수신 실패 — 빈 보고서로 단정하지 않습니다</div>';
       loadHtml += '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;margin-bottom:6px;">네트워크·공급자 응답을 확인한 뒤 다시 시도하세요. 확보된 데이터가 없어 현재 분석은 참고용으로도 생성하지 않습니다.</div>';
@@ -7968,27 +7873,30 @@ var _aiCtxMap = {
   'principles':'principles','atlas':'atlas',
   'kr-themes':'kr-themes','kr-macro':'kr-macro','kr-technical':'kr-tech' // v53.7 (P725): kr-home/kr-supply 퇴역
 };
+// Codex browser audit H13: chips promised timing, entry conditions and risk scores the product does not
+// produce. They now ask what the screen can answer — why signals disagree, what would prove a reading
+// wrong, what evidence is missing.
 var _aiDefaultChips = {
-  'home':['시장 레짐','리스크 팩터','포지션 영향','크로스체크'],
-  'technical':['RSI 해석','MACD 신호','지지/저항선','패턴 분석'],
-  'macro':['경제 전망','금리 영향','유가 시나리오','달러 방향'],
-  'fxbond':['환율 전망','채권 전략','수익률곡선','캐리트레이드'],
-  'fundamental':['기업 분석','밸류에이션','재무제표 해석','경쟁 구도'],
-  'themes':['주도 테마는?','AI 테마 전망','섹터 로테이션','테마 진입 시점'],
+  'home':['오늘 엇갈리는 신호','이 판단이 틀릴 조건','현재 빠진 근거','크로스체크'],
+  'technical':['추세 상태 설명','이동평균 위치 해석','셋업이 없는 이유','이 차트를 반박하는 신호'],
+  'macro':['성장·물가 판정 근거','금리 경로에 주는 의미','유가가 물가로 번지는 조건','지표가 엇갈리는 이유'],
+  'fxbond':['금리 변화의 원인 분해','실질금리와 기대물가','수익률곡선 읽기','환율과 금리의 연결'],
+  'fundamental':['이익의 질 점검','밸류에이션의 전제','재무제표 연결','업종에 맞는 지표'],
+  'themes':['가격이 앞서는 업종','상대강도와 기간','테마 안의 차이','이 흐름이 꺾이는 신호'],
   'portfolio':['포트폴리오 종합 분석','보유 종목 점검','매매 복기','다음 학습 과제'],
-  'signal':['매매 타이밍','리스크 점수','진입 조건','분배 단계 진단'],
-  'screener':['팩터 리더','섹터 분산','결측/저신뢰','후보 재랭킹'],
-  'ticker':['투자 논지','기술 계획','재무/뉴스 검증','17관점 리포트'],
-  'theme-detail':['이 테마 HOT 이유','밸류체인 해석','대장주 포지션','깨지는 신호'],
+  'signal':['지표가 엇갈리는 이유','이 해석이 틀릴 조건','현재 빠진 근거','분배일 해석'],
+  'screener':['조건이 고른 이유','섹터 쏠림 점검','결측·저신뢰 종목','검증 결과 읽기'],
+  'ticker':['투자 논지 점검','이 논지가 틀릴 조건','재무/뉴스 검증','17관점 리포트'],
+  'theme-detail':['이 테마가 강한 근거','밸류체인 해석','구성 종목 간 차이','깨지는 신호'],
   'briefing':['오늘 시장 요약','주요 촉매','매크로 리스크','포트폴리오 영향'],
   'market-news':['오늘 핵심 뉴스','뉴스가 시장에 미친 영향','섹터별 뉴스 흐름','추가 확인할 이슈'],
   'breadth':['시장 폭 건강도','상승/하락 종목 해석','브레드스와 추세 비교','숨은 약세 신호'],
-  'sentiment':['공포탐욕 해석','VIX와 심리 연결','지금 과열인지 판단','심리 기반 대응'],
+  'sentiment':['공포탐욕 해석','VIX와 심리 연결','심리와 신용이 엇갈리는 이유','이 심리 판단이 틀릴 조건'],
   'principles':['시장 원리 설명','경제에서 기업까지 연결','반대 시나리오','전문 화면에서 검증'],
   'atlas':['AI 시스템 원리','AI 가치사슬','전력·메모리 병목','기업·현금흐름 연결'],
-  'kr-themes':['K-방산 전망','반도체 수출','조선주 분석','2차전지 반등'],
+  'kr-themes':['K-방산 실적 근거','반도체 수출','조선 수주와 이익','2차전지 반등 조건'],
   'kr-macro':['한은 금리','원/달러 전망','코리아 디스카운트','수출 경기'],
-  'kr-tech':['삼성전자 분석','KOSPI 추세','SK하이닉스 RSI','한화에어로 타이밍']
+  'kr-tech':['삼성전자 분석','KOSPI 추세','SK하이닉스 추세','한화에어로 추세']
 };
 
 function toggleAIPanel() {

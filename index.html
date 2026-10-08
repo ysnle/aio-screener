@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.27 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.29 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.27" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.27" defer></script>
-<script src="./js/aio-kr-data.js?v=57.27" defer></script>
-<script src="./js/aio-pages.js?v=57.27" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.27">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.27">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.27">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.27">
+<script src="./js/aio-workspace.js?v=57.29" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.29" defer></script>
+<script src="./js/aio-kr-data.js?v=57.29" defer></script>
+<script src="./js/aio-pages.js?v=57.29" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.29">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.29">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.29">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.29">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -2120,6 +2120,8 @@ body {
 .macro-axis-link { font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 6px; }
 .macro-chain-row { display: flex; align-items: stretch; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
 .macro-chain-sep { align-self: center; color: var(--text-muted); font-size: 16px; }
+.macro-regime-inputs { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+.macro-regime-inputs th, .macro-regime-inputs td { border-bottom: 1px solid var(--border); padding: 4px 6px; text-align: left; vertical-align: top; }
 .macro-chain-node { position: relative; flex: 1 1 140px; min-width: 130px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; background: var(--bg-card); display: flex; flex-direction: column; gap: 3px; }
 .macro-chain-node.is-burden { border-color: var(--data-red); }
 .macro-chain-node.is-favorable { border-color: var(--data-green); }
@@ -6283,7 +6285,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.27</span></div>
+          <div class="page-title">시장 현황 <span hidden style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v57.29</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7294,7 +7296,7 @@ button[data-filter-active="true"] {
   </section>
   <section class="briefing-block macro-section" aria-labelledby="macro-chain-title">
     <h2 class="briefing-h2" id="macro-chain-title">어떻게 연결되나 — 유가에서 주가까지</h2>
-    <p class="briefing-footnote macro-section-lead">유가 → 물가 예상 → 연준의 금리 경로 → 장기금리 → 주식 밸류에이션 순서로 전달됩니다. 화살표는 지금 움직이는 방향입니다.</p>
+    <p class="briefing-footnote macro-section-lead">칸을 잇는 화살표는 교과서에서 말하는 가능한 전달 순서이고, 각 칸 안의 ▲▼는 그 지표가 실제로 움직인 방향입니다. 칸마다 관측 기간이 달라(20일·1주·현재 수준) 화살표가 지금의 인과를 확인해 주지는 않습니다.</p>
     <div id="macro-chain"></div>
   </section>
   <section class="briefing-block macro-section" aria-labelledby="macro-board-title">
@@ -7639,7 +7641,7 @@ button[data-filter-active="true"] {
     <div class="trend-grid" id="rates-fx-grid"></div>
   </section>
   <section class="briefing-block rates-block" aria-labelledby="rates-other-title">
-    <h2 class="briefing-h2" id="rates-other-title">그 밖의 통화 <span class="rates-other-note">실시간 시세 · 지연 가능</span></h2>
+    <h2 class="briefing-h2" id="rates-other-title">그 밖의 통화 <span class="rates-other-note">시세 대기</span></h2>
     <div class="rates-other">
       <div class="rates-other-cell"><span class="rates-yield-label">EUR/USD</span><span class="rates-yield-value" data-live-price="EURUSD=X">—</span><span class="rates-yield-change" data-live-chg="EURUSD=X">—</span></div>
       <div class="rates-other-cell"><span class="rates-yield-label">GBP/USD</span><span class="rates-yield-value" data-live-price="GBPUSD=X">—</span><span class="rates-yield-change" data-live-chg="GBPUSD=X">—</span></div>
@@ -7689,13 +7691,13 @@ button[data-filter-active="true"] {
 
   <!-- v50.82: 시각화 패널 (factor-radar) — 티커 검색 후 동적 렌더 -->
   <div id="vis-fundamental" class="aio-vis-panel is-single" style="display:none;">
-    <div class="aio-vis-card"><div class="aio-vis-card-title">팩터 레이더 (종목 분석)</div><div id="vis-fundamental-radar"></div></div>
+    <div class="aio-vis-card"><div class="aio-vis-card-title">팩터 위치 — 수집 대상 안에서의 백분위(높을수록 상위) · 품질 점수나 성과 예측이 아님</div><div id="vis-fundamental-radar"></div></div>
   </div>
   <nav class="flow-next" id="fund-next" aria-label="이어서 볼 곳" hidden></nav>
 
   <!-- P1436: 검색 가이드·외부 TradingView 차트 제거(차트 탭이 같은 역할). Yahoo·FMP 기반 구 리포트는 키 부재로 대부분 N/A라 접어 둔다. -->
   <details class="fund-legacy" id="fund-legacy-fold">
-    <summary>시세·외부 데이터 기반 상세 (Yahoo·FMP — 일부 항목 미수신 · 공시 재무의 기준은 위 재무 흐름과 SEC 기본 보고)</summary>
+    <summary>추가 시세·외부 지표 (일부 항목은 받지 못함 · 공시 재무의 기준은 위 재무 흐름)</summary>
     <!--  종합 기업 분석 리포트 영역 (검색 시 동적 생성) -->
     <div id="fund-report-container" style="display:none;">
       <!-- ── 헤더: 기업명 + 실시간 가격 ── -->
@@ -7968,7 +7970,7 @@ button[data-filter-active="true"] {
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
       <div class="page-title">테마 · 트렌드</div>
-      <div class="page-subtitle">업종·테마 사이에서 돈이 어디로 움직이는지 — 섹터 상대강도 회전과 하위 테마 순위</div>
+      <div class="page-subtitle">어느 업종·테마의 가격이 시장보다 앞서는지 — 섹터 상대강도 회전과 하위 테마 순위</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div id="rrg-view-tabs" style="display:flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--bg-card);">
@@ -8063,7 +8065,7 @@ button[data-filter-active="true"] {
         <span style="color:var(--data-cyan);"> 개선(Improving)</span>
         <span style="color:var(--data-amber);"> 약화(Weakening)</span>
         <span style="color:var(--data-red);"> 후행(Lagging)</span>
-        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);border-radius:4px;padding:2px 8px;">라이브 시세 기반 · 갱신 시 자동 업데이트 · 장 마감 후는 전일 위치</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);border-radius:4px;padding:2px 8px;">완료 종가 기준 · SPY 대비 상대가격의 수준(RS-Ratio)과 최근 변화(RS-Momentum)</span>
       </div>
     </div>
     </div><!-- /aio-section RRG -->
@@ -8371,7 +8373,7 @@ button[data-filter-active="true"] {
       <div class="page-title">포트폴리오</div>
       <!-- LC-43: the separate #pf-freshness-strip is hidden in the public 기본 화면, so the intro must
            not promise it. The visible evidence is the per-row price cell (통화·관측시각·출처 툴팁). -->
-      <div class="page-subtitle">보유 자산의 비중·손익·위험 — 보유 내역은 이 브라우저에만 저장됩니다</div>
+      <div class="page-subtitle">보유 자산의 비중·손익·위험 — 보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 누를 때만 종목명·섹터·비중·수익률이 전송되고(수량·매수가·메모 제외, 처음 한 번 동의 확인), 브라우저 기록을 지우거나 기기를 바꾸면 백업 파일로만 되살릴 수 있습니다.</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <button class="aio-btn-table primary is-interactive" data-action="_aioTogglePortfolioEntry" style="font-size:13px;border-radius:6px;padding:6px 14px;">종목 추가</button>
@@ -8818,11 +8820,11 @@ button[data-filter-active="true"] {
           <input id="pf-add-qty" type="number" placeholder="100" aria-label="보유 수량" style="width:90px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
         </div>
         <div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">매수 단가 ($)</div>
+          <div id="pf-add-cost-label" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">매수 단가 (USD)</div>
           <input id="pf-add-cost" type="number" step="0.01" placeholder="120.50" aria-label="매수 단가" style="width:110px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
         </div>
         <div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">목표가 ($, 선택)</div>
+          <div id="pf-add-target-label" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">내 목표가 (USD, 선택)</div>
           <input id="pf-add-target" type="number" step="0.01" placeholder="200.00" aria-label="목표가" style="width:90px;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);">
         </div>
         <div>
@@ -8856,7 +8858,7 @@ button[data-filter-active="true"] {
             <th id="pf-th-qty" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수량</th>
             <th id="pf-th-cost" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">매수 단가</th>
             <th id="pf-th-price" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">현재가</th>
-            <th id="pf-th-pnl" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">손익 ($)</th>
+            <th id="pf-th-pnl" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">손익 (기준 통화)</th>
             <th id="pf-th-pct" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수익률</th>
             <th id="pf-th-target" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">목표가</th>
             <th id="pf-th-weight" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">비중(주식 내)</th>
@@ -9231,7 +9233,7 @@ button[data-filter-active="true"] {
         <span data-factor-asof style="font-size:12px;color:var(--text-dim);">팩터 데이터 대기</span>
         <!-- v51.65: FMP 상태 인라인 노트 — JS가 fmpOk=false일 때 display:inline-flex로 전환 -->
         <span id="screener-fmp-status" style="display:none;font-size:11px;color:var(--text-secondary);gap:4px;align-items:center;" title="재무 팩터는 SEC 등 연결 원천의 필드 준비도에 따라 활성화됩니다">
-          밸류·퀄리티 팩터 비활성 — <span id="screener-fmp-reason">FMP API 상태 확인</span>
+          순위는 가격 지표로 계산 · 재무 지표(ROE·이익률·매출 성장)는 조건으로만 사용 — <span id="screener-fmp-reason">재무 자료 범위 확인 중</span>
         </span>
       </div>
     </div>
@@ -9475,6 +9477,9 @@ button[data-filter-active="true"] {
       <input id="scr-min-mom" type="number" placeholder="%" aria-label="3개월 수익률 최소 퍼센트" class="ps-input" style="width:56px;" step="5">
       <label style="font-size:11px;color:var(--text-muted);margin-left:4px;white-space:nowrap;cursor:pointer;">
         <input type="checkbox" id="scr-watchlist-only" aria-label="내 워치리스트 종목만 보기" style="margin-right:3px;cursor:pointer;">내 워치리스트만
+      </label>
+      <label style="font-size:11px;color:var(--text-muted);margin-left:4px;white-space:nowrap;cursor:pointer;" title="실행 조건을 통과한 종목만 표에 남깁니다. 끄면 탈락·데이터 부족 종목까지 전체 대상을 봅니다.">
+        <input type="checkbox" id="scr-passed-only" checked aria-label="실행 조건을 통과한 종목만 보기" style="margin-right:3px;cursor:pointer;">실행 통과만
       </label>
       <button class="aio-btn-table" style="font-size:10px;margin-left:auto;" data-aio-screener-action="reset-filters">초기화</button>
     </div>
@@ -9920,7 +9925,7 @@ button[data-filter-active="true"] {
         <div style="background:var(--surface-2);border:1px solid rgba(33,29,22,0.2);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">SEPA 기준 (Specific Entry Point Analysis)</div>
           <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
-             ① 주가 ≥ 200MA ② 200MA 상향 ③ 150MA > 200MA ④ 50MA > 150/200MA ⑤ 주가 > 50MA ⑥ 52주 저점 대비 +25%+ ⑦ 52주 고점 대비 -25% 이내. 5개 이상이면 Stage 2 조건 충족 여부를 확인하되 단독 결론으로 사용하지 않습니다.
+             SEPA는 마크 미너비니의 종목 선정·매수 시점 방법론이고, 그 첫 관문이 8개 조건의 트렌드 템플릿입니다. AIO 차트가 계산하는 기준: ①종가 > 150·200일선 ②150일선 > 200일선 ③200일선이 1개월 이상 상승 ④50일선 > 150·200일선 ⑤종가 > 50일선 ⑥종가 ≥ 52주 저점 × 1.30 ⑦종가 ≥ 52주 고점 × 0.75(고점 대비 하락 25% 이내) ⑧상대강도 우위(AIO는 S&P 500 대비 6개월 수익률로 근사). 모두 충족해도 상승 추세에 있다는 관찰일 뿐 매수 신호가 아니며, Weinstein의 Stage 2(30주선 위 상승 단계)와는 별개의 기준입니다.
           </div>
         </div>
       </div>
@@ -10062,15 +10067,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.27" defer></script>
-  <script src="./js/aio-data.js?v=57.27" defer></script>
-  <script src="./js/aio-ui.js?v=57.27" defer></script>
+  <script src="./js/aio-core.js?v=57.29" defer></script>
+  <script src="./js/aio-data.js?v=57.29" defer></script>
+  <script src="./js/aio-ui.js?v=57.29" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.27" defer></script>
+<script src="./js/aio-chat.js?v=57.29" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -10128,7 +10133,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.27" defer></script>
+<script src="./js/aio-glossary.js?v=57.29" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

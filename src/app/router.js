@@ -69,6 +69,12 @@ export function createLazyPage({ route, loader, factory, errorMessage } = {}) {
           if (disposed || context.scope?.disposed || context.scope?.isCurrent?.() === false) return;
           innerDispose = page.mount(context);
           if (typeof innerDispose !== 'function') innerDispose = null;
+          // P1518: mount itself can navigate away before returning its disposer.
+          if (disposed || context.scope?.disposed || context.scope?.isCurrent?.() === false) {
+            try { innerDispose?.(); } catch (_) {}
+            innerDispose = null;
+            return;
+          }
           setLazyModuleState({ documentRef: context.documentRef, route, state: 'ready' });
         })
         .catch((error) => {
@@ -169,6 +175,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   let activeDispose = null;
   let activeScope = null;
   let mountSequence = 0;
+  let transitionSequence = 0;
   let disposed = false;
   let started = false;
   let startedHandle = null;
@@ -263,7 +270,10 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       }
       return true;
     }
+    const transitionId = ++transitionSequence;
     disposeActive();
+    // P1518: cleanup may synchronously navigate again or dispose the router.
+    if (disposed || transitionId !== transitionSequence) return false;
     const page = routes[normalizedRoute];
     const scope = createRouteScope({
       route: normalizedRoute,
@@ -285,12 +295,18 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     const slice = getVerticalSliceContract(normalizedRoute);
     try {
       const result = page.mount({ ...context, route: normalizedRoute, detail: normalizedDetail, scope });
+      if (!scope.isCurrent() || disposed) {
+        try { if (typeof result === 'function') result(); } catch (_) {}
+        return false;
+      }
       activeDispose = typeof result === 'function' ? result : () => {};
     } catch (error) {
       scope.dispose();
-      activeScope = null;
-      activeRoute = null;
-      activeViewState = null;
+      if (activeScope === scope) {
+        activeScope = null;
+        activeRoute = null;
+        activeViewState = null;
+      }
       throw error;
     }
     const pageNode = assertSliceMarker(normalizedRoute);

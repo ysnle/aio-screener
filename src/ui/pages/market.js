@@ -343,7 +343,9 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         bag.add(() => { alive = false; });
         if (typeof fetchFn === 'function') {
           loadJsonArtifact(fetchFn.bind(root), './public-data/breadth-contributors.json', { maxAgeMs: 30 * 60 * 1000, maxBytes: 1024 * 1024 })
-            .then((payload) => { if (payload?.schemaVersion === 'breadth-contributors.v1') root._aioBreadthContributors = payload; if (alive) renderNow(); })
+            // Codex browser audit H10: the producer moved to v2 (object rows with asset type and corporate-action flag) and
+            // this check still required v1, so the lists stayed "수집 대기" beside counts. Both shapes render.
+            .then((payload) => { if (['breadth-contributors.v1', 'breadth-contributors.v2'].includes(payload?.schemaVersion)) root._aioBreadthContributors = payload; if (alive) renderNow(); })
             .catch(() => {});
         }
       }

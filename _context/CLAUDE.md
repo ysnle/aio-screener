@@ -1,6 +1,6 @@
 ---
 verified_by: generated-workspace-contract
-last_verified: 2026-08-23
+last_verified: 2026-10-08
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -10,7 +10,9 @@ target_version: version.json
 
 > Claude/Codex 공용 작업환경의 얇은 구조 설명이다. 변동 숫자는 `_context/CURRENT-STATE.md`, 전체 문서 목록은 `_context/CONTEXT-CATALOG.json`에서 생성된다.
 
-- **현재 버전**: v57.27
+P1518 구조 재검토: 아래 canonical 경로·훅·미러·권한 경계를 workspace/skill/profile gate와 대조했다. 지식 본문 의미 검수나 배포 상태의 재인증은 아니다.
+
+- **현재 버전**: v57.29
 - 공통 preflight: `CURRENT-STATE.md` 한 번 확인; `WORKFLOW-GOVERNANCE.md`·`INDEX.md`·스킬은 필요한 경우만 참조
 - 대형 원장: `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 용어/ID 범위만 읽는다.
 

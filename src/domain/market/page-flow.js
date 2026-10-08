@@ -32,6 +32,7 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
   const b200 = last(cardOf(cards, 'b200')?.series)?.value ?? null;
   const b20 = last(cardOf(cards, 'b20')?.series)?.value ?? null;
   const b50d20 = delta(cardOf(cards, 'b50')?.series, 20);
+  const b50d5 = delta(cardOf(cards, 'b50')?.series, 5);
   const spxSeries = cardOf(cards, 'spx')?.series || [];
   const spx20 = pctDelta(spxSeries, 20);
   const hl = last(cardOf(cards, 'hl')?.series)?.value ?? null;
@@ -42,7 +43,8 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
   if (b50 != null && b200 != null) {
     const both = b50 < B.weakBelow && b200 < B.weakBelow ? `둘 다 ${B.weakBelow}% 아래라 중기·장기 참여가 모두 위축된 상태입니다`
       : b50 >= B.broadAtLeast && b200 >= B.broadAtLeast ? `둘 다 ${B.broadAtLeast}% 이상이라 상승이 넓게 퍼져 있습니다`
-        : b50 < B.weakBelow ? `장기 추세 위 종목(${round(b200)}%)은 남아 있지만 중기 참여가 ${B.weakBelow}% 아래로 줄었습니다 — 조정이 종목 전반으로 번지는 단계입니다`
+        // Codex browser audit H08: the 20-day verdict hid a 5-day recovery; both windows are named.
+        : b50 < B.weakBelow ? `장기 추세 위 종목(${round(b200)}%)은 남아 있지만 중기 참여가 ${B.weakBelow}% 아래로 줄었습니다${b50d5 != null && b50d5 >= 3 ? ` — 다만 최근 5거래일은 ${signed(b50d5, 1, '%p')} 회복해 중기 약화 속 단기 반등이 진행 중입니다` : ' — 조정이 종목 전반으로 번지는 단계입니다'}`
           : `중기와 장기 참여가 ${B.weakBelow}~${B.broadAtLeast}% 사이에서 엇갈립니다`;
     const shortTerm = b20 == null ? '' : b20 < b50 - 5 ? ` 20일선 위 비율(${round(b20)}%)이 더 낮아 단기 이탈이 아직 이어지는 중입니다.`
       : b20 > b50 + 5 ? ` 20일선 위 비율(${round(b20)}%)이 먼저 올라 단기 반등이 시작됐는지 확인할 구간입니다.` : ' 단기(20일선)와 중기 참여가 같은 흐름입니다.';

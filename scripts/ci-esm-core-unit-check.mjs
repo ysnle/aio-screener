@@ -3675,3 +3675,6 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     fail('P1317/P1320 showTicker must normalize through the native module, request a missing quote, and install term tooltips');
   }
 }
+
+// P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
+await import('./fixtures/architecture-lifecycle-regressions.mjs');

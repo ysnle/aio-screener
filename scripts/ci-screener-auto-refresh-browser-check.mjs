@@ -223,7 +223,12 @@ try {
   await page.evaluate(() => window.showPage('screener'));
   await page.evaluate(() => { const advanced = document.getElementById('scr-workbench-advanced'); if (advanced) advanced.open = true; }); // P1431: run history sits in the folded panel
   await page.getByRole('button', { name: '저장 입력으로 재현', exact: true }).first().click();
-  await page.waitForFunction(() => document.getElementById('scr-workbench-status')?.textContent.includes('보관한 입력으로 재현됨'));
+  // P1518: H113 names the archived run and its data date; verify that current
+  // surface instead of timing out on retired copy. Hash/row parity follows below.
+  await page.waitForFunction(() => {
+    const status = document.getElementById('scr-workbench-status');
+    return status?.textContent.includes('보관 실행 재현') && status.textContent.includes('자료 기준');
+  });
   const replayed = await page.locator('#scr-workbench-status').evaluate(node => ({ resultHash: node.dataset.resultHash, explanationsHash: node.dataset.explanationsHash, rows: Number(node.dataset.rowCount) }));
   if (replayed.resultHash !== recorded.resultHash || replayed.explanationsHash !== recorded.explanationsHash || replayed.rows < 800) throw new Error('persisted replay changed inputs/results after reload');
   await page.getByRole('button', { name: '보관 삭제', exact: true }).click();

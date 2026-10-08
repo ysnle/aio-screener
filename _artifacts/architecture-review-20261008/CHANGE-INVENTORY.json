@@ -1,0 +1,296 @@
+{
+  "session": "architecture-20261008",
+  "description": "Content hashes relative to the session baseline; includes version-generator and QA outputs, preserves pre-existing dirty content. Not a claim that every diff against HEAD belongs to this task.",
+  "files": [
+    {
+      "path": "scripts/fixtures/architecture-lifecycle-regressions.mjs",
+      "before": null,
+      "after": "5d4fba3d4ca7e85f3110d72dce84074808a7e18935280643ef316f63f688710a"
+    },
+    {
+      "path": "src/ai/response/publication.js",
+      "before": null,
+      "after": "23c7b8b298ff323a253965bc13140e7e517af5ae29a7a26b5fb421a3b70d0801"
+    },
+    {
+      "path": "src/app/compatibility-events.js",
+      "before": null,
+      "after": "5cb5e4d28f0d9a2feea520f75f5dd999f575e1931151114b6f43af9ebbe3b8a3"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "before": "555faefee571e7884b832726b5e95eeff60492073e7d3662ba337bbbfee7ee22",
+      "after": "1121be687a41068c9bb6526496fb8141b01fe959dfdaed26439112178196c8c8"
+    },
+    {
+      "path": "CLAUDE.md",
+      "before": "de73034c4c9deefe0c6145bd775f4f942937a877da2c9168f4851c934d119066",
+      "after": "da319c077e93493d9371fa647be05ed6ea31a81dee638b329c9078444e1f9eab"
+    },
+    {
+      "path": "_artifacts/accessibility-matrix-audit.json",
+      "before": "0602255938b8ffe170eda38eb12d1a57ee0eb12e68d2e686031a6ebe4e5162c6",
+      "after": "a415b7d6be8c9125c3c600f41d26684b522d42455e7014bdc551bb719f0dba4f"
+    },
+    {
+      "path": "_artifacts/boot-interaction-report.json",
+      "before": "59a3a912730cd5e5d9985186bd823595b6ca2dea45300d49aaaff77daae9ed28",
+      "after": "79dd06cf6034db6671bdffb78e5c6708b3a3df2b6b60177e80dd4a09e0d9bf97"
+    },
+    {
+      "path": "_artifacts/critical10-human-surface-audit.json",
+      "before": "a8f7b5e4c42b65da3cdcda4c37081e8fd7da77ae34eb589975741e9913aea6aa",
+      "after": "d10d0177fa3bccaac81c4027101e0eca4ecd1d97abc3d7dba18cd0a9131f9a67"
+    },
+    {
+      "path": "_artifacts/portfolio-vault/report.json",
+      "before": "6a7073b30a64e1c2dd61f2207bde8f68bb9ceaf8ecd09cf682506f9fa684e261",
+      "after": "ad11ab685dcaa7bb5a835930cb0c02fa3d18c31fddf974504d777793fb07e374"
+    },
+    {
+      "path": "_artifacts/route-soak-report.json",
+      "before": "e52854359d62f78b197fe8a277356f83d91f148363f25cf171984db23553e3aa",
+      "after": "206ff90f9e1046f11fd4557e3871c899be992f590e8fb03c2021800b69cf4d40"
+    },
+    {
+      "path": "_artifacts/structural-quality-20260906/browser.json",
+      "before": "afe4ef562deea3e400ba10e742ce65d5745ef92a35c6eb64294c7c95e377db34",
+      "after": "a23d326668858eb0bb3072364ff48e50c1c2e877c259954540f3b0153dfd9179"
+    },
+    {
+      "path": "_artifacts/structural-quality-20260906/guide.png",
+      "before": "6c51d94705465bc40647550cf4e1f9b3ec5b95227d3aca6abc8393e288264a02",
+      "after": "6ac538aad88a08f9d7089f0db58f573da2f2fe35b5cd2f247b982d1fdaedf83f"
+    },
+    {
+      "path": "_context/BUG-POSTMORTEM.md",
+      "before": "41cd366de243ecae6672e513864bd2a8ac64fb395baadc701d659f4e6ab81ec4",
+      "after": "671a3715f98ad0bd1b5af131d0acc26d31d63ae09a490015d28422e804bee519"
+    },
+    {
+      "path": "_context/CLAUDE.md",
+      "before": "1f4939a9bea9fc76f46da9a1228dbc2987f244742473979c64b14935efcc660e",
+      "after": "93bc8bf2c45cc3c4dc3ee85ae8c82c7828dad45b85904f755cc66a827b219d0e"
+    },
+    {
+      "path": "_context/CONTEXT-CATALOG.json",
+      "before": "0790a3cea626e0f4c700d915e55626d59c2aa3a4ad3209aa750c8e891d84f57c",
+      "after": "05c5bc128f586ddc2b4c730f346f16413e95b833cda48fedcd8baa87ef0b309c"
+    },
+    {
+      "path": "_context/CURRENT-STATE.md",
+      "before": "283e8a2b20a50064c7675ff4ebe013fdabf4f5112cf89b69a194619553468860",
+      "after": "f48fa63b9f0a37a19576a22652918e8e9bd31edc107db6451a4056573d575dab"
+    },
+    {
+      "path": "_context/KNOWLEDGE-BASE.md",
+      "before": "5068dcca5c87b72c66df9734a7e253c19a836874a16b89029c35ee4aee405f5f",
+      "after": "cad8f3a51defffcfedd57bf14401a8c4329eaf61d80f72c42cbdbfeaa110b0f5"
+    },
+    {
+      "path": "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
+      "before": "df79ef7863a7e3570b57489a2e7ee3e13d8598b9dc1c68a8e0348238c500bca2",
+      "after": "0a9708d787aec4be60e9398d17905a016a65c1215147221791947ddb7367c778"
+    },
+    {
+      "path": "_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json",
+      "before": "319c1ed96a1450623bc64dcf56f5dc5aa262e7150f8f6da350644e165b7bac8e",
+      "after": "45955d758595a38d48b2f4ead881e6928808c7458ef10c3d8fe48cca1b6f1f40"
+    },
+    {
+      "path": "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
+      "before": "e0bc9994bba60d8ee92d67b01e275e3bb21b8afcb790b289d3390bf45fc3b274",
+      "after": "2f29677de57f664f58fa0d3ef60551b38c35b88d25967d39fb0963a90013eb48"
+    },
+    {
+      "path": "_context/QA-CHECKLIST.md",
+      "before": "b79cee92033185b572637bef2e5e8c62da4555f69a521f0e0eeeb4c303d5461f",
+      "after": "84dbef532ae5b52cdd17ea4dc952aa8cc4296b7550760fe1906fe076bfe32a86"
+    },
+    {
+      "path": "_context/RULES.md",
+      "before": "3d92581a30349aaf8d218e368ceb6e77ef0e73c7d775b97ceddfb69e6e190b7d",
+      "after": "ea8878d138715a0642e1ece13e1094e542296931ef41d77f9fc2adb57120fca9"
+    },
+    {
+      "path": "_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md",
+      "before": "0592275246af70a43b1577969289841b65862d837ee2acd84a4bab84a6426e33",
+      "after": "891f990d37aac7edd08b26f9a58646e59ac222bd8a2b4abbb333e398cfb64d39"
+    },
+    {
+      "path": "_context/WORKFLOW-GOVERNANCE.md",
+      "before": "33596951ce55cb234958b1cc09fd21d5dd2a55f1764fbb927fcefe9ad48f31ae",
+      "after": "41242b413bb823e0c221a347ba4eb1d058cba46c7047c80168629a911428dbf0"
+    },
+    {
+      "path": "architecture/asset-manifest.json",
+      "before": "3693e7722fb87d12137cf7e2c9b89f925aa2450436f41cd3ea64e359d60f6393",
+      "after": "a37f0546191ea783d1083ca0e446d51de7bafc5d992e35ee4ee6ae9c8e9427d5"
+    },
+    {
+      "path": "architecture/operations-slo.json",
+      "before": "78954e12b9205fa43b014dff6af3e48c2834216b3c80c143fbc3f2733d089f8a",
+      "after": "0f7ae4315fa8ac5def681e840d31894f5fa66ba2b41b6d8d8a6c1c34d72b1811"
+    },
+    {
+      "path": "architecture/public-readiness.json",
+      "before": "8f05e8a2b9383b2f71e7da470139621f6c264fcdce24b454288f19de7dd2f28f",
+      "after": "8f183a9bb1b76f9c2f1551d8991b5173a2b127aabab9cba0798c1daa2cc91355"
+    },
+    {
+      "path": "architecture/qa-pipeline.json",
+      "before": "36bde1dc34ca10d3b060b9ef6c82bbf0c1265c2d74d5df234c7068c73652d9de",
+      "after": "4e6dd25fe384a36fc9520a561429fb9b204cd0c85b83488ae3f314f4d3e064eb"
+    },
+    {
+      "path": "architecture/release-manifest.json",
+      "before": "bb3f4dbdcc6614bbf86b6305f0911da1ed5c819b60fce49833c1f501a2ccf71b",
+      "after": "fbe40c643f53f3376648165bc326437888277737ab821e18a069948dbc5f4a99"
+    },
+    {
+      "path": "architecture/visual-state-matrix.json",
+      "before": "b3a114ef39318783e10670d6f0da5a47f06a2b5ea54db13642160ed8af87b186",
+      "after": "dbfaf627c9d495f1872bca5cf895e4865844bd0bb10d10d2b195a7e76a1229a5"
+    },
+    {
+      "path": "index.html",
+      "before": "a45ac9797ae983ae57b91cc8dd83df70c42e41cef208966a913bfb959b27d09e",
+      "after": "ee81bc2e34c0990fec8f94b3c5fef15795221baabc76222949f47dd5daca9928"
+    },
+    {
+      "path": "js/aio-chat.js",
+      "before": "0819de786c0fac63fdebbe17d5089aa682d216e72b029a9d715fbca7ddfc342a",
+      "after": "0f946d308677023b724f1f17ab0f2551721f3cd2741c15361a123964fff09ee0"
+    },
+    {
+      "path": "js/aio-core.js",
+      "before": "59d1963e7417fd8d83a5cbb11fe533b8a2c4272c2dba152f5cd4972152aba1a8",
+      "after": "c3935e88e6248ae91124e135951f4d4a8cc89f746c14a222be8a5a031809f0ff"
+    },
+    {
+      "path": "public-config.json",
+      "before": "9f26374a57caec4f5c233467af51823644edd08e0ee763e0bb85e84ac73988c9",
+      "after": "c26dfdb740ae5dc9a3b813c80ac8ed98818e272fc37ab6652f164c67f6cd1d17"
+    },
+    {
+      "path": "public-data/operations-status.json",
+      "before": "7039079065af19f6db25478600004a3cca1740a98969082a9e013ad2ef4b7ad7",
+      "after": "ae6f88b21e17cb9c1828ec6940ac14ccae83ac295e15a1d6a391d6cf69cff2ef"
+    },
+    {
+      "path": "scripts/ci-ai-chat-analysis-integration-check.mjs",
+      "before": "6e379ec8e408676caf63fc6a30d756db4b05fcd4a9a864a5a508e9912a8313bd",
+      "after": "94ef3a6c543172a6cff79910b6232452072664b1b5f1966a78e799a9af05012d"
+    },
+    {
+      "path": "scripts/ci-ai-chat-public-route-browser-check.mjs",
+      "before": "05520d5442938d0f150d3e86c121ad7e677bffcafa3aa88592df419987975cce",
+      "after": "8a223c8b7e5cbcbe957bf2c6418b2d62910a11e6f0df72bcd7a9550a7ab9e31c"
+    },
+    {
+      "path": "scripts/ci-ai-intelligence-contract-check.mjs",
+      "before": "a19349454235656616074e68e91c4e14b6a63cc3dd2f3e8c53e6ceb9f916bbba",
+      "after": "9a65ec8ee52f9aff71d6b8dda1359845ca4e131995970ec2e481c8df1c9149b0"
+    },
+    {
+      "path": "scripts/ci-ai-quote-evidence-check.mjs",
+      "before": "0767912712aa6808b350062e7bff81dc195901f54297b209d764df7a3b838587",
+      "after": "2b63ee00de66b59a3bb854e712292989ecaa35a98c94a56d8be42ae94fc100c4"
+    },
+    {
+      "path": "scripts/ci-data-continuity-check.mjs",
+      "before": "bfd3c1a21e469080d5c80dc2935f4114a0187b0f801d435f07554c12560a11d2",
+      "after": "bef348aaee8ab8b59ab135b190af3a8b7a10cc7964c291283025641e4834a904"
+    },
+    {
+      "path": "scripts/ci-data-pipeline-contract-check.mjs",
+      "before": "531b803750cba9b78a81c19a888a4c9dc683dfef0562c843e1e6d63a25923452",
+      "after": "8d51b98b349cdee24398bfc458a536d25d510a6ea2d3ecf4596e56c7db037bbf"
+    },
+    {
+      "path": "scripts/ci-data-plane-contract-check.mjs",
+      "before": "7c3d6ef21fce1fdeb81b023ec1bd5bb74bb8f7f564cff5a3679e5f44f28ad9e4",
+      "after": "d97bb41f523ccbf758ba8a60766fdd7bd6d8f8767ae4e1165a30dcda125dea32"
+    },
+    {
+      "path": "scripts/ci-esm-core-unit-check.mjs",
+      "before": "1933573ac3f6088154ce67ab21ae7ce9f9f34dafdb6718182f51babe4d0ba569",
+      "after": "c860ae562487bfe12ed624e7296c2bf77b07406130a73389f0e697e21a327f1d"
+    },
+    {
+      "path": "scripts/ci-qa-pipeline-contract-check.mjs",
+      "before": "74bd2d8c3ea83a64a69c228e41a0b3a9761e67ac50b7ac99559f1d2143d7baa4",
+      "after": "a8a2c8595b9936cbc5c0c938a122c6a81c627361cdbe9ba14756721aa0a49820"
+    },
+    {
+      "path": "scripts/ci-qa-runner-behavior-check.mjs",
+      "before": "c6aba165576e06d408cccfb2ea6a6f4ba016892377e615f63a95dd3d0ffab953",
+      "after": "68779984dc1aeda6bb8601cb1f87969a125185e77c9dad70f882a8444f3730a8"
+    },
+    {
+      "path": "scripts/ci-screener-auto-refresh-browser-check.mjs",
+      "before": "ff868c4cd77a56af8acf8afa2623b54973eef551e76cb82b86bfd7a4813208fa",
+      "after": "231c2d405f39382abca4f3d109c3b61bb61b2ef14f3d823678875002dc8b20e3"
+    },
+    {
+      "path": "scripts/fetch-cftc-positioning.mjs",
+      "before": "8a20a951e58d0fdba2823b40ca7aacbeb4ce3ef50ad4be5e6a00afa6ff5306a8",
+      "after": "ad3dcd7d7107e23adef1d88aa28e2e494c64d9855b689e6868b22e1e87151997"
+    },
+    {
+      "path": "scripts/fetch-earnings-calendar.mjs",
+      "before": "3b3fb07fbbdfa59096db0f051cffc84f6ea6d6442b1e3c62a7cc55ecdcb013f5",
+      "after": "a0e19b1ff30caaae043add875f62f3b5d4a3ca84ee581564c4be438ff79f8939"
+    },
+    {
+      "path": "scripts/fetch-sec-fundamentals.mjs",
+      "before": "e920146597c842076dbcaa6928b36697547786e5b821c6220d1fc7603566990a",
+      "after": "2e6fa068b1cd5c5180e6f0ba5ccd4ddf5221216fb2415b66d40973ebe7e8f63a"
+    },
+    {
+      "path": "scripts/qa-runner.mjs",
+      "before": "a99bc87e49ea95372e92e57ce52eea35283b903bdae6fa90c95afe7c3a64985b",
+      "after": "eaec8b1101bb12094ae8c797cdce08a69c879ba915459a5bbf05ec5a02b88fb1"
+    },
+    {
+      "path": "src/ai/orchestrator/answer-orchestrator.js",
+      "before": "2df5b7fe0f3b3399db2c43dd2f506be34af7c0e23b26aa109a12b9f92f6e209d",
+      "after": "0c303a01392173fd940f0eca8e9513e9c0926b055bfef4bd28b94812d4a241df"
+    },
+    {
+      "path": "src/app/bootstrap.js",
+      "before": "6f17f474d74432685ef5064ff7ef75fb345585bc565f60d471fe2f7b5b225424",
+      "after": "9b14537d76b49bd468ee44623c9c9eb92a89006deb710e121a68c2bfaf680bff"
+    },
+    {
+      "path": "src/app/router.js",
+      "before": "b3611357f70e61980a3b94a0724843dcb86862355bf55b4d89fd41c2063a1b3c",
+      "after": "27e464142fa0b05ae0f6eb1a6cc75c07a23821c8ddee676b73d709847f119cec"
+    },
+    {
+      "path": "src/data/providers/entity.js",
+      "before": "584daa4e7c3e6645335936fbb5277a971eec0578d2199e743163801437d6e8d2",
+      "after": "5342e8bfca965c35ff97e78079ad641975a94586c489319b3a576aaafd41c0e5"
+    },
+    {
+      "path": "sw.js",
+      "before": "82092a06c0172280b8a13db5b68dad53544c655e1a879a7eb2cf86f70cc7c535",
+      "after": "c5b2a90af44fb4f87d2f753270ed14ed7aeda3499cbb5c908061e40875ccdce9"
+    },
+    {
+      "path": "version.json",
+      "before": "373569e0e803ae93d80b5a38609b194574a4237d7fb293ccd973d08171a662e4",
+      "after": "fe6e019552f7184e08b0552b867e575f2404c2fc4f74b9740c4ac92322b5bf4e"
+    },
+    {
+      "path": "worker/data-plane.js",
+      "before": "f2692633a086ac9b35d0a5994965d4b6fc6f8a98e646c67c28d74587c3fe1842",
+      "after": "5cfe47ee995148ea03afac043386e71c41cd88667a99183f282881cd13179513"
+    },
+    {
+      "path": "worker/wrangler.proxy.toml",
+      "before": "5070633e5bc4503ef92536b7fba53fb9ef93637c9b6659560f4f5dd41e1c2467",
+      "after": "1f87af5f8dd2572a0c01f0f7412dc28cb9eb664e2803b30b111f219bde6e82c3"
+    }
+  ]
+}

@@ -587,6 +587,7 @@ function editPosition(ticker) {
   if (tEl) tEl.value = p.target || '';
   if (ccEl) ccEl.value = p.costCurrency || '';
   if (memoEl) memoEl.value = p.memo || '';
+  _pfSyncEntryCurrencyLabels();
   // v48.3: 편집 UX 개선 — 폼으로 스크롤 + 포커스 + 토스트 안내 (사용자가 어디서 편집 중인지 명확화)
   if (tkEl) {
     try { tkEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) { tkEl.scrollIntoView(); }
@@ -599,7 +600,25 @@ function clearPortfolioForm() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  _pfSyncEntryCurrencyLabels();
 }
+// Codex browser audit H49: the price labels said "$" after KRW was chosen. They follow the declared cost
+// currency, else the currency the ticker trades in (6-digit or .KS/.KQ = KRW), else USD.
+function _pfSyncEntryCurrencyLabels() {
+  var ccEl = document.getElementById('pf-add-cost-currency');
+  var tkEl = document.getElementById('pf-add-ticker');
+  var cc = String(ccEl && ccEl.value || '').trim().toUpperCase();
+  var tk = String(tkEl && tkEl.value || '').trim().toUpperCase();
+  var currency = /^[A-Z]{3}$/.test(cc) ? cc : (/^d{6}$/.test(tk) || /.K[SQ]$/.test(tk) ? 'KRW' : 'USD');
+  var costLabel = document.getElementById('pf-add-cost-label');
+  var targetLabel = document.getElementById('pf-add-target-label');
+  if (costLabel) costLabel.textContent = '매수 단가 (' + currency + ')';
+  if (targetLabel) targetLabel.textContent = '내 목표가 (' + currency + ', 선택)';
+}
+if (typeof document !== 'undefined') document.addEventListener('input', function(event) {
+  var id = event && event.target && event.target.id;
+  if (id === 'pf-add-cost-currency' || id === 'pf-add-ticker') _pfSyncEntryCurrencyLabels();
+});
 // ═══ Confirmation Modal 시스템 ═══════════════════════════════════════
 var _confirmCallback = null;
 var _confirmCancelCallback = null;

@@ -1,6 +1,6 @@
 ---
-verified_by: agent
-last_verified: 2026-08-23
+verified_by: P1518 structural workflow review; runtime and deployed evidence remain separate
+last_verified: 2026-10-08
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -66,6 +66,8 @@ git diff --check
 ```
 
 The source of truth is `architecture/qa-pipeline.json`. Cheap preflight blocks expensive phases, every gate in the active phase reports before exit, and successful local gates use content-keyed caching. Isolated local browser gates default to two workers; timing-sensitive gates remain exclusive and CI retains one worker per matrix shard. A registered test-only edit selects its gate and dependencies instead of all the product surfaces it inspects. `rerun-failed` selects exact failed gates rather than whole groups. Run `node scripts/qa-runner.mjs full --no-cache` once for release/shared-shell certification, not after each fix.
+
+P1518/R690: `candidate` accepts only complete `full --no-cache` PASS evidence, tied to the current manifest, runner and every tracked index dependency. Partial runs never replace this proof. A successful `rerun-failed` resolves the named failed gates only; skipped later phases still need execution. Literal file reads must be present in cache inputs and reachable through group or gate impact rules; dynamic and transitive dependencies still require review.
 
 For docs, skills, agents, hooks, workflows, or task-environment changes, `affected` must select the workspace group, which includes:
 

@@ -2026,7 +2026,7 @@ window._aioDiagram = (function () {
     });
     var W = 320, H = 240, cx = 160, cy = 130, R = 80, n = axes.length, out = '';
     out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(W / 2, 16, sym + ' 팩터 레이더', C.text, 10, 700, 'middle');
+    out += _t(W / 2, 16, sym + ' 팩터 위치 (대상 내 백분위)', C.text, 10, 700, 'middle');
     [0.25, 0.5, 0.75, 1].forEach(function (scale) {
       var pts = [];
       for (var i = 0; i < n; i++) {
@@ -2056,8 +2056,9 @@ window._aioDiagram = (function () {
     });
     if (d.rank != null) {
       var rc = _scoreCol(d.rank);
-      out += _r(W - 66, H - 28, 58, 20, _alphaRgb(rc, 0.14), 4, rc, 1);
-      out += _t(W - 37, H - 14, '랭크 ' + d.rank, rc, 10, 700, 'middle');
+      // Codex browser audit H29: "랭크 70" beside "271위 / 931" read as 70th place. It is a 0–100 percentile.
+      out += _r(W - 80, H - 28, 72, 20, _alphaRgb(rc, 0.14), 4, rc, 1);
+      out += _t(W - 44, H - 14, '백분위 ' + d.rank, rc, 10, 700, 'middle');
     }
     return _svg(W, H, out);
   }
@@ -2939,8 +2940,8 @@ function _renderFundFinancials(d) {
 
   var html = '';
   html += card('시가총액', mktCap > 0 ? '$' + _fmtNum(mktCap) : 'N/A', p.sector || (isSEC ? 'SEC XBRL' : ''));
-  html += card('P/E (TTM)', _fn(peVal) !== null ? peVal.toFixed(1) + 'x' : 'N/A', peVal > 30 ? '고평가 영역' : peVal > 15 ? '적정' : (peVal ? '저평가 영역' : ''), peVal > 40 ? '#ff5b50' : peVal < 15 ? '#00e5a0' : '#ffa31a');
-  html += card('ROE', _fn(roeVal) !== null ? (roeVal * 100).toFixed(1) + '%' : 'N/A', roeVal > 0.2 ? '우수' : roeVal > 0.1 ? '양호' : (roeVal ? '주의' : ''), roeVal > 0.2 ? '#00e5a0' : roeVal > 0.1 ? '#ffa31a' : '#ff5b50');
+  html += card('P/E (TTM)', _fn(peVal) !== null ? peVal.toFixed(1) + 'x' : 'N/A', '주가 ÷ 최근 4개 분기 EPS · 성장률·위험과 함께 비교');
+  html += card('ROE', _fn(roeVal) !== null ? (roeVal * 100).toFixed(1) + '%' : 'N/A', '순이익 ÷ 자기자본 · 공급자 기준(위 재무 흐름은 평균 자기자본 기준)');
   html += card('EPS (TTM)', epsVal ? '$' + epsVal.toFixed(2) : 'N/A', '');
   html += card('매출', revVal ? '$' + _fmtNum(revVal) : 'N/A', revYear ? 'FY ' + revYear : '');
   html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? '#00e5a0' : '#ff5b50');
@@ -2948,14 +2949,14 @@ function _renderFundFinancials(d) {
   html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (secFCF && mktCap > 0 ? ((secFCF / mktCap) * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
   html += card('EV/EBITDA', _fn(m.enterpriseValueOverEBITDA) !== null ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
   html += card('P/B', _fn(m.pbRatio) !== null ? m.pbRatio.toFixed(2) + 'x' : (secEquityVal && d.price && secEquityVal > 0 ? (mktCap / secEquityVal).toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
-  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', deVal > 2 ? '높음' : (deVal ? '안정' : ''), deVal > 2 ? '#ff5b50' : '#00e5a0');
+  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', '부채 ÷ 자기자본 · 업종마다 정상 범위가 다름');
   // P1164/B01: FMP profile이 없으면 배당 원천 자체가 미수신이다. 부재를 '0%'라는 실측값으로
   // 표시하지 않는다 — 실제 무배당(lastDiv===0)만 0.00%로 남는다.
   var hasDivValue = typeof p.lastDiv === 'number' && isFinite(p.lastDiv);
   var divYield = hasDivValue ? (d.price && d.price > 0 ? (p.lastDiv / d.price) * 100 : null) : null;
   html += card('배당수익률', divYield != null ? divYield.toFixed(2) + '%' : (hasDivValue ? 'N/A' : '미수신'), '연간 배당');
 
-  if (isSEC) { html += '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text-muted);padding:4px;">SEC EDGAR XBRL 기반 데이터 (FMP API 키 설정 시 더 풍부한 지표 제공)</div>'; }
+  // Codex browser audit H38: provider/setup notes (API keys, release tags) are operator information, not analysis.
 
   // v48.1: SEC XBRL 신규 8필드 품질/건전성 카드 추가
   //   R&D Intensity (R&D/매출), SBC 희석 (SBC/매출), SG&A 비중, Cash 포지션, 운전자본(재고/매출채권/유동부채)
@@ -2968,14 +2969,15 @@ function _renderFundFinancials(d) {
   var lastCurDebt = (sf.currentDebt && sf.currentDebt.length > 0) ? sv(sf.currentDebt[sf.currentDebt.length - 1]) : 0;
   var hasQuality = lastRd || lastSbc || lastSga || lastCash || lastInv || lastRcv || lastCurDebt;
   if (hasQuality) {
-    var qHtml = '<div style="grid-column:1/-1;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text-secondary);font-weight:600;">SEC XBRL — 성장주 품질 & 운전자본 (v48.1 신규)</div>';
+    var qHtml = '<div style="grid-column:1/-1;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text-secondary);font-weight:600;">공시 기반 — 비용 구조와 운전자본</div>';
     if (lastRd && secRevVal) {
       var rdRatio = (lastRd / secRevVal) * 100;
       qHtml += card('R&D 강도', rdRatio.toFixed(1) + '%', 'R&D / 매출' + (rdRatio > 15 ? ' · 고투자' : rdRatio > 5 ? ' · 양호' : ''), rdRatio > 15 ? '#00bcd4' : rdRatio > 5 ? '#00e5a0' : '#7b8599');
     }
     if (lastSbc && secRevVal) {
       var sbcRatio = (lastSbc / secRevVal) * 100;
-      qHtml += card('SBC 희석', sbcRatio.toFixed(1) + '%', 'SBC / 매출' + (sbcRatio > 10 ? ' · 높은 희석' : sbcRatio > 3 ? ' · 중간' : ''), sbcRatio > 10 ? '#ff5b50' : sbcRatio > 3 ? '#ffa31a' : '#00e5a0');
+      // Codex browser audit H40: SBC/revenue is an expense share, not dilution — the share count shows dilution.
+      qHtml += card('주식 보상 비용 비중', sbcRatio.toFixed(1) + '%', '주식 보상 비용 ÷ 매출' + (sbcRatio > 10 ? ' · 높음' : sbcRatio > 3 ? ' · 중간' : '') + ' — 실제 희석은 주식 수 변화로 확인', sbcRatio > 10 ? '#ff5b50' : sbcRatio > 3 ? '#ffa31a' : '#00e5a0');
     }
     if (lastSga && secRevVal) qHtml += card('SG&A 비중', ((lastSga / secRevVal) * 100).toFixed(1) + '%', '판매관리비 / 매출');
     if (lastCash) qHtml += card('현금 포지션', '$' + _fmtNum(lastCash), 'Cash & Equivalents');
@@ -2991,7 +2993,7 @@ function _renderFundFinancials(d) {
   if (_sfr && (_sfr.revenue || _sfr.netIncome)) {
     var rankHtml = '<div style="grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
     rankHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-    rankHtml += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);">SEC XBRL 섹터 백분위 (v48.10 신규)</div>';
+    rankHtml += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);">공시 기업 내 순위</div>';
     rankHtml += '<div style="font-size:10px;color:var(--text-muted);">전 US-GAAP 보고 기업 대비</div>';
     rankHtml += '</div>';
     function _rankCard(title, rr, unit) {
@@ -3034,7 +3036,7 @@ function _renderFundFinancials(d) {
   if (_fhRec || _ptC) {
     var recHtml = '<div style="grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
     recHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
-    recHtml += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);">애널리스트 컨센서스 (v48.7 신규)</div>';
+    recHtml += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);">애널리스트 컨센서스</div>';
     if (_fhRec && _fhRec.period) recHtml += '<div style="font-size:10px;color:var(--text-muted);">Finnhub · ' + _fhRec.period + '</div>';
     recHtml += '</div>';
 
@@ -3504,7 +3506,8 @@ function _renderFundValuation(d) {
   var _ps = _fv3(mt.priceToSalesRatioTTM, ma.priceToSalesRatio, ra.priceToSalesRatio); html += valRow('P/S', _ps !== null ? _ps.toFixed(2) + 'x' : 'N/A');
   var _eveb = _fv(mt.enterpriseValueOverEBITDATTM, ma.enterpriseValueOverEBITDA); html += valRow('EV/EBITDA', _eveb !== null ? _eveb.toFixed(1) + 'x' : 'N/A');
   var _evs = _fv(mt.evToSalesTTM, ma.evToSales); html += valRow('EV/Sales', _evs !== null ? _evs.toFixed(2) + 'x' : 'N/A');
-  html += valRow('PEG', _fn(rt.pegRatioTTM) !== null ? rt.pegRatioTTM.toFixed(2) + 'x' : 'N/A');
+  // Codex browser audit H39: two PEGs (here and the filing-based one above) use different growth inputs.
+  html += valRow('PEG (공급자 계산 · 성장률 기준 별도)', _fn(rt.pegRatioTTM) !== null ? rt.pegRatioTTM.toFixed(2) + 'x' : 'N/A');
   html += valRow('FCF Yield', _fn(mt.freeCashFlowYieldTTM) !== null ? (mt.freeCashFlowYieldTTM * 100).toFixed(1) + '%' : (_fn(ma.freeCashFlowYield) !== null ? (ma.freeCashFlowYield * 100).toFixed(1) + '%' : 'N/A'));
   html += '</div>';
 
@@ -3787,8 +3790,8 @@ function _renderFundMultiPeriod(d) {
   html += '</tbody></table></div>';
 
   // 데이터 소스 표시
-  var srcLabel = income.length ? 'FMP (Annual 손익계산서·재무비율·성장률)' : 'SEC EDGAR XBRL (폴백)';
-  html += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">소스: ' + srcLabel + ' · 최신 기준 좌측 정렬 · FMP API 미설정 시 일부 항목 N/A</div>';
+  // Codex browser audit H38: say what the table covers and why a cell is empty, not which key is unset.
+  html += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">연간 자료 · 최신 연도가 왼쪽 · 공시에서 얻지 못한 항목은 N/A</div>';
 
   body.innerHTML = html;
   el.style.display = 'block';

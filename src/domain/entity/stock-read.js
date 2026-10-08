@@ -81,12 +81,13 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   if (pct50 != null && adr != null && adr > 0) {
     const multiple = pct50 / adr;
     const text = multiple >= 7
-      ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 많이 달려 온 자리라 여기서 들어가면 되돌림을 손익 여유 없이 견뎌야 합니다.`
+      // Codex browser audit H32: the distance is an observed fact; entry/stop wording read as a trade instruction.
+      ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 기준선에서 크게 벌어져, 50일선까지의 되돌림만으로도 ${pct50.toFixed(1)}% 하락이 되는 거리입니다.`
       : multiple >= 4
-        ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 추세는 살아 있지만 새로 들어가기엔 기준선에서 꽤 떨어져 있습니다.`
+        ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 추세 위에 있으면서 기준선과의 거리가 꽤 벌어진 상태입니다.`
         : multiple >= 0
-          ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 기준선에서 멀지 않아 실패했을 때 손절 거리가 짧은 자리입니다.`
-          : `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래 — 기준선을 되찾는지가 먼저입니다.`;
+          ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 기준선 가까이에 있는 상태입니다.`
+          : `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래 — 기준선 아래에 있는 상태입니다.`;
     points.push({ id: 'extension', tone: multiple >= 7 ? 'burden' : multiple >= 0 && multiple < 4 ? 'favorable' : 'neutral', title: '기준선 대비 거리', text });
   }
 

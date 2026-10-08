@@ -13,10 +13,10 @@ export function mergeConceptCore(glossary, concepts = CONCEPT_CORE) {
   let replaced = 0;
   let added = 0;
   for (const concept of concepts) {
-    const names = new Set([concept.term, ...concept.aliases].map(normalize).filter(Boolean));
+    const names = new Set([concept.term, ...concept.aliases, ...(concept.covers || [])].map(normalize).filter(Boolean));
     const existing = glossary.find((entry) => entry && (names.has(normalize(entry.term)) || names.has(normalize(String(entry.term).replace(/\s*\(.*$/, '')))));
     // Synonyms decide which legacy entry is replaced (names above); related names only help search find it.
-    const alias = [...concept.aliases, ...(concept.related || [])].join(' ');
+    const alias = [...concept.aliases, ...(concept.covers || []), ...(concept.related || [])].join(' ');
     if (existing) {
       existing.def = concept.def;
       existing.alias = [existing.alias, alias].filter(Boolean).join(' ');
@@ -45,9 +45,9 @@ export function searchKnowledgeIndex(index, query, limit = 8) {
     else if (title.includes(q)) score = 60;
     else if (keys.some((key) => key.includes(q))) score = 50;
     else if (text.includes(q)) score = 20;
-    if (score) scored.push({ entry, score: score + (entry.surface === 'frame' ? 5 : 0) });
+    if (score) scored.push({ entry, score: score + (entry.surface === 'frame' || entry.surface === 'column' ? 5 : 0) });
   }
-  return scored.sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title)).slice(0, limit).map((item) => item.entry);
+  return scored.sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title)).slice(0, limit).map((item) => ({ ...item.entry, score: item.score }));
 }
 
 function routeUrl(root, route) {

@@ -1,4 +1,5 @@
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateMarketSnapshot, tier0Coverage } from '../src/data/contracts/market-snapshot.js';
+import { createHttpClient } from '../src/platform/http.js';
 
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 const DEFAULT_ORIGIN = 'https://ysnle.github.io';
@@ -84,25 +85,15 @@ function shaLike(value) {
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
-async function fetchWithTimeout(url, options = {}, timeoutMs = 9000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort('timeout'), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-async function fetchYahooQuote(instrument, now = Date.now()) {
+async function fetchYahooQuote(instrument, now, httpClient) {
   let lastError = 'provider_unavailable';
   for (const host of YAHOO_HOSTS) {
     try {
-      const response = await fetchWithTimeout(`${host}/v8/finance/chart/${encodeURIComponent(instrument.instrumentId)}?interval=1d&range=5d`, {
+      const response = await httpClient.requestJson(`${host}/v8/finance/chart/${encodeURIComponent(instrument.instrumentId)}?interval=1d&range=5d`, {
         headers: { accept: 'application/json', 'user-agent': 'AIO-Screener-data-plane/1.0' }
       });
-      if (!response.ok) throw new Error(`HTTP_${response.status}`);
-      const payload = await response.json();
+      if (!response.ok) throw new Error(response.error);
+      const payload = response.data;
       const result = payload?.chart?.result?.[0];
       const meta = result?.meta;
       const value = Number(meta?.regularMarketPrice);
@@ -167,9 +158,11 @@ async function writeHeartbeat(env, payload, { now = Date.now(), force = false } 
   return Object.freeze({ written: true, reason: statusChanged ? 'status-changed' : force ? 'forced' : 'liveness-due', writtenAt: body.writtenAt });
 }
 
-export async function publishQuotes({ env, now = Date.now() } = {}) {
+export async function publishQuotes({ env, now = Date.now(), fetchImpl = globalThis.fetch, timeoutMs = 9000 } = {}) {
   const attemptedAt = new Date(now).toISOString();
-  const results = await Promise.all(TIER_0_INSTRUMENTS.map((instrument) => fetchYahooQuote(instrument, now)));
+  // P1518: the shared gateway bounds headers AND body, including transports that ignore abort.
+  const httpClient = createHttpClient({ fetchImpl, defaultTimeoutMs: timeoutMs });
+  const results = await Promise.all(TIER_0_INSTRUMENTS.map((instrument) => fetchYahooQuote(instrument, now, httpClient)));
   const quotes = results.filter((quote) => Number.isFinite(quote?.value) && quote.value > 0);
   const coverage = tier0Coverage(quotes);
   const complete = coverage.observed === coverage.required;

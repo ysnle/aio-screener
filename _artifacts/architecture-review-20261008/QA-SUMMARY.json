@@ -1,0 +1,1003 @@
+{
+  "releaseCertification": false,
+  "reason": "data-refresh/data-lineage freshness failures retained; browser groups are separate evidence",
+  "runs": [
+    {
+      "runId": "2026-10-08T13-57-41-325Z-12104-3opzgd",
+      "profile": "affected",
+      "groups": [
+        "preflight",
+        "core",
+        "data",
+        "knowledge",
+        "workspace",
+        "cloudflare",
+        "browser-unit",
+        "browser-runtime",
+        "browser-knowledge",
+        "browser-resilience",
+        "browser-viewport",
+        "browser-surface",
+        "watchdog-local"
+      ],
+      "counts": {
+        "CACHED": 19,
+        "PASS": 101,
+        "FAIL": 2,
+        "SKIP": 32
+      },
+      "completedAt": "2026-10-08T13:57:58.432Z",
+      "results": [
+        {
+          "id": "syntax",
+          "status": "CACHED",
+          "durationMs": 10757
+        },
+        {
+          "id": "product-charter",
+          "status": "PASS",
+          "durationMs": 106
+        },
+        {
+          "id": "native-decision",
+          "status": "CACHED",
+          "durationMs": 323
+        },
+        {
+          "id": "vertical-slice",
+          "status": "CACHED",
+          "durationMs": 238
+        },
+        {
+          "id": "capability-claims",
+          "status": "CACHED",
+          "durationMs": 155
+        },
+        {
+          "id": "version",
+          "status": "PASS",
+          "durationMs": 154
+        },
+        {
+          "id": "reference-curriculum",
+          "status": "CACHED",
+          "durationMs": 200
+        },
+        {
+          "id": "route-registry",
+          "status": "CACHED",
+          "durationMs": 200
+        },
+        {
+          "id": "operations-contract",
+          "status": "PASS",
+          "durationMs": 137
+        },
+        {
+          "id": "architecture",
+          "status": "PASS",
+          "durationMs": 418
+        },
+        {
+          "id": "qa-runner-behavior",
+          "status": "CACHED",
+          "durationMs": 22552
+        },
+        {
+          "id": "generated-state",
+          "status": "PASS",
+          "durationMs": 320
+        },
+        {
+          "id": "workflow-yaml",
+          "status": "PASS",
+          "durationMs": 1329
+        },
+        {
+          "id": "workspace-contract",
+          "status": "PASS",
+          "durationMs": 1772
+        },
+        {
+          "id": "baseline",
+          "status": "PASS",
+          "durationMs": 95
+        },
+        {
+          "id": "market-session",
+          "status": "PASS",
+          "durationMs": 130
+        },
+        {
+          "id": "decomposition",
+          "status": "PASS",
+          "durationMs": 135
+        },
+        {
+          "id": "page-decision-reference",
+          "status": "PASS",
+          "durationMs": 104
+        },
+        {
+          "id": "fundamental-watchlist-timeline",
+          "status": "PASS",
+          "durationMs": 125
+        },
+        {
+          "id": "headless-group-lifecycle",
+          "status": "PASS",
+          "durationMs": 92
+        },
+        {
+          "id": "artifact-cache",
+          "status": "PASS",
+          "durationMs": 221
+        },
+        {
+          "id": "service-worker-cache-policy",
+          "status": "PASS",
+          "durationMs": 249
+        },
+        {
+          "id": "ai-premise",
+          "status": "PASS",
+          "durationMs": 177
+        },
+        {
+          "id": "ai-intelligence",
+          "status": "PASS",
+          "durationMs": 393
+        },
+        {
+          "id": "esm-core",
+          "status": "PASS",
+          "durationMs": 917
+        },
+        {
+          "id": "ai-analysis-evidence",
+          "status": "PASS",
+          "durationMs": 153
+        },
+        {
+          "id": "ai-quote-evidence",
+          "status": "PASS",
+          "durationMs": 139
+        },
+        {
+          "id": "ai-chat-analysis-integration",
+          "status": "PASS",
+          "durationMs": 219
+        },
+        {
+          "id": "domain-parity",
+          "status": "PASS",
+          "durationMs": 178
+        },
+        {
+          "id": "rotation-history",
+          "status": "PASS",
+          "durationMs": 1048
+        },
+        {
+          "id": "data-continuity",
+          "status": "CACHED",
+          "durationMs": 740
+        },
+        {
+          "id": "research-model",
+          "status": "PASS",
+          "durationMs": 205
+        },
+        {
+          "id": "research-flow",
+          "status": "PASS",
+          "durationMs": 175
+        },
+        {
+          "id": "proxy-continuity",
+          "status": "PASS",
+          "durationMs": 176
+        },
+        {
+          "id": "storage-migration",
+          "status": "PASS",
+          "durationMs": 94
+        },
+        {
+          "id": "release-manifest",
+          "status": "CACHED",
+          "durationMs": 137
+        },
+        {
+          "id": "deployment-convergence",
+          "status": "CACHED",
+          "durationMs": 101
+        },
+        {
+          "id": "retirement",
+          "status": "CACHED",
+          "durationMs": 1038
+        },
+        {
+          "id": "ai-provider-stream",
+          "status": "PASS",
+          "durationMs": 206
+        },
+        {
+          "id": "chat-resilience",
+          "status": "PASS",
+          "durationMs": 232
+        },
+        {
+          "id": "structural",
+          "status": "CACHED",
+          "durationMs": 1010
+        },
+        {
+          "id": "desktop-continuity",
+          "status": "PASS",
+          "durationMs": 260
+        },
+        {
+          "id": "inference",
+          "status": "PASS",
+          "durationMs": 90
+        },
+        {
+          "id": "csp",
+          "status": "PASS",
+          "durationMs": 143
+        },
+        {
+          "id": "default-ux",
+          "status": "PASS",
+          "durationMs": 170
+        },
+        {
+          "id": "desktop-scope",
+          "status": "PASS",
+          "durationMs": 186
+        },
+        {
+          "id": "ai-chat-reliability",
+          "status": "PASS",
+          "durationMs": 124
+        },
+        {
+          "id": "page-timeline",
+          "status": "PASS",
+          "durationMs": 100
+        },
+        {
+          "id": "macro-calendar-review",
+          "status": "PASS",
+          "durationMs": 103
+        },
+        {
+          "id": "semantic-review",
+          "status": "PASS",
+          "durationMs": 163
+        },
+        {
+          "id": "conditional-evidence",
+          "status": "PASS",
+          "durationMs": 117
+        },
+        {
+          "id": "runtime",
+          "status": "PASS",
+          "durationMs": 604
+        },
+        {
+          "id": "screener-workbench",
+          "status": "PASS",
+          "durationMs": 376
+        },
+        {
+          "id": "market-snapshot",
+          "status": "PASS",
+          "durationMs": 218
+        },
+        {
+          "id": "data-pipeline",
+          "status": "PASS",
+          "durationMs": 791
+        },
+        {
+          "id": "screener-benchmark",
+          "status": "PASS",
+          "durationMs": 432
+        },
+        {
+          "id": "operations-alert-policy",
+          "status": "CACHED",
+          "durationMs": 141
+        },
+        {
+          "id": "fast-plane-consumer",
+          "status": "CACHED",
+          "durationMs": 118
+        },
+        {
+          "id": "history-time",
+          "status": "PASS",
+          "durationMs": 236
+        },
+        {
+          "id": "operations-status",
+          "status": "PASS",
+          "durationMs": 108
+        },
+        {
+          "id": "human-validation",
+          "status": "PASS",
+          "durationMs": 95
+        },
+        {
+          "id": "data-plane",
+          "status": "PASS",
+          "durationMs": 203
+        },
+        {
+          "id": "operations-slo",
+          "status": "PASS",
+          "durationMs": 151
+        },
+        {
+          "id": "reconciliation",
+          "status": "PASS",
+          "durationMs": 146
+        },
+        {
+          "id": "source-registry",
+          "status": "PASS",
+          "durationMs": 125
+        },
+        {
+          "id": "operator-readiness",
+          "status": "PASS",
+          "durationMs": 101
+        },
+        {
+          "id": "professional-gap",
+          "status": "PASS",
+          "durationMs": 392
+        },
+        {
+          "id": "review-integrity",
+          "status": "PASS",
+          "durationMs": 169
+        },
+        {
+          "id": "sec-runtime-projection",
+          "status": "PASS",
+          "durationMs": 582
+        },
+        {
+          "id": "artifact-semantics",
+          "status": "CACHED",
+          "durationMs": 523
+        },
+        {
+          "id": "static-db-expiry",
+          "status": "CACHED",
+          "durationMs": 120
+        },
+        {
+          "id": "candidate-archive",
+          "status": "PASS",
+          "durationMs": 631
+        },
+        {
+          "id": "data-refresh",
+          "status": "FAIL",
+          "durationMs": 160
+        },
+        {
+          "id": "refresh-integrity",
+          "status": "PASS",
+          "durationMs": 191
+        },
+        {
+          "id": "static-data",
+          "status": "PASS",
+          "durationMs": 361
+        },
+        {
+          "id": "release-revision",
+          "status": "PASS",
+          "durationMs": 146
+        },
+        {
+          "id": "13f-semantic-noop",
+          "status": "CACHED",
+          "durationMs": 157
+        },
+        {
+          "id": "13f-currentness",
+          "status": "PASS",
+          "durationMs": 153
+        },
+        {
+          "id": "release-generated-parity",
+          "status": "PASS",
+          "durationMs": 229
+        },
+        {
+          "id": "artifact-headroom",
+          "status": "PASS",
+          "durationMs": 118
+        },
+        {
+          "id": "integrated-framework",
+          "status": "PASS",
+          "durationMs": 105
+        },
+        {
+          "id": "principles-lesson-parity",
+          "status": "PASS",
+          "durationMs": 322
+        },
+        {
+          "id": "knowledge-ontology",
+          "status": "PASS",
+          "durationMs": 146
+        },
+        {
+          "id": "knowledge-core",
+          "status": "PASS",
+          "durationMs": 153
+        },
+        {
+          "id": "knowledge-articles",
+          "status": "PASS",
+          "durationMs": 204
+        },
+        {
+          "id": "knowledge-learning",
+          "status": "PASS",
+          "durationMs": 105
+        },
+        {
+          "id": "knowledge-routes",
+          "status": "PASS",
+          "durationMs": 105
+        },
+        {
+          "id": "knowledge-repository",
+          "status": "PASS",
+          "durationMs": 106
+        },
+        {
+          "id": "knowledge-renderer",
+          "status": "PASS",
+          "durationMs": 99
+        },
+        {
+          "id": "knowledge-coverage",
+          "status": "PASS",
+          "durationMs": 102
+        },
+        {
+          "id": "knowledge-sector",
+          "status": "PASS",
+          "durationMs": 97
+        },
+        {
+          "id": "knowledge-web",
+          "status": "PASS",
+          "durationMs": 128
+        },
+        {
+          "id": "knowledge-unique",
+          "status": "PASS",
+          "durationMs": 111
+        },
+        {
+          "id": "knowledge-transmission",
+          "status": "PASS",
+          "durationMs": 125
+        },
+        {
+          "id": "knowledge-current-observations",
+          "status": "PASS",
+          "durationMs": 100
+        },
+        {
+          "id": "knowledge-currentness",
+          "status": "PASS",
+          "durationMs": 143
+        },
+        {
+          "id": "atlas-contract",
+          "status": "PASS",
+          "durationMs": 166
+        },
+        {
+          "id": "six-doc-coverage",
+          "status": "PASS",
+          "durationMs": 275
+        },
+        {
+          "id": "principles-contract",
+          "status": "PASS",
+          "durationMs": 221
+        },
+        {
+          "id": "knowledge-review",
+          "status": "PASS",
+          "durationMs": 182
+        },
+        {
+          "id": "knowledge-lint",
+          "status": "PASS",
+          "durationMs": 679
+        },
+        {
+          "id": "workflow-compaction",
+          "status": "PASS",
+          "durationMs": 258
+        },
+        {
+          "id": "skill-contract",
+          "status": "PASS",
+          "durationMs": 150
+        },
+        {
+          "id": "skill-evals",
+          "status": "PASS",
+          "durationMs": 111
+        },
+        {
+          "id": "agent-profiles",
+          "status": "PASS",
+          "durationMs": 104
+        },
+        {
+          "id": "agent-skills",
+          "status": "PASS",
+          "durationMs": 138
+        },
+        {
+          "id": "live-header-policy",
+          "status": "PASS",
+          "durationMs": 101
+        },
+        {
+          "id": "operator-provisioning",
+          "status": "CACHED",
+          "durationMs": 127
+        },
+        {
+          "id": "masters-contract",
+          "status": "PASS",
+          "durationMs": 2107
+        },
+        {
+          "id": "doc-currency",
+          "status": "PASS",
+          "durationMs": 130
+        },
+        {
+          "id": "ledger-integrity",
+          "status": "PASS",
+          "durationMs": 126
+        },
+        {
+          "id": "data-lineage",
+          "status": "FAIL",
+          "durationMs": 4914
+        },
+        {
+          "id": "assertion-trace",
+          "status": "PASS",
+          "durationMs": 168
+        },
+        {
+          "id": "worker-anthropic",
+          "status": "PASS",
+          "durationMs": 225
+        },
+        {
+          "id": "qa-pipeline-contract",
+          "status": "PASS",
+          "durationMs": 366
+        },
+        {
+          "id": "extension-api-runtime",
+          "status": "PASS",
+          "durationMs": 156
+        },
+        {
+          "id": "ai-budget-scope",
+          "status": "PASS",
+          "durationMs": 221
+        },
+        {
+          "id": "operations-alert-source",
+          "status": "CACHED",
+          "durationMs": 169
+        },
+        {
+          "id": "worker-relay",
+          "status": "PASS",
+          "durationMs": 202
+        },
+        {
+          "id": "cloudflare-deployment",
+          "status": "PASS",
+          "durationMs": 125
+        },
+        {
+          "id": "record-fix",
+          "status": "PASS",
+          "durationMs": 3794
+        },
+        {
+          "id": "knowledge-generated-parity",
+          "status": "PASS",
+          "durationMs": 9598
+        },
+        {
+          "id": "headless",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-ai-public",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-chat-ui-state",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-chat-response-layout",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-market-epoch",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-screener-refresh",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-boot",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-architecture",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-vertical",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "artifact-budget",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-atlas",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-principles",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-masters",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-user-journey",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-learning-flow",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-route-soak",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-sa02",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-sa03",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-sa04",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-viewport",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-critical",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-vault",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "browser-a11y",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-market-snapshot",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-operations",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-reconciliation",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-source-registry",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-professional-gap",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-static-data",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-web-research",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-data-refresh",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        },
+        {
+          "id": "watchdog-artifact-headroom",
+          "status": "SKIP",
+          "durationMs": 0,
+          "blockedBy": [
+            "data-refresh",
+            "data-lineage"
+          ]
+        }
+      ]
+    },
+    {
+      "runId": "2026-10-08T14-00-05-924Z-41444-t9y53g",
+      "profile": "group",
+      "groups": [
+        "browser-runtime"
+      ],
+      "counts": {
+        "PASS": 8
+      },
+      "completedAt": "2026-10-08T14:01:46.847Z",
+      "results": [
+        {
+          "id": "browser-chat-ui-state",
+          "status": "PASS",
+          "durationMs": 1466
+        },
+        {
+          "id": "browser-chat-response-layout",
+          "status": "PASS",
+          "durationMs": 1965
+        },
+        {
+          "id": "browser-ai-public",
+          "status": "PASS",
+          "durationMs": 4594
+        },
+        {
+          "id": "browser-market-epoch",
+          "status": "PASS",
+          "durationMs": 12125
+        },
+        {
+          "id": "browser-screener-refresh",
+          "status": "PASS",
+          "durationMs": 23350
+        },
+        {
+          "id": "browser-boot",
+          "status": "PASS",
+          "durationMs": 17087
+        },
+        {
+          "id": "browser-vertical",
+          "status": "PASS",
+          "durationMs": 22736
+        },
+        {
+          "id": "browser-architecture",
+          "status": "PASS",
+          "durationMs": 54599
+        }
+      ]
+    },
+    {
+      "runId": "2026-10-08T14-02-36-792Z-3332-izpzq7",
+      "profile": "group",
+      "groups": [
+        "browser-unit"
+      ],
+      "counts": {
+        "PASS": 1
+      },
+      "completedAt": "2026-10-08T14:02:50.842Z",
+      "results": [
+        {
+          "id": "headless",
+          "status": "PASS",
+          "durationMs": 12900
+        }
+      ]
+    }
+  ]
+}

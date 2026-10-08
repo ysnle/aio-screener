@@ -6,7 +6,8 @@
 // over multiple scheduled runs without hammering EDGAR.
 
 import { createHash } from 'node:crypto';
-import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod } from '../src/domain/fundamental/period.js';
@@ -400,10 +401,7 @@ async function readJSON(path, fallback) {
 }
 
 async function atomicWrite(path, value) {
-  await mkdir(dirname(path), { recursive: true });
-  const temp = `${path}.tmp`;
-  await writeFile(temp, JSON.stringify(value, null, 1));
-  await rename(temp, path);
+  await atomicWriteFile(path, JSON.stringify(value, null, 1));
 }
 
 function buildTickerMap(payload) {

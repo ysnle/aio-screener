@@ -56,6 +56,7 @@ export function krThemesForSymbol(symbol, themeMap) {
 // P1444 (review 2026-10-04): the KR theme block promised 수급·모멘텀·성과 while live coverage read 0/28.
 // The published screener artifact already carries completed-close returns for the KRX members, so each
 // theme gets a median 1-/3-month return and a 50-day share from those rows, labelled as such.
+export const KR_THEME_MIN_COVERED = 3;
 export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
   const median = (values) => { const list = values.filter((v) => Number.isFinite(v)).sort((a, b) => a - b); if (!list.length) return null; const mid = Math.floor(list.length / 2); return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2; };
@@ -68,10 +69,12 @@ export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
       above50Pct: above.length ? Math.round(above.filter((row) => row.pctSma50 > 0).length / above.length * 100) : null
     };
   });
-  const usable = themes.filter((theme) => theme.covered >= 2 && theme.ret1m != null).sort((a, b) => b.ret1m - a.ret1m);
+  // Codex browser audit H27: US sub-themes need three priced members while KR themes ranked on two (a "median"
+  // of two names is their average). One inclusion rule for both regions.
+  const usable = themes.filter((theme) => theme.covered >= KR_THEME_MIN_COVERED && theme.ret1m != null).sort((a, b) => b.ret1m - a.ret1m);
   const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
   const read = usable.length >= 4
     ? `완료 종가 기준 1개월 중앙값으로 강한 테마는 ${usable.slice(0, 3).map((t) => `${t.label}(${pct(t.ret1m)})`).join(' · ')}, 약한 테마는 ${usable.slice(-2).reverse().map((t) => `${t.label}(${pct(t.ret1m)})`).join(' · ')}입니다.`
-    : '구성 종목 기록이 2개 이상인 테마가 적어 순위를 매기지 않습니다.';
+    : `구성 종목 기록이 ${KR_THEME_MIN_COVERED}개 이상인 테마가 적어 순위를 매기지 않습니다.`;
   return { themes, usable, read, coveredThemes: usable.length, totalThemes: themes.length };
 }
