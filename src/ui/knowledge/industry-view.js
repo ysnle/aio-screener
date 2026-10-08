@@ -95,27 +95,69 @@ function flow(doc, text) {
   return box;
 }
 
-function rolesBlock(doc, node, registry) {
+// Closed vocabularies of player-product-registry.json shown in Korean. An id missing here falls back to its English words,
+// and ci-atlas-contract-check fails when the registry gains an id this table lacks.
+export const ROLE_LABELS = {
+  'accelerator-designer': '가속기 설계', 'advanced-packaging-provider': '첨단 패키징 제공', 'automation-system-integrator': '자동화 시스템 통합',
+  'automotive-system-integrator': '차량 시스템 통합', 'autonomy-software-provider': '자율주행 소프트웨어 제공', 'cloud-provider': '클라우드 제공',
+  'cpu-designer': 'CPU 설계', 'critical-materials-integrator': '핵심 소재 통합', 'custom-asic-provider': '맞춤형 ASIC 제공',
+  'custom-silicon-designer': '맞춤형 반도체 설계', 'data-center-power-cooling': '데이터센터 전력·냉각', 'defense-autonomy-provider': '방위 자율 시스템 제공',
+  'eda-provider': 'EDA 도구 제공', 'enterprise-ai-platform': '기업용 AI 플랫폼', 'enterprise-compute-provider': '기업용 컴퓨팅 제공',
+  'foundry': '파운드리', 'foundry-provider': '파운드리 제공', 'industrial-software-provider': '산업용 소프트웨어 제공', 'ip-provider': 'IP 제공',
+  'launch-provider': '발사 서비스 제공', 'lithography-equipment': '노광 장비', 'memory-manufacturer': '메모리 제조', 'nand-manufacturer': '낸드 제조',
+  'network-silicon-designer': '네트워크 반도체 설계', 'optical-component-provider': '광부품 제공', 'physical-ai-platform': '피지컬 AI 플랫폼',
+  'quantum-platform-provider': '양자 플랫폼 제공', 'rare-earths-producer': '희토류 생산', 'software-platform': '소프트웨어 플랫폼',
+  'space-systems-integrator': '우주 시스템 통합', 'ssd-provider': 'SSD 제공', 'storage-manufacturer': '스토리지 제조',
+  'storage-technology-provider': '스토리지 기술 제공', 'workflow-software-provider': '업무 흐름 소프트웨어 제공'
+};
+export const PRODUCT_CATEGORY_LABELS = {
+  'accelerator-platform': '가속기 플랫폼', 'advanced-packaging': '첨단 패키징', 'critical-materials-supply-chain': '핵심 소재 공급망',
+  'custom-accelerator-service': '맞춤형 가속기 서비스', 'data-center-infrastructure': '데이터센터 인프라', 'data-center-ssd': '데이터센터 SSD',
+  'data-center-ssd-and-nand': '데이터센터 SSD·낸드', 'defense-autonomy-software': '방위 자율 소프트웨어', 'eda-and-ip': 'EDA·IP',
+  'enterprise-ai-application-platform': '기업용 AI 응용 플랫폼', 'euv-lithography-system': 'EUV 노광 시스템', 'high-bandwidth-memory': 'HBM(고대역폭 메모리)',
+  'industrial-ai-copilot': '산업용 AI 코파일럿', 'optical-module': '광모듈', 'physical-ai-platform': '피지컬 AI 플랫폼',
+  'quantum-computing-platform': '양자 컴퓨팅 플랫폼', 'read-optimized-flash-memory-roadmap': '읽기 최적화 플래시 메모리 로드맵',
+  'space-launch-and-systems': '우주 발사·시스템', 'switch-silicon': '스위치 반도체'
+};
+const readable = (id) => String(id || '').replaceAll('-', ' ');
+
+// P1524 (audit H88/H89): the registry records which products map to a node, never who supplies whom. A player listed on
+// a node without a product mapped there is company-level role context, so the two are grouped and labelled apart and
+// a reader-facing note says what the list is not, instead of one list that reads as a supply chain. Production stage
+// stays hidden (the registry boundary withholds it) and the boundary wording itself is not shown: the page keeps
+// source and review copy out of the reader's text (ci-atlas-browser-check INTERNAL_COPY).
+export function rolesBlock(doc, node, registry) {
   const players = (registry?.players || []).filter((player) => player.taxonomyNodeIds?.includes(node.id));
   const products = (registry?.products || []).filter((product) => product.taxonomyNodeIds?.includes(node.id));
   if (!players.length && !products.length) return null;
+  const withProduct = new Set(products.map((product) => product.playerId));
+  const roleOnly = players.filter((player) => !withProduct.has(player.playerId));
+  const ownerOf = new Map((registry?.players || []).map((player) => [player.playerId, player.name]));
   const wrap = el(doc, 'div', 'rl-roles');
   wrap.appendChild(el(doc, 'h3', 'af-section', '누가 어떤 자리에 있나'));
-  const list = el(doc, 'ul', 'rl-role-list');
-  const ownerOf = new Map((registry?.players || []).map((player) => [player.playerId, player.name]));
-  players.forEach((player) => {
-    const li = el(doc, 'li');
-    li.dataset.atlasPlayerId = player.playerId;
-    li.append(el(doc, 'strong', null, player.name), doc.createTextNode(` — ${(player.roleIds || []).map((role) => String(role).replaceAll('-', ' ')).join(' · ')}`));
-    list.appendChild(li);
-  });
-  products.forEach((product) => {
+  wrap.appendChild(el(doc, 'p', 'rl-note rl-role-boundary', "기업 역할과 제품군을 둘러보기 위한 참고이며, 현재 매출·출하·점유율·양산 여부를 나타내지 않습니다. '제품 연결'은 이 자리에 대응하는 제품이 등록된 경우이고, '기업 역할 참고'는 기업 단위 역할만 등록돼 이 자리의 직접 공급을 뜻하지 않습니다."));
+  const group = (title, kind, items) => {
+    const box = el(doc, 'div', `rl-role-group rl-role-${kind}`);
+    box.appendChild(el(doc, 'p', 'af-stage-title', title));
+    const list = el(doc, 'ul', 'rl-role-list');
+    items.forEach((item) => list.appendChild(item));
+    box.appendChild(list);
+    return box;
+  };
+  const productItem = (product) => {
     const li = el(doc, 'li');
     li.dataset.atlasProductId = product.productId;
-    li.append(el(doc, 'strong', null, `${ownerOf.get(product.playerId) ? `${ownerOf.get(product.playerId)} · ` : ''}${String(product.category || '제품').replaceAll('-', ' ')}`), doc.createTextNode(product.problemSolved ? ` — ${product.problemSolved}` : ''));
-    list.appendChild(li);
-  });
-  wrap.appendChild(list);
+    li.append(el(doc, 'strong', null, `${ownerOf.get(product.playerId) ? `${ownerOf.get(product.playerId)} · ` : ''}${PRODUCT_CATEGORY_LABELS[product.category] || readable(product.category) || '제품'}`), doc.createTextNode(product.problemSolved ? ` — ${product.problemSolved}` : ''));
+    return li;
+  };
+  const playerItem = (player) => {
+    const li = el(doc, 'li');
+    li.dataset.atlasPlayerId = player.playerId;
+    li.append(el(doc, 'strong', null, player.name), doc.createTextNode(` — ${(player.roleIds || []).map((role) => ROLE_LABELS[role] || readable(role)).join(' · ')}`));
+    return li;
+  };
+  if (products.length) wrap.appendChild(group('이 자리에 제품이 연결된 곳', 'product', products.map(productItem)));
+  if (roleOnly.length) wrap.appendChild(group('기업 역할 참고 · 이 자리에 연결된 제품 없음', 'reference', roleOnly.map(playerItem)));
   return wrap;
 }
 

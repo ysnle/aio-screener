@@ -210,6 +210,40 @@ for (const product of playerProduct.products) {
 }
 if (invalidReferenceEdges.length) errors.push(`player/product reference edges invalid: ${invalidReferenceEdges.join(',')}`);
 if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCurrentObservationsArtifact') || !atlas.includes('applySafeExternalLink')) errors.push('atlas runtime artifact identity/schema/URL safety gates are missing');
+// P1524 (audit H88/H89): a player listed on a node with no product mapped there is company-level role context, not a
+// supplier of that node. The role block groups the two apart, shows the registry's own boundary, keeps the production
+// stage hidden (the boundary withholds it), and shows registry ids in Korean.
+{
+  const { rolesBlock, ROLE_LABELS, PRODUCT_CATEGORY_LABELS } = await import('../src/ui/knowledge/industry-view.js');
+  const registry = JSON.parse(read('public-data/atlas/player-product-registry.json'));
+  const missingRoles = [...new Set(registry.players.flatMap((player) => player.roleIds || []))].filter((id) => !ROLE_LABELS[id]);
+  const missingCategories = [...new Set(registry.products.map((product) => product.category).filter(Boolean))].filter((id) => !PRODUCT_CATEGORY_LABELS[id]);
+  if (missingRoles.length || missingCategories.length) errors.push(`P1524 registry ids without a Korean label: ${[...missingRoles, ...missingCategories].join(', ')}`);
+  const makeNode = (tag) => ({ tag, className: '', textContent: '', dataset: {}, children: [], appendChild(child) { this.children.push(child); return child; }, append(...kids) { kids.forEach((kid) => this.children.push(kid)); }, setAttribute() {} });
+  const doc = { createElement: makeNode, createTextNode: (text) => ({ tag: '#text', textContent: text, children: [] }) };
+  const textOf = (node) => (node.textContent || '') + (node.children || []).map(textOf).join('');
+  const groups = (nodeId) => {
+    const block = rolesBlock(doc, { id: nodeId }, registry);
+    const found = { product: [], reference: [], text: block ? textOf(block) : '', listText: '' };
+    (block?.children || []).filter((child) => /rl-role-group/.test(child.className)).forEach((group) => {
+      const kind = /rl-role-product/.test(group.className) ? 'product' : 'reference';
+      found[kind] = group.children[1].children.map((li) => li.dataset.atlasPlayerId || li.dataset.atlasProductId);
+      found.listText += textOf(group);
+    });
+    return found;
+  };
+  const cxl = groups('memory-cxl');
+  const photonic = groups('future-photonic-compute');
+  const equipment = groups('resources-industrial-equipment');
+  if (cxl.product.length || !cxl.reference.includes('kioxia') || !cxl.reference.includes('sandisk')) errors.push('P1524 KIOXIA and Sandisk on the CXL node must read as company-level role reference, not a supplier');
+  if (photonic.product.length || !photonic.reference.includes('ibm')) errors.push('P1524 IBM on the photonic-compute node must read as company-level role reference, not a supplier');
+  if (!equipment.product.some((id) => /mp-materials/.test(id))) errors.push('P1524 a registry product mapped to a node must appear in the product group');
+  if (!/직접 공급을 뜻하지 않습니다/.test(cxl.text) || !/현재 매출·출하·점유율·양산 여부를 나타내지 않습니다/.test(cxl.text)) errors.push('P1524 the role block must say what the list is not: reference roles are not direct supply and carry no current revenue, share or production claim');
+  if (/출처|REFERENCE_ONLY|ROLE_REFERENCE|1차/.test(cxl.text + photonic.text + equipment.text)) errors.push('P1524 the role block must not show source or review copy to the reader');
+  if (/nand manufacturer|ssd provider|quantum platform provider/.test(cxl.text + photonic.text)) errors.push('P1524 role ids must be shown in Korean');
+  const everyText = registry.products.flatMap((product) => product.taxonomyNodeIds || []).map((id) => groups(id).listText).join(' ');
+  if (/MATURE|RAMP|ROADMAP_OPTION|MIXED_BY_GENERATION|양산/.test(everyText)) errors.push('P1524 the role block must not show production stage (withheld by the registry boundary)');
+}
 if (errors.length) {
   console.error(JSON.stringify({ ok: false, errors }));
   process.exit(1);
