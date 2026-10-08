@@ -99,7 +99,7 @@ jobs:
           CURRENT_MAIN_SHA="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
           export LIVE_SHA CURRENT_MAIN_SHA
           # A newer main must exist locally to classify what it changed; an unreachable commit fails closed to the stale skip.
-          git fetch --no-tags --quiet origin "$CURRENT_MAIN_SHA" || true
+          [[ "$CURRENT_MAIN_SHA" =~ ^[0-9a-f]{40}$ ]] && timeout 120 git fetch --no-tags --quiet origin "$CURRENT_MAIN_SHA" || true
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import { getMainAdvanceWorkerChanges, getWorkerChangesBetween, isAncestorCommit, shouldDeployWorker } from './scripts/worker-deploy-impact.mjs';
@@ -195,8 +195,8 @@ jobs:
         run: |
           set -euo pipefail
           current_main_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
-          git fetch --no-tags --quiet origin "$current_main_sha" || true
-          safe="$(node scripts/worker-deploy-impact.mjs --main-advance aiProxy "$EXPECTED_SHA" "$current_main_sha")"
+          [[ "$current_main_sha" =~ ^[0-9a-f]{40}$ ]] && timeout 120 git fetch --no-tags --quiet origin "$current_main_sha" || true
+          safe="$(node scripts/worker-deploy-impact.mjs --main-advance aiProxy "$EXPECTED_SHA" "$current_main_sha" || echo false)"
           echo "safe=$safe" >> "$GITHUB_OUTPUT"
           if [ "$safe" != 'true' ]; then
             echo "Main advanced to $current_main_sha with changes to this Worker's inputs; skipping stale AI-proxy run for $EXPECTED_SHA."

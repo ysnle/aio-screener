@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 
 const read = (path) => readFileSync(path, 'utf8');
 const proxyToml = read('worker/wrangler.proxy.toml');
@@ -135,12 +136,38 @@ check('P1308/R653/QA-DATA-50 delayed CI events cannot overwrite a newer main/liv
   check('P1351 a main advance without change evidence fails closed', deploys('aiProxy', {}) === false && deploys('aiProxy', { newerMainChanges: {} }) === false && deploys('aiProxy', { newerMainChanges: { aiProxy: undefined } }) === false);
   check('P1351 a newer main that is not a descendant of the tested SHA fails closed', deploys('aiProxy', { newerMainChanges: untouched, isAncestor: () => false }) === false);
   check('P1351 a git ancestry failure while judging the advance fails closed instead of crashing the release', deploys('aiProxy', { newerMainChanges: untouched, isAncestor: () => { throw new Error('unknown revision'); } }) === false);
-  check('P1351 a manual redeploy follows the same rule and still refuses a Worker-changing main', deploys('aiProxy', { manual: true, newerMainChanges: untouched }) === true && deploys('aiProxy', { manual: true, newerMainChanges: { dataPlane: false, aiProxy: true } }) === false);
+  const ancestry = (edges) => (ancestor, descendant) => edges.some(([a, d]) => a === ancestor && d === descendant);
+  const testedBeforeMain = [[sha('2'), sha('3')]];
+  check('P1351 a manual redeploy follows the same rule and still refuses a Worker-changing main',
+    deploys('aiProxy', { manual: true, newerMainChanges: untouched, isAncestor: ancestry(testedBeforeMain) }) === true
+    && deploys('aiProxy', { manual: true, newerMainChanges: { dataPlane: false, aiProxy: true }, isAncestor: ancestry(testedBeforeMain) }) === false);
+  check('P1351 a manual redeploy after a data-only advance never moves a newer live source SHA backwards',
+    deploys('aiProxy', { manual: true, liveSha: sha('4'), newerMainChanges: untouched, isAncestor: ancestry([[sha('2'), sha('3')], [sha('2'), sha('4')]]) }) === false
+    && deploys('aiProxy', { manual: true, liveSha: undefined, newerMainChanges: untouched, isAncestor: ancestry(testedBeforeMain) }) === false
+    && deploys('aiProxy', { manual: true, liveSha: sha('2'), newerMainChanges: untouched, isAncestor: ancestry(testedBeforeMain) }) === true);
   check('P1351 the advance classifier yields nothing for equal, malformed, or unreachable commits',
     workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('2')) === undefined
     && workerImpact.getMainAdvanceWorkerChanges('bad', sha('3')) === undefined
     && workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => { throw new Error('not an ancestor'); }) === undefined
-    && workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => untouched) === untouched);
+    && JSON.stringify(workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => ['public-data/data.json', 'index.html'])) === JSON.stringify(untouched));
+  check('P1351 the advance classifier keeps planes independent',
+    JSON.stringify(workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => ['cloudflare-worker-proxy.js'])) === JSON.stringify({ dataPlane: false, aiProxy: true })
+    && JSON.stringify(workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => ['worker/data-plane.js'])) === JSON.stringify({ dataPlane: true, aiProxy: false })
+    && workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => ['worker/wrangler.proxy.toml']).aiProxy === true);
+  check('P1351 a newer main that edits the deploy recipe is not treated as data-only',
+    workerImpact.WORKER_DEPLOY_RECIPE_FILES.length >= 4
+    && workerImpact.WORKER_DEPLOY_RECIPE_FILES.every((file) => existsSync(file))
+    && workerImpact.WORKER_DEPLOY_RECIPE_FILES.every((file) => { const r = workerImpact.getMainAdvanceWorkerChanges(sha('2'), sha('3'), () => [`./${file}`]); return r.dataPlane === true && r.aiProxy === true; }));
+  check('P1351 changed paths are listed without rename detection so a moved Worker input cannot look untouched (same class as P1497)',
+    /'diff', '--name-only', '--no-renames'/.test(read('scripts/worker-deploy-impact.mjs')));
+  const cli = (...args) => spawnSync(process.execPath, ['scripts/worker-deploy-impact.mjs', ...args], { encoding: 'utf8' });
+  const cliEqual = cli('--main-advance', 'aiProxy', sha('2'), sha('2'));
+  const cliUnknown = cli('--main-advance', 'aiProxy', sha('2'), sha('3'));
+  const cliMalformed = cli('--main-advance', 'aiProxy', sha('2'), 'null');
+  check('P1351 the pre-mutation guard CLI answers true for an equal main, false for an unreachable newer main, and rejects malformed input without output',
+    cliEqual.status === 0 && cliEqual.stdout.trim() === 'true'
+    && cliUnknown.status === 0 && cliUnknown.stdout.trim() === 'false'
+    && cliMalformed.status !== 0 && cliMalformed.stdout.trim() === '');
   for (const [name, workflow, plane] of [['AI proxy', proxyWorkflow, 'aiProxy'], ['fast data plane', dataWorkflow, 'dataPlane']]) {
     const convergence = workflow.slice(workflow.indexOf('id: convergence'), workflow.indexOf('Require Cloudflare operating configuration'));
     const guardStart = workflow.indexOf('Recheck main head immediately before Worker mutation');
@@ -154,6 +181,10 @@ check('P1308/R653/QA-DATA-50 delayed CI events cannot overwrite a newer main/liv
       guard.includes(`--main-advance ${plane} "$EXPECTED_SHA" "$current_main_sha"`)
       && /git fetch --no-tags --quiet origin "\$current_main_sha"/.test(guard)
       && !/\[ "\$current_main_sha" = "\$EXPECTED_SHA" \]/.test(guard));
+    check(`P1351 ${name} validates the main SHA before fetching it, bounds the fetch, and turns a classifier failure into a skip instead of a red job`,
+      /\[\[ "\$current_main_sha" =~ \^\[0-9a-f\]\{40\}\$ \]\] && timeout \d+ git fetch/.test(guard)
+      && /\|\| echo false\)"/.test(guard)
+      && /\[\[ "\$CURRENT_MAIN_SHA" =~ \^\[0-9a-f\]\{40\}\$ \]\] && timeout \d+ git fetch/.test(convergence));
   }
 }
 
