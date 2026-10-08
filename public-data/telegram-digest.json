@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-08T14:33:01.494Z",
-  "attemptedAt": "2026-10-08T14:33:01.494Z",
-  "lastSuccessfulAt": "2026-10-08T14:33:01.494Z",
+  "generatedAt": "2026-10-08T19:27:50.249Z",
+  "attemptedAt": "2026-10-08T19:27:50.249Z",
+  "lastSuccessfulAt": "2026-10-08T19:27:50.249Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-24T14:32:57.882Z",
-  "until": "2026-10-08T14:32:57.882Z",
+  "since": "2026-09-24T19:27:45.196Z",
+  "until": "2026-10-08T19:27:45.196Z",
   "current24hWindow": {
     "start": "2026-10-06T23:00:00.000Z",
     "end": "2026-10-07T23:00:00.000Z",
@@ -78,15 +78,15 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 215,
-      "freshCount": 19,
-      "eligibleTextCount": 56,
-      "selectedCount": 75,
+      "count": 216,
+      "freshCount": 39,
+      "eligibleTextCount": 57,
+      "selectedCount": 76,
       "error": null,
-      "lastPostId": 25711
+      "lastPostId": 25712
     },
     {
       "channel": "insidertracking",
@@ -108,7 +108,7 @@
       "count": 234,
       "freshCount": 20,
       "eligibleTextCount": 63,
-      "selectedCount": 98,
+      "selectedCount": 97,
       "error": null,
       "lastPostId": 20543
     },
@@ -117,17 +117,73 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 654,
+      "count": 655,
       "freshCount": 32,
-      "eligibleTextCount": 112,
+      "eligibleTextCount": 114,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 70089
+      "lastPostId": 70093
     }
   ],
-  "count": 2206,
-  "retainedItemCount": 462,
+  "count": 2208,
+  "retainedItemCount": 465,
   "observedItems": [
+    {
+      "id": "HANAchina/70093",
+      "channel": "HANAchina",
+      "datetime": "2026-10-08T16:18:34.000Z",
+      "localDateKst": "2026-10-09",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/70092",
+      "channel": "HANAchina",
+      "datetime": "2026-10-08T16:17:10.000Z",
+      "localDateKst": "2026-10-09",
+      "score": 47,
+      "tags": [
+        "macro",
+        "healthcare"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25712",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-10-08T14:40:42.000Z",
+      "localDateKst": "2026-10-08",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "earnings",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "AAPL",
+        "MU",
+        "SNDK",
+        "WDC",
+        "STX",
+        "SMCI",
+        "VZ",
+        "T",
+        "GLW",
+        "APH",
+        "TEL",
+        "HPQ"
+      ],
+      "hasText": true
+    },
     {
       "id": "HANAchina/70089",
       "channel": "HANAchina",
@@ -4995,13 +5051,11 @@
       "channel": "aetherjapanresearch",
       "datetime": "2026-10-06T22:13:51.000Z",
       "localDateKst": "2026-10-07",
-      "score": 47,
+      "score": 35,
       "tags": [
-        "kr-market"
+        "market-note"
       ],
-      "tickers": [
-        "035420.KS"
-      ],
+      "tickers": [],
       "hasText": true
     },
     {
@@ -30561,48 +30615,36 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/69377",
-      "channel": "HANAchina",
-      "datetime": "2026-09-24T15:36:05.000Z",
-      "localDateKst": "2026-09-25",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2206,
-    "eligibleTextCount": 392,
-    "mediaOnlyCount": 1814,
-    "highSignalCount": 504,
-    "broadSignalCount": 1016,
+    "observedCount": 2208,
+    "eligibleTextCount": 395,
+    "mediaOnlyCount": 1813,
+    "highSignalCount": 505,
+    "broadSignalCount": 1017,
     "selectedRawCount": 416,
-    "selectedEligibleCount": 191,
-    "selectedRawCoveragePct": 48.7,
-    "selectedOfObservedPct": 18.9,
+    "selectedEligibleCount": 192,
+    "selectedRawCoveragePct": 48.6,
+    "selectedOfObservedPct": 18.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "macro": 773,
+    "market-note": 653,
+    "macro": 775,
+    "healthcare": 127,
+    "geo": 370,
+    "semi": 571,
+    "power": 337,
+    "earnings": 378,
+    "flows": 167,
     "ai-policy": 193,
     "credit": 82,
-    "semi": 570,
-    "power": 336,
     "equity": 188,
-    "market-note": 652,
-    "geo": 369,
-    "earnings": 377,
-    "healthcare": 125,
-    "flows": 166,
-    "kr-market": 254,
+    "kr-market": 253,
     "japan": 135,
     "optical": 44,
     "insider": 51,
@@ -30610,10 +30652,21 @@
     "crypto": 5
   },
   "tickerCounts": {
+    "AAPL": 11,
+    "MU": 57,
+    "SNDK": 9,
+    "WDC": 8,
+    "STX": 11,
+    "SMCI": 3,
+    "VZ": 2,
+    "T": 6,
+    "GLW": 2,
+    "APH": 2,
+    "TEL": 1,
+    "HPQ": 1,
     "NVDA": 103,
     "META": 67,
     "AMD": 77,
-    "T": 5,
     "MRVL": 25,
     "ALAB": 2,
     "INTC": 17,
@@ -30634,10 +30687,8 @@
     "TSM": 88,
     "MSFT": 33,
     "AMZN": 42,
-    "MU": 56,
     "000660.KS": 35,
     "005930.KS": 55,
-    "STX": 10,
     "LITE": 25,
     "373220.KS": 5,
     "CRWV": 6,
@@ -30649,7 +30700,6 @@
     "IONQ": 8,
     "RDW": 1,
     "CRDO": 1,
-    "GLW": 1,
     "TEM": 2,
     "O": 5,
     "SOXX": 2,
@@ -30676,9 +30726,7 @@
     "267260.KS": 3,
     "103590.KS": 2,
     "000500.KS": 3,
-    "035420.KS": 22,
     "AMAT": 9,
-    "WDC": 7,
     "NKE": 7,
     "SNOW": 1,
     "SMR": 5,
@@ -30689,7 +30737,6 @@
     "MRNA": 7,
     "FTNT": 4,
     "NET": 6,
-    "APH": 1,
     "KEYS": 5,
     "JCI": 2,
     "MTD": 5,
@@ -30697,11 +30744,11 @@
     "ILMN": 5,
     "RVTY": 4,
     "CIEN": 4,
+    "035420.KS": 21,
     "CMI": 1,
     "CTVA": 1,
     "PSKY": 1,
     "BCS": 4,
-    "SNDK": 8,
     "CEG": 1,
     "STZ": 1,
     "006400.KS": 2,
@@ -30715,7 +30762,6 @@
     "247540.KQ": 1,
     "003670.KQ": 1,
     "096770.KS": 1,
-    "AAPL": 10,
     "ARM": 5,
     "ASTS": 2,
     "PBR": 1,
@@ -30737,7 +30783,6 @@
     "MNDY": 2,
     "AKAM": 4,
     "ON": 1,
-    "VZ": 1,
     "ASX": 3,
     "HOOD": 6,
     "QQQ": 3,
@@ -30774,7 +30819,6 @@
     "WMT": 1,
     "JOBY": 1,
     "RGTI": 1,
-    "SMCI": 2,
     "IRDM": 1,
     "SPGI": 1,
     "V": 1,
@@ -30783,13 +30827,13 @@
     "GDDY": 1
   },
   "themes": [
-    "Macro/Rates (773 posts in 14-day research window): BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방...",
-    "Market Notes (652 posts in 14-day research window): 2026년 10월 7일 미국 증시 프리마켓 브리핑 미국 지수선물은 혼조권. S&P500 +0.07%, 나스닥100 +0.02%로 대형주는 보합권을 유지하는 반면 다우 -0.08%, 러셀2000 -0.23%로...",
-    "Semiconductors/Memory (570 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
-    "Earnings/Corporate (377 posts in 14-day research window): BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방...",
-    "Geopolitics (369 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
-    "AI Power/Grid (336 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
-    "Korea Market (254 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
+    "Macro/Rates (775 posts in 14-day research window): Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈...",
+    "Market Notes (653 posts in 14-day research window): 2026년 10월 7일 미국 증시 프리마켓 브리핑 미국 지수선물은 혼조권. S&P500 +0.07%, 나스닥100 +0.02%로 대형주는 보합권을 유지하는 반면 다우 -0.08%, 러셀2000 -0.23%로...",
+    "Semiconductors/Memory (571 posts in 14-day research window): Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈...",
+    "Earnings/Corporate (378 posts in 14-day research window): Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈...",
+    "Geopolitics (370 posts in 14-day research window): Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈...",
+    "AI Power/Grid (337 posts in 14-day research window): Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈...",
+    "Korea Market (253 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
     "AI Policy/Export Controls (193 posts in 14-day research window): BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방..."
   ],
   "catalysts": [
@@ -30820,8 +30864,8 @@
     },
     {
       "key": "MU",
-      "count": 56,
-      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
+      "count": 57,
+      "text": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈..."
     },
     {
       "key": "005930.KS",
@@ -30861,8 +30905,8 @@
       "topics": [
         "macro"
       ],
-      "count": 773,
-      "focus": "BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방..."
+      "count": 775,
+      "focus": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈..."
     },
     {
       "id": "geo",
@@ -30870,8 +30914,8 @@
       "topics": [
         "geo"
       ],
-      "count": 369,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
+      "count": 370,
+      "focus": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈..."
     },
     {
       "id": "credit",
@@ -30888,8 +30932,8 @@
       "topics": [
         "semi"
       ],
-      "count": 570,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
+      "count": 571,
+      "focus": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈..."
     },
     {
       "id": "optical",
@@ -30898,7 +30942,7 @@
         "optical"
       ],
       "count": 44,
-      "focus": "루멘텀, 코히런트, 시에나 급등…월가 “AI 시대 구조적 수혜주” AI 데이터센터용 광통신(Optical Networking) 관련주가 동반 급등 코히어런트 &#036;COHR : +10.90% 루멘텀..."
+      "focus": "Citi) 미국 반도체: 메타 뮤즈 모멘텀, CPU TAM 상향 및 AMD 목표주가 800달러 (2026.10.06) Citi는 최근 메타의 뮤즈(Muse)를 비롯해 Dots, Instinct, GrokBot, GeminiSpark 등 개인용 AI 에이전트가 잇따라 출시된 것을 반영해 2030년 CPU TAM..."
     },
     {
       "id": "power",
@@ -30906,8 +30950,8 @@
       "topics": [
         "power"
       ],
-      "count": 336,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
+      "count": 337,
+      "focus": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈..."
     },
     {
       "id": "ai-policy",
@@ -30924,7 +30968,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 254,
+      "count": 253,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
     },
     {
@@ -30951,8 +30995,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 377,
-      "focus": "BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방..."
+      "count": 378,
+      "focus": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈..."
     },
     {
       "id": "healthcare",
@@ -30960,8 +31004,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 125,
-      "focus": "씨티, 3분기 실적 발표 앞두고 반도체 업종 최선호 매수 종목 5개 선정…“종목 선택에 더욱 신중해지고 있다” 씨티(Citi)는 3분기 실적 발표를 앞두고 AMD, 텍사스 인스트루먼트(Texas Instruments), 램리서치(Lam Research), 테라다인(Teradyne), 시놉시스(Synopsys)를..."
+      "count": 127,
+      "focus": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈..."
     },
     {
       "id": "japan",
@@ -30978,8 +31022,8 @@
       "topics": [
         "flows"
       ],
-      "count": 166,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
+      "count": 167,
+      "focus": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초 대비 평균 +125% 상승해 S&P500(+14%)을 크게 상회했으며, 스토리지, AI 배치 및 엔터프라이즈..."
     },
     {
       "id": "insider",
@@ -30996,7 +31040,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 652,
+      "count": 653,
       "focus": "2026년 10월 7일 미국 증시 프리마켓 브리핑 미국 지수선물은 혼조권. S&P500 +0.07%, 나스닥100 +0.02%로 대형주는 보합권을 유지하는 반면 다우 -0.08%, 러셀2000 -0.23%로..."
     }
   ],
@@ -31240,6 +31284,39 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "aetherjapanresearch/25712",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25712",
+      "datetime": "2026-10-08T14:40:42.000Z",
+      "localDateKst": "2026-10-08",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "earnings",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "AAPL",
+        "MU",
+        "SNDK",
+        "WDC",
+        "STX",
+        "SMCI",
+        "VZ",
+        "T",
+        "GLW",
+        "APH",
+        "TEL",
+        "HPQ"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초..."
+    },
     {
       "id": "aetherjapanresearch/25710",
       "channel": "aetherjapanresearch",
@@ -31544,7 +31621,13 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi"
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "flows",
+        "healthcare"
       ],
       "tickers": [
         "NVDA",
@@ -32148,35 +32231,42 @@
       "score": 100,
       "hasText": true,
       "summary": "🔹 Goldman Sachs, 하이퍼스케일러 기업들의 2027년 AI CapEx 규모를 1.2조달러로 전망 » 골드만삭스는 Amazon, Alphabet, Microsoft, Oracle, Meta 등 미국..."
-    },
-    {
-      "id": "bornlupin/20303",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20303",
-      "datetime": "2026-09-25T09:33:22.000Z",
-      "localDateKst": "2026-09-25",
-      "tags": [
-        "macro",
-        "semi",
-        "ai-policy"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "MU",
-        "TSM",
-        "SNDK",
-        "005930.KS",
-        "000660.KS",
-        "INTC",
-        "AKAM"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "GF Securities, Akamai–Anthropic 계약 Akamai–Anthropic, 7년간 116억 달러 규모의 CPU 계약 - 9월 24일 발표된 7년간 총 116억 달러 규모의 가속형 CPU..."
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/25712",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25712",
+      "datetime": "2026-10-08T14:40:42.000Z",
+      "localDateKst": "2026-10-08",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "earnings",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "AAPL",
+        "MU",
+        "SNDK",
+        "WDC",
+        "STX",
+        "SMCI",
+        "VZ",
+        "T",
+        "GLW",
+        "APH",
+        "TEL",
+        "HPQ"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Citi) 북미 커넥터·전자부품·하드웨어·스토리지 3Q26 실적 프리뷰 – 견고한 AI 수요, 커넥티비티에 가장 강세 (2026년 10월 8일, Asiya Merchant 외) Citi 커버리지 종목은 연초..."
+    },
     {
       "id": "HANAchina/70089",
       "channel": "HANAchina",
@@ -33897,7 +33987,13 @@
       "datetime": "2026-10-07T11:59:18.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "power"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "flows"
       ],
       "tickers": [
         "NVDA"
@@ -33932,6 +34028,7 @@
       "datetime": "2026-10-07T11:51:54.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "semi",
         "power"
       ],
       "tickers": [],
@@ -33946,7 +34043,8 @@
       "datetime": "2026-10-07T11:48:21.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro"
+        "macro",
+        "healthcare"
       ],
       "tickers": [],
       "score": 52,
@@ -33960,6 +34058,9 @@
       "datetime": "2026-10-07T11:48:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "macro",
+        "geo",
+        "semi",
         "power"
       ],
       "tickers": [],
@@ -33974,7 +34075,8 @@
       "datetime": "2026-10-07T11:48:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "market-note"
+        "geo",
+        "power"
       ],
       "tickers": [],
       "score": 58,
@@ -34018,6 +34120,7 @@
       "datetime": "2026-10-07T11:31:40.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "macro",
         "power"
       ],
       "tickers": [
@@ -34346,6 +34449,9 @@
       "tags": [
         "macro",
         "semi",
+        "optical",
+        "power",
+        "ai-policy",
         "earnings"
       ],
       "tickers": [
@@ -34500,6 +34606,7 @@
       "tags": [
         "macro",
         "semi",
+        "power",
         "earnings"
       ],
       "tickers": [
@@ -34518,6 +34625,10 @@
       "datetime": "2026-10-07T05:34:21.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
         "earnings"
       ],
       "tickers": [],
@@ -34688,7 +34799,13 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi"
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "flows",
+        "healthcare"
       ],
       "tickers": [
         "NVDA",
@@ -34741,8 +34858,12 @@
       "datetime": "2026-10-07T00:58:02.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "macro",
         "semi",
-        "insider"
+        "insider",
+        "earnings",
+        "flows",
+        "healthcare"
       ],
       "tickers": [
         "MU"
@@ -38754,22 +38875,6 @@
       "score": 81,
       "hasText": true,
       "summary": "일본, 델, JERA와 함께 1,400억 달러 규모 AI 데이터센터 구축 추진 일본이 약 1,400억 달러 규모의 AI 데이터센터 투자 구상 을 추진하고 있습니다. 일본 최대 발전사업자인 JERA의..."
-    },
-    {
-      "id": "bornlupin/20417",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20417",
-      "datetime": "2026-10-01T02:26:11.000Z",
-      "localDateKst": "2026-10-01",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "SK 하이닉스 공식) 솔리다임 관련 최근 보도에 대해 설명드립니다 솔리다임과 관련해 현재 구체적으로 결정된 사항은 없습니다. 외부 자본 또는 내부 자본 활용 여부는 그 형식뿐 아니라, 기존 주주에게 미치는..."
     }
   ],
   "current24hItems": [
@@ -39272,6 +39377,22 @@
       "summary": ">>세계금협회: 글로벌 금 ETF 3분기 자금 유입 사상 최대, 310억달러 •세계금협회 보고서에 따르면 9월 글로벌 금 ETF에 100억달러가 유입되면서 3분기 누적 자금 유입액이 사상 최대인 310억달러를..."
     },
     {
+      "id": "aetherjapanresearch/25691",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25691",
+      "datetime": "2026-10-07T12:46:22.000Z",
+      "localDateKst": "2026-10-07",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 44,
+      "hasText": true,
+      "summary": "구글 x 유니티, 자연어 기반 AI 게임 플랫폼 ‘Playground’ 출시, 연내 ‘Unity Spark’로 확장 : 구글과 유니티가 AI 기반 게임 제작·유통 플랫폼 구축을 위한 전략적 파트너십 발표...."
+    },
+    {
       "id": "insidertracking/65653",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/65653",
@@ -39411,7 +39532,13 @@
       "datetime": "2026-10-07T11:59:18.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "power"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "flows"
       ],
       "tickers": [
         "NVDA"
@@ -39440,12 +39567,27 @@
       "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 7일 > 오후 2시 30분~ 오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란이 핵 프로그램 합의를 위한 여러 기회를..."
     },
     {
+      "id": "aetherjapanresearch/25689",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25689",
+      "datetime": "2026-10-07T11:54:56.000Z",
+      "localDateKst": "2026-10-07",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "hasText": true,
+      "summary": "오늘도 기괴한 미국; 아메리칸 항공 기내에서 속옷과 바지를 벗고 자위행위를 한 승객.. 아메리칸 항공 기내에서 속옷과 청바지를 벗고 자위행위를 한 혐의를 받는 승객이 창문에 다리를 대고 신음하며 자위를 했다고..."
+    },
+    {
       "id": "aetherjapanresearch/25688",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25688",
       "datetime": "2026-10-07T11:51:54.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "semi",
         "power"
       ],
       "tickers": [],
@@ -39460,7 +39602,8 @@
       "datetime": "2026-10-07T11:48:21.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro"
+        "macro",
+        "healthcare"
       ],
       "tickers": [],
       "score": 52,
@@ -39474,6 +39617,9 @@
       "datetime": "2026-10-07T11:48:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "macro",
+        "geo",
+        "semi",
         "power"
       ],
       "tickers": [],
@@ -39488,12 +39634,27 @@
       "datetime": "2026-10-07T11:48:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "market-note"
+        "geo",
+        "power"
       ],
       "tickers": [],
       "score": 58,
       "hasText": true,
       "summary": "그 다음 병목은 위성인데 위성 자체가 만들기가 매우 어렵습니다. 근데 이것도 요즘 변화가 생기고 있습니다. 과거에는 초거대방산기업들이 몇십년 거쳐서 몇천억~조단위로받아 만들기도 하고(물론 다 세금) 했는데..."
+    },
+    {
+      "id": "aetherjapanresearch/25685",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25685",
+      "datetime": "2026-10-07T11:48:20.000Z",
+      "localDateKst": "2026-10-07",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "hasText": true,
+      "summary": "우주 산업은 시작부터 끝까지(증바람 얘기 아님ㅎ) 병목의 연속인데 우선 첫 시작은 발사체입니다. 아예 모르시는 분들은 발사체가 곧 인공위성이라고 생각하실 수 있는데 발사체는 그냥 인공위성같은 특수목적 기기를..."
     },
     {
       "id": "insidertracking/65646",
@@ -39532,6 +39693,7 @@
       "datetime": "2026-10-07T11:31:40.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "macro",
         "power"
       ],
       "tickers": [
@@ -39540,6 +39702,20 @@
       "score": 64,
       "hasText": true,
       "summary": "제목 : 핀란드, 알파벳의 데이터센터 건설 중단 지시 *연합인포맥스* CNBC는 알파벳(NAS: GOOGL, GOOG)이 핀란드에서 추진하고 있는 데이터센터 프로젝트가 당국의 지시로 중단된 상태라고 보도했다...."
+    },
+    {
+      "id": "aetherjapanresearch/25682",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25682",
+      "datetime": "2026-10-07T11:31:01.000Z",
+      "localDateKst": "2026-10-07",
+      "tags": [
+        "japan"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "이거 처음 나왔을때도 그랬어요. 일본IP로 였는데도 똑같이 웨이트리스트임"
     },
     {
       "id": "HANAchina/70015",
@@ -39583,6 +39759,20 @@
       "score": 62,
       "hasText": true,
       "summary": "미국 30년물 국채 금리 24년 만에 최고치 경신 연준(Fed) 의사록 발표를 앞두고 글로벌 채권 매도세가 재개되면서, 30년물 국채 금리가 2002년 이후 최고치인 5.706%까지 상승함. 10년물 금리는..."
+    },
+    {
+      "id": "aetherjapanresearch/25681",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25681",
+      "datetime": "2026-10-07T10:05:21.000Z",
+      "localDateKst": "2026-10-07",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "[단독] 서민 상대 이자 장사… 땅짚고 떼돈 번 은행-국민일보 원래 돈 빌려주고 그 대가로 이자받는게 당연한거 아닌가"
     },
     {
       "id": "aetherjapanresearch/25680",
@@ -39860,6 +40050,9 @@
       "tags": [
         "macro",
         "semi",
+        "optical",
+        "power",
+        "ai-policy",
         "earnings"
       ],
       "tickers": [
@@ -40014,6 +40207,7 @@
       "tags": [
         "macro",
         "semi",
+        "power",
         "earnings"
       ],
       "tickers": [
@@ -40032,6 +40226,10 @@
       "datetime": "2026-10-07T05:34:21.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
         "earnings"
       ],
       "tickers": [],
@@ -40195,6 +40393,22 @@
       "summary": "니케이아시아에 따르면 삼성전기가 AI 서버, 로봇, 스마트카에 사용되는 FC-BGA 기판 생산 확대를 위해 2028년까지 베트남에 18억7,000만 달러, 한국에 32억 달러 투자 예정. 베트남 투자를 통해..."
     },
     {
+      "id": "aetherjapanresearch/25676",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25676",
+      "datetime": "2026-10-07T01:21:33.000Z",
+      "localDateKst": "2026-10-07",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "006800.KS"
+      ],
+      "score": 39,
+      "hasText": true,
+      "summary": "미래에셋증권, 스페이스X 평가손실로 3분기 적자전환 불가피"
+    },
+    {
       "id": "aetherjapanresearch/25675",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25675",
@@ -40202,7 +40416,13 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi"
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "flows",
+        "healthcare"
       ],
       "tickers": [
         "NVDA",
@@ -40255,8 +40475,12 @@
       "datetime": "2026-10-07T00:58:02.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
+        "macro",
         "semi",
-        "insider"
+        "insider",
+        "earnings",
+        "flows",
+        "healthcare"
       ],
       "tickers": [
         "MU"
