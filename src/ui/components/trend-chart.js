@@ -9,6 +9,9 @@ const SVG = 'http://www.w3.org/2000/svg';
 const W = 520;
 const H = 210;
 const PAD = { top: 14, right: 16, bottom: 30, left: 48 };
+// P1529: the widest month label ("26년 1월" at 13px) is about 44 units; neighbours closer than this overlap.
+const MIN_MONTH_LABEL_SPACING = 42;
+const MONTH_MS = 30.4 * 86400000;
 
 function svgEl(doc, tag, attrs = {}) {
   const node = doc.createElementNS(SVG, tag);
@@ -72,14 +75,18 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   }
   // X axis: one tick on the first day of each month.
   svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: PAD.top + plotH, y2: PAD.top + plotH, class: 'trend-chart-baseline' }));
+  // Ticks stay monthly; labels are thinned to every k-th month with k dividing 12 so January is always labelled and the
+  // widest label never collides with its neighbour. A growing range used to put "12월" and "26년 1월" on top of each other.
+  const labelEvery = [1, 2, 3, 4, 6, 12].find((k) => (plotW * MONTH_MS / span) * k >= MIN_MONTH_LABEL_SPACING) || 12;
   const first = new Date(t0);
   for (let cursor = Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 1); cursor <= t0 + span; cursor = Date.UTC(new Date(cursor).getUTCFullYear(), new Date(cursor).getUTCMonth() + 1, 1)) {
     const month = new Date(cursor).toISOString().slice(0, 7);
     const xm = xd(`${month}-01`);
     if (xm < PAD.left + 12 || xm > W - PAD.right - 20) continue;
     svg.append(svgEl(doc, 'line', { x1: xm, x2: xm, y1: PAD.top + plotH, y2: PAD.top + plotH + 4, class: 'trend-chart-baseline' }));
-    const text = svgEl(doc, 'text', { x: xm, y: H - 8, 'text-anchor': 'middle', class: 'trend-chart-axis' });
     const m = Number(month.slice(5, 7));
+    if ((m - 1) % labelEvery !== 0) continue;
+    const text = svgEl(doc, 'text', { x: xm, y: H - 8, 'text-anchor': 'middle', class: 'trend-chart-axis' });
     text.textContent = m === 1 ? `${month.slice(2, 4)}년 1월` : `${m}월`;
     svg.append(text);
   }

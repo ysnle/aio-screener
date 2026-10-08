@@ -3719,5 +3719,30 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (breakevenOf(unknown) !== '1주 +8bp') fail('P1528 without observation dates the chain keeps its previous reading');
 }
 
+// P1529: the trend chart labelled every month, so once a range grew the widest label ("26년 1월") sat on top of the
+// preceding "12월" (browser-viewport failed on the macro route at every width). Labels are now thinned by available spacing.
+{
+  const { createTrendChart } = await load('src/ui/components/trend-chart.js');
+  const makeNode = (tag) => ({ tag, attrs: {}, children: [], style: {}, textContent: '', className: '', setAttribute(key, value) { this.attrs[key] = String(value); }, append(...kids) { this.children.push(...kids); }, appendChild(kid) { this.children.push(kid); return kid; }, addEventListener() {}, getBoundingClientRect() { return { left: 0, top: 0, width: 520, height: 210 }; } });
+  const doc = { createElement: makeNode, createElementNS: (ns, tag) => makeNode(tag) };
+  const walk = (node, out = []) => { out.push(node); (node.children || []).forEach((kid) => walk(kid, out)); return out; };
+  for (const months of [3, 6, 9, 12, 14, 16, 18, 24, 36, 60]) {
+    const series = [];
+    const cursor = new Date(Date.UTC(2026, 9, 7));
+    cursor.setUTCMonth(cursor.getUTCMonth() - months);
+    for (let i = 0; i <= months * 4; i += 1) { series.push({ date: cursor.toISOString().slice(0, 10), value: 100 + (i % 17) }); cursor.setUTCDate(cursor.getUTCDate() + 7); }
+    const chart = createTrendChart(doc, { series: series.filter((point) => point.date <= '2026-10-07'), label: 'x' });
+    const labels = walk(chart).filter((node) => node.tag === 'text' && node.attrs['text-anchor'] === 'middle' && Number(node.attrs.y) === 202).map((node) => ({ x: Number(node.attrs.x), text: node.textContent }));
+    if (labels.length < 1) fail(`P1529 a ${months}-month chart must keep at least one month label`);
+    for (let i = 1; i < labels.length; i += 1) {
+      const wide = [labels[i - 1], labels[i]].some((label) => /년/.test(label.text));
+      if (labels[i].x - labels[i - 1].x < (wide ? 40 : 28)) fail(`P1529 month labels overlap on a ${months}-month range: ${labels[i - 1].text} and ${labels[i].text}`);
+    }
+    const januaries = walk(chart).filter((node) => node.tag === 'text' && /년 1월$/.test(node.textContent || '')).length;
+    const januaryTicks = labels.filter((label) => /년 1월$/.test(label.text)).length;
+    if (januaryTicks !== januaries) fail('P1529 internal: january count');
+  }
+}
+
 // P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
 await import('./fixtures/architecture-lifecycle-regressions.mjs');

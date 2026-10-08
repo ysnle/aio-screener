@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "Trend chart month labels overlapped once the time range grew, turning browser-viewport red on main",
+  "symptom": "ci-viewport-matrix-check failed on the macro route at 1280, 1440 and 1920 px with svg text overlaps ('12월' over '26년 1월'). The identical failure reproduces on a clean checkout of origin/main (v57.29), so the next push to main would have been blocked at CI and could not have deployed.",
+  "root_cause": "createTrendChart drew a label for every month inside the range. The widest label, a January '26년 1월' at 13px, is about 44 viewBox units and needs roughly 40 units between neighbours; as the macro history range grew with time the monthly spacing fell to about 30 and the label collided with the preceding '12월'. The condition is date-dependent, so it appeared without any code change.",
+  "fix": "Month ticks stay monthly; labels are thinned to every k-th month with k in 1, 2, 3, 4, 6 or 12 (divisors of 12, so January is always labelled) chosen from the available spacing against MIN_MONTH_LABEL_SPACING.",
+  "violated_rule": "A label density must follow the space available, not the number of data points.",
+  "prevention": "ci-esm-core-unit-check P1529 renders the real chart through a minimal DOM for 3 to 60 month ranges and requires at least one label and a minimum distance between neighbours (40 units when a year label is involved); removing the thinning fails it on the 14-month range with the same pair seen in the browser.",
+  "verification": "The viewport matrix passes in Chromium (19 routes, 3 widths, 0 overlaps) and fails identically on origin/main without the fix; the ESM core unit check passes. Not verified: the 시장 폭 and 투자 심리 charts that share the component beyond the viewport matrix."
+ },
+ "r": null,
+ "qa": [],
+ "changelog": [
+  "**추세 차트 월 라벨 겹침 해소 (P{P}):** 차트 기간이 길어지며 '12월'과 '26년 1월' 라벨이 겹쳐 CI의 브라우저 검사가 main에서 이미 실패하던 문제를 수정. 눈금은 매달 두고 라벨은 간격에 맞춰 솎는다(1월은 항상 표시)."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels.",
+ "status": null
+}

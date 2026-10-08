@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1529 - v57.30 - Trend chart month labels overlapped once the time range grew, turning browser-viewport red on main (2026-10-08)
+
+- symptom/reproduction: ci-viewport-matrix-check failed on the macro route at 1280, 1440 and 1920 px with svg text overlaps ('12월' over '26년 1월'). The identical failure reproduces on a clean checkout of origin/main (v57.29), so the next push to main would have been blocked at CI and could not have deployed.
+- root_cause: createTrendChart drew a label for every month inside the range. The widest label, a January '26년 1월' at 13px, is about 44 viewBox units and needs roughly 40 units between neighbours; as the macro history range grew with time the monthly spacing fell to about 30 and the label collided with the preceding '12월'. The condition is date-dependent, so it appeared without any code change.
+- fix: Month ticks stay monthly; labels are thinned to every k-th month with k in 1, 2, 3, 4, 6 or 12 (divisors of 12, so January is always labelled) chosen from the available spacing against MIN_MONTH_LABEL_SPACING.
+- violated_rule: A label density must follow the space available, not the number of data points.
+- prevention: ci-esm-core-unit-check P1529 renders the real chart through a minimal DOM for 3 to 60 month ranges and requires at least one label and a minimum distance between neighbours (40 units when a year label is involved); removing the thinning fails it on the 14-month range with the same pair seen in the browser.
+- verification/residual: The viewport matrix passes in Chromium (19 routes, 3 widths, 0 overlaps) and fails identically on origin/main without the fix; the ESM core unit check passes. Not verified: the 시장 폭 and 투자 심리 charts that share the component beyond the viewport matrix.
+
 ## P1528 - v57.30 - Macro chain compared a real yield and a breakeven observed on different days (2026-10-08)
 
 - symptom/reproduction: With the real yield dated 2026-10-06 and the breakeven 2026-10-07 (both 5-day changes exactly 0 in data.json) the chain drew a breakeven move and could say 실질금리 우위 although the briefing already held the two apart (audit H17).
