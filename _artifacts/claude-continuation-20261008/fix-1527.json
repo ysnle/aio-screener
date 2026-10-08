@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "Home KPI trend included a row after the close basis and disagreed with 시장 상태",
+  "symptom": "The 10-year yield '20거래일' change read +45bp (2026-09-09 to 10-08) on the home and +47bp (09-08 to 10-07) on 시장 상태.",
+  "root_cause": "trendPoints called buildCloseSeries without the common close basis, so a pre-market row dated after the S&P 500's last completed close (10-08, observed 09:16 ET) entered the home series; 시장 상태 passes through: basis.",
+  "fix": "trendPoints stops at closeBasis(history), like the other screen.",
+  "violated_rule": "One quantity, one definition across screens (H03).",
+  "prevention": "ci-esm-core-unit-check P1527: the home series equals the 시장 상태 series and has no point after the basis; the mutation that drops the basis fails it.",
+  "verification": "Replayed on public-data/history.json: before +45bp, after +47bp equal to 시장 상태; S&P 500, Nasdaq and WTI series identical on both. Not verified: browser rendering."
+ },
+ "r": null,
+ "qa": [],
+ "changelog": [
+  "**홈 추이의 종가 기준 통일 (P{P}):** 홈 KPI 추이가 종가 기준일 이후 행을 포함해 10년물 20거래일이 +45bp로 보이던 것을 시장 상태와 같은 +47bp로 맞췄다(H03)."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard.",
+ "status": null
+}

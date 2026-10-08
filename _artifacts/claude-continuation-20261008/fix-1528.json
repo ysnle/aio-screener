@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "Macro chain compared a real yield and a breakeven observed on different days",
+  "symptom": "With the real yield dated 2026-10-06 and the breakeven 2026-10-07 (both 5-day changes exactly 0 in data.json) the chain drew a breakeven move and could say 실질금리 우위 although the briefing already held the two apart (audit H17).",
+  "root_cause": "market-read applies a same-day guard to the real-yield and breakeven deltas; macro-read buildChain read the raw fields without it.",
+  "fix": "buildChain withholds both moves when the two as-of days differ, shows '기준일이 달라 보류', and does not compare them.",
+  "violated_rule": "Quantities compared on one screen share an observation date or are held apart (R671 family).",
+  "prevention": "ci-esm-core-unit-check P1528: split dates are held and the dominance sentence is absent, same-day values still compare, missing dates keep the earlier reading; the mutation that removes the guard fails it.",
+  "verification": "Checked on the real data shape and through the public buildMacroRead entry. Not verified: the source difference of the -4bp and -1bp 10-year readings (needs a data lookup)."
+ },
+ "r": null,
+ "qa": [],
+ "changelog": [
+  "**거시 전달 경로의 기준일 보류 (P{P}):** 실질금리와 기대인플레이션의 기준일이 다르면 5일 변화를 그리거나 비교하지 않는다(H17)."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard.",
+ "status": null
+}

@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "Compatibility event adapter called removed listeners and merged different Date/Map/Set events",
+  "symptom": "A listener removed by an earlier listener during a dispatch was still called, which a native EventTarget does not do; two different events from two targets whose details differed only in Date, Map or Set values collapsed into one delivery.",
+  "root_cause": "Dispatch iterated a snapshot without checking membership, and the detail fingerprint serialized objects by own enumerable keys, so Date, Map and Set became {}.",
+  "fix": "A removed listener is skipped; Date, Map and Set serialize by value; any other non-plain object is not fingerprinted and uses the event token (a duplicate delivery is harmless, a dropped event is a stale screen).",
+  "violated_rule": "Compatibility adapters keep native event semantics.",
+  "prevention": "architecture-lifecycle-regressions P1526 cases (mid-dispatch removal, Date/Set/Map details, identical Date detail, plain duplicates); two mutations each fail their own assertion.",
+  "verification": "The lifecycle fixture and the ESM core unit check pass. Not changed: two separate detail-less Event objects dispatched on both targets still deliver twice (no producer does this)."
+ },
+ "r": null,
+ "qa": [],
+ "changelog": [
+  "**호환 이벤트 어댑터 의미 정리 (P{P}):** 디스패치 중 해제된 리스너를 호출하지 않고, Date·Map·Set 상세값이 다른 이벤트를 하나로 합치지 않는다."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard.",
+ "status": null
+}

@@ -6,6 +6,87 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1528 - v57.30 - Macro chain compared a real yield and a breakeven observed on different days (2026-10-08)
+
+- symptom/reproduction: With the real yield dated 2026-10-06 and the breakeven 2026-10-07 (both 5-day changes exactly 0 in data.json) the chain drew a breakeven move and could say 실질금리 우위 although the briefing already held the two apart (audit H17).
+- root_cause: market-read applies a same-day guard to the real-yield and breakeven deltas; macro-read buildChain read the raw fields without it.
+- fix: buildChain withholds both moves when the two as-of days differ, shows '기준일이 달라 보류', and does not compare them.
+- violated_rule: Quantities compared on one screen share an observation date or are held apart (R671 family).
+- prevention: ci-esm-core-unit-check P1528: split dates are held and the dominance sentence is absent, same-day values still compare, missing dates keep the earlier reading; the mutation that removes the guard fails it.
+- verification/residual: Checked on the real data shape and through the public buildMacroRead entry. Not verified: the source difference of the -4bp and -1bp 10-year readings (needs a data lookup).
+
+## P1527 - v57.30 - Home KPI trend included a row after the close basis and disagreed with 시장 상태 (2026-10-08)
+
+- symptom/reproduction: The 10-year yield '20거래일' change read +45bp (2026-09-09 to 10-08) on the home and +47bp (09-08 to 10-07) on 시장 상태.
+- root_cause: trendPoints called buildCloseSeries without the common close basis, so a pre-market row dated after the S&P 500's last completed close (10-08, observed 09:16 ET) entered the home series; 시장 상태 passes through: basis.
+- fix: trendPoints stops at closeBasis(history), like the other screen.
+- violated_rule: One quantity, one definition across screens (H03).
+- prevention: ci-esm-core-unit-check P1527: the home series equals the 시장 상태 series and has no point after the basis; the mutation that drops the basis fails it.
+- verification/residual: Replayed on public-data/history.json: before +45bp, after +47bp equal to 시장 상태; S&P 500, Nasdaq and WTI series identical on both. Not verified: browser rendering.
+
+## P1526 - v57.30 - Compatibility event adapter called removed listeners and merged different Date/Map/Set events (2026-10-08)
+
+- symptom/reproduction: A listener removed by an earlier listener during a dispatch was still called, which a native EventTarget does not do; two different events from two targets whose details differed only in Date, Map or Set values collapsed into one delivery.
+- root_cause: Dispatch iterated a snapshot without checking membership, and the detail fingerprint serialized objects by own enumerable keys, so Date, Map and Set became {}.
+- fix: A removed listener is skipped; Date, Map and Set serialize by value; any other non-plain object is not fingerprinted and uses the event token (a duplicate delivery is harmless, a dropped event is a stale screen).
+- violated_rule: Compatibility adapters keep native event semantics.
+- prevention: architecture-lifecycle-regressions P1526 cases (mid-dispatch removal, Date/Set/Map details, identical Date detail, plain duplicates); two mutations each fail their own assertion.
+- verification/residual: The lifecycle fixture and the ESM core unit check pass. Not changed: two separate detail-less Event objects dispatched on both targets still deliver twice (no producer does this).
+
+## P1525 - v57.30 - AI publication let a current-sensitive count or magnitude through without evidence (2026-10-08)
+
+- symptom/reproduction: A current-sensitive answer sentence such as '200일선 위 44개 종목이다.' or '외국인 순매수는 1,234억원이다.' was kept although no evidence bound its figure, the leak behind audit H104; with a leading '현재' the same sentence was dropped.
+- root_cause: hasCurrentNumericContent is a whitelist of units and keywords that omitted counts (개, 곳, 건, 명, 종목) and Korean magnitudes (조, 억, 만).
+- fix: Counts and magnitudes are covered; 개월 and 개년 are excluded so a period is not read as a figure.
+- violated_rule: A figure in a current-sensitive answer must be bound to evidence or removed.
+- prevention: ci-ai-intelligence-contract-check P1525 assertions for the leaks, the periods that must not be flagged and the fallback strip; the mutation that removes the new unit list fails two of them.
+- verification/residual: The AI contract, evidence, quote-evidence, chat-integration, premise and ESM core checks pass. Not verified: real model answers; a numeric claim in a non-current text claim is still not checked (policy decision).
+
+## P1524 - v57.30 - Industry map listed company roles as if they were direct suppliers of a node (2026-10-08)
+
+- symptom/reproduction: On a node the role block listed every player with English role ids, so KIOXIA and Sandisk on the CXL node, IBM on optical computing and similar entries read as direct suppliers (audit H88/H89), although the registry holds no supply statement for them.
+- root_cause: The registry records which products map to a node and which nodes a player belongs to; the view rendered both as one flat list and hid the difference.
+- fix: rolesBlock groups 'products linked to this slot' apart from 'company role reference, no product linked here', says what the list is not, and shows registry role and category ids in Korean from two closed tables. Production stage stays hidden because the registry boundary withholds it, and the boundary wording is not shown because the page keeps source copy out of reader text.
+- violated_rule: Items of unverified relation are marked as references, not facts; labels derive from registry structure, never from an invented source.
+- prevention: ci-atlas-contract-check renders the block against the real registry for the three audit cases, requires a Korean label for every registry id, forbids stage words and source copy; two mutations each fail their own assertion.
+- verification/residual: Contract and atlas browser checks pass in Chromium. Not changed: MP Materials stays under the industrial-equipment node because the registry maps a product there (needs a source check) and free-text product descriptors remain English (translating them edits the registry and its generated dependants).
+
+## P1523 - v57.30 - Live UI text, glossary and help gave trading instructions and unsourced figures (2026-10-08)
+
+- symptom/reproduction: A scan of user-visible text found copy that contradicts the product rule: 'buy 3 days before earnings, sell on the day = +0.5% excess return', 'gap-up +5% and 2x volume = 70% probability', 'stage 2 is the best buy', 'strong buy opportunity', 'aggressively raise growth-theme weight', 'cash weight increase mandatory', 'new buying halted', 'small test buys only', AI quick-question chips asking for entry timing, position sizing, scenario probabilities and best trades (audit H13 leftovers), glossary definitions written as equations (guidance up = price up, OI concentration = pin), TIP and TIPS and PCE conflated, an unverified breadth size, and help text sending readers to CDN, VPN, pipeline and CORS-proxy causes.
+- root_cause: The earlier wording pass reached the native screens and chips on some routes; legacy index.html tooltips, js/aio-workspace.js chips, js/aio-pages.js, js/aio-ui.js, js/aio-kr-data.js, js/aio-core.js and js/aio-macro-tech.js kept their original copy, and no gate checked the phrases.
+- fix: 54 phrases plus the market-score ladder labels and the signal decision labels now describe the observed condition and keep the educational meaning; unsourced probabilities, ratios and excess returns are removed. Glossary and FAQ are corrected (audit H105, H107, H108) and the PCE figure-source row follows its new term.
+- violated_rule: User-visible text states observation, conditions and what would invalidate them, never an instruction or an unsourced probability.
+- prevention: ci-control-char-check carries an exact-phrase guard for the removed wording (zero hits, an injected phrase is caught) and runs on Node 20 and 22; the runtime contract's glossary figure-source reconciliation keeps glossary figures declared.
+- verification/residual: Gates pass on Node 20 (affected profile); tooltip, chip and label strings were checked against every script before editing. Not changed and left to the owner: the score-to-action enum codes in aio-core.js (EXIT_OR_HEDGE, TRIM_50) and the AI prompts in aio-chat.js that ask for an action conclusion, because they shape model output.
+
+## P1522 - v57.30 - 13F scale-review withholding covered only the top rows, comparisons and shards (2026-10-08)
+
+- symptom/reproduction: The 1,000x filing-unit safeguard (withhold, never multiply) for T. Rowe, Duquesne and Baupost (2026-06-30) left filed amounts visible in allHoldings, the reverse-lookup index rows, the prior-quarter and historical totals of the quarter table, and the issuer aggregate table. A manager shard that finished before detection kept its filed amounts for the whole session. The reference sector view drew withheld rows as $0.
+- root_cause: Detection and withholding were wired only where holdings and comparisons enter the page and where shards load. Every other artifact that carries filed amounts bypassed them, detection only sees the current quarter although a filer keeps its unit (the same ratio shows in every quarter back to 2023-09-30 for the two filers), and the module had no regression test.
+- fix: allHoldings is withheld at ingress and already-cached shards are withheld again once detection is known (withholding is idempotent and keeps the first as-filed memo). managersUnderScaleReview and withholdManagerValues withhold a flagged manager's index rows, earlier quarters and aggregate amounts in any period, with a stated notice; shares and row counts stay as filed. The sector view no longer sums withheld rows as zero dollars.
+- violated_rule: A safeguard that withholds a figure must withhold it at every consumer of that figure.
+- prevention: ci-masters-contract-check P1522 assertions: detection flags only the 1,000x filer, manager-level withholding, idempotence, the carry-over notice, no 1,000x rescale in the page, and the wiring of each consumer; four mutations each fail their own assertion.
+- verification/residual: Contract check passes; the masters browser check passes in Chromium (38 managers, NVDA and AAPL lookups). Not verified: a producer run (none was run), a filer with fewer than two comparable peer rows is still undetected (owner decision), and the original filing unit of the three filers.
+
+## P1521 - v57.30 - P1500 pictograph gate verdict depended on the Node Unicode data version (2026-10-08)
+
+- symptom/reproduction: node scripts/ci-control-char-check.mjs failed on Node 22.22.0 with 8 hits (index.html menu icon, js/aio-ui.js, src/ui/pages/screener.js watchlist star, and others) and blocked the whole preflight group, skipping 57 later gates, while the same sources passed on CI's Node 20.20.2.
+- root_cause: The gate matches \p{Extended_Pictographic} with an allowlist of only arrows. U+2605 (BLACK STAR) and U+2630 (TRIGRAM FOR HEAVEN, the menu icon) are Extended_Pictographic in Unicode 16.0 (Node 22.22.0, ICU 77.1) but not in Unicode 17.0 (Node 20.20.2, ICU 78.2), so the verdict changed with the runtime's ICU data, not with the code.
+- fix: The explicit typography allowlist names the UI glyphs already in use: U+2605, U+2606 and U+2630 join the arrows. Emoji, symbols such as U+2705, and regional-indicator flags are still rejected.
+- violated_rule: A gate whose verdict depends on the runtime's Unicode tables is not deterministic; its allowlist must name every intended glyph.
+- prevention: The comment on the allowlist records the version split; the gate passes on Node 20.20.2 and 22.22.0, and an inline control confirms U+1F600, U+1F680, U+1F1F0 U+1F1F7 and U+2705 are flagged on both runtimes.
+- verification/residual: ci-control-char-check passes on both runtimes and the affected QA profile passes on Node 20. Not verified: the owner's local Node version.
+
+## P1520 - v57.30 - Worker deploys stranded when main advances only by data-refresh commits (2026-10-08)
+
+- symptom/reproduction: From 2026-10-07 13:54Z the live AI proxy stayed on v57.24 while worker/wrangler.proxy.toml said v57.27. Every Pages release verification after that (runs 161-169) failed on proxy-source-revision, and the Data freshness watchdog's only failing gate in its 2026-10-08T09:09Z run was external-pipeline. The Pages artifact itself was live and fresh (v57.27, data 37 minutes old); the red was a post-deploy plane check.
+- root_cause: Deploy AI proxy and Deploy fast data plane required the CI-attested SHA to equal main HEAD at decision time. The v57.27 merge push's CI finished after the refresh bot's next commit, so run 53 skipped every deploy step as stale. Bot CI runs are workflow_dispatch created with GITHUB_TOKEN and emit no workflow_run event (R606), and nothing dispatches the Worker workflows, so no later run re-evaluated the cumulative live-to-tested diff that already exists for this case.
+- fix: worker-deploy-impact.mjs: getMainAdvanceWorkerChanges classifies what a newer main changed from its changed paths (listed with --no-renames); a newer main is accepted only when it descends from the tested SHA, no commit in between touches the plane's deployment inputs, and none edits the deploy recipe (the two deploy workflows, the rollback resolver, the classifier). Missing evidence, a non-descendant or a git error fails closed to the old skip. A manual redeploy follows the same rule and never moves a newer live source SHA backwards. Both Worker workflows validate the main SHA, fetch it with a bounded timeout, pass newerMainChanges into the convergence decision and use the shared CLI in the pre-mutation guard (a classifier failure becomes a skip, not a red job). The push-only CI provenance gate (R674) is unchanged.
+- violated_rule: P1351 intent: a delayed attested release must not overwrite newer Worker code. It does not require skipping a release whose newer commits leave the plane's deployment inputs byte-identical.
+- prevention: ci-cloudflare-deployment-contract-check P1351 assertions: data-only advance deploys, same-plane change and recipe edits stay skips, the other plane does not block, empty evidence, non-descendant and git failure fail closed, manual redeploy rules, classifier edge cases, no-renames, CLI exit codes, and both workflows' fetch/guard wiring. Four injected mutations each fail exactly their own assertion.
+- verification/residual: Contract check and the cloudflare QA group pass; the affected profile passes 71/71 on Node 20.20.2. Replay on real history: tested d947723 with main at 2b7da10 or at 7d57d21 gives true for both planes; v57.24 to d947723 gives aiProxy=false; v57.24 to v57.29's commit gives false for both. An independent skeptic review found five real gaps, all fixed. Not verified: a live Actions run of the changed workflows (the v57.29 release deployed with the old logic because no bot commit intervened) and Cloudflare provisioning.
+
 ## P1519 - v57.29 - AI 공개 검증 정책을 native ESM으로 분리하고 모듈 부재를 안전하게 처리 (2026-10-08)
 
 - symptom/reproduction: 근거 결속·숫자 산문 필터·구조화 답변 복구가 legacy 채팅 구현에 종속되어 재사용과 독립 검증이 어려웠다. 공개 검증을 독립 모듈로 전환하면 모듈 부재 시 null plan을 다시 참조할 수 있었다.

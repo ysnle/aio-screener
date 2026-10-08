@@ -2,10 +2,28 @@
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
 last_verified: 2026-10-08
 confidence: medium
-target_version: v57.29
+target_version: v57.30
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R693. Visible text states the observed condition, not an instruction or an unsourced probability (v57.30, P1523)
+
+**Rule**: Copy, chips, labels and help in index.html and js/src describe what is observed and what would change the reading; they carry no buy/sell/size instruction and no probability, ratio or excess return without a source. Educational descriptions of a published method stay descriptions.
+
+**Validation**: node scripts/ci-control-char-check.mjs; node scripts/ci-runtime-contract-check.mjs
+
+## R692. A figure that is withheld is withheld at every consumer (v57.30, P1522)
+
+**Rule**: When a filing's dollar amounts are withheld, every path that can show or sum them applies the same withholding: ingress arrays, index rows, earlier-period totals, aggregates and already-cached shards. The withholding is idempotent, never rescales a value, and the module has a regression test that names each consumer.
+
+**Validation**: node scripts/ci-masters-contract-check.mjs; node scripts/ci-masters-browser-check.mjs
+
+## R691. A newer main is stale for a Worker plane only when it changes that plane's deployment inputs (v57.30, P1520)
+
+**Rule**: Worker deploy workflows judge a newer main per plane: equal to the tested SHA, or a descendant whose changed paths leave the plane's deployment inputs and the deploy recipe untouched. Missing evidence, a non-descendant or a git error means stale. The convergence decision and the pre-mutation guard use the shared classifier; the guard has no unconditional safe output and a classifier failure is a skip.
+
+**Validation**: node scripts/ci-cloudflare-deployment-contract-check.mjs; node scripts/qa-runner.mjs --group cloudflare --no-cache
 
 ## R690. QA 증명은 실제 검사 범위·내용과 커밋 전체 index에 결속 (v57.29, P1518)
 

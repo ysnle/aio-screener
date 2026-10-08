@@ -1,0 +1,24 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "Live UI text, glossary and help gave trading instructions and unsourced figures",
+  "symptom": "A scan of user-visible text found copy that contradicts the product rule: 'buy 3 days before earnings, sell on the day = +0.5% excess return', 'gap-up +5% and 2x volume = 70% probability', 'stage 2 is the best buy', 'strong buy opportunity', 'aggressively raise growth-theme weight', 'cash weight increase mandatory', 'new buying halted', 'small test buys only', AI quick-question chips asking for entry timing, position sizing, scenario probabilities and best trades (audit H13 leftovers), glossary definitions written as equations (guidance up = price up, OI concentration = pin), TIP and TIPS and PCE conflated, an unverified breadth size, and help text sending readers to CDN, VPN, pipeline and CORS-proxy causes.",
+  "root_cause": "The earlier wording pass reached the native screens and chips on some routes; legacy index.html tooltips, js/aio-workspace.js chips, js/aio-pages.js, js/aio-ui.js, js/aio-kr-data.js, js/aio-core.js and js/aio-macro-tech.js kept their original copy, and no gate checked the phrases.",
+  "fix": "54 phrases plus the market-score ladder labels and the signal decision labels now describe the observed condition and keep the educational meaning; unsourced probabilities, ratios and excess returns are removed. Glossary and FAQ are corrected (audit H105, H107, H108) and the PCE figure-source row follows its new term.",
+  "violated_rule": "User-visible text states observation, conditions and what would invalidate them, never an instruction or an unsourced probability.",
+  "prevention": "ci-control-char-check carries an exact-phrase guard for the removed wording (zero hits, an injected phrase is caught) and runs on Node 20 and 22; the runtime contract's glossary figure-source reconciliation keeps glossary figures declared.",
+  "verification": "Gates pass on Node 20 (affected profile); tooltip, chip and label strings were checked against every script before editing. Not changed and left to the owner: the score-to-action enum codes in aio-core.js (EXIT_OR_HEDGE, TRIM_50) and the AI prompts in aio-chat.js that ask for an action conclusion, because they shape model output."
+ },
+ "r": {
+  "title": "Visible text states the observed condition, not an instruction or an unsourced probability",
+  "rule": "Copy, chips, labels and help in index.html and js/src describe what is observed and what would change the reading; they carry no buy/sell/size instruction and no probability, ratio or excess return without a source. Educational descriptions of a published method stay descriptions.",
+  "validation": "node scripts/ci-control-char-check.mjs; node scripts/ci-runtime-contract-check.mjs"
+ },
+ "qa": [],
+ "changelog": [
+  "**표시 문구를 관측 조건으로 정리 (P{P}/R{R}):** 어닝 시즌 매수·매도 순서와 70% 확률, 매수 기회·비중 확대 구간·신규 매수 중단 같은 지시와 무출처 수치를 조건 서술로 바꾸고, AI 질문 칩의 진입 타이밍·확률 요청을 정리. 용어사전(가이던스·OI·PCE·TIPS·제로쿠폰)과 도움말 FAQ(H105·H107·H108)도 바로잡았다. 재유입 방지 문구 게이트 추가."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard.",
+ "status": null
+}
