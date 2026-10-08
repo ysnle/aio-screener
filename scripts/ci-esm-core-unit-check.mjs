@@ -3676,5 +3676,48 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   }
 }
 
+// P1527: the home KPI trend and 시장 상태 draw the same "20거래일" series; both stop at the S&P 500's last completed close.
+// Observed 2026-10-08: the home included a pre-market 10-year-yield row dated after the basis (+45bp, 09/09 to 10/08) while
+// 시장 상태 read +47bp (09/08 to 10/07).
+{
+  const { trendPoints } = await load('src/ui/components/home-kpi-trend.js');
+  const { buildCloseSeries, closeBasis } = await load('src/domain/briefing/market-read.js');
+  const history = [];
+  const cursor = new Date(Date.UTC(2026, 8, 8));
+  while (history.length < 22) {
+    const weekday = cursor.getUTCDay();
+    if (weekday !== 0 && weekday !== 6) {
+      const date = cursor.toISOString().slice(0, 10);
+      const meta = { observedAt: `${date}T20:00:00Z` };
+      history.push({ date, spx: 5000 + history.length, tnx: 4 + history.length * 0.01, fieldMeta: { spx: meta, tnx: meta } });
+    }
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  const basis = history[history.length - 1].date;
+  history.push({ date: '2026-10-08', tnx: 5.5, fieldMeta: { tnx: { observedAt: '2026-10-08T13:16:05Z' } } });
+  if (closeBasis(history) !== basis) fail('P1527 fixture: the close basis must be the last S&P 500 close');
+  const home = trendPoints(history, 'tnx');
+  const market = buildCloseSeries(history, 'tnx', { through: basis }).slice(-21);
+  if (home.length !== 21 || JSON.stringify(home) !== JSON.stringify(market)) fail('P1527 the home trend must be the same 20-session series 시장 상태 uses');
+  if (home.some((point) => point.date > basis)) fail('P1527 the home trend must not include a row dated after the common close basis');
+  if (JSON.stringify(trendPoints(history, 'spx')) !== JSON.stringify(buildCloseSeries(history, 'spx', { through: basis }).slice(-21))) fail('P1527 the home S&P 500 trend must match the shared series');
+}
+
+// P1528 (audit H17): a real yield (TIPS) and a breakeven observed on different days must not be compared. The briefing holds
+// them apart; the macro transmission chain used to draw "1주 +Nbp" and a "실질금리 우위" sentence from both regardless.
+{
+  const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
+  const base = { breakeven10Delta5: 0.08, realYield10Delta5: 0.2, dgs2: 4.1, fedTargetLower: 3.75, fedTargetUpper: 4.0 };
+  const chainOf = (asOf) => buildMacroRead({ macro: { ...base, ...asOf }, rateFx: { tnx20: 30 } }).chain;
+  const breakevenOf = (chain) => chain.nodes.find((node) => node.id === 'breakeven').value;
+  const split = chainOf({ _asOf_realYield10: '2026-10-06', _asOf_breakeven10: '2026-10-07' });
+  const same = chainOf({ _asOf_realYield10: '2026-10-07', _asOf_breakeven10: '2026-10-07' });
+  const unknown = chainOf({});
+  if (breakevenOf(split) !== '기준일이 달라 보류') fail('P1528 the chain must hold the breakeven move when the real-yield and breakeven dates differ');
+  if (split.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 the chain must not claim real-yield dominance across different observation dates');
+  if (breakevenOf(same) !== '1주 +8bp' || !same.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 same-day real yield and breakeven must still be compared');
+  if (breakevenOf(unknown) !== '1주 +8bp') fail('P1528 without observation dates the chain keeps its previous reading');
+}
+
 // P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
 await import('./fixtures/architecture-lifecycle-regressions.mjs');

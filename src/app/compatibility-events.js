@@ -5,11 +5,22 @@ function serializeCompatibilityEventDetail(detail) {
   const seen = new WeakSet();
   const serialize = (value) => {
     if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    // P1526: a Date, Map or Set has no own enumerable keys, so it used to serialize as {} and two different
+    // events from two targets collapsed into one. They serialize by value; any other non-plain object is not
+    // fingerprinted at all (an event token is used instead), because a duplicate delivery is harmless while a
+    // dropped distinct event is a stale screen.
+    if (value instanceof Date) return `date:${Number.isFinite(value.getTime()) ? value.getTime() : 'invalid'}`;
     if (seen.has(value)) throw new TypeError('cyclic event detail');
     seen.add(value);
-    const serialized = Array.isArray(value)
-      ? `[${value.map((entry) => serialize(entry)).join(',')}]`
-      : `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${serialize(value[key])}`).join(',')}}`;
+    let serialized;
+    if (Array.isArray(value)) serialized = `[${value.map((entry) => serialize(entry)).join(',')}]`;
+    else if (value instanceof Map) serialized = `map:[${[...value.entries()].map(([key, entry]) => `[${serialize(key)},${serialize(entry)}]`).join(',')}]`;
+    else if (value instanceof Set) serialized = `set:[${[...value].map((entry) => serialize(entry)).join(',')}]`;
+    else {
+      const prototype = Object.getPrototypeOf(value);
+      if (prototype !== Object.prototype && prototype !== null) throw new TypeError('unserializable event detail');
+      serialized = `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${serialize(value[key])}`).join(',')}}`;
+    }
     seen.delete(value);
     return serialized;
   };
@@ -87,6 +98,8 @@ export function createCompatibilityEventAdapter({ root = globalThis, eventTarget
         remember(key, source, at);
         for (const callback of [...subscription.listeners]) {
           if (disposed) break;
+          // P1526: a listener removed by an earlier listener during this dispatch is not called (native EventTarget).
+          if (!subscription.listeners.has(callback)) continue;
           try {
             const result = callback(event);
             if (result && typeof result.then === 'function') Promise.resolve(result).catch(reportError);

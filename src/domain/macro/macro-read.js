@@ -319,16 +319,20 @@ function buildChain({ macro, regime, rateFx }) {
   const axisById = Object.fromEntries((regime?.axes || []).map((row) => [row.id, row]));
   const fx = rateFx || {};
   const wti20 = fx.wti20 ?? null;
-  const bei5 = finite(macro.breakeven10Delta5);
+  // P1528 (audit H17): a real yield and a breakeven observed on different days are not comparable. The briefing already
+  // holds them apart (market-read splitHeld); the chain must not draw or compare their 5-day moves either.
+  const asOfDay = (value) => String(value || '').slice(0, 10);
+  const splitReal = !!(macro._asOf_realYield10 && macro._asOf_breakeven10 && asOfDay(macro._asOf_realYield10) !== asOfDay(macro._asOf_breakeven10));
+  const bei5 = splitReal ? null : finite(macro.breakeven10Delta5);
   const pricing = finite(macro.dgs2) != null && finite(macro.fedTargetUpper) != null ? finite(macro.dgs2) - (finite(macro.fedTargetUpper) - 0.125) : null;
   const tnx20 = fx.tnx20 ?? null;
-  const real5 = finite(macro.realYield10Delta5);
+  const real5 = splitReal ? null : finite(macro.realYield10Delta5);
   const dxy20 = fx.dxy20 ?? null;
   const hy5 = finite(macro.hyOASDelta5);
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
   const nodes = [
     { id: 'oil', label: '유가 (WTI)', value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
-    { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? '—' : `1주 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
+    { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? (splitReal ? '기준일이 달라 보류' : '—') : `1주 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
     { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? `경로 이상 ${signed(pricing, 2, '%p')}` : pricing <= -P.pricedMovePp ? `경로 이하 ${signed(pricing, 2, '%p')}` : '동결 근접', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
     { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, RULES.rates.move20dBp, -RULES.rates.move20dBp) },
     { id: 'valuation', label: '주식 밸류에이션', value: axisById.rates ? `금리 축 ${axisById.rates.stateLabel}` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }

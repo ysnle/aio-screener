@@ -65,6 +65,42 @@ for (const mode of ['cleanup-navigation', 'mount-throw', 'mount-dispose']) {
 }
 
 {
+  // P1526: a listener removed during a dispatch is not called, as with a native EventTarget.
+  const root = new EventTarget();
+  const calls = [];
+  const events = createCompatibilityEventAdapter({ root });
+  let removeSecond;
+  events.on('refresh', () => { calls.push('first'); removeSecond(); });
+  removeSecond = events.on('refresh', () => calls.push('second'));
+  root.dispatchEvent(new Event('refresh'));
+  assert.deepEqual(calls, ['first'], 'P1526 a listener removed mid-dispatch is not called');
+  root.dispatchEvent(new Event('refresh'));
+  assert.deepEqual(calls, ['first', 'first'], 'P1526 a removed listener stays removed');
+  events.dispose();
+}
+
+{
+  // P1526: details that differ only in Date, Map or Set values are different logical events; a plain duplicate still collapses.
+  const windowTarget = new EventTarget();
+  const documentTarget = new EventTarget();
+  const count = (detailForWindow, detailForDocument) => {
+    let deliveries = 0;
+    const events = createCompatibilityEventAdapter({ root: windowTarget, eventTarget: documentTarget, now: () => 1000 });
+    events.on('refresh', () => { deliveries += 1; });
+    windowTarget.dispatchEvent(new CustomEvent('refresh', { detail: detailForWindow }));
+    documentTarget.dispatchEvent(new CustomEvent('refresh', { detail: detailForDocument }));
+    events.dispose();
+    return deliveries;
+  };
+  assert.equal(count({ at: new Date(1) }, { at: new Date(2) }), 2, 'P1526 different Date details are not merged');
+  assert.equal(count({ at: new Date(1) }, { at: new Date(1) }), 1, 'P1526 an identical Date detail from both targets is one event');
+  assert.equal(count({ ids: new Set([1]) }, { ids: new Set([2]) }), 2, 'P1526 different Set details are not merged');
+  assert.equal(count({ by: new Map([['a', 1]]) }, { by: new Map([['a', 2]]) }), 2, 'P1526 different Map details are not merged');
+  assert.equal(count({ symbol: 'AAPL' }, { symbol: 'AAPL' }), 1, 'P1526 a plain identical detail from both targets is still one event');
+  assert.equal(count({ symbol: 'AAPL' }, { symbol: 'MSFT' }), 2, 'P1526 different plain details are two events');
+}
+
+{
   let now = 0;
   let symbol = 'AAPL';
   const requests = [];
