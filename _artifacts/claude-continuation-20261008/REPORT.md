@@ -1,66 +1,60 @@
-# v57.28·v57.29 이후 점검과 구조 개선 이어받기
+# v57.29 이후 점검과 구조 개선 (v57.30)
 
-작업일 2026-10-08, 클라우드 세션(브랜치 `claude/eloquent-davinci-lyqv2b`). 기준은 `origin/main` `7d57d21`(v57.27 + 데이터 갱신 커밋).
-로컬 `C:\Projects\AIO`의 미커밋 v57.28·v57.29는 이 저장소에 없다. 그 코드는 확인하지 못했고, 업로드된 문서로만 읽었다.
+작업일 2026-10-08, 브랜치 `claude/eloquent-davinci-lyqv2b`. 기준은 Codex가 푸시한 `main`의 v57.29(`1d5769d`) 위입니다.
+`main`은 아직 이 브랜치를 포함하지 않습니다. 병합 방법은 맨 아래에 있습니다.
 
-## 1. 먼저 알아둘 것
+## 1. Codex 릴리스 확인
 
-- v57.29 신규 파일 3개(`src/app/compatibility-events.js`, `src/ai/response/publication.js`, `scripts/fixtures/architecture-lifecycle-regressions.mjs`)가 저장소에 없다. 로컬 전용이다.
-- 이 브랜치는 `bump-version`·`record-fix`를 실행하지 않았다. 로컬이 v57.28·v57.29, P1510~P1519, R683~R690을 이미 써서 ID가 충돌하고, `record-fix`는 R번호 공백도 막는다. 원장 기록은 같은 폴더의 초안 JSON으로 남겼다.
-- 콘텐츠 변경(H88 등)과 `fetch-data.mjs`·`fetch-telegram-digest.mjs` 수정은 하지 않았다. v57.28이 뉴스·텔레그램 생산 로직을 바꿨고, 그 파일 목록을 모르기 때문이다.
+`1d5769d`(v57.29)가 `main`에 반영됐고 배포 체인이 끝까지 통과했습니다.
+- CI #1692 성공(푸시), Deploy AI proxy #54와 Deploy fast data plane #44 성공(`Deploy canonical Worker` 단계가 실제 실행됨).
+- Deploy GitHub Pages #170 성공. 배포 후 검증 `Verify released Pages and all external planes`도 성공해, 9번 연속 red였던 `proxy-source-revision`이 해소됐습니다.
+- 이번에는 기존 로직으로 통과했습니다. 푸시 시각(14:24~14:29Z)이 봇의 다음 갱신(14:32Z)보다 앞서 경합이 없었기 때문입니다.
 
-## 2. 업로드 문서의 주장을 이 저장소에서 대조한 결과
+## 2. GitHub 실행 이력에서 나온 결함
 
-| 주장 | 결과 |
-|---|---|
-| 정적 모듈 277개, 로컬 edge 467개, cycle 0 | 기준선은 274개·464 import·cycle 0(동적 리터럴 import 21개 포함해도 0). 차이 3개는 v57.29가 추가한 모듈로 보이나 확인 불가 |
-| 쓰이지 않는 helper 후속 검토 | 맞다. 진입점에서 도달 불가한 모듈 21개가 있지만 모두 CI 스크립트가 직접 import한다. 삭제 금지 |
-| v57.29를 막은 `data-refresh`·`data-lineage` 최신성 실패 | 해소됐다. 10/8 14:07Z 라이브 기준 데이터 37분, 스크리너 8분, 텔레그램 36분. 봇이 계속 갱신 중 |
-| 배포본은 아직 v57.27 | 맞다. 라이브 `version.json`과 `deployment.json` 소스 SHA 일치(7d57d21) |
+Pages 배포가 #161~#169까지 9번 연속 실패했지만 산출물 문제가 아니었습니다. 라이브는 v57.27이었고 데이터도 신선했습니다.
+- 10/7 13:54Z에 v57.25~27이 병합 푸시로 들어왔고 CI #1682는 성공했습니다.
+- 같은 시각 데이터 봇이 `main`을 앞서 나가게 했고, 프록시 배포 #53은 "CI가 검증한 SHA ≠ `main` HEAD"로 모든 배포 단계를 건너뛰었습니다.
+- 봇의 CI는 `GITHUB_TOKEN` 디스패치라 `workflow_run` 이벤트가 없습니다(R606). Worker 배포 워크플로를 다시 돌릴 구동자가 없어서 라이브 프록시가 v57.24에 머물렀고, Pages 배포 후 검증이 매번 실패했습니다.
+- 워치독 55연속 실패: 10/8 09:09Z 런에서 실패한 게이트는 `external-pipeline` 하나(통과 10, 실패 1)였습니다. 9/26부터의 전체 구간이 같은 원인인지는 로그 만료로 확인하지 못했습니다. SLO 창은 별개로, 7일 안 워치독 스케줄 런이 30회(도착률 0.18)라 목표 0.9는 구조적으로 불가능합니다.
 
-## 3. GitHub 실행 이력에서 나온 결함
+## 3. 이번 세션 변경 (커밋 순)
 
-**Pages 배포가 #161~#169까지 9번 연속 실패했다. 산출물 문제가 아니다.** 마지막 성공은 #160(10/7 13:59Z)이다.
-라이브는 v57.27이고 데이터도 신선하다. 실패한 것은 배포 후 검증 `proxy-source-revision` 하나다(라이브 프록시 Worker v57.24, 소스 v57.27).
-
-원인 사슬:
-1. 10/7 13:54Z v57.25~27이 병합 푸시로 들어왔다(CI #1682 성공).
-2. 같은 시각 데이터 봇이 `main`을 앞서 나가게 했다(`2b7da10`).
-3. `Deploy AI proxy` #53은 CI가 검증한 SHA와 `main` HEAD가 다르다는 이유로 모든 배포 단계를 skipped 처리했다.
-4. 봇의 CI는 `GITHUB_TOKEN` 디스패치라 `workflow_run` 이벤트가 없다(R606). 그런데 Worker 배포 워크플로를 다시 돌려 줄 구동자가 없다. `ensure-live-convergence.mjs`는 Pages만 디스패치한다.
-5. 그래서 누적 diff로 수렴시키는 기존 로직이 다시 실행될 기회가 없었다.
-
-**워치독은 55번 연속 실패 중이다.** 10/8 09:09Z 런에서 실패한 게이트는 `external-pipeline` 하나뿐이다(통과 10, 실패 1). 9/26부터의 연속 실패 전체가 같은 원인인지는 확인하지 못했다. 앞선 구간의 로그가 만료됐다. SLO 창은 별개의 구조 문제다. 7일 안에 워치독 스케줄 런이 30회뿐이라 도착률이 0.18이고, 목표는 0.9다. 실패가 없어도 PASS할 수 없다.
-
-## 4. 이번 변경
-
-- `scripts/worker-deploy-impact.mjs`: `getMainAdvanceWorkerChanges` 추가. `shouldDeployWorker`는 더 새로운 `main`이 (a) 테스트 SHA의 후손이고 (b) 사이 커밋이 해당 plane의 배포 입력을 건드리지 않았을 때만 stale로 보지 않는다. 증거가 없거나, 후손이 아니거나, git 오류면 기존처럼 건너뛴다. 직전 가드용 `--main-advance` CLI도 추가했다.
-- `.github/workflows/deploy-ai-proxy.yml`, `deploy-data-plane.yml`: 판정 단계와 변경 직전 가드가 같은 분류기를 쓴다. 새 `main`을 fetch하고, 정확한 HEAD 일치 bash 비교를 없앴다. **push 전용 CI 출처 게이트(R674)는 바꾸지 않았다.**
-- `scripts/ci-cloudflare-deployment-contract-check.mjs`: P1351 단언 10개 추가.
-- `scripts/ci-control-char-check.mjs`: 허용 목록에 `★ ☆ ☰` 추가. 이 게이트는 Node 20.20.2(Unicode 17)에서는 통과하고 Node 22.22.0(Unicode 16)에서는 ★(U+2605)·☰(U+2630)를 이모지로 판정해 preflight를 막았다. 진짜 이모지는 두 환경에서 똑같이 계속 걸린다.
-
-검증:
-- 새 단언은 수정 전 구현에서 실패한다.
-- 실제 사고 커밋 쌍으로 재현했다. 테스트 SHA `d947723`에 `main`이 `2b7da10` 또는 오늘 HEAD이면 두 plane 모두 `true`. v57.24에서 `d947723`는 Worker 입력이 바뀌었으므로 `aiProxy=false`.
-- 아직 검증하지 못한 것: 변경된 워크플로의 실제 GitHub Actions 실행, Cloudflare 배포. 로컬 fixture가 대신하지 않는다.
-
-## 5. Codex 푸시 이후 순서
-
-1. `git fetch origin && git merge origin/main`으로 이 브랜치에 병합한다. v57.29 변경 목록에는 위 파일들이 없다. v57.28 쪽은 목록을 몰라 확인 필요.
-2. `bump-version v57.30` 후 `record-fix`로 초안 JSON 2개를 기록한다(ID는 자동 할당). `generate-workspace-state --write` 실행.
-3. 푸시한 뒤 `Deploy AI proxy`와 `Deploy fast data plane` 런에서 `Deploy canonical Worker` 단계가 실제 실행됐는지 확인한다. 이 수정이 `main`에 들어가기 전에 푸시한다면 같은 stale skip이 다시 나올 수 있다. 그때 프록시가 v57.24에 머물면 Pages도 다시 red가 된다.
-4. 이슈 #4(워치독)는 프록시가 수렴하기 전에는 닫지 않는다.
-
-## 6. 남은 구조 과제
-
-| 우선 | 항목 | 근거와 메모 |
+| 커밋 | 내용 | 검증 |
 |---|---|---|
-| 곧 | `knowledge-lint` P1125 | 오늘 `_context` 문서 4개가 `last_verified` 45일 임계를 넘겨 실패(기준선 1, 현재 4): `CLAUDE.md`(46일), `KNOWLEDGE-BASE.md`(46일), `WORKFLOW-GOVERNANCE.md`(46일), `RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md`(47일). 앞의 3개는 v57.29 변경 목록에 있어 푸시로 풀릴 가능성이 크다. 마지막 1개는 목록에 없으므로 소유자 검토가 필요하다. 검토 없이 날짜만 갱신하지 않았다 |
-| 결정 필요 | 워치독 SLO 목표(도착률 0.9) | 스케줄이 하루 약 5회라 달성 불가. cron 빈도나 목표 재정의 필요 |
-| 병합 후 | H88·H89 산업 지도 관계 종류 | 레지스트리에 공급 관계 진술이 없고 `relation/kind` 필드도 없다. `taxonomyNodeIds`는 유지하고 병렬 필드(`nodeLinks`)를 추가해야 `ci-atlas-contract-check`·`reconcile-atlas-taxonomy` 등이 안 깨진다. 근거 없는 라벨은 금지이므로 출처 확인이 먼저. 별개로 제품·플레이어 노드 불일치 2건(`sandisk-hbf-roadmap`, `samsung-hbm-family`) |
-| 병합 후 | 시장 시간 모듈 위치 | `src/ai/time/market-session.js`(import 0개, NYSE·KRX 달력)를 `src/domain` 3곳이 쓴다. `src/domain/market/session-time.js`와 개념이 중복되고 `js/aio-core.js:18118`에 parity 사본이 있다. 순수 모듈을 domain으로 옮기고 AI 쪽엔 재export만 남기는 것을 권고 |
-| 병합 후 | 같은 종류 결함의 남은 인스턴스 | 평문 `writeFileSync`로 공개 JSON을 쓰는 곳: `fetch-telegram-digest.mjs:573,583`, `sync-data-release-manifests.mjs`, `reconcile-atlas-taxonomy.mjs`, `resolve-13f-prior-filings.mjs`. 본문 대기에 타임아웃이 없는 곳: `fetch-data.mjs:139-163`(CI 정지 위험), `personal-transport.js:92-95`(브라우저, 영향 작음) |
-| 낮음 | 쓰이지 않는 export 36개 | 선언 외 참조 0. 예: `evaluateSearchClaim`, `canUseEvidence`, `selectEvidenceMap`, `findSavedScreen`, `runDefaultScreens`, `createExplanationIndex`, `src/state/selectors/*`. v57.28·29가 호출자를 추가했을 수 있어 병합 후 다시 grep |
-| 기존 | v57.28 남은 항목 | `CLAUDE-RESPONSE-v57.28.md`의 "남은 항목"과 13F 단위 이상 3건 결정은 그대로 남아 있다. 이번에 건드리지 않았다 |
+| `7d46425`, `e4e6669` | Worker 배포 수렴: 데이터 커밋만 끼어든 `main`은 해당 plane 입력과 배포 레시피를 건드리지 않으면 stale로 보지 않음. 판정과 직전 가드가 같은 분류기를 씀. push 전용 CI 출처 게이트(R674)는 불변. 독립 반박 검토의 5개 실제 지적 반영 | 새 단언은 수정 전 코드에서 실패, 변이 4건이 각자의 단언에서 실패, 실제 사고 커밋 쌍으로 재현(`d947723`→`2b7da10` = 두 plane 모두 true) |
+| `7d46425` | P1500 이모지 게이트가 Node 20(Unicode 17)과 22(Unicode 16)에서 다르게 판정하던 문제 (★ ☆ ☰ 명시 허용) | 두 런타임 통과, 실제 이모지는 둘 다 차단 |
+| `ad6699c` | 13F 1,000배 단위 이상 보류가 상위 행·비교·샤드에만 적용되던 것을 `allHoldings`, 역조회 인덱스, 이전 분기 총액, 종목 집계, 먼저 도착한 샤드까지 확대. 보류 행을 $0으로 합산하던 섹터 표 수정 | 모듈에 테스트가 전혀 없었음, 계약 검사 추가, 변이 4건, 마스터스 브라우저 검사 |
+| `c67af00` | 매매 지시·무출처 수치 54곳과 신호 라벨을 관측 조건 서술로 교체(AI 질문 칩의 진입 타이밍·확률 요청 포함), 용어사전·도움말 정리(H105·H107·H108), 재유입 방지 문구 게이트 | 게이트 주입 대조군, 관련 게이트 통과 |
+| `139ac96` | 산업 지도: 제품이 연결된 기업과 기업 역할 참고를 분리 표시, 역할·분류 id 한국어화(H88·H89) | 실제 레지스트리로 감사의 3개 사례 렌더 검증, 변이 2건, 아틀라스 브라우저 검사 |
+| `62ee527` | AI 공개 수치 판정에 개수·금액 규모 추가, 호환 이벤트(해제된 리스너, Date/Map/Set 상세), 홈 추이의 종가 기준 통일(실데이터 +45bp→+47bp), 거시 경로의 기준일 불일치 보류(H17) | 각각 변이로 실패 확인, 홈은 실데이터 재현 |
+| `91b3093` | v57.30 버전 갱신과 원장 P1520~P1528, R691~R693 | 원장·버전·워크스페이스·단언 추적 게이트 |
+| `b7d0bbd` | 추세 차트 월 라벨 겹침(`main`에서 이미 `browser-viewport`가 실패 중이었음, 다음 푸시가 CI에서 막혔을 결함) | 기준선 `origin/main`에서 동일 실패 재현, 수정 후 57개 조합 통과 |
 
-미검토: Dependabot PR #7·#8·#13(열림), 월간 검토 이슈 #16·#17.
+**전체 검증**: `node scripts/qa-runner.mjs full --no-cache`를 Node 20.20.2에서 실행해 145개 통과, 실패 0, 건너뜀 0(브라우저 게이트 포함). 이 컨테이너는 Playwright 기대 리비전(1228)과 설치된 브라우저(1194)가 달라서, 스크래치패드 심볼릭 링크로 `PLAYWRIGHT_BROWSERS_PATH`만 지정했고 저장소 스크립트는 건드리지 않았습니다.
+
+**검증하지 못한 것**: 변경된 배포 워크플로의 실제 GitHub Actions 실행(첫 푸시가 처음 시험합니다. 로그의 `AI-proxy automatic convergence decision` 줄과 `Deploy canonical Worker` 단계를 확인하세요), Cloudflare 프로비저닝, 실제 AI 모델 답변 품질, 실제 13F 원문 단위.
+
+## 4. 소유자 결정이 필요한 항목
+
+1. **공포탐욕·VIX 구간 경계**: `js/aio-core.js:3081·3083`(레거시)과 `src/domain/sentiment`가 다르다. 예: F&G 45는 src '공포', legacy '중립'. 경보 로직(`aio-core.js:3092-3103`)이 레거시 구간에 의존하므로 기준 확정 후 한쪽으로 위임해야 한다.
+2. **포지션 집중도**: 캐시 종가를 legacy는 기술 스냅샷 종가로 대체하고 src는 그대로 쓴다(15% vs 10%, 페널티 10 vs 5).
+3. **점수→행동 코드**(`aio-core.js` `EXIT_OR_HEDGE`, `TRIM_50` 등)와 AI 프롬프트(`aio-chat.js` 5419·4365·6216·3849)의 행동 결론 강제. 모델 출력을 바꾸는 제품 결정이라 이번에는 건드리지 않았다.
+4. **13F**: 비교 가능 행이 2개 미만인 신고는 탐지되지 않고, 신고자가 둘뿐이면 정상 신고자도 걸린다. 세 운용사의 원문 단위 확인과 정정 방식 결정이 필요하다.
+5. **빠른 시세 Worker**: 16개 전부 STALE이어도 `published`·`QG-01_PASS`로 저장되고 `lastSuccessfulAt`은 시도 시각이다(재현 확인). 생산자 의미 결정.
+6. **산업 지도**: MP Materials가 장비 노드에 제품으로 매핑돼 있다(출처 확인 필요). 제품 설명(`problemSolved`)은 영문이다. 번역은 레지스트리 수정과 의존 산출물 재생성이 필요하다.
+7. **워치독 SLO 도착률 목표 0.9**: 스케줄이 하루 약 5회라 달성할 수 없다. cron 빈도나 목표를 재정의해야 한다. 이슈 #4는 프록시 수렴 확인 전에 닫지 마세요.
+8. **거래일 판정**: KR 15:30~16:00 유예가 레거시에만 있고, `market-read.js`는 주말만 제외하는 영업일 수를, `daily-diff.js`는 휴장 인식 영업일 수를 쓴다. `src/ai/time/market-session.js`(import 0개의 순수 달력)를 `src/domain`이 3곳에서 쓰므로 `src/domain/market`으로 옮기고 AI 쪽엔 재export만 남기기를 권한다.
+
+## 5. 남은 작업
+
+- 감사 항목: H07(뉴스 필터 범위·건수), H54·H56~H58(라이브러리 입구·지표 앵커·능동 학습·밀도), H87·H90~H96(AI 기초·관계 가이드 콘텐츠, 출처 필요), H109~H111(용어→지표 이동, 개념 지도), H17 수치 원천 대조(−4bp/−1bp), 포트폴리오 계산 검증.
+- 데이터: 10/5 S&P 종가 행이 배포 데이터에 없다. v57.28 백필이 다음 갱신에서 채우는지 확인.
+- 정리: 미사용 export 36개(선언 외 참조 0, 병합 후 재확인), 평문 `writeFileSync`로 공개 JSON을 쓰는 생산자(`fetch-telegram-digest`, `sync-data-release-manifests`, `reconcile-atlas-taxonomy`, `resolve-13f-prior-filings`), 본문 대기에 타임아웃이 없는 호출(`fetch-data.mjs`의 `fetchJSON`·`_fetchRss`, `personal-transport.js`). 고아 모듈 21개는 모두 CI 스크립트가 직접 import하므로 삭제하면 안 된다.
+- AI 공개 정책: 비현재 text claim의 수치와 시간 정보 없는 evidence는 검사하지 않는다(정책 확인 필요). `answer-orchestrator.js`가 `answerPublication` 네임스페이스 전체를 facade에 추가한 것은 v57.29 릴리스 문구("facade 비확장")와 다르다.
+
+## 6. 병합 방법
+
+`main`은 데이터 봇이 계속 커밋하므로 AGENTS.md 절차를 따릅니다: `git pull --no-rebase origin main`, 생성물 충돌은 `node scripts/resolve-generated-conflicts.mjs`가 출력하는 게이트로 처리. 이 브랜치의 `worker/wrangler.proxy.toml`이 v57.30으로 바뀌어 있어, `main`에 들어가면 프록시 Worker가 재배포됩니다.
+
+하위 에이전트(Haiku)의 보고는 모두 주장으로 취급해 코드·실행으로 검증했습니다. 틀렸거나 따르지 않은 것: `aio-ui.js` 사이클 라벨 줄 번호 오인용(해당 문구 없음), `productionStatus` 표시 제안(레지스트리 경계와 충돌), `daily-diff`의 `signed(null)`(호출부가 모두 막고 있어 도달 불가), `lastSuccessfulAt` 수정 제안(생산자 의미 결정으로 보류).
