@@ -434,16 +434,16 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
         }
       : total >= 45
         ? {
-            tier: 'neutral', action: 'WAIT', decision: '중립 — 관망 우선',
+            tier: 'neutral', action: 'WAIT', decision: '중립 — 신호 혼재',
             description: '시장 신호가 혼재된 환경입니다. 점수는 예측 신호가 아니므로 진입·비중 결정은 종목별 근거와 본인 리스크 한도로 판단하세요.'
           }
         : total >= 30
           ? {
-              tier: 'caution', action: 'REDUCE', decision: '주의 — 비중 축소 검토',
+              tier: 'caution', action: 'REDUCE', decision: '주의 — 비중 부담 점검',
               description: '리스크 증가. 기존 포지션의 방어선, 현금 비중, 헤지 조건을 점검하세요.'
             }
           : {
-              tier: 'defensive', action: 'REDUCE', decision: '위험 — 방어 우선',
+              tier: 'defensive', action: 'REDUCE', decision: '위험 — 방어 조건 점검',
               description: '극단 리스크. 신규 진입을 중단하고 현금·헤지·VIX 추적을 우선하세요.'
             };
 

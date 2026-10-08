@@ -601,16 +601,16 @@ function updateBottomProcess() {
   // 행동 가이드 동적 업데이트
   if (actionEl) {
     if (stage <= 1) {
-      actionEl.innerHTML = ' <b>현재 행동:</b> 신규 매수 중단. 최고의 상대강도(RS)와 타이트한 가격 움직임 종목을 워치리스트에 추가. 이들이 전환 시 미래 리더. 트레이딩은 점진적으로만.';
+      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 신규 매수 조건이 충족되지 않은 상태입니다. 상대강도(RS)가 높고 가격 움직임이 좁은 종목은 관찰 목록에서 시장 전환 때의 변화를 봅니다.';
       actionEl.style.borderColor = 'var(--data-red)';
     } else if (stage === 2) {
-      actionEl.innerHTML = ' <b>현재 행동:</b> 랠리 품질 관찰 중. Follow-through 확인 전까지 관망. 리더십 종목이 적절한 셋업(VCP, 돌파)을 형성하는지 모니터링. 소량 테스트 매수만.';
+      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 랠리 품질을 관찰하는 단계입니다. Follow-through가 확인되기 전에는 상승 지속 여부가 불확실합니다. 리더십 종목이 적절한 셋업(VCP, 돌파)을 형성하는지 지켜봅니다.';
       actionEl.style.borderColor = 'var(--data-amber)';
     } else if (stage === 3) {
       actionEl.innerHTML = ' <b>현재 관측:</b> 리테스트 진행 구간. 프레임워크상 매도 압력 감소 여부와 리더주 셋업 완성 여부가 다음 관찰 포인트입니다(지시 아님).';
       actionEl.style.borderColor = 'var(--data-cyan)';
     } else {
-      actionEl.innerHTML = ' <b>현재 행동:</b> 바닥 확인. 리더주 셋업 완성 시 분할 진입 검토. 트레일링 스탑으로 수익 보호. 시장폭 유지 여부 지속 모니터링.';
+      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 바닥 확인 단계입니다. 리더주가 셋업을 완성하는지와 시장폭이 유지되는지를 지켜봅니다.';
       actionEl.style.borderColor = 'var(--data-green)';
     }
   }
@@ -849,17 +849,17 @@ function refreshSignalDashboard() {
     decColor = 'var(--data-green)'; decBg = 'rgba(34,117,76,0.15)';
     decSub = '현재 시장 여건은 양호합니다. 단, 2016~2026 부분 백테스트(입력 가중치 55%)에서 이 점수와 21·63일 선행수익률은 유의한 음(−)의 상관이 관측되어, 점수를 매수/매도 타이밍 근거로 사용하지 마세요.';
   } else if (total >= 45) {
-    decision = '중립 — 관망 우선';
+    decision = '중립 — 신호 혼재';
     decColor = 'var(--data-cyan)'; decBg = 'rgba(33,29,22,0.15)';
     decSub = '시장 신호가 혼재된 환경입니다. 점수는 예측 신호가 아니므로 진입/비중 결정은 종목별 근거와 본인 리스크 한도로 판단하세요.';
   } else if (total >= 30) {
-    decision = '주의 — 비중 축소 검토';
+    decision = '주의 — 비중 부담 점검';
     decColor = 'var(--data-amber)'; decBg = 'rgba(33,29,22,0.15)';
     decSub = '리스크 증가. 기존 포지션의 방어선, 현금 비중, 헤지 조건 점검.';
   } else {
-    decision = '위험 — 방어 우선';
+    decision = '위험 — 방어 조건 점검';
     decColor = '#b13a30'; decBg = 'rgba(177,58,48,0.15)';
-    decSub = '극단 리스크. 신규 진입 중단, 현금·헤지·VIX 추적 우선.';
+    decSub = '극단 리스크 구간입니다. 신규 진입 조건이 충족되지 않았고, 현금·헤지 노출과 VIX 변화를 점검할 때입니다.';
   }
 
   // Update the compatibility canvas only when the legacy hero owns the surface.

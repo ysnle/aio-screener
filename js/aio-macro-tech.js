@@ -112,8 +112,8 @@ function _aioRenderLegacyMarketHealth(model) {
   if (el) {
     var compositeScore = null;
     try { if (typeof computeTradingScore === 'function') compositeScore = Number(computeTradingScore().total); else if (window._tradingScore != null) compositeScore = Number(window._tradingScore); } catch(_) {}
-    var strategy = model.score >= 65 ? '기술 환경은 우호적입니다. 단독 매수 신호가 아니며 시그널 점수 60+와 시장폭 확산 확인 후 분할 접근.' : model.score >= 40 ? '선별적 매매. 섹터 로테이션과 종합 시그널을 확인하고 포지션 사이즈 축소 고려.' : '방어적 자세. 현금비중 확대, 손절 타이트, 반등 시 매도 고려.';
-    var conflict = model.score >= 65 && isFinite(compositeScore) && compositeScore < 60 ? ' 현재 종합 시그널 ' + Math.round(compositeScore) + '/100과 충돌하므로 신규 진입은 관망 우선.' : '';
+    var strategy = model.score >= 65 ? '기술 환경은 우호적입니다. 단독 매수 신호가 아니며 시그널 점수 60+와 시장폭 확산 여부를 함께 확인합니다.' : model.score >= 40 ? '선별이 필요한 환경입니다. 섹터 로테이션과 종합 시그널을 확인합니다.' : '방어적 환경입니다. 현금 비중·손절 기준·반등 강도를 점검합니다.';
+    var conflict = model.score >= 65 && isFinite(compositeScore) && compositeScore < 60 ? ' 현재 종합 시그널 ' + Math.round(compositeScore) + '/100과 충돌하므로 신규 진입 근거를 더 확인해야 합니다.' : '';
     el.textContent = '시장 건강 진단 결과\n점수 ' + model.score + '/100 (' + model.grade + ') — ' + model.regime + '\n' + (model.details || []).join(' · ') + '\n\n전략: ' + strategy + conflict;
   }
 }
@@ -463,7 +463,7 @@ function updatePatternSignals() {
   } else if (chg < -1) {
     signals.push({ name: '갭 하락 (-1~2%)', type: 'bearish', icon: '',
       color: 'var(--data-red)',
-      detail: 'SPY ' + chg.toFixed(2) + '% 갭 하락. 공포 매도 또는 해외 악재. 장 중 V자 반등이 나오면 "하락 갭 반전"으로 매수 기회 가능.',
+      detail: 'SPY ' + chg.toFixed(2) + '% 갭 하락. 공포 매도 또는 해외 악재일 수 있습니다. 장 중 V자 반등이 나오면 "하락 갭 반전" 패턴으로 분류됩니다.',
       why: '장 중 갭을 완전히 메우는 "갭 필(Gap Fill)"은 단기 강세 신호입니다.',
       importance: 'MED' });
   } else if (chg < -0.5) {

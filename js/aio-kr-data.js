@@ -481,7 +481,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   var upRatio = dataCounted > 0 ? Math.round(upCnt / dataCounted * 100) : 0;
   if (upRatio >= 70) ss.push(' <b>테마 건강도 우수</b> — 구성종목 중 ' + upRatio + '%가 상승. 광범위한 매수세가 테마 전체를 지지하고 있어 추세 지속 가능성이 높습니다.');
   else if (upRatio >= 50) ss.push(' <b>테마 건강도 보통</b> — 상승 ' + upCnt + '개 vs 하락 ' + dnCnt + '개. 대장주 위주로만 오르고 있다면 폭이 좁은 랠리로, 후발주 확산 여부를 모니터링해야 합니다.');
-  else ss.push('<b>테마 건강도 취약</b> — 하락 종목(' + dnCnt + '개)이 상승 종목(' + upCnt + '개)보다 많습니다. 테마 모멘텀이 꺾이는 신호일 수 있어 추격 매수는 자제가 권장됩니다.');
+  else ss.push('<b>테마 건강도 취약</b> — 하락 종목(' + dnCnt + '개)이 상승 종목(' + upCnt + '개)보다 많습니다. 테마 모멘텀이 꺾이는 신호일 수 있어 추격 진입의 위험이 커집니다.');
 
   // 4) 대장주 vs 후발주 분석 — v38.3: 6종목 미만 테마에서 top3/bot3 겹침 버그 수정
   if (sorted.length >= 6) {
@@ -2516,7 +2516,7 @@ function _generateKrMacroAnalysis(ld) {
   t += riskSum >= 3 ? '<span style="color:var(--red);font-weight:700;"> 삼중 악재 (환율↑ 금리↑ 변동성↑). 현금비중 50% 이상 유지, 방산·필수소비재 방어 전략.</span>' :
        riskSum === 2 ? '<span style="color:var(--yellow);font-weight:700;"> 이중 부담. 선별적 매매 필요. 고배당·수출주 중심 포트폴리오 추천.</span>' :
        riskSum === 1 ? '<span style="color:var(--text-secondary);font-weight:700;"> 일부 리스크 존재. 업종별 차별화 예상. 실적 모멘텀 기반 종목 선별.</span>' :
-       '<span style="color:var(--green);font-weight:700;"> 매크로 환경 양호! 환율 안정+금리 적정+변동성 낮음. 성장테마 적극 비중 확대 구간.</span>';
+       '<span style="color:var(--green);font-weight:700;"> 매크로 환경이 우호적인 조건입니다(환율 안정·금리 적정·변동성 낮음). 성장 테마에 유리한 환경으로 읽을 수 있지만 비중 판단은 개인 기준으로 합니다.</span>';
 
   // v40.4: 교차변수 심화 진단
   if (wti && wti.price && krw && krw.price && vix && vix.price) {
@@ -2680,7 +2680,7 @@ function _generateKrThemesAnalysis(ld) {
     }
     // 복합 시나리오
     if (krMacroWti && krMacroWti > 100 && krMacroKrw && krMacroKrw > 1400 && krMacroVix && krMacroVix > 25) {
-      h += '<span style="color:var(--red);font-weight:700;"> 삼중 악재(유가↑+원화↓+VIX↑) 동시 발생. 방어테마 집중 + 현금비중 확대 필수.</span><br>';
+      h += '<span style="color:var(--red);font-weight:700;"> 삼중 부담(유가↑+원화↓+VIX↑)이 동시에 나타났습니다. 방어 테마와 현금 비중을 점검할 구간입니다.</span><br>';
     }
   }
 
@@ -3174,7 +3174,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     h += '<br><b>【실적 vs 주가 괴리 종목】</b> ';
     earningsGap.forEach(function(i) {
       if (i.chg < -2 && i.roe > 15) {
-        h += i.sym + ': ROE ' + i.roe + '%(양호) but 오늘 ' + i.chg.toFixed(1) + '%(급락) — <span style="color:var(--accent);">실적과 주가 괴리. 센티먼트 과잉 반응 가능, 바닥 확인 후 매수 기회.</span> ';
+        h += i.sym + ': ROE ' + i.roe + '%(양호) but 오늘 ' + i.chg.toFixed(1) + '%(급락) — <span style="color:var(--accent);">실적과 주가의 괴리입니다. 센티먼트 과잉 반응일 수 있으며, 바닥 확인 여부를 함께 봅니다.</span> ';
       } else if (i.chg > 2 && i.pe > 40) {
         h += i.sym + ': PE ' + i.pe.toFixed(0) + '(고평가) + 오늘 +' + i.chg.toFixed(1) + '%(급등) — <span style="color:var(--yellow);">모멘텀 과열. 이익실현 검토.</span> ';
       }
@@ -3211,7 +3211,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     h += tsVal >= 75 ? '시장 환경 우수. 개별 종목 펀더멘털 강점이 주가에 반영되기 좋은 환경.' :
          tsVal >= 55 ? '시장 환경 양호. 실적 뒷받침되는 종목 선별적 접근.' :
          tsVal >= 35 ? '시장 환경 중립~약세. 시장 역풍에 개별 종목이 눌릴 수 있음. 방어적 포지션 우선.' :
-         '시장 환경 약세. 펀더멘털과 무관하게 센티먼트로 하락 가능. 현금 비중 확대 고려.';
+         '시장 환경 약세. 펀더멘털과 무관하게 센티먼트로 하락 가능. 현금 비중 점검.';
   } else h += '<br><b>【시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
   h += '<br>';
 

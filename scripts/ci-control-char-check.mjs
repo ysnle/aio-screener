@@ -161,6 +161,26 @@ if (process.argv.includes('--write-baseline')) {
     });
   }
   if (hits.length) errors.push(`P1500 emoji/pictograph in product code (${hits.length}): ${hits.slice(0, 12).join(', ')}`);
+
+  // P1523: trading instructions, certainty claims and unsourced probabilities that were rewritten as observation
+  // conditions must not come back. Exact phrases only (the audit found them in live legacy text), so educational
+  // descriptions of a method elsewhere never trip this.
+  const INSTRUCTION_PHRASES = [
+    ['매수 기회', /매수 기회/], ['강력한 매수', /강력한 매수/], ['최적 매수', /최적 매수/], ['비중 확대 구간', /비중 확대 구간/],
+    ['현금비중 확대 필수', /현금\s*비중 확대 필수/], ['진입 타이밍 질문', /진입 타이밍 어때/], ['시나리오 확률 요청', /확률 매겨/],
+    ['무출처 지속 확률', /지속 상승 70%/], ['무출처 초과수익', /역사적 \+?[0-9.]+% 초과수익/], ['베팅 질문', /어디에 베팅해야/],
+    ['테스트 매수', /소량 테스트 매수/], ['분할 진입 검토', /분할 진입 검토/], ['신규 매수 중단', /신규 매수 중단/],
+    ['현재 행동 지시', /현재 행동:/], ['추격 매수 자제 권고', /추격 ?매수는 자제/], ['비중 축소 검토 라벨', /비중 축소 검토/],
+    ['관망 우선 라벨', /관망 우선/], ['세력 단정', /물량 털기/], ['진짜 추세 단정', /가 진짜 추세/], ['파산 확률 단정', /파산 확률 최소화/],
+    ['신호 사다리 라벨', /'(?:중립 · 관망|주의 · 축소|위험 · 방어)'/]
+  ];
+  const instructionHits = [];
+  for (const file of productFiles) {
+    read(file).split('\n').forEach((line, index) => {
+      for (const [name, pattern] of INSTRUCTION_PHRASES) if (pattern.test(line)) instructionHits.push(`${file}:${index + 1} (${name})`);
+    });
+  }
+  if (instructionHits.length) errors.push(`P1523 trading-instruction phrase in product code (${instructionHits.length}): ${instructionHits.slice(0, 12).join(', ')}`);
 }
 
 if (errors.length) {

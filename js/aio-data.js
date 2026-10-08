@@ -15748,13 +15748,13 @@ function refreshHomeDashboard() {
       signalEl.textContent = '환경 양호'; signalEl.style.color = '#4ade80';
       if (explanEl) explanEl.textContent = '시장 환경은 양호하지만 통계적 예측력은 미검증입니다. 점수 단독 진입은 금지합니다.';
     } else if (sc >= 45) {
-      signalEl.textContent = '중립 · 관망'; signalEl.style.color = '#ffa31a';
+      signalEl.textContent = '중립 · 신호 혼재'; signalEl.style.color = '#ffa31a';
       if (explanEl) explanEl.textContent = '신호 혼합 · 위험 관리 필수. 기존 포지션 유지, 신규 진입 자제.';
     } else if (sc >= 30) {
-      signalEl.textContent = '주의 · 축소'; signalEl.style.color = '#ffa31a';
+      signalEl.textContent = '주의 · 부담 점검'; signalEl.style.color = '#ffa31a';
       if (explanEl) explanEl.textContent = '시장 품질 약화 · 신호 약함. 리스크 자산 비중 축소, 현금 확보.';
     } else {
-      signalEl.textContent = '위험 · 방어'; signalEl.style.color = '#ff5b50';
+      signalEl.textContent = '위험 · 방어 조건 점검'; signalEl.style.color = '#ff5b50';
       if (explanEl) explanEl.textContent = '극단 약세 구간 · 역사적으로 방어적 운용이 우선시되던 환경.' + (sc <= 25 ? ' 참고: 과거 유사 극단에서 이후 수익률이 높았던 사례가 있으나 보장이 아닙니다.' : '');
     }
   }

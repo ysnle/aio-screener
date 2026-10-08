@@ -4178,7 +4178,7 @@ var AIO_PAGE_BRIEFS = {
     title: '사람들이 너무 탐욕적인지, 너무 겁먹었는지 확인',
     use: '심리는 타이밍 보조 지표입니다.',
     steps: ['Fear & Greed와 Put/Call 확인', 'AAII·VIX로 군중 쏠림 확인', '극단값은 반대로, 중간값은 추세와 함께 해석'],
-    focus: '탐욕은 즉시 매도 신호가 아니라 추격매수 금지 신호에 가깝습니다.',
+    focus: '탐욕은 즉시 매도 신호가 아니라 추격 진입의 위험이 커지는 구간으로 읽습니다.',
     links: [['signal','시그널'], ['breadth','시장 폭']]
   },
   briefing: {
@@ -4718,10 +4718,10 @@ function _aioDefaultDecision(pageId) {
   var _scoreText = _sc == null ? '산출 보류' : Math.round(_sc) + '/100';
   var _band = _scoreBlocked || _sc == null ? { label:'시장환경 관찰', action:'현재 입력 조합을 참고용으로만 관찰합니다. 예측 검증 미확립으로 매매·비중 결론을 생성하지 않습니다.' }
     : _sc >= 75 ? { label:'환경 우호', action:'현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격을 별도로 확인.' }
-    : _sc >= 60 ? { label:'환경 양호', action:'점수 단독 진입 금지. 종목 품질과 이벤트 리스크를 추가 확인.' }
-    : _sc >= 45 ? { label:'중립 · 관망', action:'신규 진입 자제. 기존 포지션 방어선과 손절을 먼저 확인.' }
-    : _sc >= 30 ? { label:'주의 · 축소', action:'리스크 자산 비중 축소. 현금 비율 높이고 헤지 검토.' }
-    : { label:'위험 · 방어', action:'신규 매수 중단. 방어 운용 후 스코어 45+ 복귀 확인 후 재개.' };
+    : _sc >= 60 ? { label:'환경 양호', action:'점수만으로 진입 근거가 되지 않습니다. 종목 품질과 이벤트 리스크를 추가로 확인합니다.' }
+    : _sc >= 45 ? { label:'중립 · 신호 혼재', action:'점수만으로 방향을 정하기 어려운 구간입니다. 기존 포지션의 방어선과 손절 기준을 먼저 확인합니다.' }
+    : _sc >= 30 ? { label:'주의 · 부담 점검', action:'리스크 자산 노출과 현금·헤지 비중을 점검할 구간.' }
+    : { label:'위험 · 방어 조건 점검', action:'신규 진입 조건이 충족되지 않은 구간입니다. 방어 조건을 점검하고 점수가 45 이상으로 돌아오는지 확인합니다.' };
 
   // FOMC/이란 이벤트를 AIO_EVENT_FRESHNESS_REGISTRY에서 단일 경로로 읽기
   var _fomcReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
@@ -4827,7 +4827,7 @@ function _aioDefaultDecision(pageId) {
       title: 'FX/Rates 판단',
       decision: '달러·금리·커브·크레딧 반응만 본다',
       reasons: ['macro 설명형 문단보다 가격 반응 우선', tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), 'HY/IG·커브가 위험자산 신호를 보강'],
-      action: '달러와 금리가 같이 오르면 해외 성장주 비중 확대를 늦춘다.'
+      action: '달러와 금리가 같이 오르면 해외 성장주에 부담이 되는 조합으로 봅니다.'
     },
     fundamental: {
       title: '기업 분석 준비',
