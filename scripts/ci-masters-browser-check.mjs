@@ -69,7 +69,7 @@ try {
     || overview.nanCells || overview.devCopy || overview.overflow) throw new Error(`overview contract failed: ${JSON.stringify(overview)}`);
 
   await page.locator('#page-masters [data-masters-action="style-overview"]').click();
-  await page.waitForFunction(() => /돈을 굴리는 여덟 가지 방식/.test(document.querySelector('#page-masters .rl-main')?.textContent || ''));
+  await page.waitForFunction(() => /돈을 굴리는 방식별로 13F 읽기/.test(document.querySelector('#page-masters .rl-main')?.textContent || ''));
   if (!/13F는 전체 포트폴리오가 아니다/.test(await page.locator('#page-masters .rl-main').textContent())) throw new Error('style overview lost the 13F coverage disclosure');
   await page.locator('#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="berkshire-hathaway"]').click();
   await page.waitForFunction(() => document.querySelector('#page-masters .masters-detail-title')?.textContent.includes('Buffett'));

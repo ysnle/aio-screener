@@ -298,9 +298,17 @@ function buildRegime(growth, inflation) {
     'down/down': { id: 'disinflation-slowdown', label: '성장 둔화 · 물가 둔화', tone: 'neutral', reading: '역사적으로 금리 인하 기대에 채권이 강해진 국면이었고, 주식은 경기 둔화의 깊이에 따라 엇갈렸습니다(방어주·우량 성장주가 경기민감주보다 나았던 경향). 이 설명은 사례 기반의 역사적 경향이며, 지금 관측된 10년물 움직임과 별개입니다 — 금리의 현재 상태는 시장 상태 화면(금리 축)에서 확인해도 더 명확합니다.' }
   };
   const key = growthDir && inflationDir ? `${growthDir}/${inflationDir}` : null;
+  // Codex browser audit H14: the quadrant could not be reproduced from the screen. Each rule is listed with the
+  // value it read, the threshold and the outcome, so the placement can be recomputed from these rows alone.
+  const n = (value, digits = 1) => (value == null || !Number.isFinite(Number(value)) ? '—' : Number(value).toFixed(digits));
+  const inputs = [
+    g?.sahm ? ['Sahm 지표', `${n(g.sahm.value, 2)}%p`, `${G.sahmWatchAt}%p 이상이면 둔화`, g.sahm.value >= G.sahmWatchAt ? '둔화 신호' : '기준 미만'] : ['Sahm 지표', '—', `${G.sahmWatchAt}%p 이상이면 둔화`, '자료 없음'],
+    g?.payroll ? ['일자리 증가 3개월 평균', `${n(g.payroll.avg3, 0)}천 명 (직전 3개월 ${n(g.payroll.prior3, 0)}천 명)`, `직전보다 ${G.payrollSlowdownK}천 명 넘게 적으면 둔화`, g.payroll.avg3 < g.payroll.prior3 - G.payrollSlowdownK ? '둔화 신호' : '기준 미만'] : ['일자리 증가 3개월 평균', '—', '직전 3개월과 비교', '자료 없음'],
+    i?.pace && i.yoy != null ? ['근원 PCE', `최근 3개월 연율 ${n(i.pace.value)}% · 전년 대비 ${n(i.yoy)}%`, '3개월 연율이 전년 대비보다 높으면 물가 상승 방향', i.pace.value > i.yoy ? '상승 방향' : '둔화 방향'] : ['근원 PCE', '—', '3개월 연율과 전년 대비 비교', '자료 없음']
+  ];
   const picked = key ? table[key] : null;
   return picked
-    ? { ...picked, available: true, provisional, growthDir, inflationDir, criteria: REGIME_CRITERIA }
+    ? { ...picked, available: true, provisional, growthDir, inflationDir, criteria: REGIME_CRITERIA, inputs }
     : { available: false, label: '국면 판정 보류', tone: 'unknown', reading: '성장과 물가의 방향을 모두 확인한 뒤 국면을 표시합니다.', provisional: true, growthDir, inflationDir, criteria: REGIME_CRITERIA };
 }
 
@@ -333,6 +341,14 @@ function buildChain({ macro, regime, rateFx }) {
   if (nodes[0].dir === 'up' && nodes[1].dir !== 'up') links.push(fx.wtiHigh ? '유가가 1년 범위 상단에 있어 물가 부담 요인입니다.' : `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 아직 기대인플레이션으로 크게 번지지는 않았습니다.`);
   if (nodes[3].dir === 'up') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 올랐습니다${real5 != null && bei5 != null && real5 > bei5 && real5 > 0 ? ' — 실질금리 우위는 5일 관측 기준이며(20일 전체 분해는 자료가 없음), 그 관측은 성장주 밸류에이션 부담 쪽과 같은 방향입니다' : ''}.`);
   if (nodes[3].dir === 'down') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
+  // Codex browser audit H15: when two neighbours on the textbook path moved in opposite directions, the arrow is
+  // not working right now — say so as a question to check, instead of letting the drawn arrow imply it does.
+  for (const [a, b] of [[0, 1], [1, 3]]) { // the policy node is a level against the target, not a move
+    const from = nodes[a];
+    const to = nodes[b];
+    if (!['up', 'down'].includes(from.dir) || !['up', 'down'].includes(to.dir) || from.dir === to.dir) continue;
+    links.push(`${from.label}(${from.dir === 'up' ? '상승' : '하락'})와 ${to.label}(${to.dir === 'up' ? '상승' : '하락'})가 반대로 움직였습니다 — 이 고리가 지금은 작동하지 않는 이유(다른 요인이 더 크거나, 관측 기간이 달라서)를 확인할 지점입니다.`);
+  }
   const branches = [
     { id: 'dollar', label: '달러', value: dxy20 == null ? '—' : `20일 ${signed(dxy20, 1, '%')}`, dir: dir(dxy20, RULES.dollar.rise20dPct, RULES.dollar.fall20dPct), effect: dxy20 == null ? null : dxy20 >= RULES.dollar.rise20dPct ? '달러 강세 → 미국 다국적 기업의 해외 매출 환산 감소, 신흥국·원화 약세(외국인 순매도 압력)' : dxy20 <= RULES.dollar.fall20dPct ? '달러 약세 → 해외 매출 환산 증가, 신흥국·원화에 우호적' : '달러는 큰 방향 없이 움직이고 있습니다' },
     { id: 'credit', label: '신용 스프레드', value: hy5 == null ? '—' : `1주 ${signed(hy5 * 100, 0, 'bp')}`, dir: dir(hy5 == null ? null : hy5 * 100, RULES.credit.widen5dBp, -RULES.credit.widen5dBp), effect: hy5 == null ? null : hy5 * 100 >= RULES.credit.widen5dBp ? '스프레드 확대 → 기업 자금 조달 비용 상승, 주식 위험 프리미엄 상승' : hy5 * 100 <= -RULES.credit.widen5dBp ? '스프레드 축소 → 자금 조달 여건 개선' : '신용 시장은 안정적입니다' }

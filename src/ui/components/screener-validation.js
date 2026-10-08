@@ -42,8 +42,8 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
     tone,
     verdict: !last ? '사후 검증 기록 수신 대기'
       : !modelMatch ? `이 과거 기록은 지금 화면의 순위와 가중치·정의(모델 지문)가 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다. 같은 모델의 기록이 쌓인 뒤 이 영역이 다시 성과를 말합니다.`
-      : tone === 'favorable' ? `최근 ${last.dates}번의 과거 시점에서 기본 복합 순위 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} 앞섰습니다(비용 반영).`
-        : `최근 ${last.dates}번의 과거 시점에서 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} — 기본 복합 순위(모멘텀·추세·저변동·칼만)는 이 기간 동안 뒤처졌습니다(비용 반영).`,
+      : tone === 'favorable' ? `최근 ${last.dates}번의 과거 시점에서 기본 복합 순위 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} 앞섰습니다(비용 반영). 표본이 작고 생존 편향이 있어 예측 우위의 증명은 아닙니다.`
+        : `지금까지 이 순위의 예측 우위는 확인되지 않았습니다. 최근 ${last.dates}번의 과거 시점에서 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} — 기본 복합 순위(모멘텀·추세·저변동·칼만)는 이 기간 동안 뒤처졌습니다(비용 반영).`,
     validation: status?.status === 'BLOCKED' || status?.predictiveValidation === 'not-established'
       ? '예측력 검증 미완료 — 지금의 종목 구성으로 과거를 본 결과라 사라진 종목이 빠진 생존 편향이 있고, 거래량·체결 용량은 반영하지 않았습니다. 순위는 상대 비교용입니다.'
       : status?.status ? `검증 상태: ${status.status}` : null

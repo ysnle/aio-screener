@@ -3,6 +3,7 @@
   "generatedFrom": [
     "src/domain/knowledge/learning-core.js",
     "src/domain/knowledge/concept-core.js",
+    "public-data/principles/narrative-journey.json",
     "public-data/principles/lesson-library.json",
     "src/ui/pages/principles.js",
     "public-data/atlas/foundation-lessons.json",
@@ -12,6 +13,7 @@
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
     "frame": 29,
+    "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
     "atlas-foundation": 48,
@@ -22,7 +24,7 @@
     {
       "id": "frame:geo-mean",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "산술평균 수익률과 실현 복리 수익률의 괴리",
       "text": "어느 펀드가 \"지난 2년 평균 수익률 0%\"라고 광고한다. 본전은 지켰다는 말처럼 들린다. 그런데 계좌를 열어 보면 100만 원이 75만 원이 되어 있다. 광고가 거짓말을 한 것은 아니다. 평균을 내는 방법이 하나가 아닐 뿐이다.",
       "group": "금융수학·통계",
@@ -47,7 +49,7 @@
     {
       "id": "frame:real-relative",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "명목·실질·상대 성과의 구분",
       "text": "올해 내 계좌는 10% 올랐다. 그런데 친구는 같은 기간 20%를 벌었다며 웃는다. 그 순간 10%가 손해처럼 느껴진다. 자연스러운 감정이지만, 숫자로 풀어 보면 서로 다른 세 가지 질문이 한데 엉켜 있다.",
       "group": "금융수학·통계",
@@ -71,7 +73,7 @@
     {
       "id": "frame:three-statements",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "이익 증가와 현금 부족의 공존 — 운전자본과 설비투자",
       "text": "분기마다 이익이 늘던 회사가 어느 날 급하게 돈을 빌리기 시작한다. 장부는 흑자인데 통장은 비어 간다. 이상해 보이지만 빠르게 성장하는 회사에서 흔히 벌어지는 일이다. 이익과 현금은 서로 다른 시계를 쓴다.",
       "group": "재무제표·회계",
@@ -99,7 +101,7 @@
     {
       "id": "frame:capex-roic",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "AI 설비투자 확대기의 잉여현금흐름 감소와 ROIC",
       "text": "빅테크가 데이터센터에 쏟아붓는 돈이 해마다 기록을 새로 쓴다. 그런데 같은 시기 이 회사들이 손에 쥐는 현금은 오히려 줄어든다. 투자를 늘렸으면 더 벌어야 하지 않나. 답은 돈이 나가는 때와 돌아오는 때가 다르다는 데 있다.",
       "group": "기업 수익 구조",
@@ -132,7 +134,7 @@
     {
       "id": "frame:elasticity",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "가격 인상과 매출 감소 — 가격 탄력성",
       "text": "한 커피 프랜차이즈가 원두값 상승을 이유로 가격을 10% 올렸다. 다음 분기 매출은 오히려 6% 넘게 줄었다. 값을 올렸는데 왜 덜 벌었을까.",
       "group": "미시경제 기초",
@@ -155,7 +157,7 @@
     {
       "id": "frame:macro-reading",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "디스인플레이션 국면의 높은 물가 수준",
       "text": "뉴스는 물가 상승률이 8%에서 4%로 반토막 났다고 전한다. 그런데 장을 보는 사람의 체감은 그대로다. 둘 중 누가 틀렸을까. 사실은 둘 다 맞다.",
       "group": "통화·신용·물가",
@@ -178,7 +180,7 @@
     {
       "id": "frame:credit-money",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "은행 신용 창출과 통화량",
       "text": "돈은 어디에서 오는가. 흔히 중앙은행이 찍어 내고, 은행은 예금을 모아 빌려준다고 생각한다. 그런데 실제 경제에서 돈의 상당 부분은 훨씬 평범한 순간에 생긴다. 은행 창구에서 대출 서류에 도장을 찍는 순간이다.",
       "group": "통화·신용·물가",
@@ -202,7 +204,7 @@
     {
       "id": "frame:crisis-response",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "위기 대응의 분배 효과 — 자산 보유자와 현금·근로소득자",
       "text": "위기가 터지면 중앙은행은 금리를 내리고 국채를 사들이며, 정부는 빚을 내 돈을 푼다. 몇 년 뒤 돌아보면 주가와 집값은 위기 전보다 높아져 있는데, 월급과 예금으로 사는 사람의 형편은 그만큼 나아지지 않았다. 같은 대응이 사람마다 다른 시차와 크기로 닿기 때문이다.",
       "group": "통화·신용·물가",
@@ -224,7 +226,7 @@
     {
       "id": "frame:long-bond",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "정책금리 인하 국면의 장기채 약세 — 기간 프리미엄",
       "text": "중앙은행이 금리를 내렸다. 채권 투자자라면 반가워야 할 소식이다. 그런데 장기채 가격은 오히려 떨어진다. 금리 인하가 시작된 해에 장기채로 손실을 본 투자자는 생각보다 많다.",
       "group": "금리·채권·환율",
@@ -246,7 +248,7 @@
     {
       "id": "frame:bond-collateral",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "국채 급변의 주식 전이 — 담보와 레버리지 축소",
       "text": "주식시장이 조용한데 국채 금리가 며칠 사이 크게 뛴다. 주식 변동성 지수는 낮게 머문다. 그런데 이런 때 운용사들은 주식보다 채권 변동성을 먼저 걱정한다. 국채는 금융시스템에서 돈을 빌릴 때 맡기는 담보이기 때문이다.",
       "group": "금리·채권·환율",
@@ -267,7 +269,7 @@
     {
       "id": "frame:hike-cycle",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "금리 인상기의 주가 — 왜 오르는지가 수준보다 중요하다",
       "text": "금리가 오르면 주식은 떨어진다는 말을 흔히 듣는다. 그런데 연준이 1%에서 5.25%까지 금리를 올린 2004~2006년, 코스피는 2005년 한 해에만 54% 올랐다. 반대로 금리를 급하게 내린 2008년에는 41% 빠졌다. 금리의 방향보다 금리가 왜 움직이는지가 …",
       "group": "금리·채권·환율",
@@ -288,7 +290,7 @@
     {
       "id": "frame:fx-exporters",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "원화 약세의 업종 내 차별적 영향",
       "text": "원/달러 환율이 1,300원에서 1,430원으로 뛰었다. 수출주에 호재라는 기사가 쏟아진다. 그런데 같은 수출 업종 안에서도 웃는 회사와 표정이 굳는 회사가 갈린다.",
       "group": "금리·채권·환율",
@@ -310,7 +312,7 @@
     {
       "id": "frame:expectations",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "실적 상회에도 주가가 하락하는 구조 — 기대 대비 결과",
       "text": "실적 발표 날, 회사는 시장 예상을 5% 웃도는 이익을 내놓았다. 그런데 주가는 8% 떨어졌다. 좋은 실적에 주가가 빠지는 장면은 생각보다 자주 반복된다.",
       "group": "가격·기대",
@@ -330,7 +332,7 @@
     {
       "id": "frame:index-weight",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "시가총액 가중 지수의 비중 변화와 실제 매수 흐름",
       "text": "한 종목이 급등하자 \"지수 비중이 커졌으니 인덱스 펀드가 더 사야 한다\"는 이야기가 돈다. 그럴듯하게 들리지만, 실제로 펀드는 아무것도 사지 않는다.",
       "group": "가격·기대",
@@ -349,7 +351,7 @@
     {
       "id": "frame:multiple-durability",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "성장률보다 성장의 지속에 붙는 주가배수",
       "text": "내년 이익이 두 배로 뛴다는 회사보다 해마다 30%씩 자라는 회사의 주가배수가 더 높은 경우가 있다. 숫자만 보면 앞뒤가 맞지 않는다. 시장이 사는 것은 내년 한 해의 성장률이 아니라, 그 성장이 얼마나 오래, 얼마나 확실하게 이어지느냐다.",
       "group": "가격·기대",
@@ -371,7 +373,7 @@
     {
       "id": "frame:valuation-cycle",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "낮은 PER과 넓은 일드갭이 상승으로 이어지지 않는 이유 — 이익 정점 의심",
       "text": "지수의 선행 PER이 5년 평균의 절반 가까이 내려왔다. 예상 이익수익률은 국채 금리보다 10%p 넘게 높다. 숫자만 보면 역사적으로 싼 자리인데, 지수는 몇 달째 제자리다. 시장은 싸다는 걸 몰라서가 아니라, 그 이익이 내년에도 남아 있을지를 의심하고 있다.",
       "group": "가격·기대",
@@ -393,7 +395,7 @@
     {
       "id": "frame:capital-allocation",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "진입 위치·교체·추가 매수·현금 — 같은 종목에서 결과가 갈리는 이유",
       "text": "같은 종목을 산 두 사람이 1년 뒤 전혀 다른 성적을 낸다. 한 사람은 바닥을 다진 뒤 돌파하는 날 샀고, 다른 사람은 한참 오른 뒤 따라 샀다. 고른 종목은 같았지만, 언제 어디서 들어갔고 그 뒤에 어떻게 움직였는지가 결과를 갈랐다.",
       "group": "가격·기대",
@@ -414,7 +416,7 @@
     {
       "id": "frame:semi-process",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "수율 개선이 원가·생산능력에 미치는 영향",
       "text": "같은 공장, 같은 장비, 같은 웨이퍼. 그런데 한 회사는 웨이퍼 한 장에서 팔 수 있는 칩을 60개 얻고, 다른 회사는 80개를 얻는다. 반도체 원가 경쟁은 이 20개의 차이에서 시작된다.",
       "group": "산업별 수익 모델",
@@ -441,7 +443,7 @@
     {
       "id": "frame:memory-optics",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "HBM과 광 인터커넥트의 역할 분담",
       "text": "AI 열풍이 불자 \"이제는 광통신의 시대, 메모리는 끝났다\"는 식의 이야기가 돌았다. 그런데 데이터센터 안을 들여다보면 둘은 경쟁자가 아니라 같은 팀이다. 맡은 구간이 다를 뿐이다.",
       "group": "산업별 수익 모델",
@@ -481,7 +483,7 @@
     {
       "id": "frame:tech-vs-profit",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "기술의 필요성과 공급자 수익성의 분리",
       "text": "세상을 바꿀 기술이 나타나면 투자자들은 그 기술을 가진 회사로 몰린다. 그런데 역사는 묘한 교훈을 남겼다. 철도도, 인터넷도 세상을 바꿨지만, 그 기술을 깐 회사들 상당수는 투자자에게 돈을 돌려주지 못했다.",
       "group": "산업별 수익 모델",
@@ -502,7 +504,7 @@
     {
       "id": "frame:bank",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "금리 상승기 은행 순이자이익 감소 요인",
       "text": "금리가 오르면 은행이 돈을 번다. 대출 이자가 오르니까. 상식처럼 들린다. 그런데 금리 상승기에 이익이 줄어든 은행이 적지 않았다. 상식에서 빠진 조각이 있다.",
       "group": "산업별 수익 모델",
@@ -528,8 +530,8 @@
     {
       "id": "frame:insurance",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
-      "title": "보험료 성장과 언더라이팅 손익의 괴리",
+      "surfaceLabel": "분석 노트",
+      "title": "손해보험의 보험료 성장과 언더라이팅 손익의 괴리",
       "text": "한 보험사의 보험료 수입이 10% 늘었다. 판매 조직은 축제 분위기다. 그런데 연말 결산을 해 보니 보험 영업은 적자로 돌아섰다. 많이 팔았는데 왜 손해를 봤을까.",
       "group": "산업별 수익 모델",
       "keys": [
@@ -557,7 +559,7 @@
     {
       "id": "frame:reit",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "임대수입 증가와 자산가치 하락 — 자본환원율",
       "text": "어느 오피스 빌딩의 임대수입이 작년보다 5% 늘었다. 공실도 없다. 그런데 감정평가를 받아 보니 건물값은 12% 넘게 떨어졌다. 장사는 잘되는데 가게 값은 떨어진 셈이다.",
       "group": "산업별 수익 모델",
@@ -592,7 +594,7 @@
     {
       "id": "frame:consumer",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "매출 성장의 가격·물량·믹스 분해",
       "text": "한 식품회사가 매출 8% 성장을 발표했다. 숫자만 보면 순항이다. 그런데 같은 기간 가격을 10% 올렸다는 사실을 나란히 놓으면, 그림이 달라진다.",
       "group": "산업별 수익 모델",
@@ -618,7 +620,7 @@
     {
       "id": "frame:software",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "사용자 증가와 수익성 부재 — 유닛 이코노믹스",
       "text": "앱 다운로드 1억 회, 월간 사용자 3천만 명. 화려한 숫자를 가진 회사가 해마다 적자를 낸다. 사용자가 이렇게 많은데 왜 돈을 못 벌까.",
       "group": "산업별 수익 모델",
@@ -648,7 +650,7 @@
     {
       "id": "frame:biotech",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "임상 성공에서 매출 인식까지의 시차와 희석",
       "text": "\"임상 3상 성공.\" 바이오 회사의 주가가 하루 만에 두 배가 된다. 그런데 1년 뒤에도 매출은 0원이고, 그 사이 회사는 증자를 발표한다. 성공했는데 왜 돈이 들어오지 않을까.",
       "group": "산업별 수익 모델",
@@ -660,10 +662,10 @@
         "patent-cliff",
         "dilution",
         "임상 1·2·3상",
+        "clinical trial phases",
         "임상 1상",
         "임상 2상",
-        "임상 3상",
-        "clinical trial phases"
+        "임상 3상"
       ],
       "route": {
         "page": "principles",
@@ -676,7 +678,7 @@
     {
       "id": "frame:energy",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "유가 상승의 밸류체인별 차별적 영향 — 스프레드",
       "text": "국제 유가가 배럴당 80달러에서 95달러로 뛰었다. 에너지주 강세라는 제목이 걸린다. 그런데 같은 날 정유사 주가는 떨어진다. 같은 에너지 업종인데 왜 방향이 다를까.",
       "group": "산업별 수익 모델",
@@ -700,7 +702,7 @@
     {
       "id": "frame:transport",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "고운임의 지속성과 공급 증설 사이클",
       "text": "팬데믹 직후 컨테이너선 운임이 몇 배로 뛰었다. 해운사들은 사상 최대 이익을 냈다. 그리고 몇 년 뒤, 운임은 다시 바닥으로 내려왔다. 해운 산업에서 되풀이되는 롤러코스터다.",
       "group": "산업별 수익 모델",
@@ -722,7 +724,7 @@
     {
       "id": "frame:agri",
       "surface": "frame",
-      "surfaceLabel": "분석 프레임",
+      "surfaceLabel": "분석 노트",
       "title": "곡물 가격 상승의 수혜·피해 구조 — 가격 전가",
       "text": "가뭄 소식에 곡물 가격이 25% 뛰었다. 누가 웃고 누가 우는가. 답은 그 곡물을 파는 쪽인지, 사서 쓰는 쪽인지에 달려 있다.",
       "group": "산업별 수익 모델",
@@ -738,6 +740,258 @@
         "params": {
           "mode": "frames",
           "node": "agri"
+        }
+      }
+    },
+    {
+      "id": "column:money-is-choice",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "돈은 숫자가 아니라 미래의 선택권이다",
+      "text": "통장에 찍힌 숫자가 그대로여도 내가 살 수 있는 집, 쉴 수 있는 시간, 시작할 수 있는 일은 줄어들 수 있다.",
+      "group": "돈은 왜 삶의 선택권인가",
+      "keys": [
+        "현재의 돈",
+        "미래에 가능한 선택",
+        "구매력의 변화",
+        "무엇을 보유할지 결정"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "money-is-choice"
+        }
+      }
+    },
+    {
+      "id": "column:inflation-purchasing-power",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "물가가 오르면 돈이 줄지 않아도 가난해진다",
+      "text": "인플레이션은 가격표가 바뀌는 사건이면서, 동시에 같은 돈으로 가능한 선택이 줄어드는 과정이다.",
+      "group": "돈은 왜 삶의 선택권인가",
+      "keys": [
+        "수요 증가 또는 공급 제약",
+        "가격 상승",
+        "가계 구매력 변화",
+        "기업 매출·원가·마진의 분화"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "inflation-purchasing-power"
+        }
+      }
+    },
+    {
+      "id": "column:interest-time-price",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "금리는 기다림과 위험에 붙는 가격이다",
+      "text": "돈을 빌려주는 사람은 현재의 소비를 포기하고, 구매력 하락과 상환 위험을 감수한다.",
+      "group": "시간의 가격이 경제를 움직인다",
+      "keys": [
+        "현재 소비의 포기",
+        "시간·물가·신용 위험 보상",
+        "할인율 형성",
+        "미래 현금흐름의 현재가치"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "interest-time-price"
+        }
+      }
+    },
+    {
+      "id": "column:central-bank-transmission",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "중앙은행은 금리로 경제의 속도를 바꾼다",
+      "text": "기준금리 한 번의 변화는 예금에서 끝나지 않고 대출·소비·투자·고용·자산가격으로 번진다.",
+      "group": "시간의 가격이 경제를 움직인다",
+      "keys": [
+        "정책금리·금융조건 변화",
+        "대출·할인율·위험선호 변화",
+        "소비·투자·고용 변화",
+        "물가와 기업이익에 시차를 두고 전달"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "central-bank-transmission"
+        }
+      }
+    },
+    {
+      "id": "column:bonds-dollar-trust",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "미국채는 수익률이면서 금융시스템의 기준점이다",
+      "text": "국채는 정부의 차입 계약이지만, 시장에서는 다른 자산의 요구수익률과 담보가치를 비교하는 출발점이 된다.",
+      "group": "채권과 달러 위에서 자본이 이동한다",
+      "keys": [
+        "국채의 현금흐름과 가격",
+        "시장 수익률 형성",
+        "무위험 기준과 위험 프리미엄",
+        "기업 조달비용·밸류에이션으로 전달"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "bonds-dollar-trust"
+        }
+      }
+    },
+    {
+      "id": "column:liquidity-asset-inflation",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "돈이 풀려도 모든 곳으로 같은 속도로 가지 않는다",
+      "text": "유동성은 물처럼 고르게 퍼지기보다, 담보·수익 기대·정책·시장 규모가 허락하는 통로로 먼저 흐른다.",
+      "group": "채권과 달러 위에서 자본이 이동한다",
+      "keys": [
+        "유동성 공급",
+        "금융기관·담보·신용 통로",
+        "자산·산업별 자금 집중",
+        "가격·투자·소비로 재전달"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "liquidity-asset-inflation"
+        }
+      }
+    },
+    {
+      "id": "column:company-economic-machine",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "기업은 자본을 투입해 현금흐름을 만드는 기계다",
+      "text": "좋은 산업에 속해 있다는 사실과 그 산업에서 돈을 잘 버는 기업이라는 사실은 다르다.",
+      "group": "경제는 기업의 숫자로 번역된다",
+      "keys": [
+        "자본·노동·기술 투입",
+        "매출과 매출총이익",
+        "영업이익과 세후영업이익",
+        "재투자 후 잉여현금흐름·ROIC"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "company-economic-machine"
+        }
+      }
+    },
+    {
+      "id": "column:valuation-expectations",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "좋은 기업과 좋은 가격은 같은 말이 아니다",
+      "text": "주가는 기업의 오늘이 아니라, 미래에 대한 기대가 실제 결과와 만나는 가격이다.",
+      "group": "경제는 기업의 숫자로 번역된다",
+      "keys": [
+        "미래 매출 성장",
+        "마진·재투자·현금 전환",
+        "할인율과 위험 프리미엄",
+        "시장 기대와 실제 결과의 차이"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "valuation-expectations"
+        }
+      }
+    },
+    {
+      "id": "column:ai-physical-bottleneck",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "돈은 빠르지만 공장과 전력망은 느리다",
+      "text": "자본은 클릭 한 번으로 이동하지만, 칩 생산능력·전력 인입·냉각 설비·숙련 인력은 같은 속도로 늘지 않는다.",
+      "group": "AI는 디지털 이야기이면서 물리적 투자다",
+      "keys": [
+        "AI 학습·추론 수요",
+        "컴퓨트·메모리·전력 요구",
+        "물리적 공급 제약",
+        "가격·마진·CAPEX와 병목 이동"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "ai-physical-bottleneck"
+        }
+      }
+    },
+    {
+      "id": "column:ai-capex-economics",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "기술의 혁신성과 주주의 수익성은 따로 검증해야 한다",
+      "text": "AI가 세상을 바꾼다는 명제와 AI 투자에서 높은 자본수익률이 나온다는 명제는 동일하지 않다.",
+      "group": "AI는 디지털 이야기이면서 물리적 투자다",
+      "keys": [
+        "선행 CAPEX",
+        "감가상각·운영비·사용률",
+        "매출과 영업현금흐름",
+        "유지투자 후 FCF·ROIC"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "ai-capex-economics"
+        }
+      }
+    },
+    {
+      "id": "column:market-expectations-prices",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "시장은 합리성과 비합리성을 동시에 가진다",
+      "text": "가격은 수많은 정보와 기대를 빠르게 모으지만, 그 가격을 만드는 사람들은 공포와 탐욕에서 자유롭지 않다.",
+      "group": "마지막 질문은 무엇을 소유할 것인가이다",
+      "keys": [
+        "정보·기대·포지션",
+        "시장 가격 형성",
+        "기업 실적과 기대의 대조",
+        "가치·추세·반증을 함께 판단"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "market-expectations-prices"
+        }
+      }
+    },
+    {
+      "id": "column:ownership-risk-process",
+      "surface": "column",
+      "surfaceLabel": "칼럼",
+      "title": "리스크 관리는 미래를 맞히는 기술이 아니라 살아남는 구조다",
+      "text": "현금도, 주식도, 채권도 모두 하나의 선택이며 어떤 선택도 위험이 없는 상태는 아니다.",
+      "group": "마지막 질문은 무엇을 소유할 것인가이다",
+      "keys": [
+        "가설과 기대수익",
+        "손실 가능성과 생존 조건",
+        "지속적 재검증",
+        "선택권을 보존하는 소유 구조"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "story",
+          "chapter": "ownership-risk-process"
         }
       }
     },

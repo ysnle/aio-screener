@@ -1,3 +1,4 @@
+import * as answerPublication from '../src/ai/response/publication.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -153,6 +154,7 @@ assert.equal(normalizedArbitrary.status, 'blocked');
 const evidenceStart = chat.indexOf('function _aioAIClaimEvidenceId(');
 const evidenceEnd = chat.indexOf('function _aioHasCurrentNumericContent(', evidenceStart);
 assert.ok(evidenceStart >= 0 && evidenceEnd > evidenceStart, 'claim evidence collector slice is present');
+sandbox.window.AIO_ARCH = { getAIOrchestrator: () => ({ answerPublication }) };
 sandbox.window.AIO.normalizeAIChatEvidenceRow = row => ({ ...row });
 vm.runInNewContext(chat.slice(evidenceStart, evidenceEnd), sandbox, { filename: 'js/aio-chat.js#quote-evidence-conflict' });
 const duplicateConflict = sandbox._aioCollectAIClaimEvidence({ evidence: [contextRow, { ...contextRow, value: 198.25 }] });

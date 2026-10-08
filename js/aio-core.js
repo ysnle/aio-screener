@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v57.27';
+const APP_VERSION = 'v57.29';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2347,6 +2347,14 @@ window._aioDetectTickerPattern = function(symbol, requestEpoch) {
   });
   function renderPattern(series) {
     if (epoch !== window._aioTickerSelectionEpoch || sym !== window._currentTickerId) return;
+    // Codex browser audit H31: classify completed bars only — drop a bar dated after the latest completed
+    // session of the ticker's market (the US session still trading at Korean night time).
+    var completedDate = typeof window._aioLatestCompletedSessionDate === 'function' ? window._aioLatestCompletedSessionDate(/^d{6}(.K[SQ])?$/.test(sym) ? 'KR' : 'US') : null;
+    var droppedForming = false;
+    if (completedDate && Array.isArray(series)) {
+      var kept = series.filter(function(bar) { var d = String((bar && (bar.time || bar.date)) || '').slice(0, 10); return !/^d{4}-d{2}-d{2}$/.test(d) || d <= completedDate; });
+      if (kept.length !== series.length) { droppedForming = true; kept.dataQuality = series.dataQuality; series = kept; }
+    }
     if (series.length < 3 || !series.slice(-3).every(function(bar) { return bar && [bar.open, bar.high, bar.low, bar.close].every(function(value) { return value != null && isFinite(Number(value)) && Number(value) > 0; }); })) { ind.textContent = sym + ' · OHLCV 3봉 미수신 · 판정 보류'; return; }
     var prev = series[series.length - 2], cur = series[series.length - 1];
     var po = Number(prev.open), pc = Number(prev.close), o = Number(cur.open), h = Number(cur.high), l = Number(cur.low), c = Number(cur.close);
@@ -2364,7 +2372,7 @@ window._aioDetectTickerPattern = function(symbol, requestEpoch) {
     var asOf = lastBar.time || lastBar.date || null;
     var q = series.dataQuality || null;
     var src = (q && q.source) || null;
-    ind.textContent = sym + ' · ' + label + ' · 형태 관측 · 관측 3봉 · 기준일 ' + (asOf || '미확인') + (src ? ' · 원천 ' + src : ' · 원천 미확인');
+    ind.textContent = sym + ' · ' + label + ' · 완료된 봉 기준 ' + (asOf || '미확인') + (droppedForming ? ' (형성 중인 당일 봉 제외)' : '');
     ind.title = '최근 실제 OHLCV 3봉 중 마지막 2개 봉의 형태만 분류한 관측입니다. 방향 예측이나 거래 신호가 아니며, 기준일 ' + (asOf || '미확인') + (src ? ' · 원천 ' + src : '') + ' 자격을 함께 확인하세요.';
   }
   if (bars.length >= 3) { renderPattern(bars); return; }
@@ -5052,7 +5060,7 @@ window.AIO_PAGE_ACTION_HUBS = {
   'theme-detail': {
     title:'테마 상세',
     subtitle:'리더, 후보, 리스크, 스크리너 진입점을 한 화면에서 확인합니다.',
-    cards:[['핵심 지표','리더/후보/리스크/촉매'],['운용 포인트','대장주와 후발주를 나눠 검토'],['AI 분석','이 테마의 진입 조건']],
+    cards:[['핵심 지표','리더/후보/리스크/촉매'],['운용 포인트','대장주와 후발주를 나눠 검토'],['AI 분석','이 테마가 꺾이는 조건']],
     links:[['테마','themes'],['스크리너','screener'],['AI 분석','ai']]
   },
   macro: {

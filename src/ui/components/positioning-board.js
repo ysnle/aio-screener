@@ -18,11 +18,13 @@ export function positioningReading(market) {
   if (!Number.isFinite(p)) return '2년 비교에 필요한 주간 기록이 아직 부족합니다.';
   // Rate futures: asset-manager longs are mostly benchmark duration, so a high reading means duration is stretched, not 'crowded buying'.
   if (market?.id === 'ty') {
-    const tyLevel = p >= 80 ? '2년 중 듀레이션을 가장 길게 늘려 둔 자리라, 금리가 오르면 손실을 줄이려는 매도가 커질 수 있습니다' : p <= 20 ? '2년 중 듀레이션을 가장 짧게 줄여 둔 자리입니다' : '2년 범위의 가운데입니다';
-    return `자산운용사 국채 선물 순매수가 ${p}백분위로 ${tyLevel}.${!Number.isFinite(change) || change === 0 ? '' : change < 0 ? ' 최근 4주 동안은 줄여 왔습니다.' : ' 최근 4주 동안은 늘려 왔습니다.'}`;
+    // Codex browser audit H12: a futures net position alone cannot show total portfolio duration (cash bonds,
+    // swaps and hedges are outside this report) or a forced-selling risk. The reading stays on this contract.
+    const tyLevel = p >= 80 ? '이 선물 계약의 순매수 규모가 2년 범위 위쪽 끝입니다. 현물 채권·스왑·헤지는 이 보고서에 없어 전체 듀레이션이나 매도 압력까지는 알 수 없습니다' : p <= 20 ? '이 선물 계약의 순매수 규모가 2년 범위 아래쪽 끝입니다' : '2년 범위의 가운데입니다';
+    return `자산운용사 10년 국채 선물 순매수가 ${p}백분위로 ${tyLevel}.${!Number.isFinite(change) || change === 0 ? '' : change < 0 ? ' 최근 4주 동안은 줄여 왔습니다.' : ' 최근 4주 동안은 늘려 왔습니다.'}`;
   }
-  const level = p >= 80 ? '2년 범위의 위쪽 끝이라, 새로 살 여력보다 정리할 물량이 더 많은 자리입니다'
-    : p <= 20 ? '2년 범위의 아래쪽 끝이라, 이미 많이 줄여 둔 자리입니다'
+  const level = p >= 80 ? '2년 범위의 위쪽 끝입니다. 포지션이 한쪽으로 쌓였다는 뜻이지만, 헤지 목적인지와 다른 시장의 보유는 이 자료로 알 수 없습니다'
+    : p <= 20 ? '2년 범위의 아래쪽 끝입니다'
       : '2년 범위의 가운데입니다';
   const flow = !Number.isFinite(change) || change === 0 ? '' : change < 0 ? ' 최근 4주 동안은 순매수를 줄여 왔습니다.' : ' 최근 4주 동안은 순매수를 늘려 왔습니다.';
   return `자산운용사 순매수가 ${p}백분위로 ${level}.${flow}`;

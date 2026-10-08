@@ -161,4 +161,35 @@ try {
   if (!/dispatchRefreshData\(\{ env, scheduledTime: controller\?\.scheduledTime/.test(worker)) fail('P1377 scheduled() must dispatch refresh-data');
 }
 
+// P1518: a provider can send headers and never finish its body. Both mirrors
+// remain bounded, failure records a heartbeat, and existing good data survives.
+{
+  const retained = kvValues.get('quotes:current');
+  const signals = [];
+  const stalled = await publishQuotes({ env: smokeEnv, now: baseNow, timeoutMs: 5,
+    fetchImpl: async (_url, options) => {
+      signals.push(options.signal);
+      return { ok: true, status: 200, json: () => new Promise(() => {}) };
+    }
+  });
+  if (stalled.ok || stalled.heartbeat.status !== 'failed' || !stalled.heartbeatWritten
+      || signals.length !== stalled.snapshot.coverage.required * 2 || !signals.every(signal => signal.aborted)
+      || kvValues.get('quotes:current') !== retained) fail('P1518 stalled bodies must finish with LKG retention and failure heartbeat');
+  let firstHostCalls = 0;
+  let fallbackCalls = 0;
+  const recovered = await publishQuotes({ env: smokeEnv, now: baseNow, timeoutMs: 5,
+    fetchImpl: async url => {
+      if (url.includes('query1.')) {
+        firstHostCalls++;
+        return { ok: true, status: 200, json: () => new Promise(() => {}) };
+      }
+      fallbackCalls++;
+      return { ok: true, status: 200, json: async () => ({ chart: { result: [{ meta: {
+        regularMarketPrice: 100, regularMarketTime: baseNow / 1000, marketState: 'CLOSED', previousClose: 99
+      } }] } }) };
+    }
+  });
+  if (!recovered.ok || firstHostCalls !== fallbackCalls || fallbackCalls !== recovered.snapshot.coverage.required) fail('P1518 body timeout must recover through the alternate host');
+}
+
 console.log(JSON.stringify({ ok: true, worker: 'cron+kv', kvSmoke: 'health/fixture-pass', qg: ['QG-01', 'QG-06', 'QG-08'], deploy: 'exact-CI-attested-auto+rollback' }));

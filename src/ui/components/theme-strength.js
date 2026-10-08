@@ -35,9 +35,23 @@ export function benchmarkReturns(history = []) {
   return out;
 }
 
-function basisOf(rows) {
+// Codex browser audit H24: factorObservedAt is a bar start (the Korean session's 10/7 00:00 UTC), so during
+// the US session it printed "10/7 종가 기준" for US closes of 10/6. The basis is the completed session date
+// per market; the bar start is only a fallback for artifacts without per-market dates.
+function basisOf(rows, metadata = null, history = []) {
+  const sessions = metadata?.factorSessionDateByMarket;
+  if (sessions && typeof sessions === 'object') {
+    const us = /^d{4}-d{2}-d{2}$/.test(sessions.US || '') ? sessions.US : null;
+    const kr = /^d{4}-d{2}-d{2}$/.test(sessions.KR || '') ? sessions.KR : null;
+    if (us && kr && us !== kr) return { label: `미국 ${shortDate(us)} · 한국 ${shortDate(kr)} 종가 기준` };
+    if (us || kr) return { label: `${shortDate(us || kr)} 종가 기준` };
+  }
+  // Without per-market dates, the completed US close of the shared history is the basis (the same date the
+  // S&P 500 comparison in this line uses); the bar start is the last resort.
+  const usClose = closeBasis(history);
+  if (usClose) return { label: `${shortDate(usClose)} 미국 종가 기준` };
   const dates = rows.map((row) => String(row?.factorObservedAt || '').slice(0, 10)).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
-  return dates[dates.length - 1] || null;
+  return dates.length ? { label: `${shortDate(dates[dates.length - 1])} 종가 기준` } : null;
 }
 
 function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggle) {
@@ -57,7 +71,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // P1431: what the order says, beyond the order — momentum moving and leaders cooling.
   const lead = themeStrengthLead(model);
   if (lead) host.append(sectionLead(doc, lead));
-  host.append(el(doc, 'p', `${basis ? `${shortDate(basis)} 종가 기준` : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 방향은 1개월 순위와 3개월 순위 비교(1개월이 크게 앞서면 개선)`, 'theme-strength-basis'));
+  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 방향은 1개월 순위와 3개월 순위 비교(1개월이 크게 앞서면 개선)`, 'theme-strength-basis'));
   if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
@@ -164,7 +178,7 @@ export function renderThemeStrength({ documentRef: doc, root, store }) {
   const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey, benchmark: benchmarkReturns(root?._aioHistory || []) });
   const rerender = () => renderThemeStrength({ documentRef: doc, root, store });
   if (strengthHost) {
-    renderStrength(doc, root, strengthHost, model, basisOf(rows), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); });
+    renderStrength(doc, root, strengthHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); });
     strengthHost.dataset.aioThemeStrengthRenderer = 'native';
   }
   if (flowHost) { renderCapexFlow(doc, root, flowHost, model); flowHost.dataset.aioCapexFlowRenderer = 'native'; }

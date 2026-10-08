@@ -169,16 +169,16 @@ function storyTable(doc, spec) {
 // Codex review 2026-10-05: one "same word" list mixed synonyms with components, related and opposite
 // concepts. Three labelled rows instead; a name that is itself a dictionary concept opens it.
 const conceptByName = new Map();
-for (const item of CONCEPT_CORE) for (const name of [item.term, item.term.replace(/\s*\(.*$/, ''), ...item.aliases]) if (!conceptByName.has(name)) conceptByName.set(name, item);
+for (const item of CONCEPT_CORE) for (const name of [item.term, item.term.replace(/\s*\(.*$/, ''), ...item.aliases, ...(item.covers || [])]) if (!conceptByName.has(name)) conceptByName.set(name, item);
 function conceptTermList(doc, concept) {
-  const rows = [['같은 뜻', concept.aliases], ['관련 개념', concept.related], ['헷갈리기 쉬운 개념', concept.contrast]].filter(([, list]) => list?.length);
+  const rows = [['같은 뜻', concept.aliases], ['이 글에서 다루는 용어', concept.covers], ['관련 개념', concept.related], ['헷갈리기 쉬운 개념', concept.contrast]].filter(([, list]) => list?.length);
   if (!rows.length) return null;
   const dl = el(doc, 'dl', 'af-terms');
   for (const [label, list] of rows) {
     const dd = el(doc, 'dd');
     list.forEach((name, i) => {
       if (i) dd.appendChild(doc.createTextNode(' · '));
-      const target = label === '같은 뜻' ? null : conceptByName.get(name.replace(/\s*\(.*$/, '')) || conceptByName.get(name);
+      const target = label === '같은 뜻' || label === '이 글에서 다루는 용어' ? null : conceptByName.get(name.replace(/\s*\(.*$/, '')) || conceptByName.get(name);
       if (target && target.id !== concept.id) {
         const link = el(doc, 'button', 'af-term-link', name);
         link.type = 'button';
@@ -218,7 +218,7 @@ function renderLesson(doc, lesson, failed = false, sources = []) {
 // Concepts a lesson leans on, found by their names in the lesson text — the reader's "먼저 알아둘 개념".
 function conceptsInLesson(lesson) {
   const text = [lesson.title, lesson.definition, lesson.mechanism, ...(lesson.story?.body || []), lesson.story?.lead].filter(Boolean).join(' ');
-  return CONCEPT_CORE.filter((concept) => [concept.term.replace(/\s*\(.*$/, ''), ...concept.aliases].some((name) => name.length >= 2 && !/^[a-z]/.test(name) && text.includes(name))).slice(0, 5);
+  return CONCEPT_CORE.filter((concept) => [concept.term.replace(/\s*\(.*$/, ''), ...concept.aliases, ...(concept.covers || [])].some((name) => name.length >= 2 && !/^[a-z]/.test(name) && text.includes(name))).slice(0, 5);
 }
 
 export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside, onLocal, onNavigate, onConcept }) {
@@ -273,8 +273,18 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
       const lessonButton = (item) => { const b = el(doc, 'button', 'af-route'); b.type = 'button'; b.dataset.principlesAction = 'select-lesson'; b.dataset.principlesValue = item.id; b.append(el(doc, 'strong', null, `${item.id} ${item.title}`)); return b; };
       const siblings = (data.lessons || []).filter((item) => item.chapterId === lesson.chapterId);
       const at = siblings.findIndex((item) => item.id === lesson.id);
-      if (at > 0) { const box = block('먼저 읽을 레슨'); box.appendChild(lessonButton(siblings[at - 1])); aside.appendChild(box); }
-      if (at >= 0 && at < siblings.length - 1) { const box = block('이어지는 레슨'); box.appendChild(lessonButton(siblings[at + 1])); aside.appendChild(box); }
+      // Codex browser audit H86: the previous lesson in the contents was labelled "먼저 읽을 레슨" (O5 tax costs
+      // → O4 Korean power policy). Order and prerequisite are separate: declared prerequisites first, then the
+      // neighbouring lessons named as contents order.
+      const prereqIds = (lesson.prerequisites || lesson.metadata?.prerequisites || []).map((item) => String(item).split(' ')[0]).filter((id) => /^[A-O]d{1,2}$/.test(id));
+      const prereqs = prereqIds.map((id) => (data.lessons || []).find((item) => item.id === id)).filter(Boolean);
+      if (prereqs.length) { const box = block('먼저 알아둘 레슨'); prereqs.forEach((item) => box.appendChild(lessonButton(item))); aside.appendChild(box); }
+      if (at > 0 || (at >= 0 && at < siblings.length - 1)) {
+        const box = block('목차 순서');
+        if (at > 0) box.appendChild(lessonButton(siblings[at - 1]));
+        if (at >= 0 && at < siblings.length - 1) box.appendChild(lessonButton(siblings[at + 1]));
+        aside.appendChild(box);
+      }
       const concepts = conceptsInLesson(lesson);
       if (concepts.length) {
         const box = block('먼저 알아둘 개념');

@@ -176,6 +176,17 @@ if (profile === 'candidate') {
     console.error('[qa] CANDIDATE FAIL — QA 검증 트리(verified-tree.json)가 없습니다. 커밋 후보는 QA가 통과시킨 tree와만 결속됩니다 — 먼저 QA 런을 실행하세요.');
     process.exit(2);
   }
+  // P1518: a content inventory from fast/affected/retry is not release certification.
+  const requiredIds = (manifest.profiles.full || []).flatMap(group => (manifest.groups[group]?.gates || []).map(gate => gate.id)).sort();
+  const evidenceIds = (verified.gateIds || []).slice().sort();
+  if (verified.schemaVersion !== 'aio-qa-verified-tree.v2' || verified.profile !== 'full' || verified.noCache !== true
+      || !requiredIds.length || JSON.stringify(evidenceIds) !== JSON.stringify(requiredIds)
+      || verified.manifestDigest !== createHash('sha256').update(readFileSync(manifestPath)).digest('hex')
+      || verified.runnerDigest !== fileDigest('scripts/qa-runner.mjs')
+      || verified.counts?.PASS !== requiredIds.length || verified.counts?.FAIL || verified.counts?.SKIP || verified.counts?.CACHED) {
+    console.error('[qa] CANDIDATE FAIL — full --no-cache의 전체 PASS 증명이 필요합니다. 부분 QA와 실패 재검사는 출시 검증을 대체하지 않습니다.');
+    process.exit(2);
+  }
   const taskFiles = explicitFilesOption != null
     ? validateSelectedFiles(explicitFilesOption.split(',').map(normalizeFile).filter(Boolean), '--files')
     : Object.keys(verified.taskFiles || {});
@@ -199,8 +210,31 @@ if (profile === 'candidate') {
   for (const file of staged) {
     if (taskFiles.includes(file)) continue;
     const workDigest = candidateDigest(file);
+    // P1518: every staged file must match, including files outside the task list.
+    if (stagedDigest(file) !== workDigest) {
+      mismatches.push({ file, reason: 'staged-differs-from-worktree', detail: '추가 staged 파일이 working tree와 다릅니다(부분 staging)' });
+      continue;
+    }
     if (!verified.files || verified.files[file] !== workDigest) {
       mismatches.push({ file, reason: 'staged-file-not-verified', detail: 'QA가 검증하지 않은 파일이 staged에 있습니다' });
+    }
+  }
+  // P1518: unchanged index entries are part of the commit too. A QA-only edit to
+  // tracked dependency B must not certify a commit that stages only caller A.
+  const indexFiles = new Set(candidateGit(['ls-files', '--cached']));
+  for (const file of indexFiles) {
+    if (staged.has(file)) continue;
+    if (verified.files[file] !== stagedDigest(file)) {
+      mismatches.push({ file, reason: 'index-dependency-not-verified', detail: '커밋의 의존 파일이 전체 QA가 읽은 내용과 다릅니다' });
+    }
+  }
+  const certifiedInputs = (manifest.profiles.full || []).flatMap(name => {
+    const group = manifest.groups[name];
+    return (group?.gates || []).flatMap(gate => [gate.script, ...(gate.inputs || group.inputs || [])]);
+  });
+  for (const [file, digest] of Object.entries(verified.files)) {
+    if (digest != null && !indexFiles.has(file) && matches(file, certifiedInputs)) {
+      mismatches.push({ file, reason: 'qa-input-missing-from-index', detail: 'QA가 사용한 새 의존 파일이 커밋에서 누락됩니다' });
     }
   }
   const candidateReport = {
@@ -751,6 +785,8 @@ async function runPool(gates, concurrency) {
 
 const startedAt = new Date().toISOString();
 const startedMs = Date.now();
+// P1518: bind certification to the bytes present BEFORE gates run.
+if (profile === 'full' && noCache) allFiles.forEach(fileDigest);
 const results = [];
 const phases = [...new Set(selectedGates.map((gate) => gate.phase))].sort((a, b) => a - b);
 let blockedBy = [];
@@ -795,12 +831,16 @@ writeJsonAtomic(reportPath, report);
 
 // P1265/E2-C6 P0 — 커밋 후보 결속: 이 런이 실제로 통과시킨 파일 hash를 남긴다.
 // `candidate`는 커밋 후보가 이 검증 트리와 같은지 확인한다.
-if (!counts.FAIL) {
+if (profile === 'full' && noCache && results.length > 0 && results.every(result => result.status === 'PASS')) {
   writeJsonAtomic(verifiedTreePath, {
-    schemaVersion: 'aio-qa-verified-tree.v1',
+    schemaVersion: 'aio-qa-verified-tree.v2',
     runId,
     verifiedAt: report.completedAt,
     profile,
+    noCache,
+    gateIds: results.map(result => result.id),
+    manifestDigest: createHash('sha256').update(readFileSync(manifestPath)).digest('hex'),
+    runnerDigest: fileDigest('scripts/qa-runner.mjs'),
     changeSource,
     counts,
     skips: counts.SKIP || 0,

@@ -153,7 +153,11 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   const regime = buildMarketRegime(inputs);
   const axis = regime.axes?.find((row) => row.id === 'breadth');
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''} · AIO 미국 스크리너 유니버스(개별 주식 + ETF 혼합 · 거래소 전체 집계 아님 — 신고가·신저가 수를 시장 내부 건강도로 읽을 때 ETF 포함과 기업행사 여부를 함께 확인하세요)` : '종가 기록을 불러오는 중입니다.');
+  // Codex browser audit H09: the denominator is named — how many symbols were judged, and that stocks and ETFs are
+  // mixed — so 33% is not read as a share of the whole exchange or of the S&P 500.
+  const eligible = contributorSession(root?._aioBreadthContributors, regime.asOf)?.eligible || null;
+  const denominator = eligible?.highLow ? ` · 판정 대상 ${eligible.highLow}개 종목` : '';
+  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator} · AIO 미국 스크리너 수집 대상(개별 주식과 ETF 혼합, 동일 비중) — 거래소 전체나 S&P 500 구성 종목 집계가 아니며, 시가총액 가중 지수와 달리 종목마다 같은 무게로 셉니다.` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
   if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'}`; }
   set('breadth-read', axis?.read || '');

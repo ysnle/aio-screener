@@ -257,7 +257,7 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
     [`${rangeLabel} 고점 대비`, signed(fromHigh)],
     ['추세 템플릿 (미너비니)', `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? ` · 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}${templateChecks.some(([, ok]) => ok == null) ? ` · 확인 불가 ${templateChecks.filter(([, ok]) => ok == null).length}개(기록 부족)` : ''}`],
     ['8일선 대비 거리', extension == null ? '—' : `${signed(extension)}${extension >= 10 ? ' (과열권)' : extension <= -5 ? ' (8일선 아래 이탈)' : ''}`],
-    ['매수·매도 압력 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(매수 우위)' : pressure <= 0.77 ? '(매도 우위)' : '(균형)'}`],
+    ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(상승일 거래량 우위)' : pressure <= 0.77 ? '(하락일 거래량 우위)' : '(비슷함)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],
     ['피벗 (마지막 수축 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],
     ['무효화 가격 (마지막 수축 저점)', lastContraction ? `${fmt(lastContraction.low)} (현재가 대비 ${signed((lastContraction.low / last.close - 1) * 100)})` : '—'],
@@ -306,10 +306,14 @@ export function chartReading(analysis, regime = null) {
   const state = {
     setup: `셋업이 만들어지는 중입니다 — ${vcp || '변동성 수축'}이고 피벗까지 ${analysis.pivot ? pct((analysis.pivot / analysis.last.close - 1) * 100) : '—'} 남았습니다`,
     breakout: '피벗을 거래량과 함께 넘었습니다 — 돌파 직후는 피벗 위에서 버티는지가 관건입니다',
-    extended: `피벗에서 이미 ${analysis.pivot ? pct((analysis.last.close / analysis.pivot - 1) * 100) : '—'} 올라 추격 구간입니다 — 새 수축(쉬어 가기)을 기다리는 자리입니다`,
+    extended: `피벗에서 이미 ${analysis.pivot ? pct((analysis.last.close / analysis.pivot - 1) * 100) : '—'} 올라 기준점에서 멀어진 구간입니다 — 새 수축(쉬어 가기)이 생기는지 관찰할 자리입니다`,
     failed: '돌파 뒤 피벗 아래로 되돌아왔습니다 — 실패한 돌파는 매물이 남아 있다는 뜻입니다',
     downtrend: '하락 추세라 셋업을 따지는 단계가 아닙니다 — 200일선 회복이 먼저입니다',
-    none: `뚜렷한 셋업은 없습니다${vcp ? ` (${vcp})` : ''}`
+    // Codex browser audit H33: "상승 추세 · 템플릿 8/8 · 셋업 없음" read as a contradiction. Trend and setup answer
+    // different questions; the sentence says which condition is missing and that no setup is not a negative.
+    none: analysis.templatePass >= 6
+      ? `장기 추세는 상승(템플릿 ${analysis.templatePass}/8)이지만, 최근 변동성이 차례로 줄어드는 수축${analysis.dryUp != null && analysis.dryUp >= 0.8 ? '과 거래량 감소' : ''}가 확인되지 않아 VCP 셋업은 성립하지 않습니다 — 셋업이 없다는 것이 악재라는 뜻은 아닙니다${vcp ? ` (${vcp})` : ''}`
+      : `뚜렷한 셋업은 없습니다${vcp ? ` (${vcp})` : ''}`
   }[analysis.state];
   const market = regime?.available ? (regime.overall === '부담 우세' || regime.overall === '부담 쪽으로 기움'
     ? `시장 상태: ${regime.overall} — 시장 전체가 약할 때는 같은 셋업도 돌파가 이어지지 못하는 경우가 많습니다`

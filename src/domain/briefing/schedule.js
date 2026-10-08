@@ -138,7 +138,12 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     const est = row.epsEstimate != null && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
     const actual = row.epsActual != null && Number.isFinite(Number(row.epsActual)) ? Number(row.epsActual) : null;
     const estimate = actual != null ? `EPS ${actual.toFixed(2)}${est != null ? ` (예상 ${est.toFixed(2)})` : ''}` : est != null ? `EPS 예상 ${est.toFixed(2)}` : null;
-    rows.push({ id: `earnings-${row.symbol}`, kind: 'earnings', atMs, when: when.label, label: `${names[row.symbol]} (${row.symbol}) 실적`,
+    // Codex browser audit H20: the calendar only says before-open / after-close; "21:00" was our placeholder hour
+    // shown as if the company had announced it. Earnings rows show the US date and session, not a clock time.
+    const usDate = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}`;
+    const whenLabel = row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} · 정확한 시각은 회사 발표 확인` : `${usDate} 미국 · 발표 시각 미정`;
+    void when;
+    rows.push({ id: `earnings-${row.symbol}`, kind: 'earnings', atMs, when: whenLabel, label: `${names[row.symbol]} (${row.symbol}) 실적`,
       why: session, last: estimate, today: when.date === today, passed: atMs < nowMs, status: actual != null ? 'received' : atMs < nowMs ? 'time-passed' : 'upcoming' });
   }
   return rows.sort((a, b) => a.atMs - b.atMs);

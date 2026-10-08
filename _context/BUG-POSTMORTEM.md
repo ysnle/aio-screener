@@ -1,10 +1,100 @@
 ---
-last_verified: 2026-10-07
+last_verified: 2026-10-08
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1519 - v57.29 - AI 공개 검증 정책을 native ESM으로 분리하고 모듈 부재를 안전하게 처리 (2026-10-08)
+
+- symptom/reproduction: 근거 결속·숫자 산문 필터·구조화 답변 복구가 legacy 채팅 구현에 종속되어 재사용과 독립 검증이 어려웠다. 공개 검증을 독립 모듈로 전환하면 모듈 부재 시 null plan을 다시 참조할 수 있었다.
+- root_cause: 순수 공개 정책과 UI adapter의 소유 경계가 분리되지 않았고 claim audit는 파싱 성공을 공개 성공으로 간주했다.
+- fix: src/ai/response/publication.js가 evidence ID/tuple·출처 URL·시간·수치 결속·산문 필터·fallback 복구를 소유한다. legacy는 facade wrapper만 유지하고 orchestrator/compatibility facade를 통해 연결한다. 시간은 주입 가능하며 claim audit는 공개된 plan 존재를 기준으로 처리한다. 모듈 부재 시 원문 공개를 보류한다.
+- violated_rule: R690 실행 증거 범위 구분. 기존 출처·관측 시각·근거 결속 정책과 current-sensitive 필터를 보존한다.
+- prevention: ci-ai-intelligence-contract-check, ci-ai-chat-analysis-integration-check, ci-ai-quote-evidence-check, ci-ai-chat-public-route-browser-check의 P1519 회귀.
+- verification/residual: intelligence 30 routing cases와 domain engines, chat analysis integration, quote evidence 실행 검사 통과. 브라우저와 전체 QA 결과는 _artifacts/architecture-review-20261008/REPORT.md에 기록. 기존 공개 경로의 검증 우회가 발견됐다는 의미는 아님.
+
+## P1518 - v57.29 - 공유 기반 소유권·본문 제한 시간·전체 QA 증명 경계 정비 (2026-10-08)
+
+- symptom/reproduction: 빠른 종목 전환에서 첫 route 취소가 새 소비자의 공유 재무 요청까지 비웠고, mount 중 재진입은 이전 disposer와 commit을 최신 화면에 덮었다. 이벤트 첫 소비자 오류가 형제 갱신을 중단했다. Worker는 헤더 이후 본문 대기를 제한하지 못했다. QA는 추가 staged 파일·미스테이징 의존 파일과 부분 실행 증명 및 실제 읽기 입력 누락을 놓쳤다.
+- root_cause: 공유 요청과 개별 소비자, mount 시작과 완료, 헤더와 본문, 파일 목록과 실제 전체 QA 통과 증명의 수명·소유 범위를 혼동했다. QA 입력과 impact 선언 및 gate 실제 읽기도 분리돼 있었다.
+- fix: entity 요청은 provider 소유 single-flight와 성공 완료 TTL로 분리. 동기·lazy mount 뒤 현재 scope 재확인 및 late disposer 정리. compatibility event adapter를 별도 모듈로 이동하고 sync/async 소비자 오류 격리. Worker는 기존 createHttpClient를 재사용해 본문까지 deadline 보장. 3개 생산기 원자 저장을 atomicWriteFile로 통합(포맷 유지). QA candidate는 full/no-cache/PASS v2 증명 및 manifest/runner identity, 모든 index 의존 파일과 추가 staged bytes를 대조. 실제 literal read 입력과 영향 경로 보강 및 drift gate 추가.
+- violated_rule: R571 요청·캐시 수명 구분, R589 gate 실제 읽기·입력·영향 범위 일치; R690 전체 QA 증명의 범위와 내용 결속.
+- prevention: ci-esm-core-unit-check + fixtures/architecture-lifecycle-regressions, ci-data-plane-contract-check, ci-data-continuity-check, ci-qa-runner-behavior-check, ci-qa-pipeline-contract-check.
+- verification/residual: lifecycle Node 회귀, ESM unit, data-plane contract, data-continuity 66개 검사, QA pipeline contract 통과. 최종 전체 QA와 독립 리뷰 결과는 _artifacts/architecture-review-20261008/REPORT.md에 별도 기록. 생산기 실행·배포·실 공급자 검증은 수행하지 않음.
+
+## P1517 - v57.28 - 감사 2차: 재무·스크리너·13F·테마·시장 폭·거시·포트폴리오·레슨의 범위·근거 표기 (H09 H10 H14 H17 H20 H22 H23 H27 H28 H30 H35~H39 H41 H46~H48 H50 H51 H79~H86 H100 H102 H112~H114) (2026-10-08)
+
+- symptom/reproduction: 신고가·신저가 목록이 항상 '수집 대기', 재무가 분기 미연결·현금흐름 부재를 말하지 않고 P/E>30을 '고평가'로 판정, 은행에 일반 기업 현금 해석, 실적 시각 21:00을 확정처럼 표시, RRG 기간과 칩 수익률 혼동, 한국 테마는 2종목으로도 순위, VCP 0~100 색칠, 13F '전체 보유'가 200/4,722행, 공식 원칙 로딩 중을 '미연결'로 표시, 시세 hover에 'Data truth blocked' 코드, 레슨의 단정(보상받는다·병목 협상력·사람보다 안전·전기 저장 불가 등).
+- root_cause: 시장 폭 목록 로더가 생산물 v2 스키마를 거부(v1만 허용)했다. 나머지는 화면 문구가 계산 범위·기준·상태(로딩/없음/보류)를 따로 말하지 않고 일반 판정이나 내부 코드를 그대로 노출했다.
+- fix: contributors v2 허용, 판정 대상 수·동일 비중 안내, 사분면 입력값 표, TIPS·BEI 기준일 차이 표기, 실적은 '미국 장 전/후·시각 미정', RRG 기준 설명과 요약 칩→하위 테마 이동, 한국 테마 최소 3종목, 요약 차트는 일봉 대체, 재무 범위·은행 읽는 법·ROE 설명·P/E 정의 라벨, 스크리너 품질 역할·재현 표제·증거 탭·검증 첫 문장·VCP 충족도, 13F 불러온 범위 표제·원칙 3상태, 포트폴리오 VIX 종가 대체·AI 전송 범위 안내, 시세 상태 한국어화, 레슨 12편 정정, 선행 레슨과 목차 순서 분리.
+- violated_rule: R688·R689
+- prevention: R689 — 측정 대상·범위와 해석을 분리하고, 로딩·없음·보류를 서로 다른 상태로 표시한다.
+- verification/residual: qa contracts·생성물 parity·스토리 길이 검사. 브라우저 재확인은 다음 세션(사용량 한도로 이번 세션 생략).
+
+## P1516 - v57.28 - 관측 사실보다 강한 해석 문구 (H08·H11·H12·H15·H16·H19·H21·H25·H26·H29·H32·H33·H34·H38·H40·H42·H49) (2026-10-08)
+
+- symptom/reproduction: F&G 47(중립)과 AAII를 묶어 "공포", 10년 국채 선물 순매수 백분위로 "듀레이션을 가장 길게 늘린 자리", 가격 상대강도를 "돈이 어디로 움직이는지", SMH를 SMH와 비교해 "유사", 데이터 대기 카드 상시 노출, "랭크 70"과 "271위", "새로 들어가기엔", 8/8인데 셋업 없음의 이유 부재, 상승일/하락일 거래량을 "매수 우위", SBC/매출을 "희석", 주식 수 감소를 "주당 가치 증가", KRW 선택 후 "$" 입력 표제 등.
+- root_cause: 각 화면 문장이 계산된 사실 위에 일반 해석을 단정형으로 덧붙였고, 라벨이 계산 대상(어떤 지표·통화·비교 대상)을 따로 확인하지 않았다.
+- fix: 각 문장을 관측 사실과 조건부 해석으로 분리: 심리는 지표별 분류, COT는 해당 선물 계약 범위로 한정, 시장 폭은 5일 회복 병기, 거시 경로는 이론 순서와 관측을 분리하고 반대 움직임을 확인 질문으로, 추세 표지는 "6개월 추세", 테마 표제는 가격 기준, 자기 비교는 SPY 대비로, 내부 버전·키 문구 제거, 통화 표제는 입력 통화를 따름.
+- violated_rule: R689
+- prevention: R689
+- verification/residual: 로컬 브라우저: 심리 "AAII 설문(약세 응답 46.5%)는 비관 쪽인데 … F&G는 47로 중립", COT 10년 "이 선물 계약의 순매수 규모가 2년 범위 위쪽 끝", 포트폴리오 KRW 표제, 테마 부제 확인. architecture·esm-core 게이트 PASS.
+
+## P1515 - v57.28 - 라이브러리의 정의·계산·인과 단정과 탐색 구조 (H52~H55·H59~H66·H70~H78·H81·H106) (2026-10-08)
+
+- symptom/reproduction: ROIC 검색에서 ROIC 제목 노트가 스크롤 아래, 분류 전환 후 이전 글이 본문에 남음, 신주/구주·임상 1·2·3상을 "같은 뜻"으로 표시. 대출이 예금을 만든다는 노트와 "이미 받은 예금을 대출" 레슨 충돌, 차입만으로 자기자본 감소, 도구는 사실상 금리 하나, 2024년 8월 급락을 캐리 청산 단일 원인, EPS×PER 항등식에서 가격이 벗어남, 첫해 ROIC<WACC로 가치 훼손 단정, 담보 부족 10을 마진콜로 혼동, 명목·실질 혼합 비교, 보험 급여가 처방 전제, 병목=최대 이익 몫, SEPA 75% 조건이 용어·도움말·계산에서 서로 다름.
+- root_cause: 개념 모델에 "구성 용어" 필드가 없어 복합 항목의 부분을 동의어로 넣었고, 검색은 개념 일치를 순위와 무관하게 앞에 두었으며 칼럼이 색인에 없었다. 콘텐츠는 레슨·노트·용어가 따로 작성돼 같은 개념을 다르게 단정했다.
+- fix: 개념에 covers 필드("이 글에서 다루는 용어") 추가, 검색은 개념·노트·칼럼을 같은 점수로 합치고 유형별 개수 표시, 칼럼 12편 색인. 분류 탭 전환 시 해당 분류 글을 연다. 레슨 C2·C3·D2·D4·D5·E1·E3·E4·E7·F1·G2·G5·A4·L15, 노트(ROIC·담보·분배·성장·KOSPI·진입 사례·바이오·보험·금리 인상기·지수 비중), 운전자본·가격·물량·믹스 정의, 산업 지도 병목 문장, SEPA 정의를 계산식 하나로 정정. 조건부 경로를 그리는 branches 그림 추가.
+- violated_rule: R688
+- prevention: R688
+- verification/residual: 로컬 브라우저: ROIC 검색 첫 결과가 노트, 원리 레슨→개념 사전 탭 전환 시 본문 종류가 바뀜. principles·knowledge 계약, 생성물 parity, 스토리 길이 검사 PASS.
+
+## P1514 - v57.28 - AI가 화면과 다른 근거로 답하고 질문 버튼이 매매 지시를 약속 (H13·H104) (2026-10-08)
+
+- symptom/reproduction: 시장 상태 화면은 10/6 기준 50일선 위 33%·200일선 위 50%인데 AI 답변은 "200일 이동평균 위 종목 비율 44."를 인용. 질문 버튼이 매매 타이밍·진입 조건·리스크 점수.
+- root_cause: AI 문맥은 장중 실시간 시장 폭(_breadthLiveData)과 실시간 스냅샷을 넣었고, 화면이 쓰는 완료 종가 판정(buildMarketRegime)은 전달되지 않았다. 질문 칩은 제품이 만들지 않는 산출물을 이름으로 썼다.
+- fix: 시장 화면 대화에 화면과 같은 종가 기준 판정(기준일·축별 근거 수치)을 첫 블록으로 넣고, 실시간 값은 시각을 붙인 보조로만 쓰라고 지시(window._aioScreenBasisContext). 13개 화면의 질문 칩을 "엇갈리는 이유·틀릴 조건·빠진 근거" 중심으로 교체.
+- violated_rule: R687
+- prevention: R687
+- verification/residual: 로컬 브라우저: _aioScreenBasisContext()가 "US close 2026-10-06 … 50일선 위 종목 33%, 200일선 위 종목 50%"를 반환. 실제 모델 응답의 재검증은 배포 후 필요.
+
+## P1513 - v57.28 - 13F 금액 단위 1,000배 불일치·역조회 누락·비교의 거짓 빈 결과 (H97·H98·H99·H101·H103) (2026-10-08)
+
+- symptom/reproduction: T. Rowe Price NVDA 369,829,781주 $73,999,242(주당 $0.20) vs BlackRock 주당 $200. NVDA 역조회가 3곳만 표시. Buffett·BlackRock 비교가 공통 보유 없음. 개요가 10개 분류에 "여덟 가지 방식", 13F를 "45일 늦게"로 단정.
+- root_cause: 세 신고(T. Rowe·Duquesne·Baupost 2026-06-30)는 신고 자체가 다른 신고보다 정확히 1,000배 작은 금액을 담고 있어 표지 합계 대조로는 잡히지 않았다. 역조회는 일부 운용사만 담은 참조 원장만 검색했다. 비교의 대체 행은 부트스트랩에 없는 allHoldings를 읽어 항상 비었고, 미연결과 교집합 0을 같은 문구로 표시했다.
+- fix: 같은 CUSIP·분기의 다른 신고 대비 주당 가격 비교로 단위 이상 신고를 찾아(detectValueScaleSuspects) 금액·비중·합계를 보류하고 안내를 한 번 표시(배수를 곱해 고치지 않음). 역조회에 운용사별 상위 보유를 합치고 검색 범위를 명시. 비교는 상위 보유를 대체 행으로 쓰고 범위를 표시, 미연결은 "비교 미완료"로 구분. 개요 제목과 신고 기한 문구 정정.
+- violated_rule: R686 0과 미확인을 구별
+- prevention: R686
+- verification/residual: 실데이터: 의심 신고 3건(비율 0.001). 로컬 브라우저: T. Rowe 금액·비중·합계 "보류"와 안내, NVDA 역조회 23곳, Buffett·BlackRock 공통 Apple·Alphabet. masters 브라우저 게이트 PASS.
+
+## P1512 - v57.28 - 스크리너 실행 결과·표·다음 종목 링크가 서로 다른 집합 (H43·H44·H45) (2026-10-08)
+
+- symptom/reproduction: 실행 통과 371·188과 표 931 또는 Technology 35가 함께 보이고, Technology만 남긴 뒤에도 다음 링크가 1위 ILMN. 50일선 거리 값(변동폭 배수)에 단위가 없음.
+- root_cause: 표는 탈락·데이터 부족 행까지 기본 표시했고, 다음 종목 링크는 표시 필터와 무관한 전체 순위 1위를 가리켰다. 범위 문구는 "다른 모집단"만 말해 차이의 이유를 주지 않았다.
+- fix: '실행 통과만' 표시 토글(기본 켜짐, 실행 완료 시 켜짐)을 추가하고, 범위 문구가 통과 수·표시 행·표시 필터 여부를 한 줄로 설명. 다음 링크는 현재 표의 첫 통과 행('표 첫 행 X')을 따름. 열 이름 '50일선 거리(변동폭 배수)'.
+- violated_rule: R685 같은 화면의 수·표·링크는 같은 집합
+- prevention: R685
+- verification/residual: 로컬 브라우저: 기본 표 371행(선정만), 범위 문구 "통과 371종목 … 표에는 그중 371행", Technology 선택 시 65행·"표 첫 행 P". screener 브라우저·계약 게이트 PASS.
+
+## P1511 - v57.28 - 피드의 주제 이름이 기사 관련성의 증거로 계산됨 — 날씨·바카라 글이 실적·한국 뉴스로 게시 (H04·H05·H06) (2026-10-08)
+
+- symptom/reproduction: 24시간 기사 5건 중 날씨 기사 3건이 실적, 바카라 승률 글이 한국 필터의 유일한 기사. 번역 완료 집계 아래 영어 제목과 같은 제목을 반복한 요약. BOJ 금리 발언이 반도체·긍정, JPM AI 위험 발언이 전력, 네이버 블로그 링크가 NAVER 종목 태그.
+- root_cause: 서버 점수 규칙이 "제목 + 출처 + 피드 주제"를 한 문자열로 검사해 earnings 피드의 모든 항목이 /earnings/ 규칙에 자기 피드 이름으로 걸렸고, P1504의 주제 하한(topicHits>0)을 통과했다. 클라이언트 RSS 경로에는 그 하한이 없었다. 번역 상태는 API 응답 수를 셌고, Google News 설명은 제목을 반복했다. 텔레그램 분류는 memory·power·선물·sive 같은 일반어와 링크 텍스트로 산업·종목을 붙였다.
+- fix: 주제 근거는 제목만 사용, 도박·날씨·생활 제목 차단(SERVER_NEWS_OFFTOPIC_RE), 클라이언트도 general 주제 기사 제외. 번역 상태는 실제 한국어 제목 수/해외 기사 수로 표기하고 제목 반복 설명은 요약에서 제외. 텔레그램은 링크 제거 후 분류·종목 추출, 일반어 규칙을 구체화, 보존 게시물은 현재 규칙으로 재분류, 부정어가 뒤따르는 어조 단어는 세지 않음.
+- violated_rule: R684 판정의 근거는 대상 텍스트 자체
+- prevention: R684 — 피드 이름·출처명·링크는 내용 분류의 근거가 아니다.
+- verification/residual: classify() 시험: BOJ 문장→[macro], "the power of AI"→[market-note], blog.naver.com 링크 문장→[geo], 실제 전력·메모리 문장→[semi, power]. 데이터 재생성은 다음 CI 수집에서 반영(로컬 생산 금지).
+
+## P1510 - v57.28 - 같은 이름의 기간·기준일이 화면마다 다른 계산을 가리킴 (Codex 브라우저 감사 H01·H02·H03·H18·H24·H31) (2026-10-08)
+
+- symptom/reproduction: '어제와 달라진 점'이 10/2→10/6을 하루 변화처럼 표시, 홈 S&P '20거래일 +2.4%'와 시장 상태 +1.3%, 미국장 진행 중 하위 테마 '10/7 종가 기준', 캔들 형태가 형성 중인 10/7 봉을 분류, 하루 1회 공표 참고 환율에 '실시간 시세', 선물 시세가 늦게 도착하면 '선물 미수신·10/6 종가'가 현재값과 함께 남음.
+- root_cause: history.json은 수집일 행(주말·휴장 반복 포함)이고 미국 10/5 종가는 장 마감 뒤 수집이 돌지 않아 기록되지 않았는데 백필은 60행 미만일 때만 실행됐다. 홈 KPI는 이력 '행' 20개를 거래일로 셌고, 테마 기준일은 바 시작 시각(factorObservedAt=한국 세션 00:00Z)을 썼으며, 캔들 분류와 환율 표기는 완료 세션·값의 기준(valueBasis)을 보지 않았다. 선물 대체값은 시장 판정 렌더 때 한 번만 그려졌다.
+- fix: 생산: 최근 10일 안의 완료 미국 거래일 종가가 빠지면 일봉 백필 실행(missingRecentUsSessions). 화면: 비교 사이 누락 세션을 계산해 '직전 기록과 달라진 점 · 10/5 기록 없음'으로 표기, 홈 KPI를 세션 종가 시리즈(buildCloseSeries)로 통일, 테마 기준일을 시장별 완료 세션(없으면 공유 이력의 미국 종가일)으로, 캔들은 시장별 완료 세션 이후 봉 제외(window._aioLatestCompletedSessionDate), 환율 노트는 valueBasis로 '참고 환율 · M/D 고시'와 등락 칸 숨김, 선물 셀은 실시간 값 변경 때마다 다시 그림.
+- violated_rule: 같은 이름의 숫자는 같은 계산·같은 기준일
+- prevention: R683 — 기간·기준일 라벨은 실제 계산 창과 관측 세션에서 파생한다. 행 수·생성일·바 시작 시각을 기간·종가일로 쓰지 않는다.
+- verification/residual: 로컬 브라우저: 홈 KPI 20거래일 +1.3%/+4.1%/−3.9%가 시장 상태와 일치, '직전 기록과 달라진 점 10/2 → 10/6 종가 · 10/5 기록 없음', 테마 '10/6 미국 종가 기준', 금리·환율 '참고 환율 · 10/7 고시'. missingRecentUsSessions(현재 history)=['2026-10-05']. contracts·browser 게이트 PASS.
 
 ## P1509 - v57.27 - 같은 날 공포·탐욕 1일 변화가 홈 +3, 투자 심리 +4 (2026-10-07)
 

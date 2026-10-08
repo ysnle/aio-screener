@@ -72,6 +72,7 @@ const STYLE = `
 .af-table th,.af-table td{border:1px solid var(--border-subtle);padding:5px 10px;text-align:right}
 .af-table th:first-child{text-align:left}
 .af-table thead th{background:var(--surface-2);color:var(--text-primary)}
+.af-branches{display:grid;gap:8px;margin:6px 0 14px}.af-branch{border-left:3px solid var(--border-subtle);padding:4px 0 4px 10px}.af-branch-when{font-size:12px;font-weight:700;color:var(--text-primary);margin:0 0 4px}.af-branch .af-flow{margin:0 0 4px}.af-branch-check{font-size:12px;color:var(--text-secondary);margin:0}
 .af-forces{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 8px;max-width:640px}
 .af-force{border:1px solid var(--border-subtle);border-radius:4px;padding:9px 11px;background:var(--surface-1)}
 .af-force strong{display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px}
@@ -134,6 +135,19 @@ function figure(doc, spec) {
       grid.appendChild(box);
     });
     wrap.append(grid, el(doc, 'p', 'af-force-sum', `${spec.sum} → ${spec.effect}`));
+    return wrap;
+  }
+  // Codex browser audit H65: alternative outcomes drawn as one arrow chain read as a fixed sequence of
+  // events. Branches state the condition, the path and the indicator that would show it is not happening.
+  if (spec.kind === 'branches') {
+    const wrap = el(doc, 'div', 'af-branches');
+    for (const branch of spec.branches) {
+      const box = el(doc, 'div', 'af-branch');
+      box.appendChild(el(doc, 'p', 'af-branch-when', `조건 · ${branch.when}`));
+      box.appendChild(figure(doc, { kind: 'flow', steps: branch.steps }));
+      if (branch.check) box.appendChild(el(doc, 'p', 'af-branch-check', `반증 신호 · ${branch.check}`));
+      wrap.appendChild(box);
+    }
     return wrap;
   }
   if (spec.kind === 'formula') return el(doc, 'p', 'af-formula', spec.text);

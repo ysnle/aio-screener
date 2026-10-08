@@ -13,7 +13,7 @@ function currentOverlap(rows, ranking) {
   if (!overlapCache.has(rows)) overlapCache.set(rows, measureFactorOverlap(rows, ranking?.activeFactors || []));
   return overlapCache.get(rows);
 }
-import { renderScreenerRead } from '../components/screener-read.js';
+import { renderScreenerRead, syncScreenerNextLead } from '../components/screener-read.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
@@ -74,9 +74,9 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'rsi', label: 'RSI', sortable: true, align: 'right', width: 64, group: 'market' },
   { key: 'pctSma50', label: 'vs 50MA', sortable: true, align: 'right', width: 82, group: 'market' },
   // P1507: the same 50-day distance in units of the stock's own average daily range — how late an entry would be.
-  { key: 'extension', label: '50일선 거리', sortable: true, align: 'right', width: 92, group: 'setup' },
+  { key: 'extension', label: '50일선 거리(변동폭 배수)', sortable: true, align: 'right', width: 118, group: 'setup' },
   { key: 'kalman', label: '추세 신뢰도', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
-  { key: 'vcpScore', label: 'VCP 구조', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
+  { key: 'vcpScore', label: 'VCP 구조·충족도', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
   { key: 'entry', label: '상대 상태', sortable: false, align: 'center', width: 118, group: 'setup', researchOnly: true },
   { key: 'signal', label: '구조 분류', sortable: false, align: 'center', width: 88, group: 'setup' },
@@ -107,7 +107,8 @@ const FILTER_LABELS = Object.freeze({
   'scr-rsi-min': 'RSI 하한',
   'scr-rsi-max': 'RSI 상한',
   'scr-min-mom': '3M 수익률 하한',
-  'scr-watchlist-only': '워치리스트'
+  'scr-watchlist-only': '워치리스트',
+  'scr-passed-only': '실행 통과만'
 });
 
 const BUILDER_FIELDS = Object.freeze([
@@ -234,6 +235,9 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
   const minMomentum = Number.parseFloat(selectedValue(documentRef, 'scr-min-mom'));
   const setupFilter = selectedValue(documentRef, 'scr-setup');
   const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
+  // Codex browser audit H44: after a run the table mixed rejected rows into "the result". 실행 통과만 keeps
+  // the table on the run's passed set; it is switched on when a run completes and can be turned off.
+  const passedOnly = !!documentRef.getElementById('scr-passed-only')?.checked;
   const watchlist = watchlistOnly ? new Set(readWatchlist?.() || []) : null;
   const aliases = readAliases?.() || {};
   const words = query ? query.split(/[\s,;·+&]+/).filter(Boolean) : [];
@@ -269,6 +273,7 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     if (setupFilter === 'CLIMAX' && row.setupProfile?.climaxRisk !== 'watch') return false;
     if (setupFilter === 'MISSING' && !(row.setupProfile?.winnerFilter === 'unavailable' || (row.setupProfile?.missingEvidence || []).length)) return false;
     if (watchlist && !watchlist.has(row.sym)) return false;
+    if (passedOnly && row.screenStatus !== 'passed') return false;
     if (!query) return true;
     if (exactSymbol) return row.sym?.toLowerCase() === exactSymbol;
     if (signalFromText && row.signal !== signalFromText) return false;
@@ -473,8 +478,11 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   if (key === 'pctFrom52wHigh') return returnText(row.pctFrom52wHigh);
   if (key === 'vcpScore') {
     const node = documentRef.createElement('span');
-    node.textContent = row.vcpScore == null ? '—' : `${row.vcpScore} · ${vcpStageLabel(row.vcpStage)}`;
-    node.style.color = row.vcpScore == null ? 'var(--text-muted)' : row.vcpScore >= 70 ? 'var(--data-green)' : row.vcpScore >= 50 ? 'var(--data-amber)' : 'var(--data-red)';
+    // Codex browser audit H46: a green/red 0–100 number read as a validated buy score. The structure stage comes
+    // first; the number is labelled as how many contraction rules are met, in a neutral colour.
+    node.textContent = row.vcpScore == null ? '—' : `${vcpStageLabel(row.vcpStage)} · 충족도 ${row.vcpScore}`;
+    node.title = '변동성 수축(VCP) 규칙 — 수축 횟수, 수축 깊이 감소, 거래량 감소 — 을 얼마나 충족하는지 0~100으로 합친 값입니다. 과거 성과로 검증된 매수 점수가 아닙니다.';
+    node.style.color = row.vcpScore == null ? 'var(--text-muted)' : 'var(--text-secondary)';
     return node;
   }
   if (key === 'mcap') {
@@ -839,12 +847,16 @@ function renderConditionalEvidence(documentRef, metadata) {
     const message = documentRef.createElement('div');
     message.className = 'scr-empty-state';
     message.dataset.statusCode = evidence ? 'BLOCKED' : 'NO_CONDITIONAL_EVIDENCE';
-    message.textContent = evidence ? '조건부 통계 계약 검증 실패·표시 보류' : '세션 조건부 통계 artifact 없음';
+    // Codex browser audit H47: the empty state spoke in pipeline terms (artifact, lineage, PIT). The reader is told
+    // what this tab would show and why it is empty; pipeline identifiers move to the hover title.
+    message.textContent = evidence ? '이 조건의 과거 통계가 검증을 통과하지 못해 표시하지 않습니다' : '이 조건의 과거 발생 빈도 통계는 아직 제공하지 않습니다';
     const detail = documentRef.createElement('div');
     detail.className = 'scr-empty-detail';
+    detail.title = `파이프라인 ${researchContext.pipelineVersion || 'market-evidence-pipeline.v1'}`;
     detail.textContent = evidence
-      ? 'version·lineage·결정 적격성·권리/캘린더 상태가 계약과 일치할 때만 표시합니다. 현재 수치로 대체하지 않습니다.'
-      : `1분봉·거래소 세션 캘린더·PIT availableAt·데이터 권리 확인 후 표시합니다. 현재 스크리너 값으로 확률을 대체하지 않습니다. 파이프라인 ${researchContext.pipelineVersion || 'market-evidence-pipeline.v1'} · lineage ${researchContext.evidenceLineageVersion || EVIDENCE_LINEAGE_VERSION}`;
+      ? '자료 버전·출처·이용 권리·거래 세션 정보가 모두 맞을 때만 통계를 보여 줍니다. 지금 스크리너 값으로 대신 계산하지 않습니다.'
+      : '분 단위 가격과 거래 세션 자료가 연결되면, 같은 조건이 과거에 몇 번 나타나 몇 번 맞았는지를 표본 수와 신뢰 구간으로 보여 줍니다. 지금 스크리너 값으로 확률을 대신 계산하지 않습니다.';
+    detail.title += ` · lineage ${researchContext.evidenceLineageVersion || EVIDENCE_LINEAGE_VERSION}`;
     message.appendChild(detail);
     panel.appendChild(message);
     return;
@@ -1061,7 +1073,7 @@ function describeFilterAst(definition) {
 // the executed judgment ("조건 통과 342 / 데이터 부족 29", out of the run's rowCount) and the
 // table's display scope ("현재 필터 결과 873", the current UI filter). Users read 342 and 873 as
 // one set. Both denominators are now explicit and bound to the run that produced them.
-function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavailable = 0, filtered = 0, runRowCount = null, runId = null, origin = null } = {}) {
+function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavailable = 0, filtered = 0, runRowCount = null, runId = null, origin = null, passedOnly = false } = {}) {
   const values = { 'scr-funnel-universe': universe, 'scr-funnel-ready': ready, 'scr-funnel-passed': passed, 'scr-funnel-unavailable': unavailable, 'scr-funnel-filtered': filtered };
   Object.entries(values).forEach(([id, value]) => {
     const node = documentRef.getElementById(id);
@@ -1082,7 +1094,8 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   const scope = documentRef.getElementById('scr-funnel-scope-note');
   if (scope) {
     scope.textContent = executed
-      ? `실행 판정 · 실행 기록 ${String(runId).slice(-12).toUpperCase()} ${originLabel ? `(${originLabel})` : ''} · 분모 ${runRow != null ? runRow : '미확인'} · 통과 ${passed} · 부족 ${unavailable} / 표시 범위 · 현재 필터 ${filtered}행 (다른 모집단)`
+      // Codex browser audit H43: one line says why the table count differs from the run's pass count.
+      ? `실행 조건 통과 ${passed}종목(대상 ${runRow != null ? runRow : '미확인'} · 데이터 부족 ${unavailable}) — 저장·재실행·검증은 이 ${passed}종목 기준입니다. ${passedOnly ? `표에는 그중 ${filtered}행이 보입니다${filtered < passed ? '(섹터·검색 같은 표시 필터 적용)' : ''}.` : `표에는 탈락·데이터 부족 종목까지 포함한 ${filtered}행이 보입니다 — 통과 종목만 보려면 ‘실행 통과만’을 켭니다.`}`
       : '실행 전 — 조건을 실행하면 실행 판정 분모가 고정됩니다. 표시 범위는 현재 필터 결과입니다.';
   }
 }
@@ -1106,6 +1119,10 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const focusedAction = focusedSymbol && documentRef.activeElement?.getAttribute('aria-label');
     body.replaceChildren();
     const visible = filtered.slice(0, visibleLimit.value);
+    {
+      const lead = filtered.find((row) => row.screenStatus === 'passed') || null;
+      syncScreenerNextLead(documentRef, lead, { scoped: filtered.length !== rows.length || sortState.column !== 'rank' });
+    }
     if (!workbenchResult?.run) onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean));
     if (!visible.length) {
       const empty = documentRef.createElement('tr');
@@ -1224,7 +1241,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     filtered: filtered.length,
     runRowCount: run?.rowCount,
     runId: run?.runId,
-    origin: runOrigin
+    origin: runOrigin,
+    passedOnly: !!documentRef.getElementById('scr-passed-only')?.checked
   });
   renderFilterChips(documentRef);
   const coverage = documentRef.getElementById('screener-factor-coverage');
@@ -1537,7 +1555,13 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
                  activeDefinition = result.definition; activeScreenId = activeDefinition.screenId;
                  activeResult = result; activeRows = result.rows;
                  selectedSymbols.clear(); visibleLimit.value = 12;
-                 if (workbenchStatus) workbenchStatus.textContent = '보관한 입력으로 재현됨 · 현재 시장 상태가 아닌 당시 결과입니다.';
+                 // Codex browser audit H113: the replay header names which run, when, and on what data; the previous
+                 // preview (another preset's definition and hash) is dropped so no label or accessible name keeps it.
+                 activePreview = null; activePreviewKey = null;
+                 { const passedOnly = documentRef.getElementById('scr-passed-only'); if (passedOnly) passedOnly.checked = true; }
+                 const replayMeta = result.snapshotMetadata || {};
+                 const dataDate = replayMeta.factorSessionDateByMarket?.US || String(replayMeta.factorSessionDate || replayMeta.asOf || '').slice(0, 10) || '확인 필요';
+                 if (workbenchStatus) workbenchStatus.textContent = `보관 실행 재현 · ${entry.name} · 실행 ${entry.savedAt.slice(0, 16)} · 자료 기준 ${dataDate} — 현재 시장이 아닌 당시 결과입니다. 지금 자료로 보려면 조건을 다시 실행합니다.`;
                  syncDefinitionEditor(); renderWorkbench(); renderNow();
                } catch (_) { if (mountActive && run === runGeneration && workbenchStatus) workbenchStatus.textContent = '재현 불가 · 모델 버전 또는 보관 데이터가 일치하지 않습니다.'; }
              });
@@ -1567,6 +1591,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            if (result?.rows) {
              activeResult = result;
              activeRows = result.rows;
+             { const passedOnly = documentRef.getElementById('scr-passed-only'); if (passedOnly) passedOnly.checked = true; }
              selectedSymbols.clear();
              visibleLimit.value = 12;
               // LC-25: name the run and its denominator so the executed judgment is not confused
@@ -1943,6 +1968,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            ['scr-market', 'scr-sector', 'scr-signal', 'scr-cap', 'scr-text-search', 'scr-setup', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom'].forEach((id) => { const field = documentRef.getElementById(id); if (field) field.value = ''; });
            const rank = documentRef.getElementById('scr-min-rank'); if (rank) rank.value = '0';
            const watchlist = documentRef.getElementById('scr-watchlist-only'); if (watchlist) watchlist.checked = false;
+           const passedOnly = documentRef.getElementById('scr-passed-only'); if (passedOnly) passedOnly.checked = true;
            visibleLimit.value = 12;
            renderNow();
          } else if (action === 'reset-filters') {
@@ -1976,7 +2002,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            columnState.preset = event.target.value || 'discovery';
            columnState.custom = [];
            renderNow();
-         } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-signal, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only')) {
+         } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-signal, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only, #scr-passed-only')) {
            event.stopPropagation();
            visibleLimit.value = 12;
            renderNow();

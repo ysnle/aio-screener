@@ -1,3 +1,5 @@
+import { createCompatibilityEventAdapter } from './compatibility-events.js';
+export { createCompatibilityEventAdapter } from './compatibility-events.js';
 import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
 import { createClock } from '../platform/clock.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
@@ -27,6 +29,7 @@ import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { openMarketChart } from '../ui/components/stock-chart.js';
+import { readMarketRegime } from '../ui/components/market-regime.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
@@ -35,7 +38,7 @@ import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SA
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { computeMarketHealth } from '../domain/market/health.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
-import { latestCompletedUsSession } from '../ai/time/market-session.js';
+import { latestCompletedUsSession, latestCompletedKrSession } from '../ai/time/market-session.js';
 import { resolveRegisteredName } from '../domain/ticker/resolve-name.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
@@ -208,123 +211,6 @@ import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIAS
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
-const COMPATIBILITY_EVENT_DEDUPE_WINDOW_MS = 250;
-
-function serializeCompatibilityEventDetail(detail) {
-  if (!detail || typeof detail !== 'object') return null;
-  const seen = new WeakSet();
-  const serialize = (value) => {
-    if (value === null || typeof value !== 'object') return JSON.stringify(value);
-    if (seen.has(value)) throw new TypeError('cyclic event detail');
-    seen.add(value);
-    const serialized = Array.isArray(value)
-      ? `[${value.map((entry) => serialize(entry)).join(',')}]`
-      : `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${serialize(value[key])}`).join(',')}}`;
-    seen.delete(value);
-    return serialized;
-  };
-  try {
-    return serialize(detail);
-  } catch (_) {
-    return null;
-  }
-}
-
-/**
- * Subscribe to a legacy event on both the document and its window without
- * making every native consumer know which target the legacy producer chose.
- * Refresh/history producers have not always agreed on that target. A short
- * detail-fingerprint window collapses the two dispatches of one logical event
- * while still allowing two events from the same target through.
- */
-export function createCompatibilityEventAdapter({ root = globalThis, eventTarget = root?.document, now = () => Date.now() } = {}) {
-  const primaryTarget = eventTarget || root;
-  const secondaryTarget = root && root !== primaryTarget ? root : null;
-  const targets = [...new Set([primaryTarget, secondaryTarget]
-    .filter((target) => typeof target?.addEventListener === 'function'))];
-  const subscriptions = new Map();
-  const recentEvents = new Map();
-  const eventTokens = new WeakMap();
-  let nextEventToken = 0;
-  let disposed = false;
-
-  const readNow = () => {
-    try {
-      const value = Number(now());
-      if (Number.isFinite(value)) return value;
-    } catch (_) {}
-    return Date.now();
-  };
-  const eventKey = (eventName, event) => {
-    const serializedDetail = serializeCompatibilityEventDetail(event?.detail);
-    if (serializedDetail != null) return `${eventName}:detail:${serializedDetail}`;
-    if (event && typeof event === 'object') {
-      if (!eventTokens.has(event)) eventTokens.set(event, ++nextEventToken);
-      return `${eventName}:event:${eventTokens.get(event)}`;
-    }
-    return null;
-  };
-  const isDuplicate = (key, source, at) => {
-    if (!key) return false;
-    const previous = recentEvents.get(key);
-    return !!previous && previous.expiresAt > at && previous.source !== source;
-  };
-  const remember = (key, source, at) => {
-    if (!key) return;
-    for (const [seenKey, record] of recentEvents) {
-      if (record.expiresAt <= at) recentEvents.delete(seenKey);
-    }
-    recentEvents.set(key, { source, expiresAt: at + COMPATIBILITY_EVENT_DEDUPE_WINDOW_MS });
-  };
-
-  const on = (eventName, listener) => {
-    const name = String(eventName || '').trim();
-    if (disposed || !name || typeof listener !== 'function' || !targets.length) return () => {};
-    let subscription = subscriptions.get(name);
-    if (!subscription) {
-      subscription = { name, listeners: new Set(), handlers: [] };
-      const dispatch = (event, source) => {
-        if (disposed) return;
-        const at = readNow();
-        const key = eventKey(name, event);
-        // P1408: only a delivered event is remembered. Remembering the suppressed mirror rewrote the
-        // record's source, so the next genuine update from the original target was dropped too.
-        if (isDuplicate(key, source, at)) return;
-        remember(key, source, at);
-        [...subscription.listeners].forEach((callback) => callback(event));
-      };
-      targets.forEach((target) => {
-        const handler = (event) => dispatch(event, target);
-        target.addEventListener(name, handler);
-        subscription.handlers.push({ target, handler });
-      });
-      subscriptions.set(name, subscription);
-    }
-    subscription.listeners.add(listener);
-    let active = true;
-    return () => {
-      if (!active) return;
-      active = false;
-      subscription.listeners.delete(listener);
-      if (subscription.listeners.size) return;
-      subscription.handlers.forEach(({ target, handler }) => target.removeEventListener(name, handler));
-      subscriptions.delete(name);
-    };
-  };
-
-  const dispose = () => {
-    if (disposed) return;
-    disposed = true;
-    subscriptions.forEach((subscription) => {
-      subscription.handlers.forEach(({ target, handler }) => target.removeEventListener(subscription.name, handler));
-    });
-    subscriptions.clear();
-    recentEvents.clear();
-  };
-
-  return Object.freeze({ on, dispose });
-}
-
 export function resolveInitialRoute({ root = globalThis, hash = root?.location?.hash } = {}) {
   const rawRoute = String(hash || '').replace(/^#/, '').split('?')[0].trim();
   const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[rawRoute]
@@ -394,6 +280,20 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // P1338: the facade whitelist never exposed this, so aio-data fell back to () => [] and wiped the saved
   // news-sentiment history on every render.
   root._aioNormalizeNewsSentimentHistory = normalizeNewsSentimentHistory;
+  // Codex browser audit H31: legacy readers (the candle-shape observation) need the same completed-session
+  // date the chart uses, so an in-progress bar is not classified as a finished candle.
+  // Codex browser audit H104: the AI answered from live intraday breadth ("200일선 위 44.") while the screen read
+  // the 10/6 close (50% above the 200-day). The chat now receives the same close-basis readings the screen shows,
+  // as the first and authoritative block; live values are labelled as live and secondary.
+  root._aioScreenBasisContext = () => {
+    try {
+      const regime = readMarketRegime(root);
+      if (!regime?.available) return '';
+      const axes = (regime.axes || []).map((axis) => `- ${axis.title}: ${axis.stateLabel}${axis.basis ? ` (${axis.basis})` : ''} — ${(axis.evidence || []).map(([label, value]) => `${label} ${value}`).join(', ')}`);
+      return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes].join('\n');
+    } catch (_) { return ''; }
+  };
+  root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
   // committed daily history so the trend input follows the close basis instead of holding the score.
   const applyHistoryMa = () => {

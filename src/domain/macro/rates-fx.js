@@ -133,13 +133,21 @@ export function buildRatesFx({ macro = null, history = [] } = {}) {
       text: `엔화 20일 ${signed(yenStrength, 1, '%')} (${yenStrength >= 0 ? '엔 강세' : '엔 약세'}) — 3% 이상 강세면 시장 상태 환율 축이 '부담'으로 바뀝니다.`
     };
   const tnx = buildCloseSeries(history, 'tnx', { through: basis }).slice(-CHART_SESSIONS);
+  // Codex browser audit H17: TIPS read 10/5 while the breakeven and nominal yields read 10/6, and the cards sat
+  // side by side as if "명목 = 실질 + 기대물가" held on one date. A date mismatch is stated on both cards.
+  const real = [
+    fredLevel(m, 'realYield10', '10년 실질금리 (TIPS)', { note: '물가를 뺀 금리입니다. 높을수록 미래 이익의 현재 가치가 낮아집니다.' }),
+    fredLevel(m, 'breakeven10', '10년 기대인플레이션', { note: '국채와 물가연동채 금리 차이로 본 시장의 물가 예상입니다.' })
+  ];
+  const [realCard, beiCard] = real;
+  if (realCard?.asOf && beiCard?.asOf && realCard.asOf !== beiCard.asOf) {
+    const gap = ` 실질금리(${realCard.asOf})와 기대인플레이션(${beiCard.asOf})의 기준일이 달라, 두 값을 더해 같은 날의 명목금리로 맞춰 보지 않습니다.`;
+    real.forEach((card) => { if (card) card.note = `${card.note || ''}${gap}`; });
+  }
   return {
     basis,
     treasury: treasury(m),
-    real: [
-      fredLevel(m, 'realYield10', '10년 실질금리 (TIPS)', { note: '물가를 뺀 금리입니다. 높을수록 미래 이익의 현재 가치가 낮아집니다.' }),
-      fredLevel(m, 'breakeven10', '10년 기대인플레이션', { note: '국채와 물가연동채 금리 차이로 본 시장의 물가 예상입니다.' })
-    ],
+    real,
     credit: fredLevel(m, 'hyOAS', '하이일드 스프레드', { toBp: true, note: '투기등급 회사채가 국채보다 더 받는 금리입니다. 넓어질수록 신용 위험을 크게 봅니다.' }),
     tnx,
     fx,

@@ -6,7 +6,8 @@
 // CTAs: fast, often short) — and records where the latest net position sits in its own two-year range.
 // Runs in Actions only. On failure the previous artifact is kept with its status, never replaced by an empty one.
 
-import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -111,10 +112,7 @@ async function main() {
 }
 
 async function atomicWrite(value) {
-  await mkdir(dirname(OUT), { recursive: true });
-  const temp = `${OUT}.tmp`;
-  await writeFile(temp, `${JSON.stringify(value, null, 1)}\n`);
-  await rename(temp, OUT);
+  await atomicWriteFile(OUT, `${JSON.stringify(value, null, 1)}\n`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

@@ -161,7 +161,7 @@ function holdingValue(holding, live, options) {
   return { value: null, price, sourceKind: 'unavailable', observedAt: null, quoteAllowedUse: 'none', fallbackUsed: false, dailyPct: null, dailyPctEligible: false, changeBasis: null };
 }
 
-function exposureCapForVix(vix) {
+export function exposureCapForVix(vix) {
   if (vix == null || vix <= 0) return null;
   return vix < 15 ? 100 : vix < 20 ? 80 : vix < 25 ? 50 : vix < 30 ? 30 : 15;
 }

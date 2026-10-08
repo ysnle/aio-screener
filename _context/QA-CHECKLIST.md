@@ -1,8 +1,30 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-03
+last_verified: 2026-10-08
 confidence: medium
 ---
+
+## v57.29 공유 기반 아키텍처 회귀 (2026-10-08)
+
+- [x] QA-ARCH-1518: P1518 공유 요청·라우터 재진입·이벤트 오류 격리·Worker 본문 지연·원자 저장 연결 회귀. verify_by: node scripts/ci-esm-core-unit-check.mjs && node scripts/ci-data-plane-contract-check.mjs && node scripts/ci-data-continuity-check.mjs
+- [x] QA-RELEASE-1518: P1518/R690 부분 staging, 미스테이징 의존 파일, 부분 QA 증명 거부 및 literal read 입력 결속. verify_by: node scripts/ci-qa-runner-behavior-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs
+- [x] QA-AI-1519: P1519 publication ESM 연결·주입 시각·모듈 부재·legacy 근거 수집 통합. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+
+## v57.28 Codex 브라우저 감사 v57.27 반영 (2026-10-08)
+
+- [x] QA-BRW-01: 홈 KPI 20거래일 변화와 시장 상태 20일 변화가 같은 값(같은 세션 시리즈) verify_by: browser: #home-kpi-strip .kpi-trend-caption vs 시장 상태 추세 축
+- [x] QA-BRW-02: 비교 구간에 미국 거래일이 빠지면 '직전 기록과 달라진 점 · M/D 기록 없음'으로 표기. verify_by: unit: missingSessionsBetween('2026-10-02','2026-10-06') = ['2026-10-05']
+- [x] QA-BRW-03: 하위 테마·캔들 형태 기준일이 미국장 진행 중에도 직전 완료 세션. verify_by: browser at KST night: theme-strength basis, realtime-pattern-indicator
+- [x] QA-BRW-04: 날씨·도박·생활 제목이 투자 뉴스로 채택되지 않고 한국 필터가 언어만으로 채워지지 않음. verify_by: producer: scoreServerNewsItem off-topic-filter; browser news filter
+- [x] QA-BRW-05: 번역 상태의 숫자가 실제 한국어 제목 수와 일치하고 제목 반복 설명이 요약으로 보이지 않음. verify_by: browser: news translation status vs cards
+- [x] QA-BRW-06: 스크리너 기본 표가 실행 통과 종목만 보이고 '다음' 링크가 현재 표 첫 행. verify_by: browser: #scr-passed-only, #screener-next
+- [x] QA-BRW-07: 13F 단위 이상 신고의 금액·비중·합계가 보류되고 안내가 한 번 보임. verify_by: browser: T. Rowe Price detail .masters-scale-review
+- [x] QA-BRW-08: NVDA 역조회가 상위 보유를 포함한 운용사를 찾고, 비교가 미연결을 0건으로 말하지 않음. verify_by: browser: masters ticker lookup, investor compare
+- [x] QA-BRW-09: 시장 화면 AI 문맥의 첫 블록이 화면과 같은 기준일·수치. verify_by: browser: window._aioScreenBasisContext() vs 시장 상태 축 근거
+- [x] QA-BRW-10: 통합 검색에서 제목 일치 노트·칼럼이 개념보다 뒤로 밀리지 않고 유형별 개수가 보임. verify_by: browser: 리서치 라이브러리 검색 ROIC
+- [x] QA-BRW-11: 개념 사전의 '같은 뜻'에는 대체 가능한 동의어만, 구성 용어는 '이 글에서 다루는 용어'. verify_by: unit: CONCEPT_CORE covers vs aliases
+- [x] QA-BRW-12: 심리 요약이 F&G와 AAII를 각자의 분류로 말함. verify_by: browser: 투자 심리 종합 문장
+- [x] QA-BRW-13: 시장 폭 신고가·신저가 '종목 보기'가 목록을 연다(contributors v2) verify_by: browser: 시장 폭 리더십 카드
 
 ## v57.08 거시 direction reads (2026-10-03)
 

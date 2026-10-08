@@ -63,13 +63,25 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
   const avgEquity = latest?.equity > 0 && prevYear?.equity > 0 ? (latest.equity + prevYear.equity) / 2 : null;
   const roeAvg = avgEquity && latest?.netIncome != null ? latest.netIncome / avgEquity * 100 : null;
   const roe = roeAvg ?? finite(fundamentals?.roe);
+  // Codex browser audit H41: a bank's operating cash flow mixes deposit, loan and trading-asset swings, so the
+  // industrial "earnings → cash" reading does not apply; the bank questions are named instead.
+  const financial = /financ|bank/i.test(String(row?.sector || ''));
+  const equityChange = latest?.equity > 0 && prevYear?.equity > 0 ? (latest.equity / prevYear.equity - 1) * 100 : null;
   const roeBasis = roeAvg != null ? '평균 자기자본 기준' : '기말 자기자본 기준';
   if (roe != null) points.push({ id: 'roe', tone: roe >= 15 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율',
-    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 60 ? ' 이 정도로 높으면 자사주 매입·배당으로 자본이 작아졌거나 부채가 큰 경우가 많아 이익의 질과 따로 봐야 합니다.' : ''}` });
+    // Codex browser audit H37: the generic "buybacks or debt" explanation read as this company's cause. The reading
+    // now uses what is measured here (margin, equity change) and names what is not (assets, so no DuPont split).
+    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 40 ? ` 이 수준에서는 순이익률${latest?.margin != null ? `(${latest.margin.toFixed(1)}%)` : ''}·자산 회전·재무 레버리지 중 무엇이 끌어올렸는지 나눠 봐야 합니다. 이 화면에는 자산 총계가 없어 그 분해는 하지 않습니다${equityChange != null ? ` — 자기자본은 전년보다 ${signed(equityChange)} 변했습니다` : ''}.` : ''}` });
   // P1446: the cash chain — earnings → operating cash → capital spending → free cash → debt and share count.
   const ocf = finite(latest?.operatingCashFlow);
   const capex = finite(latest?.capex);
-  if (ocf != null && latest?.netIncome != null) {
+  if (financial && history.length) {
+    points.push({ id: 'bank', tone: 'neutral', title: '금융사 읽는 법',
+      text: '은행·금융사는 순이자이익과 순이자마진(NIM), 예금 조달 비용, 대손비용, 자본비율(CET1)이 핵심입니다. 이 화면의 공시 수집본에는 이 항목들이 없어 판단하지 않으며, 분기 실적 자료와 10-K·10-Q 원문에서 확인합니다. 아래 영업현금흐름은 예금·대출 변화가 섞여 일반 기업처럼 읽지 않습니다.' });
+  }
+  if (ocf != null && latest?.netIncome != null && financial) {
+    points.push({ id: 'cash', tone: 'neutral', title: '현금흐름(참고)', text: `영업현금흐름 ${formatUsdShort(ocf)} · 순이익 ${formatUsdShort(latest.netIncome)} — 금융사의 영업현금흐름은 예금·대출·트레이딩 자산 증감이 섞여, 마이너스여도 현금이 부족하다는 뜻이 아닙니다.` });
+  } else if (ocf != null && latest?.netIncome != null) {
     // P1449: the OCF/netIncome ratio only means "earnings arrive as cash" when BOTH numbers are
     // positive. A net loss with an operating-cash outflow (or either sign flipped) divides to a
     // positive ratio that means nothing of the sort — read the two facts separately there.
@@ -85,7 +97,9 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
         : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${formatUsdShort(capex)}를 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
     });
   }
-  if (ocf == null && history.length) points.push({ id: 'cash', tone: 'neutral', title: '현금 전환', text: '영업현금흐름·설비투자 공시값이 아직 연결되지 않아 이익이 현금으로 들어오는지는 이 화면에서 판단하지 않습니다.' });
+  // Codex browser audit H36: say up front that the cash chain (OCF → capex → FCF → ROIC) is not available here,
+  // instead of letting a lesson link imply it can be checked on this screen.
+  if (ocf == null && history.length) points.push({ id: 'cash', tone: 'neutral', title: '현금 전환', text: '이 회사의 공시 수집본에는 영업현금흐름·설비투자가 없어 잉여현금흐름과 ROIC(투하자본 대비 이익)는 이 화면에서 계산하지 않습니다. 10-K 현금흐름표에서 확인하며, 다른 출처의 FCF 값과 기간을 섞어 쓰지 않습니다.' });
   const debtNow = finite(latest?.longTermDebt);
   const debtPrev = finite(prevYear?.longTermDebt);
   if (debtNow != null && debtPrev != null && debtPrev > 0) {
@@ -107,7 +121,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
     }
     const change = (factor - 1) * 100;
     points.push({ id: 'shares', tone: change <= -1 ? 'favorable' : change >= 3 ? 'burden' : 'neutral', title: '주식 수',
-      text: `${shareYears.length - 1}년 동안 발행 주식 수 ${signed(change)}${splitSeen ? '(주식 분할로 보이는 변화는 제외)' : ''} — ${change <= -1 ? '자사주 매입으로 주당 가치가 커지는 쪽' : change >= 3 ? '신주 발행·보상 주식으로 기존 주주 몫이 희석되는 쪽' : '거의 변하지 않았습니다'}.` });
+      text: `${shareYears.length - 1}년 동안 발행 주식 수 ${signed(change)}${splitSeen ? '(주식 분할로 보이는 변화는 제외)' : ''} — ${change <= -1 ? '남은 주주의 지분 비율이 커졌습니다(주당 가치가 커졌는지는 매입 가격과 쓴 현금에 달림)' : change >= 3 ? '신주 발행·보상 주식으로 기존 주주의 지분 비율이 줄었습니다' : '거의 변하지 않았습니다'}.` });
   }
 
   // Codex review 2026-10-05: a 6-month price move set against a fiscal-year revenue change compares

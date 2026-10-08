@@ -236,7 +236,8 @@ export function buildMarketRead(input = {}) {
   const nl = s.breadthNewLows?.date === spx.date ? s.breadthNewLows.value : null;
   if (nh != null && nl != null && spxFromHigh != null) {
     if (spxFromHigh > -3 && nl > nh && nl >= 10) add('highs-lows-divergence', 76, `S&P 500은 고점권(${signed(spxFromHigh)})인데 52주 신저가 종목 ${fmt(nl, 0)}개가 신고가 ${fmt(nh, 0)}개보다 많습니다.`, 'index', { reading: '지수 아래에서 약해지는 종목이 늘고 있습니다 — 주도주 폭이 좁아지는 괴리입니다.', check: `52주 신고가 종목이 신저가보다 다시 많아지는지(현재 ${fmt(nh, 0)} / ${fmt(nl, 0)})` });
-    else if (nh >= 20 && nh >= 3 * Math.max(1, nl)) add('leadership-broadening', 52, `52주 신고가 종목 ${fmt(nh, 0)}개, 신저가 ${fmt(nl, 0)}개.`, 'index', { reading: '신고가를 내는 종목이 넓게 늘어나는 모습입니다.' });
+    // Codex browser audit H19: one day's count says where leadership is today, not that it is spreading.
+    else if (nh >= 20 && nh >= 3 * Math.max(1, nl)) add('leadership-broadening', 52, `52주 신고가 종목 ${fmt(nh, 0)}개, 신저가 ${fmt(nl, 0)}개(수집 대상 기준, 하루 집계).`, 'index', { reading: '오늘 기준으로 신고가 쪽이 신저가보다 훨씬 많습니다. 확산 중인지는 이 숫자가 며칠 이어지는지로 확인합니다.' });
   }
   const dd = s.distributionDays?.value ?? null;
   if (dd != null && dd >= 5) add('distribution-cluster', 74, `S&P 500 최근 25거래일 중 ${fmt(dd, 0)}일이 0.2% 이상 하락하면서 거래량이 늘어난 날(분배일)입니다.`, 'index', { reading: '매도 압력이 쌓이는 모습입니다 — 오닐 방식에서는 5~6회 이상을 추세 약화 경고로 봅니다.', check: '분배일이 줄어드는지, 지수가 거래량을 동반해 반등하는지' });
@@ -250,7 +251,8 @@ export function buildMarketRead(input = {}) {
     const lags = rut20 < spx20;
     add(lags ? 'smallcap-lags' : 'smallcap-leads', lags && creditCalm ? 55 : 45, `러셀 2000 20일 ${signed(rut20)} vs S&P 500 ${signed(spx20)}.`, 'index', {
       reading: !lags ? '위험선호가 중소형주까지 퍼진 모습입니다.'
-        : creditCalm ? `HY 스프레드(${fmt(hyBp, 0)}bp)가 안정적이라 신용 위험이 원인이라는 신호는 없습니다 — 금리 부담이 더 그럴듯한 설명입니다.` : '금리에 민감한 중소형주가 소외된 모습입니다.'
+        // Codex browser audit H19: rate sensitivity is one possible path, not the established cause.
+        : creditCalm ? `HY 스프레드(${fmt(hyBp, 0)}bp)가 안정적이라 신용 위험이 원인이라는 신호는 없습니다. 금리 부담이 그럴듯한 설명이지만, 실적 차이·업종 구성·유동성도 같은 결과를 만들 수 있습니다.` : '중소형주가 상대적으로 약합니다. 금리 부담, 실적 차이, 업종 구성 중 무엇 때문인지는 이 숫자만으로 가려지지 않습니다.'
     });
   }
   const adv = s.advanceRatio?.value ?? null;

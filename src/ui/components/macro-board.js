@@ -28,7 +28,10 @@ function shortDate(date) {
   return month && day ? `${month}/${day}` : '';
 }
 
-const DIRECTION_MARK = Object.freeze({ up: '▲ 오르는 중', down: '▼ 내리는 중', flat: '― 횡보' });
+// Codex browser audit H16: "내리는 중" beside a +0.1pp month read as a contradiction. The mark names its window —
+// the latest 3-month average against the 3-month average six months earlier (indicators.js trendOf).
+const DIRECTION_MARK = Object.freeze({ up: '▲ 6개월 추세 상승', down: '▼ 6개월 추세 하락', flat: '― 6개월 추세 횡보' });
+const DIRECTION_TITLE = '최근 3개월 평균을 6개월 전 3개월 평균과 비교한 방향입니다. 전월 대비 변화와 다를 수 있습니다.';
 
 // A 24-month sparkline for an indicator card: the line, its last point and the range labels.
 // A minimum vertical span keeps a near-flat series flat instead of stretching rounding noise to full height.
@@ -89,7 +92,7 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   if (metaSources.length) card.title = `출처: ${metaSources.join(' · ')}`;
   const head = el(doc, 'div', null, 'macro-stat-head');
   head.append(el(doc, 'h4', label, 'macro-stat-label'));
-  if (direction) head.append(el(doc, 'span', DIRECTION_MARK[direction], `macro-dir is-${direction}`));
+  if (direction) { const mark = el(doc, 'span', DIRECTION_MARK[direction], `macro-dir is-${direction}`); mark.title = DIRECTION_TITLE; head.append(mark); }
   card.append(head, el(doc, 'div', valueText, 'macro-stat-value'));
   lines.filter(Boolean).forEach((line) => card.append(el(doc, 'div', line, 'macro-stat-line')));
   if (series && series.length >= 6) card.append(sparkline(doc, series, { minSpan: unit === '%' ? 1 : null }));
@@ -293,7 +296,15 @@ function renderRegime(doc, read) {
   const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(3개월 방향), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가가 내려가는 중이어도 목표보다 높으면 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
   right.append(head, tally, lens, overviewTiles(doc, read.axes), reading);
   const criteria = el(doc, 'details', null, 'macro-axis-more');
-  criteria.append(el(doc, 'summary', '국면 판정 기준'), el(doc, 'p', r.criteria || '', 'regime-flip'));
+  criteria.append(el(doc, 'summary', '국면 판정 기준과 지금 읽은 값'), el(doc, 'p', r.criteria || '', 'regime-flip'));
+  if (Array.isArray(r.inputs) && r.inputs.length) {
+    const table = el(doc, 'table', null, 'macro-regime-inputs');
+    const head = el(doc, 'tr');
+    ['지표', '지금 값', '기준', '판정'].forEach((label) => head.append(el(doc, 'th', label)));
+    table.append(head);
+    r.inputs.forEach((cells) => { const tr = el(doc, 'tr'); cells.forEach((cell) => tr.append(el(doc, 'td', cell))); table.append(tr); });
+    criteria.append(table);
+  }
   right.append(criteria);
   if (read.historyStatus !== 'ok') right.append(el(doc, 'p', '월별 경제 기록이 다음 자동 수집부터 쌓입니다. 그 전까지 성장·물가의 3개월 추세와 국면 판정은 일부 보류됩니다.', 'briefing-footnote'));
   const grid = el(doc, 'div', null, 'macro-overview');
@@ -540,6 +551,36 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     ];
     grid.replaceChildren(...cards);
   }
+  syncOtherCurrencyNote(doc, root);
   page.dataset.aioRatesBoardRenderer = 'native';
   return model;
+}
+
+// Codex browser audit H18: "그 밖의 통화 · 실시간 시세 · 지연 가능" sat above once-a-day public reference rates with
+// no change. The note now names what the cells actually hold — a market quote time, or a daily reference rate and
+// its date — and an empty change cell for a reference rate is hidden instead of showing a fixed dash.
+const OTHER_FX = Object.freeze(['EURUSD=X', 'GBPUSD=X', 'CNY=X', 'AUDUSD=X']);
+export function describeOtherFx(live = {}) {
+  const rows = OTHER_FX.map((symbol) => live?.[symbol]).filter((row) => row && Number.isFinite(Number(row.price ?? row.quoteEnvelope?.price ?? row.regularMarketPrice)));
+  if (!rows.length) return { text: '시세 대기', reference: false };
+  const basisOf = (row) => row.quoteEnvelope?.valueBasis || row.valueBasis || null;
+  const sourceOf = (row) => String(row.quoteEnvelope?.source || row._source || row.source || '');
+  const reference = rows.every((row) => basisOf(row) === 'daily-reference-rate' || sourceOf(row).startsWith('reference:fx'));
+  const stamps = rows.map((row) => row.observedAt || row.quoteEnvelope?.observedAt).map((at) => (typeof at === 'number' ? at * (at < 1e12 ? 1000 : 1) : Date.parse(at))).filter(Number.isFinite);
+  const latest = stamps.length ? new Date(Math.max(...stamps)) : null;
+  const md = latest ? `${latest.getMonth() + 1}/${latest.getDate()}` : null;
+  const hm = latest ? latest.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) : null;
+  return reference
+    ? { text: `참고 환율 · ${md ? `${md} 고시` : '고시일 미확인'} · 하루 1회 갱신, 등락 없음`, reference: true }
+    : { text: latest ? `시장 시세 · ${md} ${hm} 관측` : '시장 시세 · 관측 시각 미확인', reference: false };
+}
+function syncOtherCurrencyNote(doc, root) {
+  const note = doc.querySelector?.('#rates-other-title .rates-other-note');
+  if (!note) return;
+  const read = describeOtherFx(root?._liveData || {});
+  note.textContent = read.text;
+  for (const symbol of OTHER_FX) {
+    const change = doc.querySelector?.(`.rates-other [data-live-chg="${symbol}"]`);
+    if (change) change.hidden = read.reference;
+  }
 }

@@ -240,6 +240,13 @@ function runArtifactChecks() {
   return inventory;
 }
 
+// P1518/R690: secondary producers share the same collision-safe atomic boundary.
+for (const name of ['fetch-earnings-calendar', 'fetch-cftc-positioning', 'fetch-sec-fundamentals']) {
+  const source = readText(`scripts/${name}.mjs`);
+  check(`P1518:producer:${name}:shared-atomic`, source.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
+    && source.includes('await atomicWriteFile(') && !/await (?:writeFile|rename)\(/.test(source), 'producer must preserve formatting through shared atomic writer');
+}
+
 // Execute actual public parsers and URL-backed atomic writers, not replicas.
 check('regression:hy-empty-csv-not-zero', parseFredHyOasCsv('DATE,BAMLH0A0HYM2\n2026-08-28,') === null, 'blank HY observation must not be 0%');
 check('regression:hy-zero-csv-preserved', parseFredHyOasCsv('DATE,BAMLH0A0HYM2\n2026-08-28,0')?.value === 0, 'numeric zero is an observation');

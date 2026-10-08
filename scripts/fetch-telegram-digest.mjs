@@ -120,7 +120,11 @@ if (outPath && existsSync(outPath)) {
           prevSeen.add(it.id);
           // P715: published items now carry `summary` instead of full `text` — treat the summary
           // as the internal text-equivalent so incremental merges keep classification/selection working.
-          previousMergePool.push(it.text || !it.summary ? it : { ...it, text: it.summary });
+          // Codex browser audit H06: retained posts are re-tagged with the current rules instead of carrying tags
+          // from an older classifier for the whole 14-day window. (Tickers are re-derived later in the run.)
+          const keptText = it.text || it.summary || '';
+          const carried = it.text || !it.summary ? it : { ...it, text: it.summary };
+          previousMergePool.push(keptText ? { ...carried, tags: classify(keptText) } : carried);
           if (!prevObservedIds.has(it.id)) {
             previousObservedPool.push({ id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst, score:Number(it.score || 0), tags:it.tags || [], tickers:it.tickers || [], hasText:!!String(it.text || it.summary || '').trim() });
           }
@@ -163,18 +167,22 @@ function decodeEntities(s) {
 
 // P1503: short Latin keywords match whole words only (FedEx, soil, metal, buyback, software were tagged
 // macro/equity/geo); a primary tag for display is chosen by specificity in the renderer.
+// Codex browser audit H06 (2026-10-07): a BOJ rate remark was tagged 반도체 ("memory" in "recent memory"), a JPM
+// AI-risk post 전력 ("the power of AI"), and a link to blog.naver.com tagged NAVER. Links are removed before any
+// tag or company match, and the bare words memory/power/선물 no longer stand for an industry by themselves.
+function stripLinks(text) { return String(text || '').replace(/https?:\/\/\S+|\b[\w.-]+\.(?:com|net|co\.kr|kr|io|me)\/\S*/gi, ' '); }
 function classify(text) {
-  const raw = String(text || '');
+  const raw = stripLinks(text);
   const tags = [];
   const add = v => { if (!tags.includes(v)) tags.push(v); };
   if (/corporate bond|company bond|investment grade|ig credit|\boas\b|\blqd\b|\bhyg\b|credit spread|project finance|rating downgrade|rating downshift|downgrade.*rating|funding cost|debt financing|capex funding|bond market|company debt|회사채|투자등급|크레딧|신용스프레드|스프레드|프로젝트\s*파이낸스|자금조달|조달비용|등급\s*하향|신용등급|신용공여/i.test(raw)) add('credit');
   if (/\bboj\b|bank of japan|\bfomc\b|\bfed\b|federal reserve|\bcpi\b|\bppi\b|\bpce\b|\bgdp\b|\bgdpnow\b|treasury|10y|yield|rate cut|rate hike|inflation|deflation|recession|stagflation|tariff|\boil\b|crude|\bspr\b|\becb\b|employment|unemployment|payrolls|달러|금리|물가|인플레|경기침체|유가|중앙은행|관세|연준|고용|실업|국채|입찰/i.test(raw)) add('macro');
   if (/\biran\b|\bisrael\b|hormuz|middle east|\bwar\b|sanction|reconstruction|jcpoa|geopolitic|conflict|strait|호르무즈|이란|이스라엘|중동|전쟁|제재|지정학/i.test(raw)) add('geo');
-  if (/nvidia|nvda|\bamd\b|tsmc|\bhbm\b|dram|nand|micron|broadcom|avgo|marvell|mrvl|\bgpu\b|\bcpu\b|\basic\b|cowos|socamm|hbm4|hbm4e|semiconductor|memory|sk hynix|samsung electronics|반도체|메모리|하이닉스|삼성전자|엔비디아|마이크론/i.test(raw)) add('semi');
-  if (/\bcpo\b|\bnpo\b|optical|laser|\beml\b|cw laser|coherent|lumentum|aaoi|mtsi|sive|photonics/i.test(raw)) add('optical');
-  if (/\bpower\b|data center power|sofc|bloom energy|transformer|\bgrid\b|\bgw\b|800v|fuel cell|electricity|hvdc|전력|데이터센터|변압기|송전|전력망|연료전지/i.test(raw)) add('power');
+  if (/nvidia|nvda|\bamd\b|tsmc|\bhbm\b|dram|nand|micron|broadcom|avgo|marvell|mrvl|\bgpu\b|\bcpu\b|\basic\b|cowos|socamm|hbm4|hbm4e|semiconductor|memory (?:chips?|prices?|market|makers?|cycle|demand|supply)|sk hynix|samsung electronics|반도체|메모리|하이닉스|삼성전자|엔비디아|마이크론/i.test(raw)) add('semi');
+  if (/\bcpo\b|\bnpo\b|optical|laser|\beml\b|cw laser|coherent corp|\bcohr\b|lumentum|aaoi|mtsi|\bsivers\b|photonics/i.test(raw)) add('optical');
+  if (/power (?:grid|demand|supply|plants?|generation|capacity|prices?|utilit(?:y|ies)|equipment)|data center power|sofc|bloom energy|transformer|\bgrid\b|\bgw\b|800v|fuel cell|electricity|hvdc|전력|데이터센터|변압기|송전|전력망|연료전지/i.test(raw)) add('power');
   if (/anthropic|openai|gpt-|chatgpt|gemini|llama|claude|sovereign ai|export control|ai policy|ai model|소버린|수출통제|AI\s*모델/i.test(raw)) add('ai-policy');
-  if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|기관|코스피|코스닥|국장|한국장|선물|환율/i.test(raw)) add('kr-market');
+  if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|기관|코스피|코스닥|국장|한국장|코스피\s*선물|환율/i.test(raw)) add('kr-market');
   if (/spacex|prime day|amazon|adobe|\bsmci\b|\bmeta\b|murata|\bipo\b|\bbuy\b|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
   if (/crypto|bitcoin|ethereum|coinbase/i.test(raw)) add('crypto');
   if (/insider (?:buy|purchase|sale|selling|transaction)|open.market (?:buy|purchase)|form 4|director bought|executive bought|내부자|임원 매수|자사주/i.test(raw)) add('insider');
@@ -207,7 +215,7 @@ function loadScreenerAliases() {
 const SCREENER_ALIASES = loadScreenerAliases();
 
 function extractTickers(text) {
-  const raw = String(text || '');
+  const raw = stripLinks(text);
   const map = [
     ['NVDA', /\bNVDA\b|nvidia/i], ['AMD', /\bAMD\b|Advanced Micro|MI450/i],
     ['TSLA', /\bTSLA\b|Tesla/i], ['CAT', /\bCAT\b|Caterpillar/i], ['AMAT', /\bAMAT\b|Applied Materials/i],

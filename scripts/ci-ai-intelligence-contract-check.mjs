@@ -1,3 +1,4 @@
+import * as answerPublication from '../src/ai/response/publication.js';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';
@@ -409,11 +410,20 @@ const boundedRunnerFailure = await createAIAnswerOrchestrator({ now: () => new D
 check('orchestrator-does-not-leak-runner-error', boundedRunnerFailure.error === 'legacy_runner_failed' && !JSON.stringify(boundedRunnerFailure).includes('secret internal detail'));
 
 const chat = read('js/aio-chat.js');
-const bindingContext = vm.createContext({ window: {}, URL });
+const bindingContext = vm.createContext({ window: { AIO_ARCH: { getAIOrchestrator: () => ({ answerPublication }) } }, URL });
 vm.runInContext(chat.slice(chat.indexOf('function _aioAIClaimEvidenceId('), chat.indexOf('function _aioRunAIResponsePipeline(')), bindingContext);
 const bindingRow = { evidenceId: 'quote:NVDA', metric: 'price', ticker: 'NVDA', scale: 'raw', value: 120, unit: 'USD', asOf: '2026-09-01T12:00:00Z', source: 'exchange', sourceUrl: 'https://nasdaq.com/quote/NVDA', status: 'ok' };
 const bindingClaim = { claimId: 'quote', type: 'metric', metric: 'price', entity: 'NVDA', scale: 'raw', text: '주가', value: 120, unit: 'USD', asOf: bindingRow.asOf, source: 'exchange', evidenceIds: [bindingRow.evidenceId] };
 const bind = (claim, rows = [bindingRow]) => bindingContext._aioBuildPublishableAnswerPlan({ claims: { claims: [claim] }, citations: ['https://evil.example/fake', bindingRow.sourceUrl] }, rows, true);
+// P1519: publication owns its clock and the legacy bridge fails closed.
+check('P1519 publication clock rejects future evidence deterministically', answerPublication.evidenceCanPublish(bindingRow, Date.parse(bindingRow.asOf) - 60001) === false);
+check('P1519 publication clock permits the existing skew allowance', answerPublication.evidenceCanPublish(bindingRow, Date.parse(bindingRow.asOf) - 60000) === true);
+check('P1519 current-context numeric prose policy survives extraction', answerPublication.hasCurrentNumericContent('현재 관측값은 99') === true);
+const savedPublication = bindingContext.window.AIO_ARCH;
+bindingContext.window.AIO_ARCH = null;
+check('P1519 missing bridge cannot publish a structured plan', bind(bindingClaim).plan === null && bind(bindingClaim).droppedClaims[0].reasons.includes('publication-unavailable'));
+check('P1519 missing bridge cannot recover unchecked numeric prose', bindingContext._aioExtractAIAnswerFallback('현재 값은 999 USD', true) === '');
+bindingContext.window.AIO_ARCH = savedPublication;
 check('claim-binding-matching-value-unit-time-source-passes', bind(bindingClaim).plan.claims.claims.length === 1);
 for (const [field, value] of [['metric', 'VIX'], ['entity', 'AAPL'], ['scale', 'millions'], ['metric', null], ['entity', null]]) {
   check(`claim-binding-rejects-wrong-identity-${field}-${value}`, bind({ ...bindingClaim, [field]: value }).droppedClaims.length === 1);

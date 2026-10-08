@@ -5,7 +5,8 @@
 // Finnhub free: 60 calls/min. Two calls per run (earnings + IPO) — no quota risk.
 // Without FINNHUB_API_KEY the artifact is preserved with status operator-key-required.
 
-import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -29,12 +30,7 @@ async function fetchJSON(url) {
   }
 }
 
-async function atomicWrite(path, value) {
-  await mkdir(dirname(path), { recursive: true });
-  const temp = `${path}.tmp`;
-  await writeFile(temp, value);
-  await rename(temp, path);
-}
+
 
 async function main() {
   let previous = null;
@@ -54,7 +50,7 @@ async function main() {
       console.warn('[earnings-calendar] skipped: FINNHUB_API_KEY is not configured; the published reference snapshot is preserved');
       return;
     }
-    await atomicWrite(OUT, `${JSON.stringify({
+    await atomicWriteFile(OUT, `${JSON.stringify({
       schemaVersion: 'earnings-calendar.v1',
       status: 'operator-key-required',
       source: 'Finnhub calendar/earnings + calendar/ipo',
@@ -101,7 +97,7 @@ async function main() {
       exchange: row.exchange || null
     }))
   };
-  await atomicWrite(OUT, `${JSON.stringify(payload, null, 1)}\n`);
+  await atomicWriteFile(OUT, `${JSON.stringify(payload, null, 1)}\n`);
   console.log(`[earnings-calendar] ${payload.earnings.length} earnings + ${payload.ipos.length} ipos (${from}~${to})`);
 }
 

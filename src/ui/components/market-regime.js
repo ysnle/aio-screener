@@ -81,6 +81,35 @@ export function renderRegimePage({ documentRef: doc, root }) {
   return regime;
 }
 
+function paintFuturesCell(doc, root, cellId, futures, field, label) {
+  const fallback = doc.getElementById(cellId);
+  if (!fallback) return;
+  const cell = fallback.parentElement;
+  const live = Number(root._liveData?.[futures]?.price);
+  // P1505: the label follows what the cell shows — the futures name with a futures quote, the cash index name with its close.
+  const labelNode = cell?.querySelector('.kpi-label');
+  if (labelNode && !labelNode.dataset.futuresLabel) labelNode.dataset.futuresLabel = labelNode.textContent;
+  if (Number.isFinite(live) && live > 0) { fallback.hidden = true; cell?.removeAttribute('data-futures-missing'); if (labelNode) labelNode.textContent = labelNode.dataset.futuresLabel; return; }
+  const history = root._aioHistory || [];
+  const series = buildCloseSeries(history, field, { through: closeBasis(history) });
+  const last = series[series.length - 1];
+  const prev = series[series.length - 2];
+  if (!last) { fallback.hidden = true; return; }
+  const change = prev ? (last.value / prev.value - 1) * 100 : null;
+  const [, month, day] = last.date.split('-').map(Number);
+  fallback.replaceChildren();
+  const value = doc.createElement('span');
+  value.className = 'kpi-fallback-value';
+  value.textContent = last.value.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  const note = doc.createElement('span');
+  note.className = 'kpi-fallback-note';
+  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`} · 선물 시세 미수신`;
+  if (labelNode) labelNode.textContent = label;
+  fallback.append(value, note);
+  fallback.hidden = false;
+  cell?.setAttribute('data-futures-missing', 'true');
+}
+
 // Home: one line plus the axis states, linking to the full board.
 export function renderHomeRegime({ documentRef: doc, root }) {
   const hero = doc?.getElementById('home-score-hero');
@@ -93,33 +122,18 @@ export function renderHomeRegime({ documentRef: doc, root }) {
   // P1429 (Codex review): the two futures cells were the largest items on home and often empty. When a
   // futures quote is missing the cell shows the cash index's last completed close (same history as 시장 상태)
   // and says the futures quote is unavailable; a live futures quote restores the cell.
-  for (const [cellId, futures, field, label] of [['home-kpi-es-fallback', 'ES=F', 'spx', 'S&P 500'], ['home-kpi-nq-fallback', 'NQ=F', 'nasdaq', '나스닥 종합']]) {
-    const fallback = doc.getElementById(cellId);
-    if (!fallback) continue;
-    const cell = fallback.parentElement;
-    const live = Number(root._liveData?.[futures]?.price);
-    // P1505: the label follows what the cell shows — the futures name with a futures quote, the cash index name with its close.
-    const labelNode = cell?.querySelector('.kpi-label');
-    if (labelNode && !labelNode.dataset.futuresLabel) labelNode.dataset.futuresLabel = labelNode.textContent;
-    if (Number.isFinite(live) && live > 0) { fallback.hidden = true; cell?.removeAttribute('data-futures-missing'); if (labelNode) labelNode.textContent = labelNode.dataset.futuresLabel; continue; }
-    const history = root._aioHistory || [];
-    const series = buildCloseSeries(history, field, { through: closeBasis(history) });
-    const last = series[series.length - 1];
-    const prev = series[series.length - 2];
-    if (!last) { fallback.hidden = true; continue; }
-    const change = prev ? (last.value / prev.value - 1) * 100 : null;
-    const [, month, day] = last.date.split('-').map(Number);
-    fallback.replaceChildren();
-    const value = doc.createElement('span');
-    value.className = 'kpi-fallback-value';
-    value.textContent = last.value.toLocaleString('en-US', { maximumFractionDigits: 2 });
-    const note = doc.createElement('span');
-    note.className = 'kpi-fallback-note';
-    note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`} · 선물 시세 미수신`;
-    if (labelNode) labelNode.textContent = label;
-    fallback.append(value, note);
-    fallback.hidden = false;
-    cell?.setAttribute('data-futures-missing', 'true');
+  // Codex browser audit H01: the fallback was painted once per regime render, so a futures quote arriving later
+  // left "선물 시세 미수신 · 10/6 종가" beside the live futures number. The cell is repainted whenever its live
+  // value changes, and only one of the two (futures quote or the cash index close) is ever shown.
+  for (const spec of [['home-kpi-es-fallback', 'ES=F', 'spx', 'S&P 500'], ['home-kpi-nq-fallback', 'NQ=F', 'nasdaq', '나스닥 종합']]) {
+    paintFuturesCell(doc, root, ...spec);
+    const cell = doc.getElementById(spec[0])?.parentElement;
+    const liveNode = cell?.querySelector?.(`[data-live-price="${spec[1]}"]`);
+    const Observer = doc.defaultView?.MutationObserver || globalThis.MutationObserver;
+    if (liveNode && !liveNode.dataset.aioFuturesObserved && typeof Observer === 'function') {
+      liveNode.dataset.aioFuturesObserved = '1';
+      new Observer(() => paintFuturesCell(doc, root, ...spec)).observe(liveNode, { childList: true, characterData: true, subtree: true });
+    }
   }
   // P1428: the F&G day change on home uses the completed-close history, the same basis as 투자 심리
   // (it used CNN's own previous_close, so the two screens showed +3 and +2 for the same 31).

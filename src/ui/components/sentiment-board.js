@@ -89,7 +89,11 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   // Synthesis: is the fear in prices only, or also in credit and volatility structure? Each side
   // is claimed only when it was measured.
   const moodKnown = fg != null || bear != null;
-  const fearful = (fg != null && fg < 45) || (bear != null && bear >= 45);
+  // Codex browser audit H11: "F&G 47 · AAII 46.5는 공포" merged a neutral F&G with a bearish survey into one
+  // mood. Each indicator keeps its own band (the F&G card's band), and the sentence names which one is bearish.
+  const fgFear = Boolean(fgBand && fgBand.label.includes('공포'));
+  const aaiiFear = bear != null && bear >= 45;
+  const fearful = fgFear || aaiiFear;
   // P1428: greed needs a measured put/call; a missing one is '미확인', never 'low hedging'.
   const greedy = fg != null && fg > RULES.fearGreed.extremeGreedAbove;
   const hedgeLow = pcr != null && pcr < 0.7;
@@ -99,12 +103,14 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const creditStress = creditKnown && (hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp));
   const volKnown = ratio != null;
   const volCalm = volKnown && ratio < 1;
-  const parts = [fg != null ? `F&G ${Math.round(fg)}` : null, bear != null ? `AAII 약세 ${bear.toFixed(1)}%` : null].filter(Boolean).join(' · ');
+  const parts = [fgBand ? `F&G ${Math.round(fg)} ${fgBand.label}` : null, bear != null ? `AAII 약세 응답 ${bear.toFixed(1)}%` : null].filter(Boolean).join(' · ');
+  const fearSource = [fgFear ? `F&G(${Math.round(fg)}, ${fgBand.label})` : null, aaiiFear ? `AAII 설문(약세 응답 ${bear.toFixed(1)}%)` : null].filter(Boolean).join('와 ');
+  const otherMood = fearful && fgBand && !fgFear ? ` F&G는 ${Math.round(fg)}로 ${fgBand.label}입니다.` : '';
   let synthesis;
   if (!moodKnown) synthesis = '기준일에 맞는 심리 지표(F&G·AAII)가 없어 종합 판단을 보류합니다.';
-  else if (fearful && creditCalm && volCalm) synthesis = `심리 지표(${parts})는 공포인데 신용(${Math.round(hyBp)}bp)과 변동성 구조(${ratio.toFixed(2)})는 안정 — 공포가 가격에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.`;
-  else if (fearful && (creditStress || (volKnown && !volCalm))) synthesis = `심리(${parts})와 함께 ${[creditStress ? `신용 스프레드(${Math.round(hyBp)}bp${hy5 != null ? `, 5일 ${hy5 >= 0 ? '+' : ''}${Math.round(hy5)}bp` : ''})도 경계 구간` : null, volKnown && !volCalm ? `변동성 구조도 역전(${ratio.toFixed(2)})` : null].filter(Boolean).join(', ')} — 위험 회피가 가격을 넘어 퍼지고 있습니다.`;
-  else if (fearful) synthesis = `심리(${parts})는 공포지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 공포가 번졌는지 확인하지 못했습니다.`;
+  else if (fearful && creditCalm && volCalm) synthesis = `${fearSource}는 비관 쪽인데 신용(${Math.round(hyBp)}bp)과 변동성 구조(${ratio.toFixed(2)})는 안정 — 비관이 심리 지표에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.${otherMood}`;
+  else if (fearful && (creditStress || (volKnown && !volCalm))) synthesis = `${fearSource}의 비관과 함께 ${[creditStress ? `신용 스프레드(${Math.round(hyBp)}bp${hy5 != null ? `, 5일 ${hy5 >= 0 ? '+' : ''}${Math.round(hy5)}bp` : ''})도 경계 구간` : null, volKnown && !volCalm ? `변동성 구조도 역전(${ratio.toFixed(2)})` : null].filter(Boolean).join(', ')} — 위험 회피가 심리 지표를 넘어 퍼지고 있습니다.${otherMood}`;
+  else if (fearful) synthesis = `${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.${otherMood}`;
   else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 헤지 수요가 낮음(풋/콜 ${pcr.toFixed(2)}) — 충격에 대비가 얇은 배치입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 헤지 수요는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 헤지 수요가 낮지는 않습니다`}.`;
   else synthesis = `심리 지표(${parts})가 한쪽으로 치우치지 않은 상태입니다.`;
   const mixed = cards.filter((card) => card.value !== '—' && card.basisStatus !== 'aligned').map((card) => card.title);

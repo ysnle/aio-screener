@@ -1,7 +1,8 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
+import { derivePortfolioSurface, exposureCapForVix } from '../../domain/portfolio/surface.js';
+import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
 import { renderPortfolioRead } from '../components/portfolio-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -156,9 +157,16 @@ function renderPortfolioSurface(documentRef, page, surface) {
     : surface.costCurrencyState === 'cost-price-mismatch-converted' ? ' · 원가/시세 불일치 — 선언 rate로 환산' : '';
   const currencyHeldActive = (surface.currencyState === 'mixed-without-conversion' || surface.costCurrencyState === 'cost-price-mismatch-held') && surface.readState === 'ready' && !!surface.holdingCount;
   setSurfaceText(documentRef, 'pf-currency-note', currencyNoteBase === '—' ? '—' : currencyNoteBase + currencyHeld, surface.holdingCount || null, surface, currencyHeldActive ? 'var(--data-amber)' : 'var(--text-dim)');
-  const rule = surface.exposureCap == null ? 'VIX 확인 중' : `VIX ${surface.vix.toFixed(1)} · 최대 ${surface.exposureCap}%`;
+  // Codex browser audit H50: "VIX 확인 중" stayed while every market screen showed VIX — the live quote did not
+  // qualify here. The completed close (the market screens' basis) is used then, labelled with its date; and an
+  // empty portfolio says what needs input instead of looking like a pending calculation.
+  const vixHistory = buildCloseSeries(documentRef?.defaultView?._aioHistory || globalThis._aioHistory || [], 'vix', { through: closeBasis(documentRef?.defaultView?._aioHistory || globalThis._aioHistory || []) });
+  const vixClose = vixHistory[vixHistory.length - 1] || null;
+  const closeCap = vixClose ? exposureCapForVix(vixClose.value) : null;
+  const rule = surface.exposureCap != null ? `VIX ${surface.vix.toFixed(1)} · 최대 ${surface.exposureCap}%`
+    : closeCap != null ? `VIX ${vixClose.value.toFixed(1)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가) · 최대 ${closeCap}%` : 'VIX 자료 없음';
   setSurfaceText(documentRef, 'pf-exposure-rule', rule, surface.exposureCap, surface);
-  const current = surface.exposurePct == null ? '현재 노출 —' : `현재 노출 ${surface.exposurePct.toFixed(1)}%${surface.exposureExceeded ? ' · 참고 한도 초과' : ''}`;
+  const current = surface.exposurePct == null ? (surface.holdingCount ? '현재 노출 —' : '보유 내역을 입력하면 계산됩니다') : `현재 노출 ${surface.exposurePct.toFixed(1)}%${surface.exposureExceeded ? ' · 참고 한도 초과' : ''}`;
   setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, surface.exposureExceeded ? 'var(--data-red)' : 'var(--text-dim)');
 
   const sectorElement = documentRef?.getElementById('pf-sector-breakdown');
@@ -269,6 +277,9 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     // LC-45: the table printed `$` for every row while the domain already declares each row's price
     // and cost currency. Print the declared code instead, so a KRW/mixed row is not relabelled as USD.
     const baseCurrency = String(surface?.baseCurrency || 'USD').trim().toUpperCase();
+    // Codex browser audit H49: the P&L column is summed in the base currency; its header names it.
+    const pnlHeader = documentRef.getElementById('pf-th-pnl');
+    if (pnlHeader) pnlHeader.textContent = `손익 (${baseCurrency})`;
     const priceCurrency = String(holding?.currency || '').trim().toUpperCase() || baseCurrency;
     const costCurrency = String(holding?.costCurrency || holding?.currency || '').trim().toUpperCase() || baseCurrency;
     const money = (amount, currency) => (amount == null

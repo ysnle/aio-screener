@@ -244,14 +244,20 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   const canvas = page?.querySelector?.('#ticker-price-chart');
   if (!canvas) return;
   const range = TICKER_CHART_RANGES[requestedRange] ? requestedRange : '1m';
-  const view = selectTickerChartWindow(state?.history, range);
+  // Codex browser audit H28: the summary said "이력 미수신 · 차트 보류" while the chart tab drew the same stock's
+  // daily bars. When the entity history is too short, the summary uses those completed daily bars.
+  const symbol = String(state?.id || '').toUpperCase();
+  const ownHistory = Array.isArray(state?.history) ? state.history : [];
+  const dailyBars = root?._technicalOHLCV?.[symbol] || root?._tickerHistory?.[symbol] || [];
+  const historySource = ownHistory.length >= 2 ? ownHistory : (Array.isArray(dailyBars) ? dailyBars : []);
+  const view = selectTickerChartWindow(historySource, range);
   const rows = view.rows;
   const ChartConstructor = root?.Chart;
   const unavailable = rows.length < 2 || typeof ChartConstructor !== 'function';
   const signature = `${range}|${rows.map((row) => `${row.epochMs}:${row.close}`).join('|')}`;
   const periodLabel = TICKER_CHART_RANGES[range].label;
   const periodMeta = unavailable
-    ? `${state?.id || '종목'} ${periodLabel} 관측 가격 이력 미수신 · 차트 보류`
+    ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 아직 받지 못했습니다 — 차트 탭의 일봉이 열리면 이곳에도 같은 이력이 그려집니다`
     // P1255 (07:M04 계열 잔여 D4): 차트는 close 계열(배당 미조정)이다 — "수익률"과 섞이지 않도록
     // 가격 기준을 메타에 함께 말한다(분할 반영 여부는 공급자 관례에 의존, 미검증).
     : `${periodLabel} · ${view.rowCount}개 관측 · ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)} · 가격 기준 close(배당 미조정 price return · 분할 반영 여부 미검증)`;

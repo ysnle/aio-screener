@@ -375,7 +375,7 @@ const impactPatternCovers = (pattern, file) => {
 };
 for (const contract of gateInputContracts) {
   const gate = gateById.get(contract.id);
-  check(`${contract.id} declares exact cache inputs`, Boolean(gate) && sameSet(gate.inputs || [], contract.inputs));
+  check(`P1518/R690 ${contract.id} declares required cache inputs`, Boolean(gate) && contract.inputs.every(input => (gate.inputs || []).includes(input)));
   check(`${contract.id} inputs have core impact coverage`, contract.impactPaths.every((file) => manifest.impactRules.some((rule) => rule.groups?.includes(contract.group) && (rule.patterns || []).some((pattern) => impactPatternCovers(pattern, file)))));
 }
 
@@ -401,7 +401,7 @@ for (const contract of literalDependencyContracts) {
 // 않으며, 게이트 자신의 script 변경은 runner가 직접 선택하므로 셋 다 canary에서 제외한다.
 const literalCanaries = [];
 for (const [groupName, group] of Object.entries(manifest.groups || {})) {
-  if (groupName === 'preflight' || groupName === 'external') continue;
+  if (groupName === 'preflight' || groupName === 'external' || groupName === 'watchdog-local') continue;
   for (const gate of group.gates || []) {
     if (gate.kind === 'external') continue;
     for (const input of gate.inputs || group.inputs || []) {
@@ -414,7 +414,7 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
 check('P1173 the canary list is derived from the registry rather than a duplicated document list',
   literalCanaries.length >= 40 && new Set(literalCanaries.map((entry) => entry.input)).size >= 15,
   `${literalCanaries.length} literal inputs across ${new Set(literalCanaries.map((entry) => entry.input)).size} files`);
-const unreachableInputs = literalCanaries.filter((entry) => !manifest.impactRules.some((rule) => rule.groups?.includes(entry.group)
+const unreachableInputs = literalCanaries.filter((entry) => !manifest.impactRules.some((rule) => (rule.groups?.includes(entry.group) || rule.gates?.includes(entry.gate))
   && (rule.patterns || []).some((pattern) => impactPatternCovers(pattern, entry.input))));
 check(`P1173 every declared gate input can select the gate that depends on it (${literalCanaries.length} canaries)`, unreachableInputs.length === 0,
   `${unreachableInputs.length} unreachable: ${[...new Set(unreachableInputs.map((entry) => `${entry.input}->${entry.group}`))].slice(0, 12).join(', ')}`);
@@ -659,6 +659,24 @@ check('headless failures keep exact test details in stdout and a local report',
   && headlessSource.includes('writeQaReport')
   && headlessSource.includes('groupResults'));
 check('runner streams long-gate progress and terminates Windows child trees', /\[qa-progress\]/.test(runnerSource) && /taskkill\.exe/.test(runnerSource) && /['"]\/T['"]/.test(runnerSource));
+
+// P1518/R690: direct literal reads must participate in the content cache key.
+// This is a lower bound, not a complete JS dependency parser; dynamic reads and
+// transitive imports still need explicit manifest inputs and review.
+const inputMatches = (file, patterns) => patterns.some(pattern => {
+  const expression = pattern.split('**').map(part => part.split('*').map(piece => piece.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[^/]*')).join('.*');
+  return new RegExp(`^${expression}$`).test(file);
+});
+for (const group of Object.values(manifest.groups)) {
+  for (const gate of group.gates) {
+    const source = read(gate.script);
+    const dependencies = [...source.matchAll(/\b(?:read|readText|readJson|readFileSync)\(\s*['"]([^'"]+)['"]/g)]
+      .map(match => match[1]).filter(file => existsSync(file));
+    for (const file of new Set(dependencies)) {
+      check(`P1518/R690 ${gate.id} cache covers literal read ${file}`, inputMatches(file, gate.inputs || group.inputs || []));
+    }
+  }
+}
 
 if (errors.length) {
   console.error('QA pipeline contract failed:');

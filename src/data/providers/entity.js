@@ -17,16 +17,21 @@ function lastHistoryObservedAt(history = []) {
 }
 
 export function createEntityProvider({ read = () => ({}), httpClient, fundamentalsUrl = './public-data/sec-fundamentals-summary.json', fundamentalWatchlist = DEFAULT_FUNDAMENTAL_WATCHLIST, now = () => Date.now(), cacheTtlMs = 30 * 60 * 1000 } = {}) {
-  let fundamentalsTablePromise = null; // TTL cache: long-lived tabs re-read the server artifact after refresh.
+  let fundamentalsTablePromise = null;
+  let fundamentalsProjection = null;
   let fundamentalsLoadedAt = 0;
 
-  function loadFundamentalsTable({ signal } = {}) {
-    if (fundamentalsTablePromise && now() - fundamentalsLoadedAt < cacheTtlMs) return fundamentalsTablePromise;
-    if (!httpClient || typeof httpClient.requestJson !== 'function') return (fundamentalsTablePromise = Promise.resolve({ table: {}, meta: null }));
-    fundamentalsLoadedAt = now();
-    fundamentalsTablePromise = httpClient.requestJson(fundamentalsUrl, { cache: 'no-store', signal }).then((response) => {
+  function loadFundamentalsTable() {
+    if (fundamentalsProjection && now() - fundamentalsLoadedAt < cacheTtlMs) return Promise.resolve(fundamentalsProjection);
+    if (fundamentalsTablePromise) return fundamentalsTablePromise;
+    if (!httpClient || typeof httpClient.requestJson !== 'function') return Promise.resolve({ table: {}, meta: null });
+    // P1518: the whole-table request belongs to this provider, not its first route.
+    // A disposed consumer is suppressed by the orchestrator; it cannot abort another
+    // consumer's shared load. The gateway bounds the request including its body.
+    fundamentalsTablePromise = Promise.resolve().then(() => httpClient.requestJson(fundamentalsUrl, { cache: 'no-store' })).then((response) => {
       if (response.ok && response.data && response.data.data && typeof response.data.data === 'object' && !Array.isArray(response.data.data)) {
-        return {
+        fundamentalsLoadedAt = now();
+        fundamentalsProjection = {
           table: response.data.data,
           meta: Object.freeze({
             generatedAt: response.data.generatedAt || null,
@@ -38,26 +43,25 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
             stored: Number.isFinite(response.data.stored) ? response.data.stored : null
           })
         };
+        return fundamentalsProjection;
       }
       // HTTP_ABORTED/timeout/non-2xx and malformed payloads are transient load
       // outcomes, not a valid empty fundamentals artifact. Clear immediately so
       // the next route sync can retry instead of pinning `{}` for the full TTL.
-      fundamentalsTablePromise = null;
+      fundamentalsProjection = null;
       fundamentalsLoadedAt = 0;
       return { table: {}, meta: null };
-    }).catch((error) => {
+    }).finally(() => {
       fundamentalsTablePromise = null;
-      fundamentalsLoadedAt = 0;
-      throw error;
     });
     return fundamentalsTablePromise;
   }
 
   return Object.freeze({
-    async readCurrent({ signal } = {}) {
+    async readCurrent() {
       const value = read() || {};
       const id = value.id ? String(value.id).toUpperCase() : null;
-      const projection = await loadFundamentalsTable({ signal });
+      const projection = await loadFundamentalsTable();
       const table = projection?.table || {};
       const fetchedFundamentals = id && table[id] ? { ...table[id] } : null;
       const fundamentals = fetchedFundamentals || value.fundamentals || null;

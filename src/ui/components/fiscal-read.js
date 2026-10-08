@@ -154,6 +154,9 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     if (read.history.length >= 2) host.append(bars(doc, read));
     const quarterBox = quarterSection(doc, root, symbol);
     if (quarterBox) host.append(quarterBox);
+    // Codex browser audit H35: "최신" annual data is not the latest company state. Without quarters the gap after
+    // the fiscal year end is named, so an old 10-K is not read as the current quarter.
+    else if (read.latest?.periodEnd) host.append(el(doc, 'p', `분기 실적은 이 종목에 아직 연결되지 않았습니다 — 위 숫자는 ${read.latest.periodEnd}에 끝난 회계연도까지이며, 그 뒤 분기 결과는 SEC 10-Q 원문에서 확인합니다.`, 'theme-strength-basis'));
     const list = el(doc, 'ul', null, 'stock-read-points');
     for (const point of read.points) {
       const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
