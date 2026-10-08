@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-08T13:31:50.782Z",
-  "attemptedAt": "2026-10-08T13:31:50.782Z",
-  "lastSuccessfulAt": "2026-10-08T13:31:50.782Z",
+  "generatedAt": "2026-10-08T14:33:01.494Z",
+  "attemptedAt": "2026-10-08T14:33:01.494Z",
+  "lastSuccessfulAt": "2026-10-08T14:33:01.494Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-24T13:31:44.947Z",
-  "until": "2026-10-08T13:31:44.947Z",
+  "since": "2026-09-24T14:32:57.882Z",
+  "until": "2026-10-08T14:32:57.882Z",
   "current24hWindow": {
     "start": "2026-10-06T23:00:00.000Z",
     "end": "2026-10-07T23:00:00.000Z",
@@ -78,11 +78,11 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 216,
-      "freshCount": 39,
+      "count": 215,
+      "freshCount": 19,
       "eligibleTextCount": 56,
       "selectedCount": 75,
       "error": null,
@@ -90,11 +90,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1103,
-      "freshCount": 57,
+      "freshCount": 19,
       "eligibleTextCount": 161,
       "selectedCount": 120,
       "error": null,
@@ -102,32 +102,102 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 234,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 63,
-      "selectedCount": 99,
+      "selectedCount": 98,
       "error": null,
       "lastPostId": 20543
     },
     {
       "channel": "HANAchina",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 652,
-      "freshCount": 53,
-      "eligibleTextCount": 107,
+      "count": 654,
+      "freshCount": 32,
+      "eligibleTextCount": 112,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 70084
+      "lastPostId": 70089
     }
   ],
-  "count": 2205,
-  "retainedItemCount": 536,
+  "count": 2206,
+  "retainedItemCount": 462,
   "observedItems": [
+    {
+      "id": "HANAchina/70089",
+      "channel": "HANAchina",
+      "datetime": "2026-10-08T13:58:30.000Z",
+      "localDateKst": "2026-10-08",
+      "score": 62,
+      "tags": [
+        "macro",
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/70088",
+      "channel": "HANAchina",
+      "datetime": "2026-10-08T13:56:04.000Z",
+      "localDateKst": "2026-10-08",
+      "score": 93,
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/70087",
+      "channel": "HANAchina",
+      "datetime": "2026-10-08T13:52:57.000Z",
+      "localDateKst": "2026-10-08",
+      "score": 50,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/70086",
+      "channel": "HANAchina",
+      "datetime": "2026-10-08T13:44:36.000Z",
+      "localDateKst": "2026-10-08",
+      "score": 55,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/70085",
+      "channel": "HANAchina",
+      "datetime": "2026-10-08T13:34:32.000Z",
+      "localDateKst": "2026-10-08",
+      "score": 51,
+      "tags": [
+        "macro",
+        "equity"
+      ],
+      "tickers": [
+        "META"
+      ],
+      "hasText": true
+    },
     {
       "id": "bornlupin/20543",
       "channel": "bornlupin",
@@ -149,15 +219,13 @@
       "channel": "aetherjapanresearch",
       "datetime": "2026-10-08T13:27:26.000Z",
       "localDateKst": "2026-10-08",
-      "score": 76,
+      "score": 72,
       "tags": [
         "macro",
-        "semi",
-        "equity"
+        "semi"
       ],
       "tickers": [
         "AMD",
-        "META",
         "T"
       ],
       "hasText": true
@@ -353,9 +421,9 @@
       "channel": "aetherjapanresearch",
       "datetime": "2026-10-08T12:28:38.000Z",
       "localDateKst": "2026-10-08",
-      "score": 45,
+      "score": 35,
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "tickers": [],
       "hasText": true
@@ -506,13 +574,11 @@
       "channel": "insidertracking",
       "datetime": "2026-10-08T11:33:22.000Z",
       "localDateKst": "2026-10-08",
-      "score": 39,
+      "score": 35,
       "tags": [
         "market-note"
       ],
-      "tickers": [
-        "BE"
-      ],
+      "tickers": [],
       "hasText": true
     },
     {
@@ -556,13 +622,11 @@
       "channel": "insidertracking",
       "datetime": "2026-10-08T11:26:32.000Z",
       "localDateKst": "2026-10-08",
-      "score": 39,
+      "score": 35,
       "tags": [
         "market-note"
       ],
-      "tickers": [
-        "BE"
-      ],
+      "tickers": [],
       "hasText": true
     },
     {
@@ -944,10 +1008,9 @@
       "channel": "aetherjapanresearch",
       "datetime": "2026-10-08T06:39:38.000Z",
       "localDateKst": "2026-10-08",
-      "score": 69,
+      "score": 61,
       "tags": [
         "semi",
-        "kr-market",
         "earnings"
       ],
       "tickers": [
@@ -960,9 +1023,9 @@
       "channel": "HANAchina",
       "datetime": "2026-10-08T06:32:35.000Z",
       "localDateKst": "2026-10-08",
-      "score": 48,
+      "score": 40,
       "tags": [
-        "kr-market"
+        "market-note"
       ],
       "tickers": [],
       "hasText": true
@@ -1227,13 +1290,11 @@
       "channel": "bornlupin",
       "datetime": "2026-10-08T04:02:56.000Z",
       "localDateKst": "2026-10-08",
-      "score": 57,
+      "score": 45,
       "tags": [
-        "kr-market"
+        "market-note"
       ],
-      "tickers": [
-        "035420.KS"
-      ],
+      "tickers": [],
       "hasText": true
     },
     {
@@ -1241,14 +1302,11 @@
       "channel": "aetherjapanresearch",
       "datetime": "2026-10-08T03:58:44.000Z",
       "localDateKst": "2026-10-08",
-      "score": 47,
+      "score": 35,
       "tags": [
-        "kr-market",
         "equity"
       ],
-      "tickers": [
-        "035420.KS"
-      ],
+      "tickers": [],
       "hasText": true
     },
     {
@@ -1506,11 +1564,10 @@
       "channel": "bornlupin",
       "datetime": "2026-10-08T02:15:54.000Z",
       "localDateKst": "2026-10-08",
-      "score": 81,
+      "score": 73,
       "tags": [
         "macro",
         "semi",
-        "kr-market",
         "earnings",
         "flows"
       ],
@@ -30516,88 +30573,36 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/69376",
-      "channel": "HANAchina",
-      "datetime": "2026-09-24T14:15:10.000Z",
-      "localDateKst": "2026-09-24",
-      "score": 43,
-      "tags": [
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/69374",
-      "channel": "HANAchina",
-      "datetime": "2026-09-24T14:14:14.000Z",
-      "localDateKst": "2026-09-24",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/69373",
-      "channel": "HANAchina",
-      "datetime": "2026-09-24T13:45:31.000Z",
-      "localDateKst": "2026-09-24",
-      "score": 50,
-      "tags": [
-        "ai-policy"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25479",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-24T13:41:54.000Z",
-      "localDateKst": "2026-09-24",
-      "score": 79,
-      "tags": [
-        "macro",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [
-        "ORCL"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2205,
-    "eligibleTextCount": 387,
-    "mediaOnlyCount": 1818,
-    "highSignalCount": 505,
-    "broadSignalCount": 1014,
-    "selectedRawCount": 417,
-    "selectedEligibleCount": 187,
-    "selectedRawCoveragePct": 48.3,
+    "observedCount": 2206,
+    "eligibleTextCount": 392,
+    "mediaOnlyCount": 1814,
+    "highSignalCount": 504,
+    "broadSignalCount": 1016,
+    "selectedRawCount": 416,
+    "selectedEligibleCount": 191,
+    "selectedRawCoveragePct": 48.7,
     "selectedOfObservedPct": 18.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "credit": 81,
-    "macro": 771,
-    "equity": 187,
-    "semi": 569,
-    "power": 337,
+    "macro": 773,
+    "ai-policy": 193,
+    "credit": 82,
+    "semi": 570,
+    "power": 336,
+    "equity": 188,
+    "market-note": 652,
+    "geo": 369,
     "earnings": 377,
     "healthcare": 125,
     "flows": 166,
-    "ai-policy": 195,
-    "geo": 368,
-    "market-note": 649,
-    "kr-market": 259,
+    "kr-market": 254,
     "japan": 135,
     "optical": 44,
     "insider": 51,
@@ -30605,10 +30610,10 @@
     "crypto": 5
   },
   "tickerCounts": {
+    "NVDA": 103,
     "META": 67,
     "AMD": 77,
     "T": 5,
-    "NVDA": 102,
     "MRVL": 25,
     "ALAB": 2,
     "INTC": 17,
@@ -30621,18 +30626,17 @@
     "RDDT": 1,
     "PINS": 1,
     "AVGO": 42,
-    "ORCL": 28,
+    "ORCL": 27,
     "PLTR": 10,
     "RKLB": 9,
     "AAOI": 4,
-    "BE": 51,
+    "BE": 49,
     "TSM": 88,
     "MSFT": 33,
     "AMZN": 42,
     "MU": 56,
     "000660.KS": 35,
     "005930.KS": 55,
-    "035420.KS": 24,
     "STX": 10,
     "LITE": 25,
     "373220.KS": 5,
@@ -30672,6 +30676,7 @@
     "267260.KS": 3,
     "103590.KS": 2,
     "000500.KS": 3,
+    "035420.KS": 22,
     "AMAT": 9,
     "WDC": 7,
     "NKE": 7,
@@ -30778,20 +30783,20 @@
     "GDDY": 1
   },
   "themes": [
-    "Macro/Rates (771 posts in 14-day research window): BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방...",
-    "Market Notes (649 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🛢 에너지 · CVR Energy · Marathon Petroleum · Par Pacific Holdings · PBF Energy...",
-    "Semiconductors/Memory (569 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
+    "Macro/Rates (773 posts in 14-day research window): BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방...",
+    "Market Notes (652 posts in 14-day research window): 2026년 10월 7일 미국 증시 프리마켓 브리핑 미국 지수선물은 혼조권. S&P500 +0.07%, 나스닥100 +0.02%로 대형주는 보합권을 유지하는 반면 다우 -0.08%, 러셀2000 -0.23%로...",
+    "Semiconductors/Memory (570 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
     "Earnings/Corporate (377 posts in 14-day research window): BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방...",
-    "Geopolitics (368 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
-    "AI Power/Grid (337 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
-    "Korea Market (259 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
-    "AI Policy/Export Controls (195 posts in 14-day research window): BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방..."
+    "Geopolitics (369 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
+    "AI Power/Grid (336 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
+    "Korea Market (254 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우...",
+    "AI Policy/Export Controls (193 posts in 14-day research window): BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 102,
-      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%, 러셀2000 선물 -0.19% 기록. 변동성지수(VIX)는 17.40으로 소폭 상승. 대형 기술주보다..."
+      "count": 103,
+      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
     },
     {
       "key": "TSM",
@@ -30801,7 +30806,7 @@
     {
       "key": "AMD",
       "count": 77,
-      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오전 6시~오후 2시 30분 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 군 당국은 트럼프 대통령이 이란 공격 시점을 검토하는 가운데 추가 군사작전에 대비해 경계태세를 강화하라는 지시를 받은 것으로 알려져. (Axios) • 미국 정부는 AI 과학..."
+      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오전 6시~오후 2시 30분 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 군 당국은 트럼프 대통령이 이란 공격 시점을 검토하는 가운데 추가..."
     },
     {
       "key": "META",
@@ -30816,37 +30821,37 @@
     {
       "key": "MU",
       "count": 56,
-      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%, 러셀2000 선물 -0.19% 기록. 변동성지수(VIX)는 17.40으로 소폭 상승. 대형 기술주보다..."
+      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
     },
     {
       "key": "005930.KS",
       "count": 55,
-      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%, 러셀2000 선물 -0.19% 기록. 변동성지수(VIX)는 17.40으로 소폭 상승. 대형 기술주보다..."
+      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
     },
     {
       "key": "BE",
-      "count": 51,
+      "count": 49,
       "text": "2026년 10월 7일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NEOG (+13.21%) EPS 예상치를 &#036;0.03 상회하고 매출도 예상치 상회, FY27 가이던스 제시...."
     },
     {
       "key": "AVGO",
       "count": 42,
-      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%, 러셀2000 선물 -0.19% 기록. 변동성지수(VIX)는 17.40으로 소폭 상승. 대형 기술주보다..."
+      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
     },
     {
       "key": "AMZN",
       "count": 42,
-      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%, 러셀2000 선물 -0.19% 기록. 변동성지수(VIX)는 17.40으로 소폭 상승. 대형 기술주보다..."
+      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
     },
     {
       "key": "000660.KS",
       "count": 35,
-      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%, 러셀2000 선물 -0.19% 기록. 변동성지수(VIX)는 17.40으로 소폭 상승. 대형 기술주보다..."
+      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
     },
     {
       "key": "MSFT",
       "count": 33,
-      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%, 러셀2000 선물 -0.19% 기록. 변동성지수(VIX)는 17.40으로 소폭 상승. 대형 기술주보다..."
+      "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
     }
   ],
   "categories": [
@@ -30856,7 +30861,7 @@
       "topics": [
         "macro"
       ],
-      "count": 771,
+      "count": 773,
       "focus": "BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방..."
     },
     {
@@ -30865,7 +30870,7 @@
       "topics": [
         "geo"
       ],
-      "count": 368,
+      "count": 369,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
     },
     {
@@ -30874,7 +30879,7 @@
       "topics": [
         "credit"
       ],
-      "count": 81,
+      "count": 82,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
     },
     {
@@ -30883,7 +30888,7 @@
       "topics": [
         "semi"
       ],
-      "count": 569,
+      "count": 570,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
     },
     {
@@ -30893,7 +30898,7 @@
         "optical"
       ],
       "count": 44,
-      "focus": "2026년 10월 7일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.57%) 2위: TAIWAN..."
+      "focus": "루멘텀, 코히런트, 시에나 급등…월가 “AI 시대 구조적 수혜주” AI 데이터센터용 광통신(Optical Networking) 관련주가 동반 급등 코히어런트 &#036;COHR : +10.90% 루멘텀..."
     },
     {
       "id": "power",
@@ -30901,7 +30906,7 @@
       "topics": [
         "power"
       ],
-      "count": 337,
+      "count": 336,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
     },
     {
@@ -30910,7 +30915,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 195,
+      "count": 193,
       "focus": "BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방..."
     },
     {
@@ -30919,7 +30924,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 259,
+      "count": 254,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 8일 > 오후 3시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 연준 월러 이사는 인플레이션이 여전히 높고 AI 인프라 투자와 에너지 충격이 물가 상승 압력을 지속시키고 있다고 경고. 미국 경제와 고용시장은 견조하며, 예상대로 경제지표가 발표될 경우..."
     },
     {
@@ -30928,7 +30933,7 @@
       "topics": [
         "equity"
       ],
-      "count": 187,
+      "count": 188,
       "focus": "BofA 인터넷 광고주 설문: 3분기 광고 지출, 계획 대비 견조한 흐름 시사 (2026년 10월 7일, Justin Post 외) BofA는 광고주 및 대행사 117곳(9월 하반기 조사, 대행사 44%·기업 43%·기타 13%)을 대상으로 분기별 인터넷 광고 설문을 실시했으며, 3분기 광고 지출이 소폭 상방..."
     },
     {
@@ -30938,7 +30943,7 @@
         "crypto"
       ],
       "count": 5,
-      "focus": "2026년 10월 8일 미국 증시 브리핑 미국 증시는 장중 국채금리 급등과 에너지발 인플레이션 우려로 약세 출발한 뒤 장기물 매수 유입으로 낙폭 축소 마감. S&P500 -0.22%, 나스닥 -0.22%,..."
+      "focus": "No retained full-text sample; 5 observed posts in the 14-day research window."
     },
     {
       "id": "earnings",
@@ -30956,7 +30961,7 @@
         "healthcare"
       ],
       "count": 125,
-      "focus": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%, 러셀2000 선물 -0.19% 기록. 변동성지수(VIX)는 17.40으로 소폭 상승. 대형 기술주보다..."
+      "focus": "씨티, 3분기 실적 발표 앞두고 반도체 업종 최선호 매수 종목 5개 선정…“종목 선택에 더욱 신중해지고 있다” 씨티(Citi)는 3분기 실적 발표를 앞두고 AMD, 텍사스 인스트루먼트(Texas Instruments), 램리서치(Lam Research), 테라다인(Teradyne), 시놉시스(Synopsys)를..."
     },
     {
       "id": "japan",
@@ -30991,8 +30996,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 649,
-      "focus": "52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🛢 에너지 · CVR Energy · Marathon Petroleum · Par Pacific Holdings · PBF Energy..."
+      "count": 652,
+      "focus": "2026년 10월 7일 미국 증시 프리마켓 브리핑 미국 지수선물은 혼조권. S&P500 +0.07%, 나스닥100 +0.02%로 대형주는 보합권을 유지하는 반면 다우 -0.08%, 러셀2000 -0.23%로..."
     }
   ],
   "pageMap": {
@@ -31287,17 +31292,8 @@
       "datetime": "2026-10-08T05:43:16.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
         "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
+        "geo"
       ],
       "tickers": [
         "NVDA",
@@ -31319,15 +31315,7 @@
       "datetime": "2026-10-08T05:37:54.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "flows",
-        "japan"
+        "geo"
       ],
       "tickers": [
         "AMD",
@@ -31369,13 +31357,8 @@
       "datetime": "2026-10-07T20:53:48.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
-        "optical",
-        "kr-market",
-        "equity",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "tickers": [
         "GOOG",
@@ -31410,12 +31393,7 @@
       "datetime": "2026-10-07T20:50:49.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -31436,13 +31414,7 @@
       "datetime": "2026-10-07T20:47:30.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "MSFT",
@@ -31461,14 +31433,7 @@
       "datetime": "2026-10-07T20:46:19.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "crypto",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "MSFT",
@@ -31486,10 +31451,6 @@
       "datetime": "2026-10-07T12:33:55.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "equity",
         "earnings"
       ],
       "tickers": [
@@ -31510,13 +31471,7 @@
       "datetime": "2026-10-07T11:59:29.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -31536,12 +31491,7 @@
       "datetime": "2026-10-07T11:56:58.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market",
-        "flows",
-        "japan"
+        "geo"
       ],
       "tickers": [
         "AMD",
@@ -31560,16 +31510,7 @@
       "datetime": "2026-10-07T05:28:50.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -31588,11 +31529,7 @@
       "datetime": "2026-10-07T05:24:30.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "japan"
+        "geo"
       ],
       "tickers": [],
       "score": 100,
@@ -31607,13 +31544,7 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi",
-        "optical",
-        "power",
-        "ai-policy",
-        "earnings",
-        "flows",
-        "healthcare"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -31632,15 +31563,8 @@
       "datetime": "2026-10-06T20:42:01.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
         "equity",
-        "insider",
-        "earnings",
-        "flows",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "AMD",
@@ -31662,13 +31586,6 @@
       "datetime": "2026-10-06T20:41:47.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power",
-        "kr-market",
-        "equity",
-        "crypto",
         "flows"
       ],
       "tickers": [
@@ -31704,11 +31621,7 @@
       "datetime": "2026-10-06T20:38:05.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -31731,12 +31644,7 @@
       "datetime": "2026-10-06T20:34:23.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "NVDA",
@@ -31761,9 +31669,6 @@
       "datetime": "2026-10-06T12:23:06.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "geo",
-        "semi",
-        "power",
         "earnings"
       ],
       "tickers": [
@@ -31783,13 +31688,7 @@
       "datetime": "2026-10-06T12:06:26.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "insider",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "AMD",
@@ -31810,13 +31709,7 @@
       "datetime": "2026-10-06T12:05:29.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity",
-        "healthcare",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "AMD",
@@ -31836,17 +31729,7 @@
       "datetime": "2026-10-06T05:05:43.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "GOOG",
@@ -31865,13 +31748,7 @@
       "datetime": "2026-10-06T01:31:48.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
-        "macro",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows",
-        "japan"
+        "earnings"
       ],
       "tickers": [
         "247540.KQ",
@@ -31891,12 +31768,8 @@
       "datetime": "2026-10-06T00:38:16.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
         "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
       "tickers": [
         "AVGO"
@@ -31912,14 +31785,7 @@
       "datetime": "2026-10-05T13:26:51.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "insider",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -31940,11 +31806,7 @@
       "tags": [
         "macro",
         "geo",
-        "semi",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "japan"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -31964,12 +31826,8 @@
       "datetime": "2026-10-02T08:36:15.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "credit",
         "macro",
-        "semi",
-        "power",
-        "kr-market",
-        "flows"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -31987,12 +31845,7 @@
       "datetime": "2026-10-01T15:11:01.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "GOOG"
@@ -32008,11 +31861,7 @@
       "datetime": "2026-10-01T02:26:11.000Z",
       "localDateKst": "2026-10-01",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "kr-market"
+        "semi"
       ],
       "tickers": [
         "000660.KS"
@@ -32028,11 +31877,7 @@
       "datetime": "2026-09-30T13:34:41.000Z",
       "localDateKst": "2026-09-30",
       "tags": [
-        "macro",
-        "power",
-        "ai-policy",
-        "equity",
-        "flows"
+        "ai-policy"
       ],
       "tickers": [
         "MSFT",
@@ -32055,14 +31900,8 @@
       "datetime": "2026-09-30T13:23:01.000Z",
       "localDateKst": "2026-09-30",
       "tags": [
-        "macro",
         "semi",
-        "optical",
-        "power",
-        "ai-policy",
-        "earnings",
-        "flows",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "AMD",
@@ -32083,10 +31922,7 @@
       "tags": [
         "macro",
         "semi",
-        "power",
-        "ai-policy",
-        "insider",
-        "earnings"
+        "power"
       ],
       "tickers": [
         "NVDA",
@@ -32106,12 +31942,8 @@
       "localDateKst": "2026-09-30",
       "tags": [
         "macro",
-        "semi",
-        "power",
         "ai-policy",
-        "equity",
-        "earnings",
-        "healthcare"
+        "equity"
       ],
       "tickers": [
         "NVDA",
@@ -32135,10 +31967,7 @@
       "tags": [
         "macro",
         "semi",
-        "power",
-        "ai-policy",
-        "insider",
-        "earnings"
+        "insider"
       ],
       "tickers": [
         "NVDA"
@@ -32156,10 +31985,7 @@
       "tags": [
         "macro",
         "semi",
-        "power",
-        "ai-policy",
-        "insider",
-        "earnings"
+        "insider"
       ],
       "tickers": [
         "NVDA"
@@ -32175,11 +32001,7 @@
       "datetime": "2026-09-28T23:51:37.000Z",
       "localDateKst": "2026-09-29",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market"
+        "power"
       ],
       "tickers": [],
       "score": 100,
@@ -32193,13 +32015,7 @@
       "datetime": "2026-09-28T12:29:37.000Z",
       "localDateKst": "2026-09-28",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "kr-market",
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "tickers": [
         "AMAT",
@@ -32216,13 +32032,7 @@
       "datetime": "2026-09-28T00:03:17.000Z",
       "localDateKst": "2026-09-28",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "optical",
-        "power",
-        "equity",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -32248,11 +32058,7 @@
       "datetime": "2026-09-27T11:13:40.000Z",
       "localDateKst": "2026-09-27",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "005930.KS",
@@ -32270,15 +32076,7 @@
       "localDateKst": "2026-09-27",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "japan"
+        "semi"
       ],
       "tickers": [
         "TSLA",
@@ -32297,12 +32095,7 @@
       "datetime": "2026-09-26T05:10:39.000Z",
       "localDateKst": "2026-09-26",
       "tags": [
-        "credit",
-        "macro",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "MSFT",
@@ -32320,10 +32113,8 @@
       "localDateKst": "2026-09-26",
       "tags": [
         "macro",
-        "semi",
         "power",
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
       "tickers": [
         "GOOG",
@@ -32343,11 +32134,7 @@
       "localDateKst": "2026-09-25",
       "tags": [
         "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "equity"
       ],
       "tickers": [
         "MSFT",
@@ -32371,9 +32158,7 @@
       "tags": [
         "macro",
         "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
       "tickers": [
         "NVDA",
@@ -32392,6 +32177,86 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/70089",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70089",
+      "datetime": "2026-10-08T13:58:30.000Z",
+      "localDateKst": "2026-10-08",
+      "tags": [
+        "macro",
+        "ai-policy"
+      ],
+      "tickers": [],
+      "score": 62,
+      "hasText": true,
+      "summary": ">>가격 90% 폭락, 여러 테스트에서 GPT-6 Luna 추월&#33; Anthropic의 가장 저렴한 모델 출시 •Anthropic이 Claude Haiku 5.5를 출시함. 입력 토큰 최저 가격은..."
+    },
+    {
+      "id": "HANAchina/70088",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70088",
+      "datetime": "2026-10-08T13:56:04.000Z",
+      "localDateKst": "2026-10-08",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "score": 93,
+      "hasText": true,
+      "summary": ">>Firmus IPO 수요 ‘냉극’, AI 데이터센터 IPO 호황이 갈림길에 섰나? •Nvidia가 지분을 보유한 데이터센터 기업 Firmus Grid의 IPO 수요가 부진. 주당 11호주달러의 목표..."
+    },
+    {
+      "id": "HANAchina/70087",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70087",
+      "datetime": "2026-10-08T13:52:57.000Z",
+      "localDateKst": "2026-10-08",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": ">>JPMorgan : “탈CATL” 말처럼 쉽지 않아, 기술 격차 축소가 경쟁우위 소멸 의미하지 않아, CATL 여전히 최우선 선호 •JPMorgan은 시장이 2선 배터리 업체들의 기술 추격에 지나치게..."
+    },
+    {
+      "id": "HANAchina/70086",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70086",
+      "datetime": "2026-10-08T13:44:36.000Z",
+      "localDateKst": "2026-10-08",
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "score": 55,
+      "hasText": true,
+      "summary": ">>중국 조선업, 글로벌 수주 80% 장악…2030년까지 건조 슬롯 꽉 찼다 (중국언론) •중국 조선업이 글로벌 신규 선박 수주의 80% 이상을 차지하며 사상 최대 호황을 지속. 2026년 상반기 신규 수주는..."
+    },
+    {
+      "id": "HANAchina/70085",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70085",
+      "datetime": "2026-10-08T13:34:32.000Z",
+      "localDateKst": "2026-10-08",
+      "tags": [
+        "macro",
+        "equity"
+      ],
+      "tickers": [
+        "META"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": ">>트럼프, 8월 Meta 주식 최대 2,500만달러 및 SpaceX 채권 최대 500만달러 매입 (CNBC) •트럼프의 8월 재산 공개 자료, 트럼프가 매입한 Meta 주식 규모는 최대 2,500만달러에..."
+    },
     {
       "id": "bornlupin/20543",
       "channel": "bornlupin",
@@ -32418,15 +32283,13 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "macro",
-        "semi",
-        "equity"
+        "semi"
       ],
       "tickers": [
         "AMD",
-        "META",
         "T"
       ],
-      "score": 76,
+      "score": 72,
       "hasText": true,
       "summary": "CNBC) 트럼프, 8월에 메타 주식 최대 2,500만 달러어치와 스페이스X 채권 수백만 달러어치 매입 새로 공개된 재산 공개 자료에 따르면 도널드 트럼프 대통령은 8월 한 달 동안 500건이 넘는 증권..."
     },
@@ -32736,7 +32599,6 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "macro",
-        "kr-market",
         "earnings"
       ],
       "tickers": [],
@@ -32856,13 +32718,12 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "semi",
-        "kr-market",
         "earnings"
       ],
       "tickers": [
         "000660.KS"
       ],
-      "score": 69,
+      "score": 61,
       "hasText": true,
       "summary": "SK하이닉스, HBM 하이브리드 본딩에서 어려움 겪으며 삼성에 뒤처지는 것으로 알려져 담낭(Damnang)과 인터뷰한 SK하이닉스 미래기술연구원 소속 공정 개발 엔지니어에 따르면, SK하이닉스는 자사 HBM..."
     },
@@ -32909,17 +32770,8 @@
       "datetime": "2026-10-08T05:43:16.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
         "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
+        "geo"
       ],
       "tickers": [
         "NVDA",
@@ -32941,15 +32793,7 @@
       "datetime": "2026-10-08T05:37:54.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "flows",
-        "japan"
+        "geo"
       ],
       "tickers": [
         "AMD",
@@ -33070,22 +32914,6 @@
       "summary": "Citi) 삼성전자 (005930.KS); 보너스 영향 및 불리한 환율에도 불구하고 메모리 성장이 견인한 견조한 실적. TP 43만원(유지) 씨티의 견해 삼성전자(SEC)는 3Q26 잠정 영업이익..."
     },
     {
-      "id": "bornlupin/20533",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20533",
-      "datetime": "2026-10-08T04:02:56.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [
-        "035420.KS"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "케이엔에스, 안성 신공장 증설 결정…생산능력 2배로 확대 첨단산업 무인자동화 전문기업 케이엔에스(432470)가 글로벌 원통형 배터리 및 피지컬 AI 자동화 장비 수요 확대에 대응하기 위해 안성 신공장 증설을..."
-    },
-    {
       "id": "HANAchina/70057",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70057",
@@ -33124,7 +32952,7 @@
       "datetime": "2026-10-08T03:27:16.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "tickers": [],
       "score": 50,
@@ -33199,14 +33027,13 @@
       "tags": [
         "macro",
         "semi",
-        "kr-market",
         "earnings",
         "flows"
       ],
       "tickers": [
         "005930.KS"
       ],
-      "score": 81,
+      "score": 73,
       "hasText": true,
       "summary": "삼성전자, HBM4·메모리 가격 상승 힘입어 3분기 영업이익 783% 폭증... 사상 최대 107.4조 원 기록 매출액: 195조 원 (전년 동기 대비 126.6% 급증) 영업이익: 107.4조 원 (전년..."
     },
@@ -33217,13 +33044,7 @@
       "datetime": "2026-10-08T01:59:55.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [],
       "score": 72,
@@ -33238,8 +33059,7 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [],
       "score": 64,
@@ -33303,7 +33123,6 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "macro",
-        "kr-market",
         "earnings"
       ],
       "tickers": [],
@@ -33318,7 +33137,6 @@
       "datetime": "2026-10-07T23:52:00.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi"
       ],
       "tickers": [
@@ -33354,7 +33172,6 @@
       "datetime": "2026-10-07T23:35:32.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "geo"
       ],
       "tickers": [],
@@ -33369,9 +33186,6 @@
       "datetime": "2026-10-07T23:35:09.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "kr-market",
-        "insider",
         "earnings"
       ],
       "tickers": [],
@@ -33386,9 +33200,7 @@
       "datetime": "2026-10-07T23:32:48.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
         "macro",
-        "power",
         "earnings"
       ],
       "tickers": [
@@ -33421,9 +33233,7 @@
       "datetime": "2026-10-07T23:17:59.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "semi",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [],
       "score": 52,
@@ -33437,12 +33247,8 @@
       "datetime": "2026-10-07T23:13:59.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "optical",
         "power",
-        "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [],
       "score": 73,
@@ -33456,8 +33262,6 @@
       "datetime": "2026-10-07T23:08:47.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
         "semi",
         "earnings"
       ],
@@ -33523,9 +33327,7 @@
       "datetime": "2026-10-07T22:48:22.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "geo",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 67,
@@ -33590,7 +33392,6 @@
       "datetime": "2026-10-07T22:18:14.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
         "equity"
       ],
@@ -33608,7 +33409,6 @@
       "datetime": "2026-10-07T22:00:54.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "ai-policy",
         "equity"
       ],
@@ -33624,9 +33424,7 @@
       "datetime": "2026-10-07T21:59:12.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
         "macro",
-        "semi",
         "ai-policy",
         "equity"
       ],
@@ -33642,9 +33440,7 @@
       "datetime": "2026-10-07T21:57:03.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
       "tickers": [],
       "score": 60,
@@ -33675,7 +33471,7 @@
       "datetime": "2026-10-07T21:08:45.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "tickers": [],
       "score": 50,
@@ -33689,9 +33485,7 @@
       "datetime": "2026-10-07T21:00:19.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "geo",
-        "kr-market",
-        "flows"
+        "geo"
       ],
       "tickers": [],
       "score": 58,
@@ -33723,13 +33517,8 @@
       "datetime": "2026-10-07T20:53:48.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
-        "optical",
-        "kr-market",
-        "equity",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "tickers": [
         "GOOG",
@@ -33764,12 +33553,7 @@
       "datetime": "2026-10-07T20:50:49.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -33811,13 +33595,7 @@
       "datetime": "2026-10-07T20:47:30.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "MSFT",
@@ -33836,14 +33614,7 @@
       "datetime": "2026-10-07T20:46:19.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "crypto",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "MSFT",
@@ -33861,7 +33632,7 @@
       "datetime": "2026-10-07T20:42:56.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -33875,8 +33646,7 @@
       "datetime": "2026-10-07T20:41:36.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "healthcare"
+        "macro"
       ],
       "tickers": [],
       "score": 57,
@@ -33890,12 +33660,7 @@
       "datetime": "2026-10-07T20:40:46.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "kr-market",
-        "flows"
+        "macro"
       ],
       "tickers": [
         "AMD"
@@ -33911,9 +33676,7 @@
       "datetime": "2026-10-07T20:39:18.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi"
+        "macro"
       ],
       "tickers": [],
       "score": 79,
@@ -34015,10 +33778,6 @@
       "datetime": "2026-10-07T12:33:55.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "equity",
         "earnings"
       ],
       "tickers": [
@@ -34104,8 +33863,7 @@
       "datetime": "2026-10-07T12:09:59.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "japan"
+        "macro"
       ],
       "tickers": [],
       "score": 57,
@@ -34119,13 +33877,7 @@
       "datetime": "2026-10-07T11:59:29.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -34145,13 +33897,7 @@
       "datetime": "2026-10-07T11:59:18.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "flows"
+        "power"
       ],
       "tickers": [
         "NVDA"
@@ -34167,12 +33913,7 @@
       "datetime": "2026-10-07T11:56:58.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market",
-        "flows",
-        "japan"
+        "geo"
       ],
       "tickers": [
         "AMD",
@@ -34191,7 +33932,6 @@
       "datetime": "2026-10-07T11:51:54.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
         "power"
       ],
       "tickers": [],
@@ -34206,8 +33946,7 @@
       "datetime": "2026-10-07T11:48:21.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "healthcare"
+        "macro"
       ],
       "tickers": [],
       "score": 52,
@@ -34221,9 +33960,6 @@
       "datetime": "2026-10-07T11:48:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
         "power"
       ],
       "tickers": [],
@@ -34238,8 +33974,7 @@
       "datetime": "2026-10-07T11:48:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "geo",
-        "power"
+        "market-note"
       ],
       "tickers": [],
       "score": 58,
@@ -34253,7 +33988,6 @@
       "datetime": "2026-10-07T11:36:31.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [],
@@ -34268,7 +34002,6 @@
       "datetime": "2026-10-07T11:35:16.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [
@@ -34285,7 +34018,6 @@
       "datetime": "2026-10-07T11:31:40.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [
@@ -34302,8 +34034,7 @@
       "datetime": "2026-10-07T11:28:12.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
       "tickers": [],
       "score": 62,
@@ -34332,8 +34063,7 @@
       "datetime": "2026-10-07T10:50:08.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
       "tickers": [],
       "score": 62,
@@ -34363,8 +34093,7 @@
       "datetime": "2026-10-07T10:04:25.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
       "tickers": [],
       "score": 52,
@@ -34378,8 +34107,7 @@
       "datetime": "2026-10-07T10:04:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -34407,8 +34135,7 @@
       "datetime": "2026-10-07T09:40:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "tickers": [],
       "score": 67,
@@ -34423,8 +34150,6 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi",
-        "power",
         "earnings"
       ],
       "tickers": [],
@@ -34453,9 +34178,7 @@
       "datetime": "2026-10-07T08:35:34.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
       "tickers": [],
       "score": 73,
@@ -34484,9 +34207,6 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "semi",
-        "kr-market",
-        "earnings",
-        "flows",
         "healthcare"
       ],
       "tickers": [
@@ -34503,8 +34223,7 @@
       "datetime": "2026-10-07T08:27:57.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "AMD",
@@ -34522,8 +34241,7 @@
       "datetime": "2026-10-07T07:56:44.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi"
+        "macro"
       ],
       "tickers": [
         "009150.KS"
@@ -34591,8 +34309,7 @@
       "datetime": "2026-10-07T07:06:00.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "005930.KS",
@@ -34629,9 +34346,6 @@
       "tags": [
         "macro",
         "semi",
-        "optical",
-        "power",
-        "ai-policy",
         "earnings"
       ],
       "tickers": [
@@ -34650,7 +34364,6 @@
       "datetime": "2026-10-07T06:58:28.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "semi"
       ],
       "tickers": [
@@ -34688,7 +34401,7 @@
       "datetime": "2026-10-07T06:36:53.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "tickers": [
         "TSM",
@@ -34705,12 +34418,7 @@
       "datetime": "2026-10-07T06:17:39.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "optical",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "MRVL",
@@ -34745,7 +34453,7 @@
       "datetime": "2026-10-07T06:10:59.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -34774,9 +34482,7 @@
       "datetime": "2026-10-07T05:48:38.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "power"
       ],
       "tickers": [
         "AVGO"
@@ -34794,7 +34500,6 @@
       "tags": [
         "macro",
         "semi",
-        "power",
         "earnings"
       ],
       "tickers": [
@@ -34813,10 +34518,6 @@
       "datetime": "2026-10-07T05:34:21.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
         "earnings"
       ],
       "tickers": [],
@@ -34831,16 +34532,7 @@
       "datetime": "2026-10-07T05:28:50.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -34859,11 +34551,7 @@
       "datetime": "2026-10-07T05:24:30.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "japan"
+        "geo"
       ],
       "tickers": [],
       "score": 100,
@@ -34891,9 +34579,7 @@
       "datetime": "2026-10-07T03:23:37.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "semi"
       ],
       "tickers": [
         "AMD",
@@ -34942,10 +34628,7 @@
       "datetime": "2026-10-07T02:45:14.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [],
       "score": 72,
@@ -34959,8 +34642,7 @@
       "datetime": "2026-10-07T02:43:10.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [],
       "score": 52,
@@ -34989,10 +34671,7 @@
       "datetime": "2026-10-07T02:01:28.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "japan"
+        "macro"
       ],
       "tickers": [
         "009150.KS"
@@ -35009,13 +34688,7 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi",
-        "optical",
-        "power",
-        "ai-policy",
-        "earnings",
-        "flows",
-        "healthcare"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -35068,12 +34741,8 @@
       "datetime": "2026-10-07T00:58:02.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "semi",
-        "insider",
-        "earnings",
-        "flows",
-        "healthcare"
+        "insider"
       ],
       "tickers": [
         "MU"
@@ -35089,9 +34758,7 @@
       "datetime": "2026-10-07T00:42:42.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power"
+        "macro"
       ],
       "tickers": [],
       "score": 67,
@@ -35106,8 +34773,7 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "semi",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "MRVL"
@@ -35124,9 +34790,7 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "MRVL"
@@ -35142,7 +34806,6 @@
       "datetime": "2026-10-06T23:47:01.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
         "macro",
         "semi",
         "equity"
@@ -35162,9 +34825,7 @@
       "datetime": "2026-10-06T23:43:17.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [
         "229640.KQ"
@@ -35180,10 +34841,7 @@
       "datetime": "2026-10-06T23:42:51.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "geo",
-        "semi",
-        "earnings",
-        "japan"
+        "earnings"
       ],
       "tickers": [],
       "score": 57,
@@ -35197,8 +34855,7 @@
       "datetime": "2026-10-06T23:35:56.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "power",
-        "healthcare"
+        "power"
       ],
       "tickers": [],
       "score": 53,
@@ -35212,7 +34869,7 @@
       "datetime": "2026-10-06T23:34:16.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "tickers": [
         "AMD"
@@ -35228,9 +34885,6 @@
       "datetime": "2026-10-06T23:28:42.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
         "earnings"
       ],
       "tickers": [
@@ -35247,7 +34901,6 @@
       "datetime": "2026-10-06T23:28:33.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [],
@@ -35262,7 +34915,6 @@
       "datetime": "2026-10-06T23:21:39.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "geo"
       ],
       "tickers": [],
@@ -35277,8 +34929,7 @@
       "datetime": "2026-10-06T23:10:01.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "TSM"
@@ -35294,12 +34945,9 @@
       "datetime": "2026-10-06T23:09:52.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
         "macro",
         "semi",
-        "kr-market",
-        "equity",
-        "flows"
+        "equity"
       ],
       "tickers": [],
       "score": 89,
@@ -35313,7 +34961,6 @@
       "datetime": "2026-10-06T22:54:06.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power",
         "earnings"
       ],
@@ -35335,10 +34982,6 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "kr-market",
-        "flows",
         "japan"
       ],
       "tickers": [],
@@ -35367,9 +35010,7 @@
       "datetime": "2026-10-06T21:49:44.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "earnings",
-        "flows"
+        "semi"
       ],
       "tickers": [],
       "score": 57,
@@ -35383,9 +35024,7 @@
       "datetime": "2026-10-06T21:46:00.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "tickers": [
         "TSM"
@@ -35401,7 +35040,7 @@
       "datetime": "2026-10-06T21:42:15.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -35429,7 +35068,6 @@
       "datetime": "2026-10-06T21:30:29.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "power",
         "ai-policy"
       ],
       "tickers": [],
@@ -35491,15 +35129,8 @@
       "datetime": "2026-10-06T20:42:01.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
         "equity",
-        "insider",
-        "earnings",
-        "flows",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "AMD",
@@ -35521,13 +35152,6 @@
       "datetime": "2026-10-06T20:41:47.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power",
-        "kr-market",
-        "equity",
-        "crypto",
         "flows"
       ],
       "tickers": [
@@ -35563,11 +35187,7 @@
       "datetime": "2026-10-06T20:38:05.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -35590,10 +35210,7 @@
       "datetime": "2026-10-06T20:35:31.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "geo",
-        "semi",
-        "optical",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -35628,12 +35245,7 @@
       "datetime": "2026-10-06T20:34:23.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "NVDA",
@@ -35658,7 +35270,7 @@
       "datetime": "2026-10-06T20:29:02.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -35672,9 +35284,7 @@
       "datetime": "2026-10-06T20:26:03.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "power"
+        "geo"
       ],
       "tickers": [],
       "score": 75,
@@ -35688,12 +35298,7 @@
       "datetime": "2026-10-06T20:25:05.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "japan"
+        "geo"
       ],
       "tickers": [
         "TSM"
@@ -35709,9 +35314,6 @@
       "datetime": "2026-10-06T20:20:59.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power",
         "earnings"
       ],
       "tickers": [],
@@ -35728,7 +35330,6 @@
       "tags": [
         "macro",
         "semi",
-        "power",
         "earnings"
       ],
       "tickers": [
@@ -35745,8 +35346,7 @@
       "datetime": "2026-10-06T13:49:11.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "MU"
@@ -35762,9 +35362,7 @@
       "datetime": "2026-10-06T13:42:16.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [
         "VST"
@@ -35780,9 +35378,6 @@
       "datetime": "2026-10-06T13:22:18.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
         "earnings"
       ],
       "tickers": [],
@@ -35797,7 +35392,6 @@
       "datetime": "2026-10-06T13:17:30.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
         "earnings"
       ],
       "tickers": [],
@@ -35812,7 +35406,6 @@
       "datetime": "2026-10-06T13:14:14.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "power",
         "earnings"
       ],
       "tickers": [],
@@ -35827,8 +35420,7 @@
       "datetime": "2026-10-06T13:04:14.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "AMAT",
@@ -35875,9 +35467,7 @@
       "datetime": "2026-10-06T12:41:34.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "AMD",
@@ -35894,9 +35484,6 @@
       "datetime": "2026-10-06T12:23:06.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "geo",
-        "semi",
-        "power",
         "earnings"
       ],
       "tickers": [
@@ -35916,7 +35503,7 @@
       "datetime": "2026-10-06T12:13:25.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "kr-market"
+        "market-note"
       ],
       "tickers": [
         "MSFT",
@@ -35950,7 +35537,7 @@
       "datetime": "2026-10-06T12:11:42.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "tickers": [
         "PSKY"
@@ -35981,13 +35568,7 @@
       "datetime": "2026-10-06T12:06:26.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "insider",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "AMD",
@@ -36008,13 +35589,7 @@
       "datetime": "2026-10-06T12:05:29.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity",
-        "healthcare",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "AMD",
@@ -36034,10 +35609,7 @@
       "datetime": "2026-10-06T11:33:24.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [],
       "score": 77,
@@ -36051,9 +35623,7 @@
       "datetime": "2026-10-06T10:58:17.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
       "tickers": [],
       "score": 60,
@@ -36086,9 +35656,7 @@
       "datetime": "2026-10-06T10:51:08.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "tickers": [
         "GOOG",
@@ -36105,8 +35673,7 @@
       "datetime": "2026-10-06T09:49:24.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 64,
@@ -36120,8 +35687,7 @@
       "datetime": "2026-10-06T09:32:18.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
-        "healthcare"
+        "semi"
       ],
       "tickers": [
         "AMD",
@@ -36138,12 +35704,7 @@
       "datetime": "2026-10-06T08:40:01.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "insider",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "TSM"
@@ -36159,10 +35720,7 @@
       "datetime": "2026-10-06T06:43:33.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [],
       "score": 65,
@@ -36176,8 +35734,7 @@
       "datetime": "2026-10-06T06:39:17.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "ai-policy"
+        "market-note"
       ],
       "tickers": [],
       "score": 62,
@@ -36236,8 +35793,7 @@
       "datetime": "2026-10-06T06:22:41.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "japan"
+        "macro"
       ],
       "tickers": [],
       "score": 52,
@@ -36251,7 +35807,7 @@
       "datetime": "2026-10-06T06:21:13.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -36265,9 +35821,7 @@
       "datetime": "2026-10-06T06:00:19.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 65,
@@ -36282,9 +35836,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [],
       "score": 62,
@@ -36314,9 +35866,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [],
       "score": 57,
@@ -36330,17 +35880,7 @@
       "datetime": "2026-10-06T05:05:43.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "GOOG",
@@ -36376,9 +35916,7 @@
       "datetime": "2026-10-06T05:01:30.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
-        "power",
-        "kr-market"
+        "semi"
       ],
       "tickers": [
         "005930.KS",
@@ -36399,15 +35937,7 @@
       "datetime": "2026-10-06T05:00:09.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "flows",
-        "japan"
+        "geo"
       ],
       "tickers": [
         "AMD",
@@ -36430,8 +35960,7 @@
       "datetime": "2026-10-06T04:59:07.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
-        "power"
+        "market-note"
       ],
       "tickers": [
         "BE",
@@ -36452,7 +35981,6 @@
       "datetime": "2026-10-06T04:35:21.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
         "earnings"
       ],
       "tickers": [
@@ -36470,8 +35998,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "ai-policy",
-        "kr-market"
+        "ai-policy"
       ],
       "tickers": [],
       "score": 70,
@@ -36487,7 +36014,6 @@
       "tags": [
         "macro",
         "semi",
-        "power",
         "japan"
       ],
       "tickers": [],
@@ -36516,10 +36042,6 @@
       "datetime": "2026-10-06T04:18:07.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
         "healthcare"
       ],
       "tickers": [],
@@ -36534,8 +36056,7 @@
       "datetime": "2026-10-06T04:02:47.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "kr-market"
+        "macro"
       ],
       "tickers": [],
       "score": 75,
@@ -36550,9 +36071,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [],
       "score": 57,
@@ -36598,9 +36117,7 @@
       "datetime": "2026-10-06T02:33:40.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "tickers": [],
       "score": 62,
@@ -36614,9 +36131,7 @@
       "datetime": "2026-10-06T02:16:15.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "power",
-        "kr-market"
+        "market-note"
       ],
       "tickers": [
         "035420.KS",
@@ -36633,13 +36148,7 @@
       "datetime": "2026-10-06T01:31:48.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
-        "macro",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows",
-        "japan"
+        "earnings"
       ],
       "tickers": [
         "247540.KQ",
@@ -36674,8 +36183,6 @@
       "datetime": "2026-10-06T01:08:01.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "earnings",
         "japan"
       ],
       "tickers": [],
@@ -36692,7 +36199,6 @@
       "tags": [
         "macro",
         "semi",
-        "insider",
         "earnings"
       ],
       "tickers": [
@@ -36710,9 +36216,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "semi",
-        "ai-policy",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "TSM"
@@ -36728,8 +36232,7 @@
       "datetime": "2026-10-06T00:54:42.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "power",
-        "equity"
+        "power"
       ],
       "tickers": [
         "MSFT",
@@ -36764,9 +36267,7 @@
       "datetime": "2026-10-06T00:51:01.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "TSM"
@@ -36782,10 +36283,7 @@
       "datetime": "2026-10-06T00:48:42.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "kr-market",
-        "earnings",
-        "flows"
+        "macro"
       ],
       "tickers": [],
       "score": 55,
@@ -36799,12 +36297,8 @@
       "datetime": "2026-10-06T00:38:16.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
         "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
       "tickers": [
         "AVGO"
@@ -36855,8 +36349,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "ai-policy",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "META"
@@ -36872,9 +36365,7 @@
       "datetime": "2026-10-06T00:03:32.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "TSLA",
@@ -36891,9 +36382,7 @@
       "datetime": "2026-10-05T23:42:58.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
         "power",
-        "ai-policy",
         "equity"
       ],
       "tickers": [
@@ -36911,8 +36400,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [],
       "score": 57,
@@ -36926,8 +36414,6 @@
       "datetime": "2026-10-05T22:56:07.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
-        "macro",
         "earnings"
       ],
       "tickers": [],
@@ -36942,7 +36428,6 @@
       "datetime": "2026-10-05T22:35:15.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
         "semi",
         "japan"
       ],
@@ -36974,7 +36459,6 @@
       "datetime": "2026-10-05T22:30:38.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
         "macro",
         "semi"
       ],
@@ -37004,7 +36488,6 @@
       "datetime": "2026-10-05T21:54:53.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "credit",
         "macro",
         "semi",
         "ai-policy"
@@ -37053,7 +36536,6 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "geo",
         "semi",
         "power"
       ],
@@ -37100,10 +36582,6 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "semi",
-        "optical",
-        "power",
-        "kr-market",
         "flows"
       ],
       "tickers": [
@@ -37139,9 +36617,7 @@
       "datetime": "2026-10-05T20:27:55.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "geo",
-        "semi",
-        "optical"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -37167,10 +36643,7 @@
       "datetime": "2026-10-05T20:26:46.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "semi",
-        "crypto",
-        "insider",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -37188,7 +36661,6 @@
       "datetime": "2026-10-05T20:25:05.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
         "semi",
         "ai-policy"
       ],
@@ -37205,14 +36677,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "insider",
-        "earnings",
-        "healthcare",
-        "japan"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -37234,13 +36699,7 @@
       "localDateKst": "2026-10-06",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "insider",
-        "earnings",
-        "healthcare"
+        "semi"
       ],
       "tickers": [],
       "score": 95,
@@ -37254,7 +36713,7 @@
       "datetime": "2026-10-05T20:19:26.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -37283,9 +36742,7 @@
       "datetime": "2026-10-05T20:16:35.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "geo",
-        "kr-market",
-        "flows"
+        "geo"
       ],
       "tickers": [],
       "score": 58,
@@ -37299,13 +36756,7 @@
       "datetime": "2026-10-05T20:15:24.000Z",
       "localDateKst": "2026-10-06",
       "tags": [
-        "macro",
-        "geo",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "tickers": [],
       "score": 93,
@@ -37319,14 +36770,7 @@
       "datetime": "2026-10-05T13:26:51.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "insider",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -37391,9 +36835,7 @@
       "datetime": "2026-10-05T12:35:43.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "power",
-        "kr-market",
-        "flows"
+        "power"
       ],
       "tickers": [
         "015760.KS"
@@ -37409,10 +36851,7 @@
       "datetime": "2026-10-05T12:34:36.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "credit",
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
       "tickers": [],
       "score": 67,
@@ -37456,8 +36895,7 @@
       "localDateKst": "2026-10-05",
       "tags": [
         "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA"
@@ -37473,10 +36911,7 @@
       "datetime": "2026-10-05T12:28:48.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "semi",
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "TSM"
@@ -37492,10 +36927,7 @@
       "datetime": "2026-10-05T12:26:26.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "credit",
-        "semi",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
       "tickers": [
         "NVDA"
@@ -37532,12 +36964,8 @@
       "localDateKst": "2026-10-05",
       "tags": [
         "macro",
-        "semi",
-        "power",
         "equity",
-        "insider",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -37558,8 +36986,7 @@
       "datetime": "2026-10-05T12:10:18.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "AMD",
@@ -37578,7 +37005,6 @@
       "datetime": "2026-10-05T12:09:09.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
         "semi",
         "earnings"
       ],
@@ -37596,11 +37022,7 @@
       "datetime": "2026-10-05T12:07:29.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "geo",
-        "kr-market",
-        "flows",
-        "japan"
+        "macro"
       ],
       "tickers": [],
       "score": 70,
@@ -37615,10 +37037,8 @@
       "localDateKst": "2026-10-05",
       "tags": [
         "macro",
-        "semi",
         "optical",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "NVDA",
@@ -37636,7 +37056,7 @@
       "datetime": "2026-10-05T11:36:02.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "tickers": [],
       "score": 55,
@@ -37650,7 +37070,6 @@
       "datetime": "2026-10-05T11:09:38.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
         "equity"
       ],
       "tickers": [],
@@ -37681,9 +37100,7 @@
       "datetime": "2026-10-05T08:23:52.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "semi",
-        "kr-market",
-        "flows"
+        "semi"
       ],
       "tickers": [
         "TSM"
@@ -37699,8 +37116,7 @@
       "datetime": "2026-10-05T08:22:56.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "power",
-        "ai-policy"
+        "power"
       ],
       "tickers": [],
       "score": 73,
@@ -37714,7 +37130,6 @@
       "datetime": "2026-10-05T08:18:31.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [],
@@ -37731,8 +37146,7 @@
       "tags": [
         "semi",
         "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "005930.KS"
@@ -37748,8 +37162,6 @@
       "datetime": "2026-10-05T08:04:36.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "semi",
         "earnings"
       ],
       "tickers": [],
@@ -37859,7 +37271,6 @@
       "datetime": "2026-10-05T07:20:52.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "credit",
         "macro"
       ],
       "tickers": [],
@@ -37874,8 +37285,7 @@
       "datetime": "2026-10-05T07:11:26.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "optical",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 63,
@@ -37889,10 +37299,7 @@
       "datetime": "2026-10-05T07:11:20.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "geo",
         "semi",
-        "kr-market",
         "japan"
       ],
       "tickers": [
@@ -37909,9 +37316,6 @@
       "datetime": "2026-10-05T06:15:15.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "geo",
-        "semi",
-        "power",
         "japan"
       ],
       "tickers": [],
@@ -37926,8 +37330,7 @@
       "datetime": "2026-10-05T05:53:52.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [],
       "score": 57,
@@ -37957,11 +37360,7 @@
       "datetime": "2026-10-05T05:08:33.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "geo",
-        "ai-policy",
-        "kr-market",
-        "japan"
+        "market-note"
       ],
       "tickers": [],
       "score": 85,
@@ -37975,9 +37374,7 @@
       "datetime": "2026-10-05T05:06:13.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "geo",
-        "japan"
+        "geo"
       ],
       "tickers": [],
       "score": 67,
@@ -37991,7 +37388,7 @@
       "datetime": "2026-10-05T04:35:06.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "tickers": [],
       "score": 50,
@@ -38019,8 +37416,7 @@
       "datetime": "2026-10-05T03:03:09.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
       "tickers": [],
       "score": 57,
@@ -38049,9 +37445,7 @@
       "datetime": "2026-10-05T02:25:23.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "semi",
-        "power"
+        "macro"
       ],
       "tickers": [],
       "score": 67,
@@ -38066,8 +37460,7 @@
       "localDateKst": "2026-10-05",
       "tags": [
         "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [],
       "score": 59,
@@ -38081,9 +37474,7 @@
       "datetime": "2026-10-05T00:40:18.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "010120.KS"
@@ -38099,11 +37490,7 @@
       "datetime": "2026-10-05T00:32:06.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "semi",
-        "power",
         "kr-market",
-        "equity",
-        "earnings",
         "flows"
       ],
       "tickers": [],
@@ -38118,8 +37505,7 @@
       "datetime": "2026-10-05T00:01:16.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -38136,9 +37522,7 @@
       "datetime": "2026-10-04T23:58:17.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -38170,7 +37554,7 @@
       "datetime": "2026-10-04T22:36:32.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -38184,12 +37568,7 @@
       "datetime": "2026-10-04T22:33:13.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "geo",
-        "power",
-        "kr-market",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "tickers": [],
       "score": 78,
@@ -38203,11 +37582,7 @@
       "datetime": "2026-10-04T22:31:43.000Z",
       "localDateKst": "2026-10-05",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "earnings"
+        "macro"
       ],
       "tickers": [],
       "score": 87,
@@ -38235,9 +37610,7 @@
       "datetime": "2026-10-04T14:57:13.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "macro",
-        "semi",
-        "power"
+        "market-note"
       ],
       "tickers": [],
       "score": 77,
@@ -38251,9 +37624,7 @@
       "datetime": "2026-10-04T14:27:03.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "macro",
-        "semi",
-        "ai-policy"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -38328,8 +37699,7 @@
       "datetime": "2026-10-04T12:44:16.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "geo",
-        "kr-market"
+        "market-note"
       ],
       "tickers": [],
       "score": 58,
@@ -38343,7 +37713,6 @@
       "datetime": "2026-10-04T12:03:40.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "ai-policy",
         "equity"
       ],
       "tickers": [
@@ -38377,9 +37746,7 @@
       "localDateKst": "2026-10-04",
       "tags": [
         "macro",
-        "power",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "GOOG",
@@ -38412,12 +37779,7 @@
       "datetime": "2026-10-04T09:40:20.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "macro",
-        "geo",
-        "power",
-        "kr-market",
-        "flows",
-        "japan"
+        "macro"
       ],
       "tickers": [],
       "score": 78,
@@ -38455,39 +37817,6 @@
       "summary": "씨티) 미국 경제 주간: 메인스트리트 대 월스트리트 씨티는 이번 주 발표된 지표와 연준 발언이 모두 명백히 비둘기파적이었다고 평가했습니다. 지난 한 달간 급등한 미국 국채금리는 이번 주 상승을 멈췄지만,..."
     },
     {
-      "id": "HANAchina/69823",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69823",
-      "datetime": "2026-10-04T06:47:03.000Z",
-      "localDateKst": "2026-10-04",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [
-        "GOOG",
-        "META"
-      ],
-      "score": 53,
-      "hasText": true,
-      "summary": ">>Meta의 Muse, 폭발적 인기 이후 이용자 유지율에서 한계 직면: 앱 실행률이 주요 앱보다 낮아 장기 수익화에 시험대 •Meta 산하 AI 에이전트 Muse는 출시 이후 누적 다운로드 560만 건을..."
-    },
-    {
-      "id": "HANAchina/69818",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69818",
-      "datetime": "2026-10-04T06:25:29.000Z",
-      "localDateKst": "2026-10-04",
-      "tags": [
-        "macro",
-        "power"
-      ],
-      "tickers": [],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>연봉 6.6만달러부터…데이터센터에서 ‘AI 보모’로 일하는 사람들 •AI 컴퓨팅 수요 급증의 이면에는 수천 곳의 데이터센터를 24시간 관리하는 엔지니어와 기술 인력이 있음. •이들은 매일 장비를 점검하고..."
-    },
-    {
       "id": "insidertracking/65320",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/65320",
@@ -38510,12 +37839,7 @@
       "datetime": "2026-10-04T06:14:06.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "flows"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -38534,36 +37858,12 @@
       "localDateKst": "2026-10-04",
       "tags": [
         "macro",
-        "kr-market",
         "earnings"
       ],
       "tickers": [],
       "score": 65,
       "hasText": true,
       "summary": "뱅크오브아메리카가 나이키에 대한 투자의견 ‘언더퍼폼’을 유지하고 목표주가를 기존 30달러에서 24달러로 하향. 매출 회복 시점에 대한 가시성이 제한적인 가운데 스포츠웨어, 조던 브랜드, 중국 시장 부진이..."
-    },
-    {
-      "id": "HANAchina/69817",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69817",
-      "datetime": "2026-10-04T05:27:56.000Z",
-      "localDateKst": "2026-10-04",
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "earnings"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "AVGO",
-        "AMZN"
-      ],
-      "score": 97,
-      "hasText": true,
-      "summary": ">>대만 Asia Vital Components(AVC) 실적·목표가 상향…CDU 인증·Rubin Ultra 사양 변경 영향 제한적 (대만공상시보) •Asia Vital Components(3017)는..."
     },
     {
       "id": "aetherjapanresearch/25628",
@@ -38582,33 +37882,13 @@
       "summary": "“남이 푼 답안지로 재판 가라니”…1.6조 D램 유출 쫓던 검사의 경고 삼성전자가 1조6000억원을 들여 5년 간 개발한 D램 기술이 중국 1위 D램 업체 창신메모리(CXMT)로 넘어간 사건을 끝까지 쫓았던..."
     },
     {
-      "id": "HANAchina/69816",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69816",
-      "datetime": "2026-10-04T05:19:39.000Z",
-      "localDateKst": "2026-10-04",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>BofA: ‘AI 거래’가 현재 미 국채 시장의 ‘마지막 방어선’ • BofA는 AI 투자 스토리가 거시경제 리스크의 ‘완충재’ 역할을 하며 시장 변동성을 억제. AI로 인한 FOMO 심리가 ‘AI..."
-    },
-    {
       "id": "aetherjapanresearch/25627",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25627",
       "datetime": "2026-10-04T04:59:36.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "earnings",
-        "healthcare",
-        "japan"
+        "macro"
       ],
       "tickers": [],
       "score": 99,
@@ -38622,9 +37902,7 @@
       "datetime": "2026-10-04T04:34:11.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "ai-policy",
-        "kr-market",
-        "flows"
+        "kr-market"
       ],
       "tickers": [],
       "score": 58,
@@ -38646,27 +37924,12 @@
       "summary": "격전지 간 트럼프 \"美에 공장 안 지으면 관세 300%까지 부과\""
     },
     {
-      "id": "HANAchina/69814",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69814",
-      "datetime": "2026-10-04T03:34:48.000Z",
-      "localDateKst": "2026-10-04",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "•중국은행에 따르면, 최근 중국은행이 공동 주관사 및 장부관리인으로서 한국산업은행의 3년 만기 30억 위안 규모 역외 위안화 채권(딤섬채) 발행을 성공적으로 지원했음. 표면금리는 1.69%임. •이번 발행은..."
-    },
-    {
       "id": "insidertracking/65315",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/65315",
       "datetime": "2026-10-04T03:04:25.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "power",
         "equity"
       ],
       "tickers": [
@@ -38688,7 +37951,6 @@
       "datetime": "2026-10-04T02:05:26.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "macro",
         "semi"
       ],
       "tickers": [
@@ -38721,9 +37983,7 @@
       "datetime": "2026-10-04T01:50:14.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "macro",
-        "semi",
-        "equity"
+        "semi"
       ],
       "tickers": [
         "TSM"
@@ -38739,10 +37999,7 @@
       "datetime": "2026-10-04T01:41:38.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "semi",
-        "optical",
-        "power",
-        "earnings"
+        "optical"
       ],
       "tickers": [
         "MRVL",
@@ -38821,7 +38078,7 @@
       "datetime": "2026-10-03T22:58:36.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "tickers": [],
       "score": 50,
@@ -38835,8 +38092,7 @@
       "datetime": "2026-10-03T22:56:06.000Z",
       "localDateKst": "2026-10-04",
       "tags": [
-        "geo",
-        "power"
+        "market-note"
       ],
       "tickers": [],
       "score": 58,
@@ -38850,8 +38106,7 @@
       "datetime": "2026-10-03T13:57:52.000Z",
       "localDateKst": "2026-10-03",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -38885,7 +38140,6 @@
       "datetime": "2026-10-03T12:54:06.000Z",
       "localDateKst": "2026-10-03",
       "tags": [
-        "semi",
         "ai-policy"
       ],
       "tickers": [
@@ -38903,13 +38157,8 @@
       "datetime": "2026-10-03T10:56:57.000Z",
       "localDateKst": "2026-10-03",
       "tags": [
-        "credit",
         "macro",
-        "semi",
-        "kr-market",
-        "earnings",
-        "healthcare",
-        "japan"
+        "semi"
       ],
       "tickers": [],
       "score": 99,
@@ -38937,8 +38186,6 @@
       "datetime": "2026-10-03T00:48:55.000Z",
       "localDateKst": "2026-10-03",
       "tags": [
-        "macro",
-        "semi",
         "earnings"
       ],
       "tickers": [
@@ -38973,9 +38220,7 @@
       "datetime": "2026-10-02T13:45:51.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "semi",
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "tickers": [
         "NVDA"
@@ -38991,7 +38236,6 @@
       "datetime": "2026-10-02T13:21:25.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
         "semi",
         "ai-policy"
       ],
@@ -39009,9 +38253,7 @@
       "datetime": "2026-10-02T13:13:56.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "MSFT",
@@ -39029,7 +38271,7 @@
       "datetime": "2026-10-02T13:08:07.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "power"
+        "market-note"
       ],
       "tickers": [
         "TSLA"
@@ -39045,11 +38287,7 @@
       "datetime": "2026-10-02T12:40:37.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA"
@@ -39080,7 +38318,6 @@
       "localDateKst": "2026-10-02",
       "tags": [
         "macro",
-        "semi",
         "power"
       ],
       "tickers": [
@@ -39097,8 +38334,7 @@
       "datetime": "2026-10-02T09:10:04.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "semi",
-        "power"
+        "market-note"
       ],
       "tickers": [],
       "score": 60,
@@ -39112,12 +38348,8 @@
       "datetime": "2026-10-02T08:36:15.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "credit",
         "macro",
-        "semi",
-        "power",
-        "kr-market",
-        "flows"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -39152,10 +38384,7 @@
       "datetime": "2026-10-02T07:52:16.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "semi",
-        "power",
-        "earnings",
-        "flows"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -39173,7 +38402,6 @@
       "datetime": "2026-10-02T06:34:03.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
         "semi"
       ],
       "tickers": [
@@ -39190,7 +38418,6 @@
       "datetime": "2026-10-02T05:06:47.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [
@@ -39208,8 +38435,7 @@
       "datetime": "2026-10-02T04:32:24.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "power",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "ORCL",
@@ -39228,10 +38454,7 @@
       "datetime": "2026-10-02T02:58:02.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "power",
-        "kr-market",
-        "earnings",
-        "flows"
+        "power"
       ],
       "tickers": [
         "BE",
@@ -39251,8 +38474,6 @@
       "tags": [
         "power",
         "kr-market",
-        "equity",
-        "earnings",
         "flows"
       ],
       "tickers": [
@@ -39273,8 +38494,7 @@
       "localDateKst": "2026-10-02",
       "tags": [
         "optical",
-        "power",
-        "flows"
+        "power"
       ],
       "tickers": [
         "LITE",
@@ -39292,12 +38512,9 @@
       "datetime": "2026-10-01T23:36:43.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
         "semi",
-        "insider",
         "earnings",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "tickers": [
         "MU",
@@ -39316,8 +38533,7 @@
       "datetime": "2026-10-01T23:16:01.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "power",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "103590.KS"
@@ -39351,11 +38567,8 @@
       "datetime": "2026-10-01T23:03:56.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
-        "semi",
         "optical",
-        "power",
-        "ai-policy"
+        "power"
       ],
       "tickers": [
         "LITE",
@@ -39373,12 +38586,7 @@
       "datetime": "2026-10-01T15:11:01.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "GOOG"
@@ -39394,10 +38602,7 @@
       "datetime": "2026-10-01T15:04:33.000Z",
       "localDateKst": "2026-10-02",
       "tags": [
-        "macro",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "GOOG"
@@ -39413,14 +38618,7 @@
       "datetime": "2026-10-01T14:09:33.000Z",
       "localDateKst": "2026-10-01",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [],
       "score": 95,
@@ -39434,10 +38632,7 @@
       "datetime": "2026-10-01T13:55:10.000Z",
       "localDateKst": "2026-10-01",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "MSFT",
@@ -39454,9 +38649,7 @@
       "datetime": "2026-10-01T12:13:20.000Z",
       "localDateKst": "2026-10-01",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "TSM"
@@ -39472,9 +38665,7 @@
       "datetime": "2026-10-01T12:10:00.000Z",
       "localDateKst": "2026-10-01",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "AMZN"
@@ -39490,7 +38681,6 @@
       "datetime": "2026-10-01T12:04:37.000Z",
       "localDateKst": "2026-10-01",
       "tags": [
-        "semi",
         "ai-policy"
       ],
       "tickers": [],
@@ -39521,8 +38711,7 @@
       "datetime": "2026-10-01T09:17:04.000Z",
       "localDateKst": "2026-10-01",
       "tags": [
-        "semi",
-        "kr-market"
+        "semi"
       ],
       "tickers": [
         "005930.KS",
@@ -39555,7 +38744,6 @@
       "datetime": "2026-10-01T08:15:59.000Z",
       "localDateKst": "2026-10-01",
       "tags": [
-        "credit",
         "macro",
         "power",
         "japan"
@@ -39566,38 +38754,25 @@
       "score": 81,
       "hasText": true,
       "summary": "일본, 델, JERA와 함께 1,400억 달러 규모 AI 데이터센터 구축 추진 일본이 약 1,400억 달러 규모의 AI 데이터센터 투자 구상 을 추진하고 있습니다. 일본 최대 발전사업자인 JERA의..."
+    },
+    {
+      "id": "bornlupin/20417",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20417",
+      "datetime": "2026-10-01T02:26:11.000Z",
+      "localDateKst": "2026-10-01",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "SK 하이닉스 공식) 솔리다임 관련 최근 보도에 대해 설명드립니다 솔리다임과 관련해 현재 구체적으로 결정된 사항은 없습니다. 외부 자본 또는 내부 자본 활용 여부는 그 형식뿐 아니라, 기존 주주에게 미치는..."
     }
   ],
   "current24hItems": [
-    {
-      "id": "HANAchina/70034",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70034",
-      "datetime": "2026-10-07T22:58:29.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "•백악관 인근 두 곳의 도미노피자 매장 모두 주문량이 급증 >白宫附近两家达美乐披萨门店均显示订单量激增。"
-    },
-    {
-      "id": "insidertracking/65698",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65698",
-      "datetime": "2026-10-07T22:56:41.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "kr-market",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 43,
-      "hasText": true,
-      "summary": "환율 역풍 생각하면 상당한 호실적이라고 생각함"
-    },
     {
       "id": "bornlupin/20520",
       "channel": "bornlupin",
@@ -39622,9 +38797,7 @@
       "datetime": "2026-10-07T22:48:22.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "geo",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 67,
@@ -39666,20 +38839,6 @@
       "summary": "삼성전자 영업이익 107조나왔네요. 예상이 105~107 였습니다. 110까지는 못나왔네요"
     },
     {
-      "id": "insidertracking/65695",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65695",
-      "datetime": "2026-10-07T22:40:07.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "우크라이나군과 북한군 포로의 한국 이송 문제를 둘러싼 한국과 우크라이나 간 외교 갈등이 최근 심화. 우크라이나 제재 담당 특사 블라디슬라우 블라시우크는 한국산 석유제품이 러시아로 수입되고 있다고 주장했으나,..."
-    },
-    {
       "id": "aetherjapanresearch/25698",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25698",
@@ -39697,56 +38856,12 @@
       "summary": "SK하이닉스 솔리다임, IPO 은행 선정 - IPO 통해 &#036;10B 조달 예상 - 골드만삭스, 모건스탠리 주관사 선정 - JPM, Citi, UBS도 주관사 거론 - IPO가 이르면 2027년에 이뤄질..."
     },
     {
-      "id": "insidertracking/65694",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65694",
-      "datetime": "2026-10-07T22:30:41.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "japan"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "미군이 일본 오키나와에서 48시간 동안 작전을 중단하고, 해병대원이 현지 여성 살해 혐의로 체포된 이후 장병들의 기지 밖 출입을 제한하는 한편 군기 교육을 지시. 20세 미 해병대 상병 데빈 제이컵 발라드는..."
-    },
-    {
-      "id": "insidertracking/65693",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65693",
-      "datetime": "2026-10-07T22:26:40.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "macro",
-        "equity"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 폭스 인터뷰에서 제프 베이조스가 블루 오리진에 개인 자금 280억 달러를 투자했다고 밝힘. 블루 오리진은 처음으로 외부 투자자들로부터 100억 달러를 조달했으며, 향후..."
-    },
-    {
-      "id": "insidertracking/65692",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65692",
-      "datetime": "2026-10-07T22:22:30.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
-    },
-    {
       "id": "HANAchina/70032",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70032",
       "datetime": "2026-10-07T22:18:14.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
         "equity"
       ],
@@ -39758,27 +38873,12 @@
       "summary": ">>SK하이닉스 자회사 Solidigm, 주관사 선정…내년 미국 IPO 추진 (블룸버그) •소식통에 따르면 SK하이닉스 산하 Solidigm이 내년 미국 IPO를 위해 대표 주관사를 선정. 이 한국 기업의..."
     },
     {
-      "id": "insidertracking/65691",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/65691",
-      "datetime": "2026-10-07T22:04:11.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "미 중부사령부는 이란 혁명수비대 장성이 언론을 통해 “호르무즈 해협이 폐쇄됐으며 이란이 완전히 통제하고 있다”고 주장한 데 대해 사실이 아니라고 반박. 미 중부사령부는 현재 호르무즈 해협을 통해 상업용 화물과..."
-    },
-    {
       "id": "HANAchina/70031",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70031",
       "datetime": "2026-10-07T22:00:54.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "ai-policy",
         "equity"
       ],
@@ -39794,9 +38894,7 @@
       "datetime": "2026-10-07T21:59:12.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
         "macro",
-        "semi",
         "ai-policy",
         "equity"
       ],
@@ -39806,62 +38904,18 @@
       "summary": ">>브로드컴, OpenAI가 필요로 하는 칩을 위해 500억달러 이상 자금 조달 추진 (WSJ) •월스트리트저널, 오라클·브로드컴·SpaceX가 AI 칩을 위한 부채 조달 계약을 추진하고 있음. 브로드컴은..."
     },
     {
-      "id": "HANAchina/70029",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70029",
-      "datetime": "2026-10-07T21:57:44.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "ai-policy"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": ">>OpenAI: GPT-6, 탈옥 공격에 대한 방어 능력 강화 •OpenAI가 10월 7일 GPT-6를 공식 출시했으며, 유료 버전은 GPT-6 Sol, 무료 버전은 GPT-6 Luna를 사용함. 두 모델..."
-    },
-    {
       "id": "HANAchina/70028",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70028",
       "datetime": "2026-10-07T21:57:03.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
       "tickers": [],
       "score": 60,
       "hasText": true,
       "summary": ">>10년물 미 국채 입찰 응찰배수 2.77배, 2016년 이후 최고…해외 수요도 사상 최고 수준에 근접 (중국언론) •미국 10년물 국채 입찰 낙찰금리는 5.3%로 2000년 이후 최고치를 기록했으며, 입찰..."
-    },
-    {
-      "id": "HANAchina/70027",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70027",
-      "datetime": "2026-10-07T21:39:50.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
-    },
-    {
-      "id": "HANAchina/70026",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70026",
-      "datetime": "2026-10-07T21:39:24.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
     },
     {
       "id": "insidertracking/65688",
@@ -39887,7 +38941,7 @@
       "datetime": "2026-10-07T21:08:45.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "tickers": [],
       "score": 50,
@@ -39901,9 +38955,7 @@
       "datetime": "2026-10-07T21:00:19.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "geo",
-        "kr-market",
-        "flows"
+        "geo"
       ],
       "tickers": [],
       "score": 58,
@@ -39935,13 +38987,8 @@
       "datetime": "2026-10-07T20:53:48.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
-        "optical",
-        "kr-market",
-        "equity",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "tickers": [
         "GOOG",
@@ -39976,12 +39023,7 @@
       "datetime": "2026-10-07T20:50:49.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -40023,13 +39065,7 @@
       "datetime": "2026-10-07T20:47:30.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "MSFT",
@@ -40048,14 +39084,7 @@
       "datetime": "2026-10-07T20:46:19.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "crypto",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "MSFT",
@@ -40073,7 +39102,7 @@
       "datetime": "2026-10-07T20:42:56.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -40087,8 +39116,7 @@
       "datetime": "2026-10-07T20:41:36.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "healthcare"
+        "macro"
       ],
       "tickers": [],
       "score": 57,
@@ -40102,12 +39130,7 @@
       "datetime": "2026-10-07T20:40:46.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "kr-market",
-        "flows"
+        "macro"
       ],
       "tickers": [
         "AMD"
@@ -40123,9 +39146,7 @@
       "datetime": "2026-10-07T20:39:18.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
-        "semi"
+        "macro"
       ],
       "tickers": [],
       "score": 79,
@@ -40183,20 +39204,6 @@
       "score": 69,
       "hasText": true,
       "summary": "Wells Fargo) 메타 플랫폼스: 3Q26 실적 프리뷰, 뮤즈에 대한 기대는 타당하나 2027년 실적에는 신중함 필요 (2026.10.05). TP &#036;1000 웰스파고는 메타에 대해 비중확대..."
-    },
-    {
-      "id": "HANAchina/70025",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70025",
-      "datetime": "2026-10-07T13:59:43.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": ">>2026년 국경절 소비 특징: “이동은 앞당겨지고, 더 멀리 가며, 경험·가성비 중시” (신만굉원증권) •국경절 1~5일 전국 지역 간 이동량 15.5억명, 일평균 전년비 +1.3%. 중추절·국경절 연휴가..."
     },
     {
       "id": "aetherjapanresearch/25694",
@@ -40265,22 +39272,6 @@
       "summary": ">>세계금협회: 글로벌 금 ETF 3분기 자금 유입 사상 최대, 310억달러 •세계금협회 보고서에 따르면 9월 글로벌 금 ETF에 100억달러가 유입되면서 3분기 누적 자금 유입액이 사상 최대인 310억달러를..."
     },
     {
-      "id": "aetherjapanresearch/25691",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25691",
-      "datetime": "2026-10-07T12:46:22.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "GOOG"
-      ],
-      "score": 44,
-      "hasText": true,
-      "summary": "구글 x 유니티, 자연어 기반 AI 게임 플랫폼 ‘Playground’ 출시, 연내 ‘Unity Spark’로 확장 : 구글과 유니티가 AI 기반 게임 제작·유통 플랫폼 구축을 위한 전략적 파트너십 발표...."
-    },
-    {
       "id": "insidertracking/65653",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/65653",
@@ -40301,10 +39292,6 @@
       "datetime": "2026-10-07T12:33:55.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "equity",
         "earnings"
       ],
       "tickers": [
@@ -40390,8 +39377,7 @@
       "datetime": "2026-10-07T12:09:59.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "japan"
+        "macro"
       ],
       "tickers": [],
       "score": 57,
@@ -40405,13 +39391,7 @@
       "datetime": "2026-10-07T11:59:29.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -40431,13 +39411,7 @@
       "datetime": "2026-10-07T11:59:18.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "flows"
+        "power"
       ],
       "tickers": [
         "NVDA"
@@ -40453,12 +39427,7 @@
       "datetime": "2026-10-07T11:56:58.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market",
-        "flows",
-        "japan"
+        "geo"
       ],
       "tickers": [
         "AMD",
@@ -40471,27 +39440,12 @@
       "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 7일 > 오후 2시 30분~ 오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 루비오 국무장관은 이란이 핵 프로그램 합의를 위한 여러 기회를..."
     },
     {
-      "id": "aetherjapanresearch/25689",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25689",
-      "datetime": "2026-10-07T11:54:56.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": "오늘도 기괴한 미국; 아메리칸 항공 기내에서 속옷과 바지를 벗고 자위행위를 한 승객.. 아메리칸 항공 기내에서 속옷과 청바지를 벗고 자위행위를 한 혐의를 받는 승객이 창문에 다리를 대고 신음하며 자위를 했다고..."
-    },
-    {
       "id": "aetherjapanresearch/25688",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25688",
       "datetime": "2026-10-07T11:51:54.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
         "power"
       ],
       "tickers": [],
@@ -40506,8 +39460,7 @@
       "datetime": "2026-10-07T11:48:21.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "healthcare"
+        "macro"
       ],
       "tickers": [],
       "score": 52,
@@ -40521,9 +39474,6 @@
       "datetime": "2026-10-07T11:48:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
         "power"
       ],
       "tickers": [],
@@ -40538,27 +39488,12 @@
       "datetime": "2026-10-07T11:48:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "geo",
-        "power"
+        "market-note"
       ],
       "tickers": [],
       "score": 58,
       "hasText": true,
       "summary": "그 다음 병목은 위성인데 위성 자체가 만들기가 매우 어렵습니다. 근데 이것도 요즘 변화가 생기고 있습니다. 과거에는 초거대방산기업들이 몇십년 거쳐서 몇천억~조단위로받아 만들기도 하고(물론 다 세금) 했는데..."
-    },
-    {
-      "id": "aetherjapanresearch/25685",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25685",
-      "datetime": "2026-10-07T11:48:20.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": "우주 산업은 시작부터 끝까지(증바람 얘기 아님ㅎ) 병목의 연속인데 우선 첫 시작은 발사체입니다. 아예 모르시는 분들은 발사체가 곧 인공위성이라고 생각하실 수 있는데 발사체는 그냥 인공위성같은 특수목적 기기를..."
     },
     {
       "id": "insidertracking/65646",
@@ -40567,7 +39502,6 @@
       "datetime": "2026-10-07T11:36:31.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [],
@@ -40582,7 +39516,6 @@
       "datetime": "2026-10-07T11:35:16.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [
@@ -40599,7 +39532,6 @@
       "datetime": "2026-10-07T11:31:40.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [
@@ -40610,28 +39542,13 @@
       "summary": "제목 : 핀란드, 알파벳의 데이터센터 건설 중단 지시 *연합인포맥스* CNBC는 알파벳(NAS: GOOGL, GOOG)이 핀란드에서 추진하고 있는 데이터센터 프로젝트가 당국의 지시로 중단된 상태라고 보도했다...."
     },
     {
-      "id": "aetherjapanresearch/25682",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25682",
-      "datetime": "2026-10-07T11:31:01.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "japan"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "이거 처음 나왔을때도 그랬어요. 일본IP로 였는데도 똑같이 웨이트리스트임"
-    },
-    {
       "id": "HANAchina/70015",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70015",
       "datetime": "2026-10-07T11:28:12.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
       "tickers": [],
       "score": 62,
@@ -40660,27 +39577,12 @@
       "datetime": "2026-10-07T10:50:08.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
       "tickers": [],
       "score": 62,
       "hasText": true,
       "summary": "미국 30년물 국채 금리 24년 만에 최고치 경신 연준(Fed) 의사록 발표를 앞두고 글로벌 채권 매도세가 재개되면서, 30년물 국채 금리가 2002년 이후 최고치인 5.706%까지 상승함. 10년물 금리는..."
-    },
-    {
-      "id": "aetherjapanresearch/25681",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25681",
-      "datetime": "2026-10-07T10:05:21.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "[단독] 서민 상대 이자 장사… 땅짚고 떼돈 번 은행-국민일보 원래 돈 빌려주고 그 대가로 이자받는게 당연한거 아닌가"
     },
     {
       "id": "aetherjapanresearch/25680",
@@ -40705,8 +39607,7 @@
       "datetime": "2026-10-07T10:04:25.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
       "tickers": [],
       "score": 52,
@@ -40720,8 +39621,7 @@
       "datetime": "2026-10-07T10:04:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -40749,8 +39649,7 @@
       "datetime": "2026-10-07T09:40:20.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo"
+        "market-note"
       ],
       "tickers": [],
       "score": 67,
@@ -40765,8 +39664,6 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi",
-        "power",
         "earnings"
       ],
       "tickers": [],
@@ -40795,9 +39692,7 @@
       "datetime": "2026-10-07T08:35:34.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
       "tickers": [],
       "score": 73,
@@ -40826,9 +39721,6 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "semi",
-        "kr-market",
-        "earnings",
-        "flows",
         "healthcare"
       ],
       "tickers": [
@@ -40845,8 +39737,7 @@
       "datetime": "2026-10-07T08:27:57.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "AMD",
@@ -40864,8 +39755,7 @@
       "datetime": "2026-10-07T07:56:44.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi"
+        "macro"
       ],
       "tickers": [
         "009150.KS"
@@ -40911,20 +39801,6 @@
       "summary": "🔹 중국 주요 6개 AI 기업들의 총 매출 규모는 OpenAI·Anthropic 합산 매출액의 약 10% 수준 » 연환산 직접 AI 매출(9월 기준)은 Anthropic 650억달러, OpenAI..."
     },
     {
-      "id": "bornlupin/20516",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20516",
-      "datetime": "2026-10-07T07:21:46.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "healthcare"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": "[미국 아마존 프라임 데이(10/6~10/8)] Day 1 (현지시간 23:30 기준) Top100 내 K뷰티 메디큐브 7(1위) 아누아 3 바이오던스 2 셀리맥스 1 닥터엘시아 1 일리윤 1 메디테라피 1..."
-    },
-    {
       "id": "bornlupin/20515",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20515",
@@ -40947,8 +39823,7 @@
       "datetime": "2026-10-07T07:06:00.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "005930.KS",
@@ -40985,9 +39860,6 @@
       "tags": [
         "macro",
         "semi",
-        "optical",
-        "power",
-        "ai-policy",
         "earnings"
       ],
       "tickers": [
@@ -41006,7 +39878,6 @@
       "datetime": "2026-10-07T06:58:28.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "semi"
       ],
       "tickers": [
@@ -41044,7 +39915,7 @@
       "datetime": "2026-10-07T06:36:53.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "tickers": [
         "TSM",
@@ -41061,12 +39932,7 @@
       "datetime": "2026-10-07T06:17:39.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "optical",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "MRVL",
@@ -41101,7 +39967,7 @@
       "datetime": "2026-10-07T06:10:59.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "tickers": [],
       "score": 52,
@@ -41130,9 +39996,7 @@
       "datetime": "2026-10-07T05:48:38.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "power"
       ],
       "tickers": [
         "AVGO"
@@ -41150,7 +40014,6 @@
       "tags": [
         "macro",
         "semi",
-        "power",
         "earnings"
       ],
       "tickers": [
@@ -41169,10 +40032,6 @@
       "datetime": "2026-10-07T05:34:21.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
         "earnings"
       ],
       "tickers": [],
@@ -41187,16 +40046,7 @@
       "datetime": "2026-10-07T05:28:50.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -41215,30 +40065,12 @@
       "datetime": "2026-10-07T05:24:30.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "japan"
+        "geo"
       ],
       "tickers": [],
       "score": 100,
       "hasText": true,
       "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 7일 > 오전 6시 ~오후 2시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 부통령 밴스는 이란이 전쟁 종식을 위해 우라늄 농축 능력을 의미..."
-    },
-    {
-      "id": "bornlupin/20509",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20509",
-      "datetime": "2026-10-07T05:03:48.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "속보) 오태석 우주청장 “누리호 5호기 발사 성공” 오태석 우주항공청장이 7일 전남광주 고흥군 나로우주센터에서 열린 누리호 5호기 발사 결과 브리핑에서 성공했다고 밝혔다."
     },
     {
       "id": "HANAchina/69997",
@@ -41255,43 +40087,13 @@
       "summary": ">>인도, 약 4년 만에 처음으로 정책금리 인상 •인도 중앙은행이 기준금리를 25bp 인상해 5.50%로 결정함. 시장 예상 부합 •정책 기조를 ‘중립’에서 ‘조정된 긴축’으로 변경 •향후 3개 분기..."
     },
     {
-      "id": "bornlupin/20508",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20508",
-      "datetime": "2026-10-07T04:04:55.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "[속보] 우주청장 \"누리호 예정된 비행 절차에 따라 목표 궤도 도달\""
-    },
-    {
-      "id": "bornlupin/20507",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20507",
-      "datetime": "2026-10-07T03:24:06.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "[속보] 누리호 5호기 자동운용 시작…발사 초읽기 누리호가 7일 오후 12시 15분께 발사 10분 전 발사자동운용(PLO)에 돌입했다. 발사관제시스템이 이륙 직전까지 필요한 준비 절차를 자동으로 수행하며..."
-    },
-    {
       "id": "HANAchina/69993",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/69993",
       "datetime": "2026-10-07T03:23:37.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "semi"
       ],
       "tickers": [
         "AMD",
@@ -41300,20 +40102,6 @@
       "score": 63,
       "hasText": true,
       "summary": ">>AMD CEO 리사 수, 메모리 부족 대응 위해 삼성전자 반도체 수장과 회동 •AMD CEO 리사 수는 수요일 삼성전자 반도체 사업부장 겸 부회장 전영현과 만날 예정임. 이는 AI 산업의 두 핵심 인물이..."
-    },
-    {
-      "id": "bornlupin/20506",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20506",
-      "datetime": "2026-10-07T02:56:13.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "power"
-      ],
-      "tickers": [],
-      "score": 43,
-      "hasText": true,
-      "summary": "미국 변압기 수입, 중국 비중 축소에 주목 8월 미국 변압기 수입에서 중국산 비중이 감소한 것으로 확인됐습니다. 지난 8월 26일 트럼프 대통령이 시행한 BPS(Bulk Power System) 관련 중국산..."
     },
     {
       "id": "HANAchina/69985",
@@ -41354,10 +40142,7 @@
       "datetime": "2026-10-07T02:45:14.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
-        "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [],
       "score": 72,
@@ -41371,8 +40156,7 @@
       "datetime": "2026-10-07T02:43:10.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [],
       "score": 52,
@@ -41395,30 +40179,13 @@
       "summary": "글로벌 채권 금리가 전반적으로 하락한 영향으로 일본 국채 금리도 하락. 일본은행 내 비둘기파 위원인 사토 아야노는 단계적으로 여러 차례 추가 금리를 인상하는 방안을 지지한다고 밝혔지만, 일본 국채 금리는..."
     },
     {
-      "id": "bornlupin/20505",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20505",
-      "datetime": "2026-10-07T02:21:48.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": "2026.10.07 11:15:26 기업명: 스피어(시가총액: 1조 2,630억) A347700 보고서명: 단일판매ㆍ공급계약체결 계약상대 : 미국 글로벌 우주항공 발사업체 계약내용 : 특수합금 공급계약..."
-    },
-    {
       "id": "insidertracking/65597",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/65597",
       "datetime": "2026-10-07T02:01:28.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "japan"
+        "macro"
       ],
       "tickers": [
         "009150.KS"
@@ -41428,36 +40195,6 @@
       "summary": "니케이아시아에 따르면 삼성전기가 AI 서버, 로봇, 스마트카에 사용되는 FC-BGA 기판 생산 확대를 위해 2028년까지 베트남에 18억7,000만 달러, 한국에 32억 달러 투자 예정. 베트남 투자를 통해..."
     },
     {
-      "id": "bornlupin/20504",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20504",
-      "datetime": "2026-10-07T01:25:42.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": "2026.10.07 10:12:06 기업명: 윤성에프앤씨(시가총액: 1,811억) A372170 보고서명: 단일판매ㆍ공급계약체결 계약상대 : - 계약내용 : 2차전지 믹싱시스템 공급지역 : 미국 계약금액 :..."
-    },
-    {
-      "id": "aetherjapanresearch/25676",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25676",
-      "datetime": "2026-10-07T01:21:33.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "006800.KS"
-      ],
-      "score": 39,
-      "hasText": true,
-      "summary": "미래에셋증권, 스페이스X 평가손실로 3분기 적자전환 불가피"
-    },
-    {
       "id": "aetherjapanresearch/25675",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25675",
@@ -41465,13 +40202,7 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi",
-        "optical",
-        "power",
-        "ai-policy",
-        "earnings",
-        "flows",
-        "healthcare"
+        "semi"
       ],
       "tickers": [
         "NVDA",
@@ -41524,12 +40255,8 @@
       "datetime": "2026-10-07T00:58:02.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "semi",
-        "insider",
-        "earnings",
-        "flows",
-        "healthcare"
+        "insider"
       ],
       "tickers": [
         "MU"
@@ -41545,9 +40272,7 @@
       "datetime": "2026-10-07T00:42:42.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "semi",
-        "power"
+        "macro"
       ],
       "tickers": [],
       "score": 67,
@@ -41562,8 +40287,7 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "semi",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "MRVL"
@@ -41580,9 +40304,7 @@
       "localDateKst": "2026-10-07",
       "tags": [
         "macro",
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
       "tickers": [
         "MRVL"
@@ -41598,7 +40320,6 @@
       "datetime": "2026-10-06T23:47:01.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
         "macro",
         "semi",
         "equity"
@@ -41618,9 +40339,7 @@
       "datetime": "2026-10-06T23:43:17.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [
         "229640.KQ"
@@ -41636,10 +40355,7 @@
       "datetime": "2026-10-06T23:42:51.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "geo",
-        "semi",
-        "earnings",
-        "japan"
+        "earnings"
       ],
       "tickers": [],
       "score": 57,
@@ -41653,8 +40369,7 @@
       "datetime": "2026-10-06T23:35:56.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "power",
-        "healthcare"
+        "power"
       ],
       "tickers": [],
       "score": 53,
@@ -41668,7 +40383,7 @@
       "datetime": "2026-10-06T23:34:16.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "tickers": [
         "AMD"
@@ -41684,9 +40399,6 @@
       "datetime": "2026-10-06T23:28:42.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
         "earnings"
       ],
       "tickers": [
@@ -41703,7 +40415,6 @@
       "datetime": "2026-10-06T23:28:33.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "power"
       ],
       "tickers": [],
@@ -41718,7 +40429,6 @@
       "datetime": "2026-10-06T23:21:39.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "macro",
         "geo"
       ],
       "tickers": [],
@@ -41733,8 +40443,7 @@
       "datetime": "2026-10-06T23:10:01.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "tickers": [
         "TSM"
@@ -41750,12 +40459,9 @@
       "datetime": "2026-10-06T23:09:52.000Z",
       "localDateKst": "2026-10-07",
       "tags": [
-        "credit",
         "macro",
         "semi",
-        "kr-market",
-        "equity",
-        "flows"
+        "equity"
       ],
       "tickers": [],
       "score": 89,
