@@ -3,7 +3,7 @@ import { renderManagersPage } from '../knowledge/managers-view.js';
 import { createResourceBag } from '../../app/lifecycle.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
-import { detectValueScaleSuspects, withholdSuspectValues, describeValueScaleReview } from '../../domain/masters/value-scale.js';
+import { detectValueScaleSuspects, withholdSuspectValues, withholdManagerValues, managersUnderScaleReview, describeValueScaleReview, describeValueScaleCarryover } from '../../domain/masters/value-scale.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
@@ -162,7 +162,7 @@ function createMetric(documentRef, label, value) {
   return card;
 }
 
-function createTickerLookup(documentRef, tickerIndex, registry, query, loadState = 'loading', summaryRows = []) {
+function createTickerLookup(documentRef, tickerIndex, registry, query, loadState = 'loading', summaryRows = [], valueScale = new Map()) {
   const section = element(documentRef, 'section', 'masters-ticker-lookup');
   section.dataset.mastersTickerLookup = 'reference-only';
   section.dataset.mastersTickerLoadState = tickerIndex ? 'ready' : loadState;
@@ -227,7 +227,8 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
         // holdings on this same page held NVDA. The reference index covers a subset of filers; the published
         // top holdings of every filer (same CUSIP, same quarter) are merged in so one lookup covers both sources.
         const recordCusips = new Set((record.cusips || []).map((cusip) => String(cusip).toUpperCase()));
-        const indexedRows = Array.isArray(record.rows) ? record.rows : [];
+        // P1522: index rows are filed amounts too; a manager under scale review is withheld here as well, in any period.
+        const indexedRows = withholdManagerValues(Array.isArray(record.rows) ? record.rows : [], managersUnderScaleReview(valueScale));
         const indexedKeys = new Set(indexedRows.map((row) => `${row.managerId}|${row.reportPeriod}|${row.putCall || ''}`));
         const extraRows = (summaryRows || []).filter((row) => recordCusips.has(String(row.cusipNormalized || row.cusip || '').toUpperCase()) && !indexedKeys.has(`${row.managerId}|${row.reportPeriod}|${row.putCall || ''}`));
         const allRows = [...indexedRows, ...extraRows];
@@ -646,7 +647,9 @@ function createReferenceSectorView(documentRef, fullRows = [], referenceMaster =
   const referenceByCusip = new Map((referenceMaster?.records || []).map((record) => [record.cusipNormalized, record]));
   const mappedRows = fullRows.map((row) => ({ ...row, ...(referenceByCusip.get(row.cusipNormalized || row.cusip) || {}) })).filter((row) => row.tickerReference && row.sectorReference);
   if (!mappedRows.length) return null;
-  const totalValue = mappedRows.reduce((sum, row) => sum + (Number(row.value) || 0), 0);
+  // P1522: withheld rows carry value null; summing them as 0 would draw "$0" and a sort by nothing.
+  const scaleWithheld = mappedRows.some((row) => row.valueScaleStatus === 'SCALE_REVIEW');
+  const totalValue = scaleWithheld ? null : mappedRows.reduce((sum, row) => sum + (Number(row.value) || 0), 0);
   const sectorTotals = new Map();
   mappedRows.forEach((row) => {
     const current = sectorTotals.get(row.sectorReference) || { rows: 0, value: 0 };
@@ -657,12 +660,12 @@ function createReferenceSectorView(documentRef, fullRows = [], referenceMaster =
   const section = element(documentRef, 'section', 'masters-holdings-section masters-reference-sector-view');
   section.append(
     element(documentRef, 'h4', 'masters-holdings-title', '섹터 구성 · 참고 분류'),
-    element(documentRef, 'p', 'masters-holdings-meta', `신고 보유 ${fullRows.length}행 가운데 공개 식별자로 섹터를 붙일 수 있었던 ${mappedRows.length}행(${formatReportedValue(totalValue)}) 기준이다. 분류는 참고용이라, 공식 섹터 자료로 한 번 더 확인되기 전까지 비중은 대략적인 구성으로만 읽는다.`)
+    element(documentRef, 'p', 'masters-holdings-meta', `신고 보유 ${fullRows.length}행 가운데 공개 식별자로 섹터를 붙일 수 있었던 ${mappedRows.length}행(${scaleWithheld ? '금액 단위 확인 중' : formatReportedValue(totalValue)}) 기준이다. 분류는 참고용이라, 공식 섹터 자료로 한 번 더 확인되기 전까지 비중은 대략적인 구성으로만 읽는다.`)
   );
-  const rows = [...sectorTotals.entries()].sort((a, b) => b[1].value - a[1].value).map(([sector, values]) => ({ sector, ...values }));
+  const rows = [...sectorTotals.entries()].sort((a, b) => (scaleWithheld ? b[1].rows - a[1].rows : b[1].value - a[1].value)).map(([sector, values]) => ({ sector, ...values }));
   section.appendChild(createTable(documentRef, ['참고 섹터', '보유 행', '신고 가치', '분류된 보유 중 비중'], rows, (row) => {
     const tr = element(documentRef, 'tr', '');
-    [row.sector, String(row.rows), formatReportedValue(row.value), totalValue ? `${((row.value / totalValue) * 100).toFixed(1)}%` : '—'].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
+    [row.sector, String(row.rows), scaleWithheld ? '—' : formatReportedValue(row.value), totalValue ? `${((row.value / totalValue) * 100).toFixed(1)}%` : '—'].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
     return tr;
   }, 'masters-sector-reference-table masters-holdings-table'));
   section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `분류 기준일 ${referenceMaster.reviewedAt} · SEC 신고 원문의 발행사·CUSIP와 공개 식별자 대조로 붙인 섹터다.`));
@@ -682,13 +685,14 @@ export function isPartialAmendmentPeriod(period, imported = null) {
   return true;
 }
 
-function createQuarterView(documentRef, holdingMeta, historyManager, historyRowsArtifact) {
+function createQuarterView(documentRef, holdingMeta, historyManager, historyRowsArtifact, scaleReviewed = false) {
   const verification = holdingMeta?.verification;
   const section = element(documentRef, 'section', 'masters-holdings-section');
   section.appendChild(element(documentRef, 'h4', 'masters-holdings-title', '분기 보고 추이'));
+  if (scaleReviewed) section.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-scale-review', describeValueScaleCarryover()));
   section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `최근 ${historyManager?.historyDepthTarget || 12}개 분기에 SEC에 신고한 보유 행 수와 신고 가치입니다. 정정 공시는 원본과 합쳐 분기 전체가 확인될 때만 추이에 넣습니다.`));
   const importedRows = [
-    { period: verification?.priorReportPeriod, count: verification?.priorFullRowCount, value: verification?.priorParsedValueTotal, reconciliation: verification?.priorCountReconciled },
+    { period: verification?.priorReportPeriod, count: verification?.priorFullRowCount, value: scaleReviewed ? null : verification?.priorParsedValueTotal, reconciliation: verification?.priorCountReconciled },
     { period: verification?.reportPeriod, count: verification?.fullRowCount, value: verification?.valueScaleReview ? null : verification?.parsedValueTotal, reconciliation: verification?.countReconciled }
   ].filter((row) => row.period);
   const importedByPeriod = new Map(importedRows.map((row) => [row.period, row]));
@@ -704,7 +708,7 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
     const imported = importedByPeriod.get(period.periodOfReport);
     const historical = historicalByPeriod.get(period.periodOfReport);
     const partial = isPartialAmendmentPeriod(period, imported);
-    return { period: period.periodOfReport, partial, count: partial ? null : imported?.count ?? period.rowCount ?? historical?.count ?? null, partialCount: partial ? period.rowCount ?? historical?.count ?? null : null, value: partial ? null : imported?.value ?? period.reportedValueTotal ?? historical?.value ?? null, reconciliation: imported?.reconciliation ?? period.countReconciled ?? false, filedAt: period.filedAt, accession: period.accession, rowImportStatus: period.rowImportStatus, indexUrl: period.indexUrl, composition: period.composition || null };
+    return { period: period.periodOfReport, partial, count: partial ? null : imported?.count ?? period.rowCount ?? historical?.count ?? null, partialCount: partial ? period.rowCount ?? historical?.count ?? null : null, value: partial || scaleReviewed ? null : imported?.value ?? period.reportedValueTotal ?? historical?.value ?? null, reconciliation: imported?.reconciliation ?? period.countReconciled ?? false, filedAt: period.filedAt, accession: period.accession, rowImportStatus: period.rowImportStatus, indexUrl: period.indexUrl, composition: period.composition || null };
   });
   const table = createTable(documentRef, ['보고 분기', '보유 행', '신고 가치 합계', '상태', '원문'], rows, (row) => {
     const tr = element(documentRef, 'tr', '');
@@ -730,7 +734,7 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
   return section;
 }
 
-function createIssuerAggregateView(documentRef, aggregateArtifact, managerId) {
+function createIssuerAggregateView(documentRef, aggregateArtifact, managerId, scaleReviewed = false) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-issuer-aggregate-view');
   const records = (aggregateArtifact?.aggregates || []).filter((record) => record.managerId === managerId);
   const periods = new Set(records.flatMap((record) => record.periods || []).map((period) => period.reportPeriod).filter(Boolean));
@@ -747,6 +751,7 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId) {
     element(documentRef, 'h4', 'masters-holdings-title', 'issuer·CUSIP 다분기 집계 원장'),
     element(documentRef, 'p', 'masters-holdings-meta', `SEC 원문 행을 manager·CUSIP·share type·put/call 단위로만 묶은 원장입니다. ticker·sector·기업행동 검증 전 단계이며, 현재 가격이나 추천을 생성하지 않습니다.`)
   );
+  if (scaleReviewed) section.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-scale-review', describeValueScaleCarryover()));
   const metrics = element(documentRef, 'div', 'masters-normalization-metrics');
   [
     ['선택 manager 집계 CUSIP', String(managerCusips.size)],
@@ -768,7 +773,7 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId) {
         (record.issuerNames || []).join(' · ') || 'issuer text 없음',
         record.cusipNormalized || '—',
         latest?.reportPeriod || '—',
-        latest ? formatReportedValue(latest.valueUsd) : '—',
+        latest && !scaleReviewed ? formatReportedValue(latest.valueUsd) : '—',
         String(record.periodCount || 0),
         record.reviewFlags?.length ? record.reviewFlags.join(' · ') : '추가 플래그 없음'
       ];
@@ -1019,8 +1024,10 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     } else if (managerShard?.url) detail.appendChild(createDeferredRowsState());
     else detail.appendChild(createSectorView(documentRef, fullRows, securityMaster));
   } else if (state.view === 'quarters') {
-    detail.appendChild(createQuarterView(documentRef, holdingMeta, historyManager, historyRowsArtifact));
-    detail.appendChild(createIssuerAggregateView(documentRef, issuerAggregates, manager.id));
+    // P1522: earlier quarters and issuer aggregates of a manager under scale review are withheld too (same filer, same unit).
+    const managerScaleReviewed = managersUnderScaleReview(state?.valueScale).has(manager.id);
+    detail.appendChild(createQuarterView(documentRef, holdingMeta, historyManager, historyRowsArtifact, managerScaleReviewed));
+    detail.appendChild(createIssuerAggregateView(documentRef, issuerAggregates, manager.id, managerScaleReviewed));
   } else if (state.view === 'filings') {
     const filingView = element(documentRef, 'section', 'masters-filing-view');
     filingView.append(element(documentRef, 'h4', 'masters-holdings-title', '원본 공시와 검증 경계'), element(documentRef, 'p', 'masters-holdings-meta', '아래 링크는 SEC EDGAR 원문입니다. 공시의 보고 기준일과 제출일을 확인한 뒤 행 비교를 해석하세요.'), createFilingArtifact(documentRef, filingMeta, holdingMeta));
@@ -1231,7 +1238,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
            else if (state.arrivalContext?.returnContext?.route && typeof root?.showPage === 'function') root.showPage(state.arrivalContext.returnContext.route);
          });
           const tickerLoadState = state.tickerIndex ? 'ready' : (state.tickerIndexError && !state.loadingCapabilities.has('tickerIndex') ? 'error' : (state.loadingCapabilities.has('tickerIndex') ? 'loading' : 'idle'));
-          const tickerLookup = createTickerLookup(documentRef, state.tickerIndex, registry, state.tickerQuery, tickerLoadState, state.holdings?.holdings || []);
+          const tickerLookup = createTickerLookup(documentRef, state.tickerIndex, registry, state.tickerQuery, tickerLoadState, state.holdings?.holdings || [], state.valueScale);
           page.dataset.aioMastersTickerIndex = tickerLoadState === 'ready' ? 'connected' : (tickerLoadState === 'error' ? 'fallback' : 'loading');
           // P1325: manager cards (the investors) come first; the reverse lookup and the coverage
           // explanation are secondary and follow. The toolbar carries a jump link to the lookup.
@@ -1429,7 +1436,12 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
                  if (state.valueScale.size) {
                    const managers = (result.value.managers || []).map((manager) => (state.valueScale.has(`${manager.id}|${manager.verification?.reportPeriod || ''}`)
                      ? { ...manager, verification: { ...manager.verification, valueScaleReview: true } } : manager));
-                   state[key] = { ...result.value, managers, holdings: withholdSuspectValues(result.value.holdings, state.valueScale), comparisons: withholdSuspectValues(result.value.comparisons || [], state.valueScale) };
+                   state[key] = { ...result.value, managers, holdings: withholdSuspectValues(result.value.holdings, state.valueScale), comparisons: withholdSuspectValues(result.value.comparisons || [], state.valueScale), ...(Array.isArray(result.value.allHoldings) ? { allHoldings: withholdSuspectValues(result.value.allHoldings, state.valueScale) } : {}) };
+                   // P1522: a manager shard that finished before detection kept the filed amounts; withhold it again now.
+                   state.managerRows.forEach((artifact, managerId) => {
+                     const shardPeriod = artifact.reportPeriod || state.holdings?.managerShards?.[managerId]?.reportPeriod || state.holdings?.managers?.find((item) => item.id === managerId)?.verification?.reportPeriod || null;
+                     state.managerRows.set(managerId, { ...artifact, holdings: withholdSuspectValues(artifact.holdings, state.valueScale, { managerId, period: shardPeriod }), comparisons: withholdSuspectValues(artifact.comparisons, state.valueScale, { managerId, period: shardPeriod }) });
+                   });
                  }
                }
                page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'connected';

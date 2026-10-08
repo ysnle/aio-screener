@@ -292,6 +292,42 @@ if (rowPreviews.managers.length !== 5 || rowPreviews.coverage?.previewManagerCou
 if (rowPreviews.managers.some((manager) => !manager.managerId || !manager.cik || manager.cik.length !== 10 || manager.reportPeriod !== '2026-03-31' || !manager.accession || !manager.sourceUrl || manager.rows.length !== manager.rowCountPreview || manager.rows.some((row) => !row.issuer || !row.cusip || !Number.isFinite(row.value) || !Number.isFinite(row.shares) || !row.shareType))) fail('row preview evidence fields are incomplete');
 if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-family-office', 'fisher-asset-management', 'pershing-square', 'appaloosa-management', 'baupost-group', 'scion-asset-management'].includes(manager.managerId))) fail('row previews must not duplicate the connected holdings artifact managers');
 
+// P1522: a filing whose reported dollar amounts sit ~1,000x off its peers is withheld (never multiplied), and the
+// withholding must reach every consumer of filed amounts, not only the top rows: allHoldings, reverse-lookup index
+// rows, earlier quarters and issuer aggregates, and a shard that finished before detection.
+{
+  const scale = await import('../src/domain/masters/value-scale.js');
+  const row = (managerId, cusip, price, shares = 1000, reportPeriod = '2026-06-30') => ({ managerId, reportPeriod, cusipNormalized: cusip, shareType: 'SH', shares, value: Math.round(price * shares) });
+  const cusips = ['AAA111111', 'BBB222222', 'CCC333333'];
+  const fixture = [...cusips.map((c) => row('peer-a', c, 200)), ...cusips.map((c) => row('peer-b', c, 200)), ...cusips.map((c) => row('thousandths', c, 0.2))];
+  const suspects = scale.detectValueScaleSuspects(fixture);
+  if (!suspects.has('thousandths|2026-06-30') || suspects.has('peer-a|2026-06-30') || suspects.has('peer-b|2026-06-30')) fail('P1522 detection must flag only the filer whose per-share price sits ~1,000x below its peers');
+  const managers = scale.managersUnderScaleReview(suspects);
+  if (managers.size !== 1 || !managers.has('thousandths')) fail('P1522 managersUnderScaleReview must name exactly the flagged managers');
+  const earlier = [row('thousandths', cusips[0], 0.2, 1000, '2025-12-31'), row('peer-a', cusips[0], 200, 1000, '2025-12-31')];
+  const withheldEarlier = scale.withholdManagerValues(earlier, managers);
+  if (withheldEarlier[0].value !== null || withheldEarlier[0].valueScaleStatus !== 'SCALE_REVIEW' || withheldEarlier[0].shares !== 1000 || withheldEarlier[1] !== earlier[1]) fail('P1522 an earlier quarter of a flagged manager must lose its amount, keep its shares, and leave other managers untouched');
+  if (scale.withholdManagerValues(earlier, new Set()) !== earlier) fail('P1522 withholding with no flagged manager must return the rows unchanged');
+  const once = scale.withholdSuspectValues(fixture, suspects);
+  const twice = scale.withholdSuspectValues(once, suspects);
+  const thousandthsRow = once.find((item) => item.managerId === 'thousandths');
+  if (thousandthsRow.value !== null || thousandthsRow.reportedValueAsFiled !== 200 || twice.find((item) => item.managerId === 'thousandths').reportedValueAsFiled !== 200) fail('P1522 withholding must be idempotent and keep the first as-filed memo (a shard is withheld again after detection)');
+  if (!/이전 분기도 같은 단위/.test(scale.describeValueScaleCarryover()) || /×\s*1,?000|곱/.test(scale.describeValueScaleCarryover())) fail('P1522 the carry-over notice must say earlier quarters are withheld and must not offer a multiplied figure');
+  const page = read('src/ui/pages/masters.js');
+  const wired = [
+    ['allHoldings is withheld at ingress', /allHoldings: withholdSuspectValues\(result\.value\.allHoldings, state\.valueScale\)/],
+    ['a shard that finished before detection is withheld again', /state\.managerRows\.forEach\(\(artifact, managerId\) => \{[\s\S]{0,400}withholdSuspectValues\(artifact\.holdings/],
+    ['reverse-lookup index rows are withheld by manager', /withholdManagerValues\(Array\.isArray\(record\.rows\) \? record\.rows : \[\], managersUnderScaleReview\(valueScale\)\)/],
+    ['the ticker lookup receives the scale-review map', /createTickerLookup\(documentRef, state\.tickerIndex, registry, state\.tickerQuery, tickerLoadState, state\.holdings\?\.holdings \|\| \[\], state\.valueScale\)/],
+    ['earlier quarters and issuer aggregates are gated for a flagged manager', /createQuarterView\(documentRef, holdingMeta, historyManager, historyRowsArtifact, managerScaleReviewed\)[\s\S]{0,200}createIssuerAggregateView\(documentRef, issuerAggregates, manager\.id, managerScaleReviewed\)/],
+    ['prior and historical quarter totals are gated', /value: scaleReviewed \? null : verification\?\.priorParsedValueTotal/],
+    ['issuer aggregate amounts are gated', /latest && !scaleReviewed \? formatReportedValue\(latest\.valueUsd\)/],
+    ['withheld sector rows are not summed as zero dollars', /scaleWithheld \? '금액 단위 확인 중'/]
+  ];
+  for (const [label, pattern] of wired) if (!pattern.test(page)) fail(`P1522 masters page wiring missing: ${label}`);
+  if (/\*\s*1000\b|\/\s*1000\b/.test(page.replace(/Intl|toLocaleString|1e3|1000\) \/ 1000/g, ''))) fail('P1522 the masters page must never rescale a filed amount by 1,000');
+}
+
 const result = {
   ok: true,
   readMode: staged ? 'GIT_INDEX' : 'WORKTREE',

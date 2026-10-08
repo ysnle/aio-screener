@@ -56,9 +56,32 @@ export function withholdSuspectValues(rows = [], suspects = new Map(), { period 
   if (!suspects?.size || !Array.isArray(rows)) return rows;
   return rows.map((row) => {
     const review = suspects.get(`${row?.managerId || managerId}|${periodOf(row, period)}`);
-    if (!review) return row;
+    // Idempotent: a shard that finished before detection is withheld again, and must keep its first as-filed memo.
+    if (!review || row?.valueScaleStatus === 'SCALE_REVIEW') return row;
     return { ...row, reportedValueAsFiled: row.value ?? null, value: null, priorValue: null, valueDelta: null, valueScaleStatus: 'SCALE_REVIEW' };
   });
+}
+
+/**
+ * Managers with at least one filing under review. Detection needs same-CUSIP peers in the same period, which only
+ * the current quarter has on the page, but a filer keeps its unit across quarters: the same ~1,000x ratio appears in
+ * every earlier quarter of the same manager in history-holdings.json. Dollar amounts of those managers are withheld
+ * wherever a prior quarter, a reverse-lookup index row or an issuer aggregate would otherwise show them.
+ */
+export function managersUnderScaleReview(suspects = new Map()) {
+  return new Set([...(suspects?.keys?.() || [])].map((key) => String(key).split('|')[0]).filter(Boolean));
+}
+
+/** Withhold dollar amounts of every row that belongs to a manager under scale review, whatever its period. */
+export function withholdManagerValues(rows = [], managers = new Set()) {
+  if (!managers?.size || !Array.isArray(rows)) return rows;
+  return rows.map((row) => (managers.has(row?.managerId) && row.valueScaleStatus !== 'SCALE_REVIEW'
+    ? { ...row, reportedValueAsFiled: row.value ?? null, value: null, priorValue: null, valueDelta: null, valueScaleStatus: 'SCALE_REVIEW' }
+    : row));
+}
+
+export function describeValueScaleCarryover() {
+  return '이 운용사의 최신 신고는 금액 단위가 다른 신고와 어긋나 있어 금액을 보류 중입니다. 같은 운용사의 이전 분기도 같은 단위일 수 있어 금액·합계를 표시하지 않습니다. 주식 수와 행 수는 신고한 그대로입니다.';
 }
 
 export function describeValueScaleReview(review) {
