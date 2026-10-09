@@ -2537,7 +2537,9 @@ function _extractTickers(text) {
     'ALSO':1,'BEEN':1,'BEST':1,'BOTH':1,'BULL':1,'BEAR':1,'CALL':1,'COME':1,'EACH':1,'FROM':1,'GOOD':1,'HAVE':1,'HERE':1,'HIGH':1,'JUST':1,'KNOW':1,'LAST':1,'LIKE':1,'LONG':1,'LOOK':1,'MADE':1,'MAKE':1,'MORE':1,'MOST':1,'MUCH':1,'MUST':1,'NEED':1,'NEXT':1,'ONLY':1,'OVER':1,'SELL':1,'SOME':1,'SUCH':1,'TAKE':1,'TELL':1,'THAN':1,'THAT':1,'THEM':1,'THEN':1,'THEY':1,'THIS':1,'TIME':1,'VERY':1,'WANT':1,'WEEK':1,'WELL':1,'WENT':1,'WERE':1,'WHAT':1,'WHEN':1,'WILL':1,'WITH':1,'WORK':1,'YOUR':1,
     'ABOUT':1,'AFTER':1,'COULD':1,'EVERY':1,'FIRST':1,'GREAT':1,'OTHER':1,'SHORT':1,'SINCE':1,'STILL':1,'THEIR':1,'THERE':1,'THESE':1,'THINK':1,'THOSE':1,'THREE':1,'TODAY':1,'UNDER':1,'WHERE':1,'WHICH':1,'WHILE':1,'WOULD':1,
     'ETF':1,'IPO':1,'RSI':1,'MACD':1,'VIX':1,'ATR':1,'EMA':1,'SMA':1,'VCP':1,'SEPA':1,'VWAP':1,'FOMC':1,'GDP':1,'CPI':1,'PPI':1,'NFP':1,'PCE':1,'PMI':1,'ISM':1,'YOY':1,'MOM':1,'QOQ':1,'EPS':1,'PER':1,'PBR':1,'ROE':1,'ROA':1,'FCF':1,'DCF':1,'DDM':1,'NAV':1,'PEG':1,'FFR':1,'QE':1,'QT':1};
-  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t]) { seen[t]=1; tickers.push(t); } });
+  // P1550: finance acronyms and currency codes are not tickers (USD is a listed ETF symbol, SEC/CEO/FED/WTI are plain terms).
+  var nonTickerAcronyms = {'SEC':1,'CEO':1,'CFO':1,'COO':1,'CTO':1,'USD':1,'KRW':1,'EUR':1,'JPY':1,'CNY':1,'GBP':1,'FED':1,'WTI':1,'ECB':1,'BOJ':1,'IMF':1,'OPEC':1,'NYSE':1,'FDA':1,'DOJ':1,'FTC':1,'KOSPI':1,'KRX':1};
+  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t] && !nonTickerAcronyms[t]) { seen[t]=1; tickers.push(t); } });
   // 한국 종목코드 (6자리 숫자)
   var m3 = text.match(/\b(\d{6})\b/g);
   if (m3) m3.forEach(function(c) { var s = c + '.KS'; if (!seen[s]) { seen[s]=1; tickers.push(s); } });
@@ -4027,7 +4029,11 @@ function _aioTickerNewsFromCache(ticker, opts) {
       // P1339: registry is { entries: { TICKER: { en, kr, alt } } } (KR keys keep .KS/.KQ); a flat map never matched.
       var regEntries = (window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries) || {};
       var regEntry = regEntries[rawUpper] || regEntries[sym];
-      if (regEntry) [regEntry.en, regEntry.kr].concat(regEntry.alt || []).forEach(function(name) { if (name && String(name).length >= 2) _addAlias(name); });
+      // P1550: an alt that is another issuer's registry key ('ms' on MSFT vs Morgan Stanley 'MS') is not an alias of this one.
+      if (regEntry) [regEntry.en, regEntry.kr].concat(regEntry.alt || []).forEach(function(name) {
+        var up = String(name || '').toUpperCase();
+        if (up.length >= 2 && (up === sym || up === rawUpper || !regEntries[up])) _addAlias(name);
+      });
     } catch (_a) {}
     var matched = [];
     for (var i = 0; i < cache.length; i++) {

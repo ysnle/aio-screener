@@ -10966,6 +10966,13 @@ function extractTickers(item) {
   }
 
   // 3) 한국어 기업명·키워드 / 영문 별칭 → 티커 매핑
+  // P1550: 한글 별칭이 1~2음절이면 앞이 한글이 아니고 뒤가 한글이 아니거나 조사일 때만 인정한다('모델'의 '델'은 DELL이 아니다).
+  function _aioKrAliasInText(lowerText, alias) {
+    if (lowerText.indexOf(alias) < 0) return false;
+    if (alias.length >= 3 || !/^[가-힣]+$/.test(alias)) return true;
+    var esc = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp('(?:^|[^가-힣])' + esc + '(?:$|[^가-힣]|(?:은|는|이|가|을|를|의|도|와|과|에|로|만)(?:$|[^가-힣]))').test(lowerText);
+  }
   // P1449/R17: 영문 별칭은 단어 경계를 지킨다. plain includes는 "Artificial Intelligence"에서
   // INTC(intel), "downside"에서 DIA(dow) 같은 부분 문자열 오판을 만들었다. 한글 별칭은 JS \b가
   // 비ASCII 단어 경계를 인식하지 못하므로 기존 includes를 쓴다(한글 하위 문자열 오판은 관측된 급사 없음).
@@ -10976,7 +10983,7 @@ function extractTickers(item) {
       var aliasLower = String(krName).toLowerCase();
       if (/[^a-z0-9]/.test(aliasLower)) {
         // 한글 별칭 — JS \b가 비ASCII 경계를 인식하지 못해 기존 includes 유지.
-        if (lowerText.includes(aliasLower) && !_aioNewsNameIsAttribution(lowerText, aliasLower)) found.add(KR_TICKER_MAP[krName]);
+        if (_aioKrAliasInText(lowerText, aliasLower) && !_aioNewsNameIsAttribution(lowerText, aliasLower)) found.add(KR_TICKER_MAP[krName]);
         continue;
       }
       if (!lowerText.includes(aliasLower)) continue;

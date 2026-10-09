@@ -2683,6 +2683,23 @@
     _assert('T535b resolve_fuzzy_exact_only (P1543/P1339): a word that merely contains a nickname or is part of one resolves to nothing; a full registered name still resolves',
       !!fuzzyNoGuess && fuzzyNoGuess[0] === null && fuzzyNoGuess[1] === null && fuzzyNoGuess[2] === null && fuzzyNoGuess[3] === 'MSFT', JSON.stringify(fuzzyNoGuess));
 
+    // T535c (P1550/P1339): a token or a substring is never attributed to another issuer.
+    var attr1550 = null;
+    try {
+      var kr1550 = typeof extractTickers === 'function' ? [extractTickers({ title: '모델 업데이트와 메타버스 전망' }), extractTickers({ title: '델이 서버 신제품을 발표' })] : null;
+      var acr1550 = typeof _extractTickers === 'function' ? _extractTickers('SEC and FED said USD and WTI moved, CEO commented') : null;
+      var msNews1550 = null;
+      var cacheEmpty1550 = typeof newsCache !== 'undefined' && typeof _aioTickerNewsFromCache === 'function';
+      if (cacheEmpty1550) {
+        var prevCache1550 = newsCache;
+        newsCache = [{ title: 'Morgan Stanley raises its price target', desc: 'MS upgraded the bank', tickers: ['MS'], source: 'fixture', pubDate: new Date().toISOString() }];
+        try { msNews1550 = _aioTickerNewsFromCache('MSFT'); } finally { newsCache = prevCache1550; }
+      }
+      attr1550 = { modelNoDell: !!kr1550 && kr1550[0].indexOf('DELL') < 0 && kr1550[0].indexOf('META') < 0, dellAlone: !!kr1550 && kr1550[1].indexOf('DELL') >= 0, acronyms: !!acr1550 && acr1550.length === 0, msNotMsft: msNews1550 === '', ranNews: cacheEmpty1550 && msNews1550 !== null };
+    } catch (e1550) { attr1550 = { error: String(e1550 && e1550.message || e1550) }; }
+    _assert('T535c ticker_attribution_no_substring_or_alias_leak (P1550): "모델/메타버스" are not DELL/META, "델이" is DELL, SEC/FED/USD/WTI/CEO are not tickers, a Morgan Stanley item is not MSFT news',
+      !!attr1550 && attr1550.modelNoDell === true && attr1550.dellAlone === true && attr1550.acronyms === true && attr1550.msNotMsft === true && attr1550.ranNews === true, JSON.stringify(attr1550));
+
     // T536: chatSend 통합 — 5 신규 함수 모두 호출 (followUp/autoNav/pfSim/macroSim/fuzzyResolve)
     var csSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
     var allIntegrated = csSrc.indexOf('_suggestFollowUpQuestions') >= 0 && csSrc.indexOf('_autoNavigatePage') >= 0 && csSrc.indexOf('_simulatePortfolioAddition') >= 0 && csSrc.indexOf('_simulateMacroScenario') >= 0 && csSrc.indexOf('_resolveTickerFromFuzzy') >= 0;

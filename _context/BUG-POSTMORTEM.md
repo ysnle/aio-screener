@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1550 - v57.30 - Chat and news attributed an issuer by a short alias, an uppercase acronym or a Korean substring (2026-10-09)
+
+- symptom/reproduction: The MSFT news filter accepted Morgan Stanley items because MSFT's registry alias list contained 'ms' (Morgan Stanley is its own key 'MS'); the chat extractor sent SEC, CEO, FED, WTI and USD (a listed ETF) to the data fetch as tickers; and the Korean-name branch of extractTickers matched by substring, so '모델' tagged DELL and '메타버스' tagged META.
+- root_cause: Three separate lookups each treated 'looks like a ticker or a name' as 'is that issuer': an alt-alias list without a uniqueness check against other registry keys, an uppercase-word regex without a list of non-ticker acronyms, and a Hangul includes() without a syllable boundary.
+- fix: An alias that is another issuer's registry key is skipped for this ticker; finance acronyms and currency codes are excluded from the chat ticker extractor; a 1-2 syllable Hangul alias must start after a non-Hangul character and end at a non-Hangul character or a case particle.
+- violated_rule: No ticker guessing: a name or ticker-shaped token is never attributed to another issuer (P1339).
+- prevention: Legacy T535c feeds '모델/메타버스', '델이', the acronyms and a Morgan Stanley item filtered for MSFT; it fails on each of the three when the fix is removed (mutation-checked).
+- verification/residual: Legacy headless suite (fixed and mutant runs) and the full no-cache QA. Not done: 3-syllable Hangul aliases still match by substring, and '삼성' followed by Latin text maps to Samsung Electronics.
+
 ## P1549 - v57.30 - Responsive blocks below the supported desktop width remained in the stylesheet (2026-10-09)
 
 - symptom/reproduction: Six media queries at 1100px and 1200px and one at 1240px collapsed grids to two or three columns, which is tablet handling the product excludes.
