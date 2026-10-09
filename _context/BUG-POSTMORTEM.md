@@ -6,6 +6,114 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1549 - v57.30 - Responsive blocks below the supported desktop width remained in the stylesheet (2026-10-09)
+
+- symptom/reproduction: Six media queries at 1100px and 1200px and one at 1240px collapsed grids to two or three columns, which is tablet handling the product excludes.
+- root_cause: R669 only banned widths below 1100px while AGENTS.md bans breakpoints.
+- fix: The blocks are removed; the 1280px and 1366px adaptations that act at the supported desktop widths stay.
+- violated_rule: Desktop only: do not add breakpoints or mobile handling back (AGENTS.md).
+- prevention: ci-desktop-scope-check and the viewport matrix at 1280/1440/1920.
+- verification/residual: Viewport matrix in the full browser run.
+
+## P1548 - v57.30 - Sourceless widgets and internal ids were visible on screen (2026-10-09)
+
+- symptom/reproduction: The KR breadth card listed 52-week high/low and turnover tiles that nothing wrote, the BOK page had a 'market expectation' tile with a permanent dash, the screener header printed an internal snapshot id, the themes badge said REFERENCE and 'public proxy', the page meta described a 'trading environment score', and a stale hand-entered KR export figure could reach the AI snapshot.
+- root_cause: Placeholders were added before their producers and never removed.
+- fix: The sourceless tiles are removed, the header uses dates, the badge says 'reference / public indicators', the meta text says market environment reference indicators, and the KR export reference is withheld while its status is stale-reference.
+- violated_rule: Hide sourceless widgets; no developer copy (AGENTS.md).
+- prevention: Existing KR breadth and static-data contracts; the stale gate lives in the snapshot map.
+- verification/residual: Full browser run.
+
+## P1547 - v57.30 - Outbound fetches had a header-only deadline and the SEC client had none (2026-10-09)
+
+- symptom/reproduction: fetchJSON and the RSS fetch cleared their timer before the body was read and fetchJSON retried a definitive 4xx; the SEC client had no deadline, so a provider that stalled after the headers could hold the lane until the job timeout.
+- root_cause: Timers were cleared right after the response arrived.
+- fix: The timer is cleared in finally after the body read, a 4xx other than 408/429 is not retried, and every SEC request carries AbortSignal.timeout(60s).
+- violated_rule: Every outbound call needs one total deadline.
+- prevention: Syntax and existing producer contracts; no network test is possible in the sandbox.
+- verification/residual: Node syntax check and the data-pipeline gate. Not done: retry jitter and Retry-After handling.
+
+## P1546 - v57.30 - The technical brief, tactical overlay and page briefs carried English trade instructions and unvalidated 0-100 sums (2026-10-09)
+
+- symptom/reproduction: The exit-plan panel printed 'Trim the trading lot by 25-33%' and 'Exit the tactical lot or hedge' in English, the signal page action read 'new entries after confirmation, set the invalidation line first', the sell-pressure, lockout, blow-off and portfolio-heat panels showed n/100 sums with English headings, the cards used a hard-coded dark background with dark ink (unreadable in the ivory theme), and the per-page brief cards told readers to cut new buying, reduce risk or convert news into actions.
+- root_cause: These modules came from the early tactical-trader material and were not covered by the P1535/P1538 sweeps, which looked at the entry-quality and KR surfaces.
+- fix: calcExitPlan returns Korean observation text and reference lines (10EMA, 21EMA, 50SMA), the tactical page overlay is a check list, the panels show the number of measured conditions instead of a sum, headings and enums are Korean, the cards use theme tokens, and the page briefs describe what to check.
+- violated_rule: No trade instructions; no composite scores without predictive evidence; no developer copy on user surfaces (AGENTS.md).
+- prevention: ci-control-char-check P1546 phrases (English instruction lines, tactical overlay phrases, n/100 panel renders).
+- verification/residual: Control-char gate (mutation-checked against the old text) and the legacy suite. Not done: the engines still compute their internal 0-100 sums for the unit tests and the portfolio position table.
+
+## P1545 - v57.30 - The assertion-trace gate checked the format of a ledger id, not that the id exists (2026-10-09)
+
+- symptom/reproduction: A label citing P9999 passed as traced.
+- root_cause: The gate only matched a pattern.
+- fix: A label whose only evidence is a P/R id must resolve to an entry in the _context ledgers or CHANGELOG; labels that also cite a T/QA/workstream id keep that evidence.
+- violated_rule: Traceability needs referential integrity.
+- prevention: ci-assertion-trace-check lists dangling ids; it also failed on this change's own unrecorded ids until they were recorded, which is the intended behaviour.
+- verification/residual: Assertion-trace gate.
+
+## P1544 - v57.30 - Telegram digest tagged ordinary English words with tickers (2026-10-09)
+
+- symptom/reproduction: The producer matched ticker symbols case-insensitively, so 'to be', 'mu', 'cat', 'meta', 'lite' tagged BE, MU, CAT, META and LITE and the digest counted them as catalysts; common-word company names (coherent, oracle, apple) matched in lower case.
+- root_cause: One /i flag covered both symbols and names.
+- fix: Matching moved to scripts/lib/telegram-tickers.mjs: all-caps symbols and acronyms are case-sensitive, ambiguous company names need a capital, distinctive names stay case-insensitive.
+- violated_rule: No ticker guessing (P1339).
+- prevention: ci-data-pipeline-contract-check P1544 feeds plain English and a mixed real sentence.
+- verification/residual: Data-pipeline gate. The published digest keeps its existing tags until the next scheduled refresh.
+
+## P1543 - v57.30 - The legacy chat resolver guessed tickers from name fragments (2026-10-09)
+
+- symptom/reproduction: The legacy fuzzy resolver mapped fragments such as '마크', '마이크로' and '테슬' to issuers, so a ticker-shaped or partial name was rewritten to another company.
+- root_cause: The legacy resolver predates P1339 and kept a substring table.
+- fix: _resolveTickerFromFuzzy looks up exact keys only; the fragment keys are removed and the full-name keys are explicit.
+- violated_rule: No ticker guessing (P1339).
+- prevention: T535b asserts exact-only resolution and that fragments do not resolve.
+- verification/residual: Legacy suite.
+
+## P1542 - v57.30 - The static-database calendar gate would have failed the whole release on 2026-10-15 although the schedule had not been refreshed by anyone (2026-10-09)
+
+- symptom/reproduction: With the date moved forward the gate failed once the last official CPI or retail-sales date passed, blocking unrelated work; the CPI table also ended in October.
+- root_cause: Expiry was a hard failure on the last date instead of a lead-time warning, and the table was extended by hand.
+- fix: The gate warns when 21 days or less of schedule remain and fails only when the schedule has been exhausted for more than 14 days; the CPI table gains 2026-11-10 and 2026-12-10 (secondary calendars citing BLS; confirm at bls.gov).
+- violated_rule: Time-bomb gates must warn before they fail.
+- prevention: ci-static-db-expiry-check lead warning, verified with a fake-date shim at 10/09 (ok), 10/16 (warn) and 10/30 (fail for retail sales).
+- verification/residual: Static-db expiry gate with FAKE_NOW runs.
+
+## P1541 - v57.30 - The Yahoo-to-FRED bridge mapped a 13-week discount rate onto the 3-month constant-maturity series and overwrote the 10Y-3M spread (2026-10-09)
+
+- symptom/reproduction: When FRED was unavailable the bridge filled DGS3MO from Yahoo ^IRX and recomputed T10Y3M from it; ^IRX is the 13-week bill discount rate and DGS3MO is the bond-equivalent yield, so the curve value differed by several basis points; pages also derived a '2Y' from the same rate.
+- root_cause: The two series were treated as the same quantity because both are 'the 3-month rate'.
+- fix: The ^IRX row and the T10Y3M overwrite are removed from the bridge, the dead tnx2y lines are removed, and a missing FRED value stays missing.
+- violated_rule: Missing inputs hold the score; they are never guessed (AGENTS.md).
+- prevention: ci-runtime-contract-check P1541 forbids fredId DGS3MO from Yahoo, the ^TNX-^IRX spread and tnx2y.
+- verification/residual: Runtime-contract gate.
+
+## P1540 - v57.30 - Score bands read as advice although the long-run validation shows no positive relation (2026-10-09)
+
+- symptom/reproduction: The five trading-score bands were named like an entry ladder and described as favourable or defensive conditions while score-backtest-longrun.json (2016-2026, partial validation) shows a negative rank correlation of the composite with 1-day and 5-day returns and a lower 21-day mean for the top tercile than the bottom.
+- root_cause: The band labels were written before the validation and never revisited when the validation came in.
+- fix: Bands are labelled by what the inputs show ('stress signals few / some / mixed / burden / defensive-condition check') with conditional descriptions that mention the partial validation; decision enums are unchanged.
+- violated_rule: Scores are reference descriptions on the last completed close, never decision-grade (AGENTS.md).
+- prevention: ci-domain-parity-check pins the legacy ladders to the src owner; ci-control-char-check forbids the old ladder labels.
+- verification/residual: Parity and esm-core-unit gates.
+
+## P1539 - v57.30 - The AI action gate replaced the whole answer on a keyword and the system prompt left room for a personalized action once suitability was known (2026-10-09)
+
+- symptom/reproduction: A single word such as 'buy' blocked or rewrote a whole answer, while a differently phrased directive passed; the public policy prompt said a personalized single action was only withheld when suitability or current evidence was missing.
+- root_cause: The gate worked on whole answers and a keyword list; the prompt expressed the rule as a condition on missing data, so with data present it implied permission.
+- fix: _aioApplyAIActionGate replaces only the sentences that are unmistakable directives (recommend/imperative/colloquial/ticker+size patterns, negation-safe) with one fixed notice and keeps the rest of the answer; the prompt forbids directive sentences and states that a personalized single action is not confirmed even when suitability or evidence exists; the moat/ecosystem context lines and the technical/profile/sector/diversification prompts ask for observations and conditions.
+- violated_rule: No trade instructions (AGENTS.md); R315 allowed a conditional personalized instruction and is superseded by this rule.
+- prevention: js/aio-tests.js T932/T934a/T934c cover sentence replacement, negated sentences and pass-through; ci-ai-intelligence-contract-check keeps the conditional-analysis wording.
+- verification/residual: Legacy suite T932/T934 family. Not done: live model output sampling.
+
+## P1538 - v57.30 - Technical, KR health, portfolio and moat surfaces showed A~D entry grades, 0-100 composites and instruction verdicts (2026-10-09)
+
+- symptom/reproduction: The ticker and index technical analysis rendered an A~D entry grade with a 0-100 Minervini score and verdict paragraphs, the KR health card summed four inputs into a score and grade, the portfolio analysis printed a 1-5 risk scorecard grade, cut-loss lists and 'diversify' lines, computeMoatScore returned Wide/Narrow/None and fetchPlatformEcosystem returned a 0-100 ecosystem score with 'Strong Platform' verdicts built from keyword counts over headlines and memos, and the R:R calculator pre-filled a -7% stop.
+- root_cause: The early technical and KR modules were written before the owner decision 'no composite grades or letter scores without predictive evidence, no trade instructions' and were never swept: the P1420 retirement removed the 0-100 market score from the UI but not the sibling grade engines, and the instruction-phrase gate only knew a fixed list of exact sentences.
+- fix: The entry-quality engine returns a setup state with reasoning (trend + RSI band, no grade, no RSI fallback to 50); the Minervini engine returns checks only; the three render sites show 'setup state' and 'current state and checks' with the market note labelled as a reference on the last completed US close; the KR health card lists the four current inputs, missing inputs, KOSPI trend and VKOSPI label without a sum; the portfolio analysis reports concentration, P&L, sector and macro facts and a risk observation block instead of a grade; moat and platform return evidence rows (margins, R&D, segment share) with no score or verdict and the memo-keyword heuristics are gone; the R:R calculator no longer fills a stop and its labels say 'assumed'. The page-decision action texts, band ladders and guide copy were relabelled to conditions.
+- violated_rule: No composite grades or letter scores without predictive evidence; no trade instructions (AGENTS.md product decisions).
+- prevention: ci-control-char-check INSTRUCTION_PHRASES now fails on the retired grade, verdict, ecosystem-score and instruction phrases (js/aio-tests.js excluded because it holds the negative assertions); ci-runtime-contract-check P1538 asserts the KR health body has no score/grade and the deep-analysis engines return no score/verdict; legacy T479/T478 assert moat and platform return evidence only.
+- verification/residual: Syntax, runtime-contract, control-char and the legacy suites in the full no-cache run. Not done: the 0-100 market-score headline on home/signal/briefing is still shown as a labelled reference (P1357); AGENTS.md says both 'reference description' and 'retired from UI' and the owner has to choose.
+
 ## P1537 - v57.30 - The news count did not say which list it covered, and the concept-map list printed a relation word without a direction (2026-10-09)
 
 - symptom/reproduction: The news strip showed '12건 표시 / 40건 일치' with no word on whether country, topic or type filters applied, and the channel (Telegram) list below it is classified on its own; the note about that was empty when only the Telegram type chip narrowed the articles. The connected-concepts list printed only the relation word (for example '분해') for both outgoing and incoming edges, and the text alternative could print an internal edge type (CAUSES).

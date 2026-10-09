@@ -424,27 +424,27 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
 
   const bands = total >= 75
     ? {
-        tier: 'favorable', action: 'WATCH', decision: '환경 우호 — 종목별 근거 별도 확인',
-        description: '현재 시장 입력 조합이 우호적입니다. 점수는 예측 신호가 아니며 종목별 거래량·손익비·무효화 가격을 별도로 확인하세요.'
+        tier: 'favorable', action: 'WATCH', decision: '스트레스 신호 적음 — 종목별 근거 별도 확인',
+        description: '현재 시장 입력 조합에서 스트레스 신호가 적게 관측됩니다. 점수는 예측 신호가 아니며, 2016~2026 부분 검증에서는 점수 상위 구간의 이후 수익률이 더 높지 않았습니다.'
       }
     : total >= 60
       ? {
-          tier: 'constructive', action: 'WATCH', decision: '환경 양호 — 단독 진입 신호 아님',
-          description: '현재 시장 여건은 양호합니다. 점수는 예측 신호가 아니므로 점수 단독으로 진입하지 말고 종목·거래량·손익비를 확인하세요.'
+          tier: 'constructive', action: 'WATCH', decision: '스트레스 신호 일부 — 단독 판단 근거 아님',
+          description: '스트레스 신호가 일부 관측됩니다. 점수는 예측 신호가 아니며 종목·거래량·손익비는 별도로 확인할 항목입니다.'
         }
       : total >= 45
         ? {
             tier: 'neutral', action: 'WAIT', decision: '중립 — 신호 혼재',
-            description: '시장 신호가 혼재된 환경입니다. 점수는 예측 신호가 아니므로 진입·비중 결정은 종목별 근거와 본인 리스크 한도로 판단하세요.'
+            description: '시장 신호가 혼재된 환경입니다. 점수는 예측 신호가 아니며, 종목별 근거와 본인 리스크 한도는 별도로 확인할 항목입니다.'
           }
         : total >= 30
           ? {
               tier: 'caution', action: 'REDUCE', decision: '주의 — 비중 부담 점검',
-              description: '리스크 증가. 기존 포지션의 방어선, 현금 비중, 헤지 조건을 점검하세요.'
+              description: '스트레스 신호가 늘어난 구간입니다. 기존 포지션의 방어선, 현금 비중, 헤지 여부는 본인 기준으로 확인할 항목입니다.'
             }
           : {
               tier: 'defensive', action: 'REDUCE', decision: '위험 — 방어 조건 점검',
-              description: '극단 리스크. 신규 진입을 중단하고 현금·헤지·VIX 추적을 우선하세요.'
+              description: '스트레스 신호가 다수인 구간입니다. 신규 진입 여부와 현금·헤지, VIX 변화는 본인 기준으로 확인할 항목입니다.'
             };
 
   return Object.freeze({

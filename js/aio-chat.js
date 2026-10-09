@@ -451,7 +451,7 @@ function _aioPublicAIActionPolicyPrompt() {
   return '\n\n【공개 AI 베타 분석·행동 경계 — 최우선】\n' +
     '이 AI는 "AI 베타 · 교육/리서치 보조"이며 독립 투자자문·검증 시스템·실시간 주문 도구가 아니다.\n' +
     '교육·시장 원리·상품 구조·규제 영향·법률/세무의 일반 또는 사용자 맥락 분석을 회피하지 마라. 관할·사실관계가 부족하면 합리적 전제를 밝히고 공식 원문·기준일·추가 확인 항목을 제시하라.\n' +
-    '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 다만 사용자 적합성·현재 근거가 없으면 개인화된 단일 행동 지시로 확정하지 말고 조건별 선택지와 의사결정 체크리스트로 전환하라.\n' +
+    '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 다만 "매수하세요"·"매도를 추천"·"비중 N% 확대"처럼 특정 종목에 대한 행동 지시 문장은 쓰지 말고(쓰면 화면에서 문장이 대체된다), 적합성 정보나 근거가 있어도 개인화된 단일 행동 지시로 확정하지 말고 조건별 선택지와 의사결정 체크리스트로 전환하라.\n' +
     '불법 행위의 구체적 실행법, 실제 주문·계정 변경·외부 전송, 수익 보장만 차단한다. 그 밖의 질문은 답변 전체를 안전 모드로 바꾸지 말고 부족한 현재 주장만 제한하라.\n' +
     '조건, 데이터의 한계, 위험요인, 확인해야 할 원문과 재검증 절차를 설명하라. 현재성 주장은 주입된 근거 블록만 사용하고 기준시각과 Evidence 상태를 명시하라.\n' +
     '현재 수치·출처·기준시각이 주입되지 않았으면 그 수치를 현재 사실로 단정하지 마라. 다만 답변을 거부하거나 "확인 필요"로 끝내지 말고, 일반 원리·조건·시나리오·확인 방법으로 끝까지 답하며 어느 부분이 미확인인지 밝혀라. 학습 기억을 현재 관측값처럼 제시하는 것만 금지한다.\n' +
@@ -514,22 +514,33 @@ function _aioBuildAIResponseDisclosure(meta) {
   };
 }
 
+// P1539 (owner decision: no trade instructions; show facts such as the pivot and the invalidation price): the gate used to detect
+// concrete instructions and then let every one through. A research answer may still analyse price levels, invalidation levels and
+// allocations as scenarios, so the gate no longer blocks the answer; it replaces only the sentence that is an unmistakable personal
+// directive (a recommendation or imperative to buy, sell, stop out or resize) with a plain notice. Patterns are narrow on purpose:
+// a number or a bare action word is analysis, a recommendation or imperative form is an instruction.
+var _AIO_DIRECTIVE_NOTICE = '[개별 매매 지시는 제공하지 않습니다. 조건과 근거를 확인해 직접 판단하세요.]';
 function _aioApplyAIActionGate(text, meta) {
   var raw = String(text || '');
-  // Educational mentions remain allowed; concrete instruction requires a
-  // directive, an allocation/price/level, or an explicit action label nearby.
-  var number = '(?:[$₩€]\\s*)?\\d[\\d,]*(?:\\.\\d+)?\\s*(?:원|달러|USD|%|배|bp)?';
-  var action = '(?:매수|매도|추가매수|진입|청산|손절|익절|목표가|진입가|손절가)';
-  var directive = '(?:하세요|하라|해야|권고|추천|제안|고려(?:하라|하세요)?|적절|유효|가능|우호|유리|불리|시점|타이밍|판단|기회|적극|확대|축소|유지|정리|사세요|파세요|들어가|나가)';
-  var concrete = new RegExp('(?:' + action + ').{0,32}(?:' + number + '|' + directive + ')|(?:' + number + '|' + directive + ').{0,32}(?:' + action + ')', 'i');
-  var labeledPrice = new RegExp('(?:목표가|진입가|손절가).{0,24}' + number, 'i');
-  var allocationDirective = new RegExp('(?:비중|포지션|헤지).{0,24}(?:확대|축소|늘리|줄이|정리|권고|추천)|(?:확대|축소|늘리|줄이|정리|권고|추천).{0,24}(?:비중|포지션|헤지)', 'i');
-  var blocked = concrete.test(raw) || labeledPrice.test(raw) || allocationDirective.test(raw);
-  if (!blocked) return { blocked: false, text: raw, reasons: [] };
-  // This is a read-only research UI: concrete levels and allocations are useful
-  // analysis, not an external trade mutation. Conduct, consent, evidence, and
-  // tool boundaries independently control the actual high-risk cases.
-  return { blocked: false, text: raw, reasons: ['conditional-trade-analysis'] };
+  var action = '(?:매수|매도|추가\\s*매수|분할\\s*매수|손절|익절|청산|진입|정리)';
+  var recommend = new RegExp(action + '\\s*(?:을|를)?\\s*(?:추천|권고|권장|제안)(?!\\s*(?:하지|드리지|이\\s*아|은\\s*아))');
+  var imperative = new RegExp(action + '\\s*(?:하세요|하십시오|하라|하시기\\s*바랍니다|해야\\s*(?:합니다|한다|해요))');
+  var colloquial = /(?:사세요|파세요|담으세요|사야\s*(?:합니다|한다)|팔아야\s*(?:합니다|한다))/;
+  var tickerAction = /(?:^|[\s:：(])[A-Z]{1,5}\s*(?:비중\s*)?\$?\d[\d,.]*\s*(?:달러|원|%)?\s*(?:매수|매도|확대|축소)\s*[.!)]?\s*$/;
+  var negated = /(?:아닙니다|아니다|않습니다|않는다|금지|하지\s*마|하지\s*않|제공하지|드리지|지시가\s*아|지시 아님)/;
+  var sentences = raw.match(/[^.!?。\n]+(?:[.!?。]+|\n|$)\s*/g) || [raw];
+  var replaced = 0;
+  var out = sentences.map(function(sentence) {
+    var plain = sentence.trim();
+    if (!plain || negated.test(plain)) return sentence;
+    if (recommend.test(plain) || imperative.test(plain) || colloquial.test(plain) || tickerAction.test(plain)) {
+      replaced += 1;
+      return _AIO_DIRECTIVE_NOTICE + (/\n\s*$/.test(sentence) ? '\n' : ' ');
+    }
+    return sentence;
+  }).join('');
+  if (!replaced) return { blocked: false, text: raw, reasons: [] };
+  return { blocked: false, text: out.replace(/(?:\[개별 매매 지시는 제공하지 않습니다\. 조건과 근거를 확인해 직접 판단하세요\.\]\s*){2,}/g, _AIO_DIRECTIVE_NOTICE + ' ').trim(), reasons: ['directive-sentence-replaced'], replacedSentences: replaced };
 }
 
 function _aioAppendAIPublicDisclosure(parent, meta) {
@@ -3310,8 +3321,9 @@ async function _fetchTickerDataForChat(tickers, opts) {
       try {
         var pe = platformPromise ? await platformPromise : null;
         if (pe && pe.available) {
-          results.push('  [Platform Eco] score ' + pe.ecosystemScore + '/100 · ' + pe.verdict + ' · dataConfidence: ' + pe.dataConfidence + (pe.indicators && pe.indicators.length > 0 ? ' · indicators: ' + pe.indicators.length : ''));
-          results.push('  [Platform Eco 가이드] 정성 분석 한계 — 외부 API 없음. 위 ecosystemScore (SCREENER_DB.memo + FMP segments + Finnhub news 합성) 결과만 인용. "구체적 플랫폼 규모/사용자 수/MAU 추정 절대 금지" (R117).');
+          var peSeg = (pe.indicators || []).filter(function(i) { return i.source === 'FMP segments'; })[0];
+          results.push('  [부문 매출 구성] 서비스·구독·클라우드·플랫폼 계열 부문 매출 비중 ' + (peSeg ? peSeg.platformRevPct + '% (' + (peSeg.segments || []).join(', ') + ')' : '미수신') + ' · dataConfidence: ' + pe.dataConfidence);
+          results.push('  [가이드] 위 값은 FMP 부문 매출의 단순 분류이다. 플랫폼·생태계의 점수나 등급을 만들지 말고, 구체적 플랫폼 규모/사용자 수/MAU 추정은 절대 금지 (R117).');
         }
       } catch(_peErr) {}
 
@@ -3319,12 +3331,12 @@ async function _fetchTickerDataForChat(tickers, opts) {
       try {
         var mo = moatPromise ? await moatPromise : null;
         if (mo && mo.available) {
-          var moLine = '  [Moat Score] ' + mo.verdict + ' (score ' + mo.score + '/' + mo.maxScore + ') · dataConfidence: ' + mo.dataConfidence;
+          var moLine = '  [수익성·R&D 관측값] dataConfidence: ' + mo.dataConfidence;
           if (mo.evidence && mo.evidence.length > 0) {
-            moLine += '\n    Evidence:\n' + mo.evidence.map(function(e) { return '      · ' + e.moat + ': ' + e.signal + ' (' + e.weight + ')'; }).join('\n');
+            moLine += '\n' + mo.evidence.map(function(e) { return '      · ' + e.label + ': ' + e.signal; }).join('\n');
           }
           results.push(moLine);
-          results.push('  [Moat 가이드] Wide(7+) / Narrow(3~6) / None(<3). SCREENER_DB + Naver financials 자동 채점. Morningstar 공식 등급 추정 금지 (R117).');
+          results.push('  [가이드] 위 값은 수익성과 R&D 강도의 관측값이다. 경쟁우위(해자)의 등급이나 점수를 만들지 말고, 해자는 근거가 있는 정성 설명으로만 다룬다. Morningstar 공식 등급 추정 금지 (R117).');
         }
       } catch(_moErr) {}
 
@@ -5529,8 +5541,8 @@ function _resolveTickerFromFuzzy(input) {
     '애플': 'AAPL',
     '구글': 'GOOGL', '알파벳': 'GOOGL',
     '아마존': 'AMZN',
-    '마소': 'MSFT', '마이크로': 'MSFT', '마크': 'MSFT',
-    '테슬': 'TSLA', '테슬라': 'TSLA',
+    '마소': 'MSFT', '마이크로소프트': 'MSFT',
+    '테슬라': 'TSLA',
     '메타': 'META', '페북': 'META', '페이스북': 'META',
     '퀄컴': 'QCOM',
     '인텔': 'INTC',
@@ -5558,19 +5570,13 @@ function _resolveTickerFromFuzzy(input) {
     '은': 'SI=F', 'silver': 'SI=F',
     '유가': 'CL=F', 'wti': 'CL=F', '원유': 'CL=F',
     '나스닥': '^IXIC', 'nasdaq': '^IXIC',
-    'S&P': '^GSPC', '에스앤피': '^GSPC',
+    's&p': '^GSPC', '에스앤피': '^GSPC',
     '다우': '^DJI', '다우존스': '^DJI',
     '러셀': '^RUT', '러셀2000': '^RUT'
   };
-  if (fuzzyMap[q]) return fuzzyMap[q];
-  var keys = Object.keys(fuzzyMap);
-  for (var i = 0; i < keys.length; i++) {
-    var k = keys[i].toLowerCase();
-    if (q.indexOf(k) >= 0 || (k.length >= 2 && k.indexOf(q) >= 0 && q.length >= 2)) {
-      return fuzzyMap[keys[i]];
-    }
-  }
-  return null;
+  // P1543 (owner decision P1339: no ticker guessing): the table is a curated list of exact nicknames. The previous substring loop
+  // matched any word that merely contained a key, so "금일" (today) resolved to gold futures and "마크롱" to Microsoft.
+  return Object.prototype.hasOwnProperty.call(fuzzyMap, q) ? fuzzyMap[q] : null;
 }
 window._resolveTickerFromFuzzy = _resolveTickerFromFuzzy;
 

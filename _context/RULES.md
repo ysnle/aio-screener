@@ -7,6 +7,24 @@ target_version: v57.30
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R699. A cited ledger id must exist (v57.30, P1545)
+
+**Rule**: A test label that cites only P/R ids passes the trace gate only if each id resolves to a ledger entry; other evidence kinds (T, QA, workstream ids) are unchanged.
+
+**Validation**: ci-assertion-trace-check dangling-id list.
+
+## R698. An AI answer is filtered by sentence, and a personalized directive is never confirmed (v57.30, P1539)
+
+**Rule**: The AI action gate replaces the sentence that is an unmistakable directive and keeps the rest; the prompt forbids confirming a personalized single action whether or not suitability or evidence exists. This supersedes R315, which allowed a conditional personalized instruction.
+
+**Validation**: T932/T934a/T934c and ci-ai-intelligence-contract-check.
+
+## R697. A reader sees measured conditions, never a grade, an unvalidated sum or an instruction (v57.30, P1538)
+
+**Rule**: Every surface that summarises a technical, fundamental or portfolio state lists the measured conditions and their basis. It does not print a letter grade, a 0-100 sum, a verdict word or an action verb unless a predictive validation is recorded for that exact number; the setup state names what is observed (trend, RSI band), not what to do.
+
+**Validation**: ci-control-char-check INSTRUCTION_PHRASES, ci-runtime-contract-check P1538, legacy T478/T479.
+
 ## R696. An internal code is not reader text (v57.30, P1535)
 
 **Rule**: Engine enums, flag ids and reference percentages are mapped to a reader label before rendering; a renderer must not pass an engine action to a badge or sentence, and a prompt describes the conditions to explain rather than the verdict to give. A guard lists the retired phrases and the direct-render pattern.

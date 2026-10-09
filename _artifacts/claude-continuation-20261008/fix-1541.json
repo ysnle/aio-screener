@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels, P1538 grades and composites out of technical, KR health, portfolio and moat surfaces, P1539 AI directive gate at sentence level, P1540 score band wording after validation, P1541 Yahoo-to-FRED bridge mapping.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "The Yahoo-to-FRED bridge mapped a 13-week discount rate onto the 3-month constant-maturity series and overwrote the 10Y-3M spread",
+  "symptom": "When FRED was unavailable the bridge filled DGS3MO from Yahoo ^IRX and recomputed T10Y3M from it; ^IRX is the 13-week bill discount rate and DGS3MO is the bond-equivalent yield, so the curve value differed by several basis points; pages also derived a '2Y' from the same rate.",
+  "root_cause": "The two series were treated as the same quantity because both are 'the 3-month rate'.",
+  "fix": "The ^IRX row and the T10Y3M overwrite are removed from the bridge, the dead tnx2y lines are removed, and a missing FRED value stays missing.",
+  "violated_rule": "Missing inputs hold the score; they are never guessed (AGENTS.md).",
+  "prevention": "ci-runtime-contract-check P1541 forbids fredId DGS3MO from Yahoo, the ^TNX-^IRX spread and tnx2y.",
+  "verification": "Runtime-contract gate."
+ },
+ "r": null,
+ "changelog": [
+  "**Yahoo→FRED 브리지 (P{P}):** ^IRX(13주 할인율)를 DGS3MO(채권등가수익률)로 대체하던 행과 T10Y3M 덮어쓰기를 제거했다."
+ ]
+}

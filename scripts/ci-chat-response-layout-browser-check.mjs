@@ -31,7 +31,7 @@ const appendAIMsg = sliceBetween(chat, 'function _appendAIMsg(', '\n\nasync func
 // Use the shared disclosure helper from the production chat module. Its small
 // dependency slice is self-contained and keeps this gate offline/provider-free.
 const disclosureFormat = sliceBetween(chat, 'function _aioPublicAIFormatAsOf(', '\n\nfunction _aioBuildAIResponseDisclosure', 'disclosure formatter');
-const disclosureBuild = sliceBetween(chat, 'function _aioBuildAIResponseDisclosure(', '\n\nfunction _aioApplyAIActionGate', 'disclosure builder');
+const disclosureBuild = sliceBetween(chat, 'function _aioBuildAIResponseDisclosure(', '\n\n// P1539', 'disclosure builder');
 const disclosureAppend = sliceBetween(chat, 'function _aioAppendAIPublicDisclosure(', '\n\nif (typeof window !==', 'disclosure renderer');
 const citationCanonical = sliceBetween(chat, 'function _aioCanonicalResearchUrl(', '\n\nfunction _aioResearchResultUsable', 'citation URL normalizer');
 const citationsHtml = sliceBetween(chat, 'function _searchCitationsHTML(', '\n\n/** Google Custom Search API 호출', 'citation renderer');

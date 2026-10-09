@@ -81,7 +81,9 @@ export function withArchiveUrls(cik, filing) {
   };
 }
 
-export function createSecClient({ userAgent = requireSecUserAgent(), minIntervalMs = 125, maxRetries = 3, fetchFn = globalThis.fetch } = {}) {
+// P1547: every attempt carries a wall-clock deadline that also covers the body read; a provider that stalls
+// after the headers can no longer hold the whole 13F lane until the job timeout.
+export function createSecClient({ userAgent = requireSecUserAgent(), minIntervalMs = 125, maxRetries = 3, requestTimeoutMs = 60000, fetchFn = globalThis.fetch } = {}) {
   if (typeof fetchFn !== 'function') throw new Error('fetch is unavailable');
   let lastRequestAt = 0;
   let requestQueue = Promise.resolve();
@@ -96,7 +98,8 @@ export function createSecClient({ userAgent = requireSecUserAgent(), minInterval
           'User-Agent': userAgent,
           'Accept-Encoding': 'gzip, deflate',
           Accept: accept
-        }
+        },
+        signal: AbortSignal.timeout(requestTimeoutMs)
       });
       if (response.ok) return response;
       if (![403, 429, 500, 502, 503, 504].includes(response.status) || attempt === maxRetries) {

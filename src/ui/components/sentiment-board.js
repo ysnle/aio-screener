@@ -14,7 +14,7 @@ import { buildMarketRegime } from '../../domain/briefing/market-read.js';
 import { sentimentFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 
-// AAII published long-run averages (since 1987): bullish 37.5%, neutral 31.5%, bearish 31.0%.
+// AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
 const EXCLUDED = Object.freeze({ label: '판정 제외', tone: 'unknown' });
 

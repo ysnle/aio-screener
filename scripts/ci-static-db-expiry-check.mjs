@@ -84,10 +84,28 @@ const officialNext = (key) => {
   const line = scheduleBlock.split('\n').find((row) => row.includes(`'${key}':`)) || '';
   return (line.match(/\d{4}-\d{2}-\d{2}/g) || []).find((date) => date >= todayIso) || null;
 };
-const staleNext = [...calBlock.matchAll(/'([^']+)':\s*\{[^}]*?nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/g)]
+// P1542 (owner direction: a data problem is shown honestly on screen and must not stop shipping): an exhausted official schedule already
+// degrades to 'unavailable-expired' at runtime (nothing is inferred), so the gate no longer fails on the very day the last date passes.
+// It warns while 21 days of schedule remain, and fails only when the schedule has been exhausted for more than 14 days, which leaves the
+// macro-calendar review workflow a fortnight to deliver the next dates before a deploy is held.
+const SCHEDULE_LEAD_WARN_DAYS = 21;
+const SCHEDULE_GRACE_DAYS = 14;
+const lastScheduled = (key) => {
+  const line = scheduleBlock.split('\n').find((row) => row.includes(`'${key}':`)) || '';
+  return (line.match(/\d{4}-\d{2}-\d{2}/g) || []).sort().pop() || null;
+};
+const dayDiff = (a, b) => Math.round((Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 86400000);
+const calendarRows = [...calBlock.matchAll(/'([^']+)':\s*\{[^}]*?nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/g)];
+const staleNext = calendarRows
   .filter(([, key, date]) => date < todayIso && !officialNext(key))
+  .filter(([, key]) => { const last = lastScheduled(key); return !last || dayDiff(todayIso, last) > SCHEDULE_GRACE_DAYS; })
   .map(([full, key, date]) => `${key}=${date}`);
-check('static-db:calendar-no-past-nextRelease', staleNext.length === 0, `past nextRelease still registered: ${staleNext.join(', ')} (R650: advance the schedule without inferring a completed result)`);
+check('static-db:calendar-no-past-nextRelease', staleNext.length === 0, `schedule exhausted for more than ${SCHEDULE_GRACE_DAYS} days: ${staleNext.join(', ')} (R650: advance the schedule without inferring a completed result)`);
+const runningOut = [...new Set(calendarRows.map(([, key]) => key))]
+  .map((key) => ({ key, last: lastScheduled(key) }))
+  .filter(({ last }) => last && dayDiff(last, todayIso) < SCHEDULE_LEAD_WARN_DAYS)
+  .map(({ key, last }) => `${key} (last scheduled date ${last}, ${dayDiff(last, todayIso)}d left)`);
+warn('static-db:calendar-schedule-lead', runningOut.length === 0, `official schedule runs out soon: ${runningOut.join(', ')} (run the macro-calendar review workflow and add the published dates)`);
 
 // Expired events: the freshness registry keeps decided events as historical
 // context (getEventClaimState → historicalOnly), but entries past their claim

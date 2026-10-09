@@ -1,0 +1,24 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels, P1538 grades and composites out of technical, KR health, portfolio and moat surfaces.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "Technical, KR health, portfolio and moat surfaces showed A~D entry grades, 0-100 composites and instruction verdicts",
+  "symptom": "The ticker and index technical analysis rendered an A~D entry grade with a 0-100 Minervini score and verdict paragraphs, the KR health card summed four inputs into a score and grade, the portfolio analysis printed a 1-5 risk scorecard grade, cut-loss lists and 'diversify' lines, computeMoatScore returned Wide/Narrow/None and fetchPlatformEcosystem returned a 0-100 ecosystem score with 'Strong Platform' verdicts built from keyword counts over headlines and memos, and the R:R calculator pre-filled a -7% stop.",
+  "root_cause": "The early technical and KR modules were written before the owner decision 'no composite grades or letter scores without predictive evidence, no trade instructions' and were never swept: the P1420 retirement removed the 0-100 market score from the UI but not the sibling grade engines, and the instruction-phrase gate only knew a fixed list of exact sentences.",
+  "fix": "The entry-quality engine returns a setup state with reasoning (trend + RSI band, no grade, no RSI fallback to 50); the Minervini engine returns checks only; the three render sites show 'setup state' and 'current state and checks' with the market note labelled as a reference on the last completed US close; the KR health card lists the four current inputs, missing inputs, KOSPI trend and VKOSPI label without a sum; the portfolio analysis reports concentration, P&L, sector and macro facts and a risk observation block instead of a grade; moat and platform return evidence rows (margins, R&D, segment share) with no score or verdict and the memo-keyword heuristics are gone; the R:R calculator no longer fills a stop and its labels say 'assumed'. The page-decision action texts, band ladders and guide copy were relabelled to conditions.",
+  "violated_rule": "No composite grades or letter scores without predictive evidence; no trade instructions (AGENTS.md product decisions).",
+  "prevention": "ci-control-char-check INSTRUCTION_PHRASES now fails on the retired grade, verdict, ecosystem-score and instruction phrases (js/aio-tests.js excluded because it holds the negative assertions); ci-runtime-contract-check P1538 asserts the KR health body has no score/grade and the deep-analysis engines return no score/verdict; legacy T479/T478 assert moat and platform return evidence only.",
+  "verification": "Syntax, runtime-contract, control-char and the legacy suites in the full no-cache run. Not done: the 0-100 market-score headline on home/signal/briefing is still shown as a labelled reference (P1357); AGENTS.md says both 'reference description' and 'retired from UI' and the owner has to choose."
+ },
+ "r": {
+  "title": "A reader sees measured conditions, never a grade, an unvalidated sum or an instruction",
+  "rule": "Every surface that summarises a technical, fundamental or portfolio state lists the measured conditions and their basis. It does not print a letter grade, a 0-100 sum, a verdict word or an action verb unless a predictive validation is recorded for that exact number; the setup state names what is observed (trend, RSI band), not what to do.",
+  "validation": "ci-control-char-check INSTRUCTION_PHRASES, ci-runtime-contract-check P1538, legacy T478/T479."
+ },
+ "changelog": [
+  "**등급·종합점수·지시형 판정 제거 (P{P}):** 종목/지수 기술 분석의 A~D 진입 등급·미너비니 점수·판정 문단, KR 건강도 합산 점수와 등급, 포트폴리오 리스크 등급, 해자·플랫폼 점수·판정을 측정값과 확인 항목으로 바꿨다. R:R 계산기는 손절을 자동 입력하지 않는다."
+ ]
+}

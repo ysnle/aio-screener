@@ -2,6 +2,7 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { matchTickers } from './lib/telegram-tickers.mjs';
 
 const CHANNEL_CATALOG = [
   { slug:'aetherjapanresearch', role:'asia-semi-flow', region:'jp-us', evidence:'secondary-public-mirror' },
@@ -215,34 +216,7 @@ function loadScreenerAliases() {
 const SCREENER_ALIASES = loadScreenerAliases();
 
 function extractTickers(text) {
-  const raw = stripLinks(text);
-  const map = [
-    ['NVDA', /\bNVDA\b|nvidia/i], ['AMD', /\bAMD\b|Advanced Micro|MI450/i],
-    ['TSLA', /\bTSLA\b|Tesla/i], ['CAT', /\bCAT\b|Caterpillar/i], ['AMAT', /\bAMAT\b|Applied Materials/i],
-    ['AAPL', /\bAAPL\b|\bApple\b/i], ['MSFT', /\bMSFT\b|\bMicrosoft\b|Azure|Copilot/i],
-    ['GOOG', /\bGOOG\b|\bGOOGL\b|Google|Alphabet|Gemini/i], ['META', /\bMETA\b|Meta Platforms/i],
-    ['AVGO', /\bAVGO\b|Broadcom|TPU/i], ['AMZN', /\bAMZN\b|Amazon|AWS|Trainium/i],
-    ['MU', /\bMU\b|Micron/i], ['TSM', /\bTSM\b|TSMC|Taiwan Semiconductor/i],
-    ['MRVL', /\bMRVL\b|Marvell/i], ['ALAB', /\bALAB\b|Astera/i],
-    ['LITE', /\bLITE\b|Lumentum/i], ['COHR', /\bCOHR\b|Coherent/i],
-    ['AAOI', /\bAAOI\b|Applied Optoelectronics/i], ['MTSI', /\bMTSI\b|MACOM/i],
-    ['ORCL', /\bORCL\b|Oracle/i], ['BE', /\bBE\b|Bloom Energy|SOFC/i],
-    ['PLTR', /\bPLTR\b|Palantir/i], ['BMY', /\bBMY\b|Bristol[- ]Myers/i],
-    ['SNDK', /\bSNDK\b|SanDisk/i], ['WDC', /\bWDC\b|Western Digital/i], ['STX', /\bSTX\b|Seagate/i],
-    ['MTK', /\bMTK\b|MediaTek/i], ['PWR', /\bPWR\b|Quanta Services/i],
-    ['ADBE', /\bADBE\b|Adobe/i], ['SMCI', /\bSMCI\b|Super Micro/i], ['RKLB', /\bRKLB\b|Rocket Lab/i],
-    ['6600.T', /Kioxia/i], ['6981.T', /Murata/i],
-    ['005930.KS', /Samsung Electronics|삼성전자/i], ['009150.KS', /Samsung Electro|삼성전기/i], ['000660.KS', /SK\s*Hynix|SK하이닉스/i],
-    ['042660.KS', /Hanwha Ocean|한화오션/i], ['039030.KQ', /EO Technics|이오테크닉스/i],
-    ['247540.KQ', /EcoPro BM|에코프로비엠/i], ['003670.KQ', /POSCO Future M|포스코퓨처엠/i],
-  ];
-  const out = [];
-  for (const [ticker, re] of map) if (re.test(raw) && !out.includes(ticker)) out.push(ticker);
-  for (const [ticker, re] of SCREENER_ALIASES) {
-    if (out.length >= 20) break;
-    if (re.test(raw) && !out.includes(ticker)) out.push(ticker);
-  }
-  return out;
+  return matchTickers(stripLinks(text), SCREENER_ALIASES);
 }
 
 // 채널 공지/일정/단순 안내 여부 감지 (저점수 패널티용)

@@ -434,7 +434,6 @@ function updateRiskMonitor() {
   if (spx != null) document.querySelectorAll('[data-snap="spx"]').forEach(function(el){ el.textContent = spx.toLocaleString('en-US', {maximumFractionDigits:0}); });
   // v48.53: Yahoo 직접 매핑 9종 추가 자동화 (tnx/tnx-2y/skew/kospi/kosdaq/krw/dxy)
   var tnx = ld['^TNX'] ? ld['^TNX'].price : null;
-  var tnx2y = ld['^IRX'] ? ld['^IRX'].price : null;
   var kospi = ld['^KS11'] ? ld['^KS11'].price : null;
   var kospiPct = ld['^KS11'] ? ld['^KS11'].pct : null;
   var kosdaq = ld['^KQ11'] ? ld['^KQ11'].price : null;
@@ -442,7 +441,6 @@ function updateRiskMonitor() {
   var krw = ld['KRW=X'] ? ld['KRW=X'].price : null;
   var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
   if (tnx != null) document.querySelectorAll('[data-snap="tnx"]').forEach(function(el){ el.textContent = tnx.toFixed(2) + '%'; });
-  if (tnx2y != null) document.querySelectorAll('[data-snap="tnx-2y"]').forEach(function(el){ el.textContent = tnx2y.toFixed(2) + '%'; });
   if (kospi != null) document.querySelectorAll('[data-snap="kospi"]').forEach(function(el){ el.textContent = kospi.toLocaleString('en-US', {maximumFractionDigits:2}); });
   if (kospiPct != null) document.querySelectorAll('[data-snap="kospi-pct"]').forEach(function(el){ el.textContent = (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%'; });
   if (kosdaq != null) document.querySelectorAll('[data-snap="kosdaq"]').forEach(function(el){ el.textContent = kosdaq.toLocaleString('en-US', {maximumFractionDigits:2}); });
@@ -841,13 +839,13 @@ function refreshSignalDashboard() {
     decColor = 'var(--text-muted)'; decBg = 'transparent';
     decSub = !totalFinite ? '실시간·검증된 시장 입력이 없어 점수와 실행 판단을 표시하지 않습니다.' : '미수신 구성요소(' + (scores.componentMissing || []).join(', ') + ')는 중립값으로만 계산했습니다. 현재 진입 판단에는 사용하지 않습니다.';
   } else if (total >= 75) {
-    decision = '환경 우호 — 종목별 근거 별도 확인';
+    decision = '스트레스 신호 적음 — 종목별 근거 별도 확인';
     decColor = '#22754c'; decBg = 'rgba(34,117,76,0.15)';
-    decSub = '현재 시장 입력 조합이 우호적입니다. 점수는 예측 신호가 아니며(부분 백테스트에서는 선행수익률과 음의 상관 관측) 종목별 거래량·손익비·무효화 가격을 별도로 확인하세요.';
+    decSub = '현재 시장 입력 조합에서 스트레스 신호가 적게 관측됩니다. 점수는 예측 신호가 아니며(부분 백테스트에서는 선행수익률과 음의 상관 관측) 종목별 거래량·손익비·무효화 가격은 별도로 확인할 항목입니다.';
   } else if (total >= 60) {
-    decision = '환경 양호 — 단독 진입 신호 아님';
+    decision = '스트레스 신호 일부 — 단독 판단 근거 아님';
     decColor = 'var(--data-green)'; decBg = 'rgba(34,117,76,0.15)';
-    decSub = '현재 시장 여건은 양호합니다. 단, 2016~2026 부분 백테스트(입력 가중치 55%)에서 이 점수와 21·63일 선행수익률은 유의한 음(−)의 상관이 관측되어, 점수를 매수/매도 타이밍 근거로 사용하지 마세요.';
+    decSub = '일부 입력에서 스트레스가 관측됩니다. 2016~2026 부분 백테스트(입력 가중치 55%)에서 이 점수와 21·63일 선행수익률은 음(−)의 상관이 관측되어, 점수는 매수/매도 타이밍의 근거가 되지 않습니다.';
   } else if (total >= 45) {
     decision = '중립 — 신호 혼재';
     decColor = 'var(--data-cyan)'; decBg = 'rgba(33,29,22,0.15)';
@@ -855,11 +853,11 @@ function refreshSignalDashboard() {
   } else if (total >= 30) {
     decision = '주의 — 비중 부담 점검';
     decColor = 'var(--data-amber)'; decBg = 'rgba(33,29,22,0.15)';
-    decSub = '리스크 증가. 기존 포지션의 방어선, 현금 비중, 헤지 조건 점검.';
+    decSub = '스트레스 신호가 늘어난 구간입니다. 기존 포지션의 방어선, 현금 비중, 헤지 여부는 본인 기준으로 확인할 항목입니다.';
   } else {
     decision = '위험 — 방어 조건 점검';
     decColor = '#b13a30'; decBg = 'rgba(177,58,48,0.15)';
-    decSub = '극단 리스크 구간입니다. 신규 진입 조건이 충족되지 않았고, 현금·헤지 노출과 VIX 변화를 점검할 때입니다.';
+    decSub = '스트레스 신호가 다수인 구간입니다. 신규 진입 여부와 현금·헤지 노출, VIX 변화는 본인 기준으로 확인할 항목입니다.';
   }
 
   // Update the compatibility canvas only when the legacy hero owns the surface.
@@ -972,8 +970,8 @@ function refreshSignalDashboard() {
     if (phaseEl) {
       var phaseClass77, phaseText77;
        if (!totalFinite) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 입력 대기'; }
-       else if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '● 환경 우호'; }
-      else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● 환경 양호'; }
+       else if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '● 스트레스 신호 적음'; }
+      else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● 스트레스 신호 일부'; }
       else if (total >= 45) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 중립'; }
       else { phaseClass77 = 'mv-phase-avoid'; phaseText77 = '주의'; }
       phaseEl.innerHTML = '<span class="mv-phase-lbl ' + phaseClass77 + '">' + phaseText77 + '</span>';
@@ -992,7 +990,7 @@ function updateMarketPulse() {
     var sc = computeTradingScore('swing');
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null; // P1352
     var sColor = t == null ? 'var(--text-muted)' : t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-    var sLabel = t == null ? '산출 보류' : t >= 75 ? '환경 우호' : t >= 60 ? '환경 양호' : t >= 45 ? '중립' : t >= 30 ? '환경 불리' : '환경 극단';
+    var sLabel = t == null ? '산출 보류' : t >= 75 ? '스트레스 신호 적음' : t >= 60 ? '스트레스 신호 일부' : t >= 45 ? '중립 · 신호 혼재' : t >= 30 ? '주의 · 부담 점검' : '위험 · 방어 조건 점검';
     var el1 = document.getElementById('mp-signal-score');
     var el1b = document.getElementById('mp-signal-label');
     if (el1) { el1.textContent = t == null ? '—' : t; el1.style.color = sColor; }
@@ -1087,8 +1085,8 @@ function _updateAllConclusionBars() {
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null;
     if (t !== null) {
       var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-      var sLabel = t >= 75 ? '환경 우호' : t >= 60 ? '환경 양호' : t >= 45 ? '중립' : t >= 30 ? '환경 불리' : '환경 극단';
-      var sAction = t >= 60 ? '환경 설명값(예측 신호 아님) — 진입 판단은 종목 근거·손익비로 별도 확인' :
+      var sLabel = t >= 75 ? '스트레스 신호 적음' : t >= 60 ? '스트레스 신호 일부' : t >= 45 ? '중립 · 신호 혼재' : t >= 30 ? '주의 · 부담 점검' : '위험 · 방어 조건 점검';
+      var sAction = t >= 60 ? '환경 설명값(예측 신호 아님) — 종목 근거·손익비는 별도로 확인할 항목' :
                     t >= 45 ? '신호 혼재 — 점수 단독 판단 금지' :
                     '역사적으로 방어적 대응이 우선시되던 환경(지시 아님)';
       var sOpts = { conclusion: t + '점 · ' + sLabel, conclusionColor: sColor, action: sAction, fetchKey: 'quote' };

@@ -887,7 +887,7 @@ function renderAiInfrastructureLens({ documentRef, root, route }) {
   title.style.cssText = 'font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);';
   const badge = documentRef.createElement('span');
   const liveCount = proxies.filter((item) => item.pct != null).length;
-  badge.textContent = liveCount ? `REFERENCE · 공개 프록시 ${liveCount}/${proxies.length}개 수신` : 'REFERENCE · 현재 프록시 수신 대기';
+  badge.textContent = liveCount ? `참고용 · 공개 지표 ${liveCount}/${proxies.length}개 수신` : '참고용 · 지표 수신 대기';
   badge.style.cssText = 'font-size:10px;font-weight:700;color:var(--text-muted);';
   header.append(title, badge);
   host.appendChild(header);

@@ -8,18 +8,18 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>AIO Screener v57.30 — 올인원 투자 터미널</title>
-  <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
+  <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
-  <meta property="og:description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 RRG, Fear&Greed, 포트폴리오 관리. AI 교육·리서치 보조 대시보드.">
+  <meta property="og:description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 RRG, Fear&Greed, 포트폴리오 관리. AI 교육·리서치 보조 대시보드.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ysnle.github.io/aio-screener/">
   <meta property="og:image" content="https://ysnle.github.io/aio-screener/og-image.svg">
   <link rel="canonical" href="https://ysnle.github.io/aio-screener/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AIO Screener — 올인원 투자 터미널">
-  <meta name="twitter:description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 RRG, Fear&Greed, 포트폴리오 관리.">
+  <meta name="twitter:description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 RRG, Fear&Greed, 포트폴리오 관리.">
   <meta name="twitter:image" content="https://ysnle.github.io/aio-screener/og-image.svg">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%230a0e14'/><text x='50' y='58' text-anchor='middle' font-family='Inter,sans-serif' font-weight='800' font-size='42' fill='%235ba8ff'>AIO</text></svg>" type="image/svg+xml">
   <!-- v49.43 P310 hotfix: manifest.json 참조 제거 — GitHub UI에서 manifest.json 삭제됨 (29af1f3). PWA 비활성. -->
@@ -2255,7 +2255,6 @@ body {
 .stock-chart-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
 .stock-chart-legend .lg-ema8 { color: #2f9e8f; } .stock-chart-legend .lg-ema { color: #3b6fb6; } .stock-chart-legend .lg-50 { color: #c7892a; } .stock-chart-legend .lg-200 { color: #8a4fa3; } .stock-chart-legend .lg-pivot { color: #c7892a; font-weight: 700; }
 .stock-chart-evidence { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: var(--bg-card); }
-@media (max-width: 1100px) { .stock-chart-layout { grid-template-columns: 1fr; } }
 .trend-chart-tip { position: absolute; transform: translateX(-50%); padding: 3px 8px; border-radius: 4px; background: var(--text-primary); color: var(--bg-card); font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none; }
 .aio-hub-tab { appearance: none; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 10px 0; min-height: 38px; font: inherit; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
 .aio-hub-tab:hover { color: var(--text-primary); }
@@ -2509,11 +2508,6 @@ body {
 .u-row-dim { border-bottom:1px solid var(--surface-3); }
 .u-mono { font-weight:800;font-family:var(--font-mono); }
 .section-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-/* v30.6: 시그널 6열 → 반응형 */
-@media (max-width: 1200px) {
-  #page-signal [style*="grid-template-columns:repeat(6"] { grid-template-columns: repeat(3, 1fr) !important; }
-  #page-signal [style*="grid-template-columns:200px"] { grid-template-columns: 1fr !important; }
-}
 /* v48.42: Nav item — Figma 스타일 (왼쪽 accent 라인 hover/active) */
 .nav-item {
   display: flex;
@@ -2656,7 +2650,6 @@ body {
 
 /* v48.56: 어닝 캘린더 EH 스타일 + 리스크 레이더 유틸 */
 .aio-earn-cal-grid { grid-template-columns: repeat(5, 1fr); }
-@media (max-width: 1100px) { .aio-earn-cal-grid { grid-template-columns: repeat(3, 1fr); } }
 .aio-earn-card { transition: border-color var(--dur-fast), transform var(--dur-fast); }
 .aio-earn-card:hover { border-color: var(--data-cyan); transform: translateY(-1px); }
 .aio-earn-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -2881,7 +2874,6 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:13px;}h5.chat-h{font-size:12px;}h6
 .nav-label.kr-label{color:var(--data-red);opacity:0.85;}
 .kr-badge{display:inline-block;background:rgba(177,58,48,0.15);border:1px solid rgba(177,58,48,0.35);color:var(--data-red);font-size:11px;font-weight:700;border-radius:var(--radius-sm);padding:1px 5px;letter-spacing:0.05em;vertical-align:middle;margin-left:4px;}
 .kr-index-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
-@media(max-width:1200px){.kr-index-grid{grid-template-columns:repeat(2,1fr);}}
 .kr-idx-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;cursor:default;}
 .kr-idx-card.up{border-left:3px solid var(--green);}
 .kr-idx-card.down{border-left:3px solid var(--red);}
@@ -2966,7 +2958,6 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:13px;}h5.chat-h{font-size:12px;}h6
 
 /* ═══════════════ TACTICAL INTELLIGENCE (X-OUTSIDE style) ═══════════════ */
 .tac-score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;}
-@media(max-width:1100px){.tac-score-grid{grid-template-columns:repeat(3,1fr);}}
 .tac-score-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;text-align:center;}
 .tac-score-label{font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:4px;}
 .tac-score-val{font-size:22px;font-weight:900;font-family:var(--font-mono);letter-spacing:-0.02em;}
@@ -4187,24 +4178,6 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
 /* ═══ v27.1: 인라인 그리드 반응형 수정 (6열/5열 그리드 오버플로 방지) ═══ */
 /* 옵션 페이지 5열 메트릭 (구형 규칙 제거) */
 
-/* 모든 인라인 6열 그리드 반응형 처리 */
-@media (max-width: 1200px) {
-  /* 홈 퀵 내비게이션 6열 → 3열 */
-  .home-quick-nav { grid-template-columns: repeat(3, 1fr) !important; }
-  /* 경기 사이클 6열 → 3열 */
-  #page-themes [style*="grid-template-columns:repeat(6"] { grid-template-columns: repeat(3, 1fr) !important; }
-  /* FX 멀티셀 6열 → 3열 */
-  #page-fxbond [style*="grid-template-columns:repeat(6"] { grid-template-columns: repeat(3, 1fr) !important; }
-  /* 옵션 5열 메트릭 → 3열 */
-  /* 리스크 모니터 5열 → 3열 */
-  #risk-monitor-grid { grid-template-columns: repeat(3, 1fr) !important; }
-  /* 수익률 곡선 5열 → 3열 */
-  #page-fxbond [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(3, 1fr) !important; }
-  /* 옵션 센티먼트 스트립 4열 → 2열 */
-  /* 시그널 2컬럼 그리드 */
-  #page-signal [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
-  /* 서브테마 4열 → 2열 (1200px 이하) */
-  #sub-themes-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
 
 
@@ -6803,18 +6776,18 @@ button[data-filter-active="true"] {
 
   <!-- ══ SECTION 1.5: Institutional Technical Brief (v49.6) ══════════════ -->
   <details class="aio-page-advanced-toggle" style="margin-bottom:16px;">
-    <summary>Institutional Technical Brief — 심층 기관 브리프</summary>
+    <summary>심층 기술 브리프 — ATR 이격 · RVOL · 추세선</summary>
     <div class="aio-page-advanced-body">
   <div id="institutional-technical-brief" class="aio-section" style="padding-left:0;padding-right:0;">
     <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px;">
       <div>
-        <div style="font-size:11px;font-weight:900;color:var(--text-secondary);letter-spacing:.02em;">Institutional Technical Brief</div>
+        <div style="font-size:11px;font-weight:900;color:var(--text-secondary);letter-spacing:.02em;">심층 기술 브리프</div>
         <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">ATR extension · RVOL · close position · Bollinger re-entry · 10/21/50 line risk</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <input id="tech-brief-symbol" type="text" value="NVDA" maxlength="12" data-on-enter="runInstitutionalTechnicalBrief:__value_upper" aria-label="Institutional technical brief ticker"
+        <input id="tech-brief-symbol" type="text" value="NVDA" maxlength="12" data-on-enter="runInstitutionalTechnicalBrief:__value_upper" aria-label="심층 기술 브리프 티커"
                style="width:92px;padding:6px 9px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;" />
-        <button id="tech-brief-run" data-action="runInstitutionalTechnicalBrief" style="padding:6px 12px;background:rgba(33,29,22,0.14);border:1px solid rgba(33,29,22,0.35);border-radius:3px;color:var(--data-cyan);font-size:11px;font-weight:800;cursor:pointer;">Run</button>
+        <button id="tech-brief-run" data-action="runInstitutionalTechnicalBrief" style="padding:6px 12px;background:rgba(33,29,22,0.14);border:1px solid rgba(33,29,22,0.35);border-radius:3px;color:var(--data-cyan);font-size:11px;font-weight:800;cursor:pointer;">실행</button>
       </div>
     </div>
     <div id="tech-brief-data-quality" style="min-height:20px;margin-bottom:8px;"></div>
@@ -7043,7 +7016,7 @@ button[data-filter-active="true"] {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
           <div style="font-size:15px;font-weight:800;">한국장 차트·기술 분석 <span class="kr-badge">KRX</span></div>
-          <div class="page-subtitle">Weinstein 4단계 · 추세 위치 · 조정 판별 · 진입 등급 · RSI · MACD · 볼린저밴드</div>
+          <div class="page-subtitle">Weinstein 4단계 · 추세 위치 · 조정 판별 · 셋업 상태 · RSI · MACD · 볼린저밴드</div>
         </div>
         <div style="display:flex;gap:6px;">
         </div>
@@ -7076,12 +7049,12 @@ button[data-filter-active="true"] {
   </div>
 
     <!-- v35.6: 한국 시장 건강 점수 (미국 Market Health Score 동일 수준) -->
-    <div class="aio-section-rule" style="margin-bottom:8px;"><span>② 종합 점수 — 위 차트·추세·RSI·MACD에서 도출</span></div>
-    <div class="aio-why" style="margin-bottom:8px;">위 캔들 차트와 아래 RSI·MACD 지표를 종합해 계산합니다. 개별 지표를 먼저 확인 후 이 점수를 해석하세요.</div>
+    <div class="aio-section-rule" style="margin-bottom:8px;"><span>② 현재 입력 상태 — 합산하지 않는 지표별 값</span></div>
+    <div class="aio-why" style="margin-bottom:8px;">아래 값은 지표별 현재 관측값입니다. 점수나 등급으로 합산하지 않으며, 입력이 없는 지표는 미수신으로 남깁니다.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
       <!-- 시장 건강 점수 -->
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 한국 시장 건강 점수</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 한국 시장 현재 입력</div>
         <div id="kr-health-score" style="text-align:center;margin-bottom:8px;">
           <div style="font-size:42px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-health-val">—</div>
           <div style="font-size:10px;font-weight:600;color:var(--text-muted);" id="kr-health-label">산출 중...</div>
@@ -7106,7 +7079,7 @@ button[data-filter-active="true"] {
             <span style="color:var(--text-muted);">기준금리:</span> <span style="color:var(--text-primary);font-weight:700;" data-snap="bok-rate">—</span> <span style="color:var(--text-muted);" data-snap="bok-status">—</span>
           </div>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">필수 현재 입력이 모두 있을 때만 산출 · 각 구성요소 기준일 별도 적용</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">지표별 기준일을 따로 적용 · 합산 점수는 만들지 않음</div>
       </div>
 
       <!-- VKOSPI 변동성 지수 -->
@@ -7141,20 +7114,10 @@ button[data-filter-active="true"] {
             <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-adl">—</div>
             <div style="font-size:11px;color:var(--text-muted);">현재 A/D 종목수 미수신</div>
           </div>
-          <div style="padding:8px;background:rgba(177,58,48,0.06);border-radius:3px;">
-            <div style="color:var(--text-muted);margin-bottom:4px;">52주 신고/신저</div>
-            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-52w">—</div>
-            <div style="font-size:11px;color:var(--text-muted);">현재 52주 신고·신저가 원천 미수신</div>
-          </div>
           <div style="padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
             <div style="color:var(--text-muted);margin-bottom:4px;">20MA 위 종목 비율</div>
             <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-20ma">—</div>
             <div style="font-size:11px;color:var(--text-muted);">현재 구성종목 원천 미수신</div>
-          </div>
-          <div style="padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
-            <div style="color:var(--text-muted);margin-bottom:4px;">거래대금</div>
-            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-volume">—</div>
-            <div style="font-size:11px;color:var(--text-muted);">현재 거래대금 원천 미수신</div>
           </div>
         </div>
       </div>
@@ -7241,7 +7204,7 @@ button[data-filter-active="true"] {
         <button data-action="analyzeKrTickerDeep" data-arg="247540.KQ" class="aio-btn-table" style="font-size:11px;">에코프로비엠</button>
       </div>
       <div id="kr-ticker-analysis-result" style="min-height:80px;">
-        <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">종목코드를 입력하거나 위 버튼을 클릭하면 Weinstein Stage, 추세 위치, 조정 판별, 진입 등급 등 종합 분석이 표시됩니다.</div>
+        <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">종목코드를 입력하거나 위 버튼을 클릭하면 Weinstein Stage, 추세 위치, 조정 판별, 셋업 상태 등이 표시됩니다.</div>
       </div>
     </div>
     </div><!-- /aio-section 한국종목심화 -->
@@ -7363,7 +7326,7 @@ button[data-filter-active="true"] {
     <div class="aio-section-hd"><span class="aio-section-label">기준금리 현황</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">한국은행 기준금리 현황 <span id="kr-macro-bokrate-freshness" class="aio-freshness-mini" style="font-size:10px;font-weight:400;"></span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 기준금리</div>
           <div style="font-size:28px;font-weight:800;color:var(--yellow);font-family:var(--font-mono);margin-bottom:4px;" data-snap="bok-rate">—</div>
@@ -7373,11 +7336,6 @@ button[data-filter-active="true"] {
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">다음 금통위</div>
           <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;" data-snap="bok-next">—</div>
           <div style="font-size:11px;color:var(--yellow);" data-snap="bok-status">—</div>
-        </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">시장 기대</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">현재 컨센서스 원천 미연결</div>
         </div>
       </div>
       <div data-source-kind="official-primary" data-operational-use="reference-only" style="font-size:10px;color:var(--text-muted);">정책 이력의 내장 사본은 제거했습니다. 현재 값·기준일·다음 일정은 단일 공식 참조 레지스트리에서만 표시합니다.</div>
@@ -8748,14 +8706,14 @@ button[data-filter-active="true"] {
           </select>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">거래 전에 "얼마를 잃을 수 있고, 얼마를 벌 수 있는가?"를 미리 계산해 보는 도구입니다. 보유 종목 선택 시 단가가 자동 입력됩니다.</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">입력한 가정값(진입가, 무효화 가격, 투자금)으로 손실 폭과 1R·2R·3R 도달 가격을 계산하는 산술 도구입니다. 매매 제안이 아니며, 보유 종목을 고르면 현재 단가만 자동 입력됩니다.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;">
         <div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">진입가 ($)</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">가정 진입가 ($)</div>
           <input id="rr-entry" type="number" step="0.01" placeholder="150.00" aria-label="진입가 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
         </div>
         <div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">손절가 ($)</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;">가정 무효화 가격 ($)</div>
           <input id="rr-stop" type="number" step="0.01" placeholder="145.00" aria-label="손절가 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
         </div>
         <div>
@@ -8771,15 +8729,15 @@ button[data-filter-active="true"] {
             <div id="rr-risk" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);">—</div>
           </div>
           <div style="text-align:center;padding:8px;background:rgba(34,117,76,0.06);border:1px solid rgba(34,117,76,0.2);border-radius:3px;">
-            <div style="font-size:11px;color:var(--data-green);">목표 1R</div>
+            <div style="font-size:11px;color:var(--data-green);">1R 도달 가격</div>
             <div id="rr-1r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
           </div>
           <div style="text-align:center;padding:8px;background:rgba(34,117,76,0.08);border:1px solid rgba(34,117,76,0.25);border-radius:3px;">
-            <div style="font-size:11px;color:var(--data-green);">목표 2R</div>
+            <div style="font-size:11px;color:var(--data-green);">2R 도달 가격</div>
             <div id="rr-2r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
           </div>
           <div style="text-align:center;padding:8px;background:rgba(34,117,76,0.1);border:1px solid rgba(34,117,76,0.3);border-radius:3px;">
-            <div style="font-size:11px;color:var(--data-green);">목표 3R</div>
+            <div style="font-size:11px;color:var(--data-green);">3R 도달 가격</div>
             <div id="rr-3r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
           </div>
         </div>
@@ -8795,9 +8753,9 @@ button[data-filter-active="true"] {
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">총 자산의 2%만 위험에 노출</div>
           </div>
           <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">
-            <div style="font-size:11px;color:var(--text-muted);">매수 수량</div>
+            <div style="font-size:11px;color:var(--text-muted);">2% 한도로 계산한 수량</div>
             <div id="rr-shares" style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:var(--text-primary);">—</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">손절 시 손실 = 투자금의 2%</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">입력한 무효화 가격에서 손실 = 투자금의 2%</div>
           </div>
         </div>
       </div>
@@ -9943,7 +9901,7 @@ button[data-filter-active="true"] {
           <strong>ATR 진입 필터:</strong> 손절폭과 변동폭의 관계를 확인하고, 시간 프레임별 돌파 결과는 동일 비용 가정의 백테스트로 검증합니다.
         </div>
         <div class="aio-info-box" style="font-size:10px;">
-          <strong>시장 환경:</strong> NASDAQ 10MA &gt; 20MA·상향 = 트레이딩 환경 우호 관찰. 10MA &lt; 20MA = 환경이 불리했다는 관찰이며, 현금 비중 확대 같은 대응은 개인 판단·계좌 상황에 따릅니다. 나쁜 장세에서 무리한 포지션은 피하는 것이 일반적 교육 원칙입니다
+          <strong>시장 환경:</strong> NASDAQ 10MA &gt; 20MA·상향 = 단기 추세가 유지되는 관찰. 10MA &lt; 20MA = 환경이 불리했다는 관찰이며, 현금 비중 확대 같은 대응은 개인 판단·계좌 상황에 따릅니다. 나쁜 장세에서 무리한 포지션은 피하는 것이 일반적 교육 원칙입니다
         </div>
         <div class="aio-info-box" style="font-size:10px;">
           <strong>스캔 루틴:</strong> 장마감 후 1M/3M/6M 상위 1~7% 스캔 → ADR 5%+ → 50종목 이내 압축 → 10/20/50MA 지지 + Higher Lows + Tight Range 확인

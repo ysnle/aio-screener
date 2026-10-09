@@ -1625,11 +1625,11 @@ window.AIO.assertAnalysisFrameworkCoverage = async function(ticker) {
   } catch(_) { result.fields['partnership'] = { available: false, error: true }; }
   try {
     var pe = await window.AIO.fetchPlatformEcosystem(ticker);
-    result.fields['platform-ecosystem'] = { available: !!(pe && pe.available), source: '3-source synthesis', confidence: pe && pe.dataConfidence, score: pe && pe.ecosystemScore };
+    result.fields['platform-ecosystem'] = { available: !!(pe && pe.available), source: 'FMP segments', confidence: pe && pe.dataConfidence, indicators: pe && pe.indicators ? pe.indicators.length : 0 };
   } catch(_) { result.fields['platform-ecosystem'] = { available: false, error: true }; }
   try {
     var mo = await window.AIO.computeMoatScore(ticker);
-    result.fields['moat-economic'] = { available: !!(mo && mo.available), source: 'SCREENER_DB + Naver', confidence: mo && mo.dataConfidence, score: mo && mo.score };
+    result.fields['moat-economic'] = { available: !!(mo && mo.available), source: 'SCREENER_DB + Naver', confidence: mo && mo.dataConfidence, observations: mo && mo.evidence ? mo.evidence.length : 0 };
   } catch(_) { result.fields['moat-economic'] = { available: false, error: true }; }
   // 8. tam (SEC SIC + SCREENER_DB memo)
   try {

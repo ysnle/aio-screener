@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels, P1538 grades and composites out of technical, KR health, portfolio and moat surfaces, P1539 AI directive gate at sentence level, P1540 score band wording after validation, P1541 Yahoo-to-FRED bridge mapping, P1542 macro calendar lead warning.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "The static-database calendar gate would have failed the whole release on 2026-10-15 although the schedule had not been refreshed by anyone",
+  "symptom": "With the date moved forward the gate failed once the last official CPI or retail-sales date passed, blocking unrelated work; the CPI table also ended in October.",
+  "root_cause": "Expiry was a hard failure on the last date instead of a lead-time warning, and the table was extended by hand.",
+  "fix": "The gate warns when 21 days or less of schedule remain and fails only when the schedule has been exhausted for more than 14 days; the CPI table gains 2026-11-10 and 2026-12-10 (secondary calendars citing BLS; confirm at bls.gov).",
+  "violated_rule": "Time-bomb gates must warn before they fail.",
+  "prevention": "ci-static-db-expiry-check lead warning, verified with a fake-date shim at 10/09 (ok), 10/16 (warn) and 10/30 (fail for retail sales).",
+  "verification": "Static-db expiry gate with FAKE_NOW runs."
+ },
+ "r": null,
+ "changelog": [
+  "**매크로 캘린더 만료 경고 (P{P}):** 일정이 21일 이하로 남으면 경고, 소진 14일 초과 시에만 실패한다. CPI 일정에 11·12월을 추가했다(bls.gov 확인 필요)."
+ ]
+}

@@ -2266,16 +2266,16 @@
       typeof (window.AIO && window.AIO.fetchPartnershipAlerts));
 
     // T478: fetchPlatformEcosystem (#13 플랫폼/생태계) — dataConfidence 의무 (R117)
-    _assert('T478 fetch_platform_ecosystem_v4965: AIO.fetchPlatformEcosystem 함수 정의 + dataConfidence 분기',
+    _assert('T478 fetch_platform_ecosystem_v4965 + P1538: AIO.fetchPlatformEcosystem 함수 정의 + dataConfidence 분기, 키워드 점수(ecosystemScore)와 등급을 만들지 않음',
       typeof (window.AIO && window.AIO.fetchPlatformEcosystem) === 'function' &&
       /dataConfidence/.test(window.AIO.fetchPlatformEcosystem.toString()) &&
-      /find\(function\(r\)/.test(window.AIO.fetchPlatformEcosystem.toString()),
+      !/ecosystemScore|Strong Platform/.test(window.AIO.fetchPlatformEcosystem.toString()),
       typeof (window.AIO && window.AIO.fetchPlatformEcosystem));
 
     // T479: computeMoatScore (#7 기술력/해자 — Morningstar 대체)
-    _assert('T479 compute_moat_score_v4965: AIO.computeMoatScore 함수 정의 + verdict (Wide/Narrow/None)',
+    _assert('T479 compute_moat_score_v4965 + P1538: AIO.computeMoatScore 함수 정의, 등급(Wide/Narrow/None)과 점수를 만들지 않고 관측값만 반환',
       typeof (window.AIO && window.AIO.computeMoatScore) === 'function' &&
-      /Wide|Narrow|None/.test(window.AIO.computeMoatScore.toString()),
+      !/Wide|Narrow/.test(window.AIO.computeMoatScore.toString()) && /evidence/.test(window.AIO.computeMoatScore.toString()),
       typeof (window.AIO && window.AIO.computeMoatScore));
 
     // T480: computeTAMEstimate + AIO_INDUSTRY_TAM_REGISTRY 정의
@@ -2676,9 +2676,12 @@
     var fuzzyTest1 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('엔비');
     var fuzzyTest2 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('삼전');
     var fuzzyTest3 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('테슬라');
+    var fuzzyNoGuess = window._resolveTickerFromFuzzy && [window._resolveTickerFromFuzzy('금일'), window._resolveTickerFromFuzzy('마크롱'), window._resolveTickerFromFuzzy('은행'), window._resolveTickerFromFuzzy('마이크로소프트')];
     _assert('T535 resolve_fuzzy_v4969: _resolveTickerFromFuzzy — 엔비→NVDA, 삼전→005930.KS, 테슬라→TSLA',
       fuzzyTest1 === 'NVDA' && fuzzyTest2 === '005930.KS' && fuzzyTest3 === 'TSLA',
       'fuzzy1=' + fuzzyTest1 + ' fuzzy2=' + fuzzyTest2 + ' fuzzy3=' + fuzzyTest3);
+    _assert('T535b resolve_fuzzy_exact_only (P1543/P1339): a word that merely contains a nickname or is part of one resolves to nothing; a full registered name still resolves',
+      !!fuzzyNoGuess && fuzzyNoGuess[0] === null && fuzzyNoGuess[1] === null && fuzzyNoGuess[2] === null && fuzzyNoGuess[3] === 'MSFT', JSON.stringify(fuzzyNoGuess));
 
     // T536: chatSend 통합 — 5 신규 함수 모두 호출 (followUp/autoNav/pfSim/macroSim/fuzzyResolve)
     var csSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
@@ -8141,11 +8144,14 @@
     var blocked933 = gate933 ? gate933('결론: NVDA $100 매수 추천') : null;
     var education933 = gate933 ? gate933('매수와 매도의 차이는 주문 방향과 위험 관리에 있다.') : null;
     var strong934 = gate933 ? gate933('현재는 매수에 우호적이다.') : null;
-    _assert('T932 public_ai_action_gate_allows_conditional_instruction (WP-AI0): read-only price/action analysis is preserved', !!blocked933 && blocked933.blocked === false && blocked933.text === '결론: NVDA $100 매수 추천', JSON.stringify(blocked933));
+    _assert('T932 public_ai_action_gate_replaces_personal_directive (WP-AI0/P1539): an unmistakable buy/sell recommendation sentence is replaced by a notice, the answer is not blocked', !!blocked933 && blocked933.blocked === false && /개별 매매 지시는 제공하지 않습니다/.test(blocked933.text) && !/매수 추천/.test(blocked933.text) && (blocked933.reasons || []).indexOf('directive-sentence-replaced') >= 0, JSON.stringify(blocked933));
     _assert('T933 public_ai_action_gate_allows_education (WP-AI0): neutral concept explanation is not overblocked', !!education933 && education933.blocked === false, JSON.stringify(education933));
     _assert('T934 public_ai_action_gate_allows_directional_analysis (WP-AI0): directional wording is preserved for read-only research', !!strong934 && strong934.blocked === false, JSON.stringify(strong934));
     var numericActions934 = ['AAPL 10% 매수', 'MSFT 비중 20% 확대', '손절가 150달러', 'NVDA $100 매수 추천'].map(function(text){ return gate933 ? gate933(text) : null; });
-    _assert('T934a public_ai_numeric_analysis_gate_is_symbol_independent: numeric trade scenarios remain available', numericActions934.every(function(row){ return row && row.blocked === false; }), JSON.stringify(numericActions934));
+    _assert('T934a public_ai_numeric_analysis_gate_is_symbol_independent (P1539): ticker-plus-size directives are replaced regardless of symbol, a bare invalidation level stays', numericActions934.every(function(row){ return row && row.blocked === false; }) && [0, 1, 3].every(function(i){ return /개별 매매 지시는 제공하지 않습니다/.test(numericActions934[i].text); }) && numericActions934[2].text === '손절가 150달러', JSON.stringify(numericActions934));
+    var analysis934c = ['애널리스트 목표가는 150달러입니다.', '이것은 매수 추천이 아닙니다.', '무효화 수준은 20일선 이탈입니다.'].map(function(text){ return gate933 ? gate933(text) : null; });
+    var mixed934c = gate933 ? gate933('무효화 수준은 20일선 이탈입니다. 지금 매수하세요. 변동성은 높습니다.') : null;
+    _assert('T934c public_ai_action_gate_keeps_analysis_around_a_directive (P1539): data, negation and invalidation facts are untouched; only the directive sentence is replaced', analysis934c.every(function(row, i){ return row && row.text === ['애널리스트 목표가는 150달러입니다.', '이것은 매수 추천이 아닙니다.', '무효화 수준은 20일선 이탈입니다.'][i]; }) && !!mixed934c && /무효화 수준은 20일선 이탈입니다\./.test(mixed934c.text) && /변동성은 높습니다/.test(mixed934c.text) && !/매수하세요/.test(mixed934c.text), JSON.stringify([analysis934c, mixed934c]));
     var descriptiveWeight934 = gate933 ? gate933('현재 포트폴리오에서 기술주 비중은 20%로 관측됩니다.') : null;
     _assert('T934b public_ai_action_gate_allows_descriptive_weight: observed allocation without a directive is not overblocked', !!descriptiveWeight934 && descriptiveWeight934.blocked === false, JSON.stringify(descriptiveWeight934));
     var disclosure934 = window._aioBuildAIResponseDisclosure ? window._aioBuildAIResponseDisclosure({
@@ -8177,9 +8183,9 @@
     var begin937 = window._aioBeginAIRequestAttempt;
     var req937 = create937 ? create937('test-pipeline', { ctxId: 'briefing', query: 'fixture' }) : null;
     if (begin937) { begin937(req937, 'test-model'); begin937(req937, 'fallback-model'); }
-    var result937 = run937 && req937 ? run937('NVDA $100 매수 추천', { request: req937, entrypoint: 'test-pipeline' }) : null;
+    var result937 = run937 && req937 ? run937('NVDA의 50일선 위치와 무효화 조건은 확인 항목입니다.', { request: req937, entrypoint: 'test-pipeline' }) : null;
     _assert('T937 ai_pipeline_shared_envelope (WP-AI1): request and response expose one pipeline/validator/block-policy version',
-      !!result937 && result937.blocked === false && result937.text === 'NVDA $100 매수 추천' && result937.pipelineVersion === req937.pipelineVersion &&
+      !!result937 && result937.blocked === false && result937.text === 'NVDA의 50일선 위치와 무효화 조건은 확인 항목입니다.' && result937.pipelineVersion === req937.pipelineVersion &&
       result937.validatorVersion === req937.validatorVersion && result937.blockPolicyVersion === req937.blockPolicyVersion &&
       req937.attempt === 2,
       JSON.stringify({ result: result937, attempt: req937 && req937.attempt }));

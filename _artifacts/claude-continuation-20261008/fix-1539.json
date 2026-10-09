@@ -1,0 +1,24 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels, P1538 grades and composites out of technical, KR health, portfolio and moat surfaces, P1539 AI directive gate at sentence level.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "The AI action gate replaced the whole answer on a keyword and the system prompt left room for a personalized action once suitability was known",
+  "symptom": "A single word such as 'buy' blocked or rewrote a whole answer, while a differently phrased directive passed; the public policy prompt said a personalized single action was only withheld when suitability or current evidence was missing.",
+  "root_cause": "The gate worked on whole answers and a keyword list; the prompt expressed the rule as a condition on missing data, so with data present it implied permission.",
+  "fix": "_aioApplyAIActionGate replaces only the sentences that are unmistakable directives (recommend/imperative/colloquial/ticker+size patterns, negation-safe) with one fixed notice and keeps the rest of the answer; the prompt forbids directive sentences and states that a personalized single action is not confirmed even when suitability or evidence exists; the moat/ecosystem context lines and the technical/profile/sector/diversification prompts ask for observations and conditions.",
+  "violated_rule": "No trade instructions (AGENTS.md); R315 allowed a conditional personalized instruction and is superseded by this rule.",
+  "prevention": "js/aio-tests.js T932/T934a/T934c cover sentence replacement, negated sentences and pass-through; ci-ai-intelligence-contract-check keeps the conditional-analysis wording.",
+  "verification": "Legacy suite T932/T934 family. Not done: live model output sampling."
+ },
+ "r": {
+  "title": "An AI answer is filtered by sentence, and a personalized directive is never confirmed",
+  "rule": "The AI action gate replaces the sentence that is an unmistakable directive and keeps the rest; the prompt forbids confirming a personalized single action whether or not suitability or evidence exists. This supersedes R315, which allowed a conditional personalized instruction.",
+  "validation": "T932/T934a/T934c and ci-ai-intelligence-contract-check."
+ },
+ "changelog": [
+  "**AI 행동 게이트 문장 단위화 (P{P}):** 단어 하나로 답변 전체를 막지 않고 단정적 지시 문장만 고정 안내문으로 바꾼다. 프롬프트는 적합성·근거가 있어도 개인화 단일 행동을 확정하지 않도록 무조건 금지로 바꿨다."
+ ]
+}

@@ -15477,7 +15477,8 @@ const _YAHOO_FRED_MAP = {
   '^TNX':     { fredId: 'DGS10',    transform: v => v,         label: '10Y 국채금리' },
   '^TYX':     { fredId: 'DGS30',    transform: v => v,         label: '30Y 국채금리' },
   '^FVX':     { fredId: 'DGS5',     transform: v => v,         label: '5Y 국채금리' },
-  '^IRX':     { fredId: 'DGS3MO',   transform: v => v,         label: '3M 국채금리' },
+  // P1541: no ^IRX -> DGS3MO row. Yahoo ^IRX is the 13-week bill DISCOUNT rate; FRED DGS3MO is the bond-equivalent constant-maturity
+  // yield (about 10bp higher at 4%). An intraday discount quote must not stand in for an official series.
   '^VIX':     { fredId: 'VIXCLS',   transform: v => v,         label: 'VIX' },
   'DX-Y.NYB': { fredId: 'DTWEXBGS', transform: v => v,         label: '달러인덱스' },
   // v51.91 P585/R266/C4: removed a 'HYG' entry that wrote a HYG-price-derived spread approximation
@@ -15558,18 +15559,8 @@ function _syncYahooToFred() {
     }
   }
 
-  // 10Y-3M 스프레드도 갱신
-  const irx = ld['^IRX'];
-  if (tnx && tnx.price > 0 && irx && irx.price > 0) {
-    const spread10y3m = tnx.price - irx.price;
-    if (!window._fredData) window._fredData = {};
-    window._fredData['T10Y3M'] = {
-      value: spread10y3m,
-      prevValue: fd['T10Y3M'] ? fd['T10Y3M'].value : spread10y3m,
-      date: todayStr,
-      _source: 'yahoo-calc:^TNX-^IRX'
-    };
-  }
+  // P1541: the 10Y-3M spread is no longer rebuilt from ^TNX minus ^IRX. It mixed a constant-maturity yield with a discount rate and
+  // overwrote the official T10Y3M every time; the official series and the macro-history artifact own it.
 
   if (synced > 0) {
     console.log('[AIO v31.9] Yahoo→FRED 실시간 브릿지:', synced + '개 시리즈 대체 (FRED 지연→Yahoo 실시간)');
@@ -15740,17 +15731,17 @@ function refreshHomeDashboard() {
     //   모순(같은 62점이 카드 'CAUTION' vs 결론바 '선별매수')이라 사용자 혼란. 동일 라벨/임계로 통일.
     var sc = tradingScore;
     if (sc >= 75) {
-      signalEl.textContent = '환경 우호'; signalEl.style.color = '#00e5a0';
-      if (explanEl) explanEl.textContent = '현재 입력 조합이 우호적입니다. 예측·매수 신호가 아니며 종목별 근거 확인이 필요합니다.';
+      signalEl.textContent = '스트레스 신호 적음'; signalEl.style.color = '#00e5a0';
+      if (explanEl) explanEl.textContent = '현재 입력 조합에서 스트레스 신호가 적게 관측됩니다. 예측·매수 신호가 아니며 종목별 근거는 별도로 확인할 항목입니다.';
     } else if (sc >= 60) {
-      signalEl.textContent = '환경 양호'; signalEl.style.color = '#4ade80';
-      if (explanEl) explanEl.textContent = '시장 환경은 양호하지만 통계적 예측력은 미검증입니다. 점수 단독 진입은 금지합니다.';
+      signalEl.textContent = '스트레스 신호 일부'; signalEl.style.color = '#4ade80';
+      if (explanEl) explanEl.textContent = '일부 입력에서 스트레스가 관측되며 통계적 예측력은 미검증입니다. 점수 단독으로 판단하지 않습니다.';
     } else if (sc >= 45) {
       signalEl.textContent = '중립 · 신호 혼재'; signalEl.style.color = '#ffa31a';
-      if (explanEl) explanEl.textContent = '신호 혼합 · 위험 관리 필수. 기존 포지션 유지, 신규 진입 자제.';
+      if (explanEl) explanEl.textContent = '신호가 혼재된 구간입니다. 점수만으로 방향을 정하기 어렵습니다.';
     } else if (sc >= 30) {
       signalEl.textContent = '주의 · 부담 점검'; signalEl.style.color = '#ffa31a';
-      if (explanEl) explanEl.textContent = '시장 품질 약화 · 신호 약함. 리스크 자산 비중 축소, 현금 확보.';
+      if (explanEl) explanEl.textContent = '시장 품질이 약해진 신호가 늘었습니다. 리스크 자산 비중과 현금은 본인 기준으로 확인할 항목입니다.';
     } else {
       signalEl.textContent = '위험 · 방어 조건 점검'; signalEl.style.color = '#ff5b50';
       if (explanEl) explanEl.textContent = '극단 약세 구간 · 역사적으로 방어적 운용이 우선시되던 환경.' + (sc <= 25 ? ' 참고: 과거 유사 극단에서 이후 수익률이 높았던 사례가 있으나 보장이 아닙니다.' : '');

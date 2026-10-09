@@ -2403,9 +2403,8 @@ window._aioRRFillFromPosition = function(el) {
   var entryPrice = (live && isFinite(live.price)) ? live.price : pos.cost;
   var rrEntry = document.getElementById('rr-entry');
   if (rrEntry) rrEntry.value = Number(entryPrice).toFixed(2);
-  // 손절가: 매수가 -7% (Weinstein/O'Neil 기본값)
-  var rrStop = document.getElementById('rr-stop');
-  if (rrStop && !rrStop.value) rrStop.value = Number(entryPrice * 0.93).toFixed(2);
+  // P1538 (owner decision: no trade instructions; the invalidation price is the user's own input): the calculator no longer fills a
+  // -7% stop on the user's behalf. The user types the invalidation price the scenario should use.
 };
 
 // v48.53: data-snap-date 전수 동적 렌더러 — hardcoded 14건 → DATA_SNAPSHOT._snapshotDate 참조
@@ -4161,59 +4160,59 @@ var AIO_PAGE_BRIEFS = {
     links: [['signal','시그널'], ['briefing','브리핑'], ['market-news','뉴스'], ['portfolio','포트폴리오']]
   },
   signal: {
-    title: '시장 상태와 대응 기준을 한 화면에서 확인',
+    title: '시장 상태와 판단 근거를 한 화면에서 확인',
     use: '점수는 예측이 아니라 현재 입력과 근거의 상태를 요약합니다.',
     steps: ['필수 입력·근거 수신 상태 확인', 'Trading Score와 Lockout/OPEX를 참고값으로 교차 확인', '포지션 크기와 무효화 기준을 사용자 판단으로 기록'],
-    focus: '강세장에서는 RSI 과열만으로 팔지 말고, ATR 확장·거래량·종가 위치를 같이 보세요.',
+    focus: 'RSI 과열만으로는 약화 신호로 보기 어렵습니다. ATR 이격·거래량·종가 위치를 함께 봅니다.',
     links: [['technical','기술 분석'], ['portfolio','포트폴리오'], ['briefing','브리핑']]
   },
   breadth: {
     title: '지수 상승이 소수 대형주인지, 시장 전체인지 확인',
     use: '브레드쓰는 추세의 내구성 체크용입니다.',
-    steps: ['5/20/50일선 위 종목 비율 확인', '섹터·RRG로 확산 또는 이탈 확인', '지수와 폭이 갈라지면 신규 매수 축소'],
+    steps: ['5/20/50일선 위 종목 비율 확인', '섹터·RRG로 확산 또는 이탈 확인', '지수와 폭이 갈라지는지 확인'],
     focus: '지수는 신고가인데 폭이 약하면 랠리 품질이 낮아진 상태입니다.',
     links: [['signal','시그널'], ['themes','테마'], ['technical','기술 분석']]
   },
   sentiment: {
     title: '사람들이 너무 탐욕적인지, 너무 겁먹었는지 확인',
     use: '심리는 타이밍 보조 지표입니다.',
-    steps: ['Fear & Greed와 Put/Call 확인', 'AAII·VIX로 군중 쏠림 확인', '극단값은 반대로, 중간값은 추세와 함께 해석'],
+    steps: ['Fear & Greed와 Put/Call 확인', 'AAII·VIX로 군중 쏠림 확인', '극단값은 과열·공포 참고, 중간값은 추세와 함께 읽기'],
     focus: '탐욕은 즉시 매도 신호가 아니라 추격 진입의 위험이 커지는 구간으로 읽습니다.',
     links: [['signal','시그널'], ['breadth','시장 폭']]
   },
   briefing: {
-    title: '오늘 시장을 움직일 이벤트와 행동만 압축 확인',
+    title: '오늘 시장을 움직일 이벤트만 압축 확인',
     use: '매일 장 시작 전 체크리스트입니다.',
-    steps: ['오늘의 리스크와 이벤트 확인', '관심 섹터·종목 트리거 확인', '실행/대기/회피 항목만 남기기'],
-    focus: '긴 설명보다 오늘 포지션을 바꿀 수 있는 변수만 보세요.',
+    steps: ['오늘의 리스크와 이벤트 확인', '관심 섹터·종목 트리거 확인', '확인이 필요한 항목만 남기기'],
+    focus: '긴 설명보다 오늘 값이 바뀔 수 있는 변수(이벤트·지표 발표)만 보세요.',
     links: [['market-news','뉴스'], ['macro','매크로'], ['signal','시그널']]
   },
   technical: {
-    title: '추세는 유지할지, 일부 줄일지, 헤지할지 판단',
-    use: '기관형 Technical Brief가 메인입니다.',
-    steps: ['티커 입력 후 월/주/일/줌 차트 확인', 'Sell Pressure와 Exit Plan 확인', '10EMA·21EMA·50SMA 이탈별 행동 적용'],
-    focus: 'RSI 70+는 과열 경고일 뿐이며, ATR 확장·RVOL·종가 위치가 매도 판단의 핵심입니다.',
+    title: '추세선 위치와 과열·약화 신호 확인',
+    use: '심층 기술 브리프가 메인입니다.',
+    steps: ['티커 입력 후 월/주/일/줌 차트 확인', '매도 압력 관측과 추세선 기준 확인', '10EMA·21EMA·50SMA 이탈 여부 확인'],
+    focus: 'RSI 70+는 과열 관측일 뿐이며, ATR 이격·RVOL·종가 위치를 함께 봅니다.',
     links: [['signal','시그널'], ['portfolio','포트폴리오'], ['ticker','티커']]
   },
   macro: {
     title: '금리, 인플레, 성장 중 무엇이 시장을 지배하는지 확인',
     use: '매크로는 시장 국면의 배경 설명입니다.',
-    steps: ['FOMC·CPI·PCE·고용의 방향 확인', '달러·유가·금리와 연결', '주식에 우호/비우호인지 결론만 남기기'],
+    steps: ['FOMC·CPI·PCE·고용의 방향 확인', '달러·유가·금리와 연결', '주식시장에 부담이 되는 요인인지 근거만 남기기'],
     focus: '좋은 뉴스인지보다 연준 반응 함수와 금리 방향을 먼저 보세요.',
     links: [['fxbond','금리 · 환율'], ['briefing','브리핑'], ['themes','테마']]
   },
   fxbond: {
     title: '달러와 금리로 위험자산의 압박 정도 확인',
     use: '주식 밸류에이션과 글로벌 자금 흐름의 입력값입니다.',
-    steps: ['DXY와 USD/KRW로 달러 스트레스 확인', '2Y·10Y·커브로 금리 압박 확인', 'HY/OAS가 벌어지면 리스크 축소'],
-    focus: '주식 차트가 좋아도 달러와 금리가 동시에 올라가면 추격매수 품질이 떨어집니다.',
+    steps: ['DXY와 USD/KRW로 달러 스트레스 확인', '2Y·10Y·커브로 금리 압박 확인', 'HY/OAS가 벌어지는지 확인'],
+    focus: '주식 차트가 좋아도 달러와 금리가 동시에 올라가면 위험자산에는 부담이 되는 조합입니다.',
     links: [['macro','매크로'], ['signal','시그널'], ['themes','테마']]
   },
   fundamental: {
-    title: '좋은 회사인지보다 지금 가격에 살 이유가 있는지 확인',
+    title: '좋은 회사인지보다 지금 가격의 근거가 무엇인지 확인',
     use: '재무, 밸류, 실적, 뉴스 리스크를 한 번에 봅니다.',
-    steps: ['티커 입력 후 핵심 재무와 밸류 확인', '실적·가이던스·뉴스 리스크 확인', '기술적 exit risk와 함께 최종 판단'],
-    focus: '펀더멘털이 좋아도 차트가 무너지면 신규 진입은 늦추는 쪽이 안전합니다.',
+    steps: ['티커 입력 후 핵심 재무와 밸류 확인', '실적·가이던스·뉴스 리스크 확인', '기술적 이탈 신호와 함께 비교'],
+    focus: '펀더멘털이 좋아도 차트가 무너졌는지는 별개로 확인할 항목입니다.',
     links: [['technical','기술 분석'], ['portfolio','포트폴리오'], ['market-news','뉴스']]
   },
   themes: {
@@ -4226,28 +4225,28 @@ var AIO_PAGE_BRIEFS = {
   portfolio: {
     title: '내 계좌가 시장 충격에 얼마나 취약한지 확인',
     use: '보유 종목 관리와 리밸런싱 페이지입니다.',
-    steps: ['종목·수량·평단을 입력', '집중도·섹터·VaR·MDD 확인', '기술적 exit risk로 줄일 순서 결정'],
+    steps: ['종목·수량·평단을 입력', '집중도·섹터·VaR·MDD 확인', '기술적 이탈 신호가 겹치는 종목 확인'],
     focus: '수익률보다 먼저 단일 종목/섹터 집중과 손실 허용치를 확인하세요.',
     links: [['technical','기술 분석'], ['signal','시그널'], ['fundamental','기업 분석']]
   },
   'market-news': {
     title: '뉴스를 가격에 영향을 주는 변수로 분류',
     use: '헤드라인을 읽는 곳이 아니라 영향도를 걸러내는 곳입니다.',
-    steps: ['긴급/중요 뉴스만 먼저 확인', '영향 섹터와 티커 연결', '브리핑·테마·포트폴리오에서 행동으로 변환'],
+    steps: ['긴급/중요 뉴스만 먼저 확인', '영향 섹터와 티커 연결', '브리핑·테마·포트폴리오에서 영향 확인'],
     focus: '뉴스가 많을수록 가격에 반영될 뉴스와 소음 뉴스를 분리해야 합니다.',
     links: [['briefing','브리핑'], ['themes','테마'], ['portfolio','포트폴리오']]
   },
   ticker: {
     title: '선택한 종목을 가격·재무·뉴스로 한 번 더 검증',
     use: '다른 페이지에서 고른 종목의 최종 확인 화면입니다.',
-    steps: ['가격 추세와 핵심 지표 확인', '뉴스와 실적 리스크 확인', '매수/보유/축소 결론으로 연결'],
+    steps: ['가격 추세와 핵심 지표 확인', '뉴스와 실적 리스크 확인', '시장·섹터·기술적 위치와 함께 정리'],
     focus: '한 종목은 반드시 시장 국면, 섹터, 기술적 위치와 같이 봐야 합니다.',
     links: [['technical','기술 분석'], ['fundamental','기업 분석'], ['portfolio','포트폴리오']]
   },
   'theme-detail': {
     title: '테마가 실제 주도주와 수익으로 이어지는지 확인',
     use: '테마 이름이 아니라 대장주, 2차 수혜주, 촉매, 깨지는 신호를 한 화면에서 연결합니다.',
-    steps: ['대장주와 2차 수혜주 성과 차이 확인', '뉴스·실적·수급 촉매가 실제인지 확인', '차트 과열·이탈 신호로 추격 여부 판단'],
+    steps: ['대장주와 2차 수혜주 성과 차이 확인', '뉴스·실적·수급 촉매가 실제인지 확인', '차트 과열·이탈 신호가 있는지 확인'],
     focus: '강한 테마일수록 “좋은 이야기”보다 대장주의 상대강도와 후발 확산 여부가 더 중요합니다.',
     links: [['themes','테마'], ['technical','기술 분석'], ['market-news','뉴스']]
   },
@@ -4255,7 +4254,7 @@ var AIO_PAGE_BRIEFS = {
   guide: {
     title: '처음 쓰는 순서만 익히면 됩니다',
     use: '모든 설명을 읽기보다 루틴을 먼저 잡으세요.',
-    steps: ['대시보드에서 오늘 모드 결정', '시그널/기술/포트폴리오로 행동 결정', '뉴스/매크로/테마로 이유 확인'],
+    steps: ['대시보드에서 오늘의 시장 상태 확인', '시그널/기술/포트폴리오에서 근거 확인', '뉴스/매크로/테마로 이유 확인'],
     focus: '처음에는 대시보드 → 시그널 → 포트폴리오 3개만 반복해도 충분합니다.',
     links: [['home','대시보드'], ['signal','시그널'], ['portfolio','포트폴리오']]
   },
@@ -4717,11 +4716,11 @@ function _aioDefaultDecision(pageId) {
   if (_scorePredictiveValidation !== 'established') _scoreBlocked = true;
   var _scoreText = _sc == null ? '산출 보류' : Math.round(_sc) + '/100';
   var _band = _scoreBlocked || _sc == null ? { label:'시장환경 관찰', action:'현재 입력 조합을 참고용으로만 관찰합니다. 예측 검증 미확립으로 매매·비중 결론을 생성하지 않습니다.' }
-    : _sc >= 75 ? { label:'환경 우호', action:'현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격을 별도로 확인.' }
-    : _sc >= 60 ? { label:'환경 양호', action:'점수만으로 진입 근거가 되지 않습니다. 종목 품질과 이벤트 리스크를 추가로 확인합니다.' }
-    : _sc >= 45 ? { label:'중립 · 신호 혼재', action:'점수만으로 방향을 정하기 어려운 구간입니다. 기존 포지션의 방어선과 손절 기준을 먼저 확인합니다.' }
-    : _sc >= 30 ? { label:'주의 · 부담 점검', action:'리스크 자산 노출과 현금·헤지 비중을 점검할 구간.' }
-    : { label:'위험 · 방어 조건 점검', action:'신규 진입 조건이 충족되지 않은 구간입니다. 방어 조건을 점검하고 점수가 45 이상으로 돌아오는지 확인합니다.' };
+    : _sc >= 75 ? { label:'스트레스 신호 적음', action:'현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격은 별도로 확인할 항목입니다.' }
+    : _sc >= 60 ? { label:'스트레스 신호 일부', action:'점수만으로 판단 근거가 되지 않습니다. 종목 품질과 이벤트 리스크는 별도로 확인할 항목입니다.' }
+    : _sc >= 45 ? { label:'중립 · 신호 혼재', action:'점수만으로 방향을 정하기 어려운 구간입니다. 기존 포지션의 방어선과 무효화 기준은 별도로 확인할 항목입니다.' }
+    : _sc >= 30 ? { label:'주의 · 부담 점검', action:'리스크 자산 노출과 현금·헤지 비중은 본인 기준으로 확인할 항목입니다.' }
+    : { label:'위험 · 방어 조건 점검', action:'방어 조건과 점수가 45 이상으로 돌아오는지는 확인 항목입니다. 신규 진입 여부는 본인 기준으로 판단할 사안입니다.' };
 
   // FOMC/이란 이벤트를 AIO_EVENT_FRESHNESS_REGISTRY에서 단일 경로로 읽기
   var _fomcReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
@@ -4761,13 +4760,13 @@ function _aioDefaultDecision(pageId) {
       title: '시장 폭 판단',
       decision: '참여도는 개선, 5/20/50일선 일관성 확인',
       reasons: ['5일선 breadth ' + (snap.breadth5sma || '미수신') + '%', '20일선 breadth ' + (snap.breadth20sma || '미수신') + '%', '50일선 breadth ' + (snap.breadth50sma || '미수신') + '%'],
-      action: '5/20/50일선이 같이 개선될 때만 추격 강도를 높이고, 불일치하면 보유주 방어선을 먼저 조정한다.'
+      action: '5/20/50일선 breadth가 함께 개선되는지, 서로 어긋나는지가 관찰 항목입니다.'
     },
     sentiment: {
       title: '심리 결론',
-      decision: _sc == null ? '판단 보류 · 심리 입력 부족' : _sc >= 60 ? '공포 완화 · 과열 아님' : _sc >= 45 ? '혼합 심리 · 관망' : '공포 심화 · 방어',
+      decision: _sc == null ? '판단 보류 · 심리 입력 부족' : _sc >= 60 ? '공포 완화 · 과열 아님' : _sc >= 45 ? '혼합 심리 · 신호 엇갈림' : '공포 심화 · 방어 조건 점검',
       reasons: ['F&G ' + (_aioStrictFinite(snap.fg) != null ? _aioStrictFinite(snap.fg) : '미수신') + ' · ' + vixTxt, 'AAII/PutCall은 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
-      action: '공포 구간은 분할, 과열 구간은 추격 금지. 심리만으로 매수/매도하지 않는다.'
+      action: '공포·과열 구간에서 역사적으로 어떤 반응이 있었는지는 참고용이며, 심리 지표만으로 매수·매도를 정하지 않습니다.'
     },
     briefing: {
       title: '시장 요약',
@@ -4779,7 +4778,7 @@ function _aioDefaultDecision(pageId) {
       title: '뉴스 판단',
       decision: 'Top 5와 소스 신뢰도부터 확인',
       reasons: ['검증 뉴스와 secondary-only를 분리', '토픽/국가 필터는 기본 조작 도구로 유지', '현재 가격에 영향을 준 뉴스만 상단 반영'],
-      action: '미검증/텔레그램 단독 뉴스는 매매 근거로 쓰지 말고 확인 필요로 둔다.'
+      action: '미검증·텔레그램 단독 뉴스는 확인 전까지 근거로 삼기 어렵습니다.'
     },
     technical: {
       title: '차트 판단',
@@ -4797,24 +4796,24 @@ function _aioDefaultDecision(pageId) {
       title: '종목 cockpit',
       decision: '기술·재무·뉴스·포트 보유 여부를 한 흐름으로 확인',
       reasons: ['티커 검색이 현재 페이지 상태의 기준', '시세/재무/뉴스 미수신은 강한 경고로 표시', 'AI 분석은 현재 티커와 수집 데이터만 인용'],
-      action: '티커 입력 후 차트, 재무, 뉴스, 포트 비중을 확인하고 AI로 실행/보류 조건을 검증한다.'
+      action: '티커를 입력하면 차트, 재무, 뉴스, 포트 비중을 한 흐름으로 확인하고 AI로 확인 조건을 점검할 수 있습니다.'
     },
     portfolio: {
       title: '포트폴리오 판단',
       decision: '추가/수정 후 리스크 재계산이 우선',
-      reasons: ['가격 fallback 티커는 매매 판단에서 제외', 'VaR/Sharpe/MDD와 기술 리스크를 함께 확인', '단일 종목·단일 테마 집중도를 먼저 줄임'],
-      action: '미확인 티커를 정리하고, 포지션 변경 후 손실 한도와 헤지 필요성을 다시 계산한다.'
+      reasons: ['가격 fallback 티커는 매매 판단에서 제외', 'VaR/Sharpe/MDD와 기술 리스크를 함께 확인', '단일 종목·단일 테마 집중도를 함께 확인'],
+      action: '포지션을 바꾸면 미확인 티커와 손실 한도, 헤지 필요 여부를 다시 계산해 확인할 항목입니다.'
     },
     themes: {
       title: '테마 회전 지도',
       decision: '리더와 후보, 과열과 소외를 분리',
       reasons: ['테마명보다 리더 종목과 breadth가 중요', 'AI/전력 편향을 줄이고 비AI 대안을 함께 비교', '테마 상세는 리스크와 스크리너 진입점으로 사용'],
-      action: '강한 테마라도 리더만 추격하지 말고 후보·리스크·데이터 신뢰도를 같이 본다.'
+      action: '강한 테마라도 리더 한 종목만 보지 말고 후보·리스크·데이터 신뢰도를 함께 확인할 항목입니다.'
     },
     'theme-detail': {
       title: '테마 상세 판단',
       decision: '리더/후보/리스크/스크리너를 한 화면에서 연결',
-      reasons: ['리더는 강도, 후보는 진입 가능성, 리스크는 무효화 조건', '관련 종목은 screener와 ticker로 이어짐', '뉴스 단독 테마는 REFERENCE로 감점'],
+      reasons: ['리더는 강도, 후보는 관찰 대상, 리스크는 무효화 조건', '관련 종목은 screener와 ticker로 이어짐', '뉴스 단독 테마는 REFERENCE로 감점'],
       action: '테마 내 3~5개 후보를 비교하고 현재 결과로 AI 분석을 실행한다.'
     },
     macro: {
@@ -9118,65 +9117,26 @@ window.AIO.computeMoatScore = async function(ticker) {
       fin = nv && nv.financials;
     }
   } catch(_) {}
-  var score = 0;
+  // P1538 (owner decision: no composite grades or ratings without calibration or a source): the three-level rating summed
+  // hand-set points, two of them from keywords in a free-text memo, and presented itself as a replacement for Morningstar's analyst
+  // rating. The function now returns the profitability and R&D observations themselves; they describe the business, they do not
+  // prove a moat, and no rating is produced.
   var evidence = [];
-  // ① 기술 독점/특허: R&D/매출 >= 15% → +2
-  var rndPct = row.rndPct != null ? Number(row.rndPct) : (fin && fin.rndPct != null ? Number(fin.rndPct) : null);
-  if (rndPct != null && rndPct >= 15) {
-    score += 2;
-    evidence.push({ moat: '① 기술 독점/특허', signal: 'R&D/매출 ' + rndPct.toFixed(1) + '% (>=15%)', weight: '+2' });
-  } else if (rndPct != null && rndPct >= 10) {
-    score += 1;
-    evidence.push({ moat: '① 기술 독점/특허 (부분)', signal: 'R&D/매출 ' + rndPct.toFixed(1) + '% (10~15%)', weight: '+1' });
-  }
-  // ②~⑤ Gross Margin 기반 (전환비용/브랜드)
-  var gmPct = row.gmPct != null ? Number(row.gmPct) : (fin && fin.gmPct != null ? Number(fin.gmPct) : null);
-  if (gmPct != null && gmPct >= 60) {
-    score += 2;
-    evidence.push({ moat: '③ 전환비용 (높은 GM 안정)', signal: 'GM ' + gmPct.toFixed(1) + '% (>=60%)', weight: '+2' });
-  } else if (gmPct != null && gmPct >= 50) {
-    score += 1;
-    evidence.push({ moat: '④ 브랜드 파워', signal: 'GM ' + gmPct.toFixed(1) + '% (50~60%)', weight: '+1' });
-  }
-  // ⑤ 규모의 경제: OpMargin >= 20% 또는 3년 개선
-  var opMarginPct = row.opMarginPct != null ? Number(row.opMarginPct) : (fin && fin.opMarginPct != null ? Number(fin.opMarginPct) : null);
-  if (opMarginPct != null && opMarginPct >= 20) {
-    score += 1;
-    evidence.push({ moat: '⑤ 규모의 경제', signal: 'OpMargin ' + opMarginPct.toFixed(1) + '% (>=20%)', weight: '+1' });
-  }
-  // ⑥ 무형자산: description에 license/regulatory/exclusive 키워드 (SCREENER_DB.memo 활용)
-  var memo = String(row.memo || '');
-  if (/license|regulatory|exclusive|patent|특허|독점|허가/i.test(memo)) {
-    score += 1;
-    evidence.push({ moat: '⑥ 무형자산 (라이선스/규제 장벽)', signal: 'memo에 license/regulatory/patent/특허 키워드', weight: '+1' });
-  }
-  // ⑦ FCF 마진 >= 20% → +2 (높은 FCF 전환)
-  var fcfMarginPct = row.fcfMarginPct != null ? Number(row.fcfMarginPct) : (fin && fin.fcfMarginPct != null ? Number(fin.fcfMarginPct) : null);
-  if (fcfMarginPct != null && fcfMarginPct >= 20) {
-    score += 2;
-    evidence.push({ moat: '⑦ 높은 FCF 전환', signal: 'FCF margin ' + fcfMarginPct.toFixed(1) + '% (>=20%)', weight: '+2' });
-  } else if (fcfMarginPct != null && fcfMarginPct >= 12) {
-    score += 1;
-    evidence.push({ moat: '⑦ 양호한 FCF 전환', signal: 'FCF margin ' + fcfMarginPct.toFixed(1) + '% (12~20%)', weight: '+1' });
-  }
-  // ② 네트워크 효과 휴리스틱 (memo)
-  if (/network effect|네트워크 효과|marketplace|플랫폼/i.test(memo)) {
-    score += 1;
-    evidence.push({ moat: '② 네트워크 효과', signal: 'memo에 network effect/marketplace 키워드', weight: '+1' });
-  }
-  // verdict
-  var verdict = score >= 7 ? 'Wide' : score >= 3 ? 'Narrow' : 'None';
+  var fetchedFin = fin || {};
+  var pick = function(key) { return row[key] != null ? Number(row[key]) : (fetchedFin[key] != null ? Number(fetchedFin[key]) : null); };
+  var rndPct = pick('rndPct'), gmPct = pick('gmPct'), opMarginPct = pick('opMarginPct'), fcfMarginPct = pick('fcfMarginPct');
+  if (rndPct != null && isFinite(rndPct)) evidence.push({ label: 'R&D/매출', signal: rndPct.toFixed(1) + '%' });
+  if (gmPct != null && isFinite(gmPct)) evidence.push({ label: '매출총이익률', signal: gmPct.toFixed(1) + '%' });
+  if (opMarginPct != null && isFinite(opMarginPct)) evidence.push({ label: '영업이익률', signal: opMarginPct.toFixed(1) + '%' });
+  if (fcfMarginPct != null && isFinite(fcfMarginPct)) evidence.push({ label: '잉여현금흐름률', signal: fcfMarginPct.toFixed(1) + '%' });
   return {
     ticker: ticker,
-    available: true,
-    score: score,
-    maxScore: 10,
-    verdict: verdict,
+    available: evidence.length > 0,
     evidence: evidence,
     inputs: { rndPct: rndPct, gmPct: gmPct, opMarginPct: opMarginPct, fcfMarginPct: fcfMarginPct },
     source: 'SCREENER_DB + Naver financials (FMP 보강 옵셔널)',
     dataConfidence: evidence.length >= 3 ? 'medium' : 'low',
-    note: 'Wide(7+) / Narrow(3~6) / None(<3). Morningstar 공식 등급 대체 — AI 학습 데이터 추정 금지 (R117).'
+    note: '수익성·R&D 관측값이며 경쟁우위(해자)의 증거나 등급이 아니다. 해자 판정은 만들지 않는다 (R117).'
   };
 };
 
@@ -9579,8 +9539,10 @@ window.AIO.fetchPartnershipAlerts = async function(ticker, monthsBack) {
 
 // ─────────────────────────────────────────────────────────────────
 // v49.65 P340 (#13 플랫폼/생태계/Platform Ecosystem): fetchPlatformEcosystem
-// 3 소스 합성 (SCREENER_DB.memo 키워드 + FMP segments 플랫폼 매출 + Finnhub news 언급).
-// 외부 API 없음 — score 0~100 + dataConfidence (low/medium) 명시 (R117 의무).
+// P1538 (owner decision: no composite grades or scores without a source or calibration): the 0-100 ecosystem score and its
+// 'Strong Platform / Moderate / Limited' verdict were built from keyword counts in a free-text memo and in headlines. Mentions are not
+// evidence of a platform. The function now returns the one observation with a source, the share of revenue in service / subscription /
+// cloud / platform segments reported by FMP, and nothing is scored.
 // ─────────────────────────────────────────────────────────────────
 window.AIO.fetchPlatformEcosystem = async function(ticker) {
   if (!ticker) return null;
@@ -9589,21 +9551,6 @@ window.AIO.fetchPlatformEcosystem = async function(ticker) {
   var cached = window._platformEcoCache[ticker];
   if (cached && (Date.now() - cached.ts < 10 * 60 * 1000)) return cached.data;
   var indicators = [];
-  var score = 0;
-  // 소스 1: SCREENER_DB.memo 키워드 grep
-  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  var entry = Array.isArray(db) ? db.find(function(r){ return r && r.sym === ticker; }) : db[ticker];
-  var memo = entry && entry.memo || '';
-  var platformKws = ['ecosystem', 'platform', 'developer', 'marketplace', 'network effect', '생태계', '플랫폼', 'API', 'SDK', '개발자', '구독'];
-  var memoMatches = platformKws.filter(function(kw) {
-    return new RegExp(kw, 'i').test(memo);
-  });
-  if (memoMatches.length > 0) {
-    var memoScore = Math.min(40, memoMatches.length * 8);
-    score += memoScore;
-    indicators.push({ source: 'SCREENER_DB.memo', matches: memoMatches.slice(0, 5), weight: '+' + memoScore });
-  }
-  // 소스 2: FMP segments — 플랫폼/서비스/구독 매출 비중
   var segData = null;
   try {
     if (typeof window.AIO.fetchFMPSegments === 'function') {
@@ -9615,48 +9562,20 @@ window.AIO.fetchPlatformEcosystem = async function(ticker) {
       var n = String(s.name || '').toLowerCase();
       return /service|subscription|platform|cloud|marketplace|saas|recurring/.test(n);
     });
-    if (platformSegments.length > 0) {
-      var totalRev = segData.segments.reduce(function(a, s) { return a + (Number(s.revenue) || 0); }, 0);
+    var totalRev = segData.segments.reduce(function(a, s) { return a + (Number(s.revenue) || 0); }, 0);
+    if (platformSegments.length > 0 && totalRev > 0) {
       var platformRev = platformSegments.reduce(function(a, s) { return a + (Number(s.revenue) || 0); }, 0);
-      var platformPct = totalRev > 0 ? Math.round(platformRev / totalRev * 100) : 0;
-      var segScore = Math.min(40, Math.round(platformPct * 0.5));
-      score += segScore;
-      indicators.push({ source: 'FMP segments', platformRevPct: platformPct, count: platformSegments.length, weight: '+' + segScore });
+      indicators.push({ source: 'FMP segments', platformRevPct: Math.round(platformRev / totalRev * 100), count: platformSegments.length, segments: platformSegments.map(function(s) { return s.name; }).slice(0, 5) });
     }
   }
-  // 소스 3: Finnhub 뉴스 30일 — platform/ecosystem 언급 카운트
-  var newsData = null;
-  try {
-    if (typeof window.AIO.fetchFinnhubCompanyNews === 'function') {
-      newsData = await window.AIO.fetchFinnhubCompanyNews(ticker, 30);
-    }
-  } catch(_newsErr) {}
-  if (newsData && newsData.available && Array.isArray(newsData.topHeadlines)) {
-    var newsMatches = 0;
-    newsData.topHeadlines.forEach(function(h) {
-      var text = (h.headline || '') + ' ' + (h.summary || '');
-      if (/platform|ecosystem|developer|marketplace|network effect/i.test(text)) newsMatches++;
-    });
-    if (newsMatches > 0) {
-      var newsScore = Math.min(20, newsMatches * 4);
-      score += newsScore;
-      indicators.push({ source: 'Finnhub news (30d)', matches: newsMatches, weight: '+' + newsScore });
-    }
-  }
-  score = Math.min(100, score);
-  var confidence = score >= 60 ? 'medium' : score >= 30 ? 'low-medium' : 'low';
-  var verdict = score >= 70 ? 'Strong Platform/Ecosystem' :
-                score >= 40 ? 'Moderate Platform' :
-                score >= 15 ? 'Limited Platform indicators' : 'Insufficient data';
+  var confidence = indicators.length ? 'low-medium' : 'low';
   var resp = {
     ticker: ticker,
-    available: true,
-    source: '3-source synthesis (SCREENER_DB.memo + FMP segments + Finnhub news)',
-    ecosystemScore: score,
-    verdict: verdict,
+    available: indicators.length > 0,
+    source: 'FMP segments (service / subscription / cloud / platform segment revenue share)',
     dataConfidence: confidence,
     indicators: indicators,
-    note: '정성 분석 한계 — dataConfidence: ' + confidence + '. 외부 API 없음. AI는 ecosystemScore 자동 산출 결과만 인용 + "구체적 플랫폼 규모/사용자 수 추정 금지" (R117).'
+    note: '부문 매출 비중 하나만 보고한다. 점수나 등급은 만들지 않고, 구체적 플랫폼 규모·사용자 수 추정 금지 (R117). 부문 이름 분류는 단순 규칙이다.'
   };
   window._platformEcoCache[ticker] = { data: resp, ts: Date.now() };
   return resp;
@@ -11174,7 +11093,7 @@ window.AIO_MACRO_CALENDAR = {
 };
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02', '2026-11-06', '2026-12-04'], // BLS empsit schedule (verified 2026-10-02)
-  'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14'],
+  'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14', '2026-11-10', '2026-12-10'], // Nov/Dec per BLS calendar as reproduced by secondary calendars (2026-10-09); confirm at bls.gov/schedule/news_release/cpi.htm
   'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30', '2026-10-29', '2026-11-25', '2026-12-23'],
   'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01', '2026-11-02', '2026-12-01'], // Nov/Dec: ISM rule 1st business day (official calendar login-gated)
   'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05', '2026-11-04', '2026-12-03'], // Nov/Dec: ISM rule 3rd business day
@@ -16638,13 +16557,13 @@ var AIO_TACTICAL_TRADER_FRAMEWORK = {
   pageOverlay: {
     default: {
       id: 'tactical-confirmation',
-      reason: '전술 프레임: 방향 불명확 시 성급한 진입 금지, 볼륨·지지/리클레임·섹터 수급 확인 우선',
-      action: '상승은 거래량 있는 매수세인지, 저볼륨 숏커버인지 먼저 구분한 뒤 실행한다.'
+      reason: '전술 프레임: 방향이 불명확한 구간에서는 볼륨·지지/리클레임·섹터 수급 확인이 먼저 필요한 상태',
+      action: '상승이 거래량을 동반한 매수세인지, 저볼륨 숏커버인지 구분되는지가 확인 항목입니다.'
     },
     signal: {
       id: 'signal-short-ban',
-      reason: '전술 프레임: 지지/리클레임 미확정 구간에서는 숏 금지, 하락은 종가·거래량·재이탈로 확인',
-      action: '신규 진입은 QQQ/SMH 리더십과 breadth 확산 확인 후, 무효화 라인을 먼저 둔다.'
+      reason: '전술 프레임: 지지/리클레임이 미확정인 구간에서 하락 가설은 종가·거래량·재이탈 확인 전까지 근거가 부족한 상태',
+      action: 'QQQ/SMH 리더십과 breadth 확산, 그리고 무효화 조건이 확인 항목입니다.'
     },
     technical: {
       id: 'technical-volume-profile',
@@ -16654,12 +16573,12 @@ var AIO_TACTICAL_TRADER_FRAMEWORK = {
     ticker: {
       id: 'ticker-thesis-vs-noise',
       reason: '전술 프레임: 개별 뉴스 충격은 구조 훼손인지 리밸런싱/노이즈인지 분리',
-      action: '티커 결론은 차트 추세, 섹터 상대강도, 뉴스 후속 가격 반응을 함께 확인한다.'
+      action: '차트 추세, 섹터 상대강도, 뉴스 후속 가격 반응을 함께 보는 구간입니다.'
     },
     themes: {
       id: 'theme-rotation',
       reason: '전술 프레임: 소프트웨어 IGV에서 반도체 SMH로 수급이 넘어가는지 추적',
-      action: '테마 강도는 하루 등락보다 IGV/SMH/QQQ/SPY 상대강도 변화로 판단한다.'
+      action: '테마 강도는 하루 등락보다 IGV/SMH/QQQ/SPY 상대강도 변화로 읽는 구간입니다.'
     },
     screener: {
       id: 'screener-setup-tags',
@@ -16669,12 +16588,12 @@ var AIO_TACTICAL_TRADER_FRAMEWORK = {
     'theme-detail': {
       id: 'theme-detail-rotation',
       reason: '전술 프레임: 테마 내 순환은 리밸런싱과 thesis-break를 분리',
-      action: '편입 종목은 SMH/IGV 상대강도와 거래량 동반 여부로 재랭킹한다.'
+      action: '편입 종목의 SMH/IGV 상대강도와 거래량 동반 여부를 비교해 볼 수 있습니다.'
     },
     'market-news': {
       id: 'news-event-interpretation',
       reason: '전술 프레임: 뉴스 헤드라인보다 실제 임팩트·수급 반응·가격 확인을 우선',
-      action: 'CXMT/RLKB류 이벤트는 영향 크기, 지속성, 장중 수급 반응을 분리해 태깅한다.'
+      action: '이벤트 뉴스는 영향 크기, 지속성, 장중 수급 반응을 구분해 읽습니다.'
     }
   }
 };
@@ -16855,14 +16774,16 @@ function calcExitPlan(snapshot, sellPressure, regime) {
   var stopTrading = snapshot.ema10 || (atr ? price - atr * 1.5 : null);
   var stopSwing = snapshot.ema21 || (atr ? price - atr * 2.5 : null);
   var thesis = snapshot.sma50 || (atr ? price - atr * 4 : null);
-  var map = { HOLD_CORE: 'Core keeps riding. No forced sell signal; keep normal position sizing.', NO_ADD_RAISE_STOP: 'Do not add here. Raise stops and let the extended trend prove itself.', TRIM_25_33: 'Trim the trading lot by 25-33% or harvest enough to reduce emotional risk.', TRIM_50: 'Reduce roughly half of the swing/trading exposure unless a fresh base forms.', EXIT_OR_HEDGE: 'Exit the tactical lot or hedge. Core exposure only if thesis and timeframe justify it.' };
+  // P1546: observation text only — the earlier English lot-sizing lines were trade instructions rendered on the
+  // technical page (owner decision: no trade instructions).
+  var map = { HOLD_CORE: '부담 신호가 겹치지 않은 상태입니다. 추세선 위치가 확인 항목입니다.', NO_ADD_RAISE_STOP: '과열·이탈 신호가 일부 확인된 상태입니다. 10/21EMA 위치와 종가 이탈 여부가 확인 항목입니다.', TRIM_25_33: '신호가 여러 개 겹친 상태입니다. 10EMA 이탈 여부와 거래량 동반 여부가 확인 항목입니다.', TRIM_50: '신호가 다수 겹친 상태입니다. 21EMA·50SMA 이탈 여부와 이탈 뒤 반등 실패 여부가 확인 항목입니다.', EXIT_OR_HEDGE: '신호가 매우 많이 겹친 상태입니다. 50SMA 이탈과 추세 훼손 여부가 확인 항목이며, 이 화면은 매매 방향을 제시하지 않습니다.', WAIT: '데이터가 부족해 판단을 보류합니다.' };
   return {
     action: action, score: sellPressure.score || 0, regime: regime || 'REGIME_UNKNOWN', primary: map[action],
-    tradingLot: stopTrading ? 'Trading stop: close below 10EMA near ' + stopTrading.toFixed(2) : 'Trading stop unavailable',
-    swingLot: stopSwing ? 'Swing stop: close below 21EMA near ' + stopSwing.toFixed(2) : 'Swing stop unavailable',
-    thesisLine: thesis ? 'Thesis line: 50SMA near ' + thesis.toFixed(2) : 'Thesis line unavailable',
+    tradingLot: stopTrading ? '단기 기준선: 10EMA 약 ' + stopTrading.toFixed(2) + ' (종가 이탈 여부)' : '단기 기준선 산출 불가',
+    swingLot: stopSwing ? '스윙 기준선: 21EMA 약 ' + stopSwing.toFixed(2) + ' (종가 이탈 여부)' : '스윙 기준선 산출 불가',
+    thesisLine: thesis ? '추세 기준선: 50SMA 약 ' + thesis.toFixed(2) : '추세 기준선 산출 불가',
     levels: [{ label: 'Current', value: price || null }, { label: '10EMA', value: snapshot.ema10 || null }, { label: '21EMA', value: snapshot.ema21 || null }, { label: '50SMA', value: snapshot.sma50 || null }, { label: '20D high', value: snapshot.recentHigh20 || null }, { label: '20D low', value: snapshot.recentLow20 || null }],
-    beginner: 'RSI 70+ can stay hot in lockout rallies. The sell decision comes from extension plus failed closes: weak close after high-volume surge, upper-band re-entry, or 10/21/50-day line breaks.'
+    beginner: 'RSI 70 이상은 강한 장에서 오래 유지될 수 있습니다. 이격 확대에 거래량 급증 뒤 약한 종가, 볼린저 상단 재진입, 10/21/50일선 이탈이 겹치는지를 봅니다.'
   };
 }
 
@@ -18526,7 +18447,7 @@ function applyDataSnapshot() {
       'kr-ppi':        '—',
       'kr-pmi':        unit(S.krPmi, 1),
       'kr-export':     unit(S.krExport, 1),
-      'kr-export-reference': (S.krExportReference && isFinite(Number(S.krExportReference.exportsBillionUsd)))
+      'kr-export-reference': (S.krExportReference && S.krExportReference.status !== 'stale-reference' && isFinite(Number(S.krExportReference.exportsBillionUsd)))
         ? String(S.krExportReference.periodLabel || '공식 잠정치') + ' 수출 $' + Number(S.krExportReference.exportsBillionUsd).toFixed(1) + 'B (' + (Number(S.krExportReference.exportsYoyPct) >= 0 ? '+' : '') + Number(S.krExportReference.exportsYoyPct).toFixed(1) + '% YoY)'
         : '공식 잠정치 미수신',
       'kr-import':     unit(S.krImport, 1),
@@ -18981,11 +18902,11 @@ function getScoreAdvice(score) {
   // 누적 표본이 통계 기준에 못 미치고 최근 IC도 음수다. 이 점수는 예측/매수 신호가
   // 아니라 현재 시장 환경을 요약하는 설명형 상태 지표로만 안내한다.
   if (score == null || !isFinite(Number(score))) return {text:'필수 시장 입력이 부족해 환경 점수를 산출하지 않습니다.', color:'var(--text-muted)', action:'산출 보류'};
-  if (score >= 75) return {text:'환경 우호 구간 — 현재 입력 조합이 우호적입니다. 예측 신호가 아니므로 종목별 근거·무효화 가격을 별도로 확인하세요.', color:'var(--data-green)', action:'환경 우호'};
-  if (score >= 60) return {text:'환경 양호 구간 — 현재 시장 여건은 양호하지만 점수 단독으로 진입하지 말고 종목·거래량·손익비를 확인하세요.', color:'#4ade80', action:'환경 양호'};
-  if (score >= 45) return {text:'중립 구간 — 시장 방향이 혼재되어 있습니다. 신규 진입보다 기존 포지션 관리와 후보 관찰을 우선하세요.', color:'var(--data-amber)', action:'관망/보유'};
-  if (score >= 30) return {text:'주의 구간 — 시장 환경 입력이 불리한 조합입니다. 역사적으로 위험 관리(손절 규율·노출 점검)가 우선시되던 국면입니다.', color:'var(--data-amber)', action:'환경 불리'};
-  return {text:'위험 구간 — 시장 환경 입력이 극단적으로 불리합니다. 역사적으로 방어적 대응이 우선시되던 환경이며, 패닉성 일괄 매매의 성과가 나빴던 구간으로 서술됩니다.', color:'#ef4444', action:'환경 극단'};
+  if (score >= 75) return {text:'스트레스 신호 적음 — 현재 입력 조합에서 스트레스 신호가 적게 관측됩니다. 예측 신호가 아니며 종목별 근거·무효화 가격은 별도로 확인할 항목입니다.', color:'var(--data-green)', action:'스트레스 신호 적음'};
+  if (score >= 60) return {text:'스트레스 신호 일부 — 일부 입력에서 스트레스가 관측됩니다. 점수 단독 근거가 아니며 종목·거래량·손익비는 별도로 확인할 항목입니다.', color:'#4ade80', action:'스트레스 신호 일부'};
+  if (score >= 45) return {text:'중립 구간 — 시장 방향이 혼재되어 있습니다. 기존 포지션 상태와 후보 종목은 개별로 확인할 항목입니다.', color:'var(--data-amber)', action:'중립 · 신호 혼재'};
+  if (score >= 30) return {text:'주의 구간 — 시장 환경 입력이 불리한 조합입니다. 역사적으로 위험 관리(노출 점검)가 논의되던 국면입니다.', color:'var(--data-amber)', action:'주의 · 부담 점검'};
+  return {text:'위험 구간 — 시장 환경 입력이 극단적으로 불리합니다. 역사적으로 방어적 대응이 논의되던 환경이며, 패닉성 일괄 매매의 성과가 나빴던 구간으로 서술됩니다.', color:'#ef4444', action:'위험 · 방어 조건 점검'};
 }
 
 // ── Execution Window Score (v20+) ────────────────────────────────

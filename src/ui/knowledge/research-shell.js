@@ -63,7 +63,6 @@ const STYLE = `
 .rl-main .af-root .af-shell{grid-template-columns:minmax(0,1fr)}
 .rl-main .af-root .af-nav,.rl-main .af-root .af-side{display:none}
 @media (max-width: 1366px){.rl-grid{grid-template-columns:minmax(180px,200px) minmax(0,1fr) minmax(220px,240px)}}
-@media (max-width: 1240px){.rl-grid{grid-template-columns:minmax(190px,220px) minmax(0,1fr)}.rl-aside{grid-column:1 / -1;position:static;max-height:none}.rl-head{grid-template-columns:1fr}}
 `;
 
 export function ensureResearchStyle(doc) {

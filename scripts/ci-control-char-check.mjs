@@ -176,7 +176,18 @@ if (process.argv.includes('--write-baseline')) {
     // P1535: action enums are internal; the reader sees load levels, and prompts state conditions instead of a verdict.
     ['매수 우호 라벨', /매수 우호/], ['포지션 사이즈 지시 표시', /포지션 사이즈: |포지션 사이즈 축소 권장/], ['센티먼트 행동 라벨', /센티먼트 행동:/],
     ['진입 전략 요청', /진입 전략 알려줘/], ['행동 결론 강제', /행동 결론\(/], ['확실한 우위 단정', /확실한 우위/], ['비중 제한 권장', /비중 제한 권장/],
-    ['최종 추천 강제', /최종 추천 시/], ['행동 코드 직접 표시', /_itbBadge\((?:item|result|sp|sellPressure|lock|blowoffTop)\.action/]
+    ['최종 추천 강제', /최종 추천 시/], ['행동 코드 직접 표시', /_itbBadge\((?:item|result|sp|sellPressure|lock|blowoffTop)\.action/],
+    // P1538: letter grades, composite verdicts and per-line instructions retired from the technical and portfolio analysis.
+    ['진입 등급 카드', /진입 등급/], ['기관급 판정 라벨', /기관급 (?:후보|미너비니)/], ['등급 진입 문구', /등급\s*진입\s*(?:기회|품질)/], ['손절 검토 대상 목록', /손절 검토 대상/],
+    ['현금비중 권고', /현금비중\s*30%\+?\s*권장/], ['매도 계획 준비 문구', /매도 계획 준비/], ['이익실현 재배치 지시', /승자 일부 이익실현/], ['해자 등급 판정', /verdict\s*=\s*score\s*>=\s*7\s*\?/], ['생태계 점수 판정', /Strong Platform\/Ecosystem|ecosystemScore\s*[:=]/],
+    ['리스크 등급 n/5', /등급\s*'\s*\+\s*riskGrade/], ['엔진 점수 직접 표시', /instEngine\.(?:score|verdict)/],
+    // P1540: the score's own long-run validation shows no positive relation to forward returns, so its bands name the stress signals
+    // observed, not a favourable environment; the band explanations no longer tell the reader to trim, hold cash or stay out.
+    ['환경 우호 라벨', /환경 우호/], ['환경 양호 밴드 라벨', /(?:>=\s*60\s*\?\s*|● )'?환경 양호|환경 양호 —/], ['신규 진입 자제 문구', /신규 진입 자제/], ['리스크 자산 비중 축소 문구', /리스크 자산 비중 축소/],
+    ['공격적 포지셔닝 문구', /공격적 포지셔닝/], ['동반 상승 기대 문구', /동반 상승 기대/],
+    ['P1546 영어 매매 지시 문구', /Trim the trading lot|Exit the tactical lot|Reduce roughly half|Raise stops and let|keep normal position sizing/],
+    ['P1546 기술 브리프 점수 표기', /_itbNum\((?:sellPressure|sp|lock|blowoffTop|result)\.(?:score|heatScore), 0\) \+ '\/100/],
+    ['P1546 전술 프레임 지시 문구', /성급한 진입 금지|지지\/리클레임 미확정 구간에서는 숏 금지|무효화 라인을 먼저 둔다|먼저 구분한 뒤 실행한다|분리해 태깅한다/]
   ];
   const instructionHits = [];
   for (const file of productFiles) {
