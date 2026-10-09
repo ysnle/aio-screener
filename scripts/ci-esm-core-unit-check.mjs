@@ -840,6 +840,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (newsBypass.total !== valid.total || newsBypass.newsAdjustmentApplied) fail(`truth-boundary: raw news heuristic bypassed decision evidence: ${JSON.stringify(newsBypass)}`);
   const newsReference = computeTradingScoreModel({ decisionEvidence: { ...full, newsSentimentScore: reference(100), newsRiskSignals: reference([{ impact: 30 }]) }, newsSentimentScore: 100, newsRiskSignals: [{ impact: 30 }] });
   if (newsReference.total !== valid.total || newsReference.newsAdjustmentApplied) fail(`truth-boundary: reference-only news heuristic changed a decision score: ${JSON.stringify(newsReference)}`);
+  // P1554: the risk-appetite axis averages put/call and the HY spread; with one reading missing the axis is one reading standing in
+  // for two, so the score is partial (asterisk) even though the axis counts as present.
+  const { pcr: _droppedPcr, ...withoutPcr } = full;
+  const onePart = computeTradingScoreModel({ decisionEvidence: withoutPcr });
+  if (valid.partial !== false || onePart.total == null || onePart.partial !== true || onePart.componentMissing.includes('momentum')) fail(`P1554: a single appetite reading must make the score partial without dropping the axis: ${JSON.stringify({ valid: valid.partial, onePart: onePart.partial, missing: onePart.componentMissing })}`);
 }
 
 // ── compatibility-facade.js ──────────────────────────────────────────────────────────────────
@@ -1607,6 +1612,18 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     observedAt: '1970-01-01T00:00:00.000Z', factorObservedAt: '1970-01-01T00:00:00.000Z', factorSourceKind: 'T3_PUBLIC_DELAYED', factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT', stale: false },
     ...(includeKalman ? { kalmanVelConf: seed / 10 } : {})
   });
+
+  // P1553: a percentile needs peers. Four fully-observed rows plus one row under the 80% evidence floor pass the input guard
+  // (five rows with a return) but leave four rankable rows; they used to be spread over 0..100, now they keep a null rank.
+  // Five comparable rows are still ranked.
+  {
+    const partial = (sym) => ({ sym, sector: 'Tech', ret1m: 1, ret3m: 1, observedAt: '1970-01-01T00:00:00.000Z', factorObservedAt: '1970-01-01T00:00:00.000Z', factorSourceKind: 'T3_PUBLIC_DELAYED', factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT', stale: false } });
+    const four = computeFactorRanks({ rows: [1, 2, 3, 4].map((seed) => baseRow('F' + seed, 'Tech', seed)).concat(partial('P1')), now: 0 });
+    const five = computeFactorRanks({ rows: [1, 2, 3, 4, 5].map((seed) => baseRow('F' + seed, 'Tech', seed)).concat(partial('P1')), now: 0 });
+    if (!(four.rows || []).every((row) => row.rank == null)) fail('factor-ranks P1553: four rankable rows must keep a null rank (no percentile without five peers)');
+    const rankedFive = (five.rows || []).filter((row) => row.rank != null);
+    if (rankedFive.length !== 5 || rankedFive.some((row) => row.rank < 0 || row.rank > 100)) fail('factor-ranks P1553: five comparable rows must all be ranked');
+  }
 
   // NaN is an invalid observation: keep it in the input audit, outside the rank denominator.
   {

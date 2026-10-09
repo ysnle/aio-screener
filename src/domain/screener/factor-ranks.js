@@ -25,6 +25,7 @@ const DAY_MS = 86_400_000;
 // artifact and the freshness gate applied at read time use one budget — two
 // budgets let a row read CURRENT at fetch and stale at render, or vice versa.
 export const FACTOR_FRESHNESS_MS = 4 * DAY_MS;
+const MIN_RANKED_ROWS = 5;
 const FUNDAMENTAL_FRESHNESS_MS = 180 * DAY_MS;
 const MIN_CROSS_SECTION_COVERAGE = 0.8;
 // A cross-sectionally active factor can still be absent for an individual security. Do not
@@ -618,8 +619,11 @@ export function computeFactorRanks({
   for (let start = 0; start < n;) {
     let end = start + 1;
     while (end < n && sorted[end]._compositeZ === sorted[start]._compositeZ) end += 1;
-    const rank = n > 1 ? Math.round(((start + end - 1) / 2 / (n - 1)) * 100) : 50;
-    for (let index = start; index < end; index += 1) {
+    // P1553: a percentile needs peers. The input guard counts rows with a return, but a row also needs 80% of the weighted
+    // evidence to be ranked, so fewer than MIN_RANKED_ROWS can remain; one remaining row used to be published as rank 50
+    // ("중간 20%") although nothing was compared. Such rows keep a null rank.
+    const rank = n >= MIN_RANKED_ROWS ? Math.round(((start + end - 1) / 2 / (n - 1)) * 100) : null;
+    for (let index = start; rank != null && index < end; index += 1) {
       sorted[index].rank = rank;
       sorted[index].quantSignal = rank >= 80 ? '상위 20%' : rank >= 60 ? '상위 40%' : rank >= 40 ? '중간 20%' : '하위 40%';
     }

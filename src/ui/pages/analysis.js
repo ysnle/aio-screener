@@ -127,7 +127,7 @@ function renderTechnicalCandleMeta({ documentRef, technical }) {
   title.textContent = `${symbol} 일봉 캔들 · 이동평균`;
   meta.textContent = last
     ? `${last.time} 종가 ${finite(last.close).toFixed(2)} · 최근 ${Math.min(90, rows.length)}거래일`
-    : '차트 데이터 수신 대기 · 네이티브 분석 입력 미수신';
+    : '차트 데이터 수신 대기';
   for (const element of [title, meta]) {
     element.dataset.aioTechnicalCandleMetaRenderer = 'native';
     element.setAttribute('data-source-kind', last ? 'legacy-runtime' : 'unavailable');

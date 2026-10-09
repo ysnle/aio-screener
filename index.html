@@ -6502,7 +6502,7 @@ button[data-filter-active="true"] {
       <button class="aio-chat-chip q-chip" data-action="chatFromChip" data-arg="home" data-arg2="현재 대시보드 결과를 운용 흐름으로 정리해줘">운용 흐름 정리</button>
     </div>
     <div class="acp-input-row" style="display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--border);">
-      <input id="chat-home-inp" placeholder="시장 흐름·시그널·종목·포트폴리오 무엇이든 질문하세요..."
+      <input id="chat-home-inp" placeholder="시장 흐름·시그널·종목·포트폴리오에 대해 질문하세요..."
         data-on-keydown="chatInputEnter" data-arg="home"
         style="flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:3px;padding:8px 10px;color:var(--text-primary);font-size:13px;">
       <button id="chat-home-btn" data-action="chatSend" data-arg="home" class="acp-send-btn" style="padding:8px 14px;background:var(--accent);color:#f7f4ee;border:none;border-radius:3px;cursor:pointer;font-weight:700;">전송</button>
@@ -7521,13 +7521,9 @@ button[data-filter-active="true"] {
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
       <table class="kr-flow-table">
-        <tr><th>지표</th><th>한국</th><th>미국</th><th>일본</th><th>중국</th></tr>
-        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">—</td><td data-snap="fed-target">—</td><td>—</td><td>—</td></tr>
-        <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">—</td><td data-snap="cpi">—</td><td>—</td><td>—</td></tr>
-        <tr><td>GDP 성장률</td><td data-snap="kr-gdp">—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>환율 (vs USD)</td><td data-snap="krw">—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>10Y 국채</td><td data-snap="kr-bond-10y">—</td><td data-live-price="^TNX">—</td><td>—</td><td>—</td></tr>
-        <tr><td>주식시장 YTD</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><th>지표</th><th>한국</th><th>미국</th></tr>
+        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">—</td><td data-snap="fed-target">—</td></tr>
+        <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">—</td><td data-snap="cpi">—</td></tr>
       </table>
       <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-operational-use="reference-only" style="margin-top:10px;padding:8px 10px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
         한국과 미국의 정책금리·물가·국채·환율 관측치가 모두 있을 때만 금리차와 시장 영향을 해석합니다.

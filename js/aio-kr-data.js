@@ -2540,17 +2540,19 @@ function _generateKrMacroAnalysis(ld) {
     }
   }
 
-  // v40.4: 트레이딩 스코어 연동
-  var krMacroTs = null;
-  try { if (typeof computeTradingScore === 'function') krMacroTs = computeTradingScore().score; } catch(e) {}
-  if (krMacroTs != null && isFinite(Number(krMacroTs))) {
-    t += '<br><b>【글로벌 시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krMacroTs >= 55 ? 'var(--green)' : krMacroTs >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krMacroTs + '/100</b> — ';
-    t += krMacroTs >= 55 ? '글로벌 환경 지표 양호. 한국 시장 방향은 수급·환율과 별도로 확인할 항목입니다.' :
-         krMacroTs >= 35 ? '글로벌 환경 혼조. 한국 고유 재료(수급·실적)가 방향 결정.' :
-         '글로벌 환경 약세. 코스피 하방 압력 지속. 방어적 포지션 유지.';
-  } else t += '<br><b>【글로벌 시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
+  t += _krReferenceScoreLine('【글로벌 시장 환경】');
 
   el.innerHTML = t || '데이터 대기 중...';
+}
+
+// P1552: the KR analysis paragraphs used to turn the 0-100 market score into a narrative ("favourable environment", "keep a
+// defensive position", "historically rotation was active"). The score has no recorded predictive validation, so the line states
+// the value, its basis and that it is not a forecast, with no colour ladder and no conclusion.
+function _krReferenceScoreLine(label) {
+  var ts = null;
+  try { if (typeof computeTradingScore === 'function') ts = computeTradingScore().score; } catch (e) {}
+  if (ts == null || !isFinite(Number(ts))) return '<br><b>' + label + '</b> 실시간·검증된 입력이 없어 참고값 산출을 보류합니다.';
+  return '<br><b>' + label + '</b> 시장 환경 참고값 <b>' + ts + '/100</b> (직전 미국장 종가 기준 · 예측 검증 미확립). 한국 시장은 수급·환율·실적을 따로 확인합니다.';
 }
 
 // ── 2) 한국 테마 동향 분석 ──
@@ -2684,15 +2686,7 @@ function _generateKrThemesAnalysis(ld) {
     }
   }
 
-  // v40.4: 트레이딩 스코어 연동
-  var krTsVal = null;
-  try { if (typeof computeTradingScore === 'function') krTsVal = computeTradingScore().score; } catch(e) {}
-  if (krTsVal != null && isFinite(Number(krTsVal))) {
-    h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krTsVal >= 55 ? 'var(--green)' : krTsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krTsVal + '/100</b> — ';
-    h += krTsVal >= 55 ? '역사적으로 테마 순환매가 활발하던 환경(환경 설명값, 예측 아님).' :
-         krTsVal >= 35 ? '역사적으로 실적 뒷받침 없는 테마의 성과가 부진하던 환경.' :
-         '역사적으로 테마 전반이 부진하고 방어적 대응이 우선시되던 환경.';
-  } else h += '<br><b>【시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
+  h += _krReferenceScoreLine('【시장 환경】');
 
   el.innerHTML = h;
 }
@@ -3188,17 +3182,6 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     h += '<br>';
   }
 
-  // v40.4: 트레이딩 스코어 연동 시장 환경 코멘트
-  var tsVal = null;
-  try { if (typeof computeTradingScore === 'function') { tsVal = computeTradingScore().score; } } catch(e) {}
-  if (tsVal != null && isFinite(Number(tsVal))) {
-    h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (tsVal >= 55 ? 'var(--green)' : tsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + tsVal + '/100</b> — ';
-    h += tsVal >= 75 ? '시장 환경 우수. 개별 종목 펀더멘털 강점이 주가에 반영되기 좋은 환경.' :
-         tsVal >= 55 ? '시장 환경 지표 양호. 종목별 실적 근거는 별도로 확인할 항목입니다.' :
-         tsVal >= 35 ? '시장 환경 중립~약세. 시장 역풍에 개별 종목이 눌릴 수 있음. 방어적 포지션 우선.' :
-         '시장 환경 약세. 펀더멘털과 무관하게 센티먼트로 하락 가능. 현금 비중 점검.';
-  } else h += '<br><b>【시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
-  h += '<br>';
 
   void h;
  };

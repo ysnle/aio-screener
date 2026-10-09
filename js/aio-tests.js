@@ -9201,6 +9201,28 @@
     } catch (e) { threw = true; } finally { window._liveData = savedLive; }
     _assert('P1164/B02 T_p1164_9 HYG/VIX 미수신에서 예외·위기 문장이 없다',
       !threw && !/신용 스프레드|고수익채권 급락/.test(signalText), 'threw=' + threw + ' text=' + signalText.slice(0, 120));
+
+    // P1551: a missing SPY change is unknown, not 0%, so the quiet-tape signal must not fire; a real quiet tape still does.
+    var quietMissing = '', quietKnown = '', quietThrew = false;
+    try {
+      window._liveData = { SPY: { price: 500 }, '^VIX': { price: 15, pct: 0 } };
+      window.updatePatternSignals();
+      var quietHost = document.getElementById('pattern-signals');
+      quietMissing = quietHost ? String(quietHost.textContent || '') : '';
+      window._liveData = { SPY: { price: 500, pct: 0.05 }, '^VIX': { price: 15, pct: 0 } };
+      window.updatePatternSignals();
+      quietKnown = quietHost ? String(quietHost.textContent || '') : '';
+    } catch (e) { quietThrew = true; } finally { window._liveData = savedLive; try { window.updatePatternSignals(); } catch (_) {} }
+    _assert('P1551 T_p1551_1 SPY 변동률 결측은 저변동성 압축 신호를 만들지 않고, 관측된 조용한 장은 만든다',
+      !quietThrew && quietMissing.indexOf('저변동성 압축') < 0 && quietKnown.indexOf('저변동성 압축') >= 0,
+      JSON.stringify({ threw: quietThrew, missing: quietMissing.slice(0, 80), known: quietKnown.slice(0, 80) }));
+
+    // P1551: the chat diagram path applies the same unavailable guard as the page renderer.
+    var svgGuard = window._aioDiagram && typeof window._aioDiagram.getSvg === 'function'
+      ? [window._aioDiagram.getSvg('score-breakdown', { available: false }), window._aioDiagram.getSvg('economic-cycle', { available: false }), window._aioDiagram.getSvg('sentiment-gauge', { available: false })]
+      : null;
+    _assert('P1551 T_p1551_2 채팅 다이어그램은 입력이 없으면 기본값(0/100, MID, 0.0)을 그리지 않는다',
+      !!svgGuard && svgGuard.every(function(svg) { return svg === ''; }), JSON.stringify(svgGuard && svgGuard.map(function(svg) { return svg.length; })));
   }
 
   window.AIO = window.AIO || {};

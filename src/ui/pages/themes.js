@@ -57,7 +57,7 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   if (!total) {
     status.textContent = items.length
       ? 'RRG 판정 보류 · 상대강도·모멘텀 증거 부족'
-      : 'RRG 데이터 수신 대기 · 정규화된 시세 증거를 기다리는 중';
+      : 'RRG 데이터 수신 대기 · 시세 데이터가 들어오면 표시됩니다';
     status.style.color = 'var(--text-muted)';
     return;
   }
@@ -115,7 +115,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   if (!validItems.length) {
     context.fillStyle = '#8a8271';
     context.font = '12px Inter, sans-serif';
-    context.fillText('정규화된 상대강도·모멘텀 데이터 수신 대기', centerX, centerY);
+    context.fillText('상대강도·모멘텀 데이터 수신 대기', centerX, centerY);
     return;
   }
   const colors = { Leading: '#22754c', Improving: '#211d16', Weakening: '#a06a12', Lagging: '#b13a30' };
@@ -383,7 +383,7 @@ function renderThemes({ documentRef, root, store, route }) {
     container.appendChild(empty);
     appendUnclassified();
     const read = documentRef.getElementById('rrg-rotation-read');
-    if (read) read.textContent = '상대강도·모멘텀 시계열 미수신 — 정적 사분면 시드로 대체하지 않습니다.';
+    if (read) read.textContent = '상대강도·모멘텀 시계열이 아직 없어 사분면을 표시하지 않습니다.';
     return;
   }
 

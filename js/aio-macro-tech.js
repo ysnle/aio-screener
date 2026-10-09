@@ -382,6 +382,8 @@ function updatePatternSignals() {
   // TypeError를 던졌다(브라우저 콘솔 `updatePatternSignals` null.toFixed). 결측은 조건 불성립이다.
   var _fin = function(v) { var n = Number(v); return (v == null || !isFinite(n)) ? null : n; };
   var chg = _fin(spy.pct);
+  // P1551: a missing SPY change is unknown, not 0%: the quiet-tape condition below must not fire on it.
+  var chgKnown = chg != null;
   if (chg == null) chg = 0;
   var vixP = _fin(vix && vix.price);
   var vixChg = _fin(vix && vix.pct);
@@ -393,13 +395,13 @@ function updatePatternSignals() {
   var signals = [];
 
   // ── 1. 저변동성 구간 (기존 가짜 BB 스퀴즈 대체) ──
-  if (Math.abs(chg) < 0.15 && vixP != null && vixP < 20) {
+  if (chgKnown && Math.abs(chg) < 0.15 && vixP != null && vixP < 20) {
     signals.push({ name: '저변동성 압축 구간', type: 'setup', icon: '',
       color: 'var(--data-purple)',
-      detail: 'SPY 일일 변동 ±0.15% 미만 + VIX 20 이하 = 변동성이 극도로 압축된 상태. 역사적으로 저변동성 기간 후 큰 방향성 움직임이 뒤따르는 경우가 많습니다. 돌파 방향에 따라 빠른 진입 준비.',
+      detail: 'SPY 일일 변동 ±0.15% 미만 + VIX 20 이하 = 변동성이 낮게 압축된 상태입니다. 이 신호만으로는 방향을 알 수 없고, 이후 돌파 방향과 거래량이 확인 항목입니다.',
       why: '변동성은 평균 회귀 특성이 있어, 극단적 저변동성은 큰 움직임의 전조일 수 있습니다.',
       importance: 'HIGH' });
-  } else if (Math.abs(chg) < 0.15 && vixP != null) {
+  } else if (chgKnown && Math.abs(chg) < 0.15 && vixP != null) {
     signals.push({ name: '저변동성 구간', type: 'setup', icon: '',
       color: 'var(--data-purple)',
       detail: 'SPY 일일 변동 ±0.15% 미만이지만 VIX '+vixP.toFixed(1)+'로 내재 변동성은 높음 → 표면은 잠잠하나 내부 긴장 존재. 갑작스러운 방향 전환 가능.',
@@ -411,8 +413,8 @@ function updatePatternSignals() {
   if (vixP != null && vixP > 35 && vixChg > 10) {
     signals.push({ name: 'VIX 패닉 스파이크', type: 'risk', icon: '',
       color: 'var(--data-red)',
-      detail: 'VIX ' + vixP.toFixed(1) + ' (일일 +' + vixChg.toFixed(1) + '%) → 극심한 공포! 당일 VIX 급등 + 절대 레벨 35+ = 패닉 매도 진행 중. 역사적으로 VIX 급등 후 1~3일 내 단기 반등이 발생하는 경우가 많지만, 하락 추세 중 반등은 "Dead Cat Bounce"일 수 있으니 추세 확인 필수.',
-      why: 'VIX 일일 10%+ 급등은 옵션 시장의 공포 가격 책정을 반영. 극단적 공포는 단기 과매도를 유발합니다.',
+      detail: 'VIX ' + vixP.toFixed(1) + ' (일일 +' + vixChg.toFixed(1) + '%) → 당일 VIX 급등과 35 이상의 절대 수준이 겹친 상태입니다. 이후 움직임은 이 신호로 알 수 없고, 추세 확인이 별도로 필요합니다.',
+      why: 'VIX 일일 10%+ 급등은 옵션 시장의 내재변동성이 크게 높아졌다는 뜻입니다.',
       importance: 'HIGH' });
   } else if (vixP != null && vixP > 30) {
     signals.push({ name: 'VIX 공포 영역', type: 'risk', icon: '',
@@ -576,7 +578,7 @@ function updatePatternSignals() {
   } else if (chg < -0.5 && chg >= -1) {
     signals.push({ name: '일간 하락 모멘텀', type: 'bearish', icon: '',
       color: 'var(--data-red)',
-      detail: 'SPY ' + chg.toFixed(2) + '% 음봉 형성 중. 주요 지지선(50일선, 200일선) 이탈 여부를 주시하세요.',
+      detail: 'SPY ' + chg.toFixed(2) + '% 음봉 형성 중. 주요 지지선(50일선, 200일선) 이탈 여부가 확인 항목입니다.',
       why: '이동평균선은 기관 투자자들의 매매 기준점입니다. 200일선 이탈은 중기 추세 전환의 핵심 신호.',
       importance: 'LOW' });
   }
@@ -585,7 +587,7 @@ function updatePatternSignals() {
   if (signals.length === 0) {
     signals.push({ name: '특이 신호 없음', type: 'neutral', icon: '',
       color: 'var(--data-cyan)',
-      detail: '현재 특별한 이벤트나 극단적 신호가 감지되지 않습니다. 정상적인 시장 환경에서는 기존 전략을 유지하세요.',
+      detail: '현재 특별한 이벤트나 극단적 신호가 감지되지 않습니다.',
       why: '시그널 부재도 정보입니다 — 시장이 균형 상태라는 뜻입니다.',
       importance: 'LOW' });
   }

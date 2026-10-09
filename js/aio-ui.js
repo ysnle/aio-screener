@@ -585,7 +585,7 @@ function updateQuotaBadge() {
 
   const grade = remaining === 0 ? (overBudget > 0 ? 'over' : 'empty') : remaining <= Math.ceil(dailyLimit * 0.2) ? 'warn' : 'green';
 
-  if (remEl)  { remEl.textContent = remaining + '회' + (overBudget > 0 ? ' (초과 ' + overBudget + '회)' : ''); remEl.className = 'llm-quota-val ' + grade; }
+  if (remEl)  { remEl.textContent = remaining + '회' + (overBudget > 0 ? ' (한도 초과 ' + overBudget + '회)' : ''); remEl.className = 'llm-quota-val ' + grade; }
   if (progEl) { progEl.style.width = Math.min(pct, 100) + '%'; progEl.className = 'llm-prog-fill' + (grade !== 'green' ? ' ' + grade : ''); }
   if (costEl) costEl.textContent = '비용 정보: 공급자 청구 원천 미연결';
 
@@ -593,7 +593,7 @@ function updateQuotaBadge() {
   if (hdrBadge) {
     // v50.13: 헤더 배지는 'AI · 모델'만 — 남은 횟수(remaining/dailyLimit)는 옆 #llm-quota가 단독 표시(중복 제거).
     const hdrText = overBudget > 0
-      ? 'AI 예산 초과 · +' + overBudget + '회'
+      ? 'AI 일일 한도 초과 · +' + overBudget + '회'
       : 'AI · ' + model.label;
     hdrBadge.textContent = hdrText;
     hdrBadge.style.color = grade === 'green' ? '#00bcd4' : grade === 'warn' ? '#ffa31a' : '#ff5b50';
@@ -2404,6 +2404,8 @@ window._aioDiagram = (function () {
     getSvg: function (type, data) {
       var fn = _fns[type];
       if (!fn) return '';
+      // P1551: the same unavailable guard as render() — a diagram with missing inputs draws defaults (score 0/100, MID cycle, calm VIX).
+      if (data && data.available === false) return '';
       try { return fn(data || {}); } catch (e) { return ''; }
     },
     types: function () { return Object.keys(_fns); },
@@ -2710,7 +2712,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     return null;
   }
 
-  window._aioChatAutoVis = function (question, responseText, tickers) {
+  var _autoVisRaw = function (question, responseText, tickers) {
     try {
       var q = ((question    || '') + ' ' + (responseText || '')).toLowerCase();
       // 우선순위 순으로 가장 명확한 매치만 반환 (과잉 삽입 방지)
@@ -2751,6 +2753,10 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
       }
     } catch (e) {}
     return null;
+  };
+  window._aioChatAutoVis = function (question, responseText, tickers) {
+    var hit = _autoVisRaw(question, responseText, tickers);
+    return hit && hit.data && hit.data.available === false ? null : hit;
   };
 })();
 

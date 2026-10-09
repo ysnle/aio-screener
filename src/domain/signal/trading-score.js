@@ -251,7 +251,9 @@ export function computeTradingScoreModel(input = {}) {
     volScore, momScore, trendScore, breadthScore, macroScore,
     componentCoveragePct: availableWeight,
     componentMissing: Object.freeze(componentMissing),
-    partial: availableWeight < 100,
+    // P1554: the appetite axis is a mean of two readings (put/call, HY spread). With one of them missing the axis is a single
+    // reading standing in for two, which is a partial score even though the axis itself counts as present.
+    partial: availableWeight < 100 || (momScore != null && appetiteParts.length < 2),
     // P1349: base-axis coverage does not certify the optional stress corrections.
     missingOptionalInputs: Object.freeze(Object.entries({ vvix, oilPrice, pcr, hyBp }).filter(([, value]) => value == null).map(([key]) => key)),
     decisionBlocked: hasDecisionEvidence && total == null,

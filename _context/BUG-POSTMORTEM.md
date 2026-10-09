@@ -6,6 +6,60 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1556 - v57.30 - The refresh audit would stop every 30-minute data commit on the day of the next BOK meeting (2026-10-09)
+
+- symptom/reproduction: assessBokPolicyEvidence rejected the policy as soon as the next meeting date (2026-10-22) passed, and the as-of age limit (60 days) ended on 2026-10-26. The audit gates refresh-data, so market data would stop publishing until someone typed the new rate into the manual reference.
+- root_cause: The meeting result is a hand-kept official reference, but the audit treated its date as a data deadline with no grace.
+- fix: A passed meeting is a warning for 14 days (with a printed instruction) and blocks after that; the as-of age limit is extended by the same window only while the meeting is in grace.
+- violated_rule: The autopilot must not stop for a human step without a lead time (owner decision, same pattern as P1542).
+- prevention: ci-data-refresh-audit self-test: the day after the meeting is valid with a warning, 20 days after is blocked, a current policy has no warnings.
+- verification/residual: Audit run now and with a fake date of 2026-10-23 (E4 OK with the warning). Not done: automating the rate itself (needs an ECOS key in the producer).
+
+## P1555 - v57.30 - Reader copy exposed implementation terms, and the KR comparison table kept rows nothing wrote (2026-10-09)
+
+- symptom/reproduction: Themes, analysis and screener headers said 'normalised evidence', 'static quadrant seed', 'native input', 'static signal fallback'; quote tooltips printed raw enum values; the AI budget badge called a daily request overage a budget overrun; the home chat invited any question; the AI prompt called a percentile '/100'; the KR vs world table had Japan and China columns and US GDP, KR 10Y and YTD cells with no writer.
+- root_cause: Placeholders and developer wording were never reviewed against the 'no developer copy, hide sourceless widgets' rule.
+- fix: Plain Korean wording, tooltips with source and times only, 'daily limit exceeded', a topic-bound placeholder, 'percentile' in the prompt and guide, and a two-column table with rows that have a producer.
+- violated_rule: No developer copy on user surfaces; hide sourceless widgets (AGENTS.md).
+- prevention: Existing static-data and KR contracts; wording is covered by the full browser run.
+- verification/residual: Full QA. Not done: the Masters manager card still shows two status lines.
+
+## P1554 - v57.30 - A score built on one of two appetite readings carried no partial marker (2026-10-09)
+
+- symptom/reproduction: With put/call missing and HY spread present, the risk-appetite axis was one reading standing in for two; component coverage stayed 100, the display score had no asterisk and only the description text mentioned the missing optional input.
+- root_cause: partial was defined by axis weight coverage only.
+- fix: The score is partial when the appetite axis has fewer than its two readings; the axis still counts as present.
+- violated_rule: Missing inputs are disclosed on the number, not only in prose.
+- prevention: ci-esm-core-unit-check P1554 compares a full and a put/call-less evidence set.
+- verification/residual: Parity, page-decision-reference and esm-core-unit gates.
+
+## P1553 - v57.30 - A factor percentile was published for a lone rankable row (2026-10-09)
+
+- symptom/reproduction: Rows that pass the input guard (a return is present) but fall below the 80% evidence floor leave fewer than five rankable rows; with one left it was published as rank 50 'middle 20%', with four it was spread over 0..100.
+- root_cause: The five-row minimum was applied before the evidence floor, not after it.
+- fix: A rank needs at least five rows with a composite; otherwise the rank and signal stay null.
+- violated_rule: Missing inputs hold the score; a percentile needs peers.
+- prevention: ci-esm-core-unit-check P1553: four fully observed rows plus one partial row keep null ranks; five comparable rows are ranked.
+- verification/residual: esm-core-unit and domain-parity gates.
+
+## P1552 - v57.30 - The KR analysis paragraphs turned the 0-100 market score into a favourable/defensive narrative (2026-10-09)
+
+- symptom/reproduction: The KR macro and KR theme analysis printed 'trading score N/100' in a green/yellow/red ladder followed by sentences such as 'global environment good', 'keep a defensive position' and 'historically rotation was active'; a third copy was dead code.
+- root_cause: Each paragraph rebuilt its own score ladder instead of using the reference-only presentation, and the historical claims had no source.
+- fix: One helper prints the reference value, its basis (last completed US close), that predictive validation is not established and that KR direction is checked from flows, FX and earnings; no colour ladder, no conclusion; the dead copy is removed.
+- violated_rule: Scores are reference descriptions, never decision-grade; no trade instructions (AGENTS.md).
+- prevention: ci-control-char-check keeps the retired phrases out; the helper is the only place the KR paragraphs read the score.
+- verification/residual: Syntax and the full QA. Not done: the 0-100 value is still printed as a labelled reference (see the open decision on the score headline).
+
+## P1551 - v57.30 - Chat diagrams drew defaults for missing inputs and the quiet-tape signal fired on a missing SPY change (2026-10-09)
+
+- symptom/reproduction: An AI answer about the trading score, the economic cycle, the market regime or the sentiment gauge attached a diagram built from {available:false} data, so it showed 0/100, the MID cycle, a score of 50 with a calm VIX label or 0.0 gauges; updatePatternSignals turned a missing SPY change into 0% and reported a 'low-volatility compression' with an entry-preparation sentence. Neighbouring pattern texts told the reader to keep the existing strategy and quoted unsourced historical tendencies.
+- root_cause: The unavailable guard existed only in the page renderer (render), not in the chat path (getSvg / _aioChatAutoVis); the signal function replaced a missing number by 0 before comparing.
+- fix: getSvg returns an empty string and _aioChatAutoVis returns null for unavailable data; the quiet-tape signal needs a known SPY change; the pattern-signal texts state the condition and what is left to check, without entry, strategy or historical-tendency claims.
+- violated_rule: Missing inputs hold the score; they are never guessed (AGENTS.md); no trade instructions.
+- prevention: Legacy T_p1551_1 (missing vs observed SPY change) and T_p1551_2 (three diagram types with available:false draw nothing).
+- verification/residual: Legacy headless suite and full QA.
+
 ## P1550 - v57.30 - Chat and news attributed an issuer by a short alias, an uppercase acronym or a Korean substring (2026-10-09)
 
 - symptom/reproduction: The MSFT news filter accepted Morgan Stanley items because MSFT's registry alias list contained 'ms' (Morgan Stanley is its own key 'MS'); the chat extractor sent SEC, CEO, FED, WTI and USD (a listed ETF) to the data fetch as tickers; and the Korean-name branch of extractTickers matched by substring, so '모델' tagged DELL and '메타버스' tagged META.
