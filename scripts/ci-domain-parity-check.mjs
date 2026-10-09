@@ -364,6 +364,28 @@ for (const fixture of factorRanksGolden.fixtures) {
   const rules = [...core.matchAll(/fgMax:\s*(\d+)/g)].map((match) => Number(match[1]));
   const expectedMax = [RULES.fearGreed.extremeFearBelow, RULES.fearGreed.fearBelow, RULES.fearGreed.greedAbove + 1, RULES.fearGreed.extremeGreedAbove + 1, 101];
   if (JSON.stringify(rules) !== JSON.stringify(expectedMax)) fail(`P1534 AIO_ACTION_RULES.sentimentAction edges ${JSON.stringify(rules)} must match RULES.fearGreed ${JSON.stringify(expectedMax)}`);
+  // P1557: the VIX ladder inside AIO_ACTION_RULES (home/briefing cards) used 15/20/25/30 next to the 18/25/32 status; pin its edges and names too.
+  const vixRules = [...core.matchAll(/vixMax:\s*(Infinity|\d+)/g)].map((match) => match[1] === 'Infinity' ? Infinity : Number(match[1]));
+  const expectedVixMax = [RULES.volatility.calmBelow, RULES.volatility.stressAt, RULES.volatility.highAt, Infinity];
+  if (JSON.stringify(vixRules) !== JSON.stringify(expectedVixMax)) fail(`P1557 AIO_ACTION_RULES.positionSizing edges ${JSON.stringify(vixRules)} must match RULES.volatility ${JSON.stringify(expectedVixMax)}`);
+  const ladderLabels = [...core.slice(core.indexOf('positionSizing: {'), core.indexOf('getRule: function(vix)')).matchAll(/label:\s*'([^']+)'/g)].map((match) => match[1]);
+  if (JSON.stringify(ladderLabels) !== JSON.stringify(['저변동 구간', '통상 범위', '변동성 경계 구간', '고변동 구간'])) fail(`P1557 AIO_ACTION_RULES.positionSizing labels ${JSON.stringify(ladderLabels)} must be the shared VIX band names`);
+  if (/sizePct/.test(core.slice(core.indexOf('window.AIO_ACTION_RULES'), core.indexOf('window.AIO_ACTION_RULES') + 6000).replace(/\/\/.*$/gm, ''))) fail('P1557 AIO_ACTION_RULES must not carry a position size (sizePct)');
+  // P1564: the threshold registry's VIX and F&G ladders are a third copy; pin their edges to RULES as well.
+  const registryStart = core.indexOf('window.AIO_THRESHOLD_REGISTRY = {');
+  const vixBlock = core.slice(core.indexOf('  VIX: {', registryStart), core.indexOf('  FG: {', registryStart));
+  const fgBlock = core.slice(core.indexOf('  FG: {', registryStart), core.indexOf('  HY_SPREAD: {', registryStart));
+  const maxima = (block) => [...block.matchAll(/\bmax:\s*(Infinity|\d+)/g)].map((match) => match[1] === 'Infinity' ? Infinity : Number(match[1]));
+  if (JSON.stringify(maxima(vixBlock)) !== JSON.stringify(expectedVixMax)) fail(`P1564 THRESHOLD_REGISTRY.VIX edges ${JSON.stringify(maxima(vixBlock))} must match RULES.volatility`);
+  if (JSON.stringify(maxima(fgBlock)) !== JSON.stringify(expectedMax)) fail(`P1564 THRESHOLD_REGISTRY.FG edges ${JSON.stringify(maxima(fgBlock))} must match RULES.fearGreed`);
+  // And no legacy file may keep a hand-written VIX edge other than the shared 18/25/32 in a comparison against the VIX variable names.
+  const oldVixEdges = [];
+  for (const file of ['js/aio-pages.js', 'js/aio-chat.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-macro-tech.js']) {
+    readFileSync(path.join(root, file), 'utf8').split('\n').forEach((line, index) => {
+      if (/\b(?:vix|vixP|_vix|vp|_rVix)\s*(?:<|<=|>|>=)\s*(?:15|20|30)\b(?!\.\d)/.test(line) && !/\/\/\s*(?:legacy|unrelated)/.test(line)) oldVixEdges.push(`${file}:${index + 1}`);
+    });
+  }
+  if (oldVixEdges.length) fail(`P1564 a VIX comparison with a non-shared edge (15/20/30) remains (${oldVixEdges.length}): ${oldVixEdges.slice(0, 8).join(', ')}`);
 }
 
 console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsHeadlineBoundary: { fixtures: newsGolden.fixtures.length, legacyParityIntentionallyRetired: true }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length } }));

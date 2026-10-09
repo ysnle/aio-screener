@@ -2789,7 +2789,7 @@ if (typeof document !== 'undefined') {
       }
       var posEl = document.getElementById('briefing-action-position');
       var sentEl = document.getElementById('briefing-action-sentiment');
-      if (posEl && plan.position) posEl.textContent = '' + plan.position.sizePct + '% 포지션 — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
+      if (posEl && plan.position) posEl.textContent = '변동성 구간(' + plan.position.label + '): ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
       if (sentEl && plan.sentiment) sentEl.textContent = '' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
       try { if (typeof window._aioStaticContentLifecycleHook === 'function') window._aioStaticContentLifecycleHook(); } catch(_je) {}
     } catch(_e) {}
@@ -3078,9 +3078,12 @@ if (typeof document !== 'undefined') {
   };
 
   function _vixBand(v){ if (v == null) return null; return v < 18 ? 0 : v < 25 ? 1 : v < 32 ? 2 : 3; }
-  function _vixBandLabel(b){ return ['안정','보통','경계','패닉'][b] || '?'; }
+  function _vixBandLabel(b){ return ['저변동 구간','통상 범위','변동성 경계 구간','고변동 구간'][b] || '?'; } // P1562: the shared VIX band names (RULES.volatility / vixRegime)
   function _fgZone(v){ if (v == null) return null; v = Math.round(v); return v < 25 ? 0 : v < 45 ? 1 : v <= 55 ? 2 : v <= 75 ? 3 : 4; }
   function _fgZoneLabel(z){ return ['극단공포','공포','중립','탐욕','극단탐욕'][z] || '?'; }
+  // P1564: the other legacy files read the band through these two functions instead of keeping their own edges (parity: ci-domain-parity-check).
+  window._aioVixBandIndex = _vixBand;
+  window._aioFgZoneIndex = _fgZone;
 
   // 작성 시점 레짐(stamp) ↔ 현재 레짐(now) 드리프트 평가. severity: none|mild|severe
   window._aioRegimeDrift = function(stamp, now){
@@ -3101,7 +3104,9 @@ if (typeof document !== 'undefined') {
     if (stamp.fg != null && now.fg != null) {
       var z0 = _fgZone(stamp.fg), z1 = _fgZone(now.fg);
       var fgd = Math.abs(now.fg - stamp.fg);
-      var oppositeSides = (stamp.fg >= 55 && now.fg < 45) || (stamp.fg < 45 && now.fg >= 55);
+      // P1562: opposite sides are judged on the same rounded zones as the labels (greed side vs fear side); raw 55 / 45 comparisons
+      // called 55 -> 44.6 'severe' while both ends read as the neutral zone.
+      var oppositeSides = (z0 >= 3 && z1 <= 1) || (z0 <= 1 && z1 >= 3);
       if (oppositeSides || fgd >= 25 || Math.abs(z1 - z0) >= 2) { severe = true; reasons.push({ k:'F&G', sev:'severe', msg:'투자심리 ' + _fgZoneLabel(z0) + '(' + Math.round(stamp.fg) + ') → ' + _fgZoneLabel(z1) + '(' + Math.round(now.fg) + ')' }); }
       else if (fgd >= 12 || Math.abs(z1 - z0) >= 1) { mild = true; reasons.push({ k:'F&G', sev:'mild', msg:'F&G ' + Math.round(stamp.fg) + ' → ' + Math.round(now.fg) }); }
     }
@@ -3474,7 +3479,7 @@ if (typeof document !== 'undefined') {
       // 로컬 헬퍼(이 함수는 별도 IIFE 소속이라 첫 IIFE의 _vixBand 등에 클로저 접근 불가 — 임계값 1:1 동일하게 복제).
       var _num = function(v){ return (typeof v === 'number' && isFinite(v)) ? v : null; };
       var _vixBand = function(v){ if (v == null) return null; return v < 18 ? 0 : v < 25 ? 1 : v < 32 ? 2 : 3; };
-      var _vixBandLabel = function(b){ return ['안정','보통','경계','패닉'][b] || '?'; };
+      var _vixBandLabel = function(b){ return ['저변동 구간','통상 범위','변동성 경계 구간','고변동 구간'][b] || '?'; };
       var _fgZone = function(v){ if (v == null) return null; v = Math.round(v); return v < 25 ? 0 : v < 45 ? 1 : v <= 55 ? 2 : v <= 75 ? 3 : 4; };
       var _fgZoneLabel = function(z){ return ['극단공포','공포','중립','탐욕','극단탐욕'][z] || '?'; };
       var A = window.AIO || {}, ds = window.DATA_SNAPSHOT || {}, ld = window._liveData || {};
@@ -3618,10 +3623,10 @@ if (typeof document !== 'undefined') {
       // 5) 행동 한 줄 (actionPlan 우선)
       var actionPart = '';
       if (ms.actionPlan && ms.actionPlan.position) {
-        actionPart = '대응: 포지션 ' + ms.actionPlan.position.sizePct + '% — ' + (ms.actionPlan.position.note || '')
-          + (ms.actionPlan.newsTilt === 'defensive' ? ' (뉴스 경계: 보수적)' : ms.actionPlan.newsTilt === 'constructive' ? ' (뉴스 우호)' : '');
+        actionPart = '변동성 환경(' + (ms.actionPlan.position.label || '—') + '): ' + (ms.actionPlan.position.note || '')
+          + (ms.actionPlan.newsTilt === 'defensive' ? ' (뉴스: 부정 우위)' : ms.actionPlan.newsTilt === 'constructive' ? ' (뉴스: 긍정 우위)' : '');
       }
-      var oneLine = '지금은 ' + (ms.vixBandLabel || '—') + ' 변동성 · ' + (ms.fgZoneLabel || '—') + ' 심리 · '
+      var oneLine = '지금은 변동성 ' + (ms.vixBandLabel || '—') + ' · ' + (ms.fgZoneLabel || '—') + ' 심리 · '
         + (ms.cyclePhase || '—') + ' · 리스크 ' + riskLabelKo + (ns.available && ns.bias !== 'neutral' ? ' · 뉴스 ' + (ns.bias === 'bullish' ? '긍정' : '부정') : '') + ' 환경입니다.';
       var full = [oneLine, '① ' + regimePart, '② ' + cyclePart, '③ ' + riskPart]
         .concat(newsPart ? ['④ ' + newsPart] : [])
@@ -11407,14 +11412,13 @@ window.AIO.getKrMacroReleaseAudit = function() {
 window.AIO_THRESHOLD_REGISTRY = {
   version: 'v49.24',
   VIX: {
-    // 정의: <12 극단 안정, 12~20 정상 Risk-On, 20~25 주의, 25~30 경계, 30+ 공포, 40+ 극단 공포
+    // P1564: the same four bands and names as RULES.volatility / vixRegime: <18 저변동, 18~25 통상, 25~32 경계, 32+ 고변동.
+    // The earlier 12/20/25/30/40 ladder here was a second, disagreeing source.
     bands: [
-      { max: 12,  label: '극단 안정', color: 'data-amber',  signal: 'complacent' },
-      { max: 20,  label: '정상 Risk-On', color: 'data-green', signal: 'normal' },
-      { max: 25,  label: '주의', color: 'data-amber',         signal: 'caution' },
-      { max: 30,  label: '경계', color: 'data-amber',         signal: 'warning' },
-      { max: 40,  label: '공포', color: 'data-red',           signal: 'fear' },
-      { max: Infinity, label: '극단 공포', color: 'data-red', signal: 'extreme-fear' }
+      { max: 18,  label: '저변동 구간', color: 'data-green', signal: 'low-volatility' },
+      { max: 25,  label: '통상 범위', color: 'text-secondary', signal: 'normal' },
+      { max: 32,  label: '변동성 경계 구간', color: 'data-amber', signal: 'elevated' },
+      { max: Infinity, label: '고변동 구간', color: 'data-red', signal: 'high-volatility' }
     ],
     getLabel: function(v) {
       if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
@@ -11424,17 +11428,18 @@ window.AIO_THRESHOLD_REGISTRY = {
     }
   },
   FG: {
-    // CNN Fear & Greed: 0~25 극단공포, 26~45 공포, 46~55 중립, 56~75 탐욕, 76~100 극단탐욕
+    // P1564: CNN integer bands as in RULES.fearGreed: <25 극단 공포, 25~44 공포, 45~55 중립, 56~75 탐욕, 76+ 극단 탐욕 (rounded to a whole
+    // number first). The signal names describe the zone; they are not trade signals.
     bands: [
-      { max: 25,  label: '극단 공포', color: 'data-green', signal: 'buy-opportunity' },
-      { max: 45,  label: '공포',     color: 'data-amber', signal: 'caution-bullish' },
-      { max: 55,  label: '중립',     color: 'text-secondary', signal: 'neutral' },
-      { max: 75,  label: '탐욕',     color: 'data-amber', signal: 'caution-bearish' },
-      { max: 101, label: '극단 탐욕', color: 'data-red',  signal: 'sell-opportunity' }
+      { max: 25,  label: '극단 공포', color: 'data-amber', signal: 'extreme-fear' },
+      { max: 45,  label: '공포',     color: 'data-amber', signal: 'fear' },
+      { max: 56,  label: '중립',     color: 'text-secondary', signal: 'neutral' },
+      { max: 76,  label: '탐욕',     color: 'data-amber', signal: 'greed' },
+      { max: 101, label: '극단 탐욕', color: 'data-amber',  signal: 'extreme-greed' }
     ],
     getLabel: function(v) {
       if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
-      v = Number(v);
+      v = Math.round(Number(v));
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -11573,15 +11578,16 @@ window.AIO_ACTION_RULES = {
   // P714: 이 객체는 v49.27까지 "포지션 X%로 축소/풋 헤지 필수/역발상 매수" 같은 시스템 발화형
   // 배분·매매 지시를 정적 렌더했다. 입력(VIX/F&G 절대 밴드)의 예측력이 검증된 적 없고(WO-2는
   // 유사 입력 계열에서 음의 상관), AI 채팅 게이트는 동일 문형을 차단한다 — 정적 UI만 예외일 수
-  // 없다. 전 문구를 "역사적 변동성 관리 프레임워크의 서술(귀속·참고)"로 재작성했다. sizePct는
-  // 프레임워크 참고치 데이터로만 유지하고 지시형 렌더에 사용하지 않는다.
+  // 없다. 전 문구를 관측 서술로 재작성했고, P1557에서 sizePct 자체를 규칙에서 제거했다.
+  // P1557: the ladder uses the same 18 / 25 / 32 edges and names as RULES.volatility and vixRegime (parity: ci-domain-parity-check). The
+  // old 15 / 20 / 25 / 30 edges disagreed with the VIX status on the same card, and the sizePct values (100/80/50/30/15) were printed
+  // as "포지션 N%" on the home and briefing pages; there is no position size in the rules any more.
   positionSizing: {
     rules: [
-      { vixMax: 15, sizePct: 100, label: '저변동',   note: 'VIX 15 미만 — 역사적으로 낮은 변동성 환경. 변동성 관리 프레임워크는 통상 정상 노출 구간으로 분류합니다(지시 아님).' },
-      { vixMax: 20, sizePct: 80,  label: '보통',     note: 'VIX 15~20 — 보통 수준 변동성. 프레임워크상 신규 노출을 나눠 접근하는 관행이 논의되는 구간입니다.' },
-      { vixMax: 25, sizePct: 50,  label: '상승 변동', note: 'VIX 20~25 — 변동성 상승 구간. 프레임워크상 노출 축소가 논의되는 구간이나, 판단 근거는 별도로 확인해야 합니다.' },
-      { vixMax: 30, sizePct: 30,  label: '높은 변동', note: 'VIX 25~30 — 높은 변동성. 역사적으로 손실 방어 수단(헤지 등)이 검토되던 환경입니다.' },
-      { vixMax: Infinity, sizePct: 15, label: '극단 변동', note: 'VIX 30 이상 — 극단 변동성. 역사적으로 신규 위험 확대가 회피되던 환경입니다. 개별 대응은 본인 리스크 한도로 판단하세요.' }
+      { vixMax: 18, label: '저변동 구간', note: 'VIX 18 미만 — 변동성이 낮은 구간입니다.' },
+      { vixMax: 25, label: '통상 범위', note: 'VIX 18~25 — 통상 범위의 변동성입니다.' },
+      { vixMax: 32, label: '변동성 경계 구간', note: 'VIX 25~32 — 변동성이 커진 경계 구간입니다. 손실 한도와 보유 종목의 변동은 본인 기준으로 확인할 항목입니다.' },
+      { vixMax: Infinity, label: '고변동 구간', note: 'VIX 32 이상 — 변동성이 매우 큰 구간입니다. 현금·헤지·신규 진입 여부는 본인 기준으로 확인할 항목입니다.' }
     ],
     getRule: function(vix) {
       if (vix == null || vix === '' || !isFinite(Number(vix))) return null;
@@ -11593,11 +11599,11 @@ window.AIO_ACTION_RULES = {
   // F&G 구간 관측 (행동 지시가 아니라 심리 구간 서술)
   sentimentAction: {
     rules: [
-      { fgMax: 25, action: '극단 공포 구간', note: '역발상 프레임워크("남들이 공포에 떨 때…" — 버핏 귀속)가 주목해온 구간이나, F&G 밴드 자체의 예측력은 검증되지 않았습니다.' },
-      { fgMax: 45, action: '공포 구간',     note: '심리 위축 구간. 프레임워크상 분할 접근이 논의되는 환경이지만 종목별 근거가 우선입니다.' },
+      { fgMax: 25, action: '극단 공포 구간', note: '심리가 극단적으로 위축된 구간입니다. F&G 밴드 자체의 예측력은 검증되지 않았고, 종목별 근거는 따로 확인할 항목입니다.' },
+      { fgMax: 45, action: '공포 구간',     note: '심리가 위축된 구간입니다. 종목별 근거가 우선입니다.' },
       { fgMax: 56, action: '중립 구간',     note: '뚜렷한 심리 쏠림 없음.' },
-      { fgMax: 76, action: '탐욕 구간',     note: '심리 과열 초입. 역사적으로 추격 진입의 성과가 불안정하던 구간으로 서술됩니다.' },
-      { fgMax: 101, action: '극단 탐욕 구간', note: '심리 과열 극단. 역발상 프레임워크가 위험 축적을 경고해온 구간입니다(지시 아님).' }
+      { fgMax: 76, action: '탐욕 구간',     note: '심리가 과열 쪽으로 기운 구간입니다. 예측 신호가 아닙니다.' },
+      { fgMax: 101, action: '극단 탐욕 구간', note: '심리가 극단적으로 과열된 구간입니다. F&G 밴드 자체의 예측력은 검증되지 않았습니다.' }
     ],
     getRule: function(fg) {
       if (fg == null || fg === '' || !isFinite(Number(fg))) return null;
@@ -16465,6 +16471,11 @@ function calcLockoutRegime(modules) {
 
 function calcLockoutAction(modules) {
   modules = modules || {};
+  // P1558: without the extension and candle readings the sum below is 0 and read as 'HOLD_CORE' (low load) — missing is not calm.
+  var _missing = function(m) { return !m || (m.flags || []).indexOf('DATA_INSUFFICIENT') >= 0; };
+  if (_missing(modules.extension) || _missing(modules.candle)) {
+    return { score: null, action: 'WAIT', regime: 'DATA_INSUFFICIENT', flags: ['DATA_INSUFFICIENT'], extension: modules.extension || null, candle: modules.candle || null, opexGamma: modules.opexGamma || null, breadth: modules.breadth || null, portfolioExposure: modules.portfolioExposure || null };
+  }
   var extension = modules.extension || { score: 0, flags: [] };
   var candle = modules.candle || { score: 0, flags: [] };
   var opexGamma = modules.opexGamma || { score: 0, flags: [] };

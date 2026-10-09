@@ -6,6 +6,87 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1565 - v57.30 - KR analysis and the macro reading stated conclusions the inputs do not support (2026-10-09)
+
+- symptom/reproduction: The KR macro verdict was a ladder of conclusions ('keep cash at 50%+', 'defensive strategy', 'favourable for growth themes', 'KOSPI downward pressure maximised'); the macro regime reading called one combination 'historically the most favourable for equities'.
+- root_cause: Static narratives written beside the conditions they described, with no source for the claims.
+- fix: The verdict lists which of three conditions hold and says it is not a forecast; the cross-variable line states the combination only; the regime reading becomes a case-based observation.
+- violated_rule: No trade instructions; claims need a source (AGENTS.md).
+- prevention: ci-control-char-check phrases (cash 50%, defensive strategy, favourable for growth themes, most favourable regime).
+- verification/residual: Control-char gate and the full QA.
+
+## P1564 - v57.30 - Legacy files kept their own copies of the VIX and Fear & Greed ladders (2026-10-09)
+
+- symptom/reproduction: The chat tags, the market pulse colour and note, the macro-tech bars and signals, the threshold registry (12/20/25/30/40 VIX bands, 55 as greed) and several help texts used edges that disagreed with the decided bands and with the labels next to them; contrarian and 'split entry' notes were attached to F&G zones.
+- root_cause: P1534 pinned the functions it knew about; every other copy was found by text search for old patterns.
+- fix: The two band functions are exposed once and read by the other files; colours, labels and notes come from one zone index; the registry, notes and help texts use the shared edges and observation wording. The parity gate now pins the registry edges and fails on a VIX comparison with a 15/20/30 edge.
+- violated_rule: One VIX band set and one F&G zone set (P1534); no trade instructions.
+- prevention: ci-domain-parity-check P1564 (registry edges, leftover VIX edges); legacy T305/T306/T194 updated to the shared bands.
+- verification/residual: Parity gate and the legacy suite. Not done: the F&G band is applied to the rounded value; 5 of 251 CNN history rows (24.5-25, 44.5-45) carry CNN's lower label. Fixing that needs the producer to publish the unrounded score.
+
+## P1563 - v57.30 - A stopped Worker's last fast-plane snapshot kept its CURRENT labels and won over a fresh durable snapshot (2026-10-09)
+
+- symptom/reproduction: Quality labels are written at publish time and never recomputed; with the Worker stopped, a three-day-old snapshot with CURRENT labels was preferred by the loader.
+- root_cause: The loader judged the fast plane by its labels only.
+- fix: A fast-plane snapshot whose attemptedAt (the Worker's five-minute liveness stamp) is older than two hours is rejected as fast_plane_snapshot_old and the durable snapshot is used.
+- violated_rule: A degraded source must degrade to the previous behaviour (P1152).
+- prevention: ci-fast-plane-consumer-gate P1563: 10 minutes old is kept, 3 hours and 3 days old fall through with the same CURRENT labels.
+- verification/residual: Fast-plane consumer gate. The plane is not enabled yet (rightsReviewed=false); the open rights question stays with the owner.
+
+## P1562 - v57.30 - The regime drift alert called a move inside one Fear & Greed zone severe, and used old VIX names (2026-10-09)
+
+- symptom/reproduction: 55 -> 44.6 was 'severe' (raw 55/45 comparison) while both ends read as the neutral zone after rounding; the alert, the home status, the chat tag and the macro-tech bar called the same VIX 'panic', 'caution', 'normal' or 'fear' with 15/20/25/30 edges.
+- root_cause: Opposite-side logic compared raw numbers while labels used rounded zones; several files kept their own VIX word lists.
+- fix: Opposite sides are judged on zone indices; all legacy VIX words come from the shared names (low-volatility, normal, boundary, high-volatility); factor-weights recognises the new high-volatility name.
+- violated_rule: One VIX band set and one F&G zone set (P1534).
+- prevention: Legacy T791b (same zone is not severe, opposite zones are, VIX names).
+- verification/residual: Legacy suite and esm-core-unit.
+
+## P1561 - v57.30 - Concentration weights were published as current while withheld positions had left the denominator (2026-10-09)
+
+- symptom/reproduction: With some positions withheld (cached or reference quote) and no explicit total, the remaining weights were shares of the priced part only: each looked larger and a withheld largest holding was missing from the top weight, yet the status was current.
+- root_cause: P1536 withheld the position but kept the denominator rule of the earlier model.
+- fix: The result is 'partial' with the issue 'held-positions-excluded-from-denominator' and the weight basis 'priced-positions-only'; a complete set or an explicit total stays current.
+- violated_rule: Missing inputs are disclosed on the result, not only in a list.
+- prevention: ci-esm-core-unit-check P1561 (mixed set partial, priced set current, explicit total current).
+- verification/residual: esm-core-unit and parity gates.
+
+## P1560 - v57.30 - One filer reporting 13F dollar values 1,000x too high got both normal filers withheld (2026-10-09)
+
+- symptom/reproduction: With two agreeing filers and one reporting 200,000 where 200 is normal, the two-peer median (their mean) made each normal filer look 1,000x too low, so all three were flagged.
+- root_cause: P1530 required two peers but did not require them to agree.
+- fix: With exactly two peers the comparison runs only when they are within 2x of each other; with three or more the median stays.
+- violated_rule: A withheld amount needs a reference the reader can trust.
+- prevention: ci-masters-contract-check P1560 high-direction fixture flags only the odd filer.
+- verification/residual: Masters contract gate.
+
+## P1559 - v57.30 - Chat templates produced allocation percentages, invented elasticities and buy verdicts (2026-10-09)
+
+- symptom/reproduction: An amount question printed 'Bridgewater / GS / Ackman' allocation percentages with a fixed 1380 won/dollar conversion; an index question printed VIX +2.5x, 10Y -8bp, gold +0.5x per index percent and a position line ('cash 50%+', 'buy review'); a macro scenario printed numeric ranges (SPX +2~5% per 50bp cut), OW/UW sector calls, 'strong bond buy' and named-investor frameworks.
+- root_cause: Deterministic templates written for the early chat produced readable-looking numbers with no source and sat outside the prompt/gate path.
+- fix: The amount block states the entered amount and what to check; the index scenario lists what to look at; the macro scenario states the commonly cited mechanism and what to check, with no number, verdict or investor attribution; the result columns are 'general reading' and 'what to check'.
+- violated_rule: No trade instructions; numbers need a source (AGENTS.md).
+- prevention: Legacy T546b and T534b; ci-control-char-check forbids the retired phrases.
+- verification/residual: Legacy suite.
+
+## P1558 - v57.30 - The technical brief showed raw English flag identifiers with action verbs, and missing inputs read as low load (2026-10-09)
+
+- symptom/reproduction: Flag badges rendered 'DIST 50SMA PLUS 4ATR NO ADD TRIM CANDIDATE' style text, state badges showed enum names, and calcLockoutAction with no extension or candle reading summed to 0 and returned 'HOLD_CORE' (low load, green) while the extension panel showed the same for a snapshot with no data.
+- root_cause: The label table covered only the action enums; flags fell back to the identifier with underscores replaced, and the lockout engine defaulted a missing module to score 0.
+- fix: A Korean label table covers every flag the engines push, unknown flags read as 'other signal', state names are Korean, and a lockout without extension and candle readings returns WAIT / data-insufficient with a null score.
+- violated_rule: No trade instructions; missing inputs hold the score (AGENTS.md).
+- prevention: Legacy T131b: empty lockout is WAIT, flag labels contain no identifier, underscore or action verb.
+- verification/residual: Legacy suite.
+
+## P1557 - v57.30 - The home and briefing cards printed a position percentage next to a VIX ladder that disagreed with the VIX status (2026-10-09)
+
+- symptom/reproduction: getActionPlan used a 15/20/25/30 VIX ladder with sizePct 100/80/50/30/15; the home market summary printed 'response: position N%' and the briefing page printed 'N% position —', while the status next to them and the snapshot label used 18/25/32 and the snapshot label still said 'panic'.
+- root_cause: P1534 moved the page ladders and the regime alert but not AIO_ACTION_RULES.positionSizing or the snapshot label, and P1535 removed sizePct from the readers' badges but not from these two sentences; the gates looked for old patterns, not for the ladder's edges.
+- fix: positionSizing has four bands with the shared edges and names and no sizePct; the home summary and briefing print the band name and its observation note; the snapshot label uses vixRegime. ci-domain-parity-check pins the ladder's edges, names and the absence of sizePct, and ci-control-char-check forbids the old sentence forms.
+- violated_rule: No trade instructions (sizing); one VIX band set (AGENTS.md, R696).
+- prevention: Legacy T216 (35 -> high-volatility band, edges at 17.9/18/24.9/25/31.9/32, no sizePct); parity gate P1557; phrase guard P1557.
+- verification/residual: Parity, control-char and the legacy suite.
+
 ## P1556 - v57.30 - The refresh audit would stop every 30-minute data commit on the day of the next BOK meeting (2026-10-09)
 
 - symptom/reproduction: assessBokPolicyEvidence rejected the policy as soon as the next meeting date (2026-10-22) passed, and the as-of age limit (60 days) ended on 2026-10-26. The audit gates refresh-data, so market data would stop publishing until someone typed the new rate into the manual reference.

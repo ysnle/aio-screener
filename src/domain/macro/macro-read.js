@@ -292,7 +292,7 @@ function buildRegime(growth, inflation) {
     : inflation.state === 'burden' ? 'up' : inflation.state === 'favorable' ? 'down' : null;
   const provisional = !(g?.payroll && g?.sahm && i?.pace);
   const table = {
-    'up/down': { id: 'goldilocks', label: '성장 견조 · 물가 둔화', tone: 'favorable', reading: '이익이 늘면서 금리 부담은 줄어드는 조합으로, 역사적으로 주식에 가장 우호적인 국면입니다(성장주가 상대적으로 강한 경향).' },
+    'up/down': { id: 'goldilocks', label: '성장 견조 · 물가 둔화', tone: 'favorable', reading: '이익이 늘면서 금리 부담은 줄어드는 조합입니다. 과거 사례에서 주식이 강했던 경우가 있었지만 항상 그런 것은 아니며, 이 설명은 사례 기반이라 지금의 예측이 아닙니다.' },
     'up/up': { id: 'reflation', label: '성장 견조 · 물가 상승', tone: 'neutral', reading: '이익은 늘지만 금리가 오르기 쉬운 조합입니다. 에너지·금융·가치주가 상대적으로 강하고, 금리에 민감한 성장주는 흔들리기 쉬운 경향이 있습니다.' },
     'down/up': { id: 'stagflation', label: '성장 둔화 · 물가 상승', tone: 'burden', reading: '이익은 줄고 연준은 금리를 내리기 어려운 조합으로, 주식과 채권이 함께 약했던 경우가 많습니다(1970년대, 2022년). 현금·원자재·방어주가 상대적으로 버틴 국면입니다.' },
     'down/down': { id: 'disinflation-slowdown', label: '성장 둔화 · 물가 둔화', tone: 'neutral', reading: '역사적으로 금리 인하 기대에 채권이 강해진 국면이었고, 주식은 경기 둔화의 깊이에 따라 엇갈렸습니다(방어주·우량 성장주가 경기민감주보다 나았던 경향). 이 설명은 사례 기반의 역사적 경향이며, 지금 관측된 10년물 움직임과 별개입니다 — 금리의 현재 상태는 시장 상태 화면(금리 축)에서 확인해도 더 명확합니다.' }

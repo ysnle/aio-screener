@@ -1084,6 +1084,15 @@
     var action = window.calcLockoutAction ? window.calcLockoutAction({ extension: ext, candle: exRisk, opexGamma: opex, breadth: breadthBad, portfolioExposure: { score: 45, flags: ['TEST_PORTFOLIO_HEAT'] } }) : null;
     _assert('T131 lockout_action: final action escalates', action && ['TRIM_25_33','TRIM_50','EXIT_OR_HEDGE'].indexOf(action.action) >= 0 && action.regime, action && JSON.stringify(action));
 
+    // P1558: missing readings are not calm, and no raw identifier or action verb reaches the reader as a badge.
+    var emptyLockout = window.calcLockoutAction ? window.calcLockoutAction({}) : null;
+    var noReadingLockout = window.calcLockoutAction ? window.calcLockoutAction({ extension: { score: 0, flags: ['DATA_INSUFFICIENT'] }, candle: { score: 0, flags: ['DATA_INSUFFICIENT'] } }) : null;
+    var flagLabels1558 = typeof _itbFlagLabel === 'function' ? ['DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE', 'CLOSE_BELOW_10EMA_TRIM_TRADING_LOT', 'NOT_A_KNOWN_FLAG', 'LOCKOUT_ACTION_TRIM_50'].map(_itbFlagLabel) : null;
+    _assert('P1558 T131b 입력 없는 Lockout은 판단 보류이고, 플래그 배지에 영어 식별자·행동 동사가 나오지 않는다',
+      !!emptyLockout && emptyLockout.action === 'WAIT' && emptyLockout.score === null && !!noReadingLockout && noReadingLockout.action === 'WAIT' &&
+      !!flagLabels1558 && flagLabels1558.every(function(label) { return !/TRIM|REDUCE|NO_ADD|_/.test(label); }) && flagLabels1558[2] === '기타 신호',
+      JSON.stringify({ empty: emptyLockout && emptyLockout.action, none: noReadingLockout && noReadingLockout.action, labels: flagLabels1558 }));
+
     var promptOk = false;
     try {
       var ctx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.technical;
@@ -2671,6 +2680,13 @@
     _assert('T534 simulate_macro_v4969: _simulateMacroScenario + 6+ 시나리오 (fed-cut/hike/vix/spx/dxy/oil)',
       typeof window._simulateMacroScenario === 'function' && has6Scenarios,
       'fn=' + typeof window._simulateMacroScenario + ' scenarios=' + has6Scenarios);
+    var macroQs1559 = ['Fed 50bp 인하 시', 'Fed 25bp 인상 시', 'VIX 35 넘으면', 'SPX 10% 하락 시', '달러 DXY 110 돌파 시', '유가 WTI 100 돌파 시'];
+    var macroOut1559 = typeof window._simulateMacroScenario === 'function' ? macroQs1559.map(function(question) { return window._simulateMacroScenario(question); }) : [];
+    var macroText1559 = JSON.stringify(macroOut1559.map(function(out) { return out && { impacts: out.impacts, note: out.note }; }));
+    _assert('P1559 T534b 매크로 시나리오는 수치 범위·OW/UW·매수 판정·투자자 귀속 없이 정성 점검 항목만 낸다',
+      macroOut1559.length === 6 && macroOut1559.every(function(out) { return !!out && !!out.impacts; }) &&
+      !/\d+~\d+|[+\-]\d+(?:\.\d+)?(?:%|bp)|OW|UW|매수|회피|Buffett|Marks|Bridgewater|Druckenmiller|Soros/.test(macroText1559),
+      macroText1559.slice(0, 200));
 
     // T535: _resolveTickerFromFuzzy 함수 정의 + 한글 약어 매핑 (엔비 → NVDA / 삼전 → 005930.KS)
     var fuzzyTest1 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('엔비');
@@ -2778,6 +2794,12 @@
         amt && amt.amount && amt.amount.krw === 100000000 &&
         pct && pct.indexScenario && pct.indexScenario.sign === '-' && pct.indexScenario.pct === 5,
         'amt=' + (amt && amt.amount && amt.amount.krw) + ' pct=' + (pct && pct.indexScenario && pct.indexScenario.pct));
+      var usd1559 = window._aioSimulateAmountOrPct('1000달러 투자', []);
+      _assert('P1559 T546b 금액·지수 시나리오는 배분 비율, 투자자 귀속, 임의 탄력도·포지션 문구를 내지 않는다',
+        !!amt && !!amt.amount && amt.amount.allocation === undefined && !/%|Bridgewater|Ackman|GS/.test(JSON.stringify(amt.amount)) &&
+        !!pct && !!pct.indexScenario && pct.indexScenario.impacts === undefined && !/%|bp|OW|UW|현금 비중|매수/.test(JSON.stringify(pct.indexScenario.checks)) &&
+        (usd1559 === null || !usd1559.amount),
+        JSON.stringify({ amt: amt && amt.amount, checks: pct && pct.indexScenario && pct.indexScenario.checks }));
     } else {
       _assert('T546 simulate_fn_missing', false, 'fn missing');
     }
@@ -4205,13 +4227,13 @@
     // 단일 출처는 THRESHOLD_REGISTRY.VIX이므로 레지스트리 레벨에서 6 bands + 라벨 정합을 검증
     var vixReg = window.AIO_THRESHOLD_REGISTRY && window.AIO_THRESHOLD_REGISTRY.VIX;
     var vixBands = (vixReg && vixReg.bands) || [];
-    _assert('T305 vix_registry_6bands: THRESHOLD_REGISTRY.VIX 6 bands (표는 declutter로 제거, 레지스트리가 단일 출처)',
-      vixBands.length === 6, 'bands=' + vixBands.length);
+    _assert('T305 vix_registry_4bands (P1564): THRESHOLD_REGISTRY.VIX는 공통 4구간(18/25/32)이다',
+      vixBands.length === 4 && vixBands[0].max === 18 && vixBands[1].max === 25 && vixBands[2].max === 32, 'bands=' + vixBands.map(function(b) { return b.max; }).join(','));
 
     var vixLabels = vixBands.map(function(b) { return (b && (b.label || b[1])) || ''; }).join(' ');
-    _assert('T306 vix_registry_labels: VIX bands 라벨에 "주의" + "극단" 계열 포함 (R56 REGISTRY 정합)',
-      /주의/.test(vixLabels) && /극단|패닉/.test(vixLabels),
-      'labels=' + vixLabels.slice(0, 60));
+    _assert('T306 vix_registry_labels (P1564): VIX 구간 이름은 공통 이름이고 패닉·극단 문구가 없다',
+      vixLabels === '저변동 구간 통상 범위 변동성 경계 구간 고변동 구간',
+      'labels=' + vixLabels.slice(0, 80));
 
     // T307: L4224 오타 `뷰블` 제거
     var homeEl = document.getElementById('page-home');
@@ -4874,10 +4896,13 @@
       plan && Array.isArray(plan.actions) && plan.actions.length > 0,
       plan ? 'actions=' + plan.actions.length : 'undefined');
 
-    // T216: ACTION_RULES VIX 35 → sizePct 15 (공포 구간)
+    // T216 (P1557): ACTION_RULES VIX 35 → 고변동 구간, with the 18/25/32 edges and no position size anywhere in the rules
     var pos35 = ar && ar.positionSizing ? ar.positionSizing.getRule(35) : null;
-    _assert('T216 action_vix35: VIX 35 → sizePct 15 (공포)',
-      pos35 && pos35.sizePct === 15, pos35 ? 'sizePct=' + pos35.sizePct : 'undefined');
+    var posEdges1557 = ar && ar.positionSizing ? [17.9, 18, 24.9, 25, 31.9, 32].map(function(v) { var r = ar.positionSizing.getRule(v); return r && r.label; }) : null;
+    _assert('T216 action_vix35 + P1557: VIX 35 → 고변동 구간, 경계 18/25/32, 포지션 비율(sizePct) 없음',
+      !!pos35 && pos35.label === '고변동 구간' && pos35.sizePct === undefined &&
+      JSON.stringify(posEdges1557) === JSON.stringify(['저변동 구간', '통상 범위', '통상 범위', '변동성 경계 구간', '변동성 경계 구간', '고변동 구간']),
+      JSON.stringify({ pos35: pos35 && pos35.label, edges: posEdges1557 }));
 
     // T217: AIO_PAGE_PURPOSE_REGISTRY 12 페이지 등록
     var pr = window.AIO_PAGE_PURPOSE_REGISTRY;
@@ -5024,8 +5049,8 @@
 
     // T194: VIX 18 → '정상 Risk-On' 라벨 (P219 근본 검증)
     var vixLabel = reg && reg.VIX ? reg.VIX.getLabel(18).label : '';
-    _assert('T194 vix_label_18: VIX 18 → 정상 Risk-On',
-      vixLabel === '정상 Risk-On', 'got: ' + vixLabel);
+    _assert('T194 vix_label_18 (P1564): VIX 18 → 통상 범위 (18 미만이 저변동)',
+      vixLabel === '통상 범위', 'got: ' + vixLabel);
 
     // T195: HY 289 → 'Tight → Complacent' (P219 근본 검증)
     var hyLabel = reg && reg.HY_SPREAD ? reg.HY_SPREAD.getLabel(289).label : '';
@@ -5904,6 +5929,16 @@
       t791detail = 'snap=' + hasSnap791 + ' now=' + hasNow791 + ' drift=' + hasDrift791 + ' severity=' + (d791 && d791.severity);
     } catch(e) { t791detail = 'ERR:' + e.message; }
     _assert('T791 v5025_regime_helpers: _aioSnapshotRegime/_aioRegimeNow/_aioRegimeDrift 정의 + 반환 구조', t791ok, t791detail);
+    // P1562: the drift alert judges F&G on the same rounded zones as its labels; the VIX names are the shared band names.
+    if (typeof window._aioRegimeDrift === 'function') {
+      var sameZone1562 = window._aioRegimeDrift({ vix: 20, fg: 55, spx: 5000 }, { vix: 20, fg: 44.6, spx: 5000 });
+      var oppositeZone1562 = window._aioRegimeDrift({ vix: 20, fg: 70, spx: 5000 }, { vix: 20, fg: 30, spx: 5000 });
+      var vixNames1562 = window._aioRegimeDrift({ vix: 15, fg: 50, spx: 5000 }, { vix: 34, fg: 50, spx: 5000 });
+      _assert('P1562 T791b 같은 F&G 구간(55→44.6)은 심각 경보가 아니고, 탐욕↔공포 반대편은 심각이며, VIX 구간 이름은 공통 이름이다',
+        sameZone1562.severity !== 'severe' && oppositeZone1562.severity === 'severe' &&
+        vixNames1562.reasons.some(function(reason) { return reason.k === 'VIX' && /저변동 구간/.test(reason.msg) && /고변동 구간/.test(reason.msg); }),
+        JSON.stringify({ same: sameZone1562.severity, opposite: oppositeZone1562.severity, vix: vixNames1562.reasons.map(function(reason) { return reason.msg; }) }));
+    }
 
     // T792: 드리프트 판정 로직 — 알려진 stamp↔now로 severe 검출 (SPX -3.8% + VIX 밴드 + F&G 탐욕→공포)
     var t792ok = false, t792detail = '';

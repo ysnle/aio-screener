@@ -15048,8 +15048,10 @@ function applyLiveQuotes(quotes) {
     let vp = Number(vixQ.regularMarketPrice);
     if (!Number.isFinite(vp)) vp = Number(DATA_SNAPSHOT && DATA_SNAPSHOT.vix);
     if (!Number.isFinite(vp)) vp = 0;
-    const lvl = vp >= 30 ? '패닉 (매우 위험)' : vp >= 25 ? '공포 (경계)' : vp >= 20 ? '불안 (주의)' : vp >= 15 ? '안정' : '과도한 낙관';
-    const col = vp >= 30 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 20 ? '#ffa31a' : '#00e5a0';
+    // P1557: same 18 / 25 / 32 edges and names as vixRegime / RULES.volatility (this ladder used 15 / 20 / 25 / 30 and 'panic' wording).
+    const _vixBandNow = vixRegime(vp);
+    const lvl = _vixBandNow.label;
+    const col = vp >= 32 ? '#dc2626' : vp >= 25 ? '#ffa31a' : '#00e5a0';
     const vixLbl = document.getElementById('snap-vix-lbl');
     const vixVal = document.getElementById('snap-vix-val');
     if (vixLbl) vixLbl.textContent = lvl;
@@ -15774,7 +15776,7 @@ function refreshHomeDashboard() {
     const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100);
     // v50.16: 'ATH 근처' 막연 → 실제 갭 + VIX 맥락 (사용자 지적: 이면까지). VIX는 라이브 우선.
     var _rVix = (ld && ld['^VIX'] && ld['^VIX'].price) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-    var _rVixCtx = isNaN(_rVix) ? '' : (' · VIX ' + _rVix.toFixed(1) + (_rVix < 20 ? ' (정상)' : _rVix < 30 ? ' (경계)' : ' (공포)'));
+    var _rVixCtx = isNaN(_rVix) ? '' : (' · VIX ' + _rVix.toFixed(1) + (' (' + vixRegime(_rVix).label + ')'));
     let regime = 'UPTREND', regimeColor = '#00e5a0', regimeDesc = 'ATH ' + (pctFromATH >= -0.5 ? '근접' : pctFromATH.toFixed(1) + '%') + _rVixCtx;
     if (pctFromATH < -20) { regime = 'DOWNTREND'; regimeColor = '#ff5b50'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
     else if (pctFromATH < -10) { regime = 'CORRECTION'; regimeColor = '#ffa31a'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
@@ -15814,7 +15816,7 @@ function refreshHomeDashboard() {
   if (vixValueEl) {
     const vp = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
     vixValueEl.textContent = _homeFixed(vp, 2, '—');
-    const vixLabel = vp == null ? '—' : (vp >= 32 ? '패닉' : vp >= 25 ? '경계' : vp >= 18 ? '보통' : '안정'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
+    const vixLabel = vp == null ? '—' : (vp >= 32 ? '고변동 구간' : vp >= 25 ? '변동성 경계 구간' : vp >= 18 ? '통상 범위' : '저변동 구간'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
     const vixCol = vp == null ? 'var(--text-muted)' : (vp >= 32 ? 'var(--data-red)' : vp >= 25 ? 'var(--data-amber)' : vp >= 18 ? 'var(--text-secondary)' : 'var(--data-green)'); // P1499: theme tokens, not the retired neon palette
     vixValueEl.style.color = vixCol;
     if (vixStatusEl) vixStatusEl.textContent = vixLabel;

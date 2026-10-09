@@ -115,7 +115,8 @@ check('P1152 a non-HTTPS fast plane endpoint is refused', badUrlSources.length =
       const calls = [];
       const result = await createMarketSnapshotLoader({
         httpClient: { async requestJson(url) { calls.push(url); return { ok: true, data: url.includes('/quotes') ? fastPayload : published }; } },
-        fastQuotesProvider: () => ({ enabled: true, baseUrl: endpoints.fastQuotes?.baseUrl, quotesPath: '/quotes' })
+        fastQuotesProvider: () => ({ enabled: true, baseUrl: endpoints.fastQuotes?.baseUrl, quotesPath: '/quotes' }),
+        clock: { iso: () => new Date(Date.parse(fastPayload.attemptedAt) + (loadWith.ageMs ?? 60000)).toISOString() }
       }).load();
       return { result, calls };
     };
@@ -127,6 +128,17 @@ check('P1152 a non-HTTPS fast plane endpoint is refused', badUrlSources.length =
     check('P1532 one usable quote keeps the fast plane (stale rows degrade per quote, not the whole snapshot)', mixed.result.ok === true && mixed.result.source === 'fast-plane' && mixed.calls.length === 1, { source: mixed.result.source, calls: mixed.calls.length });
     const current = await loadWith(withQualities(() => 'CLOSED_CURRENT'));
     check('P1532 an all-usable fast-plane snapshot is still preferred over the durable one', current.result.source === 'fast-plane', current.result.source);
+    // P1563: labels frozen at publish time must not outlive the Worker. Same CURRENT labels, different age of the snapshot itself.
+    const currentLabels = withQualities(() => 'CURRENT');
+    loadWith.ageMs = 10 * 60 * 1000;
+    const fresh = await loadWith(currentLabels);
+    loadWith.ageMs = 3 * 60 * 60 * 1000;
+    const threeHours = await loadWith(currentLabels);
+    loadWith.ageMs = 3 * 24 * 60 * 60 * 1000;
+    const threeDays = await loadWith(currentLabels);
+    loadWith.ageMs = undefined;
+    check('P1563 a fresh fast-plane snapshot with CURRENT labels is still preferred', fresh.result.source === 'fast-plane', fresh.result.source);
+    check('P1563 a fast-plane snapshot older than two hours falls through to the durable snapshot even with CURRENT labels', threeHours.result.source === 'durable-snapshot' && threeDays.result.source === 'durable-snapshot' && threeDays.calls.length === 2, { three: threeHours.result.source, days: threeDays.result.source });
     const durableOnlyStale = await createMarketSnapshotLoader({ httpClient: { async requestJson() { return { ok: true, data: withQualities(() => 'STALE') }; } }, fastQuotesProvider: () => null }).load();
     check('P1532 the durable snapshot is never refused for stale rows (it is the last source)', durableOnlyStale.ok === true && durableOnlyStale.source === 'durable-snapshot', durableOnlyStale.source);
   }

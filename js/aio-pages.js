@@ -1030,7 +1030,7 @@ function updateMarketPulse() {
     var el3 = document.getElementById('mp-sentiment-val');
     var el3b = document.getElementById('mp-sentiment-label');
     if (fv !== null && !isNaN(fv)) {
-      var fColor = fv <= 25 ? 'var(--data-red)' : fv <= 45 ? 'var(--data-amber)' : fv <= 55 ? 'var(--data-cyan)' : fv <= 75 ? 'var(--data-green)' : '#22754c';
+      var fColor = ['var(--data-red)', 'var(--data-amber)', 'var(--data-cyan)', 'var(--data-green)', '#22754c'][window._aioFgZoneIndex(fv)]; // P1564: one zone index for colour and label
       var fLabel = Math.round(fv) < 25 ? '극단공포' : Math.round(fv) < 45 ? '공포' : Math.round(fv) <= 55 ? '중립' : Math.round(fv) <= 75 ? '탐욕' : '극단탐욕';
       if (el3) window._aioRenderValueSlot(el3, 'value', fv, { color: fColor });
       if (el3b) window._aioRenderValueSlot(el3b, 'value', fLabel, { color: fColor });
@@ -1100,13 +1100,14 @@ function _updateAllConclusionBars() {
     var _fgPulseMetric2 = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
     var fv = _fgPulseMetric2 && _fgPulseMetric2.value != null ? _fgPulseMetric2.value : null;
     if (fv != null && !isNaN(fv)) {
-      var fColor = fv <= 25 ? 'var(--data-red)' : fv <= 45 ? 'var(--data-amber)' : fv <= 55 ? 'var(--text-secondary)' : fv <= 75 ? 'var(--data-green)' : '#22754c';
+      var _fgZoneNow = window._aioFgZoneIndex(fv); // P1564: colour, label and note from one zone index (raw edges disagreed with the rounded label at 25 and 45)
+      var fColor = ['var(--data-red)', 'var(--data-amber)', 'var(--text-secondary)', 'var(--data-green)', '#22754c'][_fgZoneNow];
       var fLabel = Math.round(fv) < 25 ? '극단 공포' : Math.round(fv) < 45 ? '공포' : Math.round(fv) <= 55 ? '중립' : Math.round(fv) <= 75 ? '탐욕' : '극단 탐욕';
-      var fAction = fv <= 25 ? '역발상 프레임 주목 구간(예측 검증 없음) — 종목 근거 별도 확인' :
-                    fv <= 45 ? '심리 위축 구간 — 분할 접근이 논의되는 환경(지시 아님)' :
-                    fv <= 55 ? '심리 중립 — 뚜렷한 쏠림 없음' :
-                    fv <= 75 ? '심리 과열 초입 — 추격 진입 성과가 불안정하던 구간' :
-                    '심리 극단 — 역발상 프레임워크가 위험 축적을 경고해온 구간';
+      var fAction = ['심리가 극단적으로 위축된 구간 — 예측 신호가 아니며 종목 근거는 따로 확인',
+                     '심리가 위축된 구간 — 종목 근거가 우선',
+                     '심리 중립 — 뚜렷한 쏠림 없음',
+                     '심리가 과열 쪽으로 기운 구간 — 예측 신호가 아님',
+                     '심리가 극단적으로 과열된 구간 — 예측 신호가 아니며 종목 근거는 따로 확인'][_fgZoneNow];
       _renderConclusionBar('sentiment-conclusion-bar', { conclusion: 'F&G ' + fv + ' · ' + fLabel, conclusionColor: fColor, action: fAction, fetchKey: 'fearGreed' });
     }
   } catch(e) {}

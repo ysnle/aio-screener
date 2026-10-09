@@ -1463,11 +1463,42 @@ function _itbObservedCount(sp) {
   return n ? '확인된 조건 ' + n + '개' : '확인된 조건 없음';
 }
 
+// P1558: the engines push English flag literals that carry action verbs (TRIM, REDUCE, NO_ADD, SHORT_BAN). Readers see a measured
+// condition in Korean; a literal without an entry reads as a generic signal, never as the raw identifier with underscores removed.
+var _ITB_FLAG_LABELS = {
+  DIST_50SMA_PLUS_3ATR_WARNING: '50일선 +3ATR 이격', DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE: '50일선 +4ATR 이격', DIST_50SMA_PLUS_6ATR_STRONG_TRIM_HEDGE: '50일선 +6ATR 이격',
+  DIST_21EMA_PLUS_2_5ATR_SHORT_TERM_EXTENSION: '21일선 +2.5ATR 이격', RSI_80_OVERHEAT_NOT_AUTO_SELL: 'RSI 80 이상', RSI_85_EXTREME_OVERHEAT: 'RSI 85 이상',
+  CLIMAX_REVERSAL_RISK_DAY_GAIN_RVOL_WEAK_CLOSE: '급등일 거래량 급증 + 약한 종가', UPPER_BOLLINGER_REENTRY_EXHAUSTION: '볼린저 상단 재진입',
+  CLOSE_BELOW_10EMA_TRIM_TRADING_LOT: '10일선 종가 이탈', CLOSE_BELOW_21EMA_REDUCE_SWING_LOT: '21일선 종가 이탈', CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED: '50일선 종가 이탈',
+  SEMI_HEATED_CONTEXT: '반도체 과열 일부', SEMI_MANIA_CONTEXT: '반도체 과열 매우 높음', TREND_HEALTHY_NO_EXIT_SIGNAL: '이탈 신호 없음', DATA_INSUFFICIENT: '데이터 부족',
+  '20MA_PLUS_3ATR_WARNING': '20일선 +3ATR 이격', '20MA_PLUS_4ATR_TRIM_ZONE': '20일선 +4ATR 이격', '20MA_PLUS_6ATR_BLOWOFF_RISK': '20일선 +6ATR 이격',
+  '20MA_PLUS_4ADR_EXTENDED': '20일선 +4ADR 이격', '20MA_PLUS_6ADR_EXTREME': '20일선 +6ADR 이격', '21EMA_PLUS_2_5ATR_SHORT_EXTENSION': '21일선 +2.5ATR 이격',
+  '50SMA_PLUS_6ATR_MANIA_CONTEXT': '50일선 +6ATR 이격', EXTENSION_NORMAL: '이격 평상 범위',
+  GAP_UP_UPPER_WICK_EXHAUSTION: '갭상승 후 긴 윗꼬리', SHOOTING_STAR_AFTER_EXTENSION: '이격 확대 후 유성형', CLOSE_BELOW_PREV_LOW_ON_RVOL: '거래량 급증 + 전일 저가 하회',
+  FAILED_RETEST_OF_PRIOR_HIGH: '전고점 재시험 실패', WEAK_CLOSE_WITH_SUPPLY: '약한 종가 + 윗꼬리', STRONG_CLOSE_MOMENTUM_THRUST: '강한 종가 모멘텀', NO_TERMINAL_CANDLE: '특이 캔들 없음',
+  QQQ_UP_BREADTH_DOWN: 'QQQ 상승 · 시장 폭 하락', RSP_LAGGING_SPY: 'RSP가 SPY에 뒤처짐', IWM_FAILED_BREAKOUT: 'IWM 돌파 실패', IWM_PARTICIPATION: 'IWM 참여',
+  EQUAL_WEIGHT_CONFIRMATION: '동일가중 확인', INDUSTRIALS_CONFIRMATION: '산업재 확인', KRE_CYCLICAL_CONFIRMATION: '지역은행 경기민감 확인', XBI_SPEC_GROWTH_CONFIRMATION: 'XBI 성장 확인',
+  CYCLICAL_SPEC_ROTATION_FAILED: '경기민감·투기 로테이션 실패', SEMI_LEADERSHIP_CONFIRMATION: '반도체 주도 확인', IGV_TO_SMH_ROTATION: '소프트웨어→반도체 로테이션',
+  SEMI_DIGESTING_WHILE_BREADTH_BROADENS: '반도체 소화 + 시장 폭 확산', BREADTH_NEUTRAL_OR_INSUFFICIENT: '시장 폭 중립 또는 입력 부족',
+  OPEX_WITHIN_3_SESSIONS: 'OPEX 3거래일 이내', EQUITY_PUT_CALL_COMPLACENCY: '주식 P/C 낮음', INDEX_HEDGE_EQUITY_CALL_CHASE_SPLIT: '지수 헤지 · 주식 콜 쏠림', TOTAL_PUT_CALL_LOW: '전체 P/C 낮음',
+  VIX_RISING_WHILE_INDEX_UP: '지수 상승 중 VIX 상승', NO_OPEX_STRESS_GAMMA_UNMEASURED: 'OPEX 스트레스 없음(감마 미측정)', NO_OPEX_GAMMA_STRESS: 'OPEX 스트레스 없음',
+  LOCKOUT_ACTION_NEUTRAL: '특이 조건 없음'
+};
 function _itbFlagLabel(flag) {
   var match = /^(LOCKOUT_ACTION|BLOWOFF_TOP)_(.+)$/.exec(String(flag));
   if (match && _ITB_ACTION_LABELS[match[2]]) return (match[1] === 'LOCKOUT_ACTION' ? 'Lockout 판정 · ' : 'Blow-off 판정 · ') + _ITB_ACTION_LABELS[match[2]];
-  return String(flag).replace(/_/g, ' ');
+  return _ITB_FLAG_LABELS[String(flag)] || '기타 신호';
 }
+
+var _ITB_STATE_LABELS = {
+  BLOW_OFF_RISK: '이격 매우 큼', EXTREME_EXTENSION: '이격 매우 큼', EXTENDED: '이격 큼', NORMAL: '평상 범위', DATA_INSUFFICIENT: '판단 보류',
+  FAILED_ROTATION: '로테이션 실패 신호', BREADTH_BROADENING: '시장 폭 확산', NARROW_LEADERSHIP: '소수 주도',
+  MOMENTUM_THRUST: '모멘텀 강세 캔들', GAP_UP_EXHAUSTION: '갭상승 후 소진형', SHOOTING_STAR_RISK: '유성형', BEARISH_CONFIRMATION: '약세 확인 캔들',
+  FAILED_RETEST: '재시험 실패', WEAK_CLOSE_WARNING: '약한 종가', NEUTRAL: '특이 캔들 없음',
+  DISTRIBUTION_REVERSAL: '분배·반전 패턴', OPEX_PIN_OR_DECAY: 'OPEX 영향 구간', LATE_STAGE_GAMMA_CHASE: '이격 과열 추격 국면', LOCKOUT_CONTINUATION: '추세 지속 국면',
+  BLOW_OFF_TOP_RISK: '과열 신호 다수', EVENT_EXHAUSTION_WATCH: '이벤트 소진 점검', NO_CHASE_DIGESTION: '소화 구간', LOCKOUT_CAN_CONTINUE: '추세 지속 가능 조건'
+};
+function _itbStateLabel(state) { return _ITB_STATE_LABELS[state] || (/[가-힣]/.test(String(state || '')) ? String(state) : '판단 보류'); }
 
 function renderDataQualityBadge(quality) {
   quality = quality || {};
@@ -1661,7 +1692,7 @@ function renderLockoutDashboard(result) {
   var breadth = result.breadthRotation || {};
   var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;">' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout 판정</div><div style="margin-top:5px;">' + _itbBadge(_itbActionLabel(lock.action), _itbActionTone(lock.action)) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">국면</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(lock.regime || 'LOCKOUT_CONTINUATION') + '</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">국면</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(_itbStateLabel(lock.regime || 'LOCKOUT_CONTINUATION')) + '</div></div>' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">확인된 위험 조건</div><div style="font-size:14px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbObservedCount(lock) + '</div></div>' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">캔들</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(candle.type || 'NEUTRAL') + '</div></div>' +
@@ -1706,7 +1737,7 @@ function renderBlowoffTopPanel(blowoffTop) {
     '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
       '<div><div style="font-size:10px;font-weight:900;color:var(--data-cyan);letter-spacing:.18em;">BLOW-OFF TOP CHECKLIST</div>' +
       '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">이격 과열, CPI/유가, OPEX, 이벤트 소진을 한 화면에서 확인합니다.</div></div>' +
-      '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(blowoffTop.state || 'DATA', tone) + _itbBadge(_itbActionLabel(blowoffTop.action), tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbObservedCount(blowoffTop) + '</span></div>' +
+      '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(_itbStateLabel(blowoffTop.state || 'DATA_INSUFFICIENT'), tone) + _itbBadge(_itbActionLabel(blowoffTop.action), tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbObservedCount(blowoffTop) + '</span></div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">' +
       '<div style="background:var(--surface-1);border:1px solid rgba(255,91,80,0.28);border-radius:3px;padding:10px;border-left:3px solid #ff5b50;">' +
@@ -1742,7 +1773,7 @@ function _renderMiniPanel(elId, title, badge, tone, score, metricsHtml, flags) {
 function renderExtensionHeatPanel(extensionHeat) {
   extensionHeat = extensionHeat || {};
   var tone = extensionHeat.score >= 50 ? 'risk' : extensionHeat.score >= 25 ? 'warn' : 'bull';
-  _renderMiniPanel('tech-lockout-extension', '이격 과열', extensionHeat.state || 'NORMAL', tone, extensionHeat.score,
+  _renderMiniPanel('tech-lockout-extension', '이격 과열', _itbStateLabel(extensionHeat.state || 'NORMAL'), extensionHeat.state === 'DATA_INSUFFICIENT' ? 'info' : tone, extensionHeat.score,
     '20MA ATR: ' + _itbNum(extensionHeat.dist20Atr, 1) + 'x<br>20MA ADR: ' + _itbNum(extensionHeat.dist20Adr, 1) + 'x<br>50SMA ATR: ' + _itbNum(extensionHeat.dist50Atr, 1) + 'x',
     extensionHeat.flags);
 }
@@ -1759,7 +1790,7 @@ function renderOpexGammaPanel(opexGamma) {
 function renderBreadthRotationPanel(breadthRotation) {
   breadthRotation = breadthRotation || {};
   var tone = breadthRotation.regime === 'FAILED_ROTATION' ? 'risk' : breadthRotation.regime === 'BREADTH_BROADENING' ? 'bull' : 'warn';
-  _renderMiniPanel('tech-lockout-breadth', '시장 폭 · 로테이션', breadthRotation.regime || 'NARROW_LEADERSHIP', tone, breadthRotation.score,
+  _renderMiniPanel('tech-lockout-breadth', '시장 폭 · 로테이션', _itbStateLabel(breadthRotation.regime || 'NARROW_LEADERSHIP'), tone, breadthRotation.score,
     'IWM vs QQQ: ' + _itbNum(breadthRotation.iwmVsQqqRS_5d, 2) + '%<br>RSP vs SPY: ' + _itbNum(breadthRotation.rspVsSpyRS_5d, 2) + '%',
     breadthRotation.flags);
 }
@@ -1768,7 +1799,7 @@ function renderCandleRiskBadge(candleRisk) {
   candleRisk = candleRisk || {};
   var m = candleRisk.metrics || {};
   var tone = candleRisk.score >= 55 ? 'risk' : candleRisk.score >= 25 ? 'warn' : 'bull';
-  _renderMiniPanel('tech-lockout-candle', '고점 캔들', candleRisk.type || 'NEUTRAL', tone, candleRisk.score,
+  _renderMiniPanel('tech-lockout-candle', '고점 캔들', _itbStateLabel(candleRisk.type || 'NEUTRAL'), candleRisk.type === 'DATA_INSUFFICIENT' ? 'info' : tone, candleRisk.score,
     'Close position: ' + _itbNum((m.closePosition || 0) * 100, 0) + '%<br>Upper wick: ' + _itbNum((m.upperWickPct || 0) * 100, 0) + '%<br>Gap: ' + _itbNum(m.gapUpPct, 2) + '%',
     candleRisk.flags);
 }
@@ -4144,8 +4175,8 @@ var AIO_PAGE_FUNDAMENTALS = {
       `'뉴스 감성 추이'는 헤드라인 톤의 흐름입니다 — 가격과 반대로 움직이는 구간(악재 속 상승)이 오히려 강세 신호일 수 있습니다.`
     ],
     action: [
-      `극단 공포 구간은 역발상 프레임워크에서 일괄 진입이 아닌 분할 접근의 논의 지점으로 서술됩니다 — 공포는 더 깊어질 수 있습니다.`,
-      `극단 탐욕에서 숏이 아니라 이익 실현·신규 진입 절제로 대응 — 과열은 생각보다 오래갑니다.`
+      `극단 공포 구간에서도 공포는 더 깊어질 수 있습니다. 이 구간 자체는 매수 신호가 아닙니다.`,
+      `극단 탐욕 구간의 과열은 생각보다 오래갈 수 있습니다. 이 구간 자체는 매도 신호가 아닙니다.`
     ],
     terms: `VIX · Fear & Greed`
   },

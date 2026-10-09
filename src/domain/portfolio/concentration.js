@@ -130,15 +130,20 @@ export function deriveConcentrationRisk({ positions = [], totalValue = null, inp
   // P1252 (CON-04): 비중 합이 100을 의미 있게 넘으면 분모 불일치로 표시한다(정규화하지 않는다).
   const weightPctSum = items.reduce((sum, item) => sum + (item.weightPct != null ? item.weightPct : 0), 0);
   const issues = weightPctSum > 100.5 ? ['denominator-mismatch'] : [];
+  // P1561: withheld positions leave the denominator, so without an explicit total the remaining weights are shares of the
+  // PRICED part only (three of five positions priced: each looks bigger, and a withheld largest holding is not in the top weight).
+  // That is a partial result, published as such with the issue named; an explicit total keeps the weights meaningful.
+  const denominatorExcludesHeld = heldItems.length > 0 && !(explicitTotal && explicitTotal > 0);
+  if (denominatorExcludesHeld) issues.push('held-positions-excluded-from-denominator');
   return Object.freeze({
     modelVersion: PORTFOLIO_CONCENTRATION_MODEL_VERSION,
     inputVersion,
-    status: 'current',
+    status: denominatorExcludesHeld ? 'partial' : 'current',
     holdingCount: items.length,
     totalValue: total,
     // P1252 (CON-02): 분모 계약 명시 — 포지션 가치 합만 쓰고(현금은 이 모델에 없음), 명시
     // totalValue가 있으면 그 출처를 이름으로 발행한다.
-    weightBasis: 'invested-sleeve-positions-only',
+    weightBasis: denominatorExcludesHeld ? 'priced-positions-only' : 'invested-sleeve-positions-only',
     denominator: explicitTotal && explicitTotal > 0 ? 'explicit-total-value' : 'sum-of-position-values',
     issues: Object.freeze(issues),
     topWeightPct,

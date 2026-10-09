@@ -1253,6 +1253,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (quoteStatus.LIVE !== 'ok' || quoteStatus.DECISION !== 'ok' || quoteStatus.UNLABELED !== 'ok') fail(`P1536 live, decision-grade and unlabeled positions keep their weights: ${JSON.stringify(quoteStatus)}`);
   if (quoteMix.totalValue !== 3000 || quoteMix.heldItems.length !== 3) fail(`P1536 withheld positions must stay out of the denominator and be listed as held: total ${quoteMix.totalValue}, held ${quoteMix.heldItems.length}`);
   if (quoteMix.items.filter((item) => item.status !== 'ok').some((item) => item.weightPct !== null || item.concentrationPenalty !== 0)) fail('P1536 a withheld position must publish neither a weight nor a penalty');
+  // P1561: weights over a denominator that leaves positions out are a partial result and say so; a complete or explicit-total set is current.
+  if (quoteMix.status !== 'partial' || !quoteMix.issues.includes('held-positions-excluded-from-denominator') || quoteMix.weightBasis !== 'priced-positions-only') fail(`P1561 withheld positions outside the denominator must make the result partial: ${JSON.stringify({ status: quoteMix.status, issues: quoteMix.issues, basis: quoteMix.weightBasis })}`);
+  const allPriced = deriveConcentrationRisk({ positions: [{ ticker: 'A', shares: 1, price: 100, quoteSourceKind: 'live-quote' }, { ticker: 'B', shares: 1, price: 100, quoteSourceKind: 'live-quote' }] });
+  const heldWithTotal = deriveConcentrationRisk({ positions: [{ ticker: 'A', shares: 1, price: 100, quoteSourceKind: 'live-quote' }, { ticker: 'B', shares: 1, price: 100, quoteSourceKind: 'cached-close' }], totalValue: 400 });
+  if (allPriced.status !== 'current' || allPriced.issues.length || heldWithTotal.status !== 'current') fail('P1561 a fully priced set and a set with an explicit total stay current');
 }
 
 // ── domain/signal/trading-score.js: signal envelope ──────────────────────────────────────────

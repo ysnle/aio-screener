@@ -38,6 +38,9 @@ export function detectValueScaleSuspects(rows = [], { minRows = 2, minPeers = 2,
       // P1530: one peer cannot say which of two filers is off (each looks 1,000x away from the other), so the
       // normal filer of a two-filer security would be flagged along with the odd one. Two peers keep the median honest.
       if (peers.length < minPeers) continue;
+      // P1560: with exactly two peers the median is their mean, so one filer reporting 1,000x too high drags the mean up and
+      // makes both normal filers look 1,000x too low. Two peers are a reference only when they agree with each other.
+      if (peers.length === 2 && Math.max(...peers) / Math.min(...peers) > 2) continue;
       const managerKey = `${item.managerId}|${period}`;
       if (!ratios.has(managerKey)) ratios.set(managerKey, []);
       ratios.get(managerKey).push(item.price / median(peers));

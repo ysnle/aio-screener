@@ -310,6 +310,10 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   if (twoFilers.size !== 0) fail(`P1530 two filers on the same securities cannot identify the odd one; flagged ${[...twoFilers.keys()].join(', ')}`);
   const oneSidedPair = scale.detectValueScaleSuspects([...fixture, ...cusips.map((c) => row('pair-x', `${c}9`, 200)), ...cusips.map((c) => row('pair-y', `${c}9`, 0.2))]);
   if ([...oneSidedPair.keys()].some((key) => key.startsWith('pair-')) || !oneSidedPair.has('thousandths|2026-06-30')) fail('P1530 a lone two-filer security must not flag either filer, and must not hide the real three-filer outlier');
+  // P1560: a filer 1,000x too HIGH among two agreeing filers is the only one flagged (the two normal filers used to be withheld too).
+  const highFixture = [...cusips.map((c) => row('peer-a', c, 200)), ...cusips.map((c) => row('peer-b', c, 200)), ...cusips.map((c) => row('thousandfold', c, 200000))];
+  const highSuspects = scale.detectValueScaleSuspects(highFixture);
+  if (highSuspects.size !== 1 || !highSuspects.has('thousandfold|2026-06-30')) fail(`P1560 a 1,000x high filer must be the only one flagged, got ${[...highSuspects.keys()].join(', ')}`);
   const loose = scale.detectValueScaleSuspects(fixture, { minPeers: 1 });
   if (!loose.has('thousandths|2026-06-30')) fail('P1530 minPeers stays configurable');
   const earlier = [row('thousandths', cusips[0], 0.2, 1000, '2025-12-31'), row('peer-a', cusips[0], 200, 1000, '2025-12-31')];

@@ -2510,13 +2510,18 @@ function _generateKrMacroAnalysis(ld) {
   // 종합 판단 (v38.4 강화)
   var krwRisk = (krw && krw.price > 1400) ? 1 : 0;
   var rateRisk = (tnx && tnx.price > 4.5) ? 1 : 0;
-  var vixRisk = (vix && vix.price > 25) ? 1 : 0;
+  var vixRisk = (vix && vix.price >= 25) ? 1 : 0; // P1565: 25 = the shared VIX boundary band edge
   var riskSum = krwRisk + rateRisk + vixRisk;
+  // P1565: the verdict used to be a ladder of conclusions ("keep cash at 50%+", "defensive strategy", "favourable for growth themes").
+  // It now lists which of the three conditions hold; what they mean for a sector is checked separately.
+  var krConds = [];
+  if (krwRisk) krConds.push('원/달러 1,400원 초과');
+  if (rateRisk) krConds.push('미국 10년 금리 4.5% 초과');
+  if (vixRisk) krConds.push('VIX 25 이상(변동성 경계 구간)');
   t += '<br><b>【종합 판단】</b> ';
-  t += riskSum >= 3 ? '<span style="color:var(--red);font-weight:700;"> 삼중 악재 (환율↑ 금리↑ 변동성↑). 현금비중 50% 이상 유지, 방산·필수소비재 방어 전략.</span>' :
-       riskSum === 2 ? '<span style="color:var(--yellow);font-weight:700;"> 이중 부담 구간입니다. 고배당·수출주 비중이 높은 종목군이 상대적으로 논의되던 환경입니다.</span>' :
-       riskSum === 1 ? '<span style="color:var(--text-secondary);font-weight:700;"> 일부 리스크 존재. 업종별 차별화 예상. 실적 모멘텀 기반 종목 선별.</span>' :
-       '<span style="color:var(--green);font-weight:700;"> 매크로 환경이 우호적인 조건입니다(환율 안정·금리 적정·변동성 낮음). 성장 테마에 유리한 환경으로 읽을 수 있지만 비중 판단은 개인 기준으로 합니다.</span>';
+  t += krConds.length
+    ? '<span style="font-weight:700;">해당 조건 ' + riskSum + '개/3개: ' + krConds.join(' · ') + '.</span> 예측 신호가 아니며, 업종별 영향은 실적·수급과 함께 따로 확인합니다.'
+    : '<span style="font-weight:700;">세 조건(환율 1,400원 초과 · 미국 10년 4.5% 초과 · VIX 25 이상)에 해당하지 않습니다.</span> 예측 신호가 아니며, 비중 판단은 개인 기준으로 합니다.';
 
   // v40.4: 교차변수 심화 진단
   if (wti && wti.price && krw && krw.price && vix && vix.price) {
@@ -2528,7 +2533,7 @@ function _generateKrMacroAnalysis(ld) {
     }
     // VIX↑+원화↓ = 외국인 이탈 가속
     if (vp2 > 25 && kp2 > 1400) {
-      t += '<span style="color:var(--red);">VIX ' + vp2.toFixed(0) + ' + 원화 약세 = 외국인 이중 이탈 압력. 글로벌 리스크오프 + 환손실 우려 동시 작용 → KOSPI 하락 압력 극대화.</span><br>';
+      t += '<span style="color:var(--red);">VIX ' + vp2.toFixed(0) + ' + 원화 약세 = 글로벌 위험 회피와 환손실 우려가 함께 거론되는 조합입니다. 외국인 수급은 따로 확인합니다.</span><br>';
     }
     // 금리↑+원화↓ = 한은 딜레마 심화
     if (tnx && tnx.price > 4.5 && kp2 > 1400) {

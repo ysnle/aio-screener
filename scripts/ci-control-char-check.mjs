@@ -185,7 +185,8 @@ if (process.argv.includes('--write-baseline')) {
     // observed, not a favourable environment; the band explanations no longer tell the reader to trim, hold cash or stay out.
     ['환경 우호 라벨', /환경 우호/], ['환경 양호 밴드 라벨', /(?:>=\s*60\s*\?\s*|● )'?환경 양호|환경 양호 —/], ['신규 진입 자제 문구', /신규 진입 자제/], ['리스크 자산 비중 축소 문구', /리스크 자산 비중 축소/],
     ['공격적 포지셔닝 문구', /공격적 포지셔닝/], ['동반 상승 기대 문구', /동반 상승 기대/],
-    ['P1551 패턴·KR 서술 지시 문구', /기존 전략을 유지하세요|빠른 진입 준비|방어적 포지션 유지|방어적 포지션 우선|패닉 매도 진행 중|트레이딩 스코어 <b/],
+    ['P1557 포지션 비율 직접 표시', /대응: 포지션|% 포지션 —|plan\.position\.sizePct|position\.sizePct/],
+    ['P1551 패턴·KR 서술 지시 문구', /기존 전략을 유지하세요|빠른 진입 준비|방어적 포지션 유지|방어적 포지션 우선|패닉 매도 진행 중|트레이딩 스코어 <b|현금비중 50% 이상|방산·필수소비재 방어 전략|성장 테마에 유리한 환경|하락 압력 극대화|가장 우호적인 국면|채권 강한 매수|매수 검토|현금 비중 50%/],
     ['P1546 영어 매매 지시 문구', /Trim the trading lot|Exit the tactical lot|Reduce roughly half|Raise stops and let|keep normal position sizing/],
     ['P1546 기술 브리프 점수 표기', /_itbNum\((?:sellPressure|sp|lock|blowoffTop|result)\.(?:score|heatScore), 0\) \+ '\/100/],
     ['P1546 전술 프레임 지시 문구', /성급한 진입 금지|지지\/리클레임 미확정 구간에서는 숏 금지|무효화 라인을 먼저 둔다|먼저 구분한 뒤 실행한다|분리해 태깅한다/]

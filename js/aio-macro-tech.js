@@ -102,8 +102,8 @@ function _aioRenderLegacyMarketHealth(model) {
   var bars = model.bars || {};
   var sb = _aioLegacyHealthElement('hc-spy-bar'); if (sb) { sb.style.width = (bars.spy || 0) + '%'; sb.style.background = spyPct >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
   var qb = _aioLegacyHealthElement('hc-qqq-bar'); if (qb) { qb.style.width = (bars.qqq || 0) + '%'; qb.style.background = qqqPct >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
-  var vb = _aioLegacyHealthElement('hc-vix-bar'); if (vb) { vb.style.width = (bars.vix || 0) + '%'; vb.style.background = vix < 20 ? 'var(--data-green)' : vix < 25 ? 'var(--data-amber)' : 'var(--data-red)'; }
-  var pf = _aioLegacyHealthElement('ind-pressure-fill'); if (pf) { pf.style.width = (bars.pressure || 0) + '%'; pf.style.background = vix < 20 ? 'var(--data-green)' : vix < 25 ? 'var(--data-amber)' : 'var(--data-red)'; }
+  var vb = _aioLegacyHealthElement('hc-vix-bar'); if (vb) { vb.style.width = (bars.vix || 0) + '%'; vb.style.background = vix < 25 ? 'var(--data-green)' : vix < 32 ? 'var(--data-amber)' : 'var(--data-red)'; } // P1564: 18/25/32 bands
+  var pf = _aioLegacyHealthElement('ind-pressure-fill'); if (pf) { pf.style.width = (bars.pressure || 0) + '%'; pf.style.background = vix < 25 ? 'var(--data-green)' : vix < 32 ? 'var(--data-amber)' : 'var(--data-red)'; }
   var bf = _aioLegacyHealthElement('ind-buyrisk-fill'); if (bf) { bf.style.width = (bars.buyRisk || 0) + '%'; bf.style.background = bars.buyRisk > 60 ? 'var(--data-green)' : bars.buyRisk > 40 ? 'var(--data-amber)' : 'var(--data-red)'; }
   var tf = _aioLegacyHealthElement('ind-trend-fill'); if (tf) { tf.style.width = (bars.trend || 0) + '%'; tf.style.background = bars.trend >= 70 ? 'var(--data-cyan)' : bars.trend >= 50 ? 'var(--data-amber)' : 'var(--data-red)'; }
   el = _aioLegacyHealthElement('tech-health-pill');
@@ -395,37 +395,37 @@ function updatePatternSignals() {
   var signals = [];
 
   // ── 1. 저변동성 구간 (기존 가짜 BB 스퀴즈 대체) ──
-  if (chgKnown && Math.abs(chg) < 0.15 && vixP != null && vixP < 20) {
+  if (chgKnown && Math.abs(chg) < 0.15 && vixP != null && vixP < 18) { // P1564: 18 = the shared low-volatility edge
     signals.push({ name: '저변동성 압축 구간', type: 'setup', icon: '',
       color: 'var(--data-purple)',
-      detail: 'SPY 일일 변동 ±0.15% 미만 + VIX 20 이하 = 변동성이 낮게 압축된 상태입니다. 이 신호만으로는 방향을 알 수 없고, 이후 돌파 방향과 거래량이 확인 항목입니다.',
-      why: '변동성은 평균 회귀 특성이 있어, 극단적 저변동성은 큰 움직임의 전조일 수 있습니다.',
+      detail: 'SPY 일일 변동 ±0.15% 미만 + VIX 18 미만 = 변동성이 낮게 압축된 상태입니다. 이 신호만으로는 방향을 알 수 없고, 이후 돌파 방향과 거래량이 확인 항목입니다.',
+      why: '현물과 옵션 시장의 변동성이 모두 낮은 상태라는 뜻이며, 방향을 알려 주지는 않습니다.',
       importance: 'HIGH' });
   } else if (chgKnown && Math.abs(chg) < 0.15 && vixP != null) {
     signals.push({ name: '저변동성 구간', type: 'setup', icon: '',
       color: 'var(--data-purple)',
-      detail: 'SPY 일일 변동 ±0.15% 미만이지만 VIX '+vixP.toFixed(1)+'로 내재 변동성은 높음 → 표면은 잠잠하나 내부 긴장 존재. 갑작스러운 방향 전환 가능.',
-      why: '현물 저변동 + 옵션 고변동 = "잠복 에너지" 상태. 촉매(뉴스/이벤트) 시 폭발적 움직임 가능.',
+      detail: 'SPY 일일 변동 ±0.15% 미만이지만 VIX '+vixP.toFixed(1)+'로 내재 변동성은 18 이상입니다. 방향 신호는 아닙니다.',
+      why: '현물의 실제 변동과 옵션 시장이 기대하는 변동성이 다른 수준에 있다는 뜻입니다.',
       importance: 'MED' });
   }
 
   // ── 2. VIX 스파이크 (세분화) ── (VIX 미수신이면 어느 구간도 주장하지 않는다)
   if (vixP != null && vixP > 35 && vixChg > 10) {
-    signals.push({ name: 'VIX 패닉 스파이크', type: 'risk', icon: '',
+    signals.push({ name: 'VIX 급등 · 고변동', type: 'risk', icon: '',
       color: 'var(--data-red)',
       detail: 'VIX ' + vixP.toFixed(1) + ' (일일 +' + vixChg.toFixed(1) + '%) → 당일 VIX 급등과 35 이상의 절대 수준이 겹친 상태입니다. 이후 움직임은 이 신호로 알 수 없고, 추세 확인이 별도로 필요합니다.',
       why: 'VIX 일일 10%+ 급등은 옵션 시장의 내재변동성이 크게 높아졌다는 뜻입니다.',
       importance: 'HIGH' });
-  } else if (vixP != null && vixP > 30) {
-    signals.push({ name: 'VIX 공포 영역', type: 'risk', icon: '',
+  } else if (vixP != null && vixP >= 32) {
+    signals.push({ name: 'VIX 고변동 구간', type: 'risk', icon: '',
       color: 'var(--data-red)',
-      detail: 'VIX ' + vixP.toFixed(1) + ' → 공포 영역. 역사적으로 노출 축소·헤지가 논의되던 환경입니다(지시 아님). 역발상 프레임워크는 VIX 하락 반전 "이후" 구간을 주목해왔습니다.',
-      why: 'VIX 30+는 시장이 향후 30일간 연환산 30% 이상 변동을 예상한다는 의미입니다.',
+      detail: 'VIX ' + vixP.toFixed(1) + ' → 고변동 구간(32 이상). 변동성이 매우 큰 구간이며 예측 신호가 아닙니다. 현금·헤지·신규 진입 여부는 본인 기준으로 확인할 항목입니다.',
+      why: 'VIX 32 이상은 시장이 향후 30일간 연환산 32% 이상 변동을 예상한다는 의미입니다.',
       importance: 'HIGH' });
-  } else if (vixP != null && vixP > 25) {
-    signals.push({ name: 'VIX 경계 상승', type: 'warning', icon: '',
+  } else if (vixP != null && vixP >= 25) {
+    signals.push({ name: 'VIX 변동성 경계 구간', type: 'warning', icon: '',
       color: 'var(--data-amber)',
-      detail: 'VIX ' + vixP.toFixed(1) + ' → 불안감 증가. 아직 공포는 아니지만 역사적으로 포지션 사이즈 점검이 논의되는 구간입니다. 25~30 구간은 "주의" 영역.',
+      detail: 'VIX ' + vixP.toFixed(1) + ' → 변동성 경계 구간(25~32). 변동성이 커진 구간이며, 손실 한도와 보유 종목의 변동은 본인 기준으로 확인할 항목입니다.',
       why: 'VIX 25 이상에서는 옵션 프리미엄이 비싸져 헤지 비용이 상승합니다.',
       importance: 'MED' });
   } else if (vixP != null && vixP < 13) {

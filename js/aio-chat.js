@@ -3420,11 +3420,14 @@ async function _fetchTickerDataForChat(tickers, opts) {
       var _spx = (_s && _s.spx) || (_ms && _ms.spx) || '—';
       var _tnx = (_s && _s.tnx) || '—';
       var _score = (_s && _s.score != null) ? _s.score : '—';
-      var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 32 ? '패닉' : _vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 18 ? '보통' : '안정')); // P1367 canonical band
+      var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 32 ? '고변동 구간' : _vix !== '—' && Number(_vix) >= 25 ? '변동성 경계 구간' : _vix !== '—' && Number(_vix) >= 18 ? '통상 범위' : '저변동 구간')); // P1367 canonical band
       var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (Math.round(_fg) < 25 ? '극단 공포' : Math.round(_fg) < 45 ? '공포' : Math.round(_fg) <= 55 ? '중립' : Math.round(_fg) <= 75 ? '탐욕' : '극단 탐욕'));
       // v49.68 R128 시각 단서 표준 — P1500: 이모지 대신 [위험]/[주의]/[안정] 단어 표지
-      var _vixEmoji = _vix === '—' ? '[미수신]' : Number(_vix) >= 25 ? '[위험]' : Number(_vix) >= 20 ? '[주의]' : '[안정]';
-      var _fgEmoji = _fg === '—' ? '[미수신]' : (_fg <= 25 || _fg >= 75) ? '[위험]' : (_fg <= 45 || _fg >= 55) ? '[주의]' : '[안정]';
+      // P1564: the tags come from the same band index as the labels above (the earlier 20/25 and 25/45/55/75 edges contradicted them).
+      var _vixBandIdx = _vix === '—' ? null : window._aioVixBandIndex(Number(_vix));
+      var _fgZoneIdx = _fg === '—' ? null : window._aioFgZoneIndex(Number(_fg));
+      var _vixEmoji = _vix === '—' ? '[미수신]' : _vixBandIdx >= 3 ? '[위험]' : _vixBandIdx === 2 ? '[주의]' : '[안정]';
+      var _fgEmoji = _fg === '—' ? '[미수신]' : (_fgZoneIdx === 0 || _fgZoneIdx === 4) ? '[위험]' : (_fgZoneIdx === 1 || _fgZoneIdx === 3) ? '[주의]' : '[안정]';
       var _scoreEmoji = _score === '—' ? '[미수신]' : Number(_score) >= 65 ? '[안정]' : Number(_score) >= 40 ? '[주의]' : '[위험]';
       // Use producer observation timestamps when present.  The assembly clock
       // is not a data date, so an absent timestamp must remain explicit rather
@@ -4206,7 +4209,7 @@ function _buildChatAnswerCoverageContext(ctxId, query, flags) {
     'available_axes=' + Object.keys(has).filter(function(k){ return has[k]; }).join(',') + '\n' +
     (missing.length ? 'missing_axes=' + missing.join(',') + ' -> state these as unavailable; do not fill them with model memory.\n' : 'missing_axes=none detected from injected context.\n') +
     'truth_gate_rule: current quote numbers are decision-usable only when DataTruthGate returns verified/warn with decisionUse=true. If status=blocked, stale, out-of-range, or source-mismatched, state data not verified and omit the number for trading judgment.\n' +
-    'response_diversity_rule: choose the structure that fits the mode. decision memo = verdict first + sizing/trigger/invalidation; ranked comparison = table + rank rationale; valuation memo = drivers + multiples/DCF only if injected; earnings review = reported/guidance/revision/catalyst; technical setup = trend/levels/risk; beginner explanation = plain-language concept + concrete injected-data example.\n' +
+    'response_diversity_rule: choose the structure that fits the mode. decision memo = conditions and evidence first + trigger/invalidation facts (no verdict, entry/exit or position size; quote a size only when the user gave it as a constraint); ranked comparison = table + rank rationale; valuation memo = drivers + multiples/DCF only if injected; earnings review = reported/guidance/revision/catalyst; technical setup = trend/levels/risk; beginner explanation = plain-language concept + concrete injected-data example.\n' +
     'current_data_rule: never use Claude/model training data for current price, market cap, earnings, guidance, analyst targets, ratings, news, filings, macro releases, or dates after the training cutoff. Use only injected live quote, FMP/SEC/Naver/Finnhub, news, web-search, DATA_SNAPSHOT with age label, and explicitly cited prompt blocks. If data is missing or stale, say \"데이터 미수집/확인 불가\" and omit the number.\n';
 }
 
@@ -5071,19 +5074,15 @@ function _aioSimulateAmountOrPct(q, detectedTickers) {
     else if (unit === '천만') krwAmount = rawAmount * 1e7;
     else if (unit === '백만') krwAmount = rawAmount * 1e6;
     else if (unit === '만' || unit === '원') krwAmount = rawAmount * (unit === '만' ? 1e4 : 1);
-    else if (unit === 'usd' || unit === '달러' || unit === '$') krwAmount = rawAmount * 1380; // 대략 환율 1380원/달러
+    // P1559: a foreign-currency amount is not converted with a fixed rate (1380 won/dollar was a constant with no date), and no
+    // allocation is proposed: the earlier "Bridgewater / GS / Ackman" percentages were unsourced portfolio advice on screen.
+    else if (unit === 'usd' || unit === '달러' || unit === '$') krwAmount = 0;
     if (krwAmount >= 1e5) {
-      var usdAmount = Math.round(krwAmount / 1380);
       result = result || {};
       result.amount = {
         krw: Math.round(krwAmount),
-        usd: usdAmount,
-        note: krwAmount.toLocaleString() + '원 ≈ $' + usdAmount.toLocaleString() + ' (환율 1380원/달러)',
-        allocation: {
-          conservative: 'Bridgewater All Weather 4-Quadrant: SPX/QQQ 40% + 국채 30% + 금 15% + 단기채/현금 15%',
-          balanced: 'GS GIR 균형: SPX 50% + 글로벌 ex-US 15% + 채권 25% + 원자재/대체 10%',
-          aggressive: 'Ackman 집중: AAA 종목 5~7개 각 12~18% + 현금 10~15% (Margin of Safety 확보 시)'
-        }
+        note: krwAmount.toLocaleString() + '원 (입력한 금액 그대로)',
+        checks: ['보유 자산 대비 이 금액의 비중', '한 종목·한 섹터에 몰리는 정도', '감당할 수 있는 손실 한도와 투자 기간']
       };
     }
   }
@@ -5100,18 +5099,14 @@ function _aioSimulateAmountOrPct(q, detectedTickers) {
         sign: sign,
         pct: pct,
         direction: sign === '-' ? '하락' : '상승',
-        impacts: sign === '-' ? {
-          VIX: '+' + Math.round(pct * 2.5) + '% (변동성 spike)',
-          '10Y': '-' + Math.round(pct * 8) + 'bp (안전자산 도피)',
-          Gold: '+' + Math.round(pct * 0.5) + '% (역상관)',
-          Sector: 'Staples/Healthcare OW · Cyclicals UW (방어 로테이션)',
-          Position: '확신도 낮으면 현금 비중 50%+ / Buffett Margin of Safety 매수 검토 (pct ' + pct + '% 이상이면 Bull case)'
-        } : {
-          VIX: '-' + Math.round(pct * 1.5) + '% (변동성 진정)',
-          '10Y': '+' + Math.round(pct * 4) + 'bp (위험자산 선호)',
-          Gold: '-' + Math.round(pct * 0.3) + '% (역상관)',
-          Sector: 'Cyclicals/Tech OW · Defensive UW (위험자산 로테이션)',
-          Position: 'FOMO 경계 — Howard Marks Pendulum 탐욕 극단 진입 확인 + Marks "Sell into strength"'
+        // P1559: the earlier impacts were invented elasticities (VIX +2.5x, 10Y -8bp, gold +0.5x per index percent) and position advice
+        // ("cash 50%+", "sell into strength"); the scenario now lists what to look at, with no number the index move did not give.
+        checks: {
+          VIX: '변동성 지수(VIX)가 얼마나 움직이는지',
+          '미 10년 금리': '금리가 어느 방향으로 움직이는지',
+          '금': '금 가격의 방향',
+          '섹터': '섹터별 상대 성과가 갈리는지',
+          '보유 종목': '보유 종목이 지수보다 얼마나 민감하게 움직이는지(베타)와 본인 손실 한도'
         }
       };
     }
@@ -5453,87 +5448,84 @@ function _simulateMacroScenario(userQuery) {
   var oilMatch = q.match(/(유가|oil|wti|brent).*?\$?(\d+)\s*(이상|넘|over|돌파)/i);
   if (fedCutMatch) {
     var cutBp = Number(fedCutMatch[1]);
-    if (cutBp >= 10 && cutBp <= 200) scenario = { type: 'fed-cut', magnitude: cutBp, framework: 'Druckenmiller Macro Overlay (유동성 시그널)' };
+    if (cutBp >= 10 && cutBp <= 200) scenario = { type: 'fed-cut', magnitude: cutBp, framework: '시나리오 점검 틀' };
   } else if (fedHikeMatch) {
     var hikeBp = Number(fedHikeMatch[1]);
-    if (hikeBp >= 10 && hikeBp <= 200) scenario = { type: 'fed-hike', magnitude: hikeBp, framework: 'Druckenmiller + Bridgewater 4-Quadrant' };
+    if (hikeBp >= 10 && hikeBp <= 200) scenario = { type: 'fed-hike', magnitude: hikeBp, framework: '시나리오 점검 틀' };
   } else if (vixSpikeMatch) {
     var vixLv = Number(vixSpikeMatch[1]);
-    if (vixLv >= 15 && vixLv <= 80) scenario = { type: 'vix-spike', magnitude: vixLv, framework: 'Howard Marks Pendulum + Soros Reflexivity' };
+    if (vixLv >= 15 && vixLv <= 80) scenario = { type: 'vix-spike', magnitude: vixLv, framework: '시나리오 점검 틀' };
   } else if (spxCrashMatch) {
     var spxPct = Number(spxCrashMatch[2]);
-    if (spxPct >= 3 && spxPct <= 30) scenario = { type: 'spx-crash', magnitude: spxPct, framework: 'Marks Pendulum + Buffett Margin of Safety' };
+    if (spxPct >= 3 && spxPct <= 30) scenario = { type: 'spx-crash', magnitude: spxPct, framework: '시나리오 점검 틀' };
   } else if (dxyMatch) {
     var dxyLv = Number(dxyMatch[2]);
-    if (dxyLv >= 90 && dxyLv <= 130) scenario = { type: 'dxy-strong', magnitude: dxyLv, framework: 'Bridgewater 4-Quadrant + Druckenmiller' };
+    if (dxyLv >= 90 && dxyLv <= 130) scenario = { type: 'dxy-strong', magnitude: dxyLv, framework: '시나리오 점검 틀' };
   } else if (oilMatch) {
     var oilLv = Number(oilMatch[2]);
-    if (oilLv >= 50 && oilLv <= 200) scenario = { type: 'oil-spike', magnitude: oilLv, framework: 'Bridgewater (Stagflation) + MS Cyclical' };
+    if (oilLv >= 50 && oilLv <= 200) scenario = { type: 'oil-spike', magnitude: oilLv, framework: '시나리오 점검 틀' };
   }
   if (!scenario) return null;
-  // 자산별 영향 정량 추산 (휴리스틱 — 역사적 상관계수 기반)
+  // P1559: the earlier engine produced numeric ranges from invented elasticities (SPX +2~5% per 50bp cut, 10Y -30~60bp) and
+  // buy/overweight verdicts with named investors as authority. None of it had a source or a
+  // validation, so the scenario now states the mechanism commonly cited and what to check; it carries no number it was not given.
   var impacts = null;
   switch (scenario.type) {
     case 'fed-cut':
-      var cutMag = scenario.magnitude / 50;
       impacts = {
-        SPX: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (5 * cutMag).toFixed(1) + '%', verdict: '우호 (성장주 듀레이션 확장)' },
-        '10Y': { direction: '-' + (30 * cutMag).toFixed(0) + '~' + (50 * cutMag).toFixed(0) + 'bp', verdict: '채권 우호 (가격 상승)' },
-        DXY: { direction: '-' + (1.5 * cutMag).toFixed(1) + '~' + (3 * cutMag).toFixed(1) + '%', verdict: '달러 약세 → EM 자산 우호' },
-        Gold: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (4 * cutMag).toFixed(1) + '%', verdict: '금 우호 (실질금리 ↓)' },
-        Sector: { direction: 'Tech/REIT/Utilities OW · Financials UW', verdict: '성장주 + 배당주 우호' }
+        SPX: { direction: '성장주 할인율이 낮아지는 방향으로 해석되는 경우가 많음', verdict: '인하 이유(경기 둔화 대응인지 물가 안정인지)에 따라 반응이 갈림' },
+        '10Y': { direction: '정책금리와 함께 내려가는 방향', verdict: '기간 프리미엄과 인플레 기대 변화를 함께 확인' },
+        DXY: { direction: '미국의 금리 우위가 줄면 달러 약세 방향', verdict: '다른 중앙은행의 움직임과 비교해 확인' },
+        Gold: { direction: '실질금리 하락과 함께 움직이는 경우가 많음', verdict: '실질금리와 달러 지수를 함께 확인' },
+        Sector: { direction: '금리에 민감한 섹터가 주목받는 경우가 많음', verdict: '섹터별 실적과 밸류에이션은 따로 확인' }
       };
       break;
     case 'fed-hike':
-      var hikeMag = scenario.magnitude / 50;
       impacts = {
-        SPX: { direction: '-' + (2 * hikeMag).toFixed(1) + '~' + (5 * hikeMag).toFixed(1) + '%', verdict: '압박 (멀티플 압축)' },
-        '10Y': { direction: '+' + (30 * hikeMag).toFixed(0) + '~' + (50 * hikeMag).toFixed(0) + 'bp', verdict: '채권 약세' },
-        DXY: { direction: '+' + (1.5 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '달러 강세 → EM 자금 유출' },
-        Gold: { direction: '-' + (1 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '금 약세 (실질금리 ↑)' },
-        Sector: { direction: 'Financials/Energy OW · Tech/REIT UW', verdict: '성장주 압박, 금융주 수혜' }
+        SPX: { direction: '멀티플에 부담으로 해석되는 경우가 많음', verdict: '인상 속도와 시장이 이미 반영한 정도를 확인' },
+        '10Y': { direction: '정책금리와 함께 오르는 방향', verdict: '장단기 금리차(커브) 변화를 함께 확인' },
+        DXY: { direction: '미국의 금리 우위가 커지면 달러 강세 방향', verdict: '신흥국 자금 흐름과 함께 확인' },
+        Gold: { direction: '실질금리 상승과 함께 부담을 받는 경우가 많음', verdict: '실질금리와 달러 지수를 함께 확인' },
+        Sector: { direction: '금리 수혜 섹터와 금리 민감 섹터의 상대 성과가 갈리는 경우가 많음', verdict: '섹터별 실적은 따로 확인' }
       };
       break;
     case 'vix-spike':
-      var vixDelta = scenario.magnitude - 18;
       impacts = {
-        SPX: { direction: '-' + (vixDelta * 0.3).toFixed(1) + '~' + (vixDelta * 0.6).toFixed(1) + '%', verdict: '변동성 spike → 위험자산 매도' },
-        '10Y': { direction: '-15~30bp', verdict: '안전자산 도피 → 채권 매수' },
-        Gold: { direction: '+1~3%', verdict: '안전자산 수혜' },
-        'Quality': { direction: 'Defensive OW · High-Beta UW', verdict: '방어주 OW, 베타↑ 종목 회피' },
-        'Marks Pendulum': { direction: '비관 극단 진입 — Marks 프레임워크가 6~12개월 비대칭 구간으로 서술', verdict: '역발상 프레임 주목 구간(Marks 귀속, 지시 아님)' }
+        SPX: { direction: '변동성 급등은 위험자산 약세와 함께 나타나는 경우가 많음', verdict: 'VIX 수준보다 지속 기간과 신용 스프레드를 함께 확인' },
+        '10Y': { direction: '안전자산 선호가 원인이면 금리 하락 방향', verdict: '인플레 충격이 원인이면 반대로 움직일 수 있음' },
+        Gold: { direction: '안전자산 선호와 함께 움직이는 경우가 있음', verdict: '달러와 실질금리를 함께 확인' },
+        Sector: { direction: '방어적 섹터가 상대적으로 덜 흔들리는 경우가 많음', verdict: '보유 종목의 베타(지수 민감도)를 확인' }
       };
       break;
     case 'spx-crash':
       impacts = {
-        VIX: { direction: '+' + (scenario.magnitude * 1.5).toFixed(0) + '~' + (scenario.magnitude * 2.5).toFixed(0) + '%', verdict: '변동성 폭발' },
-        '10Y': { direction: '-30~60bp', verdict: '채권 강한 매수' },
-        Gold: { direction: '+2~5%', verdict: '안전자산 강한 수혜' },
-        Sector: { direction: 'Staples/Healthcare/Utilities OW · Cyclicals UW', verdict: '방어주 로테이션' },
-        'Buffett MoS': { direction: 'Margin of Safety 확보 시점 — 매수 검토', verdict: '역발상' }
+        VIX: { direction: '지수 급락과 함께 크게 오르는 경우가 많음', verdict: 'VIX 기간구조(단기 대비 장기)와 함께 확인' },
+        '10Y': { direction: '안전자산 선호가 원인이면 금리 하락 방향', verdict: '인플레 충격이 원인이면 반대로 움직일 수 있음' },
+        Gold: { direction: '안전자산 선호와 함께 움직이는 경우가 있음', verdict: '달러와 실질금리를 함께 확인' },
+        Sector: { direction: '방어적 섹터가 상대적으로 덜 흔들리는 경우가 많음', verdict: '섹터별 실적과 밸류에이션은 따로 확인' }
       };
       break;
     case 'dxy-strong':
       impacts = {
-        EM: { direction: '-5~15% (DXY ' + scenario.magnitude + ')', verdict: 'EM 자산 강한 압박' },
-        SPX: { direction: '-2~5%', verdict: '다국적 기업 환율 역풍' },
-        Gold: { direction: '-3~7%', verdict: '달러 강세 → 금 약세' },
-        KOSPI: { direction: '-3~8%', verdict: '외국인 자금 유출' }
+        EM: { direction: '달러 강세는 신흥국 자산에 부담이 되는 경우가 많음', verdict: '자국 금리와 외화 부채 비중을 함께 확인' },
+        SPX: { direction: '해외 매출 비중이 큰 기업의 환율 부담으로 이어질 수 있음', verdict: '기업별 해외 매출 비중과 헤지 여부를 확인' },
+        Gold: { direction: '달러 강세와 함께 부담을 받는 경우가 많음', verdict: '실질금리를 함께 확인' },
+        KOSPI: { direction: '외국인 수급과 원화 약세가 함께 거론되는 경우가 많음', verdict: '외국인 수급 흐름과 환율을 함께 확인' }
       };
       break;
     case 'oil-spike':
       impacts = {
-        Energy: { direction: '+10~25%', verdict: '에너지 섹터 강세' },
-        Airlines: { direction: '-8~20%', verdict: '항공/운송 압박' },
-        CPI: { direction: '+0.3~0.8%p', verdict: '인플레 압력 ↑' },
-        'Stagflation': { direction: 'Bridgewater Quadrant: 성장↓+인플레↑', verdict: '스태그플레이션 리스크' }
+        Energy: { direction: '에너지 섹터 수익에는 우호적으로 해석되는 경우가 많음', verdict: '유가 수준이 얼마나 지속되는지 확인' },
+        Airlines: { direction: '연료비 비중이 큰 업종에는 부담', verdict: '업종별 연료비 헤지 여부를 확인' },
+        CPI: { direction: '물가를 밀어 올리는 요인', verdict: '근원 물가로 번지는지 확인' },
+        Stagflation: { direction: '성장 둔화와 물가 상승이 함께 나타나는 조합', verdict: '성장 지표와 물가 지표를 함께 확인' }
       };
       break;
   }
   return {
     scenario: scenario,
     impacts: impacts,
-    note: '휴리스틱 (역사적 상관계수 기반) — 정확 회귀 아닌 정성+정량 가이드. ' + scenario.framework + ' 프레임 적용.'
+    note: '정성 서술입니다. 수치 추정이 아니고, 과거 반응은 원인과 시점에 따라 달랐습니다. 매매 판단은 제공하지 않습니다.'
   };
 }
 window._simulateMacroScenario = _simulateMacroScenario;
@@ -6713,17 +6705,16 @@ async function chatSend(ctxId, _aioDispatchOptions) {
             if (_amtSim.amount) {
               _asHTML += '<div style="font-weight:700;color:#a855f7;margin-bottom:6px;">금액 시뮬레이션</div>';
               _asHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">' + escHtml(_amtSim.amount.note) + '</div>';
+              _asHTML += '<div style="font-size:10px;margin-bottom:3px;">비율은 이 화면이 정하지 않습니다. 확인할 항목:</div>';
               _asHTML += '<div style="display:grid;gap:3px;font-size:10px;">';
-              _asHTML += '<div><strong>보수적</strong>: ' + escHtml(_amtSim.amount.allocation.conservative) + '</div>';
-              _asHTML += '<div><strong>균형</strong>: ' + escHtml(_amtSim.amount.allocation.balanced) + '</div>';
-              _asHTML += '<div><strong>공격적</strong>: ' + escHtml(_amtSim.amount.allocation.aggressive) + '</div>';
+              _amtSim.amount.checks.forEach(function(item) { _asHTML += '<div>· ' + escHtml(item) + '</div>'; });
               _asHTML += '</div>';
             }
             if (_amtSim.indexScenario) {
               _asHTML += '<div style="font-weight:700;color:#a855f7;margin-top:6px;margin-bottom:6px;">' + escHtml(_amtSim.indexScenario.index) + ' ' + _amtSim.indexScenario.sign + _amtSim.indexScenario.pct + '% 시나리오 (' + _amtSim.indexScenario.direction + ')</div>';
               _asHTML += '<div style="display:grid;grid-template-columns:1fr 2fr;gap:3px;font-size:10px;">';
-              Object.keys(_amtSim.indexScenario.impacts).forEach(function(k) {
-                _asHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div>' + escHtml(_amtSim.indexScenario.impacts[k]) + '</div>';
+              Object.keys(_amtSim.indexScenario.checks).forEach(function(k) {
+                _asHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div>' + escHtml(_amtSim.indexScenario.checks[k]) + '</div>';
               });
               _asHTML += '</div>';
             }
@@ -6769,13 +6760,13 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           if (_macro && _macro.scenario && _macro.impacts) {
             var _mcDiv = document.createElement('div');
             _mcDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(255,163,26,0.06);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-primary);';
-            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">매크로 시나리오 시뮬레이션 (' + escHtml(_macro.scenario.type) + ' · 크기: ' + _macro.scenario.magnitude + ')</div>';
+            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">매크로 시나리오 점검 (' + escHtml(_macro.scenario.type) + ' · 입력값: ' + _macro.scenario.magnitude + ')</div>';
             _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">프레임: ' + escHtml(_macro.scenario.framework) + '</div>';
             _mcHTML += '<div style="display:grid;grid-template-columns:1fr 1.5fr 1.5fr;gap:4px;font-size:10px;">';
-            _mcHTML += '<div style="color:var(--text-muted);font-weight:600;">자산</div><div style="color:var(--text-muted);font-weight:600;">예상 방향</div><div style="color:var(--text-muted);font-weight:600;">판정</div>';
+            _mcHTML += '<div style="color:var(--text-muted);font-weight:600;">자산</div><div style="color:var(--text-muted);font-weight:600;">일반적 해석</div><div style="color:var(--text-muted);font-weight:600;">확인 항목</div>';
             Object.keys(_macro.impacts).forEach(function(k) {
               var imp = _macro.impacts[k];
-              _mcHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div style="font-family:var(--font-mono);">' + escHtml(imp.direction) + '</div><div>' + escHtml(imp.verdict) + '</div>';
+              _mcHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div>' + escHtml(imp.direction) + '</div><div>' + escHtml(imp.verdict) + '</div>';
             });
             _mcHTML += '</div>';
             _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">' + escHtml(_macro.note) + '</div>';
