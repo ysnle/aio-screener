@@ -1,4 +1,4 @@
-import { latestCompletedUsSession } from '../../ai/time/market-session.js';
+import { latestCompletedUsSession } from '../market/market-calendar.js';
 
 // P1358: consume durable derived evidence; do not fabricate price histories.
 export function selectProducedRotation(artifact, symbol, nowMs = Date.now()) {

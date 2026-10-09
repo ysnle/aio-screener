@@ -1128,7 +1128,7 @@ function _aioCreateEvidenceContext(title, focus) {
         '값이 —이면 추정·보간·과거 수치 대입 없이 판단을 보류합니다.',
         '현재형 뉴스·목표가·확률·컨센서스·승률은 내장 텍스트에서 가져오지 않습니다. 승률/적중률은 검증된 백테스트·캘리브레이션 근거가 있을 때만 reference로 표시합니다.',
         '답변 가이드: 관측 → 해석 → 무효화 조건 → 사용자가 확인할 다음 증거 순서로 씁니다.',
-        '매매·포지션 질문은 실행 지시 대신 HOLD_CORE / NO_ADD_RAISE_STOP / TRIM_25_33 / EXIT_OR_HEDGE 같은 위험관리 선택지를 조건부로 설명합니다.',
+        '매매·포지션 질문은 실행 지시 대신 부담 정도(낮음·일부 확인·높음·매우 높음)별로 어떤 위험관리 방식이 논의되는지 조건부로 설명합니다.',
         'OPEX·감마·Lockout/LOCKOUT_CONTINUATION·시나리오는 해당 런타임 증거가 주입된 경우에만 사용합니다.',
         'RATIO/DISTANCE thresholds are calibration constants, NOT absolute prices.'
       ];
@@ -2505,7 +2505,7 @@ function _formatSectorComparePrompt(sectorLabel, compareData) {
   lines.push('  — "섹터 평균"과 각 종목 수치를 대조하여 상대적 위치를 평가할 것.');
   lines.push('  — 밸류에이션(PER/PEG/EV/EBITDA) + 수익성(ROE/마진) + 성장(매출/EPS) + 건전성(부채) + 애널리스트 목표가를 종합적으로 교차 검증.');
   lines.push('  — PER/PBR이 낮다고 무조건 저평가 아님: 밸류 트랩(성장 정체, 구조적 문제) 가능성 반드시 언급.');
-  lines.push('  — 최종 추천 시 "왜 이 종목인지" 다차원 근거(밸류+성장+수익성+모멘텀) 제시.');
+  lines.push('  — 종목을 논의할 때 "왜 이 종목을 보는지" 다차원 근거(밸류+성장+수익성+모멘텀)를 제시하되 매수 추천으로 결론짓지 않는다.');
   lines.push('  — "N/A"인 항목은 데이터 미수집 — "확인 필요"로 표기.');
 
   return '\n\n' + lines.join('\n') + '\n';
@@ -2949,7 +2949,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       if (_ccS || _ccM) {
         var _ccVix = (_ccM && _ccM.vix != null) ? _ccM.vix : ((_ccS && _ccS.vix) || '—');
         var _ccFg = (_ccM && _ccM.fg != null) ? _ccM.fg : ((_ccS && _ccS.fg != null) ? _ccS.fg : '—');
-        var _ccFgL = (_ccM && _ccM.fgZoneLabel) ? _ccM.fgZoneLabel : (_ccFg === '—' ? '—' : (_ccFg <= 25 ? '극단 공포' : _ccFg <= 45 ? '공포' : _ccFg <= 55 ? '중립' : _ccFg <= 75 ? '탐욕' : '극단 탐욕'));
+        var _ccFgL = (_ccM && _ccM.fgZoneLabel) ? _ccM.fgZoneLabel : (_ccFg === '—' ? '—' : (Math.round(_ccFg) < 25 ? '극단 공포' : Math.round(_ccFg) < 45 ? '공포' : Math.round(_ccFg) <= 55 ? '중립' : Math.round(_ccFg) <= 75 ? '탐욕' : '극단 탐욕'));
         _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ') · 트레이딩 스코어 ' + (_ccS && _ccS.score != null ? _ccS.score : '—') + '/100\n\n';
       }
     } catch(_) {}
@@ -3407,7 +3407,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       var _tnx = (_s && _s.tnx) || '—';
       var _score = (_s && _s.score != null) ? _s.score : '—';
       var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 32 ? '패닉' : _vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 18 ? '보통' : '안정')); // P1367 canonical band
-      var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (_fg <= 25 ? '극단 공포' : _fg <= 45 ? '공포' : _fg <= 55 ? '중립' : _fg <= 75 ? '탐욕' : '극단 탐욕'));
+      var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (Math.round(_fg) < 25 ? '극단 공포' : Math.round(_fg) < 45 ? '공포' : Math.round(_fg) <= 55 ? '중립' : Math.round(_fg) <= 75 ? '탐욕' : '극단 탐욕'));
       // v49.68 R128 시각 단서 표준 — P1500: 이모지 대신 [위험]/[주의]/[안정] 단어 표지
       var _vixEmoji = _vix === '—' ? '[미수신]' : Number(_vix) >= 25 ? '[위험]' : Number(_vix) >= 20 ? '[주의]' : '[안정]';
       var _fgEmoji = _fg === '—' ? '[미수신]' : (_fg <= 25 || _fg >= 75) ? '[위험]' : (_fg <= 45 || _fg >= 55) ? '[주의]' : '[안정]';
@@ -3846,7 +3846,7 @@ function _formatDeepComparePrompt(tickers, deepData) {
   out += '  • 핵심 카탈리스트 비교: 실적 서프라이즈 이력, 신제품, M&A 가능성\n';
   out += '  • 내부자 매매 방향이 시사하는 바 비교\n';
   out += '  • 종합 비교표: 17개 관점의 핵심 수치와 결측 데이터를 한 눈에 볼 수 있는 비교표\n';
-  out += '  • 최종 판정: "A는 ___에서 확실한 우위, B는 ___에서 확실한 우위. 투자자 유형별 추천: 성장 투자자라면 A, 가치 투자자라면 B"\n';
+  out += '  • 비교 정리: "A는 ___ 지표에서 앞서고, B는 ___ 지표에서 앞선다. 성장 관점에서는 A의 ___, 가치 관점에서는 B의 ___이(가) 근거로 논의된다. 어느 쪽이 낫다고 단정하지 않는다."\n';
   out += '  데이터: 위 모든 데이터 종합\n\n';
 
   out += '【응답 프레임워크 — "기업을 하나의 이야기로 비교"】\n';
@@ -4362,7 +4362,7 @@ function _buildChatIntentContext(ctxId, query, flags) {
   return '\n\n【질문 의도·답변 범위】\n' +
     '의도: ' + intent.intents.join(', ') + ' | 페이지맥락: ' + ctxId + (tickers.length ? ' | 감지티커: ' + tickers.join(', ') : '') + '\n' +
     '답변 규칙: 사용자의 질문 범위에 맞춰 바로 결론부터 말하고, 이미 말한 내용은 반복하지 말며, 새 판단에 필요한 데이터만 사용하라. ' +
-    (intent.wantsAction ? '행동 결론(보유/추가매수 금지/비중축소/헤지/관망)을 명시하라. ' : '') +
+    (intent.wantsAction ? '보유 유지·추가 노출 제한·노출 축소·헤지·관망 가운데 어떤 방식이 어떤 조건에서 논의되는지 조건부로 정리하고, 하나의 행동을 지시하지 마라. ' : '') +
     (intent.wantsCompare ? '비교 질문이면 표는 짧게, 최종 우선순위와 제외 사유를 함께 제시하라. ' : '') +
     (intent.wantsFresh ? '최신성 질문이면 기준시각·출처·미수집 항목을 먼저 분리하라. ' : '') + '\n' +
     '데이터 커버리지: ' +
@@ -5416,7 +5416,7 @@ function _buildUserProfileContext() {
     '• 투자 시간축: ' + horizonLabel + '\n' +
     '• 선호 자산/섹터: ' + prefAssets + '\n' +
     '• 제외 자산/섹터: ' + excAssets + '\n' +
-    '답변 의무 (R132): 위 프로필에 맞춰 (1) 위험 성향과 맞는 포지션 사이즈/레버리지 추천 (2) 시간축에 맞는 진입 전략 + 보유 기간 (3) 선호 자산 우선 + 제외 자산 회피 + (4) 프로필과 충돌 시 명시 ("프로필이 보수적이라 이 종목은 비중 제한 권장").\n';
+    '답변 의무 (R132): 위 프로필을 전제로 (1) 위험 성향에 따라 노출 한도와 레버리지가 어떻게 달라지는지 조건별 설명 (2) 시간축별로 확인할 지표와 보유 기간 관점 정리 (3) 선호 자산을 우선 검토하고 제외 자산은 제외 사유를 밝힘 (4) 프로필과 충돌하면 충돌 지점을 명시 ("프로필이 보수적이라 이 종목은 노출 한도 점검이 필요한 조건"). 특정 비율이나 진입 시점을 지시하지 않는다.\n';
 }
 window._buildUserProfileContext = _buildUserProfileContext;
 
@@ -6213,7 +6213,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   if (screenerResult && screenerResult.mode === 'diversified-recommendation') {
     systemPrompt += '\n\n【추천 다양성·반복 편향 방지 규칙】\n' +
       '이 질문은 넓은 종목 추천이다. 위 균형 추천 후보군을 1차 데이터로 사용하고, 앞부분의 고정 리서치 문단이나 최근 대화에서 자주 나온 CEG/전력/AVGO/AI 인프라 테마에 과도하게 끌리지 마라.\n' +
-      '최종 추천은 섹터·시장·시총을 분산해 3~5개만 제시한다. 같은 테마는 최대 2개. 각 추천에는 "왜 지금", "왜 이 섹터", "대체 후보", "제외/보류 조건"을 붙인다.\n' +
+      '검토 후보는 섹터·시장·시총을 분산해 3~5개만 제시한다. 같은 테마는 최대 2개. 각 후보에는 "관심을 두는 근거", "왜 이 섹터", "대체 후보", "제외/보류 조건"을 붙이고 매수 추천으로 결론짓지 않는다.\n' +
       '사용자가 선호 시장·위험성향·기간을 말하지 않았다면 단일 정답처럼 말하지 말고 균형형 기본안과 공격형/방어형 변형을 함께 제시한다.\n';
   }
   if (domainDataStr) systemPrompt += _aioWrapChatExternalContext('DOMAIN_LIVE_DATA', domainDataStr, { maxChars: 9000 });  // v50.38 트랙2: 도메인 라이브 데이터

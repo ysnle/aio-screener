@@ -14117,13 +14117,11 @@ function _aioVixPercentile(vix) {
 window._aioVixPercentile = _aioVixPercentile;
 
 function vixRegime(vix) {
-  if (vix < 12) return { label: 'Subdued', color: '#00e5a0' };
-  if (vix < 16) return { label: 'Low', color: '#00bcd4' };
-  if (vix < 20) return { label: 'Normal', color: '#a8b5c8' };
-  if (vix < 25) return { label: 'Elevated', color: '#ffa31a' };
-  if (vix < 30) return { label: 'Stressed', color: '#ffa31a' };
-  if (vix < 40) return { label: 'Crisis', color: '#ff5b50' };
-  return { label: 'Extreme', color: '#dc2626' };
+  // P1534: the same 18 / 25 / 32 band edges and wording as src RULES.volatility and the regime alert (parity: ci-domain-parity-check).
+  if (vix < 18) return { label: '저변동 구간', color: '#00bcd4' };
+  if (vix < 25) return { label: '통상 범위', color: '#a8b5c8' };
+  if (vix < 32) return { label: '변동성 경계 구간', color: '#ffa31a' };
+  return { label: '고변동 구간', color: '#ff5b50' };
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -16695,7 +16693,7 @@ function _formatScreenerResultPrompt(result) {
   });
   lines.push('');
   if (isDiversified) {
-    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 최종 추천과 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
+    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 후보와 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
   } else {
     lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
   }

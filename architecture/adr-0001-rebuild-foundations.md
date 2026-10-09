@@ -18,7 +18,9 @@ context boundary without mutating portfolio state.
 ## Contracts
 
 1. `src/domain/**` is pure and cannot import DOM, network, storage, or provider
-   modules.
+   modules, nor `src/ai/**` (the domain layer sits below it; the shared exchange
+   calendar is `src/domain/market/market-calendar.js`, gated by
+   `scripts/ci-market-session-contract-check.mjs`).
 2. `src/data/**` validates external values before ingesting them into the
    evidence store.
 3. `src/app/**` owns route lifecycle and disposal.

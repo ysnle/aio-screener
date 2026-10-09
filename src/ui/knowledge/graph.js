@@ -14,7 +14,7 @@ export function renderKnowledgeGraphTextAlternative(documentRef, nodes = [], edg
   for (const edge of edges) {
     const from = byId.get(edge.from)?.title || edge.from;
     const to = byId.get(edge.to)?.title || edge.to;
-    list.appendChild(element(documentRef, 'li', 'knowledge-graph-item', `${from} → ${to} · ${edge.type || edge.relation || '관계'}`));
+    list.appendChild(element(documentRef, 'li', 'knowledge-graph-item', `${from} → ${to} · ${edge.relation || '관계'}`));
   }
   root.appendChild(list);
   return root;

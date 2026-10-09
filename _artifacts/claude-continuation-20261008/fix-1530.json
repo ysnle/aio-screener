@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "13F scale detection flagged the normal filer of a two-filer security next to the odd one",
+  "symptom": "With exactly two filers on a CUSIP and period, each filer is the other's only peer, so a filing whose price per share sits 1,000x below the other also makes the other look 1,000x too high. A normal filer whose compared rows are mostly two-filer rows would be withheld together with the odd one. In the published holdings, 56 of the 65 multi-filer CUSIP-periods have exactly two filers.",
+  "root_cause": "detectValueScaleSuspects compared every row with the median of the other filers' prices and accepted a single peer, so the median was one price and could not say which side was the outlier.",
+  "fix": "A row is compared only when at least minPeers (default 2) other filers report the same CUSIP and period; with two peers the median of one normal and one odd price keeps the normal filer near 1x. minPeers stays an option.",
+  "violated_rule": "A comparison baseline needs enough independent observations to say which side is the outlier.",
+  "prevention": "ci-masters-contract-check P1530: a pair of filers flags neither, a lone pair cannot hide the real three-filer outlier, and minPeers: 1 stays configurable; removing the peer count fails the first assertion.",
+  "verification": "On public-data/masters/holdings.json the same three filers (T. Rowe Price, Duquesne, Baupost, period 2026-06-30) are flagged with minPeers 2 (10, 2 and 3 compared rows) and no other filer is; the masters contract check passes. Not verified: the filings' own units; the amounts stay withheld, never multiplied."
+ },
+ "r": null,
+ "changelog": [
+  "**13F 단위 이상 탐지의 2개 신고자 오탐 방지 (P{P}):** 같은 종목을 신고한 운용사가 둘뿐이면 서로가 서로의 유일한 비교 대상이라 정상 신고자까지 1,000배 이상으로 걸릴 수 있었다. 비교 대상이 2곳 이상일 때만 비교한다. 실제 데이터에서는 기존의 세 운용사가 그대로 보류된다."
+ ]
+}

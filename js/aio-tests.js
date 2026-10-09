@@ -1000,6 +1000,16 @@
     var pf = window.calcPortfolioTechnicalRisk ? window.calcPortfolioTechnicalRisk([{ ticker: 'NVDA', qty: 10, cost: 100, price: 150 }], [pos], { totalValue: 1500 }) : null;
     _assert('T112 portfolio_technical_risk: aggregate', pf && pf.items && pf.items.length === 1 && pf.heatScore >= 0, pf && pf.state);
 
+    // P1536: the technical snapshot close is a reference price; only a live decision-grade quote makes an exposure and a weight.
+    var cachedPos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100, price: 150, quoteSourceKind: 'cached-close' }, aiHot, { totalValue: 1500 }) : null;
+    var unlabeledPos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100 }, aiHot, { totalValue: 1500 }) : null;
+    var livePos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100, price: 150, quoteSourceKind: 'live-quote' }, aiHot, { totalValue: 1500 }) : null;
+    _assert('P1536 position_technical_risk: a cached close or a missing quote gives no exposure or weight',
+      cachedPos && unlabeledPos && cachedPos.state === 'DATA_INSUFFICIENT' && cachedPos.weightPct === null && cachedPos.value === null && unlabeledPos.state === 'DATA_INSUFFICIENT' && unlabeledPos.weightPct === null && unlabeledPos.value === null,
+      JSON.stringify({ cached: cachedPos && [cachedPos.state, cachedPos.weightPct, cachedPos.value], unlabeled: unlabeledPos && [unlabeledPos.state, unlabeledPos.weightPct, unlabeledPos.value] }));
+    _assert('P1536 position_technical_risk: a live quote still produces the exposure and weight',
+      livePos && livePos.state === 'CURRENT' && livePos.weightPct === 100 && livePos.value === 1500, livePos && JSON.stringify([livePos.state, livePos.weightPct, livePos.value]));
+
     var news = window.calcNewsImpactVector ? window.calcNewsImpactVector({ title: 'Nebius buys Eigen AI inference optimization for GPU token factory', desc: 'AI infrastructure and data center demand', topic: 'semi', tier: 1 }) : null;
     _assert('T113 news_impact_vector: AI infra factor', news && news.factor === 'AI_INFRA_SEMI' && news.urgency >= 40, news && JSON.stringify(news));
 
@@ -1009,7 +1019,7 @@
     var promptOk = false;
     try {
       var ctx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.technical;
-      promptOk = !!ctx && /HOLD_CORE|TRIM_25_33|EXIT_OR_HEDGE/.test(String(ctx.system || ctx.prompt || ctx));
+      promptOk = !!ctx && /위험관리 방식이 논의되는지 조건부로 설명/.test(String(ctx.system || ctx.prompt || ctx));
     } catch(_) {}
     _assert('T115 prompt_consistency: action ladder present', promptOk, 'technical prompt missing action ladder');
   }

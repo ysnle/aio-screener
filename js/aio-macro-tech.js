@@ -423,7 +423,7 @@ function updatePatternSignals() {
   } else if (vixP != null && vixP > 25) {
     signals.push({ name: 'VIX 경계 상승', type: 'warning', icon: '',
       color: 'var(--data-amber)',
-      detail: 'VIX ' + vixP.toFixed(1) + ' → 불안감 증가. 아직 공포는 아니지만 포지션 사이즈 축소 권장. 25~30 구간은 "주의" 영역.',
+      detail: 'VIX ' + vixP.toFixed(1) + ' → 불안감 증가. 아직 공포는 아니지만 역사적으로 포지션 사이즈 점검이 논의되는 구간입니다. 25~30 구간은 "주의" 영역.',
       why: 'VIX 25 이상에서는 옵션 프리미엄이 비싸져 헤지 비용이 상승합니다.',
       importance: 'MED' });
   } else if (vixP != null && vixP < 13) {

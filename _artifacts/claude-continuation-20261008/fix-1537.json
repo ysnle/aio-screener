@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "The news count did not say which list it covered, and the concept-map list printed a relation word without a direction",
+  "symptom": "The news strip showed '12건 표시 / 40건 일치' with no word on whether country, topic or type filters applied, and the channel (Telegram) list below it is classified on its own; the note about that was empty when only the Telegram type chip narrowed the articles. The connected-concepts list printed only the relation word (for example '분해') for both outgoing and incoming edges, and the text alternative could print an internal edge type (CAUSES).",
+  "root_cause": "The scope was implicit in the controls and the two lists shared one count; the map aside dropped the edge direction; the text alternative preferred the enum over the Korean relation.",
+  "fix": "describeNewsScope states '필터 적용'/'필터 없음' on the article count and, whenever a control is active, that the channel list ignores the country and topic filters. The connected-concepts list prefixes an arrow for the edge direction and the text alternative shows the edge's own relation, never the type.",
+  "violated_rule": "A count says which list and which filter state it covers.",
+  "prevention": "ci-esm-core-unit-check P1537 covers every control state of describeNewsScope; ci-knowledge-renderer-contract P1537 renders the text alternative with relation and type and checks the direction wiring.",
+  "verification": "esm-core-unit, architecture and knowledge renderer contract checks pass. Not done: the channel count with a pool total, the glossary-to-indicator link (H109, four atlas-backed terms only and the indicator screens read no metric or timeframe parameter) and the Korean type labels for concept edges (no source for the wording)."
+ },
+ "r": null,
+ "changelog": [
+  "**뉴스 범위 표기와 개념 지도 관계 방향 (P{P}):** 기사 건수에 필터 적용 여부를 붙이고 채널 소식은 국가·주제 필터와 무관함을 필터가 켜진 모든 경우에 안내. 개념 지도의 연결 목록에 관계 방향을 표시하고 텍스트 대안이 내부 유형 대신 한국어 관계를 쓴다."
+ ]
+}

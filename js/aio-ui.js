@@ -1430,7 +1430,24 @@ function _itbBadge(label, tone) {
 function _itbActionTone(action) {
   if (action === 'EXIT_OR_HEDGE' || action === 'TRIM_50') return 'risk';
   if (action === 'TRIM_25_33' || action === 'NO_ADD_RAISE_STOP') return 'warn';
-  return 'bull';
+  if (action === 'HOLD_CORE') return 'bull';
+  return 'info';
+}
+
+// P1535: the engines keep their internal action enums (unit tests and golden fixtures read them), but the reader sees
+// the load level a score stands for, not a position instruction. An unknown or missing enum reads as withheld.
+var _ITB_ACTION_LABELS = {
+  HOLD_CORE: '부담 낮음', NO_ADD_RAISE_STOP: '부담 일부 확인', TRIM_25_33: '부담 높음', TRIM_50: '부담 매우 높음',
+  EXIT_OR_HEDGE: '부담 최상위 구간', REDUCE: '부담 높음', WATCH: '관찰 필요', WAIT: '판단 보류', NO_ACTION: '판단 보류'
+};
+function _itbActionLabel(action) {
+  return _ITB_ACTION_LABELS[action] || '판단 보류';
+}
+
+function _itbFlagLabel(flag) {
+  var match = /^(LOCKOUT_ACTION|BLOWOFF_TOP)_(.+)$/.exec(String(flag));
+  if (match && _ITB_ACTION_LABELS[match[2]]) return (match[1] === 'LOCKOUT_ACTION' ? 'Lockout 판정 · ' : 'Blow-off 판정 · ') + _ITB_ACTION_LABELS[match[2]];
+  return String(flag).replace(/_/g, ' ');
 }
 
 function renderDataQualityBadge(quality) {
@@ -1463,12 +1480,12 @@ function renderPortfolioTechnicalRisk(result) {
       '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);">' + _itbNum(item.weightPct, 1) + '%</td>' +
       '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);color:' + ((item.pnlPct || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + _itbNum(item.pnlPct, 1) + '%</td>' +
       '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);font-weight:900;">' + _itbNum(item.score, 0) + '</td>' +
-      '<td style="padding:6px 4px;">' + _itbBadge(item.action || 'HOLD_CORE', rowTone) + '</td>' +
+      '<td style="padding:6px 4px;">' + _itbBadge(_itbActionLabel(item.action), rowTone) + '</td>' +
     '</tr>';
   }).join('');
   el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">' +
     '<div>' + _itbBadge(result.state || 'PORTFOLIO_HEAT_NORMAL', tone) + '<span style="margin-left:8px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(result.heatScore, 0) + '/100</span></div>' +
-    _itbBadge(result.action || 'HOLD_CORE', _itbActionTone(result.action)) + '</div>' +
+    _itbBadge(_itbActionLabel(result.action), _itbActionTone(result.action)) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">통계 리스크(VaR/Sharpe/MDD)에 10EMA/21EMA/50SMA 이탈, ATR 과열, 보유 비중을 결합한 포지션 단위 기술 리스크입니다.</div>' +
     '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);text-align:left;"><th style="padding:4px;">Ticker</th><th style="padding:4px;text-align:right;">Weight</th><th style="padding:4px;text-align:right;">P/L</th><th style="padding:4px;text-align:right;">Risk</th><th style="padding:4px;">Action</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
@@ -1541,7 +1558,7 @@ function renderTechnicalRegimeRow(result) {
   var regimeTone = s.above50SMA === false ? 'risk' : sp.score >= 38 ? 'warn' : 'bull';
   el.innerHTML =
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Action</div><div style="margin-top:4px;">' + _itbBadge(sp.action || 'HOLD_CORE', _itbActionTone(sp.action)) + '</div></div>' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">판정</div><div style="margin-top:4px;">' + _itbBadge(_itbActionLabel(sp.action), _itbActionTone(sp.action)) + '</div></div>' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Sell Pressure</div><div style="font-size:18px;font-weight:900;color:var(--text-primary);font-family:var(--font-mono);">' + _itbNum(sp.score, 0) + '/100</div></div>' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
@@ -1573,8 +1590,8 @@ function renderSellPressurePanel(sellPressure) {
   sellPressure = sellPressure || {};
   var tone = _itbActionTone(sellPressure.action);
   el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Sell Pressure</div>' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;"><span style="font-size:22px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(sellPressure.score, 0) + '</span>' + _itbBadge(sellPressure.action || 'HOLD_CORE', tone) + '</div>' +
-    '<div style="display:flex;gap:4px;flex-wrap:wrap;">' + (sellPressure.flags || []).slice(0, 6).map(function(f) { return _itbBadge(f.replace(/_/g, ' '), f.indexOf('DAMAGED') >= 0 || f.indexOf('CLIMAX') >= 0 ? 'risk' : 'warn'); }).join('') + '</div>';
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;"><span style="font-size:22px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(sellPressure.score, 0) + '</span>' + _itbBadge(_itbActionLabel(sellPressure.action), tone) + '</div>' +
+    '<div style="display:flex;gap:4px;flex-wrap:wrap;">' + (sellPressure.flags || []).slice(0, 6).map(function(f) { return _itbBadge(_itbFlagLabel(f), f.indexOf('DAMAGED') >= 0 || f.indexOf('CLIMAX') >= 0 ? 'risk' : 'warn'); }).join('') + '</div>';
 }
 
 function renderExitPlanPanel(plan) {
@@ -1590,7 +1607,7 @@ function renderBeginnerExplanation(result) {
   var el = document.getElementById('tech-brief-beginner');
   if (!el || !result) return;
   var s = result.snapshot || {}, sp = result.sellPressure || {}, plan = result.exitPlan || {};
-  el.innerHTML = '<b style="color:var(--data-cyan);">Beginner translation:</b> RSI 70+ 자체는 매도 버튼이 아닙니다. 강한 장에서는 과열이 오래 유지될 수 있습니다. 지금 엔진은 50일선 대비 ATR 이격(' + _itbNum(s.dist50Atr, 1) + 'x), RVOL(' + _itbNum(s.rvol20, 1) + 'x), 종가 위치(' + _itbNum((s.closePosition || 0) * 100, 0) + '%), 볼린저 재진입, 10/21/50선 이탈을 함께 보고 <b>' + escHtml(sp.action || 'HOLD_CORE') + '</b>로 결론냅니다. ' + escHtml(plan.beginner || '');
+  el.innerHTML = '<b style="color:var(--data-cyan);">Beginner translation:</b> RSI 70+ 자체는 매도 버튼이 아닙니다. 강한 장에서는 과열이 오래 유지될 수 있습니다. 지금 엔진은 50일선 대비 ATR 이격(' + _itbNum(s.dist50Atr, 1) + 'x), RVOL(' + _itbNum(s.rvol20, 1) + 'x), 종가 위치(' + _itbNum((s.closePosition || 0) * 100, 0) + '%), 볼린저 재진입, 10/21/50선 이탈을 함께 보며, 현재 부담 수준은 <b>' + escHtml(_itbActionLabel(sp.action)) + '</b>으로 관측됩니다. ' + escHtml(plan.beginner || '');
 }
 
 function _renderSemiHeatPanel(heat) {
@@ -1612,7 +1629,7 @@ function _renderFlagList(flags, riskWords) {
   return '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;">' +
     flags.slice(0, 8).map(function(f) {
       var tone = riskWords.test(String(f)) ? 'risk' : /WARNING|DECAY|EXTENDED|WATCH|PIN/i.test(String(f)) ? 'warn' : 'bull';
-      return _itbBadge(String(f).replace(/_/g, ' '), tone);
+      return _itbBadge(_itbFlagLabel(f), tone);
     }).join('') + '</div>';
 }
 
@@ -1624,7 +1641,7 @@ function renderLockoutDashboard(result) {
   var opex = result.opexGammaRisk || {};
   var breadth = result.breadthRotation || {};
   var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;">' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout Action</div><div style="margin-top:5px;">' + _itbBadge(lock.action || 'HOLD_CORE', _itbActionTone(lock.action)) + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout 판정</div><div style="margin-top:5px;">' + _itbBadge(_itbActionLabel(lock.action), _itbActionTone(lock.action)) + '</div></div>' +
     '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Regime</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(lock.regime || 'LOCKOUT_CONTINUATION') + '</div></div>' +
     '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Risk</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(lock.score, 0) + '/100</div></div>' +
     '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
@@ -1670,7 +1687,7 @@ function renderBlowoffTopPanel(blowoffTop) {
     '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
       '<div><div style="font-size:10px;font-weight:900;color:var(--data-cyan);letter-spacing:.18em;">BLOW-OFF TOP CHECKLIST</div>' +
       '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">이격 과열, CPI/유가, OPEX, 이벤트 소진을 한 화면에서 확인합니다.</div></div>' +
-      '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(blowoffTop.state || 'DATA', tone) + _itbBadge(blowoffTop.action || 'HOLD_CORE', tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(blowoffTop.score, 0) + '/100</span></div>' +
+      '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(blowoffTop.state || 'DATA', tone) + _itbBadge(_itbActionLabel(blowoffTop.action), tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(blowoffTop.score, 0) + '/100</span></div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">' +
       '<div style="background:#0e1622;border:1px solid rgba(255,91,80,0.28);border-radius:3px;padding:10px;border-left:3px solid #ff5b50;">' +

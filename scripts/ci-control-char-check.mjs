@@ -172,10 +172,16 @@ if (process.argv.includes('--write-baseline')) {
     ['테스트 매수', /소량 테스트 매수/], ['분할 진입 검토', /분할 진입 검토/], ['신규 매수 중단', /신규 매수 중단/],
     ['현재 행동 지시', /현재 행동:/], ['추격 매수 자제 권고', /추격 ?매수는 자제/], ['비중 축소 검토 라벨', /비중 축소 검토/],
     ['관망 우선 라벨', /관망 우선/], ['세력 단정', /물량 털기/], ['진짜 추세 단정', /가 진짜 추세/], ['파산 확률 단정', /파산 확률 최소화/],
-    ['신호 사다리 라벨', /'(?:중립 · 관망|주의 · 축소|위험 · 방어)'/]
+    ['신호 사다리 라벨', /'(?:중립 · 관망|주의 · 축소|위험 · 방어)'/],
+    // P1535: action enums are internal; the reader sees load levels, and prompts state conditions instead of a verdict.
+    ['매수 우호 라벨', /매수 우호/], ['포지션 사이즈 지시 표시', /포지션 사이즈: |포지션 사이즈 축소 권장/], ['센티먼트 행동 라벨', /센티먼트 행동:/],
+    ['진입 전략 요청', /진입 전략 알려줘/], ['행동 결론 강제', /행동 결론\(/], ['확실한 우위 단정', /확실한 우위/], ['비중 제한 권장', /비중 제한 권장/],
+    ['최종 추천 강제', /최종 추천 시/], ['행동 코드 직접 표시', /_itbBadge\((?:item|result|sp|sellPressure|lock|blowoffTop)\.action/]
   ];
   const instructionHits = [];
   for (const file of productFiles) {
+    // js/aio-tests.js holds negative assertions that must name the forbidden phrases (e.g. noPrescriptiveAction).
+    if (file === 'js/aio-tests.js') continue;
     read(file).split('\n').forEach((line, index) => {
       for (const [name, pattern] of INSTRUCTION_PHRASES) if (pattern.test(line)) instructionHits.push(`${file}:${index + 1} (${name})`);
     });

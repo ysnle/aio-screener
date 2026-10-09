@@ -1,10 +1,82 @@
 ---
-last_verified: 2026-10-08
+last_verified: 2026-10-09
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1537 - v57.30 - The news count did not say which list it covered, and the concept-map list printed a relation word without a direction (2026-10-09)
+
+- symptom/reproduction: The news strip showed '12건 표시 / 40건 일치' with no word on whether country, topic or type filters applied, and the channel (Telegram) list below it is classified on its own; the note about that was empty when only the Telegram type chip narrowed the articles. The connected-concepts list printed only the relation word (for example '분해') for both outgoing and incoming edges, and the text alternative could print an internal edge type (CAUSES).
+- root_cause: The scope was implicit in the controls and the two lists shared one count; the map aside dropped the edge direction; the text alternative preferred the enum over the Korean relation.
+- fix: describeNewsScope states '필터 적용'/'필터 없음' on the article count and, whenever a control is active, that the channel list ignores the country and topic filters. The connected-concepts list prefixes an arrow for the edge direction and the text alternative shows the edge's own relation, never the type.
+- violated_rule: A count says which list and which filter state it covers.
+- prevention: ci-esm-core-unit-check P1537 covers every control state of describeNewsScope; ci-knowledge-renderer-contract P1537 renders the text alternative with relation and type and checks the direction wiring.
+- verification/residual: esm-core-unit, architecture and knowledge renderer contract checks pass. Not done: the channel count with a pool total, the glossary-to-indicator link (H109, four atlas-backed terms only and the indicator screens read no metric or timeframe parameter) and the Korean type labels for concept edges (no source for the wording).
+
+## P1536 - v57.30 - The concentration model weighted a position with a cached or reference price, and the legacy wrapper substituted the snapshot close (2026-10-09)
+
+- symptom/reproduction: For a position with a cached close and a technical snapshot, js/aio-core.js used the snapshot's last close as the exposure (15% weight, penalty 10 where the model gave 10%, penalty 5), while src/domain/portfolio/concentration.js used whatever price it was given, including an explicit value, with no notion of provenance.
+- root_cause: Quote provenance existed only in the legacy wrapper (live-quote / allowedUse) and the snapshot close was allowed to stand in for the price; the extracted model never received the rule.
+- fix: A position that declares a non-live quoteSourceKind/priceSource or a non-decision allowedUse is held as data-insufficient (quote-not-decision-grade), as a price or as an explicit value, outside the denominator, with no weight or penalty. The legacy wrapper keeps the snapshot close only as the P&L reference and never as exposure or weight. An unlabeled position keeps the pure-model contract (the caller vouches), which the golden fixtures and the not-yet-wired UI path rely on.
+- violated_rule: A reference price is not an exposure (R590).
+- prevention: ci-esm-core-unit-check P1536 mixes live, cached, reference, stored, decision-grade and unlabeled positions and checks status, denominator and held list; legacy T-test P1536 checks a cached close and a missing quote give no weight and a live quote still gives 100%.
+- verification/residual: esm-core-unit and domain-parity (golden concentration fixtures) pass. The live application path was already withholding non-live weights (its total value is null unless every holding is live), so its result is unchanged. Not done: wiring the model to the UI with the labels, and the native portfolio page's use of stored prices as reference.
+
+## P1535 - v57.30 - Internal action enums and a position-size percentage were shown to readers, and AI prompts forced an action verdict (2026-10-09)
+
+- symptom/reproduction: The technical panels printed HOLD_CORE, NO_ADD_RAISE_STOP, TRIM_25_33, TRIM_50 and EXIT_OR_HEDGE as badges, in a sentence ('...로 결론냅니다') and inside flag chips; the home card printed '포지션 사이즈: 50%' although its own source comment says the percentage is reference data and must not be rendered as an instruction. Prompts told the model to state an action conclusion, to recommend a position size and entry strategy, and to name a clear winner and a final recommendation. A score band was labelled '매수 우호'.
+- root_cause: The enums were designed as internal engine output (unit tests, golden fixtures) and were rendered unchanged. The P714 rewrite covered the rule objects but not the card that read them, and prompt text was never in the wording gate.
+- fix: The enums stay in the engines. aio-ui maps them to load levels (부담 낮음 ... 부담 최상위 구간, 판단 보류 for an unknown value) for badges, the beginner sentence and the lockout and blow-off flag chips. The home card shows the volatility band and the sentiment environment instead of a percentage. Prompts ask for conditions and options, not one action or a verdict; '매수 우호' became '우호 환경'; the 'entry strategy' chip became a request for indicators and invalidation conditions.
+- violated_rule: Visible and model-directed text states conditions, not instructions (R693); an internal code is not reader text.
+- prevention: ci-control-char-check P1523 adds the phrases (매수 우호, 포지션 사이즈 표시, 센티먼트 행동, 진입 전략 요청, 행동 결론, 확실한 우위, 비중 제한 권장, 최종 추천 강제) and a rule against passing an engine action straight to _itbBadge; legacy test T115 now reads the new prompt wording.
+- verification/residual: Control-char, runtime-contract, chat-resilience and domain-parity checks pass; the guard was shown to fire on an injected line. The legacy browser tests (T106, T115, T131, T144 read the unchanged enums) ran in the full QA. Not verified: model answers under the new prompts. Left as is: the pass-through action gate (tests T932 to T937 assert it) and the calculator label in index.html.
+
+## P1534 - v57.30 - VIX and Fear & Greed band edges existed in a dozen copies that disagreed, and the regime alert depended on the legacy copy (2026-10-09)
+
+- symptom/reproduction: F&G 45 read neutral in the legacy shell and fear in src; VIX 17 read stable in one and normal in the other; VIX 33 read panic and 'caution band'. The alert compares band indexes, so which copy a screen used decided whether a change looked severe. Copies found: aio-core (two closures), AIO_ACTION_RULES, src metrics, narrative and sentiment-board, four label ladders in aio-pages and aio-chat, a macro-page regime function, an audit helper and a Korean-market text block.
+- root_cause: Each screen carried its own ladder, with different inclusion directions (< versus <=) and, for VIX, three different edge sets (16/22/30, 16/25/35, 18/25/32). Only one text claimed a source.
+- fix: RULES.volatility carries 18/25/32 (the set the alert already used, P1367) and RULES.fearGreed is applied on the whole number CNN publishes (extreme fear 0-24, fear 25-44, neutral 45-55, greed 56-75, extreme greed 76-100). src fearGreedBand, vixBand and the sentiment board use them; the legacy closures keep inline copies, corrected to the same edges, because they run before ESM is available. Labels in the pages, chat, macro regime, audit helper and Korean-market text follow the same edges. Label wording is unchanged where tests read it.
+- violated_rule: A threshold that drives an alert has one owner; copies are allowed only when pinned to it by a gate.
+- prevention: ci-domain-parity-check P1534 evaluates both legacy closure copies, the sentiment board and the AIO_ACTION_RULES edges against src over the whole scale (F&G 0-100 in tenths, VIX 5-80), pins named boundary values, keeps the VIX 24 to 32 span of two bands, and fails on any old-edge ladder in the page files.
+- verification/residual: Domain-parity, esm-core-unit, architecture, runtime-contract, proxy-continuity and chat-resilience checks pass. Behaviour change at the boundary only: F&G 25 and 45 move one band down, 55 and 75 one band down in the legacy shell; VIX edges used by non-alert ladders move to 18/25/32. Not verified: CNN's own page (the bands are the table NerdWallet attributes to CNN Business); the VIX edges are a convention with no external source. Left as is: the finer THRESHOLD_REGISTRY ladders and the 'panic' label wording.
+
+## P1533 - v57.30 - The pure exchange calendar lived in the AI layer, five domain modules imported upward, and two session counters disagreed (2026-10-09)
+
+- symptom/reproduction: src/domain imported the NYSE/KRX calendar from src/ai/time/market-session.js in five places. market-read.js counted weekdays only (2026-07-01 to 07-06 counted 3 sessions across the July 3 holiday and dropped a one-session-old input as stale) while daily-diff.js counted open sessions on the registered calendar. The Korean close had no end-of-day confirmation although the legacy engine withholds 15:30 to 16:00.
+- root_cause: The calendar was written for the AI evidence code first and reused upward; each consumer added its own counting loop.
+- fix: src/domain/market/market-calendar.js (no imports) now holds the calendar tables, session resolution, latest completed US and KR sessions and openSessionDatesBetween / countOpenSessionsBetween. market-session.js re-exports every name, so scripts and the AI code are unchanged. The five domain importers use the domain module. market-read lag counts and daily-diff gaps share the holiday-aware walk (unregistered years count weekdays for lags and no session for gap reports). latestCompletedKrSession carries eodConfirmed (true from 16:00 KST). The annual calendar review script and the pipeline impact lists point at the new file.
+- violated_rule: The domain layer does not import the AI layer; one calendar answers every 'how many sessions' question.
+- prevention: ci-market-session-contract-check P1533: identical re-exported objects, the calendar module imports nothing and keeps the official source lines, holiday and unregistered-year counts, the gap list, the holiday-weekend lag, the KRX grace window, and a scan that fails when any file under src/domain imports from src/ai.
+- verification/residual: Market-session, esm-core-unit, data-pipeline, market-snapshot, rotation-history, architecture, operations-alert-policy, ai-intelligence, qa-pipeline and doc-currency checks pass; the calendar review script runs against the new path. Behaviour change: an input one session behind across a US market holiday is now lagged instead of stale. Not done: wiring eodConfirmed into the Korean basis consumers.
+
+## P1532 - v57.30 - A fast-plane snapshot whose quotes were all stale was adopted ahead of the durable snapshot (2026-10-09)
+
+- symptom/reproduction: The data-plane Worker publishes with QG-01_PASS whenever Tier-0 coverage is complete and labels each quote's quality, but it does not refuse a snapshot whose 16 quotes are all STALE. The browser loader accepted any published, valid fast-plane snapshot and returned it before the durable snapshot, against the loader's own contract that a stale fast plane degrades to the previous behaviour. Reproduced: a REGULAR-session quote 3 hours old is labelled STALE and still published.
+- root_cause: The loader checked status and schema only; quality is a per-quote label and nothing at snapshot level used it.
+- fix: For the fast-plane source only, a snapshot with no CURRENT, CLOSED_CURRENT or DELAYED quote is treated as a failure (fast_plane_no_usable_quotes) and the durable snapshot is tried; one usable quote keeps the fast plane and the stale rows degrade per quote downstream. The durable snapshot, being the last source, is never refused. The Worker's publish semantics are unchanged.
+- violated_rule: A source that is not fresher than the fallback must not outrank it.
+- prevention: ci-fast-plane-consumer-gate P1532: all-STALE and all-UNAVAILABLE fast snapshots fall through, a mixed snapshot stays, an all-usable one is preferred, and a stale durable snapshot is still returned.
+- verification/residual: The consumer gate and the market-snapshot contract check pass. The fast plane is disabled today (enabled=false, rights not reviewed), so no user path changed. Not done: quality counts in /health and an operations-status downgrade, which wait for the plane to be enabled.
+
+## P1531 - v57.30 - Industry map product lines were English registry text on a Korean page (2026-10-09)
+
+- symptom/reproduction: The role block printed each product's problemSolved from the registry (for example 'parallel AI training and inference') beside Korean labels.
+- root_cause: The renderer printed the registry string as is. The registry is English only, and editing it would regenerate dependent artifacts.
+- fix: industry-view.js carries PRODUCT_PROBLEM_LABELS, a Korean line per productId (22), restating the registry line without volume, share, customer or production claims. A product without an entry shows no line and never the English text. The registry mapping of MP Materials to an equipment node is left as registered.
+- violated_rule: Reader-facing text is Korean and is never a raw registry string.
+- prevention: ci-atlas-contract-check P1531: every registry product has a Korean line, the table has no unknown ids, the English text never reaches the rendered block, and a product mapped to a node shows its Korean line.
+- verification/residual: The atlas contract check passes with the real registry. Not verified: wording quality of the 22 lines by a domain reader.
+
+## P1530 - v57.30 - 13F scale detection flagged the normal filer of a two-filer security next to the odd one (2026-10-09)
+
+- symptom/reproduction: With exactly two filers on a CUSIP and period, each filer is the other's only peer, so a filing whose price per share sits 1,000x below the other also makes the other look 1,000x too high. A normal filer whose compared rows are mostly two-filer rows would be withheld together with the odd one. In the published holdings, 56 of the 65 multi-filer CUSIP-periods have exactly two filers.
+- root_cause: detectValueScaleSuspects compared every row with the median of the other filers' prices and accepted a single peer, so the median was one price and could not say which side was the outlier.
+- fix: A row is compared only when at least minPeers (default 2) other filers report the same CUSIP and period; with two peers the median of one normal and one odd price keeps the normal filer near 1x. minPeers stays an option.
+- violated_rule: A comparison baseline needs enough independent observations to say which side is the outlier.
+- prevention: ci-masters-contract-check P1530: a pair of filers flags neither, a lone pair cannot hide the real three-filer outlier, and minPeers: 1 stays configurable; removing the peer count fails the first assertion.
+- verification/residual: On public-data/masters/holdings.json the same three filers (T. Rowe Price, Duquesne, Baupost, period 2026-06-30) are flagged with minPeers 2 (10, 2 and 3 compared rows) and no other filer is; the masters contract check passes. Not verified: the filings' own units; the amounts stay withheld, never multiplied.
 
 ## P1529 - v57.30 - Trend chart month labels overlapped once the time range grew, turning browser-viewport red on main (2026-10-08)
 

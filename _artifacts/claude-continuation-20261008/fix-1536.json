@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "The concentration model weighted a position with a cached or reference price, and the legacy wrapper substituted the snapshot close",
+  "symptom": "For a position with a cached close and a technical snapshot, js/aio-core.js used the snapshot's last close as the exposure (15% weight, penalty 10 where the model gave 10%, penalty 5), while src/domain/portfolio/concentration.js used whatever price it was given, including an explicit value, with no notion of provenance.",
+  "root_cause": "Quote provenance existed only in the legacy wrapper (live-quote / allowedUse) and the snapshot close was allowed to stand in for the price; the extracted model never received the rule.",
+  "fix": "A position that declares a non-live quoteSourceKind/priceSource or a non-decision allowedUse is held as data-insufficient (quote-not-decision-grade), as a price or as an explicit value, outside the denominator, with no weight or penalty. The legacy wrapper keeps the snapshot close only as the P&L reference and never as exposure or weight. An unlabeled position keeps the pure-model contract (the caller vouches), which the golden fixtures and the not-yet-wired UI path rely on.",
+  "violated_rule": "A reference price is not an exposure (R590).",
+  "prevention": "ci-esm-core-unit-check P1536 mixes live, cached, reference, stored, decision-grade and unlabeled positions and checks status, denominator and held list; legacy T-test P1536 checks a cached close and a missing quote give no weight and a live quote still gives 100%.",
+  "verification": "esm-core-unit and domain-parity (golden concentration fixtures) pass. The live application path was already withholding non-live weights (its total value is null unless every holding is live), so its result is unchanged. Not done: wiring the model to the UI with the labels, and the native portfolio page's use of stored prices as reference."
+ },
+ "r": null,
+ "changelog": [
+  "**집중도 모델의 시세 출처 규칙 (P{P}):** 캐시 종가·참고 시세를 선언한 포지션은 비중과 벌점 없이 보류하고 분모에서도 뺀다(명시 value 포함). 레거시는 스냅샷 종가를 손익 참고로만 쓰고 노출·비중에는 쓰지 않는다."
+ ]
+}

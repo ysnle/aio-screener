@@ -304,6 +304,14 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   if (!suspects.has('thousandths|2026-06-30') || suspects.has('peer-a|2026-06-30') || suspects.has('peer-b|2026-06-30')) fail('P1522 detection must flag only the filer whose per-share price sits ~1,000x below its peers');
   const managers = scale.managersUnderScaleReview(suspects);
   if (managers.size !== 1 || !managers.has('thousandths')) fail('P1522 managersUnderScaleReview must name exactly the flagged managers');
+  // P1530: with exactly two filers on a security each is the other's only peer, so the median of one price cannot say which
+  // filer is off, and the normal filer used to be flagged as 1,000x too high. Detection needs at least two peers per row.
+  const twoFilers = scale.detectValueScaleSuspects([...cusips.map((c) => row('peer-a', c, 200)), ...cusips.map((c) => row('thousandths', c, 0.2))]);
+  if (twoFilers.size !== 0) fail(`P1530 two filers on the same securities cannot identify the odd one; flagged ${[...twoFilers.keys()].join(', ')}`);
+  const oneSidedPair = scale.detectValueScaleSuspects([...fixture, ...cusips.map((c) => row('pair-x', `${c}9`, 200)), ...cusips.map((c) => row('pair-y', `${c}9`, 0.2))]);
+  if ([...oneSidedPair.keys()].some((key) => key.startsWith('pair-')) || !oneSidedPair.has('thousandths|2026-06-30')) fail('P1530 a lone two-filer security must not flag either filer, and must not hide the real three-filer outlier');
+  const loose = scale.detectValueScaleSuspects(fixture, { minPeers: 1 });
+  if (!loose.has('thousandths|2026-06-30')) fail('P1530 minPeers stays configurable');
   const earlier = [row('thousandths', cusips[0], 0.2, 1000, '2025-12-31'), row('peer-a', cusips[0], 200, 1000, '2025-12-31')];
   const withheldEarlier = scale.withholdManagerValues(earlier, managers);
   if (withheldEarlier[0].value !== null || withheldEarlier[0].valueScaleStatus !== 'SCALE_REVIEW' || withheldEarlier[0].shares !== 1000 || withheldEarlier[1] !== earlier[1]) fail('P1522 an earlier quarter of a flagged manager must lose its amount, keep its shares, and leave other managers untouched');

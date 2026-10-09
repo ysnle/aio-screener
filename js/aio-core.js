@@ -2293,8 +2293,8 @@ window._aioRefreshActionPlan = function() {
     var posEl = document.getElementById('home-action-position');
     var sentEl = document.getElementById('home-action-sentiment');
     var brEl = document.getElementById('home-action-breadth');
-    if (posEl && plan.position) posEl.textContent = '포지션 사이즈: ' + plan.position.sizePct + '% — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
-    if (sentEl && plan.sentiment) sentEl.textContent = '센티먼트 행동: ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
+    if (posEl && plan.position) posEl.textContent = '변동성 구간(' + plan.position.label + '): ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
+    if (sentEl && plan.sentiment) sentEl.textContent = '심리 환경(' + plan.sentiment.action + '): ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
     if (brEl && plan.actions && plan.actions.length > 2) brEl.textContent = '' + plan.actions[plan.actions.length - 1];
     // 갱신 시점 시각 표시
     if (posEl) posEl.setAttribute('data-refreshed-at', new Date().toISOString());
@@ -3080,7 +3080,7 @@ if (typeof document !== 'undefined') {
 
   function _vixBand(v){ if (v == null) return null; return v < 18 ? 0 : v < 25 ? 1 : v < 32 ? 2 : 3; }
   function _vixBandLabel(b){ return ['안정','보통','경계','패닉'][b] || '?'; }
-  function _fgZone(v){ if (v == null) return null; return v < 25 ? 0 : v < 45 ? 1 : v < 55 ? 2 : v < 75 ? 3 : 4; }
+  function _fgZone(v){ if (v == null) return null; v = Math.round(v); return v < 25 ? 0 : v < 45 ? 1 : v <= 55 ? 2 : v <= 75 ? 3 : 4; }
   function _fgZoneLabel(z){ return ['극단공포','공포','중립','탐욕','극단탐욕'][z] || '?'; }
 
   // 작성 시점 레짐(stamp) ↔ 현재 레짐(now) 드리프트 평가. severity: none|mild|severe
@@ -3476,7 +3476,7 @@ if (typeof document !== 'undefined') {
       var _num = function(v){ return (typeof v === 'number' && isFinite(v)) ? v : null; };
       var _vixBand = function(v){ if (v == null) return null; return v < 18 ? 0 : v < 25 ? 1 : v < 32 ? 2 : 3; };
       var _vixBandLabel = function(b){ return ['안정','보통','경계','패닉'][b] || '?'; };
-      var _fgZone = function(v){ if (v == null) return null; return v < 25 ? 0 : v < 45 ? 1 : v < 55 ? 2 : v < 75 ? 3 : 4; };
+      var _fgZone = function(v){ if (v == null) return null; v = Math.round(v); return v < 25 ? 0 : v < 45 ? 1 : v <= 55 ? 2 : v <= 75 ? 3 : 4; };
       var _fgZoneLabel = function(z){ return ['극단공포','공포','중립','탐욕','극단탐욕'][z] || '?'; };
       var A = window.AIO || {}, ds = window.DATA_SNAPSHOT || {}, ld = window._liveData || {};
       var reg = (typeof window._aioRegimeNow === 'function') ? window._aioRegimeNow() : {};
@@ -4745,7 +4745,7 @@ function _aioDefaultDecision(pageId) {
       title: '오늘 결론',
       decision: _band.label + ' (스코어 ' + _scoreText + ')',
       reasons: commonReasons,
-      action: _band.action + ' 신규 진입은 ATR 손절선과 이벤트 리스크를 먼저 정한다.'
+      action: _band.action + ' 신규 진입 여부와 별개로 ATR 손절선과 이벤트 리스크는 먼저 확인할 항목입니다.'
     },
     signal: {
       title: '시장 환경 참고',
@@ -4785,7 +4785,7 @@ function _aioDefaultDecision(pageId) {
       title: '차트 판단',
       decision: '종목 입력 후 레벨·진입·무효화부터 확인',
       reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 ' + vixTxt + ' · 스코어 ' + _scoreText + ' 환경을 차트 판단에 함께 반영'],
-      action: '티커를 입력하고 진입가, 무효화 가격, 손절, 기간을 한 번에 확인한다.'
+      action: '티커를 입력하면 진입가, 무효화 가격, 손절, 기간을 한 화면에서 확인할 수 있습니다.'
     },
     screener: {
       title: '후보 판단',
@@ -11676,13 +11676,13 @@ window.AIO_ACTION_RULES = {
     rules: [
       { fgMax: 25, action: '극단 공포 구간', note: '역발상 프레임워크("남들이 공포에 떨 때…" — 버핏 귀속)가 주목해온 구간이나, F&G 밴드 자체의 예측력은 검증되지 않았습니다.' },
       { fgMax: 45, action: '공포 구간',     note: '심리 위축 구간. 프레임워크상 분할 접근이 논의되는 환경이지만 종목별 근거가 우선입니다.' },
-      { fgMax: 55, action: '중립 구간',     note: '뚜렷한 심리 쏠림 없음.' },
-      { fgMax: 75, action: '탐욕 구간',     note: '심리 과열 초입. 역사적으로 추격 진입의 성과가 불안정하던 구간으로 서술됩니다.' },
+      { fgMax: 56, action: '중립 구간',     note: '뚜렷한 심리 쏠림 없음.' },
+      { fgMax: 76, action: '탐욕 구간',     note: '심리 과열 초입. 역사적으로 추격 진입의 성과가 불안정하던 구간으로 서술됩니다.' },
       { fgMax: 101, action: '극단 탐욕 구간', note: '심리 과열 극단. 역발상 프레임워크가 위험 축적을 경고해온 구간입니다(지시 아님).' }
     ],
     getRule: function(fg) {
       if (fg == null || fg === '' || !isFinite(Number(fg))) return null;
-      var v = Number(fg);
+      var v = Math.round(Number(fg)); // P1534: CNN publishes whole numbers; fgMax 56/76 make 55 neutral and 75 greed
       for (var i = 0; i < this.rules.length; i++) if (v < this.rules[i].fgMax) return this.rules[i];
       return this.rules[this.rules.length - 1];
     }
@@ -11740,8 +11740,8 @@ window.AIO_SCORE_SCALES = {
   version: 'v49.25',
   TWENTY_POINT: { min: 0, max: 20, name: 'Trading Score (20점)', components: { trend: 8, rs: 4, volume: 3, volatility: 3, breakout: 2 } },
   HUNDRED_POINT: { min: 0, max: 100, name: 'Score Index (0~100)', bands: [
-    { min: 75, label: '매수 우호', color: 'data-green' },
-    { min: 60, label: '매수 우호', color: 'data-green' },
+    { min: 75, label: '우호 환경', color: 'data-green' },
+    { min: 60, label: '우호 환경', color: 'data-green' },
     { min: 45, label: '중립',     color: 'text-secondary' },
     { min: 30, label: '주의',     color: 'data-amber' },
     { min: 0,  label: '위험',     color: 'data-red' }
@@ -17044,12 +17044,12 @@ function calcPositionTechnicalRisk(position, ohlcvOrSnapshot, portfolioContext) 
     || position.quoteSourceKind === 'live-quote' || position.priceSource === 'live-quote';
   var px = quoteAllowed ? finite(position.price) : null;
   if (px == null && quoteAllowed) px = finite(position.currentPrice);
-  if (px == null && snapshot && snapshot.ok === true) px = finite(snapshot.price);
+  var referencePx = px != null ? px : (snapshot && snapshot.ok === true ? finite(snapshot.price) : null); // P1536: reference close for P&L only, never exposure or weight
   var hasTechnicalSnapshot = !!(snapshot && snapshot.ok === true);
   var totalValue = finite(portfolioContext.totalValue);
   var value = qty != null && qty >= 0 && px != null && px > 0 ? qty * px : null;
   var weightPct = value != null && totalValue != null && totalValue > 0 ? (value / totalValue) * 100 : null;
-  var pnlPct = cost != null && cost > 0 && px != null && px > 0 ? ((px - cost) / cost) * 100 : null;
+  var pnlPct = cost != null && cost > 0 && referencePx != null && referencePx > 0 ? ((referencePx - cost) / cost) * 100 : null;
   // Cost basis is historical context only. It must never stand in for a
   // missing quote/current exposure or a missing portfolio denominator.
   if (!hasTechnicalSnapshot || value == null || totalValue == null || totalValue <= 0 || weightPct == null) {
@@ -19913,10 +19913,10 @@ function _aioMarketAuditRegime(ref) {
   var riskScore = 0;
   if (isFinite(spyPct)) riskScore += spyPct > 0.25 ? 1 : (spyPct < -0.25 ? -1 : 0);
   if (isFinite(qqqPct)) riskScore += qqqPct > 0.25 ? 1 : (qqqPct < -0.25 ? -1 : 0);
-  if (isFinite(vix)) riskScore += vix < 16 ? 1 : (vix > 22 ? -1 : 0);
+  if (isFinite(vix)) riskScore += vix < 18 ? 1 : (vix >= 25 ? -1 : 0); // P1534: 18 / 25 / 32 band edges
   return {
     riskTone: riskScore >= 2 ? 'risk_on' : (riskScore <= -2 ? 'risk_off' : 'mixed'),
-    volatility: isFinite(vix) ? (vix < 16 ? 'low' : (vix < 22 ? 'normal' : (vix < 30 ? 'elevated' : 'stress'))) : 'unknown',
+    volatility: isFinite(vix) ? (vix < 18 ? 'low' : (vix < 25 ? 'normal' : (vix < 32 ? 'elevated' : 'stress'))) : 'unknown',
     rates: isFinite(tnx) ? (tnx >= 4.5 ? 'high_yield_pressure' : (tnx <= 4.0 ? 'rate_relief' : 'neutral')) : 'unknown',
     oil: isFinite(oil) ? (oil >= 85 ? 'oil_high' : (oil <= 65 ? 'oil_soft' : 'oil_neutral')) : 'unknown',
     gold: isFinite(gold) ? (gold >= 4300 ? 'gold_high' : (gold <= 3500 ? 'gold_soft' : 'gold_neutral')) : 'unknown',

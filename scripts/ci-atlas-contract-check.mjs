@@ -241,6 +241,19 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
   if (!/직접 공급을 뜻하지 않습니다/.test(cxl.text) || !/현재 매출·출하·점유율·양산 여부를 나타내지 않습니다/.test(cxl.text)) errors.push('P1524 the role block must say what the list is not: reference roles are not direct supply and carry no current revenue, share or production claim');
   if (/출처|REFERENCE_ONLY|ROLE_REFERENCE|1차/.test(cxl.text + photonic.text + equipment.text)) errors.push('P1524 the role block must not show source or review copy to the reader');
   if (/nand manufacturer|ssd provider|quantum platform provider/.test(cxl.text + photonic.text)) errors.push('P1524 role ids must be shown in Korean');
+  // P1531 (owner decision, agent-recommended): the registry's problemSolved text is English. The page shows a Korean
+  // line from a code table keyed by productId and never falls back to the English registry text.
+  const { PRODUCT_PROBLEM_LABELS } = await import('../src/ui/knowledge/industry-view.js');
+  const productIds = registry.products.map((product) => product.productId);
+  const unlabeled = productIds.filter((id) => !/[가-힣]/.test(PRODUCT_PROBLEM_LABELS?.[id] || ''));
+  const orphaned = Object.keys(PRODUCT_PROBLEM_LABELS || {}).filter((id) => !productIds.includes(id));
+  if (unlabeled.length || orphaned.length) errors.push(`P1531 product problem lines out of step with the registry (missing Korean: ${unlabeled.join(', ') || 'none'}; unknown ids: ${orphaned.join(', ') || 'none'})`);
+  const shownLines = ['memory-cxl', 'future-photonic-compute', 'semiconductor-equipment'].map((id) => groups(id).listText).join(' ');
+  const englishLeak = registry.products.filter((product) => product.problemSolved && shownLines.includes(product.problemSolved));
+  if (englishLeak.length) errors.push(`P1531 the English registry problemSolved text must not reach the reader: ${englishLeak.map((product) => product.productId).join(', ')}`);
+  const mpNodes = registry.products.find((product) => product.productId === 'mp-materials-rare-earth-magnetics')?.taxonomyNodeIds || [];
+  const mpText = mpNodes.map((id) => groups(id).listText).join(' ');
+  if (!/희토류/.test(mpText)) errors.push('P1531 a product mapped to a node must show its Korean line in the product group');
   const everyText = registry.products.flatMap((product) => product.taxonomyNodeIds || []).map((id) => groups(id).listText).join(' ');
   if (/MATURE|RAMP|ROADMAP_OPTION|MIXED_BY_GENERATION|양산/.test(everyText)) errors.push('P1524 the role block must not show production stage (withheld by the registry boundary)');
 }

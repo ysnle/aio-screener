@@ -47,7 +47,8 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 
 | `src/ai/intent/taxonomy.js` | 83 | AIQ-1 typed intent taxonomy/routing |
 | `src/ai/entity/resolver.js` | 51 | AIQ-1 entity alias/ticker resolution |
-| `src/ai/time/market-session.js` | 47 | AIQ-1 current-question market session evidence |
+| `src/ai/time/market-session.js` | 132 | AIQ-1 current-question market session evidence (the pure calendar names are re-exported from the domain module) |
+| `src/domain/market/market-calendar.js` | 210 | pure NYSE/KRX calendar: registered holidays and half-days, latest completed US/KR session (`eodConfirmed`), holiday-aware session counts; imports nothing |
 | `src/ai/evidence/graph.js` | 28 | AIQ-2 evidence graph/completeness boundary |
 | `src/ai/analysis/causal.js` | 24 | AIQ-4 temporal/cross-asset causal attribution primitive |
 | `src/ai/policy/suitability.js` | 10 | AIQ-2 action/suitability permission boundary |

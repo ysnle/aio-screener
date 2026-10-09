@@ -521,7 +521,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             const other = NODE_BY_ID.get(otherId);
             if (!other) return;
             const link = button(documentRef, 'af-route', '', 'select-node', otherId);
-            link.append(element(documentRef, 'strong', null, other.title), element(documentRef, 'span', null, edge.relation || ''));
+            link.append(element(documentRef, 'strong', null, other.title), element(documentRef, 'span', null, `${edge.from === node.id ? '→' : '←'} ${edge.relation || ''}`.trim()));
             box.appendChild(link);
           });
           blocks.push(box);

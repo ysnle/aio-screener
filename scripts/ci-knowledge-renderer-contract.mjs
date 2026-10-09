@@ -22,4 +22,18 @@ assert.equal(renderKnowledgeEvidence(documentLike, ['S1'], { resolve: () => ({ t
 assert.equal(renderKnowledgeGraphTextAlternative(documentLike, [{ id: 'a', title: 'A' }, { id: 'b', title: 'B' }], [{ from: 'a', to: 'b', type: 'CAUSES' }]).tagName, 'section');
 assert.equal(renderKnowledgePath(documentLike, { title: '경로', nodeIds: ['a'] }, [{ id: 'a', title: 'A' }]).tagName, 'nav');
 assert.equal(renderKnowledgeTree(documentLike, [{ title: '분류', nodes: [{ id: 'a', title: 'A' }] }]).tagName, 'div');
+// P1537 (audit H110): the text alternative names a relation in the reader's words (the edge's own Korean relation), never the
+// internal English edge type, and falls back to a neutral '관계' rather than an enum.
+{
+  const textOf = (n) => (n.textContent || '') + (n.children || []).map(textOf).join('');
+  const nodes = [{ id: 'a', title: 'A' }, { id: 'b', title: 'B' }];
+  const withBoth = textOf(renderKnowledgeGraphTextAlternative(documentLike, nodes, [{ from: 'a', to: 'b', relation: '분해', type: 'CAUSES' }]));
+  assert.ok(withBoth.includes('A → B · 분해'), `relation text missing: ${withBoth}`);
+  assert.ok(!/CAUSES/.test(withBoth), `internal edge type reached the reader: ${withBoth}`);
+  const typeOnly = textOf(renderKnowledgeGraphTextAlternative(documentLike, nodes, [{ from: 'a', to: 'b', type: 'CAUSES' }]));
+  assert.ok(typeOnly.includes('A → B · 관계') && !/CAUSES/.test(typeOnly), `an edge with only an internal type must read 관계: ${typeOnly}`);
+  // The connected-concepts list shows which way a relation points (the map aside used to print the relation word alone).
+  const principles = (await import('node:fs')).readFileSync(new URL('../src/ui/pages/principles.js', import.meta.url), 'utf8');
+  assert.ok(/edge\.from === node\.id \? '→' : '←'\} \$\{edge\.relation/.test(principles), 'the connected-concepts list must show the relation direction');
+}
 console.log(JSON.stringify({ status: 'PASS', renderers: 5 }, null, 2));

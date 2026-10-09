@@ -1,11 +1,29 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-08
+last_verified: 2026-10-09
 confidence: medium
 target_version: v57.30
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R696. An internal code is not reader text (v57.30, P1535)
+
+**Rule**: Engine enums, flag ids and reference percentages are mapped to a reader label before rendering; a renderer must not pass an engine action to a badge or sentence, and a prompt describes the conditions to explain rather than the verdict to give. A guard lists the retired phrases and the direct-render pattern.
+
+**Validation**: node scripts/ci-control-char-check.mjs
+
+## R695. A threshold that drives an alert has one owner and pinned copies (v57.30, P1534)
+
+**Rule**: VIX and Fear & Greed band edges are owned by src/domain/rules/thresholds.js. A copy that cannot import it (a legacy closure) is allowed only while a parity gate evaluates it against the owner across the whole scale, and a new copy of a ladder with other edges fails the gate.
+
+**Validation**: node scripts/ci-domain-parity-check.mjs
+
+## R694. The domain layer sits below the AI layer, and one calendar answers every session count (v57.30, P1533)
+
+**Rule**: src/domain never imports from src/ai. Shared pure facts (the exchange calendar) live in the domain layer and the AI layer re-exports them. Session lags and gaps are counted on the registered holiday calendar, with an explicit policy for unregistered years: weekdays for lags (stale data must not read as aligned) and no session for gap reports (a gap is not claimed unverified).
+
+**Validation**: node scripts/ci-market-session-contract-check.mjs
 
 ## R693. Visible text states the observed condition, not an instruction or an unsourced probability (v57.30, P1523)
 

@@ -312,4 +312,58 @@ for (const fixture of factorRanksGolden.fixtures) {
   }
 }
 
+// P1534 (owner decision, agent-recommended): one set of Fear & Greed and VIX band edges. src/domain/rules/thresholds.js owns the
+// numbers; the legacy shell cannot import ESM at parse time, so its closures keep inline copies that this block pins to the
+// src result over the whole scale. F&G edges are CNN's published integer bands (0-24, 25-44, 45-55, 56-75, 76-100); VIX
+// 18 / 25 / 32 is the band set the regime alert already used (P1367). Alerts compare band indexes, so the copies must agree.
+{
+  const { RULES } = await import('../src/domain/rules/thresholds.js');
+  const { fearGreedBand } = await import('../src/domain/sentiment/metrics.js');
+  const { vixBand } = await import('../src/domain/sentiment/narrative.js');
+  const board = await import('../src/ui/components/sentiment-board.js');
+  const core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const pick = (name) => [...core.matchAll(new RegExp(`(?:function ${name}\\(v\\)\\s*\\{[^\\n]*\\}|var ${name} = function\\(v\\)\\{[^\\n]*\\};)`, 'g'))].map((match) => match[0]);
+  const build = (name, text) => new Function(`${text}\nreturn ${name};`)();
+  const fgLabels = ['극단 공포', '공포', '중립', '탐욕', '극단 탐욕'];
+  const vixLabels = ['저변동 구간', '통상 범위', '변동성 경계 구간', '고변동 구간'];
+  const legacyFg = pick('_fgZone'), legacyVix = pick('_vixBand');
+  if (legacyFg.length !== 2 || legacyVix.length !== 2) fail(`P1534 expected two legacy copies each of _fgZone/_vixBand in js/aio-core.js, found ${legacyFg.length}/${legacyVix.length}`);
+  if (RULES.volatility.highAt !== 32 || RULES.volatility.calmBelow !== 18 || RULES.volatility.stressAt !== 25) fail('P1534 RULES.volatility must carry the 18 / 25 / 32 band edges');
+  const mismatches = [];
+  for (let tenth = 0; tenth <= 1000; tenth += 1) {
+    const value = tenth / 10;
+    const band = fearGreedBand(value);
+    const index = fgLabels.indexOf(band.label);
+    for (const [copy, text] of legacyFg.entries()) if (build('_fgZone', text)(value) !== index) mismatches.push(`_fgZone#${copy + 1}(${value})`);
+    const boardBand = board.fearGreedBand(value);
+    if (!boardBand || boardBand.label !== band.label) mismatches.push(`sentiment-board(${value})`);
+  }
+  for (let tenth = 50; tenth <= 800; tenth += 1) {
+    const value = tenth / 10;
+    const index = vixLabels.indexOf(vixBand(value).label);
+    for (const [copy, text] of legacyVix.entries()) if (build('_vixBand', text)(value) !== index) mismatches.push(`_vixBand#${copy + 1}(${value})`);
+  }
+  if (mismatches.length) fail(`P1534 band edges drifted between src and the legacy copies (${mismatches.length}): ${mismatches.slice(0, 8).join(', ')}`);
+  for (const [value, label] of [[24, '극단 공포'], [25, '공포'], [44, '공포'], [45, '중립'], [55, '중립'], [56, '탐욕'], [75, '탐욕'], [76, '극단 탐욕'], [55.4, '중립'], [55.6, '탐욕']]) {
+    if (fearGreedBand(value).label !== label) fail(`P1534 Fear & Greed ${value} must read ${label} (CNN integer bands), got ${fearGreedBand(value).label}`);
+  }
+  for (const [value, label] of [[17.9, '저변동 구간'], [18, '통상 범위'], [24.9, '통상 범위'], [25, '변동성 경계 구간'], [31.9, '변동성 경계 구간'], [32, '고변동 구간']]) {
+    if (vixBand(value).label !== label) fail(`P1534 VIX ${value} must read ${label}, got ${vixBand(value).label}`);
+  }
+  // The alert's own severity must not move: the same VIX/F&G pairs keep their band distance.
+  const vixIndex = (value) => vixLabels.indexOf(vixBand(value).label);
+  if (Math.abs(vixIndex(32) - vixIndex(24)) !== 2) fail('P1534 VIX 24 -> 32 must still span two bands (severe regime drift)');
+  // A copy of the label ladder with a non-CNN edge must not come back anywhere in product code.
+  const copies = [];
+  for (const file of ['js/aio-pages.js', 'js/aio-chat.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-core.js', 'src/ui/pages/analysis.js', 'src/ui/components/sentiment-board.js']) {
+    readFileSync(path.join(root, file), 'utf8').split('\n').forEach((line, index) => {
+      if (/<=\s*25\s*\?\s*'극단/.test(line) || /<=\s*45\s*\?\s*'공포'/.test(line) || /<\s*55\s*\?\s*(?:2|'중립')/.test(line) || /<\s*75\s*\?\s*(?:3|'탐욕')/.test(line) || /\bvix\s*<\s*(?:15|20|30)\s*\?/.test(line)) copies.push(`${file}:${index + 1}`);
+    });
+  }
+  if (copies.length) fail(`P1534 Fear & Greed label ladder with a non-CNN edge (${copies.length}): ${copies.slice(0, 8).join(', ')}`);
+  const rules = [...core.matchAll(/fgMax:\s*(\d+)/g)].map((match) => Number(match[1]));
+  const expectedMax = [RULES.fearGreed.extremeFearBelow, RULES.fearGreed.fearBelow, RULES.fearGreed.greedAbove + 1, RULES.fearGreed.extremeGreedAbove + 1, 101];
+  if (JSON.stringify(rules) !== JSON.stringify(expectedMax)) fail(`P1534 AIO_ACTION_RULES.sentimentAction edges ${JSON.stringify(rules)} must match RULES.fearGreed ${JSON.stringify(expectedMax)}`);
+}
+
 console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsHeadlineBoundary: { fixtures: newsGolden.fixtures.length, legacyParityIntentionallyRetired: true }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length } }));

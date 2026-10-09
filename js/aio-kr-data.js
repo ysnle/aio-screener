@@ -448,7 +448,7 @@ function showKrThemeDetail(themeId) {
     '<div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;">'+
       '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">AI 심층 분석</button>'+
       '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">수급 분석</button>'+
-      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 진입 전략 알려줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">진입 전략</button>'+
+      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 확인할 지표와 무효화 조건 알려줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">확인 지표</button>'+
       '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 리스크 요인과 주의할 점 분석해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">리스크</button>'+
     '</div>';
 
@@ -2384,10 +2384,10 @@ function _generateKrMacroAnalysis(ld) {
   if (vix && vix.price) {
     var vp = vix.price;
     t += '<b>VIX ' + vp.toFixed(1) + '</b> — ';
-    t += vp > 30 ? '<span style="color:var(--red);">30 상회 고변동 구간입니다. KOSPI 방향은 수급·환율과 별도 확인합니다.</span>' :
-         vp > 22 ? '<span style="color:var(--yellow);">22~30 변동성 경계 구간입니다. 방향 신호가 아니라 예상 변동 범위 확대를 뜻합니다.</span>' :
-         vp > 16 ? '<span style="color:var(--text-secondary);">16~22 통상 범위입니다. 한국 시장의 수급·실적을 별도 확인합니다.</span>' :
-         '<span style="color:var(--green);">16 미만 저변동 구간입니다. 안정이나 상승을 단독 예측하지 않습니다.</span>';
+    t += vp >= 32 ? '<span style="color:var(--red);">32 이상 고변동 구간입니다. KOSPI 방향은 수급·환율과 별도 확인합니다.</span>' :
+         vp >= 25 ? '<span style="color:var(--yellow);">25~32 변동성 경계 구간입니다. 방향 신호가 아니라 예상 변동 범위 확대를 뜻합니다.</span>' :
+         vp >= 18 ? '<span style="color:var(--text-secondary);">18~25 통상 범위입니다. 한국 시장의 수급·실적을 별도 확인합니다.</span>' :
+         '<span style="color:var(--green);">18 미만 저변동 구간입니다. 안정이나 상승을 단독 예측하지 않습니다.</span>';
     t += '<br>';
   }
   // v38.5: 환율 스트레스 인덱스 (KRW 등락률 + VIX 조합)
@@ -2514,7 +2514,7 @@ function _generateKrMacroAnalysis(ld) {
   var riskSum = krwRisk + rateRisk + vixRisk;
   t += '<br><b>【종합 판단】</b> ';
   t += riskSum >= 3 ? '<span style="color:var(--red);font-weight:700;"> 삼중 악재 (환율↑ 금리↑ 변동성↑). 현금비중 50% 이상 유지, 방산·필수소비재 방어 전략.</span>' :
-       riskSum === 2 ? '<span style="color:var(--yellow);font-weight:700;"> 이중 부담. 선별적 매매 필요. 고배당·수출주 중심 포트폴리오 추천.</span>' :
+       riskSum === 2 ? '<span style="color:var(--yellow);font-weight:700;"> 이중 부담 구간입니다. 고배당·수출주 비중이 높은 종목군이 상대적으로 논의되던 환경입니다.</span>' :
        riskSum === 1 ? '<span style="color:var(--text-secondary);font-weight:700;"> 일부 리스크 존재. 업종별 차별화 예상. 실적 모멘텀 기반 종목 선별.</span>' :
        '<span style="color:var(--green);font-weight:700;"> 매크로 환경이 우호적인 조건입니다(환율 안정·금리 적정·변동성 낮음). 성장 테마에 유리한 환경으로 읽을 수 있지만 비중 판단은 개인 기준으로 합니다.</span>';
 
@@ -2899,7 +2899,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     if (riskGrade >= 4) {
       h += '<br><span style="color:var(--red);">현금비중 30%+ 권장. 손절선 엄격 관리. 신규 진입 자제.</span>';
     } else if (riskGrade === 3) {
-      h += '<br><span style="color:var(--yellow);">정상 리스크. 포지션 사이즈 조절로 관리 가능.</span>';
+      h += '<br><span style="color:var(--yellow);">정상 범위의 리스크입니다.</span>';
     }
   }
   // v39.2: 포트폴리오 베타 추정 + MDD 시나리오 + 상관계수 + 스트레스 테스트

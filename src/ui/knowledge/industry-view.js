@@ -121,6 +121,35 @@ export const PRODUCT_CATEGORY_LABELS = {
 };
 const readable = (id) => String(id || '').replaceAll('-', ' ');
 
+// P1531: the registry's problemSolved text is English and a registry edit would regenerate dependent artifacts, so the
+// reader line is a Korean table keyed by productId (ci-atlas-contract-check keeps it in step with the registry). It
+// restates the registry line and adds nothing: no volume, share, customer or production claim. A product without an
+// entry shows no line instead of the English text.
+export const PRODUCT_PROBLEM_LABELS = {
+  'nvidia-gpu-accelerator-platform': 'AI 학습·추론의 병렬 연산',
+  'amd-instinct-accelerator-family': 'AI·HPC 워크로드의 병렬 연산',
+  'cloud-tpu-family': '관리형 텐서 연산 서비스',
+  'aws-trainium-family': '클라우드 학습·추론의 비용과 용량',
+  'tsmc-3dfabric-family': '고밀도 칩렛·메모리 통합',
+  'asml-euv-lithography-family': '반도체 웨이퍼의 미세 패턴 형성',
+  'micron-hbm-family': '가속기에 데이터 공급',
+  'kioxia-enterprise-ssd-family': '대규모 AI 데이터·추론 저장',
+  'sandisk-bics-enterprise-ssd-family': '용량·지속성·읽기 중심 AI 데이터 이동',
+  'sandisk-hbf-roadmap': '읽기 중심 AI 추론 가까이에서 용량 확대(로드맵 단계)',
+  'synopsys-eda-flow': '복잡한 칩의 설계·검증·구현',
+  'broadcom-ethernet-switch-family': 'AI 클러스터 안의 패킷 전달',
+  'coherent-optical-module-family': '데이터센터의 고대역폭 연결',
+  'vertiv-thermal-power-solutions': '열 제거와 시설 전력 관리',
+  'tesla-optimus-and-autonomy-stack': '변화하는 물리 환경의 인식과 동작',
+  'shield-ai-hivemind-autonomy': '교란·경합 환경에서 자율 시스템 조율',
+  'rocket-lab-electron-neutron-space-systems': '우주 임무 전 주기에 걸친 탑재체·우주선 운송',
+  'palantir-aip': '통제된 데이터·모델·업무 흐름의 연결',
+  'mp-materials-rare-earth-magnetics': '광물 자원을 인증된 희토류 소재·자석 부품으로 전환',
+  'samsung-hbm-family': 'AI 가속기 가까이에 고처리량 메모리 공급',
+  'ibm-quantum-platform': '연구·실험용 프로그래밍 가능한 양자 하드웨어·소프트웨어 제공',
+  'siemens-industrial-copilot': '도메인 맥락을 갖춘 엔지니어링·정비·제조 업무 보조'
+};
+
 // P1524 (audit H88/H89): the registry records which products map to a node, never who supplies whom. A player listed on
 // a node without a product mapped there is company-level role context, so the two are grouped and labelled apart and
 // a reader-facing note says what the list is not, instead of one list that reads as a supply chain. Production stage
@@ -147,7 +176,7 @@ export function rolesBlock(doc, node, registry) {
   const productItem = (product) => {
     const li = el(doc, 'li');
     li.dataset.atlasProductId = product.productId;
-    li.append(el(doc, 'strong', null, `${ownerOf.get(product.playerId) ? `${ownerOf.get(product.playerId)} · ` : ''}${PRODUCT_CATEGORY_LABELS[product.category] || readable(product.category) || '제품'}`), doc.createTextNode(product.problemSolved ? ` — ${product.problemSolved}` : ''));
+    li.append(el(doc, 'strong', null, `${ownerOf.get(product.playerId) ? `${ownerOf.get(product.playerId)} · ` : ''}${PRODUCT_CATEGORY_LABELS[product.category] || readable(product.category) || '제품'}`), doc.createTextNode(PRODUCT_PROBLEM_LABELS[product.productId] ? ` — ${PRODUCT_PROBLEM_LABELS[product.productId]}` : ''));
     return li;
   };
   const playerItem = (player) => {

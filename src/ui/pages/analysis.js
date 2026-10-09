@@ -37,7 +37,7 @@ function renderHomeFearGreed({ documentRef, sentimentValues }) {
   if (!element) return;
   const score = finite(sentimentValues?.fearGreed);
   const label = documentRef?.getElementById('home-fg-label');
-  if (label) label.textContent = score == null ? '미수신' : score <= 25 ? '극단적 공포' : score <= 45 ? '공포' : score <= 55 ? '중립' : score <= 75 ? '탐욕' : '극단적 탐욕';
+  if (label) label.textContent = score == null ? '미수신' : Math.round(score) < 25 ? '극단적 공포' : Math.round(score) < 45 ? '공포' : Math.round(score) <= 55 ? '중립' : Math.round(score) <= 75 ? '탐욕' : '극단적 탐욕';
   element.textContent = score == null ? '—' : String(Math.round(score));
   element.style.color = score == null
     ? 'var(--text-muted)'

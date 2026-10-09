@@ -7,8 +7,9 @@
 export const RULES = Object.freeze({
   trend: Object.freeze({ maShort: 50, maLong: 200, slopeLookback: 20 }),
   breadth: Object.freeze({ weakBelow: 40, broadAtLeast: 60 }),
-  // VIX 18 / 25: the common calm / stress bands; VIX above its 3-month (ratio >= 1) is an inverted term structure.
-  volatility: Object.freeze({ calmBelow: 18, stressAt: 25, calmRatioBelow: 0.95, invertedRatioAt: 1, spike5dPct: 25 }),
+  // VIX 18 / 25 / 32: the calm / stress / high band edges (a convention, not a validated predictor; P1367 fixed them
+  // and the regime-drift alert already compares these bands). VIX above its 3-month (ratio >= 1) is an inverted term structure.
+  volatility: Object.freeze({ calmBelow: 18, stressAt: 25, highAt: 32, calmRatioBelow: 0.95, invertedRatioAt: 1, spike5dPct: 25 }),
   // 10-year Treasury: a 25bp move in 20 sessions, or the top 10% of its one-year range while still rising.
   rates: Object.freeze({ move20dBp: 25, rangeHighAt: 0.9 }),
   // ICE BofA US High Yield OAS: below 350bp tight, 450bp+ stressed, +25bp in five sessions a fast widening;
@@ -28,6 +29,8 @@ export const RULES = Object.freeze({
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5 }),
   // 2-year yield vs the policy midpoint: ±0.25pp is one 25bp move priced; the FOMC longer-run 3.0% less 2% ≈ 1% neutral real rate.
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),
-  // CNN Fear & Greed published bands.
+  // CNN Fear & Greed integer bands: extreme fear 0-24, fear 25-44, neutral 45-55, greed 56-75, extreme greed 76-100
+  // (as reproduced from CNN Business by https://www.nerdwallet.com/article/investing/what-is-the-fear-and-greed-index;
+  // the index is published as a whole number, so a reading is rounded before it is banded).
   fearGreed: Object.freeze({ extremeFearBelow: 25, fearBelow: 45, greedAbove: 55, extremeGreedAbove: 75 })
 });

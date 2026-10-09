@@ -85,5 +85,46 @@ check('P1302/R447/QA-DATA-46 explicit open schedule remains unverified without a
 const temporal = createTemporalEvidence({ eventAt: '2026-08-10T13:30:00Z', observedAt: '2026-08-10T14:00:00Z', collectedAt: '2026-08-10T14:01:00Z', publishedAt: '2026-08-10T14:02:00Z' });
 check('temporal evidence separates event/observed/collected/published', temporal.eventAt && temporal.observedAt && temporal.collectedAt && temporal.publishedAt && temporal.eventAt !== temporal.collectedAt);
 
+// P1533 (owner decision, agent-recommended): the pure exchange calendar lives in the domain layer, the AI module only
+// re-exports it, domain code never imports from src/ai, and the two session counters share one holiday-aware count.
+{
+  const { readFileSync, readdirSync, statSync } = await import('node:fs');
+  const path = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const calendar = await import('../src/domain/market/market-calendar.js').catch((error) => ({ error }));
+  check('P1533 src/domain/market/market-calendar.js exists', !calendar.error, String(calendar.error?.message || ''));
+  if (!calendar.error) {
+    check('P1533 market-session.js re-exports the very same calendar objects', calendar.MARKET_CALENDAR_REGISTRY === MARKET_CALENDAR_REGISTRY && calendar.MARKET_CALENDAR_ADAPTERS === MARKET_CALENDAR_ADAPTERS && calendar.resolveMarketCalendarSession === resolveMarketCalendarSession && calendar.US_REGULAR_CALENDAR_2026 === US_REGULAR_CALENDAR_2026);
+    const calendarSource = readFileSync(new URL('../src/domain/market/market-calendar.js', import.meta.url), 'utf8');
+    check('P1533 the official NYSE/KRX source lines moved with the calendar (the annual review script parses them)', /^\/\/\s*NYSE source[^\r\n]*\r?\n\/\/\s*https:\/\/\S+/m.test(calendarSource) && /^\/\/\s*KRX source[^\r\n]*\r?\n\/\/\s*https:\/\/\S+/m.test(calendarSource));
+    check('P1533 the calendar module imports nothing', !/^\s*import\s/m.test(calendarSource));
+    const count = calendar.countOpenSessionsBetween;
+    check('P1533 a July 3 holiday is not a session between 7/1 and 7/6', count?.('2026-07-01', '2026-07-06') === 2, count?.('2026-07-01', '2026-07-06'));
+    check('P1533 Labor Day is not a session between 9/4 and 9/7', count?.('2026-09-04', '2026-09-07') === 0);
+    check('P1533 an ordinary Friday to Monday is one session', count?.('2026-10-02', '2026-10-05') === 1);
+    check('P1533 an unregistered year counts weekdays so stale data never reads as aligned', count?.('2028-01-03', '2028-01-07') === 4);
+    check('P1533 a reversed or invalid range counts nothing', count?.('2026-10-05', '2026-10-02') === 0 && count?.('x', '2026-10-02') === 0);
+    const missing = (await import('../src/domain/briefing/daily-diff.js')).missingSessionsBetween;
+    check('P1533 missing sessions skip a US holiday and list the real gap', JSON.stringify(missing('2026-09-04', '2026-09-09')) === JSON.stringify(['2026-09-08']), missing('2026-09-04', '2026-09-09'));
+    check('P1533 missing sessions fail closed in an unregistered year', missing('2028-01-03', '2028-01-06').length === 0);
+    const { alignInput } = await import('../src/domain/briefing/market-read.js');
+    const holidayLag = alignInput('2026-07-01', '2026-07-06');
+    check('P1533 an input one real session behind a holiday weekend is lagged, not stale', holidayLag.status === 'lagged' && holidayLag.lag === 2, holidayLag);
+    check('P1533 the same input across Labor Day reads aligned', alignInput('2026-09-04', '2026-09-07').status === 'aligned');
+    const kr = (iso) => calendar.latestCompletedKrSession(Date.parse(iso));
+    check('P1533 KRX close is not end-of-day confirmed during the 30-minute grace window', kr('2026-07-16T06:45:00Z')?.date === '2026-07-16' && kr('2026-07-16T06:45:00Z')?.eodConfirmed === false && kr('2026-07-16T06:59:00Z')?.eodConfirmed === false);
+    check('P1533 KRX close is end-of-day confirmed from 16:00 KST and for earlier sessions', kr('2026-07-16T07:00:00Z')?.eodConfirmed === true && kr('2026-07-17T01:00:00Z')?.date === '2026-07-16' && kr('2026-07-17T01:00:00Z')?.eodConfirmed === true);
+  }
+  const offenders = [];
+  (function walk(dir) {
+    for (const entry of readdirSync(dir)) {
+      const full = path.join(dir, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (/\.m?js$/.test(entry) && /^\s*(?:import|export)\b[^\n]*from\s+['"](?:\.\.\/)+ai\//m.test(readFileSync(full, 'utf8'))) offenders.push(path.relative(fileURLToPath(new URL('..', import.meta.url)), full));
+    }
+  })(fileURLToPath(new URL('../src/domain', import.meta.url)));
+  check('P1533 src/domain must not import from src/ai (the domain layer sits below it)', offenders.length === 0, offenders);
+}
+
 if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }
 console.log('Market session contract check OK: NYSE/KRX adapters, DST/holiday/half-day/weekend fixtures, and unknown fail-closed state passed.');

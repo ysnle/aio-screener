@@ -310,8 +310,8 @@ function updateRiskMonitor() {
   var rmVixStatus = document.getElementById('rm-vix-status');
   var rmVixBar = document.getElementById('rm-vix-bar');
   if (vix !== null) {
-    var vixColor = vix < 15 ? 'var(--data-green)' : vix < 20 ? 'var(--data-cyan)' : vix < 25 ? 'var(--data-amber)' : 'var(--data-red)';
-    var vixLabel = vix < 15 ? '안정 (Low)' : vix < 20 ? '주의 (Normal)' : vix < 25 ? '경계 (Elevated)' : vix < 30 ? '공포 (High)' : '극단공포 (Crisis)';
+    var vixColor = vix < 18 ? 'var(--data-green)' : vix < 25 ? 'var(--data-cyan)' : vix < 32 ? 'var(--data-amber)' : 'var(--data-red)';
+    var vixLabel = vix < 18 ? '저변동 구간' : vix < 25 ? '통상 범위' : vix < 32 ? '변동성 경계 구간' : '고변동 구간';
     if (rmVixStatus) { rmVixStatus.textContent = vixLabel; rmVixStatus.style.color = vixColor; rmVixStatus.style.background = vixColor.replace(')',',0.1)').replace('rgb','rgba'); }
     if (rmVixBar) { rmVixBar.style.width = Math.min(100, (vix/40)*100) + '%'; rmVixBar.style.background = vixColor; }
   }
@@ -375,7 +375,7 @@ function updateRiskMonitor() {
   var rmFgBar = document.getElementById('rm-fg-bar');
   if (fg !== null) {
     var fgColor = fg <= 25 ? 'var(--data-red)' : fg <= 45 ? 'var(--data-amber)' : fg <= 55 ? 'var(--data-cyan)' : fg <= 75 ? '#22754c' : 'var(--data-green)';
-    var fgLabel = fg <= 25 ? '극단적 공포' : fg <= 45 ? '공포' : fg <= 55 ? '중립' : fg <= 75 ? '탐욕' : '극단적 탐욕';
+    var fgLabel = Math.round(fg) < 25 ? '극단적 공포' : Math.round(fg) < 45 ? '공포' : Math.round(fg) <= 55 ? '중립' : Math.round(fg) <= 75 ? '탐욕' : '극단적 탐욕';
     if (rmFgVal) { rmFgVal.textContent = fg; rmFgVal.style.color = fgColor; }
     if (rmFgStatus) { rmFgStatus.textContent = fgLabel; rmFgStatus.style.color = fgColor; }
     if (rmFgBar) { rmFgBar.style.width = fg + '%'; rmFgBar.style.background = fgColor; }
@@ -1033,7 +1033,7 @@ function updateMarketPulse() {
     var el3b = document.getElementById('mp-sentiment-label');
     if (fv !== null && !isNaN(fv)) {
       var fColor = fv <= 25 ? 'var(--data-red)' : fv <= 45 ? 'var(--data-amber)' : fv <= 55 ? 'var(--data-cyan)' : fv <= 75 ? 'var(--data-green)' : '#22754c';
-      var fLabel = fv <= 25 ? '극단공포' : fv <= 45 ? '공포' : fv <= 55 ? '중립' : fv <= 75 ? '탐욕' : '극단탐욕';
+      var fLabel = Math.round(fv) < 25 ? '극단공포' : Math.round(fv) < 45 ? '공포' : Math.round(fv) <= 55 ? '중립' : Math.round(fv) <= 75 ? '탐욕' : '극단탐욕';
       if (el3) window._aioRenderValueSlot(el3, 'value', fv, { color: fColor });
       if (el3b) window._aioRenderValueSlot(el3b, 'value', fLabel, { color: fColor });
     } else {
@@ -1103,7 +1103,7 @@ function _updateAllConclusionBars() {
     var fv = _fgPulseMetric2 && _fgPulseMetric2.value != null ? _fgPulseMetric2.value : null;
     if (fv != null && !isNaN(fv)) {
       var fColor = fv <= 25 ? 'var(--data-red)' : fv <= 45 ? 'var(--data-amber)' : fv <= 55 ? 'var(--text-secondary)' : fv <= 75 ? 'var(--data-green)' : '#22754c';
-      var fLabel = fv <= 25 ? '극단 공포' : fv <= 45 ? '공포' : fv <= 55 ? '중립' : fv <= 75 ? '탐욕' : '극단 탐욕';
+      var fLabel = Math.round(fv) < 25 ? '극단 공포' : Math.round(fv) < 45 ? '공포' : Math.round(fv) <= 55 ? '중립' : Math.round(fv) <= 75 ? '탐욕' : '극단 탐욕';
       var fAction = fv <= 25 ? '역발상 프레임 주목 구간(예측 검증 없음) — 종목 근거 별도 확인' :
                     fv <= 45 ? '심리 위축 구간 — 분할 접근이 논의되는 환경(지시 아님)' :
                     fv <= 55 ? '심리 중립 — 뚜렷한 쏠림 없음' :

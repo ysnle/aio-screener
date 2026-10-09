@@ -8,7 +8,7 @@
 //   close   종가 M/D        session closed and the newest observation is the latest completed close
 //   stale   지난 시세 M/D   anything older than that basis
 //   none    시세 미수신      no timestamped US observation
-import { latestCompletedUsSession } from '../../ai/time/market-session.js';
+import { latestCompletedUsSession } from './market-calendar.js';
 
 export const US_CORE_SYMBOLS = Object.freeze(['^GSPC', '^IXIC', '^DJI', '^VIX', 'SPY', 'QQQ']);
 

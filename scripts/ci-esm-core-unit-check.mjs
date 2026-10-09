@@ -1072,6 +1072,18 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   }
   const utc = formatAbsoluteTime('2026-09-19T11:57:00.000Z', 'UTC');
   if (!/11:57/.test(utc)) fail(`W09-C: the UTC timezone rendering drifted, got ${JSON.stringify(utc)}`);
+  // P1537 (audit H07): the article list follows the country/topic/type controls; the channel list below it never does.
+  // Both scopes are stated, and the channel note is true for every control state (it used to be silent when only the
+  // 텔레그램 type chip narrowed the articles).
+  const { describeNewsScope } = await load('src/ui/pages/news.js');
+  const none = describeNewsScope({ countryFilter: 'all', topicFilter: 'all', typeTab: 'all' });
+  const country = describeNewsScope({ countryFilter: 'kr', topicFilter: 'all', typeTab: 'all' });
+  const topic = describeNewsScope({ countryFilter: 'all', topicFilter: 'semi', typeTab: 'all' });
+  const channelChip = describeNewsScope({ countryFilter: 'all', topicFilter: 'all', typeTab: 'tg' });
+  if (!none || none.articles !== '필터 없음' || none.channel !== '') fail(`P1537 no controls: articles read 필터 없음 and the channel note stays empty, got ${JSON.stringify(none)}`);
+  if (country.articles !== '필터 적용' || topic.articles !== '필터 적용' || channelChip.articles !== '필터 적용') fail('P1537 any country, topic or type control makes the article scope read 필터 적용');
+  if (!/국가·주제 필터와 무관/.test(country.channel) || country.channel !== topic.channel || country.channel !== channelChip.channel) fail(`P1537 the channel note must state it ignores the country/topic filter whenever a control is active, got ${JSON.stringify([country.channel, topic.channel, channelChip.channel])}`);
+  if (describeNewsScope(null).articles !== '필터 없음' || describeNewsScope(undefined).channel !== '') fail('P1537 missing controls read as no filter');
   const newsSource = (await import('node:fs')).readFileSync(new URL('../src/ui/pages/news.js', import.meta.url), 'utf8');
   if (!/getAbsoluteTime[\s\S]{0,80}\|\|\s*formatAbsoluteTime\(/.test(newsSource) || !/data-published-at|dataset\.publishedAt/.test(newsSource)) {
     fail('W09-C: the news card must fall back to the local formatter and keep the raw publication instant');
@@ -1219,6 +1231,23 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   });
   if (shareOnlyConcentration.modelVersion !== 'portfolio-concentration.v2') fail('portfolio: unified valuation must advertise the v2 contract');
   if (shareOnlyConcentration.totalValue !== 200 || shareOnlyConcentration.items.some((item) => item.weightPct !== 50)) fail('portfolio: total and holding weights used different valuation formulas');
+  // P1536 (owner decision, agent-recommended): a position that declares a cached or reference quote is withheld, never weighted
+  // with that price and never given a concentration penalty; the legacy wrapper already refuses it, so the model now agrees.
+  const quoteMix = deriveConcentrationRisk({
+    positions: [
+      { ticker: 'LIVE', shares: 10, price: 100, quoteSourceKind: 'live-quote' },
+      { ticker: 'CACHED', shares: 10, price: 100, quoteSourceKind: 'cached-close' },
+      { ticker: 'REF', shares: 10, price: 100, allowedUse: 'reference' },
+      { ticker: 'EXPLICIT', value: 5000, quoteSourceKind: 'portfolio-state' },
+      { ticker: 'DECISION', shares: 10, price: 100, currentQuoteAllowedUse: true },
+      { ticker: 'UNLABELED', shares: 10, price: 100 }
+    ]
+  });
+  const quoteStatus = Object.fromEntries(quoteMix.items.map((item) => [item.ticker, item.status + (item.reason ? `:${item.reason}` : '')]));
+  if (quoteStatus.CACHED !== 'data-insufficient:quote-not-decision-grade' || quoteStatus.REF !== 'data-insufficient:quote-not-decision-grade' || quoteStatus.EXPLICIT !== 'data-insufficient:quote-not-decision-grade') fail(`P1536 a declared non-decision quote must be withheld: ${JSON.stringify(quoteStatus)}`);
+  if (quoteStatus.LIVE !== 'ok' || quoteStatus.DECISION !== 'ok' || quoteStatus.UNLABELED !== 'ok') fail(`P1536 live, decision-grade and unlabeled positions keep their weights: ${JSON.stringify(quoteStatus)}`);
+  if (quoteMix.totalValue !== 3000 || quoteMix.heldItems.length !== 3) fail(`P1536 withheld positions must stay out of the denominator and be listed as held: total ${quoteMix.totalValue}, held ${quoteMix.heldItems.length}`);
+  if (quoteMix.items.filter((item) => item.status !== 'ok').some((item) => item.weightPct !== null || item.concentrationPenalty !== 0)) fail('P1536 a withheld position must publish neither a weight nor a penalty');
 }
 
 // ── domain/signal/trading-score.js: signal envelope ──────────────────────────────────────────

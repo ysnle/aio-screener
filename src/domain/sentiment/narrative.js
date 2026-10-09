@@ -1,4 +1,5 @@
 import { fearGreedBand, vixTermStructure } from './metrics.js';
+import { RULES } from '../rules/thresholds.js';
 
 export const SENTIMENT_NARRATIVE_MODEL_VERSION = 'sentiment-narrative.v1';
 
@@ -26,9 +27,10 @@ export function putCallNeedlePosition(value) {
 export function vixBand(value) {
   const vix = finite(value);
   if (vix == null || vix < 0) return Object.freeze({ value: null, label: '판정 보류', blocked: true });
-  if (vix > 35) return Object.freeze({ value: vix, label: '고변동 구간', blocked: false });
-  if (vix > 25) return Object.freeze({ value: vix, label: '변동성 경계 구간', blocked: false });
-  if (vix > 16) return Object.freeze({ value: vix, label: '통상 범위', blocked: false });
+  // P1534: the same 18 / 25 / 32 edges as RULES.volatility and the legacy regime alert (16 / 35 had no source).
+  if (vix >= RULES.volatility.highAt) return Object.freeze({ value: vix, label: '고변동 구간', blocked: false });
+  if (vix >= RULES.volatility.stressAt) return Object.freeze({ value: vix, label: '변동성 경계 구간', blocked: false });
+  if (vix >= RULES.volatility.calmBelow) return Object.freeze({ value: vix, label: '통상 범위', blocked: false });
   return Object.freeze({ value: vix, label: '저변동 구간', blocked: false });
 }
 

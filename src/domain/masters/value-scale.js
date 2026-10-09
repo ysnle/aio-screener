@@ -19,9 +19,10 @@ const cusipOf = (row) => String(row?.cusipNormalized || row?.cusip || '').toUppe
 
 /**
  * @param {Array<object>} rows holdings rows from several filers (managerId, reportPeriod, cusip, value, shares)
+ * A row is compared only when at least `minPeers` other filers report the same CUSIP and period.
  * @returns {Map<string, {ratio:number, comparedRows:number}>} keyed by `${managerId}|${period}`
  */
-export function detectValueScaleSuspects(rows = [], { minRows = 2, low = 1 / 200, high = 200 } = {}) {
+export function detectValueScaleSuspects(rows = [], { minRows = 2, minPeers = 2, low = 1 / 200, high = 200 } = {}) {
   const byKey = new Map();
   for (const row of Array.isArray(rows) ? rows : []) {
     if (!comparable(row) || !cusipOf(row) || !periodOf(row)) continue;
@@ -34,7 +35,9 @@ export function detectValueScaleSuspects(rows = [], { minRows = 2, low = 1 / 200
     const period = key.split('|')[1];
     for (const item of list) {
       const peers = list.filter((other) => other.managerId !== item.managerId).map((other) => other.price);
-      if (!peers.length) continue;
+      // P1530: one peer cannot say which of two filers is off (each looks 1,000x away from the other), so the
+      // normal filer of a two-filer security would be flagged along with the odd one. Two peers keep the median honest.
+      if (peers.length < minPeers) continue;
       const managerKey = `${item.managerId}|${period}`;
       if (!ratios.has(managerKey)) ratios.set(managerKey, []);
       ratios.get(managerKey).push(item.price / median(peers));

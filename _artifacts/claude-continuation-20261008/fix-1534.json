@@ -1,0 +1,24 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "VIX and Fear & Greed band edges existed in a dozen copies that disagreed, and the regime alert depended on the legacy copy",
+  "symptom": "F&G 45 read neutral in the legacy shell and fear in src; VIX 17 read stable in one and normal in the other; VIX 33 read panic and 'caution band'. The alert compares band indexes, so which copy a screen used decided whether a change looked severe. Copies found: aio-core (two closures), AIO_ACTION_RULES, src metrics, narrative and sentiment-board, four label ladders in aio-pages and aio-chat, a macro-page regime function, an audit helper and a Korean-market text block.",
+  "root_cause": "Each screen carried its own ladder, with different inclusion directions (< versus <=) and, for VIX, three different edge sets (16/22/30, 16/25/35, 18/25/32). Only one text claimed a source.",
+  "fix": "RULES.volatility carries 18/25/32 (the set the alert already used, P1367) and RULES.fearGreed is applied on the whole number CNN publishes (extreme fear 0-24, fear 25-44, neutral 45-55, greed 56-75, extreme greed 76-100). src fearGreedBand, vixBand and the sentiment board use them; the legacy closures keep inline copies, corrected to the same edges, because they run before ESM is available. Labels in the pages, chat, macro regime, audit helper and Korean-market text follow the same edges. Label wording is unchanged where tests read it.",
+  "violated_rule": "A threshold that drives an alert has one owner; copies are allowed only when pinned to it by a gate.",
+  "prevention": "ci-domain-parity-check P1534 evaluates both legacy closure copies, the sentiment board and the AIO_ACTION_RULES edges against src over the whole scale (F&G 0-100 in tenths, VIX 5-80), pins named boundary values, keeps the VIX 24 to 32 span of two bands, and fails on any old-edge ladder in the page files.",
+  "verification": "Domain-parity, esm-core-unit, architecture, runtime-contract, proxy-continuity and chat-resilience checks pass. Behaviour change at the boundary only: F&G 25 and 45 move one band down, 55 and 75 one band down in the legacy shell; VIX edges used by non-alert ladders move to 18/25/32. Not verified: CNN's own page (the bands are the table NerdWallet attributes to CNN Business); the VIX edges are a convention with no external source. Left as is: the finer THRESHOLD_REGISTRY ladders and the 'panic' label wording."
+ },
+ "r": {
+  "title": "A threshold that drives an alert has one owner and pinned copies",
+  "rule": "VIX and Fear & Greed band edges are owned by src/domain/rules/thresholds.js. A copy that cannot import it (a legacy closure) is allowed only while a parity gate evaluates it against the owner across the whole scale, and a new copy of a ladder with other edges fails the gate.",
+  "validation": "node scripts/ci-domain-parity-check.mjs"
+ },
+ "changelog": [
+  "**VIX·공포탐욕 구간 경계 단일화 (P{P}/R{R}):** 같은 지수를 화면마다 다른 경계로 읽던 문제를 정리. 공포탐욕은 CNN이 공표하는 정수 구간(0-24/25-44/45-55/56-75/76-100), VIX는 경보가 이미 쓰던 18/25/32로 맞추고 src를 단일 원천, 레거시 클로저는 전 구간 대조 게이트로 고정했다."
+ ]
+}

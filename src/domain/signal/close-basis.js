@@ -8,7 +8,7 @@
 //   - daily published inputs (F&G, put/call, HY spread, breadth): dated no earlier than the
 //     session before it, because these series publish after the close with a one-day lag.
 // Anything older, undated or non-finite stays out, so the score never mixes in stale days.
-import { latestCompletedUsSession, nyParts } from '../../ai/time/market-session.js';
+import { latestCompletedUsSession, nyParts } from '../market/market-calendar.js';
 import { isValidMarketDate } from '../market/session-time.js';
 
 export const CLOSE_BASIS_QUOTE_KEYS = Object.freeze(['vix', 'vvix', 'dxy', 'tnx', 'oilPrice', 'spxPrice']);
