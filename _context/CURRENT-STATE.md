@@ -19,11 +19,11 @@ last_verified: 2026-10-08
 | Source | Lines | Bytes |
 |---|---:|---:|
 | `index.html` | 10,187 | 746,595 |
-| `js/aio-core.js` | 22,892 | 1,380,714 |
+| `js/aio-core.js` | 22,892 | 1,380,704 |
 | `js/aio-data.js` | 16,695 | 1,030,344 |
 | `js/aio-ui.js` | 7,171 | 439,100 |
 | `js/aio-chat.js` | 8,856 | 633,181 |
-| `js/aio-tests.js` | 9,450 | 734,822 |
+| `js/aio-tests.js` | 9,450 | 734,916 |
 | `js/aio-glossary.js` | 407 | 101,782 |
 
 ## Workspace
