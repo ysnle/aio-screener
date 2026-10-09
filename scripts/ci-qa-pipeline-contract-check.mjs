@@ -155,7 +155,7 @@ check('P1311/R657/QA-OPS-01 alert policies use 24h, two completed exchange sessi
       'architecture/operations-alert-policy.json',
       'scripts/lib/operations-alert-policy.mjs',
       'scripts/ci-operations-alert-policy-check.mjs',
-      'src/ai/time/market-session.js',
+      'src/ai/time/market-session.js', 'src/domain/market/market-calendar.js',
       'scripts/build-operations-status.mjs',
       'scripts/ci-operations-status-check.mjs'
     ].sort().join('|')
@@ -327,8 +327,8 @@ const gateInputContracts = [
   {
     id: 'operations-alert-policy',
     group: 'data',
-    inputs: ['architecture/operations-alert-policy.json', 'scripts/lib/operations-alert-policy.mjs', 'scripts/ci-operations-alert-policy-check.mjs', 'src/ai/time/market-session.js', 'scripts/build-operations-status.mjs', 'scripts/ci-operations-status-check.mjs'],
-    impactPaths: ['architecture/operations-alert-policy.json', 'scripts/lib/operations-alert-policy.mjs', 'scripts/ci-operations-alert-policy-check.mjs', 'src/ai/time/market-session.js', 'scripts/build-operations-status.mjs', 'scripts/ci-operations-status-check.mjs']
+    inputs: ['architecture/operations-alert-policy.json', 'scripts/lib/operations-alert-policy.mjs', 'scripts/ci-operations-alert-policy-check.mjs', 'src/ai/time/market-session.js', 'src/domain/market/market-calendar.js', 'scripts/build-operations-status.mjs', 'scripts/ci-operations-status-check.mjs'],
+    impactPaths: ['architecture/operations-alert-policy.json', 'scripts/lib/operations-alert-policy.mjs', 'scripts/ci-operations-alert-policy-check.mjs', 'src/ai/time/market-session.js', 'src/domain/market/market-calendar.js', 'scripts/build-operations-status.mjs', 'scripts/ci-operations-status-check.mjs']
   },
   {
     id: 'operations-alert-source',
@@ -345,8 +345,8 @@ const gateInputContracts = [
   {
     id: 'data-continuity',
     group: 'core',
-    inputs: ['js/aio-data.js', 'public-data/data.json', 'public-data/history.json', 'public-data/market-snapshot.json', 'public-data/reconciliation-status.json', 'public-data/screener.json', 'public-data/structural-data-research.json', 'public-data/telegram-digest.json', 'public-config.json', '.github/workflows/refresh-data.yml', '.github/workflows/refresh-screener.yml', 'scripts/fetch-data.mjs', 'scripts/backtest-trading-score.mjs', 'scripts/build-market-snapshot.mjs', 'scripts/build-operations-status.mjs', 'scripts/build-reconciliation-status.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/build-masters-runtime-artifacts.mjs', 'scripts/lib/refresh-continuity.mjs', 'scripts/lib/atomic-write.mjs', 'src/ai/time/market-session.js', 'src/data/contracts/market-snapshot.js', 'src/data/contracts/operations.js', 'src/data/contracts/reconciliation.js', 'src/data/contracts/source-registry.js', 'src/domain/signal/trading-score.js'],
-    impactPaths: ['js/aio-data.js', 'public-data/data.json', 'public-data/history.json', 'public-data/market-snapshot.json', 'public-data/reconciliation-status.json', 'public-data/screener.json', 'public-data/structural-data-research.json', 'public-data/telegram-digest.json', 'public-config.json', '.github/workflows/refresh-data.yml', '.github/workflows/refresh-screener.yml', 'scripts/fetch-data.mjs', 'scripts/backtest-trading-score.mjs', 'scripts/build-market-snapshot.mjs', 'scripts/build-operations-status.mjs', 'scripts/build-reconciliation-status.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/build-masters-runtime-artifacts.mjs', 'scripts/lib/refresh-continuity.mjs', 'scripts/lib/atomic-write.mjs', 'src/ai/time/market-session.js', 'src/data/contracts/market-snapshot.js', 'src/data/contracts/operations.js', 'src/data/contracts/reconciliation.js', 'src/data/contracts/source-registry.js', 'src/domain/signal/trading-score.js']
+    inputs: ['js/aio-data.js', 'public-data/data.json', 'public-data/history.json', 'public-data/market-snapshot.json', 'public-data/reconciliation-status.json', 'public-data/screener.json', 'public-data/structural-data-research.json', 'public-data/telegram-digest.json', 'public-config.json', '.github/workflows/refresh-data.yml', '.github/workflows/refresh-screener.yml', 'scripts/fetch-data.mjs', 'scripts/backtest-trading-score.mjs', 'scripts/build-market-snapshot.mjs', 'scripts/build-operations-status.mjs', 'scripts/build-reconciliation-status.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/build-masters-runtime-artifacts.mjs', 'scripts/lib/refresh-continuity.mjs', 'scripts/lib/atomic-write.mjs', 'src/ai/time/market-session.js', 'src/domain/market/market-calendar.js', 'src/data/contracts/market-snapshot.js', 'src/data/contracts/operations.js', 'src/data/contracts/reconciliation.js', 'src/data/contracts/source-registry.js', 'src/domain/signal/trading-score.js'],
+    impactPaths: ['js/aio-data.js', 'public-data/data.json', 'public-data/history.json', 'public-data/market-snapshot.json', 'public-data/reconciliation-status.json', 'public-data/screener.json', 'public-data/structural-data-research.json', 'public-data/telegram-digest.json', 'public-config.json', '.github/workflows/refresh-data.yml', '.github/workflows/refresh-screener.yml', 'scripts/fetch-data.mjs', 'scripts/backtest-trading-score.mjs', 'scripts/build-market-snapshot.mjs', 'scripts/build-operations-status.mjs', 'scripts/build-reconciliation-status.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/build-masters-runtime-artifacts.mjs', 'scripts/lib/refresh-continuity.mjs', 'scripts/lib/atomic-write.mjs', 'src/ai/time/market-session.js', 'src/domain/market/market-calendar.js', 'src/data/contracts/market-snapshot.js', 'src/data/contracts/operations.js', 'src/data/contracts/reconciliation.js', 'src/data/contracts/source-registry.js', 'src/domain/signal/trading-score.js']
   },
   {
     id: '13f-semantic-noop',
@@ -380,9 +380,9 @@ for (const contract of gateInputContracts) {
 }
 
 const literalDependencyContracts = [
-  { id: 'market-snapshot', paths: ['src/ai/time/market-session.js', 'src/data/market-snapshot-loader.js', 'src/legacy/market-snapshot-bridge.js', '.github/workflows/refresh-data.yml'] },
+  { id: 'market-snapshot', paths: ['src/ai/time/market-session.js', 'src/domain/market/market-calendar.js', 'src/data/market-snapshot-loader.js', 'src/legacy/market-snapshot-bridge.js', '.github/workflows/refresh-data.yml'] },
   { id: 'operator-readiness', paths: ['_headers'] },
-  { id: 'data-lineage', paths: ['src/ai/time/market-session.js'] },
+  { id: 'data-lineage', paths: ['src/ai/time/market-session.js', 'src/domain/market/market-calendar.js'] },
   { id: '13f-semantic-noop', paths: ['scripts/lib/13f-semantic-hash.mjs', 'scripts/lib/13f-discovery.mjs', '.github/workflows/refresh-data.yml'] },
   { id: 'data-refresh', paths: ['index.html'] },
   { id: 'release-revision', paths: ['index.html', 'js/aio-core.js', 'sw.js', 'public-artifact-manifest.json', 'public-config.json', '.github/workflows/pages-deploy.yml'] },

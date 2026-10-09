@@ -1,0 +1,24 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "Internal action enums and a position-size percentage were shown to readers, and AI prompts forced an action verdict",
+  "symptom": "The technical panels printed HOLD_CORE, NO_ADD_RAISE_STOP, TRIM_25_33, TRIM_50 and EXIT_OR_HEDGE as badges, in a sentence ('...로 결론냅니다') and inside flag chips; the home card printed '포지션 사이즈: 50%' although its own source comment says the percentage is reference data and must not be rendered as an instruction. Prompts told the model to state an action conclusion, to recommend a position size and entry strategy, and to name a clear winner and a final recommendation. A score band was labelled '매수 우호'.",
+  "root_cause": "The enums were designed as internal engine output (unit tests, golden fixtures) and were rendered unchanged. The P714 rewrite covered the rule objects but not the card that read them, and prompt text was never in the wording gate.",
+  "fix": "The enums stay in the engines. aio-ui maps them to load levels (부담 낮음 ... 부담 최상위 구간, 판단 보류 for an unknown value) for badges, the beginner sentence and the lockout and blow-off flag chips. The home card shows the volatility band and the sentiment environment instead of a percentage. Prompts ask for conditions and options, not one action or a verdict; '매수 우호' became '우호 환경'; the 'entry strategy' chip became a request for indicators and invalidation conditions.",
+  "violated_rule": "Visible and model-directed text states conditions, not instructions (R693); an internal code is not reader text.",
+  "prevention": "ci-control-char-check P1523 adds the phrases (매수 우호, 포지션 사이즈 표시, 센티먼트 행동, 진입 전략 요청, 행동 결론, 확실한 우위, 비중 제한 권장, 최종 추천 강제) and a rule against passing an engine action straight to _itbBadge; legacy test T115 now reads the new prompt wording.",
+  "verification": "Control-char, runtime-contract, chat-resilience and domain-parity checks pass; the guard was shown to fire on an injected line. The legacy browser tests (T106, T115, T131, T144 read the unchanged enums) ran in the full QA. Not verified: model answers under the new prompts. Left as is: the pass-through action gate (tests T932 to T937 assert it) and the calculator label in index.html."
+ },
+ "r": {
+  "title": "An internal code is not reader text",
+  "rule": "Engine enums, flag ids and reference percentages are mapped to a reader label before rendering; a renderer must not pass an engine action to a badge or sentence, and a prompt describes the conditions to explain rather than the verdict to give. A guard lists the retired phrases and the direct-render pattern.",
+  "validation": "node scripts/ci-control-char-check.mjs"
+ },
+ "changelog": [
+  "**내부 행동 코드의 표시 제거와 프롬프트 중립화 (P{P}/R{R}):** 기술 패널이 HOLD_CORE·TRIM_50 같은 내부 코드를 그대로 배지와 문장에 보이고, 홈 카드가 '포지션 사이즈 %'를 표시하며, AI 프롬프트가 행동 결론·확실한 우위·최종 추천을 강제하던 것을 정리. 코드는 엔진에 남기고 화면에는 부담 수준 라벨을, 프롬프트에는 조건과 선택지를 요구한다."
+ ]
+}

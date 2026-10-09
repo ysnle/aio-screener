@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels, P1538 grades and composites out of technical, KR health, portfolio and moat surfaces, P1539 AI directive gate at sentence level, P1540 score band wording after validation, P1541 Yahoo-to-FRED bridge mapping, P1542 macro calendar lead warning, P1543 exact-only legacy ticker resolver, P1544 case-sensitive Telegram ticker symbols, P1545 assertion-trace ledger existence, P1546 instruction text and scores in the technical brief and page briefs.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "The technical brief, tactical overlay and page briefs carried English trade instructions and unvalidated 0-100 sums",
+  "symptom": "The exit-plan panel printed 'Trim the trading lot by 25-33%' and 'Exit the tactical lot or hedge' in English, the signal page action read 'new entries after confirmation, set the invalidation line first', the sell-pressure, lockout, blow-off and portfolio-heat panels showed n/100 sums with English headings, the cards used a hard-coded dark background with dark ink (unreadable in the ivory theme), and the per-page brief cards told readers to cut new buying, reduce risk or convert news into actions.",
+  "root_cause": "These modules came from the early tactical-trader material and were not covered by the P1535/P1538 sweeps, which looked at the entry-quality and KR surfaces.",
+  "fix": "calcExitPlan returns Korean observation text and reference lines (10EMA, 21EMA, 50SMA), the tactical page overlay is a check list, the panels show the number of measured conditions instead of a sum, headings and enums are Korean, the cards use theme tokens, and the page briefs describe what to check.",
+  "violated_rule": "No trade instructions; no composite scores without predictive evidence; no developer copy on user surfaces (AGENTS.md).",
+  "prevention": "ci-control-char-check P1546 phrases (English instruction lines, tactical overlay phrases, n/100 panel renders).",
+  "verification": "Control-char gate (mutation-checked against the old text) and the legacy suite. Not done: the engines still compute their internal 0-100 sums for the unit tests and the portfolio position table."
+ },
+ "r": null,
+ "changelog": [
+  "**기술 브리프·전술 오버레이·페이지 브리프 (P{P}):** 영어 매매 지시, n/100 합산 표기, 어두운 고정 배경 카드를 관측 문구·확인 조건 개수·테마 색으로 바꿨다."
+ ]
+}

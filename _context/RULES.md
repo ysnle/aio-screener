@@ -1,11 +1,65 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-08
+last_verified: 2026-10-09
 confidence: medium
-target_version: v57.29
+target_version: v57.30
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R699. A cited ledger id must exist (v57.30, P1545)
+
+**Rule**: A test label that cites only P/R ids passes the trace gate only if each id resolves to a ledger entry; other evidence kinds (T, QA, workstream ids) are unchanged.
+
+**Validation**: ci-assertion-trace-check dangling-id list.
+
+## R698. An AI answer is filtered by sentence, and a personalized directive is never confirmed (v57.30, P1539)
+
+**Rule**: The AI action gate replaces the sentence that is an unmistakable directive and keeps the rest; the prompt forbids confirming a personalized single action whether or not suitability or evidence exists. This supersedes R315, which allowed a conditional personalized instruction.
+
+**Validation**: T932/T934a/T934c and ci-ai-intelligence-contract-check.
+
+## R697. A reader sees measured conditions, never a grade, an unvalidated sum or an instruction (v57.30, P1538)
+
+**Rule**: Every surface that summarises a technical, fundamental or portfolio state lists the measured conditions and their basis. It does not print a letter grade, a 0-100 sum, a verdict word or an action verb unless a predictive validation is recorded for that exact number; the setup state names what is observed (trend, RSI band), not what to do.
+
+**Validation**: ci-control-char-check INSTRUCTION_PHRASES, ci-runtime-contract-check P1538, legacy T478/T479.
+
+## R696. An internal code is not reader text (v57.30, P1535)
+
+**Rule**: Engine enums, flag ids and reference percentages are mapped to a reader label before rendering; a renderer must not pass an engine action to a badge or sentence, and a prompt describes the conditions to explain rather than the verdict to give. A guard lists the retired phrases and the direct-render pattern.
+
+**Validation**: node scripts/ci-control-char-check.mjs
+
+## R695. A threshold that drives an alert has one owner and pinned copies (v57.30, P1534)
+
+**Rule**: VIX and Fear & Greed band edges are owned by src/domain/rules/thresholds.js. A copy that cannot import it (a legacy closure) is allowed only while a parity gate evaluates it against the owner across the whole scale, and a new copy of a ladder with other edges fails the gate.
+
+**Validation**: node scripts/ci-domain-parity-check.mjs
+
+## R694. The domain layer sits below the AI layer, and one calendar answers every session count (v57.30, P1533)
+
+**Rule**: src/domain never imports from src/ai. Shared pure facts (the exchange calendar) live in the domain layer and the AI layer re-exports them. Session lags and gaps are counted on the registered holiday calendar, with an explicit policy for unregistered years: weekdays for lags (stale data must not read as aligned) and no session for gap reports (a gap is not claimed unverified).
+
+**Validation**: node scripts/ci-market-session-contract-check.mjs
+
+## R693. Visible text states the observed condition, not an instruction or an unsourced probability (v57.30, P1523)
+
+**Rule**: Copy, chips, labels and help in index.html and js/src describe what is observed and what would change the reading; they carry no buy/sell/size instruction and no probability, ratio or excess return without a source. Educational descriptions of a published method stay descriptions.
+
+**Validation**: node scripts/ci-control-char-check.mjs; node scripts/ci-runtime-contract-check.mjs
+
+## R692. A figure that is withheld is withheld at every consumer (v57.30, P1522)
+
+**Rule**: When a filing's dollar amounts are withheld, every path that can show or sum them applies the same withholding: ingress arrays, index rows, earlier-period totals, aggregates and already-cached shards. The withholding is idempotent, never rescales a value, and the module has a regression test that names each consumer.
+
+**Validation**: node scripts/ci-masters-contract-check.mjs; node scripts/ci-masters-browser-check.mjs
+
+## R691. A newer main is stale for a Worker plane only when it changes that plane's deployment inputs (v57.30, P1520)
+
+**Rule**: Worker deploy workflows judge a newer main per plane: equal to the tested SHA, or a descendant whose changed paths leave the plane's deployment inputs and the deploy recipe untouched. Missing evidence, a non-descendant or a git error means stale. The convergence decision and the pre-mutation guard use the shared classifier; the guard has no unconditional safe output and a classifier failure is a skip.
+
+**Validation**: node scripts/ci-cloudflare-deployment-contract-check.mjs; node scripts/qa-runner.mjs --group cloudflare --no-cache
 
 ## R690. QA 증명은 실제 검사 범위·내용과 커밋 전체 index에 결속 (v57.29, P1518)
 

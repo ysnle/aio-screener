@@ -136,16 +136,24 @@ const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; AIO-Screener-bot/1.0)' };
 async function fetchJSON(url, opts = {}, tries = 3) {
   let lastErr;
   for (let i = 0; i < tries; i++) {
+    // P1547: the deadline covers the body read (cleared only after r.json()), and a definitive 4xx
+    // (not 408/429) is returned to the caller instead of being retried against the same provider.
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 12000);
     try {
-      const ctrl = new AbortController();
-      const to = setTimeout(() => ctrl.abort(), 12000);
       const r = await fetch(url, { headers: UA, signal: ctrl.signal, ...opts });
-      clearTimeout(to);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if (!r.ok) {
+        const err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        throw err;
+      }
       return await r.json();
     } catch (e) {
       lastErr = e;
+      if (e.status >= 400 && e.status < 500 && e.status !== 408 && e.status !== 429) break;
       await new Promise(res => setTimeout(res, 600 * (i + 1)));
+    } finally {
+      clearTimeout(to);
     }
   }
   throw lastErr;
@@ -158,10 +166,9 @@ async function _fetchRss(url, timeoutMs) {
   const to = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     const r = await fetch(url, { headers: UA, signal: ctrl.signal });
-    clearTimeout(to);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return await r.text();
-  } catch (e) { clearTimeout(to); throw e; }
+  } finally { clearTimeout(to); }
 }
 
 // P734: Google News RSS can transiently serve a cached window with no items in

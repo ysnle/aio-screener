@@ -448,7 +448,7 @@ function showKrThemeDetail(themeId) {
     '<div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;">'+
       '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">AI 심층 분석</button>'+
       '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">수급 분석</button>'+
-      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 진입 전략 알려줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">진입 전략</button>'+
+      '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 확인할 지표와 무효화 조건 알려줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">확인 지표</button>'+
       '<button data-action="chatFromChip" data-arg="themes" data-arg2="'+escHtml(tn)+' 테마 리스크 요인과 주의할 점 분석해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">리스크</button>'+
     '</div>';
 
@@ -481,7 +481,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   var upRatio = dataCounted > 0 ? Math.round(upCnt / dataCounted * 100) : 0;
   if (upRatio >= 70) ss.push(' <b>테마 건강도 우수</b> — 구성종목 중 ' + upRatio + '%가 상승. 광범위한 매수세가 테마 전체를 지지하고 있어 추세 지속 가능성이 높습니다.');
   else if (upRatio >= 50) ss.push(' <b>테마 건강도 보통</b> — 상승 ' + upCnt + '개 vs 하락 ' + dnCnt + '개. 대장주 위주로만 오르고 있다면 폭이 좁은 랠리로, 후발주 확산 여부를 모니터링해야 합니다.');
-  else ss.push('<b>테마 건강도 취약</b> — 하락 종목(' + dnCnt + '개)이 상승 종목(' + upCnt + '개)보다 많습니다. 테마 모멘텀이 꺾이는 신호일 수 있어 추격 매수는 자제가 권장됩니다.');
+  else ss.push('<b>테마 건강도 취약</b> — 하락 종목(' + dnCnt + '개)이 상승 종목(' + upCnt + '개)보다 많습니다. 테마 모멘텀이 꺾이는 신호일 수 있어 추격 진입의 위험이 커집니다.');
 
   // 4) 대장주 vs 후발주 분석 — v38.3: 6종목 미만 테마에서 top3/bot3 겹침 버그 수정
   if (sorted.length >= 6) {
@@ -2384,10 +2384,10 @@ function _generateKrMacroAnalysis(ld) {
   if (vix && vix.price) {
     var vp = vix.price;
     t += '<b>VIX ' + vp.toFixed(1) + '</b> — ';
-    t += vp > 30 ? '<span style="color:var(--red);">30 상회 고변동 구간입니다. KOSPI 방향은 수급·환율과 별도 확인합니다.</span>' :
-         vp > 22 ? '<span style="color:var(--yellow);">22~30 변동성 경계 구간입니다. 방향 신호가 아니라 예상 변동 범위 확대를 뜻합니다.</span>' :
-         vp > 16 ? '<span style="color:var(--text-secondary);">16~22 통상 범위입니다. 한국 시장의 수급·실적을 별도 확인합니다.</span>' :
-         '<span style="color:var(--green);">16 미만 저변동 구간입니다. 안정이나 상승을 단독 예측하지 않습니다.</span>';
+    t += vp >= 32 ? '<span style="color:var(--red);">32 이상 고변동 구간입니다. KOSPI 방향은 수급·환율과 별도 확인합니다.</span>' :
+         vp >= 25 ? '<span style="color:var(--yellow);">25~32 변동성 경계 구간입니다. 방향 신호가 아니라 예상 변동 범위 확대를 뜻합니다.</span>' :
+         vp >= 18 ? '<span style="color:var(--text-secondary);">18~25 통상 범위입니다. 한국 시장의 수급·실적을 별도 확인합니다.</span>' :
+         '<span style="color:var(--green);">18 미만 저변동 구간입니다. 안정이나 상승을 단독 예측하지 않습니다.</span>';
     t += '<br>';
   }
   // v38.5: 환율 스트레스 인덱스 (KRW 등락률 + VIX 조합)
@@ -2510,13 +2510,18 @@ function _generateKrMacroAnalysis(ld) {
   // 종합 판단 (v38.4 강화)
   var krwRisk = (krw && krw.price > 1400) ? 1 : 0;
   var rateRisk = (tnx && tnx.price > 4.5) ? 1 : 0;
-  var vixRisk = (vix && vix.price > 25) ? 1 : 0;
+  var vixRisk = (vix && vix.price >= 25) ? 1 : 0; // P1565: 25 = the shared VIX boundary band edge
   var riskSum = krwRisk + rateRisk + vixRisk;
+  // P1565: the verdict used to be a ladder of conclusions ("keep cash at 50%+", "defensive strategy", "favourable for growth themes").
+  // It now lists which of the three conditions hold; what they mean for a sector is checked separately.
+  var krConds = [];
+  if (krwRisk) krConds.push('원/달러 1,400원 초과');
+  if (rateRisk) krConds.push('미국 10년 금리 4.5% 초과');
+  if (vixRisk) krConds.push('VIX 25 이상(변동성 경계 구간)');
   t += '<br><b>【종합 판단】</b> ';
-  t += riskSum >= 3 ? '<span style="color:var(--red);font-weight:700;"> 삼중 악재 (환율↑ 금리↑ 변동성↑). 현금비중 50% 이상 유지, 방산·필수소비재 방어 전략.</span>' :
-       riskSum === 2 ? '<span style="color:var(--yellow);font-weight:700;"> 이중 부담. 선별적 매매 필요. 고배당·수출주 중심 포트폴리오 추천.</span>' :
-       riskSum === 1 ? '<span style="color:var(--text-secondary);font-weight:700;"> 일부 리스크 존재. 업종별 차별화 예상. 실적 모멘텀 기반 종목 선별.</span>' :
-       '<span style="color:var(--green);font-weight:700;"> 매크로 환경 양호! 환율 안정+금리 적정+변동성 낮음. 성장테마 적극 비중 확대 구간.</span>';
+  t += krConds.length
+    ? '<span style="font-weight:700;">해당 조건 ' + riskSum + '개/3개: ' + krConds.join(' · ') + '.</span> 예측 신호가 아니며, 업종별 영향은 실적·수급과 함께 따로 확인합니다.'
+    : '<span style="font-weight:700;">세 조건(환율 1,400원 초과 · 미국 10년 4.5% 초과 · VIX 25 이상)에 해당하지 않습니다.</span> 예측 신호가 아니며, 비중 판단은 개인 기준으로 합니다.';
 
   // v40.4: 교차변수 심화 진단
   if (wti && wti.price && krw && krw.price && vix && vix.price) {
@@ -2528,7 +2533,7 @@ function _generateKrMacroAnalysis(ld) {
     }
     // VIX↑+원화↓ = 외국인 이탈 가속
     if (vp2 > 25 && kp2 > 1400) {
-      t += '<span style="color:var(--red);">VIX ' + vp2.toFixed(0) + ' + 원화 약세 = 외국인 이중 이탈 압력. 글로벌 리스크오프 + 환손실 우려 동시 작용 → KOSPI 하락 압력 극대화.</span><br>';
+      t += '<span style="color:var(--red);">VIX ' + vp2.toFixed(0) + ' + 원화 약세 = 글로벌 위험 회피와 환손실 우려가 함께 거론되는 조합입니다. 외국인 수급은 따로 확인합니다.</span><br>';
     }
     // 금리↑+원화↓ = 한은 딜레마 심화
     if (tnx && tnx.price > 4.5 && kp2 > 1400) {
@@ -2540,17 +2545,19 @@ function _generateKrMacroAnalysis(ld) {
     }
   }
 
-  // v40.4: 트레이딩 스코어 연동
-  var krMacroTs = null;
-  try { if (typeof computeTradingScore === 'function') krMacroTs = computeTradingScore().score; } catch(e) {}
-  if (krMacroTs != null && isFinite(Number(krMacroTs))) {
-    t += '<br><b>【글로벌 시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krMacroTs >= 55 ? 'var(--green)' : krMacroTs >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krMacroTs + '/100</b> — ';
-    t += krMacroTs >= 55 ? '글로벌 환경 양호. 한국 시장 동반 상승 기대.' :
-         krMacroTs >= 35 ? '글로벌 환경 혼조. 한국 고유 재료(수급·실적)가 방향 결정.' :
-         '글로벌 환경 약세. 코스피 하방 압력 지속. 방어적 포지션 유지.';
-  } else t += '<br><b>【글로벌 시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
+  t += _krReferenceScoreLine('【글로벌 시장 환경】');
 
   el.innerHTML = t || '데이터 대기 중...';
+}
+
+// P1552: the KR analysis paragraphs used to turn the 0-100 market score into a narrative ("favourable environment", "keep a
+// defensive position", "historically rotation was active"). The score has no recorded predictive validation, so the line states
+// the value, its basis and that it is not a forecast, with no colour ladder and no conclusion.
+function _krReferenceScoreLine(label) {
+  var ts = null;
+  try { if (typeof computeTradingScore === 'function') ts = computeTradingScore().score; } catch (e) {}
+  if (ts == null || !isFinite(Number(ts))) return '<br><b>' + label + '</b> 실시간·검증된 입력이 없어 참고값 산출을 보류합니다.';
+  return '<br><b>' + label + '</b> 시장 환경 참고값 <b>' + ts + '/100</b> (직전 미국장 종가 기준 · 예측 검증 미확립). 한국 시장은 수급·환율·실적을 따로 확인합니다.';
 }
 
 // ── 2) 한국 테마 동향 분석 ──
@@ -2680,19 +2687,11 @@ function _generateKrThemesAnalysis(ld) {
     }
     // 복합 시나리오
     if (krMacroWti && krMacroWti > 100 && krMacroKrw && krMacroKrw > 1400 && krMacroVix && krMacroVix > 25) {
-      h += '<span style="color:var(--red);font-weight:700;"> 삼중 악재(유가↑+원화↓+VIX↑) 동시 발생. 방어테마 집중 + 현금비중 확대 필수.</span><br>';
+      h += '<span style="color:var(--red);font-weight:700;"> 삼중 부담(유가↑+원화↓+VIX↑)이 동시에 나타났습니다. 방어 테마와 현금 비중을 점검할 구간입니다.</span><br>';
     }
   }
 
-  // v40.4: 트레이딩 스코어 연동
-  var krTsVal = null;
-  try { if (typeof computeTradingScore === 'function') krTsVal = computeTradingScore().score; } catch(e) {}
-  if (krTsVal != null && isFinite(Number(krTsVal))) {
-    h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krTsVal >= 55 ? 'var(--green)' : krTsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krTsVal + '/100</b> — ';
-    h += krTsVal >= 55 ? '역사적으로 테마 순환매가 활발하던 환경(환경 설명값, 예측 아님).' :
-         krTsVal >= 35 ? '역사적으로 실적 뒷받침 없는 테마의 성과가 부진하던 환경.' :
-         '역사적으로 테마 전반이 부진하고 방어적 대응이 우선시되던 환경.';
-  } else h += '<br><b>【시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
+  h += _krReferenceScoreLine('【시장 환경】');
 
   el.innerHTML = h;
 }
@@ -2707,24 +2706,24 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
   vals.sort(function(a, b) { return b.val - a.val; });
   var topPct = stats.totalValue > 0 ? (vals[0].val / stats.totalValue * 100) : 0;
   h += '<b>집중도:</b> 최대 비중 ' + vals[0].ticker + ' <b>' + topPct.toFixed(0) + '%</b>';
-  h += topPct > 40 ? ' <span style="color:var(--red);">— 과집중 위험! 해당 종목 급락 시 포트폴리오 전체 타격. 30% 이하로 분산 권장.</span>' :
-       topPct > 25 ? ' <span style="color:var(--yellow);">— 비중 높음. 리스크 관리 필요.</span>' :
-       ' <span style="color:var(--green);">— 적정 분산.</span>';
+  h += topPct > 40 ? ' <span style="color:var(--red);">— 40% 초과. 이 종목이 급락하면 포트폴리오 변동이 크게 커지는 구성입니다.</span>' :
+       topPct > 25 ? ' <span style="color:var(--yellow);">— 25% 초과. 비중이 높은 편입니다.</span>' :
+       ' <span style="color:var(--green);">— 25% 이하.</span>';
   h += '<br>';
   // 일간 손익 판단
   var dpct = stats.totalValue > 0 ? (stats.totalDailyChg / stats.totalValue * 100) : 0;
   h += '<b>오늘:</b> ' + (dpct >= 0 ? '+' : '') + dpct.toFixed(2) + '% ';
   h += Math.abs(dpct) > 3 ? '<span style="color:var(--red);">— 변동 과대. 리밸런싱 검토.</span>' :
        dpct > 1 ? '<span style="color:var(--green);">— 양호한 수익. 추세 지속 확인.</span>' :
-       dpct < -1 ? '<span style="color:var(--yellow);">— 하락 압력. 손절/추매 기준 점검.</span>' :
+       dpct < -1 ? '<span style="color:var(--yellow);">— 오늘 1% 넘게 하락.</span>' :
        '<span>— 보합권.</span>';
   h += '<br>';
   // 총 손익
   h += '<b>누적 P&L:</b> ' + (stats.totalPnlPct >= 0 ? '+' : '') + stats.totalPnlPct.toFixed(1) + '% ';
   h += stats.totalPnlPct > 20 ? '<span style="color:var(--green);">— 고수익 구간. 일부 이익 실현 고려.</span>' :
-       stats.totalPnlPct > 0 ? '<span style="color:var(--green);">— 수익 중. 손절선 관리 유지.</span>' :
-       stats.totalPnlPct > -10 ? '<span style="color:var(--yellow);">— 소폭 손실. 종목별 원인 분석 필요.</span>' :
-       '<span style="color:var(--red);">— 큰 손실 구간. 전체 전략 재검토 필요. 손절 기준 즉시 점검.</span>';
+       stats.totalPnlPct > 0 ? '<span style="color:var(--green);">— 평가 수익.</span>' :
+       stats.totalPnlPct > -10 ? '<span style="color:var(--yellow);">— 평가 손실 10% 이내.</span>' :
+       '<span style="color:var(--red);">— 평가 손실 10% 초과.</span>';
   h += '<br>';
 
   // v38.5: 섹터 분산도 진단
@@ -2753,9 +2752,9 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     h += secLabels.join(' · ');
     if (sectorEntries.length > 0 && sectorEntries[0].weight > 50) {
       h += '<br><span style="color:var(--red);font-weight:700;">경고: ' + sectorEntries[0].name + ' 섹터에 ' + sectorEntries[0].weight.toFixed(0) + '% 집중. ';
-      h += '해당 섹터 악재 시 포트폴리오 전체 타격. 다른 섹터로 20%p 이상 분산 권장.</span>';
+      h += '해당 섹터에 악재가 나오면 포트폴리오 전체가 영향을 받는 구성입니다.</span>';
     } else if (sectorEntries.length > 0 && sectorEntries[0].weight > 35) {
-      h += '<br><span style="color:var(--yellow);">' + sectorEntries[0].name + ' 비중 높음(' + sectorEntries[0].weight.toFixed(0) + '%). 섹터 리스크 모니터링 필요.</span>';
+      h += '<br><span style="color:var(--yellow);">' + sectorEntries[0].name + ' 비중 높음(' + sectorEntries[0].weight.toFixed(0) + '%).</span>';
     } else if (sectorEntries.length >= 3) {
       h += '<br><span style="color:var(--green);">양호한 섹터 분산. 특정 섹터 충격에 대한 버퍼 확보.</span>';
     }
@@ -2802,11 +2801,11 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     if (tnxNow > 4.5) riskFlags.push('고금리(10Y ' + tnxNow.toFixed(1) + '%)');
     if (dxyNow > 106) riskFlags.push('강달러(DXY ' + dxyNow.toFixed(0) + ')');
     if (riskFlags.length >= 2) {
-      h += '<span style="color:var(--red);">복합 매크로 리스크: ' + riskFlags.join(' + ') + '. 현금비중↑ 또는 방어주 리밸런싱 검토.</span>';
+      h += '<span style="color:var(--red);">복합 매크로 리스크: ' + riskFlags.join(' + ') + ' 조건이 겹쳐 있습니다.</span>';
     } else if (riskFlags.length === 1) {
       h += '<span style="color:var(--yellow);">' + riskFlags[0] + ' 주의.</span>';
     } else {
-      h += '<span style="color:var(--green);">매크로 환경 양호. 공격적 포지셔닝 유지 가능.</span>';
+      h += '<span style="color:var(--green);">매크로 지표 양호.</span>';
     }
     h += '<br>';
   }
@@ -2837,11 +2836,11 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
       effSorted.sort(function(a, b) { return (b.efficiency || 0) - (a.efficiency || 0); });
       var bestEff = effSorted[0], worstEff = effSorted[effSorted.length - 1];
       if (worstEff.efficiency !== null && worstEff.efficiency < -0.5 && worstEff.holdDays > 30) {
-        h += '<span style="color:var(--red);font-size:11px;">' + worstEff.ticker + ': ' + worstEff.holdDays + '일간 일평균 ' + worstEff.efficiency.toFixed(2) + '%/일 손실. 장기 하락 추세 → 손절 또는 전략 재검토 시급.</span><br>';
+        h += '<span style="color:var(--red);font-size:11px;">' + worstEff.ticker + ': ' + worstEff.holdDays + '일간 일평균 ' + worstEff.efficiency.toFixed(2) + '%/일 손실로 보유 기간 내 하락 추세가 이어졌습니다.</span><br>';
       }
     }
     if (topPerf.pnl - botPerf.pnl > 30) {
-      h += '<span style="color:var(--yellow);">승패 격차 ' + (topPerf.pnl - botPerf.pnl).toFixed(0) + '%p. 과도한 비대칭 → 승자 일부 이익실현, 저평가 종목 또는 현금으로 재배치 검토.</span><br>';
+      h += '<span style="color:var(--yellow);">승패 격차 ' + (topPerf.pnl - botPerf.pnl).toFixed(0) + '%p로 종목별 성과 편차가 큽니다.</span><br>';
     }
   }
 
@@ -2862,45 +2861,30 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
       } else {
         h += '<b style="color:' + color + ';">잔여 ' + distPct.toFixed(1) + '%</b>';
         if (distPct < 5) h += ' — 목표가 부근. 프레임워크상 이익 보호가 논의되는 지점(지시 아님)';
-        else if (distPct < 15) h += ' — 접근 중, 목표 도달 시 매도 계획 준비';
+        else if (distPct < 15) h += ' — 목표가까지 15% 이내';
       }
       h += ')</span><br>';
     });
   }
 
-  // v38.5: 리스크 스코어카드 (집중도+변동성+매크로노출 종합)
+  // P1538 (owner decision: no composite grades or scores without predictive evidence): the 1-5 "risk grade" summed hand-set buckets and
+  // came with cash-ratio and "avoid new entries" instructions. The block lists the three observations themselves.
   if (positions.length >= 2) {
-    h += '<br><b>【리스크 스코어카드】</b> ';
-    var riskScore = 0;
-    // 1. 집중도 리스크 (0~2)
-    if (topPct > 40) riskScore += 2;
-    else if (topPct > 25) riskScore += 1;
-    // 2. 변동성 리스크 (0~2) - 일간 변동 기반
+    h += '<br><b>【리스크 관측】</b> ';
     var avgAbsChg = 0;
     var chgCount = 0;
     positions.forEach(function(p) {
       var d = ld[p.ticker];
       if (d && d.pct !== undefined) { avgAbsChg += Math.abs(d.pct); chgCount++; }
     });
-    avgAbsChg = chgCount > 0 ? avgAbsChg / chgCount : 0;
-    if (avgAbsChg > 3) riskScore += 2;
-    else if (avgAbsChg > 1.5) riskScore += 1;
-    // 3. 매크로 노출 (0~1)
-    if (vixNow > 25 || tnxNow > 4.5 || dxyNow > 106) riskScore += 1;
-    // 등급 산출
-    var riskGrade, riskColor, riskLabel;
-    if (riskScore >= 4) { riskGrade = 5; riskColor = 'var(--red)'; riskLabel = '매우 높음'; }
-    else if (riskScore === 3) { riskGrade = 4; riskColor = '#b13a30'; riskLabel = '높음'; }
-    else if (riskScore === 2) { riskGrade = 3; riskColor = 'var(--yellow)'; riskLabel = '보통'; }
-    else if (riskScore === 1) { riskGrade = 2; riskColor = 'var(--accent)'; riskLabel = '낮음'; }
-    else { riskGrade = 1; riskColor = 'var(--green)'; riskLabel = '매우 낮음'; }
-    h += '<b style="color:' + riskColor + ';font-size:14px;">등급 ' + riskGrade + '/5 (' + riskLabel + ')</b><br>';
-    h += '<span style="font-size:11px;color:var(--text-muted);">산출근거: 집중도(' + (topPct > 40 ? '2' : topPct > 25 ? '1' : '0') + ') + 변동성(' + (avgAbsChg > 3 ? '2' : avgAbsChg > 1.5 ? '1' : '0') + ') + 매크로(' + (vixNow > 25 || tnxNow > 4.5 || dxyNow > 106 ? '1' : '0') + ')</span>';
-    if (riskGrade >= 4) {
-      h += '<br><span style="color:var(--red);">현금비중 30%+ 권장. 손절선 엄격 관리. 신규 진입 자제.</span>';
-    } else if (riskGrade === 3) {
-      h += '<br><span style="color:var(--yellow);">정상 리스크. 포지션 사이즈 조절로 관리 가능.</span>';
-    }
+    avgAbsChg = chgCount > 0 ? avgAbsChg / chgCount : null;
+    var macroFacts = [];
+    if (vixNow > 25) macroFacts.push('VIX ' + vixNow + ' (25 이상)');
+    if (tnxNow > 4.5) macroFacts.push('미 10년물 ' + tnxNow + '% (4.5% 초과)');
+    if (dxyNow > 106) macroFacts.push('달러 인덱스 ' + dxyNow + ' (106 초과)');
+    h += '<span style="font-size:11px;color:var(--text-muted);">최대 비중 ' + topPct.toFixed(1) + '%' + (topPct > 25 ? ' (25% 초과)' : '') +
+      ' · 보유 종목 평균 일간 등락폭 ' + (avgAbsChg == null ? '미수신' : avgAbsChg.toFixed(2) + '%') +
+      ' · 거시 ' + (macroFacts.length ? macroFacts.join(', ') : '기준선 안쪽') + '</span>';
   }
   // v39.2: 포트폴리오 베타 추정 + MDD 시나리오 + 상관계수 + 스트레스 테스트
   if (positions.length >= 2 && Array.isArray(_aioScreenerRows)) {
@@ -2973,18 +2957,18 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
       h += '<span style="font-size:11px;color:' + sc.color + ';">' + sc.name + ': 예상 손실 약 <b>-' + (sc.factor * 100).toFixed(1) + '%</b> ($' + Math.round(loss).toLocaleString() + ')</span><br>';
     });
 
-    // 손절 자동 판별
+    // 평가 손실 -7% 이하 종목 나열 (사실 표시; 매도 지시가 아니다)
     var cutLossCandidates = positions.filter(function(p) {
       var d = ld[p.ticker]; if (!d) return false;
       var pnlPct = p.cost > 0 ? ((d.price - p.cost) / p.cost * 100) : 0;
       return pnlPct <= -7;
     });
     if (cutLossCandidates.length > 0) {
-      h += '<br><span style="color:var(--red);font-weight:700;"> 손절 검토 대상 (' + cutLossCandidates.length + '개):</span><br>';
+      h += '<br><span style="color:var(--red);font-weight:700;"> 평가 손실 -7% 이하 종목 (' + cutLossCandidates.length + '개):</span><br>';
       cutLossCandidates.forEach(function(p) {
         var d = ld[p.ticker];
         var pnlPct = ((d.price - p.cost) / p.cost * 100);
-        h += '<span style="font-size:11px;color:var(--red);">' + p.ticker + ': ' + pnlPct.toFixed(1) + '% (미너비니 -7~8% 손절 기준 초과)</span><br>';
+        h += '<span style="font-size:11px;color:var(--red);">' + p.ticker + ': ' + pnlPct.toFixed(1) + '%</span><br>';
       });
     }
   }
@@ -3174,7 +3158,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     h += '<br><b>【실적 vs 주가 괴리 종목】</b> ';
     earningsGap.forEach(function(i) {
       if (i.chg < -2 && i.roe > 15) {
-        h += i.sym + ': ROE ' + i.roe + '%(양호) but 오늘 ' + i.chg.toFixed(1) + '%(급락) — <span style="color:var(--accent);">실적과 주가 괴리. 센티먼트 과잉 반응 가능, 바닥 확인 후 매수 기회.</span> ';
+        h += i.sym + ': ROE ' + i.roe + '%(양호) but 오늘 ' + i.chg.toFixed(1) + '%(급락) — <span style="color:var(--accent);">실적과 주가의 괴리입니다. 센티먼트 과잉 반응일 수 있으며, 바닥 확인 여부를 함께 봅니다.</span> ';
       } else if (i.chg > 2 && i.pe > 40) {
         h += i.sym + ': PE ' + i.pe.toFixed(0) + '(고평가) + 오늘 +' + i.chg.toFixed(1) + '%(급등) — <span style="color:var(--yellow);">모멘텀 과열. 이익실현 검토.</span> ';
       }
@@ -3203,17 +3187,6 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     h += '<br>';
   }
 
-  // v40.4: 트레이딩 스코어 연동 시장 환경 코멘트
-  var tsVal = null;
-  try { if (typeof computeTradingScore === 'function') { tsVal = computeTradingScore().score; } } catch(e) {}
-  if (tsVal != null && isFinite(Number(tsVal))) {
-    h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (tsVal >= 55 ? 'var(--green)' : tsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + tsVal + '/100</b> — ';
-    h += tsVal >= 75 ? '시장 환경 우수. 개별 종목 펀더멘털 강점이 주가에 반영되기 좋은 환경.' :
-         tsVal >= 55 ? '시장 환경 양호. 실적 뒷받침되는 종목 선별적 접근.' :
-         tsVal >= 35 ? '시장 환경 중립~약세. 시장 역풍에 개별 종목이 눌릴 수 있음. 방어적 포지션 우선.' :
-         '시장 환경 약세. 펀더멘털과 무관하게 센티먼트로 하락 가능. 현금 비중 확대 고려.';
-  } else h += '<br><b>【시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
-  h += '<br>';
 
   void h;
  };

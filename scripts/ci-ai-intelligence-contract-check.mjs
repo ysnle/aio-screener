@@ -419,6 +419,12 @@ const bind = (claim, rows = [bindingRow]) => bindingContext._aioBuildPublishable
 check('P1519 publication clock rejects future evidence deterministically', answerPublication.evidenceCanPublish(bindingRow, Date.parse(bindingRow.asOf) - 60001) === false);
 check('P1519 publication clock permits the existing skew allowance', answerPublication.evidenceCanPublish(bindingRow, Date.parse(bindingRow.asOf) - 60000) === true);
 check('P1519 current-context numeric prose policy survives extraction', answerPublication.hasCurrentNumericContent('현재 관측값은 99') === true);
+check('P1525 counts and Korean magnitudes in current-sensitive prose are treated as unverified figures (the H104 leak: a count without a whitelisted unit)',
+  ['200일선 위 44개 종목이다.', '외국인 순매수는 1,234억원이다.', '주요 지수 중 3개가 하락했다.', '시가총액 상위 5곳이 올랐다.', '거래대금은 2조 원이었다.'].every((sentence) => answerPublication.hasCurrentNumericContent(sentence) === true));
+check('P1525 periods and qualitative prose are not read as current figures',
+  ['최근 3개월 동안 완만했다.', '지난 2개년 평균과 비교한다.', '금리 방향은 엇갈린다.', '지표가 서로 다른 신호를 보인다.'].every((sentence) => answerPublication.hasCurrentNumericContent(sentence) === false));
+check('P1525 an unbound count is stripped from a current-sensitive fallback while the qualitative sentence stays',
+  answerPublication.extractAnswerFallback('지표가 엇갈린다. 200일선 위 44개 종목이다.', true) === '지표가 엇갈린다.');
 const savedPublication = bindingContext.window.AIO_ARCH;
 bindingContext.window.AIO_ARCH = null;
 check('P1519 missing bridge cannot publish a structured plan', bind(bindingClaim).plan === null && bind(bindingClaim).droppedClaims[0].reasons.includes('publication-unavailable'));

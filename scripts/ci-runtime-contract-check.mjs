@@ -195,7 +195,10 @@ check('score advice no longer labels 75+ as aggressive buy', /function\s+getScor
 check('trading guidance avoids aggressive-buy wording on score 75+', !/75\+\s*(?:적극\s*매수|적극매수)/.test(html + '\n' + core + '\n' + chat + '\n' + data + '\n' + ui));
 // P1132/R619: the deep technical analysis engine moved from index.html's inline block F into
 // js/aio-ui.js, so the whole ticker-deep-analysis assertion group now reads `ui`.
-check('ticker deep analysis gates entry verdict with market score', /function\s+analyzeTickerDeep/.test(ui) && /computeTradingScore\('swing'\)/.test(ui) && /marketAllowsEntry/.test(ui) && /marketCaution/.test(ui));
+// P1538: the deep analysis no longer issues an entry verdict, so there is nothing for the market score to gate; it reads the score as a
+// reference with its basis and produces no entry grade, composite or instruction.
+check('P1541 the Yahoo-to-FRED bridge never maps the ^IRX discount rate onto DGS3MO or rebuilds T10Y3M from it, and no element shows ^IRX as a 2Y yield', !/fredId:\s*'DGS3MO'/.test(data) && !/yahoo-calc:\^TNX-\^IRX/.test(data) && !/tnx2y/.test(read('js/aio-pages.js')));
+check('P1538 ticker deep analysis shows the market score as a reference with its basis and issues no entry verdict', /function\s+analyzeTickerDeep/.test(ui) && /computeTradingScore\('swing'\)/.test(ui) && /직전 미국장 종가 기준/.test(ui) && !/marketAllowsEntry|marketCaution|entryData\.grade|instEngine\.(?:score|verdict)/.test(ui));
 // P1212/E2 LC-41: the legacy factor-backtest canvas promoted null/undefined IC, spread, hit-rate and
 // sample count to 0 (`bt.quantileSpread || 0`, `ic[key] || 0`), so an empty backtest rendered as
 // measured zeros beside `n=0`. Missing stays missing.
@@ -1067,8 +1070,12 @@ check('R340/P712: Treasury maturity fields are separated and 2s10s uses the cano
   /'\^TNX':\s*\['tnx',\s*null\]/.test(data) && !/'\^TNX':\s*\['tnx2y'/.test(data) && /getUsTreasuryCurveEvidence/.test(core) && /spread2s10s/.test(core) && !/\^FVX[^\n]{0,120}\*\s*0\.95/.test(html));
 // P1134/R620: the KR theme coverage helpers now live in js/aio-kr-data.js (block C) and the KR
 // technical-page fail-closed branch lives in js/aio-ui.js (block F) — two owners, both asserted.
-check('R340/P712: KR theme breadth and market-health claims fail closed on missing current inputs',
-  /evaluateKrThemeQuoteCoverage/.test(krData) && /weightedCoverage\s*>=\s*0\.7/.test(krData) && /테마 종합판정 보류/.test(krData) && /currentInputs\s*<\s*4/.test(ui) && /판정 보류 · 현재 입력/.test(ui));
+// P1538 (owner decision: no composite grades or scores without predictive evidence): the KR health card no longer sums points, so
+// "fails closed" now means it reports which current inputs exist and invents no total.
+const krHealthBody = ui.slice(ui.indexOf('function calcKrHealthScore()'), ui.indexOf('// ── 한국 금리 스프레드'));
+check('R340/P712 + P1538: KR theme breadth fails closed on missing current inputs and the KR health card adds nothing up',
+  /evaluateKrThemeQuoteCoverage/.test(krData) && /weightedCoverage\s*>=\s*0\.7/.test(krData) && /테마 종합판정 보류/.test(krData)
+    && krHealthBody.length > 500 && /currentInputs \+ '\/4'/.test(krHealthBody) && /미수신: /.test(krHealthBody) && !/\bscore\s*[-+]?=|grade\s*=/.test(krHealthBody));
 check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
   // P1389: the briefing schedule (buildBriefingSchedule over AIO_MACRO_CALENDAR) replaced the archived calendar block.
   /export function buildBriefingSchedule/.test(read('src/domain/briefing/schedule.js')) && /id="briefing-schedule-rows"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));

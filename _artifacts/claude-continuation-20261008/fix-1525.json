@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "AI publication let a current-sensitive count or magnitude through without evidence",
+  "symptom": "A current-sensitive answer sentence such as '200일선 위 44개 종목이다.' or '외국인 순매수는 1,234억원이다.' was kept although no evidence bound its figure, the leak behind audit H104; with a leading '현재' the same sentence was dropped.",
+  "root_cause": "hasCurrentNumericContent is a whitelist of units and keywords that omitted counts (개, 곳, 건, 명, 종목) and Korean magnitudes (조, 억, 만).",
+  "fix": "Counts and magnitudes are covered; 개월 and 개년 are excluded so a period is not read as a figure.",
+  "violated_rule": "A figure in a current-sensitive answer must be bound to evidence or removed.",
+  "prevention": "ci-ai-intelligence-contract-check P1525 assertions for the leaks, the periods that must not be flagged and the fallback strip; the mutation that removes the new unit list fails two of them.",
+  "verification": "The AI contract, evidence, quote-evidence, chat-integration, premise and ESM core checks pass. Not verified: real model answers; a numeric claim in a non-current text claim is still not checked (policy decision)."
+ },
+ "r": null,
+ "qa": [],
+ "changelog": [
+  "**AI 공개 정책의 현재성 수치 판정 확장 (P{P}):** 개수(개·곳·건·명·종목)와 금액 규모(조·억·만)가 근거 없이 현재 수치로 통과하던 문제를 수정(H104 계열). 3개월 같은 기간은 수치로 보지 않는다."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard.",
+ "status": null
+}

@@ -101,6 +101,48 @@ check('P1152 a non-HTTPS fast plane endpoint is refused', badUrlSources.length =
   const tamperResult = await tamperLoader.load();
   check('P1152 a tampered fast-plane payload never replaces the last good snapshot', tamperResult.ok === true && tamperResult.source === 'durable-snapshot', { ok: tamperResult.ok, source: tamperResult.source });
 
+  // P1532: a fast-plane snapshot whose quotes are all STALE/UNAVAILABLE is "published" (the Worker gates coverage, not
+  // quality), but it is not fresher than the durable snapshot. The loader contract says a stale fast plane degrades to the
+  // previous behaviour, so it must fall through; a snapshot with at least one usable quote stays on the fast plane and the
+  // stale rows degrade per quote.
+  {
+    const withQualities = (qualityFor) => {
+      const copy = JSON.parse(JSON.stringify(published));
+      copy.quotes.forEach((quote, index) => { quote.quality = qualityFor(index); });
+      return copy;
+    };
+    const loadWith = async (fastPayload) => {
+      const calls = [];
+      const result = await createMarketSnapshotLoader({
+        httpClient: { async requestJson(url) { calls.push(url); return { ok: true, data: url.includes('/quotes') ? fastPayload : published }; } },
+        fastQuotesProvider: () => ({ enabled: true, baseUrl: endpoints.fastQuotes?.baseUrl, quotesPath: '/quotes' }),
+        clock: { iso: () => new Date(Date.parse(fastPayload.attemptedAt) + (loadWith.ageMs ?? 60000)).toISOString() }
+      }).load();
+      return { result, calls };
+    };
+    const allStale = await loadWith(withQualities(() => 'STALE'));
+    check('P1532 an all-STALE fast-plane snapshot falls through to the durable snapshot', allStale.result.ok === true && allStale.result.source === 'durable-snapshot' && allStale.calls.length === 2, { source: allStale.result.source, calls: allStale.calls.length });
+    const allUnavailable = await loadWith(withQualities(() => 'UNAVAILABLE'));
+    check('P1532 an all-UNAVAILABLE fast-plane snapshot falls through to the durable snapshot', allUnavailable.result.source === 'durable-snapshot', allUnavailable.result.source);
+    const mixed = await loadWith(withQualities((index) => (index === 0 ? 'DELAYED' : 'STALE')));
+    check('P1532 one usable quote keeps the fast plane (stale rows degrade per quote, not the whole snapshot)', mixed.result.ok === true && mixed.result.source === 'fast-plane' && mixed.calls.length === 1, { source: mixed.result.source, calls: mixed.calls.length });
+    const current = await loadWith(withQualities(() => 'CLOSED_CURRENT'));
+    check('P1532 an all-usable fast-plane snapshot is still preferred over the durable one', current.result.source === 'fast-plane', current.result.source);
+    // P1563: labels frozen at publish time must not outlive the Worker. Same CURRENT labels, different age of the snapshot itself.
+    const currentLabels = withQualities(() => 'CURRENT');
+    loadWith.ageMs = 10 * 60 * 1000;
+    const fresh = await loadWith(currentLabels);
+    loadWith.ageMs = 3 * 60 * 60 * 1000;
+    const threeHours = await loadWith(currentLabels);
+    loadWith.ageMs = 3 * 24 * 60 * 60 * 1000;
+    const threeDays = await loadWith(currentLabels);
+    loadWith.ageMs = undefined;
+    check('P1563 a fresh fast-plane snapshot with CURRENT labels is still preferred', fresh.result.source === 'fast-plane', fresh.result.source);
+    check('P1563 a fast-plane snapshot older than two hours falls through to the durable snapshot even with CURRENT labels', threeHours.result.source === 'durable-snapshot' && threeDays.result.source === 'durable-snapshot' && threeDays.calls.length === 2, { three: threeHours.result.source, days: threeDays.result.source });
+    const durableOnlyStale = await createMarketSnapshotLoader({ httpClient: { async requestJson() { return { ok: true, data: withQualities(() => 'STALE') }; } }, fastQuotesProvider: () => null }).load();
+    check('P1532 the durable snapshot is never refused for stale rows (it is the last source)', durableOnlyStale.ok === true && durableOnlyStale.source === 'durable-snapshot', durableOnlyStale.source);
+  }
+
   const disabledRequested = [];
   const disabledLoader = createMarketSnapshotLoader({
     httpClient: { async requestJson(url) { disabledRequested.push(url); return { ok: true, data: published }; } },

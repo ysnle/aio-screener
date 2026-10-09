@@ -1,0 +1,24 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "13F scale-review withholding covered only the top rows, comparisons and shards",
+  "symptom": "The 1,000x filing-unit safeguard (withhold, never multiply) for T. Rowe, Duquesne and Baupost (2026-06-30) left filed amounts visible in allHoldings, the reverse-lookup index rows, the prior-quarter and historical totals of the quarter table, and the issuer aggregate table. A manager shard that finished before detection kept its filed amounts for the whole session. The reference sector view drew withheld rows as $0.",
+  "root_cause": "Detection and withholding were wired only where holdings and comparisons enter the page and where shards load. Every other artifact that carries filed amounts bypassed them, detection only sees the current quarter although a filer keeps its unit (the same ratio shows in every quarter back to 2023-09-30 for the two filers), and the module had no regression test.",
+  "fix": "allHoldings is withheld at ingress and already-cached shards are withheld again once detection is known (withholding is idempotent and keeps the first as-filed memo). managersUnderScaleReview and withholdManagerValues withhold a flagged manager's index rows, earlier quarters and aggregate amounts in any period, with a stated notice; shares and row counts stay as filed. The sector view no longer sums withheld rows as zero dollars.",
+  "violated_rule": "A safeguard that withholds a figure must withhold it at every consumer of that figure.",
+  "prevention": "ci-masters-contract-check P1522 assertions: detection flags only the 1,000x filer, manager-level withholding, idempotence, the carry-over notice, no 1,000x rescale in the page, and the wiring of each consumer; four mutations each fail their own assertion.",
+  "verification": "Contract check passes; the masters browser check passes in Chromium (38 managers, NVDA and AAPL lookups). Not verified: a producer run (none was run), a filer with fewer than two comparable peer rows is still undetected (owner decision), and the original filing unit of the three filers."
+ },
+ "r": {
+  "title": "A figure that is withheld is withheld at every consumer",
+  "rule": "When a filing's dollar amounts are withheld, every path that can show or sum them applies the same withholding: ingress arrays, index rows, earlier-period totals, aggregates and already-cached shards. The withholding is idempotent, never rescales a value, and the module has a regression test that names each consumer.",
+  "validation": "node scripts/ci-masters-contract-check.mjs; node scripts/ci-masters-browser-check.mjs"
+ },
+ "qa": [],
+ "changelog": [
+  "**13F 금액 보류의 전 소비처 적용 (P{P}/R{R}):** 1,000배 단위 이상 신고의 보류가 상위 행·비교·샤드에만 걸려 있어 전체 보유, 역조회 인덱스, 이전 분기 총액, 종목 집계에 원 금액이 보이던 문제를 수정. 먼저 도착한 샤드도 재보류하고, 보류 행을 0달러로 합산하지 않는다."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard.",
+ "status": null
+}

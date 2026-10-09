@@ -1172,7 +1172,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (buy) buy.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && row.signal === 'BUY').length);
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
-  if (asOf) asOf.textContent = workbenchResult?.run?.snapshotId ? `데이터 세트 ${String(workbenchResult.run.snapshotId).slice(0, 18)}` : state?.metadata?.factorObservedAt ? `팩터 세션 ${String(state.metadata.factorObservedAt).slice(0, 10)} · 생성 ${state?.metadata?.asOf ? String(state.metadata.asOf).slice(0, 10) : '—'}` : state?.metadata?.asOf ? `생성 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
+  if (asOf) asOf.textContent = state?.metadata?.factorObservedAt ? `팩터 세션 ${String(state.metadata.factorObservedAt).slice(0, 10)} · 생성 ${state?.metadata?.asOf ? String(state.metadata.asOf).slice(0, 10) : '—'}` : state?.metadata?.asOf ? `생성 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
   const provenance = page.querySelector('[data-screener-provenance]');
   if (provenance) {
     const metadata = state?.metadata || {};
@@ -1675,7 +1675,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           }
          if (runHistory && !runHistory.dataset.archiveLoaded) refreshRunArchive();
          if (outcomeLab) outcomeLab.textContent = state.outcomes?.length ? `실행 후 결과 · ${state.outcomes.length}개 관측 · 1/5/21/63거래일 후` : '실행 후 결과 · 자동 추적 미연결 · 보관 입력 재현만 지원';
-         if (operationsState) operationsState.textContent = state.refreshPlan ? `데이터 갱신 · 대기 ${state.refreshPlan.queued?.length || 0}건 · 한도 차단 체크됨` : `데이터 갱신 · ${state.snapshotId ? `데이터 세트 ${String(state.snapshotId).slice(0, 18)}` : '미수신'} · 사용자 실행과 분리`;
+         if (operationsState) operationsState.textContent = state.refreshPlan ? `데이터 갱신 · 대기 ${state.refreshPlan.queued?.length || 0}건 · 한도 차단 체크됨` : `데이터 갱신 · ${state?.metadata?.asOf ? `${String(state.metadata.asOf).slice(0, 10)} 생성` : '미수신'} · 사용자 실행과 분리`;
        };
        const renderCompareTray = () => {
          const tray = documentRef.getElementById('scr-compare-tray');

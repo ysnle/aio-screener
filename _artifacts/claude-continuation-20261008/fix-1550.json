@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels, P1538 grades and composites out of technical, KR health, portfolio and moat surfaces, P1539 AI directive gate at sentence level, P1540 score band wording after validation, P1541 Yahoo-to-FRED bridge mapping, P1542 macro calendar lead warning, P1543 exact-only legacy ticker resolver, P1544 case-sensitive Telegram ticker symbols, P1545 assertion-trace ledger existence, P1546 instruction text and scores in the technical brief and page briefs, P1547 fetch deadlines cover the body, P1548 sourceless widgets and internal ids on screen, P1549 sub-1280 responsive blocks removed, P1550 ticker attribution leaks in chat and news.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "Chat and news attributed an issuer by a short alias, an uppercase acronym or a Korean substring",
+  "symptom": "The MSFT news filter accepted Morgan Stanley items because MSFT's registry alias list contained 'ms' (Morgan Stanley is its own key 'MS'); the chat extractor sent SEC, CEO, FED, WTI and USD (a listed ETF) to the data fetch as tickers; and the Korean-name branch of extractTickers matched by substring, so '모델' tagged DELL and '메타버스' tagged META.",
+  "root_cause": "Three separate lookups each treated 'looks like a ticker or a name' as 'is that issuer': an alt-alias list without a uniqueness check against other registry keys, an uppercase-word regex without a list of non-ticker acronyms, and a Hangul includes() without a syllable boundary.",
+  "fix": "An alias that is another issuer's registry key is skipped for this ticker; finance acronyms and currency codes are excluded from the chat ticker extractor; a 1-2 syllable Hangul alias must start after a non-Hangul character and end at a non-Hangul character or a case particle.",
+  "violated_rule": "No ticker guessing: a name or ticker-shaped token is never attributed to another issuer (P1339).",
+  "prevention": "Legacy T535c feeds '모델/메타버스', '델이', the acronyms and a Morgan Stanley item filtered for MSFT; it fails on each of the three when the fix is removed (mutation-checked).",
+  "verification": "Legacy headless suite (fixed and mutant runs) and the full no-cache QA. Not done: 3-syllable Hangul aliases still match by substring, and '삼성' followed by Latin text maps to Samsung Electronics."
+ },
+ "r": null,
+ "changelog": [
+  "**티커 오귀속 차단 (P{P}):** MSFT 뉴스에 모건스탠리가 섞이던 별칭 충돌, SEC·FED·USD·WTI·CEO를 티커로 조회하던 추출, '모델'이 DELL로 잡히던 한글 부분일치를 막았다."
+ ]
+}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-08T14:20:58.147Z",
+  "generatedAt": "2026-10-09T01:06:02.088Z",
   "routes": [
     {
       "id": "home",
@@ -11,25 +11,25 @@
           "name": "시장 상태 →"
         },
         {
-          "tag": "BUTTON",
-          "name": "7일 일정과 시장 해석 → 브리핑"
+          "tag": "A",
+          "name": "Treasury sanctions 17 tankers linked to Iran's 'shadow fleet' in economic pressure campaign — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "S&P 500 And Nasdaq 100 Slip From Record Highs Amid Pressure From Soaring Treasury Yields — SPCX, AMD, NVDA, MR"
+          "name": "Fed minutes, Pepsi earnings, midterm megadonors and more in Morning Squawk — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Gold tests $4,100 as US Dollar and yields rise ahead of FOMC Minutes — 원문 새 창에서 열기"
+          "name": "3 Warning Signs That Earnings Season Won’t Be a Slam Dunk for Markets — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "AMD Stock Today: The November Earnings Test for AI Demand — 원문 새 창에서 열기"
+          "name": "Gold outlook: can Core PCE and Fed expectations decide the next move? — 원문 새 창에서 열기"
         }
       ],
       "headings": [
-        "시장 현황 v57.29",
-        "어제와 달라진 점10/6 → 10/7 종가",
+        "시장 현황 v57.30",
+        "어제와 달라진 점10/7 → 10/8 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
         "내 종목 뉴스"
@@ -151,19 +151,19 @@
         },
         {
           "tag": "BUTTON",
-          "name": "통화정책부담2년물이 기준금리보다 0.89%p 높음"
+          "name": "통화정책부담2년물이 기준금리보다 0.88%p 높음"
         },
         {
           "tag": "BUTTON",
-          "name": "금리 · 할인율부담10년물 20일 +47bp"
+          "name": "금리 · 할인율부담10년물 20일 +29bp"
         },
         {
           "tag": "BUTTON",
-          "name": "유가 · 달러부담WTI 20일 −8.1% · 달러 +3.5%"
+          "name": "유가 · 달러부담WTI 20일 −11.8% · 달러 +3.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "신용우호HY 303bp (5일 −5bp)"
+          "name": "신용우호HY 309bp (5일 −3bp)"
         }
       ],
       "headings": [
@@ -214,7 +214,7 @@
     {
       "id": "fundamental",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "INPUT",
@@ -236,27 +236,19 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "헬스케어 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
           "name": "에너지 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "유틸리티 테마 상세 열기"
+          "name": "통신 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
           "name": "필수소비 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "소비재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "통신 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
@@ -273,6 +265,14 @@
         {
           "tag": "BUTTON",
           "name": "산업재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "소비재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
@@ -316,15 +316,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "PLTR"
-        },
-        {
-          "tag": "BUTTON",
           "name": "ZS"
         },
         {
           "tag": "BUTTON",
-          "name": "A"
+          "name": "ESTC"
         },
         {
           "tag": "BUTTON",
@@ -332,15 +328,11 @@
         },
         {
           "tag": "BUTTON",
+          "name": "A"
+        },
+        {
+          "tag": "BUTTON",
           "name": "NEM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA"
         },
         {
           "tag": "BUTTON",
@@ -348,11 +340,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "T"
+          "name": "MRNA"
         },
         {
           "tag": "BUTTON",
-          "name": "JCI"
+          "name": "T"
         },
         {
           "tag": "BUTTON",
@@ -360,7 +352,15 @@
         },
         {
           "tag": "BUTTON",
+          "name": "AMD"
+        },
+        {
+          "tag": "BUTTON",
           "name": "PFE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "JCI"
         },
         {
           "tag": "BUTTON",
@@ -368,31 +368,35 @@
         },
         {
           "tag": "BUTTON",
-          "name": "반도체 -6.1%"
+          "name": "반도체 -6.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "유틸리티 -9.5%"
+          "name": "유틸리티 -10.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "에너지 +8.2%"
+          "name": "에너지 +10.3%"
         },
         {
           "tag": "BUTTON",
-          "name": "광통신/포토닉스 +2.2%"
+          "name": "광통신/포토닉스 -6.8%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +5.6%"
+          "name": "AI 인프라/데이터센터 +2.0%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +5.6%"
+          "name": "AI 인프라/데이터센터 +2.0%"
         },
         {
           "tag": "BUTTON",
-          "name": "산업재/물류 -5.5%"
+          "name": "산업재/물류 -4.0%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너 →"
         },
         {
           "tag": "BUTTON",
@@ -543,19 +547,23 @@
         },
         {
           "tag": "A",
-          "name": "Gold tests $4,100 as US Dollar and yields rise ahead of FOMC Minutes — 원문 새 창에서 열기"
+          "name": "Treasury sanctions 17 tankers linked to Iran's 'shadow fleet' in economic pressure campaign — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "S&P 500 And Nasdaq 100 Slip From Record Highs Amid Pressure From Soaring Treasury Yields — SPCX, AMD, NVDA, MR"
+          "name": "Fed minutes, Pepsi earnings, midterm megadonors and more in Morning Squawk — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "UBS cuts Unilever price target as higher finance costs trim earnings view — 원문 새 창에서 열기"
+          "name": "Gold outlook: can Core PCE and Fed expectations decide the next move? — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "AMD Stock Today: The November Earnings Test for AI Demand — 원문 새 창에서 열기"
+          "name": "코스피, 삼성전자 사상 최대 실적에도 2.62%↓…6,625선 마감 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "3 Warning Signs That Earnings Season Won’t Be a Slam Dunk for Markets — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -564,6 +572,10 @@
         {
           "tag": "BUTTON",
           "name": "중요도순"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "공용 AI 연결 시 해석 추가"
         },
         {
           "tag": "BUTTON",
@@ -583,51 +595,51 @@
         },
         {
           "tag": "A",
-          "name": "Want to know what the bond market is thinking? Check out the yield curve — 원문 새 창에서 열기"
+          "name": "Is Strong Earnings Guidance Altering The Investment Case For Jabil (JBL)? — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Stocks fall worldwide as Wall Street retreats from its record — 원문 새 창에서 열기"
+          "name": "S&P 500, Nasdaq end lower as crude prices jump, chip stocks weigh — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Stock Market Falls After Hitting Record Highs. What Changed Overnight? — 원문 새 창에서 열기"
+          "name": "Trump’s pledge not to strike Iran before midterms fails to soothe oil markets — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Stock Market Today, Oct. 7: Markets Edge Lower as Treasury Yields Surge — 원문 새 창에서 열기"
+          "name": "Oil Gains as Iran Reportedly Vows to Keep Hormuz Control — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "U.S. Stock Market Today: Wednesday, October 7, 2026 — 원문 새 창에서 열기"
+          "name": "US imposes fresh sanctions on Iran's shadow fleet — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Trump Is Considering a Plan to Strike Iran Before the Midterms — 원문 새 창에서 열기"
+          "name": "Revenue Guidance Might Change The Case For Investing In Zymeworks (ZYME) — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Intercontinental Exchange (ICE) Q2 2026 & Acquisition Earnings Call Transcript — 원문 새 창에서 열기"
+          "name": "Why are gas prices still high even as traffic improves in the Strait of Hormuz? — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Gold, silver slide as yields rise before Fed minutes, 10-year auction - Kitco AM Report — 원문 새 창에서 열기"
+          "name": "Spartan Delta (TSX:SDE) Stock Looks Rich As Guidance Optimism Builds — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "PENG Stock Rallies To Over 2-Month High After Wall Street Hikes Price Targets On Q4 Beat, Guidance Raise — 원문 "
+          "name": "SKYD Forecast — Price Target — Prediction for 2027 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Goodbye TINA? High Treasury yields give investors an alternative to stocks — 원문 새 창에서 열기"
+          "name": "Tanker attacked off Qatar as Iran claims route transporting oil through strait of Hormuz will be ‘closed’ — 원문"
         },
         {
           "tag": "A",
-          "name": "SpaceX and IREN AI margins diverge sharply despite Nvidia chip usage — 원문 새 창에서 열기"
+          "name": "Oil prices rise again with as White House mulls more attacks on Iran — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "How Raised 2026 Outlook At Oscar Health (OSCR) Has Changed Its Investment Story — 원문 새 창에서 열기"
+          "name": "Gold Price Forecast: XAU/USD recovery falters as Oil and yields rise — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -635,51 +647,51 @@
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-08•백악관 인근 두 곳의 도미노피자 매장 모두 주문량이 급증 >白宫附近两家达美乐披萨门店均显示订单量激增。"
+          "name": "실적긍정 어조@HANAchina · 중국·신흥국 · 10-09>>대만 수출 35개월 연속 증가, 9월 872억달러로 역대 최고치 (대만경제일보) •대만 재정부에 따르면 9월 수출액은 872.2억달러"
         },
         {
           "tag": "A",
-          "name": "실적중립 어조@insidertracking · 미국 속보 · 10-08환율 역풍 생각하면 상당한 호실적이라고 생각함"
+          "name": "실적중립 어조@bornlupin · 한국 반도체·증권사 자료 · 10-09이전에 OpenAI와 Anthropic을 동일한 기준으로 비교하려다 만들어낸 수치만 생각하다 OpenAI쪽에서 직접 나온 수"
         },
         {
           "tag": "A",
-          "name": "실적중립 어조@bornlupin · 한국 반도체·증권사 자료 · 10-082026.10.08 07:44:36 기업명: 삼성전자(시가총액: 1,572조 6,489억) A005930 보고서명: 연결재무"
+          "name": "실적부정 어조@insidertracking · 미국 속보 · 10-0910월 9일 미주인 브리핑 • 나스닥 1.25% 하락 · AI 기술주 매도 집중 • 오픈AI 매출 논란 · 엔비디아·오라클 급락"
         },
         {
           "tag": "A",
-          "name": "실적긍정 어조@HANAchina · 중국·신흥국 · 10-08• 화친(Huaqin)과 럭스셰어(Luxshare) 등 중국 ODM들이 HP, 델(Dell) 등 주요 미국 브랜드로부터 대규모 물량을 수"
+          "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-09>>Largan Precision, 내년 중반 FAU 모듈 양산 개시 (대만공상시보) •Largan Precision은 CPO 사업 확대"
         },
         {
           "tag": "A",
-          "name": "실적긍정 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-08<삼성전자 3Q26 실적 리뷰> * 매출액: 195.0조원(126.6% YoY, 컨센 2.6% 하회) * 영업이"
+          "name": "실적중립 어조@bornlupin · 한국 반도체·증권사 자료 · 10-09CNBC) 익명을 조건으로 관련 수치를 설명한 관계자에 따르면, OpenAI는 투자자 대상 프레젠테이션을 통해 자사의 재무 "
         },
         {
           "tag": "A",
-          "name": "실적중립 어조@insidertracking · 미국 속보 · 10-08삼성전자 영업이익 107조나왔네요. 예상이 105~107 였습니다. 110까지는 못나왔네요삼성전자"
+          "name": "실적긍정 어조@HANAchina · 중국·신흥국 · 10-09>>TSMC, 3분기 매출 1.49조 대만달러로 분기 사상 최고치 경신 (대만공상시보) •TSMC의 9월 매출은 5,118.57억TWD로"
         },
         {
           "tag": "A",
-          "name": "지정학부정 어조@insidertracking · 미국 속보 · 10-08우크라이나군과 북한군 포로의 한국 이송 문제를 둘러싼 한국과 우크라이나 간 외교 갈등이 최근 심화. 우크라이나 제재 담당 특사"
+          "name": "지정학부정 어조@insidertracking · 미국 속보 · 10-09미국 재무부 해외자산통제국(OFAC)이 이란의 그림자 선단과 연계된 유조선 17척을 추가 제재 대상으로 지정. 이란의 그림자 "
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-08SK하이닉스 솔리다임, IPO 은행 선정 - IPO 통해 &#036;10B 조달 예상 - 골드만삭스, 모건스탠"
+          "name": "지정학중립 어조@insidertracking · 미국 속보 · 10-09뉴욕타임즈에 따르면 미국이 중동과 영국 내 군사기지에서 병력을 철수해야 하는 상황에 직면. 워싱턴은 이를 예방적 조치라고 설명"
         },
         {
           "tag": "A",
-          "name": "일본중립 어조@insidertracking · 미국 속보 · 10-08미군이 일본 오키나와에서 48시간 동안 작전을 중단하고, 해병대원이 현지 여성 살해 혐의로 체포된 이후 장병들의 기지 밖 출입을"
+          "name": "지정학중립 어조@insidertracking · 미국 속보 · 10-09마수드 페제시키안 이란 대통령이 블라디미르 푸틴 러시아 대통령과 회담"
         },
         {
           "tag": "A",
-          "name": "주식분석중립 어조@insidertracking · 미국 속보 · 10-08폭스 인터뷰에서 제프 베이조스가 블루 오리진에 개인 자금 280억 달러를 투자했다고 밝힘. 블루 오리진은 처음으로 외부 투자"
+          "name": "지정학중립 어조@insidertracking · 미국 속보 · 10-09이스라엘군, 하마스에 억류된 인질들의 감금에 관여한 하마스 지휘관 제거 이스라엘군은 이번 주 월요일 가자시티 일대를 공습해 테"
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조@HANAchina · 중국·신흥국 · 10-08>>SK하이닉스 자회사 Solidigm, 주관사 선정…내년 미국 IPO 추진 (블룸버그) •소식통에 따르면 SK하이닉스 산하 Solid"
+          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-09사우디아라비아에서 공습이 발생한 이후 미국 국무부가 여행 경보 발령."
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조@insidertracking · 미국 속보 · 10-08미 중부사령부는 이란 혁명수비대 장성이 언론을 통해 “호르무즈 해협이 폐쇄됐으며 이란이 완전히 통제하고 있다”고 주장한 데 대"
+          "name": "지정학중립 어조@insidertracking · 미국 속보 · 10-09이집트항공 소속 조종사로 알려진 오사마 만수르가 10월 7일 인스타그램에 이탈리아 밀라노 말펜사 공항에서 이집트항공 여객기 옆"
         }
       ],
       "headings": [

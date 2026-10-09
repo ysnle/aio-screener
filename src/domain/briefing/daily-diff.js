@@ -3,22 +3,14 @@
 // Pure functions over the completed-close history and the published screener rows — no live quote is
 // promoted to a close, and a measure missing on either session is left out rather than read as zero.
 import { buildCloseSeries, buildMarketRegime, closeBasis } from './market-read.js';
-import { resolveMarketCalendarSession } from '../../ai/time/market-session.js';
+import { openSessionDatesBetween } from '../market/market-calendar.js';
 
 // Codex browser audit H02: "어제와 달라진 점" compared 10/2 with 10/6 because the 10/5 record was missing, and
 // still read as a one-day change. US trading sessions strictly between the two compared dates are listed so the
 // title can say the comparison spans a gap.
+// P1533: the walk is the shared holiday-aware one; an unregistered year yields no session (a gap is never claimed unverified).
 export function missingSessionsBetween(fromDate, toDate) {
-  const out = [];
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fromDate || '')) || !/^\d{4}-\d{2}-\d{2}$/.test(String(toDate || ''))) return out;
-  let cursor = fromDate;
-  for (let i = 0; i < 15; i += 1) {
-    cursor = new Date(Date.parse(`${cursor}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
-    if (cursor >= toDate) break;
-    const session = resolveMarketCalendarSession({ market: 'US', date: cursor });
-    if (session?.status === 'open') out.push(cursor);
-  }
-  return out;
+  return openSessionDatesBetween(fromDate, toDate, { market: 'US', includeEnd: false, unknownYear: 'closed', maxDays: 15 });
 }
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);

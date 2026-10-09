@@ -1,0 +1,24 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "Worker deploys stranded when main advances only by data-refresh commits",
+  "symptom": "From 2026-10-07 13:54Z the live AI proxy stayed on v57.24 while worker/wrangler.proxy.toml said v57.27. Every Pages release verification after that (runs 161-169) failed on proxy-source-revision, and the Data freshness watchdog's only failing gate in its 2026-10-08T09:09Z run was external-pipeline. The Pages artifact itself was live and fresh (v57.27, data 37 minutes old); the red was a post-deploy plane check.",
+  "root_cause": "Deploy AI proxy and Deploy fast data plane required the CI-attested SHA to equal main HEAD at decision time. The v57.27 merge push's CI finished after the refresh bot's next commit, so run 53 skipped every deploy step as stale. Bot CI runs are workflow_dispatch created with GITHUB_TOKEN and emit no workflow_run event (R606), and nothing dispatches the Worker workflows, so no later run re-evaluated the cumulative live-to-tested diff that already exists for this case.",
+  "fix": "worker-deploy-impact.mjs: getMainAdvanceWorkerChanges classifies what a newer main changed from its changed paths (listed with --no-renames); a newer main is accepted only when it descends from the tested SHA, no commit in between touches the plane's deployment inputs, and none edits the deploy recipe (the two deploy workflows, the rollback resolver, the classifier). Missing evidence, a non-descendant or a git error fails closed to the old skip. A manual redeploy follows the same rule and never moves a newer live source SHA backwards. Both Worker workflows validate the main SHA, fetch it with a bounded timeout, pass newerMainChanges into the convergence decision and use the shared CLI in the pre-mutation guard (a classifier failure becomes a skip, not a red job). The push-only CI provenance gate (R674) is unchanged.",
+  "violated_rule": "P1351 intent: a delayed attested release must not overwrite newer Worker code. It does not require skipping a release whose newer commits leave the plane's deployment inputs byte-identical.",
+  "prevention": "ci-cloudflare-deployment-contract-check P1351 assertions: data-only advance deploys, same-plane change and recipe edits stay skips, the other plane does not block, empty evidence, non-descendant and git failure fail closed, manual redeploy rules, classifier edge cases, no-renames, CLI exit codes, and both workflows' fetch/guard wiring. Four injected mutations each fail exactly their own assertion.",
+  "verification": "Contract check and the cloudflare QA group pass; the affected profile passes 71/71 on Node 20.20.2. Replay on real history: tested d947723 with main at 2b7da10 or at 7d57d21 gives true for both planes; v57.24 to d947723 gives aiProxy=false; v57.24 to v57.29's commit gives false for both. An independent skeptic review found five real gaps, all fixed. Not verified: a live Actions run of the changed workflows (the v57.29 release deployed with the old logic because no bot commit intervened) and Cloudflare provisioning."
+ },
+ "r": {
+  "title": "A newer main is stale for a Worker plane only when it changes that plane's deployment inputs",
+  "rule": "Worker deploy workflows judge a newer main per plane: equal to the tested SHA, or a descendant whose changed paths leave the plane's deployment inputs and the deploy recipe untouched. Missing evidence, a non-descendant or a git error means stale. The convergence decision and the pre-mutation guard use the shared classifier; the guard has no unconditional safe output and a classifier failure is a skip.",
+  "validation": "node scripts/ci-cloudflare-deployment-contract-check.mjs; node scripts/qa-runner.mjs --group cloudflare --no-cache"
+ },
+ "qa": [],
+ "changelog": [
+  "**Worker 배포 정체 해소 (P{P}/R{R}):** 데이터 갱신 봇 커밋만 앞서 나간 main은 Worker 입력과 배포 레시피를 바꾸지 않으면 stale로 보지 않도록 배포 판정과 직전 가드를 통일. 10/7 이후 Pages 배포 후 검증이 프록시 리비전 불일치로 9번 연속 실패하던 원인."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard.",
+ "status": null
+}

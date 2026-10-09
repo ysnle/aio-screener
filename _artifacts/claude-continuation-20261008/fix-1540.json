@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels, P1538 grades and composites out of technical, KR health, portfolio and moat surfaces, P1539 AI directive gate at sentence level, P1540 score band wording after validation.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "Score bands read as advice although the long-run validation shows no positive relation",
+  "symptom": "The five trading-score bands were named like an entry ladder and described as favourable or defensive conditions while score-backtest-longrun.json (2016-2026, partial validation) shows a negative rank correlation of the composite with 1-day and 5-day returns and a lower 21-day mean for the top tercile than the bottom.",
+  "root_cause": "The band labels were written before the validation and never revisited when the validation came in.",
+  "fix": "Bands are labelled by what the inputs show ('stress signals few / some / mixed / burden / defensive-condition check') with conditional descriptions that mention the partial validation; decision enums are unchanged.",
+  "violated_rule": "Scores are reference descriptions on the last completed close, never decision-grade (AGENTS.md).",
+  "prevention": "ci-domain-parity-check pins the legacy ladders to the src owner; ci-control-char-check forbids the old ladder labels.",
+  "verification": "Parity and esm-core-unit gates."
+ },
+ "r": null,
+ "changelog": [
+  "**점수 구간 문구 (P{P}):** 장기 검증에서 종합점수와 수익률의 관계가 음(-)이어서 구간 이름을 입력 상태 서술로 바꾸고 부분 검증임을 명시했다."
+ ]
+}

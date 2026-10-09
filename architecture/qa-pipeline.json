@@ -509,6 +509,7 @@
             "scripts/lib/refresh-continuity.mjs",
             "scripts/lib/atomic-write.mjs",
             "src/ai/time/market-session.js",
+            "src/domain/market/market-calendar.js",
             "src/data/contracts/market-snapshot.js",
             "src/data/contracts/operations.js",
             "src/data/contracts/reconciliation.js",
@@ -775,6 +776,7 @@
             "js/aio-data.js",
             "version.json",
             "src/ai/time/market-session.js",
+            "src/domain/market/market-calendar.js",
             "src/data/market-snapshot-loader.js",
             "src/legacy/market-snapshot-bridge.js",
             ".github/workflows/refresh-data.yml"
@@ -828,6 +830,7 @@
             "scripts/lib/operations-alert-policy.mjs",
             "scripts/ci-operations-alert-policy-check.mjs",
             "src/ai/time/market-session.js",
+            "src/domain/market/market-calendar.js",
             "scripts/build-operations-status.mjs",
             "scripts/ci-operations-status-check.mjs"
           ]
@@ -903,7 +906,8 @@
             "src/state/**",
             "js/aio-data.js",
             "version.json",
-            "src/ai/time/market-session.js"
+            "src/ai/time/market-session.js",
+            "src/domain/market/market-calendar.js"
           ]
         },
         {
@@ -2180,6 +2184,7 @@
         "scripts/lib/operations-alert-policy.mjs",
         "scripts/ci-operations-alert-policy-check.mjs",
         "src/ai/time/market-session.js",
+        "src/domain/market/market-calendar.js",
         "scripts/build-operations-status.mjs",
         "scripts/ci-operations-status-check.mjs"
       ],
@@ -2318,6 +2323,7 @@
         ".github/workflows/pages-deploy.yml",
         "_headers",
         "src/ai/time/market-session.js",
+        "src/domain/market/market-calendar.js",
         "src/legacy/market-snapshot-bridge.js"
       ],
       "groups": [

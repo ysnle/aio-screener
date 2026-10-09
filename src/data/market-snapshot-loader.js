@@ -2,6 +2,18 @@ import { createMarketSnapshot, validateMarketSnapshot } from './contracts/market
 
 const DURABLE_SNAPSHOT_URL = './public-data/market-snapshot.json';
 
+// P1532: the Worker publishes when Tier-0 coverage is complete and labels each quote's quality, but it does not refuse a
+// snapshot whose quotes are all stale (for example a provider returning old observations). Such a snapshot is no fresher
+// than the durable one, so the fast plane is skipped when none of its quotes is usable; a snapshot with at least one
+// usable quote stays and the stale rows degrade per quote downstream.
+const USABLE_FAST_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
+
+// P1563: the quality labels are written when the Worker publishes and never recomputed. If the Worker stops (cron, quota or
+// provider outage) the last snapshot keeps its CURRENT labels for as long as it is served, and a three-day-old snapshot would
+// win over a fresh durable one. The Worker runs every five minutes, so its attemptedAt is a liveness signal; a fast-plane
+// snapshot older than this is no fresher than the durable one and the loader falls through to it.
+export const FAST_PLANE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+
 // Ordered quote sources. The durable GitHub Actions snapshot is always present and
 // always last, so the fast plane can only add freshness — a disabled, unreachable,
 // stale or tampered fast plane degrades to exactly the previous behaviour instead of
@@ -52,6 +64,16 @@ export function createMarketSnapshotLoader({
     const validation = validateMarketSnapshot(snapshot);
     if (!validation.ok || snapshot.status !== 'published') {
       return Object.freeze({ ok: false, source: source.id, snapshot, error: validation.ok ? 'snapshot_not_published' : validation.errors.join(',') });
+    }
+    if (source.id === 'fast-plane' && !(snapshot.quotes || []).some((quote) => USABLE_FAST_QUALITIES.has(quote?.quality))) {
+      return Object.freeze({ ok: false, source: source.id, snapshot, error: 'fast_plane_no_usable_quotes' });
+    }
+    if (source.id === 'fast-plane') {
+      const publishedAt = Date.parse(snapshot.attemptedAt || snapshot.generatedAt || '');
+      const nowMs = Date.parse(clock.iso());
+      if (Number.isFinite(publishedAt) && Number.isFinite(nowMs) && nowMs - publishedAt > FAST_PLANE_MAX_AGE_MS) {
+        return Object.freeze({ ok: false, source: source.id, snapshot, error: 'fast_plane_snapshot_old' });
+      }
     }
     return Object.freeze({ ok: true, source: source.id, snapshot, error: null });
   }

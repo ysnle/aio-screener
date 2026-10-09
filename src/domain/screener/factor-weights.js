@@ -51,7 +51,7 @@ export function deriveFactorWeights({ marketState = null, profile = null, promot
       const fg = String(marketState.fgZone || '');
       const vixBand = String(marketState.vixBand || '');
       const riskLevel = String(marketState.riskLevel || '');
-      const textOff = regimeMatches(`${vixBand} ${riskLevel}`, '패닉|경계|panic|caution|elevated') || regimeMatches(fg, '극단\\s*공포|공포|extreme fear');
+      const textOff = regimeMatches(`${vixBand} ${riskLevel}`, '패닉|경계|고변동|panic|caution|elevated') || regimeMatches(fg, '극단\\s*공포|공포|extreme fear');
       const textOn = regimeMatches(fg, '탐욕|극단\\s*탐욕|extreme greed');
       let blend = 0;
       if (risk != null) {

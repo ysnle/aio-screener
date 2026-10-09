@@ -1,7 +1,7 @@
 // P1346/QA-UX-11: reference-only briefing. Missing close evidence holds each axis.
 import { describeCloseBasis, selectCloseBasisObservation } from '../signal/close-basis.js';
 import { isNewsAnalysisEligible } from '../news/scoring.js';
-import { latestCompletedKrSession } from '../../ai/time/market-session.js';
+import { latestCompletedKrSession } from '../market/market-calendar.js';
 import { sessionDateInMarket, isValidMarketDate } from '../market/session-time.js';
 import { selectReferenceObservation } from '../market/reference-observation.js';
 

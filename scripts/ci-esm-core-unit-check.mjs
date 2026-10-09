@@ -840,6 +840,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (newsBypass.total !== valid.total || newsBypass.newsAdjustmentApplied) fail(`truth-boundary: raw news heuristic bypassed decision evidence: ${JSON.stringify(newsBypass)}`);
   const newsReference = computeTradingScoreModel({ decisionEvidence: { ...full, newsSentimentScore: reference(100), newsRiskSignals: reference([{ impact: 30 }]) }, newsSentimentScore: 100, newsRiskSignals: [{ impact: 30 }] });
   if (newsReference.total !== valid.total || newsReference.newsAdjustmentApplied) fail(`truth-boundary: reference-only news heuristic changed a decision score: ${JSON.stringify(newsReference)}`);
+  // P1554: the risk-appetite axis averages put/call and the HY spread; with one reading missing the axis is one reading standing in
+  // for two, so the score is partial (asterisk) even though the axis counts as present.
+  const { pcr: _droppedPcr, ...withoutPcr } = full;
+  const onePart = computeTradingScoreModel({ decisionEvidence: withoutPcr });
+  if (valid.partial !== false || onePart.total == null || onePart.partial !== true || onePart.componentMissing.includes('momentum')) fail(`P1554: a single appetite reading must make the score partial without dropping the axis: ${JSON.stringify({ valid: valid.partial, onePart: onePart.partial, missing: onePart.componentMissing })}`);
 }
 
 // ── compatibility-facade.js ──────────────────────────────────────────────────────────────────
@@ -1072,6 +1077,18 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   }
   const utc = formatAbsoluteTime('2026-09-19T11:57:00.000Z', 'UTC');
   if (!/11:57/.test(utc)) fail(`W09-C: the UTC timezone rendering drifted, got ${JSON.stringify(utc)}`);
+  // P1537 (audit H07): the article list follows the country/topic/type controls; the channel list below it never does.
+  // Both scopes are stated, and the channel note is true for every control state (it used to be silent when only the
+  // 텔레그램 type chip narrowed the articles).
+  const { describeNewsScope } = await load('src/ui/pages/news.js');
+  const none = describeNewsScope({ countryFilter: 'all', topicFilter: 'all', typeTab: 'all' });
+  const country = describeNewsScope({ countryFilter: 'kr', topicFilter: 'all', typeTab: 'all' });
+  const topic = describeNewsScope({ countryFilter: 'all', topicFilter: 'semi', typeTab: 'all' });
+  const channelChip = describeNewsScope({ countryFilter: 'all', topicFilter: 'all', typeTab: 'tg' });
+  if (!none || none.articles !== '필터 없음' || none.channel !== '') fail(`P1537 no controls: articles read 필터 없음 and the channel note stays empty, got ${JSON.stringify(none)}`);
+  if (country.articles !== '필터 적용' || topic.articles !== '필터 적용' || channelChip.articles !== '필터 적용') fail('P1537 any country, topic or type control makes the article scope read 필터 적용');
+  if (!/국가·주제 필터와 무관/.test(country.channel) || country.channel !== topic.channel || country.channel !== channelChip.channel) fail(`P1537 the channel note must state it ignores the country/topic filter whenever a control is active, got ${JSON.stringify([country.channel, topic.channel, channelChip.channel])}`);
+  if (describeNewsScope(null).articles !== '필터 없음' || describeNewsScope(undefined).channel !== '') fail('P1537 missing controls read as no filter');
   const newsSource = (await import('node:fs')).readFileSync(new URL('../src/ui/pages/news.js', import.meta.url), 'utf8');
   if (!/getAbsoluteTime[\s\S]{0,80}\|\|\s*formatAbsoluteTime\(/.test(newsSource) || !/data-published-at|dataset\.publishedAt/.test(newsSource)) {
     fail('W09-C: the news card must fall back to the local formatter and keep the raw publication instant');
@@ -1219,6 +1236,28 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   });
   if (shareOnlyConcentration.modelVersion !== 'portfolio-concentration.v2') fail('portfolio: unified valuation must advertise the v2 contract');
   if (shareOnlyConcentration.totalValue !== 200 || shareOnlyConcentration.items.some((item) => item.weightPct !== 50)) fail('portfolio: total and holding weights used different valuation formulas');
+  // P1536 (owner decision, agent-recommended): a position that declares a cached or reference quote is withheld, never weighted
+  // with that price and never given a concentration penalty; the legacy wrapper already refuses it, so the model now agrees.
+  const quoteMix = deriveConcentrationRisk({
+    positions: [
+      { ticker: 'LIVE', shares: 10, price: 100, quoteSourceKind: 'live-quote' },
+      { ticker: 'CACHED', shares: 10, price: 100, quoteSourceKind: 'cached-close' },
+      { ticker: 'REF', shares: 10, price: 100, allowedUse: 'reference' },
+      { ticker: 'EXPLICIT', value: 5000, quoteSourceKind: 'portfolio-state' },
+      { ticker: 'DECISION', shares: 10, price: 100, currentQuoteAllowedUse: true },
+      { ticker: 'UNLABELED', shares: 10, price: 100 }
+    ]
+  });
+  const quoteStatus = Object.fromEntries(quoteMix.items.map((item) => [item.ticker, item.status + (item.reason ? `:${item.reason}` : '')]));
+  if (quoteStatus.CACHED !== 'data-insufficient:quote-not-decision-grade' || quoteStatus.REF !== 'data-insufficient:quote-not-decision-grade' || quoteStatus.EXPLICIT !== 'data-insufficient:quote-not-decision-grade') fail(`P1536 a declared non-decision quote must be withheld: ${JSON.stringify(quoteStatus)}`);
+  if (quoteStatus.LIVE !== 'ok' || quoteStatus.DECISION !== 'ok' || quoteStatus.UNLABELED !== 'ok') fail(`P1536 live, decision-grade and unlabeled positions keep their weights: ${JSON.stringify(quoteStatus)}`);
+  if (quoteMix.totalValue !== 3000 || quoteMix.heldItems.length !== 3) fail(`P1536 withheld positions must stay out of the denominator and be listed as held: total ${quoteMix.totalValue}, held ${quoteMix.heldItems.length}`);
+  if (quoteMix.items.filter((item) => item.status !== 'ok').some((item) => item.weightPct !== null || item.concentrationPenalty !== 0)) fail('P1536 a withheld position must publish neither a weight nor a penalty');
+  // P1561: weights over a denominator that leaves positions out are a partial result and say so; a complete or explicit-total set is current.
+  if (quoteMix.status !== 'partial' || !quoteMix.issues.includes('held-positions-excluded-from-denominator') || quoteMix.weightBasis !== 'priced-positions-only') fail(`P1561 withheld positions outside the denominator must make the result partial: ${JSON.stringify({ status: quoteMix.status, issues: quoteMix.issues, basis: quoteMix.weightBasis })}`);
+  const allPriced = deriveConcentrationRisk({ positions: [{ ticker: 'A', shares: 1, price: 100, quoteSourceKind: 'live-quote' }, { ticker: 'B', shares: 1, price: 100, quoteSourceKind: 'live-quote' }] });
+  const heldWithTotal = deriveConcentrationRisk({ positions: [{ ticker: 'A', shares: 1, price: 100, quoteSourceKind: 'live-quote' }, { ticker: 'B', shares: 1, price: 100, quoteSourceKind: 'cached-close' }], totalValue: 400 });
+  if (allPriced.status !== 'current' || allPriced.issues.length || heldWithTotal.status !== 'current') fail('P1561 a fully priced set and a set with an explicit total stay current');
 }
 
 // ── domain/signal/trading-score.js: signal envelope ──────────────────────────────────────────
@@ -1578,6 +1617,18 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     observedAt: '1970-01-01T00:00:00.000Z', factorObservedAt: '1970-01-01T00:00:00.000Z', factorSourceKind: 'T3_PUBLIC_DELAYED', factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT', stale: false },
     ...(includeKalman ? { kalmanVelConf: seed / 10 } : {})
   });
+
+  // P1553: a percentile needs peers. Four fully-observed rows plus one row under the 80% evidence floor pass the input guard
+  // (five rows with a return) but leave four rankable rows; they used to be spread over 0..100, now they keep a null rank.
+  // Five comparable rows are still ranked.
+  {
+    const partial = (sym) => ({ sym, sector: 'Tech', ret1m: 1, ret3m: 1, observedAt: '1970-01-01T00:00:00.000Z', factorObservedAt: '1970-01-01T00:00:00.000Z', factorSourceKind: 'T3_PUBLIC_DELAYED', factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT', stale: false } });
+    const four = computeFactorRanks({ rows: [1, 2, 3, 4].map((seed) => baseRow('F' + seed, 'Tech', seed)).concat(partial('P1')), now: 0 });
+    const five = computeFactorRanks({ rows: [1, 2, 3, 4, 5].map((seed) => baseRow('F' + seed, 'Tech', seed)).concat(partial('P1')), now: 0 });
+    if (!(four.rows || []).every((row) => row.rank == null)) fail('factor-ranks P1553: four rankable rows must keep a null rank (no percentile without five peers)');
+    const rankedFive = (five.rows || []).filter((row) => row.rank != null);
+    if (rankedFive.length !== 5 || rankedFive.some((row) => row.rank < 0 || row.rank > 100)) fail('factor-ranks P1553: five comparable rows must all be ranked');
+  }
 
   // NaN is an invalid observation: keep it in the input audit, outside the rank denominator.
   {
@@ -3673,6 +3724,74 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (!/window\._aioNormalizeTickerInput\(tkr\)/.test(p1317Core) || !/window\._aioTickerDisplayName\(tkr\)/.test(p1317Core)
     || !/requestSelectedTickerQuote/.test(p1317Boot) || !/installTermTooltips\(documentRef/.test(p1317Boot)) {
     fail('P1317/P1320 showTicker must normalize through the native module, request a missing quote, and install term tooltips');
+  }
+}
+
+// P1527: the home KPI trend and 시장 상태 draw the same "20거래일" series; both stop at the S&P 500's last completed close.
+// Observed 2026-10-08: the home included a pre-market 10-year-yield row dated after the basis (+45bp, 09/09 to 10/08) while
+// 시장 상태 read +47bp (09/08 to 10/07).
+{
+  const { trendPoints } = await load('src/ui/components/home-kpi-trend.js');
+  const { buildCloseSeries, closeBasis } = await load('src/domain/briefing/market-read.js');
+  const history = [];
+  const cursor = new Date(Date.UTC(2026, 8, 8));
+  while (history.length < 22) {
+    const weekday = cursor.getUTCDay();
+    if (weekday !== 0 && weekday !== 6) {
+      const date = cursor.toISOString().slice(0, 10);
+      const meta = { observedAt: `${date}T20:00:00Z` };
+      history.push({ date, spx: 5000 + history.length, tnx: 4 + history.length * 0.01, fieldMeta: { spx: meta, tnx: meta } });
+    }
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  const basis = history[history.length - 1].date;
+  history.push({ date: '2026-10-08', tnx: 5.5, fieldMeta: { tnx: { observedAt: '2026-10-08T13:16:05Z' } } });
+  if (closeBasis(history) !== basis) fail('P1527 fixture: the close basis must be the last S&P 500 close');
+  const home = trendPoints(history, 'tnx');
+  const market = buildCloseSeries(history, 'tnx', { through: basis }).slice(-21);
+  if (home.length !== 21 || JSON.stringify(home) !== JSON.stringify(market)) fail('P1527 the home trend must be the same 20-session series 시장 상태 uses');
+  if (home.some((point) => point.date > basis)) fail('P1527 the home trend must not include a row dated after the common close basis');
+  if (JSON.stringify(trendPoints(history, 'spx')) !== JSON.stringify(buildCloseSeries(history, 'spx', { through: basis }).slice(-21))) fail('P1527 the home S&P 500 trend must match the shared series');
+}
+
+// P1528 (audit H17): a real yield (TIPS) and a breakeven observed on different days must not be compared. The briefing holds
+// them apart; the macro transmission chain used to draw "1주 +Nbp" and a "실질금리 우위" sentence from both regardless.
+{
+  const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
+  const base = { breakeven10Delta5: 0.08, realYield10Delta5: 0.2, dgs2: 4.1, fedTargetLower: 3.75, fedTargetUpper: 4.0 };
+  const chainOf = (asOf) => buildMacroRead({ macro: { ...base, ...asOf }, rateFx: { tnx20: 30 } }).chain;
+  const breakevenOf = (chain) => chain.nodes.find((node) => node.id === 'breakeven').value;
+  const split = chainOf({ _asOf_realYield10: '2026-10-06', _asOf_breakeven10: '2026-10-07' });
+  const same = chainOf({ _asOf_realYield10: '2026-10-07', _asOf_breakeven10: '2026-10-07' });
+  const unknown = chainOf({});
+  if (breakevenOf(split) !== '기준일이 달라 보류') fail('P1528 the chain must hold the breakeven move when the real-yield and breakeven dates differ');
+  if (split.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 the chain must not claim real-yield dominance across different observation dates');
+  if (breakevenOf(same) !== '1주 +8bp' || !same.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 same-day real yield and breakeven must still be compared');
+  if (breakevenOf(unknown) !== '1주 +8bp') fail('P1528 without observation dates the chain keeps its previous reading');
+}
+
+// P1529: the trend chart labelled every month, so once a range grew the widest label ("26년 1월") sat on top of the
+// preceding "12월" (browser-viewport failed on the macro route at every width). Labels are now thinned by available spacing.
+{
+  const { createTrendChart } = await load('src/ui/components/trend-chart.js');
+  const makeNode = (tag) => ({ tag, attrs: {}, children: [], style: {}, textContent: '', className: '', setAttribute(key, value) { this.attrs[key] = String(value); }, append(...kids) { this.children.push(...kids); }, appendChild(kid) { this.children.push(kid); return kid; }, addEventListener() {}, getBoundingClientRect() { return { left: 0, top: 0, width: 520, height: 210 }; } });
+  const doc = { createElement: makeNode, createElementNS: (ns, tag) => makeNode(tag) };
+  const walk = (node, out = []) => { out.push(node); (node.children || []).forEach((kid) => walk(kid, out)); return out; };
+  for (const months of [3, 6, 9, 12, 14, 16, 18, 24, 36, 60]) {
+    const series = [];
+    const cursor = new Date(Date.UTC(2026, 9, 7));
+    cursor.setUTCMonth(cursor.getUTCMonth() - months);
+    for (let i = 0; i <= months * 4; i += 1) { series.push({ date: cursor.toISOString().slice(0, 10), value: 100 + (i % 17) }); cursor.setUTCDate(cursor.getUTCDate() + 7); }
+    const chart = createTrendChart(doc, { series: series.filter((point) => point.date <= '2026-10-07'), label: 'x' });
+    const labels = walk(chart).filter((node) => node.tag === 'text' && node.attrs['text-anchor'] === 'middle' && Number(node.attrs.y) === 202).map((node) => ({ x: Number(node.attrs.x), text: node.textContent }));
+    if (labels.length < 1) fail(`P1529 a ${months}-month chart must keep at least one month label`);
+    for (let i = 1; i < labels.length; i += 1) {
+      const wide = [labels[i - 1], labels[i]].some((label) => /년/.test(label.text));
+      if (labels[i].x - labels[i - 1].x < (wide ? 40 : 28)) fail(`P1529 month labels overlap on a ${months}-month range: ${labels[i - 1].text} and ${labels[i].text}`);
+    }
+    const januaries = walk(chart).filter((node) => node.tag === 'text' && /년 1월$/.test(node.textContent || '')).length;
+    const januaryTicks = labels.filter((label) => /년 1월$/.test(label.text)).length;
+    if (januaryTicks !== januaries) fail('P1529 internal: january count');
   }
 }
 

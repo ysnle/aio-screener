@@ -13,6 +13,10 @@ const json = (file) => JSON.parse(read(file));
 const MARKET_SNAPSHOT_MAX_AGE_DAYS = 0.5;
 const MARKET_SNAPSHOT_MAX_AGE_MS = MARKET_SNAPSHOT_MAX_AGE_DAYS * 86400000;
 const BOK_POLICY_MAX_AGE_DAYS = 60;
+// P1556: a policy meeting passes before anyone can record its result (the value is a hand-kept official reference). The audit
+// gates every 30-minute refresh, so an overdue meeting is a warning for this many days and blocks only after them; otherwise
+// the whole pipeline would stop on the meeting day with nobody to update the value.
+const BOK_MEETING_GRACE_DAYS = 14;
 const DAY_MS = 86400000;
 
 function assessPublishedSnapshot({ dataArtifact, snapshotArtifact, statusArtifact }) {
@@ -104,6 +108,7 @@ function utcDateMs(value) {
 
 function assessBokPolicyEvidence(policy, calendar, { snapshotWired = false, nowMs = Date.now() } = {}) {
   const reasons = [];
+  const warnings = [];
   const asOfMs = utcDateMs(policy?.asOf);
   const nextMs = utcDateMs(policy?.next);
   const ageDays = asOfMs == null ? null : (nowMs - asOfMs) / DAY_MS;
@@ -119,8 +124,12 @@ function assessBokPolicyEvidence(policy, calendar, { snapshotWired = false, nowM
   }
   if (asOfMs == null) reasons.push('as-of-missing-or-invalid');
   else if (ageDays < 0) reasons.push('as-of-future');
-  else if (ageDays > BOK_POLICY_MAX_AGE_DAYS) reasons.push('as-of-stale');
-  if (nextMs == null || nextMs <= nowMs || nextMs <= asOfMs) reasons.push('next-meeting-missing-or-invalid');
+  else if (ageDays > BOK_POLICY_MAX_AGE_DAYS + (nextMs != null && nextMs <= nowMs && (nowMs - nextMs) / DAY_MS <= BOK_MEETING_GRACE_DAYS ? BOK_MEETING_GRACE_DAYS : 0)) reasons.push('as-of-stale');
+  if (nextMs == null || nextMs <= asOfMs) reasons.push('next-meeting-missing-or-invalid');
+  else if (nextMs <= nowMs) {
+    if ((nowMs - nextMs) / DAY_MS > BOK_MEETING_GRACE_DAYS) reasons.push('next-meeting-passed-beyond-grace');
+    else warnings.push('next-meeting-passed-update-needed');
+  }
   if (!calendar || calendar.lastRelease !== policy?.asOf || calendar.nextRelease !== policy?.next
     || typeof calendar.sourceUrl !== 'string' || !/^https:\/\/www\.bok\.or\.kr\//.test(calendar.sourceUrl)) {
     reasons.push('calendar-mismatch-or-unofficial');
@@ -131,7 +140,8 @@ function assessBokPolicyEvidence(policy, calendar, { snapshotWired = false, nowM
     asOf: asOfMs == null ? null : policy.asOf,
     value: typeof policy?.value === 'number' && Number.isFinite(policy.value) ? policy.value : null,
     ageDays,
-    reasons
+    reasons,
+    warnings
   };
 }
 
@@ -457,6 +467,15 @@ function assertBokPolicyFixtures() {
     currentCalendar,
     { snapshotWired: true, nowMs: fixedNow }
   );
+  // P1556: the day after the meeting is a warning (the result is still being recorded), three weeks after it blocks again.
+  const meetingMs = Date.parse('2026-10-22T00:00:00.000Z');
+  const dayAfter = assessBokPolicyEvidence(currentPolicy, currentCalendar, { snapshotWired: true, nowMs: meetingMs + 86400000 });
+  const beyondGrace = assessBokPolicyEvidence(currentPolicy, currentCalendar, { snapshotWired: true, nowMs: meetingMs + 20 * 86400000 });
+  if (!dayAfter.valid || !dayAfter.warnings.includes('next-meeting-passed-update-needed')
+    || beyondGrace.valid || !beyondGrace.reasons.includes('next-meeting-passed-beyond-grace')
+    || valid.warnings.length !== 0) {
+    throw new Error('P1556 BOK meeting grace window fixtures failed');
+  }
   if (!valid.valid
     || valid.ageDays !== 31
     || stale.valid
@@ -783,6 +802,7 @@ console.log('| # | Category | Observed | Age(d) | Cadence | Status | Detail |');
 console.log('|---|---|---|---:|---|---|---|');
 for (const row of rows) console.log(`| ${row.id} | ${row.category} | ${row.observedAt || '—'} | ${row.ageDays == null ? '—' : row.ageDays.toFixed(2)} | ${row.cadence} | ${row.status} | ${row.detail} |`);
 console.log(`H-dynamic | ${dynamicOk ? 'PASS' : 'FAIL'} | ${JSON.stringify(sourceChecks)}`);
+if (bokPolicyEvidence.warnings.length) console.log(`WARN | BOK policy: ${bokPolicyEvidence.warnings.join(', ')} — record the latest decision in AIO_MANUAL_REFERENCE.bokPolicy (value, status, asOf, next) and the us-/kr- calendar entry within ${BOK_MEETING_GRACE_DAYS} days of the meeting.`);
 // P1276: retain useful rejected-row context while keeping provider-derived error text bounded and redacted.
 const snapshotErrorSummary = summarizeSnapshotErrors(snapshotStatus.errors);
 console.log(`D1-structural | ${structuralOk ? 'yes' : 'no'} | rows=${rows.length} unknownSessions=${unknownSessions.length} tier0=${snapshot.coverage?.observed}/${snapshot.coverage?.required} snapshotFreshness=${classifySnapshotFreshness(snapshotAudit.publishedAt, now)} attempt=${snapshotStatus.attemptStatus || 'unknown'} snapshotErrors=${JSON.stringify(snapshotErrorSummary)} policyStates=${JSON.stringify({ A1: auditState.A1, B1: auditState.B1, B2: auditState.B2, B3: auditState.B3, C4: auditState.C4, E3: auditState.E3, E4: auditState.E4 })}`);

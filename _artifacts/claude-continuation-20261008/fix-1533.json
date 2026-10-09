@@ -1,0 +1,24 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "The pure exchange calendar lived in the AI layer, five domain modules imported upward, and two session counters disagreed",
+  "symptom": "src/domain imported the NYSE/KRX calendar from src/ai/time/market-session.js in five places. market-read.js counted weekdays only (2026-07-01 to 07-06 counted 3 sessions across the July 3 holiday and dropped a one-session-old input as stale) while daily-diff.js counted open sessions on the registered calendar. The Korean close had no end-of-day confirmation although the legacy engine withholds 15:30 to 16:00.",
+  "root_cause": "The calendar was written for the AI evidence code first and reused upward; each consumer added its own counting loop.",
+  "fix": "src/domain/market/market-calendar.js (no imports) now holds the calendar tables, session resolution, latest completed US and KR sessions and openSessionDatesBetween / countOpenSessionsBetween. market-session.js re-exports every name, so scripts and the AI code are unchanged. The five domain importers use the domain module. market-read lag counts and daily-diff gaps share the holiday-aware walk (unregistered years count weekdays for lags and no session for gap reports). latestCompletedKrSession carries eodConfirmed (true from 16:00 KST). The annual calendar review script and the pipeline impact lists point at the new file.",
+  "violated_rule": "The domain layer does not import the AI layer; one calendar answers every 'how many sessions' question.",
+  "prevention": "ci-market-session-contract-check P1533: identical re-exported objects, the calendar module imports nothing and keeps the official source lines, holiday and unregistered-year counts, the gap list, the holiday-weekend lag, the KRX grace window, and a scan that fails when any file under src/domain imports from src/ai.",
+  "verification": "Market-session, esm-core-unit, data-pipeline, market-snapshot, rotation-history, architecture, operations-alert-policy, ai-intelligence, qa-pipeline and doc-currency checks pass; the calendar review script runs against the new path. Behaviour change: an input one session behind across a US market holiday is now lagged instead of stale. Not done: wiring eodConfirmed into the Korean basis consumers."
+ },
+ "r": {
+  "title": "The domain layer sits below the AI layer, and one calendar answers every session count",
+  "rule": "src/domain never imports from src/ai. Shared pure facts (the exchange calendar) live in the domain layer and the AI layer re-exports them. Session lags and gaps are counted on the registered holiday calendar, with an explicit policy for unregistered years: weekdays for lags (stale data must not read as aligned) and no session for gap reports (a gap is not claimed unverified).",
+  "validation": "node scripts/ci-market-session-contract-check.mjs"
+ },
+ "changelog": [
+  "**거래일 달력의 도메인 계층 이동과 휴장 인식 세션 수 (P{P}/R{R}):** 순수 거래소 달력을 src/domain/market/market-calendar.js로 옮기고 AI 모듈은 재export만 한다. 도메인이 AI 계층을 import하던 5곳을 정리했고, 입력 지연(market-read)과 누락 세션(daily-diff)이 같은 휴장 인식 계산을 쓴다. 휴장일을 낀 한 세션 지연 입력이 '오래됨'으로 처리되던 문제가 해소되고, 한국 종가에 16:00 확정 여부(eodConfirmed)가 붙는다."
+ ]
+}

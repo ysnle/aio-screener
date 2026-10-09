@@ -42,12 +42,26 @@ export function concentrationPenaltyForWeight(weightPct) {
   return weight >= 25 ? 18 : weight >= 15 ? 10 : weight >= 10 ? 5 : 0;
 }
 
-// P1252 (CON-01/CON-03): 레거시 계약(js/aio-core.js ~21450: "Cost basis는 역사적 맥락일 뿐,
+// P1252 (CON-01/CON-03): 레거시 계약(js/aio-core.js calcPositionTechnicalRisk의 "Cost basis is historical context only" 주석: "Cost basis는 역사적 맥락일 뿐,
 // 시세/노출/분모를 대신할 수 없다")을 따른다. 시장가치는 시세(price/currentPrice) 또는 명시
 // value만 선행한다 — cost/avgCost 폴백은 원가를 시장가 분모에 섞어 가격이 없는 포지션을 값으로
 // 눕혔다. 그런 포지션은 data-insufficient로 보류하고, 음수/비수 입력은 0으로 눌리지 않고
 // invalid-input으로 분리한다(합법적 0과 구분).
+// P1536: the legacy wrapper (js/aio-core.js calcPositionTechnicalRisk) values a position only from a live decision-grade
+// quote and otherwise withholds it. A position that declares its quote provenance here gets the same rule: a cached close,
+// a stored portfolio price or a reference-only quote is held back, whether it arrives as a price or as an explicit value.
+// A position with no provenance label keeps the pure-model contract (the caller vouches for its price), which the golden
+// fixtures and the not-yet-wired UI path rely on; wiring this model to the UI must pass the labels.
+function declaresNonDecisionQuote(position) {
+  const kind = position?.quoteSourceKind ?? position?.priceSource;
+  const allowed = position?.currentQuoteAllowedUse ?? position?.allowedUse;
+  const kindDeclared = kind != null && kind !== '';
+  const allowedDeclared = allowed != null && allowed !== '';
+  return (kindDeclared && kind !== 'live-quote') || (allowedDeclared && allowed !== true && allowed !== 'decision');
+}
+
 function resolvePositionValue(position) {
+  if (declaresNonDecisionQuote(position)) return { state: 'data-insufficient', reason: 'quote-not-decision-grade', value: null };
   const explicit = numericField(position?.value);
   if (explicit.state === 'invalid') return { state: 'invalid-input', reason: 'non-numeric-value', value: null };
   if (explicit.state === 'ok' && explicit.value < 0) return { state: 'invalid-input', reason: 'negative-value', value: null };
@@ -116,15 +130,20 @@ export function deriveConcentrationRisk({ positions = [], totalValue = null, inp
   // P1252 (CON-04): 비중 합이 100을 의미 있게 넘으면 분모 불일치로 표시한다(정규화하지 않는다).
   const weightPctSum = items.reduce((sum, item) => sum + (item.weightPct != null ? item.weightPct : 0), 0);
   const issues = weightPctSum > 100.5 ? ['denominator-mismatch'] : [];
+  // P1561: withheld positions leave the denominator, so without an explicit total the remaining weights are shares of the
+  // PRICED part only (three of five positions priced: each looks bigger, and a withheld largest holding is not in the top weight).
+  // That is a partial result, published as such with the issue named; an explicit total keeps the weights meaningful.
+  const denominatorExcludesHeld = heldItems.length > 0 && !(explicitTotal && explicitTotal > 0);
+  if (denominatorExcludesHeld) issues.push('held-positions-excluded-from-denominator');
   return Object.freeze({
     modelVersion: PORTFOLIO_CONCENTRATION_MODEL_VERSION,
     inputVersion,
-    status: 'current',
+    status: denominatorExcludesHeld ? 'partial' : 'current',
     holdingCount: items.length,
     totalValue: total,
     // P1252 (CON-02): 분모 계약 명시 — 포지션 가치 합만 쓰고(현금은 이 모델에 없음), 명시
     // totalValue가 있으면 그 출처를 이름으로 발행한다.
-    weightBasis: 'invested-sleeve-positions-only',
+    weightBasis: denominatorExcludesHeld ? 'priced-positions-only' : 'invested-sleeve-positions-only',
     denominator: explicitTotal && explicitTotal > 0 ? 'explicit-total-value' : 'sum-of-position-values',
     issues: Object.freeze(issues),
     topWeightPct,

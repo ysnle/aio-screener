@@ -1,3 +1,5 @@
+import { RULES } from '../rules/thresholds.js';
+
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
@@ -5,10 +7,13 @@ function finite(value) {
 export function fearGreedBand(value) {
   const score = finite(value);
   if (score == null || score < 0 || score > 100) return Object.freeze({ score: null, label: '판정 보류', blocked: true });
-  if (score <= 25) return Object.freeze({ score, label: '극단 공포', blocked: false });
-  if (score <= 45) return Object.freeze({ score, label: '공포', blocked: false });
-  if (score <= 55) return Object.freeze({ score, label: '중립', blocked: false });
-  if (score <= 75) return Object.freeze({ score, label: '탐욕', blocked: false });
+  // P1534: banded on the whole number CNN publishes (25 is fear, 45 neutral, 55 neutral, 75 greed), the same edges as RULES.fearGreed.
+  const published = Math.round(score);
+  const { extremeFearBelow, fearBelow, greedAbove, extremeGreedAbove } = RULES.fearGreed;
+  if (published < extremeFearBelow) return Object.freeze({ score, label: '극단 공포', blocked: false });
+  if (published < fearBelow) return Object.freeze({ score, label: '공포', blocked: false });
+  if (published <= greedAbove) return Object.freeze({ score, label: '중립', blocked: false });
+  if (published <= extremeGreedAbove) return Object.freeze({ score, label: '탐욕', blocked: false });
   return Object.freeze({ score, label: '극단 탐욕', blocked: false });
 }
 

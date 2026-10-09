@@ -6209,7 +6209,7 @@ function _aioRenderDataFreshness() {
       } else if (window._aioScreenerFactorAsOf) {
         asEl.textContent = '팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0, 10);
       } else {
-        asEl.textContent = '팩터 데이터 대기 (정적 시그널 폴백 중)';
+        asEl.textContent = '팩터 데이터 대기';
       }
     }
     // 매크로: FRED 기준 시각 또는 폴백 날짜
@@ -10966,6 +10966,13 @@ function extractTickers(item) {
   }
 
   // 3) 한국어 기업명·키워드 / 영문 별칭 → 티커 매핑
+  // P1550: 한글 별칭이 1~2음절이면 앞이 한글이 아니고 뒤가 한글이 아니거나 조사일 때만 인정한다('모델'의 '델'은 DELL이 아니다).
+  function _aioKrAliasInText(lowerText, alias) {
+    if (lowerText.indexOf(alias) < 0) return false;
+    if (alias.length >= 3 || !/^[가-힣]+$/.test(alias)) return true;
+    var esc = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp('(?:^|[^가-힣])' + esc + '(?:$|[^가-힣]|(?:은|는|이|가|을|를|의|도|와|과|에|로|만)(?:$|[^가-힣]))').test(lowerText);
+  }
   // P1449/R17: 영문 별칭은 단어 경계를 지킨다. plain includes는 "Artificial Intelligence"에서
   // INTC(intel), "downside"에서 DIA(dow) 같은 부분 문자열 오판을 만들었다. 한글 별칭은 JS \b가
   // 비ASCII 단어 경계를 인식하지 못하므로 기존 includes를 쓴다(한글 하위 문자열 오판은 관측된 급사 없음).
@@ -10976,7 +10983,7 @@ function extractTickers(item) {
       var aliasLower = String(krName).toLowerCase();
       if (/[^a-z0-9]/.test(aliasLower)) {
         // 한글 별칭 — JS \b가 비ASCII 경계를 인식하지 못해 기존 includes 유지.
-        if (lowerText.includes(aliasLower) && !_aioNewsNameIsAttribution(lowerText, aliasLower)) found.add(KR_TICKER_MAP[krName]);
+        if (_aioKrAliasInText(lowerText, aliasLower) && !_aioNewsNameIsAttribution(lowerText, aliasLower)) found.add(KR_TICKER_MAP[krName]);
         continue;
       }
       if (!lowerText.includes(aliasLower)) continue;
@@ -14117,13 +14124,11 @@ function _aioVixPercentile(vix) {
 window._aioVixPercentile = _aioVixPercentile;
 
 function vixRegime(vix) {
-  if (vix < 12) return { label: 'Subdued', color: '#00e5a0' };
-  if (vix < 16) return { label: 'Low', color: '#00bcd4' };
-  if (vix < 20) return { label: 'Normal', color: '#a8b5c8' };
-  if (vix < 25) return { label: 'Elevated', color: '#ffa31a' };
-  if (vix < 30) return { label: 'Stressed', color: '#ffa31a' };
-  if (vix < 40) return { label: 'Crisis', color: '#ff5b50' };
-  return { label: 'Extreme', color: '#dc2626' };
+  // P1534: the same 18 / 25 / 32 band edges and wording as src RULES.volatility and the regime alert (parity: ci-domain-parity-check).
+  if (vix < 18) return { label: '저변동 구간', color: '#00bcd4' };
+  if (vix < 25) return { label: '통상 범위', color: '#a8b5c8' };
+  if (vix < 32) return { label: '변동성 경계 구간', color: '#ffa31a' };
+  return { label: '고변동 구간', color: '#ff5b50' };
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -15043,8 +15048,10 @@ function applyLiveQuotes(quotes) {
     let vp = Number(vixQ.regularMarketPrice);
     if (!Number.isFinite(vp)) vp = Number(DATA_SNAPSHOT && DATA_SNAPSHOT.vix);
     if (!Number.isFinite(vp)) vp = 0;
-    const lvl = vp >= 30 ? '패닉 (매우 위험)' : vp >= 25 ? '공포 (경계)' : vp >= 20 ? '불안 (주의)' : vp >= 15 ? '안정' : '과도한 낙관';
-    const col = vp >= 30 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 20 ? '#ffa31a' : '#00e5a0';
+    // P1557: same 18 / 25 / 32 edges and names as vixRegime / RULES.volatility (this ladder used 15 / 20 / 25 / 30 and 'panic' wording).
+    const _vixBandNow = vixRegime(vp);
+    const lvl = _vixBandNow.label;
+    const col = vp >= 32 ? '#dc2626' : vp >= 25 ? '#ffa31a' : '#00e5a0';
     const vixLbl = document.getElementById('snap-vix-lbl');
     const vixVal = document.getElementById('snap-vix-val');
     if (vixLbl) vixLbl.textContent = lvl;
@@ -15479,7 +15486,8 @@ const _YAHOO_FRED_MAP = {
   '^TNX':     { fredId: 'DGS10',    transform: v => v,         label: '10Y 국채금리' },
   '^TYX':     { fredId: 'DGS30',    transform: v => v,         label: '30Y 국채금리' },
   '^FVX':     { fredId: 'DGS5',     transform: v => v,         label: '5Y 국채금리' },
-  '^IRX':     { fredId: 'DGS3MO',   transform: v => v,         label: '3M 국채금리' },
+  // P1541: no ^IRX -> DGS3MO row. Yahoo ^IRX is the 13-week bill DISCOUNT rate; FRED DGS3MO is the bond-equivalent constant-maturity
+  // yield (about 10bp higher at 4%). An intraday discount quote must not stand in for an official series.
   '^VIX':     { fredId: 'VIXCLS',   transform: v => v,         label: 'VIX' },
   'DX-Y.NYB': { fredId: 'DTWEXBGS', transform: v => v,         label: '달러인덱스' },
   // v51.91 P585/R266/C4: removed a 'HYG' entry that wrote a HYG-price-derived spread approximation
@@ -15560,18 +15568,8 @@ function _syncYahooToFred() {
     }
   }
 
-  // 10Y-3M 스프레드도 갱신
-  const irx = ld['^IRX'];
-  if (tnx && tnx.price > 0 && irx && irx.price > 0) {
-    const spread10y3m = tnx.price - irx.price;
-    if (!window._fredData) window._fredData = {};
-    window._fredData['T10Y3M'] = {
-      value: spread10y3m,
-      prevValue: fd['T10Y3M'] ? fd['T10Y3M'].value : spread10y3m,
-      date: todayStr,
-      _source: 'yahoo-calc:^TNX-^IRX'
-    };
-  }
+  // P1541: the 10Y-3M spread is no longer rebuilt from ^TNX minus ^IRX. It mixed a constant-maturity yield with a discount rate and
+  // overwrote the official T10Y3M every time; the official series and the macro-history artifact own it.
 
   if (synced > 0) {
     console.log('[AIO v31.9] Yahoo→FRED 실시간 브릿지:', synced + '개 시리즈 대체 (FRED 지연→Yahoo 실시간)');
@@ -15742,19 +15740,19 @@ function refreshHomeDashboard() {
     //   모순(같은 62점이 카드 'CAUTION' vs 결론바 '선별매수')이라 사용자 혼란. 동일 라벨/임계로 통일.
     var sc = tradingScore;
     if (sc >= 75) {
-      signalEl.textContent = '환경 우호'; signalEl.style.color = '#00e5a0';
-      if (explanEl) explanEl.textContent = '현재 입력 조합이 우호적입니다. 예측·매수 신호가 아니며 종목별 근거 확인이 필요합니다.';
+      signalEl.textContent = '스트레스 신호 적음'; signalEl.style.color = '#00e5a0';
+      if (explanEl) explanEl.textContent = '현재 입력 조합에서 스트레스 신호가 적게 관측됩니다. 예측·매수 신호가 아니며 종목별 근거는 별도로 확인할 항목입니다.';
     } else if (sc >= 60) {
-      signalEl.textContent = '환경 양호'; signalEl.style.color = '#4ade80';
-      if (explanEl) explanEl.textContent = '시장 환경은 양호하지만 통계적 예측력은 미검증입니다. 점수 단독 진입은 금지합니다.';
+      signalEl.textContent = '스트레스 신호 일부'; signalEl.style.color = '#4ade80';
+      if (explanEl) explanEl.textContent = '일부 입력에서 스트레스가 관측되며 통계적 예측력은 미검증입니다. 점수 단독으로 판단하지 않습니다.';
     } else if (sc >= 45) {
-      signalEl.textContent = '중립 · 관망'; signalEl.style.color = '#ffa31a';
-      if (explanEl) explanEl.textContent = '신호 혼합 · 위험 관리 필수. 기존 포지션 유지, 신규 진입 자제.';
+      signalEl.textContent = '중립 · 신호 혼재'; signalEl.style.color = '#ffa31a';
+      if (explanEl) explanEl.textContent = '신호가 혼재된 구간입니다. 점수만으로 방향을 정하기 어렵습니다.';
     } else if (sc >= 30) {
-      signalEl.textContent = '주의 · 축소'; signalEl.style.color = '#ffa31a';
-      if (explanEl) explanEl.textContent = '시장 품질 약화 · 신호 약함. 리스크 자산 비중 축소, 현금 확보.';
+      signalEl.textContent = '주의 · 부담 점검'; signalEl.style.color = '#ffa31a';
+      if (explanEl) explanEl.textContent = '시장 품질이 약해진 신호가 늘었습니다. 리스크 자산 비중과 현금은 본인 기준으로 확인할 항목입니다.';
     } else {
-      signalEl.textContent = '위험 · 방어'; signalEl.style.color = '#ff5b50';
+      signalEl.textContent = '위험 · 방어 조건 점검'; signalEl.style.color = '#ff5b50';
       if (explanEl) explanEl.textContent = '극단 약세 구간 · 역사적으로 방어적 운용이 우선시되던 환경.' + (sc <= 25 ? ' 참고: 과거 유사 극단에서 이후 수익률이 높았던 사례가 있으나 보장이 아닙니다.' : '');
     }
   }
@@ -15778,7 +15776,7 @@ function refreshHomeDashboard() {
     const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100);
     // v50.16: 'ATH 근처' 막연 → 실제 갭 + VIX 맥락 (사용자 지적: 이면까지). VIX는 라이브 우선.
     var _rVix = (ld && ld['^VIX'] && ld['^VIX'].price) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-    var _rVixCtx = isNaN(_rVix) ? '' : (' · VIX ' + _rVix.toFixed(1) + (_rVix < 20 ? ' (정상)' : _rVix < 30 ? ' (경계)' : ' (공포)'));
+    var _rVixCtx = isNaN(_rVix) ? '' : (' · VIX ' + _rVix.toFixed(1) + (' (' + vixRegime(_rVix).label + ')'));
     let regime = 'UPTREND', regimeColor = '#00e5a0', regimeDesc = 'ATH ' + (pctFromATH >= -0.5 ? '근접' : pctFromATH.toFixed(1) + '%') + _rVixCtx;
     if (pctFromATH < -20) { regime = 'DOWNTREND'; regimeColor = '#ff5b50'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
     else if (pctFromATH < -10) { regime = 'CORRECTION'; regimeColor = '#ffa31a'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
@@ -15818,7 +15816,7 @@ function refreshHomeDashboard() {
   if (vixValueEl) {
     const vp = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
     vixValueEl.textContent = _homeFixed(vp, 2, '—');
-    const vixLabel = vp == null ? '—' : (vp >= 32 ? '패닉' : vp >= 25 ? '경계' : vp >= 18 ? '보통' : '안정'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
+    const vixLabel = vp == null ? '—' : (vp >= 32 ? '고변동 구간' : vp >= 25 ? '변동성 경계 구간' : vp >= 18 ? '통상 범위' : '저변동 구간'); // P1367: one VIX band (aio-core _vixBand 18/25/32)
     const vixCol = vp == null ? 'var(--text-muted)' : (vp >= 32 ? 'var(--data-red)' : vp >= 25 ? 'var(--data-amber)' : vp >= 18 ? 'var(--text-secondary)' : 'var(--data-green)'); // P1499: theme tokens, not the retired neon palette
     vixValueEl.style.color = vixCol;
     if (vixStatusEl) vixStatusEl.textContent = vixLabel;
@@ -16674,7 +16672,7 @@ function _formatScreenerResultPrompt(result) {
   lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
    lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 생산자 관측시각 ' + ts);
   var fAsOf = (typeof window !== 'undefined' && window._aioFactorRanksAsOf) ? window._aioFactorRanksAsOf.slice(0,10) : null;
-  lines.push('퀀트 랭크(0~100, 높을수록 우수) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
+  lines.push('퀀트 백분위(같은 조건 종목 중 위치, 100점 만점이 아님) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
   if (isDiversified) {
     var dv = result.diversity || {};
     lines.push('분산 설계: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 버킷 ' + (dv.capBucketCount || '?') + '개. 최근 대화 반복 티커는 점수 감점: ' + (result.recentSuppressed || 0) + '개.');
@@ -16684,7 +16682,7 @@ function _formatScreenerResultPrompt(result) {
   }
   lines.push('═══════════════════════════════════════════════════');
   result.rows.forEach(function(r, i) {
-    var rankStr = (r.rank != null) ? ('퀀트 ' + r.rank + '/100(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
+    var rankStr = (r.rank != null) ? ('퀀트 백분위 ' + r.rank + '(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
     var fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
     var divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown') + ' · 분산점수 ' + (r.diversityScore != null ? r.diversityScore : 'N/A')) : '';
     lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
@@ -16695,7 +16693,7 @@ function _formatScreenerResultPrompt(result) {
   });
   lines.push('');
   if (isDiversified) {
-    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 최종 추천과 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
+    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 후보와 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
   } else {
     lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
   }

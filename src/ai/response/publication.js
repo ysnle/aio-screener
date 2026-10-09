@@ -39,8 +39,11 @@ export function claimSourceUrl(value) {
   } catch (_) { return ''; }
 }
 
+// P1525 (audit H104 class): a current-sensitive sentence carrying a count or a magnitude must be bound to evidence, not
+// slip through because its unit was not on the list. Counts (개/곳/건/명/종목) and Korean magnitudes (조/억/만) are
+// covered; 개월/개년 stay out so a period like "3개월" is not read as a current figure.
 export function hasCurrentNumericContent(value) {
-  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i.test(String(value || ''));
+  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년])|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i.test(String(value || ''));
 }
 
 export function stripUnverifiedCurrentNumericSentences(value) {

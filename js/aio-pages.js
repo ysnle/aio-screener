@@ -310,8 +310,8 @@ function updateRiskMonitor() {
   var rmVixStatus = document.getElementById('rm-vix-status');
   var rmVixBar = document.getElementById('rm-vix-bar');
   if (vix !== null) {
-    var vixColor = vix < 15 ? 'var(--data-green)' : vix < 20 ? 'var(--data-cyan)' : vix < 25 ? 'var(--data-amber)' : 'var(--data-red)';
-    var vixLabel = vix < 15 ? '안정 (Low)' : vix < 20 ? '주의 (Normal)' : vix < 25 ? '경계 (Elevated)' : vix < 30 ? '공포 (High)' : '극단공포 (Crisis)';
+    var vixColor = vix < 18 ? 'var(--data-green)' : vix < 25 ? 'var(--data-cyan)' : vix < 32 ? 'var(--data-amber)' : 'var(--data-red)';
+    var vixLabel = vix < 18 ? '저변동 구간' : vix < 25 ? '통상 범위' : vix < 32 ? '변동성 경계 구간' : '고변동 구간';
     if (rmVixStatus) { rmVixStatus.textContent = vixLabel; rmVixStatus.style.color = vixColor; rmVixStatus.style.background = vixColor.replace(')',',0.1)').replace('rgb','rgba'); }
     if (rmVixBar) { rmVixBar.style.width = Math.min(100, (vix/40)*100) + '%'; rmVixBar.style.background = vixColor; }
   }
@@ -375,7 +375,7 @@ function updateRiskMonitor() {
   var rmFgBar = document.getElementById('rm-fg-bar');
   if (fg !== null) {
     var fgColor = fg <= 25 ? 'var(--data-red)' : fg <= 45 ? 'var(--data-amber)' : fg <= 55 ? 'var(--data-cyan)' : fg <= 75 ? '#22754c' : 'var(--data-green)';
-    var fgLabel = fg <= 25 ? '극단적 공포' : fg <= 45 ? '공포' : fg <= 55 ? '중립' : fg <= 75 ? '탐욕' : '극단적 탐욕';
+    var fgLabel = Math.round(fg) < 25 ? '극단적 공포' : Math.round(fg) < 45 ? '공포' : Math.round(fg) <= 55 ? '중립' : Math.round(fg) <= 75 ? '탐욕' : '극단적 탐욕';
     if (rmFgVal) { rmFgVal.textContent = fg; rmFgVal.style.color = fgColor; }
     if (rmFgStatus) { rmFgStatus.textContent = fgLabel; rmFgStatus.style.color = fgColor; }
     if (rmFgBar) { rmFgBar.style.width = fg + '%'; rmFgBar.style.background = fgColor; }
@@ -434,7 +434,6 @@ function updateRiskMonitor() {
   if (spx != null) document.querySelectorAll('[data-snap="spx"]').forEach(function(el){ el.textContent = spx.toLocaleString('en-US', {maximumFractionDigits:0}); });
   // v48.53: Yahoo 직접 매핑 9종 추가 자동화 (tnx/tnx-2y/skew/kospi/kosdaq/krw/dxy)
   var tnx = ld['^TNX'] ? ld['^TNX'].price : null;
-  var tnx2y = ld['^IRX'] ? ld['^IRX'].price : null;
   var kospi = ld['^KS11'] ? ld['^KS11'].price : null;
   var kospiPct = ld['^KS11'] ? ld['^KS11'].pct : null;
   var kosdaq = ld['^KQ11'] ? ld['^KQ11'].price : null;
@@ -442,7 +441,6 @@ function updateRiskMonitor() {
   var krw = ld['KRW=X'] ? ld['KRW=X'].price : null;
   var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
   if (tnx != null) document.querySelectorAll('[data-snap="tnx"]').forEach(function(el){ el.textContent = tnx.toFixed(2) + '%'; });
-  if (tnx2y != null) document.querySelectorAll('[data-snap="tnx-2y"]').forEach(function(el){ el.textContent = tnx2y.toFixed(2) + '%'; });
   if (kospi != null) document.querySelectorAll('[data-snap="kospi"]').forEach(function(el){ el.textContent = kospi.toLocaleString('en-US', {maximumFractionDigits:2}); });
   if (kospiPct != null) document.querySelectorAll('[data-snap="kospi-pct"]').forEach(function(el){ el.textContent = (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%'; });
   if (kosdaq != null) document.querySelectorAll('[data-snap="kosdaq"]').forEach(function(el){ el.textContent = kosdaq.toLocaleString('en-US', {maximumFractionDigits:2}); });
@@ -601,16 +599,16 @@ function updateBottomProcess() {
   // 행동 가이드 동적 업데이트
   if (actionEl) {
     if (stage <= 1) {
-      actionEl.innerHTML = ' <b>현재 행동:</b> 신규 매수 중단. 최고의 상대강도(RS)와 타이트한 가격 움직임 종목을 워치리스트에 추가. 이들이 전환 시 미래 리더. 트레이딩은 점진적으로만.';
+      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 신규 매수 조건이 충족되지 않은 상태입니다. 상대강도(RS)가 높고 가격 움직임이 좁은 종목은 관찰 목록에서 시장 전환 때의 변화를 봅니다.';
       actionEl.style.borderColor = 'var(--data-red)';
     } else if (stage === 2) {
-      actionEl.innerHTML = ' <b>현재 행동:</b> 랠리 품질 관찰 중. Follow-through 확인 전까지 관망. 리더십 종목이 적절한 셋업(VCP, 돌파)을 형성하는지 모니터링. 소량 테스트 매수만.';
+      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 랠리 품질을 관찰하는 단계입니다. Follow-through가 확인되기 전에는 상승 지속 여부가 불확실합니다. 리더십 종목이 적절한 셋업(VCP, 돌파)을 형성하는지 지켜봅니다.';
       actionEl.style.borderColor = 'var(--data-amber)';
     } else if (stage === 3) {
       actionEl.innerHTML = ' <b>현재 관측:</b> 리테스트 진행 구간. 프레임워크상 매도 압력 감소 여부와 리더주 셋업 완성 여부가 다음 관찰 포인트입니다(지시 아님).';
       actionEl.style.borderColor = 'var(--data-cyan)';
     } else {
-      actionEl.innerHTML = ' <b>현재 행동:</b> 바닥 확인. 리더주 셋업 완성 시 분할 진입 검토. 트레일링 스탑으로 수익 보호. 시장폭 유지 여부 지속 모니터링.';
+      actionEl.innerHTML = ' <b>프레임워크 해석:</b> 바닥 확인 단계입니다. 리더주가 셋업을 완성하는지와 시장폭이 유지되는지를 지켜봅니다.';
       actionEl.style.borderColor = 'var(--data-green)';
     }
   }
@@ -841,25 +839,25 @@ function refreshSignalDashboard() {
     decColor = 'var(--text-muted)'; decBg = 'transparent';
     decSub = !totalFinite ? '실시간·검증된 시장 입력이 없어 점수와 실행 판단을 표시하지 않습니다.' : '미수신 구성요소(' + (scores.componentMissing || []).join(', ') + ')는 중립값으로만 계산했습니다. 현재 진입 판단에는 사용하지 않습니다.';
   } else if (total >= 75) {
-    decision = '환경 우호 — 종목별 근거 별도 확인';
+    decision = '스트레스 신호 적음 — 종목별 근거 별도 확인';
     decColor = '#22754c'; decBg = 'rgba(34,117,76,0.15)';
-    decSub = '현재 시장 입력 조합이 우호적입니다. 점수는 예측 신호가 아니며(부분 백테스트에서는 선행수익률과 음의 상관 관측) 종목별 거래량·손익비·무효화 가격을 별도로 확인하세요.';
+    decSub = '현재 시장 입력 조합에서 스트레스 신호가 적게 관측됩니다. 점수는 예측 신호가 아니며(부분 백테스트에서는 선행수익률과 음의 상관 관측) 종목별 거래량·손익비·무효화 가격은 별도로 확인할 항목입니다.';
   } else if (total >= 60) {
-    decision = '환경 양호 — 단독 진입 신호 아님';
+    decision = '스트레스 신호 일부 — 단독 판단 근거 아님';
     decColor = 'var(--data-green)'; decBg = 'rgba(34,117,76,0.15)';
-    decSub = '현재 시장 여건은 양호합니다. 단, 2016~2026 부분 백테스트(입력 가중치 55%)에서 이 점수와 21·63일 선행수익률은 유의한 음(−)의 상관이 관측되어, 점수를 매수/매도 타이밍 근거로 사용하지 마세요.';
+    decSub = '일부 입력에서 스트레스가 관측됩니다. 2016~2026 부분 백테스트(입력 가중치 55%)에서 이 점수와 21·63일 선행수익률은 음(−)의 상관이 관측되어, 점수는 매수/매도 타이밍의 근거가 되지 않습니다.';
   } else if (total >= 45) {
-    decision = '중립 — 관망 우선';
+    decision = '중립 — 신호 혼재';
     decColor = 'var(--data-cyan)'; decBg = 'rgba(33,29,22,0.15)';
     decSub = '시장 신호가 혼재된 환경입니다. 점수는 예측 신호가 아니므로 진입/비중 결정은 종목별 근거와 본인 리스크 한도로 판단하세요.';
   } else if (total >= 30) {
-    decision = '주의 — 비중 축소 검토';
+    decision = '주의 — 비중 부담 점검';
     decColor = 'var(--data-amber)'; decBg = 'rgba(33,29,22,0.15)';
-    decSub = '리스크 증가. 기존 포지션의 방어선, 현금 비중, 헤지 조건 점검.';
+    decSub = '스트레스 신호가 늘어난 구간입니다. 기존 포지션의 방어선, 현금 비중, 헤지 여부는 본인 기준으로 확인할 항목입니다.';
   } else {
-    decision = '위험 — 방어 우선';
+    decision = '위험 — 방어 조건 점검';
     decColor = '#b13a30'; decBg = 'rgba(177,58,48,0.15)';
-    decSub = '극단 리스크. 신규 진입 중단, 현금·헤지·VIX 추적 우선.';
+    decSub = '스트레스 신호가 다수인 구간입니다. 신규 진입 여부와 현금·헤지 노출, VIX 변화는 본인 기준으로 확인할 항목입니다.';
   }
 
   // Update the compatibility canvas only when the legacy hero owns the surface.
@@ -972,8 +970,8 @@ function refreshSignalDashboard() {
     if (phaseEl) {
       var phaseClass77, phaseText77;
        if (!totalFinite) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 입력 대기'; }
-       else if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '● 환경 우호'; }
-      else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● 환경 양호'; }
+       else if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '● 스트레스 신호 적음'; }
+      else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● 스트레스 신호 일부'; }
       else if (total >= 45) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 중립'; }
       else { phaseClass77 = 'mv-phase-avoid'; phaseText77 = '주의'; }
       phaseEl.innerHTML = '<span class="mv-phase-lbl ' + phaseClass77 + '">' + phaseText77 + '</span>';
@@ -992,7 +990,7 @@ function updateMarketPulse() {
     var sc = computeTradingScore('swing');
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null; // P1352
     var sColor = t == null ? 'var(--text-muted)' : t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-    var sLabel = t == null ? '산출 보류' : t >= 75 ? '환경 우호' : t >= 60 ? '환경 양호' : t >= 45 ? '중립' : t >= 30 ? '환경 불리' : '환경 극단';
+    var sLabel = t == null ? '산출 보류' : t >= 75 ? '스트레스 신호 적음' : t >= 60 ? '스트레스 신호 일부' : t >= 45 ? '중립 · 신호 혼재' : t >= 30 ? '주의 · 부담 점검' : '위험 · 방어 조건 점검';
     var el1 = document.getElementById('mp-signal-score');
     var el1b = document.getElementById('mp-signal-label');
     if (el1) { el1.textContent = t == null ? '—' : t; el1.style.color = sColor; }
@@ -1032,8 +1030,8 @@ function updateMarketPulse() {
     var el3 = document.getElementById('mp-sentiment-val');
     var el3b = document.getElementById('mp-sentiment-label');
     if (fv !== null && !isNaN(fv)) {
-      var fColor = fv <= 25 ? 'var(--data-red)' : fv <= 45 ? 'var(--data-amber)' : fv <= 55 ? 'var(--data-cyan)' : fv <= 75 ? 'var(--data-green)' : '#22754c';
-      var fLabel = fv <= 25 ? '극단공포' : fv <= 45 ? '공포' : fv <= 55 ? '중립' : fv <= 75 ? '탐욕' : '극단탐욕';
+      var fColor = ['var(--data-red)', 'var(--data-amber)', 'var(--data-cyan)', 'var(--data-green)', '#22754c'][window._aioFgZoneIndex(fv)]; // P1564: one zone index for colour and label
+      var fLabel = Math.round(fv) < 25 ? '극단공포' : Math.round(fv) < 45 ? '공포' : Math.round(fv) <= 55 ? '중립' : Math.round(fv) <= 75 ? '탐욕' : '극단탐욕';
       if (el3) window._aioRenderValueSlot(el3, 'value', fv, { color: fColor });
       if (el3b) window._aioRenderValueSlot(el3b, 'value', fLabel, { color: fColor });
     } else {
@@ -1087,8 +1085,8 @@ function _updateAllConclusionBars() {
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null;
     if (t !== null) {
       var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-      var sLabel = t >= 75 ? '환경 우호' : t >= 60 ? '환경 양호' : t >= 45 ? '중립' : t >= 30 ? '환경 불리' : '환경 극단';
-      var sAction = t >= 60 ? '환경 설명값(예측 신호 아님) — 진입 판단은 종목 근거·손익비로 별도 확인' :
+      var sLabel = t >= 75 ? '스트레스 신호 적음' : t >= 60 ? '스트레스 신호 일부' : t >= 45 ? '중립 · 신호 혼재' : t >= 30 ? '주의 · 부담 점검' : '위험 · 방어 조건 점검';
+      var sAction = t >= 60 ? '환경 설명값(예측 신호 아님) — 종목 근거·손익비는 별도로 확인할 항목' :
                     t >= 45 ? '신호 혼재 — 점수 단독 판단 금지' :
                     '역사적으로 방어적 대응이 우선시되던 환경(지시 아님)';
       var sOpts = { conclusion: t + '점 · ' + sLabel, conclusionColor: sColor, action: sAction, fetchKey: 'quote' };
@@ -1102,13 +1100,14 @@ function _updateAllConclusionBars() {
     var _fgPulseMetric2 = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
     var fv = _fgPulseMetric2 && _fgPulseMetric2.value != null ? _fgPulseMetric2.value : null;
     if (fv != null && !isNaN(fv)) {
-      var fColor = fv <= 25 ? 'var(--data-red)' : fv <= 45 ? 'var(--data-amber)' : fv <= 55 ? 'var(--text-secondary)' : fv <= 75 ? 'var(--data-green)' : '#22754c';
-      var fLabel = fv <= 25 ? '극단 공포' : fv <= 45 ? '공포' : fv <= 55 ? '중립' : fv <= 75 ? '탐욕' : '극단 탐욕';
-      var fAction = fv <= 25 ? '역발상 프레임 주목 구간(예측 검증 없음) — 종목 근거 별도 확인' :
-                    fv <= 45 ? '심리 위축 구간 — 분할 접근이 논의되는 환경(지시 아님)' :
-                    fv <= 55 ? '심리 중립 — 뚜렷한 쏠림 없음' :
-                    fv <= 75 ? '심리 과열 초입 — 추격 진입 성과가 불안정하던 구간' :
-                    '심리 극단 — 역발상 프레임워크가 위험 축적을 경고해온 구간';
+      var _fgZoneNow = window._aioFgZoneIndex(fv); // P1564: colour, label and note from one zone index (raw edges disagreed with the rounded label at 25 and 45)
+      var fColor = ['var(--data-red)', 'var(--data-amber)', 'var(--text-secondary)', 'var(--data-green)', '#22754c'][_fgZoneNow];
+      var fLabel = Math.round(fv) < 25 ? '극단 공포' : Math.round(fv) < 45 ? '공포' : Math.round(fv) <= 55 ? '중립' : Math.round(fv) <= 75 ? '탐욕' : '극단 탐욕';
+      var fAction = ['심리가 극단적으로 위축된 구간 — 예측 신호가 아니며 종목 근거는 따로 확인',
+                     '심리가 위축된 구간 — 종목 근거가 우선',
+                     '심리 중립 — 뚜렷한 쏠림 없음',
+                     '심리가 과열 쪽으로 기운 구간 — 예측 신호가 아님',
+                     '심리가 극단적으로 과열된 구간 — 예측 신호가 아니며 종목 근거는 따로 확인'][_fgZoneNow];
       _renderConclusionBar('sentiment-conclusion-bar', { conclusion: 'F&G ' + fv + ' · ' + fLabel, conclusionColor: fColor, action: fAction, fetchKey: 'fearGreed' });
     }
   } catch(e) {}

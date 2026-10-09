@@ -30,7 +30,7 @@ function updateRallyQualityVerdict() {
     verdict = ' <b>품질 미확인 랠리</b> — 5SMA ' + b5.toFixed(0) + '%. 제한적 참여. 숏커버링 주도 가능성. 첫 며칠은 노이즈 — 후속 확인 필요. 관망 유지.';
     color = '#ffa31a'; bg = 'var(--data-amber-faint)';
   } else {
-    verdict = ' <b>과매도/숏커버링</b> — 5SMA ' + b5.toFixed(0) + '%. 소수 종목만 반등. 가장 많이 빠진 종목이 가장 많이 오르는 저품질 패턴. 신규 매수 중단. RS 상위 종목 워치리스트만 구축.';
+    verdict = ' <b>과매도/숏커버링</b> — 5SMA ' + b5.toFixed(0) + '%. 소수 종목만 반등합니다. 가장 많이 빠진 종목이 가장 크게 오르는 저품질 반등 패턴으로 볼 수 있습니다. 신규 매수 조건은 충족되지 않았고, RS 상위 종목은 관찰 목록으로 확인합니다.';
     color = '#ff5b50'; bg = 'var(--data-red-faint)';
   }
   el.innerHTML = verdict;
@@ -585,7 +585,7 @@ function updateQuotaBadge() {
 
   const grade = remaining === 0 ? (overBudget > 0 ? 'over' : 'empty') : remaining <= Math.ceil(dailyLimit * 0.2) ? 'warn' : 'green';
 
-  if (remEl)  { remEl.textContent = remaining + '회' + (overBudget > 0 ? ' (초과 ' + overBudget + '회)' : ''); remEl.className = 'llm-quota-val ' + grade; }
+  if (remEl)  { remEl.textContent = remaining + '회' + (overBudget > 0 ? ' (한도 초과 ' + overBudget + '회)' : ''); remEl.className = 'llm-quota-val ' + grade; }
   if (progEl) { progEl.style.width = Math.min(pct, 100) + '%'; progEl.className = 'llm-prog-fill' + (grade !== 'green' ? ' ' + grade : ''); }
   if (costEl) costEl.textContent = '비용 정보: 공급자 청구 원천 미연결';
 
@@ -593,7 +593,7 @@ function updateQuotaBadge() {
   if (hdrBadge) {
     // v50.13: 헤더 배지는 'AI · 모델'만 — 남은 횟수(remaining/dailyLimit)는 옆 #llm-quota가 단독 표시(중복 제거).
     const hdrText = overBudget > 0
-      ? 'AI 예산 초과 · +' + overBudget + '회'
+      ? 'AI 일일 한도 초과 · +' + overBudget + '회'
       : 'AI · ' + model.label;
     hdrBadge.textContent = hdrText;
     hdrBadge.style.color = grade === 'green' ? '#00bcd4' : grade === 'warn' ? '#ffa31a' : '#ff5b50';
@@ -1430,8 +1430,75 @@ function _itbBadge(label, tone) {
 function _itbActionTone(action) {
   if (action === 'EXIT_OR_HEDGE' || action === 'TRIM_50') return 'risk';
   if (action === 'TRIM_25_33' || action === 'NO_ADD_RAISE_STOP') return 'warn';
-  return 'bull';
+  if (action === 'HOLD_CORE') return 'bull';
+  return 'info';
 }
+
+// P1535: the engines keep their internal action enums (unit tests and golden fixtures read them), but the reader sees
+// the load level a score stands for, not a position instruction. An unknown or missing enum reads as withheld.
+var _ITB_ACTION_LABELS = {
+  HOLD_CORE: '부담 낮음', NO_ADD_RAISE_STOP: '부담 일부 확인', TRIM_25_33: '부담 높음', TRIM_50: '부담 매우 높음',
+  EXIT_OR_HEDGE: '부담 최상위 구간', REDUCE: '부담 높음', WATCH: '관찰 필요', WAIT: '판단 보류', NO_ACTION: '판단 보류'
+};
+function _itbActionLabel(action) {
+  return _ITB_ACTION_LABELS[action] || '판단 보류';
+}
+
+var _ITB_HEAT_LABELS = { SEMI_MANIA: '과열 매우 높음', SEMI_HEATED: '과열 일부', NORMAL: '평상 범위', DATA_INSUFFICIENT: '판단 보류', AI_INFRA_MANIA: '과열 매우 높음', AI_INFRA_HEATED: '과열 일부' };
+function _itbHeatLabel(state) { return _ITB_HEAT_LABELS[state] || '판단 보류'; }
+
+function _itbPortfolioObserved(result) {
+  var items = (result && result.items) || [];
+  if (!items.length || result.heatScore == null) return '판단 보류';
+  var hot = items.filter(function(it) { return it && it.action && it.action !== 'HOLD_CORE' && it.action !== 'WAIT'; }).length;
+  return '포지션 ' + items.length + '개 중 부담 신호 ' + hot + '개';
+}
+
+// P1546: the sell-pressure engine's 0-100 sum has no predictive validation, so the panel reports how many measured
+// conditions are present (a count the reader can audit against the flag badges), not a score out of 100.
+function _itbObservedCount(sp) {
+  var flags = (sp && sp.flags) || [];
+  if (!sp || sp.score == null || flags.indexOf('DATA_INSUFFICIENT') >= 0) return '판단 보류';
+  var n = flags.filter(function(f) { return f !== 'TREND_HEALTHY_NO_EXIT_SIGNAL'; }).length;
+  return n ? '확인된 조건 ' + n + '개' : '확인된 조건 없음';
+}
+
+// P1558: the engines push English flag literals that carry action verbs (TRIM, REDUCE, NO_ADD, SHORT_BAN). Readers see a measured
+// condition in Korean; a literal without an entry reads as a generic signal, never as the raw identifier with underscores removed.
+var _ITB_FLAG_LABELS = {
+  DIST_50SMA_PLUS_3ATR_WARNING: '50일선 +3ATR 이격', DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE: '50일선 +4ATR 이격', DIST_50SMA_PLUS_6ATR_STRONG_TRIM_HEDGE: '50일선 +6ATR 이격',
+  DIST_21EMA_PLUS_2_5ATR_SHORT_TERM_EXTENSION: '21일선 +2.5ATR 이격', RSI_80_OVERHEAT_NOT_AUTO_SELL: 'RSI 80 이상', RSI_85_EXTREME_OVERHEAT: 'RSI 85 이상',
+  CLIMAX_REVERSAL_RISK_DAY_GAIN_RVOL_WEAK_CLOSE: '급등일 거래량 급증 + 약한 종가', UPPER_BOLLINGER_REENTRY_EXHAUSTION: '볼린저 상단 재진입',
+  CLOSE_BELOW_10EMA_TRIM_TRADING_LOT: '10일선 종가 이탈', CLOSE_BELOW_21EMA_REDUCE_SWING_LOT: '21일선 종가 이탈', CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED: '50일선 종가 이탈',
+  SEMI_HEATED_CONTEXT: '반도체 과열 일부', SEMI_MANIA_CONTEXT: '반도체 과열 매우 높음', TREND_HEALTHY_NO_EXIT_SIGNAL: '이탈 신호 없음', DATA_INSUFFICIENT: '데이터 부족',
+  '20MA_PLUS_3ATR_WARNING': '20일선 +3ATR 이격', '20MA_PLUS_4ATR_TRIM_ZONE': '20일선 +4ATR 이격', '20MA_PLUS_6ATR_BLOWOFF_RISK': '20일선 +6ATR 이격',
+  '20MA_PLUS_4ADR_EXTENDED': '20일선 +4ADR 이격', '20MA_PLUS_6ADR_EXTREME': '20일선 +6ADR 이격', '21EMA_PLUS_2_5ATR_SHORT_EXTENSION': '21일선 +2.5ATR 이격',
+  '50SMA_PLUS_6ATR_MANIA_CONTEXT': '50일선 +6ATR 이격', EXTENSION_NORMAL: '이격 평상 범위',
+  GAP_UP_UPPER_WICK_EXHAUSTION: '갭상승 후 긴 윗꼬리', SHOOTING_STAR_AFTER_EXTENSION: '이격 확대 후 유성형', CLOSE_BELOW_PREV_LOW_ON_RVOL: '거래량 급증 + 전일 저가 하회',
+  FAILED_RETEST_OF_PRIOR_HIGH: '전고점 재시험 실패', WEAK_CLOSE_WITH_SUPPLY: '약한 종가 + 윗꼬리', STRONG_CLOSE_MOMENTUM_THRUST: '강한 종가 모멘텀', NO_TERMINAL_CANDLE: '특이 캔들 없음',
+  QQQ_UP_BREADTH_DOWN: 'QQQ 상승 · 시장 폭 하락', RSP_LAGGING_SPY: 'RSP가 SPY에 뒤처짐', IWM_FAILED_BREAKOUT: 'IWM 돌파 실패', IWM_PARTICIPATION: 'IWM 참여',
+  EQUAL_WEIGHT_CONFIRMATION: '동일가중 확인', INDUSTRIALS_CONFIRMATION: '산업재 확인', KRE_CYCLICAL_CONFIRMATION: '지역은행 경기민감 확인', XBI_SPEC_GROWTH_CONFIRMATION: 'XBI 성장 확인',
+  CYCLICAL_SPEC_ROTATION_FAILED: '경기민감·투기 로테이션 실패', SEMI_LEADERSHIP_CONFIRMATION: '반도체 주도 확인', IGV_TO_SMH_ROTATION: '소프트웨어→반도체 로테이션',
+  SEMI_DIGESTING_WHILE_BREADTH_BROADENS: '반도체 소화 + 시장 폭 확산', BREADTH_NEUTRAL_OR_INSUFFICIENT: '시장 폭 중립 또는 입력 부족',
+  OPEX_WITHIN_3_SESSIONS: 'OPEX 3거래일 이내', EQUITY_PUT_CALL_COMPLACENCY: '주식 P/C 낮음', INDEX_HEDGE_EQUITY_CALL_CHASE_SPLIT: '지수 헤지 · 주식 콜 쏠림', TOTAL_PUT_CALL_LOW: '전체 P/C 낮음',
+  VIX_RISING_WHILE_INDEX_UP: '지수 상승 중 VIX 상승', NO_OPEX_STRESS_GAMMA_UNMEASURED: 'OPEX 스트레스 없음(감마 미측정)', NO_OPEX_GAMMA_STRESS: 'OPEX 스트레스 없음',
+  LOCKOUT_ACTION_NEUTRAL: '특이 조건 없음'
+};
+function _itbFlagLabel(flag) {
+  var match = /^(LOCKOUT_ACTION|BLOWOFF_TOP)_(.+)$/.exec(String(flag));
+  if (match && _ITB_ACTION_LABELS[match[2]]) return (match[1] === 'LOCKOUT_ACTION' ? 'Lockout 판정 · ' : 'Blow-off 판정 · ') + _ITB_ACTION_LABELS[match[2]];
+  return _ITB_FLAG_LABELS[String(flag)] || '기타 신호';
+}
+
+var _ITB_STATE_LABELS = {
+  BLOW_OFF_RISK: '이격 매우 큼', EXTREME_EXTENSION: '이격 매우 큼', EXTENDED: '이격 큼', NORMAL: '평상 범위', DATA_INSUFFICIENT: '판단 보류',
+  FAILED_ROTATION: '로테이션 실패 신호', BREADTH_BROADENING: '시장 폭 확산', NARROW_LEADERSHIP: '소수 주도',
+  MOMENTUM_THRUST: '모멘텀 강세 캔들', GAP_UP_EXHAUSTION: '갭상승 후 소진형', SHOOTING_STAR_RISK: '유성형', BEARISH_CONFIRMATION: '약세 확인 캔들',
+  FAILED_RETEST: '재시험 실패', WEAK_CLOSE_WARNING: '약한 종가', NEUTRAL: '특이 캔들 없음',
+  DISTRIBUTION_REVERSAL: '분배·반전 패턴', OPEX_PIN_OR_DECAY: 'OPEX 영향 구간', LATE_STAGE_GAMMA_CHASE: '이격 과열 추격 국면', LOCKOUT_CONTINUATION: '추세 지속 국면',
+  BLOW_OFF_TOP_RISK: '과열 신호 다수', EVENT_EXHAUSTION_WATCH: '이벤트 소진 점검', NO_CHASE_DIGESTION: '소화 구간', LOCKOUT_CAN_CONTINUE: '추세 지속 가능 조건'
+};
+function _itbStateLabel(state) { return _ITB_STATE_LABELS[state] || (/[가-힣]/.test(String(state || '')) ? String(state) : '판단 보류'); }
 
 function renderDataQualityBadge(quality) {
   quality = quality || {};
@@ -1462,15 +1529,15 @@ function renderPortfolioTechnicalRisk(result) {
       '<td style="padding:6px 4px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + escHtml(item.ticker || '-') + '</td>' +
       '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);">' + _itbNum(item.weightPct, 1) + '%</td>' +
       '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);color:' + ((item.pnlPct || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + _itbNum(item.pnlPct, 1) + '%</td>' +
-      '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);font-weight:900;">' + _itbNum(item.score, 0) + '</td>' +
-      '<td style="padding:6px 4px;">' + _itbBadge(item.action || 'HOLD_CORE', rowTone) + '</td>' +
+      '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);font-weight:900;">' + _itbObservedCount(item) + '</td>' +
+      '<td style="padding:6px 4px;">' + _itbBadge(_itbActionLabel(item.action), rowTone) + '</td>' +
     '</tr>';
   }).join('');
   el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">' +
-    '<div>' + _itbBadge(result.state || 'PORTFOLIO_HEAT_NORMAL', tone) + '<span style="margin-left:8px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(result.heatScore, 0) + '/100</span></div>' +
-    _itbBadge(result.action || 'HOLD_CORE', _itbActionTone(result.action)) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">통계 리스크(VaR/Sharpe/MDD)에 10EMA/21EMA/50SMA 이탈, ATR 과열, 보유 비중을 결합한 포지션 단위 기술 리스크입니다.</div>' +
-    '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);text-align:left;"><th style="padding:4px;">Ticker</th><th style="padding:4px;text-align:right;">Weight</th><th style="padding:4px;text-align:right;">P/L</th><th style="padding:4px;text-align:right;">Risk</th><th style="padding:4px;">Action</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    '<div>' + _itbBadge(_itbActionLabel(result.action), tone) + '<span style="margin-left:8px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbPortfolioObserved(result) + '</span></div>' +
+    '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">10EMA/21EMA/50SMA 이탈, ATR 과열, 보유 비중을 포지션별로 나열한 관측입니다. 합산 점수는 예측 검증이 없어 표시하지 않습니다.</div>' +
+    '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);text-align:left;"><th style="padding:4px;">종목</th><th style="padding:4px;text-align:right;">비중</th><th style="padding:4px;text-align:right;">손익</th><th style="padding:4px;text-align:right;">확인 조건</th><th style="padding:4px;">부담 수준</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
 
 function _itbRenderMiniChart(slotId, label, ohlcv) {
@@ -1541,13 +1608,13 @@ function renderTechnicalRegimeRow(result) {
   var regimeTone = s.above50SMA === false ? 'risk' : sp.score >= 38 ? 'warn' : 'bull';
   el.innerHTML =
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Action</div><div style="margin-top:4px;">' + _itbBadge(sp.action || 'HOLD_CORE', _itbActionTone(sp.action)) + '</div></div>' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">판정</div><div style="margin-top:4px;">' + _itbBadge(_itbActionLabel(sp.action), _itbActionTone(sp.action)) + '</div></div>' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Sell Pressure</div><div style="font-size:18px;font-weight:900;color:var(--text-primary);font-family:var(--font-mono);">' + _itbNum(sp.score, 0) + '/100</div></div>' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">매도 압력 관측</div><div style="font-size:14px;font-weight:900;color:var(--text-primary);font-family:var(--font-mono);">' + _itbObservedCount(sp) + '</div></div>' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Trend Regime</div><div style="margin-top:4px;">' + _itbBadge((s.above50SMA === false ? 'Below 50SMA' : 'Above key MAs'), regimeTone) + '</div></div>' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">추세 위치</div><div style="margin-top:4px;">' + _itbBadge((s.above50SMA === false ? '50SMA 아래' : '주요 이평 위'), regimeTone) + '</div></div>' +
     '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Semi Heat</div><div style="margin-top:4px;">' + _itbBadge(heat.state || 'DATA', heat.state === 'SEMI_MANIA' ? 'risk' : heat.state === 'SEMI_HEATED' ? 'warn' : 'bull') + '</div></div>';
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">반도체 과열도</div><div style="margin-top:4px;">' + _itbBadge(_itbHeatLabel(heat.state), heat.state === 'SEMI_MANIA' ? 'risk' : heat.state === 'SEMI_HEATED' ? 'warn' : 'bull') + '</div></div>';
 }
 
 function renderKeyLevelsPanel(snapshot) {
@@ -1572,17 +1639,17 @@ function renderSellPressurePanel(sellPressure) {
   if (!el) return;
   sellPressure = sellPressure || {};
   var tone = _itbActionTone(sellPressure.action);
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Sell Pressure</div>' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;"><span style="font-size:22px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(sellPressure.score, 0) + '</span>' + _itbBadge(sellPressure.action || 'HOLD_CORE', tone) + '</div>' +
-    '<div style="display:flex;gap:4px;flex-wrap:wrap;">' + (sellPressure.flags || []).slice(0, 6).map(function(f) { return _itbBadge(f.replace(/_/g, ' '), f.indexOf('DAMAGED') >= 0 || f.indexOf('CLIMAX') >= 0 ? 'risk' : 'warn'); }).join('') + '</div>';
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">매도 압력 관측</div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;"><span style="font-size:14px;font-weight:900;font-family:var(--font-mono);">' + _itbObservedCount(sellPressure) + '</span>' + _itbBadge(_itbActionLabel(sellPressure.action), tone) + '</div>' +
+    '<div style="display:flex;gap:4px;flex-wrap:wrap;">' + (sellPressure.flags || []).slice(0, 6).map(function(f) { return _itbBadge(_itbFlagLabel(f), f.indexOf('DAMAGED') >= 0 || f.indexOf('CLIMAX') >= 0 ? 'risk' : 'warn'); }).join('') + '</div>';
 }
 
 function renderExitPlanPanel(plan) {
   var el = document.getElementById('tech-brief-exit-plan');
   if (!el) return;
   plan = plan || {};
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Exit Plan</div>' +
-    '<div style="font-size:11px;color:var(--text-primary);line-height:1.5;font-weight:700;margin-bottom:7px;">' + escHtml(plan.primary || 'No plan available') + '</div>' +
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">추세선 기준 (참고)</div>' +
+    '<div style="font-size:11px;color:var(--text-primary);line-height:1.5;font-weight:700;margin-bottom:7px;">' + escHtml(plan.primary || '판단 보류') + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">' + escHtml(plan.tradingLot || '') + '<br>' + escHtml(plan.swingLot || '') + '<br>' + escHtml(plan.thesisLine || '') + '</div>';
 }
 
@@ -1590,7 +1657,7 @@ function renderBeginnerExplanation(result) {
   var el = document.getElementById('tech-brief-beginner');
   if (!el || !result) return;
   var s = result.snapshot || {}, sp = result.sellPressure || {}, plan = result.exitPlan || {};
-  el.innerHTML = '<b style="color:var(--data-cyan);">Beginner translation:</b> RSI 70+ 자체는 매도 버튼이 아닙니다. 강한 장에서는 과열이 오래 유지될 수 있습니다. 지금 엔진은 50일선 대비 ATR 이격(' + _itbNum(s.dist50Atr, 1) + 'x), RVOL(' + _itbNum(s.rvol20, 1) + 'x), 종가 위치(' + _itbNum((s.closePosition || 0) * 100, 0) + '%), 볼린저 재진입, 10/21/50선 이탈을 함께 보고 <b>' + escHtml(sp.action || 'HOLD_CORE') + '</b>로 결론냅니다. ' + escHtml(plan.beginner || '');
+  el.innerHTML = '<b style="color:var(--data-cyan);">쉬운 설명:</b> RSI 70+ 자체는 매도 버튼이 아닙니다. 강한 장에서는 과열이 오래 유지될 수 있습니다. 지금 엔진은 50일선 대비 ATR 이격(' + _itbNum(s.dist50Atr, 1) + 'x), RVOL(' + _itbNum(s.rvol20, 1) + 'x), 종가 위치(' + _itbNum((s.closePosition || 0) * 100, 0) + '%), 볼린저 재진입, 10/21/50선 이탈을 함께 보며, 현재 부담 수준은 <b>' + escHtml(_itbActionLabel(sp.action)) + '</b>으로 관측됩니다. ' + escHtml(plan.beginner || '');
 }
 
 function _renderSemiHeatPanel(heat) {
@@ -1600,10 +1667,10 @@ function _renderSemiHeatPanel(heat) {
   var tone = heat.state === 'SEMI_MANIA' ? 'risk' : heat.state === 'SEMI_HEATED' ? 'warn' : 'bull';
   var ai = heat && heat.aiInfraHeat ? heat.aiInfraHeat : null;
   var aiTone = ai && ai.state === 'AI_INFRA_MANIA' ? 'risk' : ai && ai.state === 'AI_INFRA_HEATED' ? 'warn' : 'bull';
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Semiconductor Heat</div>' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">' + _itbBadge(heat.state || 'DATA', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(heat.score, 0) + '</span></div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">RS vs SPY/QQQ: ' + _itbNum(heat.relativeStrengthPct, 2) + '%<br>Max 50SMA extension: ' + _itbNum(heat.maxDist50Atr, 1) + ' ATR<br>Max RSI: ' + _itbNum(heat.maxRsi, 1) + '</div>' +
-    (ai ? '<div style="margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;"><span style="font-size:10px;font-weight:900;color:var(--text-secondary);">AI Infra Heat</span>' + _itbBadge(ai.state || 'DATA', aiTone) + '</div><div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:5px;">Basket: ' + _itbNum(ai.score, 0) + '/100 · overheated ' + _itbNum(ai.overheatCount, 0) + '/' + _itbNum(ai.count, 0) + '</div>' : '');
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">반도체 과열도</div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">' + _itbBadge(_itbHeatLabel(heat.state), tone) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">SPY/QQQ 대비 상대강도: ' + _itbNum(heat.relativeStrengthPct, 2) + '%p<br>50SMA 최대 이격: ' + _itbNum(heat.maxDist50Atr, 1) + ' ATR<br>최대 RSI: ' + _itbNum(heat.maxRsi, 1) + '</div>' +
+    (ai ? '<div style="margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;"><span style="font-size:10px;font-weight:900;color:var(--text-secondary);">AI 인프라 과열도</span>' + _itbBadge(_itbHeatLabel(ai.state), aiTone) + '</div><div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:5px;">바스켓 중 과열 ' + _itbNum(ai.overheatCount, 0) + '/' + _itbNum(ai.count, 0) + '개</div>' : '');
 }
 
 function _renderFlagList(flags, riskWords) {
@@ -1612,7 +1679,7 @@ function _renderFlagList(flags, riskWords) {
   return '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;">' +
     flags.slice(0, 8).map(function(f) {
       var tone = riskWords.test(String(f)) ? 'risk' : /WARNING|DECAY|EXTENDED|WATCH|PIN/i.test(String(f)) ? 'warn' : 'bull';
-      return _itbBadge(String(f).replace(/_/g, ' '), tone);
+      return _itbBadge(_itbFlagLabel(f), tone);
     }).join('') + '</div>';
 }
 
@@ -1624,11 +1691,11 @@ function renderLockoutDashboard(result) {
   var opex = result.opexGammaRisk || {};
   var breadth = result.breadthRotation || {};
   var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;">' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout Action</div><div style="margin-top:5px;">' + _itbBadge(lock.action || 'HOLD_CORE', _itbActionTone(lock.action)) + '</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Regime</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(lock.regime || 'LOCKOUT_CONTINUATION') + '</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Risk</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(lock.score, 0) + '/100</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Candle</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(candle.type || 'NEUTRAL') + '</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout 판정</div><div style="margin-top:5px;">' + _itbBadge(_itbActionLabel(lock.action), _itbActionTone(lock.action)) + '</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">국면</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(_itbStateLabel(lock.regime || 'LOCKOUT_CONTINUATION')) + '</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">확인된 위험 조건</div><div style="font-size:14px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbObservedCount(lock) + '</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">캔들</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(candle.type || 'NEUTRAL') + '</div></div>' +
   '</div>' +
   '<div style="font-size:10px;color:var(--text-muted);line-height:1.55;margin-top:8px;">Lockout rallies do not end because RSI is hot. Risk rises when demand weakens, breakouts fail, OPEX gamma support decays, or price loses the 10/21/50-day lines.</div>' +
   _renderFlagList([].concat(lock.flags || [], ext.flags || [], breadth.flags || []).slice(0, 10));
@@ -1670,25 +1737,25 @@ function renderBlowoffTopPanel(blowoffTop) {
     '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
       '<div><div style="font-size:10px;font-weight:900;color:var(--data-cyan);letter-spacing:.18em;">BLOW-OFF TOP CHECKLIST</div>' +
       '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">이격 과열, CPI/유가, OPEX, 이벤트 소진을 한 화면에서 확인합니다.</div></div>' +
-      '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(blowoffTop.state || 'DATA', tone) + _itbBadge(blowoffTop.action || 'HOLD_CORE', tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(blowoffTop.score, 0) + '/100</span></div>' +
+      '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(_itbStateLabel(blowoffTop.state || 'DATA_INSUFFICIENT'), tone) + _itbBadge(_itbActionLabel(blowoffTop.action), tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbObservedCount(blowoffTop) + '</span></div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">' +
-      '<div style="background:#0e1622;border:1px solid rgba(255,91,80,0.28);border-radius:3px;padding:10px;border-left:3px solid #ff5b50;">' +
+      '<div style="background:var(--surface-1);border:1px solid rgba(255,91,80,0.28);border-radius:3px;padding:10px;border-left:3px solid #ff5b50;">' +
         '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:5px;">현재 충족 조건 (위험 신호)</div>' +
         checks.map(function(c) { return renderLine(c, false); }).join('') +
       '</div>' +
-      '<div style="background:#0e1622;border:1px solid rgba(92,255,149,0.24);border-radius:3px;padding:10px;border-left:3px solid #5cff95;">' +
+      '<div style="background:var(--surface-1);border:1px solid rgba(92,255,149,0.24);border-radius:3px;padding:10px;border-left:3px solid #5cff95;">' +
         '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:5px;">아직 미충족 조건 (상승 유지 근거)</div>' +
         supports.map(function(c) { return renderLine(c, true); }).join('') +
       '</div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px;">' +
-      '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:3px;padding:10px;">' +
+      '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;">' +
         '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">Event Runway</div>' + (timeline || '<div style="font-size:11px;color:var(--text-muted);">No event context</div>') +
       '</div>' +
-      '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:3px;padding:10px;">' +
-        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">Beginner Translation</div>' +
-        '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;">상승장이 강해도 가격이 20일선·50일선에서 너무 멀고, 거래량 급증 뒤 종가가 약하거나 이벤트가 끝나면 추격매수보다 스탑 상향과 일부 익절이 먼저입니다. 반대로 10/21EMA와 수급 확산이 살아 있으면 전량 매도 신호로 보지 않습니다.</div>' +
+      '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;">' +
+        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">쉬운 설명</div>' +
+        '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;">상승장이 강해도 가격이 20일선·50일선에서 너무 멀고, 거래량 급증 뒤 종가가 약하거나 이벤트가 끝나면 이런 조건에서는 추격 진입의 위험이 커지는 구간으로 봅니다(손절선 상향·일부 이익 실현은 개인이 정하는 점검 항목입니다). 반대로 10/21EMA와 수급 확산이 살아 있으면 전량 매도 신호로 보지 않습니다.</div>' +
       '</div>' +
     '</div>';
 }
@@ -1698,7 +1765,7 @@ function _renderMiniPanel(elId, title, badge, tone, score, metricsHtml, flags) {
   if (!el) return;
   el.innerHTML =
     '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">' + title + '</div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(badge, tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(score, 0) + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(badge, tone) + '<span style="font-size:14px;font-weight:900;font-family:var(--font-mono);">' + _itbObservedCount({ score: score, flags: flags }) + '</span></div>' +
     '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">' + metricsHtml + '</div>' +
     _renderFlagList(flags);
 }
@@ -1706,7 +1773,7 @@ function _renderMiniPanel(elId, title, badge, tone, score, metricsHtml, flags) {
 function renderExtensionHeatPanel(extensionHeat) {
   extensionHeat = extensionHeat || {};
   var tone = extensionHeat.score >= 50 ? 'risk' : extensionHeat.score >= 25 ? 'warn' : 'bull';
-  _renderMiniPanel('tech-lockout-extension', 'Extension Heat', extensionHeat.state || 'NORMAL', tone, extensionHeat.score,
+  _renderMiniPanel('tech-lockout-extension', '이격 과열', _itbStateLabel(extensionHeat.state || 'NORMAL'), extensionHeat.state === 'DATA_INSUFFICIENT' ? 'info' : tone, extensionHeat.score,
     '20MA ATR: ' + _itbNum(extensionHeat.dist20Atr, 1) + 'x<br>20MA ADR: ' + _itbNum(extensionHeat.dist20Adr, 1) + 'x<br>50SMA ATR: ' + _itbNum(extensionHeat.dist50Atr, 1) + 'x',
     extensionHeat.flags);
 }
@@ -1723,7 +1790,7 @@ function renderOpexGammaPanel(opexGamma) {
 function renderBreadthRotationPanel(breadthRotation) {
   breadthRotation = breadthRotation || {};
   var tone = breadthRotation.regime === 'FAILED_ROTATION' ? 'risk' : breadthRotation.regime === 'BREADTH_BROADENING' ? 'bull' : 'warn';
-  _renderMiniPanel('tech-lockout-breadth', 'Breadth / Rotation', breadthRotation.regime || 'NARROW_LEADERSHIP', tone, breadthRotation.score,
+  _renderMiniPanel('tech-lockout-breadth', '시장 폭 · 로테이션', _itbStateLabel(breadthRotation.regime || 'NARROW_LEADERSHIP'), tone, breadthRotation.score,
     'IWM vs QQQ: ' + _itbNum(breadthRotation.iwmVsQqqRS_5d, 2) + '%<br>RSP vs SPY: ' + _itbNum(breadthRotation.rspVsSpyRS_5d, 2) + '%',
     breadthRotation.flags);
 }
@@ -1732,7 +1799,7 @@ function renderCandleRiskBadge(candleRisk) {
   candleRisk = candleRisk || {};
   var m = candleRisk.metrics || {};
   var tone = candleRisk.score >= 55 ? 'risk' : candleRisk.score >= 25 ? 'warn' : 'bull';
-  _renderMiniPanel('tech-lockout-candle', 'Terminal Candle', candleRisk.type || 'NEUTRAL', tone, candleRisk.score,
+  _renderMiniPanel('tech-lockout-candle', '고점 캔들', _itbStateLabel(candleRisk.type || 'NEUTRAL'), candleRisk.type === 'DATA_INSUFFICIENT' ? 'info' : tone, candleRisk.score,
     'Close position: ' + _itbNum((m.closePosition || 0) * 100, 0) + '%<br>Upper wick: ' + _itbNum((m.upperWickPct || 0) * 100, 0) + '%<br>Gap: ' + _itbNum(m.gapUpPct, 2) + '%',
     candleRisk.flags);
 }
@@ -1952,7 +2019,7 @@ window._aioDiagram = (function () {
     out += _o(cx, cy, r, _alphaRgb(C.bgSolid, 0.6), col, 2.5);
     out += _t(cx, cy - 3, _n(total), col, 26, 900, 'middle');
     out += _t(cx, cy + 14, '/ 100', C.muted, 10, 400, 'middle');
-    var band = total >= 75 ? '환경 우호' : total >= 60 ? '환경 양호' : total >= 45 ? '중립' : total >= 30 ? '주의' : '위험';
+    var band = total >= 75 ? '스트레스 적음' : total >= 60 ? '스트레스 일부' : total >= 45 ? '중립' : total >= 30 ? '주의' : '위험';
     out += _r(cx - 32, cy + 22, 64, 15, _alphaRgb(col, 0.14), 4, col, 1);
     out += _t(cx, cy + 33, band, col, 10, 700, 'middle');
     var y0 = 34;
@@ -2368,6 +2435,8 @@ window._aioDiagram = (function () {
     getSvg: function (type, data) {
       var fn = _fns[type];
       if (!fn) return '';
+      // P1551: the same unavailable guard as render() — a diagram with missing inputs draws defaults (score 0/100, MID cycle, calm VIX).
+      if (data && data.available === false) return '';
       try { return fn(data || {}); } catch (e) { return ''; }
     },
     types: function () { return Object.keys(_fns); },
@@ -2674,7 +2743,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     return null;
   }
 
-  window._aioChatAutoVis = function (question, responseText, tickers) {
+  var _autoVisRaw = function (question, responseText, tickers) {
     try {
       var q = ((question    || '') + ' ' + (responseText || '')).toLowerCase();
       // 우선순위 순으로 가장 명확한 매치만 반환 (과잉 삽입 방지)
@@ -2715,6 +2784,10 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
       }
     } catch (e) {}
     return null;
+  };
+  window._aioChatAutoVis = function (question, responseText, tickers) {
+    var hit = _autoVisRaw(question, responseText, tickers);
+    return hit && hit.data && hit.data.available === false ? null : hit;
   };
 })();
 
@@ -4059,7 +4132,7 @@ var AIO_PAGE_FUNDAMENTALS = {
       `상단 종합 '시그널'과 티커 페이지의 '시장 건강도'는 다른 지표입니다(라벨 참조).`
     ],
     action: [
-      `점수가 낮아지는 구간에서는 신규 진입 축소·현금 비중 확대가 우선이고, 보유 종목 손절 기준을 좁힙니다.`,
+      `점수가 낮아지는 구간에서는 신규 진입 여부, 현금 비중, 보유 종목 손절 기준을 다시 점검하는 항목으로 삼을 수 있습니다.`,
       `점수 급등 첫날 추격하기보다 점수가 2~3일 유지되는지 확인하는 관찰 절차를 둘 수 있습니다. 다만 이 절차가 승률을 높인다는 근거는 검증되지 않았으므로 성과 보장이나 매매 승인으로 해석하지 마세요.`
     ],
     terms: `ZBT (브레드쓰 스러스트)`
@@ -4072,7 +4145,7 @@ var AIO_PAGE_FUNDAMENTALS = {
     ],
     why: [
       `지수 신고가 + 폭 축소(참여 종목 감소)는 상승의 기반이 좁아진다는 경고입니다 — 역사적으로 고점 부근에서 반복된 다이버전스 패턴.`,
-      `반대로 폭의 급팽창(짧은 기간에 상승 종목 비율 급증)은 새 상승 사이클의 개시 신호로 신뢰도가 높습니다.`
+      `반대로 폭의 급팽창(짧은 기간에 상승 종목 비율 급증)은 새 상승 사이클의 시작 가능성을 보는 신호로 쓰입니다(신뢰도는 표본과 시장 환경에 따라 다릅니다).`
     ],
     how: [
       `'SMA 비율 현황'의 5SMA(초단기 과열/침체)·20SMA(스윙 추세)·50SMA(중기 체력) 게이지 3종을 함께 보세요 — 5SMA만 꺾이면 눌림, 50SMA까지 꺾이면 중기 구조 훼손입니다.`,
@@ -4080,8 +4153,8 @@ var AIO_PAGE_FUNDAMENTALS = {
       `'상승/하락 비율 추이(A-D Ratio)'와 '52주 신고가/신저가 비율'은 같은 질문(참여의 폭)을 다른 데이터로 교차 검증하는 카드입니다.`
     ],
     action: [
-      `지수만 보고 '시장이 좋다'고 판단하지 않기 — 폭이 따라오지 않는 랠리에서는 신규 매수 종목 수를 줄입니다.`,
-      `폭 극단 침체(대부분 종목이 50SMA 아래) 후 첫 폭 급팽창은 놓치기 아까운 구간 — 분할 진입을 시작하는 트리거로 씁니다.`
+      `지수만 보고 '시장이 좋다'고 판단하지 않기 — 폭이 따라오지 않는 랠리는 지수 상승의 근거가 좁다는 뜻이라 신규 매수 근거를 다시 확인할 항목입니다.`,
+      `폭 극단 침체(대부분 종목이 50SMA 아래) 후 첫 폭 급팽창은 폭이 다시 넓어지는 첫 신호로 관찰됩니다. 진입 여부는 다른 조건과 함께 판단합니다.`
     ],
     terms: `ZBT (브레드쓰 스러스트) · 52주 신고가/신저가`
   },
@@ -4102,8 +4175,8 @@ var AIO_PAGE_FUNDAMENTALS = {
       `'뉴스 감성 추이'는 헤드라인 톤의 흐름입니다 — 가격과 반대로 움직이는 구간(악재 속 상승)이 오히려 강세 신호일 수 있습니다.`
     ],
     action: [
-      `극단 공포 구간은 역발상 프레임워크에서 일괄 진입이 아닌 분할 접근의 논의 지점으로 서술됩니다 — 공포는 더 깊어질 수 있습니다.`,
-      `극단 탐욕에서 숏이 아니라 이익 실현·신규 진입 절제로 대응 — 과열은 생각보다 오래갑니다.`
+      `극단 공포 구간에서도 공포는 더 깊어질 수 있습니다. 이 구간 자체는 매수 신호가 아닙니다.`,
+      `극단 탐욕 구간의 과열은 생각보다 오래갈 수 있습니다. 이 구간 자체는 매도 신호가 아닙니다.`
     ],
     terms: `VIX · Fear & Greed`
   },
@@ -4280,7 +4353,7 @@ var AIO_PAGE_FUNDAMENTALS = {
     ],
     how: [
       `티커 검색 후 진입 적합성 체크를 위에서부터: 시장 건강도 → 섹터 기류 → 종목 자체(추세/거래량/이벤트) 순서로 확인하세요.`,
-      `'진입 품질 계산기'에 현재가·20EMA·RSI를 넣으면 진입 등급과 손절 후보가 나옵니다 — 탑다운 통과 후 타이밍을 재는 마지막 단계입니다.`,
+      `종목 화면의 '셋업 상태' 카드는 20일선 이격·RSI·거래량 사실을 나열합니다 — 탑다운 점검 뒤 가격 위치를 확인하는 단계입니다.`,
       `'캔들 패턴 갤러리'는 개별 캔들 신호의 사전입니다 — 패턴 단독이 아니라 위치(지지/저항 근처인가)와 함께 읽으세요.`
     ],
     action: [
@@ -5031,68 +5104,36 @@ function _classifyDip(o, h, l, c, v) {
 }
 
 // Entry Quality Assessment
-function _assessEntryQuality(o, h, l, c, v) {
-  if (c.length < 50) return { grade: 'N/A', score: 0 };
-
-  var trend = _detectTrendPosition(o, h, l, c, v);
-  var price = c[c.length - 1];
-  var ema20 = trend.ema20;
-  var sma50 = trend.sma50;
-  var rsi = _calcRSILast(c, 14) ?? 50; // null→50 폴백
-
+// P1538 (owner decision: stock charts show evidence plus a setup state, never A~D): the retired entry grade summed hand-set points
+// with no calibration. The card now names where price sits against the 20-day line and RSI, and lists the facts behind it.
+// A missing RSI is left missing (it used to default to 50 and count as "normal").
+function _describeSetupState(trend, rsi) {
   var gap20 = Math.abs(trend.gapFrom20);
-  var score = 0;
-  var reasoning = [];
+  if (trend.gapFrom20 > 8) return '20일선 위로 이격 큼';
+  if (rsi != null && rsi > 70) return 'RSI 70 초과(과열권)';
+  if (trend.alignment > 80 && gap20 < 3) return '정배열 · 20일선 근접';
+  if (trend.alignment > 80) return '정배열 · 20일선과 거리';
+  if (trend.alignment > 50) return '정렬도 약함';
+  return '정렬 불명확';
+}
 
-  // Alignment score
-  if (trend.alignment > 80) {
-    score += 4;
-    reasoning.push('정배열');
-  }
-
-  // Distance from 20EMA
-  if (gap20 < 1.5) {
-    score += 3;
-    reasoning.push('20EMA 터치');
-  } else if (gap20 < 3) {
-    score += 2;
-    reasoning.push('20EMA 근처');
-  }
-
-  // Volume
+function _assessEntryQuality(o, h, l, c, v) {
+  if (c.length < 50) return { state: '데이터 부족', reasoning: '' };
+  var trend = _detectTrendPosition(o, h, l, c, v);
+  var rsi = _calcRSILast(c, 14);
+  var gap20 = Math.abs(trend.gapFrom20);
+  var facts = [];
+  if (trend.alignment > 80) facts.push('정배열');
+  if (gap20 < 1.5) facts.push('20EMA 터치');
+  else if (gap20 < 3) facts.push('20EMA 근처');
   var avgVol = 0;
   for (var i = 0; i < Math.min(10, v.length); i++) avgVol += v[v.length - 1 - i];
   avgVol = avgVol / Math.min(10, v.length);
-  if (v[v.length - 1] < avgVol * 0.8) {
-    score += 2;
-    reasoning.push('거래량 위축');
-  }
-
-  // RSI
-  if (rsi > 30 && rsi < 70) {
-    score += 1;
-    reasoning.push('RSI 정상');
-  } else if (rsi > 70) {
-    score -= 2;
-    reasoning.push('과매수');
-  }
-
-  // Gap from entry
-  if (trend.gapFrom20 > 8) {
-    score -= 3;
-    reasoning.push('조정 대기');
-  }
-
-  score = Math.max(0, Math.min(10, score));
-
-  var grade;
-  if (score >= 8) grade = 'A+';
-  else if (score >= 6) grade = 'A';
-  else if (score >= 5) grade = 'B';
-  else if (score >= 3) grade = 'C';
-  else grade = 'D';
-
-  return { grade: grade, score: score, reasoning: reasoning.join(' / ') };
+  if (v[v.length - 1] < avgVol * 0.8) facts.push('거래량 위축');
+  if (rsi != null && rsi > 70) facts.push('과매수');
+  else if (rsi != null && rsi > 30) facts.push('RSI 정상');
+  if (trend.gapFrom20 > 8) facts.push('20EMA 대비 이격 큼');
+  return { state: _describeSetupState(trend, rsi), reasoning: facts.join(' / ') };
 }
 
 // Cross Signals Detection
@@ -5314,6 +5355,8 @@ function _calcVcpQuality(h, l, c, v) {
   return { label: label, score: score, model: 'range-contraction-heuristic', ranges: { r60: r60, r30: r30, r15: r15 }, volDry: volDry, contracting: contracting, pivot: pivot, breakout: breakout };
 }
 
+// P1538 (owner decision: no composite grades or scores without predictive evidence): the weighted 0-100 composite and its
+// the four-tier verdict labels it produced are retired. The engine returns the facts it already computed.
 function _buildMinerviniTechnicalEngine(o, h, l, c, v) {
   var ma = _calcMinerviniMAStack(c);
   var stage = _detectStage(o, h, l, c, v);
@@ -5323,25 +5366,12 @@ function _buildMinerviniTechnicalEngine(o, h, l, c, v) {
   var fib = _calcFibonacciConfluence(h, l, c, volumeZones);
   var vcp = _calcVcpQuality(h, l, c, v);
   var current = c[c.length - 1];
-  var score = 0;
-  score += Math.round(ma.score * 0.32);
-  score += stage.stage === 2 ? 18 : stage.stage === 1 ? 8 : stage.stage === 3 ? 4 : 0;
-  score += Math.round((entry.score || 0) * 1.2);
-  score += Math.round((vcp.score || 0) * 0.18);
-  if (volumeZones) {
-    if (!volumeZones.nearestResistance || Math.abs(volumeZones.nearestResistance.distancePct) > 5) score += 10;
-    if (volumeZones.nearestSupport && Math.abs(volumeZones.nearestSupport.distancePct) <= 8) score += 7;
-    if (volumeZones.inside && volumeZones.inside.length) score -= 5;
-  }
-  if (fib && fib.confluence) score += 4;
-  score = Math.round(Math.max(0, Math.min(100, score)));
   var riskFlags = [];
   (ma.defects || []).slice(0, 3).forEach(function(x) { riskFlags.push(x); });
   if (volumeZones && volumeZones.nearestResistance && Math.abs(volumeZones.nearestResistance.distancePct) <= 3) riskFlags.push('상단 수평 매물대 근접');
   if (vcp && !vcp.contracting) riskFlags.push('변동성 수렴 미흡');
   if (stage.stage >= 3) riskFlags.push('분배/하락 스테이지');
-  var verdict = score >= 78 ? '기관급 후보' : score >= 62 ? '선별 관찰' : score >= 45 ? '조건부 관망' : '진입 보류';
-  return { score: score, verdict: verdict, ma: ma, stage: stage, entry: entry, crosses: crosses, volumeZones: volumeZones, fib: fib, vcp: vcp, current: current, riskFlags: riskFlags };
+  return { ma: ma, stage: stage, entry: entry, crosses: crosses, volumeZones: volumeZones, fib: fib, vcp: vcp, current: current, riskFlags: riskFlags };
 }
 
 
@@ -5435,22 +5465,20 @@ async function analyzeTickerDeep(ticker) {
     var _mScore = (typeof computeTradingScore === 'function') ? computeTradingScore('swing') : null;
     marketScore = _mScore && typeof _mScore.total === 'number' && isFinite(_mScore.total) ? _mScore.total : null;
     marketBand = marketScore == null ? '시장 점수 미확인' :
-      marketScore >= 75 ? '환경 우호' :
-      marketScore >= 60 ? '환경 양호' :
+      marketScore >= 75 ? '스트레스 신호 적음' :
+      marketScore >= 60 ? '스트레스 신호 일부' :
       marketScore >= 45 ? '중립' :
       marketScore >= 30 ? '주의' : '위험';
   } catch(_) {}
-  // 시장 환경 점수는 설명용 필터이며 예측/매수 허가가 아니다. 미확인은 허용으로 승격하지 않는다.
-  var marketAllowsEntry = marketScore != null && marketScore >= 60;
+  // 시장 환경 점수는 설명용 참고값이며 예측/매수 허가가 아니다. 미확인은 어떤 상태로도 승격하지 않는다.
   var marketUnavailable = marketScore == null;
-  var marketCaution = marketScore != null && marketScore < 60;
 
   // Color scheme
   var stageColors = ['#999', 'var(--data-cyan)', 'var(--data-green)', 'var(--data-amber)', 'var(--data-red)'];
   var stageColor = stageColors[stageData.stage] || '#999';
-  var entryColor = entryData.grade === 'A+' ? 'var(--data-green)' : entryData.grade === 'A' ? 'var(--data-green)' : entryData.grade === 'B' ? 'var(--data-amber)' : 'var(--data-red)';
+  var entryColor = 'var(--data-cyan)'; // P1538: a setup state, not a grade
   var trendColor = trendData.alignment > 80 ? 'var(--data-green)' : 'var(--data-amber)';
-  var instColor = instEngine.score >= 78 ? 'var(--data-green)' : instEngine.score >= 62 ? 'var(--data-cyan)' : instEngine.score >= 45 ? 'var(--data-amber)' : 'var(--data-red)';
+  var instColor = instEngine.riskFlags.length ? 'var(--data-amber)' : 'var(--data-cyan)';
 
   // Build HTML
   var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">' +
@@ -5473,11 +5501,11 @@ async function analyzeTickerDeep(ticker) {
       '<div style="font-size:18px;font-weight:900;color:var(--data-purple);font-family:var(--font-mono);">' + rsi.toFixed(1) + '</div>' +
       '<div style="font-size:11px;color:var(--data-purple);margin-top:3px;">' + (rsi > 70 ? '과매수' : rsi < 30 ? '과매도' : '중립') + '</div>' +
     '</div>' +
-    // Entry Grade
+    // Setup state (P1538)
     '<div style="background:' + entryColor + '12;border:1px solid ' + entryColor + '30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">진입 등급</div>' +
-      '<div style="font-size:18px;font-weight:900;color:' + entryColor + ';font-family:var(--font-mono);">' + entryData.grade + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;color:' + entryColor + ';">' + entryData.reasoning + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">셋업 상태</div>' +
+      '<div style="font-size:14px;font-weight:900;color:' + entryColor + ';">' + escHtml(entryData.state) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">' + escHtml(entryData.reasoning) + '</div>' +
     '</div>' +
   '</div>';
 
@@ -5485,8 +5513,8 @@ async function analyzeTickerDeep(ticker) {
   var maChain = instEngine.ma.periods.map(function(p) { return p + '일 ' + _fmtTechPrice(instEngine.ma.mas[p]); }).join(' · ');
   html += '<div style="background:' + instColor + '10;border:1px solid ' + instColor + '40;border-radius:3px;padding:12px;margin-bottom:8px;font-size:11px;border-left:3px solid ' + instColor + ';">' +
     '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:6px;">' +
-      '<div><div style="font-weight:900;color:var(--text-bright);">기관급 미너비니 체크</div><div style="color:var(--text-muted);margin-top:2px;">가격·이평선·거래량·수평 매물대를 우선, RSI/MACD는 보조로만 반영</div></div>' +
-      '<div style="font-family:var(--font-mono);font-size:16px;font-weight:900;color:' + instColor + ';">' + instEngine.score + '/100 · ' + instEngine.verdict + '</div>' +
+      '<div><div style="font-weight:900;color:var(--text-bright);">미너비니 조건 확인</div><div style="color:var(--text-muted);margin-top:2px;">가격·이평선·거래량·수평 매물대를 먼저 보고, RSI/MACD는 보조로만 봅니다</div></div>' +
+      '<div style="font-size:12px;font-weight:700;color:' + instColor + ';">' + (instEngine.riskFlags.length ? '체크 항목 ' + instEngine.riskFlags.length + '개' : '체크 항목 없음') + '</div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;">' +
       '<div style="background:rgba(33,29,22,0.04);border:1px solid var(--border-subtle);border-radius:3px;padding:7px;"><b style="color:var(--text-secondary);">단기 배열</b><br/><span style="color:' + (instEngine.ma.shortState.indexOf('정배열') >= 0 ? 'var(--data-green)' : instEngine.ma.shortState.indexOf('역배열') >= 0 ? 'var(--data-red)' : 'var(--data-amber)') + ';">' + instEngine.ma.shortState + '</span></div>' +
@@ -5528,7 +5556,7 @@ async function analyzeTickerDeep(ticker) {
   html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:8px;font-size:11px;">' +
     '<div style="font-weight:900;color:var(--text-bright);margin-bottom:4px;">변동성 수축 지표(단순 휴리스틱) · 피보나치 보조 확인</div>' +
     '<div style="color:var(--text-muted);line-height:1.6;">' +
-      '지표: <b style="color:' + (instEngine.vcp.score >= 75 ? 'var(--data-green)' : instEngine.vcp.score >= 55 ? 'var(--data-amber)' : 'var(--data-red)') + ';">' + instEngine.vcp.label + ' ' + instEngine.vcp.score + '/100</b>' +
+      '변동성 수축(단순 휴리스틱): <b>' + (instEngine.vcp.contracting ? '수축 진행' : '수축 미확인') + '</b>' + (instEngine.vcp.breakout ? ' · 20일 고점 돌파와 거래량 증가 동반' : '') +
       ' · 수축폭 60/30/15일: ' + instEngine.vcp.ranges.r60.toFixed(1) + '% / ' + instEngine.vcp.ranges.r30.toFixed(1) + '% / ' + instEngine.vcp.ranges.r15.toFixed(1) + '%' +
       ' · 거래량 위축: ' + (instEngine.vcp.volDry ? '예' : '아니오') + '<br/>' +
       '피보나치 근접 레벨: ' + fibText +
@@ -5539,7 +5567,7 @@ async function analyzeTickerDeep(ticker) {
   html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:8px;font-size:11px;">' +
     '<div style="font-weight:900;color:var(--text-bright);margin-bottom:4px;">조정 평가</div>' +
     '<div style="color:var(--text-muted);">' +
-      dipData.classification + ' (스코어: ' + dipData.score + '%)' +
+      dipData.classification +
     '</div>' +
   '</div>';
 
@@ -5626,42 +5654,43 @@ async function analyzeTickerDeep(ticker) {
     '</div>';
   }
 
-  // Overall assessment paragraph
-  var verdict = '';
-  if (instEngine.score >= 78 && instEngine.ma.fullBull && stageData.stage === 2) {
-    verdict = marketAllowsEntry
-      ? '미너비니 핵심 조건(상승 스테이지, 단기·장기 이평 정배열, 매물대 부담 제한)이 가장 깨끗한 구간입니다. 추격 매수보다 피벗·거래량·무효화 가격을 정해 분할 접근하세요.'
-      : marketUnavailable
-        ? '종목 셋업은 기관급 후보지만 시장 환경 입력이 미확인입니다. 점수가 복구되고 돌파 유지·거래량이 확인될 때까지 신규 비중 판단을 보류하세요.'
-        : '종목 셋업은 기관급 후보지만 시장 점수가 낮습니다. 시장 회복과 돌파 유지가 확인될 때까지 신규 비중은 낮게 유지하세요.';
-  } else if (instEngine.volumeZones && instEngine.volumeZones.nearestResistance && Math.abs(instEngine.volumeZones.nearestResistance.distancePct) <= 3) {
-    verdict = '상단 수평 매물대가 가까워 단기 추격 효율이 낮습니다. 매물벽 소화, 거래량 동반 돌파, 돌파 후 지지 전환을 확인하는 편이 낫습니다.';
-  } else if (stageData.stage === 2 && trendData.alignment > 80 && entryData.grade.charAt(0) === 'A') {
-    verdict = marketAllowsEntry
-      ? '상승 추세와 진입 품질이 모두 양호합니다. 다만 즉시 추격보다 분할 진입, ATR 손절, 이벤트 리스크 확인이 우선입니다.'
-      : marketUnavailable
-        ? '종목 셋업은 강하지만 시장 환경 입력이 미확인입니다. 점수가 복구될 때까지 신규 진입 판단을 보류하고 돌파 유지·거래량을 확인하세요.'
-        : '종목 셋업은 강하지만 현재 시장 점수가 낮아 신규 진입은 보류하고 돌파 유지·거래량·시장 회복을 함께 확인하세요.';
+  // Overall assessment paragraph (P1538): what the chart shows and which conditions to check. No verdict label, no points, no
+  // instruction; the owner decision is facts such as the pivot, the invalidation price and extension.
+  var nearResistance = instEngine.volumeZones && instEngine.volumeZones.nearestResistance && Math.abs(instEngine.volumeZones.nearestResistance.distancePct) <= 3;
+  var observation = '';
+  var checks = '';
+  if (instEngine.ma.fullBull && stageData.stage === 2) {
+    observation = '상승 스테이지이고 단기·장기 이동평균이 모두 정배열입니다.';
+    checks = '돌파가 유지되는지, 돌파 때 거래량이 늘었는지, 무효화 가격(최근 스윙 저점이나 주요 이평선)을 이탈하지 않는지가 확인 항목입니다.';
+  } else if (nearResistance) {
+    observation = '상단 수평 매물대가 3% 이내에 있습니다.';
+    checks = '매물대 소화, 거래량 동반 돌파, 돌파 후 지지 전환이 확인 항목입니다.';
+  } else if (stageData.stage === 2 && trendData.alignment > 80) {
+    observation = '상승 스테이지이고 이동평균이 정배열입니다.';
+    checks = 'ATR 기준 변동폭과 실적 등 이벤트 일정이 확인 항목입니다.';
   } else if (stageData.stage === 2 && trendData.alignment > 50) {
-    verdict = '상승 추세이나 정렬도가 약합니다. 조정 후 재진입 후보로 관리하고, 20/50일선 회복과 거래량을 확인하세요.';
+    observation = '상승 스테이지이나 이동평균 정렬도가 약합니다.';
+    checks = '20/50일선 회복과 거래량이 확인 항목입니다.';
   } else if (stageData.stage === 1) {
-    verdict = '바닥권 형성 중입니다. 상승 전환 신호가 확인되기 전까지는 관찰 후보로 두는 편이 안전합니다.';
+    observation = '바닥권을 만드는 단계입니다.';
+    checks = '이평선 회복과 거래량 같은 전환 신호가 확인 항목입니다.';
   } else if (stageData.stage === 3 || stageData.stage === 4) {
-    verdict = '약세 또는 분배 가능성이 큽니다. 신규 매수는 보류하고 보유분은 무효화 가격과 손절 조건을 우선 점검하세요.';
+    observation = '약세 또는 분배 가능성이 큰 구조입니다.';
+    checks = '무효화 가격과 주요 이평선 이탈 여부가 확인 항목입니다.';
   } else {
-    verdict = '전환점. 추가 신호 확인 필요.';
+    observation = '전환 구간입니다.';
+    checks = '추가 신호가 확인 항목입니다.';
   }
+  var marketNote = marketUnavailable ? '시장 환경 참고 점수는 아직 확인되지 않았습니다.' : '시장 환경 참고: ' + marketBand + ' (' + marketScore + '/100, 직전 미국장 종가 기준).';
 
   html += '<div style="background:var(--surface-4);border:1px solid var(--border);border-radius:3px;padding:12px;margin-top:12px;font-size:11px;line-height:1.6;border-left:3px solid ' + stageColor + ';">' +
-    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">종합 판정</div>' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">현재 상태와 확인 항목</div>' +
     '<div style="color:var(--text-muted);">' +
       '<b>' + ticker + '</b>는 <b style="color:' + stageColor + ';">' + stageData.label + '</b> 중. ' +
-      '<b style="color:' + trendColor + ';">' + trendData.position + '</b> 위치에서 ' +
-      '<b style="color:' + instColor + ';">' + instEngine.verdict + ' ' + instEngine.score + '/100</b>, ' +
-      '<b style="color:' + entryColor + ';">' + entryData.grade + '등급</b> 진입 품질. ' +
-      verdict +
+      '<b style="color:' + trendColor + ';">' + trendData.position + '</b> 위치이며 셋업 상태는 <b style="color:' + entryColor + ';">' + escHtml(entryData.state) + '</b>입니다. ' +
+      observation + ' ' + checks +
       (instEngine.riskFlags.length ? ' <b style="color:var(--data-amber);">체크: ' + instEngine.riskFlags.slice(0, 3).join(' · ') + '.</b>' : '') +
-      (marketCaution ? ' <b style="color:var(--data-amber);">시장 점수 ' + marketScore + '/100(' + marketBand + ')이므로 포지션 크기와 타이밍을 보수적으로 잡으세요.</b>' : '') +
+      ' ' + marketNote +
     '</div>' +
   '</div>';
 
@@ -6057,107 +6086,53 @@ window.runDeepAnalysis = function(sym) {
   return analyzeTickerDeep(sym);
 };
 
-// ── 한국 시장 건강 점수 동적 계산 ────────────────────────────────
+// ── 한국 시장 현재 입력 상태 ──────────────────────────────────────
+// P1538 (owner decision: no composite grades or scores without predictive evidence): the 0-100 "건강 점수" and its A+~F ladder summed
+// hand-set points per input. The card now reports which current inputs exist and each input's own reading; nothing is added up.
+// P712/R340: a missing input is never neutralised to 0 or a stale monthly snapshot.
 function calcKrHealthScore() {
   var snap = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : {};
-  let ld = window._liveData || {};
-  var score = 50; // 기본값
-
-  // P712/R340: 결측을 0 또는 오래된 월간 스냅샷으로 중립화하지 않는다.
+  var ld = window._liveData || {};
   var kospiLive = ld['^KS11'] && ld['^KS11'].pct != null && Number.isFinite(Number(ld['^KS11'].pct));
   var kosdaqLive = ld['^KQ11'] && ld['^KQ11'].pct != null && Number.isFinite(Number(ld['^KQ11'].pct));
   var vkospiLive = typeof _vkospiLastOkTs !== 'undefined' && _vkospiLastOkTs && (Date.now() - _vkospiLastOkTs < 86400000) && !(typeof _vkospiIsFailedState === 'function' && _vkospiIsFailedState());
   var supplyLive = window._krCurrentSupplyEvidence && (Date.now() - window._krCurrentSupplyEvidence.observedAt < 86400000) && window._krCurrentSupplyEvidence.foreignNet != null && Number.isFinite(Number(window._krCurrentSupplyEvidence.foreignNet));
   var currentInputs = [kospiLive, kosdaqLive, vkospiLive, supplyLive].filter(Boolean).length;
-  if (currentInputs < 4) {
-    var missing = [];
-    if (!kospiLive) missing.push('KOSPI');
-    if (!kosdaqLive) missing.push('KOSDAQ');
-    if (!vkospiLive) missing.push('VKOSPI');
-    if (!supplyLive) missing.push('외국인 수급');
-    var blockedVal = document.getElementById('kr-health-val');
-    var blockedLabel = document.getElementById('kr-health-label');
-    var blockedTrend = document.getElementById('kr-health-trend');
-    if (blockedVal) { blockedVal.textContent = '—'; blockedVal.style.color = 'var(--text-muted)'; }
-    if (blockedLabel) { blockedLabel.textContent = '판정 보류 · 현재 입력 ' + currentInputs + '/4'; blockedLabel.style.color = 'var(--data-amber)'; }
-    if (blockedTrend) { blockedTrend.textContent = '미수신: ' + missing.join(', '); blockedTrend.style.color = 'var(--text-muted)'; }
-    return { score: null, grade: 'UNAVAILABLE', label: '현재 입력 불충분', missing: missing };
-  }
+  var missing = [];
+  if (!kospiLive) missing.push('KOSPI');
+  if (!kosdaqLive) missing.push('KOSDAQ');
+  if (!vkospiLive) missing.push('VKOSPI');
+  if (!supplyLive) missing.push('외국인 수급');
 
-  // 1) KOSPI 추세 (현재 관측만)
-  var kospiPct = Number(ld['^KS11'].pct);
-  if (kospiPct > 1)       { score += 10; }
-  else if (kospiPct > 0)  { score += 5; }
-  else if (kospiPct > -1) { score -= 5; }
-  else if (kospiPct > -3) { score -= 10; }
-  else                    { score -= 15; }
-
-  // 2) KOSDAQ 추세
-  var kosdaqPct = Number(ld['^KQ11'].pct);
-  if (kosdaqPct > 1)       { score += 6; }
-  else if (kosdaqPct > 0)  { score += 3; }
-  else if (kosdaqPct > -1) { score -= 3; }
-  else                     { score -= 6; }
-
-  // 3) VKOSPI 변동성
-  var vkospi = Number(snap.vkospi);
-  if (vkospi < 15)      { score += 12; }
-  else if (vkospi < 20) { score += 6; }
-  else if (vkospi < 25) { score -= 4; }
-  else if (vkospi < 35) { score -= 10; }
-  else if (vkospi < 50) { score -= 16; }
-  else                  { score -= 22; }
-
-  // 4) 외국인 수급 (순매수 억원)
-  var foreignNet = Number(window._krCurrentSupplyEvidence.foreignNet) / 100000000;
-  if (foreignNet > 5000)       { score += 10; }
-  else if (foreignNet > 1000)  { score += 5; }
-  else if (foreignNet > -1000) { score += 0; }
-  else if (foreignNet > -5000) { score -= 5; }
-  else if (foreignNet > -15000){ score -= 10; }
-  else                         { score -= 15; }
-
-  // 정책금리는 수동 공식 참조값이므로 시장 건강 점수 입력에서 제외한다.
-
-  score = Math.max(0, Math.min(100, score));
-
-  // 등급 결정
-  var grade, label, color;
-  if (score >= 80)      { grade = 'A+'; label = '강한 상승장';  color = 'var(--data-green)'; }
-  else if (score >= 65) { grade = 'A';  label = '상승 추세';    color = 'var(--data-green)'; }
-  else if (score >= 50) { grade = 'B';  label = '중립 / 혼조';  color = 'var(--data-amber)'; }
-  else if (score >= 35) { grade = 'C';  label = '약세 · 경계 필요'; color = '#57513f'; }
-  else if (score >= 20) { grade = 'D';  label = '약세장';        color = 'var(--data-red)'; }
-  else                  { grade = 'F';  label = '극심한 약세';   color = 'var(--data-red)'; }
-
-  // DOM 업데이트
   var valEl = document.getElementById('kr-health-val');
   var lblEl = document.getElementById('kr-health-label');
-  if (valEl) { valEl.textContent = score; valEl.style.color = color; }
-  if (lblEl) { lblEl.textContent = grade + ' — ' + label; lblEl.style.color = color; }
-  // KOSPI 추세 라벨 동적 업데이트
   var trendEl = document.getElementById('kr-health-trend');
+  if (valEl) { valEl.textContent = currentInputs + '/4'; valEl.style.color = currentInputs === 4 ? 'var(--text-primary)' : 'var(--text-muted)'; }
+  if (lblEl) { lblEl.textContent = missing.length ? '현재 입력 ' + currentInputs + '/4 · 미수신: ' + missing.join(', ') : '현재 입력 4/4 · 지표별 값을 개별로 확인'; lblEl.style.color = missing.length ? 'var(--data-amber)' : 'var(--text-muted)'; }
   if (trendEl) {
-    var trendTxt = kospiPct > 1 ? '상승 추세' : kospiPct > 0 ? '소폭 상승' : kospiPct > -1 ? '소폭 하락' : '하락 추세';
-    var trendCol = kospiPct > 0 ? 'var(--data-green)' : kospiPct > -1 ? 'var(--data-amber)' : 'var(--data-red)';
-    trendEl.textContent = trendTxt + ' (' + (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%)';
-    trendEl.style.color = trendCol;
-    trendEl.parentElement.style.background = kospiPct > 0 ? 'rgba(34,117,76,0.08)' : 'rgba(177,58,48,0.08)';
+    if (kospiLive) {
+      var kospiPct = Number(ld['^KS11'].pct);
+      var trendTxt = kospiPct > 1 ? '상승 추세' : kospiPct > 0 ? '소폭 상승' : kospiPct > -1 ? '소폭 하락' : '하락 추세';
+      trendEl.textContent = trendTxt + ' (' + (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%)';
+      trendEl.style.color = kospiPct > 0 ? 'var(--data-green)' : kospiPct > -1 ? 'var(--data-amber)' : 'var(--data-red)';
+      trendEl.parentElement.style.background = kospiPct > 0 ? 'rgba(34,117,76,0.08)' : 'rgba(177,58,48,0.08)';
+    } else {
+      trendEl.textContent = '미수신';
+      trendEl.style.color = 'var(--text-muted)';
+    }
   }
 
-  // VKOSPI 서브 표시
-  // v49.58 P278 보정: 임계값 표준화 — 정상(<20) / 경계(20~25) / 공포(25~35) / 극단공포(35+)
-  // CHANGELOG L748 "VKOSPI 17.80 정상" 의도 반영 (이전 15 임계값 → 20)
+  // v49.58 P278: VKOSPI bands 정상(<20) / 경계(20~25) / 공포(25~35) / 극단공포(35+)
+  // v52.34 P649: while the failure state is showing, a stale snapshot value must not overwrite it with "정상".
   var vkEl = document.getElementById('kr-health-vkospi');
-  // v52.34 P649: fetchVkospiDynamic()이 실패 상태를 렌더링한 뒤 kr-technical 페이지를 재방문하면
-  // 이 함수가 정지된 snap.vkospi로 "정상"처럼 덮어쓰던 회귀 — 실패 상태 중엔 건너뛴다.
-  if (vkEl && !(typeof _vkospiIsFailedState === 'function' && _vkospiIsFailedState())) {
+  var vkospi = Number(snap.vkospi);
+  if (vkEl && Number.isFinite(vkospi) && !(typeof _vkospiIsFailedState === 'function' && _vkospiIsFailedState())) {
     var vkLabel = vkospi >= 35 ? '극단공포' : vkospi >= 25 ? '공포' : vkospi >= 20 ? '경계' : '정상';
     vkEl.textContent = vkospi.toFixed(2) + ' (' + vkLabel + ')';
     vkEl.style.color = vkospi >= 25 ? 'var(--red)' : vkospi >= 20 ? 'var(--yellow)' : 'var(--green)';
   }
 
-  return { score: score, grade: grade, label: label };
+  return { inputs: currentInputs, missing: missing };
 }
 
 // ── 한국 금리 스프레드 동적 계산 ────────────────────────────────
@@ -6203,7 +6178,7 @@ function updateKrBreadth() {
   if (!available) {
     set('kr-breadth-adl', '—');
     set('kr-breadth-20ma', '—');
-    document.querySelectorAll('[data-snap="kr-advance"],[data-snap="kr-decline"],[data-snap="kr-52w-high"],[data-snap="kr-52w-low"]').forEach(function(el) { el.textContent = '—'; });
+    document.querySelectorAll('[data-snap="kr-advance"],[data-snap="kr-decline"]').forEach(function(el) { el.textContent = '—'; });
     return { available: false, reason: 'fresh covered screener breadth unavailable' };
   }
   var ratio = b.declines > 0 ? b.advances / b.declines : null;
@@ -6212,7 +6187,6 @@ function updateKrBreadth() {
   set('kr-breadth-20ma', b.sma20.toFixed(1) + '%', b.sma20 >= 50 ? 'var(--green)' : 'var(--red)', title);
   document.querySelectorAll('[data-snap="kr-advance"]').forEach(function(el) { el.textContent = b.advances.toLocaleString(); el.title = title; });
   document.querySelectorAll('[data-snap="kr-decline"]').forEach(function(el) { el.textContent = b.declines.toLocaleString(); el.title = title; });
-  document.querySelectorAll('[data-snap="kr-52w-high"],[data-snap="kr-52w-low"]').forEach(function(el) { el.textContent = '—'; el.title = '52주 신고·신저가 공식 원천 미수신'; });
   return { available: true, source: b.source, observedAt: b.observedAt, coveragePct: b.coveragePct };
 }
 
@@ -6280,7 +6254,7 @@ async function analyzeKrIndex(ticker, targetId, label) {
 
   var stageColors = ['#999','var(--data-cyan)','var(--data-green)','var(--data-amber)','var(--data-red)'];
   var stageColor = stageColors[stageData.stage]||'#999';
-  var entryColor = entryData.grade==='A+'||entryData.grade==='A'?'var(--data-green)':entryData.grade==='B'?'var(--data-amber)':'var(--data-red)';
+  var entryColor = 'var(--data-cyan)'; // P1538: a setup state, not a grade
   var trendColor = trendData.alignment>80?'var(--data-green)':'var(--data-amber)';
 
   var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">' +
@@ -6301,9 +6275,9 @@ async function analyzeKrIndex(ticker, targetId, label) {
       '<div style="font-size:11px;color:var(--data-purple);margin-top:3px;">'+(rsi>70?'과매수':rsi<30?'과매도':'중립')+'</div>' +
     '</div>' +
     '<div style="background:'+entryColor+'12;border:1px solid '+entryColor+'30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">진입 등급</div>' +
-      '<div style="font-size:18px;font-weight:900;color:'+entryColor+';font-family:var(--font-mono);">'+escHtml(entryData.grade)+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;color:'+entryColor+';">'+escHtml(entryData.reasoning)+'</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">셋업 상태</div>' +
+      '<div style="font-size:14px;font-weight:900;color:'+entryColor+';">'+escHtml(entryData.state)+'</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">'+escHtml(entryData.reasoning)+'</div>' +
     '</div>' +
   '</div>';
 
@@ -6337,16 +6311,16 @@ async function analyzeKrIndex(ticker, targetId, label) {
   // Dip classification
   html += '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:8px;">' +
     '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">조정 분류</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);">'+escHtml(dipData.label)+' (점수: '+dipData.score+'/100)</div>' +
+    '<div style="font-size:11px;color:var(--text-muted);">'+escHtml(dipData.label)+'</div>' +
     '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">'+escHtml(dipData.reasoning)+'</div>' +
   '</div>';
 
   // Verdict
   var verdict = escHtml(label) + ' 지수는 현재 Stage(단기 SMA150·고저점 모델) '+stageData.stage+'단계 ('+escHtml(stageData.label)+'). '+escHtml(trendData.position)+' 위치에서 RSI '+rsi.toFixed(1)+'. ';
-  verdict += stageData.stage===2?'시장 상승세 진행 중.':stageData.stage===3?'고점 주의 구간.':stageData.stage===4?'하락 추세 주의.':'바닥 탐색 중.';
+  verdict += stageData.stage===2?'상승 스테이지입니다.':stageData.stage===3?'분배 가능성이 있는 스테이지입니다.':stageData.stage===4?'하락 스테이지입니다.':'바닥을 만드는 단계입니다.';
 
   html += '<div style="background:var(--surface-4);border:1px solid var(--border);border-radius:3px;padding:12px;margin-top:8px;font-size:11px;line-height:1.6;border-left:3px solid '+stageColor+';">' +
-    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">'+escHtml(label)+' 종합 판정</div>' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">'+escHtml(label)+' 현재 상태</div>' +
     '<div style="color:var(--text-muted);">'+verdict+'</div>' +
   '</div>';
 
@@ -6404,7 +6378,7 @@ async function analyzeKrTickerDeep(ticker) {
 
   var stageColors = ['#999', 'var(--data-cyan)', 'var(--data-green)', 'var(--data-amber)', 'var(--data-red)'];
   var stageColor = stageColors[stageData.stage] || '#999';
-  var entryColor = entryData.grade === 'A+' ? 'var(--data-green)' : entryData.grade === 'A' ? 'var(--data-green)' : entryData.grade === 'B' ? 'var(--data-amber)' : 'var(--data-red)';
+  var entryColor = 'var(--data-cyan)'; // P1538: a setup state, not a grade
   var trendColor = trendData.alignment > 80 ? 'var(--data-green)' : 'var(--data-amber)';
 
   // Build result (same structure as US, just for Korean market)
@@ -6426,18 +6400,18 @@ async function analyzeKrTickerDeep(ticker) {
       '<div style="font-size:11px;color:var(--data-purple);margin-top:3px;">' + (rsi > 70 ? '과매수' : rsi < 30 ? '과매도' : '중립') + '</div>' +
     '</div>' +
     '<div style="background:' + entryColor + '12;border:1px solid ' + entryColor + '30;border-radius:3px;padding:10px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">진입 등급</div>' +
-      '<div style="font-size:18px;font-weight:900;color:' + entryColor + ';font-family:var(--font-mono);">' + escHtml(entryData.grade) + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;color:' + entryColor + ';">' + escHtml(entryData.reasoning) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">셋업 상태</div>' +
+      '<div style="font-size:14px;font-weight:900;color:' + entryColor + ';">' + escHtml(entryData.state) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">' + escHtml(entryData.reasoning) + '</div>' +
     '</div>' +
   '</div>';
 
   html += '<div style="background:var(--surface-4);border:1px solid var(--border);border-radius:3px;padding:12px;margin-top:12px;font-size:11px;line-height:1.6;border-left:3px solid ' + stageColor + ';">' +
-    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">종합 판정</div>' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">현재 상태</div>' +
     '<div style="color:var(--text-muted);">' +
       '' + escHtml(ticker) + '는 ' + escHtml(stageData.label) + ' 중. ' +
-      escHtml(trendData.position) + ' 위치에서 ' + escHtml(entryData.grade) + '등급 진입 기회. ' +
-      (stageData.stage === 2 && trendData.alignment > 80 ? '강력한 상승 추세!' : '신호 확인 필요.') +
+      escHtml(trendData.position) + ' 위치이며 셋업 상태는 ' + escHtml(entryData.state) + '입니다. ' +
+      (stageData.stage === 2 && trendData.alignment > 80 ? '상승 스테이지이고 이동평균이 정배열입니다.' : '추가 신호가 확인 항목입니다.') +
     '</div>' +
   '</div>';
   html += '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">' +
@@ -6460,7 +6434,7 @@ function calculateRR() {
   var capital = parseFloat(document.getElementById('rr-capital').value) || 10000;
 
   if (!entry || !stop || entry <= stop) {
-    showToast('유효한 값을 입력하세요 (진입가 > 손절가)');
+    showToast('유효한 값을 입력하세요 (가정 진입가 > 가정 무효화 가격)');
     return;
   }
 

@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "A fast-plane snapshot whose quotes were all stale was adopted ahead of the durable snapshot",
+  "symptom": "The data-plane Worker publishes with QG-01_PASS whenever Tier-0 coverage is complete and labels each quote's quality, but it does not refuse a snapshot whose 16 quotes are all STALE. The browser loader accepted any published, valid fast-plane snapshot and returned it before the durable snapshot, against the loader's own contract that a stale fast plane degrades to the previous behaviour. Reproduced: a REGULAR-session quote 3 hours old is labelled STALE and still published.",
+  "root_cause": "The loader checked status and schema only; quality is a per-quote label and nothing at snapshot level used it.",
+  "fix": "For the fast-plane source only, a snapshot with no CURRENT, CLOSED_CURRENT or DELAYED quote is treated as a failure (fast_plane_no_usable_quotes) and the durable snapshot is tried; one usable quote keeps the fast plane and the stale rows degrade per quote downstream. The durable snapshot, being the last source, is never refused. The Worker's publish semantics are unchanged.",
+  "violated_rule": "A source that is not fresher than the fallback must not outrank it.",
+  "prevention": "ci-fast-plane-consumer-gate P1532: all-STALE and all-UNAVAILABLE fast snapshots fall through, a mixed snapshot stays, an all-usable one is preferred, and a stale durable snapshot is still returned.",
+  "verification": "The consumer gate and the market-snapshot contract check pass. The fast plane is disabled today (enabled=false, rights not reviewed), so no user path changed. Not done: quality counts in /health and an operations-status downgrade, which wait for the plane to be enabled."
+ },
+ "r": null,
+ "changelog": [
+  "**빠른 시세 스냅샷 전부 STALE일 때 내구 스냅샷으로 폴백 (P{P}):** Worker는 커버리지만 보고 발행하므로 16개 시세가 모두 오래된 스냅샷도 '발행'으로 저장된다. 로더가 이를 내구 스냅샷보다 먼저 채택하던 것을, 사용 가능한 시세가 하나도 없으면 내구 스냅샷으로 넘기도록 수정(현재 빠른 시세 경로는 비활성)."
+ ]
+}

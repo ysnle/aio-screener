@@ -9,11 +9,12 @@ import { alignInput, alignMarketInputs, alignmentLabel, buildCloseSeries, isUsab
 import { collectMarketInputs } from './briefing-read.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
 import { RULES } from '../../domain/rules/thresholds.js';
+import { fearGreedBand as publishedFearGreedBand } from '../../domain/sentiment/metrics.js';
 import { buildMarketRegime } from '../../domain/briefing/market-read.js';
 import { sentimentFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 
-// AAII published long-run averages (since 1987): bullish 37.5%, neutral 31.5%, bearish 31.0%.
+// AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
 const EXCLUDED = Object.freeze({ label: '판정 제외', tone: 'unknown' });
 
@@ -34,10 +35,12 @@ function shortDate(date) {
   return month && day ? `${month}/${day}` : '';
 }
 
+// P1534: the band comes from the one domain function (CNN integer edges); only the tone is a board concern.
+const FEAR_GREED_TONE = Object.freeze({ '극단 공포': 'burden', '공포': 'burden', '중립': 'neutral', '탐욕': 'favorable', '극단 탐욕': 'burden' });
 export function fearGreedBand(value) {
   if (value == null) return null;
-  return value < 25 ? { label: '극단적 공포', tone: 'burden' } : value < 45 ? { label: '공포', tone: 'burden' }
-    : value <= 55 ? { label: '중립', tone: 'neutral' } : value < 75 ? { label: '탐욕', tone: 'favorable' } : { label: '극단적 탐욕', tone: 'burden' };
+  const band = publishedFearGreedBand(value);
+  return band.blocked ? null : { label: band.label, tone: FEAR_GREED_TONE[band.label] };
 }
 
 export function buildSentimentModel({ history = [], credit = {}, rates = {}, snapshot = {} } = {}) {

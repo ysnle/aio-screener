@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels, P1538 grades and composites out of technical, KR health, portfolio and moat surfaces, P1539 AI directive gate at sentence level, P1540 score band wording after validation, P1541 Yahoo-to-FRED bridge mapping, P1542 macro calendar lead warning, P1543 exact-only legacy ticker resolver, P1544 case-sensitive Telegram ticker symbols, P1545 assertion-trace ledger existence, P1546 instruction text and scores in the technical brief and page briefs, P1547 fetch deadlines cover the body, P1548 sourceless widgets and internal ids on screen, P1549 sub-1280 responsive blocks removed, P1550 ticker attribution leaks in chat and news, P1551 chat diagrams and pattern signals with missing inputs, P1552 KR analysis score lines.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "The KR analysis paragraphs turned the 0-100 market score into a favourable/defensive narrative",
+  "symptom": "The KR macro and KR theme analysis printed 'trading score N/100' in a green/yellow/red ladder followed by sentences such as 'global environment good', 'keep a defensive position' and 'historically rotation was active'; a third copy was dead code.",
+  "root_cause": "Each paragraph rebuilt its own score ladder instead of using the reference-only presentation, and the historical claims had no source.",
+  "fix": "One helper prints the reference value, its basis (last completed US close), that predictive validation is not established and that KR direction is checked from flows, FX and earnings; no colour ladder, no conclusion; the dead copy is removed.",
+  "violated_rule": "Scores are reference descriptions, never decision-grade; no trade instructions (AGENTS.md).",
+  "prevention": "ci-control-char-check keeps the retired phrases out; the helper is the only place the KR paragraphs read the score.",
+  "verification": "Syntax and the full QA. Not done: the 0-100 value is still printed as a labelled reference (see the open decision on the score headline)."
+ },
+ "r": null,
+ "changelog": [
+  "**KR 분석의 점수 서술 (P{P}):** 0-100 점수를 우호·방어 서사로 풀던 문단을 기준·예측 아님을 밝힌 참고값 한 줄로 바꿨다."
+ ]
+}

@@ -28,6 +28,13 @@ const NEWS_EMPTY_REASON_COPY = Object.freeze({
   'native-model-unavailable': '뉴스 판정 모델을 사용할 수 없어 표시를 보류합니다.'
 });
 
+// P1537 (audit H07): the article list follows the country/topic/type controls; the channel (Telegram) list below it is classified
+// on its own and never follows them. Both scopes are written out so a count is never read as covering the other list.
+export function describeNewsScope(controls) {
+  const active = !!controls && ['countryFilter', 'topicFilter', 'typeTab'].some((key) => controls[key] && controls[key] !== 'all');
+  return { articles: active ? '필터 적용' : '필터 없음', channel: active ? '채널 소식은 국가·주제 필터와 무관하게 자체 분류로 표시됩니다.' : '' };
+}
+
 function describeNewsEmptyReason(reason) {
   return NEWS_EMPTY_REASON_COPY[String(reason || '')] || '현재 조건에 맞는 뉴스가 없습니다.';
 }
@@ -338,7 +345,7 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   }
 
   const count = documentRef.getElementById('market-news-count');
-  if (count) count.textContent = model?.eligibleCount > displayed.length ? `${displayed.length}건 표시 / ${model.eligibleCount}건 일치` : `${displayed.length}건`;
+  if (count) count.textContent = `기사 ${model?.eligibleCount > displayed.length ? `${displayed.length}건 표시 / ${model.eligibleCount}건 일치` : `${displayed.length}건`} · ${describeNewsScope(controls).articles}`;
   const summary = documentRef.getElementById('news-visible-summary');
   if (summary) summary.textContent = `전체 ${model?.eligibleCount || 0}건 중 ${displayed.length}건 표시`;
   const more = documentRef.getElementById('news-load-more-wrap');
@@ -383,7 +390,7 @@ function render({ documentRef, root, store, route }) {
   // filter that emptied the feed still showed overseas stories above it.
   const importantModel = root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });
   const tgScope = documentRef?.getElementById('news-tg-scope');
-  if (tgScope) tgScope.textContent = (controls.countryFilter && controls.countryFilter !== 'all') || (controls.topicFilter && controls.topicFilter !== 'all') ? '선택한 필터는 텔레그램 채널 소식에는 적용되지 않습니다.' : '';
+  if (tgScope) tgScope.textContent = describeNewsScope(controls).channel;
   const important = pickImportantNews(importantModel?.items || []);
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {

@@ -5,10 +5,10 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { MARKET_CALENDAR_REGISTRY } from '../src/ai/time/market-session.js';
+import { MARKET_CALENDAR_REGISTRY } from '../src/domain/market/market-calendar.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const calendarSourcePath = path.join(root, 'src/ai/time/market-session.js');
+const calendarSourcePath = path.join(root, 'src/domain/market/market-calendar.js');
 
 function parseYear(argv) {
   if (argv.length !== 2 || argv[0] !== '--year' || !/^\d{4}$/.test(argv[1])) {

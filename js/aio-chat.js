@@ -451,7 +451,7 @@ function _aioPublicAIActionPolicyPrompt() {
   return '\n\n【공개 AI 베타 분석·행동 경계 — 최우선】\n' +
     '이 AI는 "AI 베타 · 교육/리서치 보조"이며 독립 투자자문·검증 시스템·실시간 주문 도구가 아니다.\n' +
     '교육·시장 원리·상품 구조·규제 영향·법률/세무의 일반 또는 사용자 맥락 분석을 회피하지 마라. 관할·사실관계가 부족하면 합리적 전제를 밝히고 공식 원문·기준일·추가 확인 항목을 제시하라.\n' +
-    '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 다만 사용자 적합성·현재 근거가 없으면 개인화된 단일 행동 지시로 확정하지 말고 조건별 선택지와 의사결정 체크리스트로 전환하라.\n' +
+    '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 다만 "매수하세요"·"매도를 추천"·"비중 N% 확대"처럼 특정 종목에 대한 행동 지시 문장은 쓰지 말고(쓰면 화면에서 문장이 대체된다), 적합성 정보나 근거가 있어도 개인화된 단일 행동 지시로 확정하지 말고 조건별 선택지와 의사결정 체크리스트로 전환하라.\n' +
     '불법 행위의 구체적 실행법, 실제 주문·계정 변경·외부 전송, 수익 보장만 차단한다. 그 밖의 질문은 답변 전체를 안전 모드로 바꾸지 말고 부족한 현재 주장만 제한하라.\n' +
     '조건, 데이터의 한계, 위험요인, 확인해야 할 원문과 재검증 절차를 설명하라. 현재성 주장은 주입된 근거 블록만 사용하고 기준시각과 Evidence 상태를 명시하라.\n' +
     '현재 수치·출처·기준시각이 주입되지 않았으면 그 수치를 현재 사실로 단정하지 마라. 다만 답변을 거부하거나 "확인 필요"로 끝내지 말고, 일반 원리·조건·시나리오·확인 방법으로 끝까지 답하며 어느 부분이 미확인인지 밝혀라. 학습 기억을 현재 관측값처럼 제시하는 것만 금지한다.\n' +
@@ -514,22 +514,33 @@ function _aioBuildAIResponseDisclosure(meta) {
   };
 }
 
+// P1539 (owner decision: no trade instructions; show facts such as the pivot and the invalidation price): the gate used to detect
+// concrete instructions and then let every one through. A research answer may still analyse price levels, invalidation levels and
+// allocations as scenarios, so the gate no longer blocks the answer; it replaces only the sentence that is an unmistakable personal
+// directive (a recommendation or imperative to buy, sell, stop out or resize) with a plain notice. Patterns are narrow on purpose:
+// a number or a bare action word is analysis, a recommendation or imperative form is an instruction.
+var _AIO_DIRECTIVE_NOTICE = '[개별 매매 지시는 제공하지 않습니다. 조건과 근거를 확인해 직접 판단하세요.]';
 function _aioApplyAIActionGate(text, meta) {
   var raw = String(text || '');
-  // Educational mentions remain allowed; concrete instruction requires a
-  // directive, an allocation/price/level, or an explicit action label nearby.
-  var number = '(?:[$₩€]\\s*)?\\d[\\d,]*(?:\\.\\d+)?\\s*(?:원|달러|USD|%|배|bp)?';
-  var action = '(?:매수|매도|추가매수|진입|청산|손절|익절|목표가|진입가|손절가)';
-  var directive = '(?:하세요|하라|해야|권고|추천|제안|고려(?:하라|하세요)?|적절|유효|가능|우호|유리|불리|시점|타이밍|판단|기회|적극|확대|축소|유지|정리|사세요|파세요|들어가|나가)';
-  var concrete = new RegExp('(?:' + action + ').{0,32}(?:' + number + '|' + directive + ')|(?:' + number + '|' + directive + ').{0,32}(?:' + action + ')', 'i');
-  var labeledPrice = new RegExp('(?:목표가|진입가|손절가).{0,24}' + number, 'i');
-  var allocationDirective = new RegExp('(?:비중|포지션|헤지).{0,24}(?:확대|축소|늘리|줄이|정리|권고|추천)|(?:확대|축소|늘리|줄이|정리|권고|추천).{0,24}(?:비중|포지션|헤지)', 'i');
-  var blocked = concrete.test(raw) || labeledPrice.test(raw) || allocationDirective.test(raw);
-  if (!blocked) return { blocked: false, text: raw, reasons: [] };
-  // This is a read-only research UI: concrete levels and allocations are useful
-  // analysis, not an external trade mutation. Conduct, consent, evidence, and
-  // tool boundaries independently control the actual high-risk cases.
-  return { blocked: false, text: raw, reasons: ['conditional-trade-analysis'] };
+  var action = '(?:매수|매도|추가\\s*매수|분할\\s*매수|손절|익절|청산|진입|정리)';
+  var recommend = new RegExp(action + '\\s*(?:을|를)?\\s*(?:추천|권고|권장|제안)(?!\\s*(?:하지|드리지|이\\s*아|은\\s*아))');
+  var imperative = new RegExp(action + '\\s*(?:하세요|하십시오|하라|하시기\\s*바랍니다|해야\\s*(?:합니다|한다|해요))');
+  var colloquial = /(?:사세요|파세요|담으세요|사야\s*(?:합니다|한다)|팔아야\s*(?:합니다|한다))/;
+  var tickerAction = /(?:^|[\s:：(])[A-Z]{1,5}\s*(?:비중\s*)?\$?\d[\d,.]*\s*(?:달러|원|%)?\s*(?:매수|매도|확대|축소)\s*[.!)]?\s*$/;
+  var negated = /(?:아닙니다|아니다|않습니다|않는다|금지|하지\s*마|하지\s*않|제공하지|드리지|지시가\s*아|지시 아님)/;
+  var sentences = raw.match(/[^.!?。\n]+(?:[.!?。]+|\n|$)\s*/g) || [raw];
+  var replaced = 0;
+  var out = sentences.map(function(sentence) {
+    var plain = sentence.trim();
+    if (!plain || negated.test(plain)) return sentence;
+    if (recommend.test(plain) || imperative.test(plain) || colloquial.test(plain) || tickerAction.test(plain)) {
+      replaced += 1;
+      return _AIO_DIRECTIVE_NOTICE + (/\n\s*$/.test(sentence) ? '\n' : ' ');
+    }
+    return sentence;
+  }).join('');
+  if (!replaced) return { blocked: false, text: raw, reasons: [] };
+  return { blocked: false, text: out.replace(/(?:\[개별 매매 지시는 제공하지 않습니다\. 조건과 근거를 확인해 직접 판단하세요\.\]\s*){2,}/g, _AIO_DIRECTIVE_NOTICE + ' ').trim(), reasons: ['directive-sentence-replaced'], replacedSentences: replaced };
 }
 
 function _aioAppendAIPublicDisclosure(parent, meta) {
@@ -1128,7 +1139,7 @@ function _aioCreateEvidenceContext(title, focus) {
         '값이 —이면 추정·보간·과거 수치 대입 없이 판단을 보류합니다.',
         '현재형 뉴스·목표가·확률·컨센서스·승률은 내장 텍스트에서 가져오지 않습니다. 승률/적중률은 검증된 백테스트·캘리브레이션 근거가 있을 때만 reference로 표시합니다.',
         '답변 가이드: 관측 → 해석 → 무효화 조건 → 사용자가 확인할 다음 증거 순서로 씁니다.',
-        '매매·포지션 질문은 실행 지시 대신 HOLD_CORE / NO_ADD_RAISE_STOP / TRIM_25_33 / EXIT_OR_HEDGE 같은 위험관리 선택지를 조건부로 설명합니다.',
+        '매매·포지션 질문은 실행 지시 대신 부담 정도(낮음·일부 확인·높음·매우 높음)별로 어떤 위험관리 방식이 논의되는지 조건부로 설명합니다.',
         'OPEX·감마·Lockout/LOCKOUT_CONTINUATION·시나리오는 해당 런타임 증거가 주입된 경우에만 사용합니다.',
         'RATIO/DISTANCE thresholds are calibration constants, NOT absolute prices.'
       ];
@@ -2505,7 +2516,7 @@ function _formatSectorComparePrompt(sectorLabel, compareData) {
   lines.push('  — "섹터 평균"과 각 종목 수치를 대조하여 상대적 위치를 평가할 것.');
   lines.push('  — 밸류에이션(PER/PEG/EV/EBITDA) + 수익성(ROE/마진) + 성장(매출/EPS) + 건전성(부채) + 애널리스트 목표가를 종합적으로 교차 검증.');
   lines.push('  — PER/PBR이 낮다고 무조건 저평가 아님: 밸류 트랩(성장 정체, 구조적 문제) 가능성 반드시 언급.');
-  lines.push('  — 최종 추천 시 "왜 이 종목인지" 다차원 근거(밸류+성장+수익성+모멘텀) 제시.');
+  lines.push('  — 종목을 논의할 때 "왜 이 종목을 보는지" 다차원 근거(밸류+성장+수익성+모멘텀)를 제시하되 매수 추천으로 결론짓지 않는다.');
   lines.push('  — "N/A"인 항목은 데이터 미수집 — "확인 필요"로 표기.');
 
   return '\n\n' + lines.join('\n') + '\n';
@@ -2526,7 +2537,9 @@ function _extractTickers(text) {
     'ALSO':1,'BEEN':1,'BEST':1,'BOTH':1,'BULL':1,'BEAR':1,'CALL':1,'COME':1,'EACH':1,'FROM':1,'GOOD':1,'HAVE':1,'HERE':1,'HIGH':1,'JUST':1,'KNOW':1,'LAST':1,'LIKE':1,'LONG':1,'LOOK':1,'MADE':1,'MAKE':1,'MORE':1,'MOST':1,'MUCH':1,'MUST':1,'NEED':1,'NEXT':1,'ONLY':1,'OVER':1,'SELL':1,'SOME':1,'SUCH':1,'TAKE':1,'TELL':1,'THAN':1,'THAT':1,'THEM':1,'THEN':1,'THEY':1,'THIS':1,'TIME':1,'VERY':1,'WANT':1,'WEEK':1,'WELL':1,'WENT':1,'WERE':1,'WHAT':1,'WHEN':1,'WILL':1,'WITH':1,'WORK':1,'YOUR':1,
     'ABOUT':1,'AFTER':1,'COULD':1,'EVERY':1,'FIRST':1,'GREAT':1,'OTHER':1,'SHORT':1,'SINCE':1,'STILL':1,'THEIR':1,'THERE':1,'THESE':1,'THINK':1,'THOSE':1,'THREE':1,'TODAY':1,'UNDER':1,'WHERE':1,'WHICH':1,'WHILE':1,'WOULD':1,
     'ETF':1,'IPO':1,'RSI':1,'MACD':1,'VIX':1,'ATR':1,'EMA':1,'SMA':1,'VCP':1,'SEPA':1,'VWAP':1,'FOMC':1,'GDP':1,'CPI':1,'PPI':1,'NFP':1,'PCE':1,'PMI':1,'ISM':1,'YOY':1,'MOM':1,'QOQ':1,'EPS':1,'PER':1,'PBR':1,'ROE':1,'ROA':1,'FCF':1,'DCF':1,'DDM':1,'NAV':1,'PEG':1,'FFR':1,'QE':1,'QT':1};
-  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t]) { seen[t]=1; tickers.push(t); } });
+  // P1550: finance acronyms and currency codes are not tickers (USD is a listed ETF symbol, SEC/CEO/FED/WTI are plain terms).
+  var nonTickerAcronyms = {'SEC':1,'CEO':1,'CFO':1,'COO':1,'CTO':1,'USD':1,'KRW':1,'EUR':1,'JPY':1,'CNY':1,'GBP':1,'FED':1,'WTI':1,'ECB':1,'BOJ':1,'IMF':1,'OPEC':1,'NYSE':1,'FDA':1,'DOJ':1,'FTC':1,'KOSPI':1,'KRX':1};
+  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t] && !nonTickerAcronyms[t]) { seen[t]=1; tickers.push(t); } });
   // 한국 종목코드 (6자리 숫자)
   var m3 = text.match(/\b(\d{6})\b/g);
   if (m3) m3.forEach(function(c) { var s = c + '.KS'; if (!seen[s]) { seen[s]=1; tickers.push(s); } });
@@ -2949,7 +2962,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       if (_ccS || _ccM) {
         var _ccVix = (_ccM && _ccM.vix != null) ? _ccM.vix : ((_ccS && _ccS.vix) || '—');
         var _ccFg = (_ccM && _ccM.fg != null) ? _ccM.fg : ((_ccS && _ccS.fg != null) ? _ccS.fg : '—');
-        var _ccFgL = (_ccM && _ccM.fgZoneLabel) ? _ccM.fgZoneLabel : (_ccFg === '—' ? '—' : (_ccFg <= 25 ? '극단 공포' : _ccFg <= 45 ? '공포' : _ccFg <= 55 ? '중립' : _ccFg <= 75 ? '탐욕' : '극단 탐욕'));
+        var _ccFgL = (_ccM && _ccM.fgZoneLabel) ? _ccM.fgZoneLabel : (_ccFg === '—' ? '—' : (Math.round(_ccFg) < 25 ? '극단 공포' : Math.round(_ccFg) < 45 ? '공포' : Math.round(_ccFg) <= 55 ? '중립' : Math.round(_ccFg) <= 75 ? '탐욕' : '극단 탐욕'));
         _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ') · 트레이딩 스코어 ' + (_ccS && _ccS.score != null ? _ccS.score : '—') + '/100\n\n';
       }
     } catch(_) {}
@@ -3310,8 +3323,9 @@ async function _fetchTickerDataForChat(tickers, opts) {
       try {
         var pe = platformPromise ? await platformPromise : null;
         if (pe && pe.available) {
-          results.push('  [Platform Eco] score ' + pe.ecosystemScore + '/100 · ' + pe.verdict + ' · dataConfidence: ' + pe.dataConfidence + (pe.indicators && pe.indicators.length > 0 ? ' · indicators: ' + pe.indicators.length : ''));
-          results.push('  [Platform Eco 가이드] 정성 분석 한계 — 외부 API 없음. 위 ecosystemScore (SCREENER_DB.memo + FMP segments + Finnhub news 합성) 결과만 인용. "구체적 플랫폼 규모/사용자 수/MAU 추정 절대 금지" (R117).');
+          var peSeg = (pe.indicators || []).filter(function(i) { return i.source === 'FMP segments'; })[0];
+          results.push('  [부문 매출 구성] 서비스·구독·클라우드·플랫폼 계열 부문 매출 비중 ' + (peSeg ? peSeg.platformRevPct + '% (' + (peSeg.segments || []).join(', ') + ')' : '미수신') + ' · dataConfidence: ' + pe.dataConfidence);
+          results.push('  [가이드] 위 값은 FMP 부문 매출의 단순 분류이다. 플랫폼·생태계의 점수나 등급을 만들지 말고, 구체적 플랫폼 규모/사용자 수/MAU 추정은 절대 금지 (R117).');
         }
       } catch(_peErr) {}
 
@@ -3319,12 +3333,12 @@ async function _fetchTickerDataForChat(tickers, opts) {
       try {
         var mo = moatPromise ? await moatPromise : null;
         if (mo && mo.available) {
-          var moLine = '  [Moat Score] ' + mo.verdict + ' (score ' + mo.score + '/' + mo.maxScore + ') · dataConfidence: ' + mo.dataConfidence;
+          var moLine = '  [수익성·R&D 관측값] dataConfidence: ' + mo.dataConfidence;
           if (mo.evidence && mo.evidence.length > 0) {
-            moLine += '\n    Evidence:\n' + mo.evidence.map(function(e) { return '      · ' + e.moat + ': ' + e.signal + ' (' + e.weight + ')'; }).join('\n');
+            moLine += '\n' + mo.evidence.map(function(e) { return '      · ' + e.label + ': ' + e.signal; }).join('\n');
           }
           results.push(moLine);
-          results.push('  [Moat 가이드] Wide(7+) / Narrow(3~6) / None(<3). SCREENER_DB + Naver financials 자동 채점. Morningstar 공식 등급 추정 금지 (R117).');
+          results.push('  [가이드] 위 값은 수익성과 R&D 강도의 관측값이다. 경쟁우위(해자)의 등급이나 점수를 만들지 말고, 해자는 근거가 있는 정성 설명으로만 다룬다. Morningstar 공식 등급 추정 금지 (R117).');
         }
       } catch(_moErr) {}
 
@@ -3406,11 +3420,14 @@ async function _fetchTickerDataForChat(tickers, opts) {
       var _spx = (_s && _s.spx) || (_ms && _ms.spx) || '—';
       var _tnx = (_s && _s.tnx) || '—';
       var _score = (_s && _s.score != null) ? _s.score : '—';
-      var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 32 ? '패닉' : _vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 18 ? '보통' : '안정')); // P1367 canonical band
-      var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (_fg <= 25 ? '극단 공포' : _fg <= 45 ? '공포' : _fg <= 55 ? '중립' : _fg <= 75 ? '탐욕' : '극단 탐욕'));
+      var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 32 ? '고변동 구간' : _vix !== '—' && Number(_vix) >= 25 ? '변동성 경계 구간' : _vix !== '—' && Number(_vix) >= 18 ? '통상 범위' : '저변동 구간')); // P1367 canonical band
+      var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (Math.round(_fg) < 25 ? '극단 공포' : Math.round(_fg) < 45 ? '공포' : Math.round(_fg) <= 55 ? '중립' : Math.round(_fg) <= 75 ? '탐욕' : '극단 탐욕'));
       // v49.68 R128 시각 단서 표준 — P1500: 이모지 대신 [위험]/[주의]/[안정] 단어 표지
-      var _vixEmoji = _vix === '—' ? '[미수신]' : Number(_vix) >= 25 ? '[위험]' : Number(_vix) >= 20 ? '[주의]' : '[안정]';
-      var _fgEmoji = _fg === '—' ? '[미수신]' : (_fg <= 25 || _fg >= 75) ? '[위험]' : (_fg <= 45 || _fg >= 55) ? '[주의]' : '[안정]';
+      // P1564: the tags come from the same band index as the labels above (the earlier 20/25 and 25/45/55/75 edges contradicted them).
+      var _vixBandIdx = _vix === '—' ? null : window._aioVixBandIndex(Number(_vix));
+      var _fgZoneIdx = _fg === '—' ? null : window._aioFgZoneIndex(Number(_fg));
+      var _vixEmoji = _vix === '—' ? '[미수신]' : _vixBandIdx >= 3 ? '[위험]' : _vixBandIdx === 2 ? '[주의]' : '[안정]';
+      var _fgEmoji = _fg === '—' ? '[미수신]' : (_fgZoneIdx === 0 || _fgZoneIdx === 4) ? '[위험]' : (_fgZoneIdx === 1 || _fgZoneIdx === 3) ? '[주의]' : '[안정]';
       var _scoreEmoji = _score === '—' ? '[미수신]' : Number(_score) >= 65 ? '[안정]' : Number(_score) >= 40 ? '[주의]' : '[위험]';
       // Use producer observation timestamps when present.  The assembly clock
       // is not a data date, so an absent timestamp must remain explicit rather
@@ -3846,7 +3863,7 @@ function _formatDeepComparePrompt(tickers, deepData) {
   out += '  • 핵심 카탈리스트 비교: 실적 서프라이즈 이력, 신제품, M&A 가능성\n';
   out += '  • 내부자 매매 방향이 시사하는 바 비교\n';
   out += '  • 종합 비교표: 17개 관점의 핵심 수치와 결측 데이터를 한 눈에 볼 수 있는 비교표\n';
-  out += '  • 최종 판정: "A는 ___에서 확실한 우위, B는 ___에서 확실한 우위. 투자자 유형별 추천: 성장 투자자라면 A, 가치 투자자라면 B"\n';
+  out += '  • 비교 정리: "A는 ___ 지표에서 앞서고, B는 ___ 지표에서 앞선다. 성장 관점에서는 A의 ___, 가치 관점에서는 B의 ___이(가) 근거로 논의된다. 어느 쪽이 낫다고 단정하지 않는다."\n';
   out += '  데이터: 위 모든 데이터 종합\n\n';
 
   out += '【응답 프레임워크 — "기업을 하나의 이야기로 비교"】\n';
@@ -4015,7 +4032,11 @@ function _aioTickerNewsFromCache(ticker, opts) {
       // P1339: registry is { entries: { TICKER: { en, kr, alt } } } (KR keys keep .KS/.KQ); a flat map never matched.
       var regEntries = (window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries) || {};
       var regEntry = regEntries[rawUpper] || regEntries[sym];
-      if (regEntry) [regEntry.en, regEntry.kr].concat(regEntry.alt || []).forEach(function(name) { if (name && String(name).length >= 2) _addAlias(name); });
+      // P1550: an alt that is another issuer's registry key ('ms' on MSFT vs Morgan Stanley 'MS') is not an alias of this one.
+      if (regEntry) [regEntry.en, regEntry.kr].concat(regEntry.alt || []).forEach(function(name) {
+        var up = String(name || '').toUpperCase();
+        if (up.length >= 2 && (up === sym || up === rawUpper || !regEntries[up])) _addAlias(name);
+      });
     } catch (_a) {}
     var matched = [];
     for (var i = 0; i < cache.length; i++) {
@@ -4188,7 +4209,7 @@ function _buildChatAnswerCoverageContext(ctxId, query, flags) {
     'available_axes=' + Object.keys(has).filter(function(k){ return has[k]; }).join(',') + '\n' +
     (missing.length ? 'missing_axes=' + missing.join(',') + ' -> state these as unavailable; do not fill them with model memory.\n' : 'missing_axes=none detected from injected context.\n') +
     'truth_gate_rule: current quote numbers are decision-usable only when DataTruthGate returns verified/warn with decisionUse=true. If status=blocked, stale, out-of-range, or source-mismatched, state data not verified and omit the number for trading judgment.\n' +
-    'response_diversity_rule: choose the structure that fits the mode. decision memo = verdict first + sizing/trigger/invalidation; ranked comparison = table + rank rationale; valuation memo = drivers + multiples/DCF only if injected; earnings review = reported/guidance/revision/catalyst; technical setup = trend/levels/risk; beginner explanation = plain-language concept + concrete injected-data example.\n' +
+    'response_diversity_rule: choose the structure that fits the mode. decision memo = conditions and evidence first + trigger/invalidation facts (no verdict, entry/exit or position size; quote a size only when the user gave it as a constraint); ranked comparison = table + rank rationale; valuation memo = drivers + multiples/DCF only if injected; earnings review = reported/guidance/revision/catalyst; technical setup = trend/levels/risk; beginner explanation = plain-language concept + concrete injected-data example.\n' +
     'current_data_rule: never use Claude/model training data for current price, market cap, earnings, guidance, analyst targets, ratings, news, filings, macro releases, or dates after the training cutoff. Use only injected live quote, FMP/SEC/Naver/Finnhub, news, web-search, DATA_SNAPSHOT with age label, and explicitly cited prompt blocks. If data is missing or stale, say \"데이터 미수집/확인 불가\" and omit the number.\n';
 }
 
@@ -4362,7 +4383,7 @@ function _buildChatIntentContext(ctxId, query, flags) {
   return '\n\n【질문 의도·답변 범위】\n' +
     '의도: ' + intent.intents.join(', ') + ' | 페이지맥락: ' + ctxId + (tickers.length ? ' | 감지티커: ' + tickers.join(', ') : '') + '\n' +
     '답변 규칙: 사용자의 질문 범위에 맞춰 바로 결론부터 말하고, 이미 말한 내용은 반복하지 말며, 새 판단에 필요한 데이터만 사용하라. ' +
-    (intent.wantsAction ? '행동 결론(보유/추가매수 금지/비중축소/헤지/관망)을 명시하라. ' : '') +
+    (intent.wantsAction ? '보유 유지·추가 노출 제한·노출 축소·헤지·관망 가운데 어떤 방식이 어떤 조건에서 논의되는지 조건부로 정리하고, 하나의 행동을 지시하지 마라. ' : '') +
     (intent.wantsCompare ? '비교 질문이면 표는 짧게, 최종 우선순위와 제외 사유를 함께 제시하라. ' : '') +
     (intent.wantsFresh ? '최신성 질문이면 기준시각·출처·미수집 항목을 먼저 분리하라. ' : '') + '\n' +
     '데이터 커버리지: ' +
@@ -5053,19 +5074,15 @@ function _aioSimulateAmountOrPct(q, detectedTickers) {
     else if (unit === '천만') krwAmount = rawAmount * 1e7;
     else if (unit === '백만') krwAmount = rawAmount * 1e6;
     else if (unit === '만' || unit === '원') krwAmount = rawAmount * (unit === '만' ? 1e4 : 1);
-    else if (unit === 'usd' || unit === '달러' || unit === '$') krwAmount = rawAmount * 1380; // 대략 환율 1380원/달러
+    // P1559: a foreign-currency amount is not converted with a fixed rate (1380 won/dollar was a constant with no date), and no
+    // allocation is proposed: the earlier "Bridgewater / GS / Ackman" percentages were unsourced portfolio advice on screen.
+    else if (unit === 'usd' || unit === '달러' || unit === '$') krwAmount = 0;
     if (krwAmount >= 1e5) {
-      var usdAmount = Math.round(krwAmount / 1380);
       result = result || {};
       result.amount = {
         krw: Math.round(krwAmount),
-        usd: usdAmount,
-        note: krwAmount.toLocaleString() + '원 ≈ $' + usdAmount.toLocaleString() + ' (환율 1380원/달러)',
-        allocation: {
-          conservative: 'Bridgewater All Weather 4-Quadrant: SPX/QQQ 40% + 국채 30% + 금 15% + 단기채/현금 15%',
-          balanced: 'GS GIR 균형: SPX 50% + 글로벌 ex-US 15% + 채권 25% + 원자재/대체 10%',
-          aggressive: 'Ackman 집중: AAA 종목 5~7개 각 12~18% + 현금 10~15% (Margin of Safety 확보 시)'
-        }
+        note: krwAmount.toLocaleString() + '원 (입력한 금액 그대로)',
+        checks: ['보유 자산 대비 이 금액의 비중', '한 종목·한 섹터에 몰리는 정도', '감당할 수 있는 손실 한도와 투자 기간']
       };
     }
   }
@@ -5082,18 +5099,14 @@ function _aioSimulateAmountOrPct(q, detectedTickers) {
         sign: sign,
         pct: pct,
         direction: sign === '-' ? '하락' : '상승',
-        impacts: sign === '-' ? {
-          VIX: '+' + Math.round(pct * 2.5) + '% (변동성 spike)',
-          '10Y': '-' + Math.round(pct * 8) + 'bp (안전자산 도피)',
-          Gold: '+' + Math.round(pct * 0.5) + '% (역상관)',
-          Sector: 'Staples/Healthcare OW · Cyclicals UW (방어 로테이션)',
-          Position: '확신도 낮으면 현금 비중 50%+ / Buffett Margin of Safety 매수 검토 (pct ' + pct + '% 이상이면 Bull case)'
-        } : {
-          VIX: '-' + Math.round(pct * 1.5) + '% (변동성 진정)',
-          '10Y': '+' + Math.round(pct * 4) + 'bp (위험자산 선호)',
-          Gold: '-' + Math.round(pct * 0.3) + '% (역상관)',
-          Sector: 'Cyclicals/Tech OW · Defensive UW (위험자산 로테이션)',
-          Position: 'FOMO 경계 — Howard Marks Pendulum 탐욕 극단 진입 확인 + Marks "Sell into strength"'
+        // P1559: the earlier impacts were invented elasticities (VIX +2.5x, 10Y -8bp, gold +0.5x per index percent) and position advice
+        // ("cash 50%+", "sell into strength"); the scenario now lists what to look at, with no number the index move did not give.
+        checks: {
+          VIX: '변동성 지수(VIX)가 얼마나 움직이는지',
+          '미 10년 금리': '금리가 어느 방향으로 움직이는지',
+          '금': '금 가격의 방향',
+          '섹터': '섹터별 상대 성과가 갈리는지',
+          '보유 종목': '보유 종목이 지수보다 얼마나 민감하게 움직이는지(베타)와 본인 손실 한도'
         }
       };
     }
@@ -5416,7 +5429,7 @@ function _buildUserProfileContext() {
     '• 투자 시간축: ' + horizonLabel + '\n' +
     '• 선호 자산/섹터: ' + prefAssets + '\n' +
     '• 제외 자산/섹터: ' + excAssets + '\n' +
-    '답변 의무 (R132): 위 프로필에 맞춰 (1) 위험 성향과 맞는 포지션 사이즈/레버리지 추천 (2) 시간축에 맞는 진입 전략 + 보유 기간 (3) 선호 자산 우선 + 제외 자산 회피 + (4) 프로필과 충돌 시 명시 ("프로필이 보수적이라 이 종목은 비중 제한 권장").\n';
+    '답변 의무 (R132): 위 프로필을 전제로 (1) 위험 성향에 따라 노출 한도와 레버리지가 어떻게 달라지는지 조건별 설명 (2) 시간축별로 확인할 지표와 보유 기간 관점 정리 (3) 선호 자산을 우선 검토하고 제외 자산은 제외 사유를 밝힘 (4) 프로필과 충돌하면 충돌 지점을 명시 ("프로필이 보수적이라 이 종목은 노출 한도 점검이 필요한 조건"). 특정 비율이나 진입 시점을 지시하지 않는다.\n';
 }
 window._buildUserProfileContext = _buildUserProfileContext;
 
@@ -5435,87 +5448,84 @@ function _simulateMacroScenario(userQuery) {
   var oilMatch = q.match(/(유가|oil|wti|brent).*?\$?(\d+)\s*(이상|넘|over|돌파)/i);
   if (fedCutMatch) {
     var cutBp = Number(fedCutMatch[1]);
-    if (cutBp >= 10 && cutBp <= 200) scenario = { type: 'fed-cut', magnitude: cutBp, framework: 'Druckenmiller Macro Overlay (유동성 시그널)' };
+    if (cutBp >= 10 && cutBp <= 200) scenario = { type: 'fed-cut', magnitude: cutBp, framework: '시나리오 점검 틀' };
   } else if (fedHikeMatch) {
     var hikeBp = Number(fedHikeMatch[1]);
-    if (hikeBp >= 10 && hikeBp <= 200) scenario = { type: 'fed-hike', magnitude: hikeBp, framework: 'Druckenmiller + Bridgewater 4-Quadrant' };
+    if (hikeBp >= 10 && hikeBp <= 200) scenario = { type: 'fed-hike', magnitude: hikeBp, framework: '시나리오 점검 틀' };
   } else if (vixSpikeMatch) {
     var vixLv = Number(vixSpikeMatch[1]);
-    if (vixLv >= 15 && vixLv <= 80) scenario = { type: 'vix-spike', magnitude: vixLv, framework: 'Howard Marks Pendulum + Soros Reflexivity' };
+    if (vixLv >= 15 && vixLv <= 80) scenario = { type: 'vix-spike', magnitude: vixLv, framework: '시나리오 점검 틀' };
   } else if (spxCrashMatch) {
     var spxPct = Number(spxCrashMatch[2]);
-    if (spxPct >= 3 && spxPct <= 30) scenario = { type: 'spx-crash', magnitude: spxPct, framework: 'Marks Pendulum + Buffett Margin of Safety' };
+    if (spxPct >= 3 && spxPct <= 30) scenario = { type: 'spx-crash', magnitude: spxPct, framework: '시나리오 점검 틀' };
   } else if (dxyMatch) {
     var dxyLv = Number(dxyMatch[2]);
-    if (dxyLv >= 90 && dxyLv <= 130) scenario = { type: 'dxy-strong', magnitude: dxyLv, framework: 'Bridgewater 4-Quadrant + Druckenmiller' };
+    if (dxyLv >= 90 && dxyLv <= 130) scenario = { type: 'dxy-strong', magnitude: dxyLv, framework: '시나리오 점검 틀' };
   } else if (oilMatch) {
     var oilLv = Number(oilMatch[2]);
-    if (oilLv >= 50 && oilLv <= 200) scenario = { type: 'oil-spike', magnitude: oilLv, framework: 'Bridgewater (Stagflation) + MS Cyclical' };
+    if (oilLv >= 50 && oilLv <= 200) scenario = { type: 'oil-spike', magnitude: oilLv, framework: '시나리오 점검 틀' };
   }
   if (!scenario) return null;
-  // 자산별 영향 정량 추산 (휴리스틱 — 역사적 상관계수 기반)
+  // P1559: the earlier engine produced numeric ranges from invented elasticities (SPX +2~5% per 50bp cut, 10Y -30~60bp) and
+  // buy/overweight verdicts with named investors as authority. None of it had a source or a
+  // validation, so the scenario now states the mechanism commonly cited and what to check; it carries no number it was not given.
   var impacts = null;
   switch (scenario.type) {
     case 'fed-cut':
-      var cutMag = scenario.magnitude / 50;
       impacts = {
-        SPX: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (5 * cutMag).toFixed(1) + '%', verdict: '우호 (성장주 듀레이션 확장)' },
-        '10Y': { direction: '-' + (30 * cutMag).toFixed(0) + '~' + (50 * cutMag).toFixed(0) + 'bp', verdict: '채권 우호 (가격 상승)' },
-        DXY: { direction: '-' + (1.5 * cutMag).toFixed(1) + '~' + (3 * cutMag).toFixed(1) + '%', verdict: '달러 약세 → EM 자산 우호' },
-        Gold: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (4 * cutMag).toFixed(1) + '%', verdict: '금 우호 (실질금리 ↓)' },
-        Sector: { direction: 'Tech/REIT/Utilities OW · Financials UW', verdict: '성장주 + 배당주 우호' }
+        SPX: { direction: '성장주 할인율이 낮아지는 방향으로 해석되는 경우가 많음', verdict: '인하 이유(경기 둔화 대응인지 물가 안정인지)에 따라 반응이 갈림' },
+        '10Y': { direction: '정책금리와 함께 내려가는 방향', verdict: '기간 프리미엄과 인플레 기대 변화를 함께 확인' },
+        DXY: { direction: '미국의 금리 우위가 줄면 달러 약세 방향', verdict: '다른 중앙은행의 움직임과 비교해 확인' },
+        Gold: { direction: '실질금리 하락과 함께 움직이는 경우가 많음', verdict: '실질금리와 달러 지수를 함께 확인' },
+        Sector: { direction: '금리에 민감한 섹터가 주목받는 경우가 많음', verdict: '섹터별 실적과 밸류에이션은 따로 확인' }
       };
       break;
     case 'fed-hike':
-      var hikeMag = scenario.magnitude / 50;
       impacts = {
-        SPX: { direction: '-' + (2 * hikeMag).toFixed(1) + '~' + (5 * hikeMag).toFixed(1) + '%', verdict: '압박 (멀티플 압축)' },
-        '10Y': { direction: '+' + (30 * hikeMag).toFixed(0) + '~' + (50 * hikeMag).toFixed(0) + 'bp', verdict: '채권 약세' },
-        DXY: { direction: '+' + (1.5 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '달러 강세 → EM 자금 유출' },
-        Gold: { direction: '-' + (1 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '금 약세 (실질금리 ↑)' },
-        Sector: { direction: 'Financials/Energy OW · Tech/REIT UW', verdict: '성장주 압박, 금융주 수혜' }
+        SPX: { direction: '멀티플에 부담으로 해석되는 경우가 많음', verdict: '인상 속도와 시장이 이미 반영한 정도를 확인' },
+        '10Y': { direction: '정책금리와 함께 오르는 방향', verdict: '장단기 금리차(커브) 변화를 함께 확인' },
+        DXY: { direction: '미국의 금리 우위가 커지면 달러 강세 방향', verdict: '신흥국 자금 흐름과 함께 확인' },
+        Gold: { direction: '실질금리 상승과 함께 부담을 받는 경우가 많음', verdict: '실질금리와 달러 지수를 함께 확인' },
+        Sector: { direction: '금리 수혜 섹터와 금리 민감 섹터의 상대 성과가 갈리는 경우가 많음', verdict: '섹터별 실적은 따로 확인' }
       };
       break;
     case 'vix-spike':
-      var vixDelta = scenario.magnitude - 18;
       impacts = {
-        SPX: { direction: '-' + (vixDelta * 0.3).toFixed(1) + '~' + (vixDelta * 0.6).toFixed(1) + '%', verdict: '변동성 spike → 위험자산 매도' },
-        '10Y': { direction: '-15~30bp', verdict: '안전자산 도피 → 채권 매수' },
-        Gold: { direction: '+1~3%', verdict: '안전자산 수혜' },
-        'Quality': { direction: 'Defensive OW · High-Beta UW', verdict: '방어주 OW, 베타↑ 종목 회피' },
-        'Marks Pendulum': { direction: '비관 극단 진입 — Marks 프레임워크가 6~12개월 비대칭 구간으로 서술', verdict: '역발상 프레임 주목 구간(Marks 귀속, 지시 아님)' }
+        SPX: { direction: '변동성 급등은 위험자산 약세와 함께 나타나는 경우가 많음', verdict: 'VIX 수준보다 지속 기간과 신용 스프레드를 함께 확인' },
+        '10Y': { direction: '안전자산 선호가 원인이면 금리 하락 방향', verdict: '인플레 충격이 원인이면 반대로 움직일 수 있음' },
+        Gold: { direction: '안전자산 선호와 함께 움직이는 경우가 있음', verdict: '달러와 실질금리를 함께 확인' },
+        Sector: { direction: '방어적 섹터가 상대적으로 덜 흔들리는 경우가 많음', verdict: '보유 종목의 베타(지수 민감도)를 확인' }
       };
       break;
     case 'spx-crash':
       impacts = {
-        VIX: { direction: '+' + (scenario.magnitude * 1.5).toFixed(0) + '~' + (scenario.magnitude * 2.5).toFixed(0) + '%', verdict: '변동성 폭발' },
-        '10Y': { direction: '-30~60bp', verdict: '채권 강한 매수' },
-        Gold: { direction: '+2~5%', verdict: '안전자산 강한 수혜' },
-        Sector: { direction: 'Staples/Healthcare/Utilities OW · Cyclicals UW', verdict: '방어주 로테이션' },
-        'Buffett MoS': { direction: 'Margin of Safety 확보 시점 — 매수 검토', verdict: '역발상' }
+        VIX: { direction: '지수 급락과 함께 크게 오르는 경우가 많음', verdict: 'VIX 기간구조(단기 대비 장기)와 함께 확인' },
+        '10Y': { direction: '안전자산 선호가 원인이면 금리 하락 방향', verdict: '인플레 충격이 원인이면 반대로 움직일 수 있음' },
+        Gold: { direction: '안전자산 선호와 함께 움직이는 경우가 있음', verdict: '달러와 실질금리를 함께 확인' },
+        Sector: { direction: '방어적 섹터가 상대적으로 덜 흔들리는 경우가 많음', verdict: '섹터별 실적과 밸류에이션은 따로 확인' }
       };
       break;
     case 'dxy-strong':
       impacts = {
-        EM: { direction: '-5~15% (DXY ' + scenario.magnitude + ')', verdict: 'EM 자산 강한 압박' },
-        SPX: { direction: '-2~5%', verdict: '다국적 기업 환율 역풍' },
-        Gold: { direction: '-3~7%', verdict: '달러 강세 → 금 약세' },
-        KOSPI: { direction: '-3~8%', verdict: '외국인 자금 유출' }
+        EM: { direction: '달러 강세는 신흥국 자산에 부담이 되는 경우가 많음', verdict: '자국 금리와 외화 부채 비중을 함께 확인' },
+        SPX: { direction: '해외 매출 비중이 큰 기업의 환율 부담으로 이어질 수 있음', verdict: '기업별 해외 매출 비중과 헤지 여부를 확인' },
+        Gold: { direction: '달러 강세와 함께 부담을 받는 경우가 많음', verdict: '실질금리를 함께 확인' },
+        KOSPI: { direction: '외국인 수급과 원화 약세가 함께 거론되는 경우가 많음', verdict: '외국인 수급 흐름과 환율을 함께 확인' }
       };
       break;
     case 'oil-spike':
       impacts = {
-        Energy: { direction: '+10~25%', verdict: '에너지 섹터 강세' },
-        Airlines: { direction: '-8~20%', verdict: '항공/운송 압박' },
-        CPI: { direction: '+0.3~0.8%p', verdict: '인플레 압력 ↑' },
-        'Stagflation': { direction: 'Bridgewater Quadrant: 성장↓+인플레↑', verdict: '스태그플레이션 리스크' }
+        Energy: { direction: '에너지 섹터 수익에는 우호적으로 해석되는 경우가 많음', verdict: '유가 수준이 얼마나 지속되는지 확인' },
+        Airlines: { direction: '연료비 비중이 큰 업종에는 부담', verdict: '업종별 연료비 헤지 여부를 확인' },
+        CPI: { direction: '물가를 밀어 올리는 요인', verdict: '근원 물가로 번지는지 확인' },
+        Stagflation: { direction: '성장 둔화와 물가 상승이 함께 나타나는 조합', verdict: '성장 지표와 물가 지표를 함께 확인' }
       };
       break;
   }
   return {
     scenario: scenario,
     impacts: impacts,
-    note: '휴리스틱 (역사적 상관계수 기반) — 정확 회귀 아닌 정성+정량 가이드. ' + scenario.framework + ' 프레임 적용.'
+    note: '정성 서술입니다. 수치 추정이 아니고, 과거 반응은 원인과 시점에 따라 달랐습니다. 매매 판단은 제공하지 않습니다.'
   };
 }
 window._simulateMacroScenario = _simulateMacroScenario;
@@ -5529,8 +5539,8 @@ function _resolveTickerFromFuzzy(input) {
     '애플': 'AAPL',
     '구글': 'GOOGL', '알파벳': 'GOOGL',
     '아마존': 'AMZN',
-    '마소': 'MSFT', '마이크로': 'MSFT', '마크': 'MSFT',
-    '테슬': 'TSLA', '테슬라': 'TSLA',
+    '마소': 'MSFT', '마이크로소프트': 'MSFT',
+    '테슬라': 'TSLA',
     '메타': 'META', '페북': 'META', '페이스북': 'META',
     '퀄컴': 'QCOM',
     '인텔': 'INTC',
@@ -5558,19 +5568,13 @@ function _resolveTickerFromFuzzy(input) {
     '은': 'SI=F', 'silver': 'SI=F',
     '유가': 'CL=F', 'wti': 'CL=F', '원유': 'CL=F',
     '나스닥': '^IXIC', 'nasdaq': '^IXIC',
-    'S&P': '^GSPC', '에스앤피': '^GSPC',
+    's&p': '^GSPC', '에스앤피': '^GSPC',
     '다우': '^DJI', '다우존스': '^DJI',
     '러셀': '^RUT', '러셀2000': '^RUT'
   };
-  if (fuzzyMap[q]) return fuzzyMap[q];
-  var keys = Object.keys(fuzzyMap);
-  for (var i = 0; i < keys.length; i++) {
-    var k = keys[i].toLowerCase();
-    if (q.indexOf(k) >= 0 || (k.length >= 2 && k.indexOf(q) >= 0 && q.length >= 2)) {
-      return fuzzyMap[keys[i]];
-    }
-  }
-  return null;
+  // P1543 (owner decision P1339: no ticker guessing): the table is a curated list of exact nicknames. The previous substring loop
+  // matched any word that merely contained a key, so "금일" (today) resolved to gold futures and "마크롱" to Microsoft.
+  return Object.prototype.hasOwnProperty.call(fuzzyMap, q) ? fuzzyMap[q] : null;
 }
 window._resolveTickerFromFuzzy = _resolveTickerFromFuzzy;
 
@@ -6213,7 +6217,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   if (screenerResult && screenerResult.mode === 'diversified-recommendation') {
     systemPrompt += '\n\n【추천 다양성·반복 편향 방지 규칙】\n' +
       '이 질문은 넓은 종목 추천이다. 위 균형 추천 후보군을 1차 데이터로 사용하고, 앞부분의 고정 리서치 문단이나 최근 대화에서 자주 나온 CEG/전력/AVGO/AI 인프라 테마에 과도하게 끌리지 마라.\n' +
-      '최종 추천은 섹터·시장·시총을 분산해 3~5개만 제시한다. 같은 테마는 최대 2개. 각 추천에는 "왜 지금", "왜 이 섹터", "대체 후보", "제외/보류 조건"을 붙인다.\n' +
+      '검토 후보는 섹터·시장·시총을 분산해 3~5개만 제시한다. 같은 테마는 최대 2개. 각 후보에는 "관심을 두는 근거", "왜 이 섹터", "대체 후보", "제외/보류 조건"을 붙이고 매수 추천으로 결론짓지 않는다.\n' +
       '사용자가 선호 시장·위험성향·기간을 말하지 않았다면 단일 정답처럼 말하지 말고 균형형 기본안과 공격형/방어형 변형을 함께 제시한다.\n';
   }
   if (domainDataStr) systemPrompt += _aioWrapChatExternalContext('DOMAIN_LIVE_DATA', domainDataStr, { maxChars: 9000 });  // v50.38 트랙2: 도메인 라이브 데이터
@@ -6701,17 +6705,16 @@ async function chatSend(ctxId, _aioDispatchOptions) {
             if (_amtSim.amount) {
               _asHTML += '<div style="font-weight:700;color:#a855f7;margin-bottom:6px;">금액 시뮬레이션</div>';
               _asHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">' + escHtml(_amtSim.amount.note) + '</div>';
+              _asHTML += '<div style="font-size:10px;margin-bottom:3px;">비율은 이 화면이 정하지 않습니다. 확인할 항목:</div>';
               _asHTML += '<div style="display:grid;gap:3px;font-size:10px;">';
-              _asHTML += '<div><strong>보수적</strong>: ' + escHtml(_amtSim.amount.allocation.conservative) + '</div>';
-              _asHTML += '<div><strong>균형</strong>: ' + escHtml(_amtSim.amount.allocation.balanced) + '</div>';
-              _asHTML += '<div><strong>공격적</strong>: ' + escHtml(_amtSim.amount.allocation.aggressive) + '</div>';
+              _amtSim.amount.checks.forEach(function(item) { _asHTML += '<div>· ' + escHtml(item) + '</div>'; });
               _asHTML += '</div>';
             }
             if (_amtSim.indexScenario) {
               _asHTML += '<div style="font-weight:700;color:#a855f7;margin-top:6px;margin-bottom:6px;">' + escHtml(_amtSim.indexScenario.index) + ' ' + _amtSim.indexScenario.sign + _amtSim.indexScenario.pct + '% 시나리오 (' + _amtSim.indexScenario.direction + ')</div>';
               _asHTML += '<div style="display:grid;grid-template-columns:1fr 2fr;gap:3px;font-size:10px;">';
-              Object.keys(_amtSim.indexScenario.impacts).forEach(function(k) {
-                _asHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div>' + escHtml(_amtSim.indexScenario.impacts[k]) + '</div>';
+              Object.keys(_amtSim.indexScenario.checks).forEach(function(k) {
+                _asHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div>' + escHtml(_amtSim.indexScenario.checks[k]) + '</div>';
               });
               _asHTML += '</div>';
             }
@@ -6757,13 +6760,13 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           if (_macro && _macro.scenario && _macro.impacts) {
             var _mcDiv = document.createElement('div');
             _mcDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(255,163,26,0.06);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-primary);';
-            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">매크로 시나리오 시뮬레이션 (' + escHtml(_macro.scenario.type) + ' · 크기: ' + _macro.scenario.magnitude + ')</div>';
+            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">매크로 시나리오 점검 (' + escHtml(_macro.scenario.type) + ' · 입력값: ' + _macro.scenario.magnitude + ')</div>';
             _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">프레임: ' + escHtml(_macro.scenario.framework) + '</div>';
             _mcHTML += '<div style="display:grid;grid-template-columns:1fr 1.5fr 1.5fr;gap:4px;font-size:10px;">';
-            _mcHTML += '<div style="color:var(--text-muted);font-weight:600;">자산</div><div style="color:var(--text-muted);font-weight:600;">예상 방향</div><div style="color:var(--text-muted);font-weight:600;">판정</div>';
+            _mcHTML += '<div style="color:var(--text-muted);font-weight:600;">자산</div><div style="color:var(--text-muted);font-weight:600;">일반적 해석</div><div style="color:var(--text-muted);font-weight:600;">확인 항목</div>';
             Object.keys(_macro.impacts).forEach(function(k) {
               var imp = _macro.impacts[k];
-              _mcHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div style="font-family:var(--font-mono);">' + escHtml(imp.direction) + '</div><div>' + escHtml(imp.verdict) + '</div>';
+              _mcHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div>' + escHtml(imp.direction) + '</div><div>' + escHtml(imp.verdict) + '</div>';
             });
             _mcHTML += '</div>';
             _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">' + escHtml(_macro.note) + '</div>';

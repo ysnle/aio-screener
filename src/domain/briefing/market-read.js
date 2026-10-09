@@ -10,6 +10,7 @@
 // the observation (text) apart from the interpretation (reading), which is worded as a hypothesis.
 
 import { RULES } from '../rules/thresholds.js';
+import { countOpenSessionsBetween } from '../market/market-calendar.js';
 
 const DAY_MS = 86400000;
 
@@ -61,17 +62,9 @@ export function closeBasis(history = []) {
   return spx.length ? spx[spx.length - 1].date : null;
 }
 
-function sessionsBetween(from, to) {
-  let count = 0;
-  let cursor = Date.parse(`${from}T12:00:00Z`);
-  const end = Date.parse(`${to}T12:00:00Z`);
-  while (cursor < end) {
-    cursor += DAY_MS;
-    const day = new Date(cursor).getUTCDay();
-    if (day !== 0 && day !== 6) count += 1;
-  }
-  return count;
-}
+// P1533: US sessions after `from` up to `to` on the registered exchange calendar. Weekday-only counting read a market
+// holiday as a missed session (2026-07-01 -> 07-06 counted 3 and dropped a one-session-old input as stale).
+const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
 
 /** How one input's observation date relates to the basis: aligned · lagged · stale · ahead · missing. */
 export function alignInput(date, basis, maxLag = 2) {

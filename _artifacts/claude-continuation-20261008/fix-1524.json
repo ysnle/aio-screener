@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-08",
+ "p": {
+  "title": "Industry map listed company roles as if they were direct suppliers of a node",
+  "symptom": "On a node the role block listed every player with English role ids, so KIOXIA and Sandisk on the CXL node, IBM on optical computing and similar entries read as direct suppliers (audit H88/H89), although the registry holds no supply statement for them.",
+  "root_cause": "The registry records which products map to a node and which nodes a player belongs to; the view rendered both as one flat list and hid the difference.",
+  "fix": "rolesBlock groups 'products linked to this slot' apart from 'company role reference, no product linked here', says what the list is not, and shows registry role and category ids in Korean from two closed tables. Production stage stays hidden because the registry boundary withholds it, and the boundary wording is not shown because the page keeps source copy out of reader text.",
+  "violated_rule": "Items of unverified relation are marked as references, not facts; labels derive from registry structure, never from an invented source.",
+  "prevention": "ci-atlas-contract-check renders the block against the real registry for the three audit cases, requires a Korean label for every registry id, forbids stage words and source copy; two mutations each fail their own assertion.",
+  "verification": "Contract and atlas browser checks pass in Chromium. Not changed: MP Materials stays under the industrial-equipment node because the registry maps a product there (needs a source check) and free-text product descriptors remain English (translating them edits the registry and its generated dependants)."
+ },
+ "r": null,
+ "qa": [],
+ "changelog": [
+  "**산업 지도 기업 역할 표시 정리 (P{P}):** 제품이 연결된 곳과 기업 단위 역할 참고를 나눠 표시하고 '직접 공급을 뜻하지 않는다'는 안내를 붙였다. 역할·제품 분류 id는 한국어 표로 표시(H88·H89)."
+ ],
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard.",
+ "status": null
+}

@@ -1,6 +1,6 @@
 ---
 verified_by: product-charter-contract
-last_verified: 2026-08-24
+last_verified: 2026-10-09
 confidence: high
 auto_refresh: false
 target_version: version.json

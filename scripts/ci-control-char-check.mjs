@@ -134,11 +134,14 @@ if (process.argv.includes('--write-baseline')) {
 }
 
 // ── 3) P1500 (owner 2026-10-06): no emoji or pictographs in product code ─────────────────────
-// The shell, legacy modules and native ESM render no emoji. Arrows ↔ ↗ ↙ ▶ ◀ are typography, not
-// emoji. Lines that remove pictographs from external text keep their character classes.
+// The shell, legacy modules and native ESM render no emoji. Arrows ↔ ↗ ↙ ▶ ◀ and the UI glyphs ★ ☆ ☰
+// (watchlist star, menu icon) are typography, not emoji. Lines that remove pictographs from external text
+// keep their character classes. The glyphs are listed explicitly because \p{Extended_Pictographic} is
+// Unicode-data dependent: Node 20.20.2 (Unicode 17) does not match ★ U+2605 or ☰ U+2630, Node 22.22.0
+// (Unicode 16) does, which made this preflight gate fail on one runtime and pass on the other.
 {
   const PICTOGRAPH = /\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]/u;
-  const ALLOWED = /[↔↗↙▶◀]/gu;
+  const ALLOWED = /[↔↗↙▶◀★☆☰]/gu;
   const FILTER_LINE = /_AIO_PICTOGRAPH_RE|replace\(\/\[\\u\{1F300\}|if \(\/\^\(받\\\)|if \(\/\^\[📍|PICTOGRAPH|redCount = \(txt\.match/;
   const productFiles = ['index.html'];
   for (const dir of ['js', 'src']) {
@@ -158,6 +161,45 @@ if (process.argv.includes('--write-baseline')) {
     });
   }
   if (hits.length) errors.push(`P1500 emoji/pictograph in product code (${hits.length}): ${hits.slice(0, 12).join(', ')}`);
+
+  // P1523: trading instructions, certainty claims and unsourced probabilities that were rewritten as observation
+  // conditions must not come back. Exact phrases only (the audit found them in live legacy text), so educational
+  // descriptions of a method elsewhere never trip this.
+  const INSTRUCTION_PHRASES = [
+    ['매수 기회', /매수 기회/], ['강력한 매수', /강력한 매수/], ['최적 매수', /최적 매수/], ['비중 확대 구간', /비중 확대 구간/],
+    ['현금비중 확대 필수', /현금\s*비중 확대 필수/], ['진입 타이밍 질문', /진입 타이밍 어때/], ['시나리오 확률 요청', /확률 매겨/],
+    ['무출처 지속 확률', /지속 상승 70%/], ['무출처 초과수익', /역사적 \+?[0-9.]+% 초과수익/], ['베팅 질문', /어디에 베팅해야/],
+    ['테스트 매수', /소량 테스트 매수/], ['분할 진입 검토', /분할 진입 검토/], ['신규 매수 중단', /신규 매수 중단/],
+    ['현재 행동 지시', /현재 행동:/], ['추격 매수 자제 권고', /추격 ?매수는 자제/], ['비중 축소 검토 라벨', /비중 축소 검토/],
+    ['관망 우선 라벨', /관망 우선/], ['세력 단정', /물량 털기/], ['진짜 추세 단정', /가 진짜 추세/], ['파산 확률 단정', /파산 확률 최소화/],
+    ['신호 사다리 라벨', /'(?:중립 · 관망|주의 · 축소|위험 · 방어)'/],
+    // P1535: action enums are internal; the reader sees load levels, and prompts state conditions instead of a verdict.
+    ['매수 우호 라벨', /매수 우호/], ['포지션 사이즈 지시 표시', /포지션 사이즈: |포지션 사이즈 축소 권장/], ['센티먼트 행동 라벨', /센티먼트 행동:/],
+    ['진입 전략 요청', /진입 전략 알려줘/], ['행동 결론 강제', /행동 결론\(/], ['확실한 우위 단정', /확실한 우위/], ['비중 제한 권장', /비중 제한 권장/],
+    ['최종 추천 강제', /최종 추천 시/], ['행동 코드 직접 표시', /_itbBadge\((?:item|result|sp|sellPressure|lock|blowoffTop)\.action/],
+    // P1538: letter grades, composite verdicts and per-line instructions retired from the technical and portfolio analysis.
+    ['진입 등급 카드', /진입 등급/], ['기관급 판정 라벨', /기관급 (?:후보|미너비니)/], ['등급 진입 문구', /등급\s*진입\s*(?:기회|품질)/], ['손절 검토 대상 목록', /손절 검토 대상/],
+    ['현금비중 권고', /현금비중\s*30%\+?\s*권장/], ['매도 계획 준비 문구', /매도 계획 준비/], ['이익실현 재배치 지시', /승자 일부 이익실현/], ['해자 등급 판정', /verdict\s*=\s*score\s*>=\s*7\s*\?/], ['생태계 점수 판정', /Strong Platform\/Ecosystem|ecosystemScore\s*[:=]/],
+    ['리스크 등급 n/5', /등급\s*'\s*\+\s*riskGrade/], ['엔진 점수 직접 표시', /instEngine\.(?:score|verdict)/],
+    // P1540: the score's own long-run validation shows no positive relation to forward returns, so its bands name the stress signals
+    // observed, not a favourable environment; the band explanations no longer tell the reader to trim, hold cash or stay out.
+    ['환경 우호 라벨', /환경 우호/], ['환경 양호 밴드 라벨', /(?:>=\s*60\s*\?\s*|● )'?환경 양호|환경 양호 —/], ['신규 진입 자제 문구', /신규 진입 자제/], ['리스크 자산 비중 축소 문구', /리스크 자산 비중 축소/],
+    ['공격적 포지셔닝 문구', /공격적 포지셔닝/], ['동반 상승 기대 문구', /동반 상승 기대/],
+    ['P1557 포지션 비율 직접 표시', /대응: 포지션|% 포지션 —|plan\.position\.sizePct|position\.sizePct/],
+    ['P1551 패턴·KR 서술 지시 문구', /기존 전략을 유지하세요|빠른 진입 준비|방어적 포지션 유지|방어적 포지션 우선|패닉 매도 진행 중|트레이딩 스코어 <b|현금비중 50% 이상|방산·필수소비재 방어 전략|성장 테마에 유리한 환경|하락 압력 극대화|가장 우호적인 국면|채권 강한 매수|매수 검토|현금 비중 50%/],
+    ['P1546 영어 매매 지시 문구', /Trim the trading lot|Exit the tactical lot|Reduce roughly half|Raise stops and let|keep normal position sizing/],
+    ['P1546 기술 브리프 점수 표기', /_itbNum\((?:sellPressure|sp|lock|blowoffTop|result)\.(?:score|heatScore), 0\) \+ '\/100/],
+    ['P1546 전술 프레임 지시 문구', /성급한 진입 금지|지지\/리클레임 미확정 구간에서는 숏 금지|무효화 라인을 먼저 둔다|먼저 구분한 뒤 실행한다|분리해 태깅한다/]
+  ];
+  const instructionHits = [];
+  for (const file of productFiles) {
+    // js/aio-tests.js holds negative assertions that must name the forbidden phrases (e.g. noPrescriptiveAction).
+    if (file === 'js/aio-tests.js') continue;
+    read(file).split('\n').forEach((line, index) => {
+      for (const [name, pattern] of INSTRUCTION_PHRASES) if (pattern.test(line)) instructionHits.push(`${file}:${index + 1} (${name})`);
+    });
+  }
+  if (instructionHits.length) errors.push(`P1523 trading-instruction phrase in product code (${instructionHits.length}): ${instructionHits.slice(0, 12).join(', ')}`);
 }
 
 if (errors.length) {

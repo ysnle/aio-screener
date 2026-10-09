@@ -6,7 +6,7 @@
 // 20 days. The home took the last 20 history ROWS — one per collection day, weekends and holidays included with the
 // close carried forward — i.e. about 14 sessions. Both screens now use the same session series (one point per
 // trading date, carried-forward values excluded), so 20 sessions means 20 sessions on every screen.
-import { buildCloseSeries } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 
 const CELLS = Object.freeze([
   { selector: '[data-live-price="ES=F"]', field: 'spx', label: 'S&P 500' },
@@ -17,8 +17,10 @@ const CELLS = Object.freeze([
 const SESSIONS = 20;
 
 export function trendPoints(history, field, sessions = SESSIONS) {
-  // sessions + 1 closes span `sessions` session-to-session changes.
-  return buildCloseSeries(history, field).slice(-(sessions + 1));
+  // sessions + 1 closes span `sessions` session-to-session changes. P1527: stop at the common close basis (the S&P 500's
+  // last completed close) like 시장 상태 does; an intraday or pre-market row dated after it is not a completed close and
+  // moved the 10-year yield "20거래일" change to +45bp on the home against +47bp on 시장 상태.
+  return buildCloseSeries(history, field, { through: closeBasis(history) }).slice(-(sessions + 1));
 }
 
 function svgLine(doc, points, width = 120, height = 26) {

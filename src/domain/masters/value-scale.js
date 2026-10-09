@@ -19,9 +19,10 @@ const cusipOf = (row) => String(row?.cusipNormalized || row?.cusip || '').toUppe
 
 /**
  * @param {Array<object>} rows holdings rows from several filers (managerId, reportPeriod, cusip, value, shares)
+ * A row is compared only when at least `minPeers` other filers report the same CUSIP and period.
  * @returns {Map<string, {ratio:number, comparedRows:number}>} keyed by `${managerId}|${period}`
  */
-export function detectValueScaleSuspects(rows = [], { minRows = 2, low = 1 / 200, high = 200 } = {}) {
+export function detectValueScaleSuspects(rows = [], { minRows = 2, minPeers = 2, low = 1 / 200, high = 200 } = {}) {
   const byKey = new Map();
   for (const row of Array.isArray(rows) ? rows : []) {
     if (!comparable(row) || !cusipOf(row) || !periodOf(row)) continue;
@@ -34,7 +35,12 @@ export function detectValueScaleSuspects(rows = [], { minRows = 2, low = 1 / 200
     const period = key.split('|')[1];
     for (const item of list) {
       const peers = list.filter((other) => other.managerId !== item.managerId).map((other) => other.price);
-      if (!peers.length) continue;
+      // P1530: one peer cannot say which of two filers is off (each looks 1,000x away from the other), so the
+      // normal filer of a two-filer security would be flagged along with the odd one. Two peers keep the median honest.
+      if (peers.length < minPeers) continue;
+      // P1560: with exactly two peers the median is their mean, so one filer reporting 1,000x too high drags the mean up and
+      // makes both normal filers look 1,000x too low. Two peers are a reference only when they agree with each other.
+      if (peers.length === 2 && Math.max(...peers) / Math.min(...peers) > 2) continue;
       const managerKey = `${item.managerId}|${period}`;
       if (!ratios.has(managerKey)) ratios.set(managerKey, []);
       ratios.get(managerKey).push(item.price / median(peers));
@@ -56,9 +62,32 @@ export function withholdSuspectValues(rows = [], suspects = new Map(), { period 
   if (!suspects?.size || !Array.isArray(rows)) return rows;
   return rows.map((row) => {
     const review = suspects.get(`${row?.managerId || managerId}|${periodOf(row, period)}`);
-    if (!review) return row;
+    // Idempotent: a shard that finished before detection is withheld again, and must keep its first as-filed memo.
+    if (!review || row?.valueScaleStatus === 'SCALE_REVIEW') return row;
     return { ...row, reportedValueAsFiled: row.value ?? null, value: null, priorValue: null, valueDelta: null, valueScaleStatus: 'SCALE_REVIEW' };
   });
+}
+
+/**
+ * Managers with at least one filing under review. Detection needs same-CUSIP peers in the same period, which only
+ * the current quarter has on the page, but a filer keeps its unit across quarters: the same ~1,000x ratio appears in
+ * every earlier quarter of the same manager in history-holdings.json. Dollar amounts of those managers are withheld
+ * wherever a prior quarter, a reverse-lookup index row or an issuer aggregate would otherwise show them.
+ */
+export function managersUnderScaleReview(suspects = new Map()) {
+  return new Set([...(suspects?.keys?.() || [])].map((key) => String(key).split('|')[0]).filter(Boolean));
+}
+
+/** Withhold dollar amounts of every row that belongs to a manager under scale review, whatever its period. */
+export function withholdManagerValues(rows = [], managers = new Set()) {
+  if (!managers?.size || !Array.isArray(rows)) return rows;
+  return rows.map((row) => (managers.has(row?.managerId) && row.valueScaleStatus !== 'SCALE_REVIEW'
+    ? { ...row, reportedValueAsFiled: row.value ?? null, value: null, priorValue: null, valueDelta: null, valueScaleStatus: 'SCALE_REVIEW' }
+    : row));
+}
+
+export function describeValueScaleCarryover() {
+  return '이 운용사의 최신 신고는 금액 단위가 다른 신고와 어긋나 있어 금액을 보류 중입니다. 같은 운용사의 이전 분기도 같은 단위일 수 있어 금액·합계를 표시하지 않습니다. 주식 수와 행 수는 신고한 그대로입니다.';
 }
 
 export function describeValueScaleReview(review) {

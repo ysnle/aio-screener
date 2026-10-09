@@ -883,6 +883,15 @@ check('telegram digest regenerates narrative and all-page routing from current a
 check('telegram digest separates the completed 24h lane from the rolling research window', /windowKind:\s*'research-14d'/.test(fetchTelegram) && /current24hWindow/.test(fetchTelegram) && /current24hCoverage/.test(fetchTelegram) && /current24hItems/.test(fetchTelegram) && /14-day research window/.test(fetchTelegram));
 check('telegram ticker extraction expands through SCREENER_DB aliases', /loadScreenerAliases/.test(fetchTelegram) && /SCREENER_ALIASES/.test(fetchTelegram) && /screener alias load failed/.test(fetchTelegram));
 check('telegram digest registers four channels and fail-closed source catalog', /CHANNEL_CATALOG/.test(fetchTelegram) && /HANAchina/.test(fetchTelegram) && /sourceCatalog/.test(fetchTelegram) && /CHANNELS\.map\(slug/.test(fetchTelegram) && /collectionStatus:'failed'/.test(fetchTelegram));
+{
+  // P1544: ticker symbols match case-sensitively; ordinary English words must not become tickers.
+  const { matchTickers } = await import('./lib/telegram-tickers.mjs');
+  const plain = matchTickers('To be or not to be: a cat, a mu, a meta lite plan, a coherent oracle of apple and azure gemini');
+  check('P1544 ordinary English words (be/cat/mu/meta/lite/coherent/oracle/apple) are not tagged as tickers', plain.length === 0, plain.join(','));
+  const real = matchTickers('BE rose on SOFC demand while Micron and MU, TSMC TPU, Oracle, Coherent and Apple moved');
+  check('P1544 uppercase symbols and capitalized names still resolve', ['BE', 'MU', 'TSM', 'AVGO', 'ORCL', 'COHR', 'AAPL'].every((t) => real.includes(t)), real.join(','));
+  check('P1544 telegram producer delegates ticker matching to the case-sensitive matcher', /matchTickers\(stripLinks\(text\), SCREENER_ALIASES\)/.test(fetchTelegram) && !/\['BE', \/\\bBE\\b\|Bloom Energy\|SOFC\/i\]/.test(fetchTelegram));
+}
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));
 check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener metadata', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(data));

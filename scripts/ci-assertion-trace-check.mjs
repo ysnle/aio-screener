@@ -51,7 +51,24 @@ const targets = [
   'js/aio-tests.js',
 ];
 
+// P1545: format-only evidence let a fabricated "P9999" pass. A cited P####/R### id must resolve to a ledger
+// entry (any mention in _context/*.md or CHANGELOG.md). Labels that also cite a non-ledger id (T###, QA-…,
+// workstream ids) keep that evidence, so only labels whose sole evidence is an unresolvable P/R id fail.
+const ledgerText = [
+  ...readdirSync(join(root, '_context')).filter((name) => name.endsWith('.md')).map((name) => `_context/${name}`),
+  'CHANGELOG.md',
+].filter((rel) => existsSync(join(root, rel))).map(read).join('\n');
+const ledgerHas = (id) => new RegExp(`(?:^|[^A-Za-z0-9])${id}(?![0-9])`).test(ledgerText);
+const LEDGER_ID = /(?:^|[^A-Za-z0-9])([PR]\d{2,4})(?![0-9])/g;
+const OTHER_EVIDENCE = /(?:^|[^A-Za-z0-9])(?:QA-[A-Z0-9-]+|T\d{3,5}|WP-AI\d+|WP-\d+|AIQ-[A-Z0-9-]+|RM-\d+|EF-\d+|H[23]-[A-Z0-9]+|LIVE3-\d+|W\d-\d+|SA-?\d{2}|PFE2-\d+|AR-\d+|S\d)(?![0-9])/;
+function unresolvedLedgerOnly(label) {
+  const ids = [...label.matchAll(LEDGER_ID)].map((match) => match[1]);
+  if (!ids.length || ids.some(ledgerHas) || OTHER_EVIDENCE.test(label)) return null;
+  return ids;
+}
+
 const unlabeled = {};
+const dangling = [];
 let total = 0;
 let unlabeledTotal = 0;
 for (const file of targets) {
@@ -62,6 +79,10 @@ for (const file of targets) {
   const missing = labels.filter((label) => !EVIDENCE.test(label));
   unlabeledTotal += missing.length;
   if (missing.length) unlabeled[file] = missing.map(hash).sort();
+  for (const label of labels) {
+    const ids = unresolvedLedgerOnly(label);
+    if (ids) dangling.push(`${file}: ${ids.join('/')} — ${label.slice(0, 90)}`);
+  }
 }
 
 if (write) {
@@ -89,6 +110,13 @@ const untraced = [];
 for (const [file, hashes] of Object.entries(unlabeled)) {
   const allowed = new Set(known[file] || []);
   for (const id of hashes) if (!allowed.has(id)) untraced.push(`${file}#${id}`);
+}
+
+if (dangling.length) {
+  console.error('Assertion trace check failed:');
+  console.error(` - ${dangling.length} assertion label(s) cite a P/R id that no ledger entry contains (P1545):`);
+  for (const entry of dangling.slice(0, 20)) console.error(`   ${entry}`);
+  process.exit(1);
 }
 
 if (untraced.length) {

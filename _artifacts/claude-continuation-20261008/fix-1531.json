@@ -1,0 +1,20 @@
+{
+ "version": "v57.30",
+ "date": "2026-10-09",
+ "note": "v57.30 — P1520 Worker deploy convergence after data-only main advance, P1521 pictograph gate portability, P1522 13F scale review at every consumer, P1523 observation-condition wording, P1524 industry-map role grouping, P1525 AI numeric prose units, P1526 compatibility event semantics, P1527 home trend close basis, P1528 chain date guard, P1529 trend chart month labels, P1530 13F two-filer detection, P1531 industry-map Korean product lines, P1532 fast-plane all-stale fallthrough, P1533 domain-level exchange calendar, P1534 one set of VIX and Fear & Greed bands, P1535 action enums out of reader text, P1536 concentration quote provenance, P1537 news scope and concept-map relation labels.",
+ "status": null,
+ "qa": [],
+ "p": {
+  "title": "Industry map product lines were English registry text on a Korean page",
+  "symptom": "The role block printed each product's problemSolved from the registry (for example 'parallel AI training and inference') beside Korean labels.",
+  "root_cause": "The renderer printed the registry string as is. The registry is English only, and editing it would regenerate dependent artifacts.",
+  "fix": "industry-view.js carries PRODUCT_PROBLEM_LABELS, a Korean line per productId (22), restating the registry line without volume, share, customer or production claims. A product without an entry shows no line and never the English text. The registry mapping of MP Materials to an equipment node is left as registered.",
+  "violated_rule": "Reader-facing text is Korean and is never a raw registry string.",
+  "prevention": "ci-atlas-contract-check P1531: every registry product has a Korean line, the table has no unknown ids, the English text never reaches the rendered block, and a product mapped to a node shows its Korean line.",
+  "verification": "The atlas contract check passes with the real registry. Not verified: wording quality of the 22 lines by a domain reader."
+ },
+ "r": null,
+ "changelog": [
+  "**산업 지도 제품 설명 한국어화 (P{P}):** 제품군 설명이 레지스트리의 영문 문장으로 표시되던 것을 productId별 한국어 표로 교체. 표에 없는 제품은 영문을 대신 보이지 않고 설명을 생략한다."
+ ]
+}

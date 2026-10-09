@@ -1000,6 +1000,16 @@
     var pf = window.calcPortfolioTechnicalRisk ? window.calcPortfolioTechnicalRisk([{ ticker: 'NVDA', qty: 10, cost: 100, price: 150 }], [pos], { totalValue: 1500 }) : null;
     _assert('T112 portfolio_technical_risk: aggregate', pf && pf.items && pf.items.length === 1 && pf.heatScore >= 0, pf && pf.state);
 
+    // P1536: the technical snapshot close is a reference price; only a live decision-grade quote makes an exposure and a weight.
+    var cachedPos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100, price: 150, quoteSourceKind: 'cached-close' }, aiHot, { totalValue: 1500 }) : null;
+    var unlabeledPos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100 }, aiHot, { totalValue: 1500 }) : null;
+    var livePos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100, price: 150, quoteSourceKind: 'live-quote' }, aiHot, { totalValue: 1500 }) : null;
+    _assert('P1536 position_technical_risk: a cached close or a missing quote gives no exposure or weight',
+      cachedPos && unlabeledPos && cachedPos.state === 'DATA_INSUFFICIENT' && cachedPos.weightPct === null && cachedPos.value === null && unlabeledPos.state === 'DATA_INSUFFICIENT' && unlabeledPos.weightPct === null && unlabeledPos.value === null,
+      JSON.stringify({ cached: cachedPos && [cachedPos.state, cachedPos.weightPct, cachedPos.value], unlabeled: unlabeledPos && [unlabeledPos.state, unlabeledPos.weightPct, unlabeledPos.value] }));
+    _assert('P1536 position_technical_risk: a live quote still produces the exposure and weight',
+      livePos && livePos.state === 'CURRENT' && livePos.weightPct === 100 && livePos.value === 1500, livePos && JSON.stringify([livePos.state, livePos.weightPct, livePos.value]));
+
     var news = window.calcNewsImpactVector ? window.calcNewsImpactVector({ title: 'Nebius buys Eigen AI inference optimization for GPU token factory', desc: 'AI infrastructure and data center demand', topic: 'semi', tier: 1 }) : null;
     _assert('T113 news_impact_vector: AI infra factor', news && news.factor === 'AI_INFRA_SEMI' && news.urgency >= 40, news && JSON.stringify(news));
 
@@ -1009,7 +1019,7 @@
     var promptOk = false;
     try {
       var ctx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.technical;
-      promptOk = !!ctx && /HOLD_CORE|TRIM_25_33|EXIT_OR_HEDGE/.test(String(ctx.system || ctx.prompt || ctx));
+      promptOk = !!ctx && /위험관리 방식이 논의되는지 조건부로 설명/.test(String(ctx.system || ctx.prompt || ctx));
     } catch(_) {}
     _assert('T115 prompt_consistency: action ladder present', promptOk, 'technical prompt missing action ladder');
   }
@@ -1073,6 +1083,15 @@
 
     var action = window.calcLockoutAction ? window.calcLockoutAction({ extension: ext, candle: exRisk, opexGamma: opex, breadth: breadthBad, portfolioExposure: { score: 45, flags: ['TEST_PORTFOLIO_HEAT'] } }) : null;
     _assert('T131 lockout_action: final action escalates', action && ['TRIM_25_33','TRIM_50','EXIT_OR_HEDGE'].indexOf(action.action) >= 0 && action.regime, action && JSON.stringify(action));
+
+    // P1558: missing readings are not calm, and no raw identifier or action verb reaches the reader as a badge.
+    var emptyLockout = window.calcLockoutAction ? window.calcLockoutAction({}) : null;
+    var noReadingLockout = window.calcLockoutAction ? window.calcLockoutAction({ extension: { score: 0, flags: ['DATA_INSUFFICIENT'] }, candle: { score: 0, flags: ['DATA_INSUFFICIENT'] } }) : null;
+    var flagLabels1558 = typeof _itbFlagLabel === 'function' ? ['DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE', 'CLOSE_BELOW_10EMA_TRIM_TRADING_LOT', 'NOT_A_KNOWN_FLAG', 'LOCKOUT_ACTION_TRIM_50'].map(_itbFlagLabel) : null;
+    _assert('P1558 T131b 입력 없는 Lockout은 판단 보류이고, 플래그 배지에 영어 식별자·행동 동사가 나오지 않는다',
+      !!emptyLockout && emptyLockout.action === 'WAIT' && emptyLockout.score === null && !!noReadingLockout && noReadingLockout.action === 'WAIT' &&
+      !!flagLabels1558 && flagLabels1558.every(function(label) { return !/TRIM|REDUCE|NO_ADD|_/.test(label); }) && flagLabels1558[2] === '기타 신호',
+      JSON.stringify({ empty: emptyLockout && emptyLockout.action, none: noReadingLockout && noReadingLockout.action, labels: flagLabels1558 }));
 
     var promptOk = false;
     try {
@@ -2256,16 +2275,16 @@
       typeof (window.AIO && window.AIO.fetchPartnershipAlerts));
 
     // T478: fetchPlatformEcosystem (#13 플랫폼/생태계) — dataConfidence 의무 (R117)
-    _assert('T478 fetch_platform_ecosystem_v4965: AIO.fetchPlatformEcosystem 함수 정의 + dataConfidence 분기',
+    _assert('T478 fetch_platform_ecosystem_v4965 + P1538: AIO.fetchPlatformEcosystem 함수 정의 + dataConfidence 분기, 키워드 점수(ecosystemScore)와 등급을 만들지 않음',
       typeof (window.AIO && window.AIO.fetchPlatformEcosystem) === 'function' &&
       /dataConfidence/.test(window.AIO.fetchPlatformEcosystem.toString()) &&
-      /find\(function\(r\)/.test(window.AIO.fetchPlatformEcosystem.toString()),
+      !/ecosystemScore|Strong Platform/.test(window.AIO.fetchPlatformEcosystem.toString()),
       typeof (window.AIO && window.AIO.fetchPlatformEcosystem));
 
     // T479: computeMoatScore (#7 기술력/해자 — Morningstar 대체)
-    _assert('T479 compute_moat_score_v4965: AIO.computeMoatScore 함수 정의 + verdict (Wide/Narrow/None)',
+    _assert('T479 compute_moat_score_v4965 + P1538: AIO.computeMoatScore 함수 정의, 등급(Wide/Narrow/None)과 점수를 만들지 않고 관측값만 반환',
       typeof (window.AIO && window.AIO.computeMoatScore) === 'function' &&
-      /Wide|Narrow|None/.test(window.AIO.computeMoatScore.toString()),
+      !/Wide|Narrow/.test(window.AIO.computeMoatScore.toString()) && /evidence/.test(window.AIO.computeMoatScore.toString()),
       typeof (window.AIO && window.AIO.computeMoatScore));
 
     // T480: computeTAMEstimate + AIO_INDUSTRY_TAM_REGISTRY 정의
@@ -2661,14 +2680,41 @@
     _assert('T534 simulate_macro_v4969: _simulateMacroScenario + 6+ 시나리오 (fed-cut/hike/vix/spx/dxy/oil)',
       typeof window._simulateMacroScenario === 'function' && has6Scenarios,
       'fn=' + typeof window._simulateMacroScenario + ' scenarios=' + has6Scenarios);
+    var macroQs1559 = ['Fed 50bp 인하 시', 'Fed 25bp 인상 시', 'VIX 35 넘으면', 'SPX 10% 하락 시', '달러 DXY 110 돌파 시', '유가 WTI 100 돌파 시'];
+    var macroOut1559 = typeof window._simulateMacroScenario === 'function' ? macroQs1559.map(function(question) { return window._simulateMacroScenario(question); }) : [];
+    var macroText1559 = JSON.stringify(macroOut1559.map(function(out) { return out && { impacts: out.impacts, note: out.note }; }));
+    _assert('P1559 T534b 매크로 시나리오는 수치 범위·OW/UW·매수 판정·투자자 귀속 없이 정성 점검 항목만 낸다',
+      macroOut1559.length === 6 && macroOut1559.every(function(out) { return !!out && !!out.impacts; }) &&
+      !/\d+~\d+|[+\-]\d+(?:\.\d+)?(?:%|bp)|OW|UW|매수|회피|Buffett|Marks|Bridgewater|Druckenmiller|Soros/.test(macroText1559),
+      macroText1559.slice(0, 200));
 
     // T535: _resolveTickerFromFuzzy 함수 정의 + 한글 약어 매핑 (엔비 → NVDA / 삼전 → 005930.KS)
     var fuzzyTest1 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('엔비');
     var fuzzyTest2 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('삼전');
     var fuzzyTest3 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('테슬라');
+    var fuzzyNoGuess = window._resolveTickerFromFuzzy && [window._resolveTickerFromFuzzy('금일'), window._resolveTickerFromFuzzy('마크롱'), window._resolveTickerFromFuzzy('은행'), window._resolveTickerFromFuzzy('마이크로소프트')];
     _assert('T535 resolve_fuzzy_v4969: _resolveTickerFromFuzzy — 엔비→NVDA, 삼전→005930.KS, 테슬라→TSLA',
       fuzzyTest1 === 'NVDA' && fuzzyTest2 === '005930.KS' && fuzzyTest3 === 'TSLA',
       'fuzzy1=' + fuzzyTest1 + ' fuzzy2=' + fuzzyTest2 + ' fuzzy3=' + fuzzyTest3);
+    _assert('T535b resolve_fuzzy_exact_only (P1543/P1339): a word that merely contains a nickname or is part of one resolves to nothing; a full registered name still resolves',
+      !!fuzzyNoGuess && fuzzyNoGuess[0] === null && fuzzyNoGuess[1] === null && fuzzyNoGuess[2] === null && fuzzyNoGuess[3] === 'MSFT', JSON.stringify(fuzzyNoGuess));
+
+    // T535c (P1550/P1339): a token or a substring is never attributed to another issuer.
+    var attr1550 = null;
+    try {
+      var kr1550 = typeof extractTickers === 'function' ? [extractTickers({ title: '모델 업데이트와 메타버스 전망' }), extractTickers({ title: '델이 서버 신제품을 발표' })] : null;
+      var acr1550 = typeof _extractTickers === 'function' ? _extractTickers('SEC and FED said USD and WTI moved, CEO commented') : null;
+      var msNews1550 = null;
+      var cacheEmpty1550 = typeof newsCache !== 'undefined' && typeof _aioTickerNewsFromCache === 'function';
+      if (cacheEmpty1550) {
+        var prevCache1550 = newsCache;
+        newsCache = [{ title: 'Morgan Stanley raises its price target', desc: 'MS upgraded the bank', tickers: ['MS'], source: 'fixture', pubDate: new Date().toISOString() }];
+        try { msNews1550 = _aioTickerNewsFromCache('MSFT'); } finally { newsCache = prevCache1550; }
+      }
+      attr1550 = { modelNoDell: !!kr1550 && kr1550[0].indexOf('DELL') < 0 && kr1550[0].indexOf('META') < 0, dellAlone: !!kr1550 && kr1550[1].indexOf('DELL') >= 0, acronyms: !!acr1550 && acr1550.length === 0, msNotMsft: msNews1550 === '', ranNews: cacheEmpty1550 && msNews1550 !== null };
+    } catch (e1550) { attr1550 = { error: String(e1550 && e1550.message || e1550) }; }
+    _assert('T535c ticker_attribution_no_substring_or_alias_leak (P1550): "모델/메타버스" are not DELL/META, "델이" is DELL, SEC/FED/USD/WTI/CEO are not tickers, a Morgan Stanley item is not MSFT news',
+      !!attr1550 && attr1550.modelNoDell === true && attr1550.dellAlone === true && attr1550.acronyms === true && attr1550.msNotMsft === true && attr1550.ranNews === true, JSON.stringify(attr1550));
 
     // T536: chatSend 통합 — 5 신규 함수 모두 호출 (followUp/autoNav/pfSim/macroSim/fuzzyResolve)
     var csSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
@@ -2748,6 +2794,12 @@
         amt && amt.amount && amt.amount.krw === 100000000 &&
         pct && pct.indexScenario && pct.indexScenario.sign === '-' && pct.indexScenario.pct === 5,
         'amt=' + (amt && amt.amount && amt.amount.krw) + ' pct=' + (pct && pct.indexScenario && pct.indexScenario.pct));
+      var usd1559 = window._aioSimulateAmountOrPct('1000달러 투자', []);
+      _assert('P1559 T546b 금액·지수 시나리오는 배분 비율, 투자자 귀속, 임의 탄력도·포지션 문구를 내지 않는다',
+        !!amt && !!amt.amount && amt.amount.allocation === undefined && !/%|Bridgewater|Ackman|GS/.test(JSON.stringify(amt.amount)) &&
+        !!pct && !!pct.indexScenario && pct.indexScenario.impacts === undefined && !/%|bp|OW|UW|현금 비중|매수/.test(JSON.stringify(pct.indexScenario.checks)) &&
+        (usd1559 === null || !usd1559.amount),
+        JSON.stringify({ amt: amt && amt.amount, checks: pct && pct.indexScenario && pct.indexScenario.checks }));
     } else {
       _assert('T546 simulate_fn_missing', false, 'fn missing');
     }
@@ -4175,13 +4227,13 @@
     // 단일 출처는 THRESHOLD_REGISTRY.VIX이므로 레지스트리 레벨에서 6 bands + 라벨 정합을 검증
     var vixReg = window.AIO_THRESHOLD_REGISTRY && window.AIO_THRESHOLD_REGISTRY.VIX;
     var vixBands = (vixReg && vixReg.bands) || [];
-    _assert('T305 vix_registry_6bands: THRESHOLD_REGISTRY.VIX 6 bands (표는 declutter로 제거, 레지스트리가 단일 출처)',
-      vixBands.length === 6, 'bands=' + vixBands.length);
+    _assert('T305 vix_registry_4bands (P1564): THRESHOLD_REGISTRY.VIX는 공통 4구간(18/25/32)이다',
+      vixBands.length === 4 && vixBands[0].max === 18 && vixBands[1].max === 25 && vixBands[2].max === 32, 'bands=' + vixBands.map(function(b) { return b.max; }).join(','));
 
     var vixLabels = vixBands.map(function(b) { return (b && (b.label || b[1])) || ''; }).join(' ');
-    _assert('T306 vix_registry_labels: VIX bands 라벨에 "주의" + "극단" 계열 포함 (R56 REGISTRY 정합)',
-      /주의/.test(vixLabels) && /극단|패닉/.test(vixLabels),
-      'labels=' + vixLabels.slice(0, 60));
+    _assert('T306 vix_registry_labels (P1564): VIX 구간 이름은 공통 이름이고 패닉·극단 문구가 없다',
+      vixLabels === '저변동 구간 통상 범위 변동성 경계 구간 고변동 구간',
+      'labels=' + vixLabels.slice(0, 80));
 
     // T307: L4224 오타 `뷰블` 제거
     var homeEl = document.getElementById('page-home');
@@ -4844,10 +4896,13 @@
       plan && Array.isArray(plan.actions) && plan.actions.length > 0,
       plan ? 'actions=' + plan.actions.length : 'undefined');
 
-    // T216: ACTION_RULES VIX 35 → sizePct 15 (공포 구간)
+    // T216 (P1557): ACTION_RULES VIX 35 → 고변동 구간, with the 18/25/32 edges and no position size anywhere in the rules
     var pos35 = ar && ar.positionSizing ? ar.positionSizing.getRule(35) : null;
-    _assert('T216 action_vix35: VIX 35 → sizePct 15 (공포)',
-      pos35 && pos35.sizePct === 15, pos35 ? 'sizePct=' + pos35.sizePct : 'undefined');
+    var posEdges1557 = ar && ar.positionSizing ? [17.9, 18, 24.9, 25, 31.9, 32].map(function(v) { var r = ar.positionSizing.getRule(v); return r && r.label; }) : null;
+    _assert('T216 action_vix35 + P1557: VIX 35 → 고변동 구간, 경계 18/25/32, 포지션 비율(sizePct) 없음',
+      !!pos35 && pos35.label === '고변동 구간' && pos35.sizePct === undefined &&
+      JSON.stringify(posEdges1557) === JSON.stringify(['저변동 구간', '통상 범위', '통상 범위', '변동성 경계 구간', '변동성 경계 구간', '고변동 구간']),
+      JSON.stringify({ pos35: pos35 && pos35.label, edges: posEdges1557 }));
 
     // T217: AIO_PAGE_PURPOSE_REGISTRY 12 페이지 등록
     var pr = window.AIO_PAGE_PURPOSE_REGISTRY;
@@ -4994,8 +5049,8 @@
 
     // T194: VIX 18 → '정상 Risk-On' 라벨 (P219 근본 검증)
     var vixLabel = reg && reg.VIX ? reg.VIX.getLabel(18).label : '';
-    _assert('T194 vix_label_18: VIX 18 → 정상 Risk-On',
-      vixLabel === '정상 Risk-On', 'got: ' + vixLabel);
+    _assert('T194 vix_label_18 (P1564): VIX 18 → 통상 범위 (18 미만이 저변동)',
+      vixLabel === '통상 범위', 'got: ' + vixLabel);
 
     // T195: HY 289 → 'Tight → Complacent' (P219 근본 검증)
     var hyLabel = reg && reg.HY_SPREAD ? reg.HY_SPREAD.getLabel(289).label : '';
@@ -5874,6 +5929,16 @@
       t791detail = 'snap=' + hasSnap791 + ' now=' + hasNow791 + ' drift=' + hasDrift791 + ' severity=' + (d791 && d791.severity);
     } catch(e) { t791detail = 'ERR:' + e.message; }
     _assert('T791 v5025_regime_helpers: _aioSnapshotRegime/_aioRegimeNow/_aioRegimeDrift 정의 + 반환 구조', t791ok, t791detail);
+    // P1562: the drift alert judges F&G on the same rounded zones as its labels; the VIX names are the shared band names.
+    if (typeof window._aioRegimeDrift === 'function') {
+      var sameZone1562 = window._aioRegimeDrift({ vix: 20, fg: 55, spx: 5000 }, { vix: 20, fg: 44.6, spx: 5000 });
+      var oppositeZone1562 = window._aioRegimeDrift({ vix: 20, fg: 70, spx: 5000 }, { vix: 20, fg: 30, spx: 5000 });
+      var vixNames1562 = window._aioRegimeDrift({ vix: 15, fg: 50, spx: 5000 }, { vix: 34, fg: 50, spx: 5000 });
+      _assert('P1562 T791b 같은 F&G 구간(55→44.6)은 심각 경보가 아니고, 탐욕↔공포 반대편은 심각이며, VIX 구간 이름은 공통 이름이다',
+        sameZone1562.severity !== 'severe' && oppositeZone1562.severity === 'severe' &&
+        vixNames1562.reasons.some(function(reason) { return reason.k === 'VIX' && /저변동 구간/.test(reason.msg) && /고변동 구간/.test(reason.msg); }),
+        JSON.stringify({ same: sameZone1562.severity, opposite: oppositeZone1562.severity, vix: vixNames1562.reasons.map(function(reason) { return reason.msg; }) }));
+    }
 
     // T792: 드리프트 판정 로직 — 알려진 stamp↔now로 severe 검출 (SPX -3.8% + VIX 밴드 + F&G 탐욕→공포)
     var t792ok = false, t792detail = '';
@@ -8131,11 +8196,14 @@
     var blocked933 = gate933 ? gate933('결론: NVDA $100 매수 추천') : null;
     var education933 = gate933 ? gate933('매수와 매도의 차이는 주문 방향과 위험 관리에 있다.') : null;
     var strong934 = gate933 ? gate933('현재는 매수에 우호적이다.') : null;
-    _assert('T932 public_ai_action_gate_allows_conditional_instruction (WP-AI0): read-only price/action analysis is preserved', !!blocked933 && blocked933.blocked === false && blocked933.text === '결론: NVDA $100 매수 추천', JSON.stringify(blocked933));
+    _assert('T932 public_ai_action_gate_replaces_personal_directive (WP-AI0/P1539): an unmistakable buy/sell recommendation sentence is replaced by a notice, the answer is not blocked', !!blocked933 && blocked933.blocked === false && /개별 매매 지시는 제공하지 않습니다/.test(blocked933.text) && !/매수 추천/.test(blocked933.text) && (blocked933.reasons || []).indexOf('directive-sentence-replaced') >= 0, JSON.stringify(blocked933));
     _assert('T933 public_ai_action_gate_allows_education (WP-AI0): neutral concept explanation is not overblocked', !!education933 && education933.blocked === false, JSON.stringify(education933));
     _assert('T934 public_ai_action_gate_allows_directional_analysis (WP-AI0): directional wording is preserved for read-only research', !!strong934 && strong934.blocked === false, JSON.stringify(strong934));
     var numericActions934 = ['AAPL 10% 매수', 'MSFT 비중 20% 확대', '손절가 150달러', 'NVDA $100 매수 추천'].map(function(text){ return gate933 ? gate933(text) : null; });
-    _assert('T934a public_ai_numeric_analysis_gate_is_symbol_independent: numeric trade scenarios remain available', numericActions934.every(function(row){ return row && row.blocked === false; }), JSON.stringify(numericActions934));
+    _assert('T934a public_ai_numeric_analysis_gate_is_symbol_independent (P1539): ticker-plus-size directives are replaced regardless of symbol, a bare invalidation level stays', numericActions934.every(function(row){ return row && row.blocked === false; }) && [0, 1, 3].every(function(i){ return /개별 매매 지시는 제공하지 않습니다/.test(numericActions934[i].text); }) && numericActions934[2].text === '손절가 150달러', JSON.stringify(numericActions934));
+    var analysis934c = ['애널리스트 목표가는 150달러입니다.', '이것은 매수 추천이 아닙니다.', '무효화 수준은 20일선 이탈입니다.'].map(function(text){ return gate933 ? gate933(text) : null; });
+    var mixed934c = gate933 ? gate933('무효화 수준은 20일선 이탈입니다. 지금 매수하세요. 변동성은 높습니다.') : null;
+    _assert('T934c public_ai_action_gate_keeps_analysis_around_a_directive (P1539): data, negation and invalidation facts are untouched; only the directive sentence is replaced', analysis934c.every(function(row, i){ return row && row.text === ['애널리스트 목표가는 150달러입니다.', '이것은 매수 추천이 아닙니다.', '무효화 수준은 20일선 이탈입니다.'][i]; }) && !!mixed934c && /무효화 수준은 20일선 이탈입니다\./.test(mixed934c.text) && /변동성은 높습니다/.test(mixed934c.text) && !/매수하세요/.test(mixed934c.text), JSON.stringify([analysis934c, mixed934c]));
     var descriptiveWeight934 = gate933 ? gate933('현재 포트폴리오에서 기술주 비중은 20%로 관측됩니다.') : null;
     _assert('T934b public_ai_action_gate_allows_descriptive_weight: observed allocation without a directive is not overblocked', !!descriptiveWeight934 && descriptiveWeight934.blocked === false, JSON.stringify(descriptiveWeight934));
     var disclosure934 = window._aioBuildAIResponseDisclosure ? window._aioBuildAIResponseDisclosure({
@@ -8167,9 +8235,9 @@
     var begin937 = window._aioBeginAIRequestAttempt;
     var req937 = create937 ? create937('test-pipeline', { ctxId: 'briefing', query: 'fixture' }) : null;
     if (begin937) { begin937(req937, 'test-model'); begin937(req937, 'fallback-model'); }
-    var result937 = run937 && req937 ? run937('NVDA $100 매수 추천', { request: req937, entrypoint: 'test-pipeline' }) : null;
+    var result937 = run937 && req937 ? run937('NVDA의 50일선 위치와 무효화 조건은 확인 항목입니다.', { request: req937, entrypoint: 'test-pipeline' }) : null;
     _assert('T937 ai_pipeline_shared_envelope (WP-AI1): request and response expose one pipeline/validator/block-policy version',
-      !!result937 && result937.blocked === false && result937.text === 'NVDA $100 매수 추천' && result937.pipelineVersion === req937.pipelineVersion &&
+      !!result937 && result937.blocked === false && result937.text === 'NVDA의 50일선 위치와 무효화 조건은 확인 항목입니다.' && result937.pipelineVersion === req937.pipelineVersion &&
       result937.validatorVersion === req937.validatorVersion && result937.blockPolicyVersion === req937.blockPolicyVersion &&
       req937.attempt === 2,
       JSON.stringify({ result: result937, attempt: req937 && req937.attempt }));
@@ -9168,6 +9236,28 @@
     } catch (e) { threw = true; } finally { window._liveData = savedLive; }
     _assert('P1164/B02 T_p1164_9 HYG/VIX 미수신에서 예외·위기 문장이 없다',
       !threw && !/신용 스프레드|고수익채권 급락/.test(signalText), 'threw=' + threw + ' text=' + signalText.slice(0, 120));
+
+    // P1551: a missing SPY change is unknown, not 0%, so the quiet-tape signal must not fire; a real quiet tape still does.
+    var quietMissing = '', quietKnown = '', quietThrew = false;
+    try {
+      window._liveData = { SPY: { price: 500 }, '^VIX': { price: 15, pct: 0 } };
+      window.updatePatternSignals();
+      var quietHost = document.getElementById('pattern-signals');
+      quietMissing = quietHost ? String(quietHost.textContent || '') : '';
+      window._liveData = { SPY: { price: 500, pct: 0.05 }, '^VIX': { price: 15, pct: 0 } };
+      window.updatePatternSignals();
+      quietKnown = quietHost ? String(quietHost.textContent || '') : '';
+    } catch (e) { quietThrew = true; } finally { window._liveData = savedLive; try { window.updatePatternSignals(); } catch (_) {} }
+    _assert('P1551 T_p1551_1 SPY 변동률 결측은 저변동성 압축 신호를 만들지 않고, 관측된 조용한 장은 만든다',
+      !quietThrew && quietMissing.indexOf('저변동성 압축') < 0 && quietKnown.indexOf('저변동성 압축') >= 0,
+      JSON.stringify({ threw: quietThrew, missing: quietMissing.slice(0, 80), known: quietKnown.slice(0, 80) }));
+
+    // P1551: the chat diagram path applies the same unavailable guard as the page renderer.
+    var svgGuard = window._aioDiagram && typeof window._aioDiagram.getSvg === 'function'
+      ? [window._aioDiagram.getSvg('score-breakdown', { available: false }), window._aioDiagram.getSvg('economic-cycle', { available: false }), window._aioDiagram.getSvg('sentiment-gauge', { available: false })]
+      : null;
+    _assert('P1551 T_p1551_2 채팅 다이어그램은 입력이 없으면 기본값(0/100, MID, 0.0)을 그리지 않는다',
+      !!svgGuard && svgGuard.every(function(svg) { return svg === ''; }), JSON.stringify(svgGuard && svgGuard.map(function(svg) { return svg.length; })));
   }
 
   window.AIO = window.AIO || {};

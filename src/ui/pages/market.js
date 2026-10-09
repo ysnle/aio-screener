@@ -87,7 +87,8 @@ function quoteLineage(node, value) {
   if (node) node.setAttribute('data-quote-state', presentation?.displayState || 'missing');
   const observedAt = value.observedAt ? String(value.observedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '관측시각 미수신';
   const fetchedAt = value.fetchedAt ? String(value.fetchedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '수신시각 미수신';
-  node.setAttribute('title', `${source} · 관측 ${observedAt} · 수신 ${fetchedAt} · 변화율 기준 ${value.changeBasis || 'unknown'} · 표시 상태 ${presentation?.displayState || 'missing'}`);
+  // P1555: the tooltip states source and times in reader words; the internal basis and display-state enums stay in the data attributes.
+  node.setAttribute('title', `${source} · 관측 ${observedAt} · 수신 ${fetchedAt}`);
 }
 
 function clearRenderedValue(node, title = '현재 관측값 미수신') {
