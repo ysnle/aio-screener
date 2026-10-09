@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-09T14:20:25.151Z",
-  "attemptedAt": "2026-10-09T14:20:25.151Z",
-  "lastSuccessfulAt": "2026-10-09T14:20:25.151Z",
+  "generatedAt": "2026-10-09T19:01:49.967Z",
+  "attemptedAt": "2026-10-09T19:01:49.967Z",
+  "lastSuccessfulAt": "2026-10-09T19:01:49.967Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-25T14:20:20.602Z",
-  "until": "2026-10-09T14:20:20.602Z",
+  "since": "2026-09-25T19:01:45.922Z",
+  "until": "2026-10-09T19:01:45.922Z",
   "current24hWindow": {
     "start": "2026-10-07T23:00:00.000Z",
     "end": "2026-10-08T23:00:00.000Z",
@@ -83,10 +83,10 @@
       "reachedKnown": true,
       "count": 224,
       "freshCount": 39,
-      "eligibleTextCount": 73,
+      "eligibleTextCount": 74,
       "selectedCount": 78,
       "error": null,
-      "lastPostId": 25728
+      "lastPostId": 25729
     },
     {
       "channel": "insidertracking",
@@ -102,11 +102,11 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 238,
-      "freshCount": 38,
+      "freshCount": 18,
       "eligibleTextCount": 76,
       "selectedCount": 96,
       "error": null,
@@ -117,7 +117,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 647,
+      "count": 644,
       "freshCount": 19,
       "eligibleTextCount": 157,
       "selectedCount": 123,
@@ -125,9 +125,24 @@
       "lastPostId": 70144
     }
   ],
-  "count": 2200,
-  "retainedItemCount": 464,
+  "count": 2197,
+  "retainedItemCount": 459,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/25729",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-10-09T14:27:03.000Z",
+      "localDateKst": "2026-10-09",
+      "score": 66,
+      "tags": [
+        "power",
+        "ai-policy",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "bornlupin/20558",
       "channel": "bornlupin",
@@ -30459,89 +30474,38 @@
         "000660.KS"
       ],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/69436",
-      "channel": "HANAchina",
-      "datetime": "2026-09-25T16:11:57.000Z",
-      "localDateKst": "2026-09-26",
-      "score": 48,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/69435",
-      "channel": "HANAchina",
-      "datetime": "2026-09-25T16:11:05.000Z",
-      "localDateKst": "2026-09-26",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/69434",
-      "channel": "HANAchina",
-      "datetime": "2026-09-25T15:29:47.000Z",
-      "localDateKst": "2026-09-26",
-      "score": 40,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25489",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-25T14:37:13.000Z",
-      "localDateKst": "2026-09-25",
-      "score": 74,
-      "tags": [
-        "credit",
-        "power"
-      ],
-      "tickers": [
-        "MSFT"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2200,
-    "eligibleTextCount": 530,
-    "mediaOnlyCount": 1670,
+    "observedCount": 2197,
+    "eligibleTextCount": 531,
+    "mediaOnlyCount": 1666,
     "highSignalCount": 507,
     "broadSignalCount": 1012,
     "selectedRawCount": 417,
-    "selectedEligibleCount": 256,
-    "selectedRawCoveragePct": 48.3,
+    "selectedEligibleCount": 257,
+    "selectedRawCoveragePct": 48.4,
     "selectedOfObservedPct": 19,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "power": 340,
+    "ai-policy": 191,
+    "kr-market": 258,
+    "flows": 179,
     "semi": 577,
     "earnings": 393,
     "japan": 135,
     "macro": 771,
-    "power": 340,
     "equity": 182,
-    "kr-market": 258,
-    "flows": 178,
     "geo": 366,
-    "market-note": 655,
-    "credit": 84,
+    "market-note": 653,
+    "credit": 83,
     "healthcare": 125,
     "optical": 48,
-    "ai-policy": 190,
     "media-only": 43,
     "insider": 50,
     "crypto": 5
@@ -30553,7 +30517,7 @@
     "005930.KS": 53,
     "009150.KS": 6,
     "000660.KS": 34,
-    "MSFT": 31,
+    "MSFT": 30,
     "META": 61,
     "P": 2,
     "AAPL": 14,
@@ -30727,13 +30691,13 @@
   },
   "themes": [
     "Macro/Rates (771 posts in 14-day research window): Citi) 인공지능- 씨티의 Inference Ahead - 모델은 앞서 질주하고 인프라는 뒤따라 추격 중 씨티의 견해 AI 역량은 발전하고 있지만, 수익을 창출하려면 인프라와 기업이 그 속도를 따라가야 합니다. infra/STRUCTURE Summit의 핵심 주제는 데이터센터 프로젝트 일정을 유지하는 것이 단순히...",
-    "Market Notes (655 posts in 14-day research window): 2026년 10월 9일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 다우 선물 +0.19%, S&P500 선물 +0.33%, 나스닥100 선물 +0.65%, 러셀2000 선물...",
+    "Market Notes (653 posts in 14-day research window): 2026년 10월 9일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 다우 선물 +0.19%, S&P500 선물 +0.33%, 나스닥100 선물 +0.65%, 러셀2000 선물...",
     "Semiconductors/Memory (577 posts in 14-day research window): Citi) 인공지능- 씨티의 Inference Ahead - 모델은 앞서 질주하고 인프라는 뒤따라 추격 중 씨티의 견해 AI 역량은 발전하고 있지만, 수익을 창출하려면 인프라와 기업이 그 속도를 따라가야 합니다. infra/STRUCTURE Summit의 핵심 주제는 데이터센터 프로젝트 일정을 유지하는 것이 단순히...",
     "Earnings/Corporate (393 posts in 14-day research window): Citi) 인공지능- 씨티의 Inference Ahead - 모델은 앞서 질주하고 인프라는 뒤따라 추격 중 씨티의 견해 AI 역량은 발전하고 있지만, 수익을 창출하려면 인프라와 기업이 그 속도를 따라가야 합니다. infra/STRUCTURE Summit의 핵심 주제는 데이터센터 프로젝트 일정을 유지하는 것이 단순히...",
     "Geopolitics (366 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 9일 > 오전 7시~오후 2시 30분 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 외교 협상이 생산적으로 진행되고 있다며 11월 3일...",
     "AI Power/Grid (340 posts in 14-day research window): Citi) 인공지능- 씨티의 Inference Ahead - 모델은 앞서 질주하고 인프라는 뒤따라 추격 중 씨티의 견해 AI 역량은 발전하고 있지만, 수익을 창출하려면 인프라와 기업이 그 속도를 따라가야 합니다. infra/STRUCTURE Summit의 핵심 주제는 데이터센터 프로젝트 일정을 유지하는 것이 단순히...",
     "Korea Market (258 posts in 14-day research window): Citi) 인공지능- 씨티의 Inference Ahead - 모델은 앞서 질주하고 인프라는 뒤따라 추격 중 씨티의 견해 AI 역량은 발전하고 있지만, 수익을 창출하려면 인프라와 기업이 그 속도를 따라가야 합니다. infra/STRUCTURE Summit의 핵심 주제는 데이터센터 프로젝트 일정을 유지하는 것이 단순히...",
-    "AI Policy/Export Controls (190 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 클라우드가 기업용 범용 AI 에이전트 'Gemini Agent'를..."
+    "AI Policy/Export Controls (191 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 클라우드가 기업용 범용 AI 에이전트 'Gemini Agent'를..."
   ],
   "catalysts": [
     {
@@ -30793,7 +30757,7 @@
     },
     {
       "key": "MSFT",
-      "count": 31,
+      "count": 30,
       "text": "2026년 10월 8일 미국 증시 프리마켓 브리핑 미국 증시 선물은 국채금리 급등과 중동 지정학적 긴장 속 약세 흐름. 다우 선물 -0.16%, S&P500 선물 -0.08%, 나스닥100 선물 -0.08%,..."
     }
   ],
@@ -30822,7 +30786,7 @@
       "topics": [
         "credit"
       ],
-      "count": 84,
+      "count": 83,
       "focus": "Citi) 인공지능- 씨티의 Inference Ahead - 모델은 앞서 질주하고 인프라는 뒤따라 추격 중 씨티의 견해 AI 역량은 발전하고 있지만, 수익을 창출하려면 인프라와 기업이 그 속도를 따라가야 합니다. infra/STRUCTURE Summit의 핵심 주제는 데이터센터 프로젝트 일정을 유지하는 것이 단순히..."
     },
     {
@@ -30858,7 +30822,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 190,
+      "count": 191,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글 클라우드가 기업용 범용 AI 에이전트 'Gemini Agent'를..."
     },
     {
@@ -30921,7 +30885,7 @@
       "topics": [
         "flows"
       ],
-      "count": 178,
+      "count": 179,
       "focus": "Citi) 인공지능- 씨티의 Inference Ahead - 모델은 앞서 질주하고 인프라는 뒤따라 추격 중 씨티의 견해 AI 역량은 발전하고 있지만, 수익을 창출하려면 인프라와 기업이 그 속도를 따라가야 합니다. infra/STRUCTURE Summit의 핵심 주제는 데이터센터 프로젝트 일정을 유지하는 것이 단순히..."
     },
     {
@@ -30939,7 +30903,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 655,
+      "count": 653,
       "focus": "2026년 10월 9일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 다우 선물 +0.19%, S&P500 선물 +0.33%, 나스닥100 선물 +0.65%, 러셀2000 선물..."
     }
   ],
@@ -32121,6 +32085,23 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/25729",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25729",
+      "datetime": "2026-10-09T14:27:03.000Z",
+      "localDateKst": "2026-10-09",
+      "tags": [
+        "power",
+        "ai-policy",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 66,
+      "hasText": true,
+      "summary": "AXIOS) [단독] AI 기업들, '그날 이후'를 준비하다 Anthropic, OpenAI 등 AI 기업의 최고 경영진은 치명적인 AI 사건이 발생한 뒤 대중과 정치권의 반발이 일어날 상황을 비공개로..."
+    },
     {
       "id": "bornlupin/20558",
       "channel": "bornlupin",
@@ -33559,9 +33540,7 @@
       "datetime": "2026-10-08T12:15:55.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "ai-policy",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "PLTR"
@@ -33907,11 +33886,9 @@
       "datetime": "2026-10-08T04:26:51.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
         "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "005930.KS"
@@ -34050,10 +34027,8 @@
       "datetime": "2026-10-08T02:15:54.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "005930.KS"
@@ -34113,11 +34088,7 @@
       "datetime": "2026-10-07T23:56:24.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "semi",
-        "optical",
-        "power",
-        "earnings",
-        "japan"
+        "optical"
       ],
       "tickers": [
         "LITE"
@@ -34179,9 +34150,7 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "macro",
-        "power",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "CRWV"
@@ -34272,12 +34241,8 @@
       "datetime": "2026-10-07T23:13:59.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "optical",
         "power",
-        "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [],
       "score": 73,
@@ -34291,8 +34256,6 @@
       "datetime": "2026-10-07T23:08:47.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
         "semi",
         "earnings"
       ],
@@ -38762,20 +38725,6 @@
       "score": 71,
       "hasText": true,
       "summary": "도시바는 AI 데이터센터용 HDD 생산능력을 두 배로 확대하기 위해 약 3억8,000만 달러를 투자할 계획이며, 필리핀 공장을 증설해 2027회계연도까지 생산능력을 확충할 예정입니다. 도시바는 2030년까지..."
-    },
-    {
-      "id": "aetherjapanresearch/25614",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25614",
-      "datetime": "2026-10-02T09:10:04.000Z",
-      "localDateKst": "2026-10-02",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 60,
-      "hasText": true,
-      "summary": "스페이스X '네오클라우드' 본격화? - 스페이스X의 AI 사업부인 스페이스XAI(구 xAI)가 지난 여름 마이크로소프트에 컴퓨팅 인프라를 임대하는 방안에 대해 논의헀음 - xAI는 작년 컴퓨팅 용량 남자 다른..."
     }
   ],
   "current24hItems": [
@@ -39541,9 +39490,7 @@
       "datetime": "2026-10-08T12:15:55.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "ai-policy",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "PLTR"
@@ -39917,11 +39864,9 @@
       "datetime": "2026-10-08T04:26:51.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
         "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "005930.KS"
@@ -39949,20 +39894,6 @@
       "score": 91,
       "hasText": true,
       "summary": "Citi) 삼성전자 (005930.KS); 보너스 영향 및 불리한 환율에도 불구하고 메모리 성장이 견인한 견조한 실적. TP 43만원(유지) 씨티의 견해 삼성전자(SEC)는 3Q26 잠정 영업이익..."
-    },
-    {
-      "id": "bornlupin/20533",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20533",
-      "datetime": "2026-10-08T04:02:56.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "케이엔에스, 안성 신공장 증설 결정…생산능력 2배로 확대 첨단산업 무인자동화 전문기업 케이엔에스(432470)가 글로벌 원통형 배터리 및 피지컬 AI 자동화 장비 수요 확대에 대응하기 위해 안성 신공장 증설을..."
     },
     {
       "id": "aetherjapanresearch/25701",
@@ -40088,10 +40019,8 @@
       "datetime": "2026-10-08T02:15:54.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "005930.KS"
@@ -40151,11 +40080,7 @@
       "datetime": "2026-10-07T23:56:24.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "semi",
-        "optical",
-        "power",
-        "earnings",
-        "japan"
+        "optical"
       ],
       "tickers": [
         "LITE"
@@ -40210,22 +40135,6 @@
       "summary": ">>마이크로소프트, 엔비디아와 손잡고 Surface 플래그십 신제품 출시…‘랍스터’ 개인 비서 Scout도 공개 •마이크로소프트가 엔비디아와 함께 플래그십 노트북 Surface Laptop Ultra를..."
     },
     {
-      "id": "bornlupin/20528",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20528",
-      "datetime": "2026-10-07T23:42:46.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [
-        "373220.KS"
-      ],
-      "score": 44,
-      "hasText": true,
-      "summary": "2026.10.08 08:34:49 기업명: LG에너지솔루션(시가총액: 91조 4,940억) A373220 보고서명: 연결재무제표기준영업(잠정)실적(공정공시) 매출액 : 96,434억(예상치 :..."
-    },
-    {
       "id": "bornlupin/20527",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20527",
@@ -40233,9 +40142,7 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "macro",
-        "power",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "CRWV"
@@ -40306,20 +40213,6 @@
       "summary": "UBS, 블룸에너지( &#036;BE), 투자의견 '매수', 목표주가를 325달러에서 350달러로 상향"
     },
     {
-      "id": "bornlupin/20525",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20525",
-      "datetime": "2026-10-07T23:18:07.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "[한투증권 화장품/유통 김명주] 랭크된 제품수가 역대최대를 찍었네요&#33;"
-    },
-    {
       "id": "HANAchina/70036",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70036",
@@ -40334,34 +40227,14 @@
       "summary": "• Formosa 그룹 총회장이자 난야 회장인 우자자오(吳嘉昭)는 난야 산하의 전자 재료, Nanya PCB, Nanya Tech 등 3대 전자 사업의 주도로 실적이 '올해는 이미 좋고, 내년에는 더 좋아질..."
     },
     {
-      "id": "bornlupin/20524",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20524",
-      "datetime": "2026-10-07T23:17:57.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "090430.KS"
-      ],
-      "score": 44,
-      "hasText": true,
-      "summary": "[한투증권 화장품/유통 김명주] 주요 국가 아마존 뷰티 Top 100 내 브랜드별 제품 수(10/08) 텔레그램: 1. 에이피알 Top 100 내 제품 수: 미국 13개, 영국 15개, 독일 6개, 프랑스..."
-    },
-    {
       "id": "bornlupin/20523",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20523",
       "datetime": "2026-10-07T23:13:59.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "optical",
         "power",
-        "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [],
       "score": 73,
@@ -40375,8 +40248,6 @@
       "datetime": "2026-10-07T23:08:47.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "geo",
         "semi",
         "earnings"
       ],
