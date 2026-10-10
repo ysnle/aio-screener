@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
-import { backtestFactors, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage } from './fetch-data.mjs';
+import { backtestFactors, classifyCboePutCallCurrentness, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage } from './fetch-data.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
@@ -88,6 +88,33 @@ const externalPipeline = read('scripts/ci-external-pipeline-check.mjs');
 const qaPipeline = JSON.parse(read('architecture/qa-pipeline.json'));
 const watchdogScripts = (qaPipeline.profiles?.watchdog || []).flatMap((group) => qaPipeline.groups?.[group]?.gates || []).map((gate) => gate.script);
 const fetchData = read('scripts/fetch-data.mjs');
+{
+  // Saturday 2026-10-10 12:00Z: latest completed US session is Fri 10-09, the one before is Thu 10-08.
+  const now = Date.parse('2026-10-10T12:00:00Z');
+  check('P1581: the Yahoo quote fallback never derives a daily change from chartPreviousClose (5-day window start)', /prev = \(typeof m\.previousClose === 'number' && m\.previousClose > 0\) \? m\.previousClose : null;/.test(fetchData) && !/prev = \(typeof m\.chartPreviousClose === 'number'/.test(fetchData));
+  {
+    // P1587: a cover-page share count 1000x off the EPS-implied count (PKG, 2026) is withheld, never priced.
+    const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
+    const fy = (val, extra = {}) => ({ val, form: '10-K', fp: 'FY', fy: 2025, start: '2025-01-01', end: '2025-12-31', filed: '2026-02-25', accn: 'a', ...extra });
+    const facts = (shares) => ({ facts: { 'us-gaap': { Revenues: { units: { USD: [fy(8.6e9), fy(8.4e9, { start: '2024-01-01', end: '2024-12-31', fy: 2024, accn: 'b' })] } }, NetIncomeLoss: { units: { USD: [fy(774.1e6)] } }, StockholdersEquity: { units: { USD: [{ ...fy(4.598e9), start: undefined }] } }, EarningsPerShareDiluted: { units: { 'USD/shares': [fy(8.62)] } } }, dei: { EntityCommonStockSharesOutstanding: { units: { shares: [{ val: shares, form: '10-K', fp: 'FY', end: '2026-02-20', filed: '2026-02-25', accn: 'a' }] } } } } });
+    const bad = normalizeSecCompanyFacts('PKG', facts(89213394000), 229.94, null);
+    const good = normalizeSecCompanyFacts('PKG', facts(89213394), 229.94, null);
+    check('P1587: SEC share counts far from net income / diluted EPS are withheld before P/E and P/B',
+      bad?.sharesCheck === 'scale-mismatch' && bad?.sharesOutstanding === null && bad?.pe == null && good?.sharesCheck === 'consistent' && Math.abs(good?.pe - 26.5) < 0.2,
+      JSON.stringify({ bad: bad && { c: bad.sharesCheck, pe: bad.pe }, good: good && { c: good.sharesCheck, pe: good.pe } }));
+  }
+  check('P1576: an in-session quote without a previous close is never written to history as a completed close', /bySym\[q\.symbol\] = usePreviousClose \? previousClose : isOpenPoint \? null : q\.regularMarketPrice;/.test(fetchData));
+  check('P1573: Cboe put/call is current only within one session of the latest completed close',
+    classifyCboePutCallCurrentness('2026-10-09', now) === 'current-reference'
+      && classifyCboePutCallCurrentness('2026-10-08', now) === 'current-reference'
+      && classifyCboePutCallCurrentness('2026-10-07', now) === 'stale-reference'
+      && classifyCboePutCallCurrentness(null, now) === 'stale-reference');
+}
+{
+  const beaCatch = fetchData.slice(fetchData.indexOf('async function fetchBeaPce('), fetchData.indexOf('async function fetchBeaPce(') + 1600);
+  check('P1572: a failed BEA PCE fetch spreads the carried row before its failure status, so stale values are never republished as ok',
+    beaCatch.indexOf('...(previous') > 0 && beaCatch.indexOf('...(previous') < beaCatch.indexOf("status: previous && previous.values ? 'last-known-good' : 'unavailable'"));
+}
 const fetchTelegram = read('scripts/fetch-telegram-digest.mjs');
 const reconciliationBuilder = read('scripts/build-reconciliation-status.mjs');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
@@ -431,6 +458,21 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     detail = JSON.stringify({ english: english.issues, closedWording: closedWording.issues, intraday: intraday.issues });
   } catch (error) { detail = error.message; }
   check('P1372 market analysis must be Korean, heading-free, and never call an in-session value a close', ok, detail.slice(0, 1600));
+  {
+    // P1585: a correct sentence that states the move before the level must pass; a wrong level must not.
+    const { validateMarketAnalysisText } = await import('./fetch-data.mjs');
+    const snapshot = { quotes: [
+      { instrumentId: '^GSPC', evidenceId: 'market.index.spx:t', value: 7816.7, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-09T20:00:00.000Z', session: 'MARKET_CLOSED' },
+      { instrumentId: '^VIX', evidenceId: 'market.vol.vix:t', value: 14.86, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-09T20:00:00.000Z', session: 'MARKET_CLOSED' }
+    ] };
+    const data = { meta: { generatedAt: '2026-10-09T21:00:00.000Z' }, news: [], macro: {} };
+    const moveFirst = validateMarketAnalysisText('SPX는 0.66% 오른 7,816.7이고 VIX는 3.6% 내린 14.86입니다. 위험 선호는 제한적입니다.', data, snapshot);
+    const wrongLevel = validateMarketAnalysisText('SPX는 0.66% 오른 7,500이고 VIX는 3.6% 내린 19.9입니다. 위험 선호는 제한적입니다.', data, snapshot);
+    check('P1585 the analysis validator reads the level, not the move, and still rejects a wrong level',
+      !moveFirst.issues.some((issue) => issue.startsWith('metric-value-mismatch'))
+        && wrongLevel.issues.includes('metric-value-mismatch:market.spx') && wrongLevel.issues.includes('metric-value-mismatch:market.vix'),
+      JSON.stringify({ moveFirst: moveFirst.issues, wrongLevel: wrongLevel.issues }));
+  }
 }
 {
   // P1385: a FRED series added after the previous artifact (fedTargetLower/Upper) must still get an

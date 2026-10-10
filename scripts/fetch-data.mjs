@@ -221,10 +221,10 @@ async function fetchQuote(symbol) {
         pct  = ((price - prev) / prev) * 100;
         pctSource = 'ohlcv-daily';
       } else {
-        // OHLCV 부족 시 메타 필드 폴백 (구형 동작 유지)
-        prev = (typeof m.chartPreviousClose === 'number' && m.chartPreviousClose > 0)
-          ? m.chartPreviousClose
-          : (typeof m.previousClose === 'number' ? m.previousClose : null);
+        // P1581: with range=5d, chartPreviousClose is the close BEFORE the 5-day window, so using it
+        // printed a multi-day change as the daily change (the P545 class). Only meta.previousClose is a
+        // previous session close; without it the change stays missing.
+        prev = (typeof m.previousClose === 'number' && m.previousClose > 0) ? m.previousClose : null;
         pct  = (prev && prev > 0) ? ((price - prev) / prev) * 100 : null;
         pctSource = 'chart-meta-fallback';
       }
@@ -970,17 +970,17 @@ async function fetchBeaPce(previous = null) {
     return { ...parseBeaPceHtml(releaseHtml, releaseUrl, attemptedAt), attemptedAt };
   } catch (error) {
     console.warn(`[fetch-data] BEA PCE 실패: ${error && error.message || error}`);
+    // P1572: the carried row is spread first so a failed attempt can never republish it as 'ok'.
     return {
-      status: previous && previous.status === 'ok' ? 'last-known-good' : 'unavailable',
+      ...(previous && typeof previous === 'object' ? previous : {}),
+      status: previous && previous.values ? 'last-known-good' : 'unavailable',
       source: 'U.S. Bureau of Economic Analysis',
-    sourceKind: 'T1_OFFICIAL',
+      sourceKind: 'T1_OFFICIAL',
       allowedUse: 'reference-only',
       attemptedAt,
       fetchedAt: null,
       lastSuccessfulAt: previous && previous.lastSuccessfulAt || null,
       failureReason: String(error && error.message || error),
-      ...(previous && typeof previous === 'object' ? previous : {}),
-      attemptedAt,
     };
   }
 }
@@ -1261,13 +1261,22 @@ export function parseCboePutCallHtml(html) {
   };
 }
 
+// P1573: Cboe posts a session's ratios after the close, so the page may lag one session.
+// Anything older than the session before the latest completed US close is stale, not current.
+export function classifyCboePutCallCurrentness(asOf, now = Date.now()) {
+  const session = latestCompletedUsSession(now);
+  if (!asOf || !session) return 'stale-reference';
+  const oldestCurrent = session.previousDate || session.date;
+  return asOf >= oldestCurrent ? 'current-reference' : 'stale-reference';
+}
+
 async function fetchCboePutCall() {
   const attemptedAt = new Date().toISOString();
   try {
     const html = await _fetchRss('https://www.cboe.com/data/mktstat.aspx', 18000);
     const parsed = parseCboePutCallHtml(html);
     if (!parsed) throw new Error('official page did not contain ratio/date contract');
-    return { ...parsed, attemptedAt, status: 'current-reference' };
+    return { ...parsed, attemptedAt, status: classifyCboePutCallCurrentness(parsed.asOf) };
   } catch (error) {
     console.warn('[fetch-data] Cboe Put/Call 수집 실패:', error && error.message || error);
     return { source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, status: 'unavailable', totalPutCall: null, error: String(error && error.message || error) };
@@ -1744,8 +1753,10 @@ const HIST_SYMBOLS = {
   'KRW=X': 'usdkrw',
   // P1394: USD/JPY joins the FX axis (yen carry / BOJ channel); the <60-observation rule backfills 1y on the next run.
   'JPY=X': 'usdjpy',
+  // P1586: 20-year Treasury ETF closes feed the safe-haven component of the self-computed sentiment index.
+  'TLT': 'tlt',
 };
-const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','usdkrw','usdjpy','fg'];
+const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
@@ -1757,6 +1768,7 @@ export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   // 혼동)로 한 자리·두 자리 수가 들어오면 그대로 히스토리에 남아 백테스트 환산을 오염시킨다.
   usdkrw: [800, 2000],
   usdjpy: [50, 400],
+  tlt: [20, 400],
 });
 export function histValueWithinPlausibility(field, value) {
   const range = HIST_FIELD_PLAUSIBILITY[field];
@@ -1920,7 +1932,9 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
       const previousClose = Number(q.regularMarketPreviousClose ?? q.chartPreviousClose);
       const previousObservedAt = q.regularMarketPreviousCloseObservedAt || null;
       const usePreviousClose = isOpenPoint && Number.isFinite(previousClose) && previousClose > 0;
-      bySym[q.symbol] = usePreviousClose ? previousClose : q.regularMarketPrice;
+      // P1576: in session without a previous close there is no completed close to record; the
+      // intraday price must not be written as one (fail closed, like P1095's timestamp rule).
+      bySym[q.symbol] = usePreviousClose ? previousClose : isOpenPoint ? null : q.regularMarketPrice;
       // A history row is a completed daily close, not the provider's intraday
       // previous-value anchor — and that holds for 24/7 assets too. BTC/ETH have a real
       // previous completed daily bar (regularMarketPreviousClose, stamped with the boundary
@@ -2043,6 +2057,14 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
         sourceKind: 'secondary-index',
         allowedUse: 'reference-history'
       };
+    }
+    // P1586: the Cboe total put/call ratio accumulates one point per trading date (the page's own date,
+    // never the fetch day) so the self-computed sentiment index can average five sessions.
+    if (data.putCall?.status === 'current-reference' && /^\d{4}-\d{2}-\d{2}$/.test(String(data.putCall.asOf || '')) && Number.isFinite(Number(data.putCall.totalPutCall))) {
+      let row = hist.find((item) => item?.date === data.putCall.asOf);
+      if (!row) { row = { date: data.putCall.asOf, fieldMeta: {} }; hist.push(row); }
+      row.pcr = Number(data.putCall.totalPutCall);
+      row.fieldMeta = { ...(row.fieldMeta || {}), pcr: { observedAt: data.putCall.asOf, fetchedAt, lastSuccessfulAt: fetchedAt, source: 'Cboe Daily Market Statistics', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-history' } };
     }
     // `fieldMeta.fg` cites the CNN historical graph, so the row value must be
     // that series' point for the day. The headline `fearGreed.score` is rounded
@@ -3326,6 +3348,9 @@ export async function enrichScreener() {
     source: 'github-actions:yahoo-1y',
     universe: syms.length,
     ok,
+    // P1589: a universe symbol whose history failed this run is listed, not silently absent
+    // (WBD/ET appeared in some runs and vanished in others with no trace).
+    unfetchedSymbols: syms.filter((sym) => !data[sym]).sort(),
     fmpHasKey: fmpResult.hasKey,
     fmpOk: fmpResult.ok > 0,
     fmpCount: fmpResult.ok,
@@ -3486,12 +3511,29 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
   return evidence;
 }
 
-function _analysisNumberAfterLabel(body, labels) {
+// P1585: the first number after a label was taken as the level, so a correct Korean sentence that
+// states the move first ("SPX는 0.66% 오른 7,816") failed as metric-value-mismatch on every quote
+// and blocked ~70% of market analyses. Within the label's clause, skip change-like numbers (signed,
+// %p/bp/포인트, a following up/down verb, or a % on a non-rate level) and compare the first level.
+const _ANALYSIS_MOVE_VERB = /^\s*(?:오른|내린|상승|하락|올라|내려|떨어|급등|급락|반등|증가|감소|높아|낮아|올랐|내렸|빠진|뛴)/;
+function _analysisNumberAfterLabel(body, labels, levelHint = null) {
   const escaped = labels.map(label => String(label).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  const match = body.match(new RegExp(`(?:${escaped})[^\\d-]{0,18}(-?\\d[\\d,.]*)`, 'i'));
-  if (!match) return null;
-  const value = Number(String(match[1]).replace(/,/g, ''));
-  return Number.isFinite(value) ? value : null;
+  const label = body.match(new RegExp(`(?:${escaped})`, 'i'));
+  if (!label) return null;
+  const rest = body.slice(label.index + label[0].length);
+  const clause = rest.slice(0, Math.min(rest.length, 80)).split(/(?<!\d)[.。](?!\d)|\n|[;；]/)[0];
+  const rateLike = Number.isFinite(Number(levelHint)) && Math.abs(Number(levelHint)) < 20;
+  const numberRe = /([+\-±]?)(\d[\d,]*(?:\.\d+)?)\s*(%p|%포인트|bp|포인트|%)?/g;
+  let match;
+  while ((match = numberRe.exec(clause))) {
+    const [, sign, digits, suffix = ''] = match;
+    const after = clause.slice(match.index + match[0].length);
+    const isMove = !!sign || /^(%p|%포인트|bp|포인트)$/.test(suffix) || _ANALYSIS_MOVE_VERB.test(after) || (suffix === '%' && !rateLike);
+    if (isMove) continue;
+    const value = Number(digits.replace(/,/g, ''));
+    return Number.isFinite(value) ? value : null;
+  }
+  return null;
 }
 
 export function validateMarketAnalysisText(text, data, snapshot = null) {
@@ -3506,8 +3548,11 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
   // P1372: "a concise Korean market analysis" produced an English analysis *of the Korean
   // market*. The product is Korean; English prose is not publishable.
-  const hangul = (body.match(/[가-힣]/g) || []).length;
-  const latin = (body.match(/[A-Za-z]/g) || []).length;
+  // P1585: count prose only — the prompt asks for evidence ids, and tickers (SPX, VIX, DXY, WTI)
+  // are Latin by nature, so a Korean answer that cites them was read as English.
+  const prose = body.replace(/https?:\/\/\S+/g, ' ').replace(/\b[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+(?::\S*)?/gi, ' ').replace(/\b[A-Z0-9&^=_-]{2,}\b/g, ' ');
+  const hangul = (prose.match(/[가-힣]/g) || []).length;
+  const latin = (prose.match(/[A-Za-z]/g) || []).length;
   if (body && latin >= 30 && hangul < latin * 0.6) issues.push('language-not-korean');
   const CLOSED_SESSIONS = ['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'REGULAR'];
   for (const row of metricEvidence) {
@@ -3524,11 +3569,11 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
   for (const def of [...MARKET_ANALYSIS_QUOTE_DEFS, ...MARKET_ANALYSIS_MACRO_DEFS]) {
     const row = metricEvidence.find(item => item.metricId === def.metricId);
     if (!row) continue;
-    const mentioned = _analysisNumberAfterLabel(body, [def.label, ...(def.aliases || [])]);
+    const mentioned = _analysisNumberAfterLabel(body, [def.label, ...(def.aliases || [])], row.value);
     if (mentioned == null) continue;
     // Tolerance follows the unit the evidence actually carries (canonical snapshot
     // unit when available), not the duplicated def table.
-    const tolerance = Math.max(row.unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(row.value)) * 0.05);
+    const tolerance = Math.max(row.unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(row.value)) * 0.02); // P1585: 5% let SPX 7,500 pass for 7,816
     if (Math.abs(mentioned - Number(row.value)) > tolerance) issues.push(`metric-value-mismatch:${def.metricId}`);
   }
   // PAYEMS delta is stored in thousands. A model may mention NFP without a
@@ -3880,7 +3925,9 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   // (model estimate, official FRED series). NY Fed ACM is published only as a spreadsheet, so the same
   // concept is taken from the official FRED path and named by its model on screen.
   termPremium10:  { id: 'THREEFYTP10',   frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기간 프리미엄 (Kim-Wright)' },
-  hyOas:          { id: 'BAMLH0A0HYM2',  frequency: 'daily',   limit: 280, unit: 'percent', label: '하이일드 스프레드' }
+  hyOas:          { id: 'BAMLH0A0HYM2',  frequency: 'daily',   limit: 280, unit: 'percent', label: '하이일드 스프레드' },
+  // P1586: investment-grade OAS — the junk-bond component is HY minus IG.
+  igOas:          { id: 'BAMLC0A0CM',    frequency: 'daily',   limit: 280, unit: 'percent', label: '투자등급 회사채 스프레드' }
 });
 const MACRO_HISTORY_OUT = `${__dir}/../public-data/macro-history.json`;
 

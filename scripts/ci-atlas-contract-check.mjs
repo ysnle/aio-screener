@@ -235,9 +235,12 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
   const cxl = groups('memory-cxl');
   const photonic = groups('future-photonic-compute');
   const equipment = groups('resources-industrial-equipment');
+  const rareEarths = groups('resources-rare-earths');
   if (cxl.product.length || !cxl.reference.includes('kioxia') || !cxl.reference.includes('sandisk')) errors.push('P1524 KIOXIA and Sandisk on the CXL node must read as company-level role reference, not a supplier');
   if (photonic.product.length || !photonic.reference.includes('ibm')) errors.push('P1524 IBM on the photonic-compute node must read as company-level role reference, not a supplier');
-  if (!equipment.product.some((id) => /mp-materials/.test(id))) errors.push('P1524 a registry product mapped to a node must appear in the product group');
+  if (!rareEarths.product.some((id) => /mp-materials/.test(id))) errors.push('P1524 a registry product mapped to a node must appear in the product group');
+  // P1593 (F92): a rare-earth materials product is not industrial equipment (turbines, transformers, pumps).
+  if ([...equipment.product, ...equipment.reference].some((id) => /mp-materials/.test(id))) errors.push('P1593 MP Materials must not be linked to the industrial-equipment node');
   if (!/직접 공급을 뜻하지 않습니다/.test(cxl.text) || !/현재 매출·출하·점유율·양산 여부를 나타내지 않습니다/.test(cxl.text)) errors.push('P1524 the role block must say what the list is not: reference roles are not direct supply and carry no current revenue, share or production claim');
   if (/출처|REFERENCE_ONLY|ROLE_REFERENCE|1차/.test(cxl.text + photonic.text + equipment.text)) errors.push('P1524 the role block must not show source or review copy to the reader');
   if (/nand manufacturer|ssd provider|quantum platform provider/.test(cxl.text + photonic.text)) errors.push('P1524 role ids must be shown in Korean');

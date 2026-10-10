@@ -236,7 +236,10 @@ export default {
     if (url.pathname === '/health') {
       const heartbeat = await env?.AIO_QUOTES_KV?.get?.('quotes:heartbeat', 'json');
       const current = await readLatest(env);
-      return jsonResponse({ ok: !!current, heartbeat, revision: current?.revision || null, sourceSha: env?.AIO_SOURCE_SHA || null, coverage: current?.coverage || null }, request, env, current ? 200 : 503);
+      // P1578: report whether the refresh dispatcher can run (never the token itself), so the
+      // watchdog can tell "GitHub schedule only" from a working 30-minute driver.
+      const schedulerDispatch = { configured: !!env?.GITHUB_DISPATCH_TOKEN, workflow: REFRESH_DISPATCH_POLICY.workflow, slotMinutes: REFRESH_DISPATCH_POLICY.slotMinutes };
+      return jsonResponse({ ok: !!current, heartbeat, revision: current?.revision || null, sourceSha: env?.AIO_SOURCE_SHA || null, coverage: current?.coverage || null, schedulerDispatch }, request, env, current ? 200 : 503);
     }
     if (url.pathname === '/quotes') {
       const current = await readLatest(env);

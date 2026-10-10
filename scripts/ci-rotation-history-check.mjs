@@ -104,8 +104,8 @@ const all=await collectRotationHistory({now,symbols:ROTATION_SYMBOLS,concurrency
   assert.equal(range,'6mo','P1358 bounded history source window');requests++;active++;peak=Math.max(peak,active);
   await Promise.resolve();active--;return symbol==='SPY'?spy:sector.map(item=>({...item,instrumentId:symbol}));
 }});
-assert.equal(all.counts.updated,25,'P1358 all existing 25 sector/subsector ETFs can produce evidence');
-assert.equal(requests,26,'P1358 SPY is fetched once for common benchmark');
+assert.equal(all.counts.updated,ROTATION_SYMBOLS.length,'P1358/P1590 every configured sector/subsector ETF can produce evidence');
+assert.equal(requests,ROTATION_SYMBOLS.length+1,'P1358 SPY is fetched once for common benchmark');
 assert.ok(peak<=3,'P1358 collector preserves bounded concurrency');
 const source=await readFile(new URL('./fetch-data.mjs',import.meta.url),'utf8');
 assert.match(source,/collectRotationHistory\(\{ fetchHistory, previous: previous\?\.rotationHistory/,'P1358 production collector consumes durable previous evidence');
@@ -114,4 +114,4 @@ const definitions=await readFile(new URL('../js/aio-pages.js',import.meta.url),'
 const definitionBlock=definitions.slice(definitions.indexOf('var RRG_SECTORS'),definitions.indexOf('// ── 종합 테마 맵'));
 const actualSymbols=[...definitionBlock.matchAll(/sym:\s*'([^']+)'/g)].map(match=>match[1]);
 assert.deepEqual([...ROTATION_SYMBOLS].sort(),actualSymbols.sort(),'P1358 producer coverage follows actual configured sector and subsector ETF set');
-console.log('[rotation-history] P1358 PASS: alignment, completed sessions, input contracts, raw-price ceiling, retention, cache and mock collection (25 ETFs; no network/write)');
+console.log('[rotation-history] P1358 PASS: alignment, completed sessions, input contracts, raw-price ceiling, retention, cache and mock collection (' + ROTATION_SYMBOLS.length + ' ETFs; no network/write)');

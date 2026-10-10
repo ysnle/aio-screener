@@ -3,6 +3,7 @@
 // same reading continues. These sentences are computed from the same series and rules the cards use;
 // a section with missing inputs says what it cannot add instead of inventing a reading.
 import { RULES } from '../rules/thresholds.js';
+import { withTopicParticle } from '../content/korean-particle.js';
 
 const last = (series) => (Array.isArray(series) && series.length ? series[series.length - 1] : null);
 const back = (series, n) => (Array.isArray(series) && series.length > n ? series[series.length - 1 - n] : null);
@@ -62,7 +63,9 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
     const gap = spx20 > -2 && b50d20 <= -10 ? '지수보다 참여가 훨씬 빨리 줄어 괴리가 커졌습니다. 지수가 버티는 동안 소수 종목 의존이 깊어진 상태입니다'
       : spx20 < 0 && b50d20 < 0 ? '지수와 참여가 함께 약해지는 중입니다'
         : spx20 > 0 && b50d20 > 0 ? '지수와 참여가 함께 넓어지는 건강한 흐름입니다'
-          : spx20 <= 0 && b50d20 > 0 ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다' : '지수와 참여의 방향이 뚜렷하게 갈리지 않습니다';
+          : spx20 <= 0 && b50d20 > 0 ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다'
+            // P1591 (M05): the remaining case is index up / participation down but smaller than the -10%p gap rule.
+            : spx20 > 0 && b50d20 <= 0 ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다' : '지수와 참여가 모두 거의 변하지 않았습니다';
     index = `S&P 500은 20일 ${signed(spx20, 1, '%')}, 50일선 위 종목 비율은 20일 ${signed(b50d20, 1, '%p')} — ${gap}.${dd == null ? '' : ` 최근 25거래일 분배일은 ${round(dd)}회${dd >= 5 ? '로 경고 구간(5회 이상)입니다' : '입니다'}.`}`;
   }
 
@@ -92,8 +95,8 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
   const next = [];
   const hyState = cards.hy?.state?.tone;
   if (hyState === 'burden') next.push({ route: 'fxbond', label: '금리 · 환율', why: '신용 스프레드 확대가 실질금리·달러와 같은 방향인지' });
-  if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리 위축이 참여 종목 감소(시장 폭 ${byId.breadth.stateLabel})와 겹치는지` });
-  next.push({ route: 'signal', label: '시장 상태', why: '심리를 뺀 6개 축의 전체 판정' });
+  if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리와 별개로 참여 종목이 줄고 있는지(시장 폭 ${byId.breadth.stateLabel})` });
+  next.push({ route: 'signal', label: '시장 상태', why: '공포·탐욕과 AAII를 넣지 않은 6개 축(변동성·신용 포함)의 전체 판정' });
   return { bridge, next };
 }
 
@@ -159,14 +162,17 @@ export function themeStrengthLead(model = null) {
   if (groups.length < 5) return '';
   const label = (group) => group.name;
   const top = groups.slice(0, 5);
-  const improving = groups.filter((group) => group.direction === 'improving').slice(0, 3);
+  // P1591 (T06): a group already named among the top three is not repeated as "moving up", and
+  // "반대로" is used only when the previous clause really is the contrast (cooling leaders).
+  const named = new Set(groups.slice(0, 3).map((group) => group.id ?? group.name));
+  const improving = groups.filter((group) => group.direction === 'improving' && !named.has(group.id ?? group.name)).slice(0, 3);
   const cooling = top.filter((group) => group.direction === 'weakening');
   const healthy = top.filter((group) => group.above50Pct != null && group.above50Pct >= 75).length;
   const parts = [`${model.windowLabel || '기간'} 상위는 ${top.slice(0, 3).map(label).join(' · ')}`];
   const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
   const joined = (list) => list.map(label).join(' · ');
   if (cooling.length) parts.push(`그중 ${joined(cooling)}${topic(label(cooling[cooling.length - 1]))} 1개월 순위가 3개월보다 크게 낮아 강세가 식는 중`);
-  if (improving.length) parts.push(`반대로 ${joined(improving)}${topic(label(improving[improving.length - 1]))} 1개월 순위가 크게 올라 단기 흐름이 옮겨 가는 곳`);
+  if (improving.length) parts.push(`${cooling.length ? '반대로 ' : ''}${joined(improving)}${topic(label(improving[improving.length - 1]))} 1개월 순위가 3개월보다 크게 앞서 최근 강해지는 곳`);
   parts.push(`상위 5개 중 ${healthy}개는 구성 종목 대부분이 50일선 위`);
   return `${parts.join('. ')}입니다.`;
 }
@@ -184,7 +190,8 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   const quadrant = etf && rotation[etf] ? { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' }[rotation[etf].quadrant] : null;
   const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
   const parts = [];
-  if (quadrant) parts.push(`테마 ETF ${etf}는 섹터 회전에서 ${quadrant}`);
+  const rotationDate = etf && rotation[etf]?.sessionDate ? `(${Number(rotation[etf].sessionDate.slice(5, 7))}/${Number(rotation[etf].sessionDate.slice(8, 10))} 종가 기준)` : '';
+  if (quadrant) parts.push(`테마 ETF ${withTopicParticle(etf)} 섹터 회전에서 ${quadrant}${rotationDate}`);
   if (byThree.length >= 2) parts.push(`3개월 기준 가장 강한 곳은 ${strongest.name}(${pct(strongest.ret3m)}), 가장 약한 곳은 ${weakest.name}(${pct(weakest.ret3m)})`);
   if (moving.length && moving.length === mine.length && mine.length >= 2) {
     // P1449/R679: an improving 1-month vs 3-month rank is a RELATIVE PRICE observation. Without a

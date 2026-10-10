@@ -6,7 +6,10 @@ export function finalizePageDecision(decision, signal) {
     const score = typeof p.score === 'number' && Number.isFinite(p.score) ? p.score : null;
     if (score != null && p.basisLabel && p.status !== 'blocked') {
       d.referenceSummary = { score, displayScore: p.displayScore, basisLabel: p.basisLabel, status: p.status };
-      d.decision = `${p.decision} · ${p.displayScore}/100`;
+      // AGENTS.md: the 0-100 market score is retired from headers (negative rank correlation with
+      // 1/5-day returns in the long validation). The band label leads; the number stays in
+      // referenceSummary for detail views that label it as a reference.
+      d.decision = p.decision;
       d.sourceKind = 'REFERENCE';
       d.asOf = p.basisLabel;
       d.reasons = [p.description, ...(d.reasons || [])].slice(0, 3);

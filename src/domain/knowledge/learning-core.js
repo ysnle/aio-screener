@@ -16,6 +16,23 @@ export const CONTENT_KINDS = Object.freeze({
 
 const L = (lesson) => Object.freeze(lesson);
 
+// P1592 (F62): each column chapter links to the analysis notes that answer its own question — every
+// chapter used to show the same four notes. Keys are narrative-journey chapter ids.
+export const COLUMN_FRAME_LINKS = Object.freeze({
+  'money-is-choice': ['real-relative', 'geo-mean', 'macro-reading'],
+  'inflation-purchasing-power': ['macro-reading', 'real-relative', 'elasticity', 'agri'],
+  'interest-time-price': ['long-bond', 'multiple-durability', 'hike-cycle'],
+  'central-bank-transmission': ['hike-cycle', 'long-bond', 'credit-money', 'bank'],
+  'bonds-dollar-trust': ['long-bond', 'bond-collateral', 'fx-exporters'],
+  'liquidity-asset-inflation': ['credit-money', 'crisis-response', 'index-weight'],
+  'company-economic-machine': ['three-statements', 'capex-roic', 'elasticity'],
+  'valuation-expectations': ['expectations', 'multiple-durability', 'valuation-cycle'],
+  'ai-physical-bottleneck': ['semi-process', 'memory-optics', 'tech-vs-profit'],
+  'ai-capex-economics': ['capex-roic', 'tech-vs-profit', 'three-statements'],
+  'market-expectations-prices': ['expectations', 'index-weight', 'valuation-cycle'],
+  'ownership-risk-process': ['capital-allocation', 'geo-mean', 'bond-collateral']
+});
+
 export const LESSONS = Object.freeze([
   // ── 공통 기초 ──
   L({ id: 'geo-mean', path: 'foundation', title: '평균 수익률과 실제 자산', issue: '산술평균 수익률과 실현 복리 수익률의 괴리',
@@ -45,9 +62,9 @@ export const LESSONS = Object.freeze([
     columnNote: '칼럼의 “남이 20% 벌면 사실상 손실” 표현은 상대 성과를 강조한 관점이며, 회계상 손익이나 구매력 변화와는 구분해야 합니다.' }),
   L({ id: 'three-statements', path: 'accounting', title: '이익과 현금이 다른 이유', issue: '이익 증가와 현금 부족의 공존 — 운전자본과 설비투자',
     answer: "분기마다 이익이 늘던 회사가 어느 날 급하게 돈을 빌리기 시작한다. 장부는 흑자인데 통장은 비어 간다. 이상해 보이지만 빠르게 성장하는 회사에서 흔히 벌어지는 일이다. 이익과 현금은 서로 다른 시계를 쓴다.",
-    figure: { kind: 'flow', steps: ['매출 인식(이익)', '외상·재고로 묶임(운전자본)', '설비투자', '실제 남는 현금(FCF)'] },
+    figure: { kind: 'flow', steps: ['매출·이익 인식(장부)', '외상·재고로 묶임(운전자본)', '설비투자', '실제 남는 현금(FCF)'] },
     mechanism: [
-      "이익은 물건을 넘긴 순간 기록된다. 그런데 거래처가 대금을 석 달 뒤에 준다면, 그 석 달 동안 이익은 장부에만 있고 현금은 아직 오지 않았다. 이렇게 받을 돈과 쌓아 둔 재고에 묶인 돈이 운전자본이다.",
+      "매출은 물건을 넘긴 순간 기록되고, 그 매출에서 원가와 비용을 뺀 이익도 같은 때 장부에 잡힌다. 그런데 거래처가 대금을 석 달 뒤에 준다면, 그 석 달 동안 이익은 장부에만 있고 현금은 아직 오지 않았다. 이렇게 받을 돈과 쌓아 둔 재고에 묶인 돈이 운전자본이다.",
       "매출이 빠르게 늘수록 받을 돈과 재고도 함께 불어난다. 회사가 잘될수록 오히려 현금이 더 묶이는 역설이 여기서 생긴다. 공장과 장비를 사는 설비투자까지 더해지면, 남는 현금(잉여현금흐름)은 이익보다 훨씬 작아지거나 마이너스가 된다.",
       "그 빈자리를 빌린 돈으로 메우면 통장 잔고는 맞춰진다. 하지만 그 돈은 사업이 번 현금이 아니라 따로 기록되는 자금조달이고, 언젠가 이자와 원금으로 돌아온다."
     ],
@@ -160,7 +177,7 @@ export const LESSONS = Object.freeze([
       "2005년이 그런 해였다. 연준은 그해 2.25%에서 4.25%로 금리를 올렸지만, 중국의 설비투자와 함께 한국의 중후장대 산업 이익이 크게 늘었다. 외국인이 그해 코스피를 순매도했는데도 지수는 895.92에서 1,379.37로 올랐다.",
       "2008년은 반대다. 금리를 내린 이유가 금융위기와 이익 붕괴였기 때문에, 낮아진 할인율은 무너지는 이익을 상쇄하지 못했다. 같은 금리 인하라도 원인이 무엇이냐에 따라 주가에는 정반대로 작용한다."
     ],
-    example: { inputs: ['코스피 2004년 말 895.92', '2005년 말 1,379.37', '연준 기준금리 2005년 2.25% → 4.25%'], steps: ['연간 수익률 = 1,379.37 ÷ 895.92 − 1 ≈ +54.0%', '같은 해 기준금리 +2.00%p'], result: '금리 인상 폭보다 이익 증가가 컸던 해에는 금리와 주가가 함께 올랐습니다.' },
+    example: { inputs: ['코스피 2004년 말 895.92', '2005년 말 1,379.37', '연준 기준금리 2005년 2.25% → 4.25%'], steps: ['연간 수익률 = 1,379.37 ÷ 895.92 − 1 ≈ +54.0%', '같은 해 기준금리 +2.00%p'], result: '같은 해 기준금리와 지수가 함께 올랐습니다. 이 두 숫자만으로는 이익 증가가 금리 부담보다 컸는지 확인할 수 없고, 그 해석에는 같은 해 기업 이익 자료가 따로 필요합니다.' },
     reverse: "물가 때문에 금리를 올리는 경우는 다르다. 경기는 식는데 물가를 잡으려 금리를 올리면 이익은 늘지 않고 할인율만 오른다. 2022년처럼 주가와 채권이 함께 떨어진다. 지금 금리가 오르는 이유가 성장인지 물가인지, 그리고 실질금리가 계속 오르는지를 함께 봐야 한다.",
     channels: ['투자', '현금'], indicators: [{ label: '실질금리·기대인플레이션과 10년 금리', route: 'fxbond', routeLabel: '금리·환율' }, { label: '성장·물가의 방향(거시 국면)', route: 'macro', routeLabel: '거시 경제' }],
     concepts: ['policy-vs-long-rate', 'nominal-real-relative', 'present-value'],
@@ -174,7 +191,7 @@ export const LESSONS = Object.freeze([
       "하지만 원재료를 달러로 사는 회사는 비용도 함께 오른다. 달러 빚이 있는 회사는 갚아야 할 원화 금액이 불어난다. 해외 공장에서 만들어 현지에서 파는 회사는 애초에 효과가 작다. 이미 환헤지를 해 뒀거나 경쟁국 통화도 함께 약해졌다면 기대했던 이익은 더 줄어든다.",
       "결국 같은 환율이 회사마다 다른 결과를 낸다. 매출 통화, 원가 통화, 부채 통화가 어떻게 섞여 있는지가 답을 정한다."
     ],
-    example: { inputs: ['달러 매출 100', '달러 원가 70', '환율 1,300 → 1,430(+10%)'], steps: ['원화 매출 130,000 → 143,000', '원화 원가 91,000 → 100,100', '원화 이익 39,000 → 42,900'], result: '이익은 +10%. 달러 원가 비중이 낮은 기업이라면 이익 개선 폭이 훨씬 큽니다.' },
+    example: { inputs: ['달러 매출 100', '달러 원가 70', '환율 1,300 → 1,430(+10%)'], steps: ['원화 매출 130,000 → 143,000', '원화 원가 91,000 → 100,100', '원화 이익 39,000 → 42,900'], result: '매출과 원가가 모두 달러라면 원화 이익은 환율 상승률과 같은 +10%입니다. 개선 폭이 이보다 커지는 것은 인건비처럼 원화로 고정된 비용이 있을 때입니다 — 그 비용은 환율이 올라도 늘지 않기 때문입니다.' },
     reverse: "외국인 투자자의 셈법은 또 다르다. 원화로 주가가 10% 올라도 환율이 10% 오르면 달러로 바꾼 수익은 1.10 ÷ 1.10 − 1, 0%다. 국내 투자자에게 좋았던 한 해가 외국인에게는 제자리걸음일 수 있다.",
     channels: ['매출', '비용', '현금'], indicators: [{ label: '원/달러 추이와 업종별 반응', route: 'fxbond', routeLabel: '금리·환율' }, { label: '한국 테마의 1·3개월 흐름', route: 'themes', routeLabel: '테마·섹터' }],
     concepts: ['fx-revenue-cost', 'fx-return-for-foreigners'] }),
@@ -282,7 +299,7 @@ export const LESSONS = Object.freeze([
     figure: { kind: 'flow', steps: ['무엇이 제약인가', '누가 해결하는가', '누가 돈을 받는가', '실제 현금이 남는가', '가격에 얼마나 반영됐는가'] },
     mechanism: [
       "병목을 푸는 회사는 한동안 높은 값을 받는다. 모두가 그 부품을 원하는데 만들 수 있는 곳이 적기 때문이다.",
-      "하지만 높은 이익은 늘 손님을 부른다. 기존 회사는 증설하고, 새 회사가 뛰어든다. 2년 뒤 공급이 두 배가 되면 가격은 원가 쪽으로 미끄러지고, 기술 수요는 계속 늘어도 공급자의 이익률은 줄어든다.",
+      "하지만 높은 이익은 경쟁자를 부른다. 기존 회사는 증설하고, 새 회사가 뛰어든다. 2년 뒤 공급이 두 배가 되면 가격은 원가 쪽으로 미끄러지고, 기술 수요는 계속 늘어도 공급자의 이익률은 줄어든다.",
       "그래서 기술 뉴스를 볼 때는 다섯 가지를 차례로 물어야 한다. 무엇이 막혀 있나, 누가 그것을 푸나, 누가 돈을 받나, 실제로 현금이 남나, 그리고 그 기대가 이미 가격에 얼마나 들어가 있나."
     ],
     example: { inputs: ['병목 부품 마진 60%', '2년 뒤 공급 2배'], steps: ['가격이 원가 쪽으로 내려가며 마진 축소'], result: '기술 수요는 계속 늘어도 공급자 이익률은 줄 수 있습니다.' },
@@ -291,7 +308,7 @@ export const LESSONS = Object.freeze([
     concepts: ['competition-moat', 'cost-curve', 'capex'],
     columnNote: '칼럼의 핵심 관점 그대로입니다: “AI가 대단한 기술이고 혁신을 가져오는 것과, AI 기업이 높은 이익률을 낼 수 있다는 것은 다른 문제다.”' }),
   // ── 산업별 수익모델 ──
-  L({ id: 'bank', path: 'industry', industry: 'bank', title: '은행', issue: '금리 상승기 은행 순이자이익 감소 요인',
+  L({ id: 'bank', path: 'industry', industry: 'bank', title: '은행', scope: '금리 상승기 순이자이익', issue: '금리 상승기 은행 순이자이익 감소 요인',
     model: { makes: '대출·결제·자산관리', payer: '대출 이자를 내는 차입자, 수수료를 내는 고객', cost: '예금 이자, 인건비·전산, 대손비용, 규제 자본', driver: '순이자마진(NIM), 대출 증가, 대손비용, 자본 여력' },
     answer: "금리가 오르면 은행이 돈을 번다. 대출 이자가 오르니까. 상식처럼 들린다. 그런데 금리 상승기에 이익이 줄어든 은행이 적지 않았다. 상식에서 빠진 조각이 있다.",
     figure: { kind: 'flow', steps: ['기준금리 ↑', '대출 금리 ↑ / 예금 금리도 ↑(예금 베타)', '보유 채권 평가손', '차입자 부담 ↑ → 대손비용', '순이익'] },
@@ -305,7 +322,7 @@ export const LESSONS = Object.freeze([
     channels: ['매출', '비용'], indicators: [{ label: '금리 곡선과 신용 스프레드', route: 'fxbond', routeLabel: '금리·환율' }],
     concepts: ['nim', 'deposit-beta', 'credit-cost', 'bank-capital', 'credit-creation'],
     sources: [{ label: 'FRED USNIM — 미국 은행 순이자마진', url: 'https://fred.stlouisfed.org/series/USNIM', supports: 'NIM 지표' }, { label: 'BIS — Basel III', url: 'https://www.bis.org/bcbs/basel3.htm', supports: '자본 규제' }] }),
-  L({ id: 'insurance', path: 'industry', industry: 'insurance', title: '보험', issue: '손해보험의 보험료 성장과 언더라이팅 손익의 괴리',
+  L({ id: 'insurance', path: 'industry', industry: 'insurance', title: '보험', scope: '손해보험 합산비율', issue: '손해보험의 보험료 성장과 언더라이팅 손익의 괴리',
     model: { makes: '위험 보장(사고·질병·사망·재산 손해)', payer: '보험료를 내는 가입자', cost: '보험금 지급, 모집 수수료·운영비, 준비금 적립', driver: '합산비율(손해율 + 사업비율), 투자수익, 준비금 가정, 자산·부채 만기' },
     answer: "한 보험사의 보험료 수입이 10% 늘었다. 판매 조직은 축제 분위기다. 그런데 연말 결산을 해 보니 보험 영업은 적자로 돌아섰다. 많이 팔았는데 왜 손해를 봤을까.",
     figure: { kind: 'bars', bars: [{ label: '손해율', value: 78 }, { label: '사업비율', value: 29 }, { label: '합산비율', value: 107 }] },
@@ -318,20 +335,20 @@ export const LESSONS = Object.freeze([
     reverse: "반대로 보험료를 올리면서 가입 심사를 깐깐하게 하면, 매출은 덜 늘어도 손해율이 떨어져 이익은 크게 늘어난다. 보험사의 실력은 얼마나 많이 파느냐보다 얼마나 잘 골라 받느냐에서 드러난다. 이 틀은 자동차·재산·배상 같은 손해보험에 맞는다. 생명보험은 수십 년짜리 계약이라 금리, 자산·부채 만기 대응(ALM), 준비금 가정이 이익을 좌우하므로 다른 질문으로 읽어야 한다.",
     channels: ['매출', '비용', '현금'], indicators: [{ label: '금리 수준(투자수익·준비금에 영향)', route: 'fxbond', routeLabel: '금리·환율' }],
     concepts: ['loss-ratio', 'expense-ratio', 'combined-ratio', 'insurance-reserves', 'alm', 'float', 'information-asymmetry'] }),
-  L({ id: 'reit', path: 'industry', industry: 'realestate', title: '부동산·리츠·건설', issue: '임대수입 증가와 자산가치 하락 — 자본환원율',
+  L({ id: 'reit', path: 'industry', industry: 'realestate', title: '부동산·리츠·건설', scope: '임대 부동산 가치와 자본환원율', issue: '순영업소득 증가와 자산가치 하락 — 자본환원율',
     model: { makes: '임대 공간(오피스·물류·주거·데이터센터)', payer: '임차인', cost: '운영비, 이자, 유지 보수 투자', driver: '임대율·임대료(NOI), 자본환원율(금리), 차환 조건' },
-    answer: "어느 오피스 빌딩의 임대수입이 작년보다 5% 늘었다. 공실도 없다. 그런데 감정평가를 받아 보니 건물값은 12% 넘게 떨어졌다. 장사는 잘되는데 가게 값은 떨어진 셈이다.",
+    answer: "어느 오피스 빌딩의 임대수입에서 운영비를 뺀 순수입(순영업소득, NOI)이 작년보다 5% 늘었다. 공실도 없다. 그런데 감정평가를 받아 보니 건물값은 12% 넘게 떨어졌다. 장사는 잘되는데 가게 값은 떨어진 셈이다.",
     figure: { kind: 'flow', steps: ['임대료·임대율', 'NOI', '÷ 자본환원율(금리 영향)', '= 자산 가치', '차환 금리 → 이자 부담 → FFO·배당 여력'] },
     mechanism: [
       "부동산의 가치는 그 건물이 해마다 벌어다 주는 돈(순영업소득, NOI)을 투자자가 요구하는 수익률(자본환원율)로 나눈 값이다. 1년에 100억 원을 버는 건물에 5%를 요구한다면 2,000억 원이다.",
       "금리가 오르면 투자자는 부동산에도 더 높은 수익률을 요구한다. 국채가 5%를 주는데 건물에서 5%에 만족할 이유가 없다. 자본환원율이 5%에서 6%로 오르면, NOI가 105억 원으로 늘어도 가치는 1,750억 원으로 내려간다.",
       "리츠 투자자에게는 고비가 하나 더 있다. 저금리 때 빌린 돈의 만기가 돌아와 고금리로 다시 빌려야 하면, 임대수입이 그대로여도 이자가 불어나 주주 몫의 운영 성과(FFO)와 배당 여력이 함께 줄어든다."
     ],
-    example: { inputs: ['NOI 100억 → 105억', '캡레이트 5% → 6%'], steps: ['가치 = 100 ÷ 0.05 = 2,000억', '가치 = 105 ÷ 0.06 = 1,750억'], result: '임대수입이 5% 늘었는데 자산 가치는 12.5% 떨어졌습니다.' },
+    example: { inputs: ['NOI 100억 → 105억', '캡레이트 5% → 6%'], steps: ['가치 = 100 ÷ 0.05 = 2,000억', '가치 = 105 ÷ 0.06 = 1,750억'], result: '순영업소득이 5% 늘었는데 자산 가치는 12.5% 떨어졌습니다.' },
     reverse: "바람이 반대로 불면 같은 원리가 순풍이 된다. 금리가 내려 자본환원율이 낮아지면, 임대수입이 한 푼도 늘지 않아도 건물값은 오른다.",
     channels: ['매출', '현금'], indicators: [{ label: '10년 금리와 실질금리', route: 'fxbond', routeLabel: '금리·환율' }],
     concepts: ['occupancy', 'noi', 'cap-rate', 'ffo', 'refinancing', 'pf'] }),
-  L({ id: 'consumer', path: 'industry', industry: 'consumer', title: '소비·유통', issue: '매출 성장의 가격·물량·믹스 분해',
+  L({ id: 'consumer', path: 'industry', industry: 'consumer', title: '소비·유통', scope: '가격·물량·믹스 분해', issue: '매출 성장의 가격·물량·믹스 분해',
     model: { makes: '소비재와 판매 공간·서비스', payer: '소비자', cost: '상품 원가, 임대·인건비, 물류, 재고', driver: '가격·판매량·제품 구성, 동일점포 매출, 재고 회전' },
     answer: "한 식품회사가 매출 8% 성장을 발표했다. 숫자만 보면 순항이다. 그런데 같은 기간 가격을 10% 올렸다는 사실을 나란히 놓으면, 그림이 달라진다.",
     figure: { kind: 'bars', bars: [{ label: '매출 성장', value: 8 }, { label: '가격 효과', value: 10 }, { label: '판매량', value: -2 }] },
@@ -343,7 +360,7 @@ export const LESSONS = Object.freeze([
     reverse: "반대로 값을 지키면서 판매량이 늘었다면 수요가 강하다는 뜻이지만, 그것만으로 가격결정력이 증명되지는 않는다. 가격결정력은 값을 올린 뒤에 드러난다. 인상 뒤에도 판매량과 점유율이 버티고 매출총이익률이 지켜지는지를 함께 봐야 한다.",
     channels: ['매출', '단가', '비용'], indicators: [{ label: '소비 관련 테마의 흐름', route: 'themes', routeLabel: '테마·섹터' }, { label: '소매판매·물가', route: 'macro', routeLabel: '거시 경제' }],
     concepts: ['price-volume-mix', 'same-store-sales', 'inventory-turnover', 'elasticity'] }),
-  L({ id: 'software', path: 'industry', industry: 'software', title: '소프트웨어·플랫폼', issue: '사용자 증가와 수익성 부재 — 유닛 이코노믹스',
+  L({ id: 'software', path: 'industry', industry: 'software', title: '소프트웨어·플랫폼', scope: '구독 유닛 이코노믹스', issue: '사용자 증가와 수익성 부재 — 유닛 이코노믹스',
     model: { makes: '소프트웨어 구독·거래 중개·광고', payer: '구독 기업·판매자(수수료)·광고주', cost: '개발 인력, 서버, 영업·마케팅(고객획득비)', driver: '유지율, 고객당 매출, 고객획득비 대비 생애가치, 수수료율' },
     answer: "앱 다운로드 1억 회, 월간 사용자 3천만 명. 화려한 숫자를 가진 회사가 해마다 적자를 낸다. 사용자가 이렇게 많은데 왜 돈을 못 벌까.",
     figure: { kind: 'flow', steps: ['사용자 수', '돈을 내는 고객', 'LTV = 고객당 매출 × 매출총이익률 × 유지 기간', '− 고객획득비용(CAC)', '= 고객 한 명이 남기는 가치'] },
@@ -356,7 +373,7 @@ export const LESSONS = Object.freeze([
     reverse: "같은 회사에서 고객 이탈률이 40%에서 10%로 떨어지면 이야기가 뒤집힌다. 고객 한 명이 남기는 가치는 800만 원 가까이로 커져 데려오는 비용의 세 배를 넘는다. 똑같은 사용자 증가가 큰 이익으로 바뀐다.",
     channels: ['매출', '비용'], indicators: [{ label: '기업의 매출 성장·마진·현금흐름', route: 'fundamental', routeLabel: '재무 공시' }],
     concepts: ['retention', 'cac-ltv', 'gmv-vs-revenue', 'rpo', 'marginal'] }),
-  L({ id: 'biotech', path: 'industry', industry: 'bio', title: '바이오·의료', issue: '임상 성공에서 매출 인식까지의 시차와 희석',
+  L({ id: 'biotech', path: 'industry', industry: 'bio', title: '바이오·의료', scope: '신약 임상·허가와 자금 소진', issue: '임상 성공에서 매출 인식까지의 시차와 희석',
     model: { makes: '의약품·의료기기', payer: '건강보험·민간보험·병원·환자', cost: '연구개발·임상, 생산 설비, 영업', driver: '임상 성공 확률, 허가, 보험 급여와 약가, 특허 기간, 자금조달(희석)' },
     answer: "\"임상 3상 성공.\" 바이오 회사의 주가가 하루 만에 두 배가 된다. 그런데 1년 뒤에도 매출은 0원이고, 그 사이 회사는 증자를 발표한다. 성공했는데 왜 돈이 들어오지 않을까.",
     figure: { kind: 'flow', steps: ['1상(안전성)', '2상(효과 신호)', '3상(대규모 확인)', '허가 심사·생산 승인', '출시·처방 가능', '보험 보장·약가(실제 접근성)', '처방 확산·매출'] },
@@ -370,7 +387,7 @@ export const LESSONS = Object.freeze([
     channels: ['매출', '비용', '현금'], indicators: [{ label: '기업 공시·임상 뉴스', route: 'market-news', routeLabel: '뉴스' }],
     concepts: ['clinical-phases', 'endpoint', 'reimbursement', 'patent-cliff', 'dilution'],
     sources: [{ label: 'FDA — The Drug Development Process', url: 'https://www.fda.gov/patients/learn-about-drug-and-device-approvals/drug-development-process', supports: '임상 단계와 허가 절차' }] }),
-  L({ id: 'energy', path: 'industry', industry: 'energy', title: '에너지·화학·소재', issue: '유가 상승의 밸류체인별 차별적 영향 — 스프레드',
+  L({ id: 'energy', path: 'industry', industry: 'energy', title: '에너지·화학·소재', scope: '유가와 정유·화학 스프레드', issue: '유가 상승의 밸류체인별 차별적 영향 — 스프레드',
     model: { makes: '원유·가스 생산, 정제 제품, 화학 소재', payer: '연료·소재를 쓰는 기업과 소비자', cost: '원재료(원유·나프타), 설비, 에너지', driver: '생산 원가 위치, 원료와 제품의 가격 차이(스프레드), 재고 효과, 헤지' },
     answer: "국제 유가가 배럴당 80달러에서 95달러로 뛰었다. 에너지주 강세라는 제목이 걸린다. 그런데 같은 날 정유사 주가는 떨어진다. 같은 에너지 업종인데 왜 방향이 다를까.",
     figure: { kind: 'flow', steps: ['원유 가격 ↑', '생산 기업: 매출 ↑', '정유사: 원료비 ↑ vs 휘발유·경유 가격', '화학사: 나프타 ↑ vs 제품 가격', '스프레드가 이익 결정'] },
@@ -380,10 +397,10 @@ export const LESSONS = Object.freeze([
       "여기에 재고 효과가 끼어든다. 예전에 싸게 사 둔 원유를 비싸게 팔면 일시적으로 이익이 부풀고, 가격이 내릴 때는 반대가 된다. 실적을 볼 때 이 일시적 효과를 걸러 내야 하는 이유다."
     ],
     example: { inputs: ['원유 배럴당 80 → 95달러', '정제 제품 평균 95 → 105달러'], steps: ['정제마진 15 → 10달러'], result: '원유가 올랐는데 정유사 마진은 3분의 1 줄었습니다.' },
-    reverse: "반대로 경기가 좋아 휘발유 수요가 강하면 제품 가격이 원유보다 빨리 오른다. 그때는 정제마진이 넓어져 정유사가 생산 회사보다 더 큰 이익을 낸다.",
+    reverse: "반대로 경기가 좋아 휘발유 수요가 강하면 제품 가격이 원유보다 빨리 오른다. 그때는 정제마진이 넓어져 정유사의 이익이 개선된다. 어느 쪽이 더 많이 버는지는 회사 규모와 원가 구조에 따라 다르다.",
     channels: ['단가', '비용'], indicators: [{ label: '유가·원자재 흐름', route: 'macro', routeLabel: '거시 경제' }],
     concepts: ['crack-spread', 'cost-curve', 'inventory-effect'] }),
-  L({ id: 'transport', path: 'industry', industry: 'transport', title: '운송·물류', issue: '고운임의 지속성과 공급 증설 사이클',
+  L({ id: 'transport', path: 'industry', industry: 'transport', title: '운송·물류', scope: '컨테이너 해운 운임과 선복 공급', issue: '고운임의 지속성과 공급 증설 사이클',
     model: { makes: '화물·여객 운송, 물류 서비스', payer: '화주·여행객', cost: '연료, 선박·항공기 같은 고정 자산, 인건비', driver: '운임, 가동률, 공급 증설(신조선 인도), 계약 구조' },
     answer: "팬데믹 직후 컨테이너선 운임이 몇 배로 뛰었다. 해운사들은 사상 최대 이익을 냈다. 그리고 몇 년 뒤, 운임은 다시 바닥으로 내려왔다. 해운 산업에서 되풀이되는 롤러코스터다.",
     figure: { kind: 'flow', steps: ['수요 급증·공급 고정', '운임 급등', '신규 선박 발주', '2~3년 뒤 인도 집중', '운임 하락'] },
@@ -392,11 +409,11 @@ export const LESSONS = Object.freeze([
       "높은 운임은 해운사들의 지갑을 두둑하게 만들고, 그 돈은 새 배 주문으로 이어진다. 문제는 그 배들이 2~3년 뒤 한꺼번에 바다로 나온다는 것이다. 그때 수요가 꺾여 있으면 남는 배가 운임을 끌어내린다.",
       "고정비가 큰 사업이라 배를 얼마나 채우느냐(가동률)에 따라 이익이 크게 흔들린다. 장기 계약 비중이 높은 회사는 운임 급등의 혜택을 덜 받는 대신 급락의 충격도 덜 받는다."
     ],
-    example: { inputs: ['운임 2배', '발주 잔고가 현재 선대의 30%'], steps: ['인도가 몰리는 해 공급 +10% 이상'], result: '수요 증가가 그보다 작으면 운임은 급락할 수 있습니다.' },
+    example: { inputs: ['운임 2배', '발주 잔고가 현재 선대의 30%', '가정: 잔고가 3년에 걸쳐 고르게 인도되고 폐선은 없음'], steps: ['연간 인도 = 30% ÷ 3 = 선대의 약 10%', '그해 선복 공급 ≈ +10%'], result: '그해 물동량 증가가 10%보다 작으면 운임은 크게 떨어질 수 있습니다. 인도가 한 해에 몰리면 증가 폭은 더 커지고, 폐선이 늘면 줄어듭니다.' },
     reverse: "운임이 오래 높게 유지되는 경우도 있다. 환경 규제로 낡은 배가 대거 퇴출되거나, 항로가 막혀 먼 길을 돌아가야 해 실제로 쓸 수 있는 배가 줄어들 때다.",
     channels: ['단가', '투자'], indicators: [{ label: '물동량·경기 지표', route: 'macro', routeLabel: '거시 경제' }],
     concepts: ['freight-capacity', 'utilization-contract', 'cost-curve'] }),
-  L({ id: 'agri', path: 'industry', industry: 'agri', title: '농업·식품', issue: '곡물 가격 상승의 수혜·피해 구조 — 가격 전가',
+  L({ id: 'agri', path: 'industry', industry: 'agri', title: '농업·식품', scope: '곡물 가격과 식품 기업 가격 전가', issue: '곡물 가격 상승의 수혜·피해 구조 — 가격 전가',
     model: { makes: '곡물·비료·농기계·가공식품', payer: '식품 회사·소비자·농가', cost: '비료·연료·토지, 원재료 곡물', driver: '수확량과 재고, 투입비, 가격 전가 속도' },
     answer: "가뭄 소식에 곡물 가격이 25% 뛰었다. 누가 웃고 누가 우는가. 답은 그 곡물을 파는 쪽인지, 사서 쓰는 쪽인지에 달려 있다.",
     figure: { kind: 'flow', steps: ['날씨·수확량', '재고/사용 비율', '곡물 가격', '농가 소득·투입재 수요', '가공사 원가 → 가격 전가'] },

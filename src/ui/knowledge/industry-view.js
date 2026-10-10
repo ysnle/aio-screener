@@ -6,8 +6,9 @@ import { createResearchShell, asideBlock, el } from './research-shell.js';
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { conceptsForSurface } from '../../domain/knowledge/concept-surfaces.js';
 import { LESSONS } from '../../domain/knowledge/learning-core.js';
-import { ensureFrameStyle } from './analysis-frames.js';
+import { ensureFrameStyle, renderBasis } from './analysis-frames.js';
 import { FOUNDATION_HIDDEN_MODULES, foundationStory } from '../../domain/knowledge/foundation-stories.js';
+import { withObjectParticle } from '../../domain/content/korean-particle.js';
 
 const conceptById = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
 
@@ -17,7 +18,7 @@ function navButton(doc, label, { active = false, action, value, sub = false, met
   node.dataset.atlasAction = action;
   if (value != null) node.dataset.atlasValue = value;
   node.setAttribute('aria-pressed', active ? 'true' : 'false');
-  if (meta) node.appendChild(el(doc, 'span', 'rl-nav-meta', meta));
+  if (meta) { node.appendChild(el(doc, 'span', 'rl-nav-meta', meta)); node.setAttribute('aria-label', `${label} — ${meta}`); }
   return node;
 }
 
@@ -214,11 +215,14 @@ const CRITICALITY_LABEL = Object.freeze({ structural: '구조', conditional: '�
 // One relationship guide as a document: the stages as a flow of concept buttons, the open concept explained in
 // full, and every typed link spelled out in words. The status line, source fold and duplicated guide list of the
 // old embedded view are gone; the guides themselves are listed once, in the contents column.
-function renderRelationshipGuide(doc, guide, selectedNodeId, failed = false) {
+function renderRelationshipGuide(doc, guide, selectedNodeId, failed = false, sources = null) {
   const article = el(doc, 'article', 'af-article');
   if (!guide) { article.appendChild(failed ? loadFailure(doc, '관계 가이드를 불러오지 못했습니다.', 'relationships') : el(doc, 'p', 'rl-copy', '관계 가이드를 불러오는 중입니다.')); return article; }
   article.dataset.atlasRelationshipGuide = guide.id;
-  article.append(el(doc, 'p', 'af-kicker', `관계 가이드 · ${guide.eyebrow || ''}`.replace(/ · $/, '')), el(doc, 'h2', 'af-issue', guide.title), el(doc, 'p', 'af-lead', guide.summary));
+  // P1592 (F71): name the company and the date a guide's company claims come from — a target figure
+  // credited to '회사' could not be traced to who said it or when.
+  const anchor = [guide.ticker ? `기준 회사 ${guide.ticker}` : null, guide.asOf ? `${guide.asOf} 발표 기준` : null].filter(Boolean).join(' · ');
+  article.append(el(doc, 'p', 'af-kicker', [`관계 가이드`, guide.eyebrow, anchor].filter(Boolean).join(' · ')), el(doc, 'h2', 'af-issue', guide.title), el(doc, 'p', 'af-lead', guide.summary));
   const nodeById = new Map((guide.nodes || []).map((node) => [node.id, node]));
   const selected = nodeById.get(selectedNodeId) || guide.nodes?.[0] || null;
   const stages = el(doc, 'div', 'af-stages');
@@ -239,7 +243,7 @@ function renderRelationshipGuide(doc, guide, selectedNodeId, failed = false) {
   if (selected) {
     article.appendChild(el(doc, 'h3', 'af-section', selected.label));
     article.appendChild(prose(doc, [selected.definition, selected.importance, selected.mechanism]));
-    if (selected.metrics?.length) article.appendChild(el(doc, 'p', 'rl-copy', `숫자로는 ${selected.metrics.join(', ')}을 본다.`));
+    if (selected.metrics?.length) article.appendChild(el(doc, 'p', 'rl-copy', `숫자로는 ${withObjectParticle(selected.metrics.join(', '))} 본다.`));
     if (selected.invalidation) article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', selected.invalidation));
   }
   const links = (guide.edges || []).filter((edge) => !selected || edge.from === selected.id || edge.to === selected.id);
@@ -253,6 +257,13 @@ function renderRelationshipGuide(doc, guide, selectedNodeId, failed = false) {
     });
     article.appendChild(list);
   }
+  const sourceRows = (guide.sourceIds || []).map((id) => (Array.isArray(sources?.sources) ? sources.sources : []).find((item) => item.id === id)).filter(Boolean);
+  const basis = renderBasis(doc, {
+    sources: sourceRows.map((source) => ({ label: `${source.publisher ? `${source.publisher} · ` : ''}${source.title || source.id}${source.publishedAt ? ` (${source.publishedAt})` : ''}`, url: source.url })),
+    assumptions: ['회사 목표·계획은 발표 시점의 주장이며, 이후 실적·공시로 확인되기 전에는 현재 성과가 아니다.'],
+    asOf: guide.asOf || null
+  });
+  if (basis) article.appendChild(basis);
   return article;
 }
 
@@ -332,7 +343,7 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
     }
   } else if (state.view === 'guide') {
     const guide = (data.relationshipGuides?.guides || []).find((item) => item.id === state.selectedRelationshipGuideId) || data.relationshipGuides?.guides?.[0] || null;
-    main.appendChild(renderRelationshipGuide(doc, guide, state.selectedRelationshipNodeId, Boolean(data.failed?.relationships)));
+    main.appendChild(renderRelationshipGuide(doc, guide, state.selectedRelationshipNodeId, Boolean(data.failed?.relationships), data.knowledgeSources));
   }
   return shell;
 }

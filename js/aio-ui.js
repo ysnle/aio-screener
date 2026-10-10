@@ -1,4 +1,4 @@
-﻿// ╔═══════════════════════════════════════════════════════════════════════════╗
+// ╔═══════════════════════════════════════════════════════════════════════════╗
 // ║  P3-1 PHASE 2 ▸ MODULE 3: UI START (실제 분할 적용 v48.26)                ║
 // ║  책임: Render + Page Router + Charts + Filters + Gauges                   ║
 // ║  의존성: MODULE 1 (stores) + MODULE 2 (data fetch/score/translate)        ║
@@ -552,7 +552,8 @@ function updateQuotaBadge() {
   const route = getLLMRouteReadiness();
 
   if (isOn && !route.ready) {
-    // Keep the switch state intact: route health is not user intent.
+    // Keep the switch state intact: route health is not user intent. P1591 (G04): the track dims so 'on' does not read as working.
+    if (track) track.classList.add('is-unavailable');
     if (swLabel) { swLabel.textContent = route.label; swLabel.className = 'llm-switch-label'; }
     if (capEl) capEl.textContent = '—';
     if (remEl) { remEl.textContent = '—'; remEl.className = 'llm-quota-val empty'; }
@@ -563,7 +564,7 @@ function updateQuotaBadge() {
     return;
   }
 
-  if (track)   { track.classList.toggle('on', isOn); }
+  if (track)   { track.classList.toggle('on', isOn); track.classList.remove('is-unavailable'); }
   if (swLabel) { swLabel.textContent = isOn ? 'ON' : 'OFF'; swLabel.className = 'llm-switch-label' + (isOn ? ' on' : ''); }
   if (capEl)   capEl.textContent = dailyLimit + '회';
   if (modelEl) modelEl.textContent = '채팅·심층·번역 GPT-6 Luna';
@@ -1956,9 +1957,9 @@ window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 // ──────────────────────────────────────────────────────────────────────────────
 window._aioDiagram = (function () {
   var C = {
-    green:  '#10c98b', amber:  '#f59e0b', red:    '#ef4444',
-    cyan:   '#00bcd4', blue:   '#3b82f6', muted:  'rgba(255,255,255,0.35)',
-    text:   '#dce6f0', bg:     'transparent', bgSolid:'#0d1828', surface:'#0d1828', border: 'rgba(255,255,255,0.10)',
+    // P1591: theme tokens, not dark-only constants — the light theme drew white text on ivory (S05/E01).
+    green:  'var(--data-green)', amber: 'var(--data-amber)', red: 'var(--data-red)', cyan: 'var(--data-cyan)', blue: 'var(--data-blue)', muted: 'var(--text-muted)',
+    text:   'var(--text-primary)', bg: 'transparent', bgSolid: 'var(--surface-1)', surface: 'var(--surface-1)', border: 'var(--border)',
   };
   // P1126/R619: aio-data.js가 먼저 로드되므로 escHtml이 항상 존재한다. 여기서 따로
   // 재구현하지 않는다 — 3-char 버전과 4-char 정본이 갈라지면 SVG/오류 문구만
@@ -1972,6 +1973,7 @@ window._aioDiagram = (function () {
   function _scoreCol(s) { return s >= 75 ? C.green : s >= 60 ? C.cyan : s >= 45 ? C.amber : C.red; }
   function _alphaRgb(hex, a) {
     // Convert #rrggbb → rgba(r,g,b,a)
+    if (String(hex).charAt(0) !== '#') return 'color-mix(in srgb, ' + hex + ' ' + Math.round(a * 100) + '%, transparent)';
     var r = parseInt(hex.slice(1, 3), 16),
         g = parseInt(hex.slice(3, 5), 16),
         b = parseInt(hex.slice(5, 7), 16);
@@ -2028,13 +2030,13 @@ window._aioDiagram = (function () {
       var pct = _cl(c.value / (c.max || 20), 0, 1);
       var cc = _scoreCol(pct * 100);
       out += _t(14, y + 11, c.label, C.muted, 10);
-      out += _r(90, y + 3, 190, 10, 'rgba(255,255,255,0.05)', 3);
+      out += _r(90, y + 3, 190, 10, 'color-mix(in srgb, var(--text-primary) 8%, transparent)', 3);
       out += _r(90, y + 3, Math.round(190 * pct), 10, _alphaRgb(cc, 0.65), 3);
       out += _t(286, y + 12, _n(c.value, 0) + '/' + c.max, cc, 10, 700);
-      if (i === 2) out += _l(310, y + 8, 352, cy, 'rgba(255,255,255,0.1)');
+      if (i === 2) out += _l(310, y + 8, 352, cy, 'color-mix(in srgb, var(--text-primary) 16%, transparent)');
     });
-    out += _l(310, 44, 348, cy, 'rgba(255,255,255,0.06)');
-    out += _l(310, 164, 348, cy, 'rgba(255,255,255,0.06)');
+    out += _l(310, 44, 348, cy, 'color-mix(in srgb, var(--text-primary) 10%, transparent)');
+    out += _l(310, 164, 348, cy, 'color-mix(in srgb, var(--text-primary) 10%, transparent)');
     return _svg(W, H, out);
   }
 
@@ -2053,8 +2055,8 @@ window._aioDiagram = (function () {
     out += _r(qx + qw / 2, qy, qw / 2, qh / 2, _alphaRgb(C.green, 0.07), 0, C.border, 0.5);
     out += _r(qx, qy + qh / 2, qw / 2, qh / 2, _alphaRgb(C.amber, 0.07), 0, C.border, 0.5);
     out += _r(qx + qw / 2, qy + qh / 2, qw / 2, qh / 2, _alphaRgb(C.cyan, 0.07), 0, C.border, 0.5);
-    out += _l(qx + qw / 2, qy, qx + qw / 2, qy + qh, 'rgba(255,255,255,0.10)');
-    out += _l(qx, qy + qh / 2, qx + qw, qy + qh / 2, 'rgba(255,255,255,0.10)');
+    out += _l(qx + qw / 2, qy, qx + qw / 2, qy + qh, 'color-mix(in srgb, var(--text-primary) 16%, transparent)');
+    out += _l(qx, qy + qh / 2, qx + qw, qy + qh / 2, 'color-mix(in srgb, var(--text-primary) 16%, transparent)');
     out += _t(qx + qw / 2, qy - 5, '위험선호', C.muted, 10, 600, 'middle');
     out += _t(qx + qw / 2, qy + qh + 12, '위험회피', C.muted, 10, 600, 'middle');
     out += _t(qx + qw / 4, qy + 11, 'Bear Rally', C.red, 10, 600, 'middle');
@@ -2100,12 +2102,12 @@ window._aioDiagram = (function () {
         var a = (i / n) * Math.PI * 2 - Math.PI / 2;
         pts.push((cx + R * scale * Math.cos(a)).toFixed(1) + ',' + (cy + R * scale * Math.sin(a)).toFixed(1));
       }
-      out += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="rgba(255,255,255,' + (scale === 1 ? 0.12 : 0.05) + ')" stroke-width="1"/>';
+      out += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="color-mix(in srgb, var(--text-primary) ' + (scale === 1 ? 18 : 8) + '%, transparent)" stroke-width="1"/>';
     });
     axes.forEach(function (ax, i) {
       var a = (i / n) * Math.PI * 2 - Math.PI / 2;
       var ex = cx + R * Math.cos(a), ey = cy + R * Math.sin(a);
-      out += _l(cx, cy, ex.toFixed(1), ey.toFixed(1), 'rgba(255,255,255,0.07)');
+      out += _l(cx, cy, ex.toFixed(1), ey.toFixed(1), 'color-mix(in srgb, var(--text-primary) 11%, transparent)');
       var lx = cx + (R + 16) * Math.cos(a), ly = cy + (R + 16) * Math.sin(a);
       out += _t(lx.toFixed(1), (ly + 3).toFixed(1), ax.label, C.muted, 10, 600, 'middle');
     });
@@ -2150,7 +2152,7 @@ window._aioDiagram = (function () {
     items.forEach(function (it, i) {
       var col2 = i % 2, row = Math.floor(i / 2);
       var x = 14 + col2 * 204, y = 34 + row * 42;
-      out += _r(x, y, 196, 34, 'rgba(255,255,255,0.025)', 5, it.ok ? _alphaRgb(C.green, 0.22) : _alphaRgb(C.red, 0.18), 1);
+      out += _r(x, y, 196, 34, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 5, it.ok ? _alphaRgb(C.green, 0.22) : _alphaRgb(C.red, 0.18), 1);
       out += _t(x + 10, y + 13, it.label, C.muted, 10, 600);
       out += _t(x + 10, y + 27, it.val, it.ok ? C.green : C.red, 10, 700);
       out += _t(x + 186, y + 13, it.ok ? '✓' : '✗', it.ok ? C.green : C.red, 11, 900, 'end');
@@ -2182,8 +2184,8 @@ window._aioDiagram = (function () {
         'A' + R + ',' + R + ',0,0,1,' + x2.toFixed(1) + ',' + y2.toFixed(1) +
         'L' + x3.toFixed(1) + ',' + y3.toFixed(1) +
         'A' + inner + ',' + inner + ',0,0,0,' + x0.toFixed(1) + ',' + y0.toFixed(1) + 'Z"' +
-        ' fill="' + (active ? _alphaRgb(col, 0.25) : 'rgba(255,255,255,0.03)') + '"' +
-        ' stroke="' + (active ? col : 'rgba(255,255,255,0.08)') + '" stroke-width="' + (active ? 2 : 0.5) + '"/>';
+        ' fill="' + (active ? _alphaRgb(col, 0.25) : 'color-mix(in srgb, var(--text-primary) 6%, transparent)') + '"' +
+        ' stroke="' + (active ? col : 'color-mix(in srgb, var(--text-primary) 13%, transparent)') + '" stroke-width="' + (active ? 2 : 0.5) + '"/>';
       var lam = (a0 + a1) / 2;
       var lx = cx + R * 0.66 * Math.cos(lam), ly = cy + R * 0.66 * Math.sin(lam);
       out += _t(lx.toFixed(1), (ly + 3).toFixed(1), stageNames[i], active ? col : C.muted, 10, active ? 700 : 400, 'middle');
@@ -2197,7 +2199,7 @@ window._aioDiagram = (function () {
     ];
     indicators.forEach(function (row, i) {
       var ry = 30 + i * 54;
-      out += _r(225, ry, 146, 46, 'rgba(255,255,255,0.03)', 5, _alphaRgb(row[2], 0.2), 1);
+      out += _r(225, ry, 146, 46, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 5, _alphaRgb(row[2], 0.2), 1);
       out += _t(233, ry + 15, row[0], C.muted, 10, 600);
       out += _t(233, ry + 34, row[1], row[2], 14, 900);
     });
@@ -2224,7 +2226,7 @@ window._aioDiagram = (function () {
     // T921 and the 390/768/1024/1440 matrix gate.
     var tx = function (v) { return 18 + Math.max(0, Math.min(((v - lo) / range) * 366, 366)); };
     var slY = 48;
-    out += _r(18, slY, 366, 8, 'rgba(255,255,255,0.05)', 4);
+    out += _r(18, slY, 366, 8, 'color-mix(in srgb, var(--text-primary) 8%, transparent)', 4);
     out += _r(18, slY, _cl(tx(sma200) - 18, 0, 366), 8, _alphaRgb(C.red, 0.18), 4);
     out += _r(tx(sma200), slY, _cl(tx(sma50) - tx(sma200), 0, 366), 8, _alphaRgb(C.amber, 0.22));
     out += _r(tx(sma50), slY, _cl(tx(ath) - tx(sma50), 0, 366), 8, _alphaRgb(C.green, 0.22));
@@ -2252,7 +2254,7 @@ window._aioDiagram = (function () {
     ];
     stats.forEach(function (s, i) {
       var x = 14 + i * 100;
-      out += _r(x, H - 50, 92, 40, 'rgba(255,255,255,0.025)', 4, C.border, 1);
+      out += _r(x, H - 50, 92, 40, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
       out += _t(x + 6, H - 34, s[0], C.muted, 10);
       out += _t(x + 6, H - 16, s[1], s[2], 11, 700);
     });
@@ -2296,7 +2298,7 @@ window._aioDiagram = (function () {
     var cX = 44, cY = 28, cW = 310, cH = 120;
     [0, 0.5, 1].forEach(function (t) {
       var y = (cY + cH - t * cH).toFixed(0);
-      out += _l(cX, y, cX + cW, y, 'rgba(255,255,255,0.06)');
+      out += _l(cX, y, cX + cW, y, 'color-mix(in srgb, var(--text-primary) 10%, transparent)');
       out += _t(cX - 4, (+y + 3).toFixed(0), (minR + t * (maxR - minR)).toFixed(1) + '%', C.muted, 10, 400, 'end');
     });
     var mapped = pts.map(function (p, i) {
@@ -2341,7 +2343,7 @@ window._aioDiagram = (function () {
       if (g.inv) norm = 1 - norm;
       var col = norm >= 0.66 ? C.green : norm >= 0.33 ? C.amber : C.red;
       out += _t(14, y + 13, g.label, C.muted, 10, 600);
-      out += _r(120, y + 2, 224, 10, 'rgba(255,255,255,0.05)', 3);
+      out += _r(120, y + 2, 224, 10, 'color-mix(in srgb, var(--text-primary) 8%, transparent)', 3);
       out += _r(120, y + 2, Math.round(224 * 0.40), 10, _alphaRgb(C.green, 0.28), 3);
       out += _r(120 + Math.round(224 * 0.40), y + 2, Math.round(224 * 0.33), 10, _alphaRgb(C.amber, 0.28));
       out += _r(120 + Math.round(224 * 0.73), y + 2, Math.round(224 * 0.27), 10, _alphaRgb(C.red, 0.28));
@@ -2381,8 +2383,8 @@ window._aioDiagram = (function () {
       var barW = Math.round(Math.abs(measured ? v : 0) * 700);
       var midX = 182;
       out += _t(14, y + 13, f.label, C.muted, 10, 600);
-      out += _r(70, y + 3, 224, 12, 'rgba(255,255,255,0.04)', 2);
-      out += _l(midX, y, midX, y + 18, 'rgba(255,255,255,0.14)');
+      out += _r(70, y + 3, 224, 12, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 2);
+      out += _l(midX, y, midX, y + 18, 'color-mix(in srgb, var(--text-primary) 22%, transparent)');
       if (measured && v >= 0) {
         out += _r(midX, y + 3, Math.min(barW, 112), 12, _alphaRgb(col, 0.55), 2);
       } else if (measured) {
@@ -2390,10 +2392,10 @@ window._aioDiagram = (function () {
       }
       out += _t(300, y + 13, measured ? 'IC ' + _n(v, 3) : '계산 불가', col, 10, 700);
     });
-    out += _r(14, H - 46, 180, 36, 'rgba(255,255,255,0.025)', 4, C.border, 1);
+    out += _r(14, H - 46, 180, 36, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
     out += _t(20, H - 29, '분위 스프레드', C.muted, 10);
     out += _t(20, H - 13, hasSample && spread != null ? _n(spread, 2) + '%' : '계산 불가 · 표본 없음', hasSample && spread != null ? (spread > 2 ? C.green : spread > 0 ? C.amber : C.red) : C.muted, hasSample && spread != null ? 12 : 10, 700);
-    out += _r(204, H - 46, 180, 36, 'rgba(255,255,255,0.025)', 4, C.border, 1);
+    out += _r(204, H - 46, 180, 36, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
     out += _t(210, H - 29, '방향 적중률', C.muted, 10);
     out += _t(210, H - 13, hasSample && hit != null ? _n(hit, 1) + '%' : '계산 불가 · 표본 없음', hasSample && hit != null ? (hit > 55 ? C.green : hit > 45 ? C.amber : C.red) : C.muted, hasSample && hit != null ? 12 : 10, 700);
     return _svg(W, H, out);
@@ -2596,9 +2598,8 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
   }
 
   function _buildSectors() {
-    // E0/P1282: 현행 소유자 getPortfolioData(Vault-aware, 키 aio_portfolio_data, 스키마
-    // {ticker, qty, cost, sector?})에서 읽는다. 폐기된 sym-스키마 키 'aio_portfolio'에는
-    // writer가 없어 이 다이어그램은 실데이터에서 조용히 사라지고 있었다.
+    // E0/P1282: 현행 소유자 getPortfolioData(Vault-aware, {ticker, qty, cost, sector?})에서 읽는다.
+    // P1592 (F16): 비중은 native 평가액(기준 통화 환산)만 쓴다 — 시세가 없으면 원가·혼합 통화로 대신 그리지 않는다.
     var pf = [];
     try {
       if (typeof window.getPortfolioData === 'function') {
@@ -2606,7 +2607,9 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
         if (Array.isArray(raw)) pf = raw;
       }
     } catch (e) {}
-    if (!pf.length) return { sectors: [] };
+    var surf = window._aioPortfolioSurface, valued = {};
+    if (!pf.length || (surf && surf.positionValue == null)) return { sectors: [] };
+    if (surf && Array.isArray(surf.rows)) surf.rows.forEach(function (r) { if (r && r.symbol) valued[String(r.symbol).toUpperCase()] = r.value; });
     var live = window._liveData || {};
     var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
     var sMap = {};
@@ -2618,8 +2621,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
         if ((db[i].sym || '').toUpperCase() === sym) { row = db[i]; break; }
       }
       var sector = (entry.sector || (row && row.sector)) ? (entry.sector || row.sector) : 'Other';
-      var price = (live[sym] && typeof live[sym].price === 'number') ? live[sym].price : (entry.cost || 0);
-      var mv = (entry.qty || 0) * price;
+      var mv = valued[sym] != null ? valued[sym] : (entry.qty || 0) * ((live[sym] && typeof live[sym].price === 'number') ? live[sym].price : 0);
       if (!sMap[sector]) sMap[sector] = { mv: 0, perfSum: 0, count: 0 };
       sMap[sector].mv += mv;
       sMap[sector].perfSum += (row && row.ret3m != null) ? row.ret3m : 0;
@@ -2847,7 +2849,7 @@ function _renderFundQualitative(d) {
     var desc = p.description.length > 420 ? p.description.slice(0, 420) + '...' : p.description;
     descEl.innerHTML = escHtml(desc);
   } else {
-    descEl.innerHTML = '<span style="color:var(--text-muted);">기업 설명 데이터 없음 (FMP profile.description 미제공)</span>';
+    descEl.innerHTML = '<span style="color:var(--text-muted);">기업 소개를 아직 받지 못했습니다.</span>';
   }
 
   function qrow(label, text) {
@@ -2992,7 +2994,9 @@ function _renderFundFinancials(d) {
   // PE from SEC
   var secPE = (secEpsVal && d.price) ? d.price / secEpsVal : null;
 
+  var _missingCards = []; // P1591 (S09): unreceived metrics collapse into one line instead of a grid of N/A cards
   function card(label, value, sub, color) {
+    if (value === 'N/A' || value === '미수신') { _missingCards.push(label); return ''; }
     return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
       '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
       '<div style="font-size:16px;font-weight:800;color:' + (color||'var(--text-primary)') + ';font-family:var(--font-mono);margin-top:2px;">' + value + '</div>' +
@@ -3017,7 +3021,7 @@ function _renderFundFinancials(d) {
   html += card('ROE', _fn(roeVal) !== null ? (roeVal * 100).toFixed(1) + '%' : 'N/A', '순이익 ÷ 자기자본 · 공급자 기준(위 재무 흐름은 평균 자기자본 기준)');
   html += card('EPS (TTM)', epsVal ? '$' + epsVal.toFixed(2) : 'N/A', '');
   html += card('매출', revVal ? '$' + _fmtNum(revVal) : 'N/A', revYear ? 'FY ' + revYear : '');
-  html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? '#00e5a0' : '#ff5b50');
+  html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)');
   html += card('Gross Margin', gmVal ? (gmVal * 100).toFixed(1) + '%' : 'N/A', '매출총이익률');
   html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (secFCF && mktCap > 0 ? ((secFCF / mktCap) * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
   html += card('EV/EBITDA', _fn(m.enterpriseValueOverEBITDA) !== null ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
@@ -3028,6 +3032,7 @@ function _renderFundFinancials(d) {
   var hasDivValue = typeof p.lastDiv === 'number' && isFinite(p.lastDiv);
   var divYield = hasDivValue ? (d.price && d.price > 0 ? (p.lastDiv / d.price) * 100 : null) : null;
   html += card('배당수익률', divYield != null ? divYield.toFixed(2) + '%' : (hasDivValue ? 'N/A' : '미수신'), '연간 배당');
+  if (_missingCards.length) html += '<div style="grid-column:1/-1;font-size:12px;color:var(--text-muted);">아직 받지 못한 항목: ' + _missingCards.join(' · ') + '</div>';
 
   // Codex browser audit H38: provider/setup notes (API keys, release tags) are operator information, not analysis.
 
@@ -7095,7 +7100,7 @@ function toggleTheme() {
   if (btn) btn.textContent = isDark ? 'Dark' : 'Light';
   // v40.6: 사이드바 테마 버튼 라벨 동기화
   var sbLabel = document.getElementById('sidebar-theme-label');
-  if (sbLabel) sbLabel.textContent = isDark ? '다크 모드' : '라이트 모드';
+  if (sbLabel) sbLabel.textContent = isDark ? '라이트 모드로 전환' : '다크 모드로 전환'; // P1591 (G07): the label names the action
   localStorage.setItem('aio_theme', isDark ? 'dark' : 'light');
   // TradingView iframe 테마 업데이트
   document.querySelectorAll('iframe[src*="tradingview"]').forEach(function(f) {
@@ -7110,7 +7115,7 @@ function toggleTheme() {
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = 'Dark';
     var sbLabel = document.getElementById('sidebar-theme-label');
-    if (sbLabel) sbLabel.textContent = '다크 모드';
+    if (sbLabel) sbLabel.textContent = '라이트 모드로 전환';
   }
 })();
 

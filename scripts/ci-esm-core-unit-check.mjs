@@ -1099,10 +1099,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 {
   const { classifyRRG, computeRelativeRotation } = await load('src/domain/themes/rrg.js');
   if (classifyRRG(null, null).quadrant !== 'unknown') fail('rrg: missing values became a Lagging quadrant');
-  const invalidRotation = computeRelativeRotation({ history: Array(21).fill(NaN), benchmarkHistory: Array(21).fill(100), hasQuote: true, hasBenchmarkQuote: true });
-  const alignedTail = computeRelativeRotation({ history: Array.from({ length: 21 }, (_, index) => 100 + index), benchmarkHistory: [...Array(20).fill(10), ...Array.from({ length: 21 }, (_, index) => 100 + index)], hasQuote: true, hasBenchmarkQuote: true });
+  // P1591: fixtures follow RRG_MIN_SESSIONS (30) — the same minimum the themes copy states.
+  const invalidRotation = computeRelativeRotation({ history: Array(31).fill(NaN), benchmarkHistory: Array(31).fill(100), hasQuote: true, hasBenchmarkQuote: true });
+  const alignedTail = computeRelativeRotation({ history: Array.from({ length: 31 }, (_, index) => 100 + index), benchmarkHistory: [...Array(20).fill(10), ...Array.from({ length: 31 }, (_, index) => 100 + index)], hasQuote: true, hasBenchmarkQuote: true });
   if (alignedTail.quadrant !== 'Leading' || Math.abs(alignedTail.rsRatio - 100) > 1e-9 || Math.abs(alignedTail.rsMom - 100) > 1e-9) fail(`rrg: unequal histories were not aligned on their common tail: ${JSON.stringify(alignedTail)}`);
   if (invalidRotation.quadrant !== 'unknown') fail('rrg: invalid history produced a quadrant');
+  const shortRotation = computeRelativeRotation({ history: Array.from({ length: 29 }, (_, index) => 100 + index), benchmarkHistory: Array(29).fill(100), hasQuote: true, hasBenchmarkQuote: true });
+  if (shortRotation.quadrant !== 'unknown' || shortRotation.reason !== 'relative_history_lt_30') fail(`P1591 rrg: fewer than 30 aligned sessions must stay unclassified, got ${JSON.stringify(shortRotation)}`);
   const { deriveHomeSummary } = await load('src/domain/home/summary.js');
   if (deriveHomeSummary({ sentiment: { fearGreed: NaN }, signal: { score: Infinity }, newsCount: -2 }).status !== 'unavailable') fail('home: non-finite inputs counted as available');
   const { deriveSentimentSummary } = await load('src/domain/sentiment/metrics.js');
@@ -3612,7 +3615,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     pit: { observations: { revenue: [{ value: 6948e6, periodStart: '2024-11-01', periodEnd: '2025-10-31', acceptedAt: '2025-12-19T23:00:46Z' }], equity: [eqRow(-226e6, 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'), eqRow(6741e6, 'StockholdersEquity')] } } };
   const agReport = deriveSecReport(agilent);
   const agEquity = agReport.metrics.find((row) => row.key === 'equity')?.value;
-  if (agEquity !== 6741e6 || agReport.metrics.find((row) => row.key === 'roe')?.value !== 19.3) fail(`P1402 parent equity must replace a conflicting NCI-inclusive tag: ${agEquity}`);
+  // P1591/S07: the card no longer repeats an end-of-year ROE; the reconciled record still carries it.
+  if (agEquity !== 6741e6 || reconcileSecEquity(agilent).roe !== 19.3 || agReport.metrics.some((row) => row.key === 'roe')) fail(`P1402 parent equity must replace a conflicting NCI-inclusive tag: ${agEquity}`);
   if (selectSecFundamentalsAsOf(agilent, '2026-01-01').equity !== 6741e6) fail('P1402 point-in-time equity must prefer the parent concept');
   // P1449: the shipped projection strips PIT observations, so the reconcile must have run on
   // the builder side; reconcile must be idempotent and must survive an observations-less shape.
@@ -3795,5 +3799,37 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   }
 }
 
+// P1586: self-computed sentiment composite — withholds below four components, ranks each against its own
+// trailing year, labels the stand-in junk-bond basis, and never borrows CNN's value.
+{
+  const { computeCompositeFearGreed, bandForCompositeScore } = await import(pathToFileURL(path.join(root, 'src/domain/sentiment/composite-fear-greed.js')).href);
+  const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+  const rising = Array.from({ length: 300 }, (_, i) => ({ date: day(i), spx: 5000 + i * 5, vix: 20 - i * 0.02, advanceRatio: 0.5 + Math.sin(i / 9) * 0.1 + i * 0.0004, fg: 99 }));
+  const hy = { series: { hyOas: { observations: Array.from({ length: 280 }, (_, i) => [day(i), 4 - i * 0.004]) } } };
+  const thin = computeCompositeFearGreed({ history: rising.slice(0, 80), macroHistory: null });
+  if (thin.score !== null || thin.status !== 'withheld') fail(`P1586 composite must withhold below four ready components: ${JSON.stringify({ score: thin.score, ready: thin.componentsReady })}`);
+  const full = computeCompositeFearGreed({ history: rising, macroHistory: hy });
+  if (full.componentsReady !== 4 || !(full.score >= 65) || !['탐욕', '극단적 탐욕'].includes(full.band)) fail(`P1586 a steadily rising market with falling VIX and spreads must rank as greed: ${JSON.stringify({ score: full.score, ready: full.componentsReady, band: full.band })}`);
+  if (!/대체/.test(full.components.find((c) => c.id === 'junkBond').basis)) fail('P1586 the HY-only junk-bond stand-in must say so');
+  if (full.components.some((c) => c.raw === 99)) fail('P1586 composite must not read the CNN fg column');
+  if (bandForCompositeScore(null) !== '판정 보류' || bandForCompositeScore(50) !== '중립' || bandForCompositeScore(24) !== '극단적 공포') fail('P1586 composite bands');
+}
+// P1592: Korean particles follow the spoken final syllable of an interpolated word (F72 '스프레드을 본다').
+{
+  const { withObjectParticle, withTopicParticle, withDirectionParticle } = await load('src/domain/content/korean-particle.js');
+  const cases = [[withObjectParticle, '스프레드', '스프레드를'], [withObjectParticle, '전망 3.1%', '전망 3.1%를'], [withObjectParticle, '재고', '재고를'], [withObjectParticle, 'HBM', 'HBM을'], [withObjectParticle, '범위', '범위를'], [withObjectParticle, '웨이퍼당 비트', '웨이퍼당 비트를'], [withObjectParticle, '수율', '수율을'],
+    [withTopicParticle, 'NVDA', 'NVDA는'], [withTopicParticle, 'Warren Buffett', 'Warren Buffett은'], [withTopicParticle, '최소 백분위', '최소 백분위는'], [withDirectionParticle, 'AI 가치사슬', 'AI 가치사슬로'], [withDirectionParticle, '반도체 공정', '반도체 공정으로'], [withDirectionParticle, '서울', '서울로']];
+  for (const [fn, word, expected] of cases) if (fn(word) !== expected) fail(`P1592 particle: ${word} -> ${fn(word)} (expected ${expected})`);
+}
+// P1592 (F62): each column chapter links to its own existing analysis notes — not one shared list of four.
+{
+  const { COLUMN_FRAME_LINKS, lessonById } = await load('src/domain/knowledge/learning-core.js');
+  const journey = JSON.parse((await import('node:fs')).readFileSync(path.join(root, 'public-data/principles/narrative-journey.json'), 'utf8'));
+  const chapterIds = journey.parts.flatMap((part) => part.chapters.map((chapter) => chapter.id));
+  const missing = chapterIds.filter((id) => !(COLUMN_FRAME_LINKS[id] || []).length);
+  const dangling = Object.values(COLUMN_FRAME_LINKS).flat().filter((id) => !lessonById(id));
+  const signatures = new Set(Object.values(COLUMN_FRAME_LINKS).map((ids) => ids.join('|')));
+  if (missing.length || dangling.length || signatures.size < chapterIds.length - 1) fail(`P1592 column note links must cover every chapter with existing, chapter-specific notes: ${JSON.stringify({ missing, dangling, distinct: signatures.size })}`);
+}
 // P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
 await import('./fixtures/architecture-lifecycle-regressions.mjs');

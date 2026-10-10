@@ -207,6 +207,24 @@ jobs:
           SOURCE_SHA: ${{ steps.release.outputs.sha }}
         run: wrangler deploy --config worker/wrangler.deploy.toml --message "AIO fast data plane $SOURCE_SHA"
 
+      # P1578: the Worker's 5-minute cron dispatches refresh-data (P1377) only when it holds a
+      # fine-grained PAT (Actions read/write on this repository). GitHub secret names cannot start
+      # with GITHUB_, so the repository secret is AIO_REFRESH_DISPATCH_TOKEN; it is copied into the
+      # Worker as GITHUB_DISPATCH_TOKEN. Missing stays a warning: GitHub's own schedule still runs.
+      - name: Publish optional scheduler dispatch token
+        if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DISPATCH_TOKEN: ${{ secrets.AIO_REFRESH_DISPATCH_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$DISPATCH_TOKEN" ]; then
+            echo "::warning::scheduler_dispatch_unconfigured: AIO_REFRESH_DISPATCH_TOKEN is not set — refresh-data depends on GitHub's best-effort schedule"
+            exit 0
+          fi
+          printf '%s' "$DISPATCH_TOKEN" | wrangler secret put GITHUB_DISPATCH_TOKEN --config worker/wrangler.deploy.toml
+
       - name: Smoke check fast plane
         id: smoke
         if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true'

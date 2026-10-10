@@ -137,8 +137,11 @@ function renderLiveQuotes(root, page) {
       return;
     }
     writeText(node, `${value.pct >= 0 ? '+' : ''}${value.pct.toFixed(2)}%`);
-    node.classList?.toggle('pos', value.pct >= 0);
-    node.classList?.toggle('neg', value.pct < 0);
+    // P1579: up/down colour is a signal; it is given only to a current or delayed observation whose
+    // change basis is known. A stale or basis-unknown change stays readable but neutral.
+    const signalled = ['current', 'delayed'].includes(value.presentation?.displayState) && value.presentation?.changeCoherent === true;
+    node.classList?.toggle('pos', signalled && value.pct >= 0);
+    node.classList?.toggle('neg', signalled && value.pct < 0);
     quoteLineage(node, value);
   });
 }

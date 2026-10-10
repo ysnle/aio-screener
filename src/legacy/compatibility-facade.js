@@ -173,9 +173,9 @@ function readThemes(root) {
       price: finite(live[symbol]?.price),
       pct: finite(live[symbol]?.pct)
     }]));
-    const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => live[symbol]).filter((quote) => quote && quote.price);
+    const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => live[symbol]).filter((quote) => quote && quote.price && quote.pct != null && Number.isFinite(Number(quote.pct))); // P1575
     const breadth = pricedLeaders.length >= Math.max(2, Math.ceil((selectedTheme.leaders || []).length * 0.6))
-      ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct || 0) > 0).length / pricedLeaders.length * 100)
+      ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct) > 0).length / pricedLeaders.length * 100)
       : null;
     selectedDetail = {
       id: String(selectedTheme.id || selectedId),

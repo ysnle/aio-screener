@@ -75,7 +75,13 @@ function renderNewsSummary(documentRef, root, model, status) {
   // the window the list actually uses, and staleness is stated as the last collection time.
   const newsWindow = briefingWindowKST(Date.now());
   const fmt = (ms) => new Date(ms).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
-  if (newsWindow.start != null) set('news-window-label', `오늘의 중요 뉴스와 전체 뉴스 · ${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
+  // P1591 (E03): when the published cycle is older than today's 08:00 window, the header names the cycle the
+  // articles actually come from instead of the wall-clock window they do not fill.
+  const cycleStart = Date.parse(root?._serverDataMeta?.newsCycleStart || '');
+  const cycleEnd = Date.parse(root?._serverDataMeta?.newsCycleEnd || '');
+  const olderCycle = Number.isFinite(cycleEnd) && newsWindow.end != null && cycleEnd < newsWindow.end - 60000;
+  if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본 · ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
+  else if (newsWindow.start != null) set('news-window-label', `오늘의 중요 뉴스와 전체 뉴스 · ${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
   set('last-fetch-time', cut?.status === 'stale' || status === 'stale'
     ? `수집 지연 · 마지막 수집 ${generatedLabel || '확인 필요'}`
     : generatedLabel ? `마지막 수집 ${generatedLabel}` : (status === 'current' ? '정상 수신' : '수신 대기'));
@@ -151,9 +157,9 @@ function createTickerBadge(documentRef, ticker) {
   badge.dataset.arg = symbol;
   badge.setAttribute('role', 'button');
   badge.tabIndex = 0;
-  badge.textContent = ticker;
+  badge.textContent = /^[A-Z0-9.^=-]+$/.test(symbol) ? ticker : symbol; // Korean company names carry no $ marker
   badge.title = `${symbol} 종목 분석`;
-  badge.style.cssText = 'font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:3px;cursor:pointer;';
+  badge.style.cssText = 'font-size:11px;font-weight:800;color:var(--accent, var(--text-primary));font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:3px;cursor:pointer;';
   return badge;
 }
 
@@ -226,8 +232,10 @@ function createNewsCard(documentRef, root, item, index) {
   try {
     if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: root._aioSymNames || (root._aioSymNames = Object.fromEntries((Array.isArray(root.SCREENER_DB) ? root.SCREENER_DB : []).filter((row) => row?.sym && row?.name).map((row) => [row.sym, row.name]))) });
   } catch (_) { earnings = null; }
-  const tickers = earnings?.symbol ? [`$${earnings.symbol}`] : extractedTickers;
-  if (Array.isArray(tickers)) tickers.slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, ticker)));
+  const tickers = earnings?.symbol ? [earnings.symbol] : extractedTickers;
+  // P1591 (E05): one badge per company — '$$삼성전자' and '$삼성전자' were the same symbol with a doubled marker.
+  const uniqueTickers = Array.isArray(tickers) ? [...new Set(tickers.map((ticker) => String(ticker || '').replace(/^\$+/, '').trim()).filter(Boolean))] : [];
+  uniqueTickers.slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, `$${ticker}`)));
   // LC-34: the original article was reachable only through the card's `data-open-url` click
   // delegation, so keyboard/AT users had no focusable link. The headline is now a real anchor
   // (new tab, noopener); the card keeps its larger pointer target, and the delegation ignores the
@@ -324,9 +332,12 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   } else if (controls.typeTab === 'category') {
     const groups = new Map();
     displayed.forEach((item) => {
+      // P1592 (F28): reader names for groups; a story whose topic was only copied from its feed query keeps
+      // that group but says the grouping comes from the collection route, not from reading the article.
+      const feedTopic = item?.feedTopic || item?.topic;
       const key = isNewsTopicReviewRequired(item)
-        ? `${item?.feedTopic || item?.topic || 'general'} · 피드 분류 검토 필요`
-        : (item?.topic || 'general');
+        ? `${NEWS_GROUP_LABELS[feedTopic] || NEWS_GROUP_LABELS.general} · 수집 경로 기준 분류`
+        : (NEWS_GROUP_LABELS[item?.topic] || NEWS_GROUP_LABELS.general);
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(item);
     });
@@ -356,10 +367,35 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     const poolSize = eligible.length;
     const capped = Number(model?.eligibleCount || 0) > poolSize;
     more.hidden = displayed.length >= poolSize;
-    if (capped) more.title = '일치 N건 중 계약 상한만 이 화면에 표시됩니다(더 보기로 확장되지 않습니다).';
-    else more.title = '';
+    // P1592 (F29): name what 'more' does and where the list ends, in reader terms.
+    const moreButton = more.querySelector('[data-action="_aioNewsLoadMore"]');
+    if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, poolSize - displayed.length))}개 더 보기`;
+    more.title = capped ? `조건에 맞는 ${model.eligibleCount}건 중 최대 ${poolSize}건까지 이 화면에서 볼 수 있습니다.` : '';
   }
 }
+
+// P1592 (F25): the selected country/topic/type is carried in the accessibility tree, not only in inline
+// colour — chips are toggle buttons with aria-pressed, the type row is a tablist with aria-selected.
+function syncNewsControlState(documentRef, controls) {
+  const mark = (selector, current, attr) => {
+    documentRef?.querySelectorAll?.(selector).forEach((node) => {
+      if (attr === 'aria-pressed' && node.tagName !== 'BUTTON') {
+        node.setAttribute('role', 'button');
+        if (!node.hasAttribute('tabindex')) node.tabIndex = 0;
+      }
+      if (attr === 'aria-selected') node.setAttribute('role', 'tab');
+      const value = node.dataset.arg || (node.dataset.action === 'filterNewsByTelegramOnly' ? 'tg' : 'all');
+      node.setAttribute(attr, String(value === current));
+    });
+  };
+  mark('#news-country-chips [data-action]', controls?.countryFilter || 'all', 'aria-pressed');
+  mark('#news-topic-chips [data-action="filterNewsByTopic"]', controls?.topicFilter || 'all', 'aria-pressed');
+  const tabs = documentRef?.getElementById('news-type-tabs');
+  if (tabs) tabs.setAttribute('role', 'tablist');
+  mark('#news-type-tabs [data-action="setNewsTypeTab"]', controls?.typeTab || 'all', 'aria-selected');
+}
+
+const NEWS_GROUP_LABELS = Object.freeze({ ...TOPIC_LABELS, general: '기타', defense: '방산', healthcare: '헬스케어', analyst: '애널리스트', shipbuilding: '조선', space: '우주', quantum: '양자', power: '전력', optical: '광통신', 'ai-policy': 'AI 정책' });
 
 function render({ documentRef, root, store, route }) {
   const state = store?.getState?.() || {};
@@ -386,6 +422,7 @@ function render({ documentRef, root, store, route }) {
   const configuredLimit = Number(root?._aioNewsVisibleLimit);
   const visibleLimit = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 12;
   renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
+  syncNewsControlState(documentRef, controls);
   // P1428 (Codex review): the important list follows the same country/topic filter as the feed — a 한국
   // filter that emptied the feed still showed overseas stories above it.
   const importantModel = root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });

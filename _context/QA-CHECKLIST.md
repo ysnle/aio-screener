@@ -1,8 +1,45 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-08
+last_verified: 2026-10-10
 confidence: medium
 ---
+
+## v57.31 v57.31 merge and decision batch (2026-10-10)
+
+- [x] QA-V5731-01: Generated-conflict resolver takes main's side in both merge directions. verify_by: merge a version branch into main, run resolve-generated-conflicts, then ci-operations-contract-check
+- [x] QA-V5731-02: Headers carry no n/100 market score or letter grade. verify_by: node scripts/ci-page-decision-reference-check.mjs and browser check of home/signal/ticker headers
+- [x] QA-V5731-03: PCR equity/index never derived from the total ratio. verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-V5731-04: Chart.js secondary CDN loader pins SRI. verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-V5731-05: US retail/CPI schedule extended from official calendars. verify_by: node scripts/ci-static-db-expiry-check.mjs
+- [x] QA-V5731-06: public-data files stay under GitHub push limits. verify_by: node scripts/ci-artifact-size-headroom-check.mjs
+- [x] QA-V5731-07: BEA failure keeps last-known-good status. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-V5731-08: Cboe put/call currentness follows the session calendar. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-V5731-09: Portfolio volatility card shows band label, no max-exposure %. verify_by: browser check #portfolio pf-exposure-rule
+- [x] QA-V5731-10: Theme breadth denominator excludes leaders without a change value. verify_by: code read src/data/providers/themes.js and compatibility-facade.js
+- [x] QA-V5731-11: History never stores an intraday price as a close. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-V5731-12: KR CPI and US CPI next date follow the latest official releases. verify_by: node scripts/ci-static-data-contract-check.mjs
+- [ ] QA-V5731-13: Worker /health reports refresh dispatcher configuration. verify_by: node scripts/ci-data-plane-contract-check.mjs; live /health after deploy
+- [x] QA-V5731-14: Stale or basis-unknown changes render neutral. verify_by: browser check #market and home 내 종목 with stale snapshot
+- [x] QA-V5731-15: Exit plan shows only real averages. verify_by: code read js/aio-core.js calcExitPlan
+- [x] QA-V5731-16: Yahoo fallback change uses previousClose only. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-V5731-17: SEC rows declare equityBasis and registrant name. verify_by: after next SEC refresh: public-data/sec-fundamentals.json BAC entityName
+- [x] QA-V5731-18: Sourceless KR indicator widget stays hidden. verify_by: browser check of the KR macro page
+- [ ] QA-V5731-19: AAII degradation warns without blocking refresh. verify_by: next refresh-data run with AAII unavailable
+- [ ] QA-V5731-20: Market analysis publishes verified on most runs. verify_by: public-data/data.json marketAnalysis.status over the next 10 refresh runs
+- [ ] QA-V5731-21: Composite reaches 5+/7 components after the first refresh with TLT/IG. verify_by: #sentiment composite card component count after push
+- [ ] QA-V5731-22: No screener P/E above 5,000 from share-scale errors. verify_by: after next SEC refresh: public-data/screener.json PKG pe
+- [x] QA-V5731-23: Theme taxonomy follows membership rules. verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-V5731-24: Universe KR suffixes match listing exchanges. verify_by: Yahoo exchange probe of every .KS/.KQ symbol in SCREENER_DB
+- [ ] QA-V5731-25: Rotation covers 31 sector/subsector ETFs after the next refresh. verify_by: public-data/data.json rotationHistory.items count
+- [x] QA-V5731-26: Light theme: diagram text and grid strokes follow theme tokens (no white-on-ivory) verify_by: ticker/fundamental page in light theme; svg text fill is --text-primary
+- [x] QA-V5731-27: RRG copy and model use the same 30-session minimum. verify_by: ci-esm-core-unit-check rrg block
+- [x] QA-V5731-28: News officer titles (COO/CEO/CFO) and agency acronyms are not ticker tags unless written as $TICKER or (TICKER) verify_by: extractTickers/getDisplayTickers on a 'Former FTX COO' title returns []
+- [x] QA-V5731-29: Portfolio donut and sector mix stay empty without quotes (no cost-basis or mixed-currency totals) verify_by: local holdings 005930 KRW + NVDA USD with no quotes
+- [x] QA-V5731-30: Skip link keeps the route hash; reload stays on the page. verify_by: #market-news skip link then reload
+- [x] QA-V5731-31: Screener zero result: scoped message, clear actions, no stale lead link; preset and checklist agree. verify_by: browser screener search + preset change
+- [x] QA-V5731-32: Column chapters link to chapter-specific analysis notes. verify_by: ci-esm-core-unit-check COLUMN_FRAME_LINKS
+- [x] QA-V5731-33: Part/whole relation labels read correctly on both pages (NAND/SSD, 2.5D/interposer) verify_by: ci-knowledge-review-check P1593
+- [x] QA-V5731-34: 재무 공시 keeps the selected company after leaving and returning; column links show their question and a return button. verify_by: browser NVDA round trip and column 7 link
 
 ## v57.29 공유 기반 아키텍처 회귀 (2026-10-08)
 

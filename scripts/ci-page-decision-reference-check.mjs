@@ -31,13 +31,13 @@ assert.ok(rendererStart >= 0 && rendererEnd > rendererStart, 'P1357 production r
 vm.runInContext(core.slice(rendererStart, rendererEnd), context);
 let d = window._aioBuildPageDecision('signal');
 assert.equal(d.referenceSummary.score, 58, 'P1357 native 58 survives a blocked live epoch');
-assert.ok(d.decision.includes('58/100') && !d.decision.includes('미수신'), 'P1357 header projects the available score');
+assert.ok(!/\d+\*?\/100/.test(d.decision) && d.decision === signal.presentation.decision && !d.decision.includes('미수신'), 'header leads with the band label; the 0-100 number is retired from headers');
 assert.equal(d.sourceKind, 'REFERENCE', 'P1357 available close data is a reference');
 assert.equal(d.asOf, signal.presentation.basisLabel, 'P1357 header and native use the same close basis');
 assert.ok(d.decisionBlocked && !d.decisionEligible && d.evidence.marketEpoch.status === 'BLOCKED', 'P1357 reference grants no action permission');
 assert.ok(!d.confidence.includes('%'), 'P1357 uncalibrated probability is removed');
 window._aioRenderPageDecisionHeader('signal');
-assert.ok(headerHtml.includes('58/100') && headerHtml.includes('9/30 미국 정규장 종가 기준') && headerHtml.includes('근거 상태') && !headerHtml.includes('35%') && !headerHtml.includes('데이터: 미수신'), 'P1357 production header HTML shares score, basis and qualitative evidence');
+assert.ok(!headerHtml.includes('/100') && headerHtml.includes('9/30 미국 정규장 종가 기준') && headerHtml.includes('근거 상태') && !headerHtml.includes('35%') && !headerHtml.includes('데이터: 미수신'), 'P1357 production header HTML shares score, basis and qualitative evidence');
 signal = deriveSignalDecisionFromTradingScore({ score: { total: 58, partial: true, decisionEligible: false, closeBasis: { label: '9/30 미국 정규장 종가 기준' }, componentMissing: ['macro'] } });
 d = window._aioBuildPageDecision('home');
 assert.equal(d.referenceSummary.displayScore, '58*', 'P1357 partial reference marker is shared');

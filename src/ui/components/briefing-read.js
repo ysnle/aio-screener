@@ -57,8 +57,8 @@ export function collectMarketInputs(root) {
     hyAsOf: root._hySpreadDate || fieldTs.hySpread || null,
     pcr: finite(putCall?.totalPutCall) ?? finite(snapshot.pcr),
     pcrAsOf: putCall?.asOf || fieldTs.pcr || null,
-    fg: fg > 0 ? fg : finite(snapshot.fearGreedValue),
-    fgAsOf: fg > 0 ? fgMetric?.asOf || null : fieldTs.fg || null,
+    fg: fg != null ? fg : finite(snapshot.fearGreedValue),
+    fgAsOf: fg != null ? fgMetric?.asOf || null : fieldTs.fg || null,
     hyDelta5Bp: finite(snapshot._hySpreadDelta5Bp),
     aaiiAsOf: fieldTs.aaii || null
   };

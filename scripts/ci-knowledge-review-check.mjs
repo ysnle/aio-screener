@@ -23,6 +23,11 @@ if (!asic.some((item) => item.id === 'compute-gpu' && item.type === 'substitute'
 for (const [a, b] of [['resources-copper', 'resources-lithium'], ['resources-lithium', 'resources-rare-earths'], ['application-healthcare', 'application-manufacturing'], ['application-automotive', 'application-finance']]) {
   if ((neighbours.get(a) || []).some((item) => item.id === b)) fail(`P1471 parallel members ${a} and ${b} must not be linked`);
 }
+// P1593 (F67/F88/F90): a part names the whole it goes into; the whole lists its parts; a technology basis is not a part.
+const label = (node, other) => (neighbours.get(node) || []).find((item) => item.id === other)?.label;
+if (label('memory-nand', 'memory-enterprise-ssd') !== '이것이 들어가는 곳' || label('memory-enterprise-ssd', 'memory-nand') !== '구성 요소'
+  || label('package-2-5d', 'package-interposer') !== '구성 요소' || label('compute-gpu', 'compute-precision') !== '성능 속성'
+  || (neighbours.get('network-optical-module') || []).some((item) => item.id === 'network-silicon-photonics' && item.type === 'component')) fail('P1593 relation direction/type: part→whole labels or technology-basis typing regressed');
 if (nodeCategory('accelerator') !== '기술·부품' || nodeCategory('technical') === '제품·수익모델') fail('P1471 node categories must be one consistent classification');
 const atlas = read('src/ui/pages/atlas.js');
 if (/domainChains/.test(atlas.slice(atlas.indexOf('function mergeTaxonomyRelationships'), atlas.indexOf('function relationList'))) || /`상류: \$\{/.test(atlas)) fail('P1471 the atlas must not derive 상류/하류 from list order');

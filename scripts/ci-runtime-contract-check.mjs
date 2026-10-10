@@ -262,7 +262,7 @@ check('LC-48/P1227 signal sector breadth names its population', !/SPDR 11 ETF/.t
 // P1425: the curve lives on the 금리 · 환율 board; spreads are computed only from one official cut.
 check('LC-49/P1228 curve spreads come from one official Treasury cut', /const sameCut = dates\.length === 1/.test(read('src/domain/macro/rates-fx.js')) && /official2s10s \?\? \(sameCut/.test(read('src/domain/macro/rates-fx.js')));
 // LC-31/P1230: the feed query's topic is kept separate from an article-level topic.
-check('LC-31/P1230 news keeps feed topic separate from an article topic', /topicReviewRequired/.test(newsNormalize) && /feedTopic/.test(newsNormalize) && /topic: item\?\.articleTopic \|\| item\?\.topic/.test(newsNormalize) && /검토 필요/.test(newsPage));
+check('LC-31/P1230 news keeps feed topic separate from an article topic', /topicReviewRequired/.test(newsNormalize) && /feedTopic/.test(newsNormalize) && /topic: item\?\.articleTopic \|\| item\?\.topic/.test(newsNormalize) && /수집 경로 기준/.test(newsPage));
 // LC-32/P1231/P1268: a headline-only status is a content boundary even if depth metadata disagrees.
 check('LC-32/P1231/P1268 headline-only status withholds the summary claim', /summary && !headlineOnly/.test(newsPage) && /isNewsHeadlineOnly\(item\)/.test(newsPage) && /verificationStatus/.test(newsScoring));
 // LC-07/LC-87/P1268: native owns the visible summary; compatibility producers remain available,
@@ -282,7 +282,7 @@ check('LC-07/LC-87/P1268 one owner for market-news summary and source-count deno
 check('LC-31/P1230/P1268 feed-query topics do not drive article-topic risk signals',
   /isNewsTopicReviewRequired/.test(newsScoring)
   && /topicEvidence = recent\.filter\(hasReviewedArticleTopic\)/.test(newsScoring)
-  && /피드 분류 검토 필요/.test(newsPage)); // P1391: the card no longer prints the flag; category grouping keeps it
+  && /수집 경로 기준 분류/.test(newsPage)); // P1391/P1592: the card no longer prints the flag; category grouping names it for readers
 // LC-35/P1257: the hidden legacy themes sections are classified (retire / public re-home / dev
 // bundle) and the decision is recorded in the stylesheet — public copy promises only what ships.
 check('LC-35/P1257 themes hidden sections classified with the decision recorded', /P1257\/LC-35 제품 결정/.test(html) && /퇴역\(삭제\)/.test(html) && /공개 경로로 이전/.test(html) && /개발자 번들로 이전/.test(html) && !/45개 세분화 테마 실시간/.test(html));
@@ -860,6 +860,30 @@ check('H3-F: Chart secondary CDN waits for primary error or a bounded timeout wh
     && /addEventListener\(['"]error['"],\s*loadSecondaryChart/.test(html)
     && /setTimeout\(loadSecondaryChart,\s*5000\)/.test(html)
     && /if \(!hasRealChart\(\)\) _chartFallbackTimer/.test(html));
+{
+  // P1588: the US theme taxonomy is an industry classification with explicit rules — 3+ members per
+  // sub-theme (crypto exempt), no ticker twice in one theme, leaders = exactly the members, no editorial weights.
+  const start = pagesSource.indexOf('var THEME_MAP = [');
+  const themes = start >= 0 ? runInNewContext(pagesSource.slice(start + 'var THEME_MAP = '.length, pagesSource.indexOf('\n];', start) + 2)) : [];
+  const issues = [];
+  for (const theme of themes) {
+    const members = (theme.subThemes || []).flatMap((sub) => sub.tickers || []);
+    if (new Set(members).size !== members.length) issues.push(`${theme.id}: duplicate member`);
+    if (theme.weights) issues.push(`${theme.id}: editorial weights`);
+    if ((theme.subThemes || []).some((sub) => (sub.tickers || []).length < 3) && theme.id !== 'crypto') issues.push(`${theme.id}: sub-theme under 3`);
+    if ([...new Set(members)].sort().join() !== [...(theme.leaders || [])].sort().join()) issues.push(`${theme.id}: leaders differ from members`);
+  }
+  check('P1588: US theme taxonomy follows its membership rules', themes.length >= 17 && !issues.length, issues.slice(0, 6).join(' | '));
+  const screenerPath = join(root, 'public-data/screener.json');
+  if (existsSync(screenerPath)) {
+    const universe = new Set(Object.keys(JSON.parse(readFileSync(screenerPath, 'utf8')).data || {}));
+    const outside = [...new Set(themes.flatMap((theme) => theme.leaders || []))].filter((symbol) => !universe.has(symbol));
+    if (outside.length) console.log(`::warning::P1588 theme members without published returns (not ranked): ${outside.join(',')}`);
+  }
+}check('P1568: put/call ratios are never derived from the total ratio when the equity/index ratio is missing',
+  /async function fetchPutCallRatios\(\)/.test(data) && !/total\s*\*\s*0\.72|total\s*\*\s*1\.18/.test(data) && /if \(!isFinite\(equity\)\) equity = null;/.test(data));
+check('P1569: Chart secondary CDN loader pins Subresource Integrity like the primary tag',
+  /secondary\.src = 'https:\/\/cdnjs\.cloudflare\.com\/[^']+chart\.umd\.min\.js';\s*secondary\.integrity = 'sha384-[A-Za-z0-9+/=]{64}';/.test(html));
 check('route lineage listens to canonical aio:pageShown and nested actions outrank article URL ancestors',
   /document\.addEventListener\(['"]aio:pageShown['"][\s\S]{0,500}annotateLiveDataSinks/.test(core)
     && /var actionEl = e\.target\.closest/.test(core)
@@ -1344,6 +1368,21 @@ try {
   }
 } catch (_) {}
 check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease without result evidence', macroScheduleResultDatesRemainEvidenceBound);
+// P1592 (frontend audit F26/F16/F31/F30): structural guards for the round-4~9 findings.
+{
+  const roleRe = data.match(/const _TICKER_ROLE_ACRONYM = (\/[^;]+\/);/)?.[1];
+  let roleGate = false;
+  try { const re = new Function(`return ${roleRe}`)(); roleGate = ['COO', 'CEO', 'CFO', 'SEC', 'FDA'].every((t) => re.test(t)) && !['NVDA', 'COST', 'CAT'].some((t) => re.test(t)); } catch (_) {}
+  check('P1592/F26 officer titles and agency acronyms are not news tickers unless written as $TICKER/(TICKER), in local and cached paths',
+    roleGate && /_TICKER_WORD_OVERLAP\.has\(ticker\) \|\| _TICKER_ROLE_ACRONYM\.test\(ticker\)/.test(data) && /_TICKER_ROLE_ACRONYM\.test\(bare\)/.test(data));
+  check('P1592/F16 the legacy cost-basis donut and sector mix yield to the native valued renderer',
+    /c\.dataset\.aioPortfolioChartRenderer === 'native'/.test(pagesSource) && !/closest\('#page-portfolio\[data-aio-portfolio-chart-renderer/.test(pagesSource)
+      && /surf\.positionValue == null/.test(ui) && !/: \(entry\.cost \|\| 0\)/.test(ui));
+  check('P1592/F31 the skip link focuses the main region without writing a route hash',
+    /a\.skip-link/.test(bootstrap) && /event\.preventDefault\(\)/.test(bootstrap) && /'#main-content'/.test(bootstrap));
+  check('P1592/F30 the local news insight no longer writes a template summary into the translation cache',
+    /var summary = '';/.test(data) && !/' 뉴스입니다\. 헤드라인 기준 톤은 '/.test(data));
+}
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

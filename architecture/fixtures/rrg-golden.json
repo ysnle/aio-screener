@@ -1,6 +1,7 @@
 {
   "generatedAt": "2026-07-20T02:59:41.987Z",
   "sourceFunction": "index.html:calcLiveRS/classifyRRG",
+  "thresholdRevision": "P1591 (v57.31, 2026-10-10): the minimum aligned history moved from 20 to 30 sessions so the model and the themes copy share one rule (RRG_MIN_SESSIONS). Only the two insufficient-history reason strings changed; every rsRatio/rsMom/quadrant value is the unchanged legacy dump.",
   "fixtures": [
     {
       "name": "steady_outperform",
@@ -457,7 +458,7 @@
         "rsRatio": null,
         "rsMom": null,
         "quadrant": "unknown",
-        "reason": "relative_history_lt_20"
+        "reason": "relative_history_lt_30"
       }
     },
     {
@@ -536,7 +537,7 @@
         "rsRatio": null,
         "rsMom": null,
         "quadrant": "unknown",
-        "reason": "relative_history_lt_20"
+        "reason": "relative_history_lt_30"
       }
     },
     {

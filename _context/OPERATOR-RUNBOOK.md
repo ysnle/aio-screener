@@ -23,6 +23,7 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 | `FINNHUB_API_KEY` | `refresh-screener.yml` | 실적/IPO 캘린더가 이전 파일을 유지한 채 갱신되지 않는다. |
 | `BOK_API_KEY` | `deploy-ai-proxy.yml` | **선택.** `/relay`의 `bok` 제공자만 503 fail-closed로 남고 배포는 계속된다(경고로 표시). 브라우저는 이 소스에 직접 도달할 수 없으므로 키가 없으면 한국은행 지표는 서버 스냅샷에만 의존한다. |
 | `KOSIS_API_KEY` | `deploy-ai-proxy.yml` | **선택.** 위와 동일하게 `kosis` 제공자만 fail-closed. |
+| `AIO_REFRESH_DISPATCH_TOKEN` | `deploy-data-plane.yml` | **권장(P1578).** 이 저장소만 대상으로 Actions 읽기·쓰기 권한을 준 fine-grained PAT. 데이터 평면 Worker에 `GITHUB_DISPATCH_TOKEN`으로 복사되어 5분 cron이 :20/:50에 `refresh-data`를 디스패치한다. 없으면 GitHub 예약 실행에만 의존한다(실측 슬롯의 약 10%). `/health`의 `schedulerDispatch.configured`와 워치독 경고로 확인한다. |
 | `CLOUDFLARE_API_TOKEN` | `deploy-ai-proxy.yml`, `deploy-data-plane.yml` | 두 Worker 배포가 `operator_required`로 즉시 실패한다. |
 | `CLOUDFLARE_ACCOUNT_ID` | `deploy-ai-proxy.yml`, `deploy-data-plane.yml` | 위와 동일. |
 | `AIO_QUOTES_KV_ID` | `deploy-data-plane.yml` | 패스트 플레인 배포가 중단된다. |

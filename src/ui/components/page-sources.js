@@ -9,7 +9,7 @@ const FRED = '미국 금리·물가·고용: FRED(세인트루이스 연준), BL
 const SEC = '기업 재무: SEC EDGAR XBRL 공시 (연간 10-K, 분기 10-Q)';
 
 export const PAGE_SOURCES = Object.freeze({
-  home: [QUOTES, '시장 판정·어제와 달라진 점: 종가 기록으로 자체 계산', '일정: BLS·BEA·연준 공식 일정과 거래소 규칙(만기·휴장)', NEWS],
+  home: [QUOTES, '시장 판정·직전 종가 대비 변화: 종가 기록으로 자체 계산', '일정: BLS·BEA·연준 공식 일정과 거래소 규칙(만기·휴장)', NEWS],
   briefing: [QUOTES, FRED, '하이일드 스프레드: ICE BofA OAS (FRED)', '일정: BLS·BEA·연준 공식 일정과 거래소 규칙(만기·휴장)'],
   'market-news': [NEWS, TELEGRAM],
   signal: ['추세·시장 폭: S&P 500·나스닥 종가와 스크리너 유니버스 수정 종가로 자체 계산', '변동성: VIX·VIX3M (Cboe)', '금리: 미 재무부 국채 수익률 (FRED DGS2·DGS10)', '신용: ICE BofA 하이일드 OAS (FRED) · CNN Fear & Greed', '달러·원자재·환율: Yahoo Finance', '기관 포지셔닝: CFTC Traders in Financial Futures (선물, 주간)'],

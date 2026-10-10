@@ -401,7 +401,7 @@ export function buildMarketRegime(input = {}) {
     const narrow = state === 'burden' && fromHigh != null && fromHigh > -3;
     const partial = state !== 'unknown' && (b50 == null || b200 == null) ? ` (${b50 == null ? '50일선' : '200일선'} 비율 미수신 — 나머지 하나로만 판단)` : '';
     const read = (state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
-      : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 참여 종목이 적은 좁은 장세 — 소수 대형주 의존도가 높아 보입니다.` : '약세가 시장 전반에 퍼져 있습니다.')
+      : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 AIO 수집 종목 가운데 이동평균선 위 비율이 낮은 좁은 장세 — 지수가 소수 대형주에 기대고 있을 수 있습니다(지수 구성 종목의 기여도는 따로 확인).` : '약세가 시장 전반에 퍼져 있습니다.')
         : state === 'unknown' ? staleRead('시장 폭', alignments.breadth50) : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.') + partial;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.weakBelow}% 이상이면 중립, 모두 ${RULES.breadth.broadAtLeast}% 이상이면 우호`
@@ -410,7 +410,7 @@ export function buildMarketRegime(input = {}) {
     axes.push(axis('breadth', '시장 폭', state, [
       ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`],
       ['200일선 위 종목', b200 == null ? null : `${fmt(b200, 0)}%`],
-      ['최근 상승 종목 비율', advPct == null ? null : `${fmt(advPct, 0)}%`],
+      ['종가일 상승 종목 비율(보합 제외)', advPct == null ? null : `${fmt(advPct, 0)}%`],
       // P1416: leadership evidence beside the moving-average ratios (the state rule is unchanged).
       ['40일선 위 종목', s.breadth40 ? `${fmt(s.breadth40.value, 0)}%` : null],
       ['52주 신고가 / 신저가', s.breadthNewHighs && s.breadthNewLows ? `${fmt(s.breadthNewHighs.value, 0)} / ${fmt(s.breadthNewLows.value, 0)}` : null],
@@ -453,7 +453,11 @@ export function buildMarketRegime(input = {}) {
     else if (tnx20 >= RULES.rates.move20dBp || (atHigh && tnx5 != null && tnx5 > 0)) state = 'burden';
     else if (tnx20 <= -RULES.rates.move20dBp) state = 'favorable';
     const realLed = real5 != null && bei5 != null && real5 > 0 && Math.abs(real5) >= Math.abs(bei5);
-    const read = state === 'burden' ? `장기금리가 오르는 구간${atHigh ? '(1년 범위 상단)' : ''} — 주식 할인율 부담${realLed ? '. 실질금리 주도 여부는 5일 관측 기준이며(20일 전체를 분해한 자료는 없습니다), 최근 5일 상승분 대부분이 실질금리였습니다' : ''}.`
+    // P1592 (F44): name the window — a 20-day rise with a small 5-day pullback is not 'rising now'.
+    const rateMove = tnx20 != null && tnx20 >= RULES.rates.move20dBp
+      ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} 오른 구간${tnx5 != null && tnx5 < 0 ? `(최근 5일은 ${signed(tnx5, 0, 'bp')} 되돌림)` : ''}${atHigh ? ' · 1년 범위 상단' : ''}`
+      : `1년 범위 상단에서 최근 5일 ${signed(tnx5, 0, 'bp')} 오른 장기금리`;
+    const read = state === 'burden' ? `${rateMove} — 주식 할인율 부담${realLed ? '. 실질금리 주도 여부는 5일 관측 기준이며(20일 전체를 분해한 자료는 없습니다), 최근 5일 상승분 대부분이 실질금리였습니다' : ''}.`
       : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
         : state === 'unknown' ? (tnx ? '10년물 20일 변화를 계산할 기록이 부족합니다.' : staleRead('금리', alignments.tnx)) : '금리가 뚜렷한 방향 없이 움직이고 있습니다.';
     const flip = state === 'unknown' ? null
@@ -555,8 +559,13 @@ export function buildMarketRegime(input = {}) {
   // six conventional axes split (counts beside it); it is a description, not an allocation call.
   const byId = Object.fromEntries(axes.map((row) => [row.id, row]));
   const conflicts = [];
-  if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('추세는 우호인데 시장 폭은 부담 — 지수가 소수 종목에 기대고 있을 가능성이 큽니다.');
-  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') conflicts.push('금리는 부담인데 변동성은 낮음 — 금리 부담을 가격에 반영한 공포성 매도는 아직 관측되지 않았습니다. 다만 HY 5일 확대가 이어지면(수준·방향 별도 확인이 필요한 지점) 결론이 바뀔 수 있습니다.');
+  if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('추세는 우호인데 시장 폭은 부담 — 지수가 소수 종목에 기대고 있을 수 있습니다.');
+  // P1591 (M02): the HY clause follows the observed 5-day direction — "확대가 이어지면" read as already widening
+  // when the spread had narrowed 9bp.
+  const hyClause = c?.hy5 == null ? 'HY 스프레드의 5일 방향은 아직 확인하지 못했습니다'
+    : c.hy5 > 0 ? `HY 스프레드가 5일간 ${Math.round(c.hy5)}bp 넓어졌습니다 — 확대가 계속되면 결론이 바뀔 수 있습니다`
+      : `HY 스프레드는 5일간 ${Math.abs(Math.round(c.hy5))}bp ${c.hy5 < 0 ? '좁아졌습니다' : '변화가 없습니다'} — 확대로 돌아서면 결론이 바뀔 수 있습니다`;
+  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') conflicts.push(`금리는 부담인데 변동성은 낮음 — 금리 부담을 가격에 반영한 공포성 매도는 아직 관측되지 않았습니다. ${hyClause}.`);
   if (byId.credit?.state === 'favorable' && byId.breadth?.state === 'burden') conflicts.push('시장 폭은 약하지만 신용은 안정 — 신용 위험이 약세를 이끈다는 신호는 없습니다.');
   return {
     available: true,

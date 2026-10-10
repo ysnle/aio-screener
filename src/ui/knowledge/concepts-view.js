@@ -4,7 +4,7 @@
 // Only the open group of the contents is expanded; the right column shows where the open document
 // leads. No review-status, memo or source panels (owner direction 2026-10-05).
 import { ROUTE_HUBS } from '../navigation/route-hubs.js';
-import { LESSONS, PATHS, lessonById } from '../../domain/knowledge/learning-core.js';
+import { COLUMN_FRAME_LINKS, LESSONS, PATHS, lessonById } from '../../domain/knowledge/learning-core.js';
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { createResearchShell, navGroup, asideBlock, el } from './research-shell.js';
 import { renderFrameArticle, renderFrameConnections, ensureFrameStyle, renderBasis } from './analysis-frames.js';
@@ -33,8 +33,9 @@ function loadFailure(doc, text, key) {
   return box;
 }
 
-function navButton(doc, label, { active = false, action, value, sub = false } = {}) {
+function navButton(doc, label, { active = false, action, value, sub = false, meta = null } = {}) {
   const node = el(doc, 'button', `rl-nav-item${sub ? ' rl-nav-sub' : ''}${active ? ' is-active' : ''}`, label);
+  if (meta) { node.appendChild(el(doc, 'span', 'rl-nav-meta', meta)); node.setAttribute('aria-label', `${label} — ${meta}`); }
   node.type = 'button';
   node.dataset.principlesAction = action;
   if (value != null) node.dataset.principlesValue = value;
@@ -64,18 +65,19 @@ function buildNav(doc, state, data) {
         for (const id of path.lessons) {
           const lesson = lessonById(id);
           if (!lesson) continue;
-          box.appendChild(navButton(doc, lesson.model ? lesson.title : lesson.issue.split(' — ')[0], { active: state.view === 'frames' && state.frameId === id, action: 'frame', value: id, sub: true }));
+          // P1592 (F57): a broad industry name carries the narrow question the note actually covers.
+          box.appendChild(navButton(doc, lesson.model ? lesson.title : lesson.issue.split(' — ')[0], { active: state.view === 'frames' && (state.frameId || LESSONS[0].id) === id, action: 'frame', value: id, sub: true, meta: lesson.model ? lesson.scope : null }));
         }
       }
     }
     if (open && group.id === 'story') {
       if (!chapters.length) box.appendChild(data.narrativeError ? loadFailure(doc, '칼럼 목록을 불러오지 못했습니다.', 'narrative') : el(doc, 'p', 'rl-note', '불러오는 중…'));
-      chapters.forEach((chapter, index) => box.appendChild(navButton(doc, `${index + 1}. ${chapter.title}`, { active: state.view === 'story' && state.chapterId === chapter.id, action: 'story-chapter', value: chapter.id, sub: true })));
+      chapters.forEach((chapter, index) => box.appendChild(navButton(doc, `${index + 1}. ${chapter.title}`, { active: state.view === 'story' && (state.chapterId || chapters[0]?.id) === chapter.id, action: 'story-chapter', value: chapter.id, sub: true })));
     }
     if (open && group.id === 'concept') {
       for (const cat of CONCEPT_CATS) {
         box.appendChild(el(doc, 'p', 'rl-nav-title', cat));
-        CONCEPT_CORE.filter((concept) => concept.cat === cat).forEach((concept) => box.appendChild(navButton(doc, concept.term, { active: state.view === 'concept' && state.conceptId === concept.id, action: 'concept', value: concept.id, sub: true })));
+        CONCEPT_CORE.filter((concept) => concept.cat === cat).forEach((concept) => box.appendChild(navButton(doc, concept.term, { active: state.view === 'concept' && (conceptById.has(state.conceptId) ? state.conceptId : CONCEPT_CORE[0].id) === concept.id, action: 'concept', value: concept.id, sub: true })));
       }
     }
     if (open && group.id === 'lesson') {
@@ -233,7 +235,8 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
     renderFrameConnections(doc, lesson, { onNavigate, onConcept, block }).forEach((node) => aside.appendChild(node));
   } else if (state.view === 'story') {
     main.appendChild(renderStory(doc, data, state));
-    const chapter = (data.chapters || []).find((item) => item.id === state.chapterId);
+    const chapterId = state.chapterId || data.chapters?.[0]?.id;
+    const chapter = (data.chapters || []).find((item) => item.id === chapterId);
     if (chapter?.routeTarget?.routeId) {
       const next = block('이어서 볼 화면');
       const link = el(doc, 'button', 'af-route');
@@ -245,8 +248,8 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
       next.appendChild(link);
       aside.appendChild(next);
     }
-    const related = LESSONS.filter((lesson) => lesson.columnNote).slice(0, 4);
-    const notes = block('관련 분석 노트');
+    const related = (COLUMN_FRAME_LINKS[chapterId] || []).map(lessonById).filter(Boolean);
+    const notes = block('이 장을 숫자로 따라가는 분석 노트');
     related.forEach((lesson) => { const b = el(doc, 'button', 'af-route'); b.type = 'button'; b.dataset.principlesAction = 'frame'; b.dataset.principlesValue = lesson.id; b.append(el(doc, 'strong', null, lesson.issue)); notes.appendChild(b); });
     aside.appendChild(notes);
   } else if (state.view === 'concept') {

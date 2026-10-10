@@ -109,10 +109,10 @@ const krInflationEnd = core.indexOf('\n  }),', krInflationStart);
 const krInflationReference = krInflationStart >= 0 && krInflationEnd > krInflationStart
   ? core.slice(krInflationStart, krInflationEnd)
   : '';
-assert(/headline:\s*2\.8\b/.test(krInflationReference), 'KR CPI headline must match the 2026-07 official YoY observation');
-assert(/core:\s*2\.6\b/.test(krInflationReference) && /coreDefinition:\s*'food-and-energy-excluded'/.test(krInflationReference), 'KR core CPI value and definition must remain coupled');
-assert(/observation:\s*'2026-07'/.test(krInflationReference) && /publishedAt:\s*'2026-08-04'/.test(krInflationReference), 'KR CPI observation month and official publication date are stale');
-assert(/sourceUrl:\s*'https:\/\/mods\.go\.kr\/[^']*list_no=446338/.test(krInflationReference), 'KR CPI official primary-source URL missing');
+assert(/headline:\s*2\.9\b/.test(krInflationReference), 'KR CPI headline must match the 2026-09 official YoY observation (mods.go.kr 2026-10-02)');
+assert(/core:\s*2\.8\b/.test(krInflationReference) && /coreDefinition:\s*'food-and-energy-excluded'/.test(krInflationReference), 'KR core CPI value and definition must remain coupled');
+assert(/observation:\s*'2026-09'/.test(krInflationReference) && /publishedAt:\s*'2026-10-02'/.test(krInflationReference), 'KR CPI observation month and official publication date are stale');
+assert(/sourceUrl:\s*'https:\/\/mods\.go\.kr\/[^']*list_no=447322/.test(krInflationReference), 'KR CPI official primary-source URL missing');
 assert(/data-operational-use['"],\s*['"]blocked['"]/.test(runtime) || /data-operational-use="blocked"/.test(runtime), 'blocked unavailable-state contract missing');
 
 const macro = data.macro || {};

@@ -423,7 +423,7 @@ if ((indexHtmlSource + workspaceSource).includes("document.getElementById('pf-ho
 if (!dataSource.includes('function _aioIsNativeMacroElement') || dataSource.includes('#page-options') || coreSource.includes('#page-options') || uiSource.includes('#page-options')) fail('P1321 retired options fence must not return; macro native-element fence must remain');
 // P835: portfolio position allocation chart lifecycle is native from normalized holding
 // values and drawPositionDonut remains a compatibility fallback behind the route marker.
-if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !pagesSource.includes('aio-portfolio-chart-renderer="native"')) fail('native portfolio chart ownership/fence missing');
+if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !pagesSource.includes("c.dataset.aioPortfolioChartRenderer === 'native'")) fail('native portfolio chart ownership/fence missing (P1592: the legacy donut must yield on the canvas marker the native renderer writes)');
 // P785: technical owns only the market-health primary surface. The pure model is the single
 // formula owner; both legacy compatibility entry points must consult the native technical fence.
 for (const marker of ['MARKET_HEALTH_MODEL_VERSION', 'export function computeMarketHealth', 'bars:', 'details:']) {

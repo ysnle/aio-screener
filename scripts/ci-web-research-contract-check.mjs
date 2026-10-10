@@ -73,8 +73,14 @@ if (webResearchCheckedAt !== evidence.checkedAt) {
 if (data.meta?.marketSurveysStatus !== 'web-research-captured-reference') {
   fail(`unexpected market survey policy status: ${data.meta?.marketSurveysStatus}`);
 }
+// P1584 (owner-approved 2026-10-10): AAII is a weekly reference-only survey; a missed collection
+// (stale-reference / unavailable) warns instead of blocking the 30-minute market publish.
 const aaii = surveys.aaii;
-if (!aaii || aaii.status !== 'current-reference') fail('AAII current reference is missing');
+if (!aaii || !['current-reference', 'stale-reference', 'unavailable'].includes(aaii.status)) fail(`AAII status is missing or unsupported: ${aaii?.status}`);
+if (aaii.status !== 'current-reference') {
+  if (aaii.allowedUse !== 'reference-only') fail('AAII must remain reference-only');
+  console.warn(`::warning::AAII collection degraded: status=${aaii.status} observedAt=${aaii.observedAt || 'none'} (publish continues)`);
+} else {
 for (const field of ['bullish', 'neutral', 'bearish', 'spread']) {
   if (!Number.isFinite(Number(aaii[field]))) fail(`AAII ${field} is not numeric`);
 }
@@ -90,6 +96,7 @@ if (!aaii.fetchedAt || Date.now() - parseDate(aaii.fetchedAt, 'AAII fetchedAt').
   fail(`AAII automated collection has not succeeded within 12h: ${aaii.fetchedAt || 'missing'}`);
 }
 if (aaii.relayUrl && aaii.sourceKind !== 'publisher-public-web-via-reader-relay') fail('AAII relay lineage is not explicit');
+}
 
 const naaim = surveys.naaim;
 if (!naaim || naaim.status !== 'stale-reference' || !Number.isFinite(Number(naaim.exposure))) {

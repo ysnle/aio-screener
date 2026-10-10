@@ -1,5 +1,5 @@
-﻿
-const APP_VERSION = 'v57.30';
+
+const APP_VERSION = 'v57.31';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -4719,7 +4719,6 @@ function _aioDefaultDecision(pageId) {
   // A numeric legacy fallback never carries a predictive-validation grant.
   // Keep it descriptive/reference-only even when the old scalar exists.
   if (_scorePredictiveValidation !== 'established') _scoreBlocked = true;
-  var _scoreText = _sc == null ? '산출 보류' : Math.round(_sc) + '/100';
   var _band = _scoreBlocked || _sc == null ? { label:'시장환경 관찰', action:'현재 입력 조합을 참고용으로만 관찰합니다. 예측 검증 미확립으로 매매·비중 결론을 생성하지 않습니다.' }
     : _sc >= 75 ? { label:'스트레스 신호 적음', action:'현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격은 별도로 확인할 항목입니다.' }
     : _sc >= 60 ? { label:'스트레스 신호 일부', action:'점수만으로 판단 근거가 되지 않습니다. 종목 품질과 이벤트 리스크는 별도로 확인할 항목입니다.' }
@@ -4740,22 +4739,22 @@ function _aioDefaultDecision(pageId) {
     : _iranReg.eventDate ? (_iranReg.label || '이란/유가') + ' 과거 참고(' + (_iranState.ageDays != null ? _iranState.ageDays + '일 경과' : '경과일 미상') + ') · WTI와 최신 헤드라인 재확인 필요' : '이란/호르무즈 리스크 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인';
 
   var commonReasons = [
-    spxPct + ' · ' + vixTxt + ' · 스코어 ' + _scoreText + ' (' + _band.label + ')',
+    spxPct + ' · ' + vixTxt + ' · ' + _band.label,
     _fomcReason,
     _iranReason
   ];
   var map = {
     home: {
       title: '오늘 결론',
-      decision: _band.label + ' (스코어 ' + _scoreText + ')',
+      decision: _sc == null ? '산출 보류 · 핵심 입력 부족' : _band.label,
       reasons: commonReasons,
-      action: _band.action + ' 신규 진입 여부와 별개로 ATR 손절선과 이벤트 리스크는 먼저 확인할 항목입니다.'
+      action: _band.action + ' ATR 기준 변동폭과 이벤트 일정은 별도로 확인할 항목입니다.'
     },
     signal: {
       title: '시장 환경 참고',
-      decision: _sc == null ? '산출 보류 · 핵심 입력 부족' : _band.label + ' · ' + _scoreText,
+      decision: _sc == null ? '산출 보류 · 핵심 입력 부족' : _band.label,
       reasons: [
-        '스코어 ' + _scoreText + ' → ' + _band.label,
+        '시장 환경 구간: ' + _band.label,
         '직전 미국장 종가 기준 · 입력별 기준일과 결측을 확인',
         _fomcReason
       ],
@@ -4787,9 +4786,9 @@ function _aioDefaultDecision(pageId) {
     },
     technical: {
       title: '차트 판단',
-      decision: '종목 입력 후 레벨·진입·무효화부터 확인',
-      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 ' + vixTxt + ' · 스코어 ' + _scoreText + ' 환경을 차트 판단에 함께 반영'],
-      action: '티커를 입력하면 진입가, 무효화 가격, 손절, 기간을 한 화면에서 확인할 수 있습니다.'
+      decision: '종목을 입력하면 가격 구조와 근거 상태를 표시',
+      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 ' + vixTxt + ' · ' + _band.label + ' 환경을 차트와 함께 확인'],
+      action: '티커를 입력하면 피벗·무효화 가격 같은 관측 레벨과 근거 상태를 한 화면에서 확인할 수 있습니다.'
     },
     screener: {
       title: '후보 판단',
@@ -4859,8 +4858,8 @@ function _aioDefaultDecision(pageId) {
   var _scoreScope = ['home', 'signal', 'sentiment', 'briefing'].indexOf(pageId) >= 0; // P1364: other pages keep their own verdict; the block still forbids trades.
   if (_scoreBlocked && map[pageId] && _scoreScope) {
     map[pageId].decision = _sc == null
-      ? '판정 보류 · 판단 등급 입력 없음 (스코어 ' + _scoreText + ')'
-      : '시장환경 관찰 · 예측 검증 미확립 (스코어 ' + _scoreText + ')';
+      ? '판정 보류 · 판단 등급 입력 없음'
+      : '시장환경 관찰 · 예측 검증 미확립';
     map[pageId].action = '시장환경 상태만 확인합니다. 예측 검증과 종목별 근거가 확립되기 전에는 매매·비중 결론을 생성하지 않습니다.';
     map[pageId].reasons = [_sc == null ? '핵심 시장 데이터가 부족하거나 오래되어 스코어를 산출하지 않았습니다.' : '점수는 설명형 시장환경 지표이며 예측 검증이 확립되지 않았습니다.', _scoreCaveat || '현재성·품질·허용 사용 여부를 확인할 수 없습니다.'];
   }
@@ -7289,7 +7288,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '006260.KS': { en: 'LS',                 kr: 'LS',            alt: ['ls corp', '006260', 'ls전선'] },
     '161890.KS': { en: 'Kolmar Korea',       kr: '한국콜마',       alt: ['kolmar korea', 'kolmar', '161890'] },
     '000080.KS': { en: 'HiteJinro',          kr: '하이트진로',     alt: ['hitejinro', '000080', '하이트'] },
-    '323410.KQ': { en: 'Kakao Bank',         kr: '카카오뱅크',     alt: ['kakao bank', 'kakaobank', '323410'] },
+    '323410.KS': { en: 'Kakao Bank',         kr: '카카오뱅크',     alt: ['kakao bank', 'kakaobank', '323410'] },
 
     // ── v49.59 신규 카테고리별 확장 60개 (REGISTRY 173→230+ 32%→50%+) ──
     // 클라우드/SaaS 추가 (3)
@@ -7402,7 +7401,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '095340.KQ': { en: 'ISC',                kr: 'ISC',           alt: ['isc', '095340'] },
     '005290.KQ': { en: 'DongJin Semichem',   kr: '동진쎄미켐',    alt: ['dongjin', 'dongjin semichem', '005290'] },
     '039200.KQ': { en: 'Osung LST',          kr: '오성첨단소재',  alt: ['osung', '039200'] },
-    '042700.KQ': { en: 'Hanmi Semiconductor', kr: '한미반도체',   alt: ['hanmi semi', 'hanmi semiconductor', '042700'] },
+    '042700.KS': { en: 'Hanmi Semiconductor', kr: '한미반도체',   alt: ['hanmi semi', 'hanmi semiconductor', '042700'] },
     '108320.KQ': { en: 'LX Semicon',         kr: 'LX세미콘',      alt: ['lx semicon', '108320'] },
     '084370.KQ': { en: 'EOTechnics',         kr: '이오테크닉스',  alt: ['eotechnics', '084370'] },
     '101490.KQ': { en: 'Silicon Display',    kr: '실리콘웍스',    alt: ['silicon display', '101490'] },
@@ -7618,7 +7617,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'BMY':   { en: 'Bristol Myers Squibb',  kr: 'BMS',           alt: ['bristol myers', 'bmy'] },
     'DUK':   { en: 'Duke Energy',           kr: '듀크에너지',    alt: ['duke energy', 'duk'] },
     'EXC':   { en: 'Exelon',                kr: '엑셀론',        alt: ['exelon', 'exc'] },
-    'GOLD':  { en: 'Barrick Gold',          kr: '배릭골드',      alt: ['barrick', 'gold'] },
+    'B':     { en: 'Barrick Mining',        kr: '배릭',          alt: ['barrick'] }, // ticker GOLD now belongs to Gold.com (2026-10-10 check)
     'GS':    { en: 'Goldman Sachs',         kr: '골드만삭스',    alt: ['goldman sachs', 'gs'] },
     'HPE':   { en: 'Hewlett Packard Enterprise', kr: 'HPE',      alt: ['hewlett packard enterprise', 'hpe'] },
     'PWR':   { en: 'Quanta Services',       kr: '콴타서비스',    alt: ['quanta services', 'pwr'] },
@@ -7975,7 +7974,7 @@ window.AIO.getThemeTrendDeepAudit = function() {
   var quoteReadySymbols = uniqueSymbols.filter(function(s) { return profileSet[s]; });
   var missingRegistry = uniqueSymbols.filter(function(s) {
     if (registry[s]) return false;
-    if (/^(XL|SMH|SOXX|QQQ|SPY|IWM|DIA|KRE|XBI|URA|BOTZ|HACK|ICLN|DRIV|IYZ|XSD|CRAK|ITA|GDX|LIT|JETS|OIH|AMLP|CIBR|IBIT|BITO|FBTC|ARKB|BITB|HODL|BTC-|ETH-|KRW=|\^)/.test(s)) return false;
+    if (/^(XL|SMH|SOXX|QQQ|SPY|IWM|DIA|KRE|XBI|URA|BOTZ|HACK|ICLN|DRIV|IYZ|XSD|CRAK|ITA|GDX|LIT|JETS|OIH|AMLP|CIBR|ITB|XRT|IYT|COPX|KWEB|IBIT|BITO|FBTC|ARKB|BITB|HODL|BTC-|ETH-|KRW=|\^)/.test(s)) return false;
     return true;
   });
   var standard = ['XLK','XLF','XLV','XLY','XLP','XLE','XLI','XLB','XLU','XLRE','XLC'];
@@ -11098,11 +11097,11 @@ window.AIO_MACRO_CALENDAR = {
 };
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02', '2026-11-06', '2026-12-04'], // BLS empsit schedule (verified 2026-10-02)
-  'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14', '2026-11-10', '2026-12-10'], // Nov/Dec per BLS calendar as reproduced by secondary calendars (2026-10-09); confirm at bls.gov/schedule/news_release/cpi.htm
+  'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14', '2026-11-10', '2026-12-10'], // Nov/Dec verified at bls.gov/schedule/news_release/cpi.htm (2026-10-10)
   'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30', '2026-10-29', '2026-11-25', '2026-12-23'],
   'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01', '2026-11-02', '2026-12-01'], // Nov/Dec: ISM rule 1st business day (official calendar login-gated)
   'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05', '2026-11-04', '2026-12-03'], // Nov/Dec: ISM rule 3rd business day
-  'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16', '2026-10-15'],
+  'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16', '2026-10-15', '2026-11-17', '2026-12-16'], // census.gov/retail/release_schedule.html (verified 2026-10-10; Dec-data release TBA)
   'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
   'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
   'kr-bok': ['2026-07-16', '2026-08-27', '2026-10-22', '2026-11-26']
@@ -16780,11 +16779,11 @@ function calcExitPlan(snapshot, sellPressure, regime) {
   snapshot = snapshot || {};
   sellPressure = sellPressure || { action: 'HOLD_CORE', score: 0, flags: [] };
   var action = sellPressure.action || 'HOLD_CORE';
-  var atr = snapshot.atr14 || 0;
-  var price = snapshot.price || 0;
-  var stopTrading = snapshot.ema10 || (atr ? price - atr * 1.5 : null);
-  var stopSwing = snapshot.ema21 || (atr ? price - atr * 2.5 : null);
-  var thesis = snapshot.sma50 || (atr ? price - atr * 4 : null);
+  // P1580: levels are the named averages only (ATR substitutes were labelled as EMA and could go negative).
+  var price = Number(snapshot.price) > 0 ? Number(snapshot.price) : null;
+  var stopTrading = Number(snapshot.ema10) > 0 ? Number(snapshot.ema10) : null;
+  var stopSwing = Number(snapshot.ema21) > 0 ? Number(snapshot.ema21) : null;
+  var thesis = Number(snapshot.sma50) > 0 ? Number(snapshot.sma50) : null;
   // P1546: observation text only — the earlier English lot-sizing lines were trade instructions rendered on the
   // technical page (owner decision: no trade instructions).
   var map = { HOLD_CORE: '부담 신호가 겹치지 않은 상태입니다. 추세선 위치가 확인 항목입니다.', NO_ADD_RAISE_STOP: '과열·이탈 신호가 일부 확인된 상태입니다. 10/21EMA 위치와 종가 이탈 여부가 확인 항목입니다.', TRIM_25_33: '신호가 여러 개 겹친 상태입니다. 10EMA 이탈 여부와 거래량 동반 여부가 확인 항목입니다.', TRIM_50: '신호가 다수 겹친 상태입니다. 21EMA·50SMA 이탈 여부와 이탈 뒤 반등 실패 여부가 확인 항목입니다.', EXIT_OR_HEDGE: '신호가 매우 많이 겹친 상태입니다. 50SMA 이탈과 추세 훼손 여부가 확인 항목이며, 이 화면은 매매 방향을 제시하지 않습니다.', WAIT: '데이터가 부족해 판단을 보류합니다.' };
@@ -16793,7 +16792,7 @@ function calcExitPlan(snapshot, sellPressure, regime) {
     tradingLot: stopTrading ? '단기 기준선: 10EMA 약 ' + stopTrading.toFixed(2) + ' (종가 이탈 여부)' : '단기 기준선 산출 불가',
     swingLot: stopSwing ? '스윙 기준선: 21EMA 약 ' + stopSwing.toFixed(2) + ' (종가 이탈 여부)' : '스윙 기준선 산출 불가',
     thesisLine: thesis ? '추세 기준선: 50SMA 약 ' + thesis.toFixed(2) : '추세 기준선 산출 불가',
-    levels: [{ label: 'Current', value: price || null }, { label: '10EMA', value: snapshot.ema10 || null }, { label: '21EMA', value: snapshot.ema21 || null }, { label: '50SMA', value: snapshot.sma50 || null }, { label: '20D high', value: snapshot.recentHigh20 || null }, { label: '20D low', value: snapshot.recentLow20 || null }],
+    levels: [{ label: 'Current', value: price }, { label: '10EMA', value: snapshot.ema10 || null }, { label: '21EMA', value: snapshot.ema21 || null }, { label: '50SMA', value: snapshot.sma50 || null }, { label: '20D high', value: snapshot.recentHigh20 || null }, { label: '20D low', value: snapshot.recentLow20 || null }],
     beginner: 'RSI 70 이상은 강한 장에서 오래 유지될 수 있습니다. 이격 확대에 거래량 급증 뒤 약한 종가, 볼린저 상단 재진입, 10/21/50일선 이탈이 겹치는지를 봅니다.'
   };
 }
@@ -17768,14 +17767,14 @@ const AIO_MANUAL_REFERENCE = Object.freeze({
   }),
   krInflation: Object.freeze({
     // P953 데이터 정직화: 국가데이터처 공식 발표의 관측월·발표일·근원 정의를 함께 고정한다.
-    headline: 2.8, core: 2.6, coreDefinition: 'food-and-energy-excluded',
-    observation: '2026-07', publishedAt: '2026-08-04',
+    headline: 2.9, core: 2.8, coreDefinition: 'food-and-energy-excluded',
+    observation: '2026-09', publishedAt: '2026-10-02',
     source: 'Ministry of Data and Statistics (Korea)', sourceKind: 'official-primary',
-    sourceUrl: 'https://mods.go.kr/board.es?act=view&bid=213&list_no=446338&mid=b70203010000&nPage=1&ref_bid=213&tag=',
+    sourceUrl: 'https://mods.go.kr/board.es?mid=a10301010000&bid=213&list_no=447322&act=view&mainXml=Y',
     operationalUse: 'reference-only'
   }),
   usCpiCalendar: Object.freeze({
-    next: '2026-09-11T08:30:00-04:00', asOf: '2026-08-12',
+    next: '2026-10-14T08:30:00-04:00', asOf: '2026-10-10', // bls.gov/schedule/2026/10_sched.htm
     source: 'U.S. Bureau of Labor Statistics', sourceKind: 'official-primary',
     sourceUrl: 'https://www.bls.gov/cpi/', operationalUse: 'calendar-only'
   })
@@ -18476,11 +18475,6 @@ function applyDataSnapshot() {
       'kr-ppi-yoy':    '—',
       'kr-manuf-pmi':  _snap.fixed(S.krManufPmi, 1),
       'kr-gdp-qoq':    signed(S.krGdp, 1, '%'),
-      'kr-bond-3y':    '—',
-      // v48.61 P125 해소: 누락 data-snap 키 바인딩
-      'kr-core-cpi':      '—',
-      'kr-service-price': '—',
-      'kr-service-pmi':   '—',
       'gex-current':      signed(S.gexCurrent, 1, 'B'),
       // US 매크로 인플레·고용: runtime producer가 채운 값만 표시한다.
       'cpi':           unit(S.cpi, 1, '%'),
@@ -18505,6 +18499,8 @@ function applyDataSnapshot() {
       }
     });
     if (_snapFailed > 0 && typeof _aioLog === 'function') _aioLog('warn', 'snap', 'applyDataSnapshot: ' + _snapFailed + ' key(s) failed / ' + _snapApplied + ' applied');
+    // P1583 (AGENTS: hide widgets whose source does not exist): a marked widget appears once any of its values arrives.
+    document.querySelectorAll('[data-aio-hide-when-empty]').forEach(function(box) { box.hidden = !Array.prototype.some.call(box.querySelectorAll('[data-snap]'), function(el) { return !/^(—|-|.*미수신)$/.test(String(el.textContent || '').trim()); }); });
 
     // v52.40 (P655/EF-02d): 50SMA readout/bar 동기화를 Chart.js 로드 여부와 무관하게 여기서도 실행.
     // breadth-50sma-big(위 map의 'breadth-50sma' 키)은 이 loop에서 이미 갱신됐지만, 같은 카드의

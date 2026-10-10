@@ -13,6 +13,7 @@ import { fearGreedBand as publishedFearGreedBand } from '../../domain/sentiment/
 import { buildMarketRegime } from '../../domain/briefing/market-read.js';
 import { sentimentFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
+import { computeCompositeFearGreed } from '../../domain/sentiment/composite-fear-greed.js';
 
 // AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
@@ -43,7 +44,7 @@ export function fearGreedBand(value) {
   return band.blocked ? null : { label: band.label, tone: FEAR_GREED_TONE[band.label] };
 }
 
-export function buildSentimentModel({ history = [], credit = {}, rates = {}, snapshot = {} } = {}) {
+export function buildSentimentModel({ history = [], credit = {}, rates = {}, snapshot = {}, macroHistory = null } = {}) {
   const { basis, c, alignments, fgSeries: fgAll } = alignMarketInputs({ history, credit, rates });
   const fgSeries = fgAll.slice(-126);
   const vix = buildCloseSeries(history, 'vix', { through: basis });
@@ -87,7 +88,12 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
     { id: 'aaii', title: 'AAII 개인 설문', value: shown.bear == null ? '—' : `약세 ${shown.bear.toFixed(1)}%`, basis: credit.aaiiAsOf ? `${alignmentLabel(aaiiAlign)} 주간` : '미수신', basisStatus: isUsable(aaiiAlign) ? 'aligned' : aaiiAlign.status,
       state: shown.bear == null ? null : judged(bear, bear >= 45 ? { label: '비관 강함', tone: 'burden' } : bull != null && bull >= 50 ? { label: '낙관 강함', tone: 'favorable' } : { label: '보통', tone: 'neutral' }),
       change: shown.bull == null ? '' : `강세 ${shown.bull.toFixed(1)}% · 장기 평균 강세 ${AAII_AVERAGE.bull}% / 약세 ${AAII_AVERAGE.bear}%`,
-      note: '주간 발표 — 개인 투자자의 6개월 전망 설문 — 극단값은 과열·과매도 참고로만 봄' }
+      note: '주간 발표 — 개인 투자자의 6개월 전망 설문 — 극단값은 과열·과매도 참고로만 봄' },
+    // Ranked through the board's shared close basis, like every other card.
+    compositeCard(computeCompositeFearGreed({
+      history: basis ? history.filter((row) => row?.date && row.date <= basis) : history,
+      macroHistory: basis && macroHistory?.series ? { ...macroHistory, series: Object.fromEntries(Object.entries(macroHistory.series).map(([key, value]) => [key, { ...value, observations: (value?.observations || []).filter((row) => String(Array.isArray(row) ? row[0] : row?.date) <= basis) }])) } : macroHistory
+    }))
   ];
   // Synthesis: is the fear in prices only, or also in credit and volatility structure? Each side
   // is claimed only when it was measured.
@@ -120,11 +126,31 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   return { asOf: basis, mixed, cards, synthesis, aaiiNote: bear != null && bear >= 45 ? `AAII 약세 응답 ${bear.toFixed(1)}%는 장기 평균(${AAII_AVERAGE.bear}%)보다 크게 높음 — 개인 투자자 비관이 강한 편입니다.` : null };
 }
 
+// P1586: the self-computed composite sits beside CNN's index as a reference. It states how many of the
+// seven components were computable and that it is not CNN's number; below four components it withholds.
+function missingLine(composite) {
+  const missing = composite.components.filter((row) => row.status !== 'ok');
+  if (!missing.length) return '';
+  return `빠진 요소 ${missing.length}개: ${missing.map((row) => row.status === 'insufficient-history' && Number.isFinite(row.observations) ? `${row.label}(기록 ${row.observations}/${row.needed}일)` : row.label).join(' · ')} — 나머지 ${composite.componentsReady}개만의 평균이라 날짜 사이 비교는 구성이 같을 때만 합니다. `;
+}
+function compositeCard(composite) {
+  const ready = composite.components.filter((row) => row.status === 'ok');
+  const tone = composite.score == null ? null : composite.score < 45 ? 'burden' : composite.score > 55 ? 'favorable' : 'neutral';
+  return {
+    id: 'composite', title: '자체 계산 심리 지수 (참고)', value: composite.score == null ? '—' : String(composite.score),
+    basis: composite.asOf ? `${shortDate(composite.asOf)} 기준 · 요소 ${composite.componentsReady}/${composite.componentsTotal}` : `요소 ${composite.componentsReady}/${composite.componentsTotal}`,
+    basisStatus: composite.score == null ? 'missing' : 'aligned',
+    state: composite.score == null ? null : { label: composite.band, tone },
+    change: ready.map((row) => `${row.label} ${Math.round(row.score)}`).join(' · '),
+    // P1593 (F97): name the components left out and why, so a 4-of-7 average is not read as CNN's seven.
+    note: `${missingLine(composite)}CNN과 같은 7개 요소를 공개 자료로 각자 최근 1년 백분위로 계산한 평균입니다. CNN 지수와 구성이 달라 같은 값이 아니며, 계산 가능한 요소가 4개 미만이면 표시하지 않습니다.`
+  };
+}
 export function renderSentimentBoard({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-sentiment');
   if (!page) return null;
   const inputs = collectMarketInputs(root);
-  const model = buildSentimentModel({ ...inputs, snapshot: root.DATA_SNAPSHOT || {} });
+  const model = buildSentimentModel({ ...inputs, snapshot: root.DATA_SNAPSHOT || {}, macroHistory: root._aioMacroHistory || null });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준${model.mixed.length ? ' · 날짜가 다른 지표는 카드에 표시' : ''} · 공포·탐욕, 변동성 구조, 신용, 옵션, 개인 설문` : '기록을 불러오는 중입니다.');
   set('sentiment-synthesis', model.synthesis);

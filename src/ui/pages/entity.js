@@ -274,8 +274,15 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   const meta = page.querySelector?.('#ticker-chart-meta');
   if (meta) meta.textContent = periodMeta;
   const loading = page.querySelector('#ticker-chart-loading');
+  // P1591 (S02): without a price history the 380px frame and period buttons stay empty and repeat the same
+  // sentence; the box collapses to one line and the buttons hide until rows arrive.
+  const box = canvas.parentElement;
+  const tabs = page.querySelector?.('#ticker-chart-period-tabs');
+  if (box) box.style.height = unavailable ? '44px' : '380px';
+  if (tabs) tabs.hidden = unavailable;
   if (unavailable) {
     charts.destroy('ticker-price-chart');
+    if (meta) meta.textContent = '';
     if (loading) {
       loading.style.display = 'flex';
       loading.textContent = periodMeta;
@@ -463,8 +470,10 @@ function renderFundamentalWatchlist(documentRef, state) {
 
 function formatSecMetric(metric) {
   if (metric?.value == null) return '—';
-  if (metric.unit === 'currency') return `$${Math.abs(metric.value).toLocaleString('en-US', { maximumFractionDigits: 0 })}${metric.value < 0 ? ' (negative)' : ''}`;
-  if (metric.unit === 'shares') return metric.value.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  // P1591: compact units like the fiscal reading ($215.9B), not raw dollars; the exact value stays in the tooltip.
+  const compact = (v) => { const a = Math.abs(v); return a >= 1e12 ? `${(a / 1e12).toFixed(2)}T` : a >= 1e9 ? `${(a / 1e9).toFixed(1)}B` : a >= 1e6 ? `${(a / 1e6).toFixed(1)}M` : a.toLocaleString('en-US', { maximumFractionDigits: 0 }); };
+  if (metric.unit === 'currency') return `${metric.value < 0 ? '-' : ''}$${compact(metric.value)}`;
+  if (metric.unit === 'shares') return `${compact(metric.value)}주`;
   if (metric.unit === 'percent') return `${metric.value.toFixed(1)}%`;
   return `${metric.value.toFixed(2)}x`;
 }
@@ -484,6 +493,9 @@ function markSecReportElement(element, report) {
 // P1449: the arrival note for a learning link — user vocabulary only (ROIC·CAPEX·FCF 본 labels);
 // a metric this page does not present keeps the note hidden instead of leaking a raw id.
 const FUNDAMENTAL_METRIC_LABELS = Object.freeze({
+  // P1593 (F98): the column links send these ids; without them the arrival line stayed hidden.
+  fcf_roic: '번 돈이 현금으로 남는지(잉여현금흐름)와 투입한 자본 대비 얼마나 버는지(ROIC)',
+  dcf_expectations: '지금 주가가 가정하는 성장과 마진(역산 DCF) — 아래 매출·이익률 추이와 비교',
   roe: 'ROE(자본 효율)',
   revenue: '매출',
   margin: '순이익률',
@@ -496,13 +508,24 @@ const FUNDAMENTAL_METRIC_LABELS = Object.freeze({
   debt: '부채',
   shares: '주식 수'
 });
-function renderFundamentalArrival(documentRef, { metric, question, symbol, fromRoute }) {
+function renderFundamentalArrival(documentRef, { metric, question, symbol, fromRoute, timeframe = null, returnContext = null, root = null }) {
   const note = documentRef?.getElementById('fund-arrival-question');
   if (!note) return;
+  note.querySelector?.('.fund-arrival-return')?.remove?.();
   const metricLabel = metric ? FUNDAMENTAL_METRIC_LABELS[String(metric).toLowerCase()] || null : null;
   const text = metricLabel || question;
   if (!text) { note.hidden = true; return; }
-  note.textContent = `${fromRoute ? `${fromRoute} 링크에서 넘어온 확인 대상: ` : '이 화면으로 건너온 확인 대상: '}${text}${symbol ? ` · 대상 종목 ${symbol}(아래 보고에서 함께 확인)` : ' · 종목을 선택해 아래 보고에서 함께 확인하세요'}${metricLabel && question ? ` — ${question}` : ''}`;
+  const period = { TTM_3Y: '최근 12개월과 3년', '5Y': '5년', '3Y_5Y': '3~5년' }[String(timeframe || '')] || null;
+  note.textContent = `${fromRoute ? `${fromRoute} 링크에서 넘어온 확인 대상: ` : '이 화면으로 건너온 확인 대상: '}${text}${period ? ` · 볼 기간 ${period}` : ''}${symbol ? ` · 대상 종목 ${symbol}(아래 보고에서 함께 확인)` : ' · 종목을 선택해 아래 보고에서 함께 확인하세요'}${metricLabel && question ? ` — ${question}` : ''}`;
+  if (returnContext?.route) {
+    const back = documentRef.createElement('button');
+    back.type = 'button';
+    back.className = 'aio-btn-table fund-arrival-return';
+    back.style.marginLeft = '8px';
+    back.textContent = '읽던 이야기로 돌아가기';
+    back.addEventListener('click', () => { if (typeof root?.history?.back === 'function') root.history.back(); else root?.showPage?.(returnContext.route); });
+    note.appendChild(back);
+  }
   note.hidden = false;
 }
 
@@ -526,10 +549,13 @@ function renderFundamentalReport(documentRef, page, state) {
   markSecReportElement(grid, report);
   if (title) title.textContent = report.entityName || report.symbol ? `SEC 기본 보고 · ${report.entityName || report.symbol}` : 'SEC 기본 보고';
   if (meta) {
+    // P1591 (S08): the reader line says which report and how old it is; filing ledger details
+    // (acceptance time, accession, point-in-time count) move to the tooltip.
     meta.textContent = report.status === 'current'
-      ? `${report.form || 'Annual filing'} · 기준일 ${report.observedAt || '—'} · 신선도 ${report.freshness?.state || 'unknown'}${report.freshness?.ageDays != null ? ` (${report.freshness.ageDays}일)` : ''} · 제출일 ${report.filedAt || '—'}${report.filingMetadata?.acceptedAt ? ` · 접수 ${report.filingMetadata.acceptedAt}` : ''}${report.accession ? ` · ${report.accession}` : ''}${report.pointInTime?.observationCount ? ` · PIT ${report.pointInTime.observationCount}건 (${report.pointInTime.status})` : ''}`
-      : unselected ? '선택한 종목 없음 · 티커를 입력하거나 아래 관심종목을 선택하면 해당 기업의 SEC 연간 공시·PIT 기준시점을 표시합니다'
-        : 'SEC EDGAR 연간 데이터 및 PIT 기준시점 수신 대기 · 값이 없는 항목은 추정하지 않습니다';
+      ? `${report.form || '연간 보고서'} · 회계연도 말 ${report.observedAt || '—'} · 제출 ${report.filedAt || '—'}${report.freshness?.ageDays != null ? ` · 회계연도 말로부터 ${report.freshness.ageDays}일` : ''}${report.freshness?.state && report.freshness.state !== 'current' ? ' · 최신 연간 보고서 아님' : ''}`
+      : unselected ? '선택한 종목 없음 · 티커를 입력하거나 관심종목을 선택하면 해당 기업의 SEC 연간 보고서를 표시합니다'
+        : 'SEC 연간 보고서를 아직 받지 못했습니다 · 값이 없는 항목은 추정하지 않습니다';
+    if (report.status === 'current') meta.title = [report.filingMetadata?.acceptedAt ? `접수 ${report.filingMetadata.acceptedAt}` : null, report.accession ? `접수번호 ${report.accession}` : null, report.pointInTime?.observationCount ? `시점 기록(PIT) ${report.pointInTime.observationCount}건 (${report.pointInTime.status})` : null].filter(Boolean).join(' · ');
   }
   if (coverage) coverage.textContent = report.status === 'current'
     ? `관측 항목 ${report.coverage.length}개 · ${report.source} · ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`
@@ -599,7 +625,10 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
       metric: handoff?.context?.metric || knowledge?.metric || null,
       question: handoff?.context?.question || null,
       symbol: state?.id || arrivingTicker || null,
-      fromRoute: handoff?.fromRoute || (knowledge ? '리서치 라이브러리' : null)
+      fromRoute: handoff?.fromRoute || (knowledge ? '리서치 라이브러리' : null),
+      timeframe: knowledge?.timeframe || null,
+      returnContext: knowledge?.returnContext || null,
+      root
     });
     renderFundamentalStatus(documentRef, state);
     renderFundamentalSummary(documentRef, state);
@@ -633,7 +662,10 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       // (display continuity) re-requests it on mount unless that company's report was already requested.
       if (route === 'fundamental') {
         const subject = String(root?._aioLastOpenedSymbol || '').trim().toUpperCase();
-        if (subject && root._aioFundRequestedSymbol !== subject && typeof root?._aioFundSearchFill === 'function') {
+        // P1593 (F107/E04): compare against the company actually loaded, not the last one ever requested — leaving
+        // the entity routes clears the selection, and the old guard then left '종목 선택 전' beside the same ticker.
+        const loaded = String(selectEntityState(store.getState())?.id || '').trim().toUpperCase();
+        if (subject && loaded !== subject && typeof root?._aioFundSearchFill === 'function') {
           root._aioFundRequestedSymbol = subject;
           const timer = setTimeout(() => root._aioFundSearchFill(subject), 0);
           bag.add(() => clearTimeout(timer));

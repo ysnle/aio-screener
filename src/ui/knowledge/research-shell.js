@@ -48,6 +48,7 @@ const STYLE = `
 .rl-pager .rl-nav-item{width:auto;border:0}
 .rl-nav-item.is-active,.rl-nav-item[aria-pressed="true"],.rl-nav-item[aria-current="true"]{border-left-color:var(--accent);color:var(--text-primary);font-weight:700;background:var(--accent-soft)}
 .rl-nav-sub{padding-left:12px}
+.rl-nav-meta{display:block;font-size:11px;font-weight:400;color:var(--text-muted);line-height:1.35;margin-top:1px}
 .rl-doc-kicker{font-size:11px;color:var(--text-muted);margin:0 0 4px;letter-spacing:.02em}
 .rl-doc-title{font-family:var(--font-display);font-size:20px;font-weight:600;margin:0 0 10px;line-height:1.35}
 .rl-doc-lead{font-size:14px;line-height:1.65;margin:0 0 14px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface-1)}
@@ -195,7 +196,22 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   aside.setAttribute('aria-label', '연결');
   grid.append(nav, main, aside);
   shell.append(head, grid);
+  revealActiveNav(nav); // runs after this task, once the view has filled the TOC
   return { shell, nav, main, aside, input };
+}
+
+// P1592 (F75): the TOC is its own scroll box; after a render, bring the selected entry into it so the
+// reader sees where the open document sits (a lesson deep in a 52-item list stayed off-screen).
+export function revealActiveNav(nav) {
+  const view = nav?.ownerDocument?.defaultView;
+  const reveal = () => {
+    const active = nav?.querySelector?.('.rl-nav-item[aria-pressed="true"], .rl-nav-item.is-active');
+    if (!active || !(nav.scrollHeight > nav.clientHeight)) return;
+    const top = active.offsetTop; // .rl-nav is sticky, so it is the offset parent
+    if (top < nav.scrollTop || top + active.offsetHeight > nav.scrollTop + nav.clientHeight) nav.scrollTop = Math.max(0, top - nav.clientHeight / 3);
+  };
+  // A timer, not requestAnimationFrame: it also runs in a background tab, after the view has attached the shell.
+  if (typeof view?.setTimeout === 'function') view.setTimeout(reveal, 0); else reveal();
 }
 
 export function navGroup(doc, title, count = null) {

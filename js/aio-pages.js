@@ -198,7 +198,7 @@ function drawPortfolioDonut() {
 function drawPositionDonut() {
   var c = document.getElementById('pf-position-donut');
   if (!c) return;
-  if (c.closest && c.closest('#page-portfolio[data-aio-portfolio-chart-renderer="native"]')) return;
+  if (c.dataset.aioPortfolioChartRenderer === 'native') return; // P1592 (F16): native marks the canvas, not the page — the old selector never matched, so this cost-basis, mixed-currency donut kept drawing
   var ctx = c.getContext('2d');
   var W = c.width, H = c.height;
   ctx.clearRect(0,0,W,H);
@@ -1671,238 +1671,186 @@ var RRG_SUBSECTORS = [
   { sym:'XOP', name:'E&P',       color:'#b13a30', emoji:'' },
   { sym:'HACK',name:'사이버보안', color:'#211d16', emoji:'' },
   { sym:'GDX', name:'금광',      color:'#8a8271', emoji:'' },
-  { sym:'CIBR',name:'사이버ETF', color:'#211d16', emoji:'' },
   { sym:'BOTZ',name:'로보틱스',  color:'#211d16', emoji:'' },
   { sym:'ICLN',name:'클린에너지',color:'#22754c', emoji:'' },
   { sym:'LIT', name:'리튬/배터리',color:'#b13a30', emoji:'' },
+  { sym:'KRE', name:'지역은행', color:'#8a8271', emoji:'' }, { sym:'ITB', name:'주택건설', color:'#57513f', emoji:'' }, { sym:'XRT', name:'소매', color:'#b13a30', emoji:'' }, { sym:'IYT', name:'운송', color:'#211d16', emoji:'' }, // P1590: core industry groups (CIBR duplicated HACK)
+  { sym:'JETS',name:'항공', color:'#57513f', emoji:'' }, { sym:'COPX',name:'구리 광산', color:'#22754c', emoji:'' }, { sym:'KWEB',name:'중국 인터넷', color:'#b13a30', emoji:'' },
 ];
 
 // ── 종합 테마 맵 (screener_pro.py SECTOR_LEADERS 기반 + 확장) ────
-// 대장주 선정 기준: 주가 퍼포먼스 + 시장 관심도 + 유망 전망 + 합리적 시총
-// (시총이 크다고 대장주가 아님! RKLB, ASTS 같은 퍼포먼스 리더 우선)
+// P1588 구성 기준: 하위 테마 = 산업·사업 모델 분류, 공개 수익률이 있는 유니버스 종목만, 하위 테마당 3종목 이상, 테마 안 중복 없음. leaders = 전체 구성 종목의 시가총액 순(2026-10-09 스냅샷), leaderHighlight = 상위 4개, 편집 비중 없음(동일가중·중앙값).
 var THEME_MEMBERSHIP_POLICY = Object.freeze({
-  version:'theme-membership.v1',
+  version:'theme-membership.v2',
   source:'AIO curated taxonomy',
   sourceKind:'REFERENCE',
-  observedAt:null,
+  observedAt:'2026-10-10',
   allowedUse:'reference',
-  status:'as-of-unverified',
-  note:'구성 종목은 편집 분류이며 기준일이 검증되기 전에는 현재 지수·공식 분류로 해석하지 않습니다.'
+  status:'reviewed',
+  note:'구성 종목은 산업·사업 모델 기준의 편집 분류(2026-10-10 검토)이며 공식 지수 구성이 아닙니다. 테마 수익률은 동일가중·중앙값으로 계산합니다.'
 });
 window.THEME_MEMBERSHIP_POLICY = THEME_MEMBERSHIP_POLICY;
 var THEME_MAP = [
-  {
-    id:'defense', nameKr:'방산/항공우주', emoji:'', color:'#22754c',
-    etf:'ITA', etfName:'iShares Defense',
-    leaders:['LMT','RTX','GD','NOC','HII','RKLB','ASTS','HWM','LHX','GE','TXT'],
-    // RKLB, ASTS = 소형주지만 퍼포먼스·전망·시장관심 폭발적 → 대장주
-    leaderHighlight:['RKLB','ASTS','LMT','RTX'],
+  { id:'defense', nameKr:'방산/항공우주', emoji:'', color:'#22754c', etf:'ITA', etfName:'iShares Defense',
+    leaders:['GE','RTX','PLTR','BA','LMT','HWM','GD','NOC','TDG','RKLB','LHX','AXON','ASTS','LDOS','TXT','HII','HEI','RDW','IRDM','LUNR','KTOS','AVAV'], leaderHighlight:['GE','RTX','PLTR','BA'],
     subThemes:[
-      { name:'전통 방산', tickers:['LMT','RTX','NOC','GD','HII','LHX','PLTR','LDOS'] },
-      { name:'우주/위성', tickers:['RKLB','ASTS','BA','LUNR','RDW'] },
-      { name:'항공 부품', tickers:['HWM','GE','TXT'] }
-    ]
-  },
-  {
-    id:'staples', nameKr:'필수소비재', emoji:'', color:'#211d16',
-    etf:'XLP', etfName:'Consumer Staples',
-    leaders:['KO','PEP','COST','PG','MCD','MNST','CL','CLX','DG','CHD','MO','PM','SYY'],
-    leaderHighlight:['COST','MNST','KO','PG'],
+      { name:'방산 프라임', tickers:['LMT','RTX','NOC','GD','HII','LHX'] },
+      { name:'우주/위성', tickers:['RKLB','ASTS','LUNR','RDW','IRDM'] },
+      { name:'항공기/부품', tickers:['BA','GE','HWM','TDG','HEI','TXT'] },
+      { name:'방산 기술/드론', tickers:['PLTR','AXON','LDOS','KTOS','AVAV'] }
+    ] },
+  { id:'staples', nameKr:'필수소비재', emoji:'', color:'#211d16', etf:'XLP', etfName:'Consumer Staples',
+    leaders:['WMT','COST','KO','PG','PM','PEP','MO','MDLZ','CL','TGT','MNST','KDP','KR','SYY','HSY','KVUE','KMB','DG','DLTR','CHD','KHC','GIS','BTI','CLX'], leaderHighlight:['WMT','COST','KO','PG'],
     subThemes:[
-      { name:'F&B/식음료', tickers:['KO','PEP','MNST','SYY','MCD'] },
-      { name:'생활용품', tickers:['PG','CL','CLX','CHD'] },
-      { name:'할인/유통', tickers:['COST','DG','WMT'] },
-      { name:'담배', tickers:['MO','PM'] }
-    ]
-  },
-  {
-    id:'healthcare', nameKr:'헬스케어/제약', emoji:'', color:'#211d16',
-    etf:'XLV', etfName:'Healthcare',
-    leaders:['ABBV','AMGN','GILD','MRNA','REGN','VRTX','BMY','JNJ','MRK','LLY','DVA','MCK'],
-    leaderHighlight:['LLY','VRTX','ABBV','REGN'],
+      { name:'음료', tickers:['KO','PEP','MNST','KDP'] },
+      { name:'식품', tickers:['MDLZ','HSY','GIS','KHC','SYY'] },
+      { name:'생활용품', tickers:['PG','CL','CLX','CHD','KMB','KVUE'] },
+      { name:'할인/식료품 유통', tickers:['COST','WMT','TGT','KR','DG','DLTR'] },
+      { name:'담배', tickers:['PM','MO','BTI'] }
+    ] },
+  { id:'healthcare', nameKr:'헬스케어/제약', emoji:'', color:'#211d16', etf:'XLV', etfName:'Healthcare',
+    leaders:['LLY','JNJ','ABBV','MRK','UNH','TMO','AMGN','GILD','ABT','PFE','DHR','ISRG','MRNA','VRTX','BMY','MDT','MCK','CVS','SYK','HCA','ELV','CI','REGN','BSX','COR','CAH','BDX','EW','A','HUM','VEEV','WAT','IDXX','RMD','DXCM','BIIB','ZTS','ALNY','GEHC','NVO','TEM','AZN','NVS','CNC','DVA','ARGX','HIMS','VKTX'], leaderHighlight:['LLY','JNJ','ABBV','MRK'],
     subThemes:[
-      { name:'대형 제약', tickers:['LLY','JNJ','MRK','PFE','ABBV','BMY'] },
-      { name:'바이오텍', tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB'], etf:'XBI' },
-      { name:'의료기기/서비스', tickers:['DVA','MCK','ISRG','MDT'] },
-      { name:'생명과학 장비', tickers:['TMO','DHR','A','WAT'] }
-    ]
-  },
-  {
-    id:'utilities', nameKr:'유틸리티', emoji:'', color:'#211d16',
-    etf:'XLU', etfName:'Utilities',
-    leaders:['NEE','CEG','DUK','AEP','EXC','VST','NRG','ETR','EVRG','ES','FE','LNT','PNW','ATO','XEL','EIX'],
-    leaderHighlight:['CEG','VST','NEE','NRG'],
-    // CEG, VST, NRG = 원전/전력 트레이딩 퍼포먼스 폭발
+      { name:'대형 제약', tickers:['LLY','JNJ','MRK','PFE','ABBV','BMY','NVO','AZN','NVS','ZTS'] },
+      { name:'바이오텍', tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB','ALNY','ARGX','VKTX'] },
+      { name:'디지털 헬스/의료 데이터', tickers:['VEEV','HIMS','TEM'] },
+      { name:'관리의료/보험', tickers:['UNH','ELV','CI','CVS','HUM','CNC'] },
+      { name:'의료기기', tickers:['ISRG','ABT','SYK','BSX','MDT','EW','BDX','DXCM','RMD','GEHC'] },
+      { name:'병원/유통/서비스', tickers:['HCA','MCK','COR','CAH','DVA'] },
+      { name:'생명과학/진단', tickers:['TMO','DHR','A','WAT','IDXX'] }
+    ] },
+  { id:'utilities', nameKr:'유틸리티', emoji:'', color:'#211d16', etf:'XLU', etfName:'Utilities',
+    leaders:['BE','NEE','CEG','SO','DUK','AEP','D','VST','SRE','ETR','XEL','EXC','PEG','PCG','ATO','FE','ES','NRG','EIX','FSLR','EVRG','LNT','OKLO','TLN','PNW','CCJ','SMR','ENPH','SEDG','RUN','NXT','ARRY','SHLS','BWXT','LEU','NNE','PLUG','FCEL','FLNC'], leaderHighlight:['BE','NEE','CEG','SO'],
     subThemes:[
-      { name:'원전/핵발전', tickers:['CEG','VST','NRG','SMR','CCJ'], etf:'URA' },
-      { name:'재생에너지', tickers:['NEE','ENPH','SEDG','FSLR','RUN'], etf:'ICLN' },
-      { name:'전통 유틸', tickers:['DUK','AEP','EXC','ETR','ES','EVRG','FE','LNT','PNW','ATO','XEL','EIX'] }
-    ]
-  },
-  {
-    id:'energy', nameKr:'에너지', emoji:'', color:'var(--data-green)',
-    etf:'XLE', etfName:'Energy',
-    leaders:['COP','CVX','DVN','KMI','OXY','TPL','TRGP','VLO','WMB','XOM','BKR','HAL','SLB','FANG'],
-    leaderHighlight:['TPL','TRGP','WMB','FANG'],
+      { name:'원전/독립발전', tickers:['CEG','VST','NRG','TLN','SMR','OKLO'] },
+      { name:'규제 유틸리티', tickers:['SO','DUK','AEP','D','EXC','SRE','PCG','PEG','ETR','XEL','EIX','ES','FE','EVRG','LNT','PNW','ATO'] },
+      { name:'재생에너지/태양광', tickers:['NEE','FSLR','NXT','ENPH','SEDG','RUN','ARRY','SHLS'] },
+      { name:'원전 연료/설비', tickers:['CCJ','BWXT','LEU','NNE'] },
+      { name:'수소/연료전지/ESS', tickers:['BE','PLUG','FCEL','FLNC'] }
+    ] },
+  { id:'energy', nameKr:'에너지', emoji:'', color:'var(--data-green)', etf:'XLE', etfName:'Energy',
+    leaders:['CVX','COP','MPC','PSX','XOM','WMB','EOG','EPD','SLB','KMI','TRGP','VLO','OXY','OKE','BKR','FANG','DVN','TPL','HAL','CNQ','SU','ET','FTI','NOV','WHD','DK'], leaderHighlight:['CVX','COP','MPC','PSX'],
     subThemes:[
-      { name:'통합 메이저', tickers:['XOM','CVX','COP'] },
-      { name:'E&P(탐사/생산)', tickers:['DVN','FANG','OXY','TPL'], etf:'XOP' },
-      { name:'MLP/파이프라인', tickers:['KMI','WMB','TRGP','ET'], etf:'AMLP' },
-      { name:'오일서비스', tickers:['SLB','HAL','BKR'], etf:'OIH' },
-      { name:'정유', tickers:['VLO','MPC','PSX'] }
-    ]
-  },
-  {
-    id:'semiconductor', nameKr:'반도체', emoji:'', color:'var(--data-purple)',
-    etf:'SMH', etfName:'VanEck Semiconductor',
-    leaders:['NVDA','AMD','AVGO','QCOM','MRVL','ADI','AMAT','LRCX','MU','TER','KLAC','TSM','ASML','ARM'],
-    leaderHighlight:['NVDA','AVGO','ARM','AMAT'],
+      { name:'통합 메이저', tickers:['XOM','CVX','SU'] },
+      { name:'E&P(탐사/생산)', tickers:['COP','EOG','CNQ','OXY','DVN','FANG','TPL'] },
+      { name:'미드스트림', tickers:['EPD','ET','WMB','KMI','OKE','TRGP'] },
+      { name:'오일서비스', tickers:['SLB','BKR','HAL','FTI','NOV','WHD'] },
+      { name:'정유', tickers:['MPC','PSX','VLO','DK'] }
+    ] },
+  { id:'semiconductor', nameKr:'반도체', emoji:'', color:'var(--data-purple)', etf:'SMH', etfName:'VanEck Semiconductor',
+    leaders:['NVDA','AVGO','MU','AMD','INTC','AMAT','LRCX','ARM','TXN','KLAC','MRVL','SNDK','ADI','QCOM','TSM','STX','WDC','ASML','TER','NXPI','MCHP','ON','UMC','GFS','ENTG','ACLS','UCTT'], leaderHighlight:['NVDA','AVGO','MU','AMD'],
     subThemes:[
-      { name:'AI 칩/GPU', tickers:['NVDA','AMD','AVGO','ARM'] },
-      { name:'메모리', tickers:['MU','STX','WDC'] },
-      { name:'장비/소재', tickers:['AMAT','LRCX','KLAC','TER','ASML'] },
-      { name:'아날로그/RF', tickers:['ADI','QCOM','MRVL','TXN','NXPI','ON'] },
-      { name:'파운드리/성숙공정', tickers:['INTC','GFS','TSM','UMC'] }
-    ]
-  },
-  {
-    id:'software', nameKr:'소프트웨어/클라우드', emoji:'', color:'#b13a30',
-    etf:'IGV', etfName:'iShares Software',
-    leaders:['CRM','NOW','ADBE','ORCL','PANW','CRWD','ZS','FTNT','DDOG','SNOW','PLTR','NET'],
-    leaderHighlight:['PLTR','CRWD','NOW','PANW'],
-    // PLTR = AI 플랫폼 리더, 퍼포먼스 폭발적 | SaaSpocalypse/AI 대체 관련 키워드
+      { name:'AI 칩/커스텀 ASIC', tickers:['NVDA','AVGO','AMD','MRVL','ARM'] },
+      { name:'메모리/스토리지', tickers:['MU','SNDK','WDC','STX'] },
+      { name:'장비/소재', tickers:['ASML','AMAT','LRCX','KLAC','TER','ENTG','ACLS','UCTT'] },
+      { name:'아날로그/MCU/RF', tickers:['TXN','ADI','QCOM','NXPI','MCHP','ON'] },
+      { name:'파운드리', tickers:['TSM','INTC','GFS','UMC'] }
+    ] },
+  { id:'software', nameKr:'소프트웨어/클라우드', emoji:'', color:'#b13a30', etf:'IGV', etfName:'iShares Software',
+    leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
     subThemes:[
-      { name:'엔터프라이즈 SaaS', tickers:['CRM','NOW','ADBE','ORCL','WDAY'] },
-      { name:'사이버보안', tickers:['PANW','CRWD','ZS','FTNT','NET'], etf:'HACK' },
-      { name:'데이터/AI플랫폼', tickers:['PLTR','SNOW','DDOG','MDB','ESTC','AI','TTD'] },
-      { name:'클라우드 인프라', tickers:['AMZN','MSFT','GOOGL'] }
-    ]
-  },
-  {
-    id:'industrials', nameKr:'산업재/물류', emoji:'', color:'var(--data-cyan)',
-    etf:'XLI', etfName:'Industrials',
-    leaders:['CAT','HON','UNP','FDX','UPS','CSX','JBHT','NSC','ODFL','PCAR','PH','WAB','AME','GNRC','JCI','NDSN'],
-    leaderHighlight:['CAT','UNP','HON','WAB'],
+      { name:'엔터프라이즈 SaaS', tickers:['ORCL','CRM','NOW','INTU','ADBE','WDAY','TEAM'] },
+      { name:'사이버보안', tickers:['PANW','CRWD','FTNT','ZS','NET','S'] },
+      { name:'데이터/AI 플랫폼', tickers:['PLTR','SNOW','DDOG','MDB','ESTC','AI'] },
+      { name:'광고/커머스 소프트웨어', tickers:['APP','SHOP','TTD'] },
+      { name:'설계 소프트웨어(EDA·CAD)', tickers:['SNPS','CDNS','ADSK'] },
+      { name:'클라우드 인프라', tickers:['MSFT','AMZN','GOOGL'] }
+    ] },
+  { id:'industrials', nameKr:'산업재/물류', emoji:'', color:'var(--data-cyan)', etf:'XLI', etfName:'Industrials',
+    leaders:['CAT','GEV','DE','UNP','ETN','HON','PH','ADP','TT','PWR','JCI','EMR','CSX','MMM','WM','CTAS','ITW','NSC','FDX','UPS','RSG','URI','GWW','FAST','PCAR','AME','WAB','CARR','PAYX','CPRT','HUBB','JBHT','NDSN','ODFL','GNRC','LII'], leaderHighlight:['CAT','GEV','DE','UNP'],
     subThemes:[
-      { name:'화물/물류', tickers:['FDX','UPS','CSX','JBHT','NSC','ODFL','UNP'] },
-      { name:'건설/중장비', tickers:['CAT','PCAR','PH','NDSN'] },
-      { name:'항공/인프라', tickers:['HON','WAB','AME','JCI','GNRC'] }
-    ]
-  },
-  {
-    id:'financials', nameKr:'금융', emoji:'', color:'var(--data-amber)',
-    etf:'XLF', etfName:'Financials',
-    leaders:['JPM','GS','MS','BLK','WFC','BAC','C','SCHW','AXP','V','MA'],
-    leaderHighlight:['JPM','GS','AXP','V'],
+      { name:'철도/화물/물류', tickers:['UNP','CSX','NSC','UPS','FDX','ODFL','JBHT'] },
+      { name:'건설·농기계/장비', tickers:['CAT','DE','PCAR','URI'] },
+      { name:'전력장비/그리드', tickers:['GEV','ETN','PWR','HUBB','GNRC'] },
+      { name:'공조/빌딩', tickers:['TT','CARR','JCI','LII'] },
+      { name:'다각화 산업재', tickers:['HON','MMM','ITW','EMR','PH','AME','WAB','NDSN'] },
+      { name:'기업서비스/유통/환경', tickers:['ADP','PAYX','CTAS','GWW','FAST','CPRT','WM','RSG'] }
+    ] },
+  { id:'financials', nameKr:'금융', emoji:'', color:'var(--data-amber)', etf:'XLF', etfName:'Financials',
+    leaders:['JPM','BAC','MS','WFC','C','AXP','V','SCHW','BLK','CB','PGR','COF','SPGI','BNY','PNC','USB','ICE','MRSH','BX','MCO','TRV','KKR','GS','MA','AON','NDAQ','PYPL','NU','AIG','MSCI','SOFI','CME','AFRM','TFC','XYZ','BRK-B'], leaderHighlight:['JPM','BAC','MS','WFC'],
     subThemes:[
-      { name:'대형 은행', tickers:['JPM','BAC','WFC','C','GS','MS'] },
-      { name:'자산운용', tickers:['BLK','SCHW','BX','KKR'] },
-      { name:'결제/핀테크', tickers:['V','MA','AXP','XYZ','PYPL','SOFI','AFRM'] }
-    ]
-  },
-  {
-    id:'reits', nameKr:'리츠/부동산', emoji:'', color:'#211d16',
-    etf:'XLRE', etfName:'Real Estate',
-    leaders:['PLD','VTR','KIM','O','REG','SPG','EQIX'],
-    leaderHighlight:['EQIX','PLD','SPG','O'],
-    // EQIX = 데이터센터 리츠, AI 인프라 수요로 퍼포먼스 우수
+      { name:'대형 은행', tickers:['JPM','BAC','WFC','C'] },
+      { name:'투자은행/브로커', tickers:['GS','MS','SCHW'] },
+      { name:'지역·소비자 은행', tickers:['PNC','USB','TFC','COF'] },
+      { name:'자산운용/수탁', tickers:['BLK','BX','KKR','BNY'] },
+      { name:'보험', tickers:['BRK-B','PGR','CB','TRV','AIG','MRSH','AON'] },
+      { name:'거래소/금융데이터', tickers:['SPGI','MCO','ICE','CME','NDAQ','MSCI'] },
+      { name:'결제/핀테크', tickers:['V','MA','AXP','PYPL','XYZ','SOFI','AFRM','NU'] }
+    ] },
+  { id:'reits', nameKr:'리츠/부동산', emoji:'', color:'#211d16', etf:'XLRE', etfName:'Real Estate',
+    leaders:['WELL','PLD','EQIX','AMT','DLR','O','PSA','VTR','IRM','CCI','SBAC','KIM','REG','SPG','STAG'], leaderHighlight:['WELL','PLD','EQIX','AMT'],
     subThemes:[
-      { name:'데이터센터', tickers:['EQIX','DLR','AMT'] },
-      { name:'물류/산업', tickers:['PLD','STAG'] },
-      { name:'리테일/헬스', tickers:['SPG','O','VTR','KIM','REG'] }
-    ]
-  },
-  {
-    id:'consumer_disc', nameKr:'임의소비재', emoji:'', color:'#57513f',
-    etf:'XLY', etfName:'Consumer Disc',
-    leaders:['AMZN','TSLA','HD','NKE','SBUX','TJX','BKNG','ABNB'],
-    leaderHighlight:['AMZN','TSLA','BKNG','TJX'],
+      { name:'데이터센터', tickers:['EQIX','DLR','IRM'] },
+      { name:'통신탑', tickers:['AMT','CCI','SBAC'] },
+      { name:'물류/스토리지', tickers:['PLD','PSA','STAG'] },
+      { name:'리테일/헬스케어', tickers:['WELL','SPG','O','VTR','KIM','REG'] }
+    ] },
+  { id:'consumer_disc', nameKr:'임의소비재', emoji:'', color:'#57513f', etf:'XLY', etfName:'Consumer Disc',
+    leaders:['AMZN','TSLA','TM','HD','MCD','TJX','UBER','SBUX','LOW','MAR','MELI','GM','HLT','ROST','ORLY','BKNG','EBAY','AZO','CMG','YUM','ABNB','DASH','NKE','F','SE','RIVN','CPNG','DPZ','LULU','GRAB','ETSY','CAVA','MBLY','LYFT','DKNG','FLUT','PENN'], leaderHighlight:['AMZN','TSLA','TM','HD'],
     subThemes:[
-      { name:'이커머스', tickers:['AMZN','EBAY','ETSY','CPNG'] },
-      { name:'EV/자동차', tickers:['TSLA','F','GM','RIVN'], etf:'LIT' },
-      { name:'여행/레저', tickers:['BKNG','ABNB','MAR','HLT'], etf:'JETS' },
-      { name:'리테일', tickers:['HD','NKE','TJX','SBUX','LULU'] },
-      { name:'플랫폼/딜리버리', tickers:['UBER','DASH','CPNG'] }
-    ]
-  },
-  {
-    id:'materials', nameKr:'원자재', emoji:'', color:'#22754c',
-    etf:'XLB', etfName:'Materials',
-    leaders:['LIN','ECL','IFF','CTVA','ADM','FCX','NEM','APD'],
-    leaderHighlight:['LIN','FCX','NEM','APD'],
+      { name:'이커머스', tickers:['AMZN','MELI','SE','CPNG','EBAY','ETSY'] },
+      { name:'EV/자동차', tickers:['TSLA','TM','GM','F','RIVN','MBLY'] },
+      { name:'여행/레저', tickers:['BKNG','ABNB','MAR','HLT'] },
+      { name:'외식', tickers:['MCD','SBUX','CMG','YUM','DPZ','CAVA'] },
+      { name:'홈·자동차부품 리테일', tickers:['HD','LOW','ORLY','AZO'] },
+      { name:'의류/할인 리테일', tickers:['TJX','ROST','NKE','LULU'] },
+      { name:'모빌리티/딜리버리', tickers:['UBER','DASH','GRAB','LYFT'] },
+      { name:'스포츠 베팅', tickers:['DKNG','FLUT','PENN'] }
+    ] },
+  { id:'materials', nameKr:'원자재', emoji:'', color:'#22754c', etf:'XLB', etfName:'Materials',
+    leaders:['LIN','SCCO','NEM','FCX','SHW','ECL','NUE','CRH','ADM','VMC','MLM','AEM','PPG','B','APD','AA','WPM','ALB','MP','CTVA','IFF','LAC','KGC'], leaderHighlight:['LIN','SCCO','NEM','FCX'],
     subThemes:[
-      { name:'산업가스', tickers:['LIN','APD'] },
-      { name:'광업/금속', tickers:['FCX','NEM','AA'], etf:'GDX' },
-      { name:'농업/화학', tickers:['CTVA','ADM','IFF','ECL'] },
-      { name:'전략 광물', tickers:['MP','LAC','ALB'] }
-    ]
-  },
-  {
-    id:'comm', nameKr:'통신서비스', emoji:'', color:'#211d16',
-    etf:'XLC', etfName:'Comm Services',
-    leaders:['META','GOOGL','NFLX','DIS','T','VZ','TMUS'],
-    leaderHighlight:['META','GOOGL','NFLX','TMUS'],
+      { name:'산업가스/화학/도료', tickers:['LIN','APD','SHW','ECL','PPG'] },
+      { name:'광업/금속', tickers:['SCCO','FCX','NUE','AA'] },
+      { name:'금 광산', tickers:['NEM','AEM','B','WPM','KGC'] },
+      { name:'건자재', tickers:['VMC','MLM','CRH'] },
+      { name:'농업/식품소재', tickers:['CTVA','ADM','IFF'] },
+      { name:'전략 광물', tickers:['MP','ALB','LAC'] }
+    ] },
+  { id:'comm', nameKr:'통신서비스', emoji:'', color:'#211d16', etf:'XLC', etfName:'Comm Services',
+    leaders:['META','NTES','GOOGL','NFLX','VZ','DIS','TMUS','T','CMCSA','SPOT','RDDT','TTWO','RBLX','CHTR','PINS','SNAP','WBD','PSKY','EA'], leaderHighlight:['META','NTES','GOOGL','NFLX'],
     subThemes:[
-      { name:'빅테크/광고', tickers:['META','GOOGL'] },
-      { name:'스트리밍', tickers:['NFLX','DIS','PSKY'] },
-      { name:'통신사', tickers:['T','VZ','TMUS'] }
-    ]
-  },
-  {
-    id:'photonics', nameKr:'광통신/포토닉스', emoji:'', color:'#8a8271',
-    etf:null, etfName:'(커스텀 합산)',
-    leaders:['LITE','COHR','AVGO','GLW','CIEN','AAOI','VIAV','ANET','MRVL'],
-    leaderHighlight:['LITE','COHR','CIEN','AAOI'],
-    weights:{LITE:18,COHR:16,CIEN:14,AVGO:12,AAOI:10,GLW:8,ANET:8,MRVL:8,VIAV:6},
+      { name:'검색/소셜/광고', tickers:['GOOGL','META','RDDT','PINS','SNAP'] },
+      { name:'스트리밍/미디어', tickers:['NFLX','DIS','SPOT','WBD','PSKY'] },
+      { name:'통신·케이블', tickers:['TMUS','T','VZ','CMCSA','CHTR'] },
+      { name:'게임', tickers:['NTES','EA','TTWO','RBLX'] }
+    ] },
+  { id:'photonics', nameKr:'광통신/포토닉스', emoji:'', color:'#8a8271', etf:null, etfName:'(커스텀 합산)', isComposite: true,
+    leaders:['AVGO','ANET','MRVL','LITE','GLW','CIEN','COHR','ALAB','AAOI','VIAV'], leaderHighlight:['AVGO','ANET','MRVL','LITE'],
     subThemes:[
-      { name:'광부품/장비', tickers:['LITE','COHR','AAOI','VIAV'] },
-      { name:'광섬유/네트워크', tickers:['CIEN','GLW','ANET'] },
-      { name:'광전자 플랫폼', tickers:['AVGO','MRVL'] }
-    ],
-    isComposite: true
-  },
-  {
-    id:'crypto', nameKr:'크립토/블록체인', emoji:'', color:'var(--data-amber)',
-    etf:null, etfName:'(BTC-USD 기준)',
-    leaders:['COIN','MARA','RIOT','MSTR','HOOD'],
-    leaderHighlight:['COIN','MSTR','MARA','HOOD'],
-    weights:{COIN:25,MSTR:22,MARA:18,HOOD:18,RIOT:17},
+      { name:'광부품/모듈', tickers:['LITE','COHR','AAOI','VIAV'] },
+      { name:'광섬유/광네트워크', tickers:['CIEN','GLW','ANET'] },
+      { name:'광전자 플랫폼', tickers:['AVGO','MRVL','ALAB'] }
+    ] },
+  { id:'crypto', nameKr:'크립토/블록체인', emoji:'', color:'var(--data-amber)', etf:null, etfName:'(BTC-USD 기준)', compositeBase: 'BTC-USD',
+    leaders:['MSTR','HOOD','IBIT','COIN','IREN','BITO','MARA','RIOT','CLSK'], leaderHighlight:['MSTR','HOOD','IBIT','COIN'],
     subThemes:[
-      { name:'거래소/핀테크', tickers:['COIN','HOOD'] },
-      { name:'채굴', tickers:['MARA','RIOT','CLSK'] },
-      { name:'BTC 보유', tickers:['MSTR'] },
-      { name:'BTC ETF', tickers:['IBIT','BITO'] }
-    ],
-    compositeBase: 'BTC-USD'
-  },
-  {
-    id:'ai_infra', nameKr:'AI 인프라/데이터센터', emoji:'', color:'var(--data-purple)',
-    etf:null, etfName:'(커스텀 합산)',
-    leaders:['NVDA','AVGO','AMD','ANET','VRT','ALAB','CRDO','MRVL','APH','CLS','EME','SMCI','DELL','HPE','ETN'],
-    leaderHighlight:['NVDA','VRT','ANET','ALAB'],
-    weights:{NVDA:18,AVGO:12,ANET:10,VRT:8,AMD:8,ALAB:7,CRDO:6,MRVL:5,APH:5,CLS:4,EME:4,SMCI:4,DELL:3,HPE:3,ETN:3},
+      { name:'거래소/브로커', tickers:['COIN','HOOD'] },
+      { name:'채굴/AI 호스팅', tickers:['MARA','RIOT','CLSK','IREN'] },
+      { name:'BTC 보유/ETF', tickers:['MSTR','IBIT','BITO'] }
+    ] },
+  { id:'ai_infra', nameKr:'AI 인프라/데이터센터', emoji:'', color:'var(--data-purple)', etf:null, etfName:'(커스텀 합산)', isComposite: true,
+    leaders:['NVDA','AVGO','AMD','CSCO','INTC','ORCL','ARM','GEV','ANET','MRVL','DELL','ETN','NBIS','APH','PWR','HPE','VRT','CRWV','ALAB','IREN','CLS','CRDO','EME','SMCI','CORZ','WULF','CIFR','APLD'], leaderHighlight:['NVDA','AVGO','AMD','CSCO'],
     subThemes:[
-      { name:'AI 칩/가속기', tickers:['NVDA','AMD','AVGO'] },
-      { name:'에이전트 인프라(CPU)', tickers:['AMD','INTC','ARM','AVGO'] },
-      { name:'서버/HW', tickers:['SMCI','DELL','HPE','CLS'] },
-      { name:'냉각/전력', tickers:['VRT','ETN'] },
-      { name:'네트워킹', tickers:['ANET','CSCO','ALAB','CRDO','MRVL'] },
-      { name:'DC 건설/커넥터', tickers:['APH','EME'] }
-    ],
-    isComposite: true
-  },
-  {
-    id:'robotics', nameKr:'로보틱스/자동화', emoji:'', color:'#211d16',
-    etf:'BOTZ', etfName:'Global Robotics',
-    leaders:['ISRG','ROK','TER','FANUY','ABB'],
-    leaderHighlight:['ISRG','ROK','TER'],
+      { name:'AI 칩/CPU', tickers:['NVDA','AVGO','AMD','ARM','INTC'] },
+      { name:'서버/HW', tickers:['DELL','SMCI','HPE','CLS'] },
+      { name:'네트워킹/인터커넥트', tickers:['ANET','CSCO','ALAB','CRDO','MRVL'] },
+      { name:'DC 전력/냉각/건설', tickers:['VRT','ETN','GEV','APH','EME','PWR'] },
+      { name:'GPU 클라우드/AI 호스팅', tickers:['CRWV','NBIS','ORCL','IREN','WULF','CIFR','APLD','CORZ'] }
+    ] },
+  { id:'robotics', nameKr:'로보틱스/자동화', emoji:'', color:'#211d16', etf:'BOTZ', etfName:'Global Robotics',
+    leaders:['TSLA','ISRG','EMR','KEYS','TER','ROK','PATH','SYM'], leaderHighlight:['TSLA','ISRG','EMR','KEYS'],
     subThemes:[
-      { name:'수술 로봇', tickers:['ISRG','MASI'] },
-      { name:'산업 자동화', tickers:['ROK','ABB','EMR','PATH'] },
-      { name:'테스트/검사', tickers:['TER','KEYS'] },
-      { name:'AI/휴머노이드', tickers:['TSLA','FANUY'] }
-    ]
-  }
+      { name:'산업 자동화/물류 로봇', tickers:['ROK','EMR','TER','KEYS','SYM'] },
+      { name:'의료·AI 응용 로봇', tickers:['ISRG','TSLA','PATH'] }
+    ] },
+  { id:'global_adr', nameKr:'해외 대형 ADR', emoji:'', color:'#57513f', etf:null, etfName:'(커스텀 합산)', isComposite: true,
+    leaders:['TM','NTES','BABA','HDB','ASML','MELI','NU','NVO','PDD','AZN','SAP','NVS','BIDU','JD','IBN','SONY'], leaderHighlight:['TM','NTES','BABA','HDB'],
+    subThemes:[
+      { name:'중국 플랫폼', tickers:['BABA','PDD','JD','BIDU','NTES'] },
+      { name:'유럽 대형주', tickers:['ASML','SAP','NVO','AZN','NVS'] },
+      { name:'일본·신흥국', tickers:['TM','SONY','HDB','IBN','NU','MELI'] }
+    ] }
 ];
 
 // ── 테마 ID → 인덱스 빠른 조회 ──────────────────────────────────
@@ -2877,7 +2825,7 @@ var SUB_THEMES = [
   {id:'telecom_us',name:'미국 통신',emoji:'',color:'var(--text-muted)',desc:'5G·광대역·ARPU · 무선통신 3사 (XLC는 META/GOOGL ETF라 IYZ로 교체)',leaders:['T','VZ','TMUS'],tickers:['T','VZ','TMUS'],etf:'IYZ',weights:{TMUS:38,T:30,VZ:32}},
   // ═══ 부동산 · 원자재 (3) ═══
   {id:'reit_dc',name:'디지털 인프라 리츠',emoji:'',color:'#211d16',desc:'DC 리츠(EQIX/DLR) + 통신타워 리츠(AMT/CCI/SBAC) · AI 인프라 임대',leaders:['EQIX','DLR','AMT'],tickers:['EQIX','DLR','AMT','CCI','SBAC'],etf:'XLRE',weights:{EQIX:28,DLR:22,AMT:20,CCI:16,SBAC:14}},
-  {id:'gold_mining',name:'금/은 광산',emoji:'',color:'#8a8271',desc:'금값 사상최고·인플레 헷지',leaders:['AEM','NEM','GOLD','WPM'],tickers:['AEM','NEM','GOLD','WPM','FNV','GFI','KGC'],etf:'GDX',weights:{AEM:18,NEM:16,GOLD:16,WPM:14,FNV:14,GFI:12,KGC:10}},
+  {id:'gold_mining',name:'금/은 광산',emoji:'',color:'#8a8271',desc:'금값 사상최고·인플레 헷지',leaders:['AEM','NEM','B','WPM'],tickers:['AEM','NEM','B','WPM','FNV','GFI','KGC'],etf:'GDX',weights:{AEM:18,NEM:16,B:16,WPM:14,FNV:14,GFI:12,KGC:10}},
   {id:'materials',name:'원자재/광업',emoji:'',color:'#22754c',desc:'구리·리튬·전략 광물',leaders:['FCX','LIN','APD','MP'],tickers:['FCX','LIN','APD','AA','MP','LAC','ALB','CTVA','ADM'],etf:'XLB',weights:{LIN:18,APD:14,FCX:14,CTVA:12,ADM:10,ALB:10,AA:8,MP:8,LAC:6}}
 ];
 
@@ -2891,15 +2839,15 @@ SUB_THEMES.forEach(function(st, i) { SUB_THEME_INDEX[st.id] = i; });
 // ═══════════════════════════════════════════════════════════════
 var KR_SUB_THEMES = [
   // ═══ HOT 그룹 (4) ═══
-  {id:'kr_semi_hbm',name:'반도체/HBM',emoji:'',color:'#211d16',desc:'HBM3E·HBM4 · NAND SCA 수혜 · 삼성/하이닉스 양강 (KOSPI .KS + KOSDAQ .KQ 정식)',leaders:['005930.KS','000660.KS','042700.KQ'],tickers:['005930.KS','000660.KS','042700.KQ','403870.KQ','058470.KQ','357780.KQ','240810.KQ','039030.KQ'],etf:'091160.KS',weights:{'005930.KS':30,'000660.KS':30,'042700.KQ':12,'403870.KQ':8,'058470.KQ':6,'357780.KQ':6,'240810.KQ':4,'039030.KQ':4}},
+  {id:'kr_semi_hbm',name:'반도체/HBM',emoji:'',color:'#211d16',desc:'HBM3E·HBM4 · NAND SCA 수혜 · 삼성/하이닉스 양강 (KOSPI .KS + KOSDAQ .KQ 정식)',leaders:['005930.KS','000660.KS','042700.KS'],tickers:['005930.KS','000660.KS','042700.KS','403870.KQ','058470.KQ','357780.KQ','240810.KQ','039030.KQ'],etf:'091160.KS',weights:{'005930.KS':30,'000660.KS':30,'042700.KS':12,'403870.KQ':8,'058470.KQ':6,'357780.KQ':6,'240810.KQ':4,'039030.KQ':4}},
   {id:'kr_robotics',name:'로봇/자동화',emoji:'',color:'#211d16',desc:'휴머노이드·산업 자동화·서빙로봇 · 두산로보틱스(KOSPI) + KOSDAQ 로봇 부품/플랫폼',leaders:['454910.KS','277810.KQ','108490.KQ'],tickers:['454910.KS','277810.KQ','108490.KQ','090360.KQ','388720.KQ','090710.KQ'],etf:null,weights:{'454910.KS':34,'277810.KQ':28,'108490.KQ':14,'090360.KQ':10,'388720.KQ':8,'090710.KQ':6}},
-  {id:'kr_ai_sw',name:'AI/소프트웨어',emoji:'',color:'var(--data-purple)',desc:'HyperCLOVA X · AI 에이전트 · SaaS',leaders:['035420.KS','018260.KS','012510.KS'],tickers:['035420.KS','018260.KS','012510.KS','035720.KS','030520.KQ','304100.KQ'],etf:null,weights:{'035420.KS':28,'018260.KS':22,'035720.KS':20,'012510.KS':12,'030520.KQ':10,'304100.KQ':8}},
+  {id:'kr_ai_sw',name:'AI/소프트웨어',emoji:'',color:'var(--data-purple)',desc:'HyperCLOVA X · AI 에이전트 · SaaS',leaders:['035420.KS','018260.KS','012510.KQ'],tickers:['035420.KS','018260.KS','012510.KQ','035720.KS','030520.KQ','304100.KQ'],etf:null,weights:{'035420.KS':28,'018260.KS':22,'035720.KS':20,'012510.KQ':12,'030520.KQ':10,'304100.KQ':8}},
   {id:'kr_medtech',name:'의료기기/AI진단',emoji:'',color:'#8a8271',desc:'수술로봇·AI 영상진단·K-의료기기 (대부분 KOSDAQ)',leaders:['214150.KQ','328130.KQ','338220.KQ'],tickers:['214150.KQ','328130.KQ','338220.KQ','322510.KQ','049950.KQ','145720.KQ'],etf:null,weights:{'214150.KQ':28,'328130.KQ':24,'338220.KQ':18,'322510.KQ':12,'049950.KQ':10,'145720.KQ':8}},
   // ═══ 강세 그룹 (5) ═══
-  {id:'kr_shipbuild',name:'조선/해양',emoji:'',color:'#211d16',desc:'LNG선·암모니아선 · 선가 상승 사이클',leaders:['009540.KS','010140.KS','329180.KS'],tickers:['009540.KS','010140.KS','329180.KS','042660.KS','010620.KS'],etf:null,weights:{'009540.KS':28,'329180.KS':25,'010140.KS':22,'042660.KS':15,'010620.KS':10}},
+  {id:'kr_shipbuild',name:'조선/해양',emoji:'',color:'#211d16',desc:'LNG선·암모니아선 · 선가 상승 사이클',leaders:['009540.KS','010140.KS','329180.KS'],tickers:['009540.KS','010140.KS','329180.KS','042660.KS'],etf:null,weights:{'009540.KS':28,'329180.KS':25,'010140.KS':22,'042660.KS':25}},
   {id:'kr_power_eq',name:'전력기기/변압기',emoji:'',color:'#57513f',desc:'AI DC 전력 수요 · 미국 그리드 교체 · 2024~25 한국장 주도',leaders:['298040.KS','267260.KS','010120.KS'],tickers:['298040.KS','267260.KS','010120.KS','062040.KS','033100.KQ','103590.KS'],etf:null,weights:{'298040.KS':26,'267260.KS':22,'010120.KS':20,'062040.KS':14,'033100.KQ':10,'103590.KS':8}},
   {id:'kr_nuclear',name:'원전/SMR',emoji:'',color:'#22754c',desc:'체코·폴란드 수주 · 미국 SMR 법안 · AI 전력 · 시공/정비 밸류체인 포함',leaders:['034020.KS','052690.KS','000720.KS'],tickers:['034020.KS','052690.KS','000720.KS','051600.KS','006910.KQ','032820.KQ','083650.KQ'],etf:null,weights:{'034020.KS':32,'052690.KS':20,'000720.KS':16,'051600.KS':12,'006910.KQ':8,'032820.KQ':7,'083650.KQ':5}},
-  {id:'kr_kbeauty',name:'K-뷰티',emoji:'',color:'#211d16',desc:'미국·일본·인도 확장 · 인디브랜드 수출 폭증 · 에이피알(APR)·실리콘투 신흥 대장',leaders:['278470.KQ','257720.KQ','090430.KS'],tickers:['278470.KQ','257720.KQ','090430.KS','192820.KS','051900.KS','237880.KQ'],etf:null,weights:{'278470.KQ':28,'257720.KQ':22,'090430.KS':18,'192820.KS':14,'051900.KS':10,'237880.KQ':8}},
+  {id:'kr_kbeauty',name:'K-뷰티',emoji:'',color:'#211d16',desc:'미국·일본·인도 확장 · 인디브랜드 수출 폭증 · 에이피알(APR)·실리콘투 신흥 대장',leaders:['278470.KS','257720.KQ','090430.KS'],tickers:['278470.KS','257720.KQ','090430.KS','192820.KS','051900.KS','237880.KQ'],etf:null,weights:{'278470.KS':28,'257720.KQ':22,'090430.KS':18,'192820.KS':14,'051900.KS':10,'237880.KQ':8}},
   {id:'kr_kfood',name:'K-푸드',emoji:'',color:'var(--data-amber)',desc:'수출액 역대 최고 · 불닭·라면 글로벌 · 4사 라면 경쟁',leaders:['003230.KS','097950.KS','271560.KS','004370.KS'],tickers:['003230.KS','097950.KS','271560.KS','004370.KS','280360.KS'],etf:null,weights:{'003230.KS':33,'097950.KS':22,'271560.KS':18,'004370.KS':10,'280360.KS':17}},
   // ═══ 중립→개선 (3) ═══
   {id:'kr_finance',name:'금융/밸류업',emoji:'',color:'var(--data-amber)',desc:'PBR 0.5x · 밸류업 프로그램 · 자사주 소각 · 지주+보험+증권',leaders:['105560.KS','055550.KS','086790.KS'],tickers:['105560.KS','055550.KS','086790.KS','316140.KS','138040.KS','032830.KS','006800.KS'],etf:null,weights:{'105560.KS':22,'055550.KS':20,'086790.KS':16,'316140.KS':13,'138040.KS':13,'032830.KS':10,'006800.KS':6}},
@@ -2908,7 +2856,7 @@ var KR_SUB_THEMES = [
   // ═══ 조정/약세 (4) ═══
   {id:'kr_defense',name:'방산/항공우주',emoji:'',color:'#22754c',desc:'K-방산 글로벌 수출 · 이란 재협상 프리미엄 축소',leaders:['012450.KS','047810.KS','272210.KS'],tickers:['012450.KS','047810.KS','272210.KS','079550.KS','064350.KS','103140.KS'],etf:null,weights:{'012450.KS':32,'047810.KS':22,'079550.KS':18,'272210.KS':12,'064350.KS':10,'103140.KS':6}},
   {id:'kr_energy',name:'에너지/정유',emoji:'',color:'var(--data-green)',desc:'유가 변동성 · 정유 마진 (이란 재협상 리스크)',leaders:['010950.KS','096770.KS','078930.KS'],tickers:['010950.KS','096770.KS','078930.KS','024060.KQ'],etf:null,weights:{'010950.KS':40,'096770.KS':30,'078930.KS':20,'024060.KQ':10}},
-  {id:'kr_battery',name:'2차전지',emoji:'',color:'#211d16',desc:'EV 둔화 + CATL 경쟁 · 셀 3사 + 양극재 4사',leaders:['373220.KS','006400.KS','051910.KS'],tickers:['373220.KS','006400.KS','051910.KS','005490.KS','247540.KQ','066970.KQ','086520.KQ','003670.KS'],etf:null,weights:{'373220.KS':25,'006400.KS':18,'051910.KS':15,'005490.KS':12,'247540.KQ':12,'066970.KQ':6,'086520.KQ':6,'003670.KS':6}},
+  {id:'kr_battery',name:'2차전지',emoji:'',color:'#211d16',desc:'EV 둔화 + CATL 경쟁 · 셀 3사 + 양극재 4사',leaders:['373220.KS','006400.KS','051910.KS'],tickers:['373220.KS','006400.KS','051910.KS','005490.KS','247540.KQ','066970.KS','086520.KQ','003670.KS'],etf:null,weights:{'373220.KS':25,'006400.KS':18,'051910.KS':15,'005490.KS':12,'247540.KQ':12,'066970.KS':6,'086520.KQ':6,'003670.KS':6}},
   {id:'kr_content',name:'K-엔터/콘텐츠',emoji:'',color:'#211d16',desc:'아이돌 피로감 · 스튜디오 실적 부진 · 하이브(KOSPI) + 엔터 4사(KOSDAQ)',leaders:['352820.KS','041510.KQ','035900.KQ'],tickers:['352820.KS','041510.KQ','035900.KQ','122870.KQ','035760.KQ','253450.KQ'],etf:null,weights:{'352820.KS':30,'041510.KQ':20,'035900.KQ':18,'035760.KQ':15,'253450.KQ':10,'122870.KQ':7}},
   // ═══ 추가 테마 (6) ═══
   {id:'kr_gaming',name:'게임',emoji:'',color:'#211d16',desc:'PUBG·MMORPG·서브컬처 · 크래프톤/엔씨/넷마블(KOSPI) + 카겜/펄어비스/위메이드(KOSDAQ)',leaders:['259960.KS','036570.KS','251270.KS'],tickers:['259960.KS','036570.KS','251270.KS','293490.KQ','263750.KQ','112040.KQ'],etf:null,weights:{'259960.KS':35,'036570.KS':20,'251270.KS':15,'293490.KQ':12,'263750.KQ':10,'112040.KQ':8}},

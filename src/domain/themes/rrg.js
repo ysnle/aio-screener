@@ -27,12 +27,14 @@ export function classifyRRG(rsRatio, rsMom) {
  * @param {boolean} input.hasQuote            whether a live tick exists for the symbol
  * @param {boolean} input.hasBenchmarkQuote   whether a live tick exists for the benchmark
  */
+// P1591 (T02): one minimum for the client fallback and the produced artifact (alignedSessionCount >= 30).
+export const RRG_MIN_SESSIONS = 30;
 export function computeRelativeRotation({ history = null, benchmarkHistory = null, hasQuote = false, hasBenchmarkQuote = false } = {}) {
-  const hasHist = Array.isArray(history) && history.length > 20 && Array.isArray(benchmarkHistory) && benchmarkHistory.length > 20;
+  const hasHist = Array.isArray(history) && history.length >= RRG_MIN_SESSIONS && Array.isArray(benchmarkHistory) && benchmarkHistory.length >= RRG_MIN_SESSIONS;
   if (!hasHist && (!hasQuote || !hasBenchmarkQuote)) {
     return Object.freeze({ rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'quote_missing', modelVersion: RRG_MODEL_VERSION });
   }
-  if (Array.isArray(history) && history.length > 20 && Array.isArray(benchmarkHistory) && benchmarkHistory.length > 20) {
+  if (hasHist) {
     const n = Math.min(history.length, benchmarkHistory.length);
     // Histories end at the current observation. Align the overlapping tail;
     // pairing an asset's newest N bars with a longer benchmark's oldest N bars
@@ -45,7 +47,7 @@ export function computeRelativeRotation({ history = null, benchmarkHistory = nul
       const benchmark = positive(alignedBenchmarkHistory[i]);
       if (asset != null && benchmark != null) rsVals.push(asset / benchmark);
     }
-    if (rsVals.length >= 10) {
+    if (rsVals.length >= RRG_MIN_SESSIONS) {
       const rsLatest = rsVals[rsVals.length - 1];
       const rsAvg = rsVals.reduce((sum, value) => sum + value, 0) / rsVals.length;
       const rsRatio = rsAvg > 0 ? (100 * rsLatest) / rsAvg : 100;
@@ -57,5 +59,5 @@ export function computeRelativeRotation({ history = null, benchmarkHistory = nul
       return classifyRRG(rsRatio, rsMom);
     }
   }
-  return Object.freeze({ rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'relative_history_lt_20', modelVersion: RRG_MODEL_VERSION });
+  return Object.freeze({ rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'relative_history_lt_30', modelVersion: RRG_MODEL_VERSION });
 }

@@ -1,7 +1,8 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { derivePortfolioSurface, exposureCapForVix } from '../../domain/portfolio/surface.js';
+import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
+import { vixBand } from '../../domain/sentiment/narrative.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
 import { renderPortfolioRead } from '../components/portfolio-read.js';
@@ -162,12 +163,17 @@ function renderPortfolioSurface(documentRef, page, surface) {
   // empty portfolio says what needs input instead of looking like a pending calculation.
   const vixHistory = buildCloseSeries(documentRef?.defaultView?._aioHistory || globalThis._aioHistory || [], 'vix', { through: closeBasis(documentRef?.defaultView?._aioHistory || globalThis._aioHistory || []) });
   const vixClose = vixHistory[vixHistory.length - 1] || null;
-  const closeCap = vixClose ? exposureCapForVix(vixClose.value) : null;
-  const rule = surface.exposureCap != null ? `VIX ${surface.vix.toFixed(1)} · 최대 ${surface.exposureCap}%`
-    : closeCap != null ? `VIX ${vixClose.value.toFixed(1)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가) · 최대 ${closeCap}%` : 'VIX 자료 없음';
-  setSurfaceText(documentRef, 'pf-exposure-rule', rule, surface.exposureCap, surface);
-  const current = surface.exposurePct == null ? (surface.holdingCount ? '현재 노출 —' : '보유 내역을 입력하면 계산됩니다') : `현재 노출 ${surface.exposurePct.toFixed(1)}%${surface.exposureExceeded ? ' · 참고 한도 초과' : ''}`;
-  setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, surface.exposureExceeded ? 'var(--data-red)' : 'var(--text-dim)');
+  // P1574: the VIX-to-max-exposure ladder (100/80/50/30/15 on 15/20/25/30) was a sizing instruction on
+  // retired bands. The card states the volatility band (shared 18/25/32 edges) and the user's own exposure.
+  const liveVix = surface.vix != null && Number.isFinite(surface.vix) ? surface.vix : null;
+  const vixValue = liveVix ?? vixClose?.value ?? null;
+  const band = vixBand(vixValue);
+  const rule = band.blocked ? 'VIX 자료 없음'
+    : liveVix != null ? `VIX ${liveVix.toFixed(1)} · ${band.label}`
+      : `VIX ${vixClose.value.toFixed(1)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가) · ${band.label}`;
+  setSurfaceText(documentRef, 'pf-exposure-rule', rule, band.blocked ? null : band.value, surface);
+  const current = surface.exposurePct == null ? (surface.holdingCount ? '현재 노출 —' : '보유 내역을 입력하면 계산됩니다') : `현재 노출 ${surface.exposurePct.toFixed(1)}%`;
+  setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, 'var(--text-dim)');
 
   const sectorElement = documentRef?.getElementById('pf-sector-breakdown');
   if (sectorElement) {
@@ -230,6 +236,9 @@ function renderPortfolioTable(documentRef, page, state, surface) {
   tbody.setAttribute('data-source-kind', rows.length ? 'portfolio-state' : 'unavailable');
   tbody.setAttribute('data-source-label', rows.length ? 'native-portfolio-slice' : 'portfolio-state-unavailable');
   tbody.setAttribute('data-operational-use', 'reference-only');
+  // P1591 (P03): nothing to delete, so the destructive control is not offered as active.
+  const clearAll = documentRef.querySelector?.('[data-action="clearAllPositions"]');
+  if (clearAll) { clearAll.disabled = !rows.length; clearAll.style.opacity = rows.length ? '' : '0.4'; }
   if (!rows.length) {
     const row = documentRef.createElement('tr');
     row.className = 'pf-empty-state';
@@ -247,7 +256,7 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     addButton.style.cssText = 'margin-top:10px;min-height:36px;padding:7px 16px;';
     addButton.textContent = '첫 종목 추가';
     const privacy = documentRef.createElement('div');
-    privacy.textContent = '데이터는 브라우저에만 저장되며 서버로 전송되지 않습니다. PIN 설정 후 저장 시 AES-256 암호화.';
+    privacy.textContent = '보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.'; // P1593 (F108): same scope as the page header
     privacy.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:6px;';
     cell.append(heading, body, addButton, privacy);
     row.appendChild(cell);
@@ -351,7 +360,11 @@ function renderPortfolioChart({ root, page, surface, charts }) {
   const loading = page.querySelector('#pf-donut-legend');
   if (unavailable) {
     charts.destroy('pf-position-donut');
-    if (loading) loading.textContent = '포트폴리오 시세 수신 대기 · 차트 보류';
+    // P1592 (F16): a held chart shows no slices or totals — clear anything drawn before this renderer owned the canvas.
+    try { canvas.getContext?.('2d')?.clearRect(0, 0, canvas.width, canvas.height); } catch (_) {}
+    if (loading) loading.textContent = !surface.rows?.length ? '종목을 추가하면 비중이 표시됩니다'
+      : !holdings.length ? '시세를 받으면 평가액 기준 비중을 그립니다 — 매수 원가로 대신 그리지 않습니다'
+        : '차트 모듈 대기 · 차트 보류';
     return;
   }
   if (charts.get('pf-position-donut')?.signature === signature) return;

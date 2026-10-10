@@ -3,6 +3,7 @@
 // against the S&P 500, its sector's rotation and the market it trades in — each tied to the next.
 // Pure: every input is the published screener row, the SPY row of the same artifact, the sector /
 // theme rotation items and the market regime. A missing input drops its sentence; nothing is guessed.
+import { withTopicParticle } from '../content/korean-particle.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 // 은/는 by the final Hangul syllable of the label (the ticker in parentheses is not read).
@@ -46,7 +47,7 @@ function trendOf(row) {
 }
 
 export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], regime = null, universeSize = null } = {}) {
-  if (!row) return { available: false, reason: `${symbol || '이 종목'}은 스크리너 유니버스 밖이라 추세·상대강도 기록이 없습니다. 차트 탭의 일봉과 재무 공시는 그대로 볼 수 있습니다.` };
+  if (!row) return { available: false, reason: `${withTopicParticle(symbol || '이 종목')} 스크리너 유니버스 밖이라 추세·상대강도 기록이 없습니다. 차트 탭의 일봉과 재무 공시는 그대로 볼 수 있습니다.` };
   const name = row.name || symbol;
   const points = [];
   const trend = trendOf(row);

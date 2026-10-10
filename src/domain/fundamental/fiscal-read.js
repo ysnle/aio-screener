@@ -2,6 +2,7 @@
 // is the business getting more profitable, and does the stock's price move agree with it — instead of
 // one year's raw numbers. Inputs: the SEC FY series in the runtime summary (fiscalHistory) and the
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
+import { withObjectParticle } from '../content/korean-particle.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
@@ -94,7 +95,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
       title: '현금 전환',
       text: !creditableConversion
         ? `영업현금흐름 ${formatUsdShort(ocf)} · 순이익 ${formatUsdShort(latest.netIncome)} — 둘 중 하나가 마이너스면 "순이익 대비 현금 %" 비율 해석은 성립하지 않아 적용하지 않고, 두 사실을 따로 봐야 합니다(순손실 구간과 영업현금 유출은 별개의 문제입니다).`
-        : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${formatUsdShort(capex)}를 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
+        : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${withObjectParticle(formatUsdShort(capex))} 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
     });
   }
   // Codex browser audit H36: say up front that the cash chain (OCF → capex → FCF → ROIC) is not available here,

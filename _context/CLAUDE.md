@@ -12,7 +12,7 @@ target_version: version.json
 
 P1518 구조 재검토: 아래 canonical 경로·훅·미러·권한 경계를 workspace/skill/profile gate와 대조했다. 지식 본문 의미 검수나 배포 상태의 재인증은 아니다.
 
-- **현재 버전**: v57.30
+- **현재 버전**: v57.31
 - 공통 preflight: `CURRENT-STATE.md` 한 번 확인; `WORKFLOW-GOVERNANCE.md`·`INDEX.md`·스킬은 필요한 경우만 참조
 - 대형 원장: `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 용어/ID 범위만 읽는다.
 

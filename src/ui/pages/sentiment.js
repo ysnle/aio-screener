@@ -2,6 +2,7 @@ import { createResourceBag, createChartRegistry, coalesceMicrotask } from '../..
 import { renderSentimentBoard } from '../components/sentiment-board.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { subscribeToSlice } from '../../state/memoize.js';
+import { loadJsonArtifact } from '../../data/artifact-cache.js';
 
 // P1396: the page is the five-card sentiment board (../components/sentiment-board.js).
 // P1412 (Codex structural review): the board's inputs come from one adapter, collectMarketInputs
@@ -44,6 +45,14 @@ export function createSentimentPage({ documentRef, evidenceStore, store, chartFa
         bag.add(subscribeToSlice(store, (state) => state.sentiment, render));
       }
       renderSentiment(documentRef);
+      // P1586: the self-computed sentiment composite reads the FRED spreads (HY, IG) from the same
+      // artifact the macro routes load, so its component count does not depend on navigation order.
+      const win = documentRef?.defaultView || globalThis;
+      if (!win._aioMacroHistory && typeof (win.fetch || globalThis.fetch) === 'function') {
+        loadJsonArtifact((win.fetch || globalThis.fetch).bind(win), './public-data/macro-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 })
+          .then((payload) => { if (payload?.schemaVersion === 'macro-history.v1') win._aioMacroHistory = payload; if (active) render(); })
+          .catch(() => {});
+      }
       const eventTargets = [...new Set([documentRef, documentRef?.defaultView].filter(Boolean))];
       ['aio:refresh:done', 'aio:historyLoaded', 'aio:sentimentUpdated'].forEach((eventName) => eventTargets.forEach((eventTarget) => {
         eventTarget.addEventListener?.(eventName, render);

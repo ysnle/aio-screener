@@ -15,6 +15,7 @@ import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bri
 import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js';
 import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
+import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { benchmarkReturns } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
 import { renderNextSteps } from '../components/page-flow.js';
@@ -167,7 +168,7 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
   if (total < 6) {
     pill.className = 'status-pill sp-neutral';
-    pill.textContent = `RRG 관측 보류 · 근거 ${total}개(${viewLabel} 관측 ${items.length}개 중 ${finite(items.length) != null ? `집계 ${total}` : '—'})`;
+    pill.textContent = `섹터 회전 대기 · ${viewLabel} ${items.length}개 중 ${total}개 판정`; // P1591 (T01)
     return;
   }
   const riskOn = counts.Leading + counts.Improving >= counts.Weakening + counts.Lagging;
@@ -214,12 +215,21 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
   host.replaceChildren(el('h2', '국내 테마 흐름', 'briefing-h2'), el('p', read.read, 'flow-lead'));
   const max = Math.max(1, ...read.usable.map((theme) => Math.abs(theme.ret1m)));
-  for (const theme of read.usable.slice(0, 12)) {
+  // P1591 (T09/T10): the strongest and the weakest six both show (the reading names the weak ones), and bars
+  // grow from a zero line so a loss never looks like a long gain.
+  const shown = read.usable.length > 12 ? [...read.usable.slice(0, 6), ...read.usable.slice(-6)] : read.usable;
+  if (read.usable.length > 12) host.append(el('p', `상위 6개와 하위 6개 · 전체 ${read.usable.length}개 중`, 'theme-strength-basis'));
+  for (const theme of shown) {
     const line = el('div', null, 'stock-read-bars');
     const item = el('div', null, 'stock-read-bar-row');
+    const track = el('div', null, 'stock-read-track');
+    track.style.position = 'relative';
     const bar = el('div', null, `stock-read-bar is-stock ${theme.ret1m >= 0 ? 'is-up' : 'is-down'}`);
-    bar.style.width = `${Math.max(2, Math.abs(theme.ret1m) / max * 100).toFixed(1)}%`;
-    item.append(bar, el('span', `1개월 ${theme.ret1m >= 0 ? '+' : ''}${theme.ret1m.toFixed(1)}% · 3개월 ${theme.ret3m == null ? '—' : `${theme.ret3m >= 0 ? '+' : ''}${theme.ret3m.toFixed(1)}%`}${theme.above50Pct != null ? ` · 50일선 위 ${theme.above50Pct}%` : ''} · ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));
+    const half = `${(Math.abs(theme.ret1m) / max * 50).toFixed(1)}%`;
+    bar.style.cssText = `position:absolute;top:0;width:max(2px, ${half});${theme.ret1m >= 0 ? 'left:50%' : `left:calc(50% - ${half})`};`;
+    const zero = el('span'); zero.style.cssText = 'position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--border);';
+    track.append(zero, bar);
+    item.append(track, el('span', `1개월 ${theme.ret1m >= 0 ? '+' : ''}${theme.ret1m.toFixed(1)}% · 3개월 ${theme.ret3m == null ? '—' : `${theme.ret3m >= 0 ? '+' : ''}${theme.ret3m.toFixed(1)}%`}${theme.above50Pct != null ? ` · 50일선 위 ${theme.above50Pct}%` : ''} · ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));
     line.append(el('span', theme.label, 'stock-read-bar-label'), item);
     host.append(line);
   }
@@ -366,7 +376,7 @@ function renderThemes({ documentRef, root, store, route }) {
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
   legend.textContent = `사분면 = SPY 대비 상대가격의 수준과 최근 변화(완료 종가, 30거래일 이상) · 칩 옆 % = 위에서 고른 기간의 수익률 — 그래서 후행 사분면 종목이 이번 기간에는 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
   legend.style.cssText = 'grid-column:1/-1;font-size:11px;color:var(--text-muted);padding:2px 0 6px;';
-  container.appendChild(legend);
+  if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
     const pending = items.filter((item) => !groups.has(String(item?.quadrant || 'unknown')) || finite(item?.rsRatio) == null || finite(item?.rsMomentum) == null);
     if (!pending.length) return;
@@ -378,7 +388,7 @@ function renderThemes({ documentRef, root, store, route }) {
   };
   if (!classifiedCount) {
     const empty = documentRef.createElement('div');
-    empty.textContent = 'RRG 판정 보류 · SPY 대비 상대가격 히스토리 20개 이상 필요';
+    empty.textContent = '섹터 회전 대기 — 완료 종가 30거래일 이상의 SPY 대비 기록이 최신 세션까지 들어오면 사분면을 표시합니다. 아래 하위 테마 순위는 지금 읽을 수 있습니다.';
     empty.style.cssText = 'grid-column:span 2;text-align:center;padding:20px;color:var(--text-dim);font-size:12px;';
     container.appendChild(empty);
     appendUnclassified();
@@ -440,7 +450,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
 
   const performance = documentRef.createElement('span');
   const pct = typeof detail.pct === 'number' && Number.isFinite(detail.pct) ? detail.pct : null;
-  performance.textContent = pct == null ? '판정 보류 — 시세 대기' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+  performance.textContent = pct == null ? '당일 등락 대기' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
   performance.style.cssText = `font-size:13px;font-family:var(--font-mono);font-weight:900;color:${pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};`;
 
   const header = documentRef.createElement('div');
@@ -466,7 +476,10 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   // for the constituents have not arrived (the legacy panel below then reads 시세 대기).
   const rows = store?.getState?.()?.screener?.rows || [];
   const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey: 'ret3m', benchmark: benchmarkReturns(root?._aioHistory || []) });
-  const flow = themeDetailFlow({ themeId: detail.id, groups: model.groups, etf: detail.etf || null, rotation: root?._serverDataMeta?.rotationHistory?.items || {} });
+  // P1591 (T03): the ETF's rotation state is read only through the session-checked selector, so a stale
+  // quadrant never sits under a 'waiting' status; the sentence carries its close date.
+  const etfRotation = detail.etf ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, detail.etf, Date.now()) : null;
+  const flow = themeDetailFlow({ themeId: detail.id, groups: model.groups, etf: detail.etf || null, rotation: etfRotation ? { [detail.etf]: etfRotation } : {} });
   if (flow.rows.length) {
     const box = documentRef.createElement('div');
     box.className = 'theme-detail-flow';

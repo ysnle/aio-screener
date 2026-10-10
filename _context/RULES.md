@@ -1,11 +1,17 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-09
+last_verified: 2026-10-10
 confidence: medium
-target_version: v57.30
+target_version: v57.31
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R700. 템플릿 슬롯 뒤 조사는 받침으로 고른다 (v57.31, P1592)
+
+**Rule**: 보간된 명사 뒤의 을/를, 은/는, 으로/로는 src/domain/content/korean-particle.js 헬퍼로 고른다. 템플릿에 고정 조사를 붙이지 않는다.
+
+**Validation**: ci-esm-core-unit-check P1592 particle cases
 
 ## R699. A cited ledger id must exist (v57.30, P1545)
 

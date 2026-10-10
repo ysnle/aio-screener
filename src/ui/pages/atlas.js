@@ -13,6 +13,7 @@ import { createIntegratedFrameworkSpine } from '../../ui/knowledge/integrated-fr
 import { nodeCategory, relationGroups, typedRelations } from '../../domain/knowledge/atlas-relations.js';
 import { registryCadenceSummary } from '../../domain/knowledge/knowledge-cadence.js';
 import { renderIndustryPage } from '../knowledge/industry-view.js';
+import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 
 const REVIEWED_AT = '2026-08-18';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
@@ -293,7 +294,7 @@ function createAtlasArrivalContext(documentRef, context, onReturn) {
   block.setAttribute('aria-label', '이전 이야기에서 이어 읽기');
   block.append(
     element(documentRef, 'span', 'atlas-learning-column-label', '개념·분석 프레임에서 이어 읽기'),
-    element(documentRef, 'h2', 'atlas-section-title', `${TAXONOMY_NODE_LABELS[nodeId] || 'AI 가치사슬'}로 연결했습니다.`),
+    element(documentRef, 'h2', 'atlas-section-title', `${withDirectionParticle(TAXONOMY_NODE_LABELS[nodeId] || 'AI 가치사슬')} 연결했습니다.`),
     element(documentRef, 'p', 'atlas-card-copy', `앞 장의 질문을 ${ARRIVAL_METRIC_LABELS[context.metric] || '산업 전달 경로'} 관점에서 이어갑니다. 관찰 기간은 ${ARRIVAL_TIMEFRAME_LABELS[context.timeframe] || '별도 확인'}이며, 아래에서 상류 병목이 제품·기업·현금흐름으로 전달되는 순서를 확인하세요.`)
   );
   if (context.returnContext?.route) {
@@ -702,7 +703,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
          const shell = renderIndustryPage(documentRef, {
            root,
            state: { section: state.tab, view: viewOf(), selectedDomainId: state.selectedDomainId, selectedDomainNodeId: state.selectedDomainNodeId, selectedModuleId: state.selectedModuleId, selectedRelationshipGuideId: state.selectedRelationshipGuideId, selectedRelationshipNodeId: state.selectedRelationshipNodeId },
-           data: { research: state.research, foundations: state.foundations, foundationLessons: state.foundationLessons, relationshipGuides: state.relationshipGuides, registry: state.registry, failed: { taxonomy: Boolean(state.researchError), foundations: Boolean(state.foundationsError || state.foundationLessonsError), relationships: Boolean(state.relationshipGuidesError) } },
+           data: { research: state.research, foundations: state.foundations, foundationLessons: state.foundationLessons, relationshipGuides: state.relationshipGuides, knowledgeSources: state.knowledgeSources, registry: state.registry, failed: { taxonomy: Boolean(state.researchError), foundations: Boolean(state.foundationsError || state.foundationLessonsError), relationships: Boolean(state.relationshipGuidesError) } },
            labels: {
              domain: (domain) => DOMAIN_LABELS[domain.id] || domain.title,
              node: (node) => TAXONOMY_NODE_LABELS[node.id] || node.title,

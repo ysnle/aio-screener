@@ -117,7 +117,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
   const regime = readMarketRegime(root);
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
-  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
+  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 축 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
   set('home-hero-desc', regime.conflicts?.[0] || '');
   // P1429 (Codex review): the two futures cells were the largest items on home and often empty. When a
   // futures quote is missing the cell shows the cash index's last completed close (same history as 시장 상태)
@@ -151,7 +151,10 @@ export function renderHomeRegime({ documentRef: doc, root }) {
     chips.replaceChildren(...regime.axes.map((row) => {
       const chip = el(doc, 'div', null, 'regime-chip');
       chip.dataset.state = row.state;
-      chip.append(el(doc, 'span', row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
+      // P1592 (F42): the tally above counts the six US axes; the Korea FX card is a reference beside it.
+      const reference = row.id === 'korea';
+      if (reference) { chip.classList.add('is-reference'); chip.title = '한국 참고 — 위 우호·중립·부담 합계에 넣지 않습니다'; }
+      chip.append(el(doc, 'span', reference ? `${row.title} · 참고` : row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
       return chip;
     }));
   }

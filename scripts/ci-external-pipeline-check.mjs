@@ -117,6 +117,9 @@ async function observeOnce() {
       result.fast = { revision: health?.revision || null, sourceSha: health?.sourceSha || null, coverage: `${observed}/${required}` };
       check('fast-plane-health', health?.ok === true && required === 16 && observed === required, JSON.stringify(result.fast));
       check('fast-plane-exact-source-identity', /^[0-9a-f]{40}$/.test(health?.sourceSha || ''), `sourceSha=${health?.sourceSha || 'missing'}`);
+      // P1578: warning only — without the dispatcher the 30-minute refresh rides GitHub's best-effort
+      // schedule (observed ~10% of slots). A Worker older than P1578 reports nothing; that is not a pass.
+      check('fast-plane-refresh-dispatcher (P1578)', health?.schedulerDispatch?.configured === true, `schedulerDispatch=${JSON.stringify(health?.schedulerDispatch ?? null)} (set repository secret AIO_REFRESH_DISPATCH_TOKEN)`, 'warning');
     } else check('fast-plane-fetch', false, fast.reason?.message || String(fast.reason));
 
     if (github.status === 'fulfilled') {

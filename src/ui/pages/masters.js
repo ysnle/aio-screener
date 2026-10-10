@@ -6,6 +6,7 @@ import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { detectValueScaleSuspects, withholdSuspectValues, withholdManagerValues, managersUnderScaleReview, describeValueScaleReview, describeValueScaleCarryover } from '../../domain/masters/value-scale.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
+import { withTopicParticle } from '../../domain/content/korean-particle.js';
 
 const REVIEWED_AT = '2026-08-16';
 const FILINGS_URL = './public-data/masters/filings.json';
@@ -258,8 +259,9 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           const raw = element(documentRef, 'ul', 'masters-ticker-lookup-raw');
           summary.latest.forEach((row) => {
             const line = element(documentRef, 'li', '');
-            const source = element(documentRef, 'a', 'masters-source-link', 'SEC 원문');
-            applySafeExternalLink(source, row.sourceUrl);
+            // P1592 (F39): a row without a filing URL says so instead of a link-looking label that goes nowhere.
+            const source = row.sourceUrl ? element(documentRef, 'a', 'masters-source-link', 'SEC 원문') : element(documentRef, 'span', 'masters-holdings-meta', '원문 링크 없음');
+            if (row.sourceUrl) applySafeExternalLink(source, row.sourceUrl);
             line.append(element(documentRef, 'span', '', `${row.titleOfClass || '보통주'}${row.putCall ? ` · ${row.putCall === 'Put' ? '풋옵션' : '콜옵션'}` : ''} · ${Number(row.shares || 0).toLocaleString('en-US')}주 · ${formatReportedValue(row.value)} `), source);
             raw.appendChild(line);
           });
@@ -392,8 +394,13 @@ function createCatalogCoverage(documentRef, catalog, registry, holdings, preview
   return section;
 }
 
+// P1591 (L07): table amounts read in B/M like the summary tiles; sub-million values keep full digits.
 function formatReportedValue(value) {
-  return value == null ? '—' : `$${new Intl.NumberFormat('en-US').format(value)}`;
+  const number = Number(value);
+  if (value == null || !Number.isFinite(number)) return '—';
+  if (Math.abs(number) >= 1e9) return `$${(number / 1e9).toFixed(2)}B`;
+  if (Math.abs(number) >= 1e6) return `$${(number / 1e6).toFixed(1)}M`;
+  return `$${new Intl.NumberFormat('en-US').format(number)}`;
 }
 
 // P1499: a metric tile shows the reported total in billions; the full dollar figure stays in the quarter table.
@@ -463,8 +470,21 @@ function createOwnershipEvents(documentRef, manager, discovery) {
     section.appendChild(element(documentRef, 'div', 'masters-empty-state', '최근 제출 목록에서 이 운용사의 대량 보유 신고를 찾지 못했다. 보유가 없다는 뜻은 아니다.'));
     return section;
   }
+  // P1591 (L11): a holding without an identified issuer gives no investment context, so identified
+  // filings are listed and the rest collapse into one line pointing to the originals. The date shown is
+  // the filing date; the check date above is when the list was last read.
+  const identified = events.filter((event) => event.subjectCompany);
+  const unidentified = events.filter((event) => !event.subjectCompany);
+  if (unidentified.length) {
+    const fold = element(documentRef, 'p', 'masters-catalog-boundary', `발행사가 확인되지 않은 신고 ${unidentified.length}건은 원문에서만 확인할 수 있다(제출일 ${unidentified.map((event) => event.filedAt).filter(Boolean).sort().slice(-1)[0] || '확인 필요'}까지).`);
+    section.appendChild(fold);
+  }
+  if (!identified.length) {
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', '발행사가 확인된 최근 대량 보유 신고는 없다.'));
+    return section;
+  }
   const list = element(documentRef, 'ul', 'masters-ownership-list');
-  events.forEach((event) => {
+  identified.forEach((event) => {
     const item = element(documentRef, 'li', 'masters-ownership-item');
     const form = String(event.form || '');
     const kind = /13D/.test(form) ? '경영 참여 가능 보유(13D)' : /13G/.test(form) ? '단순 투자 보유(13G)' : form;
@@ -548,7 +568,10 @@ function createChangeLedger(documentRef, comparisonRows, state) {
     filterButton.setAttribute('aria-pressed', state.actionFilter === action ? 'true' : 'false');
     filters.appendChild(filterButton);
   });
-  const filtered = state.actionFilter === 'ALL' ? comparisonRows : comparisonRows.filter((row) => row.action === state.actionFilter);
+  // P1593 (F99/F110): a 'changes' view shows rows that changed before unchanged ones (each group keeps the
+  // reported-value order); the preview itself is the top rows by current reported value, and says so above.
+  const changedFirst = [...comparisonRows].sort((a, b) => Number(a.action === 'UNCHANGED') - Number(b.action === 'UNCHANGED'));
+  const filtered = state.actionFilter === 'ALL' ? changedFirst : comparisonRows.filter((row) => row.action === state.actionFilter);
   const pageCount = Math.max(1, Math.ceil(filtered.length / state.pageSize));
   state.page = Math.min(state.page, pageCount);
   const start = (state.page - 1) * state.pageSize;
@@ -748,18 +771,18 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId, sc
   const managerPeriodRows = records.reduce((sum, record) => sum + (record.periods?.length || 0), 0);
   const scope = { managerId: managerId || null, reportPeriods: [...periods].sort(), aggregationKey: 'manager·CUSIP·shareType·putCall' };
   section.append(
-    element(documentRef, 'h4', 'masters-holdings-title', 'issuer·CUSIP 다분기 집계 원장'),
-    element(documentRef, 'p', 'masters-holdings-meta', `SEC 원문 행을 manager·CUSIP·share type·put/call 단위로만 묶은 원장입니다. ticker·sector·기업행동 검증 전 단계이며, 현재 가격이나 추천을 생성하지 않습니다.`)
+    element(documentRef, 'h4', 'masters-holdings-title', '보유 증권별 여러 분기 공시 모음'),
+    element(documentRef, 'p', 'masters-holdings-meta', '공시 원문을 증권별로 모은 자료입니다. 회사 연결(티커·업종)과 분할·합병 같은 기업 행동은 아직 확인 전이라, 확인된 항목만 종목 분석에 씁니다.') // P1591 (L10)
   );
   if (scaleReviewed) section.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-scale-review', describeValueScaleCarryover()));
   const metrics = element(documentRef, 'div', 'masters-normalization-metrics');
   [
-    ['선택 manager 집계 CUSIP', String(managerCusips.size)],
-    ['선택 manager 고유 보고기간', String(periods.size)],
-    ['선택 manager 집계 record', String(records.length)],
-    ['선택 manager 기간행 수', String(managerPeriodRows)],
-    ['선택 manager 검토 대기', String(reviewQueue.length)],
-    ['전체 수집 원장 (모든 manager)', `${aggregateArtifact?.coverage?.aggregateRecords ?? '—'} records · 기간 ${aggregateArtifact?.coverage?.periods ?? '—'} · 검토 대기 ${aggregateArtifact?.coverage?.reviewQueue ?? '—'}`]
+    ['이 운용사 보유 증권 수', String(managerCusips.size)],
+    ['공시된 분기 수', String(periods.size)],
+    ['증권·유형별 묶음', String(records.length)],
+    ['분기별 공시 행', String(managerPeriodRows)],
+    ['확인이 필요한 묶음', String(reviewQueue.length)],
+    ['전체 수집 자료 (모든 운용사)', `${aggregateArtifact?.coverage?.aggregateRecords ?? '—'}개 묶음 · ${aggregateArtifact?.coverage?.periods ?? '—'}개 분기 · 확인 필요 ${aggregateArtifact?.coverage?.reviewQueue ?? '—'}`]
   ].forEach(([label, value]) => metrics.appendChild(createMetric(documentRef, label, value)));
   section.appendChild(metrics);
   const top = records
@@ -770,12 +793,12 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId, sc
     section.appendChild(createTable(documentRef, ['발행사(신고 원문)', 'CUSIP(증권 코드)', '최근 보고 분기', '신고 가치', '보고된 분기 수', '확인할 점'], top, ({ record, latest }) => {
       const tr = element(documentRef, 'tr', '');
       const values = [
-        (record.issuerNames || []).join(' · ') || 'issuer text 없음',
+        (record.issuerNames || []).join(' · ') || '회사명 표기 없음',
         record.cusipNormalized || '—',
         latest?.reportPeriod || '—',
         latest && !scaleReviewed ? formatReportedValue(latest.valueUsd) : '—',
         String(record.periodCount || 0),
-        record.reviewFlags?.length ? record.reviewFlags.join(' · ') : '추가 플래그 없음'
+        record.reviewFlags?.length ? record.reviewFlags.map((flag) => REVIEW_FLAG_WORDS[flag] || flag).join(' · ') : '없음'
       ];
       values.forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
       return tr;
@@ -786,6 +809,9 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId, sc
   section.appendChild(aggregateMeta);
   return section;
 }
+
+// P1591 (L10): review codes in reader words.
+const REVIEW_FLAG_WORDS = Object.freeze({ ISSUER_NAME_VARIATION: '신고마다 회사명 표기가 다름', TITLE_OF_CLASS_VARIATION: '증권 종류 표기가 다름', SHARE_TYPE_VARIATION: '수량 단위가 다름', PUT_CALL_REVIEW: '옵션 포함', CUSIP_FORMAT_REVIEW: '증권 코드 형식 확인 필요' });
 
 function createFilingArtifact(documentRef, filingMeta, holdingMeta) {
   const filing = filingMeta?.latestFiling || holdingMeta?.latestFiling;
@@ -862,7 +888,11 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
   );
   const ids = selectedIds.slice(0, 4);
   if (ids.length < 2) {
-    section.appendChild(element(documentRef, 'div', 'masters-empty-state', '상세 상단의 “비교에 추가”를 눌러 2~4명을 선택하세요.'));
+    // P1592 (F36): name who is already picked — the comparison list is separate from the manager being read.
+    const picked = ids.map((id) => registry.find((item) => item.id === id)?.name || id);
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', picked.length
+      ? `지금 ${picked.join(' · ')} 1명을 골랐습니다. 다른 운용사 상세에서 “비교에 추가”를 눌러 1명 이상 더 고르면 비교합니다(최대 4명).`
+      : '상세 상단의 “비교에 추가”를 눌러 2~4명을 선택하세요.'));
     return section;
   }
   const metrics = element(documentRef, 'div', 'masters-metric-grid');
@@ -901,7 +931,12 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
     .map((row) => [keyOf(row), row])));
   const commonKeys = rowMaps.length ? [...rowMaps[0].keys()].filter((key) => rowMaps.every((map) => map.has(key))) : [];
   section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `비교 범위: ${ids.map((id) => `${nameOf(id)} ${scopeOf(id)}`).join(' · ')} — 범위 밖의 보유는 비교에 들어가지 않습니다.`));
+  const partialIds = ids.filter((id) => {
+    const full = Number(holdingManagers.find((item) => item.id === id)?.verification?.fullRowCount);
+    return rowsByManager.get(id)?.basis === 'top' || (Number.isFinite(full) && (rowsByManager.get(id)?.holdings || []).length < full);
+  });
   if (commonKeys.length) {
+    section.appendChild(element(documentRef, 'h4', 'masters-holdings-title', `함께 보유한 증권 ${commonKeys.length}개${commonKeys.length > 25 ? ' · 상위 25개 표시' : ''}${partialIds.length ? ` · 부분 비교(${withTopicParticle(partialIds.map(nameOf).join(' · '))} 신고 전체가 아닌 불러온 행만)` : ''}`));
     const common = commonKeys.slice(0, 25).map((key) => ({ key, rows: rowMaps.map((map) => map.get(key)) }));
     section.appendChild(createTable(documentRef, ['발행사', 'CUSIP(증권 코드)', '함께 보유한 운용사 수', '보고 분기'], common, ({ rows }) => {
       const tr = element(documentRef, 'tr', '');
@@ -1006,7 +1041,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
       // loaded only on request — artifact budget). Say how much of the comparison is on screen and offer
       // the full ledger instead of letting the scope change silently after another view loads it.
       if (expected && comparisonRows.length < expected) {
-        const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', `변화가 큰 ${comparisonRows.length}개 보유를 먼저 보여 줍니다(전체 ${expected}개). `);
+        const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', `현재 신고 가치 상위 ${comparisonRows.length}개 보유를 먼저 불러왔습니다(전체 ${expected}개). `);
         scope.appendChild(button(documentRef, 'masters-route-button is-secondary', state.loadingManagers?.has?.(manager.id) ? '전체 원장 불러오는 중…' : `전체 ${expected}개 보기`, 'load-manager', manager.id));
         detail.appendChild(scope);
       }

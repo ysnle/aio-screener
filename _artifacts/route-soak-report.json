@@ -1,14 +1,14 @@
 {
   "schemaVersion": "aio-route-soak-evidence.v1",
-  "observedAt": "2026-10-09T01:06:31.713Z",
-  "appRevision": "v57.30",
-  "gitHead": "b3d21407946518be98946e0aff904b337a2eaae0",
+  "observedAt": "2026-10-10T12:12:38.733Z",
+  "appRevision": "v57.31",
+  "gitHead": "69d7eca71577eb7cb0f41c3b840cfc265fb8c76d",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
-    "browserVersion": "141.0.7390.37",
-    "platform": "linux",
-    "node": "v20.20.2",
+    "browserVersion": "149.0.7827.55",
+    "platform": "win32",
+    "node": "v24.18.0",
     "viewport": "1440x1000"
   },
   "command": "node scripts/ci-route-soak-check.mjs",

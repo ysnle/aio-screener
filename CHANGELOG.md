@@ -1,3 +1,34 @@
+## v57.31 (2026-10-10)
+- Conflict resolver now detects which merge side is main (P1566).
+- Headers no longer show the 0-100 market score or a letter grade; fallback text drops entry/stop wording (P1567).
+- Put/call equity and index ratios are no longer estimated from the total ratio (P1568).
+- Chart.js secondary CDN loader pins Subresource Integrity (P1569).
+- US retail sales schedule extended through December from the Census calendar; CPI Nov/Dec confirmed at BLS (P1570).
+- Size headroom check warns on public-data files over 50 MiB and fails over 90 MiB (P1571).
+- A failed BEA PCE fetch is published as last-known-good instead of ok (P1572).
+- Cboe put/call is labelled stale when older than one session behind the latest close (P1573).
+- Portfolio card shows the VIX band instead of a max-exposure percentage; zero placeholders replaced by — (P1574).
+- Theme breadth ignores leaders without a change value; a Fear & Greed reading of 0 is kept (P1575).
+- History no longer records an in-session price as a completed close (P1576).
+- Korea CPI reference updated to September (2.9%, core 2.8%); US CPI next release set to 10/14 (P1577).
+- The data-plane deploy installs the refresh dispatcher token from AIO_REFRESH_DISPATCH_TOKEN; /health and the watchdog show whether it is configured (P1578).
+- Change colours and attention ranking apply only to current quotes with a known change basis (P1579).
+- Technical exit levels no longer show ATR-derived numbers labelled as moving averages (P1580).
+- Yahoo quote fallback no longer derives a daily change from the 5-day window start (P1581).
+- SEC fundamentals declare the equity basis and use the registrant name (P1582).
+- The sourceless Korea business-indicator widget is hidden until data exists (P1583).
+- A missed AAII collection now warns instead of stopping the market refresh (P1584).
+- The market-analysis validator no longer rejects correct Korean analyses that state the move before the level (P1585).
+- A self-computed sentiment index from public official inputs now appears beside CNN Fear & Greed (P1586).
+- SEC share counts inconsistent with EPS are withheld, removing P/E 26,500-type values (P1587).
+- Theme taxonomy rebuilt: 421 members in 88 sub-themes with stated classification rules; misclassified names moved, editorial weights removed (P1588).
+- Universe and Korean theme identities verified against listings: wrong suffixes, wrong companies and dead tickers fixed; 68 verified symbols added (P1589).
+- Sector rotation now covers regional banks, homebuilders, retail, transports, airlines, copper miners and China internet; duplicate cybersecurity ETF removed (P1590).
+- **Frontend audit round 1-3 (P1591):** diagrams follow the light/dark theme, peer bars and the SEC card are readable, the RRG minimum is one 30-session rule, theme detail reads only validated rotation, the concept graph no longer overlaps, the news window follows the published cycle.
+- **Frontend audit round 4-9 (P1592/R700):** news no longer tags job titles as companies, the portfolio donut never draws cost-based mixed-currency totals, the skip link keeps the page, screener controls agree with the table, Korean particles follow the word, each column links its own notes, and learning text corrections (FX, rate history, transport, PUE, Self-Attention, Sandisk targets).
+- **Frontend audit round 10 (P1593):** part/whole relations read the right way, three over-broad product links removed, 재무 공시 keeps its company and shows the column's question with a way back, and screener/13F/sentiment/privacy/glossary wording matches what the data shows.
+- R1 7곳 v57.31
+
 ## v57.30 (2026-10-08)
 - **Worker 배포 정체 해소 (PP1520/RR691):** 데이터 갱신 봇 커밋만 앞서 나간 main은 Worker 입력과 배포 레시피를 바꾸지 않으면 stale로 보지 않도록 배포 판정과 직전 가드를 통일. 10/7 이후 Pages 배포 후 검증이 프록시 리비전 불일치로 9번 연속 실패하던 원인.
 - **P1500 이모지 게이트의 런타임 의존 제거 (PP1521):** 별(★ ☆)과 메뉴 아이콘(☰)을 명시 허용해, Node의 유니코드 데이터 버전에 따라 preflight가 막히던 문제를 수정.

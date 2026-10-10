@@ -7,7 +7,13 @@
 
 export const RELATION_TYPES = Object.freeze({
   contains: { label: '포함', directed: true, forward: '포함하는 하위 개념', backward: '속한 상위 개념' },
-  component: { label: '구성', directed: true, forward: '구성 요소', backward: '이것이 들어가는 곳' },
+  // P1593 (F88/F90): component edges are authored part → whole ('NAND가 SSD의 저장 매체'), so the part's
+  // page names where it goes and the whole's page lists its parts — the labels used to read the other way.
+  component: { label: '구성', directed: true, forward: '이것이 들어가는 곳', backward: '구성 요소' },
+  // A technology or a contract that something rests on is not a physical part of it.
+  basis: { label: '바탕', directed: true, forward: '이것을 바탕으로 하는 것', backward: '바탕이 되는 기술·계약' },
+  // P1592 (F67): a design attribute is not a part — precision belongs to an accelerator as a property.
+  property: { label: '성능 속성', directed: true, forward: '이 속성으로 비교하는 대상', backward: '성능 속성' },
   'next-step': { label: '다음 단계', directed: true, forward: '다음 단계', backward: '앞 단계' },
   supplies: { label: '공급', directed: true, forward: '공급받는 쪽', backward: '공급하는 쪽' },
   substitute: { label: '대체·경쟁', directed: false, forward: '대체·경쟁 관계(특정 용도에서)', backward: '대체·경쟁 관계(특정 용도에서)' },
@@ -71,13 +77,13 @@ export const DOMAIN_RELATIONS = Object.freeze([
   r('cloud-commitments', 'cloud-utilization', 'conditional', '장기 약정은 가동률의 하한을 받쳐 줄 수 있음'),
   r('cloud-hyperscaler', 'cloud-depreciation', 'conditional', '설비투자가 크면 이후 감가상각비가 커짐'),
   // Neocloud
-  r('neocloud-capacity-reservation', 'neocloud-gpu-rental', 'component', '예약 계약이 임대 매출의 바탕'),
+  r('neocloud-capacity-reservation', 'neocloud-gpu-rental', 'basis', '예약 계약이 임대 매출의 바탕'),
   r('neocloud-lease-burden', 'neocloud-rental-yield', 'constrains', '리스·차입 비용이 임대 수익률을 깎음'),
   r('neocloud-customer-concentration', 'neocloud-rental-yield', 'conditional', '소수 고객 의존 시 재계약 조건에 수익이 흔들림'),
   // Compute: alternative accelerators, not stages
   r('compute-gpu', 'compute-asic', 'substitute', '특정 학습·추론 작업에서 범용 GPU와 전용 가속기가 경쟁'),
   r('compute-asic', 'compute-npu', 'substitute', '데이터센터용 전용칩과 기기 안 가속기는 쓰임새가 다른 대안'),
-  r('compute-precision', 'compute-gpu', 'component', '연산 정밀도(FP/BF/INT)는 가속기 설계의 속성'),
+  r('compute-precision', 'compute-gpu', 'property', '연산 정밀도(FP/BF/INT)는 가속기 성능을 비교하는 속성'),
   r('compute-interconnect', 'compute-gpu', 'complement', '여러 가속기를 묶는 연결이 있어야 큰 모델을 돌림'),
   // Memory: a hierarchy of complements
   r('memory-sram', 'memory-dram-hbm', 'complement', '칩 안 캐시와 칩 옆 메모리는 속도·용량 계층'),
@@ -96,9 +102,9 @@ export const DOMAIN_RELATIONS = Object.freeze([
   r('package-glass', 'package-substrate', 'substitute', '유리기판은 유기 기판의 대체 후보(개발 단계)'),
   // Network / photonics
   r('network-switch', 'network-optical-module', 'complement', '스위치의 전기 신호를 광모듈이 빛으로 바꿔 멀리 보냄'),
-  r('network-silicon-photonics', 'network-optical-module', 'component', '실리콘 포토닉스는 광모듈을 만드는 기술 기반의 하나'),
+  r('network-silicon-photonics', 'network-optical-module', 'basis', '실리콘 포토닉스는 광모듈을 만드는 기술 기반의 하나'),
   r('network-cpo', 'network-optical-module', 'substitute', 'CPO는 꽂는 광모듈 대신 광 소자를 스위치 칩 옆에 두는 배치'),
-  r('network-silicon-photonics', 'network-cpo', 'component', 'CPO 구현에 실리콘 포토닉스가 쓰임'),
+  r('network-silicon-photonics', 'network-cpo', 'basis', 'CPO 구현에 실리콘 포토닉스가 쓰임'),
   r('network-fabric', 'network-switch', 'contains', '클러스터 네트워크는 스위치·광링크·토폴로지를 포함'),
   // AI data center
   r('aidc-rack-density', 'aidc-liquid-cooling', 'conditional', '랙 전력 밀도가 높아지면 공랭 대신 액체 냉각이 필요해짐'),

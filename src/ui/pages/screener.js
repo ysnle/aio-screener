@@ -22,11 +22,12 @@ import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose }
 import { latestCompletedUsSession } from '../../ai/time/market-session.js';
 import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
+import { withTopicParticle } from '../../domain/content/korean-particle.js';
 
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
 const PROFILE_DESCRIPTIONS = {
-  balanced: '중립 고정 가중 · 레짐 후보는 진단만',
+  balanced: '사후 검증에 쓰는 기본 고정 비중으로 합산(비중은 팩터 패널 · 검증 결과는 위 사후 검증) · 시장 국면별 비중은 참고로만 표시',
   momentum: '단기 추세·모멘텀 중심',
   swing: '중기 기술적 매매',
   value: '저평가·장기 보유',
@@ -40,11 +41,11 @@ const FACTOR_LABELS = {
   size: { label: '사이즈', color: 'var(--text-muted)', description: '시가총액의 역순' },
   value: { label: '밸류', color: 'var(--data-amber)', description: '저PER/PBR/EV-EBITDA' },
   quality: { label: '퀄리티', color: 'var(--data-amber)', description: 'ROE·마진·매출성장' },
-  kalman: { label: 'K-vel', color: 'var(--accent)', description: '칼만 추세 신뢰도' }
+  kalman: { label: '추세 속도', color: 'var(--accent)', description: '칼만 추세 신뢰도' }
 };
 
 const REGIME_DESCRIPTIONS = {
-  '중립 · 균형 가중': '시장 신호가 혼재된 구간입니다. 검증된 중립 고정 가중치를 유지합니다.',
+  '중립 · 균형 가중': '시장 신호가 혼재된 구간입니다. 사후 검증에 쓰는 기본(중립) 고정 가중치를 유지합니다.',
   '위험회피 · 저변동·퀄리티 가중': '시장 불안 구간의 방어 틸트 후보입니다. 검증·승인 전에는 실제 순위에 적용하지 않습니다.',
   '위험선호 · 모멘텀·추세·칼만 가중': '시장 위험선호 구간의 공격 틸트 후보입니다. 검증·승인 전에는 실제 순위에 적용하지 않습니다.'
 };
@@ -103,7 +104,7 @@ const FILTER_LABELS = Object.freeze({
   'scr-cap': '시총',
   'scr-text-search': '검색',
   'scr-setup': '구조·근거',
-  'scr-min-rank': '최소 rank',
+  'scr-min-rank': '최소 백분위',
   'scr-rsi-min': 'RSI 하한',
   'scr-rsi-max': 'RSI 상한',
   'scr-min-mom': '3M 수익률 하한',
@@ -115,7 +116,7 @@ const BUILDER_FIELDS = Object.freeze([
   { value: 'sector', label: '섹터', target: 'scr-sector' },
   { value: 'signal', label: '구조 분류', target: 'scr-signal' },
   { value: 'setup', label: '구조·근거', target: 'scr-setup' },
-  { value: 'rank', label: '최소 rank', target: 'scr-min-rank' },
+  { value: 'rank', label: '최소 백분위', target: 'scr-min-rank' },
   { value: 'rsi', label: 'RSI 하한', target: 'scr-rsi-min' },
   { value: 'momentum', label: '3M 수익률 하한', target: 'scr-min-mom' },
   { value: 'query', label: '티커·이름 검색', target: 'scr-text-search' }
@@ -829,14 +830,14 @@ function renderConditionalEvidence(documentRef, metadata) {
     LOW_SAMPLE: '표본 경고',
     LOW_SAMPLE_BLOCKED: '표본 부족으로 보류',
     BLOCKED: '계보·권리·캘린더 차단',
-    NO_DATA: '산출물 대기'
+    NO_DATA: '검증 자료 없음'
   };
   const status = statusLabels[evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_DATA'] || '조건부 evidence 미수신';
   panel.dataset.statusCode = evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_CONDITIONAL_EVIDENCE';
   const header = documentRef.createElement('div');
   header.style.cssText = 'display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px;';
   const title = documentRef.createElement('strong');
-  title.textContent = evidence?.conditionLabel || '조건부 증거 봉투';
+  title.textContent = evidence?.conditionLabel || '이 조건의 검증 자료';
   title.style.color = 'var(--text-secondary)';
   const badge = documentRef.createElement('span');
   badge.textContent = status;
@@ -1141,8 +1142,29 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
         : capFilter && capHeld > 0
           ? `조건을 충족한 0건 / 시총 정보가 없어 판정 보류 ${capHeld}건 — 시총 적격 ${rows.length - capHeld}/${rows.length} · 적용 컷 ${capLabel}`
           : '조건에 맞는 종목이 없습니다';
-      empty.appendChild(cell(documentRef, emptyMessage, '', 'text-align:center;padding:20px;color:var(--text-muted);'));
+      // P1592 (F02): say what the search ran over and offer the way back, instead of one dead sentence.
+      const searchText = selectedValue(documentRef, 'scr-text-search').trim();
+      const scopedMessage = state?.status !== 'unavailable' && !(capFilter && capHeld > 0) && searchText
+        ? `'${searchText}' — 지금 조건과 표시 필터(시장·섹터·분류 등) 안에서는 찾지 못했습니다. 전체 종목에서 찾으려면 필터를 지우세요.`
+        : emptyMessage;
+      empty.appendChild(cell(documentRef, scopedMessage, '', 'text-align:center;padding:20px;color:var(--text-muted);'));
       empty.firstChild.colSpan = visibleColumns.length;
+      if (state?.status !== 'unavailable') {
+        const actions = documentRef.createElement('div');
+        actions.style.cssText = 'display:flex;gap:6px;justify-content:center;margin-top:10px;';
+        const action = (label, name, arg) => {
+          const button = documentRef.createElement('button');
+          button.type = 'button';
+          button.className = 'aio-btn-table';
+          button.textContent = label;
+          button.dataset.aioScreenerAction = name;
+          if (arg) button.dataset.aioScreenerArg = arg;
+          return button;
+        };
+        if (searchText) actions.appendChild(action('검색어 지우기', 'clear-filter', 'scr-text-search'));
+        actions.appendChild(action('표시 필터 모두 지우기', 'reset-all-filters'));
+        empty.firstChild.appendChild(actions);
+      }
       body.appendChild(empty);
     } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: root._aioRankingHold || null })));
     if (focusedSymbol) {
@@ -1159,7 +1181,13 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (summary) summary.textContent = `전체 ${filtered.length}개 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
   renderStaleNote(documentRef, body);
   const loadMore = documentRef.getElementById('scr-load-more-wrap');
-  if (loadMore) loadMore.hidden = visibleLimit.value >= filtered.length;
+  if (loadMore) {
+    // P1592 (F03): the button names how many rows it will actually add; the summary confirms the end.
+    loadMore.hidden = visibleLimit.value >= filtered.length;
+    const moreButton = loadMore.querySelector('[data-aio-screener-action="load-more"]');
+    if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, filtered.length - visibleLimit.value))}개 더 보기`;
+  }
+  if (summary && filtered.length && visibleLimit.value >= filtered.length) summary.textContent = `전체 ${filtered.length}개 모두 표시`;
   const allRows = rows;
   const total = documentRef.getElementById('scr-kpi-total');
   const top = documentRef.getElementById('scr-kpi-top');
@@ -1447,12 +1475,21 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            // LC-40: 두 rank를 이름으로 분리한다 — 표시 순위는 통과 행의 서수, 팩터 원값은 순위
            // 입력(0~100)이다. 둘 다 'rank'라 부르면 서로 다른 숫자를 같은 값으로 오해한다.
            const rankText = `표시 순위 ${ordinalRank == null ? '—' : ordinalRank} · 팩터 원값 ${rawFactorRank == null ? '—' : rawFactorRank.toFixed(2)}`;
-          setText('scr-why-status', `${filterLabel} · ${rankingLabel} · ${rankText} · 필드 coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`);
+          // P1592 (F10): one reader line — rank, percentile, data completeness. The ledger detail
+          // (filter/ranking states, raw factor input, factor confidence) stays on hover.
+          const percentileValue = finite(row.rank);
+          const statusEl = documentRef.getElementById('scr-why-status');
+          setText('scr-why-status', [
+            ordinalRank == null ? '순위 계산 보류' : `조건 통과 종목 중 ${ordinalRank}위`,
+            percentileValue == null ? null : `전체 백분위 ${percentileValue.toFixed(0)}`,
+            readiness.coveragePct == null ? null : `표시 항목 자료 ${readiness.coveragePct}% 수신`
+          ].filter(Boolean).join(' · '));
+          if (statusEl) statusEl.title = `${filterLabel} · ${rankingLabel} · ${rankText} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`;
          setText('scr-why-contrary', contrary.length ? contrary.join(' · ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 조건 판단을 보류했습니다.' : '등록된 반대 조건에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다.');
           const structureEvidence = row.setupProfile?.structureEvidence || {};
           const structureNote = structureEvidence.postEarningsBreakout === 'unavailable'
-            ? '실적 후 돌파·Wedge Pop 확인: 이벤트/리테스트 데이터 미수신'
-            : `실적 후 돌파·Wedge Pop: ${structureEvidence.postEarningsBreakout}`;
+            ? '선택 근거 — 실적 후 돌파 확인 자료는 아직 받지 못했습니다'
+            : `선택 근거 — 실적 후 돌파: ${structureEvidence.postEarningsBreakout}`;
           // Codex review 2026-10-05: the table showed a dimmed past value while this list called the same
           // field missing. A field with an older observation says so; only a field with no value is "없음".
           const describeMissing = (fieldId) => {
@@ -1462,9 +1499,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             if (field && ['STALE', 'LAST_GOOD'].includes(field.status) && field.value != null) return `${label}(${String(field.observedAt || '').slice(5, 10).replace('-', '/') || '이전'} 값만 있음 · 최신 아님)`;
             return `${label}(값 없음)`;
           };
-          setText('scr-why-missing', `${missing.length ? missing.map(describeMissing).join(' · ') : '필요한 값이 모두 있습니다'} · ${structureNote}`);
+          setText('scr-why-missing', `순위 필수값 — ${missing.length ? missing.map(describeMissing).join(' · ') : '모두 있습니다'}. ${structureNote}.`);
          setText('scr-why-provenance', row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가` : '가격 기준일 확인 필요');
-         setText('scr-why-preview', `${row.sym || row.symbol} · ${title} · ${missing.length ? `결측 ${missing.length}개` : '결측 없음'} · ${contrary.length ? `반대 근거 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '반대 근거 없음'}`);
+         setText('scr-why-preview', `${row.sym || row.symbol} — ${title} · ${missing.length ? `빠진 필수값 ${missing.length}개` : '빠진 필수값 없음'} · ${contrary.length ? `걸린 반대 조건 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '걸린 반대 조건 없음'}`);
          const factorList = documentRef.getElementById('scr-why-factor-list');
          if (factorList) {
            factorList.replaceChildren();
@@ -1490,7 +1527,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              const share = weight != null && weightSum > 0 ? weight / weightSum : null;
              const contribution = share == null ? null : Number(value) * share;
              const score = documentRef.createElement('span');
-             score.textContent = `${Number(value).toFixed(0)} · ${share == null ? '가중치 미수신' : `w${Math.round(share * 100)}%`}${contribution == null ? '' : ` · 기여 ${contribution.toFixed(1)}`}`;
+             score.textContent = `${Number(value).toFixed(0)} · ${share == null ? '비중 미수신' : `비중 ${Math.round(share * 100)}%`}${contribution == null ? '' : ` · 기여 ${contribution.toFixed(1)}`}`;
              item.title = `${FACTOR_LABELS[key]?.description || key} · 정규화 점수 ${Number(value).toFixed(1)} · 적용 가중치 ${weight == null ? '미수신' : Number(weight).toFixed(3)} · 가중 기여 ${contribution == null ? '계산 불가' : contribution.toFixed(2)}`;
              item.append(label, track, score);
              factorList.appendChild(item);
@@ -1657,11 +1694,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          syncDefinitionEditor();
          renderBuilderConditions(documentRef, readBuilderConditions());
          renderFilterChips(documentRef);
-         renderColumnChooser(documentRef, page, columnState.preset, columnState.custom, (columns) => {
-           columnState.preset = 'custom';
-           columnState.custom = columns;
-           renderNow();
-         });
+         syncColumnControls();
          const readiness = activeResult?.readiness || state.readiness;
          if (readinessPreview) readinessPreview.textContent = readiness ? `필드 준비 ${readiness.eligibleCount}/${readiness.rowCount} · ${readiness.coveragePct}% · 필수: ${(readiness.requiredFields || []).map((field) => field.split('.').pop()).join(' · ') || '없음'}` : '필드 준비도 미리보기 대기';
           // P1164/B04(12:U01): 실행 전 카운트는 '선택한 정의의 통과'가 아니다 — 빈 조건 파이프라인
@@ -1727,6 +1760,20 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          workbench.setSavedScreens(next);
          if (workbenchStatus) workbenchStatus.textContent = `이번 세션에 조건 저장 · ${saved.label} · 영구 보관은 실행 입력 보관 또는 JSON 내보내기`;
        };
+       // P1592 (F11): the value hint follows the chosen field — a fixed 'Technology, 70, 40' offered 70 for
+       // a percentile select that only accepts its listed steps.
+       const syncBuilderHint = () => {
+         const field = documentRef.getElementById('scr-builder-field');
+         const value = documentRef.getElementById('scr-builder-value');
+         const definition = BUILDER_FIELDS.find((item) => item.value === field?.value);
+         if (!definition || !value) return;
+         const target = documentRef.getElementById(definition.target);
+         const options = target?.options ? Array.prototype.slice.call(target.options).map((option) => option.value).filter((optionValue) => optionValue && optionValue !== '0') : null;
+         value.placeholder = options?.length
+           ? `허용값: ${options.slice(0, 6).join(', ')}${options.length > 6 ? ' …' : ''}`
+           : ({ sector: '섹터 이름 (예: Technology)', signal: '구조 분류 이름', setup: '구조·근거 이름', rank: '허용값: 40, 50, 65, 80', rsi: 'RSI 하한 (예: 40)', momentum: '3M 수익률 하한 % (예: 10)', query: '티커 또는 이름' }[definition.value] || '값');
+       };
+       syncBuilderHint();
        const readVisualCondition = () => {
          const field = documentRef.getElementById('scr-builder-field');
          const value = documentRef.getElementById('scr-builder-value');
@@ -1744,8 +1791,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          }
          if (RUN_CONDITION_FIELDS.includes(definition.value)) {
            const numeric = Number(raw);
-           if (!Number.isFinite(numeric)) return { error: `“${raw}”는 숫자가 아닙니다 — ${definition.label}은 숫자만 허용합니다` };
-           if (numeric < 0) return { error: `“${raw}”는 허용 범위 밖입니다 — ${definition.label}은 0 이상만 허용합니다` };
+           if (!Number.isFinite(numeric)) return { error: `“${raw}”는 숫자가 아닙니다 — ${withTopicParticle(definition.label)} 숫자만 허용합니다` };
+           if (numeric < 0) return { error: `“${raw}”는 허용 범위 밖입니다 — ${withTopicParticle(definition.label)} 0 이상만 허용합니다` };
          }
          return { field: definition.value, label: definition.label, value: raw, target: definition.target };
        };
@@ -1789,8 +1836,32 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           returnView = { symbol, scrollTop: documentRef.querySelector('.content')?.scrollTop || 0 };
          return (onTicker || ((value) => root?.showTicker?.(value)))?.(symbol);
        };
+       // P1592 (F09): the preset select, the column checklist and the table read one state. The checklist
+       // used to be drawn only on the slow path, so after a preset change it still showed the old columns
+       // and one tick rebuilt the table from the stale set. Custom picks name themselves in the select.
+       function syncColumnControls() {
+         const presetSelect = documentRef.getElementById('scr-column-preset');
+         if (presetSelect) {
+           let customOption = presetSelect.querySelector('option[value="custom"]');
+           if (columnState.preset === 'custom' && !customOption) {
+             customOption = documentRef.createElement('option');
+             customOption.value = 'custom';
+             customOption.textContent = '직접 선택';
+             presetSelect.appendChild(customOption);
+           }
+           if (customOption) customOption.hidden = columnState.preset !== 'custom';
+           presetSelect.value = columnState.preset;
+         }
+         renderColumnChooser(documentRef, page, columnState.preset, columnState.custom, (columns) => {
+           columnState.preset = 'custom';
+           columnState.custom = columns;
+           renderNow();
+         });
+       }
        renderNow = () => {
          const preview = ensurePreview();
+         syncColumnControls();
+         syncBuilderHint();
          renderBuilderConditions(documentRef, readBuilderConditions());
          render({ documentRef, root, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, onExplain: explainRow, onCompare: (row) => {
            const symbol = row?.sym || row?.symbol;
@@ -1836,7 +1907,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const column = header.dataset.scrSort;
            if (sortState.column === column) sortState.ascending = !sortState.ascending;
            else { sortState.column = column; sortState.ascending = column === 'sym' || column === 'sector'; }
-          visibleLimit.value = 12;
+          // P1592 (F03): sorting reorders the same rows — keep what the reader already expanded.
           renderNow();
           return;
         }
@@ -1998,6 +2069,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (!event.target.closest?.('#page-screener')) return;
          if (event.target.matches?.('#scr-screen-select')) {
            selectDefinition(event.target.value);
+         } else if (event.target.matches?.('#scr-builder-field')) {
+           syncBuilderHint();
          } else if (event.target.matches?.('#scr-column-preset')) {
            columnState.preset = event.target.value || 'discovery';
            columnState.custom = [];

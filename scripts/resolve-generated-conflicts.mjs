@@ -12,12 +12,16 @@ const GENERATED = new Set(['architecture/asset-manifest.json', 'architecture/rel
 const version = JSON.parse(readFileSync('version.json', 'utf8')).version;
 if (!/^v\d+\.\d+$/.test(version || '')) throw new Error(`version.json has no usable version: ${version}`);
 
+// The merge runs in either direction: origin/main into a version branch (main = theirs) or a version
+// branch into local main (main = ours). Pick the side that contains origin/main.
+const isAncestor = (a, b) => { try { execFileSync('git', ['merge-base', '--is-ancestor', a, b]); return true; } catch { return false; } };
+const mainIsOurs = isAncestor('origin/main', 'HEAD') && !isAncestor('origin/main', 'MERGE_HEAD');
 const conflicted = execFileSync('git', ['diff', '--name-only', '--diff-filter=U'], { encoding: 'utf8' }).split(/\r?\n/).filter(Boolean);
 const manual = conflicted.filter((file) => !GENERATED.has(file));
 for (const file of conflicted.filter((name) => GENERATED.has(name))) {
   const source = readFileSync(file, 'utf8');
-  const resolved = source.replace(/<<<<<<< [^\r\n]*\r?\n[\s\S]*?=======\r?\n([\s\S]*?)>>>>>>> [^\r\n]*\r?\n/g,
-    (_, theirs) => theirs.replace(/"appRevision": "v[\d.]+"/g, `"appRevision": "${version}"`));
+  const resolved = source.replace(/<<<<<<< [^\r\n]*\r?\n([\s\S]*?)=======\r?\n([\s\S]*?)>>>>>>> [^\r\n]*\r?\n/g,
+    (_, ours, theirs) => (mainIsOurs ? ours : theirs).replace(/"appRevision": "v[\d.]+"/g, `"appRevision": "${version}"`));
   if (/^(<<<<<<<|=======|>>>>>>>)/m.test(resolved)) throw new Error(`unresolved markers remain in ${file}`);
   JSON.parse(resolved);
   writeFileSync(file, resolved);

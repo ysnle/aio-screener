@@ -107,7 +107,7 @@ function _aioRenderLegacyMarketHealth(model) {
   var bf = _aioLegacyHealthElement('ind-buyrisk-fill'); if (bf) { bf.style.width = (bars.buyRisk || 0) + '%'; bf.style.background = bars.buyRisk > 60 ? 'var(--data-green)' : bars.buyRisk > 40 ? 'var(--data-amber)' : 'var(--data-red)'; }
   var tf = _aioLegacyHealthElement('ind-trend-fill'); if (tf) { tf.style.width = (bars.trend || 0) + '%'; tf.style.background = bars.trend >= 70 ? 'var(--data-cyan)' : bars.trend >= 50 ? 'var(--data-amber)' : 'var(--data-red)'; }
   el = _aioLegacyHealthElement('tech-health-pill');
-  if (el) { el.textContent = model.grade + ' ' + model.regime; el.className = 'status-pill ' + (model.score >= 50 ? 'sp-risk-on' : 'sp-risk-off'); }
+  if (el) { el.textContent = model.regime; el.className = 'status-pill ' + (model.score >= 50 ? 'sp-risk-on' : 'sp-risk-off'); }
   el = _aioLegacyHealthElement('health-interpretation');
   if (el) {
     var compositeScore = null;

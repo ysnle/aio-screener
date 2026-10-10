@@ -493,7 +493,8 @@ window._aioTogglePortfolioEntry = function(forceOpen) {
 // Add/Edit Position
 // E3/P1181 (11 P11-01): 완료 알림은 durable ack 뒤에 온다 — persist가 거부되면 '완료'를 말하지 않는다.
 async function addPortfolioPosition() {
-  const ticker = (document.getElementById('pf-add-ticker').value || '').trim().toUpperCase();
+  // P1592 (F14): '005930.KS' / '000660.KQ' (the screener's own format) is the same listed code — keep the six digits.
+  const ticker = (document.getElementById('pf-add-ticker').value || '').trim().toUpperCase().replace(/^(\d{6})\.K[SQ]$/, '$1');
   const qty = parseFloat(document.getElementById('pf-add-qty').value) || 0;
   const cost = parseFloat(document.getElementById('pf-add-cost').value) || 0;
   // P1176 (22 PFR01): 빈 칸을 0으로 직렬화하면 화면이 '목표 $0.00 · -100%'를 만든다 — 미설정은 null로 남긴다.
@@ -510,7 +511,7 @@ async function addPortfolioPosition() {
     return;
   }
   const costCurrency = costCurrencyRaw || null;
-  if (!ticker || qty <= 0 || cost <= 0) { showToast('티커, 수량, 매수 단가를 모두 입력하세요.'); return; }
+  if (!ticker || qty <= 0 || cost <= 0) { showToast(!ticker ? '티커를 입력하세요.' : qty <= 0 ? '수량은 0보다 커야 합니다.' : '매수 단가는 0보다 커야 합니다.'); return; } // P1592 (F15): name the field
 
   // v38.8: 티커 유효성 검증 — KNOWN_TICKERS 또는 _SNAP_FALLBACK에 존재하는지 확인
   var knownTickers = (typeof KNOWN_TICKERS !== 'undefined') ? KNOWN_TICKERS : [];
@@ -519,7 +520,7 @@ async function addPortfolioPosition() {
   // v46.6: KNOWN_TICKERS가 Set이므로 .has() 사용 (기존 .indexOf()는 Set에서 TypeError)
   var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker);
   if (!isKnown) {
-    showToast('"' + ticker + '" 검증되지 않은 티커라 저장하지 않았습니다. 정확한 심볼인지 확인하세요. (예: AAPL, NVDA, 005930)');
+    showToast('"' + ticker + '" 검증되지 않은 티커라 저장하지 않았습니다. 정확한 심볼인지 확인하세요. (예: AAPL, NVDA, 005930 또는 005930.KS)');
     return;
   }
 
@@ -528,7 +529,8 @@ async function addPortfolioPosition() {
   if (pfMain) pfMain.classList.toggle('is-empty', positions.length === 0);
   const existing = positions.findIndex(p => p.ticker === ticker);
   if (existing >= 0) {
-    showConfirmModal('종목 중복', ticker + ' 이미 존재합니다. 업데이트하시겠습니까?', async function() {
+    const editing = document.getElementById('pf-add-ticker')?.dataset.editing === ticker; // P1592 (F15): an edit is not a duplicate
+    showConfirmModal(editing ? '보유 내역 변경' : '이미 보유 중인 종목', editing ? ticker + ' 보유 내역을 이 값으로 변경할까요?' : '보유 목록에 이미 ' + ticker + ' 종목이 있습니다. 입력한 값으로 바꿀까요?', async function() {
       // E3/P1187: 통째 교체는 import로 들어온 sector·targetWeight·note·시세 통화를 지웠다 —
       // 폼이 소유한 필드만 덮어쓰고 나머지는 보존한다.
       positions[existing] = { ...positions[existing], ticker, qty, cost, target, memo, costCurrency, updatedAt: Date.now() };
@@ -581,7 +583,7 @@ function editPosition(ticker) {
   var tEl = document.getElementById('pf-add-target');
   var ccEl = document.getElementById('pf-add-cost-currency');
   var memoEl = document.getElementById('pf-add-memo');
-  if (tkEl) tkEl.value = p.ticker;
+  if (tkEl) { tkEl.value = p.ticker; tkEl.dataset.editing = p.ticker; }
   if (qtyEl) qtyEl.value = p.qty;
   if (costEl) costEl.value = p.cost;
   if (tEl) tEl.value = p.target || '';
@@ -598,7 +600,7 @@ function editPosition(ticker) {
 function clearPortfolioForm() {
   ['pf-add-ticker','pf-add-qty','pf-add-cost','pf-add-target','pf-add-memo','pf-add-cost-currency'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = '';
+    if (el) { el.value = ''; delete el.dataset.editing; }
   });
   _pfSyncEntryCurrencyLabels();
 }
@@ -779,7 +781,7 @@ function renderPortfolio() {
       '<div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">포트폴리오가 비어 있습니다</div>' +
       '<div><b style="color:var(--text-primary);">티커 · 수량 · 매수 단가</b>를 입력하면 보유 현황과 리스크 분석이 시작됩니다.</div>' +
       '<button class="aio-btn-table primary" data-action="_aioTogglePortfolioEntry" style="margin-top:10px;min-height:36px;padding:7px 16px;">첫 종목 추가</button>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">데이터는 브라우저 localStorage에만 저장되며 서버로 전송되지 않습니다. PIN 설정 후 저장 시 AES-256 암호화.</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.</div>' +
       '</td></tr>';
     updatePortfolioSummary(positions, ld);
     // v48.3: 빈 상태에서도 도넛 리셋(이전 데이터 잔존 방지)

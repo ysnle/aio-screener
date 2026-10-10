@@ -39,8 +39,12 @@ function mixVisual(doc, read) {
 // Codex browser audit H44: "1위 ILMN" pointed at the whole universe's top rank while the table showed a
 // Technology-only, passed-only set. The ticker link follows the first row of the table as it is filtered
 // and sorted now; the read above keeps describing the full ranking.
+// P1592 (F01): once the table has rendered, an empty table means no lead — a re-render of the read must
+// not bring back the previous first row's link.
 let tableLead = null;
+let tableRendered = false;
 export function syncScreenerNextLead(doc, row, { scoped = false } = {}) {
+  tableRendered = true;
   tableLead = row?.sym ? { sym: row.sym, scoped } : null;
   const button = doc?.querySelector?.('#screener-next .flow-next-link[data-action="showTicker"]');
   if (!button) return;
@@ -76,6 +80,6 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   layout.append(mixVisual(doc, read), list);
   host.append(layout);
   renderNextSteps(doc, doc.getElementById('screener-next'), read.next);
-  if (tableLead) syncScreenerNextLead(doc, tableLead, { scoped: tableLead.scoped });
+  if (tableRendered) syncScreenerNextLead(doc, tableLead, { scoped: tableLead?.scoped });
   return read;
 }

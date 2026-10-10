@@ -16,12 +16,12 @@ const TICKER_PATTERNS = [
   ['ORCL', /\bORCL\b|Oracle/i], ['BE', /\bBE\b|Bloom Energy|SOFC/i],
   ['PLTR', /\bPLTR\b|Palantir/i], ['BMY', /\bBMY\b|Bristol[- ]Myers/i],
   ['SNDK', /\bSNDK\b|SanDisk/i], ['WDC', /\bWDC\b|Western Digital/i], ['STX', /\bSTX\b|Seagate/i],
-  ['MTK', /\bMTK\b|MediaTek/i], ['PWR', /\bPWR\b|Quanta Services/i],
+  ['2454.TW', /\bMTK\b|MediaTek/i], ['PWR', /\bPWR\b|Quanta Services/i],
   ['ADBE', /\bADBE\b|Adobe/i], ['SMCI', /\bSMCI\b|Super Micro/i], ['RKLB', /\bRKLB\b|Rocket Lab/i],
-  ['6600.T', /Kioxia/i], ['6981.T', /Murata/i],
+  ['285A.T', /Kioxia/i], ['6981.T', /Murata/i],
   ['005930.KS', /Samsung Electronics|삼성전자/i], ['009150.KS', /Samsung Electro|삼성전기/i], ['000660.KS', /SK\s*Hynix|SK하이닉스/i],
   ['042660.KS', /Hanwha Ocean|한화오션/i], ['039030.KQ', /EO Technics|이오테크닉스/i],
-  ['247540.KQ', /EcoPro BM|에코프로비엠/i], ['003670.KQ', /POSCO Future M|포스코퓨처엠/i],
+  ['247540.KQ', /EcoPro BM|에코프로비엠/i], ['003670.KS', /POSCO Future M|포스코퓨처엠/i],
 ];
 
 // Company names that are also ordinary English words ("coherent", "oracle", "apple", "azure", "gemini").

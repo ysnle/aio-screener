@@ -118,7 +118,9 @@ function peerSection(doc, root, symbol, row, rows) {
       const tone = metric.percentile >= 75 ? 'favorable' : metric.percentile <= 25 ? 'burden' : 'neutral';
       const bar = el(doc, 'div', null, `stock-read-bar is-${tone}`);
       bar.style.width = `${Math.max(2, metric.percentile).toFixed(1)}%`;
-      item.append(bar, el(doc, 'span', `${metric.value.toFixed(1)}% · 중앙값 ${metric.median.toFixed(1)}% · 상위 ${Math.max(1, Math.round(100 - metric.percentile))}%`, 'stock-read-bar-value'));
+      const track = el(doc, 'div', null, 'stock-read-track'); // P1591: the fill sits on a 0-100 track
+      track.append(bar);
+      item.append(track, el(doc, 'span', `${metric.value.toFixed(1)}% · 중앙값 ${metric.median.toFixed(1)}% · 상위 ${Math.max(1, Math.round(100 - metric.percentile))}%`, 'stock-read-bar-value'));
     }
     line.append(item);
     box.append(line);

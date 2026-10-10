@@ -158,9 +158,9 @@ export function createThemesProvider({
           (sub?.tickers || []).forEach((symbol) => detailSymbols.add(String(symbol)));
         });
         const quotes = Object.fromEntries([...detailSymbols].map((symbol) => [symbol, runtimeQuote(live, symbol)]));
-        const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => runtimeQuote(live, symbol)).filter((quote) => quote.price != null && quote.directionCompatible);
+        const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => runtimeQuote(live, symbol)).filter((quote) => quote.price != null && quote.directionCompatible && quote.pct != null && Number.isFinite(Number(quote.pct))); // P1575: a leader without a move is not counted as down
         const breadth = pricedLeaders.length >= Math.max(2, Math.ceil((selectedTheme.leaders || []).length * 0.6))
-          ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct || 0) > 0).length / pricedLeaders.length * 100)
+          ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct) > 0).length / pricedLeaders.length * 100)
           : null;
         const insight = definitions.insights[selectedTheme.id] || null;
         selectedDetail = {

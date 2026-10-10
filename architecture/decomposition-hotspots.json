@@ -2,7 +2,7 @@
   "schemaVersion": "decomposition-hotspots.v2",
   "owner": "src/ui/pages + js compatibility boundary",
   "measurement": "line-count ratchet: a measured runtime file may never exceed its recorded value; `ceiling` is the absolute bound that only an explicitly recorded decision may raise",
-  "history": "v53.96/P895 (commit 6fd5289b, 2026-08-10) introduced fixed caps on three files. Those caps were never read from this file — the numbers were hardcoded in scripts/ci-decomp-hotspot-check.mjs, so the declaration and the enforcement could silently disagree. They also covered only 3 of 7 runtime files, so accretion escaped sideways into aio-ui/aio-chat/aio-tests, and at js/aio-core.js the cap sat 1 line above the file — a wall that blocked a one-line correctness fix instead of a ratchet. v56.61/P1291–P1298 records deliberate ratchet growth of js/aio-core.js (+3) and js/aio-data.js (+5) for strict millisecond-precision live-core freshness and future timestamp rejection, and js/aio-pages.js (+38) for escaped Risk Radar source labels and canonical official HTTPS links. These additions remove stale-input waivers and unsafe source rendering; include this rationale in the eventual release commit.",
+  "history": "v53.96/P895 (commit 6fd5289b, 2026-08-10) introduced fixed caps on three files. Those caps were never read from this file — the numbers were hardcoded in scripts/ci-decomp-hotspot-check.mjs, so the declaration and the enforcement could silently disagree. They also covered only 3 of 7 runtime files, so accretion escaped sideways into aio-ui/aio-chat/aio-tests, and at js/aio-core.js the cap sat 1 line above the file — a wall that blocked a one-line correctness fix instead of a ratchet. v56.61/P1291–P1298 records deliberate ratchet growth of js/aio-core.js (+3) and js/aio-data.js (+5) for strict millisecond-precision live-core freshness and future timestamp rejection, and js/aio-pages.js (+38) for escaped Risk Radar source labels and canonical official HTTPS links. These additions remove stale-input waivers and unsafe source rendering; include this rationale in the eventual release commit. v57.31/P1591 records js/aio-ui.js +5 for the legacy diagram engine and external-metric card: theme-token palette (light theme drew white on ivory), AI switch unavailable state, and one collapsed line for unreceived metrics instead of N/A cards — a correctness fix inside a not-yet-migrated legacy renderer. v57.31/P1592 records js/aio-data.js +10 (officer-title/agency acronym gate on local and translation-cache news tickers, template news summary removed), js/aio-workspace.js +2 (KR suffix normalization, field-specific errors, edit vs duplicate) and index.html +1 (Korea reference chip style): all are correctness fixes inside legacy owners that still render these surfaces. v57.31/P1593 records js/aio-glossary.js +1: the dated Fed balance-sheet figure carries its declared source row (QA-GLOSSARY-SWEEP requires one per figure).",
   "measuredFiles": [
     "index.html",
     "js/aio-core.js",
@@ -18,17 +18,17 @@
     "js/aio-qa-audits.js"
   ],
   "recordedLines": {
-    "index.html": 10184,
-    "js/aio-core.js": 22904,
-    "js/aio-data.js": 16705,
-    "js/aio-ui.js": 7209,
+    "index.html": 10185,
+    "js/aio-core.js": 22900,
+    "js/aio-data.js": 16779,
+    "js/aio-ui.js": 7214,
     "js/aio-chat.js": 8854,
     "js/aio-tests.js": 9525,
-    "js/aio-glossary.js": 408,
-    "js/aio-pages.js": 3097,
-    "js/aio-kr-data.js": 3194,
+    "js/aio-glossary.js": 409,
+    "js/aio-pages.js": 3045,
+    "js/aio-kr-data.js": 3188,
     "js/aio-macro-tech.js": 766,
-    "js/aio-workspace.js": 2649,
+    "js/aio-workspace.js": 2651,
     "js/aio-qa-audits.js": 4229
   },
   "ceiling": {

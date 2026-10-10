@@ -4,6 +4,7 @@ import { buildDailyChanges, buildMyNames } from '../../domain/briefing/daily-dif
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
 import { readMarketRegime } from './market-regime.js';
 import { emptyState } from './empty-state.js';
+import { withObjectParticle } from '../../domain/content/korean-particle.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -23,7 +24,7 @@ function call(root, name, arg, fallback) {
 
 function renderChanges(doc, host, history) {
   const model = buildDailyChanges(history);
-  host.replaceChildren(el(doc, 'h2', '어제와 달라진 점', 'briefing-h2'));
+  host.replaceChildren(el(doc, 'h2', '직전 종가 대비 변화', 'briefing-h2'));
   if (!model.available) { host.append(emptyState(doc, { title: '비교 대기', reason: model.reason, compact: true })); return model; }
   const gap = Array.isArray(model.missing) && model.missing.length > 0;
   if (gap) host.querySelector('h2').firstChild.textContent = '직전 기록과 달라진 점';
@@ -62,7 +63,7 @@ function renderMyNames(doc, host, root, store) {
     button.dataset.action = 'showTicker';
     button.dataset.arg = row.symbol;
     li.append(button, el(doc, 'span', `${row.name || ''}${row.held ? ' · 보유' : ''}`, 'daily-name-name'));
-    li.append(el(doc, 'span', row.dayPct == null ? '' : `${row.dayPct >= 0 ? '+' : ''}${row.dayPct.toFixed(2)}%`, `daily-name-day ${row.dayPct > 0 ? 'is-up' : row.dayPct < 0 ? 'is-down' : ''}`));
+    li.append(el(doc, 'span', row.dayPct == null ? '' : `${row.dayPct >= 0 ? '+' : ''}${row.dayPct.toFixed(2)}%`, `daily-name-day ${row.daySignalled ? (row.dayPct > 0 ? 'is-up' : row.dayPct < 0 ? 'is-down' : '') : ''}`));
     li.append(el(doc, 'span', row.notes.join(' · ') || '팩터 기록 없음', 'daily-name-notes'));
     list.append(li);
   }
@@ -113,7 +114,7 @@ function renderMyNews(doc, host, root, store, names) {
     if (hit) mine.push({ item, symbol: hit });
     if (mine.length >= 5) break;
   }
-  if (!mine.length) { host.append(el(doc, 'p', `최근 뉴스에 ${[...symbols].slice(0, 4).join('·')}${symbols.size > 4 ? ' 등' : ''}을 다룬 기사가 없습니다.`, 'daily-empty')); return; }
+  if (!mine.length) { host.append(el(doc, 'p', `최근 뉴스에 ${withObjectParticle(`${[...symbols].slice(0, 4).join('·')}${symbols.size > 4 ? ' 등' : ''}`)} 다룬 기사가 없습니다.`, 'daily-empty')); return; }
   const list = el(doc, 'ul', null, 'daily-news');
   for (const { item, symbol } of mine) {
     const li = el(doc, 'li', null, 'daily-news-item');

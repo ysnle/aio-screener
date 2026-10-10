@@ -8,7 +8,7 @@
 // ═══════════════ SCREENER DATABASE & FUNCTIONS ═══════════════
 // SCREENER_DB는 정적 식별자 유니버스다. 변동 팩터와 메모는 출처가 있는 런타임 산출물만 병합한다.
 var SCREENER_DB_META = {
-  schemaVersion:'v53.4', lastBulkUpdate:'2026-10-01', staleAfterDays:30, replaceAfterDays:90,
+  schemaVersion:'v53.4', lastBulkUpdate:'2026-10-10', staleAfterDays:30, replaceAfterDays:90,
   source:'js/aio-data.js curated identity universe; public-data/screener.json runtime enrichment',
   note:'정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다.'
 };
@@ -158,7 +158,6 @@ var SCREENER_DB = [
   { sym:'IREN', name:'IREN Limited', sector:'Technology', index:'RUSSELL2000', memo:'[2026-08-09 REFERENCE] Power-cost/site optionality can matter for neocloud economics, but utilization, customer contract funding, GPU depreciation, grid/interconnection and execution remain the kill switches.' },
   { sym:'CORZ', name:'Core Scientific', sector:'Technology', index:'NASDAQ' },
   { sym:'BIRD', name:'Allbirds', sector:'Consumer', index:'RUSSELL2000' },
-  { sym:'DM', name:'Desktop Metal', sector:'Technology', index:'RUSSELL2000' },
   // ══════════════════════════════════════════════════════════════
   // HOT / 트렌딩 / 주도주 — 시가총액 무관, 시장 관심도 높은 종목
   // ══════════════════════════════════════════════════════════════
@@ -187,7 +186,6 @@ var SCREENER_DB = [
   { sym:'TEM', name:'Tempus AI', sector:'Healthcare', index:'NASDAQ100' },
   { sym:'AI', name:'C3.ai', sector:'Technology', index:'NASDAQ100' },
   { sym:'PATH', name:'UiPath', sector:'Technology', index:'NYSE' },
-  { sym:'CFLT', name:'Confluent', sector:'Technology', index:'NASDAQ100' },
   { sym:'CRSP', name:'CRISPR Therapeutics', sector:'Healthcare', index:'NASDAQ100' },
   { sym:'NET', name:'Cloudflare', sector:'Technology', index:'NYSE' },
   { sym:'MDB', name:'MongoDB', sector:'Technology', index:'NASDAQ100' },
@@ -217,7 +215,6 @@ var SCREENER_DB = [
   { sym:'BKSY', name:'BlackSky', sector:'Technology', index:'NYSE' },
   { sym:'IRDM', name:'Iridium', sector:'Communication Services', index:'NASDAQ' },
   { sym:'VSAT', name:'Viasat', sector:'Communication Services', index:'NASDAQ' },
-  { sym:'SATS', name:'EchoStar', sector:'Communication Services', index:'NASDAQ' },
   { sym:'GSAT', name:'Globalstar', sector:'Communication Services', index:'NYSE' },
   { sym:'SPIR', name:'Spire Global', sector:'Technology', index:'NYSE' },
   { sym:'SATL', name:'Satellogic', sector:'Technology', index:'NASDAQ' },
@@ -371,7 +368,7 @@ var SCREENER_DB = [
   { sym:'CVS', name:'CVS Health', sector:'Healthcare', index:'SP500' },
   { sym:'STX', name:'Seagate Tech', sector:'Technology', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] AI inference/storage demand should be tested through exabyte shipments, pricing, mix, cloud customers and cash conversion. Telegram storage commentary is a discovery lead, not a current demand estimate.' },
   { sym:'SIMO', name:'Silicon Motion', sector:'Technology', index:'NASDAQ' },
-  { sym:'6600.T', name:'Kioxia Holdings', sector:'Technology', index:'TSE', memo:'[2026-08-09 TG-REFERENCE] Insider highlighted PCIe 6.0/UFS 5.0 NAND roadmap claims. Verify mass-production timing, qualification, customer design wins, yield and NAND pricing from company/industry evidence.' },
+  { sym:'285A.T', name:'Kioxia Holdings', sector:'Technology', index:'TSE', memo:'[2026-08-09 TG-REFERENCE] Insider highlighted PCIe 6.0/UFS 5.0 NAND roadmap claims. Verify mass-production timing, qualification, customer design wins, yield and NAND pricing from company/industry evidence.' },
   { sym:'8035.T', name:'Tokyo Electron', sector:'Technology', index:'TSE' },
   { sym:'6702.T', name:'Fujitsu', sector:'Technology', index:'TSE' },
   { sym:'FDX', name:'FedEx', sector:'Industrials', index:'SP500' },
@@ -428,7 +425,7 @@ var SCREENER_DB = [
   { sym:'CAH', name:'Cardinal Health', sector:'Healthcare', index:'SP500' },
   { sym:'XEL', name:'Xcel Energy', sector:'Utilities', index:'SP500' },
   { sym:'TER', name:'Teradyne', sector:'Technology', index:'NASDAQ100' },
-  { sym:'MTK', name:'MediaTek', sector:'Technology', index:'TWSE', memo:'[2026-08-09 TG-REFERENCE] Insider/HANA relayed Google TPU supply-chain participation and future-node demand. Verify design-win status, tape-out/production timing, fee economics and customer concentration; forecast unit counts remain reference-only.' },
+  { sym:'2454.TW', name:'MediaTek', sector:'Technology', index:'TWSE', memo:'[2026-08-09 TG-REFERENCE] Insider/HANA relayed Google TPU supply-chain participation and future-node demand. Verify design-win status, tape-out/production timing, fee economics and customer concentration; forecast unit counts remain reference-only.' },
   { sym:'EW', name:'Edwards Lifesciences', sector:'Healthcare', index:'SP500' },
   { sym:'ETR', name:'Entergy', sector:'Utilities', index:'SP500' },
   { sym:'GRMN', name:'Garmin', sector:'Technology', index:'SP500' },
@@ -746,7 +743,6 @@ var SCREENER_DB = [
   { sym:'XLY', name:'Consumer Discretionary Select SPDR', sector:'Consumer', index:'ETF' },
   { sym:'XOP', name:'SPDR S&P Oil & Gas Exploration ETF', sector:'ETF', index:'ETF' },
   // ── 테마 누락분 보강 ──
-  { sym:'ABB', name:'ABB Ltd', sector:'Industrials', index:'ADR' },
   { sym:'ADM', name:'Archer-Daniels-Midland', sector:'Consumer Defensive', index:'SP500' },
   { sym:'ES', name:'Eversource Energy', sector:'Utilities', index:'SP500' },
   { sym:'FANUY', name:'Fanuc Corp', sector:'Industrials', index:'ADR' },
@@ -761,7 +757,6 @@ var SCREENER_DB = [
   { sym:'CLSK', name:'CleanSpark', sector:'Technology', index:'NASDAQ' },
   { sym:'ETSY', name:'Etsy', sector:'Consumer', index:'NASDAQ' },
   { sym:'LAC', name:'Lithium Americas', sector:'Materials', index:'NYSE' },
-  { sym:'MASI', name:'Masimo Corp', sector:'Healthcare', index:'NASDAQ' },
   { sym:'MP', name:'MP Materials', sector:'Materials', index:'NYSE' },
   { sym:'RUN', name:'Sunrun', sector:'Utilities', index:'NASDAQ' },
   { sym:'SEDG', name:'SolarEdge Technologies', sector:'Technology', index:'NASDAQ' },
@@ -793,7 +788,7 @@ var SCREENER_DB = [
   { sym:'042660.KS', name:'한화오션', sector:'Industrials', index:'KOSPI', memo:'[2026-08-09 TG-REFERENCE] BornLupin relayed inclusion in Korea materials/equipment "super-乙" R&D support. Verify formal program notice, eligible project, funding schedule, commercial customer and margin impact; policy selection is not backlog.' },
 
   //  반도체 (semi) — 소재·장비 포함
-  { sym:'042700.KQ', name:'한미반도체', sector:'Technology', index:'KOSDAQ' },
+  { sym:'042700.KS', name:'한미반도체', sector:'Technology', index:'KOSPI' },
   { sym:'009150.KS', name:'삼성전기', sector:'Technology', index:'KOSPI' },
   { sym:'402340.KS', name:'SK스퀘어', sector:'Technology', index:'KOSPI' },
   { sym:'039030.KQ', name:'이오테크닉스', sector:'Technology', index:'KOSDAQ', memo:'[2026-08-09 TG-REFERENCE] BornLupin relayed a government-supported super-乙 project for high-speed laser heat-treatment equipment. Verify official award, scope, timing, customer qualification and revenue recognition.' },
@@ -803,7 +798,7 @@ var SCREENER_DB = [
   { sym:'000990.KS', name:'DB하이텍', sector:'Technology', index:'KOSPI' },
   { sym:'036930.KQ', name:'주성엔지니어링', sector:'Technology', index:'KOSDAQ' },
   { sym:'131970.KQ', name:'테크윙', sector:'Technology', index:'KOSDAQ' },
-  { sym:'005290.KS', name:'동진쎄미켐', sector:'Materials', index:'KOSPI' },
+  { sym:'005290.KQ', name:'동진쎄미켐', sector:'Materials', index:'KOSDAQ' },
   { sym:'357780.KQ', name:'솔브레인', sector:'Materials', index:'KOSDAQ' },
   { sym:'025560.KS', name:'미래산업', sector:'Technology', index:'KOSPI' },
 
@@ -819,7 +814,6 @@ var SCREENER_DB = [
   { sym:'329180.KS', name:'HD현대중공업', sector:'Industrials', index:'KOSPI' },
   { sym:'009540.KS', name:'HD한국조선해양', sector:'Industrials', index:'KOSPI' },
   { sym:'010140.KS', name:'삼성중공업', sector:'Industrials', index:'KOSPI' },
-  { sym:'010620.KS', name:'HD현대미포', sector:'Industrials', index:'KOSPI' },
   { sym:'267250.KS', name:'HD현대', sector:'Industrials', index:'KOSPI' },
   { sym:'082740.KS', name:'한화엔진', sector:'Industrials', index:'KOSPI' },
   { sym:'011200.KS', name:'HMM', sector:'Industrials', index:'KOSPI' },
@@ -830,7 +824,7 @@ var SCREENER_DB = [
   { sym:'010120.KS', name:'LS일렉트릭', sector:'Industrials', index:'KOSPI' },
   { sym:'103590.KS', name:'일진전기', sector:'Industrials', index:'KOSPI' },
   { sym:'006260.KS', name:'LS', sector:'Industrials', index:'KOSPI' },
-  { sym:'229640.KQ', name:'LS에코에너지', sector:'Industrials', index:'KOSDAQ' },
+  { sym:'229640.KS', name:'LS에코에너지', sector:'Industrials', index:'KOSPI' },
   { sym:'000500.KS', name:'가온전선', sector:'Industrials', index:'KOSPI' },
   { sym:'033100.KQ', name:'제룡전기', sector:'Industrials', index:'KOSDAQ' },
 
@@ -838,15 +832,15 @@ var SCREENER_DB = [
   { sym:'034020.KS', name:'두산에너빌리티', sector:'Industrials', index:'KOSPI' },
   { sym:'052690.KS', name:'한전기술', sector:'Industrials', index:'KOSPI' },
   { sym:'051600.KS', name:'한전KPS', sector:'Industrials', index:'KOSPI' },
-  { sym:'092200.KQ', name:'디아이씨', sector:'Industrials', index:'KOSDAQ' },
+  { sym:'092200.KS', name:'디아이씨', sector:'Industrials', index:'KOSPI' },
 
   //  2차전지 (battery)
   { sym:'005490.KS', name:'POSCO홀딩스', sector:'Materials', index:'KOSPI' },
   { sym:'096770.KS', name:'SK이노베이션', sector:'Energy', index:'KOSPI' },
   { sym:'247540.KQ', name:'에코프로비엠', sector:'Materials', index:'KOSDAQ', memo:'[2026-08-09 TG-REFERENCE] BornLupin/HANA battery posts frame ESS, North America non-China supply and lithium/VC tightness as separate hypotheses. Verify order disclosure, eligible-origin rules, raw-material cost pass-through, inventory and customer qualification.' },
   { sym:'086520.KQ', name:'에코프로', sector:'Materials', index:'KOSDAQ' },
-  { sym:'003670.KQ', name:'포스코퓨처엠', sector:'Materials', index:'KOSDAQ', memo:'[2026-08-09 TG-REFERENCE] HANA/BornLupin relay North American ESS order-cycle and non-China material sourcing themes. Verify signed contract, volume, timing, subsidy/origin eligibility and margin; sector narrative alone is not an order.' },
-  { sym:'066970.KQ', name:'엘앤에프', sector:'Materials', index:'KOSDAQ' },
+  { sym:'003670.KS', name:'포스코퓨처엠', sector:'Materials', index:'KOSPI', memo:'[2026-08-09 TG-REFERENCE] HANA/BornLupin relay North American ESS order-cycle and non-China material sourcing themes. Verify signed contract, volume, timing, subsidy/origin eligibility and margin; sector narrative alone is not an order.' },
+  { sym:'066970.KS', name:'엘앤에프', sector:'Materials', index:'KOSPI' },
 
   //  바이오 (bio)
   { sym:'196170.KQ', name:'알테오젠', sector:'Healthcare', index:'KOSDAQ' },
@@ -854,16 +848,16 @@ var SCREENER_DB = [
   { sym:'028300.KQ', name:'HLB', sector:'Healthcare', index:'KOSDAQ' },
   { sym:'000100.KS', name:'유한양행', sector:'Healthcare', index:'KOSPI' },
   { sym:'145020.KQ', name:'휴젤', sector:'Healthcare', index:'KOSDAQ' },
-  { sym:'302440.KQ', name:'SK바이오사이언스', sector:'Healthcare', index:'KOSDAQ' },
+  { sym:'302440.KS', name:'SK바이오사이언스', sector:'Healthcare', index:'KOSPI' },
   { sym:'141080.KQ', name:'리가켐바이오', sector:'Healthcare', index:'KOSDAQ' },
 
   //  K-뷰티 (kbeauty)
   { sym:'090430.KS', name:'아모레퍼시픽', sector:'Consumer', index:'KOSPI' },
   { sym:'051900.KS', name:'LG생활건강', sector:'Consumer', index:'KOSPI' },
-  { sym:'044820.KQ', name:'코스맥스BTI', sector:'Consumer', index:'KOSDAQ' },
-  { sym:'192820.KQ', name:'코스맥스', sector:'Consumer', index:'KOSDAQ' },
+  { sym:'044820.KS', name:'코스맥스BTI', sector:'Consumer', index:'KOSPI' },
+  { sym:'192820.KS', name:'코스맥스', sector:'Consumer', index:'KOSPI' },
   { sym:'161890.KS', name:'한국콜마', sector:'Consumer', index:'KOSPI' },
-  { sym:'278470.KQ', name:'에이피알(APR)', sector:'Consumer', index:'KOSDAQ', memo:'[2026-08-09 TG-REFERENCE] BornLupin relayed sell-side commentary on North America/Europe growth and a reported target price. Verify DART revenue by region, channel mix, promotion/FX/tariff effects, margin normalization and valuation; target-price recirculation is not current evidence.' },
+  { sym:'278470.KS', name:'에이피알(APR)', sector:'Consumer', index:'KOSPI', memo:'[2026-08-09 TG-REFERENCE] BornLupin relayed sell-side commentary on North America/Europe growth and a reported target price. Verify DART revenue by region, channel mix, promotion/FX/tariff effects, margin normalization and valuation; target-price recirculation is not current evidence.' },
   { sym:'257720.KQ', name:'실리콘투', sector:'Consumer', index:'KOSDAQ' },
   { sym:'237880.KQ', name:'클리오', sector:'Consumer', index:'KOSDAQ' },
   { sym:'950130.KQ', name:'엑시큐어', sector:'Healthcare', index:'KOSDAQ' },
@@ -873,8 +867,8 @@ var SCREENER_DB = [
   { sym:'041510.KQ', name:'SM엔터테인먼트', sector:'Communication Services', index:'KOSDAQ' },
   { sym:'035900.KQ', name:'JYP엔터테인먼트', sector:'Communication Services', index:'KOSDAQ' },
   { sym:'122870.KQ', name:'YG엔터테인먼트', sector:'Communication Services', index:'KOSDAQ' },
-  { sym:'253450.KS', name:'스튜디오드래곤', sector:'Communication Services', index:'KOSPI' },
-  { sym:'035760.KS', name:'CJ ENM', sector:'Communication Services', index:'KOSPI' },
+  { sym:'253450.KQ', name:'스튜디오드래곤', sector:'Communication Services', index:'KOSDAQ' },
+  { sym:'035760.KQ', name:'CJ ENM', sector:'Communication Services', index:'KOSDAQ' },
   { sym:'251270.KS', name:'넷마블', sector:'Communication Services', index:'KOSPI' },
   { sym:'112040.KQ', name:'위메이드', sector:'Communication Services', index:'KOSDAQ' },
   { sym:'263750.KQ', name:'펄어비스', sector:'Communication Services', index:'KOSDAQ' },
@@ -888,7 +882,7 @@ var SCREENER_DB = [
   { sym:'316140.KS', name:'우리금융지주', sector:'Financials', index:'KOSPI' },
 
   // 로봇 (robot)
-  { sym:'454910.KQ', name:'두산로보틱스', sector:'Technology', index:'KOSDAQ' },
+  { sym:'454910.KS', name:'두산로보틱스', sector:'Technology', index:'KOSPI' },
   { sym:'277810.KQ', name:'레인보우로보틱스', sector:'Technology', index:'KOSDAQ' },
   { sym:'315640.KQ', name:'뉴로메카', sector:'Technology', index:'KOSDAQ' },
   { sym:'178320.KQ', name:'서진시스템', sector:'Technology', index:'KOSDAQ' },
@@ -898,7 +892,7 @@ var SCREENER_DB = [
   { sym:'086790.KS', name:'하나금융지주', sector:'Financials', index:'KOSPI' },
   { sym:'032830.KS', name:'삼성생명', sector:'Financials', index:'KOSPI' },
   { sym:'000810.KS', name:'삼성화재', sector:'Financials', index:'KOSPI' },
-  { sym:'323410.KQ', name:'카카오뱅크', sector:'Financials', index:'KOSDAQ' },
+  { sym:'323410.KS', name:'카카오뱅크', sector:'Financials', index:'KOSPI' },
   { sym:'024110.KS', name:'기업은행', sector:'Financials', index:'KOSPI' },
   { sym:'003550.KS', name:'LG', sector:'Industrials', index:'KOSPI' },
   { sym:'066570.KS', name:'LG전자', sector:'Consumer', index:'KOSPI' },
@@ -925,7 +919,7 @@ var SCREENER_DB = [
   // 유통/소비재 (retail)
   { sym:'004170.KS', name:'신세계', sector:'Consumer', index:'KOSPI' },
   { sym:'023530.KS', name:'롯데쇼핑', sector:'Consumer', index:'KOSPI' },
-  { sym:'069960.KQ', name:'현대백화점', sector:'Consumer', index:'KOSDAQ' },
+  { sym:'069960.KS', name:'현대백화점', sector:'Consumer', index:'KOSPI' },
 
   //  건설/인프라
   { sym:'000720.KS', name:'현대건설', sector:'Industrials', index:'KOSPI' },
@@ -946,7 +940,7 @@ var SCREENER_DB = [
   { sym:'004020.KS', name:'현대제철', sector:'Materials', index:'KOSPI' },
   { sym:'011780.KS', name:'금호석유', sector:'Materials', index:'KOSPI' },
   { sym:'009830.KS', name:'한화솔루션', sector:'Technology', index:'KOSPI' },
-  { sym:'012510.KS', name:'더존비즈온', sector:'Technology', index:'KOSPI' },
+  { sym:'012510.KQ', name:'더존비즈온', sector:'Technology', index:'KOSDAQ' },
   { sym:'030520.KQ', name:'한글과컴퓨터', sector:'Technology', index:'KOSDAQ' },
   { sym:'041020.KQ', name:'폴라리스오피스', sector:'Technology', index:'KOSDAQ' },
   { sym:'304100.KQ', name:'솔트룩스', sector:'Technology', index:'KOSDAQ' },
@@ -1030,6 +1024,76 @@ var SCREENER_DB = [
   { sym:'WSM', name:'Williams-Sonoma, Inc.', sector:'Consumer', index:'SP500' },
   { sym:'XYL', name:'Xylem Inc.', sector:'Industrials', index:'SP500' },
   { sym:'ZBH', name:'Zimmer Biomet', sector:'Healthcare', index:'SP500' },
+  // P1589 (2026-10-10 universe review): theme members without published returns, each verified on Yahoo chart;
+  // KR suffix from the listing exchange (KSE=.KS, KOSDAQ=.KQ), never inferred.
+  { sym:'ACLS', name:'Axcelis Technologies', sector:'Technology', index:'NASDAQ' },
+  { sym:'ENTG', name:'Entegris', sector:'Technology', index:'NASDAQ' },
+  { sym:'UCTT', name:'Ultra Clean Holdings', sector:'Technology', index:'NASDAQ' },
+  { sym:'MOD', name:'Modine Manufacturing', sector:'Industrials', index:'NYSE' },
+  { sym:'WULF', name:'TeraWulf', sector:'Technology', index:'NASDAQ' },
+  { sym:'CIFR', name:'Cipher Digital', sector:'Technology', index:'NASDAQ' },
+  { sym:'S', name:'SentinelOne', sector:'Technology', index:'NYSE' },
+  { sym:'DK', name:'Delek US Holdings', sector:'Energy', index:'NYSE' },
+  { sym:'FTI', name:'TechnipFMC', sector:'Energy', index:'NYSE' },
+  { sym:'NOV', name:'NOV Inc', sector:'Energy', index:'NYSE' },
+  { sym:'WHD', name:'Cactus Inc', sector:'Energy', index:'NYSE' },
+  { sym:'LEU', name:'Centrus Energy', sector:'Energy', index:'NYSE' },
+  { sym:'BWXT', name:'BWX Technologies', sector:'Industrials', index:'NYSE' },
+  { sym:'NNE', name:'NANO Nuclear Energy', sector:'Industrials', index:'NASDAQ' },
+  { sym:'NXT', name:'Nextpower', sector:'Industrials', index:'NASDAQ' },
+  { sym:'ARRY', name:'Array Technologies', sector:'Industrials', index:'NASDAQ' },
+  { sym:'SHLS', name:'Shoals Technologies', sector:'Industrials', index:'NASDAQ' },
+  { sym:'FLNC', name:'Fluence Energy', sector:'Industrials', index:'NASDAQ' },
+  { sym:'PLUG', name:'Plug Power', sector:'Industrials', index:'NASDAQ' },
+  { sym:'FCEL', name:'FuelCell Energy', sector:'Industrials', index:'NASDAQ' },
+  { sym:'VKTX', name:'Viking Therapeutics', sector:'Healthcare', index:'NASDAQ' },
+  { sym:'KTOS', name:'Kratos Defense & Security', sector:'Industrials', index:'NASDAQ' },
+  { sym:'AVAV', name:'AeroVironment', sector:'Industrials', index:'NASDAQ' },
+  { sym:'SYM', name:'Symbotic', sector:'Industrials', index:'NASDAQ' },
+  { sym:'MBLY', name:'Mobileye', sector:'Technology', index:'NASDAQ' },
+  { sym:'LYFT', name:'Lyft', sector:'Technology', index:'NASDAQ' },
+  { sym:'EA', name:'Electronic Arts', sector:'Communication Services', index:'NASDAQ100' },
+  { sym:'DKNG', name:'DraftKings', sector:'Consumer', index:'NASDAQ' },
+  { sym:'FLUT', name:'Flutter Entertainment', sector:'Consumer', index:'NYSE' },
+  { sym:'PENN', name:'PENN Entertainment', sector:'Consumer', index:'NASDAQ' },
+  { sym:'KGC', name:'Kinross Gold', sector:'Materials', index:'NYSE' },
+  { sym:'APLD', name:'Applied Digital', sector:'Technology', index:'NASDAQ' },
+  { sym:'007660.KS', name:'이수페타시스', sector:'Technology', index:'KOSPI' },
+  { sym:'095340.KQ', name:'ISC', sector:'Technology', index:'KOSDAQ' },
+  { sym:'071970.KS', name:'HD현대마린엔진', sector:'Industrials', index:'KOSPI' },
+  { sym:'001440.KS', name:'대한전선', sector:'Industrials', index:'KOSPI' },
+  { sym:'062040.KS', name:'산일전기', sector:'Industrials', index:'KOSPI' },
+  { sym:'083650.KQ', name:'비에이치아이', sector:'Industrials', index:'KOSDAQ' },
+  { sym:'018290.KQ', name:'브이티', sector:'Consumer Defensive', index:'KOSDAQ' },
+  { sym:'214150.KQ', name:'클래시스', sector:'Healthcare', index:'KOSDAQ' },
+  { sym:'439090.KQ', name:'마녀공장', sector:'Consumer Defensive', index:'KOSDAQ' },
+  { sym:'108490.KQ', name:'로보티즈', sector:'Technology', index:'KOSDAQ' },
+  { sym:'388720.KQ', name:'유일로보틱스', sector:'Technology', index:'KOSDAQ' },
+  { sym:'090710.KQ', name:'휴림로봇', sector:'Technology', index:'KOSDAQ' },
+  { sym:'041190.KQ', name:'우리기술투자', sector:'Financials', index:'KOSDAQ' },
+  { sym:'047080.KQ', name:'한빛소프트', sector:'Technology', index:'KOSDAQ' },
+  { sym:'006360.KS', name:'GS건설', sector:'Industrials', index:'KOSPI' },
+  { sym:'375500.KS', name:'DL이앤씨', sector:'Industrials', index:'KOSPI' },
+  { sym:'028050.KS', name:'삼성E&A', sector:'Industrials', index:'KOSPI' },
+  { sym:'139480.KS', name:'이마트', sector:'Consumer', index:'KOSPI' },
+  { sym:'007070.KS', name:'GS리테일', sector:'Consumer', index:'KOSPI' },
+  { sym:'282330.KS', name:'BGF리테일', sector:'Consumer', index:'KOSPI' },
+  { sym:'000120.KS', name:'CJ대한통운', sector:'Industrials', index:'KOSPI' },
+  { sym:'328130.KQ', name:'루닛', sector:'Healthcare', index:'KOSDAQ' },
+  { sym:'338220.KQ', name:'뷰노', sector:'Healthcare', index:'KOSDAQ' },
+  { sym:'322510.KQ', name:'제이엘케이', sector:'Healthcare', index:'KOSDAQ' },
+  { sym:'049950.KQ', name:'미래컴퍼니', sector:'Technology', index:'KOSDAQ' },
+  { sym:'145720.KS', name:'덴티움', sector:'Healthcare', index:'KOSPI' },
+  { sym:'018670.KS', name:'SK가스', sector:'Energy', index:'KOSPI' },
+  { sym:'050890.KQ', name:'쏠리드', sector:'Technology', index:'KOSDAQ' },
+  { sym:'032500.KQ', name:'케이엠더블유', sector:'Technology', index:'KOSDAQ' },
+  { sym:'218410.KQ', name:'RFHIC', sector:'Technology', index:'KOSDAQ' },
+  { sym:'138080.KQ', name:'오이솔루션', sector:'Technology', index:'KOSDAQ' },
+  { sym:'112610.KS', name:'씨에스윈드', sector:'Industrials', index:'KOSPI' },
+  { sym:'336260.KS', name:'두산퓨얼셀', sector:'Industrials', index:'KOSPI' },
+  { sym:'017390.KS', name:'서울가스', sector:'Utilities', index:'KOSPI' },
+  { sym:'003830.KS', name:'대한화섬', sector:'Materials', index:'KOSPI' },
+  { sym:'007310.KS', name:'오뚜기', sector:'Consumer Defensive', index:'KOSPI' },
 ];
 
 // ARX-16 compatibility boundary: quantitative and identity consumers should
@@ -1386,7 +1450,7 @@ var _TG_CH_SRC = {
 };
 var _TG_KR_NAME = {
   '005930.KS':'삼성전자','000660.KS':'SK하이닉스','009150.KS':'삼성전기',
-  '6981.T':'무라타','6600.T':'키옥시아','000270.KS':'기아','005380.KS':'현대차',
+  '6981.T':'무라타','285A.T':'키옥시아','000270.KS':'기아','005380.KS':'현대차',
   '035420.KS':'NAVER','035720.KS':'카카오','051910.KS':'LG화학',
 };
 
@@ -1895,21 +1959,21 @@ var SCR_KEYWORD_ALIASES = {
   // ═══ v35.6: 한국 종목 검색 앨리어스 ═══
   '한국주식': ['005930.KS','000660.KS','373220.KS','207940.KS','005380.KS','012450.KS','000270.KS','035420.KS','068270.KS','105560.KS'],
   '코스피': ['005930.KS','000660.KS','373220.KS','207940.KS','005380.KS','012450.KS','000270.KS','035420.KS','068270.KS','105560.KS'],
-  '코스닥': ['042700.KQ','196170.KQ','247540.KQ','044820.KQ','192820.KQ','454910.KQ','277810.KQ','278470.KQ','323410.KQ','033100.KQ'],
+  '코스닥': ['042700.KS','196170.KQ','247540.KQ','044820.KS','192820.KS','454910.KS','277810.KQ','278470.KS','323410.KS','033100.KQ'],
   'kospi': ['005930.KS','000660.KS','373220.KS','207940.KS','005380.KS','012450.KS','000270.KS','035420.KS','068270.KS','105560.KS'],
-  'kosdaq': ['042700.KQ','196170.KQ','247540.KQ','044820.KQ','192820.KQ','454910.KQ','277810.KQ','278470.KQ','323410.KQ','033100.KQ'],
-  'k반도체': ['005930.KS','000660.KS','042700.KQ','009150.KS','402340.KS','039030.KQ','403870.KQ','058470.KQ'],
+  'kosdaq': ['042700.KS','196170.KQ','247540.KQ','044820.KS','192820.KS','454910.KS','277810.KQ','278470.KS','323410.KS','033100.KQ'],
+  'k반도체': ['005930.KS','000660.KS','042700.KS','009150.KS','402340.KS','039030.KQ','403870.KQ','058470.KQ'],
   'k방산': ['012450.KS','047810.KS','079550.KS','064350.KS','272210.KS','000880.KS','103140.KS'],
-  'k조선': ['042660.KS','329180.KS','009540.KS','010140.KS','010620.KS','267250.KS'],
+  'k조선': ['042660.KS','329180.KS','009540.KS','010140.KS','267250.KS'],
   'k전력': ['298040.KS','267260.KS','010120.KS','015760.KS','103590.KS','006260.KS'],
   'k원전': ['034020.KS','000720.KS','052690.KS','051600.KS'],
   'k배터리': ['373220.KS','006400.KS','247540.KQ','051910.KS','005490.KS','096770.KS','086520.KQ','003670.KQ','066970.KQ'],
   'k바이오': ['068270.KS','207940.KS','196170.KQ','128940.KS','028300.KQ','000100.KS','326030.KS','141080.KQ'],
-  'k뷰티': ['090430.KS','051900.KS','044820.KQ','192820.KQ','161890.KS','278470.KQ','257720.KQ','237880.KQ'],
+  'k뷰티': ['090430.KS','051900.KS','044820.KS','192820.KS','161890.KS','278470.KS','257720.KQ','237880.KQ'],
   'k콘텐츠': ['259960.KS','352820.KS','041510.KQ','035900.KQ','122870.KQ','253450.KS','035760.KS'],
   'k푸드': ['003230.KS','097950.KS','271560.KS','004370.KS','280360.KS','005180.KS','000080.KS'],
-  'k금융': ['105560.KS','055550.KS','086790.KS','316140.KS','138040.KS','032830.KS','000810.KS','323410.KQ'],
-  'k로봇': ['454910.KQ','277810.KQ','315640.KQ','178320.KQ','005380.KS'],
+  'k금융': ['105560.KS','055550.KS','086790.KS','316140.KS','138040.KS','032830.KS','000810.KS','323410.KS'],
+  'k로봇': ['454910.KS','277810.KQ','315640.KQ','178320.KQ','005380.KS'],
   'k자동차': ['005380.KS','000270.KS','012330.KS','086280.KS','204320.KS'],
   '밸류업': ['105560.KS','055550.KS','086790.KS','316140.KS','138040.KS','005380.KS','000270.KS'],
   '삼성': ['005930.KS','207940.KS','006400.KS','009150.KS','032830.KS','000810.KS','018260.KS','028260.KS','016360.KS'],
@@ -2805,10 +2869,10 @@ async function fetchPutCallRatios() {
   var index = Number(snap.indexPutCall || snap.indexPcr);
   var source = 'snapshot-or-live-put-call';
   if (!isFinite(total)) total = null;
-  var estimated = false;
-  if (!isFinite(equity)) { equity = total !== null ? Math.max(0.35, total * 0.72) : null; estimated = equity !== null; }
-  if (!isFinite(index)) { index = total !== null ? Math.min(1.8, total * 1.18) : null; estimated = estimated || index !== null; }
-  var q = window.makeMetric ? window.makeMetric(total, source, Date.now(), 'option', { estimated: estimated }) : null;
+  // P1568: equity/index ratios come only from producer-parsed Cboe statistics; missing stays missing.
+  if (!isFinite(equity)) equity = null;
+  if (!isFinite(index)) index = null;
+  var q = window.makeMetric ? window.makeMetric(total, source, Date.now(), 'option', { estimated: false }) : null;
   return { totalPutCall: total, equityPutCall: equity, indexPutCall: index, dataQuality: q };
 }
 window.fetchPutCallRatios = fetchPutCallRatios;
@@ -8595,7 +8659,7 @@ const KR_TICKER_MAP = {
   '코어위브': 'CRWV', 'coreweave': 'CRWV',
   '네비우스': 'NBIS', 'nebius': 'NBIS',
   // v49.99: 일본 반도체 신규 등록 (키옥시아·TEL·후지쯔)
-  '키옥시아': '6600.T', 'kioxia': '6600.T', 'kioxia holdings': '6600.T',
+  '키옥시아': '285A.T', 'kioxia': '285A.T', 'kioxia holdings': '285A.T',
   '도쿄일렉트론': '8035.T', 'tokyo electron': '8035.T', 'tel semiconductor': '8035.T',
   '후지쯔': '6702.T', 'fujitsu': '6702.T', 'fujitsu monaka': '6702.T',
   // 위성통신 (Globalstar/AMZN LEO 테마)
@@ -10300,7 +10364,7 @@ function _aioBuildNewsLocalKoreanInsight(item, preferredTitle) {
   var factor = String(vec.factor || topic || 'GENERAL').toUpperCase();
   var urgency = vec.urgency ? String(vec.urgency).toUpperCase() : '';
   var technical = vec.technicalImpact ? String(vec.technicalImpact).toUpperCase() : '';
-  var summary = topicKo + ' 뉴스입니다. 헤드라인 기준 톤은 ' + sentimentKo + '이고' + (tickers.length ? ', 관련 티커는 ' + tickers.join(', ') + '입니다.' : ', 시장 전체 영향 여부를 확인해야 합니다.');
+  var summary = ''; // P1592 (F30): no local template — topic/tone/tickers are already badges; the card falls back to the article's own text
   var explainMap = {
     macro: '금리, 달러, 성장률 기대와 주식 밸류에이션 경로를 같이 확인하세요.',
     fed: '정책금리 기대, 장단기 금리, 달러와 성장주 할인율에 미치는 영향을 같이 보세요.',
@@ -10783,7 +10847,7 @@ function getDisplayDesc(item) {
     return _aioGetNewsTranslation(item).ko_desc || '';
   }
   var tr = _aioGetNewsTranslation(item);
-  if (tr.ko_summary) return tr.ko_summary;
+  if (tr.ko_summary && !/뉴스입니다\. 헤드라인 기준 톤은/.test(tr.ko_summary)) return tr.ko_summary;
   if (item.desc && !isKoreanText(item.desc)) return tr.ko_explain || tr.ko_market || '';
   return (item.desc || '').slice(0, 200);
 }
@@ -10792,7 +10856,7 @@ function getDisplaySummary(item) {
   // P1428 (Codex review): only a real translation or the article's own description — the local template
   // ("○○ 뉴스입니다. 헤드라인 기준 톤은…") repeated the same generic sentence on every card.
   const cachedSummary = item && item.title ? _translationCache.get(_tcKey(item.title)) : null;
-  if (cachedSummary && !cachedSummary._failed && cachedSummary.ko_summary) return cachedSummary.ko_summary;
+  if (cachedSummary && !cachedSummary._failed && cachedSummary.ko_summary && !/뉴스입니다\. 헤드라인 기준 톤은/.test(cachedSummary.ko_summary)) return cachedSummary.ko_summary; // P1592: older caches stored the template
   // 폴백: 번역 완료 전이라도 빈 문자열 대신 원문 설명 축약 표시
   const desc = item.desc || item.description || '';
   if (_aioDescRepeatsTitle(item, desc)) return '';
@@ -10843,7 +10907,14 @@ function getDisplayTickers(item) {
   // 1) API 번역 캐시에서 가져온 티커
   if (_translationCache.has(_tcKey(item.title))) {
     const t = _translationCache.get(_tcKey(item.title)).tickers;
-    if (Array.isArray(t)) t.forEach(tk => { if (tk) merged.add(tk); });
+    // P1592 (F26): translated/API tickers pass the same title/acronym gate as local extraction.
+    const text = (item.title || '') + ' ' + (item.desc || '');
+    if (Array.isArray(t)) t.forEach(tk => {
+      const bare = String(tk || '').replace(/^\$/, '');
+      if (!bare) return;
+      if ((_TICKER_ROLE_ACRONYM.test(bare) || _TICKER_WORD_OVERLAP.has(bare)) && !text.includes('$' + bare) && !text.includes('(' + bare + ')')) return;
+      merged.add(tk);
+    });
   }
 
   // 2) 로컬 추출 — 항상 실행 (캐시 유무와 무관)
@@ -10874,6 +10945,9 @@ const _TICKER_WORD_OVERLAP = new Set([
   // v48.20 (integrate): 신규 오탐 위험 티커 보강
   'KEYS','TEL','TER','APH','CLS','JBL','ON','DELL','IT','AI'  // Keysight/TE Connectivity/Teradyne/Amphenol/Celestica/Jabil — 일반 영단어와 겹침
 ]);
+// P1592 (F26): officer titles are also listed symbols ('Former FTX COO' opened CooperCompanies). A C?O
+// title or common agency acronym counts only as $TICKER or (TICKER), never as a bare word.
+const _TICKER_ROLE_ACRONYM = /^(?:C[A-Z]O|EVP|SVP|VP|GM|IPO|ETF|SEC|FDA|DOJ|FTC|NIH|EPA|ECB|IMF|GDP|CPI)$/;
 const _TICKER_AMBIGUOUS = new Set([
   'AI','META','COST',
   'SNOW','NET','PATH','APP','DASH','SHOP','SNAP','HOOD','SOFI','WOLF',
@@ -10955,7 +11029,7 @@ function extractTickers(item) {
       // 1~2자 티커(A, F, V, C, U 등)는 $접두사 없으면 건너뜀
       if (ticker.length <= 2 && !text.includes('$' + ticker)) return;
       // v39.2: 영단어와 완전히 겹치는 티커 — $접두사 또는 (TICKER) 형태만 허용
-      if (_TICKER_WORD_OVERLAP.has(ticker)) {
+      if (_TICKER_WORD_OVERLAP.has(ticker) || _TICKER_ROLE_ACRONYM.test(ticker)) {
         if (!text.includes('$' + ticker) && !text.includes('(' + ticker + ')')) return;
       }
       var re = _getTickerRegex(ticker);
@@ -12781,7 +12855,7 @@ const LIVE_SYMBOLS = [
   // ── 한국 KR_SUB_THEMES 전수 커버 (.KS = KOSPI, .KQ = KOSDAQ 정식 분리) ──
   // 반도체/HBM — KOSPI 2 + KOSDAQ 6 + KOSPI 1
   '005930.KS','000660.KS',                                     // 삼성전자·SK하이닉스 (KOSPI)
-  '042700.KQ','403870.KQ','058470.KQ','357780.KQ','240810.KQ','039030.KQ','272290.KQ',  // 반도체 소부장 (KOSDAQ)
+  '042700.KS','403870.KQ','058470.KQ','357780.KQ','240810.KQ','039030.KQ','272290.KQ',  // 반도체 소부장 (KOSDAQ)
   // 로봇/자동화 — 두산로보틱스(KOSPI) + 현대로템(KOSPI) + KOSDAQ 4
   '454910.KS','064350.KS',
   '277810.KQ','108490.KQ','090360.KQ','388720.KQ','090710.KQ',
@@ -12791,7 +12865,7 @@ const LIVE_SYMBOLS = [
   // 의료기기/AI진단 — 전원 KOSDAQ
   '214150.KQ','328130.KQ','338220.KQ','322510.KQ','049950.KQ','145720.KQ',
   // 조선/해양 — 전원 KOSPI
-  '009540.KS','010140.KS','329180.KS','042660.KS','010620.KS',
+  '009540.KS','010140.KS','329180.KS','042660.KS',
   // 전력기기/변압기 — KOSPI 5 + KOSDAQ 1(제룡전기)
   '298040.KS','267260.KS','010120.KS','062040.KS','103590.KS',
   '033100.KQ',
@@ -12800,7 +12874,7 @@ const LIVE_SYMBOLS = [
   '006910.KQ','032820.KQ','083650.KQ',
   // K-뷰티 — KOSPI 3 + KOSDAQ 3
   '090430.KS','192820.KS','051900.KS',
-  '278470.KQ','257720.KQ','237880.KQ',
+  '278470.KS','257720.KQ','237880.KQ',
   // K-푸드 — 전원 KOSPI
   '003230.KS','097950.KS','271560.KS','004370.KS','280360.KS',
   // 금융/밸류업 — 전원 KOSPI
@@ -12949,7 +13023,7 @@ const LIVE_SYMBOLS = [
   'VLO','MPC','PSX','DINO','DK',                                // Oil Refining
   'T','VZ','TMUS',                                              // Telecom
   'EQIX','DLR','AMT','CCI','SBAC',                             // REITs
-  'AEM','NEM','GOLD','WPM','FNV','GFI','KGC',                 // Gold mining
+  'AEM','NEM','B','WPM','FNV','GFI','KGC',                    // Gold mining (Barrick = B)
   'FCX','LIN','APD','AA','MP','LAC','ALB','CTVA','ADM',        // Materials
   // ── v48.53: Themes/SUB_THEMES 전수 커버리지 누락 13종 보충 ──
   'ROBO','WCLD','BUG','VIG','DGRO','SCHD',                    // 테마 ETF (aio-explain 언급)

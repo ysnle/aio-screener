@@ -79,6 +79,12 @@ const smokeEnv = new Proxy({ AIO_QUOTES_KV: kv, AIO_SOURCE_SHA: '1'.repeat(40) }
 const smokeResponse = await dataPlane.fetch(new Request('https://fast.example/health', { headers: { Origin: 'https://ysnle.github.io' } }), smokeEnv);
 const smokeBody = await smokeResponse.json();
 if (smokeResponse.status !== 200 || smokeBody.ok !== true || smokeBody.revision !== 'fixture:kv-only' || smokeBody.sourceSha !== '1'.repeat(40)) fail('KV-only /health smoke/exact-source identity failed');
+// P1578: /health states whether the refresh dispatcher is configured and never echoes the token.
+if (smokeBody.schedulerDispatch?.configured !== false) fail('P1578 /health must report schedulerDispatch.configured=false without a token');
+{
+  const tokenBody = await (await dataPlane.fetch(new Request('https://fast.example/health'), { AIO_QUOTES_KV: kv, GITHUB_DISPATCH_TOKEN: 'github_pat_fixture_secret' })).json();
+  if (tokenBody.schedulerDispatch?.configured !== true || JSON.stringify(tokenBody).includes('github_pat_fixture_secret')) fail('P1578 /health must report a configured dispatcher without exposing the token');
+}
 
 // P1156: the read routes ran for ANY method, so `POST /quotes` skipped the CDN cache and hit the
 // KV namespace on every request — an unauthenticated, unmetered read amplifier. Keep the read

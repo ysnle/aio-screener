@@ -1,10 +1,262 @@
 ---
-last_verified: 2026-10-09
+last_verified: 2026-10-10
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1593 - v57.31 - Frontend audit round 10: reversed part/whole relations, mismatched product links, fundamental tab losing its company and overstated copy (2026-10-10)
+
+- symptom/reproduction: Codex browser audit F84-F113: every 'component' relation read backwards (NAND page listed SSD as its part; 2.5D, transformer and kill-chain pairs likewise); MP Materials appeared as a product on the industrial-equipment node, a generic optical module on CPO and a flash roadmap on DRAM/HBM; returning to 재무 공시 showed '종목 선택 전' beside NVDA; column 7/8 links opened 재무 공시 with no question or way back; the screener called an unfavourable backtest weight set '검증된'; the 13F preview was labelled '변화가 큰' while ordered by value; the self-computed sentiment card hid which 3 of 7 components were missing; the portfolio empty state and FAQ said nothing is ever sent while AI analysis sends a summary; glossary GNP, Fed balance-sheet dates, market-regime axes and Weinstein stage 2 were inaccurate.
+- root_cause: component edges are authored part to whole while the type's labels assumed whole to part; three registry node links were broader than the product; the fundamental mount compared against the last requested symbol instead of the loaded one; the arrival label table lacked the column metric ids; copy written before the backtest result and before the AI-send scope was settled.
+- fix: component labels flipped at the type and a 'basis' type for technology/contract foundations; three registry node links removed; fundamental mount re-requests when the loaded company differs; FCF_ROIC / DCF_EXPECTATIONS arrival labels, period and a return button; '사후 검증에 쓰는 기본 고정 비중'; 13F preview labelled by reported value with changed rows first; sentiment card names missing components with their history counts and next-step wording fixed; privacy and FAQ wording match the header; glossary corrections; L1 separates equipment CAPEX revenue from power sales; industry copy for lease yield, NPU and EUV scoped. RRG golden fixture reason strings updated to the 30-session rule with a revision note.
+- violated_rule: A relation type's labels must follow the direction the edges are authored in, and a product link must name the node the product actually serves.
+- prevention: ci-knowledge-review-check asserts part/whole labels, the precision property and the technology-basis typing; ci-atlas-contract-check asserts MP Materials stays off the industrial-equipment node; ci-domain-parity-check keeps the RRG golden with its revision note.
+- verification/residual: Browser: NAND page shows '이것이 들어가는 곳: SSD'; column 7 opens 재무 공시 with the FCF/ROIC question, period and a working return to chapter 7; 재무 공시 keeps NVDA after leaving and returning; sentiment card lists the three missing components; sector diagram stays empty without quotes. Knowledge parity (655 files), atlas/masters/domain-parity contracts PASS.
+
+## P1592 - v57.31 - Frontend audit round 4-9: wrong-company news tag, cost-basis donut, skip-link blank page, desynced screener controls and learning-text errors (2026-10-10)
+
+- symptom/reproduction: Codex browser audit F01-F83: a 'Former FTX COO' headline opened CooperCompanies; with no quotes the portfolio donut showed $10.2K from adding a KRW and a USD cost; the skip link wrote #main-content and a reload showed an empty page; the screener kept the previous first-row link on an empty result, the column checklist disagreed with the preset, the rank example 70 was not an allowed value, and the summary claimed equal weights while the panel showed 37/27/22/14; template particle errors such as '스프레드을 본다'; every column chapter showed the same four notes; several learning sentences overstated (FX conclusion, rate-history causation, transport supply, PUE direction, the Self-Attention example, unnamed company targets with an unsupported 75% operating margin).
+- root_cause: extractTickers and the translation-cache path treated officer titles as symbols; the legacy donut's native-owner guard queried the page element while the native renderer marks the canvas, and the legacy donut and sector mix fell back to cost; the skip link was a plain hash anchor on a hash router; the column chooser was drawn only on the slow render path; template slots appended a fixed particle; the column aside used one shared slice of four notes for every chapter; P1591 copy misdescribed the fixed neutral weights.
+- fix: _TICKER_ROLE_ACRONYM gate on local and cached tickers; legacy donut guard reads the canvas marker, a held chart clears the canvas, sector mix uses native valued rows only; skip link focuses #main-content without a hash and a stale #main-content hash is dropped; generic tablist Arrow/Home/End handler; screener empty state names its scope with clear actions, lead link hidden on zero rows, load-more names the real remainder and sorting keeps the expansion, column chooser and preset share one state, field-specific builder hint, why panel restructured (conclusion first, reader terms, ledger on hover), weight copy corrected; news filter state in aria-pressed/aria-selected, reader group names, local template summary removed; korean-particle helpers applied to template slots; COLUMN_FRAME_LINKS per chapter; default TOC selection marked and the selected entry scrolled into view; industry notes carry scope subtitles; relationship guides show company, date and sources; property relation for precision; learning text corrections; portfolio accepts 005930.KS as 005930, names the failing field and separates edit from duplicate; masters comparison names a partial scope. js/aio-data.js +10, js/aio-workspace.js +2 and index.html +1 recorded in the decomposition ratchet.
+- violated_rule: A legacy fallback must yield to the native owner by the marker the owner actually writes, and a ticker tag must identify the article's company, not any listed symbol spelled the same.
+- prevention: ci-runtime-contract-check P1592 guards (role-acronym gate in both paths, canvas-marker donut guard and valued-only sector mix, skip link without hash, no template news summary); ci-esm-core-unit-check particle cases and per-chapter note links; ci-knowledge-generated-parity after rebuilding the knowledge artifacts.
+- verification/residual: Browser 1280x800: COO title no longer tagged while $COO still is; the skip link keeps #market-news and focuses main; an empty search shows a scoped message with clear buttons and hides the lead link; the fundamentals preset checklist matches the headers; ArrowRight moves the screener tab; the donut stays empty with an explanation for 005930 (KRW) plus NVDA (USD) without quotes; the Self-Attention TOC entry is scrolled into view; column chapters 1/5/12 show distinct notes; the NAND guide shows SNDK 2026-08-13 and six sources. Runtime contract, esm-core-unit, knowledge parity (655 files), principles/atlas/knowledge-article contracts PASS.
+
+## P1591 - v57.31 - Frontend audit round 1-3: light-theme diagrams, unreadable fiscal card, stale rotation read and overlapping concept graph (2026-10-10)
+
+- symptom/reproduction: Codex browser audit (HANDOFF S05-S09, T01-T11, H01, E03, E05, M02, M05, G04, G07, L01, L07, L10, L11, S02, P03, C02, C09): the factor radar and nine other diagrams drew white text on the ivory theme; peer bars were invisible; the SEC card showed two different ROEs, English ledger fields and a grid of N/A cards; themes showed a hold state next to an XLE lead and a 20-day RRG note against a 30-day rule; the concept graph overlapped labels; news counted a wall-clock window and doubled $ badges; the AI switch looked on while unavailable.
+- root_cause: The shared _aioDiagram palette was dark-only constants; peer bars had no tone CSS; the RRG minimum lived in two places (20 and 30); the theme detail read the rotation without selectProducedRotation; the concept graph used hand-set coordinates with preserveAspectRatio meet; the news window used the clock instead of the published cycle.
+- fix: Diagram palette moved to theme tokens and color-mix strokes; peer bars on a 0-100 track; ROE shown once (average equity), Korean labels, compact units, ledger metadata on hover, unreceived metrics in one line; RRG_MIN_SESSIONS=30 exported and used by copy and model; theme detail uses only validated rotation with its close date; layered BFS layout for the concept graph; news label follows the published cycle; ticker badges deduplicated; reader wording for masters, screener and portfolio controls; js/aio-ui.js +5 recorded in the decomposition ratchet with the reason.
+- violated_rule: A shared renderer must read theme tokens, and one threshold must have one owner.
+- prevention: ci-esm-core-unit-check asserts the 30-session RRG minimum and that the fiscal card carries no second ROE; decomposition-hotspots history records the aio-ui growth reason.
+- verification/residual: Browser 1280x800: light-theme diagram text fill rgb(33,29,22) on ivory, peer bars on track, SEC card compact; esm-core-unit, masters-contract, decomp ratchet PASS.
+
+## P1590 - v57.31 - Sector rotation missed core industry groups and duplicated cybersecurity (2026-10-10)
+
+- symptom/reproduction: The rotation set had HACK and CIBR (both cybersecurity ETFs) but no regional banks, homebuilders, retail, transports, airlines, copper miners or China internet, so money moving into or out of those groups was invisible.
+- root_cause: The subsector ETF list was never reviewed for coverage.
+- fix: Removed CIBR; added KRE, ITB, XRT, IYT, JETS, COPX, KWEB (each verified on Yahoo) to the producer set and the page definitions together (31 ETFs).
+- violated_rule: Rotation coverage should span the core industry groups without duplicates.
+- prevention: ci-rotation-history-check asserts the producer set equals the page definitions and counts from the list, not a fixed 25.
+- verification/residual: Rotation contract PASS with 31 ETFs.
+
+## P1589 - v57.31 - Universe and KR theme identities were wrong or dead (2026-10-10)
+
+- symptom/reproduction: KR suffixes contradicted the listing exchange for 20 theme members and 16 universe rows (e.g., 한미반도체·카카오뱅크 as KOSDAQ, CJ ENM·동진쎄미켐 as KOSPI); KR theme codes named the wrong company (001800 = Orion Holdings labelled 오뚜기; 060900 = Agent AI labelled KH바텍 solar inverters; 281740 = Lake Materials labelled SK에코엔지니어링); dead or renamed symbols remained (HD현대미포, DM, CFLT, SATS, MASI, ABB ADR, 6600.T→285A.T, MTK→2454.TW, GOLD now Gold.com rather than Barrick=B); failed screener fetches vanished without trace.
+- root_cause: Hand-entered identities were never re-verified against listings.
+- fix: Every KR code checked against the Yahoo listing exchange and suffixes corrected across universe, theme map, sub-themes and telegram mapping; misidentified codes replaced or removed; 68 verified symbols added (universe 931 -> 993) incl. theme members, 미래에셋증권·삼성증권; screener payload lists unfetchedSymbols.
+- violated_rule: No ticker inference; identity is verified, never assumed.
+- prevention: sync-screener-universe --check; P1588 gate warns on unranked members; unfetchedSymbols makes drops visible.
+- verification/residual: Re-audit: all 144 KR universe suffixes match listing exchanges; sync OK with 993 records.
+
+## P1588 - v57.31 - US theme taxonomy mixed misclassifications, missing industries and editorial weights (2026-10-10)
+
+- symptom/reproduction: MCD sat in staples, BA in space, MASI in surgical robots, AMT in data centers, MRVL in analog/RF; managed care, exchanges, regional banks, insurers, grid equipment, HVAC, EDA, restaurants and large ADRs were absent (UNH, SPGI, COF, GEV, TT, SNPS, LOW and others); three themes carried hand-set weights while fourteen were equal-weighted; leaders were chosen by "performance and attention".
+- root_cause: The taxonomy grew by hand without membership rules or a check against the universe.
+- fix: Rebuilt THEME_MAP from an explicit spec: 18 themes, 88 sub-themes, 421 unique members (from 243), industry/business-model classification, every member a verified universe symbol, 3+ per sub-theme, no duplicates within a theme, leaders = members by market cap, no editorial weights; file shorter by 52 lines.
+- violated_rule: Classification and weighting need stated, consistent rules.
+- prevention: ci-runtime-contract-check enforces the membership rules and warns on members without published returns.
+- verification/residual: Gate OK; themes page ranking renders.
+
+## P1587 - v57.31 - A 1000x SEC share count published P/E 26,500 and P/B 4,461 (2026-10-10)
+
+- symptom/reproduction: PKG companyfacts carried 89,213,394,000 shares (89.2M actual); the screener published P/E 26,500.1 and P/B 4,461.45 and ranked on them.
+- root_cause: The cover-page share count was used without a consistency check.
+- fix: Cross-check against net income / diluted EPS for the same fiscal year; a count more than 3x away is withheld (sharesCheck=scale-mismatch), so P/E and P/B stay empty.
+- violated_rule: Derived valuation must not rest on an implausible operand.
+- prevention: ci-data-pipeline-contract-check runs the PKG fixture (1000x withheld, correct count gives P/E 26.5).
+- verification/residual: Fixture: bad -> scale-mismatch/null; good -> P/E 26.5, P/B 4.46.
+
+## P1586 - v57.31 - Fear & Greed depended solely on a bot-gated CNN endpoint (2026-10-10)
+
+- symptom/reproduction: CNN answers only browser-impersonating requests (honest client HTTP 418); the site had no independent sentiment composite.
+- root_cause: Single third-party source with terms risk.
+- fix: Self-computed composite (src/domain/sentiment/composite-fear-greed.js): seven CNN-published components from public official inputs, each ranked against its trailing year, shown beside CNN as a reference with component count; producer now collects TLT history, FRED IG OAS (BAMLC0A0CM) and the daily Cboe put/call ratio; sentiment page loads macro history itself.
+- violated_rule: Core indicators need a source the product may use.
+- prevention: Unit tests: withhold below four components, greed for a rising market, stand-in basis labelled, never reads the CNN column.
+- verification/residual: Local backtest with TLT: 120-day correlation 0.69 with CNN, latest 44 vs 46; browser: 36 공포 vs CNN 40 on the same 10/8 basis.
+
+## P1585 - v57.31 - Market-analysis validator rejected correct Korean analyses (2026-10-10)
+
+- symptom/reproduction: 10 of the last 14 market analyses were blocked (metric-value-mismatch on SPX/VIX/10Y/DXY/WTI and language-not-korean), so the site showed no market narrative.
+- root_cause: The validator took the first number after a label as the level, so "SPX는 0.66% 오른 7,816" compared 0.66 with 7,816; evidence ids and tickers were counted as English prose; tolerance 5% let SPX 7,500 pass for 7,816.
+- fix: Skip change-like numbers (signed, %p/bp, move verbs, % on non-rate levels) within the label clause; count prose without ids/tickers/URLs; tolerance 2%.
+- violated_rule: A validator must reject wrong claims, not correct ones.
+- prevention: ci-data-pipeline-contract-check asserts move-first Korean passes and wrong levels fail.
+- verification/residual: Move-first, level-first, id-citing Korean pass; English and wrong levels fail.
+
+## P1584 - v57.31 - A single AAII reference miss blocked the 30-minute market publish (2026-10-10)
+
+- symptom/reproduction: 2026-10-09 06:10Z: ci-web-research-contract-check failed with "AAII current reference is missing", refresh-data stopped, Pages verification hit 411m data age and the watchdog failed.
+- root_cause: The contract demanded status current-reference for a weekly reference-only survey.
+- fix: stale-reference/unavailable warn and publish continues (reference-only still enforced); a row labelled current must still be fresh.
+- violated_rule: Reference-only inputs must not gate decision-plane freshness.
+- prevention: Owner-approved contract change; the sentiment board already hides AAII values older than 7 days.
+- verification/residual: Contract runs; local failure only reflects >12h-old local data labelled current.
+
+## P1583 - v57.31 - Korea business-indicator widget showed permanent placeholders with fixed colours (2026-10-10)
+
+- symptom/reproduction: The 경기지표 widget (manufacturing PMI, GDP q/q, exports) had no producer and always showed —, with PMI fixed green and GDP fixed red; dead map entries wrote — to slots that do not exist.
+- root_cause: Widget kept after its source (KOSIS/BOK keys) was never configured.
+- fix: data-aio-hide-when-empty hides the widget until any value arrives; colours neutral; dead entries removed.
+- violated_rule: AGENTS.md: hide widgets whose source does not exist.
+- prevention: Generic hide-when-empty rule in applyDataSnapshot.
+- verification/residual: Browser check; full QA.
+
+## P1582 - v57.31 - SEC fundamentals hid the equity basis and showed a co-registrant name (2026-10-10)
+
+- symptom/reproduction: When parent equity was absent the NCI-inclusive total fed ROE/P-B with no marker; BAC (CIK 70858) showed "BofA Finance LLC" from companyfacts.entityName.
+- root_cause: No basis field; name taken from companyfacts instead of submissions.
+- fix: equityBasis (parent / including-noncontrolling-interest) is published; entityName prefers submissions.name.
+- violated_rule: Every ratio declares its basis; identity comes from the registrant record.
+- prevention: ci-sec-runtime-projection-check; next SEC refresh republishes names.
+- verification/residual: Syntax and SEC projection check OK.
+
+## P1581 - v57.31 - Yahoo quote fallback printed a multi-day change as the daily change (2026-10-10)
+
+- symptom/reproduction: With fewer than two daily bars, fetchQuote used meta.chartPreviousClose, which for range=5d is the close before the 5-day window.
+- root_cause: Fallback kept from before P545.
+- fix: Only meta.previousClose is used; otherwise the change is missing.
+- violated_rule: Daily change is against the previous session close (P545).
+- prevention: ci-data-pipeline-contract-check pins the fallback.
+- verification/residual: Pipeline contract OK.
+
+## P1580 - v57.31 - Exit-plan levels printed ATR substitutes as moving averages (2026-10-10)
+
+- symptom/reproduction: calcExitPlan used price - k*ATR when an EMA/SMA was missing (price defaulting to 0) and printed it as "10EMA 약 ...", which could even be negative.
+- root_cause: Legacy fallback arithmetic.
+- fix: Levels are the named averages only; missing ones read "산출 불가".
+- violated_rule: Missing inputs are never guessed; labels must name what was computed.
+- prevention: Comment cites the rule; full QA.
+- verification/residual: Full QA.
+
+## P1579 - v57.31 - Up/down colours ignored quote state and change basis (2026-10-10)
+
+- symptom/reproduction: Market quote changes and home "내 종목" day changes were coloured green/red even when the quote was a stale reference or the change basis was unknown; stale moves also raised the attention ranking.
+- root_cause: Renderers read the raw pct without deriveQuotePresentation state.
+- fix: Colour (and attention ranking) only for current/delayed quotes with a coherent change; others stay readable but neutral.
+- violated_rule: One status per card; a stale value must not look current.
+- prevention: buildMyNames exposes daySignalled.
+- verification/residual: Full QA; browser check.
+
+## P1578 - v57.31 - Refresh dispatcher token could not be installed and its absence was invisible (2026-10-10)
+
+- symptom/reproduction: refresh-data ran ~10% of its cron slots (GitHub best-effort schedule) because the data-plane Worker had no GITHUB_DISPATCH_TOKEN; installing it needed a local wrangler login, and nothing reported that the dispatcher was off.
+- root_cause: No workflow path for the secret; /health did not expose dispatcher state.
+- fix: deploy-data-plane copies repository secret AIO_REFRESH_DISPATCH_TOKEN into the Worker (warning when missing); /health reports schedulerDispatch.configured without the token; the external pipeline check warns when unconfigured.
+- violated_rule: A degraded data driver must be visible to the watchdog.
+- prevention: ci-data-plane-contract-check asserts configured=false/true and that the token is never echoed.
+- verification/residual: ci-data-plane-contract-check and ci-cloudflare-deployment-contract-check OK.
+
+## P1577 - v57.31 - Korea CPI reference and US CPI next-release date were out of date (2026-10-10)
+
+- symptom/reproduction: AIO_MANUAL_REFERENCE.krInflation still carried the July 2026 observation (2.8%/core 2.6%, published 2026-08-04) after the September release; usCpiCalendar.next was 2026-09-11, already past.
+- root_cause: Manual official references had not been refreshed after their next releases.
+- fix: krInflation = September 2026 (headline 2.9%, food-and-energy-excluded 2.8%, mods.go.kr 2026-10-02); usCpiCalendar.next = 2026-10-14 08:30 ET (bls.gov October schedule). The static-data gate pins the new official values.
+- violated_rule: Official references are refreshed after each release, never estimated.
+- prevention: ci-static-db-expiry-check monitors manual references; the contract pins the source list_no.
+- verification/residual: ci-static-data-contract-check PASS; ci-static-db-expiry-check 0 warnings.
+
+## P1576 - v57.31 - In-session price could be written to history as a completed close (2026-10-10)
+
+- symptom/reproduction: When a quote was in session and had no previous close, history.json recorded regularMarketPrice with marketSession COMPLETED and valueBasis latest-completed-close.
+- root_cause: Fallback to regularMarketPrice in the history writer.
+- fix: In session without a previous close the history value is null.
+- violated_rule: History rows are completed daily closes only (P1095).
+- prevention: ci-data-pipeline-contract-check pins the expression.
+- verification/residual: Pipeline contract OK.
+
+## P1575 - v57.31 - Theme breadth counted leaders without a move as not rising; F&G 0 treated as missing (2026-10-10)
+
+- symptom/reproduction: Theme leader breadth used Number(pct || 0) > 0 over leaders with a price, so a leader with no change value lowered the rising share; briefing-read replaced a real F&G of 0 with an older snapshot value and date.
+- root_cause: Falsy-zero handling.
+- fix: Breadth counts only leaders with a finite change; F&G uses a null check.
+- violated_rule: Missing is not zero, and zero is not missing.
+- prevention: Code comments cite the rule; full QA.
+- verification/residual: Full QA.
+
+## P1574 - v57.31 - Portfolio card kept the VIX-to-max-exposure sizing ladder (2026-10-10)
+
+- symptom/reproduction: Portfolio "노출 규칙" showed "VIX x · 최대 50%" from a 100/80/50/30/15 ladder on 15/20/25/30 VIX edges and turned exposure red as "참고 한도 초과", after P1557 removed the same ladder from home/briefing.
+- root_cause: P1557 covered home/briefing only; portfolio.js used exposureCapForVix directly.
+- fix: Card shows the VIX value with the shared 18/25/32 band label (vixBand) and the user's exposure as a plain fact; placeholders show — instead of $0/0%.
+- violated_rule: No trade/sizing instructions; one set of VIX bands.
+- prevention: portfolio.js no longer imports exposureCapForVix.
+- verification/residual: Browser check of the portfolio card; full QA.
+
+## P1573 - v57.31 - Cboe put/call labelled current regardless of its trading date (2026-10-10)
+
+- symptom/reproduction: fetchCboePutCall always set status current-reference, even when the page's selectedDate was days old; the total ratio feeds the TOTAL_PUT_CALL_LOW flag.
+- root_cause: No age classification in the producer.
+- fix: classifyCboePutCallCurrentness: current only when asOf is the latest completed US session or the one before (publication lag); otherwise stale-reference.
+- violated_rule: Labels must reflect the observation date, not the fetch success.
+- prevention: Unit assertions for Saturday cases (10-09/10-08 current, 10-07 stale, missing stale).
+- verification/residual: ci-data-pipeline-contract-check OK.
+
+## P1572 - v57.31 - Failed BEA PCE fetch republished the carried row as ok (2026-10-10)
+
+- symptom/reproduction: On a BEA fetch failure the fallback object spread ...previous last, so status, allowedUse, fetchedAt and failureReason came back from the last success; macro.pce/corePce were promoted again as bea-official-primary with no staleness mark.
+- root_cause: Spread order in the fetchBeaPce catch branch.
+- fix: Spread the carried row first; status is last-known-good when values exist, else unavailable.
+- violated_rule: A failed collection must never relabel carried values as current.
+- prevention: ci-data-pipeline-contract-check asserts the spread precedes the failure status.
+- verification/residual: Pipeline contract OK; assertion fails on the previous ordering.
+
+## P1571 - v57.31 - No guard against data files approaching the GitHub push limit (2026-10-10)
+
+- symptom/reproduction: public-data/masters/managers/blackrock-inc.json is 57.8 MiB; GitHub rejects files over 100 MB, which would silently halt every data-bot commit.
+- root_cause: Size gates covered browser budgets only, not repository push limits.
+- fix: ci-artifact-size-headroom-check scans public-data and warns at 50 MiB, fails at 90 MiB per file.
+- violated_rule: Automation must surface growth before it blocks pushes.
+- prevention: The check runs in the watchdog and CI.
+- verification/residual: Check prints one warning (blackrock-inc.json 57.8 MiB) and exits 0.
+
+## P1570 - v57.31 - US retail sales schedule ran out on 2026-10-15 (2026-10-10)
+
+- symptom/reproduction: us-retail listed dates only through 2026-10-15; the static-DB gate would fail releases after 2026-10-29.
+- root_cause: The official schedule had not been extended.
+- fix: Added 2026-11-17 and 2026-12-16 from census.gov/retail/release_schedule.html; CPI Nov/Dec dates confirmed at bls.gov.
+- violated_rule: Calendar dates come from the official publisher, never estimates.
+- prevention: ci-static-db-expiry-check lead warning (21 days) remains.
+- verification/residual: ci-static-db-expiry-check OK with 0 warnings.
+
+## P1569 - v57.31 - Chart.js secondary CDN loaded without Subresource Integrity (2026-10-10)
+
+- symptom/reproduction: The cdnjs fallback script was created with crossOrigin only, while the primary jsDelivr tag pinned sha384.
+- root_cause: The secondary loader was added after the SRI pass and no gate covered dynamically created scripts.
+- fix: Pin sha384-DhxhYObIMeMNGyAG7iK11OHzBIKyEIeRL0ad1iFPAOwZB8iirUlTT0O/WJJUk8+o (computed from the cdnjs 4.4.0 file; the same method reproduces the existing jsDelivr hash).
+- violated_rule: Third-party scripts must be integrity-pinned.
+- prevention: ci-runtime-contract-check asserts the secondary loader sets integrity.
+- verification/residual: New check passes; it fails on the previous index.html.
+
+## P1568 - v57.31 - Equity/index put-call ratios invented from the total ratio (2026-10-10)
+
+- symptom/reproduction: When the snapshot lacked equity/index PCR, fetchPutCallRatios set equity=total*0.72 and index=total*1.18, which fed calcOpexGammaRisk flags such as EQUITY_PUT_CALL_COMPLACENCY (equity < 0.55).
+- root_cause: A legacy estimation fallback that predates the Cboe daily-statistics parser.
+- fix: Missing ratios stay null; only producer-parsed Cboe values are used.
+- violated_rule: Missing inputs are never guessed (AGENTS.md).
+- prevention: ci-runtime-contract-check rejects total*0.72 / total*1.18 derivations in aio-data.js.
+- verification/residual: ci-runtime-contract-check OK.
+
+## P1567 - v57.31 - Market score number and letter grade still shown in headers (2026-10-10)
+
+- symptom/reproduction: Home/signal/briefing headers rendered "<band> · 58/100", the legacy fallback rendered "(스코어 N/100)", the ticker chart header pill showed "A+ 강한 상승장", and the ticker fallback told users to check entry/stop prices.
+- root_cause: AGENTS.md retired the 0-100 market score from the UI, but finalizePageDecision and the legacy fallback still composed the number into the headline, and the market-health pill concatenated model.grade.
+- fix: Header shows the band label only (score kept in referenceSummary for labelled detail views); fallback strings drop the score and entry/stop wording; pill shows the regime only.
+- violated_rule: AGENTS.md: no composite grades or letter scores without predictive evidence; 0-100 market score retired from UI; no trade instructions.
+- prevention: ci-page-decision-reference-check now asserts the header and rendered HTML contain no n/100.
+- verification/residual: ci-page-decision-reference-check PASS; the new assertion fails against the previous page-decision.js string.
+
+## P1566 - v57.31 - Generated-conflict resolver picked the version branch data identity when merging the branch into main (2026-10-10)
+
+- symptom/reproduction: Merging claude/eloquent-davinci-lyqv2b into local main left operations-status.json at dataRevision 2026-10-08T23:57 while both manifests carried 2026-10-09T19:00; operations-contract failed revision coherence and full QA stopped.
+- root_cause: resolve-generated-conflicts.mjs always took the theirs hunk, assuming origin/main was merged into a version branch. In the reverse direction theirs is the branch.
+- fix: Detect which side contains origin/main (merge-base --is-ancestor on HEAD and MERGE_HEAD) and take that hunk.
+- violated_rule: Generated release manifests must carry main's data identity after any merge.
+- prevention: The resolver no longer depends on merge direction; ci-operations-contract-check still catches incoherent revisions.
+- verification/residual: Re-ran the merge in the main-is-ours direction: all three files carry 2026-10-09T19:00:51Z; operations-contract OK; full QA 145 PASS / 0 FAIL.
 
 ## P1565 - v57.30 - KR analysis and the macro reading stated conclusions the inputs do not support (2026-10-09)
 

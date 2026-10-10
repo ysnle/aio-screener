@@ -1438,7 +1438,8 @@
       "candidateConceptIds": [
         "principles:capitalism-engine",
         "principles:geo-rates",
-        "principles:tax-accounting-cashflow"
+        "principles:tax-accounting-cashflow",
+        "principles:physical-ai-planning"
       ],
       "candidateConceptStatus": "TEXT_CANDIDATE",
       "surface": "principles",
@@ -1450,7 +1451,8 @@
         "주가의 세 엔진",
         "자본주의의 엔진",
         "지정학·원자재·금리",
-        "세금·회계·현금흐름"
+        "세금·회계·현금흐름",
+        "Physical AI 계획·경로 생성"
       ],
       "route": {
         "routeId": "principles",
@@ -1466,7 +1468,7 @@
         "mechanism": "이익 기대가 바뀌거나 할인율이 변하거나 투자자 포지션이 조정되면 같은 기업도 다른 가격을 가질 수 있다.",
         "example": "실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.",
         "counterScenario": "모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.",
-        "visualization": "주가 = 주당이익 × 배수(PER) — 금리·위험 선호·성장 기대는 배수 안에 반영되고, 수급·포지션은 단기적으로 가격을 이 관계에서 벗어나게 한다"
+        "visualization": "주가 = 주당이익 × 배수(PER)는 늘 성립하는 항등식이다 — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다"
       }
     },
     {
@@ -2021,7 +2023,7 @@
         "mechanism": "세 활동은 겹칠 수 있지만 목적·기간·위험·검증 기준이 다르다. 구분해야 적합한 자산과 포지션 크기를 정할 수 있다.",
         "example": "현금성 자산을 비상자금으로 보유하는 것과 변동성 큰 성장주를 장기 투자한다고 말하는 것은 같은 “돈을 묻어두기”가 아니다.",
         "counterScenario": "자신의 활동을 투자라고 부르면서 실제로는 가격 추세만 추적하면 손실 조건과 보유 기간을 설계하지 못한다.",
-        "visualization": "현재 소비 → 저축 → 투자·투기"
+        "visualization": "남는 돈의 세 갈래: 저축 · 투자 · 투기"
       }
     },
     {

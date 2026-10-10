@@ -200,7 +200,7 @@ export function renderFrameArticle(doc, lesson) {
   article.append(el(doc, 'h3', 'af-section', '반대로 흘러가는 경우'), el(doc, 'p', 'af-twist', lesson.reverse));
   const basis = renderBasis(doc, {
     sources: [...(lesson.sources || []), ...(FRAME_EXTRA_SOURCES[lesson.id] || [])],
-    assumptions: lesson.example ? ['‘숫자로 따라가 보면’의 숫자는 구조를 보여 주기 위한 설명용 예시이며 특정 회사의 실제 수치가 아니다.'] : []
+    assumptions: lesson.example ? ['‘숫자로 따라가 보면’에서 연도와 지수·금리 이름이 붙은 값은 실제 관측치이고, 나머지는 구조를 보여 주기 위한 설명용 가정이며 특정 회사의 실제 수치가 아니다. 관측치가 함께 움직였다는 사실은 그 원인을 증명하지 않는다.'] : []
   });
   if (basis) article.appendChild(basis);
   return article;

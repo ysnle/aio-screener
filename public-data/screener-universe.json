@@ -1,13 +1,13 @@
 {
  "meta": {
   "schemaVersion": "v53.4",
-  "lastBulkUpdate": "2026-10-01",
+  "lastBulkUpdate": "2026-10-10",
   "staleAfterDays": 30,
   "replaceAfterDays": 90,
   "source": "js/aio-data.js curated identity universe; public-data/screener.json runtime enrichment",
   "note": "정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다.",
-  "recordCount": 931,
-  "uniqueSymbols": 931,
+  "recordCount": 993,
+  "uniqueSymbols": 993,
   "duplicateSymbols": 0,
   "currentness": "CURRENT"
  },
@@ -822,12 +822,6 @@
    "index": "RUSSELL2000"
   },
   {
-   "sym": "DM",
-   "name": "Desktop Metal",
-   "sector": "Technology",
-   "index": "RUSSELL2000"
-  },
-  {
    "sym": "AAOI",
    "name": "Applied Optoelectronics",
    "sector": "Technology",
@@ -955,12 +949,6 @@
    "name": "UiPath",
    "sector": "Technology",
    "index": "NYSE"
-  },
-  {
-   "sym": "CFLT",
-   "name": "Confluent",
-   "sector": "Technology",
-   "index": "NASDAQ100"
   },
   {
    "sym": "CRSP",
@@ -1103,12 +1091,6 @@
   {
    "sym": "VSAT",
    "name": "Viasat",
-   "sector": "Communication Services",
-   "index": "NASDAQ"
-  },
-  {
-   "sym": "SATS",
-   "name": "EchoStar",
    "sector": "Communication Services",
    "index": "NASDAQ"
   },
@@ -1974,7 +1956,7 @@
    "index": "NASDAQ"
   },
   {
-   "sym": "6600.T",
+   "sym": "285A.T",
    "name": "Kioxia Holdings",
    "sector": "Technology",
    "index": "TSE",
@@ -2322,7 +2304,7 @@
    "index": "NASDAQ100"
   },
   {
-   "sym": "MTK",
+   "sym": "2454.TW",
    "name": "MediaTek",
    "sector": "Technology",
    "index": "TWSE",
@@ -4210,12 +4192,6 @@
    "index": "ETF"
   },
   {
-   "sym": "ABB",
-   "name": "ABB Ltd",
-   "sector": "Industrials",
-   "index": "ADR"
-  },
-  {
    "sym": "ADM",
    "name": "Archer-Daniels-Midland",
    "sector": "Consumer Defensive",
@@ -4286,12 +4262,6 @@
    "name": "Lithium Americas",
    "sector": "Materials",
    "index": "NYSE"
-  },
-  {
-   "sym": "MASI",
-   "name": "Masimo Corp",
-   "sector": "Healthcare",
-   "index": "NASDAQ"
   },
   {
    "sym": "MP",
@@ -4453,10 +4423,10 @@
    "memo": "[2026-08-09 TG-REFERENCE] BornLupin relayed inclusion in Korea materials/equipment \"super-乙\" R&D support. Verify formal program notice, eligible project, funding schedule, commercial customer and margin impact; policy selection is not backlog."
   },
   {
-   "sym": "042700.KQ",
+   "sym": "042700.KS",
    "name": "한미반도체",
    "sector": "Technology",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "009150.KS",
@@ -4514,10 +4484,10 @@
    "index": "KOSDAQ"
   },
   {
-   "sym": "005290.KS",
+   "sym": "005290.KQ",
    "name": "동진쎄미켐",
    "sector": "Materials",
-   "index": "KOSPI"
+   "index": "KOSDAQ"
   },
   {
    "sym": "357780.KQ",
@@ -4586,12 +4556,6 @@
    "index": "KOSPI"
   },
   {
-   "sym": "010620.KS",
-   "name": "HD현대미포",
-   "sector": "Industrials",
-   "index": "KOSPI"
-  },
-  {
    "sym": "267250.KS",
    "name": "HD현대",
    "sector": "Industrials",
@@ -4640,10 +4604,10 @@
    "index": "KOSPI"
   },
   {
-   "sym": "229640.KQ",
+   "sym": "229640.KS",
    "name": "LS에코에너지",
    "sector": "Industrials",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "000500.KS",
@@ -4676,10 +4640,10 @@
    "index": "KOSPI"
   },
   {
-   "sym": "092200.KQ",
+   "sym": "092200.KS",
    "name": "디아이씨",
    "sector": "Industrials",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "005490.KS",
@@ -4707,17 +4671,17 @@
    "index": "KOSDAQ"
   },
   {
-   "sym": "003670.KQ",
+   "sym": "003670.KS",
    "name": "포스코퓨처엠",
    "sector": "Materials",
-   "index": "KOSDAQ",
+   "index": "KOSPI",
    "memo": "[2026-08-09 TG-REFERENCE] HANA/BornLupin relay North American ESS order-cycle and non-China material sourcing themes. Verify signed contract, volume, timing, subsidy/origin eligibility and margin; sector narrative alone is not an order."
   },
   {
-   "sym": "066970.KQ",
+   "sym": "066970.KS",
    "name": "엘앤에프",
    "sector": "Materials",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "196170.KQ",
@@ -4750,10 +4714,10 @@
    "index": "KOSDAQ"
   },
   {
-   "sym": "302440.KQ",
+   "sym": "302440.KS",
    "name": "SK바이오사이언스",
    "sector": "Healthcare",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "141080.KQ",
@@ -4774,16 +4738,16 @@
    "index": "KOSPI"
   },
   {
-   "sym": "044820.KQ",
+   "sym": "044820.KS",
    "name": "코스맥스BTI",
    "sector": "Consumer",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
-   "sym": "192820.KQ",
+   "sym": "192820.KS",
    "name": "코스맥스",
    "sector": "Consumer",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "161890.KS",
@@ -4792,10 +4756,10 @@
    "index": "KOSPI"
   },
   {
-   "sym": "278470.KQ",
+   "sym": "278470.KS",
    "name": "에이피알(APR)",
    "sector": "Consumer",
-   "index": "KOSDAQ",
+   "index": "KOSPI",
    "memo": "[2026-08-09 TG-REFERENCE] BornLupin relayed sell-side commentary on North America/Europe growth and a reported target price. Verify DART revenue by region, channel mix, promotion/FX/tariff effects, margin normalization and valuation; target-price recirculation is not current evidence."
   },
   {
@@ -4841,16 +4805,16 @@
    "index": "KOSDAQ"
   },
   {
-   "sym": "253450.KS",
+   "sym": "253450.KQ",
    "name": "스튜디오드래곤",
    "sector": "Communication Services",
-   "index": "KOSPI"
+   "index": "KOSDAQ"
   },
   {
-   "sym": "035760.KS",
+   "sym": "035760.KQ",
    "name": "CJ ENM",
    "sector": "Communication Services",
-   "index": "KOSPI"
+   "index": "KOSDAQ"
   },
   {
    "sym": "251270.KS",
@@ -4907,10 +4871,10 @@
    "index": "KOSPI"
   },
   {
-   "sym": "454910.KQ",
+   "sym": "454910.KS",
    "name": "두산로보틱스",
    "sector": "Technology",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "277810.KQ",
@@ -4955,10 +4919,10 @@
    "index": "KOSPI"
   },
   {
-   "sym": "323410.KQ",
+   "sym": "323410.KS",
    "name": "카카오뱅크",
    "sector": "Financials",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "024110.KS",
@@ -5069,10 +5033,10 @@
    "index": "KOSPI"
   },
   {
-   "sym": "069960.KQ",
+   "sym": "069960.KS",
    "name": "현대백화점",
    "sector": "Consumer",
-   "index": "KOSDAQ"
+   "index": "KOSPI"
   },
   {
    "sym": "000720.KS",
@@ -5159,10 +5123,10 @@
    "index": "KOSPI"
   },
   {
-   "sym": "012510.KS",
+   "sym": "012510.KQ",
    "name": "더존비즈온",
    "sector": "Technology",
-   "index": "KOSPI"
+   "index": "KOSDAQ"
   },
   {
    "sym": "030520.KQ",
@@ -5649,6 +5613,414 @@
    "name": "Zimmer Biomet",
    "sector": "Healthcare",
    "index": "SP500"
+  },
+  {
+   "sym": "ACLS",
+   "name": "Axcelis Technologies",
+   "sector": "Technology",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "ENTG",
+   "name": "Entegris",
+   "sector": "Technology",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "UCTT",
+   "name": "Ultra Clean Holdings",
+   "sector": "Technology",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "MOD",
+   "name": "Modine Manufacturing",
+   "sector": "Industrials",
+   "index": "NYSE"
+  },
+  {
+   "sym": "WULF",
+   "name": "TeraWulf",
+   "sector": "Technology",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "CIFR",
+   "name": "Cipher Digital",
+   "sector": "Technology",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "S",
+   "name": "SentinelOne",
+   "sector": "Technology",
+   "index": "NYSE"
+  },
+  {
+   "sym": "DK",
+   "name": "Delek US Holdings",
+   "sector": "Energy",
+   "index": "NYSE"
+  },
+  {
+   "sym": "FTI",
+   "name": "TechnipFMC",
+   "sector": "Energy",
+   "index": "NYSE"
+  },
+  {
+   "sym": "NOV",
+   "name": "NOV Inc",
+   "sector": "Energy",
+   "index": "NYSE"
+  },
+  {
+   "sym": "WHD",
+   "name": "Cactus Inc",
+   "sector": "Energy",
+   "index": "NYSE"
+  },
+  {
+   "sym": "LEU",
+   "name": "Centrus Energy",
+   "sector": "Energy",
+   "index": "NYSE"
+  },
+  {
+   "sym": "BWXT",
+   "name": "BWX Technologies",
+   "sector": "Industrials",
+   "index": "NYSE"
+  },
+  {
+   "sym": "NNE",
+   "name": "NANO Nuclear Energy",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "NXT",
+   "name": "Nextpower",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "ARRY",
+   "name": "Array Technologies",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "SHLS",
+   "name": "Shoals Technologies",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "FLNC",
+   "name": "Fluence Energy",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "PLUG",
+   "name": "Plug Power",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "FCEL",
+   "name": "FuelCell Energy",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "VKTX",
+   "name": "Viking Therapeutics",
+   "sector": "Healthcare",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "KTOS",
+   "name": "Kratos Defense & Security",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "AVAV",
+   "name": "AeroVironment",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "SYM",
+   "name": "Symbotic",
+   "sector": "Industrials",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "MBLY",
+   "name": "Mobileye",
+   "sector": "Technology",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "LYFT",
+   "name": "Lyft",
+   "sector": "Technology",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "EA",
+   "name": "Electronic Arts",
+   "sector": "Communication Services",
+   "index": "NASDAQ100"
+  },
+  {
+   "sym": "DKNG",
+   "name": "DraftKings",
+   "sector": "Consumer",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "FLUT",
+   "name": "Flutter Entertainment",
+   "sector": "Consumer",
+   "index": "NYSE"
+  },
+  {
+   "sym": "PENN",
+   "name": "PENN Entertainment",
+   "sector": "Consumer",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "KGC",
+   "name": "Kinross Gold",
+   "sector": "Materials",
+   "index": "NYSE"
+  },
+  {
+   "sym": "APLD",
+   "name": "Applied Digital",
+   "sector": "Technology",
+   "index": "NASDAQ"
+  },
+  {
+   "sym": "007660.KS",
+   "name": "이수페타시스",
+   "sector": "Technology",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "095340.KQ",
+   "name": "ISC",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "071970.KS",
+   "name": "HD현대마린엔진",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "001440.KS",
+   "name": "대한전선",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "062040.KS",
+   "name": "산일전기",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "083650.KQ",
+   "name": "비에이치아이",
+   "sector": "Industrials",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "018290.KQ",
+   "name": "브이티",
+   "sector": "Consumer Defensive",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "214150.KQ",
+   "name": "클래시스",
+   "sector": "Healthcare",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "439090.KQ",
+   "name": "마녀공장",
+   "sector": "Consumer Defensive",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "108490.KQ",
+   "name": "로보티즈",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "388720.KQ",
+   "name": "유일로보틱스",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "090710.KQ",
+   "name": "휴림로봇",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "041190.KQ",
+   "name": "우리기술투자",
+   "sector": "Financials",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "047080.KQ",
+   "name": "한빛소프트",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "006360.KS",
+   "name": "GS건설",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "375500.KS",
+   "name": "DL이앤씨",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "028050.KS",
+   "name": "삼성E&A",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "139480.KS",
+   "name": "이마트",
+   "sector": "Consumer",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "007070.KS",
+   "name": "GS리테일",
+   "sector": "Consumer",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "282330.KS",
+   "name": "BGF리테일",
+   "sector": "Consumer",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "000120.KS",
+   "name": "CJ대한통운",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "328130.KQ",
+   "name": "루닛",
+   "sector": "Healthcare",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "338220.KQ",
+   "name": "뷰노",
+   "sector": "Healthcare",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "322510.KQ",
+   "name": "제이엘케이",
+   "sector": "Healthcare",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "049950.KQ",
+   "name": "미래컴퍼니",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "145720.KS",
+   "name": "덴티움",
+   "sector": "Healthcare",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "018670.KS",
+   "name": "SK가스",
+   "sector": "Energy",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "050890.KQ",
+   "name": "쏠리드",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "032500.KQ",
+   "name": "케이엠더블유",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "218410.KQ",
+   "name": "RFHIC",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "138080.KQ",
+   "name": "오이솔루션",
+   "sector": "Technology",
+   "index": "KOSDAQ"
+  },
+  {
+   "sym": "112610.KS",
+   "name": "씨에스윈드",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "336260.KS",
+   "name": "두산퓨얼셀",
+   "sector": "Industrials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "017390.KS",
+   "name": "서울가스",
+   "sector": "Utilities",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "003830.KS",
+   "name": "대한화섬",
+   "sector": "Materials",
+   "index": "KOSPI"
+  },
+  {
+   "sym": "007310.KS",
+   "name": "오뚜기",
+   "sector": "Consumer Defensive",
+   "index": "KOSPI"
   }
  ],
  "generatedFrom": "js/aio-data.js:SCREENER_DB",

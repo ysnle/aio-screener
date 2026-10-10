@@ -12,13 +12,14 @@ function finite(value) {
 }
 
 const METRIC_DEFINITIONS = Object.freeze([
-  ['revenue', 'Revenue', 'currency'],
-  ['netIncome', 'Net income', 'currency'],
-  ['equity', 'Equity', 'currency'],
-  ['sharesOutstanding', 'Shares outstanding', 'shares'],
-  ['revGrowth', 'Revenue growth', 'percent'],
-  ['margin', 'Net margin', 'percent'],
-  ['roe', 'ROE (순이익 ÷ 기말 자기자본)', 'percent'], // P1446: basis named; the fiscal reading uses average equity when two year-ends exist
+  // P1591: Korean labels; ROE is shown once, in the fiscal reading (average equity, the standard basis) —
+  // a second end-of-year ROE beside it read as a conflicting number (S07).
+  ['revenue', '매출', 'currency'],
+  ['netIncome', '순이익', 'currency'],
+  ['equity', '자기자본(기말)', 'currency'],
+  ['sharesOutstanding', '발행주식 수', 'shares'],
+  ['revGrowth', '매출 성장률', 'percent'],
+  ['margin', '순이익률', 'percent'],
   ['pe', 'P/E', 'multiple'],
   ['pb', 'P/B', 'multiple']
 ]);

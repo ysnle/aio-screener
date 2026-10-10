@@ -1,3 +1,4 @@
+import { deriveQuotePresentation } from '../market/quote-presentation.js';
 // P1432 (stage 5, owner direction 2026-10-04): 오늘 is the screen a trader opens every morning, so it
 // answers "what changed since the last session" and "what happened to my names" before anything else.
 // Pure functions over the completed-close history and the published screener rows — no live quote is
@@ -75,7 +76,7 @@ export function buildDailyChanges(history = []) {
   const headline = flips.length
     ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(' · ')} — 시장 상태 판정에 들어가는 축이 바뀌었습니다.`
     : big.length ? `축 판정은 그대로이고, 크게 움직인 것은 ${big.map((move) => `${move.label} ${move.text}`).join(' · ')}입니다.`
-      : '축 판정이 바뀌지 않았고 크게 움직인 지표도 없습니다 — 어제의 판단이 그대로 유효한 날입니다.';
+      : '축 판정이 바뀌지 않았고 크게 움직인 지표도 없습니다 — 직전 종가와 같은 분류가 이어집니다(분류가 같다는 것이 해석이 맞았다는 뜻은 아닙니다).';
   return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), moves, flips, big: big.map((move) => move.key), headline };
 }
 
@@ -88,6 +89,9 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     const row = bySymbol.get(symbol) || null;
     const quote = live?.[symbol] || null;
     const dayPct = finite(quote?.pct ?? quote?.changePercent);
+    // P1579: a stale or basis-unknown change is shown but neither coloured nor used to rank attention.
+    const presentation = quote ? deriveQuotePresentation(quote, { symbol }) : null;
+    const daySignalled = dayPct != null && ['current', 'delayed'].includes(presentation?.displayState) && presentation?.changeCoherent === true;
     const sma50 = finite(row?.pctSma50);
     const high = finite(row?.pctFrom52wHigh);
     const rsi = finite(row?.rsi);
@@ -97,9 +101,9 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     else if (high != null && high <= -25) notes.push(`52주 고점 대비 ${signed(high, 0, '%')}`);
     if (rsi != null && rsi >= 70) notes.push(`RSI ${rsi.toFixed(0)} 과열권`);
     else if (rsi != null && rsi <= 30) notes.push(`RSI ${rsi.toFixed(0)} 과매도권`);
-    const attention = (dayPct != null && Math.abs(dayPct) >= 3 ? 2 : 0) + (rsi != null && (rsi >= 70 || rsi <= 30) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
+    const attention = (daySignalled && Math.abs(dayPct) >= 3 ? 2 : 0) + (rsi != null && (rsi >= 70 || rsi <= 30) ? 1 : 0) + (sma50 != null && sma50 < 0 ? 1 : 0);
     return {
-      symbol, name: row?.name || '', held: held.has(symbol), dayPct,
+      symbol, name: row?.name || '', held: held.has(symbol), dayPct, daySignalled,
       ret1m: finite(row?.ret1m), notes, attention, known: !!row || dayPct != null
     };
   });

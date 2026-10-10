@@ -365,40 +365,78 @@ function createPrinciplesArrivalContext(documentRef, context, onReturn) {
 
 
 
+// P1591 (L01/E10): positions are computed from the visible subgraph instead of hand-set coordinates. Two node
+// families (market principles and AI concepts) each carried their own x/y, so mixing them stacked boxes on
+// the same spot. Columns = hop distance from the selected concept (unreached overview nodes in a last
+// column), rows spread evenly inside a column, so no two boxes share a position and labels sit between columns.
+export function layoutConceptGraph(selectedId, visibleNodes, visibleEdges) {
+  const ids = visibleNodes.map((node) => node.id);
+  const visible = new Set(ids);
+  const distance = new Map([[selectedId, 0]]);
+  const queue = [selectedId];
+  while (queue.length) {
+    const current = queue.shift();
+    visibleEdges.forEach((edge) => {
+      const next = edge.from === current ? edge.to : edge.to === current ? edge.from : null;
+      if (next && visible.has(next) && !distance.has(next)) { distance.set(next, distance.get(current) + 1); queue.push(next); }
+    });
+  }
+  const reached = Math.max(0, ...distance.values());
+  const columnOf = (id) => (distance.has(id) ? distance.get(id) : reached + 1);
+  const columns = new Map();
+  visibleNodes.forEach((node) => { const c = columnOf(node.id); if (!columns.has(c)) columns.set(c, []); columns.get(c).push(node); });
+  const order = [...columns.keys()].sort((a, b) => a - b);
+  const positions = new Map();
+  order.forEach((column, index) => {
+    const nodes = columns.get(column).sort((a, b) => (Number(a.y) || 0) - (Number(b.y) || 0) || String(a.title).localeCompare(String(b.title)));
+    const x = order.length === 1 ? 50 : 12 + index * (76 / (order.length - 1));
+    nodes.forEach((node, row) => positions.set(node.id, { x, y: ((row + 1) / (nodes.length + 1)) * 100 }));
+  });
+  const tallest = Math.max(1, ...[...columns.values()].map((list) => list.length));
+  return { positions, minHeight: Math.max(420, tallest * 62 + 40) };
+}
+
 function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges, depth = 1) {
   const graph = element(documentRef, 'div', 'principles-graph-canvas');
+  const layout = layoutConceptGraph(selectedId, visibleNodes, visibleEdges);
+  graph.style.minHeight = `${layout.minHeight}px`;
+  const at = (id) => layout.positions.get(id) || { x: 50, y: 50 };
   const svg = documentRef.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('preserveAspectRatio', 'none'); // lines in the same % space as the HTML nodes
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', '개념 지도 관계 그래프. 노드 선택 버튼으로 상세를 확인할 수 있습니다.');
   const visible = new Set(visibleNodes.map((node) => node.id));
+  const labels = [];
   visibleEdges.filter((edge) => visible.has(edge.from) && visible.has(edge.to)).forEach((edge) => {
     const from = NODE_BY_ID.get(edge.from);
     const to = NODE_BY_ID.get(edge.to);
     const line = documentRef.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', String(from.x));
-    line.setAttribute('y1', String(from.y));
-    line.setAttribute('x2', String(to.x));
-    line.setAttribute('y2', String(to.y));
+    const a = at(edge.from);
+    const b = at(edge.to);
+    line.setAttribute('x1', String(a.x));
+    line.setAttribute('y1', String(a.y));
+    line.setAttribute('x2', String(b.x));
+    line.setAttribute('y2', String(b.y));
     line.setAttribute('class', `principles-edge${edge.from === selectedId || edge.to === selectedId ? ' is-active' : ''}`);
     line.setAttribute('aria-label', `${from.title}에서 ${to.title}: ${edge.relation}`);
     svg.appendChild(line);
     // P1476: relation labels only on the selected node's edges — labels on every line overlapped the
     // lines and each other, hiding what a connection means. Other edges stay as lines (aria-label keeps the text).
     if (edge.from === selectedId || edge.to === selectedId) {
-      const relation = documentRef.createElementNS('http://www.w3.org/2000/svg', 'text');
-      relation.setAttribute('x', String((Number(from.x) + Number(to.x)) / 2));
-      relation.setAttribute('y', String((Number(from.y) + Number(to.y)) / 2));
-      relation.setAttribute('class', 'principles-edge-label');
-      relation.textContent = edge.relation;
-      svg.appendChild(relation);
+      // HTML label at the midpoint (between columns), so a non-uniform SVG scale never stretches the text.
+      const relation = element(documentRef, 'span', 'principles-edge-label principles-edge-label-html', edge.relation);
+      relation.style.left = `${(a.x + b.x) / 2}%`;
+      relation.style.top = `${(a.y + b.y) / 2}%`;
+      labels.push(relation);
     }
   });
   graph.appendChild(svg);
+  labels.forEach((label) => graph.appendChild(label));
   visibleNodes.forEach((node) => {
     const item = element(documentRef, 'div', `principles-graph-node${node.id === selectedId ? ' is-selected' : ''}`);
-    item.style.left = `${node.x}%`;
-    item.style.top = `${node.y}%`;
+    item.style.left = `${at(node.id).x}%`;
+    item.style.top = `${at(node.id).y}%`;
     const nodeButton = button(documentRef, 'principles-graph-node-button', node.title, 'select-node', node.id);
     nodeButton.setAttribute('aria-pressed', node.id === selectedId ? 'true' : 'false');
     nodeButton.title = node.summary;

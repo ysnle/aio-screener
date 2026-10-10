@@ -1923,7 +1923,7 @@
       entriesCount >= 132, 'entries=' + entriesCount);
 
     // T396: 핵심 신규 ticker 등록 검증 (NVO/VKTX/FANUY/SNPS/CDNS/NET/267250.KS)
-    var criticalNew = ['NVO','VKTX','FANUY','SNPS','CDNS','NET','EQIX','RKLB','IONQ','MSTR','LITE','RIVN','SYM','FSLR','LMT','267250.KS','323410.KQ','161890.KS','000080.KS','006260.KS'];
+    var criticalNew = ['NVO','VKTX','FANUY','SNPS','CDNS','NET','EQIX','RKLB','IONQ','MSTR','LITE','RIVN','SYM','FSLR','LMT','267250.KS','323410.KS','161890.KS','000080.KS','006260.KS'];
     var missing = criticalNew.filter(function(t) { return !(reg && reg.entries && reg.entries[t]); });
     _assert('T396 registry_critical_new_tickers: NVO/VKTX/FANUY/SNPS/CDNS/NET + 5 KR 등록',
       missing.length === 0, 'missing=' + missing.join(','));
@@ -3684,10 +3684,10 @@
     var krPpiOk  = ds2.krPpi  >= 5 && ds2.krPpi  <= 10;      // 이란 유가 충격 반영 (1.5 평시값 stale 제외)
     var krCrOk   = ds2.krCreditBalance >= 30;                // record 빚투 36조 (19.2 stale 제외)
     var krInflationRef = window.AIO_MANUAL_REFERENCE && window.AIO_MANUAL_REFERENCE.krInflation;
-    var krInflationContractOk = DATA_SNAPSHOT.krCpi === 2.8
-      && DATA_SNAPSHOT.krCoreCpi === 2.6
-      && krInflationRef && krInflationRef.observation === '2026-07'
-      && krInflationRef.publishedAt === '2026-08-04'
+    var krInflationContractOk = DATA_SNAPSHOT.krCpi === 2.9
+      && DATA_SNAPSHOT.krCoreCpi === 2.8
+      && krInflationRef && krInflationRef.observation === '2026-09'
+      && krInflationRef.publishedAt === '2026-10-02'
       && krInflationRef.coreDefinition === 'food-and-energy-excluded'
       && /mods\.go\.kr/.test(krInflationRef.sourceUrl || '')
       && krInflationRef.operationalUse === 'reference-only';

@@ -313,7 +313,17 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const revenue = Number(currentRevenue.val);
   const netIncome = finiteFact(currentIncome?.val);
   const equity = finiteFact(currentEquity?.val);
-  const sharesOutstanding = finiteFact(currentShares?.val);
+  // P1587: the cover-page share count is cross-checked against net income ÷ diluted EPS for the same
+  // fiscal year. PKG's companyfacts carried 89,213,394,000 shares (1000x), which published P/E 26,500 and
+  // P/B 4,461 into the screener. A count more than 3x away from the EPS-implied count is withheld.
+  const epsRow = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['EarningsPerShareDiluted', 'EarningsPerShareBasic'], 'USD/shares')
+    .filter((row) => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && row.end === currentRevenue.end && finiteFact(row.val) != null))[0] || null;
+  const eps = finiteFact(epsRow?.val);
+  const reportedShares = finiteFact(currentShares?.val);
+  const impliedShares = Number.isFinite(netIncome) && Number.isFinite(eps) && eps !== 0 && Math.sign(netIncome) === Math.sign(eps) ? netIncome / eps : null;
+  const shareScaleRatio = reportedShares > 0 && impliedShares > 0 ? reportedShares / impliedShares : null;
+  const sharesCheck = shareScaleRatio == null ? 'unchecked' : shareScaleRatio > 3 || shareScaleRatio < 1 / 3 ? 'scale-mismatch' : 'consistent';
+  const sharesOutstanding = sharesCheck === 'scale-mismatch' ? null : reportedShares;
   const px = Number(price);
   const marketCap = px > 0 && sharesOutstanding > 0 ? px * sharesOutstanding : null;
 
@@ -345,7 +355,9 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const record = {
     symbol,
     cik: String(companyFacts.cik || '').padStart(10, '0'),
-    entityName: companyFacts.entityName || null,
+    // P1582: the submissions document names the registrant itself; companyfacts.entityName can carry
+    // a co-registrant (CIK 70858 Bank of America → "BofA Finance LLC").
+    entityName: submissions?.name || companyFacts.entityName || null,
     source: 'SEC EDGAR companyfacts',
     sourceTier: 'T1_OFFICIAL',
     sourceKind: 'T1_OFFICIAL',
@@ -379,7 +391,11 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     revenue,
     netIncome,
     equity: Number.isFinite(equity) ? equity : null,
+    // P1582: declare which equity concept fed ROE/P-B. The NCI-inclusive fallback does not match the
+    // parent-only NetIncomeLoss numerator, so consumers can see when the ratio mixes bases.
+    equityBasis: !Number.isFinite(equity) ? null : currentEquity?.concept === 'StockholdersEquity' ? 'parent' : 'including-noncontrolling-interest',
     sharesOutstanding: Number.isFinite(sharesOutstanding) ? sharesOutstanding : null,
+    sharesCheck, // P1587: consistent | scale-mismatch (withheld) | unchecked
     sharesObservedAt: currentShares?.end || null,
     coverage: ['revenue', ...(netIncome != null ? ['netIncome'] : []), ...(equity != null ? ['equity'] : []), ...(sharesOutstanding != null ? ['sharesOutstanding'] : [])],
     pit: buildPointInTimeFacts(companyFacts, submissions)

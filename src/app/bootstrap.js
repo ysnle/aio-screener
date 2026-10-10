@@ -778,6 +778,38 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (documentRef?.visibilityState !== 'hidden') refreshStaleActivePage();
     };
     documentRef?.addEventListener?.('visibilitychange', onVisibilityTimelineCheck);
+    // P1592 (F31): the skip link moves focus without writing '#main-content' into the route hash — that
+    // hash reloaded as a route named 'main-content' and showed an empty page.
+    const onSkipLink = (event) => {
+      const link = event.target?.closest?.('a.skip-link');
+      const target = link && documentRef.getElementById('main-content');
+      if (!target) return;
+      event.preventDefault();
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+      target.focus();
+    };
+    documentRef?.addEventListener?.('click', onSkipLink);
+    // P1592 (F32): every role=tablist gets the keyboard model its role announces — Arrow/Home/End move to
+    // and activate the next tab (activation reuses the tab's own click handler). A page with its own
+    // handler (종목 탭) calls preventDefault first and is left alone.
+    const onTabKey = (event) => {
+      if (event.defaultPrevented || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      const tab = event.target?.closest?.('[role="tab"]');
+      const list = tab?.closest?.('[role="tablist"]');
+      if (!list) return;
+      const tabs = [...list.querySelectorAll('[role="tab"]')].filter((node) => !node.hidden && !node.disabled && node.closest('[role="tablist"]') === list);
+      const current = tabs.indexOf(tab);
+      if (current < 0 || tabs.length < 2) return;
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
+        : event.key === 'ArrowRight' ? (current + 1) % tabs.length : (current - 1 + tabs.length) % tabs.length;
+      event.preventDefault();
+      tabs[next].focus();
+      tabs[next].click();
+    };
+    documentRef?.addEventListener?.('keydown', onTabKey);
+    if (root?.location?.hash === '#main-content') {
+      try { root.history?.replaceState?.(root.history.state, '', `${root.location.pathname}${root.location.search}`); } catch (_) {}
+    }
     // W00-B: the initial route commits through the same typed boundary. router.start()
     // first so observers of aio:navigationCommitted see the very first commit.
     const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
@@ -857,6 +889,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       compatibilityEvents.dispose();
       clearInterval(timelineWatchdog);
       documentRef?.removeEventListener?.('visibilitychange', onVisibilityTimelineCheck);
+      documentRef?.removeEventListener?.('click', onSkipLink);
+      documentRef?.removeEventListener?.('keydown', onTabKey);
       router.dispose();
       // Fable-advisor review (2026-07-21): drop any in-flight screener/entity fetch resolution
       // permanently once the app is torn down — see the generation-counter guard in those two
