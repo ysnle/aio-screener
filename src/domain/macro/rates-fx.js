@@ -142,7 +142,9 @@ export function buildRatesFx({ macro = null, history = [] } = {}) {
   const [realCard, beiCard] = real;
   if (realCard?.asOf && beiCard?.asOf && realCard.asOf !== beiCard.asOf) {
     const gap = ` 실질금리(${realCard.asOf})와 기대인플레이션(${beiCard.asOf})의 기준일이 달라, 두 값을 더해 같은 날의 명목금리로 맞춰 보지 않습니다.`;
-    real.forEach((card) => { if (card) card.note = `${card.note || ''}${gap}`; });
+    // P1599 (A08): the full sentence once (on the second card); the first card carries a short pointer.
+    realCard.note = `${realCard.note || ''} 기준일 ${realCard.asOf} — 옆 카드와 날짜가 다릅니다.`;
+    beiCard.note = `${beiCard.note || ''}${gap}`;
   }
   return {
     basis,

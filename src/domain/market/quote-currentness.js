@@ -40,7 +40,8 @@ export function describeQuoteCurrentness({ observations = [], nowMs = Date.now()
   const newestMs = Math.max(...us.map((row) => row.observedMs));
   const ageMs = nowMs - newestMs;
   const at = kstParts(newestMs);
-  const suffix = count ? ` · ${count}개` : '';
+  // P1599 (G05): name what the count is — the number of quotes with a confirmed observation time.
+  const suffix = count ? ` · 시세 ${count}종` : '';
   if (basis?.inSession) {
     if (ageMs <= LIVE_MAX_MS) return result('live', 'LIVE', `${at.hm} 기준${suffix}`, `미국 정규장 중 · 최신 관측 ${at.md} ${at.hm} KST`);
     if (ageMs <= DELAYED_MAX_MS) return result('delayed', '지연', `${Math.round(ageMs / 60000)}분 전${suffix}`, `미국 정규장 중 · 최신 관측 ${at.md} ${at.hm} KST`);

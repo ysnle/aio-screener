@@ -8,6 +8,7 @@ import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForM
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { SHARED_AI_MODEL, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
+import { marketAnalysisDiagnostic, summarizeOperationalChecks, workflowCadence, operationalSummary } from './lib/operational-health.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -17,6 +18,25 @@ const errors = [];
 const check = (label, condition, detail = '') => {
   if (!condition) errors.push(label + (detail ? ': ' + detail : ''));
 };
+
+// P1596: optional degradation is visible even when release-blocking gates pass.
+check('P1596 warnings cannot be reported as healthy', summarizeOperationalChecks([], ['AI unavailable']).status === 'DEGRADED'
+  && summarizeOperationalChecks([{ ok: false, severity: 'warning' }]).gateStatus === 'PASS'
+  && summarizeOperationalChecks([{ ok: false, severity: 'error' }]).status === 'FAIL'
+  && summarizeOperationalChecks([{ ok: true, severity: 'error' }]).status === 'PASS');
+check('P1596 AI diagnostics retain the actual semantic failure', marketAnalysisDiagnostic({ marketAnalysis: { reason: 'metric-value-mismatch:market.vix' } }) === 'metric-value-mismatch:market.vix'
+  && marketAnalysisDiagnostic({ meta: { marketAnalysisOk: true } }) === 'verified');
+check('P1596 operational summary preserves nonblocking failures', operationalSummary({ status: 'DEGRADED', gateStatus: 'PASS', warnings: ['analysis-unavailable'] }).includes('analysis-unavailable')
+  && /aio-operational-health/.test(read('.github/workflows/data-watchdog.yml')));
+{
+  const now = Date.parse('2026-10-10T12:00:00Z');
+  const run = minutes => ({ head_branch: 'main', event: 'schedule', created_at: new Date(now - minutes * 60000).toISOString() });
+  check('P1596 cadence detects missing slots despite a recent success', !workflowCadence([run(5), run(180)], { now, maxAgeMinutes: 65 }).ok
+    && workflowCadence([run(5), run(35)], { now, maxAgeMinutes: 65 }).ok
+    && !workflowCadence([run(-10)], { now, maxAgeMinutes: 65 }).ok);
+}
+check('P1596 external observer collects all Pages results and preserves degraded status', /const pagesPromise = Promise\.allSettled/.test(read('scripts/ci-external-pipeline-check.mjs'))
+  && /summarizeOperationalChecks\(result\.checks, result\.warnings\)/.test(read('scripts/ci-external-pipeline-check.mjs')));
 
 const completeCycle = deriveCyclePublication({ marketSnapshotPublished: true, quoteCount: 78, requiredQuoteCount: 78, newsCount: 10, historyUpdated: true });
 check('cycle publication requires every declared component', completeCycle.status === 'PUBLISHED' && completeCycle.blockers.length === 0, JSON.stringify(completeCycle));
@@ -468,6 +488,15 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const data = { meta: { generatedAt: '2026-10-09T21:00:00.000Z' }, news: [], macro: {} };
     const moveFirst = validateMarketAnalysisText('SPX는 0.66% 오른 7,816.7이고 VIX는 3.6% 내린 14.86입니다. 위험 선호는 제한적입니다.', data, snapshot);
     const wrongLevel = validateMarketAnalysisText('SPX는 0.66% 오른 7,500이고 VIX는 3.6% 내린 19.9입니다. 위험 선호는 제한적입니다.', data, snapshot);
+    const nextMetric = validateMarketAnalysisText('VIX는 안정적이며 SPX는 7,816.7입니다. 시장 폭을 함께 봅니다.', data, snapshot);
+    const percentMove = validateMarketAnalysisText('VIX는 3.6% 변화했고 수준은 14.86입니다. SPX는 7,816.7입니다.', data, snapshot);
+    const secondWrong = validateMarketAnalysisText('SPX는 7,816.7입니다. 이후 SPX는 6,000이라고 적었습니다. VIX는 14.86입니다.', data, snapshot);
+    const upperEnglish = validateMarketAnalysisText('SPX는 7,816.7입니다. VIX는 14.86입니다. THE MARKET OUTLOOK IS EXTREMELY POSITIVE AND EVERY INVESTOR SHOULD BUY NOW.', data, snapshot);
+    const aliases = validateMarketAnalysisText('S&P 500은 7,816.7입니다. VIX는 14.86입니다. 지표를 함께 봅니다.', data, snapshot);
+    check('P1594 levels stay with their metric, every repeated mention is checked and uppercase prose stays subject to Korean validation',
+      !nextMetric.issues.length && !percentMove.issues.length && !aliases.issues.length
+      && secondWrong.issues.includes('metric-value-mismatch:market.spx') && upperEnglish.issues.includes('language-not-korean'),
+      JSON.stringify({ nextMetric, percentMove, secondWrong, upperEnglish, aliases }));
     check('P1585 the analysis validator reads the level, not the move, and still rejects a wrong level',
       !moveFirst.issues.some((issue) => issue.startsWith('metric-value-mismatch'))
         && wrongLevel.issues.includes('metric-value-mismatch:market.spx') && wrongLevel.issues.includes('metric-value-mismatch:market.vix'),

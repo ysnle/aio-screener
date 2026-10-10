@@ -176,7 +176,17 @@ function renderTickerNavigation(documentRef, state, root) {
   }
   const origins = { screener: '스크리너', themes: '테마 분석', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '시장 뉴스', briefing: '오늘의 브리핑', masters: '대가의 포트폴리오', home: '대시보드' };
   const requestedOrigin = root?.AIO?.state?.tickerReturnRoute;
-  const origin = Object.hasOwn(origins, requestedOrigin) ? requestedOrigin : 'fundamental';
+  // P1599 (S01): with no recorded entry route (left menu, search, a shared link) there is no screen to name —
+  // the old default printed '← 재무 공시' for a page the reader never came from. The tabs already move between views.
+  if (!Object.hasOwn(origins, requestedOrigin)) {
+    if (breadcrumb) { breadcrumb.hidden = false; breadcrumb.textContent = '종목'; breadcrumb.setAttribute('aria-label', '종목'); breadcrumb.removeAttribute('data-action'); breadcrumb.removeAttribute('role'); breadcrumb.removeAttribute('tabindex'); }
+    if (backButton) backButton.hidden = true;
+    return;
+  }
+  if (backButton) backButton.hidden = false;
+  // P1599 (G03): the back button already names the origin; the same word printed beside it read as a third link.
+  if (breadcrumb) breadcrumb.hidden = true;
+  const origin = requestedOrigin;
   const label = origins[origin];
   if (breadcrumb) {
     breadcrumb.textContent = label;

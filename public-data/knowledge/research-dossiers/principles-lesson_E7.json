@@ -18,10 +18,10 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "MP-TREASURY",
-      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
-      "publisher": "U.S. Treasury",
-      "title": "Interest rates and financing",
+      "sourceId": "SRC-BIS-BULL90",
+      "url": "https://www.bis.org/publ/bisbull90.htm",
+      "publisher": "Bank for International Settlements",
+      "title": "BIS Bulletin No 90: the market turbulence and carry trade unwind of August 2024",
       "sourceTier": null
     },
     {
@@ -37,6 +37,13 @@
       "publisher": "Federal Reserve Bank of St. Louis",
       "title": "Inflation Expectations release",
       "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     }
   ],
   "selectedSources": [
@@ -48,11 +55,21 @@
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL"
+    "PRIMARY_OFFICIAL",
+    "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
     {

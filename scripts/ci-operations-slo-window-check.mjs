@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { buildSloWindow, deriveExpectedRunsPerDay, parseCronRunsPerDay } from './build-operations-slo-window.mjs';
+import { buildSloWindow, deriveExpectedRunsPerDay, parseCronRunsPerDay, dailyCronSlots, MAX_PAGES } from './build-operations-slo-window.mjs';
 
 const artifact = JSON.parse(await readFile(new URL('../public-data/operations-slo-window.json', import.meta.url), 'utf8'));
 const errors = [];
@@ -13,7 +13,7 @@ check('P1166 30-day window is explicit', artifact.windows?.['30d']?.requiredDays
 check('P1166 targets include 30-day success and exact identity', artifact.targets?.artifactSuccessRate30d === 0.995 && artifact.targets?.watchdogSuccessRate30d === 0.995 && artifact.targets?.exactSourceIdentityCoverage === 1);
 check('P1166 targets declare the scheduled arrival lower bound', typeof artifact.targets?.scheduledArrivalRate === 'number' && artifact.targets.scheduledArrivalRate > 0 && artifact.targets.scheduledArrivalRate <= 1);
 check('P1166 failure/recovery/dedupe fields exist', ['failureCount', 'recoveryCount', 'consecutiveFailuresMax', 'dedupedAlerts'].every(key => Object.hasOwn(artifact.failureRecovery || {}, key)));
-if (artifact.collectionMode !== 'SOURCE_TEMPLATE_ONLY') check('P1166 runtime alert evidence is measured and internally consistent', typeof artifact.failureRecovery?.dedupedAlerts?.deduped === 'boolean' && artifact.failureRecovery.dedupedAlerts?.source === 'github-issues-api' && ((artifact.certification?.alertDedupe === 'PASS') === artifact.failureRecovery.dedupedAlerts.deduped));
+if (artifact.collectionMode !== 'SOURCE_TEMPLATE_ONLY') check('P1166 runtime alert evidence is measured and internally consistent', typeof artifact.failureRecovery?.dedupedAlerts?.deduped === 'boolean' && artifact.failureRecovery.dedupedAlerts?.source === 'github-issues-api' && ((artifact.certification?.alertDedupe === 'PASS') === (artifact.failureRecovery.dedupedAlerts.deduped && artifact.failureRecovery.dedupedAlerts.paginationComplete === true)));
 check('P1166 local fixture cannot promote live', artifact.revisionLanes?.localFixturePromotesLive === false && artifact.certification?.publicPromotionAllowed === false);
 
 // P1166 (17 작업 단위 2 / 06 O02): 도메인별 lane과 조회 완전성이 발행된다.
@@ -107,6 +107,28 @@ const healthy = buildSloWindow({
   now: at
 });
 check('P1166 a fully observed window still certifies', healthy.status === 'CERTIFIED_WINDOW' && healthy.windows['30d'].status === 'PASS');
+
+// P1597: incomplete dates/provenance, future runs and duplicate IDs cannot certify.
+const validObserved = Object.fromEntries(Object.keys(cadence).map(id => [id, fixtureRuns(cadence[id], 30, at)]));
+for (const [label, observed, query] of [
+  ['missing query metadata', validObserved, {}],
+  ['one-day burst', Object.fromEntries(Object.keys(cadence).map(id => [id, fixtureRuns(cadence[id] * 30, 1, at)])), completeQuery],
+  ['future runs', Object.fromEntries(Object.keys(cadence).map(id => [id, fixtureRuns(cadence[id], 30, at).map(run => ({ ...run, created_at: new Date(at.getTime() + dayMs).toISOString() }))])), completeQuery],
+  ['duplicate IDs', Object.fromEntries(Object.keys(cadence).map(id => [id, fixtureRuns(cadence[id], 30, at).map(run => ({ ...run, id: 123 }))])), completeQuery]
+]) {
+  const result = buildSloWindow({ observed, cadencePerDay: cadence, query, alertEvidence: { deduped: true, source: 'github-issues-api' }, now: at });
+  check(`P1597 ${label} must remain uncertified`, result.status !== 'CERTIFIED_WINDOW' && result.windows['30d'].status !== 'PASS');
+}
+check('P1597 cron counts handle partial steps and reject impossible slots', parseCronRunsPerDay('*/7 * * * *') === 216
+  && parseCronRunsPerDay('0 */5 * * *') === 5 && parseCronRunsPerDay('99 * * * *') === null
+  && parseCronRunsPerDay('0,0 * * * *') === 24 && new Set([...dailyCronSlots('0 * * * *'), ...dailyCronSlots('0 7 * * *')]).size === 24);
+check('P1597 query bound covers normal 30-day market arrivals with dispatch headroom', MAX_PAGES * 100 > cadence.market * 30 + 48 * 30);
+const partialAlerts = buildSloWindow({ observed: validObserved, cadencePerDay: cadence, query: completeQuery,
+  alertEvidence: { deduped: true, source: 'github-issues-api', paginationComplete: false }, now: at });
+const completeAlerts = buildSloWindow({ observed: validObserved, cadencePerDay: cadence, query: completeQuery,
+  alertEvidence: { deduped: true, source: 'github-issues-api', paginationComplete: true }, now: at });
+check('P1597 truncated alert observation cannot certify deduplication', partialAlerts.certification.alertDedupe === 'OPERATOR_REQUIRED'
+  && partialAlerts.failureRecovery.status === 'INSUFFICIENT_EVIDENCE' && completeAlerts.certification.alertDedupe === 'PASS');
 
 // 조회가 잘린 세대는 성공률이 완벽해도 인증하지 않는다(06 O02).
 const truncated = buildSloWindow({

@@ -155,6 +155,7 @@ jobs:
         run: |
           node --input-type=module - <<'NODE'
           import fs from 'node:fs';
+          import { marketAnalysisDiagnostic } from './scripts/lib/operational-health.mjs';
           try {
             const d = JSON.parse(fs.readFileSync('public-data/data.json', 'utf8'));
             const m = d.meta || {};
@@ -178,7 +179,7 @@ jobs:
               `| Treasury curve | ${m.treasuryStatus === 'ok' || m.treasuryStatus === 'cached-fresh' ? 'OK' : 'WARN'} | status=${m.treasuryStatus || 'unavailable'} observed=${m.treasuryObservedAt || 'none'} same-date 10Y-2Y only |`,
               `| AAII weekly | ${m.aaiiStatus === 'current-reference' ? 'REFERENCE' : 'WARN'} | observed=${m.aaiiObservedAt || 'none'} relay=${m.aaiiRelayUsed ? 'bounded-reader' : 'direct/none'} decisionUse=false |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
-              `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'Shared AI Worker credentials missing, monthly budget exhausted, or generation failed'} |`,
+              `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : marketAnalysisDiagnostic(d).replace(/[|\r\n]/g, ' ')} |`,
               `| Fundamentals | ${Number(m.fundamentalCoveragePct || 0) >= 80 ? 'OK' : 'PARTIAL'} | free SEC companyfacts=${m.secFundamentalsCount || 0} coverage=${m.fundamentalCoveragePct || 0}% · paid FMP not required |`,
               `| Elapsed | ${elapsedStatus} | ${Number.isFinite(elapsedMs) ? elapsedMs : 'n/a'}ms |`,
             ].join('\n');

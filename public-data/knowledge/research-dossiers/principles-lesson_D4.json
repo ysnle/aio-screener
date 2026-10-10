@@ -18,17 +18,17 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
+      "sourceId": "SRC-FRED-WALCL",
+      "url": "https://fred.stlouisfed.org/series/WALCL",
+      "publisher": "FRED (Federal Reserve Bank of St. Louis)",
+      "title": "Federal Reserve total assets",
+      "sourceTier": null
+    },
+    {
       "sourceId": "MP-FED-MP",
       "url": "https://www.federalreserve.gov/monetarypolicy.htm",
       "publisher": "Federal Reserve",
       "title": "Monetary policy",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "MP-TREASURY",
-      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
-      "publisher": "U.S. Treasury",
-      "title": "Interest rates and financing",
       "sourceTier": null
     },
     {

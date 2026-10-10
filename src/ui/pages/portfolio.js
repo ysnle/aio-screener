@@ -377,7 +377,29 @@ function renderPortfolioChart({ root, page, surface, charts }) {
       options: { responsive: false, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => ` ${context.label}: ${(context.parsed / total * 100).toFixed(1)}%` } } } }
     });
     charts.set('pf-position-donut', { chart, signature });
-    if (loading) loading.textContent = holdings.slice(0, 8).map((item) => `${item.symbol} ${(item.value / total * 100).toFixed(1)}%`).join(' · ');
+    // P1599 (F108): weights as a sorted bar list (bars compare lengths better than donut slices); the donut stays as the overview.
+    if (loading) {
+      const doc = loading.ownerDocument;
+      const sorted = [...holdings].sort((a, b) => b.value - a.value);
+      loading.replaceChildren(...sorted.slice(0, 8).map((item) => {
+        const share = item.value / total * 100;
+        const row = doc.createElement('div');
+        row.className = 'pf-weight-row';
+        const name = doc.createElement('span');
+        name.textContent = item.symbol;
+        const track = doc.createElement('span');
+        track.className = 'pf-weight-track';
+        const bar = doc.createElement('span');
+        bar.className = 'pf-weight-bar';
+        bar.style.width = `${Math.max(1, share).toFixed(1)}%`;
+        track.append(bar);
+        const value = doc.createElement('span');
+        value.textContent = `${share.toFixed(1)}%`;
+        row.append(name, track, value);
+        return row;
+      }));
+      if (sorted.length > 8) loading.append(Object.assign(doc.createElement('div'), { className: 'pf-weight-more', textContent: `외 ${sorted.length - 8}종목` }));
+    }
   } catch (_) {
     charts.destroy('pf-position-donut');
     if (loading) loading.textContent = '포트폴리오 차트 런타임 실패 · 차트 보류';

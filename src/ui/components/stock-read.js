@@ -87,17 +87,34 @@ export function renderStockRead({ documentRef: doc, root, symbol }) {
   }
   host.querySelector('h2').append(el(doc, 'span', read.ranking ? `스크리너 수집 대상 ${read.ranking.of}종목 중 ${read.ranking.rank}번째 (상위 약 ${read.ranking.topPct}%)` : '', 'briefing-h2-note'));
   host.append(el(doc, 'p', `${read.name} — ${read.headline}`, 'briefing-read-headline'));
+  // P1599 (S03): the position and returns below come from the screener's completed-close collection, not the live
+  // quote at the top (which can be '—'). Name that basis once, beside the figures it governs.
+  const basisDate = String(row?.factorSessionDate || row?.priceDate || '').slice(0, 10);
+  host.append(el(doc, 'p', `아래 위치·수익률은 ${basisDate ? `${Number(basisDate.slice(5, 7))}/${Number(basisDate.slice(8, 10))} ` : ''}종가 기준 스크리너 수집본입니다 — 위 현재가와 시점이 다를 수 있습니다.`, 'briefing-footnote'));
   const visuals = el(doc, 'div', null, 'stock-read-visuals');
   if (read.position != null) visuals.append(rangeVisual(doc, read));
   if (read.spans.some((span) => span.stock != null)) visuals.append(relativeVisual(doc, read));
   if (visuals.childNodes.length) host.append(visuals);
-  const points = el(doc, 'ul', null, 'stock-read-points');
-  for (const point of read.points) {
+  // P1599 (F107): rows that restate a chart drawn just above (52-week position, index comparison) fold under
+  // it; the rest — trend, distance, heat, theme, market — stay as the reading.
+  const charted = new Set([read.position != null ? 'range' : null, read.spans.some((span) => span.stock != null) ? 'relative' : null].filter(Boolean));
+  const item = (point) => {
     const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
     li.append(el(doc, 'span', point.title, 'stock-read-point-title'), el(doc, 'span', point.text, 'stock-read-point-text'));
-    points.append(li);
-  }
+    return li;
+  };
+  const points = el(doc, 'ul', null, 'stock-read-points');
+  read.points.filter((point) => !charted.has(point.id)).forEach((point) => points.append(item(point)));
   host.append(points);
+  const restated = read.points.filter((point) => charted.has(point.id));
+  if (restated.length) {
+    const fold = el(doc, 'details', null, 'stock-read-fold');
+    fold.append(el(doc, 'summary', '위 그림의 수치를 문장으로 읽기'));
+    const list = el(doc, 'ul', null, 'stock-read-points');
+    restated.forEach((point) => list.append(item(point)));
+    fold.append(list);
+    host.append(fold);
+  }
   renderNextSteps(doc, next, read.next);
   return read;
 }

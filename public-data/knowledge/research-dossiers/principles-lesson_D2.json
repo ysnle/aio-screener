@@ -18,17 +18,17 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
+      "sourceId": "SRC-FRED-DFII10",
+      "url": "https://fred.stlouisfed.org/series/DFII10",
+      "publisher": "FRED (Federal Reserve Bank of St. Louis)",
+      "title": "10-Year Treasury Inflation-Indexed Security",
+      "sourceTier": null
+    },
+    {
       "sourceId": "MP-FED-MP",
       "url": "https://www.federalreserve.gov/monetarypolicy.htm",
       "publisher": "Federal Reserve",
       "title": "Monetary policy",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "MP-TREASURY",
-      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
-      "publisher": "U.S. Treasury",
-      "title": "Interest rates and financing",
       "sourceTier": null
     },
     {
@@ -50,6 +50,13 @@
       "url": "https://www.bls.gov/news.release/cpi.htm?lv=true",
       "publisher": "U.S. Bureau of Labor Statistics",
       "title": "Consumer Price Index — June 2026",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-FED-FINANCIAL-STABILITY",
+      "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
+      "publisher": "Federal Reserve",
+      "title": "What Is Financial Stability?",
       "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
@@ -80,6 +87,15 @@
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-FED-FINANCIAL-STABILITY",
+      "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
+      "publisher": "Federal Reserve",
+      "title": "What Is Financial Stability?",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],

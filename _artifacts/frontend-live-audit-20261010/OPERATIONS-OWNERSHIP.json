@@ -1,0 +1,192 @@
+{
+  "localVersion": "v57.32",
+  "baseSha": "de0079c07823b97c3e22e183508985fb75338b03",
+  "isolation": ".cache/operations-worktree",
+  "branch": "codex/operations-quality-20261010",
+  "taskOwned": [
+    "_artifacts/frontend-live-audit-20261010/HANDOFF.md",
+    "_artifacts/frontend-live-audit-20261010/OPERATIONS-IMPLEMENTATION.md",
+    "_artifacts/frontend-live-audit-20261010/OPERATIONS-LIVE-20261010-2227.json",
+    "_artifacts/frontend-live-audit-20261010/OPERATIONS-OWNERSHIP.json",
+    "_artifacts/frontend-live-audit-20261010/OPERATIONS-QA-EVIDENCE.json",
+    "_artifacts/frontend-live-audit-20261010/REQUEST-CONTEXT.md",
+    "_artifacts/full-audit-20260927/EXECUTION-STATUS.md",
+    "_context/BUG-POSTMORTEM.md",
+    "_context/CLAUDE.md",
+    "_context/CONTEXT-CATALOG.json",
+    "_context/CURRENT-STATE.md",
+    "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
+    "_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json",
+    "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
+    "_context/QA-CHECKLIST.md",
+    "_context/RULES.md",
+    "_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md",
+    ".github/workflows/data-watchdog.yml",
+    ".github/workflows/operations-alert.yml",
+    ".github/workflows/refresh-data.yml",
+    "architecture/asset-manifest.json",
+    "architecture/operations-slo.json",
+    "architecture/public-readiness.json",
+    "architecture/qa-pipeline.json",
+    "architecture/release-manifest.json",
+    "architecture/visual-state-matrix.json",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "index.html",
+    "js/aio-core.js",
+    "public-config.json",
+    "public-data/operations-status.json",
+    "scripts/build-operations-slo-window.mjs",
+    "scripts/ci-data-pipeline-contract-check.mjs",
+    "scripts/ci-data-plane-contract-check.mjs",
+    "scripts/ci-external-pipeline-check.mjs",
+    "scripts/ci-operations-slo-window-check.mjs",
+    "scripts/ci-workspace-contract-check.mjs",
+    "scripts/fetch-data.mjs",
+    "scripts/lib/market-analysis-numbers.mjs",
+    "scripts/lib/operational-health.mjs",
+    "sw.js",
+    "version.json",
+    "worker/data-plane.js",
+    "worker/README.md",
+    "worker/wrangler.proxy.toml"
+  ],
+  "preserved": [
+    {
+      "path": "_artifacts/accessibility-matrix-audit.json",
+      "baselineHash": "EEEAC91E40FCAF23CE03E050C434BABEDD7207171D1498F161BEAE842B06D4E8",
+      "currentHash": "EEEAC91E40FCAF23CE03E050C434BABEDD7207171D1498F161BEAE842B06D4E8",
+      "versionOnlyException": false
+    },
+    {
+      "path": "_artifacts/boot-interaction-report.json",
+      "baselineHash": "EC658E4136603810FE9178F9A5FE6806C2B9BD3A311C37070F90B351EB06C7CC",
+      "currentHash": "EC658E4136603810FE9178F9A5FE6806C2B9BD3A311C37070F90B351EB06C7CC",
+      "versionOnlyException": false
+    },
+    {
+      "path": "_artifacts/critical10-human-surface-audit.json",
+      "baselineHash": "224217EC7220731220532379469D9468AB78D1C83A3887828FF1A67E072A584F",
+      "currentHash": "224217EC7220731220532379469D9468AB78D1C83A3887828FF1A67E072A584F",
+      "versionOnlyException": false
+    },
+    {
+      "path": "_artifacts/portfolio-vault/report.json",
+      "baselineHash": "94D5C41E610EA9FF410E963877A6D55A5263F75369BECEE002841568BD9CE36C",
+      "currentHash": "94D5C41E610EA9FF410E963877A6D55A5263F75369BECEE002841568BD9CE36C",
+      "versionOnlyException": false
+    },
+    {
+      "path": "_artifacts/route-soak-report.json",
+      "baselineHash": "A01A5FDEEA7889A6AB47E3C4D91DF89BEFE04C7059318277579E4F3690D07530",
+      "currentHash": "A01A5FDEEA7889A6AB47E3C4D91DF89BEFE04C7059318277579E4F3690D07530",
+      "versionOnlyException": false
+    },
+    {
+      "path": "_artifacts/structural-quality-20260906/browser.json",
+      "baselineHash": "7111C3A2A0A90281ECB246491ACB694645150755621ACAD7947E82598676BDB9",
+      "currentHash": "7111C3A2A0A90281ECB246491ACB694645150755621ACAD7947E82598676BDB9",
+      "versionOnlyException": false
+    },
+    {
+      "path": "_artifacts/structural-quality-20260906/guide.png",
+      "baselineHash": "96B7187C02739C48FB4875704B9A8FD50DE65F19E3881DC338E1C0CC22B13789",
+      "currentHash": "96B7187C02739C48FB4875704B9A8FD50DE65F19E3881DC338E1C0CC22B13789",
+      "versionOnlyException": false
+    },
+    {
+      "path": "index.html",
+      "baselineHash": "E1369BA7D53FC55B8FA13C0E8BD864CF190CCFFC0834D87B52406339F00D5157",
+      "currentHash": "4FBF1244EDABFD1DF94DFDD40C261537AB5BE3BB71FCF01BF80CDF188A06F904",
+      "versionOnlyException": true
+    },
+    {
+      "path": "js/aio-data.js",
+      "baselineHash": "7F3FBCEE01F2DB3D4619C75227F52A186C9BD9094A4BC421B0D8F24CA9261EED",
+      "currentHash": "7F3FBCEE01F2DB3D4619C75227F52A186C9BD9094A4BC421B0D8F24CA9261EED",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/domain/briefing/market-read.js",
+      "baselineHash": "67B0218C2C5FDBEE7447BE6DFE8851E5346A319962E35972559D41260613CBA7",
+      "currentHash": "67B0218C2C5FDBEE7447BE6DFE8851E5346A319962E35972559D41260613CBA7",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/domain/macro/macro-read.js",
+      "baselineHash": "EC20651AECB333AF9E940546AA820122B7FC9ADEBC922D3FB7EB9C625A62AA24",
+      "currentHash": "EC20651AECB333AF9E940546AA820122B7FC9ADEBC922D3FB7EB9C625A62AA24",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/domain/macro/rates-fx.js",
+      "baselineHash": "7E8465515F4FA2C4E75F31A4903BF94DD34B405F1F96CE08CB6DBD10053594BB",
+      "currentHash": "7E8465515F4FA2C4E75F31A4903BF94DD34B405F1F96CE08CB6DBD10053594BB",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/domain/market/page-flow.js",
+      "baselineHash": "88B9E48836D4C0232227CC504F0E7AB8C182DC998ACA34282E051F969775398A",
+      "currentHash": "88B9E48836D4C0232227CC504F0E7AB8C182DC998ACA34282E051F969775398A",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/domain/market/quote-currentness.js",
+      "baselineHash": "09654E83A244399A4769D6D62FDBDCEB8DEDC997C5D21BE49B63A1D670ADD793",
+      "currentHash": "09654E83A244399A4769D6D62FDBDCEB8DEDC997C5D21BE49B63A1D670ADD793",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/ui/components/briefing-read.js",
+      "baselineHash": "5A6E2DBCAB99B56F0B38E4326A592BA15435E41AE8681925EB3F7F14345D5E87",
+      "currentHash": "5A6E2DBCAB99B56F0B38E4326A592BA15435E41AE8681925EB3F7F14345D5E87",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/ui/components/home-kpi-trend.js",
+      "baselineHash": "C8C60FA7FD5D48256D20789BD307950DF58ED8D8BBA2B24B87B7E283D2EB5649",
+      "currentHash": "C8C60FA7FD5D48256D20789BD307950DF58ED8D8BBA2B24B87B7E283D2EB5649",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/ui/components/macro-board.js",
+      "baselineHash": "D22B9D7DF53F4B143D3B62368A0AE109FFFC6357D4468DA68856CD2EDC8B2AF8",
+      "currentHash": "D22B9D7DF53F4B143D3B62368A0AE109FFFC6357D4468DA68856CD2EDC8B2AF8",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/ui/components/screener-read.js",
+      "baselineHash": "B14E8D4AA3BBBD5462C590120389B12353465CE3EF09722F84B143B59978DAA9",
+      "currentHash": "B14E8D4AA3BBBD5462C590120389B12353465CE3EF09722F84B143B59978DAA9",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/ui/components/stock-read.js",
+      "baselineHash": "F2B221DEA109F397D4239B3428AD85515F47FD8AF3832F63B7D0164280E2BB7D",
+      "currentHash": "F2B221DEA109F397D4239B3428AD85515F47FD8AF3832F63B7D0164280E2BB7D",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/ui/components/theme-strength.js",
+      "baselineHash": "8EC198FCE2084BFBD2A2E0151F561D56C9A63AA49BB920384A2084226F352637",
+      "currentHash": "8EC198FCE2084BFBD2A2E0151F561D56C9A63AA49BB920384A2084226F352637",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/ui/components/trend-chart.js",
+      "baselineHash": "1C9C901F190526F88E63F4153BC197AF132D4D98DF0268FB48D85F2D048F8EE2",
+      "currentHash": "1C9C901F190526F88E63F4153BC197AF132D4D98DF0268FB48D85F2D048F8EE2",
+      "versionOnlyException": false
+    },
+    {
+      "path": "src/ui/pages/masters.js",
+      "baselineHash": "F90FC85D6167B14CADCB1C102DFE87E1602A83FAF7516FD6921D7604F7355740",
+      "currentHash": "F90FC85D6167B14CADCB1C102DFE87E1602A83FAF7516FD6921D7604F7355740",
+      "versionOnlyException": false
+    }
+  ],
+  "commit": false,
+  "push": false,
+  "deploy": false,
+  "indexVersionOnlyVerified": true
+}

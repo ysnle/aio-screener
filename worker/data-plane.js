@@ -12,6 +12,7 @@ const KV_FREE_TIER_DAILY_LIMIT = 1000;
 const KV_WARNING_DAILY_TARGET = 500;
 const SCHEDULED_RUNS_PER_DAY = Math.ceil(24 * 60 * 60 * 1000 / SCHEDULE_INTERVAL_MS);
 const HEARTBEAT_LIVENESS_WRITES_PER_DAY = Math.ceil(24 * 60 * 60 * 1000 / HEARTBEAT_WRITE_INTERVAL_MS);
+const DISPATCH_RECEIPTS_PER_DAY = 48; // P1595: one receipt per half-hour fallback slot.
 
 export const FAST_PLANE_WRITE_POLICY = Object.freeze({
   schedule: '*/5 * * * *',
@@ -21,10 +22,10 @@ export const FAST_PLANE_WRITE_POLICY = Object.freeze({
   warningDailyTarget: KV_WARNING_DAILY_TARGET,
   // Normal upper bound: every run changes the current snapshot and the
   // heartbeat is written only at its 15-minute liveness interval.
-  maxSuccessfulKvWritesPerDay: SCHEDULED_RUNS_PER_DAY + HEARTBEAT_LIVENESS_WRITES_PER_DAY,
+  maxSuccessfulKvWritesPerDay: SCHEDULED_RUNS_PER_DAY + HEARTBEAT_LIVENESS_WRITES_PER_DAY + DISPATCH_RECEIPTS_PER_DAY,
   // Worst case: every run changes the snapshot and also flips heartbeat
   // status, so both keys are written on every 5-minute invocation.
-  maxSuccessfulKvWritesPerDayWorstCase: SCHEDULED_RUNS_PER_DAY * 2
+  maxSuccessfulKvWritesPerDayWorstCase: SCHEDULED_RUNS_PER_DAY * 2 + DISPATCH_RECEIPTS_PER_DAY
 });
 
 // P1377: GitHub's own schedule ran refresh-data every 4-6 h instead of every 30 min (best-effort
@@ -33,17 +34,45 @@ export const FAST_PLANE_WRITE_POLICY = Object.freeze({
 // fine-grained PAT with Actions: read/write on this repository only) it does nothing.
 export const REFRESH_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-data.yml', ref: 'main', slotMinutes: [20, 50], trigger: 'scheduler' });
 
-export async function dispatchRefreshData({ env, scheduledTime = Date.now(), fetchImpl = fetch } = {}) {
+export async function dispatchRefreshData({ env, scheduledTime = Date.now(), fetchImpl = fetch, timeoutMs = 8000 } = {}) {
+  const at = new Date(scheduledTime);
+  if (!Number.isFinite(at.getTime())) return { dispatched: false, reason: 'invalid-schedule-time' };
+  if (!REFRESH_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes())) return { dispatched: false, reason: 'not-a-dispatch-slot' };
+  const observedAt = at.toISOString();
+  const finish = async result => {
+    const receipt = { schemaVersion: 'refresh-dispatch-receipt.v1', observedAt, ...result, executionStatus: 'NOT_OBSERVED' };
+    // P1595: the receipt contains no credentials/remote response text; 204 is acceptance, not execution.
+    try { await env?.AIO_QUOTES_KV?.put?.('scheduler:dispatch', JSON.stringify(receipt), { expirationTtl: KV_TTL_SECONDS }); }
+    catch { receipt.receiptStored = false; }
+    console.info('[refresh-dispatch]', JSON.stringify(receipt));
+    return receipt;
+  };
   const token = env?.GITHUB_DISPATCH_TOKEN;
-  if (!token) return { dispatched: false, reason: 'token-not-configured' };
-  if (!REFRESH_DISPATCH_POLICY.slotMinutes.includes(new Date(scheduledTime).getUTCMinutes())) return { dispatched: false, reason: 'not-a-dispatch-slot' };
+  if (!token) return finish({ dispatched: false, reason: 'token-not-configured' });
   const repo = env?.GITHUB_DISPATCH_REPO || 'ysnle/aio-screener';
-  const response = await fetchImpl(`https://api.github.com/repos/${repo}/actions/workflows/${REFRESH_DISPATCH_POLICY.workflow}/dispatches`, {
-    method: 'POST',
-    headers: { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', 'user-agent': 'aio-data-plane-scheduler', 'content-type': 'application/json' },
-    body: JSON.stringify({ ref: REFRESH_DISPATCH_POLICY.ref, inputs: { trigger: REFRESH_DISPATCH_POLICY.trigger } })
-  });
-  return { dispatched: response.status === 204, status: response.status };
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) return finish({ dispatched: false, reason: 'invalid-repository' });
+  try {
+    const previous = await env?.AIO_QUOTES_KV?.get?.('scheduler:dispatch', 'json');
+    if (previous?.observedAt === observedAt) return { ...previous, dispatched: false, previousAccepted: previous.dispatched, reason: 'duplicate-slot' };
+    const client = createHttpClient({ fetchImpl, defaultTimeoutMs: timeoutMs });
+    const base = `https://api.github.com/repos/${repo}/actions/workflows/${REFRESH_DISPATCH_POLICY.workflow}`;
+    const headers = { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', 'user-agent': 'aio-data-plane-scheduler', 'content-type': 'application/json' };
+    const recent = await client.requestJson(`${base}/runs?branch=main&per_page=20`, { headers, redirect: 'error' });
+    if (!recent.ok || !Array.isArray(recent.data?.workflow_runs)) return finish({ dispatched: false, reason: 'workflow-observation-failed', status: recent.status });
+    const runs = recent.data.workflow_runs.filter(run => run.head_branch === REFRESH_DISPATCH_POLICY.ref);
+    const active = runs.find(run => ['queued', 'in_progress', 'waiting', 'requested', 'pending'].includes(run.status));
+    if (active) return finish({ dispatched: false, reason: 'workflow-active', runId: active.id });
+    const latest = runs[0];
+    const completedAge = at.getTime() - Date.parse(latest?.updated_at || '');
+    if (latest?.conclusion === 'success' && completedAge >= 0 && completedAge < 25 * 60000) {
+      return finish({ dispatched: false, reason: 'recent-success', runId: latest.id });
+    }
+    const response = await client.requestJson(`${base}/dispatches`, {
+      method: 'POST', headers, redirect: 'error',
+      body: JSON.stringify({ ref: REFRESH_DISPATCH_POLICY.ref, inputs: { trigger: REFRESH_DISPATCH_POLICY.trigger } })
+    });
+    return finish({ dispatched: response.status === 204, reason: response.status === 204 ? 'accepted' : 'dispatch-failed', status: response.status });
+  } catch { return finish({ dispatched: false, reason: 'dispatch-error' }); }
 }
 
 function origins(env) {
@@ -238,7 +267,8 @@ export default {
       const current = await readLatest(env);
       // P1578: report whether the refresh dispatcher can run (never the token itself), so the
       // watchdog can tell "GitHub schedule only" from a working 30-minute driver.
-      const schedulerDispatch = { configured: !!env?.GITHUB_DISPATCH_TOKEN, workflow: REFRESH_DISPATCH_POLICY.workflow, slotMinutes: REFRESH_DISPATCH_POLICY.slotMinutes };
+      const receipt = await env?.AIO_QUOTES_KV?.get?.('scheduler:dispatch', 'json');
+      const schedulerDispatch = { configured: !!env?.GITHUB_DISPATCH_TOKEN, workflow: REFRESH_DISPATCH_POLICY.workflow, slotMinutes: REFRESH_DISPATCH_POLICY.slotMinutes, lastObservation: receipt || null };
       return jsonResponse({ ok: !!current, heartbeat, revision: current?.revision || null, sourceSha: env?.AIO_SOURCE_SHA || null, coverage: current?.coverage || null, schedulerDispatch }, request, env, current ? 200 : 503);
     }
     if (url.pathname === '/quotes') {

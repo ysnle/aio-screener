@@ -50,7 +50,7 @@ if (!outdatedCiRunRejected || !newerLiveRejected || !staleCiRunRejected) fail('P
 for (const source of [worker, wrangler, workflow]) {
   if (/AIO_QUOTES_BUCKET|AIO_QUOTES_R2_BUCKET|r2_buckets/i.test(source)) fail('R2 must remain disabled for the KV-only fast plane');
 }
-for (const token of ['384 successful KV writes/day', '576/day', 'checkedAt', 'publishedAt', 'writtenAt']) {
+for (const token of ['432 successful KV writes/day', '624/day', 'checkedAt', 'publishedAt', 'writtenAt']) {
   if (!workerReadme.includes(token)) fail(`worker README omits write-budget/evidence semantics: ${token}`);
 }
 if (!/qa-runner\.mjs watchdog --no-cache/.test(watchdog) || !watchdogScripts.includes('scripts/ci-market-snapshot-contract-check.mjs')) fail('watchdog missing canonical market-snapshot gate');
@@ -153,18 +153,61 @@ try {
 {
   const { dispatchRefreshData, REFRESH_DISPATCH_POLICY } = await import('../worker/data-plane.js');
   const calls = [];
-  const fetchImpl = async (url, init) => { calls.push({ url, init }); return new Response(null, { status: 204 }); };
+  const fetchImpl = async (url, init) => { calls.push({ url, init }); return init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: [] }); };
   const slot = Date.parse('2026-10-01T13:20:00Z');
   const none = await dispatchRefreshData({ env: {}, scheduledTime: slot, fetchImpl });
   const offSlot = await dispatchRefreshData({ env: { GITHUB_DISPATCH_TOKEN: 'fixture' }, scheduledTime: Date.parse('2026-10-01T13:25:00Z'), fetchImpl });
   const sent = await dispatchRefreshData({ env: { GITHUB_DISPATCH_TOKEN: 'fixture' }, scheduledTime: slot, fetchImpl });
-  const body = calls[0] ? JSON.parse(calls[0].init.body) : null;
-  if (none.dispatched || none.reason !== 'token-not-configured' || offSlot.dispatched || !sent.dispatched || calls.length !== 1
-    || !/\/repos\/ysnle\/aio-screener\/actions\/workflows\/refresh-data\.yml\/dispatches$/.test(calls[0].url)
+  const body = calls[1] ? JSON.parse(calls[1].init.body) : null;
+  if (none.dispatched || none.reason !== 'token-not-configured' || offSlot.dispatched || !sent.dispatched || calls.length !== 2
+    || !/\/repos\/ysnle\/aio-screener\/actions\/workflows\/refresh-data\.yml\/dispatches$/.test(calls[1].url)
     || body?.ref !== 'main' || body?.inputs?.trigger !== REFRESH_DISPATCH_POLICY.trigger) fail(`P1377 refresh dispatch contract regressed: ${JSON.stringify({ none, offSlot, sent, calls: calls.length, body })}`);
   const refreshWorkflow = read('.github/workflows/refresh-data.yml');
   if (!/workflow_dispatch:\n\s+inputs:\n\s+trigger:/.test(refreshWorkflow) || !/inputs\.trigger != 'scheduler'/.test(refreshWorkflow)) fail('P1377 refresh-data must accept trigger=scheduler and keep the full 13F chain operator-only');
   if (!/dispatchRefreshData\(\{ env, scheduledTime: controller\?\.scheduledTime/.test(worker)) fail('P1377 scheduled() must dispatch refresh-data');
+}
+
+// P1595: fallback dispatch coalesces healthy work, persists safe receipts and bounds stalled bodies.
+{
+  const { dispatchRefreshData } = await import('../worker/data-plane.js');
+  const slot = Date.parse('2026-10-01T13:20:00Z');
+  const fixtureToken = 'scheduler-secret-fixture';
+  const receipts = new Map();
+  const env = { GITHUB_DISPATCH_TOKEN: fixtureToken, AIO_QUOTES_KV: {
+    get: async key => receipts.has(key) ? JSON.parse(receipts.get(key)) : null,
+    put: async (key, value) => receipts.set(key, value)
+  } };
+  async function scenario(runs, status = 200) {
+    receipts.clear();
+    const calls = [];
+    const fetchImpl = async (url, init) => {
+      calls.push(init.method || 'GET');
+      return init.method === 'POST' ? new Response(null, { status: 204 })
+        : Response.json({ workflow_runs: runs }, { status });
+    };
+    const result = await dispatchRefreshData({ env, scheduledTime: slot, fetchImpl });
+    if (JSON.stringify(result).includes(fixtureToken) || [...receipts.values()].some(value => value.includes(fixtureToken))) fail('P1595 dispatch receipts leaked credentials');
+    if (result.executionStatus !== 'NOT_OBSERVED') fail('P1595 dispatch acceptance must not certify execution');
+    return { result, calls, fetchImpl };
+  }
+  const active = await scenario([{ id: 1, head_branch: 'main', status: 'queued' }]);
+  const recent = await scenario([{ id: 2, head_branch: 'main', status: 'completed', conclusion: 'success', updated_at: new Date(slot - 5 * 60000).toISOString() }]);
+  const denied = await scenario([], 403);
+  if (active.result.reason !== 'workflow-active' || recent.result.reason !== 'recent-success' || denied.result.reason !== 'workflow-observation-failed'
+      || [active, recent, denied].some(value => value.calls.includes('POST'))) fail('P1595 coalescing/auth observation must prevent blind duplicate dispatch');
+  const retry = await scenario([{ id: 3, head_branch: 'main', status: 'completed', conclusion: 'failure' }]);
+  const repeated = await dispatchRefreshData({ env, scheduledTime: slot, fetchImpl: retry.fetchImpl });
+  if (!retry.result.dispatched || repeated.reason !== 'duplicate-slot' || retry.calls.length !== 2
+      || JSON.parse(receipts.get('scheduler:dispatch')).reason !== 'accepted') fail('P1595 failed work may dispatch once without replacing its acceptance receipt');
+  receipts.clear();
+  const signals = [];
+  const stalled = await dispatchRefreshData({ env, scheduledTime: slot, timeoutMs: 5, fetchImpl: async (_url, init) => {
+    signals.push(init.signal);
+    return { ok: true, status: 200, json: () => new Promise(() => {}) };
+  } });
+  if (stalled.dispatched || stalled.reason !== 'workflow-observation-failed' || !signals[0]?.aborted) fail('P1595 scheduler must bound stalled observation bodies');
+  const health = await (await dataPlane.fetch(new Request('https://fast.example/health'), env)).json();
+  if (health.schedulerDispatch?.lastObservation?.reason !== stalled.reason) fail('P1595 /health must expose the most recent dispatch observation');
 }
 
 // P1518: a provider can send headers and never finish its body. Both mirrors

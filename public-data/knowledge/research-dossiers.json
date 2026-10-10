@@ -5,9 +5,9 @@
   "boundary": "Dossiers preserve a per-unit research contract. RESEARCHED means a dated fact and canonical source are attached to the stated scope; it does not certify independent source comparison, semantic review or user validation.",
   "counts": {
     "total": 455,
-    "researchRequired": 166,
-    "researchInProgress": 13,
-    "researched": 276
+    "researchRequired": 167,
+    "researchInProgress": 14,
+    "researched": 274
   },
   "dossiers": [
     {
@@ -462,17 +462,17 @@
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
+          "sourceId": "SRC-BLS-CPI-2022",
+          "url": "https://www.bls.gov/opub/ted/2022/consumer-prices-up-9-1-percent-over-the-year-ended-june-2022-largest-increase-in-40-years.htm",
+          "publisher": "U.S. Bureau of Labor Statistics",
+          "title": "Consumer prices up 9.1 percent over the year ended June 2022",
+          "sourceTier": null
+        },
+        {
           "sourceId": "MP-BLS",
           "url": "https://www.bls.gov/cpi/",
           "publisher": "U.S. Bureau of Labor Statistics",
           "title": "Consumer Price Index",
-          "sourceTier": null
-        },
-        {
-          "sourceId": "MP-FED-ED",
-          "url": "https://www.federalreserve.gov/education.htm",
-          "publisher": "Federal Reserve",
-          "title": "Education",
           "sourceTier": null
         },
         {
@@ -523,7 +523,8 @@
       ],
       "researchFactIds": [
         "fact:fred:real-rates",
-        "fact:bls:cpi"
+        "fact:bls:cpi",
+        "fact:bls:2026-june-headline-core"
       ],
       "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
@@ -1007,6 +1008,13 @@
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
+          "sourceId": "SRC-FRH-GREAT-RECESSION",
+          "url": "https://www.federalreservehistory.org/essays/great-recession-and-its-aftermath",
+          "publisher": "Federal Reserve History",
+          "title": "The Great Recession and Its Aftermath",
+          "sourceTier": null
+        },
+        {
           "sourceId": "MP-FED-ED",
           "url": "https://www.federalreserve.gov/education.htm",
           "publisher": "Federal Reserve",
@@ -1183,17 +1191,17 @@
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
+          "sourceId": "SRC-FRED-DFII10",
+          "url": "https://fred.stlouisfed.org/series/DFII10",
+          "publisher": "FRED (Federal Reserve Bank of St. Louis)",
+          "title": "10-Year Treasury Inflation-Indexed Security",
+          "sourceTier": null
+        },
+        {
           "sourceId": "MP-FED-MP",
           "url": "https://www.federalreserve.gov/monetarypolicy.htm",
           "publisher": "Federal Reserve",
           "title": "Monetary policy",
-          "sourceTier": null
-        },
-        {
-          "sourceId": "MP-TREASURY",
-          "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
-          "publisher": "U.S. Treasury",
-          "title": "Interest rates and financing",
           "sourceTier": null
         },
         {
@@ -1215,6 +1223,13 @@
           "url": "https://www.bls.gov/news.release/cpi.htm?lv=true",
           "publisher": "U.S. Bureau of Labor Statistics",
           "title": "Consumer Price Index — June 2026",
+          "sourceTier": "PRIMARY_OFFICIAL"
+        },
+        {
+          "sourceId": "WEB-FED-FINANCIAL-STABILITY",
+          "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
+          "publisher": "Federal Reserve",
+          "title": "What Is Financial Stability?",
           "sourceTier": "PRIMARY_OFFICIAL"
         }
       ],
@@ -1245,6 +1260,15 @@
           "sourceTier": "PRIMARY_OFFICIAL",
           "directness": "DIRECT",
           "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+        },
+        {
+          "sourceId": "WEB-FED-FINANCIAL-STABILITY",
+          "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
+          "publisher": "Federal Reserve",
+          "title": "What Is Financial Stability?",
+          "sourceTier": "PRIMARY_OFFICIAL",
+          "directness": "DIRECT",
+          "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
         }
       ],
       "rejectedSources": [],
@@ -1437,17 +1461,17 @@
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
+          "sourceId": "SRC-FRED-WALCL",
+          "url": "https://fred.stlouisfed.org/series/WALCL",
+          "publisher": "FRED (Federal Reserve Bank of St. Louis)",
+          "title": "Federal Reserve total assets",
+          "sourceTier": null
+        },
+        {
           "sourceId": "MP-FED-MP",
           "url": "https://www.federalreserve.gov/monetarypolicy.htm",
           "publisher": "Federal Reserve",
           "title": "Monetary policy",
-          "sourceTier": null
-        },
-        {
-          "sourceId": "MP-TREASURY",
-          "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
-          "publisher": "U.S. Treasury",
-          "title": "Interest rates and financing",
           "sourceTier": null
         },
         {
@@ -1890,17 +1914,17 @@
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
+          "sourceId": "SRC-FRED-T10Y2Y",
+          "url": "https://fred.stlouisfed.org/series/T10Y2Y",
+          "publisher": "FRED (Federal Reserve Bank of St. Louis)",
+          "title": "10-Year minus 2-Year Treasury spread",
+          "sourceTier": null
+        },
+        {
           "sourceId": "MP-TREASURY",
           "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
           "publisher": "U.S. Treasury",
           "title": "Interest rates and financing",
-          "sourceTier": null
-        },
-        {
-          "sourceId": "MP-IMF",
-          "url": "https://www.imf.org/en/Topics",
-          "publisher": "IMF",
-          "title": "Topics",
           "sourceTier": null
         },
         {
@@ -2323,10 +2347,10 @@
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
-          "sourceId": "MP-TREASURY",
-          "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
-          "publisher": "U.S. Treasury",
-          "title": "Interest rates and financing",
+          "sourceId": "SRC-BIS-BULL90",
+          "url": "https://www.bis.org/publ/bisbull90.htm",
+          "publisher": "Bank for International Settlements",
+          "title": "BIS Bulletin No 90: the market turbulence and carry trade unwind of August 2024",
           "sourceTier": null
         },
         {
@@ -2342,6 +2366,13 @@
           "publisher": "Federal Reserve Bank of St. Louis",
           "title": "Inflation Expectations release",
           "sourceTier": "PRIMARY_OFFICIAL"
+        },
+        {
+          "sourceId": "WEB-ASML-EUV-2026",
+          "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+          "publisher": "ASML",
+          "title": "EUV lithography systems",
+          "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
         }
       ],
       "selectedSources": [
@@ -2353,11 +2384,21 @@
           "sourceTier": "PRIMARY_OFFICIAL",
           "directness": "DIRECT",
           "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+        },
+        {
+          "sourceId": "WEB-ASML-EUV-2026",
+          "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+          "publisher": "ASML",
+          "title": "EUV lithography systems",
+          "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+          "directness": "DIRECT",
+          "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
         }
       ],
       "rejectedSources": [],
       "sourceTiers": [
-        "PRIMARY_OFFICIAL"
+        "PRIMARY_OFFICIAL",
+        "COMPANY_TECHNICAL_DOCUMENT"
       ],
       "claimCoverage": [
         {
@@ -3767,6 +3808,13 @@
       "searchedAt": "2026-08-18",
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
+        {
+          "sourceId": "SRC-SEC-GME-2021",
+          "url": "https://www.sec.gov/files/staff-report-equity-options-market-struction-conditions-early-2021.pdf",
+          "publisher": "U.S. SEC",
+          "title": "Staff Report on Equity and Options Market Structure Conditions in Early 2021",
+          "sourceTier": null
+        },
         {
           "sourceId": "MP-SEC",
           "url": "https://www.investor.gov/introduction-investing/investing-basics",
@@ -9500,17 +9548,10 @@
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
       "candidateSources": [
         {
-          "sourceId": "MP-BOK",
-          "url": "https://www.bok.or.kr/eng/main/main.do",
-          "publisher": "Bank of Korea",
-          "title": "Bank of Korea",
-          "sourceTier": null
-        },
-        {
-          "sourceId": "MP-KRX",
-          "url": "https://global.krx.co.kr/main/main.jsp",
-          "publisher": "Korea Exchange",
-          "title": "Korea Exchange",
+          "sourceId": "SRC-NTS",
+          "url": "https://www.nts.go.kr/",
+          "publisher": "국세청",
+          "title": "국세청",
           "sourceTier": null
         },
         {
@@ -9550,10 +9591,8 @@
           "requiredAction": "independent direct source required"
         }
       ],
-      "researchFactIds": [
-        "fact:krx:listed-products"
-      ],
-      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+      "researchFactIds": [],
+      "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -9562,9 +9601,9 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace 세금·계좌·환율 비용 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCHED",
+      "status": "RESEARCH_IN_PROGRESS",
       "completion": {
-        "researchComplete": true,
+        "researchComplete": false,
         "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
@@ -31424,16 +31463,16 @@
       "dossierId": "research:deep-branch:lithography-duv",
       "contentUnitId": "deep-branch:lithography-duv",
       "unitKind": "DEEP_BRANCH",
-      "title": "DUV·Immersion·Multi-patterning",
+      "title": "DUV·액침 노광·다중 패터닝",
       "researchQuestions": [
-        "What is the claim-specific mechanism for DUV·Immersion·Multi-patterning?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of DUV·Immersion·Multi-patterning?",
+        "What is the claim-specific mechanism for DUV·액침 노광·다중 패터닝?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of DUV·액침 노광·다중 패터닝?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "DUV·Immersion·Multi-patterning mechanism primary source",
-        "DUV·Immersion·Multi-patterning official data standard filing evidence",
-        "DUV·Immersion·Multi-patterning disconfirming evidence limitations"
+        "DUV·액침 노광·다중 패터닝 mechanism primary source",
+        "DUV·액침 노광·다중 패터닝 official data standard filing evidence",
+        "DUV·액침 노광·다중 패터닝 disconfirming evidence limitations"
       ],
       "searchedAt": "2026-08-18",
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
@@ -31469,10 +31508,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about DUV·Immersion·Multi-patterning must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about DUV·액침 노광·다중 패터닝 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace DUV·Immersion·Multi-patterning through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace DUV·액침 노광·다중 패터닝 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCHED",
       "completion": {
@@ -31758,16 +31797,16 @@
       "dossierId": "research:deep-branch:package-2-5d-branch",
       "contentUnitId": "deep-branch:package-2-5d-branch",
       "unitKind": "DEEP_BRANCH",
-      "title": "2.5D·Interposer·Bridge",
+      "title": "2.5D·인터포저·브리지",
       "researchQuestions": [
-        "What is the claim-specific mechanism for 2.5D·Interposer·Bridge?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of 2.5D·Interposer·Bridge?",
+        "What is the claim-specific mechanism for 2.5D·인터포저·브리지?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 2.5D·인터포저·브리지?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "2.5D·Interposer·Bridge mechanism primary source",
-        "2.5D·Interposer·Bridge official data standard filing evidence",
-        "2.5D·Interposer·Bridge disconfirming evidence limitations"
+        "2.5D·인터포저·브리지 mechanism primary source",
+        "2.5D·인터포저·브리지 official data standard filing evidence",
+        "2.5D·인터포저·브리지 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -31781,10 +31820,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about 2.5D·Interposer·Bridge must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 2.5D·인터포저·브리지 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace 2.5D·Interposer·Bridge through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 2.5D·인터포저·브리지 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -31799,16 +31838,16 @@
       "dossierId": "research:deep-branch:package-3d-branch",
       "contentUnitId": "deep-branch:package-3d-branch",
       "unitKind": "DEEP_BRANCH",
-      "title": "3D 적층·Hybrid Bonding",
+      "title": "3D 적층·하이브리드 본딩",
       "researchQuestions": [
-        "What is the claim-specific mechanism for 3D 적층·Hybrid Bonding?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of 3D 적층·Hybrid Bonding?",
+        "What is the claim-specific mechanism for 3D 적층·하이브리드 본딩?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 3D 적층·하이브리드 본딩?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "3D 적층·Hybrid Bonding mechanism primary source",
-        "3D 적층·Hybrid Bonding official data standard filing evidence",
-        "3D 적층·Hybrid Bonding disconfirming evidence limitations"
+        "3D 적층·하이브리드 본딩 mechanism primary source",
+        "3D 적층·하이브리드 본딩 official data standard filing evidence",
+        "3D 적층·하이브리드 본딩 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -31822,10 +31861,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about 3D 적층·Hybrid Bonding must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 3D 적층·하이브리드 본딩 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace 3D 적층·Hybrid Bonding through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 3D 적층·하이브리드 본딩 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -31840,16 +31879,16 @@
       "dossierId": "research:deep-branch:package-substrate-branch",
       "contentUnitId": "deep-branch:package-substrate-branch",
       "unitKind": "DEEP_BRANCH",
-      "title": "Organic·ABF·FC-BGA 기판",
+      "title": "유기·ABF·FC-BGA 기판",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Organic·ABF·FC-BGA 기판?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Organic·ABF·FC-BGA 기판?",
+        "What is the claim-specific mechanism for 유기·ABF·FC-BGA 기판?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 유기·ABF·FC-BGA 기판?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Organic·ABF·FC-BGA 기판 mechanism primary source",
-        "Organic·ABF·FC-BGA 기판 official data standard filing evidence",
-        "Organic·ABF·FC-BGA 기판 disconfirming evidence limitations"
+        "유기·ABF·FC-BGA 기판 mechanism primary source",
+        "유기·ABF·FC-BGA 기판 official data standard filing evidence",
+        "유기·ABF·FC-BGA 기판 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -31863,10 +31902,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Organic·ABF·FC-BGA 기판 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 유기·ABF·FC-BGA 기판 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Organic·ABF·FC-BGA 기판 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 유기·ABF·FC-BGA 기판 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32004,16 +32043,16 @@
       "dossierId": "research:deep-branch:photonics-platform",
       "contentUnitId": "deep-branch:photonics-platform",
       "unitKind": "DEEP_BRANCH",
-      "title": "재료·Platform",
+      "title": "재료·플랫폼",
       "researchQuestions": [
-        "What is the claim-specific mechanism for 재료·Platform?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of 재료·Platform?",
+        "What is the claim-specific mechanism for 재료·플랫폼?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 재료·플랫폼?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "재료·Platform mechanism primary source",
-        "재료·Platform official data standard filing evidence",
-        "재료·Platform disconfirming evidence limitations"
+        "재료·플랫폼 mechanism primary source",
+        "재료·플랫폼 official data standard filing evidence",
+        "재료·플랫폼 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32027,10 +32066,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about 재료·Platform must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 재료·플랫폼 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace 재료·Platform through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 재료·플랫폼 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32045,16 +32084,16 @@
       "dossierId": "research:deep-branch:photonics-module",
       "contentUnitId": "deep-branch:photonics-module",
       "unitKind": "DEEP_BRANCH",
-      "title": "Module과 공급망",
+      "title": "모듈과 공급망",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Module과 공급망?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Module과 공급망?",
+        "What is the claim-specific mechanism for 모듈과 공급망?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 모듈과 공급망?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Module과 공급망 mechanism primary source",
-        "Module과 공급망 official data standard filing evidence",
-        "Module과 공급망 disconfirming evidence limitations"
+        "모듈과 공급망 mechanism primary source",
+        "모듈과 공급망 official data standard filing evidence",
+        "모듈과 공급망 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32068,10 +32107,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Module과 공급망 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 모듈과 공급망 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Module과 공급망 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 모듈과 공급망 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32086,16 +32125,16 @@
       "dossierId": "research:deep-branch:photonics-architecture",
       "contentUnitId": "deep-branch:photonics-architecture",
       "unitKind": "DEEP_BRANCH",
-      "title": "Pluggable·LPO·CPO·Optical I/O",
+      "title": "꽂는 모듈·LPO·CPO·광 입출력",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Pluggable·LPO·CPO·Optical I/O?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Pluggable·LPO·CPO·Optical I/O?",
+        "What is the claim-specific mechanism for 꽂는 모듈·LPO·CPO·광 입출력?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 꽂는 모듈·LPO·CPO·광 입출력?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Pluggable·LPO·CPO·Optical I/O mechanism primary source",
-        "Pluggable·LPO·CPO·Optical I/O official data standard filing evidence",
-        "Pluggable·LPO·CPO·Optical I/O disconfirming evidence limitations"
+        "꽂는 모듈·LPO·CPO·광 입출력 mechanism primary source",
+        "꽂는 모듈·LPO·CPO·광 입출력 official data standard filing evidence",
+        "꽂는 모듈·LPO·CPO·광 입출력 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32109,10 +32148,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Pluggable·LPO·CPO·Optical I/O must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 꽂는 모듈·LPO·CPO·광 입출력 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Pluggable·LPO·CPO·Optical I/O through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 꽂는 모듈·LPO·CPO·광 입출력 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32127,16 +32166,16 @@
       "dossierId": "research:deep-branch:open-definition",
       "contentUnitId": "deep-branch:open-definition",
       "unitKind": "DEEP_BRANCH",
-      "title": "Open의 층을 분리한다",
+      "title": "‘공개’의 층을 분리한다",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Open의 층을 분리한다?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Open의 층을 분리한다?",
+        "What is the claim-specific mechanism for ‘공개’의 층을 분리한다?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of ‘공개’의 층을 분리한다?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Open의 층을 분리한다 mechanism primary source",
-        "Open의 층을 분리한다 official data standard filing evidence",
-        "Open의 층을 분리한다 disconfirming evidence limitations"
+        "‘공개’의 층을 분리한다 mechanism primary source",
+        "‘공개’의 층을 분리한다 official data standard filing evidence",
+        "‘공개’의 층을 분리한다 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32150,10 +32189,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Open의 층을 분리한다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about ‘공개’의 층을 분리한다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Open의 층을 분리한다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace ‘공개’의 층을 분리한다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32168,16 +32207,16 @@
       "dossierId": "research:deep-branch:open-model-family",
       "contentUnitId": "deep-branch:open-model-family",
       "unitKind": "DEEP_BRANCH",
-      "title": "Model Family와 Release를 분리한다",
+      "title": "모델 계열과 개별 버전을 분리한다",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Model Family와 Release를 분리한다?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Model Family와 Release를 분리한다?",
+        "What is the claim-specific mechanism for 모델 계열과 개별 버전을 분리한다?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 모델 계열과 개별 버전을 분리한다?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Model Family와 Release를 분리한다 mechanism primary source",
-        "Model Family와 Release를 분리한다 official data standard filing evidence",
-        "Model Family와 Release를 분리한다 disconfirming evidence limitations"
+        "모델 계열과 개별 버전을 분리한다 mechanism primary source",
+        "모델 계열과 개별 버전을 분리한다 official data standard filing evidence",
+        "모델 계열과 개별 버전을 분리한다 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32194,10 +32233,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Model Family와 Release를 분리한다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 모델 계열과 개별 버전을 분리한다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Model Family와 Release를 분리한다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 모델 계열과 개별 버전을 분리한다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32212,16 +32251,16 @@
       "dossierId": "research:deep-branch:open-china-strategy",
       "contentUnitId": "deep-branch:open-china-strategy",
       "unitKind": "DEEP_BRANCH",
-      "title": "중국 Open Model 전략은 여러 인과가 겹친다",
+      "title": "중국 공개 모델 전략은 여러 인과가 겹친다",
       "researchQuestions": [
-        "What is the claim-specific mechanism for 중국 Open Model 전략은 여러 인과가 겹친다?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of 중국 Open Model 전략은 여러 인과가 겹친다?",
+        "What is the claim-specific mechanism for 중국 공개 모델 전략은 여러 인과가 겹친다?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 중국 공개 모델 전략은 여러 인과가 겹친다?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "중국 Open Model 전략은 여러 인과가 겹친다 mechanism primary source",
-        "중국 Open Model 전략은 여러 인과가 겹친다 official data standard filing evidence",
-        "중국 Open Model 전략은 여러 인과가 겹친다 disconfirming evidence limitations"
+        "중국 공개 모델 전략은 여러 인과가 겹친다 mechanism primary source",
+        "중국 공개 모델 전략은 여러 인과가 겹친다 official data standard filing evidence",
+        "중국 공개 모델 전략은 여러 인과가 겹친다 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32230,18 +32269,15 @@
       "rejectedSources": [],
       "sourceTiers": [],
       "claimCoverage": [],
-      "researchFactIds": [
-        "fact:transformer:attention",
-        "fact:google:learning-types"
-      ],
+      "researchFactIds": [],
       "consensus": "Not assessed.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about 중국 Open Model 전략은 여러 인과가 겹친다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 중국 공개 모델 전략은 여러 인과가 겹친다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace 중국 Open Model 전략은 여러 인과가 겹친다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 중국 공개 모델 전략은 여러 인과가 겹친다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32256,16 +32292,16 @@
       "dossierId": "research:deep-branch:open-economics",
       "contentUnitId": "deep-branch:open-economics",
       "unitKind": "DEEP_BRANCH",
-      "title": "Open Model의 경제성",
+      "title": "공개 모델의 경제성",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Open Model의 경제성?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Open Model의 경제성?",
+        "What is the claim-specific mechanism for 공개 모델의 경제성?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 공개 모델의 경제성?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Open Model의 경제성 mechanism primary source",
-        "Open Model의 경제성 official data standard filing evidence",
-        "Open Model의 경제성 disconfirming evidence limitations"
+        "공개 모델의 경제성 mechanism primary source",
+        "공개 모델의 경제성 official data standard filing evidence",
+        "공개 모델의 경제성 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32274,18 +32310,15 @@
       "rejectedSources": [],
       "sourceTiers": [],
       "claimCoverage": [],
-      "researchFactIds": [
-        "fact:transformer:attention",
-        "fact:google:learning-types"
-      ],
+      "researchFactIds": [],
       "consensus": "Not assessed.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Open Model의 경제성 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 공개 모델의 경제성 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Open Model의 경제성 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 공개 모델의 경제성 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32300,16 +32333,16 @@
       "dossierId": "research:deep-branch:open-alliances",
       "contentUnitId": "deep-branch:open-alliances",
       "unitKind": "DEEP_BRANCH",
-      "title": "Open Alliance의 목적을 구분한다",
+      "title": "오픈 연합의 목적을 구분한다",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Open Alliance의 목적을 구분한다?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Open Alliance의 목적을 구분한다?",
+        "What is the claim-specific mechanism for 오픈 연합의 목적을 구분한다?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 오픈 연합의 목적을 구분한다?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Open Alliance의 목적을 구분한다 mechanism primary source",
-        "Open Alliance의 목적을 구분한다 official data standard filing evidence",
-        "Open Alliance의 목적을 구분한다 disconfirming evidence limitations"
+        "오픈 연합의 목적을 구분한다 mechanism primary source",
+        "오픈 연합의 목적을 구분한다 official data standard filing evidence",
+        "오픈 연합의 목적을 구분한다 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32323,10 +32356,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Open Alliance의 목적을 구분한다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 오픈 연합의 목적을 구분한다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Open Alliance의 목적을 구분한다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 오픈 연합의 목적을 구분한다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32389,16 +32422,16 @@
       "dossierId": "research:deep-branch:memory-hbm-branch",
       "contentUnitId": "deep-branch:memory-hbm-branch",
       "unitKind": "DEEP_BRANCH",
-      "title": "HBM Stack",
+      "title": "HBM 적층",
       "researchQuestions": [
-        "What is the claim-specific mechanism for HBM Stack?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of HBM Stack?",
+        "What is the claim-specific mechanism for HBM 적층?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of HBM 적층?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "HBM Stack mechanism primary source",
-        "HBM Stack official data standard filing evidence",
-        "HBM Stack disconfirming evidence limitations"
+        "HBM 적층 mechanism primary source",
+        "HBM 적층 official data standard filing evidence",
+        "HBM 적층 disconfirming evidence limitations"
       ],
       "searchedAt": "2026-08-18",
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
@@ -32454,10 +32487,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about HBM Stack must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about HBM 적층 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace HBM Stack through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace HBM 적층 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCHED",
       "completion": {
@@ -32520,16 +32553,16 @@
       "dossierId": "research:deep-branch:memory-cxl-branch",
       "contentUnitId": "deep-branch:memory-cxl-branch",
       "unitKind": "DEEP_BRANCH",
-      "title": "CXL·Memory Pooling",
+      "title": "CXL·메모리 공유(풀링)",
       "researchQuestions": [
-        "What is the claim-specific mechanism for CXL·Memory Pooling?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of CXL·Memory Pooling?",
+        "What is the claim-specific mechanism for CXL·메모리 공유(풀링)?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of CXL·메모리 공유(풀링)?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "CXL·Memory Pooling mechanism primary source",
-        "CXL·Memory Pooling official data standard filing evidence",
-        "CXL·Memory Pooling disconfirming evidence limitations"
+        "CXL·메모리 공유(풀링) mechanism primary source",
+        "CXL·메모리 공유(풀링) official data standard filing evidence",
+        "CXL·메모리 공유(풀링) disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -32549,10 +32582,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about CXL·Memory Pooling must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about CXL·메모리 공유(풀링) must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace CXL·Memory Pooling through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace CXL·메모리 공유(풀링) through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -32567,65 +32600,44 @@
       "dossierId": "research:deep-branch:memory-economics",
       "contentUnitId": "deep-branch:memory-economics",
       "unitKind": "DEEP_BRANCH",
-      "title": "Memory Cycle과 계약",
+      "title": "메모리 사이클과 계약",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Memory Cycle과 계약?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Memory Cycle과 계약?",
+        "What is the claim-specific mechanism for 메모리 사이클과 계약?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 메모리 사이클과 계약?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Memory Cycle과 계약 mechanism primary source",
-        "Memory Cycle과 계약 official data standard filing evidence",
-        "Memory Cycle과 계약 disconfirming evidence limitations"
+        "메모리 사이클과 계약 mechanism primary source",
+        "메모리 사이클과 계약 official data standard filing evidence",
+        "메모리 사이클과 계약 disconfirming evidence limitations"
       ],
-      "searchedAt": "2026-08-18",
-      "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
-      "candidateSources": [
-        {
-          "sourceId": "WEB-FED-FINANCIAL-STABILITY",
-          "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
-          "publisher": "Federal Reserve",
-          "title": "What Is Financial Stability?",
-          "sourceTier": "PRIMARY_OFFICIAL"
-        }
-      ],
-      "selectedSources": [
-        {
-          "sourceId": "WEB-FED-FINANCIAL-STABILITY",
-          "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
-          "publisher": "Federal Reserve",
-          "title": "What Is Financial Stability?",
-          "sourceTier": "PRIMARY_OFFICIAL",
-          "directness": "DIRECT",
-          "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-        }
-      ],
+      "searchedAt": null,
+      "method": "NOT_STARTED",
+      "candidateSources": [],
+      "selectedSources": [],
       "rejectedSources": [],
-      "sourceTiers": [
-        "PRIMARY_OFFICIAL"
-      ],
+      "sourceTiers": [],
       "claimCoverage": [],
       "researchFactIds": [
-        "fact:fed:financial-stability",
         "fact:ml:generalization-memory",
         "fact:tsmc:3dfabric",
         "fact:micron:hbm2e",
         "fact:pagedattention:kv-cache",
         "fact:pagedattention:kv-capacity-drivers"
       ],
-      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+      "consensus": "Not assessed.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Memory Cycle과 계약 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 메모리 사이클과 계약 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Memory Cycle과 계약 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 메모리 사이클과 계약 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCHED",
+      "status": "RESEARCH_REQUIRED",
       "completion": {
-        "researchComplete": true,
-        "sourceProfileComplete": true,
+        "researchComplete": false,
+        "sourceProfileComplete": false,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
       }
@@ -32859,16 +32871,16 @@
       "dossierId": "research:deep-branch:aidc-supply",
       "contentUnitId": "deep-branch:aidc-supply",
       "unitKind": "DEEP_BRANCH",
-      "title": "발전원과 On-site 공급",
+      "title": "발전원과 현장 자체 공급",
       "researchQuestions": [
-        "What is the claim-specific mechanism for 발전원과 On-site 공급?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of 발전원과 On-site 공급?",
+        "What is the claim-specific mechanism for 발전원과 현장 자체 공급?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 발전원과 현장 자체 공급?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "발전원과 On-site 공급 mechanism primary source",
-        "발전원과 On-site 공급 official data standard filing evidence",
-        "발전원과 On-site 공급 disconfirming evidence limitations"
+        "발전원과 현장 자체 공급 mechanism primary source",
+        "발전원과 현장 자체 공급 official data standard filing evidence",
+        "발전원과 현장 자체 공급 disconfirming evidence limitations"
       ],
       "searchedAt": "2026-08-18",
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
@@ -32937,10 +32949,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about 발전원과 On-site 공급 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 발전원과 현장 자체 공급 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace 발전원과 On-site 공급 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 발전원과 현장 자체 공급 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCHED",
       "completion": {
@@ -33147,16 +33159,16 @@
       "dossierId": "research:deep-branch:cloud-stack",
       "contentUnitId": "deep-branch:cloud-stack",
       "unitKind": "DEEP_BRANCH",
-      "title": "Cloud Service Stack",
+      "title": "클라우드 서비스의 층",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Cloud Service Stack?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Cloud Service Stack?",
+        "What is the claim-specific mechanism for 클라우드 서비스의 층?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 클라우드 서비스의 층?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Cloud Service Stack mechanism primary source",
-        "Cloud Service Stack official data standard filing evidence",
-        "Cloud Service Stack disconfirming evidence limitations"
+        "클라우드 서비스의 층 mechanism primary source",
+        "클라우드 서비스의 층 official data standard filing evidence",
+        "클라우드 서비스의 층 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -33170,10 +33182,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Cloud Service Stack must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 클라우드 서비스의 층 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Cloud Service Stack through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 클라우드 서비스의 층 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -33285,16 +33297,16 @@
       "dossierId": "research:deep-branch:neocloud-economics",
       "contentUnitId": "deep-branch:neocloud-economics",
       "unitKind": "DEEP_BRANCH",
-      "title": "Neocloud 자산 경제성",
+      "title": "네오클라우드 자산 경제성",
       "researchQuestions": [
-        "What is the claim-specific mechanism for Neocloud 자산 경제성?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of Neocloud 자산 경제성?",
+        "What is the claim-specific mechanism for 네오클라우드 자산 경제성?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 네오클라우드 자산 경제성?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "Neocloud 자산 경제성 mechanism primary source",
-        "Neocloud 자산 경제성 official data standard filing evidence",
-        "Neocloud 자산 경제성 disconfirming evidence limitations"
+        "네오클라우드 자산 경제성 mechanism primary source",
+        "네오클라우드 자산 경제성 official data standard filing evidence",
+        "네오클라우드 자산 경제성 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -33308,10 +33320,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about Neocloud 자산 경제성 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 네오클라우드 자산 경제성 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace Neocloud 자산 경제성 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 네오클라우드 자산 경제성 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -33403,16 +33415,16 @@
       "dossierId": "research:deep-branch:physical-loop",
       "contentUnitId": "deep-branch:physical-loop",
       "unitKind": "DEEP_BRANCH",
-      "title": "인지→계획→행동 Loop",
+      "title": "인지→계획→행동 순환",
       "researchQuestions": [
-        "What is the claim-specific mechanism for 인지→계획→행동 Loop?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of 인지→계획→행동 Loop?",
+        "What is the claim-specific mechanism for 인지→계획→행동 순환?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 인지→계획→행동 순환?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "인지→계획→행동 Loop mechanism primary source",
-        "인지→계획→행동 Loop official data standard filing evidence",
-        "인지→계획→행동 Loop disconfirming evidence limitations"
+        "인지→계획→행동 순환 mechanism primary source",
+        "인지→계획→행동 순환 official data standard filing evidence",
+        "인지→계획→행동 순환 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -33426,10 +33438,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about 인지→계획→행동 Loop must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 인지→계획→행동 순환 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace 인지→계획→행동 Loop through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 인지→계획→행동 순환 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {
@@ -33444,16 +33456,16 @@
       "dossierId": "research:deep-branch:world-model",
       "contentUnitId": "deep-branch:world-model",
       "unitKind": "DEEP_BRANCH",
-      "title": "World Model",
+      "title": "월드 모델(World Model)",
       "researchQuestions": [
-        "What is the claim-specific mechanism for World Model?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of World Model?",
+        "What is the claim-specific mechanism for 월드 모델(World Model)?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 월드 모델(World Model)?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "World Model mechanism primary source",
-        "World Model official data standard filing evidence",
-        "World Model disconfirming evidence limitations"
+        "월드 모델(World Model) mechanism primary source",
+        "월드 모델(World Model) official data standard filing evidence",
+        "월드 모델(World Model) disconfirming evidence limitations"
       ],
       "searchedAt": "2026-08-18",
       "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
@@ -33507,10 +33519,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about World Model must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 월드 모델(World Model) must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace World Model through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 월드 모델(World Model) through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCHED",
       "completion": {
@@ -33744,16 +33756,16 @@
       "dossierId": "research:deep-branch:space-stack",
       "contentUnitId": "deep-branch:space-stack",
       "unitKind": "DEEP_BRANCH",
-      "title": "우주 임무 Stack",
+      "title": "우주 임무의 층",
       "researchQuestions": [
-        "What is the claim-specific mechanism for 우주 임무 Stack?",
-        "Which variable, unit, time boundary or assumption would change the interpretation of 우주 임무 Stack?",
+        "What is the claim-specific mechanism for 우주 임무의 층?",
+        "Which variable, unit, time boundary or assumption would change the interpretation of 우주 임무의 층?",
         "Which official, academic, standard or filing evidence can directly support the relevant claim?"
       ],
       "queries": [
-        "우주 임무 Stack mechanism primary source",
-        "우주 임무 Stack official data standard filing evidence",
-        "우주 임무 Stack disconfirming evidence limitations"
+        "우주 임무의 층 mechanism primary source",
+        "우주 임무의 층 official data standard filing evidence",
+        "우주 임무의 층 disconfirming evidence limitations"
       ],
       "searchedAt": null,
       "method": "NOT_STARTED",
@@ -33767,10 +33779,10 @@
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-      "q1Thesis": "A claim about 우주 임무 Stack must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+      "q1Thesis": "A claim about 우주 임무의 층 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
       "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-      "q4StructuralMechanism": "Trace 우주 임무 Stack through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+      "q4StructuralMechanism": "Trace 우주 임무의 층 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
       "status": "RESEARCH_REQUIRED",
       "completion": {

@@ -95,6 +95,15 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     if (ref < lo || ref > hi) continue;
     svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(ref), y2: y(ref), class: 'trend-chart-ref' }));
   }
+  // P1599 (M04/F46): a series that starts after the shared range marks the earlier span as 'no record yet',
+  // so the empty left side reads as missing history rather than a rendering failure.
+  const firstX = x(0);
+  if (firstX - PAD.left > 24) {
+    svg.append(svgEl(doc, 'rect', { x: PAD.left, y: PAD.top, width: (firstX - PAD.left).toFixed(1), height: plotH, class: 'trend-chart-nodata' }));
+    const note = svgEl(doc, 'text', { x: ((PAD.left + firstX) / 2).toFixed(1), y: PAD.top + plotH / 2, 'text-anchor': 'middle', class: 'trend-chart-empty' });
+    note.textContent = '기록 이전';
+    svg.append(note);
+  }
   // Area + line.
   const line = points.map((point, index) => `${index ? 'L' : 'M'}${x(index).toFixed(1)},${y(point.value).toFixed(1)}`).join(' ');
   svg.append(svgEl(doc, 'path', { d: `${line} L${x(points.length - 1).toFixed(1)},${PAD.top + plotH} L${x(0).toFixed(1)},${PAD.top + plotH} Z`, class: 'trend-chart-area' }));

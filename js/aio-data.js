@@ -9963,6 +9963,18 @@ window._aioSafeSourceLabel = _aioSafeSourceLabel;
 const _GT_SEPARATOR = '\n§§§\n'; // 배치 구분자 — Google이 번역하지 않는 특수 패턴
 
 
+// F27: the free machine translation renders finance idioms literally and can flip who affects whom
+// ("exposure to X" became "X에 영향을 미치는"). These phrase repairs run on its titles only.
+function _aioPolishMachineTitle(ko, en) {
+  if (!ko) return ko;
+  var out = String(ko)
+    .replace(/(실적|수익)\s*통화\s*(기록|녹취록?|사본)/g, '실적 발표 컨퍼런스콜 녹취')
+    .replace(/(실적|수익)\s*통화/g, '실적 발표 컨퍼런스콜')
+    .replace(/(몸을|물리적으로|신체적으로)\s*토하게/g, '속이 뒤집히게');
+  if (/exposure to/i.test(String(en || ''))) out = out.replace(/에\s*가장\s*큰\s*영향을\s*(미치는|주는)/g, '의 영향을 가장 크게 받는').replace(/에\s*영향을\s*(미치는|주는)/g, '의 영향을 받는');
+  return out;
+}
+
 // v30.12: 배치 번역 — 최대 8건을 하나의 API 호출로 처리
 // returns: string[] (각 항목의 번역 결과, 실패 시 null)
 async function _gtBatchTranslate(texts, from, to, _retry) {
@@ -10474,7 +10486,7 @@ async function freeTranslateNews(items) {
     if (statusEl) statusEl.textContent = '번역 중 ' + Math.min(done, total) + '/' + total + '건 (' + pct + '%)';
 
     try {
-      var koTitles = await _gtBatchTranslate(titles);
+      var koTitles = (await _gtBatchTranslate(titles)).map(function(ko, ki) { return _aioPolishMachineTitle(ko, titles[ki]); });
       for (var i = 0; i < batch.length; i++) {
         var item = batch[i];
         var koTitle = koTitles[i];
@@ -10693,7 +10705,8 @@ async function autoTranslateNews(items) {
    - 직접 언급된 종목 + 영향받을 종목 포함
    - 섹터 ETF도 해당시 포함 (예: $XLK, $SMH, $XLE)
 
-금융 전문용어 정확히 사용 (rate cut→금리 인하, earnings beat→실적 상회, rally→랠리, selloff→매도세)
+금융 전문용어 정확히 사용 (rate cut→금리 인하, earnings beat→실적 상회, rally→랠리, selloff→매도세, earnings call→실적 발표 컨퍼런스콜)
+원문의 주어와 영향 방향을 그대로 유지 (exposure to X→X의 영향을 받는). 관용구는 직역하지 말고 뜻으로 옮김
 
 JSON 배열로만 반환 (다른 텍스트 없이):
 [{"idx":1,"title":"한국어 제목","desc":"한국어 요약","summary":"투자자 관점 해석","section":"AI 및 빅테크","rewrite":"엔비디아 관련 AI 인프라 수요가 다시 부각됐으며 반도체·전력 인프라 밸류체인 반응을 함께 확인해야 합니다.","market":"$NVDA와 $SMH의 가격·거래량 반응이 후속 확인 포인트입니다.","tickers":["$NVDA","$SMH"]}]
@@ -15659,20 +15672,20 @@ function _getDataFreshness(symbol) {
   var ts  = (window._quoteTimestamps || {})[symbol];
   if (!src || !ts) {
     // 데이터 출처 없음 → 정적 폴백 사용 중
-    return { level: 'snapshot', label: '정적', color: '#7b8599', title: '정적 스냅샷 데이터 (API 미연결)' };
+    return { level: 'snapshot', label: '정적', color: 'transparent', title: '정적 스냅샷 데이터 (API 미연결)' };
   }
   var age = Date.now() - ts;
   var srcLabel = src.source || 'unknown';
   if (age < 120000) {
-    return { level: 'live', label: '실시간', color: '#00e5a0', title: srcLabel + ' · ' + Math.round(age/1000) + '초 전' };
+    return { level: 'live', label: '실시간', color: 'var(--text-secondary)', title: srcLabel + ' · ' + Math.round(age/1000) + '초 전' };
   }
   if (age < 600000) {
     var mins = Math.floor(age / 60000);
-    return { level: 'recent', label: mins + '분전', color: '#ffa31a', title: srcLabel + ' · ' + mins + '분 전 갱신' };
+    return { level: 'recent', label: mins + '분전', color: 'var(--data-amber)', title: srcLabel + ' · ' + mins + '분 전 갱신' };
   }
   var hrs = Math.floor(age / 3600000);
   var minR = Math.floor((age % 3600000) / 60000);
-  return { level: 'stale', label: (hrs > 0 ? hrs + '시간' : minR + '분') + '전', color: '#ff5b50', title: srcLabel + ' · 갱신 지연' };
+  return { level: 'stale', label: (hrs > 0 ? hrs + '시간' : minR + '분') + '전', color: 'transparent', title: srcLabel + ' · 갱신 지연' }; // P1599 (A09/E16): freshness is not price direction — neutral filled/amber/hollow, never green/red
 }
 
 function _updateFreshnessBadges() {
@@ -15695,7 +15708,8 @@ function _updateFreshnessBadges() {
     }
     if (dot) {
       dot.style.background = info.color;
-      dot.title = info.title;
+      dot.style.boxShadow = info.color === 'transparent' ? 'inset 0 0 0 1px var(--text-muted)' : 'none';
+      dot.title = info.title; dot.setAttribute('role', 'img'); dot.setAttribute('aria-label', '시세 상태: ' + info.title);
     }
   });
 }

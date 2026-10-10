@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 const repository = process.env.GITHUB_REPOSITORY || 'ysnle/aio-screener';
 const token = process.env.GITHUB_TOKEN || '';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const MAX_PAGES = 10;
+export const MAX_PAGES = 30; // P1597: 49/day * 30 days plus bounded dispatch/retry headroom.
 
 // P1166 (17 작업 단위 2 / 06 O02): data domain별 독립 SLO. 예전에는 market+screener run을 한 풀로
 // 합쳐 성공률을 냈기 때문에, 한 도메인이 아예 0회 실행돼도 다른 도메인의 30일 성공이 window를
@@ -29,23 +29,30 @@ const round = (value) => value == null ? null : Math.round(value * 1_000_000) / 
 
 // 06 O02: 정책상 필요한 실행 수는 workflow의 `schedule.cron`에서 파생한다. 문서에 적은 cadence를
 // 코드에 복제하지 않고, schedule을 확인할 수 없으면 null로 닫아 인증 불가로 남긴다.
-export function parseCronRunsPerDay(expression) {
+export function dailyCronSlots(expression) {
   const fields = String(expression || '').trim().split(/\s+/);
   if (fields.length !== 5) return null;
   const [minute, hour, dayOfMonth, month, dayOfWeek] = fields;
   // 매일 반복이 아닌 schedule은 '하루 몇 회'로 환산할 수 없다.
   if ([dayOfMonth, month, dayOfWeek].some((field) => field !== '*')) return null;
   const expand = (field, max) => {
-    if (field === '*') return max;
+    if (field === '*') return Array.from({ length: max }, (_, index) => index);
     const stepped = /^\*\/(\d+)$/.exec(field);
-    if (stepped) { const step = Number(stepped[1]); return step > 0 ? Math.floor(max / step) : null; }
-    if (/^\d+(,\d+)*$/.test(field)) return field.split(',').length;
+    if (stepped) { const step = Number(stepped[1]); return step > 0 && step <= max ? Array.from({ length: Math.ceil(max / step) }, (_, index) => index * step) : null; }
+    if (/^\d+(,\d+)*$/.test(field)) {
+      const values = [...new Set(field.split(',').map(Number))];
+      return values.every(value => value >= 0 && value < max) ? values : null;
+    }
     return null;
   };
   const minutes = expand(minute, 60);
   const hours = expand(hour, 24);
   if (minutes == null || hours == null) return null;
-  return minutes * hours;
+  return hours.flatMap(hour => minutes.map(minute => hour * 60 + minute));
+}
+
+export function parseCronRunsPerDay(expression) {
+  return dailyCronSlots(expression)?.length ?? null;
 }
 
 export async function deriveExpectedRunsPerDay(workflowFile, root = repoRoot) {
@@ -54,9 +61,9 @@ export async function deriveExpectedRunsPerDay(workflowFile, root = repoRoot) {
   catch (_) { return null; }
   const crons = [...source.matchAll(/^\s*-\s*cron:\s*['"]([^'"]+)['"]/gm)].map((match) => match[1]);
   if (!crons.length) return null;
-  const perDay = crons.map(parseCronRunsPerDay);
-  if (perDay.some((value) => value == null)) return null;
-  return perDay.reduce((sum, value) => sum + value, 0);
+  const slots = crons.map(dailyCronSlots);
+  if (slots.some((value) => value == null)) return null;
+  return new Set(slots.flat()).size;
 }
 
 async function fetchRuns(file) {
@@ -64,8 +71,10 @@ async function fetchRuns(file) {
   let pagesFetched = 0;
   let paginationComplete = false;
   const excluded = { nonCompleted: 0, outsideWindow: 0 };
+  const now = Date.now();
+  const since = now - 30 * 86400000;
   for (let page = 1; page <= MAX_PAGES; page += 1) {
-    const url = `https://api.github.com/repos/${repository}/actions/workflows/${file}/runs?status=completed&per_page=100&page=${page}&created=%3E%3D${new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)}`;
+    const url = `https://api.github.com/repos/${repository}/actions/workflows/${file}/runs?branch=main&status=completed&per_page=100&page=${page}&created=%3E%3D${new Date(since).toISOString().slice(0, 10)}`;
     const response = await fetch(url, {
       headers: { accept: 'application/vnd.github+json', 'user-agent': 'aio-slo-window', ...(token ? { authorization: `Bearer ${token}` } : {}) },
       signal: AbortSignal.timeout(20000)
@@ -75,7 +84,8 @@ async function fetchRuns(file) {
     const pageRuns = (await response.json()).workflow_runs || [];
     for (const run of pageRuns) {
       if (run.status !== 'completed') { excluded.nonCompleted += 1; continue; }
-      if (new Date(run.created_at) < new Date(Date.now() - 30 * 86400000)) { excluded.outsideWindow += 1; continue; }
+      const time = Date.parse(run.created_at);
+      if (!Number.isFinite(time) || time < since || time > now) { excluded.outsideWindow += 1; continue; }
       runs.push(run);
     }
     if (pageRuns.length < 100) { paginationComplete = true; break; }
@@ -95,9 +105,10 @@ async function fetchAlertIssues() {
     });
     if (!response.ok) throw new Error(`operations alert issues HTTP ${response.status}`);
     pagesFetched = page;
-    const pageIssues = (await response.json()).filter((issue) => !issue.pull_request);
+    const rawIssues = await response.json();
+    const pageIssues = rawIssues.filter((issue) => !issue.pull_request);
     issues.push(...pageIssues);
-    if (pageIssues.length < 100) { paginationComplete = true; break; }
+    if (rawIssues.length < 100) { paginationComplete = true; break; }
   }
   const markers = issues.map((issue) => String(issue.body || '').match(/<!-- aio-operations-alert:([^>]+) -->/)?.[1]).filter(Boolean);
   const uniqueMarkers = new Set(markers);
@@ -164,6 +175,21 @@ const buildLane = (runs, { workflow, required, expectedRuns }) => {
 
 // 순수 계산부: 네트워크 없이 repro fixture로 검증할 수 있도록 export한다.
 export function buildSloWindow({ observed = {}, cadencePerDay = {}, query = {}, alertEvidence = {}, now: evaluatedAt = new Date(), cutoff: evaluatedCutoff = evaluatedAt, repository: repo = repository, collectionMode = 'MEASURED_RUNTIME' }) {
+  // P1597: future/invalid timestamps and duplicate API run IDs cannot create evidence.
+  observed = Object.fromEntries(Object.keys(SLO_DOMAINS).map(id => {
+    const seen = new Set();
+    const runs = (observed[id] || []).filter(run => {
+      const time = Date.parse(run.created_at);
+      if (!Number.isFinite(time) || time > evaluatedAt.getTime() || time < evaluatedAt.getTime() - 30 * 86400000
+          || (run.head_branch && run.head_branch !== 'main')) return false;
+      if (run.id != null) {
+        if (seen.has(String(run.id))) return false;
+        seen.add(String(run.id));
+      }
+      return true;
+    });
+    return [id, runs];
+  }));
   const windowSummary = (days) => {
     const since = new Date(evaluatedAt.getTime() - days * 86400000);
     const lanes = {};
@@ -178,15 +204,13 @@ export function buildSloWindow({ observed = {}, cadencePerDay = {}, query = {}, 
     }
     const requiredIds = Object.entries(lanes).filter(([, lane]) => lane.required).map(([id]) => id);
     const missingDomains = requiredIds.filter((id) => lanes[id].observedRuns === 0);
-    const incompleteSources = Object.entries(query)
-      .filter(([, item]) => item && item.paginationComplete !== true)
-      .map(([id]) => id);
+    const incompleteSources = requiredIds.filter(id => query[id]?.paginationComplete !== true || query[id]?.truncated === true);
     const observedDays = requiredIds.length ? Math.min(...requiredIds.map((id) => lanes[id].observedDays)) : 0;
     const passing = requiredIds.every((id) => lanes[id].status === 'MEASURED');
     return {
       requiredDays: days,
       observedDays,
-      status: missingDomains.length || incompleteSources.length ? 'INSUFFICIENT_EVIDENCE' : passing ? 'PASS' : 'FAIL',
+      status: missingDomains.length || incompleteSources.length || observedDays < days ? 'INSUFFICIENT_EVIDENCE' : passing ? 'PASS' : 'FAIL',
       domains: lanes,
       coverage: {
         requiredDomains: requiredIds,
@@ -206,7 +230,7 @@ export function buildSloWindow({ observed = {}, cadencePerDay = {}, query = {}, 
 
   const windows = { '7d': windowSummary(7), '30d': windowSummary(30) };
   const metrics = { artifact: windows['30d'].artifact, watchdog: windows['30d'].watchdog };
-  const orderedWatchdog = [...(observed.watchdog || [])].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  const orderedWatchdog = observed.watchdog.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   let recoveryCount = 0;
   let currentFailures = 0;
   let consecutiveFailuresMax = 0;
@@ -220,6 +244,7 @@ export function buildSloWindow({ observed = {}, cadencePerDay = {}, query = {}, 
     }
   }
   const hasAlertEvidence = Object.keys(alertEvidence).length > 0;
+  const completeAlertEvidence = hasAlertEvidence && alertEvidence.paginationComplete === true && alertEvidence.source === 'github-issues-api';
 
   return {
     schemaVersion: 'operations-slo-window.v3',
@@ -257,12 +282,12 @@ export function buildSloWindow({ observed = {}, cadencePerDay = {}, query = {}, 
       recoveryCount,
       consecutiveFailuresMax,
       dedupedAlerts: hasAlertEvidence ? alertEvidence : null,
-      status: hasAlertEvidence ? (alertEvidence.deduped ? 'MEASURED_DEDUPED' : 'DUPLICATE_ALERTS_DETECTED') : 'INSUFFICIENT_EVIDENCE'
+      status: completeAlertEvidence ? (alertEvidence.deduped ? 'MEASURED_DEDUPED' : 'DUPLICATE_ALERTS_DETECTED') : 'INSUFFICIENT_EVIDENCE'
     },
     revisionLanes: { liveRevision: null, dataRevision: null, localFixturePromotesLive: false, sourceShaCoverage: metrics.watchdog?.exactSourceIdentityCoverage ?? null },
     certification: {
       thirtyDaySlo: windows['30d'].status === 'PASS' ? 'PASS' : (windows['30d'].status === 'FAIL' ? 'FAIL' : 'OPERATOR_REQUIRED'),
-      alertDedupe: hasAlertEvidence ? (alertEvidence.deduped ? 'PASS' : 'FAIL') : 'OPERATOR_REQUIRED',
+      alertDedupe: completeAlertEvidence ? (alertEvidence.deduped ? 'PASS' : 'FAIL') : 'OPERATOR_REQUIRED',
       publicPromotionAllowed: false
     },
     reason: 'Per-domain lanes measure scheduled arrival and success independently; a required domain with zero observed runs in the window cannot be certified. Actions history measures execution success and recovery; repository issues measure workflow-keyed alert dedupe. Provider rights, live revision, and public promotion remain independent operator evidence.'

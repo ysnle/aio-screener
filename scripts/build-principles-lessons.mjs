@@ -27,7 +27,24 @@ const lessonSourceIds = {
   L9: ['PS-02', 'SRC-MICRON-HBM'], L10: ['PS-01', 'SRC-MICRON-HBM'], L11: ['PS-01'], L12: ['SRC-NVIDIA-NETWORKING'], L13: ['PS-02'], L14: ['MP-DOE', 'SRC-DOE-DATACENTER'], L15: ['PS-01', 'PS-02'], L16: ['MP-SEC'],
   N1: ['SRC-EIA-ENERGY', 'MP-IEA'], N2: ['SRC-USGS-MCS'], N3: ['SRC-IFR', 'PS-16'], N4: ['SRC-NHTSA-AV'], N5: ['SRC-DOD-BUDGET'], N6: ['PS-18', 'SRC-NASA'],
   G8: ['SRC-FINRA-OPTIONS', 'MP-SEC'], N7: ['SRC-FDA-DRUG-DEV'], N8: ['SRC-FDA-DEVICE'], N9: ['SRC-BIS-BASEL3', 'SRC-FRED-USNIM'], N10: ['MP-SEC'], N11: ['SRC-BEA-CONSUMER'], N12: ['SRC-BTS'],
-  N13: ['SRC-CENSUS-CONSTRUCTION', 'SRC-NAREIT', 'SRC-NAREIT-FFO'], N14: ['SRC-FCC'], N15: ['SRC-USDA-WASDE']
+  N13: ['SRC-CENSUS-CONSTRUCTION', 'SRC-NAREIT', 'SRC-NAREIT-FFO'], N14: ['SRC-FCC'], N15: ['SRC-USDA-WASDE'],
+  // F86/F87 (v57.32): lessons that tell a dated event point at the record of that event, not only a topic page.
+  B2: ['SRC-BLS-CPI-2022', 'MP-BLS'], C4: ['SRC-FRH-GREAT-RECESSION', 'MP-FED-ED'], D2: ['SRC-FRED-DFII10', 'MP-FED-MP'],
+  D4: ['SRC-FRED-WALCL', 'MP-FED-MP'], E2: ['SRC-FRED-T10Y2Y', 'MP-TREASURY'], E7: ['SRC-BIS-BULL90', 'MP-IMF'],
+  H4: ['SRC-SEC-GME-2021', 'MP-SEC'], O5: ['SRC-NTS', 'MP-SEC']
+};
+
+// What each source lets the reader check for that lesson's own claim (F87). A source without a note here
+// still shows what it covers in general (SOURCE_READING below), so no link is left as a bare English title.
+const lessonSourceNotes = {
+  B2: { 'SRC-BLS-CPI-2022': '2022년 6월 소비자물가 9.1% 상승의 공식 집계' },
+  C4: { 'SRC-FRH-GREAT-RECESSION': '2008년 리먼 파산 뒤 단기 자금 시장이 얼어붙은 경과' },
+  D2: { 'SRC-FRED-DFII10': '10년 TIPS 실질금리가 마이너스에서 플러스로 바뀐 기록' },
+  D4: { 'SRC-FRED-WALCL': '연준 총자산이 2008년 이후 불어난 주간 기록' },
+  E2: { 'SRC-FRED-T10Y2Y': '2022년 7월부터 이어진 10년물−2년물 금리 역전 기록' },
+  E7: { 'SRC-BIS-BULL90': '2024년 8월 초 엔 캐리 청산과 주가 급락의 경과' },
+  H4: { 'SRC-SEC-GME-2021': '2021년 초 게임스톱 급등과 거래 구조를 정리한 SEC 보고서' },
+  O5: { 'SRC-NTS': '해외 주식 양도소득세 신고 안내(공제·세율은 매년 확인)' }
 };
 
 const lesson = (id, title, definition, mechanism, example, counterScenario, verificationQuestion, diagram, metadata = {}) => ({
@@ -219,8 +236,76 @@ const sources = [
   { id: 'SRC-NAREIT-FFO', publisher: 'Nareit', title: 'Funds From Operations White Paper (2018)', url: 'https://www.reit.com/sites/default/files/2018-FFO-white-paper-(11-27-18).pdf' },
   { id: 'SRC-FINRA-OPTIONS', publisher: 'FINRA', title: 'Options — buyer and seller risk', url: 'https://www.finra.org/investors/investing/investment-products/options' },
   { id: 'SRC-FCC', publisher: 'Federal Communications Commission', title: 'Communications policy and data', url: 'https://www.fcc.gov/' },
-  { id: 'SRC-USDA-WASDE', publisher: 'U.S. Department of Agriculture', title: 'World Agricultural Supply and Demand Estimates', url: 'https://www.usda.gov/oce/commodity/wasde' }
+  { id: 'SRC-USDA-WASDE', publisher: 'U.S. Department of Agriculture', title: 'World Agricultural Supply and Demand Estimates', url: 'https://www.usda.gov/oce/commodity/wasde' },
+  { id: 'SRC-BLS-CPI-2022', publisher: 'U.S. Bureau of Labor Statistics', title: 'Consumer prices up 9.1 percent over the year ended June 2022', url: 'https://www.bls.gov/opub/ted/2022/consumer-prices-up-9-1-percent-over-the-year-ended-june-2022-largest-increase-in-40-years.htm' },
+  { id: 'SRC-FRH-GREAT-RECESSION', publisher: 'Federal Reserve History', title: 'The Great Recession and Its Aftermath', url: 'https://www.federalreservehistory.org/essays/great-recession-and-its-aftermath' },
+  { id: 'SRC-FRED-DFII10', publisher: 'FRED (Federal Reserve Bank of St. Louis)', title: '10-Year Treasury Inflation-Indexed Security', url: 'https://fred.stlouisfed.org/series/DFII10' },
+  { id: 'SRC-FRED-WALCL', publisher: 'FRED (Federal Reserve Bank of St. Louis)', title: 'Federal Reserve total assets', url: 'https://fred.stlouisfed.org/series/WALCL' },
+  { id: 'SRC-FRED-T10Y2Y', publisher: 'FRED (Federal Reserve Bank of St. Louis)', title: '10-Year minus 2-Year Treasury spread', url: 'https://fred.stlouisfed.org/series/T10Y2Y' },
+  { id: 'SRC-BIS-BULL90', publisher: 'Bank for International Settlements', title: 'BIS Bulletin No 90: the market turbulence and carry trade unwind of August 2024', url: 'https://www.bis.org/publ/bisbull90.htm' },
+  { id: 'SRC-SEC-GME-2021', publisher: 'U.S. SEC', title: 'Staff Report on Equity and Options Market Structure Conditions in Early 2021', url: 'https://www.sec.gov/files/staff-report-equity-options-market-struction-conditions-early-2021.pdf' },
+  { id: 'SRC-NTS', publisher: '국세청', title: '국세청', url: 'https://www.nts.go.kr/' }
 ];
+
+// F87 (v57.32): the basis panel showed English page titles ('Education', 'Topics') under Korean prose, so
+// the reader could not tell what to look up. Each source gets a Korean name and what it lets the reader check.
+const SOURCE_READING = {
+  'MP-OECD': ['OECD 생산성 자료', '나라별 생산성 수준과 추이'],
+  'MP-FED-ED': ['연준 교육 자료', '돈·신용·은행·금리의 기본 개념'],
+  'MP-BLS': ['미국 노동통계국 소비자물가', '소비자물가의 정의와 월별 집계'],
+  'MP-FED-MP': ['연준 통화정책', '정책금리 결정과 정책 수단'],
+  'MP-NYFED-RSTAR': ['뉴욕 연준 자연이자율 추정', '중립금리 추정치와 그 불확실성'],
+  'MP-FED-SEP-2026-06': ['연준 경제전망 요약(2026년 6월)', '위원들의 장기 금리 전망 분포'],
+  'MP-TREASURY': ['미 재무부 금리 자료', '국채 금리와 정부 조달'],
+  'MP-CBO': ['미 의회예산처 재정 자료', '재정수지와 국가부채 전망'],
+  'MP-SEC': ['SEC 투자자 기초 자료', '주식·채권·공시의 기본 개념'],
+  'MP-IMF': ['IMF 주제별 자료', '환율·국가부채·국제 자본 흐름의 개념'],
+  'MP-OECD-IND': ['OECD 산업 자료', '산업 구조와 기업 활동 통계'],
+  'MP-DOE': ['미 에너지부 전력망 현대화', '송배전망 투자와 전력망 구조'],
+  'MP-IEA': ['IEA 전력 보고서', '전력 수요·공급 전망과 데이터센터 전력'],
+  'MP-NIST': ['NIST 인공지능 자료', 'AI 시스템의 정의와 평가 기준'],
+  'MP-BOK': ['한국은행', '원/달러 환율·외환보유액·국내 금리'],
+  'MP-KRX': ['한국거래소', '국내 시장 제도와 거래 통계'],
+  'PS-01': ['TSMC 주주총회 사업보고', '파운드리 공정·생산능력에 대한 회사 설명'],
+  'PS-02': ['마이크론 HBM4 양산 발표', 'HBM·데이터센터 메모리에 대한 회사 발표'],
+  'PS-16': ['테슬라 AI·로봇 소개', '회사가 밝힌 로봇·자율주행 개발 방향'],
+  'PS-18': ['로켓랩 우주 시스템', '회사의 위성·우주선 사업 구성'],
+  'SRC-ASML-LITHO': ['ASML 노광 원리', '노광 장비의 해상도와 파장 원리'],
+  'SRC-MICRON-HBM': ['마이크론 HBM 제품 설명', 'HBM의 구조와 대역폭'],
+  'SRC-NVIDIA-NETWORKING': ['엔비디아 데이터센터 네트워크 제품 설명', 'AI 클러스터 연결 방식(회사 제품 설명)'],
+  'SRC-DOE-DATACENTER': ['미 에너지부 데이터센터 효율', '데이터센터 전력 효율과 냉각'],
+  'SRC-EIA-ENERGY': ['미 에너지정보청 에너지 해설', '에너지원별 생산·소비 구조'],
+  'SRC-USGS-MCS': ['미 지질조사국 광물 요약', '광물별 생산국·매장량·수입 의존'],
+  'SRC-IFR': ['국제로봇연맹 세계 로봇 통계', '산업용 로봇 설치 대수와 지역 분포'],
+  'SRC-NHTSA-AV': ['미 도로교통안전국 자율주행 자료', '자율주행 단계와 안전 규제'],
+  'SRC-DOD-BUDGET': ['미 국방부 예산 자료', '국방 예산 항목과 조달 규모'],
+  'SRC-NASA': ['NASA 임무·프로그램', '정부 우주 프로그램 구성'],
+  'SRC-FDA-DRUG-DEV': ['FDA 신약 개발 과정', '임상 단계와 허가 절차'],
+  'SRC-FDA-DEVICE': ['FDA 의료기기 허가', '의료기기 승인·허가 경로'],
+  'SRC-BIS-BASEL3': ['바젤 III 자본 규제', '은행 자본·유동성 규제'],
+  'SRC-FRED-USNIM': ['미국 은행 순이자마진(FRED)', '은행 순이자마진의 장기 추이'],
+  'SRC-BEA-CONSUMER': ['미 경제분석국 소비지출', '개인 소비지출 통계'],
+  'SRC-BTS': ['미 교통통계국', '화물·운송 통계'],
+  'SRC-CENSUS-CONSTRUCTION': ['미 인구조사국 건설 지출', '건설 지출 월별 통계'],
+  'SRC-NAREIT': ['나리트 리츠 기초', '리츠 구조와 FFO 정의'],
+  'SRC-NAREIT-FFO': ['나리트 FFO 백서(2018)', 'FFO 산식의 공식 정의'],
+  'SRC-FINRA-OPTIONS': ['FINRA 옵션 안내', '옵션 매수자·매도자의 위험'],
+  'SRC-FCC': ['미 연방통신위원회', '통신 정책과 주파수 자료'],
+  'SRC-USDA-WASDE': ['미 농무부 세계 수급 전망(WASDE)', '곡물 생산·재고 전망'],
+  'SRC-BLS-CPI-2022': ['미 노동통계국 2022년 6월 물가 발표', '40년 만의 최대 물가 상승'],
+  'SRC-FRH-GREAT-RECESSION': ['연준 역사 자료: 대침체와 그 이후', '2007~2009년 금융위기 경과'],
+  'SRC-FRED-DFII10': ['10년 TIPS 실질금리(FRED)', '실질금리 일별 기록'],
+  'SRC-FRED-WALCL': ['연준 총자산(FRED)', '연준 대차대조표 주간 기록'],
+  'SRC-FRED-T10Y2Y': ['10년물−2년물 금리차(FRED)', '수익률 곡선 기울기 일별 기록'],
+  'SRC-BIS-BULL90': ['BIS 회보 90호: 2024년 8월 시장 급변과 캐리 청산', '엔 캐리 청산의 경과'],
+  'SRC-SEC-GME-2021': ['SEC 2021년 초 시장 구조 보고서', '게임스톱 급등 당시 거래 구조'],
+  'SRC-NTS': ['국세청', '주식 양도소득세 신고 안내']
+};
+for (const source of sources) {
+  const reading = SOURCE_READING[source.id];
+  if (!reading) throw new Error(`Source ${source.id} has no Korean reading label`);
+  [source.label, source.checks] = reading;
+}
 
 const storyIssues = Object.entries(PRINCIPLE_STORIES).flatMap(([id, story]) => storyProblems(id, story));
 if (storyIssues.length) throw new Error(`Lesson reading text outside the length standard: ${storyIssues.join('; ')}`);
@@ -242,6 +327,7 @@ const lessons = drafts.map((draft) => {
     prerequisites: metadata.prerequisites || (sequence === 1 ? ['해당 챕터의 핵심 질문'] : [`${chapterId}${sequence - 1}에서 앞선 개념`]),
     sourceIds: metadata.sourceIds || lessonSourceIds[draft.id] || sourceIdsByChapter[chapterId],
     sourceScope: metadata.sourceIds || lessonSourceIds[draft.id] ? 'lesson' : 'chapter-background',
+    ...(lessonSourceNotes[draft.id] ? { sourceNotes: lessonSourceNotes[draft.id] } : {}),
     route: 'principles',
     reviewedAt: metadata.reviewedAt || '2026-08-18',
     publication: 'EDUCATIONAL_REFERENCE_ONLY',

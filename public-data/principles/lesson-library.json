@@ -15,253 +15,401 @@
       "id": "MP-OECD",
       "publisher": "OECD",
       "title": "Productivity",
-      "url": "https://www.oecd.org/en/topics/productivity.html"
+      "url": "https://www.oecd.org/en/topics/productivity.html",
+      "label": "OECD 생산성 자료",
+      "checks": "나라별 생산성 수준과 추이"
     },
     {
       "id": "MP-FED-ED",
       "publisher": "Federal Reserve",
       "title": "Education",
-      "url": "https://www.federalreserve.gov/education.htm"
+      "url": "https://www.federalreserve.gov/education.htm",
+      "label": "연준 교육 자료",
+      "checks": "돈·신용·은행·금리의 기본 개념"
     },
     {
       "id": "MP-BLS",
       "publisher": "U.S. Bureau of Labor Statistics",
       "title": "Consumer Price Index",
-      "url": "https://www.bls.gov/cpi/"
+      "url": "https://www.bls.gov/cpi/",
+      "label": "미국 노동통계국 소비자물가",
+      "checks": "소비자물가의 정의와 월별 집계"
     },
     {
       "id": "MP-FED-MP",
       "publisher": "Federal Reserve",
       "title": "Monetary policy",
-      "url": "https://www.federalreserve.gov/monetarypolicy.htm"
+      "url": "https://www.federalreserve.gov/monetarypolicy.htm",
+      "label": "연준 통화정책",
+      "checks": "정책금리 결정과 정책 수단"
     },
     {
       "id": "MP-NYFED-RSTAR",
       "publisher": "Federal Reserve Bank of New York",
       "title": "Measuring the Natural Rate of Interest",
-      "url": "https://www.newyorkfed.org/research/policy/rstar"
+      "url": "https://www.newyorkfed.org/research/policy/rstar",
+      "label": "뉴욕 연준 자연이자율 추정",
+      "checks": "중립금리 추정치와 그 불확실성"
     },
     {
       "id": "MP-FED-SEP-2026-06",
       "publisher": "Federal Reserve Board",
       "title": "Summary of Economic Projections, June 2026",
-      "url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20260617.pdf"
+      "url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20260617.pdf",
+      "label": "연준 경제전망 요약(2026년 6월)",
+      "checks": "위원들의 장기 금리 전망 분포"
     },
     {
       "id": "MP-TREASURY",
       "publisher": "U.S. Treasury",
       "title": "Interest rates and financing",
-      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates"
+      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
+      "label": "미 재무부 금리 자료",
+      "checks": "국채 금리와 정부 조달"
     },
     {
       "id": "MP-CBO",
       "publisher": "Congressional Budget Office",
       "title": "Budget and fiscal policy",
-      "url": "https://www.cbo.gov/topics/budget"
+      "url": "https://www.cbo.gov/topics/budget",
+      "label": "미 의회예산처 재정 자료",
+      "checks": "재정수지와 국가부채 전망"
     },
     {
       "id": "MP-SEC",
       "publisher": "SEC Investor.gov",
       "title": "Investing basics and disclosures",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics"
+      "url": "https://www.investor.gov/introduction-investing/investing-basics",
+      "label": "SEC 투자자 기초 자료",
+      "checks": "주식·채권·공시의 기본 개념"
     },
     {
       "id": "MP-IMF",
       "publisher": "IMF",
       "title": "Topics",
-      "url": "https://www.imf.org/en/Topics"
+      "url": "https://www.imf.org/en/Topics",
+      "label": "IMF 주제별 자료",
+      "checks": "환율·국가부채·국제 자본 흐름의 개념"
     },
     {
       "id": "MP-OECD-IND",
       "publisher": "OECD",
       "title": "Industry and business",
-      "url": "https://www.oecd.org/industry/"
+      "url": "https://www.oecd.org/industry/",
+      "label": "OECD 산업 자료",
+      "checks": "산업 구조와 기업 활동 통계"
     },
     {
       "id": "MP-DOE",
       "publisher": "U.S. Department of Energy",
       "title": "Grid modernization",
-      "url": "https://www.energy.gov/oe/activities/technology-development/grid-modernization-and-smart-grid"
+      "url": "https://www.energy.gov/oe/activities/technology-development/grid-modernization-and-smart-grid",
+      "label": "미 에너지부 전력망 현대화",
+      "checks": "송배전망 투자와 전력망 구조"
     },
     {
       "id": "MP-IEA",
       "publisher": "IEA",
       "title": "Electricity",
-      "url": "https://www.iea.org/reports/electricity-2025"
+      "url": "https://www.iea.org/reports/electricity-2025",
+      "label": "IEA 전력 보고서",
+      "checks": "전력 수요·공급 전망과 데이터센터 전력"
     },
     {
       "id": "MP-NIST",
       "publisher": "NIST",
       "title": "Artificial intelligence",
-      "url": "https://www.nist.gov/ai"
+      "url": "https://www.nist.gov/ai",
+      "label": "NIST 인공지능 자료",
+      "checks": "AI 시스템의 정의와 평가 기준"
     },
     {
       "id": "MP-BOK",
       "publisher": "Bank of Korea",
       "title": "Bank of Korea",
-      "url": "https://www.bok.or.kr/eng/main/main.do"
+      "url": "https://www.bok.or.kr/eng/main/main.do",
+      "label": "한국은행",
+      "checks": "원/달러 환율·외환보유액·국내 금리"
     },
     {
       "id": "MP-KRX",
       "publisher": "Korea Exchange",
       "title": "Korea Exchange",
-      "url": "https://global.krx.co.kr/main/main.jsp"
+      "url": "https://global.krx.co.kr/main/main.jsp",
+      "label": "한국거래소",
+      "checks": "국내 시장 제도와 거래 통계"
     },
     {
       "id": "PS-01",
       "publisher": "TSMC",
       "title": "2026 AGM minutes / business report",
-      "url": "https://investor.tsmc.com/sites/ir/shareholders-meeting/2026-06-04/2026AGM_Minutes_wmn.pdf"
+      "url": "https://investor.tsmc.com/sites/ir/shareholders-meeting/2026-06-04/2026AGM_Minutes_wmn.pdf",
+      "label": "TSMC 주주총회 사업보고",
+      "checks": "파운드리 공정·생산능력에 대한 회사 설명"
     },
     {
       "id": "PS-02",
       "publisher": "Micron",
       "title": "HBM4 and data-center memory/storage announcement",
-      "url": "https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin"
+      "url": "https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin",
+      "label": "마이크론 HBM4 양산 발표",
+      "checks": "HBM·데이터센터 메모리에 대한 회사 발표"
     },
     {
       "id": "PS-16",
       "publisher": "Tesla",
       "title": "AI and robotics overview",
-      "url": "https://www.tesla.com/AI"
+      "url": "https://www.tesla.com/AI",
+      "label": "테슬라 AI·로봇 소개",
+      "checks": "회사가 밝힌 로봇·자율주행 개발 방향"
     },
     {
       "id": "PS-18",
       "publisher": "Rocket Lab",
       "title": "Space systems and spacecraft portfolio",
-      "url": "https://rocketlabcorp.com/space-systems/spacecraft/"
+      "url": "https://rocketlabcorp.com/space-systems/spacecraft/",
+      "label": "로켓랩 우주 시스템",
+      "checks": "회사의 위성·우주선 사업 구성"
     },
     {
       "id": "SRC-ASML-LITHO",
       "publisher": "ASML",
       "title": "Lithography principles",
-      "url": "https://www.asml.com/en/technology/lithography-principles"
+      "url": "https://www.asml.com/en/technology/lithography-principles",
+      "label": "ASML 노광 원리",
+      "checks": "노광 장비의 해상도와 파장 원리"
     },
     {
       "id": "SRC-MICRON-HBM",
       "publisher": "Micron",
       "title": "High bandwidth memory",
-      "url": "https://www.micron.com/products/memory/hbm"
+      "url": "https://www.micron.com/products/memory/hbm",
+      "label": "마이크론 HBM 제품 설명",
+      "checks": "HBM의 구조와 대역폭"
     },
     {
       "id": "SRC-NVIDIA-NETWORKING",
       "publisher": "NVIDIA",
       "title": "Networking for AI data centers (product description)",
-      "url": "https://www.nvidia.com/en-us/networking/"
+      "url": "https://www.nvidia.com/en-us/networking/",
+      "label": "엔비디아 데이터센터 네트워크 제품 설명",
+      "checks": "AI 클러스터 연결 방식(회사 제품 설명)"
     },
     {
       "id": "SRC-DOE-DATACENTER",
       "publisher": "U.S. Department of Energy",
       "title": "Data center energy efficiency",
-      "url": "https://www.energy.gov/eere/buildings/data-centers-and-servers"
+      "url": "https://www.energy.gov/eere/buildings/data-centers-and-servers",
+      "label": "미 에너지부 데이터센터 효율",
+      "checks": "데이터센터 전력 효율과 냉각"
     },
     {
       "id": "SRC-EIA-ENERGY",
       "publisher": "U.S. Energy Information Administration",
       "title": "Energy explained",
-      "url": "https://www.eia.gov/energyexplained/"
+      "url": "https://www.eia.gov/energyexplained/",
+      "label": "미 에너지정보청 에너지 해설",
+      "checks": "에너지원별 생산·소비 구조"
     },
     {
       "id": "SRC-USGS-MCS",
       "publisher": "U.S. Geological Survey",
       "title": "Mineral Commodity Summaries",
-      "url": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries"
+      "url": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
+      "label": "미 지질조사국 광물 요약",
+      "checks": "광물별 생산국·매장량·수입 의존"
     },
     {
       "id": "SRC-IFR",
       "publisher": "International Federation of Robotics",
       "title": "World Robotics",
-      "url": "https://ifr.org/worldrobotics/"
+      "url": "https://ifr.org/worldrobotics/",
+      "label": "국제로봇연맹 세계 로봇 통계",
+      "checks": "산업용 로봇 설치 대수와 지역 분포"
     },
     {
       "id": "SRC-NHTSA-AV",
       "publisher": "NHTSA",
       "title": "Automated vehicles for safety",
-      "url": "https://www.nhtsa.gov/vehicle-safety/automated-vehicles-safety"
+      "url": "https://www.nhtsa.gov/vehicle-safety/automated-vehicles-safety",
+      "label": "미 도로교통안전국 자율주행 자료",
+      "checks": "자율주행 단계와 안전 규제"
     },
     {
       "id": "SRC-DOD-BUDGET",
       "publisher": "U.S. Department of Defense (Comptroller)",
       "title": "Budget materials",
-      "url": "https://comptroller.defense.gov/Budget-Materials/"
+      "url": "https://comptroller.defense.gov/Budget-Materials/",
+      "label": "미 국방부 예산 자료",
+      "checks": "국방 예산 항목과 조달 규모"
     },
     {
       "id": "SRC-NASA",
       "publisher": "NASA",
       "title": "NASA missions and programs",
-      "url": "https://www.nasa.gov/"
+      "url": "https://www.nasa.gov/",
+      "label": "NASA 임무·프로그램",
+      "checks": "정부 우주 프로그램 구성"
     },
     {
       "id": "SRC-FDA-DRUG-DEV",
       "publisher": "U.S. FDA",
       "title": "The drug development process",
-      "url": "https://www.fda.gov/patients/learn-about-drug-and-device-approvals/drug-development-process"
+      "url": "https://www.fda.gov/patients/learn-about-drug-and-device-approvals/drug-development-process",
+      "label": "FDA 신약 개발 과정",
+      "checks": "임상 단계와 허가 절차"
     },
     {
       "id": "SRC-FDA-DEVICE",
       "publisher": "U.S. FDA",
       "title": "Device approvals, denials and clearances",
-      "url": "https://www.fda.gov/medical-devices/products-and-medical-procedures/device-approvals-denials-and-clearances"
+      "url": "https://www.fda.gov/medical-devices/products-and-medical-procedures/device-approvals-denials-and-clearances",
+      "label": "FDA 의료기기 허가",
+      "checks": "의료기기 승인·허가 경로"
     },
     {
       "id": "SRC-BIS-BASEL3",
       "publisher": "Bank for International Settlements",
       "title": "Basel III",
-      "url": "https://www.bis.org/bcbs/basel3.htm"
+      "url": "https://www.bis.org/bcbs/basel3.htm",
+      "label": "바젤 III 자본 규제",
+      "checks": "은행 자본·유동성 규제"
     },
     {
       "id": "SRC-FRED-USNIM",
       "publisher": "FRED (Federal Reserve Bank of St. Louis)",
       "title": "Net interest margin for all U.S. banks",
-      "url": "https://fred.stlouisfed.org/series/USNIM"
+      "url": "https://fred.stlouisfed.org/series/USNIM",
+      "label": "미국 은행 순이자마진(FRED)",
+      "checks": "은행 순이자마진의 장기 추이"
     },
     {
       "id": "SRC-BEA-CONSUMER",
       "publisher": "U.S. Bureau of Economic Analysis",
       "title": "Consumer spending",
-      "url": "https://www.bea.gov/data/consumer-spending/main"
+      "url": "https://www.bea.gov/data/consumer-spending/main",
+      "label": "미 경제분석국 소비지출",
+      "checks": "개인 소비지출 통계"
     },
     {
       "id": "SRC-BTS",
       "publisher": "U.S. Bureau of Transportation Statistics",
       "title": "Transportation statistics",
-      "url": "https://www.bts.gov/"
+      "url": "https://www.bts.gov/",
+      "label": "미 교통통계국",
+      "checks": "화물·운송 통계"
     },
     {
       "id": "SRC-CENSUS-CONSTRUCTION",
       "publisher": "U.S. Census Bureau",
       "title": "Construction spending",
-      "url": "https://www.census.gov/construction/c30/c30index.html"
+      "url": "https://www.census.gov/construction/c30/c30index.html",
+      "label": "미 인구조사국 건설 지출",
+      "checks": "건설 지출 월별 통계"
     },
     {
       "id": "SRC-NAREIT",
       "publisher": "Nareit",
       "title": "REIT basics and FFO definition",
-      "url": "https://www.reit.com/what-reit"
+      "url": "https://www.reit.com/what-reit",
+      "label": "나리트 리츠 기초",
+      "checks": "리츠 구조와 FFO 정의"
     },
     {
       "id": "SRC-NAREIT-FFO",
       "publisher": "Nareit",
       "title": "Funds From Operations White Paper (2018)",
-      "url": "https://www.reit.com/sites/default/files/2018-FFO-white-paper-(11-27-18).pdf"
+      "url": "https://www.reit.com/sites/default/files/2018-FFO-white-paper-(11-27-18).pdf",
+      "label": "나리트 FFO 백서(2018)",
+      "checks": "FFO 산식의 공식 정의"
     },
     {
       "id": "SRC-FINRA-OPTIONS",
       "publisher": "FINRA",
       "title": "Options — buyer and seller risk",
-      "url": "https://www.finra.org/investors/investing/investment-products/options"
+      "url": "https://www.finra.org/investors/investing/investment-products/options",
+      "label": "FINRA 옵션 안내",
+      "checks": "옵션 매수자·매도자의 위험"
     },
     {
       "id": "SRC-FCC",
       "publisher": "Federal Communications Commission",
       "title": "Communications policy and data",
-      "url": "https://www.fcc.gov/"
+      "url": "https://www.fcc.gov/",
+      "label": "미 연방통신위원회",
+      "checks": "통신 정책과 주파수 자료"
     },
     {
       "id": "SRC-USDA-WASDE",
       "publisher": "U.S. Department of Agriculture",
       "title": "World Agricultural Supply and Demand Estimates",
-      "url": "https://www.usda.gov/oce/commodity/wasde"
+      "url": "https://www.usda.gov/oce/commodity/wasde",
+      "label": "미 농무부 세계 수급 전망(WASDE)",
+      "checks": "곡물 생산·재고 전망"
+    },
+    {
+      "id": "SRC-BLS-CPI-2022",
+      "publisher": "U.S. Bureau of Labor Statistics",
+      "title": "Consumer prices up 9.1 percent over the year ended June 2022",
+      "url": "https://www.bls.gov/opub/ted/2022/consumer-prices-up-9-1-percent-over-the-year-ended-june-2022-largest-increase-in-40-years.htm",
+      "label": "미 노동통계국 2022년 6월 물가 발표",
+      "checks": "40년 만의 최대 물가 상승"
+    },
+    {
+      "id": "SRC-FRH-GREAT-RECESSION",
+      "publisher": "Federal Reserve History",
+      "title": "The Great Recession and Its Aftermath",
+      "url": "https://www.federalreservehistory.org/essays/great-recession-and-its-aftermath",
+      "label": "연준 역사 자료: 대침체와 그 이후",
+      "checks": "2007~2009년 금융위기 경과"
+    },
+    {
+      "id": "SRC-FRED-DFII10",
+      "publisher": "FRED (Federal Reserve Bank of St. Louis)",
+      "title": "10-Year Treasury Inflation-Indexed Security",
+      "url": "https://fred.stlouisfed.org/series/DFII10",
+      "label": "10년 TIPS 실질금리(FRED)",
+      "checks": "실질금리 일별 기록"
+    },
+    {
+      "id": "SRC-FRED-WALCL",
+      "publisher": "FRED (Federal Reserve Bank of St. Louis)",
+      "title": "Federal Reserve total assets",
+      "url": "https://fred.stlouisfed.org/series/WALCL",
+      "label": "연준 총자산(FRED)",
+      "checks": "연준 대차대조표 주간 기록"
+    },
+    {
+      "id": "SRC-FRED-T10Y2Y",
+      "publisher": "FRED (Federal Reserve Bank of St. Louis)",
+      "title": "10-Year minus 2-Year Treasury spread",
+      "url": "https://fred.stlouisfed.org/series/T10Y2Y",
+      "label": "10년물−2년물 금리차(FRED)",
+      "checks": "수익률 곡선 기울기 일별 기록"
+    },
+    {
+      "id": "SRC-BIS-BULL90",
+      "publisher": "Bank for International Settlements",
+      "title": "BIS Bulletin No 90: the market turbulence and carry trade unwind of August 2024",
+      "url": "https://www.bis.org/publ/bisbull90.htm",
+      "label": "BIS 회보 90호: 2024년 8월 시장 급변과 캐리 청산",
+      "checks": "엔 캐리 청산의 경과"
+    },
+    {
+      "id": "SRC-SEC-GME-2021",
+      "publisher": "U.S. SEC",
+      "title": "Staff Report on Equity and Options Market Structure Conditions in Early 2021",
+      "url": "https://www.sec.gov/files/staff-report-equity-options-market-struction-conditions-early-2021.pdf",
+      "label": "SEC 2021년 초 시장 구조 보고서",
+      "checks": "게임스톱 급등 당시 거래 구조"
+    },
+    {
+      "id": "SRC-NTS",
+      "publisher": "국세청",
+      "title": "국세청",
+      "url": "https://www.nts.go.kr/",
+      "label": "국세청",
+      "checks": "주식 양도소득세 신고 안내"
     }
   ],
   "lessons": [
@@ -507,10 +655,13 @@
         "B1에서 앞선 개념"
       ],
       "sourceIds": [
-        "MP-BLS",
-        "MP-FED-ED"
+        "SRC-BLS-CPI-2022",
+        "MP-BLS"
       ],
-      "sourceScope": "chapter-background",
+      "sourceScope": "lesson",
+      "sourceNotes": {
+        "SRC-BLS-CPI-2022": "2022년 6월 소비자물가 9.1% 상승의 공식 집계"
+      },
       "route": "principles",
       "reviewedAt": "2026-08-18",
       "publication": "EDUCATIONAL_REFERENCE_ONLY",
@@ -774,9 +925,13 @@
         "C3에서 앞선 개념"
       ],
       "sourceIds": [
+        "SRC-FRH-GREAT-RECESSION",
         "MP-FED-ED"
       ],
-      "sourceScope": "chapter-background",
+      "sourceScope": "lesson",
+      "sourceNotes": {
+        "SRC-FRH-GREAT-RECESSION": "2008년 리먼 파산 뒤 단기 자금 시장이 얼어붙은 경과"
+      },
       "route": "principles",
       "reviewedAt": "2026-08-18",
       "publication": "EDUCATIONAL_REFERENCE_ONLY",
@@ -865,10 +1020,13 @@
         "D1에서 앞선 개념"
       ],
       "sourceIds": [
-        "MP-FED-MP",
-        "MP-TREASURY"
+        "SRC-FRED-DFII10",
+        "MP-FED-MP"
       ],
-      "sourceScope": "chapter-background",
+      "sourceScope": "lesson",
+      "sourceNotes": {
+        "SRC-FRED-DFII10": "10년 TIPS 실질금리가 마이너스에서 플러스로 바뀐 기록"
+      },
       "route": "principles",
       "reviewedAt": "2026-08-18",
       "publication": "EDUCATIONAL_REFERENCE_ONLY",
@@ -955,10 +1113,13 @@
         "D3에서 앞선 개념"
       ],
       "sourceIds": [
-        "MP-FED-MP",
-        "MP-TREASURY"
+        "SRC-FRED-WALCL",
+        "MP-FED-MP"
       ],
-      "sourceScope": "chapter-background",
+      "sourceScope": "lesson",
+      "sourceNotes": {
+        "SRC-FRED-WALCL": "연준 총자산이 2008년 이후 불어난 주간 기록"
+      },
       "route": "principles",
       "reviewedAt": "2026-08-18",
       "publication": "EDUCATIONAL_REFERENCE_ONLY",
@@ -1140,10 +1301,13 @@
         "E1에서 앞선 개념"
       ],
       "sourceIds": [
-        "MP-TREASURY",
-        "MP-IMF"
+        "SRC-FRED-T10Y2Y",
+        "MP-TREASURY"
       ],
-      "sourceScope": "chapter-background",
+      "sourceScope": "lesson",
+      "sourceNotes": {
+        "SRC-FRED-T10Y2Y": "2022년 7월부터 이어진 10년물−2년물 금리 역전 기록"
+      },
       "route": "principles",
       "reviewedAt": "2026-08-18",
       "publication": "EDUCATIONAL_REFERENCE_ONLY",
@@ -1365,10 +1529,13 @@
         "E6에서 앞선 개념"
       ],
       "sourceIds": [
-        "MP-TREASURY",
+        "SRC-BIS-BULL90",
         "MP-IMF"
       ],
-      "sourceScope": "chapter-background",
+      "sourceScope": "lesson",
+      "sourceNotes": {
+        "SRC-BIS-BULL90": "2024년 8월 초 엔 캐리 청산과 주가 급락의 경과"
+      },
       "route": "principles",
       "reviewedAt": "2026-08-18",
       "publication": "EDUCATIONAL_REFERENCE_ONLY",
@@ -2079,9 +2246,13 @@
         "H3에서 앞선 개념"
       ],
       "sourceIds": [
+        "SRC-SEC-GME-2021",
         "MP-SEC"
       ],
-      "sourceScope": "chapter-background",
+      "sourceScope": "lesson",
+      "sourceNotes": {
+        "SRC-SEC-GME-2021": "2021년 초 게임스톱 급등과 거래 구조를 정리한 SEC 보고서"
+      },
       "route": "principles",
       "reviewedAt": "2026-08-18",
       "publication": "EDUCATIONAL_REFERENCE_ONLY",
@@ -5248,11 +5419,13 @@
         "O4에서 앞선 개념"
       ],
       "sourceIds": [
-        "MP-BOK",
-        "MP-KRX",
+        "SRC-NTS",
         "MP-SEC"
       ],
-      "sourceScope": "chapter-background",
+      "sourceScope": "lesson",
+      "sourceNotes": {
+        "SRC-NTS": "해외 주식 양도소득세 신고 안내(공제·세율은 매년 확인)"
+      },
       "route": "principles",
       "reviewedAt": "2026-08-18",
       "publication": "EDUCATIONAL_REFERENCE_ONLY",

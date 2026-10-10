@@ -1242,6 +1242,37 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           insightsHost?.replaceChildren();
           if (insightsHost) insightsHost.hidden = true;
         };
+        // P1599 (T04): the detail opens right under the section the reader clicked (sector cards, sub-theme
+        // ranking, CAPEX flow) instead of at the page bottom, and offers a way back to that row.
+        let detailTrigger = null;
+        const onThemeTriggerClick = (event) => {
+          const trigger = event?.target?.closest?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme, .theme-strength-row');
+          if (!trigger || !page?.contains?.(trigger) || detailPanel?.contains?.(trigger)) return;
+          detailTrigger = trigger;
+          // Only page-level blocks are anchors: a block inside a re-rendered host would take the panel with it.
+          let anchor = trigger;
+          while (anchor && anchor.parentElement !== page) anchor = anchor.parentElement;
+          if (anchor && detailPanel && anchor !== detailPanel && detailPanel.parentElement === page) anchor.insertAdjacentElement('afterend', detailPanel);
+        };
+        documentRef?.addEventListener?.('click', onThemeTriggerClick, true);
+        bag.add(() => documentRef?.removeEventListener?.('click', onThemeTriggerClick, true));
+        const ensureReturnButton = () => {
+          if (!detailPanel || detailPanel.querySelector('.theme-detail-return')) return;
+          const back = documentRef.createElement('button');
+          back.type = 'button';
+          back.className = 'flow-next-link theme-detail-return';
+          back.style.cssText = 'font-size:12px;margin-bottom:8px;';
+          back.textContent = '← 선택한 목록으로';
+          back.addEventListener('click', () => {
+            const target = detailTrigger && documentRef.contains(detailTrigger) ? detailTrigger : page;
+            target?.scrollIntoView?.({ block: 'center' });
+            target?.focus?.({ preventScroll: true });
+          });
+          detailPanel.prepend(back);
+        };
+        const onDetailShownPlacement = () => { ensureReturnButton(); detailPanel?.scrollIntoView?.({ block: 'start' }); };
+        eventTarget?.addEventListener?.('aio:themeDetailShown', onDetailShownPlacement);
+        bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailShown', onDetailShownPlacement));
         eventTarget?.addEventListener?.('aio:themeDetailShown', onThemeDetailShown);
         eventTarget?.addEventListener?.('aio:themeDetailClosed', onThemeDetailClosed);
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailShown', onThemeDetailShown));

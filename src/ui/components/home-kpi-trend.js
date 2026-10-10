@@ -7,6 +7,7 @@
 // close carried forward — i.e. about 14 sessions. Both screens now use the same session series (one point per
 // trading date, carried-forward values excluded), so 20 sessions means 20 sessions on every screen.
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
+import { createTrendChart } from './trend-chart.js';
 
 const CELLS = Object.freeze([
   { selector: '[data-live-price="ES=F"]', field: 'spx', label: 'S&P 500' },
@@ -23,7 +24,7 @@ export function trendPoints(history, field, sessions = SESSIONS) {
   return buildCloseSeries(history, field, { through: closeBasis(history) }).slice(-(sessions + 1));
 }
 
-function svgLine(doc, points, width = 120, height = 26) {
+function svgLine(doc, points, width = 120, height = 26, neutral = false) {
   const ns = 'http://www.w3.org/2000/svg';
   const svg = doc.createElementNS(ns, 'svg');
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -38,7 +39,8 @@ function svgLine(doc, points, width = 120, height = 26) {
   const line = doc.createElementNS(ns, 'polyline');
   line.setAttribute('points', coords.join(' '));
   line.setAttribute('fill', 'none');
-  line.setAttribute('stroke', values[values.length - 1] >= values[0] ? 'var(--data-green)' : 'var(--data-red)');
+  // P1599 (F100): a yield rise is not 'good' — the rate line stays neutral instead of borrowing price up/down colours.
+  line.setAttribute('stroke', neutral ? 'var(--text-secondary)' : values[values.length - 1] >= values[0] ? 'var(--data-green)' : 'var(--data-red)');
   line.setAttribute('stroke-width', '1.4');
   line.setAttribute('stroke-linejoin', 'round');
   svg.append(line);
@@ -68,9 +70,58 @@ export function renderHomeKpiTrends({ documentRef: doc, root }) {
     const caption = doc.createElement('span');
     caption.className = 'kpi-trend-caption';
     caption.textContent = `${points.length - 1}거래일 ${change}`;
-    box.replaceChildren(svgLine(doc, points), caption);
-    box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${points.length - 1}거래일)`;
+    box.replaceChildren(svgLine(doc, points, 120, 26, cell.field === 'tnx'), caption);
+    const lo = Math.min(...points.map((point) => point.value));
+    const hi = Math.max(...points.map((point) => point.value));
+    const digits = cell.field === 'tnx' ? 2 : lo >= 100 ? 0 : 2;
+    box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${points.length - 1}거래일) · 기간 저점 ${lo.toFixed(digits)} · 고점 ${hi.toFixed(digits)} · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다`;
     drawn += 1;
   }
+  renderHomeParticipation({ documentRef: doc, root, history });
   return drawn;
+}
+
+// P1599 (F100): the home verdict's core question — is the index rising with or without the stocks under it — as
+// two same-period charts side by side. Each keeps its own axis (index level vs % of stocks); the shared x-range
+// and a one-line read make the comparison, not a merged scale.
+const PARTICIPATION_SESSIONS = 63;
+function renderHomeParticipation({ documentRef: doc, root, history }) {
+  const anchor = doc?.getElementById?.('home-cross-assets');
+  if (!anchor) return;
+  let host = doc.getElementById('home-participation');
+  const basis = closeBasis(history);
+  const spx = buildCloseSeries(history, 'spx', { through: basis }).slice(-PARTICIPATION_SESSIONS);
+  const b50 = buildCloseSeries(history, 'breadth50', { through: basis }).map((point) => ({ date: point.date, value: point.value <= 1 ? point.value * 100 : point.value }));
+  if (spx.length < 20) { host?.remove(); return; }
+  const range = [spx[0].date, spx[spx.length - 1].date];
+  const b50In = b50.filter((point) => point.date >= range[0] && point.date <= range[1]);
+  if (!host) {
+    host = doc.createElement('section');
+    host.id = 'home-participation';
+    host.className = 'home-participation';
+    host.setAttribute('aria-label', '지수와 참여 종목 — 같은 기간');
+    anchor.insertAdjacentElement('afterend', host);
+  }
+  const pct = (a, b) => ((b / a - 1) * 100);
+  const spxMove = pct(spx[0].value, spx[spx.length - 1].value);
+  const b0 = b50In[0]?.value;
+  const b1 = b50In[b50In.length - 1]?.value;
+  const read = b50In.length >= 2
+    ? `${spx.length - 1}거래일 동안 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${spxMove > 0 && b1 < b0 ? ' — 지수는 올랐지만 참여 종목은 줄었습니다' : spxMove > 0 && b1 >= b0 ? ' — 지수와 참여가 함께 늘었습니다' : spxMove <= 0 && b1 < b0 ? ' — 지수와 참여가 함께 약해졌습니다' : ' — 지수는 약했지만 참여는 늘었습니다'}`
+    : `${spx.length - 1}거래일 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다`;
+  const head = doc.createElement('div');
+  head.className = 'home-participation-head';
+  const title = doc.createElement('strong');
+  title.textContent = '지수와 참여 종목 · 같은 기간';
+  const note = doc.createElement('span');
+  note.textContent = read;
+  head.append(title, note);
+  const grid = doc.createElement('div');
+  grid.className = 'home-participation-grid';
+  const card = (label, chart) => { const box = doc.createElement('div'); const caption = doc.createElement('div'); caption.className = 'home-participation-label'; caption.textContent = label; box.append(caption, chart); return box; };
+  grid.append(
+    card('S&P 500 종가', createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
+    card('50일선 위 종목 비율(%) · AIO 수집 종목 기준', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
+  );
+  host.replaceChildren(head, grid);
 }

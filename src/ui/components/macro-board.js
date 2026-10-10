@@ -95,7 +95,15 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   if (direction) { const mark = el(doc, 'span', DIRECTION_MARK[direction], `macro-dir is-${direction}`); mark.title = DIRECTION_TITLE; head.append(mark); }
   card.append(head, el(doc, 'div', valueText, 'macro-stat-value'));
   lines.filter(Boolean).forEach((line) => card.append(el(doc, 'div', line, 'macro-stat-line')));
-  if (series && series.length >= 6) card.append(sparkline(doc, series, { minSpan: unit === '%' ? 1 : null }));
+  if (series && series.length >= 6) {
+    card.append(sparkline(doc, series, { minSpan: unit === '%' ? 1 : null }));
+    // P1599 (A05): the period's high and low in words under the line, so the shape has a scale (inside the SVG
+    // the labels scaled with wide cards and collided with the date ticks).
+    const values = series.map((row) => row.value).filter(Number.isFinite);
+    const fmtRange = (value) => (Math.abs(value) >= 100 ? value.toFixed(0) : Math.abs(value) >= 10 ? value.toFixed(1) : value.toFixed(2));
+    const suffix = unit === '%' ? '%' : '';
+    card.append(el(doc, 'p', `기간 고점 ${fmtRange(Math.max(...values))}${suffix} · 저점 ${fmtRange(Math.min(...values))}${suffix}`, 'macro-spark-range'));
+  }
   if (status === 'stale') card.append(el(doc, 'span', '이번 수집 실패 · 직전 발표값', 'basis-chip is-off'));
   if (metaShown) card.append(el(doc, 'div', metaShown, 'macro-stat-meta'));
   if (note) card.append(el(doc, 'p', note, 'macro-stat-note'));
@@ -188,7 +196,8 @@ function axisCard(doc, row) {
 }
 
 function chainNode(doc, node) {
-  const box = el(doc, 'div', null, `macro-chain-node is-${node.impact || node.dir}`);
+  // P1599 (A03): an inferred node (no direct observation) is drawn dashed so it never reads as a measured move.
+  const box = el(doc, 'div', null, `macro-chain-node is-${node.impact || node.dir}${node.inferred ? ' is-inferred' : ''}`);
   box.append(el(doc, 'span', node.label, 'macro-chain-label'), el(doc, 'span', node.value, 'macro-chain-value'));
   if (node.dir === 'up' || node.dir === 'down') box.append(el(doc, 'span', node.dir === 'up' ? '▲' : '▼', 'macro-chain-arrow'));
   return box;

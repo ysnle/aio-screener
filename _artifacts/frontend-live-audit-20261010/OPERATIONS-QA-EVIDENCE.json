@@ -1,0 +1,387 @@
+[
+  {
+    "runId": "2026-10-10T13-22-28-034Z-17884-un13c3",
+    "profile": "affected",
+    "groups": [
+      "preflight",
+      "core",
+      "data",
+      "knowledge",
+      "workspace",
+      "cloudflare",
+      "browser-unit",
+      "browser-runtime",
+      "browser-knowledge",
+      "browser-resilience",
+      "browser-viewport",
+      "browser-surface",
+      "watchdog-local"
+    ],
+    "counts": {
+      "PASS": 120,
+      "FAIL": 2,
+      "SKIP": 32
+    },
+    "durationMs": 47657,
+    "failed": [
+      {
+        "id": "decomposition",
+        "status": "FAIL",
+        "error": "Decomposition hotspot check failed:\n - P1127/R620 index.html grew 10185 -> 10206 (+21). Decomposition must be net-negative, or the raise must be recorded with --write --allow-growth and justified in the commit.\n - P1127/R620 js/aio-data.js grew 16779 -> 16780 (+1). Decomposition must be net-negative, or the raise must be recorded with --write --allow-growth and justified in the commit.",
+        "output": ""
+      },
+      {
+        "id": "assertion-trace",
+        "status": "FAIL",
+        "error": "Assertion trace check failed:\n - 1 new assertion label(s) do not cite a ledger id (R###/P####/QA-/T###):\n   scripts/ci-external-pipeline-check.mjs#ab2f9f9ca83e\n   Add the id the assertion prevents a regression of, or rerun with --write after an authorised bulk change.",
+        "output": ""
+      }
+    ],
+    "skipped": [
+      {
+        "id": "headless",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-ai-public",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-chat-ui-state",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-chat-response-layout",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-market-epoch",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-screener-refresh",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-boot",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-architecture",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-vertical",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "artifact-budget",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-atlas",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-principles",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-masters",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-user-journey",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-learning-flow",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-route-soak",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-sa02",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-sa03",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-sa04",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-viewport",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-critical",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-vault",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "browser-a11y",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-market-snapshot",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-operations",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-reconciliation",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-source-registry",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-professional-gap",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-static-data",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-web-research",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-data-refresh",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      },
+      {
+        "id": "watchdog-artifact-headroom",
+        "status": "SKIP",
+        "blockedBy": [
+          "decomposition",
+          "assertion-trace"
+        ]
+      }
+    ]
+  },
+  {
+    "runId": "2026-10-10T13-27-08-967Z-18916-iv4r1j",
+    "profile": "rerun-failed",
+    "groups": [
+      "core",
+      "workspace"
+    ],
+    "counts": {
+      "FAIL": 1,
+      "PASS": 1
+    },
+    "durationMs": 596,
+    "failed": [
+      {
+        "id": "decomposition",
+        "status": "FAIL",
+        "error": "Decomposition hotspot check failed:\n - P1127/R620 index.html grew 10185 -> 10206 (+21). Decomposition must be net-negative, or the raise must be recorded with --write --allow-growth and justified in the commit.\n - P1127/R620 js/aio-data.js grew 16779 -> 16780 (+1). Decomposition must be net-negative, or the raise must be recorded with --write --allow-growth and justified in the commit.",
+        "output": ""
+      }
+    ],
+    "skipped": []
+  },
+  {
+    "runId": "2026-10-10T13-27-44-881Z-24960-a5holt",
+    "profile": "group",
+    "groups": [
+      "workspace"
+    ],
+    "counts": {
+      "PASS": 12,
+      "CACHED": 1
+    },
+    "durationMs": 5991,
+    "failed": [],
+    "skipped": []
+  },
+  {
+    "runId": "2026-10-10T13-29-09-941Z-6136-06pyn2",
+    "profile": "affected",
+    "groups": [
+      "preflight",
+      "workspace"
+    ],
+    "counts": {
+      "PASS": 20,
+      "CACHED": 7
+    },
+    "durationMs": 16893,
+    "failed": [],
+    "skipped": []
+  },
+  {
+    "runId": "2026-10-10T13-27-43-402Z-5948-7sgsiv",
+    "profile": "group",
+    "groups": [
+      "browser-runtime"
+    ],
+    "counts": {
+      "PASS": 8
+    },
+    "durationMs": 112140,
+    "failed": [],
+    "skipped": []
+  },
+  {
+    "runId": "root-final-workspace-20261010",
+    "profile": "required-workspace-minimum",
+    "counts": {
+      "FAIL": 0,
+      "PASS": 10
+    },
+    "warnings": [
+      "Historical 2026-07-19 architecture plan/remediation handoff encoding damage (2 documents).",
+      "2026-08-22 research integration document last_verified 49 days old; threshold 45 days."
+    ],
+    "verified": [
+      "generate-workspace-state --check",
+      "ci-workspace-contract-check",
+      "ci-knowledge-lint-check",
+      "ci-skill-contract-check",
+      "ci-skill-eval-fixture-check",
+      "ci-ledger-integrity-check",
+      "ci-assertion-trace-check",
+      "sync-agent-profiles --check",
+      "sync-agent-skills --check",
+      "git diff --check"
+    ]
+  }
+]

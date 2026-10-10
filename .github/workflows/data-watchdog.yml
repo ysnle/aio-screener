@@ -59,6 +59,15 @@ jobs:
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
         run: node scripts/report-qa-failures.mjs --title Watchdog
 
+      - name: Preserve operational health including nonblocking degradation
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: aio-operational-health-${{ github.run_id }}
+          path: .cache/aio-qa/external-pipeline-status.json
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Build rolling 7/30-day operations evidence
         if: always()
         run: node scripts/build-operations-slo-window.mjs --out "$RUNNER_TEMP/operations-slo-window.json"

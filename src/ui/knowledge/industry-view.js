@@ -267,6 +267,32 @@ function renderRelationshipGuide(doc, guide, selectedNodeId, failed = false, sou
   return article;
 }
 
+// F109: a domain opened as four paragraphs and a link list. The overview map places its sub-areas in reading
+// order, each with the role it plays in the field, so the reader knows where each part sits before opening it.
+// It draws only the order and each area's own role statement; it adds no supplier or revenue arrows.
+function domainMap(doc, domain, labels, parts) {
+  const nodes = domain.nodes || [];
+  if (nodes.length < 2) return null;
+  const figure = el(doc, 'figure', 'af-domain-map');
+  figure.setAttribute('aria-label', `${labels.domain(domain)} 세부 영역 지도`);
+  figure.appendChild(el(doc, 'figcaption', 'af-domain-map-title', '이 분야를 읽는 순서'));
+  const list = el(doc, 'ol', 'af-domain-map-list');
+  nodes.forEach((node, index) => {
+    const item = el(doc, 'li', 'af-domain-map-item');
+    const button = el(doc, 'button', 'af-domain-map-step');
+    button.type = 'button';
+    button.dataset.atlasAction = 'domain-node';
+    button.dataset.atlasValue = node.id;
+    const role = String(parts.guide?.(node)?.role || '').replace(/^대표 역할:\s*/, '');
+    button.append(el(doc, 'span', 'af-domain-map-num', String(index + 1)), el(doc, 'strong', null, labels.node(node)));
+    if (role) button.appendChild(el(doc, 'span', 'af-domain-map-role', role));
+    item.appendChild(button);
+    list.appendChild(item);
+  });
+  figure.appendChild(list);
+  return figure;
+}
+
 export function renderIndustryPage(doc, { root, state, data, labels, parts, onLocal, onFrame, onConcept }) {
   ensureFrameStyle(doc);
   const { shell, nav, main, aside } = createResearchShell(doc, { root, route: 'atlas', onLocal });
@@ -284,6 +310,8 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
       const text = parts.domainText?.(domain) || null;
       if (text) {
         article.appendChild(el(doc, 'p', 'af-lead', text.lead));
+        const map = domainMap(doc, domain, labels, parts);
+        if (map) article.appendChild(map);
         article.appendChild(prose(doc, text.body));
         article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', text.twist));
       } else {

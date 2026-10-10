@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.31';
+const APP_VERSION = 'v57.32';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3968,14 +3968,14 @@ if (typeof document !== 'undefined') {
         observed = generated ? new Date(generated) : null;
       }
       var cur = observed && isFinite(observed.getTime()) ? _aioDescribeCurrentness([{ symbol: '^GSPC', observedMs: observed.getTime() }]) : null;
-      var suffix = count > 0 ? ' · ' + count + '개' : '';
+      var suffix = count > 0 ? ' · 시세 ' + count + '종' : ''; // P1599 (G05): name the count
       if (!cur || cur.state === 'none') {
         _aioWriteQuoteStatus('snapshot', '지난 시세', '서버 기준 시각 확인 중' + suffix, '실시간 시세가 아닌 서버 기준 스냅샷 · 관측시각 확인 전', 'stale');
         return true;
       }
       // A server snapshot is never "live": at best it is the latest close.
       var state = cur.state === 'close' ? 'close' : 'stale';
-      var at = cur.detail.replace(/ · \d+개$/, '');
+      var at = cur.detail.replace(/ · (?:시세 \d+종|\d+개)$/, '');
       _aioWriteQuoteStatus('snapshot', state === 'close' ? '종가' : '지난 시세', '서버 ' + at + suffix, cur.title + ' · 실시간 시세가 아닌 서버 기준 스냅샷', state);
       return true;
     } catch (_) { return false; }

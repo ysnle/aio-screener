@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T12:12:20.678Z",
+  "generatedAt": "2026-10-10T17:24:59.816Z",
   "routes": [
     {
       "id": "home",
@@ -12,23 +12,23 @@
         },
         {
           "tag": "A",
+          "name": "Wall St Week Ahead Bank earnings, CPI headline busy markets week as S&P 500 hovers near records — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "Oil Prices Steady After Trump Appears to Rule Out Iran Strikes Before Midterms — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Stocks move higher even as Treasury yields, oil prices tick up — 원문 새 창에서 열기"
+          "name": "Nishball: AI Needs $7 Trillion in Debt by 2029, and Nvidia's Backstop Isn't Big Enough — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
           "name": "Wall Street’s Rate Shock Spreads Beneath AI-Fueled Market Rally — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Did Raised Revenue Outlook Just Shift Bloom Energy's (BE) Investment Narrative? — 원문 새 창에서 열기"
         }
       ],
       "headings": [
-        "시장 현황 v57.31",
+        "시장 현황 v57.32",
         "직전 종가 대비 변화10/8 → 10/9 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
@@ -38,355 +38,24 @@
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "ready",
-      "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리 · 환율 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
-        }
-      ],
+      "moduleState": "loading",
+      "controls": [],
       "headings": [
         "시장 상태",
-        "혼조",
+        "판정 대기",
         "미국 시장 6개 축",
-        "추세",
-        "시장 폭",
-        "변동성",
-        "금리",
-        "신용 · 위험선호",
-        "달러 · 원자재",
         "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
-        "환율 (원 · 엔)",
-        "기관 포지셔닝 선물 주간 보고 · 6개 축 합계에는 넣지 않습니다",
-        "S&P 500 E-mini",
-        "나스닥 100 E-mini",
-        "미 10년 국채 선물",
-        "이어서 볼 곳"
+        "기관 포지셔닝 선물 주간 보고 · 6개 축 합계에는 넣지 않습니다"
       ]
     },
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "ready",
-      "controls": [
-        {
-          "tag": "SELECT",
-          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HUM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DDOG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LITE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PLTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HACK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FFIV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HPE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FTNT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NTAP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "V"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ANET"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PBR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VLO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MPC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TEAM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ABBV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PSX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DINO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "XLE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EXPD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SHEL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TMUS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ASTS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CHTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "JOBY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MOS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CMCSA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SOUN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BLDR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SMR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HRL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WSO"
-        },
-        {
-          "tag": "SELECT",
-          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CCI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HUM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HIMS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ZS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SNOW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SBAC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DDOG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VSAT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SNAP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AKAM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CIEN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NET"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BABA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LITE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GME"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AFRM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HACK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COIN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PINS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARKG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TMUS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ASTS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "T"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VZ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HPQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CHTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SWKS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "JOBY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MOS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "테마 · 섹터 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "스크리너 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 →"
-        }
-      ],
+      "moduleState": "loading",
+      "controls": [],
       "headings": [
         "시장 폭",
-        "시장 폭 판정",
-        "참여도 — 이동평균 위 종목 비율",
-        "50일선 위 종목 비율",
-        "20일선 위 종목 비율",
-        "40일선 위 종목 비율 (T2108 계열)",
-        "200일선 위 종목 비율",
-        "상승 종목 비율 (10일 평균)",
-        "누적 상승-하락 종목 수 (A/D 라인)",
-        "리더십 — 신고가·신저가와 급등락 종목",
-        "52주 신고가 − 신저가 종목 수",
-        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
-        "지수 확인 — 분배일과 S&P 500",
-        "S&P 500 분배일 (최근 25거래일)",
-        "S&P 500 (같은 기간 비교)",
-        "이어서 볼 곳"
+        "시장 폭 판정"
       ]
     },
     {
@@ -475,7 +144,7 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "성장중립Sahm 0.00%p"
+          "name": "성장중립일자리 3개월 평균 +51천 명"
         },
         {
           "tag": "BUTTON",
@@ -483,7 +152,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "통화정책부담2년물이 기준금리보다 0.88%p 높음"
+          "name": "통화정책부담2년물이 기준금리보다 0.92%p 높음"
         },
         {
           "tag": "BUTTON",
@@ -491,7 +160,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "유가 · 달러부담WTI 20일 −9.6% · 달러 +2.8%"
+          "name": "유가 · 달러부담WTI 20일 −9.4% · 달러 +2.8%"
         },
         {
           "tag": "BUTTON",
@@ -531,10 +200,10 @@
       ],
       "headings": [
         "금리 · 환율",
-        "환율이 증시에 주는 영향",
-        "환율 (원 · 엔)",
         "미 국채 수익률 곡선",
         "실질금리 · 기대인플레이션 · 신용",
+        "환율이 증시에 주는 영향",
+        "환율 (원 · 엔)",
         "달러 · 원화 · 엔화 · 10년물 — 최근 6개월",
         "달러 인덱스 (DXY)",
         "원/달러",
@@ -875,11 +544,15 @@
         },
         {
           "tag": "A",
+          "name": "Wall St Week Ahead Bank earnings, CPI headline busy markets week as S&P 500 hovers near records — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "Oil Prices Steady After Trump Appears to Rule Out Iran Strikes Before Midterms — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Stocks move higher even as Treasury yields, oil prices tick up — 원문 새 창에서 열기"
+          "name": "Nishball: AI Needs $7 Trillion in Debt by 2029, and Nvidia's Backstop Isn't Big Enough — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -903,6 +576,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "공용 AI 연결 시 해석 추가"
+        },
+        {
+          "tag": "BUTTON",
           "name": "전체"
         },
         {
@@ -919,11 +596,23 @@
         },
         {
           "tag": "A",
+          "name": "Stock Market Today: Dow Jumps 423 Points Friday — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Can 6% Treasury yields coexist with higher stocks? This FedWatch advisor thinks so — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Drops as Trump Rules Out Iran Strike, Market Floor Persists — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "Oil prices drop after Trump cites productive talks with Iran — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Samsung's chip profit jumps nearly ninefold as AI memory demand soars — 원문 새 창에서 열기"
+          "name": "October Market Outlook: 3 Sectors to Buy Based on Earnings Quality — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -931,7 +620,11 @@
         },
         {
           "tag": "A",
-          "name": "Oil Prices Drop After Trump Rules Out Pre-Election Attack on Iran — 원문 새 창에서 열기"
+          "name": "Gold, silver rebound as dollar, yields and oil ease - Kitco AM Report — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Prices Fall as Trump Vows to Not Attack Iran Before Midterms — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -939,31 +632,15 @@
         },
         {
           "tag": "A",
+          "name": "Gold recovery stalls near $4,200 as US Dollar, Treasury yields stabilise — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "Oil Futures Return Some Gains As U.S. Strike Concerns Wane — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Gold, silver rebound as dollar, yields and oil ease - Kitco AM Report — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
           "name": "Rosenblatt Launches Nebius Stock Coverage With Buy Rating and Bold Price Target — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold forecast: Rising yields become too hot for gold, but the outlook is far from bearish — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "How Raised Earnings Guidance At Fonterra Has Changed Its Investment Story — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Oil prices settle as Trump touts 'productive' talks with Iran — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Prices Retreat as U.S.-Iran Diplomatic Talks Ease Supply Fears, While Gulf Hurricane Limits Losses — 원문 새 "
         },
         {
           "tag": "BUTTON",
@@ -1503,7 +1180,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "가동률·Workload 구성"
+          "name": "가동률·작업 구성"
         },
         {
           "tag": "BUTTON",
@@ -1587,6 +1264,26 @@
         },
         {
           "tag": "BUTTON",
+          "name": "1하이퍼스케일러 클라우드여러 작업 부하를 한 시설과 소프트웨어 층에서 통합"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "2관리형 AI 서비스모델 사용의 복잡성을 서비스 운영 층으로 흡수"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3가동률·작업 구성수요의 양뿐 아니라 시간대·모델·고객별 사용 패턴을 해석"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "4클라우드 장기 약정미래 매출 단서를 제공하지만 사용량·해지·회계 인식과 분리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "5감가상각 주기매출 성장과 회계비용·자산 회수 속도를 연결"
+        },
+        {
+          "tag": "BUTTON",
           "name": "하이퍼스케일러 클라우드사업·수익 구조"
         },
         {
@@ -1595,7 +1292,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "가동률·Workload 구성재무·경제성 개념"
+          "name": "가동률·작업 구성재무·경제성 개념"
         },
         {
           "tag": "BUTTON",
@@ -1759,7 +1456,7 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "집중 모드"
+          "name": "표 넓게 보기"
         },
         {
           "tag": "SELECT",

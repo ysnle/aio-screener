@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   reconcile:
-    if: github.event.workflow_run.head_branch == 'main'
+    if: github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository && github.event.workflow_run.event != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -35,6 +35,21 @@ jobs:
             const label = 'aio-operations-alert';
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            // P1598: planned skips/cancellations and stale completion events are not new failures.
+            if (['skipped', 'neutral', 'cancelled'].includes(run.conclusion)) return;
+            const recent = await github.rest.actions.listWorkflowRuns({
+              owner, repo, workflow_id: run.workflow_id, branch: 'main', status: 'completed', per_page: 100
+            });
+            const recentRuns = recent.data.workflow_runs
+              .filter(candidate => candidate.head_branch === 'main'
+                && candidate.head_repository?.full_name === `${owner}/${repo}`
+                && candidate.event !== 'pull_request'
+                && !['skipped', 'neutral', 'cancelled'].includes(candidate.conclusion))
+              .sort((left, right) => new Date(right.updated_at) - new Date(left.updated_at));
+            if (recentRuns[0]?.id !== run.id) {
+              core.info('Ignoring stale or unobserved completion; latest workflow state owns the alert.');
+              return;
+            }
 
             try {
               await github.rest.issues.getLabel({ owner, repo, name: label });
@@ -55,6 +70,13 @@ jobs:
             const runUrl = run.html_url;
             const sha = String(run.head_sha || '').slice(0, 12);
             const timestamp = new Date(run.updated_at || Date.now()).toISOString();
+            if (succeeded) {
+              if (existing && existing.state === 'open') {
+                await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Recovered: [${workflow} run ${run.id}](${runUrl}) succeeded at ${timestamp}.` });
+                await github.rest.issues.update({ owner, repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
+              }
+              return;
+            }
             let failedJobs = [];
             try {
               const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
@@ -76,23 +98,9 @@ jobs:
             const failedGateSummary = failedJobs.length
               ? failedJobs.map((job) => `${job.name}${job.steps.length ? ` [${job.steps.join(', ')}]` : ''}`).join('; ')
               : 'no failed job detail reported by Actions API';
-            const failureSignature = Buffer.from(JSON.stringify({ conclusion: run.conclusion || 'unknown', failedJobs }), 'utf8').toString('base64url').slice(0, 96);
-
-            if (succeeded) {
-              if (existing && existing.state === 'open') {
-                await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Recovered: [${workflow} run ${run.id}](${runUrl}) succeeded at ${timestamp}.` });
-                await github.rest.issues.update({ owner, repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
-              }
-              return;
-            }
-
-            const recentRuns = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
-              owner,
-              repo,
-              branch: 'main',
-              status: 'completed',
-              per_page: 100
-            });
+            // P1598: hashing the whole payload avoids collisions after a shared 72-byte prefix.
+            const failureSignature = require('node:crypto').createHash('sha256')
+              .update(JSON.stringify({ conclusion: run.conclusion || 'unknown', failedJobs })).digest('hex');
             const sameWorkflowRuns = recentRuns
               .filter((candidate) => candidate.name === workflow && candidate.id !== run.id)
               .sort((left, right) => new Date(right.updated_at) - new Date(left.updated_at));
@@ -104,7 +112,7 @@ jobs:
             if (consecutiveFailures < 2) return;
 
             const title = `[Operations] ${workflow} is ${run.conclusion || 'not successful'}`;
-            const body = `${marker}\n<!-- aio-operations-alert-signature:${failureSignature} -->\n## Automated recovery alert\n\n- Workflow: **${workflow}**\n- Conclusion: **${run.conclusion || 'unknown'}**\n- Consecutive failures: **${consecutiveFailures}**\n- Branch: \`${run.head_branch || 'unknown'}\`\n- Revision: \`${sha || 'unknown'}\`\n- Updated: ${timestamp}\n- Run: ${runUrl}\n- Failed jobs/gates: ${failedGateSummary}\n- Failure signature: \`${failureSignature}\`\n\nThis issue is updated/reopened on repeated failures and closes only when the same workflow succeeds. Repeated identical failures update this body without adding a notification comment. It does not authorize an automatic source change, commit, dispatch, or deployment.`;
+            const body = `${marker}\n<!-- aio-operations-alert-signature:${failureSignature} -->\n## Automated recovery alert\n\n- Workflow: **${workflow}**\n- Conclusion: **${run.conclusion || 'unknown'}**\n- Consecutive failures observed in latest 100 main runs: **${consecutiveFailures}**\n- Branch: \`${run.head_branch || 'unknown'}\`\n- Revision: \`${sha || 'unknown'}\`\n- Updated: ${timestamp}\n- Run: ${runUrl}\n- Failed jobs/gates: ${failedGateSummary}\n- Failure signature: \`${failureSignature}\`\n\nThis issue is updated/reopened on repeated failures and closes only when the same workflow succeeds. Repeated identical failures update this body without adding a notification comment. It does not authorize an automatic source change, commit, dispatch, or deployment.`;
             if (existing) {
               const comments = await github.paginate(github.rest.issues.listComments, {
                 owner, repo, issue_number: existing.number, per_page: 100

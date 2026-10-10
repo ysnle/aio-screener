@@ -1,7 +1,8 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isTrustedDeploymentRun, resolveProvenanceRun } from './deployment-provenance.mjs';
+import { summarizeOperationalChecks, marketAnalysisDiagnostic, workflowCadence, operationalSummary } from './lib/operational-health.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const args = process.argv.slice(2);
@@ -42,7 +43,9 @@ async function observeOnce() {
   result.checks = [];
   result.warnings = [];
   result.observedAt = new Date().toISOString();
-  const pagesPromise = Promise.all([
+  const pageNames = ['version', 'deployment', 'config', 'data', 'screener', 'telegram', 'snapshot', 'operations', 'reconciliation'];
+  // P1596: one missing artifact must not hide every other plane's diagnostics.
+  const pagesPromise = Promise.allSettled([
     fetchJson(`${pagesBase}/version.json`),
     fetchJson(`${pagesBase}/deployment.json`),
     fetchJson(`${pagesBase}/public-config.json`),
@@ -60,6 +63,7 @@ async function observeOnce() {
     pages: 'pages-deploy.yml',
     refreshMarket: 'refresh-data.yml',
     refreshScreener: 'refresh-screener.yml',
+    watchdog: 'data-watchdog.yml',
     deployProxy: 'deploy-ai-proxy.yml',
     deployFast: 'deploy-data-plane.yml'
   };
@@ -74,7 +78,11 @@ async function observeOnce() {
   const [pages, proxy, fast, github] = await Promise.allSettled([pagesPromise, proxyPromise, fastPromise, githubPromise]);
 
   if (pages.status === 'fulfilled') {
-    const [version, deployment, config, data, screener, telegram, snapshot, operations, reconciliation] = pages.value.map((entry) => entry.body);
+    const [version, deployment, config, data, screener, telegram, snapshot, operations, reconciliation] = pages.value.map((entry, index) => {
+      if (entry.status === 'fulfilled') return entry.value.body;
+      check(`pages-fetch-${pageNames[index]} (P1596)`, false, entry.reason?.message || 'artifact-unavailable');
+      return null;
+    });
     const dataAge = ageMinutes(data?.meta?.generatedAt);
     const screenerAge = ageMinutes(screener?.asOf);
     const telegramAge = ageMinutes(telegram?.generatedAt);
@@ -94,7 +102,7 @@ async function observeOnce() {
       check('pages-telegram-coverage', Number(telegram?.count) >= 100 && Array.isArray(telegram?.channels) && telegram.channels.length >= 3 && !telegram.channels.some((channel) => channel.error || !Number.isFinite(Number(channel.lastPostId))), `count=${telegram?.count || 0} channels=${telegram?.channels?.length || 0}`);
       if (!data?.meta?.fearGreedOk) result.warnings.push('live Fear & Greed provider is degraded; static fallback is active');
       if (!data?.meta?.fredHasKey || !data?.meta?.fredFetchOk) result.warnings.push('live FRED enrichment is unavailable or degraded');
-      if (!data?.meta?.marketAnalysisOk) result.warnings.push('live LLM market analysis is unavailable; typed fallback is active');
+      if (!data?.meta?.marketAnalysisOk) result.warnings.push(`live LLM market analysis blocked: ${marketAnalysisDiagnostic(data)}; typed fallback is active`);
     }
   } else {
     check('pages-fetch', false, pages.reason?.message || String(pages.reason));
@@ -120,6 +128,12 @@ async function observeOnce() {
       // P1578: warning only — without the dispatcher the 30-minute refresh rides GitHub's best-effort
       // schedule (observed ~10% of slots). A Worker older than P1578 reports nothing; that is not a pass.
       check('fast-plane-refresh-dispatcher (P1578)', health?.schedulerDispatch?.configured === true, `schedulerDispatch=${JSON.stringify(health?.schedulerDispatch ?? null)} (set repository secret AIO_REFRESH_DISPATCH_TOKEN)`, 'warning');
+      if (health?.schedulerDispatch?.configured) {
+        const receipt = health.schedulerDispatch.lastObservation;
+        const receiptAge = ageMinutes(receipt?.observedAt);
+        check('fast-plane-refresh-dispatch-observation (P1595)', Number.isFinite(receiptAge) && receiptAge >= 0 && receiptAge <= 65
+          && ['accepted', 'workflow-active', 'recent-success'].includes(receipt?.reason), `reason=${receipt?.reason || 'not-observed'} age=${receiptAge}m; acceptance is not execution`, 'warning');
+      }
     } else check('fast-plane-fetch', false, fast.reason?.message || String(fast.reason));
 
     if (github.status === 'fulfilled') {
@@ -139,6 +153,11 @@ async function observeOnce() {
           latest: compactRun(latest),
           lastCompleted: compactRun(run)
         };
+        if (['refreshMarket', 'watchdog'].includes(id)) {
+          const cadence = workflowCadence(workflowRuns.runs, { maxAgeMinutes: id === 'refreshMarket' ? 65 : 125 });
+          result.github[id].cadence = cadence;
+          check(`github-${id}-cadence (P1596)`, cadence.ok, JSON.stringify(cadence), 'warning');
+        }
         const isCurrentReleaseRun = mode === 'release' && id === 'pages' && latest?.status === 'in_progress' && (!process.env.GITHUB_RUN_ID || String(latest.id) === String(process.env.GITHUB_RUN_ID));
         const severity = mode === 'release' && !['ci', 'pages'].includes(id) ? 'warning' : 'error';
         check(`github-${id}-latest-completed`, run?.conclusion === 'success' || isCurrentReleaseRun, run ? `conclusion=${run.conclusion} run=${run.html_url}${latest?.status === 'in_progress' ? ` active=${latest.html_url}` : ''}` : (isCurrentReleaseRun ? `current release=${latest.html_url}` : 'no completed workflow run'), severity);
@@ -173,7 +192,7 @@ async function observeOnce() {
   }
 
   const failed = result.checks.filter((item) => !item.ok && item.severity === 'error');
-  result.status = failed.length ? 'FAIL' : 'PASS';
+  Object.assign(result, summarizeOperationalChecks(result.checks, result.warnings));
   return failed;
 }
 
@@ -185,6 +204,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
   if (attempt < attempts) await sleep(delayMs);
 }
 writeFileSync(reportPath, `${JSON.stringify(result, null, 2)}\n`);
+if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, operationalSummary(result));
 console.log(JSON.stringify(result, null, 2));
 console.log(`[external-pipeline] report=${reportPath}`);
 if (failures.length && mode !== 'observe') process.exit(1);

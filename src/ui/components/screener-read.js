@@ -70,6 +70,15 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   host.replaceChildren(el(doc, 'h2', '지금 순위가 말하는 것', 'briefing-h2'));
   if (!read.available) { host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }
   host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
+  // P1599 (F106/C01): the reasoning comes first, but the table is one click away instead of two screens down.
+  const jump = el(doc, 'button', '결과 표로 바로 가기 ↓', 'flow-next-link');
+  jump.type = 'button';
+  jump.addEventListener('click', () => {
+    const table = doc.getElementById('screener-results-table');
+    table?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+    table?.querySelector?.('[data-aio-screener-ticker]')?.focus?.({ preventScroll: true });
+  });
+  host.append(jump);
   const layout = el(doc, 'div', null, 'screener-read-layout');
   const list = el(doc, 'ul', null, 'stock-read-points');
   for (const point of read.points) {

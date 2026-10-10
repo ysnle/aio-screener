@@ -99,7 +99,7 @@ try {
     };
   });
   // P1326/R671 (QA-UX-07): one slot, one vocabulary — a server snapshot is 종가/지난 시세, never live.
-  if (!/^서버 .+ · 16개$/.test(quoteTopbar.text) || !/^(close|stale)$/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title) || quoteTopbar.duplicate) {
+  if (!/^서버 .+ · 시세 16종$/.test(quoteTopbar.text) || !/^(close|stale)$/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title) || quoteTopbar.duplicate) {
     throw new Error(`snapshot quote topbar must stay reference-only while external providers are blocked: ${JSON.stringify(quoteTopbar)}`);
   }
 

@@ -73,8 +73,8 @@ fetches the bounded Tier 0 allowlist every five minutes, validates the shared
 only after QG-01 reaches 100% and the semantic revision changes. An unchanged
 snapshot is a successful observation but a KV no-op; the heartbeat is throttled
 to one liveness write per 15 minutes (or an immediate status change). The
-normal upper bound is 384 successful KV writes/day and the status-flapping
-worst case is 576/day, both below the 1,000/day free-tier limit and its 500/day
+normal upper bound is 432 successful KV writes/day (384 quote/heartbeat + 48 scheduler receipts) and the status-flapping
+worst case is 624/day, below the 1,000/day free-tier limit; normal writes stay below its 500/day
 warning target. Heartbeats distinguish `checkedAt` (the run observation),
 `publishedAt` (a changed `quotes:current` snapshot), and `writtenAt` (the last
 heartbeat KV write), so liveness cannot masquerade as a snapshot publication.
@@ -125,6 +125,10 @@ GitHub 예약 실행은 30분 간격으로 설정돼 있어도 실제로는 4~6�
    - Repository access: `ysnle/aio-screener`만
    - Permissions: Actions → Read and write (그 외 권한은 주지 않음)
    - 만료일은 1년 이내로 정하고, 만료 전에 같은 방법으로 교체합니다.
-2. Cloudflare 대시보드 → Workers & Pages → `aio-screener-data-plane` → Settings → Variables and Secrets → **Secret**으로 `GITHUB_DISPATCH_TOKEN`을 추가합니다.
+2. GitHub 저장소 Secret `AIO_REFRESH_DISPATCH_TOKEN`에 저장합니다. 다음 승인된 데이터 플레인 배포가 Worker Secret `GITHUB_DISPATCH_TOKEN`으로 전달합니다. Cloudflare에 직접 설정할 경우에도 같은 이름의 Secret을 사용하며, 기존 개인용 광범위 토큰을 재사용하지 않습니다.
 
 토큰이 없으면 Worker는 요청을 보내지 않습니다(`token-not-configured`). 이때는 기존 GitHub 예약 실행만 동작합니다.
+
+P1595: 각 보완 슬롯에서 최근 main 실행을 먼저 읽습니다. 대기/실행 중인 작업 또는 25분 이내 성공이 있으면 중복 요청을 생략합니다. 읽기 실패·권한 오류에는 무조건 실행 요청을 보내지 않으며, 헤더와 응답 본문 대기를 모두 제한합니다. 슬롯별 결과는 KV `scheduler:dispatch`에 최대 하루 48회 저장하고 `/health.schedulerDispatch.lastObservation`에서 확인합니다. `accepted`는 GitHub의 204 접수이며 실제 성공은 Actions 완료 기록으로 별도 확인합니다. KV 기반 동일 슬롯 억제는 eventual consistency 범위의 최선 노력이며 전 세계 원자적 중복 방지를 보장하지 않습니다.
+
+P1596/P1597: watchdog의 blocking gate PASS와 전체 운영 상태 PASS는 구분합니다. AI/선택 소스·스케줄 관측이 저하되면 전체 상태는 DEGRADED이며 Step Summary와 별도 health artifact에 이유를 보존합니다. 7/30일 SLO는 schedule 이벤트만 측정합니다. Worker가 dispatch한 실행은 도착 관측에는 포함하지만 SLO schedule 성공률을 대신 채우지 않습니다. 30일 자료는 main 실행 최대 3,000개를 조회하며 누락된 조회 증거·부족한 관측 일수·미래 실행·중복 실행 ID로 인증하지 않습니다. 수집 상한을 넘으면 인증은 계속 보류합니다.

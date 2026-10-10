@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { buildContextCatalog, buildWorkspaceState, canonicalTextBytes, renderCurrentState, serializeJson } from './workspace-state-lib.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -167,6 +168,38 @@ check('operations alert deduplicates one issue by workflow marker', /aio-operati
 check('operations alert threshold matches the two-consecutive-failure SLO', /consecutiveFailures\s*=\s*1/.test(operationsAlert) && /consecutiveFailures\s*<\s*2/.test(operationsAlert) && /candidate\.conclusion === 'success'/.test(operationsAlert));
 check('operations alert updates failures without duplicate-comment spam and closes matching recovery', /state:\s*'open'/.test(operationsAlert) && /listComments/.test(operationsAlert) && /failureSignature/.test(operationsAlert) && /sameSignatureSeen/.test(operationsAlert) && /reopened/.test(operationsAlert) && /signatureChanged/.test(operationsAlert) && !/Still failing:/.test(operationsAlert) && /state:\s*'closed'/.test(operationsAlert) && /if \(succeeded\)/.test(operationsAlert));
 check('operations alert body carries failed jobs/gates and a stable signature', /failedGateSummary/.test(operationsAlert) && /Failure signature:/.test(operationsAlert) && /aio-operations-alert-signature/.test(operationsAlert));
+// P1598: execute the actual github-script with injected APIs; no GitHub issue is written.
+{
+  const script = operationsAlert.split('          script: |\n')[1].split('\n').map(line => line.replace(/^            /, '')).join('\n');
+  const execute = new (Object.getPrototypeOf(async function () {}).constructor)('github', 'context', 'core', 'require', script);
+  const run = { id: 9, workflow_id: 1, name: 'CI', head_branch: 'main', event: 'push', conclusion: 'failure', updated_at: '2026-10-10T12:00:00Z', head_repository: { full_name: 'ysnle/aio-screener' } };
+  async function scenario(current, runs, stepName = 'first') {
+    const mutations = [];
+    let jobReads = 0;
+    const github = { rest: { actions: {
+      listWorkflowRuns: async () => ({ data: { workflow_runs: runs } }),
+      listJobsForWorkflowRun: () => { jobReads++; return 'jobs'; }
+    }, issues: {
+      getLabel: async () => ({}), listForRepo: () => 'issues',
+      create: async input => mutations.push(input), createComment: async input => mutations.push(input), update: async input => mutations.push(input)
+    } }, paginate: async method => {
+      if (method !== github.rest.actions.listJobsForWorkflowRun) return [];
+      jobReads++;
+      return [{ name: 'Shared long job prefix '.repeat(8), conclusion: 'failure', steps: [{ name: stepName, conclusion: 'failure' }] }];
+    } };
+    await execute(github, { payload: { workflow_run: current }, repo: { owner: 'ysnle', repo: 'aio-screener' } }, { info() {} }, createRequire(import.meta.url));
+    return { mutations, jobReads };
+  }
+  const history = [run, { ...run, id: 8, updated_at: '2026-10-10T11:00:00Z' }];
+  const first = await scenario(run, history, 'first');
+  const second = await scenario(run, history, 'second');
+  const signature = result => result.mutations[0]?.body?.match(/aio-operations-alert-signature:([a-f0-9]+)/)?.[1];
+  check('P1598 failures after a shared prefix have distinct full-content signatures', signature(first)?.length === 64 && signature(first) !== signature(second));
+  const stale = await scenario({ ...run, id: 8 }, history);
+  const skipped = await scenario({ ...run, conclusion: 'skipped' }, history);
+  const recovered = await scenario({ ...run, conclusion: 'success' }, [{ ...run, conclusion: 'success' }]);
+  check('P1598 stale/skipped completions cannot mutate alerts and success skips failed-job reads', !stale.mutations.length && !skipped.mutations.length && !recovered.jobReads);
+}
 check('operations alert does not mutate source or dispatch deployments', !/(contents:\s*write|git\s+(?:commit|push)|createWorkflowDispatch|deploy-pages)/i.test(operationsAlert));
 const liveInvariant = read('scripts/ci-live-invariant-check.mjs');
 const watchdog = read('.github/workflows/data-watchdog.yml');

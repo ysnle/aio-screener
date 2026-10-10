@@ -1,5 +1,30 @@
 # 전체 실사 핸드오프 실행 현황 — 2026-09-27
 
+### 2026-10-10 22:27 KST 실패 알림 최신 실행·전체 서명 개선 (v57.32, Codex)
+
+- 주입 API fixture PASS. 실제 GitHub Issue mutation 및 운영 적용 없음.
+- Claude 프론트엔드 변경 보존.
+
+### 2026-10-10 22:21 KST 장기 SLO 조회·기간·cron 분모 무결성 보완 (v57.32, Codex)
+
+- 로컬 SLO fixture PASS. 실제 운영 30일 인증 회복은 주장하지 않는다. workflow_dispatch는 schedule SLO에 포함하지 않는다.
+- Claude 프론트엔드 변경 보존.
+
+### 2026-10-10 22:21 KST 운영 게이트 통과와 전체 건강 상태 분리 (v57.32, Codex)
+
+- 로컬 pure fixture와 구조 계약 PASS. 새 코드의 운영 예약 실행은 배포 후 별도 검증해야 한다.
+- Claude 프론트엔드 변경 보존.
+
+### 2026-10-10 22:21 KST Worker 보완 예약 요청의 중복 억제와 접수 관측 (v57.32, Codex)
+
+- 로컬 data-plane fixture PASS. 실제 토큰 설정 및 Worker 배포는 미수행.
+- Claude 프론트엔드 변경 보존.
+
+### 2026-10-10 22:21 KST 시장 분석 검증의 지표 경계·반복 숫자·언어 판정 보완 (v57.32, Codex)
+
+- 로컬 data-pipeline fixture PASS. 유료 AI 추가 호출 및 운영 분석 재생성은 하지 않았다.
+- Claude 프론트엔드 변경 보존.
+
 ### 2026-10-01 Codex 의미·최신 관측·금융·운영 보강 인계 (v56.87)
 
 - P1349~P1362를 main 작업 트리에 통합하고 공식 기록·버전·현재 상태를 동기화했다. 원래 staged `.gitattributes`와 기존 수정은 보존했다. 커밋·push·배포 없음.

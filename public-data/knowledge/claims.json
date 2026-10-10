@@ -102,8 +102,8 @@
       "status": "REFERENCE",
       "directness": "CONTEXT",
       "sourceIds": [
-        "MP-BLS",
-        "MP-FED-ED"
+        "SRC-BLS-CPI-2022",
+        "MP-BLS"
       ],
       "asOf": null,
       "reviewedAt": "2026-08-11",
@@ -201,6 +201,7 @@
       "status": "REFERENCE",
       "directness": "CONTEXT",
       "sourceIds": [
+        "SRC-FRH-GREAT-RECESSION",
         "MP-FED-ED"
       ],
       "asOf": null,
@@ -234,8 +235,8 @@
       "status": "REFERENCE",
       "directness": "CONTEXT",
       "sourceIds": [
-        "MP-FED-MP",
-        "MP-TREASURY"
+        "SRC-FRED-DFII10",
+        "MP-FED-MP"
       ],
       "asOf": null,
       "reviewedAt": "2026-08-11",
@@ -268,8 +269,8 @@
       "status": "REFERENCE",
       "directness": "CONTEXT",
       "sourceIds": [
-        "MP-FED-MP",
-        "MP-TREASURY"
+        "SRC-FRED-WALCL",
+        "MP-FED-MP"
       ],
       "asOf": null,
       "reviewedAt": "2026-08-11",
@@ -338,8 +339,8 @@
       "status": "REFERENCE",
       "directness": "CONTEXT",
       "sourceIds": [
-        "MP-TREASURY",
-        "MP-IMF"
+        "SRC-FRED-T10Y2Y",
+        "MP-TREASURY"
       ],
       "asOf": null,
       "reviewedAt": "2026-08-11",
@@ -423,7 +424,7 @@
       "status": "REFERENCE",
       "directness": "CONTEXT",
       "sourceIds": [
-        "MP-TREASURY",
+        "SRC-BIS-BULL90",
         "MP-IMF"
       ],
       "asOf": null,
@@ -685,6 +686,7 @@
       "status": "REFERENCE",
       "directness": "CONTEXT",
       "sourceIds": [
+        "SRC-SEC-GME-2021",
         "MP-SEC"
       ],
       "asOf": null,
@@ -1864,8 +1866,7 @@
       "status": "REFERENCE",
       "directness": "CONTEXT",
       "sourceIds": [
-        "MP-BOK",
-        "MP-KRX",
+        "SRC-NTS",
         "MP-SEC"
       ],
       "asOf": null,

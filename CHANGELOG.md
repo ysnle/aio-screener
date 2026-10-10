@@ -1,3 +1,13 @@
+## v57.32 (2026-10-10)
+- **시장 분석 검증의 지표 경계·반복 숫자·언어 판정 보완 (P1594):** 지표별 절 경계·단위/변동 표현으로 현재 수준을 읽고 모든 반복 언급을 검증한다. 언어 검사에서는 알려진 지표 이름만 제거한다. 검증기 v3와 실제 차단 이유를 metadata에 보존한다.
+- **Worker 보완 예약 요청의 중복 억제와 접수 관측 (P1595):** 최근 queued/active 및 25분 이내 성공은 coalesce한다. 관측 실패에는 POST하지 않으며 본문 포함 timeout을 적용한다. 자격증명 없는 receipt를 KV와 health에 보존하고 접수를 실행 성공과 구분한다. 동일 슬롯 억제는 KV eventual consistency 범위의 최선 노력이다.
+- **운영 게이트 통과와 전체 건강 상태 분리 (P1596):** 개별 Pages 관측을 수집하고 gateStatus와 overall status를 분리한다. 실제 AI reason/시장·watchdog 도착 간격/Worker receipt를 관측하며 nonblocking DEGRADED도 Step Summary와 별도 artifact에 보존한다.
+- **장기 SLO 조회·기간·cron 분모 무결성 보완 (P1597):** 필수 도메인 pagination/일수, 유효 창 및 main, run ID 중복 배제를 적용한다. cron 슬롯을 실제 확장·범위 검증·합집합 계산한다. main 실행을 최대 3000개 읽고 상한 도달 시 인증을 보류한다. 이슈 페이지 종료 조건은 PR 제거 전 길이를 사용한다.
+- **실패 알림 최신성·서명 (P1598):** stale/계획 취소 이벤트를 배제하고 해당 workflow 조회 상한·전체 SHA256 서명·성공 no-op으로 오경보와 불필요 API 읽기를 줄인다.
+- **Frontend visual pass (P1599):** home pairs the index with participation over the same period, the briefing compares asset moves on a zero line, 13F shows its quarter trend, analysis notes draw parallel effects as parallel, theme detail opens where it was clicked, and charts state period, scale and colour meaning.
+- **Audit remainder (P1600):** industry and lesson text carries its scope, lesson sources read in Korean with event records where a lesson tells a dated event, glossary entries are conditional and dated, 13F lookup flags a filer whose value implies a different price, machine translation keeps who affects whom, and each industry opens with a map of its parts.
+- R1 7곳 v57.32
+
 ## v57.31 (2026-10-10)
 - Conflict resolver now detects which merge side is main (P1566).
 - Headers no longer show the 0-100 market score or a letter grade; fallback text drops entry/stop wording (P1567).

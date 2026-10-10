@@ -129,6 +129,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
 
   // 3. Drivers
   const drivers = doc.getElementById('briefing-driver-rows');
+  renderMoveChart(doc, drivers, read.moves || []);
   if (drivers) {
     drivers.replaceChildren(...(read.drivers || []).filter((row) => row.values.length).map((row) => {
       const box = el(doc, 'div', null, 'briefing-driver');
@@ -150,12 +151,58 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   // 4. Next checks — dated events first, then what the tape itself asks to confirm.
   const checks = doc.getElementById('briefing-check-list');
   if (checks) {
-    const upcoming = schedule.filter((row) => !row.passed && row.kind === 'macro').slice(0, 2).map((row) => `${row.when} ${row.label} — ${row.why}`);
-    const items = [...upcoming, ...(read.checks || [])];
+    // P1599 (H06): dated releases live in the schedule right below (with their 'why'); repeating them here read
+    // the same CPI line twice. Checks are what the tape itself asks to confirm, plus one pointer to the next release.
+    const nextRelease = schedule.find((row) => !row.passed && row.kind === 'macro');
+    const items = [...(read.checks || [])];
+    if (nextRelease) items.push(`다음 주요 발표: ${nextRelease.when} ${nextRelease.label} (아래 일정에서 무엇을 볼지 확인)`);
     checks.replaceChildren(...(items.length ? items.map((text) => el(doc, 'li', text)) : [el(doc, 'li', '특별히 확인할 변곡 신호가 없습니다.')]));
   }
   page.dataset.aioBriefingRenderer = 'native-read';
   if (typeof root._aioRenderMarketAnalysisSinks === 'function') {
     try { root._aioRenderMarketAnalysisSinks(); } catch (_) {}
   }
+}
+
+// P1599 (F101): 1-day and 5-day moves as bars from a zero line, so which asset moved most is visible before
+// reading the numbers. Percent rows share one scale; basis-point rows get their own block and scale.
+function renderMoveChart(doc, anchor, moves) {
+  const host = anchor?.parentElement;
+  if (!host) return;
+  host.querySelector('.briefing-move-chart')?.remove();
+  if (!moves.length) return;
+  const wrap = el(doc, 'div', null, 'briefing-move-chart');
+  wrap.setAttribute('role', 'img');
+  wrap.setAttribute('aria-label', `자산별 1일·5일 등락: ${moves.map((row) => `${row.label} 1일 ${fmtMove(row.d1, row.unit)}, 5일 ${fmtMove(row.d5, row.unit)}`).join('; ')}`);
+  for (const unit of ['%', 'bp']) {
+    const rows = moves.filter((row) => row.unit === unit);
+    if (!rows.length) continue;
+    const max = Math.max(...rows.flatMap((row) => [Math.abs(row.d1 || 0), Math.abs(row.d5 || 0)]), unit === '%' ? 0.5 : 2);
+    const block = el(doc, 'div', null, 'briefing-move-block');
+    block.append(el(doc, 'div', unit === '%' ? '가격 등락(%) — 막대 = 1일(진하게) · 5일(옅게), 0 기준 양쪽 · 달러·환율은 오르내림에 좋고 나쁨이 없어 회색' : '금리 변화(bp) — 다른 단위라 따로 표시', 'briefing-move-head'));
+    for (const row of rows) {
+      const line = el(doc, 'div', null, 'briefing-move-row');
+      line.append(el(doc, 'span', row.label, 'briefing-move-label'));
+      const track = el(doc, 'span', null, 'briefing-move-track');
+      for (const [key, cls] of [['d5', 'is-5d'], ['d1', 'is-1d']]) {
+        const value = row[key];
+        if (!Number.isFinite(value)) continue;
+        const bar = el(doc, 'span', null, `briefing-move-bar ${cls} ${row.unit === 'bp' || row.neutral ? 'is-rate' : value >= 0 ? 'is-up' : 'is-down'}`);
+        const width = Math.abs(value) / max * 50;
+        bar.style.width = `${Math.max(0.6, width).toFixed(1)}%`;
+        bar.style.left = value >= 0 ? '50%' : `${(50 - width).toFixed(1)}%`;
+        track.append(bar);
+      }
+      line.append(track, el(doc, 'span', `${fmtMove(row.d1, row.unit)} · ${fmtMove(row.d5, row.unit)}`, 'briefing-move-value'));
+      block.append(line);
+    }
+    wrap.append(block);
+  }
+  host.insertBefore(wrap, anchor);
+}
+
+function fmtMove(value, unit) {
+  if (!Number.isFinite(value)) return '—';
+  const digits = unit === 'bp' ? 0 : 1;
+  return `${value > 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
 }

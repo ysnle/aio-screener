@@ -1312,3 +1312,51 @@ Buffett의 최신 핵심 변화와 분기 추이 탭을 실제 열었다. 신고
 브라우저 관찰과 이 정적 결과는 별도 증거다. 현재 시각 검토의 판단/제안과 실제 고장 확정을 구분한다. 전체19화면의 방향을 정리했지만 모든 상태·모든 데이터·모든 접근성·모든 외부 사실을 완료했다고 말하지 않는다. 스킬/코드 수정/버전 변경/commit/push/deploy 없음.
 
 현재 점검 탭은 홈 대시보드에 남겨 두었다. [인계 시점 대시보드 화면](./dashboard-handoff-round10.jpg)을 보존했다. 별도 localhost 탭의 합성 보유2개는 후속 재현을 위해 유지했으며 실제 보유로 취급하지 않는다.
+
+## 11차 · 운영 배포·검토 기능·자동화·AI/API 대조 (2026-10-10 21:52 KST)
+
+상세 근거·각 run/시각·판정 경계는 [운영 점검 보고](./OPERATIONS-AI-REVIEW.md), 최근100건 실행 메타데이터는 [OPERATIONS-RUN-OBSERVATIONS.json](./OPERATIONS-RUN-OBSERVATIONS.json)에 보존했다. 아래8개 기록을 추가해 총220개(원래99+F121)이며 결함220개라는 뜻은 아니다. 운영 채팅 화면1개를 추가하여 화면 증거는42개다. 이전10차 결론을 최신 배포 인증으로 바꾸지 않는다.
+
+### F114 · 정상 · 최신 main/CI/Pages/Workers 실제 배포 확인
+
+GitHub main과 local HEAD는 de0079c07823b97c3e22e183508985fb75338b03, v57.31. CI38051712949, Pages38052016464, AI38052016508, data-plane38052016453 모두 실제 실행·성공. 운영 deployment.json과 두 Worker health의 SHA도 일치한다. 다른 Harness의 커밋/배포이며 이 감사가 실행한 것이 아니다. local dirty 변경은 이 인증 밖이다.
+
+### F115 · 정상 및 경계 · Code Review/auto_review/CodeQL 기능 구분
+
+사용자 config에 auto_review와 Code Review 플러그인 enabled=true. 이번 공개 GET 승인 경로 실행과 Code Review PR15 checks 읽기 성공. 최신 main CodeQL3언어 분석도 성공. 이 셋은 실행 승인, PR 검토 도구, 정적 보안 분석이다. main 직접push에 대한 Codex 자동 PR 리뷰가 수행됐다는 증거는 없다. PR15 reviews/comments는 비어 있고 cloud repository/개인 trigger 설정은 미검증이다. 활성 기능이 매 커밋의 의미/디자인을 자동 검수한다고 해석하면 안 된다.
+
+### F116 · 정상 · 운영 AI 최소 채팅과 대표 API 직접 확인
+
+운영 #home에서 AI ON·입력 활성, 연결 질문 → “연결 정상”, GPT-6 Luna 표기. [실제 응답 화면](./production-ai-chat-operations.jpg). Worker /quotes는 HTTP200/16개, 프록시 NVDA5일 일봉 HTTP200/timestamp5개/error=null. 기본 통신 성공이며 장문 분석 정확도·모든 API·개인키·동시사용 인증은 아니다. 실제 사용자 투자 정보나 개인 키 입력 없이 최소 질문1회만 전송했다. 정확한 AI 요금/월 잔액은 미조회다.
+
+### F117 · 우선1 · 자동 시장 AI 분석 산출물 blocked
+
+운영 data.json에서 marketAnalysisOk=false/semanticOk=false/status=blocked/model=none. 구체적 semanticIssues는 language-not-korean 및 VIX/US10Y/DXY/WTI/gold 숫자 매칭 실패다. 최신 Refresh market data 전체run이 성공했어도 LLM Analysis는 WARN이다. 원 모델 응답과 검증기를 함께 보지 않아 환각/파서 결함 어느 쪽인지 확정하지 않는다. 검증을 낮추지 말고 근거·단위·원문을 재현해서 후속 수정할 사안이다.
+
+### F118 · 우선1 · 30분 보완 dispatch 연결 미구성·실제 주기 공백
+
+운영 data-plane health schedulerDispatch.configured=false. refresh-data.yml은 P1377 GitHub4~6시간 지연을 보완하려 Worker30분 dispatch를 설계했지만 해당경로가 현재 미구성이다. 시장 갱신run02:24Z→09:02Z 약6시간38분, watchdog01:00Z→07:17Z 약6시간17분 간격. 설정 cron과 실제 cadence가 다르다. 5분 Worker시세 heartbeat가 시장/뉴스 Actions 갱신까지 보장하지 않는다. 원격 토큰 binding/provisioning와 실제 dispatch 이력을 후속 확인해야 한다. 이번에 설정을 변경하지 않았다.
+
+### F119 · 운영 주의 · 실패 복구와7/30일 SLO 미인증
+
+시장·스크리너·watchdog 최신run은 성공. 최근 시장실패는4개 주요상품의 STALE_UNEXPECTED를 reconciliation에서 차단했고 promotion/commit/CI dispatch도 공개를 막았다. 이후복구를 확인했지만 최신watchdog의 SLO-window는 NOT_CERTIFIED/7d FAIL/30d FAIL, market/screener/watchdog DEGRADED다. 최신success와 지속안정성을 분리한다. operations-alert success도 원본실패 해결 증거로 대체하지 않는다.
+
+### F120 · 미검증 및 작업 잔여 · 장주기 검토와 데이터/API 채택
+
+주간knowledge/macro와 월간universe 최신run 성공, annual-calendar run조회는 빈배열이라 실제 실행 미검증이다. macroissue17의9개 차이와1개 누락calendar, universeissue16, Dependabot PR7/8/13은 열려 있다. 사람검토가 남는다. public-config fastQuotes.enabled=false/soak0/rightsReviewed=false라 fastAPI연결성공을 정식사용/권리·soak인증으로 확대하지 않는다. FRED/BOK/KOSIS 개인키/인증 API와 AI월잔액은 직접검증하지 않았다.
+
+### F121 · 환경 정정 · sandbox 오류를 운영 장애로 판정하지 않음
+
+초기 sandbox의 DNS/gh invalid, IABWorker직접URL blocked가 있었다. 승인된 읽기전용네트워크 경로에서 gh keyring로그인 정상과 운영health/quotes/chart200을 확인했다. 초기오류를 계정만료/운영장애로 고정하지 않는다. 과거local AI unavailable 역시 운영AI장애를 증명하지 않는다. 최신운영관찰로 보완하되 과거기록을 삭제하지 않았다.
+
+이번작업은 스킬/앱코드/설정/producer/commit/push/deploy 없이 관찰자료만 기록했다. AI응답 기본연결은 직접 검증, 자동화token AI는 배포smoke 실행 근거, cloud 자동PR리뷰 설정·전체API·장기안정성은 미검증/잔여 상태다.
+
+### 11차 기록 검증
+
+정확한 감사 문서4개를 지정한 affected closeout은 pass8/cached4/fail2/skip0이었다. 실패는 이전과 같은 generated-state(CURRENT-STATE.md stale), workspace-contract(현재 상태 생성물 불일치)다. 기존 진행 중인 앱 변경을 이 감사에서 재생성/수정하지 않았다. [이번 검사 결과](../../.cache/aio-qa/runs/2026-10-10T12-54-46-608Z-43656-3tntef.json). 감사 자료4개의 UTF-8/LF/대체 문자 없음, run JSON100개 파싱, git diff --check는 확인했다. 운영 CI의 성공은 커밋 SHA에 대한 원격 증거이고 현재 dirty 로컬 전체 QA 통과와 다르다.
+
+## 운영 코드 작업 후속 인계 (2026-10-10)
+
+사용자 요청 12/13으로 운영 코드 변경이 승인됐다. Claude 프론트엔드 변경 보존 상태에서 격리한 구현과 결함 재현·검증·잔여 작업은 [OPERATIONS-IMPLEMENTATION.md](./OPERATIONS-IMPLEMENTATION.md)에 중간 기록한다. 이 문서의 기존 220개 읽기/관찰 기록을 220개 결함 또는 구현 완료로 바꾸지 않는다. 운영 적용과 commit/push/deploy는 아직 수행하지 않았다.
+
+운영 코드 후속의 최종 상태: 로컬 v57.32, P1594~P1598/R701 구현·기록 및 main 통합 완료. Claude 프론트엔드와 기존 QA 화면 증거 보존 확인. 운영/워크플로 계약과 browser-runtime 8개 PASS. 전체 affected는 기존 frontend decomposition 증가 때문에 최종 전체 PASS가 아니며 32개 후속 SKIP을 별도 보존했다. 22:27 KST 재관측에서도 dispatcher 미설정 및 market/watchdog 도착 지연이 남았다. 상세 원문·소유권·검사 결과·미검증 및 적용 조건은 OPERATIONS-IMPLEMENTATION.md, OPERATIONS-OWNERSHIP.json, OPERATIONS-QA-EVIDENCE.json, OPERATIONS-LIVE-20261010-2227.json을 참조한다. 실제 commit/push/deploy 없음.

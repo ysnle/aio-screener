@@ -135,7 +135,6 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   const lead = groups.Leading || [];
   const improving = groups.Improving || [];
   const lagging = groups.Lagging || [];
-  const parts = Object.entries(QUADRANT_WORDS).map(([key, word]) => (names(key).length ? `${word} ${names(key).join('·')}` : null)).filter(Boolean);
   const ahead = [...lead, ...improving];
   const defensiveAhead = ahead.filter((item) => DEFENSIVE.has(String(item.symbol || '').toUpperCase())).length;
   const style = !ahead.length ? '시장보다 강해지는 섹터가 없습니다'
@@ -147,7 +146,11 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   const breadth = regime?.axes?.find((row) => row.id === 'breadth');
   const tie = concentration && breadth?.state === 'burden' ? ' 시장 상태의 시장 폭 부담(참여 종목 감소)과 같은 그림입니다.'
     : concentration && breadth?.state === 'favorable' ? ' 다만 시장 폭은 우호라 종목 참여는 아직 넓습니다.' : '';
-  const read = `${parts.join(' · ')}. ${style}.${concentration}${tie}`;
+  // P1599 (F104): the headline names the leaders and the counts; every sector already sits in the quadrant
+  // cards right below, so listing all eleven here made the one-line read a paragraph.
+  const counts = concentration ? '' : ` 약화 ${(groups.Weakening || []).length} · 후행 ${lagging.length}.`;
+  const leaders = [lead.length ? `선도 ${names('Leading').join('·')}` : '선도 섹터 없음', improving.length ? `개선 ${names('Improving').join('·')}` : null].filter(Boolean).join(' · ');
+  const read = `${leaders}. ${style}.${concentration}${counts}${tie}`;
   const next = [];
   if (improving.length) next.push({ route: 'screener', label: '스크리너', why: `개선 사분면(${names('Improving').join('·')})에서 상대강도가 먼저 오르는 종목` });
   if (breadth) next.push({ route: 'breadth', label: '시장 폭', why: `섹터 쏠림이 참여 종목 수(시장 폭 ${breadth.stateLabel})에도 나타나는지` });

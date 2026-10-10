@@ -18,17 +18,10 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "MP-BOK",
-      "url": "https://www.bok.or.kr/eng/main/main.do",
-      "publisher": "Bank of Korea",
-      "title": "Bank of Korea",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "MP-KRX",
-      "url": "https://global.krx.co.kr/main/main.jsp",
-      "publisher": "Korea Exchange",
-      "title": "Korea Exchange",
+      "sourceId": "SRC-NTS",
+      "url": "https://www.nts.go.kr/",
+      "publisher": "국세청",
+      "title": "국세청",
       "sourceTier": null
     },
     {
@@ -68,10 +61,8 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "researchFactIds": [
-    "fact:krx:listed-products"
-  ],
-  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "researchFactIds": [],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -80,9 +71,9 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 세금·계좌·환율 비용 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCHED",
+  "status": "RESEARCH_IN_PROGRESS",
   "completion": {
-    "researchComplete": true,
+    "researchComplete": false,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

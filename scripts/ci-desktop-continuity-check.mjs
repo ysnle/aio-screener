@@ -134,7 +134,9 @@ for (const route of ['screener', 'themes', 'portfolio', 'technical', 'fundamenta
 uiContext.renderTickerNavigation(documentRef, {}, {});
 assert.equal(nodes.get('ticker-fundamental-link').disabled, true);
 uiContext.renderTickerNavigation(documentRef, { id: 'NVDA' }, { AIO: { state: { tickerReturnRoute: 'javascript:bad' } } });
-assert.equal(nodes.get('ticker-back-btn-main').getAttribute('data-arg'), 'fundamental');
+// P1599 (S01): an unknown or unsafe entry route never becomes a link target, and no fake origin is named — the back button hides.
+assert.notEqual(nodes.get('ticker-back-btn-main').getAttribute('data-arg'), 'javascript:bad');
+assert.equal(nodes.get('ticker-back-btn-main').hidden, true, 'no recorded entry route hides the back button');
 
 const dataSource = read('js/aio-data.js');
 vm.runInContext(dataSource.slice(dataSource.indexOf('function _aioLiveNum('), dataSource.indexOf('window._aioLiveNum =')), uiContext);
@@ -162,7 +164,11 @@ vm.runInContext(screenerSource.replace(/^import .*;\r?$/gm, '').replace(/^export
   screenerSource.slice(screenerSource.indexOf('const renderCompareTray ='), screenerSource.indexOf('const saveCurrentScreen =')) + '\nrenderCompareTray();', compareContext);
 const compareTable = nodes.get('scr-compare-list').children[0];
 assert.equal(compareTable.getAttribute('aria-label'), '선택 종목 비교');
-assert.equal(compareTable.children[1].children.length, 8, 'comparison contains actual metric rows, not only ticker chips');
+// P1599 (F08): a metric with no value for any compared stock is listed once under the table instead of as an empty row.
+const prunedNote = nodes.get('scr-compare-list').children[1];
+const prunedCount = prunedNote ? String(prunedNote.textContent || '').split(':').pop().split(' · ').filter((item) => item.trim()).length : 0;
+assert(compareTable.children[1].children.length >= 1, 'comparison contains actual metric rows, not only ticker chips');
+assert.equal(compareTable.children[1].children.length + prunedCount, 8, 'every compared metric is either a row or named in the pruned note');
 assert(compareTable.textContent.includes('90') && compareTable.textContent.includes('60'));
 vm.runInContext("nativeCapCell = createColumnContent(documentRef, { mcap:null, nativeMarketCap:{ value:200000000000000, currency:'KRW', source:'fixture', observedAt:'2026-08-31', rightsId:'REVIEW_REQUIRED' } }, 'mcap', { readLiveData:()=>({}) }); blockedCapCell = createColumnContent(documentRef, { mcap:null, nativeMarketCap:{ value:200000000000000, currency:'KRW', rightsId:'BLOCKED' } }, 'mcap', { readLiveData:()=>({}) });", compareContext);
 assert.equal(compareContext.nativeCapCell.textContent, 'KRW 200.0T · 참고');

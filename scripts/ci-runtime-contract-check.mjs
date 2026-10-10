@@ -336,10 +336,11 @@ check('runtime evidence labels start unavailable and recent-news copy does not c
   && !/id="breadth-source"[^>]*>\s*Live Data\s*<\/div>/i.test(html)
   && !/최근 7일 뉴스\s*\(실시간/.test(html)
   && !/Finnhub \(실시간 시세\)/.test(html));
+// P1600: the corrected sentences lived in AIO_PAGE_FUNDAMENTALS, a page-help registry nothing rendered; it was
+// removed, so only the absence of the overstated claims is asserted.
 check('educational copy does not claim unverified win-rate or factor explanatory power', !/2~3일 확인 후 비중을 올리는 편이 승률이 높습니다/.test(ui)
-  && /승률을 높인다는 근거는 검증되지 않았으므로/.test(ui)
   && !/팩터가 실제로 수익률을 설명해 왔는지의 증거/.test(ui)
-  && /예측력이나 수익률 설명력을 인증하는 증거가 아니/.test(ui));
+  && !/AIO_PAGE_FUNDAMENTALS/.test(ui));
 check('news fallback titles must not expose translation-pending placeholder text', !/return\s+['"`]\[번역 대기\]/.test(data) && !/\[번역 대기\]\s*['"`]\s*\+/.test(data));
 check('put/call badge renders localized source state instead of raw enum labels', /스냅샷\s*·\s*참고/.test(data) && !/SNAPSHOT\s*·\s*reference/.test(data));
 check('public readiness exposes page-level source/asOf matrix with localized labels', /pageEvidenceRows/.test(data) && /weakPages/.test(data) && /aio-public-readiness-pages/.test(data) && /aio-public-page-source/.test(html) && /_aioPublicReadinessSourceText/.test(data) && /_aioPublicReadinessPageText/.test(data) && /시각 확인 중/.test(data));
@@ -1196,7 +1197,7 @@ check('P783: boot waits for the same-origin snapshot and server macro/HY success
   /_aioServerMacroReady/.test(data) &&
   /!_aioServerHyReady/.test(data));
 check('P783: blocked-external-network Chromium gate asserts the reference-only snapshot topbar',
-  read('scripts/ci-architecture-browser-check.mjs').includes('/^서버 .+ · 16개$/') &&
+  read('scripts/ci-architecture-browser-check.mjs').includes('/^서버 .+ · 시세 16종$/') &&
   /snapshot quote topbar must stay reference-only/.test(read('scripts/ci-architecture-browser-check.mjs')));
 
 check('P784/SA-01: Yahoo chart requests use the shared proxy registry health path', (() => {

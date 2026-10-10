@@ -132,6 +132,8 @@ function renderCapexFlow(doc, root, host, model) {
   }
   host.append(bar);
   const grid = el(doc, 'div', null, 'capex-flow-grid');
+  // P1599 (F105/T08): one shared week axis for every card, derived from the data and stated on screen.
+  const maxWeeks = Math.max(1, ...AI_BOTTLENECK_LEAD_TIMES.rows.map((row) => Number(row.weeks?.[1]) || 0));
   for (const layer of AI_CAPEX_FLOW.layers) {
     const card = el(doc, 'section', null, 'capex-flow-card');
     card.dataset.layer = layer.id;
@@ -155,8 +157,9 @@ function renderCapexFlow(doc, root, host, model) {
         const li = el(doc, 'li', null, row.balanced ? 'is-balanced' : '');
         const meter = el(doc, 'span', null, 'capex-flow-meter');
         const fill = el(doc, 'span', null, 'capex-flow-meter-fill');
-        fill.style.left = `${row.weeks[0] / 420 * 100}%`;
-        fill.style.width = `${Math.max(2, (row.weeks[1] - row.weeks[0]) / 420 * 100)}%`;
+        fill.style.left = `${row.weeks[0] / maxWeeks * 100}%`;
+        fill.style.width = `${Math.max(2, (row.weeks[1] - row.weeks[0]) / maxWeeks * 100)}%`;
+        meter.title = `${row.item} 납기 ${row.weeks[0]}~${row.weeks[1]}주 (공통 축 0~${maxWeeks}주)`;
         meter.append(fill);
         li.append(el(doc, 'span', row.item, 'capex-flow-item'), meter, el(doc, 'span', `${row.weeks[0]}~${row.weeks[1]}주${row.balanced ? ' · 원활' : ''}`, 'capex-flow-weeks'));
         list.append(li);
@@ -165,6 +168,7 @@ function renderCapexFlow(doc, root, host, model) {
     }
     grid.append(card);
   }
+  host.append(el(doc, 'p', `각 카드 아래 막대는 관련 부품·장비의 납기 범위(최소~최대)입니다. 모든 카드가 같은 0~${maxWeeks}주 축이라 길이를 서로 비교할 수 있습니다.`, 'theme-strength-basis'));
   host.append(grid);
   host.append(el(doc, 'p', `리드타임: ${AI_BOTTLENECK_LEAD_TIMES.source} — ${AI_BOTTLENECK_LEAD_TIMES.note}`, 'theme-strength-basis'));
 }

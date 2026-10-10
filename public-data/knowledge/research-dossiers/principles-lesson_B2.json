@@ -18,17 +18,17 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
+      "sourceId": "SRC-BLS-CPI-2022",
+      "url": "https://www.bls.gov/opub/ted/2022/consumer-prices-up-9-1-percent-over-the-year-ended-june-2022-largest-increase-in-40-years.htm",
+      "publisher": "U.S. Bureau of Labor Statistics",
+      "title": "Consumer prices up 9.1 percent over the year ended June 2022",
+      "sourceTier": null
+    },
+    {
       "sourceId": "MP-BLS",
       "url": "https://www.bls.gov/cpi/",
       "publisher": "U.S. Bureau of Labor Statistics",
       "title": "Consumer Price Index",
-      "sourceTier": null
-    },
-    {
-      "sourceId": "MP-FED-ED",
-      "url": "https://www.federalreserve.gov/education.htm",
-      "publisher": "Federal Reserve",
-      "title": "Education",
       "sourceTier": null
     },
     {
@@ -79,7 +79,8 @@
   ],
   "researchFactIds": [
     "fact:fred:real-rates",
-    "fact:bls:cpi"
+    "fact:bls:cpi",
+    "fact:bls:2026-june-headline-core"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

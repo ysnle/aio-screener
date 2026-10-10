@@ -25,6 +25,17 @@ const STYLE = `
 .af-flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 14px}
 .af-flow-step{font-size:12px;padding:6px 10px;border:1px solid var(--border-subtle);border-radius:3px;background:var(--surface-2);color:var(--text-primary)}
 .af-flow-arrow{font-size:12px;color:var(--text-muted)}
+.af-domain-map{margin:4px 0 20px;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--surface-1)}
+.af-domain-map-title{font-size:12px;font-weight:700;color:var(--text-primary);margin:0 0 8px}
+.af-domain-map-list{list-style:none;margin:0;padding:0;display:grid;gap:0;position:relative}
+.af-domain-map-item{position:relative;padding-left:0}
+.af-domain-map-item+.af-domain-map-item::before{content:'';position:absolute;left:11px;top:-6px;height:12px;border-left:1px solid var(--border-strong,var(--border-subtle))}
+.af-domain-map-step{display:grid;grid-template-columns:22px 1fr;column-gap:10px;row-gap:1px;width:100%;text-align:left;background:none;border:0;padding:6px 4px;border-radius:3px;cursor:pointer;color:var(--text-primary);font:inherit}
+.af-domain-map-step:hover{background:var(--surface-2)}
+.af-domain-map-step:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.af-domain-map-num{grid-row:span 2;width:22px;height:22px;border-radius:50%;border:1px solid var(--border-subtle);background:var(--surface-2);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.af-domain-map-step strong{font-size:13px;line-height:1.5}
+.af-domain-map-role{grid-column:2;font-size:12px;line-height:1.5;color:var(--text-secondary)}
 .af-stack{display:flex;flex-direction:column;gap:4px;margin:6px 0 10px}
 .af-stack-layer{border:1px solid var(--border-subtle);border-radius:3px;padding:7px 10px;background:var(--surface-2);font-size:13px;color:var(--text-secondary)}
 .af-stack-layer strong{color:var(--text-primary);margin-right:8px}
@@ -72,6 +83,7 @@ const STYLE = `
 .af-table th,.af-table td{border:1px solid var(--border-subtle);padding:5px 10px;text-align:right}
 .af-table th:first-child{text-align:left}
 .af-table thead th{background:var(--surface-2);color:var(--text-primary)}
+.af-fanout{margin:6px 0 14px}.af-fanout-source{font-size:12px;font-weight:700;margin:0 0 6px}.af-fanout-paths{display:grid;gap:6px;margin-bottom:6px}
 .af-branches{display:grid;gap:8px;margin:6px 0 14px}.af-branch{border-left:3px solid var(--border-subtle);padding:4px 0 4px 10px}.af-branch-when{font-size:12px;font-weight:700;color:var(--text-primary);margin:0 0 4px}.af-branch .af-flow{margin:0 0 4px}.af-branch-check{font-size:12px;color:var(--text-secondary);margin:0}
 .af-forces{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 8px;max-width:640px}
 .af-force{border:1px solid var(--border-subtle);border-radius:4px;padding:9px 11px;background:var(--surface-1)}
@@ -135,6 +147,21 @@ function figure(doc, spec) {
       grid.appendChild(box);
     });
     wrap.append(grid, el(doc, 'p', 'af-force-sum', `${spec.sum} → ${spec.effect}`));
+    return wrap;
+  }
+  // P1599 (F58): one shock reaching several parties at once. A single arrow chain read as 'producer revenue causes
+  // refinery cost causes chemical cost'; the fan-out draws parallel paths that meet only in the net result.
+  if (spec.kind === 'fanout') {
+    const wrap = el(doc, 'div', 'af-fanout');
+    wrap.appendChild(el(doc, 'p', 'af-fanout-source', spec.source));
+    const paths = el(doc, 'div', 'af-fanout-paths');
+    for (const path of spec.paths) {
+      const box = el(doc, 'div', 'af-branch');
+      box.appendChild(el(doc, 'p', 'af-branch-when', path.label));
+      box.appendChild(figure(doc, { kind: 'flow', steps: path.steps }));
+      paths.appendChild(box);
+    }
+    wrap.append(paths, el(doc, 'p', 'af-force-sum', spec.merge));
     return wrap;
   }
   // Codex browser audit H65: alternative outcomes drawn as one arrow chain read as a fixed sequence of

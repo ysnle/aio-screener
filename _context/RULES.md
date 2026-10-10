@@ -2,10 +2,16 @@
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
 last_verified: 2026-10-10
 confidence: medium
-target_version: v57.31
+target_version: v57.32
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R701. 운영 게이트와 전체 건강 상태 분리 (v57.32, P1596)
+
+**Rule**: blocking gate PASS를 전체 서비스 정상으로 승격하지 않는다. 선택 소스/AI 저하, 예약 실행 관측 누락은 DEGRADED로 기록하고 구체적 원인과 관측 시각을 보존한다. 요청 접수·작업 완료·장기 SLO 인증은 별도 증거로 판단한다.
+
+**Validation**: node scripts/ci-data-pipeline-contract-check.mjs — P1596 fixture; 외부 관측은 node scripts/ci-external-pipeline-check.mjs --mode observe로 별도 기록한다.
 
 ## R700. 템플릿 슬롯 뒤 조사는 받침으로 고른다 (v57.31, P1592)
 

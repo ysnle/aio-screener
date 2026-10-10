@@ -452,7 +452,8 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     // observedAt/source/freshness to the row itself and do not inherit the global LIVE badge,
     // which counts topbar coverage rather than this instrument's quote.
     const wrap = documentRef.createElement('span');
-    const value = text(documentRef, `${numberText(price, 2)}${currency && currency !== 'USD' ? ` ${currency}` : ''}`);
+    // P1599 (F06): won prices have no minor unit — show them as whole numbers with the ₩ sign instead of '161500.00 KRW'.
+    const value = text(documentRef, currency === 'KRW' ? `₩${Math.round(price).toLocaleString('en-US')}` : `${numberText(price, 2)}${currency && currency !== 'USD' ? ` ${currency}` : ''}`);
     value.dataset.quoteFreshness = observedAt ? 'observed' : 'unverified';
     value.title = `${currency || '통화 미확인'} · ${stamp} · ${source || '출처 미확인'} · ${observedAt ? '행 자체 관측' : '현재성 미확인 — 전역 LIVE에 상속하지 않음'}`;
     if (!observedAt) value.style.color = 'var(--text-muted)';
@@ -569,7 +570,9 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
     const field = fieldId && row.fieldReadiness?.fields?.[fieldId];
     if (field) {
       td.dataset.fieldStatus = field.status;
-      td.title = `${field.sourceId || '출처 미확인'} · 관측 ${field.observedAt || '시각 미확인'} · ${field.status}`;
+      // P1599 (F06): reader words for the field state; the raw code stays in data-field-status for tools.
+      const STATUS_WORDS = { CURRENT: '최신', INFERRED: '다른 값에서 계산', UNSUPPORTED: '이 종목에는 없는 항목', BLOCKED_RIGHTS: '사용 권리 확인 전', DELAYED: '지연된 종가 기준', STALE: '오래된 값', LAST_GOOD: '마지막 정상값', MISSING: '관측 시각 미확인', CONFLICT: '출처 간 값이 다름', UNAVAILABLE: '값 없음' };
+      td.title = `${field.sourceId || '출처 미확인'} · 관측 ${field.observedAt ? String(field.observedAt).slice(0, 10) : '시각 미확인'} · ${STATUS_WORDS[field.status] || field.status}`;
       if (field.status === 'CONFLICT' && fieldValueForPurpose(row, fieldId) != null) {
         const note = documentRef.createElement('small');
         note.textContent = '값 충돌 · 참고';
@@ -1718,7 +1721,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (list) {
            list.replaceChildren();
            if (compareSymbols.size) {
-             const rows = activeRows || selectScreenerState(store.getState())?.rows || [];
+             // P1599 (F08): the tray reads the same rows as the table (the preview carries price-derived fields).
+             const rows = activeRows || activePreview?.rows || selectScreenerState(store.getState())?.rows || [];
              const compared = [...compareSymbols].map((symbol) => rows.find((row) => (row.sym || row.symbol) === symbol) || { sym: symbol, screenStatus: 'unavailable' });
              const table = documentRef.createElement('table');
              table.setAttribute('aria-label', '선택 종목 비교');
@@ -1731,21 +1735,29 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
                th.scope = 'col';
                const button = documentRef.createElement('button');
                button.type = 'button'; button.className = 'aio-btn-table'; button.textContent = row.sym;
-               button.setAttribute('aria-label', `${row.sym} 종목 상세`);
+               button.setAttribute('aria-label', `${row.sym}${row.name ? ` ${row.name}` : ''} 종목 상세`);
                button.addEventListener('click', () => tickerHandler(row.sym));
-               th.append(button); heading.append(th);
+               th.append(button);
+               // P1599 (F08): the company name under the ticker — a six-digit KRX code alone is not a name.
+               if (row.name) { const name = documentRef.createElement('div'); name.textContent = row.name; name.style.cssText = 'font-size:11px;font-weight:400;color:var(--text-muted);'; th.append(name); }
+               heading.append(th);
              }
              const head = documentRef.createElement('thead'); head.append(heading); table.append(head);
              const body = documentRef.createElement('tbody');
+             // P1599 (F08): a comparison row where no compared stock has a value is dropped and named once below.
+             const emptyRows = [];
              for (const key of ['rank', 'price', 'ret1m', 'ret3m', 'rsi', 'vcpScore', 'value', 'quality']) {
+               const contents = compared.map((row) => createColumnContent(documentRef, row, key, { readLiveData: liveReader }));
+               if (key !== 'price' && contents.every((node) => /^[\s—-]*$/.test(typeof node === 'string' || typeof node === 'number' ? String(node) : node?.textContent || ''))) { emptyRows.push(SCREENER_COLUMN_REGISTRY.find((column) => column.key === key).label); continue; }
                const tr = documentRef.createElement('tr');
                const th = documentRef.createElement('th');
                th.scope = 'row'; th.textContent = SCREENER_COLUMN_REGISTRY.find((column) => column.key === key).label;
                tr.append(th);
-               for (const row of compared) tr.append(cell(documentRef, createColumnContent(documentRef, row, key, { readLiveData: liveReader })));
+               contents.forEach((content) => tr.append(cell(documentRef, content)));
                body.append(tr);
              }
              table.append(body); list.append(table);
+             if (emptyRows.length) { const note = documentRef.createElement('p'); note.style.cssText = 'font-size:11px;color:var(--text-muted);margin:6px 0 0;'; note.textContent = `비교 종목 모두 값이 없어 뺀 항목: ${emptyRows.join(' · ')}`; list.append(note); }
            }
          }
          const count = documentRef.getElementById('scr-compare-count');

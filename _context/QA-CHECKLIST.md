@@ -1,8 +1,21 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-10
+last_verified: 2026-10-11
 confidence: medium
 ---
+
+## v57.32 운영 자동화·분석 검증 (2026-10-10)
+
+- [x] QA-OPS-ANALYSIS-01: scripts/ci-data-pipeline-contract-check.mjs의 P1594 fixture가 다음 지표 숫자/퍼센트 변동/반복 오기/대문자 영어/S&P alias를 검증한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-OPS-DISPATCH-01: scripts/ci-data-plane-contract-check.mjs의 P1595 fixture가 대기/최근 성공/403/재시도/동일 슬롯/본문 정지/receipt credential redaction/health 노출을 검증한다. KV 상한에 receipt 48회를 포함한다. verify_by: node scripts/ci-data-plane-contract-check.mjs
+- [x] QA-OPS-HEALTH-01: scripts/ci-data-pipeline-contract-check.mjs의 P1596 fixture가 PASS/DEGRADED/FAIL, 원인 보존, 도착 간격, 미래 실행 및 summary wiring을 검증한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-OPS-SLO-01: scripts/ci-operations-slo-window-check.mjs의 P1597 fixture는 네 허위 PASS 입력과 cron step/중복/불가능 슬롯/조회 headroom을 반증하고 정상 fixture 인증을 유지한다. verify_by: node scripts/ci-operations-slo-window-check.mjs
+- [x] QA-OPS-ALERT-01: 최신 신뢰된 workflow 완료만 실패/복구 이슈를 변경하고 다른 실패는 전체 내용 signature로 구분한다. verify_by: node scripts/ci-workspace-contract-check.mjs
+- [x] QA-V5732-01: Home shows S&P 500 and the share of stocks above the 50-day line over the same period on separate axes. verify_by: home #home-participation in browser
+- [x] QA-V5732-02: Freshness dots, rate and FX visuals never use price up/down colours. verify_by: home dots and briefing move chart in browser
+- [x] QA-V5732-03: Theme detail opens under the clicked page block and offers a return link. verify_by: themes page click on a sector card
+- [x] QA-V5732-04: Lesson basis panels show Korean source names and what each source checks; dated-event lessons link the event record. verify_by: principles lesson E7 and A1 basis panel
+- [x] QA-V5732-05: 13F reverse lookup marks a filer whose implied per-share value differs from the others by more than 1%. verify_by: masters reverse lookup AAPL
 
 ## v57.31 v57.31 merge and decision batch (2026-10-10)
 

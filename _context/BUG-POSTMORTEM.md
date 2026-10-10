@@ -1,10 +1,73 @@
 ---
-last_verified: 2026-10-10
+last_verified: 2026-10-11
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1600 - v57.32 - Frontend audit remainder: scoped knowledge claims, readable lesson sources, glossary accuracy, 13F price gaps, translation repairs and an industry overview map (2026-10-11)
+
+- symptom/reproduction: Codex HANDOFF items left after P1599 (F27, F38, F39, F69, F71-F75, F85-F94, F109, F110, F112): industry and AI-foundation text stated case-specific numbers as universal ('a data centre equals a nuclear plant', 'without 2.5D HBM cannot be used', 'leases are invisible debt', a yield 1%p is 'hundreds of billions'); atlas labels and deep-guide titles mixed English words (Workload, Interposer, Pooling, Cloud Service Stack); the deep-guide heading jumped from h3 to h5; the basis panel of 112 lessons listed English page titles ('Education', 'Topics') as chapter background even where the lesson told a dated event, and the tax lesson pointed at no tax authority; glossary entries were categorical (Theta 'good for sellers', 0DTE 'high risk high reward', whisper 'stock falls'), had numbers without a year, an incomplete KOSPI circuit-breaker rule, and a BUY/SELL/HOLD entry that did not match the screener's '구조 분류' labels; the 13F reverse lookup hid that one filer's AAPL value implied a 2.6% lower price and did not say why one holding had 12 rows; the 13F metrics counted a 'review' bundle differently from the all-filer total; the free machine translation flipped 'exposure to X' and rendered 'earnings call' literally; an industry opened as four paragraphs with no map of its parts; a 310-line legacy page-help registry describing a retired trading score was still shipped.
+- root_cause: Knowledge text was written at the introduction level without carrying the scope that the detailed concept pages state, source registry entries had no reader-facing name or purpose, and UI counts and labels were derived independently from the data they summarise.
+- fix: Scoped the remaining claims (largest campus ~1GW, LEO satellite life, 2025 big-tech capex, conditional bond-issue reading, gross margin vs depreciation placement, lithium demand wording, KV-cache tiering, residual value direction); Korean labels for atlas nodes and deep-guide titles while keeping the required concept terms; h4 deep-topic heading; every lesson source gets a Korean name and what it checks, dated-event lessons (B2, C4, D2, D4, E2, E7, H4) link the record of that event and O5 links the National Tax Service for stock capital-gains filing only; glossary entries made conditional with base years and the full KRX rule, the signal entry renamed to the screener's labels; 13F lookup marks only a filer whose implied price is more than 1% off the median and explains split rows; review counts use filing flags everywhere; machine-translation phrase repairs and prompt rules for direction and idioms; an industry overview map listing the sub-areas in reading order with each one's role; removed the unreferenced legacy page-help registry.
+- violated_rule: An introduction carries the same scope (who, how large, when) as the detailed page it leads to; a reader-facing label names what it is in Korean; a count shown beside another count uses the same definition.
+- prevention: build-principles-lessons throws when a source lacks a Korean reading label; ci-atlas-contract-check still requires the deep-guide concept terms after the Korean titles; knowledge generated parity covers the rebuilt lesson library and dossiers.
+- verification/residual: Browser: power-grid industry shows the five-step map with roles; lesson E7 basis lists the BIS bulletin with the event it checks and A1 shows Korean source names; AAPL reverse lookup marks only JPMorgan (주당 약 $281.74, 2.6% 낮음); knowledge parity OK (18 builders, 655 files); atlas contract OK.
+
+## P1599 - v57.32 - Frontend audit visual pass: dashboards and infographics answer the page question, with honest scales and colours (2026-10-11)
+
+- symptom/reproduction: Codex VISUAL-INTERFACE-REVIEW and HANDOFF (F100-F113, H03-H06, M03-M07, A01-A08, T04-T07, S01-S04, G03, G05, F04-F08): home stated 'index up, participation down' with no picture of it; the briefing's asset flow was a number list; 13F quarter trends were a table only; analysis notes drew parallel effects as one causal chain; capex lead-time bars had no stated axis and five cards left one orphan; freshness dots were red beside green up-arrows; the yield sparkline and rate bars borrowed price up/down colours; macro sparklines had no scale and stretched on wide cards; the fx-bond page opened with the FX card; theme detail opened at the page bottom; the ticker summary repeated its charts in seven sentences and named a back route the reader never took; the glossary had 28 category buttons mixing subject, industry and difficulty; the top bar's bare '16개'; the two-stock comparison showed tickers only and empty rows.
+- root_cause: Visual elements were added screen by screen without a shared rule for what a chart must carry (period, scale, unit, colour meaning) and where a detail opens; several defaults (back origin, panel position, freshness colours) encoded an assumption instead of the reader's actual path or the data's meaning.
+- fix: Home 'index and participation, same period' pair (separate axes, shared range, one-line read); briefing 1d/5d move bars from a zero line with % and bp separated and neutral colour for rates, dollar and FX; 13F reported-value and row-count column charts with gaps for incomplete quarters; fan-out figure kind for parallel effects (energy, FX notes); capex lead-time axis derived from data and stated once, rows restacked, five layers in one row; freshness dots neutral (filled, amber, hollow) with accessible names; neutral yield sparkline with range in its title; macro sparkline high/low caption and width cap; KPI trends aligned to card bottom; fx-bond opens with the yield curve; valuation chain node marked as inference; growth card leads with the deciding indicator; theme detail opens under the clicked page block with a return link and two-column bars; ticker summary folds chart-restating rows, names its close basis, hides the back button without a recorded origin and the duplicate breadcrumb; seven glossary groups with pressed state and a named close button; top bar '시세 N종'; comparison tray shows company names, reads the table's rows and lists metrics with no value once; KRW prices as whole won; field states in reader words; COT chart period and range caption; deduplicated macro/TIPS/briefing notes; focus mode, loading, chart and settings wording.
+- violated_rule: A chart states its period, scale and unit, keeps different units on different axes, and uses up/down colour only where up or down has a direction of good; a detail opens where it was asked for.
+- prevention: ci-desktop-continuity-check asserts a hidden back button for an unknown origin and that every compared metric is a row or named once; browser architecture and runtime gates read the renamed top-bar count; RRG golden and unit checks unchanged.
+- verification/residual: Browser 1280x800: home pair reads '62거래일 S&P 500 +3.6% · 50일선 위 59% → 35%'; briefing bars with neutral dollar/FX/rate rows; 13F trend for Berkshire; theme detail under the RRG cards with aligned bars; capex rows restacked; glossary 7 groups summing to 356; comparison tray shows 1M/3M/RSI and prunes value/quality; NVDA summary with basis line and folded rows; macro growth card leads with payrolls; COT caption compact; fan-out figure in the energy note.
+
+## P1598 - v57.32 - 실패 알림의 최신 실행 소유권과 전체 서명 무결성 (2026-10-10)
+
+- symptom/reproduction: stale workflow_run 완료가 최신 이슈를 닫거나 재개할 수 있고, 긴 공통 접두부를 가진 다른 실패가 같은 signature로 축약될 수 있었다. 성공마다 실패 jobs 및 전체 저장소 실행 이력을 불필요하게 읽었다.
+- root_cause: 현재 run 최신성 및 저장소/event 신뢰 경계를 확인하지 않고, Base64 앞 96자만 서명으로 사용했으며 전체 저장소 run pagination을 사용했다.
+- fix: 신뢰된 main의 해당 workflow 최근 100개 완료 상태를 조회하고 최신 의미 있는 run만 알림을 변경한다. 계획된 skipped/neutral/cancelled는 무시한다. SHA256 전체 서명을 사용하고 성공 복구는 실패 jobs 조회 전에 처리한다.
+- violated_rule: R701 운영 상태는 관측 시각과 해당 최신 증거로 판정한다.
+- prevention: scripts/ci-workspace-contract-check.mjs의 P1598은 실제 github-script를 주입된 API로 실행하여 긴 공통 접두부 뒤 다른 실패 서명, stale/skipped mutation 없음, 성공의 실패 jobs no-op을 검증한다.
+- verification/residual: workspace contract fixture PASS; 실제 GitHub Issue 생성/수정/댓글 및 workflow dispatch는 하지 않았다.
+
+## P1597 - v57.32 - 장기 SLO 조회·기간·cron 분모 무결성 보완 (2026-10-10)
+
+- symptom/reproduction: query metadata 누락/하루 집중/미래 timestamp/중복 run ID에도 CERTIFIED_WINDOW가 가능했다. 정상 30일 시장 1470회는 조회 상한 1000회를 초과했다.
+- root_cause: 조회 객체의 존재 항목만 검사하고 시각 상한/관측 일수/ID 중복을 인증 조건에 반영하지 않았다. cron step을 floor로 계산하고 고정 10페이지로 조회했다.
+- fix: 필수 도메인 pagination/일수, 유효 창 및 main, run ID 중복 배제를 적용한다. cron 슬롯을 실제 확장·범위 검증·합집합 계산한다. main 실행을 최대 3000개 읽고 상한 도달 시 인증을 보류한다. 이슈 페이지 종료 조건은 PR 제거 전 길이를 사용한다.
+- violated_rule: R24-07 예정 도착과 독립 관측 근거
+- prevention: scripts/ci-operations-slo-window-check.mjs의 P1597 fixture는 네 허위 PASS 입력과 cron step/중복/불가능 슬롯/조회 headroom을 반증하고 정상 fixture 인증을 유지한다.
+- verification/residual: 로컬 SLO fixture PASS. 실제 운영 30일 인증 회복은 주장하지 않는다. workflow_dispatch는 schedule SLO에 포함하지 않는다.
+
+## P1596 - v57.32 - 운영 게이트 통과와 전체 건강 상태 분리 (2026-10-10)
+
+- symptom/reproduction: 선택 기능과 스케줄이 저하돼도 전체 PASS로 보고됐고, Pages 한 파일의 실패가 나머지 진단을 가렸다. AI 차단 이유는 키/예산 문제로 뭉뚱그려졌다.
+- root_cause: blocking errors만 전체 상태에 반영하고 Pages Promise.all을 사용했다. 구체적 분석 reason과 예약 도착 증거를 summary에 전달하지 않았다.
+- fix: 개별 Pages 관측을 수집하고 gateStatus와 overall status를 분리한다. 실제 AI reason/시장·watchdog 도착 간격/Worker receipt를 관측하며 nonblocking DEGRADED도 Step Summary와 별도 artifact에 보존한다.
+- violated_rule: R701 게이트 PASS는 선택 서비스·도착 cadence 정상 인증이 아니다
+- prevention: scripts/ci-data-pipeline-contract-check.mjs의 P1596 fixture가 PASS/DEGRADED/FAIL, 원인 보존, 도착 간격, 미래 실행 및 summary wiring을 검증한다.
+- verification/residual: 로컬 pure fixture와 구조 계약 PASS. 새 코드의 운영 예약 실행은 배포 후 별도 검증해야 한다.
+
+## P1595 - v57.32 - Worker 보완 예약 요청의 중복 억제와 접수 관측 (2026-10-10)
+
+- symptom/reproduction: GitHub 예약과 Worker 보완 요청이 중복 실행될 수 있고, 요청 결과와 오류를 운영 health에서 관측할 수 없었다.
+- root_cause: Worker가 이전 main 실행을 보지 않고 매 슬롯 POST했으며 결과를 지속 기록하지 않았다.
+- fix: 최근 queued/active 및 25분 이내 성공은 coalesce한다. 관측 실패에는 POST하지 않으며 본문 포함 timeout을 적용한다. 자격증명 없는 receipt를 KV와 health에 보존하고 접수를 실행 성공과 구분한다. 동일 슬롯 억제는 KV eventual consistency 범위의 최선 노력이다.
+- violated_rule: R24-07 운영 관측과 인증 분리
+- prevention: scripts/ci-data-plane-contract-check.mjs의 P1595 fixture가 대기/최근 성공/403/재시도/동일 슬롯/본문 정지/receipt credential redaction/health 노출을 검증한다. KV 상한에 receipt 48회를 포함한다.
+- verification/residual: 로컬 data-plane fixture PASS. 실제 토큰 설정 및 Worker 배포는 미수행.
+
+## P1594 - v57.32 - 시장 분석 검증의 지표 경계·반복 숫자·언어 판정 보완 (2026-10-10)
+
+- symptom/reproduction: 정상 VIX 문장이 다음 SPX 숫자나 변동률 때문에 차단되고, 두 번째 잘못된 숫자와 대문자 영어 분석은 통과했다.
+- root_cause: 고정 길이 첫 숫자 검색과 임의 대문자 토큰 삭제가 지표별 수준 및 실제 산문을 구분하지 못했다.
+- fix: 지표별 절 경계·단위/변동 표현으로 현재 수준을 읽고 모든 반복 언급을 검증한다. 언어 검사에서는 알려진 지표 이름만 제거한다. 검증기 v3와 실제 차단 이유를 metadata에 보존한다.
+- violated_rule: R670 직전 미국장 기준 및 검증된 근거만 표시
+- prevention: scripts/ci-data-pipeline-contract-check.mjs의 P1594 fixture가 다음 지표 숫자/퍼센트 변동/반복 오기/대문자 영어/S&P alias를 검증한다.
+- verification/residual: 로컬 data-pipeline fixture PASS. 유료 AI 추가 호출 및 운영 분석 재생성은 하지 않았다.
 
 ## P1593 - v57.31 - Frontend audit round 10: reversed part/whole relations, mismatched product links, fundamental tab losing its company and overstated copy (2026-10-10)
 

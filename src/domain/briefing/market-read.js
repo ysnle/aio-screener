@@ -332,7 +332,14 @@ export function buildMarketRead(input = {}) {
     points: lead.slice(1).map(({ text, reading }) => ({ text, reading })),
     checks: [...new Set(statements.filter((row) => row.check).map((row) => row.check))].slice(0, 3),
     statements,
-    drivers
+    drivers,
+    // P1599 (F101): structured moves for the briefing chart. Percent assets share one axis; the 10-year yield
+    // moves in basis points and is kept apart so the two units never share a scale.
+    moves: [
+      ['S&P 500', spx], ['나스닥', s.nasdaq], ['달러 인덱스', s.dxy], ['WTI', s.wti], ['금', s.gold], ['코스피', s.kospi], ['원/달러', s.usdkrw]
+    ].map(([label, stat]) => ({ label, unit: '%', neutral: label === '달러 인덱스' || label === '원/달러', d1: stat ? pct(stat.value, stat.d1) : null, d5: stat ? pct(stat.value, stat.d5) : null }))
+      .concat(tnx ? [{ label: '미 10년물', unit: 'bp', d1: bp(tnx.value, tnx.d1), d5: tnx5 }] : [])
+      .filter((row) => Number.isFinite(row.d1) || Number.isFinite(row.d5))
   };
 }
 

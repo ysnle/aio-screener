@@ -211,7 +211,7 @@ function renderLesson(doc, lesson, failed = false, sources = []) {
   const twist = story?.twist || lesson.counterScenario;
   if (twist) article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', twist));
   const byId = new Map(sources.map((source) => [source.id, source]));
-  const lessonSources = (lesson.sourceIds || []).map((id) => byId.get(id)).filter(Boolean).map((source) => ({ label: source.label || source.title, url: source.url, supports: lesson.sourceScope === 'chapter-background' ? '이 장 전체의 배경 자료' : '이 레슨의 주제 자료' }));
+  const lessonSources = (lesson.sourceIds || []).map((id) => byId.get(id)).filter(Boolean).map((source) => ({ label: source.label || source.title, url: source.url, supports: lesson.sourceNotes?.[source.id] || (lesson.sourceScope === 'chapter-background' ? `${source.checks || '이 장의 배경'} (장 전체 배경)` : source.checks || '이 레슨의 주제 자료') }));
   const basis = renderBasis(doc, { sources: lessonSources, asOf: lesson.reviewedAt || null });
   if (basis) article.appendChild(basis);
   return article;

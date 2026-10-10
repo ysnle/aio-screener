@@ -4247,7 +4247,7 @@
       "id": "atlas-foundation:workload-shape",
       "surface": "atlas-foundation",
       "surfaceLabel": "AI 기초",
-      "title": "AI Workload의 형태",
+      "title": "AI 작업 부하의 형태",
       "text": "AI workload shape는 학습·추론·batch·실시간·sequence 길이·동시성의 조합이다.",
       "group": "F5",
       "keys": [
@@ -4591,7 +4591,7 @@
       "id": "atlas:cloud-utilization",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "가동률·Workload 구성",
+      "title": "가동률·작업 구성",
       "text": "클라우드·AI 플랫폼 · Utilization / workload mix",
       "group": "클라우드·AI 플랫폼",
       "keys": [
@@ -4831,7 +4831,7 @@
       "id": "atlas:compute-interconnect",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "가속기 Interconnect",
+      "title": "가속기 연결(인터커넥트)",
       "text": "AI 연산·주문형 반도체 · Accelerator interconnect",
       "group": "AI 연산·주문형 반도체",
       "keys": [
@@ -4851,7 +4851,7 @@
       "id": "atlas:memory-sram",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "SRAM·Cache",
+      "title": "SRAM·캐시",
       "text": "메모리·스토리지·데이터 이동 · SRAM / cache",
       "group": "메모리·스토리지·데이터 이동",
       "keys": [
@@ -4936,7 +4936,7 @@
       "id": "atlas:memory-cxl",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "CXL·메모리 Pooling",
+      "title": "CXL·메모리 공유(풀링)",
       "text": "메모리·스토리지·데이터 이동 · CXL / pooled memory",
       "group": "메모리·스토리지·데이터 이동",
       "keys": [
@@ -4976,7 +4976,7 @@
       "id": "atlas:foundry-process-node",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "미세공정 Node",
+      "title": "미세공정 노드",
       "text": "파운드리·장비·소재 · Process node",
       "group": "파운드리·장비·소재",
       "keys": [
@@ -5102,7 +5102,7 @@
       "id": "atlas:package-interposer",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "Interposer·Bridge",
+      "title": "인터포저·브리지",
       "text": "첨단 패키징·기판 · Interposer / bridge",
       "group": "첨단 패키징·기판",
       "keys": [
@@ -5455,7 +5455,7 @@
       "id": "atlas:power-transformer",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "변압기·Switchgear",
+      "title": "변압기·개폐 장치",
       "text": "전력·에너지·전력망 · Transformer / switchgear",
       "group": "전력·에너지·전력망",
       "keys": [
@@ -5555,7 +5555,7 @@
       "id": "atlas:physical-ai-digital-twin",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "시뮬레이션·Digital Twin",
+      "title": "시뮬레이션·디지털 트윈",
       "text": "온디바이스·Physical AI · Simulation / digital twin",
       "group": "온디바이스·Physical AI",
       "keys": [
@@ -5708,7 +5708,7 @@
       "id": "atlas:physical-ai-world-model",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "World Model·시뮬레이션",
+      "title": "월드 모델·시뮬레이션",
       "text": "Physical AI·로보틱스·자율성 · World model and simulation",
       "group": "Physical AI·로보틱스·자율성",
       "keys": [
@@ -5908,7 +5908,7 @@
       "id": "atlas:space-reusability",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "로켓 재사용·Turnaround",
+      "title": "로켓 재사용·재발사 준비",
       "text": "우주·항공·재사용 시스템 · Reusability and turnaround",
       "group": "우주·항공·재사용 시스템",
       "keys": [
@@ -5988,7 +5988,7 @@
       "id": "atlas:application-healthcare",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "의료 Workflow",
+      "title": "의료 업무 흐름",
       "text": "AI 응용 산업 · Healthcare workflow",
       "group": "AI 응용 산업",
       "keys": [
@@ -6008,7 +6008,7 @@
       "id": "atlas:application-manufacturing",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "제조 Workflow",
+      "title": "제조 공정 흐름",
       "text": "AI 응용 산업 · Manufacturing workflow",
       "group": "AI 응용 산업",
       "keys": [
@@ -6048,7 +6048,7 @@
       "id": "atlas:application-finance",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "금융 의사결정 Workflow",
+      "title": "금융 의사결정 흐름",
       "text": "AI 응용 산업 · Financial decision workflow",
       "group": "AI 응용 산업",
       "keys": [
@@ -6248,7 +6248,7 @@
       "id": "atlas:policy-cybersecurity",
       "surface": "atlas-node",
       "surfaceLabel": "산업 지도",
-      "title": "사이버보안·Sovereign AI",
+      "title": "사이버보안·소버린 AI",
       "text": "지정학·산업정책·보안 · Cybersecurity and sovereign AI",
       "group": "지정학·산업정책·보안",
       "keys": [

@@ -136,13 +136,16 @@ function growthAxis({ macro, mh }) {
     : state === 'favorable' ? '고용이 꾸준히 늘고 실업률이 안정적입니다 — 기업 이익의 바탕이 되는 소비가 버티는 환경입니다.'
       : state === 'unknown' ? '고용 자료를 기다리는 중입니다.'
         : `고용 증가가 느려졌거나 실업률이 조금씩 오르는 중간 구간입니다.${partial}`;
-  const payrollTriggered = state === 'burden' && !(sahm && sahm.value >= G.sahmRecessionAt);
+  // P1599 (A01): the card leads with the indicator that decided the state. A calm Sahm reading beside a neutral
+  // verdict (decided by slow payroll growth) read as a contradiction.
+  const payrollHeld = state === 'neutral' && sahm && sahm.value < G.sahmWatchAt && payroll && payroll.avg3 < G.payrollSolidK;
+  const payrollTriggered = (state === 'burden' && !(sahm && sahm.value >= G.sahmRecessionAt)) || payrollHeld;
   const growthGauge = sahm && !payrollTriggered ? gauge({ label: 'Sahm 지표 (실업률 3개월 평균 − 1년 저점)', value: sahm.value, unit: '%p', digits: 2, ...cuts(0, 1, [G.sahmWatchAt, G.sahmRecessionAt], ['favorable', 'neutral', 'burden'], [[G.sahmWatchAt, `${G.sahmWatchAt}`], [G.sahmRecessionAt, `침체 신호 ${G.sahmRecessionAt}`]]) })
     : payroll ? gauge({ label: '일자리 3개월 평균 (천 명)', value: payroll.avg3, unit: '천 명', digits: 0, ...cuts(-100, 300, [0, G.payrollSolidK], ['burden', 'neutral', 'favorable'], [[0, '0'], [G.payrollSolidK, `${G.payrollSolidK / 10}만`]]) })
       : nfp != null ? gauge({ label: '일자리 증감 (최근 1개월, 천 명)', value: nfp, unit: '천 명', digits: 0, ...cuts(-100, 300, [0, G.payrollSolidK], ['burden', 'neutral', 'favorable'], [[0, '0'], [G.payrollSolidK, `${G.payrollSolidK / 10}만`]]) }) : null;
   return axis('growth', '성장 (고용 · 소비)', state, {
     gauge: growthGauge,
-    headline: sahm ? `Sahm ${sahm.value.toFixed(2)}%p` : unrate == null ? null : `실업률 ${unrate.toFixed(1)}%`,
+    headline: payrollTriggered && payroll ? `일자리 3개월 평균 ${signed(payroll.avg3, 0)}천 명` : sahm ? `Sahm ${sahm.value.toFixed(2)}%p` : unrate == null ? null : `실업률 ${unrate.toFixed(1)}%`,
     evidence: [
       ['실업률', unrate == null ? null : `${unrate.toFixed(1)}%${finite(macro.unemploymentDelta) != null ? ` (전월 ${signed(finite(macro.unemploymentDelta), 1, '%p')})` : ''}`],
       ['Sahm 지표', sahm ? `${sahm.value.toFixed(2)}%p (0.5 이상이면 침체 신호)` : null],
@@ -335,7 +338,7 @@ function buildChain({ macro, regime, rateFx }) {
     { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? (splitReal ? '기준일이 달라 보류' : '—') : `1주 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
     { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? `경로 이상 ${signed(pricing, 2, '%p')}` : pricing <= -P.pricedMovePp ? `경로 이하 ${signed(pricing, 2, '%p')}` : '동결 근접', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
     { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, RULES.rates.move20dBp, -RULES.rates.move20dBp) },
-    { id: 'valuation', label: '주식 밸류에이션', value: axisById.rates ? `금리 축 ${axisById.rates.stateLabel}` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }
+    { id: 'valuation', label: '주식 밸류에이션 압력(해석)', inferred: true, value: axisById.rates ? `관측 아님 · 금리 축 ${axisById.rates.stateLabel}에서 추론` : '—', dir: axisById.rates?.state === 'burden' ? 'down' : axisById.rates?.state === 'favorable' ? 'up' : 'flat' }
   ];
   const links = [];
   if (nodes[0].dir !== 'unknown' && nodes[0].dir !== 'flat' && nodes[0].dir === nodes[1].dir) links.push(`유가(20일)와 기대인플레이션(1주)이 함께 ${nodes[0].dir === 'up' ? '오르고' : '내리고'} 있습니다 — 유가가 물가 예상으로 옮겨 가는 경로와 같은 방향이지만, 관측 기간이 달라 인과를 확인한 것은 아닙니다.`);
@@ -359,7 +362,8 @@ function buildChain({ macro, regime, rateFx }) {
   ];
   // Colour by effect on stocks: every node rising is a headwind except valuation, where a fall is.
   const impact = (node) => node.dir === 'unknown' || node.dir === 'flat' ? node.dir : (node.id === 'valuation' ? node.dir === 'down' : node.dir === 'up') ? 'burden' : 'favorable';
-  const legend = `각 칸은 서로 다른 기간의 변화이고, 화살표는 교과서적인 전달 경로입니다 — 같은 방향으로 움직였다는 것은 동시에 관측됐다는 뜻이지 원인을 확인했다는 뜻이 아닙니다. 화살표 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하 · 기대인플레이션 1주 ±${RULES.breakeven.move5dBp}bp · 2년물 − 기준금리 ±${P.pricedMovePp}%p · 10년물 20일 ±${RULES.rates.move20dBp}bp · 달러 20일 ±${RULES.dollar.rise20dPct}% · 신용 스프레드 1주 ±${RULES.credit.widen5dBp}bp. 빨간 테두리는 주식에 부담, 초록은 우호.`;
+  // P1599 (A04): the 'not causation' caveat is stated once, in the section lead above the chain; the legend keeps the thresholds.
+  const legend = `▲▼ 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하 · 기대인플레이션 1주 ±${RULES.breakeven.move5dBp}bp · 2년물 − 기준금리 ±${P.pricedMovePp}%p · 10년물 20일 ±${RULES.rates.move20dBp}bp · 달러 20일 ±${RULES.dollar.rise20dPct}% · 신용 스프레드 1주 ±${RULES.credit.widen5dBp}bp. 빨간 테두리는 주식에 부담, 초록은 우호.`;
   return { nodes: nodes.map((node) => ({ ...node, impact: impact(node) })), links, branches: branches.map((node) => ({ ...node, impact: impact(node) })), legend };
 }
 

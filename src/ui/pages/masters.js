@@ -247,16 +247,27 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           return { managerId, period, latest, shares: direct.reduce((sum, row) => sum + (Number(row.shares) || 0), 0), value: direct.reduce((sum, row) => sum + (Number(row.value) || 0), 0), direct: direct.length, options };
         }).sort((a, b) => (b.value || 0) - (a.value || 0) || b.shares - a.shares);
         const rows = element(documentRef, 'ul', 'masters-ticker-lookup-rows');
+        const impliedPrices = summaries.filter((summary) => summary.shares > 0 && summary.value > 0 && !summary.latest.some((row) => row.valueScaleStatus === 'SCALE_REVIEW')).map((summary) => summary.value / summary.shares).sort((a, b) => a - b);
+        const medianImplied = impliedPrices.length >= 3 ? impliedPrices[Math.floor(impliedPrices.length / 2)] : null;
+        let priceGaps = 0;
         summaries.forEach((summary) => {
           const manager = registryById.get(summary.managerId);
           const item = element(documentRef, 'li', 'masters-ticker-lookup-row');
           item.dataset.lookupManager = summary.managerId;
           const optionText = summary.options.length ? ` · 옵션 ${summary.options.map((row) => `${row.putCall === 'Put' ? '풋' : '콜'} ${Number(row.shares || 0).toLocaleString('en-US')}주 기준`).join(', ')}` : '';
           const withheldValue = summary.latest.some((row) => row.valueScaleStatus === 'SCALE_REVIEW');
-          const holding = summary.direct ? `${summary.shares.toLocaleString('en-US')}주 · ${withheldValue ? '금액 단위 확인 중' : formatReportedValue(summary.value)}` : '직접 보유 없음';
+          // F38: for the same stock and quarter the filed value per share should agree across filers. A filer whose
+          // implied price is more than 1% off the others is marked, so the gap is visible without a column of prices.
+          const implied = !withheldValue && summary.shares > 0 && summary.value > 0 ? summary.value / summary.shares : null;
+          const gap = implied && medianImplied ? implied / medianImplied - 1 : 0;
+          const perShare = Math.abs(gap) > 0.01 ? ` (주당 약 $${implied.toFixed(2)}, 다른 신고보다 ${Math.abs(gap * 100).toFixed(1)}% ${gap < 0 ? '낮음' : '높음'})` : '';
+          if (perShare) priceGaps += 1;
+          const holding = summary.direct ? `${summary.shares.toLocaleString('en-US')}주 · ${withheldValue ? '금액 단위 확인 중' : formatReportedValue(summary.value)}${perShare}` : '직접 보유 없음';
           const detail = element(documentRef, 'details', 'masters-ticker-lookup-detail');
           detail.appendChild(element(documentRef, 'summary', '', `${manager?.name || summary.managerId} · ${summary.period} · ${holding}${optionText}`));
           const raw = element(documentRef, 'ul', 'masters-ticker-lookup-raw');
+          // F39: several rows for one stock are the filer's own split (by manager or discretion), not duplicates.
+          if (summary.latest.length > 1) raw.appendChild(element(documentRef, 'li', 'masters-holdings-meta', `원문 ${summary.latest.length}행은 같은 종목을 운용 주체·재량 구분별로 나눠 신고한 것이며, 위 합계는 이 행들을 더한 값입니다.`));
           summary.latest.forEach((row) => {
             const line = element(documentRef, 'li', '');
             // P1592 (F39): a row without a filing URL says so instead of a link-looking label that goes nowhere.
@@ -270,7 +281,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           rows.appendChild(item);
         });
         card.appendChild(rows);
-        card.appendChild(element(documentRef, 'span', 'masters-ticker-lookup-count', `운용사 ${summaries.length}곳 · 원문 ${allRows.length}행 — 검색 범위: 참조 원장과 각 운용사의 상위 10개 보유. 그 밖의 보유는 운용사 상세에서 확인합니다.`));
+        card.appendChild(element(documentRef, 'span', 'masters-ticker-lookup-count', `운용사 ${summaries.length}곳 · 원문 ${allRows.length}행 — 검색 범위: 참조 원장과 각 운용사의 상위 10개 보유. 그 밖의 보유는 운용사 상세에서 확인합니다.${priceGaps ? ' 주당 값이 다른 신고와 어긋나는 운용사는 원문 신고 가치를 그대로 옮긴 것이며, 정정 신고 여부를 원문에서 확인해야 합니다.' : ''}`));
         body.appendChild(card);
       });
     }
@@ -733,6 +744,7 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
     const partial = isPartialAmendmentPeriod(period, imported);
     return { period: period.periodOfReport, partial, count: partial ? null : imported?.count ?? period.rowCount ?? historical?.count ?? null, partialCount: partial ? period.rowCount ?? historical?.count ?? null : null, value: partial || scaleReviewed ? null : imported?.value ?? period.reportedValueTotal ?? historical?.value ?? null, reconciliation: imported?.reconciliation ?? period.countReconciled ?? false, filedAt: period.filedAt, accession: period.accession, rowImportStatus: period.rowImportStatus, indexUrl: period.indexUrl, composition: period.composition || null };
   });
+  section.appendChild(createQuarterTrend(documentRef, rows));
   const table = createTable(documentRef, ['보고 분기', '보유 행', '신고 가치 합계', '상태', '원문'], rows, (row) => {
     const tr = element(documentRef, 'tr', '');
     let state;
@@ -757,11 +769,44 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
   return section;
 }
 
+// P1599 (F110): the quarter trend as two small column charts — reported value and row count are different
+// measures (value moves with prices; neither is AUM or performance), so each gets its own scale. A quarter
+// without a complete filing is a gap, never a zero.
+function createQuarterTrend(documentRef, rows) {
+  const ordered = [...rows].filter((row) => row.period).sort((a, b) => String(a.period).localeCompare(String(b.period)));
+  const wrap = element(documentRef, 'div', 'masters-quarter-trend');
+  for (const [key, title, format] of [['value', '신고 가치 합계 (가격 변화 포함 · 운용 수익이나 AUM 아님)', formatReportedValue], ['count', '보고 행 수', (value) => `${value}행`]]) {
+    const values = ordered.map((row) => (Number.isFinite(Number(row[key])) && row[key] !== null ? Number(row[key]) : null));
+    const known = values.filter((value) => value != null);
+    if (known.length < 2) continue;
+    const max = Math.max(...known);
+    const block = element(documentRef, 'div', 'masters-trend-block');
+    block.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `${title} — ${ordered[0].period} ~ ${ordered[ordered.length - 1].period}`));
+    const bars = element(documentRef, 'div', 'masters-trend-bars');
+    bars.setAttribute('role', 'img');
+    bars.setAttribute('aria-label', `${title}: ${ordered.map((row, index) => `${row.period} ${values[index] == null ? '자료 없음' : format(values[index])}`).join(', ')}`);
+    ordered.forEach((row, index) => {
+      const bar = element(documentRef, 'span', `masters-trend-bar${values[index] == null ? ' is-gap' : ''}`);
+      bar.style.height = values[index] == null ? '100%' : `${Math.max(3, values[index] / max * 100).toFixed(1)}%`;
+      bar.title = `${row.period} · ${values[index] == null ? '분기 전체 미확인' : format(values[index])}`;
+      bars.appendChild(bar);
+    });
+    block.appendChild(bars);
+    const first = known[0];
+    const last = known[known.length - 1];
+    block.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `처음 ${format(first)} → 최근 ${format(last)}`));
+    wrap.appendChild(block);
+  }
+  return wrap;
+}
+
 function createIssuerAggregateView(documentRef, aggregateArtifact, managerId, scaleReviewed = false) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-issuer-aggregate-view');
   const records = (aggregateArtifact?.aggregates || []).filter((record) => record.managerId === managerId);
   const periods = new Set(records.flatMap((record) => record.periods || []).map((period) => period.reportPeriod).filter(Boolean));
-  const reviewQueue = records.filter((record) => record.reviewFlags?.length || record.corporateActionStatus !== 'REVIEWED');
+  // F110: counted the same way as the all-filer total and the table's '확인할 점' column (filing flags only);
+  // corporate actions are still unreviewed for every bundle, which the section note already says once.
+  const reviewQueue = records.filter((record) => record.reviewFlags?.length);
   // W04-A/P1149 (C01): the per-manager summary must be computed from the selected manager's
   // records with the SAME function as the table below. The whole-artifact coverage belongs in its
   // own labelled block — a manager-scoped card must never show another scope's denominator.
@@ -781,8 +826,8 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId, sc
     ['공시된 분기 수', String(periods.size)],
     ['증권·유형별 묶음', String(records.length)],
     ['분기별 공시 행', String(managerPeriodRows)],
-    ['확인이 필요한 묶음', String(reviewQueue.length)],
-    ['전체 수집 자료 (모든 운용사)', `${aggregateArtifact?.coverage?.aggregateRecords ?? '—'}개 묶음 · ${aggregateArtifact?.coverage?.periods ?? '—'}개 분기 · 확인 필요 ${aggregateArtifact?.coverage?.reviewQueue ?? '—'}`]
+    ['확인할 점이 있는 묶음', String(reviewQueue.length)],
+    ['전체 수집 자료 (모든 운용사)', `${aggregateArtifact?.coverage?.aggregateRecords ?? '—'}개 묶음 · ${aggregateArtifact?.coverage?.periods ?? '—'}개 분기 · 확인할 점 ${aggregateArtifact?.coverage?.reviewQueue ?? '—'}개 묶음`]
   ].forEach(([label, value]) => metrics.appendChild(createMetric(documentRef, label, value)));
   section.appendChild(metrics);
   const top = records

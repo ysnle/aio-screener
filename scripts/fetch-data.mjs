@@ -33,6 +33,7 @@ import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERS
 import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
+import { analysisLevelsAfterLabels, analysisProse } from './lib/market-analysis-numbers.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
@@ -3515,25 +3516,10 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
 // states the move first ("SPX는 0.66% 오른 7,816") failed as metric-value-mismatch on every quote
 // and blocked ~70% of market analyses. Within the label's clause, skip change-like numbers (signed,
 // %p/bp/포인트, a following up/down verb, or a % on a non-rate level) and compare the first level.
-const _ANALYSIS_MOVE_VERB = /^\s*(?:오른|내린|상승|하락|올라|내려|떨어|급등|급락|반등|증가|감소|높아|낮아|올랐|내렸|빠진|뛴)/;
-function _analysisNumberAfterLabel(body, labels, levelHint = null) {
-  const escaped = labels.map(label => String(label).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  const label = body.match(new RegExp(`(?:${escaped})`, 'i'));
-  if (!label) return null;
-  const rest = body.slice(label.index + label[0].length);
-  const clause = rest.slice(0, Math.min(rest.length, 80)).split(/(?<!\d)[.。](?!\d)|\n|[;；]/)[0];
-  const rateLike = Number.isFinite(Number(levelHint)) && Math.abs(Number(levelHint)) < 20;
-  const numberRe = /([+\-±]?)(\d[\d,]*(?:\.\d+)?)\s*(%p|%포인트|bp|포인트|%)?/g;
-  let match;
-  while ((match = numberRe.exec(clause))) {
-    const [, sign, digits, suffix = ''] = match;
-    const after = clause.slice(match.index + match[0].length);
-    const isMove = !!sign || /^(%p|%포인트|bp|포인트)$/.test(suffix) || _ANALYSIS_MOVE_VERB.test(after) || (suffix === '%' && !rateLike);
-    if (isMove) continue;
-    const value = Number(digits.replace(/,/g, ''));
-    return Number.isFinite(value) ? value : null;
-  }
-  return null;
+function _analysisNumberAfterLabel(body, labels) {
+  const allLabels = [...MARKET_ANALYSIS_QUOTE_DEFS, ...MARKET_ANALYSIS_MACRO_DEFS]
+    .flatMap(def => [def.label, ...(def.aliases || [])]);
+  return analysisLevelsAfterLabels(body, labels, { allLabels })[0] ?? null;
 }
 
 export function validateMarketAnalysisText(text, data, snapshot = null) {
@@ -3550,7 +3536,10 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
   // market*. The product is Korean; English prose is not publishable.
   // P1585: count prose only — the prompt asks for evidence ids, and tickers (SPX, VIX, DXY, WTI)
   // are Latin by nature, so a Korean answer that cites them was read as English.
-  const prose = body.replace(/https?:\/\/\S+/g, ' ').replace(/\b[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+(?::\S*)?/gi, ' ').replace(/\b[A-Z0-9&^=_-]{2,}\b/g, ' ');
+  const allMetricLabels = [...MARKET_ANALYSIS_QUOTE_DEFS, ...MARKET_ANALYSIS_MACRO_DEFS]
+    .flatMap(def => [def.label, ...(def.aliases || [])]);
+  // P1594: remove known metric labels, not arbitrary uppercase English sentences.
+  const prose = analysisProse(body, allMetricLabels);
   const hangul = (prose.match(/[가-힣]/g) || []).length;
   const latin = (prose.match(/[A-Za-z]/g) || []).length;
   if (body && latin >= 30 && hangul < latin * 0.6) issues.push('language-not-korean');
@@ -3569,12 +3558,11 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
   for (const def of [...MARKET_ANALYSIS_QUOTE_DEFS, ...MARKET_ANALYSIS_MACRO_DEFS]) {
     const row = metricEvidence.find(item => item.metricId === def.metricId);
     if (!row) continue;
-    const mentioned = _analysisNumberAfterLabel(body, [def.label, ...(def.aliases || [])], row.value);
-    if (mentioned == null) continue;
+    const levels = analysisLevelsAfterLabels(body, [def.label, ...(def.aliases || [])], { allLabels: allMetricLabels, unit: row.unit });
     // Tolerance follows the unit the evidence actually carries (canonical snapshot
     // unit when available), not the duplicated def table.
     const tolerance = Math.max(row.unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(row.value)) * 0.02); // P1585: 5% let SPX 7,500 pass for 7,816
-    if (Math.abs(mentioned - Number(row.value)) > tolerance) issues.push(`metric-value-mismatch:${def.metricId}`);
+    if (levels.some(mentioned => Math.abs(mentioned - Number(row.value)) > tolerance)) issues.push(`metric-value-mismatch:${def.metricId}`);
   }
   // PAYEMS delta is stored in thousands. A model may mention NFP without a
   // number, but if it writes one, reject the known 10x forms before publish.
@@ -3738,6 +3726,7 @@ function buildStructuredMarketAnalysis({ data, text, model, status, reason, metr
   return {
     schemaVersion: 'market-analysis.v2',
     status,
+    reason: status === 'verified' ? null : reason || 'analysis-unavailable',
     summary,
     full: summary,
     oneLine,
@@ -3749,7 +3738,7 @@ function buildStructuredMarketAnalysis({ data, text, model, status, reason, metr
     evidenceIds,
     generatedAt: new Date().toISOString(),
     model: model || 'none',
-    validatorVersion: 'market-analysis-validator.v2',
+    validatorVersion: 'market-analysis-validator.v3',
     semanticStatus: semantic?.ok && status === 'verified' ? 'verified' : 'blocked',
     semanticIssues: semantic?.issues || [reason || 'analysis-unavailable'],
     metricEvidence,
@@ -4552,11 +4541,14 @@ async function main() {
     data.meta.marketAnalysisSemanticOk = marketAnalysis.status === 'verified' && marketAnalysis.semanticStatus === 'verified' && Array.isArray(marketAnalysis.metricEvidence) && marketAnalysis.metricEvidence.length >= 2 && (!marketAnalysis.semanticIssues || marketAnalysis.semanticIssues.length === 0);
     data.meta.marketAnalysisEvidenceCount = Array.isArray(marketAnalysis.metricEvidence) ? marketAnalysis.metricEvidence.length : 0;
     data.meta.marketAnalysisNewsEvidenceCount = Array.isArray(marketAnalysis.newsEvidence) ? marketAnalysis.newsEvidence.length : 0;
+    // P1594: retain the exact blocked reason, never substitute a credentials/budget guess.
+    data.meta.marketAnalysisReason = marketAnalysis.status === 'verified' ? null : marketAnalysis.reason;
   } else {
     data.meta.marketAnalysisOk = false;
     data.meta.marketAnalysisSemanticOk = false;
     data.meta.marketAnalysisEvidenceCount = 0;
     data.meta.marketAnalysisNewsEvidenceCount = 0;
+    data.meta.marketAnalysisReason = 'analysis-unavailable';
   }
   data.meta.marketSnapshotPublished = !!marketSnapshotInfo.published;
   data.meta.marketSnapshotAttemptedAt = marketSnapshotInfo.snapshot.attemptedAt || data.meta.attemptedAt;
