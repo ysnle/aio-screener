@@ -34,7 +34,7 @@ const disclosureFormat = sliceBetween(chat, 'function _aioPublicAIFormatAsOf(', 
 const disclosureBuild = sliceBetween(chat, 'function _aioBuildAIResponseDisclosure(', '\n\n// P1539', 'disclosure builder');
 const disclosureAppend = sliceBetween(chat, 'function _aioAppendAIPublicDisclosure(', '\n\nif (typeof window !==', 'disclosure renderer');
 const citationCanonical = sliceBetween(chat, 'function _aioCanonicalResearchUrl(', '\n\nfunction _aioResearchResultUsable', 'citation URL normalizer');
-const citationsHtml = sliceBetween(chat, 'function _searchCitationsHTML(', '\n\n/** Google Custom Search API 호출', 'citation renderer');
+const citationsHtml = sliceBetween(chat, 'function _searchCitationsHTML(', '\n\n/** Existing Google Custom Search accounts only', 'citation renderer');
 const disclosureFixture = [
   "var _AIO_PUBLIC_AI_POLICY = { label: 'AI 베타 · 교육/리서치 보조', status: 'beta-research', actionGate: 'read-only-conditional-analysis' };",
   disclosureFormat,

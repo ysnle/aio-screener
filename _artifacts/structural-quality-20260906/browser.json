@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T03:34:09.942Z",
+  "generatedAt": "2026-10-11T11:07:26.231Z",
   "routes": [
     {
       "id": "home",
@@ -9,11 +9,27 @@
         {
           "tag": "A",
           "name": "시장 상태 →"
+        },
+        {
+          "tag": "A",
+          "name": "The 10-Year Treasury Yield Is Near a 24-Year High. History Says Stock Investors Should Do This 1 Thing. — 원문 새"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Falls on Signs of Recovering Middle Eastern Flows, G-7 Stock Release — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "금리 vs 실적…코스피, 7000선 재도전 나설까[주간증시전망] — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Did Strong Q2 Data Center Demand and Steady Guidance Just Shift Regal Rexnord's (RRX) Investment Narrative? — "
         }
       ],
       "headings": [
-        "시장 현황 v57.34",
-        "직전 종가 대비 변화",
+        "시장 현황 v57.37",
+        "직전 종가 대비 변화10/8 → 10/9 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
         "내 종목 뉴스"
@@ -148,7 +164,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "신용우호HY 315bp (5일 −9bp)"
+          "name": "신용우호HY 315bp (5거래일 −9bp)"
         }
       ],
       "headings": [
@@ -164,9 +180,21 @@
         "어떻게 연결되나 — 유가에서 주가까지",
         "경제 지표",
         "정책금리",
+        "연준 목표 범위",
+        "실효 연방기금금리 (월평균)",
         "물가",
+        "CPI (전년 대비)",
+        "근원 CPI (전년 대비)",
+        "PCE 물가 (전년 대비)",
+        "근원 PCE (전년 대비)",
         "고용",
+        "실업률",
+        "비농업 고용 증감",
+        "시간당 임금 (전년 대비)",
+        "경제활동참가율",
         "소비 · 주택",
+        "소매판매 (전월 대비)",
+        "주택 착공 (연율)",
         "유가 · 금 — 최근 1년",
         "WTI 원유",
         "금"
@@ -175,7 +203,7 @@
     {
       "id": "fxbond",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
         {
           "tag": "BUTTON",
@@ -186,8 +214,17 @@
         "금리 · 환율",
         "미 국채 수익률 곡선",
         "실질금리 · 기대인플레이션 · 신용",
+        "10년 실질금리 (TIPS)",
+        "10년 기대인플레이션",
+        "하이일드 스프레드",
+        "10년 기간 프리미엄 (Kim-Wright)",
         "환율이 증시에 주는 영향",
+        "환율 (원 · 엔)",
         "달러 · 원화 · 엔화 · 10년물 — 최근 6개월",
+        "달러 인덱스 (DXY)",
+        "원/달러",
+        "엔/달러",
+        "미 10년물 금리 (일별 종가)",
         "그 밖의 통화 시세 대기"
       ]
     },
@@ -212,48 +249,8 @@
     {
       "id": "themes",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "에너지 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헬스케어 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "부동산 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "소비재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금융 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "산업재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "원자재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "통신 테마 상세 열기"
-        },
         {
           "tag": "BUTTON",
           "name": "11섹터"
@@ -269,118 +266,6 @@
         {
           "tag": "BUTTON",
           "name": "1주"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1개월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "3개월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "6개월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HPE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MPC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ZS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MSTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PLTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AEM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VEEV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TEAM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EMR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "A"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FCX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRVL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SNPS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DIS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "전체 87개 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "반도체 -4.1%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티 -11.2%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "에너지 +5.4%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "광통신/포토닉스 +1.3%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +2.4%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +2.4%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "산업재/물류 -2.3%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
         },
         {
           "tag": "A",
@@ -433,16 +318,7 @@
       ],
       "headings": [
         "테마 · 트렌드",
-        "섹터 회전 판정",
-        "하위 테마 상대강도 순위",
-        "AI 설비투자 100달러는 어디로 가나",
-        "반도체",
-        "전력",
-        "네트워크",
-        "냉각",
-        "시설·건설",
-        "이어서 볼 곳",
-        "국내 테마 흐름"
+        "섹터 회전 판정"
       ]
     },
     {
@@ -457,7 +333,7 @@
     {
       "id": "portfolio",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
@@ -489,9 +365,7 @@
         }
       ],
       "headings": [
-        "포트폴리오",
-        "내 포트폴리오와 시장",
-        "포트폴리오 점검"
+        "포트폴리오"
       ]
     },
     {
@@ -530,6 +404,26 @@
           "name": "새로고침"
         },
         {
+          "tag": "A",
+          "name": "금리 vs 실적…코스피, 7000선 재도전 나설까[주간증시전망] — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Did Strong Q2 Data Center Demand and Steady Guidance Just Shift Regal Rexnord's (RRX) Investment Narrative? — "
+        },
+        {
+          "tag": "A",
+          "name": "The 10-Year Treasury Yield Is Near a 24-Year High. History Says Stock Investors Should Do This 1 Thing. — 원문 새"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Falls on Signs of Recovering Middle Eastern Flows, G-7 Stock Release — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Gold forecast: Rising yields become too hot for gold, but the outlook is far from bearish — 원문 새 창에서 열기"
+        },
+        {
           "tag": "BUTTON",
           "name": "최신순"
         },
@@ -555,56 +449,108 @@
         },
         {
           "tag": "A",
-          "name": "매크로중립 어조@HANAchina · 중국·신흥국 · 10-10>>‘이사이아스’가 3등급 허리케인으로 격상… 미국 멕시코만 원유 생산량의 약 4분의 3 중단 •미국 해양에너지관리국에 따르면 하루 1"
+          "name": "“내년엔 1200원대도 가능”…‘반도체 달러’ 덕에 원화 강세 계속될까 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조@HANAchina · 중국·신흥국 · 10-10>>하루 만에 입장 번복? 트럼프, 중간선거 전 이란에 군사 행동을 취할 “가능성” 언급 •금요일 트럼프는 왜 이란에 대한 군사 행동을"
+          "name": "How Investors Are Reacting To Crane NXT Stock As Guidance Is Raised — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "지정학긍정 어조@insidertracking · 미국 속보 · 10-1010월 10일 미주인 브리핑 • S&P 최고 수준 · 다우·나스닥 동반 상승 • AI 광통신주 급등 · 루멘텀·시에나 강세 •"
+          "name": "2G Energy (XTRA:2GB) Is Down 6.8% After Lifting 2027–2028 Revenue Guidance — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-10미국 재무부 해외자산통제국(OFAC)이 10월 9일 러시아산 디젤 연료의 판매·인도·하역·수입과 관련된 거래를 허용하는 일반"
+          "name": "Can Kasumigaseki CapitalLtd (TSE:3498) Justify Its Valuation Following New Guidance And Dividend Lift? — 원문 새 "
         },
         {
           "tag": "A",
-          "name": "반도체긍정 어조@insidertracking · 미국 속보 · 10-10서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/09 1위: DIREXION DAILY"
+          "name": "Does Raised Earnings Guidance Change The Bull Case For Crown Holdings (CCK)? — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "반도체부정 어조@insidertracking · 미국 속보 · 10-10삼성전자, 차량용 엑시노스 반도체 개발 중단 결정 삼성전자가 2018년부터 추진해 온 차량용 엑시노스 프로세서 개발을 중단하기"
+          "name": "S&P 500 Forward Earnings Yield (5.3%) Vs. 10-Year Treasury Real Yield (3%): Which One Wins? (NASDAQ:TLT) — 원문 "
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조@insidertracking · 미국 속보 · 10-10테슬라, 메모리 공급 부족으로 옵티머스 로봇 RAM 용량 3분의 1 축소 글로벌 메모리 공급 부족 여파가 테슬라의 휴머노이드 "
+          "name": "Gold Weekly: The Dollar Is Still the Handbrake, but the Squeeze Setup Is Getting Interesting — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조@insidertracking · 미국 속보 · 10-10레딧 관심도 ASTS, MU 그리고 엔비디아에 집중MU"
+          "name": "The Iran War Is Fueling a Boom in Clean Energy — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "반도체부정 어조@insidertracking · 미국 속보 · 10-102026년 10월 10일 미국 레딧 베스트 게시물 분석 > NVDA / AI 인프라 · \"AI 크레딧 버블? 상관없다\" 분위기"
+          "name": "The US Treasury Department has sanctioned 17 vessels for transporting Iranian crude oil and petroleum products"
         },
         {
           "tag": "A",
-          "name": "시장소식긍정 어조@insidertracking · 미국 속보 · 10-102026년 10월 10일 미국 증시 브리핑 미국 증시는 경기 둔화 우려에도 AI 인프라와 대형 기술주 중심의 매수세가 유입되"
+          "name": "Iran’s oil lifeline could run dry by mid-December, Kpler says — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-102026년 10월 10일 미장 마감 S&P 500 - 7,811.54 +0.59% 다우 30 - 51,654.95 +0.83"
+          "name": "SKYD Forecast — Price Target — Prediction for 2027 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-10방금 러시아의 블라디미르 푸틴 대통령과 매우 성공적인 논의를 마쳤다. 이번 논의에서 러시아는 미국과 글로벌 시장에 디젤 연료"
+          "name": "The 10-Year Treasury Yield Just Broke a Record That Stood Since 2007 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "11개 더 보기"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-11>>사우디 리야드 공항 또다시 공격받아 12명 사망, 309명 부상 •사우디아라비아 민간항공 당국은 11일 새벽 성명을 통해 수도 리"
+        },
+        {
+          "tag": "A",
+          "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-11>>중국 Luxshare : 회사 및 자회사 Luxshare Technology, 미국 무역법 337조 조사 대상에 포함…조사 초기 단계"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-11>>트럼프, 신임 백악관 대변인 임명: 베이징에서 3년 근무, 중국 유명 로펌 재직 경력에 중국어 구사 가능 •트럼프가 케이티 자카리"
+        },
+        {
+          "tag": "A",
+          "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-11>>중국 신에너지차 9월 판매량 전년 대비 -12% 감소, 승용차 소매판매 -24% 감소 •9월 중국 자동차 시장이 부진한 모습을 보이며"
+        },
+        {
+          "tag": "A",
+          "name": "반도체긍정 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-11AMD, 10월 1일부터 파트너사 대상 GDDR6 가격 인상… 엔비디아는 GDDR7 가격 인상 보류한 것으로 "
+        },
+        {
+          "tag": "A",
+          "name": "AI정책중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-11구글, 새 AI 모델 출시 임박… 직원들 \"훨씬 뛰어난 다른 모델 테스트 중\" 구글이 새로운 Gemini 4"
+        },
+        {
+          "tag": "A",
+          "name": "지정학중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10## 트럼프·푸틴 간 디젤 거래로 긴장 고조, 우크라이나 평화협상 교착 도널드 트럼프 미국 대통령이 블라디미르"
+        },
+        {
+          "tag": "A",
+          "name": "지정학중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10예루살렘 포스트) 미국, 중간선거 앞두고 정치적 후폭풍 피하려 이스라엘에 단독 이란 공격 압박 - 보도에 따르"
+        },
+        {
+          "tag": "A",
+          "name": "지정학중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10벤 카스피트 기자에 따르면 미국이 이스라엘에 단독으로 이란을 공격할 것을 요구했다는 보도. 이스라엘 측은 이러"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10최근 리야드 공항 공격 이후 튀르키예 공항에서 사우디아라비아로 향하는 모든 정기 항공편 운항 취소."
+        },
+        {
+          "tag": "A",
+          "name": "AI정책중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10앤트로픽 AI 모델, 통제 벗어나 경찰에 허위 제보 제출 앤트로픽은 자사 AI 모델 Claude가 외부 기관"
+        },
+        {
+          "tag": "A",
+          "name": "반도체중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10트럼프의 AI 법적 책임 강화 기조, 통제를 벗어난 AI 모델을 둘러싼 '책임 공방'의 서막을 열다 트럼프 행"
         }
       ],
       "headings": [
         "시장 뉴스",
-        "중요 뉴스 주제별 핵심 · 10. 10. 08:00 KST까지 24시간"
+        "중요 뉴스 주제별 핵심 · 10. 11. 08:00 KST까지 24시간"
       ]
     },
     {
@@ -948,10 +894,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "Mark Minervini"
-        },
-        {
-          "tag": "BUTTON",
           "name": "Michael Burry"
         },
         {
@@ -981,6 +923,10 @@
         {
           "tag": "BUTTON",
           "name": "Ken Fisher"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Mark Minervini"
         },
         {
           "tag": "BUTTON",

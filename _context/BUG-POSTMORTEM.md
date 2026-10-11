@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1616 - v57.37 - P1608/P1609 조건부 검색 전환이 게이트·헤드리스 단언에 반영되지 않아 첫 CI에서 browser 3개 샤드가 실패했다 (2026-10-11)
+
+- symptom/reproduction: v57.37 병합 푸시의 첫 CI: browser-runtime(chat-response-layout 'could not extract citation renderer'), browser-knowledge(reference-adoption·theme-research 'P1603: unsafe evidence path' 전 스텝), browser-unit(headless T406/T832/T1044) 3샤드 실패. 이전 세션의 미커밋 작업(v57.36)이 처음으로 CI에 올라가며 드러났다.
+- root_cause: (a) chat 인용 렌더러 뒤 경계 주석이 'Google Custom Search API 호출'에서 'Existing Google Custom Search accounts only'로 바뀌어 슬라이스 마컘이 소실. (b) 두 신규 브라우저 체크가 증거 스크린샷 경로를 relative(root, path)로 기록 — CI에서 AIO_QA_EVIDENCE_PATH가 runner temp(리포 외부)를 가리켜 '..' 포함 경로가 P1603 safePath에 걸렸다(로컬 .cache는 통과해 격차가 숨음). (c) 헤드리스 T406은 maxUsesPerCall 3(P1608에서 2로 변경), T832는 _shouldUseClaudeWebSearch의 'gKey && gCx' 폴백 정규식(P1608에서 Worker 위임 selectNativeSearch로 대체), T1044/T1046은 증거 플로어 source 'claude-native'(P1609에서 openai-native로 변경)를 여전히 단언했다.
+- fix: 게이트 마커를 현재 경계로 갱신하고, 증거 경로는 증거 파일 디렉터리 기준 상대경로(파일명)로 기록해 어느 환경에서도 safePath를 만족하게 했다. 헤드리스 단언은 P1608 계약(호출 상한 2, Worker 위임 위임문·옵트아웃 키 존재)과 P1609 계약(source openai-native)으로 갱신했다.
+- violated_rule: 계약 변경은 같은 계약을 단언하는 게이트·테스트와 함께 변경되어야 한다(게이트 남발이 아니라 계약 동기화)
+- prevention: 계약 상수(maxUsesPerCall, source 이름, 경계 주석)를 바꿀 때 ci-assertion-trace-check가 단언 이력을 추적하고, 증거 경로는 항상 증거 파일 기준 상대경로로만 기록한다.
+- verification/residual: 로컬 그룹 실행: browser-unit(headless 111/111) PASS, browser-runtime 8/8 PASS, browser-knowledge 8/8 PASS.
+
 ## P1615 - v57.37 - 13F 전체 체인 재실행이 저장 행 재사용 패스트패스에서 구성 근거(amendmentChain)를 복원하지 않아, 신규 index 빌더(체인 미기록)와 결합하면 두 번째 풀체인 실행부터 masters 계약 게이트가 확정 실패했다 (2026-10-11)
 
 - symptom/reproduction: 2026-10-11 refresh-data 수동 디스패치: '13F composed period without an ORIGINAL/RESTATEMENT base: berkshire-hathaway 2025-12-31'로 전체 워크플로 실패. 로컬 아티팩트의 같은 분기는 ORIGINAL 체인을 갖고 게이트가 통과해 격차가 숨어 있었다. 일일 스케줄은 --ownership-only로 풀체인을 돌리지 않아 잠복했다.

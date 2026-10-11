@@ -47,7 +47,7 @@ try {
     const dom = await page.locator(locator).first().textContent();
     const path = resolve(dirname(evidencePath), `${stepId}.png`);
     const png = await page.screenshot({ path });
-    currentStep.evidence = [{ kind: 'dom', locator, digest: evidenceDigest(dom || '') }, { kind: 'screenshot', path: relative(root, path).replaceAll('\\', '/'), digest: evidenceDigest(png) }];
+    currentStep.evidence = [{ kind: 'dom', locator, digest: evidenceDigest(dom || '') }, { kind: 'screenshot', path: relative(dirname(evidencePath), path).replaceAll('\\', '/'), digest: evidenceDigest(png) }];
     addBrowserEvidenceStep(report, currentStep); currentStep = null;
   };
   await page.evaluate((news) => {

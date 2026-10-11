@@ -1973,7 +1973,7 @@
     // T406: getWebSearchAudit 동작
     var wsAudit = window.AIO && window.AIO.getWebSearchAudit ? window.AIO.getWebSearchAudit() : null;
     _assert('T406 webSearchAudit_structure: enabled + calls + maxUsesPerCall',
-      wsAudit && typeof wsAudit.enabled === 'boolean' && typeof wsAudit.calls === 'number' && wsAudit.maxUsesPerCall === 3,
+      wsAudit && typeof wsAudit.enabled === 'boolean' && typeof wsAudit.calls === 'number' && wsAudit.maxUsesPerCall === 2,
       wsAudit ? 'enabled=' + wsAudit.enabled : 'missing');
 
     // T407: 실제 테마 상세 진입 경로가 window._currentThemeId 설정
@@ -7028,13 +7028,13 @@
         wsAudit832.externalSearchReady === (wsAudit832.perplexityConfigured || wsAudit832.googleCseReady) &&
         sensitive832 &&
         snapshotSrc832.indexOf('aio_google_cse_cx') >= 0 &&
-        typeof window._needsWebSearch === 'function' && /gKey && gCx/.test(String(window._needsWebSearch)) && /return false/.test(shouldSrc832));
+        typeof window._needsWebSearch === 'function' && /selectNativeSearch/.test(shouldSrc832) && /aio_web_search_enabled/.test(shouldSrc832));
       t832detail = JSON.stringify({
         auditFields: !!wsAudit832,
         googleReady: wsAudit832 && wsAudit832.googleCseReady,
         cxSensitive: sensitive832,
         cxSnapshot: snapshotSrc832.indexOf('aio_google_cse_cx') >= 0,
-        claudeFallbackChecksCx: shouldSrc832.indexOf('gKey && gCx') >= 0
+        fallbackDelegatesToWorkerAdmission: shouldSrc832.indexOf('selectNativeSearch') >= 0
       });
     } catch(e) { t832detail = 'ERR:' + e.message; }
     _assert('T832 v5064_websearch_google_cx_integrity: P1421 Google CSE cx persists and incomplete setup cannot enable paid native search', t832ok, t832detail);
@@ -9151,7 +9151,7 @@
       questionPlan: requiredPlan, required: true, nativeCitations: ['https://www.sec.gov/Archives/edgar/data/1045810/filing.htm']
     }) : null;
     _assert('T1044 native_research_contract_executes_v5399: native citations use the same evidence floor',
-      !!nativeGate && nativeGate.ready === true && nativeGate.source === 'claude-native',
+      !!nativeGate && nativeGate.ready === true && nativeGate.source === 'openai-native',
       JSON.stringify(nativeGate));
 
     var spoofDocument = typeof arch.createAIResearchEvidenceDocument === 'function' ? arch.createAIResearchEvidenceDocument({
@@ -9164,7 +9164,7 @@
     var audit = window.AIO && typeof window.AIO.getWebSearchAudit === 'function' ? window.AIO.getWebSearchAudit() : null;
     _assert('T1046 research_capability_does_not_overclaim_worker_route_v5399: an unverified Worker route is not tool READY',
       !!audit && audit.contractReady === true && audit.researchReadiness !== 'NATIVE_TOOL_ROUTE_READY' &&
-        !(audit.researchCapability.provider === 'claude-native' && audit.nativeCitationCount === 0 && audit.researchCapability.toolReady === 'READY'),
+        !(audit.researchCapability.provider === 'openai-native' && audit.nativeCitationCount === 0 && audit.researchCapability.toolReady === 'READY'),
       JSON.stringify(audit));
 
     _assert('T1047 both_chat_surfaces_share_research_preparation_v5399: one preparation boundary drives dispatch',
