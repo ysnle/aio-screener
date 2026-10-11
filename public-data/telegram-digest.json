@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-11T13:58:59.693Z",
-  "attemptedAt": "2026-10-11T13:58:59.693Z",
-  "lastSuccessfulAt": "2026-10-11T13:58:59.693Z",
+  "generatedAt": "2026-10-11T15:42:37.391Z",
+  "attemptedAt": "2026-10-11T15:42:37.391Z",
+  "lastSuccessfulAt": "2026-10-11T15:42:37.391Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-27T13:58:55.027Z",
-  "until": "2026-10-11T13:58:55.027Z",
+  "since": "2026-09-27T15:42:34.805Z",
+  "until": "2026-10-11T15:42:34.805Z",
   "current24hWindow": {
     "start": "2026-10-09T23:00:00.000Z",
     "end": "2026-10-10T23:00:00.000Z",
@@ -78,11 +78,11 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 239,
-      "freshCount": 40,
+      "count": 238,
+      "freshCount": 20,
       "eligibleTextCount": 106,
       "selectedCount": 81,
       "error": null,
@@ -90,11 +90,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1124,
-      "freshCount": 38,
+      "freshCount": 19,
       "eligibleTextCount": 348,
       "selectedCount": 120,
       "error": null,
@@ -102,11 +102,11 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 233,
-      "freshCount": 38,
+      "freshCount": 18,
       "eligibleTextCount": 83,
       "selectedCount": 91,
       "error": null,
@@ -114,19 +114,19 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 656,
-      "freshCount": 36,
+      "count": 655,
+      "freshCount": 16,
       "eligibleTextCount": 229,
       "selectedCount": 121,
       "error": null,
       "lastPostId": 70228
     }
   ],
-  "count": 2252,
-  "retainedItemCount": 491,
+  "count": 2250,
+  "retainedItemCount": 444,
   "observedItems": [
     {
       "id": "insidertracking/65974",
@@ -31085,74 +31085,40 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25510",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-27T14:15:53.000Z",
-      "localDateKst": "2026-09-27",
-      "score": 89,
-      "tags": [
-        "macro",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [
-        "GOOG",
-        "META",
-        "AMZN"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/69499",
-      "channel": "HANAchina",
-      "datetime": "2026-09-27T14:05:11.000Z",
-      "localDateKst": "2026-09-27",
-      "score": 57,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2252,
+    "observedCount": 2250,
     "eligibleTextCount": 766,
-    "mediaOnlyCount": 1486,
-    "highSignalCount": 509,
-    "broadSignalCount": 1021,
+    "mediaOnlyCount": 1484,
+    "highSignalCount": 508,
+    "broadSignalCount": 1019,
     "selectedRawCount": 413,
     "selectedEligibleCount": 354,
     "selectedRawCoveragePct": 46.2,
-    "selectedOfObservedPct": 18.3,
+    "selectedOfObservedPct": 18.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
     "market-note": 685,
-    "macro": 773,
+    "macro": 771,
     "semi": 586,
-    "earnings": 400,
+    "earnings": 399,
     "optical": 51,
     "kr-market": 250,
     "insider": 50,
-    "flows": 173,
+    "flows": 172,
     "media-only": 48,
     "power": 337,
     "japan": 137,
     "credit": 83,
-    "geo": 370,
-    "healthcare": 122,
-    "equity": 170,
-    "ai-policy": 199,
+    "geo": 369,
+    "healthcare": 121,
+    "equity": 169,
+    "ai-policy": 198,
     "crypto": 5
   },
   "tickerCounts": {
@@ -31164,7 +31130,7 @@
     "373220.KS": 6,
     "006400.KS": 3,
     "096770.KS": 2,
-    "GOOG": 61,
+    "GOOG": 60,
     "TSLA": 18,
     "MU": 57,
     "ORCL": 23,
@@ -31174,7 +31140,7 @@
     "MSFT": 30,
     "MRVL": 27,
     "SMCI": 2,
-    "AMZN": 40,
+    "AMZN": 39,
     "INTC": 17,
     "LITE": 31,
     "BE": 39,
@@ -31212,7 +31178,7 @@
     "COHR": 11,
     "AAOI": 6,
     "009150.KS": 5,
-    "META": 48,
+    "META": 47,
     "P": 2,
     "AAPL": 14,
     "VZ": 3,
@@ -31336,14 +31302,14 @@
     "JPM": 1
   },
   "themes": [
-    "Macro/Rates (773 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
+    "Macro/Rates (771 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
     "Market Notes (685 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 10일 > 오전 7시~오후 8시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국과 우크라이나, 러시아 협상단은 마이애미에서 6시간 동안 종전...",
     "Semiconductors/Memory (586 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
-    "Earnings/Corporate (400 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
-    "Geopolitics (370 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
+    "Earnings/Corporate (399 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
+    "Geopolitics (369 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
     "AI Power/Grid (337 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
     "Korea Market (250 posts in 14-day research window): [Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이...",
-    "AI Policy/Export Controls (199 posts in 14-day research window): BofA) AI/ 클라우드 CAPEX 투자 전망 1. AI 설비투자 CY26/27 전망, 현재 전년 대비 +98%/+37% 3분기 반도체 실적 시즌을 앞두고 데이터센터는 여전히 핵심 거점으로 남아 있으며, 미국 4대 하이퍼스케일러(구글, 마이크로소프트, 메타, 아마존)가 향후 몇 주 내 실적을 발표할 예정입니다...."
+    "AI Policy/Export Controls (198 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 새로운 AI 모델 출시를 준비 중이며, 내부 직원들은 이보다..."
   ],
   "catalysts": [
     {
@@ -31363,8 +31329,8 @@
     },
     {
       "key": "GOOG",
-      "count": 61,
-      "text": "BofA) AI/ 클라우드 CAPEX 투자 전망 1. AI 설비투자 CY26/27 전망, 현재 전년 대비 +98%/+37% 3분기 반도체 실적 시즌을 앞두고 데이터센터는 여전히 핵심 거점으로 남아 있으며, 미국 4대 하이퍼스케일러(구글, 마이크로소프트, 메타, 아마존)가 향후 몇 주 내 실적을 발표할 예정입니다...."
+      "count": 60,
+      "text": "BofA) AI/ 클라우드 CAPEX 투자 전망 1. AI 설비투자 CY26/27 전망, 현재 전년 대비 +98%/+37% 3분기 반도체 실적 시즌을 앞두고 데이터센터는 여전히 핵심 거점으로 남아 있으며,..."
     },
     {
       "key": "005930.KS",
@@ -31378,18 +31344,18 @@
     },
     {
       "key": "META",
-      "count": 48,
+      "count": 47,
       "text": "2026년 10월 8일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (31.64%) 2위: ISHARES..."
-    },
-    {
-      "key": "AMZN",
-      "count": 40,
-      "text": "2026년 10월 10일 미국 레딧 베스트 게시물 분석 > 🤖 NVDA / AI 인프라 · \"AI 크레딧 버블? 상관없다\" 분위기 · Jim Cramer 발언까지 가져오며 AI 인프라는 신용우려와 무관하다는..."
     },
     {
       "key": "AVGO",
       "count": 39,
       "text": "2026년 10월 12일~16일 미국 증시 및 경제지표 주간 브리핑 다음 주 미국 증시는 9월 소비자물가지수(CPI), 생산자물가지수(PPI), 소매판매와 주요 금융·반도체 기업 실적 발표가 핵심 변수...."
+    },
+    {
+      "key": "AMZN",
+      "count": 39,
+      "text": "2026년 10월 10일 미국 레딧 베스트 게시물 분석 > 🤖 NVDA / AI 인프라 · \"AI 크레딧 버블? 상관없다\" 분위기 · Jim Cramer 발언까지 가져오며 AI 인프라는 신용우려와 무관하다는..."
     },
     {
       "key": "BE",
@@ -31414,7 +31380,7 @@
       "topics": [
         "macro"
       ],
-      "count": 773,
+      "count": 771,
       "focus": "[Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이..."
     },
     {
@@ -31423,7 +31389,7 @@
       "topics": [
         "geo"
       ],
-      "count": 370,
+      "count": 369,
       "focus": "[Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이..."
     },
     {
@@ -31468,8 +31434,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 199,
-      "focus": "BofA) AI/ 클라우드 CAPEX 투자 전망 1. AI 설비투자 CY26/27 전망, 현재 전년 대비 +98%/+37% 3분기 반도체 실적 시즌을 앞두고 데이터센터는 여전히 핵심 거점으로 남아 있으며, 미국 4대 하이퍼스케일러(구글, 마이크로소프트, 메타, 아마존)가 향후 몇 주 내 실적을 발표할 예정입니다...."
+      "count": 198,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 새로운 AI 모델 출시를 준비 중이며, 내부 직원들은 이보다..."
     },
     {
       "id": "kr-market",
@@ -31486,7 +31452,7 @@
       "topics": [
         "equity"
       ],
-      "count": 170,
+      "count": 169,
       "focus": "[Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이..."
     },
     {
@@ -31504,7 +31470,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 400,
+      "count": 399,
       "focus": "[Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이..."
     },
     {
@@ -31513,8 +31479,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 122,
-      "focus": "BofA) AI/ 클라우드 CAPEX 투자 전망 1. AI 설비투자 CY26/27 전망, 현재 전년 대비 +98%/+37% 3분기 반도체 실적 시즌을 앞두고 데이터센터는 여전히 핵심 거점으로 남아 있으며, 미국 4대 하이퍼스케일러(구글, 마이크로소프트, 메타, 아마존)가 향후 몇 주 내 실적을 발표할 예정입니다...."
+      "count": 121,
+      "focus": "Citi, 2026 미국 금리 전망 (2026년 10월 9일, 제이슨 윌리엄스 외) Citi는 단기적으로 미 국채를 저가 매수하기에는 이르지만, 중기적으로는 3~5년 구간에 가치가 있다고 판단했습니다. 2026년 말 전망치는 기본 시나리오 기준 2년물 4.80%, 5년물 4.85%, 10년물 5.00%, 30년물..."
     },
     {
       "id": "japan",
@@ -31531,7 +31497,7 @@
       "topics": [
         "flows"
       ],
-      "count": 173,
+      "count": 172,
       "focus": "[Battery Weekly 이배속 - 하나증권 2차전지 김현수/김희제] '실적 시즌 돌입, 배터리 비중 확대' 자료 링크 : ▶ 데이터 포인트 해석 및 투자 전략 : 섹터 비중 확대 -LGES의 3분기 실적은 매출 및 영업이익 모두 컨센서스를 각각 9.6%, 107.7% 상회했다. 특히, 영업이익 상회폭이..."
     },
     {
@@ -31862,12 +31828,9 @@
       "datetime": "2026-10-10T05:28:15.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
         "semi",
         "power",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -32012,13 +31975,7 @@
       "datetime": "2026-10-09T12:13:03.000Z",
       "localDateKst": "2026-10-09",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "tickers": [],
       "score": 100,
@@ -33152,8 +33109,7 @@
       "datetime": "2026-10-11T05:57:18.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
       "tickers": [],
       "score": 57,
@@ -33184,9 +33140,7 @@
       "datetime": "2026-10-11T04:34:30.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "TSM"
@@ -33203,10 +33157,8 @@
       "localDateKst": "2026-10-11",
       "tags": [
         "macro",
-        "geo",
         "semi",
         "ai-policy",
-        "equity",
         "earnings"
       ],
       "tickers": [
@@ -33223,8 +33175,6 @@
       "datetime": "2026-10-11T02:28:47.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "macro",
-        "semi",
         "flows"
       ],
       "tickers": [],
@@ -33239,7 +33189,6 @@
       "datetime": "2026-10-11T02:19:06.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "macro",
         "geo"
       ],
       "tickers": [],
@@ -33275,8 +33224,7 @@
       "datetime": "2026-10-11T01:12:07.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "semi",
-        "power"
+        "market-note"
       ],
       "tickers": [],
       "score": 60,
@@ -33305,7 +33253,6 @@
       "datetime": "2026-10-11T00:13:27.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "macro",
         "geo"
       ],
       "tickers": [],
@@ -33424,7 +33371,6 @@
       "datetime": "2026-10-10T14:31:08.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "semi",
         "ai-policy"
       ],
       "tickers": [],
@@ -33645,7 +33591,6 @@
       "datetime": "2026-10-10T07:24:12.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
         "semi",
         "japan"
       ],
@@ -33692,12 +33637,9 @@
       "datetime": "2026-10-10T05:28:15.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
         "semi",
         "power",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -33763,8 +33705,6 @@
       "localDateKst": "2026-10-10",
       "tags": [
         "macro",
-        "semi",
-        "ai-policy",
         "earnings"
       ],
       "tickers": [],
@@ -33901,9 +33841,7 @@
       "datetime": "2026-10-10T01:15:44.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "AMZN"
@@ -33933,7 +33871,6 @@
       "datetime": "2026-10-10T00:31:02.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
         "geo"
       ],
       "tickers": [],
@@ -34381,10 +34318,7 @@
       "datetime": "2026-10-09T14:27:03.000Z",
       "localDateKst": "2026-10-09",
       "tags": [
-        "power",
-        "ai-policy",
-        "kr-market",
-        "flows"
+        "ai-policy"
       ],
       "tickers": [],
       "score": 66,
@@ -34522,13 +34456,7 @@
       "datetime": "2026-10-09T12:13:03.000Z",
       "localDateKst": "2026-10-09",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "tickers": [],
       "score": 100,
@@ -34556,10 +34484,7 @@
       "datetime": "2026-10-09T12:10:41.000Z",
       "localDateKst": "2026-10-09",
       "tags": [
-        "macro",
-        "semi",
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "NVDA",
@@ -34577,12 +34502,7 @@
       "datetime": "2026-10-09T12:03:54.000Z",
       "localDateKst": "2026-10-09",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [
         "P"
@@ -34630,8 +34550,7 @@
       "datetime": "2026-10-09T11:33:18.000Z",
       "localDateKst": "2026-10-09",
       "tags": [
-        "semi",
-        "healthcare"
+        "market-note"
       ],
       "tickers": [],
       "score": 57,
@@ -35152,7 +35071,6 @@
       "datetime": "2026-10-08T22:20:08.000Z",
       "localDateKst": "2026-10-09",
       "tags": [
-        "macro",
         "ai-policy",
         "earnings"
       ],
@@ -35559,7 +35477,6 @@
       "datetime": "2026-10-08T13:30:06.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "credit",
         "macro",
         "equity"
       ],
@@ -35593,10 +35510,7 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -35688,7 +35602,6 @@
       "datetime": "2026-10-08T12:31:58.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "semi",
         "optical",
         "power"
       ],
@@ -35789,9 +35702,7 @@
       "datetime": "2026-10-08T12:15:55.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
-        "ai-policy",
-        "earnings"
+        "macro"
       ],
       "tickers": [
         "PLTR"
@@ -36136,11 +36047,9 @@
       "datetime": "2026-10-08T04:26:51.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
         "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "005930.KS"
@@ -36273,10 +36182,8 @@
       "datetime": "2026-10-08T02:15:54.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "macro",
         "semi",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "005930.KS"
@@ -36336,11 +36243,7 @@
       "datetime": "2026-10-07T23:56:24.000Z",
       "localDateKst": "2026-10-08",
       "tags": [
-        "semi",
-        "optical",
-        "power",
-        "earnings",
-        "japan"
+        "optical"
       ],
       "tickers": [
         "LITE"
@@ -36402,9 +36305,7 @@
       "localDateKst": "2026-10-08",
       "tags": [
         "macro",
-        "power",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "tickers": [
         "CRWV"
@@ -39393,90 +39294,6 @@
   ],
   "current24hItems": [
     {
-      "id": "HANAchina/70194",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70194",
-      "datetime": "2026-10-10T22:50:22.000Z",
-      "localDateKst": "2026-10-11",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ">>사우디 리야드 공항 또다시 공격받아 12명 사망, 309명 부상 •사우디아라비아 민간항공 당국은 11일 새벽 성명을 통해 수도 리야드의 국제공항이 공격을 받아 12명이 사망하고 309명이 부상했다고..."
-    },
-    {
-      "id": "HANAchina/70193",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70193",
-      "datetime": "2026-10-10T21:58:27.000Z",
-      "localDateKst": "2026-10-11",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ">>중국 Luxshare : 회사 및 자회사 Luxshare Technology, 미국 무역법 337조 조사 대상에 포함…조사 초기 단계 •Luxshare Precision Industry는 회사와 지배..."
-    },
-    {
-      "id": "HANAchina/70192",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70192",
-      "datetime": "2026-10-10T21:55:47.000Z",
-      "localDateKst": "2026-10-11",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
-    },
-    {
-      "id": "HANAchina/70191",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70191",
-      "datetime": "2026-10-10T21:55:18.000Z",
-      "localDateKst": "2026-10-11",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
-    },
-    {
-      "id": "HANAchina/70189",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70189",
-      "datetime": "2026-10-10T21:53:54.000Z",
-      "localDateKst": "2026-10-11",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ">>트럼프, 신임 백악관 대변인 임명: 베이징에서 3년 근무, 중국 유명 로펌 재직 경력에 중국어 구사 가능 •트럼프가 케이티 자카리아를 신임 백악관 대변인으로 임명. 주변에서 ‘맞춤형 인사’로 평가받는 이..."
-    },
-    {
-      "id": "HANAchina/70188",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70188",
-      "datetime": "2026-10-10T21:51:37.000Z",
-      "localDateKst": "2026-10-11",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": ">>중국 신에너지차 9월 판매량 전년 대비 -12% 감소, 승용차 소매판매 -24% 감소 •9월 중국 자동차 시장이 부진한 모습을 보이며 승용차 판매량이 24% 급감. 마지막 성장 동력이었던 신에너지차도..."
-    },
-    {
       "id": "aetherjapanresearch/25749",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25749",
@@ -39587,7 +39404,6 @@
       "datetime": "2026-10-10T14:31:08.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "semi",
         "ai-policy"
       ],
       "tickers": [],
@@ -39608,20 +39424,6 @@
       "score": 58,
       "hasText": true,
       "summary": "이스라엘 일간지 마아리브에 따르면 미국이 오는 11월 중간선거를 앞두고 트럼프 대통령의 정치적 부담을 줄이기 위해 이스라엘에 이란 독자 공격을 요청했다는 보도. 미국은 지난 2주간 진행된 협상에서 이스라엘이..."
-    },
-    {
-      "id": "HANAchina/70187",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70187",
-      "datetime": "2026-10-10T14:16:05.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": ">>장벽 돌파&#33; CXMT, 4F² 아키텍처 곧 적용… 고급 서버 메모리 시장 공략 •CXMT는 10월 10일 열린 제4회 집적회로 및 칩렛 콘퍼런스에서 새로운 DRAM 기술 진전을 공개. 차오 사장은..."
     },
     {
       "id": "HANAchina/70186",
@@ -39822,7 +39624,6 @@
       "datetime": "2026-10-10T07:24:12.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
         "semi",
         "japan"
       ],
@@ -39869,12 +39670,9 @@
       "datetime": "2026-10-10T05:28:15.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
         "semi",
         "power",
-        "ai-policy",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "tickers": [
         "NVDA",
@@ -39933,22 +39731,6 @@
       "summary": ">>유조선 운임 60년 만에 최고치: 미국에서 중국으로 원유 한 척을 운송하는 비용이 로켓 발사보다 비싸 •배럴당 원유 운송비가 41달러까지 급등해 유가의 절반 수준에 근접, 한 차례 운송에 드는 비용으로..."
     },
     {
-      "id": "aetherjapanresearch/25739",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25739",
-      "datetime": "2026-10-10T04:18:20.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "MSFT"
-      ],
-      "score": 39,
-      "hasText": true,
-      "summary": "최근 급격히 인기를 끌고 있는 의사결정용 AI에 마이크로소프트도 참전했습니다. 마이크로소프트에서 공개한 Microsoft-Decision-1은 TypesafeAI의 Jev와 유사하게 사람이 읽을 수 있는..."
-    },
-    {
       "id": "aetherjapanresearch/25738",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25738",
@@ -39956,28 +39738,12 @@
       "localDateKst": "2026-10-10",
       "tags": [
         "macro",
-        "semi",
-        "ai-policy",
         "earnings"
       ],
       "tickers": [],
       "score": 74,
       "hasText": true,
       "summary": "FT) 오픈AI의 모호한 성장 지표가 월가를 움직이고 있습니다. 이번 주 FT가 오픈AI의 연환산 순매출이 약 500억 달러라고 보도하면서, 9월 말 액시오스와 FT 등이 보도했던 약 700억 달러보다..."
-    },
-    {
-      "id": "aetherjapanresearch/25737",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25737",
-      "datetime": "2026-10-10T03:46:04.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "일단 다른건 모르겠는데 포스트 내용이 엄청나게 긴거 보니 엄청 긁혔다는건 알겠음.."
     },
     {
       "id": "insidertracking/65873",
@@ -40006,34 +39772,6 @@
       "score": 52,
       "hasText": true,
       "summary": "ASML, 유지보수용 노광장비 부품값 10% 일괄 인상 < 반도체 < 기사본문 - 디일렉(THE ELEC)"
-    },
-    {
-      "id": "aetherjapanresearch/25735",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25735",
-      "datetime": "2026-10-10T03:26:07.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "존 터너스 신임CEO는 게이일지 아닐지가 궁금"
-    },
-    {
-      "id": "aetherjapanresearch/25734",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25734",
-      "datetime": "2026-10-10T03:25:51.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": "팀 쿡 애플 이사회 의장, 신임 CEO 존 터너스의 경영에 간섭하지 않는다고 강조. 팀 쿡은 지난 9월 애플 최고경영자(CEO) 자리에서 물러나 존 터너스에게 경영권을 넘기고 이사회 의장으로 이동. 최근..."
     },
     {
       "id": "HANAchina/70173",
@@ -40130,43 +39868,13 @@
       "summary": ">>엔비디아, 잉여현금흐름 산정 방식을 조용히 재정의… 1,000억 달러 규모 자사주 매입 계획에 허점 있나? •엔비디아는 OpenAI와 Anthropic 등 242개 기업에 대한 지분 투자를 ‘전략적..."
     },
     {
-      "id": "aetherjapanresearch/25733",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25733",
-      "datetime": "2026-10-10T01:16:12.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "이제 봤나?"
-    },
-    {
-      "id": "aetherjapanresearch/25732",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25732",
-      "datetime": "2026-10-10T01:16:04.000Z",
-      "localDateKst": "2026-10-10",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "트럼프: 노르웨이가 미국에 노벨 평화상을 수여하기를 거부한 것을 잊지 않을 것"
-    },
-    {
       "id": "aetherjapanresearch/25731",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25731",
       "datetime": "2026-10-10T01:15:44.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "AMZN"
@@ -40196,7 +39904,6 @@
       "datetime": "2026-10-10T00:31:02.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
         "geo"
       ],
       "tickers": [],
