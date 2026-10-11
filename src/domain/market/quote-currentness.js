@@ -30,7 +30,7 @@ function mdOf(date) {
 /**
  * @param {{ observations: Array<{symbol:string, observedMs:number}>, nowMs?: number, session?: object|null }} input
  */
-export function describeQuoteCurrentness({ observations = [], nowMs = Date.now(), session } = {}) {
+export function describeQuoteCurrentness({ observations = [], nowMs = Date.now(), session, durableCount } = {}) {
   const basis = session === undefined ? latestCompletedUsSession(nowMs) : session;
   const us = observations.filter((row) => US_CORE_SYMBOLS.includes(row?.symbol) && Number.isFinite(row?.observedMs) && row.observedMs <= nowMs + 60000);
   const count = observations.filter((row) => Number.isFinite(row?.observedMs)).length;
@@ -41,7 +41,10 @@ export function describeQuoteCurrentness({ observations = [], nowMs = Date.now()
   const ageMs = nowMs - newestMs;
   const at = kstParts(newestMs);
   // P1599 (G05): name what the count is — the number of quotes with a confirmed observation time.
-  const suffix = count ? ` · 시세 ${count}종` : '';
+  const durable = Number.isFinite(durableCount) && durableCount > 0 ? durableCount : null;
+  const suffix = durable != null
+    ? ` · 시세 ${durable}종` + (count ? ` (라이브 ${count}종)` : '')
+    : (count ? ` · 시세 ${count}종` : '');
   if (basis?.inSession) {
     if (ageMs <= LIVE_MAX_MS) return result('live', 'LIVE', `${at.hm} 기준${suffix}`, `미국 정규장 중 · 최신 관측 ${at.md} ${at.hm} KST`);
     if (ageMs <= DELAYED_MAX_MS) return result('delayed', '지연', `${Math.round(ageMs / 60000)}분 전${suffix}`, `미국 정규장 중 · 최신 관측 ${at.md} ${at.hm} KST`);

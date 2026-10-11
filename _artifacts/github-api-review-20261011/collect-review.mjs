@@ -1,0 +1,11 @@
+import { execFileSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
+const repo = 'ysnle/aio-screener';
+const get = (suffix) => JSON.parse(execFileSync('gh', ['api', '--paginate', '--slurp', `repos/${repo}/${suffix}`], {encoding:'utf8',maxBuffer:32*1024*1024})).flat();
+const scanning = get('code-scanning/alerts?state=open&per_page=100').map(a => ({number:a.number,rule:a.rule.id,severity:a.rule.security_severity_level,path:a.most_recent_instance.location.path,line:a.most_recent_instance.location.start_line,ref:a.most_recent_instance.ref,sha:a.most_recent_instance.commit_sha,message:a.most_recent_instance.message.text,url:a.html_url}));
+const notifications = get('notifications?all=true&per_page=100').map(a => ({title:a.subject.title,type:a.subject.type,reason:a.reason,unread:a.unread,updatedAt:a.updated_at,url:a.subject.url}));
+const advisories = get('security-advisories?per_page=100').map(a => ({id:a.ghsa_id,summary:a.summary,state:a.state,severity:a.severity,url:a.html_url}));
+const counts = (rows,field) => rows.reduce((o,a)=>(o[a[field]]=(o[a[field]]||0)+1,o),{});
+const report = {observedAt:new Date().toISOString(),repo,scanning,notifications,advisories};
+writeFileSync(new URL('./github-alert-inventory.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify({scanning:scanning.length,severity:counts(scanning,'severity'),rules:counts(scanning,'rule'),notifications:notifications.length,notificationTypes:counts(notifications,'type'),unread:notifications.filter(a=>a.unread).length,latestNotifications:notifications.slice(0,8),advisories},null,2));

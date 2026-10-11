@@ -41,14 +41,14 @@
     "fastPlaneRequires": [
       "CLOUDFLARE_API_TOKEN",
       "CLOUDFLARE_ACCOUNT_ID",
-      "AIO_QUOTES_KV_ID",
-      "AIO_CRON_SECRET"
+      "AIO_QUOTES_KV_ID"
     ],
+    "fastPlaneOptional": ["AIO_CRON_SECRET", "AIO_REFRESH_DISPATCH_TOKEN"],
     "proxyRequires": [
       "OPENAI_API_KEY",
-      "AIO_QUOTA_DO",
-      "AIO_DEV_ORIGINS"
+      "AIO_QUOTA_DO"
     ],
+    "proxyOptional": ["AIO_DEV_ORIGINS", "AIO_APP_TOKEN", "AIO_OPERATOR_TOKEN"],
     "operatorObservationRequires": ["AIO_OPERATOR_TOKEN"],
     "automationAiRequires": ["AIO_AUTOMATION_TOKEN"],
     "relayRequires": [

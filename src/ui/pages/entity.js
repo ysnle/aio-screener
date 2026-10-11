@@ -1,4 +1,5 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
+import { ensureResearchSnapshots } from '../components/research-snapshots.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { parseKnowledgeTargetContext } from '../../app/knowledge-route-state.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
@@ -326,7 +327,7 @@ function renderFundamentalStatus(documentRef, state) {
     && Array.isArray(fundamentals.coverage) && fundamentals.coverage.length > 0;
   const observedAt = fundamentals?.observedAt || fundamentals?.filedAt || null;
   const unselected = !String(state?.id || '').trim(); // P1365: no selection ≠ SEC 미수신.
-  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `기준 ${String(observedAt).slice(0, 10)}` : '기준일 미수신'}` : unselected ? '○ 종목 선택 전' : '○ SEC 데이터 미수신';
+  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `회계연도 말 ${String(observedAt).slice(0, 10)}` : '회계연도 말 미수신'}` : unselected ? '○ 종목 선택 전' : '○ SEC 데이터 미수신';
   element.className = 'freshness-badge fb-static';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
@@ -348,14 +349,15 @@ function renderFundamentalSummary(documentRef, state) {
     ? fundamentals.coverage.filter((field) => typeof field === 'string')
     : [];
   const available = coverage.length > 0;
+  const report = deriveSecReport(fundamentals);
   const facts = [];
   if (coverage.includes('revenue')) {
-    const revenue = formatFundamentalNumber(fundamentals?.revenue);
-    if (revenue != null) facts.push(`매출 ${revenue}`);
+    const revenue = finite(fundamentals?.revenue);
+    if (revenue != null) facts.push(`매출 ${formatSecWatchlistValue(revenue)}`);
   }
   if (coverage.includes('netIncome')) {
-    const netIncome = formatFundamentalNumber(fundamentals?.netIncome);
-    if (netIncome != null) facts.push(`순이익 ${netIncome}`);
+    const netIncome = finite(fundamentals?.netIncome);
+    if (netIncome != null) facts.push(`순이익 ${formatSecWatchlistValue(netIncome)}`);
   }
   if (coverage.includes('margin')) {
     const margin = formatFundamentalNumber(fundamentals?.margin);
@@ -366,9 +368,9 @@ function renderFundamentalSummary(documentRef, state) {
     if (pe != null) facts.push(`P/E ${pe}`);
   }
   const period = fundamentals?.periodType || 'FY';
-  const observedAt = fundamentals?.observedAt || '기준일 미상';
+  const observedAt = fundamentals?.observedAt || '미상';
   element.textContent = available
-    ? `SEC ${period} 데이터 ${coverage.length}개 항목 확인 · 기준일 ${observedAt}${facts.length ? ` · ${facts.join(' · ')}` : ''}`
+    ? `SEC ${period} · 관측 항목 ${report.coverage.length}개 · 회계연도 말 ${observedAt}${facts.length ? ` · ${facts.join(' · ')}` : ''}`
     : !String(state?.id || '').trim() ? '종목 선택 전 · 선택 기업의 SEC 연간 재무 해석 없음' : 'SEC 연간 재무 데이터 수신 대기 · 해석 보류';
   element.dataset.aioFundamentalSummaryRenderer = 'native';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
@@ -456,7 +458,7 @@ function renderFundamentalWatchlist(documentRef, state) {
     name.style.cssText = 'font-size:10px;color:var(--text-muted);line-height:1.35;margin-top:2px;';
     identity.append(symbolNode, name);
     const period = documentRef.createElement('span');
-    period.textContent = `${row.periodType || 'FY'} · ${row.observedAt || '기준일 미상'}`;
+    period.textContent = `${row.periodType || 'FY'} · ${row.observedAt || '회계연도 말 미상'}`;
     period.style.cssText = 'font-size:10px;color:var(--text-muted);white-space:nowrap;';
     heading.append(identity, period);
     card.appendChild(heading);
@@ -467,7 +469,7 @@ function renderFundamentalWatchlist(documentRef, state) {
     appendSecWatchlistMetric(documentRef, metrics, '순이익', formatSecWatchlistValue(row.netIncome));
     appendSecWatchlistMetric(documentRef, metrics, '매출 성장', formatSecWatchlistValue(row.revGrowth, { percent: true }));
     appendSecWatchlistMetric(documentRef, metrics, '순이익률', formatSecWatchlistValue(row.margin, { percent: true }));
-    appendSecWatchlistMetric(documentRef, metrics, 'ROE', formatSecWatchlistValue(row.roe, { percent: true }));
+    appendSecWatchlistMetric(documentRef, metrics, 'ROE (기말 자기자본 기준)', formatSecWatchlistValue(row.roe, { percent: true }));
     card.appendChild(metrics);
 
     const source = documentRef.createElement('div');
@@ -566,6 +568,13 @@ function renderFundamentalReport(documentRef, page, state) {
       : unselected ? '선택한 종목 없음 · 티커를 입력하거나 관심종목을 선택하면 해당 기업의 SEC 연간 보고서를 표시합니다'
         : 'SEC 연간 보고서를 아직 받지 못했습니다 · 값이 없는 항목은 추정하지 않습니다';
     if (report.status === 'current') meta.title = [report.filingMetadata?.acceptedAt ? `접수 ${report.filingMetadata.acceptedAt}` : null, report.accession ? `접수번호 ${report.accession}` : null, report.pointInTime?.observationCount ? `시점 기록(PIT) ${report.pointInTime.observationCount}건 (${report.pointInTime.status})` : null].filter(Boolean).join(' · ');
+    if (report.filingUrl && report.status === 'current') {
+      const original = documentRef.createElement('a');
+      original.href = report.filingUrl; original.target = '_blank'; original.rel = 'noopener noreferrer';
+      original.textContent = 'SEC 공시 원문';
+      original.setAttribute('aria-label', `${report.entityName || report.symbol || ''} ${report.form || ''} 제출 ${report.filedAt || ''} SEC 공시 원문 새 창`);
+      meta.append(documentRef.createTextNode(' · '), original);
+    }
   }
   if (coverage) coverage.textContent = report.status === 'current'
     ? `관측 항목 ${report.coverage.length}개 · ${report.source} · ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`
@@ -617,6 +626,8 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderTickerSecondarySymbols(documentRef, state, root);
     renderTickerActivity(documentRef, root, state, portfolioState);
     renderTickerNavigation(documentRef, state, root);
+    ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', collect: () => ({ kind: 'stock',
+      symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '' }); // P1434

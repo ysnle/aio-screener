@@ -1088,6 +1088,8 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   const setText = (id, text) => { const node = documentRef.getElementById(id); if (node) node.textContent = text; };
   setText('scr-funnel-passed-denom', denominator);
   setText('scr-funnel-unavailable-denom', denominator);
+  const readyLabel = documentRef.getElementById('scr-funnel-ready')?.previousElementSibling;
+  if (readyLabel) readyLabel.textContent = '필수 필드 충족';
   const executed = !!runId;
   const originLabel = origin === 'user' ? '사용자 실행'
     : origin === 'pipeline' ? '파이프라인 실행'
@@ -1209,7 +1211,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const metadata = state?.metadata || {};
     const fmtDate = (value) => value ? String(value).slice(0, 16).replace('T', ' ') : '—';
     const sec = metadata.secFundamentalsEligible > 0
-      ? `SEC FY ${metadata.secFundamentalsModel || '정규화'} ${metadata.secFundamentalsStored || 0}/${metadata.secFundamentalsEligible}`
+      ? `SEC FY ${metadata.secFundamentalsModel || '정규화'} ${metadata.secFundamentalsStored || 0}/${metadata.secFundamentalsEligible}(SEC 정규화 별도 스코프)`
       : 'SEC FY coverage 별도 확인 대기';
     const universeNote = metadata.universeFreshnessStatus === 'stale'
       ? `종목 유니버스 갱신 필요 (${fmtDate(metadata.universeLastBulkUpdate)})`
@@ -1257,7 +1259,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (readiness && previewConditions) readiness.title = `내장 조건: ${previewConditions.builtin.map(item => item.text).join(' · ') || '없음'} | 사용자 추가: ${previewConditions.user.map(item => item.text).join(' · ') || '없음'}`;
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '데이터 상태: 산출물 미수신 · 결과와 검증 수치를 표시하지 않습니다.'
-    : `${identityNote}${previewNote}${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 계산 준비 ${readyCount} · 실행 판정 ${run?.runId ? `run ${String(run.runId).slice(0, 12)} ` : ''}통과 ${passedCount} · 부족 ${unavailableCount} / ${Number.isFinite(Number(run?.rowCount)) ? run.rowCount : '—'} · 표시 범위 현재 필터 ${filtered.length}행 · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
+    : `${previewNote}${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 필수 필드 충족 ${readyCount} · 실행 판정 ${run?.runId ? `run ${String(run.runId).slice(0, 12)} ` : ''}통과 ${passedCount} · 부족 ${unavailableCount} / ${Number.isFinite(Number(run?.rowCount)) ? run.rowCount : '—'} · 표시 범위 현재 필터 ${filtered.length}행 · ${identityNote}상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
   // LC-25: bind the executed judgment to the run that produced it and keep the table's display
   // scope separate. A preview is an unfixed run and is labeled as such; the pipeline entry and a
   // user run are different origins over the same artifact.
@@ -1699,7 +1701,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          renderFilterChips(documentRef);
          syncColumnControls();
          const readiness = activeResult?.readiness || state.readiness;
-         if (readinessPreview) readinessPreview.textContent = readiness ? `필드 준비 ${readiness.eligibleCount}/${readiness.rowCount} · ${readiness.coveragePct}% · 필수: ${(readiness.requiredFields || []).map((field) => field.split('.').pop()).join(' · ') || '없음'}` : '필드 준비도 미리보기 대기';
+         const collectedCount = Number.isFinite(state?.metadata?.artifactRows) ? state.metadata.artifactRows : null;
+         const collectedUniverse = Number.isFinite(state?.metadata?.universe) ? state.metadata.universe : (readiness?.rowCount ?? null);
+         const collectedNote = collectedCount > 0 && collectedUniverse > 0 ? `수집 성공 ${collectedCount}/${collectedUniverse} · ` : '';
+         if (readinessPreview) readinessPreview.textContent = readiness ? `${collectedNote}필수 필드 충족 ${readiness.eligibleCount}/${readiness.rowCount} · ${readiness.coveragePct}% · 필수: ${(readiness.requiredFields || []).map((field) => field.split('.').pop()).join(' · ') || '없음'}` : '필드 준비도 미리보기 대기';
           // P1164/B04(12:U01): 실행 전 카운트는 '선택한 정의의 통과'가 아니다 — 빈 조건 파이프라인
           // 미리보기 결과다. '조건 적용 전 계산 가능'으로 부르고 어떤 정의·해시인지 밝힌다.
           if (workbenchStatus && !activeResult) {
@@ -2132,10 +2137,19 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       bag.add(() => page.removeEventListener('keydown', handleBuilderKeydown));
       bag.add(subscribeToSlices(store, ['screener'], renderWithControls));
       const eventTarget = documentRef || root;
-      ['aio:refresh:done', 'aio:liveQuotes'].forEach((eventName) => {
-        eventTarget?.addEventListener?.(eventName, renderWithControls);
-        bag.add(() => eventTarget?.removeEventListener?.(eventName, renderWithControls));
+      const onDataEvent = (event) => {
+        if (event?.type === 'aio:historyLoaded') readSignature = '';
+        renderWithControls();
+      };
+      ['aio:refresh:done', 'aio:liveQuotes', 'aio:historyLoaded'].forEach((eventName) => {
+        eventTarget?.addEventListener?.(eventName, onDataEvent);
+        bag.add(() => eventTarget?.removeEventListener?.(eventName, onDataEvent));
       });
+      const windowTarget = root && root !== eventTarget ? root : null;
+      if (windowTarget?.addEventListener) {
+        windowTarget.addEventListener('aio:historyLoaded', onDataEvent);
+        bag.add(() => windowTarget.removeEventListener?.('aio:historyLoaded', onDataEvent));
+      }
       mounted = true;
       renderWithControls();
       renderCompareTray();

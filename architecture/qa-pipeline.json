@@ -696,6 +696,16 @@
           "script": "scripts/ci-page-data-timeline-contract-check.mjs"
         },
         {
+          "id": "reference-adoption-contract",
+          "script": "scripts/ci-reference-adoption-contract-check.mjs",
+          "inputs": [
+            "src/**",
+            "js/**",
+            "scripts/lib/browser-evidence.mjs",
+            "scripts/ci-reference-adoption-contract-check.mjs"
+          ]
+        },
+        {
           "id": "semantic-review",
           "script": "scripts/ci-semantic-review-check.mjs",
           "inputs": [
@@ -714,6 +724,14 @@
             "_context/BUG-POSTMORTEM.md",
             "CHANGELOG.md"
           ]
+        },
+        {
+          "id": "connection-access",
+          "script": "scripts/ci-connection-access-check.mjs"
+        },
+        {
+          "id": "conditional-native-search",
+          "script": "scripts/ci-native-search-check.mjs"
         }
       ]
     },
@@ -1656,6 +1674,41 @@
           "timeoutMs": 180000
         },
         {
+          "id": "browser-reference-adoption",
+          "script": "scripts/ci-reference-adoption-browser-check.mjs",
+          "timeoutMs": 180000,
+          "cache": false,
+          "evidence": true,
+          "inputs": [
+            "src/**",
+            "js/**",
+            "scripts/**",
+            "architecture/**",
+            "index.html",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-data/**"
+          ]
+        },
+        {
+          "id": "browser-theme-research",
+          "script": "scripts/ci-theme-research-browser-check.mjs",
+          "timeoutMs": 180000,
+          "cache": false,
+          "evidence": true,
+          "inputs": [
+            "src/**",
+            "js/**",
+            "scripts/**",
+            "architecture/**",
+            "index.html",
+            "sw.js",
+            "version.json",
+            "public-data/**"
+          ]
+        },
+        {
           "id": "browser-learning-flow",
           "script": "scripts/ci-three-page-learning-flow-check.mjs",
           "timeoutMs": 180000
@@ -1900,6 +1953,44 @@
     }
   },
   "impactRules": [
+    {
+      "patterns": [
+        "index.html",
+        "js/aio-ui.js",
+        "js/aio-core.js",
+        "src/ui/components/color-theme.js",
+        "src/ui/components/stock-chart.js",
+        "src/domain/research/packet-20261011.js",
+        "src/domain/research/supplied-materials.js",
+        "src/domain/knowledge/learning-core.js",
+        "scripts/ci-theme-research-browser-check.mjs"
+      ],
+      "groups": [],
+      "gates": [
+        "browser-theme-research"
+      ]
+    },
+    {
+      "patterns": [
+        "src/domain/news/stories.js",
+        "src/data/research-snapshots.js",
+        "src/ui/components/research-snapshots.js",
+        "src/ui/pages/news.js",
+        "src/domain/briefing/schedule.js",
+        "src/ui/components/briefing-read.js",
+        "src/domain/fundamental/sec-report.js",
+        "src/ui/pages/entity.js",
+        "src/ui/pages/themes.js",
+        "scripts/lib/browser-evidence.mjs",
+        "scripts/ci-reference-adoption-contract-check.mjs",
+        "scripts/ci-reference-adoption-browser-check.mjs"
+      ],
+      "groups": [],
+      "gates": [
+        "reference-adoption-contract",
+        "browser-reference-adoption"
+      ]
+    },
     {
       "patterns": [
         "index.html",

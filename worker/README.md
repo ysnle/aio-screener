@@ -6,7 +6,7 @@ below; the `aio-proxy` Worker (source: `../cloudflare-worker-proxy.js`, config:
 server-key route, and the `/relay` server-side key relay. AI generation uses
 `gpt-6-luna` and the operator's `OPENAI_API_KEY` Worker secret. Browser chat,
 translation and Actions analysis share one atomic UTC-month reservation budget
-of at most $10. Paid AI search is disabled. The provider key never enters the
+of at most $20 (owner approval 2026-10-11). Conditional OpenAI web search is enabled with at most two built-in calls per request; no per-user search allowance is imposed. Search requests retain a $0.10 policy reserve per permitted tool call plus their text reserve because hosted-search billing cannot be certified from response token usage alone. This reserve is not a provider invoice or guaranteed billing bound. The provider key never enters the
 browser or Actions; Actions authenticates with a separate `AIO_AUTOMATION_TOKEN`.
 See [_context/OPERATOR-RUNBOOK.md](../_context/OPERATOR-RUNBOOK.md) for provisioning.
 
@@ -58,7 +58,7 @@ The bounds that are *not* per-isolate:
 - the atomic Durable Object daily cap (`AI_DAILY_CAP`, `RELAY_DAILY_CAP`) — **volume,
   not identity**, and only on `/openai` and `/relay`; the generic `?url=` proxy has none.
 
-Because `/relay` spends the operator's FRED/BOK/KOSIS quota, treat a forged-Origin client as
+Because `/relay` spends the consenting FRED user's or BOK/KOSIS operator's quota, treat a forged-Origin client as
 a quota-exhaustion risk up to the daily cap rather than as a blocked attacker.
 
 The read surface of the fast plane is `GET`/`HEAD` only — a `POST /quotes` used to bypass the

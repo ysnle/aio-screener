@@ -71,9 +71,9 @@ function card(doc, market) {
     // P1599 (M03): the line gets its period and its range in words — the shape alone gave direction but no size.
     box.append(line(doc, rows, 'am'));
     const values = rows.map((row) => row.am).filter(Number.isFinite);
-    const md = (date) => (date ? `${String(date).slice(2, 4)}.${Number(String(date).slice(5, 7))}` : '');
+    const md = (date) => (date ? `${String(date).slice(0, 4)}.${Number(String(date).slice(5, 7))}` : '');
     const compact = (value) => (Math.abs(value) >= 10000 ? `${Math.round(value / 10000).toLocaleString('en-US')}만` : Math.round(value).toLocaleString('en-US'));
-    box.append(el(doc, 'div', `${md(rows[0].date)}~${md(rows[rows.length - 1].date)} 주간 · 순매수 범위 ${compact(Math.min(...values))}~${compact(Math.max(...values))} 계약`, 'positioning-line-caption'));
+    box.append(el(doc, 'div', `${md(rows[0].date)}~${md(rows[rows.length - 1].date)}(2년) 주간 · 순매수 범위 ${compact(Math.min(...values))}~${compact(Math.max(...values))} 계약`, 'positioning-line-caption'));
   }
   const list = el(doc, 'dl', null, 'regime-evidence');
   const add = (label, value) => { if (value != null) list.append(el(doc, 'dt', label), el(doc, 'dd', value)); };

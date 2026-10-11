@@ -1,0 +1,25 @@
+{
+  "version": "v57.36",
+  "date": "2026-10-11",
+  "p": {
+    "id": 1608,
+    "title": "조건부 OpenAI 웹검색·공용 $20 원장·내부 근거 우선 및 최신성 분리",
+    "symptom": "웹검색 fallback 옵션이 공통 Responses 요청에 도구를 붙이지 않았고, 날짜 없는 native citation만으로 최신 주장 허용 상태가 되었다. 무료/내부 근거 우선과 준비 중 opt-out 보존도 공통 선택 계약이 없었다.",
+    "root_cause": "이전 검색 금지 정책, 두 채팅 caller의 강제 fallback과 provider 전환 후 잔존 표시, citation 가용성과 발행/사건 최신성의 혼용.",
+    "fix": "소유자 승인 공용 AI 월 $20 및 조건부 web_search를 같은 Worker/DO 원장으로 연결. native ESM에서 근거 우선 선택·전송 옵션을 소유하고, 실제 caller에서 내부 시세/외부 근거·현재 opt-out을 확인한다. bounded 검색과 미검증 비용 예약 유지, 날짜 없는 근거는 참고 허용·최신 승격 금지, 기존 actionGate 차단 보존. 개인 검색 할당량을 만들지 않고 사용하지 않는 로컬 검색 한도 항목 제거.",
+    "violated_rule": "R681 공용 유료 AI 경로, R680 예약/청구 구분, R679 근거 의미 강화 금지 및 소유자 2026-10-11 결정",
+    "prevention": "{P}: worker/openai-contract.test.mjs 및 scripts/ci-native-search-check.mjs가 비용 설정/혼합 호출 동시성/검색 환급 금지, 실제 Responses 스트림 및 양쪽 caller의 내부/외부 우선·변경된 opt-out과 날짜/질문 결속을 실행 검증한다.",
+    "verification": "Worker offline 101 assertions PASS; native-search 실제 caller/adapter fixture PASS; AI intelligence·chat reliability·ESM core·decomposition PASS. 전체 로컬 QA·실제 브라우저·운영 서비스는 별도 보고하며 유료 API/배포 미실행."
+  },
+  "r": null,
+  "qa": [{
+    "id": "QA-NATIVE-SEARCH-01",
+    "text": "{P}: 공용 조건부 OpenAI 검색은 내부/무료 근거 우선, 준비 중 opt-out, request-bound 인용·발행/사건 최신성, 단일 $20 예약 원장·검색 미환급을 보존하며 사용자별 검색 할당량을 만들지 않는다.",
+    "verify_by": "node scripts/ci-native-search-check.mjs; node worker/openai-contract.test.mjs",
+    "done": true
+  }],
+  "qa_section": "조건부 공용 AI 웹검색",
+  "changelog": ["**조건부 AI 검색 ({P}):** 기존 자료 우선의 공용 OpenAI 웹검색, 월 $20 예약 원장, 인용과 최신성 분리·실제 두 채팅 caller 회귀 검증. 사용자별 검색 할당량 없음."],
+  "note": "기존 근거 우선 조건부 OpenAI 웹검색·공용 월 $20·검색 인용/최신성 분리. 로컬 구현; commit/push/deploy 미실행.",
+  "status": null
+}

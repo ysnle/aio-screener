@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T17:24:59.816Z",
+  "generatedAt": "2026-10-11T03:34:09.942Z",
   "routes": [
     {
       "id": "home",
@@ -9,27 +9,11 @@
         {
           "tag": "A",
           "name": "시장 상태 →"
-        },
-        {
-          "tag": "A",
-          "name": "Wall St Week Ahead Bank earnings, CPI headline busy markets week as S&P 500 hovers near records — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Prices Steady After Trump Appears to Rule Out Iran Strikes Before Midterms — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Nishball: AI Needs $7 Trillion in Debt by 2029, and Nvidia's Backstop Isn't Big Enough — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Wall Street’s Rate Shock Spreads Beneath AI-Fueled Market Rally — 원문 새 창에서 열기"
         }
       ],
       "headings": [
-        "시장 현황 v57.32",
-        "직전 종가 대비 변화10/8 → 10/9 종가",
+        "시장 현황 v57.34",
+        "직전 종가 대비 변화",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
         "내 종목 뉴스"
@@ -191,7 +175,7 @@
     {
       "id": "fxbond",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
@@ -203,12 +187,7 @@
         "미 국채 수익률 곡선",
         "실질금리 · 기대인플레이션 · 신용",
         "환율이 증시에 주는 영향",
-        "환율 (원 · 엔)",
         "달러 · 원화 · 엔화 · 10년물 — 최근 6개월",
-        "달러 인덱스 (DXY)",
-        "원/달러",
-        "엔/달러",
-        "미 10년물 금리 (일별 종가)",
         "그 밖의 통화 시세 대기"
       ]
     },
@@ -305,11 +284,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "MPC"
+          "name": "HPE"
         },
         {
           "tag": "BUTTON",
-          "name": "HPE"
+          "name": "MPC"
         },
         {
           "tag": "BUTTON",
@@ -353,10 +332,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "PLTR"
-        },
-        {
-          "tag": "BUTTON",
           "name": "MRVL"
         },
         {
@@ -365,15 +340,19 @@
         },
         {
           "tag": "BUTTON",
-          "name": "전체 84개 보기"
+          "name": "DIS"
         },
         {
           "tag": "BUTTON",
-          "name": "반도체 -4.3%"
+          "name": "전체 87개 보기"
         },
         {
           "tag": "BUTTON",
-          "name": "유틸리티 -10.2%"
+          "name": "반도체 -4.1%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 -11.2%"
         },
         {
           "tag": "BUTTON",
@@ -385,11 +364,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +4.9%"
+          "name": "AI 인프라/데이터센터 +2.4%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +4.9%"
+          "name": "AI 인프라/데이터센터 +2.4%"
         },
         {
           "tag": "BUTTON",
@@ -527,6 +506,14 @@
         {
           "tag": "BUTTON",
           "name": "분석 →"
+        },
+        {
+          "tag": "TEXTAREA",
+          "name": "종목 근거 메모"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "현재 근거 저장"
         }
       ],
       "headings": [
@@ -543,40 +530,12 @@
           "name": "새로고침"
         },
         {
-          "tag": "A",
-          "name": "Wall St Week Ahead Bank earnings, CPI headline busy markets week as S&P 500 hovers near records — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Prices Steady After Trump Appears to Rule Out Iran Strikes Before Midterms — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Nishball: AI Needs $7 Trillion in Debt by 2029, and Nvidia's Backstop Isn't Big Enough — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Did Raised Revenue Outlook Just Shift Bloom Energy's (BE) Investment Narrative? — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Wall Street’s Rate Shock Spreads Beneath AI-Fueled Market Rally — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "DA Davidson cuts Amrize stock price target on guidance concerns By Investing.com — 원문 새 창에서 열기"
-        },
-        {
           "tag": "BUTTON",
           "name": "최신순"
         },
         {
           "tag": "BUTTON",
           "name": "중요도순"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "공용 AI 연결 시 해석 추가"
         },
         {
           "tag": "BUTTON",
@@ -596,58 +555,6 @@
         },
         {
           "tag": "A",
-          "name": "Stock Market Today: Dow Jumps 423 Points Friday — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Can 6% Treasury yields coexist with higher stocks? This FedWatch advisor thinks so — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Drops as Trump Rules Out Iran Strike, Market Floor Persists — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Oil prices drop after Trump cites productive talks with Iran — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "October Market Outlook: 3 Sectors to Buy Based on Earnings Quality — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Global stocks rise, oil prices fall after Trump rules out Iran attack before midterms — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold, silver rebound as dollar, yields and oil ease - Kitco AM Report — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Prices Fall as Trump Vows to Not Attack Iran Before Midterms — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "S&P 500: Everything Is Fine Until Earnings Disappoint (SPX) — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold recovery stalls near $4,200 as US Dollar, Treasury yields stabilise — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Futures Return Some Gains As U.S. Strike Concerns Wane — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Rosenblatt Launches Nebius Stock Coverage With Buy Rating and Bold Price Target — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "12개 더 보기"
-        },
-        {
-          "tag": "A",
           "name": "매크로중립 어조@HANAchina · 중국·신흥국 · 10-10>>‘이사이아스’가 3등급 허리케인으로 격상… 미국 멕시코만 원유 생산량의 약 4분의 3 중단 •미국 해양에너지관리국에 따르면 하루 1"
         },
         {
@@ -656,35 +563,11 @@
         },
         {
           "tag": "A",
-          "name": "실적긍정 어조@insidertracking · 미국 속보 · 10-1010월 10일 미주인 브리핑 • S&P 최고 수준 · 다우·나스닥 동반 상승 • AI 광통신주 급등 · 루멘텀·시에나 강세 • "
+          "name": "지정학긍정 어조@insidertracking · 미국 속보 · 10-1010월 10일 미주인 브리핑 • S&P 최고 수준 · 다우·나스닥 동반 상승 • AI 광통신주 급등 · 루멘텀·시에나 강세 •"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-10밴스 부통령이 포트후드 기지 총격 사건의 범인 니달 하산에 대한 총살형 집행이 생중계되더라도 시청하지 않겠다는 입장 발표. "
-        },
-        {
-          "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-10트럼프 대통령이 포트후드 기지 총격 사건의 범인 니달 하산에 대한 사형 집행 과정을 생중계할지 여부를 여전히 검토 중이라고 "
-        },
-        {
-          "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-10파나마에서 규모 7.6 강진이 발생한 이후 현지 상황을 담은 영상 공개."
-        },
-        {
-          "tag": "A",
-          "name": "한국장중립 어조@insidertracking · 미국 속보 · 10-10미국 재무부 해외자산통제국(OFAC)이 10월 9일 러시아산 디젤 연료의 판매·인도·하역·수입과 관련된 거래를 허용하는 일반허"
-        },
-        {
-          "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-10영국 해상무역운영국(UKMTO)에 따르면 10월 9일 오전 10시(UTC 기준) 아랍에미리트(UAE) 알자지라 서쪽 약 13"
-        },
-        {
-          "tag": "A",
-          "name": "지정학중립 어조@insidertracking · 미국 속보 · 10-10이란 이슬람혁명수비대(IRGC) 해군사령부가 규정을 위반한 선박에 대한 처벌을 반드시 집행하겠다고 경고. 혁명수비대 해군사령부"
-        },
-        {
-          "tag": "A",
-          "name": "지정학부정 어조@insidertracking · 미국 속보 · 10-10트럼프 행정부가 10월 9일 금요일 국제형사재판소(ICC)를 대상으로 광범위한 제재를 부과하고, 미국의 은행·보험·소프트웨어 "
+          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-10미국 재무부 해외자산통제국(OFAC)이 10월 9일 러시아산 디젤 연료의 판매·인도·하역·수입과 관련된 거래를 허용하는 일반"
         },
         {
           "tag": "A",
@@ -692,12 +575,36 @@
         },
         {
           "tag": "A",
-          "name": "한국장중립 어조@insidertracking · 미국 속보 · 10-1010월 누적 평균 환율은 1,344원"
+          "name": "반도체부정 어조@insidertracking · 미국 속보 · 10-10삼성전자, 차량용 엑시노스 반도체 개발 중단 결정 삼성전자가 2018년부터 추진해 온 차량용 엑시노스 프로세서 개발을 중단하기"
+        },
+        {
+          "tag": "A",
+          "name": "반도체중립 어조@insidertracking · 미국 속보 · 10-10테슬라, 메모리 공급 부족으로 옵티머스 로봇 RAM 용량 3분의 1 축소 글로벌 메모리 공급 부족 여파가 테슬라의 휴머노이드 "
+        },
+        {
+          "tag": "A",
+          "name": "반도체중립 어조@insidertracking · 미국 속보 · 10-10레딧 관심도 ASTS, MU 그리고 엔비디아에 집중MU"
+        },
+        {
+          "tag": "A",
+          "name": "반도체부정 어조@insidertracking · 미국 속보 · 10-102026년 10월 10일 미국 레딧 베스트 게시물 분석 > NVDA / AI 인프라 · \"AI 크레딧 버블? 상관없다\" 분위기"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식긍정 어조@insidertracking · 미국 속보 · 10-102026년 10월 10일 미국 증시 브리핑 미국 증시는 경기 둔화 우려에도 AI 인프라와 대형 기술주 중심의 매수세가 유입되"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-102026년 10월 10일 미장 마감 S&P 500 - 7,811.54 +0.59% 다우 30 - 51,654.95 +0.83"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-10방금 러시아의 블라디미르 푸틴 대통령과 매우 성공적인 논의를 마쳤다. 이번 논의에서 러시아는 미국과 글로벌 시장에 디젤 연료"
         }
       ],
       "headings": [
         "시장 뉴스",
-        "중요 뉴스 주제별 핵심 · 오늘 08:00 KST까지 24시간"
+        "중요 뉴스 주제별 핵심 · 10. 10. 08:00 KST까지 24시간"
       ]
     },
     {
@@ -711,7 +618,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "분석 노트  29"
+          "name": "분석 노트  34"
         },
         {
           "tag": "BUTTON",
@@ -743,6 +650,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "측정 기준 변경과 실제 실적 변화의 구분"
+        },
+        {
+          "tag": "BUTTON",
           "name": "가격 인상과 매출 감소"
         },
         {
@@ -760,6 +671,10 @@
         {
           "tag": "BUTTON",
           "name": "위기 대응의 분배 효과"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "평균이 감추는 신용 분산과 차환의 시간차"
         },
         {
           "tag": "BUTTON",
@@ -784,6 +699,10 @@
         {
           "tag": "BUTTON",
           "name": "이익 증가와 현금 부족의 공존"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거래 관계의 중첩과 법인별 손실 책임"
         },
         {
           "tag": "BUTTON",
@@ -855,6 +774,14 @@
         },
         {
           "tag": "BUTTON",
+          "name": "분석의 개수와 판단의 질을 구분하는 사고 순서"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "섹터 조정·시장 폭과 AI 병목 전이의 구분"
+        },
+        {
+          "tag": "BUTTON",
           "name": "포트폴리오펀드·전략 성과는 연평균 복리 수익률(CAGR)과 최대 낙폭을 함께 확인"
         },
         {
@@ -876,6 +803,10 @@
         {
           "tag": "BUTTON",
           "name": "진입 위치·교체·추가 매수·현금"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "측정 기준 변경과 실제 실적 변화의 구분"
         }
       ],
       "headings": [

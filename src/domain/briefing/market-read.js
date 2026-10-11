@@ -42,7 +42,7 @@ function nyDate(iso) {
 // and a later row can carry a late-settling bar (DXY/WTI); key by the observation's own NY date and
 // let the later row win. Carried-forward weekend copies are not observations. `through` drops
 // observations after the basis date.
-export function buildCloseSeries(history = [], field, { through = null } = {}) {
+export function buildCloseSeries(history = [], field, { through = null, includeProvenance = false } = {}) {
   const byDate = new Map();
   const rows = [...(Array.isArray(history) ? history : [])].sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   for (const row of rows) {
@@ -51,9 +51,9 @@ export function buildCloseSeries(history = [], field, { through = null } = {}) {
     const meta = row.fieldMeta?.[field];
     if (meta?.observationRelation === 'carried-forward') continue;
     const date = meta?.observedAt ? nyDate(meta.observedAt) : row.date;
-    if (date && (!through || date <= through)) byDate.set(date, value);
+    if (date && (!through || date <= through)) byDate.set(date, includeProvenance ? { value, observedAt: meta?.observedAt || row.date, source: meta?.source || null } : value);
   }
-  return [...byDate.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([date, value]) => ({ date, value }));
+  return [...byDate.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([date, value]) => includeProvenance ? { date, ...value } : { date, value });
 }
 
 // The common reference: the S&P 500's last completed close.
@@ -99,17 +99,19 @@ function stats(series) {
   // P1428 (Codex review): n observations are n sessions only when no day is missing. If the weekday span
   // to that point exceeds n plus holiday slack, the producer skipped days and the "5일/20일" change is
   // withheld rather than silently covering a longer period.
-  const back = (n) => {
+  const backPoint = (n) => {
     if (series.length <= n) return null;
     const point = series[series.length - 1 - n];
-    return sessionsBetween(point.date, last.date) > n + Math.max(2, Math.ceil(n * 0.15)) ? null : point.value;
+    return sessionsBetween(point.date, last.date) > n + Math.max(2, Math.ceil(n * 0.15)) ? null : point;
   };
+  const back = (n) => backPoint(n)?.value ?? null;
+  const point20 = backPoint(20);
   const year = series.filter((point) => Date.parse(point.date) >= Date.parse(last.date) - 365 * DAY_MS).map((point) => point.value);
   const mean = (n) => series.length >= n ? series.slice(-n).reduce((sum, point) => sum + point.value, 0) / n : null;
   const max = Math.max(...year);
   const min = Math.min(...year);
   return {
-    date: last.date, value: last.value, d1: back(1), d5: back(5), d20: back(20),
+    date: last.date, value: last.value, d1: back(1), d5: back(5), d20: point20?.value ?? null, d20Date: point20?.date ?? null,
     yearMax: max, yearMin: min, yearPosition: max > min && year.length >= 120 ? (last.value - min) / (max - min) : null,
     ma50: mean(50), ma200: mean(200)
   };
@@ -175,6 +177,7 @@ export function buildMarketRead(input = {}) {
   const statements = [];
   // text = what the numbers show; reading = the interpretation, worded as a hypothesis.
   const add = (id, weight, text, axis, { check = null, reading = null } = {}) => statements.push({ id, weight, text, reading, axis, check });
+  const win20 = (stat) => (stat?.d20Date ? ` (${shortDate(stat.d20Date)} 종가 대비)` : '');
 
   const spx5 = pct(spx.value, spx.d5);
   const spx20 = pct(spx.value, spx.d20);
@@ -221,8 +224,8 @@ export function buildMarketRead(input = {}) {
   const b50 = s.breadth50?.value ?? null;
   if (b50 != null && spxFromHigh != null) {
     if (spxFromHigh > -3 && b50 < 40) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 50일선 위 종목은 ${fmt(b50, 0)}%뿐입니다.`, 'index', { reading: '소수 대형주가 지수를 떠받치는 좁은 장세로 보입니다.', check: `50일선 위 종목 비율이 40% 위로 회복되는지(현재 ${fmt(b50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
-    else if (b50 >= 60 && spx20 != null && spx20 > 0) add('broad-rally', 55, `50일선 위 종목 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
-    else if (b50 < 30 && spx20 != null && spx20 < 0) add('broad-weakness', 70, `50일선 위 종목 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
+    else if (b50 >= 60 && spx20 != null && spx20 > 0) add('broad-rally', 55, `50일선 위 종목 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
+    else if (b50 < 30 && spx20 != null && spx20 < 0) add('broad-weakness', 70, `50일선 위 종목 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
   }
   // P1416: leadership and distribution (definitions in src/domain/market/breadth-signals.js).
   const nh = s.breadthNewHighs?.date === spx.date ? s.breadthNewHighs.value : null;
@@ -237,12 +240,12 @@ export function buildMarketRead(input = {}) {
   // 3. Leadership: tech and small caps relative to the S&P over a month.
   const ndx20 = s.nasdaq ? pct(s.nasdaq.value, s.nasdaq.d20) : null;
   const rut20 = s.rut ? pct(s.rut.value, s.rut.d20) : null;
-  if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= 2) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 20일 ${signed(ndx20)} vs S&P 500 ${signed(spx20)} — ${ndx20 > spx20 ? '기술주가 상승을 주도' : '기술주가 시장보다 약함'}.`, 'index');
+  if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= 2) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 20일 ${signed(ndx20)}${win20(s.nasdaq)} vs S&P 500 ${signed(spx20)}${win20(spx)} — ${ndx20 > spx20 ? '기술주가 상승을 주도' : '기술주가 시장보다 약함'}.`, 'index');
   const hyWeek = c.hy5;
   const creditCalm = hyBp != null && hyWeek != null && hyBp < RULES.credit.tightBelowBp && hyWeek <= RULES.credit.calm5dBp;
   if (rut20 != null && spx20 != null && Math.abs(rut20 - spx20) >= 3) {
     const lags = rut20 < spx20;
-    add(lags ? 'smallcap-lags' : 'smallcap-leads', lags && creditCalm ? 55 : 45, `러셀 2000 20일 ${signed(rut20)} vs S&P 500 ${signed(spx20)}.`, 'index', {
+    add(lags ? 'smallcap-lags' : 'smallcap-leads', lags && creditCalm ? 55 : 45, `러셀 2000 20일 ${signed(rut20)}${win20(s.rut)} vs S&P 500 ${signed(spx20)}${win20(spx)}.`, 'index', {
       reading: !lags ? '위험선호가 중소형주까지 퍼진 모습입니다.'
         // Codex browser audit H19: rate sensitivity is one possible path, not the established cause.
         : creditCalm ? `HY 스프레드(${fmt(hyBp, 0)}bp)가 안정적이라 신용 위험이 원인이라는 신호는 없습니다. 금리 부담이 그럴듯한 설명이지만, 실적 차이·업종 구성·유동성도 같은 결과를 만들 수 있습니다.` : '중소형주가 상대적으로 약합니다. 금리 부담, 실적 차이, 업종 구성 중 무엇 때문인지는 이 숫자만으로 가려지지 않습니다.'
@@ -283,15 +286,15 @@ export function buildMarketRead(input = {}) {
   // 5. Dollar and gold.
   const dxy5 = s.dxy ? pct(s.dxy.value, s.dxy.d5) : null;
   const gold20 = s.gold ? pct(s.gold.value, s.gold.d20) : null;
-  if (s.gold?.yearPosition != null && s.gold.yearPosition >= 0.95) add('gold-high', 55, `금 ${fmt(s.gold.value, 0)}달러로 1년 최고권(20일 ${signed(gold20)}).`, 'commodities', { reading: dxy5 != null && dxy5 > 0.5 ? '달러 강세에도 오르는 안전자산 수요로 볼 수 있습니다.' : null });
-  else if (dxy5 != null && gold20 != null && dxy5 > 1 && gold20 > 3) add('haven-demand', 55, `달러(5일 ${signed(dxy5)})와 금(20일 ${signed(gold20)})이 함께 상승.`, 'commodities', { reading: '안전자산 선호 신호일 수 있습니다.' });
+  if (s.gold?.yearPosition != null && s.gold.yearPosition >= 0.95) add('gold-high', 55, `금 ${fmt(s.gold.value, 0)}달러로 1년 최고권(20일 ${signed(gold20)}${win20(s.gold)}).`, 'commodities', { reading: dxy5 != null && dxy5 > 0.5 ? '달러 강세에도 오르는 안전자산 수요로 볼 수 있습니다.' : null });
+  else if (dxy5 != null && gold20 != null && dxy5 > 1 && gold20 > 3) add('haven-demand', 55, `달러(5일 ${signed(dxy5)})와 금(20일 ${signed(gold20)}${win20(s.gold)})이 함께 상승.`, 'commodities', { reading: '안전자산 선호 신호일 수 있습니다.' });
 
-  if (gold20 != null && tnx20 != null && gold20 <= -3 && tnx20 >= 10 && !statements.some((row) => row.id === 'gold-high')) add('gold-down-rates-up', 60, `금 20일 ${signed(gold20)}·10년물 20일 ${signed(tnx20, 0, 'bp')}.`, 'commodities', {
+  if (gold20 != null && tnx20 != null && gold20 <= -3 && tnx20 >= 10 && !statements.some((row) => row.id === 'gold-high')) add('gold-down-rates-up', 60, `금 20일 ${signed(gold20)}${win20(s.gold)}·10년물 20일 ${signed(tnx20, 0, 'bp')}${win20(tnx)}.`, 'commodities', {
     reading: real5 != null && real5 > 0 ? `실질금리도 5일 ${signed(real5, 0, 'bp')} 올라, 실질금리 상승이 금을 누르는 경로와 맞습니다.` : '실질금리 상승이 금을 누르는 경로일 수 있습니다(실질금리 자료로 확인 필요).'
   });
   // 6. Oil and yields — the inflation channel.
   const wti20 = s.wti ? pct(s.wti.value, s.wti.d20) : null;
-  if (wti20 != null && tnx20 != null && wti20 >= 8 && tnx20 >= 15) add('oil-rates-inflation', 80, `WTI 20일 ${signed(wti20)}·10년물 20일 ${signed(tnx20, 0, 'bp')} 동반 상승.`, 'commodities', {
+  if (wti20 != null && tnx20 != null && wti20 >= 8 && tnx20 >= 15) add('oil-rates-inflation', 80, `WTI 20일 ${signed(wti20)}${win20(s.wti)}·10년물 20일 ${signed(tnx20, 0, 'bp')}${win20(tnx)} 동반 상승.`, 'commodities', {
     reading: bei5 != null && bei5 > 0 ? '기대인플레도 올라, 유가가 물가 기대를 거쳐 금리를 밀어 올리는 경로와 맞습니다.' : '유가가 물가 기대를 거쳐 금리를 밀어 올리는 경로일 수 있습니다.'
   });
   else if (s.wti?.yearPosition != null && s.wti.yearPosition >= 0.85) add('oil-high', 50, `WTI ${fmt(s.wti.value)}달러, 1년 범위 상단(${fmt(s.wti.yearPosition * 100, 0)}%).`, 'commodities', { reading: '높은 유가는 물가·금리 부담 요인입니다.', check: 'WTI가 1년 범위 상단에 머무는지 — 머물면 다음 물가 지표 부담' }); // P1394: range-relative
@@ -324,6 +327,17 @@ export function buildMarketRead(input = {}) {
     { id: 'korea', title: '한국', values: [['코스피', change(s.kospi)], ['원/달러', change(s.usdkrw, 1)]], context: null, reads: restFor('korea') }
   ].map((row) => ({ ...row, values: row.values.filter(([, value]) => value) }));
   const headline = statements[0] || null;
+  // P1602: archive values and provenance come from the same filtered observations as the screen.
+  const factFields = { 'S&P 500': 'spx', '나스닥': 'nasdaq', '미 10년물': 'tnx', '달러 인덱스': 'dxy', 'WTI': 'wti', '금': 'gold', '코스피': 'kospi', '원/달러': 'usdkrw', '50일선 위 종목': 'breadth50', VIX: 'vix', 'F&G': 'fg' };
+  const creditFields = { 'HY 스프레드': 'hy', '풋/콜': 'pcr', 'F&G': 'fg' };
+  const facts = drivers.flatMap((driver) => driver.values.map(([label, value]) => {
+    const field = factFields[label];
+    const point = field ? buildCloseSeries(input.history, field, { through: basis, includeProvenance: true }).at(-1) : null;
+    const key = creditFields[label];
+    return { label, value, observedAt: point?.observedAt || input.credit?.[`${key}AsOf`] || null,
+      source: point?.source || (!point ? input.credit?.[`${key}Source`] : null) || null,
+      basis: point ? '저장된 일별 종가 기록' : '각 관측일 기준 참고값' };
+  }));
   return {
     available: true,
     asOf: basis,
@@ -333,6 +347,7 @@ export function buildMarketRead(input = {}) {
     checks: [...new Set(statements.filter((row) => row.check).map((row) => row.check))].slice(0, 3),
     statements,
     drivers,
+    facts,
     // P1599 (F101): structured moves for the briefing chart. Percent assets share one axis; the 10-year yield
     // moves in basis points and is kept apart so the two units never share a scale.
     moves: [
@@ -356,10 +371,18 @@ export function buildMarketRegime(input = {}) {
   const { basis, s, c, r, alignments } = alignMarketInputs(input);
   const spx = s.spx;
   if (!spx) return { available: false, axes: [], reason: 'history-missing' };
-  const axis = (id, title, state, evidence, read, flip, basisOf) => ({
-    id, title, state, stateLabel: STATE_LABELS[state], evidence: evidence.filter(([, value]) => value != null && value !== '—'), read, flip,
-    basis: basisOf ? alignmentLabel(basisOf) : null, basisStatus: basisOf?.status || null
-  });
+  const axis = (id, title, state, evidence, read, flip, basisOf, valueAsOf = null) => {
+    const shown = evidence.map(([label, value], index) => ({ label, value, iso: value == null ? null : valueAsOf?.[index]?.date || null }))
+      .filter((row) => row.value != null && row.value !== '—');
+    const days = [...new Set(shown.map((row) => row.iso).filter(Boolean))].sort();
+    const mixed = days.length > 1;
+    return {
+      id, title, state, stateLabel: STATE_LABELS[state], read, flip,
+      evidence: shown.map((row) => [row.label, mixed && row.iso ? `${row.value} · ${shortDate(row.iso)}` : row.value]),
+      basis: mixed ? `${shortDate(days[0])}~${shortDate(days[days.length - 1])}` : basisOf ? alignmentLabel(basisOf) : null,
+      basisStatus: mixed ? 'mixed' : basisOf?.status || null
+    };
+  };
   const staleRead = (label, alignment) => alignment?.status === 'stale' || alignment?.status === 'ahead'
     ? `${label} 최근 관측(${alignmentLabel(alignment)})이 기준일(${shortDate(basis)})과 달라 판정에서 제외했습니다.` : `${label} 기록이 없습니다.`;
   const axes = [];
@@ -472,11 +495,11 @@ export function buildMarketRegime(input = {}) {
         : state === 'favorable' ? `10년물 20일 변화가 -${RULES.rates.move20dBp}bp 위로 올라오면 중립, +${RULES.rates.move20dBp}bp 이상이면 부담`
           : `10년물 20일 +${RULES.rates.move20dBp}bp 이상 또는 1년 범위 ${RULES.rates.rangeHighAt * 100}% 이상에서 5일 상승 시 부담 · 20일 -${RULES.rates.move20dBp}bp 이하면 우호`;
     axes.push(axis('rates', '금리', state, [
-      ['미 10년물', tnx ? `${fmt(tnx.value)}% (5일 ${signed(tnx5, 0, 'bp')}, 20일 ${signed(tnx20, 0, 'bp')})` : null],
+      ['미 10년물', tnx ? `${fmt(tnx.value)}% (5거래일 ${signed(tnx5, 0, 'bp')}, 20일 ${signed(tnx20, 0, 'bp')})` : null],
       ['1년 범위 내 위치', tnx?.yearPosition == null ? null : `${fmt(tnx.yearPosition * 100, 0)}%`],
-      ['실질금리 / 기대인플레 (5일)', real5 == null || bei5 == null ? null : `${signed(real5, 0, 'bp')} / ${signed(bei5, 0, 'bp')}`],
+      ['실질금리 / 기대인플레 (5거래일)', real5 == null || bei5 == null ? null : `${signed(real5, 0, 'bp')} / ${signed(bei5, 0, 'bp')}`],
       ['실질금리 (10년 TIPS)', r.realYield10 == null ? null : `${fmt(r.realYield10)}%`]
-    ], read, flip, alignments.tnx));
+    ], read, flip, alignments.tnx, [alignments.tnx, alignments.tnx, alignments.rates, alignments.rates]));
   }
   // 5. Credit & risk appetite — the funding market and hedging demand. Calm needs the direction too.
   {
@@ -498,10 +521,10 @@ export function buildMarketRegime(input = {}) {
         : state === 'favorable' ? `HY ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 풋/콜 ${RULES.credit.putCallHedgeAt} 이상 중 하나면 중립 · ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 확대 시 부담`
           : `HY ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 풋/콜 ${RULES.credit.putCallHedgeAt} 미만이면 우호 · ${RULES.credit.stressAtBp}bp 이상 또는 5일 +${RULES.credit.widen5dBp}bp 확대 시 부담`;
     axes.push(axis('credit', '신용 · 위험선호', state, [
-      ['HY 신용 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5일 ${signed(hy5, 0, 'bp')})` : ''}`],
+      ['HY 신용 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5거래일 ${signed(hy5, 0, 'bp')})` : ''}`],
       ['풋/콜 비율', pcr == null ? null : fmt(pcr)],
       ['F&G (참고)', c.fg == null ? null : fmt(c.fg, 0)]
-    ], read, flip, alignments.hy));
+    ], read, flip, alignments.hy, [alignments.hy, alignments.pcr, alignments.fg]));
   }
   // 6. Dollar & commodities — oil (inflation channel), the dollar and gold.
   // P1394: oil is judged against its own 1-year range and 20-day change, not a fixed $90 line.

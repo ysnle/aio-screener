@@ -1,0 +1,1576 @@
+{
+  "schemaVersion": "aio-smoke-observations.v1",
+  "audit": "frontend-full-audit-20261011",
+  "agentRole": "구조적 런타임 건강 점검 (부트→렌더→상호작용 전수 스모크). 콘텐츠 의미·정확성 판정은 담당 범위 밖.",
+  "observedAt": "2026-10-11T07:17:18.982Z",
+  "environment": {
+    "base": "http://127.0.0.1:8931",
+    "server": "scripts/start-local-node.mjs 8931 — 감사 시작 전부터 실행 중이었고 본 에이전트는 시작/종료하지 않음",
+    "serverResponsive": true,
+    "viewport": "1440x900",
+    "browser": "Chromium (Playwright 1.61.1, C:/Projects/AIO/node_modules/playwright)",
+    "scriptsLocation": "세션 스크래치패드에만 작성(리포에 스크립트 생성 없음). 리포 파일 수정/git 조작 없음.",
+    "appVersion": "v57.35",
+    "modes": [
+      "http://127.0.0.1:8931 (SW 비활성)",
+      "스캐너 설정으로 프록시 차단 없음(외부망은 실제로 차단됨)"
+    ]
+  },
+  "scope": {
+    "canonicalRoutes": [
+      "home",
+      "briefing",
+      "market-news",
+      "signal",
+      "breadth",
+      "sentiment",
+      "macro",
+      "fxbond",
+      "themes",
+      "theme-detail",
+      "ticker",
+      "technical",
+      "fundamental",
+      "screener",
+      "portfolio",
+      "principles",
+      "atlas",
+      "masters",
+      "guide"
+    ],
+    "canonicalRouteCount": 19,
+    "aliasesInspected": [
+      "#options"
+    ],
+    "deepLinksInspected": 20,
+    "pageContainersInDom": 19,
+    "routesRenderingContent": 19,
+    "routesWithUncaughtPageErrors": 0,
+    "routesWithLocal404or5xx": 0,
+    "screenshots": 20
+  },
+  "verdictDefinition": {
+    "A": "콘텐츠가 아예 렌더되지 않음 / 에러 화면",
+    "B": "핵심 영역이 빈 채로 남음 (출처 없는 위젯을 숨겨야 하는데 영구 \"—\"/영구 placeholder가 남는 경우 포함)",
+    "C": "로딩 상태가 멈춤 / 이중 스크롤 / 깨진 레이아웃",
+    "D": "접근성 · 카피",
+    "정상": "위 등급에 해당하는 발견 없음"
+  },
+  "verdictCounts": {
+    "정상": 16,
+    "A": 0,
+    "B": 1,
+    "C": 1,
+    "D": 1
+  },
+  "crossCuttingFindings": [
+    "SMOKE-B2",
+    "SMOKE-D2"
+  ],
+  "routeTable": [
+    {
+      "route": "home",
+      "hub": "today",
+      "deepLink": "http://127.0.0.1:8931/index.html#home",
+      "httpStatus": 200,
+      "activePage": "page-home",
+      "contentLen800ms": 1287,
+      "contentLen3300ms": 1881,
+      "htmlLen800ms": 408393,
+      "contentGrewAfter800ms": 594,
+      "hubTabs": [
+        "home(current)",
+        "briefing",
+        "market-news"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 25,
+      "pageErrors": 0,
+      "failedRequestsExternal": 14,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 2,
+      "emDashCountInPage": 6,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 976,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-home.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "briefing",
+      "hub": "today",
+      "deepLink": "http://127.0.0.1:8931/index.html#briefing",
+      "httpStatus": 200,
+      "activePage": "page-briefing",
+      "contentLen800ms": 1061,
+      "contentLen3300ms": 2264,
+      "htmlLen800ms": 399614,
+      "contentGrewAfter800ms": 1203,
+      "hubTabs": [
+        "home",
+        "briefing(current)",
+        "market-news"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 20,
+      "pageErrors": 0,
+      "failedRequestsExternal": 12,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 2,
+      "emDashCountInPage": 2,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 999,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-briefing.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "market-news",
+      "hub": "today",
+      "deepLink": "http://127.0.0.1:8931/index.html#market-news",
+      "httpStatus": 200,
+      "activePage": "page-market-news",
+      "contentLen800ms": 1117,
+      "contentLen3300ms": 3027,
+      "htmlLen800ms": 398908,
+      "contentGrewAfter800ms": 1910,
+      "hubTabs": [
+        "home",
+        "briefing",
+        "market-news(current)"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 10,
+      "pageErrors": 0,
+      "failedRequestsExternal": 5,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 2,
+      "emDashCountInPage": 4,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 974,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-market-news.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "signal",
+      "hub": "market",
+      "deepLink": "http://127.0.0.1:8931/index.html#signal",
+      "httpStatus": 200,
+      "activePage": "page-signal",
+      "contentLen800ms": 1433,
+      "contentLen3300ms": 3450,
+      "htmlLen800ms": 411643,
+      "contentGrewAfter800ms": 2017,
+      "hubTabs": [
+        "signal(current)",
+        "breadth",
+        "sentiment"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 34,
+      "pageErrors": 0,
+      "failedRequestsExternal": 19,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 2,
+      "nestedScrollers": [],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-signal.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "breadth",
+      "hub": "market",
+      "deepLink": "http://127.0.0.1:8931/index.html#breadth",
+      "httpStatus": 200,
+      "activePage": "page-breadth",
+      "contentLen800ms": 1826,
+      "contentLen3300ms": 2921,
+      "htmlLen800ms": 403955,
+      "contentGrewAfter800ms": 1095,
+      "hubTabs": [
+        "signal",
+        "breadth(current)",
+        "sentiment"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 25,
+      "pageErrors": 0,
+      "failedRequestsExternal": 14,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 23,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 2456,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-breadth.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "sentiment",
+      "hub": "market",
+      "deepLink": "http://127.0.0.1:8931/index.html#sentiment",
+      "httpStatus": 200,
+      "activePage": "page-sentiment",
+      "contentLen800ms": 1573,
+      "contentLen3300ms": 1948,
+      "htmlLen800ms": 403641,
+      "contentGrewAfter800ms": 375,
+      "hubTabs": [
+        "signal",
+        "breadth",
+        "sentiment(current)"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 8,
+      "pageErrors": 0,
+      "failedRequestsExternal": 4,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 12,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 1133,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-sentiment.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "macro",
+      "hub": "macro",
+      "deepLink": "http://127.0.0.1:8931/index.html#macro",
+      "httpStatus": 200,
+      "activePage": "page-macro",
+      "contentLen800ms": 3878,
+      "contentLen3300ms": 5204,
+      "htmlLen800ms": 420545,
+      "contentGrewAfter800ms": 1326,
+      "hubTabs": [
+        "macro(current)",
+        "fxbond"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 12,
+      "pageErrors": 0,
+      "failedRequestsExternal": 6,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 2,
+      "emDashCountInPage": 16,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 3218,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-macro.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "fxbond",
+      "hub": "macro",
+      "deepLink": "http://127.0.0.1:8931/index.html#fxbond",
+      "httpStatus": 200,
+      "activePage": "page-fxbond",
+      "contentLen800ms": 1752,
+      "contentLen3300ms": 2566,
+      "htmlLen800ms": 409865,
+      "contentGrewAfter800ms": 814,
+      "hubTabs": [
+        "macro",
+        "fxbond(current)"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 14,
+      "pageErrors": 0,
+      "failedRequestsExternal": 7,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 16,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 2154,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": "2->4",
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-fxbond.png",
+      "verdict": "D",
+      "findingIds": [
+        "SMOKE-D1"
+      ]
+    },
+    {
+      "route": "themes",
+      "hub": "themes",
+      "deepLink": "http://127.0.0.1:8931/index.html#themes",
+      "httpStatus": 200,
+      "activePage": "page-themes",
+      "contentLen800ms": 2004,
+      "contentLen3300ms": 4069,
+      "htmlLen800ms": 431153,
+      "contentGrewAfter800ms": 2065,
+      "hubTabs": [],
+      "hubTabsHidden": true,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 19,
+      "pageErrors": 0,
+      "failedRequestsExternal": 11,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 15,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 1558,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-themes.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "theme-detail",
+      "hub": "themes",
+      "deepLink": "http://127.0.0.1:8931/index.html#theme-detail",
+      "httpStatus": 200,
+      "activePage": "page-themes",
+      "contentLen800ms": 3643,
+      "contentLen3300ms": 5350,
+      "htmlLen800ms": 475711,
+      "contentGrewAfter800ms": 1707,
+      "hubTabs": [],
+      "hubTabsHidden": true,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 30,
+      "pageErrors": 0,
+      "failedRequestsExternal": 17,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 22,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 3606,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-theme-detail.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "ticker",
+      "hub": "stock",
+      "deepLink": "http://127.0.0.1:8931/index.html#ticker",
+      "httpStatus": 200,
+      "activePage": "page-ticker",
+      "contentLen800ms": 731,
+      "contentLen3300ms": 731,
+      "htmlLen800ms": 400185,
+      "contentGrewAfter800ms": 0,
+      "hubTabs": [
+        "ticker(current)",
+        "technical",
+        "fundamental"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 14,
+      "pageErrors": 0,
+      "failedRequestsExternal": 9,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 2,
+      "nestedScrollers": [],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-ticker.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "technical",
+      "hub": "stock",
+      "deepLink": "http://127.0.0.1:8931/index.html#technical",
+      "httpStatus": 200,
+      "activePage": "page-technical",
+      "contentLen800ms": 893,
+      "contentLen3300ms": 995,
+      "htmlLen800ms": 401180,
+      "contentGrewAfter800ms": 102,
+      "hubTabs": [
+        "ticker",
+        "technical(current)",
+        "fundamental"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 15,
+      "pageErrors": 0,
+      "failedRequestsExternal": 8,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 3,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 905,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-technical.png",
+      "verdict": "C",
+      "findingIds": [
+        "SMOKE-C1"
+      ]
+    },
+    {
+      "route": "fundamental",
+      "hub": "stock",
+      "deepLink": "http://127.0.0.1:8931/index.html#fundamental",
+      "httpStatus": 200,
+      "activePage": "page-fundamental",
+      "contentLen800ms": 867,
+      "contentLen3300ms": 867,
+      "htmlLen800ms": 403874,
+      "contentGrewAfter800ms": 0,
+      "hubTabs": [
+        "ticker",
+        "technical",
+        "fundamental(current)"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 18,
+      "pageErrors": 0,
+      "failedRequestsExternal": 11,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 3,
+      "nestedScrollers": [],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-fundamental.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "screener",
+      "hub": "screener",
+      "deepLink": "http://127.0.0.1:8931/index.html#screener",
+      "httpStatus": 200,
+      "activePage": "page-screener",
+      "contentLen800ms": 1443,
+      "contentLen3300ms": 3521,
+      "htmlLen800ms": 399493,
+      "contentGrewAfter800ms": 2078,
+      "hubTabs": [],
+      "hubTabsHidden": true,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 23,
+      "pageErrors": 0,
+      "failedRequestsExternal": 13,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 2,
+      "emDashCountInPage": 10,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 975,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-screener.png",
+      "verdict": "B",
+      "findingIds": [
+        "SMOKE-B1"
+      ]
+    },
+    {
+      "route": "portfolio",
+      "hub": "portfolio",
+      "deepLink": "http://127.0.0.1:8931/index.html#portfolio",
+      "httpStatus": 200,
+      "activePage": "page-portfolio",
+      "contentLen800ms": 1112,
+      "contentLen3300ms": 1177,
+      "htmlLen800ms": 397592,
+      "contentGrewAfter800ms": 65,
+      "hubTabs": [],
+      "hubTabsHidden": true,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 26,
+      "pageErrors": 0,
+      "failedRequestsExternal": 15,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 9,
+      "nestedScrollers": [],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-portfolio.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "principles",
+      "hub": "learn",
+      "deepLink": "http://127.0.0.1:8931/index.html#principles",
+      "httpStatus": 200,
+      "activePage": "page-principles",
+      "contentLen800ms": 656,
+      "contentLen3300ms": 2836,
+      "htmlLen800ms": 399647,
+      "contentGrewAfter800ms": 2180,
+      "hubTabs": [
+        "principles(current)",
+        "atlas",
+        "masters"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 26,
+      "pageErrors": 0,
+      "failedRequestsExternal": 15,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 2,
+      "nestedScrollers": [],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-principles.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "atlas",
+      "hub": "learn",
+      "deepLink": "http://127.0.0.1:8931/index.html#atlas",
+      "httpStatus": 200,
+      "activePage": "page-atlas",
+      "contentLen800ms": 652,
+      "contentLen3300ms": 1920,
+      "htmlLen800ms": 399631,
+      "contentGrewAfter800ms": 1268,
+      "hubTabs": [
+        "principles",
+        "atlas(current)",
+        "masters"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 16,
+      "pageErrors": 0,
+      "failedRequestsExternal": 8,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 7,
+      "emDashCountInPage": 2,
+      "nestedScrollers": [],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-atlas.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "masters",
+      "hub": "learn",
+      "deepLink": "http://127.0.0.1:8931/index.html#masters",
+      "httpStatus": 200,
+      "activePage": "page-masters",
+      "contentLen800ms": 652,
+      "contentLen3300ms": 3347,
+      "htmlLen800ms": 399661,
+      "contentGrewAfter800ms": 2695,
+      "hubTabs": [
+        "principles",
+        "atlas",
+        "masters(current)"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": true,
+      "consoleErrors": 30,
+      "pageErrors": 0,
+      "failedRequestsExternal": 17,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 2,
+      "nestedScrollers": [],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-masters.png",
+      "verdict": "정상",
+      "findingIds": []
+    },
+    {
+      "route": "guide",
+      "hub": "learn",
+      "deepLink": "http://127.0.0.1:8931/index.html#guide",
+      "httpStatus": 200,
+      "activePage": "page-guide",
+      "contentLen800ms": 2334,
+      "contentLen3300ms": 2334,
+      "htmlLen800ms": 402679,
+      "contentGrewAfter800ms": 0,
+      "hubTabs": [
+        "principles",
+        "atlas",
+        "masters"
+      ],
+      "hubTabsHidden": false,
+      "hubTabSwitchVerified": false,
+      "consoleErrors": 17,
+      "pageErrors": 0,
+      "failedRequestsExternal": 10,
+      "failedRequestsLocal4xx5xx": 0,
+      "localAbortedInFlight": 1,
+      "emDashCountInPage": 6,
+      "nestedScrollers": [
+        {
+          "sel": "#main-content",
+          "sh": 1918,
+          "ch": 848
+        }
+      ],
+      "horizontalOverflow": false,
+      "docScrollHeight": 900,
+      "viewportHeight": 900,
+      "unnamedInteractiveControls": 0,
+      "imagesWithoutAlt": 0,
+      "duplicateIds": 0,
+      "headingJump": null,
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-guide.png",
+      "verdict": "정상",
+      "findingIds": []
+    }
+  ],
+  "aliases": [
+    {
+      "hash": "#options",
+      "expectedCanonical": "sentiment",
+      "landedOn": "page-sentiment",
+      "finalHash": "#sentiment",
+      "contentLen800ms": 1573,
+      "consoleErrors": 8,
+      "pageErrors": 0,
+      "verdict": "정상",
+      "screenshot": "_artifacts/frontend-full-audit-20261011/smoke-options.png"
+    }
+  ],
+  "findings": [
+    {
+      "id": "SMOKE-B1",
+      "grade": "B",
+      "axis": "핵심 영역이 빈 채로 남음 (영구 placeholder)",
+      "route": "screener",
+      "hub": "screener",
+      "title": "\"이어서 볼 곳\" 흐름 링크가 \"판정 대기\"로 영구 고정 — 같은 세션의 #signal은 \"혼조\"",
+      "severity": "medium",
+      "repro": [
+        "1) http://127.0.0.1:8931/index.html#screener 로 딥링크 진입 (뷰포트 1440x900)",
+        "2) 스크리너 표 하단 \"이어서 볼 곳\" 영역까지 스크롤",
+        "3) span.flow-next-why 텍스트 관찰: \"순위가 놓인 환경 — 판정 대기\"",
+        "4) 1.5s / 6s / 15s / 18s / 25s 시점에 재측정해도 동일 문자열 (변화 없음)",
+        "5) 대조: 같은 서버·같은 세션에서 #signal 진입 후 h2#regime-overall → 6s 안에 \"혼조\"(우호 3·중립 0·부담 3)로 렌더"
+      ],
+      "consoleErrorRaw": [
+        "Access to fetch at 'https://aio-proxy.zmfhd007.workers.dev/health' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: The 'Access-Control-Allow-Origin' header has a value 'https://ysnle.github.io' that is not equal to the supplied origin.",
+        "Failed to load resource: the server responded with a status of 403 () @ https://corsproxy.io/?https%3A%2F%2Fquery1.finance.yahoo.com%2Fv8%2Ffinance%2Fchart%2F%255EGSPC%3Frange%3D1y%26interval%3D1d"
+      ],
+      "evidence": [
+        "_artifacts/frontend-full-audit-20261011/smoke-screener.png",
+        "scratchpad/probe4.json (screener.flow)",
+        "scratchpad/probe3.json (screener 1.5/6/15/25s)"
+      ],
+      "mechanism": "src/domain/screener/screener-read.js:72 — `순위가 놓인 환경 — ${regime?.available ? regime.overall : \"판정 대기\"}`. 스크리너 라우트는 이 흐름 링크를 1회 렌더한 뒤 시장 국면이 도착해도 다시 그리지 않는 것으로 보인다(같은 세션에서 국면 자체는 계산 가능).",
+      "fix": "시장 국면 도착 이벤트(aio:dataTimelineUpdated / market 스토어 커밋)에서 이 흐름 링크를 재렌더하거나, 국면 미도착 상태는 \"—\" 대신 \"시장 국면 계산 중\" + 산출 조건을 함께 노출해 영구 대기와 구분한다. 국면이 끝내 불가하면 링크를 숨긴다."
+    },
+    {
+      "id": "SMOKE-B2",
+      "grade": "B",
+      "axis": "핵심 영역이 빈 채로 남음 (출처 없는 위젯이 영구 \"—\")",
+      "route": "전 라우트 (셸 톱바, 19/19)",
+      "hub": "shell",
+      "title": "톱바 VIX 배지가 모든 라우트에서 \"VIX —\"로 영구 고정 — P1508 종가 폴백이 발동하지 않음",
+      "severity": "medium",
+      "repro": [
+        "1) http://127.0.0.1:8931/index.html#home (이후 #sentiment, #signal, #screener, #guide 등 19개 라우트 전부)",
+        "2) 20초 대기 후 document.querySelector(\"[data-vix-badge]\").textContent 관찰 → 4/4 라우트 모두 \"VIX —\"",
+        "3) 같은 시점 같은 셸의 live 시세는 정상: 톱바 라벨이 \"종가 서버 10/9 마감 · 시세 16종\"",
+        "4) 같은 세션에서 [data-live-price=\"^VIX\"] (대시보드 VIX 카드) = \"14.84\" → VIX 값 자체는 로컬 종가 자산에 존재",
+        "5) 19개 라우트 스모크 본문 모두 \"… 시세 16종 VIX — 도움말 …\" 으로 동일"
+      ],
+      "consoleErrorRaw": [
+        "Access to fetch at 'https://aio-proxy.zmfhd007.workers.dev/?url=https%3A%2F%2Fquery1.finance.yahoo.com%2Fv8%2Ffinance%2Fchart%2F%255EVIX%3Finterval%3D1d%26range%3D3mo' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://ysnle.github.io' that is not equal to the supplied origin.",
+        "Failed to load resource: net::ERR_FAILED @ https://aio-proxy.zmfhd007.workers.dev/?url=https%3A%2F%2Fquery1.finance.yahoo.com%2Fv8%2Ffinance%2Fchart%2F%255EVIX%3Finterval%3D1d%26range%3D3mo"
+      ],
+      "evidence": [
+        "_artifacts/frontend-full-audit-20261011/smoke-technical.png (톱바 \"시세 16종 VIX —\" 육안 확인)",
+        "scratchpad/probe5.json (home/sentiment/signal/screener 모두 vixBadge=\"VIX —\", homeVixCard=\"14.84\")"
+      ],
+      "mechanism": "js/aio-data.js:15156-15158 — `_vixBadgeText = \"VIX \" + _vixFixed(vp, 2, \"—\")`; `if (vp == null) { …last daily history vix… \" 종가\" }`; `document.querySelectorAll(\"[data-vix-badge]\").forEach(el => el.textContent = _vixBadgeText)`. 이 대입이 실행되는 시점이 실시간 시세 갱신 경로에 묶여 있어, 실시간 시세가 한 번도 오지 않는 로드에서는 P1508의 일별 종가 폴백이 배지에 반영되지 않는다.",
+      "fix": "부팅 시 1회(그리고 history 로드 완료 시)에도 배지 텍스트를 산출하도록 폴백을 시세 갱신 경로에서 분리한다. 값이 끝내 없으면 \"VIX —\" 대신 \"VIX 자료 없음\"처럼 사유를 담거나 배지를 숨긴다.",
+      "note": "동일 값이 다른 화면에서는 정상 표기되므로(14.84) 의미 판정이 아니라 배지 wiring 문제로 본다. 로컬 검증 환경에서는 외부 시세가 전부 차단되므로, 라이브 환경에서도 실시간 시세가 없는 첫 로드에 재현될 가능성이 높다."
+    },
+    {
+      "id": "SMOKE-C1",
+      "grade": "C",
+      "axis": "로딩 상태가 멈춤",
+      "route": "technical",
+      "hub": "stock",
+      "title": "차트 패널이 \"SPY 일봉 불러오는 중…\" + 빈 캔버스로 약 9~13초 정지 후에야 실패 안내로 전환",
+      "severity": "medium",
+      "repro": [
+        "1) http://127.0.0.1:8931/index.html#technical 딥링크 진입",
+        "2) #stock-chart-status 관찰: ~2s \"불러오는 중…\" (t=3000/6000/9000 모두)",
+        "3) t≈9000ms까지 \"불러오는 중…\" 유지, #stock-chart-state 배지 \"판정 대기\", 차트 영역은 흰 박스",
+        "4) t≈14000ms에야 상태가 비워지고 \"#stock-chart-evidence\"에 \"SPY 시세를 받아오지 못했습니다 / 시세 제공처나 중계 서버가 응답하지 않았습니다. … 다시 시도\" 렌더",
+        "5) 종목을 직접 입력(NVDA → 차트 보기)해도 동일: t=8000까지 \"불러오는 중…\", t=16000에 실패 안내"
+      ],
+      "consoleErrorRaw": [
+        "Access to fetch at 'https://aio-proxy.zmfhd007.workers.dev/?url=https%3A%2F%2Fquery1.finance.yahoo.com%2Fv8%2Ffinance%2Fchart%2FSPY%3Frange%3D2y%26interval%3D1d%26includePrePost%3Dfalse' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://ysnle.github.io' that is not equal to the supplied origin.",
+        "Failed to load resource: the server responded with a status of 403 () @ https://corsproxy.io/?https%3A%2F%2Fquery1.finance.yahoo.com%2Fv8%2Ffinance%2Fchart%2FSPY%3Frange%3D2y%26interval%3D1d%26includePrePost%3Dfalse",
+        "Failed to load resource: net::ERR_FAILED @ https://api.allorigins.win/raw?url=https%3A%2F%2Fquery1.finance.yahoo.com%2Fv8%2Ffinance%2Fchart%2FSPY%3Frange%3D2y%26interval%3D1d%26includePrePost%3Dfalse"
+      ],
+      "evidence": [
+        "_artifacts/frontend-full-audit-20261011/smoke-technical.png (3.3s 시점: \"SPY 일봉 불러오는 중… 판정 대기\" + 빈 차트 박스)",
+        "scratchpad/probe3.json (chart.technical 1/3/6/9/14/20s, chart.technicalWithSymbol)"
+      ],
+      "mechanism": "src/ui/components/stock-chart.js:121이 상태를 \"불러오는 중…\"으로 설정하고, 실패 시 130-146행의 emptyState 폴백으로 교체한다. 실제로 폴백은 도달하지만, 3개 중계 경로(worker proxy → corsproxy.io → allorigins.win)를 직렬로 모두 소진한 뒤에야 도달하므로 사용자에게는 9~13초간 \"불러오는 중\" + 빈 영역으로 보인다.",
+      "fix": "프록시 폴백 체인 전체에 짧은 마감(예: 4초)을 걸고, 초과 시 곧바로 실패 안내 + 다시 시도 버튼을 렌더한다(폴백은 백그라운드에서 계속). \"불러오는 중\" 상태에는 경과 시간/재시도 어포던스를 함께 둔다. 상태 배지 \"판정 대기\"도 실패 확정 시 함께 정리한다."
+    },
+    {
+      "id": "SMOKE-D1",
+      "grade": "D",
+      "axis": "접근성 (제목 단계 건너뜀)",
+      "route": "fxbond",
+      "hub": "macro",
+      "title": "fxbond 활성 페이지 제목 단계가 h2 → h4로 건너뜀 (h3 없음)",
+      "severity": "low",
+      "repro": [
+        "1) http://127.0.0.1:8931/index.html#fxbond 딥링크 진입",
+        "2) document.querySelectorAll(\".page.active h1,h2,h3,h4\") 순서 관찰 → [2,2,4,4,4,2,2,3,3,3,3,2]",
+        "3) 3번째 제목에서 h2 다음이 h4 (h3 부재) → 스크린리더/개요 탐색에서 계층 단절"
+      ],
+      "consoleErrorRaw": [],
+      "evidence": [
+        "scratchpad/probe2.json (a11y[f xbond].headingSeq = [2,2,4,4,4,2,2,3,3,3,3,2], headingJump = \"2->4\")"
+      ],
+      "mechanism": "index.html #page-fxbond 섹션에서 중간 레벨 제목(h3) 없이 h4가 사용됨. 같은 허브의 #page-macro는 [2,2,3,3,3,3,3,3,2,2,3,4]로 단계가 연속적이라 두 형제 화면이 서로 다른 개요를 만든다.",
+      "fix": "fxbond의 h4 블록 제목을 h3로 올리거나(권장) 해당 섹션에 h3 도입. 매크로 화면과 제목 레벨을 맞춘다."
+    },
+    {
+      "id": "SMOKE-D2",
+      "grade": "D",
+      "axis": "런타임 조건 (감사 재현성/오프라인 셸)",
+      "route": "전 라우트 (셸 부트스트랩)",
+      "hub": "shell",
+      "title": "서비스 워커가 127.0.0.1 호스트에서 등록되지 않음 — SW/캐시 시나리오 재현 불가",
+      "severity": "low",
+      "repro": [
+        "1) http://127.0.0.1:8931/index.html#home 을 load 이벤트까지 로드하고 6초 대기",
+        "2) isSecureContext=true, \"serviceWorker\" in navigator=true, localStorage.aio_sw_disabled=null 확인",
+        "3) navigator.serviceWorker.getRegistrations() → [] , navigator.serviceWorker.controller → null , caches.keys() → []",
+        "4) 따라서 \"SW 등록 시 새 콘텐츠가 캐시에 갇혀 이전 버전이 보이는지(첫 로드 vs 재로드)\"는 이 호스트에서 관측 불가",
+        "5) 대조: 첫 로드 vs 재로드 콘텐츠 길이는 home 1271/1271, screener 921/2817, sentiment 71/1341, principles 16/2231 — 차이는 SW가 아니라 비동기 데이터 도착 시점차이며, /index.html 은 매번 status 200 + version.json v57.35 로 동일"
+      ],
+      "consoleErrorRaw": [],
+      "evidence": [
+        "scratchpad/probe2.json (sw.afterLoad6s, sw.firstVsReload, sw.registrationsAfter, sw.cachesAfter)",
+        "scratchpad/smoke-raw.json (serviceWorker)"
+      ],
+      "mechanism": "js/aio-ui.js:6816 — `if (\"serviceWorker\" in navigator && (location.protocol === \"https:\" || location.hostname === \"localhost\"))`. 감사 서버는 http://127.0.0.1:8931 이므로 hostname이 \"127.0.0.1\"이라 조건이 거짓 → 등록 블록 전체가 조용히 건너뛴다(경고 로그도 없음).",
+      "fix": "로컬/오프라인 검증이 가능하도록 조건에 127.0.0.1(및 ::1)을 명시적으로 포함하고(`location.hostname === \"localhost\" || location.hostname === \"127.0.0.1\" || location.hostname === \"[::1]\"`), 건너뛸 때는 한 줄 로그를 남겨 \"왜 SW가 없는지\"를 관측 가능하게 만든다."
+    }
+  ],
+  "consoleErrors": {
+    "totalOccurrences": 1553,
+    "uncaughtPageErrors": 0,
+    "pageErrorList": [],
+    "ranking": [
+      {
+        "signature": "Failed to load resource: net::ERR_FAILED (external proxy/API)",
+        "occurrences": 669,
+        "firstExample": "Failed to load resource: net::ERR_FAILED"
+      },
+      {
+        "signature": "CORS blocked: fetch to aio-proxy.zmfhd007.workers.dev (worker proxy; ACAO allowlist = https://ysnle.github.io)",
+        "occurrences": 299,
+        "firstExample": "Access to fetch at 'https://aio-proxy.zmfhd007.workers.dev/health' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: The 'Access-Control-Allow-Origin' header has a value 'https://ysnle.github.io' that is not equal to the supplied origin. Have the server send the header with a valid value."
+      },
+      {
+        "signature": "CORS blocked: fetch to api.allorigins.win",
+        "occurrences": 292,
+        "firstExample": "Access to fetch at 'https://api.allorigins.win/raw?url=https%3A%2F%2Fwww.cnbc.com%2Fid%2F100003114%2Fdevice%2Frss%2Frss.html' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource."
+      },
+      {
+        "signature": "Failed to load resource: HTTP 403 (외부 CORS 프록시 corsproxy.io)",
+        "occurrences": 195,
+        "firstExample": "Failed to load resource: the server responded with a status of 403 ()"
+      },
+      {
+        "signature": "CORS blocked: fetch to api.coingecko.com",
+        "occurrences": 64,
+        "firstExample": "Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true&include_last_updated_at=true' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource."
+      },
+      {
+        "signature": "Failed to load resource: HTTP 429 (rate limit, api.coingecko.com)",
+        "occurrences": 9,
+        "firstExample": "Failed to load resource: the server responded with a status of 429 ()"
+      },
+      {
+        "signature": "[AIO:api] 앱 내부 로그(예외 아님): [AIO:api] proxy-primary: warn → error {errCount: 3}",
+        "occurrences": 6,
+        "firstExample": "[AIO:api] proxy-primary: warn → error {errCount: 3}"
+      },
+      {
+        "signature": "CORS blocked: fetch to m.stock.naver.com",
+        "occurrences": 6,
+        "firstExample": "Access to fetch at 'https://m.stock.naver.com/api/index/KOSPI/trend' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource."
+      },
+      {
+        "signature": "CORS blocked: fetch to fchart.stock.naver.com",
+        "occurrences": 5,
+        "firstExample": "Access to fetch at 'https://fchart.stock.naver.com/siseJson.nhn?symbol=005930&timeframe=day&count=120&requestType=0' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource."
+      },
+      {
+        "signature": "Failed to load resource: net::ERR_CONNECTION_TIMED_OUT (stooq.com CSV, 외부)",
+        "occurrences": 4,
+        "firstExample": "Failed to load resource: net::ERR_CONNECTION_TIMED_OUT"
+      },
+      {
+        "signature": "CORS blocked: fetch to query1.finance.yahoo.com",
+        "occurrences": 2,
+        "firstExample": "Access to fetch at 'https://query1.finance.yahoo.com/v8/finance/chart/%5EKQ11?interval=1m&range=1d' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource."
+      },
+      {
+        "signature": "Failed to load resource: HTTP 422 (api.rss2json.com)",
+        "occurrences": 1,
+        "firstExample": "Failed to load resource: the server responded with a status of 422 ()"
+      },
+      {
+        "signature": "CORS blocked: fetch to api.rss2json.com",
+        "occurrences": 1,
+        "firstExample": "Access to fetch at 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.investing.com%2Frss%2Fnews.rss' from origin 'http://127.0.0.1:8931' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource."
+      }
+    ]
+  },
+  "failedRequests": {
+    "totalOccurrences": 1260,
+    "localNonAbortFailures": 0,
+    "externalRanking": [
+      {
+        "signature": "requestfailed :: api.allorigins.win",
+        "occurrences": 339,
+        "firstExample": "https://api.allorigins.win/raw?url=https%3A%2F%2Fwww.cnbc.com%2Fid%2F100003114%2Fdevice%2Frss%2Frss.html"
+      },
+      {
+        "signature": "requestfailed :: aio-proxy.zmfhd007.workers.dev (worker proxy)",
+        "occurrences": 314,
+        "firstExample": "https://aio-proxy.zmfhd007.workers.dev/health"
+      },
+      {
+        "signature": "requestfailed :: api.codetabs.com",
+        "occurrences": 245,
+        "firstExample": "https://api.codetabs.com/v1/proxy/?quest=https%3A%2F%2Fwww.cnbc.com%2Fid%2F15839069%2Fdevice%2Frss%2Frss.html"
+      },
+      {
+        "signature": "status-403 :: corsproxy.io",
+        "occurrences": 195,
+        "firstExample": "https://corsproxy.io/?https%3A%2F%2Fwww.cnbc.com%2Fid%2F100003114%2Fdevice%2Frss%2Frss.html"
+      },
+      {
+        "signature": "requestfailed :: api.coingecko.com",
+        "occurrences": 68,
+        "firstExample": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true&include_last_updated_at=true"
+      },
+      {
+        "signature": "requestfailed :: corsproxy.io",
+        "occurrences": 47,
+        "firstExample": "https://corsproxy.io/?https%3A%2F%2Ffchart.stock.naver.com%2FsiseJson.nhn%3Fsymbol%3D005930%26timeframe%3Dday%26count%3D120%26requestType%3D0"
+      },
+      {
+        "signature": "requestfailed :: stooq.com",
+        "occurrences": 25,
+        "firstExample": "https://stooq.com/q/l/?s=skew.us+cl.f+gc.f+dx.f&f=sd2t2ohlcv&h&e=csv"
+      },
+      {
+        "signature": "status-429 :: api.rss2json.com",
+        "occurrences": 7,
+        "firstExample": "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Frsshub.app%2Freuters%2Fmarket"
+      },
+      {
+        "signature": "requestfailed :: m.stock.naver.com",
+        "occurrences": 6,
+        "firstExample": "https://m.stock.naver.com/api/index/KOSPI/trend"
+      },
+      {
+        "signature": "requestfailed :: fchart.stock.naver.com",
+        "occurrences": 5,
+        "firstExample": "https://fchart.stock.naver.com/siseJson.nhn?symbol=005930&timeframe=day&count=120&requestType=0"
+      },
+      {
+        "signature": "requestfailed :: production.dataviz.cnn.io",
+        "occurrences": 3,
+        "firstExample": "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
+      },
+      {
+        "signature": "status-429 :: api.coingecko.com",
+        "occurrences": 2,
+        "firstExample": "https://api.coingecko.com/api/v3/global"
+      },
+      {
+        "signature": "requestfailed :: query1.finance.yahoo.com",
+        "occurrences": 2,
+        "firstExample": "https://query1.finance.yahoo.com/v8/finance/chart/%5EKQ11?interval=1m&range=1d"
+      },
+      {
+        "signature": "status-422 :: api.rss2json.com",
+        "occurrences": 1,
+        "firstExample": "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffinance.yahoo.com%2Fnews%2Frssindex"
+      },
+      {
+        "signature": "requestfailed :: api.rss2json.com",
+        "occurrences": 1,
+        "firstExample": "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.investing.com%2Frss%2Fnews.rss"
+      }
+    ],
+    "localOnlyAbortedInFlight": [
+      {
+        "where": "serviceWorker",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/screener.json",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "serviceWorker",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/screener-universe.json",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "serviceWorker",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/model-validation-status.json",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/ui/components/screener-read.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/ui/components/screener-validation.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/domain/screener/candidate-record.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/domain/screener/factor-overlap.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/data/artifact-cache.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/state/selectors/screener.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/domain/screener/model-fingerprint.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/ui/components/sentiment-board.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/history.json?t=497695",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/operator-note.json?t=5972344",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "interaction:refresh-return",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/src/ui/knowledge/industry-view.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "serviceWorker",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/screener-candidate-archive.json",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "serviceWorker",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/factor-backtest-longrun.json",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "serviceWorker",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/backtest-history.json",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "where": "serviceWorker",
+        "kind": "requestfailed",
+        "url": "http://127.0.0.1:8931/public-data/macro-history.json",
+        "err": "net::ERR_ABORTED"
+      }
+    ],
+    "note": "로컬(127.0.0.1:8931) 실패는 전부 net::ERR_ABORTED — 네비게이션/리로드로 페이지가 파괴되며 끊긴 진행 중 요청이며 404/500이 아니다. public-data 핵심 artifact 11종을 직접 조회해 모두 HTTP 200을 확인했다."
+  },
+  "interactions": {
+    "hubTabSwitch": [
+      {
+        "from": "home",
+        "tab": "briefing",
+        "active": [
+          "page-briefing"
+        ],
+        "len": 2306,
+        "err": []
+      },
+      {
+        "from": "home",
+        "tab": "market-news",
+        "active": [
+          "page-market-news"
+        ],
+        "len": 3079,
+        "err": []
+      },
+      {
+        "from": "signal",
+        "tab": "breadth",
+        "active": [
+          "page-breadth"
+        ],
+        "len": 761,
+        "err": []
+      },
+      {
+        "from": "signal",
+        "tab": "sentiment",
+        "active": [
+          "page-sentiment"
+        ],
+        "len": 2007,
+        "err": []
+      },
+      {
+        "from": "macro",
+        "tab": "fxbond",
+        "active": [
+          "page-fxbond"
+        ],
+        "len": 961,
+        "err": []
+      },
+      {
+        "from": "ticker",
+        "tab": "technical",
+        "active": [
+          "page-technical"
+        ],
+        "len": 1053,
+        "err": []
+      },
+      {
+        "from": "ticker",
+        "tab": "fundamental",
+        "active": [
+          "page-fundamental"
+        ],
+        "len": 919,
+        "err": []
+      },
+      {
+        "from": "principles",
+        "tab": "atlas",
+        "active": [
+          "page-atlas"
+        ],
+        "len": 1978,
+        "err": []
+      },
+      {
+        "from": "principles",
+        "tab": "masters",
+        "active": [
+          "page-masters"
+        ],
+        "len": 3382,
+        "err": []
+      }
+    ],
+    "topbarScreenNav": [
+      {
+        "arg": "home",
+        "hub": "today",
+        "active": [
+          "page-home"
+        ],
+        "len": 1932,
+        "hubTabs": [
+          "home",
+          "briefing",
+          "market-news"
+        ]
+      },
+      {
+        "arg": "signal",
+        "hub": "market",
+        "active": [
+          "page-signal"
+        ],
+        "len": 3505,
+        "hubTabs": [
+          "signal",
+          "breadth",
+          "sentiment"
+        ]
+      },
+      {
+        "arg": "macro",
+        "hub": "macro",
+        "active": [
+          "page-macro"
+        ],
+        "len": 1030,
+        "hubTabs": [
+          "macro",
+          "fxbond"
+        ]
+      },
+      {
+        "arg": "themes",
+        "hub": "themes",
+        "active": [
+          "page-themes"
+        ],
+        "len": 1109,
+        "hubTabs": []
+      },
+      {
+        "arg": "ticker",
+        "hub": "stock",
+        "active": [
+          "page-ticker"
+        ],
+        "len": 783,
+        "hubTabs": [
+          "ticker",
+          "technical",
+          "fundamental"
+        ]
+      },
+      {
+        "arg": "screener",
+        "hub": "screener",
+        "active": [
+          "page-screener"
+        ],
+        "len": 1580,
+        "hubTabs": []
+      },
+      {
+        "arg": "portfolio",
+        "hub": "portfolio",
+        "active": [
+          "page-portfolio"
+        ],
+        "len": 1246,
+        "hubTabs": []
+      },
+      {
+        "arg": "principles",
+        "hub": "learn",
+        "active": [
+          "page-principles"
+        ],
+        "len": 2896,
+        "hubTabs": [
+          "principles",
+          "atlas",
+          "masters"
+        ]
+      }
+    ],
+    "stockEntry": [
+      {
+        "start": "home",
+        "candidateCount": 6
+      },
+      {
+        "start": "home",
+        "clicked": true,
+        "active": [
+          "page-ticker"
+        ],
+        "len": 783,
+        "dash": 1,
+        "sample": "메인 콘텐츠로 건너뛰기 AIO Investment Screener 데일리 오늘 시장 시장 상태 거시 · 금리 테마 · 섹터 내 투자 종목 스크리너 포트폴리오 리서치 리서치 라이브러리 용어 사전 다크 모드로 전환 AI"
+      },
+      {
+        "start": "screener",
+        "candidateCount": 6
+      },
+      {
+        "start": "screener",
+        "clicked": true,
+        "active": [
+          "page-ticker"
+        ],
+        "len": 783,
+        "dash": 1,
+        "sample": "메인 콘텐츠로 건너뛰기 AIO Investment Screener 데일리 오늘 시장 시장 상태 거시 · 금리 테마 · 섹터 내 투자 종목 스크리너 포트폴리오 리서치 리서치 라이브러리 용어 사전 다크 모드로 전환 AI"
+      },
+      {
+        "start": "themes",
+        "candidateCount": 204
+      },
+      {
+        "start": "themes",
+        "clicked": true,
+        "active": [
+          "page-ticker"
+        ],
+        "len": 783,
+        "dash": 1,
+        "sample": "메인 콘텐츠로 건너뛰기 AIO Investment Screener 데일리 오늘 시장 시장 상태 거시 · 금리 테마 · 섹터 내 투자 종목 스크리너 포트폴리오 리서치 리서치 라이브러리 용어 사전 다크 모드로 전환 AI"
+      },
+      {
+        "start": "market-news",
+        "candidateCount": 344
+      },
+      {
+        "start": "market-news",
+        "clicked": true,
+        "active": [
+          "page-ticker"
+        ],
+        "len": 783,
+        "dash": 1,
+        "sample": "메인 콘텐츠로 건너뛰기 AIO Investment Screener 데일리 오늘 시장 시장 상태 거시 · 금리 테마 · 섹터 내 투자 종목 스크리너 포트폴리오 리서치 리서치 라이브러리 용어 사전 다크 모드로 전환 AI"
+      },
+      {
+        "start": "ticker-deeplink-nosubject",
+        "active": [
+          "page-ticker"
+        ],
+        "len": 783,
+        "sample": "메인 콘텐츠로 건너뛰기 AIO Investment Screener 데일리 오늘 시장 시장 상태 거시 · 금리 테마 · 섹터 내 투자 종목 스크리너 포트폴리오 리서치 리서치 라이브러리 용어 사전 다크 모드로 전환 AI 도우미 일시 사용 불가 GPT-6 Luna · 공용 AI 연결 개인 A"
+      }
+    ],
+    "refreshReturn": [
+      {
+        "route": "home",
+        "first": 1932,
+        "afterReload": 1885,
+        "delta": -47,
+        "active": [
+          "page-home"
+        ],
+        "hash": "#home"
+      },
+      {
+        "route": "screener",
+        "first": 1580,
+        "afterReload": 1420,
+        "delta": -160,
+        "active": [
+          "page-screener"
+        ],
+        "hash": "#screener"
+      },
+      {
+        "route": "sentiment",
+        "first": 756,
+        "afterReload": 1952,
+        "delta": 1196,
+        "active": [
+          "page-sentiment"
+        ],
+        "hash": "#sentiment"
+      },
+      {
+        "route": "atlas",
+        "first": 710,
+        "afterReload": 1924,
+        "delta": 1214,
+        "active": [
+          "page-atlas"
+        ],
+        "hash": "#atlas"
+      }
+    ],
+    "inpageControlsNote": "허브 탭/톱바 이동은 9/9, 8/8 전부 성공(활성 페이지·탭 aria-current 정확). data-heavy 화면의 세부 세그먼트/탭 프로브는 숨겨진 화면의 요소까지 선택자에 걸려 다수 click timeout이 났다 — 자동화 선택자 한계이며 앱 결함으로 판정하지 않았다. 성공한 사례(screener \"랭킹\"/\"표 넓게 보기\"/\"조건 실행\", masters \"운용 방식 비교\")에서 비-CORS 오류는 0건.",
+    "interactionUncaughtPageErrors": 0
+  },
+  "serviceWorker": {
+    "serverControlled": false,
+    "registrations": [],
+    "controller": null,
+    "caches": [],
+    "isSecureContext": true,
+    "localStorageSwDisabled": null,
+    "firstVsReload": [
+      {
+        "route": "home",
+        "first": {
+          "len": 1271,
+          "id": "page-home"
+        },
+        "reload": {
+          "len": 1271,
+          "id": "page-home"
+        },
+        "indexStatus": 200
+      },
+      {
+        "route": "screener",
+        "first": {
+          "len": 921,
+          "id": "page-screener"
+        },
+        "reload": {
+          "len": 2817,
+          "id": "page-screener"
+        },
+        "indexStatus": 200
+      },
+      {
+        "route": "sentiment",
+        "first": {
+          "len": 71,
+          "id": "page-sentiment"
+        },
+        "reload": {
+          "len": 1341,
+          "id": "page-sentiment"
+        },
+        "indexStatus": 200
+      },
+      {
+        "route": "principles",
+        "first": {
+          "len": 16,
+          "id": "page-principles"
+        },
+        "reload": {
+          "len": 2231,
+          "id": "page-principles"
+        },
+        "indexStatus": 200
+      }
+    ],
+    "staleCacheVerdict": "재현 불가(N/A): 127.0.0.1 호스트에서는 SW가 등록되지 않아 이전 버전 캐시 고정 현상을 관측할 수 없다. 별도 발견 SMOKE-D2로 기록.",
+    "swVersionOnDisk": "v57.35 (sw.js SW_VERSION), version.json.version = v57.35 — 동기화 일치"
+  },
+  "evidencePaths": [
+    "_artifacts/frontend-full-audit-20261011/smoke-<route>.png (19) + smoke-options.png (alias) — 1440x900 뷰포트 스크린샷",
+    "scratchpad/smoke-raw.json (라우트별 원시 관측: m800/m3300 DOM 계측, 콘솔/페이지/요청 오류, SW)",
+    "scratchpad/probe2.json (로컬 실패 요청, 로딩 지속 스냅샷, 레이아웃 오버플로, 경량 a11y, SW)",
+    "scratchpad/probe3.json (판정 대기/차트 상태 시간축 1.5s→25s)",
+    "scratchpad/probe4.json (18s 시점 placeholder 재확인)",
+    "scratchpad/probe5.json (톱바 VIX 배지 20s 시점)"
+  ],
+  "blocked": [
+    {
+      "id": "BLOCKED-1",
+      "item": "SW/캐시 고정(stale cache) 시나리오",
+      "reason": "http://127.0.0.1:8931 에서는 js/aio-ui.js:6816 가드 때문에 SW가 등록되지 않는다(registrations=[]). https 또는 hostname \"localhost\" 에서만 재현 가능. 로컬 서버를 직접 시작/종료하거나 포트를 바꾸는 것은 지시 위반이라 하지 않았다.",
+      "workaround": "localhost:8931 로 접속하면 동일 서버에서 SW 등록을 재현할 수 있다."
+    },
+    {
+      "id": "BLOCKED-2",
+      "item": "외부 데이터 공급자 계층",
+      "reason": "Cloudflare Worker 프록시의 CORS 허용 오리진이 https://ysnle.github.io 이고, corsproxy.io 403 / allorigins CORS 실패 / coingecko CORS·429 / CNN dataviz 차단. 로컬 오리진에서는 시세·뉴스·FRED·CBOE·SEC·Finnhub·AlphaVantage·FMP·한국 리레이(Yahoo, CoinGecko, FRED, CBOE, SEC, naver, bok, kosis)가 전부 도달 불가. 이로 인한 위젯 상태의 의미 판정은 다른 에이전트 담당.",
+      "workaround": "없음(환경 제약). 프록시 allowlist에 로컬 오리진을 추가하거나 로컬 대역 fixture가 필요."
+    }
+  ],
+  "limitations": [
+    "자동 브라우저 계측은 한국어 의미·정확성·미적 품질을 인증하지 않는다. 본 문서는 구조(렌더/상태/오류/레이아웃/접근성)만 판정한다.",
+    "콘텐츠 길이는 document.body.innerText 길이이며, 숨겨진 18개 비활성 화면은 포함되지 않는다(정규화 후 측정).",
+    "스크린샷은 1440x900 뷰포트 컷이며, 셸이 고정 높이이므로 스크롤 하단 내용은 스크린샷에 담기지 않는다(계측값·DOM 관측으로 보완).",
+    "세션 스크래치패드는 세션 보존 정책에 따라 정리된다. 영구 보존이 필요한 수치는 본 문서에 함께 기재했다."
+  ]
+}

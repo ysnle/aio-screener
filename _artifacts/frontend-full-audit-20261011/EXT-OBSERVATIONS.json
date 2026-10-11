@@ -1,0 +1,484 @@
+{
+  "schemaVersion": "ext-observations.v1",
+  "artifactId": "frontend-full-audit-20261011",
+  "title": "AIO Screener 2026-10-09 (Fri) US close — external cross-check of on-screen values",
+  "generatedAt": "2026-10-11",
+  "referenceSession": "2026-10-09",
+  "todayContext": "2026-10-11 (Sunday) — last completed US session is 2026-10-09 (Fri); KRX was closed 2026-10-09 (Hangul Day).",
+  "method": {
+    "tool": "web_search / web_fetch only",
+    "purpose": "verification-only cross-check; no external value was written into any repo data file",
+    "tolerances": {
+      "pricesAndFutures": "relative error > 0.20% = mismatch",
+      "indexPoints": "relative error > 0.10% = mismatch",
+      "rates": "absolute error > 0.03 percentage-points = mismatch"
+    },
+    "roundingRule": "rounding-digit differences are treated as match and noted",
+    "sourcePolicy": "official / major financial media preferred"
+  },
+  "aioFilesRead": [
+    "public-data/market-snapshot.json (revision market-snapshot:2026-10-10T15:23:15.089Z:b98b55b4, generatedAt 2026-10-10T15:23:15.089Z)",
+    "public-data/data.json (meta.generatedAt 2026-10-10T15:23:15.089Z)",
+    "public-data/history.json (last element date=2026-10-10, cycleEnd=2026-10-09T23:00:00.000Z)",
+    "public-data/breadth-contributors.json (generatedAt 2026-10-10T13:01:40.601Z)"
+  ],
+  "constraintsHonored": [
+    "no repo data file modified",
+    "no other file created beyond EXT-OBSERVATIONS.json/.md",
+    "no git operations",
+    "local server 127.0.0.1:8931 untouched"
+  ],
+  "observations": [
+    {
+      "id": "spx",
+      "indicator": "S&P 500",
+      "scope": "required",
+      "aioValue": 7811.54,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.index.spx].value (instrumentId ^GSPC)",
+      "aioAsOf": "2026-10-09T21:29:56.000Z",
+      "aioCrossPaths": "history.json last.spx=7811.54 (date 2026-10-10, cycleEnd 2026-10-09T23:00Z); changePct +0.5947%",
+      "externalValue": 7811.54,
+      "externalSources": [
+        {"url": "https://finlore.io/news/sp500-closes-7811-near-52-week-high-vix-1484-october-9-2026", "value": 7811.54, "note": "Oct 9 2026 market-close briefing"},
+        {"url": "https://www.cnbc.com/2026/10/08/stock-market-today-live-updates.html", "value": 7811.54, "note": "+0.59%"},
+        {"url": "https://www.portfolio-terminal.com/blog/stock-market-week-in-review-october-9-2026", "value": 7811.54, "note": "week-in-review"},
+        {"url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-dafbd0c4037ee10e2a9e305f3cfa8e70", "value": null, "note": "AP: S&P 500 +0.6% Friday (level not printed)"}
+      ],
+      "absDiff": 0.0,
+      "relErrorPct": 0.0,
+      "tolerancePct": 0.1,
+      "verdict": "match",
+      "grade": null
+    },
+    {
+      "id": "nasdaq",
+      "indicator": "NASDAQ Composite",
+      "scope": "required",
+      "aioValue": 27366.17,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.index.nasdaq].value (instrumentId ^IXIC)",
+      "aioAsOf": "2026-10-09T21:15:59.000Z",
+      "aioCrossPaths": "history.json last.nasdaq=27366.17; changePct +0.6356%",
+      "externalValue": 27366.17,
+      "externalSources": [
+        {"url": "https://finlore.io/news/sp500-closes-7811-near-52-week-high-vix-1484-october-9-2026", "value": 27366.17, "note": "+0.64%"},
+        {"url": "https://businessquant.com/economic-data/usnasdaq/", "value": 27366.17, "note": "prior 27193.34"},
+        {"url": "https://www.cnbc.com/2026/10/08/stock-market-today-live-updates.html", "value": 27366.17, "note": "as of Oct 9"}
+      ],
+      "absDiff": 0.0,
+      "relErrorPct": 0.0,
+      "tolerancePct": 0.1,
+      "verdict": "match",
+      "grade": null
+    },
+    {
+      "id": "dow",
+      "indicator": "Dow Jones Industrial Average",
+      "scope": "required",
+      "aioValue": 51654.95,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.index.dow].value (instrumentId ^DJI)",
+      "aioAsOf": "2026-10-09T20:37:50.000Z",
+      "aioCrossPaths": "history.json last.dow=51654.95; changePct +0.8263%",
+      "externalValue": 51654.95,
+      "externalSources": [
+        {"url": "https://finlore.io/news/sp500-closes-7811-near-52-week-high-vix-1484-october-9-2026", "value": 51654.95, "note": "+0.83%"},
+        {"url": "https://dowjonestoday.net/", "value": 51654.95, "note": "+0.83%"},
+        {"url": "https://www.measuringworth.com/datasets/DJA/index.php", "value": 51654.95, "note": "most recent DJIA close Oct 9 2026"},
+        {"url": "https://www.cnbc.com/2026/10/08/stock-market-today-live-updates.html", "value": 51654.95, "note": "+423.31 pts"}
+      ],
+      "absDiff": 0.0,
+      "relErrorPct": 0.0,
+      "tolerancePct": 0.1,
+      "verdict": "match",
+      "grade": null
+    },
+    {
+      "id": "us10y",
+      "indicator": "US 10-Year Treasury yield",
+      "scope": "required",
+      "aioValue": 5.244,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.rates.us10y].value (instrumentId ^TNX, unit percent)",
+      "aioAsOf": "2026-10-09T18:59:55.000Z",
+      "aioCrossPaths": "data.json macro._treasury.values.dgs10=5.24 with macro._asOf_dgs10=2026-10-09; data.json macro.dgs10=5.24",
+      "externalValue": 5.24,
+      "externalSources": [
+        {"url": "https://www.advisorperspectives.com/dshort/updates/2026/10/09/treasury-yields-snapshot-october-9-2026", "value": 5.24, "note": "10-yr finished 5.24%"},
+        {"url": "https://treasuryratewatch.com/daily/treasury-yield-curve", "value": 5.24, "note": "US Treasury par yield curve Oct 9 2026"},
+        {"url": "https://yieldcurvestoday.com/10-year-treasury-yield/", "value": 5.24, "note": "up 2 bps on the day"},
+        {"url": "https://spotthemoney.com/rates/treasury-yields/", "value": 5.24, "note": "per US Treasury daily par yield curve"}
+      ],
+      "absDiffPp": 0.004,
+      "tolerancePp": 0.03,
+      "verdict": "match",
+      "grade": null,
+      "basisNote": "On-screen ^TNX 5.244 vs official Treasury par 5.24 (dgs10) — same series, rounding only."
+    },
+    {
+      "id": "us2y",
+      "indicator": "US 2-Year Treasury yield",
+      "scope": "required",
+      "aioValue": 4.8,
+      "aioKeyPath": "data.json macro._treasury.values.dgs2 (with macro._asOf_dgs2=2026-10-09); also macro.dgs2",
+      "aioAsOf": "2026-10-09",
+      "aioCrossPaths": "market-snapshot.json does not carry a 2Y quote; Treasury dgs2 is the source of record",
+      "externalValue": 4.8,
+      "externalSources": [
+        {"url": "https://www.advisorperspectives.com/dshort/updates/2026/10/09/treasury-yields-snapshot-october-9-2026", "value": 4.8, "note": "2-year ended 4.80%"},
+        {"url": "https://www.riacircle.com/news/11591455", "value": 4.8, "note": "10s-2s +44bp"}
+      ],
+      "absDiffPp": 0.0,
+      "tolerancePp": 0.03,
+      "verdict": "match",
+      "grade": null
+    },
+    {
+      "id": "dxy",
+      "indicator": "US Dollar Index (DXY)",
+      "scope": "required",
+      "aioValue": 102.231,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.fx.dxy].value (instrumentId DX-Y.NYB)",
+      "aioAsOf": "2026-10-09T20:59:59.000Z",
+      "aioCrossPaths": "history.json last.dxy=102.23",
+      "externalValue": 102.22,
+      "externalSources": [
+        {"url": "https://finlore.io/news/sp500-closes-7811-near-52-week-high-vix-1484-october-9-2026", "value": 102.22, "note": "+0.08%"},
+        {"url": "https://streetstats.finance/liquidity/fx", "value": 102.21, "note": "as of Oct 9 2026"},
+        {"url": "https://convextrade.com/metrics/dxy/history/2026", "value": 102.23, "note": "closed 102.23"},
+        {"url": "https://usmacro.com/indicator/dxy/", "value": 102.28, "note": "Oct 2026 monthly"}
+      ],
+      "absDiff": 0.011,
+      "relErrorPct": 0.0108,
+      "tolerancePct": 0.2,
+      "verdict": "match",
+      "grade": null,
+      "basisNote": "External range 102.21–102.28; on-screen 102.231 sits inside. Variation is quote-vs-close noise."
+    },
+    {
+      "id": "usdkrw",
+      "indicator": "USD/KRW",
+      "scope": "required",
+      "aioValue": 1340.9,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.fx.usdkrw].value (instrumentId KRW=X, unit KRW/USD)",
+      "aioAsOf": "2026-10-10T03:30:56.000Z",
+      "aioCrossPaths": "history.json last.usdkrw=1340.9",
+      "externalValue": 1341.49,
+      "externalSources": [
+        {"url": "https://www.nimbuscalc.com/calculators/financial-calculators/currency-converter/USD-KRW-2026-10-09/", "value": 1341.49, "note": "2026-10-09 mid-market, -0.15%"},
+        {"url": "https://korearoute.com/exchange/usd-to-krw", "value": 1341, "note": "as of Oct 9 2026"}
+      ],
+      "absDiff": 0.59,
+      "relErrorPct": 0.044,
+      "tolerancePct": 0.2,
+      "verdict": "match",
+      "grade": null,
+      "basisNote": "On-screen observedAt is 2026-10-10T03:30Z (weekend Asian FX print) but value equals the Oct 9 close."
+    },
+    {
+      "id": "wti",
+      "indicator": "WTI crude oil (CL=F)",
+      "scope": "required",
+      "aioValue": 91.85,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.commodity.wti].value (instrumentId CL=F, USD/barrel)",
+      "aioAsOf": "2026-10-09T20:59:58.000Z",
+      "aioCrossPaths": "history.json last.wti=91.85; changePct +0.3935%",
+      "externalValue": 91.85,
+      "externalSources": [
+        {"url": "https://worldoilmonitor.com/daily-oil-market-summary", "value": 91.85, "note": "WTI $91.85 at the Oct 9 2026 close (up $0.36)"},
+        {"url": "https://convextrade.com/metrics/wti", "value": 91.85, "note": "WTI ($/bbl)"},
+        {"url": "https://globaloilshock.com/en/oil-price-today/", "value": 90.28, "note": "conflicting secondary source (lower reliability) — not used"}
+      ],
+      "absDiff": 0.0,
+      "relErrorPct": 0.0,
+      "tolerancePct": 0.2,
+      "verdict": "match",
+      "grade": null
+    },
+    {
+      "id": "gold",
+      "indicator": "Gold (GC=F)",
+      "scope": "required",
+      "aioValue": 4216.3,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.commodity.gold].value (instrumentId GC=F, USD/oz)",
+      "aioAsOf": "2026-10-09T20:59:59.000Z",
+      "aioCrossPaths": "history.json last.gold=4216.3; changePct +1.4265% (prev 4157)",
+      "externalValue": 4220.6,
+      "externalSources": [
+        {"url": "https://finlore.io/news/sp500-closes-7811-near-52-week-high-vix-1484-october-9-2026", "value": 4220.6, "note": "gold +1.53% to $4,220.60/oz (implied prev matches AIO 4157)"},
+        {"url": "https://naturalresourcestocks.net/gold-price-today-oct-09-2026/", "value": 4226.92, "note": "+1.68%"},
+        {"url": "https://mygoldcalc.com/gold-price/2026/10/09", "value": 4185.13, "note": "24K spot settled +1.55%"},
+        {"url": "https://www.statmuse.com/money/ask/gold-price-per-ounce-october-2026-chart", "value": 4195.82, "note": "XAU monthly closing"}
+      ],
+      "absDiff": 4.3,
+      "relErrorPct": 0.102,
+      "tolerancePct": 0.2,
+      "verdict": "match",
+      "grade": null,
+      "basisNote": "CAUTION: external sources range $4,185–$4,227 (up to ±0.7%) because spot vs COMEX futures and contract month differ. Narrowest-basis source (finlore, prev-close consistent with AIO 4157) gives +0.10% = match. If the panel labels this as 'spot' it is a basis (B-risk) item: GC=F is front-month COMEX futures, not spot XAU."
+    },
+    {
+      "id": "vix",
+      "indicator": "VIX",
+      "scope": "required",
+      "aioValue": 14.84,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.volatility.vix].value (instrumentId ^VIX)",
+      "aioAsOf": "2026-10-09T20:15:01.000Z",
+      "aioCrossPaths": "history.json last.vix=14.84; changePct -3.6989%",
+      "externalValue": 14.84,
+      "externalSources": [
+        {"url": "https://finlore.io/news/sp500-closes-7811-near-52-week-high-vix-1484-october-9-2026", "value": 14.84, "note": "VIX holds at 14.84 at the Oct 9 close"},
+        {"url": "https://www.bullionmarketcap.com/commodities/vix", "value": 14.84, "note": "current price 14.84"}
+      ],
+      "absDiff": 0.0,
+      "relErrorPct": 0.0,
+      "tolerancePct": 0.2,
+      "verdict": "match",
+      "grade": null
+    },
+    {
+      "id": "btc-eod",
+      "indicator": "Bitcoin — 2026-10-09 EOD close (history.json)",
+      "scope": "required",
+      "aioValue": 82546.32,
+      "aioKeyPath": "history.json last.btc=82546.32 (date 2026-10-10; fieldMeta.btc.valueBasis=previous-completed-close, observedAt 2026-10-09T00:00Z)",
+      "aioAsOf": "2026-10-09",
+      "aioCrossPaths": "market-snapshot.json quotes[market.crypto.btc] carries the live CURRENT_SESSION value 82871.3 instead (see btc-live)",
+      "externalValue": 82546.32,
+      "externalSources": [
+        {"url": "https://www.statmuse.com/money/ask/bitcoin-prices-2026", "value": 82546.32, "note": "BTC closing price"},
+        {"url": "https://thetapewire.com/btc/", "value": 82546.32, "note": "+1.07% vs prior close"},
+        {"url": "https://www.macrotrends.net/3230/btcusd-bitcoin-daily-price-chart", "value": 82543, "note": "Oct 9 2026"},
+        {"url": "https://www.btcbench.com/reports/daily-v2/2026-10-09.html", "value": 82546, "note": "BTC at $82,546"}
+      ],
+      "absDiff": 0.0,
+      "relErrorPct": 0.0,
+      "tolerancePct": 0.2,
+      "verdict": "match",
+      "grade": null
+    },
+    {
+      "id": "btc-live",
+      "indicator": "Bitcoin — market-snapshot live quote (labeled value on screen)",
+      "scope": "required",
+      "aioValue": 82871.3,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.crypto.btc].value (session CURRENT_SESSION, quality CURRENT)",
+      "aioAsOf": "2026-10-10T15:22:01.000Z",
+      "aioCrossPaths": "not a 2026-10-09 close — it is a live/current-session print at fetch time",
+      "externalValue": 82546.32,
+      "externalSources": [
+        {"url": "https://www.statmuse.com/money/ask/bitcoin-prices-2026", "value": 82546.32, "note": "2026-10-09 closing price"},
+        {"url": "https://thetapewire.com/btc/", "value": 82546.32, "note": "2026-10-09 close"}
+      ],
+      "absDiff": 324.98,
+      "relErrorPct": 0.3937,
+      "tolerancePct": 0.2,
+      "verdict": "mismatch",
+      "grade": "B",
+      "basisNote": "Basis mismatch (grade B), not a wrong number: the snapshot BTC is an intraday CURRENT_SESSION quote captured 2026-10-10T15:22Z, whereas the requested figure is the 2026-10-09 close. The same series' EOD close in history.json (82546.32) is an exact match to external data."
+    },
+    {
+      "id": "breadth-ad",
+      "indicator": "Advance/Decline breadth (up/down issue counts)",
+      "scope": "required",
+      "aioValue": null,
+      "aioKeyPath": "history.json last.advanceDecline / advanceRatio / breadth20/50/200 / breadth40/Up4/Down4/NewHighs/NewLows = null for the 2026-10-09 session block",
+      "aioAsOf": "2026-10-09",
+      "aioCrossPaths": "breadth-contributors.json sessions[date=2026-10-09].signals = {up4:22, down4:11, newHigh:24, newLow:13}, eligible.movers=810 (universe-relative ±4% movers, NOT exchange-wide A/D)",
+      "externalValue": "5,798 advanced / 3,668 declined; 593 new 52-week highs / 994 new lows; 29% above 50-day MA",
+      "externalSources": [
+        {"url": "https://stocksetups.com/today", "value": "5798 adv / 3668 dec", "note": "breadth at the Oct 9 2026 close"}
+      ],
+      "absDiff": null,
+      "relErrorPct": null,
+      "tolerancePct": null,
+      "verdict": "undetermined",
+      "grade": null,
+      "basisNote": "AIO's exchange-wide advance/decline fields are unpopulated (null) for 10/9, so nothing to compare. AIO's only populated breadth signal is a different basis (its ~810-name screener universe, ≥4% movers), which is not comparable to the external NYSE/Nasdaq-wide 5,798/3,668. No speculative mapping made. Suggest data-refresh of the A/D breadth plane if the panel is meant to display it."
+    },
+    {
+      "id": "russell2000",
+      "indicator": "Russell 2000 (^RUT) [bonus]",
+      "scope": "bonus",
+      "aioValue": 2806.9814,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.index.russell2000].value",
+      "aioAsOf": "2026-10-09T20:30:16.000Z",
+      "aioCrossPaths": "history.json last.rut=2806.98",
+      "externalValue": 2806.97,
+      "externalSources": [
+        {"url": "https://www.stockysis.com/blog/market-summary-2026-10-09", "value": 2806.97, "note": "+0.46%"},
+        {"url": "https://sigmanomics.com/index-markets/russell-2000", "value": 2807.67, "note": "+0.44%, prev 2795.38"}
+      ],
+      "absDiff": 0.0114,
+      "relErrorPct": 0.00041,
+      "tolerancePct": 0.1,
+      "verdict": "match",
+      "grade": null
+    },
+    {
+      "id": "kospi",
+      "indicator": "KOSPI (^KS11) [bonus, last close 2026-10-08]",
+      "scope": "bonus",
+      "aioValue": 6625.93,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.index.kospi].value",
+      "aioAsOf": "2026-10-08T11:05:40.000Z",
+      "aioCrossPaths": "history.json last.kospi=6625.93",
+      "externalValue": 6625.93,
+      "externalSources": [
+        {"url": "https://finance.biggo.com/news/7427f2e6-c4f2-4e01-b049-e2c0d6ae9a0a", "value": 6625.93, "note": "closed 6,625.93 (-177.97, -2.62%) on Oct 8 2026"},
+        {"url": "https://trendonify.com/south-korea/stock-market", "value": 6625.93, "note": "Thu Oct 8 2026"},
+        {"url": "https://tradingeconomics.com/south-korea/stock-market", "value": 6626, "note": "Oct 8 2026"}
+      ],
+      "absDiff": 0.0,
+      "relErrorPct": 0.0,
+      "tolerancePct": 0.1,
+      "verdict": "match",
+      "grade": null,
+      "staleness": "not stale — 2026-10-09 was Hangul Day (KRX closed), so 2026-10-08 is the latest completed KRX close"
+    },
+    {
+      "id": "kosdaq",
+      "indicator": "KOSDAQ (^KQ11) [bonus, last close 2026-10-08]",
+      "scope": "bonus",
+      "aioValue": 892.27,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.index.kosdaq].value",
+      "aioAsOf": "2026-10-08T11:05:40.000Z",
+      "aioCrossPaths": "history.json last.kosdaq=892.27",
+      "externalValue": 892.27,
+      "externalSources": [
+        {"url": "https://en.sedaily.com/finance/2026/10/08/kosdaq-falls-069-percent-to-close-at-89227", "value": 892.27, "note": "-6.16 pts, -0.69%"}
+      ],
+      "absDiff": 0.0,
+      "relErrorPct": 0.0,
+      "tolerancePct": 0.1,
+      "verdict": "match",
+      "grade": null,
+      "staleness": "not stale — Hangul Day 2026-10-09 (KRX closed)"
+    },
+    {
+      "id": "us13w",
+      "indicator": "US 13-week T-bill (^IRX) [bonus]",
+      "scope": "bonus",
+      "aioValue": 4.057,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.rates.us13w].value (instrumentId ^IRX)",
+      "aioAsOf": "2026-10-09T18:59:55.000Z",
+      "aioCrossPaths": "not mirrored in data.json Treasury block (which starts at 2Y)",
+      "externalValue": 4.16,
+      "externalSources": [
+        {"url": "https://treasuryratewatch.com/daily/treasury-bill-rates", "value": 4.16, "note": "4.16% on the 13-Week (Oct 9 2026)"},
+        {"url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_bill_rates", "value": null, "note": "official daily bill rates"}
+      ],
+      "absDiffPp": 0.103,
+      "tolerancePp": 0.03,
+      "verdict": "mismatch",
+      "grade": "B",
+      "basisNote": "Grade B (basis): ^IRX is Cboe's 13-week T-bill DISCOUNT-basis index; the 4.16% external figure is the Treasury bill-rate-basis quote. Not the same basis. Out of the task's required set — flag only."
+    },
+    {
+      "id": "eth-live",
+      "indicator": "Ethereum (ETH-USD) [bonus]",
+      "scope": "bonus",
+      "aioValue": 2505.5,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.crypto.eth].value (session CURRENT_SESSION)",
+      "aioAsOf": "2026-10-10T15:22:00.000Z",
+      "aioCrossPaths": "history.json has no eth field",
+      "externalValue": 2480.86,
+      "externalSources": [
+        {"url": "https://finlore.io/news/sp500-closes-7811-near-52-week-high-vix-1484-october-9-2026", "value": 2480.86, "note": "ETH at Oct 9 close"}
+      ],
+      "absDiff": 24.64,
+      "relErrorPct": 0.993,
+      "tolerancePct": 0.2,
+      "verdict": "undetermined",
+      "grade": "B",
+      "basisNote": "AIO value is a live CURRENT_SESSION quote (2026-10-10T15:22Z), not the 2026-10-09 close → not directly comparable. Left undetermined (basis) rather than called a wrong number."
+    },
+    {
+      "id": "vix3m",
+      "indicator": "VIX3M (^VIX3M) [bonus]",
+      "scope": "bonus",
+      "aioValue": 17.77,
+      "aioKeyPath": "market-snapshot.json: quotes[metricId=market.volatility.vix3m].value",
+      "aioAsOf": "2026-10-09T20:15:01.000Z",
+      "externalValue": null,
+      "externalSources": [],
+      "verdict": "undetermined",
+      "grade": null,
+      "basisNote": "No reliable external 2026-10-09 VIX3M close found within the search budget; left undetermined (no speculation)."
+    },
+    {
+      "id": "vvix",
+      "indicator": "VVIX [bonus]",
+      "scope": "bonus",
+      "aioValue": 84.88,
+      "aioKeyPath": "history.json last.vvix=84.88",
+      "aioAsOf": "2026-10-09",
+      "externalValue": null,
+      "externalSources": [],
+      "verdict": "undetermined",
+      "grade": null,
+      "basisNote": "Not searched to a reliable 2026-10-09 close; left undetermined."
+    }
+  ],
+  "staleJudgments": [
+    {
+      "series": "KOSPI / KOSDAQ",
+      "aioAsOf": "2026-10-08",
+      "expectedCadence": "daily on KRX trading days",
+      "judgment": "not stale",
+      "reason": "2026-10-09 = Hangul Day; KRX closed, so 2026-10-08 is the latest completed close. Value matches external 10/08 close exactly."
+    },
+    {
+      "series": "USDKRW",
+      "aioAsOf": "2026-10-10T03:30:56Z",
+      "expectedCadence": "continuous FX",
+      "judgment": "acceptable",
+      "reason": "Weekend Asian FX print; value still equals the Oct 9 close (1340.9 vs 1341.49, 0.04%)."
+    },
+    {
+      "series": "BTC (market-snapshot)",
+      "aioAsOf": "2026-10-10T15:22:01Z (CURRENT_SESSION)",
+      "expectedCadence": "continuous",
+      "judgment": "basis caveat",
+      "reason": "Live intraday quote, not an EOD close; the EOD series (history.json) matches external exactly."
+    }
+  ],
+  "conflictingSources": [
+    {
+      "url": "https://tickerdaily.com/article/stock-market-today-october-9-2026-sandp-500-closes-at-record-high-on-fed-rate-cut-expectations",
+      "claim": "10-year Treasury yield dropped 18 bps to 3.92% on Oct 9 2026",
+      "resolution": "NOT used — contradicted by four independent sources plus the U.S. Treasury par curve (5.24%). Treated as an unreliable/erroneous aggregator."
+    },
+    {
+      "url": "https://globaloilshock.com/en/oil-price-today/",
+      "claim": "WTI $90.28 on 9 Oct 2026",
+      "resolution": "NOT used — contradicted by worldoilmonitor ($91.85 close) and convextrade ($91.85)."
+    },
+    {
+      "url": "https://www.strota.in/newsroom/2026-10-08/kospi",
+      "claim": "KOSPI closed 6754.05 on 2026-10-08",
+      "resolution": "NOT used — contradicted by biggo/trendonify/tradingeconomics (6,625.93), which match AIO and the intraday -177.97 pts math."
+    },
+    {
+      "url": "https://finance.yahoo.com/markets/stocks/articles/td-bank-group-declares-dividends-103100914.html",
+      "claim": "sidebar VIX 14.95, Gold 4,634.40, BTC 79,460.34",
+      "resolution": "NOT used — that is Yahoo Finance's live sidebar at a later date, not the 2026-10-09 close."
+    }
+  ],
+  "summary": {
+    "rowsObserved": 20,
+    "requiredRows": 13,
+    "bonusRows": 7,
+    "match": 14,
+    "mismatch": 2,
+    "undetermined": 4,
+    "gradeA": 0,
+    "gradeB": 3,
+    "mismatchIds": ["btc-live", "us13w"],
+    "undeterminedIds": ["breadth-ad", "eth-live", "vix3m", "vvix"],
+    "headline": "All required 2026-10-09 US close prices/yields shown by AIO (S&P 500, Nasdaq, Dow, 10Y, 2Y, DXY, USDKRW, WTI, gold, VIX, BTC-EOD) match external public data within tolerance. No grade-A (wrong-value) mismatches found. Two grade-B basis items: the snapshot BTC live quote and ^IRX."
+  },
+  "recommendations": [
+    "data-refresh needed: advance/decline breadth fields (history.json advanceDecline/advanceRatio/breadth*) are null for 2026-10-09 — populate if the panel is meant to show market breadth.",
+    "label/renderer fix (NOT a data change): if the panel presents market-snapshot market.crypto.btc (82871.3, CURRENT_SESSION @2026-10-10T15:22Z) as the '2026-10-09 close', it will read ~0.39% high vs the true 10/9 close (82546.32). Either render the history.json EOD value for a dated '10/9 close' tile or label it explicitly as a live quote.",
+    "label fix: gold tile is GC=F (COMEX front-month futures), not spot XAU; external spot closes ran ~$4,185–$4,227 on 10/9, so a 'spot gold' label would be off-basis by up to ~0.7%.",
+    "no repo data file was modified during this verification."
+  ]
+}

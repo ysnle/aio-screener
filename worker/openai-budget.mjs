@@ -4,6 +4,14 @@
 // tokens are charged at the worst cache-write rate, never at a guessed discount.
 export const OPENAI_MODEL = 'gpt-6-luna';
 export const PRICING_AS_OF = '2026-10-03';
+// P1608: owner approved $20 including conditional hosted search (2026-10-11).
+export const AI_MONTHLY_MAX_MICRO_USD = 20000000;
+export const WEB_SEARCH_MAX_CALLS = 2;
+// Hosted search exposes no numeric token budget or cumulative billing bound.
+// Retain this policy reserve per permitted call even after a completed receipt;
+// it is admission accounting, not a promise about the provider's invoice.
+export const WEB_SEARCH_RESERVE_MICRO_USD_PER_CALL = 100000;
+export const paidWebSearchEnabled = env => env?.AI_WEB_SEARCH_ENABLED === 'true';
 const INPUT_MICRO_USD_PER_TOKEN = 0.1 * 1.25 * 1.1;
 const OUTPUT_MICRO_USD_PER_TOKEN = 0.5 * 1.1;
 
@@ -14,11 +22,11 @@ export function quotaInteger(value, fallback, maximum = 1000000) {
 }
 
 export function aiMonthlyBudgetMicroUsd(env = {}) {
-  const raw = String(env.AI_MONTHLY_BUDGET_USD ?? env.ANTHROPIC_MONTHLY_BUDGET_USD ?? '10');
+  const raw = String(env.AI_MONTHLY_BUDGET_USD ?? env.ANTHROPIC_MONTHLY_BUDGET_USD ?? '20');
   if (!/^(?:0|[1-9]\d*)(?:\.\d{1,6})?$/.test(raw)) throw new Error('invalid monthly AI budget');
   const [whole, fraction = ''] = raw.split('.');
   const amount = Number(whole) * 1000000 + Number(fraction.padEnd(6, '0'));
-  if (!Number.isSafeInteger(amount) || amount < 0 || amount > 10000000) throw new Error('monthly AI budget must be between $0 and $10');
+  if (!Number.isSafeInteger(amount) || amount < 0 || amount > AI_MONTHLY_MAX_MICRO_USD) throw new Error('monthly AI budget must be between $0 and $20');
   return amount;
 }
 
@@ -30,7 +38,7 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
   if (!record(requestBody)) throw new Error('JSON object required');
   const body = { ...requestBody, model: requestBody.model ?? OPENAI_MODEL, store: false, service_tier: 'default' };
   if (body.model !== OPENAI_MODEL) throw new Error('unsupported model: shared AI supports gpt-6-luna only');
-  const allowed = ['model','max_output_tokens','input','instructions','stream','reasoning','tools','tool_choice','parallel_tool_calls','text','store','service_tier'];
+  const allowed = ['model','max_output_tokens','input','instructions','stream','reasoning','tools','tool_choice','parallel_tool_calls','text','store','service_tier','max_tool_calls'];
   if (!onlyKeys(body, allowed)) throw new Error('unsupported AI request parameter: no safe cost bound');
   if (requestBody.store !== undefined && requestBody.store !== false) throw new Error('shared AI requires store:false');
   if (requestBody.service_tier !== undefined && requestBody.service_tier !== 'default') throw new Error('only standard default service tier is budgeted');
@@ -60,11 +68,26 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
     }
   }
   if (body.tools !== undefined && (!Array.isArray(body.tools) || body.tools.length > 32)) throw new Error('at most 32 custom functions supported');
+  let searchToolCount = 0;
   for (const tool of body.tools || []) {
-    if (tool?.type !== 'function') throw new Error('유료 서버 검색·도구는 공유 월 예산의 안전 상한이 없어 차단됩니다. 제공된 데이터와 무료 검색 근거를 사용하세요.');
+    if (tool?.type === 'web_search') {
+      if (!paidWebSearchEnabled(env)) throw new Error('공용 AI 웹검색이 아직 활성화되지 않았습니다.');
+      if (++searchToolCount > 1 || !onlyKeys(tool, ['type','search_context_size','return_token_budget','filters'])
+        || tool.search_context_size !== 'low' || tool.return_token_budget !== 'default') throw new Error('bounded web_search configuration required');
+      if (tool.filters !== undefined && (!onlyKeys(tool.filters, ['allowed_domains']) || !Array.isArray(tool.filters.allowed_domains)
+        || tool.filters.allowed_domains.length < 1 || tool.filters.allowed_domains.length > 100
+        || tool.filters.allowed_domains.some(domain => typeof domain !== 'string' || !/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}$/.test(domain)))) throw new Error('invalid search domain filter');
+      continue;
+    }
+    if (tool?.type !== 'function') throw new Error('unsupported paid tool');
     if (!onlyKeys(tool, ['type','name','description','parameters','strict']) || !identifier(tool.name) || !record(tool.parameters)
       || (tool.description !== undefined && typeof tool.description !== 'string') || (tool.strict !== undefined && typeof tool.strict !== 'boolean')) throw new Error('invalid custom function');
   }
+  if (searchToolCount) {
+    body.max_tool_calls = quotaInteger(body.max_tool_calls, WEB_SEARCH_MAX_CALLS, WEB_SEARCH_MAX_CALLS);
+    body.reasoning = { effort: 'low' };
+    if (body.tools.length !== 1) throw new Error('hosted search cannot mix with custom functions');
+  } else if (body.max_tool_calls !== undefined) throw new Error('max_tool_calls requires hosted search');
   if (body.tool_choice !== undefined && !['auto','required','none'].includes(body.tool_choice)
     && (!onlyKeys(body.tool_choice, ['type','name']) || body.tool_choice.type !== 'function' || !identifier(body.tool_choice.name))) throw new Error('unsupported tool choice');
   if (body.text !== undefined) {
@@ -78,14 +101,18 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
   if (bytes > 200 * 1024) throw new Error('AI request exceeds the budgeted text limit');
   const inputTokenUpperBound = bytes + 8192 + (Array.isArray(body.input) ? body.input.length : 1) * 1024 + (body.tools?.length || 0) * 4096;
   if (inputTokenUpperBound > 272000) throw new Error('long-context pricing is outside the shared budget protocol');
-  const reservationMicroUsd = Math.ceil(inputTokenUpperBound * INPUT_MICRO_USD_PER_TOKEN + body.max_output_tokens * OUTPUT_MICRO_USD_PER_TOKEN);
+  const searchReserveMicroUsd = searchToolCount ? body.max_tool_calls * WEB_SEARCH_RESERVE_MICRO_USD_PER_CALL : 0;
+  const reservationMicroUsd = searchReserveMicroUsd + Math.ceil(inputTokenUpperBound * INPUT_MICRO_USD_PER_TOKEN + body.max_output_tokens * OUTPUT_MICRO_USD_PER_TOKEN);
   return { body, reservationMicroUsd, monthlyCapMicroUsd: aiMonthlyBudgetMicroUsd(env), inputTokenUpperBound,
-    accountingBasis: 'conservative-reservation-and-verified-usage-not-invoice', pricingAsOf: PRICING_AS_OF };
+    searchReserveMicroUsd, accountingBasis: 'conservative-reservation-and-verified-usage-not-invoice', pricingAsOf: PRICING_AS_OF };
 }
 
 // max_output_tokens includes hidden reasoning tokens. Never add them a second
 // time or trust missing/negative/over-bound usage to replenish monthly credit.
 export function verifiedOpenAiCharge(response, budget) {
+  // P1608: response token usage alone cannot prove the complete hosted-search
+  // charge. Keep its entire reservation instead of inventing a refund.
+  if (budget.searchReserveMicroUsd > 0) return null;
   if (!record(response) || response.object !== 'response' || response.model !== OPENAI_MODEL || response.status !== 'completed'
     || typeof response.id !== 'string' || !response.id || !record(response.usage)) return null;
   const { input_tokens: input, output_tokens: output, total_tokens: total } = response.usage;

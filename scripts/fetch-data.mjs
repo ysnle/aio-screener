@@ -21,6 +21,7 @@ import { writeOperationsStatus } from './build-operations-status.mjs';
 import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
+import { newsArticleKey } from '../src/domain/news/stories.js';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
@@ -1504,7 +1505,8 @@ function _parseRssXml(xml, opts) {
     const src   = _decodeNewsEntities((b.match(/<source[^>]*>([\s\S]*?)<\/source>/i) || [])[1]);
     if (!title || (needLink && !link)) continue;
     const ts = pub ? new Date(pub).getTime() : 0;
-    items.push({ title: title.slice(0, titleLen), link: link || null, source: src || '', pubDate: pub || null, ts: isFinite(ts) ? ts : 0 });
+    const guid = _decodeNewsEntities((b.match(/<guid[^>]*>([\s\S]*?)<\/guid>/i) || [])[1]);
+    items.push({ title: title.slice(0, titleLen), guid: guid || null, sourceArticleId: guid || null, fetchedAt: new Date().toISOString(), link: link || null, source: src || '', pubDate: pub || null, ts: isFinite(ts) ? ts : 0 });
   }
   return items;
 }
@@ -1532,6 +1534,7 @@ async function fetchNews() {
         if (!isFinite(t) || t < cycle.startMs || t >= cycle.endMs) continue;
         const item = {
           title: p.title, link: p.link, source: p.source || feed.source,
+          guid: p.guid, sourceArticleId: p.sourceArticleId, fetchedAt: p.fetchedAt, evidenceKind: p.evidenceKind,
           pubDate: p.pubDate, ts: isFinite(t) ? t : 0,
           topic: isKr ? 'kr' : feed.topic,  // 'korea' → 'kr' 정규화
           country: feed.country,
@@ -1572,6 +1575,7 @@ async function fetchNews() {
     perSource.set(sourceKey(it), (perSource.get(sourceKey(it)) || 0) + 1);
     out.push({
       title: cleanTitle(it), link: it.link, source: it.source,
+      guid: it.guid, sourceArticleId: it.sourceArticleId, fetchedAt: it.fetchedAt, evidenceKind: it.evidenceKind,
       pubDate: it.pubDate, topic: it.topic, country: it.country,
       tier: it.tier, score: it.score, selectionReason: it.selectionReason,
       feedSource: it.feedSource,
@@ -1591,7 +1595,7 @@ async function fetchNews() {
   for (const it of krItems) {
     if (out.length >= KR_SLOTS) break;
     if (sourceFull(it)) continue;
-    const k = it.title.toLowerCase().slice(0, 60);
+    const k = newsArticleKey(it);
     if (seen.has(k)) continue;
     seen.add(k);
     pushItem(it);
@@ -1604,7 +1608,7 @@ async function fetchNews() {
       if (taken >= floor || out.length >= 40) break;
       if (it.topic !== topic) continue;
       if (sourceFull(it)) continue;
-      const k = it.title.toLowerCase().slice(0, 60);
+      const k = newsArticleKey(it);
       if (seen.has(k)) continue;
       seen.add(k);
       pushItem(it);
@@ -1615,7 +1619,7 @@ async function fetchNews() {
   for (const it of items) {
     if (out.length >= 40) break;
     if (sourceFull(it)) continue;
-    const k = it.title.toLowerCase().slice(0, 60);
+    const k = newsArticleKey(it);
     if (seen.has(k)) continue;
     seen.add(k);
     pushItem(it);

@@ -1,0 +1,16 @@
+{
+  "version": "v57.34", "date": "2026-10-11",
+  "p": { "id": 1604, "title": "설명 버튼·키보드 단일 실행과 모드 전환 차트 가독성",
+    "symptom": "설명 버튼 8개의 클릭이 동작하지 않고 초기 비-native 키보드 토글은 두 번 실행됐다. 모드 변경은 열린 차트의 색을 바꾸지 못하며 보조 텍스트가 흐렸다.",
+    "root_cause": "element/event 인자 계약 누락, 로컬·전역 키 처리의 중복 소유권, 생성 시점의 차트 색 고정과 예외 처리 없는 테마 저장·복원.",
+    "fix": "tooltip의 element/event·aria-expanded 계약을 연결하고 이미 처리된 키와 native 버튼의 중복 활성화를 차단했다. shared color-theme 이벤트와 native chart palette 갱신을 연결하고 subdued text token을 readable muted token으로 통일했다. storage 거부에도 전환·부팅이 이어진다.",
+    "violated_rule": "R618 증거 수준 분리 및 R703 단일 조작과 테마 계약.",
+    "prevention": "ci-theme-research-browser-check.mjs가 {P} 모드 전환·복원·8화면 대표 상태·tooltip 클릭/키/ESC·native 키·차트 range 보존·storage 거부를 검사한다.",
+    "verification": "실제 IAB tooltip 클릭=true/ESC=false/Enter=true 확인. 전체 세부 조작 및 대비 전수 인증은 아님; 격리 브라우저 회귀 게이트와 shared-shell full QA 결과는 보고서에 별도 기록."
+  },
+  "r": { "id": 703, "title": "작은 UI 조작과 색 테마의 실행 계약", "rule": "동일 사용자 입력은 하나의 owner가 활성화한다. 설명 버튼은 element/event 인자와 aria-expanded를 함께 연결한다. 색 테마는 storage 실패에 독립적이며 현재 차트 색을 갱신하되 데이터·viewport를 바꾸지 않는다. 대표 상태 PASS를 모든 조작·대비·배포 검증으로 승격하지 않는다.", "validation": "node scripts/ci-theme-research-browser-check.mjs 및 실제 브라우저의 클릭·키보드·전환 관찰" },
+  "qa": [{ "id": "QA-THEME-INTERACTION-01", "text": "{P}: 다크/라이트 8화면 대표 상태·복원, tooltip 단일 실행·ESC, native 키, 기존 차트 색·range와 storage 거부가 작동한다.", "verify_by": "node scripts/ci-theme-research-browser-check.mjs", "done": false }],
+  "qa_section": "모드와 자료 사고 체계",
+  "changelog": ["**모드·작은 조작 ({P}/{R}):** 설명 버튼 인자·ARIA와 키보드 단일 실행 수정, 저장 실패에 독립적인 테마 전환, 열린 차트 색 갱신·읽을 수 있는 보조 텍스트."],
+  "note": "다크/라이트·설명/키보드·차트 갱신 수정 및 3개 X 자료의 5개 구조 프레임 통합. 로컬 검증; commit/push/deploy 미실행.", "status": null
+}

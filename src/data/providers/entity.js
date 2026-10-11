@@ -58,6 +58,12 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
   }
 
   return Object.freeze({
+    async readFundamentals(symbols = []) {
+      const projection = await loadFundamentalsTable();
+      return Object.fromEntries(symbols.map(symbol => String(symbol || '').toUpperCase())
+        .filter(symbol => /^[A-Z0-9.^=-]{1,20}$/.test(symbol) && Object.hasOwn(projection.table, symbol))
+        .map(symbol => [symbol, { ...projection.table[symbol] }]));
+    },
     async readCurrent() {
       const value = read() || {};
       const id = value.id ? String(value.id).toUpperCase() : null;

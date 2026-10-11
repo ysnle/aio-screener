@@ -1,0 +1,348 @@
+{
+  "schemaVersion": "aio-browser-evidence.v1",
+  "runId": "2026-10-11T02-45-52-634Z-33624-viknmu",
+  "observedAt": "2026-10-11T02:49:03.563Z",
+  "target": {
+    "gitHead": "9b07bee8d52ad2f7c60bc27c0d293250e6f7e843",
+    "version": "v57.33",
+    "contentDigest": "0dfdebefd6e6332803f6e05adefde8409ae81a0294a53bd53d1d2d7c7b439846",
+    "digestScope": "src, js, scripts, architecture, public-data, index.html, sw.js, version.json, public-config.json"
+  },
+  "provider": {
+    "name": "playwright",
+    "version": "1.61.1",
+    "operation": "reference-adoption-journeys"
+  },
+  "environment": {
+    "mode": "headless-fixture",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "locale": "ko-KR",
+    "timezone": "Asia/Seoul",
+    "initialStateId": "empty-isolated",
+    "networkPolicy": "local-only",
+    "fixtureDigest": "aacc41df54aedfa1dc5edd2dd2a542debbca29f5ad37d77166aa7e55a0d923c9"
+  },
+  "normalization": {
+    "policyId": "none",
+    "policyHash": "f7f9def5026b0b72a321c383d1f18e7fe65ccae0c2242539fc8177153e002314",
+    "rules": []
+  },
+  "coverage": [
+    {
+      "screenId": "today",
+      "route": "home",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "market",
+      "route": "signal",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "macro",
+      "route": "macro",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "stock",
+      "route": "ticker",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "screener",
+      "route": "screener",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "portfolio",
+      "route": "portfolio",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "learn",
+      "route": "principles",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "today",
+      "route": "market-news",
+      "stateId": "arrival",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "news-arrival-pending"
+      ]
+    },
+    {
+      "screenId": "today",
+      "route": "market-news",
+      "stateId": "correction",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "news-correction-history"
+      ]
+    },
+    {
+      "screenId": "stock",
+      "route": "ticker",
+      "stateId": "snapshot",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "stock-local-snapshot"
+      ]
+    },
+    {
+      "screenId": "today",
+      "route": "briefing",
+      "stateId": "archive-empty",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "briefing-local-archive-empty"
+      ]
+    },
+    {
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "close-focus",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "theme-close-focus"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "stepId": "news-arrival-pending",
+      "screenId": "today",
+      "route": "market-news",
+      "stateId": "arrival",
+      "entity": null,
+      "initialCondition": "empty-isolated",
+      "action": {
+        "type": "data-arrival",
+        "target": "fixture-feed"
+      },
+      "readyCondition": "visible #page-market-news and expected fixture content",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "focused original retained, update offered",
+      "actual": "focused original retained, update offered",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-market-news",
+          "digest": "fa91d4fda8888d0f5b98998f35cd1cad0d62147f34ba9de8bcd1b6c920a1531e"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T02-45-52-634Z-33624-viknmu/browser-reference-adoption-bf3ffeaa66/news-arrival-pending.png",
+          "digest": "957de84a69ff6b5817574096131d045b37e6b04bba3252bbd8d83e01731571e7"
+        }
+      ],
+      "limitations": [
+        "fixture data; screenshot captured without semantic certification"
+      ]
+    },
+    {
+      "stepId": "news-correction-history",
+      "screenId": "today",
+      "route": "market-news",
+      "stateId": "correction",
+      "entity": null,
+      "initialCondition": "empty-isolated",
+      "action": {
+        "type": "click",
+        "target": "[data-news-updates]"
+      },
+      "readyCondition": "visible #news-important-list and expected fixture content",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "layout",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "low-score correction with two original links",
+      "actual": "low-score correction with two original links",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#news-important-list",
+          "digest": "2ed1b72a6b3ca50fc2ee2f9fe8fc7160b7dec53748ccc270f056ec67eef6f01f"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T02-45-52-634Z-33624-viknmu/browser-reference-adoption-bf3ffeaa66/news-correction-history.png",
+          "digest": "459768837576b1bfbdf054fe729b18cea8cc6dbe23c5ed8f9ff0bc0845633571"
+        }
+      ],
+      "limitations": [
+        "fixture data; screenshot captured without semantic certification"
+      ]
+    },
+    {
+      "stepId": "stock-local-snapshot",
+      "screenId": "stock",
+      "route": "ticker",
+      "stateId": "snapshot",
+      "entity": "fixture-issuer",
+      "initialCondition": "empty-isolated",
+      "action": {
+        "type": "save",
+        "target": "fixture quote memo"
+      },
+      "readyCondition": "visible #snapshot-fixture and expected fixture content",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "issuer drafts separate, stored price 123 despite new 999",
+      "actual": "issuer drafts separate, stored price 123 despite new 999",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#snapshot-fixture",
+          "digest": "239ae5a194bcbd1ba74ac8aa6c6d7409250081adddf2c5fb16c556aa02171e14"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T02-45-52-634Z-33624-viknmu/browser-reference-adoption-bf3ffeaa66/stock-local-snapshot.png",
+          "digest": "1cd38c5e39551eb86f1f9885e642a63d78233144e1077f93bb706facedacf36d"
+        }
+      ],
+      "limitations": [
+        "fixture data; screenshot captured without semantic certification"
+      ]
+    },
+    {
+      "stepId": "briefing-local-archive-empty",
+      "screenId": "today",
+      "route": "briefing",
+      "stateId": "archive-empty",
+      "entity": null,
+      "initialCondition": "empty-isolated",
+      "action": {
+        "type": "disclose",
+        "target": "local briefing archive"
+      },
+      "readyCondition": "visible #page-briefing [data-research-snapshots=briefing] and expected fixture content",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "only explicitly saved reports, no fabricated past briefings",
+      "actual": "empty isolated archive",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-briefing [data-research-snapshots=briefing]",
+          "digest": "12786e475bf931c58993bbf5ad3fcce4f1a02d0b357dc692e8656ae799833481"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T02-45-52-634Z-33624-viknmu/browser-reference-adoption-bf3ffeaa66/briefing-local-archive-empty.png",
+          "digest": "9e01cfb4227f5b4808dfbfc37eb23818aa794fb9c832ecf355b8fcec46c9c74c"
+        }
+      ],
+      "limitations": [
+        "fixture data; screenshot captured without semantic certification"
+      ]
+    },
+    {
+      "stepId": "theme-close-focus",
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "close-focus",
+      "entity": null,
+      "initialCondition": "empty-isolated",
+      "action": {
+        "type": "close",
+        "target": "theme-detail-panel"
+      },
+      "readyCondition": "visible #page-themes and expected fixture content",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "focus returns to current trigger after rerender",
+      "actual": "trigger financials focused",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-themes",
+          "digest": "62e4e43405367253ea1ac14ff92ba30ceb8a9356dd3241022cdcdee6a7db5033"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T02-45-52-634Z-33624-viknmu/browser-reference-adoption-bf3ffeaa66/theme-close-focus.png",
+          "digest": "8faf1aa444f7b2ec887518ff05349821f4a4042abe47c5df049d7173c4069ebe"
+        }
+      ],
+      "limitations": [
+        "fixture data; screenshot captured without semantic certification"
+      ]
+    }
+  ],
+  "semanticReview": {
+    "status": "unverified",
+    "reason": "자동 브라우저 관찰은 한국어 의미·미적 품질·운영 공급자를 인증하지 않음"
+  },
+  "limitations": [
+    "로컬 격리 fixture 관찰. 실제 사용자 계정·보유정보·외부 API는 사용하지 않음"
+  ]
+}

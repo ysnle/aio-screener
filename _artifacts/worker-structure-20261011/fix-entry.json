@@ -1,0 +1,26 @@
+{
+  "version": "v57.35",
+  "date": "2026-10-11",
+  "p": {
+    "title": "공용 자료와 개인 연결의 소비 경로·Worker 설정 상태 불일치",
+    "symptom": "종목 화면의 공용 SEC 재무가 AI 심층 비교에는 FMP 키 미입력으로 누락됐고, 일부 무키 helper가 FMP 필수로 선언됐다. 검색 계획의 domain/date 제한이 전송에서 사라졌으며 공용 AI readiness가 caller app-token 거절을 구분하지 않았다. 설정 문서는 선택 토큰과 FRED 캐시 정책을 필수·공용으로 오표기했다.",
+    "root_cause": "화면·AI·개인 공급자 레지스트리의 별도 경로와 서버 준비 상태/호출자 접근 상태의 혼용. 데이터 범위를 넘어 강제하는 심층 프롬프트 및 이전 릴레이 정책 문서 잔존.",
+    "fix": "entity provider의 동일 캐시를 AI에 공개하고 SEC FY 별도 근거 블록으로 주입. 공용 실적일정 재사용, 잘못된 FMP 필수 조건 제거, 자료 범위를 넘는 심층 지시 축소. native 검색 요청·반환 URL 제한, health token acceptance/credentialModes, 연결 패널 lifecycle 및 읽기 전용 운영 점검 추가. js-yaml 5.4.2 갱신과 선택 설정/토큰 문서 수정.",
+    "violated_rule": "R1 버전 동기화, R632 입력/읽기 계약 일치 및 제품의 누락값 추정 금지·공용 AI 월예산 정책",
+    "prevention": "scripts/ci-connection-access-check.mjs 및 worker/openai-contract.test.mjs의 {P} 회귀 검사. 개인키 없는 실제 AI 소비, 동일 SEC 캐시, 미래 공시 보류, caller 거절, host spoof/date, 공용 캘린더 기간을 실행 검증한다.",
+    "verification": "connection-access PASS; Worker offline 88 assertions PASS; worker-relay PASS; research-flow 66 assertions PASS. 실제 Chrome 설정·버튼 확인 진행. 전체 로컬 QA와 공개 서비스 상태는 별도 기록한다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-CONNECTION-01",
+      "text": "{P}: 개인 FMP 키 없이 공용 SEC 자료를 AI와 화면이 같은 provider 캐시로 읽으며 FY·누락·미래 공시와 caller 인증 상태·검색 domain/date·공용 캘린더 범위를 보존한다.",
+      "verify_by": "node scripts/ci-connection-access-check.mjs; node worker/openai-contract.test.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "공용 연결과 개인 공급자",
+  "changelog": ["**공용 자료·연결 구조 ({P}):** AI의 무키 SEC 재무·공용 일정 재사용, 키 필수 조건 및 FY 근거 보존, 검색 제한과 Worker caller 상태, PIN/CSE 안내 및 운영자 토큰 점검 정리. js-yaml 취약점 수정 버전 적용."],
+  "note": "공용 SEC/일정 AI 재사용, Worker 연결·개인 키·검색·운영 토큰 구조 개선. 로컬 검증; commit/push/deploy 미실행.",
+  "status": null
+}

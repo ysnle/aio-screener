@@ -1,0 +1,20 @@
+{
+  "version": "v57.36",
+  "date": "2026-10-11",
+  "p": {
+    "id": 1609,
+    "title": "검색 토글의 실제 delegated change 인자·저장 상태 불일치",
+    "symptom": "실제 Chrome에서 웹검색을 체크 해제해도 상태는 ON으로 남고 사용 설정 toast가 표시됐다. 토글도 숨겨진 개발 진단 위젯 안에 있었다.",
+    "root_cause": "공통 change dispatcher가 (element,event)를 보내는데 handler가 (checked,element)를 해석해 input 객체를 항상 true로 처리했다.",
+    "fix": "실제 input.checked를 우선 읽으며 이전 boolean 호출도 유지. 토글/공용 AI 예산 안내는 native connection panel로 옮기고 같은 id의 숨겨진 shell markup은 제거한다. render에서 저장된 opt-out을 동기화하고 lifecycle cleanup을 유지한다.",
+    "violated_rule": "R679 표시와 실제 근거 상태 일치, R632 생산자/소비자 계약 일치",
+    "prevention": "{P}: scripts/ci-native-search-check.mjs가 실제 core handler를 VM으로 실행해 delegated OFF/ON 저장과 표시를 대조한다. Chrome에서는 토글·새로고침 후 상태 유지와 라이트/다크 표시를 확인한다.",
+    "verification": "Chrome에서 최초 결함을 재현했다. 회귀 검사·수정 후 Chrome 결과는 IMPLEMENTATION-REPORT.md에 분리 기록하며 실제 유료 검색/배포는 실행하지 않는다."
+  },
+  "r": null,
+  "qa": [{"id":"QA-SEARCH-TOGGLE-01","text":"{P}: delegated (element,event) 검색 토글이 input.checked와 localStorage OFF/ON, 표시 상태를 일치시킨다.","verify_by":"node scripts/ci-native-search-check.mjs; 실제 Chrome 토글/재로드","done":false}],
+  "qa_section":"조건부 공용 AI 웹검색",
+  "changelog":["**검색 토글 ({P}):** 실제 checkbox 이벤트의 OFF 저장 오류 수정, 숨겨진 진단 위젯에서 native 연결 패널로 이동 및 재로드 상태 보존."],
+  "note":"기존 근거 우선 조건부 OpenAI 웹검색·공용 월 $20·검색 인용/최신성 및 실제 토글 수정. 로컬 구현; commit/push/deploy 미실행.",
+  "status":null
+}

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "aio-worker-setup.v1",
+  "checkedAt": "2026-10-11T06:40:45.093Z",
+  "githubVerification": "NAMES_ONLY",
+  "proxyRevision": "v57.32",
+  "publicFastQuotesEnabled": false,
+  "aiReady": true,
+  "fastQuotesObserved": {
+    "required": 16,
+    "observed": 16,
+    "tier0Required": 16,
+    "tier0Observed": 16,
+    "tier1Required": 0,
+    "tier1Observed": 0
+  },
+  "dispatchConfigured": false,
+  "dispatchReason": "token-not-configured",
+  "githubCredentials": [
+    {
+      "name": "CLOUDFLARE_API_TOKEN",
+      "present": true
+    },
+    {
+      "name": "CLOUDFLARE_ACCOUNT_ID",
+      "present": true
+    },
+    {
+      "name": "AIO_QUOTES_KV_ID",
+      "present": true
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "present": true
+    },
+    {
+      "name": "AIO_AUTOMATION_TOKEN",
+      "present": true
+    },
+    {
+      "name": "AIO_REFRESH_DISPATCH_TOKEN",
+      "present": false
+    }
+  ],
+  "relay": {
+    "fred": "personal-opt-in; scheduled artifacts use Actions credentials",
+    "bokConfigured": false,
+    "kosisConfigured": false
+  },
+  "cloudflareAccountVerification": "NOT_VERIFIED_WITH_ACCOUNT_AUTH",
+  "notes": [
+    "Health readiness does not certify answers or remaining monthly budget.",
+    "Credential presence does not certify permissions, expiry or values.",
+    "Fast quote observation does not enable its public-config route."
+  ]
+}

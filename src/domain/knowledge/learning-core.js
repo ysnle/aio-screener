@@ -14,6 +14,7 @@ export const CONTENT_KINDS = Object.freeze({
   scenario: { label: '시나리오', note: '성립 조건과 반증 조건이 있는 해석' }
 });
 
+import { PACKET_20261011_LESSONS, PACKET_20261011_FRAMES } from '../research/packet-20261011.js';
 const L = (lesson) => Object.freeze(lesson);
 
 // P1592 (F62): each column chapter links to the analysis notes that answer its own question — every
@@ -22,15 +23,15 @@ export const COLUMN_FRAME_LINKS = Object.freeze({
   'money-is-choice': ['real-relative', 'geo-mean', 'macro-reading'],
   'inflation-purchasing-power': ['macro-reading', 'real-relative', 'elasticity', 'agri'],
   'interest-time-price': ['long-bond', 'multiple-durability', 'hike-cycle'],
-  'central-bank-transmission': ['hike-cycle', 'long-bond', 'credit-money', 'bank'],
+  'central-bank-transmission': ['hike-cycle', 'long-bond', 'credit-money', 'bank', 'credit-distribution-refinancing'],
   'bonds-dollar-trust': ['long-bond', 'bond-collateral', 'fx-exporters'],
   'liquidity-asset-inflation': ['credit-money', 'crisis-response', 'index-weight'],
-  'company-economic-machine': ['three-statements', 'capex-roic', 'elasticity'],
+  'company-economic-machine': ['three-statements', 'capex-roic', 'elasticity', 'measurement-scope-comparison'],
   'valuation-expectations': ['expectations', 'multiple-durability', 'valuation-cycle'],
   'ai-physical-bottleneck': ['semi-process', 'memory-optics', 'tech-vs-profit'],
-  'ai-capex-economics': ['capex-roic', 'tech-vs-profit', 'three-statements'],
-  'market-expectations-prices': ['expectations', 'index-weight', 'valuation-cycle'],
-  'ownership-risk-process': ['capital-allocation', 'geo-mean', 'bond-collateral']
+  'ai-capex-economics': ['capex-roic', 'tech-vs-profit', 'three-statements', 'financing-perimeter-overlap'],
+  'market-expectations-prices': ['expectations', 'index-weight', 'valuation-cycle', 'rotation-bottleneck-confirmation'],
+  'ownership-risk-process': ['capital-allocation', 'geo-mean', 'bond-collateral', 'evidence-role-conflict']
 });
 
 export const LESSONS = Object.freeze([
@@ -425,18 +426,19 @@ export const LESSONS = Object.freeze([
     example: { inputs: ['곡물 원가가 제품 원가의 40%', '곡물 가격 +25%', '판매가 즉시 인상 불가'], steps: ['제품 원가 +10%'], result: '총이익률 30%였던 가공사는 가격을 올리기 전까지 총이익률이 23%로 떨어집니다.' },
     reverse: "브랜드가 강해 곧바로 가격을 올릴 수 있는 회사는 다르다. 원가 상승을 이유로 가격을 올리고, 원가가 내려간 뒤에도 그 가격을 지켜 오히려 마진을 넓히기도 한다.",
     channels: ['단가', '비용'], indicators: [{ label: '원자재·물가 흐름', route: 'macro', routeLabel: '거시 경제' }],
-    concepts: ['stocks-to-use', 'pass-through'] })
+    concepts: ['stocks-to-use', 'pass-through'] }),
+  ...PACKET_20261011_LESSONS
 ]);
 
 export const PATHS = Object.freeze([
   { id: 'foundation', title: '금융수학·통계', why: '평균·복리·%와 %p·기대값 — 이후 모든 수치 해석의 전제입니다.', lessons: ['geo-mean', 'real-relative'] },
-  { id: 'accounting', title: '재무제표·회계', why: '이익·현금·자본의 연결 구조.', lessons: ['three-statements'] },
+  { id: 'accounting', title: '재무제표·회계', why: '이익·현금·자본의 연결 구조.', lessons: ['three-statements', 'measurement-scope-comparison'] },
   { id: 'economy', title: '미시경제 기초', why: '가격·경쟁·진입장벽과 초과이익의 지속성.', lessons: ['elasticity', 'tech-vs-profit'] },
-  { id: 'money', title: '통화·신용·물가', why: '은행 신용 → 지출 → 물가 → 실질 소득의 전달 경로.', lessons: ['credit-money', 'macro-reading', 'crisis-response'] },
+  { id: 'money', title: '통화·신용·물가', why: '은행 신용 → 지출 → 물가 → 실질 소득의 전달 경로.', lessons: ['credit-money', 'macro-reading', 'crisis-response', 'credit-distribution-refinancing'] },
   { id: 'rates', title: '금리·채권·환율', why: '동일한 금리·환율 변화가 자산·기업별로 다른 결과를 내는 경로.', lessons: ['long-bond', 'bond-collateral', 'hike-cycle', 'fx-exporters'] },
-  { id: 'business', title: '기업 수익 구조', why: '판매량·단가 → 마진 → 운전자본·투자 → 현금흐름 → 투하자본이익률.', lessons: ['capex-roic', 'three-statements'] },
+  { id: 'business', title: '기업 수익 구조', why: '판매량·단가 → 마진 → 운전자본·투자 → 현금흐름 → 투하자본이익률.', lessons: ['capex-roic', 'three-statements', 'financing-perimeter-overlap'] },
   { id: 'industry', title: '산업별 수익 모델', why: '제공 가치 · 지불 주체 · 비용·자본 · 이익 변수의 동일 틀 비교.', lessons: ['semi-process', 'memory-optics', 'bank', 'insurance', 'reit', 'consumer', 'software', 'biotech', 'energy', 'transport', 'agri', 'fx-exporters'] },
-  { id: 'market', title: '가격·기대', why: '산업·기업·가격의 구분과 기대 대비 결과.', lessons: ['expectations', 'multiple-durability', 'valuation-cycle', 'capital-allocation', 'index-weight'] }
+  { id: 'market', title: '가격·기대', why: '산업·기업·가격의 구분과 기대 대비 결과.', lessons: ['expectations', 'multiple-durability', 'valuation-cycle', 'capital-allocation', 'index-weight', 'evidence-role-conflict', 'rotation-bottleneck-confirmation'] }
 ]);
 
 // Issues surfaced first (the frames most often needed to read the other screens).
@@ -466,6 +468,7 @@ export const lessonById = (id) => LESSONS.find((lesson) => lesson.id === id) || 
 // Codex review 2026-10-05: the connection column named the same five words (매출·단가·비용·투자·현금)
 // on every note. Each note now names the variables a reader actually checks for that question.
 export const FRAME_VARIABLES = Object.freeze({
+  ...Object.fromEntries(PACKET_20261011_FRAMES.map((frame) => [frame.id, frame.variables])),
   'geo-mean': ['연평균 복리 수익률(CAGR)', '최대 낙폭', '회복 기간', '변동성'],
   'real-relative': ['명목 수익률', '물가 상승률', '벤치마크 수익률', '차이(%p)'],
   'three-statements': ['영업활동 현금흐름', '운전자본 증감', '설비투자', '잉여현금흐름'],

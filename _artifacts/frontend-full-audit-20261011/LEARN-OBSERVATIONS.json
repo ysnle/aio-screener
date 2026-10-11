@@ -1,0 +1,243 @@
+{
+  "schema": "aio-learn-observations.v1",
+  "auditDate": "2026-10-11",
+  "auditScope": ["#principles", "#atlas", "#masters", "#guide"],
+  "target": "http://127.0.0.1:8931 (served locally, not managed by this audit)",
+  "harness": {
+    "script": "scratchpad/learn-audit.cjs (Node + Playwright 1.61.1, headless chromium, 1440x1000) — executed once",
+    "capture": "scratchpad/learn-capture.json",
+    "waitPerRoute": "5000 ms render wait + 2000 ms post-interaction",
+    "screenshots": [
+      "C:/Projects/AIO/_artifacts/frontend-full-audit-20261011/learn-principles.png",
+      "C:/Projects/AIO/_artifacts/frontend-full-audit-20261011/learn-atlas.png",
+      "C:/Projects/AIO/_artifacts/frontend-full-audit-20261011/learn-masters.png",
+      "C:/Projects/AIO/_artifacts/frontend-full-audit-20261011/learn-guide.png"
+    ],
+    "interactionOutcome": [
+      { "route": "principles", "intended": "개념 그래프 1회 확장", "clicked": "허브 탭 '개념·분석 프레임' (aio-hub-tab, data-action=showPage)", "effective": false, "deltaTextLength": 0, "note": "자동 선택자가 좌측 허브 탭을 먼저 잡아 그래프 확장 자체는 미검증(개념 지도 문서는 좌측 목차에 렌더됨)" },
+      { "route": "atlas", "intended": "산업 노드 1회 진입", "clicked": "허브 탭 '산업·밸류체인' (aio-hub-tab)", "effective": false, "deltaTextLength": 0, "note": "URL에 이미 ?view=domain&node=cloud-hyperscaler&domain=domain-cloud-platform가 복원되어 도메인 개요가 열린 상태" },
+      { "route": "masters", "intended": "운용사 1회 선택", "clicked": "좌측 목차 'Howard Marks' (rl-nav-item rl-nav-sub)", "effective": true, "deltaTextLength": -6, "note": "상세가 Warren Buffett(버크셔) → Howard Marks(오크트리)로 전환, URL manager=oaktree-capital-management" },
+      { "route": "guide", "intended": "목차 1회 이동", "clicked": "'메뉴 지도' (data-action=_aioGuideJump, data-arg=guide-screens)", "effective": "scroll-only", "deltaTextLength": 0, "note": "대상 섹션은 이미 렌더되어 텍스트 변화 없음" }
+    ],
+    "consoleErrors": {
+      "perRouteTotals": { "principles": 29, "atlas": 29, "masters": 33, "guide": 33 },
+      "common": [
+        "warning x3 per route: CDN preload integrity mismatch (chart.js@4.4.0, dompurify@3.0.9, lightweight-charts@4.2.0) — preload discarded",
+        "error: https://aio-proxy.zmfhd007.workers.dev/health — CORS preflight blocked",
+        "error x7-8: Failed to load resource (net::ERR_FAILED)",
+        "error x7: proxied upstream requests to the worker answered 403"
+      ]
+    },
+    "http404": "none observed (no 4xx/5xx from http://127.0.0.1:8931 itself; all failures are outbound proxy/CORS)"
+  },
+  "gradeCounts": { "A": 0, "B": 2, "C": 3, "D": 4, "total": 9 },
+  "observations": [
+    {
+      "id": "LEARN-B1",
+      "grade": "B",
+      "route": "masters",
+      "location": "masters 상세 · '분기 변화 원장' 표 (제목: '현재 신고 가치 상위 10개 보유를 먼저 불러왔습니다')",
+      "expected": "제목과 '#' 순번이 신고 가치 내림차순 1..10을 뜻한다 (holdings.json displayPolicy: 'Top 10 holdings by reported value per reconciled filing')",
+      "actual": "변화가 있는 행을 가치 내림차순으로 먼저, 수량 변화가 0인 행('변화 없음')을 그 뒤에 붙인다. Howard Marks(오크트리): #8 CORE SCIENTIFIC $128.0M 다음에 #9 EXPAND ENERGY $477.6M, #10 VIPER ENERGY $160.8M. Warren Buffett(버크셔): #1 ALPHABET $28.16B 인데 $65.95B(APPLE)가 #4, $51.28B(AMERICAN EXPRESS)가 #5.",
+      "impact": "표시 값 자체는 JSON과 일치하며 상위 10개 집합도 맞다(합계 264.7B = 버크셔 total의 88.5% = top10ConcentrationPct 88.469). 그러나 순번이 가치 순위처럼 읽혀 '상위 10개' 순위를 잘못 전달한다(같은 값, 다른 basis).",
+      "fix": "정렬 키를 신고 가치 내림차순으로 고정하거나, '변화 없음'을 뒤로 보내는 정렬을 유지하려면 표 제목·문구를 그 기준(예: '변화가 있는 항목 우선')으로 바꾸고 '#'를 순위가 아닌 행 번호로 표기",
+      "confidence": "high",
+      "evidence": "learn-capture.json routes.masters.before.tables[0] + placeholders/number 순서, routes.masters.after.tables[0] (78462F103 1.01B → 46090E103 651.7M → 524.3M → 275.2M → 257.2M → 251.4M → 195.5M → 128.0M → 477.6M → 160.8M)"
+    },
+    {
+      "id": "LEARN-B2",
+      "grade": "B",
+      "route": "masters",
+      "location": "masters · '운용 방식별 비교' 그룹 목록 (예: 성장·혁신 7)",
+      "expected": "public-data/masters/index.json policy: 방법론 전용 교육자는 'visibly separated'되어 filer·CIK·accession·보유·보고가치 행을 받지 않는다 (methodOnlyProfiles=1, priorityManagerCount=38 = secFilerProfiles 37 + 방법론 전용 1)",
+      "actual": "'성장·혁신 7' 안에 Fidelity / FMR, T. Rowe Price, Andreas Halvorsen, Chase Coleman, Cathie Wood, Leopold Aschenbrenner 와 함께 'Mark Minervini'(SEC 13F 신고주체 아님)가 동일 목록·동일 표기로 노출된다. 그룹 합계도 3+3+6+1+5+1+4+7+1+7=38로 방법론 전용 1명을 포함한다.",
+      "impact": "13F 화면에서 비신고주체가 신고 운용사와 같은 basis로 읽힌다.",
+      "fix": "방법론 전용 프로필은 별도 배지/그룹(예: '13F 미신고 · 방법론 참고')으로 분리하고 13F 그룹 합계에서 제외",
+      "confidence": "medium",
+      "evidence": "learn-capture.json routes.masters.after.text 상단 그룹 목록 vs index.json policy/methodOnlyProfiles/priorityManagerCount"
+    },
+    {
+      "id": "LEARN-C1",
+      "grade": "C",
+      "route": "masters",
+      "location": "masters 상세 요약 블록 ('최신 보고분기 2026-06-30')",
+      "expected": "보고분기 옆에 제출일/수집·검토 기준일이 칩으로 함께 표시되어야 한다 (holdings.json latestFiling.filedAt=2026-08-14, reviewedAt=2026-10-06)",
+      "actual": "화면에는 '최신 보고분기 2026-06-30'과 '이전 보고분기 2026-03-31'만 노출되고 제출일(2026-08-14)·수집/검토일(2026-10-06) 칩은 없다. (13F 분기 라벨 자체는 2026-06-30 = 2분기로 정확.)",
+      "fix": "보고분기 옆에 제출일(13F-HR 2026-08-14)과 수집 기준일(2026-10-06) 칩을 추가",
+      "confidence": "medium",
+      "evidence": "learn-capture.json routes.masters.before/after.dates = ['2026-06-30','2026-03-31'] only; masters-facts.txt (filedAt, reviewedAt)"
+    },
+    {
+      "id": "LEARN-C2",
+      "grade": "C",
+      "route": "atlas",
+      "location": "atlas 도메인 개요 문서 하단 (데이터 출처)",
+      "expected": "참조 아티팩트의 검토 기준일이 표시되어야 한다 (public-data/atlas/index.json reviewedAt=2026-08-15, status=REFERENCE_CONNECTED)",
+      "actual": "화면 어디에도 기준일/검토일이 없다 — dates=[], quarters=[]. '데이터 출처' 라벨 뒤 본문도 화면 텍스트에 없다.",
+      "fix": "'데이터 출처' 줄에 아틀라스 검토일(2026-08-15)과 성격(참조용 온톨로지, 현재 기업 주장·실적으로 사용 금지)을 명시",
+      "confidence": "medium",
+      "evidence": "learn-capture.json routes.atlas.before.dates=[] + text('데이터 출처'로 끝남) vs atlas/index.json reviewedAt/allowedUse/prohibitedUse"
+    },
+    {
+      "id": "LEARN-C3",
+      "grade": "C",
+      "route": "principles",
+      "location": "principles 문서 상단 및 '데이터 출처' 줄",
+      "expected": "개념·레슨 문서에도 작성/검토 기준일이 있어야 한다(다른 리서치 화면들과 동일한 기준일 칩 정책)",
+      "actual": "날짜가 전혀 없다 — dates=[], quarters=[]. 화면에 있는 수치는 콘텐츠 개수(분석 노트 34 / 칼럼 12 / 개념 사전 84 / 원리 레슨 112)뿐이다.",
+      "fix": "문서 헤더 또는 '데이터 출처' 줄에 콘텐츠 검토 기준일을 추가",
+      "confidence": "low",
+      "evidence": "learn-capture.json routes.principles.before.dates=[] / quarters=[]"
+    },
+    {
+      "id": "LEARN-D1",
+      "grade": "D",
+      "route": "guide",
+      "location": "guide 본문 (연결 설정 / 반드시 읽어야 할 유의사항 / FAQ 섹션)",
+      "expected": "안내 문서는 첫 방문 시 핵심 섹션 하나 이상이 펼쳐진 상태",
+      "actual": "페이지 innerText가 1,720자뿐이고 '화면 안내(메뉴 지도)' 카드와 '판정 기준표'만 내용이 노출된다. '연결 설정' 다음 줄이 바로 '반드시 읽어야 할 유의사항'으로 이어져 해당 섹션 본문은 innerText에 잡히지 않는다(접힘 상태).",
+      "fix": "첫 진입 시 '유의사항' 1개 섹션을 기본 open으로 두거나, 목차 점프가 섹션을 명시적으로 열도록 openAncestors 대상 클래스(.insight-box.box-collapsed)를 확장",
+      "confidence": "low",
+      "evidence": "learn-capture.json routes.guide.after.text (line: '연결 설정' → '반드시 읽어야 할 유의사항'), textLength=1720, emptySections=['#guide-capability-manifest']"
+    },
+    {
+      "id": "LEARN-D2",
+      "grade": "D",
+      "route": "guide",
+      "location": "guide 하단 #guide-capability-manifest (section.aio-widget)",
+      "expected": "내용이 있거나 DOM에서 제거되어 있어야 한다",
+      "actual": "innerText 0자인 빈 섹션으로 남아 있다(코드상 감사 통과 시 hidden 처리 — 의도된 숨김).",
+      "fix": "통과 상태에서는 위젯 자체를 렌더하지 않거나 hidden 속성 유지(현 상태 유지 가능). 자동 QA가 '빈 섹션'으로 오탐하지 않도록 data-aio-empty=expected 마커 부여",
+      "confidence": "high",
+      "evidence": "learn-capture.json routes.guide.before.emptySections[0]; src/ui/pages/guide.js:172-179 (capabilityStatus.hidden = capabilityAudit.ok)"
+    },
+    {
+      "id": "LEARN-D3",
+      "grade": "D",
+      "route": "all (4개 라우트 공통)",
+      "location": "index.html <link rel=preload> 및 CDN 스크립트",
+      "expected": "preload의 integrity 해시가 실제 파일과 일치",
+      "actual": "라우트마다 warning 3건: chart.js@4.4.0 / dompurify@3.0.9 / lightweight-charts@4.2.0 의 preload가 'integrity mismatch'로 폐기된다(모든 learn 라우트에서 반복).",
+      "fix": "SRI 해시를 갱신하거나 preload 링크에서 integrity/as 속성을 맞춰 재사용되게 수정",
+      "confidence": "high",
+      "evidence": "learn-capture.json routes.*.console: 3 warnings per route"
+    },
+    {
+      "id": "LEARN-D4",
+      "grade": "D",
+      "route": "masters",
+      "location": "masters 상세 탭 '13D/G 소유권' (src/ui/pages/masters.js:52,1076)",
+      "expected": "13D/G는 수시(event-driven) 공시이므로 13F의 '분기' 흐름과 섞이지 않고, 데이터가 없으면 '없음/미연결'을 명시해야 한다",
+      "actual": "탭은 존재하지만 데이터 미연결 시 폴백이 상시 로딩 문구 'Schedule 13D/G 소유권 이벤트 원장을 불러오는 중입니다.' 이며, public-data/operations-status.json 은 'insider Forms 3/4/5, beneficial ownership 13D/G and complete CUSIP-to-ticker master'가 remainingLimit(미정규화)라고 명시한다.",
+      "impact": "영구 '불러오는 중' 상태는 사용자에게 데이터가 곧 도착한다고 오해시킨다(탭 미개봉, 코드+데이터 상태 근거).",
+      "fix": "미연결 상태는 '13D/G 이벤트 원장 준비 중 — 현재 제공하지 않음'처럼 종결 문구로 바꾸고, 제공 전에는 탭을 숨기거나 준비 상태 칩을 표시",
+      "confidence": "medium",
+      "evidence": "src/ui/pages/masters.js:1076 fallback copy, :52 tab label; public-data/operations-status.json:436,440; learn-capture.json routes.masters.after.text에 '13D/G 소유권' 탭 라벨 존재"
+    }
+  ],
+  "crossChecks": [
+    {
+      "route": "masters",
+      "subject": "Warren Buffett / berkshire-hathaway (기본 상세, before 스냅샷)",
+      "source": "public-data/masters/holdings.json (verification) + index.json",
+      "checks": [
+        { "label": "보유 종목 수 29개", "json": "reportedPositionCount=29", "match": true },
+        { "label": "상위 5 비중 68.7%", "json": "top5ConcentrationPct=68.65148374548215", "match": true },
+        { "label": "상위 10 비중 88.5%", "json": "top10ConcentrationPct=88.46890527822717", "match": true },
+        { "label": "신고 가치 합계 $299.3B", "json": "parsedValueTotal=299253556246", "match": true },
+        { "label": "신규 1 / 증가 7 / 감소 6 / 변화 없음 15 / 전량 제외 1", "json": "comparisonActionCounts={UNCHANGED:15,INCREASED:7,REDUCED:6,NEW:1,EXITED:1}", "match": true },
+        { "label": "전체 30개", "json": "comparisonRowCount=30", "match": true },
+        { "label": "회전율(보고가치 비중 변화) 7.8%", "json": "turnoverProxyPct=7.767598372896647", "match": true },
+        { "label": "최신 보고분기 2026-06-30 / 이전 2026-03-31", "json": "reportPeriod=2026-06-30, priorReportPeriod=2026-03-31, form=13F-HR, filedAt=2026-08-14", "match": true },
+        { "label": "상위10 10행 합계 ≈ 264.7B", "json": "299.25B x 88.47% = 264.8B (내부 일관)", "match": true }
+      ]
+    },
+    {
+      "route": "masters",
+      "subject": "Howard Marks / oaktree-capital-management (상호작용 후)",
+      "source": "public-data/masters/holdings.json (verification)",
+      "checks": [
+        { "label": "보유 종목 수 145개", "json": "reportedPositionCount=145", "match": true },
+        { "label": "상위 5 · 10 비중 40.8% · 54.6%", "json": "40.8074525060296 / 54.584493491745626", "match": true },
+        { "label": "신고 가치 합계 $7.2B", "json": "parsedValueTotal=7206070520", "match": true },
+        { "label": "신규 40 / 확대 51 / 축소 33 / 변화 없음 21 / 제외 42", "json": "comparisonActionCounts={NEW:40,INCREASED:51,REDUCED:33,UNCHANGED:21,EXITED:42}", "match": true },
+        { "label": "전체 187개", "json": "comparisonRowCount=187", "match": true },
+        { "label": "회전율 31.3%", "json": "turnoverProxyPct=31.32644201860795", "match": true },
+        { "label": "최신 보고분기 2026-06-30 / 이전 2026-03-31", "json": "reportPeriod/priorReportPeriod", "match": true },
+        { "label": "신고 법인 표기 'Oaktree Capital Management LP'", "json": "cover.filingManager=OAKTREE CAPITAL MANAGEMENT LP, cik=0000949509", "match": true }
+      ]
+    },
+    {
+      "route": "guide",
+      "subject": "판정 기준표 (12행) vs src/domain/rules/thresholds.js",
+      "source": "src/domain/rules/thresholds.js RULES (단일 기준 레지스트리)",
+      "checks": [
+        { "label": "추세 50일선 위 · 50 > 200 / 200일선 아래", "json": "trend.maShort=50, maLong=200", "match": true },
+        { "label": "시장 폭 60% / 40%", "json": "breadth.broadAtLeast=60, weakBelow=40", "match": true },
+        { "label": "VIX 18 미만 · 비율 0.95 / 25 이상 · 비율 1", "json": "calmBelow=18, stressAt=25, calmRatioBelow=0.95, invertedRatioAt=1", "match": true },
+        { "label": "변동성 5일 +25%", "json": "spike5dPct=25", "match": true },
+        { "label": "10년물 ±25bp · 1년 범위 90%", "json": "move20dBp=25, rangeHighAt=0.9", "match": true },
+        { "label": "하이일드 350bp / 450bp · 5일 +25bp", "json": "tightBelowBp=350, stressAtBp=450, widen5dBp=25", "match": true },
+        { "label": "WTI −5% / +10% · 1년 범위 85% · 달러 +2%", "json": "oil.fall20dPct=-5, rise20dPct=10, rangeHighAt=0.85, dollar.rise20dPct=2", "match": true },
+        { "label": "원/달러 ±2% · 엔 3% 강세", "json": "fx.krwMove20dPct=2, yenRally20dPct=3", "match": true },
+        { "label": "Sahm 0.3%p / 0.5%p · 일자리 10만 명", "json": "growth.sahmWatchAt=0.3, sahmRecessionAt=0.5, payrollSolidK=100", "match": true },
+        { "label": "근원 PCE 2.5% / 3% · +0.5%p · 목표 2%", "json": "inflation.nearTargetPct=2.5, missPct=3, reaccelPp=0.5, targetPct=2", "match": true },
+        { "label": "정책 ±0.25%p · 실질 2%", "json": "policy.pricedMovePp=0.25, restrictiveRealPct=2", "match": true },
+        { "label": "공포·탐욕 25 / 45 / 55 / 75", "json": "fearGreed.extremeFearBelow=25, fearBelow=45, greedAbove=55, extremeGreedAbove=75", "match": true },
+        { "label": "부담 셀 다중 조건 연결어 '또는'", "json": "guideRuleRows() anyOf() 변환 (또는)", "match": true }
+      ]
+    },
+    {
+      "route": "guide",
+      "subject": "화면 안내(메뉴 지도) 8개 화면 vs src/ui/navigation/route-hubs.js ROUTE_HUBS",
+      "source": "src/ui/navigation/route-hubs.js",
+      "checks": [
+        { "label": "오늘 (대시보드·브리핑·뉴스)", "json": "hub today: home/briefing/market-news", "match": true },
+        { "label": "시장 상태 (국면 판정·시장 폭·투자 심리)", "json": "hub market: signal/breadth/sentiment", "match": true },
+        { "label": "거시 · 금리 (거시 경제·금리 · 환율)", "json": "hub macro: macro/fxbond", "match": true },
+        { "label": "테마 · 섹터", "json": "hub themes", "match": true },
+        { "label": "종목 (요약·차트·재무 공시)", "json": "hub stock: ticker/technical/fundamental", "match": true },
+        { "label": "스크리너", "json": "hub screener", "match": true },
+        { "label": "포트폴리오", "json": "hub portfolio", "match": true },
+        { "label": "리서치 라이브러리 (개념·분석 프레임/산업·밸류체인/운용사·13F)", "json": "hub learn (guide = tab:false, 리서치 카드에서 제외)", "match": true },
+        { "label": "삭제된 옵션 라우트/스윙·데이 모드/0~100 환경 점수 설명", "json": "guide 본문에 잔존 없음 (route-hubs 기반 렌더 + '옵션' 0건)", "match": true }
+      ]
+    },
+    {
+      "route": "atlas",
+      "subject": "아틀라스 헤더 수치",
+      "source": "public-data/atlas/index.json",
+      "checks": [
+        { "label": "산업 지도 19", "json": "taxonomyDomains=19", "match": true },
+        { "label": "AI 기초 7", "json": "foundationLayers=7", "match": true },
+        { "label": "좌측 도메인 목록 19개(클라우드·AI 플랫폼 … 인접 미래 기술)", "json": "taxonomyDomains=19", "match": true },
+        { "label": "관계 가이드 5", "json": "(index.json 앞 45행에서 대응 필드 미확인)", "match": "unverified" }
+      ]
+    },
+    {
+      "route": "principles",
+      "subject": "리서치 라이브러리 수량 표기",
+      "source": "(소스 아티팩트 미확인)",
+      "checks": [
+        { "label": "분석 노트 34 / 칼럼 12 / 개념 사전 84 / 원리 레슨 112", "json": "대응 소스 아티팩트를 찾지 못해 대조 불가", "match": "unverified" },
+        { "label": "깨진 링크 0 (a[href] 0개)", "json": "n/a", "match": true },
+        { "label": "빈 섹션 0 / 플레이스홀더 0", "json": "n/a", "match": true },
+        { "label": "회사-티커 오매칭 0 (티커 표기 자체가 없음; '(CAGR)' 은 정규식 오탐)", "json": "n/a", "match": true }
+      ]
+    }
+  ],
+  "blocked": [
+    "masters #13D/G 소유권 탭의 실제 렌더 상태 — 라우트당 상호작용 1회 제한으로 미개봉(코드상 폴백은 상시 로딩 문구, 데이터는 public-data/operations-status.json 기준 미정규화).",
+    "principles '개념 그래프 확장' / atlas '산업 노드 진입' — 자동 선택자가 좌측 허브 탭을 먼저 클릭해 실제 확장·진입 동작은 미검증(텍스트 변화량 0).",
+    "guide 목차 점프의 시각적 동작 — 클릭은 수행됐으나 텍스트 변화량 0(스크롤만 발생)이라 섹션 강조/포커스 효과는 미검증.",
+    "principles 콘텐츠 수량(34/12/84/112)의 소스 아티팩트 — public-data/knowledge 집계 파일을 특정하지 못해 대조 불가.",
+    "atlas '관계 가이드 5'의 소스 필드 — atlas/index.json 45행까지만 확인.",
+    "guide의 유일한 외부 링크 https://github.com/ysnle/aio-screener/issues 도달 여부 — 대화형 브라우징 금지로 미확인.",
+    "라이브 시세·뉴스 수치 — 프록시(aio-proxy) 403 및 CORS 차단으로 수집 실패. learn 라우트의 표시 수치는 모두 정적 참조 아티팩트(public-data) 기준으로만 대조했다."
+  ],
+  "limitations": [
+    "도구 호출이 30회 예산을 초과했다(탐색 단계에서 소모). 캡처·대조 산출물은 완료됐고 위 blocked 항목만 추가 실행이 필요하다.",
+    "캡처 시점 2026-10-11T09:07Z, 앱 리비전 v57.36, 서버 http://127.0.0.1:8931.",
+    "이 감사는 서버·파일·git을 수정하지 않았다(산출물 2개와 스크린샷 4장만 생성)."
+  ]
+}

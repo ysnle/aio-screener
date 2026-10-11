@@ -156,12 +156,18 @@ function groupFact(group, items) {
   return shown.length ? shown.map((item) => `${item.label.replace(/ \(.*\)$/, '')} ${item.valueText}`).join(' · ') : '자료를 기다리는 중입니다.';
 }
 
+function monthsBack(series, date, months) {
+  const [year, month] = date.split('-').map(Number);
+  const target = new Date(Date.UTC(year, month - 1 - months, 1)).toISOString().slice(0, 7);
+  return series.find((row) => row.date.slice(0, 7) === target) || null;
+}
+
 // One line on where the indicator came from: a year ago and six months ago, from its own series.
 function trendOf(item, series) {
   if (series.length < 13) return { series, trendText: null, direction: null };
   const last = series[series.length - 1];
-  const year = series[series.length - 13];
-  const half = series[series.length - 7];
+  const year = monthsBack(series, last.date, 12);
+  const half = monthsBack(series, last.date, 6);
   const digits = item.digits ?? 1;
   const unit = item.unit === '%' ? '%' : item.unit;
   const fmt = (value) => `${item.signed ? signed(value, digits) : value.toFixed(digits)}${unit}`;
@@ -171,7 +177,11 @@ function trendOf(item, series) {
   const earlier = avg(series.slice(-9, -6));
   const move = recent - earlier;
   const flat = Math.abs(move) < (item.unit === '%' ? 0.15 : Math.max(Math.abs(earlier) * 0.05, item.id === 'nfp' ? 25 : 0));
-  return { series, trendText: `1년 전 ${fmt(year.value)} · 6개월 전 ${fmt(half.value)}`, direction: flat ? 'flat' : move > 0 ? 'up' : 'down' };
+  const trendText = [
+    year ? `1년 전 ${fmt(year.value)}` : '1년 전 자료 없음',
+    half ? `6개월 전 ${fmt(half.value)}` : '6개월 전 자료 없음'
+  ].join(' · ');
+  return { series, trendText, direction: flat ? 'flat' : move > 0 ? 'up' : 'down' };
 }
 
 export function buildMacroBoard({ macro = null, releases = {}, schedules = {}, macroHistory = null } = {}) {

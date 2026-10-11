@@ -17,7 +17,7 @@ function harness(saved, extraEnv = {}) {
   const rows = new Map(saved ? [['quota-state', structuredClone(saved)]] : []);
   let queue = Promise.resolve(); let observedName;
   const state = { id: { jurisdiction: 'us' }, storage: { get: async key => structuredClone(rows.get(key)), put: async (key, value) => rows.set(key, structuredClone(value)) }, blockConcurrencyWhile(fn) { const job = queue.then(fn, fn); queue = job.catch(() => {}); return job; } };
-  const env = { OPENAI_API_KEY: 'fake-not-a-live-key', AI_DAILY_CAP: '300', AI_MAX_OUTPUT_TOKENS: '4000', AI_MONTHLY_BUDGET_USD: '10', AIO_AUTOMATION_TOKEN: TOKEN, AIO_DEV_ORIGINS: 'http://localhost:8891', ...extraEnv };
+  const env = { OPENAI_API_KEY: 'fake-not-a-live-key', AI_DAILY_CAP: '300', AI_MAX_OUTPUT_TOKENS: '4000', AI_MONTHLY_BUDGET_USD: '20', AI_WEB_SEARCH_ENABLED: 'true', AIO_AUTOMATION_TOKEN: TOKEN, AIO_DEV_ORIGINS: 'http://localhost:8891', ...extraEnv };
   const durable = new AIOQuotaDurableObject(state, env);
   env.AIO_QUOTA_DO = { jurisdiction(value) { if (value !== 'us') throw new Error('wrong jurisdiction'); return { getByName(name) { observedName = name; return { fetch(url, init) { return durable.fetch(new Request(url, init)); } }; } }; } };
   return { env, durable, state, saved: () => rows.get('quota-state'), name: () => observedName };
@@ -29,8 +29,8 @@ async function main() {
   const source = readFileSync(new URL('../cloudflare-worker-proxy.js', import.meta.url), 'utf8');
   check('P1421 one OpenAI handler and no Anthropic upstream', (source.match(/async function handleOpenAi\(/g) || []).length === 1 && !source.includes('api.anthropic.com'));
   check('P1353/P1421 stable DO identity preserves prior dollar ledger', source.includes("getByName('anthropic-authority-v1')") && source.includes('const BUDGET_SCHEMA = 2'));
-  check('P1421 zero to ten dollar integer cap', aiMonthlyBudgetMicroUsd({}) === 10000000 && aiMonthlyBudgetMicroUsd({ AI_MONTHLY_BUDGET_USD: '0' }) === 0 && aiMonthlyBudgetMicroUsd({ AI_MONTHLY_BUDGET_USD: '0.000001' }) === 1);
-  for (const amount of ['-1','10.000001','1e1','NaN','1.0000001']) rejects('invalid monthly cap ' + amount, () => aiMonthlyBudgetMicroUsd({ AI_MONTHLY_BUDGET_USD: amount }));
+  check('P1421 P1608 zero to twenty dollar integer cap', aiMonthlyBudgetMicroUsd({}) === 20000000 && aiMonthlyBudgetMicroUsd({ AI_MONTHLY_BUDGET_USD: '0' }) === 0 && aiMonthlyBudgetMicroUsd({ AI_MONTHLY_BUDGET_USD: '0.000001' }) === 1);
+  for (const amount of ['-1','20.000001','1e1','NaN','1.0000001']) rejects('invalid monthly cap ' + amount, () => aiMonthlyBudgetMicroUsd({ AI_MONTHLY_BUDGET_USD: amount }));
   const budget = prepareOpenAiBudget(body);
   check('P1421 reserve covers UTF8/framing/cache-write/regional premium and reasoning-inclusive output', budget.inputTokenUpperBound > new TextEncoder().encode(JSON.stringify(body)).byteLength && budget.reservationMicroUsd === Math.ceil(budget.inputTokenUpperBound * 0.1375 + 64 * 0.55));
   check('P1421 output clamp and no persisted provider state', prepareOpenAiBudget({ ...body, max_output_tokens: 8000 }).body.max_output_tokens === 4000 && budget.body.store === false && budget.body.service_tier === 'default');
@@ -42,6 +42,19 @@ async function main() {
   ].forEach((value, index) => rejects('unsupported cost expansion ' + index, () => prepareOpenAiBudget(value)));
   check('P1421 local function loop and JSON schema supported', prepareOpenAiBudget({ ...body, input: [{ type: 'function_call', call_id: 'call_1', name: 'get_fact', arguments: '{}' }, { type: 'function_call_output', call_id: 'call_1', output: '{"fact":1}' }], tools: [{ type: 'function', name: 'get_fact', parameters: { type: 'object', properties: {} }, strict: false }], text: { format: { type: 'json_schema', name: 'fact', schema: { type: 'object' }, strict: false } } }).body.model === 'gpt-6-luna');
   const charge = verifiedOpenAiCharge(usageResponse(), budget);
+  const searchBody = { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], max_tool_calls: 2, tool_choice: 'required' };
+  const searchBudget = prepareOpenAiBudget(searchBody, { AI_WEB_SEARCH_ENABLED: 'true' });
+  check('P1608 hosted search shares twenty dollar admission and retained reserve', searchBudget.monthlyCapMicroUsd === 20000000 && searchBudget.searchReserveMicroUsd === 200000 && searchBudget.body.reasoning.effort === 'low');
+  for (const attempt of [
+    { ...searchBody, max_tool_calls: 3 }, { ...searchBody, max_tool_calls: 0 },
+    { ...searchBody, tools: [{ ...searchBody.tools[0], return_token_budget: 'unlimited' }] },
+    { ...searchBody, tools: [{ ...searchBody.tools[0], return_token_budget: 8000 }] },
+    { ...searchBody, tools: [{ ...searchBody.tools[0], filters: { allowed_domains: ['https://sec.gov'] } }] },
+    { ...searchBody, tools: [searchBody.tools[0], { type: 'function', name: 'x', parameters: {} }] }
+  ]) rejects('P1608 hosted search expansion cannot bypass admission', () => prepareOpenAiBudget(attempt, { AI_WEB_SEARCH_ENABLED: 'true' }));
+  rejects('P1608 search disabled without explicit Worker configuration', () => prepareOpenAiBudget(searchBody));
+  for (const action of ['search', 'open_page', 'find_in_page']) check('P1608 token receipt cannot refund unverified hosted search costs ' + action,
+    verifiedOpenAiCharge(usageResponse({ output: [{ type: 'web_search_call', status: 'completed', action: { type: action } }] }), searchBudget) === null);
   check('P1421 verified charge uses worst premium without cache discount', charge === Math.ceil(16 * 0.1375 + 8 * 0.55));
   for (const response of [usageResponse({ model: 'gpt-6-sol' }), usageResponse({ status: 'incomplete' }), usageResponse({ usage: { input_tokens: 16, output_tokens: 8 } }), usageResponse({ usage: { input_tokens: 16, output_tokens: 65, total_tokens: 81 } }), usageResponse({ usage: { input_tokens: 16, output_tokens: -1, total_tokens: 15 } }), usageResponse({ service_tier: 'priority' })]) check('P1421 invalid receipt cannot replenish', verifiedOpenAiCharge(response, budget) === null);
   const originalFetch = globalThis.fetch; let upstreamCalls = 0, lastRequest;
@@ -73,9 +86,22 @@ async function main() {
     check('P1421 verified JSON settles atomically', fixture.saved().months[currentMonth] === charge && Object.values(fixture.saved().reservations)[0].settled === true);
     const browser = await worker.fetch(req(), fixture.env); await browser.arrayBuffer();
     check('P1421 browser and Actions share monthly/day ledger', fixture.saved().months[currentMonth] === charge * 2 && fixture.saved().days['claude:' + currentDay] === 2);
+    const searchRace = harness(undefined, { AI_MONTHLY_BUDGET_USD: (searchBudget.reservationMicroUsd * 2 / 1000000).toFixed(6) });
+    const searchRaceResponses = await Promise.all(Array.from({ length: 6 }, (_, i) => worker.fetch(req(searchBody, { origin: i % 2 ? '' : PROD,
+      headers: { ...(i % 2 ? { 'X-AIO-Automation-Token': TOKEN } : {}), 'X-AIO-Idempotency-Key': 'search-race-' + i, 'cf-connecting-ip': '198.18.0.' + i } }), searchRace.env)));
+    await Promise.all(searchRaceResponses.map(response => response.arrayBuffer()));
+    check('P1608 mixed browser and automation searches atomically share one budget without per-user allowance', searchRaceResponses.filter(response => response.status === 200).length === 2 && searchRaceResponses.filter(response => response.status === 429).length === 4 && searchRace.saved().months[currentMonth] === searchBudget.reservationMicroUsd * 2);
+    const searchOff = harness(undefined, { AI_WEB_SEARCH_ENABLED: 'false' }), searchOffCalls = upstreamCalls;
+    check('P1608 disabled hosted search never spends', (await worker.fetch(req(searchBody), searchOff.env)).status === 400 && upstreamCalls === searchOffCalls && searchOff.saved() === undefined);
     const health = await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), fixture.env), healthJson = await health.json();
     check('P1421 health reports readiness/provider and automation presence only', healthJson.ai?.ready === true && healthJson.ai.provider === 'openai' && healthJson.ai.model === 'gpt-6-luna' && healthJson.ai.automationConfigured === true && !JSON.stringify(healthJson).includes(TOKEN) && !/monthlyReserved|monthlyBudget|monthlyPastSpendUnknown|usageMonthUtc|AI_MONTHLY_BUDGET_USD|AI_DAILY_CAP|anthropicDailyCap|aiDailyCap/.test(JSON.stringify(healthJson)));
-    const malformedHealth = await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), { ...fixture.env, AI_MONTHLY_BUDGET_USD: '11' });
+    const malformedHealth = await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), { ...fixture.env, AI_MONTHLY_BUDGET_USD: '21' });
+    const deniedHealth = await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), appAuth.env);
+    const deniedHealthJson = await deniedHealth.json();
+    const allowedHealth = await worker.fetch(req(undefined, { path: '/health', method: 'GET', headers: { 'X-AIO-App-Token': 'fixture-public-app-token' } }), appAuth.env);
+    const allowedHealthJson = await allowedHealth.json();
+    check('P1607 health separates server readiness from caller token acceptance without exposing credentials', deniedHealthJson.ai.ready && deniedHealthJson.ai.appTokenRequired && !deniedHealthJson.ai.appTokenAccepted && allowedHealthJson.ai.appTokenAccepted && !JSON.stringify(allowedHealthJson).includes('fixture-public-app-token'));
+    check('P1607 P1608 health describes personal FRED relay and enabled paid search truthfully', healthJson.relay.credentialModes.fred === 'personal-opt-in' && healthJson.ai.paidWebSearchEnabled === true);
     check('P1421 malformed budget cannot report ready', (await malformedHealth.json()).ai.ready === false);
     check('P1157/P1421 rate limiter fails before cost', (await worker.fetch(req(), { ...fixture.env, RATE_LIMIT_OPENAI: { limit: async () => ({ success: false }) } })).status === 429);
     check('P1421 Unicode byte limit before dispatch', (await worker.fetch(req({ ...body, input: '한'.repeat(75000) }), fixture.env)).status === 413);
@@ -121,7 +147,7 @@ async function main() {
     check('P1433 owner acknowledgement clears the unknown month and the cap applies from the stated spend', ackResponse.status === 200 && acknowledged.saved().legacyUnknownMonths[currentMonth] === undefined && acknowledged.saved().months[currentMonth] === charge);
     const otherMonth = harness(structuredClone(unknownMonth), { AI_LEGACY_MONTH_ACK: '1999-01:0' });
     check('P1433 acknowledgement for another month is ignored', (await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.33' } }), otherMonth.env)).status === 429 && otherMonth.saved().legacyUnknownMonths[currentMonth] === true);
-    const overCap = harness(structuredClone(unknownMonth), { AI_LEGACY_MONTH_ACK: `${currentMonth}:10000000` });
+    const overCap = harness(structuredClone(unknownMonth), { AI_LEGACY_MONTH_ACK: `${currentMonth}:20000000` });
     check('P1433 a stated spend at the cap still blocks', (await worker.fetch(req(undefined, { headers: { 'cf-connecting-ip': '198.51.100.33' } }), overCap.env)).status === 429);
     const paddedKey = harness(undefined, { OPENAI_API_KEY: 'fake-not-a-live-key\n' }); let sentAuth = null;
     upstream = async (_, init) => { sentAuth = init.headers.Authorization; return Response.json(usageResponse()); };

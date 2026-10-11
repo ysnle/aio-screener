@@ -145,6 +145,13 @@ export function reconcileSecEquity(record) {
   return corrected;
 }
 
+export function secFilingUrl(cik, accession) {
+  const company = String(cik || '');
+  const filing = String(accession || '');
+  if (!/^\d{1,10}$/.test(company) || Number(company) <= 0 || !/^\d{10}-\d{2}-\d{6}$/.test(filing)) return null;
+  return `https://www.sec.gov/Archives/edgar/data/${Number(company)}/${filing.replaceAll('-', '')}/${filing}-index.html`;
+}
+
 export function deriveSecReport(fundamentals = null) {
   const input = reconcileSecEquity(fundamentals && typeof fundamentals === 'object' ? fundamentals : {});
   const knownMetrics = new Set(METRIC_DEFINITIONS.map(([key]) => key));
@@ -170,6 +177,7 @@ export function deriveSecReport(fundamentals = null) {
     form: input.form ? String(input.form) : null,
     cik: input.cik ? String(input.cik) : null,
     accession: input.accession ? String(input.accession) : null,
+    filingUrl: secFilingUrl(input.cik, input.accession),
     periodType: input.periodType ? String(input.periodType) : null,
     observedAt,
     filedAt: input.filedAt || null,

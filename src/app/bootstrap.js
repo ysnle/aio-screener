@@ -29,6 +29,12 @@ import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { openMarketChart } from '../ui/components/stock-chart.js';
+import { installColorTheme } from '../ui/components/color-theme.js';
+import { installConnectionPanel } from '../ui/panels/connections.js';
+import { describeSharedConnection } from '../domain/connections/shared.js';
+import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
+import { buildGoogleSearchQuery, isGoogleResultAllowed } from '../ai/research/google-query.js';
+import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { readMarketRegime } from '../ui/components/market-regime.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
@@ -40,6 +46,7 @@ import { computeMarketHealth } from '../domain/market/health.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../ai/time/market-session.js';
 import { resolveRegisteredName } from '../domain/ticker/resolve-name.js';
+import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
 // Portfolio statistics/backtest is a native ESM module; importing it during
@@ -72,6 +79,7 @@ import { createMarketOrchestrator } from '../data/orchestrators/market.js';
 import { createThemesProvider } from '../data/providers/themes.js';
 import { createThemesOrchestrator } from '../data/orchestrators/themes.js';
 import { createEntityProvider } from '../data/providers/entity.js';
+import { createPublicEarningsReader } from '../data/providers/earnings.js';
 import { createEntityOrchestrator } from '../data/orchestrators/entity.js';
 import { createPortfolioProvider } from '../data/providers/portfolio.js';
 import { createPortfolioOrchestrator } from '../data/orchestrators/portfolio.js';
@@ -110,6 +118,13 @@ if (typeof window !== 'undefined') {
   window._pearsonCorr = _pearsonCorr;
   window._calcCorrelationMatrix = _calcCorrelationMatrix;
   window.AIO = window.AIO || {};
+  window.AIO.describeSharedConnection = describeSharedConnection;
+  window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
+  window.AIO.buildGoogleSearchQuery = buildGoogleSearchQuery;
+  window.AIO.isGoogleResultAllowed = isGoogleResultAllowed;
+  window.AIO.selectNativeSearch = selectNativeSearch;
+  window.AIO.attachNativeSearch = attachNativeSearch;
+  window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;
   window.AIO.buildPortfolioBacktestLab = buildPortfolioBacktestLab;
   window._aioBuildPortfolioBacktestLab = buildPortfolioBacktestLab;
   // 22 W22-I/W22-J (E4): the risk/performance surfaces consume the declared
@@ -170,6 +185,8 @@ if (typeof window !== 'undefined') {
     return resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries) || normalized;
   };
   window._aioResolveRegisteredName = (raw) => resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries);
+  window._aioNewsStories = { key: newsArticleKey, group: groupNewsStories, isRevision: isNewsRevision,
+    issuers: (row, candidates) => resolveNewsIssuers(row, candidates, window.AIO_TICKER_NAME_REGISTRY?.entries) };
   window._aioTickerDisplayName = (symbol) => tickerDisplayName(symbol, { krStockDb: window.KR_STOCK_DB });
   // P1326/R671: one currentness vocabulary (실시간/지연/종가/지난 시세) from observation times + US calendar.
   window._aioDescribeQuoteCurrentness = describeQuoteCurrentness;
@@ -419,7 +436,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // ARX-04/P977: entity fundamentals use the bounded SEC current-facts projection; append-only
   // PIT observations stay outside the interactive payload.
   // — see src/data/providers/entity.js. id/quote/options remain legacy.readEntity projections.
-  const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: runtimeReaders.readEntity, httpClient, now: clock.now }), commands: entityCommands });
+  const entityProvider = createEntityProvider({ read: runtimeReaders.readEntity, httpClient, now: clock.now });
+  if (root?.AIO) root.AIO.readPublicFundamentals = entityProvider.readFundamentals;
+  if (root?.AIO) root.AIO.readPublicEarnings = createPublicEarningsReader(httpClient, clock.now);
+  const syncEntity = createEntityOrchestrator({ provider: entityProvider, commands: entityCommands });
   const portfolioCommands = createPortfolioCommands({ store });
   // Personal holdings are read from the established AES-GCM `_AioVault` path
   // through runtimeReaders. Do not create a second consent-only/plaintext store.
@@ -596,6 +616,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
 
   function start() {
     let disposed = false;
+    const stopColorTheme = documentRef?.body && root?.getComputedStyle ? installColorTheme(root, documentRef) : () => {};
+    const stopConnectionPanel = installConnectionPanel(root, documentRef);
     const deferredTasks = createDeferredTaskQueue({
       setTimeoutImpl: root?.setTimeout?.bind(root) || globalThis.setTimeout.bind(globalThis),
       clearTimeoutImpl: root?.clearTimeout?.bind(root) || globalThis.clearTimeout.bind(globalThis)
@@ -846,6 +868,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stop = () => {
       if (disposed) return;
       disposed = true;
+      stopColorTheme();
+      stopConnectionPanel();
       deferredTasks.stop();
       navigation.restore();
       stopQuotes();

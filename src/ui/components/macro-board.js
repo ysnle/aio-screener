@@ -28,6 +28,10 @@ function shortDate(date) {
   return month && day ? `${month}/${day}` : '';
 }
 
+function signedNumber(value, digits) {
+  return `${value < 0 ? '−' : ''}${Math.abs(value).toFixed(digits)}`;
+}
+
 // Codex browser audit H16: "내리는 중" beside a +0.1pp month read as a contradiction. The mark names its window —
 // the latest 3-month average against the 3-month average six months earlier (indicators.js trendOf).
 const DIRECTION_MARK = Object.freeze({ up: '▲ 6개월 추세 상승', down: '▼ 6개월 추세 하락', flat: '― 6개월 추세 횡보' });
@@ -73,7 +77,7 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null } = {}) {
   const spanDays = Math.round((Date.parse(series[series.length - 1].date) - Date.parse(series[0].date)) / 86400000);
   const cadence = series.length >= 2 && spanDays / (series.length - 1) > 20 ? '월별' : '일별';
   const spanLabel = cadence === '월별' ? `${Math.min(Math.round(spanDays / 30.4), 999)}개월` : `${Math.min(Math.round(spanDays / 30.4), 999)}개월(일별 관측 ${series.length}개)`;
-  svg.setAttribute('aria-label', `최근 ${spanLabel} 추이 ${first}~${last}, 범위 ${rawLo.toFixed(1)}~${rawHi.toFixed(1)}${unitLabel}`);
+  svg.setAttribute('aria-label', `최근 ${spanLabel} 추이 ${first}~${last}, 범위 ${signedNumber(rawLo, 1)}~${signedNumber(rawHi, 1)}${unitLabel}`);
   return svg;
 }
 
@@ -91,7 +95,7 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   const { shown: metaShown, sources: metaSources } = splitMeta(meta);
   if (metaSources.length) card.title = `출처: ${metaSources.join(' · ')}`;
   const head = el(doc, 'div', null, 'macro-stat-head');
-  head.append(el(doc, 'h4', label, 'macro-stat-label'));
+  head.append(el(doc, 'h3', label, 'macro-stat-label'));
   if (direction) { const mark = el(doc, 'span', DIRECTION_MARK[direction], `macro-dir is-${direction}`); mark.title = DIRECTION_TITLE; head.append(mark); }
   card.append(head, el(doc, 'div', valueText, 'macro-stat-value'));
   lines.filter(Boolean).forEach((line) => card.append(el(doc, 'div', line, 'macro-stat-line')));
@@ -100,8 +104,8 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
     // P1599 (A05): the period's high and low in words under the line, so the shape has a scale (inside the SVG
     // the labels scaled with wide cards and collided with the date ticks).
     const values = series.map((row) => row.value).filter(Number.isFinite);
-    const fmtRange = (value) => (Math.abs(value) >= 100 ? value.toFixed(0) : Math.abs(value) >= 10 ? value.toFixed(1) : value.toFixed(2));
-    const suffix = unit === '%' ? '%' : '';
+    const fmtRange = (value) => signedNumber(value, Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 10 ? 1 : 2);
+    const suffix = unit || '';
     card.append(el(doc, 'p', `기간 고점 ${fmtRange(Math.max(...values))}${suffix} · 저점 ${fmtRange(Math.min(...values))}${suffix}`, 'macro-spark-range'));
   }
   if (status === 'stale') card.append(el(doc, 'span', '이번 수집 실패 · 직전 발표값', 'basis-chip is-off'));
@@ -148,7 +152,7 @@ export function gaugeBar(doc, g) {
   add('path', { d: `M${px - 6},4 L${px + 6},4 L${px},14 Z`, class: 'macro-gauge-pin' });
   add('line', { x1: px, x2: px, y1: 14, y2: 26, class: 'macro-gauge-needle' });
   const band = bandOf(g);
-  const valueText = `${g.value > 0 && g.min < 0 ? '+' : ''}${g.value.toFixed(g.digits)}${g.unit}`;
+  const valueText = `${g.value > 0 && g.min < 0 ? '+' : ''}${signedNumber(g.value, g.digits)}${g.unit}`;
   svg.setAttribute('aria-label', `${g.label}: ${valueText}${band ? `, ${TONE_WORD[band.tone]} 구간` : ''}${g.clipped ? ' (눈금 밖)' : ''}`);
   const wrap = doc.createElement('div');
   wrap.className = 'macro-gauge-wrap';
@@ -343,7 +347,7 @@ function renderCommodities(doc, root) {
       tags.append(el(doc, 'span', `${alignmentLabel(alignInput(last.date, basis))} 종가`, `basis-chip${alignInput(last.date, basis).status === 'aligned' ? '' : ' is-off'}`));
       box.append(tags, el(doc, 'div', `20일 ${signed(chg(20), 1, '%')} · 3개월 ${signed(chg(63), 1, '%')}${pos == null ? '' : ` · 1년 범위의 ${pos.toFixed(0)}% 위치`}`, 'trend-card-change'));
     }
-    box.append(createTrendChart(doc, { series: series.slice(-252), format: (value) => value.toFixed(0), label: title }));
+    box.append(createTrendChart(doc, { series: series.slice(-252), format: (value) => `${value.toFixed(0)}달러`, label: title }));
     box.append(el(doc, 'p', note, 'trend-card-note'));
     return box;
   };
@@ -512,12 +516,13 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
       const back63 = premium.length > 63 ? premium[premium.length - 64] : null;
       const year = premium.length > 200 ? lastPremium.value - premium[0].value : null;
       const ageDays = (Date.now() - Date.parse(`${lastPremium.date}T00:00:00Z`)) / 86400000;
+      const premiumLag = alignInput(lastPremium.date, model.basis).lag;
       levels.append(statCard(doc, {
         label: '10년 기간 프리미엄 (Kim-Wright)',
-        valueText: `${lastPremium.value.toFixed(2)}%`,
+        valueText: `${signedNumber(lastPremium.value, 2)}%`,
         lines: [back63 ? `3개월 ${signed(lastPremium.value - back63.value, 2, '%p')}` : null, year == null ? null : `1년 전보다 ${signed(year, 2, '%p')}`,
           tenYear ? `같은 날 10년 금리 ${tenYear.value.toFixed(2)}% 중 단기금리 예상분 약 ${(tenYear.value - lastPremium.value).toFixed(2)}%` : null],
-        meta: `${shortDate(lastPremium.date)} · FRED THREEFYTP10 (연준 이사회 모형)`,
+        meta: [shortDate(lastPremium.date), premiumLag ? `${premiumLag}거래일 전` : null, 'FRED THREEFYTP10 (연준 이사회 모형)'].filter(Boolean).join(' · '),
         note: '10년 금리 가운데 앞으로의 단기금리 예상이 아니라 오래 묶어 두는 위험에 대한 보상으로 추정되는 부분입니다. 관측값이 아닌 모형 추정치이고, 뉴욕 연준 ACM 등 다른 모형과는 수준이 다릅니다.',
         status: ageDays > 30 ? 'stale' : 'observed',
         series: premium.length >= 20 ? premium : null,
@@ -542,7 +547,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
           chipOff: align.status !== 'aligned',
           lines: card.available ? [`1일 ${signed(card.day, 2, '%')} · 20일 ${signed(card.change20, 1, '%')}`] : ['기록 수집 중'],
           series: card.series,
-          format: (value) => value.toFixed(card.digits === 1 ? 0 : 1),
+          format: (value) => `${value.toFixed(card.digits === 1 ? 0 : 1)}${card.unit || ''}`,
           note: card.id === 'usdjpy' ? model.carry.text : card.id === 'usdkrw' ? '원/달러가 오르면 원화 약세입니다.' : '주요 6개 통화 대비 달러 가치입니다.'
         });
       }),
@@ -554,7 +559,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         chipOff: tnxLast ? alignInput(tnxLast.date, model.basis).status !== 'aligned' : false,
         lines: [tnxLast && tnxBack ? `20일 ${signed((tnxLast.value - tnxBack.value) * 100, 0, 'bp')}` : null],
         series: model.tnx,
-        format: (value) => value.toFixed(1),
+        format: (value) => `${value.toFixed(1)}%`,
         note: '시세 제공처의 일별 종가입니다. 위 공식 고시값과 소수점 차이가 날 수 있습니다.'
       })
     ];

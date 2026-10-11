@@ -1,11 +1,23 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-10
+last_verified: 2026-10-11
 confidence: medium
-target_version: v57.32
+target_version: v57.37
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R703. 작은 UI 조작과 색 테마의 실행 계약 (v57.34, P1604)
+
+**Rule**: 동일 사용자 입력은 하나의 owner가 활성화한다. 설명 버튼은 element/event 인자와 aria-expanded를 함께 연결한다. 색 테마는 storage 실패에 독립적이며 현재 차트 색을 갱신하되 데이터·viewport를 바꾸지 않는다. 대표 상태 PASS를 모든 조작·대비·배포 검증으로 승격하지 않는다.
+
+**Validation**: node scripts/ci-theme-research-browser-check.mjs 및 실제 브라우저의 클릭·키보드·전환 관찰
+
+## R702. 뉴스 원본 식별·변경 이력 보존 (v57.33, P1601)
+
+**Rule**: 뉴스 중복 제거는 출처·원본 식별자·URL 쿼리·제목·내용·발행 시각·변경 관계가 같은 반복만 제거한다. 제목 유사도는 삭제 근거가 아니다. 사건 묶음은 동일 출처·issuer의 명시 사건 또는 정정 관계로 제한하며 원문 이력을 보존한다. 새 소식과 비동기 보조 데이터는 읽던 카드의 갱신 경계를 우회하지 않는다.
+
+**Validation**: node scripts/ci-reference-adoption-contract-check.mjs 및 node scripts/ci-reference-adoption-browser-check.mjs (P1601)
 
 ## R701. 운영 게이트와 전체 건강 상태 분리 (v57.32, P1596)
 
@@ -129,13 +141,13 @@ target_version: v57.32
 
 ## R681. All AIO AI shares one metered server credential boundary (v57.06, P1421)
 
-**Rule**: Chat, translation, automated analysis and deployment smoke call only the shared GPT-6 Luna Worker. No personal-key, direct Actions-provider or alternate paid-AI fallback bypasses it. Reserve conservative cost atomically against one UTC-month budget of at most $10 before dispatch. Verified complete usage may settle once; unknown, failed or cancelled receipts never create credit. Preserve the prior ledger and inactive stored-key protection. Reservation accounting is not a provider invoice or protection for other applications using the project. Unsupported paid tools/expansions fail closed. Published readiness must match provider/model.
+**Rule**: Chat, translation, automated analysis and deployment smoke call only the shared GPT-6 Luna Worker. No personal-key, direct Actions-provider or alternate paid-AI fallback bypasses it. Reserve conservative cost atomically against one UTC-month budget of at most $20 before dispatch (owner 2026-10-11). Conditional bounded OpenAI web search shares that budget; search reservations are retained until complete provider billing can be verified. Verified complete usage may settle once; unknown, failed or cancelled receipts never create credit. Preserve the prior ledger and inactive stored-key protection. Reservation accounting is not a provider invoice or protection for other applications using the project. Unsupported paid tools/expansions fail closed. Published readiness must match provider/model.
 
 **Validation**: P1421; ci-ai-budget-scope-check, ci-worker-anthropic-check, ci-data-pipeline-contract-check, ci-ai-chat-public-route-browser-check, ci-operations-status-check and exact-SHA deployment smoke.
 
 ## R680. Budget scope, reservation and invoice remain distinct (v56.87, P1353)
 
-**Rule**: The project targets $10/month and at most $20/month; AI allocation is at most $10 and paid data requires a demonstrated gap within its $10 allocation. Daily counts are not money. Shared-Worker monthly reservations are atomic and conservative, never labelled actual invoiced usage or full-account protection. Unsupported/unpriced paid modes fail explicitly; direct-key/Actions paths and provider-native cap requirements stay visible.
+**Rule**: Owner 2026-10-11 approved a shared AI allocation of at most $20/month including conditional search, superseding the prior $10 AI allocation. Prefer free data; additional paid data still requires a demonstrated gap and owner approval. Daily counts are not money. Shared-Worker monthly reservations are atomic and conservative, never labelled actual invoiced usage or full-account protection. Unsupported/unpriced paid modes fail explicitly; direct-key/Actions paths and provider-native cap requirements stay visible.
 
 **Validation**: P1353; ci-worker-anthropic-check, ci-worker-relay-check and ci-esm-core-unit-check.
 

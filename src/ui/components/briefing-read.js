@@ -1,8 +1,9 @@
 // P1389: one native owner for the briefing page — 일정 → 오늘의 해석 → 자산별 흐름 → 다음 확인.
 // Replaces the six-axis summary, the market strip, the checklist, the legacy analysis block, the
 // August research bridge and the news list (news now lives on the news screen).
-import { buildMarketRead } from '../../domain/briefing/market-read.js';
+import { alignInput, buildMarketRead } from '../../domain/briefing/market-read.js';
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
+import { ensureResearchSnapshots } from './research-snapshots.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -78,6 +79,12 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   if (!page) return;
   const snapshot = root.DATA_SNAPSHOT || {};
   const read = buildMarketRead(collectMarketInputs(root));
+  ensureResearchSnapshots({ documentRef: doc, root, host: page, kind: 'briefing', collect: () => ({
+    kind: 'briefing', sessionDate: read.asOf, publishedAt: root._serverDataMeta?.generatedAt || null,
+    version: root.AIO?.version || null, headline: read.headline || (read.available ? '두드러진 교차 신호 없음' : null),
+    interpretation: read.headlineReading, facts: read.facts || [],
+    checks: read.checks || [], source: 'AIO 종가 기록 · 정규화된 신용·금리 관측', sourceRevision: root._serverDataMeta?.cycleId || null
+  }) });
 
   // 1. Schedule
   // P1408: one request at a time; a failed or empty response clears the flag so a later render can
@@ -99,6 +106,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     snapshot,
     policyRange: root.AIO_EVENT_FRESHNESS_REGISTRY?.fomc?.policyRange || null,
     earnings: root._aioEarningsSnapshot?.earnings || [],
+    earningsMeta: root._aioEarningsSnapshot || {},
     names: universeNames(root),
     nowMs
   });
@@ -107,10 +115,11 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     scheduleRows.replaceChildren(...(schedule.length ? schedule.map((row) => {
       const item = el(doc, 'div', null, `briefing-event${row.today ? ' is-today' : ''}${row.passed ? ' is-passed' : ''}`);
       item.dataset.kind = row.kind;
+      item.dataset.eventId = row.id;
       const when = el(doc, 'span', row.status === 'received' ? `${row.when} · 발표됨` : row.status === 'time-passed' ? `${row.when} · 예정 시각 지남` : row.when, 'briefing-event-when');
       const body = el(doc, 'div', null, 'briefing-event-body');
       body.append(el(doc, 'span', row.label, 'briefing-event-label'));
-      const meta = [row.why, row.last].filter(Boolean).join(' · ');
+      const meta = [row.why, row.comparisonBasis, row.last].filter(Boolean).join(' · ');
       if (meta) body.append(el(doc, 'span', meta, 'briefing-event-meta'));
       item.append(when, body);
       return item;
@@ -130,6 +139,10 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   // 3. Drivers
   const drivers = doc.getElementById('briefing-driver-rows');
   renderMoveChart(doc, drivers, read.moves || []);
+  const observedOn = Object.fromEntries((read.facts || []).map((fact) => {
+    const alignment = fact.observedAt ? alignInput(fact.observedAt, read.asOf) : null;
+    return [fact.label, alignment && alignment.status !== 'aligned' ? shortDate(alignment.date) : null];
+  }));
   if (drivers) {
     drivers.replaceChildren(...(read.drivers || []).filter((row) => row.values.length).map((row) => {
       const box = el(doc, 'div', null, 'briefing-driver');
@@ -138,7 +151,8 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       const values = el(doc, 'div', null, 'briefing-driver-values');
       for (const [label, value] of row.values) {
         const pair = el(doc, 'span', null, 'briefing-driver-value');
-        pair.append(el(doc, 'span', label, 'briefing-driver-key'), doc.createTextNode(` ${value}`));
+        const ownDay = observedOn[label];
+        pair.append(el(doc, 'span', label, 'briefing-driver-key'), doc.createTextNode(` ${value}${ownDay ? ` · ${ownDay} 기준` : ''}`));
         values.append(pair);
       }
       box.append(values);

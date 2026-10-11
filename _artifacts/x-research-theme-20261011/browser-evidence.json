@@ -1,0 +1,1068 @@
+{
+  "schemaVersion": "aio-browser-evidence.v1",
+  "runId": "2026-10-11T03-39-57-531Z-15800-a9lnhy",
+  "observedAt": "2026-10-11T03:39:59.256Z",
+  "target": {
+    "gitHead": "9b07bee8d52ad2f7c60bc27c0d293250e6f7e843",
+    "version": "v57.34",
+    "contentDigest": "04b77387e02342b4ca8854d60eae59f5cb340069432cf1dba0349ffdbf53244a",
+    "digestScope": "src, js, scripts, architecture, public-data, index.html, sw.js, version.json, public-config.json"
+  },
+  "provider": {
+    "name": "playwright",
+    "version": "1.61.1",
+    "operation": "theme-research-journeys"
+  },
+  "environment": {
+    "mode": "headless-fixture",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "locale": "ko-KR",
+    "timezone": "Asia/Seoul",
+    "initialStateId": "isolated-local-artifacts",
+    "networkPolicy": "local-artifacts+two-pinned-chart-libraries; remote-data-blocked",
+    "fixtureDigest": "fad1b469b843a06d2c3c83ae96a8cafe21f5800ec0333e01e6fc690750f3db0d"
+  },
+  "normalization": {
+    "policyId": "none",
+    "policyHash": "f7f9def5026b0b72a321c383d1f18e7fe65ccae0c2242539fc8177153e002314",
+    "rules": []
+  },
+  "coverage": [
+    {
+      "screenId": "today",
+      "route": "home",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "market",
+      "route": "signal",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "macro",
+      "route": "macro",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "stock",
+      "route": "ticker",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "screener",
+      "route": "screener",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "portfolio",
+      "route": "portfolio",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "learn",
+      "route": "principles",
+      "stateId": "representative",
+      "status": "unverified",
+      "reason": "이번 시나리오에서 관찰하지 않음",
+      "stepIds": []
+    },
+    {
+      "screenId": "today",
+      "route": "home",
+      "stateId": "light-today",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "light-today"
+      ]
+    },
+    {
+      "screenId": "market",
+      "route": "signal",
+      "stateId": "light-market",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "light-market"
+      ]
+    },
+    {
+      "screenId": "macro",
+      "route": "macro",
+      "stateId": "light-macro",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "light-macro"
+      ]
+    },
+    {
+      "screenId": "stock",
+      "route": "ticker",
+      "stateId": "light-stock",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "light-stock"
+      ]
+    },
+    {
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "light-themes",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "light-themes"
+      ]
+    },
+    {
+      "screenId": "screener",
+      "route": "screener",
+      "stateId": "light-screener",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "light-screener"
+      ]
+    },
+    {
+      "screenId": "portfolio",
+      "route": "portfolio",
+      "stateId": "light-portfolio",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "light-portfolio"
+      ]
+    },
+    {
+      "screenId": "learn",
+      "route": "principles",
+      "stateId": "light-learn",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "light-learn"
+      ]
+    },
+    {
+      "screenId": "today",
+      "route": "home",
+      "stateId": "dark-today",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "dark-today"
+      ]
+    },
+    {
+      "screenId": "market",
+      "route": "signal",
+      "stateId": "dark-market",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "dark-market"
+      ]
+    },
+    {
+      "screenId": "macro",
+      "route": "macro",
+      "stateId": "dark-macro",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "dark-macro"
+      ]
+    },
+    {
+      "screenId": "stock",
+      "route": "ticker",
+      "stateId": "dark-stock",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "dark-stock"
+      ]
+    },
+    {
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "dark-themes",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "dark-themes"
+      ]
+    },
+    {
+      "screenId": "screener",
+      "route": "screener",
+      "stateId": "dark-screener",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "dark-screener"
+      ]
+    },
+    {
+      "screenId": "portfolio",
+      "route": "portfolio",
+      "stateId": "dark-portfolio",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "dark-portfolio"
+      ]
+    },
+    {
+      "screenId": "learn",
+      "route": "principles",
+      "stateId": "dark-learn",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "dark-learn"
+      ]
+    },
+    {
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "tooltip-keyboard",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "tooltip-keyboard"
+      ]
+    },
+    {
+      "screenId": "stock",
+      "route": "technical",
+      "stateId": "stock-chart-recolor",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "stock-chart-recolor"
+      ]
+    },
+    {
+      "screenId": "stock",
+      "route": "technical",
+      "stateId": "theme-storage-refusal",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "theme-storage-refusal"
+      ]
+    },
+    {
+      "screenId": "learn",
+      "route": "principles",
+      "stateId": "research-note",
+      "status": "observed",
+      "reason": "",
+      "stepIds": [
+        "research-note"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "stepId": "light-today",
+      "screenId": "today",
+      "route": "home",
+      "stateId": "light-today",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to home in light"
+      },
+      "readyCondition": "#page-home visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "light mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-home",
+          "digest": "99f45438dddd2c4a64c4894916cacbf9090facb3074cad0e68b95716b2404d92"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/light-today.png",
+          "digest": "6dc9d35e7e5bb59a235233fbdc5251c066cacc37e795bfd899173f277a80d474"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "light-market",
+      "screenId": "market",
+      "route": "signal",
+      "stateId": "light-market",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to signal in light"
+      },
+      "readyCondition": "#page-signal visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "light mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-signal",
+          "digest": "9f1783482b365a5c23dbf293ca6cf84c973705ed4cce7f7618c5456a2db2b4db"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/light-market.png",
+          "digest": "3644ba750c53af85154357c6ed1e90286c5975b939323025e289dadc986460ec"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "light-macro",
+      "screenId": "macro",
+      "route": "macro",
+      "stateId": "light-macro",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to macro in light"
+      },
+      "readyCondition": "#page-macro visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "light mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-macro",
+          "digest": "01986811562d26a83a158c10b3a085103239baf66b8a8cd8dd96cff214b82ab4"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/light-macro.png",
+          "digest": "d56ca40abc51532ed6d72f9865eba3b710ff4978ff59a99eb5a412de66cd17c9"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "light-stock",
+      "screenId": "stock",
+      "route": "ticker",
+      "stateId": "light-stock",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to ticker in light"
+      },
+      "readyCondition": "#page-ticker visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "light mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-ticker",
+          "digest": "3cbce8b9a38b4622b273ca77abdd0688a695e92eca2a045bc79c1ef593fad07d"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/light-stock.png",
+          "digest": "3cf2b904ddf1060f12b88551ebb4f0105e98caac93bea917850db075b2762881"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "light-themes",
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "light-themes",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to themes in light"
+      },
+      "readyCondition": "#page-themes visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "light mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-themes",
+          "digest": "7c7e7d54468a08117574efedb3791747a02bc903d8c548031c357dc04d17c0d5"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/light-themes.png",
+          "digest": "f371eb1057f4b9744e07b921b1fde6d82d444a123dd677649f65a0afc52485d7"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "light-screener",
+      "screenId": "screener",
+      "route": "screener",
+      "stateId": "light-screener",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to screener in light"
+      },
+      "readyCondition": "#page-screener visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "light mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-screener",
+          "digest": "91c8cf832e30f196ac2fe8b636be86e3c5734bfc6f808a0d4af77ca1a169b05e"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/light-screener.png",
+          "digest": "87094104acdcd1d006d72f42e8e8e34d8ab070461136de5aac41f13490c7ea55"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "light-portfolio",
+      "screenId": "portfolio",
+      "route": "portfolio",
+      "stateId": "light-portfolio",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to portfolio in light"
+      },
+      "readyCondition": "#page-portfolio visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "light mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-portfolio",
+          "digest": "f9a34fae7bd8d3ef666cc96bff25d2593da311419f660c24c55c6771cbefc90f"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/light-portfolio.png",
+          "digest": "1d9b759cc57a5a48d74f078365e41deef03db1d5d96feef86d60ebd91530330e"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "light-learn",
+      "screenId": "learn",
+      "route": "principles",
+      "stateId": "light-learn",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to principles in light"
+      },
+      "readyCondition": "#page-principles visible and native route mounted; note heading visible",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "light mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-principles",
+          "digest": "a5519af7c6109fd2e74b75cb726103910a76e936af1f01da7d388c83a601e621"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/light-learn.png",
+          "digest": "1fb00e0bd3afd592f1cc98779393d09d88bca93a0b0ac650d02d69af38b895bb"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "dark-today",
+      "screenId": "today",
+      "route": "home",
+      "stateId": "dark-today",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to home in dark"
+      },
+      "readyCondition": "#page-home visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "dark mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-home",
+          "digest": "4dd0d5d8acbbd4491251ae2a9ea038345bd7b74c908ea4cde4fd73c82b15acc3"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/dark-today.png",
+          "digest": "31870568a4e54bb3a334c8020dfa2c7eacf46f1e5d1ee05e6e5021df3e0b4499"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "dark-market",
+      "screenId": "market",
+      "route": "signal",
+      "stateId": "dark-market",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to signal in dark"
+      },
+      "readyCondition": "#page-signal visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "dark mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-signal",
+          "digest": "8d9642da2b3d6e193fa91a64163842f5091573ff56a80c2e8bace4bf9fb278ae"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/dark-market.png",
+          "digest": "fc6a261fb475d0d56f47f73bd2dcadf3d64ac66de382beba66992b18f44f66e4"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "dark-macro",
+      "screenId": "macro",
+      "route": "macro",
+      "stateId": "dark-macro",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to macro in dark"
+      },
+      "readyCondition": "#page-macro visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "dark mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-macro",
+          "digest": "01986811562d26a83a158c10b3a085103239baf66b8a8cd8dd96cff214b82ab4"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/dark-macro.png",
+          "digest": "6ea8f4e7bacaf94f9783ee68b11f11c321b8786acc9d486d3d22361fb5f2a94b"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "dark-stock",
+      "screenId": "stock",
+      "route": "ticker",
+      "stateId": "dark-stock",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to ticker in dark"
+      },
+      "readyCondition": "#page-ticker visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "dark mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-ticker",
+          "digest": "3cbce8b9a38b4622b273ca77abdd0688a695e92eca2a045bc79c1ef593fad07d"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/dark-stock.png",
+          "digest": "85228f6eda4eb8765eb07298ece6d4dae2c0e1f28646829a2f624626d8ede389"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "dark-themes",
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "dark-themes",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to themes in dark"
+      },
+      "readyCondition": "#page-themes visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "dark mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-themes",
+          "digest": "7c7e7d54468a08117574efedb3791747a02bc903d8c548031c357dc04d17c0d5"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/dark-themes.png",
+          "digest": "535e54fa37ce63bf1fea2299c1cbf206fa62e2343e9dba6c72c4d2e90bb4b09a"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "dark-screener",
+      "screenId": "screener",
+      "route": "screener",
+      "stateId": "dark-screener",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to screener in dark"
+      },
+      "readyCondition": "#page-screener visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "dark mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-screener",
+          "digest": "b0b0589d30ddbd5d13f44f4edec059b145afde7cabc3d9a389da692fea9c22e3"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/dark-screener.png",
+          "digest": "6032d5148dec92494158f5cd1c2868152da331587a96b75dd122add9c2872344"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "dark-portfolio",
+      "screenId": "portfolio",
+      "route": "portfolio",
+      "stateId": "dark-portfolio",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to portfolio in dark"
+      },
+      "readyCondition": "#page-portfolio visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "dark mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-portfolio",
+          "digest": "f9a34fae7bd8d3ef666cc96bff25d2593da311419f660c24c55c6771cbefc90f"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/dark-portfolio.png",
+          "digest": "242248af21b3115fb157e1562583b6d3f14377b769aa633bda36e5c5a45270f9"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "dark-learn",
+      "screenId": "learn",
+      "route": "principles",
+      "stateId": "dark-learn",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "navigate to principles in dark"
+      },
+      "readyCondition": "#page-principles visible and native route mounted; note heading visible",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "dark mode representative screen mounted",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-principles",
+          "digest": "82fb07923aa6afb2eb1da6443e978238b0d6e16b389b18e654ee00ea311e5494"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/dark-learn.png",
+          "digest": "7deee685dd73bc00fbbf660782052b2d0552e8d774bdcb22a5f4f34512c6960f"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "tooltip-keyboard",
+      "screenId": "themes",
+      "route": "themes",
+      "stateId": "tooltip-keyboard",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "click, Escape, Enter, Space"
+      },
+      "readyCondition": "#page-themes visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "one state transition per input",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-themes",
+          "digest": "51476c4b116de1467f764ebc26c3bbca21abdfeb6f13a268fdca2256fbdf9ef5"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/tooltip-keyboard.png",
+          "digest": "acffdc13c1935916a0ca2222be9efedca345d3520a6177b9d1f29a233cc52330"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "stock-chart-recolor",
+      "screenId": "stock",
+      "route": "technical",
+      "stateId": "stock-chart-recolor",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "toggle existing chart from dark to light"
+      },
+      "readyCondition": "#page-technical visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "axis colors updated; logical range retained",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-technical",
+          "digest": "ea5d3e7b58a5db592418a9e752dfe5942d27f2a77b421132e7e03ff8fd0fa6a8"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/stock-chart-recolor.png",
+          "digest": "4ec2671c40c8d407c80d994e3b0590abb844412c8c7aef419780be1569dce661"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "theme-storage-refusal",
+      "screenId": "stock",
+      "route": "technical",
+      "stateId": "theme-storage-refusal",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "toggle with rejected persistence"
+      },
+      "readyCondition": "#page-technical visible and native route mounted",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "visible dark mode and chart update continue",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-technical",
+          "digest": "ea5d3e7b58a5db592418a9e752dfe5942d27f2a77b421132e7e03ff8fd0fa6a8"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/theme-storage-refusal.png",
+          "digest": "608402d43d0ff34f1516ad355ca19be9353bf3d4ccf9ee4c98cfabc1640a302d"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    },
+    {
+      "stepId": "research-note",
+      "screenId": "learn",
+      "route": "principles",
+      "stateId": "research-note",
+      "entity": null,
+      "initialCondition": "isolated-local-artifacts",
+      "action": {
+        "type": "journey",
+        "target": "open all five supplied reasoning notes"
+      },
+      "readyCondition": "#page-principles visible and native route mounted; note heading visible",
+      "readyObserved": true,
+      "status": "observed",
+      "authority": "headless-fixture",
+      "claimType": "text",
+      "captureSelection": [
+        "dom",
+        "screenshot"
+      ],
+      "expected": "visible state and asserted operation",
+      "actual": "five notes show mechanisms, examples and counter-paths",
+      "evidence": [
+        {
+          "kind": "dom",
+          "locator": "#page-principles",
+          "digest": "8f2148f2dbebee1ec9408a145ccdf474bf37c57664da78184674ca2d11c2d94c"
+        },
+        {
+          "kind": "screenshot",
+          "path": ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy/browser-theme-research-1bbb2af5c4/research-note.png",
+          "digest": "7670b4e1e1547a06dae0852f4c93b2b8c9ca8688f8bd2bbf1efb457240320b78"
+        }
+      ],
+      "limitations": [
+        "representative state, not every control or semantic/contrast certification"
+      ]
+    }
+  ],
+  "semanticReview": {
+    "status": "unverified",
+    "reason": "자동 브라우저 관찰은 한국어 의미·미적 품질·운영 공급자를 인증하지 않음"
+  },
+  "limitations": [
+    "로컬 격리 fixture 관찰. 실제 사용자 계정·보유정보·외부 API는 사용하지 않음"
+  ]
+}

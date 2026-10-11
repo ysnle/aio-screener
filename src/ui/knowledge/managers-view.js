@@ -23,20 +23,29 @@ export function renderManagersPage(doc, { root, catalog, registry, selectedId, o
   nav.appendChild(top);
   const nameById = new Map((registry || []).map((manager) => [manager.id, manager]));
   const grouped = new Map(STYLE_FRAMES.map((frame) => [frame.id, []]));
+  const methodOnly = [];
   for (const manager of catalog?.managers || []) {
-    const frame = styleFrameOf(manager.style);
-    if (frame && nameById.has(manager.id)) grouped.get(frame.id).push(nameById.get(manager.id));
+    const listed = nameById.get(manager.id);
+    if (!listed) continue;
+    if (listed.type === 'METHOD_ONLY') methodOnly.push(listed);
+    else {
+      const frame = styleFrameOf(manager.style);
+      if (frame) grouped.get(frame.id).push(listed);
+    }
   }
-  for (const frame of STYLE_FRAMES) {
-    const managers = grouped.get(frame.id) || [];
-    if (!managers.length) continue;
+  const appendGroup = (label, managers) => {
     const group = el(doc, 'div', 'rl-nav-group');
-    const head = el(doc, 'p', 'rl-nav-title', frame.label);
+    const head = el(doc, 'p', 'rl-nav-title', label);
     head.appendChild(el(doc, 'span', null, String(managers.length)));
     group.appendChild(head);
     managers.forEach((manager) => group.appendChild(navButton(doc, manager.name, { active: !overview && manager.id === selectedId, action: 'select-manager', value: manager.id, sub: true })));
     nav.appendChild(group);
+  };
+  for (const frame of STYLE_FRAMES) {
+    const managers = grouped.get(frame.id) || [];
+    if (managers.length) appendGroup(frame.label, managers);
   }
+  if (methodOnly.length) appendGroup('방법론 참고(13F 미신고)', methodOnly);
   if (overview) {
     const article = el(doc, 'article', 'af-article');
     article.append(el(doc, 'p', 'af-kicker', '운용사·13F'), el(doc, 'h2', 'af-issue', '돈을 굴리는 방식별로 13F 읽기'),
@@ -59,7 +68,7 @@ export function renderManagersPage(doc, { root, catalog, registry, selectedId, o
     const peers = (groupManagersByStyle(catalog?.managers || []).get(frame.id) || []);
     if (peers.length > 1) {
       const peersBox = asideBlock(doc, '같은 방식의 운용사');
-      (catalog?.managers || []).filter((manager) => styleFrameOf(manager.style)?.id === frame.id && manager.id !== selectedId && nameById.has(manager.id)).forEach((manager) => peersBox.appendChild(navButton(doc, nameById.get(manager.id).name, { action: 'select-manager', value: manager.id })));
+      (catalog?.managers || []).filter((manager) => styleFrameOf(manager.style)?.id === frame.id && manager.id !== selectedId && nameById.has(manager.id) && nameById.get(manager.id).type !== 'METHOD_ONLY').forEach((manager) => peersBox.appendChild(navButton(doc, nameById.get(manager.id).name, { action: 'select-manager', value: manager.id })));
       aside.appendChild(peersBox);
     }
   }

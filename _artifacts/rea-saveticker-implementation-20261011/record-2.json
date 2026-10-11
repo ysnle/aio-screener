@@ -1,0 +1,29 @@
+{
+  "version": "v57.33",
+  "date": "2026-10-11",
+  "p": {
+    "id": 1602,
+    "title": "일정·공시 근거와 불변 로컬 리서치 저장",
+    "symptom": "일정 식별자에 날짜가 없고 예상치 비교 기준이 불명확했다. SEC 보고서에서 검증된 원문 연결과 명시 저장본이 없었다. 초안 저장은 다른 종목·미래 provenance와 섞일 위험이 있었다.",
+    "root_cause": "event identity·EPS 출처/기간과 화면 값/관측 provenance가 한 계약으로 전달되지 않았고 저장 당시 근거를 고정하는 allowlist가 없었다.",
+    "fix": "날짜·발표 세션 ID와 실제 우선 중복 처리, KST/현지 기준·예상 출처/단위/기간을 유지한다. CIK/accession 검증 SEC 링크를 제공한다. 브리핑·종목 메모는 사용자 명시 저장으로 불변 content hash를 보관하며 build/save 시각은 메타데이터에만 둔다. 종목별 초안을 분리하고 오류 저장본·quota를 보존한다. 도메인의 필터된 값과 provenance를 함께 저장한다.",
+    "violated_rule": "P1370 내용 해시, R670 기준일, R618 근거 수준.",
+    "prevention": "ci-reference-adoption-contract-check가 {P} 미래 관측·F&G history·오류 저장본·내용 해시·개인 보유정보 배제·일정/SEC를 검증하고 browser gate가 issuer 초안 분리와 저장 가격 고정을 확인한다.",
+    "verification": "로컬 계약과 isolated browser fixture PASS. 실제 과거 브리핑 자동 생성·기기 동기화는 구현 대상이 아니며 공급자 미제공 값은 추정하지 않는다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-REFERENCE-SNAPSHOT-01",
+      "text": "저장한 근거의 값/시각/출처 일치, 내용 불변, 종목 초안 분리, 오류·quota와 일정·SEC 식별을 검증한다.",
+      "verify_by": "node scripts/ci-reference-adoption-contract-check.mjs && node scripts/ci-reference-adoption-browser-check.mjs",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**일정·공시·저장본 ({P}):** 이벤트 식별/예상치 기준, SEC 원문 링크, 브리핑 보관과 종목별 근거 메모를 native 계약으로 연결."
+  ],
+  "qa_section": "REA·SaveTicker 참조 적용",
+  "note": "뉴스 사건·정정·정확 issuer, 일정·SEC·불변 로컬 저장본, bounded browser QA 구현. 로컬 검증; commit/push/deploy 미실행.",
+  "status": null
+}

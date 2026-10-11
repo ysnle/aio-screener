@@ -1,0 +1,205 @@
+{
+  "audit": "AIO Screener #themes / #theme-detail runtime check",
+  "runDate": "2026-10-11",
+  "lastUsSession": "2026-10-09 (금 종가)",
+  "server": "http://127.0.0.1:8931 (외부 관리, 본 감사는 읽기만)",
+  "run": {
+    "script": "scratchpad/theme-audit.mjs (Node + Playwright, 1회 실행)",
+    "routes": ["#themes", "#theme-detail"],
+    "perRouteWaitMs": 5000,
+    "screenshots": [
+      "C:/Projects/AIO/_artifacts/frontend-full-audit-20261011/theme-themes.png",
+      "C:/Projects/AIO/_artifacts/frontend-full-audit-20261011/theme-theme-detail.png"
+    ],
+    "rawCapture": [
+      "scratchpad/theme-run.json (DOM/텍스트 추출 원본)",
+      "scratchpad/expected.json (데이터 기대값 추출 원본)"
+    ]
+  },
+  "dataBasisUsed": {
+    "rotation": {
+      "file": "public-data/data.json",
+      "keyPath": "rotationHistory",
+      "schema": "rotation-history.v1 / rrg.v2",
+      "latestCompletedSession": "2026-10-09",
+      "status": "CURRENT",
+      "generatedAt": "2026-10-10T13:36:15.292Z",
+      "symbols": 31,
+      "note": "#themes 섹터 바·사분면·핀의 실제 근거. pct는 items[SYM].dailyPct."
+    },
+    "marketSnapshot": {
+      "file": "public-data/market-snapshot.json",
+      "quoteCount": 16,
+      "metricIds": ["market.index.spx", "market.index.nasdaq", "market.index.dow", "market.index.russell2000", "market.volatility.vix", "market.volatility.vix3m", "market.index.kospi", "market.index.kosdaq", "market.fx.usdkrw", "market.rates.us10y", "market.rates.us13w", "market.fx.dxy", "market.commodity.wti", "market.commodity.gold", "market.crypto.btc", "market.crypto.eth"],
+      "sectorKeys": [],
+      "containsSectorToken": false,
+      "note": "섹터 데이터가 파일에 존재하지 않음 → 확인포인트 (1)의 대조 대상이 없음."
+    },
+    "screener": { "file": "public-data/screener.json", "keyPath": "data[SYMBOL]", "note": "3개월/1개월 흐름·브레드스 근거(상세 패널 flow, 하위 테마 순위)" },
+    "history": { "file": "public-data/history.json", "shape": "array(420)", "note": "RRG 네이티브 계산 입력" },
+    "clientQuotes": "data.json quotes 비어 있음(meta.quotesPublished=false, quotePolicy=client-direct-fetch-only(P715)) → 구성종목 가격은 브라우저가 외부에서 직접 받아야 함"
+  },
+  "findings": [
+    {
+      "id": "THEME-B1",
+      "grade": "B",
+      "route": "#themes",
+      "location": "RRG 사분면 칩('XLV 헬스케어 +1.58%') → 상세 패널 헤더('헬스케어/제약 · XLV')",
+      "expected": "동일 테마(themId=healthcare)의 표시 라벨은 화면 간 동일해야 함. 정의 라벨 근거: window.THEME_MAP['healthcare'].name = '헬스케어/제약' (public-data/data.json 정의 기반 클라이언트 상수)",
+      "expectedKeyPath": "window.THEME_MAP[healthcare].name / sector 정의 label '헬스케어'",
+      "actual": "칩은 '헬스케어', 상세 패널은 '헬스케어/제약'으로 같은 테마를 다른 이름으로 표기. 같은 패턴이 XLP('필수소비' 핀) vs 정의 라벨 '필수소비재'에도 존재",
+      "fixDirection": "sectors 정의와 themes 정의의 라벨을 단일 소스로 통합하거나, 칩 라벨을 상세 라벨의 축약임을 명시(예: 칩 title에 정식 라벨). 상세 패널 헤더에는 id/ETF(XLV)가 있으므로 칩에도 동일 ETF를 노출",
+      "confidence": "중간"
+    },
+    {
+      "id": "THEME-B2",
+      "grade": "B",
+      "route": "#themes (상세 패널)",
+      "location": "#theme-detail-native-summary 3행 provenance: '시세 관측 · AIO 참고 테마 분류 · 구성 기준 2026-10-10'",
+      "expected": "가격 근거(rotationHistory.latestCompletedSession)는 2026-10-09 종가. 구성 기준일은 시장 세션이 존재하는 날 또는 '구성 분류 버전' 기준으로 표기",
+      "expectedKeyPath": "public-data/data.json:rotationHistory.latestCompletedSession='2026-10-09' / data.json:meta.artifactGeneratedAt='2026-10-10T15:23:15.089Z'",
+      "actual": "'구성 기준 2026-10-10' — 2026-10-10은 토요일(비거래일)이며 데이터 아티팩트 생성일과 동일. 같은 줄에 10/9 종가 기준 가격 수치가 병기되어 있어 독자가 가격 기준일을 10/10으로 오독할 수 있음",
+      "fixDirection": "구성 기준(테마 분류 as-of)과 가격 기준일을 분리 표기: '가격: 2026-10-09 미국 종가 · 분류: 2026-10-10' 처럼 각각의 basis를 이름 붙이고, 값 옆에는 세션 날짜만 노출",
+      "confidence": "중간"
+    },
+    {
+      "id": "THEME-C1",
+      "grade": "C",
+      "route": "#themes",
+      "location": "#sector-perf-bars (11개 섹터 성과 바) + #sector-perf-analysis 요약 문장",
+      "expected": "가격 성과 블록은 기준 세션(2026-10-09 미국 정규장 종가)을 표기해야 함. 값 근거: rotationHistory.items[SYM].dailyPct, sessionDate=2026-10-09",
+      "expectedKeyPath": "public-data/data.json:rotationHistory.items.XLRE.dailyPct=1.86046512 / sessionDate=2026-10-09 / latestCompletedSession=2026-10-09",
+      "actual": "바와 요약 문장('섹터 ETF 1일 가격 성과 · 강세 부동산 +1.86% …')에 기준일이 전혀 없음. 페이지 내 유일한 기준일 표기는 별도 블록인 하위 테마 순위의 '10/9 미국 종가 기준'이며, 사분면 범례는 '완료 종가, 30거래일 이상'이라고만 표기",
+      "fixDirection": "섹터 바 섹션 헤더에 '10/9 미국 정규장 종가 기준'(rotationHistory.latestCompletedSession 기반 동적 표기)과 '완료 종가' 배지를 넣고, 요약 문장에도 동일 세션을 명시",
+      "confidence": "높음"
+    },
+    {
+      "id": "THEME-C2",
+      "grade": "C",
+      "route": "#themes (상세 패널)",
+      "location": "상세 패널 provenance 첫 항목 '시세 관측' 및 하단 리더/구성/브레드스/벤치마크의 '시세 대기' 상태",
+      "expected": "라이브 시세가 하나도 수신되지 않은 상태(window._liveData는 16개 광역 지표만, 구성종목 시세 0건)에서는 상태칩이 '완료 종가 기준'임을 말해야 함",
+      "expectedKeyPath": "public-data/data.json:meta.quotesPublished=false, meta.quotePolicy='client-direct-fetch-only(P715)'; DOM: 대장주 26종목 전부 '가격 대기 / 등락률 대기'",
+      "actual": "상태칩은 '시세 관측'이라고 단정하지만 같은 패널 안 모든 종목 카드·브레드스·스프레드·벤치마크가 '시세 대기'이며, 실제 근거는 완료 종가 아티팩트(rotationHistory)임. 사용자 입장에서 '시세가 관측됐다'와 '시세 대기'가 한 화면에 충돌",
+      "fixDirection": "source가 produced-rotation일 때 칩 문구를 '완료 종가 기준(10/9)'으로, 라이브 미수신이면 '라이브 시세 대기'를 별도 칩으로 분리(현재 data-source-kind/operational-use 속성은 있으나 사람이 읽는 문구가 basis를 말하지 않음)",
+      "confidence": "중간"
+    },
+    {
+      "id": "THEME-C3",
+      "grade": "C",
+      "route": "#themes",
+      "location": "#kr-themes-artifact-read / #kr-themes-summary ('한국 시장 — 국내 테마 (KRX 28개 중 28개 테마를 완료 종가로 비교)')",
+      "expected": "KR 비교의 기준 세션(예: 2026-10-09 KRX 종가)이 명시되어야 함. 참고: market-snapshot.json:market.index.kospi.observedAt=2026-10-08",
+      "expectedKeyPath": "public-data/market-snapshot.json:quotes[market.index.kospi].observedAt='2026-10-08T11:05:40.000Z' (KR 지수 기준일이 10/9가 아님)",
+      "actual": "'완료 종가'라고만 표기하고 날짜 없음. 같은 페이지의 미국 기준 표기(10/9)와 KR 마지막 세션이 다를 수 있는데(KR 지표는 10/8 관측) 구분 정보가 없음",
+      "fixDirection": "KR 테마 블록 헤더에 KRX 완료 세션 날짜를 노출하고, 미국 세션과 다를 경우 'KR 10/9 · US 10/9' 형태로 병기",
+      "confidence": "중간"
+    },
+    {
+      "id": "THEME-D1",
+      "grade": "D",
+      "route": "#theme-detail (직접 딥링크)",
+      "location": "라우트 해석 결과: 표시 페이지 = page-themes (page-theme-detail은 display:none)",
+      "expected": "URL #theme-detail은 테마 상세 화면을 렌더하거나, 상세가 지원되지 않으면 명시적 안내/리다이렉트를 해야 함",
+      "expectedKeyPath": "src/ui/pages/themes.js:createThemesPage({route}) — route==='themes'일 때만 네이티브 렌더, 레거시 #page-theme-detail 마크업은 숨김 상태 유지",
+      "actual": "딥링크 진입 시 화면은 #themes 대시보드이고, 상세 패널은 직전 세션에서 선택했던 테마(healthcare) 상태를 그대로 들고 표시됨 → URL이 화면 내용을 결정하지 못함(세션 의존). 상세 전용 화면(#page-theme-detail: '테마 상세 분석 — 대장주·구성종목…')은 hidden",
+      "fixDirection": "#theme-detail → 테마 선택 파라미터(예: #theme-detail/healthcare)를 URL에 포함해 상태없는 진입에서도 같은 테마 상세를 열고, 선택이 없으면 테마 선택 안내 상태를 렌더. 레거시 상세 페이지를 폐기했다면 라우트를 정리(현재는 숨은 채 DOM에 잔존)",
+      "confidence": "중간",
+      "caveat": "같은 문서 내 hash 내비게이션으로 검증되어 완전 콜드 로드(cold load)는 미검증(도구 한도)."
+    },
+    {
+      "id": "THEME-D2",
+      "grade": "D",
+      "route": "#themes (상세 패널)",
+      "location": "#theme-detail-panel 내 컨트롤 — 유일한 컨트롤이 '← 선택한 목록으로'(클래스 theme-detail-return)이며 닫기 버튼이 없음",
+      "expected": "패널을 닫아 원래 목록으로 돌아가고 선택 상태를 해제하는 명시적 닫기 컨트롤(또는 Esc)이 있어야 함",
+      "expectedKeyPath": "src/ui/pages/themes.js의 onThemeDetailClosed가 'aio:themeDetailClosed' 이벤트로만 동작 — 페이지 내에 이를 디스패치하는 클릭 컨트롤이 없음(data-action*=close / .theme-detail-close 검색 결과 0건)",
+      "actual": "패널을 닫을 수 있는 UI가 없어 '닫기 후 재선택' 경로를 실행할 수 없었음. 대신 다른 테마를 재선택하면 패널이 정상 교체됨(잔상 없음: 이전 테마 라벨 '에너지'가 새 패널/요약에 남지 않음, 패널 data-current-theme=healthcare로 갱신)",
+      "fixDirection": "패널 헤더에 닫기(X) 버튼을 두고 aio:themeDetailClosed를 디스패치하도록 연결. '← 선택한 목록으로'는 스크롤 복귀용으로 유지",
+      "confidence": "중간"
+    },
+    {
+      "id": "THEME-D3",
+      "grade": "D",
+      "route": "#themes",
+      "location": "#rrg-quadrant-cards 선도 사분면의 XLK(기술) 칩 — data-detail-availability='summary-only' (점선 칩), 상세 제공 10개/11개",
+      "expected": "당일 선도 1위 섹터(기술/XLK)도 다른 섹터와 동일하게 상세로 이어지거나, 이유가 값 옆에 있어야 함",
+      "expectedKeyPath": "src/ui/pages/themes.js:resolveThemeDetailId — THEME_MAP에 etf/compositeBase='XLK'인 테마가 없어(null) 상세 없음; 상세 있는 섹터: XLE, XLV, XLRE, XLY, XLF, XLU, XLI, XLB, XLP, XLC",
+      "actual": "XLK 칩은 버튼이 아니라 '하위 테마 순위로 스크롤'만 수행. 요약 범례에 '점선 칩 1개는 하위 테마 순위로 연결됩니다'로 안내되지만, 선도 사분면(=그날 시장을 끌어올린 섹터)에서 '업종 → 이유 → 종목' 경로가 끊김",
+      "fixDirection": "기술(XLK) 섹터에 테마 상세(예: software/semiconductor 묶음 '기술' 상세) 또는 'XLK 내 하위 테마 상위 5개' 요약 패널을 제공해 선도 섹터도 동일 깊이로 연결",
+      "confidence": "높음"
+    },
+    {
+      "id": "THEME-D4",
+      "grade": "D",
+      "route": "#theme-detail",
+      "location": "숨겨진 레거시 #page-theme-detail 헤더: '판단 보류 · 필수 현재성 근거 미수신 · 데이터: 미수신 · 공통컷 지연 10/10/08:00 KST · 시점 불일치'",
+      "expected": "표시되는 화면의 상태와 DOM에 남는 상태가 모순되지 않아야 함(라이브 시세 없음은 맞지만, 완료 종가 10/9 데이터는 수신된 상태)",
+      "expectedKeyPath": "DOM: #page-theme-detail display:none 이지만 텍스트 잔존; 동일 문서에서 #theme-detail-native-summary 는 '구성 기준 2026-10-10' 데이터를 표시",
+      "actual": "레이아웃에는 보이지 않지만 '데이터: 미수신 · 시점 불일치' 문구가 DOM에 남아 있고, 같은 URL에서 네이티브 패널은 10/9 데이터를 정상 표시 — 두 문구가 정면 충돌(스크린리더/텍스트 추출/후속 라우트 재사용 시 노출 위험)",
+      "fixDirection": "폐기된 상세 페이지의 상태 배지를 DOM에서 제거하거나 실제 상태 소스와 연결. '미수신'은 라이브 시세 부재를 뜻하므로 'live 시세 미수신 · 완료 종가 10/9 표시 중'으로 구체화",
+      "confidence": "중간"
+    }
+  ],
+  "counts": { "A": 0, "B": 2, "C": 3, "D": 4, "total": 9 },
+  "checks": [
+    {
+      "check": "1. 섹터 성과 바 ↔ market-snapshot 섹터 값·기준일",
+      "status": "대조 불가(BLOCKED) — 대체 근거로 전 11섹터 일치 확인",
+      "detail": "market-snapshot.json에는 섹터 필드가 존재하지 않음(sectorKeys=[], 'sector' 토큰 0회, quotes 16건은 지수/변동성/FX/금리/원자재/크립토). 대신 data.json:rotationHistory.items[*].dailyPct(2026-10-09)와 대조: XLRE 1.86/1.86046512 · XLV 1.58/1.57588011 · XLY 1.02/1.02049951 · XLF 0.92/0.92199889 · XLU 0.83/0.82785488 · XLK 0.51/0.5056123 · XLI 0.50/0.50475059 · XLB 0.32/0.32474122 · XLP 0.01/0.01198753 · XLE -0.25/-0.24524831 · XLC -1.51/-1.50798608 — 11/11 반올림 일치(오차 0). 사분면 배지도 11/11 일치(선도 XLK·XLE, 약화 XLV, 후행 8개)."
+    },
+    {
+      "check": "2. 테마 카드 → 상세 패널 동일 테마 여부",
+      "status": "PASS",
+      "detail": "클릭1) 'XLE 에너지 -0.25%'(arg=energy) → 패널 data-current-theme=energy, 요약 '에너지 · XLE -0.25%'. 클릭2) 'XLV 헬스케어 +1.58%'(arg=healthcare) → 패널 data-current-theme=healthcare, 요약 '헬스케어/제약 · XLV +1.58%'. 테마 id·ETF·등락률 모두 일치(불일치 0건 → A 없음)."
+    },
+    {
+      "check": "3. 테마 상태칩 ↔ 실제 데이터 상태",
+      "status": "부분 불일치 (THEME-C2, THEME-C3)",
+      "detail": "#theme-cycle-pill '섹터 상대강도 · 선도·개선 2/11 · 약화·후행 9/11' = rotationHistory 2026-10-09 사분면 집계와 정확히 일치(Leading2+Improving0 / Weakening1+Lagging8). #rrg-chart-status '선도:2 개선:0 약화:1 후행:8 · 약세 주도' 동일. 반면 상세 패널 provenance '시세 관측'은 라이브 시세 0건 상태(전 종목 '가격 대기')와 충돌 → THEME-C2. KR 블록은 '완료 종가'만 표기 → THEME-C3."
+    },
+    {
+      "check": "4. #theme-detail 직접 딥링크",
+      "status": "부분 실패 (THEME-D1, THEME-D4)",
+      "detail": "해시 #theme-detail에서 표시되는 페이지는 page-themes(테마 대시보드)이며 레거시 page-theme-detail은 display:none, h1 없음. 상세 패널은 직전 세션 선택(healthcare)을 유지한 채 표시됨 → URL만으로 내용이 결정되지 않음. 상세 전용 마크업은 '데이터 미수신·시점 불일치' 배지를 품은 채 DOM에 잔존."
+    },
+    {
+      "check": "5. 화면 표시 수치·날짜 대조 (화면당 주요 값)",
+      "status": "#themes 10/10 값 일치, 기준일 표기는 부분 결손",
+      "detail": "위 1번 11개 값 + pill 2/11·9/11 + rrg status 2/0/1/8 + 하위 테마 순위 '10/9 미국 종가 기준'(=rotationHistory.latestCompletedSession) 일치. 결손: 섹터 바·요약문 기준일 없음(THEME-C1), KR 테마 기준일 없음(THEME-C3), 구성 기준 2026-10-10(THEME-B2). #theme-detail 화면: XLV +1.58%(=rotation XLV), 리더 LLY·JNJ·ABBV·MRK(=THEME_MAP[healthcare].leaders), 구성 종목 7개 서브테마(대형 제약 LLY,JNJ,MRK,PFE,ABBV,BMY,NVO,AZN,NVS,ZTS …), flow '3개월 +26.8% ~ -5.5%'(screener 3개월 중앙값), '시세 대기' 필드(리더 26종목 가격/등락률, 브레드스, 스프레드, 서브테마 격차, 벤치마크)는 라이브 시세 차단으로 대조 불가(결함 아님)."
+    }
+  ],
+  "blocked": [
+    {
+      "item": "확인포인트 (1) 시장 스냅샷 섹터 값·기준일 대조",
+      "reason": "public-data/market-snapshot.json에 섹터 데이터 자체가 없음(sectorKeys=[], 파일 내 'sector' 토큰 0회). 요구된 비교 대상이 존재하지 않아 A/B 판정 불가.",
+      "workaround": "data.json:rotationHistory(rrg.v2, latestCompletedSession 2026-10-09, status CURRENT)를 기준으로 섹터 바 11개 전수 대조 → 전부 일치."
+    },
+    {
+      "item": "패널 '닫기 후 재선택 잔상' 검증",
+      "reason": "상세 패널에 닫기 컨트롤이 없음(data-action*=close, .theme-detail-close 0건; 첫 버튼은 '← 선택한 목록으로'). aio:themeDetailClosed 핸들러는 존재하나 페이지에서 이를 발생시키는 컨트롤을 찾지 못함.",
+      "workaround": "재선택 경로로 대체 검증: 에너지 → 헬스케어 전환 시 이전 테마 라벨/수치 잔상 없음(패널·요약 모두 갱신)."
+    },
+    {
+      "item": "구성종목·브레드스·벤치마크 수치 대조",
+      "reason": "data.json.quotes 비어 있고(quotesPublished=false, P715 client-direct), 감사에서 오프호스트 요청을 차단(545건)했으므로 브라우저가 시세를 받을 수 없음 → 화면 전 필드 '시세 대기'.",
+      "workaround": "해당 상태는 결함이 아니라 계약된 상태로 처리(코드 LC-28/LC-36/LC-38 문구와 일치). 필요 시 외부 네트워크 허용 런에서 재측정."
+    },
+    {
+      "item": "#theme-detail 콜드 로드(세션 없는 신규 진입)",
+      "reason": "도구 사용/시간 한도로 동일 문서 hash 내비게이션만 검증(직전 세션 선택 상태 승계). 신규 브라우저에서의 '#theme-detail 단독 진입'은 미검증.",
+      "workaround": "라우트 해석 결과(표시 페이지=page-themes, 상세 페이지 hidden)는 해시 변경만으로도 확인됨."
+    },
+    {
+      "item": "3개월/1개월 등 히스토리 기반 지표의 원천 대조",
+      "reason": "screener 중앙값·하위 테마 랭킹은 screener.json/history.json 파생이며 본 태스크의 3개 파일 외 별도 산출물(스크리너 파이프라인) 의존.",
+      "workaround": "하위 테마 순위 블록의 '10/9 미국 종가 기준'이 rotationHistory.latestCompletedSession과 일치함을 확인."
+    }
+  ],
+  "console": {
+    "localErrors": 0,
+    "collectedErrors": 30,
+    "allExternal": true,
+    "detail": "수집된 콘솔 에러 30건은 전부 net::ERR_FAILED — 감사에서 의도적으로 차단한 외부 CDN(jsdelivr pretendard, fonts.googleapis, jsdelivr chart.js, unpkg lightweight-charts, jsdelivr dompurify) 로드 실패. 로컬(127.0.0.1:8931) 기원 콘솔 에러·pageerror 0건."
+  }
+}

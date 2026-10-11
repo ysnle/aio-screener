@@ -91,7 +91,7 @@ function fredLevel(macro, key, label, { toBp = false, note }) {
     label,
     value,
     valueText: value == null ? '—' : toBp ? `${bp(value)}bp` : `${value.toFixed(2)}%`,
-    weekText: week == null ? null : toBp ? `1주 ${signed(bp(week), 0, 'bp')}` : `1주 ${signed(week, 2, '%p')}`,
+    weekText: week == null ? null : toBp ? `5거래일 ${signed(bp(week), 0, 'bp')}` : `5거래일 ${signed(week, 2, '%p')}`,
     asOf: isoDate(macro[`_asOf_${key}`]),
     stale: macro[`_freshness_${key}`] != null && macro[`_freshness_${key}`] !== 'observed',
     note

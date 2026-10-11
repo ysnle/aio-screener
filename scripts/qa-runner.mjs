@@ -7,6 +7,7 @@ import { pipeline } from 'node:stream/promises';
 import { StringDecoder } from 'node:string_decoder';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateBrowserEvidence, evidenceDigest } from './lib/browser-evidence.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const manifestPath = process.env.AIO_QA_MANIFEST_PATH ? resolve(process.env.AIO_QA_MANIFEST_PATH) : join(root, 'architecture', 'qa-pipeline.json');
@@ -641,7 +642,9 @@ function runGate(gate) {
 
     const args = [gate.script, ...(gate.args || []).map((value) => String(value).replaceAll('{cacheDir}', cacheDir))];
     const started = Date.now();
-    const childEnv = { ...process.env, ...(gate.env || {}) };
+    const evidencePath = join(runsDir, runId, gateFileStem(gate.id), 'evidence.json');
+    const childEnv = { ...process.env, ...(gate.env || {}), AIO_QA_RUN_ID: runId,
+      ...(gate.evidence ? { AIO_QA_EVIDENCE_PATH: evidencePath } : {}) };
     const secrets = collectSecretValues(childEnv);
     const fileStem = gateFileStem(gate.id);
     const rawPaths = {
@@ -702,7 +705,19 @@ function runGate(gate) {
       void (async () => {
         await Promise.all([endSpool(stdoutSpool), endSpool(stderrSpool)]);
         const durationMs = Date.now() - started;
-        const status = code === 0 && !timedOut ? 'PASS' : 'FAIL';
+        let status = code === 0 && !timedOut ? 'PASS' : 'FAIL';
+        let browserEvidence = null;
+        if (gate.evidence && status === 'PASS') {
+          try {
+            const raw = readFileSync(evidencePath, 'utf8');
+            const observed = JSON.parse(raw);
+            const errors = validateBrowserEvidence(observed, { secrets });
+            if (observed.runId !== runId) errors.push('P1603: evidence run identity mismatch');
+            if (errors.length) throw Error(errors.join('; '));
+            browserEvidence = { path: evidencePath, digest: evidenceDigest(raw), authority: observed.environment.mode,
+              coverage: observed.coverage, semanticReview: observed.semanticReview, target: observed.target };
+          } catch (error) { status = 'FAIL'; stderr = append(stderr, `\nP1603: evidence contract failed: ${error.message}`); }
+        }
         let failureOutput = null;
         let failureOutputError = spoolFailures[0] || null;
         if (status === 'FAIL' && !failureOutputError && stdoutSpool && stderrSpool) {
@@ -728,6 +743,8 @@ function runGate(gate) {
           exitCode: code,
           signal,
           timedOut,
+          evidenceLevel: gate.kind === 'browser' ? 'runtime/headless' : gate.kind === 'external' ? 'live/external' : 'static',
+          ...(browserEvidence ? { browserEvidence } : {}),
           output: redactText(stdout, secrets).trim(),
           error: redactText(stderr, secrets).trim(),
           ...(failureOutput ? { failureOutput } : {}),

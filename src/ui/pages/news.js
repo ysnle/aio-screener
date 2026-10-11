@@ -3,6 +3,7 @@ import { renderBriefingRead } from '../components/briefing-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
 import { subscribeToSlices } from '../../state/memoize.js';
+import { groupNewsStories, newsArticleKey, newsEvidence, resolveNewsIssuers } from '../../domain/news/stories.js';
 import { briefingWindowKST, classifyNewsTextStance, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
 
 function text(documentRef, value, fallback = '—') {
@@ -82,6 +83,8 @@ function renderNewsSummary(documentRef, root, model, status) {
   const olderCycle = Number.isFinite(cycleEnd) && newsWindow.end != null && cycleEnd < newsWindow.end - 60000;
   if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본 · ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
   else if (newsWindow.start != null) set('news-window-label', `오늘의 중요 뉴스와 전체 뉴스 · ${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
+  const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
+  if (importantNote) importantNote.textContent = `주제별 핵심 · ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간`;
   set('last-fetch-time', cut?.status === 'stale' || status === 'stale'
     ? `수집 지연 · 마지막 수집 ${generatedLabel || '확인 필요'}`
     : generatedLabel ? `마지막 수집 ${generatedLabel}` : (status === 'current' ? '정상 수신' : '수신 대기'));
@@ -91,7 +94,7 @@ function safeUrl(value) {
   try {
     const url = new URL(String(value || ''), 'https://invalid.local');
     if (url.origin === 'https://invalid.local' && !/^https?:/i.test(String(value || ''))) return '';
-    return /^https?:$/i.test(url.protocol) ? url.href : '';
+    return /^https?:$/i.test(url.protocol) && !url.username && !url.password ? url.href : '';
   } catch (_) {
     return '';
   }
@@ -150,7 +153,7 @@ function publicationIso(item) {
   return Number.isFinite(ms) ? new Date(ms).toISOString() : null;
 }
 
-function createTickerBadge(documentRef, ticker) {
+function createTickerBadge(documentRef, ticker, direct = false) {
   const badge = documentRef.createElement('span');
   const symbol = String(ticker || '').replace('$', '');
   badge.dataset.action = '_aioNewsTickerClick';
@@ -158,7 +161,8 @@ function createTickerBadge(documentRef, ticker) {
   badge.setAttribute('role', 'button');
   badge.tabIndex = 0;
   badge.textContent = /^[A-Z0-9.^=-]+$/.test(symbol) ? ticker : symbol; // Korean company names carry no $ marker
-  badge.title = `${symbol} 종목 분석`;
+  badge.title = `${direct ? '직접 당사자' : '기사에 언급된 관련 회사'} · ${symbol} 종목 분석`;
+  badge.dataset.issuerRole = direct ? 'subject' : 'mentioned';
   badge.style.cssText = 'font-size:11px;font-weight:800;color:var(--accent, var(--text-primary));font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:3px;cursor:pointer;';
   return badge;
 }
@@ -194,6 +198,7 @@ function createNewsCard(documentRef, root, item, index) {
 
   card.className = 'news-item-card';
   card.dataset.newsId = item?.newsId || item?.id || `news-${index}`;
+  card.dataset.articleKey = newsArticleKey(item);
   card.dataset.newsIdx = String(index);
   if (link) card.dataset.openUrl = link;
   card.title = String(item?.title || title).slice(0, 200);
@@ -234,8 +239,8 @@ function createNewsCard(documentRef, root, item, index) {
   } catch (_) { earnings = null; }
   const tickers = earnings?.symbol ? [earnings.symbol] : extractedTickers;
   // P1591 (E05): one badge per company — '$$삼성전자' and '$삼성전자' were the same symbol with a doubled marker.
-  const uniqueTickers = Array.isArray(tickers) ? [...new Set(tickers.map((ticker) => String(ticker || '').replace(/^\$+/, '').trim()).filter(Boolean))] : [];
-  uniqueTickers.slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, `$${ticker}`)));
+  const uniqueTickers = resolveNewsIssuers(item, tickers, root?.AIO_TICKER_NAME_REGISTRY?.entries);
+  uniqueTickers.slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, `$${ticker}`, ticker === item?.issuerSymbol)));
   // LC-34: the original article was reachable only through the card's `data-open-url` click
   // delegation, so keyboard/AT users had no focusable link. The headline is now a real anchor
   // (new tab, noopener); the card keeps its larger pointer target, and the delegation ignores the
@@ -285,6 +290,40 @@ function createNewsCard(documentRef, root, item, index) {
     .filter(Boolean)
     .join(' · ');
   body.appendChild(meta);
+  const evidence = documentRef.createElement('details');
+  evidence.className = 'news-evidence';
+  evidence.addEventListener('click', (event) => event.stopPropagation());
+  evidence.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:5px;';
+  const facts = newsEvidence(item);
+  const evidenceTitle = documentRef.createElement('summary');
+  evidenceTitle.textContent = [facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '출처·시각'].filter(Boolean).join(' · ');
+  evidence.appendChild(evidenceTitle);
+  const detail = documentRef.createElement('div');
+  detail.textContent = [`발행 ${formatAbsoluteTime(facts.publishedAt) || '미제공'}`, `관찰 ${formatAbsoluteTime(facts.observedAt) || '미제공'}`,
+    `수집 ${formatAbsoluteTime(item?.fetchedAt) || '미제공'}`, '기사 내용의 사실 여부는 원 출처에서 확인'].join(' · ');
+  evidence.appendChild(detail);
+  if (item?.storyArticles?.length > 1) {
+    evidence.appendChild(text(documentRef, item.storySelection));
+    const timeline = documentRef.createElement('ol');
+    for (const article of item.storyArticles) {
+      const row = documentRef.createElement('li');
+      const articleFacts = newsEvidence(article);
+      const articleUrl = safeUrl(article?.link || article?.url);
+      const label = `${formatAbsoluteTime(articleFacts.publishedAt) || '발행 시각 미제공'} · ${articleFacts.revision || articleFacts.kind} · ${realTitle(root, article)}`;
+      if (articleUrl) {
+        const anchor = documentRef.createElement('a');
+        anchor.href = articleUrl; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; anchor.textContent = label;
+        row.appendChild(anchor);
+      } else row.textContent = label;
+      timeline.appendChild(row);
+    }
+    evidence.appendChild(timeline);
+  } else if (item?.title && title !== item.title) {
+    const original = documentRef.createElement('div');
+    original.textContent = `원문 제목 · ${item.title}`;
+    evidence.appendChild(original);
+  }
+  body.appendChild(evidence);
 
   const stance = documentRef.createElement('span');
   stance.textContent = headlineOnly ? '' : tone.label;
@@ -293,17 +332,17 @@ function createNewsCard(documentRef, root, item, index) {
   return card;
 }
 
-const newsKey = (item) => item?.newsId || item?.id || item?.link || item?.title;
+const newsKey = (item) => newsArticleKey(item);
 
 // P1391 (owner review 2026-10-02): the news screen leads with important stories — the highest-scored
 // item per topic inside the completed 24h window — and the full feed below excludes them.
-function pickImportantNews(items = [], limit = 6) {
-  const picked = [];
+function pickImportantNews(items = [], limit = 5) {
+  const picked = items.filter((item) => item.storyHasRevision);
   const topics = new Set();
   for (const item of [...items].sort((a, b) => (finite(b?.score) || 0) - (finite(a?.score) || 0))) {
     const topic = item?.topic || item?.feedTopic || 'general';
     // Filler is worse than a shorter list: unclassified and low-score items stay in the full feed.
-    if (item?._tgChannel || topic === 'general' || (finite(item?.score) || 0) < 50 || topics.has(topic)) continue;
+    if (picked.includes(item) || item?._tgChannel || topic === 'general' || (finite(item?.score) || 0) < 50 || topics.has(topic) || picked.length >= limit) continue;
     topics.add(topic);
     picked.push(item);
     if (picked.length >= limit) break;
@@ -312,7 +351,7 @@ function pickImportantNews(items = [], limit = 6) {
 }
 
 function appendMarketNews(documentRef, root, container, model, status, visibleLimit, controls, exclude = new Set()) {
-  const eligible = (Array.isArray(model?.items) ? model.items : []).filter((item) => !exclude.has(newsKey(item)));
+  const eligible = groupNewsStories(Array.isArray(model?.eligibleItems) ? model.eligibleItems : model?.items || []).filter((item) => !exclude.has(newsKey(item)));
   const displayed = eligible.slice(0, visibleLimit);
   container.replaceChildren();
   if (!displayed.length) {
@@ -326,9 +365,15 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     empty.textContent = status === 'unavailable'
       ? '뉴스 수신 대기 — 새로고침 후 검증된 뉴스가 표시됩니다.'
       : (model?.emptyReason === 'all-news-outside-time-window' && outOfWindow > 0
-          ? `현재 조건에서 오늘(08:00 KST 완료 24h) 자료 미확보 · 이전 수집분 ${outOfWindow}건은 오늘 뉴스가 아닙니다.`
-          : `현재 조건에서 08:00 KST 완료 24h · 중요도 기준 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${outOfWindow > 0 ? ` (창 밖 이전 수집분 ${outOfWindow}건 제외)` : ''}${reviewFlagged > 0 ? ` · 피드 분류로만 걸러진 항목 ${reviewFlagged}건은 기사별 검토가 필요합니다.` : ''}`);
+          ? `현재 조건에서 오늘(08:00 KST 완료 24h) 자료 미확보 · 이전 수집분 ${outOfWindow}건은 수집 제외 항목을 뺀 뒤 창 밖으로 분류되어 오늘 뉴스가 아닙니다.`
+          : `현재 조건에서 08:00 KST 완료 24h · 중요도 기준 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${outOfWindow > 0 ? ` (수집 제외 항목 제외 후 · 창 밖 이전 수집분 ${outOfWindow}건 제외)` : ''}${reviewFlagged > 0 ? ` · 피드 분류로만 걸러진 항목 ${reviewFlagged}건은 기사별 검토가 필요합니다.` : ''}`);
     container.appendChild(empty);
+    if (describeNewsScope(controls).articles === '필터 적용') {
+      const reset = documentRef.createElement('button');
+      reset.type = 'button'; reset.textContent = '필터 초기화';
+      reset.addEventListener('click', () => { root?.filterNewsByCountry?.('all'); root?.filterNewsByTopic?.('all'); root?.setNewsTypeTab?.('all'); });
+      empty.append(documentRef.createElement('br'), reset);
+    }
   } else if (controls.typeTab === 'category') {
     const groups = new Map();
     displayed.forEach((item) => {
@@ -356,21 +401,20 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   }
 
   const count = documentRef.getElementById('market-news-count');
-  if (count) count.textContent = `기사 ${model?.eligibleCount > displayed.length ? `${displayed.length}건 표시 / ${model.eligibleCount}건 일치` : `${displayed.length}건`} · ${describeNewsScope(controls).articles}`;
+  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `중요 사건 ${exclude.size}건 · 전체 목록 ${eligible.length}건 중 ${displayed.length}건 표시 · ${describeNewsScope(controls).articles}`; }
   const summary = documentRef.getElementById('news-visible-summary');
-  if (summary) summary.textContent = `전체 ${model?.eligibleCount || 0}건 중 ${displayed.length}건 표시`;
+  if (summary) summary.textContent = `기사 ${model?.eligibleCount || 0}건 · 아래 사건 ${eligible.length}건 중 ${displayed.length}건 표시`;
   const more = documentRef.getElementById('news-load-more-wrap');
   if (more) {
     // P1449: "더 보기"는 렌더 가능한 풀(model.items, maxItems 계약)을 기준으로 숨긴다 —
     // eligibleCount(전체 창 개수)는 계약 캡보다 클 수 있어, 모든 기사를 표시한 뒤에도 버튼이
     // 남아 클릭해도 아무것도 추가되지 않는 결함이 나왔다. 남은 이유는 요약이 말한다.
     const poolSize = eligible.length;
-    const capped = Number(model?.eligibleCount || 0) > poolSize;
     more.hidden = displayed.length >= poolSize;
     // P1592 (F29): name what 'more' does and where the list ends, in reader terms.
     const moreButton = more.querySelector('[data-action="_aioNewsLoadMore"]');
     if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, poolSize - displayed.length))}개 더 보기`;
-    more.title = capped ? `조건에 맞는 ${model.eligibleCount}건 중 최대 ${poolSize}건까지 이 화면에서 볼 수 있습니다.` : '';
+    more.title = `아래 사건 ${poolSize}건 중 아직 표시하지 않은 사건을 펼칩니다.`;
   }
 }
 
@@ -428,16 +472,21 @@ function render({ documentRef, root, store, route }) {
   const importantModel = root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });
   const tgScope = documentRef?.getElementById('news-tg-scope');
   if (tgScope) tgScope.textContent = describeNewsScope(controls).channel;
-  const important = pickImportantNews(importantModel?.items || []);
+  const important = pickImportantNews(groupNewsStories(importantModel?.eligibleItems || importantModel?.items || []));
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {
     importantList.replaceChildren(...(important.length
       ? important.map((item, index) => createNewsCard(documentRef, root, item, index))
-      : [Object.assign(documentRef.createElement('div'), { className: 'briefing-empty', textContent: '오늘 24시간 안에 들어온 중요 뉴스가 없습니다.' })]));
+      : [Object.assign(documentRef.createElement('div'), { className: 'briefing-empty', textContent: '표시 기간과 선택한 조건에 맞는 중요 뉴스가 없습니다.' })]));
   }
   if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioNewsEarningsRequested) {
     root._aioNewsEarningsRequested = true;
-    Promise.resolve(root._fetchEarningsCalendarSnapshot()).then((snap) => { if (snap) { root._aioEarningsSnapshot = snap; render({ documentRef, root, store, route }); } }).catch(() => {});
+    Promise.resolve(root._fetchEarningsCalendarSnapshot()).then((snap) => {
+      if (snap) {
+        root._aioEarningsSnapshot = snap;
+        documentRef?.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-earnings-ready' } }));
+      }
+    }).catch(() => {});
   }
   appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)));
   container.dataset.aioNewsRenderer = 'native';
@@ -448,8 +497,48 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
     route,
     mount() {
       const bag = createResourceBag();
-      const renderNow = () => render({ documentRef, root, store, route });
       const page = documentRef?.getElementById(`page-${route}`);
+      // P1601/ST-10: incoming data stays pending while the reader is on this screen.
+      // Filter/load-more actions apply immediately; arrivals never replace a focused article.
+      let renderedKeys = null;
+      let renderedControls = '';
+      const updates = route === 'market-news' ? documentRef.createElement('button') : null;
+      if (updates) {
+        updates.type = 'button'; updates.className = 'flow-next-link'; updates.hidden = true;
+        updates.dataset.newsUpdates = 'pending';
+        updates.setAttribute('aria-live', 'polite');
+        const count = documentRef.getElementById('market-news-count');
+        count?.insertAdjacentElement?.('afterend', updates);
+        bag.add(() => updates.remove());
+      }
+      const renderNow = (force = false) => {
+        const rows = selectNewsItems(store?.getState?.() || {});
+        const keys = new Set(rows.map(newsArticleKey));
+        const controls = JSON.stringify([root?.AIO?.getNewsSurfaceControls?.() || {}, root?._aioNewsVisibleLimit]);
+        const changed = renderedKeys && (keys.size !== renderedKeys.size || [...keys].some((key) => !renderedKeys.has(key)));
+        const explicit = force === true || (force?.type === 'aio:newsSurfaceInvalidated' && ['news-sort', 'news-type-tab', 'news-load-more', 'news-country-telegram', 'news-country-filter', 'news-topic-filter'].includes(force?.detail?.reason)) || controls !== renderedControls;
+        if (updates && renderedKeys?.size > 0 && changed && !explicit) {
+          const arriving = [...keys].filter((key) => !renderedKeys.has(key)).length;
+          updates.textContent = arriving ? `새 뉴스·변경 ${arriving}건 보기` : '갱신된 뉴스 보기';
+          updates.hidden = false;
+          return;
+        }
+        const active = documentRef.activeElement;
+        if (updates && renderedKeys && !changed && !explicit && page?.contains?.(active) && active?.closest?.('.news-item-card')) return;
+        render({ documentRef, root, store, route });
+        renderedKeys = keys; renderedControls = controls;
+        if (updates) updates.hidden = true;
+      };
+      if (updates) updates.addEventListener('click', () => {
+        const firstVisible = [...(page?.querySelectorAll?.('.news-item-card') || [])].find((node) => node.getBoundingClientRect().bottom > 0);
+        const anchorKey = firstVisible?.dataset.articleKey;
+        const offset = firstVisible?.getBoundingClientRect().top;
+        renderNow(true);
+        const anchor = [...(page?.querySelectorAll?.('.news-item-card') || [])].find((node) => node.dataset.articleKey === anchorKey);
+        if (anchor && Number.isFinite(offset)) root?.scrollBy?.(0, anchor.getBoundingClientRect().top - offset);
+        const count = documentRef.getElementById('market-news-count');
+        count?.setAttribute('tabindex', '-1'); count?.focus?.({ preventScroll: true });
+      });
       const suppliedMaterialBridge = page ? createSuppliedMaterialBridge(documentRef, {
         routeId: route,
         heading: route === 'briefing' ? '브리핑 · 시장 확인·거시 시차·이벤트 창' : '시장 뉴스 · 이벤트와 가격 반응 창'

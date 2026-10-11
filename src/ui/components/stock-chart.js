@@ -89,7 +89,10 @@ function drawChart(root, host, analysis, previous) {
   if (analysis.state === 'breakout') markers.push({ time: analysis.last.time, position: 'aboveBar', color: up, shape: 'arrowDown', text: '피벗 돌파' });
   candles.setMarkers(markers.sort((a, b) => a.time.localeCompare(b.time)));
   chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, analysis.bars.length - 160), to: analysis.bars.length + 3 });
-  return { chart };
+  return { chart, applyTheme: (palette) => {
+    chart.applyOptions({ layout: { textColor: palette.text }, grid: { vertLines: { color: palette.grid }, horzLines: { color: palette.grid } }, rightPriceScale: { borderColor: palette.grid }, timeScale: { borderColor: palette.grid } });
+    candles.applyOptions({ upColor: palette.up, downColor: palette.down, borderUpColor: palette.up, borderDownColor: palette.down, wickUpColor: palette.up, wickDownColor: palette.down });
+  } };
 }
 
 export async function renderStockChart({ documentRef: doc, root, symbol }) {
@@ -116,10 +119,20 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
     title.insertAdjacentElement('afterend', note);
   }
   set('stock-chart-status', '불러오는 중…');
+  panel.replaceChildren(emptyState(doc, { title: `${sym} 일봉을 불러오는 중입니다`, reason: '시세 제공처에서 일봉을 받아오는 중입니다.', compact: true }));
   // A slower earlier request must not overwrite the symbol the user asked for last.
   const ticket = (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1);
-  let payload = null;
-  try { payload = await root._aioFetchYahooChartData?.(sym, '2y', '1d'); } catch (_) { payload = null; }
+  const pending = Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, '2y', '1d')).catch(() => null);
+  let slowTimer = null;
+  const slow = new Promise((resolve) => { slowTimer = setTimeout(() => resolve('__slow__'), 4000); });
+  const first = await Promise.race([pending, slow]);
+  clearTimeout(slowTimer);
+  if (ticket !== root.__aioStockChartTicket) return null;
+  if (first === '__slow__') {
+    set('stock-chart-status', `${sym} 시세 응답이 늦어 계속 시도 중입니다`);
+    panel.replaceChildren(emptyState(doc, { title: `${sym} 시세를 아직 받아오지 못했습니다`, reason: '시세 제공처나 중계 서버 응답이 늦어지고 있습니다.', next: '응답이 오면 차트가 나타납니다 — 기다리거나 다시 시도하세요.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) } }));
+  }
+  const payload = await pending;
   if (ticket !== root.__aioStockChartTicket) return null;
   const { bars, droppedLive } = completedBars(barsFromYahoo(payload), payload);
   const benchmark = buildCloseSeries(root._aioHistory || [], 'spx');
@@ -205,25 +218,34 @@ export function installStockChart({ documentRef: doc, root }) {
   const form = doc.getElementById('stock-chart-form');
   if (!form) return;
   const input = doc.getElementById('stock-chart-input');
-  const run = (symbol) => { if (input && symbol) input.value = symbol; renderStockChart({ documentRef: doc, root, symbol: symbol || input?.value }); };
+  const show = (value) => {
+    const sym = String(value || '').trim().toUpperCase() || 'SPY';
+    if (input) input.value = sym;
+    form.dataset.aioStockChartEntity = sym;
+    renderStockChart({ documentRef: doc, root, symbol: sym });
+  };
   const request = String(root._aioChartRequest || '').trim().toUpperCase();
   root._aioChartRequest = null;
   const entity = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
+  const target = request || entity || String(input?.value || '').trim().toUpperCase() || 'SPY';
   if (form.dataset.aioStockChart === 'installed') {
-    if (request) run(request);
-    else if (entity && entity !== form.dataset.aioStockChartEntity) { form.dataset.aioStockChartEntity = entity; run(entity); }
+    if (target !== form.dataset.aioStockChartEntity) show(target);
     return;
   }
   form.dataset.aioStockChart = 'installed';
-  form.dataset.aioStockChartEntity = entity;
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const typed = String(input?.value || '').trim().toUpperCase();
-    if (setStockSubject({ root, documentRef: doc, symbol: typed })) form.dataset.aioStockChartEntity = typed;
-    run();
+    show(typed || form.dataset.aioStockChartEntity);
+    if (typed) setStockSubject({ root, documentRef: doc, symbol: typed });
   });
-  doc.querySelectorAll('[data-stock-chart-symbol]').forEach((chip) => chip.addEventListener('click', () => run(chip.dataset.stockChartSymbol)));
-  run(request || entity || input?.value || 'SPY');
+  doc.querySelectorAll('[data-stock-chart-symbol]').forEach((chip) => chip.addEventListener('click', () => show(chip.dataset.stockChartSymbol)));
+  doc.addEventListener?.('aio:subjectChanged', () => {
+    if (!doc.getElementById?.('page-technical')?.classList?.contains('active')) return;
+    const subject = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
+    if (subject && subject !== form.dataset.aioStockChartEntity) show(subject);
+  });
+  show(target);
 }
 
 // P1430: 오늘's S&P 500 / 나스닥 cards open the index chart they show, not the last company.

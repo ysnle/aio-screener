@@ -156,7 +156,9 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   // Codex browser audit H09: the denominator is named — how many symbols were judged, and that stocks and ETFs are
   // mixed — so 33% is not read as a share of the whole exchange or of the S&P 500.
   const eligible = contributorSession(root?._aioBreadthContributors, regime.asOf)?.eligible || null;
-  const denominator = eligible?.highLow ? ` · 판정 대상 ${eligible.highLow}개 종목` : '';
+  const judgedSegment = root?.AIO_ARCH?.getScreenerState?.()?.metadata?.breadth?.segments?.us || null;
+  const judgedCount = Number.isFinite(judgedSegment?.eligible) ? judgedSegment.eligible : null;
+  const denominator = judgedCount ? ` · 판정 대상 ${judgedCount}개 종목` : '';
   set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator} · AIO 미국 스크리너 수집 대상(개별 주식과 ETF 혼합, 동일 비중) — 거래소 전체나 S&P 500 구성 종목 집계가 아니며, 시가총액 가중 지수와 달리 종목마다 같은 무게로 셉니다.` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
   if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'}`; }
@@ -185,8 +187,9 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       };
       const changes = [[5, '5일'], [20, '20일']].map(([n, label]) => { const value = change(n); return value ? `${label} ${value}` : null; }).filter(Boolean).join(' · ');
       const lateStart = range && points.length && points[0].date > range[0] ? ` · 기록 시작 ${shortDate(points[0].date)}` : '';
+      const highLowBasis = card.id === 'hl' && eligible?.highLow ? ` · 신고·신저 판정 대상 ${eligible.highLow}개` : '';
       box.append(head);
-      if (card.latest) box.append(el(doc, 'div', card.latest, 'trend-card-latest'));
+      if (card.latest) box.append(el(doc, 'div', `${card.latest}${highLowBasis}`, 'trend-card-latest'));
       box.append(el(doc, 'div', `${changes || '변화 기록 수집 중'}${lateStart}`, 'trend-card-change'),
         createTrendChart(doc, { series: points, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }),
         el(doc, 'p', card.note, 'trend-card-note'));

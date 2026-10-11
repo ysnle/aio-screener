@@ -983,7 +983,7 @@ check('news selection audit exposes score criteria and surface eligibility', /ge
 check('server news backstop preserves score tier and news-cycle metadata', /newsCycleStart/.test(data) && /newsCycleEnd/.test(data) && /serverCycleTrusted/.test(data) && /isFinite\(Number\(n\.score\)\)/.test(data));
 check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /filterByKst0800NewsCycle/.test(data) && /newsCycle:\s*cycleWindow/.test(data));
 // P1391: the developer timestamp bar was removed; the user-facing window wording lives in the subtitle and the important-news heading.
-check('market-news UI labels match KST 08:00 completed 24h contract', /08:00 KST까지 24시간/.test(marketNewsHtml) && /id="news-important-list"/.test(marketNewsHtml) && !/최근 48시간|48시간 이내|필터:\s*48시간/.test(marketNewsHtml));
+check('P1601 market-news labels derive completed 24h cycle rather than a stale today label', /표시 기간 기준/.test(marketNewsHtml) && /id="news-important-list"/.test(marketNewsHtml) && /fmt\(olderCycle \? cycleEnd : newsWindow.end\)/.test(newsPage) && !/최근 48시간|48시간 이내|필터:\s*48시간/.test(marketNewsHtml));
 check('market-news empty state uses 24h completed-cycle wording', /08:00 KST 완료 24h/.test(newsPage) && !/48.?\uC2DC\uAC04/.test(newsPage));
 // P1389/P1391: the briefing no longer carries a news list (moved to the news screen's important/full split);
 // its native owner renders the connected read, and no surface writes the retired list.

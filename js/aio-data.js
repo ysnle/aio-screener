@@ -5924,7 +5924,8 @@ async function _aioLoadServerData() {
     // v51.67: F&G previousScore → _fearGreedDelta 계산
     if (d.fearGreed && typeof d.fearGreed.score === 'number') {
       if (typeof d.fearGreed.previousScore === 'number') {
-        window.DATA_SNAPSHOT._fearGreedDelta = d.fearGreed.score - d.fearGreed.previousScore;
+        var _fgCloses = Array.isArray(d.fearGreed.history) ? d.fearGreed.history.filter(function(p) { return p && typeof p.score === 'number' && isFinite(p.score); }) : [];
+        window.DATA_SNAPSHOT._fearGreedDelta = _fgCloses.length >= 2 ? (Math.round(_fgCloses[_fgCloses.length - 1].score) - Math.round(_fgCloses[_fgCloses.length - 2].score)) : (d.fearGreed.score - d.fearGreed.previousScore);
         window.DATA_SNAPSHOT._fearGreedPrev = d.fearGreed.previousScore;
       }
       if (typeof d.fearGreed.previousWeek === 'number') {
@@ -6200,9 +6201,9 @@ var _fgLiveDelta = null;
 function _aioRenderLiveFearGreedDelta(score, previousScore) {
   var current = Number(score);
   var previous = Number(previousScore);
-  _fgLiveDelta = Number.isFinite(current) && Number.isFinite(previous)
-    ? Math.round(current) - Math.round(previous)
-    : null;
+  var _fgAppDelta = (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fearGreedDelta != null) ? Number(window.DATA_SNAPSHOT._fearGreedDelta) : null;
+  _fgLiveDelta = Number.isFinite(_fgAppDelta) ? _fgAppDelta
+    : (Number.isFinite(current) && Number.isFinite(previous) ? Math.round(current) - Math.round(previous) : null);
   _aioSetDeltaEl('sentiment-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0, label: '전일 대비' });
   return _fgLiveDelta; // P1428: home-fg-delta is native (completed-close basis, same as 투자 심리)
 }
@@ -6226,7 +6227,7 @@ function _aioRenderDeltas() {
   _aioSetDeltaEl('fed-rate-delta',     snap._fedRateDelta,    _AIO_DELTA_POLARITY.fedRate,      { suffix: 'pp', decimals: 2 });
 
   // 2) Fear & Greed 전일 delta (서버 CNN API previousScore 기반)
-  var _fgDeltaForRender = _fgLiveDelta != null ? _fgLiveDelta : snap._fearGreedDelta;
+  var _fgDeltaForRender = snap._fearGreedDelta != null ? snap._fearGreedDelta : _fgLiveDelta;
   _aioSetDeltaEl('sentiment-fg-delta', _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0, label: '전일 대비' });
 
   // 3) 트레이딩 스코어 전일 delta (localStorage)
@@ -6488,6 +6489,10 @@ function _aioApplyNewsBackstop(force) {
     var serverMeta = window._serverDataMeta || {};
     var items = bs.map(function(n) {
       var it = {
+        guid: n.guid, sourceArticleId: n.sourceArticleId, sourceStoryId: n.sourceStoryId, storyId: n.storyId,
+        correctionOf: n.correctionOf, retractionOf: n.retractionOf, supersedes: n.supersedes, revisionType: n.revisionType,
+        issuerId: n.issuerId, issuerCik: n.issuerCik, issuerSymbol: n.issuerSymbol, evidenceKind: n.evidenceKind,
+        observedAt: n.observedAt || null, fetchedAt: n.fetchedAt || null,
         title: n.title, headline: n.title,
         link: n.link, url: n.link,
         source: n.source || 'News', feed: n.source || 'News',
@@ -6670,12 +6675,12 @@ function _aioRenderPipelineStatus() {
       if (meta.fmpHasKey && meta.fmpOk === false) {
         scrFmpEl.style.display = 'inline-flex';
         var inlineCoverage = meta.fundamentalCoveragePct == null ? '미확인' : (isFinite(Number(meta.fundamentalCoveragePct)) ? Number(meta.fundamentalCoveragePct).toFixed(1) + '%' : '미확인');
-        if (scrFmpReason) scrFmpReason.textContent = '공시 재무 자료가 있는 종목 ' + inlineCoverage + '만 재무 조건 판정 가능';
+        if (scrFmpReason) scrFmpReason.textContent = '공시 재무 자료가 있는 종목 ' + inlineCoverage + '(US 유니버스 기준, 필드 혼합)만 재무 조건 판정 가능';
       } else if (!meta.fmpHasKey) {
         scrFmpEl.style.display = 'inline-flex';
         if (scrFmpReason) {
           var noKeyCoverage = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
-          scrFmpReason.textContent = isFinite(noKeyCoverage) ? (noKeyCoverage >= 80 ? '재무 자료 충분' : '공시 재무 자료가 있는 종목 ' + noKeyCoverage.toFixed(1) + '%만 재무 조건 판정 가능') : '재무 자료 범위 확인 중';
+          scrFmpReason.textContent = isFinite(noKeyCoverage) ? (noKeyCoverage >= 80 ? '재무 자료 충분' : '공시 재무 자료가 있는 종목 ' + noKeyCoverage.toFixed(1) + '%(US 유니버스 기준, 필드 혼합)만 재무 조건 판정 가능') : '재무 자료 범위 확인 중';
         }
       } else {
         scrFmpEl.style.display = 'none';
@@ -6952,6 +6957,7 @@ async function _aioLoadHistory() {
     if (!Array.isArray(arr)) return null;
     window._aioHistory = arr;
     window._aioHistoryMeta = { days: arr.length, first: arr[0] && arr[0].date, last: arr[arr.length - 1] && arr[arr.length - 1].date, loadedAt: Date.now() };
+    try { _aioUpdateVixBadge(_aioLiveVixValue()); } catch (_vixBadgeErr) {}
     try { window.dispatchEvent(new CustomEvent('aio:historyLoaded', { detail: window._aioHistoryMeta })); } catch(_) {}
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'history.json 로드: ' + arr.length + '일');
     return arr;
@@ -10938,7 +10944,7 @@ function getDisplayTickers(item) {
   });
 
   // 캐시 업데이트 (로컬 추출로 보강된 결과 반영)
-  const result = [...merged].slice(0, 5);
+  const result = window._aioNewsStories ? window._aioNewsStories.issuers(item, [...merged]).map(s => '$' + s).slice(0, 5) : [];
   if (result.length > 0 && _translationCache.has(_tcKey(item.title))) {
     const cached = _translationCache.get(_tcKey(item.title));
     if (!cached.tickers || cached.tickers.length < result.length) {
@@ -11284,23 +11290,7 @@ function _aioNewsId(item) {
 }
 
 function _aioNewsDedupeKey(item) {
-  var title = '';
-  try { title = typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''); } catch(_) { title = item && item.title || ''; }
-  return String(title || item && item.link || '')
-    .toLowerCase()
-    .replace(/https?:\/\/\S+/g, '')
-    .replace(/[^a-z0-9가-힣]+/g, '')
-    .slice(0, 72);
-}
-// v52.16 P5h/P617: 크로스채널(동일 실화가 채널만 다르게, 예: Aether-JP/Insider-US) 중복이
-// 위 title 첫 72자 prefix 매칭만으론 안 걸림(포맷 접두어 차이로 앞부분이 갈릴 수 있음) — 이미
-// fetchAllNews()(위 12569행대)에서 검증된 "핵심단어 정렬-결합" 2차 키를 동일 패턴으로 재사용.
-function _aioNewsWordBagKey(item) {
-  var title = '';
-  try { title = typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''); } catch(_) { title = item && item.title || ''; }
-  var words = String(title || '').toLowerCase().replace(/[^a-z0-9가-힣\s]/g, '').split(/\s+/).filter(function(w) { return w.length > 2; });
-  var shortKey = words.sort().join('').slice(0, 40);
-  return shortKey.length > 15 ? shortKey : '';
+  return window._aioNewsStories ? window._aioNewsStories.key(item) : JSON.stringify([item.source, item.link || item.guid, item.title, item.desc, item.pubDate]);
 }
 
 function _aioNewsIsBlacklisted(item) {
@@ -11495,16 +11485,16 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
     scored = windowRows.filter(function(i) { return i.score >= (contract.minScore || 0); });
   }
 
+  // P1601: explicit corrections survive score selection and remain individually reachable.
+  windowRows.filter(function(row) { return window._aioNewsStories && window._aioNewsStories.isRevision(row); }).forEach(function(row) { if (scored.indexOf(row) < 0) scored.push(row); });
+  if (window._aioNewsStories) { var selectedKeys = new Set(scored.map(_aioNewsDedupeKey)); scored = window._aioNewsStories.group(windowRows).filter(function(story) { return story.storyArticles.some(function(row) { return selectedKeys.has(_aioNewsDedupeKey(row)); }); }).flatMap(function(story) { return story.storyArticles; }); }
   var duplicateRemoved = 0;
   var seen = {};
-  var seenWordBag = {};
   var deduped = [];
   scored.forEach(function(row) {
     var key = _aioNewsDedupeKey(row) || row.newsId;
-    var wbKey = _aioNewsWordBagKey(row);
-    if (seen[key] || (wbKey && seenWordBag[wbKey])) { duplicateRemoved++; return; }
+    if (seen[key]) { duplicateRemoved++; return; }
     seen[key] = true;
-    if (wbKey) seenWordBag[wbKey] = true;
     deduped.push(row);
   });
 
@@ -11525,8 +11515,9 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
     deduped.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
   }
 
-  if (contract.maxPerTopic) { var perTopic = {}; deduped = deduped.filter(function(i) { var t = i.topic || 'other'; perTopic[t] = (perTopic[t] || 0) + 1; return perTopic[t] <= contract.maxPerTopic; }); }
+  if (contract.maxPerTopic) { var perTopic = {}; deduped = deduped.filter(function(i) { var t = i.topic || 'other'; perTopic[t] = (perTopic[t] || 0) + 1; return perTopic[t] <= contract.maxPerTopic || window._aioNewsStories?.isRevision(i); }); }
   var visible = deduped.slice(0, contract.maxItems || deduped.length);
+  deduped.filter(function(i) { return window._aioNewsStories?.isRevision(i); }).forEach(function(i) { if (visible.indexOf(i) < 0) visible.push(i); });
   var reviewItems = surfaceId === 'briefing' ? deduped.filter(function(i) { return !i.eligibleForAi; }) : [];
   var aiItems = surfaceId === 'briefing' ? visible.filter(function(i) { return i.eligibleForAi; }) : visible;
   var latestPubMs = visible.reduce(function(max, i) { return Math.max(max, _aioNewsPubMs(i)); }, 0);
@@ -12589,21 +12580,13 @@ async function fetchAllNews(forceRefresh = false) {
     }
   } catch(e) { _aioLog('warn', 'fetch', 'Extra news API merge error: ' + (e && e.message || e)); }
 
-  // v27.3: 강화된 중복 제거 (제목 유사도 기반 — 동일 뉴스 다중 소스 중복 방지)
+  // P1601: retain distinct articles and every changed version; no prefix/wordbag inference.
   const seen = new Set();
-  const seenShort = new Set(); // 핵심 키워드 기반 추가 중복 체크
   allItems = allItems.filter(i => {
     if (!i.title || i.title.length < 10) return false;
-    // 1차: 제목 첫 60자 정규화 매칭
-    const key = i.title.slice(0, 60).toLowerCase().replace(/[^a-z0-9가-힣]/g, '');
+    const key = _aioNewsDedupeKey(i);
     if (seen.has(key)) return false;
     seen.add(key);
-    // 2차: 핵심 단어 추출 기반 유사 뉴스 중복 제거 (같은 종목+이벤트 조합)
-    const words = i.title.toLowerCase().replace(/[^a-z0-9가-힣\s]/g, '').split(/\s+/).filter(w => w.length > 2);
-    const sorted = words.sort().join('');
-    const shortKey = sorted.slice(0, 40);
-    if (shortKey.length > 15 && seenShort.has(shortKey)) return false;
-    if (shortKey.length > 15) seenShort.add(shortKey);
     return true;
   });
 
@@ -14339,7 +14322,7 @@ function _aioLiveTs(d) {
 function _aioFormatLivePrice(sym, price) {
   sym = _aioLiveSym(sym);
   var max = price >= 1000 ? 2 : (price >= 10 ? 2 : 4);
-  if (/^(\^TNX|\^TYX|\^FVX|\^IRX)$/.test(sym)) max = 3;
+  if (/^(\^TNX|\^TYX|\^FVX|\^IRX)$/.test(sym)) max = 2;
   if (/=X$/.test(sym)) max = price >= 100 ? 2 : 4;
   return Number(price).toLocaleString('en-US', { minimumFractionDigits: max <= 2 ? 2 : 0, maximumFractionDigits: max });
 }
@@ -14689,6 +14672,38 @@ function _aioSelectAtomicQuotes(quotes, now) {
     }
   });
   return Array.from(selected.values());
+}
+
+function _aioVixCloseFromHistory() {
+  try {
+    var rows = window._aioHistory || [];
+    for (var i = rows.length - 1; i >= 0; i--) {
+      var v = Number(rows[i] && rows[i].vix);
+      if (Number.isFinite(v) && v > 0) return v;
+    }
+  } catch (_) {}
+  return null;
+}
+
+function _aioLiveVixValue() {
+  try {
+    var row = (window._liveData || {})['^VIX'];
+    var p = Number(row && row.price);
+    if (Number.isFinite(p) && p > 0) return p;
+  } catch (_) {}
+  return null;
+}
+
+function _aioUpdateVixBadge(vixValue) {
+  var els = document.querySelectorAll('[data-vix-badge]');
+  if (!els.length) return;
+  var _vixFixed = window._aioSafeFixed || function(v, d, fb) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d || 2) : (fb || '—'); };
+  var text = null;
+  var vp = Number(vixValue);
+  if (Number.isFinite(vp) && vp > 0) text = 'VIX ' + _vixFixed(vp, 2, '—');
+  else { var close = _aioVixCloseFromHistory(); if (close != null) text = 'VIX ' + close.toFixed(2) + ' 종가'; }
+  if (text == null) return;
+  els.forEach(function(el) { el.textContent = text; });
 }
 
 function applyLiveQuotes(quotes) {
@@ -15134,7 +15149,8 @@ function applyLiveQuotes(quotes) {
     const _vixFixed = window._aioSafeFixed || function(v, d, fb) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d || 2) : (fb || '—'); };
     let vp = Number(vixQ.regularMarketPrice);
     if (!Number.isFinite(vp)) vp = Number(DATA_SNAPSHOT && DATA_SNAPSHOT.vix);
-    if (!Number.isFinite(vp)) vp = 0;
+    var _vixLiveValue = (Number.isFinite(vp) && vp > 0) ? vp : null;
+    if (!Number.isFinite(vp) || vp <= 0) vp = 0;
     // P1557: same 18 / 25 / 32 edges and names as vixRegime / RULES.volatility (this ladder used 15 / 20 / 25 / 30 and 'panic' wording).
     const _vixBandNow = vixRegime(vp);
     const lvl = _vixBandNow.label;
@@ -15172,9 +15188,7 @@ function applyLiveQuotes(quotes) {
       vixPctCell.setAttribute('data-source-ts', _vixTs);
     }
     // P1508: without a live quote the header showed 'VIX —' although the last close is in the daily history; show that close, labelled.
-    var _vixBadgeText = 'VIX ' + _vixFixed(vp, 2, '—');
-    if (vp == null) { try { var _vh = (window._aioHistory || []).filter(function(r) { return r && isFinite(Number(r.vix)) && Number(r.vix) > 0; }); var _vl = _vh[_vh.length - 1]; if (_vl) _vixBadgeText = 'VIX ' + Number(_vl.vix).toFixed(2) + ' 종가'; } catch (_) {} }
-    document.querySelectorAll('[data-vix-badge]').forEach(el => el.textContent = _vixBadgeText);
+    _aioUpdateVixBadge(_vixLiveValue);
     // ── Options 페이지 VIX %ile 동적 업데이트 (v14: 하드코딩 90.9%ile 제거) ──
     const optVixLbl = vixRegime(vp).label;
     document.querySelectorAll('.options-vix-pct-label').forEach(el => {
@@ -15894,7 +15908,7 @@ function refreshHomeDashboard() {
       if (regime === 'DOWNTREND') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −20% 이하'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
       else if (regime === 'CORRECTION') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −10% 이하'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
       else if (regime === 'PULLBACK') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −5% 이하'; riskBadgeEl.className = 'status-pill sp-neutral'; }
-      else { riskBadgeEl.textContent = 'S&P 500 ' + (pctFromATH >= -0.5 ? '사상 최고치 부근' : '고점 대비 ' + pctFromATH.toFixed(1) + '%'); /* P1506: name the index */ riskBadgeEl.className = 'status-pill sp-neutral'; }
+      else { riskBadgeEl.textContent = 'S&P 500 1년 고점 대비 ' + pctFromATH.toFixed(1) + '%' + (pctFromATH >= -0.5 ? ' · 고점권' : ''); /* P1506: name the index */ riskBadgeEl.className = 'status-pill sp-neutral'; }
     }
   }
 

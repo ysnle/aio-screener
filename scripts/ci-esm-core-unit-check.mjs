@@ -94,8 +94,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   let refused = false, counters = 0;
   try { preparePaidWebSearch({ serverKey: true, state, bumpCounter: () => counters++ }); } catch (error) { refused = /월 예산.*유료 웹 검색/.test(error.message); }
   if (!refused || state._aioWebSearchStats || counters !== 0) fail('P1353 shared paid search must fail before request/statistics');
-  preparePaidWebSearch({ serverKey: false, state, bumpCounter: () => counters++, now: 1000 });
-  if (state._aioWebSearchStats.calls !== 1 || counters !== 1) fail('P1353 personal paid search statistics');
+  preparePaidWebSearch({ serverKey: true, health: { ai: { paidWebSearchEnabled: true } }, state, bumpCounter: () => counters++, now: 1000 });
+  if (state._aioWebSearchStats.calls !== 1 || counters !== 0) fail('P1608 shared search diagnostics must not consume a personal allowance');
 }
 
 // P1352: the production legacy model describes inputs, not an inferred economic expansion/recession.
@@ -3469,7 +3469,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const nowMs = Date.parse('2026-10-02T01:00:00Z');
   const schedule = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' }, 'us-cpi': { nextRelease: '2026-10-14' } }, snapshot: { nfp: 162, unemployment: 4.1 }, nowMs,
     earnings: [{ symbol: 'NKE', date: '2026-10-05', hour: 'amc', epsEstimate: 0.44 }, { symbol: 'TINY', date: '2026-10-05', hour: 'amc' }], names: { NKE: 'Nike' } });
-  if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30' || !/162천 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
+  if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30 KST' || !/162천 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
   // P1501: rule-derived market-structure dates (FOMC minutes, KRX expiry, exchange holidays).
   const week = buildBriefingSchedule({ fomcDecisions: ['2026-09-16', '2026-10-28'], nowMs: Date.parse('2026-10-06T12:00:00+09:00'), days: 7 });
   const labels = week.map((row) => `${row.when} ${row.label}`);
@@ -3770,8 +3770,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const unknown = chainOf({});
   if (breakevenOf(split) !== '기준일이 달라 보류') fail('P1528 the chain must hold the breakeven move when the real-yield and breakeven dates differ');
   if (split.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 the chain must not claim real-yield dominance across different observation dates');
-  if (breakevenOf(same) !== '1주 +8bp' || !same.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 same-day real yield and breakeven must still be compared');
-  if (breakevenOf(unknown) !== '1주 +8bp') fail('P1528 without observation dates the chain keeps its previous reading');
+  if (breakevenOf(same) !== '5거래일 +8bp' || !same.links.some((link) => /실질금리 우위/.test(link))) fail('P1528 same-day real yield and breakeven must still be compared');
+  if (breakevenOf(unknown) !== '5거래일 +8bp') fail('P1528 without observation dates the chain keeps its previous reading');
 }
 
 // P1529: the trend chart labelled every month, so once a range grew the widest label ("26년 1월") sat on top of the

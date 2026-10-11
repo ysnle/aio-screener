@@ -144,7 +144,7 @@ check(['2097957777922793710', '2097868442309472608', '2097722372757295582', '209
 const claimLedger = suppliedReference.claimLedger;
 const claims = claimLedger?.claims || [];
 const claimRequiredFields = claimLedger?.requiredFields || [];
-check(claimLedger?.schemaVersion === 'supplied-material-claims.v1' && claims.length === 9, '2026-09-11 packet has one claim-level row for each X source and attached DELL chart');
+check(claimLedger?.schemaVersion === 'supplied-material-claims.v1' && claims.filter((claim) => claim.id.startsWith('claim-20260911-')).length === 9, '2026-09-11 packet has one claim-level row for each X source and attached DELL chart');
 check(claims.every((claim) => claimRequiredFields.every((field) => claim[field] !== undefined && claim[field] !== null && (Array.isArray(claim[field]) ? claim[field].length > 0 : String(claim[field]).trim().length > 0))), 'every claim row carries Q1-Q5, chart, inputs, timeframe, confirmation, invalidation, counterclaim and consumer boundaries');
 check(claims.every((claim) => claim.sourceRefs?.length && String(claim.currentnessBoundary || '').toUpperCase().includes('REFERENCE') && claim.blockedConsumers?.length), 'every claim retains source attribution, currentness boundary and blocked consumer list');
 const knownMaterialIds = new Set([...(suppliedReference.sourceObservations || []), ...(suppliedReference.mediaAudit || [])].map((item) => item.id));

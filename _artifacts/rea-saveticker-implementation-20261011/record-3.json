@@ -1,0 +1,29 @@
+{
+  "version": "v57.33",
+  "date": "2026-10-11",
+  "p": {
+    "id": 1603,
+    "title": "범위가 명시된 브라우저 증거와 QA 실행 연결",
+    "symptom": "PASS 로그나 대표 screenshot만으로 전체 화면·한국어 의미·배포 동작까지 검증한 것으로 오인할 수 있었다.",
+    "root_cause": "대상 내용 해시·환경·행동·준비 조건·capture 채널·미관찰 상태를 연결하는 공통 evidence 계약이 없었다.",
+    "fix": "REA 설계 아이디어만 참고해 현재 도구의 bounded evidence schema·validator·comparator를 구현했다. 8개 hub 커버리지와 단계별 DOM/screenshot digest를 기록하고 불완전·환경 불일치는 unknown으로 유지한다. runner가 증거 누락/비밀/경로/의미 PASS 승격을 차단하며 artifact 경로와 증거 수준을 결과에 연결한다.",
+    "violated_rule": "R618 static/runtime/browser/live 분리 및 R701 현재 실행 증거.",
+    "prevention": "ci-reference-adoption-contract-check가 {P} 불완전 비교·비밀·민감 필드·경로와 semantic 자동 승격을 막는다. browser-reference-adoption은 cache 없이 evidence artifact를 제출한다.",
+    "verification": "schema 계약 및 5개 headless fixture 단계 PASS. 한국어 시각·문구 검수와 production 운영은 자동 PASS로 승격하지 않는다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-REFERENCE-EVIDENCE-01",
+      "text": "행동/준비/환경/capture가 다른 비교는 unknown이며 증거 없는 화면·semantic은 unverified로 남는다.",
+      "verify_by": "node scripts/ci-reference-adoption-contract-check.mjs && node scripts/ci-reference-adoption-browser-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs",
+      "done": true
+    }
+  ],
+  "changelog": [
+    "**브라우저 QA 증거 ({P}):** 대상·환경·여정·DOM/화면 해시·8화면 커버리지와 미검증 상태를 QA runner 산출물에 연결. 외부 라이브러리 추가 없음."
+  ],
+  "qa_section": "REA·SaveTicker 참조 적용",
+  "note": "뉴스 사건·정정·정확 issuer, 일정·SEC·불변 로컬 저장본, bounded browser QA 구현. 로컬 검증; commit/push/deploy 미실행.",
+  "status": null
+}

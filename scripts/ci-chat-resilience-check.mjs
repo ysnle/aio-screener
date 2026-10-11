@@ -19,7 +19,7 @@ vm.runInContext(section('function _aioChatAbortError(', '// ── Text processi
 vm.runInContext(section('function _aioCanonicalResearchUrl(', '/** Perplexity Sonar API'), root);
 vm.runInContext(section('async function _aiWebSearch(', 'function _aioResearchFailureForUser('), root);
 vm.runInContext(section('function _shouldUseClaudeWebSearch(', '/** 검색 쿼리 최적화'), root);
-vm.runInContext(section('function _searchCitationsHTML(', '/** Google Custom Search API'), root);
+vm.runInContext(section('function _searchCitationsHTML(', 'async function _googleSearch('), root);
 const first=root._aioBeginChatRequest('home','old'), second=root._aioBeginChatRequest('home','new');
 assert(first.controller.signal.aborted && !root._aioIsCurrentChatRequest('home', first));
 root._aioReleaseChatRequest(first); assert(states.home.streaming && states.home._activeRequest===second);

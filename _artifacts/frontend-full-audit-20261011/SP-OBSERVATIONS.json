@@ -1,0 +1,205 @@
+{
+  "schemaVersion": "aio-sp-observations.v1",
+  "audit": "frontend-full-audit-20261011",
+  "scope": ["#screener", "#portfolio"],
+  "observedAt": "2026-10-11T09:07:31Z",
+  "dataDateBasis": {
+    "today": "2026-10-11 (일)",
+    "lastUsClose": "2026-10-09 (금)",
+    "lastKrSession": "2026-10-08 (목)",
+    "note": "한국은 2026-10-09(한글날) 휴장 → 직전 거래일 10-08. screener.json factorSessionDateByMarket = {US:2026-10-09, KR:2026-10-08} 와 일치."
+  },
+  "environment": {
+    "base": "http://127.0.0.1:8931",
+    "loadMode": "warm — #home 을 먼저 로드(6s, 시장 국면 데이터 도착) 후 같은 세션에서 SPA 해시 이동으로 #screener, #portfolio 진입(각 5s 렌더 대기)",
+    "viewport": "1440x900 (Chromium / Playwright, headless)",
+    "screenshots": [
+      "_artifacts/frontend-full-audit-20261011/sp-screener.png",
+      "_artifacts/frontend-full-audit-20261011/sp-portfolio.png"
+    ],
+    "externalData": "차단됨(worker proxy CORS allowlist=https://ysnle.github.io, corsproxy 403, coingecko/CNN/naver 차단) — 라이브 시세 미수신은 환경 요인",
+    "scriptsLocation": "세션 스크래치패드에만 작성(리포 파일 생성 없음). 리포 수정/git/서버 관리 없음. 포지션 입력 테스트 생략(읽기 전용)."
+  },
+  "gradeCounts": { "A": 0, "B": 2, "C": 1, "D": 3, "total": 6 },
+  "gradeLegend": {
+    "A": "틀린/낡은 데이터",
+    "B": "같은 값·다른 basis(분모/스코프가 다른 수치를 나란히 제시)",
+    "C": "기준일/상태칩 오류",
+    "D": "카피/UX"
+  },
+  "findings": [
+    {
+      "id": "SP-B1",
+      "grade": "B",
+      "duplicate": "중복: X-A2",
+      "route": "screener",
+      "location": "src/ui/pages/screener.js:1260 (#screener-readiness-note), src/ui/pages/screener.js:1702 (#scr-readiness-preview), index.html:9285 (#scr-funnel-ready)",
+      "title": "\"계산 준비 985\"·\"필드 준비 985/993 · 99.2%\" 가 산출물 ok=989 와 4~5 어긋나고 basis 가 화면에 없다",
+      "expected": {
+        "value": "ok=989 / universe 993 (99.6%), dataRowCount=989",
+        "basis": "public-data/screener.json → ok, universe, data; screener-universe.json → meta.recordCount"
+      },
+      "actual": "종목 993 · 계산 준비 985 · 필드 준비 985/993 · 99.2% (X-A2 의 데이터 ok=989 와 불일치 재확인됨)",
+      "mechanism": "계산 준비/필드 준비 = 프리셋 필수 필드(ret3m·pctSma200·rsi14)를 모두 충족한 eligibleCount(985). 산출물 ok=989 는 Yahoo 조회 성공 수. 두 수치는 basis 가 다르지만 화면에서 나란히 '준비도'로 읽힌다.",
+      "fix": "라벨을 분리한다 — \"수집 성공 989/993(99.6%)\"와 \"현재 프리셋 필수 필드 충족 985/993(ret3m·pctSma200·rsi14)\". 두 수치에 각각 분모와 산출 주체를 붙인다.",
+      "confidence": "high"
+    },
+    {
+      "id": "SP-B2",
+      "grade": "B",
+      "route": "screener",
+      "location": "screener 헤더 문구 + [data-screener-provenance] (index.html:9233)",
+      "title": "기본적 커버리지 수치가 세 가지 basis 로 동시에 노출 — 79.6%(분모 813) · 652/757(SEC FY) · data.json 649",
+      "expected": {
+        "value": "fundamentalCoveragePct=79.6 (647/813) · 기관 SEC 회수 652/757 · data.json meta.secFundamentalsCount=649",
+        "basis": "public-data/screener.json → fundamentalCount=647, fundamentalCoveragePct=79.6, fundamentalCoverageDenominator=813, fundamentalCoverageScope=\"US screener universe; mixed fundamental fields, separate from SEC-only coverage\"; public-data/data.json → meta.secFundamentalsCount=649"
+      },
+      "actual": "헤더: \"공시 재무 자료가 있는 종목 79.6%만 재무 조건 판정 가능\" / provenance: \"SEC FY sec-fy-normalized-v2 652/757\" — 분모 813 대 유니버스 993 불일치가 화면에 드러나지 않고, SEC 계열 수치(652 대 649)는 산출물 간에도 다르다.",
+      "fix": "재무 커버리지를 한 문장으로 통일하고 분모·스코프(US 개별주 813)와 출처를 병기한다. SEC 계열(652/757)은 '별도 스코프'임을 라벨에 명시하거나 접는다.",
+      "confidence": "medium"
+    },
+    {
+      "id": "SP-C1",
+      "grade": "C",
+      "route": "screener + portfolio",
+      "location": "공통 판단 배너(페이지 상단, 두 라우트 동일) — 소스 미상(공유 decision ledger)",
+      "title": "산출물이 정상 도착·최신인데 공통 배너가 \"데이터: 미수신\" + \"공통컷 지연 · 10/10/08:00 KST\" + \"시점 불일치\" 상태칩을 표시",
+      "expected": {
+        "value": "데이터 도착·최신: screener artifact asOf 2026-10-10T13:01Z, 993행/985 준비; market-snapshot status=\"published\" 16/16; 최신 사이클 = data.json cycleId kst-0800-2026-10-09T23:00:00Z (=10/10 08:00 KST)",
+        "basis": "public-data/screener.json(asOf,universe,ok) · market-snapshot.json(status,coverage,generatedAt) · data.json(meta.cycleId, meta.cycleStatus, verifyStats)"
+      },
+      "actual": "screener: \"후보 판단 / 판단 보류 · 필수 현재성 근거 미수신 / 데이터: 미수신 / 공통컷 지연 · 10/10/08:00 KST / 시점 불일치\"; portfolio: \"포트폴리오 판단 / 판단 보류 · 필수 현재성 근거 미수신 / 데이터: 미수신 …\" (동일 문구)",
+      "mechanism": "\"미수신\"은 라이브/현재성 근거(실시간 시세, quotePolicy=client-direct-fetch-only) 부재를 가리키는 것으로 보이나, 화면에는 '데이터: 미수신'으로만 표기되어 정적 산출물이 없는 것처럼 읽힌다. 이 감사 환경은 외부 시세가 전면 차단되어 라이브 근거가 항상 비어 있어 재현이 환경 의존적일 수 있다.",
+      "fix": "\"데이터: 미수신\"을 대상별로 분해한다(예: \"정적 스냅샷 10/10 도착 · 실시간 시세 근거 미수신\"). '공통컷'(10/10 08:00 KST)의 지연 판정 근거(다음 사이클 예정 시각)도 함께 노출한다.",
+      "confidence": "low",
+      "caveat": "라이브 시세가 도달하는 정상 환경에서는 근거가 채워져 문구가 바뀔 수 있음. 환경 의존."
+    },
+    {
+      "id": "SP-D1",
+      "grade": "D",
+      "route": "portfolio",
+      "location": "src/ui/pages/portfolio.js:206 (#pf-sector-breakdown 빈 상태)",
+      "title": "섹터 집중도 빈 상태 카피가 '데이터 대기'로 잘못 표기 — 실제 상태는 '보유 없음(empty)'",
+      "expected": {
+        "value": "빈 포트폴리오는 '종목을 추가하면 …' 안내",
+        "basis": "동일 화면 형제 카피: #pf-donut-legend=\"종목을 추가하면 비중이 표시됩니다\", #pf-checks=\"평가액이 있는 포지션을 추가하면 점검이 표시됩니다\", #pf-analysis-status(data-valuation-state=empty)=\"포트폴리오 등록 후 자동 계산됩니다.\" ; index.html:8651 기본 카피=\"포지션을 추가하면 쏠림·통화·지역 점검이 표시됩니다\""
+      },
+      "actual": "#pf-sector-breakdown = \"포트폴리오 데이터 수신을 기다리는 중입니다\" (데이터 로딩 대기처럼 읽힘)",
+      "mechanism": "portfolio.js renderPortfolioSurface() 의 else 분기 고정 문자열이 empty/loading 을 구분하지 않는다.",
+      "fix": "빈 상태에서는 \"종목을 추가하면 섹터 비중이 표시됩니다\"로 교체하고, 실제 로딩 상태와 구분한다.",
+      "confidence": "high"
+    },
+    {
+      "id": "SP-D2",
+      "grade": "D",
+      "route": "screener",
+      "location": "src/ui/pages/screener.js:1249-1260 (#screener-readiness-note · identityNote)",
+      "title": "상태 요약줄이 \"식별 metadata 미확인 993개(mic_missing·asset_type_missing·currency_missing)\"로 시작해 전량 미확인처럼 읽힘",
+      "expected": {
+        "value": "심볼·이름·섹터는 993/993 보유(정적 유니버스), 가격 기반 랭킹은 985행 계산됨",
+        "basis": "public-data/screener-universe.json → meta.recordCount=993, duplicateSymbols=0, note=\"정적 유니버스는 심볼·이름·섹터·지수만 보관…signal/memo/mcap/rsi는 런타임 산출물\" ; screener.json → ok=989"
+      },
+      "actual": "#screener-readiness-note 리드 = \"식별 metadata 미확인 993개(mic_missing·asset_type_missing·currency_missing) · 가격 조회 성공은 식별 확인이 아닙니다 …\"",
+      "mechanism": "MIC·assetType·currency 미충족 행이 993(전량)이라 경고가 리드로 고정(P1167). 랭킹 자체는 영향 없음이 같은 줄 뒤에서만 밝혀진다.",
+      "fix": "랭킹에 영향 없는 경고는 요약줄 말미/접힘으로 내리고, 리드에는 랭킹에 실제 영향을 주는 신선도·필드 결측만 남긴다.",
+      "confidence": "low",
+      "caveat": "의도된 경고(P1167)일 수 있음 — 우선순위/가독성 관점의 관찰."
+    },
+    {
+      "id": "SP-D3",
+      "grade": "D",
+      "route": "screener",
+      "location": "index.html:9233 [data-screener-provenance] + #scr-data-status(details, 9231-9234)",
+      "title": "동일 provenance 문구가 두 곳에 중복 렌더(독립 div + 데이터 출처 접힘)",
+      "expected": { "value": "출처 문구는 1회 노출", "basis": "동일 화면 #scr-data-status details 가 [data-screener-provenance] 와 #screener-readiness-note 텍스트를 다시 포함" },
+      "actual": "[data-screener-provenance]=\"연구용 스냅샷 · 팩터 US 2026-10-09 …\" 가 독립 div 로 1회, 그리고 #scr-data-status 내부에 같은 문구가 다시 포함",
+      "mechanism": "provenance div 와 data-status details 가 같은 필드를 각자 렌더.",
+      "fix": "둘 중 하나만 남기거나, 접힘 상세는 색인·링크만 제공하고 본문은 재사용한다.",
+      "confidence": "low"
+    }
+  ],
+  "knownRefsChecked": [
+    {
+      "ref": "SMOKE-B1",
+      "route": "screener",
+      "check": "\"이어서 볼 곳\" 시장 상태 링크 why 텍스트가 warm 로드에서 '판정 대기'로 고정되는지 (src/domain/screener/screener-read.js:72 regime.available)",
+      "result": "재현 안 됨",
+      "actual": "next = [{link:\"표 첫 행 MPC →\", why:\"지금 표(조건·표시 필터·정렬)의 맨 위 종목을…\"}, {link:\"시장 상태 →\", why:\"순위가 놓인 환경 — 혼조\"}] — regime.available=true 로 '혼조' 렌더",
+      "evidence": "#home 웜업 시 home-hero-total=\"혼조\", home-hero-headline=\"10/9 미국 종가 기준 · 미국 6개 축 우호 3 · 중립 0 · 부담 3\". 같은 세션 SPA 이동으로 #screener 진입.",
+      "conclusion": "SMOKE-B1 은 cold 딥링크에서 국면 데이터 도착 전 1회 렌더된 결과로 보이며, warm 로드에서는 재현되지 않는다(중복: SMOKE-B1 — 단, 미재현)."
+    },
+    {
+      "ref": "X-A2",
+      "route": "screener",
+      "check": "화면의 준비 개수 vs screener.json ok",
+      "result": "재현됨",
+      "actual": "화면 985 vs 데이터 ok=989 (→ 발견 SP-B1, 중복: X-A2)"
+    }
+  ],
+  "extracted": {
+    "screener": {
+      "provenance": "연구용 스냅샷 · 팩터 US 2026-10-09 · KR 2026-10-08 세션 종가 기준(일봉 바 시작 2026-10-09 13:30 · 관측시각 아님 · basis bar-start) · 수집 2026-10-10 13:01 · 생성 2026-10-10 13:01 · github-actions:yahoo-1y · SEC FY sec-fy-normalized-v2 652/757 · 종목 유니버스 최신 · 연구 프레임 49개·시계열 20개·claim 14개 (REFERENCE) · 모델 검증 BLOCKED · 거래용 승격 금지 · 공식 거래소 breadth 아님",
+      "readinessNote": "식별 metadata 미확인 993개(mic_missing·asset_type_missing·currency_missing) · 가격 조회 성공은 식별 확인이 아닙니다 · 미리보기 정의 preset-balanced(75f90624) · 조건 내장 1개: rank ≥ 60 · 모델 검증 BLOCKED · 연구 snapshot · 종목 993 · 계산 준비 985 · 실행 판정 run run-01eaeb40 통과 400 · 부족 5 / 993 · 표시 범위 현재 필터 400행 · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.",
+      "readinessPreview": "필드 준비 985/993 · 99.2% · 필수: ret3m · pctSma200 · rsi14",
+      "funnel": { "universe": 993, "ready": 985, "passed": 400, "unavailable": 5, "filtered": 400 },
+      "validationGateLabel": "순위 사후 검증 | 상위−하위 20% -0.84% · 2/6회 앞섬 | 2026-10-10 계산 · 986종목 · 과거 6번 시점(147~42거래일 전) · 21거래일 보유 · 거래비용 +0.42% · IC -0.003 | 예측력 검증 미완료",
+      "readHeadline": "985종목 중 상위 20% 197종목 · 과거 상위−하위 -0.84%",
+      "nextSteps": [
+        { "link": "표 첫 행 MPC →", "why": "지금 표(조건·표시 필터·정렬)의 맨 위 종목을 요약·차트·재무로 확인" },
+        { "link": "시장 상태 →", "why": "순위가 놓인 환경 — 혼조" }
+      ],
+      "tableHeaders": ["관심·비교", "백분위", "상위", "종목", "가격", "52주 고점 대비", "1M", "3M", "RSI", "50일선 거리(변동폭 배수)", "VCP 구조·충족도 연구"],
+      "tableRowCountRendered": 12,
+      "tableRows": [
+        ["☆+", "100", "상위 1%", "MPC·Marathon Petroleum", "—", "-3.2%", "+15.9%", "+53.7%", "73.5", "4.9배", "기반 형성 · 충족도 45"],
+        ["☆+", "100", "상위 1%", "ITUB·Itau Unibanco", "—", "-0.4%", "+22.4%", "+20.1%", "74.0", "8.5배", "추세 조건 미충족 · 충족도 20"],
+        ["☆+", "100", "상위 1%", "229640.KS·LS에코에너지", "—", "-33.5%", "+60.1%", "+44.0%", "77.3", "6.7배", "추세 조건 미충족 · 충족도 50"],
+        ["☆+", "100", "상위 1%", "192820.KS·코스맥스", "—", "-4.2%", "+11.3%", "+72.2%", "66.5", "3.2배", "피벗 돌파 · 충족도 55"],
+        ["☆+", "100", "상위 1%", "P·Everpure", "—", "-1.6%", "+64.2%", "+105.0%", "81.2", "8.1배", "기반 형성 · 충족도 45"],
+        ["☆+", "99", "상위 1%", "AFRM·Affirm Holdings", "—", "-10.8%", "+18.7%", "-1.5%", "66.5", "2.2배", "기반 형성 · 충족도 45"],
+        ["☆+", "99", "상위 1%", "DNA·Ginkgo Bioworks", "—", "-28.6%", "+91.7%", "+43.6%", "63.0", "4.0배", "추세 조건 미충족 · 충족도 34"],
+        ["☆+", "99", "상위 1%", "HPE·Hewlett Packard Enterprise", "—", "-0.1%", "+33.4%", "+55.9%", "71.5", "5.4배", "기반 형성 · 충족도 45"],
+        ["☆+", "99", "상위 1%", "GTLB·GitLab", "—", "-0.8%", "+16.5%", "+64.6%", "73.8", "5.8배", "피벗 근접 · 충족도 55"],
+        ["☆+", "99", "상위 1%", "AMT·American Tower", "—", "-7.1%", "+6.5%", "+8.7%", "69.1", "3.0배", "추세 조건 미충족 · 충족도 40"],
+        ["☆+", "99", "상위 1%", "DINO·HF Sinclair", "—", "-2.4%", "+12.6%", "+49.4%", "74.4", "4.3배", "피벗 근접 · 충족도 69"],
+        ["☆+", "99", "상위 1%", "ILMN·Illumina", "—", "-10.1%", "+38.2%", "+46.4%", "62.9", "4.0배", "기반 형성 · 충족도 45"]
+      ],
+      "missingValueDisplay": "누락값은 '—'(em dash). 렌더된 12행 전부 '가격' 컬럼 = '—'. 페이지 내 '—' 총 204개. 별도 누락 라벨: '검증 자료 없음'(조건 검증 자료 없음).",
+      "note_priceColumn": "'가격' 컬럼 전량 '—'는 외부 라이브 시세가 전면 차단된 이 감사 환경에 기인한다고 판단되어 등급 A로 계상하지 않음(blocked 참조)."
+    },
+    "portfolio": {
+      "analysisStatus": "포트폴리오 등록 후 자동 계산됩니다.",
+      "analysisAttrs": { "valuationState": "empty", "readState": "ready", "promotionStatus": "blocked", "decisionEligible": false },
+      "emptyState": "포트폴리오가 비어 있습니다 / 티커 · 수량 · 매수 단가를 입력하면 보유 현황과 리스크 분석이 시작됩니다. / [첫 종목 추가] / 보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.",
+      "currency": { "pf-total-value": "—", "pf-total-pnl": "—", "pf-cash-hero": "—", "pf-currency-note": "—", "note": "빈 포트폴리오에는 통화 표기가 나오지 않음(—). formatMoney/formatSurfaceMoney 경로는 USD=$, KRW=₩, 기타=코드." },
+      "heroLine": "총 자산 가치 — / — · 오늘 — (—)",
+      "vixBand": "VIX 14.8(10/9 종가) · 저변동 구간",
+      "exposureCurrent": "보유 내역을 입력하면 계산됩니다",
+      "sectorBreakdown": "포트폴리오 데이터 수신을 기다리는 중입니다",
+      "donutLegend": "종목을 추가하면 비중이 표시됩니다",
+      "checksHeader": "포트폴리오 점검 / 평가액이 있는 포지션을 추가하면 점검이 표시됩니다.",
+      "coverageDisclosure": "빈 상태에서는 커버리지 공개 문구가 나오지 않음. (비어 있지 않을 때: '공개된 기준값이 있는 항목만 양호/주의로 판정하고 나머지는 참고 비중으로 표시')",
+      "note": "도넛/차트는 보유 없음으로 미렌더 — 라벨은 #pf-donut-legend 빈 상태 카피만 노출.",
+      "sharedBanner": "포트폴리오 판단 / 판단 보류 · 필수 현재성 근거 미수신 / 데이터: 미수신 / 공통컷 지연 · 10/10/08:00 KST / 시점 불일치 / 근거 상태 입력 확인 필요 · 예측 검증 미확립 (→ SP-C1)"
+    }
+  },
+  "blocked": [
+    {
+      "id": "BLOCKED-1",
+      "item": "라이브 시세 계층(스크리너 '가격' 컬럼, 포트폴리오 시세 신선도/현재가)",
+      "reason": "worker proxy CORS allowlist(https://ysnle.github.io) 및 외부 프록시 차단으로 127.0.0.1 오리진에서는 라이브 시세가 도달하지 않음. 스크리너 후보 테이블 '가격' 컬럼 12/12행 '—', 포트폴리오 '시세 출처 확인 대기 · 갱신: —'.",
+      "workaround": "없음(환경). 라이브 환경에서 재확인 필요."
+    },
+    {
+      "id": "BLOCKED-2",
+      "item": "포지션 입력/평가 흐름(통화 표기·도넛 슬라이스·손익 컬럼 실값)",
+      "reason": "지시상 읽기 전용(포지션 입력 테스트 생략). 포트폴리오가 비어 있어 통화/손익/도넛 실값 렌더 경로는 관측 불가.",
+      "workaround": "테스트 포지션 1건 추가 후 재실행(이번 감사 범위 밖)."
+    }
+  ],
+  "limitations": [
+    "1회 Playwright 실행(warm 로드) 결과이며 각 라우트 5초 렌더 대기 후 스냅샷이다. 시간에 따라 변하는 상태(라이브 시세 도착)는 반영되지 않았다.",
+    "SMOKE-B2(톱바 VIX 배지 'VIX —')는 본 범위(스크리너/포트폴리오) 밖이나, 같은 세션에서 포트폴리오 '변동성 구간'은 'VIX 14.8(10/9 종가)'로 값이 채워져 배지 폴백 경로와 대비된다(참고).",
+    "스크린샷은 뷰포트(1440x900) 컷이며 고정 높이 셸 구조상 스크롤 하단은 담기지 않는다; 계측은 DOM 텍스트로 보완했다."
+  ]
+}

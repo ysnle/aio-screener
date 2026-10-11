@@ -40,7 +40,9 @@ export function normalizeNews(raw = {}) {
     ko_summary: decodeNewsText(item?.ko_summary),
     source: item?.source || item?.feed || 'unknown',
     link: item?.link == null && item?.url == null ? '' : String(item?.link || item?.url),
-    pubDate: item?.pubDate || item?.date || null,
+    pubDate: item?.publishedAt || item?.pubDate || item?.date || null,
+    publishedAt: item?.publishedAt || item?.pubDate || item?.date || null,
+    fetchedAt: item?.fetchedAt || raw.fetchedAt || null,
     country: item?.country || 'all',
     // LC-31: the producer copies the feed QUERY's topic onto every article, so a rail-services story
     // could be labelled 반도체/AI(semi). Keep the feed topic as its own field; an article topic is only

@@ -48,7 +48,7 @@ function suppliedMaterialArticles(referenceRegistry) {
     conceptIds: Object.freeze([]),
     authoringStatus: claim.status === 'HYPOTHESIS_UNVERIFIED' ? 'UNVERIFIED_REFERENCE' : 'STRUCTURED_REFERENCE',
     publication: 'EDUCATIONAL_REFERENCE_ONLY',
-    reviewedAt: referenceRegistry.updatedAt || referenceRegistry.reviewedAt || '',
+    reviewedAt: claim.observedOn || referenceRegistry.updatedAt || referenceRegistry.reviewedAt || '',
     keywords: Object.freeze([
       claim.claimType,
       ...(Array.isArray(claim.indicatorInputs) ? claim.indicatorInputs : []),

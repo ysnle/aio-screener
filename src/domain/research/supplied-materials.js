@@ -2,6 +2,7 @@
 // This module is deliberately reference-only: it contains no current values,
 // issuer rankings, prices, targets, or investment recommendations.
 import { NATHAN_PREVIOUS_THREADS_REFERENCE } from './nathan-previous-threads.js';
+import { PACKET_20261011_SOURCES, PACKET_20261011_CLAIMS } from './packet-20261011.js';
 
 export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   id: 'supplied-materials-2026-08-29',
@@ -101,6 +102,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     Object.freeze({ id: 'GONOGO_Korea-2107802988979122650', author: 'GONOGO', sourceUrl: 'https://x.com/GONOGO_Korea/status/2107802988979122650', publishedAt: '2026-10-07T11:59:28.000Z', publishedAtKst: '2026-10-07T20:59:28+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '구독자 게시물 캡처: BMO 30년물 6% 전망, 아폴로 실질 임대료 재가속, 오라클·파라마운트 차입, 영국 고용 24개월 감소, 골드만 S&P 선물 포지셔닝(9/22~29 비딜러 105억 달러 순매도, 77백분위). 포지셔닝은 CFTC 공개 자료로 화면화(P1507), 나머지는 2차 인용.' }),
   ]),
   sourceObservations: Object.freeze([
+    ...PACKET_20261011_SOURCES,
     Object.freeze({ id: 'NathanYJLee-2097957777922793710', author: 'Nathan | Factomind', sourceUrl: 'https://x.com/NathanYJLee/status/2097957777922793710', publishedAt: '2026-09-10T07:58:07.000Z', publishedAtKst: '2026-09-10T16:58:07+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '금융 레버리지와 방향성 레버리지를 분리하고, 예측보다 자금조달·노출 한도·리스크 관리를 우선' }),
     Object.freeze({ id: 'Trader-Jesse-2097868442309472608', author: 'Trader Jesse', sourceUrl: 'https://x.com/Trader_Jesse_/status/2097868442309472608', publishedAt: '2026-09-10T02:03:07.000Z', publishedAtKst: '2026-09-10T11:03:07+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: 'Wedge Pop을 바닥·수렴 이후 이동평균 돌파와 거래량 동반의 구조적 진입 프레임으로 설명' }),
     Object.freeze({ id: 'markminervini-2097722372757295582', author: 'Mark Minervini', sourceUrl: 'https://x.com/markminervini/status/2097722372757295582', publishedAt: '2026-09-09T16:22:42.000Z', publishedAtKst: '2026-09-10T01:22:42+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '약화된 breadth·momentum과 이벤트 군집 속에서 선택성·헤지·시장 확인을 우선하고, 리더십 회전을 관찰' }),
@@ -147,8 +149,8 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   // makes omissions visible to the bridge, chat and knowledge retriever.
   claimLedger: Object.freeze({
     schemaVersion: 'supplied-material-claims.v1',
-    packetId: 'packet-2026-09-11',
-    coverageBoundary: '완전성은 2026-09-11 사용자 제공 X 8건과 첨부 DELL 차트의 직접 확인 범위에 한정합니다. 이전 패킷의 주장이나 현재 시장값은 이 원장의 완전성에 포함하지 않습니다.',
+    packetId: 'multi-packet-reference-ledger',
+    coverageBoundary: '2026-09-11의 X 8건·DELL 차트와 2026-10-11의 원문 3건·공개 작성자 후속 글에서 추출한 구조적 참고 주장입니다. 숨은 답글·이후 수정·공식 수치의 전수 검증은 포함하지 않습니다.',
     requiredFields: Object.freeze([
       'claimType', 'materialElement', 'observation', 'thesisLogic',
       'paradigmShift', 'mechanism', 'chartTechnique', 'indicatorInputs',
@@ -156,6 +158,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
       'allowedConsumers', 'blockedConsumers', 'currentnessBoundary'
     ]),
     claims: Object.freeze([
+      ...PACKET_20261011_CLAIMS,
       Object.freeze({
         id: 'claim-20260911-leverage-separation',
         sourceRefs: Object.freeze(['NathanYJLee-2097957777922793710']),

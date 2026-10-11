@@ -1,0 +1,1169 @@
+{
+  "profile": "affected",
+  "groups": [
+    "preflight",
+    "core",
+    "data",
+    "knowledge",
+    "workspace",
+    "cloudflare",
+    "browser-unit",
+    "browser-runtime",
+    "browser-knowledge",
+    "browser-resilience",
+    "browser-viewport",
+    "browser-surface",
+    "watchdog-local"
+  ],
+  "changeSource": "session:x-research-theme-qa-20261011",
+  "changedFiles": [
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "_artifacts/boot-interaction-report.json",
+    "_artifacts/route-soak-report.json",
+    "_artifacts/structural-quality-20260906/browser.json",
+    "_artifacts/structural-quality-20260906/guide.png",
+    "_artifacts/x-research-theme-20261011/IMPLEMENTATION-REPORT.md",
+    "_artifacts/x-research-theme-20261011/affected-scope.json",
+    "_artifacts/x-research-theme-20261011/record-research.json",
+    "_artifacts/x-research-theme-20261011/record-search.json",
+    "_artifacts/x-research-theme-20261011/record-ui.json",
+    "_context/BUG-POSTMORTEM.md",
+    "_context/CLAUDE.md",
+    "_context/CONTEXT-CATALOG.json",
+    "_context/CURRENT-STATE.md",
+    "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
+    "_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json",
+    "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
+    "_context/QA-CHECKLIST.md",
+    "_context/RULES.md",
+    "_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md",
+    "architecture/asset-manifest.json",
+    "architecture/decomposition-hotspots.json",
+    "architecture/operations-slo.json",
+    "architecture/public-readiness.json",
+    "architecture/qa-pipeline.json",
+    "architecture/release-manifest.json",
+    "architecture/visual-state-matrix.json",
+    "index.html",
+    "js/aio-core.js",
+    "js/aio-ui.js",
+    "public-config.json",
+    "public-data/operations-status.json",
+    "scripts/ci-research-flow-contract-check.mjs",
+    "scripts/ci-theme-research-browser-check.mjs",
+    "src/ai/retrieval/knowledge.js",
+    "src/app/bootstrap.js",
+    "src/domain/knowledge/learning-core.js",
+    "src/domain/research/packet-20261011.js",
+    "src/domain/research/supplied-materials.js",
+    "src/ui/components/color-theme.js",
+    "src/ui/components/stock-chart.js",
+    "src/ui/knowledge/glossary-bridge.js",
+    "src/ui/pages/themes.js",
+    "sw.js",
+    "version.json",
+    "worker/wrangler.proxy.toml"
+  ],
+  "gates": [
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-syntax-check.mjs"
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-control-char-check.mjs"
+    },
+    {
+      "id": "version",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-version-check.mjs"
+    },
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-product-charter-contract-check.mjs"
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-architecture-contract-check.mjs"
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-native-decision-evidence-check.mjs"
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-vertical-slice-contract-check.mjs"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-capability-claim-contract-check.mjs"
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-operations-contract-check.mjs"
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-reference-curriculum-contract-check.mjs"
+    },
+    {
+      "id": "route-registry",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/generate-route-registry.mjs"
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/generate-workspace-state.mjs"
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-workspace-contract-check.mjs"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-qa-runner-behavior-check.mjs"
+    },
+    {
+      "id": "market-session",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-market-session-contract-check.mjs"
+    },
+    {
+      "id": "decomposition",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-decomp-hotspot-check.mjs"
+    },
+    {
+      "id": "baseline",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-baseline-contract-check.mjs"
+    },
+    {
+      "id": "esm-core",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-esm-core-unit-check.mjs"
+    },
+    {
+      "id": "page-decision-reference",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-page-decision-reference-check.mjs"
+    },
+    {
+      "id": "rotation-history",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-rotation-history-check.mjs"
+    },
+    {
+      "id": "fundamental-watchlist-timeline",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-fundamental-watchlist-timeline-check.mjs"
+    },
+    {
+      "id": "artifact-cache",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-artifact-cache-check.mjs"
+    },
+    {
+      "id": "headless-group-lifecycle",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-headless-group-lifecycle-check.mjs"
+    },
+    {
+      "id": "service-worker-cache-policy",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-service-worker-cache-policy-check.mjs"
+    },
+    {
+      "id": "ai-intelligence",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ai-intelligence-contract-check.mjs"
+    },
+    {
+      "id": "ai-premise",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ai-premise-check.mjs"
+    },
+    {
+      "id": "ai-analysis-evidence",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ai-analysis-evidence-check.mjs"
+    },
+    {
+      "id": "ai-chat-analysis-integration",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ai-chat-analysis-integration-check.mjs"
+    },
+    {
+      "id": "ai-quote-evidence",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ai-quote-evidence-check.mjs"
+    },
+    {
+      "id": "domain-parity",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-domain-parity-check.mjs"
+    },
+    {
+      "id": "research-model",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-research-model-contract-check.mjs"
+    },
+    {
+      "id": "research-flow",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-research-flow-contract-check.mjs"
+    },
+    {
+      "id": "proxy-continuity",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-proxy-continuity-check.mjs"
+    },
+    {
+      "id": "data-continuity",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-data-continuity-check.mjs"
+    },
+    {
+      "id": "desktop-continuity",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-desktop-continuity-check.mjs"
+    },
+    {
+      "id": "chat-resilience",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-chat-resilience-check.mjs"
+    },
+    {
+      "id": "ai-provider-stream",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ai-provider-stream-check.mjs"
+    },
+    {
+      "id": "storage-migration",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-storage-migration-check.mjs"
+    },
+    {
+      "id": "release-manifest",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-release-manifest-contract.mjs"
+    },
+    {
+      "id": "deployment-convergence",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-deployment-convergence-check.mjs"
+    },
+    {
+      "id": "retirement",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-retirement-contract.mjs"
+    },
+    {
+      "id": "inference",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-inference-contract-check.mjs"
+    },
+    {
+      "id": "csp",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-csp-ratchet-check.mjs"
+    },
+    {
+      "id": "structural",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-structural-check.mjs"
+    },
+    {
+      "id": "default-ux",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ux-default-path-check.mjs"
+    },
+    {
+      "id": "desktop-scope",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-desktop-scope-check.mjs"
+    },
+    {
+      "id": "runtime",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-runtime-contract-check.mjs"
+    },
+    {
+      "id": "ai-chat-reliability",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ai-chat-reliability-contract-check.mjs"
+    },
+    {
+      "id": "data-pipeline",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-data-pipeline-contract-check.mjs"
+    },
+    {
+      "id": "page-timeline",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-page-data-timeline-contract-check.mjs"
+    },
+    {
+      "id": "reference-adoption-contract",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-reference-adoption-contract-check.mjs"
+    },
+    {
+      "id": "semantic-review",
+      "group": "core",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-semantic-review-check.mjs"
+    },
+    {
+      "id": "macro-calendar-review",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-macro-calendar-review-contract-check.mjs"
+    },
+    {
+      "id": "screener-workbench",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-screener-workbench-contract.mjs"
+    },
+    {
+      "id": "conditional-evidence",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-conditional-evidence-contract.mjs"
+    },
+    {
+      "id": "screener-benchmark",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/benchmark-screener-workbench.mjs"
+    },
+    {
+      "id": "market-snapshot",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-market-snapshot-contract-check.mjs"
+    },
+    {
+      "id": "history-time",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-history-field-time-contract-check.mjs"
+    },
+    {
+      "id": "data-plane",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-data-plane-contract-check.mjs"
+    },
+    {
+      "id": "operations-status",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-operations-status-check.mjs"
+    },
+    {
+      "id": "operations-alert-policy",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-operations-alert-policy-check.mjs"
+    },
+    {
+      "id": "fast-plane-consumer",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-fast-plane-consumer-gate.mjs"
+    },
+    {
+      "id": "operations-slo",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-operations-slo-window-check.mjs"
+    },
+    {
+      "id": "human-validation",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-human-validation-contract-check.mjs"
+    },
+    {
+      "id": "reconciliation",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-reconciliation-contract-check.mjs"
+    },
+    {
+      "id": "source-registry",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-source-registry-contract-check.mjs"
+    },
+    {
+      "id": "professional-gap",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-professional-data-gap-check.mjs"
+    },
+    {
+      "id": "operator-readiness",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-operator-readiness-check.mjs"
+    },
+    {
+      "id": "data-lineage",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-data-lineage-audit.mjs"
+    },
+    {
+      "id": "sec-runtime-projection",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-sec-runtime-projection-check.mjs"
+    },
+    {
+      "id": "candidate-archive",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-candidate-archive-check.mjs"
+    },
+    {
+      "id": "review-integrity",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-review-integrity-unit-check.mjs"
+    },
+    {
+      "id": "static-data",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-static-data-contract-check.mjs"
+    },
+    {
+      "id": "artifact-semantics",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-artifact-semantics-check.mjs"
+    },
+    {
+      "id": "static-db-expiry",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-static-db-expiry-check.mjs"
+    },
+    {
+      "id": "data-refresh",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-data-refresh-audit.mjs"
+    },
+    {
+      "id": "refresh-integrity",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-refresh-artifact-integrity-check.mjs"
+    },
+    {
+      "id": "release-revision",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-release-revision-check.mjs"
+    },
+    {
+      "id": "release-generated-parity",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-generated-release-parity-check.mjs"
+    },
+    {
+      "id": "13f-currentness",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-13f-currentness-check.mjs"
+    },
+    {
+      "id": "13f-semantic-noop",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-13f-semantic-hash-check.mjs"
+    },
+    {
+      "id": "artifact-headroom",
+      "group": "data",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-artifact-size-headroom-check.mjs"
+    },
+    {
+      "id": "principles-lesson-parity",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-principles-lesson-parity-contract-check.mjs"
+    },
+    {
+      "id": "knowledge-generated-parity",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-generated-parity-check.mjs"
+    },
+    {
+      "id": "integrated-framework",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-integrated-framework-contract.mjs"
+    },
+    {
+      "id": "knowledge-ontology",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-ontology-contract.mjs"
+    },
+    {
+      "id": "knowledge-core",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-core-semantic-check.mjs"
+    },
+    {
+      "id": "knowledge-articles",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-article-contract.mjs"
+    },
+    {
+      "id": "knowledge-learning",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-learning-state-contract.mjs"
+    },
+    {
+      "id": "knowledge-routes",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-route-bridge-contract.mjs"
+    },
+    {
+      "id": "knowledge-repository",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-repository-contract.mjs"
+    },
+    {
+      "id": "knowledge-renderer",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-renderer-contract.mjs"
+    },
+    {
+      "id": "knowledge-coverage",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-full-corpus-coverage.mjs"
+    },
+    {
+      "id": "knowledge-web",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-web-research-dossier.mjs"
+    },
+    {
+      "id": "knowledge-sector",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-sector-domain-depth.mjs"
+    },
+    {
+      "id": "knowledge-unique",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-article-uniqueness.mjs"
+    },
+    {
+      "id": "knowledge-transmission",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-market-transmission.mjs"
+    },
+    {
+      "id": "knowledge-currentness",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-currentness-separation.mjs"
+    },
+    {
+      "id": "knowledge-current-observations",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-current-observations-check.mjs"
+    },
+    {
+      "id": "six-doc-coverage",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-six-doc-coverage-check.mjs"
+    },
+    {
+      "id": "atlas-contract",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-atlas-contract-check.mjs"
+    },
+    {
+      "id": "principles-contract",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-principles-contract-check.mjs"
+    },
+    {
+      "id": "masters-contract",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-masters-contract-check.mjs"
+    },
+    {
+      "id": "knowledge-review",
+      "group": "knowledge",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-review-check.mjs"
+    },
+    {
+      "id": "knowledge-lint",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-knowledge-lint-check.mjs"
+    },
+    {
+      "id": "workflow-compaction",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-workflow-compaction-check.mjs"
+    },
+    {
+      "id": "skill-contract",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-skill-contract-check.mjs"
+    },
+    {
+      "id": "skill-evals",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-skill-eval-fixture-check.mjs"
+    },
+    {
+      "id": "agent-profiles",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/sync-agent-profiles.mjs"
+    },
+    {
+      "id": "agent-skills",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/sync-agent-skills.mjs"
+    },
+    {
+      "id": "live-header-policy",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-live-header-policy-contract-check.mjs"
+    },
+    {
+      "id": "operator-provisioning",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-operator-secrets-contract-check.mjs"
+    },
+    {
+      "id": "doc-currency",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-doc-currency-check.mjs"
+    },
+    {
+      "id": "ledger-integrity",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ledger-integrity-check.mjs"
+    },
+    {
+      "id": "record-fix",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-record-fix-check.mjs"
+    },
+    {
+      "id": "assertion-trace",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-assertion-trace-check.mjs"
+    },
+    {
+      "id": "qa-pipeline-contract",
+      "group": "workspace",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-qa-pipeline-contract-check.mjs"
+    },
+    {
+      "id": "worker-anthropic",
+      "group": "cloudflare",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-worker-anthropic-check.mjs"
+    },
+    {
+      "id": "extension-api-runtime",
+      "group": "cloudflare",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-extension-api-runtime-check.mjs"
+    },
+    {
+      "id": "ai-budget-scope",
+      "group": "cloudflare",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-ai-budget-scope-check.mjs"
+    },
+    {
+      "id": "worker-relay",
+      "group": "cloudflare",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-worker-relay-check.mjs"
+    },
+    {
+      "id": "operations-alert-source",
+      "group": "cloudflare",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-operations-alert-source-check.mjs"
+    },
+    {
+      "id": "cloudflare-deployment",
+      "group": "cloudflare",
+      "phase": 1,
+      "kind": "static",
+      "script": "scripts/ci-cloudflare-deployment-contract-check.mjs"
+    },
+    {
+      "id": "headless",
+      "group": "browser-unit",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-headless-tests.mjs"
+    },
+    {
+      "id": "browser-ai-public",
+      "group": "browser-runtime",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-ai-chat-public-route-browser-check.mjs"
+    },
+    {
+      "id": "browser-chat-ui-state",
+      "group": "browser-runtime",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-chat-ui-state-browser-check.mjs"
+    },
+    {
+      "id": "browser-chat-response-layout",
+      "group": "browser-runtime",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-chat-response-layout-browser-check.mjs"
+    },
+    {
+      "id": "browser-market-epoch",
+      "group": "browser-runtime",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-page-market-epoch-browser-check.mjs"
+    },
+    {
+      "id": "browser-screener-refresh",
+      "group": "browser-runtime",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-screener-auto-refresh-browser-check.mjs"
+    },
+    {
+      "id": "browser-boot",
+      "group": "browser-runtime",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-boot-interaction-check.mjs"
+    },
+    {
+      "id": "browser-architecture",
+      "group": "browser-runtime",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-architecture-browser-check.mjs"
+    },
+    {
+      "id": "browser-vertical",
+      "group": "browser-runtime",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-vertical-slice-browser-check.mjs"
+    },
+    {
+      "id": "artifact-budget",
+      "group": "browser-knowledge",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-three-page-artifact-budget-check.mjs"
+    },
+    {
+      "id": "browser-atlas",
+      "group": "browser-knowledge",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-atlas-browser-check.mjs"
+    },
+    {
+      "id": "browser-principles",
+      "group": "browser-knowledge",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-principles-browser-check.mjs"
+    },
+    {
+      "id": "browser-masters",
+      "group": "browser-knowledge",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-masters-browser-check.mjs"
+    },
+    {
+      "id": "browser-user-journey",
+      "group": "browser-knowledge",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-user-journey-quality-check.mjs"
+    },
+    {
+      "id": "browser-reference-adoption",
+      "group": "browser-knowledge",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-reference-adoption-browser-check.mjs"
+    },
+    {
+      "id": "browser-theme-research",
+      "group": "browser-knowledge",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-theme-research-browser-check.mjs"
+    },
+    {
+      "id": "browser-learning-flow",
+      "group": "browser-knowledge",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-three-page-learning-flow-check.mjs"
+    },
+    {
+      "id": "browser-route-soak",
+      "group": "browser-resilience",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-route-soak-check.mjs"
+    },
+    {
+      "id": "browser-sa02",
+      "group": "browser-resilience",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-sa-02-outage-browser-fixture.mjs"
+    },
+    {
+      "id": "browser-sa03",
+      "group": "browser-resilience",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-sa-03-sw-controller-fixture.mjs"
+    },
+    {
+      "id": "browser-sa04",
+      "group": "browser-resilience",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-sa-04-boot-network-budget.mjs"
+    },
+    {
+      "id": "browser-viewport",
+      "group": "browser-viewport",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-viewport-matrix-check.mjs"
+    },
+    {
+      "id": "browser-critical",
+      "group": "browser-surface",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-critical10-human-surface-check.mjs"
+    },
+    {
+      "id": "browser-vault",
+      "group": "browser-surface",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-portfolio-vault-e2e.mjs"
+    },
+    {
+      "id": "browser-a11y",
+      "group": "browser-surface",
+      "phase": 2,
+      "kind": "browser",
+      "script": "scripts/ci-accessibility-matrix-check.mjs"
+    },
+    {
+      "id": "watchdog-market-snapshot",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-market-snapshot-contract-check.mjs"
+    },
+    {
+      "id": "watchdog-operations",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-operations-status-check.mjs"
+    },
+    {
+      "id": "watchdog-reconciliation",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-reconciliation-contract-check.mjs"
+    },
+    {
+      "id": "watchdog-source-registry",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-source-registry-contract-check.mjs"
+    },
+    {
+      "id": "watchdog-professional-gap",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-professional-data-gap-check.mjs"
+    },
+    {
+      "id": "watchdog-static-data",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-static-data-contract-check.mjs"
+    },
+    {
+      "id": "watchdog-web-research",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-web-research-contract-check.mjs"
+    },
+    {
+      "id": "watchdog-data-refresh",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-data-refresh-audit.mjs"
+    },
+    {
+      "id": "watchdog-artifact-headroom",
+      "group": "watchdog-local",
+      "phase": 3,
+      "kind": "external",
+      "script": "scripts/ci-artifact-size-headroom-check.mjs"
+    }
+  ]
+}

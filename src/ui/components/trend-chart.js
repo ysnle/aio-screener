@@ -31,6 +31,11 @@ function shortDate(date) {
   return month && day ? `${month}/${day}` : '';
 }
 
+function datedShort(date) {
+  const text = String(date || '').slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(text) ? `${text.slice(2, 4)}.${text.slice(5, 7)}.${text.slice(8, 10)}` : '';
+}
+
 /**
  * @param {Document} doc
  * @param {{ series: Array<{date:string,value:number}>, refLines?: number[], format?: (v:number)=>string, label?: string, domain?: [number, number], range?: [string, string] }} options
@@ -140,7 +145,7 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   const hide = () => { cursor.setAttribute('visibility', 'hidden'); marker.setAttribute('visibility', 'hidden'); tip.hidden = true; };
   overlay.addEventListener('mousemove', show);
   overlay.addEventListener('mouseleave', hide);
-  svg.setAttribute('aria-label', `${label} ${shortDate(points[0].date)}~${shortDate(last.date)} 추이, 최근 ${format(last.value)}`);
+  svg.setAttribute('aria-label', `${label} ${datedShort(points[0].date)}~${datedShort(last.date)} 추이, 최근 ${format(last.value)}`);
   return wrap;
 }
 

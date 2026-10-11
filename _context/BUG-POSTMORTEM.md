@@ -6,6 +6,141 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1615 - v57.37 - 13F 전체 체인 재실행이 저장 행 재사용 패스트패스에서 구성 근거(amendmentChain)를 복원하지 않아, 신규 index 빌더(체인 미기록)와 결합하면 두 번째 풀체인 실행부터 masters 계약 게이트가 확정 실패했다 (2026-10-11)
+
+- symptom/reproduction: 2026-10-11 refresh-data 수동 디스패치: '13F composed period without an ORIGINAL/RESTATEMENT base: berkshire-hathaway 2025-12-31'로 전체 워크플로 실패. 로컬 아티팩트의 같은 분기는 ORIGINAL 체인을 갖고 게이트가 통과해 격차가 숨어 있었다. 일일 스케줄은 --ownership-only로 풀체인을 돌리지 않아 잠복했다.
+- root_cause: collect-13f-history-rows.mjs의 저장 행 재사용 패스트패스(knownKeys && !needsRecomposition)가 행의 rowCount·총계만 복원하고 period.amendmentChain을 세팅하지 않는다. collect-13f-history-index.mjs는 체인을 기록하지 않으므로, 새로 빌드된 index 위에서 재사용된 분기는 체인 없이 ci-masters-contract-check(P1462)에 도달한다. 최초 v3 합성 런은 전 분기를 재합성해 체인이 남아 있었고, 이후 풀체인 재실행은 전 분기가 실패할 구조였다.
+- fix: 패스트패스에서 저장 행의 accession·filingRole 증거로 체인을 복원한다(행 순서 그룹핑, role→type 매핑). 복원된 체인에 ORIGINAL/RESTATEMENT base가 없으면 P1449 폐쇄 실패 정책대로 해당 분기를 REVIEW_REQUIRED로 닫고 행을 지운다(잘못된 분기 총계 발행 금지). 로컬 저장 데이터 70분기(합성 4개 포함) 전수 검증에서 전부 base 보유를 확인했다.
+- violated_rule: 구성된 분기는 합성 근거를 상태로 유지해야 하며(P1462), 게이트는 근거 없는 발행을 실패시킨다
+- prevention: ci-masters-contract-check의 v3 체인 단언이 이 결함을 잡았다(게이트 유효 확인). 풀체인 실행은 행 재사용 여부와 무관하게 체인을 상태로 유지해야 한다.
+- verification/residual: node --check 통과. 저장 행 기반 체인 복원 시뮬레이션: berkshire 2025-12-31 = [ORIGINAL 110rows], 전체 70분기 base 100%.
+
+## P1614 - v57.37 - 콜드 로드에서 스크리너 '이어서 볼 곳'이 '판정 대기'로 고정됐고, 필드 준비 985(필수 필드)와 수집 성공 989가 같은 정의로 읽혔으며 리서치·테마 화면의 표제·그룹·기준일 표기가 실제 데이터와 어긋났다 (2026-10-11)
+
+- symptom/reproduction: 스모크·리서치 점검(2026-10-11): 콜드 로드 시 스크리너 '이어서 볼 곳 → 시장 상태'가 '판정 대기'로 25초 이상 고정(warm 재현 없음). funnel '필드 준비 985'가 산출물 ok=989와 무관한 다른 정의임이 무표기. masters 상위 10 보유 표가 제목('신고 가치 상위 10개')과 다른 정렬(변동 우선)로 그려지고 '#'이 가치 순위처럼 읽혔다. 13F 비신고주체(Mark Minervini)가 '성장·혁신' 그룹에 무구분 포함(합계 38). 보고분기·기준일 칩 부재. 테마 칩과 상세 헤더 라벨이 달랐고('헬스케어' vs '헬스케어/제약') 섹터 바에 기준일이 없었으며 provenance가 '시세 관측'과 '시세 대기'로 충돌했다. CFTC 캡션 '24.10~26.10 주간'이 불투명했다.
+- root_cause: 스크리너 재렌더 트리거(screener.js:2133-2136, 1392)에 aio:historyLoaded(js/aio-data.js:6959 발화)가 빠져 콜드 로드에서 국면 도착 후 재평가가 없었다. readiness 985/993은 screen-engine의 필수 필드(ret3m·pctSma200·rsi14) 충족 정의, 989는 수집 성공(ok)으로 서로 다른 개념인데 같은 '필드 준비' 어휘로 표기됐다. masters 표는 P1593의 변동 우선 정렬인데 제목·'#' 헤더가 가치 순위를 암시했고, managers-view 그룹화가 스타일 정규식만 사용해 METHOD_ONLY를 걸러내지 못했다. themes.js는 칩과 상세가 서로 다른 라벨 소스(THEME_MAP vs 정의 nameKr)를 썼다.
+- fix: 스크리너 재렌더 트리거에 aio:historyLoaded(window 타깃 포함, 기존 P1417 패턴)를 추가하고 수신 시 readSignature를 리셋해 판정 도착 후 '판정 대기'가 재평가되게 한다. 준비 표기는 '수집 성공 989/993 · 필수 필드 충족 985/993(ret3m·pctSma200·rsi14)'로 분리한다. masters 표는 헤더를 '순번/가치 순위'로 바로잡고 정렬 기준을 메타 문구로 명시하며, 비신고주체는 '방법론 참고(13F 미신고)' 별도 그룹으로 분리하고(스타일 합계 38→37) 보고분기·13F-HR 제출일·검토일 칩을 추가한다. 13D/G 탭은 '아직 제공하지 않습니다' 종결 문구로 바꾼다. 테마는 칩·상세·섹터 바가 같은 정의 라벨을 쓰게 통일하고 '10/9 미국 종가 기준' 기준선과 '구성 기준(분류 검토일)' 라벨을 붙이며, #theme-detail 딥링크가 파라미터(#theme-detail/<id>)로 해당 테마 상세를 열게 한다. CFTC 캡션은 '2024.10~2026.10(2년) 주간'으로 풀어 쓴다.
+- violated_rule: 부분 커버리지와 별개 정의는 그렇게 공개되어야 하며(운영 정직성), 표제·헤더·정렬·그룹은 같은 사실을 가리켜야 한다
+- prevention: ci-screener-auto-refresh-browser-check가 스크리너 재렌더를 관측하고, ci-masters-browser-check가 운용사 그룹 카탈로그를 관측한다. 새 비동기 데이터 도착 시 재평가 트리거 누락을 P1417 패턴으로 점검한다.
+- verification/residual: ci-screener-auto-refresh-browser-check PASS, ci-masters-browser-check PASS(managers 38, styleGroups 11). managers-view 시뮬레이션: 성장·혁신 7→6, 별도 그룹 1. node --check 통과.
+
+## P1613 - v57.37 - 종목 차트 탭이 선택 종목을 이어받지 못해 SPY로 남는 비결정 동작이 있었고, 같은 재무 화면에서 '관측 항목'이 7개와 6개로 이중 집계됐으며 ROE·매출·기준일 표기가 기준 없이 섞였다 (2026-10-11)
+
+- symptom/reproduction: 종목 화면 점검(2026-10-11): NVDA로 진입해도 #technical 헤더가 'SPY 일봉'으로 남거나 AAPL에서는 정상 갱신되는 비결정 동작. #fundamental 같은 화면에 관측 항목 7개(#fund-analysis-text)와 6개(#fund-native-sec-coverage)가 동시 표기. 관심종목 카드 ROE 76.3%(기말)와 그리드 101.5%(평균자기자본)가 라벨 없이 병존, 매출이 '$215.9B'와 '215,938,000,000' 두 표기로 혼용, '기준일'이 회계연도 말로 읽혔다.
+- root_cause: 제목 기록자(stock-chart.js:105)는 하나지만 재진입 no-op(구 217행)과 submit 전파 실패·첫 설치 시점 entity 공백이 겹쳐 주제 전파가 렌더 시점에 보정되지 않았다. entity.js:372는 raw coverage 7(roe 포함)을, :579는 deriveSecReport가 roe 제외(P1591 의도)한 6을 같은 어휘로 세었다. 관심종목 카드는 P1591이 SEC 그리드만 고쳐 라벨 없는 기말 ROE가 남았고, 요약 줄은 formatFundamentalNumber(원 단위 무단위)를 썼다.
+- fix: 차트는 show() 단일 경로에서 입력값·dataset·제목을 항상 함께 움직이고 탭 재진입·aio:subjectChanged 이벤트에서 현재 선택 종목(없을 때만 SPY)을 재전파한다. 차트 fetch는 4초 사용자 마감과 레이스해 '응답이 늦어 계속 시도 중' 안내를 현재 종목 기준으로 먼저 보여주고 늦은 성공 응답은 그대로 반영한다(실패 문구에 이전 종목명 잔존 제거). 관측 항목 카운트는 파생 기준 6으로 단일화하고, 관심종목 ROE는 '기말 자기자본 기준' 라벨을 붙이며, 매출/순이익은 그리드와 같은 $B 포맷으로 통일하고 '기준' 문구를 '회계연도 말'로 명시한다.
+- violated_rule: 한 화면의 같은 어휘는 하나의 정의를 가리켜야 하며(화면 정직성), 종목 화면의 세 탭은 같은 종목을 보여준다(P1430/P1591)
+- prevention: ci-architecture-browser-check가 ticker native 차트 범위 전환과 제목-입력 일치를 관측한다. 관측 항목 카운트는 deriveSecReport 파생 기준 하나로만 센다.
+- verification/residual: 노드 하네스 스모크: 초기 SPY/재진입 NVDA 전파/동일 종목 무추가 fetch/변경 시 1회 fetch/aio:subjectChanged 전파/4초 마감 안내 전부 PASS. node --check 통과.
+
+## P1612 - v57.37 - 거시 카드가 결측월을 건너뛴 위치 오프셋으로 '1년 전'을 계산해 13개월 전 값(2.7%)을 표시했고, 기간 프리미엄 카드가 5거래일 지연을 무표기로 두었다 (2026-10-11)
+
+- symptom/reproduction: 거시 화면 점검(2026-10-11): CPI 카드 '1년 전 2.7%'·실업률 카드 '1년 전 4.3%'가 실제 12개월 전(2.9%/4.4%)이 아니라 13개월 전 값이었다. macro-history의 CPI/실업률 계열에는 2025-10 관측이 없는데 payrolls/PCEPI에는 있어 위치 오프셋 조회가 계열마다 다른 의미가 됐다. 10년 기간 프리미엄(10/2 관측)은 기준일보다 5거래일 이전인데 지연 표기가 없었고, 차트 aria 기간이 '10/14~10/9'처럼 연도 없이 역순처럼 읽혔다.
+- root_cause: src/domain/macro/indicators.js trendOf가 '1년 전'을 위치 −13으로 조회해 결측월이 있으면 한 달 어긋난 값을 그대로 '1년 전'으로 표시했다. 결측 자체는 FRED 원천 결측(producer 몫)이지만 화면이 이를 값으로 위장했다. 기간 프리미엄 카드는 시리즈 주기 대비 지연 계산(alignInput lag)이 있었으나 렌더에 반영하지 않았다.
+- fix: trendOf의 '1년 전/6개월 전' 조회를 월 매칭으로 교정하고(macro-read의 monthsBack과 동일 로직), 대상 월이 결측이면 '1년 전 자료 없음'으로 hold한다(잘못된 값 표시 금지). 기간 프리미엄 카드는 거래일 세션 수 지연('10/2 · 5거래일 전 · FRED THREEFYTP10')을 표기한다. 차트 aria는 연도를 포함한 정순 기간('25.10.14~26.10.09 추이')으로 고치고 스파크 고점/저점 줄에 단위를 붙이며 부호 글리프를 U+2212로 통일하고 주요 차트 y축에 단위를 표기한다.
+- violated_rule: 결측 입력은 추측하지 않고 보류 표기한다(R670, 결측 hold 원칙)
+- prevention: trendOf 계열 조회는 월 매칭 헬퍼로만 한다. ci-architecture-browser-check가 CPI 카드 텍스트를 관측해 13개월 값 재발을 잡는다. producer는 macro-history 결측월을 missingMonths로 가시화해야 한다(Actions에서만 실행).
+- verification/residual: 실데이터 렌더 확인: CPI 1년 전 2.7%→2.9%, 실업률 4.3%→4.4%, 인위 결측 주입 시 '자료 없음' hold. node --check 및 매크로 보드 렌더 스모크 통과.
+
+## P1611 - v57.37 - 같은 사실이 화면마다 다른 기준·분모·단위로 표시됐다: breadth '판정 대상'이 신고·신저 전용 분모(804)를 썼고, 혼합 basis 카드가 값별 관측일을 대표 칩 하나로 덮었으며, F&G '전일' 델타가 두 정의로 공존했다 (2026-10-11)
+
+- symptom/reproduction: 횡단 매트릭스 점검(2026-10-11): #breadth가 '판정 대상 804개'인데 같은 화면 MA 비율의 실제 분모는 811/810. #signal 신용 카드 칩 '10/8 · 1거래일 전'인데 풋/콜·F&G는 10/9 관측, 금리 카드 칩 '10/9'인데 실질금리는 10/8. home BTC가 세션 값(82,871.3)을 종가 블록처럼 표기(완료종가 82,546.32). F&G '전일 +5'와 '+7'이 코드에 공존. news '이전 수집분 39건'과 데이터 40건의 기준 차이 무표기. 10Y가 home 5.244/+1.3bp vs briefing 5.24%/+1bp. '사상 최고치 부근'의 근거는 1.7년 수집분.
+- root_cause: breadth-board.js basis 라인이 eligible.highLow(804)를 전체 판정 분모 문구에 사용. market-read 축 카드는 axis()가 basisOf 1개만 받아 값별 alignments(146-148)를 렌더에서 폐기. F&G 델타는 서버 previousScore 기준(+7) writer와 앱 완료종가 시리즈 기준(+5) writer가 별도로 존재. 10Y 수준은 ^TNX(3dp)와 history/dgs10(2dp) 포맷이 화면별로 갈렸고, '사상'은 수집 기간(420행)을 초과한 서술이었다.
+- fix: breadth basis 라인은 MA 분모(screener breadth.segments.us.eligible=811)를 쓰고 804는 '신고·신저 판정 대상'으로 리더십 카드에만 병기. 시장 상태 축 카드는 값별 관측일을 값 뒤에 표기하고 혼합이면 칩을 '10/8~10/9' 범위+mixed로 표기하며, 브리핑 카드도 페이지 기준과 다른 값에만 개별 기준일을 덧붙인다. F&G 델타는 완료 종가 시리즈 기준(+5)으로 통일하고 '(완료 종가 기준)' 라벨을 붙인다. 10Y 수준 표기는 2dp로 통일하고 home BTC 카드는 '24시간 시세' 칩으로 미국 정규장 종가 개념이 없음을 명시한다. news 카운트는 '수집 제외 항목을 뺀 뒤 창 밖으로 분류' 기준을 표기하고, home 리스크 배지는 '1년 고점 대비 x% · 고점권' 어휘로 signal/breadth와 통일한다. '5일/1주' 혼용은 '5거래일'로 통일하고 CI 단언 문자열도 함께 갱신한다.
+- violated_rule: 모든 숫자는 basis를 이름짓고 같은 entity는 화면 간 같은 basis로 표시한다(R670, 화면 정직성 결정 2026-10-02)
+- prevention: ci-architecture-browser-check가 breadth basis 라인 분모 문자열과 F&G 델타 정규식을 관측하고, ci-esm-core-unit-check가 '5거래일' 라벨과 완료종가 델타를 단언한다. 새 축 카드를 추가할 때 값별 alignments를 폐기하지 않는다.
+- verification/residual: node scripts/ci-architecture-browser-check.mjs PASS('판정 대상 811개'·'신고·신저 판정 대상 804개' 실측), node scripts/ci-esm-core-unit-check.mjs PASS('5거래일 +8bp'). node scripts/ci-page-market-epoch-browser-check.mjs PASS.
+
+## P1610 - v57.37 - VIX 배지가 라이브 게이트 경로에만 묶여 전 라우트에서 'VIX —'로 고정되고, 시세 카운트 칩이 스냅샷(16종)·라이브(7종) 두 플레인이 같은 슬롯을 last-writer-wins로 덮어썼다 (2026-10-11)
+
+- symptom/reproduction: 실브라우저 전수 점검(2026-10-11): 19개 라우트 전부에서 톱바 [data-vix-badge]가 20초 후에도 'VIX —'로 남음. 같은 화면 히어로는 14.84 정상. #fxbond 등 상단 칩이 같은 세션에서 '시세 16종'과 '시세 7종'으로 관측마다 달라짐. 데이터는 정상(history vix 14.84, snapshot tier0 16/16)이었다.
+- root_cause: 배지의 유일 writer가 js/aio-data.js applyLiveQuotes 내부 라이브 게이트(if(vixQ)) 경로에 존재했고, P1508 폴백(vp==null→일별 종가)은 같은 함수 앞단의 vp 강제 숫자 변환(15118 부근)으로 도달 불가능한 죽은 코드였다. 서버 스냅샷/히스토리 플레인은 배지를 갱신하지 않았다. 시세 카운트는 스냅샷 경로(aio-core 3973/3981, coverage 16)와 라이브 경로(quote-currentness, 라이브 관측 수)가 4048-4053 이벤트 재렌더에서 서로를 덮어썼다.
+- fix: 배지 writer를 _aioUpdateVixBadge 단일 함수로 추출하고 라이브 값이 유효하지 않으면 히스토리 종가('VIX 14.84 종가')를 표시하도록 폴백을 살렸으며, _aioLoadHistory 완료 시점에도 호출해 콜드로드에서 즉시 채워지게 했다. 시세 카운트는 라이브 detail이 durable 커버리지를 함께 받아 '시세 16종 (라이브 7종)' 형태로 두 basis를 동시 표기하게 했고, 라이브 근거만 없어 UNAVAILABLE이 된 공통 판단 배너는 정적 산출물 도착 시 '데이터: 기준 미확인'으로 사유를 분해했다. 별칭(#options 등) 진입 시 history.replaceState로 정규 해시(#sentiment)를 정리했다.
+- violated_rule: 정적·런타임·브라우저 증거는 별개이며 하나의 값은 단일 writer를 가져야 한다(R620/P1127 계열, P1508 재발 방지 의도)
+- prevention: ci-architecture-browser-check가 톱바 배지·상단 칩 문자열을 관측하며, 배지가 라이브 차단 환경에서도 종가 표기를 유지하는지 단언한다. 배지 writer는 단일 함수로 유지한다.
+- verification/residual: node scripts/ci-architecture-browser-check.mjs PASS(배지·칩 실측). 로컬 실브라우저 19 라우트 스모크 재관찰.
+
+## P1609 - v57.36 - 검색 토글의 실제 delegated change 인자·저장 상태 불일치 (2026-10-11)
+
+- symptom/reproduction: 실제 Chrome에서 웹검색을 체크 해제해도 상태는 ON으로 남고 사용 설정 toast가 표시됐다. 토글도 숨겨진 개발 진단 위젯 안에 있었다.
+- root_cause: 공통 change dispatcher가 (element,event)를 보내는데 handler가 (checked,element)를 해석해 input 객체를 항상 true로 처리했다.
+- fix: 실제 input.checked를 우선 읽으며 이전 boolean 호출도 유지. 토글/공용 AI 예산 안내는 native connection panel로 옮기고 같은 id의 숨겨진 shell markup은 제거한다. render에서 저장된 opt-out을 동기화하고 lifecycle cleanup을 유지한다.
+- violated_rule: R679 표시와 실제 근거 상태 일치, R632 생산자/소비자 계약 일치
+- prevention: P1609: scripts/ci-native-search-check.mjs가 실제 core handler를 VM으로 실행해 delegated OFF/ON 저장과 표시를 대조한다. Chrome에서는 토글·새로고침 후 상태 유지와 라이트/다크 표시를 확인한다.
+- verification/residual: Chrome에서 최초 결함을 재현했다. 회귀 검사·수정 후 Chrome 결과는 IMPLEMENTATION-REPORT.md에 분리 기록하며 실제 유료 검색/배포는 실행하지 않는다.
+
+## P1608 - v57.36 - 조건부 OpenAI 웹검색·공용 $20 원장·내부 근거 우선 및 최신성 분리 (2026-10-11)
+
+- symptom/reproduction: 웹검색 fallback 옵션이 공통 Responses 요청에 도구를 붙이지 않았고, 날짜 없는 native citation만으로 최신 주장 허용 상태가 되었다. 무료/내부 근거 우선과 준비 중 opt-out 보존도 공통 선택 계약이 없었다.
+- root_cause: 이전 검색 금지 정책, 두 채팅 caller의 강제 fallback과 provider 전환 후 잔존 표시, citation 가용성과 발행/사건 최신성의 혼용.
+- fix: 소유자 승인 공용 AI 월 $20 및 조건부 web_search를 같은 Worker/DO 원장으로 연결. native ESM에서 근거 우선 선택·전송 옵션을 소유하고, 실제 caller에서 내부 시세/외부 근거·현재 opt-out을 확인한다. bounded 검색과 미검증 비용 예약 유지, 날짜 없는 근거는 참고 허용·최신 승격 금지, 기존 actionGate 차단 보존. 개인 검색 할당량을 만들지 않고 사용하지 않는 로컬 검색 한도 항목 제거.
+- violated_rule: R681 공용 유료 AI 경로, R680 예약/청구 구분, R679 근거 의미 강화 금지 및 소유자 2026-10-11 결정
+- prevention: P1608: worker/openai-contract.test.mjs 및 scripts/ci-native-search-check.mjs가 비용 설정/혼합 호출 동시성/검색 환급 금지, 실제 Responses 스트림 및 양쪽 caller의 내부/외부 우선·변경된 opt-out과 날짜/질문 결속을 실행 검증한다.
+- verification/residual: Worker offline 101 assertions PASS; native-search 실제 caller/adapter fixture PASS; AI intelligence·chat reliability·ESM core·decomposition PASS. 전체 로컬 QA·실제 브라우저·운영 서비스는 별도 보고하며 유료 API/배포 미실행.
+
+## P1607 - v57.35 - 공용 자료와 개인 연결의 소비 경로·Worker 설정 상태 불일치 (2026-10-11)
+
+- symptom/reproduction: 종목 화면의 공용 SEC 재무가 AI 심층 비교에는 FMP 키 미입력으로 누락됐고, 일부 무키 helper가 FMP 필수로 선언됐다. 검색 계획의 domain/date 제한이 전송에서 사라졌으며 공용 AI readiness가 caller app-token 거절을 구분하지 않았다. 설정 문서는 선택 토큰과 FRED 캐시 정책을 필수·공용으로 오표기했다.
+- root_cause: 화면·AI·개인 공급자 레지스트리의 별도 경로와 서버 준비 상태/호출자 접근 상태의 혼용. 데이터 범위를 넘어 강제하는 심층 프롬프트 및 이전 릴레이 정책 문서 잔존.
+- fix: entity provider의 동일 캐시를 AI에 공개하고 SEC FY 별도 근거 블록으로 주입. 공용 실적일정 재사용, 잘못된 FMP 필수 조건 제거, 자료 범위를 넘는 심층 지시 축소. native 검색 요청·반환 URL 제한, health token acceptance/credentialModes, 연결 패널 lifecycle 및 읽기 전용 운영 점검 추가. js-yaml 5.4.2 갱신과 선택 설정/토큰 문서 수정.
+- violated_rule: R1 버전 동기화, R632 입력/읽기 계약 일치 및 제품의 누락값 추정 금지·공용 AI 월예산 정책
+- prevention: scripts/ci-connection-access-check.mjs 및 worker/openai-contract.test.mjs의 P1607 회귀 검사. 개인키 없는 실제 AI 소비, 동일 SEC 캐시, 미래 공시 보류, caller 거절, host spoof/date, 공용 캘린더 기간을 실행 검증한다.
+- verification/residual: connection-access PASS; Worker offline 88 assertions PASS; worker-relay PASS; research-flow 66 assertions PASS. 실제 Chrome 설정·버튼 확인 진행. 전체 로컬 QA와 공개 서비스 상태는 별도 기록한다.
+
+## P1606 - v57.34 - 새 분석 노트의 화면과 통합 검색 간 소비 경로 불일치 (2026-10-11)
+
+- symptom/reproduction: 화면에 표시된 5개 신규 노트가 Actions에서 생성한 이전 검색 index에는 없어 검색으로 발견할 수 없었다.
+- root_cause: 통합 검색이 정적 생성 index만 사용하고 실제 화면이 소비하는 canonical LESSONS를 대사하지 않았다.
+- fix: searchKnowledgeIndex에서 canonical frame을 id별로 정적 index와 합쳐 최신 노트의 제목·요약·경로를 사용한다. 기존 비-frame 항목은 유지하며 중복 frame은 한 번만 노출한다. 검색 artifact를 로컬에서 재생성하지 않는다.
+- violated_rule: R618 실제 소비 경로 확인 및 R703 조작 계약.
+- prevention: ci-theme-research-browser-check.mjs의 P1606 canonical 검색·실제 검색 결과 선택·노트 도착·입력 초기화 assertion.
+- verification/residual: 실제 IAB에서 차환 검색에 새 노트가 표시되고 클릭 후 해당 heading으로 이동했다. 격리 브라우저와 정적 소비 계약의 게이트 결과는 IMPLEMENTATION-REPORT.md에 기록한다.
+
+## P1605 - v57.34 - 출처별 신용·측정·증거 충돌 프레임의 실제 소비 경로 (2026-10-11)
+
+- symptom/reproduction: 자료의 신용 분포·분모·법인 책임·상충 증거·순환매를 현재 수치나 합성 점수로 섞으면 작성자의 사고 체계가 사라진다.
+- root_cause: 신규 자료의 원문 관점과 일시적 수치, 학습 노트·채팅 참고 소비자를 연결하는 단일 packet 정의가 없었다.
+- fix: packet-20261011의 source provenance·5개 frame·분석 노트·claim projection을 한 원본에서 파생한다. 메커니즘·예시 계산·반대 경로·변수·관련 화면을 Principles와 칼럼, AI 참고 retrieval에 연결했다. 가격·일정·수치·포트폴리오 지시를 배제하고 공식 검증 없는 최신 데이터와 점수·순위를 차단한다.
+- violated_rule: R618 reference/current evidence 경계 및 R702 관찰 범위 정직성.
+- prevention: ci-theme-research-browser-check.mjs의 P1605 source/claim API·note/path/variables·score/rank 차단 및 실제 노트 표시 확인. 기존 research-flow 원장의 2026-09-11 검증은 해당 packet으로 한정하고 전체 필수 필드·출처 검증은 유지.
+- verification/residual: research-flow 66 VM/static assertions와 knowledge-review 34 frames PASS. 실제 source 미디어·스레드 확인 범위와 불일치는 보고서에 명시; generated knowledge producer 실행 및 AI 실제 답변 품질 인증 없음.
+
+## P1604 - v57.34 - 설명 버튼·키보드 단일 실행과 모드 전환 차트 가독성 (2026-10-11)
+
+- symptom/reproduction: 설명 버튼 8개의 클릭이 동작하지 않고 초기 비-native 키보드 토글은 두 번 실행됐다. 모드 변경은 열린 차트의 색을 바꾸지 못하며 보조 텍스트가 흐렸다.
+- root_cause: element/event 인자 계약 누락, 로컬·전역 키 처리의 중복 소유권, 생성 시점의 차트 색 고정과 예외 처리 없는 테마 저장·복원.
+- fix: tooltip의 element/event·aria-expanded 계약을 연결하고 이미 처리된 키와 native 버튼의 중복 활성화를 차단했다. shared color-theme 이벤트와 native chart palette 갱신을 연결하고 subdued text token을 readable muted token으로 통일했다. storage 거부에도 전환·부팅이 이어진다.
+- violated_rule: R618 증거 수준 분리 및 R703 단일 조작과 테마 계약.
+- prevention: ci-theme-research-browser-check.mjs가 P1604 모드 전환·복원·8화면 대표 상태·tooltip 클릭/키/ESC·native 키·차트 range 보존·storage 거부를 검사한다.
+- verification/residual: 실제 IAB tooltip 클릭=true/ESC=false/Enter=true 확인. 전체 세부 조작 및 대비 전수 인증은 아님; 격리 브라우저 회귀 게이트와 shared-shell full QA 결과는 보고서에 별도 기록.
+
+## P1603 - v57.33 - 범위가 명시된 브라우저 증거와 QA 실행 연결 (2026-10-11)
+
+- symptom/reproduction: PASS 로그나 대표 screenshot만으로 전체 화면·한국어 의미·배포 동작까지 검증한 것으로 오인할 수 있었다.
+- root_cause: 대상 내용 해시·환경·행동·준비 조건·capture 채널·미관찰 상태를 연결하는 공통 evidence 계약이 없었다.
+- fix: REA 설계 아이디어만 참고해 현재 도구의 bounded evidence schema·validator·comparator를 구현했다. 8개 hub 커버리지와 단계별 DOM/screenshot digest를 기록하고 불완전·환경 불일치는 unknown으로 유지한다. runner가 증거 누락/비밀/경로/의미 PASS 승격을 차단하며 artifact 경로와 증거 수준을 결과에 연결한다.
+- violated_rule: R618 static/runtime/browser/live 분리 및 R701 현재 실행 증거.
+- prevention: ci-reference-adoption-contract-check가 P1603 불완전 비교·비밀·민감 필드·경로와 semantic 자동 승격을 막는다. browser-reference-adoption은 cache 없이 evidence artifact를 제출한다.
+- verification/residual: schema 계약 및 5개 headless fixture 단계 PASS. 한국어 시각·문구 검수와 production 운영은 자동 PASS로 승격하지 않는다.
+
+## P1602 - v57.33 - 일정·공시 근거와 불변 로컬 리서치 저장 (2026-10-11)
+
+- symptom/reproduction: 일정 식별자에 날짜가 없고 예상치 비교 기준이 불명확했다. SEC 보고서에서 검증된 원문 연결과 명시 저장본이 없었다. 초안 저장은 다른 종목·미래 provenance와 섞일 위험이 있었다.
+- root_cause: event identity·EPS 출처/기간과 화면 값/관측 provenance가 한 계약으로 전달되지 않았고 저장 당시 근거를 고정하는 allowlist가 없었다.
+- fix: 날짜·발표 세션 ID와 실제 우선 중복 처리, KST/현지 기준·예상 출처/단위/기간을 유지한다. CIK/accession 검증 SEC 링크를 제공한다. 브리핑·종목 메모는 사용자 명시 저장으로 불변 content hash를 보관하며 build/save 시각은 메타데이터에만 둔다. 종목별 초안을 분리하고 오류 저장본·quota를 보존한다. 도메인의 필터된 값과 provenance를 함께 저장한다.
+- violated_rule: P1370 내용 해시, R670 기준일, R618 근거 수준.
+- prevention: ci-reference-adoption-contract-check가 P1602 미래 관측·F&G history·오류 저장본·내용 해시·개인 보유정보 배제·일정/SEC를 검증하고 browser gate가 issuer 초안 분리와 저장 가격 고정을 확인한다.
+- verification/residual: 로컬 계약과 isolated browser fixture PASS. 실제 과거 브리핑 자동 생성·기기 동기화는 구현 대상이 아니며 공급자 미제공 값은 추정하지 않는다.
+
+## P1601 - v57.33 - 뉴스 사건·정정 보존과 정확한 회사 연결 (2026-10-11)
+
+- symptom/reproduction: 제목 앞부분·단어 집합과 URL 쿼리 제거가 다른 기사와 정정을 버리고, price target을 TGT 회사로 오연결했다. 새 소식과 비동기 일정 도착이 읽던 카드를 교체했다.
+- root_cause: producer와 초기 NewsStore·consumer가 서로 다른 유사도 키를 사용했고 발행·관찰·수집 시각과 명시 사건 관계가 분리되지 않았다.
+- fix: native stories 계약을 producer·store·surface에 연결했다. 정확 반복만 제거하고 출처·issuer별 사건과 정정 이력을 보존한다. 등록 회사명·명시 ticker만 연결하며 Target 일반명사는 보류한다. 상세 출처·원문·시각은 펼쳐 보기로 제공하고 새 소식은 첫 로딩 이후 명시 적용한다. 한국어 조사·지난 수집본 제목도 수정했다.
+- violated_rule: P1339 exact issuer, R670 종가 기준, R618 증거 수준 분리.
+- prevention: ci-reference-adoption-contract-check 및 ci-reference-adoption-browser-check가 P1601 회귀를 검증한다. 비동기 일정 결과도 mount의 동일 갱신 경계를 따른다.
+- verification/residual: 로컬 계약 및 5개 isolated browser fixture 여정 PASS. 배포 producer·실제 기사 사실 여부와 모든 번역은 별도 검증.
+
 ## P1600 - v57.32 - Frontend audit remainder: scoped knowledge claims, readable lesson sources, glossary accuracy, 13F price gaps, translation repairs and an industry overview map (2026-10-11)
 
 - symptom/reproduction: Codex HANDOFF items left after P1599 (F27, F38, F39, F69, F71-F75, F85-F94, F109, F110, F112): industry and AI-foundation text stated case-specific numbers as universal ('a data centre equals a nuclear plant', 'without 2.5D HBM cannot be used', 'leases are invisible debt', a yield 1%p is 'hundreds of billions'); atlas labels and deep-guide titles mixed English words (Workload, Interposer, Pooling, Cloud Service Stack); the deep-guide heading jumped from h3 to h5; the basis panel of 112 lessons listed English page titles ('Education', 'Topics') as chapter background even where the lesson told a dated event, and the tax lesson pointed at no tax authority; glossary entries were categorical (Theta 'good for sellers', 0DTE 'high risk high reward', whisper 'stock falls'), had numbers without a year, an incomplete KOSPI circuit-breaker rule, and a BUY/SELL/HOLD entry that did not match the screener's '구조 분류' labels; the 13F reverse lookup hid that one filer's AAPL value implied a 2.6% lower price and did not say why one holding had 12 rows; the 13F metrics counted a 'review' bundle differently from the all-filer total; the free machine translation flipped 'exposure to X' and rendered 'earnings call' literally; an industry opened as four paragraphs with no map of its parts; a 310-line legacy page-help registry describing a retired trading score was still shipped.

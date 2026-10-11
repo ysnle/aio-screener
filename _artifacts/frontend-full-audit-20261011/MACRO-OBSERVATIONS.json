@@ -1,0 +1,463 @@
+{
+  "schemaVersion": "macro-screen-audit.v1",
+  "audit": "AIO Screener 거시(#macro) · 금리·환율(#fxbond) 화면 실브라우저 전수 점검",
+  "meta": {
+    "auditDate": "2026-10-11 (KST, 일)",
+    "auditor": "frontend-full-audit-20261011 / macro-axis",
+    "server": "http://127.0.0.1:8931 (기 실행 중, agent-browser 로만 접속)",
+    "browser": "agent-browser (Chrome/Chromium via CDP, headless)",
+    "viewport": "1440x900",
+    "agentBrowserSession": "aio-macro-b2c50a70c36a",
+    "routes": ["#macro", "#fxbond"],
+    "groundTruth": [
+      "public-data/macro-history.json (generatedAt 2026-10-10T15:23:15.099Z, FRED)",
+      "public-data/market-snapshot.json (schemaVersion market-snapshot-v2, generatedAt 2026-10-10T15:23:15.089Z)",
+      "public-data/history.json (420 rows, last row 2026-10-10, cycleEnd 2026-10-09T23:00Z)",
+      "public-data/data.json (meta/macro/putCall/fearGreed/marketAnalysis)",
+      "public-data/operations-status.json (generatedAt 2026-10-10T15:23:39.189Z)"
+    ],
+    "basisReference": {
+      "lastCompletedUsRegularSession": "2026-10-09 (금)",
+      "closeBasisFromHistory": "2026-10-09 (buildCloseSeries('spx') 마지막 날짜, src/domain/briefing/market-read.js:45-63)",
+      "note": "history.json 의 마지막 row 는 date 2026-10-10(토)이지만 fieldMeta.observedAt 이 2026-10-09 이고 seriesMode=completed-market-cut 이라 10/9 종가로 키잉된다."
+    },
+    "evidencePaths": {
+      "note": "스크린샷/추출 JSON 은 세션 스크래치패드에만 저장했다(리포 파일 생성 금지 규칙 준수). 스크래치패드는 세션 종료 시 정리되므로 재현 절차로 다시 만들 수 있게 기록한다.",
+      "scratchpad": "C:/Users/zmfhd/AppData/Local/Temp/commandcode/C--Projects-AIO/taste-onboarding-65b46882-10e8-40d2-a445-7a1d6d57df3b/scratchpad",
+      "screenshots": [
+        "macro-view.png (1440x900, #macro 첫 화면)",
+        "macro-board.png (#macro 경제 지표 카드 영역)",
+        "fx-top.png (#fxbond 첫 화면, 수익률 곡선)",
+        "fx-levels.png (#fxbond 실질금리·기대인플레·신용)",
+        "fx-grid.png (#fxbond 달러·원·엔·10년물 카드)",
+        "macro-full.png / fx-full.png (전체 높이)"
+      ],
+      "extractions": [
+        "macro.json / macro-pretty.json (ex2.js: #page-macro innerText + 카드/축/체인/차트 구조 추출)",
+        "fx.json / fx-body.txt (#page-fxbond 추출)",
+        "hidden-macro.json / hidden-fx.json (details 내부 근거·판정기준·aria-label)",
+        "probe-macro.json / probe-fx.json (페이지 가시성/카드 수)",
+        "lq.json (#live-quote-ts 상태칩 3회 샘플링)",
+        "verify.txt (public-data 재계산: buildCloseSeries·yoy·trend·Sahm·payroll·term premium 재현)",
+        "data-macro.txt (data.json macro 원값)",
+        "hist2.txt (history.json row 및 20/63세션 변화)"
+      ]
+    }
+  },
+  "counts": {
+    "A": 1,
+    "B": 1,
+    "C": 5,
+    "D": 6,
+    "console": 2,
+    "blockedOrUnverified": 5,
+    "reconciliationEntries": 47,
+    "reconciliationMismatch": 1
+  },
+  "findings": [
+    {
+      "id": "MACRO-A1",
+      "grade": "A",
+      "confidence": "needs-double-check",
+      "subtype": "1년 전 비교값이 실제 12개월 전이 아님(계열 결측으로 13개월 전 값이 표시)",
+      "routes": ["#macro"],
+      "location": "거시 경제 > 물가 > 'CPI (전년 대비)' 카드의 추이 줄(1년 전 …) / 고용 > '실업률' 카드의 추이 줄. 코드: src/domain/macro/indicators.js trendOf() series[series.length-13] (파일 160-175행), src/domain/macro/macro-read.js yoySeries()",
+      "expected": "CPI 카드 1년 전 = 2.9% (macro-history.series.cpiIndexNsa 2025-08-01=323.976 ÷ 2024-08-01=314.796 = +2.92%). 실업률 카드 1년 전 = 4.4% (macro-history.series.unemployment 2025-09-01=4.4)",
+      "actual": "CPI 카드 '1년 전 2.7%' (= 2025-07-01 YoY 323.048/314.54 = +2.71%, 즉 13개월 전). 실업률 카드 '1년 전 4.3%' (= 2025-08-01 값 4.3, 즉 13개월 전)",
+      "cause": "macro-history 의 CPI/core CPI/CPI(SA)/core CPI(SA)/실업률 계열에는 2025-10-01 관측이 없다(FRED 원계열 결측: cpiIndexNsa 는 2025-09-01 다음이 2025-11-01). trendOf 는 위치( index -13 )로 '1년 전'을 잡으므로 결측 1개월만큼 창이 밀린다.",
+      "reproduction": "1) node 로 macro-history.json 을 읽어 cpiIndexNsa/unemployment 의 2025-10-01 부재와 13번째 뒤 관측값을 확인(스크래치패드 verify.js 가 동일 로직 재현, 출력은 verify.txt: 'CPI YoY: 1년전=2.7(2025-07-01)', '실업률: 1년전=4.3(2025-08-01)'). 2) http://127.0.0.1:8931/#macro 를 열고 'CPI (전년 대비)' 카드의 '1년 전' 문구를 읽는다.",
+      "evidencePath": [
+        "public-data/macro-history.json series.cpiIndexNsa ([\"2025-08-01\",323.976],[\"2024-08-01\",314.796],[\"2025-07-01\",323.048],[\"2024-07-01\",314.54], 2025-10 부재)",
+        "public-data/macro-history.json series.unemployment ([\"2025-09-01\",4.4],[\"2025-08-01\",4.3], 2025-10 부재)",
+        "scratchpad/verify.txt, scratchpad/macro-pretty.json cards[2].lines / cards[6].lines",
+        "scratchpad/macro-board.png (카드 화면)"
+      ],
+      "fixDirection": "결측월이 있으면 위치 기반 대신 달력 기준(정확히 12개월 전 달)으로 비교하고, 해당 달이 없으면 '계열 결측으로 비교 불가/가장 가까운 달' 처럼 창을 명시한다. 또는 trendOf 라벨을 'x개월 전(yyyy.mm)' 로 실제 기준월을 함께 표기."
+    },
+    {
+      "id": "MACRO-B1",
+      "grade": "B",
+      "confidence": "needs-double-check",
+      "subtype": "같은 관측(5거래일 변화)이 두 라우트에서 다른 basis로 표기(5일 vs 1주)",
+      "routes": ["#macro", "#fxbond"],
+      "location": "(a) #macro 거시 경제 > 신용 축 headline/근거 'HY 315bp (5일 −9bp)'. (b) #fxbond 금리·환율 > '하이일드 스프레드' 카드 줄 '1주 −9bp'. (c) #macro 금리·할인율 근거 '미 10년물 5.24% (5일 -4bp, 20일 +27bp)'. (d) #fxbond 수익률 곡선 10년 '1주 −4bp'",
+      "expected": "같은 5거래일 변화는 두 화면에서 같은 basis 이름으로 표기되어야 한다(예: 모두 '5거래일' 또는 모두 '1주'). 값 근거: data.json macro.hyOASDelta5 = -0.09 (5영업일), macro.dgs10Delta5 = -0.04 (5영업일); history.json tnx 5세션 변화 = -4bp",
+      "actual": "동일 값 −9bp 가 #macro 에서는 '5일', #fxbond 에서는 '1주'로 표기. 동일 값 −4bp 가 #macro 에서는 '5일', #fxbond 에서는 '1주'로 표기",
+      "reproduction": "1) /#macro 에서 신용 축 카드와 '금리 · 할인율' details 근거를 읽는다. 2) /#fxbond 에서 하이일드 스프레드 카드와 10년 금리 행을 읽는다. 3) 두 표기의 값은 같고 창 이름만 다름을 확인.",
+      "evidencePath": [
+        "public-data/data.json macro.hyOASDelta5=-0.09, macro.dgs10Delta5=-0.04",
+        "scratchpad/macro-pretty.json axes[5].headline/evidence, axes[3].evidence",
+        "scratchpad/fx-body.txt 69-80행(HY 카드), 10-12행(10년 1주 -4bp)"
+      ],
+      "fixDirection": "RULES 주석과 화면 문구를 '5거래일'로 통일하거나, 두 화면 모두 '1주(5거래일)'처럼 창을 명시. 판정 기준 문구('신용 스프레드 1주 ±25bp')와도 같은 낱말을 쓰게 맞춘다."
+    },
+    {
+      "id": "MACRO-C1",
+      "grade": "C",
+      "confidence": "high",
+      "subtype": "상단 시세 상태칩 오표기(종수·문구가 durable 스냅샷과 불일치)",
+      "routes": ["#macro", "#fxbond"],
+      "location": "공통 상단바 #live-quote-ts (거시·금리환율 두 라우트 모두에서 보임). 좌측 상단 '10/9 마감 · 시세 7종'",
+      "expected": "'서버 10/9 마감 · 시세 16종' (market-snapshot.json quotes.length=16, coverage.required=16/observed=16; operations-status.json planes.durable.coverage 16/16, freshness.fresh=true; 저장소 게이트 scripts/ci-architecture-browser-check.mjs:102 가 /^서버 .+ · 시세 16종$/ + dataset.currentness close|stale + title 에 '실시간 시세가 아닌' 을 요구)",
+      "actual": "text '10/9 마감 · 시세 7종' (서버 접두 없음, 종수 7), title '미국 정규장 마감 · 10/9 종가 기준 (최신 관측 10/10 06:29 KST)' ('실시간 시세가 아닌' 없음). 같은 세션 첫 로드 스크린샷에서는 '서버 10/9 마감 · 시세 16종' 이었다가 live fetch 가 실패를 반복한 뒤 7종으로 바뀜(스크린샷 macro-view.png ↔ fx-top.png/fx-grid.png)",
+      "cause": "칩 숫자가 durable 스냅샷(16종)이 아니라 fast quote plane 의 살아있는 quote 수(7)를 반영. operations-status 상 fast plane 은 OPERATOR_REQUIRED/rights 미검토이고 quotes featureAvailability=UNAVAILABLE",
+      "reproduction": "1) /#macro 로드 직후와 20초 후, 그리고 /#fxbond 에서 #live-quote-ts.textContent 를 읽는다(스크래치패드 ex7.js). 2) market-snapshot.json 의 quotes 길이와 operations-status.json planes.durable.coverage 를 대조.",
+      "evidencePath": [
+        "public-data/market-snapshot.json quotes(16건)",
+        "public-data/operations-status.json featureAvailability.quotes=UNAVAILABLE(fast-quote-provider-rights-not-reviewed), planes.durable.coverage 16/16",
+        "scripts/ci-architecture-browser-check.mjs:91-104",
+        "scratchpad/lq.json, scratchpad/macro-view.png, scratchpad/fx-top.png"
+      ],
+      "fixDirection": "칩은 durable 스냅샷 기준(16종, '서버 …')으로 고정하고, live plane 상태는 별도 슬롯으로 분리한다. title 에 '실시간 시세가 아닌' 문구를 복원."
+    },
+    {
+      "id": "MACRO-C2",
+      "grade": "C",
+      "confidence": "needs-double-check",
+      "subtype": "결측월을 건너뛴 3개월 평균으로 계산된 파생지표가 관측값처럼 표시(Sahm 0.00%p)",
+      "routes": ["#macro"],
+      "location": "거시 경제 > 성장 축: headline 대신 '일자리 3개월 평균 +51천 명' 이 쓰였지만 details '근거' 표에 'Sahm 지표 0.00%p (0.5 이상이면 침체 신호)' / '국면 판정 기준과 지금 읽은 값' 표 1행 'Sahm 지표 0.00%p · 기준 미만'",
+      "expected": "Sahm 지표는 '실업률 3개월 평균 − 직전 12개월 3개월 평균 최저'. 2025-10 관측이 없으므로 결측월을 이어붙인 3개월 평균(예: 2025-11 평균이 9월·11월을 함께 포함)은 정의상 3개월 평균이 아니며, 그로부터 나온 0.00%p 는 실측 신호가 아니라 산출 아티팩트다. macro-history.series.unemployment: [\"2025-09-01\",4.4] 다음이 [\"2025-11-01\",4.5] (2025-10 부재). 참고로 같은 파일의 payrolls·PCEPI 에는 2025-10 이 있다.",
+      "actual": "'Sahm 지표 0.00%p' + '기준 미만' 판정. 화면 어디에도 '계열 결측으로 3개월 평균이 한 달을 건너뜀' 안내가 없다(스파크 aria 도 '최근 24개월 추이'로만 표기)",
+      "reproduction": "1) macro-history.json 에서 unemployment 2025-10 부재를 확인. 2) /#macro 에서 '국면 판정 기준과 지금 읽은 값' details 를 펼쳐 Sahm 행을 읽는다.",
+      "evidencePath": [
+        "public-data/macro-history.json series.unemployment (2025-09 → 2025-11 간격)",
+        "src/domain/macro/macro-read.js sahmGap() (69-77행)",
+        "scratchpad/hidden-macro.json regimeInputsTable / axesEvidence[0].evidence",
+        "scratchpad/verify.txt (sahm gap = 0.000)"
+      ],
+      "fixDirection": "계열에 결측월이 있으면 Sahm·3개월 평균류 지표는 계산을 보류하고 '결측월(2025-10)로 계산 보류' 상태칩을 표시한다. 결측을 이어붙여 만든 평균은 라벨에 창을 명시."
+    },
+    {
+      "id": "MACRO-C3",
+      "grade": "C",
+      "confidence": "high",
+      "subtype": "월별 지표 카드의 발표일/다음 발표 누락",
+      "routes": ["#macro"],
+      "location": "거시 경제 > 소비 · 주택 > '주택 착공 (연율)' 카드 meta('8월분'만), 정책금리 > '실효 연방기금금리 (월평균)' 카드 meta('9월분'만)",
+      "expected": "같은 보드의 다른 월별 카드는 '8월분 · 9/16 발표 · 다음 10/15'(소매판매), '9월분 · 10/2 발표 · 다음 11/6'(고용)처럼 관측기간 + 발표일 + 다음 발표를 표시한다. 주택 착공/실효금리 카드에도 관측기간과 (있으면) 발표일·출처가 함께 있어야 한다",
+      "actual": "주택 착공: '8월분' 만. 실효 연방기금금리: '9월분' 만(발표일·다음 발표 없음, 출처는 hover title '출처: FRED' 뿐)",
+      "cause": "src/domain/macro/indicators.js MACRO_GROUPS 에서 housingStarts/fedRate 항목에 release 키가 없어 releaseInfo() 가 { last: null, next: null } 을 돌려준다.",
+      "reproduction": "1) /#macro 에서 두 카드의 meta 줄을 읽는다. 2) indicators.js 의 housingStarts(48행)·fedRate(26행) 항목과 retailSales(47행)·unemployment(39행) 항목을 비교.",
+      "evidencePath": [
+        "src/domain/macro/indicators.js:26,48 (release 없음) vs 39,47 (release 있음)",
+        "scratchpad/macro-pretty.json cards[10].meta='8월분', cards[1].meta='9월분'"
+      ],
+      "fixDirection": "housingStarts 에 us-housing(또는 census 신규주택 일정) 항목을, fedRate 에 연준/FRED 발표 근거를 추가해 관측기간·발표일·출처를 카드에 표시."
+    },
+    {
+      "id": "MACRO-C4",
+      "grade": "C",
+      "confidence": "needs-double-check",
+      "subtype": "페이지 기준일보다 5거래일 이전인 일별 계열에 지연 표기 없음",
+      "routes": ["#fxbond"],
+      "location": "금리 · 환율 > 실질금리 · 기대인플레이션 · 신용 > '10년 기간 프리미엄 (Kim-Wright)' 카드(meta '10/2')",
+      "expected": "페이지 기준 줄은 '10/9 미국 종가 기준 · 국채 금리 10/9 공식 고시 기준'. 같은 묶음의 다른 카드는 10/8~10/9 이고, 이 카드는 10/2(5거래일 전). 일별 계열이 기준일보다 1주 가까이 뒤처지면 '10/2 기준 · 5거래일 전' 같은 지연 표기가 필요",
+      "actual": "meta '10/2' 만 표시, 지연/stale 상태칩 없음. stale 판정은 저장소 코드의 30일 임계(src/ui/components/macro-board.js 514,522행 ageDays>30)라 9일 지연은 'observed' 로 통과",
+      "reproduction": "1) macro-history.series.termPremium10 마지막 관측 2026-10-02 확인. 2) /#fxbond 에서 기간 프리미엄 카드 meta/title 을 읽고 다른 카드 기준일(10/8, 10/9)과 비교.",
+      "evidencePath": [
+        "public-data/macro-history.json series.termPremium10 마지막 [\"2026-10-02\",1.0847] (n=269, fetchedAt 2026-10-10)",
+        "src/ui/components/macro-board.js:508-525",
+        "scratchpad/fx-body.txt 82-94행"
+      ],
+      "fixDirection": "카드별 지연 표기를 시리즈 주기 기준(일별=1~2거래일)으로 계산하고, 기준일에서 k거래일 뒤처지면 다른 카드와 같은 basis-chip(‘10/2 · 5거래일 전’)을 붙인다."
+    },
+    {
+      "id": "MACRO-C5",
+      "grade": "C",
+      "confidence": "needs-double-check",
+      "subtype": "정적 참조값에 관측일·출처가 화면에 없음",
+      "routes": ["#macro", "#fxbond"],
+      "location": "(a) #macro 유가·달러 축 '증시 연결' 문장의 '에너지는 CPI의 약 7%', (b) 통화정책 축 근거 '실질 기준금리 (중간값 − 근원 PCE) 0.9% (중립 약 1%)' 의 '약 1%', (c) 양 라우트 카드의 발표일 문구 '9/11 발표 · 다음 10/14' 등",
+      "expected": "화면에 하드코딩된 참조 수치는 값 + 관측일 + 출처가 함께 표시되어야 한다. (a) 에너지 CPI 가중치(~7%)는 BLS 상대중요도표 같은 출처와 기준시점이 필요. (b) 중립 실질금리 약 1%는 FOMC longer-run 3.0%−2% 라는 근거 표기가 필요. (c) 발표일은 저장소 정적 캘린더 값이므로 그 캘린더의 검증일/출처가 카드에 있어야 함",
+      "actual": "(a) 출처·기준시점 없음. (b) '중립 약 1%'만 표시(출처는 코드 주석에만). (c) 카드 meta 는 '9/11 발표 · 다음 10/14' 뿐이고 hover title 도 값의 출처('출처: BLS')만 보여준다. 캘린더 출처('BLS official schedule')·검증일은 화면에 없음",
+      "reproduction": "1) /#macro 에서 유가·달러 축 details 와 통화정책 축 details 를 펼친다. 2) js/aio-core.js 의 AIO_MACRO_CALENDAR / AIO_MACRO_OFFICIAL_SCHEDULES 정적값과 화면 표기를 비교.",
+      "evidencePath": [
+        "src/domain/macro/indicators.js:10 FED_PCE_TARGET=2 (FOMC Statement 근거는 주석에만)",
+        "src/domain/macro/macro-read.js:158,305 ('에너지는 CPI의 약 7%'), 8행('3.0% nominal - 2% = about 1%')",
+        "js/aio-core.js:11076-11110 (AIO_MACRO_CALENDAR v53.4 / OFFICIAL_SCHEDULES, 주석에 'reviewed 2026-10-01', 'verified 2026-10-10')",
+        "scratchpad/hidden-macro.json axesEvidence[4].link, axesEvidence[2].evidence"
+      ],
+      "fixDirection": "정적 참조 수치 옆에 기준시점과 출처를 짧게 병기(예: '에너지 CPI 가중치 약 7% (BLS, 2025-12 기준)')하고, 발표일은 캘린더 항목의 source/sourceUrl·검증일을 카드 title 에 노출."
+    },
+    {
+      "id": "MACRO-D1",
+      "grade": "D",
+      "confidence": "high",
+      "subtype": "차트 aria-label 의 기간 표기가 연도 없는 M/D 라 12개월 창이 역순처럼 읽힘",
+      "routes": ["#macro"],
+      "location": "거시 경제 > 유가 · 금 > 'WTI 원유' / '금' 차트의 aria-label",
+      "expected": "기간 표기는 연도를 포함해 순서가 명확해야 한다(예: '2025-10-14~2026-10-09')",
+      "actual": "'WTI 원유 10/14~10/9 추이, 최근 92' / '금 10/14~10/9 추이, 최근 4216' — 화면독자는 10/14 → 10/9 로 역행하는 기간으로 읽는다",
+      "reproduction": "/#macro 에서 두 svg[role=img] 의 aria-label 을 읽는다(스크래치패드 ex3.js). 시각 축 라벨은 '11월 … 26년 1월 …' 로 정상.",
+      "evidencePath": ["src/ui/components/trend-chart.js:29-32,143", "scratchpad/hidden-macro.json chartArias"],
+      "fixDirection": "aria-label 기간에 연도를 넣거나 '2025-10 ~ 2026-10' 형태로 바꾼다."
+    },
+    {
+      "id": "MACRO-D2",
+      "grade": "D",
+      "confidence": "high",
+      "subtype": "차트 y축 눈금에 단위 없음",
+      "routes": ["#fxbond", "#macro"],
+      "location": "#fxbond 달러·원화·엔화·10년물 카드의 y축(96.0~104.0 / 1300~1600 / 150.0~165.0 / 4.0~5.5), #macro WTI·금 차트 y축(40~120, 3500~5500)",
+      "expected": "카드 값에는 단위가 있다('1,340.9원', '158.25엔', '5.24%', '91.85달러', '4,216달러'). 축 눈금에도 같은 단위(원/엔/%/달러)나 범례가 있어야 값↔축을 맞출 수 있다",
+      "actual": "축 눈금이 단위 없는 숫자만 표시(format: value.toFixed(n)). 같은 페이지의 수익률 곡선(4.7% / 5.3% / 5.8%)과 스파크 '기간 고점 2.95% · 저점 1.68%' 는 단위가 붙어 있어 일관되지 않다",
+      "reproduction": "/#fxbond, /#macro 에서 각 카드의 svg .trend-chart-axis 텍스트와 카드 값을 비교.",
+      "evidencePath": ["src/ui/components/trend-chart.js:70-75,90", "src/ui/components/macro-board.js:545,557", "scratchpad/fx-grid.png", "scratchpad/hidden-macro.json chartArias"],
+      "fixDirection": "format 콜백에 단위를 넣거나 축 제목/범례로 단위를 표시."
+    },
+    {
+      "id": "MACRO-D3",
+      "grade": "D",
+      "confidence": "high",
+      "subtype": "스파크 '기간 고점/저점' 줄에 단위 누락(비 %카드)",
+      "routes": ["#macro"],
+      "location": "거시 경제 > 고용 > '비농업 고용 증감' 카드 '기간 고점 237 · 저점 -156', 소비·주택 > '주택 착공 (연율)' 카드 '기간 고점 152 · 저점 118'",
+      "expected": "카드 단위(천 명 / 만 호)를 붙여야 한다. 같은 줄이 %카드에서는 '기간 고점 4.25% · 저점 2.31%'처럼 단위가 붙는다",
+      "actual": "단위 없는 숫자만 표시",
+      "reproduction": "/#macro 에서 두 카드의 .macro-spark-range 텍스트를 읽는다.",
+      "evidencePath": ["src/ui/components/macro-board.js:98-106 (suffix = unit === '%' ? '%' : '')", "scratchpad/macro-pretty.json cards[7].range, cards[11].range"],
+      "fixDirection": "suffix 를 '%' 뿐 아니라 카드 단위(천 명, 만 호)로 일반화."
+    },
+    {
+      "id": "MACRO-D4",
+      "grade": "D",
+      "confidence": "high",
+      "subtype": "부호 글리프 혼용(ASCII 하이픈 vs U+2212)",
+      "routes": ["#fxbond", "#macro"],
+      "location": "#fxbond 환율 축 게이지 캡션 '원/달러 20일 변화 · -1.7%'(ASCII) vs 같은 카드 headline '원/달러 20일 −1.7%'(U+2212). #macro 근거 표 '미 10년물 5.24% (5일 -4bp, …)', 'WTI 91.85달러 (20일 -9.4%)', 'HY 신용 스프레드 315bp (5일 -9bp)' 등",
+      "expected": "화면 전체에서 같은 부호 글리프 사용(signed() 는 '−'(U+2212) 를 쓴다)",
+      "actual": "게이지 캡션·근거 표는 ASCII '-', 추이 줄·카드 값은 U+2212/− — 같은 숫자가 두 글리프로 표시된다",
+      "reproduction": "/#fxbond 와 /#macro 에서 게이지 캡션과 headline 을 나란히 읽는다.",
+      "evidencePath": ["src/ui/components/macro-board.js:151 (게이지 캡션 값 직접 toFixed)", "src/domain/macro/macro-read.js:26-29 (signed)", "scratchpad/fx-body.txt 102-103행", "scratchpad/hidden-macro.json axesEvidence"],
+      "fixDirection": "게이지 캡션·근거 표에도 signed() 를 쓰도록 통일."
+    },
+    {
+      "id": "MACRO-D5",
+      "grade": "D",
+      "confidence": "high",
+      "subtype": "날짜 표기 혼용(M/D vs ISO yyyy-mm-dd)",
+      "routes": ["#fxbond", "#macro"],
+      "location": "#fxbond 실질금리 카드 note '기준일 2026-10-08 — 옆 카드와 날짜가 다릅니다.' / 기대인플레이션 카드 note '실질금리(2026-10-08)와 기대인플레이션(2026-10-09)…'. 같은 카드 meta 는 '10/8', '10/9'. #macro 헤더 '다음 주요 발표: 미국 CPI · 2026-10-14 KST 기준'",
+      "expected": "카드·헤더가 쓰는 M/D 표기로 통일(예: '10/8 기준 — 옆 카드와 날짜가 다릅니다')",
+      "actual": "ISO yyyy-mm-dd 가 note 에 그대로 노출",
+      "reproduction": "/#fxbond 실질금리·기대인플레이션 카드 note 와 /#macro 헤더를 읽는다.",
+      "evidencePath": ["src/domain/macro/rates-fx.js:143-148", "scratchpad/fx-body.txt 54,67행", "scratchpad/macro.json basis/body"],
+      "fixDirection": "note 안의 날짜도 shortDate() 로 포맷."
+    },
+    {
+      "id": "MACRO-D6",
+      "grade": "D",
+      "confidence": "high",
+      "subtype": "차트 없는 카드가 그리드 한 칸을 차지해 큰 공백 발생",
+      "routes": ["#macro"],
+      "location": "거시 경제 > 정책금리 > '연준 목표 범위' 카드(값 3.75–4.00% + meta + note 만 있고 스파크라인 없음) 옆/아래 빈 영역",
+      "expected": "스크린 설계 원칙('추세는 축이 있는 차트로')에 맞게 빈 카드는 폭을 줄이거나 다른 지표를 채운다",
+      "actual": "카드가 1열 전체(약 480x250px)를 차지하며 아래 절반이 빈 공백(스크린샷 macro-board.png)",
+      "reproduction": "/#macro 의 '정책금리' 그룹을 화면으로 확인.",
+      "evidencePath": ["scratchpad/macro-board.png", "src/ui/components/macro-board.js:369-377 (grid 균등 분할)"],
+      "fixDirection": "스파크 없는 카드용 1행 레이아웃(가로 배치) 또는 기간 프리미엄 등 다른 관측값으로 채우기."
+    },
+    {
+      "id": "MACRO-D7",
+      "grade": "D",
+      "confidence": "high",
+      "subtype": "콘솔 에러: live quote 핸들러 예외 반복",
+      "routes": ["#macro", "#fxbond"],
+      "location": "브라우저 콘솔 [AIO:pagebus] html-kr-live/aio:liveQuotes handler failed: Cannot read properties of null (reading 'toFixed') — 두 라우트 반복 발생, errors 목록에는 없음(경고 레벨)",
+      "expected": "live quote 갱신 핸들러는 결측값에서 예외 없이 무시/보류 처리",
+      "actual": "동일 스택이 페이지 체류 중 수회 반복(warning). 같은 세션에서 [AIO:HY] HY 스프레드 프록시 전부 실패 — 정적 데이터 사용 중, 프록시 5종 disabled 도 함께 발생",
+      "reproduction": "1) #macro 로드 후 agent-browser console 을 읽는다. 2) /#fxbond 로 이동 후 다시 읽는다.",
+      "evidencePath": ["scratchpad: agent-browser console 출력(세션 aio-macro-b2c50a70c36a)"],
+      "fixDirection": "toFixed 호출 전 null 가드. 프록시 실패는 환경(외부망 차단) 요인으로 별도 처리하되, 실패 시 사용자 화면에 'live 아님' 표기가 유지되는지 확인."
+    }
+  ],
+  "console": [
+    {
+      "id": "MACRO-CONSOLE-1",
+      "level": "warning",
+      "text": "[AIO:pagebus] html-kr-live/aio:liveQuotes handler failed: Cannot read properties of null (reading 'toFixed')",
+      "routes": ["#macro", "#fxbond"],
+      "repeats": "수회 반복",
+      "note": "JS 예외(가드 누락). 화면 숫자는 영향 없음(정적/기록 기반 값 유지) — MACRO-D7 로 기록."
+    },
+    {
+      "id": "MACRO-CONSOLE-2",
+      "level": "error/warning",
+      "text": "[error] [AIO:api] proxy-primary: warn → error {errCount: 3} / [warning] [AIO:proxy] proxy cf-worker·corsproxy·allorigins-raw·allorigins-get·codetabs disabled (fails 3~6) / [AIO:fetch] Yahoo v7 batch chunk error: Failed to fetch / [AIO:HY] HY 스프레드 프록시 전부 실패 — 정적 데이터 사용 중",
+      "routes": ["#macro", "#fxbond"],
+      "note": "실행 환경의 외부망/프록시 차단으로 보임(서버는 정상). live 시세 plane 은 operations-status.json 에서도 quotes=UNAVAILABLE(fast-quote-provider-rights-not-reviewed). 화면 값은 durable 스냅샷/기록을 사용해 표시에는 영향 없음."
+    }
+  ],
+  "crossRoute": [
+    {
+      "metric": "미 10년물(수준)",
+      "macro": "axes 근거 '미 10년물 5.24%' / 체인 '장기금리 (10년물) 20일 +27bp'",
+      "fxbond": "수익률 곡선 10년 5.24% / 카드 '미 10년물 금리 (일별 종가) 5.24%'",
+      "expectedFileValue": "data.json macro.dgs10=5.24 (미 재무부, 10/9) · history.json tnx=5.24 (Yahoo, 10/9) · market-snapshot market.rates.us10y=5.244",
+      "verdict": "일치(값 동일) — B 없음"
+    },
+    {
+      "metric": "미 2년물",
+      "macro": "통화정책 축 '2년물(4.80%)'",
+      "fxbond": "수익률 곡선 2년 4.80%",
+      "expectedFileValue": "data.json macro.dgs2=4.80 (_asOf_dgs2 2026-10-09)",
+      "verdict": "일치"
+    },
+    {
+      "metric": "하이일드 스프레드",
+      "macro": "신용 축 'HY 315bp (5일 −9bp)'",
+      "fxbond": "카드 '315bp / 1주 −9bp'",
+      "expectedFileValue": "data.json macro.hyOAS=3.15, hyOASDelta5=−0.09 (_asOf_hyOAS 2026-10-08)",
+      "verdict": "값 일치, 창 이름만 '5일' vs '1주' → MACRO-B1"
+    },
+    {
+      "metric": "달러 인덱스",
+      "macro": "유가·달러 축 '102.23 (20일 +2.8%)'",
+      "fxbond": "카드 '102.23 / 20일 +2.8%'",
+      "expectedFileValue": "history.json dxy 10/9=102.23 (20세션 전 99.46) · market-snapshot 102.231",
+      "verdict": "일치"
+    },
+    {
+      "metric": "10년 실질금리",
+      "macro": "금리·할인율 근거 '실질금리 (10년 TIPS) 2.87%'",
+      "fxbond": "카드 '2.87% / 1주 −0.01%p'",
+      "expectedFileValue": "data.json macro.realYield10=2.87, realYield10Delta5=−0.01 (_asOf 2026-10-08)",
+      "verdict": "일치"
+    },
+    {
+      "metric": "10년 기대인플레이션",
+      "macro": "물가 축 근거 '10년 기대인플레이션 2.33%'",
+      "fxbond": "카드 '2.33% / 1주 −0.03%p'",
+      "expectedFileValue": "data.json macro.breakeven10=2.33 (_asOf 2026-10-09)",
+      "verdict": "일치"
+    },
+    {
+      "metric": "10년물 20일 변화",
+      "macro": "금리·할인율 headline '10년물 20일 +27bp'",
+      "fxbond": "카드 '20일 +27bp'",
+      "expectedFileValue": "history.json tnx 5.24 vs 4.97(2026-09-11) = +27bp",
+      "verdict": "일치"
+    },
+    {
+      "metric": "10년물 5거래일 변화",
+      "macro": "'5일 -4bp'",
+      "fxbond": "수익률 곡선 10년 '1주 −4bp' (data.json dgs10Delta5)",
+      "expectedFileValue": "history tnx 5세션 −4bp · data.json dgs10Delta5=−0.04",
+      "verdict": "값 일치, 창 이름 불일치 → MACRO-B1"
+    }
+  ],
+  "reconciliation": {
+    "note": "화면에 표시된 숫자·날짜를 public-data 원값과 1:1 대조한 기록. expected 는 데이터 파일 근거값, actual 은 브라우저에 표시된 값.",
+    "macroRoute": [
+      {"item": "상단 상태칩", "screen": "10/9 마감 · 시세 7종", "expected": "서버 10/9 마감 · 시세 16종", "match": false, "finding": "MACRO-C1"},
+      {"item": "헤더 다음 발표", "screen": "미국 CPI · 2026-10-14 KST 기준", "expected": "us-cpi nextRelease 2026-10-14 (js/aio-core.js)", "match": true, "finding": "MACRO-C5(c)"},
+      {"item": "연준 목표 범위", "screen": "3.75–4.00% · 10/10 기준 · 다음 10/28", "expected": "data.json fedTargetLower=3.75, fedTargetUpper=4, _asOf_fedTargetUpper=2026-10-10, FOMC nextRelease 2026-10-28", "match": true},
+      {"item": "실효 연방기금금리", "screen": "3.75% · 9월분 · 전월 대비 +0.12%p", "expected": "data.json fedRate=3.75, fedRateDelta=0.12, _asOf_fedRate=2026-09-01; macro-history fedFunds 3.75(2026-09) vs 3.63(2026-08)", "match": true},
+      {"item": "실효 연방기금금리 추이", "screen": "1년 전 4.22% · 6개월 전 3.64% · 고점 4.83% 저점 3.63%", "expected": "macro-history fedFunds: 2025-09=4.22, 2026-03=3.64, window min 3.63 / max 4.83", "match": true},
+      {"item": "CPI", "screen": "3.4% · 8월분 · 9/11 발표 · 다음 10/14 · 전월 ±0.0%p", "expected": "data.json cpi=3.4, cpiDelta=0, _asOf_cpi=2026-08-01; us-cpi schedule 2026-09-11/2026-10-14", "match": true},
+      {"item": "CPI 6개월 전", "screen": "2.4%", "expected": "macro-history cpiIndexNsa 2026-02 vs 2025-02 = +2.41%", "match": true},
+      {"item": "CPI 1년 전", "screen": "2.7%", "expected": "2025-08 YoY = +2.92% (표시값은 2025-07 YoY 2.71%)", "match": false, "finding": "MACRO-A1"},
+      {"item": "CPI 고점/저점", "screen": "4.25% / 2.31%", "expected": "24개월 YoY window max/min", "match": true},
+      {"item": "근원 CPI", "screen": "2.4% · 전월 −0.1%p · 1년 전 3.1% · 6개월 전 2.5% · 고점 3.33% 저점 2.45%", "expected": "data.json coreCpi=2.4, coreCpiDelta=−0.1; macro-history coreCpiIndexNsa 2025-07=3.06%/2025-08=3.11%(둘 다 3.1), 2026-02=2.46%, max 3.33/min 2.45", "match": true, "note": "1년 전은 결측 영향으로 2025-07 기준이나 반올림상 3.1로 동일"},
+      {"item": "PCE 물가", "screen": "3.4% · 8월분 · 9/30 발표 · 다음 10/29 · 전월 ±0.0%p · 목표보다 1.4%p 높음", "expected": "data.json pce=3.4, pceDelta=0, _bea.releasedAt 2026-09-30T12:30Z, nextReleaseAt 2026-10-29", "match": true},
+      {"item": "PCE 1년 전/6개월 전", "screen": "2.7% / 2.8%", "expected": "macro-history pceIndex 2025-08 vs 2024-08 = +2.69%; 2026-02 vs 2025-02 = +2.80%", "match": true},
+      {"item": "PCE 고점/저점", "screen": "3.82% / 2.26%", "expected": "24개월 YoY window", "match": true},
+      {"item": "근원 PCE", "screen": "3.0% · 전월 ±0.0%p · 목표보다 1.0%p 높음 · 1년 전 2.9% · 6개월 전 3.0% · 고점 3.16% 저점 2.56%", "expected": "data.json corePce=3, corePceDelta=0; macro-history corePceIndex 2025-08=+2.85%, 2026-02=+2.96%", "match": true},
+      {"item": "실업률", "screen": "4.2% · 9월분 · 10/2 발표 · 다음 11/6 · 전월 +0.1%p · 6개월 전 4.3% · 고점 4.50% 저점 4.00%", "expected": "data.json unemployment=4.2, unemploymentDelta=0.1, _asOf 2026-09-01; us-nfp schedule 2026-10-02/2026-11-06; macro-history 2026-03=4.3", "match": true},
+      {"item": "실업률 1년 전", "screen": "4.3%", "expected": "2025-09 = 4.4% (표시값은 2025-08 4.3)", "match": false, "finding": "MACRO-A1"},
+      {"item": "비농업 고용 증감", "screen": "+29천 명 · 전월 +133천 명 · 1년 전 +76천 명 · 6개월 전 +214천 명 · 고점 237 저점 -156", "expected": "data.json nfp=29, nfpDelta=−104 → 전월 133; macro-history payrolls diff 2026-09=+29, 2025-09=+76, 2026-03=+214, max 237 / min −156", "match": true},
+      {"item": "시간당 임금", "screen": "3.0% · 전월 −0.1%p · 1년 전 3.8% · 6개월 전 3.4% · 고점 4.21% 저점 3.02%", "expected": "data.json usWageGrowth=3, usWageGrowthDelta=−0.1; macro-history hourlyEarnings YoY", "match": true},
+      {"item": "경제활동참가율", "screen": "61.8% · 9월분 · 10/2 발표 · 다음 11/6", "expected": "data.json blsLaborForceParticipation=61.8", "match": true},
+      {"item": "소매판매", "screen": "+1.1% · 8월분 · 9/16 발표 · 다음 10/15 · 1년 전 +0.3% · 6개월 전 +0.9% · 고점 1.66% 저점 -1.43%", "expected": "data.json retailSales=1.1 (_asOf 2026-08-01); us-retail schedule 2026-09-16/2026-10-15; macro-history RSAFS MoM 2025-08=+0.33%, 2026-02=+0.93%", "match": true},
+      {"item": "주택 착공", "screen": "127.5만 호 · 전월 −3.4만 호 · 1년 전 129.1만 호 · 6개월 전 134.6만 호 · 고점 152 저점 118 · 8월분", "expected": "data.json housingStarts=1.275, housingStartsDelta=−0.034 (_asOf 2026-08-01); macro-history HOUST 1275/1309, 2025-08=1319, 2026-02=1346", "match": true, "finding": "MACRO-C3(발표일 누락)"},
+      {"item": "국면 라벨/사분면", "screen": "성장 둔화 · 물가 둔화, '지금' 표시 = 둔화·디스인플레이션", "expected": "payroll 3개월 평균 50.7 < 직전 80.7−25, core PCE 3개월 연율 2.05% < YoY 3.0%", "match": true},
+      {"item": "성장 축", "screen": "중립 · '일자리 3개월 평균 +51천 명' · gauge '일자리 3개월 평균 (천 명) · +51천 명'", "expected": "recent3 avg 50.67, prior3 avg 80.67, sahm 0.00<0.3, avg3<100 → neutral", "match": true},
+      {"item": "성장 축 근거", "screen": "실업률 4.2%(전월 +0.1%p) / Sahm 0.00%p / 일자리 +51천 명(그 전 +81천 명) / 청구 19.8만 건(저점 대비 ±0%) / 소매판매 YoY +5.4%", "expected": "macro-history: initialClaims 4주 평균 198000=19.8만, 1년 저점 동일; RSAFS YoY +5.36%", "match": true, "finding": "MACRO-C2(Sahm)"},
+      {"item": "물가 축 근거", "screen": "근원 PCE 3.0%(+1.0%p) / 3개월 연율 2.0% / 근원 CPI 3개월 2.0% / 6개월 전 3.0% / CPI·PCE 3.4%·3.4% / 기대인플레 2.33%", "expected": "corePceIndex 3개월 연율 (130.455/129.796)^4−1=2.05%; coreCpiIndex 3개월 (337.765/334.165)^4−1=2.0%; data.json cpi=3.4 pce=3.4 breakeven10=2.33", "match": true},
+      {"item": "정책 축", "screen": "부담 · '2년물이 기준금리보다 0.92%p 높음' · 근거 3.75–4.00% / +0.92%p / 실질 0.9%(중립 약 1%)", "expected": "mid=(3.75+4.00)/2=3.875; dgs2 4.80 − 3.875 = 0.925; realPolicy 0.875", "match": true},
+      {"item": "금리 축", "screen": "부담 · '10년물 20일 +27bp' · 근거 5.24%(5일 -4bp, 20일 +27bp) / 1년 범위 95% / 실질 2.87%", "expected": "history tnx 5.24 vs 4.97(09-11)=+27bp, 5세션 −4bp; yearPosition 0.949→95%; realYield10 2.87", "match": true, "finding": "MACRO-B1('5일' vs '1주')"},
+      {"item": "유가·달러 축", "screen": "부담 · 'WTI 20일 −9.4% · 달러 +2.8%' · gauge '달러 인덱스 20일 변화 · +2.8%' · 근거 WTI 91.85달러(-9.4%) / 위치 63% / 달러 102.23(+2.8%) / 금 4,216(-3.1%)", "expected": "history date-keyed: wti 91.85 vs 101.39 = −9.409%, pos 63.4%; dxy +2.785%; gold −3.116%", "match": true},
+      {"item": "신용 축", "screen": "우호 · 'HY 315bp (5일 −9bp)' · 근거 풋/콜 0.82, F&G 45", "expected": "data.json hyOAS=3.15, hyOASDelta5=−0.09; putCall.totalPutCall=0.82 (asOf 2026-10-09); fearGreed.score=45", "match": true},
+      {"item": "전달 체인", "screen": "유가 ▲? 실제 '20일 −9.4% ▼' → '기대인플레이션 기준일이 달라 보류' → '연준 경로 +0.92%p ▲' → '장기금리 +27bp ▲' → '밸류에이션 압력(해석) ▼' + 달러 +2.8% ▲ + 신용 −9bp", "expected": "realYield10 기준일 2026-10-08 ≠ breakeven10 기준일 2026-10-09 → 5일 변화 보류(코드 splitReal 로직)", "match": true},
+      {"item": "WTI 카드", "screen": "91.85달러 · 10/9 종가 · 20일 −9.4% · 3개월 +16.3% · 1년 범위 63%", "expected": "history wti 91.85@2026-10-09; back20 101.39; back63 78.95(+16.34%); 1년 위치 63.4%", "match": true},
+      {"item": "금 카드", "screen": "4,216달러 · 10/9 종가 · 20일 −3.1% · 3개월 +5.6% · 1년 범위 19%", "expected": "history gold 4216.3@2026-10-09; back20 4351.9(−3.12%); back63 3992.1(+5.62%); 1년 위치 18.8%", "match": true},
+      {"item": "VIX(상단 칩)", "screen": "VIX 14.84", "expected": "market-snapshot market.volatility.vix=14.84", "match": true}
+    ],
+    "fxbondRoute": [
+      {"item": "기준 줄", "screen": "10/9 미국 종가 기준 · 국채 금리 10/9 공식 고시 기준", "expected": "closeBasis 2026-10-09 (history spx) / data.json _treasury.observedAt 2026-10-09", "match": true},
+      {"item": "2년", "screen": "4.80% · 1일 +5bp · 1주 −3bp", "expected": "data.json dgs2=4.80, dgs2Delta=0.05, dgs2Delta5=−0.03 (_deltaAsOf_dgs2 2026-10-09)", "match": true},
+      {"item": "5년", "screen": "5.02% · 1일 +3bp · 1주 −4bp", "expected": "dgs5=5.02, +0.03, −0.04", "match": true},
+      {"item": "10년", "screen": "5.24% · 1일 +2bp · 1주 −4bp", "expected": "dgs10=5.24, +0.02, −0.04", "match": true},
+      {"item": "20년", "screen": "5.65% · 1일 +1bp · 1주 −2bp", "expected": "dgs20=5.65, +0.01, −0.02", "match": true},
+      {"item": "30년", "screen": "5.60% · 1일 ±0bp · 1주 −3bp", "expected": "dgs30=5.60, 0, −0.03", "match": true},
+      {"item": "곡선 y축", "screen": "4.7% / 5.3% / 5.8%", "expected": "min 4.80 → floor((4.80−0.1)*10)/10=4.7; max 5.65 → ceil((5.65+0.1)*10)/10=5.8; 중간 5.25→5.3%", "match": true},
+      {"item": "2s10s", "screen": "2년–10년 (10년 − 2년) +0.44%p", "expected": "data.json t10y2y=0.44 (미 재무부) · 5.24−4.80=0.44", "match": true},
+      {"item": "5s30s", "screen": "5년–30년 (30년 − 5년) +0.58%p", "expected": "5.60−5.02=0.58", "match": true},
+      {"item": "기울기 문장", "screen": "10년물이 2년물보다 0.44%p 높습니다 (양의 기울기).", "expected": "spread 0.44 > 0 → 양의 기울기", "match": true},
+      {"item": "10년-3개월", "screen": "10년–3개월 금리차 +0.99%p (10/9 …)", "expected": "macro-history t10y3m=0.99 @2026-10-09", "match": true},
+      {"item": "10년 실질금리", "screen": "2.87% · 1주 −0.01%p · 1년 전보다 +1.07%p · 고점 2.95% 저점 1.68% · 10/8", "expected": "data.json realYield10=2.87, realYield10Delta5=−0.01 (_asOf 2026-10-08); window 2025-09-25 1.80 → 2.87 = +1.07", "match": true},
+      {"item": "10년 기대인플레이션", "screen": "2.33% · 1주 −0.03%p · 1년 전보다 −0.05%p · 고점 2.50% 저점 2.18% · 10/9", "expected": "data.json breakeven10=2.33, breakeven10Delta5=−0.03 (_asOf 2026-10-09); window 2025-09-26 2.38 → 2.33 = −0.05", "match": true},
+      {"item": "기준일 불일치 안내", "screen": "실질금리(2026-10-08)와 기대인플레이션(2026-10-09)의 기준일이 달라…", "expected": "실제 기준일 상이 → 고지 필요(있음)", "match": true, "finding": "MACRO-D5(표기형식)"},
+      {"item": "하이일드 스프레드", "screen": "315bp · 1주 −9bp · 1년 전보다 +4bp · 고점 346 저점 260 · 10/8", "expected": "data.json hyOAS=3.15 (315bp), hyOASDelta5=−0.09; macro-history window 2025-10-14 3.11 → 3.15 = +4bp; min 260 / max 346", "match": true},
+      {"item": "10년 기간 프리미엄", "screen": "1.08% · 3개월 +0.36%p · 1년 전보다 +0.61%p · 같은 날 10년 금리 5.28% 중 단기금리 예상분 약 4.20% · 고점 1.08% 저점 0.42% · 10/2", "expected": "macro-history termPremium10 1.0847@2026-10-02, back63 0.7261(+0.359), window start 0.4748(+0.610), min 0.4189 max 1.0847; dgs10 2026-10-02=5.28 → 5.28−1.0847=4.195", "match": true, "finding": "MACRO-C4(지연 표기)"},
+      {"item": "환율 축", "screen": "중립 · '원/달러 20일 −1.7%' · gauge '원/달러 20일 변화 · -1.7%'", "expected": "history usdkrw 1340.9 vs 1363.57(2026-09-15) = −1.663%", "match": true, "finding": "MACRO-D4(부호 글리프)"},
+      {"item": "달러 인덱스 카드", "screen": "102.23 · 10/9 종가 · 1일 +0.09% · 20일 +2.8%", "expected": "history dxy 102.23@2026-10-09, 전일 102.14(+0.088%), 20세션 전 99.46(+2.785%)", "match": true},
+      {"item": "원/달러 카드", "screen": "1,340.9원 · 10/9 종가 · 1일 −0.16% · 20일 −1.7%", "expected": "history usdkrw 1340.9@2026-10-09 (fieldMeta.observedAt 2026-10-10T03:30:56Z → NY 10/9), 전일 1342.99(−0.156%)", "match": true},
+      {"item": "엔/달러 카드", "screen": "158.25엔 · 10/9 종가 · 1일 +0.12% · 20일 +2.5%", "expected": "history usdjpy 158.25@2026-10-09, 전일 158.06(+0.120%), 20세션 전 154.38(+2.507%)", "match": true},
+      {"item": "미 10년물 종가 카드", "screen": "5.24% · 10/9 종가 · 20일 +27bp", "expected": "history tnx 5.24@2026-10-09, 20세션 전 4.97 → +27bp; market-snapshot market.rates.us10y=5.244", "match": true},
+      {"item": "엔 캐리 문장", "screen": "엔화 20일 −2.5% (엔 약세) — 3% 이상 강세면 … '부담'으로 바뀝니다", "expected": "RULES.fx.yenRally20dPct=3; jpy20=+2.507% → 엔 약세", "match": true},
+      {"item": "그 밖의 통화", "screen": "참고 환율 · 10/11 고시 · 하루 1회 갱신, 등락 없음 / EUR/USD 1.1205, GBP/USD 1.3229, USD/CNY 6.7069, AUD/USD 0.6978", "expected": "public-data 5개 파일에 값 없음(외부 환율 API 실시간). 대조 불가", "match": null, "finding": "unverified"}
+    ]
+  },
+  "blockedOrUnverified": [
+    {
+      "id": "MACRO-U1",
+      "what": "그 밖의 통화 4종 환율(1.1205 / 1.3229 / 6.7069 / 0.6978)과 '10/11 고시' 표기",
+      "why": "public-data/*.json 에 값이 없고 외부 환율 API(js/aio-data.js:13453-13524, open.er-api → exchangerate-api → fawazahmed0)에서 런타임에 채워지는 값. 10/11(일) 고시 표기는 주말 고시 여부를 확인할 수 없음",
+      "needs": "외부 API 응답 또는 권리·기준일 계약(operations-status 에 daily-reference-rate 계약 없음)"
+    },
+    {
+      "id": "MACRO-U2",
+      "what": "발표 일정 정적값의 사실 정확성(2026-10-14 CPI, 10/15 소매판매, 10/28 FOMC 등)",
+      "why": "저장소 정적 캘린더(js/aio-core.js:11076-11110) 외에 대조할 public-data 근거가 없고 오프라인에서 BLS/BEA/Fed 원문을 확인할 수 없음",
+      "needs": "공식 일정 원문 대조(외부)"
+    },
+    {
+      "id": "MACRO-U3",
+      "what": "proxy 차단 환경에서의 live 계열 일치 여부(Yahoo ^TNX vs 미 재무부 dgs10 의 소수점 차이 등)",
+      "why": "콘솔에 프록시 5종 disabled·Yahoo fetch 실패가 기록되어 live 수집이 불가. 오늘은 두 소스가 모두 5.24로 일치했으나 일반화할 수 없음",
+      "needs": "외부망 가능 환경에서 재수집"
+    },
+    {
+      "id": "MACRO-U4",
+      "what": "#page-macro 안에 한 번 관측된 '한국 시장 — 핵심 지수 · 한국 매크로' details 패널('KOSPI —', 'KRW/USD —' 등 '—' 자리표시 다수)",
+      "why": "동일 세션의 ex3 추출에서 #page-macro 소속으로 잡혔으나, 이후 재현 시 getComputedStyle 상 부모가 표시되지 않고(#page-macro innerText 에도 없음) 검색되지 않음. 1440x900 화면에는 노출되지 않아 등급 판정 불가",
+      "needs": "재현 조건 확정(어떤 이벤트가 이 패널을 렌더/표시하는지)"
+    },
+    {
+      "id": "MACRO-U5",
+      "what": "operations-status.json reconciliation.overall=PARTIAL (hy-oas, macro-calendar, retail-housing-ism, central-bank-policy, commodities-fx, market-quotes 등 13개 카테고리 PARTIAL / 2개 BLOCKED)",
+      "why": "화면 표시값 자체는 저장소 원값과 일치하지만 durable plane 의 정합성 부채가 선언되어 있음",
+      "needs": "카테고리별 미해결 사유 확인(운영 문서)"
+    }
+  ],
+  "notes": {
+    "notGraded": [
+      "모바일 레이아웃(데스크톱 전용 계약, 1440x900만 확인)",
+      "#page-macro / #page-fxbond 외 라우트",
+      "AI 채팅·뉴스 등 거시·금리 화면 밖 기능"
+    ],
+    "positiveObservations": [
+      "'그 밖의 통화' 카드는 daily-reference-rate 를 감지해 등락 셀을 숨기고 '하루 1회 갱신, 등락 없음'으로 표기(describeOtherFx, macro-board.js:571-594) — 기준 없는 변동률을 만들지 않는다.",
+      "실질금리(10/8)와 기대인플레이션(10/9)의 기준일 차이를 양쪽 카드에 명시하고 합산을 보류(R1528/P1599 로직) — 지켜짐.",
+      "기간 프리미엄 카드는 '관측값이 아닌 모형 추정치'라고 명시하고 다른 모형과 수준이 다를 수 있음을 밝힘.",
+      "두 라우트의 겹치는 지표(10Y·2Y·HY·달러·실질금리·기대인플레) 값은 모두 동일했다(요구 4 위반 없음).",
+      "'—' 영구 자리표시 위젯은 거시·금리 화면에 없음(스크린 정직성 결정 준수)."
+    ],
+    "environment": {
+      "server": "http://127.0.0.1:8931 정상 응답(HTTP 200)",
+      "machineClock": "2026-10-11 KST (스크린샷 상단 '10/9 마감', #server-data-age '10-11 00:23 KST (16h 전)' — 단 이 배지는 display:none 로 비노출)"
+    }
+  }
+}

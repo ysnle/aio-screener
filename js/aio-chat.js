@@ -399,6 +399,9 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   if (!isPartialStream && researchRequired && (!meta.researchGate || meta.researchGate.ready !== true)) {
     applyLimitation('research-evidence-unavailable', '※ Web Research 근거 미수신: 최신 사실·수치·원인 단정은 확인 보류합니다. 아래 답변은 주입된 데이터, 기존 검증 근거와 일반 원리에 기반한 조건부 분석입니다.');
   }
+  if (!isPartialStream && researchRequired && meta.researchGate?.ready === true && meta.researchGate.currentClaimsAllowed !== true) {
+    applyLimitation('research-freshness-unverified', '※ 검색 출처를 바탕으로 설명합니다. 자료의 발행·사건 시점을 확인하지 못한 부분은 최신 사실로 확정하지 않았습니다.');
+  }
   if (!isPartialStream && meta.completion && meta.completion.truncated === true) {
     applyLimitation('model-output-truncated', '※ 응답 길이 한도 도달: 완결되지 않은 구조에서 복구 가능한 설명만 표시했습니다. 누락된 항목은 후속 질문으로 나눠 확인하세요.');
   }
@@ -1868,6 +1871,9 @@ var _aioWorkerHealthCache = window._aioWorkerHealthCache || {};
 var _aioWorkerHealthInFlight = {};
 function _aioSetChatRuntimeState(name, value) {
   try { window[name] = value; } catch (_) {}
+  if (name === '_aioLastClaudeRouteState') {
+    try { window.dispatchEvent(new CustomEvent('aio:workerHealth')); } catch (_) {}
+  }
   return value;
 }
 async function _aioEnsureClaudeRoute(apiKey) {
@@ -1895,8 +1901,9 @@ async function _aioEnsureClaudeRoute(apiKey) {
       try {
         var response = await fetch(target.healthUrl, { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal });
         var payload = await response.json().catch(function() { return null; });
-        var ready = response.ok && !!(payload && payload.ai && payload.ai.ready === true && payload.ai.provider === 'openai' && payload.ai.model === 'gpt-6-luna');
-        var result = { ok: ready, reason: ready ? 'SHARED_WORKER' : 'WORKER_NOT_READY', target: target, checkedAt: Date.now(), health: payload };
+        var access = window.AIO && window.AIO.describeSharedConnection ? window.AIO.describeSharedConnection(payload, response.ok) : { ok: false, reason: 'WORKER_NOT_READY' };
+        var ready = access.ok;
+        var result = { ok: ready, reason: access.reason, target: target, checkedAt: Date.now(), health: payload };
         _aioWorkerHealthCache[target.workerUrl] = result;
         if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_cf_worker_url', { connection: ready ? 'READY' : 'NOT_READY', lastError: ready ? null : result.reason });
         return result;
@@ -1996,7 +2003,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
 
   // v30.5: AbortController — 연결 30초 + 청크 간 15초 타임아웃
   // v31.3: thinking 모드는 60초 (추론 시간 필요)
-  var timeoutMs = modelCfg.thinking ? 60000 : 30000;
+  var timeoutMs = opts.webSearch === true || modelCfg.thinking ? 60000 : 30000;
   var ctrl = new AbortController();
   var _unlinkChatAbort = _aioLinkChatAbortSignal(_chatSignal, ctrl);
   var connectionTimedOut = false;
@@ -2011,6 +2018,11 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     input: _trimmedMessages.map(function(message) { return { role: message.role, content: String(message.content || '') }; }),
     max_output_tokens: effectiveMaxTokens, reasoning: { effort: modelCfg.reasoningEffort || 'none' }, store: false, stream: true
   };
+  // P1608: reuse the metered route; old Workers receive a text request.
+  var searchEnabledNow = opts.webSearch === true;
+  try { if (localStorage.getItem('aio_web_search_enabled') === 'off') searchEnabledNow = false; } catch (_) {}
+  if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health });
+  if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
   var _claudeHeaders = { 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() };
   if (_streamRequestId) _claudeHeaders['X-AIO-Idempotency-Key'] = _streamRequestId;
   try {
@@ -2837,7 +2849,7 @@ var AIO_CHAT_SOURCE_REGISTRY = [
   { key:'trend',        label:'주가 추이(5D/20D/3M)', fn:'_fetchTickerTrend',             tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'technicalOHLCV', label:'OHLCV 기술지표(RSI/MACD/MA/ATR)', fn:'_fetchTechnicalDataForChat', tier:'technical', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'analystRec',   label:'애널리스트 컨센서스',  fn:'fetchFinnhubRecommendation',    tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
-  { key:'nextEarnings', label:'다음 어닝 일정',       fn:'fetchFinnhubEarningsCalendar',  tier:'fundamental', free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
+  { key:'nextEarnings', label:'다음 어닝 일정',       fn:'readPublicEarnings',  tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   // 펀더멘털 (window.AIO.*)
   { key:'secBusiness',  label:'SEC 10-K 사업개요',    fn:'fetchSECBusinessDescription',   tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'wikipedia',    label:'Wikipedia 기업개요',   fn:'fetchWikipediaCompany',         tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
@@ -2845,9 +2857,9 @@ var AIO_CHAT_SOURCE_REGISTRY = [
   { key:'fhNews',       label:'Finnhub 기업뉴스(14일)', fn:'fetchFinnhubCompanyNews',     tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   { key:'insider',      label:'내부자 거래',          fn:'fetchFinnhubInsider',           tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   { key:'thirteenF',    label:'13F 기관보유',         fn:'fetchSEC13F',                   tier:'sentiment',   free:true,  requiresKey:null,         appliesTo:function(){return true;} },
-  { key:'fcf',          label:'FCF Yield',           fn:'computeFcfYield',               tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
-  { key:'balance',      label:'대차대조표 비율',      fn:'computeBalanceSheetRatios',     tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
-  { key:'evEbitda',     label:'EV/EBITDA',           fn:'computeEvEbitda',               tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
+  { key:'fcf',          label:'FCF Yield',           fn:'computeFcfYield',               tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
+  { key:'balance',      label:'대차대조표 비율',      fn:'computeBalanceSheetRatios',     tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
+  { key:'evEbitda',     label:'EV/EBITDA',           fn:'computeEvEbitda',               tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'macroBeta',    label:'매크로 민감도(베타)',  fn:'computeMacroBeta',              tier:'fundamental', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'shortInterest',label:'공매도 비중',          fn:'fetchFinnhubShortInterest',     tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   { key:'riskFactors',  label:'SEC 리스크요인(1A)',   fn:'fetchSECRiskFactors',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
@@ -3073,11 +3085,12 @@ async function _fetchTickerDataForChat(tickers, opts) {
       try {
         var _today = new Date().toISOString().slice(0,10);
         var _60d = new Date(Date.now() + 60*86400000).toISOString().slice(0,10);
-        var _fhEarn = _needsConsensus ? await fetchFinnhubEarningsCalendar(_today, _60d, data.ticker) : null;
+        var _fhEarn = _needsConsensus && window.AIO.readPublicEarnings ? await window.AIO.readPublicEarnings(data.ticker, _today, _60d) : null;
+        if (_needsConsensus && (!_fhEarn || !_fhEarn.length)) _fhEarn = await fetchFinnhubEarningsCalendar(_today, _60d, data.ticker);
         if (_fhEarn && _fhEarn.length > 0) {
           var _e = _fhEarn[0];
           var _hour = _e.hour === 'bmo' ? '장전' : _e.hour === 'amc' ? '장후' : _e.hour === 'dmh' ? '장중' : '미정';
-          results.push('  [다음 어닝] ' + (_e.date||'미정') + ' ' + _hour + ' · 예상 EPS $' + (_e.epsEstimate != null ? Number(_e.epsEstimate).toFixed(2) : 'N/A') + (_e.revenueEstimate ? ' · 예상 매출 ' + _fm(_e.revenueEstimate) : ''));
+          results.push('  [다음 어닝] ' + (_e.date||'미정') + ' ' + _hour + ' · 예상 EPS $' + (_e.epsEstimate != null ? Number(_e.epsEstimate).toFixed(2) : 'N/A') + (_e.revenueEstimate ? ' · 예상 매출 ' + _fm(_e.revenueEstimate) : '') + ' · 출처: ' + (_e.source || 'Finnhub 개인 조회') + (_e.fetchedAt ? ' · 수집: ' + _e.fetchedAt : ''));
         }
       } catch(e) {}
 
@@ -3503,8 +3516,16 @@ async function _fetchDeepCompareData(tickers) {
   var options = arguments.length > 1 && arguments[1] ? arguments[1] : {};
   _aioThrowIfChatAborted(options.signal);
   var fmpKey = _getApiKey('aio_fmp_key') || '';
-  if (!fmpKey) return null;
   var results = {};
+  // P1607: share the stock screen's public SEC provider/cache, without personal keys.
+  var publicFacts = {};
+  try { publicFacts = await window.AIO.readPublicFundamentals(tickers); }
+  catch (error) { _aioThrowIfChatAborted(options.signal); }
+  _aioThrowIfChatAborted(options.signal);
+  for (var symbol of tickers) {
+    if (publicFacts[symbol] && window.AIO.formatSecResearchEvidence(publicFacts[symbol])) results[symbol] = { secFundamentals: publicFacts[symbol] };
+  }
+  if (!fmpKey) return Object.keys(results).length ? results : null;
 
   for (var i = 0; i < tickers.length; i++) {
     _aioThrowIfChatAborted(options.signal);
@@ -3540,6 +3561,7 @@ async function _fetchDeepCompareData(tickers) {
       ]);
       _aioThrowIfChatAborted(options.signal);
       results[t] = {
+        secFundamentals: publicFacts[t] || null,
         profile: (profRes && profRes[0]) || null,
         revSegment: revSegRes || null,
         revGeo: revGeoRes || null,
@@ -3571,7 +3593,7 @@ async function _fetchDeepCompareData(tickers) {
     } catch(e) {
       if (e && (e.name === 'AbortError' || e.code === 'ABORTED') || options.signal && options.signal.aborted) throw e;
       _aioLog('warn', 'fetch', '심층 데이터 조회 실패: ' + t + ' ' + e.message);
-      results[t] = null;
+      results[t] = publicFacts[t] ? { secFundamentals: publicFacts[t] } : null;
     }
   }
   return results;
@@ -3590,10 +3612,8 @@ function _formatSingleDeepPrompt(ticker, deepData) {
   dataPrompt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
   dataPrompt += '【단일 기업 심층 분석 지침 — 17개 관점 프레임워크 (임원급 깊이)】\n';
   dataPrompt += '위 데이터를 기반으로, 기업 내부 전략기획팀이 이사회에 보고하는 수준의 깊이와 디테일로 분석하라.\n';
-  dataPrompt += '17개 관점(기업 개요/설립 배경/경영진/비즈니스 모델/제품 포트폴리오/기술력&해자/수익 구조/재무제표/밸류에이션/시장 TAM/수요&공급망/파트너십/경쟁 구조/리스크/촉매·실적수정/포트폴리오 적합성/투자포인트) 전부 커버.\n';
-  dataPrompt += '해자 7유형 판정(기술독점/네트워크효과/전환비용/브랜드/규모의경제/무형자산/FCF전환) 필수.\n';
-  dataPrompt += '제공된 실제 숫자(세그먼트별 매출·R&D/매출·마진 추이·FCF마진·D/E·내부자 매매·DCF 적정가 등)를 반드시 인용.\n';
-  dataPrompt += '시계열 트렌드를 읽어라 — "방향"이 "현재 값"보다 중요. 3개년 추이의 가속/감속을 반드시 언급.\n';
+  dataPrompt += '자료가 있는 관점만 분석하고 없는 관점은 확인할 질문으로 남겨라. 해자·세그먼트·추정치·현금흐름은 근거가 없으면 판정하지 마라.\n';
+  dataPrompt += '수치의 기간·단위·출처를 함께 표시하라. FY와 TTM을 혼용하지 마라. 추이는 비교 가능한 여러 기간이 있을 때만 설명하라.\n';
   dataPrompt += 'Bull Case(낙관) / Base Case(기본) / Bear Case(비관) 시나리오 + 깨지는 신호 필수.\n';
   dataPrompt += '단답·요약 절대 금지. 전문 리서치 리포트 수준의 깊이 있는 분석.\n';
   return dataPrompt;
@@ -3604,7 +3624,8 @@ function _formatDeepComparePrompt(tickers, deepData) {
   var _fm = function(v) { if (!v) return 'N/A'; if (v >= 1e12) return '$' + (v/1e12).toFixed(1) + 'T'; if (v >= 1e9) return '$' + (v/1e9).toFixed(1) + 'B'; if (v >= 1e6) return '$' + (v/1e6).toFixed(0) + 'M'; return '$' + v; };
   var _pct = function(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + (v*100).toFixed(1) + '%' : 'N/A'; };
 
-  var out = '\n\n【 기업 내부 비교 분석 데이터 (실시간 FMP)】\n';
+  var out = '\n\n【 기업 비교 자료 · 공용 공시 및 선택 개인 연결 】\n';
+  out += '자료가 없는 영역은 미확인으로 남겨라. 단일 연간 자료로 다년 추이나 TTM을 만들지 마라.\n';
   out += '비교 대상: ' + tickers.join(' vs ') + '\n\n';
 
   for (var i = 0; i < tickers.length; i++) {
@@ -3614,6 +3635,7 @@ function _formatDeepComparePrompt(tickers, deepData) {
 
     out += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
     out += ' ' + t;
+    if (d.secFundamentals && window.AIO && window.AIO.formatSecResearchEvidence) out += '\n' + window.AIO.formatSecResearchEvidence(d.secFundamentals);
     var nv = d.naver || {};
 
     // 1. Profile — 비즈니스 모델 설명
@@ -3805,74 +3827,9 @@ function _formatDeepComparePrompt(tickers, deepData) {
 
   // 비교 분석 지침 — 17개 관점 완전 커버 (기업 내부 임원급 깊이)
   out += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
-  out += '【기업 비교 분석 지침 — 17개 관점 프레임워크 (임원급 심층 분석)】\n';
-  out += '위 데이터를 기반으로, 기업 내부 임원이 이사회에서 경쟁사 대비 분석을 발표하는 수준의 깊이와 디테일로 비교하라.\n';
-  out += '단답·요약 금지. 각 관점에서 구체적 숫자를 인용하고, 그 숫자가 "왜 중요한지"까지 해석하라.\n\n';
-
-  out += '1. 【기업 개요 비교】 각 기업의 한 문장 정의 → 시총·매출·직원·섹터 나란히 비교. "규모의 차이가 의미하는 것"까지 해석. 데이터: profile(companyName, sector, industry, mktCap, fullTimeEmployees)\n\n';
-
-  out += '2. 【설립 배경 & 성장 과정 비교】 각 기업의 창업 스토리 → 핵심 피벗 포인트 → 현재 위치. 성장 궤적의 유사점과 차이점. IPO 시점 대비 현재 규모 성장 비교. 데이터: profile(ipoDate, description)\n\n';
-
-  out += '3. 【경영진 분석 비교】 CEO/핵심 경영진의 이력·직급·보상구조 비교. 주주 친화도(자사주매입+배당 정책) 비교. 내부자 매매 패턴(매수 우위 vs 매도 우위) 비교 → "어느 쪽 경영진이 자기 회사에 더 자신감을 보이는가?" 내부자 매수 증가=자신감 시그널, 대량 매도=경계. CEO 보상/직원 평균 임금 비율로 거버넌스 문화 추론. 데이터: executives + insider + cashflow(commonStockRepurchased, dividendsPaid)\n\n';
-
-  out += '4. 【비즈니스 모델 비교】 각 기업이 돈을 버는 메커니즘 대조. 구독형 vs 거래형 vs 플랫폼 vs 하드웨어+서비스. 반복매출(recurring revenue) 비중 추정. 단위경제(LTV/CAC 프록시: SG&A/매출 추이로 고객 획득 효율 추론). "누가 더 예측 가능한 매출 구조를 가졌는가?" 데이터: profile.description + income(SG&A 추이) + revSegment\n\n';
-
-  out += '5. 【제품 & 서비스 포트폴리오 비교】 세그먼트별 매출 비중 나란히 비교. 각 세그먼트의 성장성과 수익성 추정. 매출 집중도 비교 — 한 세그먼트에 50%+ 의존 시 리스크 명시. 신규 세그먼트 확장 여부와 매출 다각화 수준 비교. "누가 더 건강한 포트폴리오를 가졌는가?" 데이터: revSegment(제품별 매출 비중%)\n\n';
-
-  out += '6. 【기술력 & 경쟁 우위(Moat) 비교】 7가지 해자 유형별 비교 판정:\n';
-  out += '  ① 기술 독점: R&D/매출 비교 (15%+ = 기술 집약). R&D 3년 추이 비교 — 누가 더 공격적으로 투자하나?\n';
-  out += '  ② 네트워크 효과: 매출성장률 > SG&A 증가율 = 유기적 성장(네트워크 효과). SG&A/매출 하락 추세 비교\n';
-  out += '  ③ 전환비용: GM 60%+ 안정 유지 = 전환비용 존재. 구독/SaaS 모델이면 내재적 전환비용\n';
-  out += '  ④ 브랜드 파워: GM 50%+ + SG&A/매출 하락 = 브랜드 인지도로 마케팅 효율 확보\n';
-  out += '  ⑤ 규모의 경제: OpMargin 3년 연속 개선 + 매출 성장 = 규모의 경제 작동 중. CAPEX/매출 하락 = 고정비 레버리지\n';
-  out += '  ⑥ 무형자산: description에서 라이선스/규제 허가/정부 계약/독점 데이터 키워드 탐지\n';
-  out += '  ⑦ FCF 전환: FCF마진 20%+ = 이익이 실제 현금으로 전환(이익의 질 높음)\n';
-  out += '  → 각 기업의 해자 강도 판정: Wide(3개+ 충족) / Narrow(1~2개) / None. "누가 더 넓은 해자를 보유하고 있는가?"\n';
-  out += '  해자 약화 경고: R&D/매출 하락 + 마진 축소 + 성장률 저하 = 해자 침식 중\n';
-  out += '  데이터: income(R&D/SG&A/OpMargin) + cashflow(CAPEX/FCF) + profile.description + growth\n\n';
-
-  out += '7. 【수익 구조 비교】 지역별 매출 분포 나란히 비교 → 지정학 리스크 노출도 비교. 세그먼트별+지역별 교차 분석. GM→OM→NM 마진 폭포(waterfall) 비교 — "어디서 마진이 새는가?" 마진 3개년 추이의 방향(개선/악화/안정) 비교. 데이터: revGeo + revSegment + income(마진 추이)\n\n';
-
-  out += '8. 【재무제표 심층 비교】\n';
-  out += '  • 손익: 매출·이익 성장 트렌드 나란히 비교. EPS 성장 방향(가속 vs 감속)\n';
-  out += '  • 대차대조표: D/E 비율, 유동비율, 현금/총자산 비율, Goodwill/총자산 비율 비교. Red Flags(재고 급증/매출채권 급증/Goodwill 과다) 점검\n';
-  out += '  • 현금흐름: 영업CF vs 순이익(이익의 질) 비교. FCF 마진 비교. 자사주매입+배당(주주환원) 비교\n';
-  out += '  • Dupont ROE 분해: 순이익률 × 자산회전 × 레버리지 → "같은 ROE라도 어떤 경로로 달성했는가?"\n';
-  out += '  데이터: income + balance + cashflow + ratios + metrics\n\n';
-
-  out += '9. 【밸류에이션 비교】 현재 PER/PBR/PEG/EV-EBITDA 나란히 비교 → "누가 더 싼가?" 그리고 "왜 그 밸류에이션을 받는가?" 밸류에이션 삼중 비교: 현재 멀티플 vs 애널리스트 목표가 vs DCF 적정가. 셋 다 저평가 시 = 진정한 저평가. 하나만 저평가 시 = 밸류 트랩 주의. 데이터: ratios + priceTarget + dcf + estimates + ev\n\n';
-
-  out += '10. 【시장 분석 (TAM/SAM/SOM) 비교】 각 기업이 겨냥하는 시장 규모 추정. 시장 점유율과 침투율 비교. 시장 확대 트리거(메가트렌드) 비교. "누가 더 큰 시장 기회를 가졌는가?" 데이터: profile.description + revSegment + growth에서 추론\n\n';
-
-  out += '11. 【수요 & 공급망 비교】 수요 드라이버(어떤 메가트렌드가 수요를 만드는가) 비교. 공급망 구조와 핵심 부품/원자재 의존도. 지역별 매출로 지정학 공급 리스크 판단. 데이터: revGeo + profile.description + income(매출총이익률 변동으로 원자재 영향 추론)\n\n';
-
-  out += '12. 【협력 & 파트너십 비교】 주요 고객 집중도(상위 고객 매출 비중 추정). 밸류체인에서의 포지션. 기관 투자자 구성으로 "어떤 펀드가 주목하는지" 비교 — 기관 Top5의 유사성/차이점. 데이터: institutional + profile.description\n\n';
-
-  out += '13. 【경쟁 구조 비교】 경쟁사 그룹 겹침 분석 — 공통 경쟁사가 있는가? 포터의 5가지 경쟁력 기준 비교. 차별화 포인트 비교. 밸류에이션·성장률·마진을 경쟁사 대비 포지셔닝. 데이터: peers + ratios + growth\n\n';
-
-  out += '14. 【리스크 비교】 각 리스크의 가능성(H/M/L)과 영향도(H/M/L) 매트릭스 비교:\n';
-  out += '  • 사업 리스크: 경쟁 심화, 기술 대체, 매출 집중도\n';
-  out += '  • 재무 리스크: 부채 수준(D/E), 유동성, 이자보상배율\n';
-  out += '  • 규제 리스크: 독점 규제, 수출 규제, 환경 규제\n';
-  out += '  • 매크로 리스크: 금리·환율·경기 민감도(베타로 추정)\n';
-  out += '  → "어느 기업이 더 리스크가 높은가? 어떤 유형의 리스크인가?"\n';
-  out += '  데이터: balance(D/E) + profile(beta) + revGeo(지정학) + income(마진 변동성)\n\n';
-
-  out += '15. 【투자 포인트 종합 — 최종 비교 판정】\n';
-  out += '  • Bull/Base/Bear 시나리오별 비교: 각 기업의 낙관/기본/비관 시나리오\n';
-  out += '  • 핵심 카탈리스트 비교: 실적 서프라이즈 이력, 신제품, M&A 가능성\n';
-  out += '  • 내부자 매매 방향이 시사하는 바 비교\n';
-  out += '  • 종합 비교표: 17개 관점의 핵심 수치와 결측 데이터를 한 눈에 볼 수 있는 비교표\n';
-  out += '  • 비교 정리: "A는 ___ 지표에서 앞서고, B는 ___ 지표에서 앞선다. 성장 관점에서는 A의 ___, 가치 관점에서는 B의 ___이(가) 근거로 논의된다. 어느 쪽이 낫다고 단정하지 않는다."\n';
-  out += '  데이터: 위 모든 데이터 종합\n\n';
-
-  out += '【응답 프레임워크 — "기업을 하나의 이야기로 비교"】\n';
-  out += '• 17개 관점을 기계적으로 나열하지 마라. 두 기업의 핵심 차이가 무엇인지를 축으로, "왜 이 둘이 다른 길을 걸어왔는가"의 서사로 연결하라.\n';
-  out += '• 실제 수집된 데이터의 구체적 숫자를 반드시 인용하라 — 학습 데이터의 과거 수치 사용 금지.\n';
-  out += '• 팩트(숫자로 확인된 사실)와 전망(검증되지 않은 기대)을 명확히 구분하라.\n';
-  out += '• 시계열 트렌드를 읽어라 — "방향"이 "현재 값"보다 중요. 3개년 추이의 가속/감속을 반드시 언급.\n';
-  out += '• 17개 관점을 모두 다루되, 해당 기업들의 핵심 차별점이 되는 2~3개 관점은 특히 깊이 있게 다뤄라.\n';
-  out += '• 단답·요약 금지. 기업 내부 전략기획팀이 이사회에 보고하는 수준의 깊이와 디테일로 분석하라.\n';
+  out += '【기업 비교 분석 지침】\n';
+  out += '먼저 근거로 확인한 차이를 한 줄로 정리하라. 기업 개요·경영진·제품·해자·수익 구조·재무·밸류에이션·수요·공급망·파트너십·경쟁·리스크·촉매·포트폴리오 적합성은 제공 자료가 있는 관점만 비교하라.\n';
+  out += '출처와 기간을 함께 적고 사실·해석·확인할 질문을 구분하라. 없거나 격리된 데이터는 0이나 추정치로 채우지 마라. 연간 자료를 TTM으로 바꾸거나 수치 문턱만으로 해자 등급을 만들지 마라. 단일 시점이면 다년 추세를 주장하지 마라.\n';
 
   return out;
 }
@@ -4462,16 +4419,16 @@ function _needsWebSearch(query, ctxId) {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// v49.57 P318 신규: Claude web_search_20250305 조건부 활성화
-// Perplexity/Google CSE 키 없이도 Anthropic API의 native web search 활용.
-// 휴리스틱: 최근/오늘/뉴스/발표/실적/M&A/breaking 관련 질문일 때만 tool enable.
-// 비용 가드: max_uses:3 + 사용자 토글 (localStorage.aio_web_search_enabled = 'off')
-// ─────────────────────────────────────────────────────────────────
+// P1608: provider-neutral source-first choice; the Worker owns admission.
 function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers, questionPlan, researchState) {
   window._aioWebSearchCapped = false;
-  return false; // Shared paid native search stays disabled; evidence is mandatory.
+  var optedOut = false;
+  try { optedOut = localStorage.getItem('aio_web_search_enabled') === 'off'; } catch (_) {}
+  var route = window._aioLastClaudeRouteState;
+  return !!window.AIO?.selectNativeSearch?.({ decision: questionPlan?.researchDecision, questionPlan: questionPlan, externalResult: researchState?.externalResult,
+    preparation: researchState?.preparation, internalEvidenceReady: researchState?.internalEvidenceReady,
+    optedOut: optedOut, health: route?.health });
 }
-
 window._shouldUseClaudeWebSearch = _shouldUseClaudeWebSearch;
 
 /** 검색 쿼리 최적화 — v36.5: 내러티브/이벤트 컨텍스트 강화 */
@@ -4575,7 +4532,7 @@ function _formatSearchForPrompt(sr) {
 function _searchCitationsHTML(sr) {
   if (!sr || !sr.citations || sr.citations.length === 0) return '';
   var html = '<div class="aio-search-sources" style="margin-top:6px;padding:8px;border-left:2px solid var(--accent);border-radius:0 4px 4px 0;font-size:12px;min-width:0;">';
-  // v50.10: Claude native web_search 출처도 동일 렌더 (engine === 'claude')
+  // v50.10: OpenAI 웹검색 출처도 동일 렌더 (engine === 'claude')
   var engName = sr.engine === 'perplexity' ? 'Perplexity' : sr.engine === 'claude' ? 'AI 웹검색' : 'Google';
   html += '<div style="color:var(--text-secondary);font-weight:600;margin-bottom:3px;">' + engName + ' 참고 링크</div>';
   html += '<div style="color:var(--text-muted);margin-bottom:4px;">검색된 링크이며, 답변의 근거로 검증됐다는 뜻은 아닙니다.</div>';
@@ -4596,7 +4553,7 @@ function _searchCitationsHTML(sr) {
   return html;
 }
 
-/** Google Custom Search API 호출 (무료 하루 100건) */
+/** Existing Google Custom Search accounts only; new enrollment is closed. */
 async function _googleSearch(searchQuery, searchOptions) {
   _aioThrowIfChatAborted(searchOptions && searchOptions.signal);
   var apiKey = _getApiKey('aio_google_cse_key') || '';
@@ -4605,11 +4562,12 @@ async function _googleSearch(searchQuery, searchOptions) {
   // v48.9: 공유 키 쿼터 사전 체크 (100/day 도달 시 차단)
   if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('googleCse')) throw new Error('Google Search 일일 한도(100/day) 도달 — 24h 후 리셋');
 
+  var queryPolicy = window.AIO.buildGoogleSearchQuery(searchQuery, searchOptions || {});
   var locale = searchOptions && searchOptions.locale === 'en-US' ? '&hl=en&gl=us' : searchOptions && searchOptions.locale === 'ko-KR' ? '&hl=ko&gl=kr' : '';
   var url = 'https://www.googleapis.com/customsearch/v1?key=' + encodeURIComponent(apiKey) +
     '&cx=' + encodeURIComponent(cx) +
-    '&q=' + encodeURIComponent(searchQuery) +
-    '&num=5' + locale;
+    '&q=' + encodeURIComponent(queryPolicy.query) +
+    '&num=5' + locale + (queryPolicy.dateRestrict ? '&dateRestrict=' + queryPolicy.dateRestrict : '');
 
   var res = await fetch(url, { signal: searchOptions && searchOptions.signal });
   if (!res.ok) {
@@ -4620,7 +4578,7 @@ async function _googleSearch(searchQuery, searchOptions) {
 
   var data = await res.json();
   _aioThrowIfChatAborted(searchOptions && searchOptions.signal);
-  var items = data.items || [];
+  var items = (Array.isArray(data.items) ? data.items : []).filter(function(item) { return window.AIO.isGoogleResultAllowed(item.link, queryPolicy.domains); });
 
   // 검색 결과를 Perplexity와 동일한 형태로 변환
   var answer = '';
@@ -4745,7 +4703,7 @@ async function _aiResearchPlanSearch(researchPlan, options) {
     throw emptyPlan;
   }
   var settled = await Promise.allSettled(specs.map(function(spec) {
-    return _aiWebSearch(spec.query, { locale: spec.locale, allowedDomains: spec.allowedDomains, recency: spec.recency, planId: researchPlan.planId, session: researchPlan.eventWindow && researchPlan.eventWindow.asOf, signal: options.signal });
+    return _aiWebSearch(spec.query, { locale: spec.locale, allowedDomains: spec.allowedDomains, recency: spec.recency, lookbackDays: spec.lookbackDays, planId: researchPlan.planId, session: researchPlan.eventWindow && researchPlan.eventWindow.asOf, signal: options.signal });
   }));
   _aioThrowIfChatAborted(options.signal);
   var fulfilled = settled.map(function(row, index) { return { row: row, index: index }; }).filter(function(item) {
@@ -6064,7 +6022,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   if (_shouldDeepAnalyze) {
     var fd = window._fundAnalysisData;
     var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];
-    if (!alreadyHasData && (_getApiKey('aio_fmp_key') || '')) {
+    if (!alreadyHasData) {
       try {
         var singleDeepData = await _fetchDeepCompareData(detectedTickers, { signal: _chatSignal, ctxId: ctxId, query: q });
         if (singleDeepData) singleDeepStr = _formatSingleDeepPrompt(detectedTickers[0], singleDeepData);
@@ -6385,15 +6343,12 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 
   var aiBubble = null;
 
-  // v49.57 P318: Claude web_search 조건부 활성화 휴리스틱 평가
   var _useClaudeWebSearch = false;
   try {
-    _useClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _aioQuestionPlan, { preparation: _preparedResearchForChat, externalResult: webSearchResult });
+    _useClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _aioQuestionPlan, { preparation: _preparedResearchForChat, externalResult: webSearchResult, internalEvidenceReady: window.AIO?.hasInternalCurrentEvidence?.({ questionPlan: _aioQuestionPlan, freshness: chatFreshPreflight, tickers: detectedTickers }) });
   } catch(_wsErr) { _useClaudeWebSearch = false; }
-  if (_researchRequiredForChat && !_researchDecisionForChat.userOptOut && !window._aioWebSearchCapped && !_preparedResearchForChat.cancelled && _preparedResearchForChat.nativeFallbackRequired) _useClaudeWebSearch = true;
   if (_useClaudeWebSearch) {
-    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">Claude Web Research 요청 — 출처 검증 대기 (max 3회)</div>');
-    // v50.10 B: 정성 분석 web-research 지시 — placeholder/정적/휴리스틱 데이터 대신 검색으로 최신 사실+출처 확보
+    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">기존 자료를 보강하기 위해 웹검색 중 · 출처 확인 후 답변</div>');
     systemPrompt += '\n\n【웹 리서치 지시 (정성 관점)】\n공급망/밸류체인·TAM/시장규모·경쟁구조·기술해자(Moat)·기관흐름(13F)·사업구조/비즈니스모델·경영진/CEO 전략 같은 정성 분석은 주입된 placeholder/정적테이블/휴리스틱 데이터에 의존하지 말고 web_search로 최신 사실을 확인하라. 각 핵심 주장에는 (출처·발행일)을 명시하고, 검색으로 확인하지 못한 항목은 "확인 불가"로 남겨라 — 학습데이터 기반 추측 금지.';
   } else if (window._aioWebSearchCapped) {
     // v50.10 E: 정성 질문이었으나 공유 키 일일 웹검색 한도 도달 → 기존 데이터로 답변 안내
@@ -6569,7 +6524,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         _srcBadge.innerHTML = _bItems.join('');
         aiBubble.parentNode.appendChild(_srcBadge);
 
-        // v50.10: Claude native web_search 출처 푸터 (인용 URL 표면화 — 검증성)
+        // v50.10: OpenAI 웹검색 출처 푸터 (인용 URL 표면화 — 검증성)
         // P1245 (05 A05): 이 요청이 수집한 인용만 표시한다(공유 전역은 다른 스트림의 출처를 섞었다).
         var _claudeCites = _aioAIRequestCitations(_pageRequestId);
         var _webCited = !!(_useClaudeWebSearch && _claudeCites.length > 0);
@@ -7181,9 +7136,6 @@ var _QUOTA_LIMITS = {
   googleCse:  { daily: 100,  label: 'Google CSE 검색' },
   newsdata:   { daily: 200,  label: 'NewsData.io 뉴스' },
   rss2json:   { daily: 10000,label: 'rss2json' },
-  // v50.10: Claude native web_search 비용 안전 상한 (검색 1회당 과금 — 5명 공유 유료 키 보호).
-  //   관대한 기본값. 운영자가 localStorage 'aio_quota_claudeWebSearch' 또는 본 daily 값으로 조정 가능.
-  claudeWebSearch: { daily: 120, label: 'AI 웹검색' }
 };
 function _bumpApiCounter(providerKey) {
   try {
@@ -8378,7 +8330,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (_shouldSingleDeep) {
       var fd = window._fundAnalysisData;
       var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];
-      if (!alreadyHasData && (_getApiKey('aio_fmp_key') || '') && typeof _fetchDeepCompareData === 'function') {
+      if (!alreadyHasData && typeof _fetchDeepCompareData === 'function') {
         try {
           var singleDeepData = await _withTimeout(_fetchDeepCompareData(detectedTickers, { signal: _uniSignal }), 10000, 'single');
           if (!_isCurrentUnifiedRun()) throw (typeof _aioChatAbortError === 'function' ? _aioChatAbortError('stale') : new Error('stale'));
@@ -8600,12 +8552,11 @@ async function chatSendUnified(_aioDispatchOptions) {
   var modelOpts = { modelKey: selectedModelKey, maxTokens: (_uniDeepData) ? 16000 : undefined };
   var _uniUseClaudeWebSearch = false;
   try {
-    _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _uniQuestionPlan, { preparation: _uniPreparedResearch, externalResult: _uniWebResult });
+    _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _uniQuestionPlan, { preparation: _uniPreparedResearch, externalResult: _uniWebResult, internalEvidenceReady: window.AIO?.hasInternalCurrentEvidence?.({ questionPlan: _uniQuestionPlan, freshness: _uniFreshPreflight, tickers: detectedTickers }) });
   } catch(_uniWsErr) { _uniUseClaudeWebSearch = false; }
   if (_uniResearchRequired && _uniResearchFailure && _uniResearchFailure.code === 'DISABLED_BY_USER') _uniUseClaudeWebSearch = false;
-  if (_uniResearchRequired && _uniPreparedResearch && _uniPreparedResearch.nativeFallbackRequired && !window._aioWebSearchCapped && !_uniResearchDecision.userOptOut) _uniUseClaudeWebSearch = true;
   if (_uniUseClaudeWebSearch) {
-    _appendAIMsg('ai', '<div style="font-size:11px;color:#211d16;padding:4px 8px;background:rgba(33,29,22,0.08);border-radius:4px;margin-bottom:4px;">Claude Web Research 요청 — 출처 검증 대기(max 3회)</div>');
+    _appendAIMsg('ai', '<div style="font-size:11px;color:#211d16;padding:4px 8px;background:rgba(33,29,22,0.08);border-radius:4px;margin-bottom:4px;">기존 자료를 보강하기 위해 웹검색 중 · 출처 확인 후 답변</div>');
     sysPrompt += '\n\n【웹 리서치 지시 (통합 AI 패널)】\n공급망·밸류체인·TAM/시장규모·경쟁구조·기술해자·13F·사업구조·경영진 전략처럼 최신 확인이 필요한 정성 분석은 web_search 결과를 우선하라. 확인하지 못한 항목은 "확인 불가"로 남기고, 학습데이터 기반 추측을 금지한다.';
     modelOpts.webSearch = true;
   }
@@ -8692,7 +8643,6 @@ async function chatSendUnified(_aioDispatchOptions) {
     var _publicGate = _uniDoneResult.actionGate;
     if (_uniResearchRequired && !_uniResearchGate.ready) {
       _publicGate = Object.assign({}, _publicGate || {}, {
-        blocked: false,
         degraded: true,
         reason: _uniResearchFailure && _uniResearchFailure.code || 'RESEARCH_EVIDENCE_UNAVAILABLE'
       });

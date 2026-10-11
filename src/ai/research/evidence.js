@@ -201,7 +201,12 @@ export function normalizeNativeResearchCitations(citations = []) {
       publisher: publisherFromUrl(url),
       contentDepth: 'EXCERPT',
       rights: 'PUBLIC_REFERENCE',
-      sourceType: 'claude-native-web-search'
+      sourceType: 'openai-native-web-search',
+      requestId: typeof item === 'string' ? null : item.requestId,
+      queryId: typeof item === 'string' ? null : item.queryId,
+      entity: typeof item === 'string' ? null : item.entity,
+      publishedAt: typeof item === 'string' ? null : item.publishedAt,
+      eventTime: typeof item === 'string' ? null : item.eventTime
     });
   }));
 }
@@ -317,6 +322,20 @@ export function evaluateResearchEvidenceFloor(input = {}) {
   const citations = externalReady ? externalCitations : nativeReady ? nativeCitations :
     (externalCitations.length ? externalCitations : nativeCitations);
   const eligibleDocuments = eligibleEvidenceDocuments(documents, citations);
+  // P1608: citation availability is not publication/event-time verification.
+  // Search collection time and dates guessed from URLs never establish recency.
+  const asOf = Date.parse(decision.decidedAt || questionPlan.researchPlan?.eventWindow?.asOf || '');
+  const days = questionPlan.researchPlan?.eventWindow?.lookbackDays;
+  const validWindow = Number.isFinite(asOf) && Number.isFinite(days) && days > 0;
+  const dated = eligibleDocuments.filter(doc => Number.isFinite(Date.parse(doc.eventTime || doc.publishedAt || '')));
+  const recent = validWindow ? dated.filter(doc => {
+    const observed = Date.parse(doc.eventTime || doc.publishedAt);
+    return observed <= asOf + 60000 && observed >= asOf - days * 86400000;
+  }) : [];
+  const freshnessVerified = ready && bindingVerified && evidenceFloor(recent, citations, stop);
+  const freshnessStatus = !bindingVerified ? 'UNCHECKED_BINDING' : !validWindow ? 'INVALID_WINDOW'
+    : freshnessVerified ? 'VERIFIED' : !dated.length ? 'UNDATED'
+      : dated.some(doc => Date.parse(doc.eventTime || doc.publishedAt) > asOf + 60000) ? 'FUTURE' : 'STALE';
   const independentSourceCount = new Set(eligibleDocuments.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
   const primarySourceCount = new Set(eligibleDocuments.filter((document) =>
     document.primaryOrSecondary === 'PRIMARY' || document.sourceTier === 'PRIMARY_OFFICIAL'
@@ -340,7 +359,10 @@ export function evaluateResearchEvidenceFloor(input = {}) {
     citationCount: citations.length,
     independentSourceCount,
     primarySourceCount,
-    currentClaimsAllowed: externalReady || nativeReady,
-    source: externalReady ? 'external-research' : nativeReady ? 'claude-native' : 'none'
+    referenceClaimsAllowed: ready,
+    freshnessVerified,
+    freshnessStatus,
+    currentClaimsAllowed: ready && freshnessVerified,
+    source: externalReady ? 'external-research' : nativeReady ? 'openai-native' : 'none'
   });
 }

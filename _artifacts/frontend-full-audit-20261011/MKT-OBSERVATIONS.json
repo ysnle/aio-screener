@@ -1,0 +1,249 @@
+{
+  "audit": "시장 상태 (Market Status) — live-browser full audit of #signal / #breadth / #sentiment",
+  "product": "AIO Screener (C:\\Projects\\AIO) — hybrid static shell + native ESM, desktop only",
+  "appVersion": "v57.35",
+  "auditDate": "2026-10-11 (일, KST)",
+  "marketBasis": "last completed US regular session = 2026-10-09 (금) close; market-snapshot-status.lastSuccessfulAt = 2026-10-10T15:23:15.089Z (fresh for the 10/9 close) → 10/9 basis is NOT stale; a weekend shown as \"실시간\" would be a defect",
+  "server": "http://127.0.0.1:8931 (200 OK; not started/stopped by the auditor)",
+  "browser": "agent-browser 0.38.2, Chromium headless, viewport 1440x900, session mkt-b2c50a70c36a",
+  "groundTruthFiles": [
+    "C:\\Projects\\AIO\\public-data\\market-snapshot.json",
+    "C:\\Projects\\AIO\\public-data\\market-snapshot-status.json",
+    "C:\\Projects\\AIO\\public-data\\breadth-contributors.json",
+    "C:\\Projects\\AIO\\public-data\\history.json",
+    "C:\\Projects\\AIO\\public-data\\cftc-positioning.json",
+    "C:\\Projects\\AIO\\public-data\\data.json",
+    "C:\\Projects\\AIO\\public-data\\macro-history.json"
+  ],
+  "counting": {
+    "A": 1,
+    "B": 2,
+    "C": 3,
+    "D": 5,
+    "console": 1,
+    "informationalNotes": 2,
+    "blocked": 0,
+    "needsDoubleCheck": 7
+  },
+  "findings": [
+    {
+      "id": "MKT-A1",
+      "grade": "A",
+      "confidence": "medium",
+      "needsDoubleCheck": true,
+      "route": "#sentiment (투자 심리)",
+      "location": "최하단 카드 — 제목 '자체 계산 심리 지수 (참고)', 값 51 / 중립 / '10/9 기준 · 요소 5/7'",
+      "expected": "0-100 시장/종합 점수는 사용자 화면에서 폐지된 상태여야 한다 (P1392 owner decision: 'the 0-100 score and the swing/day toggle are retired from user surfaces' — src/ui/components/market-regime.js:1-2; src/domain/content/guide-screens.js:1 lists the '0~100 환경 점수' as a retired surface). 시장 상태는 6개 축별 우호/중립/부담 판정만 노출한다.",
+      "actual": "투자 심리 화면에 0-100 합산(종합) 점수 51이 표시된다. 구성 요소: 시장 모멘텀 37 · 시장 폭 88 · 변동성 47 · 안전자산 수요 79 · 정크본드 수요 5 (5개 평균). '(참고)' 라벨과 결측 요소 고지('빠진 요소 2개: 주가 강도(기록 11/60일) · 풋·콜 비율(기록 0/60일)')는 있으나, 화면에 0-100 종합 점수가 존재한다는 사실은 규칙과 충돌한다.",
+      "evidence": "화면 innerText: '자체 계산 심리 지수 (참고)\\n51\\n중립\\n10/9 기준 · 요소 5/7\\n시장 모멘텀 37 · 시장 폭 88 · 변동성 47 · 안전자산 수요 79 · 정크본드 수요 5'. 코드: src/ui/components/sentiment-board.js:136-148 (compositeCard), src/domain/sentiment/composite-fear-greed.js:90-138 (COMPOSITE_FEAR_GREED_VERSION='aio-sentiment-composite.v1', mean of available component percentile ranks). 재계산 일치: 변동성 47→47, 시장 폭 88→88.7, 정크본드 수요 5→4.6(반전 백분위), 시장 모멘텀 37→37.4. 데이터: history.json(spx/vix/tlt/advanceRatio…), macro-history.json(hyOas 3.15 / igOas 0.82 → 스프레드 2.33, 1년 백분위 반전).",
+      "repro": "1) http://127.0.0.1:8931/#sentiment 2) '투자 심리' 탭 3) 최하단까지 스크롤 → '자체 계산 심리 지수 (참고) 51'",
+      "fix": "규칙을 유지하려면 이 0-100 종합 점수를 사용자 화면에서 제거(개발자 모드/가이드로 이동)하고 CNN F&G·AAII·HY·풋콜 등 개별 카드만 남긴다. 의도적으로 허용하려면 '0-100 시장 점수 폐지' 규칙 문구를 '심리 지수(참고) 예외'로 명시 개정해야 한다. 코드·데이터는 자기일관적이므로 현재대로면 규칙 위반이 명확하다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\src\\ui\\components\\sentiment-board.js",
+        "C:\\Projects\\AIO\\src\\domain\\sentiment\\composite-fear-greed.js",
+        "C:\\Projects\\AIO\\public-data\\history.json",
+        "C:\\Projects\\AIO\\public-data\\macro-history.json"
+      ]
+    },
+    {
+      "id": "MKT-B1",
+      "grade": "B",
+      "confidence": "high",
+      "needsDoubleCheck": false,
+      "route": "#signal (시장 상태)",
+      "location": "'신용 · 위험선호' 축 카드의 단일 기준일 칩",
+      "expected": "카드에 실린 각 값은 자기 관측일을 따라야 한다: HY 신용 스프레드 = 2026-10-08, 풋/콜 비율 = 2026-10-09, F&G = 2026-10-09 (같은 값이 투자 심리 화면에서는 카드별로 올바른 날짜를 표시한다).",
+      "actual": "카드 전체에 칩이 하나뿐이고 그것이 HY 기준일 '10/8 · 1거래일 전' — 10/9 관측인 풋/콜 0.82와 F&G 45까지 10/8 기준처럼 읽힌다.",
+      "evidence": "data.json: putCall {totalPutCall 0.82, asOf '2026-10-09'}, fearGreed {score 45, asOf '2026-10-09T23:59:54+00:00'}, macro {hyOAS 3.15, _asOf_hyOAS '2026-10-08'}. 코드: src/domain/briefing/market-read.js:512-516 (axis('credit', …) 의 basisOf = alignments.hy) → 칩 = HY 날짜. 대조: 투자 심리 화면 카드는 '10/8 · 1거래일 전'(HY), '10/9'(풋/콜), '10/9'(F&G)로 각각 표기.",
+      "repro": "http://127.0.0.1:8931/#signal → '신용 · 위험선호' 카드의 칩과 값 3개를 투자 심리 화면의 HY/풋콜/AAII 카드 날짜와 비교",
+      "fix": "축 카드의 단일 칩 대신 값별 관측일을 붙이거나, 'HY 10/8 · 풋/콜·F&G 10/9'처럼 혼합 기준임을 명시한다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\public-data\\data.json",
+        "C:\\Projects\\AIO\\src\\domain\\briefing\\market-read.js"
+      ]
+    },
+    {
+      "id": "MKT-B2",
+      "grade": "B",
+      "confidence": "medium",
+      "needsDoubleCheck": true,
+      "route": "#signal (시장 상태)",
+      "location": "'금리' 축 카드 — '실질금리 (10년 TIPS) 2.87%'",
+      "expected": "실질금리 2.87%는 2026-10-08 관측이다(data.json macro.realYield10=2.87, _asOf_realYield10='2026-10-08'). 같은 카드의 미 10년물 5.24%는 10/9 관측(_asOf_dgs10='2026-10-09'). 카드에 기준일을 표시한다면 값별로 분리해야 한다.",
+      "actual": "카드 칩이 '10/9' 하나뿐이고, 10/8 관측인 실질금리 값에는 그 날짜가 표시되지 않는다(투자 심리 HY 카드처럼 값별 날짜를 쓰지 않음).",
+      "evidence": "data.json macro: realYield10 2.87 / _asOf_realYield10 '2026-10-08'; dgs10 5.24 / _asOf_dgs10 '2026-10-09'; breakeven10 2.33 / _asOf_breakeven10 '2026-10-09'. 코드: src/domain/briefing/market-read.js:486-491 (rates 축 evidence) + collectMarketInputs (rates.asOf = fieldTs.macro_realYield10 || fieldTs.macro_dgs10) → 카드 칩은 alignments.tnx(10/9)를 사용. 같은 코드가 기준일 불일치 시 '실질금리/기대인플레 (5일)' 줄을 숨기므로(splitHeld) 혼합 자체는 인지하고 있으나 화면에는 표기되지 않는다.",
+      "repro": "http://127.0.0.1:8931/#signal → '금리' 카드 → 칩 '10/9' 와 '실질금리 (10년 TIPS) 2.87%' 비교",
+      "fix": "실질금리 값 옆에 '10/8' 기준일을 붙이거나 카드 하단에 값별 기준일을 명시한다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\public-data\\data.json",
+        "C:\\Projects\\AIO\\src\\domain\\briefing\\market-read.js"
+      ]
+    },
+    {
+      "id": "MKT-C1",
+      "grade": "C",
+      "confidence": "medium",
+      "needsDoubleCheck": true,
+      "route": "#breadth (시장 폭)",
+      "location": "페이지 기준선 — '10/9 미국 종가 기준 · 판정 대상 804개 종목'",
+      "expected": "표시된 분모/커버리지가 각 지표의 실제 모집단과 일치하거나, 지표별 모집단이 다르면 그 사실이 드러나야 한다.",
+      "actual": "단일 분모 '804개 종목'만 표기된다. 804는 breadth-contributors.json 최신 세션(2026-10-09)의 eligible.highLow(=이동평균 위 비율 모집단)이고, 같은 화면의 '4% 이상 상승 22 · 하락 11'과 '상승 종목 비율'은 eligible.movers(=810) 모집단에서 계산된다. 804/810을 구분할 단서가 화면에 없다.",
+      "evidence": "breadth-contributors.json sessions[-1] = {date '2026-10-09', eligible {movers 810, highLow 804}} (동일 파일 상단: universeScope 'aio-us-screener-universe-not-official-exchange'). history.json 2026-10-09: breadthUp4 22 / breadthDown4 11 / advanceRatio 0.639 → 화면 '22/11', '64%'. 화면 기준선 문자열은 두 모집단을 하나(804)로 뭉갠다.",
+      "repro": "http://127.0.0.1:8931/#breadth → 상단 기준선과 '4% 이상 상승 − 하락 종목 수' 카드의 '오늘 상승 22 · 하락 11'을 함께 확인",
+      "fix": "'판정 대상 804개(이동평균 기준)' + '4% 급등락 모집단 810개'처럼 지표별 모집단을 나눠 표기한다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\public-data\\breadth-contributors.json",
+        "C:\\Projects\\AIO\\public-data\\history.json"
+      ]
+    },
+    {
+      "id": "MKT-C2",
+      "grade": "C",
+      "confidence": "low",
+      "needsDoubleCheck": true,
+      "route": "#signal / #breadth / #sentiment (상단 상태 바)",
+      "location": "탑바 'VIX —' 배지 (기본 모드에서 유일하게 보이는 VIX 상태칩)",
+      "expected": "탑바 VIX 배지는 스냅샷 값 14.84를 표시해야 한다(market-snapshot.json market.volatility.vix = 14.84; data.json/서버 스냅샷은 부팅 시 적용됨).",
+      "actual": "콜드 첫 로드(브라우저 최초 기동)에서 탑바가 '● 종가  서버 10/9 마감 · 시세 16종  VIX —' 로 표시됨 — 값이 있는데도 '—'. 이후 리로드/라우트 이동에서는 'VIX 14.84'로 표시됨(재현성 낮음).",
+      "evidence": "증거 스크린샷(콜드 로드): <scratchpad>\\evidence\\MKT-signal-full.png — 탑바 'VIX —'. 이후 라이브 DOM: header.topbar textContent = '… 서버 10/9 마감 · 시세 16종 VIX 14.84 …'. 콘솔 경고 '[AIO:snap] snapshot timestamp unavailable; fallback seed skipped' 및 '[AIO:fetch] VIX history fetch failed' 다수.",
+      "repro": "브라우저 최초 기동 후 http://127.0.0.1:8931/#signal 로드 직후(~3초) 탑바 VIX 배지 확인",
+      "fix": "부팅 즉시 서버 스냅샷 값으로 VIX 배지를 채우고, 값이 있으면 '—'를 쓰지 않는다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\public-data\\market-snapshot.json",
+        "<scratchpad>\\evidence\\MKT-signal-full.png"
+      ]
+    },
+    {
+      "id": "MKT-C3",
+      "grade": "C",
+      "confidence": "medium",
+      "needsDoubleCheck": true,
+      "route": "#sentiment / #signal",
+      "location": "CNN 공포·탐욕 지수 밴드 라벨 '중립' (값 45); 시장 상태 신용축 'F&G (참고) 45'",
+      "expected": "데이터 파일의 F&G 상태 표기와 일치: data.json fearGreed.rating = 'fear' (score 45, asOf 2026-10-09T23:59:54+00:00).",
+      "actual": "화면은 45를 '중립'으로 표기한다. 앱의 밴드 함수는 CNN 공개 정수 경계(extreme fear 0-24 / fear 25-44 / neutral 45-55 / greed 56-75 / extreme greed 76-100)를 쓰므로 45='중립'이 되고, 데이터 파일의 rating='fear'와 어긋난다.",
+      "evidence": "data.json fearGreed {score 45, rating 'fear'}. 화면: 'CNN 공포·탐욕 지수\\n45\\n중립\\n10/9'. 코드: src/domain/sentiment/metrics.js:7-18 fearGreedBand (RULES.fearGreed 정수 경계), src/domain/rules/thresholds.js:32 'CNN Fear & Greed integer bands: extreme fear 0-24, fear 25-44, neutral 45-55, greed 56-75, extreme greed 76-100'. 둘 중 하나가 45를 잘못 분류한다.",
+      "repro": "http://127.0.0.1:8931/#sentiment → CNN 공포·탐욕 카드 '45 / 중립' 과 data.json fearGreed.rating 비교",
+      "fix": "생산자(fetch-data)의 rating 매핑 또는 앱 밴드 경계 중 하나를 맞춰, 같은 45가 파일에서 'fear', 화면에서 '중립'으로 갈리지 않게 한다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\public-data\\data.json",
+        "C:\\Projects\\AIO\\src\\domain\\sentiment\\metrics.js",
+        "C:\\Projects\\AIO\\src\\domain\\rules\\thresholds.js"
+      ]
+    },
+    {
+      "id": "MKT-D1",
+      "grade": "D",
+      "confidence": "high",
+      "needsDoubleCheck": true,
+      "route": "#options",
+      "location": "폐지된 옵션 라우트 / URL 표기",
+      "expected": "폐지된 '옵션' 라우트가 부활하지 않아야 한다.",
+      "actual": "#options 로 진입하면 별도 옵션 화면 없이 '투자 심리'(#sentiment) 화면이 뜨고, 주소창 해시는 '#options' 로 남는다(브레드크럼 '시장 상태/투자 심리' vs 해시 '#options' 불일치).",
+      "evidence": "코드: js/aio-core.js:21983 canonical 별칭 맵에 'options': 'sentiment' 명시. 라이브: location.hash='#options' → active page = 'page-sentiment', 문서 제목 '투자 심리'. 별도 옵션 페이지 요소 없음(부활 아님, 별칭임).",
+      "repro": "http://127.0.0.1:8931/#options → '투자 심리' 화면 표시, 해시는 '#options' 유지",
+      "fix": "별칭을 의도한 호환 셰임으로 유지하려면 진입 시 history.replaceState 로 해시를 '#sentiment' 로 정규화한다. 불필요하면 별칭을 제거한다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\js\\aio-core.js"
+      ]
+    },
+    {
+      "id": "MKT-D2",
+      "grade": "D",
+      "confidence": "high",
+      "needsDoubleCheck": false,
+      "route": "#signal (시장 상태)",
+      "location": "'기관 포지셔닝' 카드 상단 — '24.10~26.10 주간 · 순매수 범위 81만~110만 계약'",
+      "expected": "기준 창을 읽을 수 있게 표기(예: '2024-10~2026-10 2년 범위').",
+      "actual": "'24.10~26.10 주간'은 연-월을 붙여 쓴 축약으로, 2년 백분위 창(percentileWeeks 104)이라는 뜻이 드러나지 않는다.",
+      "evidence": "cftc-positioning.json: percentileWeeks 104, series 첫 관측 2023-09-19, 최신 2026-10-06; es 자산운용사 순매수 최근 104주 min/max = 811300 / 1102458 → 화면 '81만~110만'. 값은 정확하나 라벨이 불투명하다.",
+      "repro": "http://127.0.0.1:8931/#signal → '기관 포지셔닝' 첫 카드",
+      "fix": "라벨을 '2024-10~2026-10(2년) 주간' 등으로 풀어 쓴다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\public-data\\cftc-positioning.json"
+      ]
+    },
+    {
+      "id": "MKT-D3",
+      "grade": "D",
+      "confidence": "medium",
+      "needsDoubleCheck": true,
+      "route": "#signal / #breadth / #sentiment (하단 고정 면책 바)",
+      "location": "투자 면책 고지 — '…모든 수치·점수·시그널·AI 답변은…', '내부 점수의 예측력은 검증되지 않았고…'",
+      "expected": "0-100 점수가 사용자 화면에서 폐지되었으므로, 폐지된 '점수'를 지칭하는 문구도 정리되어야 한다.",
+      "actual": "면책 바가 여전히 '점수'를 언급한다(레거시 문구 잔존).",
+      "evidence": "화면 하단 innerText: '투자 면책 고지 — 본 도구의 모든 수치·점수·시그널·AI 답변은 지연/스냅샷/참고용일 수 있으며 … 내부 점수의 예측력은 검증되지 않았고 …'. 코드: index.html 하단 면책 바.",
+      "repro": "세 라우트 하단 고정 면책 바 확인",
+      "fix": "'점수' 문구를 '판정(6개 축)' 등 실제 노출물에 맞춰 정리한다.",
+      "evidenceFiles": ["C:\\Projects\\AIO\\index.html"]
+    },
+    {
+      "id": "MKT-D4",
+      "grade": "D",
+      "confidence": "high",
+      "needsDoubleCheck": false,
+      "route": "전역(모든 페이지 상단, 기본 모드에서는 숨김)",
+      "location": "#market-pulse-bar — '환경 63 / 스트레스 신호 일부', '시장폭 35% / 공포 영역', '심리 45 / 중립', '매크로 ● UPTREND'",
+      "expected": "폐지된 0-100 점수와 개발자 용어가 사용자 화면에 노출되지 않아야 한다.",
+      "actual": "DOM에 존재하지만 기본 모드에서는 렌더되지 않는다(computed display:none, getClientRects().length=0, offsetParent null). '환경 63'은 폐지된 swing 트레이딩 점수(0-100)이며, 'UPTREND'는 영문 개발 라벨이다. 개발자 모드(body.aio-dev-mode)에서 노출될 수 있다.",
+      "evidence": "index.html:5059 'body:not(.aio-dev-mode) #market-pulse-bar { … }' 로 숨김 + index.html:6267 마크업. 값 생성: js/aio-pages.js:990-997 computeTradingScore('swing').total → '63'/'스트레스 신호 일부'; :1047-1055 매크로 라벨 'UPTREND'. 라이브 확인: getComputedStyle(#market-pulse-bar).display='none', getClientRects 0.",
+      "repro": "기본 모드에서는 보이지 않음(스크린샷과 일치). 개발자 모드 진입 시 '환경 63 … UPTREND' 확인.",
+      "fix": "폐지 점수를 펄스 바에서 제거하거나 개발자 전용으로만 유지하고, 'UPTREND'를 한국어('상승 추세')로 바꾼다/제거한다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\index.html",
+        "C:\\Projects\\AIO\\js\\aio-pages.js"
+      ]
+    },
+    {
+      "id": "MKT-D5",
+      "grade": "D",
+      "confidence": "high",
+      "needsDoubleCheck": false,
+      "route": "#signal / #breadth / #sentiment (기본 모드 숨김 .aio-decision-header)",
+      "location": "페이지 상단 decision-header — '판단 보류 · 필수 현재성 근거 미수신 / 데이터: 미수신 / 공통컷 지연 · 10/10/08:00 KST / 시점 불일치 / 근거 상태 입력 확인 필요'(breadth·sentiment), '시장환경 관찰 — 양호 구간'(signal)",
+      "expected": "상태 문구가 실제 표시 판정과 모순되지 않아야 한다.",
+      "actual": "breadth/sentiment 헤더는 '미수신 · 판단 보류'를, 같은 페이지 본문은 10/9 데이터로 확정 판정('시장 폭 부담', 심리 종합 문장)을 보여준다. signal 헤더는 '양호 구간'인데 본문 종합은 '혼조(우호 3·부담 3)'. 기본 모드에서는 이 헤더가 숨겨져 사용자에게는 보이지 않는다.",
+      "evidence": "index.html:5088 'body:not(.aio-dev-mode) .page > .aio-decision-header { display:none !important; }'. 라이브: 헤더 display none, getClientRects 0, offsetParent null, 텍스트는 위와 같음(시장 페이지 본문 innerText에는 포함되지 않음). 약속 문서: _context/RULES.md:3214 (모든 라우트가 밸런스된 decision-header 를 방출).",
+      "repro": "개발자 모드 활성화 후 #breadth 상단 또는 DOM 검사(#page-breadth .aio-decision-header)",
+      "fix": "개발자 노출·접근성 검사에 대비해 헤더의 source/status 문구를 실제 판정과 일치시키거나, 미수신 로직의 기준을 갱신한다.",
+      "evidenceFiles": [
+        "C:\\Projects\\AIO\\index.html",
+        "C:\\Projects\\AIO\\_context\\RULES.md"
+      ]
+    }
+  ],
+  "console": [
+    {
+      "id": "MKT-E1",
+      "level": "error",
+      "text": "[AIO:api] proxy-primary: warn → error {errCount: 3}",
+      "context": "오프라인 테스트 환경에서 라이브 프록시 폴백이 모두 실패. uncaught page error 는 없음(agent-browser errors 출력 비어 있음).",
+      "relatedWarnings": [
+        "[AIO:proxy] proxy cf-worker/corsproxy/allorigins-*/codetabs disabled (level 1/2) {fails: 3-4}",
+        "[AIO:data-quality] ma-auto-update: 시세/자료 연결 실패: 사용 가능한 중계 경로 없음",
+        "[AIO:fetch] VIX history fetch failed → '[AIO:VIX] VIX 히스토리 수신 실패 — 정적 차트 데이터 사용 중'",
+        "[AIO:HY] HY 스프레드 프록시 전부 실패 — 정적 데이터 사용 중",
+        "[AIO:snap] snapshot timestamp unavailable; fallback seed skipped (다수)",
+        "[AIO 운영 점검] 1개 항목 주의 — 8 stale live price(s)",
+        "[AIO:시세 (3분)] auto refresh failed; retrying on next cycle"
+      ]
+    }
+  ],
+  "informationalNotes": [
+    {
+      "id": "MKT-N1",
+      "note": "'국면 전환 히스토리' 표면은 #signal/#breadth/#sentiment 어디에도 없다(화면 innerText에 국면 전환 목록 없음). 따라서 history.json과 대조할 '국면 전환 히스토리' 항목은 존재하지 않음(해당 없음). history.json 자체는 420행·319 거래 세션, 최신 행 date 2026-10-10 / cycleEnd 2026-10-09T23:00:00Z / seriesMode 'completed-market-cut' 로 10/9 종가 기준과 일치한다."
+    },
+    {
+      "id": "MKT-N2",
+      "note": "화면 명칭 혼용(낮은 심각도): 좌측 내비 '시장 상태', 페이지 제목 '시장 상태', 하위 탭 '국면 판정', 브레드크럼 '시장 상태/국면 판정'. 같은 화면을 세 이름으로 부른다. 용어사전(aio-glossary.js:193,271)은 '시장 상태'를 표준어로 정의한다."
+    }
+  ],
+  "blocked": [],
+  "assumptions": [
+    "증거 스크린샷은 세션 스크래치패드에 저장했다(리포 산출물 제한 준수). 경로: <scratchpad>\\evidence\\MKT-{signal,breadth,sentiment}-full.png, MKT-{breadth,sentiment}-view.png.",
+    "기준일(staleness) 판정은 서버 스냅샷 기준 US 정규장 마지막 종가(10/9)이며, 10/9 종가 표시는 stale이 아니다.",
+    "0-100 '합산(종합) 점수'(MKT-A1)는 규칙 위반으로 보았으나, 참고 라벨·구성 고지가 있어 해석 여지를 남겨 needsDoubleCheck=true 로 표시했다.",
+    "네트워크(프록시) 실패는 테스트 환경 제약이며 'blocked'로 계상하지 않았다(서버 200 응답, 세 라우트 모두 정상 렌더)."
+  ]
+}

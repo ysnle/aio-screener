@@ -1,0 +1,25 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+const replace = (file, from, to) => {
+  const source = readFileSync(file, 'utf8');
+  if (!source.includes(from)) throw new Error(`missing expected copy in ${file}: ${from}`);
+  writeFileSync(file, source.replaceAll(from, to), 'utf8');
+};
+replace('js/aio-chat.js', 'Claude Web Research 요청 — 출처 검증 대기 (max 3회)', '기존 자료를 보강하기 위해 웹검색 중 · 출처 확인 후 답변');
+replace('js/aio-chat.js', 'Claude Web Research 요청 — 출처 검증 대기(max 3회)', '기존 자료를 보강하기 위해 웹검색 중 · 출처 확인 후 답변');
+replace('js/aio-chat.js', 'Claude native web_search 출처', 'OpenAI 웹검색 출처');
+replace('js/aio-core.js', 'maxUsesPerCall: 3,', 'maxUsesPerCall: 2,');
+replace('js/aio-core.js', 'estimatedCostUsd: stats.calls * 0.03, // $10/1000 searches * 3 uses', 'estimatedCostUsd: null, // P1608: client request counts are neither tool usage nor invoices');
+replace('worker/openai-contract.test.mjs', "AI_MONTHLY_BUDGET_USD: '10',", "AI_MONTHLY_BUDGET_USD: '20', AI_WEB_SEARCH_ENABLED: 'true',");
+replace('worker/openai-contract.test.mjs', 'zero to ten dollar integer cap', 'P1608 zero to twenty dollar integer cap');
+replace('worker/openai-contract.test.mjs', 'aiMonthlyBudgetMicroUsd({}) === 10000000', 'aiMonthlyBudgetMicroUsd({}) === 20000000');
+replace('worker/openai-contract.test.mjs', "'-1','10.000001'", "'-1','20.000001'");
+replace('worker/openai-contract.test.mjs', "AI_MONTHLY_BUDGET_USD: '11'", "AI_MONTHLY_BUDGET_USD: '21'");
+replace('worker/openai-contract.test.mjs', 'health describes personal FRED relay and disabled paid search truthfully', 'P1608 health describes personal FRED relay and enabled paid search truthfully');
+replace('worker/openai-contract.test.mjs', 'healthJson.ai.paidWebSearchEnabled === false', 'healthJson.ai.paidWebSearchEnabled === true');
+replace('worker/openai-contract.test.mjs', 'AI_LEGACY_MONTH_ACK: `${currentMonth}:10000000`', 'AI_LEGACY_MONTH_ACK: `${currentMonth}:20000000`');
+replace('worker/README.md', 'of at most $10. Paid AI search is disabled.', 'of at most $20 (owner approval 2026-10-11). Conditional OpenAI web search is enabled with at most two built-in calls per request; no per-user search allowance is imposed. Search requests retain a $0.10 policy reserve per permitted tool call plus their text reserve because hosted-search billing cannot be certified from response token usage alone. This reserve is not a provider invoice or guaranteed billing bound.');
+replace('_context/OPERATOR-RUNBOOK.md', '`AI_MONTHLY_BUDGET_USD=10`이며 코드에서 $10보다 큰 설정은 허용하지 않는다.', '`AI_MONTHLY_BUDGET_USD=20`이며 코드에서 $20보다 큰 설정은 허용하지 않는다(소유자 승인 2026-10-11).');
+replace('_context/OPERATOR-RUNBOOK.md', '유료 웹 검색은 이 정책에서 비활성이다.', '`AI_WEB_SEARCH_ENABLED=true`로 내부/무료 근거가 부족할 때 OpenAI 검색을 보강한다. 사용자별 검색 할당량은 없다. 요청당 도구 호출 최대 2회, 검색 호출당 $0.10의 정책 예약을 유지한다. 검색의 누적 청구 토큰 상한은 공개되지 않아 이 예약은 청구액 보장이나 실측 사용액이 아니다.');
+replace('_context/OPERATOR-RUNBOOK.md', '전용 프로젝트의 월 한도를 $10로 두고', '전용 프로젝트의 월 한도를 $20로 두고');
+replace('_context/RULES.md', 'one UTC-month budget of at most $10 before dispatch.', 'one UTC-month budget of at most $20 before dispatch (owner 2026-10-11). Conditional bounded OpenAI web search shares that budget; search reservations are retained until complete provider billing can be verified.');
+replace('_context/RULES.md', 'The project targets $10/month and at most $20/month; AI allocation is at most $10 and paid data requires a demonstrated gap within its $10 allocation.', 'Owner 2026-10-11 approved a shared AI allocation of at most $20/month including conditional search, superseding the prior $10 AI allocation. Prefer free data; additional paid data still requires a demonstrated gap and owner approval.');

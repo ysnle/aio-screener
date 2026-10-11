@@ -5,6 +5,7 @@
 //  2. installGlossaryBridge: after the legacy modal renders a search, append "다른 학습 영역" results from
 //     public-data/knowledge/search-index.json (loaded on first search) with links that open the surface.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
+import { LESSONS, PATHS } from '../../domain/knowledge/learning-core.js';
 
 const normalize = (text) => String(text || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[·/,]/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -33,9 +34,15 @@ export function mergeConceptCore(glossary, concepts = CONCEPT_CORE) {
 // Ranked matches: exact title or key > title prefix/contains > key contains > text contains.
 export function searchKnowledgeIndex(index, query, limit = 8) {
   const q = normalize(query);
-  if (!q || q.length < 2 || !Array.isArray(index?.entries)) return [];
+  if (!q || q.length < 2) return [];
+  // P1606: canonical local notes remain searchable before the Actions index rebuild.
+  const entries = new Map((index?.entries || []).map((entry) => [entry.id, entry]));
+  for (const lesson of LESSONS) {
+    const id = `frame:${lesson.id}`, previous = entries.get(id);
+    entries.set(id, { ...previous, id, surface: 'frame', surfaceLabel: '분석 노트', title: lesson.issue, text: lesson.answer.slice(0, 240), group: PATHS.find((path) => path.id === lesson.path)?.title || null, keys: [...new Set([...(previous?.keys || []), lesson.title, ...(lesson.concepts || [])])], route: { page: 'principles', params: { mode: 'frames', node: lesson.id } } });
+  }
   const scored = [];
-  for (const entry of index.entries) {
+  for (const entry of entries.values()) {
     const title = normalize(entry.title);
     const keys = (entry.keys || []).map(normalize);
     const text = normalize(entry.text);

@@ -1301,6 +1301,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 17. v41: 모든 [role="button"]에 Enter/Space 키보드 핸들링
   document.querySelectorAll('[role="button"]:not(.nav-item)').forEach(function(el) {
     el.addEventListener('keydown', function(e) {
+      if (e.defaultPrevented || e.repeat || el.tagName === 'BUTTON' || el.tagName === 'A') return; // P1604: native controls already own keyboard activation.
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         el.click();
@@ -6787,7 +6788,8 @@ function toggleTheme() {
   // v40.6: 사이드바 테마 버튼 라벨 동기화
   var sbLabel = document.getElementById('sidebar-theme-label');
   if (sbLabel) sbLabel.textContent = isDark ? '라이트 모드로 전환' : '다크 모드로 전환'; // P1591 (G07): the label names the action
-  localStorage.setItem('aio_theme', isDark ? 'dark' : 'light');
+  try { localStorage.setItem('aio_theme', isDark ? 'dark' : 'light'); } catch (_) {} // P1604: storage refusal cannot interrupt the visible action.
+  document.dispatchEvent(new CustomEvent('aio:colorThemeChanged', { detail: { theme: isDark ? 'dark' : 'light' } }));
   // TradingView iframe 테마 업데이트
   document.querySelectorAll('iframe[src*="tradingview"]').forEach(function(f) {
     f.src = f.src.replace(/theme=(dark|light)/, 'theme=' + (isDark ? 'dark' : 'light'));
@@ -6795,7 +6797,8 @@ function toggleTheme() {
 }
 // 테마 복원
 (function() {
-  var saved = localStorage.getItem('aio_theme');
+  var saved = null;
+  try { saved = localStorage.getItem('aio_theme'); } catch (_) {}
   if (saved === 'dark') {
     document.body.classList.add('dark-theme');
     var btn = document.getElementById('theme-toggle');

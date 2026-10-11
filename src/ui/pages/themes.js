@@ -1,4 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { chartPalette } from '../components/color-theme.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { renderThemeStrength } from '../components/theme-strength.js';
@@ -40,6 +41,25 @@ function activeView(root) {
 function viewItems(items, view) {
   if (view === 'all') return items;
   return items.filter((item) => String(item?.view || 'sectors') === view);
+}
+
+function shortSession(date) {
+  const [, month, day] = String(date || '').split('-').map(Number);
+  return month && day ? `${month}/${day}` : '';
+}
+
+function usCloseSession(root) {
+  const basis = String(root?._serverDataMeta?.rotationHistory?.latestCompletedSession || '');
+  return /^\d{4}-\d{2}-\d{2}$/.test(basis) ? basis : '';
+}
+
+function krCloseSession(rows = []) {
+  const dates = (rows || [])
+    .filter((row) => /^\d{6}\.(KS|KQ)$/i.test(String(row?.sym || row?.symbol || '')))
+    .map((row) => String(row?.observedAt || '').slice(0, 10))
+    .filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date))
+    .sort();
+  return dates.length ? dates[dates.length - 1] : '';
 }
 
 function renderRRGStatus({ documentRef, root, store, route }) {
@@ -86,12 +106,13 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   if (!context) return;
   const centerX = width / 2;
   const centerY = height / 2;
+  const palette = chartPalette(root);
   context.clearRect(0, 0, width, height);
   context.fillStyle = 'rgba(34,117,76,0.08)'; context.fillRect(centerX, 0, width / 2, centerY);
   context.fillStyle = 'rgba(33,29,22,0.08)'; context.fillRect(0, 0, centerX, centerY);
   context.fillStyle = 'rgba(33,29,22,0.06)'; context.fillRect(centerX, centerY, width / 2, height / 2);
   context.fillStyle = 'rgba(177,58,48,0.06)'; context.fillRect(0, centerY, centerX, height / 2);
-  context.strokeStyle = 'rgba(33,29,22,0.10)';
+  context.strokeStyle = palette.grid;
   context.lineWidth = 1;
   context.setLineDash([4, 4]);
   context.beginPath(); context.moveTo(centerX, 0); context.lineTo(centerX, height); context.stroke();
@@ -99,7 +120,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.setLineDash([]);
   context.font = '11px Inter, sans-serif';
   context.textAlign = 'center';
-  context.fillStyle = '#8a8271';
+  context.fillStyle = palette.text;
   context.fillText('RS-Ratio →', centerX, height - 8);
   context.save();
   context.translate(16, centerY);
@@ -109,8 +130,8 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.font = 'bold 12px Inter, sans-serif';
   context.globalAlpha = 0.75;
   context.fillStyle = '#22754c'; context.fillText('선도 · 강도↑ 모멘텀↑', width * 3 / 4, 22);
-  context.fillStyle = '#211d16'; context.fillText('개선 · 강도↓ 모멘텀↑', width / 4, 22);
-  context.fillStyle = '#211d16'; context.fillText('약화 · 강도↑ 모멘텀↓', width * 3 / 4, height - 14);
+  context.fillStyle = palette.text; context.fillText('개선 · 강도↓ 모멘텀↑', width / 4, 22);
+  context.fillStyle = palette.text; context.fillText('약화 · 강도↑ 모멘텀↓', width * 3 / 4, height - 14);
   context.fillStyle = '#b13a30'; context.fillText('후행 · 강도↓ 모멘텀↓', width / 4, height - 14);
   context.globalAlpha = 1;
   if (!validItems.length) {
@@ -187,7 +208,7 @@ function renderThemePerformanceNarrative({ documentRef, root, store, route }) {
   const mode = root?._sectorPerfMode === '1w' ? '1w' : '1d';
   const periodLabel = mode === '1w' ? '1주' : '1일';
   const rows = viewItems(selectThemesItems(store?.getState?.() || {}), 'sectors')
-    .map((item) => ({ label: String(item?.label || item?.symbol || ''), pct: finite(mode === '1w' ? item?.weeklyPct : item?.pct) }))
+    .map((item) => ({ label: themeItemLabel(root, item), pct: finite(mode === '1w' ? item?.weeklyPct : item?.pct) }))
     .filter((row) => row.label && row.pct != null)
     .sort((a, b) => b.pct - a.pct);
   if (rows.length < 2) {
@@ -197,7 +218,8 @@ function renderThemePerformanceNarrative({ documentRef, root, store, route }) {
   }
   const leaders = rows.slice(0, 2).map((row) => `${row.label} ${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`).join(' · ');
   const laggards = rows.slice(-2).reverse().map((row) => `${row.label} ${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`).join(' · ');
-  host.textContent = `섹터 ETF ${periodLabel} 가격 성과 · 강세 ${leaders} · 약세 ${laggards}. 가격 성과는 자금 유입량과 같지 않습니다.`;
+  const close = usCloseSession(root);
+  host.textContent = `섹터 ETF ${periodLabel} 가격 성과${close ? ` · ${shortSession(close)} 미국 종가 기준` : ''} · 강세 ${leaders} · 약세 ${laggards}. 가격 성과는 자금 유입량과 같지 않습니다.`;
   host.style.color = 'var(--text-secondary)';
 }
 
@@ -208,8 +230,9 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
   const themeMap = root?.KR_THEME_MAP && typeof root.KR_THEME_MAP === 'object' ? root.KR_THEME_MAP : null;
   if (!themeMap) { host.hidden = true; return; }
   const read = krThemeArtifactRead({ themeMap, rows: store?.getState?.()?.screener?.rows || [] });
+  const krClose = krCloseSession(store?.getState?.()?.screener?.rows || []);
   const summary = documentRef.getElementById('kr-themes-summary');
-  if (summary) summary.textContent = `한국 시장 — 국내 테마 (KRX ${read.totalThemes}개 중 ${read.coveredThemes}개 테마를 완료 종가로 비교)`;
+  if (summary) summary.textContent = `한국 시장 — 국내 테마 (KRX ${read.totalThemes}개 중 ${read.coveredThemes}개 테마를 ${krClose ? `${shortSession(krClose)} ` : ''}완료 종가로 비교)`;
   host.dataset.aioKrThemeArtifactRenderer = 'native';
   host.hidden = false;
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
@@ -233,7 +256,7 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
     line.append(el('span', theme.label, 'stock-read-bar-label'), item);
     host.append(line);
   }
-  host.append(el('p', '위 흐름은 완료 종가 기준입니다. 장중 실시간 등락은 아래 접힌 칸에서 국내 시세가 들어올 때만 계산됩니다.', 'theme-strength-basis'));
+  host.append(el('p', `위 흐름은 ${krClose ? `${shortSession(krClose)} ` : ''}완료 종가 기준입니다. 장중 실시간 등락은 아래 접힌 칸에서 국내 시세가 들어올 때만 계산됩니다.`, 'theme-strength-basis'));
 }
 
 function renderThemePerformanceBars({ documentRef, root, store, route }) {
@@ -246,7 +269,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   const rows = viewItems(selectThemesItems(store?.getState?.() || {}), view)
     .map((item) => ({
       symbol: String(item?.symbol || item?.id || ''),
-      label: String(item?.label || item?.symbol || item?.id || ''),
+      label: themeItemLabel(root, item),
       pct: finite(mode === '1w' ? item?.weeklyPct : item?.pct),
       quadrant: String(item?.quadrant || 'neutral')
     }))
@@ -266,6 +289,13 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     return;
   }
   const maxAbs = Math.max(0.5, ...rows.map((row) => Math.abs(row.pct ?? 0)));
+  const close = usCloseSession(root);
+  if (close) {
+    const basisLine = documentRef.createElement('div');
+    basisLine.textContent = `${shortSession(close)} 미국 종가 기준 · 값이 없는 섹터는 대기`;
+    basisLine.style.cssText = 'font-size:11px;color:var(--text-muted);padding:0 2px 4px;';
+    host.appendChild(basisLine);
+  }
   const colors = { Leading: 'var(--data-green)', Improving: 'var(--data-cyan)', Weakening: 'var(--data-amber)', Lagging: 'var(--data-red)' };
   rows.forEach((row) => {
     const line = documentRef.createElement('div');
@@ -302,15 +332,34 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   });
 }
 
-function resolveThemeDetailId(root, item) {
+function themeDefinitionOf(root, item) {
   const symbol = String(item?.symbol || item?.id || '').trim().toUpperCase();
   const catalog = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
-  const theme = catalog.find((entry) => (
+  return catalog.find((entry) => (
     String(entry?.id || '').trim() === String(item?.id || '').trim()
     || String(entry?.etf || '').trim().toUpperCase() === symbol
     || String(entry?.compositeBase || '').trim().toUpperCase() === symbol
-  ));
+  )) || null;
+}
+
+function resolveThemeDetailId(root, item) {
+  const theme = themeDefinitionOf(root, item);
   return theme?.id ? String(theme.id) : null;
+}
+
+function themeItemLabel(root, item) {
+  const theme = themeDefinitionOf(root, item);
+  return String(theme?.nameKr || theme?.name || item?.label || item?.symbol || item?.id || '').trim();
+}
+
+function themeDetailDeepLink(hash) {
+  const value = String(hash || '').replace(/^#/, '');
+  if (value !== 'theme-detail' && !/^theme-detail[/?]/.test(value)) return null;
+  const rest = value.slice('theme-detail'.length).replace(/^[/?]+/, '');
+  const themeId = rest ? rest.split('&')[0].split('=').pop() : '';
+  let decoded = themeId;
+  try { decoded = decodeURIComponent(themeId); } catch (_) { decoded = themeId; }
+  return { requested: true, themeId: String(decoded || '').trim() || null };
 }
 
 function createChip(documentRef, item, root) {
@@ -318,13 +367,14 @@ function createChip(documentRef, item, root) {
   const chip = documentRef.createElement(detailId ? 'button' : 'span');
   const pct = finite(item?.pct);
   const symbol = String(item?.symbol || item?.id || '');
+  const label = themeItemLabel(root, item) || symbol;
   chip.dataset.themeSymbol = symbol;
   // LC-54: 상세 제공 여부를 데이터 계약으로 드러낸다 — 읽기 전용 칩과 상세 버튼이
   // 같은 외형이면 사용자가 눌러도 아무 일도 없는 이유를 알 수 없다.
   chip.dataset.detailAvailability = detailId ? 'available' : 'summary-only';
   // P1505: the quadrant says where a sector stands on relative strength; the period return is a separate number.
   // Only the return is coloured, so a lagging sector that rose today no longer reads as a green chip in 후행.
-  chip.textContent = `${symbol} ${String(item?.label || symbol)}`;
+  chip.textContent = `${symbol} ${label}`;
   if (pct != null) {
     const change = documentRef.createElement('span');
     change.textContent = ` ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
@@ -337,7 +387,7 @@ function createChip(documentRef, item, root) {
     chip.dataset.action = 'showThemeDetail';
     chip.dataset.arg = detailId;
     chip.dataset.passEl = '1';
-    chip.setAttribute('aria-label', `${String(item?.label || symbol)} 테마 상세 열기`);
+    chip.setAttribute('aria-label', `${label} 테마 상세 열기`);
     chip.title = '테마 상세 열기';
   } else {
     // Codex browser audit H23: the leading sector (e.g. XLK) ended the "which sector → why → which company" path.
@@ -345,7 +395,7 @@ function createChip(documentRef, item, root) {
     chip.setAttribute('role', 'button');
     chip.tabIndex = 0;
     chip.style.cursor = 'pointer';
-    chip.setAttribute('aria-label', `${String(item?.label || symbol)} — 상세 패널 없음, 하위 테마 순위로 이동`);
+    chip.setAttribute('aria-label', `${label} — 상세 패널 없음, 하위 테마 순위로 이동`);
     chip.title = '이 업종 자체의 상세 패널은 없습니다 — 눌러서 아래 하위 테마 순위에서 관련 테마와 대표 종목을 확인합니다.';
     const jump = () => documentRef.getElementById('theme-strength-board')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
     chip.addEventListener('click', jump);
@@ -463,8 +513,14 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
 
   const provenance = documentRef.createElement('div');
   const membership = detail.membershipPolicy || {};
-  const membershipAsOf = membership.observedAt ? `구성 기준 ${String(membership.observedAt).slice(0, 10)}` : '구성 기준일 미검증';
-  provenance.textContent = `${detail.source === 'quote-missing' ? '시세 근거 미확보' : '시세 관측'} · AIO 참고 테마 분류 · ${membershipAsOf}`;
+  const membershipAsOf = membership.observedAt ? `구성 기준 ${String(membership.observedAt).slice(0, 10)}(분류 검토일, 가격 기준일 아님)` : '구성 기준일 미검증';
+  const themeItem = selectThemesItems(store?.getState?.() || {}).find((item) => String(item?.id || '') === String(detail.id));
+  const closeOf = usCloseSession(root);
+  const quoteState = detail.source === 'quote-missing' || pct == null
+    ? '시세 근거 미확보'
+    : themeItem?.sourceKind === 'runtime-quote' ? '실시간·지연 시세'
+      : `완료 종가 기준${closeOf ? `(${shortSession(closeOf)})` : ''}`;
+  provenance.textContent = `${quoteState} · AIO 참고 테마 분류 · ${membershipAsOf}`;
   provenance.title = `시세 출처: ${detail.source} · 구성 출처: ${membership.source || 'AIO curated taxonomy'}`;
   provenance.style.cssText = 'font-size:12px;line-height:1.5;color:var(--text-muted);';
   provenance.setAttribute('data-source-kind', membership.sourceKind || 'REFERENCE');
@@ -1185,7 +1241,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const unsubscribe = store && subscribeToSlices(store, ['themes', 'screener'], renderNow);
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;
-        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged'].forEach((eventName) => {
+        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged', 'aio:colorThemeChanged'].forEach((eventName) => {
           eventTarget?.addEventListener?.(eventName, renderNow);
           bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
         });
@@ -1198,6 +1254,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const onThemeDetailShown = (event) => {
           // P800: the native detail surfaces consume the normalized store selection;
           // the legacy event payload remains a compatibility notification only.
+          if (deepLinkHint) deepLinkHint.hidden = true;
           if (detailPanel) {
             detailPanel.style.display = 'block';
             if (event?.detail?.themeId) detailPanel.dataset.currentTheme = String(event.detail.themeId);
@@ -1207,6 +1264,9 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           // the sole detail renderer; this listener owns visibility only.
         };
         const onThemeDetailClosed = () => {
+          const trigger = currentDetailTrigger();
+          trigger?.setAttribute?.('aria-expanded', 'false');
+          trigger?.focus?.({ preventScroll: true });
           if (detailPanel) {
             detailPanel.style.display = 'none';
             delete detailPanel.dataset.currentTheme;
@@ -1245,10 +1305,18 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         // P1599 (T04): the detail opens right under the section the reader clicked (sector cards, sub-theme
         // ranking, CAPEX flow) instead of at the page bottom, and offers a way back to that row.
         let detailTrigger = null;
+        let detailTriggerKey = null;
+        let deepLinkHint = null;
+        const currentDetailTrigger = () => detailTrigger && documentRef.contains(detailTrigger) ? detailTrigger
+          : [...(page?.querySelectorAll?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme, .theme-strength-row') || [])]
+            .find((node) => !detailPanel?.contains?.(node) && JSON.stringify([node.dataset.action, node.dataset.arg, node.dataset.themeId, node.getAttribute('aria-label')]) === detailTriggerKey);
         const onThemeTriggerClick = (event) => {
           const trigger = event?.target?.closest?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme, .theme-strength-row');
           if (!trigger || !page?.contains?.(trigger) || detailPanel?.contains?.(trigger)) return;
           detailTrigger = trigger;
+          detailTriggerKey = JSON.stringify([trigger.dataset.action, trigger.dataset.arg, trigger.dataset.themeId, trigger.getAttribute('aria-label')]);
+          trigger.setAttribute('aria-controls', 'theme-detail-panel');
+          trigger.setAttribute('aria-expanded', 'true');
           // Only page-level blocks are anchors: a block inside a re-rendered host would take the panel with it.
           let anchor = trigger;
           while (anchor && anchor.parentElement !== page) anchor = anchor.parentElement;
@@ -1264,13 +1332,17 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           back.style.cssText = 'font-size:12px;margin-bottom:8px;';
           back.textContent = '← 선택한 목록으로';
           back.addEventListener('click', () => {
-            const target = detailTrigger && documentRef.contains(detailTrigger) ? detailTrigger : page;
+            const target = currentDetailTrigger() || page;
             target?.scrollIntoView?.({ block: 'center' });
             target?.focus?.({ preventScroll: true });
           });
           detailPanel.prepend(back);
         };
-        const onDetailShownPlacement = () => { ensureReturnButton(); detailPanel?.scrollIntoView?.({ block: 'start' }); };
+        const onDetailShownPlacement = () => {
+          ensureReturnButton();
+          const trigger = currentDetailTrigger(); trigger?.setAttribute?.('aria-controls', 'theme-detail-panel'); trigger?.setAttribute?.('aria-expanded', 'true');
+          detailPanel?.scrollIntoView?.({ block: 'start' });
+        };
         eventTarget?.addEventListener?.('aio:themeDetailShown', onDetailShownPlacement);
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailShown', onDetailShownPlacement));
         eventTarget?.addEventListener?.('aio:themeDetailShown', onThemeDetailShown);
@@ -1281,6 +1353,20 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         if (pendingThemeId) {
           delete root._aioOpenThemeDetailOnThemes;
           queueMicrotask(() => requestThemeDetail(pendingThemeId));
+        }
+        const deepLink = themeDetailDeepLink(root?.location?.hash);
+        const deepLinkId = String(deepLink?.themeId || '').trim();
+        if (deepLinkId) queueMicrotask(() => requestThemeDetail(deepLinkId));
+        if (deepLink?.requested && !store?.getState?.()?.themes?.selectedDetail && detailPanel) {
+          deepLinkHint = documentRef.createElement('p');
+          deepLinkHint.className = 'theme-detail-deep-link-hint';
+          deepLinkHint.style.cssText = 'font-size:12px;color:var(--text-muted);margin:0;';
+          deepLinkHint.textContent = deepLinkId
+            ? '주소의 테마 상세를 열지 못하면 위 섹터 카드나 하위 테마 순위에서 같은 테마를 골라 주세요.'
+            : '테마 상세 — 주소에 테마가 지정되지 않았습니다. 위 섹터 카드나 하위 테마 순위에서 테마를 고르면 여기에 상세가 열립니다.';
+          detailPanel.appendChild(deepLinkHint);
+          detailPanel.style.display = 'block';
+          bag.add(() => deepLinkHint?.remove?.());
         }
         bag.add(() => {
           if (page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;

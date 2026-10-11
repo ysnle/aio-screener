@@ -1,0 +1,925 @@
+{
+  "version": "v57.34",
+  "scope": "148 gates selected by original full profile",
+  "authority": "combined local gate evidence; no full run passed",
+  "counts": {
+    "PASS": 146,
+    "FAIL": 2
+  },
+  "blocked": [
+    {
+      "id": "data-refresh",
+      "group": "data",
+      "status": "FAIL",
+      "runId": "2026-10-11T03-39-29-442Z-32728-46dxn2"
+    },
+    {
+      "id": "data-lineage",
+      "group": "data",
+      "status": "FAIL",
+      "runId": "2026-10-11T03-39-29-442Z-32728-46dxn2"
+    }
+  ],
+  "reports": [
+    ".cache/aio-qa/runs/2026-10-11T03-29-00-643Z-38184-9gg5j8.json",
+    ".cache/aio-qa/runs/2026-10-11T03-30-58-819Z-3572-qjfp8i.json",
+    ".cache/aio-qa/runs/2026-10-11T03-31-19-049Z-37624-ml7fvr.json",
+    ".cache/aio-qa/runs/2026-10-11T03-33-25-277Z-44416-zx090q.json",
+    ".cache/aio-qa/runs/2026-10-11T03-35-19-691Z-35508-ou667a.json",
+    ".cache/aio-qa/runs/2026-10-11T03-36-21-320Z-45528-rstnjg.json",
+    ".cache/aio-qa/runs/2026-10-11T03-37-43-334Z-32952-fs22xl.json",
+    ".cache/aio-qa/runs/2026-10-11T03-37-42-914Z-43272-ktmi8q.json",
+    ".cache/aio-qa/runs/2026-10-11T03-39-29-442Z-32728-46dxn2.json",
+    ".cache/aio-qa/runs/2026-10-11T03-39-57-531Z-15800-a9lnhy.json"
+  ],
+  "gates": [
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "version",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "route-registry",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "baseline",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "decomposition",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "market-session",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "page-decision-reference",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "fundamental-watchlist-timeline",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "headless-group-lifecycle",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "artifact-cache",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "service-worker-cache-policy",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "ai-premise",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "ai-intelligence",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "esm-core",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "ai-analysis-evidence",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "ai-chat-analysis-integration",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "ai-quote-evidence",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "rotation-history",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "research-model",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "research-flow",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "domain-parity",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "proxy-continuity",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "chat-resilience",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "ai-provider-stream",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "desktop-continuity",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "storage-migration",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "release-manifest",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "deployment-convergence",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "inference",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "retirement",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "csp",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "default-ux",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "desktop-scope",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "data-continuity",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "structural",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "ai-chat-reliability",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "page-timeline",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "reference-adoption-contract",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "semantic-review",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "macro-calendar-review",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "runtime",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "conditional-evidence",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "screener-workbench",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "market-snapshot",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "data-pipeline",
+      "group": "core",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "history-time",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "screener-benchmark",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "operations-status",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "data-plane",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "operations-alert-policy",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "fast-plane-consumer",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "human-validation",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "operations-slo",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "source-registry",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "reconciliation",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "operator-readiness",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "professional-gap",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "review-integrity",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "sec-runtime-projection",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "candidate-archive",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "static-db-expiry",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "static-data",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "data-refresh",
+      "group": "data",
+      "status": "FAIL",
+      "runId": "2026-10-11T03-39-29-442Z-32728-46dxn2"
+    },
+    {
+      "id": "refresh-integrity",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "artifact-semantics",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "release-revision",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "13f-currentness",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "release-generated-parity",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "13f-semantic-noop",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "artifact-headroom",
+      "group": "data",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "integrated-framework",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "principles-lesson-parity",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-39-29-442Z-32728-46dxn2"
+    },
+    {
+      "id": "knowledge-ontology",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-core",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-learning",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-articles",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-routes",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-repository",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-renderer",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-coverage",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-web",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-sector",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-unique",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-transmission",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-current-observations",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-currentness",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "six-doc-coverage",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "atlas-contract",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "principles-contract",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-review",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "knowledge-lint",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "masters-contract",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "workflow-compaction",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "skill-contract",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "skill-evals",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "agent-profiles",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "agent-skills",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "live-header-policy",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "operator-provisioning",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "doc-currency",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "ledger-integrity",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "data-lineage",
+      "group": "data",
+      "status": "FAIL",
+      "runId": "2026-10-11T03-39-29-442Z-32728-46dxn2"
+    },
+    {
+      "id": "assertion-trace",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "worker-anthropic",
+      "group": "cloudflare",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "qa-pipeline-contract",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "extension-api-runtime",
+      "group": "cloudflare",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "ai-budget-scope",
+      "group": "cloudflare",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "worker-relay",
+      "group": "cloudflare",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "operations-alert-source",
+      "group": "cloudflare",
+      "status": "PASS",
+      "runId": "2026-10-11T03-29-00-643Z-38184-9gg5j8"
+    },
+    {
+      "id": "cloudflare-deployment",
+      "group": "cloudflare",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-42-914Z-43272-ktmi8q"
+    },
+    {
+      "id": "record-fix",
+      "group": "workspace",
+      "status": "PASS",
+      "runId": "2026-10-11T03-39-29-442Z-32728-46dxn2"
+    },
+    {
+      "id": "knowledge-generated-parity",
+      "group": "knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-39-29-442Z-32728-46dxn2"
+    },
+    {
+      "id": "headless",
+      "group": "browser-unit",
+      "status": "PASS",
+      "runId": "2026-10-11T03-30-58-819Z-3572-qjfp8i"
+    },
+    {
+      "id": "browser-chat-ui-state",
+      "group": "browser-runtime",
+      "status": "PASS",
+      "runId": "2026-10-11T03-31-19-049Z-37624-ml7fvr"
+    },
+    {
+      "id": "browser-chat-response-layout",
+      "group": "browser-runtime",
+      "status": "PASS",
+      "runId": "2026-10-11T03-31-19-049Z-37624-ml7fvr"
+    },
+    {
+      "id": "browser-ai-public",
+      "group": "browser-runtime",
+      "status": "PASS",
+      "runId": "2026-10-11T03-31-19-049Z-37624-ml7fvr"
+    },
+    {
+      "id": "browser-market-epoch",
+      "group": "browser-runtime",
+      "status": "PASS",
+      "runId": "2026-10-11T03-31-19-049Z-37624-ml7fvr"
+    },
+    {
+      "id": "browser-screener-refresh",
+      "group": "browser-runtime",
+      "status": "PASS",
+      "runId": "2026-10-11T03-31-19-049Z-37624-ml7fvr"
+    },
+    {
+      "id": "browser-boot",
+      "group": "browser-runtime",
+      "status": "PASS",
+      "runId": "2026-10-11T03-31-19-049Z-37624-ml7fvr"
+    },
+    {
+      "id": "browser-vertical",
+      "group": "browser-runtime",
+      "status": "PASS",
+      "runId": "2026-10-11T03-31-19-049Z-37624-ml7fvr"
+    },
+    {
+      "id": "browser-architecture",
+      "group": "browser-runtime",
+      "status": "PASS",
+      "runId": "2026-10-11T03-31-19-049Z-37624-ml7fvr"
+    },
+    {
+      "id": "artifact-budget",
+      "group": "browser-knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-33-25-277Z-44416-zx090q"
+    },
+    {
+      "id": "browser-principles",
+      "group": "browser-knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-33-25-277Z-44416-zx090q"
+    },
+    {
+      "id": "browser-atlas",
+      "group": "browser-knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-33-25-277Z-44416-zx090q"
+    },
+    {
+      "id": "browser-masters",
+      "group": "browser-knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-33-25-277Z-44416-zx090q"
+    },
+    {
+      "id": "browser-user-journey",
+      "group": "browser-knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-33-25-277Z-44416-zx090q"
+    },
+    {
+      "id": "browser-reference-adoption",
+      "group": "browser-knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-33-25-277Z-44416-zx090q"
+    },
+    {
+      "id": "browser-learning-flow",
+      "group": "browser-knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-33-25-277Z-44416-zx090q"
+    },
+    {
+      "id": "browser-theme-research",
+      "group": "browser-knowledge",
+      "status": "PASS",
+      "runId": "2026-10-11T03-39-57-531Z-15800-a9lnhy"
+    },
+    {
+      "id": "browser-sa02",
+      "group": "browser-resilience",
+      "status": "PASS",
+      "runId": "2026-10-11T03-35-19-691Z-35508-ou667a"
+    },
+    {
+      "id": "browser-sa03",
+      "group": "browser-resilience",
+      "status": "PASS",
+      "runId": "2026-10-11T03-35-19-691Z-35508-ou667a"
+    },
+    {
+      "id": "browser-route-soak",
+      "group": "browser-resilience",
+      "status": "PASS",
+      "runId": "2026-10-11T03-35-19-691Z-35508-ou667a"
+    },
+    {
+      "id": "browser-sa04",
+      "group": "browser-resilience",
+      "status": "PASS",
+      "runId": "2026-10-11T03-35-19-691Z-35508-ou667a"
+    },
+    {
+      "id": "browser-viewport",
+      "group": "browser-viewport",
+      "status": "PASS",
+      "runId": "2026-10-11T03-36-21-320Z-45528-rstnjg"
+    },
+    {
+      "id": "browser-critical",
+      "group": "browser-surface",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-43-334Z-32952-fs22xl"
+    },
+    {
+      "id": "browser-vault",
+      "group": "browser-surface",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-43-334Z-32952-fs22xl"
+    },
+    {
+      "id": "browser-a11y",
+      "group": "browser-surface",
+      "status": "PASS",
+      "runId": "2026-10-11T03-37-43-334Z-32952-fs22xl"
+    }
+  ]
+}

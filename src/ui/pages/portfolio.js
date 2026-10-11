@@ -203,7 +203,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
       }
     } else {
       const empty = documentRef.createElement('div');
-      empty.textContent = '포트폴리오 데이터 수신을 기다리는 중입니다';
+      empty.textContent = surface.holdingCount ? '평가액이 확인되면 섹터 비중이 표시됩니다' : '종목을 추가하면 섹터 비중이 표시됩니다';
       empty.style.cssText = 'font-size:12px;color:var(--text-muted);padding:4px 0;';
       sectorElement.appendChild(empty);
     }

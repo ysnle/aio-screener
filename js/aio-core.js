@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.32';
+const APP_VERSION = 'v57.37';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1879,6 +1879,7 @@ window._aioLRU = function(name, cap) {
   } catch(_) {}
   // Enter/Space keyboard activation for role=button (A11y parity with onclick)
   document.addEventListener('keydown', function(e) {
+    if (e.defaultPrevented || e.repeat) return; // P1604: the local role-button owner already activated it.
     if (e.key !== 'Enter' && e.key !== ' ') return;
     var el = e.target.closest && e.target.closest('[data-action]');
     if (!el) return;
@@ -2660,18 +2661,19 @@ window._aioTooltipToggle = function(el, e) {
   if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
   var wasOpen = el.classList.contains('is-open');
   // 다른 툴팁 모두 닫기
-  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
+  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
   if (!wasOpen) el.classList.add('is-open');
+  el.setAttribute('aria-expanded', String(!wasOpen));
 };
 // 외부 클릭/ESC 닫기
 document.addEventListener('click', function(e) {
   var isTooltip = e.target && e.target.closest && e.target.closest('.aio-tooltip');
   if (isTooltip) return;
-  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
+  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
 });
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Escape') return;
-  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
+  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
 });
 
 // v48.60: signal 페이지 시장 국면 진단 카드 + 시나리오 전망 동적 렌더러
@@ -3937,9 +3939,9 @@ if (typeof document !== 'undefined') {
   // word (LIVE/지연/종가/지난 시세/미수신) and #live-quote-ts carries only the detail, both from
   // src/domain/market/quote-currentness.js — observation times + the US calendar, never the
   // render clock. The duplicate home-header pill was removed.
-  function _aioDescribeCurrentness(observations) {
+  function _aioDescribeCurrentness(observations, durableCount) {
     var describe = typeof window._aioDescribeQuoteCurrentness === 'function' ? window._aioDescribeQuoteCurrentness : null;
-    return describe && observations.length ? describe({ observations: observations, nowMs: Date.now() }) : null;
+    return describe && observations.length ? describe({ observations: observations, nowMs: Date.now(), durableCount: durableCount }) : null;
   }
   function _aioWriteQuoteStatus(kind, badge, detail, title, state) {
     var node = document.getElementById('live-quote-ts');
@@ -4010,12 +4012,14 @@ if (typeof document !== 'undefined') {
         var observedMs = row ? _aioMetricTs(row.observedAt != null ? row.observedAt : row.ts) : null;
         if (row && row.price != null && /^(?:live:|fx:|quote:)/i.test(source) && observedMs != null) observations.push({ symbol: k, observedMs: observedMs });
       }
-      var cur = _aioDescribeCurrentness(observations);
+      var snapshotMeta = window._aioMarketSnapshotMeta || {};
+      var serverMeta = window._serverDataMeta || {};
+      var _durableCoverage = snapshotMeta.coverage || serverMeta.marketSnapshotCoverage || {};
+      var _durableCount = Number(snapshotMeta.count || _durableCoverage.observed || _durableCoverage.tier0Observed || 0);
+      var cur = _aioDescribeCurrentness(observations, _durableCount);
       if (cur && cur.state !== 'none') {
         return _aioWriteQuoteStatus(cur.state === 'live' ? 'live' : cur.state === 'delayed' || cur.state === 'close' ? 'partial' : 'unavailable', cur.badge, cur.detail, cur.title, cur.state);
       }
-      var snapshotMeta = window._aioMarketSnapshotMeta || {};
-      var serverMeta = window._serverDataMeta || {};
       var snapshot = Object.assign({}, snapshotMeta, {
         coverage: snapshotMeta.coverage || serverMeta.marketSnapshotCoverage,
         revision: snapshotMeta.revision || serverMeta.marketSnapshotRevision,
@@ -6447,6 +6451,10 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   };
   var sourceKind = String(d.sourceKind || 'SNAPSHOT').toUpperCase();
   var sourceLabel = sourceLabelMap[sourceKind] || '데이터: 확인 필요';
+  if (sourceKind === 'UNAVAILABLE' && d.evidence) {
+    var _evAsOf = String(d.evidence.asOf || '');
+    if (Number(d.evidence.snapshotDom || 0) > 0 || /^20\d\d-/.test(_evAsOf)) sourceLabel = '데이터: 기준 미확인';
+  }
   var sharedCut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function'
     ? window.AIO.getSharedMarketCut()
     : null;
@@ -7741,8 +7749,8 @@ window.AIO.getWebSearchAudit = function() {
     optOut: optOut,
     calls: stats.calls,
     lastUsedAt: stats.lastUsedAt,
-    maxUsesPerCall: 3,
-    estimatedCostUsd: stats.calls * 0.03, // $10/1000 searches * 3 uses
+    maxUsesPerCall: 2,
+    estimatedCostUsd: null, // P1608: client request counts are neither tool usage nor invoices
     helperAvailable: typeof window._shouldUseClaudeWebSearch === 'function',
     perplexityConfigured: hasPerplexity,
     googleCseKeyConfigured: hasGoogleKey,
@@ -13550,9 +13558,7 @@ var _AIO_PROVIDER_REGISTRY = [
   { id: 'newsdata', label: 'NewsData.io', credentialKey: 'aio_newsdata_key', inputId: 'aio_newsdata_key_input', kind: 'news', format: 'opaque' },
   { id: 'bok', label: 'BOK ECOS', credentialKey: 'aio_bok_key', inputId: 'aio_bok_key_input', kind: 'macro', format: 'opaque' },
   { id: 'kosis', label: 'KOSIS', credentialKey: 'aio_kosis_key', inputId: 'aio_kosis_key_input', kind: 'macro', format: 'opaque' },
-  // 웹 검색 제공자. 기본 경로는 Claude 네이티브 web_search이고, 아래 키는 그보다 먼저
-  // 시도되는 선택 경로다(aio-chat.js 의 검색 디스패처). v56.0 이전에는 이 키들을 코드가
-  // 읽고 export/Vault 목록에도 있었지만 사이드바 입력란이 없어 도달할 수 없었다.
+  // 기존 Google CSE 계정의 선택 검색. 신규 등록은 닫혔으며 공용 AI 유료 검색은 비활성이다.
   { id: 'google-cse-key', label: 'Google CSE Key', credentialKey: 'aio_google_cse_key', inputId: 'aio_google_cse_key_input', kind: 'search', format: 'opaque' },
   { id: 'google-cse-cx', label: 'Google CSE Engine ID', credentialKey: 'aio_google_cse_cx', inputId: 'aio_google_cse_cx_input', kind: 'search', format: 'opaque' },
   { id: 'cloudflare-worker', label: 'CF Worker', credentialKey: 'aio_cf_worker_url', inputId: 'aio_cf_worker_input', kind: 'worker', format: 'url' }
@@ -14512,7 +14518,7 @@ setTimeout(function() {
 
 window._aioWebSearchToggle = function(checked, el) {
   // checkbox change event — el이 input element
-  var enabled = (el && typeof el.checked === 'boolean') ? el.checked : !!checked;
+  var enabled = (checked && typeof checked.checked === 'boolean') ? checked.checked : (el && typeof el.checked === 'boolean') ? el.checked : !!checked;
   try {
     if (enabled) localStorage.removeItem('aio_web_search_enabled');
     else localStorage.setItem('aio_web_search_enabled', 'off');
@@ -15013,7 +15019,7 @@ const NewsStore = {
     const result = [];
     for (const a of articles) {
       this._stats.total++;
-      const key = (a.link || a.url || '').replace(/[?#].*$/, '').toLowerCase();
+      const key = window._aioNewsStories ? window._aioNewsStories.key(a) : JSON.stringify([a.source, a.link || a.url || a.guid, a.title, a.desc, a.pubDate]); // P1601: query ids and changed versions remain distinct.
       if (key && this._seen.has(key)) { this._stats.duplicates++; continue; }
       const title = a.title || '';
       if (title.trim().length < 5) { this._stats.filtered++; continue; }
@@ -22492,7 +22498,16 @@ function showPage(id, navEl) {
   // v34.5: 해시 별칭 매핑 — 잘못된 해시로 진입 시 올바른 페이지로 리다이렉트
   // v53.7 (P725): KR 전용 5페이지 퇴역 — 구 해시/링크는 통합 섹션이 있는 페이지로 리다이렉트
   var _hashAlias = window.AIO_ROUTE_REGISTRY.canonical; // P1348: one alias authority for both navigation paths.
-  if (id !== 'theme-detail' && _hashAlias[id]) id = _hashAlias[id];
+  if (id !== 'theme-detail' && _hashAlias[id]) {
+    var _aliasedId = id;
+    id = _hashAlias[id];
+    try {
+      var _aliasHash = String(location.hash || '');
+      if (!window._aioPendingRouteHash && _aliasHash.indexOf('#' + _aliasedId) === 0 && (_aliasHash.length === _aliasedId.length + 1 || _aliasHash.charAt(_aliasedId.length + 1) === '?')) {
+        history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', '#' + id + _aliasHash.slice(_aliasedId.length + 1));
+      }
+    } catch (_) {}
+  }
   // v52.27 P642: theme-detail is an inline panel on #themes, not a separate user route.
   if (id === 'theme-detail') {
     try {

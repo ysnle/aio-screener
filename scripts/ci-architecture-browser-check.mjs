@@ -243,6 +243,9 @@ try {
     document.dispatchEvent(new CustomEvent('aio:newsUpdated', { detail: { fixture: 'news-entity-p1205' } }));
   });
   // P1391: a top-scored item renders in the important list (and is excluded from the full feed).
+  // P1601: arrivals are accepted explicitly so they do not replace the reader's focused card.
+  await page.waitForFunction(() => document.querySelector('[data-news-updates]')?.hidden === false);
+  await page.locator('[data-news-updates]').click();
   await page.waitForFunction(() => document.getElementById('page-market-news')?.textContent?.includes('네비우스 $NBIS'));
   const newsEntityRoute = await page.evaluate(() => {
     const card = [...document.querySelectorAll('#page-market-news .news-item-card')].find((node) => node.textContent.includes('네비우스'));

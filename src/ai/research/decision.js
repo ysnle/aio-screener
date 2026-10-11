@@ -26,8 +26,8 @@ function sourcePolicyId(primary, { currentSensitive, causalSensitive, outOfScope
   if (causalSensitive || primary === 'MARKET_CAUSAL') return 'market-causal';
   if (primary === 'ENTITY_ANALYSIS' || primary === 'ENTITY_FACT') return 'company-primary';
   if (primary === 'MACRO_ANALYSIS' || primary === 'FX_ANALYSIS') return 'official-macro';
-  if (currentSensitive || primary === 'MARKET_STATUS' || primary === 'OUTLOOK') return 'market-current';
   if (primary === 'NEWS_SUMMARY') return 'news-evidence';
+  if (currentSensitive || primary === 'MARKET_STATUS' || primary === 'OUTLOOK') return 'market-current';
   if (primary === 'SECTOR_ANALYSIS') return 'sector-reference';
   return 'education-reference';
 }

@@ -1,4 +1,4 @@
-import { OPENAI_MODEL, quotaInteger, aiMonthlyBudgetMicroUsd, prepareOpenAiBudget, verifiedOpenAiCharge } from './worker/openai-budget.mjs';
+import { OPENAI_MODEL, AI_MONTHLY_MAX_MICRO_USD, paidWebSearchEnabled, quotaInteger, aiMonthlyBudgetMicroUsd, prepareOpenAiBudget, verifiedOpenAiCharge } from './worker/openai-budget.mjs';
 import { createOpenAiReceiptObserver } from './worker/openai-usage.mjs';
 export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-budget.mjs';
 /**
@@ -8,11 +8,11 @@ export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-bu
  * route or direct Actions provider call belongs to the shared AI budget.
  * Required: OPENAI_API_KEY, AIO_QUOTA_DO. Actions additionally requires the
  * same 32+ character AIO_AUTOMATION_TOKEN in GitHub and Worker secrets.
- * AI_MONTHLY_BUDGET_USD defaults to $10 and accepts only $0-$10. AI_DAILY_CAP
+ * AI_MONTHLY_BUDGET_USD defaults to $20 and accepts only $0-$20. AI_DAILY_CAP
  * defaults to 300; AI_MAX_OUTPUT_TOKENS defaults to 4000 (up to 8192).
  * The stable anthropic-authority-v1 DO identity/claude: day keys intentionally
  * retain historical reservations. They identify the ledger, not the provider.
- * Only standard text/function Responses calls are priced. Paid server search,
+ * Text/function Responses and bounded opt-in web search share the ledger;
  * images/files/audio, previous-response IDs, fast/long-context inputs fail closed.
  * Successful verified usage settles conservatively; missing/failed/cancelled
  * receipts retain the full reserve. This ledger is not an account invoice: use
@@ -369,7 +369,7 @@ function errorResponse(message, status = 400, origin = '', aiContext = null, env
 // DO admission and settlement are atomic across browser/automation concurrency.
 // Public readiness is metadata-only: it reveals whether the Worker can serve
 // AI traffic, never the secret itself or its value.
-async function healthResponse(origin, env, method = 'GET') {
+async function healthResponse(origin, env, method = 'GET', appToken = '') {
   const configured = !!(env && env.OPENAI_API_KEY);
   const quotaConfigured = hasAtomicQuotaBinding(env);
   const killSwitch = !!(env && env.AI_KILL_SWITCH === '1');
@@ -391,12 +391,16 @@ async function healthResponse(origin, env, method = 'GET') {
     revision: env && env.AIO_APP_REVISION ? String(env.AIO_APP_REVISION) : null,
     sourceSha: env && env.AIO_SOURCE_SHA ? String(env.AIO_SOURCE_SHA) : null,
     ai: { configured, quotaConfigured, authorityReady, authorityJurisdiction: authority?.jurisdiction || null, configurationValid, killSwitch, ready, maxTokens: parseInt((env && env.AI_MAX_OUTPUT_TOKENS) || '4000', 10), provider: 'openai', model: OPENAI_MODEL,
-      automationConfigured: typeof env?.AIO_AUTOMATION_TOKEN === 'string' && env.AIO_AUTOMATION_TOKEN.length >= 32 },
+      automationConfigured: typeof env?.AIO_AUTOMATION_TOKEN === 'string' && env.AIO_AUTOMATION_TOKEN.length >= 32,
+      appTokenRequired: !!env?.AIO_APP_TOKEN,
+      appTokenAccepted: !env?.AIO_APP_TOKEN || appToken === env.AIO_APP_TOKEN,
+      paidWebSearchEnabled: paidWebSearchEnabled(env) },
     // Presence only — never the relay key value.
     relay: {
       providers: Object.keys(RELAY_PROVIDERS),
       configured: Object.fromEntries(Object.entries(RELAY_PROVIDERS).map(([id, provider]) => [id, !!(env && env[provider.keyEnv])])),
       personalKeyRequired: ['fred'],
+      credentialModes: { fred: 'personal-opt-in', bok: 'operator-secret', kosis: 'operator-secret' },
       quotaConfigured,
       dailyCap: parseInt((env && env.RELAY_DAILY_CAP) || '2000', 10),
       // Presence only. When false the token check is skipped entirely (fail-open), so an
@@ -662,8 +666,8 @@ export class AIOQuotaDurableObject {
     const ack = String(this.env?.AI_LEGACY_MONTH_ACK || '').match(/^(\d{4}-(?:0[1-9]|1[0-2])):(\d{1,8})$/);
     if (ack && this.counts.legacyUnknownMonths[ack[1]] === true) {
       const stated = Number(ack[2]);
-      if (Number.isSafeInteger(stated) && stated <= 10000000) {
-        this.counts.months[ack[1]] = Math.min(10000000, stated + (sums[ack[1]] || 0));
+      if (Number.isSafeInteger(stated) && stated <= AI_MONTHLY_MAX_MICRO_USD) {
+        this.counts.months[ack[1]] = stated + (sums[ack[1]] || 0);
         delete this.counts.legacyUnknownMonths[ack[1]];
         await this.save();
       }
@@ -743,7 +747,7 @@ export class AIOQuotaDurableObject {
           const instant = Date.parse(`${day}T00:00:00Z`);
           if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isFinite(instant) || new Date(instant).toISOString().slice(0, 10) !== day
             || !Number.isSafeInteger(body.reservationMicroUsd) || body.reservationMicroUsd < 1
-            || !Number.isSafeInteger(body.monthlyCapMicroUsd) || body.monthlyCapMicroUsd < 0 || body.monthlyCapMicroUsd > 10000000) throw new Error('valid AI budget reservation required');
+            || !Number.isSafeInteger(body.monthlyCapMicroUsd) || body.monthlyCapMicroUsd < 0 || body.monthlyCapMicroUsd > AI_MONTHLY_MAX_MICRO_USD) throw new Error('valid AI budget reservation required');
           const monthlyReservedMicroUsd = this.counts.months[monthKey] || 0;
           if (this.counts.legacyUnknownMonths[monthKey] || monthlyReservedMicroUsd + body.reservationMicroUsd > body.monthlyCapMicroUsd) {
             result = { ok: false, reserved: false, count, reason: this.counts.legacyUnknownMonths[monthKey] ? 'legacy-month-spend-unknown' : 'monthly-budget', monthlyReservedMicroUsd };
@@ -1084,7 +1088,7 @@ export default {
     if (_u.pathname === '/health') {
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin, env) });
       if (request.method !== 'GET' && request.method !== 'HEAD') return errorResponse('GET required for /health', 405, requestOrigin);
-      return healthResponse(requestOrigin, env, request.method);
+      return healthResponse(requestOrigin, env, request.method, request.headers.get('X-AIO-App-Token') || '');
     }
 
     // P1421: AI provider route branches before the independent data proxy.

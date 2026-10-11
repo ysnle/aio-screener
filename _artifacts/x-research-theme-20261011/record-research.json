@@ -1,0 +1,15 @@
+{
+  "version": "v57.34", "date": "2026-10-11",
+  "p": { "id": 1605, "title": "출처별 신용·측정·증거 충돌 프레임의 실제 소비 경로",
+    "symptom": "자료의 신용 분포·분모·법인 책임·상충 증거·순환매를 현재 수치나 합성 점수로 섞으면 작성자의 사고 체계가 사라진다.",
+    "root_cause": "신규 자료의 원문 관점과 일시적 수치, 학습 노트·채팅 참고 소비자를 연결하는 단일 packet 정의가 없었다.",
+    "fix": "packet-20261011의 source provenance·5개 frame·분석 노트·claim projection을 한 원본에서 파생한다. 메커니즘·예시 계산·반대 경로·변수·관련 화면을 Principles와 칼럼, AI 참고 retrieval에 연결했다. 가격·일정·수치·포트폴리오 지시를 배제하고 공식 검증 없는 최신 데이터와 점수·순위를 차단한다.",
+    "violated_rule": "R618 reference/current evidence 경계 및 R702 관찰 범위 정직성.",
+    "prevention": "ci-theme-research-browser-check.mjs의 {P} source/claim API·note/path/variables·score/rank 차단 및 실제 노트 표시 확인. 기존 research-flow 원장의 2026-09-11 검증은 해당 packet으로 한정하고 전체 필수 필드·출처 검증은 유지.",
+    "verification": "research-flow 66 VM/static assertions와 knowledge-review 34 frames PASS. 실제 source 미디어·스레드 확인 범위와 불일치는 보고서에 명시; generated knowledge producer 실행 및 AI 실제 답변 품질 인증 없음."
+  }, "r": null,
+  "qa": [{ "id": "QA-RESEARCH-REASONING-01", "text": "{P}: source별 구조 frame이 노트·학습 path·변수·claim API와 연결되고 score/rank/current 값으로 승격되지 않는다.", "verify_by": "node scripts/ci-theme-research-browser-check.mjs && node scripts/ci-research-flow-contract-check.mjs && node scripts/ci-knowledge-review-check.mjs", "done": false }],
+  "qa_section": "모드와 자료 사고 체계",
+  "changelog": ["**자료 사고 체계 ({P}):** 신용 분산·법인 책임·측정 범위·증거 충돌·순환매/병목 확인의 5개 분석 노트를 출처·반증 조건과 함께 통합. 당주 수치·목표가·개인 비중 계획은 반영하지 않음."],
+  "note": "다크/라이트·설명/키보드·차트 갱신 수정 및 3개 X 자료의 5개 구조 프레임 통합. 로컬 검증; commit/push/deploy 미실행.", "status": null
+}

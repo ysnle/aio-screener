@@ -200,6 +200,35 @@ for (const manager of history.managers) {
       period.countReconciled = existingRows.every((row) => row.filingRole)
         ? (period.coverEntryTotal == null ? null : period.coverEntryTotal === existingRows.length)
         : false;
+      // P1615: 빠른 재사용 경로도 구성 근거를 상태로 유지한다 — 신규 index 빌더는 체인을 쓰지 않고,
+      // 저장 행만 재사용할 때 체인을 복원하지 않으면 구성 근거 없이 게이트에 도달한다(로컬 아티팩트에는
+      // 최초 합성 런의 체인이 남아 있어 격차가 숨었다). 행의 accession·filingRole이 곧 증거다.
+      if (!Array.isArray(period.amendmentChain) || !period.amendmentChain.length) {
+        const chain = [];
+        for (const row of existingRows) {
+          const role = row.filingRole || 'ORIGINAL';
+          const last = chain[chain.length - 1];
+          if (last && last.accession === row.accession) last.rows += 1;
+          else chain.push({ accession: row.accession, type: role === 'RESTATEMENT' ? 'RESTATEMENT' : role === 'NEW_HOLDINGS_ADD' ? 'NEW HOLDINGS' : 'ORIGINAL', role, rows: 1 });
+        }
+        const roles = chain.map((entry) => entry.role);
+        if (!roles.includes('ORIGINAL') && !roles.includes('RESTATEMENT')) {
+          period.rowImportStatus = 'REVIEW_REQUIRED';
+          period.compositionStatus = 'REVIEW_REQUIRED';
+          period.shareHistoryStatus = 'REVIEW_REQUIRED';
+          period.rowCount = null;
+          period.reportedValueTotal = null;
+          period.reportedSharesTotal = null;
+          period.countReconciled = false;
+          historicalRows = historicalRows.filter((row) => `${row.managerId}|${row.reportPeriod}` !== periodKey);
+          importedPeriods = periodKeyCount();
+          console.warn(JSON.stringify({ managerId: manager.managerId, period: period.periodOfReport, status: 'REVIEW_REQUIRED', reason: 'stored rows carry no ORIGINAL/RESTATEMENT base' }));
+          continue;
+        }
+        period.amendmentChain = chain;
+        period.composition = describeComposition(chain);
+        period.compositionStatus = chain.length > 1 ? 'AMENDMENT_COMPOSED' : 'ORIGINAL_CONNECTED';
+      }
       continue;
     }
     try {

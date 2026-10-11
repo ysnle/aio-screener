@@ -26,9 +26,9 @@ export const RESEARCH_SOURCE_POLICIES = Object.freeze({
     secondaryPurpose: 'public-market-context'
   }),
   'market-causal': Object.freeze({
-    allowedDomains: Object.freeze(['federalreserve.gov', 'fred.stlouisfed.org', 'cboe.com', 'sec.gov']),
+    allowedDomains: Object.freeze(['federalreserve.gov', 'fred.stlouisfed.org', 'cboe.com', 'sec.gov', 'reuters.com', 'apnews.com', 'bbc.com']),
     primaryDomains: Object.freeze(['federalreserve.gov', 'fred.stlouisfed.org', 'cboe.com', 'sec.gov']),
-    secondaryDomains: Object.freeze([]),
+    secondaryDomains: Object.freeze(['reuters.com', 'apnews.com', 'bbc.com']),
     primaryTier: 'T1_OFFICIAL',
     primaryPurpose: 'official-event-or-market-observation',
     secondaryTier: 'T3_PUBLIC_DELAYED',

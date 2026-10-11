@@ -4,6 +4,27 @@ last_verified: 2026-10-11
 confidence: medium
 ---
 
+## v57.36 조건부 공용 AI 웹검색 (2026-10-11)
+
+- [x] QA-NATIVE-SEARCH-01: P1608: 공용 조건부 OpenAI 검색은 내부/무료 근거 우선, 준비 중 opt-out, request-bound 인용·발행/사건 최신성, 단일 $20 예약 원장·검색 미환급을 보존하며 사용자별 검색 할당량을 만들지 않는다. verify_by: node scripts/ci-native-search-check.mjs; node worker/openai-contract.test.mjs
+- [ ] QA-SEARCH-TOGGLE-01: P1609: delegated (element,event) 검색 토글이 input.checked와 localStorage OFF/ON, 표시 상태를 일치시킨다. verify_by: node scripts/ci-native-search-check.mjs; 실제 Chrome 토글/재로드
+
+## v57.35 공용 연결과 개인 공급자 (2026-10-11)
+
+- [x] QA-CONNECTION-01: P1607: 개인 FMP 키 없이 공용 SEC 자료를 AI와 화면이 같은 provider 캐시로 읽으며 FY·누락·미래 공시와 caller 인증 상태·검색 domain/date·공용 캘린더 범위를 보존한다. verify_by: node scripts/ci-connection-access-check.mjs; node worker/openai-contract.test.mjs
+
+## v57.34 모드와 자료 사고 체계 (2026-10-11)
+
+- [x] QA-THEME-INTERACTION-01: P1604: 다크/라이트 8화면 대표 상태·복원, tooltip 단일 실행·ESC, native 키, 기존 차트 색·range와 storage 거부가 작동한다. 전수 대비·모든 조작 인증은 아님. verify_by: node scripts/ci-theme-research-browser-check.mjs
+- [x] QA-RESEARCH-REASONING-01: P1605: source별 구조 frame이 노트·학습 path·변수·claim API·AI retrieval과 연결되고 score/rank/current 값으로 승격되지 않는다. verify_by: node scripts/ci-theme-research-browser-check.mjs && node scripts/ci-research-flow-contract-check.mjs && node scripts/ci-knowledge-review-check.mjs
+- [x] QA-RESEARCH-SEARCH-01: P1606: canonical 노트는 이전 생성 index와 무관하게 검색되고 검색 선택이 실제 노트를 연다. verify_by: node scripts/ci-theme-research-browser-check.mjs
+
+## v57.33 REA·SaveTicker 참조 적용 (2026-10-11)
+
+- [x] QA-REFERENCE-NEWS-01: 뉴스 query ID·다른 issuer·저점수 정정·일반명사 ticker 오탐과 한국어 조사, 새 소식의 포커스 보존을 검증한다. verify_by: node scripts/ci-reference-adoption-contract-check.mjs && node scripts/ci-reference-adoption-browser-check.mjs
+- [x] QA-REFERENCE-SNAPSHOT-01: 저장한 근거의 값/시각/출처 일치, 내용 불변, 종목 초안 분리, 오류·quota와 일정·SEC 식별을 검증한다. verify_by: node scripts/ci-reference-adoption-contract-check.mjs && node scripts/ci-reference-adoption-browser-check.mjs
+- [x] QA-REFERENCE-EVIDENCE-01: 행동/준비/환경/capture가 다른 비교는 unknown이며 증거 없는 화면·semantic은 unverified로 남는다. verify_by: node scripts/ci-reference-adoption-contract-check.mjs && node scripts/ci-reference-adoption-browser-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs
+
 ## v57.32 운영 자동화·분석 검증 (2026-10-10)
 
 - [x] QA-OPS-ANALYSIS-01: scripts/ci-data-pipeline-contract-check.mjs의 P1594 fixture가 다음 지표 숫자/퍼센트 변동/반복 오기/대문자 영어/S&P alias를 검증한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs

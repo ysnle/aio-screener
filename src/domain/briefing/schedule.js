@@ -97,7 +97,7 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
 /**
  * @returns {Array<{ id, kind, atMs, when, label, why, last, today, passed, status }>} the next `days` days
  */
-export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], names = {}, nowMs = Date.now(), days = 7, maxEarnings = 6, fomcDecisions = null } = {}) {
+export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], earningsMeta = {}, names = {}, nowMs = Date.now(), days = 7, maxEarnings = 6, fomcDecisions = null } = {}) {
   const rows = [];
   const today = kstParts(nowMs).date;
   if (Array.isArray(fomcDecisions)) {
@@ -119,10 +119,19 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
       : etWallClockToMs(date, profile.et);
     if (!Number.isFinite(atMs) || atMs < nowMs - 6 * 3600000 || atMs > nowMs + days * 86400000) continue;
     const when = formatKstWhen(atMs);
-    rows.push({ id: key, kind: 'macro', atMs, when: when.label, label: profile.label, why: profile.why,
+    rows.push({ id: `macro:${key === 'us-fed-rate' ? 'us-fomc' : key}:${date}`, kind: 'macro', atMs, when: `${when.label} KST`, label: profile.label, why: profile.why,
+      originalTimeZone: profile.kst ? 'Asia/Seoul' : 'America/New_York', source: release.source || null,
+      comparisonBasis: ['us-cpi', 'us-pce'].includes(key) ? '전년 동월 대비(%)' : key === 'us-retail' ? '전월 대비(%)' : null,
       last: profile.last(snapshot || {}, { policyRange }), today: when.date === today, passed: atMs < nowMs, status: atMs < nowMs ? 'time-passed' : 'upcoming' });
   }
-  const earningRows = (Array.isArray(earnings) ? earnings : [])
+  const uniqueEarnings = new Map();
+  for (const row of Array.isArray(earnings) ? earnings : []) {
+    const key = `earnings:${row?.symbol}:${row?.date}:${row?.hour || 'unknown'}`;
+    const prior = uniqueEarnings.get(key);
+    // A received result takes precedence over a duplicate pending row, not over a different event.
+    if (!prior || (prior.epsActual == null && row?.epsActual != null)) uniqueEarnings.set(key, row);
+  }
+  const earningRows = [...uniqueEarnings.values()]
     .filter((row) => row?.symbol && names[row.symbol] && row.date)
     .map((row) => {
       const hour = row.hour === 'bmo' ? [8, 0] : row.hour === 'amc' ? [16, 5] : [16, 5];
@@ -135,16 +144,20 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
   for (const { row, atMs } of earningRows) {
     const when = formatKstWhen(atMs);
     const session = row.hour === 'bmo' ? '장 전' : row.hour === 'amc' ? '장 마감 후' : '시간 미정';
-    const est = row.epsEstimate != null && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
+    const estimateSource = row.estimateSource || earningsMeta.source || null;
+    const est = estimateSource && row.epsEstimate != null && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
     const actual = row.epsActual != null && Number.isFinite(Number(row.epsActual)) ? Number(row.epsActual) : null;
     const estimate = actual != null ? `EPS ${actual.toFixed(2)}${est != null ? ` (예상 ${est.toFixed(2)})` : ''}` : est != null ? `EPS 예상 ${est.toFixed(2)}` : null;
+    const epsContext = estimate ? `${estimate} · 주당 ${row.currency || '통화 미제공'} · ${estimateSource || '출처 미제공'}${row.fiscalPeriod ? ` · ${row.fiscalPeriod}` : ' · 회계기간 미제공'}` : null;
     // Codex browser audit H20: the calendar only says before-open / after-close; "21:00" was our placeholder hour
     // shown as if the company had announced it. Earnings rows show the US date and session, not a clock time.
     const usDate = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}`;
     const whenLabel = row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} · 정확한 시각은 회사 발표 확인` : `${usDate} 미국 · 발표 시각 미정`;
     void when;
-    rows.push({ id: `earnings-${row.symbol}`, kind: 'earnings', atMs, when: whenLabel, label: `${names[row.symbol]} (${row.symbol}) 실적`,
-      why: session, last: estimate, today: when.date === today, passed: atMs < nowMs, status: actual != null ? 'received' : atMs < nowMs ? 'time-passed' : 'upcoming' });
+    rows.push({ id: `earnings:${row.symbol}:${row.date}:${row.hour || 'unknown'}`, kind: 'earnings', atMs, when: whenLabel, label: `${names[row.symbol]} (${row.symbol}) 실적`,
+      originalTimeZone: 'America/New_York', source: earningsMeta.source || null, sourceUrl: earningsMeta.sourceUrl || null,
+      observedAt: earningsMeta.generatedAt || null, comparisonBasis: row.fiscalPeriod || null,
+      why: session, last: epsContext, today: when.date === today, passed: atMs < nowMs, status: actual != null ? 'received' : atMs < nowMs ? 'time-passed' : 'upcoming' });
   }
   return rows.sort((a, b) => a.atMs - b.atMs);
 }
