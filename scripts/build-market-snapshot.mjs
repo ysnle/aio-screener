@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, tier0Coverage, validateMarketSnapshot } from '../src/data/contracts/market-snapshot.js';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { isLatestUsRegularClose } from '../src/ai/time/market-session.js';
+import { isLatestUsRegularClose, latestCompletedKrSession } from '../src/ai/time/market-session.js';
 
 export const MARKET_SNAPSHOT_OUT = new URL('../public-data/market-snapshot.json', import.meta.url);
 export const MARKET_SNAPSHOT_STATUS_OUT = new URL('../public-data/market-snapshot-status.json', import.meta.url);
@@ -27,6 +27,21 @@ const PUBLISHABLE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 // holiday calendar the honest bound is "one weekend"; a longer closure still fails closed and
 // costs freshness, which is the safe direction.
 const CLOSED_VENUE_MAX_AGE_MS = 3 * DAY_MS;
+
+// P1617: the KR holiday calendar now exists as a registry (src/domain/market/market-calendar.js),
+// so the Korean-index closed-venue bound is calendar-derived instead of a fixed window. A venue
+// holiday adjacent to a weekend (한글날 2026-10-09 + 주말 → KRX closed Wed 10/8 through Mon 10/12)
+// pushed a legitimate Wednesday close past the 72h leash and the snapshot attempt failed closed
+// (STALE_UNEXPECTED on ^KS11/^KQ11), which blocked refresh-data publication. The calendar-aware
+// rule: for a KR index on a confirmed-closed venue, the observation is the expected completed
+// close when it is at or after the last scheduled KRX session close — and it stays
+// STALE_UNEXPECTED when the venue traded after the observation (a genuinely missing session).
+// When the calendar is unavailable the previous 3-day leash still applies, failing closed.
+function observedAtOrAfterLastKrSessionClose(symbol, observedMs, nowMs) {
+  if (!/^\^(KS11|KQ11)$/.test(String(symbol || ''))) return false;
+  const session = latestCompletedKrSession(nowMs);
+  return session?.closeMs != null && Number.isFinite(observedMs) && observedMs >= session.closeMs;
+}
 
 function stableHash(value) {
   const source = JSON.stringify(value);
@@ -107,7 +122,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
     // weekends). Resolve the provider hint against the instrument schedule
     // before allowing it to promote an old completed close to a live value.
     const scheduled = scheduledSession(symbol, observedMs, Number(now));
-    if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+    if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS || observedAtOrAfterLastKrSessionClose(symbol, observedMs, Number(now)) ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
     if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
     if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
     return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
@@ -117,7 +132,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
     // shorter leash than the schedule itself. Returning PREVIOUS_CLOSE_EXPECTED on a bare 24h made
     // this branch bypass the schedule entirely and re-introduce the weekend rejection.
     const scheduled = scheduledSession(symbol, observedMs, Number(now));
-    if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+    if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS || observedAtOrAfterLastKrSessionClose(symbol, observedMs, Number(now)) ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
     return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
   }
 
@@ -125,7 +140,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   // whether a recent observation is a valid completed close or an unexpected
   // stale point. This keeps the fallback path consistent with provider hints.
   const scheduled = scheduledSession(symbol, observedMs, Number(now));
-  if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+  if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS || observedAtOrAfterLastKrSessionClose(symbol, observedMs, Number(now)) ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
   if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
   if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
 

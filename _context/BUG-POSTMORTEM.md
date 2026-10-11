@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1617 - v57.37 - KRX 휴장일(한글날)이 주말과 맞닿으면 정상 종가가 72h 리시를 초과해 STALE_UNEXPECTED로 거부되고, 데이터 리프레시 발행이 fail-closed로 막혔다 (2026-10-11)
+
+- symptom/reproduction: 2026-10-11 데이터봇 08:52Z 실행의 스냅샷 attempt가 실패(^KS11/^KQ11 STALE_UNEXPECTED, snapshotErrors=2)했고, 이후 모든 refresh-data 실행이 ci-data-refresh-audit에서 attempt=failed로 실패해 신선 스냅샷 발행이 막혔다. KRX 마지막 세션(10/8 수요일 종가)이 일요일 점검 시점에 74.4h로 CLOSED_VENUE_MAX_AGE_MS=72h를 넘었다(10/9 목 한글날 휴장 + 주말).
+- root_cause: build-market-snapshot.mjs의 종가 리시가 고정 3일인데, 이전 판정(P1160 계열) 때는 KR 휴장 달력이 없어 '한 주말'이 정직한 상한이었다. 이제 market-calendar 레지스트리(P1501, 한글날 인지)가 존재하므로 고정 리시는 휴장+주말 조합을 실제 결측으로 오판한다.
+- fix: KR 지수(^KS11/^KQ11)의 MARKET_CLOSED 판정을 달력 기반으로 정밀화: 관측이 마지막 예정 KRX 세션 종가(latestCompletedKrSession) 이후면 정상 종가, 마지막 세션이 관측 이후에 거래했으면 여전히 STALE_UNEXPECTED(실제 결측 실패 닫힘 유지). 달력을 못 읽으면 기존 3일 리시로 실패 닫힘. 검증: 한글날+주말 케이스 MARKET_CLOSED, 목요 관측+금요일 거래 케이스 STALE_UNEXPECTED, P1160 계약 게이트 전체 PASS.
+- violated_rule: 휴장 venue의 정상 종가와 진짜 결측은 구분되어야 한다(P1160 계약의 취지)
+- prevention: ci-market-snapshot-contract-check가 P1160 픽스처로 주말·10일·2일 케이스를 계속 단언하고, KR 달력 레지스트리가 연간 갱신(exchange-calendar-review)된다.
+- verification/residual: node scripts/ci-market-snapshot-contract-check.mjs PASS. 로컬 파생 검증 두 케이스 통과(위 기재).
+
 ## P1616 - v57.37 - P1608/P1609 조건부 검색 전환이 게이트·헤드리스 단언에 반영되지 않아 첫 CI에서 browser 3개 샤드가 실패했다 (2026-10-11)
 
 - symptom/reproduction: v57.37 병합 푸시의 첫 CI: browser-runtime(chat-response-layout 'could not extract citation renderer'), browser-knowledge(reference-adoption·theme-research 'P1603: unsafe evidence path' 전 스텝), browser-unit(headless T406/T832/T1044) 3샤드 실패. 이전 세션의 미커밋 작업(v57.36)이 처음으로 CI에 올라가며 드러났다.
