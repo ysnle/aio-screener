@@ -198,7 +198,13 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
     if (!observedAt) return null;
     const fetchedAt = iso(raw.fetchedAt) || iso(attemptedAt);
     const session = deriveMarketSession({ instrumentId: instrument.instrumentId, observedAt, providerSession: raw.marketSession || raw.marketState, now });
-    const quality = session === 'MARKET_CLOSED' && isLatestUsRegularClose({ instrumentId: instrument.instrumentId, observedAt, now })
+    // P1617: the closed-current promotion must match the session layer's calendar rule. Forcing it
+    // for US instruments only (isLatestUsRegularClose) left KR indices on the 3-day age leash one
+    // layer down, so a venue holiday adjacent to a weekend produced session=MARKET_CLOSED but
+    // quality=STALE and the snapshot was still rejected.
+    const quality = session === 'MARKET_CLOSED'
+      && (isLatestUsRegularClose({ instrumentId: instrument.instrumentId, observedAt, now })
+        || observedAtOrAfterLastKrSessionClose(instrument.instrumentId, Date.parse(observedAt), now))
       ? 'CLOSED_CURRENT' : quoteQuality({ ...raw, observedAt }, now, session);
     const providerPreviousValue = Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
     const hasProviderPreviousValue = Number.isFinite(providerPreviousValue);
