@@ -25,6 +25,10 @@ _artifacts/performance-hunt-*/sample.json
 # release inputs. Machine-readable audit summaries under _artifacts stay tracked.
 _artifacts/viewport-matrix/*.png
 
+# Pre-integration backup copies of generated manifests are redundant with git
+# history (same rationale as _backup/ above) and stay local.
+_artifacts/*/integration-backup/
+
 # `.agents/skills` is the portable Codex discovery surface and is intentionally
 # tracked. Machine-local agent state must be ignored with a narrower rule if added.
 
