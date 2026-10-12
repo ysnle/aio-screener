@@ -124,10 +124,9 @@ function renderSummaryIdentity(documentRef, root, state) {
   // P1624: summary owns its first-load price chart; opening the technical tab is not a prerequisite.
   const panel = documentRef.getElementById('ticker-price-panel');
   if (panel && panel.parentElement !== readHost.parentElement) readHost.before(panel);
-  const currency = state?.quote?.currency || metadata.currency;
-  setText(documentRef, 'ticker-ov-prevclose', formatMoney(metadata.previousClose, currency));
-  setText(documentRef, 'ticker-ov-52w', metadata.low52 != null && metadata.high52 != null
-    ? `${formatMoney(metadata.low52, currency)} – ${formatMoney(metadata.high52, currency)}` : '52주 범위 수신 대기');
+  // P1640: the stock-and-company summary comes right after the identity, before the price detail.
+  const company = documentRef.getElementById('ticker-company-analysis');
+  if (company && profileNode.nextElementSibling !== company) profileNode.after(company);
 }
 
 function summaryState(root, state) {

@@ -42,13 +42,17 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   const observationsOpen=host.querySelector('.company-analysis-observations')?.open||false;
   const focused=host.contains(doc.activeElement) ? doc.activeElement.textContent : null;
   host.hidden=false; host.classList.add('company-analysis'); host.dataset.model=model.modelVersion; host.dataset.symbol=id;
-  host.replaceChildren(element(doc,'h2','기업 요약','briefing-h2'), element(doc,'p',model.headline,'company-analysis-lead'));
+  host.replaceChildren(element(doc,'h2','종목·기업 요약','briefing-h2'), element(doc,'p',model.headline,'company-analysis-lead'));
+  // P1640: one summary for the stock and the company, with the two analyses it continues into.
+  const routes=element(doc,'div',null,'company-analysis-routes');
+  for (const [label,page,why] of [['차트 분석 (기술적)','technical','추세·이동평균 정배열·셋업·거래량을 주기별로'],['재무 분석 (펀더멘탈)','fundamental','매출·이익률·현금흐름·부채를 공시 원문 기준으로']]) { const go=element(doc,'button',null,'company-analysis-route'); go.type='button'; go.append(element(doc,'strong',label),element(doc,'span',why)); go.addEventListener('click',()=>root?.showPage?.(page)); routes.append(go); }
+  host.append(routes);
   const ask=element(doc,'button','AI로 기업 분석'); ask.type='button'; ask.className='aio-btn-table';
   ask.addEventListener('click',()=>{
     const panel=doc.getElementById('ai-panel');if(!panel?.classList.contains('open'))root.toggleAIPanel?.();
-    const input=doc.getElementById('ai-panel-inp');if(input){input.value=`${id} 기업을 분석해줘. 사업 모델·경쟁력·실적·현금흐름·위험과 앞으로 확인할 조건을 연결해서 설명하고, 기존 자료로 부족한 사업 정보는 필요하면 웹검색으로 공식 출처를 확인해줘.`;input.focus();}
+    const input=doc.getElementById('ai-panel-inp');if(input){input.value=`${id} 기업 프라이머를 만들어줘. ① 무엇을 하는 회사인지와 사업부문 ② 최근 3~4개 회계연도와 최근 12개월 매출·이익률·현금흐름 추이 ③ 밸류체인 위치·경쟁사·차별점 ④ 비교 기업 대비 밸류에이션 배수 ⑤ 자본 구조와 부채 ⑥ 다음 실적에서 확인할 숫자(다음 분기 가이던스 높이, 이익률 방향, 이익의 현금 전환) ⑦ 최근 촉매·뉴스 흐름과 위험. 기존 자료로 부족한 정보는 필요하면 웹검색으로 공식 출처를 확인하고, 매매 지시 없이 가능성과 확인 조건으로 정리해줘.`;input.focus();}
   });host.append(ask);
-  const expanded=element(doc,'details',null,'company-analysis-expanded');expanded.open=wasOpen;expanded.append(element(doc,'summary','기업 분석 근거 보기'));
+  const expanded=element(doc,'details',null,'company-analysis-expanded');expanded.open=host.dataset.signature ? wasOpen : true;expanded.append(element(doc,'summary','기업·재무·주가 카드'));
   const grid=element(doc,'div',null,'company-analysis-grid');
   const identity=card(doc,'무엇을 하는 기업·종목인가','참고');
   const meta=model.identity;
@@ -71,7 +75,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   grid.append(financial);
   const evidence=model.marketEvidence;
   const price=card(doc,'주가·추세·상대 위치',evidence.status==='delayed' ? '지연' : evidence.status==='reference' || model.price.value!=null ? '참고' : '자료 없음');
-  if (model.price.value!=null) price.append(element(doc,'p',`${formatScreenerPrice(model.price.value,model.price.currency)} · ${model.price.observedAt}`,'company-analysis-price'));
+  if (model.price.value!=null) price.append(element(doc,'p',`${formatScreenerPrice(model.price.value,model.price.currency)} · ${String(model.price.observedAt||'').slice(0,10)} 관측`,'company-analysis-price'));
   const facts=element(doc,'ul');
   if (evidence.returns.ret3m!=null) facts.append(element(doc,'li',`3개월 수익률 ${pct(evidence.returns.ret3m)}${evidence.relative ? ` · 같은 시장 ${evidence.relative.peers}개 중 ${evidence.relative.rank}번째` : ''}`));
   if (evidence.pctSma50!=null) facts.append(element(doc,'li',`50일선 대비 ${pct(evidence.pctSma50)}`));

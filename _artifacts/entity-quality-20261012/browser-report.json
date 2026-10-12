@@ -1,18 +1,18 @@
 {
-  "status": "PASS",
+  "status": "FAIL",
   "postmortems": [
     "P1624",
     "P1625",
     "P1626",
     "P1627"
   ],
-  "version": "v57.41",
+  "version": "v57.42",
   "sourceHashes": {
-    "index.html": "c9f6561d78ec84c71709059584ced46a68df89bcf655e42b266dabcad37314b4",
-    "src/ui/pages/entity.js": "e0deb59d3f01734cd24c7064d76b838637b6947e0bac1a28916220ca33c5b048",
+    "index.html": "2a2b70de48e2cb8c9ec93b44b80baf5ab150908cc1d3f99c1115ee6a1f509c7e",
+    "src/ui/pages/entity.js": "7a58c0e499bb9d86129615e8c0103dc84e7710c77bb430088c8a9eed0d0477a8",
     "src/ui/pages/screener.js": "1c82e78528f44897362e5d28fb169d20541f717ad4f72941799a093344a56183",
     "src/ui/pages/analysis.js": "6e29b6f85f6349912e9df49d6e6c5e690bdc4280f09264d9f9ec52f749d53171",
-    "src/ui/components/stock-chart.js": "e88e3cd374e4075d081c0308d4698e94002d0fa9e9ccd4d21e2fb235a5e78ea3",
+    "src/ui/components/stock-chart.js": "98f10cd0bc67c59340a1ef174ddf6c29f02c91e306c53fae781ffc219c228cdc",
     "src/ui/components/stock-read.js": "a28933dab0fc186f95cfea0da18d2a324cfbc9967dde3b0f0c53491057184992",
     "src/ui/components/fiscal-read.js": "0c9c21c29dba0242f953f4d38843a34f60f372d1cc4af820674dc361990c4355",
     "src/domain/entity/summary-hydration.js": "30a394ec500ac7430ff0de02acfa92576e7818618c4850952993cdd09e656c37",
@@ -75,7 +75,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 17284
+          "pixels": 17449
         },
         "active": "page-ticker",
         "signed": [
@@ -117,7 +117,7 @@
           }
         ]
       },
-      "fixtureRequests": 2
+      "fixtureRequests": 3
     },
     {
       "label": "phone-light/summary",
@@ -196,68 +196,7 @@
     {
       "label": "phone-light",
       "market": "KR",
-      "listing": [
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 72.2
-        },
-        {
-          "symbol": "096770.KS",
-          "price": "—",
-          "ret3m": 66.7
-        },
-        {
-          "symbol": "036930.KQ",
-          "price": "—",
-          "ret3m": 47.2
-        },
-        {
-          "symbol": "403870.KQ",
-          "price": "—",
-          "ret3m": 45.2
-        },
-        {
-          "symbol": "010950.KS",
-          "price": "—",
-          "ret3m": 45.1
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 44
-        },
-        {
-          "symbol": "138080.KQ",
-          "price": "—",
-          "ret3m": 39.1
-        },
-        {
-          "symbol": "112610.KS",
-          "price": "—",
-          "ret3m": 34.7
-        },
-        {
-          "symbol": "005180.KS",
-          "price": "—",
-          "ret3m": 34.2
-        },
-        {
-          "symbol": "039030.KQ",
-          "price": "—",
-          "ret3m": 31.8
-        },
-        {
-          "symbol": "357780.KQ",
-          "price": "—",
-          "ret3m": 30.8
-        },
-        {
-          "symbol": "006400.KS",
-          "price": "—",
-          "ret3m": 26
-        }
-      ]
+      "listing": []
     },
     {
       "label": "phone-light",
@@ -358,7 +297,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 17098
+          "pixels": 17384
         },
         "active": "page-ticker",
         "signed": [
@@ -479,68 +418,7 @@
     {
       "label": "phone-dark",
       "market": "KR",
-      "listing": [
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 72.2
-        },
-        {
-          "symbol": "096770.KS",
-          "price": "—",
-          "ret3m": 66.7
-        },
-        {
-          "symbol": "036930.KQ",
-          "price": "—",
-          "ret3m": 47.2
-        },
-        {
-          "symbol": "403870.KQ",
-          "price": "—",
-          "ret3m": 45.2
-        },
-        {
-          "symbol": "010950.KS",
-          "price": "—",
-          "ret3m": 45.1
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 44
-        },
-        {
-          "symbol": "138080.KQ",
-          "price": "—",
-          "ret3m": 39.1
-        },
-        {
-          "symbol": "112610.KS",
-          "price": "—",
-          "ret3m": 34.7
-        },
-        {
-          "symbol": "005180.KS",
-          "price": "—",
-          "ret3m": 34.2
-        },
-        {
-          "symbol": "039030.KQ",
-          "price": "—",
-          "ret3m": 31.8
-        },
-        {
-          "symbol": "357780.KQ",
-          "price": "—",
-          "ret3m": 30.8
-        },
-        {
-          "symbol": "006400.KS",
-          "price": "—",
-          "ret3m": 26
-        }
-      ]
+      "listing": []
     },
     {
       "label": "phone-dark",
@@ -641,7 +519,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 39850
+          "pixels": 40950
         },
         "active": "page-ticker",
         "signed": [
@@ -762,68 +640,7 @@
     {
       "label": "tablet-light",
       "market": "KR",
-      "listing": [
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 72.2
-        },
-        {
-          "symbol": "096770.KS",
-          "price": "—",
-          "ret3m": 66.7
-        },
-        {
-          "symbol": "036930.KQ",
-          "price": "—",
-          "ret3m": 47.2
-        },
-        {
-          "symbol": "403870.KQ",
-          "price": "—",
-          "ret3m": 45.2
-        },
-        {
-          "symbol": "010950.KS",
-          "price": "—",
-          "ret3m": 45.1
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 44
-        },
-        {
-          "symbol": "138080.KQ",
-          "price": "—",
-          "ret3m": 39.1
-        },
-        {
-          "symbol": "112610.KS",
-          "price": "—",
-          "ret3m": 34.7
-        },
-        {
-          "symbol": "005180.KS",
-          "price": "—",
-          "ret3m": 34.2
-        },
-        {
-          "symbol": "039030.KQ",
-          "price": "—",
-          "ret3m": 31.8
-        },
-        {
-          "symbol": "357780.KQ",
-          "price": "—",
-          "ret3m": 30.8
-        },
-        {
-          "symbol": "006400.KS",
-          "price": "—",
-          "ret3m": 26
-        }
-      ]
+      "listing": []
     },
     {
       "label": "tablet-light",
@@ -924,7 +741,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 39850
+          "pixels": 40813
         },
         "active": "page-ticker",
         "signed": [
@@ -1045,68 +862,7 @@
     {
       "label": "tablet-dark",
       "market": "KR",
-      "listing": [
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 72.2
-        },
-        {
-          "symbol": "096770.KS",
-          "price": "—",
-          "ret3m": 66.7
-        },
-        {
-          "symbol": "036930.KQ",
-          "price": "—",
-          "ret3m": 47.2
-        },
-        {
-          "symbol": "403870.KQ",
-          "price": "—",
-          "ret3m": 45.2
-        },
-        {
-          "symbol": "010950.KS",
-          "price": "—",
-          "ret3m": 45.1
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 44
-        },
-        {
-          "symbol": "138080.KQ",
-          "price": "—",
-          "ret3m": 39.1
-        },
-        {
-          "symbol": "112610.KS",
-          "price": "—",
-          "ret3m": 34.7
-        },
-        {
-          "symbol": "005180.KS",
-          "price": "—",
-          "ret3m": 34.2
-        },
-        {
-          "symbol": "039030.KQ",
-          "price": "—",
-          "ret3m": 31.8
-        },
-        {
-          "symbol": "357780.KQ",
-          "price": "—",
-          "ret3m": 30.8
-        },
-        {
-          "symbol": "006400.KS",
-          "price": "—",
-          "ret3m": 26
-        }
-      ]
+      "listing": []
     },
     {
       "label": "tablet-dark",
@@ -1207,7 +963,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 59940
+          "pixels": 61888
         },
         "active": "page-ticker",
         "signed": [
@@ -1328,68 +1084,7 @@
     {
       "label": "desktop-light",
       "market": "KR",
-      "listing": [
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 72.2
-        },
-        {
-          "symbol": "096770.KS",
-          "price": "—",
-          "ret3m": 66.7
-        },
-        {
-          "symbol": "036930.KQ",
-          "price": "—",
-          "ret3m": 47.2
-        },
-        {
-          "symbol": "403870.KQ",
-          "price": "—",
-          "ret3m": 45.2
-        },
-        {
-          "symbol": "010950.KS",
-          "price": "—",
-          "ret3m": 45.1
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 44
-        },
-        {
-          "symbol": "138080.KQ",
-          "price": "—",
-          "ret3m": 39.1
-        },
-        {
-          "symbol": "112610.KS",
-          "price": "—",
-          "ret3m": 34.7
-        },
-        {
-          "symbol": "005180.KS",
-          "price": "—",
-          "ret3m": 34.2
-        },
-        {
-          "symbol": "039030.KQ",
-          "price": "—",
-          "ret3m": 31.8
-        },
-        {
-          "symbol": "357780.KQ",
-          "price": "—",
-          "ret3m": 30.8
-        },
-        {
-          "symbol": "006400.KS",
-          "price": "—",
-          "ret3m": 26
-        }
-      ]
+      "listing": []
     },
     {
       "label": "desktop-light",
@@ -1490,7 +1185,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 59929
+          "pixels": 61769
         },
         "active": "page-ticker",
         "signed": [
@@ -1611,68 +1306,7 @@
     {
       "label": "desktop-dark",
       "market": "KR",
-      "listing": [
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 72.2
-        },
-        {
-          "symbol": "096770.KS",
-          "price": "—",
-          "ret3m": 66.7
-        },
-        {
-          "symbol": "036930.KQ",
-          "price": "—",
-          "ret3m": 47.2
-        },
-        {
-          "symbol": "403870.KQ",
-          "price": "—",
-          "ret3m": 45.2
-        },
-        {
-          "symbol": "010950.KS",
-          "price": "—",
-          "ret3m": 45.1
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 44
-        },
-        {
-          "symbol": "138080.KQ",
-          "price": "—",
-          "ret3m": 39.1
-        },
-        {
-          "symbol": "112610.KS",
-          "price": "—",
-          "ret3m": 34.7
-        },
-        {
-          "symbol": "005180.KS",
-          "price": "—",
-          "ret3m": 34.2
-        },
-        {
-          "symbol": "039030.KQ",
-          "price": "—",
-          "ret3m": 31.8
-        },
-        {
-          "symbol": "357780.KQ",
-          "price": "—",
-          "ret3m": 30.8
-        },
-        {
-          "symbol": "006400.KS",
-          "price": "—",
-          "ret3m": 26
-        }
-      ]
+      "listing": []
     },
     {
       "label": "desktop-dark",
@@ -1758,5 +1392,48 @@
       }
     }
   ],
-  "failures": []
+  "failures": [
+    {
+      "message": "phone-light: KR published population has no visible constituents (P1625)",
+      "detail": {
+        "listing": [],
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+      }
+    },
+    {
+      "message": "phone-dark: KR published population has no visible constituents (P1625)",
+      "detail": {
+        "listing": [],
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+      }
+    },
+    {
+      "message": "tablet-light: KR published population has no visible constituents (P1625)",
+      "detail": {
+        "listing": [],
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+      }
+    },
+    {
+      "message": "tablet-dark: KR published population has no visible constituents (P1625)",
+      "detail": {
+        "listing": [],
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+      }
+    },
+    {
+      "message": "desktop-light: KR published population has no visible constituents (P1625)",
+      "detail": {
+        "listing": [],
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+      }
+    },
+    {
+      "message": "desktop-dark: KR published population has no visible constituents (P1625)",
+      "detail": {
+        "listing": [],
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+      }
+    }
+  ]
 }

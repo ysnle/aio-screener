@@ -2,7 +2,7 @@
 export function chartPalette(root) {
   const style = root.getComputedStyle(root.document.body);
   const value = (key, fallback) => style.getPropertyValue(key).trim() || fallback;
-  return { text: value('--text-secondary', '#57513f'), grid: value('--border-subtle', '#e6e0d4'), up: value('--data-green', '#22754c'), down: value('--data-red', '#b13a30') };
+  return { text: value('--text-secondary', '#57513f'), grid: value('--border-subtle', '#e6e0d4'), up: value('--candle-up', '#d23f35'), down: value('--candle-down', '#2a64c8') }; // P1634: KR candle colors
 }
 
 export function installColorTheme(root, doc) {

@@ -1,6 +1,6 @@
 {
   "version": "v54.26",
-  "generatedAt": "2026-08-15T16:00:00+09:00",
+  "generatedAt": "2026-10-12T15:00:00+09:00",
   "sourceKind": "REFERENCE",
   "description": "User supplied X threads and UI/UX screenshots normalized for AIO Screener page and AI-context integration. These are design/framework references, not live market data.",
   "items": [
@@ -628,6 +628,216 @@
       "evidenceHierarchy": ["AIO primary/academic source registry", "AIO reviewed taxonomy and relationship artifact", "third-party site as visual-information-architecture reference only"],
       "sourceAudit": [{"id":"leonardo-site-audit","observation":"The live site exposes interactive semiconductor, data-center, CPO and manufacturing maps with filters, search and detail drill-down.","integration":"Atlas relationship-map tab and five causal/system guides.","limitation":"The site's company counts, dependency counts, node positions and proprietary classifications are not copied or promoted as AIO facts."}],
       "accessNotes": {"browser":"Pages were directly inspected in Chrome on 2026-08-15.","copyrightAndQuality":"Only UI structure and generalized information architecture are retained; content is rebuilt from AIO sources."}
+    },
+    {
+      "id": "x-realsimpleariel-2109328660352111017",
+      "url": "https://x.com/RealSimpleAriel/status/2109328660352111017",
+      "title": "Weekly group recap: industry ETF first, then leaders, extension in ATR multiples",
+      "categories": ["themes", "technical", "ai-context"],
+      "pageTargets": ["themes", "technical", "home"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Review the week by group (industry/sector ETF closing highs, leaders inside each group) and mark names already far extended from the 50-day line in ATR multiples as lacking a proper entry area.",
+        "signals": ["group ETF new closing highs", "leaders per group", "ATR multiple above 50-day line", "earnings season sector checks (financials, regional banks -> small caps)"],
+        "risks": ["chasing extended leaders"],
+        "automationHint": "Use produced rotation and screener rows; ATR extension is computed on daily bars in chart analysis (P1639)."
+      }
+    },
+    {
+      "id": "x-ysh1yo2848-2108163881449529583",
+      "url": "https://x.com/ysh1yo2848/status/2108163881449529583",
+      "title": "KOSPI regime radar: eight axes, today against prior reference dates",
+      "categories": ["signal", "korea", "ai-context"],
+      "pageTargets": ["signal", "home"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Show each regime axis on a radar and overlay earlier dates so the reader sees which axes moved; volatility falling while trend scores drop can precede a re-compression period.",
+        "signals": ["radar of regime axes", "overlay of prior dates", "per-axis change in parentheses"],
+        "risks": ["composite score without calibration"],
+        "automationHint": "Implemented as the regime radar with one-year positions and no composite (P1637)."
+      }
+    },
+    {
+      "id": "x-inv_ttt-2109127276369506496",
+      "url": "https://x.com/Inv_TTT/status/2109127276369506496",
+      "title": "Optical-network earnings season: sort the chain by when revenue and profit grow",
+      "categories": ["themes", "fundamental", "ai-context"],
+      "pageTargets": ["themes", "fundamental"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Within one theme, layers (lasers, transceivers, connectivity silicon, switches, test) earn at different times; check next-quarter guidance height, margin direction and cash conversion rather than YoY growth alone.",
+        "signals": ["guidance midpoint vs prior quarter", "operating margin direction", "profit to cash conversion", "holding vs adding decided separately"],
+        "risks": ["buying the laggard only because it lagged"],
+        "automationHint": "Fundamental tab: margin trend and operating-cash/net-income conversion from SEC filings; guidance needs a source."
+      }
+    },
+    {
+      "id": "x-inartecarlodoss-2108695306368065580",
+      "url": "https://x.com/INArteCarloDoss/status/2108695306368065580",
+      "title": "AI capex stress test: compute shortage, build-out roadblocks, financing",
+      "categories": ["themes", "macro", "ai-context"],
+      "pageTargets": ["themes", "atlas"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Test a theme's core assumptions one by one with quantities: installed vs pipeline data-centre power, realistic demand by 2030, grid and transformer lead times, and financing conditions.",
+        "signals": ["pipeline conversion rate", "interconnection wait times", "transformer lead times", "financing spreads"],
+        "risks": ["thesis built on announced rather than buildable capacity"],
+        "automationHint": "Research library analysis frame: assumption -> measurable check -> what breaks it."
+      }
+    },
+    {
+      "id": "x-ydkint-2108573793157558771",
+      "url": "https://x.com/ydkint/status/2108573793157558771",
+      "title": "Memory after HBM: inference shifts spend to server DRAM, CXL, enterprise SSD and interconnect",
+      "categories": ["themes", "atlas", "ai-context"],
+      "pageTargets": ["themes", "atlas"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "As inference and long-context work grow, memory demand spreads across tiers; share changes among HBM suppliers and lower tiers can move stocks more than the HBM leader.",
+        "signals": ["memory share of hyperscaler capex", "HBM supplier share", "DRAM/NAND revenue growth", "prompt length and reasoning token share"],
+        "risks": ["treating all memory as one trade"],
+        "automationHint": "Atlas value chain: memory tiers and beneficiaries."
+      }
+    },
+    {
+      "id": "x-silicon_data-2109020446343754113",
+      "url": "https://x.com/Silicon_Data/status/2109020446343754113",
+      "title": "Token prices fall while GPU rental prices rise (Jevons)",
+      "categories": ["themes", "ai-context"],
+      "pageTargets": ["themes", "atlas"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Cheaper tokens raise total compute demand: the model layer commoditises while compute demand keeps rising regardless of source.",
+        "signals": ["LLM token price index", "H100/H200/B200 rental index"],
+        "risks": ["reading falling token prices as falling AI demand"],
+        "automationHint": "No free official series; keep as a dated reference."
+      }
+    },
+    {
+      "id": "x-sixsigmacapital-2013791518968946776",
+      "url": "https://x.com/SixSigmaCapital/status/2013791518968946776",
+      "title": "Buying near lows: catalyst check, 4M fundamentals, then technical confirmation",
+      "categories": ["technical", "fundamental", "ai-context"],
+      "pageTargets": ["technical", "ticker"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Find why the stock fell (company vs sector, temporary vs thesis-breaking), do fundamentals first, then wait for confirmation: right side of the V, 5 EMA over 20 EMA, a base at least 5% above the 52-week low.",
+        "signals": ["5/20 EMA cross", "distance from 52-week low", "catalyst calendar"],
+        "risks": ["buying the first dip"],
+        "automationHint": "Chart evidence shows the 5/20 EMA order and distance from the 52-week low (P1639)."
+      }
+    },
+    {
+      "id": "x-future__walker-2109202205404242421",
+      "url": "https://x.com/Future__Walker/status/2109202205404242421",
+      "title": "Risk checks and cash retention over chasing small gains",
+      "categories": ["signal", "ai-context"],
+      "pageTargets": ["signal", "home"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Keeping cash is only possible by checking market risk objectively and continuously.",
+        "signals": ["scenario likelihood", "credit and volatility checks"],
+        "risks": ["account drawdown from ignoring risk"],
+        "automationHint": "Scenario outlook states when cash fares better (P1633)."
+      }
+    },
+    {
+      "id": "x-boringbiz_-2109091137671577708",
+      "url": "https://x.com/BoringBiz_/status/2109091137671577708",
+      "title": "Company primer structure for a first read of a 10-K",
+      "categories": ["fundamental", "ai-context"],
+      "pageTargets": ["ticker", "fundamental"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "A primer covers segments, FY22-FY25 plus LTM, value chain, competitors, comps multiples, a simple DCF, capital structure and debt yields, catalysts and news flow.",
+        "signals": ["segments", "multi-year trend", "comps", "capital structure", "news flow"],
+        "risks": ["unverified model output"],
+        "automationHint": "The AI company-analysis prompt follows this structure (P1640)."
+      }
+    },
+    {
+      "id": "x-dotpem-2108946658142613859",
+      "url": "https://x.com/dotpem/status/2108946658142613859",
+      "title": "a16z: compute prices rise as token prices fall",
+      "categories": ["themes", "ai-context"],
+      "pageTargets": ["themes"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Same Jevons chart as Silicon Data; demand for compute grows as unit token cost falls.",
+        "signals": ["GPU rental index", "token price index"],
+        "risks": ["single-chart overreach"],
+        "automationHint": "Dated reference."
+      }
+    },
+    {
+      "id": "x-nuradu_-2108953697267208335",
+      "url": "https://x.com/NURadu_/status/2108953697267208335",
+      "title": "Credit stress starts with the weakest tier: CCC vs B spread gap",
+      "categories": ["signal", "macro", "ai-context"],
+      "pageTargets": ["signal", "macro"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "HY OAS can look calm while CCC spreads widen; the B-to-CCC gap widening by hundreds of bp and private-credit selectivity matter more than default headlines.",
+        "signals": ["HY OAS by rating (BB, B, CCC)", "CCC minus B gap", "BDC new lending and revolver draws", "redemption requests vs payments"],
+        "risks": ["equating fund survival with borrower access"],
+        "automationHint": "FRED BAMLH0A1HYBB/BAMLH0A2HYB/BAMLH0A3HYC added; the credit card shows the CCC-B gap (P1638)."
+      }
+    },
+    {
+      "id": "x-trader_jesse_-2108759022228865361",
+      "url": "https://x.com/Trader_Jesse_/status/2108759022228865361",
+      "title": "All-round analysis: macro, micro, chart, flows, sentiment combined into one judgement",
+      "categories": ["signal", "ai-context"],
+      "pageTargets": ["signal", "home"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Knowing many analyses differs from combining them into one decision; the synthesis is the skill.",
+        "signals": ["cross-axis synthesis"],
+        "risks": ["single-lens conviction"],
+        "automationHint": "Regime board, scenario outlook and the AI narrative connect the axes (P1635)."
+      }
+    },
+    {
+      "id": "x-laylaperfume-2108920033439305817",
+      "url": "https://x.com/laylaperfume/status/2108920033439305817",
+      "title": "Weekly strategy: auctions, FOMC minutes, earnings, heatmap and rotation",
+      "categories": ["home", "macro", "ai-context"],
+      "pageTargets": ["home", "briefing"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Recap the week (Treasury auction demand, minutes, key earnings, headline numbers with their counting basis), then read the heatmap for rotation inside AI rather than a sector-wide exit.",
+        "signals": ["auction bid-to-cover and direct demand", "minutes tone vs current data", "sector heatmap rotation"],
+        "risks": ["headline numbers without their counting basis"],
+        "automationHint": "Today page sector bar (P1641) and the AI narrative."
+      }
+    },
+    {
+      "id": "x-markminervini-2108201530570453046",
+      "url": "https://x.com/markminervini/status/2108201530570453046",
+      "title": "Stealth correction: indexes near highs while participation is historically low",
+      "categories": ["signal", "macro", "ai-context"],
+      "pageTargets": ["signal", "home"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Breadth divergence can set up a favourable Q4 if participation broadens; rates (10Y vs GDP deflator spread, around 5.25%) and lower-quality credit spreads are the complications.",
+        "signals": ["% above 50/200-day lines at index highs", "equal vs cap weight", "10Y yield vs deflator", "HY quality spread"],
+        "risks": ["concentration risk"],
+        "automationHint": "Concentration scenario, 20/50/200 participation and credit tiers."
+      }
+    },
+    {
+      "id": "x-nutlope-2108989553872646390",
+      "url": "https://x.com/nutlope/status/2108989553872646390",
+      "title": "Read-later list as a personal library (shelves, collections, reader)",
+      "categories": ["research"],
+      "pageTargets": ["principles", "atlas", "masters"],
+      "asOf": "2026-10-12",
+      "extraction": {
+        "thesis": "Saved reading becomes a library: collections as shelves, each document a spine, opening into a reader.",
+        "signals": ["collections", "spines by length and topic"],
+        "risks": [],
+        "automationHint": "Research library shelf (P1642)."
+      }
     }
   ]
 }

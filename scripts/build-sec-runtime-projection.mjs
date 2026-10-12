@@ -147,6 +147,9 @@ const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, 
   if (reconciled && reconciled.equityConcept === 'StockholdersEquity') delete reconciled.equityConcept; // restates the projection policy; conflict evidence stays
   delete reconciled.source; // uniform: equals the artifact header every record
   delete reconciled.model; // uniform: sec-fy-normalized-v2; unused by the page render
+  // P1632: producer-side availability/PIT audit fields have no page consumer and pushed the projection
+  // past its 1 MiB bound (1,055,257 B), failing the whole screener/SEC lane. The canonical artifact keeps them.
+  for (const field of ['operandAvailability', 'derivedAvailability', 'accessionByField', 'transportFetchedAt', 'availabilityModel', 'reportRecency']) delete reconciled[field];
   const pit = reconciled?.pit && typeof reconciled.pit === 'object'
     ? Object.fromEntries(Object.entries(reconciled.pit).filter(([key]) => key !== 'observations'))
     : null;

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T03:05:19.764Z",
+  "generatedAt": "2026-10-12T06:21:38.037Z",
   "routes": [
     {
       "id": "home",
@@ -12,6 +12,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "세 가지 흐름과 확인할 것 보기 →"
+        },
+        {
+          "tag": "BUTTON",
           "name": "시장 폭 추세와 구성 종목 보기"
         },
         {
@@ -20,11 +24,11 @@
         },
         {
           "tag": "A",
-          "name": "Oil Prices Fall as G-7 Plans Crude, Diesel Release But Hormuz Shipping Risks Persist — 원문 새 창에서 열기"
+          "name": "S&P 500 Earnings Yield Falls Below 10-Year Treasury Yield — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "S&P 500 Earnings Yield Falls Below 10-Year Treasury Yield — 원문 새 창에서 열기"
+          "name": "Crude oil outlook: US-Iran talks, supply risks likely to keep prices volatile — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -39,24 +43,96 @@
         "시장 현황",
         "상승 · 하락 종목",
         "52주 신고가 · 신저가",
+        "20일선 위 종목",
         "50일선 위 종목",
         "200일선 위 종목",
         "직전 종가 대비 변화10/8 → 10/9 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
-        "내 종목 뉴스"
+        "내 종목 뉴스",
+        "섹터 등락"
       ]
     },
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "loading",
-      "controls": [],
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "20일선 위 종목 비율 (단기)"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "50일선 위 종목 비율"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "200일선 위 종목 비율"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VIX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VIX / 3개월 VIX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미 10년물 명목금리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "10년 TIPS 실질금리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "10년 기대인플레이션"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WTI 선물"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "달러 인덱스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 · 환율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
+        }
+      ],
       "headings": [
         "시장 상태",
-        "판정 대기",
+        "혼조",
         "미국 시장 6개 축",
-        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다"
+        "국면 레이더 · 바깥일수록 우호",
+        "추세",
+        "시장 폭",
+        "변동성",
+        "금리",
+        "신용 · 위험선호",
+        "달러 · 원자재",
+        "앞으로의 세 가지 흐름과 개연성",
+        "확산 회복",
+        "집중 유지",
+        "동반 약화",
+        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
+        "코스피",
+        "코스닥",
+        "원 / 달러",
+        "한국 종목의 참여도와 강한 테마",
+        "한국 테마 표본 · 3개월 수익률 중앙값",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -140,6 +216,38 @@
         },
         {
           "tag": "BUTTON",
+          "name": "5분"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "15분"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "30분"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1시간"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "4시간"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "일"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "주"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "월"
+        },
+        {
+          "tag": "BUTTON",
           "name": "다시 시도"
         }
       ],
@@ -211,8 +319,48 @@
     {
       "id": "themes",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "에너지 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어/제약 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "리츠/부동산 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "임의소비재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금융 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재/물류 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "원자재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "통신서비스 테마 상세 열기"
+        },
         {
           "tag": "BUTTON",
           "name": "11섹터"
@@ -228,6 +376,430 @@
         {
           "tag": "BUTTON",
           "name": "1주"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1개월"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3개월"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "6개월"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DELL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SMCI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HPE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CLS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MPC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PSX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VLO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PANW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CRWD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FTNT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ZS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NET"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "S"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RBRK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MSTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "IBIT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BITO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PLTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SNOW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DDOG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MDB"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ESTC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NEM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AEM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "B"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WPM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "KGC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VEEV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HIMS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TEM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ORCL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CRM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NOW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "INTU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ADBE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WDAY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TEAM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XOM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CVX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SHEL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ROK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "EMR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TER"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "KEYS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SYM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TMO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DHR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "A"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WAT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "IDXX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SCCO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FCX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NUE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NVDA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AVGO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AMD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MRVL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ARM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SNPS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CDNS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ADSK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NFLX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DIS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SPOT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WBD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PSKY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체 86개 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TER"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AMKR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PATH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "COIN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HOOD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ISRG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TSLA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PATH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 -3.7%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 -11.2%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지 +5.4%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "광통신/포토닉스 +1.7%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 인프라/데이터센터 +3.3%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 인프라/데이터센터 +3.3%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재/물류 -2.3%"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
         },
         {
           "tag": "A",
@@ -280,7 +852,16 @@
       ],
       "headings": [
         "테마 · 트렌드",
-        "섹터 회전 판정"
+        "섹터 회전 판정",
+        "미국 하위 테마 상대강도 순위",
+        "AI 설비투자 100달러는 어디로 가나",
+        "반도체",
+        "전력",
+        "네트워크",
+        "냉각",
+        "시설·건설",
+        "이어서 볼 곳",
+        "국내 테마 흐름"
       ]
     },
     {
@@ -295,7 +876,7 @@
     {
       "id": "portfolio",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
         {
           "tag": "BUTTON",
@@ -327,7 +908,9 @@
         }
       ],
       "headings": [
-        "포트폴리오"
+        "포트폴리오",
+        "내 포트폴리오와 시장",
+        "포트폴리오 점검"
       ]
     },
     {
@@ -367,10 +950,6 @@
         },
         {
           "tag": "A",
-          "name": "Oil Prices Fall as G-7 Plans Crude, Diesel Release But Hormuz Shipping Risks Persist — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
           "name": "Crown Holdings (CCK) Earnings Upgrade Puts Its Valuation Back In Focus — 원문 새 창에서 열기"
         },
         {
@@ -383,6 +962,10 @@
         },
         {
           "tag": "A",
+          "name": "Crude oil outlook: US-Iran talks, supply risks likely to keep prices volatile — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "Gold breaks out as dollar rally cracks and Treasury futures find buyers — 원문 새 창에서 열기"
         },
         {
@@ -392,6 +975,10 @@
         {
           "tag": "BUTTON",
           "name": "중요도순"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "공용 AI 연결 시 해석 추가"
         },
         {
           "tag": "BUTTON",
@@ -411,11 +998,11 @@
         },
         {
           "tag": "A",
-          "name": "Gold and silver whiplash as Treasury yields smash 2007 highs and Gulf war simmers — 원문 새 창에서 열기"
+          "name": "Oil theft is on the rise in the heart of U.S. shale country—and it's mostly carried out in targeted, organized"
         },
         {
           "tag": "A",
-          "name": "Emerson Electric (EMR) Raised Guidance, Is It Still 7% Undervalued? — 원문 새 창에서 열기"
+          "name": "Gold and silver whiplash as Treasury yields smash 2007 highs and Gulf war simmers — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -428,6 +1015,10 @@
         {
           "tag": "A",
           "name": "SKYD Forecast — Price Target — Prediction for 2027 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "After oil increasingly left the Gulf, Iran is trying to regain its stranglehold on shipping — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -451,11 +1042,7 @@
         },
         {
           "tag": "A",
-          "name": "Crude oil outlook: US-Iran talks, supply risks likely to keep prices volatile — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "Gold price outlook 2026: Will prices recover or fall further? — 원문 새 창에서 열기"
+          "name": "Is National Bank Holdings (NBHC) Still Undervalued As Earnings Guidance Cuts Expectations? — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -523,6 +1110,34 @@
         {
           "tag": "INPUT",
           "name": "리서치 라이브러리 통합 검색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "분석 노트29편 · 주제 8개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "칼럼12편 · 주제 6개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 원리 레슨112편 · 주제 4개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 원리 개념 지도60편"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업 지도95편 · 주제 19개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 기초48편 · 주제 6개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "운용사·13F38편 · 주제 38개"
         },
         {
           "tag": "BUTTON",
@@ -733,6 +1348,34 @@
         {
           "tag": "INPUT",
           "name": "리서치 라이브러리 통합 검색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "분석 노트29편 · 주제 8개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "칼럼12편 · 주제 6개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 원리 레슨112편 · 주제 4개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 원리 개념 지도60편"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업 지도95편 · 주제 19개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 기초48편 · 주제 6개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "운용사·13F38편 · 주제 38개"
         },
         {
           "tag": "BUTTON",
@@ -992,6 +1635,34 @@
         {
           "tag": "INPUT",
           "name": "리서치 라이브러리 통합 검색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "분석 노트29편 · 주제 8개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "칼럼12편 · 주제 6개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 원리 레슨112편 · 주제 4개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 원리 개념 지도60편"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업 지도95편 · 주제 19개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 기초48편 · 주제 6개"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "운용사·13F38편 · 주제 38개"
         },
         {
           "tag": "BUTTON",

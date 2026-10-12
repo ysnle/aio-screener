@@ -19,6 +19,11 @@ function macroSeries(macroHistory, key, through, factor = 1) {
   return [...byDate].sort(([a], [b]) => a.localeCompare(b)).map(([stamp, value]) => ({ date: stamp, value }));
 }
 
+function tierGap(weak, strong) {
+  const byDate = new Map(strong.map((point) => [point.date, point.value]));
+  return weak.filter((point) => byDate.has(point.date)).map((point) => ({ date: point.date, value: point.value - byDate.get(point.date) }));
+}
+
 export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime = buildMarketRegime(input) } = {}) {
   if (!regime.available || !regime.asOf) return { range: null, axes: {} };
   const through = regime.asOf;
@@ -33,14 +38,17 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
   const ratio = daily('vix').filter(point => vix3m.get(point.date) > 0).map(point => ({ date: point.date, value: point.value / vix3m.get(point.date) }));
   const definitions = {
     trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx, { note: '지수의 완료 종가 추이. 이동평균 위치와 방향은 아래 근거에서 함께 확인합니다.' })],
-    breadth: [chart('breadth50', '50일선 위 종목 비율', '%', daily('breadth50'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: 'AIO 미국 수집 표본의 비율. 전체 미국 거래소 종목을 집계한 값과 모집단이 다릅니다.' }),
+    breadth: [chart('breadth20', '20일선 위 종목 비율 (단기)', '%', daily('breadth20'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '단기 참여도. 50일선 비율보다 먼저 움직여 참여가 넓어지거나 줄어드는 방향을 먼저 보여 줍니다.' }),
+      chart('breadth50', '50일선 위 종목 비율', '%', daily('breadth50'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: 'AIO 미국 수집 표본의 비율. 전체 미국 거래소 종목을 집계한 값과 모집단이 다릅니다.' }),
       chart('breadth200', '200일선 위 종목 비율', '%', daily('breadth200'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '중기 참여도(50일)와 장기 참여도(200일)가 함께 넓어지는지 비교합니다.' })],
     volatility: [chart('vix', 'VIX', '지수 pt', daily('vix'), { format: value => value.toFixed(1), refs: [RULES.volatility.calmBelow, RULES.volatility.stressAt] }),
       chart('vix-term', 'VIX / 3개월 VIX', '배', ratio, { format: value => value.toFixed(2), refs: [RULES.volatility.calmRatioBelow, RULES.volatility.invertedRatioAt], note: '같은 관측일의 두 지수만 나눕니다. 1 이상은 단기 변동성이 중기보다 높은 기간 구조입니다.' })],
     rates: [chart('tnx', '미 10년물 명목금리', '%', daily('tnx'), { format: percent }),
       chart('tips', '10년 TIPS 실질금리', '%', macro('realYield10'), { format: percent, note: '명목금리와 실질금리는 서로 다른 관측일일 수 있습니다. 같은 날짜의 자료가 없으면 분해해 단정하지 않습니다.' }),
       chart('breakeven', '10년 기대인플레이션', '%', macro('breakeven10'), { format: percent, note: '물가 예상만이 아니라 유동성·위험 프리미엄도 포함하는 인플레이션 보상 지표입니다.' })],
-    credit: [chart('hy', '하이일드 OAS', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: 'ICE BofA 하이일드 OAS. 수준과 5거래일 확대·축소를 구분해서 읽습니다.' })],
+    credit: [chart('hy', '하이일드 OAS', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: 'ICE BofA 하이일드 OAS. 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
+      // P1638: the weakest tier against B — the average can stay calm while CCC borrowers lose access first.
+      chart('ccc-b', 'CCC − B 등급 스프레드 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 하이일드 평균이 조용해도 이 격차가 벌어지면 취약 기업의 차환 부담이 먼저 커지고 있다는 뜻입니다.' })],
     commodities: [chart('wti', 'WTI 선물', 'USD / 배럴', daily('wti'), { format: value => `$${value.toFixed(1)}` }),
       chart('dxy', '달러 인덱스', '지수 pt', daily('dxy'), { format: value => value.toFixed(1) })],
     korea: [chart('usdkrw', '원 / 달러', 'KRW / USD', daily('usdkrw'), { format: count })]

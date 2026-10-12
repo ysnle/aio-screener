@@ -1,0 +1,29 @@
+{
+  "version": "v57.42",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1641,
+    "title": "오늘 화면에 섹터별 등락이 없어 하루 순환매를 볼 수 없음",
+    "symptom": "지수와 자산별 변화는 있었지만 어느 섹터가 오르고 내렸는지 볼 수 없었다.",
+    "root_cause": "생산된 섹터 회전 자료(dailyPct·사분면)를 테마 화면만 읽었다.",
+    "fix": "오늘 화면 하루 루프 아래에 11개 섹터 ETF의 직전 종가 등락 막대(상승 빨강·하락 파랑)와 상대강도 회전 위치를 보인다. 현재 세션 행만 쓴다.",
+    "violated_rule": "화면 데이터는 최신 생산물을 따른다",
+    "prevention": "{P}: node scripts/ci-scenario-guidance-fixture.mjs가 정렬과 행 생성 규칙을 확인한다.",
+    "verification": "로컬 브라우저 오늘 화면에서 10/9 기준 11개 섹터 확인."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-HOME-SECTORS-01",
+      "text": "{P}: 오늘 화면 섹터 등락은 현재 세션 회전 자료만 쓴다.",
+      "verify_by": "node scripts/ci-scenario-guidance-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "섹터 등락",
+  "changelog": [
+    "**오늘 섹터 등락 ({P}):** 11개 섹터 ETF의 직전 종가 등락과 회전 위치를 오늘 화면에 추가."
+  ],
+  "note": "v57.42 소유자 자료(X 게시물 14건·Gloss·Saveticker·국면 레이더 이미지) 반영(Claude). push/deploy 미실행.",
+  "status": null
+}

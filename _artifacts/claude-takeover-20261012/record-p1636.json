@@ -1,0 +1,29 @@
+{
+  "version": "v57.42",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1636,
+    "title": "리서치 라이브러리 참고 관측값이 두 달 전 값으로 고정",
+    "symptom": "개념·산업 화면의 관측값이 S&P 500 7,785(8/14), 6월 CPI 3.5% 등 2026-08 스냅샷으로 남아 있었다.",
+    "root_cause": "current-observations.json을 수동 검토 산출물로 만들고 자동 갱신 경로를 두지 않았다.",
+    "fix": "사이트가 자동 갱신하는 값(S&P 500·VIX 종가, 연방기금 목표 중간값, 헤드라인·근원 CPI)은 화면에서 최신 기록으로 바꾸고 '자동 갱신'으로 표시한다. 회사 IR 목표와 FOMC 전망은 날짜가 있는 참고값으로 둔다.",
+    "violated_rule": "화면 데이터는 최신 생산물을 따른다(소유자 2026-10-12)",
+    "prevention": "{P}: ci-scenario-guidance-fixture.mjs가 시장 행은 최신 종가로, 회사 목표 행은 그대로 남는지 확인한다.",
+    "verification": "로컬 브라우저에서 S&P 7,811.54(10/9)·VIX 14.84·연방기금 3.875%·CPI 3.4%(2026-08) 확인."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-RESEARCH-LIVE-OBS-01",
+      "text": "{P}: 리서치 관측값 중 자동 갱신 가능한 값은 최신 기록을 쓴다.",
+      "verify_by": "node scripts/ci-scenario-guidance-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "리서치 관측값",
+  "changelog": [
+    "**리서치 관측값 최신화 ({P}):** 개념·산업 화면의 S&P 500·VIX·연방기금·CPI 관측값을 사이트의 최신 기록으로 자동 갱신한다."
+  ],
+  "note": "v57.41 소유자 피드백 반영(Claude): 시나리오 대응·자동 운영·차트·AI 해석. push/deploy 미실행.",
+  "status": null
+}

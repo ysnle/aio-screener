@@ -4,6 +4,7 @@
 // The skeleton owns layout and search only; each page fills the three columns with its own content.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { searchKnowledgeIndex } from './glossary-bridge.js';
+import { createStorageGateway } from '../../platform/storage.js';
 
 export const RESEARCH_PAGES = Object.freeze([
   { route: 'principles', title: '개념·분석 프레임', summary: '쟁점별 분석 노트, 개념 정의, 원리 레슨, 칼럼' },
@@ -63,6 +64,15 @@ const STYLE = `
 .rl-chip.is-on{border-color:var(--accent);color:var(--text-primary);font-weight:700}
 .rl-main .af-root .af-shell{grid-template-columns:minmax(0,1fr)}
 .rl-main .af-root .af-nav,.rl-main .af-root .af-side{display:none}
+.rl-shelf{margin:0 0 18px;border-bottom:1px solid var(--border-subtle);padding-bottom:12px}
+.rl-shelf>summary{font-size:12px;font-weight:700;color:var(--text-secondary);cursor:pointer;margin-bottom:8px}
+.rl-shelf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+.rl-shelf-card{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--border-subtle);border-radius:6px;background:var(--surface-1);padding:10px 10px 8px;cursor:pointer;font:inherit;color:var(--text-primary)}
+.rl-shelf-card:hover,.rl-shelf-card:focus-visible{border-color:var(--accent)}
+.rl-shelf-name{font-size:13px;font-weight:700}
+.rl-shelf-meta{font-size:11px;color:var(--text-muted)}
+.rl-shelf-spines{display:flex;align-items:flex-end;gap:2px;height:44px;border-bottom:3px solid var(--border)}
+.rl-shelf-spines span{flex:1 1 0;min-width:2px;max-width:7px;border-radius:1px 1px 0 0}
 @media (max-width: 1366px){.rl-grid{grid-template-columns:minmax(180px,200px) minmax(0,1fr) minmax(220px,240px)}}
 `;
 
@@ -195,7 +205,18 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const aside = el(doc, 'aside', 'rl-aside');
   aside.setAttribute('aria-label', '연결');
   grid.append(nav, main, aside);
-  shell.append(head, grid);
+  // P1642 (owner reference 2026-10-12, a "read later" list turned into a library): the collections as
+  // shelves — each spine is one document, its height its length, its tint its topic group.
+  const shelf = el(doc, 'details', 'rl-shelf');
+  const prefs = createStorageGateway({ prefix: 'aio' });
+  const shelfPref = prefs.get('research_shelf');
+  shelf.open = shelfPref ? shelfPref === 'open' : !root?.location?.search?.includes('node=');
+  shelf.addEventListener('toggle', () => { prefs.set('research_shelf', shelf.open ? 'open' : 'closed'); });
+  const shelfTitle = el(doc, 'summary', null, '서가 · 컬렉션 불러오는 중');
+  const shelfGrid = el(doc, 'div', 'rl-shelf-grid');
+  shelf.append(shelfTitle, shelfGrid);
+  loadIndex(root).then((index) => renderShelf(doc, root, { shelfTitle, shelfGrid, entries: index?.entries || [], currentPage: route, onLocal }));
+  shell.append(head, shelf, grid);
   revealActiveNav(nav); // runs after this task, once the view has filled the TOC
   return { shell, nav, main, aside, input };
 }
@@ -226,4 +247,42 @@ export function asideBlock(doc, title) {
   const block = el(doc, 'div', 'rl-aside-block');
   block.appendChild(el(doc, 'p', 'rl-aside-title', title));
   return block;
+}
+
+const SHELF_TINTS = ['#8a6f4e', '#5b7a8c', '#7c6a92', '#5f8a6e', '#9a6158', '#6d7b4f', '#4f6f9a', '#8c7a3e'];
+function tintFor(group) { let h = 0; for (const ch of String(group || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return SHELF_TINTS[h % SHELF_TINTS.length]; }
+
+function renderShelf(doc, root, { shelfTitle, shelfGrid, entries, currentPage, onLocal }) {
+  const bySurface = new Map();
+  for (const entry of entries) {
+    if (!entry?.route?.page) continue;
+    const key = entry.surfaceLabel || entry.surface;
+    if (!bySurface.has(key)) bySurface.set(key, []);
+    bySurface.get(key).push(entry);
+  }
+  const rank = (surface) => { const at = SURFACE_ORDER.indexOf(surface); return at < 0 ? SURFACE_ORDER.length : at; };
+  const collections = [...bySurface].sort((a, b) => rank(a[1][0].surface) - rank(b[1][0].surface));
+  if (!collections.length) { shelfTitle.textContent = '서가'; return; }
+  shelfTitle.textContent = `서가 · ${collections.length}개 컬렉션 · ${entries.length}편`;
+  shelfGrid.replaceChildren(...collections.map(([label, items]) => {
+    const card = el(doc, 'button', 'rl-shelf-card');
+    card.type = 'button';
+    card.dataset.shelf = items[0].surface;
+    const groups = new Set(items.map((item) => item.group).filter(Boolean));
+    const spines = el(doc, 'div', 'rl-shelf-spines');
+    spines.setAttribute('aria-hidden', 'true');
+    const step = Math.max(1, Math.ceil(items.length / 40));
+    const lengths = items.map((item) => String(item.text || '').length);
+    const longest = Math.max(1, ...lengths);
+    items.filter((_, i) => i % step === 0).forEach((item) => {
+      const spine = el(doc, 'span');
+      spine.style.height = `${Math.round(38 + 62 * String(item.text || '').length / longest)}%`;
+      spine.style.background = tintFor(item.group);
+      spines.append(spine);
+    });
+    card.append(spines, el(doc, 'span', 'rl-shelf-name', label), el(doc, 'span', 'rl-shelf-meta', `${items.length}편${groups.size ? ` · 주제 ${groups.size}개` : ''}`));
+    card.title = `${label} — 첫 문서부터 열기`;
+    card.addEventListener('click', () => openResearchRoute(root, items[0].route, { currentPage, onLocal }));
+    return card;
+  }));
 }

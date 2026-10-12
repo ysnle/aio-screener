@@ -146,7 +146,7 @@ try {
     check(await page.locator('[data-compare-group]').first().evaluate((el) => el.getAttribute('aria-expanded') === 'true' && document.activeElement === el), `${viewport.name}: comparison expansion loses focus (P1622)`);
     await page.screenshot({ path: resolve(out, `${viewport.name}-theme-comparison.png`) });
     await page.evaluate(() => window.showPage('home', null));
-    check(await page.locator('.home-breadth-cards section').count() === 4, `${viewport.name}: same-session home breadth cards missing (P1620)`);
+    check(await page.locator('.home-breadth-cards section').count() === 5, `${viewport.name}: same-session home breadth cards missing (P1620)`);
     await page.locator('#topbar-ai-btn').click();
     await page.waitForTimeout(350);
     const ai = await page.locator('#ai-panel').evaluate((el) => {

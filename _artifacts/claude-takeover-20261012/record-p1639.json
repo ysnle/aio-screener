@@ -1,0 +1,29 @@
+{
+  "version": "v57.42",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1639,
+    "title": "차트 근거에 50일선 대비 확장 정도와 저점 반등 확인 지표가 없음",
+    "symptom": "이미 크게 오른 종목인지(50일선에서 ATR 몇 배), 저점 근처에서 하락이 멈췄는지(5·20일 EMA 교차, 52주 저점 대비 거리)를 볼 수 없었다.",
+    "root_cause": "근거 목록이 8일선 거리와 고점 대비만 다뤘다.",
+    "fix": "50일선 대비 ATR14 배수, 52주 저점 대비 거리, 5·20일 EMA 순서와 교차 시점을 근거에 추가한다. 매수 지점이 아닌 사실로만 표기한다.",
+    "violated_rule": "매매 지시 금지 — 사실로만 표시",
+    "prevention": "{P}: node scripts/ci-scenario-guidance-fixture.mjs가 세 근거 행을 확인한다.",
+    "verification": "합성 일봉 300개로 근거 행 생성 확인."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-CHART-EXTENSION-01",
+      "text": "{P}: 차트 근거는 50일선 대비 ATR 배수·52주 저점 대비·5/20 EMA 순서를 포함한다.",
+      "verify_by": "node scripts/ci-scenario-guidance-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "차트 근거",
+  "changelog": [
+    "**차트 근거 확장 ({P}):** 50일선 대비 ATR 배수, 52주 저점 대비 거리, 5·20일 EMA 교차를 일봉 근거에 추가."
+  ],
+  "note": "v57.42 소유자 자료(X 게시물 14건·Gloss·Saveticker·국면 레이더 이미지) 반영(Claude). push/deploy 미실행.",
+  "status": null
+}

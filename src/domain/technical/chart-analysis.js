@@ -245,6 +245,20 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   else if (pivot != null && last.close > pivot && last.close <= pivot * 1.05 && [n - 2, n - 1, n].some((i) => i > 0 && vol50[i] && volumes[i] >= 1.4 * vol50[i] && bars[i].close > pivot && bars[i].close > bars[i - 1].close)) state = 'breakout';
   else if (pivot != null && last.close > pivot * 1.05) state = 'extended';
   else if (vcp.valid && pivot != null && last.close >= pivot * 0.92 && last.close <= pivot) state = 'setup';
+  // P1639 (owner materials 2026-10-12): how far price has run from the 50-day line in units of its own
+  // daily range (ATR 14), where it sits above the 52-week low, and the 5/20-day EMA order used to judge
+  // whether a decline has stopped. Descriptive facts, not entries.
+  const trueRanges = bars.map((bar, i) => i ? Math.max(bar.high - bar.low, Math.abs(bar.high - bars[i - 1].close), Math.abs(bar.low - bars[i - 1].close)) : bar.high - bar.low);
+  const atr14 = n >= 14 ? trueRanges.slice(n - 13, n + 1).reduce((sum, v) => sum + v, 0) / 14 : null;
+  const atrFrom50 = atr14 && sma50[n] ? (last.close - sma50[n]) / atr14 : null;
+  const fromLow = (last.close / low52 - 1) * 100;
+  const ema5 = ema(closes, 5), ema20 = ema(closes, 20);
+  let crossAgo = null;
+  for (let i = n; i > Math.max(0, n - 60); i -= 1) {
+    if (ema5[i] == null || ema20[i] == null || ema5[i - 1] == null || ema20[i - 1] == null) break;
+    if ((ema5[i] > ema20[i]) !== (ema5[i - 1] > ema20[i - 1])) { crossAgo = n - i; break; }
+  }
+  const fiveAbove = ema5[n] != null && ema20[n] != null ? ema5[n] > ema20[n] : null;
   const fmt = (value, digits = 2) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
   const signed = (value, digits = 1, unit = '%') => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
   const evidence = [
@@ -256,6 +270,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['거래량 (50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? ` · 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
     [`${rangeLabel} 고점 대비`, signed(fromHigh)],
     ['추세 템플릿 (미너비니)', `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? ` · 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}${templateChecks.some(([, ok]) => ok == null) ? ` · 확인 불가 ${templateChecks.filter(([, ok]) => ok == null).length}개(기록 부족)` : ''}`],
+    ['50일선 대비 ATR 배수', atrFrom50 == null ? '—' : `${atrFrom50 >= 0 ? '+' : ''}${atrFrom50.toFixed(1)}배 (ATR14 ${fmt(atr14)})${atrFrom50 >= 7 ? ' · 50일선에서 크게 확장된 구간' : atrFrom50 <= -3 ? ' · 50일선 아래로 크게 이탈' : ''}`],
+    [`${rangeLabel} 저점 대비`, `${signed(fromLow)}${fromLow < 5 ? ' (저점 5% 이내 — 바닥 다지기 전)' : ''}`],
+    ['5일·20일 EMA', fiveAbove == null ? '기록 부족' : `5일 EMA가 20일 EMA ${fiveAbove ? '위' : '아래'}${crossAgo != null ? ` · ${crossAgo}거래일 전 ${fiveAbove ? '상향' : '하향'} 교차` : ''}`],
     ['8일선 대비 거리', extension == null ? '—' : `${signed(extension)}${extension >= 10 ? ' (과열권)' : extension <= -5 ? ' (8일선 아래 이탈)' : ''}`],
     ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(상승일 거래량 우위)' : pressure <= 0.77 ? '(하락일 거래량 우위)' : '(비슷함)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],
@@ -281,6 +298,11 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     dryUp,
     rangeLabel,
     fromHigh,
+    fromLow,
+    atr14,
+    atrFrom50,
+    fiveAbove,
+    crossAgo,
     extension,
     vcp,
     pivot,

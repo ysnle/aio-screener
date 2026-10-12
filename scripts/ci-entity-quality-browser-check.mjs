@@ -140,7 +140,10 @@ try {
       check(summary.signed.some(bar=>bar.down && bar.width>0) && summary.signed.every(bar=>bar.down ? Math.abs(bar.left+bar.width-50)<.05 : Math.abs(bar.left-50)<.05),`${label}: signed returns cross common zero incorrectly (P1624)`,summary.signed);
       await captureLayout(page,`${label}/summary`);
       await page.screenshot({path:resolve(out,`browser-${label}-summary.png`)});
-      check(await page.locator('#ticker-company-analysis').isVisible() && !await page.locator('.company-analysis-expanded').evaluate(el=>el.open),`${label}: shared company summary is absent or too expanded (P1624)`);
+      // P1640 supersedes P1624's collapsed default: the stock+company summary opens on first render and leads to
+      // the technical and fundamental analyses.
+      check(await page.locator('#ticker-company-analysis').isVisible() && await page.locator('.company-analysis-expanded').evaluate(el=>el.open)
+        && await page.locator('#ticker-company-analysis .company-analysis-routes button').count()===2,`${label}: stock+company summary absent, collapsed or missing analysis routes (P1640)`);
       const rerender = await page.evaluate(()=>{
         const expanded=document.querySelector('.company-analysis-expanded'); expanded.open=true; expanded.querySelector('summary').focus();
         document.dispatchEvent(new CustomEvent('aio:liveQuotes'));

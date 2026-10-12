@@ -1,0 +1,29 @@
+{
+  "version": "v57.42",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1638,
+    "title": "신용 축이 하이일드 평균만 보고 취약 등급의 스트레스를 놓침",
+    "symptom": "HY OAS 평균이 안정적이면 신용은 우호로 읽혔고, CCC 등급과 B 등급의 격차가 벌어지는 신호는 화면에 없었다.",
+    "root_cause": "생산 시리즈가 HY·IG 평균 두 개뿐이었다.",
+    "fix": "FRED BB·B·CCC 등급 OAS를 거시 이력에 추가하고, 신용 카드에 CCC−B 격차 차트와 해석을 붙인다.",
+    "violated_rule": "공식 무료 구조화 출처 우선(소유자 2026-10-11)",
+    "prevention": "{P}: node scripts/ci-scenario-guidance-fixture.mjs가 격차 계산과 생산 시리즈 정의를 확인한다.",
+    "verification": "격차 계산은 fixture로 확인. 실제 시리즈는 push 후 refresh-data 회차부터 채워진다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-CREDIT-TIERS-01",
+      "text": "{P}: 신용 축은 CCC−B 등급 스프레드 격차를 함께 보인다.",
+      "verify_by": "node scripts/ci-scenario-guidance-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "신용 등급",
+  "changelog": [
+    "**신용 등급별 스프레드 ({P}):** BB·B·CCC OAS를 수집하고 신용 카드에 CCC−B 격차를 보여 평균에 가려진 취약 기업 스트레스를 드러낸다."
+  ],
+  "note": "v57.42 소유자 자료(X 게시물 14건·Gloss·Saveticker·국면 레이더 이미지) 반영(Claude). push/deploy 미실행.",
+  "status": null
+}

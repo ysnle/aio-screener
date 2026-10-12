@@ -15,3 +15,10 @@
   .chart-scenarios > h3, .chart-scenarios > p { grid-column: 1 / -1; }
 }
 @media (max-width: 700px) { .chart-scenarios { grid-template-columns: minmax(0, 1fr); } }
+/* P1634: Korean brokerage candle convention — rising red, falling blue. */
+:root { --candle-up: #d23f35; --candle-down: #2a64c8; }
+body.dark-theme { --candle-up: #ff6b61; --candle-down: #5c9bff; }
+.stock-chart-intervals { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; }
+.stock-chart-intervals button { font: inherit; font-size: 13px; padding: 5px 11px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; }
+.stock-chart-intervals button[aria-pressed="true"] { border-color: var(--text-primary); color: var(--text-primary); font-weight: 700; background: var(--surface-3, transparent); }
+.stock-chart-interval-note { font-size: 13px; line-height: 1.65; color: var(--text-secondary); }

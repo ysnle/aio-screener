@@ -6374,37 +6374,7 @@ window._aioRenderTickerOverview = function(tkr) {
   var live = (window._liveData || {})[tkr] || {};
   var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var scr = Array.isArray(scrRows) ? (scrRows.find(function(r){ return r && r.sym === tkr; }) || null) : null;
-  var cur = isKr ? '' : '$';
-  function _set(id, txt, color, title) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = txt;
-    el.style.color = color || '';
-    if (title) el.title = title; else el.removeAttribute('title');
-  }
-  var prev = Number(live.regularMarketPreviousClose || live.chartPreviousClose);
-  var _px = function(v) { return isKr ? Math.round(v).toLocaleString('ko-KR') + '원' : cur + v.toFixed(2); }; _set('ticker-ov-prevclose', prev > 0 ? _px(prev) : '—', null, prev > 0 ? null : '전일 종가 원천 미수신'); // P1317: KRW 정수·원 표기
-  var hi52 = Number(live.fiftyTwoWeekHigh), lo52 = Number(live.fiftyTwoWeekLow), price = Number(live.price);
-  var bar = document.getElementById('ticker-ov-52wbar');
-  if (hi52 > 0 && lo52 > 0 && hi52 > lo52) {
-    _set('ticker-ov-52w', _px(lo52) + ' ~ ' + _px(hi52));
-    if (bar && price > 0) {
-      var pos = Math.max(0, Math.min(100, (price - lo52) / (hi52 - lo52) * 100));
-      bar.style.display = 'block';
-      var posEl = document.getElementById('ticker-ov-52wpos');
-      if (posEl) posEl.style.left = pos.toFixed(1) + '%';
-      bar.title = '52주 범위 내 현재가 위치: ' + pos.toFixed(0) + '%';
-    } else if (bar) bar.style.display = 'none';
-  } else {
-    _set('ticker-ov-52w', '—', null, '52주 범위 원천 미수신');
-    if (bar) bar.style.display = 'none';
-  }
-  function _fmtRet(v){ return (typeof v === 'number' && isFinite(v)) ? ((v >= 0 ? '+' : '') + v.toFixed(1) + '%') : '—'; }
-  function _retCol(v){ return (typeof v === 'number' && isFinite(v)) ? (v >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)'; }
-  ['1m','3m','6m'].forEach(function(k) {
-    var v = scr ? scr['ret' + k] : null;
-    _set('ticker-ov-ret' + k, _fmtRet(v), _retCol(v), (typeof v === 'number') ? '스크리너 관측 이력 기반 — 스크리너 페이지와 동일 값' : '스크리너 유니버스 외 종목 — 수익률 이력 미수신');
-  });
+  var price = Number(live.price); // P1640: price/52-week/return rows retired (summary owns them)
   var prov = document.getElementById('ticker-ov-provenance');
   if (prov) {
     var srcs = [];

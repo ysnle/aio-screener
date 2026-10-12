@@ -4,6 +4,20 @@ last_verified: 2026-10-12
 confidence: medium
 ---
 
+## v57.42 생산 레인 크기 (2026-10-12)
+
+- [ ] QA-SEC-PROJECTION-01: P1632: SEC 런타임 투영은 화면이 읽는 필드만 담고 1MiB 상한 아래를 유지한다. verify_by: node scripts/ci-sec-runtime-projection-check.mjs
+- [ ] QA-SCENARIO-GUIDANCE-01: P1633: 시장 시나리오는 개연성·가능성·기회·확인/주의/무시를 보이고 확률%나 매매 지시를 쓰지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-CHART-INTERVALS-01: P1634: 종목 차트는 8개 주기를 제공하고 4시간봉은 같은 거래일 1시간봉만 합친다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-AI-REGIME-CONTEXT-01: P1635: 서버 AI 시장 해석은 화면과 같은 국면·시나리오 문맥과 변화율을 근거로 받는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-RESEARCH-LIVE-OBS-01: P1636: 리서치 관측값 중 자동 갱신 가능한 값은 최신 기록을 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-REGIME-RADAR-01: P1637: 국면 레이더는 축별 1년 위치와 세 시점만 보이고 종합 점수를 만들지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-CREDIT-TIERS-01: P1638: 신용 축은 CCC−B 등급 스프레드 격차를 함께 보인다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-CHART-EXTENSION-01: P1639: 차트 근거는 50일선 대비 ATR 배수·52주 저점 대비·5/20 EMA 순서를 포함한다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-TICKER-SUMMARY-01: P1640: 종목 화면은 수익률·52주 범위를 한 요약에서만 보이고 기술·재무 분석으로 이어진다. verify_by: node scripts/ci-entity-quality-browser-check.mjs
+- [ ] QA-HOME-SECTORS-01: P1641: 오늘 화면 섹터 등락은 현재 세션 회전 자료만 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-RESEARCH-SHELF-01: P1642: 리서치 라이브러리는 컬렉션별 서가를 보이고 누르면 해당 컬렉션 문서를 연다. verify_by: node scripts/ci-runtime-contract-check.mjs
+
 ## v57.41 재렌더 상태 보존 (2026-10-12)
 
 - [ ] QA-RERENDER-DISCLOSURE-01: P1630: 시세 갱신 재렌더가 사용자가 펼친 근거(details)와 키보드 포커스를 닫거나 잃지 않는다. verify_by: node scripts/ci-entity-quality-browser-check.mjs; node scripts/ci-regime-scenarios-fixture.mjs

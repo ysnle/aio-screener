@@ -113,7 +113,7 @@ function stats(series) {
   return {
     date: last.date, value: last.value, d1: back(1), d5: back(5), d20: point20?.value ?? null, d20Date: point20?.date ?? null,
     yearMax: max, yearMin: min, yearPosition: max > min && year.length >= 120 ? (last.value - min) / (max - min) : null,
-    ma50: mean(50), ma200: mean(200)
+    ma5: mean(5), ma10: mean(10), ma20: mean(20), ma50: mean(50), ma100: mean(100), ma200: mean(200)
   };
 }
 
@@ -121,6 +121,25 @@ const pct = (now, then) => now != null && then ? (now / then - 1) * 100 : null;
 const bp = (now, then) => now != null && then != null ? (now - then) * 100 : null;
 const signed = (value, digits = 1, unit = '%') => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
 const fmt = (value, digits = 2) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+
+// P1633 (owner 2026-10-12): short-term trend = price > 5 > 10 > 20-day averages, long-term trend =
+// 20 > 50 > 100 > 200-day averages. 정배열 when every step holds, 역배열 when every step is reversed.
+export function movingAverageStructure(stat) {
+  const order = (values) => {
+    if (values.some((value) => value == null)) return null;
+    const pairs = values.slice(1).map((value, index) => values[index] > value);
+    return pairs.every(Boolean) ? 'up' : pairs.every((ok) => !ok) ? 'down' : 'mixed';
+  };
+  const label = { up: '정배열', down: '역배열', mixed: '혼조' };
+  const short = order([stat?.value, stat?.ma5, stat?.ma10, stat?.ma20]);
+  const long = order([stat?.ma20, stat?.ma50, stat?.ma100, stat?.ma200]);
+  return {
+    short, long,
+    shortLabel: short ? label[short] : null, longLabel: long ? label[long] : null,
+    shortText: short ? `${label[short]} · 종가 ${fmt(stat.value, 0)} / 5일 ${fmt(stat.ma5, 0)} / 10일 ${fmt(stat.ma10, 0)} / 20일 ${fmt(stat.ma20, 0)}` : null,
+    longText: long ? `${label[long]} · 20일 ${fmt(stat.ma20, 0)} / 50일 ${fmt(stat.ma50, 0)} / 100일 ${fmt(stat.ma100, 0)} / 200일 ${fmt(stat.ma200, 0)}` : null
+  };
+}
 
 const SERIES_FIELDS = ['spx', 'nasdaq', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'usdjpy', 'breadth50', 'breadth20', 'breadth200', 'advanceRatio',
   // P1416: leadership and index-confirmation evidence (src/domain/market/breadth-signals.js).
@@ -398,15 +417,21 @@ export function buildMarketRegime(input = {}) {
     else if (spx.value > spx.ma50 && spx.ma50 > spx.ma200 && rising) state = 'favorable';
     else if (spx.value < spx.ma200 || (spx.value < spx.ma50 && !rising)) state = 'burden';
     const nd20 = s.nasdaq ? pct(s.nasdaq.value, s.nasdaq.d20) : null;
-    const read = state === 'favorable' ? '지수가 오르는 50일선 위에 있고 50일선이 200일선 위 — 상승 추세가 유지되고 있습니다.'
+    const structure = movingAverageStructure(spx);
+    const horizon = structure.short && structure.long
+      ? ` 단기(5·10·20일)는 ${structure.shortLabel}, 장기(20·50·100·200일)는 ${structure.longLabel}${structure.short !== structure.long ? ' — 두 기간의 방향이 달라 단기 흐름이 장기 추세로 이어지는지 확인할 구간입니다' : ''}.` : '';
+    const baseRead = state === 'favorable' ? '지수가 오르는 50일선 위에 있고 50일선이 200일선 위 — 상승 추세가 유지되고 있습니다.'
       : state === 'burden' ? (spx.value < spx.ma200 ? 'S&P 500이 200일선 아래 — 장기 추세가 꺾였습니다.' : 'S&P 500이 하락하는 50일선 아래 — 단기 추세가 약해졌습니다.')
         : state === 'unknown' ? '이동평균 계산에 필요한 종가 기록(200거래일 이상)이 부족합니다.' : '추세는 유지되지만 50일선 기울기나 위치가 뚜렷하지 않은 혼조 상태입니다.';
+    const read = baseRead + horizon;
     const flip = state === 'unknown' ? null
       : state === 'favorable' ? `S&P 500이 50일선(${fmt(spx.ma50, 0)}) 아래로 마감하면 중립, 200일선(${fmt(spx.ma200, 0)}) 아래면 부담`
         : state === 'burden' ? `S&P 500이 200일선(${fmt(spx.ma200, 0)})과 50일선(${fmt(spx.ma50, 0)}) 위로 회복하면 완화`
           : `S&P 500이 상승하는 50일선(${fmt(spx.ma50, 0)}) 위, 50일선이 200일선 위면 우호 · 200일선(${fmt(spx.ma200, 0)}) 아래면 부담`;
     axes.push(axis('trend', '추세', state, [
       ['S&P 500', `${fmt(spx.value)} (20일 ${signed(pct(spx.value, spx.d20))})`],
+      ['단기 추세 (종가>5>10>20일선)', structure.shortText],
+      ['장기 추세 (20>50>100>200일선)', structure.longText],
       ['50일선 / 200일선', spx.ma50 != null && spx.ma200 != null ? `${fmt(spx.ma50, 0)} / ${fmt(spx.ma200, 0)}` : null],
       ['50일선 방향', rising == null ? null : rising ? '상승' : '하락'],
       ['1년 고점 대비', fromHigh == null ? null : signed(fromHigh)],
@@ -417,6 +442,7 @@ export function buildMarketRegime(input = {}) {
   }
   // 2. Breadth — participation behind the index. Both windows must be present to call it broad.
   {
+    const b20 = s.breadth20?.value ?? null;
     const b50 = s.breadth50?.value ?? null;
     const b200 = s.breadth200?.value ?? null;
     const adv = s.advanceRatio?.value ?? null;
@@ -432,14 +458,18 @@ export function buildMarketRegime(input = {}) {
     const partial = state !== 'unknown' && (b50 == null || b200 == null) ? ` (${b50 == null ? '50일선' : '200일선'} 비율 미수신 — 나머지 하나로만 판단)` : '';
     const read = (state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
       : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 AIO 수집 종목 가운데 이동평균선 위 비율이 낮은 좁은 장세 — 지수가 소수 대형주에 기대고 있을 수 있습니다(지수 구성 종목의 기여도는 따로 확인).` : '약세가 시장 전반에 퍼져 있습니다.')
-        : state === 'unknown' ? staleRead('시장 폭', alignments.breadth50) : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.') + partial;
+        : state === 'unknown' ? staleRead('시장 폭', alignments.breadth50) : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.') + partial
+      // P1633: the 20-day ratio moves first; a gap to the 50-day ratio says which way participation is turning.
+      + (state !== 'unknown' && b20 != null && b50 != null && Math.abs(b20 - b50) >= 10
+        ? (b20 > b50 ? ` 단기(20일선 위 ${fmt(b20, 0)}%) 참여가 중기(${fmt(b50, 0)}%)보다 먼저 회복하고 있습니다.` : ` 단기(20일선 위 ${fmt(b20, 0)}%) 참여가 중기(${fmt(b50, 0)}%)보다 먼저 약해지고 있습니다.`) : '');
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.weakBelow}% 이상이면 중립, 모두 ${RULES.breadth.broadAtLeast}% 이상이면 우호`
         : state === 'favorable' ? `둘 중 하나라도 ${RULES.breadth.broadAtLeast}% 아래면 중립, ${RULES.breadth.weakBelow}% 아래면 부담`
           : `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상이면 우호, 하나라도 ${RULES.breadth.weakBelow}% 아래면 부담`;
     axes.push(axis('breadth', '시장 폭', state, [
-      ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`],
-      ['200일선 위 종목', b200 == null ? null : `${fmt(b200, 0)}%`],
+      ['20일선 위 종목 (단기)', b20 == null ? null : `${fmt(b20, 0)}%`],
+      ['50일선 위 종목 (중기)', b50 == null ? null : `${fmt(b50, 0)}%`],
+      ['200일선 위 종목 (장기)', b200 == null ? null : `${fmt(b200, 0)}%`],
       ['종가일 상승 종목 비율(보합 제외)', advPct == null ? null : `${fmt(advPct, 0)}%`],
       // P1416: leadership evidence beside the moving-average ratios (the state rule is unchanged).
       ['40일선 위 종목', s.breadth40 ? `${fmt(s.breadth40.value, 0)}%` : null],

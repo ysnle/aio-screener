@@ -60,7 +60,46 @@ function currentObservationMatches(observation, page, context = {}) {
   return requestedIds.some((id) => observation.nodeIds.includes(id));
 }
 
-export function createCurrentObservationBlock(documentRef, artifact, { page, nodeIds = [], nodeId = '', lessonId = '', title = '실제 관측값' } = {}) {
+// P1636: the research pages showed the 2026-08 snapshot (S&P 500 7,785, June CPI) two months later
+// while the same site already held newer closes and releases. Rows whose value the site refreshes
+// automatically are replaced at render from the current history/macro; dated company-IR targets and
+// FOMC projections stay as dated references.
+const LIVE_ROWS = [
+  [/^market-spx-/, 'spx', 'S&P 500 종가'],
+  [/^market-vix-/, 'vix', 'VIX 종가']
+];
+
+function latestClose(history, field) {
+  const rows = (Array.isArray(history) ? history : []).filter((row) => typeof row?.[field] === 'number' && row[field] > 0 && row.fieldMeta?.[field]?.observationRelation !== 'carried-forward');
+  const row = rows.sort((a, b) => String(a.date).localeCompare(String(b.date))).at(-1);
+  return row ? { value: row[field], date: String(row.fieldMeta?.[field]?.observedAt || row.date).slice(0, 10) } : null;
+}
+
+export function liveCurrentObservations(artifact, root) {
+  if (!artifact || !Array.isArray(artifact.observations) || !root) return artifact;
+  const snapshot = root.DATA_SNAPSHOT || {};
+  const ts = snapshot._fieldTs || {};
+  const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
+  const live = (row, value, observedAt, displayValue, sourceKind = 'MARKET_DATA') => value == null || !observedAt ? row : { ...row, value, displayValue, observedAt, eventDate: null, sourceKind, allowedUse: 'current-context', live: true };
+  const observations = artifact.observations.map((row) => {
+    for (const [pattern, field] of LIVE_ROWS) {
+      if (!pattern.test(row.id)) continue;
+      const close = latestClose(root._aioHistory, field);
+      return close ? live(row, close.value, close.date, close.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : row;
+    }
+    if (/^fed-funds-midpoint-/.test(row.id)) {
+      const lower = finite(snapshot.fedTargetLower), upper = finite(snapshot.fedTargetUpper);
+      return lower != null && upper != null ? live(row, (lower + upper) / 2, ts.macro_fedTargetLower || null, `${((lower + upper) / 2).toFixed(3)}%`, 'OFFICIAL_STATISTICS') : row;
+    }
+    if (/^bls-cpi-/.test(row.id)) return live(row, finite(snapshot.cpi), ts.macro_cpi ? `${ts.macro_cpi.slice(0, 7)} 기준월` : null, finite(snapshot.cpi) == null ? null : `${snapshot.cpi}% YoY`, 'OFFICIAL_STATISTICS');
+    if (/^bls-core-cpi-/.test(row.id)) return live(row, finite(snapshot.coreCpi), ts.macro_coreCpi ? `${ts.macro_coreCpi.slice(0, 7)} 기준월` : null, finite(snapshot.coreCpi) == null ? null : `${snapshot.coreCpi}% YoY`, 'OFFICIAL_STATISTICS');
+    return row;
+  });
+  return { ...artifact, observations };
+}
+
+export function createCurrentObservationBlock(documentRef, rawArtifact, { page, nodeIds = [], nodeId = '', lessonId = '', title = '실제 관측값' } = {}) {
+  const artifact = liveCurrentObservations(rawArtifact, documentRef?.defaultView || null);
   const observations = (artifact?.observations || []).filter((item) => currentObservationMatches(item, page, { nodeIds, nodeId, lessonId }));
   const block = element(documentRef, 'section', 'knowledge-current-observations');
   const validArtifact = validateCurrentObservationsArtifact(artifact);
@@ -81,7 +120,7 @@ export function createCurrentObservationBlock(documentRef, artifact, { page, nod
     card.dataset.knowledgeObservationAllowedUse = observation.allowedUse || '';
     const value = element(documentRef, 'strong', 'knowledge-current-observation-value', observation.displayValue ?? String(observation.value ?? '—'));
     const meta = element(documentRef, 'div', 'knowledge-current-observation-meta', `${observation.label} · ${unitLabel(observation.unit)}`);
-    const dateLabel = observationDateLabel(observation);
+    const dateLabel = observation.live ? `자동 갱신 · 관측 ${observation.observedAt}` : observationDateLabel(observation);
     const provenance = element(documentRef, 'p', 'knowledge-current-observation-provenance', `${sourceKindLabel(observation.sourceKind)} · ${allowedUseLabel(observation.allowedUse)} · ${dateLabel}`);
     const source = element(documentRef, 'a', 'knowledge-current-observation-source', observation.source || observation.sourceId || '출처 보기');
     applySafeExternalLink(source, observation.sourceUrl);

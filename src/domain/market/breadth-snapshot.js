@@ -19,7 +19,7 @@ export function buildBreadthSnapshot(history = []) {
     const total = highs.value + lows.value;
     add('high-low', '52주 신고가 · 신저가', `신고가 ${highs.value}개`, `신저가 ${lows.value}개`, total > 0 ? highs.value / total * 100 : null, 'breadthNewHighs', `조정 고가·저가의 약 1년 범위. 막대는 신고·신저 발생 ${total}건 중 비중이며 전체 종목 중 비율이 아닙니다.`);
   }
-  for (const [field, days] of [['breadth50', 50], ['breadth200', 200]]) {
+  for (const [field, days] of [['breadth20', 20], ['breadth50', 50], ['breadth200', 200]]) {
     const reading = point(field);
     if (reading && reading.value >= 0 && reading.value <= 100) add(field, `${days}일선 위 종목`, `위 ${reading.value.toFixed(1)}%`, `나머지 ${(100 - reading.value).toFixed(1)}%`, reading.value, field, `조정 종가가 ${days}일 단순이동평균보다 높은 종목의 동일 비중 비율. 나머지는 같은 가격과 아래를 포함합니다.`);
   }

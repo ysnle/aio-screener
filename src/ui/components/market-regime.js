@@ -7,6 +7,8 @@ import { renderNextSteps } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { buildRegimeAxisHistory, buildMarketScenarios, buildKoreaRegimeObservations } from '../../domain/market/regime-scenarios.js';
+import { renderRegimeRadar } from './regime-radar.js';
+import { outlookForRoot } from './scenario-outlook.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -79,32 +81,48 @@ function chartPanel(doc, charts, range) {
   return panel;
 }
 
-function scenarioSection(doc, model, openIds = new Set()) {
+function listBlock(doc, title, items) {
+  const box = el(doc, 'div', null, 'regime-scenario-list');
+  box.append(el(doc, 'h4', title));
+  const list = el(doc, 'ul'); for (const item of items || []) list.append(el(doc, 'li', item)); box.append(list);
+  return box;
+}
+
+// P1633: each path says how likely it is from today's conditions and what it would mean for the
+// reader (possibility and opportunity cost), with check / caution / ignore lists on demand.
+function scenarioSection(doc, model, outlook, openIds = new Set()) {
   const section = el(doc, 'section', null, 'regime-scenarios');
   section.dataset.aioRegimeScenarios = 'native';
-  section.append(el(doc, 'h2', '앞으로 확인할 세 가지 흐름', 'briefing-h2'),
-    el(doc, 'p', `${model.asOf || '기준일 미확인'} 완료 종가 기준 · 현재 조건과 다음 관측에 따라 해석을 바꿉니다. 발생 확률이나 목표가를 예측한 내용이 아닙니다.`, 'regime-scenario-basis'));
+  section.append(el(doc, 'h2', '앞으로의 세 가지 흐름과 개연성', 'briefing-h2'),
+    el(doc, 'p', `${model.asOf || '기준일 미확인'} 완료 종가 기준 · 개연성은 현재 충족된 조건 수로 매긴 등급이며 보정된 확률이 아닙니다. 특정 종목의 매매 시점·가격을 알려 주지 않고, 흐름별로 유리할 가능성이 큰 선택과 기회비용을 설명합니다.`, 'regime-scenario-basis'));
   if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold')); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
-  const facts = el(doc, 'p', (model.scenarios[0]?.facts || []).join(' · '), 'regime-scenario-current');
-  if (facts.textContent) section.append(facts);
+  if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
+  const byId = Object.fromEntries((outlook?.items || []).map((item) => [item.id, item]));
   const grid = el(doc, 'div', null, 'regime-scenario-grid');
   for (const scenario of model.scenarios) {
+    const view = byId[scenario.id];
     const card = el(doc, 'article', null, 'regime-scenario-card');
     card.dataset.scenario = scenario.id; card.dataset.confirmed = String(scenario.confirmed);
+    if (view) card.dataset.likelihood = view.likelihood;
+    if (outlook?.leadId === scenario.id) card.dataset.lead = 'true';
     const head = el(doc, 'div', null, 'regime-scenario-head');
-    head.append(el(doc, 'h3', scenario.title), el(doc, 'span', scenario.status, 'regime-scenario-status'));
-    card.append(head, el(doc, 'p', scenario.interpretation, 'regime-scenario-reading'));
-    // P1630: the reading stays visible; conditions, counter-evidence and checks are details on demand
-    // (owner reading standard, 3-5 lines per block). Open state survives the page's re-renders.
+    head.append(el(doc, 'h3', scenario.title), el(doc, 'span', view ? `개연성 ${view.likelihood} · 조건 ${view.met}/${view.total}` : scenario.status, 'regime-scenario-status'));
+    card.append(head);
+    if (view) {
+      card.append(el(doc, 'p', view.posture, 'regime-scenario-reading'));
+      card.append(el(doc, 'p', view.opportunity, 'regime-scenario-opportunity'));
+    } else card.append(el(doc, 'p', scenario.interpretation, 'regime-scenario-reading'));
     const more = el(doc, 'details', null, 'regime-scenario-more');
     more.open = openIds.has(scenario.id);
-    more.append(el(doc, 'summary', '조건 · 반증 · 다음 확인'));
-    more.append(el(doc, 'h4', '유효 조건'));
-    const conditions = el(doc, 'ul'); for (const condition of scenario.conditions) conditions.append(el(doc, 'li', condition)); more.append(conditions);
+    more.append(el(doc, 'summary', '확인할 것 · 조심할 것 · 넘겨도 되는 것'));
+    if (view) {
+      more.append(el(doc, 'p', `개연성 근거: ${view.basis}`, 'regime-scenario-basis'));
+      more.append(listBlock(doc, '확인할 것', view.check), listBlock(doc, '조심할 것', view.caution), listBlock(doc, '넘겨도 되는 것', view.ignore));
+    }
+    more.append(el(doc, 'h4', '이 흐름의 뜻'), el(doc, 'p', scenario.interpretation));
+    more.append(listBlock(doc, '유효 조건', scenario.conditions));
     more.append(el(doc, 'h4', '해석을 뒤집는 관측'), el(doc, 'p', scenario.counterEvidence));
-    more.append(el(doc, 'h4', '다음 확인'));
-    const checks = el(doc, 'ul'); for (const check of scenario.observe) checks.append(el(doc, 'li', check)); more.append(checks);
     card.append(more);
     grid.append(card);
   }
@@ -165,6 +183,7 @@ export function renderRegimePage({ documentRef: doc, root }) {
       return card;
     };
     board.replaceChildren(...regime.axes.filter((row) => row.id !== 'korea').map(card));
+    if (regime.available) renderRegimeRadar({ documentRef: doc, root, inputs, anchor: board }); // P1637
     if (boardKr) {
       boardKr.classList.add('regime-quality-board', 'regime-quality-korea');
       const korea = buildKoreaRegimeObservations(inputs, { through: regime.asOf || null });
@@ -197,7 +216,8 @@ export function renderRegimePage({ documentRef: doc, root }) {
   const previous = page.querySelector('[data-aio-regime-scenarios]');
   const openIds = new Set([...(previous?.querySelectorAll?.('.regime-scenario-more[open]') || [])].map(node => node.closest('.regime-scenario-card')?.dataset.scenario));
   previous?.remove();
-  if (board) board.insertAdjacentElement('afterend', scenarioSection(doc, scenarios, openIds));
+  root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime }) : null;
+  if (board) board.insertAdjacentElement('afterend', scenarioSection(doc, scenarios, root.__aioScenarioOutlook, openIds));
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime }).next); // P1431
   page.dataset.aioRegimeRenderer = 'native';
   return regime;
@@ -279,6 +299,19 @@ export function renderHomeRegime({ documentRef: doc, root }) {
       chip.append(el(doc, 'span', reference ? `${row.title} · 참고` : row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
       return chip;
     }));
+    // P1633: home answers "so what" in one block — the most likely path and what it means.
+    let outlookBox = doc.getElementById('home-outlook');
+    if (!outlookBox) { outlookBox = el(doc, 'div', null, 'home-outlook'); outlookBox.id = 'home-outlook'; chips.insertAdjacentElement('afterend', outlookBox); }
+    const scenarios = regime.available ? buildMarketScenarios(collectMarketInputs(root), { regime }) : null;
+    const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime }) : null;
+    const lead = outlook?.items?.find((item) => item.id === outlook.leadId);
+    outlookBox.hidden = !lead;
+    if (lead) {
+      const more = el(doc, 'button', '세 가지 흐름과 확인할 것 보기 →', 'flow-next-link');
+      more.type = 'button';
+      more.addEventListener('click', () => root.showPage?.('signal'));
+      outlookBox.replaceChildren(el(doc, 'p', outlook.headline, 'home-outlook-lead'), el(doc, 'p', lead.posture, 'home-outlook-posture'), el(doc, 'p', lead.opportunity, 'home-outlook-opportunity'), more);
+    }
   }
   hero.dataset.aioRegimeRenderer = 'native';
   hero.dataset.state = regime.available ? 'regime' : 'pending';

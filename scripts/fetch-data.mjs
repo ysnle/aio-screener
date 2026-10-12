@@ -35,6 +35,9 @@ import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { analysisLevelsAfterLabels, analysisProse } from './lib/market-analysis-numbers.mjs';
+import { buildMarketRegime } from '../src/domain/briefing/market-read.js'; // P1635
+import { buildMarketScenarios, renderMarketScenarioContext } from '../src/domain/market/regime-scenarios.js';
+import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
@@ -3920,7 +3923,11 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   termPremium10:  { id: 'THREEFYTP10',   frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기간 프리미엄 (Kim-Wright)' },
   hyOas:          { id: 'BAMLH0A0HYM2',  frequency: 'daily',   limit: 280, unit: 'percent', label: '하이일드 스프레드' },
   // P1586: investment-grade OAS — the junk-bond component is HY minus IG.
-  igOas:          { id: 'BAMLC0A0CM',    frequency: 'daily',   limit: 280, unit: 'percent', label: '투자등급 회사채 스프레드' }
+  igOas:          { id: 'BAMLC0A0CM',    frequency: 'daily',   limit: 280, unit: 'percent', label: '투자등급 회사채 스프레드' },
+  // P1638: rating tiers — stress usually starts in the weakest borrowers (CCC) before the HY average moves.
+  bbOas:          { id: 'BAMLH0A1HYBB',  frequency: 'daily',   limit: 280, unit: 'percent', label: 'BB 등급 스프레드' },
+  bOas:           { id: 'BAMLH0A2HYB',   frequency: 'daily',   limit: 280, unit: 'percent', label: 'B 등급 스프레드' },
+  cccOas:         { id: 'BAMLH0A3HYC',   frequency: 'daily',   limit: 280, unit: 'percent', label: 'CCC 이하 스프레드' }
 });
 const MACRO_HISTORY_OUT = `${__dir}/../public-data/macro-history.json`;
 
@@ -4080,21 +4087,72 @@ function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketA
   return buildStructuredMarketAnalysis({ data, text: summary, model: 'none', status: 'blocked', reason, metricEvidence, newsEvidence, semantic: { ok: false, issues: [reason], causalEvidenceCount: 0 } });
 }
 
+// P1635: the published narrative read only levels, so it filled its lines with statements such as
+// "the two indicators are different indicators". It now receives the same deterministic regime,
+// scenario and likelihood reading the 시장 상태 screen shows (same domain modules, same completed
+// closes in history.json), and is asked to connect change -> meaning -> path -> what to check.
+export function marketAnalysisRegimeInput(data, history = []) {
+  const macro = data?.macro || {};
+  const num = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+  const hy = num(macro.hyOAS);
+  const hyDelta5 = num(macro.hyOASDelta5);
+  return {
+    history: Array.isArray(history) ? history : [],
+    credit: {
+      hyBp: hy == null ? null : Math.round(hy * 100), hyAsOf: macro._asOf_hyOAS || null,
+      hyDelta5Bp: hyDelta5 == null ? null : Math.round(hyDelta5 * 100),
+      fg: num(data?.fearGreed?.score), fgAsOf: data?.fearGreed?.asOf || null, pcr: null, pcrAsOf: null, aaiiAsOf: null
+    },
+    rates: {
+      realYield10: num(macro.realYield10), realYield10Delta5: num(macro.realYield10Delta5),
+      breakeven10Delta5: num(macro.breakeven10Delta5), dgs2Delta5: num(macro.dgs2Delta5), dgs10Delta5: num(macro.dgs10Delta5),
+      asOf: macro._asOf_realYield10 || macro._asOf_dgs10 || null, realAsOf: macro._asOf_realYield10 || null, breakevenAsOf: macro._asOf_breakeven10 || null
+    }
+  };
+}
+
+export function buildMarketAnalysisRegimeContext(data, history = []) {
+  try {
+    const input = marketAnalysisRegimeInput(data, history);
+    const regime = buildMarketRegime(input);
+    if (!regime?.available) return '';
+    const scenarios = buildMarketScenarios(input, { regime });
+    const axes = (regime.axes || []).map((axis) => `${axis.label || axis.id}: ${axis.state}${axis.read ? ` — ${axis.read}` : ''}`).join('\n');
+    const outlook = buildScenarioOutlook({ scenarios, regime });
+    return [`종합: ${regime.overall} (우호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, axes,
+      renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook)].filter(Boolean).join('\n');
+  } catch (error) {
+    return '';
+  }
+}
+
+async function readHistoryRows() {
+  try {
+    const parsed = JSON.parse(await readFile(HIST, 'utf8'));
+    return Array.isArray(parsed) ? parsed : Array.isArray(parsed?.rows) ? parsed.rows : Array.isArray(parsed?.history) ? parsed.history : [];
+  } catch (_) { return []; }
+}
+
 export async function genMarketAnalysis(data, snapshot = null) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence);
   if (!resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence);
   try {
-    const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
+    const changeOf = new Map((snapshot?.quotes || []).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
+    const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeOf.has(row.evidenceId) ? ` change=${changeOf.get(row.evidenceId) >= 0 ? '+' : ''}${changeOf.get(row.evidenceId).toFixed(2)}% vs previous close` : ''} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
+    const regimeContext = buildMarketAnalysisRegimeContext(data, await readHistoryRows());
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const model = SHARED_AI_MODEL;
     const prompt = [
-      '아래 근거로 시장 요약을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 4~5줄 평문으로 쓴다. Write the whole answer in Korean.',
+      '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 5~7줄 평문으로 쓴다. Write the whole answer in Korean.',
+      '순서: (1) 무엇이 얼마나 바뀌었나(change 값) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름과 개연성(조건 충족 수) (4) 다음에 확인할 것·조심할 것·넘겨도 되는 것 (5) 이 흐름에서 상대적으로 유리할 가능성이 큰 선택과 기회비용. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
+      '매매 지시(특정 가격·수량·시점, 사라/팔아라)는 쓰지 않는다. 가능성과 기회비용(예: "이 흐름이면 현금 비중을 두는 쪽이 유리할 가능성이 높다")으로만 쓴다. 개연성은 규칙 충족 수이며 확률이 아니므로 %로 바꾸지 마라.',
       'session=DELAYED_IN_SESSION/IN_SESSION 값은 "장중"이라고 쓰고 "마감·종가"라고 쓰지 마라. Only MARKET_CLOSED/COMPLETED values may be called a close.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',
-      'Do not merge VIX with Fear&Greed. Do not invent missing values. Return 4-5 concise lines.',
+      'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 5-7 concise lines.',
+      'REGIME_CONTEXT (deterministic reading from the same completed closes the site shows; cite as [regime-context]):\n' + (regimeContext || 'none'),
       'METRIC_EVIDENCE:\n' + evidenceLines,
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none'),

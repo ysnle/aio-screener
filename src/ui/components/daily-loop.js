@@ -3,6 +3,7 @@
 import { buildDailyChanges, buildMyNames } from '../../domain/briefing/daily-diff.js';
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
 import { readMarketRegime } from './market-regime.js';
+import { renderSectorMoves } from './sector-moves.js';
 import { emptyState } from './empty-state.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 
@@ -143,6 +144,7 @@ export function renderDailyLoop({ documentRef: doc, root, store }) {
     news: doc.getElementById('home-my-news')
   };
   const changes = parts.changes ? renderChanges(doc, parts.changes, root?._aioHistory || []) : null;
+  renderSectorMoves({ documentRef: doc, root, anchor: host }); // P1641: after the daily loop grid
   const names = parts.names ? renderMyNames(doc, parts.names, root, store) : null;
   if (parts.schedule) renderSchedule(doc, parts.schedule, root);
   if (parts.news) renderMyNews(doc, parts.news, root, store, names?.names || []);
