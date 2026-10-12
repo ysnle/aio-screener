@@ -1,0 +1,29 @@
+{
+  "version": "v57.46",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.46 소유자 요청: 개인 검색 경로 삭제, 매매 점수 검증 대응, 작업 환경, 남은 구조·품질 작업(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1656,
+    "title": "일봉 보충이 최근 거래일의 정규장 종가 기록을 덮어써 시장 환경 점수가 보류됨",
+    "symptom": "10/12 라이브에서 '10/9 미국 정규장 종가 기준 · 변동성 필수 근거 부족'으로 점수가 보류됐다. 10/12 행에는 07:01 ET VIX 장전 시세 15.48이 완료 종가로 기록됐다.",
+    "root_cause": "필드 하나라도 60행 미만이면 매 실행 1년 일봉 보충이 돌고, 기존 행의 값과 fieldMeta(종가 시각·valueBasis)를 일봉 시작 시각으로 덮어썼다. VIX는 Cboe 연장 시간에도 시세가 나와 장 시작 전 값이 MARKET_CLOSED 완료 종가로 분류됐다.",
+    "fix": "보충은 완료 종가 기록(valueBasis)이 있는 기존 값을 덮어쓰지 않고 빈칸만 채운다. 평일 09:30 ET 이전 미국 지수 시세는 직전 종가로 대체하고 직전 종가가 없으면 기록하지 않는다(usPreOpenIndexPrint).",
+    "violated_rule": "R298/P1345 종가 기준 근거 보존",
+    "prevention": "P1656: node scripts/ci-codex-structure-regression-fixture.mjs",
+    "verification": "장전 VIX 판정 true/종가 false, 보충 비덮어쓰기 소스 단언. 실제 복구는 push 후 producer 실행과 다음 완료 종가에서 확인."
+  },
+  "qa": [
+    {
+      "id": "QA-HISTORY-CLOSE-01",
+      "text": "P1656: history 보충이 완료 종가 근거를 덮어쓰지 않고, 장 시작 전 지수 시세를 종가로 기록하지 않는다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "히스토리 종가 근거",
+  "changelog": [
+    "**종가 근거 보존 (P1656):** 일봉 보충이 최근 정규장 종가 기록을 덮어써 시장 환경 점수가 보류되던 문제와, VIX 장전 시세가 종가로 기록되던 문제를 고쳤다."
+  ]
+}

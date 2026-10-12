@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.45';
+const APP_VERSION = 'v57.46';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -7719,15 +7719,10 @@ window.AIO.getTickerMappingAudit = function() {
 // 트리거 조건 + 누적 호출 횟수 + 사용자 opt-out 상태 검증
 // ─────────────────────────────────────────────────────────────────
 window.AIO.getWebSearchAudit = function() {
+  // P1655: one research transport (shared Worker web search); no user opt-out and no browser-side provider keys.
   var stats = window._aioWebSearchStats || { calls: 0, lastUsedAt: null };
-  var optOut = false;
-  try { optOut = localStorage.getItem('aio_web_search_enabled') === 'off'; } catch(e) {}
-  var hasPerplexity = false;
-  var hasGoogleKey = false;
-  var hasGoogleCx = false;
   var routeState = window._aioLastClaudeRouteState || null;
-  // P1245 (05 A05): 진단은 "가장 최근 스트림"의 기록만 본다. 전역 단일 슬롯은 겹치는 스트림끼리 서로의
-  // 인용을 지웠으므로, 요청별 저장소의 최신 항목을 읽는다.
+  // P1245 (05 A05): 진단은 "가장 최근 스트림"의 기록만 본다.
   var _latestAIStream = (window.AIO && typeof window.AIO.getLatestAIRequestStream === 'function') ? window.AIO.getLatestAIRequestStream() : null;
   var nativeCitations = _latestAIStream && Array.isArray(_latestAIStream.citations) ? _latestAIStream.citations : [];
   var nativeToolError = _latestAIStream ? _latestAIStream.researchError : null;
@@ -7736,48 +7731,21 @@ window.AIO.getWebSearchAudit = function() {
     typeof window.AIO_ARCH.createAIResearchEvidenceDocument === 'function' &&
     typeof window.AIO_ARCH.normalizeAIResearchExecutionResult === 'function' &&
     typeof window.AIO_ARCH.evaluateAIResearchEvidenceFloor === 'function');
-  try {
-    if (typeof _getApiKey === 'function') {
-      hasPerplexity = !!_getApiKey('aio_perplexity_key');
-      hasGoogleKey = !!_getApiKey('aio_google_cse_key');
-      hasGoogleCx = !!_getApiKey('aio_google_cse_cx');
-    }
-  } catch(e) {}
   return {
     status: contractReady ? 'ok' : 'warn',
-    enabled: !optOut,
-    optOut: optOut,
+    enabled: true,
     calls: stats.calls,
     lastUsedAt: stats.lastUsedAt,
     maxUsesPerCall: 2,
     estimatedCostUsd: null, // P1608: client request counts are neither tool usage nor invoices
     helperAvailable: typeof window._shouldUseClaudeWebSearch === 'function',
-    perplexityConfigured: hasPerplexity,
-    googleCseKeyConfigured: hasGoogleKey,
-    googleCseCxConfigured: hasGoogleCx,
-    googleCseReady: hasGoogleKey && hasGoogleCx,
-    externalSearchReady: hasPerplexity || (hasGoogleKey && hasGoogleCx),
-    // Chat route and Research route are separate capabilities. A configured
-    // personal Chat key does not certify external/native Web Research.
+    transport: 'shared-worker',
     chatReadiness: routeState ? (routeState.ok ? 'READY' : routeState.reason || 'NOT_READY') : 'NOT_CHECKED',
-    researchReadiness: (hasPerplexity || (hasGoogleKey && hasGoogleCx)) ? 'EXTERNAL_PROVIDER_READY' : nativeToolReady ? 'NATIVE_TOOL_VERIFIED' : routeState && routeState.reason === 'SHARED_WORKER' ? 'NATIVE_TOOL_UNVERIFIED' : 'NOT_READY',
+    researchReadiness: nativeToolReady ? 'NATIVE_TOOL_VERIFIED' : routeState && routeState.reason === 'SHARED_WORKER' ? 'NATIVE_TOOL_UNVERIFIED' : 'NOT_READY',
     contractReady: contractReady,
     lastPreparation: window._aioLastResearchPreparation || null,
-    lastExecution: window._aioLastResearchAudit || null,
     nativeCitationCount: nativeCitations.length,
     nativeToolErrorCode: nativeToolError ? 'NATIVE_TOOL_ERROR' : null,
-    researchCapability: {
-      provider: hasPerplexity ? 'perplexity' : hasGoogleKey && hasGoogleCx ? 'google-cse' : 'none',
-      routeReady: routeState ? (routeState.ok ? 'READY' : 'NOT_READY') : 'UNKNOWN',
-      authReady: hasPerplexity || (hasGoogleKey && hasGoogleCx) || !!(routeState && routeState.ok) ? 'READY' : 'UNKNOWN',
-      toolReady: hasPerplexity || (hasGoogleKey && hasGoogleCx) || nativeToolReady ? 'READY' : nativeToolError ? 'NOT_READY' : 'UNKNOWN',
-      quotaReady: 'UNKNOWN',
-      supportsCitations: !!(hasPerplexity || (hasGoogleKey && hasGoogleCx) || nativeToolReady),
-      supportsFullContent: !!hasPerplexity,
-      supportsDomainControl: !!(hasPerplexity || (hasGoogleKey && hasGoogleCx)),
-      checkedAt: new Date().toISOString()
-    },
-    note: '사용자 비활성화: localStorage.setItem("aio_web_search_enabled","off"). 활성화 되돌리기: removeItem 또는 "on"',
     generatedAt: new Date().toISOString()
   };
 };
@@ -13558,9 +13526,6 @@ var _AIO_PROVIDER_REGISTRY = [
   { id: 'newsdata', label: 'NewsData.io', credentialKey: 'aio_newsdata_key', inputId: 'aio_newsdata_key_input', kind: 'news', format: 'opaque' },
   { id: 'bok', label: 'BOK ECOS', credentialKey: 'aio_bok_key', inputId: 'aio_bok_key_input', kind: 'macro', format: 'opaque' },
   { id: 'kosis', label: 'KOSIS', credentialKey: 'aio_kosis_key', inputId: 'aio_kosis_key_input', kind: 'macro', format: 'opaque' },
-  // 기존 Google CSE 계정의 선택 검색. 신규 등록은 닫혔으며 공용 AI 유료 검색은 비활성이다.
-  { id: 'google-cse-key', label: 'Google CSE Key', credentialKey: 'aio_google_cse_key', inputId: 'aio_google_cse_key_input', kind: 'search', format: 'opaque' },
-  { id: 'google-cse-cx', label: 'Google CSE Engine ID', credentialKey: 'aio_google_cse_cx', inputId: 'aio_google_cse_cx_input', kind: 'search', format: 'opaque' },
   { id: 'cloudflare-worker', label: 'CF Worker', credentialKey: 'aio_cf_worker_url', inputId: 'aio_cf_worker_input', kind: 'worker', format: 'url' }
 ];
 var _AIO_PROVIDER_BY_KEY = {};
@@ -13920,7 +13885,7 @@ window._aioCollectKeySnapshot = function() {
   var snap = {};
   var keys = (typeof _AIO_PROVIDER_REGISTRY !== 'undefined') ? _AIO_PROVIDER_REGISTRY.map(function(provider) { return provider.credentialKey; }) :
     ['aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
-     'aio_google_cse_key','aio_google_cse_cx','aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_bok_key','aio_kosis_key','aio_cf_worker_url'];
+     'aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_bok_key','aio_kosis_key','aio_cf_worker_url'];
   keys.forEach(function(k) {
     var v = (typeof _getApiKey === 'function') ? _getApiKey(k) : (localStorage.getItem(k) || '');
     if (v) snap[k] = v;
@@ -14516,40 +14481,6 @@ setTimeout(function() {
   }, 5 * 60 * 1000);
 }, 3000);
 
-window._aioWebSearchToggle = function(checked, el) {
-  // checkbox change event — el이 input element
-  var enabled = (checked && typeof checked.checked === 'boolean') ? checked.checked : (el && typeof el.checked === 'boolean') ? el.checked : !!checked;
-  try {
-    if (enabled) localStorage.removeItem('aio_web_search_enabled');
-    else localStorage.setItem('aio_web_search_enabled', 'off');
-  } catch(_e) {}
-  var statusEl = document.getElementById('aio-web-search-status');
-  if (statusEl) {
-    statusEl.textContent = enabled ? 'ON' : 'OFF';
-    statusEl.style.color = enabled ? 'var(--data-green)' : 'var(--text-muted)';
-  }
-  // 위젯 새로고침
-  try { window._aioRefreshAuditWidget(); } catch(_e) {}
-  if (typeof showToast === 'function') {
-    showToast(enabled ? '외부 검색 사용 설정' : '⊘ 외부 검색 비활성화 — 수집 자료 범위만 사용');
-  }
-};
-// 페이지 로드 시 토글 초기 상태 동기화
-setTimeout(function() {
-  try {
-    var t = document.getElementById('aio-web-search-toggle');
-    var status = document.getElementById('aio-web-search-status');
-    if (t) {
-      var disabled = (localStorage.getItem('aio_web_search_enabled') === 'off');
-      t.checked = !disabled;
-      if (status) {
-        status.textContent = disabled ? 'OFF' : 'ON';
-        status.style.color = disabled ? 'var(--text-muted)' : 'var(--data-green)';
-      }
-    }
-  } catch(_e) {}
-}, 2000);
-
 // P1421: AI routing is fixed to the published shared authority.
 // Data-source Worker overrides remain separate.
 window._aioExportKeys = function() {
@@ -14644,8 +14575,6 @@ async function _restoreDecryptedKeys() {
       ['aio_td_key', 'aio_td_key_input'],
       ['aio_fmp_key', 'aio_fmp_key_input'],
       ['aio_perplexity_key', 'aio_perplexity_key_input'],
-      ['aio_google_cse_key', 'aio_google_cse_key_input'],
-      ['aio_google_cse_cx', 'aio_google_cse_cx_input'],
       ['aio_newsdata_key', 'aio_newsdata_key_input'],
       ['aio_rss2json_key', 'aio_rss2json_key_input'],  // v47.9: 기존 누락 보강
       ['aio_bok_key', 'aio_bok_key_input'],

@@ -381,7 +381,8 @@ check('P1245 two interleaved chat streams do not share collected citations',
   && streamContext._aioAIRequestStream(null) === null,
   JSON.stringify({ helpers: streamHelpersReady, a: streamACites, b: streamBCites }));
 // 결속이 판정되려면 호출자가 자기 요청 id를 넘겨야 한다 — 수집만 하고 넘기지 않으면 영원히 UNBOUND다.
-const floorCallSites = chatSource.split('evaluateAIResearchEvidenceFloor({').slice(1);
+// P1655: the browser-side plan search (the only literal floor call) is gone; request-bound gate calls carry the id.
+const floorCallSites = chatSource.split('evaluateAIResearchEvidenceFloor({').slice(1).concat(chatSource.split('_aioEvaluateAIResearchGate({').slice(1));
 check('P1172 every chat evidence-floor call declares the active request id',
   floorCallSites.length >= 1 && floorCallSites.every((chunk) => chunk.slice(0, 400).includes('requestId:')),
   `${floorCallSites.filter((chunk) => !chunk.slice(0, 400).includes('requestId:')).length} of ${floorCallSites.length} evidence-floor calls omit the request id`);
@@ -510,21 +511,16 @@ check('probability-policy-is-strict', /calibrated !== true/.test(core) && /보�
 check('answer-format-is-question-adaptive', !/반드시 \*\*Bull\/Base\/Bear 3 시나리오/.test(chat) && /질문 복잡도에 맞춘다/.test(chat));
 check('research-outage-degrades-instead-of-erasing-answer', /research-evidence-unavailable/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(chat) && /RESEARCH_EVIDENCE_UNAVAILABLE/.test(chat));
 check('research-decision-is-key-independent', /createResearchDecision/.test(read('src/ai/research/decision.js')) && /provider keys,[\s\S]*deliberately not read/i.test(read('src/ai/research/decision.js')));
-check('research-plan-is-wired-to-chat', /_aiResearchPlanSearch/.test(chat) && /researchPlan/.test(chat) && /RESEARCH_RESULTS_EMPTY/.test(chat));
 check('research-capability-is-separate', /getAIResearchCapability/.test(bootstrap) && /validateAIResearchCapability/.test(bootstrap) && /chatReadiness/.test(read('src/ai/research/capability.js')));
 // Both surfaces live in js/aio-chat.js now, so "shared" is asserted by occurrence count, not by file.
-check('research-capability-drives-shared-preparation', (chat.match(/_aioPrepareAIResearch/g) || []).length >= 2 && /externalSearchReady/.test(chat) && /externalEvidenceReady/.test(chat) && /nativeFallbackRequired/.test(chat));
-check('research-document-classification-is-centralized', /createAIResearchEvidenceDocument/.test(chat) && /createAIResearchEvidenceDocument/.test(bootstrap) && /createAIResearchEvidenceDocument/.test(read('src/legacy/compatibility-facade.js')));
+check('research-capability-drives-shared-preparation', (chat.match(/_aioPrepareAIResearch/g) || []).length >= 2 && /nativeFallbackRequired: required && !decision\.userOptOut/.test(chat));
+check('P1655 browser-side search providers are removed', !/_aiWebSearch|_googleSearch|_perplexitySearch|_aiResearchPlanSearch|googleapis\.com\/customsearch/.test(chat) && !/google-query/.test(bootstrap));
 check('P1421: Responses stream failures remain request-bound and cannot certify research', /evt\.type === 'error' \|\| evt\.type === 'response\.failed'/.test(chat) && /_streamState\.researchError = providerError\.message/.test(chat) && /throw new Error\(providerError\.message/.test(chat) && /_aioAIRequestResearchError/.test(chat) && !/window\._aioLastClaudeResearchError/.test(chat));
 check('deep-search-has-no-fixed-year', !/(latest news earnings|policy outlook|geopolitical risk latest|investment trend latest) 2026/.test(chat));
 check('research-gate-shared-by-both-surfaces', /evaluateAIResearchEvidenceFloor/.test(chat) && /_aioEvaluateAIResearchGate/.test(chat) && /_aioPrepareAIResearch/.test(chat));
-check('research-result-canonical-nesting', /researchEvidence:\s*\{[\s\S]*evidenceDocuments:\s*evidenceDocuments/.test(chat) && !/\n\s*evidenceDocuments:\s*evidenceDocuments,\n\s*researchPlanId/.test(chat));
-check('research-failures-retain-subquery-reasons', /subFailures/.test(chat) && /noResults\.failures\s*=\s*subFailures/.test(chat) && /_aioLastResearchAudit/.test(chat));
 // The absence check stays pinned to index.html on purpose: the shell must never hold a global plan
 // again even though the unified surface (which passes its own plan explicitly) now lives in chat.
 check('request-plan-is-explicit-not-global', !chat.includes('_aioActiveQuestionPlan') && !read('index.html').includes('_aioActiveQuestionPlan') && chat.includes('questionPlan: questionPlan') && chat.includes('questionPlan: _uniQuestionPlan'));
-check('research-partial-results-preserve-query-index', /settled\.map\(function\(row, index\)/.test(chat) && /specs\[item\.index\]\.queryId/.test(chat));
-check('research-evidence-preserves-citation-producer-engine', /citationProducer/.test(chat) && /sourceType: citationEngine/.test(chat) && !/sourceType: fulfilled\[0\]\.result\.engine/.test(chat));
 check('fred-official-host-is-correct', read('src/ai/research/evidence.js').includes("'fred.stlouisfed.org'"));
 check('quote-provenance-is-persisted', core.includes('observedAt: observedAt') && core.includes('fetchedAt: fetchedAt') && core.includes('marketState: provenanceOpts.marketState'));
 check('sentiment-does-not-stamp-missing-observation-now', !/raw\[field\.observedAt\]\s*\|\|\s*raw\.now/.test(read('src/data/orchestrators/sentiment.js')));

@@ -130,4 +130,13 @@ assert.equal(accounts.basis, 'CFS'); assert.equal(accounts.current.revenue, 1000
 const { krFundamentalPoints } = await import('../src/domain/entity/kr-fundamentals.js');
 assert.match(krFundamentalPoints({ fiscalYear: 2025, basis: 'CFS', current: { revenue: 2e12, operatingIncome: 2e11 }, prior: { revenue: 1e12 } }).points[0].text, /전년 대비 \+100\.0%/);
 
+// P1655: one research transport — the shared Worker web search; no browser-side Google/Perplexity keys.
+assert.ok(!/aio_google_cse_key_input/.test(shell) && !/_googleSearch|_aiWebSearch/.test(chat), 'P1655: personal search path removed');
+// P1656: history keeps completed-close evidence; pre-open index prints are not closes.
+const { usPreOpenIndexPrint } = await import('./fetch-data.mjs');
+assert.equal(usPreOpenIndexPrint('^VIX', '2026-10-12T11:01:01Z'), true, 'P1656: Monday 07:01 ET VIX is a pre-open print');
+assert.equal(usPreOpenIndexPrint('^VIX', '2026-10-09T20:15:01Z'), false, 'P1656: the 16:15 ET VIX close stays a close');
+const producer = fs.readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+assert.ok(/existing\.fieldMeta\[f\]\?\.valueBasis\) continue;/.test(producer), 'P1656: backfill does not overwrite completed-close evidence');
+
 console.log('codex-structure-regression-fixture: OK');

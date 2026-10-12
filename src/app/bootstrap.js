@@ -37,7 +37,6 @@ import { installResponsiveShell } from '../ui/components/responsive-shell.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
-import { buildGoogleSearchQuery, isGoogleResultAllowed } from '../ai/research/google-query.js';
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { readMarketRegime } from '../ui/components/market-regime.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
@@ -127,8 +126,6 @@ if (typeof window !== 'undefined') {
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
   window.AIO.buildMarketContentContext = buildMarketContentContext;
   window.AIO.buildQuestionDomainContext = buildQuestionDomainContext;
-  window.AIO.buildGoogleSearchQuery = buildGoogleSearchQuery;
-  window.AIO.isGoogleResultAllowed = isGoogleResultAllowed;
   window.AIO.selectNativeSearch = selectNativeSearch;
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;
@@ -623,8 +620,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   function start() {
     let disposed = false;
     const stopColorTheme = documentRef?.body && root?.getComputedStyle ? installColorTheme(root, documentRef) : () => {};
-    // P1653: web search is automatic; an old per-browser opt-out would silently keep it off with no toggle left.
-    try { root.localStorage?.removeItem('aio_web_search_enabled'); } catch (_) { /* storage unavailable */ }
+    // P1653/P1655: web search is automatic through the shared Worker; drop the old opt-out and retired personal search keys.
+    try { ['aio_web_search_enabled', 'aio_google_cse_key', 'aio_google_cse_cx', 'aio_perplexity_key'].forEach((key) => root.localStorage?.removeItem(key)); } catch (_) { /* storage unavailable */ }
     const stopConnectionPanel = installConnectionPanel(root, documentRef);
     const stopAskPanel = installAskPanel(root, documentRef);
     const stopResponsiveShell = documentRef?.querySelector ? installResponsiveShell(root, documentRef) : () => {};

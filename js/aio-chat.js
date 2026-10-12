@@ -2008,7 +2008,6 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   };
   // P1608: reuse the metered route; old Workers receive a text request.
   var searchEnabledNow = opts.webSearch === true;
-  try { if (localStorage.getItem('aio_web_search_enabled') === 'off') searchEnabledNow = false; } catch (_) {}
   if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
   var _claudeHeaders = { 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() };
@@ -2968,7 +2967,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
         var _ccVix = (_ccM && _ccM.vix != null) ? _ccM.vix : ((_ccS && _ccS.vix) || '—');
         var _ccFg = (_ccM && _ccM.fg != null) ? _ccM.fg : ((_ccS && _ccS.fg != null) ? _ccS.fg : '—');
         var _ccFgL = (_ccM && _ccM.fgZoneLabel) ? _ccM.fgZoneLabel : (_ccFg === '—' ? '—' : (Math.round(_ccFg) < 25 ? '극단 공포' : Math.round(_ccFg) < 45 ? '공포' : Math.round(_ccFg) <= 55 ? '중립' : Math.round(_ccFg) <= 75 ? '탐욕' : '극단 탐욕'));
-        _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ') · 트레이딩 스코어 ' + (_ccS && _ccS.score != null ? _ccS.score : '—') + '/100\n\n';
+        _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ')\n\n'; // P1657: the composite score failed validation and is not quoted to users
       }
     } catch(_) {}
     return '\n\n' + _ccHeader + '【사용자가 물어본 종목 source 확인 데이터 (cache hit · 5분 이내)】\n' + cachedBlocks.join('\n') + '\n\nABSOLUTE RULES (R122): 종목 답변은 위 "현재 시장 환경" 인용으로 시작. 캐시는 마지막 관측값의 참고 사본이므로 관측시각·출처를 확인하고 최신성은 원천에서 재검증하라.\n';
@@ -3827,14 +3826,6 @@ function _formatDeepComparePrompt(tickers, deepData) {
   return out;
 }
 
-// ═══ v36.2: Perplexity Sonar AI 웹검색 엔진 ═══════════════════════════
-// 사용자 질문을 분석하여 최신 정보가 필요하면 Perplexity API로 웹검색 후
-// 검색 결과를 시스템 프롬프트에 주입 — AI가 최신 이벤트/뉴스/전망 기반 답변 가능
-
-/**
- * 웹검색이 필요한 질문인지 자동 판단
- * @returns {string|null} 검색 쿼리 또는 null
- */
 // ── 뉴스 컨텍스트 파이프라인 계약 ──────────────────────────────────────────────
 // 공급원 → 소비자 흐름:
 //   newsCache(aio-data.js fetchNews 24h) → _buildNewsContext → LLM 시스템 프롬프트
@@ -4352,102 +4343,16 @@ window._buildChatIntentContext = _buildChatIntentContext;
 window._buildChatAnswerCoverageContext = _buildChatAnswerCoverageContext;
 window._shouldSingleDeepAnalyzeChat = _shouldSingleDeepAnalyzeChat;
 
-function _needsWebSearch(query, ctxId) {
-  var pKey = ''; // Perplexity AI is retired.
-  var gKey = _getApiKey('aio_google_cse_key') || '';
-  var gCx = _getApiKey('aio_google_cse_cx') || '';
-  if (!pKey && !(gKey && gCx)) return null; // 검색 API 없으면 비활성
-
-  var q = query.toLowerCase();
-  var qLen = query.length;
-
-  // ── 검색 불필요: 순수 교육/개념/용어 질문 ──
-  var eduOnly = /^(PER|PBR|EPS|ROE|RSI|MACD|볼린저|이동평균|골든크로스|DCF|밸류에이션|배당|옵션|콜|풋|그릭스|델타|감마|세타|베가|캐리.*트레이드|공매도|시가총액|베타|샤프).*?(이란|뭐야|뭐지|설명|알려|개념|정의)/i;
-  if (eduOnly.test(q)) return null;
-  // 짧은 개념 질문 (15자 미만 + 순수 개념어만)
-  if (qLen < 15 && /뭐야|뭐지|뭔가요|알려줘|설명|개념|정의/.test(q) && !/어때|어떻|전망|분석|지금|살까|팔까|매수|매도/.test(q)) return null;
-
-  // v46.10: 티커/종목명 감지 시 항상 웹검색 (환각 방지 핵심)
-  var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
-  if (hasTicker) return _buildSearchQuery(query, ctxId);
-  // 짧은 질문이라도 "어때/전망/분석/지금" 포함 시 검색
-  if (/어때|어떻|전망|분석|지금|살까|팔까|매수|매도|상황/.test(q)) return _buildSearchQuery(query, ctxId);
-
-  // ── 검색 필요 패턴 ──
-  var searchPatterns = [
-    /최근|최신|오늘|어제|이번\s*주|이번\s*달|금주|지난주|올해|방금|지금|현재.*상황|latest|recent|today|this week|what happened/,
-    /(실적|어닝|earnings|분기|매출|revenue).*(발표|결과|서프라이즈|미스|beat|miss|guidance|가이던스)/,
-    /전망|예상|예측|forecast|outlook|target|목표가|컨센서스|consensus|애널리스트|analyst|월가|wall street|향후|내년|다음\s*분기/,
-    /(FOMC|연준|Fed|금리.*결정|파월|Powell|트럼프|관세|tariff|제재|sanction|전쟁|충돌|선거|법안).*(결과|발표|영향|반응|대응|어떻|어때|뭐|소식|상황)/,
-    /IPO|상장|인수|합병|M&A|분할|스핀오프|구조조정|파산|bankruptcy|takeover|merger|acquisition/,
-    /왜.*(올|떨|빠|상승|하락|급등|급락|폭락|폭등)|why.*(up|down|surge|crash|drop|rally|rise|fall|plunge)/,
-    /규제|법안|SEC|금감원|금융위|공정위|반독점|antitrust|regulation|제재|ban|금지/,
-    /(AI|인공지능|반도체|2차전지|방산|조선|바이오|우주|로봇|양자).*(트렌드|동향|전망|현황|최신|뉴스|소식|상황)/,
-    /검색|찾아|search|look up|알아봐|조사|뉴스|news/,
-    // v36.5: 시장 내러티브·이벤트·컨퍼런스 감지
-    /내러티브|narrative|테마\s*플레이|theme\s*play|스토리|모멘텀\s*시프트|패러다임|게임\s*체인저|턴어라운드/i,
-    /GTC|CES|MWC|WWDC|re:Invent|AWS\s*summit|Google\s*I\/O|Build|Ignite|F8|Galaxy\s*Unpacked|SEMICON|IEDM|Hot\s*Chips|OFC|Computex|E3|gamescom|IFA|NAB\s*Show|JPM\s*Healthcare|ASCO|AACR|RSA|Black\s*Hat|DEFCON|Davos|Jackson\s*Hole|OPEC/i,
-    /사스포칼립스|SaaS.?ocalypse|turbo\s*quant|ARM\s*everywhere|magnificent\s*7|mag\s*7|AI\s*bubble|AI\s*winter|soft\s*landing|hard\s*landing|no\s*landing|골디락스|goldilocks|재팬니피케이션|japanification|디커플링|de.?coupling|리쇼어링|re.?shoring|프렌드쇼어링|friend.?shoring|차이나\s*리스크|china\s*risk/i,
-    /밈\s*주|meme\s*stock|숏\s*스퀴즈|short\s*squeeze|감마\s*스퀴즈|gamma|데스\s*크로스|death\s*cross|골든\s*크로스|golden\s*cross|힌덴부르크|hindenburg|블랙\s*스완|black\s*swan|테일\s*리스크|tail\s*risk|VIX\s*spike|변동성\s*폭발/i,
-    /컨퍼런스|conference|서밋|summit|키노트|keynote|발표회|런칭|launch|데모\s*데이|demo\s*day|IR\s*day|analyst\s*day|investor\s*day|capital\s*markets\s*day/i,
-    /월가.*말|street.*says|sell.?side|buy.?side|헤지펀드|hedge\s*fund|골드만|morgan\s*stanley|jp\s*morgan|뱅크오브|bank\s*of\s*america|시타델|citadel|bridgewater|워런.*버핏|buffett|캐시.*우드|cathie|ark\s*invest|소로스|soros|달리오|dalio|드러켄밀러|druckenmiller|애크먼|ackman/i
-  ];
-
-  for (var i = 0; i < searchPatterns.length; i++) {
-    if (searchPatterns[i].test(q)) return _buildSearchQuery(query, ctxId);
-  }
-
-  // 긴 질문(50자+)에서 기업명+이벤트 조합
-  if (qLen > 50) {
-    var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
-    var hasEvent = /실적|뉴스|소식|이슈|리스크|촉매|카탈리스트|이벤트|변수|전망|타겟|목표|내러티브|테마|스토리/i.test(q);
-    if (hasTicker && hasEvent) return _buildSearchQuery(query, ctxId);
-  }
-
-  // v36.5: 영어 고유명사(3글자+대문자 시작) + 시장 맥락어 → 외부 내러티브 가능성
-  if (/[A-Z][a-zA-Z]{2,}\s+(effect|thesis|trade|play|rotation|rally|selloff|narrative|momentum|cycle)/i.test(q)) {
-    return _buildSearchQuery(query, ctxId);
-  }
-  return null;
-}
-
 // ─────────────────────────────────────────────────────────────────
 // P1608: provider-neutral source-first choice; the Worker owns admission.
 function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers, questionPlan, researchState) {
   window._aioWebSearchCapped = false;
-  var optedOut = false;
-  try { optedOut = localStorage.getItem('aio_web_search_enabled') === 'off'; } catch (_) {}
   var route = window._aioLastClaudeRouteState;
   return !!window.AIO?.selectNativeSearch?.({ decision: questionPlan?.researchDecision, questionPlan: questionPlan, externalResult: researchState?.externalResult,
     preparation: researchState?.preparation, internalEvidenceReady: researchState?.internalEvidenceReady, internalReferenceEvidence: researchState?.internalReferenceEvidence,
-    optedOut: optedOut, health: route?.health });
+    health: route?.health });
 }
 window._shouldUseClaudeWebSearch = _shouldUseClaudeWebSearch;
-
-/** 검색 쿼리 최적화 — v36.5: 내러티브/이벤트 컨텍스트 강화 */
-function _buildSearchQuery(query, ctxId) {
-  var tickers = typeof _extractTickers === 'function' ? _extractTickers(query) : [];
-  var tickerStr = tickers.length > 0 ? tickers.join(' ') + ' ' : '';
-  var prefix = '';
-  if (/^kr/.test(ctxId)) prefix = '한국 증시 ';
-  var cleaned = query.replace(/해줘|해주세요|알려줘|알려주세요|설명해|분석해|어때|어떻게|좀|요$|인가요|인가$|줘$|주세요$/g, '').replace(/\s+/g, ' ').trim();
-
-  // v36.5: 내러티브/이벤트 쿼리면 "시장 내러티브" 컨텍스트 추가
-  var isNarrative = /내러티브|narrative|테마.*플레이|스토리|모멘텀|패러다임|게임.*체인저|컨퍼런스|summit|GTC|CES|WWDC|사스포칼립스|turbo|ARM.*every|mag.*7|골디락스|soft.*land|hard.*land/i.test(query);
-  var isWallStreet = /월가|hedge.*fund|골드만|morgan|jp.*morgan|버핏|buffett|cathie|ark.*invest|소로스|달리오|드러켄밀러|애크먼/i.test(query);
-
-  if (isNarrative) {
-    prefix += '시장 내러티브 ';
-  } else if (isWallStreet) {
-    prefix += '월가 투자 견해 ';
-  }
-
-  // Keep structured query context intact. The ResearchPlan owns the query
-  // budget and sub-query count; truncating the tail here can remove the
-  // entity, period, or counter-hypothesis that made research necessary.
-  var result = (prefix + tickerStr + cleaned).slice(0, 600);
-  return result;
-}
 
 function _aioCanonicalResearchUrl(value) {
   try {
@@ -4458,75 +4363,12 @@ function _aioCanonicalResearchUrl(value) {
   } catch (_) { return ''; }
 }
 
-function _aioResearchResultUsable(result) {
-  var citations = Array.isArray(result && result.citations) ? result.citations : [];
-  return !!(result && String(result.answer || '').trim() && citations.some(function(item) {
-    return !!_aioCanonicalResearchUrl(typeof item === 'string' ? item : item && item.url);
-  }));
-}
-
-function _aioRecordExternalSearchAudit(query, status, result, failures) {
-  _aioSetChatRuntimeState('_aioLastExternalSearch', {
-    query: String(query || '').slice(0, 600),
-    status: status,
-    engine: result && result.engine || null,
-    citations: result && Array.isArray(result.citations) ? result.citations.slice(0, 12) : [],
-    failures: Array.isArray(failures) ? failures.slice(0, 8) : [],
-    recordedAt: new Date().toISOString()
-  });
-}
-
-/** Perplexity Sonar API 호출 */
-async function _perplexitySearch(searchQuery, searchOptions) {
-  _aioThrowIfChatAborted(searchOptions && searchOptions.signal);
-  return null; // Retired AI provider; all inference uses shared GPT-6 Luna.
-}
-
-/** 검색 결과 → 시스템 프롬프트 주입 문자열 — v36.5: 내러티브 중심 지시 강화 */
-function _formatSearchForPrompt(sr) {
-  if (!sr || !sr.answer) return '';
-  var engineLabel = sr.engine === 'perplexity' ? 'Perplexity Sonar — AI 요약' : 'Google Search — 검색 결과';
-  var out = '\n\n【웹검색 결과 (' + engineLabel + ')】\n';
-  out += '검색어: "' + sr.searchQuery + '"\n';
-  out += '───────────────────────────────\n';
-  out += sr.answer + '\n';
-  if (sr.citations && sr.citations.length > 0) {
-    out += '\n 출처:\n';
-    for (var i = 0; i < Math.min(sr.citations.length, 5); i++) {
-      out += '  [' + (i+1) + '] ' + (typeof sr.citations[i] === 'string' ? sr.citations[i] : sr.citations[i].url || '') + '\n';
-    }
-  }
-  var evidenceDocuments = sr.researchEvidence && Array.isArray(sr.researchEvidence.evidenceDocuments)
-    ? sr.researchEvidence.evidenceDocuments : [];
-  if (evidenceDocuments.length) {
-    out += '\n AnswerPlan Evidence IDs:\n';
-    evidenceDocuments.slice(0, 12).forEach(function(doc) {
-      out += '  - evidenceId=' + doc.documentId + ' source=' + (doc.publisher || doc.canonicalUrl || 'web-research') + ' depth=' + (doc.contentDepth || 'unknown') + '\n';
-    });
-  }
-  out += '───────────────────────────────\n';
-  if (sr.engine === 'google') {
-    out += '위는 Google 검색 스니펫이다. 스니펫은 탐색 후보이며 구체 수치·가이던스·인과를 단독 확정 근거로 사용하지 말라. 원문·공식 자료가 확인되지 않으면 확인 불가로 표시하라. 모델 기억은 최신 사실 검증 수단으로 사용하지 말라.\n';
-  } else {
-    out += '위는 검색 공급자의 요약이다. 검색 시각과 사건·공시 시각을 구분하고 원문과 대조하라. 확인된 사실, 해석, 미확인 부분을 구분하여 답변하라.\n';
-  }
-  // v36.5: 내러티브/이벤트 중심 활용 지시
-  out += '\n【외부 내러티브 활용 원칙】\n';
-  out += '검색 결과에서 아래 유형의 정보를 우선적으로 추출하여 답변에 반영하라:\n';
-  out += '① 시장 내러티브/테마: 월가에서 현재 유행하는 투자 테시스, 트레이드 아이디어, 내러티브 (예: "SaaS-ocalypse", "ARM everywhere", "Mag 7 rotation", "AI capex cycle", "soft landing trade")\n';
-  out += '② 주요 컨퍼런스/이벤트 시사점: GTC, CES, WWDC, re:Invent, JPM Healthcare, ASCO 등에서 발표된 핵심 내용과 시장 반응\n';
-  out += '③ 투자 대가/기관 포지션 변화: 버핏, 소로스, 달리오, ARK, 주요 헤지펀드의 최근 매매 동향과 투자 견해\n';
-  out += '④ 이벤트 드리븐: 규제 변화, 지정학 이벤트, 정책 전환이 만드는 새로운 투자 기회/리스크\n';
-  out += '이 정보들은 검색 API 없이는 LLM이 알 수 없는 "외부에서만 얻을 수 있는 정보"이다. 학습 데이터에 있는 일반 지식이 아닌, 검색으로 얻은 최신 외부 내러티브를 답변의 핵심 소재로 활용하라.\n';
-  return out;
-}
-
 /** 검색 출처 → UI HTML */
 function _searchCitationsHTML(sr) {
   if (!sr || !sr.citations || sr.citations.length === 0) return '';
   var html = '<div class="aio-search-sources" style="margin-top:6px;padding:8px;border-left:2px solid var(--accent);border-radius:0 4px 4px 0;font-size:12px;min-width:0;">';
   // v50.10: OpenAI 웹검색 출처도 동일 렌더 (engine === 'claude')
-  var engName = sr.engine === 'perplexity' ? 'Perplexity' : sr.engine === 'claude' ? 'AI 웹검색' : 'Google';
+  var engName = sr.engine === 'claude' ? 'AI 웹검색' : 'Web Research';
   html += '<div style="color:var(--text-secondary);font-weight:600;margin-bottom:3px;">' + engName + ' 참고 링크</div>';
   html += '<div style="color:var(--text-muted);margin-bottom:4px;">검색된 링크이며, 답변의 근거로 검증됐다는 뜻은 아닙니다.</div>';
   var seen = {};
@@ -4546,373 +4388,29 @@ function _searchCitationsHTML(sr) {
   return html;
 }
 
-/** Existing Google Custom Search accounts only; new enrollment is closed. */
-async function _googleSearch(searchQuery, searchOptions) {
-  _aioThrowIfChatAborted(searchOptions && searchOptions.signal);
-  var apiKey = _getApiKey('aio_google_cse_key') || '';
-  var cx = _getApiKey('aio_google_cse_cx') || '';
-  if (!apiKey || !cx) throw new Error('Google Search API 키 또는 검색엔진 ID 없음');
-  // v48.9: 공유 키 쿼터 사전 체크 (100/day 도달 시 차단)
-  if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('googleCse')) throw new Error('Google Search 일일 한도(100/day) 도달 — 24h 후 리셋');
-
-  var queryPolicy = window.AIO.buildGoogleSearchQuery(searchQuery, searchOptions || {});
-  var locale = searchOptions && searchOptions.locale === 'en-US' ? '&hl=en&gl=us' : searchOptions && searchOptions.locale === 'ko-KR' ? '&hl=ko&gl=kr' : '';
-  var url = 'https://www.googleapis.com/customsearch/v1?key=' + encodeURIComponent(apiKey) +
-    '&cx=' + encodeURIComponent(cx) +
-    '&q=' + encodeURIComponent(queryPolicy.query) +
-    '&num=5' + locale + (queryPolicy.dateRestrict ? '&dateRestrict=' + queryPolicy.dateRestrict : '');
-
-  var res = await fetch(url, { signal: searchOptions && searchOptions.signal });
-  if (!res.ok) {
-    var errText = await res.text();
-    throw new Error('Google Search API (' + res.status + '): ' + errText.substring(0, 100));
-  }
-  if (typeof _bumpApiCounter === 'function') _bumpApiCounter('googleCse');
-
-  var data = await res.json();
-  _aioThrowIfChatAborted(searchOptions && searchOptions.signal);
-  var items = (Array.isArray(data.items) ? data.items : []).filter(function(item) { return window.AIO.isGoogleResultAllowed(item.link, queryPolicy.domains); });
-
-  // 검색 결과를 Perplexity와 동일한 형태로 변환
-  var answer = '';
-  var citations = [];
-  for (var i = 0; i < Math.min(items.length, 5); i++) {
-    var item = items[i];
-    citations.push(item.link || '');
-    answer += '**[' + (i+1) + '] ' + (item.title || '') + '**\n';
-    answer += (item.snippet || '') + '\n\n';
-  }
-
-  return { answer: answer, citations: citations, searchQuery: searchQuery, engine: 'google' };
-}
-
-/**
- * 통합 검색 디스패처 — 우선순위: Perplexity > Google > 없음
- * Perplexity 키 있으면 Perplexity 사용 (AI 요약+출처)
- * Google 키만 있으면 Google 사용 (스니펫+출처)
- * 둘 다 없으면 검색 비활성
- */
-async function _aiWebSearch(searchQuery, searchOptions) {
-  searchOptions = searchOptions || {};
-  _aioThrowIfChatAborted(searchOptions.signal);
-  var providerFailures = [];
-  // 1순위: Perplexity Sonar (AI 요약 포함)
-  var pKey = ''; // Perplexity AI is retired.
-  if (pKey) {
-    try {
-      var pResult = await _aioRunChatTask(function(signal) { return _perplexitySearch(searchQuery, Object.assign({}, searchOptions, { signal: signal })); }, searchOptions);
-      pResult.engine = 'perplexity';
-      if (_aioResearchResultUsable(pResult)) {
-        _aioRecordExternalSearchAudit(searchQuery, 'READY', pResult, providerFailures);
-        return pResult;
-      }
-      var emptyPerplexity = new Error('Perplexity returned empty answer or no HTTPS citations');
-      emptyPerplexity.code = 'EMPTY_RESULT';
-      providerFailures.push(_aioNormalizeResearchProviderFailure('perplexity', emptyPerplexity));
-    } catch(e) {
-      if (e && (e.name === 'AbortError' || e.code === 'ABORTED') || searchOptions.signal && searchOptions.signal.aborted) throw _aioChatAbortError(searchOptions.signal && searchOptions.signal.reason || 'aborted');
-      _aioLog('warn', 'fetch', 'Perplexity 실패, Google 폴백 시도: ' + e.message);
-      providerFailures.push(_aioNormalizeResearchProviderFailure('perplexity', e));
-    }
-  }
-
-  // 2순위: Google Custom Search (스니펫만)
-  var gKey = _getApiKey('aio_google_cse_key') || '';
-  var gCx = _getApiKey('aio_google_cse_cx') || '';
-  if (gKey && gCx) {
-    try {
-      var gResult = await _aioRunChatTask(function(signal) { return _googleSearch(searchQuery, Object.assign({}, searchOptions, { signal: signal })); }, searchOptions);
-      if (_aioResearchResultUsable(gResult)) {
-        _aioRecordExternalSearchAudit(searchQuery, 'READY', gResult, providerFailures);
-        return gResult;
-      }
-      providerFailures.push({ provider: 'google-cse', code: 'EMPTY_RESULT' });
-    } catch(e) {
-      if (e && (e.name === 'AbortError' || e.code === 'ABORTED') || searchOptions.signal && searchOptions.signal.aborted) throw _aioChatAbortError(searchOptions.signal && searchOptions.signal.reason || 'aborted');
-      _aioLog('warn', 'fetch', 'Google Search 실패: ' + e.message);
-      providerFailures.push(_aioNormalizeResearchProviderFailure('google-cse', e));
-    }
-  }
-
-  var providerError = new Error(providerFailures.length
-    ? 'RESEARCH_PROVIDER_FAILED: 구성된 외부 검색 공급자 요청이 실패했습니다.'
-    : 'RESEARCH_PROVIDER_UNAVAILABLE: 완전한 Google CSE 설정이 없습니다.');
-  providerError.code = providerFailures.length ? 'RESEARCH_PROVIDER_FAILED' : 'RESEARCH_PROVIDER_UNAVAILABLE';
-  providerError.failures = providerFailures;
-  _aioRecordExternalSearchAudit(searchQuery, providerError.code, null, providerFailures);
-  throw providerError;
-}
-
-function _aioNormalizeResearchProviderFailure(provider, error) {
-  var message = String(error && error.message || error || 'provider_failed');
-  var statusMatch = message.match(/\b(400|401|403|408|429|500|502|503|504|529)\b/);
-  var code = statusMatch ? 'HTTP_' + statusMatch[1]
-    : /timeout|abort/i.test(message) ? 'TIMEOUT'
-    : /cors|origin|forbidden/i.test(message) ? 'ORIGIN_OR_PERMISSION'
-    : /quota|limit|too many/i.test(message) ? 'QUOTA'
-    : 'PROVIDER_ERROR';
-  return { provider: provider, code: code };
-}
-
 function _aioResearchFailureForUser(error) {
   var code = error && error.code || 'RESEARCH_PROVIDER_ERROR';
   var messages = {
     DISABLED_BY_USER: 'Web Research가 사용자 설정에서 비활성화되어 있습니다.',
-    RESEARCH_PLAN_EMPTY: '검색 계획을 만들지 못했습니다.',
-    RESEARCH_PROVIDER_UNAVAILABLE: '외부 검색 연결이 없어 최신 출처를 확인하지 못했습니다. 수집된 자료 범위만 사용할 수 있습니다.',
-    RESEARCH_PROVIDER_FAILED: '구성된 외부 검색 공급자 요청이 실패했습니다.',
-    RESEARCH_RESULTS_EMPTY: '모든 Research 하위 검색이 실패했습니다.',
     RESEARCH_TIMEOUT: 'Web Research가 제한 시간 안에 완료되지 않았습니다.'
   };
   return messages[code] || 'Web Research 공급자 또는 출처 검증에 실패했습니다.';
 }
 
-function _aioGetResearchCapabilitySnapshot() {
-  var pKey = ''; // Perplexity AI is retired.
-  var gKey = _getApiKey('aio_google_cse_key') || '';
-  var gCx = _getApiKey('aio_google_cse_cx') || '';
-  var audit = null;
-  try { audit = window.AIO && typeof window.AIO.getWebSearchAudit === 'function' ? window.AIO.getWebSearchAudit() : null; } catch(_) {}
-  var externalSearchReady = !!(pKey || (gKey && gCx));
-  return {
-    externalSearchReady: externalSearchReady,
-    externalProvider: pKey ? 'perplexity' : (gKey && gCx) ? 'google-cse' : 'none',
-    nativeRouteReadiness: audit && audit.researchReadiness || 'NOT_CHECKED',
-    nativeCandidate: false, // Paid native research is disabled by shared budget policy.
-    checkedAt: new Date().toISOString()
-  };
-}
-
-// ResearchPlan-owned multi-query adapter. Results remain separated by
-// sub-query so later claim/evidence binding can identify which query produced
-// each citation; a flattened prose blob is not treated as a verified claim.
-async function _aiResearchPlanSearch(researchPlan, options) {
-  options = options || {};
-  _aioThrowIfChatAborted(options.signal);
-  var specs = researchPlan && Array.isArray(researchPlan.subQueries) ? researchPlan.subQueries : [];
-  if (!specs.length) {
-    var emptyPlan = new Error('RESEARCH_PLAN_EMPTY');
-    emptyPlan.code = 'RESEARCH_PLAN_EMPTY';
-    throw emptyPlan;
-  }
-  var settled = await Promise.allSettled(specs.map(function(spec) {
-    return _aiWebSearch(spec.query, { locale: spec.locale, allowedDomains: spec.allowedDomains, recency: spec.recency, lookbackDays: spec.lookbackDays, planId: researchPlan.planId, session: researchPlan.eventWindow && researchPlan.eventWindow.asOf, signal: options.signal });
-  }));
-  _aioThrowIfChatAborted(options.signal);
-  var fulfilled = settled.map(function(row, index) { return { row: row, index: index }; }).filter(function(item) {
-    return item.row.status === 'fulfilled' && _aioResearchResultUsable(item.row.value);
-  }).map(function(item) {
-    return { queryId: specs[item.index].queryId, purpose: specs[item.index].purpose, result: item.row.value };
-  });
-  var subFailures = settled.map(function(row, index) { return { row: row, index: index }; }).filter(function(item) {
-    return item.row.status === 'rejected' || !_aioResearchResultUsable(item.row.value);
-  }).map(function(item) {
-    var reason = item.row.status === 'rejected' ? item.row.reason : null;
-    return {
-      queryId: specs[item.index].queryId,
-      purpose: specs[item.index].purpose,
-      code: reason && reason.code || 'EMPTY_RESULT',
-      providers: reason && Array.isArray(reason.failures) ? reason.failures : []
-    };
-  });
-  _aioSetChatRuntimeState('_aioLastResearchAudit', {
-    planId: researchPlan.planId,
-    requested: specs.length,
-    fulfilled: fulfilled.length,
-    failed: subFailures.length,
-    failures: subFailures,
-    checkedAt: new Date().toISOString()
-  });
-  if (!fulfilled.length) {
-    var noResults = new Error('RESEARCH_RESULTS_EMPTY: 모든 Research 하위 검색이 실패했습니다.');
-    noResults.code = 'RESEARCH_RESULTS_EMPTY';
-    noResults.failures = subFailures;
-    throw noResults;
-  }
-  var citations = [];
-  function citationUrl(item) { return _aioCanonicalResearchUrl(typeof item === 'string' ? item : item && item.url); }
-  var answer = fulfilled.map(function(item) {
-    var result = item.result;
-    (result.citations || []).forEach(function(item) { var url = citationUrl(item); if (url && citations.indexOf(url) < 0) citations.push(url); });
-    return '[' + item.queryId + '|' + item.purpose + ']\n' + result.answer;
-  }).join('\n\n');
-  var sourceHosts = {};
-  var evidenceDocuments = citations.slice(0, 12).map(function(url, index) {
-    var host = '';
-    try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch(_) { host = String(url || ''); }
-    sourceHosts[host] = true;
-    var citationProducer = fulfilled.find(function(item) { return (item.result.citations || []).some(function(candidate) { return citationUrl(candidate) === url; }); });
-    var citationEngine = citationProducer && citationProducer.result.engine || 'research-plan';
-    var snippetOnly = citationEngine === 'google';
-    var documentInput = {
-      documentId: 'web:' + index + ':' + host,
-      canonicalUrl: url,
-      publisher: host,
-      contentDepth: snippetOnly ? 'SNIPPET' : 'EXCERPT',
-      rights: 'PUBLIC_REFERENCE',
-      sourceType: citationEngine
-    };
-    if (window.AIO_ARCH && typeof window.AIO_ARCH.createAIResearchEvidenceDocument === 'function') {
-      return window.AIO_ARCH.createAIResearchEvidenceDocument(documentInput);
-    }
-    return Object.assign(documentInput, {
-      sourceTier: 'SECONDARY',
-      primaryOrSecondary: 'SECONDARY',
-      allowedUse: snippetOnly ? 'reference-only' : 'review-required'
-    });
-  });
-  var independentSourceCount = Object.keys(sourceHosts).filter(Boolean).length;
-  var primarySourceCount = evidenceDocuments.filter(function(doc) { return doc.primaryOrSecondary === 'PRIMARY'; }).length;
-  var substantive = evidenceDocuments.filter(function(doc) { return doc.contentDepth !== 'SNIPPET' && doc.contentDepth !== 'SUMMARY' && doc.rights !== 'BLOCKED'; });
-  var substantiveHosts = new Set(substantive.map(function(doc) { return doc.publisher; }));
-  var substantivePrimary = new Set(substantive.filter(function(doc) { return doc.primaryOrSecondary === 'PRIMARY'; }).map(function(doc) { return doc.publisher; }));
-  var currentClaimsAllowed = substantive.length > 0 &&
-    substantiveHosts.size >= Number(researchPlan.stopConditions && researchPlan.stopConditions.minimumIndependentSources || 0) &&
-    substantivePrimary.size >= Number(researchPlan.stopConditions && researchPlan.stopConditions.minimumPrimarySources || 0);
-  return {
-    answer: answer,
-    citations: citations.slice(0, 12),
-    searchQuery: specs.map(function(spec) { return spec.query; }).join(' | '),
-    engine: fulfilled[0].result.engine || 'research-plan',
-    subResults: fulfilled,
-    researchPlanId: researchPlan.planId,
-    researchStatus: fulfilled.length === specs.length ? 'RESULTS_FOUND' : 'PARTIAL_RESULTS',
-    subFailures: subFailures,
-    researchEvidence: {
-      evidenceDocuments: evidenceDocuments,
-      independentSourceCount: independentSourceCount,
-      primarySourceCount: primarySourceCount,
-      currentClaimsAllowed: currentClaimsAllowed
-    }
-  };
-}
-
+// P1655 (owner 2026-10-12): the browser-side Google CSE/Perplexity path is removed. Current-information research
+// runs only through the shared Worker's web search, so a required question always hands off to that transport.
 async function _aioPrepareAIResearch(questionPlan, options) {
   options = options || {};
-  var researchSignal = options.signal;
-  _aioThrowIfChatAborted(researchSignal);
+  _aioThrowIfChatAborted(options.signal);
   var decision = questionPlan && questionPlan.researchDecision || null;
   var plan = questionPlan && questionPlan.researchPlan || null;
   var required = !!(decision && decision.requirement === 'REQUIRED');
-  var capability = _aioGetResearchCapabilitySnapshot();
-  var prepared = {
-    planId: plan && plan.planId || null,
-    required: required,
-    plan: plan,
-    capability: capability,
-    externalResult: null,
-    externalEvidenceReady: false,
-    failure: null,
-    nativeFallbackRequired: false,
-    cancelled: false
-  };
-  function finalizePreparation() {
-    _aioSetChatRuntimeState('_aioLastResearchPreparation', {
-      planId: plan && plan.planId || null,
-      required: prepared.required,
-      externalProvider: capability.externalProvider,
-      externalReady: capability.externalSearchReady,
-      externalEvidenceReady: prepared.externalEvidenceReady,
-      nativeFallbackRequired: prepared.nativeFallbackRequired,
-      cancelled: prepared.cancelled === true,
-      failureCode: prepared.failure && prepared.failure.code || null,
-      checkedAt: new Date().toISOString()
-    });
-    return prepared;
-  }
-  if (!required) return finalizePreparation();
-  if (decision.userOptOut) {
-    prepared.failure = { code: 'DISABLED_BY_USER', message: _aioResearchFailureForUser({ code: 'DISABLED_BY_USER' }) };
-    return finalizePreparation();
-  }
-  if (plan && capability.externalSearchReady) {
-    try {
-      prepared.externalResult = await _aiResearchPlanSearch(plan, { signal: researchSignal });
-      if (window.AIO_ARCH && typeof window.AIO_ARCH.evaluateAIResearchEvidenceFloor === 'function') {
-        prepared.externalEvidenceReady = window.AIO_ARCH.evaluateAIResearchEvidenceFloor({
-          questionPlan: questionPlan,
-          required: true,
-          // P1245 (05 A05): 사전 준비 단계에는 아직 요청 객체가 없다. 공유 전역에서 id를 빌려 오면 다른
-          // 요청의 id로 결속을 "확인"한 것처럼 보이므로, 호출자가 실제로 넘긴 id만 쓴다(모르면 null →
-          // UNVERIFIABLE). 권위 있는 결속 판정은 onDone의 evidence gate가 자기 요청 id로 수행한다.
-          requestId: options.requestId || null,
-          externalResult: prepared.externalResult
-        }).ready === true;
-      }
-    } catch(error) {
-      if ((error && error.name === 'AbortError') || (researchSignal && researchSignal.aborted)) {
-        prepared.cancelled = true;
-        prepared.failure = { code: 'CANCELLED', message: 'web_research_cancelled' };
-        prepared.nativeFallbackRequired = false;
-        return finalizePreparation();
-      }
-      prepared.failure = { code: error.code || 'RESEARCH_PROVIDER_ERROR', message: _aioResearchFailureForUser(error), failures: error.failures || [] };
-    }
-  } else if (!capability.externalSearchReady) {
-    prepared.failure = { code: 'RESEARCH_PROVIDER_UNAVAILABLE', message: _aioResearchFailureForUser({ code: 'RESEARCH_PROVIDER_UNAVAILABLE' }) };
-  }
-  _aioThrowIfChatAborted(researchSignal);
-  prepared.nativeFallbackRequired = !prepared.externalEvidenceReady;
-  return finalizePreparation();
-}
-
-// v46.2: Deep Search — 복합 질문을 3~5개 하위 쿼리로 분해 + 병렬 검색 + 종합
-async function _aiDeepSearch(query, ctxId) {
-  var options = arguments.length > 2 && arguments[2] ? arguments[2] : {};
-  _aioThrowIfChatAborted(options.signal);
-  var pKey = ''; // Perplexity AI is retired.
-  var gKey = _getApiKey('aio_google_cse_key') || '';
-  var gCx = _getApiKey('aio_google_cse_cx') || '';
-  if (!pKey && !(gKey && gCx)) return null;
-
-  // 질문 분해: 메인 쿼리 + 관련 보조 쿼리 생성
-  var currentDate = new Date().toISOString().slice(0, 10);
-  var subQueries = [query]; // 원본 쿼리는 항상 포함
-  var q = query.toLowerCase();
-
-  // 티커 감지 시 → 해당 종목 최신 뉴스 + 실적 + 전망 쿼리 추가
-  var tickers = typeof _extractTickers === 'function' ? _extractTickers(query) : [];
-  if (tickers.length > 0) {
-    subQueries.push(tickers[0] + ' latest news earnings ' + currentDate);
-    subQueries.push(tickers[0] + ' analyst price target consensus ' + currentDate);
-  }
-
-  // 매크로 질문 시 → 관련 지표 + 시장 반응 쿼리 추가
-  if (/금리|FOMC|Fed|인플레|CPI|GDP|실업|고용/.test(q)) {
-    subQueries.push('Federal Reserve latest policy outlook ' + currentDate);
-  }
-  if (/유가|WTI|원유|이란|호르무즈/.test(q)) {
-    subQueries.push('crude oil price geopolitical risk latest ' + currentDate);
-  }
-  if (/반도체|AI|엔비디아|NVDA|칩/.test(q)) {
-    subQueries.push('AI semiconductor investment trend latest ' + currentDate);
-  }
-
-  // 최대 4개로 제한 (API 비용/속도 고려)
-  subQueries = subQueries.slice(0, 4);
-  if (subQueries.length <= 1) return null; // 분해 불필요 시 일반 검색으로
-
-  // 병렬 실행
-  console.log('[AIO Deep Search] ' + subQueries.length + '개 쿼리 병렬 실행:', subQueries);
-  var results = await Promise.allSettled(subQueries.map(function(sq) {
-    return _aiWebSearch(sq, { signal: options.signal });
-  }));
-  _aioThrowIfChatAborted(options.signal);
-
-  // 결과 종합
-  var combined = { searchQuery: query, engine: 'deep-search', answer: '', citations: [], subResults: [] };
-  results.forEach(function(r, i) {
-    if (r.status === 'fulfilled' && r.value && r.value.answer) {
-      combined.subResults.push({ query: subQueries[i], answer: r.value.answer });
-      combined.answer += '\n[검색 ' + (i+1) + ': ' + subQueries[i] + ']\n' + r.value.answer + '\n';
-      if (r.value.citations) combined.citations = combined.citations.concat(r.value.citations);
-    }
-  });
-
-  if (!combined.answer) return null;
-  combined.citations = combined.citations.slice(0, 8); // 출처 최대 8개
-  console.log('[AIO Deep Search] 완료: ' + combined.subResults.length + '/' + subQueries.length + ' 성공');
-  return combined;
+  var prepared = { planId: plan && plan.planId || null, required: required, plan: plan, externalResult: null, externalEvidenceReady: false,
+    failure: required && decision.userOptOut ? { code: 'DISABLED_BY_USER', message: _aioResearchFailureForUser({ code: 'DISABLED_BY_USER' }) } : null,
+    nativeFallbackRequired: required && !decision.userOptOut, cancelled: false };
+  _aioSetChatRuntimeState('_aioLastResearchPreparation', { planId: prepared.planId, required: required, transport: 'shared-worker',
+    nativeFallbackRequired: prepared.nativeFallbackRequired, failureCode: prepared.failure && prepared.failure.code || null, checkedAt: new Date().toISOString() });
+  return prepared;
 }
 
 // ── Send message ───────────────────────────────────────────────────────
@@ -4935,7 +4433,6 @@ function _aioExportChatData(ctxId, fullText, detectedTickers, format) {
     if (ld[sym] && ld[sym].price) payload.marketSnapshot[sym] = { price: ld[sym].price, pct: ld[sym].pct };
   });
   if (window._lastFG != null) payload.marketSnapshot['CNN_FG'] = window._lastFG;
-  if (window._tradingScore != null) payload.marketSnapshot['TradingScore'] = window._tradingScore;
   // 종목 라이브 데이터
   payload.tickerData = {};
   (detectedTickers || []).forEach(function(t) {
@@ -6023,7 +5520,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     }
   }
 
-  // v36.2: 웹검색 — 최신 정보가 필요한 질문이면 자동 검색 (Perplexity > Google 폴백)
+  // P1655: current-information research is the shared Worker's web search; no browser-side search provider.
   var webSearchResult = null;
   var webSearchStr = '';
   var _activeQuestionPlanForResearch = _aioQuestionPlan || {};
@@ -6041,39 +5538,12 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   }
   if (!_isCurrentChatRun()) { _aioReleaseChatRequest(_aioChatRun); return; }
   var _researchFailureForChat = _preparedResearchForChat.failure || null;
-  var searchQuery = _researchRequiredForChat
-    ? ((_researchPlanForChat && _researchPlanForChat.subQueries && _researchPlanForChat.subQueries[0] && _researchPlanForChat.subQueries[0].query) || _buildSearchQuery(q, ctxId))
-    : _needsWebSearch(q, ctxId);
   if (_researchRequiredForChat && _researchDecisionForChat.userOptOut) {
     chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#fbbf24;padding:6px 8px;background:rgba(255,163,26,0.08);border-left:2px solid #ffa31a;border-radius:4px;margin-bottom:4px;">현재성·원인 질문은 웹 리서치 없이는 확정할 수 없습니다. 검색을 다시 활성화하면 재시도할 수 있습니다.</div>');
     // User opt-out blocks only unverified current/causal claims. Keep the
     // conceptual and conditional answer path alive instead of turning a
     // missing research capability into a full-chat outage.
     _researchFailureForChat = { code: 'DISABLED_BY_USER', message: 'web_research_disabled_by_user' };
-  }
-  if (_researchRequiredForChat && _preparedResearchForChat.externalResult) {
-    webSearchResult = _preparedResearchForChat.externalResult;
-    webSearchStr = _formatSearchForPrompt(webSearchResult);
-    if (webSearchStr && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') {
-      webSearchStr = window.AIO.buildAIUntrustedBlock('WEB_SEARCH', webSearchStr);
-    }
-  } else if (!_researchRequiredForChat && searchQuery) {
-    try {
-      webSearchResult = await _aiWebSearch(searchQuery, { signal: _chatSignal });
-      if (!_isCurrentChatRun()) { _aioReleaseChatRequest(_aioChatRun); return; }
-      webSearchStr = _formatSearchForPrompt(webSearchResult);
-      if (webSearchStr && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') {
-        webSearchStr = window.AIO.buildAIUntrustedBlock('WEB_SEARCH', webSearchStr);
-      }
-      console.log('[AIO] 웹검색 완료 [' + (webSearchResult.engine||'?') + ']:', searchQuery, '→', (webSearchResult.answer || '').length + '자');
-    } catch(e) {
-      if (!_isCurrentChatRun() || e && (e.name === 'AbortError' || e.code === 'ABORTED')) { _aioReleaseChatRequest(_aioChatRun); return; }
-      _aioLog('warn', 'fetch', '웹검색 실패: ' + e.message);
-      _researchFailureForChat = { code: e.code || 'RESEARCH_PROVIDER_ERROR', message: e.message || 'research_failed' };
-      // A REQUIRED question may still use Claude native web_search. The final
-      // answer gate below blocks the claim if that tool also produces no
-      // citable evidence.
-    }
   }
   if (!_isCurrentChatRun()) { _aioReleaseChatRequest(_aioChatRun); return; }
 
@@ -6324,7 +5794,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 
   // v36.2: 웹검색 수행 시 검색 알림 배지
   if (webSearchResult) {
-    var _engBadge = webSearchResult.engine === 'perplexity' ? 'Perplexity' : webSearchResult.engine === 'claude' ? 'AI 웹검색' : 'Research Plan';
+    var _engBadge = webSearchResult.engine === 'claude' ? 'AI 웹검색' : 'Research Plan';
     chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">Web Research: 결과 확인 ' + (webSearchResult.citations ? webSearchResult.citations.length : 0) + '건 · ' + _engBadge + '</div>');
   }
 
@@ -7109,14 +6579,13 @@ window._fundAnalysisData = null;
 
 // FMP API fetch helper
 // v48.8: FMP 무료 250/day 쿼터 카운터 — 하루 단위 리셋. 200+ 시 UI 경고.
-// v48.9: 범용 쿼터 카운터로 확장 — 공유 키 API 전체 커버 (Twelve Data/AV/Google CSE/NewsData/Perplexity)
+// v48.9: 범용 쿼터 카운터로 확장 — 공유 키 API 전체 커버 (Twelve Data/AV/NewsData)
 //        각 API의 공식 무료 한도를 _QUOTA_LIMITS에 선언. localStorage aio_quota_{provider} 일일 키별 관리.
 // P1422: local counters do not observe another browser or another application.
 var _QUOTA_LIMITS = {
   fmp:        { daily: 250,  label: 'FMP 재무제표' },
   twelveData: { daily: 800,  label: 'Twelve Data 지표' },
   alphaVantage:{ daily: 25,  label: 'Alpha Vantage breadth' },
-  googleCse:  { daily: 100,  label: 'Google CSE 검색' },
   newsdata:   { daily: 200,  label: 'NewsData.io 뉴스' },
   rss2json:   { daily: 10000,label: 'rss2json' },
 };
@@ -8326,8 +7795,8 @@ async function chatSendUnified(_aioDispatchOptions) {
       }
     }
 
-    // 5. 웹검색 — ResearchPlan을 통합 패널에도 적용한다. REQUIRED 질문은
-    // 휴리스틱 검색으로 강등하지 않고 sub-query별 provenance를 보존한다.
+    // 5. 웹검색 — REQUIRED 질문은 공용 Worker 웹검색으로 넘긴다(P1655: 브라우저 검색 경로 없음).
+
     var _uniResearchDecision = _uniQuestionPlan && _uniQuestionPlan.researchDecision || null;
     var _uniResearchPlan = _uniQuestionPlan && _uniQuestionPlan.researchPlan || null;
     var _uniResearchRequired = !!(_uniResearchDecision && _uniResearchDecision.requirement === 'REQUIRED');
@@ -8342,45 +7811,6 @@ async function chatSendUnified(_aioDispatchOptions) {
       failure: { code: 'RESEARCH_TIMEOUT' }, nativeFallbackRequired: _uniResearchRequired && !_uniResearchDecision.userOptOut
     };
     _uniResearchFailure = _uniPreparedResearch.failure || null;
-    if (_uniResearchRequired && _uniPreparedResearch.externalResult) {
-      var _uniPlanResult = _uniPreparedResearch.externalResult;
-      if (typeof _formatSearchForPrompt === 'function') {
-        var _uniPlanBlock = _formatSearchForPrompt(_uniPlanResult);
-        if (_uniPlanBlock && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') _uniPlanBlock = window.AIO.buildAIUntrustedBlock('WEB_SEARCH', _uniPlanBlock);
-        sysPrompt += _uniPlanBlock; _uniWebResult = _uniPlanResult;
-      }
-    } else if (!_uniResearchRequired && typeof _needsWebSearch === 'function' && typeof _aiWebSearch === 'function') {
-      var searchQuery = _needsWebSearch(q, ctxId);
-      if (searchQuery) {
-        try {
-          var isComplex = q.length > 50 || (detectedTickers.length > 0 && /전망|분석|비교|어때|어떻|최근|상황/.test(q));
-          var webResult;
-          if (isComplex && typeof _aiDeepSearch === 'function') {
-            try { webResult = await _withTimeout(_aiDeepSearch(q, ctxId, { signal: _uniSignal }), 12000, 'deepsearch'); }
-            catch(de) {
-              if (!_isCurrentUnifiedRun() || (de && de.name === 'AbortError')) throw de;
-              _aioLog('warn', 'fetch', 'DeepSearch 실패/타임아웃: ' + de.message);
-            }
-          }
-          if (!webResult) {
-            try { webResult = await _withTimeout(_aiWebSearch(searchQuery, { signal: _uniSignal }), 12000, 'websearch'); }
-            catch(se) {
-              if (!_isCurrentUnifiedRun() || (se && se.name === 'AbortError')) throw se;
-              _aioLog('warn', 'fetch', 'WebSearch 실패/타임아웃: ' + se.message);
-            }
-          }
-          if (webResult && typeof _formatSearchForPrompt === 'function') {
-            var _uniWebBlock = _formatSearchForPrompt(webResult);
-            if (_uniWebBlock && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') _uniWebBlock = window.AIO.buildAIUntrustedBlock('WEB_SEARCH', _uniWebBlock);
-            sysPrompt += _uniWebBlock; _uniWebResult = webResult;
-          }
-        } catch(e) {
-          if (!_isCurrentUnifiedRun() || (e && e.name === 'AbortError')) throw e;
-          _uniResearchFailure = { code: 'RESEARCH_PROVIDER_ERROR', message: e.message || 'research_failed' };
-        }
-      }
-    }
-
     // 6. 뉴스 컨텍스트 (로컬, 타임아웃 불필요)
     if (typeof _buildNewsContext === 'function') {
       var newsCtx = _buildNewsContext(ctxId, q);
@@ -8563,12 +7993,6 @@ async function chatSendUnified(_aioDispatchOptions) {
       entrypoint: 'unified-chat', ctxId: ctxId,
       intent: _uniRetrievalAudit && _uniRetrievalAudit.intent
     }) : null;
-
-  // v46.10: 웹검색 수행 시 검색 알림 배지
-  if (_uniWebResult) {
-    var _engBadge = _uniWebResult.engine === 'perplexity' ? 'Perplexity' : 'Google';
-    _appendAIMsg('ai', '<div style="font-size:11px;color:var(--data-purple);padding:4px 8px;background:rgba(33,29,22,0.08);border-radius:4px;margin-bottom:4px;">' + _engBadge + ' 검색 완료 — 최신 정보 ' + (_uniWebResult.citations ? _uniWebResult.citations.length : 0) + '건 수집</div>');
-  }
 
   console.log('[AIO] callClaude 호출, model:', selectedModelKey, 'sysPrompt:', (sysPrompt||'').length + '자');
   if (typeof callClaude !== 'function') {

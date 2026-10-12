@@ -41,12 +41,10 @@ check('Worker health is deduplicated and transient failures have a short cache',
 check('research preparation is shared and cancellable in both chat surfaces', chat.includes('async function _aioPrepareAIResearch') && chat.includes('_aioPrepareAIResearch(_activeQuestionPlanForResearch, { signal: _chatSignal })') && chat.includes('_aioPrepareAIResearch(_uniQuestionPlan, { signal: _uniResearchAbort.signal })'));
 check('knowledge reference retrieval is shared through the existing orchestrator facade boundary', chat.includes('knowledgeOrchestrator.buildAIKnowledgeContext(q') && chat.includes('_uniKnowledgeOrchestrator.buildAIKnowledgeContext(q') && read('src/ai/retrieval/knowledge.js').includes('currentClaimsAllowed: false'));
 check('research opt-out preserves non-current answer path', chat.includes('web_research_disabled_by_user') && !/userOptOut\)[\s\S]{0,600}state\._chatSendEntered = 0;[\s\S]{0,180}return;/.test(chat));
-check('insufficient external evidence forces native fallback', chat.includes('externalEvidenceReady') && chat.includes('prepared.nativeFallbackRequired = !prepared.externalEvidenceReady'));
+check('required research always hands off to the shared Worker search (P1655)', chat.includes('nativeFallbackRequired: required && !decision.userOptOut'));
 check('research evidence gate is executable ESM SSOT', chat.includes('evaluateAIResearchEvidenceFloor') && !chat.includes('function _aioBuildResearchEvidenceDocuments'));
-check('research producer uses canonical nested evidence', /researchEvidence:\s*\{[\s\S]*evidenceDocuments:\s*evidenceDocuments/.test(chat) && !/\n\s*evidenceDocuments:\s*evidenceDocuments,\n\s*researchPlanId/.test(chat));
-check('research failures retain per-provider detail', chat.includes('_aioNormalizeResearchProviderFailure') && chat.includes('noResults.failures = subFailures'));
 check('Worker route does not certify native search tool', core.includes("'NATIVE_TOOL_UNVERIFIED'") && !core.includes("'NATIVE_TOOL_ROUTE_READY'") && core.includes('nativeCitationCount'));
-check('research diagnostic audit exposes contract and last execution', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes('lastExecution:'));
+check('research diagnostic audit exposes contract and last preparation', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes("transport: 'shared-worker'"));
 const normalizeWorkerUrl = value => String(value || '').trim().replace(/\/+$/, '');
 const configWorkerUrl = normalizeWorkerUrl(config.ai?.workerUrl);
 const operationsWorkerUrl = normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint);

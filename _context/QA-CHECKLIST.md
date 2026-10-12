@@ -4,6 +4,14 @@ last_verified: 2026-10-12
 confidence: medium
 ---
 
+## v57.46 AI 웹검색 단일 경로 (2026-10-12)
+
+- [ ] QA-WEBSEARCH-SINGLE-01: P1655: 현재성 AI 질문의 웹검색은 공용 Worker 하나뿐이며 개인 검색 키·옵트아웃이 없다. verify_by: node scripts/ci-native-search-check.mjs
+- [ ] QA-HISTORY-CLOSE-01: P1656: history 보충이 완료 종가 근거를 덮어쓰지 않고, 장 시작 전 지수 시세를 종가로 기록하지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-SCORE-AI-01: P1657: AI 문맥과 내보내기에 검증 실패 종합 점수를 인용하지 않는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [ ] QA-BASIS-KEYBOARD-01: P1658: 근거 설명 카드는 키보드 초점으로 근거를 열 수 있고, 평소 화면에는 버튼이 보이지 않는다. verify_by: browser: Tab → 근거 버튼 → aio-basis-card 표시
+- [ ] QA-SIGNAL-LENGTH-01: P1659: 시장 상태 축 카드는 대표 수치 1행과 바뀌는 조건만 펼치고 나머지는 접는다. verify_by: browser: #signal regime-board 높이
+
 ## v57.45 AI 패널·모바일 입력 (2026-10-12)
 
 - [ ] QA-AI-ALWAYS-ON-01: P1653: AI ON/OFF·웹검색 토글이 없고, 모든 화면의 AI 질문은 상단 AI 패널 하나로 간다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs

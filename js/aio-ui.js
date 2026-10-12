@@ -667,8 +667,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ['aio_td_key', 'aio_td_key_input'],
     ['aio_fmp_key', 'aio_fmp_key_input'],
     ['aio_perplexity_key', 'aio_perplexity_key_input'],
-    ['aio_google_cse_key', 'aio_google_cse_key_input'],
-    ['aio_google_cse_cx', 'aio_google_cse_cx_input'],
     ['aio_newsdata_key', 'aio_newsdata_key_input'],
     ['aio_bok_key', 'aio_bok_key_input'],
     ['aio_kosis_key', 'aio_kosis_key_input'],
@@ -2751,7 +2749,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
       var q = ((question    || '') + ' ' + (responseText || '')).toLowerCase();
       // 우선순위 순으로 가장 명확한 매치만 반환 (과잉 삽입 방지)
       if (/매매 점수|거래 점수|trading score|점수 분해/.test(q)) {
-        return { type: 'score-breakdown', data: _buildScore(),    label: '매매 점수 분해' };
+        return { type: 'score-breakdown', data: _buildScore(),    label: '시장 환경 점수 분해 (예측 지표 아님)' };
       }
       if (/수익률 곡선|yield curve|장단기 금리|금리 역전|inverted yield|tyx/.test(q)) {
         return { type: 'yield-curve',     data: _buildYield(),    label: '수익률 곡선' };

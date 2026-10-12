@@ -7012,32 +7012,16 @@
     } catch(e) { t831detail = 'ERR:' + e.message; }
     _assert('T831 v5063_telegram_digest_auto_refresh_loop: public-data Telegram digest can update digest, freshness, page-map, SCREENER_DB memo, and audit layers', t831ok, t831detail);
 
-    // T832: v50.64 WebSearch setup integrity — Google CSE requires both key+cx, and cx is persisted like other keys.
+    // T832: P1655 — web research has one transport (shared Worker); no browser-side Google/Perplexity keys or opt-out.
     var t832ok = false, t832detail = '';
     try {
       var wsAudit832 = window.AIO && typeof window.AIO.getWebSearchAudit === 'function' ? window.AIO.getWebSearchAudit() : null;
-      var sensitive832 = (typeof _AIO_SENSITIVE_KEYS !== 'undefined' && _AIO_SENSITIVE_KEYS && typeof _AIO_SENSITIVE_KEYS.has === 'function')
-        ? _AIO_SENSITIVE_KEYS.has('aio_google_cse_cx')
-        : false;
-      var snapshotSrc832 = typeof window._aioCollectKeySnapshot === 'function' ? String(window._aioCollectKeySnapshot) : '';
       var shouldSrc832 = typeof window._shouldUseClaudeWebSearch === 'function' ? String(window._shouldUseClaudeWebSearch) : '';
-      t832ok = !!(wsAudit832 &&
-        typeof wsAudit832.googleCseKeyConfigured === 'boolean' &&
-        typeof wsAudit832.googleCseCxConfigured === 'boolean' &&
-        wsAudit832.googleCseReady === (wsAudit832.googleCseKeyConfigured && wsAudit832.googleCseCxConfigured) &&
-        wsAudit832.externalSearchReady === (wsAudit832.perplexityConfigured || wsAudit832.googleCseReady) &&
-        sensitive832 &&
-        snapshotSrc832.indexOf('aio_google_cse_cx') >= 0 &&
-        typeof window._needsWebSearch === 'function' && /selectNativeSearch/.test(shouldSrc832) && /aio_web_search_enabled/.test(shouldSrc832));
-      t832detail = JSON.stringify({
-        auditFields: !!wsAudit832,
-        googleReady: wsAudit832 && wsAudit832.googleCseReady,
-        cxSensitive: sensitive832,
-        cxSnapshot: snapshotSrc832.indexOf('aio_google_cse_cx') >= 0,
-        fallbackDelegatesToWorkerAdmission: shouldSrc832.indexOf('selectNativeSearch') >= 0
-      });
+      t832ok = !!(wsAudit832 && wsAudit832.transport === 'shared-worker' && wsAudit832.enabled === true && !('googleCseReady' in wsAudit832) &&
+        typeof window._needsWebSearch === 'undefined' && !document.getElementById('aio_google_cse_key_input') && /selectNativeSearch/.test(shouldSrc832) && !/aio_web_search_enabled/.test(shouldSrc832));
+      t832detail = JSON.stringify({ transport: wsAudit832 && wsAudit832.transport, googleInput: !!document.getElementById('aio_google_cse_key_input') });
     } catch(e) { t832detail = 'ERR:' + e.message; }
-    _assert('T832 v5064_websearch_google_cx_integrity: P1421 Google CSE cx persists and incomplete setup cannot enable paid native search', t832ok, t832detail);
+    _assert('T832 v5064_websearch_single_transport: P1655 research uses only the shared Worker search', t832ok, t832detail);
 
     // T833: v50.65 unified AI panel parity — 통합 패널도 chatSend() 수준의 데이터 주입/페이지 매핑을 유지해야 한다.
     var t833ok = false, t833detail = '';
@@ -9164,7 +9148,7 @@
     var audit = window.AIO && typeof window.AIO.getWebSearchAudit === 'function' ? window.AIO.getWebSearchAudit() : null;
     _assert('T1046 research_capability_does_not_overclaim_worker_route_v5399: an unverified Worker route is not tool READY',
       !!audit && audit.contractReady === true && audit.researchReadiness !== 'NATIVE_TOOL_ROUTE_READY' &&
-        !(audit.researchCapability.provider === 'openai-native' && audit.nativeCitationCount === 0 && audit.researchCapability.toolReady === 'READY'),
+        !(audit.nativeCitationCount === 0 && audit.researchReadiness === 'NATIVE_TOOL_VERIFIED'), // P1655: one transport, no provider block
       JSON.stringify(audit));
 
     _assert('T1047 both_chat_surfaces_share_research_preparation_v5399: one preparation boundary drives dispatch',

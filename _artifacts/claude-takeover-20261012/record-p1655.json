@@ -1,0 +1,29 @@
+{
+  "version": "v57.46",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.46 소유자 요청: 개인 검색 경로 삭제, 매매 점수 검증 대응, 작업 환경, 남은 구조·품질 작업(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1655,
+    "title": "브라우저 개인 Google/Perplexity 검색 경로가 공용 AI 웹검색과 따로 남아 있음",
+    "symptom": "사용자가 개인 Google CSE 키를 저장하면 브라우저가 공용 예산·출처 정책 밖에서 따로 검색했다. 웹검색 ON/OFF 저장값과 진단 필드도 남아 있었다.",
+    "root_cause": "v57.45에서 토글만 지우고 검색 공급자 계층(_needsWebSearch·_aiWebSearch·_googleSearch·_aiResearchPlanSearch·_aiDeepSearch)과 키 입력란·저장 목록을 그대로 두었다.",
+    "fix": "현재성 질문은 항상 공용 Worker 웹검색으로 넘기도록 _aioPrepareAIResearch를 단순화하고 브라우저 검색 공급자·Google 키 입력란·검색 쿼리 모듈·옵트아웃 저장값을 삭제했다. 부팅 시 남은 개인 검색 키와 옵트아웃 값을 지운다.",
+    "violated_rule": "웹검색 단일 경로(owner 2026-10-12)",
+    "prevention": "P1655: node scripts/ci-native-search-check.mjs · ci-chat-resilience-check · ci-ai-intelligence-contract-check · ci-connection-access-check",
+    "verification": "필수 연구 질문 → nativeFallbackRequired=true, 브라우저 검색 함수·키·옵트아웃 문자열 부재 단언."
+  },
+  "qa": [
+    {
+      "id": "QA-WEBSEARCH-SINGLE-01",
+      "text": "P1655: 현재성 AI 질문의 웹검색은 공용 Worker 하나뿐이며 개인 검색 키·옵트아웃이 없다.",
+      "verify_by": "node scripts/ci-native-search-check.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "AI 웹검색 단일 경로",
+  "changelog": [
+    "**개인 검색 경로 삭제 (P1655):** 브라우저 Google/Perplexity 검색과 키 입력란을 없애고, 현재성 질문은 공용 AI 웹검색 하나로만 확인한다."
+  ]
+}

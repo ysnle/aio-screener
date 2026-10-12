@@ -20,14 +20,15 @@ Read only what the current task needs; this is not an all-files reading checklis
 - Read `_context/QA-CHECKLIST.md` before adding or updating QA coverage.
 - Read `_context/RULES.md` when a repeated pattern needs rule promotion.
 
-## Core Workflow
+## Core Workflow (phases with exit criteria)
 
-1. Reproduce or localize the symptom.
-2. Identify producer, transformer, consumer, and gate.
-3. Patch the lowest shared cause.
-4. Add or update a regression gate.
-5. Record P-number, rule/checklist updates, CHANGELOG, and version sync when required.
-6. Run the relevant gates and report verified/blocked/unverified items separately.
+Work in phases; do not start a phase until the previous exit criterion holds. The lead session owns every phase; a subagent may run Phase 1 or Phase 4 in a fresh context, but it reports back and never edits.
+
+1. **Investigate (read-only).** Reproduce or localize the symptom on the surface the user sees (live page or artifact first, then code). Exit: the producer, transformer, consumer and gate are named, and the root cause is stated in one sentence that the evidence supports.
+2. **Fix.** Patch the lowest shared cause, including sibling consumers. Exit: `node --check` passes for every touched JS file and no second source of truth was added.
+3. **Guard.** Add or update a regression gate that fails on the pre-fix state. Exit: the gate passes now and you can name the pre-fix input it would reject.
+4. **Verify.** Run `qa-runner affected`, fix the whole failing batch, then `rerun-failed`. For a visible defect, check the page at desktop and phone width. Exit: verified, blocked and unverified items are listed separately.
+5. **Record.** P-number, rule/checklist updates, CHANGELOG and version sync through `bump-version` and `record-fix`.
 
 ## Binary Self-Eval
 

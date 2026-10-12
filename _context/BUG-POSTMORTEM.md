@@ -6,6 +6,51 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1659 - v57.46 - 시장 상태 6축 카드가 길어 한 화면 흐름이 끊김 (2026-10-12)
+
+- symptom/reproduction: 6개 카드가 데스크톱에서 약 2,650px였다. 카드마다 차트·읽기·근거 3행·바뀌는 조건·다음 확인이 모두 펼쳐져 있었다.
+- root_cause: 소유자 읽기 기준(시각 1 + 짧은 읽기 + 접힌 세부)이 카드 근거 목록에 적용되지 않았다.
+- fix: 카드 겉면은 차트·읽기·대표 수치 1행·상태가 바뀌는 조건만 두고, 나머지 근거와 '다음 확인'을 기존 '추가 근거와 출처' 접힘으로 옮겼다(약 2,180px).
+- violated_rule: 읽기 길이 기준(owner 2026-10-05)
+- prevention: P1659: node scripts/ci-architecture-browser-check.mjs
+- verification/residual: 로컬 미리보기에서 보드 높이 2657→2183px 확인.
+
+## P1658 - v57.46 - 설명이 달린 카드에 키보드로 들어갈 수 없음 (U01) (2026-10-12)
+
+- symptom/reproduction: 시장 상태 6개 축 카드와 금리·거시 카드의 근거 설명은 마우스 호버와 터치로만 열렸고, 키보드 탭 순서에 진입점이 없었다.
+- root_cause: 근거 카드가 focusin만 받는데 article/section 카드는 초점을 받을 수 없었다.
+- fix: 근거 설명이 있는 카드마다 키보드 초점을 받을 때만 보이는 작은 '근거' 버튼을 넣었다. 카드 안에 있으므로 같은 focusin 경로로 그 카드의 근거가 열린다. 섹션 자체는 탭 정지점으로 만들지 않았다.
+- violated_rule: WCAG 2.1.1 키보드
+- prevention: P1658: 브라우저에서 #fxbond 버튼 focusin → 근거 카드 표시 확인
+- verification/residual: 로컬 미리보기에서 버튼 4개 생성·aria-label·카드 표시 확인.
+
+## P1657 - v57.46 - 검증 실패한 종합 점수가 AI 답변 머리말과 내보내기에 인용됨 (2026-10-12)
+
+- symptom/reproduction: AI 캐시 경로 머리말이 '트레이딩 스코어 N/100'을 넣고 답변을 그 인용으로 시작하라고 지시했다. 답변 내보내기에도 TradingScore가 들어갔다. 화면에서는 이미 6축 국면 판정으로 대체돼 보이지 않는다.
+- root_cause: 10년 부분 검증(21일 rho -0.17, 63일 -0.26)과 최근 기록(21일 -0.38, n=298)이 예측력 없음을 보였는데 화면 정리만 하고 AI 문맥을 정리하지 않았다.
+- fix: AI 머리말과 내보내기에서 종합 점수를 빼고, 사용자가 직접 물을 때의 점수 분해 라벨을 '시장 환경 점수 분해 (예측 지표 아님)'로 바꿨다. 산식 변경·부호 반전은 하지 않았다(위기 구간에서 부호가 바뀌고 7월 상대화 재설계도 실패).
+- violated_rule: AGENTS 근거 없는 등급 제거 · R298
+- prevention: P1657: rg '트레이딩 스코어' js/aio-chat.js 없음
+- verification/residual: AI 머리말·내보내기 점수 부재 확인.
+
+## P1656 - v57.46 - 일봉 보충이 최근 거래일의 정규장 종가 기록을 덮어써 시장 환경 점수가 보류됨 (2026-10-12)
+
+- symptom/reproduction: 10/12 라이브에서 '10/9 미국 정규장 종가 기준 · 변동성 필수 근거 부족'으로 점수가 보류됐다. 10/12 행에는 07:01 ET VIX 장전 시세 15.48이 완료 종가로 기록됐다.
+- root_cause: 필드 하나라도 60행 미만이면 매 실행 1년 일봉 보충이 돌고, 기존 행의 값과 fieldMeta(종가 시각·valueBasis)를 일봉 시작 시각으로 덮어썼다. VIX는 Cboe 연장 시간에도 시세가 나와 장 시작 전 값이 MARKET_CLOSED 완료 종가로 분류됐다.
+- fix: 보충은 완료 종가 기록(valueBasis)이 있는 기존 값을 덮어쓰지 않고 빈칸만 채운다. 평일 09:30 ET 이전 미국 지수 시세는 직전 종가로 대체하고 직전 종가가 없으면 기록하지 않는다(usPreOpenIndexPrint).
+- violated_rule: R298/P1345 종가 기준 근거 보존
+- prevention: P1656: node scripts/ci-codex-structure-regression-fixture.mjs
+- verification/residual: 장전 VIX 판정 true/종가 false, 보충 비덮어쓰기 소스 단언. 실제 복구는 push 후 producer 실행과 다음 완료 종가에서 확인.
+
+## P1655 - v57.46 - 브라우저 개인 Google/Perplexity 검색 경로가 공용 AI 웹검색과 따로 남아 있음 (2026-10-12)
+
+- symptom/reproduction: 사용자가 개인 Google CSE 키를 저장하면 브라우저가 공용 예산·출처 정책 밖에서 따로 검색했다. 웹검색 ON/OFF 저장값과 진단 필드도 남아 있었다.
+- root_cause: v57.45에서 토글만 지우고 검색 공급자 계층(_needsWebSearch·_aiWebSearch·_googleSearch·_aiResearchPlanSearch·_aiDeepSearch)과 키 입력란·저장 목록을 그대로 두었다.
+- fix: 현재성 질문은 항상 공용 Worker 웹검색으로 넘기도록 _aioPrepareAIResearch를 단순화하고 브라우저 검색 공급자·Google 키 입력란·검색 쿼리 모듈·옵트아웃 저장값을 삭제했다. 부팅 시 남은 개인 검색 키와 옵트아웃 값을 지운다.
+- violated_rule: 웹검색 단일 경로(owner 2026-10-12)
+- prevention: P1655: node scripts/ci-native-search-check.mjs · ci-chat-resilience-check · ci-ai-intelligence-contract-check · ci-connection-access-check
+- verification/residual: 필수 연구 질문 → nativeFallbackRequired=true, 브라우저 검색 함수·키·옵트아웃 문자열 부재 단언.
+
 ## P1654 - v57.45 - 유동성·성장·원자재 지표, 경제 일정, 한국 종목 재무가 무료 공식 원천에서 수집되지 않음 (2026-10-12)
 
 - symptom/reproduction: 연준 자산·역레포·TGA·금융여건·GDP·PPI·소비자심리·JOLTS·브렌트·천연가스·구리·위안 같은 지표가 없었다. 경제 일정은 코드에 손으로 적은 배열이라 2026-12 이후 비게 됐다. 한국 179종목 재무는 0개였다.

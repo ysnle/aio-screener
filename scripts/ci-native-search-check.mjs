@@ -71,8 +71,7 @@ console.log('PASS: P1608 conditional native search selection, recency and actual
 context.window.AIO.selectNativeSearch = selectNativeSearch;
 context.window.AIO.hasInternalCurrentEvidence = args => hasInternalCurrentEvidence({ ...args, now });
 context.window._aioLastClaudeRouteState = { health };
-let off = false;
-context.localStorage = { getItem: () => off ? 'off' : null };
+context.localStorage = { getItem: () => null };
 context.q = plan.query; context.ctxId = 'ticker'; context.detectedTickers = ['NVDA'];
 context._aioQuestionPlan = plan; context._uniQuestionPlan = plan;
 context.chatFreshPreflight = { status: 'ok', after: { quoteRows: [row] } };
@@ -99,35 +98,19 @@ for (const [variable, marker] of [['_useClaudeWebSearch', 'var _useClaudeWebSear
   context.webSearchResult = null; context._uniWebResult = null;
   context._preparedResearchForChat = { nativeFallbackRequired: true }; context._uniPreparedResearch = context._preparedResearchForChat;
   context._researchRequiredForChat = true; context._uniResearchRequired = true;
-  off = true;
   vm.runInContext(block, context);
-  assert.equal(context[variable], false, 'P1608 actual caller cannot override a changed opt-out');
-  off = false;
+  assert.equal(context[variable], true, 'P1655 a required question always reaches the shared Worker search (no opt-out)');
   context.chatFreshPreflight = { status: 'ok', after: { quoteRows: [row] } }; context._uniFreshPreflight = context.chatFreshPreflight;
 }
-console.log('PASS: P1608 both production chat callers preserve internal/external evidence and current opt-out.');
-context._aioEnsureClaudeRoute = async () => { off = true; return { ok: true, target: { url: 'https://worker.test/openai' }, health }; };
-await context.callClaude('public context', [{ role: 'user', content: '최근 공시' }], () => {}, () => {}, text => { error = text; }, { webSearch: true, requestId: 'test-optout-after-route' });
-assert.equal(sent.tools, undefined, 'P1608 opting out during Worker health await prevents paid dispatch');
-// P1609: production delegation sends (element, event), not (boolean, element).
+console.log('PASS: P1608 both production chat callers preserve internal/external evidence; required research always reaches the Worker.');
+// P1653/P1655: the opt-out toggle is retired; neither the transport nor core keeps a per-browser preference.
 const core = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
-const toggleStart = core.indexOf('window._aioWebSearchToggle = function(');
-const status = { textContent: '', style: {} };
-const preferences = new Map();
-const toggleContext = vm.createContext({ window: {}, document: { getElementById: () => status },
-  localStorage: { getItem: key => preferences.get(key), setItem: (key, value) => preferences.set(key, value), removeItem: key => preferences.delete(key) } });
-vm.runInContext(core.slice(toggleStart, core.indexOf('\n};', toggleStart) + 3), toggleContext);
-toggleContext.window._aioWebSearchToggle({ checked: false }, { type: 'change' });
-assert.equal(preferences.get('aio_web_search_enabled'), 'off', 'P1609 actual delegated checkbox off persists the preference');
-assert.equal(status.textContent, 'OFF', 'P1609 checkbox and displayed status agree');
-toggleContext.window._aioWebSearchToggle({ checked: true }, { type: 'change' });
-assert.equal(preferences.has('aio_web_search_enabled'), false, 'P1609 delegated checkbox on restores conditional search');
-assert.equal(status.textContent, 'ON', 'P1609 restored preference is visible');
-console.log('PASS: P1609 actual delegated checkbox persists OFF/ON correctly.');
+assert.equal(/aio_web_search_enabled/.test(chat) || /aio_web_search_enabled/.test(core), false, 'P1655 no web-search opt-out preference remains');
+console.log('PASS: P1655 web search is automatic (no opt-out preference).');
 
 // P1621: exercise both real single-company blocks with an already-loaded screen cache.
 for (const [startMarker, endMarker, outputName] of [
-  ['var singleDeepStr =', '\n  // v36.2: 웹검색', 'singleDeepStr'],
+  ['var singleDeepStr =', '\n  // P1655: current-information research', 'singleDeepStr'],
   ['var _isFundCtx =', '\n    // 5. 웹검색', 'sysPrompt']
 ]) {
   const startAt = outputName === 'sysPrompt' ? chat.indexOf(startMarker, chat.indexOf('// 4. 단일 기업')) : chat.indexOf(startMarker);

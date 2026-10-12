@@ -79,7 +79,9 @@ async function main() {
           const r = el.getBoundingClientRect();
           const parentText = (el.parentElement?.textContent || '').replace(/\s+/g, ' ').trim();
           const inlineTextException = el.tagName === 'A' && getComputedStyle(el).display === 'inline' && parentText.length > name(el).length;
-          return { id:el.id || '', text:name(el).slice(0, 60), width:Math.round(r.width), height:Math.round(r.height), exception:inlineTextException ? 'wcag-inline-text' : null };
+          // P1658: a clipped keyboard-only control is not a pointer target until focus, when it renders full size.
+          const focusOnlyException = /rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(getComputedStyle(el).clip) && el.classList.contains('aio-basis-btn');
+          return { id:el.id || '', text:name(el).slice(0, 60), width:Math.round(r.width), height:Math.round(r.height), exception:inlineTextException ? 'wcag-inline-text' : focusOnlyException ? 'keyboard-focus-only' : null };
         }).slice(0, 80);
         const smallTargetViolations = smallTargets.filter((row) => !row.exception);
         const smallTargetExceptions = smallTargets.filter((row) => !!row.exception);

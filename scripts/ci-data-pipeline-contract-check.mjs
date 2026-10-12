@@ -123,7 +123,7 @@ const fetchData = read('scripts/fetch-data.mjs');
       bad?.sharesCheck === 'scale-mismatch' && bad?.sharesOutstanding === null && bad?.pe == null && good?.sharesCheck === 'consistent' && Math.abs(good?.pe - 26.5) < 0.2,
       JSON.stringify({ bad: bad && { c: bad.sharesCheck, pe: bad.pe }, good: good && { c: good.sharesCheck, pe: good.pe } }));
   }
-  check('P1576: an in-session quote without a previous close is never written to history as a completed close', /bySym\[q\.symbol\] = usePreviousClose \? previousClose : isOpenPoint \? null : q\.regularMarketPrice;/.test(fetchData));
+  check('P1576: an in-session quote without a previous close is never written to history as a completed close', /bySym\[q\.symbol\] = usePreviousClose \? previousClose : \(isOpenPoint \|\| preOpenPrint\) \? null : q\.regularMarketPrice;/.test(fetchData));
   check('P1573: Cboe put/call is current only within one session of the latest completed close',
     classifyCboePutCallCurrentness('2026-10-09', now) === 'current-reference'
       && classifyCboePutCallCurrentness('2026-10-08', now) === 'current-reference'

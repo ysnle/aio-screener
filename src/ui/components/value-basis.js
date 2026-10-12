@@ -119,7 +119,30 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
   doc.addEventListener('keydown', onKey);
   root.addEventListener?.('scroll', hide, true);
   doc.addEventListener('aio:pageShown', hide);
+  // U01 (P1658): explained cards (article/section with a basis) were unreachable by keyboard. Each gets one small
+  // "근거" button, invisible until it has keyboard focus, so the card face does not change; the button sits inside
+  // the card, so focusing it opens that card's basis through the same focusin path. Sections are not tab stops.
+  let scanFrame = null;
+  const scan = () => {
+    scanFrame = null;
+    for (const cardEl of doc.querySelectorAll('.page article[title], .page article[data-basis], .page section[title], .page section[data-basis]')) {
+      if (cardEl.querySelector(':scope > .aio-basis-btn') || cardEl.matches('a, button, [tabindex]')) continue;
+      const button = doc.createElement('button');
+      button.type = 'button';
+      button.className = 'aio-basis-btn';
+      button.textContent = '근거';
+      const heading = cardEl.querySelector('h2, h3, h4, .stat-label, .kpi-label')?.textContent?.trim();
+      button.setAttribute('aria-label', heading ? `${heading} 근거 보기` : '근거 보기');
+      cardEl.append(button);
+    }
+  };
+  const queueScan = () => { if (scanFrame === null) scanFrame = root.setTimeout ? root.setTimeout(scan, 400) : (scan(), null); };
+  const observer = typeof root.MutationObserver === 'function' ? new root.MutationObserver(queueScan) : null;
+  observer?.observe(doc.body, { childList: true, subtree: true });
+  queueScan();
   return () => {
+    observer?.disconnect();
+    if (scanFrame !== null) root.clearTimeout?.(scanFrame);
     hide();
     card.remove();
     doc.removeEventListener('pointerover', onOver);

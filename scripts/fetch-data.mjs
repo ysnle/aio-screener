@@ -1911,10 +1911,16 @@ async function backfillHistory(hist) {
   for (const date of Object.keys(byDate)) {
     const existing = hist.find(h => h && h.date === date);
     if (existing) {
+      // P1656: a backfill only fills gaps. It runs whenever any field is thin, so overwriting every row
+      // replaced the producer's completed-close record (valueBasis, close-time observedAt) with a daily bar
+      // stamped at its bar start, and the score's close-basis selector then rejected that day's VIX/SPX.
+      existing.fieldMeta = existing.fieldMeta || {};
       for (const f of HIST_FIELDS) {
-        if (byDate[date][f] != null) existing[f] = byDate[date][f];
+        if (byDate[date][f] == null) continue;
+        if (Number.isFinite(Number(existing[f])) && existing.fieldMeta[f]?.valueBasis) continue;
+        existing[f] = byDate[date][f];
+        if (byDate[date].fieldMeta?.[f]) existing.fieldMeta[f] = byDate[date].fieldMeta[f];
       }
-      existing.fieldMeta = { ...(existing.fieldMeta || {}), ...(byDate[date].fieldMeta || {}) };
       continue;
     }
     const base = { date, fieldMeta: byDate[date].fieldMeta || {} };
@@ -1957,6 +1963,15 @@ function carryForwardHistoryEvidence(hist) {
   return hist;
 }
 
+export function usPreOpenIndexPrint(symbol, observedAt) {
+  if (!/^\^(VIX|VIX3M|VVIX|GSPC|IXIC|NDX|DJI|RUT|TNX)$/.test(String(symbol || ''))) return false;
+  const at = Date.parse(observedAt || '');
+  if (!Number.isFinite(at)) return false;
+  const parts = nyParts(at);
+  const day = new Date(at).toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
+  return !['Sat', 'Sun'].includes(day) && parts.minute < 9 * 60 + 30;
+}
+
 // ── WO-7 (ops): 일별 히스토리 축적 (public-data/history.json) ──
 // 왜: data.json은 매 실행 덮어쓰기라 과거가 안 남는다. 52주 VIX(IV Rank)·breadth 사이클·F&G 추이
 //     차트가 하드코딩 시드 배열에 의존하는 근본 원인. 하루 1건(같은 날은 최신값으로 upsert =
@@ -1977,10 +1992,13 @@ async function updateHistory(data, marketSnapshot = null, officialFx = null) {
       const isOpenPoint = session === 'CURRENT_SESSION' || session === 'DELAYED_IN_SESSION';
       const previousClose = Number(q.regularMarketPreviousClose ?? q.chartPreviousClose);
       const previousObservedAt = q.regularMarketPreviousCloseObservedAt || null;
-      const usePreviousClose = isOpenPoint && Number.isFinite(previousClose) && previousClose > 0;
+      // P1656: VIX-family indices also print in Cboe's extended hours; a weekday print before the 09:30 ET open
+      // is that session's pre-open value, not a completed close (10/12 07:01 ET VIX 15.48 was filed as one).
+      const preOpenPrint = !isOpenPoint && usPreOpenIndexPrint(q.symbol, q.observedAt);
+      const usePreviousClose = (isOpenPoint || preOpenPrint) && Number.isFinite(previousClose) && previousClose > 0;
       // P1576: in session without a previous close there is no completed close to record; the
       // intraday price must not be written as one (fail closed, like P1095's timestamp rule).
-      bySym[q.symbol] = usePreviousClose ? previousClose : isOpenPoint ? null : q.regularMarketPrice;
+      bySym[q.symbol] = usePreviousClose ? previousClose : (isOpenPoint || preOpenPrint) ? null : q.regularMarketPrice;
       // A history row is a completed daily close, not the provider's intraday
       // previous-value anchor — and that holds for 24/7 assets too. BTC/ETH have a real
       // previous completed daily bar (regularMarketPreviousClose, stamped with the boundary

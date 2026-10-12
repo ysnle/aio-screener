@@ -159,19 +159,22 @@ export function renderRegimePage({ documentRef: doc, root }) {
       card.append(el(doc, 'p', row.read, 'regime-read'));
       const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
       if (chart) card.append(chart);
+      // P1659 (owner reading standard: one visual, a short reading, folded details): the face keeps the chart, the
+      // reading, the headline number and the condition that would change the state; the rest of the evidence rows
+      // and the generic "다음 확인" line move into the card's fold. Six cards were ~2,650px tall on desktop.
       const list = el(doc, 'dl', null, 'regime-evidence');
-      for (const [label, value] of row.evidence.slice(0, 3)) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
+      for (const [label, value] of row.evidence.slice(0, 1)) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
       if (row.evidence.length) card.append(list);
       const watch = scenarios.axes?.find(axis => axis.id === row.id);
       if (row.flip) {
         const changes = el(doc, 'div', null, 'regime-axis-observe');
         changes.append(el(doc, 'h4', '상태가 바뀌는 조건'), el(doc, 'p', row.flip));
-        if (watch?.observe) changes.append(el(doc, 'h4', '다음 확인'), el(doc, 'p', watch.observe));
         card.append(changes);
       }
       const details = el(doc, 'details', null, 'regime-axis-details');
-      details.append(el(doc, 'summary', row.evidence.length > 3 ? '추가 근거와 출처' : '출처'));
-      if (row.evidence.length > 3) { const extra = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence.slice(3)) extra.append(el(doc, 'dt', label), el(doc, 'dd', value)); details.append(extra); }
+      details.append(el(doc, 'summary', row.evidence.length > 1 || watch?.observe ? '추가 근거와 출처' : '출처'));
+      if (row.evidence.length > 1) { const extra = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence.slice(1)) extra.append(el(doc, 'dt', label), el(doc, 'dd', value)); details.append(extra); }
+      if (row.flip && watch?.observe) details.append(el(doc, 'h4', '다음 확인'), el(doc, 'p', watch.observe));
       details.append(el(doc, 'p', AXIS_SOURCES[row.id] || 'AIO 완료 관측 기록'));
       card.append(details);
       if (AXIS_SOURCES[row.id]) card.title = `출처: ${AXIS_SOURCES[row.id]}`; // P1505: on hover, not on the face of the card

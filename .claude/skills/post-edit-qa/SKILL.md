@@ -18,6 +18,7 @@ Read only what the current task needs; this is not an all-files reading checklis
 - Read `references/tiers.md` to choose and execute QA tiers.
 - Read `references/scope-matrix.md` to map touched surfaces and risk to the minimum sufficient tier set.
 - Read `references/report-contract.md` before writing the final QA report.
+- Read `references/design-review.md` when a change is visible on screen (layout, copy, chart, card, panel).
 - Read `_context/QA-CHECKLIST.md` before updating checklist coverage.
 - Read `_context/RULES.md` for any rule named by the changed files.
 
@@ -45,3 +46,4 @@ Read only what the current task needs; this is not an all-files reading checklis
 | QA7 | For UI/UX-visible changes, did the report state whether Tier 13 (live browser, `references/tiers.md`) ran or was explicitly skipped? |
 | QA8 | Were failures fixed as one phase batch and rechecked with `rerun-failed` instead of repeatedly restarting full QA? |
 | QA9 | Was impact derived from a task session or explicit task-owned files rather than the whole pre-existing dirty tree? |
+| QA10 | For a visible change, was every `references/design-review.md` item checked or named as not applicable? |

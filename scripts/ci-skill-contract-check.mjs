@@ -40,7 +40,7 @@ const referencesForSkill = {
   'data-refresh': ['references/inventory.md', 'references/workflow.md', 'references/source-policy.md'],
   integrate: ['references/workflow.md', 'references/framework-extraction.md'],
   'knowledge-lint': ['references/workflow.md'],
-  'post-edit-qa': ['references/tiers.md', 'references/report-contract.md', 'references/scope-matrix.md']
+  'post-edit-qa': ['references/tiers.md', 'references/report-contract.md', 'references/scope-matrix.md', 'references/design-review.md']
 };
 
 check('skill directory is .claude/skills', exists('.claude/skills'));

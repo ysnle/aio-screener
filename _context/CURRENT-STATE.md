@@ -1,6 +1,6 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-10-12T22:07:00+09:00
+generated_from_build: 2026-10-12T23:03:00+09:00
 auto_refresh: true
 last_verified: 2026-10-12
 ---
@@ -11,19 +11,19 @@ last_verified: 2026-10-12
 
 ## Application
 
-- Version: `v57.45`
+- Version: `v57.46`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
-- App shell: 10,166 lines / 749,800 bytes
+- App shell: 10,156 lines / 748,364 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 10,166 | 749,800 |
-| `js/aio-core.js` | 22,915 | 1,383,837 |
+| `index.html` | 10,156 | 748,364 |
+| `js/aio-core.js` | 22,844 | 1,379,913 |
 | `js/aio-data.js` | 16,806 | 1,039,600 |
-| `js/aio-ui.js` | 6,872 | 417,568 |
-| `js/aio-chat.js` | 8,784 | 627,638 |
-| `js/aio-tests.js` | 9,524 | 743,687 |
+| `js/aio-ui.js` | 6,870 | 417,488 |
+| `js/aio-chat.js` | 8,208 | 593,842 |
+| `js/aio-tests.js` | 9,508 | 742,851 |
 | `js/aio-glossary.js` | 408 | 103,598 |
 
 ## Workspace
@@ -31,7 +31,7 @@ last_verified: 2026-10-12
 - Context documents: 74; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 6; command wrappers: 12; agent profiles: 4.
 - Workflows: 13; CI scripts: 160.
-- Ledgers: latest rule R703; latest postmortem P1654; open QA 251 unique IDs (255 rows, 5 explicitly superseded).
+- Ledgers: latest rule R703; latest postmortem P1659; open QA 256 unique IDs (260 rows, 5 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary
