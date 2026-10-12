@@ -50,6 +50,16 @@ jobs:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: node scripts/fetch-sec-fundamentals.mjs
 
+      - name: Refresh Korean listed-company fundamentals (OpenDART, weekly)
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: |
+          set -euo pipefail
+          # P1654: free FSS disclosure API. Without the operator key the script exits 0 and keeps the artifact;
+          # annotate so the missing key is visible instead of silently freezing Korean fundamentals.
+          if [ -z "${DART_API_KEY}" ]; then echo "::warning::operator_required: DART_API_KEY secret is not set — Korean fundamentals are not collected"; fi
+          node scripts/fetch-dart-fundamentals.mjs
+
       - name: Refresh weekly earnings calendar (Finnhub free tier)
         env:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
@@ -121,6 +131,7 @@ jobs:
           }
           git add -- public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
+          stage_if_exists public-data/kr-fundamentals.json # P1654: OpenDART Korean fundamentals
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown
           stage_if_exists public-data/sec-fiscal-history.json # P1436: 재무 공시 fiscal-year series

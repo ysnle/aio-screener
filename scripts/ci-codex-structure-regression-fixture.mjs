@@ -107,4 +107,27 @@ assert.ok(!/v49\.75 구조:/.test(chat), 'P1652: no developer structure badge un
 const core = fs.readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
 assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation brackets are stripped from AI text');
 
+// P1653: AI is always on, web search is automatic, one AI panel.
+const shell = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+assert.ok(!/id="llm-switch-track"/.test(shell), 'P1653: no AI ON/OFF switch');
+assert.ok(!/id="chat-home-inp"|id="chat-theme-detail-inp"/.test(shell), 'P1653: no per-page inline chat inputs');
+assert.ok(/data-action="_aioAskInPanel"/.test(shell), 'P1653: page prompts route to the top AI panel');
+const connections = fs.readFileSync(new URL('../src/ui/panels/connections.js', import.meta.url), 'utf8');
+assert.ok(!/aio-web-search-toggle/.test(connections), 'P1653: no web search toggle');
+const shellJs = fs.readFileSync(new URL('../src/ui/components/responsive-shell.js', import.meta.url), 'utf8');
+assert.ok(!/documentElement\.style\.setProperty\('--aio-visual/.test(shellJs), 'P1653: keyboard viewport events do not restyle the whole document');
+
+// P1654: free official data lanes.
+const { netLiquiditySeries } = await import('../src/domain/macro/liquidity-growth.js');
+const week = (i) => new Date(Date.UTC(2026, 0, 7) + i * 7 * 86400000).toISOString().slice(0, 10);
+const liq = netLiquiditySeries({ series: { fedBalanceSheet: { observations: [[week(0), 6600000], [week(1), 6610000]] }, treasuryAccount: { observations: [[week(0), 800000], [week(1), 800000]] }, reverseRepo: { observations: [[week(0), 200], [week(1), 200]] } } });
+assert.equal(liq.at(-1).value, 6610 - 800 - 200, 'P1654: net liquidity = Fed assets - TGA - RRP in USD billions');
+const { mergeMacroSchedules } = await import('../src/data/macro-calendar.js');
+assert.deepEqual(mergeMacroSchedules({ 'us-cpi': ['2026-12-10'] }, { 'us-cpi': ['2026-12-10', '2027-01-13', 'bad'] })['us-cpi'], ['2026-12-10', '2027-01-13'], 'P1654: produced release dates extend the schedule');
+const { pickAccounts } = await import('./fetch-dart-fundamentals.mjs');
+const accounts = pickAccounts([{ fs_div: 'OFS', account_nm: '매출액', thstrm_amount: '1' }, { fs_div: 'CFS', account_nm: '매출액', thstrm_amount: '1,000', frmtrm_amount: '800' }]);
+assert.equal(accounts.basis, 'CFS'); assert.equal(accounts.current.revenue, 1000); assert.equal(accounts.prior.revenue, 800);
+const { krFundamentalPoints } = await import('../src/domain/entity/kr-fundamentals.js');
+assert.match(krFundamentalPoints({ fiscalYear: 2025, basis: 'CFS', current: { revenue: 2e12, operatingIncome: 2e11 }, prior: { revenue: 1e12 } }).points[0].text, /전년 대비 \+100\.0%/);
+
 console.log('codex-structure-regression-fixture: OK');

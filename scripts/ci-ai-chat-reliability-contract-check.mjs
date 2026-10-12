@@ -35,7 +35,7 @@ check('P1421: personal AI helpers fail closed', workspace.includes("function get
 check('P1421: retired AI credentials cannot be read or saved', core.includes("lsKey === 'aio_claude_api_key' || lsKey === 'aio_perplexity_key'") && !core.includes("credentialKey: 'aio_claude_api_key'"));
 check('route readiness is explicit', chat.includes("reason: 'NO_ROUTE'") && chat.includes('WORKER_NOT_READY'));
 check('route readiness follows the selected target and never bypasses Worker health because a personal key also exists', chat.indexOf('if (!target || !target.serverKey)') < chat.indexOf('var cacheTtl = cached && cached.ok') && uiRouteReadinessUsesTarget());
-check('Worker health is deduplicated and transient failures have a short cache', chat.includes('_aioWorkerHealthInFlight[target.workerUrl]') && chat.includes('cached && cached.ok ? 60000 : 5000') && chat.includes('ctrl.abort(); }, 7000'));
+check('Worker health is deduplicated and transient failures have a short cache', chat.includes('_aioWorkerHealthInFlight[target.workerUrl]') && chat.includes('cached && cached.ok ? 60000 : 5000') && chat.includes('ctrl.abort(); }, 12000'));
 // P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js,
 // so these three `_uni*` assertions now read the chat module.
 check('research preparation is shared and cancellable in both chat surfaces', chat.includes('async function _aioPrepareAIResearch') && chat.includes('_aioPrepareAIResearch(_activeQuestionPlanForResearch, { signal: _chatSignal })') && chat.includes('_aioPrepareAIResearch(_uniQuestionPlan, { signal: _uniResearchAbort.signal })'));

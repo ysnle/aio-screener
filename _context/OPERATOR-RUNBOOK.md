@@ -33,6 +33,7 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 | `AIO_AUTOMATION_TOKEN` | `refresh-data.yml`, `deploy-ai-proxy.yml` | 32자 이상의 무작위 비밀값. Worker와 Actions에 같은 값을 설정한다. Origin 없는 Actions 요청을 인증하며, 없으면 시장 AI 서술은 검증된 관측치만 표시하는 보류 상태다. 사용자 브라우저에 전달하지 않는다. |
 | `TWELVE_DATA_API_KEY` | `refresh-data.yml` | Yahoo 실패 시 2차 시세 폴백이 사라져 `CORE_QUOTE_COVERAGE_FAILED` 위험이 커진다. |
 | `FINNHUB_API_KEY` | `refresh-screener.yml` | 실적/IPO 캘린더가 이전 파일을 유지한 채 갱신되지 않는다. |
+| `DART_API_KEY` | `refresh-screener.yml` | 금융감독원 OpenDART 무료 인증키(opendart.fss.or.kr 회원가입 후 발급). 없으면 한국 종목 재무(kr-fundamentals.json)가 수집되지 않고 기업 요약은 '자료 없음'으로 남는다(경고 표시). |
 | `BOK_API_KEY` | `deploy-ai-proxy.yml` | **선택.** `/relay`의 `bok` 제공자만 503 fail-closed로 남고 배포는 계속된다(경고로 표시). 브라우저는 이 소스에 직접 도달할 수 없으므로 키가 없으면 한국은행 지표는 서버 스냅샷에만 의존한다. |
 | `KOSIS_API_KEY` | `deploy-ai-proxy.yml` | **선택.** 위와 동일하게 `kosis` 제공자만 fail-closed. |
 | `AIO_REFRESH_DISPATCH_TOKEN` | `deploy-data-plane.yml` | **권장(P1578).** 이 저장소만 대상으로 Actions 읽기·쓰기 권한을 준 fine-grained PAT. 데이터 평면 Worker에 `GITHUB_DISPATCH_TOKEN`으로 복사되어 5분 cron이 :20/:50에 `refresh-data`를 디스패치한다. 없으면 GitHub 예약 실행에만 의존한다(실측 슬롯의 약 10%). `/health`의 `schedulerDispatch.configured`와 워치독 경고로 확인한다. |

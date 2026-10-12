@@ -1804,18 +1804,6 @@ function chatRenderChips(ctxId, chips) {
   }).join('');
 }
 
-// ── v33.4: 채팅 확장/축소 토글 ────────────────────────────────────────────
-function toggleChatExpand(ctxId) {
-  var chat = document.getElementById('chat-' + ctxId);
-  if (!chat) return;
-  var isExpanded = chat.classList.toggle('chat-expanded');
-  var btn = chat.querySelector('.acp-expand-btn');
-  if (btn) btn.textContent = isExpanded ? '↙ 축소' : '↗ 확장';
-  // 확장 시 메시지 영역 끝으로 자동 스크롤
-  var msgs = document.getElementById('chat-' + ctxId + '-msgs');
-  if (msgs) setTimeout(function() { msgs.scrollTop = msgs.scrollHeight; }, 100);
-}
-
 // ── Append a message bubble ────────────────────────────────────────────
 function chatAppendMsg(ctxId, role, html, id) {
   var container = document.getElementById('chat-' + ctxId + '-msgs');
@@ -1897,9 +1885,9 @@ async function _aioEnsureClaudeRoute(apiKey) {
   if (!_aioWorkerHealthInFlight[target.workerUrl]) {
     _aioWorkerHealthInFlight[target.workerUrl] = (async function() {
       var ctrl = new AbortController();
-      var timer = setTimeout(function() { ctrl.abort(); }, 7000);
+      var timer = setTimeout(function() { ctrl.abort(); }, 12000); // P1653: slow mobile networks timed out at 7s and refused the question
       try {
-        var response = await fetch(target.healthUrl, { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal });
+        var _healthInit = { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal }; var response = await fetch(target.healthUrl, _healthInit).catch(async function(firstError) { if (ctrl.signal.aborted) throw firstError; await new Promise(function(resolve) { setTimeout(resolve, 1200); }); return fetch(target.healthUrl, _healthInit); }); // one quiet retry for a dropped mobile connection
         var payload = await response.json().catch(function() { return null; });
         var access = window.AIO && window.AIO.describeSharedConnection ? window.AIO.describeSharedConnection(payload, response.ok) : { ok: false, reason: 'WORKER_NOT_READY' };
         var ready = access.ok;

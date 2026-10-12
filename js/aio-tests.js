@@ -2049,8 +2049,8 @@
 
     // T418: web_search 토글 GUI 존재 + localStorage 연동
     var wsToggle = document.getElementById('aio-web-search-toggle');
-    _assert('T418 web_search_toggle_dom: #aio-web-search-toggle 체크박스 존재',
-      !!wsToggle && wsToggle.tagName === 'INPUT', wsToggle ? 'type=' + wsToggle.type : 'missing');
+    _assert('T418 web_search_toggle_dom: P1653 웹검색은 자동 — 사용자 토글 없음',
+      !wsToggle, wsToggle ? 'type=' + wsToggle.type : 'absent');
 
     // T419/P839: explicit key backup/restore remain; plaintext IndexedDB auto-recovery is retired
     var backupBtn = document.querySelector('.aio-key-backup-menu');
@@ -3123,9 +3123,9 @@
       chatSendSrc.indexOf('assertChatAnswerStructureAudit') >= 0 && chatSendSrc.indexOf('aio-chat-structure-badge') < 0,
       'audit=' + (chatSendSrc.indexOf('assertChatAnswerStructureAudit') >= 0) + ' badge=' + (chatSendSrc.indexOf('aio-chat-structure-badge') >= 0));
     // T595 home 채팅 DOM 존재 (v49.74 hotfix)
-    var homeDom = !!document.getElementById('chat-home-inp');
-    _assert('T595 home_chat_dom_v4974_hotfix: #chat-home-inp DOM 존재 (P398 hotfix)',
-      homeDom, 'homeDom=' + homeDom);
+    var homeDom = !!document.getElementById('chat-home-inp'), homeAsk =!!document.querySelector('#page-home [data-action="_aioAskInPanel"]');
+    _assert('T595 home_chat_dom_v4974_hotfix: P1653 홈 질문은 상단 AI 패널로 (인라인 입력 없음)',
+      !homeDom && homeAsk, 'homeDom=' + homeDom + ' ask=' + homeAsk);
     // T596 APP_VERSION === 'v49.75' (v49.76 갱신 — 하위 호환)
     _assert('T596 app_version_v4975_final: APP_VERSION === "v49.75" or 신규',
       typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),

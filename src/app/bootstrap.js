@@ -31,6 +31,8 @@ import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hub
 import { openMarketChart } from '../ui/components/stock-chart.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
 import { installConnectionPanel } from '../ui/panels/connections.js';
+import { installAskPanel } from '../ui/panels/ask-panel.js';
+import { applyProducedMacroCalendar } from '../data/macro-calendar.js';
 import { installResponsiveShell } from '../ui/components/responsive-shell.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
@@ -621,7 +623,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   function start() {
     let disposed = false;
     const stopColorTheme = documentRef?.body && root?.getComputedStyle ? installColorTheme(root, documentRef) : () => {};
-    const stopConnectionPanel = installConnectionPanel(root, documentRef, { readSearchEnabled: () => root.localStorage?.getItem('aio_web_search_enabled') !== 'off' });
+    // P1653: web search is automatic; an old per-browser opt-out would silently keep it off with no toggle left.
+    try { root.localStorage?.removeItem('aio_web_search_enabled'); } catch (_) { /* storage unavailable */ }
+    const stopConnectionPanel = installConnectionPanel(root, documentRef);
+    const stopAskPanel = installAskPanel(root, documentRef);
     const stopResponsiveShell = documentRef?.querySelector ? installResponsiveShell(root, documentRef) : () => {};
     const deferredTasks = createDeferredTaskQueue({
       setTimeoutImpl: root?.setTimeout?.bind(root) || globalThis.setTimeout.bind(globalThis),
@@ -880,6 +885,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (!disposed && announced && marketSnapshot && announced !== marketSnapshot.revision) loadSnapshot().catch(() => {});
     };
     const stopSnapshotRevision = legacy.on('aio:serverDataLoaded', reloadSnapshotOnRevision);
+    // P1654: extend the official release schedule from the producer artifact (refreshed with each server data load).
+    const mergeMacroCalendar = () => { if (!disposed) applyProducedMacroCalendar(root).catch(() => {}); };
+    const stopMacroCalendar = legacy.on('aio:serverDataLoaded', mergeMacroCalendar);
+    mergeMacroCalendar();
     function commitSnapshot(result) {
       {
         marketSnapshot = result.snapshot;
@@ -898,6 +907,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       disposed = true;
       stopColorTheme();
       stopConnectionPanel();
+      stopAskPanel();
       stopResponsiveShell();
       deferredTasks.stop();
       navigation.restore();
@@ -912,6 +922,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopMarketSnapshot();
       stopServerMarketData();
       stopSnapshotRevision();
+      stopMacroCalendar();
       stopMacroUpdated();
       stopThemesRefresh();
       stopThemesHistory();

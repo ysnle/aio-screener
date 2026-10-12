@@ -3,6 +3,8 @@ import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { parseFiscalHistory, requestFiscalHistory } from './fiscal-read.js';
 import { MARKET_LABELS } from '../../domain/screener/market-scope.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { krFundamentalPoints, KR_FUNDAMENTALS } from '../../domain/entity/kr-fundamentals.js';
 
 function element(doc, tag, text, className) { const node=doc.createElement(tag); if (text != null) node.textContent=text; if (className) node.className=className; return node; }
 function detail(doc, title, lines, sourceUrl = null, source = null) {
@@ -21,6 +23,8 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   const host=doc?.getElementById('ticker-company-analysis'); if (!host) return null;
   const id=String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
   if (!id) { host.hidden=true; host.replaceChildren(); root.__aioCompanyAnalysis=null; return null; }
+  // P1654: Korean listings read OpenDART annual accounts (loaded once per TTL; re-render when a new copy arrives).
+  if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); }).catch(() => {});
   requestFiscalHistory(root, () => {
     if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,state});
   });
@@ -65,8 +69,12 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   }
   identity.append(detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'} · 유형 검증 ${meta.verification}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source));
   grid.append(identity);
-  const financial=card(doc,'실적·현금·재무 구조',model.financial.status==='reference' ? '참고' : model.financial.status==='not-applicable' ? '기업 재무 대상 아님' : '자료 없음');
-  if (model.financial.fiscal.available) {
+  const krFundamental=model.financial.status==='kr-disclosure-required' ? krFundamentalPoints(root?._aioKrFundamentals?.companies?.[id]) : null;
+  const financial=card(doc,'실적·현금·재무 구조',krFundamental ? '공시' : model.financial.status==='reference' ? '참고' : model.financial.status==='not-applicable' ? '기업 재무 대상 아님' : '자료 없음');
+  if (krFundamental) {
+    const list=element(doc,'ul'); for (const point of krFundamental.points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text)); list.append(li); } financial.append(list);
+    financial.append(detail(doc,'재무 기간·원문',krFundamental.basisLines));
+  } else if (model.financial.fiscal.available) {
     const points=model.financial.fiscal.points.filter(point=>['growth','margin','cash','roe','debt','shares','single'].includes(point.id)).slice(0,4);
     const list=element(doc,'ul'); for (const point of points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text)); list.append(li); } financial.append(list);
     financial.append(detail(doc,'재무 기간·원문',[`연간 회계연도 말 ${model.financial.periodEnd || '미확인'}`,model.financial.filedAt ? `제출 ${model.financial.filedAt}` : '제출 시각 미확인',`${model.financial.source} · 주가 수익률 기간과 직접 동일시하지 않습니다.`],model.financial.sourceUrl,'SEC 공시 원문'));

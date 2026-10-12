@@ -71,10 +71,24 @@ export function installResponsiveShell(root, doc) {
     if (event.shiftKey && doc.activeElement === first) { event.preventDefault(); last?.focus(); }
     else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); first?.focus(); }
   };
-  const refreshViewport = () => {
+  // P1653: iOS fires visualViewport resize/scroll on every keystroke while the keyboard is open. Writing the variables
+  // on <html> restyled the whole document per event, so typing in the AI panel lagged on iPhone/iPad. The values are
+  // written once per frame, only when they change, and only on the two overlays that read them.
+  let viewportFrame = null, lastViewport = '';
+  const writeViewport = () => {
+    viewportFrame = null;
     const viewport = root.visualViewport;
-    doc.documentElement.style.setProperty('--aio-visual-height', `${viewport?.height || root.innerHeight}px`);
-    doc.documentElement.style.setProperty('--aio-visual-top', `${viewport?.offsetTop || 0}px`);
+    const height = `${Math.round(viewport?.height || root.innerHeight)}px`, top = `${Math.round(viewport?.offsetTop || 0)}px`;
+    if (`${height}|${top}` === lastViewport) return;
+    lastViewport = `${height}|${top}`;
+    for (const id of ['ai-panel', 'glossary-modal']) {
+      const target = doc.getElementById(id);
+      target?.style.setProperty('--aio-visual-height', height);
+      target?.style.setProperty('--aio-visual-top', top);
+    }
+  };
+  const refreshViewport = () => {
+    if (viewportFrame === null) viewportFrame = root.requestAnimationFrame ? root.requestAnimationFrame(writeViewport) : (writeViewport(), null);
   };
   const decorate = () => {
     doc.querySelectorAll(CARD_GRIDS).forEach((el) => el.classList.add('aio-responsive-card-grid'));
@@ -120,7 +134,7 @@ export function installResponsiveShell(root, doc) {
   root.visualViewport?.addEventListener('scroll', refreshViewport);
   decorate(); onMode();
   return () => {
-    disposed = true; if (frame !== null) root.cancelAnimationFrame?.(frame);
+    disposed = true; if (frame !== null) root.cancelAnimationFrame?.(frame); if (viewportFrame !== null) root.cancelAnimationFrame?.(viewportFrame);
     observer.disconnect(); aiObserver.disconnect(); setOpen(false); sidebar.inert = false; main.inert = previous.mainInert;
     if (app) app.inert = previousAi.appInert;
     if (ai) { ai.removeAttribute('aria-modal'); if (previousAi.role) ai.setAttribute('role', previousAi.role); else ai.removeAttribute('role'); }

@@ -4,6 +4,12 @@ last_verified: 2026-10-12
 confidence: medium
 ---
 
+## v57.45 AI 패널·모바일 입력 (2026-10-12)
+
+- [ ] QA-AI-ALWAYS-ON-01: P1653: AI ON/OFF·웹검색 토글이 없고, 모든 화면의 AI 질문은 상단 AI 패널 하나로 간다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-MOBILE-TYPING-01: P1653: 휴대폰·아이패드 키보드가 열린 동안 뷰포트 이벤트가 문서 전체 스타일을 다시 계산하지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-FREE-DATA-01: P1654: 확장 FRED 계열·발표일 일정·OpenDART 재무가 자료 생성 후 거시·일정·기업 요약에 보이고, 자료가 없으면 숨긴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+
 ## v57.44 한국장·AI 해설 표면 (2026-10-12)
 
 - [ ] QA-KR-SESSION-01: P1651: 한국 지수는 최신 완료 KRX 세션 날짜로 보이고, 홈에 한국장 한 줄이 있으며, AI 해설에 근거 토큰이 보이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.44 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.45 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.44" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.44" defer></script>
-<script src="./js/aio-kr-data.js?v=57.44" defer></script>
-<script src="./js/aio-pages.js?v=57.44" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.44">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.44">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.44">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.44">
+<script src="./js/aio-workspace.js?v=57.45" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.45" defer></script>
+<script src="./js/aio-kr-data.js?v=57.45" defer></script>
+<script src="./js/aio-pages.js?v=57.45" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.45">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.45">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.45">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.45">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -6038,13 +6038,10 @@ button[data-filter-active="true"] {
             <button class="llm-key-save" data-action="saveGhRepo" style="white-space:nowrap;">설정</button>
           </div>
 
-          <!-- 헤더: 제목 + ON/OFF 스위치 -->
+          <!-- P1653: AI is always on (owner 2026-10-12) — no ON/OFF switch, only the connection state -->
           <div class="llm-panel-header">
             <span class="llm-panel-title">AI 도우미</span>
             <div class="llm-switch-wrap">
-              <div id="llm-switch-track" class="llm-switch-track on" data-action="toggleLLM" title="AI 어시스턴트 ON/OFF">
-                <div class="llm-switch-thumb"></div>
-              </div>
               <span id="llm-switch-label" class="llm-switch-label">라우트 확인 중</span>
             </div>
           </div>
@@ -6241,7 +6238,7 @@ button[data-filter-active="true"] {
           </span>
           <span id="live-quote-ts" style="font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;">연결 중...</span>
           <!-- R1: visible release identity; market volatility stays in the market card. -->
-          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.44</span>
+          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.45</span>
           <!-- v48.43: AI 분석가 버튼 -->
           <button id="topbar-help-btn" class="aio-btn-table" data-action="showPage" data-arg="guide" title="도움말 · 화면 안내와 판정 기준">도움말</button>
           <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 도우미 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 도우미 · 교육/리서치 보조 사이드바">AI 도우미</button>
@@ -6520,25 +6517,8 @@ button[data-filter-active="true"] {
   <!-- ═══ v48.45: GMO + 오늘의 시장 + 서브 지표 통합 해설 ═══ -->
   <!-- [OLD SECTIONS REMOVED - REPLACED BY NEW DASHBOARD] -->
 
-  <!-- v49.74 P398 R146: home 페이지 인라인 채팅 패널 (사용자 정직 발견 — "Home에서는 AI 채팅 되지도 않아") -->
-  <div class="aio-chat" id="chat-home" style="margin-top:16px;">
-    <div class="acp-header">
-      <span class="acp-title">AIO Screener 홈 — AI 종합 안내</span>
-      <button class="acp-clear" data-action="chatClear" data-arg="home" title="대화 초기화" aria-label="대화 초기화">지움</button>
-    </div>
-    <div class="acp-messages" id="chat-home-msgs"></div>
-    <div class="acp-chips" id="chat-home-chips">
-      <button class="aio-chat-chip q-chip" data-action="chatFromChip" data-arg="home" data-arg2="오늘 시장 환경 요약해줘">오늘 시장 환경 요약</button>
-      <button class="aio-chat-chip q-chip" data-action="chatFromChip" data-arg="home" data-arg2="현재 시장에서 우선 확인할 지표와 리스크를 정리해줘">우선순위 체크</button>
-      <button class="aio-chat-chip q-chip" data-action="chatFromChip" data-arg="home" data-arg2="현재 대시보드 결과를 운용 흐름으로 정리해줘">운용 흐름 정리</button>
-    </div>
-    <div class="acp-input-row" style="display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--border);">
-      <input id="chat-home-inp" placeholder="시장 흐름·시그널·종목·포트폴리오에 대해 질문하세요..."
-        data-on-keydown="chatInputEnter" data-arg="home"
-        style="flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:3px;padding:8px 10px;color:var(--text-primary);font-size:13px;">
-      <button id="chat-home-btn" data-action="chatSend" data-arg="home" class="acp-send-btn" style="padding:8px 14px;background:var(--accent);color:#f7f4ee;border:none;border-radius:3px;cursor:pointer;font-weight:700;">전송</button>
-    </div>
-  </div>
+  <!-- P1653: questions go to the one top AI panel (owner 2026-10-12) -->
+  <div class="aio-ask-row" style="margin-top:16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><span style="font-size:12px;color:var(--text-muted);">AI에게 묻기</span><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="오늘 시장 환경 요약해줘">오늘 시장 환경 요약</button><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="현재 시장에서 우선 확인할 지표와 리스크를 정리해줘">우선 확인할 것</button><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="지금 시장 흐름별로 확인할 것과 기회비용을 정리해줘">흐름별 확인할 것</button></div>
 </div><!-- fix: page-home outer close -->
 
 
@@ -8324,26 +8304,8 @@ button[data-filter-active="true"] {
 
     </div><!-- /aio-section 테마데이터 -->
 
-    <!-- Chat Panel -->
-    <div class="aio-chat" id="chat-theme-detail" style="margin-top:16px;">
-      <div class="acp-header">
-        <span class="acp-title">Theme Deep Dive</span>
-        <span style="margin-left:auto;font-size:11px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">GPT-6 Luna</span>
-        <button class="acp-expand-btn" data-action="toggleChatExpand" data-arg="theme-detail" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" data-action="chatClear" data-arg="theme-detail" title="대화 초기화" aria-label="대화 초기화">지움</button>
-      </div>
-      <div class="acp-messages" id="chat-theme-detail-msgs"></div>
-      <div class="acp-chips" id="chat-theme-detail-chips">
-        <div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">AI 트렌드</div>
-        <div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">경쟁 구도</div>
-        <div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">위험 요소</div>
-        <div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">포트폴리오 구성</div>
-      </div>
-      <div class="acp-input-row">
-        <input id="chat-theme-detail-inp" placeholder="질문을 입력하세요..."
-               data-on-enter="chatSend:theme-detail"/>
-        <button id="chat-theme-detail-btn" data-action="chatSend" data-arg="theme-detail">전송</button>
-      </div>
-    </div>
+    <!-- P1653: theme questions go to the one top AI panel -->
+    <div class="aio-ask-row" style="margin-top:16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><span style="font-size:12px;color:var(--text-muted);">AI에게 묻기</span><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="이 테마의 성장 동력과 지금 흐름을 설명해줘">성장 동력</button><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="이 테마의 경쟁 구도를 정리해줘">경쟁 구도</button><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="이 테마의 위험 요소와 확인할 지표를 정리해줘">위험 요소</button></div>
   </div>
     <!-- ═══════════════ PAGE: PORTFOLIO (포트폴리오) ═══════════════ -->
   <div class="page" id="page-portfolio">
@@ -10042,15 +10004,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.44" defer></script>
-  <script src="./js/aio-data.js?v=57.44" defer></script>
-  <script src="./js/aio-ui.js?v=57.44" defer></script>
+  <script src="./js/aio-core.js?v=57.45" defer></script>
+  <script src="./js/aio-data.js?v=57.45" defer></script>
+  <script src="./js/aio-ui.js?v=57.45" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.44" defer></script>
+<script src="./js/aio-chat.js?v=57.45" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -10108,7 +10070,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.44" defer></script>
+<script src="./js/aio-glossary.js?v=57.45" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

@@ -13,6 +13,7 @@ import { readMarketRegime } from './market-regime.js';
 import { buildMacroBoard } from '../../domain/macro/indicators.js';
 import { buildRatesFx, signed } from '../../domain/macro/rates-fx.js';
 import { createTrendChart } from './trend-chart.js';
+import { buildLiquidityGrowthGroups } from '../../domain/macro/liquidity-growth.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -379,6 +380,15 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     section.append(grid);
     return section;
   }));
+  // P1654: liquidity, growth-lead and commodity/Asia-FX groups from the extended FRED lane (hidden until produced).
+  for (const group of buildLiquidityGrowthGroups(macroHistory)) {
+    const section = el(doc, 'section', null, 'macro-group');
+    section.dataset.group = group.id;
+    const grid = el(doc, 'div', null, 'macro-stat-grid');
+    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: `${shortDate(item.asOf)} 기준 · FRED`, note: item.reading, series: item.series, unit: item.unit })));
+    section.append(el(doc, 'h3', group.title, 'macro-group-title'), el(doc, 'p', group.fact, 'macro-group-fact'), grid);
+    host.append(section);
+  }
   renderCommodities(doc, root);
   host.dataset.aioMacroBoardRenderer = 'native';
   return { board, read };

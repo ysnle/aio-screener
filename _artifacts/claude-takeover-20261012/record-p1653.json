@@ -1,0 +1,35 @@
+{
+  "version": "v57.45",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.45 소유자 요청: AI 항상 사용·웹검색 자동·AI 패널 통합, 모바일 타이핑 지연, 무료 공식 데이터 확장(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1653,
+    "title": "휴대폰·아이패드에서 AI 질문 입력이 느리고 연결 확인이 쉽게 실패하며, AI 켜기·웹검색 스위치와 페이지별 채팅이 흩어져 있음",
+    "symptom": "iPhone·iPad에서 AI 패널에 질문을 칠 때 글자가 늦게 따라왔다. 느린 모바일 연결에서 공용 AI 연결 확인이 7초에 끊기면 \"공용 AI 연결이 현재 응답할 준비가 되지 않았습니다\"로 질문을 거절했다. 사이드바에는 AI ON/OFF 스위치와 웹검색 ON/OFF가 있었고, 홈과 테마 상세에는 상단 AI 패널과 별개의 인라인 채팅이 있었다.",
+    "root_cause": "키보드가 열린 동안 iOS가 계속 보내는 visualViewport 이벤트마다 문서 최상위(html)의 CSS 변수를 바꿔 전체 페이지 스타일을 다시 계산했다. 연결 확인은 재시도 없이 7초 제한이었다. AI 사용·검색은 운영자 결정(항상 사용·자동 검색)과 달리 사용자 스위치로 남아 있었다.",
+    "fix": "뷰포트 값은 프레임당 한 번, 값이 바뀔 때만, 그 값을 쓰는 AI 패널·용어 모달에만 기록한다. 연결 확인은 12초 제한에 한 번 조용히 재시도한다. AI ON/OFF 스위치와 웹검색 토글을 없애고 이전에 저장된 검색 끄기 설정을 지운다. 홈·테마 상세의 인라인 채팅은 질문 버튼으로 바꿔 상단 AI 패널 하나로 보낸다. AGENTS.md·CLAUDE.md에 결정을 기록했다.",
+    "violated_rule": "owner 2026-10-12: AI 항상 사용·웹검색 자동·단일 AI 패널 · 반응형 지원(2026-10-11)",
+    "prevention": "P1653: node scripts/ci-codex-structure-regression-fixture.mjs",
+    "verification": "배포판 768×1024에서 공용 AI 연결 \"사용 가능\"(worker v57.44 health ok). 375×812 모바일 에뮬레이션 유휴 DOM 변화 15초 1건/초 수준, 키 입력 16ms 초과 이벤트 0건. 실제 iOS 기기 확인은 미실시."
+  },
+  "qa": [
+    {
+      "id": "QA-AI-ALWAYS-ON-01",
+      "text": "P1653: AI ON/OFF·웹검색 토글이 없고, 모든 화면의 AI 질문은 상단 AI 패널 하나로 간다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    },
+    {
+      "id": "QA-MOBILE-TYPING-01",
+      "text": "P1653: 휴대폰·아이패드 키보드가 열린 동안 뷰포트 이벤트가 문서 전체 스타일을 다시 계산하지 않는다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "AI 패널·모바일 입력",
+  "changelog": [
+    "**AI 항상 사용·단일 패널·모바일 입력 (P1653):** AI ON/OFF·웹검색 토글 제거(검색 자동), 홈·테마 인라인 채팅을 상단 AI 패널로 통합, iPhone·iPad 타이핑 지연 원인(키보드 뷰포트 이벤트의 전체 스타일 재계산) 제거, 연결 확인 재시도."
+  ]
+}

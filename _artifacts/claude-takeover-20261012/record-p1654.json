@@ -1,0 +1,29 @@
+{
+  "version": "v57.45",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.45 소유자 요청: AI 항상 사용·웹검색 자동·AI 패널 통합, 모바일 타이핑 지연, 무료 공식 데이터 확장(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1654,
+    "title": "유동성·성장·원자재 지표, 경제 일정, 한국 종목 재무가 무료 공식 원천에서 수집되지 않음",
+    "symptom": "연준 자산·역레포·TGA·금융여건·GDP·PPI·소비자심리·JOLTS·브렌트·천연가스·구리·위안 같은 지표가 없었다. 경제 일정은 코드에 손으로 적은 배열이라 2026-12 이후 비게 됐다. 한국 179종목 재무는 0개였다.",
+    "root_cause": "FRED 수집 목록이 물가·고용·금리·신용 위주였고, 일정은 주간 검토 이슈로만 갱신했으며, 한국 공시 원천이 연결되지 않았다.",
+    "fix": "같은 FRED 운영 키로 13개 계열을 macro-history에 추가하고 거시 화면에 유동성·금융 여건, 성장·고용 선행, 원자재·아시아 통화 그룹을 붙였다(자료가 생기기 전에는 숨김). FRED 발표일 API로 CPI·고용·PCE·소매판매 일정을 macro-calendar.json에 쓰고 화면 일정에 합친다(FOMC·한은·ISM은 공식 연간 일정 유지). OpenDART 수집기(주 1회, 사업보고서 주요계정)를 추가해 한국 종목 기업 요약에 매출·영업이익률·ROE·부채비율을 공시 기준으로 보인다 — DART_API_KEY 비밀값이 등록되어야 수집된다.",
+    "violated_rule": "무료 공식 원천 우선(owner 2026-10-11)",
+    "prevention": "P1654: node scripts/ci-codex-structure-regression-fixture.mjs",
+    "verification": "순유동성·일정 병합·DART 계정 선택·한국 재무 문장 단언. 실제 수집은 push 후 Actions 실행에서 확인."
+  },
+  "qa": [
+    {
+      "id": "QA-FREE-DATA-01",
+      "text": "P1654: 확장 FRED 계열·발표일 일정·OpenDART 재무가 자료 생성 후 거시·일정·기업 요약에 보이고, 자료가 없으면 숨긴다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "무료 공식 데이터 확장",
+  "changelog": [
+    "**무료 공식 데이터 확장 (P1654):** FRED 13개 계열(유동성·성장·원자재·위안) 거시 화면 그룹, FRED 발표일 기반 경제 일정 자동 갱신, OpenDART 한국 종목 재무(키 등록 필요)."
+  ]
+}

@@ -3997,7 +3997,22 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   // P1638: rating tiers — stress usually starts in the weakest borrowers (CCC) before the HY average moves.
   bbOas:          { id: 'BAMLH0A1HYBB',  frequency: 'daily',   limit: 280, unit: 'percent', label: 'BB 등급 스프레드' },
   bOas:           { id: 'BAMLH0A2HYB',   frequency: 'daily',   limit: 280, unit: 'percent', label: 'B 등급 스프레드' },
-  cccOas:         { id: 'BAMLH0A3HYC',   frequency: 'daily',   limit: 280, unit: 'percent', label: 'CCC 이하 스프레드' }
+  cccOas:         { id: 'BAMLH0A3HYC',   frequency: 'daily',   limit: 280, unit: 'percent', label: 'CCC 이하 스프레드' },
+  // P1654 (owner 2026-10-12: fill free official data gaps): liquidity, growth and wider commodity/FX context from the
+  // same operator FRED key. Raw observations only; readings are derived in src/domain/macro.
+  fedBalanceSheet:{ id: 'WALCL',         frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '연준 총자산' },
+  reverseRepo:    { id: 'RRPONTSYD',     frequency: 'daily',   limit: 280, unit: 'usd-billions', label: '역레포 잔액' },
+  treasuryAccount:{ id: 'WTREGEN',       frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '재무부 일반계정(TGA)' },
+  sofr:           { id: 'SOFR',          frequency: 'daily',   limit: 280, unit: 'percent', label: 'SOFR 단기금리' },
+  financialConditions: { id: 'NFCI',     frequency: 'weekly',  limit: 110, unit: 'index', label: '시카고 연은 금융여건지수' },
+  realGdp:        { id: 'GDPC1',         frequency: 'quarterly', limit: 24, unit: 'usd-billions-chained', label: '실질 GDP' },
+  ppiFinalDemand: { id: 'PPIFIS',        frequency: 'monthly', limit: 40,  unit: 'index', label: '생산자물가(최종수요)' },
+  consumerSentiment: { id: 'UMCSENT',    frequency: 'monthly', limit: 40,  unit: 'index', label: '미시간대 소비자심리' },
+  jobOpenings:    { id: 'JTSJOL',        frequency: 'monthly', limit: 40,  unit: 'thousands', label: '구인 건수(JOLTS)' },
+  brent:          { id: 'DCOILBRENTEU',  frequency: 'daily',   limit: 280, unit: 'usd-per-barrel', label: '브렌트유' },
+  natGas:         { id: 'DHHNGSP',       frequency: 'daily',   limit: 280, unit: 'usd-per-mmbtu', label: '천연가스(헨리허브)' },
+  copper:         { id: 'PCOPPUSDM',     frequency: 'monthly', limit: 40,  unit: 'usd-per-ton', label: '구리' },
+  usdCny:         { id: 'DEXCHUS',       frequency: 'daily',   limit: 280, unit: 'cny-per-usd', label: '위안/달러' }
 });
 const MACRO_HISTORY_OUT = `${__dir}/../public-data/macro-history.json`;
 
@@ -4040,6 +4055,35 @@ async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date.now() 
   };
   await atomicWriteFile(MACRO_HISTORY_OUT, JSON.stringify(payload));
   return { written: true, series: Object.keys(series).length, failed };
+}
+
+// P1654: the release dates of the four FRED-published indicators the calendar shows. The browser calendar was a
+// hand-maintained array that ran out after 2026-12; the producer now writes the official FRED release schedule each
+// run (FOMC, BOK and ISM are not FRED releases and stay on their annual official calendars).
+const MACRO_CALENDAR_OUT = `${__dir}/../public-data/macro-calendar.json`;
+export const MACRO_CALENDAR_RELEASES = Object.freeze({ 'us-retail': 9, 'us-cpi': 10, 'us-nfp': 50, 'us-pce': 54 });
+export async function writeMacroCalendar(key, { fetchFn = fetchJSON, nowMs = Date.now() } = {}) {
+  if (!key) return { written: false, reason: 'api-key-not-configured' };
+  const start = new Date(nowMs - 45 * 86400000).toISOString().slice(0, 10);
+  const end = new Date(nowMs + 400 * 86400000).toISOString().slice(0, 10);
+  const schedules = {};
+  const failed = [];
+  for (const [calendarId, releaseId] of Object.entries(MACRO_CALENDAR_RELEASES)) {
+    const url = `https://api.stlouisfed.org/fred/release/dates?release_id=${releaseId}&realtime_start=${start}&realtime_end=${end}&include_release_dates_with_no_data=true&sort_order=asc&limit=60&api_key=${key}&file_type=json`;
+    try {
+      const payload = await fetchFn(url);
+      const dates = [...new Set((payload?.release_dates || []).map((row) => String(row?.date || '')).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)))].sort();
+      if (!dates.length) throw new Error('no-dates');
+      schedules[calendarId] = dates;
+    } catch (error) {
+      failed.push(calendarId);
+      console.warn(`[fetch-data] macro calendar ${calendarId} failed: ${error?.message || error}`);
+    }
+  }
+  if (!Object.keys(schedules).length) return { written: false, reason: 'all-releases-failed' };
+  const payload = { schemaVersion: 'macro-calendar.v1', generatedAt: new Date(nowMs).toISOString(), source: 'FRED release dates, Federal Reserve Bank of St. Louis', sourceKind: 'T1_OFFICIAL', status: failed.length ? 'partial' : 'ok', failed, schedules };
+  await atomicWriteFile(MACRO_CALENDAR_OUT, JSON.stringify(payload));
+  return { written: true, releases: Object.keys(schedules).length, failed };
 }
 
 // P1416: which stocks made each count — the latest 20 completed sessions, US segment. Names come
@@ -4286,6 +4330,7 @@ async function main() {
   const rotationHistoryTask = collectRotationHistory({ fetchHistory, previous: previous?.rotationHistory, now: Date.parse(attemptedAt) });
   // P1426: monthly/weekly/daily macro observations for the 거시 direction reads (independent lane).
   const macroHistoryTask = writeMacroHistory(process.env.FRED_API_KEY).catch((error) => ({ written: false, reason: error?.message || String(error) }));
+  const macroCalendarTask = writeMacroCalendar(process.env.FRED_API_KEY).catch((error) => ({ written: false, reason: error?.message || String(error) }));
   const settled = await Promise.allSettled([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
@@ -4731,6 +4776,8 @@ async function main() {
   data.rotationHistory = await rotationHistoryTask;
   await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   const macroHistoryInfo = await macroHistoryTask;
+  const macroCalendarInfo = await macroCalendarTask;
+  console.log(`[fetch-data] macro calendar: ${JSON.stringify(macroCalendarInfo)}`);
   console.log(`[fetch-data] macro history: ${JSON.stringify(macroHistoryInfo)}`);
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   // P1246: FX 교차검증 — 히스토리 레인이 기록한 **공식 관측일과 같은 날짜**의 완료 종가를 공식

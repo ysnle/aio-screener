@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1654 - v57.45 - 유동성·성장·원자재 지표, 경제 일정, 한국 종목 재무가 무료 공식 원천에서 수집되지 않음 (2026-10-12)
+
+- symptom/reproduction: 연준 자산·역레포·TGA·금융여건·GDP·PPI·소비자심리·JOLTS·브렌트·천연가스·구리·위안 같은 지표가 없었다. 경제 일정은 코드에 손으로 적은 배열이라 2026-12 이후 비게 됐다. 한국 179종목 재무는 0개였다.
+- root_cause: FRED 수집 목록이 물가·고용·금리·신용 위주였고, 일정은 주간 검토 이슈로만 갱신했으며, 한국 공시 원천이 연결되지 않았다.
+- fix: 같은 FRED 운영 키로 13개 계열을 macro-history에 추가하고 거시 화면에 유동성·금융 여건, 성장·고용 선행, 원자재·아시아 통화 그룹을 붙였다(자료가 생기기 전에는 숨김). FRED 발표일 API로 CPI·고용·PCE·소매판매 일정을 macro-calendar.json에 쓰고 화면 일정에 합친다(FOMC·한은·ISM은 공식 연간 일정 유지). OpenDART 수집기(주 1회, 사업보고서 주요계정)를 추가해 한국 종목 기업 요약에 매출·영업이익률·ROE·부채비율을 공시 기준으로 보인다 — DART_API_KEY 비밀값이 등록되어야 수집된다.
+- violated_rule: 무료 공식 원천 우선(owner 2026-10-11)
+- prevention: P1654: node scripts/ci-codex-structure-regression-fixture.mjs
+- verification/residual: 순유동성·일정 병합·DART 계정 선택·한국 재무 문장 단언. 실제 수집은 push 후 Actions 실행에서 확인.
+
+## P1653 - v57.45 - 휴대폰·아이패드에서 AI 질문 입력이 느리고 연결 확인이 쉽게 실패하며, AI 켜기·웹검색 스위치와 페이지별 채팅이 흩어져 있음 (2026-10-12)
+
+- symptom/reproduction: iPhone·iPad에서 AI 패널에 질문을 칠 때 글자가 늦게 따라왔다. 느린 모바일 연결에서 공용 AI 연결 확인이 7초에 끊기면 "공용 AI 연결이 현재 응답할 준비가 되지 않았습니다"로 질문을 거절했다. 사이드바에는 AI ON/OFF 스위치와 웹검색 ON/OFF가 있었고, 홈과 테마 상세에는 상단 AI 패널과 별개의 인라인 채팅이 있었다.
+- root_cause: 키보드가 열린 동안 iOS가 계속 보내는 visualViewport 이벤트마다 문서 최상위(html)의 CSS 변수를 바꿔 전체 페이지 스타일을 다시 계산했다. 연결 확인은 재시도 없이 7초 제한이었다. AI 사용·검색은 운영자 결정(항상 사용·자동 검색)과 달리 사용자 스위치로 남아 있었다.
+- fix: 뷰포트 값은 프레임당 한 번, 값이 바뀔 때만, 그 값을 쓰는 AI 패널·용어 모달에만 기록한다. 연결 확인은 12초 제한에 한 번 조용히 재시도한다. AI ON/OFF 스위치와 웹검색 토글을 없애고 이전에 저장된 검색 끄기 설정을 지운다. 홈·테마 상세의 인라인 채팅은 질문 버튼으로 바꿔 상단 AI 패널 하나로 보낸다. AGENTS.md·CLAUDE.md에 결정을 기록했다.
+- violated_rule: owner 2026-10-12: AI 항상 사용·웹검색 자동·단일 AI 패널 · 반응형 지원(2026-10-11)
+- prevention: P1653: node scripts/ci-codex-structure-regression-fixture.mjs
+- verification/residual: 배포판 768×1024에서 공용 AI 연결 "사용 가능"(worker v57.44 health ok). 375×812 모바일 에뮬레이션 유휴 DOM 변화 15초 1건/초 수준, 키 입력 16ms 초과 이벤트 0건. 실제 iOS 기기 확인은 미실시.
+
 ## P1652 - v57.44 - 오래된 재무가 현재처럼 순위에 쓰이고, AI 대화·운영 노트·도구 문서가 지난 결정을 따름 (2026-10-12)
 
 - symptom/reproduction: SEC 재무 655종목 중 31종목이 기간 종료 15개월 초과(WFC FY2019, NEE FY2012, PBR FY2010)인데 현재 값으로 P/E·ROE·마진 순위에 쓰였고, BRK-B P/E 0.01·P/B 0, IBKR 0.85 같은 단위 불일치가 가치 순위 상단에 올 수 있었다. AI 대화 프롬프트는 "가격·비중·손절·목표 범위도 분석할 수 있다"고 했고 퇴역한 트레이딩 스코어를 넣었으며, 답변 밑에 "v49.75 구조: R141" 개발자 배지가 붙었다. 6월 운영 노트는 날짜 제한 없이 노출·AI 문맥에 들어갈 수 있었다. 에이전트 템플릿·QA 스킬·worker 계약은 데스크톱 전용, $10 예산, 19개 페이지 목록, 로컬 sync 실행을 안내했다.
