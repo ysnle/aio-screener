@@ -35,6 +35,17 @@ export function snapshotIdentityRows(rows = []) {
 // ARX-10/ARX-16 + SCR-OS-01: the native screener reads the published artifact and generated identity
 // universe through the platform HTTP gateway. Legacy SCREENER_DB remains only as a
 // compatibility enrichment/fallback for non-route consumers that have not yet migrated.
+// P1652: an annual filing whose period ended more than 15 months before the price session is not the company's
+// current fundamentals (WFC FY2019, NEE FY2012 were ranked as current). Its valuation and quality fields are held.
+export const FUNDAMENTAL_MAX_PERIOD_AGE_DAYS = 456;
+export function fundamentalPeriodTooOld(periodEnd, sessionDate) {
+  const end = Date.parse(String(periodEnd || '').slice(0, 10));
+  const session = Date.parse(String(sessionDate || '').slice(0, 10));
+  return Number.isFinite(end) && Number.isFinite(session) && (session - end) / 86400000 > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
+}
+function fundamentalHeld(factor) {
+  return fundamentalPeriodTooOld(factor?.fundamentalPeriodEnd, factor?.factorSessionDate || factor?.factorObservedAt);
+}
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
@@ -449,12 +460,15 @@ export function createScreenerProvider({
           vcpScore: finite(factor.vcpScore),
           vcpStage: factor.vcpStage || null,
           vcpPivot: finite(factor.vcpPivot),
-          pe: finite(factor.pe),
-          pb: finite(factor.pb),
-          evEbitda: finite(factor.evEbitda),
-          roe: finite(factor.roe),
-          margin: finite(factor.margin),
-          revGrowth: finite(factor.revGrowth),
+          // P1652: P/E under 2 or P/B under 0.1 means earnings or equity near the whole market value — a share-class or
+          // unit mismatch (BRK-B 0.01/0, IBKR 0.85), not a bargain; held so it cannot top the value rank.
+          pe: fundamentalHeld(factor) || !(finite(factor.pe) >= 2) ? null : finite(factor.pe),
+          pb: fundamentalHeld(factor) || !(finite(factor.pb) >= 0.1) ? null : finite(factor.pb),
+          evEbitda: fundamentalHeld(factor) ? null : finite(factor.evEbitda),
+          roe: fundamentalHeld(factor) ? null : finite(factor.roe),
+          margin: fundamentalHeld(factor) ? null : finite(factor.margin),
+          revGrowth: fundamentalHeld(factor) ? null : finite(factor.revGrowth),
+          _fundamentalHeldReason: fundamentalHeld(factor) ? 'period-too-old' : null,
           newsMemo: factor.newsMemo || null,
           newsTs: newsObservedAt,
           newsObservedAt: newsObservedAt,

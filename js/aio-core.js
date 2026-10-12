@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.43';
+const APP_VERSION = 'v57.44';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3651,7 +3651,7 @@ if (typeof document !== 'undefined') {
       sinks.forEach(function(el){
         var mode = el.getAttribute('data-market-analysis-sink') || 'one'; if (el.hasAttribute('data-analysis-server-only') && !serverLLM) { el.textContent = ''; el.hidden = true; return; } el.hidden = false; // P1383: the template synthesis printed '?' slots and an uncalibrated n/100
         var src = serverLLM || syn;
-        var txt = String(mode === 'full' ? (src.full || syn.full) : (src.oneLine || syn.oneLine) || '').replace(/\s*\(?\b(?:market-analysis:[^\s,)]+|[a-z]+(?:[.-][a-z0-9]+)+:[0-9a-f]{8})\b\)?/gi, '').replace(/\s*\(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)/g, '').replace(/[ \t]{2,}/g, ' '); // P1428: evidence ids and raw ISO stamps stay in the evidence store, not in the reader's text
+        var txt = String(mode === 'full' ? (src.full || syn.full) : (src.oneLine || syn.oneLine) || '').replace(/\s*\[[^\]\n]*(?:headline:|market-analysis:|[a-z]+(?:[.-][a-z0-9]+)+:[0-9a-f]{8})[^\]\n]*\]/gi, '').replace(/\s*\(?\b(?:market-analysis:[^\s,)]+|[a-z]+(?:[.-][a-z0-9]+)+:[0-9a-f]{8})\b\)?/gi, '').replace(/\s*\(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)/g, '').replace(/[ \t]{2,}/g, ' '); // P1428: evidence ids and raw ISO stamps stay in the evidence store, not in the reader's text; P1651: whole citation brackets incl. headline URLs
         // P1122: a published narrative carries its own boundary note; show it with the full text.
         var note = (mode === 'full' && serverLLM && typeof serverLLM.disclosure === 'string') ? serverLLM.disclosure : '';
         // full은 줄바꿈을 <br>로, 한 줄은 그대로.

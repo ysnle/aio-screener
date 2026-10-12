@@ -63,7 +63,7 @@
       "authority": "single durable object",
       "operations": ["reserve", "release", "usage", "start", "settle"],
       "operatorUsage": "GET /_ops/ai-usage; separate AIO_OPERATOR_TOKEN; no CORS; no-store; never add counts or AI cap to public /health",
-      "budgetScope": "browser chat, translation and Actions analysis share one UTC-month $10 reservation ledger; paid AI search is disabled",
+      "budgetScope": "browser chat, translation and Actions analysis and conditional cited web search share one UTC-month $20 reservation ledger (owner 2026-10-11)",
       "automationAuthentication": "origin-less POST /openai requires X-AIO-Automation-Token; not a public browser credential",
       "idempotency": "X-AIO-Idempotency-Key or SHA-256 request-body digest",
       "legacyKv": "unsupported-fail-closed",

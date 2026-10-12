@@ -3117,10 +3117,10 @@
     _assert('T593 hallucination_pattern_d_v4975: stale-md-date + self-confess + vague-price-range 모두 검출',
       hallTest && hallTest.patterns.indexOf('self-confess-training-data') >= 0 && hallTest.patterns.some(function(p){return p.indexOf('vague-price-range')>=0||p.indexOf('stale-md-date')>=0;}),
       hallTest ? 'patterns=' + hallTest.patterns.join(',') : 'audit missing');
-    // T594 chatSend에 R148 후처리 검증 통합
+    // T594 chatSend에 R148 후처리 검증 통합 — P1652: 검증은 내부 기록만, 사용자 화면 배지는 없음
     var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
     _assert('T594 chatsend_structure_validation_v4975: chatSend에 assertChatAnswerStructureAudit 통합',
-      chatSendSrc.indexOf('assertChatAnswerStructureAudit') >= 0 && chatSendSrc.indexOf('aio-chat-structure-badge') >= 0,
+      chatSendSrc.indexOf('assertChatAnswerStructureAudit') >= 0 && chatSendSrc.indexOf('aio-chat-structure-badge') < 0,
       'audit=' + (chatSendSrc.indexOf('assertChatAnswerStructureAudit') >= 0) + ' badge=' + (chatSendSrc.indexOf('aio-chat-structure-badge') >= 0));
     // T595 home 채팅 DOM 존재 (v49.74 hotfix)
     var homeDom = !!document.getElementById('chat-home-inp');

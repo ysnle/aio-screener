@@ -52,7 +52,7 @@ update it or record an explicit BLOCKED/DEFERRED reason. Volatile values
 
 | # | Database | File/surface | Sync command / gate | Cadence |
 |---|---|---|---|---|
-| S1 | `SCREENER_DB` identity universe (sym/name/sector/index/memo) | `js/aio-data.js` → mirror `public-data/screener-universe.json` | `node scripts/sync-screener-universe.mjs` + `--check` in `ci-data-pipeline-contract-check.mjs` (R271) | Review membership monthly; `staleAfterDays:30` WARN, `replaceAfterDays:90` hard limit |
+| S1 | `SCREENER_DB` identity universe (sym/name/sector/index/memo) | `js/aio-data.js` → mirror `public-data/screener-universe.json` | dispatch the refresh workflow (producers run only in Actions); locally only `node scripts/sync-screener-universe.mjs --check` in `ci-data-pipeline-contract-check.mjs` (R271) | Review membership monthly; `staleAfterDays:30` WARN, `replaceAfterDays:90` hard limit |
 | S2 | `KR_STOCK_DB` KR code→name/sector/themes | `index.html` (`var KR_STOCK_DB`) | `ci-static-data-contract-check.mjs` (no static price/mcap rows) | Review constituents monthly; delistings/new listings |
 | S3 | `KR_THEME_MAP` theme→codes | `index.html` (`var KR_THEME_MAP`) | `ci-static-data-contract-check.mjs` (no `시총 ~N조` annotations, no static `w:` weights — R604) | Review constituents monthly; remove point-in-time figures |
 | S4 | `AIO_MACRO_CALENDAR` release schedule | `js/aio-core.js` (`window.AIO_MACRO_CALENDAR` + `AIO_MACRO_OFFICIAL_SCHEDULES`) | `ci-data-refresh-audit.mjs` E3/E4 + T759/T884 (no past `nextRelease`) | Check official BLS/BEA/ISM/Census/Fed/BOK calendars after every release; expired `nextRelease` auto-nulls but `lastRelease` promotion is manual |

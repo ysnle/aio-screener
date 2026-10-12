@@ -75,7 +75,10 @@ function renderTickerHero(documentRef, state, root) {
   const price = finite(quote.value);
   const pct = finite(quote.pct);
   // P1317: Korean users recognise a KRX listing by its name, not its code — lead with the name.
-  const krName = /\.(KS|KQ)$/.test(String(id || '')) && state?.name && state.name !== id ? state.name : null;
+  // P1652: the provider name is English ("Samsung Electronics Co., Ltd."); the exact KRX registry name comes first.
+  const isKr = /\.(KS|KQ)$/.test(String(id || ''));
+  const registryName = isKr ? root?.KR_STOCK_DB?.[String(id).slice(0, 6)]?.name || null : null;
+  const krName = isKr ? (registryName || (state?.name && state.name !== id ? state.name : null)) : null;
   setText(documentRef, 'ticker-hero-name', krName || id || '종목 분석');
   setText(documentRef, 'ticker-hero-fullname', id
     ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · 시세 수신 대기`)))

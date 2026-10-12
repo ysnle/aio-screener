@@ -2907,6 +2907,12 @@ async function enrichSecFundamentals(syms, priceData, priceResults = null) {
           }
         }
       }
+      // P1652: a filing whose period ended over 15 months ago is not current fundamentals (companyfacts concept gaps
+      // left WFC on FY2019 and NEE on FY2012); the fields stay missing rather than ranking on a stale year.
+      if (row.observedAt && (Date.now() - Date.parse(row.observedAt)) / 86400000 > 456) continue;
+      // P1652: P/E under 2 or P/B under 0.1 is a share-class/unit mismatch (BRK-B, IBKR), not a valuation.
+      if (rec.pe != null && !(rec.pe >= 2)) { delete rec.pe; delete rec.pePrice; delete rec.pePriceBasis; }
+      if (rec.pb != null && !(rec.pb >= 0.1)) { delete rec.pb; delete rec.pbPrice; delete rec.pbPriceBasis; }
       if (!Object.keys(rec).length) continue;
       Object.assign(rec, {
         fundamentalSource: 'SEC EDGAR companyfacts',
@@ -4212,7 +4218,7 @@ export async function genMarketAnalysis(data, snapshot = null) {
     const model = SHARED_AI_MODEL;
     const prompt = [
       '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 5~7줄 평문으로 쓴다. Write the whole answer in Korean.',
-      '순서: (1) 무엇이 얼마나 바뀌었나(change 값) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름과 개연성(조건 충족 수) (4) 다음에 확인할 것·조심할 것·넘겨도 되는 것 (5) 이 흐름에서 상대적으로 유리할 가능성이 큰 선택과 기회비용. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
+      '순서: (1) 무엇이 얼마나 바뀌었나(change 값 — 절대값이 가장 큰 변화부터, 미국장 이후 끝난 한국장 지수 변화도 포함) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름과 개연성(조건 충족 수) (4) 다음에 확인할 것·조심할 것·넘겨도 되는 것 (5) 이 흐름에서 상대적으로 유리할 가능성이 큰 선택과 기회비용. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
       '매매 지시(특정 가격·수량·시점, 사라/팔아라)는 쓰지 않는다. 가능성과 기회비용(예: "이 흐름이면 현금 비중을 두는 쪽이 유리할 가능성이 높다")으로만 쓴다. 개연성은 규칙 충족 수이며 확률이 아니므로 %로 바꾸지 마라.',
       'session=DELAYED_IN_SESSION/IN_SESSION 값은 "장중"이라고 쓰고 "마감·종가"라고 쓰지 마라. Only MARKET_CLOSED/COMPLETED values may be called a close.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',

@@ -2137,7 +2137,7 @@ function getCountryFlag(country) {
 
 /* ═══════════════════════════════════════════════════════════════
    v20 DATA ENGINE — 실시간 & 지연 데이터 통합 모듈
-   Budget: $50 total / 5 users ($10/user/mo) · GitHub Pages static hosting
+   Budget: shared AI at most $20/month (owner 2026-10-11) · GitHub Pages static hosting
    ═══════════════════════════════════════════════════════════════ */
 
 // ── API Endpoints (모두 무료 또는 CORS 허용) ──────────────────
@@ -6390,7 +6390,7 @@ async function _aioLoadOperatorNote() {
     var r = await fetch(url, { cache: 'no-cache' });
     if (!r.ok) return;
     var d = await r.json();
-    if (d && d.visible !== false && !_aioIsOperatorNotePlaceholder(d)) {
+    var _noteAgeDays = (Date.now() - Date.parse(String((d && d.updated) || '') + 'T00:00:00+09:00')) / 86400000; if (d && d.visible !== false && !_aioIsOperatorNotePlaceholder(d) && Number.isFinite(_noteAgeDays) && _noteAgeDays <= 14) { // P1652: a dated note is hidden (and kept out of AI context) after 14 days
       window._aioOperatorNote = d;
       if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote();
     } else {

@@ -1,8 +1,8 @@
 // Wave 3: page work is delivered as an ordered set of vertical slices. This registry is
 // the executable boundary for route pairing, required producer intent, and the
 // acceptance checks that every slice must carry before it can be called done.
-// Product scope is desktop-only. Responsive/mobile compatibility remains in the
-// legacy shell, but mobile is no longer a required acceptance dimension for new work.
+// Product scope is desktop, tablet and phone (owner 2026-10-11); responsive layout is owned by responsive.css and
+// checked by the responsive browser gate rather than a per-slice mobile dimension.
 const ACCEPTANCE = Object.freeze(['lifecycle', 'data', 'fieldTimeline', 'renderer', 'chart', 'narrative', 'requiredData', 'states', 'chartFallback', 'directEntry', 'routeReentry', 'outage', 'copyReview']);
 
 export const VERTICAL_SLICE_CONTRACTS = Object.freeze([

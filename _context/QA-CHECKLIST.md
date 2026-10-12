@@ -4,6 +4,12 @@ last_verified: 2026-10-12
 confidence: medium
 ---
 
+## v57.44 한국장·AI 해설 표면 (2026-10-12)
+
+- [ ] QA-KR-SESSION-01: P1651: 한국 지수는 최신 완료 KRX 세션 날짜로 보이고, 홈에 한국장 한 줄이 있으며, AI 해설에 근거 토큰이 보이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-FUND-AGE-01: P1652: 기간 종료 15개월 초과 재무와 단위 불일치 P/E·P/B는 순위·표에 쓰지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-CHAT-CONTRACT-01: P1652: AI 대화 계약은 매매 지시를 금지하고 개발자 배지를 사용자 화면에 붙이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+
 ## v57.43 시장 읽기 시간 정렬 (2026-10-12)
 
 - [ ] QA-CODEX-TIME-01: P1644: 시장 읽기는 최신 완료 세션 기준 2세션 이내 입력만 현재 판정에 쓰고, 늦으면 보류 사유를 보인다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs

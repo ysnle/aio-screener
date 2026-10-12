@@ -11,7 +11,7 @@ Use this reference to select QA depth after code, data, UI, or workflow edits.
 
 ## Tier 2: Page Function Coverage
 
-Check all user-facing pages touched by the change and any shared navigation path. For broad edits, inspect the full page set, including dashboard, signal, breadth, sentiment, sectors, themes, macro, portfolio, screener, ticker, and chat-related surfaces (19 routes; the `options` route is retired and `#options` aliases to `sentiment`).
+Check all user-facing pages touched by the change and any shared navigation path. For broad edits, inspect the full page set, across the 8 navigation screens (오늘, 시장 상태, 거시·금리, 테마·섹터, 종목, 스크리너, 포트폴리오, 리서치) and chat surfaces — derive the route ids from `ROUTE_IDS` in `src/app/routes.js` (19 route ids; the `options` route is retired and `#options` aliases to `sentiment`).
 
 ## Tier 3: Data Pipelines
 

@@ -10,7 +10,7 @@
 // the observation (text) apart from the interpretation (reading), which is worded as a hypothesis.
 
 import { RULES } from '../rules/thresholds.js';
-import { countOpenSessionsBetween, latestCompletedUsSession } from '../market/market-calendar.js';
+import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
 
 const DAY_MS = 86400000;
 
@@ -166,11 +166,26 @@ const SERIES_FIELDS = ['spx', 'nasdaq', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wt
  * @param {object} [input.credit] { hyBp, hyDelta5Bp, hyAsOf, pcr, pcrAsOf, fg, fgAsOf }
  * @param {object} [input.rates] FRED one-week changes in percent plus asOf
  */
-export function alignMarketInputs({ history = [], credit = {}, rates = {} } = {}) {
+// P1651: a Korean index close belongs to its own KRX session (P1628). Capping it at the US basis showed the 10/8 KOSPI
+// on 10/12 evening while that day's KRX close (-3.6%) was already published; it is aligned to the latest completed
+// KRX session instead and carries its own date.
+const KR_SESSION_FIELDS = new Set(['kospi']);
+export function krSessionThrough(now = Date.now()) {
+  return latestCompletedKrSession(now)?.date || null;
+}
+export function alignMarketInputs({ history = [], credit = {}, rates = {}, now = Date.now() } = {}) {
   const basis = closeBasis(history);
+  const krThrough = krSessionThrough(now);
   const alignments = {};
   const s = {};
   for (const field of SERIES_FIELDS) {
+    if (KR_SESSION_FIELDS.has(field) && krThrough) {
+      const stat = stats(buildCloseSeries(history, field, { through: krThrough }));
+      const lag = stat?.date ? countOpenSessionsBetween(stat.date, krThrough, 'KR') : null;
+      alignments[field] = !stat ? { status: 'missing', date: null, lag: null } : { status: lag === 0 ? 'aligned' : lag <= 2 ? 'lagged' : 'stale', date: stat.date, lag, market: 'KR' };
+      s[field] = stat && lag != null && lag <= 2 ? stat : null;
+      continue;
+    }
     const stat = stats(buildCloseSeries(history, field, { through: basis }));
     alignments[field] = alignInput(stat?.date, basis);
     s[field] = stat && isUsable(alignments[field]) ? stat : null;
@@ -365,7 +380,7 @@ export function buildMarketRead(input = {}) {
   const creditFields = { 'HY 스프레드': 'hy', '풋/콜': 'pcr', 'F&G': 'fg' };
   const facts = drivers.flatMap((driver) => driver.values.map(([label, value]) => {
     const field = factFields[label];
-    const point = field ? buildCloseSeries(input.history, field, { through: basis, includeProvenance: true }).at(-1) : null;
+    const point = field ? buildCloseSeries(input.history, field, { through: KR_SESSION_FIELDS.has(field) ? (krSessionThrough(input.now ?? Date.now()) || basis) : basis, includeProvenance: true }).at(-1) : null;
     const key = creditFields[label];
     return { label, value, observedAt: point?.observedAt || input.credit?.[`${key}AsOf`] || null,
       source: point?.source || (!point ? input.credit?.[`${key}Source`] : null) || null,

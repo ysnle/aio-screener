@@ -6,7 +6,7 @@ import { regimeFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
 import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
-import { buildRegimeAxisHistory, buildMarketScenarios, buildKoreaRegimeObservations } from '../../domain/market/regime-scenarios.js';
+import { buildRegimeAxisHistory, buildMarketScenarios, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
 import { outlookForRoot } from './scenario-outlook.js';
 
@@ -218,6 +218,34 @@ export function renderRegimePage({ documentRef: doc, root }) {
   return regime;
 }
 
+// P1651: home summarized only the six US axes, so a -3.6% KOSPI day (-8.4% over five KRX sessions) after the US
+// close appeared only as a small ticker number. One line states the latest completed KRX session on its own date.
+function paintKoreaLine(doc, root) {
+  const headline = doc.getElementById('home-hero-headline');
+  if (!headline) return;
+  let line = doc.getElementById('home-kr-line');
+  const history = root._aioHistory || [];
+  const part = (field, title) => {
+    const series = buildKoreaIndexSeries(history, field);
+    const last = series.at(-1), prev = series.at(-2), prior5 = series.at(-6);
+    if (!last) return null;
+    const pctOf = (base) => base?.value > 0 ? (last.value / base.value - 1) * 100 : null;
+    const signed = (v) => v == null ? null : `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
+    const d1 = signed(pctOf(prev)), d5 = signed(pctOf(prior5));
+    return { date: last.date, text: `${title} ${last.value.toLocaleString('en-US', { maximumFractionDigits: 2 })}${d1 ? ` (${d1}${d5 ? ` · 5거래일 ${d5}` : ''})` : ''}`, d5: pctOf(prior5) };
+  };
+  const kospi = part('kospi', '코스피'), kosdaq = part('kosdaq', '코스닥');
+  if (!kospi) { if (line) line.hidden = true; return; }
+  if (!line) { line = el(doc, 'div', null, 'home-kr-line'); line.id = 'home-kr-line'; headline.insertAdjacentElement('afterend', line); }
+  const [, month, day] = kospi.date.split('-').map(Number);
+  const tone = kospi.d5 != null && Math.abs(kospi.d5) >= 5 ? (kospi.d5 < 0 ? ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.' : ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.') : '';
+  line.textContent = `한국장 ${month}/${day} 마감 · ${[kospi.text, kosdaq?.text].filter(Boolean).join(' · ')}${tone}`;
+  line.dataset.observedAt = kospi.date;
+  line.dataset.market = 'KR';
+  line.title = '한국 정규장 완료 종가 기준입니다. 미국 6개 축의 우호·중립·부담 합계에는 넣지 않습니다.';
+  line.hidden = false;
+}
+
 function paintFuturesCell(doc, root, cellId, futures, field, label) {
   const fallback = doc.getElementById(cellId);
   if (!fallback) return;
@@ -256,6 +284,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 축 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
   set('home-hero-desc', regime.conflicts?.[0] || '');
+  paintKoreaLine(doc, root);
   // P1429 (Codex review): the two futures cells were the largest items on home and often empty. When a
   // futures quote is missing the cell shows the cash index's last completed close (same history as 시장 상태)
   // and says the futures quote is unavailable; a live futures quote restores the cell.

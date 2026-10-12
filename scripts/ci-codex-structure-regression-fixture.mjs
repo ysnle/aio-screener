@@ -1,6 +1,7 @@
 // Codex structure review 2026-10-12 (_artifacts/codex-claude-structure-review-20261012/reproduce.mjs): the offline
 // counterexamples ported to synthetic assertions so the fixed behaviour cannot silently regress. Read-only, no network.
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { buildMarketRegime, movingAverageStructure } from '../src/domain/briefing/market-read.js';
 import { buildDailyChanges } from '../src/domain/briefing/daily-diff.js';
 import { resolveEntities } from '../src/ai/entity/resolver.js';
@@ -11,6 +12,8 @@ import { buildStockRead } from '../src/domain/entity/stock-read.js';
 import { requestFiscalHistory } from '../src/ui/components/fiscal-read.js';
 import { refreshSharedArtifact, sharedArtifactIsStale } from '../src/data/shared-artifacts.js';
 import { describeRankingHold, factorSessionLag } from '../src/ui/pages/screener.js';
+import { alignMarketInputs } from '../src/domain/briefing/market-read.js';
+import { fundamentalPeriodTooOld } from '../src/data/providers/screener.js';
 import { validateAnalysisAdmission, scoreServerNewsItem, serverNewsHeadlineMonthStale, newsHeadlineSignature, newsSameEvent } from './fetch-data.mjs';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
@@ -85,5 +88,23 @@ assert.equal(serverNewsHeadlineMonthStale('Stocks rally on August 14 as Fed sign
 assert.equal(serverNewsHeadlineMonthStale('Stocks rally on October 10 as Fed signals cut', now), false);
 assert.equal(newsSameEvent(newsHeadlineSignature('Fed holds rates steady at 4.25% - Reuters'), newsHeadlineSignature('Fed holds rates steady at 4.25%, signals patience - CNBC')), true, 'the same event is deduped');
 assert.equal(newsSameEvent(newsHeadlineSignature('Oil jumps on Middle East supply fears'), newsHeadlineSignature('Apple unveils new iPhone lineup')), false);
+
+// P1651: a KRX close aligns to the latest completed KRX session, not the US basis (10/12 -3.6% was shown as 10/8).
+const krHistory = [
+  { date: '2026-10-08', spx: 100, kospi: 6625.93, fieldMeta: { spx: { observedAt: '2026-10-08T20:00:00Z' }, kospi: { observedAt: '2026-10-08T06:30:00Z' } } },
+  { date: '2026-10-09', spx: 101, kospi: 6625.93, fieldMeta: { spx: { observedAt: '2026-10-09T20:00:00Z' }, kospi: { observedAt: '2026-10-08T06:30:00Z' } } },
+  { date: '2026-10-12', spx: 101, kospi: 6384.24, fieldMeta: { spx: { observedAt: '2026-10-09T20:00:00Z' }, kospi: { observedAt: '2026-10-12T06:30:00Z' } } }
+];
+const krAligned = alignMarketInputs({ history: krHistory, now: Date.parse('2026-10-12T09:00:00Z') });
+assert.equal(krAligned.basis, '2026-10-09');
+assert.equal(krAligned.s.kospi?.date, '2026-10-12', 'P1651: KOSPI uses its own completed session');
+// P1652: fundamentals whose period ended over 15 months before the session are held.
+assert.equal(fundamentalPeriodTooOld('2019-12-31', '2026-10-09'), true);
+assert.equal(fundamentalPeriodTooOld('2025-12-31', '2026-10-09'), false);
+const chat = fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+assert.ok(!/가격·비중·손절·목표 범위도 근거와 사용자 조건이 있으면 분석할 수 있/.test(chat), 'P1652: chat contract forbids trade instructions');
+assert.ok(!/v49\.75 구조:/.test(chat), 'P1652: no developer structure badge under answers');
+const core = fs.readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
+assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation brackets are stripped from AI text');
 
 console.log('codex-structure-regression-fixture: OK');

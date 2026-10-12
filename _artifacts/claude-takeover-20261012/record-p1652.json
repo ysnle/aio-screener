@@ -1,0 +1,35 @@
+{
+  "version": "v57.44",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.44 소유자 원칙 재점검(초보자 직관성·정확성·자동 보완) — Claude 화면 순회와 데이터·결정·자료 감사 반영. push/deploy 미실행.",
+  "p": {
+    "id": 1652,
+    "title": "오래된 재무가 현재처럼 순위에 쓰이고, AI 대화·운영 노트·도구 문서가 지난 결정을 따름",
+    "symptom": "SEC 재무 655종목 중 31종목이 기간 종료 15개월 초과(WFC FY2019, NEE FY2012, PBR FY2010)인데 현재 값으로 P/E·ROE·마진 순위에 쓰였고, BRK-B P/E 0.01·P/B 0, IBKR 0.85 같은 단위 불일치가 가치 순위 상단에 올 수 있었다. AI 대화 프롬프트는 \"가격·비중·손절·목표 범위도 분석할 수 있다\"고 했고 퇴역한 트레이딩 스코어를 넣었으며, 답변 밑에 \"v49.75 구조: R141\" 개발자 배지가 붙었다. 6월 운영 노트는 날짜 제한 없이 노출·AI 문맥에 들어갈 수 있었다. 에이전트 템플릿·QA 스킬·worker 계약은 데스크톱 전용, $10 예산, 19개 페이지 목록, 로컬 sync 실행을 안내했다.",
+    "root_cause": "과거 결정(R315 조건부 지시, desktop-only R474 이전판, $10 예산, 운영 노트 수동 관리)이 코드·문서에 남았고 재무 기간 신선도 검사가 없었다.",
+    "fix": "재무는 기간 종료 456일 초과면 생산자·화면 모두에서 보류하고, P/E 2 미만·P/B 0.1 미만은 단위 불일치로 보류한다. AI 대화 계약을 2026-10-12 결정(지시 금지, 확인·주의·무시, 유리할 가능성과 기회비용, 충족 조건 수)으로 바꾸고 트레이딩 스코어를 뺐으며 구조 배지는 내부 기록으로만 둔다. 운영 노트는 14일이 지나면 숨긴다. 에이전트 템플릿·접근성 프로필·QA 스킬·데이터 스킬·worker 계약을 현재 결정으로 고쳤다.",
+    "violated_rule": "결측을 중립값으로 대체 금지 · 매매 지시 금지(owner 2026-10-12) · 반응형 재승인(2026-10-11) · AI 예산 $20(2026-10-11)",
+    "prevention": "P1652: node scripts/ci-codex-structure-regression-fixture.mjs",
+    "verification": "screener.json 기준 WFC/NEE 등 31종목 보류 대상 확인, fundamentalPeriodTooOld 단언, 채팅 계약 문구 단언."
+  },
+  "qa": [
+    {
+      "id": "QA-FUND-AGE-01",
+      "text": "P1652: 기간 종료 15개월 초과 재무와 단위 불일치 P/E·P/B는 순위·표에 쓰지 않는다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    },
+    {
+      "id": "QA-CHAT-CONTRACT-01",
+      "text": "P1652: AI 대화 계약은 매매 지시를 금지하고 개발자 배지를 사용자 화면에 붙이지 않는다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "재무 신선도·AI 대화 계약",
+  "changelog": [
+    "**재무 신선도·AI 대화 계약·지난 결정 정리 (P1652):** 15개월 초과 재무·단위 불일치 P/E 보류, AI 대화 매매 지시 허용 문구 제거, 개발자 배지 제거, 오래된 운영 노트 숨김, 도구 문서의 데스크톱 전용·$10 예산 갱신."
+  ]
+}
