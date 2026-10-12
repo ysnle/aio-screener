@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1650 - v57.43 - 엔티티 품질 CI 게이트가 필수 fixture 미추적과 정당한 한국 순위 보류를 실패로 처리 (2026-10-12)
+
+- symptom/reproduction: v57.43 푸시의 CI browser-viewport가 먼저 `_artifacts/entity-quality-20261012/browser-chart.umd.min.js`·`browser-lightweight-charts.js` 미추적으로 ENOENT 실패했고, 두 파일을 추적한 뒤에는 6개 뷰포트 모두 "KR published population has no visible constituents"(P1625)로 실패했다. 후자의 상태는 P1649가 의도한 정직한 순위 보류였다("가격 자료 10/08 종가 기준, 10/12 한국장 반영 대기").
+- root_cause: 게이트가 로드 시 SRI 검증하는 핀 고정 차트 fixture가 저장소에 커밋되지 않았고, P1625 인구 검사가 시장 최신 완료 세션이 팩터 세션보다 새로울 때의 정당한 보류(P1649)를 허용하지 않았다. 스크리너 데이터 레인(P1632)이 10/10 21:59Z 이후 실패해 한국 최신 종가가 10/8에 머문 상태와 겹쳤다.
+- fix: 게이트가 로드하는 핀 fixture와 반응형 QA 산출물을 저장소에 추가하고, 재현용 integration-backup 사본은 .gitignore로 제외한다. 인구 검사는 순위 보류 사유(…반영 대기)가 표시될 때만 빈 시장을 허용하고, 사유 없는 빈 시장은 계속 실패로 둔다.
+- violated_rule: R670 완료 종가 기준 · 화면 정직성(원천 없는 위젯 숨김)과 게이트의 일치
+- prevention: P1650: ci-entity-quality-browser-check.mjs가 보류 사유가 있는 빈 시장은 통과시키고 사유 없는 빈 시장은 실패시킨다.
+- verification/residual: 스크리너 레인 복구(10:16Z refresh) 후 데이터가 최신이 되어 CI browser-viewport 통과. 한국 데이터가 다시 지연되면 게이트는 보류 사유 표시를 요구한다.
+
 ## P1649 - v57.43 - 한국 스크리너가 순위 0개 이유 없이 미국 팩터 세션을 표시하고 정본·QA 범위가 현재와 어긋남 (2026-10-12)
 
 - symptom/reproduction: 한국 선택 시 "한국 180 / 순위 0"인데 팩터 세션은 미국 날짜였다. 숫자 근거 카드는 날짜만 있는 값의 경과를 달력일로 셌다(U02~U05). 휴대폰에서 허브 탭이 줄바꿈됐고, 기업 요약이 같은 가격 카드를 반복했다. 타임라인 계약은 퇴역 옵션 라우트를 포함했고 뉴스 주기를 보지 않았으며(A02/A04), 구조 게이트는 일부 레거시 작성자를 스캔하지 않았다(A05). QA 스킬은 데스크톱 전용 규칙을 유지했고(A07), Worker 예산 검증은 날짜 붙은 모델명을 거부했다(A08). CFTC 포지셔닝은 화면 소비 없이 producer만 돌았다(A09).

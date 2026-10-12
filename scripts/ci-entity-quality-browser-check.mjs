@@ -165,8 +165,13 @@ try {
         const listing = await page.locator('#screener-results-body').evaluate(body=>[...body.querySelectorAll('tr[data-aio-screener-ticker]')].map(row=>({
           symbol:row.dataset.aioScreenerTicker,price:row.querySelector('[data-column-key="price"]')?.textContent || '',
           ret3m:parseFloat(row.querySelector('[data-column-key="ret3m"]')?.textContent) })));
-        observations.push({label,market,listing});
-        check(listing.length>0,`${label}: ${market} published population has no visible constituents (P1625)`,{listing,note:await page.locator('#scr-population-note').textContent()});
+        const populationNote = await page.locator('#scr-population-note').textContent();
+        // P1650: a market whose latest completed session is newer than its published factor session
+        // legitimately holds ranking and states the reason (P1649: "…반영 대기"). Accept that
+        // documented deferral; an empty population with no stated reason stays a P1625 regression.
+        const deferredWithReason = listing.length === 0 && /반영 대기/.test(populationNote);
+        observations.push({label,market,listing,note:populationNote});
+        check(listing.length>0 || deferredWithReason,`${label}: ${market} published population has no visible constituents (P1625)`,{listing,note:populationNote});
         check(listing.every(row=>/\.K[QS]$/.test(row.symbol)===(market==='KR')),`${label}: US/KR listings are mixed (P1625)`,listing);
         // P715: published rows intentionally omit raw prices. Offline source absence remains '—'.
         check(listing.every(row=>row.price==='—' || (market==='US' ? /\$/.test(row.price) : /₩|원/.test(row.price))),`${label}: received listing price has no currency (P1625)`,listing);
