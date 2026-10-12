@@ -521,15 +521,17 @@ function extractWrittenIds(source) {
   }
   return ids;
 }
-const nativePagesDir = path.join(root, 'src/ui/pages');
+// A05 (Codex review): native renderers live in components and knowledge as well as pages, and the legacy shell
+// was split into aio-pages / aio-workspace / aio-macro-tech / aio-glossary. Scan every production writer.
 const nativeWrittenIds = new Map();
-for (const file of fs.readdirSync(nativePagesDir).filter((entry) => entry.endsWith('.js'))) {
-  for (const id of extractWrittenIds(read(path.join('src/ui/pages', file)))) {
-    if (!nativeWrittenIds.has(id)) nativeWrittenIds.set(id, file);
+for (const dir of ['src/ui/pages', 'src/ui/components', 'src/ui/knowledge']) {
+  for (const file of fs.readdirSync(path.join(root, dir), { recursive: true }).map(String).filter((entry) => entry.endsWith('.js'))) {
+    for (const id of extractWrittenIds(read(path.join(dir, file)))) if (!nativeWrittenIds.has(id)) nativeWrittenIds.set(id, `${dir}/${file}`);
   }
 }
+const writerLegacyFiles = ['index.html', ...fs.readdirSync(path.join(root, 'js')).filter((file) => /^aio-.*\.js$/.test(file) && file !== 'aio-tests.js').map((file) => `js/${file}`)];
 const legacyWrittenIds = new Set();
-for (const file of legacyFiles) for (const id of extractWrittenIds(read(file))) legacyWrittenIds.add(id);
+for (const file of writerLegacyFiles) for (const id of extractWrittenIds(read(file))) legacyWrittenIds.add(id);
 const domWriterAllowlist = new Set(routeOwners.domWriterIntersectionAllowlist || []);
 const domWriterIntersection = [...nativeWrittenIds.keys()].filter((id) => legacyWrittenIds.has(id) && !domWriterAllowlist.has(id));
 if (domWriterIntersection.length) {

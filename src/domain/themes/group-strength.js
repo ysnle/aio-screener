@@ -22,7 +22,8 @@ export function median(values) {
 }
 
 function rankBy(groups, key) {
-  const ranked = groups.filter((group) => group[key] != null).sort((a, b) => b[key] - a[key]);
+  // E07: only groups on the market's latest completed session compete; an older group stays as a dated reference.
+  const ranked = groups.filter((group) => group[key] != null && group.current !== false).sort((a, b) => b[key] - a[key]);
   const ranks = new Map();
   ranked.forEach((group, index) => ranks.set(group.id, index + 1));
   return ranks;
@@ -40,7 +41,8 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
     for (const sub of Array.isArray(theme?.subThemes) ? theme.subThemes : []) {
       const tickers = [...new Set((sub?.tickers || []).map((sym) => String(sym).toUpperCase()))].filter(sym => screenerMarket(bySymbol.get(sym) || { sym }) === market);
       if (!tickers.length) continue;
-      const members = tickers.map((sym) => bySymbol.get(sym)).filter((row) => row && finite(row[key]) != null);
+      const stale = (row) => row?.factorQuality?.stale === true || String(row?.factorQuality?.status || '').toUpperCase() === 'STALE';
+      const members = tickers.map((sym) => bySymbol.get(sym)).filter((row) => row && !stale(row) && finite(row[key]) != null);
       const id = `${theme.id}:${sub.name}`;
       if (members.length < MIN_GROUP_MEMBERS) { excluded.push({ id, themeName: theme.nameKr, name: sub.name, members: members.length, listed: tickers.length, constituents: tickers }); continue; }
       const above = members.filter((row) => finite(row.pctSma50) != null);
@@ -71,6 +73,8 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
       });
     }
   }
+  const latestBasis = groups.map((group) => group.basis).filter(Boolean).sort().at(-1) || null;
+  for (const group of groups) group.current = !!group.basis && group.basis === latestBasis;
   const rank1m = rankBy(groups, 'ret1m');
   const rank3m = rankBy(groups, 'ret3m');
   const rankSort = rankBy(groups, key);

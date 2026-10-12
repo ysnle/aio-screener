@@ -82,8 +82,11 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
 
   // 1. Symbol-shaped tokens: KRX codes, Yahoo-style suffixes, BRK.B-style classes, index carets.
   for (const token of tokens) {
-    const krx = token.match(/^(\d{6})(?:\.(KS|KQ))?/i);
-    if (krx) { add(normalizeTickerInput(krx[0], { krStockDb, krToYahoo: root?.krTickerToYahoo }), krx[0], 'ticker'); continue; }
+    // E01: a KRX code is exactly six digits (optionally .KS/.KQ), ending the token or followed by a Korean
+    // particle — 0059300, 005930.KSXYZ and dates like 20261012 are not codes. Verified only when listed.
+    const krx = token.match(/^(\d{6})(?:\.(KS|KQ))?(?=$|[가-힣])/i);
+    if (krx) { add(normalizeTickerInput(krx[0], { krStockDb, krToYahoo: root?.krTickerToYahoo }), krx[0], 'ticker', !!krStockDb?.[krx[1]]); continue; }
+    if (/^\d/.test(token)) continue;
     const shaped = token.match(/^(\^?[A-Za-z]{1,6}(?:[.-][A-Za-z]{1,2})?)(?=$|[가-힣])/);
     if (!shaped) continue;
     const raw = shaped[1];

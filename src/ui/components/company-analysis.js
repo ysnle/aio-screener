@@ -1,10 +1,9 @@
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { parseFiscalHistory, requestFiscalHistory } from './fiscal-read.js';
-import { formatScreenerPrice, MARKET_LABELS } from '../../domain/screener/market-scope.js';
+import { MARKET_LABELS } from '../../domain/screener/market-scope.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 
-const pct = value => value == null ? '자료 없음' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
 function element(doc, tag, text, className) { const node=doc.createElement(tag); if (text != null) node.textContent=text; if (className) node.className=className; return node; }
 function detail(doc, title, lines, sourceUrl = null, source = null) {
   const box=element(doc,'details',null,'company-analysis-details'); box.append(element(doc,'summary',title));
@@ -42,7 +41,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   const observationsOpen=host.querySelector('.company-analysis-observations')?.open||false;
   const focused=host.contains(doc.activeElement) ? doc.activeElement.textContent : null;
   host.hidden=false; host.classList.add('company-analysis'); host.dataset.model=model.modelVersion; host.dataset.symbol=id;
-  host.replaceChildren(element(doc,'h2','종목·기업 요약','briefing-h2'), element(doc,'p',model.headline,'company-analysis-lead'));
+  host.replaceChildren(element(doc,'h2','기업 요약','briefing-h2'), element(doc,'p',model.headline,'company-analysis-lead'));
   // P1640: one summary for the stock and the company, with the two analyses it continues into.
   const routes=element(doc,'div',null,'company-analysis-routes');
   for (const [label,page,why] of [['차트 분석 (기술적)','technical','추세·이동평균 정배열·셋업·거래량을 주기별로'],['재무 분석 (펀더멘탈)','fundamental','매출·이익률·현금흐름·부채를 공시 원문 기준으로']]) { const go=element(doc,'button',null,'company-analysis-route'); go.type='button'; go.append(element(doc,'strong',label),element(doc,'span',why)); go.addEventListener('click',()=>root?.showPage?.(page)); routes.append(go); }
@@ -52,7 +51,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
     const panel=doc.getElementById('ai-panel');if(!panel?.classList.contains('open'))root.toggleAIPanel?.();
     const input=doc.getElementById('ai-panel-inp');if(input){input.value=`${id} 기업 프라이머를 만들어줘. ① 무엇을 하는 회사인지와 사업부문 ② 최근 3~4개 회계연도와 최근 12개월 매출·이익률·현금흐름 추이 ③ 밸류체인 위치·경쟁사·차별점 ④ 비교 기업 대비 밸류에이션 배수 ⑤ 자본 구조와 부채 ⑥ 다음 실적에서 확인할 숫자(다음 분기 가이던스 높이, 이익률 방향, 이익의 현금 전환) ⑦ 최근 촉매·뉴스 흐름과 위험. 기존 자료로 부족한 정보는 필요하면 웹검색으로 공식 출처를 확인하고, 매매 지시 없이 가능성과 확인 조건으로 정리해줘.`;input.focus();}
   });host.append(ask);
-  const expanded=element(doc,'details',null,'company-analysis-expanded');expanded.open=host.dataset.signature ? wasOpen : true;expanded.append(element(doc,'summary','기업·재무·주가 카드'));
+  const expanded=element(doc,'details',null,'company-analysis-expanded');expanded.open=host.dataset.signature ? wasOpen : true;expanded.append(element(doc,'summary','사업·재무 카드'));
   const grid=element(doc,'div',null,'company-analysis-grid');
   const identity=card(doc,'무엇을 하는 기업·종목인가','참고');
   const meta=model.identity;
@@ -73,17 +72,9 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
     financial.append(detail(doc,'재무 기간·원문',[`연간 회계연도 말 ${model.financial.periodEnd || '미확인'}`,model.financial.filedAt ? `제출 ${model.financial.filedAt}` : '제출 시각 미확인',`${model.financial.source} · 주가 수익률 기간과 직접 동일시하지 않습니다.`],model.financial.sourceUrl,'SEC 공시 원문'));
   } else financial.append(element(doc,'p',model.financial.status==='not-applicable' ? 'ETF·지수는 사업회사 매출·순이익·ROE로 분석하지 않습니다. 추종 대상·구성·비용은 해당 상품 자료에서 확인합니다.' : model.financial.status==='kr-disclosure-required' ? '한국 종목의 재무는 한국 공시 기준으로 확인해야 합니다. SEC 달러 공시를 이 종목의 재무로 가져오지 않습니다.' : '동일 기업의 검증된 연간 공시 자료가 없습니다. 이전에 보던 기업의 재무나 다른 기간의 숫자를 대신 표시하지 않습니다.'));
   grid.append(financial);
-  const evidence=model.marketEvidence;
-  const price=card(doc,'주가·추세·상대 위치',evidence.status==='delayed' ? '지연' : evidence.status==='reference' || model.price.value!=null ? '참고' : '자료 없음');
-  if (model.price.value!=null) price.append(element(doc,'p',`${formatScreenerPrice(model.price.value,model.price.currency)} · ${String(model.price.observedAt||'').slice(0,10)} 관측`,'company-analysis-price'));
-  const facts=element(doc,'ul');
-  if (evidence.returns.ret3m!=null) facts.append(element(doc,'li',`3개월 수익률 ${pct(evidence.returns.ret3m)}${evidence.relative ? ` · 같은 시장 ${evidence.relative.peers}개 중 ${evidence.relative.rank}번째` : ''}`));
-  if (evidence.pctSma50!=null) facts.append(element(doc,'li',`50일선 대비 ${pct(evidence.pctSma50)}`));
-  if (evidence.pctSma200!=null) facts.append(element(doc,'li',`200일선 대비 ${pct(evidence.pctSma200)}`));
-  if (evidence.compositeRank!=null) facts.append(element(doc,'li',`선택 팩터 비중의 시장 내 백분위 ${evidence.compositeRank} · 수익률 순위와 다름`));
-  if (!facts.children.length) facts.append(element(doc,'li','완료 종가 기준의 비교 자료가 없습니다.'));
-  price.append(facts,detail(doc,'주가·비교 기준',[evidence.asOf ? `${evidence.asOf} 완료 종가 기준의 수익률·이동평균 거리` : '수익률 기준일 미확인','3개월 순서는 같은 시장·같은 종가 기준일·3개월 수익률이 있는 종목끼리 비교합니다. 동률은 공동 순위입니다.','관측 시세와 종가 기준 팩터는 서로 다른 시점일 수 있습니다.','백분위는 현재 자료의 상대 위치이며 기업의 가치나 향후 상승 확률이 아닙니다.']));
-  grid.append(price); expanded.append(grid); host.append(expanded);
+  // Codex review (P1640 remainder): the price, 3-month return, rank and moving-average distance are shown once, in
+  // '이 종목의 지금' directly above (the stock half). This block is the company half: business and filings.
+  expanded.append(grid); host.append(expanded);
   if (model.risks.length) { const observations=element(doc,'details',null,'company-analysis-observations'); observations.append(element(doc,'summary',`추가로 확인할 관측 ${model.risks.length}개`)); const list=element(doc,'ul'); for (const risk of model.risks) list.append(element(doc,'li',risk.text)); observations.append(list); observations.open=observationsOpen; host.append(observations); }
   host.dataset.signature=signature;
   if (focused) [...host.querySelectorAll('button,summary,a')].find(node=>node.textContent===focused)?.focus();

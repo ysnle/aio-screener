@@ -1,13 +1,14 @@
 // P1397: 종목 차트 — candles with the evidence drawn on the price (Lightweight Charts, Apache-2.0,
 // already loaded by the shell) and an evidence panel with a setup state. No composite grade.
 import { analyzeChart, chartReading } from '../../domain/technical/chart-analysis.js';
-import { buildCloseSeries, buildMarketRegime } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, buildMarketRegime, maOrder } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { emptyState } from './empty-state.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
 import { renderNextSteps } from './page-flow.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
+import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 
 const STATE_TONE = Object.freeze({ breakout: 'favorable', setup: 'favorable', extended: 'neutral', none: 'neutral', failed: 'burden', downtrend: 'burden' });
 
@@ -306,11 +307,7 @@ const smaOf = (values, n) => values.map((_, i) => i + 1 >= n ? values.slice(i + 
 export function intervalStructure(bars) {
   const closes = bars.map((bar) => bar.close);
   const last = (n) => smaOf(closes, n).at(-1) ?? null;
-  const order = (values) => {
-    if (values.some((v) => v == null)) return null;
-    const steps = values.slice(1).map((v, i) => values[i] > v);
-    return steps.every(Boolean) ? '정배열' : steps.every((ok) => !ok) ? '역배열' : '혼조';
-  };
+  const order = (values) => ({ up: '정배열', down: '역배열', mixed: '혼조' })[maOrder(values)] ?? null;
   return { short: order([closes.at(-1), last(5), last(10), last(20)]), long: order([last(20), last(50), last(100), last(200)]) };
 }
 
@@ -422,24 +419,31 @@ export function installStockChart({ documentRef: doc, root }) {
   const form = doc.getElementById('stock-chart-form');
   if (!form) return;
   const input = doc.getElementById('stock-chart-input');
+  // E06: the chart uses the same symbol normalization as the 종목 summary (005930 / 삼성전자 → 005930.KS).
+  const normalize = (value) => normalizeTickerInput(value, { krStockDb: root?.KR_STOCK_DB || {}, krToYahoo: root?.krTickerToYahoo }) || '';
+  const historyMark = () => { const rows = root?._aioHistory; return Array.isArray(rows) && rows.length ? String(rows[rows.length - 1]?.date || '') : ''; };
   const show = (value) => {
-    const sym = String(value || '').trim().toUpperCase() || 'SPY';
+    const sym = normalize(value) || 'SPY';
     if (input) input.value = sym;
     form.dataset.aioStockChartEntity = sym;
+    form.dataset.aioStockChartAt = String(Date.now());
+    form.dataset.aioStockChartMark = historyMark();
     renderStockChart({ documentRef: doc, root, symbol: sym });
   };
   const request = String(root._aioChartRequest || '').trim().toUpperCase();
   root._aioChartRequest = null;
   const entity = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
-  const target = request || entity || String(input?.value || '').trim().toUpperCase() || 'SPY';
+  const target = normalize(request || entity || String(input?.value || '').trim()) || 'SPY';
   if (form.dataset.aioStockChart === 'installed') {
-    if (target !== form.dataset.aioStockChartEntity) show(target);
+    // E04: re-entering with the same symbol redraws when a new close arrived or the chart is older than 5 minutes.
+    const age = Date.now() - Number(form.dataset.aioStockChartAt || 0);
+    if (target !== form.dataset.aioStockChartEntity || age > 5 * 60 * 1000 || historyMark() !== (form.dataset.aioStockChartMark || '')) show(target);
     return;
   }
   form.dataset.aioStockChart = 'installed';
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    const typed = String(input?.value || '').trim().toUpperCase();
+    const typed = normalize(String(input?.value || '').trim());
     show(typed || form.dataset.aioStockChartEntity);
     if (typed) setStockSubject({ root, documentRef: doc, symbol: typed });
   });

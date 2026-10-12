@@ -1,0 +1,29 @@
+{
+  "version": "v57.43",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.43 Codex 구조 리뷰(codex-claude-structure-review-20261012) 반영(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1646,
+    "title": "종목·포트폴리오 계산과 문장이 경계 입력에서 사실과 어긋남",
+    "symptom": "0059300·날짜·미등록 6자리 코드가 다른 한국 종목으로 확인됐고(E01), SPY 3개월 수익률 결측을 0%로 비교했으며(E02), 한국 보유분까지 미국 섹터 회전에 넣었다(E03). 그룹 강도는 오래된 그룹을 1위로 올렸고(E07), 거래량 결측을 평균에 섞어 압력을 읽었으며(E08), 평탄 차트를 정배열로, 50일선 +100%를 100% 하락폭으로 썼고 지수 지지를 단정했다(E09~E11). 코드 입력 차트는 원 코드로 요청됐다(E06).",
+    "root_cause": "입력 정규화·결측·시장 구분이 공통 함수 없이 화면별로 처리됐다.",
+    "fix": "KRX 코드는 완전한 6자리와 조사 경계만 받고 등록 종목일 때만 확인 처리한다. 결측은 0이 아닌 보류로 두고, 회전 비중은 미국 보유분만 분모로 하며 한국 비중을 밝힌다. 그룹은 공통 완료 세션의 CURRENT만 순위에 쓰고, 거래량 평균은 80% 이상 관측일 때만, 압력은 20일 중 16일 이상일 때만 읽는다. 하락폭은 가격 비율로 계산하고 지수 지지 문구를 뺀다. 차트 입력은 normalizeTickerInput을 쓴다.",
+    "violated_rule": "티커 추정 금지·결측을 중립값으로 대체 금지",
+    "prevention": "P1646: node scripts/ci-codex-structure-regression-fixture.mjs (E01/E03/E08/E09/E10)",
+    "verification": "Codex reproduce.mjs에서 E01/E03/E07/E08/E09/E10 반례 해소."
+  },
+  "qa": [
+    {
+      "id": "QA-CODEX-ENTITY-01",
+      "text": "P1646: 잘못된 코드·결측·혼합 시장 입력에서 계산과 문장이 보류하거나 분모를 밝힌다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "종목 계산 경계",
+  "changelog": [
+    "**종목·포트폴리오 경계 입력 (P1646):** 잘못된 한국 코드 차단, 결측은 보류, 회전 비중은 미국 보유분 기준, 거래량·하락폭·이동평균 판정 보정."
+  ]
+}

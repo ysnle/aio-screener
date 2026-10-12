@@ -52,7 +52,7 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   // as the stocks' and sector ETFs' returns); KRX holdings against the KOSPI/KOSDAQ price index.
   const marketReturnFor = (symbol) => {
     const bench = benchmarkRowFor(symbol, history);
-    if (bench.market === 'US' && Number.isFinite(Number(spy?.ret3m))) return { ret3m: Number(spy.ret3m), label: 'S&P 500(SPY)' };
+    if (bench.market === 'US' && spy?.ret3m != null && spy.ret3m !== '' && Number.isFinite(Number(spy.ret3m)))  // E02: null is missing, not 0% return { ret3m: Number(spy.ret3m), label: 'S&P 500(SPY)' };
     return bench;
   };
   const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, history), marketReturnFor, usdkrwReturnPct: indexReturns(history, 'usdkrw').ret3m, rotation: root?._serverDataMeta?.rotationHistory?.items || {}, regime: readMarketRegime(root) });

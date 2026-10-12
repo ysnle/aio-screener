@@ -48,7 +48,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
       chart('breakeven', '10년 기대인플레이션', '%', macro('breakeven10'), { format: percent, note: '물가 예상만이 아니라 유동성·위험 프리미엄도 포함하는 인플레이션 보상 지표입니다.' })],
     credit: [chart('hy', '하이일드 OAS', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: 'ICE BofA 하이일드 OAS. 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
       // P1638: the weakest tier against B — the average can stay calm while CCC borrowers lose access first.
-      chart('ccc-b', 'CCC − B 등급 스프레드 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 하이일드 평균이 조용해도 이 격차가 벌어지면 취약 기업의 차환 부담이 먼저 커지고 있다는 뜻입니다.' })],
+      chart('ccc-b', 'CCC − B 등급 스프레드 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 격차는 상대 차이입니다. 벌어지면 시장이 가장 약한 기업을 더 따로 가려내고 있다는 뜻이며, CCC 금리 수준 자체가 올랐는지는 하이일드 OAS와 함께 확인합니다.' })],
     commodities: [chart('wti', 'WTI 선물', 'USD / 배럴', daily('wti'), { format: value => `$${value.toFixed(1)}` }),
       chart('dxy', '달러 인덱스', '지수 pt', daily('dxy'), { format: value => value.toFixed(1) })],
     korea: [chart('usdkrw', '원 / 달러', 'KRW / USD', daily('usdkrw'), { format: count })]
@@ -78,6 +78,7 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
     if (!missing.includes('breadth')) missing.push('breadth');
   }
   if (aligned.c.hy5 == null && !missing.includes('credit')) missing.push('credit');
+  if (regime.staleBasis && !missing.includes('basis')) missing.push('basis'); // M05: an old close is not today's condition
   if ((!aligned.s.vix || !aligned.s.vix3m || aligned.s.vix.date !== aligned.s.vix3m.date || aligned.s.vix.d5 == null)
     && !missing.includes('volatility')) missing.push('volatility');
   const hold = missing.length > 0;
@@ -101,10 +102,10 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
       counterEvidence: '지수가 이동평균을 회복하고 참여도가 넓어지며 HY 확대와 변동성 스트레스가 함께 진정되면 동반 약화의 근거를 다시 확인합니다. 금리 하락만으로 이 조건들이 충족됐다고 보지 않습니다.',
       observe: ['지수 회복이 하루 움직임에 그치는지', '시장 폭과 신고가·신저가도 동시에 회복하는지', 'HY 확대·VIX 역전이 실제로 완화되는지'] }
   ].map(item => ({ ...item, held: hold, status: hold ? '판단 보류' : item.confirmed ? '현재 조건 부합' : '관찰할 조건',
-    facts, missing: missing.map(id => byId[id]?.title || id) }));
+    facts, missing: missing.map(id => byId[id]?.title || (id === 'basis' ? '최신 종가 기록' : id)) }));
   return { available: true, asOf: regime.asOf, held: hold, scenarios,
     axes: regime.axes.map(axis => ({ id: axis.id, observe: OBSERVE[axis.id] || '', condition: axis.flip || null })),
-    reason: hold ? `${missing.map(id => byId[id]?.title || id).join(' · ')}의 필요한 관측이 없어 현재 어느 흐름에 해당하는지 보류합니다.` : null };
+    reason: hold ? (regime.staleBasis ? regime.holdReason : `${missing.map(id => byId[id]?.title || id).join(' · ')}의 필요한 관측이 없어 현재 어느 흐름에 해당하는지 보류합니다.`) : null };
 }
 
 export function renderMarketScenarioContext(input = {}, options = {}) {

@@ -19,7 +19,7 @@ Verify public-data generation, screener artifacts, quote fallbacks, macro/sentim
 
 ## Tier 4: Charts And Layout
 
-Check chart creation/destroy paths, canvas availability, desktop layout (desktop-only, R474; responsive CSS is compatibility code, not an acceptance target), overflow defense, Korean text wrapping, and no hidden grid artifacts.
+Check chart creation/destroy paths, canvas availability, layout at desktop, tablet (768/1024) and phone (390) widths in light and dark (responsive support re-approved 2026-10-11 in AGENTS.md; the R474 desktop-only rule is retired), no horizontal page scroll, overflow defense, Korean text wrapping, and no hidden grid artifacts.
 
 ## Tier 5: Security
 

@@ -71,7 +71,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const lead = [...items].sort((a, b) => order[b.likelihood] - order[a.likelihood] || b.met / b.total - a.met / a.total)[0];
   const headline = scenarios.held ? '필요한 관측이 없어 지금 어느 흐름에 가까운지 판단을 보류합니다.'
     : `지금 조건에 가장 가까운 흐름은 '${lead.title}'(개연성 ${lead.likelihood}, 조건 ${lead.met}/${lead.total})입니다.`;
-  return { available: true, version: SCENARIO_OUTLOOK_VERSION, asOf: scenarios.asOf, headline, leadId: lead?.id || null, items };
+  return { available: true, version: SCENARIO_OUTLOOK_VERSION, asOf: scenarios.asOf, headline, leadId: scenarios.held ? null : lead?.id || null, items }; // M07: no lead while held
 }
 
 export function renderScenarioOutlookContext(outlook) {

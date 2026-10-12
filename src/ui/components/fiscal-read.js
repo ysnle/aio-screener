@@ -19,8 +19,14 @@ export function parseFiscalHistory(text) {
     }));
 }
 
+// E05: a success is kept for 6 hours and a failure only for 60 seconds, so a 503 is retried and a new artifact
+// is picked up in a long-open tab.
+const FISCAL_OK_TTL_MS = 6 * 60 * 60 * 1000;
+const FISCAL_RETRY_MS = 60 * 1000;
 export function requestFiscalHistory(root, onReady) {
-  if (root._aioSecFiscalHistory !== undefined) return;
+  const age = Date.now() - Number(root._aioSecFiscalHistoryAt || 0);
+  if (root._aioSecFiscalHistory && age < FISCAL_OK_TTL_MS) return;
+  if (root._aioSecFiscalHistory === null && age < FISCAL_RETRY_MS) return;
   // P1627: the pending history request belongs to the most recently displayed
   // company. Its completion must not repaint the prior issuer after navigation.
   root._aioSecFiscalHistoryOnReady = onReady;
@@ -32,8 +38,8 @@ export function requestFiscalHistory(root, onReady) {
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
   load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
     .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
-    .then((artifact) => { root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; })
-    .catch(() => { root._aioSecFiscalHistory = null; })
+    .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; })
+    .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = null; })
     .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = root._aioSecFiscalHistoryOnReady; delete root._aioSecFiscalHistoryOnReady; ready?.(); });
 }
 

@@ -80,7 +80,13 @@ export function liveCurrentObservations(artifact, root) {
   const snapshot = root.DATA_SNAPSHOT || {};
   const ts = snapshot._fieldTs || {};
   const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
-  const live = (row, value, observedAt, displayValue, sourceKind = 'MARKET_DATA') => value == null || !observedAt ? row : { ...row, value, displayValue, observedAt, eventDate: null, sourceKind, allowedUse: 'current-context', live: true };
+  // E13: a replaced value takes its own lineage — the old dated source/URL must not stay beside a new number.
+  const SOURCES = {
+    MARKET_DATA: { source: '사이트 종가 기록(지수 일봉 완료 종가)', sourceId: 'aio-history-close', sourceUrl: null },
+    FED: { source: '연방준비제도 FOMC 정책금리 목표 범위', sourceId: 'fed-fomc-target-range', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/openmarket.htm' },
+    BLS: { source: '미 노동통계국(BLS) 소비자물가지수', sourceId: 'bls-cpi', sourceUrl: 'https://www.bls.gov/cpi/' }
+  };
+  const live = (row, value, observedAt, displayValue, sourceKind = 'MARKET_DATA', lineage = SOURCES.MARKET_DATA) => value == null || !observedAt ? row : { ...row, ...lineage, value, displayValue, observedAt, eventDate: null, sourceKind, allowedUse: 'current-context', live: true };
   const observations = artifact.observations.map((row) => {
     for (const [pattern, field] of LIVE_ROWS) {
       if (!pattern.test(row.id)) continue;
@@ -89,10 +95,10 @@ export function liveCurrentObservations(artifact, root) {
     }
     if (/^fed-funds-midpoint-/.test(row.id)) {
       const lower = finite(snapshot.fedTargetLower), upper = finite(snapshot.fedTargetUpper);
-      return lower != null && upper != null ? live(row, (lower + upper) / 2, ts.macro_fedTargetLower || null, `${((lower + upper) / 2).toFixed(3)}%`, 'OFFICIAL_STATISTICS') : row;
+      return lower != null && upper != null ? live(row, (lower + upper) / 2, ts.macro_fedTargetLower || null, `${((lower + upper) / 2).toFixed(3)}%`, 'OFFICIAL_STATISTICS', SOURCES.FED) : row;
     }
-    if (/^bls-cpi-/.test(row.id)) return live(row, finite(snapshot.cpi), ts.macro_cpi ? `${ts.macro_cpi.slice(0, 7)} 기준월` : null, finite(snapshot.cpi) == null ? null : `${snapshot.cpi}% YoY`, 'OFFICIAL_STATISTICS');
-    if (/^bls-core-cpi-/.test(row.id)) return live(row, finite(snapshot.coreCpi), ts.macro_coreCpi ? `${ts.macro_coreCpi.slice(0, 7)} 기준월` : null, finite(snapshot.coreCpi) == null ? null : `${snapshot.coreCpi}% YoY`, 'OFFICIAL_STATISTICS');
+    if (/^bls-cpi-/.test(row.id)) return live(row, finite(snapshot.cpi), ts.macro_cpi ? `${ts.macro_cpi.slice(0, 7)} 기준월` : null, finite(snapshot.cpi) == null ? null : `${snapshot.cpi}% YoY`, 'OFFICIAL_STATISTICS', SOURCES.BLS);
+    if (/^bls-core-cpi-/.test(row.id)) return live(row, finite(snapshot.coreCpi), ts.macro_coreCpi ? `${ts.macro_coreCpi.slice(0, 7)} 기준월` : null, finite(snapshot.coreCpi) == null ? null : `${snapshot.coreCpi}% YoY`, 'OFFICIAL_STATISTICS', SOURCES.BLS);
     return row;
   });
   return { ...artifact, observations };

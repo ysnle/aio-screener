@@ -4,6 +4,15 @@ last_verified: 2026-10-12
 confidence: medium
 ---
 
+## v57.43 시장 읽기 시간 정렬 (2026-10-12)
+
+- [ ] QA-CODEX-TIME-01: P1644: 시장 읽기는 최신 완료 세션 기준 2세션 이내 입력만 현재 판정에 쓰고, 늦으면 보류 사유를 보인다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-CODEX-AI-01: P1645: AI 해설의 변화율·조건 수·확률·지시 문장은 근거 데이터와 대조해 통과/거부한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-CODEX-ENTITY-01: P1646: 잘못된 코드·결측·혼합 시장 입력에서 계산과 문장이 보류하거나 분모를 밝힌다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-CODEX-REFRESH-01: P1647: 공유 자료·스냅샷·차트·재무는 서버 재생성·TTL·실패 재시도 기준으로 갱신된다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-CODEX-NEWS-01: P1648: 뉴스 선별은 기사 아닌 페이지·재게시·같은 사건 중복을 제외한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-CODEX-CANON-01: P1649: 스크리너는 선택 시장의 세션으로 순위 보류를 설명하고, 타임라인·구조 게이트는 현재 레지스트리에서 대상을 파생한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+
 ## v57.42 생산 레인 크기 (2026-10-12)
 
 - [ ] QA-SEC-PROJECTION-01: P1632: SEC 런타임 투영은 화면이 읽는 필드만 담고 1MiB 상한 아래를 유지한다. verify_by: node scripts/ci-sec-runtime-projection-check.mjs
@@ -17,6 +26,7 @@ confidence: medium
 - [ ] QA-TICKER-SUMMARY-01: P1640: 종목 화면은 수익률·52주 범위를 한 요약에서만 보이고 기술·재무 분석으로 이어진다. verify_by: node scripts/ci-entity-quality-browser-check.mjs
 - [ ] QA-HOME-SECTORS-01: P1641: 오늘 화면 섹터 등락은 현재 세션 회전 자료만 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
 - [ ] QA-RESEARCH-SHELF-01: P1642: 리서치 라이브러리는 컬렉션별 서가를 보이고 누르면 해당 컬렉션 문서를 연다. verify_by: node scripts/ci-runtime-contract-check.mjs
+- [ ] QA-BASIS-CARD-01: P1643: 숫자 설명은 hover·포커스·탭 모두에서 카드로 열리고 선언된 관측 시점의 경과를 함께 보인다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
 
 ## v57.41 재렌더 상태 보존 (2026-10-12)
 

@@ -6,15 +6,15 @@
     "P1626",
     "P1627"
   ],
-  "version": "v57.42",
+  "version": "v57.43",
   "sourceHashes": {
-    "index.html": "2a2b70de48e2cb8c9ec93b44b80baf5ab150908cc1d3f99c1115ee6a1f509c7e",
+    "index.html": "6e063697db5ef8f707a5ebbc92dc9242fcb0b9b697803a9b189eeabfabdc24c2",
     "src/ui/pages/entity.js": "7a58c0e499bb9d86129615e8c0103dc84e7710c77bb430088c8a9eed0d0477a8",
-    "src/ui/pages/screener.js": "1c82e78528f44897362e5d28fb169d20541f717ad4f72941799a093344a56183",
+    "src/ui/pages/screener.js": "77a2f061b9d2549e77c014047f951f466de3abe3adf7cae7945c730f0bf94eb2",
     "src/ui/pages/analysis.js": "6e29b6f85f6349912e9df49d6e6c5e690bdc4280f09264d9f9ec52f749d53171",
-    "src/ui/components/stock-chart.js": "98f10cd0bc67c59340a1ef174ddf6c29f02c91e306c53fae781ffc219c228cdc",
+    "src/ui/components/stock-chart.js": "3b665429b02540a5ad218a26d5c3d61799eb0acf02708e12b4fdfef7cf36ae21",
     "src/ui/components/stock-read.js": "a28933dab0fc186f95cfea0da18d2a324cfbc9967dde3b0f0c53491057184992",
-    "src/ui/components/fiscal-read.js": "0c9c21c29dba0242f953f4d38843a34f60f372d1cc4af820674dc361990c4355",
+    "src/ui/components/fiscal-read.js": "dfa24129116aa0edc1ad56b5870475b917abd1be49bef8f777534d1a8fcc5437",
     "src/domain/entity/summary-hydration.js": "30a394ec500ac7430ff0de02acfa92576e7818618c4850952993cdd09e656c37",
     "src/domain/screener/market-scope.js": "ac4a26f2d0b195ef36157cb7dcd88b2a1e8c004b32f9f2c360dc5c7c1157701e",
     "src/domain/screener/factor-ranks.js": "f41f69fdc6cc72387b7bad056a75cfa3a31629d1f69a4135bd65a1825b7bed48",
@@ -75,7 +75,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 17449
+          "pixels": 17255
         },
         "active": "page-ticker",
         "signed": [
@@ -117,7 +117,7 @@
           }
         ]
       },
-      "fixtureRequests": 3
+      "fixtureRequests": 2
     },
     {
       "label": "phone-light/summary",
@@ -297,7 +297,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 17384
+          "pixels": 16992
         },
         "active": "page-ticker",
         "signed": [
@@ -519,7 +519,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 40950
+          "pixels": 40760
         },
         "active": "page-ticker",
         "signed": [
@@ -741,7 +741,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 40813
+          "pixels": 39691
         },
         "active": "page-ticker",
         "signed": [
@@ -963,7 +963,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 61888
+          "pixels": 60124
         },
         "active": "page-ticker",
         "signed": [
@@ -1185,7 +1185,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 61769
+          "pixels": 60199
         },
         "active": "page-ticker",
         "signed": [
@@ -1397,42 +1397,42 @@
       "message": "phone-light: KR published population has no visible constituents (P1625)",
       "detail": {
         "listing": [],
-        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/12 한국장 반영 대기"
       }
     },
     {
       "message": "phone-dark: KR published population has no visible constituents (P1625)",
       "detail": {
         "listing": [],
-        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/12 한국장 반영 대기"
       }
     },
     {
       "message": "tablet-light: KR published population has no visible constituents (P1625)",
       "detail": {
         "listing": [],
-        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/12 한국장 반영 대기"
       }
     },
     {
       "message": "tablet-dark: KR published population has no visible constituents (P1625)",
       "detail": {
         "listing": [],
-        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/12 한국장 반영 대기"
       }
     },
     {
       "message": "desktop-light: KR published population has no visible constituents (P1625)",
       "detail": {
         "listing": [],
-        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/12 한국장 반영 대기"
       }
     },
     {
       "message": "desktop-dark: KR published population has no visible constituents (P1625)",
       "detail": {
         "listing": [],
-        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류"
+        "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/12 한국장 반영 대기"
       }
     }
   ]

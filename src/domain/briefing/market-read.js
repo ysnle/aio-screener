@@ -10,7 +10,7 @@
 // the observation (text) apart from the interpretation (reading), which is worded as a hypothesis.
 
 import { RULES } from '../rules/thresholds.js';
-import { countOpenSessionsBetween } from '../market/market-calendar.js';
+import { countOpenSessionsBetween, latestCompletedUsSession } from '../market/market-calendar.js';
 
 const DAY_MS = 86400000;
 
@@ -124,12 +124,26 @@ const fmt = (value, digits = 2) => value == null ? '—' : value.toLocaleString(
 
 // P1633 (owner 2026-10-12): short-term trend = price > 5 > 10 > 20-day averages, long-term trend =
 // 20 > 50 > 100 > 200-day averages. 정배열 when every step holds, 역배열 when every step is reversed.
+// Strict on both sides: equal neighbours are neither 정배열 nor 역배열 (a flat line is 혼조, not a downtrend).
+// M10: a level gap between the 20- and 50-day participation is not a direction. "회복/약해짐" only when the
+// 20-day share itself moved that way over the last 20 sessions.
+function breadthGapRead(b20, b50, stat) {
+  const move = stat?.value != null && stat?.d20 != null ? stat.value - stat.d20 : null;
+  const level = `단기(20일선 위 ${fmt(b20, 0)}%) 참여가 중기(${fmt(b50, 0)}%)보다 ${b20 > b50 ? '높습니다' : '낮습니다'}`;
+  if (move == null || Math.abs(move) < 5) return ` ${level}.`;
+  if (b20 > b50 && move > 0) return ` ${level} — 20거래일 동안 ${fmt(move, 0)}%p 늘어 단기 참여가 먼저 회복하고 있습니다.`;
+  if (b20 < b50 && move < 0) return ` ${level} — 20거래일 동안 ${fmt(Math.abs(move), 0)}%p 줄어 단기 참여가 먼저 약해지고 있습니다.`;
+  return ` ${level}(20거래일 변화 ${move > 0 ? '+' : ''}${fmt(move, 0)}%p).`;
+}
+
+export function maOrder(values) {
+  if (values.some((value) => value == null)) return null;
+  const steps = values.slice(1).map((value, index) => values[index] - value);
+  return steps.every((step) => step > 0) ? 'up' : steps.every((step) => step < 0) ? 'down' : 'mixed';
+}
+
 export function movingAverageStructure(stat) {
-  const order = (values) => {
-    if (values.some((value) => value == null)) return null;
-    const pairs = values.slice(1).map((value, index) => values[index] > value);
-    return pairs.every(Boolean) ? 'up' : pairs.every((ok) => !ok) ? 'down' : 'mixed';
-  };
+  const order = maOrder;
   const label = { up: '정배열', down: '역배열', mixed: '혼조' };
   const short = order([stat?.value, stat?.ma5, stat?.ma10, stat?.ma20]);
   const long = order([stat?.ma20, stat?.ma50, stat?.ma100, stat?.ma200]);
@@ -461,7 +475,7 @@ export function buildMarketRegime(input = {}) {
         : state === 'unknown' ? staleRead('시장 폭', alignments.breadth50) : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.') + partial
       // P1633: the 20-day ratio moves first; a gap to the 50-day ratio says which way participation is turning.
       + (state !== 'unknown' && b20 != null && b50 != null && Math.abs(b20 - b50) >= 10
-        ? (b20 > b50 ? ` 단기(20일선 위 ${fmt(b20, 0)}%) 참여가 중기(${fmt(b50, 0)}%)보다 먼저 회복하고 있습니다.` : ` 단기(20일선 위 ${fmt(b20, 0)}%) 참여가 중기(${fmt(b50, 0)}%)보다 먼저 약해지고 있습니다.`) : '');
+        ? breadthGapRead(b20, b50, s.breadth20) : '');
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.weakBelow}% 이상이면 중립, 모두 ${RULES.breadth.broadAtLeast}% 이상이면 우호`
         : state === 'favorable' ? `둘 중 하나라도 ${RULES.breadth.broadAtLeast}% 아래면 중립, ${RULES.breadth.weakBelow}% 아래면 부담`
@@ -612,7 +626,12 @@ export function buildMarketRegime(input = {}) {
   const burden = count('burden');
   const favorable = count('favorable');
   // P1399: an overall label needs at least four of the six US axes; fewer is "판정 보류".
-  const enough = known.length >= MIN_KNOWN_AXES;
+  // M05: with a clock (input.now), the basis must be the latest completed US session or at most two sessions
+  // behind it. A long-open tab or a stalled producer would otherwise present an old close as today's verdict.
+  const latest = Number.isFinite(Number(input.now)) ? latestCompletedUsSession(Number(input.now), { requirePrevious: false })?.date || null : null;
+  const basisLag = latest && basis && latest > basis ? sessionsBetween(basis, latest) : 0;
+  const staleBasis = basisLag > 2 ? { basis, latest, lag: basisLag } : null;
+  const enough = known.length >= MIN_KNOWN_AXES && !staleBasis;
   const overall = !enough ? '판정 보류'
     : burden >= 4 || (burden >= 3 && favorable <= 1) ? '부담 우세' : favorable >= 4 && burden === 0 ? '우호 우세' : favorable >= 3 && burden <= 1 ? '우호 쪽으로 기움' : burden >= 2 && favorable <= 1 ? '부담 쪽으로 기움' : '혼조';
   // Codex review 2026-10-05: '방어적 환경' read like a validated stance. The label now names only how the
@@ -632,7 +651,9 @@ export function buildMarketRegime(input = {}) {
     asOf: basis,
     overall,
     sufficient: enough,
-    holdReason: enough ? null : `6개 축 중 ${known.length}개만 확인돼 전체 판정을 보류합니다(최소 ${MIN_KNOWN_AXES}개).`,
+    staleBasis,
+    holdReason: staleBasis ? `마지막 종가 기록(${shortDate(basis)})이 최신 완료 거래일(${shortDate(latest)})보다 ${basisLag}거래일 늦어 현재 판정으로 쓰지 않습니다. 자료 갱신 뒤 다시 판정합니다.`
+      : enough ? null : `6개 축 중 ${known.length}개만 확인돼 전체 판정을 보류합니다(최소 ${MIN_KNOWN_AXES}개).`,
     counts: { favorable, neutral: count('neutral'), burden, unknown: us.length - known.length },
     conflicts,
     axes

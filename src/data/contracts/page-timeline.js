@@ -2,16 +2,26 @@ const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
 
 function requirement(id, maxAgeMs, options = {}) {
-  return Object.freeze({ id, maxAgeMs, required: options.required !== false, direction: !!options.direction, marketRevision: !!options.marketRevision });
+  return Object.freeze({ id, maxAgeMs, required: options.required !== false, direction: !!options.direction, marketRevision: !!options.marketRevision, cycle: options.cycle || null });
+}
+
+// A02 (Codex review): the news cycle closes daily at 08:00 KST (23:00 UTC). A wall-clock 30-hour allowance let
+// yesterday's cycle read as current all day. A cycle is current only when it is the latest one that should have
+// been published (the newest 08:00 KST boundary at least `graceMs` ago).
+const NEWS_CYCLE = Object.freeze({ boundaryUtcHour: 23, graceMs: 3 * HOUR });
+export function expectedCycleEnd(now, { boundaryUtcHour, graceMs } = NEWS_CYCLE) {
+  const ready = new Date(now - graceMs);
+  const boundary = Date.UTC(ready.getUTCFullYear(), ready.getUTCMonth(), ready.getUTCDate(), boundaryUtcHour);
+  return boundary <= ready.getTime() ? boundary : boundary - DAY;
 }
 
 export const PAGE_DATA_TIMELINE_CONTRACTS = Object.freeze({
-  home: Object.freeze([requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true }), requirement('sentiment.fearGreed', 2 * DAY), requirement('breadth.us', 4 * DAY), requirement('news.completedCycle', 30 * HOUR)]),
+  home: Object.freeze([requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true }), requirement('sentiment.fearGreed', 2 * DAY), requirement('breadth.us', 4 * DAY), requirement('news.completedCycle', 30 * HOUR, { cycle: NEWS_CYCLE })]),
   signal: Object.freeze([requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true }), requirement('market.^VIX', 4 * DAY, { marketRevision: true }), requirement('sentiment.fearGreed', 2 * DAY), requirement('breadth.us', 4 * DAY)]),
   breadth: Object.freeze([requirement('breadth.us', 4 * DAY), requirement('breadth.kr', 4 * DAY), requirement('breadth.history', 90 * DAY, { required: false })]),
   sentiment: Object.freeze([requirement('market.^VIX', 4 * DAY, { marketRevision: true }), requirement('market.^VIX3M', 4 * DAY, { marketRevision: true }), requirement('market.^SKEW', 4 * DAY, { required: false, marketRevision: true }), requirement('sentiment.fearGreed', 2 * DAY), requirement('sentiment.putCall', 4 * DAY), requirement('sentiment.hySpread', 4 * DAY)]),
-  briefing: Object.freeze([requirement('news.completedCycle', 30 * HOUR), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
-  'market-news': Object.freeze([requirement('news.completedCycle', 30 * HOUR), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
+  briefing: Object.freeze([requirement('news.completedCycle', 30 * HOUR, { cycle: NEWS_CYCLE }), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
+  'market-news': Object.freeze([requirement('news.completedCycle', 30 * HOUR, { cycle: NEWS_CYCLE }), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
   technical: Object.freeze([requirement('technical.history', 4 * DAY), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true }), requirement('breadth.us', 4 * DAY)]),
   screener: Object.freeze([
     requirement('screener.snapshot', 4 * DAY),
@@ -27,8 +37,8 @@ export const PAGE_DATA_TIMELINE_CONTRACTS = Object.freeze({
   'theme-detail': Object.freeze([requirement('themeDetail.quoteCoverage', 4 * DAY, { direction: true })]),
   macro: Object.freeze([requirement('macro.cpi', 50 * DAY), requirement('macro.pce', 75 * DAY), requirement('macro.employment', 50 * DAY), requirement('macro.fedRate', 50 * DAY), requirement('market.^TNX', 4 * DAY, { marketRevision: true })]),
   fxbond: Object.freeze([requirement('market.DX-Y.NYB', 2 * DAY, { direction: true, marketRevision: true }), requirement('market.KRW=X', 2 * DAY, { direction: true, marketRevision: true }), requirement('market.^TNX', 4 * DAY, { marketRevision: true }), requirement('market.^IRX', 4 * DAY, { marketRevision: true }), requirement('sentiment.hySpread', 4 * DAY)]),
-  fundamental: Object.freeze([requirement('fundamental.referenceScope', 450 * DAY)]), // P1360: selected issuer or actual watchlist scope.
-  options: Object.freeze([requirement('market.^VIX', 4 * DAY, { marketRevision: true }), requirement('sentiment.putCall', 4 * DAY), requirement('market.^SKEW', 4 * DAY, { required: false, marketRevision: true })])
+  fundamental: Object.freeze([requirement('fundamental.referenceScope', 450 * DAY)]) // P1360: selected issuer or actual watchlist scope.
+  // A04: the retired options route has no contract (its alias redirects to 시장 상태).
 });
 
 function parseTime(value) {
@@ -65,6 +75,9 @@ export function evaluatePageDataTimeline(route, catalog = {}, {
     } else if (ageMs < -15 * 60 * 1000 || ageMs > contract.maxAgeMs) {
       status = 'STALE';
       reason = `ageMs=${ageMs}`;
+    } else if (contract.cycle && observedMs < expectedCycleEnd(now, contract.cycle) - 60 * 1000) {
+      status = 'STALE';
+      reason = `cycle-behind:${new Date(expectedCycleEnd(now, contract.cycle)).toISOString()}`;
     } else if (contract.marketRevision && (!observation?.revision || observation.revision !== marketRevision)) {
       status = 'REVISION_MISMATCH';
       reason = `${observation?.revision || 'missing'}!=${marketRevision || 'missing'}`;

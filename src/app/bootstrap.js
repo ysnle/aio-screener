@@ -100,6 +100,7 @@ import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker
 import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
 import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.js';
 import { installTermTooltips } from '../ui/components/term-tooltip.js';
+import { installValueBasis } from '../ui/components/value-basis.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
 import { createAIKnowledgeRetriever } from '../ai/retrieval/knowledge.js';
@@ -719,6 +720,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopTickerQuoteRequest = legacy.on('aio:entityChanged', requestSelectedTickerQuote);
     // P1320/R665: "?" term tooltips open on hover, focus or tap and stay inside the viewport.
     const stopTermTooltips = installTermTooltips(documentRef, { root });
+    const stopValueBasis = installValueBasis(documentRef, { root }); // P1643
     const stopTickerQuotes = legacy.on('aio:liveQuotes', () => {
       if (disposed || String(router.active() || '').replace(/^page-/, '') !== 'ticker') return;
       const id = String(root?._currentTickerId || '').trim().toUpperCase();
@@ -858,8 +860,28 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     };
     queueMicrotask(retryNavigation);
     deferredTasks.defer(retryNavigation, 0);
-    const ready = snapshotLoader.load().then((result) => {
-      if (!disposed && result.ok) {
+    // A01: the snapshot is (re)loaded whenever the server artifacts announce a different snapshot revision, so a
+    // long-open tab moves canonical quotes, evidence and the store to the new producer revision together. Only the
+    // newest request commits, and an older snapshot never replaces a newer one.
+    let snapshotRequest = 0;
+    const loadSnapshot = () => {
+      const ticket = ++snapshotRequest;
+      return snapshotLoader.load().then((result) => {
+        if (disposed || ticket !== snapshotRequest || !result.ok) return result;
+        const nextAt = Date.parse(result.snapshot?.generatedAt || '') || 0;
+        const currentAt = Date.parse(marketSnapshot?.generatedAt || '') || 0;
+        if (marketSnapshot && nextAt && currentAt && nextAt < currentAt) return result;
+        commitSnapshot(result);
+        return result;
+      });
+    };
+    const reloadSnapshotOnRevision = () => {
+      const announced = root?._serverDataMeta?.marketSnapshotRevision || null;
+      if (!disposed && announced && marketSnapshot && announced !== marketSnapshot.revision) loadSnapshot().catch(() => {});
+    };
+    const stopSnapshotRevision = legacy.on('aio:serverDataLoaded', reloadSnapshotOnRevision);
+    function commitSnapshot(result) {
+      {
         marketSnapshot = result.snapshot;
         ingestSnapshotEvidence(marketSnapshot);
         store.dispatch({ type: 'market/snapshot', payload: marketSnapshot });
@@ -869,8 +891,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         syncAnalysis.sync(); // P1345: the ready path also works when the host has no event bridge.
         emitDataTimelineUpdated('market-snapshot');
       }
-      return result;
-    }).catch((error) => ({ ok: false, error: error?.message || 'snapshot_loader_failed' }));
+    }
+    const ready = loadSnapshot().catch((error) => ({ ok: false, error: error?.message || 'snapshot_loader_failed' }));
     const stop = () => {
       if (disposed) return;
       disposed = true;
@@ -889,6 +911,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopMarketHistory();
       stopMarketSnapshot();
       stopServerMarketData();
+      stopSnapshotRevision();
       stopMacroUpdated();
       stopThemesRefresh();
       stopThemesHistory();
@@ -898,6 +921,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopTickerQuoteRequest();
       stopTickerQuotes();
       stopTermTooltips();
+      stopValueBasis();
       stopEntityShown();
       stopPortfolioShown();
       stopPortfolioChanged();

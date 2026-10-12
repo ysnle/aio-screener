@@ -10,8 +10,8 @@
   "generatedAt": "2026-08-22",
   "sourceHandoff": "_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md#RM-00",
   "method": "Re-measured directly against the current working tree (bootstrap.js module wiring, router transition, async scope ownership, capability-level loading, cross-grep of native writer ids against js/*.js and index.html, including principles/masters/atlas route modules and their primary surface markers). Not copied from prior declarations.",
-  "rm01Note": "RM-01 (2026-07-19) deleted every native setText/textContent write this file's contestedIds/legacyWriterEvidence originally documented as a live race (per RM-01 §2 default action: delete native, keep legacy). Those fields are kept as a historical DELETE-LEDGER record of what was found and removed, not a claim that the race is still live — for the 15 rendererOwner='legacy' routes, native no longer writes any of these ids at all. The real ARX cutover (deleting the *legacy* writer so native can take sole ownership) remains future per-route work; see route-owners.json openItems and the execution plan's ARX-05..11 packets.",
-  "rm05AgDomWriterProcedure": "AG-DOM-WRITER (scripts/ci-architecture-contract-check.mjs) asserts the intersection of ids written by src/ui/pages/*.js and ids written by js/*.js+index.html is empty, except entries in domWriterIntersectionAllowlist below. Procedure for a real future route cutover (deleting the *legacy* writer so native takes sole ownership of a currently-legacy-owned id): (1) delete the legacy writer line(s) named in that route's legacyWriterEvidence array in this file; (2) re-add the native setText/textContent write for that id in the route's src/ui/pages/*.js module; (3) update that route's rendererOwner to 'native' and move its ids from contestedIds to a cleared state in this file; (4) if the id is also referenced by routeOwners.legacySymbolsMustBeAbsent for ANY renderer-native route (i.e. legacy code must never reintroduce a writer for it), add it there. Do NOT add a newly-cut-over id to domWriterIntersectionAllowlist — that list is exclusively for ids where legacy legitimately READS (not writes) a value native owns (see fg-score-big/pc-score-big below); an allowlist entry for a genuine two-way content race would defeat the gate's purpose.",
+  "rm01Note": "CURRENT (A06, 2026-10-12): every one of the 19 active routes has rendererOwner=native; no route is legacy-rendered. chartOwner is native on 8 routes, legacy on 7 (home, signal, briefing, fundamental, theme-detail, market-news, screener) and not-applicable on 4 reference routes. dataOwner=native means the native reader/normalizer owns the value; some acquisition still fills legacy globals. HISTORICAL (kept as a ledger, not current state): RM-01 (2026-07-19) deleted every native setText/textContent write this file's contestedIds/legacyWriterEvidence originally documented as a live race (per RM-01 §2 default action: delete native, keep legacy). Those fields are kept as a historical DELETE-LEDGER record of what was found and removed, not a claim that the race is still live — for the 15 rendererOwner='legacy' routes, native no longer writes any of these ids at all. The real ARX cutover (deleting the *legacy* writer so native can take sole ownership) remains future per-route work; see route-owners.json openItems and the execution plan's ARX-05..11 packets.",
+  "rm05AgDomWriterProcedure": "AG-DOM-WRITER (scripts/ci-architecture-contract-check.mjs) asserts the intersection of ids written by src/ui/{pages,components,knowledge}/**/*.js and ids written by every production js/aio-*.js (except aio-tests.js)+index.html is empty, except entries in domWriterIntersectionAllowlist below. Procedure for a real future route cutover (deleting the *legacy* writer so native takes sole ownership of a currently-legacy-owned id): (1) delete the legacy writer line(s) named in that route's legacyWriterEvidence array in this file; (2) re-add the native setText/textContent write for that id in the route's src/ui/pages/*.js module; (3) update that route's rendererOwner to 'native' and move its ids from contestedIds to a cleared state in this file; (4) if the id is also referenced by routeOwners.legacySymbolsMustBeAbsent for ANY renderer-native route (i.e. legacy code must never reintroduce a writer for it), add it there. Do NOT add a newly-cut-over id to domWriterIntersectionAllowlist — that list is exclusively for ids where legacy legitimately READS (not writes) a value native owns (see fg-score-big/pc-score-big below); an allowlist entry for a genuine two-way content race would defeat the gate's purpose.",
   "columnDefinitions": {
     "lifecycleOwner": "who mounts/disposes the route (native = ESM router transition owns it; PAGES[route].init is null)",
     "rendererOwner": "who owns the visible DOM content nodes for this route with no competing writer",
@@ -27,9 +27,25 @@
     "tech-candle-chart",
     "tech-candle-volume",
     "pf-position-donut",
-    "sector-perf-bars"
+    "sector-perf-bars",
+    "aio-chart-cdn",
+    "ai-panel",
+    "ai-panel-inp",
+    "sidebar-toggle-btn",
+    "main-content",
+    "topbar-ai-btn",
+    "glossary-body",
+    "glossary-search"
   ],
   "domWriterIntersectionAllowlistNotes": {
+    "aio-chart-cdn": "A05 (2026-10-12): color-theme.js reads the chart CDN script element to wait for load; index.html owns the element. No content write.",
+    "ai-panel": "A05: company-analysis.js opens the legacy-owned AI panel (class toggle) to hand over a question; aio-chat.js owns its content.",
+    "ai-panel-inp": "A05: company-analysis.js pre-fills the AI question input on a button press; aio-chat.js owns sending and the panel body.",
+    "sidebar-toggle-btn": "A05: responsive-shell.js sets aria/inert state on shell controls for phone and tablet; it writes no text.",
+    "main-content": "A05: responsive-shell.js toggles inert on the main region while the drawer is open; it writes no text.",
+    "topbar-ai-btn": "A05: responsive-shell.js reads the AI button for focus return; aio-chat.js owns its behaviour.",
+    "glossary-body": "A05: aio-ui.js renders the glossary list; glossary-bridge.js only appends one data-glossary-cross section after it (MutationObserver), never replacing legacy content.",
+    "glossary-search": "A05: glossary-bridge.js reads the search query; aio-ui.js/aio-core.js own the input.",
     "fg-score-big": "W01-B (2026-09-19): legacy `_generateSentimentAnalysis` retired to an inert entry point and its aio-data.js deferred timers removed; sentiment.js is the sole writer of fg-score-big/pc-score-big/sent-analysis-text from one ViewModel revision.",
     "pc-score-big": "W01-B (2026-09-19): same single-writer cutover as fg-score-big — legacy only retired stubs remain, not readers.",
     "ticker-hero-name": "js/aio-core.js:_aioDetectTickerPattern and _aioFillEntryFromTicker read textContent only; entity.js is the sole writer after P777.",
@@ -190,7 +206,7 @@
       "p785Boundary": "analysis.js owns the market-health score/grade/regime, three health bars, three indicator strips, status pill, and interpretation from the canonical market-health.v1 model. Candlestick chart, RSI/MACD, Weinstein/MTF, and technical narrative remain legacy secondary boundaries.",
       "p822Boundary": "analysis.js owns the technical candle title/meta text from normalized analysis input with a fail-closed waiting state; the legacy chart keeps canvas lifecycle and indicator math but no longer writes these two text sinks.",
       "p833Boundary": "analysis.js owns the technical OHLCV and volume canvas lifecycles from normalized analysis. The legacy loadTechCandleChart action is fenced while the native technical chart marker is mounted; missing history remains visibly unavailable.",
-      "notes": "The technical primary health surface and candle title/meta are native; compatibility writers remain only for legacy fallback and are explicitly fenced or deleted. Candlestick canvas remains legacy-owned and analysis.js does not manage any chart instance. Shares analysis.js with home/signal."
+      "notes": "The technical primary health surface and candle title/meta are native; compatibility writers remain only for legacy fallback and are explicitly fenced or deleted. (A06 2026-10-12) The candlestick and volume charts are native (analysis.js / stock-chart.js, chartOwner=native); the legacy loadTechCandleChart is fenced by the mounted native chart. Shares analysis.js with home/signal."
     },
     "macro": {
       "lifecycleOwner": "native",

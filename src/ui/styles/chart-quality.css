@@ -21,4 +21,5 @@ body.dark-theme { --candle-up: #ff6b61; --candle-down: #5c9bff; }
 .stock-chart-intervals { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; }
 .stock-chart-intervals button { font: inherit; font-size: 13px; padding: 5px 11px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; }
 .stock-chart-intervals button[aria-pressed="true"] { border-color: var(--text-primary); color: var(--text-primary); font-weight: 700; background: var(--surface-3, transparent); }
+@media (max-width: 520px) { .stock-chart-intervals { flex-wrap: nowrap; overflow-x: auto; gap: 4px; scrollbar-width: none; } .stock-chart-intervals button { flex: 0 0 auto; padding: 5px 9px; } }
 .stock-chart-interval-note { font-size: 13px; line-height: 1.65; color: var(--text-secondary); }

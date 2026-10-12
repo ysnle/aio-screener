@@ -93,7 +93,30 @@ assert.ok(labels.some((label) => /저점 대비/.test(label)), 'P1639: distance 
 // P1641: sector moves come only from current produced rotation rows.
 const { sectorMoves } = await import('../src/ui/components/sector-moves.js');
 const rotation = { latestCompletedSession: '2026-10-09', items: { XLK: { status: 'CURRENT', symbol: 'XLK', sessionDate: '2026-10-09', dailyPct: 0.5, quadrant: 'Leading' }, XLU: { status: 'CURRENT', symbol: 'XLU', sessionDate: '2026-10-09', dailyPct: -1.2, quadrant: 'Lagging' } } };
-const moves = sectorMoves(rotation, Date.parse('2026-10-10T12:00:00Z'));
-assert.ok(moves.rows.length <= 2 && (moves.rows.length === 0 || moves.rows[0].daily >= moves.rows.at(-1).daily), 'P1641: sorted strongest first, no invented rows');
+// M13 (Codex review): the old fixture's rows failed the strict selector and an empty result passed. Use a
+// schema-valid artifact and assert the exact rows, then a stale row that must be left out.
+const { latestCompletedUsSession } = await import('../src/domain/market/market-calendar.js');
+const fixtureNow = Date.parse('2026-10-10T12:00:00Z');
+const session = latestCompletedUsSession(fixtureNow - 5 * 60000);
+const rrgRow = (symbol, dailyPct, rsRatio, rsMomentum, quadrant, sessionDate = session.date) => ({ status: 'CURRENT', symbol, sessionDate, dailyPct, weeklyPct: dailyPct * 2, rsRatio, rsMomentum, quadrant, alignedSessionCount: 60, observedAt: new Date(session.closeMs).toISOString(), fetchedAt: '2026-10-10T01:00:00Z' });
+const validRotation = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v2', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: session.date,
+  items: { XLK: rrgRow('XLK', 0.5, 101, 101, 'Leading'), XLU: rrgRow('XLU', -1.2, 99, 99, 'Lagging'), XLE: rrgRow('XLE', 1.4, 99, 101, 'Improving'), XLF: { ...rrgRow('XLF', 3, 101, 99, 'Weakening'), status: 'STALE' } } };
+const moves = sectorMoves(validRotation, fixtureNow);
+assert.deepEqual(moves.rows.map((row) => row.symbol), ['XLE', 'XLK', 'XLU'], 'P1641/M13: exact current rows, strongest first; the stale XLF row is left out');
+assert.equal(moves.session, session.date);
+assert.equal(sectorMoves(rotation, fixtureNow).rows.length, 0, 'M13: a non-schema artifact yields no rows');
 
 console.log('scenario guidance fixture (radar, credit tiers, chart evidence, sectors): PASS');
+
+// P1643: the basis card dates every explained number; a date-only basis reads as that session's close.
+const { basisAge } = await import('../src/ui/components/value-basis.js');
+const age = basisAge('2026-10-09', Date.parse('2026-10-12T06:00:00Z'));
+assert.equal(age.label, '2026-10-09 기준');
+assert.equal(age.age, '최신 거래일', 'U03: a date-only basis is aged in sessions against the latest completed one');
+assert.equal(basisAge('2026-10-05', Date.parse('2026-10-12T06:00:00Z')).stale, true, 'U02: more than two sessions behind reads as 갱신 지연');
+assert.equal(basisAge('2026-10-12T03:00:00Z', Date.parse('2026-10-12T06:30:00Z')).age, '3시간 전');
+assert.match(basisAge('2026-10-12T03:00:00Z', Date.parse('2026-10-12T06:30:00Z')).label, /KST/, 'U03: timestamps carry their zone');
+assert.equal(basisAge('', 0), null);
+const bootstrapSource = readFileSync(new URL('../src/app/bootstrap.js', import.meta.url), 'utf8');
+assert.match(bootstrapSource, /installValueBasis\(documentRef/, 'P1643: the basis card is installed at boot');
+console.log('scenario guidance fixture (basis card): PASS');

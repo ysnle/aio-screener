@@ -1,0 +1,294 @@
+{
+  "evidence": "Offline runtime counterexamples, not live investment/data certification",
+  "cases": {
+    "M01": {
+      "old": {
+        "asOf": "2026-10-08",
+        "held": false,
+        "credit": {
+          "state": "favorable",
+          "basis": "10/8",
+          "status": "aligned",
+          "read": "신용 시장이 안정적 — 주식 약세가 신용 위험으로 번지지 않았습니다."
+        }
+      },
+      "new": {
+        "asOf": "2026-10-09",
+        "held": false,
+        "credit": {
+          "state": "favorable",
+          "basis": "10/8~10/9",
+          "status": "mixed",
+          "read": "신용 시장이 안정적 — 주식 약세가 신용 위험으로 번지지 않았습니다."
+        }
+      }
+    },
+    "M03": {
+      "version": "aio-sentiment-composite.v1",
+      "score": null,
+      "band": "판정 보류",
+      "status": "withheld",
+      "componentsReady": 1,
+      "componentsTotal": 7,
+      "asOf": null,
+      "components": [
+        {
+          "id": "momentum",
+          "label": "시장 모멘텀",
+          "status": "ok",
+          "raw": 0.0398,
+          "asOf": "2026-10-09",
+          "score": 35.7,
+          "observations": 164,
+          "basis": "S&P 500 ÷ 125일 평균 − 1"
+        },
+        {
+          "id": "strength",
+          "label": "주가 강도",
+          "status": "insufficient-history",
+          "observations": 11,
+          "needed": 60,
+          "basis": "52주 신고가 − 신저가 (스크리너 유니버스)"
+        },
+        {
+          "id": "breadth",
+          "label": "상승 종목 흐름",
+          "status": "stale",
+          "raw": -0.001,
+          "asOf": "2026-06-01",
+          "score": null,
+          "observations": 154,
+          "basis": "상승 종목 비율의 19/39일 EMA 차 (종목 수 기준)"
+        },
+        {
+          "id": "putCall",
+          "label": "풋·콜 비율",
+          "status": "insufficient-history",
+          "observations": 0,
+          "needed": 60,
+          "basis": "Cboe 총 풋·콜 비율 5일 평균"
+        },
+        {
+          "id": "volatility",
+          "label": "변동성",
+          "status": "stale",
+          "raw": -0.1868,
+          "asOf": "2026-06-01",
+          "score": null,
+          "observations": 149,
+          "basis": "VIX ÷ 50일 평균 − 1"
+        },
+        {
+          "id": "safeHaven",
+          "label": "안전자산 수요",
+          "status": "stale",
+          "raw": 0.0528,
+          "asOf": "2026-06-01",
+          "score": null,
+          "observations": 140,
+          "basis": "S&P 500 20일 수익률 − TLT 20일 수익률"
+        },
+        {
+          "id": "junkBond",
+          "label": "정크본드 수요",
+          "status": "stale",
+          "raw": 1.99,
+          "asOf": "2026-06-01",
+          "score": null,
+          "observations": 185,
+          "basis": "하이일드 OAS − 투자등급 OAS (FRED)"
+        }
+      ],
+      "method": "구성 요소별 최근 1년 백분위(높을수록 탐욕)의 평균. CNN 지수와 같은 값이 아니다."
+    },
+    "M04": {
+      "regime": {
+        "state": "unknown",
+        "basis": "6/1 · 오래됨(판정 제외)",
+        "status": "stale",
+        "read": "VIX 최근 관측(6/1 · 오래됨(판정 제외))이 기준일(10/9)과 달라 판정에서 제외했습니다."
+      },
+      "radar": {
+        "id": "volatility",
+        "label": "변동성 안정",
+        "note": "VIX가 낮을수록 바깥",
+        "values": [
+          null,
+          null,
+          null
+        ],
+        "observed": [],
+        "sample": 198,
+        "now": null,
+        "change5": null,
+        "change20": null
+      }
+    },
+    "M05": {
+      "available": true,
+      "asOf": "2026-06-01",
+      "volatility": {
+        "state": "favorable",
+        "basis": "6/1",
+        "status": "aligned",
+        "read": "변동성이 낮고 기간 구조가 정상 — 시장이 단기 충격을 크게 반영하지 않고 있습니다."
+      }
+    },
+    "M06": [
+      {
+        "text": "S&P 500은 종가 6000입니다. 오늘 변화율은 +999%입니다. VIX는 15입니다. 현재 확산 회복 조건은 99/4개 충족입니다. 다음 시장 폭을 확인합니다.",
+        "ok": false,
+        "issues": [
+          "condition-count-invalid",
+          "change-implausible"
+        ]
+      },
+      {
+        "text": "S&P 500은 6000이고 VIX는 15입니다. 지금 즉시 매수하세요. 시장 상승 확률은 99%입니다.",
+        "ok": false,
+        "issues": [
+          "trade-instruction",
+          "probability-claim"
+        ]
+      }
+    ],
+    "M07": {
+      "held": true,
+      "headline": "필요한 관측이 없어 지금 어느 흐름에 가까운지 판단을 보류합니다.",
+      "leadId": null
+    },
+    "M08": {
+      "spx": 288,
+      "trendNow": 89,
+      "trend5": 84,
+      "trend20": 69,
+      "breadth": 202
+    },
+    "M11_M12": {
+      "available": true,
+      "date": "2026-10-09",
+      "prevDate": "2026-10-08",
+      "missing": [],
+      "notCompared": [
+        "VIX"
+      ],
+      "moves": [
+        {
+          "key": "spx",
+          "label": "S&P 500",
+          "value": 0.990099009900991,
+          "text": "+0.99%",
+          "level": null
+        },
+        {
+          "key": "breadth50",
+          "label": "50일선 위 종목",
+          "value": 0.30000000000000004,
+          "text": "+0.3%p",
+          "level": "1%"
+        }
+      ],
+      "flips": [],
+      "big": [],
+      "headline": "축 판정이 바뀌지 않았고 크게 움직인 지표도 없습니다 — 직전 종가와 같은 분류가 이어집니다(분류가 같다는 것이 해석이 맞았다는 뜻은 아닙니다)."
+    },
+    "M13": {
+      "rows": [],
+      "session": null
+    },
+    "M14": {
+      "short": "mixed",
+      "long": "mixed",
+      "shortLabel": "혼조",
+      "longLabel": "혼조",
+      "shortText": "혼조 · 종가 100 / 5일 100 / 10일 100 / 20일 100",
+      "longText": "혼조 · 20일 100 / 50일 100 / 100일 100 / 200일 100"
+    },
+    "E01": [
+      {
+        "query": "0059300 분석",
+        "entities": []
+      },
+      {
+        "query": "005930.KSXYZ 분석",
+        "entities": []
+      },
+      {
+        "query": "999999 분석",
+        "entities": [
+          {
+            "symbol": "999999.KS",
+            "alias": "999999",
+            "kind": "ticker",
+            "verified": false,
+            "market": "KR"
+          }
+        ]
+      },
+      {
+        "query": "20261012 시장 상태",
+        "entities": []
+      }
+    ],
+    "E03": {
+      "id": "rotation",
+      "tone": "favorable",
+      "title": "섹터 회전과",
+      "text": "보유 비중의 10%가 시장보다 강해지는 '선도' 섹터, 0%가 '후행' 섹터에 있습니다 (기술 100%(미국 보유분 10% 선도)). 한국 보유(90%)는 미국 섹터 회전으로 분류하지 않아 위 비율에서 빠집니다."
+    },
+    "E07": [
+      {
+        "name": "new",
+        "basis": "2026-10-09",
+        "rank": 1
+      }
+    ],
+    "E09": {
+      "short": "혼조",
+      "long": "혼조"
+    },
+    "E08": [
+      [
+        "거래량 (50일 평균 대비)",
+        "100%"
+      ],
+      [
+        "상승일·하락일 거래량 (20일)",
+        "—"
+      ]
+    ],
+    "E10_E11": [
+      {
+        "id": "trend",
+        "tone": "favorable",
+        "title": "추세",
+        "text": "50일선(+100.0%)과 200일선(+1.0%) 위 — 단기·장기 추세가 모두 위쪽입니다."
+      },
+      {
+        "id": "extension",
+        "tone": "burden",
+        "title": "기준선 대비 거리",
+        "text": "50일선보다 100.0% 위, 일평균 변동폭(5.0%)의 20.0배 — 기준선에서 크게 벌어져, 50일선까지 되돌리기만 해도 지금 가격에서 50.0% 하락하는 거리입니다."
+      },
+      {
+        "id": "market",
+        "tone": "neutral",
+        "title": "시장 환경",
+        "text": "시장 상태는 ‘부담’이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 적은 수의 상승 추세 종목에 속합니다. 지수에 얼마나 기여했는지는 이 화면 자료로 계산하지 않습니다."
+      }
+    ],
+    "E05": {
+      "calls": 1,
+      "cached": null
+    },
+    "E04": {
+      "fetches": 0
+    },
+    "A01": {
+      "snapshotCalls": 2,
+      "bootRevision": "market-snapshot:2026-10-12T02:25:05.217Z:ec24ef43",
+      "newRevision": "new-producer-revision",
+      "canonical": "market-snapshot:2026-10-12T02:25:05.217Z:ec24ef43"
+    }
+  }
+}

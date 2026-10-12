@@ -1,0 +1,22 @@
+{
+  "version": "v57.42",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1643,
+    "title": "숫자 설명이 브라우저 기본 툴팁에만 있어 휴대폰·키보드에서 보이지 않고 관측 시점도 없음",
+    "symptom": "화면의 숫자 설명 206곳이 title 속성 툴팁이라 휴대폰 탭이나 키보드 포커스로는 열리지 않았고, 그 숫자가 언제 관측됐는지(몇 시간·며칠 전) 함께 보이지 않았다.",
+    "root_cause": "숫자 근거를 보여주는 공통 컴포넌트 없이 각 화면이 title 문자열만 붙였다.",
+    "fix": "근거 카드를 부팅 시 한 번 설치한다. 페이지 안에서 title이 있는 요소를 가리키거나, 포커스하거나, 탭하면 같은 설명을 카드로 보이고, 요소나 상위 카드가 관측 시점(data-observed-at)을 선언하면 '기준일 · n일 전'과 갱신 지연을 함께 표시한다. 오늘 KPI 추이, 섹터 등락, 국면 레이더 축에 관측 시점을 붙였다. 출처 이름은 화면 표면이 아닌 카드 안에만 둔다(P1505 유지). 소유자의 Claude Dashboard 참고(모든 숫자가 출처와 시점을 말한다)를 스크리너 안에 적용한 것이다.",
+    "violated_rule": "P1505 출처는 화면 밖(hover)·날짜는 숫자 옆 — hover가 터치·키보드에서 동작하지 않던 공백",
+    "prevention": "P1643: node scripts/ci-scenario-guidance-fixture.mjs가 경과 표기와 부팅 설치를 확인한다.",
+    "verification": "로컬 브라우저 오늘 화면에서 KPI 추이·섹터 막대 hover 시 카드와 '2026-10-09 기준 · 2일 전' 확인."
+  },
+  "r": null,
+  "qa": [
+    { "id": "QA-BASIS-CARD-01", "text": "P1643: 숫자 설명은 hover·포커스·탭 모두에서 카드로 열리고 선언된 관측 시점의 경과를 함께 보인다.", "verify_by": "node scripts/ci-scenario-guidance-fixture.mjs", "done": false }
+  ],
+  "qa_section": "근거 카드",
+  "changelog": ["**숫자 근거 카드 (P1643):** 화면의 모든 숫자 설명을 hover·포커스·탭에서 열리는 카드로 통일하고 관측 시점과 경과(n시간·n일 전, 갱신 지연)를 함께 표시."],
+  "note": "v57.42 Claude Dashboard 원칙 반영(Claude). push/deploy 미실행.",
+  "status": null
+}

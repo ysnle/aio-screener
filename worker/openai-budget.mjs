@@ -109,11 +109,19 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
 
 // max_output_tokens includes hidden reasoning tokens. Never add them a second
 // time or trust missing/negative/over-bound usage to replenish monthly credit.
+// A08 (Codex review): the approved alias and its dated snapshots (alias-YYYY-MM-DD) are one priced model. The
+// text extractor already accepted dated responses; settlement must use the same identity rule, or a valid answer
+// keeps its whole reservation. Any other model id is never priced by assumption.
+export function isApprovedOpenAiModel(model) {
+  const id = String(model || '');
+  return id === OPENAI_MODEL || (id.startsWith(`${OPENAI_MODEL}-`) && /^\d{4}-\d{2}-\d{2}$/.test(id.slice(OPENAI_MODEL.length + 1)));
+}
+
 export function verifiedOpenAiCharge(response, budget) {
   // P1608: response token usage alone cannot prove the complete hosted-search
   // charge. Keep its entire reservation instead of inventing a refund.
   if (budget.searchReserveMicroUsd > 0) return null;
-  if (!record(response) || response.object !== 'response' || response.model !== OPENAI_MODEL || response.status !== 'completed'
+  if (!record(response) || response.object !== 'response' || !isApprovedOpenAiModel(response.model) || response.status !== 'completed'
     || typeof response.id !== 'string' || !response.id || !record(response.usage)) return null;
   const { input_tokens: input, output_tokens: output, total_tokens: total } = response.usage;
   if (![input, output, total].every(value => Number.isSafeInteger(value) && value >= 0)

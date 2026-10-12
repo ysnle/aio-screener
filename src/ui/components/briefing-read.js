@@ -71,7 +71,7 @@ export function collectMarketInputs(root) {
   // (10/2) from different days are not split against each other.
   rates.realAsOf = fieldTs.macro_realYield10 || null;
   rates.breakevenAsOf = fieldTs.macro_breakeven10 || null;
-  return { history: root._aioHistory || [], credit, rates };
+  return { history: root._aioHistory || [], credit, rates, now: Date.now() }; // M05: admit only a current basis
 }
 
 export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() }) {

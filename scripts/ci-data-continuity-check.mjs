@@ -241,7 +241,7 @@ function runArtifactChecks() {
 }
 
 // P1518/R690: secondary producers share the same collision-safe atomic boundary.
-for (const name of ['fetch-earnings-calendar', 'fetch-cftc-positioning', 'fetch-sec-fundamentals']) {
+for (const name of ['fetch-earnings-calendar', 'fetch-sec-fundamentals']) { // A09: CFTC producer retired
   const source = readText(`scripts/${name}.mjs`);
   check(`P1518:producer:${name}:shared-atomic`, source.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && source.includes('await atomicWriteFile(') && !/await (?:writeFile|rename)\(/.test(source), 'producer must preserve formatting through shared atomic writer');

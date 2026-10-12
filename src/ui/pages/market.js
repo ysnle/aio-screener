@@ -1,7 +1,7 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { renderBreadthBoard } from '../components/breadth-board.js';
 import { renderMacroBoard, renderRatesFxBoard } from '../components/macro-board.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { BREADTH_CONTRIBUTORS, MACRO_HISTORY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/quote-presentation.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -330,29 +330,13 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       };
       renderNow();
       // P1426: the 거시 direction reads use the FRED observation artifact (published by refresh-data).
-      if ((route === 'macro' || route === 'fxbond') && !root._aioMacroHistory) {
-        const fetchFn = root?.fetch || globalThis.fetch;
-        let alive = true;
-        bag.add(() => { alive = false; });
-        if (typeof fetchFn === 'function') {
-          loadJsonArtifact(fetchFn.bind(root), './public-data/macro-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 })
-            .then((payload) => { if (payload?.schemaVersion === 'macro-history.v1') root._aioMacroHistory = payload; if (alive) renderNow(); })
-            .catch(() => {});
-        }
-      }
+      // M02: reloads when the copy is past its TTL or the server data was regenerated after it was loaded.
+      let alive = true;
+      bag.add(() => { alive = false; });
+      if (route === 'macro' || route === 'fxbond') refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => { if (alive && changed) renderNow(); });
       // P1416: the breadth drilldown (which stocks made each count) is a separate small artifact.
-      if (route === 'breadth' && !root._aioBreadthContributors) {
-        const fetchFn = root?.fetch || globalThis.fetch;
-        let alive = true;
-        bag.add(() => { alive = false; });
-        if (typeof fetchFn === 'function') {
-          loadJsonArtifact(fetchFn.bind(root), './public-data/breadth-contributors.json', { maxAgeMs: 30 * 60 * 1000, maxBytes: 1024 * 1024 })
-            // Codex browser audit H10: the producer moved to v2 (object rows with asset type and corporate-action flag) and
-            // this check still required v1, so the lists stayed "수집 대기" beside counts. Both shapes render.
-            .then((payload) => { if (['breadth-contributors.v1', 'breadth-contributors.v2'].includes(payload?.schemaVersion)) root._aioBreadthContributors = payload; if (alive) renderNow(); })
-            .catch(() => {});
-        }
-      }
+      // Codex browser audit H10: both v1 and v2 contributor shapes render. A03: the drilldown reloads with the counts.
+      if (route === 'breadth') refreshSharedArtifact(root, BREADTH_CONTRIBUTORS).then(({ changed }) => { if (alive && changed) renderNow(); });
       const unsubscribe = store && subscribeToSlices(store, ['market', 'marketSnapshot', 'screener'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;

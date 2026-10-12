@@ -1,0 +1,29 @@
+{
+  "version": "v57.43",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.43 Codex 구조 리뷰(codex-claude-structure-review-20261012) 반영(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1648,
+    "title": "뉴스 목록에 시세 페이지·공시 목록·재게시·같은 사건 중복이 섞임",
+    "symptom": "34건 목록에 시세/예측 페이지, Form 4 목록, 8월 기사 재게시, 같은 사건의 다른 매체 기사가 함께 있었다. 소유자가 30건을 50건으로 늘릴지 물었다.",
+    "root_cause": "선별 점수가 기사 여부·게시 시점·사건 중복을 보지 않았다.",
+    "fix": "건수를 늘리지 않고(상한 40 유지) 기사 아닌 페이지·2개월 이상 지난 달을 제목에 쓴 재게시를 제외하고, 제목 bigram·같은 수치로 같은 사건을 한 건만 남긴다. 저품질 자동 생성 출처를 낮추고 후보 풀은 피드당 40건으로 넓혔다.",
+    "violated_rule": "선별 우선 원칙(중요 사건 우선)",
+    "prevention": "P1648: node scripts/ci-codex-structure-regression-fixture.mjs (뉴스 선별)",
+    "verification": "현재 자료 재채점에서 5건 제외·2건 중복 제거·저품질 9건 하향."
+  },
+  "qa": [
+    {
+      "id": "QA-CODEX-NEWS-01",
+      "text": "P1648: 뉴스 선별은 기사 아닌 페이지·재게시·같은 사건 중복을 제외한다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "뉴스 선별",
+  "changelog": [
+    "**뉴스 선별 (P1648):** 50건 확대 대신 시세·공시 목록·재게시·같은 사건 중복을 제외하고 후보 풀을 넓혀 핵심 기사만 남김."
+  ]
+}

@@ -132,7 +132,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
 function missingLine(composite) {
   const missing = composite.components.filter((row) => row.status !== 'ok');
   if (!missing.length) return '';
-  return `빠진 요소 ${missing.length}개: ${missing.map((row) => row.status === 'insufficient-history' && Number.isFinite(row.observations) ? `${row.label}(기록 ${row.observations}/${row.needed}일)` : row.label).join(' · ')} — 나머지 ${composite.componentsReady}개만의 평균이라 날짜 사이 비교는 구성이 같을 때만 합니다. `;
+  return `빠진 요소 ${missing.length}개: ${missing.map((row) => row.status === 'insufficient-history' && Number.isFinite(row.observations) ? `${row.label}(기록 ${row.observations}/${row.needed}일)` : row.status === 'stale' && row.asOf ? `${row.label}(${shortDate(row.asOf)} 관측 · 오래됨)` : row.label).join(' · ')} — 나머지 ${composite.componentsReady}개만의 평균이라 날짜 사이 비교는 구성이 같을 때만 합니다. `;
 }
 function compositeCard(composite) {
   const ready = composite.components.filter((row) => row.status === 'ok');

@@ -75,6 +75,8 @@ export function renderHomeKpiTrends({ documentRef: doc, root }) {
     const lo = Math.min(...points.map((point) => point.value));
     const hi = Math.max(...points.map((point) => point.value));
     const digits = cell.field === 'tnx' ? 2 : lo >= 100 ? 0 : 2;
+    box.setAttribute('data-observed-at', points[points.length - 1].date); // P1643
+    box.tabIndex = 0; // U01
     box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${points.length - 1}거래일) · 기간 저점 ${lo.toFixed(digits)} · 고점 ${hi.toFixed(digits)} · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다`;
     drawn += 1;
   }

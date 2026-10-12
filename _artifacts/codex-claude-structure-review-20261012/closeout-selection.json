@@ -1,0 +1,145 @@
+{
+  "profile": "affected",
+  "groups": [
+    "preflight"
+  ],
+  "changeSource": "session:codex-claude-structure-review-20261012",
+  "changedFiles": [
+    "_artifacts/codex-claude-structure-review-20261012/ARCHITECTURE-FINDINGS.md",
+    "_artifacts/codex-claude-structure-review-20261012/CHANGE-INVENTORY.md",
+    "_artifacts/codex-claude-structure-review-20261012/ENTITY-FINDINGS.md",
+    "_artifacts/codex-claude-structure-review-20261012/HANDOFF.md",
+    "_artifacts/codex-claude-structure-review-20261012/MARKET-FINDINGS.md",
+    "_artifacts/codex-claude-structure-review-20261012/UI-AND-AI-CHECKS.md",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates.json",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/entity/browser-desktop-dark-fiscal.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/entity/browser-desktop-light-fiscal.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/entity/browser-phone-dark-fiscal.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/entity/browser-phone-light-fiscal.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/entity/browser-report.json",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/entity/browser-tablet-dark-fiscal.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/entity/browser-tablet-light-fiscal.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/phone390-market-regime.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/phone390-theme-1.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/report.json",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/tablet1024-glossary-light.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/tablet1024-market-regime.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/tablet1024-theme-1.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/tablet1024-theme-comparison.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/tablet768-market-regime.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/tablet768-theme-1.png",
+    "_artifacts/codex-claude-structure-review-20261012/browser-gates/responsive/tablet768-theme-comparison.png",
+    "_artifacts/codex-claude-structure-review-20261012/change-inventory.json",
+    "_artifacts/codex-claude-structure-review-20261012/closeout-selection.json",
+    "_artifacts/codex-claude-structure-review-20261012/contracts-workspace-temp.log",
+    "_artifacts/codex-claude-structure-review-20261012/contracts.log",
+    "_artifacts/codex-claude-structure-review-20261012/counterexamples.json",
+    "_artifacts/codex-claude-structure-review-20261012/counterexamples.log",
+    "_artifacts/codex-claude-structure-review-20261012/entity-browser.log",
+    "_artifacts/codex-claude-structure-review-20261012/inventory.mjs",
+    "_artifacts/codex-claude-structure-review-20261012/reproduce.mjs",
+    "_artifacts/codex-claude-structure-review-20261012/responsive-browser.log",
+    "_artifacts/codex-claude-structure-review-20261012/retry.log",
+    "_artifacts/codex-claude-structure-review-20261012/run-browser-gates.mjs"
+  ],
+  "gates": [
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-syntax-check.mjs"
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-control-char-check.mjs"
+    },
+    {
+      "id": "version",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-version-check.mjs"
+    },
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-product-charter-contract-check.mjs"
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-architecture-contract-check.mjs"
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-native-decision-evidence-check.mjs"
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-vertical-slice-contract-check.mjs"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-capability-claim-contract-check.mjs"
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-operations-contract-check.mjs"
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-reference-curriculum-contract-check.mjs"
+    },
+    {
+      "id": "route-registry",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/generate-route-registry.mjs"
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/generate-workspace-state.mjs"
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-workspace-contract-check.mjs"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-qa-runner-behavior-check.mjs"
+    }
+  ]
+}

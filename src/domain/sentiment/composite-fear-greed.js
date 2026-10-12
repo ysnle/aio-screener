@@ -7,6 +7,8 @@
 // Inputs are the published artifacts only: public-data/history.json rows (spx, vix, tlt, pcr,
 // advanceRatio, breadthNewHighs/Lows) and public-data/macro-history.json (hyOas, igOas).
 
+import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../briefing/market-read.js';
+
 export const COMPOSITE_FEAR_GREED_VERSION = 'aio-sentiment-composite.v1';
 const RANK_WINDOW = 252;
 const MIN_RANK_SAMPLE = 60;
@@ -14,11 +16,9 @@ const MIN_COMPONENTS = 4;
 
 const finite = (value) => (value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null);
 
+// M03: one value per US trading session (buildCloseSeries) — weekend carry-forward rows are not observations.
 function series(rows, field) {
-  return (Array.isArray(rows) ? rows : [])
-    .filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) && finite(row[field]) != null)
-    .map((row) => ({ date: row.date, value: finite(row[field]) }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  return buildCloseSeries(Array.isArray(rows) ? rows : [], field).map((row) => ({ date: row.date, value: finite(row.value) })).filter((row) => row.value != null);
 }
 
 function sma(values, end, length) {
@@ -122,9 +122,15 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
   const junkUsesSpread = junkSpread.length >= MIN_RANK_SAMPLE;
   components.push(component('junkBond', '정크본드 수요', junkUsesSpread ? junkSpread : hy, { invert: true, basis: junkUsesSpread ? '하이일드 OAS − 투자등급 OAS (FRED)' : '하이일드 OAS 수준 (투자등급 이력 축적 전 대체)' }));
 
+  // M03: a component counts only when its last observation belongs to the market's last completed close (at most
+  // two sessions older, the market-read rule). Older ones are kept with their own date and marked stale.
+  const basis = closeBasis(history);
+  const checked = components.map((row) => row.status === 'ok' && basis && !isUsable(alignInput(row.asOf, basis))
+    ? Object.freeze({ ...row, status: 'stale', score: null }) : row);
+  components.splice(0, components.length, ...checked);
   const ready = components.filter((row) => row.status === 'ok');
   const score = ready.length >= MIN_COMPONENTS ? Math.round(ready.reduce((sum, row) => sum + row.score, 0) / ready.length) : null;
-  const asOf = ready.length ? ready.map((row) => row.asOf).sort().slice(-1)[0] : null;
+  const asOf = score == null ? null : basis;
   return Object.freeze({
     version: COMPOSITE_FEAR_GREED_VERSION,
     score,

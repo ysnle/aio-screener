@@ -3836,7 +3836,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const { computeCompositeFearGreed, bandForCompositeScore } = await import(pathToFileURL(path.join(root, 'src/domain/sentiment/composite-fear-greed.js')).href);
   const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
   const rising = Array.from({ length: 300 }, (_, i) => ({ date: day(i), spx: 5000 + i * 5, vix: 20 - i * 0.02, advanceRatio: 0.5 + Math.sin(i / 9) * 0.1 + i * 0.0004, fg: 99 }));
-  const hy = { series: { hyOas: { observations: Array.from({ length: 280 }, (_, i) => [day(i), 4 - i * 0.004]) } } };
+  // P1644 (M03): the spread series must reach the price basis (within two sessions) to count as current.
+  const hy = { series: { hyOas: { observations: Array.from({ length: 300 }, (_, i) => [day(i), 4 - i * 0.004]) } } };
   const thin = computeCompositeFearGreed({ history: rising.slice(0, 80), macroHistory: null });
   if (thin.score !== null || thin.status !== 'withheld') fail(`P1586 composite must withhold below four ready components: ${JSON.stringify({ score: thin.score, ready: thin.componentsReady })}`);
   const full = computeCompositeFearGreed({ history: rising, macroHistory: hy });

@@ -74,11 +74,14 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   }).sort((a, b) => b.value - a.value);
   const rated = sectorMix.filter((row) => row.quadrant);
   if (rated.length) {
-    const favourable = rated.filter((row) => row.quadrant.tone === 'favorable').reduce((sum, row) => sum + row.pct, 0);
-    const lagging = rated.filter((row) => row.quadrant.tone === 'burden').reduce((sum, row) => sum + row.pct, 0);
-    const krNote = sectorMix.some((row) => row.krShare > 0) ? ' 한국 보유는 미국 섹터 회전 기준으로 분류하지 않습니다.' : '';
+    // E03: only the US part of a bucket inherits a US sector-ETF quadrant; a KRX holding in the same sector does not.
+    const usPct = (row) => (row.value - row.krValue) / knownValue * 100;
+    const favourable = rated.filter((row) => row.quadrant.tone === 'favorable').reduce((sum, row) => sum + usPct(row), 0);
+    const lagging = rated.filter((row) => row.quadrant.tone === 'burden').reduce((sum, row) => sum + usPct(row), 0);
+    const krPct = sectorMix.reduce((sum, row) => sum + row.krValue, 0) / knownValue * 100;
+    const krNote = krPct > 0 ? ` 한국 보유(${krPct.toFixed(0)}%)는 미국 섹터 회전으로 분류하지 않아 위 비율에서 빠집니다.` : '';
     points.push({ id: 'rotation', tone: favourable >= lagging ? 'favorable' : 'burden', title: '섹터 회전과',
-      text: `보유 비중의 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다 (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? ` ${row.quadrant.label}` : ''}`).join(' · ')}).${krNote}` });
+      text: `보유 비중의 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다 (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(' · ')}).${krNote}` });
   }
 
   // P1466: one decomposition answers both "how did the book do against its index" and "why".

@@ -38,12 +38,13 @@ function measureChange(measure, history, basis, prevDate) {
   // One value per NY trading date (buildCloseSeries): carried-forward weekend rows are not sessions.
   const series = buildCloseSeries(history, measure.key, { through: basis });
   const now = series.length ? series[series.length - 1] : null;
-  const prev = [...series].reverse().find((point) => point.date <= prevDate) || null;
-  if (!now || !prev || now.date !== basis || prev.date === now.date || prev.value === 0) return null;
+  // M11: compare only with the exact previous session; an older value would label a two-day move as one day.
+  const prev = series.find((point) => point.date === prevDate) || null;
+  if (!now || !prev || now.date !== basis || prev.value === 0) return null;
   const a = prev.value;
   const b = now.value;
-  // A breadth share may be stored as a fraction (0-1) or a percent; %p is always in percent points.
-  const scale = measure.kind === 'pp' && b <= 1 && a <= 1 ? 100 : 1;
+  // M12: the producer declares breadth in percent (P1623); never guess the unit from the magnitude.
+  const scale = 1;
   const value = measure.kind === 'pct' ? (b / a - 1) * 100 : measure.kind === 'bp' ? (b - a) * 100 : (b - a) * scale;
   const text = measure.kind === 'pct' ? signed(value, 2, '%') : measure.kind === 'bp' ? signed(value, 0, 'bp')
     : measure.kind === 'pp' ? signed(value, 1, '%p') : signed(value, measure.digits ?? 1);
@@ -59,7 +60,10 @@ export function buildDailyChanges(history = []) {
   if (sessions.length < 2) return { available: false, reason: '비교할 두 거래일의 종가 기록이 없습니다.' };
   const basis = closeBasis(rows);
   const prevDate = sessions[sessions.length - 2].date;
-  const moves = MEASURES.map((measure) => measureChange(measure, rows, basis, prevDate)).filter(Boolean);
+  const measured = MEASURES.map((measure) => ({ measure, move: measureChange(measure, rows, basis, prevDate) }));
+  const moves = measured.map((item) => item.move).filter(Boolean);
+  // Measures with a value today but none on the previous session: named so the reader knows they were skipped.
+  const notCompared = measured.filter((item) => !item.move && buildCloseSeries(rows, item.measure.key, { through: basis }).at(-1)?.date === basis).map((item) => item.measure.label);
   // Axis flips are compared on the same inputs (closes only) so a credit or rate input that exists only
   // today cannot read as a change; an axis unknown on either session is left out.
   const regimeNow = buildMarketRegime({ history: rows });
@@ -77,7 +81,7 @@ export function buildDailyChanges(history = []) {
     ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(' · ')} — 시장 상태 판정에 들어가는 축이 바뀌었습니다.`
     : big.length ? `축 판정은 그대로이고, 크게 움직인 것은 ${big.map((move) => `${move.label} ${move.text}`).join(' · ')}입니다.`
       : '축 판정이 바뀌지 않았고 크게 움직인 지표도 없습니다 — 직전 종가와 같은 분류가 이어집니다(분류가 같다는 것이 해석이 맞았다는 뜻은 아닙니다).';
-  return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), moves, flips, big: big.map((move) => move.key), headline };
+  return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), notCompared, moves, flips, big: big.map((move) => move.key), headline };
 }
 
 // "내 종목": watchlist and holdings, with what moved and what crossed a level worth knowing.

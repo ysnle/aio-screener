@@ -1,0 +1,51 @@
+[qa] RUN syntax
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] PASS product-charter (232ms)
+[qa] RUN architecture
+[qa] PASS version (334ms)
+[qa] RUN native-decision
+[qa] PASS native-decision (320ms)
+[qa] RUN vertical-slice
+[qa] PASS vertical-slice (253ms)
+[qa] RUN capability-claims
+[qa] PASS capability-claims (215ms)
+[qa] RUN operations-contract
+[qa] PASS operations-contract (251ms)
+[qa] RUN reference-curriculum
+[qa] PASS architecture (1197ms)
+[qa] RUN route-registry
+[qa] PASS reference-curriculum (179ms)
+[qa] RUN generated-state
+[qa] PASS route-registry (213ms)
+[qa] RUN workspace-contract
+[qa] PASS generated-state (719ms)
+[qa] RUN qa-runner-behavior
+[qa] FAIL qa-runner-behavior (1687ms)
+node:fs:441
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open 'C:\Users\zmfhd\AppData\Local\Packages\sandbox.{a4195760-9602-4768-a8da-e2b07c363c2f}\AC\Temp\aio-qa-runner-jPFPrz\cache\last-run.json'
+    at readFileSync (node:fs:441:20)
+    at file:///C:/Projects/AIO/scripts/ci-qa-runner-behavior-check.mjs:57:35
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\zmfhd\\AppData\\Local\\Packages\\sandbox.{a4195760-9602-4768-a8da-e2b07c363c2f}\\AC\\Temp\\aio-qa-runner-jPFPrz\\cache\\last-run.json'
+}
+
+Node.js v24.18.0
+
+[qa] FAILURE-OUTPUT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-12T08-14-41-966Z-4672-skbamd\failure-output\qa-runner-behavior-4c6d221714.stdout.txt C:\Projects\AIO\.cache\aio-qa\runs\2026-10-12T08-14-41-966Z-4672-skbamd\failure-output\qa-runner-behavior-4c6d221714.stderr.txt
+[qa] PASS workflow-yaml (4505ms)
+[qa] PASS workspace-contract (4527ms)
+[qa] PASS syntax (14215ms)
+[qa] FAILED-BATCH preserved (1): qa-runner-behavior
+[qa] SUMMARY profile=contracts run=2026-10-12T08-14-41-966Z-4672-skbamd groups=preflight,core,data,knowledge,workspace,cloudflare pass=13 cached=0 fail=1 skip=119 duration=14.4s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-12T08-14-41-966Z-4672-skbamd.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json

@@ -104,3 +104,15 @@
 .home-sector-bars .is-down .home-sector-bar > span { background: var(--candle-down, #2a64c8); }
 .home-sector-value { text-align: right; font-variant-numeric: tabular-nums; }
 .home-sector-quadrant { color: var(--text-muted); font-size: 11px; }
+
+/* P1643: one basis card for every explained number (hover, focus, or tap). */
+.aio-basis-card { position: fixed; z-index: 1000; max-width: min(340px, calc(100vw - 16px)); padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius); box-shadow: var(--shadow-md); color: var(--text-secondary); font-size: var(--fs-xs, 12px); line-height: 1.55; pointer-events: none; }
+.aio-basis-card p { margin: 0; }
+.aio-basis-meta { margin-top: 6px !important; padding-top: 6px; border-top: 1px solid var(--border-subtle); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.aio-basis-meta.is-stale { color: var(--warning, #a15c00); }
+[data-basis] { cursor: help; }
+button[data-basis], a[data-basis] { cursor: pointer; }
+.regime-radar-table { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 4px 0 10px; font-size: 13px; max-width: 520px; }
+.regime-radar-table dt { color: var(--text-secondary); margin: 0; }
+.regime-radar-table dd { margin: 0; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+[data-basis]:focus-visible, .regime-radar-value:focus-visible { outline: 2px solid var(--accent, #2a64c8); outline-offset: 2px; border-radius: 2px; }

@@ -564,6 +564,11 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           });
           blocks.push(box);
         }
+        // E12: dated observations tied to this concept (market rows follow the latest closes, P1636).
+        if (state.currentObservations) {
+          const observed = createCurrentObservationBlock(documentRef, state.currentObservations, { page: 'principles', nodeId: node.id, title: '이 개념의 지금 값' });
+          if (observed.dataset.knowledgeCurrentObservationCount !== '0') { const box = block('지금 값'); box.appendChild(observed); blocks.push(box); }
+        }
         const lesson = lessonForNode(node.id);
         if (lesson?.route) {
           const box = block('이어서 볼 화면');
@@ -586,6 +591,8 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         if (params.mode === 'concept' && params.node) { state.view = 'concept'; state.conceptId = params.node; state.openGroup = 'concept'; }
         else if (params.mode === 'frames' && params.node) { state.view = 'frames'; state.frameId = params.node; state.openGroup = 'frames'; }
         else if (params.lesson) { state.view = 'lesson'; state.lessonId = params.lesson; state.openGroup = 'lesson'; ensureLibraryCapabilities(); }
+        // E14: a column (story chapter) opened from the shelf or search on this same page.
+        else if (params.mode === 'story') { state.view = 'story'; state.openGroup = 'story'; if (params.chapter) { state.chapterId = params.chapter; state.selectedNarrativeChapterId = params.chapter; } }
         else if (params.mode === 'tree' || params.mode === 'graph') { state.view = 'map'; state.openGroup = 'map'; if (params.node && NODE_BY_ID.has(params.node)) state.selectedId = params.node; }
         syncSharedState();
         render();

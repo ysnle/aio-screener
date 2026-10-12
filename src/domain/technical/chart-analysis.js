@@ -11,6 +11,15 @@ function finite(value) {
   return Number.isFinite(number) ? number : null;
 }
 
+function coveredAverage(values, period, minShare = 0.8) {
+  return values.map((_, index) => {
+    if (index + 1 < period) return null;
+    let sum = 0; let count = 0;
+    for (let k = index + 1 - period; k <= index; k++) if (values[k] != null) { sum += values[k]; count += 1; }
+    return count >= Math.ceil(period * minShare) ? sum / count : null;
+  });
+}
+
 export function sma(values, period) {
   return values.map((_, index) => {
     if (index + 1 < period) return null;
@@ -117,14 +126,15 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const bars = input.filter((bar) => [bar?.open, bar?.high, bar?.low, bar?.close].every((v) => finite(v) != null && v > 0));
   if (bars.length < 60) return { available: false, reason: 'bars-insufficient', bars };
   const closes = bars.map((bar) => bar.close);
-  const volumes = bars.map((bar) => finite(bar.volume) || 0);
+  // E08: a missing volume stays missing — counting it as 0 invented a "거래 감소". Averages need 80% coverage.
+  const volumes = bars.map((bar) => { const v = finite(bar.volume); return v != null && v > 0 ? v : null; });
   const ema8 = ema(closes, 8);
   const ema21 = ema(closes, 21);
   const sma150 = sma(closes, 150);
   const sma50 = sma(closes, 50);
   const sma200 = sma(closes, 200);
-  const vol50 = sma(volumes, 50);
-  const vol10 = sma(volumes, 10);
+  const vol50 = coveredAverage(volumes, 50);
+  const vol10 = coveredAverage(volumes, 10);
   const n = bars.length - 1;
   const last = bars[n];
   const prev = bars[n - 1];
@@ -134,7 +144,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rangeLabel = fullYear ? '52주' : `최근 ${bars.length}거래일`;
   const high52 = Math.max(...bars.slice(-252).map((bar) => bar.high));
   const fromHigh = (last.close / high52 - 1) * 100;
-  const volRatio = vol50[n] ? volumes[n] / vol50[n] : null;
+  const volRatio = vol50[n] && volumes[n] != null ? volumes[n] / vol50[n] : null;
   const dryUp = vol50[n] && vol10[n] ? vol10[n] / vol50[n] : null;
   const aligned = ema21[n] != null && sma50[n] != null && sma200[n] != null && last.close > ema21[n] && ema21[n] > sma50[n] && sma50[n] > sma200[n];
   // P1397 events (owner-supplied chart material 2026-10-03): descriptive chart events, not orders.
@@ -187,9 +197,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['상대강도 (S&P 500 대비 6개월 우위)', null]
   ];
   // Buy/sell pressure: volume on up days versus down days over 20 sessions.
-  let upVol = 0; let downVol = 0;
-  for (let i = n - 19; i <= n; i++) { if (closes[i] > closes[i - 1]) upVol += volumes[i]; else if (closes[i] < closes[i - 1]) downVol += volumes[i]; }
-  const pressure = downVol ? upVol / downVol : null;
+  let upVol = 0; let downVol = 0; let seen = 0;
+  for (let i = n - 19; i <= n; i++) { if (volumes[i] == null) continue; seen += 1; if (closes[i] > closes[i - 1]) upVol += volumes[i]; else if (closes[i] < closes[i - 1]) downVol += volumes[i]; }
+  const pressure = downVol && seen >= 16 ? upVol / downVol : null;
   // Weekly trend from the last close of each ISO week, against 10- and 30-week averages.
   const weekly = [];
   bars.forEach((bar) => {

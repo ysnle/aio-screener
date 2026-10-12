@@ -1,0 +1,21 @@
+[qa] CACHED syntax (12714ms prior)
+[qa] RUN workflow-yaml
+[qa] CACHED version (320ms prior)
+[qa] RUN product-charter
+[qa] CACHED architecture (1087ms prior)
+[qa] CACHED native-decision (354ms prior)
+[qa] CACHED vertical-slice (218ms prior)
+[qa] CACHED capability-claims (213ms prior)
+[qa] RUN operations-contract
+[qa] CACHED reference-curriculum (201ms prior)
+[qa] CACHED route-registry (248ms prior)
+[qa] CACHED generated-state (689ms prior)
+[qa] CACHED workspace-contract (4070ms prior)
+[qa] CACHED qa-runner-behavior (25408ms prior)
+[qa] PASS product-charter (203ms)
+[qa] PASS operations-contract (154ms)
+[qa] PASS workflow-yaml (2155ms)
+[qa] NOTE failed batch 2026-10-12T08-17-57-338Z-34052-gfoj5m preserved: this run did not cover every gate in it
+[qa] SUMMARY profile=affected run=2026-10-12T08-58-36-875Z-20320-d0zf9d groups=preflight pass=3 cached=11 fail=0 skip=0 duration=2.2s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-12T08-58-36-875Z-20320-d0zf9d.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json

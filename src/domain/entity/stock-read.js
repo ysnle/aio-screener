@@ -83,7 +83,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const multiple = pct50 / adr;
     const text = multiple >= 7
       // Codex browser audit H32: the distance is an observed fact; entry/stop wording read as a trade instruction.
-      ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 기준선에서 크게 벌어져, 50일선까지의 되돌림만으로도 ${pct50.toFixed(1)}% 하락이 되는 거리입니다.`
+      ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 기준선에서 크게 벌어져, 50일선까지 되돌리기만 해도 지금 가격에서 ${(pct50 / (100 + pct50) * 100).toFixed(1)}% 하락하는 거리입니다.`
       : multiple >= 4
         ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 추세 위에 있으면서 기준선과의 거리가 꽤 벌어진 상태입니다.`
         : multiple >= 0
@@ -119,7 +119,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     points.push({ id: 'market', tone: 'neutral', title: '시장 환경', text: `미국 시장 상태는 ‘${regime.overall}’ — 한국 종목에는 환율·외국인 수급을 거쳐 간접적으로 작용합니다(시장 상태의 원·엔 카드 참고).` });
   } else if (regime?.available && regime.overall) {
     const narrow = breadth?.state === 'burden';
-    const text = narrow && trend?.id === 'up' ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 소수에 속해 지수를 받치는 쪽입니다 — 주도주가 꺾이면 지수도 흔들린다는 뜻이기도 합니다.`
+    const text = narrow && trend?.id === 'up' ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 적은 수의 상승 추세 종목에 속합니다. 지수에 얼마나 기여했는지는 이 화면 자료로 계산하지 않습니다.`
       : narrow ? `시장 상태는 ‘${regime.overall}’이고 시장 폭이 좁아, 추세가 약한 종목은 지수보다 먼저 흔들리기 쉬운 환경입니다.`
         : `시장 상태는 ‘${regime.overall}’${breadth ? `, 시장 폭은 ${breadth.stateLabel}` : ''}입니다.`;
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경', text });

@@ -1,0 +1,29 @@
+{
+  "version": "v57.43",
+  "date": "2026-10-12",
+  "r": null,
+  "status": null,
+  "note": "v57.43 Codex 구조 리뷰(codex-claude-structure-review-20261012) 반영(Claude). push/deploy 미실행.",
+  "p": {
+    "id": 1649,
+    "title": "한국 스크리너가 순위 0개 이유 없이 미국 팩터 세션을 표시하고 정본·QA 범위가 현재와 어긋남",
+    "symptom": "한국 선택 시 \"한국 180 / 순위 0\"인데 팩터 세션은 미국 날짜였다. 숫자 근거 카드는 날짜만 있는 값의 경과를 달력일로 셌다(U02~U05). 휴대폰에서 허브 탭이 줄바꿈됐고, 기업 요약이 같은 가격 카드를 반복했다. 타임라인 계약은 퇴역 옵션 라우트를 포함했고 뉴스 주기를 보지 않았으며(A02/A04), 구조 게이트는 일부 레거시 작성자를 스캔하지 않았다(A05). QA 스킬은 데스크톱 전용 규칙을 유지했고(A07), Worker 예산 검증은 날짜 붙은 모델명을 거부했다(A08). CFTC 포지셔닝은 화면 소비 없이 producer만 돌았다(A09).",
+    "root_cause": "시장별 세션과 화면 정본이 공통 기준 없이 갱신됐다.",
+    "fix": "스크리너는 선택 시장의 팩터 세션을 표시하고, 그 시장 최신 완료 세션보다 늦으면 순위 보류 사유를 문장으로 보인다. 근거 카드는 날짜만 있는 값을 거래일 수로 센다. 탭 줄바꿈과 기업 요약 중복 카드를 정리했다. 타임라인 계약은 ROUTE_IDS에서 기대 라우트를 파생하고 뉴스 23:00 UTC 주기를 검사한다. 구조 게이트 스캔 범위를 넓히고, QA 스킬 반응형 정책과 Worker 모델 별칭을 고쳤다. CFTC producer·화면·자료를 퇴역했다.",
+    "violated_rule": "반응형 지원 재승인(2026-10-11)·정본 파생 원칙",
+    "prevention": "P1649: node scripts/ci-codex-structure-regression-fixture.mjs + ci-page-data-timeline-contract-check + ci-architecture-contract-check",
+    "verification": "factorSessionLag(\"KR\",\"2026-10-08\", 10/12 18:00 KST) → 한국장 10/12 보류 문구. 휴대폰 탭 22x38 줄바꿈 없음."
+  },
+  "qa": [
+    {
+      "id": "QA-CODEX-CANON-01",
+      "text": "P1649: 스크리너는 선택 시장의 세션으로 순위 보류를 설명하고, 타임라인·구조 게이트는 현재 레지스트리에서 대상을 파생한다.",
+      "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "시장별 세션·정본",
+  "changelog": [
+    "**시장별 세션·정본 정리 (P1649):** 한국 스크리너 순위 보류 사유 표시, 근거 카드 거래일 경과, 휴대폰 탭·기업 요약 정리, 타임라인/구조 게이트 범위 파생, CFTC 퇴역, Worker 모델 별칭 허용."
+  ]
+}

@@ -1387,7 +1387,7 @@ const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP Ne
 const SERVER_NEWS_TIER2_SOURCE_RE = /\b(MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance)\b/i;
 // P1504: the list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
 // that filled the 2026-10-06 cycle (TradingKey ×4, livetradingnews, BBN Times, simplywall.st).
-const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News)\b/i;
+const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News)\b/i;
 // P1504: Korean headlines matched none of the English priority rules, so every Korean item scored on source and
 // recency alone. The same topics in Korean.
 const SERVER_NEWS_PRIORITY_RULES_KO = [
@@ -1414,10 +1414,24 @@ function getServerNewsSourceTier(source, feedTier) {
 // through its own feed label, and the floor (topicHits > 0) passed it. Topic evidence now comes from the
 // headline alone; the feed's topic and the source name are not evidence that the article is about markets.
 const SERVER_NEWS_OFFTOPIC_RE = /(바카라|카지노\s*게임|슬롯\s*머신|토토|승률\s*계산|베팅\s*전략|날씨|기온|한파|폭설|폭우|\bweather\b|\bsnowfall\b|\bchinook\b|winter planning|\bbaccarat\b|casino games?|sports betting|\bhoroscope\b)/i;
-function scoreServerNewsItem(item) {
+// Owner 2026-10-12 (뉴스 30건 vs 50건): more slots would add noise, not news. Pages that are not articles — quote
+// pages, auto-generated price-target "forecasts", filing-form listings — and reposts whose headline names a month
+// two or more months before the cycle are dropped before ranking.
+const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Price Prediction (?:for )?20\d\d)/i;
+const NEWS_MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
+  const match = String(headline || '').toLowerCase().match(/\b(january|february|march|april|june|july|august|september|october|november|december)\s+\d{1,2}\b/);
+  if (!match) return false;
+  const named = NEWS_MONTHS.indexOf(match[1]);
+  const current = new Date(nowMs).getUTCMonth();
+  return ((current - named + 12) % 12) >= 2 && ((current - named + 12) % 12) <= 9;
+}
+export function scoreServerNewsItem(item) {
   const headline = String(item.title || '');
   const text = `${headline} ${item.source || ''}`;
   if (SERVER_NEWS_CLICKBAIT_RE.test(headline)) return { score: 0, selectionReason: 'clickbait-filter' };
+  if (SERVER_NEWS_NOT_ARTICLE_RE.test(headline)) { item.topicHits = 0; return { score: 0, selectionReason: 'not-article-filter' }; }
+  if (serverNewsHeadlineMonthStale(headline, item.scoringNowMs || Date.now())) { item.topicHits = 0; return { score: 0, selectionReason: 'stale-repost-filter' }; }
   if (SERVER_NEWS_OFFTOPIC_RE.test(headline)) { item.topicHits = 0; return { score: 0, selectionReason: 'off-topic-filter' }; }
 
   let score = 20;
@@ -1514,6 +1528,22 @@ function _parseRssXml(xml, opts) {
   return items;
 }
 
+export function newsHeadlineSignature(title) {
+  const text = String(title || '').toLowerCase().replace(/\s+-\s+[^-]+$/, '').replace(/[^\p{L}\p{N}.%$ ]/gu, ' ');
+  const compact = text.replace(/\s+/g, '');
+  const grams = new Set();
+  for (let i = 0; i < compact.length - 1; i += 1) grams.add(compact.slice(i, i + 2));
+  const figures = new Set((text.match(/\$?\d+(?:\.\d+)?\s*(?:조|억|%|bp|billion|trillion|bn)/g) || []).map((x) => x.replace(/\s/g, '')));
+  return { grams, figures };
+}
+export function newsSameEvent(a, b) {
+  let shared = 0;
+  for (const gram of a.grams) if (b.grams.has(gram)) shared += 1;
+  const jaccard = shared / Math.max(1, a.grams.size + b.grams.size - shared);
+  const sameFigure = [...a.figures].some((figure) => b.figures.has(figure));
+  return jaccard >= 0.6 || (sameFigure && jaccard >= 0.25);
+}
+
 async function fetchNews() {
   const cycle = getKst0800NewsCycle();
   const items = [];    // US/글로벌 피드
@@ -1524,7 +1554,7 @@ async function fetchNews() {
       const feedUrls = [feed.url, feed.url.replace(/when%3A2d/i, 'when%3A7d')];
       let parsed = [];
       for (const feedUrl of feedUrls) {
-        const candidate = _parseRssXml(await _fetchRssWithRetry(feedUrl, 12000), { limit: 20, titleLen: 200, needLink: true });
+        const candidate = _parseRssXml(await _fetchRssWithRetry(feedUrl, 12000), { limit: 40, titleLen: 200, needLink: true }) // 2026-10-12: a deeper candidate pool so the stricter filters below still fill the slots with real articles;
         parsed = candidate;
         const hasCurrent = candidate.some(p => {
           const ts = p.ts;
@@ -1568,6 +1598,13 @@ async function fetchNews() {
   const SOURCE_CAP = 3;
   const sourceKey = (it) => String(it.source || it.feedSource || '').trim().toLowerCase();
   const sourceFull = (it) => (perSource.get(sourceKey(it)) || 0) >= SOURCE_CAP;
+  // Owner 2026-10-12: one event, one slot. Two outlets reporting the same story (same specific figure, or nearly
+  // the same headline) used two of the slots; the higher-scored one is kept because candidates arrive score-ordered.
+  const pickedGrams = [];
+  const sameEvent = (it) => {
+    const mine = newsHeadlineSignature(it.title);
+    return pickedGrams.some((other) => newsSameEvent(mine, other));
+  };
   // Google News appends " - Source" to every title; the source is shown separately.
   const cleanTitle = (it) => {
     const src = String(it.source || '').trim();
@@ -1575,6 +1612,7 @@ async function fetchNews() {
     return src && title.endsWith(` - ${src}`) ? title.slice(0, -(src.length + 3)).trim() : title;
   };
   function pushItem(it) {
+    pickedGrams.push(newsHeadlineSignature(it.title));
     perSource.set(sourceKey(it), (perSource.get(sourceKey(it)) || 0) + 1);
     out.push({
       title: cleanTitle(it), link: it.link, source: it.source,
@@ -1599,7 +1637,7 @@ async function fetchNews() {
     if (out.length >= KR_SLOTS) break;
     if (sourceFull(it)) continue;
     const k = newsArticleKey(it);
-    if (seen.has(k)) continue;
+    if (seen.has(k) || sameEvent(it)) continue;
     seen.add(k);
     pushItem(it);
   }
@@ -1612,7 +1650,7 @@ async function fetchNews() {
       if (it.topic !== topic) continue;
       if (sourceFull(it)) continue;
       const k = newsArticleKey(it);
-      if (seen.has(k)) continue;
+      if (seen.has(k) || sameEvent(it)) continue;
       seen.add(k);
       pushItem(it);
       taken += 1;
@@ -1623,7 +1661,7 @@ async function fetchNews() {
     if (out.length >= 40) break;
     if (sourceFull(it)) continue;
     const k = newsArticleKey(it);
-    if (seen.has(k)) continue;
+    if (seen.has(k) || sameEvent(it)) continue;
     seen.add(k);
     pushItem(it);
   }
@@ -3529,7 +3567,31 @@ function _analysisNumberAfterLabel(body, labels) {
   return analysisLevelsAfterLabels(body, labels, { allLabels })[0] ?? null;
 }
 
-export function validateMarketAnalysisText(text, data, snapshot = null) {
+// M06: typed admission for the claims the prompt forbids or the evidence can disprove. These are blocking issues.
+const ANALYSIS_TRADE_INSTRUCTION = /(?:매수|매도|매집|손절|익절|진입|청산)(?:하세요|하십시오|해라|하라|할\s*때입니다|하시길)|(?:사세요|파세요|사라|팔아라|담으세요|비중을\s*(?:늘리|줄이)세요)|목표\s*가(?:는|를)?\s*\$?\d|\b(?:buy|sell)\s+now\b/i;
+const ANALYSIS_PROBABILITY = /\d+(?:\.\d+)?\s*%\s*(?:의\s*)?(?:확률|가능성|승률)|(?:확률|가능성|승률)(?:은|이|는|로|이\s*약)?\s*(?:약\s*)?\d+(?:\.\d+)?\s*%/;
+export function validateAnalysisAdmission(body, { changes = new Map(), context = '' } = {}) {
+  const issues = [];
+  if (ANALYSIS_TRADE_INSTRUCTION.test(body)) issues.push('trade-instruction');
+  if (ANALYSIS_PROBABILITY.test(body)) issues.push('probability-claim');
+  // Condition counts must be well-formed and, when a regime context was supplied, appear in it.
+  for (const match of body.matchAll(/(\d+)\s*\/\s*(\d+)\s*(?:개)?\s*(?:조건|충족)|조건\s*(\d+)\s*\/\s*(\d+)/g)) {
+    const met = Number(match[1] ?? match[3]); const total = Number(match[2] ?? match[4]);
+    if (!(total > 0) || met > total || total > 10) issues.push('condition-count-invalid');
+    else if (context && !new RegExp(String.raw`(?:조건\s*${met}\s*/\s*${total}|${met}\s*/\s*${total})`).test(context)) issues.push('condition-count-unsupported');
+  }
+  // Day-over-day change: a stated "변화/상승/하락 x%" near a label must match the evidence change within 0.15%p.
+  for (const match of body.matchAll(/(?:변화율|등락률|상승률|하락률|변화|등락)\s*(?:은|는|이|가|률은)?\s*([+\-−]?\d+(?:\.\d+)?)\s*%/g)) {
+    const stated = Number(match[1].replace('−', '-'));
+    if (Math.abs(stated) > 25) { issues.push('change-implausible'); continue; }
+    // A multi-day change quoted from the regime context (e.g. 20일 변화) is supported by that context.
+    const inContext = context && context.includes(String(Math.abs(stated)));
+    if (changes.size && !inContext && ![...changes.values()].some((value) => Math.abs(Math.abs(value) - Math.abs(stated)) <= 0.15)) issues.push('change-unsupported');
+  }
+  return [...new Set(issues)];
+}
+
+export function validateMarketAnalysisText(text, data, snapshot = null, { context = '' } = {}) {
   const issues = [];
   // P1122: `warnings` never withholds the analysis; it names what the reader must treat
   // carefully. Blocking is reserved for claims that can be wrong (values, units, scale).
@@ -3539,6 +3601,8 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   if (!body) issues.push('empty');
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
+  const changes = new Map((snapshot?.quotes || []).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
+  issues.push(...validateAnalysisAdmission(body, { changes, context }));
   // P1372: "a concise Korean market analysis" produced an English analysis *of the Korean
   // market*. The product is Korean; English prose is not publishable.
   // P1585: count prose only — the prompt asks for evidence ids, and tickers (SPX, VIX, DXY, WTI)
@@ -4098,6 +4162,7 @@ export function marketAnalysisRegimeInput(data, history = []) {
   const hyDelta5 = num(macro.hyOASDelta5);
   return {
     history: Array.isArray(history) ? history : [],
+    now: Date.now(), // M05: the narrative uses the same latest-session admission as the screen
     credit: {
       hyBp: hy == null ? null : Math.round(hy * 100), hyAsOf: macro._asOf_hyOAS || null,
       hyDelta5Bp: hyDelta5 == null ? null : Math.round(hyDelta5 * 100),
@@ -4161,7 +4226,7 @@ export async function genMarketAnalysis(data, snapshot = null) {
     const result = await requestSharedAnalysis(prompt);
     if (!result.text) return buildMarketAnalysisFallback(data, result.reason, metricEvidence, newsEvidence);
     const text = result.text;
-    const semantic = validateMarketAnalysisText(text, data, snapshot);
+    const semantic = validateMarketAnalysisText(text, data, snapshot, { context: regimeContext });
     if (!text || !semantic.ok) return buildMarketAnalysisFallback(data, semantic.issues.join(','), metricEvidence, newsEvidence);
     return buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic });
   } catch (error) {
@@ -4596,6 +4661,9 @@ async function main() {
   // P1093: this runs AFTER the canonical snapshot is resolved, because the narrative's
   // evidence must be sourced from the published snapshot (unit/metricId/evidenceId)
   // rather than from `data.quotes`, which toPublicPayload strips before publishing.
+  // M01: append this cycle's completed close first, so the narrative's regime context reads the same session the
+  // published history (and therefore the screen) will show.
+  const histInfo = await updateHistory(data, marketSnapshotForConsumers, fredDexkous);
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers);
   if (marketAnalysis) {
     data.marketAnalysis = marketAnalysis;
@@ -4659,7 +4727,6 @@ async function main() {
   const macroHistoryInfo = await macroHistoryTask;
   console.log(`[fetch-data] macro history: ${JSON.stringify(macroHistoryInfo)}`);
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
-  const histInfo = await updateHistory(data, marketSnapshotForConsumers, fredDexkous);
   // P1246: FX 교차검증 — 히스토리 레인이 기록한 **공식 관측일과 같은 날짜**의 완료 종가를 공식
   // DEXKOUS와 비교해 **상태만** 발행한다. 값 출처는 바뀌지 않는다(providerCrossChecks는 참조 면이다).
   // 히스토리 레인이 통째로 실패해도 판정 불가 레코드를 남긴다 — 교차검증의 부재를 성공으로 읽지 않는다.

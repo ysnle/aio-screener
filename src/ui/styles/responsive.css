@@ -121,3 +121,14 @@
 @media (prefers-reduced-motion: reduce) {
   .sidebar, #ai-panel { transition: none; }
 }
+
+/* Codex review screenshots 2026-10-12: on a 390px phone the hub tabs were squeezed to 19px and broke one syllable
+   per line ("요/약", "차/트"). Tabs keep their words whole and the row scrolls sideways instead. */
+.aio-hub-tab { white-space: nowrap; flex: 0 0 auto; }
+@media (max-width: 760px) {
+  .aio-hub-tabs { gap: 18px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .aio-hub-tabs::-webkit-scrollbar { display: none; }
+  .aio-hub-tabs > * { flex: 0 0 auto; white-space: nowrap; }
+}
+/* Same screenshots: the 방향 badge in the theme table broke "유/지" inside its pill. State pills never wrap. */
+.regime-state { white-space: nowrap; }

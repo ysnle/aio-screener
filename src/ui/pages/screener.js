@@ -20,6 +20,7 @@ import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../d
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose } from '../../data/contracts/screener.js';
 import { latestCompletedUsSession } from '../../ai/time/market-session.js';
+import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
 import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
@@ -598,14 +599,23 @@ export function describeStaleDates(dates = []) {
 
 // P1449: user copy for a held re-rank — the same vocabulary as the model's own fail-closed
 // semantics (결측은 중립 취급하지 않음, W07-A/P1146).
-export function describeRankingHold(hold, { factorSessionDate = null, now = Date.now() } = {}) {
+// Codex structure review 2026-10-12 (UI): the selected market's own factor session versus that market's
+// latest completed session. KR closes 15:30 KST, so after the close a 10/08 KR factor file is behind even
+// while the US file is current — the hold copy and the population note must name the market that is late.
+export function factorSessionLag(market, factorSessionDate, now = Date.now()) {
+  const session = String(factorSessionDate || '').slice(0, 10);
+  const latest = market === 'KR' ? latestCompletedKrSession(now) : latestCompletedUsSession(now, { requirePrevious: false });
+  if (!session || !latest?.date || session >= latest.date) return null;
+  return { session, latest: latest.date, label: market === 'KR' ? '한국장' : '미국장' };
+}
+
+export function describeRankingHold(hold, { factorSessionDate = null, market = 'US', now = Date.now() } = {}) {
   if (!hold || !hold.reason) return null;
   // Codex review 2026-10-05: when the price inputs are simply one session behind, say that — not a
   // generic coverage failure that reads as if the screener were broken.
-  const latest = latestCompletedUsSession(now, { requirePrevious: false });
-  const session = String(factorSessionDate || '').slice(0, 10);
-  if (/coverage|eligible/.test(hold.reason) && latest?.date && session && session < latest.date) {
-    return `순위 보류 — 가격 자료가 ${session.slice(5).replace('-', '/')} 종가 기준이고, 그 뒤 ${latest.date.slice(5).replace('-', '/')} 미국장이 끝났습니다. 다음 자료 갱신으로 최신 종가가 들어오면 순위를 다시 계산합니다(지난 값으로 순위를 매기지 않습니다).`;
+  const lag = factorSessionLag(market, factorSessionDate, now);
+  if (/coverage|eligible/.test(hold.reason) && lag) {
+    return `순위 보류 — 가격 자료가 ${lag.session.slice(5).replace('-', '/')} 종가 기준이고, 그 뒤 ${lag.latest.slice(5).replace('-', '/')} ${lag.label}이 끝났습니다. 다음 자료 갱신으로 최신 종가가 들어오면 순위를 다시 계산합니다(지난 값으로 순위를 매기지 않습니다).`;
   }
   const coverage = hold.requestedWeightCoveragePct != null ? `${hold.requestedWeightCoveragePct}%` : null;
   const requested = hold.requestedFactorWeights && Object.keys(hold.requestedFactorWeights).length
@@ -1210,6 +1220,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const weights = ranking.appliedFactorWeights || {};
     const order = documentRef.getElementById('scr-order')?.selectedOptions?.[0]?.textContent || SCREENER_COLUMN_REGISTRY.find(column => column.key === sortState.column)?.label || '조건 순위';
     diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${marketRows(currentState.rows || [], listingMarket).length}개 · 순위 계산 ${ranking.ranked || 0}개 · 표시 ${filtered.length}개 · ${order} · 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
+    const sessionLag = !(ranking.ranked > 0) ? factorSessionLag(listingMarket, currentState.metadata.factorSessionDateByMarket?.[listingMarket], Date.now()) : null;
+    if (sessionLag) diagnostics.textContent += ` · 가격 자료 ${sessionLag.session.slice(5).replace('-', '/')} 종가 기준, ${sessionLag.latest.slice(5).replace('-', '/')} ${sessionLag.label} 반영 대기`;
     diagnostics.title = '백분위는 같은 시장의 계산 가능한 종목끼리 비교합니다. 정렬과 조건, 표시 필터는 서로 다른 역할입니다. 데이터가 없거나 조건을 통과하지 못한 종목은 순위에서 제외합니다.';
   }
   const allRows = marketRows(rows, listingMarket);
@@ -1224,7 +1236,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (buy) buy.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && row.signal === 'BUY').length);
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
-  if (asOf) asOf.textContent = state?.metadata?.factorObservedAt ? `팩터 세션 ${String(state.metadata.factorObservedAt).slice(0, 10)} · 생성 ${state?.metadata?.asOf ? String(state.metadata.asOf).slice(0, 10) : '—'}` : state?.metadata?.asOf ? `생성 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
+  const marketFactorSession = state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorObservedAt;
+  if (asOf) asOf.textContent = marketFactorSession ? `${MARKET_LABELS[listingMarket] || ''} 팩터 세션 ${String(marketFactorSession).slice(0, 10)} · 생성 ${state?.metadata?.asOf ? String(state.metadata.asOf).slice(0, 10) : '—'}` : state?.metadata?.asOf ? `생성 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
   const provenance = page.querySelector('[data-screener-provenance]');
   if (provenance) {
     const metadata = state?.metadata || {};
@@ -1311,7 +1324,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (holdEl) {
     // LC-73 style (P1449): when a re-rank is held, the visible summary (not just a tooltip)
     // discloses that the previous calculation was discarded and why.
-    const holdCopy = describeRankingHold(hold, { factorSessionDate: state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorSessionDate || root?._aioScreenerFactorAsOf || null });
+    const holdCopy = describeRankingHold(hold, { market: listingMarket, factorSessionDate: state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorSessionDate || root?._aioScreenerFactorAsOf || null });
     holdEl.hidden = !holdCopy;
     if (holdCopy) {
       holdEl.textContent = holdCopy;

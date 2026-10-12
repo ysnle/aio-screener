@@ -5,7 +5,7 @@ import { collectMarketInputs } from './briefing-read.js';
 import { regimeFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { buildRegimeAxisHistory, buildMarketScenarios, buildKoreaRegimeObservations } from '../../domain/market/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
 import { outlookForRoot } from './scenario-outlook.js';
@@ -44,15 +44,10 @@ const AXIS_SOURCES = Object.freeze({
 });
 
 function requestRegimeMacroHistory(root, doc) {
-  if (root._aioMacroHistory || root._aioRegimeMacroRequested || Date.now() - (root._aioRegimeMacroTriedAt || 0) < 60000) return;
-  const fetchFn = root.fetch || globalThis.fetch;
-  if (typeof fetchFn !== 'function') return;
-  root._aioRegimeMacroRequested = true;
-  root._aioRegimeMacroTriedAt = Date.now();
-  loadJsonArtifact(fetchFn.bind(root), './public-data/macro-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 })
-    .then(payload => { if (payload?.schemaVersion === 'macro-history.v1') root._aioMacroHistory = payload; })
-    .catch(() => {})
-    .finally(() => { root._aioRegimeMacroRequested = false; if (root._aioMacroHistory && doc.getElementById('page-signal')?.classList?.contains('active')) renderRegimePage({ documentRef: doc, root }); });
+  if (!sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) return;
+  refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => {
+    if (changed && doc.getElementById('page-signal')?.classList?.contains('active')) renderRegimePage({ documentRef: doc, root });
+  });
 }
 
 function chartPanel(doc, charts, range) {
@@ -305,7 +300,14 @@ export function renderHomeRegime({ documentRef: doc, root }) {
     const scenarios = regime.available ? buildMarketScenarios(collectMarketInputs(root), { regime }) : null;
     const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime }) : null;
     const lead = outlook?.items?.find((item) => item.id === outlook.leadId);
-    outlookBox.hidden = !lead;
+    // M07: while the scenarios are held, say which observation is missing instead of a representative posture.
+    outlookBox.hidden = !lead && !scenarios?.held;
+    if (!lead && scenarios?.held) {
+      const more = el(doc, 'button', '세 가지 흐름의 조건 보기 →', 'flow-next-link');
+      more.type = 'button';
+      more.addEventListener('click', () => root.showPage?.('signal'));
+      outlookBox.replaceChildren(el(doc, 'p', outlook?.headline || '필요한 관측이 없어 판단을 보류합니다.', 'home-outlook-lead'), el(doc, 'p', scenarios.reason, 'home-outlook-posture'), more);
+    }
     if (lead) {
       const more = el(doc, 'button', '세 가지 흐름과 확인할 것 보기 →', 'flow-next-link');
       more.type = 'button';
