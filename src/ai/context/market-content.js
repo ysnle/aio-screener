@@ -1,0 +1,58 @@
+// P1621: bounded, question-selected facts from the same native models used by the screens.
+import { buildBreadthSnapshot } from '../../domain/market/breadth-snapshot.js';
+import { buildGroupStrength } from '../../domain/themes/group-strength.js';
+import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
+import { koreaParticipationContext } from '../../domain/market/korea-participation.js';
+import { companyAnalysisContext } from '../../domain/entity/company-analysis.js';
+import { renderMarketScenarioContext } from '../../domain/market/regime-scenarios.js';
+
+// P1621: share page-independent selection between both legacy chat callers.
+export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '' } = {}) {
+  const contexts = new Set();
+  if (/^(macro|kr-macro|fxbond|themes|theme-detail|kr-themes)$/.test(ctxId)) contexts.add(ctxId);
+  const text = String(query || '');
+  if (/CPI|PCE|FOMC|인플레|물가|고용|실업|연준|거시/i.test(text)) contexts.add('macro');
+  if (/DXY|OAS|달러|환율|국채|채권|금리|스프레드/i.test(text)) contexts.add('fxbond');
+  if (/섹터|테마|업종|로테이션/i.test(text)) contexts.add('themes');
+  const parts = [...contexts].map(readDomain).filter(Boolean);
+  const state = root.AIO_ARCH?.getScreenerState?.();
+  const facts = buildMarketContentContext({ query: text, history: root._aioHistory || [], themes: root.THEME_MAP || [], rows: state?.rows || root.SCREENER_DB || [] });
+  if (facts) parts.push(facts);
+  if (/시장|시나리오|앞으로|향후|관찰|금리|신용|변동성/.test(text) && root._aioHistory?.length) {
+    const scenarios = renderMarketScenarioContext({ history:root._aioHistory });
+    if(scenarios) parts.push(scenarios);
+  }
+  if (/한국|코스피|코스닥|원화|한국.*시장|국내.*시장/.test(text)) {
+    const korea = koreaParticipationContext(root.__aioKoreaParticipation);
+    if (korea) parts.push(korea);
+  }
+  const cached = root.__aioStockChartAnalysis;
+  const company = root.__aioCompanyAnalysis;
+  const requested = (text.match(/\b[A-Z]{1,6}(?:\.(?:KS|KQ))?\b|\b\d{6}(?:\.(?:KS|KQ))?\b/g) || []).filter(id => !['RSI','MACD','EMA','SMA','ADX','VCP','OHLCV','USD','KRW'].includes(id));
+  const sameIssuer = requested.some(id => id === cached?.symbol || (/^\d{6}$/.test(id) && cached?.symbol === `${id}.KS`) || (/^\d{6}$/.test(id) && cached?.symbol === `${id}.KQ`));
+  if(company?.symbol && /기업|회사|사업|경쟁|해자|재무|실적|현금|위험|분석/.test(text) && (requested.includes(company.symbol) || (ctxId==='ticker' && !requested.length))) parts.push(companyAnalysisContext(company));
+  if (cached?.symbol && /차트|시나리오|매물대|가격대|돌파|저항|지지/i.test(text) && (sameIssuer || (ctxId === 'technical' && !requested.length))) {
+    const scenarios = buildChartScenarios(cached.analysis), profile = buildVolumeByPrice(cached.analysis?.bars || []);
+    if (scenarios.available) parts.push(`화면과 동일한 ${cached.symbol} 완료 일봉 기준 ${scenarios.asOf}. 조건부 흐름(예측 확률/목표가가 아님):\n${scenarios.scenarios.map(item => `${item.title}: ${item.text}`).join('\n')}`);
+    if (profile.available) parts.push(`일봉 추정 거래 집중 가격대: ${profile.zones.map(zone => `${zone.low.toFixed(2)}~${zone.high.toFixed(2)} (${zone.share.toFixed(1)}%)`).join(', ')}. ${profile.start}~${profile.end}. 거래량을 일봉 저가~고가에 균등 배분한 참고치이며 실제 가격별 체결 매물대/보유원가/매수·매도 우위가 아님.`);
+  }
+  return parts.join('\n');
+}
+
+export function buildMarketContentContext({ query = '', history = [], themes = [], rows = [] } = {}) {
+  const parts = [];
+  if (/시장|상승.*하락|신고가|신저가|시장\s*폭|breadth|SMA\s*(50|200)|50일|200일/i.test(query)) {
+    const snapshot = buildBreadthSnapshot(history);
+    if (snapshot.cards.length) parts.push(`AIO 미국 수집 표본의 시장 폭 · ${snapshot.asOf} 종가 기준\n` + snapshot.cards.map((card) => `${card.title}: ${card.first} / ${card.second}. ${card.detail} 판정 ${card.eligible ?? '미확인'}개 / 대상 ${card.universe ?? '미확인'}개.`).join('\n'));
+  }
+  if (/테마|섹터|업종|구성\s*종목|상대강도/i.test(query)) {
+    const model = buildGroupStrength({ themes, rows });
+    const exact = model.groups.filter((group) => query.includes(group.name) || (group.themeName && query.includes(group.themeName)));
+    const groups = exact.length ? exact : model.groups.slice(0, 15);
+    if (groups.length) parts.push('AIO 하위 테마 · 선택 기간 3개월 수익률 중앙값. 아래는 자료가 있는 테마이며 전체 시장이 아니다.\n' + groups.slice(0, 30).map((group) => {
+      const dates = [...new Set(group.constituents.map((item) => rows.find((row) => String(row.sym).toUpperCase() === item.sym)?.factorSessionDate).filter(Boolean))];
+      return `${group.themeName} / ${group.name}: 3개월 ${group.ret3m == null ? '기준일 불일치/미확인으로 보류' : `${group.ret3m.toFixed(1)}%`}, 수익률 표본 ${group.members}/${group.listed}개, 구성 ${group.constituents.map((item) => item.sym).join(', ')}. 미국/한국 각각의 종가 기준일 ${dates.join(', ') || '미확인(현재 수치로 단정 금지)'}. 그룹 내부 3개월 수익률 순위: ${group.rankedMembers.map((member) => `${member.sym} ${member.rank == null ? '순위 보류/수익률 없음' : `${member.rank}위 ${member.ret3m.toFixed(1)}%`}`).join('; ')}.`;
+    }).join('\n'));
+  }
+  return parts.join('\n\n');
+}

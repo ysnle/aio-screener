@@ -16,6 +16,8 @@
 import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
 import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
 import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
+import { screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
+import { latestCompletedUsSession, latestCompletedKrSession, resolveMarketCalendarSession } from '../market/market-calendar.js';
 
 export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v6';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
@@ -181,6 +183,17 @@ function isFreshPast(value, now, budgetMs) {
 }
 
 const PRICE_FACTOR_KEYS = new Set(['momentum', 'trend', 'lowvol', 'kalman']);
+const sessionCache = new Map();
+function isLatestCompletedPriceSession(row, lineage, now) {
+  if (lineage.timeBasis !== 'bar-start' || !lineage.sessionDate || row?.factorBarCompleteness !== 'completed-sessions-only') return false;
+  const observed=isoMs(lineage.observedAt), market=screenerMarket(row), key=`${market}:${Math.floor(now/60000)}`;
+  if(!Number.isFinite(observed)||observed>now)return false;
+  if(!sessionCache.has(key)) { sessionCache.set(key,market==='KR'?latestCompletedKrSession(now):latestCompletedUsSession(now,{requirePrevious:false})); if(sessionCache.size>8)sessionCache.delete(sessionCache.keys().next().value); }
+  const latest=sessionCache.get(key);
+  const zone=market==='KR'?'Asia/Seoul':'America/New_York';
+  const ownDate=new Date(observed).toLocaleDateString('en-CA',{timeZone:zone});
+  return latest?.date===lineage.sessionDate && ownDate===lineage.sessionDate && resolveMarketCalendarSession({market,date:ownDate}).status==='open';
+}
 
 function factorLineage(row, key) {
   const priceFactor = PRICE_FACTOR_KEYS.has(key);
@@ -211,7 +224,8 @@ function factorEvidenceUsable(row, key, now) {
   if (normalizeAllowedUse(lineage.allowedUse, 'none') === 'none') reasons.push('allowedUse_blocked');
   if (!lineage.quality || typeof lineage.quality !== 'object') reasons.push('quality_missing');
   else if (lineage.quality.stale === true || lineage.quality.blocked === true || lineage.quality.status === 'STALE' || lineage.quality.status === 'MISSING') reasons.push('quality_stale_or_blocked');
-  if (!isFreshPast(lineage.observedAt, now, budget)) reasons.push('observedAt_stale_or_future');
+  // P1625: a latest completed KRX close remains current through a holiday + weekend.
+  if (!isFreshPast(lineage.observedAt, now, budget) && !(PRICE_FACTOR_KEYS.has(key) && isLatestCompletedPriceSession(row,lineage,now))) reasons.push('observedAt_stale_or_future');
   return { ok: reasons.length === 0, lineage, reasons };
 }
 
@@ -363,7 +377,7 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than 
  * @param {string|null} input.previousRegimeLabel optional prior regime label for diagnostics.
  * @param {object|null} input.previousWeights optional prior weights for diagnostics.
  */
-export function computeFactorRanks({
+function computeFactorRanksForPopulation({
   rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false,
   now = Date.now(), inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
   topPct = 20, weightsPolicy = null
@@ -738,5 +752,30 @@ export function computeFactorRanks({
       reason: '현재 결과는 관측시점 기준 상대 순위이며 PIT·생존편향·비용·유동성·실거래 패리티를 인증하지 않음'
     }),
     rows: Object.freeze(resultRows)
+  });
+}
+
+// P1625: both legacy compatibility and native orchestration call this boundary.
+export function computeFactorRanks(input = {}) {
+  const rows = Array.isArray(input.rows) ? input.rows : [];
+  const markets = [...new Set(rows.map(screenerMarket).filter(Boolean))];
+  if (markets.length <= 1) {
+    const result = computeFactorRanksForPopulation(input);
+    const market = markets[0] || 'US';
+    return Object.freeze({ ...result, populationPolicy: MARKET_POPULATION_POLICY, populationMarket: market, byMarket: Object.freeze({ [market]: result }) });
+  }
+  const byMarket = Object.fromEntries(markets.map(market => {
+    const result = computeFactorRanksForPopulation({ ...input, rows: rows.filter(row => screenerMarket(row) === market), previousRanks: Array.isArray(input.previousRanks) ? input.previousRanks.filter(row => screenerMarket(row) === market) : null });
+    return [market, result];
+  }));
+  const primary = byMarket.US || Object.values(byMarket)[0];
+  const available = Object.values(byMarket).some(result => result.available);
+  return Object.freeze({
+    ...primary, available,
+    populationPolicy: MARKET_POPULATION_POLICY, populationMarket: null,
+    byMarket: Object.freeze(byMarket),
+    ranked: Object.values(byMarket).reduce((sum, result) => sum + (result.ranked || 0), 0),
+    inputAudit: Object.freeze({ ...primary.inputAudit, inputRows: rows.length, eligibleRows: Object.values(byMarket).reduce((sum, result) => sum + (result.inputAudit?.eligibleRows || 0), 0) }),
+    rows: Object.freeze(markets.flatMap(market => byMarket[market].rows.map(row => ({ ...row, rankingMarket: market, populationPolicy: MARKET_POPULATION_POLICY }))))
   });
 }

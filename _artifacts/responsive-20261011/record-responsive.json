@@ -1,0 +1,7 @@
+{
+  "version":"v57.38","date":"2026-10-11",
+  "p":{"id":1618,"title":"사용자 재승인 모바일·아이패드 반응형 화면 복원","symptom":"휴대폰과 태블릿에서 데스크톱 고정 사이드바, 다열 카드와 AI 패널이 본문·입력 영역을 밀어냈다.","root_cause":"이전 desktop-only 결정으로 compact CSS와 메뉴 수명주기가 제거됐다. 사용자가 2026-10-11 범위를 명시 재개했다.","fix":"native responsive shell과 별도 CSS에 크기별 카드·표·차트 배치, 접근 가능한 메뉴 drawer, VisualViewport AI 입력 높이 및 cleanup을 소유시킨다. 같은 라우트·자료·로컬 저장 계약을 유지한다.","violated_rule":"사용자 2026-10-11 변경 지시; R474/R669 현재 범위","prevention":"{P}: ci-responsive-browser-check.mjs가 현재 레지스트리의 19 라우트 × 390/768/1024 viewport와 메뉴 포커스, Escape, 테마 및 AI 입력 공간을 검증한다.","verification":"실제 통합본 로컬 Chromium 검증 결과는 _artifacts/responsive-20261011/IMPLEMENTATION-REPORT.md. 실제 iOS Safari·소프트 키보드와 배포 검증은 구분한다."},
+  "r":null,"qa":[{"id":"QA-RESPONSIVE-01","text":"{P}: compact viewport마다 모든 라우트 콘텐츠, 로컬 표 스크롤, 메뉴 포커스·닫힘, 라이트/다크, AI 입력 영역을 확인한다.","verify_by":"node scripts/ci-responsive-browser-check.mjs","done":false}],
+  "qa_section":"반응형 화면","changelog":["**모바일·아이패드 ({P}):** 사용자 승인에 따라 자동 크기 적응, 메뉴 drawer, 표 스크롤과 AI 입력 영역 대응을 복원하고 별도 브라우저 게이트에 연결."],
+  "note":"모바일·아이패드 자동 화면 최적화 및 지수/선물·버전·AI 명칭 수정. 로컬 통합; 새 commit/push/deploy 미실행.","status":null
+}

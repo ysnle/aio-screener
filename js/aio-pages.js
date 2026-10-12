@@ -1679,7 +1679,7 @@ var RRG_SUBSECTORS = [
 ];
 
 // ── 종합 테마 맵 (screener_pro.py SECTOR_LEADERS 기반 + 확장) ────
-// P1588 구성 기준: 하위 테마 = 산업·사업 모델 분류, 공개 수익률이 있는 유니버스 종목만, 하위 테마당 3종목 이상, 테마 안 중복 없음. leaders = 전체 구성 종목의 시가총액 순(2026-10-09 스냅샷), leaderHighlight = 상위 4개, 편집 비중 없음(동일가중·중앙값).
+// P1588 구성 기준: 하위 테마 = 산업·사업 모델 분류, 공개 수익률이 있는 유니버스 종목만, 분류는 실제 사업 역할을 따르고 수익률 순위만 3개 이상 표본에서 계산, 테마 안 중복 없음. leaders = 전체 구성 종목(목록 순서는 시가총액 순위가 아님), leaderHighlight = 상위 4개, 편집 비중 없음(동일가중·중앙값).
 var THEME_MEMBERSHIP_POLICY = Object.freeze({
   version:'theme-membership.v2',
   source:'AIO curated taxonomy',
@@ -1729,32 +1729,34 @@ var THEME_MAP = [
       { name:'수소/연료전지/ESS', tickers:['BE','PLUG','FCEL','FLNC'] }
     ] },
   { id:'energy', nameKr:'에너지', emoji:'', color:'var(--data-green)', etf:'XLE', etfName:'Energy',
-    leaders:['CVX','COP','MPC','PSX','XOM','WMB','EOG','EPD','SLB','KMI','TRGP','VLO','OXY','OKE','BKR','FANG','DVN','TPL','HAL','CNQ','SU','ET','FTI','NOV','WHD','DK'], leaderHighlight:['CVX','COP','MPC','PSX'],
+    leaders:['CVX','COP','MPC','PSX','XOM','WMB','EOG','EPD','SLB','KMI','TRGP','VLO','OXY','OKE','BKR','FANG','DVN','TPL','HAL','CNQ','SU','ET','FTI','NOV','WHD','DK','SHEL','ENB'], leaderHighlight:['CVX','COP','MPC','PSX'],
     subThemes:[
-      { name:'통합 메이저', tickers:['XOM','CVX','SU'] },
+      { name:'통합 메이저', tickers:['XOM','CVX','SU','SHEL'] },
       { name:'E&P(탐사/생산)', tickers:['COP','EOG','CNQ','OXY','DVN','FANG','TPL'] },
-      { name:'미드스트림', tickers:['EPD','ET','WMB','KMI','OKE','TRGP'] },
+      { name:'미드스트림', tickers:['EPD','ET','WMB','KMI','OKE','TRGP','ENB'] },
       { name:'오일서비스', tickers:['SLB','BKR','HAL','FTI','NOV','WHD'] },
       { name:'정유', tickers:['MPC','PSX','VLO','DK'] }
     ] },
   { id:'semiconductor', nameKr:'반도체', emoji:'', color:'var(--data-purple)', etf:'SMH', etfName:'VanEck Semiconductor',
-    leaders:['NVDA','AVGO','MU','AMD','INTC','AMAT','LRCX','ARM','TXN','KLAC','MRVL','SNDK','ADI','QCOM','TSM','STX','WDC','ASML','TER','NXPI','MCHP','ON','UMC','GFS','ENTG','ACLS','UCTT'], leaderHighlight:['NVDA','AVGO','MU','AMD'],
+    leaders:['NVDA','AVGO','MU','AMD','INTC','AMAT','LRCX','ARM','TXN','KLAC','MRVL','SNDK','ADI','QCOM','TSM','STX','WDC','ASML','TER','NXPI','MCHP','ON','UMC','GFS','ENTG','ACLS','UCTT','ONTO','AMKR','MPWR'], leaderHighlight:['NVDA','AVGO','MU','AMD'],
     subThemes:[
       { name:'AI 칩/커스텀 ASIC', tickers:['NVDA','AVGO','AMD','MRVL','ARM'] },
       { name:'메모리/스토리지', tickers:['MU','SNDK','WDC','STX'] },
-      { name:'장비/소재', tickers:['ASML','AMAT','LRCX','KLAC','TER','ENTG','ACLS','UCTT'] },
-      { name:'아날로그/MCU/RF', tickers:['TXN','ADI','QCOM','NXPI','MCHP','ON'] },
+      { name:'장비/소재', tickers:['ASML','AMAT','LRCX','KLAC','ENTG','ACLS','UCTT','ONTO'] },
+      { name:'테스트/패키징', tickers:['TER','AMKR'] },
+      { name:'아날로그/전원 IC·MCU/RF', tickers:['TXN','ADI','QCOM','NXPI','MCHP','ON','MPWR'] },
       { name:'파운드리', tickers:['TSM','INTC','GFS','UMC'] }
     ] },
   { id:'software', nameKr:'소프트웨어/클라우드', emoji:'', color:'#b13a30', etf:'IGV', etfName:'iShares Software',
-    leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
+    leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S','RBRK','PATH'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
     subThemes:[
       { name:'엔터프라이즈 SaaS', tickers:['ORCL','CRM','NOW','INTU','ADBE','WDAY','TEAM'] },
-      { name:'사이버보안', tickers:['PANW','CRWD','FTNT','ZS','NET','S'] },
+      { name:'사이버보안', tickers:['PANW','CRWD','FTNT','ZS','NET','S','RBRK'] },
       { name:'데이터/AI 플랫폼', tickers:['PLTR','SNOW','DDOG','MDB','ESTC','AI'] },
       { name:'광고/커머스 소프트웨어', tickers:['APP','SHOP','TTD'] },
       { name:'설계 소프트웨어(EDA·CAD)', tickers:['SNPS','CDNS','ADSK'] },
-      { name:'클라우드 인프라', tickers:['MSFT','AMZN','GOOGL'] }
+      { name:'클라우드 인프라', tickers:['MSFT','AMZN','GOOGL'] },
+      { name:'업무 자동화 소프트웨어', tickers:['PATH'] }
     ] },
   { id:'industrials', nameKr:'산업재/물류', emoji:'', color:'var(--data-cyan)', etf:'XLI', etfName:'Industrials',
     leaders:['CAT','GEV','DE','UNP','ETN','HON','PH','ADP','TT','PWR','JCI','EMR','CSX','MMM','WM','CTAS','ITW','NSC','FDX','UPS','RSG','URI','GWW','FAST','PCAR','AME','WAB','CARR','PAYX','CPRT','HUBB','JBHT','NDSN','ODFL','GNRC','LII'], leaderHighlight:['CAT','GEV','DE','UNP'],
@@ -1816,9 +1818,9 @@ var THEME_MAP = [
       { name:'게임', tickers:['NTES','EA','TTWO','RBLX'] }
     ] },
   { id:'photonics', nameKr:'광통신/포토닉스', emoji:'', color:'#8a8271', etf:null, etfName:'(커스텀 합산)', isComposite: true,
-    leaders:['AVGO','ANET','MRVL','LITE','GLW','CIEN','COHR','ALAB','AAOI','VIAV'], leaderHighlight:['AVGO','ANET','MRVL','LITE'],
+    leaders:['AVGO','ANET','MRVL','LITE','GLW','CIEN','COHR','ALAB','AAOI','VIAV','FN'], leaderHighlight:['AVGO','ANET','MRVL','LITE'],
     subThemes:[
-      { name:'광부품/모듈', tickers:['LITE','COHR','AAOI','VIAV'] },
+      { name:'광부품/모듈', tickers:['LITE','COHR','AAOI','VIAV','FN'] },
       { name:'광섬유/광네트워크', tickers:['CIEN','GLW','ANET'] },
       { name:'광전자 플랫폼', tickers:['AVGO','MRVL','ALAB'] }
     ] },
@@ -1830,19 +1832,21 @@ var THEME_MAP = [
       { name:'BTC 보유/ETF', tickers:['MSTR','IBIT','BITO'] }
     ] },
   { id:'ai_infra', nameKr:'AI 인프라/데이터센터', emoji:'', color:'var(--data-purple)', etf:null, etfName:'(커스텀 합산)', isComposite: true,
-    leaders:['NVDA','AVGO','AMD','CSCO','INTC','ORCL','ARM','GEV','ANET','MRVL','DELL','ETN','NBIS','APH','PWR','HPE','VRT','CRWV','ALAB','IREN','CLS','CRDO','EME','SMCI','CORZ','WULF','CIFR','APLD'], leaderHighlight:['NVDA','AVGO','AMD','CSCO'],
+    leaders:['NVDA','AVGO','AMD','CSCO','INTC','ORCL','ARM','GEV','ANET','MRVL','DELL','ETN','NBIS','APH','PWR','HPE','VRT','CRWV','ALAB','IREN','CLS','CRDO','EME','SMCI','CORZ','WULF','CIFR','APLD','NVT'], leaderHighlight:['NVDA','AVGO','AMD','CSCO'],
     subThemes:[
       { name:'AI 칩/CPU', tickers:['NVDA','AVGO','AMD','ARM','INTC'] },
       { name:'서버/HW', tickers:['DELL','SMCI','HPE','CLS'] },
       { name:'네트워킹/인터커넥트', tickers:['ANET','CSCO','ALAB','CRDO','MRVL'] },
-      { name:'DC 전력/냉각/건설', tickers:['VRT','ETN','GEV','APH','EME','PWR'] },
+      { name:'DC 전력/냉각/건설', tickers:['VRT','ETN','GEV','APH','EME','PWR','NVT'] },
       { name:'GPU 클라우드/AI 호스팅', tickers:['CRWV','NBIS','ORCL','IREN','WULF','CIFR','APLD','CORZ'] }
     ] },
   { id:'robotics', nameKr:'로보틱스/자동화', emoji:'', color:'#211d16', etf:'BOTZ', etfName:'Global Robotics',
     leaders:['TSLA','ISRG','EMR','KEYS','TER','ROK','PATH','SYM'], leaderHighlight:['TSLA','ISRG','EMR','KEYS'],
     subThemes:[
       { name:'산업 자동화/물류 로봇', tickers:['ROK','EMR','TER','KEYS','SYM'] },
-      { name:'의료·AI 응용 로봇', tickers:['ISRG','TSLA','PATH'] }
+      { name:'의료 로봇', tickers:['ISRG'] },
+      { name:'휴머노이드 개발', tickers:['TSLA'] },
+      { name:'업무 자동화 소프트웨어', tickers:['PATH'] }
     ] },
   { id:'global_adr', nameKr:'해외 대형 ADR', emoji:'', color:'#57513f', etf:null, etfName:'(커스텀 합산)', isComposite: true,
     leaders:['TM','NTES','BABA','HDB','ASML','MELI','NU','NVO','PDD','AZN','SAP','NVS','BIDU','JD','IBN','SONY'], leaderHighlight:['TM','NTES','BABA','HDB'],
@@ -2492,7 +2496,7 @@ function showSubThemeDetail(subThemeId) {
     perf = { chgPct: (ld[st.etf].pct != null ? ld[st.etf].pct : 0), source: st.etf };
   } else {
     var comp = calcCompositePerf(st.tickers, st.weights);
-    perf = { chgPct: comp.chgPct, source: st.weights ? 'ETF가중(' + comp.count + ')' : '합산(' + comp.count + ')' };
+    perf = { chgPct: comp.chgPct, source: st.weights ? '설정가중(참고 ' + comp.count + ')' : '합산(' + comp.count + ')' };
   }
   var hasPerf = _themeFinitePct(perf.chgPct);
   var isPos = hasPerf && perf.chgPct >= 0;
@@ -2773,23 +2777,23 @@ window.hydrateRRGDailyHistory = hydrateRRGDailyHistory;
 var SUB_THEMES = [
   // ═══ AI · 반도체 (9) ═══
   {id:'bigtech',name:'빅테크 M7',emoji:'',color:'var(--data-purple)',desc:'시장 시총 38% 메가캡 리더',leaders:['AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA'],tickers:['AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA'],etf:'QQQ',weights:{AAPL:18,MSFT:17,NVDA:16,AMZN:14,GOOGL:12,META:13,TSLA:10}},
-  {id:'ai_chip',name:'AI 반도체/가속기',emoji:'',color:'#211d16',desc:'GPU·ASIC·커스텀 칩 경쟁',leaders:['NVDA','AMD','AVGO','ARM'],tickers:['NVDA','AMD','AVGO','ARM','QCOM','MRVL','SMCI'],etf:'SMH',weights:{NVDA:28,AVGO:16,AMD:14,QCOM:12,ARM:11,MRVL:10,SMCI:9}},
+  {id:'ai_chip',name:'AI 반도체/가속기',emoji:'',color:'#211d16',desc:'GPU·ASIC·커스텀 칩 경쟁',leaders:['NVDA','AMD','AVGO','ARM'],tickers:['NVDA','AMD','AVGO','ARM','QCOM','MRVL'],etf:'SMH'},
   {id:'memory',name:'메모리 반도체',emoji:'',color:'#211d16',desc:'HBM·DDR5·NAND SCA 슈퍼사이클 · SK하이닉스/삼성전자는 KRX 보통주(.KS) 기준',leaders:['MU','SNDK','000660.KS','STX'],tickers:['MU','SNDK','000660.KS','005930.KS','STX','WDC'],etf:null,weights:{MU:30,SNDK:25,'000660.KS':12,'005930.KS':8,STX:15,WDC:10}},
   {id:'semi_equip',name:'반도체 장비/EDA',emoji:'',color:'#22754c',desc:'EUV·증착·검사·설계자동화(EDA)',leaders:['ASML','AMAT','LRCX','KLAC'],tickers:['ASML','AMAT','LRCX','KLAC','TER','ONTO','ACLS','ENTG','UCTT','CDNS','SNPS'],etf:null,weights:{ASML:20,AMAT:16,LRCX:14,KLAC:12,CDNS:10,SNPS:10,TER:6,ONTO:4,ENTG:4,ACLS:2,UCTT:2}},
   {id:'foundry',name:'파운드리',emoji:'',color:'var(--text-muted)',desc:'첨단 파운드리(TSM) + 성숙 공정(UMC/GFS) + 종합반도체(INTC Foundry)',leaders:['TSM','INTC','GFS','UMC'],tickers:['TSM','INTC','UMC','GFS'],etf:null,weights:{TSM:44,INTC:22,UMC:18,GFS:16}},
-  {id:'photonics',name:'광통신/포토닉스',emoji:'',color:'#8a8271',desc:'AI DC 광인터커넥트 폭증 · 레이저 병목(2025~2027) · 순수 광통신 플레이 (AVGO는 ai_chip 주력)',leaders:['LITE','COHR','CIEN','AAOI'],tickers:['LITE','COHR','CIEN','AAOI','GLW','VIAV','ANET','MRVL','POET'],etf:null,weights:{LITE:24,COHR:22,CIEN:16,AAOI:10,GLW:8,ANET:8,MRVL:5,VIAV:4,POET:3}},
+  {id:'photonics',name:'광통신/포토닉스',emoji:'',color:'#8a8271',desc:'AI DC 광인터커넥트 폭증 · 레이저 병목(2025~2027) · 순수 광통신 플레이 (AVGO는 ai_chip 주력)',leaders:['LITE','COHR','CIEN','AAOI'],tickers:['LITE','COHR','CIEN','AAOI','GLW','VIAV','ANET','MRVL','POET','FN'],etf:null},
   {id:'dc_network',name:'DC 네트워킹',emoji:'',color:'#211d16',desc:'DC 초고속 연결·CXL·이더넷 (AVGO는 ai_chip 주력으로 비중 축소)',leaders:['ALAB','CRDO','ANET','CSCO'],tickers:['ALAB','CRDO','ANET','CSCO','MRVL','AVGO'],etf:null,weights:{ALAB:24,CRDO:22,ANET:18,CSCO:18,MRVL:10,AVGO:8}},
-  {id:'dc_infra',name:'DC 인프라/전력·냉각',emoji:'',color:'#57513f',desc:'AI DC 전력·냉각·서버 OEM · GPU TDP 700W→2300W · 800V DC 전환 (EQIX/DLR은 reit_dc)',leaders:['VRT','ETN','PWR','EME'],tickers:['VRT','ETN','PWR','EME','POWL','CLS','DELL','HPE','MOD','NVT'],etf:null,weights:{VRT:22,ETN:18,PWR:14,EME:12,POWL:8,CLS:8,DELL:6,HPE:5,MOD:4,NVT:3}},
+  {id:'dc_infra',name:'DC 인프라/전력·냉각',emoji:'',color:'#57513f',desc:'AI DC 전력·냉각·서버 OEM · GPU TDP 700W→2300W · 800V DC 전환 (EQIX/DLR은 reit_dc)',leaders:['VRT','ETN','PWR','EME'],tickers:['VRT','ETN','PWR','EME','POWL','CLS','DELL','HPE','MOD','NVT','SMCI'],etf:null},
   {id:'neocloud',name:'네오클라우드/AI호스팅',emoji:'',color:'#211d16',desc:'GPU 클라우드·채굴→AI 전환',leaders:['CRWV','IREN','CORZ','NBIS','WULF'],tickers:['CRWV','IREN','CORZ','NBIS','WULF','CIFR','CLSK','MARA'],etf:null,weights:{CRWV:24,IREN:18,CORZ:15,NBIS:14,WULF:10,CIFR:8,CLSK:6,MARA:5}},
   // ═══ SW · 클라우드 (3) ═══
   {id:'cloud_saas',name:'클라우드/SaaS',emoji:'',color:'#b13a30',desc:'엔터프라이즈 SaaS·디지털 전환',leaders:['CRM','NOW','ADBE','ORCL'],tickers:['CRM','NOW','ADBE','ORCL','INTU','WDAY','SNOW','DDOG','MDB'],etf:'IGV',weights:{CRM:16,NOW:14,ADBE:13,ORCL:12,INTU:10,WDAY:10,SNOW:9,DDOG:8,MDB:8}},
   {id:'ai_platform',name:'AI 플랫폼/에이전트',emoji:'',color:'var(--data-purple)',desc:'AI 플랫폼·에이전트·MLOps (C3.ai/PATH는 실적 부진으로 비중 축소)',leaders:['PLTR','DDOG','SNOW','TTD'],tickers:['PLTR','DDOG','SNOW','TTD','MDB','PATH','AI'],etf:null,weights:{PLTR:30,DDOG:18,SNOW:16,TTD:12,MDB:12,PATH:6,AI:6}},
-  {id:'cybersec',name:'사이버보안',emoji:'',color:'var(--data-red)',desc:'AI 위협·제로트러스트 확산',leaders:['PANW','CRWD','ZS','FTNT'],tickers:['PANW','CRWD','ZS','FTNT','NET','S','CYBR'],etf:'HACK',weights:{PANW:20,CRWD:18,ZS:16,FTNT:14,NET:12,S:10,CYBR:10}},
+  {id:'cybersec',name:'사이버보안',emoji:'',color:'var(--data-red)',desc:'AI 위협·제로트러스트 확산',leaders:['PANW','CRWD','ZS','FTNT'],tickers:['PANW','CRWD','ZS','FTNT','NET','S','RBRK'],etf:'HACK'},
   // ═══ 에너지 (7) ═══
-  {id:'oil_major',name:'에너지 메이저/E&P',emoji:'',color:'var(--data-green)',desc:'통합 석유 메이저 + E&P 탐사생산 (정유는 oil_refine 분리)',leaders:['XOM','CVX','COP','EOG'],tickers:['XOM','CVX','COP','EOG','OXY','DVN','FANG','TPL'],etf:'XLE',weights:{XOM:22,CVX:17,COP:13,EOG:11,OXY:11,DVN:9,FANG:9,TPL:8}},
+  {id:'oil_major',name:'에너지 메이저/E&P',emoji:'',color:'var(--data-green)',desc:'통합 석유 메이저 + E&P 탐사생산 (정유는 oil_refine 분리)',leaders:['XOM','CVX','COP','EOG'],tickers:['XOM','CVX','COP','EOG','OXY','DVN','FANG','TPL','SHEL'],etf:'XLE'},
   {id:'oil_refine',name:'정유/다운스트림',emoji:'',color:'#8a8271',desc:'정유 마진·크랙 스프레드·유가 하락 수혜',leaders:['VLO','MPC','PSX'],tickers:['VLO','MPC','PSX','DINO','DK'],etf:'CRAK',weights:{VLO:38,MPC:30,PSX:22,DINO:6,DK:4}},
   {id:'oil_service',name:'오일서비스/시추',emoji:'',color:'#b13a30',desc:'시추·유정 서비스·장비',leaders:['SLB','HAL','BKR','FTI'],tickers:['SLB','HAL','BKR','FTI','NOV','WHD'],etf:'OIH',weights:{SLB:30,BKR:22,HAL:20,FTI:12,NOV:10,WHD:6}},
-  {id:'mlp_pipe',name:'MLP/파이프라인',emoji:'',color:'#8a8271',desc:'천연가스 운송·배당 인컴',leaders:['WMB','TRGP','ET','KMI'],tickers:['WMB','TRGP','ET','KMI','EPD','OKE'],etf:'AMLP',weights:{WMB:20,TRGP:18,ET:18,KMI:16,EPD:14,OKE:14}},
+  {id:'mlp_pipe',name:'미드스트림/파이프라인',emoji:'',color:'#8a8271',desc:'에너지 운송·미드스트림 사업. 법적 MLP와 일반 법인이 함께 있으며 배당·과세 구조는 종목별로 다릅니다.',leaders:['WMB','TRGP','ET','KMI'],tickers:['WMB','TRGP','ET','KMI','EPD','OKE','ENB'],etf:'AMLP'},
   {id:'nuclear_util',name:'원전/원자력',emoji:'',color:'#22754c',desc:'AI 전력 수요·SMR·원전 부활 (NRG는 원전 비중 낮아 축소, NNE 추가)',leaders:['CEG','VST','CCJ','GEV','SMR'],tickers:['CEG','VST','NRG','CCJ','GEV','LEU','SMR','OKLO','BWXT','NNE'],etf:'URA',weights:{CCJ:16,CEG:15,GEV:15,VST:12,BWXT:9,LEU:8,SMR:8,OKLO:7,NRG:5,NNE:5}},
   {id:'solar_renew',name:'태양광/재생에너지',emoji:'',color:'var(--data-amber)',desc:'태양광·트래커·인버터 · IRA 개편 리스크 주의 (NEE는 grid_util)',leaders:['FSLR','ENPH','NXT'],tickers:['FSLR','ENPH','NXT','ARRY','SHLS','RUN','SEDG'],etf:'ICLN',weights:{FSLR:30,ENPH:28,NXT:18,ARRY:10,SHLS:6,RUN:5,SEDG:3}},
   {id:'hydrogen_ess',name:'수소/ESS',emoji:'',color:'#211d16',desc:'그린수소·연료전지·ESS (PLUG/FCEL 재무 위기 — leader 제외)',leaders:['FLNC','BE'],tickers:['FLNC','BE','PLUG','FCEL'],etf:null,weights:{FLNC:45,BE:30,PLUG:15,FCEL:10}},
@@ -2799,7 +2803,7 @@ var SUB_THEMES = [
   {id:'asset_mgmt',name:'자산운용/PE',emoji:'',color:'#8a8271',desc:'대체투자·PE·자산운용',leaders:['BX','KKR','APO','BLK'],tickers:['BX','KKR','APO','BLK','SCHW'],etf:null,weights:{BLK:24,BX:20,KKR:20,APO:18,SCHW:18}},
   {id:'insurance',name:'보험',emoji:'',color:'#8a8271',desc:'손보·생보·재보험·금리 수혜',leaders:['BRK-B','PGR','ALL','MET'],tickers:['BRK-B','PGR','ALL','MET','TRV','CB'],etf:null,weights:{'BRK-B':28,PGR:18,TRV:14,CB:14,ALL:14,MET:12}},
   {id:'fintech_crypto',name:'핀테크/크립토',emoji:'',color:'var(--data-amber)',desc:'디지털 결제·거래소·스테이블코인 (마이닝주는 btc_etf 참조)',leaders:['COIN','HOOD','PYPL','XYZ'],tickers:['COIN','XYZ','PYPL','AFRM','SOFI','HOOD','MSTR','NU'],etf:null,weights:{COIN:18,PYPL:15,XYZ:13,HOOD:13,SOFI:12,NU:10,MSTR:10,AFRM:9},compositeBase:'BTC-USD'},
-  {id:'btc_etf',name:'BTC 현물 ETF',emoji:'',color:'var(--data-amber)',desc:'비트코인 현물 ETF 순수 · 기관 유입 (MSTR/COIN은 fintech_crypto, MARA/CORZ는 neocloud)',leaders:['IBIT','FBTC','ARKB'],tickers:['IBIT','FBTC','ARKB','BITB','BITO','HODL'],etf:null,weights:{IBIT:40,FBTC:25,ARKB:12,BITB:10,BITO:8,HODL:5},compositeBase:'BTC-USD'},
+  {id:'btc_etf',name:'BTC 현물·선물 ETF',emoji:'',color:'var(--data-amber)',desc:'비트코인 ETF: IBIT·FBTC·ARKB·BITB·HODL은 현물, BITO는 선물·스왑 노출이며 비트코인을 직접 보유하지 않습니다.',leaders:['IBIT','FBTC','ARKB'],tickers:['IBIT','FBTC','ARKB','BITB','BITO','HODL'],etf:null,weights:{IBIT:40,FBTC:25,ARKB:12,BITB:10,BITO:8,HODL:5},compositeBase:'BTC-USD'},
   // ═══ 헬스케어 (4) ═══
   {id:'pharma',name:'대형 제약',emoji:'',color:'#211d16',desc:'블록버스터 신약·고배당',leaders:['LLY','JNJ','MRK','ABBV'],tickers:['LLY','JNJ','MRK','ABBV','PFE','BMY','AZN'],etf:'XLV',weights:{LLY:24,JNJ:16,MRK:14,ABBV:14,PFE:12,BMY:10,AZN:10}},
   {id:'biotech',name:'바이오텍',emoji:'',color:'var(--data-purple)',desc:'유전자치료·항체·RNAi·유전자편집 (MRNA/BIIB는 실적 부진으로 비중 축소)',leaders:['VRTX','REGN','AMGN','GILD'],tickers:['VRTX','REGN','AMGN','GILD','ALNY','CRSP','MRNA','BIIB'],etf:'XBI',weights:{VRTX:22,REGN:20,AMGN:16,GILD:16,ALNY:10,CRSP:4,MRNA:6,BIIB:6}},
@@ -2923,7 +2927,7 @@ function renderSubThemesGrid() {
     } else {
       // v36.4: weights 있으면 ETF 추종 가중평균 사용
       var comp = calcCompositePerf(st.tickers, st.weights);
-      perf = { chgPct: comp.chgPct, source: st.weights ? 'ETF가중(' + comp.count + ')' : '합산(' + comp.count + ')' };
+      perf = { chgPct: comp.chgPct, source: st.weights ? '설정가중(참고 ' + comp.count + ')' : '합산(' + comp.count + ')' };
     }
     return { theme: st, perf: perf };
   });

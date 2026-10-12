@@ -1,0 +1,7 @@
+{
+  "version":"v57.39","date":"2026-10-11",
+  "p":{"id":1620,"title":"홈 시장 폭 요약·전체 테마 티커 누락과 용어사전 다크 모드 충돌","symptom":"홈에는 상승/하락 및 신고/신저 요약이 없고 하위 테마는 전체 종목 수와 대표 한 종목만 표시했다. 다크 모드 용어사전은 밝은 고정 배경과 밝은 글자가 겹쳤다.","root_cause":"시장 폭은 별도 차트에만 연결되고 테마 모델은 구성 배열을 노출하지 않았다. 사전 모달·입력·분류 버튼은 고정 밝은 색을 사용했다. 모바일 메뉴에서 사전을 열 때 메뉴 닫기 처리가 없었다. 테마 기준일 정규식도 숫자 이스케이프가 누락됐다.","fix":"동일 종가 history의 4개 시장 폭 요약을 홈에 표시하고 분모·보합 제외·신고신저 비율 정의를 상세에 둔다. 모델은 수익률 없는 종목도 포함한 전체 구성 티커를 공개하고 순위 표에 모두 표시한다. 사전 테마 색·분류 태그·입력을 의미 토큰으로 바꾸고 모바일 메뉴 닫기·포커스 복귀와 모달 크기를 보완한다. 테마 미국/한국 기준일 정규식을 수정한다.","violated_rule":"R632 생산자/소비자 일치, R679 화면 상태 일치, R670 직전 미국장 종가 기준","prevention":"{P}: ci-esm-core-unit-check.mjs의 동일 날짜·결측·0건 및 구성 종목 fixture, ci-responsive-browser-check.mjs의 실제 사전 light/dark 대비·검색·포커스 및 전체 테마 티커 검증.","verification":"단위 모델 및 기존 gate 확장. 실물 Safari와 Finviz 전체 universe 동일성은 인증하지 않는다."},
+  "r":null,"qa":[{"id":"QA-BREADTH-THEME-GLOSSARY-01","text":"{P}: 동일 종가의 시장 폭 요약, 결측 수익률 종목을 포함한 전체 티커, 사전 light/dark 대비·모바일 검색·Escape 복귀 검증.","verify_by":"node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs","done":false}],
+  "qa_section":"시장 폭·테마·사전","changelog":["**시장 폭·테마·사전 ({P}):** 홈 4개 종가 요약과 분모 설명, 전체 구성 티커, 용어사전 다크 모드·모바일 검색 및 테마 시장별 기준일 수정."],
+  "note":"시장 폭 요약·전체 테마 티커·용어사전 테마 수정 및 AI 내부 자료 연결 보강. 로컬 검증; commit/push/deploy 미실행.","status":null
+}

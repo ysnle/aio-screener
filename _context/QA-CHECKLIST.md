@@ -1,8 +1,34 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-11
+last_verified: 2026-10-12
 confidence: medium
 ---
+
+## v57.41 재렌더 상태 보존 (2026-10-12)
+
+- [ ] QA-RERENDER-DISCLOSURE-01: P1630: 시세 갱신 재렌더가 사용자가 펼친 근거(details)와 키보드 포커스를 닫거나 잃지 않는다. verify_by: node scripts/ci-entity-quality-browser-check.mjs; node scripts/ci-regime-scenarios-fixture.mjs
+- [ ] QA-OVERLAY-ROUTE-01: P1631: page가 없는 오버레이 해시(#glossary)는 호스트 화면을 활성화한 채 오버레이를 연다. verify_by: node scripts/ci-responsive-browser-check.mjs
+
+## v57.40 종목 분석 구조·시장 분리 (2026-10-12)
+
+- [ ] QA-ENTITY-SUMMARY-01: P1624: 종목 첫 진입 자료 연결과 기업 분석 공통 구조 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-entity-summary-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
+- [ ] QA-SCREENER-MARKET-01: P1625: 시장별 순위 모집단과 선택 정렬의 일치 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
+- [ ] QA-CHART-SCENARIOS-01: P1626: 차트 조건부 흐름과 거래량 가격대의 근거 계약 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
+- [ ] QA-FISCAL-QUALITY-01: P1627: 재무 손실 방향과 동일 회계기간 원본 정밀도 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-fiscal-quality-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
+- [ ] QA-REGIME-CONTINUITY-01: P1628: 시장6축 추이·조건과 한국 완료세션 참여도 연결, COT 위젯 제거. verify_by: node scripts/ci-regime-scenarios-fixture.mjs; node scripts/ci-korea-participation-fixture.mjs; node scripts/ci-responsive-browser-check.mjs
+- [ ] QA-KR-SESSION-FRESHNESS-01: P1629: 휴장·주말 뒤 최신 KRX 완료봉의 순위 유지, 새로운 완료봉 이후 예외 종료. verify_by: node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs
+
+## v57.39 시장 폭·테마·사전 (2026-10-11)
+
+- [ ] QA-BREADTH-THEME-GLOSSARY-01: P1620: 동일 종가의 시장 폭 요약, 결측 수익률 종목을 포함한 전체 티커, 사전 light/dark 대비·모바일 검색·Escape 복귀 검증. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs
+- [ ] QA-AI-CONTENT-COVERAGE-01: P1621: 재무 화면 캐시 존재 시 실제 공용 자료 주입, 페이지 밖 질문의 기존 도메인 선택 및 native 시장 폭 문맥 검증. verify_by: node scripts/ci-native-search-check.mjs; node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-THEME-MEMBERS-COMPARISON-01: P1622: 핵심 편입·오분류 회귀 및 그룹 내부 기간별 순위·동률·결측·모바일 비교 펼침 확인. verify_by: node scripts/ci-runtime-contract-check.mjs; node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs
+- [ ] QA-COMPARISON-BASIS-01: P1623: 종목/S&P 기준일 불일치, 그룹 혼합/미확인 순위 보류와 1% 미만 시장 폭 단위 보존. verify_by: node scripts/ci-esm-core-unit-check.mjs
+
+## v57.38 반응형 화면 (2026-10-11)
+
+- [x] QA-RESPONSIVE-01: P1618: compact viewport마다 모든 라우트 콘텐츠, 로컬 표 스크롤, 메뉴 포커스·닫힘, 라이트/다크, AI 입력 영역을 확인한다. verify_by: node scripts/ci-responsive-browser-check.mjs
+- [x] QA-MARKET-IDENTITY-01: P1619: NQ 카드에 IXIC 값이 들어가지 않고, hidden 카드·버튼은 flex 스타일보다 우선하여 숨겨지며, 상단 version·AI 이름이 일치한다. verify_by: node scripts/ci-desktop-continuity-check.mjs; node scripts/ci-responsive-browser-check.mjs
 
 ## v57.36 조건부 공용 AI 웹검색 (2026-10-11)
 

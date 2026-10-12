@@ -1,0 +1,29 @@
+{
+  "version": "v57.41",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1630,
+    "title": "인수 리뷰: 가격 표기 혼재, 재렌더 시 펼침·포커스 소실, 원천 없는 사업 설명 상시 안내, 시나리오 카드 과밀",
+    "symptom": "v57.40에서 같은 종목 가격이 '84.64 $'·'$1.2B'·'₩73,000'·'73,000원'으로 섞였다. 시세 갱신마다 기업 요약이 통째로 다시 그려져 펼친 근거와 키보드 포커스가 사라졌다. 사업 설명 producer가 없어 모든 종목에 '사업 설명 없음' 안내가 두 번 노출됐다. 시장 상태 시나리오 카드가 카드당 360~400자를 펼친 채 보여 소유자 읽기 기준을 넘었다.",
+    "root_cause": "새 가격 포맷터가 기존 부호 선행 표기와 별도로 USD 접미 표기를 도입했다. 기업 요약 렌더러가 모델 변경 여부와 무관하게 replaceChildren으로 재구성했다. businessProfile 계약은 만들었지만 공급하는 producer가 없어 결측 안내가 상시 표시됐다. 시나리오 카드는 조건·반증·관찰을 모두 펼친 상태로 렌더했다.",
+    "fix": "formatScreenerPrice를 부호 선행($84.64, ₩73,000)으로 통일하고 종목 헤더·차트 상태 줄·거래 집중 가격대(원화 소수점 제거)에 같은 포맷터를 쓴다. 기업 요약은 모델 서명이 같으면 DOM을 유지하고, 바뀌면 펼침·포커스를 복원한다. 사업 설명이 없으면 결측 문단을 숨긴다(AI 문맥에는 결측을 계속 전달). 시나리오 카드는 해석 한 문단만 보이고 조건·반증·다음 확인은 접으며 재렌더 뒤에도 펼침을 유지한다.",
+    "violated_rule": "화면 정직성(원천 없는 위젯은 숨김), 읽기 길이 기준(블록당 3-5줄), 원본 단위·표기 일관성",
+    "prevention": "{P}: ci-screener-market-fixture.mjs가 USD 부호 선행 표기를, ci-entity-quality-browser-check.mjs가 시세 재렌더 뒤 기업 근거 펼침·포커스 유지를 실행한다.",
+    "verification": "오프라인 fixture와 로컬 브라우저(시장 상태 카드 90~122자, 재렌더 뒤 펼침 유지) 확인. 실기기·배포는 미검증."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-RERENDER-DISCLOSURE-01",
+      "text": "{P}: 시세 갱신 재렌더가 사용자가 펼친 근거(details)와 키보드 포커스를 닫거나 잃지 않는다.",
+      "verify_by": "node scripts/ci-entity-quality-browser-check.mjs; node scripts/ci-regime-scenarios-fixture.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "재렌더 상태 보존",
+  "changelog": [
+    "**인수 리뷰 정리 ({P}):** 가격 표기를 $·₩ 부호 선행으로 통일, 시세 갱신 때 기업 요약의 펼침·포커스 유지, 공급원이 없는 사업 설명의 상시 결측 안내 제거, 시장 시나리오 카드의 조건·반증을 접기로 이동. 환경: Karpathy 코딩 규율을 AGENTS.md에 반영하고 SessionStart 훅이 최신 핸드오프·구현 보고서를 안내. commit/push/deploy 미실행."
+  ],
+  "note": "v57.40 인수 리뷰(Claude): 표기·재렌더·결측 안내·읽기 길이 정리와 작업환경 개선. commit/push/deploy 미실행.",
+  "status": null
+}

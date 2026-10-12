@@ -1,0 +1,29 @@
+{
+  "version": "v57.40",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1626,
+    "title": "차트 조건부 흐름과 거래량 가격대의 근거 계약",
+    "symptom": "차트 현재 상태만 제시하고 이후 확인할 조건과 계산 방법이 부족했다. 한국 종목에도 미국 벤치마크가 적용되었다.",
+    "root_cause": "조건부 상태 변화 모델과 가격대 거래량 정의가 없고 60봉 이력을 6개월로 계산했다.",
+    "fix": "관측한 고저점·피벗에서 회복/범위/약화 조건을 파생한다. 일봉 거래량을 관측 가격 범위에 균등 배분한 추정치를 실제 체결 매물대와 구분한다. 127봉 미만 6개월 수익률을 보류하고 한국 기준 지수를 연결한다. AI 문맥은 같은 issuer의 화면 근거를 공유한다.",
+    "violated_rule": "종목 identity·관측 기준·원본 단위 보존; R670 완료 종가 비교",
+    "prevention": "{P}: scripts/ci-chart-scenarios-fixture.mjs와 ci-entity-quality-browser-check.mjs에서 공통 모델과 실제 화면 경로를 검증한다.",
+    "verification": "로컬 회귀 및 실제 경로 브라우저 검증을 진행한다. 유료 AI·현재 외부 시세·실기기·배포 증거와 구분한다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-CHART-SCENARIOS-01",
+      "text": "{P}: 차트 조건부 흐름과 거래량 가격대의 근거 계약 공통 경로와 화면 회귀 확인.",
+      "verify_by": "node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "종목 분석 구조·시장 분리",
+  "changelog": [
+    "**차트 조건부 흐름과 거래량 가격대의 근거 계약 ({P}):** 관측한 고저점·피벗에서 회복/범위/약화 조건을 파생한다. 일봉 거래량을 관측 가격 범위에 균등 배분한 추정치를 실제 체결 매물대와 구분한다. 127봉 미만 6개월 수익률을 보류하고 한국 기준 지수를 연결한다. AI 문맥은 같은 issuer의 화면 근거를 공유한다."
+  ],
+  "note": "전체 종목 요약·기업 분석·시장별 스크리너·조건부 차트·정밀 재무 개선. 로컬 검증 진행; commit/push/deploy 미실행.",
+  "status": null
+}

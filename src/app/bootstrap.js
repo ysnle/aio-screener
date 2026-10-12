@@ -31,8 +31,10 @@ import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hub
 import { openMarketChart } from '../ui/components/stock-chart.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
 import { installConnectionPanel } from '../ui/panels/connections.js';
+import { installResponsiveShell } from '../ui/components/responsive-shell.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
+import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
 import { buildGoogleSearchQuery, isGoogleResultAllowed } from '../ai/research/google-query.js';
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { readMarketRegime } from '../ui/components/market-regime.js';
@@ -120,6 +122,8 @@ if (typeof window !== 'undefined') {
   window.AIO = window.AIO || {};
   window.AIO.describeSharedConnection = describeSharedConnection;
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
+  window.AIO.buildMarketContentContext = buildMarketContentContext;
+  window.AIO.buildQuestionDomainContext = buildQuestionDomainContext;
   window.AIO.buildGoogleSearchQuery = buildGoogleSearchQuery;
   window.AIO.isGoogleResultAllowed = isGoogleResultAllowed;
   window.AIO.selectNativeSearch = selectNativeSearch;
@@ -221,7 +225,6 @@ import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } fro
 import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
 import { renderHomeKpiTrends } from '../ui/components/home-kpi-trend.js';
-import { renderPositioningBoard } from '../ui/components/positioning-board.js';
 import { SUPPLIED_MATERIALS_REFERENCE, SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/supplied-materials.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
@@ -617,7 +620,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   function start() {
     let disposed = false;
     const stopColorTheme = documentRef?.body && root?.getComputedStyle ? installColorTheme(root, documentRef) : () => {};
-    const stopConnectionPanel = installConnectionPanel(root, documentRef);
+    const stopConnectionPanel = installConnectionPanel(root, documentRef, { readSearchEnabled: () => root.localStorage?.getItem('aio_web_search_enabled') !== 'off' });
+    const stopResponsiveShell = documentRef?.querySelector ? installResponsiveShell(root, documentRef) : () => {};
     const deferredTasks = createDeferredTaskQueue({
       setTimeoutImpl: root?.setTimeout?.bind(root) || globalThis.setTimeout.bind(globalThis),
       clearTimeoutImpl: root?.clearTimeout?.bind(root) || globalThis.clearTimeout.bind(globalThis)
@@ -708,6 +712,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const id = String(event?.detail?.id || '').trim().toUpperCase();
       if (!id || event?.detail?.source !== 'ticker-selection' || root?._liveData?.[id]?.price != null) return;
       if (typeof root?.AIO?.registerLiveSymbol === 'function') root.AIO.registerLiveSymbol(id, { reason: 'ticker-selection' });
+      // P1624: the active summary owns one quote + history request through the existing provider.
+      if (String(router.active() || '').replace(/^page-/, '') === 'ticker' && typeof root?._aioFetchYahooChartData === 'function') return;
       if (typeof root?.fetchLiveQuotes === 'function') Promise.resolve().then(() => root.fetchLiveQuotes([id])).catch(() => {});
     };
     const stopTickerQuoteRequest = legacy.on('aio:entityChanged', requestSelectedTickerQuote);
@@ -746,9 +752,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
     // P1505: one folded 데이터 출처 note per screen.
-    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') renderHomeKpiTrends({ documentRef, root }); if (route === 'signal') renderPositioningBoard({ documentRef, root }); }); });
+    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') renderHomeKpiTrends({ documentRef, root }); }); });
     const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) renderHomeKpiTrends({ documentRef, root }); });
-    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') renderHomeKpiTrends({ documentRef, root }); if (initial === 'signal') renderPositioningBoard({ documentRef, root }); });
+    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') renderHomeKpiTrends({ documentRef, root }); });
     // E2/LC-26: a mode change is a score input change, so re-derive the analysis slice instead of
     // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
     // event (not `aio:refresh:done`) so toggling the pill does not re-run every route provider.
@@ -870,6 +876,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       disposed = true;
       stopColorTheme();
       stopConnectionPanel();
+      stopResponsiveShell();
       deferredTasks.stop();
       navigation.restore();
       stopQuotes();

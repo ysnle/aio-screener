@@ -6,6 +6,8 @@ import { collectMarketInputs } from './briefing-read.js';
 import { emptyState } from './empty-state.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
 import { renderNextSteps } from './page-flow.js';
+import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
+import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 
 const STATE_TONE = Object.freeze({ breakout: 'favorable', setup: 'favorable', extended: 'neutral', none: 'neutral', failed: 'burden', downtrend: 'burden' });
 
@@ -32,7 +34,8 @@ export function completedBars(bars, payload, nowMs = Date.now()) {
   const end = Number(payload?.meta?.currentTradingPeriod?.regular?.end) * 1000;
   const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(nowMs)).map((p) => [p.type, p.value]));
   const minutes = Number(parts.hour) * 60 + Number(parts.minute);
-  const closed = Number.isFinite(end) && end > 0 ? nowMs >= end + 20 * 60000 : minutes >= 16 * 60 + 20;
+  const closeMinutes = tz === 'Asia/Seoul' ? 15 * 60 + 30 : tz === 'America/New_York' ? 16 * 60 : null;
+  const closed = Number.isFinite(end) && end > 0 ? nowMs >= end + 20 * 60000 : closeMinutes != null && minutes >= closeMinutes + 20;
   return closed ? { bars, droppedLive: false } : { bars: bars.slice(0, -1), droppedLive: true };
 }
 
@@ -122,6 +125,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
   panel.replaceChildren(emptyState(doc, { title: `${sym} 일봉을 불러오는 중입니다`, reason: '시세 제공처에서 일봉을 받아오는 중입니다.', compact: true }));
   // A slower earlier request must not overwrite the symbol the user asked for last.
   const ticket = (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1);
+  root.__aioStockChartAnalysis = null;
   const pending = Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, '2y', '1d')).catch(() => null);
   let slowTimer = null;
   const slow = new Promise((resolve) => { slowTimer = setTimeout(() => resolve('__slow__'), 4000); });
@@ -135,8 +139,9 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
   const payload = await pending;
   if (ticket !== root.__aioStockChartTicket) return null;
   const { bars, droppedLive } = completedBars(barsFromYahoo(payload), payload);
-  const benchmark = buildCloseSeries(root._aioHistory || [], 'spx');
-  const analysis = analyzeChart(bars, { benchmark });
+  const kr = /\.(KS|KQ)$/.test(sym);
+  const benchmark = buildCloseSeries(root._aioHistory || [], kr ? (/\.KQ$/.test(sym) ? 'kosdaq' : 'kospi') : 'spx');
+  const analysis = analyzeChart(bars, { benchmark, benchmarkLabel: kr ? (/\.KQ$/.test(sym) ? 'KOSDAQ' : 'KOSPI') : 'S&P 500' });
   if (!analysis.available) {
     set('stock-chart-status', '');
     // P1429: say which failure it is — no connection, an unknown ticker, or too little history.
@@ -156,7 +161,8 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
     return null;
   }
   const change = analysis.prev ? (analysis.last.close / analysis.prev.close - 1) * 100 : null;
-  set('stock-chart-status', `${analysis.asOf} 종가 ${analysis.last.close.toLocaleString('en-US', { maximumFractionDigits: 2 })} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%)${droppedLive ? ' · 장중인 오늘 봉은 분석에서 제외' : ''}`);
+  root.__aioStockChartAnalysis = { symbol: sym, analysis };
+  set('stock-chart-status', `${analysis.asOf} 종가 ${formatScreenerPrice(analysis.last.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%)${droppedLive ? ' · 장중인 오늘 봉은 분석에서 제외' : ''}`);
   const badge = doc.getElementById('stock-chart-state');
   if (badge) { badge.textContent = analysis.stateLabel; badge.className = `regime-state is-${STATE_TONE[analysis.state] || 'neutral'}`; }
   root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance);
@@ -197,6 +203,36 @@ export async function renderStockChart({ documentRef: doc, root, symbol }) {
   const more = el(doc, 'details', null, 'chart-evidence-more');
   more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 1}개)`), list);
   panel.replaceChildren(read, visuals, more);
+  const forward = buildChartScenarios(analysis);
+  if (forward.available) {
+    const section = el(doc, 'section', null, 'chart-scenarios');
+    section.append(el(doc, 'h3', '앞으로 구분할 세 가지 흐름', 'briefing-h2'));
+    section.append(el(doc, 'p', `${forward.asOf} 완료 봉의 가격 구조 기준 · 조건이 성립했을 때의 해석이며 발생 확률이나 목표가는 아닙니다.`, 'theme-strength-basis'));
+    for (const scenario of forward.scenarios) {
+      const card = el(doc, 'div', null, 'chart-scenario'); card.dataset.scenario = scenario.id;
+      card.append(el(doc, 'h4', scenario.title), el(doc, 'p', scenario.text)); section.append(card);
+    }
+    panel.append(section);
+  }
+  const profile = buildVolumeByPrice(analysis.bars);
+  if (profile.available) {
+    const section = el(doc, 'section', null, 'chart-volume-profile');
+    section.append(el(doc, 'h3', '거래 집중 가격대 · 일봉 추정', 'briefing-h2'));
+    section.append(el(doc, 'p', `${profile.start}~${profile.end} · ${profile.sessions}거래일`, 'theme-strength-basis'));
+    const max = Math.max(...profile.zones.map(zone => zone.volume));
+    for (const zone of profile.zones) {
+      const row = el(doc, 'div', null, 'chart-volume-zone');
+      row.append(el(doc, 'span', `${zone.low.toFixed(kr ? 0 : 2)}~${zone.high.toFixed(kr ? 0 : 2)}`));
+      const track = el(doc, 'span', null, 'chart-volume-track'), bar = el(doc, 'span'); bar.style.width = `${zone.volume / max * 100}%`; track.append(bar);
+      row.append(track, el(doc, 'span', `${zone.share.toFixed(1)}%`)); section.append(row);
+    }
+    section.append(el(doc, 'p', '일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.', 'theme-strength-basis'));
+    panel.append(section);
+  }
+  const logic = el(doc, 'details', null, 'chart-analysis-logic');
+  logic.append(el(doc, 'summary', '차트를 읽는 순서와 계산 기준'));
+  logic.append(el(doc, 'p', '① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다.'));
+  panel.append(logic);
   // P1435: where the chart's question continues.
   const isIndex = /^(SPY|QQQ|DIA|IWM)$/.test(sym);
   renderNextSteps(doc, doc.getElementById('technical-next'), isIndex ? [

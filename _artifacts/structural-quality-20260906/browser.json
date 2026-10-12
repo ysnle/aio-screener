@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T11:07:26.231Z",
+  "generatedAt": "2026-10-12T03:05:19.764Z",
   "routes": [
     {
       "id": "home",
@@ -11,24 +11,36 @@
           "name": "시장 상태 →"
         },
         {
-          "tag": "A",
-          "name": "The 10-Year Treasury Yield Is Near a 24-Year High. History Says Stock Investors Should Do This 1 Thing. — 원문 새"
+          "tag": "BUTTON",
+          "name": "시장 폭 추세와 구성 종목 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "7일 일정과 시장 해석 → 브리핑"
         },
         {
           "tag": "A",
-          "name": "Oil Falls on Signs of Recovering Middle Eastern Flows, G-7 Stock Release — 원문 새 창에서 열기"
+          "name": "Oil Prices Fall as G-7 Plans Crude, Diesel Release But Hormuz Shipping Risks Persist — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "금리 vs 실적…코스피, 7000선 재도전 나설까[주간증시전망] — 원문 새 창에서 열기"
+          "name": "S&P 500 Earnings Yield Falls Below 10-Year Treasury Yield — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Did Strong Q2 Data Center Demand and Steady Guidance Just Shift Regal Rexnord's (RRX) Investment Narrative? — "
+          "name": "Crown Holdings (CCK) Earnings Upgrade Puts Its Valuation Back In Focus — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "[더페어 돋보기] \"어닝시즌속 변동성 국면\"…코스피, 실적·환율 지표 주목속 반등 시도 — 원문 새 창에서 열기"
         }
       ],
       "headings": [
-        "시장 현황 v57.37",
+        "시장 현황",
+        "상승 · 하락 종목",
+        "52주 신고가 · 신저가",
+        "50일선 위 종목",
+        "200일선 위 종목",
         "직전 종가 대비 변화10/8 → 10/9 종가",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
@@ -44,8 +56,7 @@
         "시장 상태",
         "판정 대기",
         "미국 시장 6개 축",
-        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다",
-        "기관 포지셔닝 선물 주간 보고 · 6개 축 합계에는 넣지 않습니다"
+        "한국 시장 참고 위 6개 축 합계에는 넣지 않습니다"
       ]
     },
     {
@@ -140,64 +151,15 @@
     {
       "id": "macro",
       "exists": true,
-      "moduleState": "ready",
-      "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "성장중립일자리 3개월 평균 +51천 명"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "물가부담근원 PCE 3.0%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "통화정책부담2년물이 기준금리보다 0.92%p 높음"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리 · 할인율부담10년물 20일 +27bp"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유가 · 달러부담WTI 20일 −9.4% · 달러 +2.8%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "신용우호HY 315bp (5거래일 −9bp)"
-        }
-      ],
+      "moduleState": "loading",
+      "controls": [],
       "headings": [
         "거시 경제",
         "지금의 거시 국면",
         "증시에 주는 영향 — 6개 축",
-        "성장 (고용 · 소비)",
-        "물가",
-        "통화정책",
-        "금리 · 할인율",
-        "유가 · 달러",
-        "신용",
         "어떻게 연결되나 — 유가에서 주가까지",
         "경제 지표",
-        "정책금리",
-        "연준 목표 범위",
-        "실효 연방기금금리 (월평균)",
-        "물가",
-        "CPI (전년 대비)",
-        "근원 CPI (전년 대비)",
-        "PCE 물가 (전년 대비)",
-        "근원 PCE (전년 대비)",
-        "고용",
-        "실업률",
-        "비농업 고용 증감",
-        "시간당 임금 (전년 대비)",
-        "경제활동참가율",
-        "소비 · 주택",
-        "소매판매 (전월 대비)",
-        "주택 착공 (연율)",
-        "유가 · 금 — 최근 1년",
-        "WTI 원유",
-        "금"
+        "유가 · 금 — 최근 1년"
       ]
     },
     {
@@ -405,23 +367,23 @@
         },
         {
           "tag": "A",
-          "name": "금리 vs 실적…코스피, 7000선 재도전 나설까[주간증시전망] — 원문 새 창에서 열기"
+          "name": "Oil Prices Fall as G-7 Plans Crude, Diesel Release But Hormuz Shipping Risks Persist — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Did Strong Q2 Data Center Demand and Steady Guidance Just Shift Regal Rexnord's (RRX) Investment Narrative? — "
+          "name": "Crown Holdings (CCK) Earnings Upgrade Puts Its Valuation Back In Focus — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "The 10-Year Treasury Yield Is Near a 24-Year High. History Says Stock Investors Should Do This 1 Thing. — 원문 새"
+          "name": "S&P 500 Earnings Yield Falls Below 10-Year Treasury Yield — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Oil Falls on Signs of Recovering Middle Eastern Flows, G-7 Stock Release — 원문 새 창에서 열기"
+          "name": "[더페어 돋보기] \"어닝시즌속 변동성 국면\"…코스피, 실적·환율 지표 주목속 반등 시도 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Gold forecast: Rising yields become too hot for gold, but the outlook is far from bearish — 원문 새 창에서 열기"
+          "name": "Gold breaks out as dollar rally cracks and Treasury futures find buyers — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -449,43 +411,19 @@
         },
         {
           "tag": "A",
-          "name": "“내년엔 1200원대도 가능”…‘반도체 달러’ 덕에 원화 강세 계속될까 — 원문 새 창에서 열기"
+          "name": "Gold and silver whiplash as Treasury yields smash 2007 highs and Gulf war simmers — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "How Investors Are Reacting To Crane NXT Stock As Guidance Is Raised — 원문 새 창에서 열기"
+          "name": "Emerson Electric (EMR) Raised Guidance, Is It Still 7% Undervalued? — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "2G Energy (XTRA:2GB) Is Down 6.8% After Lifting 2027–2028 Revenue Guidance — 원문 새 창에서 열기"
+          "name": "Did Earnings And Sales Guidance Just Shift McCormick Stock's Investment Narrative? — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Can Kasumigaseki CapitalLtd (TSE:3498) Justify Its Valuation Following New Guidance And Dividend Lift? — 원문 새 "
-        },
-        {
-          "tag": "A",
-          "name": "Does Raised Earnings Guidance Change The Bull Case For Crown Holdings (CCK)? — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "S&P 500 Forward Earnings Yield (5.3%) Vs. 10-Year Treasury Real Yield (3%): Which One Wins? (NASDAQ:TLT) — 원문 "
-        },
-        {
-          "tag": "A",
-          "name": "Gold Weekly: The Dollar Is Still the Handbrake, but the Squeeze Setup Is Getting Interesting — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "The Iran War Is Fueling a Boom in Clean Energy — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "The US Treasury Department has sanctioned 17 vessels for transporting Iranian crude oil and petroleum products"
-        },
-        {
-          "tag": "A",
-          "name": "Iran’s oil lifeline could run dry by mid-December, Kpler says — 원문 새 창에서 열기"
+          "name": "Iran says US response to its proposal to reopen Strait of Hormuz was 'insufficient' — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -493,64 +431,88 @@
         },
         {
           "tag": "A",
-          "name": "The 10-Year Treasury Yield Just Broke a Record That Stood Since 2007 — 원문 새 창에서 열기"
+          "name": "AI borrowers now dominate half of America's investment-grade bond market — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Form 4 iShares 20+ Year Treasury Bond ETF For: 11 October By Investing.com — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Falls on Signs of Recovering Middle Eastern Flows, G-7 Stock Release — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "A Record $31 Billion Gold Rush Is Sending Investors a Strange Warning About the Bond Market — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "A Record $31 Billion Gold Rush Is Sending Investors a Strange Warning About the Bond Market — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Crude oil outlook: US-Iran talks, supply risks likely to keep prices volatile — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Gold price outlook 2026: Will prices recover or fall further? — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "11개 더 보기"
+          "name": "12개 더 보기"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-11>>사우디 리야드 공항 또다시 공격받아 12명 사망, 309명 부상 •사우디아라비아 민간항공 당국은 11일 새벽 성명을 통해 수도 리"
+          "name": "반도체중립 어조@HANAchina · 중국·신흥국 · 10-12• TSMC는 최근 AI 패키징 수요 급증에 대응해 20억 달러 규모의 실리콘 인터포저(AI 칩과 HBM 연결의 핵심 부품) 생산을 글"
         },
         {
           "tag": "A",
-          "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-11>>중국 Luxshare : 회사 및 자회사 Luxshare Technology, 미국 무역법 337조 조사 대상에 포함…조사 초기 단계"
+          "name": "반도체긍정 어조@HANAchina · 중국·신흥국 · 10-12• 글로벌 AI 열풍에 힘입어 대만의 올해 수출액이 9,000억 달러를 돌파하며, 기존 12위에서 세계 5위 수출국으로 올라설 전망 •"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-11>>트럼프, 신임 백악관 대변인 임명: 베이징에서 3년 근무, 중국 유명 로펌 재직 경력에 중국어 구사 가능 •트럼프가 케이티 자카리"
+          "name": "매크로중립 어조@HANAchina · 중국·신흥국 · 10-12>>중국 하이브리드차 유럽 수출, 향후 4년간 절반 감소 전망 (대만경제일보) •중국과 EU의 무역 협의에 따라 중국산 하이브리드차와 "
         },
         {
           "tag": "A",
-          "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-11>>중국 신에너지차 9월 판매량 전년 대비 -12% 감소, 승용차 소매판매 -24% 감소 •9월 중국 자동차 시장이 부진한 모습을 보이며"
+          "name": "반도체긍정 어조@HANAchina · 중국·신흥국 · 10-12>>AI 열풍에 반도체 후공정 업계 사상 최대 가격 인상 (대만경제일보) •AI 칩 테스트 시간 증가와 클라우드 기업들의 자체 AI 칩"
         },
         {
           "tag": "A",
-          "name": "반도체긍정 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-11AMD, 10월 1일부터 파트너사 대상 GDDR6 가격 인상… 엔비디아는 GDDR7 가격 인상 보류한 것으로 "
+          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-12•백악관 관계자는 러시아가 어떤 형태의 휴전도 수용하지 않았으며, 트럼프가 발표한 휴전은 잠재적인 합의를 가리킨다고 밝혔음. 스티브 "
         },
         {
           "tag": "A",
-          "name": "AI정책중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-11구글, 새 AI 모델 출시 임박… 직원들 \"훨씬 뛰어난 다른 모델 테스트 중\" 구글이 새로운 Gemini 4"
+          "name": "실적중립 어조@insidertracking · 미국 속보 · 10-1210월 12일 미주인 브리핑 (재업로드) • 이번 주 CPI·PPI·소매판매 발표 • ASML·TSMC 실적, AI 반도체 투자"
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10## 트럼프·푸틴 간 디젤 거래로 긴장 고조, 우크라이나 평화협상 교착 도널드 트럼프 미국 대통령이 블라디미르"
+          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-12알아라비야 방송이 전날 예멘 후티 반군의 공격을 받은 사우디아라비아 리야드 킹칼리드 국제공항 터미널 내부의 피해 상황을 담은"
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10예루살렘 포스트) 미국, 중간선거 앞두고 정치적 후폭풍 피하려 이스라엘에 단독 이란 공격 압박 - 보도에 따르"
+          "name": "시장소식중립 어조@HANAchina · 중국·신흥국 · 10-12비야디 “미국 시장 없이도 5년 내 토요타·폭스바겐 추월” ▶ 기사 원문 보기: [글로벌이코노믹]"
         },
         {
           "tag": "A",
-          "name": "지정학중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10벤 카스피트 기자에 따르면 미국이 이스라엘에 단독으로 이란을 공격할 것을 요구했다는 보도. 이스라엘 측은 이러"
+          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-12사우디군이 예멘 사나 주 함단 지역에 대한 공습을 실시"
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10최근 리야드 공항 공격 이후 튀르키예 공항에서 사우디아라비아로 향하는 모든 정기 항공편 운항 취소."
+          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-12금일 한국시간 (KST) 기준 경제지표 및 주요 일정 > 특이사항 없음"
         },
         {
           "tag": "A",
-          "name": "AI정책중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10앤트로픽 AI 모델, 통제 벗어나 경찰에 허위 제보 제출 앤트로픽은 자사 AI 모델 Claude가 외부 기관"
+          "name": "실적중립 어조@insidertracking · 미국 속보 · 10-12금일 실적 발표 리스트 > 특이사항 없음"
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조@aetherjapanresearch · 일본·아시아 반도체 · 10-10트럼프의 AI 법적 책임 강화 기조, 통제를 벗어난 AI 모델을 둘러싼 '책임 공방'의 서막을 열다 트럼프 행"
+          "name": "실적중립 어조@insidertracking · 미국 속보 · 10-122026년 10월 12일~16일 미국 증시 및 경제지표 주간 브리핑 이번주 미국 증시는 9월 소비자물가지수(CPI), 생산자물가"
         }
       ],
       "headings": [
         "시장 뉴스",
-        "중요 뉴스 주제별 핵심 · 10. 11. 08:00 KST까지 24시간"
+        "중요 뉴스 주제별 핵심 · 10. 12. 08:00 KST까지 24시간"
       ]
     },
     {

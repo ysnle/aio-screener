@@ -394,6 +394,7 @@ export function createScreenerProvider({
           factorSessionDate: factor.factorSessionDate || null,
           factorSessionTimezone: factor.factorSessionTimezone || null,
           factorTimeBasis: factor.factorTimeBasis || null,
+          factorBarCompleteness: factor.factorBarCompleteness || null,
           factorComputedAt: factor.factorComputedAt || null,
           factorSourceKind: factor.factorSourceKind || factor.sourceKind || null,
           factorAllowedUse: factor.factorAllowedUse || factor.allowedUse || null,

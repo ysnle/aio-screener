@@ -10,6 +10,13 @@ const canonicalText = (value) => value.replace(/\r\n?/g, '\n');
 const sha256 = (value) => createHash('sha256').update(canonicalText(value)).digest('hex');
 const canonicalBytes = (value) => Buffer.byteLength(canonicalText(value));
 
+// P1627: whole-million rounding turned small profits/losses into zero and made the
+// fiscal timeline disagree with the exact annual receipt. Preserve USD thousands
+// in compact USD-million fields (and 1,000 shares in million-share fields).
+export function compactFiscalMillions(value) {
+  return value == null || !Number.isFinite(value) ? '' : Math.round(value / 1e3) / 1e3;
+}
+
 // P1470 (bound): the header stays pretty-printed; an object's `data` block serializes compactly
 // via a one-shot placeholder so the 1 MiB public page bound keeps real headroom as the P1446-era
 // records grow. Atomicity is preserved (temp file + rename, P1049).
@@ -60,7 +67,7 @@ export function quarterlyHistory(observations = {}) {
       quarters.set(fy.periodEnd, q);
     }
   }
-  const m = (value) => (value == null ? '' : Math.round(value / 1e6));
+  const m = compactFiscalMillions;
   const rows = [...quarters.values()].filter((q) => q.revenue != null || q.netIncome != null).sort((a, b) => a.periodEnd.localeCompare(b.periodEnd)).slice(-8);
   return rows.length >= 2 ? rows.map((q) => [q.periodEnd, m(q.revenue), m(q.netIncome), q.derived ? 'd' : 'r'].join(':')).join(';') : null;
 }
@@ -80,7 +87,9 @@ function fiscalHistory(observations = {}) {
   const byEnd = new Map();
   for (const field of FY_FIELDS) {
     for (const row of Array.isArray(observations[field]) ? observations[field] : []) {
-      if (!/^10-K/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) continue;
+      // P1627: the source also collects annual foreign-issuer 20-F/40-F facts.
+      // Dropping their form here left ARM/BABA/NBIS/MNDY on a one-year fallback.
+      if (!/^(10-K|20-F|40-F)(\/A)?$/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) continue;
       if (DURATION_FIELDS.has(field)) {
         if (row?.fiscalPeriod !== 'FY') continue;
         const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart || '')) / 86400000;
@@ -115,7 +124,7 @@ function fiscalHistory(observations = {}) {
     const hit = shares.find((row) => { const d = (Date.parse(row.periodEnd) - t) / 86400000; return d >= 0 && d <= 150; });
     return hit ? hit.value : null;
   };
-  const m = (value) => (value == null ? '' : Math.round(value / 1e6));
+  const m = compactFiscalMillions;
   return [...byEnd.values()]
     .filter((entry) => entry.revenue != null || entry.netIncome != null)
     .sort((x, y) => x.periodEnd.localeCompare(y.periodEnd))
@@ -168,6 +177,7 @@ const fiscal = {
   generatedAt: source.generatedAt,
   source: source.source,
   format: FISCAL_HISTORY_FORMAT,
+  precision: { amountUnit: 'USD million', decimalPlaces: 3, roundingUnitUsd: 1000, sharesUnit: 'million shares', roundingUnitShares: 1000 },
   allowedUse: source.allowedUse,
   data: Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => [symbol, fiscalHistory(record?.pit?.observations)]).filter(([, value]) => value)),
   quarterFormat: QUARTER_FORMAT,

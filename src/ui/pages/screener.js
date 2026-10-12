@@ -23,6 +23,7 @@ import { latestCompletedUsSession } from '../../ai/time/market-session.js';
 import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
+import { MARKET_LABELS, screenerMarket, marketRows, marketRankingMetadata, formatScreenerPrice } from '../../domain/screener/market-scope.js';
 
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
@@ -35,8 +36,8 @@ const PROFILE_DESCRIPTIONS = {
 };
 
 const FACTOR_LABELS = {
-  momentum: { label: '모멘텀', color: 'var(--data-green)', description: '1~6M 가중 수익률' },
-  trend: { label: '추세', color: 'var(--data-green)', description: 'SMA50/200 스택 강도' },
+  momentum: { label: '모멘텀', color: 'var(--data-green)', description: '1개월 40%·3개월 40%·6개월 20% 수익률' },
+  trend: { label: '추세', color: 'var(--data-green)', description: '50일선 거리 60%·200일선 거리 40%' },
   lowvol: { label: '저변동', color: 'var(--data-cyan)', description: '실현 변동성의 역순' },
   size: { label: '사이즈', color: 'var(--text-muted)', description: '시가총액의 역순' },
   value: { label: '밸류', color: 'var(--data-amber)', description: '저PER/PBR/EV-EBITDA' },
@@ -224,6 +225,7 @@ function liveRow(row, readLiveData) {
 function selectedValue(documentRef, id) { return documentRef.getElementById(id)?.value || ''; }
 
 export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
+  const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
   const market = selectedValue(documentRef, 'scr-market');
   const sector = selectedValue(documentRef, 'scr-sector');
   const signal = selectedValue(documentRef, 'scr-signal');
@@ -251,6 +253,7 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
   });
 
   return rows.filter((row) => {
+    if (screenerMarket(row) !== listingMarket) return false;
     if (market && row.index !== market) return false;
     if (sector && row.sector !== sector) return false;
     if (signal && row.signal !== signal) return false;
@@ -369,7 +372,7 @@ function createRankNode(documentRef, row, hold = null) {
   else {
     const value = documentRef.createElement('div');
     value.textContent = String(rank);
-    wrap.title = `조건을 통과한 종목 중 백분위 ${rank} — 100은 맨 위라는 뜻이지 만점이나 확률이 아닙니다`;
+    wrap.title = `${MARKET_LABELS[screenerMarket(row)]} 시장의 계산 가능한 종목 중 백분위 ${rank} — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.`;
     value.style.cssText = `font-family:var(--font-mono);font-weight:800;font-size:11px;color:${rankColor(rank)};`;
     const bar = documentRef.createElement('div');
     bar.style.cssText = 'height:3px;background:var(--border-subtle);border-radius:2px;margin-top:3px;overflow:hidden;';
@@ -377,12 +380,6 @@ function createRankNode(documentRef, row, hold = null) {
     fill.style.cssText = `height:100%;width:${Math.max(0, Math.min(100, rank))}%;background:${rankColor(rank)};border-radius:2px;`;
     bar.appendChild(fill);
     wrap.append(value, bar);
-    if (row.quantSignal) {
-      const signal = documentRef.createElement('div');
-      signal.textContent = row.quantSignal;
-      signal.style.cssText = `font-size:10px;color:${rankColor(rank)};margin-top:2px;`;
-      wrap.appendChild(signal);
-    }
   }
   return wrap;
 }
@@ -453,7 +450,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     // which counts topbar coverage rather than this instrument's quote.
     const wrap = documentRef.createElement('span');
     // P1599 (F06): won prices have no minor unit — show them as whole numbers with the ₩ sign instead of '161500.00 KRW'.
-    const value = text(documentRef, currency === 'KRW' ? `₩${Math.round(price).toLocaleString('en-US')}` : `${numberText(price, 2)}${currency && currency !== 'USD' ? ` ${currency}` : ''}`);
+    const value = text(documentRef, formatScreenerPrice(price, currency));
     value.dataset.quoteFreshness = observedAt ? 'observed' : 'unverified';
     value.title = `${currency || '통화 미확인'} · ${stamp} · ${source || '출처 미확인'} · ${observedAt ? '행 자체 관측' : '현재성 미확인 — 전역 LIVE에 상속하지 않음'}`;
     if (!observedAt) value.style.color = 'var(--text-muted)';
@@ -717,6 +714,10 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   if (!panel) return;
   panel.replaceChildren();
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
+  if (metadata?.selectionMarket === 'KR') {
+    panel.append(el('p', '한국 시장 전용 사후 검증은 아직 없습니다. 미국/혼합 시장의 검증 수치를 한국 순위의 검증으로 표시하지 않습니다.', 'scr-empty-state'));
+    return;
+  }
   const backtest = metadata?.backtest;
   const hasObservedIC = backtest?.ic && Object.values(backtest.ic).some((value) => finite(value) != null);
   if (!hasObservedIC) {
@@ -1107,14 +1108,24 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
 }
 
 function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null }) {
-  const currentState = selectScreenerState(store?.getState?.() || {});
-  const state = workbenchResult?.run ? { ...currentState, metadata: workbenchResult.snapshotMetadata || {}, status: 'partial', lastRun: workbenchResult.run, readiness: workbenchResult.readiness } : currentState;
+  const rawState = selectScreenerState(store?.getState?.() || {});
+  const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
+  const currentState = { ...rawState, metadata: { ...rawState?.metadata, ranking: marketRankingMetadata(rawState?.metadata, listingMarket) } };
+  const sourceState = workbenchResult?.run ? { ...currentState, metadata: workbenchResult.snapshotMetadata || {}, status: 'partial', lastRun: workbenchResult.run, readiness: workbenchResult.readiness } : currentState;
+  const state = { ...sourceState, metadata: { ...sourceState.metadata, selectionMarket: listingMarket, ranking: marketRankingMetadata(sourceState.metadata, listingMarket) } };
   // P1165: 실행 전에는 파이프라인 기본 결과가 아니라 **선택한 정의**의 미리보기를 표시한다.
   const preview = workbenchResult?.run ? null : previewResult;
   const page = documentRef?.getElementById('page-screener');
   if (!page) return;
   const rows = rowsOverride || state?.rows || [];
   const filtered = sortRows(filterRows(rows, documentRef, { readWatchlist, readAliases }), sortState.column, sortState.ascending, readLiveData);
+  const chosenDefinition = workbenchResult?.definition || preview?.definition || state?.screenDefinition;
+  const presetOrder = documentRef.getElementById('scr-order')?.querySelector('option[value="screenRank"]');
+  if (presetOrder && chosenDefinition?.ranking) {
+    const ranking = chosenDefinition.ranking;
+    const field = SCREENER_FIELD_REGISTRY.get(ranking.field);
+    presetOrder.textContent = `조건 순위 · ${field?.label || field?.name || (ranking.field === 'rank' ? '선택 비중의 팩터 백분위' : ranking.field)} ${ranking.direction === 'asc' ? '낮은 순' : '높은 순'}`;
+  }
   const visibleColumns = getVisibleColumns(columnPreset, customColumns);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
@@ -1171,7 +1182,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
         empty.firstChild.appendChild(actions);
       }
       body.appendChild(empty);
-    } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: root._aioRankingHold || null })));
+    } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null })));
     if (focusedSymbol) {
       const row = [...body.querySelectorAll('[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === focusedSymbol);
       const action = row && [...row.querySelectorAll('button')].find((node) => node.getAttribute('aria-label') === focusedAction);
@@ -1183,7 +1194,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const filteredCount = documentRef.getElementById('scr-filtered-count');
   if (filteredCount) filteredCount.textContent = String(filtered.length);
   const summary = documentRef.getElementById('scr-visible-summary');
-  if (summary) summary.textContent = `전체 ${filtered.length}개 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
+  if (summary) summary.textContent = `${MARKET_LABELS[listingMarket]} · 조건/필터 ${filtered.length}개 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
   renderStaleNote(documentRef, body);
   const loadMore = documentRef.getElementById('scr-load-more-wrap');
   if (loadMore) {
@@ -1192,8 +1203,16 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const moreButton = loadMore.querySelector('[data-aio-screener-action="load-more"]');
     if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, filtered.length - visibleLimit.value))}개 더 보기`;
   }
-  if (summary && filtered.length && visibleLimit.value >= filtered.length) summary.textContent = `전체 ${filtered.length}개 모두 표시`;
-  const allRows = rows;
+  if (summary && filtered.length && visibleLimit.value >= filtered.length) summary.textContent = `${MARKET_LABELS[listingMarket]} · 조건/필터 ${filtered.length}개 모두 표시`;
+  const diagnostics = documentRef.getElementById('scr-population-note');
+  if (diagnostics) {
+    const ranking = currentState.metadata.ranking;
+    const weights = ranking.appliedFactorWeights || {};
+    const order = documentRef.getElementById('scr-order')?.selectedOptions?.[0]?.textContent || SCREENER_COLUMN_REGISTRY.find(column => column.key === sortState.column)?.label || '조건 순위';
+    diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${marketRows(currentState.rows || [], listingMarket).length}개 · 순위 계산 ${ranking.ranked || 0}개 · 표시 ${filtered.length}개 · ${order} · 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
+    diagnostics.title = '백분위는 같은 시장의 계산 가능한 종목끼리 비교합니다. 정렬과 조건, 표시 필터는 서로 다른 역할입니다. 데이터가 없거나 조건을 통과하지 못한 종목은 순위에서 제외합니다.';
+  }
+  const allRows = marketRows(rows, listingMarket);
   const total = documentRef.getElementById('scr-kpi-total');
   const top = documentRef.getElementById('scr-kpi-top');
   const buy = documentRef.getElementById('scr-kpi-buy');
@@ -1231,7 +1250,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     // 세션일은 하나의 스칼라로 합칠 수 없고, 없을 때만 호환 바 시작 날짜로 폴백한다.
     const sessionByMarket = metadata.factorSessionDateByMarket && typeof metadata.factorSessionDateByMarket === 'object' ? metadata.factorSessionDateByMarket : null;
     const factorSessionDate = sessionByMarket
-      ? Object.entries(sessionByMarket).filter(([, date]) => date).map(([market, date]) => `${market} ${String(date).slice(0, 10)}`).join(' · ')
+      ? (sessionByMarket[listingMarket] ? `${listingMarket} ${String(sessionByMarket[listingMarket]).slice(0, 10)}` : '')
       : String(metadata.factorSessionDate || metadata.factorObservedAt || '').slice(0, 10);
     const factorSessionLabel = factorSessionDate ? `팩터 ${factorSessionDate} 세션 종가 기준(일봉 바 시작 ${fmtDate(metadata.factorObservedAt)} · 관측시각 아님${metadata.factorTimeBasis === 'bar-start' ? ' · basis bar-start' : ''})` : '팩터 기준 세션 미확인';
     provenance.textContent = `연구용 스냅샷 · ${factorSessionLabel} · 수집 ${fmtDate(metadata.factorFetchedAt || metadata.asOf)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · ${researchNote} · ${validationNote} · 공식 거래소 breadth 아님`;
@@ -1242,9 +1261,9 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const readiness = documentRef.getElementById('screener-readiness-note');
   const run = workbenchResult?.run || preview?.run || state?.lastRun || {};
   const readinessResult = workbenchResult?.readiness || preview?.readiness || state?.readiness;
-  const readyCount = readinessResult?.eligibleCount ?? 0;
-  const passedCount = run?.passed ?? 0;
-  const unavailableCount = run?.unavailable ?? 0;
+  const readyCount = Array.isArray(readinessResult?.records) ? readinessResult.records.filter(row => screenerMarket(row) === listingMarket && row.eligible).length : readinessResult?.eligibleCount ?? 0;
+  const passedCount = allRows.filter(row => row.screenStatus === 'passed').length;
+  const unavailableCount = allRows.filter(row => row.screenStatus === 'unavailable').length;
   const previewConditions = preview?.definition ? describeFilterAst(preview.definition) : null;
   // P1167 (15 D05): 정적 유니버스가 MIC·assetType을 발행하지 않으면 식별 미확인 행이 남는다. 가격 조회
   // 성공과 식별 metadata 확인을 같은 것으로 읽지 않도록 미확인 수와 누락 필드를 함께 표시한다.
@@ -1259,7 +1278,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (readiness && previewConditions) readiness.title = `내장 조건: ${previewConditions.builtin.map(item => item.text).join(' · ') || '없음'} | 사용자 추가: ${previewConditions.user.map(item => item.text).join(' · ') || '없음'}`;
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '데이터 상태: 산출물 미수신 · 결과와 검증 수치를 표시하지 않습니다.'
-    : `${previewNote}${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 필수 필드 충족 ${readyCount} · 실행 판정 ${run?.runId ? `run ${String(run.runId).slice(0, 12)} ` : ''}통과 ${passedCount} · 부족 ${unavailableCount} / ${Number.isFinite(Number(run?.rowCount)) ? run.rowCount : '—'} · 표시 범위 현재 필터 ${filtered.length}행 · ${identityNote}상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
+    : `${previewNote}${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 필수 필드 충족 ${readyCount} · 실행 판정 ${run?.runId ? `run ${String(run.runId).slice(0, 12)} ` : ''}통과 ${passedCount} · 부족 ${unavailableCount} / ${allRows.length} (${MARKET_LABELS[listingMarket]} 범위) · 표시 범위 현재 필터 ${filtered.length}행 · ${identityNote}상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
   // LC-25: bind the executed judgment to the run that produced it and keep the table's display
   // scope separate. A preview is an unfixed run and is labeled as such; the pipeline entry and a
   // user run are different origins over the same artifact.
@@ -1272,7 +1291,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     passed: passedCount,
     unavailable: unavailableCount,
     filtered: filtered.length,
-    runRowCount: run?.rowCount,
+    runRowCount: allRows.length,
     runId: run?.runId,
     origin: runOrigin,
     passedOnly: !!documentRef.getElementById('scr-passed-only')?.checked
@@ -1280,7 +1299,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   renderFilterChips(documentRef);
   const coverage = documentRef.getElementById('screener-factor-coverage');
   const holdEl = documentRef.getElementById('screener-rank-hold');
-  const hold = root?._aioRankingHold || null;
+  const hold = currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root?._aioRankingHold || null;
   if (coverage) {
     const ranking = state?.metadata?.ranking || {};
     const active = ranking.activeFactors || [];
@@ -1292,7 +1311,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (holdEl) {
     // LC-73 style (P1449): when a re-rank is held, the visible summary (not just a tooltip)
     // discloses that the previous calculation was discarded and why.
-    const holdCopy = describeRankingHold(hold, { factorSessionDate: state?.metadata?.factorSessionDateByMarket?.US || state?.metadata?.factorSessionDate || root?._aioScreenerFactorAsOf || null });
+    const holdCopy = describeRankingHold(hold, { factorSessionDate: state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorSessionDate || root?._aioScreenerFactorAsOf || null });
     holdEl.hidden = !holdCopy;
     if (holdCopy) {
       holdEl.textContent = holdCopy;
@@ -1302,7 +1321,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   }
   const rankingState = state?.metadata?.ranking || {};
   renderFactorTab(documentRef, state?.metadata);
-  renderBacktest(documentRef, state?.metadata, root, state?.rows);
+  renderBacktest(documentRef, state?.metadata, root, marketRows(state?.rows || [], listingMarket));
   renderConditionalEvidence(documentRef, state?.metadata);
   page.querySelectorAll('[data-scr-sort]').forEach((header) => {
     const arrow = header.querySelector('.scr-arrow');
@@ -1318,9 +1337,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
 }
 
 export function createScreenerPage({ documentRef, store, root = globalThis, workbench = {}, onProfileChange, onTicker, onWatchlistToggle, readWatchlist, readAliases, readLiveData } = {}) {
-  // SCR-UX-02: rank is the visible discovery order and is therefore the
-  // initial sort. Market-cap remains available through the column header.
-  const sortState = { column: 'rank', ascending: false };
+  // P1625: use the selected screen's declared order until the user selects another metric.
+  const sortState = { column: 'screenRank', ascending: true };
   const visibleLimit = { value: 12 };
   const columnState = { preset: 'discovery', custom: [] };
   const selectedSymbols = new Set();
@@ -1354,6 +1372,26 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       bag.add(() => { mountActive = false; });
       const page = documentRef?.getElementById('page-screener');
       if (!page) return () => {};
+      let marketControls = documentRef.getElementById('scr-market-scope');
+      if (!marketControls) {
+        marketControls = documentRef.createElement('div'); marketControls.id = 'scr-market-scope'; marketControls.className = 'scr-market-scope';
+        for (const [id, label, entries] of [
+          ['scr-listing-market', '주식 시장', Object.entries(MARKET_LABELS)],
+          ['scr-order', '정렬 기준', [['screenRank','선택 조건의 순위'], ['rank','선택 비중의 팩터 백분위'], ['trend','추세 팩터'], ['ret3m','3개월 수익률'], ['momentum','모멘텀 팩터'], ['lowvol','저변동 팩터']]]
+        ]) {
+          const holder = documentRef.createElement('label'); holder.textContent = label;
+          const select = documentRef.createElement('select'); select.id = id; select.setAttribute('aria-label', label);
+          for (const [value, title] of entries) { const option = documentRef.createElement('option'); option.value = value; option.textContent = title; select.append(option); }
+          holder.append(select); marketControls.append(holder);
+        }
+        const note = documentRef.createElement('p'); note.id = 'scr-population-note'; note.setAttribute('aria-live','polite'); marketControls.append(note);
+        const method = documentRef.createElement('details'); method.className = 'scr-ranking-method';
+        const summary = documentRef.createElement('summary'); summary.textContent = '순위가 계산되는 방식';
+        const explanation = documentRef.createElement('p'); explanation.textContent = '모멘텀은 1개월·3개월·6개월 수익률을 40%·40%·20%로, 추세는 50일선·200일선 대비 거리를 60%·40%로 묶습니다. 각 팩터를 같은 시장의 업종 내 분포로 조정한 뒤 선택한 비중으로 합산합니다. 표본이 작은 업종은 같은 시장 전체 분포를 함께 씁니다. 높은 추세 값은 이동평균에서 멀다는 뜻도 있으므로 과열·변동폭과 함께 읽습니다. 3개월 수익률 정렬은 이 합산과 별도로 실제 수익률을 비교합니다. 필수 자료가 없거나 선택 조건을 통과하지 못하면 순위를 보류합니다.';
+        method.append(summary, explanation); marketControls.append(method);
+        page.prepend(marketControls);
+      }
+      documentRef.getElementById('scr-listing-market').value = root._aioScreenerListingMarket === 'KR' ? 'KR' : 'US';
       // P1449 (검토판 9): a link that came here with its own 조사 맥락 (e.g. 같은 섹터에서 비교)
       // fills the display search/scope from that context once, instead of surfacing whatever
       // query/sector chips the previous visit left behind.
@@ -1369,11 +1407,25 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       // P1437: the lead reading of the ranking — recomputed only when the ranked set or validation changes.
       let readSignature = '';
       const renderRead = () => {
-        const rows = selectScreenerState(store?.getState?.() || {})?.rows || [];
-        const signature = `${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
+        const rows = marketRows(selectScreenerState(store?.getState?.() || {})?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US');
+        const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
         if (signature === readSignature) return;
         readSignature = signature;
-        renderScreenerRead({ documentRef, root, rows });
+        const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
+        const validation = documentRef.getElementById('screener-validation');
+        if (validation) validation.hidden = listingMarket === 'KR';
+        if (listingMarket === 'KR') {
+          const host = documentRef.getElementById('screener-read');
+          if (host) {
+            const heading = documentRef.createElement('h2'); heading.className = 'briefing-h2'; heading.textContent = '한국 종목끼리 비교하는 순위';
+            const note = documentRef.createElement('p'); note.textContent = `한국 상장 ${rows.length}종목을 독립 비교합니다. 팩터 비중·데이터 범위는 아래에 표시하며 미국 업종 회전과 과거 검증을 이 순위의 근거로 섞지 않습니다.`;
+            host.replaceChildren(heading, note);
+          }
+          const next = documentRef.getElementById('screener-next'); if (next) next.hidden = true;
+        } else {
+          const next = documentRef.getElementById('screener-next'); if (next) next.hidden = false;
+          renderScreenerRead({ documentRef, root, rows });
+        }
       };
       // P1419: post-hoc validation of the default ranking (small daily artifacts, read once per mount).
       renderScreenerValidation({ documentRef, root });
@@ -1394,7 +1446,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
               renderScreenerValidation({ documentRef, root }); readSignature = ''; renderRead();
               // The 10-year study and the candidate record arrive after the first render of the 검증 view.
               const latest = selectScreenerState(store?.getState?.() || {});
-              renderBacktest(documentRef, latest?.metadata, root, latest?.rows);
+              renderBacktest(documentRef, { ...latest?.metadata, selectionMarket: selectedValue(documentRef, 'scr-listing-market') || 'US', ranking: marketRankingMetadata(latest?.metadata, selectedValue(documentRef, 'scr-listing-market') || 'US') }, root, marketRows(latest?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US'));
             }
           });
         }
@@ -1513,7 +1565,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const factors = Object.entries(row.factorScores || {}).filter(([, value]) => finite(value) != null);
            // P1165 (12 W12-B): 막대는 '정규화 점수'다. 적용 가중치와 가중 기여를 같은 줄에서 분리해
            // 보여주고, 랭킹 합성이 실제로 무엇을 평균했는지(원값)도 이 자리에서 밝힌다.
-           const appliedWeights = selectScreenerState(store.getState())?.metadata?.ranking?.appliedFactorWeights || {};
+           const appliedWeights = marketRankingMetadata(selectScreenerState(store.getState())?.metadata, screenerMarket(row)).appliedFactorWeights || {};
            const weightSum = factors.reduce((sum, [key]) => sum + (finite(appliedWeights[key]) == null ? 0 : Number(appliedWeights[key])), 0);
            if (!factors.length) factorList.appendChild(text(documentRef, '팩터 점수 미수신'));
            factors.slice(0, 8).forEach(([key, value]) => {
@@ -1824,8 +1876,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          });
          const current = activeDefinition.filtersAST?.type === 'and' ? activeDefinition.filtersAST.children || [] : [activeDefinition.filtersAST];
          return createScreenDefinition({ ...activeDefinition, filtersAST: { type: 'and', children: [
-           ...current.filter(node => node?.origin !== 'visual-builder'),
-           ...nodes.map(node => ({ ...node, origin: 'visual-builder' }))
+           ...current.filter(node => node?.origin !== 'visual-builder' && node?.origin !== 'market-scope'),
+           ...nodes.map(node => ({ ...node, origin: 'visual-builder' })),
+           { type: 'enum', field: 'identity.market', values: [selectedValue(documentRef, 'scr-listing-market') || 'US'], origin: 'market-scope', nullPolicy: 'unknown' }
          ] } });
        };
        const setProfileButtons = () => {
@@ -1842,7 +1895,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           if (activeResult) { activePreview = null; activePreviewKey = null; return null; }
           const definition = buildVisualDefinition() || activeDefinition;
           if (!definition || typeof workbench.preview !== 'function') return null;
-          const key = `${definition.definitionHash || definition.screenId}|${selectScreenerState(store.getState())?.snapshotId || 'unknown'}`;
+          const current = selectScreenerState(store.getState());
+          const key = `${definition.definitionHash || definition.screenId}|${current?.snapshotId || 'unknown'}|${current?.workbenchHash || ''}`;
           if (key === activePreviewKey && activePreview) return activePreview;
           try { activePreview = workbench.preview(definition); activePreviewKey = key; }
           catch (_) { activePreview = null; activePreviewKey = null; }
@@ -1893,7 +1947,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (!activeResult && preview && workbenchStatus) {
            // P1431: plain status; the definition id/hash stay on the element for audit, not in the sentence.
            const screenLabel = documentRef.getElementById('scr-screen-select')?.selectedOptions?.[0]?.textContent || preview.definition?.screenId || '선택한 조건';
-           workbenchStatus.textContent = `${screenLabel} 미리보기 · 계산 가능 ${preview.readiness?.eligibleCount ?? 0}종목 중 조건 통과 ${preview.run?.passed ?? 0} · 데이터 부족 ${preview.run?.unavailable ?? 0}`;
+           workbenchStatus.textContent = `${screenLabel} 미리보기 · 계산 가능 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').length}종목 중 조건 통과 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'passed').length} · 데이터 부족 ${marketRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'unavailable').length}`;
            workbenchStatus.title = `${preview.definition?.screenId || '—'} · ${String(preview.definition?.definitionHash || '').slice(0, 8)} · 조건 실행을 누르면 이 입력으로 고정합니다`;
          }
          renderCompareTray();
@@ -1912,6 +1966,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            else if (control) control.value = id === 'scr-min-rank' ? '0' : '';
          });
          visibleLimit.value = 12;
+         sortState.column = 'screenRank'; sortState.ascending = true;
+         documentRef.getElementById('scr-order').value = 'screenRank';
          syncDefinitionEditor(); renderWorkbench(); renderNow();
        };
        const handleClick = (event) => {
@@ -1924,6 +1980,12 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const column = header.dataset.scrSort;
            if (sortState.column === column) sortState.ascending = !sortState.ascending;
            else { sortState.column = column; sortState.ascending = column === 'sym' || column === 'sector'; }
+           const orderSelect = documentRef.getElementById('scr-order');
+           if (orderSelect) {
+             let option = [...orderSelect.options].find(item => item.value === column);
+             if (!option) { option = documentRef.createElement('option'); option.value = column; orderSelect.append(option); }
+             option.textContent = `${SCREENER_COLUMN_REGISTRY.find(item => item.key === column)?.label || column} ${sortState.ascending ? '오름차순' : '내림차순'}`; orderSelect.value = column;
+           }
           // P1592 (F03): sorting reorders the same rows — keep what the reader already expanded.
           renderNow();
           return;
@@ -1989,6 +2051,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            documentRef.getElementById('scr-developer-drawer')?.setAttribute('open', '');
            if (workbenchStatus) workbenchStatus.textContent = '개발자 영역에 ScreenDefinition을 내보냈습니다.';
          } else if (action === 'profile') {
+          ++runGeneration; activeResult = null; activeRows = null; activePreview = null; activePreviewKey = null;
           root?._aioSetProfile?.(argument);
           Promise.resolve(onProfileChange?.(argument)).finally(rerender);
          } else if (action === 'toggle-filters') {
@@ -2084,7 +2147,16 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
        };
        const handleInput = (event) => {
          if (!event.target.closest?.('#page-screener')) return;
-         if (event.target.matches?.('#scr-screen-select')) {
+         if (event.target.matches?.('#scr-listing-market')) {
+           root._aioScreenerListingMarket = event.target.value;
+           ++runGeneration; activeResult = null; activeRows = null; activePreview = null; activePreviewKey = null;
+           selectedSymbols.clear(); compareSymbols.clear(); visibleLimit.value = 12; readSignature = '';
+           for (const id of ['scr-market', 'scr-sector']) { const field = documentRef.getElementById(id); if (field) { field.value = ''; delete field.dataset.aioValues; } }
+           fillControls(); rerender(); renderRead();
+         } else if (event.target.matches?.('#scr-order')) {
+           sortState.column = event.target.value; sortState.ascending = event.target.value === 'screenRank';
+           visibleLimit.value = 12; renderNow();
+         } else if (event.target.matches?.('#scr-screen-select')) {
            selectDefinition(event.target.value);
          } else if (event.target.matches?.('#scr-builder-field')) {
            syncBuilderHint();
@@ -2109,9 +2181,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       const fillSelect = (id, key, label) => {
         const select = documentRef.getElementById(id);
         if (!select) return;
-        const values = [...new Set((selectScreenerState(store.getState())?.rows || []).map((row) => row[key]).filter(Boolean))].sort();
-        if (!values.length) return;
-        const signature = values.join('|');
+        const values = [...new Set(marketRows(selectScreenerState(store.getState())?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').map((row) => row[key]).filter(Boolean))].sort();
+        const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${values.join('|')}`;
         if (select.dataset.aioValues === signature) return;
         const current = select.value;
         const options = [documentRef.createElement('option'), ...values.map(() => documentRef.createElement('option'))];

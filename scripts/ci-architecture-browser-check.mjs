@@ -652,7 +652,7 @@ try {
       regimeRenderer: document.getElementById('page-signal')?.dataset.aioRegimeRenderer || null,
       rawPrimarySinkCount: document.querySelectorAll(`#page-signal ${primarySelectors}`).length,
       nativePrimarySinkCount: document.querySelectorAll(`#page-signal[data-aio-architecture-renderer="native"] ${primarySelectors}`).length,
-      axes: axes.map((node) => ({ id: node.dataset.axis, state: node.dataset.state, flip: !!node.querySelector('.regime-flip'), evidence: node.querySelectorAll('dd').length })),
+      axes: axes.map((node) => ({ id: node.dataset.axis, state: node.dataset.state, flip: !!node.querySelector('.regime-axis-observe p')?.textContent.trim(), evidence: node.querySelectorAll('dd').length })), // P1628: inspect the actual conditional explanation in the redesigned card.
       retired: ['score-gauge-val', 'score-adjustments-container', 'sig-sw-btn', 'entry-check-summary'].filter((id) => document.getElementById(id)),
       overall: before,
       fenceValue

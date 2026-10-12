@@ -1,0 +1,29 @@
+{
+  "version": "v57.40",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1629,
+    "title": "한국 휴장·주말 뒤 최신 종가 팩터 전체 보류",
+    "symptom": "10/12 한국 스크리너 180개가 모두 순위 계산 없음으로 사라졌다. 최신 한국 완료 세션은 10/8이었다.",
+    "root_cause": "필드 준비도는 거래 세션을 확인했지만 순위 모델은 4일 경과 시간만 사용해 한글날·주말 뒤 실제 최신 종가를 오래된 값으로 차단했다.",
+    "fix": "시장별 실제 완료 세션과 관측 타임존·bar-start·completed-sessions-only 계보가 일치할 때만 경과 시간 예외를 인정한다. quality/source 차단과 미래 자료는 계속 보류한다. 더 새 장이 완료되면 이전 종가의 예외를 취소한다. 최신 main a58e386f 데이터 통합 뒤 bump-version --align-generated로 생산자 시각/identity를 보존해 버전 표면을 맞춘다.",
+    "violated_rule": "R670 완료 종가 기준; 시장별 원본 관측일",
+    "prevention": "{P}: ci-screener-market-fixture.mjs에서 10/12 최신 한국 종가의 순위 유지와 10/13 이후 오래된 종가 보류를 검증한다.",
+    "verification": "오프라인 순위 fixture PASS. 실제 US/KR 화면과 최신 main 통합 뒤 브라우저 검증을 진행한다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-KR-SESSION-FRESHNESS-01",
+      "text": "{P}: 휴장·주말 뒤 최신 KRX 완료봉의 순위 유지, 새로운 완료봉 이후 예외 종료.",
+      "verify_by": "node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "한국 완료세션 순위",
+  "changelog": [
+    "**통합 검증 ({P}):** 한국 휴장·주말 뒤 순위가 모두 비던 시간 판정을 완료 세션 기준으로 수정. v57.40 P1624–P1628 개선을 최신 main a58e386f 위에 보존하고 생성 버전 표면 재동기화. commit/push/deploy 미실행."
+  ],
+  "note": "전체 종목·기업 AI·시장별 순위·정밀 재무·시장6축·한국 참여도와 조건부 관찰 개선. 최신 main 데이터 통합; 로컬 QA 중; commit/push/deploy 미실행.",
+  "status": null
+}

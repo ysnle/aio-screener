@@ -1,0 +1,17 @@
+/* P1626: chart interpretation follows the plot; conditions remain separate and readable. */
+.chart-scenarios, .chart-volume-profile, .chart-analysis-logic { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+.chart-scenario { padding: 12px 0; }
+.chart-scenario h4 { margin: 0 0 6px; font-size: 13px; color: var(--text-primary); }
+.chart-scenario p, .chart-analysis-logic p { font-size: 12px; line-height: 1.7; color: var(--text-secondary); overflow-wrap: anywhere; }
+.chart-volume-zone { display: grid; grid-template-columns: minmax(110px, 1fr) minmax(60px, 2fr) 45px; gap: 8px; align-items: center; margin: 8px 0; font-size: 12px; font-variant-numeric: tabular-nums; }
+.chart-volume-track { background: var(--surface-3); height: 8px; display: block; }
+.chart-volume-track > span { display: block; height: 100%; background: var(--accent); }
+.chart-analysis-logic summary { font-size: 12px; cursor: pointer; color: var(--text-secondary); }
+#stock-chart-evidence { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 1100px) {
+  .stock-chart-layout { grid-template-columns: minmax(0, 1fr) !important; }
+  #stock-chart-evidence { width: 100%; }
+  .chart-scenarios { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .chart-scenarios > h3, .chart-scenarios > p { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) { .chart-scenarios { grid-template-columns: minmax(0, 1fr); } }

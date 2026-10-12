@@ -8,10 +8,11 @@
 // trading date, carried-forward values excluded), so 20 sessions means 20 sessions on every screen.
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { createTrendChart } from './trend-chart.js';
+import { buildBreadthSnapshot } from '../../domain/market/breadth-snapshot.js';
 
 const CELLS = Object.freeze([
   { selector: '[data-live-price="ES=F"]', field: 'spx', label: 'S&P 500' },
-  { selector: '[data-live-price="NQ=F"]', field: 'nasdaq', label: '나스닥 종합' },
+  { selector: '[data-live-price="NQ=F"]', field: 'ndx', label: '나스닥 100 현물' },
   { selector: '[data-live-price="^TNX"]', field: 'tnx', label: '미 10년 금리' },
   { selector: '[data-live-price="CL=F"]', field: 'wti', label: 'WTI' }
 ]);
@@ -85,13 +86,15 @@ export function renderHomeKpiTrends({ documentRef: doc, root }) {
 // two same-period charts side by side. Each keeps its own axis (index level vs % of stocks); the shared x-range
 // and a one-line read make the comparison, not a merged scale.
 const PARTICIPATION_SESSIONS = 63;
+export function homeParticipationSeries(history = []) {
+  const basis = closeBasis(history);
+  return { spx: buildCloseSeries(history, 'spx', { through: basis }).slice(-PARTICIPATION_SESSIONS), b50: buildCloseSeries(history, 'breadth50', { through: basis }) }; // P1623: producer declares percent, including values below 1%.
+}
 function renderHomeParticipation({ documentRef: doc, root, history }) {
   const anchor = doc?.getElementById?.('home-cross-assets');
   if (!anchor) return;
   let host = doc.getElementById('home-participation');
-  const basis = closeBasis(history);
-  const spx = buildCloseSeries(history, 'spx', { through: basis }).slice(-PARTICIPATION_SESSIONS);
-  const b50 = buildCloseSeries(history, 'breadth50', { through: basis }).map((point) => ({ date: point.date, value: point.value <= 1 ? point.value * 100 : point.value }));
+  const { spx, b50 } = homeParticipationSeries(history);
   if (spx.length < 20) { host?.remove(); return; }
   const range = [spx[0].date, spx[spx.length - 1].date];
   const b50In = b50.filter((point) => point.date >= range[0] && point.date <= range[1]);
@@ -124,4 +127,28 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
     card('50일선 위 종목 비율(%) · AIO 수집 종목 기준', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
   );
   host.replaceChildren(head, grid);
+  const snapshot = buildBreadthSnapshot(history);
+  if (snapshot.cards.length) {
+    const summary = doc.createElement('div'); summary.className = 'home-breadth-snapshot';
+    const caption = doc.createElement('p'); caption.className = 'home-participation-label';
+    caption.textContent = `${snapshot.asOf} 미국 종가 · AIO 수집 종목의 시장 폭`;
+    const cards = doc.createElement('div'); cards.className = 'home-breadth-cards';
+    for (const item of snapshot.cards) {
+      const box = doc.createElement('section'); box.dataset.metric = item.id;
+      const title = doc.createElement('h3'); title.textContent = item.title;
+      const values = doc.createElement('p'); values.textContent = `${item.first} · ${item.second}`;
+      box.append(title, values);
+      if (item.share != null) {
+        const bar = doc.createElement('div'); bar.className = 'home-breadth-bar'; bar.setAttribute('aria-hidden', 'true');
+        const fill = doc.createElement('span'); fill.style.width = `${item.share}%`; bar.append(fill); box.append(bar);
+      }
+      const detail = doc.createElement('details'), label = doc.createElement('summary'), text = doc.createElement('p');
+      label.textContent = '집계 기준';
+      text.textContent = `${item.detail}${item.eligible != null ? ` 판정 표본 ${item.eligible}개` : ''}${item.universe != null ? ` / 수집 대상 ${item.universe}개` : ''}. 주식·ETF 혼합 표본으로 거래소 전체 집계와 다릅니다.`;
+      detail.append(label, text); box.append(detail); cards.append(box);
+    }
+    const link = doc.createElement('button'); link.type = 'button'; link.textContent = '시장 폭 추세와 구성 종목 보기'; link.className = 'theme-strength-more';
+    link.addEventListener('click', () => root?.showPage?.('breadth', null));
+    summary.append(caption, cards, link); host.append(summary);
+  }
 }

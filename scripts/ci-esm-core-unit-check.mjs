@@ -3514,14 +3514,45 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { buildGroupStrength, median } = await load('src/domain/themes/group-strength.js');
   if (median([3, 1, 2]) !== 2 || median([1, 2, 3, 4]) !== 2.5 || median([null]) !== null) fail('P1417 median wrong');
   const themes = [{ id: 't1', nameKr: '테마1', subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3'] }, { name: 'B', tickers: ['B1', 'B2', 'B3'] }, { name: 'C', tickers: ['C1', 'C2'] }] }];
-  const row = (sym, ret1m, ret3m) => ({ sym, ret1m, ret3m, ret6m: ret3m, pctSma50: ret1m });
+  const row = (sym, ret1m, ret3m) => ({ sym, ret1m, ret3m, ret6m: ret3m, pctSma50: ret1m, factorSessionDate: '2026-10-09' });
   const rows = [row('A1', 10, 5), row('A2', 12, 6), row('A3', 8, 4), row('B1', -5, 30), row('B2', -4, 28), row('B3', -6, 25), row('C1', 1, 1), row('C2', 1, 1)];
-  const model = buildGroupStrength({ themes, rows, sortKey: 'ret3m', benchmark: { ret3m: 2 } });
+  const model = buildGroupStrength({ themes, rows, sortKey: 'ret3m', benchmark: { ret3m: 2, asOf: '2026-10-09' } });
   const [first, second] = model.groups;
   if (model.groups.length !== 2 || model.excluded[0]?.name !== 'C') fail('P1417 a sub-theme with fewer than 3 priced members must be excluded');
   if (first.name !== 'B' || first.ret3m !== 28 || first.vsBenchmark !== 26 || second.name !== 'A') fail(`P1417 ranking by median wrong: ${JSON.stringify(model.groups.map((g) => [g.name, g.ret3m]))}`);
   if (/score|rating|grade/i.test(Object.keys(first).join(','))) fail('P1417 group strength must not publish a composite rating');
   if (model.themes.t1.members !== 8) fail('P1417 theme-level summary must count each member once');
+  // P1620: all listed constituents remain visible even when a return is missing.
+  const listed = buildGroupStrength({ themes: [{ ...themes[0], subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3', 'A4', 'A1'] }] }], rows });
+  if (listed.groups[0].constituents.length !== 4 || listed.groups[0].constituents[3].included || listed.groups[0].members !== 3) fail('P1620 missing returns must not hide listed members or enter the ranking denominator');
+  // P1622: intra-theme ranks depend on the selected window, preserve ties and missingness.
+  const comparison = buildGroupStrength({ themes: [{ ...themes[0], subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3', 'A4'] }] }], rows: [row('A1', 10, 5), row('A2', 12, 5), row('A3', 8, 4)], benchmark: { ret3m: 2, asOf: '2026-10-09' } }).groups[0];
+  if (comparison.rankedMembers.map((member) => member.rank).join(',') !== '1,1,3,' || comparison.rankedMembers[0].vsBenchmark !== 3) fail('P1622 tied leaders and a missing return must not receive arbitrary ranks');
+  const shortWindow = buildGroupStrength({ themes: [{ ...themes[0], subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3', 'A4'] }] }], rows, sortKey: 'ret1m' }).groups[0];
+  if (shortWindow.rankedMembers[0].sym !== 'A2') fail('P1622 intra-theme leader must change with the selected return window');
+  const mismatched = buildGroupStrength({ themes, rows, benchmark: { ret3m: 2, asOf: '2026-10-02' } }).groups[0];
+  if (mismatched.vsBenchmark != null || mismatched.rankedMembers.some(member => member.vsBenchmark != null)) fail('P1623 different close dates must hold S&P comparisons');
+  const mixed = buildGroupStrength({ themes, rows: rows.map(item => item.sym === 'A1' ? { ...item, factorSessionDate: '2026-10-02' } : item) }).groups.find(group => group.name === 'A');
+  if (mixed.ret3m != null || mixed.rank != null || mixed.rankedMembers.some(member => member.rank != null)) fail('P1623 mixed close dates must hold group medians and intra-theme ranks');
+  const unknown = buildGroupStrength({ themes, rows: rows.map(item => ({ ...item, factorSessionDate: null })) }).groups[0];
+  if (unknown.ret3m != null || unknown.rankedMembers.some(member => member.rank != null)) fail('P1623 missing close dates cannot certify relative strength');
+}
+
+// P1620/P1621: same-session breadth facts, zero events and question-selected prompt parity.
+{
+  const { buildBreadthSnapshot } = await load('src/domain/market/breadth-snapshot.js');
+  const { buildMarketContentContext } = await load('src/ai/context/market-content.js');
+  const history = [{ date: '2026-10-09', spx: 7800, advanceRatio: .639, breadthNewHighs: 24, breadthNewLows: 13, breadth50: 34.7, breadth200: 49.9 }, { date: '2026-10-10', spx: null, breadth50: 99 }];
+  const snap = buildBreadthSnapshot(history);
+  if (snap.asOf !== '2026-10-09' || snap.cards.length !== 4 || snap.cards[0].second !== '하락 36.1%' || snap.cards[2].share !== 34.7) fail('P1620 weekend/future observations must not enter a common close snapshot');
+  if (buildBreadthSnapshot([{ date: '2026-10-09', spx: 7800, breadthNewHighs: 0, breadthNewLows: 0 }]).cards[0]?.share !== null) fail('P1620 zero high/low events must not invent a percentage');
+  if (buildBreadthSnapshot([]).cards.length) fail('P1620 missing breadth must remain absent');
+  const prompt = buildMarketContentContext({ query: '신고가와 시장 폭', history });
+  if (!prompt.includes('신고가 24개') || !prompt.includes('34.7%') || prompt.includes('99.0%')) fail('P1621 chat breadth facts must match the same completed-session UI model');
+  if (buildMarketContentContext({ query: '안녕', history })) fail('P1621 unrelated questions must not inject extra market facts');
+  const { homeParticipationSeries } = await load('src/ui/components/home-kpi-trend.js');
+  const low = [{ date: '2026-10-09', spx: 7800, breadth50: .5 }];
+  if (homeParticipationSeries(low).b50[0]?.value !== .5 || buildBreadthSnapshot(low).cards[0]?.share !== .5) fail('P1623 sub-one percent breadth must retain the same percent unit in chart and snapshot');
 }
 
 // ── P1418: portfolio 점검 — published-default verdicts only, hidden currency mix detected ─────

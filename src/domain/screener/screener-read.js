@@ -65,7 +65,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
           : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread == null ? '—' : spread.toFixed(2)}%로 뒤처졌고 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
     }
   }
-  const headline = `${ranked.length}종목 중 상위 20% ${top.length}종목${over.length ? ` · ${over.map((row) => row.label).join('·')} 쏠림` : ''}${validation?.available && validation.modelMatch !== false && finite(validation.spreadNet) != null ? ` · 과거 상위−하위 ${validation.spreadNet >= 0 ? '+' : ''}${Number(validation.spreadNet).toFixed(2)}%` : ''}`;
+  const headline = `조건 순위가 매겨진 ${ranked.length}종목 중 상위 20% ${top.length}종목${over.length ? ` · ${over.map((row) => row.label).join('·')} 쏠림` : ''}${validation?.available && validation.modelMatch !== false && finite(validation.spreadNet) != null ? ` · 과거 상위−하위 ${validation.spreadNet >= 0 ? '+' : ''}${Number(validation.spreadNet).toFixed(2)}%` : ''}`;
   const next = [];
   if (over[0]) next.push({ route: 'themes', label: '테마 · 섹터', why: `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });
   next.push({ action: 'showTicker', arg: top[0].sym, route: 'ticker', label: `1위 ${top[0].sym}`, why: '상위 종목 하나를 요약·차트·재무로 확인' });

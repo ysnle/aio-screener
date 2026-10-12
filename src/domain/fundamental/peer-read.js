@@ -3,7 +3,8 @@
 // universe's issuers in the same sector that file with the SEC; each metric is computed the same way
 // for every issuer from its own latest fiscal year (and the year before), and the company is placed
 // by percentile among peers whose latest fiscal year ended within a year of its own.
-const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
+import { finiteFact, isPriorAnnualPeriod } from './period.js';
+const finite = finiteFact;
 
 export const PEER_METRICS = Object.freeze([
   { id: 'growth', label: '매출 성장', unit: '%', higherIs: 'better' },
@@ -14,17 +15,22 @@ export const PEER_METRICS = Object.freeze([
 
 // Metrics from one issuer's fiscal series (oldest → newest, USD).
 export function fiscalMetrics(series = []) {
-  const years = (Array.isArray(series) ? series : []).filter((year) => finite(year?.revenue) > 0);
+  const source = Array.isArray(series) ? series : [];
+  if (source.some((year,index) => index && String(year?.periodEnd) <= String(source[index-1]?.periodEnd))) return null; // P1627: a corrupt period sequence cannot turn a stale row into a newer filing.
+  const years = source.filter((year) => finite(year?.revenue) > 0)
+    .sort((a, b) => String(a.periodEnd).localeCompare(String(b.periodEnd)));
   const latest = years[years.length - 1];
   const prior = years[years.length - 2];
   if (!latest) return null;
   const ni = finite(latest.netIncome);
   const ocf = finite(latest.operatingCashFlow);
   const capex = finite(latest.capex);
-  const avgEquity = finite(latest.equity) > 0 && finite(prior?.equity) > 0 ? (latest.equity + prior.equity) / 2 : null;
+  const annualPair = isPriorAnnualPeriod(latest, prior);
+  const avgEquity = annualPair && finite(latest.equity) > 0 && finite(prior?.equity) > 0 ? (latest.equity + prior.equity) / 2 : null;
   return {
     periodEnd: latest.periodEnd || null,
-    growth: prior ? (latest.revenue / prior.revenue - 1) * 100 : null,
+    // P1627: the precise same-FY annual receipt outranks a ratio from legacy rounded millions.
+    growth: annualPair ? finite(latest.verifiedRevGrowth) ?? (latest.revenue / prior.revenue - 1) * 100 : null,
     margin: ni != null ? ni / latest.revenue * 100 : null,
     fcfMargin: ocf != null && capex != null ? (ocf - capex) / latest.revenue * 100 : null,
     roe: avgEquity && ni != null ? ni / avgEquity * 100 : null
@@ -55,6 +61,10 @@ const monthsApart = (a, b) => {
 export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, peers = [], minPeers = 5 } = {}) {
   const own = fiscalMetrics(seriesFor(symbol));
   if (!own || !sector) return { available: false, reason: !sector ? 'sector-unknown' : 'own-series-missing' };
+  // P1627: banks' operating cash flows include deposit/loan/trading asset changes.
+  // OCF minus capex remains an arithmetic fact, but it is not an industrial FCF
+  // margin and cannot supply a higher-is-better financial-sector percentile.
+  const financial = /financ|bank/i.test(String(sector));
   const peerMetrics = (peers || [])
     .filter((peer) => peer && peer !== symbol)
     .map((peer) => ({ symbol: peer, metrics: fiscalMetrics(seriesFor(peer)) }))
@@ -62,6 +72,8 @@ export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, p
   if (peerMetrics.length < minPeers) return { available: false, reason: 'too-few-peers', peers: peerMetrics.length };
   const rows = PEER_METRICS.map((metric) => {
     const value = finite(own[metric.id]);
+    if (financial && metric.id === 'fcfMargin') return { ...metric, label: '잉여현금 마진(금융사 비교 보류)', higherIs: null,
+      value, median: null, percentile: null, n: 0, reason: 'financial-cash-flow-not-comparable' };
     const values = peerMetrics.map((peer) => finite(peer.metrics[metric.id])).filter((v) => v != null);
     if (value == null || values.length < minPeers) return { ...metric, value, median: median(values), percentile: null, n: values.length };
     return { ...metric, value, median: median(values), percentile: percentileAmong(value, values), n: values.length };
@@ -71,6 +83,6 @@ export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, p
   const strong = ranked.filter((row) => row.percentile >= 75).map((row) => row.label);
   const weak = ranked.filter((row) => row.percentile <= 25).map((row) => row.label);
   const parts = [strong.length ? `상위 25% 안 — ${strong.join(' · ')}` : null, weak.length ? `하위 25% 안 — ${weak.join(' · ')}` : null].filter(Boolean);
-  const summary = `같은 섹터 SEC 공시 기업 ${peerMetrics.length}곳과 비교: ${parts.length ? parts.join(' / ') : '비교한 지표 모두 중간 범위(25~75%)'}.`;
+  const summary = `같은 섹터 SEC 공시 기업 ${peerMetrics.length}곳과 비교: ${parts.length ? parts.join(' / ') : '비교한 지표 모두 중간 범위(25~75%)'}.${financial ? ' 금융사의 영업현금흐름에는 예금·대출·트레이딩 자산 변화가 섞이므로 일반 기업의 영업 FCF와 구분하고, 잉여현금 마진 순위는 보류합니다.' : ''}`;
   return { available: true, symbol, sector, peers: peerMetrics.length, rows, summary };
 }

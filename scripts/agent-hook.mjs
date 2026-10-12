@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -72,6 +72,28 @@ if (mode === 'guard-edit') {
   process.exit(0);
 }
 
+// Progressive-disclosure handoff pointer (claude-mem idea without its worker):
+// name the newest HANDOFF/RESPONSE docs under _artifacts so a new session reads
+// the latest cross-harness (Claude/Codex/Command Code) state instead of a
+// hand-pinned path that goes stale.
+function latestHandoffs(limit = 3) {
+  const base = join(root, '_artifacts');
+  const found = [];
+  const visit = (dir, depth) => {
+    let entries = [];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const entry of entries) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) { if (depth < 2) visit(full, depth + 1); continue; }
+      if (!/(HANDOFF|RESPONSE|IMPLEMENTATION-REPORT)[^/\\]*\.md$/i.test(entry.name)) continue;
+      try { found.push({ path: relative(root, full).replace(/\\/g, '/'), mtime: statSync(full).mtimeMs }); } catch { /* unreadable */ }
+    }
+  };
+  visit(base, 0);
+  return found.sort((a, b) => b.mtime - a.mtime).slice(0, limit)
+    .map((item) => `${item.path} (${new Date(item.mtime).toISOString().slice(0, 10)})`);
+}
+
 if (mode === 'session-start') {
   let state = {};
   try {
@@ -81,7 +103,7 @@ if (mode === 'session-start') {
     state = {
       hookSpecificOutput: {
         hookEventName: 'SessionStart',
-        additionalContext: `AIO preflight: ${version}; working tree ${dirty.length ? `dirty (${dirty.length} paths)` : 'clean'}. Read _context/CURRENT-STATE.md once; consult governance/index only when relevant and reuse unchanged context. Search large ledgers only for matching terms. Existing dirty changes belong to the user. Automatic commit/deploy is forbidden. Current-state bytes loaded=${Buffer.byteLength(text, 'utf8')}.`
+        additionalContext: `AIO preflight: ${version}; working tree ${dirty.length ? `dirty (${dirty.length} paths)` : 'clean'}. Read _context/CURRENT-STATE.md once; consult governance/index only when relevant and reuse unchanged context. Search large ledgers only for matching terms. Existing dirty changes belong to the user. Automatic commit/deploy is forbidden. Current-state bytes loaded=${Buffer.byteLength(text, 'utf8')}.${(() => { const items = latestHandoffs(); return items.length ? ` Latest handoffs (read only when continuing prior work): ${items.join('; ')}.` : ''; })()}`
       }
     };
   } catch (error) {

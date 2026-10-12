@@ -8,6 +8,7 @@ import { computeTradingScoreModel, deriveTradingScoreDecisionPresentation } from
 import { sortRows, visibleRank, vcpStageLabel } from '../src/ui/pages/screener.js';
 import { SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition } from '../src/data/contracts/screener.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../src/domain/market/quote-presentation.js';
+import { MARKET_LABELS, screenerMarket, formatScreenerPrice } from '../src/domain/screener/market-scope.js';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const owners = JSON.parse(read('architecture/route-owners.json')).routes;
 assert.deepEqual(Object.keys(owners).sort(), [...ROUTE_IDS].sort());
@@ -113,6 +114,15 @@ vm.runInContext(analysisSource.slice(analysisSource.indexOf('function finite('),
 // inventing a state (the retired score summary asserted the same fail-closed behaviour).
 const { renderHomeRegime } = await import(new URL('../src/ui/components/market-regime.js', import.meta.url));
 renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
+// P1619: an unavailable Nasdaq-100 cannot borrow the Nasdaq Composite close.
+renderHomeRegime({ documentRef, root: { _aioHistory: [{ date: '2026-10-09', spx: 7800, nasdaq: 27366 }], DATA_SNAPSHOT: {}, _liveData: {} } });
+assert.equal(nodes.get('home-kpi-nq-fallback').hidden, true, 'P1619 no NDX history means no Composite fallback');
+renderHomeRegime({ documentRef, root: { _aioHistory: [{ date: '2026-10-09', spx: 7800, nasdaq: 27366, ndx: 31000 }], DATA_SNAPSHOT: {}, _liveData: {} } });
+assert.match(nodes.get('home-kpi-nq-fallback').textContent, /31,000/, 'P1619 NDX close is the matching cash fallback');
+assert.doesNotMatch(nodes.get('home-kpi-nq-fallback').textContent, /27,366/, 'P1619 Composite value never enters the NQ card');
+renderHomeRegime({ documentRef, root: { _aioHistory: [{ date: '2026-10-09', spx: 7800, ndx: 31000 }], DATA_SNAPSHOT: {}, _liveData: { 'NQ=F': { price: 31108.75 } } } });
+assert.equal(nodes.get('home-kpi-nq-fallback').hidden, true, 'P1619 arriving NQ hides the cash fallback');
+renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
 assert.equal(nodes.get('home-hero-total').textContent, '판정 대기');
 assert(!/우호|부담/.test(nodes.get('home-hero-components').textContent), 'missing history cannot display axis states');
 uiContext.renderHomeFearGreed({ documentRef, sentimentValues: { fearGreed: 54 } });
@@ -158,6 +168,7 @@ const screenerSource = read('src/ui/pages/screener.js');
 const compareContext = vm.createContext({
   documentRef, compareSymbols: new Set(['A', 'B']), activeRows: rows,
   SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition,
+  MARKET_LABELS, screenerMarket, formatScreenerPrice,
   liveReader: () => ({}), tickerHandler: () => {}
 });
 vm.runInContext(screenerSource.replace(/^import .*;\r?$/gm, '').replace(/^export /gm, '') + '\n' +
@@ -178,6 +189,7 @@ assert(!screenerSource.includes('scr-position-sizer') && !read('index.html').inc
 assert(screenerSource.includes('row?.focus?.({ preventScroll: true })') && screenerSource.includes('content.scrollTop = view.scrollTop'));
 assert(screenerSource.includes('const focusedSymbol = body.contains(focusedRow)') && screenerSource.includes('(action || row)?.focus({ preventScroll: true })'), 'quote rerender preserves the selected row/action focus');
 const builderContext = vm.createContext({
+  documentRef, selectedValue: (doc,id) => id==='scr-listing-market' ? 'US' : '',
   activeDefinition: createScreenDefinition({ screenId: 'builder', filtersAST: { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0 }] } }),
   readBuilderConditions: () => [{ field: 'rsi', value: '52' }], createScreenDefinition
 });
@@ -187,6 +199,6 @@ vm.runInContext('activeDefinition = buildVisualDefinition();', builderContext);
 assert.equal(builderContext.activeDefinition.definitionHash, firstHash, 'running unchanged visual controls cannot append duplicate AST nodes');
 builderContext.readBuilderConditions = () => [];
 vm.runInContext('activeDefinition = buildVisualDefinition();', builderContext);
-assert.equal(builderContext.activeDefinition.filtersAST.children.length, 1, 'removed visual condition leaves the independent preset condition intact');
+assert.equal(builderContext.activeDefinition.filtersAST.children.length, 2, 'P1625 removed visual condition leaves preset and explicit market scope intact');
 assert.equal(builderContext.activeDefinition.filtersAST.children[0].field, 'price.ret3m');
 console.log(`Desktop continuity PASS: ${ROUTE_IDS.length} module references; canonical breakdown, sentiment reset, null/zero, rank sorting, origin navigation, comparison, visual-condition idempotence and retirement controls. Offline only.`);

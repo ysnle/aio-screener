@@ -1,6 +1,5 @@
-// Product QA scope gate: AIO is desktop-only (R474/R476/R669). No mobile/tablet code
-// ships (P1324), and acceptance criteria must not reintroduce mobile or tablet
-// viewports/personas as required work.
+// P1618 supersedes the desktop-only product choice. Keep desktop gates independent
+// while the responsive gate certifies the owner-approved phone/tablet matrix.
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,8 +10,10 @@ const failures = [];
 const check = (label, condition) => { if (!condition) failures.push(label); };
 
 const config = read('scripts/desktop-qa-config.mjs');
-check('shared desktop QA config declares desktop-only scope', /DESKTOP_QA_SCOPE\s*=\s*['"]desktop-only['"]/.test(config));
+check('shared desktop QA config declares desktop and responsive scope (P1618)', /DESKTOP_QA_SCOPE\s*=\s*['"]desktop-and-responsive['"]/.test(config));
 check('shared desktop QA config declares the supported desktop matrix', ['desktop1280', 'desktop1440', 'desktop1920'].every((name) => config.includes(name)));
+check('responsive QA config declares phone and tablet matrix (P1618)', ['phone390', 'tablet768', 'tablet1024'].every((name) => config.includes(name)));
+check('responsive acceptance exercises canonical routes (P1618)', /ROUTE_IDS/.test(read('scripts/ci-responsive-browser-check.mjs')));
 
 const matrixGates = [
   'scripts/ci-viewport-matrix-check.mjs',
@@ -61,14 +62,14 @@ check('knowledge route targets have no mobile persona', !/mobile-keyboard-screen
 check('knowledge depth audit has no mobile persona', !/mobile-keyboard-screenreader/.test(depthAudit));
 check('principles audit contract has no mobile persona', !/mobile-keyboard-screenreader/.test(auditContract));
 
-// P1324/R669: desktop-only means no mobile/tablet code ships at all (not merely "not gated").
+// P1618: one ESM lifecycle and one external stylesheet implement compact screens.
 const shellHtml = read('index.html');
 const uiJs = read('js/aio-ui.js');
-const mobileMedia = [...shellHtml.matchAll(/@media[^{]*max-width:\s*(\d+)px/g)].filter((m) => Number(m[1]) < 1100);
-check('index.html has no @media max-width below 1100px (P1324/R669)', mobileMedia.length === 0);
-check('index.html has no pointer: coarse / hover: none media (P1324/R669)', !/pointer:\s*coarse|hover:\s*none/.test(shellHtml));
-check('index.html has no mobile-overlay / mobile-hamburger / mobile-open (P1324/R669)', !/mobile-overlay|mobile-hamburger|mobile-open|mobile-menu-trigger/.test(shellHtml));
-check('js/aio-ui.js has no toggleMobileMenu / closeMobileMenu (P1324/R669)', !/toggleMobileMenu|closeMobileMenu/.test(uiJs));
+check('shell loads responsive stylesheet (P1618)', /src\/ui\/styles\/responsive\.css/.test(shellHtml));
+check('bootstrap installs responsive lifecycle (P1618)', /installResponsiveShell\(root, documentRef\)/.test(read('src/app/bootstrap.js')));
+check('responsive CSS covers phone and tablet widths (P1618)', /max-width:\s*700px/.test(read('src/ui/styles/responsive.css')) && /max-width:\s*1100px/.test(read('src/ui/styles/responsive.css')));
+check('responsive navigation retains Escape and focus handling (P1618)', /Escape/.test(read('src/ui/components/responsive-shell.js')) && /aria-modal/.test(read('src/ui/components/responsive-shell.js')));
+check('legacy mobile handlers do not duplicate responsive owner (P1618)', !/toggleMobileMenu|closeMobileMenu/.test(uiJs));
 
 const handoff = read('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md');
 check('screener handoff declares desktop-only QA scope', /desktop-only/.test(handoff) && /1280x900|1280×900/.test(handoff));
@@ -79,4 +80,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Desktop QA scope check OK: desktop-only acceptance matrix is enforced.');
+console.log('Desktop QA scope check OK: desktop regression and responsive acceptance matrices are separate.');

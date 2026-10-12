@@ -1,0 +1,25 @@
+/* P1624: summary currency, identity and signed-return chart have their own layout contract. */
+.entity-summary-price-basis { color:var(--text-secondary); font-size:11px; font-weight:400; line-height:1.6; max-width:360px; overflow-wrap:anywhere; }
+.entity-business-profile { margin:18px 0; padding:16px 0; border-bottom:1px solid var(--border); }
+.entity-business-profile h2 { margin:0 0 8px; font-size:16px; }
+.entity-business-profile p { margin:0 0 8px; line-height:1.7; color:var(--text-secondary); max-width:90ch; }
+.entity-business-profile a, .entity-business-profile > span { font-size:11px; color:var(--text-secondary); }
+#page-ticker > #ticker-price-panel { margin:0 0 24px; min-width:0; }
+#page-ticker.is-empty :is(#ticker-price-panel,#ticker-business-profile,#ticker-summary-price-basis) { display:none; }
+#page-ticker .ticker-ov-grid > div:empty { display:none; }
+#ticker-ov-themes button { border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); padding:5px 9px; margin:3px; border-radius:4px; }
+.stock-return-signed-line { display:grid; grid-template-columns:44px minmax(0,1fr); gap:10px; align-items:center; margin:12px 0; }
+.stock-return-signed-pair { min-width:0; display:grid; gap:6px; }
+.stock-return-signed-row { display:grid; grid-template-columns:minmax(0,1fr) 62px; gap:8px; align-items:center; }
+.stock-return-signed-track { position:relative; height:12px; min-width:0; background:var(--surface-2); }
+.stock-return-signed-track::after { content:''; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--text-muted); }
+.stock-return-signed-bar { position:absolute; top:2px; height:8px; border-radius:2px; }
+.stock-return-signed-bar.is-stock.is-up { background:var(--green); }
+.stock-return-signed-bar.is-stock.is-down { background:var(--red); }
+.stock-return-signed-bar.is-bench { background:var(--text-muted); }
+.stock-return-signed-value { text-align:right; font-size:11px; font-variant-numeric:tabular-nums; color:var(--text-primary); }
+.stock-return-signed-axis { color:var(--text-secondary); font-size:10px; margin:10px 0; text-align:center; }
+#page-ticker textarea, #page-ticker input { background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border); border-radius:4px; padding:9px 10px; max-width:100%; box-sizing:border-box; }
+#page-ticker textarea { min-height:76px; resize:vertical; }
+#page-ticker [data-research-snapshots] button { background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border); padding:8px 12px; }
+#page-ticker :is(button,input,textarea,a):focus-visible { outline:2px solid var(--text-primary); outline-offset:3px; }

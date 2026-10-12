@@ -1,0 +1,29 @@
+{
+  "version": "v57.40",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1627,
+    "title": "재무 손실 방향과 동일 회계기간 원본 정밀도",
+    "symptom": "손실이 양수 방향으로 그려지고 재무 흐름과 공시 기본 보고의 이익률·성장률이 달랐다. 금액표와 누락 항목 설명이 부족했다.",
+    "root_cause": "compact 이력이 USD 백만 정수로 반올림되고 회계기간·issuer 계약 없이 원본과 비교했다. 양수 막대만 설계되어 손실 방향이 없었다.",
+    "fix": "손실은 공통 0선 아래에 표시한다. 같은 issuer/FY 원본만 정밀값으로 조정하고 연간 간격을 확인한다. 연간/분기 금액 및 현금흐름·부채·주식수 표를 추가하고 누락 자료와 실제 공시 링크를 표시한다. producer 코드의 금액 정밀도를 개선하되 로컬 생산이나 생성물 변경은 하지 않는다.",
+    "violated_rule": "종목 identity·관측 기준·원본 단위 보존; R670 완료 종가 비교",
+    "prevention": "{P}: scripts/ci-fiscal-quality-fixture.mjs와 ci-entity-quality-browser-check.mjs에서 공통 모델과 실제 화면 경로를 검증한다.",
+    "verification": "로컬 회귀 및 실제 경로 브라우저 검증을 진행한다. 유료 AI·현재 외부 시세·실기기·배포 증거와 구분한다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-FISCAL-QUALITY-01",
+      "text": "{P}: 재무 손실 방향과 동일 회계기간 원본 정밀도 공통 경로와 화면 회귀 확인.",
+      "verify_by": "node scripts/ci-fiscal-quality-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "종목 분석 구조·시장 분리",
+  "changelog": [
+    "**재무 손실 방향과 동일 회계기간 원본 정밀도 ({P}):** 손실은 공통 0선 아래에 표시한다. 같은 issuer/FY 원본만 정밀값으로 조정하고 연간 간격을 확인한다. 연간/분기 금액 및 현금흐름·부채·주식수 표를 추가하고 누락 자료와 실제 공시 링크를 표시한다. producer 코드의 금액 정밀도를 개선하되 로컬 생산이나 생성물 변경은 하지 않는다."
+  ],
+  "note": "전체 종목 요약·기업 분석·시장별 스크리너·조건부 차트·정밀 재무 개선. 로컬 검증 진행; commit/push/deploy 미실행.",
+  "status": null
+}

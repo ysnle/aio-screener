@@ -27,7 +27,7 @@ function shortDate(date) {
 export function benchmarkReturns(history = []) {
   const spx = buildCloseSeries(history, 'spx', { through: closeBasis(history) });
   const last = spx[spx.length - 1];
-  const out = {};
+  const out = { asOf: last?.date || null };
   for (const [key, n] of Object.entries(SESSIONS)) {
     const then = spx.length > n ? spx[spx.length - 1 - n] : null;
     out[key] = last && then ? (last.value / then.value - 1) * 100 : null;
@@ -41,10 +41,9 @@ export function benchmarkReturns(history = []) {
 function basisOf(rows, metadata = null, history = []) {
   const sessions = metadata?.factorSessionDateByMarket;
   if (sessions && typeof sessions === 'object') {
-    const us = /^d{4}-d{2}-d{2}$/.test(sessions.US || '') ? sessions.US : null;
-    const kr = /^d{4}-d{2}-d{2}$/.test(sessions.KR || '') ? sessions.KR : null;
-    if (us && kr && us !== kr) return { label: `미국 ${shortDate(us)} · 한국 ${shortDate(kr)} 종가 기준` };
-    if (us || kr) return { label: `${shortDate(us || kr)} 종가 기준` };
+    const us = /^\d{4}-\d{2}-\d{2}$/.test(sessions.US || '') ? sessions.US : null;
+
+    if (us) return { label: `${shortDate(us)} 미국 종가 기준` };
   }
   // Without per-market dates, the completed US close of the shared history is the basis (the same date the
   // S&P 500 comparison in this line uses); the bar start is the last resort.
@@ -54,10 +53,10 @@ function basisOf(rows, metadata = null, history = []) {
   return dates.length ? { label: `${shortDate(dates[dates.length - 1])} 종가 기준` } : null;
 }
 
-function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggle) {
+function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggle, onCompare) {
   host.replaceChildren();
   const head = el(doc, 'div', null, 'theme-strength-head');
-  head.append(el(doc, 'h2', '하위 테마 상대강도 순위', 'briefing-h2'));
+  head.append(el(doc, 'h2', '미국 하위 테마 상대강도 순위', 'briefing-h2'));
   const controls = el(doc, 'div', null, 'theme-strength-controls');
   for (const [key, label] of Object.entries(GROUP_WINDOWS)) {
     const button = el(doc, 'button', label, `theme-strength-tab${model.sortKey === key ? ' is-active' : ''}`);
@@ -76,7 +75,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
   const hr = el(doc, 'tr');
-  ['순위', '하위 테마', '1개월', '3개월', '6개월', 'S&P 대비', '50일선 위', '방향', '대표 종목'].forEach((label) => hr.append(el(doc, 'th', label)));
+  ['순위', '하위 테마', '1개월', '3개월', '6개월', 'S&P 대비', '50일선 위', '방향', '구성 종목 전체'].forEach((label) => hr.append(el(doc, 'th', label)));
   thead.append(hr);
   const tbody = el(doc, 'tbody');
   const visible = expanded ? model.groups : model.groups.slice(0, 15);
@@ -85,7 +84,12 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     tr.dataset.group = group.id;
     tr.append(el(doc, 'td', group.rank == null ? '—' : String(group.rank), 'is-rank'));
     const nameCell = el(doc, 'td');
-    nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName} · ${group.members}종목`, 'theme-strength-theme'));
+    nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName} · ${group.listed}종목${group.members !== group.listed ? ` (수익률 ${group.members}개)` : ''}`, 'theme-strength-theme'));
+    const compare = el(doc, 'button', '종목끼리 비교', 'theme-strength-more'); compare.type = 'button';
+    compare.dataset.compareGroup = group.id;
+    if (root._aioThemeMemberGroup === group.id) compare.setAttribute('aria-controls', `theme-members-${visible.indexOf(group)}`);
+    compare.setAttribute('aria-expanded', String(root._aioThemeMemberGroup === group.id));
+    compare.addEventListener('click', () => onCompare(group.id)); nameCell.append(compare);
     tr.append(nameCell);
     for (const key of ['ret1m', 'ret3m', 'ret6m']) tr.append(el(doc, 'td', pct(group[key]), `is-num${key === model.sortKey ? ' is-sorted' : ''}${group[key] >= 0 ? ' is-up' : ' is-down'}`));
     tr.append(el(doc, 'td', pct(group.vsBenchmark), `is-num${group.vsBenchmark >= 0 ? ' is-up' : ' is-down'}`));
@@ -95,15 +99,41 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     if (dir) dirCell.append(el(doc, 'span', dir[0], `regime-state is-${dir[1]}`));
     tr.append(dirCell);
     const leaderCell = el(doc, 'td');
-    if (group.leader) {
-      const button = el(doc, 'button', group.leader.sym, 'breadth-drill-symbol');
+    const constituents = el(doc, 'div', null, 'theme-strength-constituents');
+    for (const member of group.constituents) {
+      const button = el(doc, 'button', member.sym, 'breadth-drill-symbol');
       button.type = 'button';
-      button.title = group.leader.name;
-      button.addEventListener('click', () => { if (typeof root?.showTicker === 'function') root.showTicker(group.leader.sym); });
-      leaderCell.append(button, el(doc, 'span', ` ${pct(group.leader.value, 0)}`, 'theme-strength-theme'));
+      button.title = `${member.name || member.sym}${member.included ? '' : ' · 선택 기간 수익률 없음'}`;
+      button.addEventListener('click', () => { if (typeof root?.showTicker === 'function') root.showTicker(member.sym); });
+      constituents.append(button);
     }
+    leaderCell.append(constituents);
     tr.append(leaderCell);
     tbody.append(tr);
+    if (root._aioThemeMemberGroup === group.id) {
+      const detailRow = el(doc, 'tr'), detailCell = el(doc, 'td'); detailCell.colSpan = 9; detailCell.className = 'theme-member-detail'; detailRow.id = `theme-members-${visible.indexOf(group)}`;
+      detailCell.append(el(doc, 'p', `${group.name} 안의 ${model.windowLabel} 수익률 비교 · ${group.basis ? `${group.basis} 종가 기준` : '기준일 불일치/미확인으로 순위·중앙값 비교 보류'} · 선두는 이 기간 수익률 순위입니다.`, 'theme-strength-basis'));
+      const available = group.rankedMembers.filter((member) => member.rank != null);
+      if (available.length) {
+        const leaders = available.filter((member) => member.rank === 1).map((member) => member.sym).join(' · ');
+        const tail = available.filter((member) => member[model.sortKey] === available.at(-1)[model.sortKey]).map((member) => member.sym).join(' · ');
+        detailCell.append(el(doc, 'p', `${model.windowLabel} 선두 ${leaders} · 후행 ${tail} · 수익률 표본 ${available.length}/${group.listed}개`, 'theme-strength-basis'));
+      }
+      const memberTable = el(doc, 'table', null, 'theme-member-table'), memberHead = el(doc, 'thead'), heading = el(doc, 'tr');
+      ['그룹 내 순위', '종목', '종가 기준일', '1개월', '3개월', '6개월', 'S&P 대비', '테마 중앙값 대비', '50일선 거리'].forEach((label) => heading.append(el(doc, 'th', label)));
+      memberHead.append(heading); const memberBody = el(doc, 'tbody');
+      for (const member of group.rankedMembers) {
+        const row = el(doc, 'tr'); row.append(el(doc, 'td', member.rank == null ? member[model.sortKey] == null ? '자료 없음' : '비교 보류' : String(member.rank)));
+        const cell = el(doc, 'td'), button = el(doc, 'button', member.sym, 'breadth-drill-symbol'); button.type = 'button'; button.title = member.name;
+        button.addEventListener('click', () => root?.showTicker?.(member.sym)); cell.append(button); row.append(cell);
+        row.append(el(doc, 'td', member.basis || '미확인'));
+        for (const key of ['ret1m', 'ret3m', 'ret6m']) row.append(el(doc, 'td', pct(member[key]), 'is-num'));
+        row.append(el(doc, 'td', member.vsBenchmark == null ? '—' : `${pct(member.vsBenchmark)}p`, 'is-num'));
+        row.append(el(doc, 'td', !group.comparisonAligned || member[model.sortKey] == null ? '—' : `${pct(member[model.sortKey] - group[model.sortKey])}p`, 'is-num'));
+        row.append(el(doc, 'td', pct(member.pctSma50), 'is-num')); memberBody.append(row);
+      }
+      memberTable.append(memberHead, memberBody); detailCell.append(memberTable); detailRow.append(detailCell); tbody.append(detailRow);
+    }
   }
   table.append(thead, tbody);
   host.append(table);
@@ -116,6 +146,20 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   }
   if (model.excluded.length) footer.append(el(doc, 'span', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 하위 테마는 순위에서 제외`, 'theme-strength-theme'));
   host.append(footer);
+  if (model.excluded.length) {
+    const excluded = el(doc, 'details', null, 'theme-strength-unranked');
+    excluded.append(el(doc, 'summary', '순위 밖 테마의 전체 구성 보기'));
+    for (const group of model.excluded) {
+      const line = el(doc, 'div'); line.append(el(doc, 'p', `${group.themeName} / ${group.name} · 전체 ${group.listed}개 중 수익률 ${group.members}개`, 'theme-strength-basis'));
+      const symbols = el(doc, 'div', null, 'theme-strength-constituents');
+      for (const symbol of group.constituents) {
+        const button = el(doc, 'button', symbol, 'breadth-drill-symbol'); button.type = 'button';
+        button.addEventListener('click', () => root?.showTicker?.(symbol)); symbols.append(button);
+      }
+      line.append(symbols); excluded.append(line);
+    }
+    host.append(excluded);
+  }
 }
 
 function renderCapexFlow(doc, root, host, model) {
@@ -178,12 +222,14 @@ export function renderThemeStrength({ documentRef: doc, root, store }) {
   const flowHost = doc?.getElementById('ai-capex-flow');
   if (!strengthHost && !flowHost) return null;
   const rows = store?.getState?.()?.screener?.rows || [];
+  const focusedGroup = strengthHost?.contains(doc.activeElement) ? doc.activeElement?.dataset?.compareGroup : null;
   const sortKey = root._aioThemeStrengthSort || 'ret3m';
   const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey, benchmark: benchmarkReturns(root?._aioHistory || []) });
   const rerender = () => renderThemeStrength({ documentRef: doc, root, store });
   if (strengthHost) {
-    renderStrength(doc, root, strengthHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); });
+    renderStrength(doc, root, strengthHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); }, (id) => { root._aioThemeMemberGroup = root._aioThemeMemberGroup === id ? null : id; rerender(); [...strengthHost.querySelectorAll('[data-compare-group]')].find((button) => button.dataset.compareGroup === id)?.focus(); });
     strengthHost.dataset.aioThemeStrengthRenderer = 'native';
+    if(focusedGroup) [...strengthHost.querySelectorAll('[data-compare-group]')].find(button=>button.dataset.compareGroup===focusedGroup)?.focus({preventScroll:true}); // P1622 preserve comparison focus across async data repaint too.
   }
   if (flowHost) { renderCapexFlow(doc, root, flowHost, model); flowHost.dataset.aioCapexFlowRenderer = 'native'; }
   return model;

@@ -2,7 +2,7 @@
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
 last_verified: 2026-10-11
 confidence: medium
-target_version: v57.37
+target_version: v57.41
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -211,11 +211,11 @@ target_version: v57.37
 
 **Validation**: `ci-esm-core-unit-check.mjs` P1328/P1345 fixtures (QA-DATA-57/QA-DATA-62), including next-session observations, stale MA, contradictory metadata and late snapshot publication.
 
-## R669. Desktop-only: no mobile/tablet code ships (v56.81, P1324)
+## R669. Responsive scope follows the current owner decision (v57.38, P1618)
 
-**Rule**: Supported viewports are 1280×900, 1440×1000 and 1920×1080. index.html has no @media max-width below 1100px, no coarse-pointer/hover:none media and no mobile menu markup; JS has no mobile menu, touch or visualViewport handlers or viewport-width branches below 1100px.
+**Rule**: The owner reopened mobile and iPad support on 2026-10-11. Keep the existing desktop matrix and add compact 390×844, 768×1024 and 1024×768 coverage. The same route registry, research content, storage and data contracts apply at every size. Compact navigation, local table overflow, chart sizing, AI input, theme switching and viewport transitions must remain usable.
 
-**Validation**: `ci-desktop-scope-check.mjs` (P1324/R669) and headless T601 (QA-UX-08).
+**Validation**: `ci-desktop-scope-check.mjs` checks scope wiring; `ci-responsive-browser-check.mjs` executes compact routes and interactions (P1618). Desktop gates retain their existing acceptance matrix.
 
 ## R668. First screen shows values before summaries; blocked summaries collapse and name the cause (v56.80, P1322)
 
@@ -1319,11 +1319,11 @@ target_version: v57.37
 
 **Validation**: `ci-reconciliation-contract-check.mjs` proves source-truth rebuild, empty-source degradation, null-is-missing behavior, and policy/runtime separation. `ci-data-pipeline-contract-check.mjs` enforces atomic workflow publication and browser polling/revision rejection. `ci-page-market-epoch-browser-check.mjs` traverses all market-sensitive desktop routes and rejects mixed revisions, mixed cuts, missing headers, or unexpected runtime errors.
 
-## R474. AIO product QA and future UI work are desktop-only (v54.17)
+## R474. Owner-approved desktop, mobile and tablet scope (v57.38, P1618)
 
-**Rule**: Mobile and tablet implementation, visual polish, viewport coverage, personas, and acceptance criteria are out of scope because the product has no mobile users. Existing responsive/mobile DOM and CSS may remain as compatibility code, but new work must use `scripts/desktop-qa-config.mjs` and must not add mobile/tablet requirements unless the user explicitly reopens the scope.
+**Rule**: The owner explicitly reopened mobile and tablet work on 2026-10-11. Shared shell changes must preserve desktop readability while adapting navigation, cards, charts, tables and AI chat to mobile/iPad automatically. Do not substitute different instruments, evidence or privacy behavior for compact users.
 
-**Validation**: `scripts/ci-desktop-scope-check.mjs` is a blocking CI gate. Supported QA viewports are 1280×900, 1440×1000, and 1920×1080. `ci-knowledge-route-bridge-contract.mjs` also rejects mobile/tablet/touch personas so generated learning-route scenarios cannot silently reintroduce mobile acceptance scope.
+**Validation**: `scripts/ci-desktop-scope-check.mjs` and `scripts/ci-responsive-browser-check.mjs` are blocking gates. The generated knowledge scenarios remain unchanged; browser coverage derives routes from the current registry.
 
 ## R476. Retired mobile touch-target checks do not block desktop-only releases (v54.17)
 
@@ -1875,7 +1875,7 @@ target_version: v57.37
 
 ## R310. 공개 AI는 렌더 경계까지 베타·교육/리서치 보조 정책을 강제하고, 검증되지 않은 자동 문장을 공개하지 않는다 (v52.75, P690)
 
-- 공개 AI 표면은 `AI 베타 · 교육/리서치 보조`로 식별해야 하며, 독립 투자자문·검증 시스템·실시간 주문 도구처럼 보이는 문구를 사용하지 않는다.
+- 공개 AI 표면은 `AI 도우미 · 교육/리서치 보조`로 식별해야 하며, 독립 투자자문·검증 시스템·실시간 주문 도구처럼 보이는 문구를 사용하지 않는다.
 - 구체적인 매수·매도·진입·청산·비중·수량·손절·목표가 지시는 typed evidence/suitability/action gate가 구현·통과되기 전까지 차단한다. 이 게이트는 streaming, 완료, retry, 양쪽 채팅 진입점, assistant history와 후속 chips에 동일하게 적용한다.
 - current-sensitive 답변은 기준시각·Evidence 상태·원천/원문 재확인 안내를 표시하고, `marketAnalysisOk` 생성 성공만으로 자동 LLM 문장을 공개하지 않는다. 의미 검증 `marketAnalysisSemanticOk=true` 또는 명시적 `status: verified`가 필요하다.
 - 검증은 T932–T936와 `ci-runtime-contract-check.mjs`로 concrete/강한 방향성 action 차단·교육성 답변·disclosure 메타·unverified marketAnalysis 폴백을 모두 고정한다. 현재 로컬 Chromium 기준선은 `997/997 PASS`이며, 실제 Pages/Worker와 모델 문답은 별도 live gate다.

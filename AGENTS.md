@@ -17,6 +17,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 사용자 지시가 스킬 지침보다 우선한다. 스킬 때문에 멈출 때는 정확한 파일과 해당 문구, 실제 적용 이유를 밝힌다. 로컬 수정·생성·격리 테스트에는 중복 확인을 요구하지 않는다. 아래 commit/push/deploy 경계는 유지한다.
 - 독립적인 조사·리뷰를 병렬 위임하면 실제로 도움이 되는 큰 작업에서는 범위가 명확한 서브에이전트를 사용한다. 파일 소유권을 분리하고 기존 변경을 보존하며, 작은 일이나 같은 조사에는 위임을 늘리지 않는다. 결과는 주 담당자가 통합 검증한다.
 - 한국어로 결과와 근거를 간결하게 설명한다. 에이전트 간 메시지도 정상적인 문장과 띄어쓰기를 사용한다. 통과한 검사는 새 변경·실패·미해결 위험이 있을 때만 다시 실행한다.
+- **코딩 규율 (Karpathy guidelines, owner 2026-10-12):** ① 코딩 전 가정·해석 후보를 밝히고, 더 단순한 방법이 있으면 먼저 말한다. ② 요청을 푸는 최소 코드만 쓴다 — 추측성 기능, 한 번 쓰는 추상화, 요청 없는 설정 옵션, 일어날 수 없는 경우의 오류 처리 금지. ③ 요청에 필요한 줄만 수정하고 주변 스타일을 따른다. 자기 변경이 만든 미사용 코드만 지우고, 무관한 죽은 코드는 보고만 한다. ④ 작업을 검증 가능한 목표로 바꾼다(버그는 재현 게이트 먼저). 여러 단계면 단계별 확인 방법을 붙인 계획을 세우고 검증될 때까지 반복한다. 사소한 변경은 이 절차를 판단껏 줄인다.
 - **협업 원칙 (owner 2026-10-01):** 소유자는 스크리너 개발·운영 비전문가이며 명령-수행 관계가 아니라 함께 판단하는 관계를 원한다. 요청·기존 설계·이전 에이전트 작업을 무조건 옳다고 가정하지 않는다. 데이터 무결성·비용·권리·사용자 가치와 충돌하면 근거(실측·공식 문서)와 함께 반대 의견과 대안을 먼저 제시하고, 소유자 전제가 사실과 다르면 바로잡는다(예: 13D는 분기 공시가 아니라 수시 공시). 기능을 없애거나 합치는 제품 결정은 제안 후 승인받아 진행한다.
 
 ## Product decisions (fixed)
@@ -26,7 +27,7 @@ Owner decisions that every agent (Claude, Codex, subagents) applies without re-a
 - Audience: the operator's family and friends (~5 users, 2–4 concurrent). Free to run, operated by one person, automated. No public-SaaS features (sign-up, billing, multi-tenant).
 - Budget (owner 2026-10-11): prefer free public sources. Shared AI allocation is at most $20/month including conditional OpenAI web search, superseding the earlier $10 AI allocation. Additional paid data requires a demonstrated quality/coverage gap and owner approval. Public discoverability does not establish automated reuse rights or historical-data quality. Request-count limits are not billing caps; only AI calls routed through the shared Worker (including AIO Actions analysis) share its reservation ledger. Personal data-provider accounts and unrelated applications are outside that ledger.
 - Scores are reference descriptions of the market on the **latest completed US regular-session close** ("직전 미국장 종가 기준", R670), labelled with that basis and never decision-grade. Missing inputs hold the score; they are never guessed.
-- Desktop only. Mobile layouts and code were removed on purpose; do not add breakpoints or mobile handling back.
+- Responsive scope reopened by owner (2026-10-11): desktop, mobile and iPad share the same routes and data. Layout adapts automatically to viewport size; preserve desktop density and test compact navigation, tables, charts, theme and AI input.
 - The options route is retired (`#options` aliases to `sentiment`). Do not revive it.
 - Screen design (owner 2026-10-02~03): conclusion first (one line), then the chart, then the evidence; information reaches users best as short well-organised text → an image understood in 3 seconds → narrated visuals. Trends are shown as charts with labelled axes, not single numbers. No developer copy on user surfaces.
 - No composite grades or letter scores without predictive evidence (0-100 market score retired from UI; stock charts show evidence + a setup state, never A~D). No trade instructions (entry/stop/target/pyramid/trim); show facts such as the pivot, the invalidation price and extension instead.

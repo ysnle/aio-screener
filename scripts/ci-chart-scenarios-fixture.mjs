@@ -1,0 +1,26 @@
+// P1626: observed conditional levels, daily-volume conservation and no invented coverage.
+import assert from 'node:assert/strict';
+import { buildVolumeByPrice, buildChartScenarios } from '../src/domain/technical/chart-scenarios.js';
+import { analyzeChart, chartReading } from '../src/domain/technical/chart-analysis.js';
+import { buildQuestionDomainContext } from '../src/ai/context/market-content.js';
+const bars = Array.from({ length: 130 }, (_, index) => ({ time: new Date(Date.UTC(2026, 0, 1 + index)).toISOString().slice(0, 10), open: 100 + index / 10, low: 99 + index / 10, high: 102 + index / 10, close: 101 + index / 10, volume: 1000 + index }));
+const profile = buildVolumeByPrice(bars);
+assert.equal(profile.available, true, 'P1626 observed daily volume has a declared approximate distribution');
+assert.ok(Math.abs(profile.bins.reduce((sum, bin) => sum + bin.volume, 0) - profile.totalVolume) < 1e-7, 'P1626 price bins conserve daily total volume');
+assert.equal(buildVolumeByPrice(bars.map((bar, index) => index === 50 ? { ...bar, volume: null } : bar)).available, false, 'P1626 missing volume cannot become an invented profile');
+assert.equal(buildVolumeByPrice(bars.slice(0, 10)).available, false, 'P1626 short coverage holds the volume profile');
+const analysis = analyzeChart(bars, { benchmarkLabel: 'KOSPI' });
+const scenarios = buildChartScenarios(analysis);
+assert.equal(scenarios.scenarios.length, 3, 'P1626 exposes recovery, range and weakness conditions');
+assert.ok(scenarios.support < analysis.last.close && scenarios.resistance >= analysis.last.close, 'P1626 directional levels come from actual price extremes');
+assert.equal(scenarios.asOf, bars.at(-1).time, 'P1626 conditional scenarios preserve completed bar basis');
+assert.equal(buildChartScenarios({ available: false }).available, false, 'P1626 absent bars do not generate scenarios');
+assert.equal(analyzeChart(bars.slice(0, 60)).ret6, null, 'P1626 fewer than 127 bars is not a six-month return');
+const read = chartReading({ ...analysis, state: 'failed', rs: 2 });
+assert.ok(read.why.includes('KOSPI') && !read.headline.includes('매물이 남아'), 'P1626 own-market benchmark and observable failed-breakout description');
+const root = { __aioStockChartAnalysis: { symbol: 'AEHR', analysis } };
+assert.match(buildQuestionDomainContext({ ctxId: 'home', query: 'AEHR 차트 시나리오', root }), /AEHR 완료 일봉/, 'P1626 matching issuer uses the same chart evidence in AI context');
+assert.doesNotMatch(buildQuestionDomainContext({ ctxId: 'technical', query: 'PLTR 차트 시나리오', root }), /AEHR 완료 일봉/, 'P1626 another issuer never inherits the cached chart evidence');
+assert.doesNotMatch(buildQuestionDomainContext({ ctxId: 'technical', query: '005930 차트 분석', root }), /AEHR 완료 일봉/, 'P1626 bare Korean issuer code cannot inherit US analysis');
+assert.match(buildQuestionDomainContext({ ctxId: 'technical', query: 'RSI와 매물대 설명', root }), /AEHR 완료 일봉/, 'P1626 indicator names are not issuer identifiers');
+console.log('PASS P1626: conditional chart readings, declared daily volume distribution and period/market integrity (offline).');

@@ -59,7 +59,7 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
   const details = el(doc, 'details', null, 'screener-validation-details');
   details.open = open;
   const head = el(doc, 'summary', null, 'screener-validation-summary');
-  head.append(el(doc, 'span', '순위 사후 검증', 'screener-validation-title'), el(doc, 'span', summary.available ? `상위−하위 20% ${pct(summary.spreadNet)} · ${summary.wins ?? '—'}/${summary.rebalances ?? '—'}회 앞섬` : '기록 수신 대기', `regime-state is-${summary.tone}`));
+  head.append(el(doc, 'span', '순위 사후 검증', 'screener-validation-title'), el(doc, 'span', summary.available ? summary.modelMatch ? `상위−하위 20% ${pct(summary.spreadNet)} · ${summary.wins ?? '—'}/${summary.rebalances ?? '—'}회 앞섬` : '이전 모델 기록 · 현재 순위와 비교 보류' : '기록 수신 대기', `regime-state is-${summary.modelMatch ? summary.tone : 'unknown'}`));
   details.append(head);
   details.append(el(doc, 'p', summary.verdict, 'pf-check-detail'));
   if (summary.available) {

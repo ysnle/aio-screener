@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.37';
+const APP_VERSION = 'v57.41';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12439,7 +12439,7 @@ window.AIO.getShareReadinessAudit = function(opts) {
 // The app cannot force every third-party API to succeed, but it can know exactly
 // which data each page/chat answer needs and proactively refresh stale layers.
 window.AIO.DATA_REQUIREMENT_PROFILES = {
-  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['ES=F','NQ=F','^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD'] },
+  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['ES=F','NQ=F','^GSPC','^IXIC','^NDX','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD'] },
   signal:      { tasks: ['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], symbols: ['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD'] },
   signals:     { alias: 'signal' },
   breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
@@ -17496,7 +17496,7 @@ window._aioRefreshFreshness = function() {
 };
 
 // v48.80/P150 + v48.81/P151 + v48.82/P152: one-call operational/data/pipeline snapshot for live checks.
-window.AIO.CORE_LIVE_SYMBOLS = ['ES=F', 'NQ=F', '^GSPC', '^IXIC', '^VIX', '^SKEW', 'CL=F', 'GC=F', 'KRW=X', 'DX-Y.NYB', '^KS11', '^KQ11'];
+window.AIO.CORE_LIVE_SYMBOLS = ['ES=F', 'NQ=F', '^GSPC', '^IXIC', '^NDX', '^VIX', '^SKEW', 'CL=F', 'GC=F', 'KRW=X', 'DX-Y.NYB', '^KS11', '^KQ11'];
 
 window.AIO.getLiveCoverage = function(requiredSymbols) {
   var required = requiredSymbols || window.AIO.CORE_LIVE_SYMBOLS || [];
@@ -18773,9 +18773,8 @@ const _SNAP_FALLBACK = {
   'HYG':      { price: () => DATA_SNAPSHOT.hyg || (DATA_SNAPSHOT._fallback || {}).hyg },
   'SPY':      { price: () => DATA_SNAPSHOT.spy, pct: () => DATA_SNAPSHOT.spxPct },
   // v36.6: 지수 선물 + VIX 선물 ETF + VVIX
-  'ES=F':     { price: () => DATA_SNAPSHOT.spx },
-  'NQ=F':     { price: () => DATA_SNAPSHOT.nasdaq },
-  'YM=F':     { price: () => DATA_SNAPSHOT.dow },
+  // P1619: cash closes never impersonate ES/NQ/YM futures quotes.
+  '^NDX':     { price: () => DATA_SNAPSHOT.ndx },
   '^VVIX':    { price: () => DATA_SNAPSHOT.vvix },
   'VXX':      { price: () => DATA_SNAPSHOT.vxx },
   'UVXY':     { price: () => DATA_SNAPSHOT.uvxy },
@@ -22508,6 +22507,8 @@ function showPage(id, navEl) {
       }
     } catch (_) {}
   }
+  // P1631: an overlay id (#glossary) has no page — open it over the guide instead of blanking the screen.
+  if ((window.AIO_ROUTE_REGISTRY.classes.OVERLAY || []).indexOf(id) >= 0) { id = 'guide'; try { history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', '#guide'); } catch (_) {} setTimeout(function() { if (typeof window.openGlossary === 'function') window.openGlossary(); }, 0); }
   // v52.27 P642: theme-detail is an inline panel on #themes, not a separate user route.
   if (id === 'theme-detail') {
     try {

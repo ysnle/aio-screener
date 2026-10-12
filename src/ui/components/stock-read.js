@@ -5,6 +5,7 @@ import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { benchmarkRowFor } from '../../domain/market/benchmarks.js';
+import { marketRows, screenerMarket } from '../../domain/screener/market-scope.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -37,22 +38,26 @@ function rangeVisual(doc, read) {
   return box;
 }
 
-function relativeVisual(doc, read) {
+export function relativeVisual(doc, read) {
   const box = el(doc, 'div', null, 'stock-read-relative');
   box.append(el(doc, 'span', `수익률 — ${read.symbol} vs ${read.benchmarkLabel}`, 'stock-read-vis-title'));
   const rows = read.spans.filter((span) => span.stock != null);
   const max = Math.max(1, ...rows.flatMap((span) => [Math.abs(span.stock), Math.abs(span.bench ?? 0)]));
   for (const span of rows) {
-    const line = el(doc, 'div', null, 'stock-read-bars');
+    const line = el(doc, 'div', null, 'stock-return-signed-line');
     line.append(el(doc, 'span', span.label, 'stock-read-bar-label'));
-    const pair = el(doc, 'div', null, 'stock-read-bar-pair');
+    const pair = el(doc, 'div', null, 'stock-return-signed-pair');
     for (const [kind, value] of [['stock', span.stock], ['bench', span.bench]]) {
       if (value == null) continue;
-      const bar = el(doc, 'div', null, `stock-read-bar is-${kind} ${value >= 0 ? 'is-up' : 'is-down'}`);
-      bar.style.width = `${Math.max(2, Math.abs(value) / max * 100).toFixed(1)}%`;
+      const bar = el(doc, 'div', null, `stock-return-signed-bar is-${kind} ${value >= 0 ? 'is-up' : 'is-down'}`);
+      const width = Math.abs(value) / max * 50;
+      bar.style.width = `${width.toFixed(2)}%`;
+      bar.style.left = `${(value < 0 ? 50 - width : 50).toFixed(2)}%`;
       bar.title = `${kind === 'stock' ? read.symbol : read.benchmarkLabel} ${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
-      const row = el(doc, 'div', null, 'stock-read-bar-row');
-      row.append(bar, el(doc, 'span', `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`, 'stock-read-bar-value'));
+      const row = el(doc, 'div', null, 'stock-return-signed-row');
+      const track = el(doc, 'div', null, 'stock-return-signed-track');
+      track.append(bar);
+      row.append(track, el(doc, 'span', `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`, 'stock-return-signed-value'));
       pair.append(row);
     }
     line.append(pair);
@@ -60,7 +65,7 @@ function relativeVisual(doc, read) {
   }
   const legend = el(doc, 'div', null, 'stock-read-legend');
   legend.append(el(doc, 'span', read.symbol, 'is-stock'), el(doc, 'span', read.benchmarkLabel, 'is-bench'));
-  box.append(legend);
+  box.append(el(doc, 'p', '← 하락 · 공통 0% 기준 · 상승 →', 'stock-return-signed-axis'), legend);
   return box;
 }
 
@@ -73,19 +78,23 @@ export function renderStockRead({ documentRef: doc, root, symbol }) {
   if (!sym) { host.replaceChildren(); host.hidden = true; renderNextSteps(doc, next, []); return null; }
   host.hidden = false;
   const rows = call(root, '_aioGetCanonicalScreenerRows', []);
-  const list = Array.isArray(rows) ? rows : [];
-  const row = list.find((item) => item?.sym === sym) || null;
+  const list = marketRows(Array.isArray(rows) ? rows : [], screenerMarket({ sym }));
+  const rawRow = list.find((item) => item?.sym === sym) || null;
+  const ranked = list.filter(item => item.rankingEligibility === 'eligible' && Number.isFinite(item.rank)).sort((a,b) => b.rank-a.rank);
+  const rank = rawRow && ranked.findIndex(item => item.sym === sym);
+  const row = rawRow ? { ...rawRow, screenRank: rank >= 0 ? rank+1 : null } : null;
   // P1447: compare with the stock's own market index (KOSPI/KOSDAQ for KRX listings) over the same windows.
   const benchmark = benchmarkRowFor(sym, root?._aioHistory || []);
   const rotation = root?._serverDataMeta?.rotationHistory?.items || {};
-  const read = buildStockRead({ symbol: sym, row, benchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: list.length || null });
+  const alignedBenchmark = row?.factorSessionDate && benchmark.asOf === row.factorSessionDate ? benchmark : { ...benchmark, ret1m:null, ret3m:null, ret6m:null };
+  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: ranked.length || null });
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));
   if (!read.available) {
     host.append(emptyState(doc, { title: '추세·상대강도 기록 없음', reason: read.reason, compact: true }));
     renderNextSteps(doc, next, [{ route: 'technical', label: '차트', why: '일봉과 이동평균 위치' }, { route: 'fundamental', label: '재무 공시', why: '매출·이익·현금흐름' }]);
     return read;
   }
-  host.querySelector('h2').append(el(doc, 'span', read.ranking ? `스크리너 수집 대상 ${read.ranking.of}종목 중 ${read.ranking.rank}번째 (상위 약 ${read.ranking.topPct}%)` : '', 'briefing-h2-note'));
+  host.querySelector('h2').append(el(doc, 'span', read.ranking ? `${screenerMarket({ sym }) === 'KR' ? '한국' : '미국'} 균형 팩터 계산 대상 ${read.ranking.of}종목 중 ${read.ranking.rank}번째 (상위 약 ${read.ranking.topPct}%)` : '', 'briefing-h2-note'));
   host.append(el(doc, 'p', `${read.name} — ${read.headline}`, 'briefing-read-headline'));
   // P1599 (S03): the position and returns below come from the screener's completed-close collection, not the live
   // quote at the top (which can be '—'). Name that basis once, beside the figures it governs.

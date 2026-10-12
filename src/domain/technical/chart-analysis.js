@@ -113,7 +113,7 @@ const STATE_LABELS = Object.freeze({
  * @param {Array<{time:string,open:number,high:number,low:number,close:number,volume:number}>} input
  * @param {{ benchmark?: Array<{date:string,value:number}> }} [options]
  */
-export function analyzeChart(input = [], { benchmark = [] } = {}) {
+export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P 500' } = {}) {
   const bars = input.filter((bar) => [bar?.open, bar?.high, bar?.low, bar?.close].every((v) => finite(v) != null && v > 0));
   if (bars.length < 60) return { available: false, reason: 'bars-insufficient', bars };
   const closes = bars.map((bar) => bar.close);
@@ -226,9 +226,9 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
   const benchRows = (benchmark || []).filter((point) => point?.date && Number.isFinite(point.value)).sort((a, b) => a.date.localeCompare(b.date));
   const benchAt = (date) => { let hit = null; for (const point of benchRows) { if (point.date <= date) hit = point; else break; } return hit && (Date.parse(date) - Date.parse(hit.date)) <= 3 * 86400000 ? hit.value : null; };
   const ago = bars[Math.max(0, n - 126)];
-  const ret6 = (last.close / ago.close - 1) * 100;
+  const ret6 = bars.length >= 127 ? (last.close / ago.close - 1) * 100 : null;
   const b0 = benchAt(ago.time); const b1 = benchAt(last.time);
-  const rs = b0 && b1 ? ret6 - (b1 / b0 - 1) * 100 : null;
+  const rs = ret6 != null && b0 && b1 ? ret6 - (b1 / b0 - 1) * 100 : null;
   const strength = adx(bars);
   templateChecks[7][1] = rs == null ? null : rs > 0;
   const templatePass = templateChecks.filter(([, ok]) => ok === true).length;
@@ -251,7 +251,7 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
     ['일봉 이동평균', aligned ? '정배열 (종가 > 21일 EMA > 50일 > 200일)' : ema21[n] && sma50[n] ? `혼조 (종가 ${last.close > sma50[n] ? '50일선 위' : '50일선 아래'})` : '기록 부족'],
     ['주봉 추세 (10·30주)', weeklyTrend || '기록 부족'],
     ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계 · 30주선 4주 ${weinstein.slope >= 0 ? '+' : ''}${weinstein.slope.toFixed(1)}%` : '기록 부족'],
-    ['S&P 500 대비 6개월', rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
+    [`${benchmarkLabel} 대비 6개월`, rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],
     ['거래량 (50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? ` · 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
     [`${rangeLabel} 고점 대비`, signed(fromHigh)],
@@ -275,6 +275,7 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
     weinstein,
     weeklyTrend,
     rs,
+    benchmarkLabel,
     ret6,
     pressure,
     dryUp,
@@ -287,7 +288,7 @@ export function analyzeChart(input = [], { benchmark = [] } = {}) {
     state,
     stateLabel: STATE_LABELS[state],
     evidence,
-    flip: state === 'setup' ? `피벗 ${fmt(pivot)} 위로 50일 평균의 1.4배 이상 거래량과 함께 마감하면 돌파` : state === 'breakout' ? `피벗 ${fmt(pivot)} 아래로 다시 마감하면 돌파 실패` : state === 'downtrend' ? '200일선 회복과 50일선 상향이 먼저 필요' : state === 'failed' ? `피벗 ${fmt(pivot)} 재돌파 전까지 관망 구간` : null
+    flip: state === 'setup' ? `피벗 ${fmt(pivot)} 위로 50일 평균의 1.4배 이상 거래량과 함께 마감하면 돌파` : state === 'breakout' ? `피벗 ${fmt(pivot)} 아래로 다시 마감하면 돌파 실패` : state === 'downtrend' ? '200일선 회복과 50일선 상향 여부 확인' : state === 'failed' ? `피벗 ${fmt(pivot)} 재돌파와 그 위 마감 여부 확인` : null
   };
 }
 
@@ -300,14 +301,14 @@ export function chartReading(analysis, regime = null) {
   const w = analysis.weinstein;
   if (w) parts.push(`주봉으로는 Weinstein ${w.stage}단계(${w.text.split(' — ')[0]})`);
   parts.push(`추세 템플릿 ${analysis.templatePass}/8`);
-  if (analysis.rs != null) parts.push(`6개월 수익률이 S&P 500보다 ${Math.abs(analysis.rs).toFixed(1)}%p ${analysis.rs >= 0 ? '높음' : '낮음'}`);
+  if (analysis.rs != null) parts.push(`6개월 수익률이 ${analysis.benchmarkLabel || 'S&P 500'}보다 ${Math.abs(analysis.rs).toFixed(1)}%p ${analysis.rs >= 0 ? '높음' : '낮음'}`);
   const why = parts.join(', ');
   const vcp = analysis.vcp?.contractions?.length ? `변동성 수축 ${analysis.vcp.contractions.map((row) => `-${row.depth.toFixed(0)}%`).join('→')}${analysis.dryUp != null && analysis.dryUp < 0.8 ? ', 거래량도 줄어드는 중' : ''}` : null;
   const state = {
     setup: `셋업이 만들어지는 중입니다 — ${vcp || '변동성 수축'}이고 피벗까지 ${analysis.pivot ? pct((analysis.pivot / analysis.last.close - 1) * 100) : '—'} 남았습니다`,
     breakout: '피벗을 거래량과 함께 넘었습니다 — 돌파 직후는 피벗 위에서 버티는지가 관건입니다',
     extended: `피벗에서 이미 ${analysis.pivot ? pct((analysis.last.close / analysis.pivot - 1) * 100) : '—'} 올라 기준점에서 멀어진 구간입니다 — 새 수축(쉬어 가기)이 생기는지 관찰할 자리입니다`,
-    failed: '돌파 뒤 피벗 아래로 되돌아왔습니다 — 실패한 돌파는 매물이 남아 있다는 뜻입니다',
+    failed: '돌파 뒤 피벗 아래로 되돌아왔습니다 — 돌파한 가격 위에서 유지되지 못한 상태입니다',
     downtrend: '하락 추세라 셋업을 따지는 단계가 아닙니다 — 200일선 회복이 먼저입니다',
     // Codex browser audit H33: "상승 추세 · 템플릿 8/8 · 셋업 없음" read as a contradiction. Trend and setup answer
     // different questions; the sentence says which condition is missing and that no setup is not a negative.

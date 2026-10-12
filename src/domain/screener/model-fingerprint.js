@@ -16,6 +16,7 @@ export const BACKTEST_REBALANCE_OFFSETS = Object.freeze([147, 126, 105, 84, 63, 
 export const BACKTEST_FWD_DAYS = 21;
 export const BACKTEST_PRICE_BASIS = 'adjusted-close-required';
 export const BACKTEST_TRANSACTION_COST_BPS = 20;
+export const RANKING_POPULATION_POLICY = 'market-separated.v1'; // P1625: US/KR percentile cohorts are independent.
 
 export function renormalizedWeightsOver(weights = MODEL_DEFAULT_WEIGHTS, activeFactors = BACKTEST_ACTIVE_FACTORS) {
   const vector = {};
@@ -56,7 +57,8 @@ export function buildScreenerModelFingerprint({
   priceBasis = BACKTEST_PRICE_BASIS,
   rebalanceOffsets = BACKTEST_REBALANCE_OFFSETS,
   fwdDays = BACKTEST_FWD_DAYS,
-  transactionCostBps = BACKTEST_TRANSACTION_COST_BPS
+  transactionCostBps = BACKTEST_TRANSACTION_COST_BPS,
+  populationPolicy = RANKING_POPULATION_POLICY
 } = {}) {
   const appliedWeights = renormalizedWeightsOver(weights || MODEL_DEFAULT_WEIGHTS, activeFactors);
   if (!appliedWeights) return null;
@@ -65,6 +67,7 @@ export function buildScreenerModelFingerprint({
     factorWeightsModelVersion: weightsModelVersion,
     appliedWeights,
     activeFactors: [...activeFactors],
+    populationPolicy,
     priceBasis,
     rebalanceOffsets: [...rebalanceOffsets],
     fwdDays,
@@ -80,7 +83,7 @@ export function buildRankingIdentity({ appliedFactorWeights = null, activeFactor
   const active = Array.isArray(activeFactors) ? [...activeFactors].map(String).sort() : [];
   if (!active.length || !appliedFactorWeights || typeof appliedFactorWeights !== 'object') return null;
   const applied = Object.fromEntries(active.map((factor) => [factor, Math.round((Number(appliedFactorWeights[factor]) || 0) * 10000) / 10000]));
-  return JSON.stringify(canonicalize({ factorRanksModelVersion: FACTOR_RANKS_MODEL_VERSION, factorWeightsModelVersion: FACTOR_WEIGHTS_MODEL_VERSION, activeFactors: active, appliedWeights: applied }));
+  return JSON.stringify(canonicalize({ factorRanksModelVersion: FACTOR_RANKS_MODEL_VERSION, factorWeightsModelVersion: FACTOR_WEIGHTS_MODEL_VERSION, populationPolicy: RANKING_POPULATION_POLICY, activeFactors: active, appliedWeights: applied }));
 }
 
 // Live runtime model identity. The UI compares this with the artifact's stored fingerprint;

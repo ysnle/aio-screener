@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../src/ai/research/native-search.js';
 import { evaluateResearchEvidenceFloor } from '../src/ai/research/evidence.js';
+import { buildQuestionDomainContext } from '../src/ai/context/market-content.js';
 const now = Date.parse('2026-10-11T06:00:00Z');
 const health = { ai: { paidWebSearchEnabled: true, maxTokens: 4000 } };
 const plan = { queryId: 'test-query', query: 'NVDA 현재 주가', intent: { primary: 'ENTITY_FACT' },
@@ -39,6 +40,10 @@ assert.equal(select({ externalResult }), false, 'P1608 sufficient optional exter
 assert.equal(attachNativeSearch({ input: 'test' }, { enabled: true, health: { ai: {} } }).tools, undefined, 'P1608 old Worker gets no unsupported tool');
 
 const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const optional = { requirement: 'OPTIONAL', currentSensitive: false };
+assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 재무 요약' }, internalReferenceEvidence: { deep: true } }), false, 'P1608 existing company evidence avoids optional search');
+assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 경쟁 해자' }, internalReferenceEvidence: { deep: true } }), true, 'P1608 financial evidence alone does not cover a moat question');
+assert.equal(select({ decision: optional, internalReferenceEvidence: {} }), true, 'P1608 missing optional company evidence permits supplementation');
 const start = chat.indexOf('async function callClaude(');
 const end = chat.indexOf('\nvar _detectSectorQuery', start);
 assert.ok(start >= 0 && end > start, 'P1608 production adapter extraction exists');
@@ -77,6 +82,7 @@ context.webSearchResult = null; context._uniWebResult = null;
 context._uniResearchRequired = false; context._uniResearchFailure = null;
 context._researchRequiredForChat = false; context._researchDecisionForChat = plan.researchDecision;
 context._uniResearchDecision = plan.researchDecision;
+for (const name of ['tickerDataStr', 'singleDeepStr', 'deepCompareStr', 'sectorCompareStr', 'domainDataStr', 'newsContextStr', '_uniTickerData', '_uniDeepData', '_uniDomainData', '_uniNewsCtx']) context[name] = '';
 const helperStart = chat.indexOf('function _shouldUseClaudeWebSearch(');
 vm.runInContext(chat.slice(helperStart, chat.indexOf('\nwindow._shouldUseClaudeWebSearch', helperStart)), context);
 for (const [variable, marker] of [['_useClaudeWebSearch', 'var _useClaudeWebSearch = false;'], ['_uniUseClaudeWebSearch', 'var _uniUseClaudeWebSearch = false;']]) {
@@ -85,6 +91,8 @@ for (const [variable, marker] of [['_useClaudeWebSearch', 'var _useClaudeWebSear
   vm.runInContext(block, context);
   assert.equal(context[variable], false, 'P1608 actual caller passes the question plan and uses internal coverage');
   context.chatFreshPreflight = null; context._uniFreshPreflight = null;
+  vm.runInContext(block, context);
+  assert.equal(context[variable], true, 'P1608 actual caller supplements missing internal evidence');
   context.webSearchResult = externalResult; context._uniWebResult = externalResult;
   vm.runInContext(block, context);
   assert.equal(context[variable], false, 'P1608 actual caller avoids duplicate search with sufficient external evidence');
@@ -116,3 +124,30 @@ toggleContext.window._aioWebSearchToggle({ checked: true }, { type: 'change' });
 assert.equal(preferences.has('aio_web_search_enabled'), false, 'P1609 delegated checkbox on restores conditional search');
 assert.equal(status.textContent, 'ON', 'P1609 restored preference is visible');
 console.log('PASS: P1609 actual delegated checkbox persists OFF/ON correctly.');
+
+// P1621: exercise both real single-company blocks with an already-loaded screen cache.
+for (const [startMarker, endMarker, outputName] of [
+  ['var singleDeepStr =', '\n  // v36.2: 웹검색', 'singleDeepStr'],
+  ['var _isFundCtx =', '\n    // 5. 웹검색', 'sysPrompt']
+]) {
+  const startAt = outputName === 'sysPrompt' ? chat.indexOf(startMarker, chat.indexOf('// 4. 단일 기업')) : chat.indexOf(startMarker);
+  const endAt = chat.indexOf(endMarker, startAt);
+  assert.ok(startAt >= 0 && endAt > startAt, 'P1621 production financial block is extractable');
+  let reads = 0;
+  const financial = vm.createContext({ window: { _fundAnalysisData: { ticker: 'NVDA' } }, ctxId: 'home', q: 'NVDA 재무 요약', detectedTickers: ['NVDA'], deepCompareStr: '', sysPrompt: '',
+    _shouldSingleDeepAnalyzeChat: () => true, _fetchDeepCompareData: async () => { reads++; return { NVDA: { secFundamentals: { source: 'SEC' } } }; },
+    _formatSingleDeepPrompt: () => 'SEC 공시 실제 자료', _wrapUnifiedExternal: (_name, text) => text, _withTimeout: promise => promise,
+    _isCurrentChatRun: () => true, _isCurrentUnifiedRun: () => true, _chatSignal: null, _uniSignal: null, _aioLog: () => {}, _aioReleaseChatRequest: () => {} });
+  await vm.runInContext('(async function(){' + chat.slice(startAt, endAt) + ';return ' + outputName + ';})()', financial).then(result => {
+    assert.ok(result.includes('SEC 공시 실제 자료'), 'P1621 loaded screen financials cannot suppress prompt financial evidence');
+  });
+  assert.equal(reads, 1, 'P1621 shared financial provider/cache is reused by each caller');
+}
+const domainStart = chat.indexOf('function _aioDomainContextForQuestion(');
+const domainEnd = chat.indexOf('\n}', domainStart) + 2;
+const domainCalls = [];
+const domain = vm.createContext({ window: { AIO: { buildQuestionDomainContext }, _aioHistory: [{ date: '2026-10-09', spx: 7800, breadth50: 34.7 }] }, _fetchDomainContextForChat: id => { domainCalls.push(id); return id + ' facts'; } });
+vm.runInContext(chat.slice(domainStart, domainEnd), domain);
+assert.ok(domain._aioDomainContextForQuestion('home', 'CPI와 채권 및 섹터, 시장 폭').includes('34.7%'), 'P1621 native facts reach cross-page questions through the production facade');
+assert.deepEqual(domainCalls, ['macro', 'fxbond', 'themes'], 'P1621 home questions select existing macro, bonds and themes contexts');
+console.log('PASS: P1621 both financial caller blocks and question-selected internal domains (offline).');

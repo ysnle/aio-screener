@@ -36,7 +36,7 @@ const disclosureAppend = sliceBetween(chat, 'function _aioAppendAIPublicDisclosu
 const citationCanonical = sliceBetween(chat, 'function _aioCanonicalResearchUrl(', '\n\nfunction _aioResearchResultUsable', 'citation URL normalizer');
 const citationsHtml = sliceBetween(chat, 'function _searchCitationsHTML(', '\n\n/** Existing Google Custom Search accounts only', 'citation renderer');
 const disclosureFixture = [
-  "var _AIO_PUBLIC_AI_POLICY = { label: 'AI 베타 · 교육/리서치 보조', status: 'beta-research', actionGate: 'read-only-conditional-analysis' };",
+  "var _AIO_PUBLIC_AI_POLICY = { label: 'AI 도우미 · 교육/리서치 보조', status: 'beta-research', actionGate: 'read-only-conditional-analysis' };",
   disclosureFormat,
   disclosureBuild,
   disclosureAppend,
@@ -74,7 +74,7 @@ ${aiPanelCss}
 const fixtureHtml = `<!doctype html>
 <html><head><meta charset="utf-8"></head><body>
   <aside id="ai-panel" class="open" aria-hidden="false">
-    <div class="ai-ph"><span class="ai-ph-title">AI 베타 · 리서치</span><span class="ai-ph-badge">BETA</span><button class="ai-ph-close">×</button></div>
+    <div class="ai-ph"><span class="ai-ph-title">AI 도우미 · 리서치</span><span class="ai-ph-badge">BETA</span><button class="ai-ph-close">×</button></div>
     <div id="ai-panel-msgs"></div>
     <div id="ai-panel-chips" class="ai-chips">
       <button type="button" class="ai-chip">긴 한국어 후속 질문: 반도체 공급망과 현금흐름을 함께 확인</button>

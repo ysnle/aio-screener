@@ -2025,7 +2025,7 @@ window._aioWLToggle = function(sym) {
 //   기술분석/OHLC는 raw close를 유지하고, 총수익/월말 백테스트는 별도 adjustedCloses를
 //   명시적으로 선택해야 한다. Yahoo가 adjusted series를 생략하면 partial/unavailable로
 //   표시하며 raw close를 adjusted로 위장하지 않는다.
-async function _aioFetchYahooChartData(symbol, range, interval) {
+async function _aioFetchYahooChartData(symbol, range, interval, requestOptions) {
   if (!symbol) return null;
   range = range || '1mo';
   interval = interval || '1d';
@@ -2034,7 +2034,7 @@ async function _aioFetchYahooChartData(symbol, range, interval) {
   try {
     var json;
     if (typeof fetchViaProxy === 'function') {
-      json = await fetchViaProxy(url, { parseJson: true, timeout: 5000, totalTimeout: 12000,
+      json = await fetchViaProxy(url, { parseJson: true, timeout: 5000, totalTimeout: 12000, signal: requestOptions && requestOptions.signal,
         accept: function(payload) {
           var candidate = payload && payload.chart && payload.chart.result && payload.chart.result[0];
           return !!(candidate && candidate.meta && String(candidate.meta.symbol).toUpperCase() === String(symbol).toUpperCase()
@@ -2042,7 +2042,7 @@ async function _aioFetchYahooChartData(symbol, range, interval) {
         }
       });
     } else {
-      var r = await fetchWithTimeout(url, {}, 7000);
+      var r = await fetchWithTimeout(url, { signal: requestOptions && requestOptions.signal }, 7000);
       json = await r.json();
     }
     var res = json && json.chart && json.chart.result && json.chart.result[0];
@@ -12843,7 +12843,7 @@ function filterNewsByTopic(filter, el) {
 // ── 라이브 시세 엔진 ─────────────────────────────────────────────
 const LIVE_SYMBOLS = [
   // ── 주요 지수 ──────────────────────────────────────────────────
-  '^GSPC','^IXIC','^VIX','^VVIX','^RUT','^DJI','^FTSE','^N225','^HSI',
+  '^GSPC','^IXIC','^NDX','^VIX','^VVIX','^RUT','^DJI','^FTSE','^N225','^HSI',
   'ES=F','NQ=F','YM=F','RTY=F','VXX',
   // ── 한국 지수 ──────────────────────────────────────────────────
   '^KS11','^KQ11',
@@ -15098,7 +15098,7 @@ function applyLiveQuotes(quotes) {
       }
     }
     // v36.8: 시장 지수 — RTH 외 시간에 "종가" 라벨 + 선물 참고 표시
-    var _INDEX_FUTURES_MAP = {'^GSPC':'ES=F', '^IXIC':'NQ=F', '^DJI':'YM=F'};
+    var _INDEX_FUTURES_MAP = {'^GSPC':'ES=F', '^NDX':'NQ=F', '^DJI':'YM=F'};
     var _futSym = _INDEX_FUTURES_MAP[q.symbol];
     if (_futSym) {
       var _usS2 = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';

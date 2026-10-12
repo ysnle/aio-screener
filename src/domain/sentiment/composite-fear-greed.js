@@ -101,7 +101,7 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
   const fast = emaSeries(centered, 19);
   const slow = emaSeries(centered, 39);
   const breadth = advance.length >= 39 ? advance.slice(38).map((row, index) => ({ date: row.date, value: fast[index + 38] - slow[index + 38] })) : [];
-  components.push(component('breadth', '시장 폭', breadth, { basis: '상승 종목 비율의 19/39일 EMA 차 (종목 수 기준)' }));
+  components.push(component('breadth', '상승 종목 흐름', breadth, { basis: '상승 종목 비율의 19/39일 EMA 차 (종목 수 기준)' }));
   // 4. Put/call: 5-day average of the Cboe total ratio (high = fear).
   const pcr = series(history, 'pcr');
   const pcrValues = pcr.map((row) => row.value);

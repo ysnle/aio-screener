@@ -1,0 +1,29 @@
+{
+  "version": "v57.40",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1624,
+    "title": "종목 첫 진입 자료 연결과 기업 분석 공통 구조",
+    "symptom": "가격 이력은 차트 탭을 먼저 열어야 채워졌고 기업 정체성·사업 정보와 손익 비교가 불완전했다.",
+    "root_cause": "종목 요약이 캐시만 읽고 독립적인 자료 요청·기업 분석 계약이 없었다. 수익률 막대는 부호를 방향에 반영하지 않았다.",
+    "fix": "모든 종목에 취소 가능한 공통 가격·일봉 요청, 출처·시점·통화 계약과 기업 분석 모델을 적용한다. 사업 설명은 issuer identity와 출처가 있는 자료만 연결한다. 예시 종목 전용 사업 설명을 하드코딩하지 않는다. 수익률은 공통 0선에서 부호에 따라 방향을 나눈다.",
+    "violated_rule": "종목 identity·관측 기준·원본 단위 보존; R670 완료 종가 비교",
+    "prevention": "{P}: scripts/ci-entity-summary-fixture.mjs와 ci-entity-quality-browser-check.mjs에서 공통 모델과 실제 화면 경로를 검증한다.",
+    "verification": "로컬 회귀 및 실제 경로 브라우저 검증을 진행한다. 유료 AI·현재 외부 시세·실기기·배포 증거와 구분한다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-ENTITY-SUMMARY-01",
+      "text": "{P}: 종목 첫 진입 자료 연결과 기업 분석 공통 구조 공통 경로와 화면 회귀 확인.",
+      "verify_by": "node scripts/ci-entity-summary-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "종목 분석 구조·시장 분리",
+  "changelog": [
+    "**종목 첫 진입 자료 연결과 기업 분석 공통 구조 ({P}):** 모든 종목에 취소 가능한 공통 가격·일봉 요청, 출처·시점·통화 계약과 기업 분석 모델을 적용한다. 사업 설명은 issuer identity와 출처가 있는 자료만 연결한다. 예시 종목 전용 사업 설명을 하드코딩하지 않는다. 수익률은 공통 0선에서 부호에 따라 방향을 나눈다."
+  ],
+  "note": "전체 종목 요약·기업 분석·시장별 스크리너·조건부 차트·정밀 재무 개선. 로컬 검증 진행; commit/push/deploy 미실행.",
+  "status": null
+}

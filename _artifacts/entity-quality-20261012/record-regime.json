@@ -1,0 +1,7 @@
+{
+  "version":"v57.40","date":"2026-10-12",
+  "p":{"id":1628,"title":"시장 축 가독성·조건부 흐름과 한국 참여도 부족","symptom":"6개 축의 작은 숫자표가 넓은 화면에 흩어지고 근거·조건·다음 관찰이 연결되지 않았다. 한국은 환율과 코스피 값뿐이고 기관 포지셔닝은 주간 선물 보고였다.","root_cause":"현재 상태 분류 위주의 카드에 관측 추이와 조건부 전개 모델이 없었다. 한국 종목 표본과 테마 데이터가 시장 상태의 소비자로 연결되지 않았다. 주간 기관 자료는 실시간 매일 관측 요구를 충족하지 않는다.","fix":"6축을 결론·날짜/단위가 있는 기록 차트·근거·전환 관찰 순서로 확대한다. 관측 기반 3조건 시나리오와 한국 지수/환율·KRX 동일세션 표본의 SMA 참여도·수익률 중앙값·강한 테마를 연결한다. 휴장 carry-forward는 새로운 관측으로 쓰지 않고 미수집 수급·한국 공시를 추정하지 않는다. 사용자 지시대로 시장 상태의 주간 COT 기관 포지셔닝 위젯을 제거한다.","violated_rule":"원본 시점·시장·표본 경계 보존; R670 종가 근거","prevention":"{P}: ci-regime-scenarios-fixture.mjs·ci-korea-participation-fixture.mjs와 실제 경로 브라우저에서 조건·축·KR휴장·레이아웃을 검증한다.","verification":"로컬 시나리오/표본 회귀와 브라우저 화면 확인. CFTC 공식 release schedule로 화요일 포지션의 금요일 주간 발표를 확인했다. 유료 AI 응답·실시간 기관 수급은 확인한 것으로 주장하지 않는다."},
+  "r":null,"qa":[{"id":"QA-REGIME-CONTINUITY-01","text":"{P}: 시장6축 추이·조건과 한국 완료세션 참여도 연결, COT 위젯 제거.","verify_by":"node scripts/ci-regime-scenarios-fixture.mjs; node scripts/ci-korea-participation-fixture.mjs; node scripts/ci-responsive-browser-check.mjs","done":false}],
+  "qa_section":"시장 분석·다음 관찰","changelog":["**시장 흐름·한국 근거 ({P}):** 6축 카드 확대와 관측 차트, 조건부 흐름·반증·관찰 체크 연결. 한국 지수·환율과 종목 참여도·테마 중앙값 보강. 실시간 요구를 충족하지 못하는 주간 기관 포지셔닝 위젯 제거."],
+  "note":"전체 종목 요약·기업 AI 연결·시장별 순위·조건부 차트·정밀 재무·시장6축과 한국 참여도 개선. 로컬 검증 진행; commit/push/deploy 미실행.","status":null
+}

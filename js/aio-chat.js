@@ -10,7 +10,7 @@
 // embedded and unified chat surfaces so a retry or alternate entry point
 // cannot silently bypass the public beta disclosure/action gate.
 var _AIO_PUBLIC_AI_POLICY = {
-  label: 'AI 베타 · 교육/리서치 보조',
+  label: 'AI 도우미 · 교육/리서치 보조',
   status: 'beta-research',
   actionGate: 'read-only-conditional-analysis'
 };
@@ -295,7 +295,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
   var gate = (typeof _aioApplyAIActionGate === 'function')
     ? _aioApplyAIActionGate(visible, meta)
-    : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', reasons: ['validator-unavailable'] };
+    : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', reasons: ['validator-unavailable'] };
   var claimAudit = publishablePlan.plan
     ? { status: publishablePlan.droppedClaims.length ? 'partial' : 'pass', blocked: false, claims: publishablePlan.plan.claims.claims, validCount: publishablePlan.plan.claims.claims.length, issues: publishablePlan.droppedClaims, source: 'answer-plan.v1' }
     : (typeof window !== 'undefined' && window.AIO && typeof window.AIO.validateAIResponseClaims === 'function')
@@ -451,8 +451,8 @@ function _aioRunAIResponsePipeline(rawText, meta) {
 }
 
 function _aioPublicAIActionPolicyPrompt() {
-  return '\n\n【공개 AI 베타 분석·행동 경계 — 최우선】\n' +
-    '이 AI는 "AI 베타 · 교육/리서치 보조"이며 독립 투자자문·검증 시스템·실시간 주문 도구가 아니다.\n' +
+  return '\n\n【공개 AI 도우미 분석·행동 경계 — 최우선】\n' +
+    '이 AI는 "AI 도우미 · 교육/리서치 보조"이며 독립 투자자문·검증 시스템·실시간 주문 도구가 아니다.\n' +
     '교육·시장 원리·상품 구조·규제 영향·법률/세무의 일반 또는 사용자 맥락 분석을 회피하지 마라. 관할·사실관계가 부족하면 합리적 전제를 밝히고 공식 원문·기준일·추가 확인 항목을 제시하라.\n' +
     '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 다만 "매수하세요"·"매도를 추천"·"비중 N% 확대"처럼 특정 종목에 대한 행동 지시 문장은 쓰지 말고(쓰면 화면에서 문장이 대체된다), 적합성 정보나 근거가 있어도 개인화된 단일 행동 지시로 확정하지 말고 조건별 선택지와 의사결정 체크리스트로 전환하라.\n' +
     '불법 행위의 구체적 실행법, 실제 주문·계정 변경·외부 전송, 수익 보장만 차단한다. 그 밖의 질문은 답변 전체를 안전 모드로 바꾸지 말고 부족한 현재 주장만 제한하라.\n' +
@@ -2838,6 +2838,11 @@ function _fetchDomainContextForChat(ctxId) {
 }
 window._fetchDomainContextForChat = _fetchDomainContextForChat;
 
+// P1621: questions can cross page boundaries; select existing domain summaries without paid retrieval.
+function _aioDomainContextForQuestion(ctxId, query) {
+  return window.AIO && typeof window.AIO.buildQuestionDomainContext === 'function' ? window.AIO.buildQuestionDomainContext({ ctxId: ctxId, query: query, root: window, readDomain: _fetchDomainContextForChat }) : _fetchDomainContextForChat(ctxId);
+}
+
 // v50.37 트랙2: 채팅 데이터 소스 레지스트리 — 종목 답변에 주입되는 모든 데이터 소스의 단일 선언 카탈로그.
 //   목적: (1) 확장성 — 새 소스 추가 시 여기 1줄 + _fetchTickerDataForChat 배선 (2) 출처 투명성 매니페스트 기반
 //   (3) getChatSourceRegistryAudit로 레지스트리↔코드 드리프트 자동 감지(R121 패턴).
@@ -4426,7 +4431,7 @@ function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers, questionPlan, 
   try { optedOut = localStorage.getItem('aio_web_search_enabled') === 'off'; } catch (_) {}
   var route = window._aioLastClaudeRouteState;
   return !!window.AIO?.selectNativeSearch?.({ decision: questionPlan?.researchDecision, questionPlan: questionPlan, externalResult: researchState?.externalResult,
-    preparation: researchState?.preparation, internalEvidenceReady: researchState?.internalEvidenceReady,
+    preparation: researchState?.preparation, internalEvidenceReady: researchState?.internalEvidenceReady, internalReferenceEvidence: researchState?.internalReferenceEvidence,
     optedOut: optedOut, health: route?.health });
 }
 window._shouldUseClaudeWebSearch = _shouldUseClaudeWebSearch;
@@ -5992,8 +5997,8 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 
   // v50.38 트랙2: 도메인 라이브 데이터 주입 — macro/fxbond/themes 채팅에 페이지 도메인 데이터(수익률곡선·DXY·사이클·섹터 리더 등) 주입.
   var domainDataStr = '';
-  if (typeof _fetchDomainContextForChat === 'function' && /^(macro|kr-macro|fxbond|themes|theme-detail|kr-themes)$/.test(ctxId)) {
-    try { domainDataStr = _fetchDomainContextForChat(ctxId); } catch(e) {}
+  if (typeof _aioDomainContextForQuestion === 'function') {
+    try { domainDataStr = _aioDomainContextForQuestion(ctxId, q); } catch(e) {}
   }
 
   // v34.2: 기업 내부 비교 분석 (비즈니스 모델, 수익 구조, 해자 등) — 티커 2~3개 + 내부 비교 의도 감지 시
@@ -6020,9 +6025,8 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   var _isFundCtx = (ctxId === 'fundamental');
   var _shouldDeepAnalyze = _shouldSingleDeepAnalyzeChat(ctxId, q, detectedTickers, deepCompareStr);
   if (_shouldDeepAnalyze) {
-    var fd = window._fundAnalysisData;
-    var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];
-    if (!alreadyHasData) {
+    // P1621: reuse the public provider/cache; a screen cache is not prompt evidence.
+    if (typeof _fetchDeepCompareData === 'function') {
       try {
         var singleDeepData = await _fetchDeepCompareData(detectedTickers, { signal: _chatSignal, ctxId: ctxId, query: q });
         if (singleDeepData) singleDeepStr = _formatSingleDeepPrompt(detectedTickers[0], singleDeepData);
@@ -6275,7 +6279,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   _dataVerify += '• 실시간 시세: ' + _liveStatusCS + '\n';
   if (_answerPolicyCS.needsFullStockMemo || _answerPolicyCS.needsTickerFactAnswer) {
     _dataVerify += '• 주가 추이(5D/20D/3M): ' + (_hasTrendCS ? '✓ 주입됨 — 이 추이를 기준으로 추세 판단 가능' : '✗ 미주입 — 개별 종목의 현재 추세/진입가 판단은 보류') + '\n';
-    _dataVerify += '• 기업 재무(FMP): ' + (tickerDataStr ? '✓ 수집 완료' : '✗ 미수집 — PER/ROE/마진 등 재무 수치를 추측하지 마라. "재무 데이터 미수집"이라고 밝혀라') + '\n';
+    _dataVerify += '• 기업 재무: 주입된 SEC 공시 또는 재무 블록에 실제로 있는 항목·기간만 사용한다. 시세 조회 성공은 재무 수집 성공이 아니다. 없는 PER/ROE/마진 등은 미제공으로 밝히고 추측하지 마라.\n';
   } else if (_answerPolicyCS.needsScreenerGuide) {
     _dataVerify += '• 스크리너 후보군: ✓ 주입됨 — 후보군의 3M·RSI·퀀트 랭크·섹터 분산은 설명 근거로 사용 가능\n';
   }
@@ -6345,7 +6349,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 
   var _useClaudeWebSearch = false;
   try {
-    _useClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _aioQuestionPlan, { preparation: _preparedResearchForChat, externalResult: webSearchResult, internalEvidenceReady: window.AIO?.hasInternalCurrentEvidence?.({ questionPlan: _aioQuestionPlan, freshness: chatFreshPreflight, tickers: detectedTickers }) });
+    _useClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _aioQuestionPlan, { preparation: _preparedResearchForChat, externalResult: webSearchResult, internalReferenceEvidence: { ticker: !!tickerDataStr, deep: !!(singleDeepStr || deepCompareStr), domain: !!(sectorCompareStr || domainDataStr), news: !!newsContextStr }, internalEvidenceReady: window.AIO?.hasInternalCurrentEvidence?.({ questionPlan: _aioQuestionPlan, freshness: chatFreshPreflight, tickers: detectedTickers }) });
   } catch(_wsErr) { _useClaudeWebSearch = false; }
   if (_useClaudeWebSearch) {
     chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">기존 자료를 보강하기 위해 웹검색 중 · 출처 확인 후 답변</div>');
@@ -6399,7 +6403,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
       }
       var _pageChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
          ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: _pageClaimEvidence, provenanceBundle: chatProvenanceBundle, chatEvidence: chatEvidenceContext, researchResult: webSearchResult, retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, analysisAudit: _pageAnalysisAudit, streamPhase: 'partial', record: false })
-        : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
+        : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
       var visible = _pageChunkResult.text;
       // Native web_search citations arrive after text deltas. Do not stream a
       // current/causal answer before the Research gate has evidence.
@@ -6445,7 +6449,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         : { required: _researchRequiredForChat, ready: !_researchRequiredForChat, reason: 'research-gate-unavailable' };
       var _pageDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
          ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, researchGate: _pageResearchGate, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: _pageClaimEvidence, provenanceBundle: chatProvenanceBundle, chatEvidence: chatEvidenceContext, researchResult: webSearchResult, retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, analysisAudit: _pageAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
-        : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
+        : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
       var visible = _pageDoneResult.text;
       var _researchEvidenceReady = !_researchRequiredForChat || _pageResearchGate.ready;
       var _publicGate = _pageDoneResult.actionGate;
@@ -7084,7 +7088,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!header.querySelector('[data-ai-public-policy="beta-research"]')) {
       var policyTag = document.createElement('span');
       policyTag.setAttribute('data-ai-public-policy', 'beta-research');
-      policyTag.textContent = 'BETA · 교육/리서치 보조';
+      policyTag.textContent = '교육/리서치 보조';
       policyTag.title = '읽기 전용 리서치. 투자·법률·세무 조건부 분석과 수치 시나리오는 제공하며, 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.';
       policyTag.style.cssText = 'font-size:10px;color:var(--data-amber);font-family:var(--font-mono);margin-left:auto;white-space:nowrap;';
       header.appendChild(policyTag);
@@ -7868,7 +7872,7 @@ function toggleAIPanel() {
     p.setAttribute('inert', '');
     if (app) { app.style.maxWidth = ''; app.style.width = ''; }
     p.setAttribute('aria-hidden', 'true');
-    if (btn) { btn.classList.remove('active'); btn.textContent = 'AI 베타'; btn.setAttribute('aria-expanded', 'false'); }
+    if (btn) { btn.classList.remove('active'); btn.textContent = 'AI 도우미'; btn.setAttribute('aria-expanded', 'false'); }
     if (btn && typeof btn.focus === 'function') btn.focus();
   } else {
     p.inert = false;
@@ -7930,7 +7934,7 @@ function updateAIPanelContext(pageId) {
       msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:32px 20px;color:var(--text-muted);font-size:12px;line-height:1.6;">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
     }
     var titleEl = document.getElementById('ai-panel-title');
-    if (titleEl) titleEl.textContent = 'AI 베타';
+    if (titleEl) titleEl.textContent = 'AI 도우미';
     var chipsEl = document.getElementById('ai-panel-chips');
     if (chipsEl) chipsEl.innerHTML = '';
     return;
@@ -7941,8 +7945,8 @@ function updateAIPanelContext(pageId) {
   var titleEl = document.getElementById('ai-panel-title');
   var badgeEl = document.getElementById('ai-panel-badge');
   var _ctxPublicTitle = String(chatContexts[ctxId].title || '리서치').replace(/^AI\s*/i, '').replace(/분석가/g, '리서치');
-  if (titleEl) titleEl.textContent = 'AI 베타 · ' + _ctxPublicTitle;
-  if (badgeEl) badgeEl.textContent = 'BETA · 교육/리서치 보조';
+  if (titleEl) titleEl.textContent = 'AI 도우미 · ' + _ctxPublicTitle;
+  if (badgeEl) badgeEl.textContent = '교육/리서치 보조';
   // 메시지 이력 복원
   var msgsEl = document.getElementById('ai-panel-msgs');
   if (msgsEl) {
@@ -8278,9 +8282,9 @@ async function chatSendUnified(_aioDispatchOptions) {
     }
 
     // 1d. 페이지 도메인 데이터 — macro/fxbond/themes/KR 페이지의 라이브 요약을 통합 패널에도 주입
-    if (typeof _fetchDomainContextForChat === 'function' && /^(macro|kr-macro|fxbond|themes|theme-detail|kr-themes)$/.test(ctxId)) {
+    if (typeof _aioDomainContextForQuestion === 'function') {
       try {
-        var _uniDomainStr = _fetchDomainContextForChat(ctxId);
+        var _uniDomainStr = _aioDomainContextForQuestion(ctxId, q);
         if (!_isCurrentUnifiedRun()) throw (typeof _aioChatAbortError === 'function' ? _aioChatAbortError('stale') : new Error('stale'));
         if (_uniDomainStr) { sysPrompt += _wrapUnifiedExternal('DOMAIN_LIVE_DATA', _uniDomainStr, { maxChars: 9000 }); _uniDomainData = true; }
       } catch(de2) {
@@ -8328,9 +8332,8 @@ async function chatSendUnified(_aioDispatchOptions) {
       ? _shouldSingleDeepAnalyzeChat(ctxId, q, detectedTickers, '')
       : (detectedTickers.length === 1 && typeof _hasDeepAnalysisKw === 'function' && (_isFundCtx || _hasDeepAnalysisKw(q)));
     if (_shouldSingleDeep) {
-      var fd = window._fundAnalysisData;
-      var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];
-      if (!alreadyHasData && typeof _fetchDeepCompareData === 'function') {
+      // P1621: the shared provider reuses public financials even after the screen loaded them.
+      if (typeof _fetchDeepCompareData === 'function') {
         try {
           var singleDeepData = await _withTimeout(_fetchDeepCompareData(detectedTickers, { signal: _uniSignal }), 10000, 'single');
           if (!_isCurrentUnifiedRun()) throw (typeof _aioChatAbortError === 'function' ? _aioChatAbortError('stale') : new Error('stale'));
@@ -8501,7 +8504,6 @@ async function chatSendUnified(_aioDispatchOptions) {
   // 환각 방지 — 날짜/stale 계산은 _aioChatFreshnessInfo 헬퍼로 통합 (aio-chat.js)
   var _pHasNews = sysPrompt.indexOf('최근 시장 뉴스') !== -1;
   var _pHasWeb = sysPrompt.indexOf('웹검색') !== -1 || sysPrompt.indexOf('검색 결과') !== -1;
-  var _pHasFMP = sysPrompt.indexOf('P/E') !== -1 || sysPrompt.indexOf('ROE') !== -1;
   var _pHasTrend = sysPrompt.indexOf('[주가 추이]') !== -1;
   var _fi2 = window._aioChatFreshnessInfo ? window._aioChatFreshnessInfo() : {};
   var _pSnapAge = _fi2.snapAge != null ? _fi2.snapAge : 999;
@@ -8536,7 +8538,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   sysPrompt += '\n【데이터 검증 상태 — 반드시 준수】\n';
   sysPrompt += '• 실시간 시세: ' + _liveStatus + '\n';
   sysPrompt += '• 주가 추이(5D/20D/3M): ' + (_pHasTrend ? '주입됨 — 이 추이를 기준으로 추세 판단하라' : '미주입 — 추세 언급 자체 금지') + '\n';
-  sysPrompt += '• 기업 재무(FMP): ' + (_pHasFMP ? '수집 완료' : '미수집 — PER/ROE/마진 등 재무 수치를 추측하지 마라. "재무 데이터 미수집"이라고 밝혀라') + '\n';
+  sysPrompt += '• 기업 재무: 주입된 SEC 공시 또는 재무 블록에 실제로 있는 항목·기간만 사용한다. 시세 조회 성공은 재무 수집 성공이 아니다. 없는 PER/ROE/마진 등은 미제공으로 밝히고 추측하지 마라.\n';
   sysPrompt += '• 뉴스 컨텍스트: ' + (_pHasNews ? '주입됨 (시간 표기 포함)' : '관련 뉴스 없음 — "최근 뉴스에 따르면"이라고 시작하지 마라') + '\n';
   sysPrompt += '• 웹검색: ' + (_pHasWeb ? '검색 완료' : '미실행 — 검증되지 않은 최신 정보를 확정적으로 말하지 마라') + '\n';
   // v48.11: DATA_SNAPSHOT 72h+ 경과 시 수치 인용 자체 금지
@@ -8552,7 +8554,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   var modelOpts = { modelKey: selectedModelKey, maxTokens: (_uniDeepData) ? 16000 : undefined };
   var _uniUseClaudeWebSearch = false;
   try {
-    _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _uniQuestionPlan, { preparation: _uniPreparedResearch, externalResult: _uniWebResult, internalEvidenceReady: window.AIO?.hasInternalCurrentEvidence?.({ questionPlan: _uniQuestionPlan, freshness: _uniFreshPreflight, tickers: detectedTickers }) });
+    _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _uniQuestionPlan, { preparation: _uniPreparedResearch, externalResult: _uniWebResult, internalReferenceEvidence: { ticker: !!_uniTickerData, deep: !!_uniDeepData, domain: !!_uniDomainData, news: !!_uniNewsCtx }, internalEvidenceReady: window.AIO?.hasInternalCurrentEvidence?.({ questionPlan: _uniQuestionPlan, freshness: _uniFreshPreflight, tickers: detectedTickers }) });
   } catch(_uniWsErr) { _uniUseClaudeWebSearch = false; }
   if (_uniResearchRequired && _uniResearchFailure && _uniResearchFailure.code === 'DISABLED_BY_USER') _uniUseClaudeWebSearch = false;
   if (_uniUseClaudeWebSearch) {
@@ -8618,7 +8620,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
     var _uniChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
        ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, streamPhase: 'partial', record: false })
-      : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
+      : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = (_uniResearchRequired && !_uniWebResult)
       ? '최신·인과성 주장에 필요한 Web Research 근거를 검증 중입니다. 검증 전 수치와 원인 단정은 표시하지 않습니다.'
       : _uniChunkResult.text;
@@ -8638,7 +8640,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       : { required: _uniResearchRequired, ready: !_uniResearchRequired, reason: 'research-gate-unavailable' };
     var _uniDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
        ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
-      : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
+      : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = _uniDoneResult.text;
     var _publicGate = _uniDoneResult.actionGate;
     if (_uniResearchRequired && !_uniResearchGate.ready) {

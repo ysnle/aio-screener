@@ -1,0 +1,59 @@
+/* P1628: comfortable six-axis reading: conclusion, chart, evidence, next observation. */
+#page-signal { max-width: none; width: 100%; }
+.page .regime-quality-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: stretch; }
+.page .regime-quality-board .regime-axis { min-width: 0; padding: 22px 24px; border-radius: 6px; }
+.page .regime-quality-board .regime-axis-head { gap: 12px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 10px; }
+.page .regime-quality-board .regime-axis-title { font-size: 19px; line-height: 1.45; }
+.page .regime-quality-board .regime-state { font-size: 14px; white-space: nowrap; }
+.page .regime-quality-board .basis-chip { font-size: 13px; margin-bottom: 8px; }
+.page .regime-quality-board .regime-read { font-size: 16px; line-height: 1.7; margin: 6px 0 16px; }
+.page .regime-quality-board .regime-evidence { grid-template-columns: minmax(120px, .8fr) minmax(0, 1.5fr); font-size: 14px; line-height: 1.7; gap: 8px 14px; margin: 18px 0; }
+.page .regime-quality-board .regime-evidence dt { color: var(--text-secondary); overflow-wrap: anywhere; }
+.page .regime-quality-board .regime-evidence dd { overflow-wrap: anywhere; }
+.page .regime-axis-history { margin: 12px 0 18px; min-width: 0; }
+.page .regime-chart-selectors { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.page .regime-chart-selectors button { min-height: 38px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); color: var(--text-secondary); font: inherit; font-size: 14px; cursor: pointer; }
+.page .regime-chart-selectors button[aria-pressed="true"] { color: var(--text-primary); border-color: var(--text-primary); font-weight: 600; }
+.page .regime-chart-selectors button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.page .regime-chart-caption { font-size: 14px; line-height: 1.65; color: var(--text-secondary); margin: 8px 0; overflow-wrap: anywhere; }
+.page .regime-axis-plot { min-width: 0; }
+.page .regime-axis-plot .trend-chart-wrap { width: 100%; }
+.page .regime-axis-plot .trend-chart { width: 100%; height: auto; }
+.page .regime-axis-plot .trend-chart-axis { font-size: 14px; }
+.page .regime-chart-note { margin: 8px 0; font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+.page .regime-axis-observe { padding-top: 14px; border-top: 1px solid var(--border); margin-top: 16px; }
+.page .regime-axis-observe h4 { margin: 0 0 6px; color: var(--text-primary); font-size: 14px; }
+.page .regime-axis-observe p { margin: 0 0 12px; color: var(--text-secondary); font-size: 15px; line-height: 1.75; overflow-wrap: anywhere; }
+.page .regime-axis-details { margin-top: 10px; color: var(--text-secondary); font-size: 14px; line-height: 1.65; }
+.page .regime-axis-details summary { cursor: pointer; min-height: 28px; }
+.page .regime-axis-details p { overflow-wrap: anywhere; }
+.page .regime-scenarios { margin: 24px 0 30px; padding-top: 20px; border-top: 1px solid var(--border); }
+.page .regime-scenario-basis, .page .regime-scenario-current { font-size: 14px; line-height: 1.75; color: var(--text-secondary); margin: 10px 0 16px; }
+.page .regime-scenario-hold { color: var(--text-primary); border-left: 3px solid var(--data-amber); padding: 10px 14px; font-size: 15px; line-height: 1.65; }
+.page .regime-scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.page .regime-scenario-card { min-width: 0; padding: 20px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); }
+.page .regime-scenario-card[data-confirmed="true"] { border-color: var(--text-primary); }
+.page .regime-scenario-head { display: flex; flex-wrap: wrap; gap: 8px 12px; justify-content: space-between; align-items: baseline; }
+.page .regime-scenario-head h3 { margin: 0; color: var(--text-primary); font-size: 18px; line-height: 1.5; }
+.page .regime-scenario-status { font-size: 13px; color: var(--text-secondary); }
+.page .regime-scenario-card h4 { font-size: 14px; color: var(--text-primary); margin: 18px 0 6px; }
+.page .regime-scenario-card p, .page .regime-scenario-card li { color: var(--text-secondary); font-size: 15px; line-height: 1.75; overflow-wrap: anywhere; }
+.page .regime-scenario-card p { margin: 8px 0; }
+.page .regime-scenario-card ul { margin: 6px 0; padding-left: 19px; }
+.page .regime-scenario-card li + li { margin-top: 6px; }
+.page .regime-quality-korea { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.page .regime-korea-value { font-size: 21px; font-variant-numeric: tabular-nums; color: var(--text-primary); margin: 8px 0; }
+@media (max-width: 1050px) {
+  .page .regime-scenario-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 900px) {
+  .page .regime-quality-board { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .page .regime-quality-board .regime-axis { padding: 18px; }
+  .page .regime-quality-korea .regime-axis:last-child:nth-child(odd) { grid-column: auto; }
+}
+@media (max-width: 480px) {
+  .page .regime-quality-board .regime-axis { padding: 16px 12px; }
+  .page .regime-quality-board .regime-evidence { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .page .regime-quality-board .regime-evidence dd { margin-bottom: 10px; }
+  .page .regime-scenario-card { padding: 16px; }
+}

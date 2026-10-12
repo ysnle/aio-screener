@@ -1,11 +1,12 @@
 // P1436: 재무 공시's lead block — annual revenue and net income as bars, the margin under each year,
 // and the connected reading (growth → profitability → earnings vs price → price vs results).
-import { buildFiscalRead, formatUsdShort } from '../../domain/fundamental/fiscal-read.js';
+import { buildFiscalRead, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { buildQuarterRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
 export function parseFiscalHistory(text) {
@@ -18,8 +19,12 @@ export function parseFiscalHistory(text) {
     }));
 }
 
-function requestFiscalHistory(root, onReady) {
-  if (root._aioSecFiscalHistory !== undefined || root._aioSecFiscalHistoryRequested) return;
+export function requestFiscalHistory(root, onReady) {
+  if (root._aioSecFiscalHistory !== undefined) return;
+  // P1627: the pending history request belongs to the most recently displayed
+  // company. Its completion must not repaint the prior issuer after navigation.
+  root._aioSecFiscalHistoryOnReady = onReady;
+  if (root._aioSecFiscalHistoryRequested) return;
   const fetchFn = root?.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return;
   root._aioSecFiscalHistoryRequested = true;
@@ -27,9 +32,9 @@ function requestFiscalHistory(root, onReady) {
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
   load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
     .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
-    .then((artifact) => { root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; })
+    .then((artifact) => { root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; })
     .catch(() => { root._aioSecFiscalHistory = null; })
-    .finally(() => { root._aioSecFiscalHistoryRequested = false; onReady(); });
+    .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = root._aioSecFiscalHistoryOnReady; delete root._aioSecFiscalHistoryOnReady; ready?.(); });
 }
 
 function el(doc, tag, text, className) {
@@ -39,32 +44,98 @@ function el(doc, tag, text, className) {
   return node;
 }
 
-function bars(doc, read) {
+const number = (value) => value != null && value !== '' && typeof value !== 'boolean' && Number.isFinite(Number(value)) ? Number(value) : null;
+
+// P1627: all years share one zero line and one monetary scale. Losses point down;
+// an actual zero has zero height and a missing fact has no bar.
+export function fiscalBarGeometry(values = []) {
+  const amounts = values.map(number).filter((value) => value != null);
+  const positive = Math.max(0, ...amounts);
+  const negative = Math.max(0, ...amounts.map((value) => -value));
+  const range = positive + negative || 1;
+  const baseline = amounts.some((value) => value !== 0) ? positive / range * 100 : 50;
+  return { baseline, rect: (input) => {
+    const value = number(input);
+    return value == null ? null : { top: value >= 0 ? baseline - value / range * 100 : baseline, height: Math.abs(value) / range * 100 };
+  } };
+}
+
+export function formatFiscalAmount(value) {
+  const v = number(value);
+  if (v == null) return '자료 없음';
+  return `${v < 0 ? '−' : ''}$${(Math.abs(v) / 1e6).toLocaleString('en-US', { maximumFractionDigits: 3 })}M`;
+}
+
+function fiscalChart(doc, rows, { quarter = false } = {}) {
+  const scale = fiscalBarGeometry(rows.flatMap((year) => [year.revenue, year.netIncome]));
   const box = el(doc, 'div', null, 'fiscal-bars');
-  const max = Math.max(...read.history.map((year) => Math.max(year.revenue || 0, year.netIncome || 0)), 1);
-  for (const year of read.history) {
+  box.style.setProperty('--fiscal-zero', `${scale.baseline.toFixed(3)}%`);
+  for (const year of rows) {
     const col = el(doc, 'div', null, 'fiscal-col');
+    const amounts = el(doc, 'div', null, 'fiscal-values');
+    amounts.append(el(doc, 'span', `매출 ${formatFiscalAmount(year.revenue)}`, 'fiscal-value'),
+      el(doc, 'span', `순이익 ${formatFiscalAmount(year.netIncome)}`, `fiscal-value${year.netIncome < 0 ? ' is-loss' : ''}`));
     const stack = el(doc, 'div', null, 'fiscal-stack');
-    const revenue = el(doc, 'div', null, 'fiscal-bar is-revenue');
-    revenue.style.height = `${Math.max(2, year.revenue / max * 100).toFixed(1)}%`;
-    revenue.title = `매출 ${formatUsdShort(year.revenue)}`;
-    stack.append(revenue);
-    if (year.netIncome != null) {
-      const income = el(doc, 'div', null, `fiscal-bar is-income${year.netIncome < 0 ? ' is-loss' : ''}`);
-      income.style.height = `${Math.max(2, Math.abs(year.netIncome) / max * 100).toFixed(1)}%`;
-      income.title = `순이익 ${formatUsdShort(year.netIncome)}`;
-      stack.append(income);
+    if (box.children.length === 0) {
+      const zero = el(doc, 'span', '0', 'fiscal-zero-label');
+      zero.style.top = `${scale.baseline.toFixed(3)}%`;
+      stack.append(zero);
     }
-    col.append(el(doc, 'span', formatUsdShort(year.revenue), 'fiscal-value'), stack,
-      el(doc, 'span', `FY${String(year.periodEnd).slice(0, 4)}`, 'fiscal-year'),
-      el(doc, 'span', year.margin == null ? '' : `${year.margin.toFixed(0)}%`, 'fiscal-margin'));
+    for (const [field, label, className] of [['revenue', '매출', 'is-revenue'], ['netIncome', '순이익', 'is-income']]) {
+      const geometry = scale.rect(year[field]);
+      if (!geometry) continue;
+      const bar = el(doc, 'div', null, `fiscal-bar ${className}${year[field] < 0 ? ' is-loss' : ''}`);
+      bar.style.top = `${geometry.top.toFixed(3)}%`;
+      bar.style.height = `${geometry.height.toFixed(3)}%`;
+      bar.title = `${year.periodEnd} ${label} ${formatFiscalAmount(year[field])}`;
+      stack.append(bar);
+    }
+    const change = quarter ? year.revenueYoy : year.margin;
+    col.append(amounts, stack, el(doc, 'span', `${quarter ? '분기' : '연간'} ${year.periodEnd}${year.derived ? '*' : ''}`, 'fiscal-year'),
+      el(doc, 'span', change == null ? '비율 자료 없음' : quarter ? `매출 전년비 ${change >= 0 ? '+' : ''}${change.toFixed(1)}%` : `순이익률 ${change.toFixed(1)}%`, 'fiscal-margin'));
     box.append(col);
   }
+  const scroll = el(doc, 'div', null, 'fiscal-chart-scroll');
+  scroll.tabIndex = 0;
+  scroll.setAttribute('role', 'region');
+  scroll.setAttribute('aria-label', quarter ? '분기 매출과 순이익 차트, 가로 스크롤' : '연간 매출과 순이익 차트, 가로 스크롤');
+  scroll.append(box);
   const legend = el(doc, 'div', null, 'fiscal-legend');
-  legend.append(el(doc, 'span', '매출', 'is-revenue'), el(doc, 'span', '순이익', 'is-income'), el(doc, 'span', '아래 % = 순이익률', 'is-note'));
-  const wrap = el(doc, 'div', null, 'fiscal-chart');
-  wrap.append(box, legend);
+  legend.append(el(doc, 'span', '매출', 'is-revenue'), el(doc, 'span', '순이익', 'is-income'), el(doc, 'span', '0선 위 이익 · 아래 손실, 같은 금액 척도', 'is-note'));
+  const wrap = el(doc, 'div', null, 'fiscal-chart fiscal-quality-chart');
+  wrap.append(scroll, legend);
   return wrap;
+}
+
+function fiscalTable(doc, rows, { quarter = false } = {}) {
+  const region = el(doc, 'div', null, 'fiscal-table-scroll');
+  region.tabIndex = 0;
+  region.setAttribute('role', 'region');
+  region.setAttribute('aria-label', quarter ? '분기 공시 금액표, 가로 스크롤' : '연간 공시 금액표, 가로 스크롤');
+  const table = el(doc, 'table', null, 'fiscal-amount-table');
+  table.append(el(doc, 'caption', `${quarter ? '분기' : '연간'} 금액 · USD 백만(M) · 자료 없음은 0이 아닙니다`));
+  const head = el(doc, 'thead'); const headRow = el(doc, 'tr');
+  const definitions = quarter ? [['periodEnd', '분기 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['margin', '순이익률']]
+    : [['periodEnd', '회계연도 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['operatingCashFlow', '영업현금흐름'], ['capex', '설비투자'], ['fcf', '잉여현금흐름'], ['equity', '자기자본(기말)'], ['longTermDebt', '장기부채'], ['shares', '주식 수']];
+  for (const [, label] of definitions) { const th = el(doc, 'th', label); th.scope = 'col'; headRow.append(th); }
+  head.append(headRow); table.append(head);
+  const body = el(doc, 'tbody');
+  for (const year of rows) {
+    const tr = el(doc, 'tr');
+    for (const [field] of definitions) {
+      const value = field === 'fcf' ? number(year.operatingCashFlow) != null && number(year.capex) != null ? year.operatingCashFlow - year.capex : null : year[field];
+      const text = field === 'periodEnd' ? `${year.periodEnd}${year.derived ? '*' : ''}` : field === 'margin' ? number(value) == null ? '자료 없음' : `${Number(value).toFixed(1)}%`
+        : field === 'shares' ? number(value) == null ? '자료 없음' : `${(Number(value) / 1e6).toLocaleString('en-US', { maximumFractionDigits: Number(value) < 1e8 ? 1 : 0 })}M주`
+          : formatFiscalAmount(value);
+      const cell = el(doc, field === 'periodEnd' ? 'th' : 'td', text, number(value) < 0 ? 'is-loss' : null);
+      if (field === 'periodEnd') cell.scope = 'row';
+      if (field === 'shares') cell.title = year.sharesObservedAt ? `관측일 ${year.sharesObservedAt}` : '해당 회계연도 종료 뒤 표지에 신고한 주식 수';
+      tr.append(cell);
+    }
+    body.append(tr);
+  }
+  table.append(body); region.append(table);
+  return region;
 }
 
 // Codex review 2026-10-05: the last eight fiscal quarters — revenue bars with the change against the same
@@ -76,31 +147,18 @@ function quarterSection(doc, root, symbol) {
   if (!read.available) return null;
   const box = el(doc, 'div', null, 'fiscal-quarters');
   box.append(el(doc, 'span', `분기 흐름 · 최근 ${read.rows.length}개 분기`, 'stock-read-vis-title'), el(doc, 'p', read.headline, 'briefing-read-headline'));
-  const bars = el(doc, 'div', null, 'fiscal-bars');
-  const max = Math.max(...read.rows.map((q) => Math.abs(q.revenue || 0)), 1);
-  for (const q of read.rows) {
-    const col = el(doc, 'div', null, 'fiscal-col');
-    const stack = el(doc, 'div', null, 'fiscal-stack');
-    const bar = el(doc, 'div', null, 'fiscal-bar is-revenue');
-    bar.style.height = `${Math.max(2, (q.revenue || 0) / max * 100).toFixed(1)}%`;
-    bar.title = `매출 ${formatUsdShort(q.revenue)}${q.netIncome != null ? ` · 순이익 ${formatUsdShort(q.netIncome)}` : ''}${q.derived ? ' · 연간 − 1~3분기로 계산' : ''}`;
-    stack.append(bar);
-    col.append(el(doc, 'span', formatUsdShort(q.revenue), 'fiscal-value'), stack,
-      el(doc, 'span', `${q.periodEnd.slice(2, 7).replace('-', '.')}${q.derived ? '*' : ''}`, 'fiscal-year'),
-      el(doc, 'span', q.revenueYoy == null ? '' : `${q.revenueYoy >= 0 ? '+' : ''}${q.revenueYoy.toFixed(0)}%`, 'fiscal-margin'));
-    bars.append(col);
-  }
-  box.append(bars, el(doc, 'p', `아래 % = 전년 같은 분기 대비 매출 변화 · 분기 마감 월 기준${read.hasDerived ? ' · * 표시 분기는 연간 실적에서 1~3분기를 빼 계산한 값' : ''}.`, 'theme-strength-basis'));
+  box.append(fiscalChart(doc, read.rows, { quarter: true }), fiscalTable(doc, read.rows, { quarter: true }),
+    el(doc, 'p', `각 3개월의 실적이며 연간 금액과 구분합니다.${read.hasDerived ? ' * 분기는 연간 실적에서 1~3분기를 뺀 계산값입니다.' : ''}`, 'theme-strength-basis'));
   return box;
 }
 
 // P1467: where the company sits among same-sector SEC filers on the same four definitions.
-function peerSection(doc, root, symbol, row, rows) {
+function peerSection(doc, root, symbol, row, rows, fundamentals) {
   const history = root?._aioSecFiscalHistory;
   if (!history || !row?.sector) return null;
   const parsed = new Map();
   const seriesFor = (sym) => {
-    if (!parsed.has(sym)) parsed.set(sym, history[sym] ? parseFiscalHistory(history[sym]) : null);
+    if (!parsed.has(sym)) parsed.set(sym, history[sym] ? reconcileFiscalHistory(parseFiscalHistory(history[sym]), sym === symbol ? fundamentals : null, sym) : null);
     return parsed.get(sym);
   };
   const peers = rows.filter((item) => item?.sector === row.sector && item.sym !== symbol && history[item.sym]).map((item) => item.sym);
@@ -127,9 +185,21 @@ function peerSection(doc, root, symbol, row, rows) {
   }
   const notes = ['막대 = 같은 섹터 기업 중 이 회사보다 낮은 비율(백분위)', '각 회사의 최근 회계연도 기준이며 회계연도 마감이 1년 이상 떨어진 기업은 제외', '섹터는 넓은 분류라 사업 구조가 다른 기업이 섞입니다'];
   if (/financ/i.test(row.sector)) notes.push('금융사는 매출·현금흐름의 의미가 일반 기업과 달라 마진·잉여현금 비교를 그대로 읽지 않습니다');
-  if (read.rows.find((metric) => metric.id === 'fcfMargin')?.percentile == null) notes.push('잉여현금 마진은 현금흐름 공시가 수집되는 대로(약 1주) 채워집니다');
-  box.append(el(doc, 'p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
+  if (read.rows.find((metric) => metric.id === 'fcfMargin')?.percentile == null) notes.push('잉여현금 마진은 영업현금흐름과 설비투자가 모두 수집된 기간에만 비교합니다');
+  const details = el(doc, 'details', null, 'fiscal-method-details');
+  details.append(el(doc, 'summary', '비교 범위와 계산 기준'), el(doc, 'p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
+  box.append(details);
   return box;
+}
+
+function sourceLink(doc, fundamentals, { filings = false } = {}) {
+  const cik = String(fundamentals?.cik || '');
+  const href = filings ? /^\d{1,10}$/.test(cik) && Number(cik) > 0 ? `https://www.sec.gov/edgar/browse/?CIK=${Number(cik)}&owner=exclude` : null
+    : secFilingUrl(cik, fundamentals?.accession);
+  if (!href) return null;
+  const link = el(doc, 'a', filings ? 'SEC 분기·연간 공시 목록 확인' : '이 연간 공시 원문 확인', 'fiscal-source-link');
+  link.href = href; link.target = '_blank'; link.rel = 'noopener noreferrer';
+  return link;
 }
 
 export function renderFiscalRead({ documentRef: doc, root, state }) {
@@ -140,6 +210,7 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   const next = doc.getElementById('fund-next');
   if (!symbol) { host.hidden = true; host.replaceChildren(); renderNextSteps(doc, next, []); return null; }
   host.hidden = false;
+  host.classList.add('fiscal-quality');
   let rows = [];
   try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
   const row = rows.find((item) => item?.sym === symbol) || null;
@@ -149,24 +220,49 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   const read = buildFiscalRead({ symbol, fundamentals, row });
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
   if (!read.available) {
-    host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상(미국 상장 기업)이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF·해외 상장 종목은 공시 재무가 없습니다.', compact: true }));
+    host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분하며, 한국 종목은 한국 공시를 확인합니다.', compact: true }));
   } else {
-    host.querySelector('h2').append(el(doc, 'span', `SEC 10-K 연간 · ${read.history.length}개 회계연도`, 'briefing-h2-note'));
+    host.querySelector('h2').append(el(doc, 'span', `SEC 연간 · ${read.history.length}개 회계연도`, 'briefing-h2-note'));
+    const basis = el(doc, 'p', `연간 공시 · 회계연도 말 ${read.latest.periodEnd || '미상'}${fundamentals?.filedAt ? ` · 제출 ${fundamentals.filedAt}` : ''} · 금액 USD 백만(M)`, 'fiscal-period-basis');
+    const annualSource = sourceLink(doc, fundamentals);
+    if (annualSource) basis.append(doc.createTextNode(' · '), annualSource);
+    host.append(basis);
     if (read.headline) host.append(el(doc, 'p', `${symbol} — ${read.headline}`, 'briefing-read-headline'));
-    if (read.history.length >= 2) host.append(bars(doc, read));
+    if (read.history.length >= 2) host.append(fiscalChart(doc, read.history));
+    host.append(fiscalTable(doc, read.history));
+    host.append(el(doc, 'p', '잉여현금흐름 = 영업현금흐름 − 설비투자. 주식 수는 회계연도 종료 뒤 공시 표지의 관측값으로, 평균 유통주식 수와 다릅니다.', 'theme-strength-basis'));
+    if (root._aioSecFiscalPrecision?.decimalPlaces !== 3 && series) {
+      const precision = el(doc, 'details', null, 'fiscal-method-details');
+      precision.append(el(doc, 'summary', '과거 기록의 표시 정밀도'),
+        el(doc, 'p', `${read.latest.preciseAnnual ? '최근 연간 값은 같은 회계연도의 정확한 공시 금액으로 맞췄습니다. ' : ''}기존 연간·분기 이력은 백만 달러 단위로 반올림되어 과거 비율과 평균 자기자본 ROE에 근사 오차가 있습니다. 정밀 이력이 갱신되기 전까지 소수 금액을 복원하지 않습니다.`, 'theme-strength-basis'));
+      host.append(precision);
+    }
     const quarterBox = quarterSection(doc, root, symbol);
     if (quarterBox) host.append(quarterBox);
     // Codex browser audit H35: "최신" annual data is not the latest company state. Without quarters the gap after
     // the fiscal year end is named, so an old 10-K is not read as the current quarter.
-    else if (read.latest?.periodEnd) host.append(el(doc, 'p', `분기 실적은 이 종목에 아직 연결되지 않았습니다 — 위 숫자는 ${read.latest.periodEnd}에 끝난 회계연도까지이며, 그 뒤 분기 결과는 SEC 10-Q 원문에서 확인합니다.`, 'theme-strength-basis'));
+    else if (read.latest?.periodEnd) {
+      const missing = el(doc, 'p', `분기 실적 자료 없음 · 위 연간 숫자는 ${read.latest.periodEnd}까지입니다.`, 'fiscal-missing-period');
+      const quarterSource = sourceLink(doc, fundamentals, { filings: true });
+      if (quarterSource) missing.append(doc.createTextNode(' '), quarterSource);
+      host.append(missing);
+    }
     const list = el(doc, 'ul', null, 'stock-read-points');
     for (const point of read.points) {
       const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
-      li.append(el(doc, 'span', point.title, 'stock-read-point-title'), el(doc, 'span', point.text, 'stock-read-point-text'));
+      const text = el(doc, 'div', null, 'stock-read-point-text');
+      const separator = point.text.indexOf(' — ');
+      if (point.text.length > 140 && separator > 0) {
+        text.append(el(doc, 'span', point.text.slice(0, separator)));
+        const details = el(doc, 'details', null, 'fiscal-method-details');
+        details.append(el(doc, 'summary', '해석과 확인할 조건'), el(doc, 'p', point.text.slice(separator + 3)));
+        text.append(details);
+      } else text.textContent = point.text;
+      li.append(el(doc, 'span', point.title, 'stock-read-point-title'), text);
       list.append(li);
     }
     host.append(list);
-    const peerBox = peerSection(doc, root, symbol, row, rows);
+    const peerBox = peerSection(doc, root, symbol, row, rows, fundamentals);
     if (peerBox) host.append(peerBox);
   }
   renderNextSteps(doc, next, [

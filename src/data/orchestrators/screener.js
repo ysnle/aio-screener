@@ -57,7 +57,7 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
     const bySymbol = new Map((ranking?.rows || []).map((row) => [row.sym || row.symbol, row]));
     const rankedRows = normalized.rows.map((row) => {
       const result = bySymbol.get(row.sym || row.symbol);
-      const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : row;
+      const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : { ...row, rank: null, score: null, factorScores: {}, quantSignal: null };
       return { ...merged, setupProfile: deriveScreenerSetupProfile(calculationRow(merged)) };
     });
     const screenDefinition = createScreenDefinition({
@@ -134,6 +134,9 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
         },
         ranking: ranking ? {
           modelVersion: ranking.modelVersion,
+          populationPolicy: ranking.populationPolicy,
+          populationMarket: ranking.populationMarket,
+          byMarket: ranking.byMarket,
           inputVersion: ranking.inputVersion,
           available: ranking.available,
           ranked: ranking.ranked,

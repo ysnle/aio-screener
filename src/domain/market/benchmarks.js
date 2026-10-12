@@ -27,5 +27,6 @@ export function indexReturns(history = [], field) {
 // One benchmark row for a symbol: the market's index returns, labelled.
 export function benchmarkRowFor(symbol, history = []) {
   const bench = benchmarkOf(symbol);
-  return { ...indexReturns(history, bench.field), label: bench.label, id: bench.id, market: bench.market };
+  const series = buildCloseSeries(history, bench.field);
+  return { ...indexReturns(history, bench.field), asOf: series.at(-1)?.date || null, label: bench.label, id: bench.id, market: bench.market };
 }

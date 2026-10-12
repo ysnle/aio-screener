@@ -45,7 +45,7 @@ const SEC_FUNDAMENTALS_OUT = `${__dir}/../public-data/sec-fundamentals.json`;
 // ── 수집 심볼 (v1 핵심셋). 더 넣으려면 배열에 추가만 하면 됨 (배치 처리 자동) ──
 const SYMBOLS = [
   // 미국·글로벌 지수
-  '^GSPC','^IXIC','^DJI','^RUT','^VIX','^VIX3M','^VVIX','^FTSE','^N225','^HSI',
+  '^GSPC','^IXIC','^NDX','^DJI','^RUT','^VIX','^VIX3M','^VVIX','^FTSE','^N225','^HSI',
   // 금리 (Yahoo: ^TNX=10Y, ^TYX=30Y, ^FVX=5Y, ^IRX=13주)
   '^TNX','^TYX','^FVX','^IRX',
   // 원자재·환율 (v50.40: GBPUSD/CNY/AUDUSD 추가 — fxbond 페이지 "—" unavailable 해소, 클라이언트 LIVE_SYMBOLS와 정합)
@@ -1748,7 +1748,7 @@ async function fetchHistory(symbol, range = '6mo') {
 
 // history.json 레코드 필드 ↔ Yahoo 심볼 매핑 (백필 대상). F&G/IV는 과거 무료 소스 없어 제외(해당 일자 null).
 const HIST_SYMBOLS = {
-  '^GSPC': 'spx', '^IXIC': 'nasdaq', '^DJI': 'dow', '^RUT': 'rut',
+  '^GSPC': 'spx', '^IXIC': 'nasdaq', '^NDX': 'ndx', '^DJI': 'dow', '^RUT': 'rut',
   '^VIX': 'vix', '^VIX3M': 'vix3m', '^VVIX': 'vvix', '^TNX': 'tnx',
   'DX-Y.NYB': 'dxy', 'CL=F': 'wti', 'GC=F': 'gold',
   '^KS11': 'kospi', '^KQ11': 'kosdaq', 'BTC-USD': 'btc',
@@ -1761,12 +1761,12 @@ const HIST_SYMBOLS = {
   // P1586: 20-year Treasury ETF closes feed the safe-haven component of the self-computed sentiment index.
   'TLT': 'tlt',
 };
-const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
 export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
-  spx: [500, 50000], nasdaq: [500, 100000], dow: [2000, 150000], rut: [100, 10000],
+  spx: [500, 50000], nasdaq: [500, 100000], ndx: [500, 100000], dow: [2000, 150000], rut: [100, 10000],
   vix: [5, 200], vvix: [20, 400], tnx: [0, 20], dxy: [50, 200], wti: [1, 400],
   gold: [100, 20000], kospi: [300, 20000], kosdaq: [100, 5000], btc: [1000, 2000000],
   // 원/달러는 1997년 외환위기 이후 800~2000원대를 벗어난 적이 없다. 공급자 오류(예: 지수/배율

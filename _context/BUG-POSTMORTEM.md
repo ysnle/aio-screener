@@ -1,10 +1,136 @@
 ---
-last_verified: 2026-10-11
+last_verified: 2026-10-12
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1631 - v57.41 - 8화면 브라우저 대조: 용어 사전 딥링크 빈 화면과 화면 간 문구·분모·표기 불일치 (2026-10-12)
+
+- symptom/reproduction: #glossary로 들어오면 활성 화면이 없는 빈 화면이 됐다. 시장 상태 결론은 '소수 대형주가 떠받친다'고 단정했지만 시나리오는 기여도 확인 전 단정하지 않는다고 했다. 심리 지수의 '시장 폭 88'이 시장 폭 '부담' 판정과 모순처럼 읽혔다. 데이터 출처에 제거된 CFTC 위젯이 남았다. 스크리너 읽기는 803, 진단은 806을 분모로 썼다. 재무 연간 순이익률에 + 부호, 주식 수 소수 3자리가 섞였다. AI 패널에 운영자 예산·모델 문구가 상시 노출됐다. 홈 타일만 '美 10년물'로 표기했다.
+- root_cause: showPage가 page가 없는 OVERLAY id도 일반 라우트처럼 처리해 기존 화면만 비활성화했다. 각 화면 문구가 서로 다른 시점·작성자의 정의로 만들어져 같은 개념의 표현·분모가 어긋났다.
+- fix: OVERLAY id는 사용 설명서 화면을 열고 그 위에 용어 사전 창을 띄운다. 결론 문구를 기여도 확인 전 단정하지 않는 표현으로 맞춘다. 심리 지수 요소를 '상승 종목 흐름'으로 바꾼다. CFTC 출처 항목을 제거한다. 스크리너 읽기에 '조건 순위가 매겨진 N종목'을 명시한다. 순이익률 부호를 제거하고 주식 수 정밀도를 규모에 맞춘다. AI 패널은 웹검색 토글만 보이고 연결 상태·예산은 접는다. 10년물 표기를 '미'로 통일한다.
+- violated_rule: 화면 간 정의·분모 단일화(P1611 계열), 개발자 문구 금지, 근거 없는 원인 단정 금지
+- prevention: P1631: ci-responsive-browser-check.mjs가 #glossary 오버레이 경로의 활성 화면과 시나리오 근거 접힘을 19라우트×3폭에서 실행한다.
+- verification/residual: 로컬 브라우저에서 8화면을 직접 열어 대조. 시세 프록시가 로컬을 허용하지 않아 실시간 시세 의존 표시는 배포판 비교와 합성 응답 증거로 확인.
+
+## P1630 - v57.41 - 인수 리뷰: 가격 표기 혼재, 재렌더 시 펼침·포커스 소실, 원천 없는 사업 설명 상시 안내, 시나리오 카드 과밀 (2026-10-12)
+
+- symptom/reproduction: v57.40에서 같은 종목 가격이 '84.64 $'·'$1.2B'·'₩73,000'·'73,000원'으로 섞였다. 시세 갱신마다 기업 요약이 통째로 다시 그려져 펼친 근거와 키보드 포커스가 사라졌다. 사업 설명 producer가 없어 모든 종목에 '사업 설명 없음' 안내가 두 번 노출됐다. 시장 상태 시나리오 카드가 카드당 360~400자를 펼친 채 보여 소유자 읽기 기준을 넘었다.
+- root_cause: 새 가격 포맷터가 기존 부호 선행 표기와 별도로 USD 접미 표기를 도입했다. 기업 요약 렌더러가 모델 변경 여부와 무관하게 replaceChildren으로 재구성했다. businessProfile 계약은 만들었지만 공급하는 producer가 없어 결측 안내가 상시 표시됐다. 시나리오 카드는 조건·반증·관찰을 모두 펼친 상태로 렌더했다.
+- fix: formatScreenerPrice를 부호 선행($84.64, ₩73,000)으로 통일하고 종목 헤더·차트 상태 줄·거래 집중 가격대(원화 소수점 제거)에 같은 포맷터를 쓴다. 기업 요약은 모델 서명이 같으면 DOM을 유지하고, 바뀌면 펼침·포커스를 복원한다. 사업 설명이 없으면 결측 문단을 숨긴다(AI 문맥에는 결측을 계속 전달). 시나리오 카드는 해석 한 문단만 보이고 조건·반증·다음 확인은 접으며 재렌더 뒤에도 펼침을 유지한다.
+- violated_rule: 화면 정직성(원천 없는 위젯은 숨김), 읽기 길이 기준(블록당 3-5줄), 원본 단위·표기 일관성
+- prevention: P1630: ci-screener-market-fixture.mjs가 USD 부호 선행 표기를, ci-entity-quality-browser-check.mjs가 시세 재렌더 뒤 기업 근거 펼침·포커스 유지를 실행한다.
+- verification/residual: 오프라인 fixture와 로컬 브라우저(시장 상태 카드 90~122자, 재렌더 뒤 펼침 유지) 확인. 실기기·배포는 미검증.
+
+## P1629 - v57.40 - 한국 휴장·주말 뒤 최신 종가 팩터 전체 보류 (2026-10-12)
+
+- symptom/reproduction: 10/12 한국 스크리너 180개가 모두 순위 계산 없음으로 사라졌다. 최신 한국 완료 세션은 10/8이었다.
+- root_cause: 필드 준비도는 거래 세션을 확인했지만 순위 모델은 4일 경과 시간만 사용해 한글날·주말 뒤 실제 최신 종가를 오래된 값으로 차단했다.
+- fix: 시장별 실제 완료 세션과 관측 타임존·bar-start·completed-sessions-only 계보가 일치할 때만 경과 시간 예외를 인정한다. quality/source 차단과 미래 자료는 계속 보류한다. 더 새 장이 완료되면 이전 종가의 예외를 취소한다. 최신 main a58e386f 데이터 통합 뒤 bump-version --align-generated로 생산자 시각/identity를 보존해 버전 표면을 맞춘다.
+- violated_rule: R670 완료 종가 기준; 시장별 원본 관측일
+- prevention: P1629: ci-screener-market-fixture.mjs에서 10/12 최신 한국 종가의 순위 유지와 10/13 이후 오래된 종가 보류를 검증한다.
+- verification/residual: 오프라인 순위 fixture PASS. 실제 US/KR 화면과 최신 main 통합 뒤 브라우저 검증을 진행한다.
+
+## P1628 - v57.40 - 시장 축 가독성·조건부 흐름과 한국 참여도 부족 (2026-10-12)
+
+- symptom/reproduction: 6개 축의 작은 숫자표가 넓은 화면에 흩어지고 근거·조건·다음 관찰이 연결되지 않았다. 한국은 환율과 코스피 값뿐이고 기관 포지셔닝은 주간 선물 보고였다.
+- root_cause: 현재 상태 분류 위주의 카드에 관측 추이와 조건부 전개 모델이 없었다. 한국 종목 표본과 테마 데이터가 시장 상태의 소비자로 연결되지 않았다. 주간 기관 자료는 실시간 매일 관측 요구를 충족하지 않는다.
+- fix: 6축을 결론·날짜/단위가 있는 기록 차트·근거·전환 관찰 순서로 확대한다. 관측 기반 3조건 시나리오와 한국 지수/환율·KRX 동일세션 표본의 SMA 참여도·수익률 중앙값·강한 테마를 연결한다. 휴장 carry-forward는 새로운 관측으로 쓰지 않고 미수집 수급·한국 공시를 추정하지 않는다. 사용자 지시대로 시장 상태의 주간 COT 기관 포지셔닝 위젯을 제거한다.
+- violated_rule: 원본 시점·시장·표본 경계 보존; R670 종가 근거
+- prevention: P1628: ci-regime-scenarios-fixture.mjs·ci-korea-participation-fixture.mjs와 실제 경로 브라우저에서 조건·축·KR휴장·레이아웃을 검증한다.
+- verification/residual: 로컬 시나리오/표본 회귀와 브라우저 화면 확인. CFTC 공식 release schedule로 화요일 포지션의 금요일 주간 발표를 확인했다. 유료 AI 응답·실시간 기관 수급은 확인한 것으로 주장하지 않는다.
+
+## P1627 - v57.40 - 재무 손실 방향과 동일 회계기간 원본 정밀도 (2026-10-12)
+
+- symptom/reproduction: 손실이 양수 방향으로 그려지고 재무 흐름과 공시 기본 보고의 이익률·성장률이 달랐다. 금액표와 누락 항목 설명이 부족했다.
+- root_cause: compact 이력이 USD 백만 정수로 반올림되고 회계기간·issuer 계약 없이 원본과 비교했다. 양수 막대만 설계되어 손실 방향이 없었다.
+- fix: 손실은 공통 0선 아래에 표시한다. 같은 issuer/FY 원본만 정밀값으로 조정하고 연간 간격을 확인한다. 연간/분기 금액 및 현금흐름·부채·주식수 표를 추가하고 누락 자료와 실제 공시 링크를 표시한다. producer 코드의 금액 정밀도를 개선하되 로컬 생산이나 생성물 변경은 하지 않는다.
+- violated_rule: 종목 identity·관측 기준·원본 단위 보존; R670 완료 종가 비교
+- prevention: P1627: scripts/ci-fiscal-quality-fixture.mjs와 ci-entity-quality-browser-check.mjs에서 공통 모델과 실제 화면 경로를 검증한다.
+- verification/residual: 로컬 회귀 및 실제 경로 브라우저 검증을 진행한다. 유료 AI·현재 외부 시세·실기기·배포 증거와 구분한다.
+
+## P1626 - v57.40 - 차트 조건부 흐름과 거래량 가격대의 근거 계약 (2026-10-12)
+
+- symptom/reproduction: 차트 현재 상태만 제시하고 이후 확인할 조건과 계산 방법이 부족했다. 한국 종목에도 미국 벤치마크가 적용되었다.
+- root_cause: 조건부 상태 변화 모델과 가격대 거래량 정의가 없고 60봉 이력을 6개월로 계산했다.
+- fix: 관측한 고저점·피벗에서 회복/범위/약화 조건을 파생한다. 일봉 거래량을 관측 가격 범위에 균등 배분한 추정치를 실제 체결 매물대와 구분한다. 127봉 미만 6개월 수익률을 보류하고 한국 기준 지수를 연결한다. AI 문맥은 같은 issuer의 화면 근거를 공유한다.
+- violated_rule: 종목 identity·관측 기준·원본 단위 보존; R670 완료 종가 비교
+- prevention: P1626: scripts/ci-chart-scenarios-fixture.mjs와 ci-entity-quality-browser-check.mjs에서 공통 모델과 실제 화면 경로를 검증한다.
+- verification/residual: 로컬 회귀 및 실제 경로 브라우저 검증을 진행한다. 유료 AI·현재 외부 시세·실기기·배포 증거와 구분한다.
+
+## P1625 - v57.40 - 시장별 순위 모집단과 선택 정렬의 일치 (2026-10-12)
+
+- symptom/reproduction: 미국·한국 종목이 섞이고 프리셋과 다른 균형 정렬이 적용되어 강한 종목을 발견하기 어려웠다.
+- root_cause: 필터 이전에 글로벌 팩터 순위를 계산하고 UI가 프리셋 결과를 복합 순위로 재정렬했다.
+- fix: 시장별 팩터 모집단과 US/KR 화면 선택을 일치시키고 프리셋 순서를 유지한다. 추세·3개월 수익률·균형 등 정렬을 명시하고 통화와 실제 활성 비중을 표시한다. 모집단 정책을 모델 지문에 포함해 이전 성과를 현재 검증으로 제시하지 않는다.
+- violated_rule: 종목 identity·관측 기준·원본 단위 보존; R670 완료 종가 비교
+- prevention: P1625: scripts/ci-screener-market-fixture.mjs와 ci-entity-quality-browser-check.mjs에서 공통 모델과 실제 화면 경로를 검증한다.
+- verification/residual: 로컬 회귀 및 실제 경로 브라우저 검증을 진행한다. 유료 AI·현재 외부 시세·실기기·배포 증거와 구분한다.
+
+## P1624 - v57.40 - 종목 첫 진입 자료 연결과 기업 분석 공통 구조 (2026-10-12)
+
+- symptom/reproduction: 가격 이력은 차트 탭을 먼저 열어야 채워졌고 기업 정체성·사업 정보와 손익 비교가 불완전했다.
+- root_cause: 종목 요약이 캐시만 읽고 독립적인 자료 요청·기업 분석 계약이 없었다. 수익률 막대는 부호를 방향에 반영하지 않았다.
+- fix: 모든 종목에 취소 가능한 공통 가격·일봉 요청, 출처·시점·통화 계약과 기업 분석 모델을 적용한다. 사업 설명은 issuer identity와 출처가 있는 자료만 연결한다. 예시 종목 전용 사업 설명을 하드코딩하지 않는다. 수익률은 공통 0선에서 부호에 따라 방향을 나눈다.
+- violated_rule: 종목 identity·관측 기준·원본 단위 보존; R670 완료 종가 비교
+- prevention: P1624: scripts/ci-entity-summary-fixture.mjs와 ci-entity-quality-browser-check.mjs에서 공통 모델과 실제 화면 경로를 검증한다.
+- verification/residual: 로컬 회귀 및 실제 경로 브라우저 검증을 진행한다. 유료 AI·현재 외부 시세·실기기·배포 증거와 구분한다.
+
+## P1623 - v57.39 - 상대강도 기준일 혼합과 1% 미만 시장 폭 단위 확대 (2026-10-11)
+
+- symptom/reproduction: 종목 기준일과 S&P 기준일이 다르더라도 상대 수익률이 계산되고 종목별 날짜가 숨겨졌다. producer의 0.5%가 홈 참여 차트에서 50%로 바뀌었다.
+- root_cause: 수익률 비교가 숫자 존재만 확인하고 종가 기준일을 맞추지 않았다. 퍼센트 원본을 0-1 비율로 추정하는 오래된 변환이 남았다.
+- fix: 벤치마크 종가 기준일을 모델에 전달하고 날짜가 일치할 때만 차감한다. 그룹 내 기준일 혼합/미확인은 중앙값·순위·선두를 보류하며 각 종목 기준일을 표에 표시한다. 홈 참여 차트는 producer 퍼센트 원단위를 유지한다. 질문별 기존 문맥 선택 로직을 native ESM으로 이동하고 사전 검색 스타일도 native stylesheet로 이동한다.
+- violated_rule: R670 직전 미국장 종가 비교; 원본 단위 보존
+- prevention: P1623: ci-esm-core-unit-check.mjs에서 기준일 불일치·혼합·미확인과 0.5% 차트/카드 일치를 실행한다.
+- verification/residual: 독립 코드 리뷰의 합성 재현을 회귀 입력으로 사용한다. 로컬 데이터/브라우저 증거만 해당하며 실제 유료 답변은 미검증이다.
+
+## P1622 - v57.39 - 테마 핵심 종목 누락·사업/상품 오분류와 구성 종목 내부 비교 부재 (2026-10-11)
+
+- symptom/reproduction: RBRK/FN/MPWR 등 주요 종목이 빠지고 일부 상세 테마는 CYBR 종료심볼, BITO 현물 ETF, SMCI 반도체 분류가 남아 있었다. 의료 로봇과 업무 소프트웨어가 한 분류에 들어가고 그룹 안 종목 순위 비교가 없었다.
+- root_cause: 부모 산업 분류와 별도 세분화 테마 레지스트리가 독립 갱신되어 의미가 어긋났다. 하위 분류마다 3개를 강제하면서 실제 사업 역할보다 형식적 표본 수가 앞섰다. 순위 모델은 그룹 중앙값과 대표 한 종목만 제공했다.
+- fix: 공식 기업/거래소/ETF 출처로 RBRK/FN/MPWR/AMKR/ONTO/NVT/SHEL/ENB를 보강한다. CYBR을 제거하고 SMCI를 서버 쪽으로 옮기며 BITO 현물/선물 구분과 MLP/법인 구분을 바로잡는다. PATH는 업무 소프트웨어, ISRG는 의료, TSLA는 휴머노이드 개발로 나눈다. 분류에는 1-2개도 허용하되 순위는 3개 수익률 표본일 때만 계산하며 순위 밖 구성도 별도로 모두 보여준다. 선택 기간의 그룹 내부 순위·공동 선두·후행·S&P/중앙값 대비 및 이동평균 거리를 비교 표와 AI 문맥에 추가한다. 변경된 커스텀 상세 테마의 임의 가중치는 제거해 동일 비중으로 계산한다.
+- violated_rule: R632 자료/상품 정체성, R670 종가 비교, 근거 없는 편집 가중치 배제
+- prevention: P1622: ci-runtime-contract-check.mjs는 확인된 핵심 편입·종료 심볼 및 사업/ETF 오분류를 차단한다. ci-esm-core-unit-check.mjs는 기간 변경·동률·결측 순위를 실행하고 ci-responsive-browser-check.mjs는 실제 펼침 표의 전체 종목·포커스를 검증한다.
+- verification/residual: 구조는 전 레지스트리를 검사하고 공식 의미 검수는 확인된 항목에 한정한다. 모든 핵심 종목의 영구적 완전성이나 모든 기업의 사업 전수 검증을 주장하지 않는다.
+
+## P1621 - v57.39 - 기존 재무 화면 캐시로 채팅 자료가 생략되고 페이지 밖 도메인 질의가 연결되지 않음 (2026-10-11)
+
+- symptom/reproduction: 같은 종목 재무 화면을 본 뒤 채팅하면 재무 조회가 생략되고 캐시 자료도 프롬프트에 포함되지 않았다. 홈의 거시·테마 질문과 신고신저·테마 구성 종목 질문에는 기존 자료 일부가 빠졌다. 시세 문자열만으로 재무 수집 완료가 표시됐다.
+- root_cause: 화면 캐시 존재를 프롬프트 주입 완료로 간주했다. 도메인 선택은 질문 대신 페이지 ID에만 의존하고 native 시장 폭·테마 모델과 연결되지 않았다.
+- fix: 양쪽 채팅은 공용 SEC provider/cache를 다시 읽어 실제 재무 자료를 주입한다. 질문 의도로 기존 거시/채권/테마 요약을 선택하고 native 동일 종가 시장 폭 및 테마 구성·수익률 자료를 한정해 전달한다. 시세 성공을 재무 완료로 표현하는 문구를 제거하고 실제 제공 항목·기간만 쓰도록 한다.
+- violated_rule: R632 producer/consumer 연결 및 자료 가용성 정직성
+- prevention: P1621: ci-native-search-check.mjs는 실제 양쪽 재무 caller 블록을 이미 열린 화면 캐시 상태에서 실행하고 페이지 밖 질문의 도메인 선택을 검증한다. ci-esm-core-unit-check.mjs는 화면과 같은 모델의 시장 폭 문맥과 무관한 질의의 무주입을 검증한다.
+- verification/residual: 유료 호출 없는 실행 fixture. 전 종목 데이터 충족·실제 모델 답변 품질·청구액·배포 상태와 구분한다.
+
+## P1620 - v57.39 - 홈 시장 폭 요약·전체 테마 티커 누락과 용어사전 다크 모드 충돌 (2026-10-11)
+
+- symptom/reproduction: 홈에는 상승/하락 및 신고/신저 요약이 없고 하위 테마는 전체 종목 수와 대표 한 종목만 표시했다. 다크 모드 용어사전은 밝은 고정 배경과 밝은 글자가 겹쳤다.
+- root_cause: 시장 폭은 별도 차트에만 연결되고 테마 모델은 구성 배열을 노출하지 않았다. 사전 모달·입력·분류 버튼은 고정 밝은 색을 사용했다. 모바일 메뉴에서 사전을 열 때 메뉴 닫기 처리가 없었다. 테마 기준일 정규식도 숫자 이스케이프가 누락됐다.
+- fix: 동일 종가 history의 4개 시장 폭 요약을 홈에 표시하고 분모·보합 제외·신고신저 비율 정의를 상세에 둔다. 모델은 수익률 없는 종목도 포함한 전체 구성 티커를 공개하고 순위 표에 모두 표시한다. 사전 테마 색·분류 태그·입력을 의미 토큰으로 바꾸고 모바일 메뉴 닫기·포커스 복귀와 모달 크기를 보완한다. 테마 미국/한국 기준일 정규식을 수정한다.
+- violated_rule: R632 생산자/소비자 일치, R679 화면 상태 일치, R670 직전 미국장 종가 기준
+- prevention: P1620: ci-esm-core-unit-check.mjs의 동일 날짜·결측·0건 및 구성 종목 fixture, ci-responsive-browser-check.mjs의 실제 사전 light/dark 대비·검색·포커스 및 전체 테마 티커 검증.
+- verification/residual: 단위 모델 및 기존 gate 확장. 실물 Safari와 Finviz 전체 universe 동일성은 인증하지 않는다.
+
+## P1619 - v57.38 - 홈 지수·선물 혼용 및 hidden 스타일 덮어쓰기·상단 정체성 오류 (2026-10-11)
+
+- symptom/reproduction: 나스닥 100 선물 카드에 나스닥 종합 fallback과 NQ 숫자가 동시 표시됐다. 버전은 hidden 상태이고 상단에는 VIX 및 오래된 AI 베타 이름이 보였다.
+- root_cause: hidden UA display 규칙이 author flex 스타일에 덮였다. NQ fallback/trend가 IXIC history를 읽고 ES/NQ/YM snapshot fallback도 현물값을 선물 심볼로 반환했다. 버전 badge는 숨겨지고 beta label은 legacy adapter에서 재생성됐다.
+- fix: hidden 의미를 공통 CSS로 보장하고 NQ의 현물·history를 정확한 ^NDX/ndx에 연결한다. 세 지수 선물의 거짓 snapshot fallback을 제거하고 NDX producer 선언을 추가한다. 상단에 유일한 R1 version badge를 옮기며 AI 도우미 명칭을 양쪽 chat adapter와 정책에 통일한다.
+- violated_rule: R632 producer/consumer 의미 일치, R679 표시 상태 일치, R1 버전 표시
+- prevention: P1619: ci-desktop-continuity-check.mjs는 NDX 부재/존재 및 NQ 수신 전후 현물 fallback을 실행 검증한다. ci-responsive-browser-check.mjs는 author 스타일을 덮는 hidden 의미와 상단 버전·AI 명칭을 브라우저에서 확인한다.
+- verification/residual: 현물/선물 unit와 producer field-time 계약 통과. 실제 계약 월물·관측 시각을 확인하지 못한 screenshot 가격은 최신 가격으로 인증하지 않는다.
+
+## P1618 - v57.38 - 사용자 재승인 모바일·아이패드 반응형 화면 복원 (2026-10-11)
+
+- symptom/reproduction: 휴대폰과 태블릿에서 데스크톱 고정 사이드바, 다열 카드와 AI 패널이 본문·입력 영역을 밀어냈다.
+- root_cause: 이전 desktop-only 결정으로 compact CSS와 메뉴 수명주기가 제거됐다. 사용자가 2026-10-11 범위를 명시 재개했다.
+- fix: native responsive shell과 별도 CSS에 크기별 카드·표·차트 배치, 접근 가능한 메뉴 drawer, VisualViewport AI 입력 높이 및 cleanup을 소유시킨다. 같은 라우트·자료·로컬 저장 계약을 유지한다.
+- violated_rule: 사용자 2026-10-11 변경 지시; R474/R669 현재 범위
+- prevention: P1618: ci-responsive-browser-check.mjs가 현재 레지스트리의 19 라우트 × 390/768/1024 viewport와 메뉴 포커스, Escape, 테마 및 AI 입력 공간을 검증한다.
+- verification/residual: 실제 통합본 로컬 Chromium 검증 결과는 _artifacts/responsive-20261011/IMPLEMENTATION-REPORT.md. 실제 iOS Safari·소프트 키보드와 배포 검증은 구분한다.
 
 ## P1617 - v57.37 - KRX 휴장일(한글날)이 주말과 맞닿으면 정상 종가가 72h 리시를 초과해 STALE_UNEXPECTED로 거부되고, 데이터 리프레시 발행이 fail-closed로 막혔다 (2026-10-11)
 

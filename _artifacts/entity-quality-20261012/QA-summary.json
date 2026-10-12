@@ -1,0 +1,1028 @@
+{
+  "status": "PASS",
+  "version": "v57.40",
+  "scope": "Full profile plus affected local watchdog, completed as failure batches and exact reruns; not a single no-cache full rerun after every fix.",
+  "reports": [
+    ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+    ".cache/aio-qa/runs/2026-10-12T01-46-27-428Z-14328-o4lhxw.json",
+    ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+    ".cache/aio-qa/runs/2026-10-12T01-49-47-443Z-24304-hjk2i6.json"
+  ],
+  "counts": {
+    "gates": 168,
+    "pass": 158,
+    "cached": 10,
+    "failed": 0
+  },
+  "unresolvedFailedBatch": false,
+  "gates": [
+    {
+      "id": "version",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "product-charter",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "native-decision",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "vertical-slice",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "capability-claims",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "architecture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "operations-contract",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "route-registry",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "reference-curriculum",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "generated-state",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "workflow-yaml",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "workspace-contract",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "syntax",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "baseline",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "decomposition",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "market-session",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "page-decision-reference",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "fundamental-watchlist-timeline",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "headless-group-lifecycle",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "artifact-cache",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "service-worker-cache-policy",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ai-premise",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ai-intelligence",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "esm-core",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ai-analysis-evidence",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ai-chat-analysis-integration",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ai-quote-evidence",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "research-model",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "rotation-history",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "domain-parity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "research-flow",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "proxy-continuity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ai-provider-stream",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "chat-resilience",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "desktop-continuity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "deployment-convergence",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "storage-migration",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "release-manifest",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "inference",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "csp",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "retirement",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "default-ux",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "desktop-scope",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "structural",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "data-continuity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ai-chat-reliability",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "page-timeline",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "reference-adoption-contract",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "semantic-review",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "connection-access",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "conditional-native-search",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "runtime",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "entity-summary-fixture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "chart-scenarios-fixture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "fiscal-quality-fixture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "screener-market-fixture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "company-analysis-fixture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "korea-participation-fixture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "data-pipeline",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "macro-calendar-review",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "regime-scenarios-fixture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "conditional-evidence",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "history-time",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "market-snapshot",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "screener-workbench",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "operations-alert-policy",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "screener-benchmark",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "operations-status",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "data-plane",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "fast-plane-consumer",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "human-validation",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "operations-slo",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "source-registry",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "reconciliation",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "operator-readiness",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "professional-gap",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "review-integrity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "candidate-archive",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "sec-runtime-projection",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "static-db-expiry",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "static-data",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "data-refresh",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "artifact-semantics",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "refresh-integrity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "release-revision",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "13f-currentness",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "release-generated-parity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "13f-semantic-noop",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "artifact-headroom",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "integrated-framework",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "principles-lesson-parity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-ontology",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-core",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-learning",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-articles",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-repository",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-routes",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-renderer",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-coverage",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-sector",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-web",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-unique",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-transmission",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-current-observations",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-currentness",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "six-doc-coverage",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "atlas-contract",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "principles-contract",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-review",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-lint",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "workflow-compaction",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "skill-contract",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "skill-evals",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "agent-profiles",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "agent-skills",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "masters-contract",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "live-header-policy",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "operator-provisioning",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "doc-currency",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ledger-integrity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "data-lineage",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "assertion-trace",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "qa-pipeline-contract",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "extension-api-runtime",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "worker-anthropic",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "ai-budget-scope",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "operations-alert-source",
+      "status": "CACHED",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json"
+    },
+    {
+      "id": "worker-relay",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "cloudflare-deployment",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "record-fix",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "knowledge-generated-parity",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "static"
+    },
+    {
+      "id": "browser-ai-public",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-chat-ui-state",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-chat-response-layout",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "headless",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-46-27-428Z-14328-o4lhxw.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-market-epoch",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-screener-refresh",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-boot",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-vertical",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-architecture",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-46-27-428Z-14328-o4lhxw.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "artifact-budget",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-principles",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-atlas",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-masters",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-user-journey",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-reference-adoption",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-learning-flow",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-theme-research",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-route-soak",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-sa03",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-sa02",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-sa04",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-viewport",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-responsive",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-49-47-443Z-24304-hjk2i6.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-critical",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-vault",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-a11y",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "browser-entity-quality",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-37-27-757Z-20956-j6lr16.json",
+      "evidenceLevel": "runtime/headless"
+    },
+    {
+      "id": "watchdog-operations",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    },
+    {
+      "id": "watchdog-market-snapshot",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    },
+    {
+      "id": "watchdog-reconciliation",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    },
+    {
+      "id": "watchdog-source-registry",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    },
+    {
+      "id": "watchdog-professional-gap",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    },
+    {
+      "id": "watchdog-static-data",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    },
+    {
+      "id": "watchdog-web-research",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    },
+    {
+      "id": "watchdog-data-refresh",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    },
+    {
+      "id": "watchdog-artifact-headroom",
+      "status": "PASS",
+      "report": ".cache/aio-qa/runs/2026-10-12T01-48-20-217Z-3068-hyyphg.json",
+      "evidenceLevel": "live/external"
+    }
+  ],
+  "paidCalls": 0,
+  "commit": false,
+  "push": false,
+  "deploy": false,
+  "limits": [
+    "Live AI/search answers and provisioning unverified",
+    "iOS/iPadOS Safari and hardware unverified",
+    "Fiscal producer changes await Actions",
+    "KR flow/filing completeness not established"
+  ]
+}

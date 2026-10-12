@@ -223,7 +223,7 @@ export function buildMarketRead(input = {}) {
   // 2. Index vs participation.
   const b50 = s.breadth50?.value ?? null;
   if (b50 != null && spxFromHigh != null) {
-    if (spxFromHigh > -3 && b50 < 40) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 50일선 위 종목은 ${fmt(b50, 0)}%뿐입니다.`, 'index', { reading: '소수 대형주가 지수를 떠받치는 좁은 장세로 보입니다.', check: `50일선 위 종목 비율이 40% 위로 회복되는지(현재 ${fmt(b50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
+    if (spxFromHigh > -3 && b50 < 40) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 50일선 위 종목은 ${fmt(b50, 0)}%뿐입니다.`, 'index', { reading: '지수 상승이 일부 종목에 집중된 좁은 장세일 수 있습니다 — 어느 종목이 끌어올렸는지는 구성 종목 기여도로 확인합니다.', check: `50일선 위 종목 비율이 40% 위로 회복되는지(현재 ${fmt(b50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
     else if (b50 >= 60 && spx20 != null && spx20 > 0) add('broad-rally', 55, `50일선 위 종목 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
     else if (b50 < 30 && spx20 != null && spx20 < 0) add('broad-weakness', 70, `50일선 위 종목 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
   }

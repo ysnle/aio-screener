@@ -1,0 +1,29 @@
+{
+  "version": "v57.40",
+  "date": "2026-10-12",
+  "p": {
+    "id": 1625,
+    "title": "시장별 순위 모집단과 선택 정렬의 일치",
+    "symptom": "미국·한국 종목이 섞이고 프리셋과 다른 균형 정렬이 적용되어 강한 종목을 발견하기 어려웠다.",
+    "root_cause": "필터 이전에 글로벌 팩터 순위를 계산하고 UI가 프리셋 결과를 복합 순위로 재정렬했다.",
+    "fix": "시장별 팩터 모집단과 US/KR 화면 선택을 일치시키고 프리셋 순서를 유지한다. 추세·3개월 수익률·균형 등 정렬을 명시하고 통화와 실제 활성 비중을 표시한다. 모집단 정책을 모델 지문에 포함해 이전 성과를 현재 검증으로 제시하지 않는다.",
+    "violated_rule": "종목 identity·관측 기준·원본 단위 보존; R670 완료 종가 비교",
+    "prevention": "{P}: scripts/ci-screener-market-fixture.mjs와 ci-entity-quality-browser-check.mjs에서 공통 모델과 실제 화면 경로를 검증한다.",
+    "verification": "로컬 회귀 및 실제 경로 브라우저 검증을 진행한다. 유료 AI·현재 외부 시세·실기기·배포 증거와 구분한다."
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-SCREENER-MARKET-01",
+      "text": "{P}: 시장별 순위 모집단과 선택 정렬의 일치 공통 경로와 화면 회귀 확인.",
+      "verify_by": "node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "종목 분석 구조·시장 분리",
+  "changelog": [
+    "**시장별 순위 모집단과 선택 정렬의 일치 ({P}):** 시장별 팩터 모집단과 US/KR 화면 선택을 일치시키고 프리셋 순서를 유지한다. 추세·3개월 수익률·균형 등 정렬을 명시하고 통화와 실제 활성 비중을 표시한다. 모집단 정책을 모델 지문에 포함해 이전 성과를 현재 검증으로 제시하지 않는다."
+  ],
+  "note": "전체 종목 요약·기업 분석·시장별 스크리너·조건부 차트·정밀 재무 개선. 로컬 검증 진행; commit/push/deploy 미실행.",
+  "status": null
+}

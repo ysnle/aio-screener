@@ -703,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Update version badge
   const vb = document.getElementById('app-version-badge');
-  if (vb) vb.title = 'v29 · 빌드: ' + dateStr;
+  if (vb) vb.title = (typeof APP_VERSION !== 'undefined' ? APP_VERSION : vb.textContent.trim()) + ' · 확인: ' + dateStr; // P1624: identity tooltip must match the app, not a historical literal.
 })();
 });
 
@@ -4193,7 +4193,7 @@ function renderGlossaryCats() {
   cats.forEach(function(c) {
     var active = c === _glossaryCat;
     var label = (c === 'all' ? '전체' : c) + ' ' + (c === 'all' ? GLOSSARY.length : counts[c]);
-    html += '<button data-action="_aioGlossaryCat" data-arg="' + escHtml(c) + '" aria-pressed="' + active + '" style="padding:5px 12px;border-radius:3px;border:1px solid ' + (active ? 'var(--data-purple)' : 'rgba(33,29,22,0.1)') + ';background:' + (active ? 'rgba(33,29,22,0.2)' : 'transparent') + ';color:' + (active ? '#211d16' : '#8a8271') + ';font-size:12px;cursor:pointer;">' + escHtml(label) + '</button>';
+    html += '<button data-action="_aioGlossaryCat" data-arg="' + escHtml(c) + '" aria-pressed="' + active + '" style="padding:5px 12px;border-radius:3px;border:1px solid ' + (active ? 'var(--border-strong)' : 'var(--border)') + ';background:' + (active ? 'var(--surface-5)' : 'transparent') + ';color:var(--text-primary);font-size:12px;cursor:pointer;">' + escHtml(label) + '</button>';
   });
   document.getElementById('glossary-cats').innerHTML = html;
 }
@@ -4236,11 +4236,11 @@ function renderGlossaryItems(query) {
     html += '<div style="text-align:center;color:var(--text-muted);padding:40px;">검색 결과가 없습니다</div>';
   } else {
     filtered.forEach(function(g) {
-      var catColors = {'기초':'var(--data-green)','기술적분석':'var(--data-cyan)','경제':'var(--data-amber)','외환':'#211d16','채권':'#211d16','매크로':'var(--data-amber)','옵션':'#211d16','한국시장':'var(--data-purple)','전략':'#57513f','배경지식':'var(--text-muted)','기술':'var(--data-cyan)','심화':'var(--data-green)'};
+      var catColors = {'기초':'var(--data-green)','기술적분석':'var(--data-cyan)','경제':'var(--data-amber)','외환':'var(--text-secondary)','채권':'var(--text-secondary)','매크로':'var(--data-amber)','옵션':'var(--text-secondary)','한국시장':'var(--data-purple)','전략':'var(--text-secondary)','배경지식':'var(--text-secondary)','기술':'var(--data-cyan)','심화':'var(--data-green)'};
       html += '<div class="aio-glossary-item" style="padding:12px 0;border-bottom:1px solid var(--surface-4);">';
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
       html += '<span class="aio-glossary-term" style="font-weight:600;color:#8a8271;font-size:14px;">' + escHtml(g.term) + '</span>';
-      html += '<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:' + (catColors[g.cat]||'var(--text-muted)') + '22;color:' + (catColors[g.cat]||'var(--text-muted)') + ';">' + escHtml(g.cat) + '</span>';
+      html += '<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface-3);color:' + (catColors[g.cat]||'var(--text-secondary)') + ';">' + escHtml(g.cat) + '</span>';
       html += '</div>';
       html += '<div style="color:var(--text-secondary);font-size:13px;line-height:1.5;">' + escHtml(g.def) + '</div>';
       html += '</div>';

@@ -6268,7 +6268,7 @@
       var nonDomain = domFn ? window._fetchDomainContextForChat('fundamental') : 'x'; // 도메인 무관 → ''
       var macroNonEmpty = typeof macroBlock === 'string' && macroBlock.indexOf('매크로 도메인') >= 0; // DATA_SNAPSHOT cpi/coreCpi 정적 → 항상 채워짐
       var csSrc811 = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
-      var wired811 = csSrc811.indexOf('_fetchDomainContextForChat') >= 0 && csSrc811.indexOf('domainDataStr') >= 0;
+      var wired811 = csSrc811.indexOf('_aioDomainContextForQuestion') >= 0 && csSrc811.indexOf('domainDataStr') >= 0 && typeof window.AIO?.buildQuestionDomainContext === 'function' && window.AIO.buildQuestionDomainContext({ctxId:'macro',root:window,readDomain:window._fetchDomainContextForChat}).indexOf(macroBlock)>=0; // P1621 native shared context executes the original source reader.
       var gate811 = (nonDomain === ''); // 도메인 무관 ctx는 빈 문자열(자기 게이팅)
       t811ok = domFn && macroNonEmpty && wired811 && gate811;
       t811detail = 'fn=' + domFn + ' macroLen=' + (macroBlock ? macroBlock.length : 0) + ' fxLen=' + (fxBlock ? fxBlock.length : 0) + ' themeLen=' + (themeBlock ? themeBlock.length : 0) + ' wired=' + wired811 + ' gate=' + gate811;
@@ -7051,7 +7051,7 @@
         unifiedSrc833.indexOf('_aioBuildScreenerAiContext') >= 0 &&
         typeof window._aioBuildScreenerAiContext === 'function' &&
         String(window._aioBuildScreenerAiContext).indexOf('_aioRunScreenerQuery') >= 0 &&
-        unifiedSrc833.indexOf('_fetchDomainContextForChat') >= 0 &&
+        unifiedSrc833.indexOf('_aioDomainContextForQuestion') >= 0 && // P1621 both chat entry points use the same native selector.
         unifiedSrc833.indexOf('_buildAioIntegratedAnswerContext') >= 0 &&
         unifiedSrc833.indexOf('_shouldUseClaudeWebSearch') >= 0;
       var hasPageMap833 =
@@ -8209,7 +8209,7 @@
     var disclosure934 = window._aioBuildAIResponseDisclosure ? window._aioBuildAIResponseDisclosure({
       freshness: { status: 'pass', after: { quoteRows: [{ hasLivePrice: true, truthStatus: 'verified', source: 'Yahoo', asOf: '2026-07-13T12:00:00Z' }] } }
     }) : null;
-    _assert('T935 public_ai_disclosure_has_asof_evidence_source (WP-AI0): beta label, as-of, Evidence, and recheck text are present', !!disclosure934 && /AI 베타/.test(disclosure934.text) && /기준시각/.test(disclosure934.text) && /Evidence/.test(disclosure934.text) && /원문 재확인/.test(disclosure934.text), JSON.stringify(disclosure934));
+    _assert('T935 public_ai_disclosure_has_asof_evidence_source (P1619): assistant label, as-of, Evidence, and recheck text are present', !!disclosure934 && /AI 도우미/.test(disclosure934.text) && /기준시각/.test(disclosure934.text) && /Evidence/.test(disclosure934.text) && /원문 재확인/.test(disclosure934.text), JSON.stringify(disclosure934));
     var sink935 = document.getElementById('home-market-analysis');
     var render935 = typeof window._aioRenderMarketAnalysisSinks === 'function';
     var prev935 = window._serverMarketAnalysis;

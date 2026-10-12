@@ -732,6 +732,34 @@
         {
           "id": "conditional-native-search",
           "script": "scripts/ci-native-search-check.mjs"
+        },
+        {
+          "id": "entity-summary-fixture",
+          "script": "scripts/ci-entity-summary-fixture.mjs"
+        },
+        {
+          "id": "screener-market-fixture",
+          "script": "scripts/ci-screener-market-fixture.mjs"
+        },
+        {
+          "id": "chart-scenarios-fixture",
+          "script": "scripts/ci-chart-scenarios-fixture.mjs"
+        },
+        {
+          "id": "fiscal-quality-fixture",
+          "script": "scripts/ci-fiscal-quality-fixture.mjs"
+        },
+        {
+          "id": "company-analysis-fixture",
+          "script": "scripts/ci-company-analysis-fixture.mjs"
+        },
+        {
+          "id": "korea-participation-fixture",
+          "script": "scripts/ci-korea-participation-fixture.mjs"
+        },
+        {
+          "id": "regime-scenarios-fixture",
+          "script": "scripts/ci-regime-scenarios-fixture.mjs"
         }
       ]
     },
@@ -1783,6 +1811,16 @@
             "AIO_VIEWPORT_FULL_INIT": "1"
           },
           "timeoutMs": 600000
+        },
+        {
+          "id": "browser-responsive",
+          "script": "scripts/ci-responsive-browser-check.mjs",
+          "timeoutMs": 300000
+        },
+        {
+          "id": "browser-entity-quality",
+          "script": "scripts/ci-entity-quality-browser-check.mjs",
+          "timeoutMs": 300000
         }
       ]
     },

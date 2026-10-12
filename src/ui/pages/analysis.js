@@ -7,6 +7,7 @@ import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bri
 import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js';
 import { installStockChart } from '../components/stock-chart.js';
 import { renderDailyLoop } from '../components/daily-loop.js';
+import { renderKoreaParticipation } from '../components/korea-participation.js';
 
 function finite(value) {
   if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
@@ -230,6 +231,7 @@ function render({ root, documentRef, store, route, charts }) {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioSignalRenderer = 'native';
       renderRegimePage({ documentRef, root });
+      renderKoreaParticipation({ documentRef, root });
     }
   }
 }

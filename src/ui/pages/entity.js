@@ -11,6 +11,9 @@ import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bri
 import { setStockSubject } from '../navigation/route-hubs.js';
 import { renderStockRead } from '../components/stock-read.js';
 import { renderFiscalRead } from '../components/fiscal-read.js';
+import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
+import { businessProfileFor } from '../../domain/entity/business-profiles.js';
+import { renderCompanyAnalysis } from '../components/company-analysis.js';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -81,12 +84,60 @@ function renderTickerHero(documentRef, state, root) {
   setText(documentRef, 'ticker-hero-price', formatMoney(price, quote.currency || (/\.(KS|KQ)$/.test(String(id || '')) ? 'KRW' : null)));
   const change = setText(documentRef, 'ticker-hero-chg', pct == null ? '—' : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`);
   if (change) change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
+  const priceNode = documentRef?.getElementById('ticker-hero-price');
+  if (priceNode) {
+    let status = documentRef.getElementById('ticker-summary-price-basis');
+    if (!status) { status = documentRef.createElement('div'); status.id = 'ticker-summary-price-basis'; status.className = 'entity-summary-price-basis'; priceNode.after(status); }
+    const meta = root?._aioEntitySummaries?.[id];
+    const valueBasis = root?._liveData?.[id]?.quoteEnvelope?.valueBasis || meta?.quote?.valueBasis;
+    status.textContent = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세 제공처 응답 없음 · 다시 선택해 확인' : '현재 시세 확인 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${String(quote.observedAt).replace('T', ' ').replace('.000Z', ' UTC')}` : ' · 관측 시각 미확인'}`;
+  }
   // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
   // history and bookmarks kept "종목 선택 대기" (or the previous symbol). The owner of the hero owns the title.
   if (id && documentRef && documentRef.getElementById?.('page-ticker')?.classList?.contains('active')) {
     const label = state?.name && state.name !== id ? `${state.name} (${id})` : id;
     documentRef.title = `${label}${price == null ? '' : ` ${formatMoney(price, quote.currency || (/\.(KS|KQ)$/.test(String(id)) ? 'KRW' : null))}`} · AIO Screener`;
   }
+}
+
+function renderSummaryIdentity(documentRef, root, state) {
+  const page = documentRef?.getElementById('page-ticker');
+  const readHost = documentRef?.getElementById('ticker-read');
+  if (!page || !readHost) return;
+  const id = String(state?.id || root?._currentTickerId || '').toUpperCase();
+  let profileNode = documentRef.getElementById('ticker-business-profile');
+  if (!profileNode) { profileNode = documentRef.createElement('section'); profileNode.id = 'ticker-business-profile'; profileNode.className = 'entity-business-profile'; readHost.before(profileNode); }
+  profileNode.hidden = !id;
+  if (!id) return;
+  const rows = root?._aioGetCanonicalScreenerRows?.() || [];
+  const row = rows.find(item => item?.sym === id) || {};
+  const metadata = root?._aioEntitySummaries?.[id] || {};
+  const profile = businessProfileFor(id, row, metadata);
+  const title = documentRef.createElement('h2'); title.textContent = `${profile.name} · ${profile.kind}`;
+  const description = documentRef.createElement('p');
+  // P1630: no producer publishes businessProfile yet, so the missing description is not announced on every ticker.
+  description.textContent = profile.description || [profile.sector,profile.industry].filter(Boolean).join(' · ');
+  description.hidden = !description.textContent;
+  const source = documentRef.createElement(profile.sourceUrl ? 'a' : 'span'); source.textContent = profile.source;
+  if (profile.sourceUrl) { source.href = profile.sourceUrl; source.target = '_blank'; source.rel = 'noopener noreferrer'; }
+  profileNode.replaceChildren(title, description, source);
+  // P1624: summary owns its first-load price chart; opening the technical tab is not a prerequisite.
+  const panel = documentRef.getElementById('ticker-price-panel');
+  if (panel && panel.parentElement !== readHost.parentElement) readHost.before(panel);
+  const currency = state?.quote?.currency || metadata.currency;
+  setText(documentRef, 'ticker-ov-prevclose', formatMoney(metadata.previousClose, currency));
+  setText(documentRef, 'ticker-ov-52w', metadata.low52 != null && metadata.high52 != null
+    ? `${formatMoney(metadata.low52, currency)} – ${formatMoney(metadata.high52, currency)}` : '52주 범위 수신 대기');
+}
+
+function summaryState(root, state) {
+  const id = String(root?._currentTickerId || state?.id || '').trim().toUpperCase();
+  const summary = root?._aioEntitySummaries?.[id];
+  if (!summary) return state?.id === id ? state : { ...state, id, name: root?._currentTickerName || id, quote: null, history: [] };
+  const live = root?._liveData?.[id]?.quoteEnvelope || root?._liveData?.[id];
+  const quote = live ? { ...live, value: live.price } : state?.quote;
+  const history = (state?.id === id && (state.history?.length || 0) > summary.history.length) ? state.history : summary.history;
+  return { ...state, id, name: summary.name, quote, history };
 }
 
 function renderTickerSecondarySymbols(documentRef, state, root) {
@@ -268,7 +319,7 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   const signature = `${range}|${rows.map((row) => `${row.epochMs}:${row.close}`).join('|')}`;
   const periodLabel = TICKER_CHART_RANGES[range].label;
   const periodMeta = unavailable
-    ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 아직 받지 못했습니다 — 차트 탭의 일봉이 열리면 이곳에도 같은 이력이 그려집니다`
+    ? rows.length < 2 ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오는 중이거나 제공처 응답이 없습니다. 종목을 다시 선택해 확인할 수 있습니다.` : '가격 이력은 수신했지만 차트 표시를 준비하지 못했습니다. 새로고침해 다시 확인할 수 있습니다.'
     // P1255 (07:M04 계열 잔여 D4): 차트는 close 계열(배당 미조정)이다 — "수익률"과 섞이지 않도록
     // 가격 기준을 메타에 함께 말한다(분할 반영 여부는 공급자 관례에 의존, 미검증).
     : `${periodLabel} · ${view.rowCount}개 관측 · ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)} · 가격 기준 close(배당 미조정 price return · 분할 반영 여부 미검증)`;
@@ -309,7 +360,10 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     const chart = new ChartConstructor(canvas, {
       type: 'line',
       data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#22754c' : '#b13a30', backgroundColor: isUp ? 'rgba(34,117,76,0.14)' : 'rgba(177,58,48,0.14)', borderWidth: 1.6, pointRadius: 0, tension: 0.2, fill: true }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 8, maxRotation: 0 }, grid: { display: false } }, y: { ticks: { maxTicksLimit: 4 } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
+        x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: 8, maxRotation: 0 }, grid: { display: false } },
+        y: { title: { display: true, text: `가격${state?.quote?.currency ? ` (${state.quote.currency})` : ''}` },
+          ticks: { maxTicksLimit: 4, callback: value => formatMoney(Number(value), state?.quote?.currency) } } } }
     });
     charts.set('ticker-price-chart', { chart, signature, canvas });
     if (loading) loading.style.display = 'none';
@@ -612,7 +666,8 @@ function renderFundamentalReport(documentRef, page, state) {
 // SEC-derived summary line; options-chain, report sections, charts, and AI narrative remain
 // legacy-owned.
 function render({ root, documentRef, store, route, charts, activeTickerTab = 'overview', tickerChartRange = '1m' }) {
-  const state = selectEntityState(store.getState());
+  const selected = selectEntityState(store.getState());
+  const state = route === 'ticker' ? summaryState(root, selected) : selected;
   const portfolioState = selectPortfolioState(store.getState());
   const routeNode = documentRef?.getElementById(`page-${route}`);
   if (routeNode) {
@@ -623,6 +678,7 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
   }
   if (route === 'ticker') {
     renderTickerHero(documentRef, state, root);
+    renderSummaryIdentity(documentRef, root, state);
     renderTickerSecondarySymbols(documentRef, state, root);
     renderTickerActivity(documentRef, root, state, portfolioState);
     renderTickerNavigation(documentRef, state, root);
@@ -631,6 +687,11 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '' }); // P1434
+    const readHost = documentRef.getElementById('ticker-read');
+    if (readHost && !documentRef.getElementById('ticker-company-analysis')) {
+      const host = documentRef.createElement('section'); host.id = 'ticker-company-analysis'; readHost.after(host);
+    }
+    renderCompanyAnalysis({ documentRef, root, state });
   }
   if (route === 'fundamental') {
     // P1430: 재무 공시 is the same company as 요약 · 차트.
@@ -668,7 +729,23 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       bag.add(charts.dispose);
       let activeTickerTab = 'overview';
       let tickerChartRange = '1m';
-      const renderNow = () => render({ root, documentRef, store, route, charts, activeTickerTab, tickerChartRange });
+      const hydrator = route === 'ticker' ? createSummaryHydrator({ root,
+        onReady: () => {
+          const EventConstructor = root.CustomEvent || globalThis.CustomEvent;
+          if (typeof EventConstructor === 'function') documentRef?.dispatchEvent?.(new EventConstructor('aio:entityChanged', { detail: { source: 'summary-hydration', id: root._currentTickerId } }));
+          renderNow();
+        }, onStatus: (status, id) => {
+          root._aioEntitySummaryStatus ||= {}; root._aioEntitySummaryStatus[id] = status;
+          const page = documentRef?.getElementById('page-ticker');
+          if (page) page.dataset.summaryHydrationStatus = status;
+          const label = documentRef?.getElementById('ticker-summary-price-basis');
+          if (label && status === 'unavailable' && !root?._liveData?.[id]?.price) label.textContent = '시세 원천 응답 없음 · 잠시 후 다시 확인하세요';
+        } }) : null;
+      if (hydrator) bag.add(() => hydrator.dispose());
+      const renderNow = () => {
+        if (hydrator) hydrator.ensure(root?._currentTickerId || selectEntityState(store.getState())?.id || '');
+        render({ root, documentRef, store, route, charts, activeTickerTab, tickerChartRange });
+      };
       renderNow();
       bag.add(subscribeToSlices(store, ['entity', 'portfolio'], renderNow));
       const eventTarget = documentRef || globalThis;
@@ -692,7 +769,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
           bag.add(() => clearTimeout(timer));
         }
       }
-      ['aio:liveQuotes', 'aio:refresh:done', 'aio:sentimentUpdated', 'aio:serverDataLoaded'].forEach((eventName) => {
+      ['aio:liveQuotes', 'aio:refresh:done', 'aio:sentimentUpdated', 'aio:serverDataLoaded', 'aio:entityChanged'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, refresh);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, refresh));
       });

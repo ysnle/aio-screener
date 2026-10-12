@@ -863,7 +863,8 @@ check('H3-F: Chart secondary CDN waits for primary error or a bounded timeout wh
     && /if \(!hasRealChart\(\)\) _chartFallbackTimer/.test(html));
 {
   // P1588: the US theme taxonomy is an industry classification with explicit rules — 3+ members per
-  // sub-theme (crypto exempt), no ticker twice in one theme, leaders = exactly the members, no editorial weights.
+  // ranked sub-theme, no ticker twice in one theme, leaders = exactly the members, no editorial weights.
+  // P1622: membership classification may have 1-2 names; only ranking requires 3 priced members.
   const start = pagesSource.indexOf('var THEME_MAP = [');
   const themes = start >= 0 ? runInNewContext(pagesSource.slice(start + 'var THEME_MAP = '.length, pagesSource.indexOf('\n];', start) + 2)) : [];
   const issues = [];
@@ -871,10 +872,16 @@ check('H3-F: Chart secondary CDN waits for primary error or a bounded timeout wh
     const members = (theme.subThemes || []).flatMap((sub) => sub.tickers || []);
     if (new Set(members).size !== members.length) issues.push(`${theme.id}: duplicate member`);
     if (theme.weights) issues.push(`${theme.id}: editorial weights`);
-    if ((theme.subThemes || []).some((sub) => (sub.tickers || []).length < 3) && theme.id !== 'crypto') issues.push(`${theme.id}: sub-theme under 3`);
+    if ((theme.subThemes || []).some((sub) => !(sub.tickers || []).length)) issues.push(`${theme.id}: empty classification (P1622)`);
     if ([...new Set(members)].sort().join() !== [...(theme.leaders || [])].sort().join()) issues.push(`${theme.id}: leaders differ from members`);
   }
   check('P1588: US theme taxonomy follows its membership rules', themes.length >= 17 && !issues.length, issues.slice(0, 6).join(' | '));
+  const themeOf = (id) => themes.find((theme) => theme.id === id);
+  check('P1622: verified core memberships and physical/software roles are preserved', themeOf('software')?.leaders.includes('RBRK') && themeOf('photonics')?.leaders.includes('FN') && ['MPWR','AMKR','ONTO'].every((symbol) => themeOf('semiconductor')?.leaders.includes(symbol)) && themeOf('ai_infra')?.leaders.includes('NVT') && ['SHEL','ENB'].every((symbol) => themeOf('energy')?.leaders.includes(symbol)) && themeOf('robotics')?.subThemes.find((sub) => sub.tickers.includes('PATH'))?.name === '업무 자동화 소프트웨어');
+  const subStart = pagesSource.indexOf('var SUB_THEMES = [');
+  const subs = subStart >= 0 ? runInNewContext(pagesSource.slice(subStart + 'var SUB_THEMES = '.length, pagesSource.indexOf('\n];', subStart) + 2)) : [];
+  const subOf = (id) => subs.find((sub) => sub.id === id);
+  check('P1622: stale ticker and instrument/issuer misclassifications cannot return', !subOf('cybersec')?.tickers.includes('CYBR') && subOf('cybersec')?.tickers.includes('RBRK') && !subOf('ai_chip')?.tickers.includes('SMCI') && subOf('dc_infra')?.tickers.includes('SMCI') && subOf('btc_etf')?.name.includes('현물·선물') && subOf('btc_etf')?.desc.includes('BITO는 선물'));
   const screenerPath = join(root, 'public-data/screener.json');
   if (existsSync(screenerPath)) {
     const universe = new Set(Object.keys(JSON.parse(readFileSync(screenerPath, 'utf8')).data || {}));
@@ -933,7 +940,7 @@ check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and al
 // v52.75 (WP-AI0): public AI beta safety boundary + unverified auto-analysis block.
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
 check('WP-AI0: embedded and unified chat paths gate streaming/final output and persist gated text only', (/_publicChunkGate|_pageChunkResult/.test(chat)) && (/_publicGate|_pageDoneResult/.test(chat)) && /state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
-check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 베타 · 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
+check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미 · 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
 check('WP-AI0: server market prose requires explicit semantic verification before sink selection', /marketAnalysisSemanticOk/.test(data) && /status: _serverMarketAnalysisVerified \? 'verified' : 'blocked-unverified'/.test(data) && /_serverMarketAnalysis\.status === 'verified'/.test(core));
 check('WP-AI0: regression fixtures cover action block, educational pass, strong wording, disclosure metadata, and unverified market prose', /_testV5275PublicAIContract/.test(tests) && /T932/.test(tests) && /T933/.test(tests) && /T934/.test(tests) && /T935/.test(tests) && /T936/.test(tests));
 
