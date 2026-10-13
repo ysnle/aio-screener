@@ -140,7 +140,8 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   if (snapshot.cards.length) {
     const summary = doc.createElement('div'); summary.className = 'home-breadth-snapshot';
     const caption = doc.createElement('p'); caption.className = 'home-participation-label';
-    caption.textContent = `${String(snapshot.asOf || '').split('-').slice(1).map(Number).join('/')} 미국 종가 · AIO 관찰 종목의 시장 폭`;
+    const md = (date) => String(date || '').split('-').slice(1).map(Number).join('/');
+    caption.textContent = `${md(snapshot.asOf)} 미국 종가 · AIO 관찰 종목의 시장 폭${snapshot.laggingFrom ? ` (${md(snapshot.laggingFrom)} 종가 집계 전)` : ''}`;
     const cards = doc.createElement('div'); cards.className = 'home-breadth-cards';
     for (const item of snapshot.cards) {
       const box = doc.createElement('section'); box.dataset.metric = item.id;

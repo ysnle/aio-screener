@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1764 - v57.54 - S&P 500 종가가 새 거래일로 넘어간 뒤 시장 폭이 도착하기 전까지 대시보드 시장 폭 카드가 통째로 사라지고, 같은 이유로 CI가 실패해 그 시간대의 배포가 모두 막힘 (2026-10-14)
+
+- symptom/reproduction: 푸시 6ffa5e8f의 CI가 browser-responsive(폰·태블릿 '같은 세션 시장 폭 카드 없음')와 browser-vault(PFE2-22)에서 실패해 Pages·Worker 배포가 건너뛰어졌다. 기록상 종가 기준은 10/13인데 breadth50 등은 6시간 주기 스크리너 갱신에서 만들어져 10/12까지만 있었고, buildBreadthSnapshot은 같은 세션만 받아 카드 0개를 반환했다. 미국 장 마감(20–21시 UTC) 뒤 다음 스크리너 슬롯(00:53 UTC)까지 매일 수 시간 이 상태가 반복될 수 있었다. 금고 검사는 다시 그리기 뒤 180ms 고정 대기로 패널을 읽어, 느린 CI에서 초과 배분 경우가 이전 패널을 읽었다.
+- root_cause: 시장 폭 생산(스크리너 레인)과 종가 기준(시세 레인)의 주기가 달랐고, 화면이 그 간격을 '없음'으로만 처리했다. 브라우저 검사가 렌더 완료가 아니라 고정 시간을 기다렸다.
+- fix: buildBreadthSnapshot: 종가 기준일의 시장 폭이 없으면 직전 거래일(최대 4일 이내) 시장 폭을 한 세션 그대로 보여 주고 laggingFrom을 붙임(세션 혼합 없음). 홈 캡션 'M/D 미국 종가 · … (M/D 종가 집계 전)'. refresh-screener에 평일 '53 21 * * 1-5'(미국 장 마감 직후) 추가. 금고 검사는 경우마다 기대 상태를 최대 4초 기다린 뒤 읽음.
+- violated_rule: AGENTS: 신선도(날짜가 붙은 직전 값은 참고로 표시) / 데이터 갱신이 배포를 막지 않아야 함
+- prevention: P1764: ci-esm-core-unit-check(직전 세션 대체·laggingFrom, 오래된 시장 폭은 표시 안 함), ci-responsive-browser-check, ci-portfolio-vault-e2e PFE2-22 상태 대기
+- verification/residual: 병합 후 데이터(종가 10/13, 시장 폭 10/12)로 browser-responsive 19개 라우트×3 뷰포트 PASS, browser-vault PASS. CI 실패 산출물로 PFE2-22의 이전 패널 읽기 확인.
+
 ## P1763 - v57.54 - 단축키 도움말이 화면 통합 전 이름(시그널·매크로·테마·트렌드)과 숫자를 그대로 쓰고, 폰 상단 시각이 잘리며, 1px로 접힌 버튼 같은 렌더 결함을 잡는 게이트가 없음 (2026-10-14)
 
 - symptom/reproduction: ? 키 도움말이 '2 시그널 / 4 매크로 / 8 테마·트렌드', 존재하지 않는 'G 글로벌 마켓 오버뷰', 'CLOSE (ESC)'를 보였다. 폰 360px에서 '서버 10/13 2…'로 잘렸다. AI 패널 첫 문단이 법적 제한 문구였고 칩 '크로스체크'는 음차였다. kr-macro·kr-themes 대화 문맥은 어느 화면에도 연결되지 않았다. 정적 게이트만 있어 화면에 실제로 그려진 크기·빈 제목·금지 용어를 검사하지 못했다.

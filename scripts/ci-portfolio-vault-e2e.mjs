@@ -676,27 +676,31 @@ async function main() {
       localStorage.setItem('aio_portfolio_base_currency', 'USD');
       localStorage.setItem('aio_portfolio_cash_currency', 'USD');
       localStorage.setItem('aio_portfolio_cash_return', '3.65');
-      const remount = async () => {
+      // v57.54: a fixed 180 ms read raced the recompute on slower CI runners (the over-allocation case read the previous
+      // panel). Each remount now waits, bounded at 4 s, for the state the scenario expects, then reads.
+      const read = () => ({
+        panel: (document.getElementById('pf-risk-metrics') || {}).textContent || '',
+        policyDisabled: (document.getElementById('pf-rebalance-policy-input') || {}).disabled === true
+      });
+      const remount = async (ready = () => true) => {
         window.showPage('home');
         await new Promise((resolve) => setTimeout(resolve, 60));
         window.showPage('portfolio');
         await new Promise((resolve) => setTimeout(resolve, 180));
-        return {
-          panel: (document.getElementById('pf-risk-metrics') || {}).textContent || '',
-          policyDisabled: (document.getElementById('pf-rebalance-policy-input') || {}).disabled === true
-        };
+        for (let waited = 0; waited < 4000 && !ready(read()); waited += 100) await new Promise((resolve) => setTimeout(resolve, 100));
+        return read();
       };
       window.savePortfolioAssumption('pf-rebalance-policy-input', 'monthly');
       window.savePortfolioAssumption('pf-exposure-path-input', 'fixed_target_weight_strategy');
-      const partial = await remount();
+      const partial = await remount((state) => state.panel.includes('현금 20.0%'));
       // 초과 배분(120%)은 여전히 무효다 — 현금 몫이 아니라 잘못된 선언이다.
       localStorage.setItem('aio_portfolio_data', JSON.stringify([
         { ticker: 'AAA', qty: 10, cost: 100, price: 150, currency: 'USD', sector: 'Tech', targetWeight: 70 },
         { ticker: 'BBB', qty: 10, cost: 100, price: 150, currency: 'USD', sector: 'Health', targetWeight: 50 }
       ]));
-      const over = await remount();
+      const over = await remount((state) => state.panel.includes('strategy-target-weights-invalid'));
       window.savePortfolioAssumption('pf-exposure-path-input', 'current_composition_retrospective');
-      const retrospective = await remount();
+      const retrospective = await remount((state) => state.policyDisabled && state.panel.includes('rebalance monthly(미사용)'));
       return { partial, over, retrospective };
     });
     check('PFE2-22 strategy_cash_share_and_inert_policy_ux (P1200/P1201)',

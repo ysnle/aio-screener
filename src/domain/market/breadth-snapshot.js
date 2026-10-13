@@ -1,9 +1,22 @@
 // P1620: one completed session and one history producer; never combine snapshot counts with history ratios.
 import { buildCloseSeries, closeBasis } from '../briefing/market-read.js';
 
+// v57.54: breadth comes from the screener lane, which can land hours after the S&P 500 close. Rather than blank the
+// cards in that window (and fail the same-session gate in CI, holding deploys), the previous session is shown — still
+// one session, never mixed — labelled with its own date and the close it has not caught up to (laggingFrom).
+const MAX_LAG_DAYS = 4; // a weekend plus one holiday; anything older is not "the previous session"
 export function buildBreadthSnapshot(history = []) {
-  const asOf = closeBasis(history);
-  if (!asOf) return { asOf: null, cards: [] };
+  const basis = closeBasis(history);
+  if (!basis) return { asOf: null, cards: [] };
+  const own = snapshotAt(history, basis);
+  if (own.cards.length) return own;
+  const prior = [...history].reverse().find((entry) => entry?.date < basis && ['breadth50', 'advanceRatio', 'breadth200'].some((field) => typeof entry?.[field] === 'number'));
+  if (!prior || (Date.parse(basis) - Date.parse(prior.date)) / 86400000 > MAX_LAG_DAYS) return own;
+  const lagged = snapshotAt(history, prior.date);
+  return lagged.cards.length ? { ...lagged, laggingFrom: basis } : own;
+}
+
+function snapshotAt(history, asOf) {
   const point = (field) => buildCloseSeries(history, field, { through: asOf, includeProvenance: true }).findLast((row) => row.date === asOf);
   const row = [...history].reverse().find((entry) => entry?.date === asOf);
   const meta = (field) => row?.fieldMeta?.[field] || {};

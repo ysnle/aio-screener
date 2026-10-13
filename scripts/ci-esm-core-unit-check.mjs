@@ -3649,6 +3649,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (snap.asOf !== '2026-10-09' || snap.cards.length !== 4 || snap.cards[0].second !== '하락 36.1%' || snap.cards[2].share !== 34.7) fail('P1620 weekend/future observations must not enter a common close snapshot');
   if (buildBreadthSnapshot([{ date: '2026-10-09', spx: 7800, breadthNewHighs: 0, breadthNewLows: 0 }]).cards[0]?.share !== null) fail('P1620 zero high/low events must not invent a percentage');
   if (buildBreadthSnapshot([]).cards.length) fail('P1620 missing breadth must remain absent');
+  {
+    // v57.54: the screener lane lags the S&P 500 close by hours; the previous session shows, labelled, never mixed.
+    const lag = buildBreadthSnapshot([{ date: '2026-10-12', spx: 7807, breadth50: 35.7 }, { date: '2026-10-13', spx: 7805 }]);
+    if (lag.asOf !== '2026-10-12' || lag.laggingFrom !== '2026-10-13' || !lag.cards.some((card) => card.id === 'breadth50')) fail('v57.54 lagging breadth must show the previous session with laggingFrom, got ' + JSON.stringify(lag));
+    const stale = buildBreadthSnapshot([{ date: '2026-10-01', spx: 7700, breadth50: 40 }, { date: '2026-10-13', spx: 7805 }]);
+    if (stale.cards.length) fail('v57.54 breadth older than the previous session must stay absent');
+  }
   const prompt = buildMarketContentContext({ query: '신고가와 시장 폭', history });
   if (!prompt.includes('신고가 24개') || !prompt.includes('34.7%') || prompt.includes('99.0%')) fail('P1621 chat breadth facts must match the same completed-session UI model');
   if (buildMarketContentContext({ query: '안녕', history })) fail('P1621 unrelated questions must not inject extra market facts');
