@@ -1,0 +1,22 @@
+{
+  "version": "v57.48",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.48 S&P 500 지도 + 부팅 경로에서 텔레그램 대기 제거 + 전문가 검토 반영(P1675~P1679) · 인계 재검증 보완(P1680~P1682).",
+  "p": {
+    "id": 1682,
+    "title": "무료 공식 데이터 레인이 처음 도착하자 거시 화면 브라우저 게이트가 실패해 push CI와 배포가 막힘",
+    "symptom": "2026-10-13 04:17Z 시장 데이터 갱신 뒤 push CI(dbf10503)의 browser-architecture가 'P1425/P1426 거시 경제 board failed'로 실패했다. 화면에는 정책·물가·고용·활동에 더해 유동성·성장·원자재/아시아 통화 그룹이 나타났다. 그 결과 Pages·AI 프록시·데이터 평면 배포가 모두 skipped였다.",
+    "root_cause": "P1654(v57.45)는 FRED 등 무료 공식 시계열이 있을 때만 그룹 3개를 추가하도록 만들었다. 그러나 게이트는 그룹 목록을 정확히 4개로 고정한 채 남아 있었다. 시계열이 오기 전까지는 게이트가 통과했기 때문에 불일치가 드러나지 않았다.",
+    "fix": "게이트는 앞의 핵심 4그룹 순서를 그대로 요구한다. 그 뒤에는 P1654의 데이터 의존 그룹(liquidity, growth, commodities-fx)만 허용한다.",
+    "violated_rule": "기능 추가 시 고정 게이트 동기화",
+    "prevention": "P1682: ci-architecture-browser-check 거시 그룹 계약(핵심 4그룹 + 허용된 데이터 의존 그룹만)",
+    "verification": "04:17Z 데이터로 로컬 browser-runtime 8/8 통과(market-epoch·screener-refresh 포함)."
+  },
+  "qa": [],
+  "qa_section": "검증 스킬",
+  "changelog": [
+    "**거시 화면 게이트 동기화 (P1682):** 무료 공식 데이터 그룹이 처음 도착하자 4그룹 고정 게이트가 배포를 막던 문제를 고쳤다."
+  ]
+}
