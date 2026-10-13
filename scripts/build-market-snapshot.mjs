@@ -30,7 +30,7 @@ const CLOSED_VENUE_MAX_AGE_MS = 3 * DAY_MS;
 
 // P1617: the KR holiday calendar now exists as a registry (src/domain/market/market-calendar.js),
 // so the Korean-index closed-venue bound is calendar-derived instead of a fixed window. A venue
-// holiday adjacent to a weekend (한글날 2026-10-09 + 주말 → KRX closed Wed 10/8 through Mon 10/12)
+// holiday adjacent to a weekend (한글날 Fri 2026-10-09 + 주말 → no KRX session between the Thu 10/8 close and the Mon 10/12 open)
 // pushed a legitimate Wednesday close past the 72h leash and the snapshot attempt failed closed
 // (STALE_UNEXPECTED on ^KS11/^KQ11), which blocked refresh-data publication. The calendar-aware
 // rule: for a KR index on a confirmed-closed venue, the observation is the expected completed

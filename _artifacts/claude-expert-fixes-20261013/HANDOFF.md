@@ -67,6 +67,18 @@
   - 잔여: X03·X08·X16·X20·X02(URL 날짜)·지도 기준일 혼합·키보드 경로·탭 판정·ResizeObserver 루프.
 - 처리: P1680, P1681. 근거와 남긴 것은 [THREE-CRITERIA-ASSESSMENT.md](./THREE-CRITERIA-ASSESSMENT.md), KR 수급 설계는 [KR-INVESTOR-FLOWS-DESIGN.md](./KR-INVESTOR-FLOWS-DESIGN.md)에 있다.
 
+## 배포 기록 (aio-64, 2026-10-13)
+
+- push: `b19f4caa`(작업) · `e4c9cc90`(데이터 병합) · `d49e78a3`(P1681).
+- `d49e78a3` push CI의 browser-runtime 2건 실패(market-epoch, screener-refresh)는 원격 main에서 이미 실패하던 데이터 원인이다. 00:57Z 스크리너 갱신이 미국 종목을 609/810개만 10/12 종가로 받아 순위가 보류됐다.
+- refresh-screener 재실행 결과 `bcaacf76`이 들어왔다.
+  - 미국 804/810이 10/12 종가다.
+  - `indexWeights` 503행(asOf 10/9)과 `ret1d`·`ret5d`가 생성됐다. QA-VERIFY-13 데이터 조건이 충족됐다.
+  - CI(dispatch)가 통과했고, Pages가 `bcaacf76`을 서빙한다.
+- 같은 시각에 refresh-data를 함께 실행해 push가 충돌했고, 재실행으로 `9ea44cbe`가 만들어졌다. 갱신 두 개를 동시에 실행하지 않는다.
+- AI 프록시 Worker는 v57.44였다. 배포 workflow는 push로 실행돼 성공한 CI만 받는다.
+- 한국 179행은 10/08에 머문다. Yahoo chart가 10/12 한국 일봉을 close=null로 주기 때문이며(005930.KS로 직접 확인), 코드 결함이 아니다. 앱은 '10/12 한국장 반영 대기'로 보류한다. 값을 보정할지는 소유자 결정 사항이다.
+
 ## 커밋 제외 권고
 
 - 이 세션 산출물 중 제외할 파일은 없다. `_artifacts/verify-aio/<timestamp>/` 증거는 기존 관례대로 처리.
