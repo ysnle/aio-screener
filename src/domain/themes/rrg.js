@@ -4,6 +4,18 @@
 // boundaries) is transcribed unchanged — this is code motion, not a new model (R352/F-03).
 export const RRG_MODEL_VERSION = 'rrg.v2';
 
+// v57.50 D13/D14: what the two axes actually are (description only — the model below is unchanged). The produced
+// artifact feeds the last 100 aligned sessions (scripts/lib/rotation-history.mjs), so:
+//   RS-Ratio    = 100 × (price ÷ SPY now) ÷ (its average over those 100 sessions) — a position, not "vs SPY = 100";
+//   RS-Momentum = 100 × RS-Ratio ÷ (the same ratio computed at the window's midpoint, ~50 sessions earlier).
+// It is not the JdK smoothed/normalized RS-Ratio. The benchmark is cap-weighted SPY, so a few mega-caps leading the
+// index put many sectors below 100 at once without any of them weakening on its own.
+export const RRG_DEFINITION = Object.freeze({
+  ratio: 'RS-Ratio = 지금의 상대가격(섹터 ÷ SPY)이 최근 100거래일 평균의 몇 %인지(100 = 자기 평균 수준)',
+  momentum: 'RS-Momentum = 그 값이 약 50거래일 전 같은 방식으로 잰 값보다 높은지(100 초과 = 개선)',
+  benchmarkBias: '기준인 SPY는 시가총액 가중이라, 소수 초대형주가 지수를 끄는 국면에서는 여러 섹터가 동시에 100 아래(후행·약화)로 보일 수 있습니다 — 각 섹터가 스스로 약해졌다는 뜻은 아닙니다.'
+});
+
 function positive(value) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : null;

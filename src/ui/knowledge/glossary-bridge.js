@@ -5,7 +5,9 @@
 //  2. installGlossaryBridge: after the legacy modal renders a search, append "다른 학습 영역" results from
 //     public-data/knowledge/search-index.json (loaded on first search) with links that open the surface.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
+import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { LESSONS, PATHS } from '../../domain/knowledge/learning-core.js';
+import { CONCEPT_SURFACES, SCREEN_TERMS, SCREEN_ROUTE_LABELS, screenRoutesFor } from '../../domain/knowledge/concept-surfaces.js';
 
 const normalize = (text) => String(text || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[·/,]/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -57,6 +59,24 @@ export function searchKnowledgeIndex(index, query, limit = 8) {
   return scored.sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title)).slice(0, limit).map((item) => ({ ...item.entry, score: item.score }));
 }
 
+// v57.50 I18: a term that a screen measures (HY 스프레드 → 투자 심리, RSI → 차트, 시장 폭 → 시장 폭) also offers
+// that screen, not only library notes. Keys: SCREEN_TERMS for market indicators, term + aliases for canonical concepts.
+const CONCEPT_BY_ID = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
+export function screenLinksForQuery(query) {
+  const q = normalize(query);
+  if (!q || q.length < 2) return [];
+  const routes = new Map();
+  for (const conceptId of Object.keys(CONCEPT_SURFACES)) {
+    const screens = screenRoutesFor(conceptId).filter((route) => SCREEN_ROUTE_LABELS[route]);
+    if (!screens.length) continue;
+    const concept = CONCEPT_BY_ID.get(conceptId);
+    const keys = (SCREEN_TERMS[conceptId] || (concept ? [concept.term, ...(concept.aliases || [])] : [])).map(normalize).filter(Boolean);
+    if (!keys.some((key) => key === q || key.includes(q) || (key.length >= 3 && q.includes(key)))) continue;
+    for (const route of screens) if (!routes.has(route)) routes.set(route, { route, label: SCREEN_ROUTE_LABELS[route], conceptId });
+  }
+  return [...routes.values()];
+}
+
 function routeUrl(root, route) {
   const params = new URLSearchParams();
   Object.entries(route.params || {}).forEach(([key, value]) => { if (value != null && value !== '') params.set(key, value); });
@@ -74,7 +94,8 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
     if (index || loading) return loading;
     const fetchFn = root.fetch?.bind(root);
     if (!fetchFn) return null;
-    loading = fetchFn('./public-data/knowledge/search-index.json').then((response) => (response.ok ? response.json() : null)).then((json) => { index = json; return json; }).catch(() => null);
+    // A failed load settles to an empty index; leaving it null re-queued render() on the settled promise forever.
+    loading = fetchFn('./public-data/knowledge/search-index.json').then((response) => (response.ok ? response.json() : null)).catch(() => null).then((json) => { index = json && Array.isArray(json.entries) ? json : { entries: [] }; return index; });
     return loading;
   };
   const render = () => {
@@ -86,9 +107,29 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
     if (query.length < 2) return;
     if (!index) { const pending = load(); if (pending) pending.then(() => render()); return; }
     const results = searchKnowledgeIndex(index, query);
+    const screens = screenLinksForQuery(query);
     const box = documentRef.createElement('section');
     box.dataset.glossaryCross = 'true';
     box.style.cssText = 'padding:12px 0 4px;border-top:2px solid var(--border-subtle);margin-top:8px;';
+    if (screens.length) {
+      const screenRow = documentRef.createElement('div');
+      screenRow.dataset.glossaryScreens = 'true';
+      screenRow.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px;font-size:12px;color:var(--text-secondary);';
+      screenRow.append('지금 값을 보는 화면');
+      for (const screen of screens) {
+        const button = documentRef.createElement('button');
+        button.type = 'button';
+        button.className = 'flow-next-link';
+        button.dataset.glossaryScreenRoute = screen.route;
+        button.textContent = `${screen.label} →`;
+        button.addEventListener('click', () => {
+          if (typeof root._aioCloseGlossary === 'function') root._aioCloseGlossary();
+          root.showPage?.(screen.route);
+        });
+        screenRow.appendChild(button);
+      }
+      box.appendChild(screenRow);
+    }
     const head = documentRef.createElement('div');
     head.style.cssText = 'font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;';
     head.textContent = results.length ? `다른 학습 영역 · ${results.length}건` : '다른 학습 영역 · 일치 항목 없음';
@@ -115,8 +156,8 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
         // the page already on screen is reloaded at the new URL so it re-reads the selection.
         const samePage = root.AIO?.state?.activePage === entry.route.page;
         if (samePage || typeof root.showPage !== 'function') { root.location.assign(row.href); return; }
-        root.history?.pushState?.(null, '', row.href);
-        root.showPage(entry.route.page);
+        // v57.50: pushState + showPage lost the selection (showPage strips the knowledge keys); keep it as the pending URL.
+        navigateKnowledgeRoute({ root, page: entry.route.page, params: entry.route.params || {} });
       });
       box.appendChild(row);
     }

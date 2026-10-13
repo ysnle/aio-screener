@@ -6,6 +6,96 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1700 - v57.50 - 퇴역한 점수·화면 조각이 DOM과 계산에 남음 — 홈 "지금 매매해도 될까?" 그리드, 재무 화면 시장 리스크 레이더, AI 자동 점수 그림 (2026-10-13)
+
+- symptom/reproduction: P1392에서 퇴역한 거래 점수·국면 카드가 CSS로만 숨겨진 채 매번 계산됐고 매매 지시성 문구를 담고 있었다. 재무 화면에 시장 이벤트 레이더·실적 서프라이즈가 남아 일정이 3중으로 겹쳤다. 홈 KOSPI 칩은 숨겨진 섹션으로, BTC 칩은 BTC가 없는 화면으로 갔다. AI 답에 퇴역 점수 분해 그림이 붙을 수 있었다. 면책 문구가 퇴역 점수를 가리켰다.
+- root_cause: 퇴역 결정 때 DOM·계산·자동 그림을 함께 지우지 않았다.
+- fix: 홈 그리드·위험 배지, 차트 중복 배지, 재무 화면 레이더·실적 서프라이즈 DOM을 지우고 계산 경로는 요소 부재 시 no-op. 홈 칩 링크 정정, AI 자동 점수 분해·국면 그림 연결 제거, 면책 문장 정리. 레짐 맵 VIX 경계는 RULES.
+- violated_rule: 퇴역은 DOM·계산·문구 전체에서
+- prevention: P1700: ci-architecture-browser-check(퇴역 카드 id 부재)·ci-architecture-contract-check(route-owners 갱신)·ci-structural-check(선언만 남은 함수 없음)
+- verification/residual: 브라우저 gate 전 route 왕복 browserErrors 0.
+
+## P1699 - v57.50 - 같은 지표의 기준·기준일이 표면마다 다름 — AI 헤더 실시간 vs 화면 종가, RSI 70 vs 78, VIX·HY·시장 폭 구간, 섹터 1일·1주 원천, 포트폴리오 섹터 분모 (2026-10-13)
+
+- symptom/reproduction: AI 프롬프트가 "실시간 1순위" 규칙과 화면 종가 블록을 동시에 받아 장중에는 VIX 두 값이 들어갔다. AI RSI는 진행 중 봉 포함 값을 "종가"로 표기했다. RSI 70~78 종목은 종목 화면 "과열", 스크리너 아님. 용어 사전·health의 VIX·HY·시장 폭 구간이 RULES와 달랐다. 섹터 막대 "1주"가 레거시 5일 캐시, "1일"이 실시간 값을 "종가"로 표기했다. 포트폴리오 막대는 총자산, 해석 문장은 주식 합 분모였다. AI 답의 근거 표시가 종가만 쓴 답에도 "확인 필요"였다.
+- root_cause: 같은 개념을 여러 파일이 따로 계산·표기했고 RULES를 읽지 않는 경로가 남아 있었다.
+- fix: AI 헤더·규칙은 화면 종가 근거 우선(실시간은 장중 참고), F&G는 홈과 같은 종가 reader, RSI는 스크리너 완료 종가 값. RULES.technical.rsi(70/30/80) 신설. 용어 사전·health는 RULES 구간, 섹터 막대는 종가 원장, 포트폴리오 섹터는 총자산 분모와 같은 분류. Stage는 Weinstein에만, 확장 배수는 extensionStateFor 하나. 나스닥 종합/100 명시, 방향 막대 색 통일. 종가만 인용한 AI 답은 "종가 기준 근거".
+- violated_rule: 한 개념 한 기준(RULES 단일 출처)
+- prevention: P1699: ci-ai-intelligence-contract-check·ci-chat-resilience-check·ci-runtime-contract-check(F&G 종가 reader)·ci-desktop-continuity-check·ci-esm-core-unit-check
+- verification/residual: 배포판 AI 질문(v57.49): VIX 종가 15.21·10년물 5.24% [2026-10-12 종가] 경고 없음(QA-VERIFY-16). 섹터 막대 XLK 실시간 9.99 → 원장 -1.22/-2.27.
+
+## P1698 - v57.50 - 지표의 이면·방법론 결함 — 근거 없는 종합 심리 점수, 쪼개져 부풀린 VIX 구간 사례 수, 우연 수준 부호로 단정한 순위 검증, 기준과 무관한 경고·사분면 확정 (2026-10-13)
+
+- symptom/reproduction: 자체 심리 종합이 7요소 백분위 평균에 CNN 구간을 씌워 '51 중립'(요소 범위 5~89)으로 표시했다. VIX 구간 표는 경계 근처 진입 69회(50회가 3일 이하)를 '서로 떨어진 구간'이라 불렀고 평균 차이의 불확실성을 보이지 않았다. 순위 사후 검증은 표본 6회·t≈-0.26에서 '뒤처졌습니다'라 단정했다. 분배일 '경고(5회 이상)'는 기록의 51%가 해당했다. 거시 사분면은 물가 0.5%p 이내 차이, 고용 5천 명 차이로 국면을 확정했다. 3종목 테마가 순위 머리에 오르고, RRG 축 설명 '100 = SPY와 같음'은 틀린 정의였다.
+- root_cause: 판정 문장이 표본 크기·겹치는 표본·기준의 자체 분포를 고려하지 않고 관행 기준값을 그대로 썼다.
+- fix: 심리 종합은 점수·구간 라벨 없이 요소별 백분위와 최저·최고 한 줄. VIX 구간은 21세션 간격 군집 수와 ±2SE 범위, 겹치면 "구별되지 않음". 순위 검증은 표본 12회 미만 또는 |t|<2면 "아직 구별 불가". 분배일·시장 폭은 AIO 자체 기록 백분위와 잠정 표기. 거시 사분면은 물가 ±0.5%p 내 "방향 보류", 고용 근소 차이 "근소(경계)" 보류, 신호 없음은 "확인 안 됨". 4종목 미만 테마는 "참고". RRG·미너비니(변형) 정의 정정, 근거 없는 경험 문장 삭제. 심리 수준 색은 중립 톤. 포트폴리오 VaR·Sharpe는 1년 표본과 표본 일수 표기, 한·미 혼합 상관은 주간 수익률. 시장 폭 분모에서 ETF 제외.
+- violated_rule: 근거 없는 등급 제거·표본 한계 명시
+- prevention: P1698: ci-esm-core-unit-check(심리 spread, 순위 검증 neutral, 거시 보류)·ci-codex-structure-regression-fixture·ci-portfolio-vault-e2e·ci-review-integrity-unit-check
+- verification/residual: 실데이터 재현: 심리 "5~89 요소 간 차이 큼", VIX 15~20 구간 연속 27→군집 2, 전체 +0.81±0.43 vs 모든 구간 겹침, 순위 검증 "아직 구별 불가(표본 6회)", 분배일 97백분위(잠정), 3종목 그룹 17개 참고.
+
+## P1697 - v57.50 - 화면 간 결론에서 다음 화면으로 갈 때 맥락이 따라가지 않고, 거시·브리핑·테마 상세에는 다음 단계가 없음 (2026-10-13)
+
+- symptom/reproduction: 국면 판정에서 주도 영역·후보로 가는 길이 없고, 홈의 "현재 주도" 섹터·테마가 텍스트뿐이었다. 거시·금리·브리핑·테마 상세에는 "이어서 볼 곳"이 없었다. 리서치 문서 링크 227개 중 도착 화면이 맥락을 받는 것은 4개 화면뿐이었다. 종목·테마 상세는 주소에 남지 않아 공유·새로고침·뒤로가기에서 사라졌다.
+- root_cause: 화면 내부 흐름 장치(renderNextSteps)는 있었지만 화면 사이 연결은 검색어 하나만 넘겼고, 도착 맥락 표시는 재무 화면 전용이었다.
+- fix: 국면→테마·섹터, 홈 주도 칩→테마 상세, 좁은 장세→S&P 지도, 거시·금리·브리핑 다음 단계, 테마 상세 다음 단계, 종목→13F 운용사·내 보유 비중, 재무→해당 종목 뉴스, 한국 스크리너→국내 테마를 연결했다. 공용 knowledge-arrival 컴포넌트로 9개 화면이 문서 맥락과 돌아가기를 보여 준다. 화면 접기→개념 노트, 용어 사전→지표를 보는 화면을 잇는다. #ticker?sym=, #themes?theme= 딥링크. 포트폴리오 결론을 맨 위로, 테마 화면 다음 단계를 화면 끝으로 옮겼다. 스크리너 테마 검색은 테마 화면 구성 종목을 합집합으로 쓴다.
+- violated_rule: 각 페이지는 하나의 논리 흐름 + 화면 간 다리(소유자 2026-10-04)
+- prevention: P1697: ci-architecture-browser-check·ci-theme-research-browser·ci-masters-browser·ci-knowledge-route-bridge-contract·ci-esm-core-unit-check(router)
+- verification/residual: Playwright: 문서→technical/signal 도착 표시·이탈 시 제거, #ticker?sym=MSFT 로드·뒤로·새로고침, 홈 칩 10개 클릭 이동, 브리핑 다음 단계 4개.
+
+## P1696 - v57.50 - 용어 사전·검색에서 원리 화면을 열면 고른 개념이 사라지고, 변동성 장(N1~N15) 문서 링크 15개는 퇴역한 옵션 화면을 가리켜 이동 실패 (2026-10-13)
+
+- symptom/reproduction: '?mode=concept&node=present-value#principles'로 이동하면 '?mode=frames' 기본 화면이 열렸다. route-targets의 routeId 'options' 15건은 knowledgeTargetHash가 라우트로 인정하지 않아 클릭해도 이동하지 않았다.
+- root_cause: pushState 뒤 showPage가 쿼리를 지웠다. 옵션 화면 퇴역 때 route-targets 생성 원천과 브리지 허용 목록을 갱신하지 않았다(허용 목록은 손으로 쓴 배열).
+- fix: 대기 경로 URL에 ?query#route 전체를 넘기는 navigateKnowledgeRoute를 두고 용어 사전·검색이 이를 쓴다. 생성 원천과 산출물의 options를 sentiment로 바꾸고 허용 목록은 ROUTE_IDS에서 파생한다.
+- violated_rule: 라우트 퇴역 시 모든 링크 원천 갱신
+- prevention: P1696: ci-knowledge-route-bridge-contract·ci-knowledge-generated-parity-check(18 builders unchanged)
+- verification/residual: Playwright로 재현 후 수정 확인(개념 유지, N장 링크가 투자 심리로 이동).
+
+## P1695 - v57.50 - 원/달러 같은 날짜에 관측이 여럿이면 다음 날 새벽 틱이 정산 종가를 덮어씀 (2026-10-13)
+
+- symptom/reproduction: 시장 상태·거시·브리핑·AI의 원/달러가 10/9 1,340.9였다. 10/9 정산 1,340.02(20:59Z)를 10/10 03:30Z 틱이 같은 뉴욕 날짜 키로 덮어썼다.
+- root_cause: buildCloseSeries가 같은 세션 날짜의 여러 관측 중 나중 행을 택했다.
+- fix: 같은 날짜에 관측이 여럿이면 시장별 마감 시각(주식 16:00, VIX 16:15, 10년물 15:00, FX·선물 17:00 뉴욕)에 가장 가깝고 그 이전인 관측을 택한다. 시각을 모르면 기존처럼 나중 행.
+- violated_rule: 종가 기준(close-basis)
+- prevention: P1695: ci-esm-core-unit-check·ci-market-session-contract-check
+- verification/residual: 필드 29개 전후 비교: usdkrw 10/9 1,340.9→1,340.02, 그 밖에는 0.01 단위 3건뿐.
+
+## P1694 - v57.50 - 종가 경로 트레이딩 점수가 시장 폭으로 200일선 비율을 읽음(나머지 경로와 점수 구간은 20일선 기준) (2026-10-13)
+
+- symptom/reproduction: runtime-readers 종가 경로가 history의 breadth200(200일선 위 비율)을 '시장 폭' 입력으로 넘겼다. 실시간 근거 행과 점수 구간(70/55/40/25)은 모두 20일선 기준이었다. 이 점수가 AI 헤더 판정과 실행 창 조건으로 들어갔다.
+- root_cause: 입력 필드 이름 breadth200이 실제로는 20일선 비율을 담고 있었고, 종가 경로만 이름 그대로 200일선 필드를 읽었다.
+- fix: 입력 이름을 breadth20으로 바로잡고(구 이름은 호환으로 수용) 종가 경로가 breadth20을 읽는다. AI 헤더는 퇴역한 점수 대신 시장 상태 종합 판정을 쓴다.
+- violated_rule: 필드 이름은 실제 의미와 일치
+- prevention: P1694: ci-native-decision-evidence·ci-domain-parity-check(breadth20 입력, 픽스처 점수 66 유지)
+- verification/residual: node 재현: 같은 입력에서 기존 픽스처 점수 66 유지, 종가 경로 입력이 20일선 값.
+
+## P1693 - v57.50 - 종목 화면 "같은 섹터 비교"가 한글 라벨을 검색어로 넘겨 스크리너에서 기술 섹터 0건 (2026-10-13)
+
+- symptom/reproduction: 종목 화면 다음 단계의 스크리너 연결이 SECTOR_KO 라벨 '기술'을 검색어 q로 넘겼다. 스크리너 데이터의 sector는 영문('Technology')이라 0건이 나왔다(에너지·헬스케어는 수동 별칭으로 우연히 일부 매칭).
+- root_cause: 화면 간 handoff가 검색어(q) 하나만 받았고, 생산 쪽은 표시용 한글 라벨을 넘겼다. 섹터를 받는 통로가 없었다.
+- fix: stock-read·rotationFlow·themeDetailFlow·포트폴리오가 ctx.sector(영문 universe sector, ETF 코드는 역매핑)를 넘기고, 스크리너는 fillControls 뒤 #scr-sector에 적용한다(옵션이 아직 없으면 데이터 도착 후 적용). 한국 티커와 함께 오면 KR 시장으로 바꾼다.
+- violated_rule: 화면 간 연결은 데이터 키로 전달(표시 라벨 금지)
+- prevention: P1693: ci-esm-core-unit-check(stock-read next ctx.sector 영문)·node 재현(q=기술 0건 → sector=Technology 160건)
+- verification/residual: 실데이터 재현 0건 → 160건, sectorsForEtf(XLY) → Consumer Cyclical/Consumer.
+
+## P1692 - v57.50 - 정규식 백슬래시 손상으로 차트 패턴의 진행 중 봉 제외와 한국 종목 통화 판별이 동작하지 않음 (2026-10-13)
+
+- symptom/reproduction: js/aio-core.js의 완료봉 필터가 /^d{4}-d{2}-d{2}$/, 시장 판별이 /^d{6}(.K[SQ])?$/, js/aio-workspace.js 통화 판별이 /^d{6}$/·/.K[SQ]$/ 로 되어 있었다. 'd' 문자열만 맞아서 진행 중인 미국 봉이 패턴 판정에 들어가고 한국 6자리 종목이 USD로 분류됐다.
+- root_cause: v57.29 통합 커밋(1d5769dc)에서 정규식의 \d·\. 백슬래시가 사라졌다(heredoc 계열 치환 손상). 문법 오류가 아니라 gate가 잡지 못했다.
+- fix: 세 정규식의 백슬래시를 복구했다. 저장소 전체(js·src·scripts·index.html)에서 같은 손상 패턴을 검색해 다른 곳은 없음을 확인했다.
+- violated_rule: node heredoc 치환 금지(백슬래시 손실) — Edit 도구 사용
+- prevention: P1692: 저장소 손상 패턴 검색 0건(/[/(|^]d\{[0-9]/, 이스케이프 없는 .K[SQ])
+- verification/residual: Read로 손상 확인, 복구 후 node --check와 패턴 검색 0건.
+
+## P1691 - v57.50 - 같은 신용 상태를 화면마다 다른 기준으로 판정 — HY가 20거래일 +45bp 확대 중인데 브리핑·시나리오·거시 게이지는 "안정" (2026-10-13)
+
+- symptom/reproduction: 시장 상태 신용 축은 HY 315bp·5일 -9bp·20거래일 +45bp를 "한 달째 확대라 안정으로 보지 않음(중립)"으로 판정했지만, 브리핑 중소형주 규칙은 "HY 스프레드가 안정적", 시나리오는 "신용 안정 충족"(집중 유지 4/4), 심리 종합은 hy5<25면 "신용 안정", 거시 HY 게이지는 350bp 미만을 우호 색으로 칠했다. 홈은 macro-history를 읽지 않아 같은 시나리오가 4/4, 시장 상태는 3/4였다.
+- root_cause: 신용 "안정" 정의가 market-read 축(5일·20거래일·풋/콜), 브리핑(수준+5일≤5), 심리(5일<25), 시나리오(부담이 아니면 안정), 거시 게이지(수준만) 다섯 벌로 따로 구현되어 T05(20거래일 확대) 수정이 일부 표면에만 퍼졌다.
+- fix: market-read에 creditState(hyBp, hy5, hy20, pcr) 하나를 두고 신용 축·브리핑·시나리오·심리 카드·심리 종합·거시 HY 게이지·연결고리 문장이 모두 이 결과를 읽는다. favorable일 때만 "안정"이라 쓰고, 중립이면 확대 중이라 원인을 배제하지 못한다고 쓴다. 홈 시나리오도 macro-history를 읽는다. 서버 해설 입력에 풋/콜을 넣어 화면과 같은 입력으로 판정한다.
+- violated_rule: 한 개념 한 판정 함수(RULES 단일 출처)
+- prevention: P1691: ci-esm-core-unit-check·ci-domain-parity-check·ci-regime-scenarios-fixture(시나리오 신용 조건은 favorable만 충족)
+- verification/residual: 실데이터 재현: 집중 유지 4/4→3/4, 브리핑 문장 "315bp로 낮은 편이지만 20거래일 동안 +45bp 넓어지는 중", 거시 게이지 neutral. 홈·시장 상태 모두 3/4(브라우저).
+
 ## P1690 - v57.49 - 배포판 AI가 종가 근거 행을 정확히 복사했는데도 claim 유형 표시가 'market_data'라 수치가 모두 제거됨 (2026-10-13)
 
 - symptom/reproduction: v57.49 배포 뒤 'VIX와 10년물 수준을 기준일과 함께' 질문에 답이 '※ 최신 수치 확인 안 됨 — 일반 설명만'으로 시작하고 값이 없었다. 응답을 캡처하니 모델은 close.vix 15.21·close.us10y 5.24%를 evidenceId·asOf 2026-10-12·source close-basis까지 그대로 복사했지만 type을 'market_data'로 붙였다.

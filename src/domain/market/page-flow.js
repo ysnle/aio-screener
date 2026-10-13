@@ -4,6 +4,7 @@
 // a section with missing inputs says what it cannot add instead of inventing a reading.
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
+import { recordPercentile, RECORD_FULL_YEAR } from '../briefing/market-read.js';
 
 const last = (series) => (Array.isArray(series) && series.length ? series[series.length - 1] : null);
 const back = (series, n) => (Array.isArray(series) && series.length > n ? series[series.length - 1 - n] : null);
@@ -39,6 +40,9 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
   const hl = last(cardOf(cards, 'hl')?.series)?.value ?? null;
   const mv = last(cardOf(cards, 'mv')?.series)?.value ?? null;
   const dd = last(cardOf(cards, 'dd')?.series)?.value ?? null;
+  // v57.50 D05: the textbook "5회 이상 = 경고" line is crossed on about half of AIO's recorded days, so the count is read
+  // against AIO's own record (percentile and record length); with no usable record only the count is shown.
+  const ddRecord = dd == null ? null : recordPercentile(cardOf(cards, 'dd')?.series, dd);
 
   let participation = '50일선·200일선 위 종목 비율 기록이 없어 참여도를 읽지 못했습니다.';
   if (b50 != null && b200 != null) {
@@ -67,14 +71,20 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
           : spx20 <= 0 && b50d20 > 0 ? '지수는 쉬지만 참여는 오히려 넓어져 바닥 다지기 쪽입니다'
             // P1591 (M05): the remaining case is index up / participation down but smaller than the -10%p gap rule.
             : spx20 > 0 && b50d20 <= 0 ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다' : '지수와 참여가 모두 거의 변하지 않았습니다';
-    index = `S&P 500은 20일 ${signed(spx20, 1, '%')}, 50일선 위 종목 비율은 20일 ${signed(b50d20, 1, '%p')} — ${gap}.${dd == null ? '' : ` 최근 25거래일 분배일은 ${round(dd)}회${dd >= 5 ? '로 경고 구간(5회 이상)입니다' : '입니다'}.`}`;
+    const ddText = dd == null ? '' : ddRecord?.pct == null ? ` 최근 25거래일 분배일은 ${round(dd)}회입니다.`
+      : ` 최근 25거래일 분배일은 ${round(dd)}회로, AIO 기록 ${ddRecord.n}일 중 ${ddRecord.pct}백분위입니다${ddRecord.provisional ? `(기록 ${RECORD_FULL_YEAR}거래일 미만 · 잠정)` : ''}.`;
+    index = `S&P 500은 20일 ${signed(spx20, 1, '%')}, 50일선 위 종목 비율은 20일 ${signed(b50d20, 1, '%p')} — ${gap}.${ddText}`;
   }
 
   const axis = regime?.axes?.find((row) => row.id === 'breadth');
   const trend = regime?.axes?.find((row) => row.id === 'trend');
   const next = [];
+  // I14: index up while participation is a burden — the S&P 500 map (themes screen) shows which members carry the index.
+  const narrow = axis?.state === 'burden' && (axis?.narrow || (spx20 != null && spx20 > 0));
   if (axis?.state === 'burden') {
-    next.push({ route: 'themes', label: '테마 · 섹터', why: '좁은 장세에서 지수를 떠받치는 섹터가 어디인지' });
+    next.push(narrow
+      ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: '지수는 오르는데 참여가 좁을 때 — 지수를 끌어올린 종목과 섹터(지도 타일 넓이 = 지수 비중)' }
+      : { route: 'themes', label: '테마 · 섹터', why: '좁은 장세에서 지수를 떠받치는 섹터가 어디인지' });
     next.push({ route: 'screener', label: '스크리너', why: '참여가 줄어드는 동안에도 50일선 위를 지키는 종목' });
   } else if (axis?.state === 'favorable') {
     next.push({ route: 'themes', label: '테마 · 섹터', why: '넓어진 상승을 어느 섹터가 이끄는지' });
@@ -111,7 +121,9 @@ const AXIS_ROUTES = Object.freeze({
   commodities: { route: 'macro', label: '거시 경제', why: (axis) => `유가·달러 ${axis.stateLabel} — 물가와 금리 경로에 주는 압력` }
 });
 
-export function regimeFlow({ regime = null } = {}) {
+// I02/I14: 시장 상태 always continues to 테마 · 섹터 with the same leader names the rotation read uses; in a narrow tape
+// (index near its high, participation burden) the item names the S&P 500 map that shows which members carry the index.
+export function regimeFlow({ regime = null, groups = {} } = {}) {
   if (!regime?.available) return { next: [] };
   const order = { burden: 0, neutral: 1, favorable: 2, unknown: 3 };
   const seen = new Set();
@@ -122,12 +134,55 @@ export function regimeFlow({ regime = null } = {}) {
     seen.add(target.route);
     next.push({ route: target.route, action: target.action, arg: target.arg, label: target.label, why: target.why(axis), tone: axis.state });
   }
+  const breadth = regime.axes.find((row) => row.id === 'breadth');
+  const leaders = rotationLeaders(groups);
+  const narrow = breadth?.state === 'burden' && breadth?.narrow;
+  next.push(narrow
+    ? { route: 'themes', label: 'S&P 500 지도 · 섹터', why: `지수는 고점권인데 참여가 좁음 — 지수를 끌어올린 종목(지도 타일 넓이 = 지수 비중)${leaders ? `과 상대강도 ${leaders}` : ''}` }
+    : { route: 'themes', label: '테마 · 섹터', why: leaders ? `섹터 회전의 상대강도 ${leaders} — 6개 축의 판정이 어느 업종에서 나타나는지` : '6개 축의 판정이 어느 섹터·테마에서 나타나는지' });
+  return { next };
+}
+
+// 브리핑 (I21): the briefing's statements and 자산별 흐름 boxes continue to the screen that explains each asset group,
+// in the order the read ranked them; 시장 상태 first because it judges the same closes on six axes.
+const BRIEFING_ROUTES = Object.freeze({
+  index: { route: 'breadth', label: '시장 폭', why: '지수와 참여 종목이 같은 방향인지, 괴리가 어디서 커지는지' },
+  rates: { route: 'fxbond', label: '금리 · 환율', why: '금리 움직임이 실질금리·기대인플레·수익률 곡선 중 어디서 오는지' },
+  commodities: { route: 'macro', label: '거시 경제', why: '유가·금·달러 움직임이 물가와 금리 경로에 주는 압력' },
+  risk: { route: 'sentiment', label: '투자 심리', why: '변동성·신용·공포 심리가 같은 쪽을 가리키는지' },
+  korea: { route: 'macro', label: '거시 경제', why: '한국 증시와 원화 흐름을 미국장과 따로 확인' }
+});
+
+export function briefingFlow({ read = null } = {}) {
+  if (!read?.available) return { next: [] };
+  const next = [{ route: 'signal', label: '시장 상태', why: '오늘 해석이 6개 축(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정과 같은 쪽인지' }];
+  const seen = new Set(['signal']);
+  const axes = [...(read.statements || []).map((row) => row.axis), ...(read.drivers || []).filter((row) => row.values?.length).map((row) => row.id)];
+  for (const axis of axes) {
+    const target = BRIEFING_ROUTES[axis];
+    if (!target || seen.has(target.route) || next.length >= 4) continue;
+    seen.add(target.route);
+    const title = (read.drivers || []).find((row) => row.id === axis)?.title;
+    next.push({ ...target, why: `${title ? `자산별 흐름 '${title}' — ` : ''}${target.why}` });
+  }
   return { next };
 }
 
 // 테마 · 섹터: what the RRG quadrants say together, tied to the 시장 상태 breadth axis.
 const DEFENSIVE = new Set(['XLU', 'XLP', 'XLV', 'XLRE']);
 const QUADRANT_WORDS = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
+
+// The leader names one rotation read and every link that quotes it share: "선도 기술·통신서비스 · 개선 유틸리티".
+export function rotationLeaders(groups = {}) {
+  const names = (key) => (groups?.[key] || []).map((item) => item.label || item.symbol).filter(Boolean);
+  return [names('Leading').length ? `선도 ${names('Leading').join('·')}` : null, names('Improving').length ? `개선 ${names('Improving').join('·')}` : null].filter(Boolean).join(' · ');
+}
+
+// I09: RRG sector ETF -> the screener universe's English sector value (public-data/screener-universe.json `sector`).
+export const SECTOR_ETF_SCREENER_SECTOR = Object.freeze({
+  XLK: 'Technology', XLC: 'Communication Services', XLY: 'Consumer', XLP: 'Consumer Defensive', XLV: 'Healthcare', XLF: 'Financials',
+  XLE: 'Energy', XLI: 'Industrials', XLU: 'Utilities', XLB: 'Materials', XLRE: 'Real Estate'
+});
 
 export function rotationFlow({ groups = {}, regime = null } = {}) {
   const names = (key) => (groups[key] || []).map((item) => item.label || item.symbol);
@@ -150,10 +205,14 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   // P1599 (F104): the headline names the leaders and the counts; every sector already sits in the quadrant
   // cards right below, so listing all eleven here made the one-line read a paragraph.
   const counts = concentration ? '' : ` 약화 ${(groups.Weakening || []).length} · 후행 ${lagging.length}.`;
-  const leaders = [lead.length ? `선도 ${names('Leading').join('·')}` : '선도 섹터 없음', improving.length ? `개선 ${names('Improving').join('·')}` : null].filter(Boolean).join(' · ');
+  const leaders = lead.length ? rotationLeaders(groups) : ['선도 섹터 없음', rotationLeaders({ Improving: improving })].filter(Boolean).join(' · ');
   const read = `${leaders}. ${style}.${concentration}${counts}${tie}`;
   const next = [];
-  if (improving.length) next.push({ route: 'screener', label: '스크리너', why: `개선 사분면(${names('Improving').join('·')})에서 상대강도가 먼저 오르는 종목` });
+  // I09: the screener opens on the first improving sector (the screener reads ctx.sector, an English universe sector).
+  const firstSector = improving.map((item) => SECTOR_ETF_SCREENER_SECTOR[String(item.symbol || '').toUpperCase()]).find(Boolean) || null;
+  const firstLabel = firstSector ? improving.find((item) => SECTOR_ETF_SCREENER_SECTOR[String(item.symbol || '').toUpperCase()] === firstSector) : null;
+  if (improving.length) next.push({ route: 'screener', label: '스크리너', why: `개선 사분면(${names('Improving').join('·')})에서 상대강도가 먼저 오르는 종목${firstSector && improving.length > 1 ? ` — ${firstLabel.label || firstLabel.symbol} 섹터부터` : ''}`,
+    ...(firstSector ? { ctx: { sector: firstSector } } : {}) });
   if (breadth) next.push({ route: 'breadth', label: '시장 폭', why: `섹터 쏠림이 참여 종목 수(시장 폭 ${breadth.stateLabel})에도 나타나는지` });
   next.push({ route: 'macro', label: '거시 경제', why: '금리·유가·달러가 어느 업종에 유리한 국면인지' });
   return { read, next };
@@ -185,8 +244,11 @@ export function themeStrengthLead(model = null) {
 // the theme ETF sits in the sector rotation. Groups come from buildGroupStrength (screener artifact medians).
 export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {} } = {}) {
   const mine = (groups || []).filter((group) => group.themeId === themeId);
-  if (!mine.length) return { read: '', rows: [] };
-  const byThree = [...mine].sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9));
+  if (!mine.length) return { read: '', rows: [], next: [] };
+  // D15: a group with fewer than four members is reference only; it never names the strongest/weakest sub-theme.
+  // A group without a measured 3-month return cannot be named strongest/weakest either (it read "통합 메이저(—)").
+  const headline = mine.filter((group) => group.smallSample !== true && group.ret3m != null);
+  const byThree = [...(headline.length ? headline : mine)].sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9));
   const strongest = byThree[0];
   const weakest = byThree[byThree.length - 1];
   const moving = mine.filter((group) => group.direction === 'improving');
@@ -196,7 +258,7 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   const parts = [];
   const rotationDate = etf && rotation[etf]?.sessionDate ? `(${Number(rotation[etf].sessionDate.slice(5, 7))}/${Number(rotation[etf].sessionDate.slice(8, 10))} 종가 기준)` : '';
   if (quadrant) parts.push(`테마 ETF ${withTopicParticle(etf)} 섹터 회전에서 ${quadrant}${rotationDate}`);
-  if (byThree.length >= 2) parts.push(`3개월 기준 가장 강한 곳은 ${strongest.name}(${pct(strongest.ret3m)}), 가장 약한 곳은 ${weakest.name}(${pct(weakest.ret3m)})`);
+  if (byThree.length >= 2 && strongest.ret3m != null && weakest.ret3m != null) parts.push(`3개월 기준 가장 강한 곳은 ${strongest.name}(${pct(strongest.ret3m)}), 가장 약한 곳은 ${weakest.name}(${pct(weakest.ret3m)})`);
   if (moving.length && moving.length === mine.length && mine.length >= 2) {
     // P1449/R679: an improving 1-month vs 3-month rank is a RELATIVE PRICE observation. Without a
     // volume/flow input this is not evidence of money inflow (the house wording used by the
@@ -206,5 +268,13 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   else if (moving.length) parts.push(`1개월 흐름은 ${moving.map((group) => group.name).join(' · ')} 쪽으로 옮겨 가는 중`);
   const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
   if (cooling.length) parts.push(`${cooling.map((group) => group.name).join(' · ')}${topic(cooling[cooling.length - 1].name)} 최근 1개월 강세가 식는 중`);
-  return { read: parts.length ? `${parts.join('. ')}입니다.` : '', rows: byThree };
+  // I09: the theme read continues to the stocks (screener) and to whether the move is broad (시장 폭).
+  const sector = etf ? SECTOR_ETF_SCREENER_SECTOR[String(etf).toUpperCase()] || null : null;
+  const next = [
+    { route: 'screener', label: '스크리너', why: `${strongest.name} 등 하위 테마 종목을 모멘텀·추세 순위로 비교${sector ? '(같은 섹터부터)' : ''}`, ...(sector ? { ctx: { sector } } : {}) },
+    { route: 'breadth', label: '시장 폭', why: '이 테마의 강세가 시장 전체 참여 종목 확대와 같은 방향인지' }
+  ];
+  // D15 (review R2): small groups stay in the table as reference rows, after the ranked ones.
+  const rows = [...byThree, ...mine.filter((group) => !byThree.includes(group)).sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9))];
+  return { read: parts.length ? `${parts.join('. ')}입니다.` : '', rows, next };
 }

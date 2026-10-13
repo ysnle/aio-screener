@@ -1,0 +1,22 @@
+{
+  "version": "v57.50",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.50 이면·의미와 화면 간 연결 심층 검토 78건 반영(P1691~P1700) · AI 종가 근거 표시 정리.",
+  "p": {
+    "id": 1696,
+    "title": "용어 사전·검색에서 원리 화면을 열면 고른 개념이 사라지고, 변동성 장(N1~N15) 문서 링크 15개는 퇴역한 옵션 화면을 가리켜 이동 실패",
+    "symptom": "'?mode=concept&node=present-value#principles'로 이동하면 '?mode=frames' 기본 화면이 열렸다. route-targets의 routeId 'options' 15건은 knowledgeTargetHash가 라우트로 인정하지 않아 클릭해도 이동하지 않았다.",
+    "root_cause": "pushState 뒤 showPage가 쿼리를 지웠다. 옵션 화면 퇴역 때 route-targets 생성 원천과 브리지 허용 목록을 갱신하지 않았다(허용 목록은 손으로 쓴 배열).",
+    "fix": "대기 경로 URL에 ?query#route 전체를 넘기는 navigateKnowledgeRoute를 두고 용어 사전·검색이 이를 쓴다. 생성 원천과 산출물의 options를 sentiment로 바꾸고 허용 목록은 ROUTE_IDS에서 파생한다.",
+    "violated_rule": "라우트 퇴역 시 모든 링크 원천 갱신",
+    "prevention": "P1696: ci-knowledge-route-bridge-contract·ci-knowledge-generated-parity-check(18 builders unchanged)",
+    "verification": "Playwright로 재현 후 수정 확인(개념 유지, N장 링크가 투자 심리로 이동)."
+  },
+  "qa": [],
+  "qa_section": "검증 스킬",
+  "changelog": [
+    "**학습 링크 복구 (P1696):** 용어 사전에서 연 개념이 사라지던 문제와 퇴역한 옵션 화면을 가리키던 문서 링크 15개를 고쳤다."
+  ]
+}

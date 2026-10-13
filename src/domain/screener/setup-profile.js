@@ -4,6 +4,7 @@
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../research/supplied-materials.js';
 import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../research/nathan-previous-threads.js';
 import { NATHAN_ANALYSIS_PROTOCOL } from '../knowledge/nathan-framework-pack.js';
+import { RULES } from '../rules/thresholds.js';
 
 export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v3';
 
@@ -59,7 +60,8 @@ export function deriveScreenerSetupProfile(row = {}) {
     && mediumTrendPositive && pctSma200 != null && pctSma200 >= -5
     && pctSma50 != null && pctSma50 <= 5;
   const stretch200 = pctSma200 != null && pctSma200 >= 70;
-  const rsiOverheat = rsi != null && rsi >= 80;
+  // v57.50 C16: the climax edge comes from the shared RSI table (80), the same table the summary's 70/30 reads.
+  const rsiOverheat = rsi != null && rsi >= RULES.technical.rsi.climax;
   const climaxRisk = stretch200 || rsiOverheat;
   // P1507 (owner materials 2026-10-07): how far price has run from the 50-day line, in units of its own average daily
   // range. A late entry pays for the base-building time with no profit cushion; this says how late. ADR stands in for

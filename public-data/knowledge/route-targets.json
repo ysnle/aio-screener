@@ -4,18 +4,25 @@
   "status": "ROUTE_TARGETS_CONNECTED",
   "boundary": "전문 화면 링크는 검증할 metric·timeframe 맥락을 전달하며 투자 판단을 생성하지 않는다.",
   "allowedRoutes": [
-    "atlas",
-    "principles",
+    "home",
+    "signal",
+    "breadth",
+    "sentiment",
+    "briefing",
+    "technical",
     "macro",
     "fxbond",
     "fundamental",
     "themes",
-    "technical",
-    "market-news",
-    "screener",
-    "entity",
+    "theme-detail",
     "portfolio",
-    "options"
+    "ticker",
+    "market-news",
+    "principles",
+    "masters",
+    "atlas",
+    "guide",
+    "screener"
   ],
   "counts": {
     "articleTargets": 188,
@@ -1313,7 +1320,7 @@
     {
       "articleId": "principles:N1",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1327,7 +1334,7 @@
     {
       "articleId": "principles:N2",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1341,7 +1348,7 @@
     {
       "articleId": "principles:N3",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1355,7 +1362,7 @@
     {
       "articleId": "principles:N4",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1369,7 +1376,7 @@
     {
       "articleId": "principles:N5",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1383,7 +1390,7 @@
     {
       "articleId": "principles:N6",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1397,7 +1404,7 @@
     {
       "articleId": "principles:N7",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1411,7 +1418,7 @@
     {
       "articleId": "principles:N8",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1425,7 +1432,7 @@
     {
       "articleId": "principles:N9",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1439,7 +1446,7 @@
     {
       "articleId": "principles:N10",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1453,7 +1460,7 @@
     {
       "articleId": "principles:N11",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1467,7 +1474,7 @@
     {
       "articleId": "principles:N12",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1481,7 +1488,7 @@
     {
       "articleId": "principles:N13",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1495,7 +1502,7 @@
     {
       "articleId": "principles:N14",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",
@@ -1509,7 +1516,7 @@
     {
       "articleId": "principles:N15",
       "conceptId": null,
-      "routeId": "options",
+      "routeId": "sentiment",
       "routeLabel": "변동성·꼬리위험 전문 화면에서 검증",
       "metric": "변동성·꼬리위험",
       "timeframe": "일간~분기",

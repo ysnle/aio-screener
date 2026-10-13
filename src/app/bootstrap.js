@@ -40,6 +40,7 @@ import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/con
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { readMarketRegime } from '../ui/components/market-regime.js';
 import { collectMarketInputs } from '../ui/components/briefing-read.js';
+import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
 import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBasisEvidenceContext } from '../ai/context/close-basis-evidence.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
@@ -319,6 +320,33 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes, typed].filter(Boolean).join('\n');
     } catch (_) { return ''; }
   };
+  // v57.50 C06: one Fear & Greed reader for the legacy surfaces (AI header, _liveSnap/_closeSnap, AIO.marketState).
+  // Same rule as the home card (analysis.js renderHomeFearGreed): the completed-close value aligned with the US close
+  // basis; a close that is behind the basis is held (null); with no close series yet, the canonical value is used and
+  // labelled as such. Callers show '—' for null — never a default number.
+  root._aioFgCloseReading = () => {
+    try {
+      const history = Array.isArray(root._aioHistory) ? root._aioHistory : [];
+      const basis = closeBasis(history);
+      const point = basis ? buildCloseSeries(history, 'fg', { through: basis }).at(-1) || null : null;
+      if (point && Number.isFinite(Number(point.value))) {
+        const usable = isUsable(alignInput(point.date, basis));
+        return Object.freeze({ value: usable ? Number(point.value) : null, date: point.date, basis: 'close', held: !usable });
+      }
+      const metric = root.AIO?.getCanonicalMetric?.('fg') || null;
+      const value = Number(metric?.value);
+      return metric && metric.value != null && Number.isFinite(value)
+        ? Object.freeze({ value, date: metric.asOf || metric.observedAt || null, basis: 'canonical', held: false })
+        : null;
+    } catch (_) { return null; }
+  };
+  // v57.50 C08: the legacy AI header names the same overall verdict the 시장 상태 screen shows (not the retired score bands).
+  root._aioMarketRegimeSummary = () => {
+    try {
+      const regime = readMarketRegime(root);
+      return regime ? Object.freeze({ available: !!regime.available, overall: regime.overall || null, asOf: regime.asOf || null, counts: regime.counts || null }) : null;
+    } catch (_) { return null; }
+  };
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
   // committed daily history so the trend input follows the close basis instead of holding the score.
@@ -488,6 +516,19 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // published artifact + identity universe. Legacy SCREENER_DB/profile/watchlist helpers remain
   // compatibility boundaries for non-cut-over consumers; the native route does not read legacy
   // DOM projections.
+  // v57.50 C09: the screener's regime label came from the legacy AIO.marketState (riskScore/cyclePhase), so it could
+  // call the market '위험회피' while the 시장 상태 screen read '혼조'. The weight resolver now receives the screen's
+  // overall verdict, translated onto its existing riskScore scale (one fixed point per verdict; '판정 보류' = no input).
+  // The weights stay the fixed neutral model until a promotion record exists — only the candidate label follows.
+  const REGIME_RISK_POINT = Object.freeze({ '부담 우세': 65, '부담 쪽으로 기움': 57.5, '혼조': 42.5, '우호 쪽으로 기움': 27.5, '우호 우세': 20 });
+  const screenRegimeWeightInput = () => {
+    try {
+      const regime = readMarketRegime(root);
+      const riskScore = regime?.available ? REGIME_RISK_POINT[regime.overall] : undefined;
+      return riskScore == null ? null : { riskScore, riskLevel: '', vixBand: '', fgZone: '', cyclePhase: '', source: 'market-regime-overall', overall: regime.overall };
+    } catch (_) { return null; }
+  };
+  root._aioScreenRegimeWeightInput = screenRegimeWeightInput; // the legacy _aioFactorWeights wrapper reads the same input
   const syncScreener = createScreenerOrchestrator({
     provider: createScreenerProvider({ httpClient, readLiveData: () => root?._liveData || {} }),
     commands: screenerCommands,
@@ -498,7 +539,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     rankingContext: () => {
       const profileKey = typeof root?._aioGetActiveProfile === 'function' ? root._aioGetActiveProfile() : 'balanced';
       const profile = profileKey && root?.AIO_TRADER_PROFILES ? root.AIO_TRADER_PROFILES[profileKey] : null;
-      const resolved = deriveFactorWeights({ marketState: root?.AIO?.marketState || null, profile: profileKey === 'balanced' ? null : profile });
+      const resolved = deriveFactorWeights({ marketState: screenRegimeWeightInput(), profile: profileKey === 'balanced' ? null : profile });
       // W07-A/P1146: an explicit user profile is a requested model; the neutral default is
       // the versioned default model and keeps renormalizing over available factors.
       return { weights: resolved?.weights || null, weightsPolicy: resolved?.source === 'explicit-user-profile' ? 'explicit' : 'model-default', regimeLabel: resolved?.regimeLabel || null, now: clock.now() };

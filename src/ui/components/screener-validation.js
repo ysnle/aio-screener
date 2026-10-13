@@ -14,6 +14,9 @@ function el(doc, tag, text, className) {
   return node;
 }
 
+export const VALIDATION_MIN_REBALANCES = 12;
+export const VALIDATION_MIN_ABS_T = 2;
+
 const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(value)) ? '—' : `${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(digits)}%`);
 
 export function summarizeValidation(history = [], status = null, liveWeights = null) {
@@ -27,7 +30,14 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
   let pooledMarkets = false;
   try { pooledMarkets = /market-separated/.test(JSON.parse(lastFingerprint || '{}').populationPolicy || ''); } catch (_) { pooledMarkets = false; }
   const wins = last && Number.isFinite(Number(last.netHitRate)) && Number.isFinite(Number(last.dates)) ? Math.round(Number(last.netHitRate) / 100 * Number(last.dates)) : null;
-  const tone = !last || !Number.isFinite(Number(last.quantileSpreadNet)) ? 'unknown' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
+  // v57.50 D11: six rebalances with a composite IC t of about -0.26 were read as "뒤처졌습니다" in a burden colour.
+  // A sign is a finding only with |t| >= 2 on at least 12 rebalances; otherwise the record says it cannot tell yet.
+  // t is the record's own statistic when it carries one (ic.compositeT / icT); it is never estimated from the pooled n.
+  const tStat = Number.isFinite(Number(last?.ic?.compositeT)) ? Number(last.ic.compositeT) : Number.isFinite(Number(last?.icT)) ? Number(last.icT) : null;
+  const samples = Number.isFinite(Number(last?.dates)) ? Number(last.dates) : null;
+  const distinguishable = samples != null && samples >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
+  const tone = !last || !Number.isFinite(Number(last.quantileSpreadNet)) ? 'unknown' : !distinguishable ? 'neutral' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
+  const undecided = `아직 구별 불가(표본 ${samples ?? '—'}회${tStat != null ? `, t=${tStat.toFixed(2)}` : ''})`;
   // P1449: stored rows must carry the model fingerprint. A mismatch — or no fingerprint at all
   // (rows produced before this identity existed) — means the record was NOT produced by the
   // model on screen, so it cannot be presented as that ranking's validation.
@@ -48,8 +58,12 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
     pooledMarkets,
     modelMatch,
     tone,
+    tStat,
+    distinguishable,
+    undecided,
     verdict: !last ? '사후 검증 기록 수신 대기'
       : !modelMatch ? `이 과거 기록은 지금 화면의 순위와 가중치·정의(모델 지문)가 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다. 같은 모델의 기록이 쌓인 뒤 이 영역이 다시 성과를 말합니다.`
+      : !distinguishable ? `${undecided} — 최근 ${last.dates}번의 과거 시점에서 상위 20%와 하위 20%의 평균 차이는 ${pct(last.quantileSpreadNet)}(비용 반영)였지만, 이 표본으로는 우연한 차이와 구별되지 않습니다. 앞섬·뒤처짐 판정은 ${VALIDATION_MIN_REBALANCES}회 이상, |t| ${VALIDATION_MIN_ABS_T} 이상에서 합니다.`
       : tone === 'favorable' ? `최근 ${last.dates}번의 과거 시점에서 기본 복합 순위 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} 앞섰습니다(비용 반영). 표본이 작고 생존 편향이 있어 예측 우위의 증명은 아닙니다.`
         : `지금까지 이 순위의 예측 우위는 확인되지 않았습니다. 최근 ${last.dates}번의 과거 시점에서 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} — 기본 복합 순위(모멘텀·추세·저변동·칼만)는 이 기간 동안 뒤처졌습니다(비용 반영).`,
     validation: status?.status === 'BLOCKED' || status?.predictiveValidation === 'not-established'
@@ -67,7 +81,7 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
   const details = el(doc, 'details', null, 'screener-validation-details');
   details.open = open;
   const head = el(doc, 'summary', null, 'screener-validation-summary');
-  head.append(el(doc, 'span', '순위 사후 검증', 'screener-validation-title'), el(doc, 'span', summary.available ? summary.modelMatch ? `상위−하위 20% ${pct(summary.spreadNet)} · ${summary.wins ?? '—'}/${summary.rebalances ?? '—'}회 앞섬` : '이전 모델 기록 · 현재 순위와 비교 보류' : '기록 수신 대기', `regime-state is-${summary.modelMatch ? summary.tone : 'unknown'}`));
+  head.append(el(doc, 'span', '순위 사후 검증', 'screener-validation-title'), el(doc, 'span', summary.available ? summary.modelMatch ? `상위−하위 20% ${pct(summary.spreadNet)} · ${summary.wins ?? '—'}/${summary.rebalances ?? '—'}회 앞섬${summary.distinguishable ? '' : ' · 아직 구별 불가'}` : '이전 모델 기록 · 현재 순위와 비교 보류' : '기록 수신 대기', `regime-state is-${summary.modelMatch ? summary.tone : 'unknown'}`));
   details.append(head);
   details.append(el(doc, 'p', summary.verdict, 'pf-check-detail'));
   if (summary.available) {

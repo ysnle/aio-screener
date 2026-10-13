@@ -7,20 +7,21 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+// v57.50 D24/C04: one put/call table for the card, the credit axis and this narrative — RULES.credit
+// (1.1 and above heavy hedging, below 0.7 call-heavy); the separate 1.3 / 1.0 / 0.7 and 1.2 / 0.7 edges had no source.
 export function putCallBand(value) {
   const ratio = finite(value);
   if (ratio == null || ratio < 0 || ratio > 10) return Object.freeze({ value: null, label: '판정 보류', blocked: true });
-  if (ratio > 1.3) return Object.freeze({ value: ratio, label: '풋 거래 비중이 높은 구간', blocked: false });
-  if (ratio > 1.0) return Object.freeze({ value: ratio, label: '풋 우세 구간', blocked: false });
-  if (ratio > 0.7) return Object.freeze({ value: ratio, label: '균형 구간', blocked: false });
-  return Object.freeze({ value: ratio, label: '콜 거래 비중이 높은 구간', blocked: false });
+  if (ratio >= RULES.credit.putCallHedgeAt) return Object.freeze({ value: ratio, label: '풋 거래 비중이 높은 구간(헤지 수요 높음)', blocked: false });
+  if (ratio < RULES.credit.putCallOptimismBelow) return Object.freeze({ value: ratio, label: '콜 거래 비중이 높은 구간', blocked: false });
+  return Object.freeze({ value: ratio, label: '균형 구간', blocked: false });
 }
 
 export function putCallNeedlePosition(value) {
   const ratio = finite(value);
   if (ratio == null) return '판정 보류';
-  if (ratio >= 1.2) return '공포';
-  if (ratio <= 0.7) return '탐욕';
+  if (ratio >= RULES.credit.putCallHedgeAt) return '공포';
+  if (ratio < RULES.credit.putCallOptimismBelow) return '탐욕';
   return '중립';
 }
 

@@ -1,0 +1,30 @@
+{
+  "version": "v57.50",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.50 이면·의미와 화면 간 연결 심층 검토 78건 반영(P1691~P1700) · AI 종가 근거 표시 정리.",
+  "p": {
+    "id": 1699,
+    "title": "같은 지표의 기준·기준일이 표면마다 다름 — AI 헤더 실시간 vs 화면 종가, RSI 70 vs 78, VIX·HY·시장 폭 구간, 섹터 1일·1주 원천, 포트폴리오 섹터 분모",
+    "symptom": "AI 프롬프트가 \"실시간 1순위\" 규칙과 화면 종가 블록을 동시에 받아 장중에는 VIX 두 값이 들어갔다. AI RSI는 진행 중 봉 포함 값을 \"종가\"로 표기했다. RSI 70~78 종목은 종목 화면 \"과열\", 스크리너 아님. 용어 사전·health의 VIX·HY·시장 폭 구간이 RULES와 달랐다. 섹터 막대 \"1주\"가 레거시 5일 캐시, \"1일\"이 실시간 값을 \"종가\"로 표기했다. 포트폴리오 막대는 총자산, 해석 문장은 주식 합 분모였다. AI 답의 근거 표시가 종가만 쓴 답에도 \"확인 필요\"였다.",
+    "root_cause": "같은 개념을 여러 파일이 따로 계산·표기했고 RULES를 읽지 않는 경로가 남아 있었다.",
+    "fix": "AI 헤더·규칙은 화면 종가 근거 우선(실시간은 장중 참고), F&G는 홈과 같은 종가 reader, RSI는 스크리너 완료 종가 값. RULES.technical.rsi(70/30/80) 신설. 용어 사전·health는 RULES 구간, 섹터 막대는 종가 원장, 포트폴리오 섹터는 총자산 분모와 같은 분류. Stage는 Weinstein에만, 확장 배수는 extensionStateFor 하나. 나스닥 종합/100 명시, 방향 막대 색 통일. 종가만 인용한 AI 답은 \"종가 기준 근거\".",
+    "violated_rule": "한 개념 한 기준(RULES 단일 출처)",
+    "prevention": "P1699: ci-ai-intelligence-contract-check·ci-chat-resilience-check·ci-runtime-contract-check(F&G 종가 reader)·ci-desktop-continuity-check·ci-esm-core-unit-check",
+    "verification": "배포판 AI 질문(v57.49): VIX 종가 15.21·10년물 5.24% [2026-10-12 종가] 경고 없음(QA-VERIFY-16). 섹터 막대 XLK 실시간 9.99 → 원장 -1.22/-2.27."
+  },
+  "qa": [
+    {
+      "id": "QA-VERIFY-16",
+      "text": "P1688: 배포 사이트에서 VIX·10년물 수준을 기준일과 함께 물으면 화면 기준 종가 값이 'YYYY-MM-DD 종가'와 함께 답에 남고, 경고는 한국어 한 줄 이하다.",
+      "verify_by": "push 뒤 배포 사이트 AI 질문 1회(scratch live-ai 스크립트)",
+      "done": true,
+      "update": true
+    }
+  ],
+  "qa_section": "검증 스킬",
+  "changelog": [
+    "**표면 간 기준 통일 (P1699):** AI·용어 사전·종목·스크리너·테마·포트폴리오가 같은 기준값과 같은 종가를 쓴다."
+  ]
+}

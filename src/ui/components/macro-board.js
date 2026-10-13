@@ -8,7 +8,8 @@
 //                              won, yen and 10Y on the completed-close basis with six-month charts.
 // Observations only: the fixed-threshold storyline, risk pill and four-axis bull/bear count are retired.
 import { alignInput, alignmentLabel, buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
-import { buildMacroRead, seriesOf } from '../../domain/macro/macro-read.js';
+import { buildMacroRead, macroNextSteps, ratesNextSteps, seriesOf } from '../../domain/macro/macro-read.js';
+import { renderNextSteps } from './page-flow.js';
 import { readMarketRegime } from './market-regime.js';
 import { buildMacroBoard } from '../../domain/macro/indicators.js';
 import { buildRatesFx, sessionPointBack, signed } from '../../domain/macro/rates-fx.js';
@@ -215,6 +216,11 @@ function chainNode(doc, node) {
   return box;
 }
 
+const BRANCH_ROUTES = Object.freeze({
+  dollar: { route: 'fxbond', label: '금리 · 환율에서 달러·원·엔 추이', why: '달러·원화·엔화의 6개월 종가 추이와 환율 축' },
+  credit: { route: 'sentiment', label: '투자 심리에서 신용·변동성', why: '하이일드 스프레드와 VIX가 심리와 같은 쪽인지' }
+});
+
 function renderChain(doc, chain) {
   const host = doc.getElementById('macro-chain');
   if (!host) return;
@@ -229,6 +235,16 @@ function renderChain(doc, chain) {
   chain.branches.forEach((branch) => {
     const box = el(doc, 'div', null, 'macro-chain-branch');
     box.append(chainNode(doc, branch), el(doc, 'p', branch.effect || '자료 대기', 'macro-chain-effect'));
+    // v57.50 I04: each branch ends where its own evidence is read, so the chain is not a dead end.
+    const target = BRANCH_ROUTES[branch.id];
+    if (target) {
+      const link = el(doc, 'button', `${target.label} →`, 'flow-next-link');
+      link.type = 'button';
+      link.dataset.action = 'showPage';
+      link.dataset.arg = target.route;
+      link.title = target.why;
+      box.append(link);
+    }
     branches.append(box);
   });
   host.replaceChildren(row, links, branches, el(doc, 'p', chain.legend || '', 'briefing-footnote macro-chain-legend'));
@@ -237,10 +253,10 @@ function renderChain(doc, chain) {
 // P1427: growth × inflation as a 2 × 2 map — the current quadrant filled and marked, a known half shaded
 // when only one direction is established, nothing marked when neither is.
 const QUADRANTS = Object.freeze([
-  { key: 'down/up', label: '스태그플레이션 위험', sub: '성장↓ 물가↑', tone: 'burden', col: 0, row: 0 },
-  { key: 'up/up', label: '과열 · 리플레이션', sub: '성장↑ 물가↑', tone: 'neutral', col: 1, row: 0 },
-  { key: 'down/down', label: '둔화 · 디스인플레이션', sub: '성장↓ 물가↓', tone: 'neutral', col: 0, row: 1 },
-  { key: 'up/down', label: '골디락스', sub: '성장↑ 물가↓', tone: 'favorable', col: 1, row: 1 }
+  { key: 'down/up', label: '스태그플레이션 위험', sub: '성장↓ 물가 속도↑', tone: 'burden', col: 0, row: 0 },
+  { key: 'up/up', label: '과열 · 리플레이션', sub: '성장↑ 물가 속도↑', tone: 'neutral', col: 1, row: 0 },
+  { key: 'down/down', label: '둔화 · 디스인플레이션', sub: '성장↓ 물가 속도↓', tone: 'neutral', col: 0, row: 1 },
+  { key: 'up/down', label: '골디락스', sub: '성장↑ 물가 속도↓', tone: 'favorable', col: 1, row: 1 }
 ]);
 
 function quadrantChart(doc, regime) {
@@ -276,7 +292,7 @@ function quadrantChart(doc, regime) {
     }
   }
   add('text', { x: pad.left + cw, y: H - 6, 'text-anchor': 'middle', class: 'macro-quadrant-axis' }, '← 성장 둔화 · 성장 견조 →');
-  add('text', { x: 10, y: pad.top + ch, 'text-anchor': 'middle', transform: `rotate(-90 10 ${pad.top + ch})`, class: 'macro-quadrant-axis' }, '← 물가 둔화 · 물가 상승 →');
+  add('text', { x: 10, y: pad.top + ch, 'text-anchor': 'middle', transform: `rotate(-90 10 ${pad.top + ch})`, class: 'macro-quadrant-axis' }, '← 물가 속도 둔화 · 물가 속도 상승 →');
   svg.setAttribute('aria-label', current ? `거시 국면: ${regime.label}` : '거시 국면 판정 보류');
   return svg;
 }
@@ -301,12 +317,13 @@ function renderRegime(doc, read) {
   const left = el(doc, 'div', null, 'macro-overview-map');
   left.append(quadrantChart(doc, r));
   // Expert review M12: which month each input describes, and a direction decided near its cut is called 근소.
-  const nearText = [r.near?.growth ? `성장 방향은 근소 — ${r.near.growth}` : null, r.near?.inflation ? `물가 방향은 근소 — ${r.near.inflation}` : null].filter(Boolean).join(' · ');
-  if (r.available && (r.timing || nearText)) left.append(el(doc, 'p', [r.timing, nearText ? `${nearText}.` : null].filter(Boolean).join(' '), 'briefing-footnote macro-quadrant-note'));
+  // v57.50 D16/D17: a direction inside its dead band is held — the note names the gap whether or not the quadrant is set.
+  const nearText = [r.near?.growth ? `성장 방향은 근소(경계)로 보류 — ${r.near.growth}` : null, r.near?.inflation ? `물가 방향 보류 — ${r.near.inflation}` : null].filter(Boolean).join(' · ');
+  if (r.timing || nearText) left.append(el(doc, 'p', [r.timing, nearText ? `${nearText}.` : null].filter(Boolean).join(' '), 'briefing-footnote macro-quadrant-note'));
   const right = el(doc, 'div', null, 'macro-overview-side');
   const head = el(doc, 'div', null, 'macro-regime-head');
   head.append(el(doc, 'span', r.label, `macro-regime-label is-${r.tone}`));
-  if (r.available && (r.near?.growth || r.near?.inflation)) head.append(el(doc, 'span', '경계 근소', 'basis-chip is-off'));
+  if (r.near?.growth || r.near?.inflation) head.append(el(doc, 'span', '경계 근소 · 방향 보류', 'basis-chip is-off'));
   if (r.available && r.provisional) head.append(el(doc, 'span', '잠정 — 월별 추세 일부 미반영', 'basis-chip is-off'));
   const counts = read.counts;
   const tally = el(doc, 'div', null, 'macro-tally');
@@ -318,7 +335,7 @@ function renderRegime(doc, read) {
   reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${r.reading}`));
   // P1506: the quadrant reads the 3-month direction of growth and prices; the six cards judge today's level
   // against a threshold. A disinflation quadrant beside a 부담 price card is consistent once that is said.
-  const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(3개월 방향), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가가 내려가는 중이어도 목표보다 높으면 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
+  const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 수준이 목표보다 높으면 물가 축은 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
   right.append(head, tally, lens, overviewTiles(doc, read.axes), reading);
   const criteria = el(doc, 'details', null, 'macro-axis-more');
   criteria.append(el(doc, 'summary', '국면 판정 기준과 지금 읽은 값'), el(doc, 'p', r.criteria || '', 'regime-flip'));
@@ -430,6 +447,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   }
   renderCommodities(doc, root, read.oil);
   renderKoreaWon(doc, root);
+  renderNextSteps(doc, doc.getElementById('macro-next'), macroNextSteps(read)); // v57.50 I04
   host.dataset.aioMacroBoardRenderer = 'native';
   return { board, read };
 }
@@ -499,9 +517,9 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   const t = model.treasury;
   // P1426: the equity-impact axes for this tab — policy from the 거시 read, the rest shared with 시장 상태.
   const axesHost = doc.getElementById('rates-axes');
+  const regime = readMarketRegime(root);
+  const read = buildMacroRead({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null, regime: regime.available ? regime : null, history: root._aioHistory || [] });
   if (axesHost) {
-    const regime = readMarketRegime(root);
-    const read = buildMacroRead({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null, regime: regime.available ? regime : null, history: root._aioHistory || [] });
     const byId = Object.fromEntries(read.axes.map((row) => [row.id, row]));
     const fxAxis = regime.available ? regime.axes.find((row) => row.id === 'korea') : null;
     // P1505: only the FX axis is unique to this tab; the other four are on the 거시 경제 six-axis board.
@@ -512,11 +530,13 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준 · 국채 금리 ${t.asOf ? `${shortDate(t.asOf)} ` : ''}공식 고시 기준` : '종가 기록을 불러오는 중입니다.');
 
   // 1. Treasury curve
+  set('rates-curve-basis', t.basisLabel || ''); // v57.50 C10: source and date of the curve's levels and changes
   const yieldRow = doc.getElementById('rates-yields');
   if (yieldRow) {
     yieldRow.replaceChildren(...t.yields.map((row) => {
       const cell = el(doc, 'div', null, 'rates-yield');
       if (row.derived) cell.title = '같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값';
+      else if (row.id === 'dgs10' && t.basisLabel) cell.title = `${t.basisLabel}의 변화입니다. 시장 상태와 아래 10년물 카드의 '5일' 변화는 일별 종가 기준이라 기준일이 다를 수 있습니다.`;
       cell.append(el(doc, 'span', row.label, 'rates-yield-label'), el(doc, 'span', row.value == null ? '—' : `${row.value.toFixed(2)}%`, 'rates-yield-value'));
       const changes = [row.day == null ? null : `1일 ${signed(row.day * 100, 0, 'bp')}`, row.week == null ? null : `1주 ${signed(row.week * 100, 0, 'bp')}`].filter(Boolean).join(' · ');
       if (changes) cell.append(el(doc, 'span', changes, 'rates-yield-change'));
@@ -590,7 +610,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   const grid = doc.getElementById('rates-fx-grid');
   if (grid) {
     const tnxLast = model.tnx[model.tnx.length - 1] || null;
-    const tnxBack = sessionPointBack(model.tnx, 20); // M01: 20 exchange sessions, not 20 rows
+    const tc = model.tnxChange || {}; // v57.50 C10: the 시장 상태 series and session count
     const cards = [
       ...model.fx.map((card) => {
         const align = alignInput(card.asOf, model.basis);
@@ -612,15 +632,16 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         valueText: tnxLast ? `${tnxLast.value.toFixed(2)}%` : '—',
         chip: tnxLast ? `${alignmentLabel(alignInput(tnxLast.date, model.basis))} 종가` : null,
         chipOff: tnxLast ? alignInput(tnxLast.date, model.basis).status !== 'aligned' : false,
-        lines: [tnxLast && tnxBack ? `20일 ${signed((tnxLast.value - tnxBack.value) * 100, 0, 'bp')}` : null],
+        lines: [tnxLast && (tc.d5Bp != null || tc.d20Bp != null) ? [tc.d5Bp == null ? null : `5일 ${signed(tc.d5Bp, 0, 'bp')}`, tc.d20Bp == null ? null : `20일 ${signed(tc.d20Bp, 0, 'bp')}`].filter(Boolean).join(' · ') : null],
         series: model.tnx,
         format: (value) => `${value.toFixed(1)}%`,
-        note: '시세 제공처의 일별 종가입니다. 위 공식 고시값과 소수점 차이가 날 수 있습니다.'
+        note: `일별 종가 기준이며 시장 상태의 10년물 5일·20일 변화와 같은 계열입니다. 위 재무부 공식 곡선${t.asOf ? `(${shortDate(t.asOf)})` : ''}과는 기준일과 소수점이 다를 수 있습니다.`
       })
     ];
     grid.replaceChildren(...cards);
   }
   syncOtherCurrencyNote(doc, root);
+  renderNextSteps(doc, doc.getElementById('fxbond-next'), ratesNextSteps({ read, carry: model.carry })); // v57.50 I04
   page.dataset.aioRatesBoardRenderer = 'native';
   return model;
 }

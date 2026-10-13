@@ -23,7 +23,7 @@ function completedRows(history = []) {
 
 const MEASURES = Object.freeze([
   { key: 'spx', label: 'S&P 500', kind: 'pct' },
-  { key: 'nasdaq', label: '나스닥', kind: 'pct' },
+  { key: 'nasdaq', label: '나스닥 종합', kind: 'pct' }, // C25: ^IXIC (the home KPI is 나스닥 100)
   { key: 'vix', label: 'VIX', kind: 'level', digits: 1 },
   { key: 'tnx', label: '미 10년물', kind: 'bp' },
   { key: 'dxy', label: '달러 인덱스', kind: 'pct' },

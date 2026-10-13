@@ -1,3 +1,5 @@
+import { RULES } from '../rules/thresholds.js';
+
 export const MARKET_HEALTH_MODEL_VERSION = 'market-health.v2';
 
 // W08-A/P1147 (H01): every optional dimension reports its own coverage against a fixed
@@ -95,11 +97,13 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   else if (qqqPct > -1) score -= 4;
   else { score -= 8; details.push('QQQ 약세'); }
 
-  if (vix < 15) { score += 12; details.push(`VIX ${vix.toFixed(1)} 안정`); }
-  else if (vix < 20) { score += 6; details.push(`VIX ${vix.toFixed(1)} 보통`); }
-  else if (vix < 25) { score -= 4; details.push(`VIX ${vix.toFixed(1)} 주의`); }
-  else if (vix < 30) { score -= 10; details.push(`VIX ${vix.toFixed(1)} 경고`); }
-  else { score -= 18; details.push(`VIX ${vix.toFixed(1)} 공포!`); }
+  // v57.50 C13: the VIX bands are RULES.volatility (18 / 25 / 32), the same edges as the 시장 상태 volatility axis and
+  // vixBand(); the earlier 15 / 20 / 25 / 30 set had no source and disagreed with every other surface.
+  const { calmBelow, stressAt, highAt } = RULES.volatility;
+  if (vix < calmBelow) { score += 12; details.push(`VIX ${vix.toFixed(1)} 저변동`); }
+  else if (vix < stressAt) details.push(`VIX ${vix.toFixed(1)} 통상 범위`);
+  else if (vix < highAt) { score -= 10; details.push(`VIX ${vix.toFixed(1)} 변동성 경계`); }
+  else { score -= 18; details.push(`VIX ${vix.toFixed(1)} 고변동`); }
   const baseComponent = makeComponent({ id: 'base-indices', universe: ['SPY', 'QQQ', '^VIX'], observedIds: ['SPY', 'QQQ', '^VIX'], contribution: null, minimumCoverage: 1 });
 
   // M7 leadership: the denominator stays the full seven-name universe. Receiving fewer names

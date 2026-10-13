@@ -309,7 +309,8 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   renderNextSteps(doc, next, [
     { action: 'showTicker', arg: symbol, route: 'ticker', label: '요약', why: '실적 흐름과 주가 추세·섹터 회전이 같은 방향인지' },
     { route: 'technical', label: '차트', why: '실적이 뒷받침하는 추세에서 지금이 셋업 구간인지' },
-    { route: 'market-news', label: '뉴스', why: `${symbol} 실적 발표·가이던스 소식` }
+    // v57.50 I23: the news screen opens on 기업 뉴스 narrowed to this ticker.
+    { route: 'market-news', label: '뉴스', why: `${symbol} 실적 발표·가이던스 소식`, ctx: { ticker: symbol } }
   ]);
   return read;
 }

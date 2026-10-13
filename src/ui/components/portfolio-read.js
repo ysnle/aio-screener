@@ -100,7 +100,8 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   }
   if (read.sectorMix.length) {
     const box = el(doc, 'div', null, 'pf-sector-mix');
-    box.append(el(doc, 'span', '섹터 비중 · 섹터 회전 단계', 'stock-read-vis-title'));
+    // v57.50 C24: the same denominator as the 비중 · 섹터 배분 bars, named on the title.
+    box.append(el(doc, 'span', `섹터 비중(${read.sectorMix[0].basis === 'stock-part' ? '주식 부분 중' : '현금 포함 총자산 대비'}) · 섹터 회전 단계`, 'stock-read-vis-title'));
     for (const row of read.sectorMix.slice(0, 6)) {
       const line = el(doc, 'div', null, 'stock-read-bars');
       line.append(el(doc, 'span', row.label, 'stock-read-bar-label'));

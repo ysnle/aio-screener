@@ -161,17 +161,17 @@ function holdingValue(holding, live, options) {
   return { value: null, price, sourceKind: 'unavailable', observedAt: null, quoteAllowedUse: 'none', fallbackUsed: false, dailyPct: null, dailyPctEligible: false, changeBasis: null };
 }
 
-export function exposureCapForVix(vix) {
-  if (vix == null || vix <= 0) return null;
-  return vix < 15 ? 100 : vix < 20 ? 80 : vix < 25 ? 50 : vix < 30 ? 30 : 15;
-}
+// v57.50 C13: exposureCapForVix (VIX 15/20/25/30 → 100/80/50/30/15% "max exposure") was removed — a sizing ladder on
+// retired bands (P1574) with no consumer. The card shows the shared volatility band and the user's own exposure only.
 
 /**
  * Derives the deterministic, non-chart portion of the portfolio surface.
  * Missing canonical inputs remain null so the UI cannot turn unavailable data into a zero.
  * Read state never becomes a valuation: only an explicit read distinguishes empty/cash-only.
  */
-export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, now = Date.now() } = {}) {
+// v57.50 C24: `sectorOf(symbol)` is the one sector source for the bars and the 포트폴리오 해석 (the screener row the read
+// already uses); an imported holding.sector is the fallback, then 'Unclassified'.
+export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, now = Date.now(), sectorOf = null } = {}) {
   const readState = PORTFOLIO_READ_STATES.includes(state?.readState) ? state.readState : (state?.status === 'locked' ? 'locked' : state?.status === 'loading' ? 'loading' : state?.status === 'failed' ? 'failed' : state?.status === 'unavailable' ? 'unavailable' : 'ready');
   const holdingsKnown = Array.isArray(state?.holdings) && (readState === 'ready' || state?.holdingsKnown === true);
   const holdings = holdingsKnown ? state.holdings : [];
@@ -195,7 +195,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       value: quote.value,
       price: quote.price,
       cost,
-      sector: String(holding?.sector || 'Unclassified'),
+      sector: String((typeof sectorOf === 'function' ? sectorOf(symbol) : null) || holding?.sector || 'Unclassified'),
       dailyPct,
       sourceKind: quote.sourceKind,
       observedAt: quote.observedAt,
@@ -343,8 +343,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const dailyPct = previousAssets > 0 ? dailyChange / previousAssets * 100 : null;
   const exposurePct = totalAssets != null && totalAssets > 0 && positionValue != null ? positionValue / totalAssets * 100 : null;
   const vixQuote = runtimeQuoteEvidence(vix, { now });
-  const vixValue = vixQuote?.price ?? null;
-  const exposureCap = exposureCapForVix(vixValue);
+  const vixValue = vixQuote?.price != null && vixQuote.price > 0 ? vixQuote.price : null;
   const sectors = new Map();
   for (const row of rows) {
     if (row.value == null || totalAssets == null || totalAssets <= 0) continue;
@@ -397,10 +396,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     cashPct: cash != null && totalAssets != null && totalAssets > 0 ? cash / totalAssets * 100 : null,
     dailyChange,
     dailyPct,
-    vix: exposureCap == null ? null : vixValue,
+    vix: vixValue,
     exposurePct,
-    exposureCap,
-    exposureExceeded: exposurePct != null && exposureCap != null ? exposurePct > exposureCap : null,
     exposurePolicyStatus: 'reference-only',
     allowedUse: 'reference-only',
     decisionUse: false,

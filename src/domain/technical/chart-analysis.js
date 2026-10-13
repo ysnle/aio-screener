@@ -4,6 +4,7 @@
 // Methods are the published ones: Minervini's volatility contraction pattern and trend template,
 // O'Neil's pivot/breakout-on-volume, Wilder's ADX, relative strength versus the S&P 500, and
 // Raschke's prior-day high/low pivots. Nothing here is a buy or sell instruction.
+import { EXTENSION_BANDS, extensionStateFor } from '../screener/setup-profile.js';
 
 function finite(value) {
   if (value == null || value === '' || typeof value === 'boolean') return null;
@@ -113,6 +114,10 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
   return { contractions: meaningful, valid, pivot: last ? last.high : null, baseHigh: recent[baseIndex].high };
 }
 
+// v57.50 D23: the 8th check differs from the published RS-rating rule, so the name says 변형.
+export const TEMPLATE_LABEL = '미너비니 템플릿(변형: 6개월 S&P 초과)';
+const EXTENSION_NOTE = Object.freeze({ extended: ` · 50일선에서 확장된 구간(${EXTENSION_BANDS.extended}배 이상)`, stretched: ` · 50일선에서 크게 확장된 구간(${EXTENSION_BANDS.stretched}배 이상)` });
+
 const STATE_LABELS = Object.freeze({
   breakout: '돌파 — 피벗 위 거래량 동반', failed: '돌파 실패 — 피벗 아래로 복귀', setup: '셋업 형성 중 — 변동성 수축',
   extended: '피벗에서 멀어진 상승 — 추격 구간', downtrend: '하락 추세 — 셋업 해당 없음', none: '뚜렷한 셋업 없음'
@@ -182,7 +187,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const byKind = new Map();
   for (const event of events.sort((a, b) => b.index - a.index)) { const list = byKind.get(event.kind) || []; if (list.length < 2) list.push(event); byKind.set(event.kind, list); }
   const chartEvents = [...byKind.values()].flat().sort((a, b) => a.index - b.index);
-  // Minervini trend template (8 published criteria; RS approximated by 6-month return vs the S&P 500).
+  // Minervini trend template (8 published criteria). v57.50 D23: the published 8th criterion is an RS rating of 70+;
+  // here it is replaced by "6-month return above the S&P 500", so the template is labelled as a variant wherever shown.
   const low52 = Math.min(...bars.slice(-252).map((bar) => bar.low));
   const sma200Then = sma200[n - 21];
   const templateChecks = [
@@ -279,8 +285,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],
     ['거래량 (50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? ` · 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
     [`${rangeLabel} 고점 대비`, signed(fromHigh)],
-    ['추세 템플릿 (미너비니)', `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? ` · 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}${templateChecks.some(([, ok]) => ok == null) ? ` · 확인 불가 ${templateChecks.filter(([, ok]) => ok == null).length}개(기록 부족)` : ''}`],
-    ['50일선 대비 ATR 배수', atrFrom50 == null ? '—' : `${atrFrom50 >= 0 ? '+' : ''}${atrFrom50.toFixed(1)}배 (ATR14 ${fmt(atr14)})${atrFrom50 >= 7 ? ' · 50일선에서 크게 확장된 구간' : atrFrom50 <= -3 ? ' · 50일선 아래로 크게 이탈' : ''}`],
+    [TEMPLATE_LABEL, `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? ` · 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}${templateChecks.some(([, ok]) => ok == null) ? ` · 확인 불가 ${templateChecks.filter(([, ok]) => ok == null).length}개(기록 부족)` : ''}`],
+    // v57.50 C20: one set of bands (setup-profile EXTENSION_BANDS 2/4/7) for the chart, the screener and the summary.
+    ['50일선 대비 ATR 배수', atrFrom50 == null ? '—' : `${atrFrom50 >= 0 ? '+' : ''}${atrFrom50.toFixed(1)}배 (ATR14 ${fmt(atr14)})${EXTENSION_NOTE[extensionStateFor(Math.round(atrFrom50 * 10) / 10)] || (atrFrom50 <= -3 ? ' · 50일선 아래로 크게 이탈' : '')}`],
     [`${rangeLabel} 저점 대비`, `${signed(fromLow)}${fromLow < 5 ? ' (저점 5% 이내 — 바닥 다지기 전)' : ''}`],
     ['5일·20일 EMA', fiveAbove == null ? '기록 부족' : `5일 EMA가 20일 EMA ${fiveAbove ? '위' : '아래'}${crossAgo != null ? ` · ${crossAgo}거래일 전 ${fiveAbove ? '상향' : '하향'} 교차` : ''}`],
     ['8일선 대비 거리', extension == null ? '—' : `${signed(extension)}${extension >= 10 ? ' (과열권)' : extension <= -5 ? ' (8일선 아래 이탈)' : ''}`],
@@ -333,7 +340,7 @@ export function chartReading(analysis, regime = null) {
   const parts = [];
   const w = analysis.weinstein;
   if (w) parts.push(`주봉으로는 Weinstein ${w.stage}단계(${w.text.split(' — ')[0]})`);
-  parts.push(`추세 템플릿 ${analysis.templatePass}/8`);
+  parts.push(`${TEMPLATE_LABEL} ${analysis.templatePass}/8`);
   if (analysis.rs != null) parts.push(`6개월 수익률이 ${analysis.benchmarkLabel || 'S&P 500'}보다 ${Math.abs(analysis.rs).toFixed(1)}%p ${analysis.rs >= 0 ? '높음' : '낮음'}`);
   const why = parts.join(', ');
   const vcp = analysis.vcp?.contractions?.length ? `변동성 수축 ${analysis.vcp.contractions.map((row) => `-${row.depth.toFixed(0)}%`).join('→')}${analysis.dryUp != null && analysis.dryUp < 0.8 ? ', 거래량도 줄어드는 중' : ''}` : null;
@@ -346,11 +353,10 @@ export function chartReading(analysis, regime = null) {
     // Codex browser audit H33: "상승 추세 · 템플릿 8/8 · 셋업 없음" read as a contradiction. Trend and setup answer
     // different questions; the sentence says which condition is missing and that no setup is not a negative.
     none: analysis.templatePass >= 6
-      ? `장기 추세는 상승(템플릿 ${analysis.templatePass}/8)이지만, 최근 변동성이 차례로 줄어드는 수축${analysis.dryUp != null && analysis.dryUp >= 0.8 ? '과 거래량 감소' : ''}가 확인되지 않아 VCP 셋업은 성립하지 않습니다 — 셋업이 없다는 것이 악재라는 뜻은 아닙니다${vcp ? ` (${vcp})` : ''}`
+      ? `장기 추세는 상승(${TEMPLATE_LABEL} ${analysis.templatePass}/8)이지만, 최근 변동성이 차례로 줄어드는 수축${analysis.dryUp != null && analysis.dryUp >= 0.8 ? '과 거래량 감소' : ''}가 확인되지 않아 VCP 셋업은 성립하지 않습니다 — 셋업이 없다는 것이 악재라는 뜻은 아닙니다${vcp ? ` (${vcp})` : ''}`
       : `뚜렷한 셋업은 없습니다${vcp ? ` (${vcp})` : ''}`
   }[analysis.state];
-  const market = regime?.available ? (regime.overall === '부담 우세' || regime.overall === '부담 쪽으로 기움'
-    ? `시장 상태: ${regime.overall} — 시장 전체가 약할 때는 같은 셋업도 돌파가 이어지지 못하는 경우가 많습니다`
-    : `시장 상태: ${regime.overall}`) : null;
+  // v57.50 D23: no unsourced "weak markets fail more setups" claim — the market state is stated, not interpreted.
+  const market = regime?.available ? `시장 상태: ${regime.overall}` : null;
   return { headline: state, why, market, flip: analysis.flip };
 }

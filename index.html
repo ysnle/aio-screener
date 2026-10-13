@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.49 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.50 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.49" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.49" defer></script>
-<script src="./js/aio-kr-data.js?v=57.49" defer></script>
-<script src="./js/aio-pages.js?v=57.49" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.49">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.49">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.49">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.49">
+<script src="./js/aio-workspace.js?v=57.50" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.50" defer></script>
+<script src="./js/aio-kr-data.js?v=57.50" defer></script>
+<script src="./js/aio-pages.js?v=57.50" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.50">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.50">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.50">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.50">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -813,14 +813,6 @@ body {
    원칙: 판정 라벨은 축소, 데이터 수치와 설명 텍스트는 상향
    ───────────────────────────────────────────────────────────────────── */
 
-/* [홈] 판단 이유 설명 — 데이터→결론 연결 텍스트를 더 읽기 쉽게 */
-#home-trading-explanation,
-#home-regime-explanation,
-#home-quality-label {
-  font-size: var(--fs-sm) !important;    /* 13px (기존 12px) */
-  color: var(--text-secondary) !important;
-  line-height: 1.6 !important;
-}
 /* [시그널] 판정 이유 설명 텍스트 */
 #score-decision-sub {
   font-size: var(--fs-sm) !important;    /* 13px (기존 12px) */
@@ -5059,7 +5051,6 @@ body:not(.aio-dev-mode) #home-operator-note,
 body:not(.aio-dev-mode) #aio-public-readiness,
 body:not(.aio-dev-mode) #snapshot-stale-warning,
 body:not(.aio-dev-mode) #home-conclusion-bar,
-body:not(.aio-dev-mode) #home-trading-grid,
 body:not(.aio-dev-mode) #chat-home,
 body:not(.aio-dev-mode) #news-korean-rewrite-brief,
 body:not(.aio-dev-mode) #page-sentiment > .stale-badge,
@@ -5203,6 +5194,10 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #pf-main { flex-direction:column; }
 #pf-main > * { order:90; }
 #pf-freshness-strip { order:-10; }
+/* v57.50 I08: the conclusion (내 포트폴리오와 시장) reads first, right under the hero; the calculation-settings fold sits at
+   the end of the screen and stays hidden for an empty portfolio as it did inside the risk section. */
+#pf-read { order:-5; }
+#pf-main.is-empty #pf-calc-settings { display:none; }
 #pf-entry-section { order:0; display:none; }
 #pf-entry-section.is-open { display:block; }
 #pf-holdings-table-section { order:1; }
@@ -6227,7 +6222,7 @@ button[data-filter-active="true"] {
           </span>
           <span id="live-quote-ts" style="font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;">연결 중...</span>
           <!-- R1: visible release identity; market volatility stays in the market card. -->
-          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.49</span>
+          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.50</span>
           <!-- v48.43: AI 분석가 버튼 -->
           <button id="topbar-help-btn" class="aio-btn-table" data-action="showPage" data-arg="guide" title="도움말 · 화면 안내와 판정 기준">도움말</button>
           <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 도우미 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 도우미 · 교육/리서치 보조 사이드바">AI 도우미</button>
@@ -6279,7 +6274,6 @@ button[data-filter-active="true"] {
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <span id="home-risk-regime-badge" class="status-pill sp-neutral">고점 대비 확인 중 · 참고 관측</span>
       <span id="live-source-static-badge" class="freshness-badge fb-static">시세 source 확인</span>
       <span id="server-data-age" class="freshness-badge fb-static" style="font-size:11px;display:none;" title="서버(GitHub Actions)가 받아둔 데이터의 나이 — cron 정의는 30분 주기이나 실제 발화는 환경상 1~4시간 소요될 수 있음">서버 데이터 확인 중...</span>
       <span id="llm-header-badge" data-action="toggleLLM"
@@ -6374,8 +6368,8 @@ button[data-filter-active="true"] {
     <span class="is-interactive" data-action="showPage" data-arg="sentiment" title="Fear &amp; Greed · 시장 심리 종합 (투자 심리에서 자세히)" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">F&amp;G</span><b id="home-fg-score" style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</b><span id="home-fg-label" style="font-size:12px;color:var(--text-secondary);">갱신 대기</span><span id="home-fg-delta" class="is-flat" style="display:none;font-size:11px;color:var(--text-muted);font-family:var(--font-mono);"></span></span>
     <span class="is-interactive" data-action="showPage" data-arg="fxbond" title="달러 인덱스" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">DXY</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="DX-Y.NYB">—</b><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;" data-live-chg="DX-Y.NYB">—</span></span>
     <span class="is-interactive" data-action="showPage" data-arg="macro" title="금 가격" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">금</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="GC=F">—</b><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;" data-live-chg="GC=F">—</span></span>
-    <span class="is-interactive" data-action="showPage" data-arg="macro" title="KOSPI — 거시경제 페이지의 한국 시장 섹션" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">KOSPI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^KS11">—</b><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;" data-live-chg="^KS11">—</span></span>
-    <span class="is-interactive" data-action="showPage" data-arg="macro" title="비트코인 — 24시간 거래 자산이라 미국 정규장 종가 개념이 없습니다" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">BTC</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="BTC-USD">—</b><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;" data-live-chg="BTC-USD">—</span><span style="font-size:12px;color:var(--text-muted);">24시간 시세</span></span>
+    <span class="is-interactive" data-action="showPage" data-arg="signal" title="KOSPI — 시장 상태의 한국 시장 참고(원/달러 · 엔/달러 · 코스피)" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">KOSPI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^KS11">—</b><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;" data-live-chg="^KS11">—</span></span>
+    <span title="비트코인 — 24시간 거래 자산이라 미국 정규장 종가 개념이 없습니다 · 연결된 분석 화면 없음" style="display:flex;align-items:baseline;gap:7px;"><span style="font-size:12px;color:var(--text-muted);">BTC</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="BTC-USD">—</b><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;" data-live-chg="BTC-USD">—</span><span style="font-size:12px;color:var(--text-muted);">24시간 시세</span></span>
   </div>
 
   <!-- P1432: 하루 루프 — 판정 바로 아래에서 어제와 달라진 점 → 내 종목 → 다가오는 일정 → 내 종목 뉴스 -->
@@ -6409,41 +6403,7 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  <!-- ═══ v48.42: SECTION 1 매매 판단 — aio-card 통일 (v51.30 UX: 설명 접힘 제거, 실전 카드만 유지) ═══ -->
-  <div id="home-trading-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:var(--space-2);margin-bottom:var(--space-3);">
-    <!-- 매매 신호 (Primary — v49.28/R65 CARD_HIERARCHY primary) -->
-    <div class="aio-card aio-card-primary is-interactive has-stripe-top stripe-data-green" data-action="showPage" data-arg="signal" data-card-level="primary" data-weight-key="TRADING_SCORE"
-         title="거래 적합도 점수 (20점) = 추세 정렬 8점 + 상대강도(시장 대비 강함) 4점 + 거래량 3점 + 변동성 3점 + 돌파 2점 (총 20점)">
-      <div class="aio-card-title">지금 매매해도 될까?</div>
-      <div class="aio-metric-value is-lg" id="home-trading-signal" style="color:var(--text-muted);margin-bottom:4px;font-size:24px;font-weight:900;">• • •</div>
-      <div id="home-trading-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">
-        핵심 수치 연결 확인 중
-      </div>
-    </div>
-
-    <!-- 시장 품질 스코어 (Secondary) -->
-    <div class="aio-card aio-card-secondary has-stripe-top stripe-data-amber" data-card-level="secondary" data-weight-key="QUALITY_SCORE"
-         title="Quality Score (100점) = 50일선 위 비율 25점 + A/D Line 20점 + NHNL 20점 + McClellan 20점 + RSP/SPY 15점">
-      <div class="aio-card-title">시장 품질 (Quality)</div>
-      <div style="display:flex;align-items:center;gap:var(--space-3);">
-        <div style="flex:1;">
-          <div id="home-quality-meter" style="background:var(--surface-3);border-radius:var(--radius-pill);height:12px;position:relative;overflow:hidden;border:1px solid var(--border);">
-            <div style="background:linear-gradient(90deg,var(--data-red),var(--data-amber),var(--data-green));width:30%;height:100%;border-radius:var(--radius-pill);"></div>
-          </div>
-        </div>
-        <div class="aio-metric-value" id="home-quality-score" style="color:var(--text-muted);font-size:20px;font-weight:800;">—</div>
-      </div>
-      <div id="home-quality-label" style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:var(--space-2);font-weight:600;letter-spacing:var(--ls-wide);">판정 입력 대기...</div>
-    </div>
-
-    <!-- 시장 국면 (Secondary) -->
-    <div class="aio-card aio-card-secondary has-stripe-top stripe-data-amber" data-card-level="secondary" data-weight-key="MARKET_REGIME"
-         title="Market Regime (4단계) = 200MA 기울기 30점 + 가격 vs 200MA 25점 + Breadth 25점 + VIX 20점">
-      <div class="aio-card-title">시장 국면 (Regime)</div>
-      <div class="aio-metric-value is-sm" id="home-market-regime" style="color:var(--data-green);margin-bottom:4px;letter-spacing:0.02em;font-size:20px;font-weight:800;">판정 보류</div>
-      <div id="home-regime-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">고점 대비 거리 확인 중 · 참고 관측</div>
-    </div>
-  </div>
+  <!-- v57.50 I16: the retired-score cards (#home-trading-grid: "지금 매매해도 될까?" · 시장 품질 · 시장 국면) are removed; the hero six-axis summary is the home verdict. -->
 
   <!-- v50.75: Action Items → Decision Header "오늘 행동"과 중복, DOM 유지(테스트 T226/T816) 시각만 숨김 -->
   <div class="aio-card aio-card-primary has-stripe-top stripe-accent" id="home-action-item-card" style="display:none;margin-bottom:var(--space-3);padding:14px 16px;background:rgba(33,29,22,0.04);border:1px solid rgba(33,29,22,0.25);">
@@ -6629,6 +6589,8 @@ button[data-filter-active="true"] {
       <h2 class="briefing-h2" id="briefing-schedule-title">앞으로 7일 일정 <span class="briefing-h2-note">한국 시간</span></h2>
       <div id="briefing-schedule-rows"><div class="briefing-empty">일정 확인 중</div></div>
     </section>
+    <!-- v57.50: the briefing's "이어서 볼 곳" slot (filled by the briefing read via renderNextSteps; hidden while empty). -->
+    <nav class="flow-next" id="briefing-next" aria-label="이어서 볼 곳" hidden></nav>
 
   </div>
     <!-- ═══════════════ PAGE: TECHNICAL (기술적 분석) ═══════════════ -->
@@ -6646,7 +6608,7 @@ button[data-filter-active="true"] {
       <!-- v50.84: SPY 가격 포지션 -->
       <div id="vis-technical" style="margin-top:10px;max-width:560px;"><div class="aio-vis-card"><div class="aio-vis-card-title">SPY 가격 포지션 · 지지/저항</div><div id="vis-technical-price"></div></div></div>
     </div>
-    <span id="tech-health-pill" class="status-pill sp-neutral">— 시장 건강도 수신 대기</span>
+    <!-- v57.50 I25: the header pill repeated #tech-regime-summary's overall verdict; removed. -->
   </div>
 
   <!-- P1420: the retired 0-100 market-health score is replaced by the 시장 상태 six-axis summary
@@ -7476,6 +7438,8 @@ button[data-filter-active="true"] {
 
     </div>
   </details>
+  <!-- v57.50 I04: 거시 경제 ends with where the same reading continues (macro-board.js renderMacroBoard). -->
+  <nav class="flow-next" id="macro-next" aria-label="이어서 볼 곳" hidden></nav>
 </div>
     <!-- ═══════════════ PAGE: FX·BOND (환율 채권) ═══════════════ -->
 
@@ -7487,7 +7451,7 @@ button[data-filter-active="true"] {
   <div class="page-title">금리 · 환율</div>
   <div class="page-subtitle" id="rates-basis">종가 기록을 불러오는 중입니다.</div>
   <section class="briefing-block rates-block" aria-labelledby="rates-treasury-title">
-    <h2 class="briefing-h2" id="rates-treasury-title">미 국채 수익률 곡선</h2>
+    <h2 class="briefing-h2" id="rates-treasury-title">미 국채 수익률 곡선 <span class="briefing-h2-note" id="rates-curve-basis"></span></h2>
     <div class="rates-yields" id="rates-yields"></div>
     <div class="rates-curve-row">
       <div class="rates-curve-wrap" id="rates-curve"></div>
@@ -7533,6 +7497,8 @@ button[data-filter-active="true"] {
       <div class="rates-other-cell"><span class="rates-yield-label">AUD/USD</span><span class="rates-yield-value" data-live-price="AUDUSD=X">—</span><span class="rates-yield-change" data-live-chg="AUDUSD=X">—</span></div>
     </div>
   </section>
+  <!-- v57.50 I04: 금리 · 환율 ends with where the same reading continues (macro-board.js renderRatesFxBoard). -->
+  <nav class="flow-next" id="fxbond-next" aria-label="이어서 볼 곳" hidden></nav>
   <p class="briefing-footnote">금리와 환율은 주식의 할인율과 해외 자금 흐름을 읽는 배경 자료이며 매매 신호가 아닙니다.</p>
 </div><!-- page-fxbond -->
 
@@ -7797,53 +7763,7 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /aio-section 어닝캘린더 -->
 
-    <!-- v52.73 아이보리 3f: 시안에 없는 매크로 이벤트 도구 — details로 압축 -->
-    <details class="aio-page-advanced-toggle" style="margin-bottom:12px;">
-      <summary>매크로 리스크 레이더 (참고용, 향후 90일)</summary>
-      <div class="aio-page-advanced-body">
-    <!-- v48.56: 리스크 레이더 (매크로 이벤트 타임라인) — 사용자 이미지 기반 구조 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">리스크 레이더</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
-        <div>
-          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">리스크 레이더 — 매크로 이벤트 타임라인<span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="리스크 레이더 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">리스크 레이더 사용법</span>향후 90일 간 <strong>FOMC · 빅테크 어닝 · 중앙은행 결정 · 정치/지정학 이벤트</strong>를 시간순 정렬. 빨강=High Impact · 노랑=Medium · 기본=정기 이벤트. 각 이벤트는 시장 변동성·섹터 로테이션 트리거 가능.</span></span></span>
-          <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">FOMC · 빅테크 · 중앙은행 · 지정학 · 선거</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <select id="risk-radar-filter" aria-label="리스크 레이더 필터" data-on-change="_aioRiskRadarFilter" style="background:var(--surface-4);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:10px;padding:3px 8px;font-family:var(--font-mono);">
-            <option value="all">전체</option>
-            <option value="high">High Impact</option>
-            <option value="fomc">Fed/중앙은행</option>
-            <option value="earnings">빅테크 어닝</option>
-            <option value="geopolitical">지정학/정치</option>
-          </select>
-          <span id="risk-radar-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">리스크 입력 수신 대기</span>
-        </div>
-      </div>
-      <div id="risk-radar-body" data-operational-use="reference-only" data-source-kind="unavailable" data-source-label="risk-radar-pending" style="display:flex;flex-direction:column;gap:4px;max-height:360px;overflow-y:auto;padding-right:4px;">
-        <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">리스크 레이더 수신 대기</div>
-      </div>
-    </div>
-    </div><!-- /aio-section 리스크레이더 -->
-      </div>
-    </details>
-
-    <!-- v52.73 아이보리 3f: 시장 전체 실적 서프라이즈(검색 종목과 무관) — details로 압축 -->
-    <details class="aio-page-advanced-toggle" style="margin-bottom:12px;">
-      <summary>시장 전체 최근 실적 서프라이즈 (참고용)</summary>
-      <div class="aio-page-advanced-body">
-    <!--  최근 실적 Beat/Miss 시각화 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">최근 실적 서프라이즈 현황</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
-      <div id="earnings-surprise-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-        <div style="grid-column:1/-1;text-align:center;padding:15px;color:var(--text-muted);font-size:11px;">데이터 수신 대기…</div>
-      </div>
-    </div>
-    </div><!-- /aio-section 실적서프라이즈 -->
-      </div>
-    </details>
+    <!-- v57.50 I26: the market-wide macro risk radar and earnings-surprise folds left this company screen (market events live on 데일리 브리핑 일정 · 거시 경제). -->
 
   </div>
     <!-- ═══════════════ PAGE: THEMES (테마 분석) ═══════════════ -->
@@ -7995,7 +7915,6 @@ button[data-filter-active="true"] {
   </details>
 
   <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-themes) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
-  <nav class="flow-next" id="themes-next" aria-label="이어서 볼 곳" hidden></nav>
   <!-- P1431: 교과서식 섹터 순환 지도(학습용 예시, 현재 국면 판정 아님)는 사용자 경로에서 내리고 개발자 모드에만 둔다. -->
   <details class="aio-page-advanced-toggle" id="themes-cycle-reference">
   <summary>섹터 순환 참고 지도 (학습용)</summary>
@@ -8117,6 +8036,8 @@ button[data-filter-active="true"] {
 
     </div>
   </details>
+  <!-- v57.50 I27: "이어서 볼 곳" closes the screen, after the folded Korea section (was between the ranking and the folds). -->
+  <nav class="flow-next" id="themes-next" aria-label="이어서 볼 곳" hidden></nav>
 
   </div>
     <!-- ═══════════════ PAGE: THEME-DETAIL (테마 상세) ═══════════════ -->
@@ -8295,6 +8216,10 @@ button[data-filter-active="true"] {
     <!-- 포트폴리오 메인 (잠금 해제 후 표시) -->
     <div id="pf-main" style="display:flex;flex-direction:column;">
 
+    <!-- P1438: 보유 종목을 시장과 잇는 결론 — 추세 상태 비중·섹터 회전·지수 대비·시장 환경 (native portfolio-read.js).
+         v57.50 I08: the conclusion sits right under the hero (it was below the risk cards and the settings fold). -->
+    <section class="briefing-block pf-read" id="pf-read" aria-label="내 포트폴리오와 시장" hidden></section>
+
     <!-- v48.58: 시세 신선도 배지 (판매 Blocker #2 해소) -->
     <div id="pf-freshness-strip" style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;font-size:11px;flex-wrap:wrap;">
       <span style="display:inline-flex;align-items:center;gap:6px;">
@@ -8379,121 +8304,6 @@ button[data-filter-active="true"] {
       </div>
     </div>
     <div id="pf-analysis-status" style="font-size:11px;color:var(--text-dim);text-align:center;">포트폴리오 등록 후 자동 계산됩니다.</div>
-    <!-- Codex review 2026-10-05: base currency, cash return, RF, the cash-flow ledger (TWR/MWR) and FX legs are
-         calculation settings, not the first thing a holder needs. Results first; settings folded below. -->
-    <details id="pf-calc-settings" style="margin-top:12px;">
-    <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">계산 설정 · 통화 · 현금 수익률 · 입출금 · 환율 (시세와 기간이 갖춰지면 위 지표 계산에 쓰입니다)</summary>
-    <!-- E3/E4/P1188: 통화·현금 수익률·RF는 입력이다 — 선언하지 않으면 추정하지 않고 해당 지표를 보류한다. -->
-    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--surface-1);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;">
-      <div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">계좌 기준 통화</div>
-        <input id="pf-base-currency-input" type="text" maxlength="3" placeholder="USD" aria-label="계좌 기준 통화 3자리 코드" style="width:76px;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;" data-on-change="_aioSavePortfolioAssumption"/>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">현금 통화</div>
-        <input id="pf-cash-currency-input" type="text" maxlength="3" placeholder="USD" aria-label="현금 통화 3자리 코드" style="width:76px;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;" data-on-change="_aioSavePortfolioAssumption"/>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">현금 연수익률 (%)</div>
-        <input id="pf-cash-return-input" type="number" step="0.1" min="-100" max="100" placeholder="미입력" aria-label="현금 연수익률 퍼센트" style="width:96px;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);" data-on-change="_aioSavePortfolioAssumption"/>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">무위험(RF) 연수익률 (%)</div>
-        <input id="pf-rf-input" type="number" step="0.1" min="-100" max="100" placeholder="미입력" aria-label="무위험 연수익률 퍼센트" style="width:110px;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);" data-on-change="_aioSavePortfolioAssumption"/>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">측정 경로</div>
-        <select id="pf-exposure-path-input" aria-label="위험 측정 경로" style="padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;" data-on-change="_aioSavePortfolioAssumption">
-          <option value="current_composition_retrospective">현재 구성 소급</option>
-          <option value="fixed_target_weight_strategy">고정 목표비중 전략</option>
-        </select>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">리밸런싱 정책</div>
-        <select id="pf-rebalance-policy-input" aria-label="전략 리밸런싱 정책" style="padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;" data-on-change="_aioSavePortfolioAssumption">
-          <option value="">미선언 (전략 경로에서 필요)</option>
-          <option value="daily">매 bar (daily)</option>
-          <option value="monthly">월간 (monthly)</option>
-          <option value="quarterly">분기 (quarterly)</option>
-          <option value="buy-and-hold">리밸런싱 없음 (buy-and-hold)</option>
-        </select>
-      </div>
-      <div id="pf-assumption-status" style="font-size:11px;color:var(--text-muted);flex:1;min-width:170px;line-height:1.6;">선언한 값만 사용합니다 — 비워 두면 추정하지 않고 해당 지표를 보류합니다. 전략 경로는 포지션의 목표비중이 필요합니다.</div>
-    </div>
-    <!-- E4/P1191: 계좌 원장 입력 — TWR/MWR은 원장 없이 계산되지 않는다. 원장은 Vault로 저장된다. -->
-    <details id="pf-ledger-section" style="margin-bottom:12px;">
-      <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--text-secondary);">계좌 원장 (TWR/MWR 계산 입력)</summary>
-      <div style="margin-top:10px;background:var(--surface-1);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">입출금(외부 현금흐름)과 기간 평가액을 선언하면 시간가중(TWR)·금액가중(MWR) 수익률을 계산합니다. 원장이나 계약이 없으면 계산하지 않고 보류합니다. 원장은 포지션과 같은 암호화 경로로 저장됩니다.</div>
-        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;">
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">현금흐름 시점 규약</div>
-            <select id="pf-ledger-flow-timing" aria-label="현금흐름 시점 규약" style="padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;" data-on-change="_aioSaveLedgerConvention">
-              <option value="end-of-period">기간 말 (end-of-period)</option>
-              <option value="start-of-period">기간 시작 (start-of-period)</option>
-            </select>
-          </div>
-          <div id="pf-ledger-coverage"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;align-items:end;margin:12px 0 8px;">
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">거래 종류</div>
-            <select id="pf-ledger-kind" aria-label="원장 거래 종류" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;"><option value="deposit">입금</option><option value="withdrawal">출금</option></select>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">거래 날짜</div>
-            <input id="pf-ledger-date" type="date" aria-label="원장 거래 날짜" style="width:100%;padding:5px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;"/>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">금액</div>
-            <input id="pf-ledger-amount" type="number" min="0" step="0.01" aria-label="원장 거래 금액" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);"/>
-          </div>
-          <div><button class="aio-btn-table" data-action="_aioAddLedgerEntry" style="font-size:11px;">거래 추가</button></div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;align-items:end;margin-bottom:10px;">
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">평가액 날짜</div>
-            <input id="pf-ledger-valuation-date" type="date" aria-label="기간 평가액 날짜" style="width:100%;padding:5px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;"/>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">기간 평가액</div>
-            <input id="pf-ledger-valuation-amount" type="number" min="0" step="0.01" aria-label="기간 평가액" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);"/>
-          </div>
-          <div><button class="aio-btn-table" data-action="_aioAddLedgerValuation" style="font-size:11px;">평가액 추가</button></div>
-        </div>
-        <div id="pf-ledger-list" style="font-size:11px;color:var(--text-muted);">원장 항목 없음</div>
-        <div id="pf-ledger-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;">TWR/MWR은 원장과 규약이 선언되면 자동 계산됩니다.</div>
-      </div>
-    </details>
-    <!-- E3/P1194 (11 §23): 선언된 FX leg — 혼합 통화 합계의 유일한 환산 근거. leg는 Vault로 저장된다. -->
-    <details id="pf-fx-section" style="margin-bottom:12px;">
-      <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--text-secondary);">FX 환산 근거 (혼합 통화 합계)</summary>
-      <div style="margin-top:10px;background:var(--surface-1);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">보유 통화가 기준 통화와 다르면 합계에는 환산 근거가 필요합니다. 관측한 환율(1 from = rate × to)과 관측 시각을 선언하세요 — 선언 창(72시간)을 넘거나 컷 이후 관측된 leg는 쓰지 않고, 어느 통화쌍이 왜 실패했는지가 결과에 실립니다.</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;align-items:end;margin-bottom:10px;">
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">From</div>
-            <input id="pf-fx-from" type="text" maxlength="3" placeholder="KRW" aria-label="환산 기준 통화 3자리 코드" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;"/>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">To</div>
-            <input id="pf-fx-to" type="text" maxlength="3" placeholder="USD" aria-label="환산 대상 통화 3자리 코드" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;"/>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">환율</div>
-            <input id="pf-fx-rate" type="number" min="0" step="0.0001" aria-label="관측 환율" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);"/>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">관측일</div>
-            <input id="pf-fx-date" type="date" aria-label="환율 관측일" style="width:100%;padding:5px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;"/>
-          </div>
-          <div><button class="aio-btn-table" data-action="_aioAddFxLeg" style="font-size:11px;">leg 추가</button></div>
-        </div>
-        <div id="pf-fx-list" style="font-size:11px;color:var(--text-muted);">FX leg 없음</div>
-        <div id="pf-fx-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;">선언한 leg만 환산에 쓰입니다.</div>
-      </div>
-    </details>
-    </details>
     </div><!-- /aio-section 리스크분석 -->
 
     <!-- v40.4: 포트폴리오 비중 시각화 + 섹터 + 현금 -->
@@ -8518,14 +8328,12 @@ button[data-filter-active="true"] {
       </div>
       <!-- 섹터 브레이크다운 -->
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-        <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">섹터 배분(현금 포함 자산 비중)<span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="섹터 배분 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 분산 기준</span>단일 섹터 &lt;40% 권장. <strong>Tech 50%+</strong>은 금리 민감도 과다. Defensive(헬스케어·생필품) 10~20% 혼합이 Sharpe 개선. 섹터 ETF 비교 → ETF는 별도 섹터로 간주.</span></span></div>
+        <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">섹터 배분(현금 포함 자산 비중)<span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="섹터 배분 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 배분 기준</span>분모는 현금을 포함한 총자산이며, 위 &lsquo;내 포트폴리오와 시장&rsquo;의 섹터 비중과 같은 기준입니다. 섹터 분류는 스크리너 종목 정보를 따르고, 광범위 ETF는 ETF로 따로 묶습니다.</span></span></div>
         <div id="pf-sector-breakdown" style="padding:4px 0;font-size:12px;">포지션을 추가하면 섹터별 비중이 표시됩니다</div>
       </div>
     </div>
     </div><!-- /aio-section 비중·섹터 -->
 
-    <!-- P1438: 보유 종목을 시장과 잇는 결론 — 추세 상태 비중·섹터 회전·지수 대비·시장 환경 (native portfolio-read.js) -->
-    <section class="briefing-block pf-read" id="pf-read" aria-label="내 포트폴리오와 시장" hidden></section>
     <!-- P1418: portfolio 점검 (Ghostfolio X-ray style, published defaults only) -->
     <section class="aio-section pf-checks" id="pf-checks" aria-label="포트폴리오 점검"><div class="briefing-empty">포지션을 추가하면 쏠림·통화·지역 점검이 표시됩니다</div></section>
 
@@ -8823,6 +8631,122 @@ button[data-filter-active="true"] {
       </div>
     </details>
 
+    <!-- Codex review 2026-10-05: base currency, cash return, RF, the cash-flow ledger (TWR/MWR) and FX legs are
+         calculation settings, not the first thing a holder needs. Results first; settings folded below.
+         v57.50 I08: the fold moved from inside the risk section to the end of the screen (hidden while empty, as before). -->
+    <details id="pf-calc-settings" style="margin-top:12px;">
+    <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">계산 설정 · 통화 · 현금 수익률 · 입출금 · 환율 (시세와 기간이 갖춰지면 리스크 분석 지표 계산에 쓰입니다)</summary>
+    <!-- E3/E4/P1188: 통화·현금 수익률·RF는 입력이다 — 선언하지 않으면 추정하지 않고 해당 지표를 보류한다. -->
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--surface-1);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:12px;">
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">계좌 기준 통화</div>
+        <input id="pf-base-currency-input" type="text" maxlength="3" placeholder="USD" aria-label="계좌 기준 통화 3자리 코드" style="width:76px;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;" data-on-change="_aioSavePortfolioAssumption"/>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">현금 통화</div>
+        <input id="pf-cash-currency-input" type="text" maxlength="3" placeholder="USD" aria-label="현금 통화 3자리 코드" style="width:76px;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;" data-on-change="_aioSavePortfolioAssumption"/>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">현금 연수익률 (%)</div>
+        <input id="pf-cash-return-input" type="number" step="0.1" min="-100" max="100" placeholder="미입력" aria-label="현금 연수익률 퍼센트" style="width:96px;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);" data-on-change="_aioSavePortfolioAssumption"/>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">무위험(RF) 연수익률 (%)</div>
+        <input id="pf-rf-input" type="number" step="0.1" min="-100" max="100" placeholder="미입력" aria-label="무위험 연수익률 퍼센트" style="width:110px;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);" data-on-change="_aioSavePortfolioAssumption"/>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">측정 경로</div>
+        <select id="pf-exposure-path-input" aria-label="위험 측정 경로" style="padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;" data-on-change="_aioSavePortfolioAssumption">
+          <option value="current_composition_retrospective">현재 구성 소급</option>
+          <option value="fixed_target_weight_strategy">고정 목표비중 전략</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">리밸런싱 정책</div>
+        <select id="pf-rebalance-policy-input" aria-label="전략 리밸런싱 정책" style="padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;" data-on-change="_aioSavePortfolioAssumption">
+          <option value="">미선언 (전략 경로에서 필요)</option>
+          <option value="daily">매 bar (daily)</option>
+          <option value="monthly">월간 (monthly)</option>
+          <option value="quarterly">분기 (quarterly)</option>
+          <option value="buy-and-hold">리밸런싱 없음 (buy-and-hold)</option>
+        </select>
+      </div>
+      <div id="pf-assumption-status" style="font-size:11px;color:var(--text-muted);flex:1;min-width:170px;line-height:1.6;">선언한 값만 사용합니다 — 비워 두면 추정하지 않고 해당 지표를 보류합니다. 전략 경로는 포지션의 목표비중이 필요합니다.</div>
+    </div>
+    <!-- E4/P1191: 계좌 원장 입력 — TWR/MWR은 원장 없이 계산되지 않는다. 원장은 Vault로 저장된다. -->
+    <details id="pf-ledger-section" style="margin-bottom:12px;">
+      <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--text-secondary);">계좌 원장 (TWR/MWR 계산 입력)</summary>
+      <div style="margin-top:10px;background:var(--surface-1);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">입출금(외부 현금흐름)과 기간 평가액을 선언하면 시간가중(TWR)·금액가중(MWR) 수익률을 계산합니다. 원장이나 계약이 없으면 계산하지 않고 보류합니다. 원장은 포지션과 같은 암호화 경로로 저장됩니다.</div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;">
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">현금흐름 시점 규약</div>
+            <select id="pf-ledger-flow-timing" aria-label="현금흐름 시점 규약" style="padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;" data-on-change="_aioSaveLedgerConvention">
+              <option value="end-of-period">기간 말 (end-of-period)</option>
+              <option value="start-of-period">기간 시작 (start-of-period)</option>
+            </select>
+          </div>
+          <div id="pf-ledger-coverage"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;align-items:end;margin:12px 0 8px;">
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">거래 종류</div>
+            <select id="pf-ledger-kind" aria-label="원장 거래 종류" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;"><option value="deposit">입금</option><option value="withdrawal">출금</option></select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">거래 날짜</div>
+            <input id="pf-ledger-date" type="date" aria-label="원장 거래 날짜" style="width:100%;padding:5px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;"/>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">금액</div>
+            <input id="pf-ledger-amount" type="number" min="0" step="0.01" aria-label="원장 거래 금액" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);"/>
+          </div>
+          <div><button class="aio-btn-table" data-action="_aioAddLedgerEntry" style="font-size:11px;">거래 추가</button></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;align-items:end;margin-bottom:10px;">
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">평가액 날짜</div>
+            <input id="pf-ledger-valuation-date" type="date" aria-label="기간 평가액 날짜" style="width:100%;padding:5px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;"/>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">기간 평가액</div>
+            <input id="pf-ledger-valuation-amount" type="number" min="0" step="0.01" aria-label="기간 평가액" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);"/>
+          </div>
+          <div><button class="aio-btn-table" data-action="_aioAddLedgerValuation" style="font-size:11px;">평가액 추가</button></div>
+        </div>
+        <div id="pf-ledger-list" style="font-size:11px;color:var(--text-muted);">원장 항목 없음</div>
+        <div id="pf-ledger-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;">TWR/MWR은 원장과 규약이 선언되면 자동 계산됩니다.</div>
+      </div>
+    </details>
+    <!-- E3/P1194 (11 §23): 선언된 FX leg — 혼합 통화 합계의 유일한 환산 근거. leg는 Vault로 저장된다. -->
+    <details id="pf-fx-section" style="margin-bottom:12px;">
+      <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--text-secondary);">FX 환산 근거 (혼합 통화 합계)</summary>
+      <div style="margin-top:10px;background:var(--surface-1);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">보유 통화가 기준 통화와 다르면 합계에는 환산 근거가 필요합니다. 관측한 환율(1 from = rate × to)과 관측 시각을 선언하세요 — 선언 창(72시간)을 넘거나 컷 이후 관측된 leg는 쓰지 않고, 어느 통화쌍이 왜 실패했는지가 결과에 실립니다.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;align-items:end;margin-bottom:10px;">
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">From</div>
+            <input id="pf-fx-from" type="text" maxlength="3" placeholder="KRW" aria-label="환산 기준 통화 3자리 코드" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;"/>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">To</div>
+            <input id="pf-fx-to" type="text" maxlength="3" placeholder="USD" aria-label="환산 대상 통화 3자리 코드" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;"/>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">환율</div>
+            <input id="pf-fx-rate" type="number" min="0" step="0.0001" aria-label="관측 환율" style="width:100%;padding:6px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:var(--font-mono);"/>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">관측일</div>
+            <input id="pf-fx-date" type="date" aria-label="환율 관측일" style="width:100%;padding:5px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;"/>
+          </div>
+          <div><button class="aio-btn-table" data-action="_aioAddFxLeg" style="font-size:11px;">leg 추가</button></div>
+        </div>
+        <div id="pf-fx-list" style="font-size:11px;color:var(--text-muted);">FX leg 없음</div>
+        <div id="pf-fx-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;">선언한 leg만 환산에 쓰입니다.</div>
+      </div>
+    </details>
+    </details>
     <nav class="flow-next" id="pf-next" aria-label="이어서 볼 곳" hidden></nav>
     </div><!-- pf-main -->
   </div>
@@ -9921,15 +9845,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.49" defer></script>
-  <script src="./js/aio-data.js?v=57.49" defer></script>
-  <script src="./js/aio-ui.js?v=57.49" defer></script>
+  <script src="./js/aio-core.js?v=57.50" defer></script>
+  <script src="./js/aio-data.js?v=57.50" defer></script>
+  <script src="./js/aio-ui.js?v=57.50" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.49" defer></script>
+<script src="./js/aio-chat.js?v=57.50" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -9987,7 +9911,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.49" defer></script>
+<script src="./js/aio-glossary.js?v=57.50" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

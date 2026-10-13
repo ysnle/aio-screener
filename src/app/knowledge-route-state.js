@@ -103,4 +103,27 @@ export function navigateKnowledgeTarget({ root = globalThis, target = {} } = {})
   return true;
 }
 
+// v57.50 I17/I18: a link into a research page with a selection (?mode=concept&node=…#principles). Pushing the URL
+// and then calling showPage lost the selection — showPage strips the knowledge keys from the search part of a plain
+// route URL before the page mounts — so the page opened on its default view. The pending route URL is the one
+// showPage pushes as is.
+export function knowledgeRouteHref({ root = globalThis, page, params = {} } = {}) {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params || {})) if (value != null && value !== '') query.set(key, String(value));
+  const search = query.toString();
+  return `${root?.location?.pathname || ''}${search ? `?${search}` : ''}#${page}`;
+}
+
+export function navigateKnowledgeRoute({ root = globalThis, page, params = {} } = {}) {
+  if (!isRouteId(page)) return false;
+  const href = knowledgeRouteHref({ root, page, params });
+  if (typeof root?.showPage !== 'function') {
+    root?.location?.assign?.(href);
+    return true;
+  }
+  root._aioPendingRouteHash = href;
+  root.showPage(page);
+  return true;
+}
+
 export { ROUTE_KEYS };

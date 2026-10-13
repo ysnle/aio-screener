@@ -61,6 +61,17 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
 
 function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 
+// v57.50 C19: stageEstimate is a moving-average-stack reading (5·10·20·50·100·200 order + 50-day slope), not
+// Weinstein's 30-week stage. The enum ids stay for parity; anything shown to a reader uses these names, and
+// 'Stage n' is reserved for the Weinstein reading (chart-analysis weinstein).
+export const MA_STRUCTURE_LABELS = Object.freeze({
+  STAGE_2_ADVANCE: '이동평균 배열 · 정배열(50일선 상승)',
+  STAGE_3_TOPPING: '이동평균 배열 · 정배열(50일선 둔화)',
+  STAGE_4_DECLINE: '이동평균 배열 · 역배열',
+  STAGE_4_OR_BASE_REPAIR: '이동평균 배열 · 50일선 아래(훼손)',
+  STAGE_1_OR_3_TRANSITION: '이동평균 배열 · 혼조'
+});
+
 export function classifyDailyTrend(dayGainPct) {
   const value = finite(dayGainPct);
   if (value == null) return 'pending';

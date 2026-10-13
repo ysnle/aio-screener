@@ -17,6 +17,9 @@ export const RULES = Object.freeze({
   // stress forming, not calm), and ≤5bp / five sessions counts as calm for the smallcap reading.
   // T05 (2026-10-13): +25bp over 20 sessions keeps the credit axis at 중립 at best (a month-long widening is not calm).
   // T10: total put/call 1.1+ is heavy hedging, below 0.7 call-heavy optimism (one table for the card and the axis).
+  // v57.50 C16: one RSI reading for stock summary, screener, briefing and AI (screener entry filters may be stricter,
+  // but they are labelled as a filter, not as "과열").
+  technical: Object.freeze({ rsi: Object.freeze({ overbought: 70, oversold: 30, climax: 80 }) }),
   credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, widen20dBp: 25, putCallHedgeAt: 1.1, putCallOptimismBelow: 0.7 }),
   // WTI against its own one-year range (P1394) and 20-session change; the dollar index 20-session change.
   oil: Object.freeze({ rise20dPct: 10, fall20dPct: -5, rangeHighAt: 0.85 }),

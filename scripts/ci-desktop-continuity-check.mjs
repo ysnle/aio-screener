@@ -72,7 +72,7 @@ const rows = [
 ];
 assert.equal(visibleRank(rows[0]), null);
 assert.equal(vcpStageLabel('near_pivot'), '피벗 근접');
-assert.equal(vcpStageLabel('not_stage2'), '추세 조건 미충족');
+assert.equal(vcpStageLabel('not_stage2'), '이동평균 배열 미충족');
 assert.equal(vcpStageLabel('unknown'), '관측');
 assert.deepEqual(sortRows(rows, 'rank', false).map((row) => row.sym), ['A', 'B', 'UNKNOWN', 'REJECTED']);
 assert.deepEqual(sortRows(rows, 'rank', true).map((row) => row.sym), ['B', 'A', 'UNKNOWN', 'REJECTED']);

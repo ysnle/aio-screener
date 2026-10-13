@@ -683,8 +683,9 @@ try {
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
   const homeRoute = await page.evaluate(() => {
-    const primarySelectors = '#home-hero-total, #home-hero-headline, #home-hero-desc, #home-trading-signal';
-    const ids = ['home-hero-total', 'home-hero-headline', 'home-hero-desc', 'home-trading-signal'];
+    // v57.50 I16: the retired-score cards (#home-trading-signal, #home-quality-*) left the DOM; the hero is the home verdict.
+    const primarySelectors = '#home-hero-total, #home-hero-headline, #home-hero-desc';
+    const ids = ['home-hero-total', 'home-hero-headline', 'home-hero-desc'];
     const before = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)?.textContent || '']));
     ids.forEach((id) => { const element = document.getElementById(id); if (element) element.textContent = 'NATIVE-FENCE'; });
     window._aioRenderHomeHero?.();
@@ -699,14 +700,12 @@ try {
       nativePrimarySinkCount: document.querySelectorAll(`#page-home[data-aio-architecture-renderer="native"] ${primarySelectors}`).length,
       fearGreedRenderer: document.getElementById('home-fg-score')?.dataset.aioHomeFearGreedRenderer || null,
       fearGreedScore: document.getElementById('home-fg-score')?.textContent || '',
-      qualityRenderer: document.getElementById('home-quality-score')?.dataset.aioHomeQualityRenderer || null,
-      qualityScore: document.getElementById('home-quality-score')?.textContent || '',
-      qualityLabel: document.getElementById('home-quality-label')?.textContent || '',
+      retiredScoreCards: ['home-trading-grid', 'home-trading-signal', 'home-quality-score', 'home-quality-label', 'home-quality-meter', 'home-risk-regime-badge'].filter((id) => document.getElementById(id)),
       values: before,
       fenceValue
     };
   });
-  if (homeRoute.renderer !== 'native' || homeRoute.homeRenderer !== 'native' || homeRoute.rawPrimarySinkCount !== 4 || homeRoute.nativePrimarySinkCount !== 4 || homeRoute.fearGreedRenderer !== 'native' || !homeRoute.fearGreedScore.trim() || homeRoute.qualityRenderer !== 'native' || !homeRoute.qualityScore.trim() || !homeRoute.qualityLabel.trim() || Object.values(homeRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`home native summary/Fear & Greed/quality/fence failed: ${JSON.stringify(homeRoute)}`);
+  if (homeRoute.renderer !== 'native' || homeRoute.homeRenderer !== 'native' || homeRoute.rawPrimarySinkCount !== 3 || homeRoute.nativePrimarySinkCount !== 3 || homeRoute.fearGreedRenderer !== 'native' || !homeRoute.fearGreedScore.trim() || homeRoute.retiredScoreCards.length || Object.values(homeRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`home native summary/Fear & Greed/retired-card/fence failed: ${JSON.stringify(homeRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('briefing'));
   await page.waitForFunction(() => document.getElementById('page-briefing')?.dataset.aioArchitectureRoute === 'briefing');
   // P1431 (supersedes P1389 order): the connected read first (conclusion), then drivers, next checks, and the schedule.
@@ -826,15 +825,11 @@ try {
     renderer: document.getElementById('page-home')?.dataset.aioArchitectureRenderer || null,
     homeRenderer: document.getElementById('page-home')?.dataset.aioHomeRenderer || null,
     heroTotal: document.getElementById('home-hero-total')?.textContent ?? null,
-    headline: document.getElementById('home-hero-headline')?.textContent ?? null,
-    tradingSignal: document.getElementById('home-trading-signal')?.textContent ?? null
+    headline: document.getElementById('home-hero-headline')?.textContent ?? null
   }));
-  const placeholderPattern = /^(—|-|• • •|)$/;
-  const koreanPattern = /[가-힣]/;
   if (homeSurface.renderer !== 'native' || homeSurface.homeRenderer !== 'native') throw new Error(`home renderer marker regressed after round trip: ${JSON.stringify(homeSurface)}`);
   // P1392: the home card shows the regime label (the 0-100 score was retired), never a number.
   if (!['판정 대기', '우호 우세', '우호 쪽으로 기움', '혼조', '부담 쪽으로 기움', '부담 우세'].includes(homeSurface.heroTotal || '')) throw new Error(`home hero regime label invalid: ${JSON.stringify(homeSurface)}`);
-  if (!placeholderPattern.test(homeSurface.tradingSignal || '') && !koreanPattern.test(homeSurface.tradingSignal || '')) throw new Error(`home-trading-signal is neither a placeholder nor a Korean label: ${JSON.stringify(homeSurface)}`);
 
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');

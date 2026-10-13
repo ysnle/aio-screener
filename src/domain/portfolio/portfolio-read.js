@@ -4,6 +4,13 @@
 // surface's base-currency values; a holding without a value or a screener row is left out and counted.
 import { SECTOR_ETF } from '../entity/stock-read.js';
 import { sectorLabel } from '../screener/screener-read.js';
+
+// v57.50 I11: one sector vocabulary on the portfolio screen — the screener's labels (기술·헬스케어·부동산 …), plus the
+// two portfolio-only buckets. 'Financial Services' is the import alias of the screener's Financials.
+const PORTFOLIO_ONLY_SECTORS = Object.freeze({ CASH: '현금', Unclassified: '미분류' });
+export function portfolioSectorLabel(name) {
+  return PORTFOLIO_ONLY_SECTORS[name] || sectorLabel(name === 'Financial Services' ? 'Financials' : name);
+}
 import { buildAttribution } from './attribution.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
@@ -28,7 +35,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   }
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
   const holdings = (Array.isArray(surface?.rows) ? surface.rows : [])
-    .map((row) => ({ symbol: String(row?.symbol || row?.ticker || '').toUpperCase(), value: finite(row?.value), convertedFrom: row?.convertedFrom || null }))
+    .map((row) => ({ symbol: String(row?.symbol || row?.ticker || '').toUpperCase(), value: finite(row?.value), convertedFrom: row?.convertedFrom || null, sector: row?.sector || null }))
     .filter((row) => row.symbol && row.value != null && row.value > 0)
     .map((row) => ({ ...row, data: bySymbol.get(row.symbol) || null }));
   const total = holdings.reduce((sum, row) => sum + row.value, 0);
@@ -55,14 +62,23 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
       text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => `${row.symbol}(${(row.value / trendTotal * 100).toFixed(0)}%, 평가액의 ${(row.value / total * 100).toFixed(0)}%)`).join(' · ')}` : ''}.${breadth?.state === 'burden' && down > 0 ? ' 시장 폭이 좁은 지금은 하락 추세 종목이 지수보다 먼저 흔들리기 쉬운 환경입니다.' : breadth?.state === 'burden' ? ' 시장 폭이 좁은 가운데 보유 종목은 추세를 지키는 쪽에 있습니다.' : ''}` });
   }
 
+  // v57.50 C24: one denominator and one classification with the 비중 · 섹터 배분 bars (surface.sectorBreakdown) — total
+  // assets including cash, sectors from the surface rows (the screener row via derivePortfolioSurface's sectorOf). When
+  // no total exists (cash undeclared) the shares are of the stock part, and every sentence says "주식 부분 중".
+  const totalAssets = finite(surface?.totalAssets);
+  const assetBasis = totalAssets != null && totalAssets > 0;
+  const denom = assetBasis ? totalAssets : total;
+  const basisWord = assetBasis ? '총자산(현금 포함)' : '주식 부분';
   const sectors = new Map();
-  for (const row of known) {
-    const sector = row.data.sector || '분류 없음';
-    const entry = sectors.get(sector) || { sector, label: sectorLabel(sector), value: 0, krValue: 0 };
+  for (const row of holdings) {
+    const sector = row.sector && row.sector !== 'Unclassified' ? row.sector : row.data?.sector || 'Unclassified';
+    const entry = sectors.get(sector) || { sector, label: portfolioSectorLabel(sector), value: 0, krValue: 0 };
     entry.value += row.value;
     if (/\.(KS|KQ)$/i.test(row.symbol)) entry.krValue += row.value;
     sectors.set(sector, entry);
   }
+  const cashValue = finite(surface?.cash);
+  if (assetBasis && cashValue != null && cashValue > 0) sectors.set('CASH', { sector: 'CASH', label: portfolioSectorLabel('CASH'), value: cashValue, krValue: 0 });
   const sectorMix = [...sectors.values()].map((entry) => {
     // P1449: the rotation quadrants are defined on US sector ETFs. A sector bucket that
     // contains a KRX holding (005930.KS 등) must not silently inherit an XLK-style reading —
@@ -70,18 +86,18 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     const krShare = entry.value > 0 ? entry.krValue / entry.value : 0;
     const etf = krShare >= 0.999 ? null : SECTOR_ETF[entry.sector];
     const quadrant = etf && rotation[etf] ? QUADRANT[rotation[etf].quadrant] || null : null;
-    return { ...entry, pct: entry.value / knownValue * 100, quadrant, krShare };
+    return { ...entry, pct: entry.value / denom * 100, quadrant, krShare, basis: assetBasis ? 'total-assets-including-cash' : 'stock-part' };
   }).sort((a, b) => b.value - a.value);
   const rated = sectorMix.filter((row) => row.quadrant);
   if (rated.length) {
     // E03: only the US part of a bucket inherits a US sector-ETF quadrant; a KRX holding in the same sector does not.
-    const usPct = (row) => (row.value - row.krValue) / knownValue * 100;
+    const usPct = (row) => (row.value - row.krValue) / denom * 100;
     const favourable = rated.filter((row) => row.quadrant.tone === 'favorable').reduce((sum, row) => sum + usPct(row), 0);
     const lagging = rated.filter((row) => row.quadrant.tone === 'burden').reduce((sum, row) => sum + usPct(row), 0);
-    const krPct = sectorMix.reduce((sum, row) => sum + row.krValue, 0) / knownValue * 100;
+    const krPct = sectorMix.reduce((sum, row) => sum + row.krValue, 0) / denom * 100;
     const krNote = krPct > 0 ? ` 한국 보유(${krPct.toFixed(0)}%)는 미국 섹터 회전으로 분류하지 않아 위 비율에서 빠집니다.` : '';
     points.push({ id: 'rotation', tone: favourable >= lagging ? 'favorable' : 'burden', title: '섹터 회전과',
-      text: `보유 비중의 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다 (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(' · ')}).${krNote}` });
+      text: `${basisWord} 중 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다 (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(' · ')}).${krNote}` });
   }
 
   // P1466: one decomposition answers both "how did the book do against its index" and "why".
@@ -109,7 +125,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   }
   if (regime?.available) {
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경',
-      text: `시장 상태는 ‘${regime.overall}’(우호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${regime.counts.burden >= 4 ? '부담 축이 많은 환경에서는 손절 기준과 현금 비중을 먼저 점검하는 편이 일반적입니다.' : '환경이 극단적이지 않아 종목별 추세가 더 중요한 국면입니다.'}` });
+      text: `시장 상태는 ‘${regime.overall}’(우호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${regime.counts.burden >= 4 ? '부담 축이 많은 환경이라, 위 하락 추세 비중과 후행 섹터 비중이 시장 약세에 함께 노출된 부분입니다.' : '환경이 극단적이지 않아 종목별 추세가 더 중요한 국면입니다.'}` });
   }
   const excluded = holdings.length - known.length;
   const excludedValue = total - knownValue;

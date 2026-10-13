@@ -5,6 +5,7 @@ import { BREADTH_CONTRIBUTORS, MACRO_HISTORY, refreshSharedArtifact } from '../.
 import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/quote-presentation.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
+import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 
 function finite(value) {
   if (value == null || value === '' || typeof value === 'boolean') return null;
@@ -329,6 +330,10 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         if (route === 'breadth') renderBreadthBoard({ documentRef, root });
       };
       renderNow();
+      // v57.50 I05: what a research document sent the reader here to check. Every entry to this route mounts again; a
+      // same-route arrival is re-evaluated by the component's aio:knowledgeRouteContext sync.
+      renderKnowledgeArrival({ documentRef, root, routeId: route });
+      bag.add(() => clearKnowledgeArrival({ documentRef, routeId: route }));
       // P1426: the 거시 direction reads use the FRED observation artifact (published by refresh-data).
       // M02: reloads when the copy is past its TTL or the server data was regenerated after it was loaded.
       let alive = true;

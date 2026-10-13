@@ -5,6 +5,7 @@
 // theme rotation items and the market regime. A missing input drops its sentence; nothing is guessed.
 import { withTopicParticle } from '../content/korean-particle.js';
 import { EXTENSION_BANDS, extensionStateFor } from '../screener/setup-profile.js';
+import { RULES } from '../rules/thresholds.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 // 은/는 by the final Hangul syllable of the label (the ticker in parentheses is not read).
@@ -17,6 +18,11 @@ export const SECTOR_ETF = Object.freeze({
   'Consumer Cyclical': 'XLY', Consumer: 'XLY', 'Consumer Defensive': 'XLP', 'Real Estate': 'XLRE',
   Materials: 'XLB', 'Basic Materials': 'XLB', Utilities: 'XLU', 'Communication Services': 'XLC'
 });
+// v57.50 I01: an ETF code handed to the screener is read back as the artifact's own sector name(s).
+export function sectorsForEtf(code) {
+  const etf = String(code || '').trim().toUpperCase();
+  return Object.keys(SECTOR_ETF).filter((sector) => SECTOR_ETF[sector] === etf);
+}
 const SECTOR_KO = Object.freeze({ XLK: '기술', XLF: '금융', XLE: '에너지', XLV: '헬스케어', XLI: '산업재', XLY: '경기소비재', XLP: '필수소비재', XLRE: '부동산', XLB: '소재', XLU: '유틸리티', XLC: '통신' });
 const QUADRANT = Object.freeze({
   Leading: { label: '선도', tone: 'favorable', read: '시장보다 강하고 더 강해지는 중' },
@@ -47,12 +53,18 @@ function trendOf(row) {
   return { id: 'down', tone: 'burden', label: '하락 추세', text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 아래 — 단기·장기 추세가 모두 아래쪽입니다` };
 }
 
-export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], regime = null, universeSize = null, sessionLag = null } = {}) {
+export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], regime = null, universeSize = null, sessionLag = null, holding = null, thirteenF = null } = {}) {
   if (!row) return { available: false, reason: `${withTopicParticle(symbol || '이 종목')} 스크리너 유니버스 밖이라 추세·상대강도 기록이 없습니다. 차트 탭의 일봉과 재무 공시는 그대로 볼 수 있습니다.` };
   const name = row.name || symbol;
   const points = [];
   const trend = trendOf(row);
-  if (trend) points.push({ id: 'trend', tone: trend.tone, title: '추세', text: `${trend.text}.` });
+  // v57.50 C19: this is the 50·200-day line position. The screener's 이동평균 배열 gate (vcpStage: price > 150 > 200-day
+  // line, above the 50-day line, within 30% of the 52-week high) is a stricter, separate test — MSFT read "상승 추세"
+  // here and "추세 조건 미충족" there with nothing saying they were different questions.
+  const templateNote = row.vcpStage === 'not_stage2' && (trend?.id === 'up' || trend?.id === 'pullback')
+    ? ' 스크리너의 이동평균 배열 조건(가격 > 150일선 > 200일선, 52주 고점 대비 -30% 이내)은 이보다 엄격한 별도 기준이며, 이 종목은 아직 충족하지 않습니다.'
+    : '';
+  if (trend) points.push({ id: 'trend', tone: trend.tone, title: '이동평균 위치', text: `${trend.text}.${templateNote}` });
 
   const position = rangePosition(row.pctFrom52wLow, row.pctFrom52wHigh);
   const high = finite(row.pctFrom52wHigh);
@@ -102,8 +114,10 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const rsi = finite(row.rsi) == null ? null : Math.round(finite(row.rsi) * 10) / 10;
   if (rsi != null) {
     const shown = rsi.toFixed(1);
-    points.push({ id: 'rsi', tone: rsi >= 70 || rsi <= 30 ? 'neutral' : 'favorable', title: '단기 과열',
-      text: rsi >= 70 ? `RSI ${shown} — 과열권(70 이상)이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= 30 ? `RSI ${shown} — 과매도권(30 이하)이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : rsi >= 65 ? `RSI ${shown} — 과열 기준(70) 바로 아래 구간입니다.` : rsi <= 35 ? `RSI ${shown} — 과매도 기준(30) 바로 위 구간입니다.` : `RSI ${shown} — 과열도 과매도도 아닌 구간입니다.` });
+    // v57.50 C16: one RSI table (RULES.technical.rsi) for this summary, the screener state label and the climax watch.
+    const { overbought: hot, oversold: cold, climax } = RULES.technical.rsi;
+    points.push({ id: 'rsi', tone: rsi >= hot || rsi <= cold ? 'neutral' : 'favorable', title: '단기 과열',
+      text: rsi >= climax ? `RSI ${shown} — 과열권(${hot} 이상) 중에서도 스크리너가 클라이맥스 관찰로 표시하는 ${climax} 이상 구간입니다.` : rsi >= hot ? `RSI ${shown} — 과열권(${hot} 이상)이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= cold ? `RSI ${shown} — 과매도권(${cold} 이하)이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : rsi >= hot - 5 ? `RSI ${shown} — 과열 기준(${hot}) 바로 아래 구간입니다.` : rsi <= cold + 5 ? `RSI ${shown} — 과매도 기준(${cold}) 바로 위 구간입니다.` : `RSI ${shown} — 과열도 과매도도 아닌 구간입니다.` });
   }
 
   // P1447: US sector ETFs describe US sectors; a KRX listing is not read against them.
@@ -133,6 +147,13 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경', text });
   }
 
+  // v57.50 I13: the reader's own position, only from a portfolio surface that was already opened and valued in one
+  // currency basis (the caller passes nothing otherwise). A weight, not an instruction.
+  const holdingWeight = finite(holding?.weightPct);
+  if (holdingWeight != null && holdingWeight > 0) {
+    points.push({ id: 'holding', tone: 'neutral', title: '내 보유', text: `내 보유 비중 ${holdingWeight < 0.1 ? '0.1% 미만' : `${holdingWeight.toFixed(1)}%`}(${holding?.basisLabel || '포트폴리오 총자산 대비'}) — 위 추세·위치 판단이 이 비중만큼 내 계좌에 걸려 있습니다.` });
+  }
+
   const rank = finite(row.screenRank);
   const ranking = rank != null && finite(universeSize) ? { rank, of: universeSize, topPct: Math.max(1, Math.round(rank / universeSize * 100)) } : null;
   const relative3 = spans.find((span) => span.key === 'ret3m');
@@ -148,7 +169,13 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const next = [{ route: 'technical', label: '차트', why: trend ? `${trend.label}의 셋업 — 이동평균·피벗·거래량으로 지금 자리가 돌파 전인지 확인` : '일봉과 이동평균 위치' },
     { route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }];
   if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마 · ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
+  // v57.50 I01: the Korean label (기술) is for the sentence; the screener filters on the artifact's own sector value
+  // (Technology), so the handoff carries that value, not a search word that matches no row.
   const sectorName = sector?.label || row.sector || '';
-  next.push({ route: 'screener', label: '스크리너', why: `같은 섹터(${sectorName || '—'})에서 상대 순위가 높은 종목과 비교`, ctx: sectorName ? { q: sectorName, ticker: symbol } : { ticker: symbol } });
+  next.push({ route: 'screener', label: '스크리너', why: `같은 섹터(${sectorName || '—'})에서 상대 순위가 높은 종목과 비교`, ctx: row.sector ? { sector: row.sector, ticker: symbol } : { ticker: symbol } });
+  // v57.50 I12: 13F holders only when the reference ledger lists this ticker; the ledger's scope is stated.
+  if (thirteenF?.covered && !isKr) {
+    next.push({ route: 'masters', label: '운용사·13F', why: `이 종목을 신고한 운용사 — 13F 역조회 원장 ${finite(thirteenF.tickerCount) ?? '—'}개 종목 범위, 분기 지연 신고`, ctx: { ticker: symbol } });
+  }
   return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, benchmarkLabel: benchmark?.label || 'S&P 500', sessionLag: lagSessions != null && lagSessions > 0 ? lagSessions : null };
 }

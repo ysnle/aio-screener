@@ -13,7 +13,7 @@ function currentOverlap(rows, ranking) {
   if (!overlapCache.has(rows)) overlapCache.set(rows, measureFactorOverlap(rows, ranking?.activeFactors || []));
   return overlapCache.get(rows);
 }
-import { renderScreenerRead, syncScreenerNextLead } from '../components/screener-read.js';
+import { renderScreenerRead, syncScreenerNextLead, reapplyScreenerNextLead } from '../components/screener-read.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
@@ -26,6 +26,10 @@ import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
 import { MARKET_LABELS, screenerMarket, marketRows, marketRankingMetadata, formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { EXTENSION_BANDS } from '../../domain/screener/setup-profile.js';
+import { RULES } from '../../domain/rules/thresholds.js';
+import { sectorsForEtf } from '../../domain/entity/stock-read.js';
+import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
+import { renderNextSteps } from '../components/page-flow.js';
 
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
@@ -167,8 +171,10 @@ function entryTiming(row) {
   if (rank == null) return ['—', 'entry-wait'];
   if (setup.climaxRisk === 'watch') return [setup.label || '클라이맥스 관찰', 'entry-wait'];
   if (rank < 30) return ['하위권', 'entry-avoid'];
-  if (rsi != null && rsi > 78) return ['RSI 과열', 'entry-wait'];
-  if (rsi != null && rsi < 22) return ['RSI 침체', 'entry-wait'];
+  // v57.50 C16: the same RSI table as the stock summary (70/30; 80 = the climax watch above). The old 78/22 edges
+  // were labelled 과열/침체 while the summary called 70 과열 — one stock read differently on two screens.
+  if (rsi != null && rsi >= RULES.technical.rsi.overbought) return [`RSI 과열권(${RULES.technical.rsi.overbought} 이상)`, 'entry-wait'];
+  if (rsi != null && rsi <= RULES.technical.rsi.oversold) return [`RSI 과매도권(${RULES.technical.rsi.oversold} 이하)`, 'entry-wait'];
   if (setup.relativeStrengthPullback === 'candidate') return ['상대강도 눌림', 'entry-watch'];
   if (setup.support200 === 'near') return ['200일선 부근', 'entry-watch'];
   if (rank >= 65 && (rsi == null || (rsi >= 38 && rsi <= 68)) && (momentum == null || momentum > 0)) return ['상위권·추세 양호', 'entry-ready'];
@@ -216,6 +222,29 @@ function liveRow(row, readLiveData) {
 }
 
 function selectedValue(documentRef, id) { return documentRef.getElementById(id)?.value || ''; }
+
+// v57.50 I10: a theme word typed in the search (방산, 우주/위성, defense) finds that theme's curated constituents.
+// The manual keyword aliases stay; theme members are added to them (union), never substituted.
+export function mergeThemeAliases(aliases = {}, themes = []) {
+  const merged = {};
+  for (const [key, list] of Object.entries(aliases || {})) if (Array.isArray(list)) merged[key] = [...list];
+  const add = (word, symbols) => {
+    const keys = new Set([String(word || '').trim().toLowerCase()].flatMap((value) => [value, value.replace(/\s+/g, '')]).filter((value) => value.length >= 2));
+    for (const key of keys) merged[key] = [...new Set([...(merged[key] || []), ...symbols])];
+  };
+  for (const theme of Array.isArray(themes) ? themes : []) {
+    const subs = Array.isArray(theme?.subThemes) ? theme.subThemes : [];
+    const members = [...new Set([...(theme?.leaders || []), ...subs.flatMap((sub) => sub?.tickers || [])].map((symbol) => String(symbol || '').toUpperCase()).filter(Boolean))];
+    if (!members.length) continue;
+    const name = String(theme?.nameKr || '');
+    [theme?.id, name, ...name.split('/')].forEach((word) => add(word, members));
+    for (const sub of subs) {
+      const tickers = (sub?.tickers || []).map((symbol) => String(symbol || '').toUpperCase()).filter(Boolean);
+      if (tickers.length) [sub?.name, ...String(sub?.name || '').split('/')].forEach((word) => add(word, tickers));
+    }
+  }
+  return merged;
+}
 
 export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
@@ -334,7 +363,9 @@ export function sortRows(rows, sortColumn, ascending, readLiveData) {
 }
 
 export function vcpStageLabel(stage) {
-  return ({ not_stage2: '추세 조건 미충족', breakout: '피벗 돌파', near_pivot: '피벗 근접', contracting: '변동폭 수축', basing: '기반 형성', stage2_only: '추세 조건 충족' })[stage] || '관측';
+  // v57.50 C19: the producer's gate is a moving-average order (price > 150 > 200-day line, above the 50-day line, within
+  // 30% of the 52-week high) — not a Weinstein stage and not the 50·200-day position the stock summary calls 상승 추세.
+  return ({ not_stage2: '이동평균 배열 미충족', breakout: '피벗 돌파', near_pivot: '피벗 근접', contracting: '변동폭 수축', basing: '기반 형성', stage2_only: '이동평균 배열 충족' })[stage] || '관측';
 }
 
 function createRankNode(documentRef, row, hold = null) {
@@ -1471,11 +1502,16 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         method.append(summary, explanation); marketControls.append(method);
         page.prepend(marketControls);
       }
-      documentRef.getElementById('scr-listing-market').value = root._aioScreenerListingMarket === 'KR' ? 'KR' : 'US';
       // P1449 (검토판 9): a link that came here with its own 조사 맥락 (e.g. 같은 섹터에서 비교)
       // fills the display search/scope from that context once, instead of surfacing whatever
       // query/sector chips the previous visit left behind.
       const handoff = consumeResearchHandoff({ root, routeId: 'screener' });
+      // v57.50 I01: a KRX ticker's sector is a Korean-market sector — compare it inside the KR listing.
+      if (/\.K[SQ]$/i.test(String(handoff?.context?.ticker || '')) && handoff?.context?.sector) root._aioScreenerListingMarket = 'KR';
+      documentRef.getElementById('scr-listing-market').value = root._aioScreenerListingMarket === 'KR' ? 'KR' : 'US';
+      // v57.50 I01: the sector arrives as the artifact's own value (Technology) or a sector ETF code (XLK); it is
+      // applied to the 섹터 select once that select has been filled with this market's sectors (fillControls).
+      let pendingSector = handoff?.context?.sector ? String(handoff.context.sector) : null;
       if (handoff?.context) {
         const scopeMap = [['q', 'scr-text-search']];
         for (const [key, targetId] of scopeMap) {
@@ -1483,7 +1519,12 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const field = value != null && value !== '' ? documentRef?.getElementById(targetId) : null;
           if (field) field.value = String(value);
         }
+        // A sector comparison starts from that sector alone, not from the previous visit's search word.
+        const search = pendingSector && handoff.context.q == null ? documentRef.getElementById('scr-text-search') : null;
+        if (search) search.value = '';
       }
+      // v57.50 I05: what a research document sent the reader here to check, and the way back.
+      renderKnowledgeArrival({ documentRef, root, routeId: 'screener' });
       // P1437: the lead reading of the ranking — recomputed only when the ranked set or validation changes.
       let readSignature = '';
       const renderRead = () => {
@@ -1501,7 +1542,15 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             const note = documentRef.createElement('p'); note.textContent = `한국 상장 ${rows.length}종목을 독립 비교합니다. 팩터 비중·데이터 범위는 아래에 표시하며 미국 업종 회전과 과거 검증을 이 순위의 근거로 섞지 않습니다.`;
             host.replaceChildren(heading, note);
           }
-          const next = documentRef.getElementById('screener-next'); if (next) next.hidden = true;
+          // v57.50 I22: the KR ranking also continues somewhere — the Korean themes it sits in and its first name
+          // (the table-lead sync below re-points the ticker link to the filtered table's first row).
+          const ranked = rows.filter((row) => finite(row?.screenRank) != null).sort((a, b) => a.screenRank - b.screenRank);
+          const lead = ranked[0] || null;
+          renderNextSteps(documentRef, documentRef.getElementById('screener-next'), [
+            { route: 'themes', label: '국내 테마', why: '상위권 한국 종목이 몰린 테마가 완료 종가 기준으로 어떻게 움직였는지', ctx: { anchor: 'kr-integrated-themes' } },
+            ...(lead ? [{ action: 'showTicker', arg: lead.sym, route: 'ticker', label: `1위 ${lead.sym}`, why: `${lead.name || lead.sym} — 한국 순위 1위 종목을 요약·차트·재무로 확인` }] : [])
+          ]);
+          reapplyScreenerNextLead(documentRef);
         } else {
           const next = documentRef.getElementById('screener-next'); if (next) next.hidden = false;
           renderScreenerRead({ documentRef, root, rows });
@@ -1543,7 +1592,14 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       const liveReader = readLiveData || (() => root?._liveData || {});
       syncRankFilterLabels(documentRef);
       const watchlistReader = readWatchlist || (() => root?._aioWatchlistGet?.() || []);
-      const aliasReader = readAliases || (() => root?.SCR_KEYWORD_ALIASES || {});
+      // v57.50 I10: the hand-written keyword aliases plus every THEME_MAP theme's constituents (union, aliases kept).
+      let themeAliasCache = { themes: null, aliases: null, merged: {} };
+      const aliasReader = readAliases || (() => {
+        const aliases = root?.SCR_KEYWORD_ALIASES || {};
+        const themes = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
+        if (themeAliasCache.themes !== themes || themeAliasCache.aliases !== aliases) themeAliasCache = { themes, aliases, merged: mergeThemeAliases(aliases, themes) };
+        return themeAliasCache.merged;
+      });
       const profileReader = () => root?._aioGetActiveProfile?.() || 'balanced';
       let visibleQuoteSignature = '';
       let visibleQuoteRequestedAt = 0;
@@ -2276,7 +2332,16 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         select.value = values.includes(current) ? current : '';
         select.dataset.aioValues = signature;
       };
-      const fillControls = () => { fillSelect('scr-market', 'index', '전체 지수'); fillSelect('scr-sector', 'sector', '전체 섹터'); };
+      const fillControls = () => {
+        fillSelect('scr-market', 'index', '전체 지수'); fillSelect('scr-sector', 'sector', '전체 섹터');
+        // v57.50 I01: apply a handed-over sector once its option exists (rows may arrive after mount).
+        const sectorSelect = pendingSector ? documentRef.getElementById('scr-sector') : null;
+        if (sectorSelect) {
+          const options = [...sectorSelect.options].map((option) => option.value).filter(Boolean);
+          const match = options.includes(pendingSector) ? pendingSector : sectorsForEtf(pendingSector).find((name) => options.includes(name));
+          if (match) { sectorSelect.value = match; pendingSector = null; visibleLimit.value = 12; }
+        }
+      };
       const renderWithControls = () => { fillControls(); renderWorkbench(); rerender(); renderRead(); };
       page.addEventListener('click', handleClick);
       page.addEventListener('input', handleInput);

@@ -91,9 +91,10 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   for (const group of visible) {
     const tr = el(doc, 'tr');
     tr.dataset.group = group.id;
-    tr.append(el(doc, 'td', group.rank == null ? '—' : String(group.rank), 'is-rank'));
+    // v57.50 D15: a group with fewer than 4 measured members is a reference row, not a ranked one.
+    tr.append(el(doc, 'td', group.rank == null ? (group.smallSample ? '참고' : '—') : String(group.rank), 'is-rank'));
     const nameCell = el(doc, 'td');
-    nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName} · ${group.listed}종목${group.members !== group.listed ? ` (수익률 ${group.members}개)` : ''}`, 'theme-strength-theme'));
+    nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName} · ${group.listed}종목${group.members !== group.listed ? ` (수익률 ${group.members}개)` : ''}${group.smallSample ? ` · 표본 ${group.members}종목 · 참고` : ''}`, 'theme-strength-theme'));
     const compare = el(doc, 'button', '종목끼리 비교', 'theme-strength-more'); compare.type = 'button';
     compare.dataset.compareGroup = group.id;
     if (root._aioThemeMemberGroup === group.id) compare.setAttribute('aria-controls', `theme-members-${visible.indexOf(group)}`);
@@ -154,6 +155,8 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     footer.append(more);
   }
   if (model.excluded.length) footer.append(el(doc, 'span', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 하위 테마는 순위에서 제외`, 'theme-strength-theme'));
+  const reference = model.groups.filter((group) => group.smallSample).length;
+  if (reference) footer.append(el(doc, 'span', ` · 3종목 하위 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시`, 'theme-strength-theme'));
   host.append(footer);
   if (model.excluded.length) {
     const excluded = el(doc, 'details', null, 'theme-strength-unranked');

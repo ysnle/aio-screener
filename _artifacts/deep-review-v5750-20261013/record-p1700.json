@@ -1,0 +1,22 @@
+{
+  "version": "v57.50",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.50 이면·의미와 화면 간 연결 심층 검토 78건 반영(P1691~P1700) · AI 종가 근거 표시 정리.",
+  "p": {
+    "id": 1700,
+    "title": "퇴역한 점수·화면 조각이 DOM과 계산에 남음 — 홈 \"지금 매매해도 될까?\" 그리드, 재무 화면 시장 리스크 레이더, AI 자동 점수 그림",
+    "symptom": "P1392에서 퇴역한 거래 점수·국면 카드가 CSS로만 숨겨진 채 매번 계산됐고 매매 지시성 문구를 담고 있었다. 재무 화면에 시장 이벤트 레이더·실적 서프라이즈가 남아 일정이 3중으로 겹쳤다. 홈 KOSPI 칩은 숨겨진 섹션으로, BTC 칩은 BTC가 없는 화면으로 갔다. AI 답에 퇴역 점수 분해 그림이 붙을 수 있었다. 면책 문구가 퇴역 점수를 가리켰다.",
+    "root_cause": "퇴역 결정 때 DOM·계산·자동 그림을 함께 지우지 않았다.",
+    "fix": "홈 그리드·위험 배지, 차트 중복 배지, 재무 화면 레이더·실적 서프라이즈 DOM을 지우고 계산 경로는 요소 부재 시 no-op. 홈 칩 링크 정정, AI 자동 점수 분해·국면 그림 연결 제거, 면책 문장 정리. 레짐 맵 VIX 경계는 RULES.",
+    "violated_rule": "퇴역은 DOM·계산·문구 전체에서",
+    "prevention": "P1700: ci-architecture-browser-check(퇴역 카드 id 부재)·ci-architecture-contract-check(route-owners 갱신)·ci-structural-check(선언만 남은 함수 없음)",
+    "verification": "브라우저 gate 전 route 왕복 browserErrors 0."
+  },
+  "qa": [],
+  "qa_section": "검증 스킬",
+  "changelog": [
+    "**퇴역 잔재 정리 (P1700):** 숨겨진 채 계산되던 퇴역 점수 카드와 회사 화면의 시장 레이더를 지우고, 홈 칩 링크를 바로잡았다."
+  ]
+}

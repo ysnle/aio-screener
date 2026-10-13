@@ -2227,8 +2227,9 @@
 
     // T470: risk-radar-body 초기 lineage (P337)
     var rrb = document.getElementById('risk-radar-body');
+    // v57.50 I26: the market risk radar left the company (fundamental) screen; when it is absent there is nothing to mark.
     _assert('T470 risk_radar_body_initial_lineage_v4964: #risk-radar-body 초기 data-operational-use 마킹',
-      !!rrb && (rrb.getAttribute('data-operational-use') === 'reference-only' || rrb.getAttribute('data-operational-use') === 'decision'),
+      !rrb || rrb.getAttribute('data-operational-use') === 'reference-only' || rrb.getAttribute('data-operational-use') === 'decision',
       'use=' + (rrb && rrb.getAttribute('data-operational-use')));
   }
 
@@ -4328,7 +4329,7 @@
       'chips=' + chips.length + ' allExist=' + allPagesExist);
 
     // T304: home subSections id 매핑 정확성 (DOM 존재 확인)
-    var homeIdsToCheck = ['app-version-badge', 'home-action-item-card'];
+    var homeIdsToCheck = ['app-version-badge']; // v57.50 I16: home-action-item-card는 퇴역 홈 그리드와 함께 빠질 수 있다(T226이 담당)
     var allFound = homeIdsToCheck.every(function(id) { return !!document.getElementById(id); });
     _assert('T304 home_subsection_ids: 핵심 sub-section DOM 매핑',
       allFound, allFound ? 'ok' : 'missing');
@@ -4852,14 +4853,18 @@
     // T225: home 카드 CARD_HIERARCHY 적용
     var primaryCard = document.querySelector('#page-home [data-card-level="primary"][data-weight-key="TRADING_SCORE"]');
     var secondaryCards = document.querySelectorAll('#page-home [data-card-level="secondary"]');
-    _assert('T225 home_card_hierarchy: home에 primary 1개 + secondary 2개',
-      !!primaryCard && secondaryCards.length === 2,
+    // v57.50 I16: the retired trading-score grid (the primary + two secondary cards) left the home DOM; none may remain.
+    _assert('T225 home_card_hierarchy: 퇴역한 점수 카드 계층이 home에 남지 않음',
+      !primaryCard && secondaryCards.length === 0,
       'primary=' + !!primaryCard + ' secondary=' + secondaryCards.length);
 
-    // T226: home Action Item 카드 존재
+    // T226: home Action Item 카드 — v57.50 I16: 퇴역 홈 그리드와 함께 DOM이 빠질 수 있다. 있으면 그대로, 없으면
+    // 갱신 경로(_aioRefreshActionPlan)가 DOM 부재에서 예외 없이 끝나야 한다.
     var actionCard = document.getElementById('home-action-item-card');
-    _assert('T226 home_action_card: #home-action-item-card 신설',
-      !!actionCard, actionCard ? 'found' : 'missing');
+    var actionNoThrow = true;
+    if (!actionCard) { try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(_) { actionNoThrow = false; } }
+    _assert('T226 home_action_card: #home-action-item-card 존재 또는 퇴역 후 갱신 경로 no-op',
+      !!actionCard || actionNoThrow, actionCard ? 'found' : 'retired; refresh no-throw=' + actionNoThrow);
 
     // T227: technical RSI 카드에 임계값 라벨 (<30 과매도 · 70+ 과매수)
     var rsiCard = document.querySelector('#page-technical #tech-rsi-val');
@@ -6121,7 +6126,9 @@
       var k804 = ph804 ? Array.from(ph804.children) : [];
       var hi = function(id){ var e=document.getElementById(id); return e?k804.indexOf(e):-1; };
       var ci = hi('home-conclusion-bar'), gi = hi('home-trading-grid'), ai = hi('home-action-item-card');
-      t804ok = ci >= 0 && gi === ci + 1 && ai === gi + 1; // 결론→근거(grid)→액션 연속
+      // v57.50 I16: 퇴역 그리드/액션 카드가 DOM에서 빠졌으면 이동 대상이 없으므로 결론바 존재만 확인한다.
+      t804ok = gi < 0 ? (ci >= 0 && (ai < 0 || ai === ci + 1))
+        : ci >= 0 && gi === ci + 1 && ai === gi + 1; // 결론→근거(grid)→액션 연속
       t804detail = 'conc=' + ci + ' grid=' + gi + ' action=' + ai + ' grouped=' + t804ok;
     } catch(e) { t804detail = 'ERR:' + e.message; }
     _assert('T804 v5034_home_conclusion_group: home 결론바 직후 [매매판단 그리드 → Action Items] 연속 (결론→근거→액션)', t804ok, t804detail);

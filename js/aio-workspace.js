@@ -611,7 +611,7 @@ function _pfSyncEntryCurrencyLabels() {
   var tkEl = document.getElementById('pf-add-ticker');
   var cc = String(ccEl && ccEl.value || '').trim().toUpperCase();
   var tk = String(tkEl && tkEl.value || '').trim().toUpperCase();
-  var currency = /^[A-Z]{3}$/.test(cc) ? cc : (/^d{6}$/.test(tk) || /.K[SQ]$/.test(tk) ? 'KRW' : 'USD');
+  var currency = /^[A-Z]{3}$/.test(cc) ? cc : (/^\d{6}$/.test(tk) || /\.K[SQ]$/.test(tk) ? 'KRW' : 'USD');
   var costLabel = document.getElementById('pf-add-cost-label');
   var targetLabel = document.getElementById('pf-add-target-label');
   if (costLabel) costLabel.textContent = '매수 단가 (' + currency + ')';
@@ -1058,11 +1058,12 @@ async function refreshPortfolioRisk() {
   const tickers = positions.map(function(p) { return p.ticker; });
   const historyMap = {};
 
-  // 각 종목 Yahoo Finance 3개월 가격 기록 fetch
+  // 각 종목 Yahoo Finance 1년 가격 기록 fetch — v57.50 D03: 3개월(~62일) 표본은 99% 꼬리·Sharpe·MDD를 말하기에
+  // 짧았다. 요청 수는 같고(종목당 1회) 응답만 ~250행으로 늘어난다.
   await Promise.allSettled(tickers.map(async function(t) {
     try {
       if (typeof _fetchYahooChartData === 'function') {
-        const d = await _fetchYahooChartData(t, '3mo');
+        const d = await _fetchYahooChartData(t, '1y');
         var adjusted = d && (Array.isArray(d.adjustedCloses) ? d.adjustedCloses : d.adjCloses);
         var timestamps = d && Array.isArray(d.timestamps) ? d.timestamps : [];
         if (!d || !Array.isArray(adjusted) || adjusted.length !== timestamps.length || d.backtestEligible === false) return;
@@ -1155,6 +1156,32 @@ async function refreshPortfolioRisk() {
   const mddRes = (typeof _calcMaxDrawdown === 'function') ? _calcMaxDrawdown(pfReturns) : null;
   const corrRes = (validTickers.length >= 2 && typeof _calcCorrelationMatrix === 'function')
     ? _calcCorrelationMatrix(returnsMap) : null;
+  // v57.50 D04: a Korean and a US close on the same calendar date are ~16 hours apart, so pairing them day by day
+  // understates their co-movement. Mixed-market cells use 5-session (weekly) returns from the same common dates;
+  // fewer than 8 weekly pairs leaves the cell as '비동시' instead of a number.
+  if (corrRes && Array.isArray(corrRes.tickers) && Array.isArray(corrRes.matrix)) {
+    var _mktOfPf = function(sym) { return /\.(KS|KQ)$/i.test(String(sym || '')) ? 'KR' : 'US'; };
+    var _weeklyPf = function(sym) {
+      var px = historyMap[sym]; if (!px) return null;
+      var out = [];
+      for (var k = commonDates.length - 1; k - 5 >= 0; k -= 5) {
+        var a = px[commonDates[k - 5]], b = px[commonDates[k]];
+        if (!(a > 0) || !(b > 0)) return null;
+        out.unshift(b / a - 1);
+      }
+      return out;
+    };
+    corrRes.mixedMarket = corrRes.tickers.map(function(a) { return corrRes.tickers.map(function(b) { return _mktOfPf(a) !== _mktOfPf(b); }); });
+    corrRes.weeklyN = null;
+    corrRes.tickers.forEach(function(a, i) {
+      corrRes.tickers.forEach(function(b, j) {
+        if (i === j || !corrRes.mixedMarket[i][j]) return;
+        var wa = _weeklyPf(a), wb = _weeklyPf(b);
+        corrRes.matrix[i][j] = wa && wb && wa.length >= 8 ? _pfPearson(wa, wb) : null;
+        if (wa) corrRes.weeklyN = wa.length;
+      });
+    });
+  }
 
   // E4/P1191 → P1449: 원장 계좌 성과는 시세 이력과 무관한 자체 패널(pf-ledger-performance)로
   // 분리됐다(refreshPortfolioLedgerPerformance) — 시세 이력이 없어도 TWR/MWR에 도달한다.
@@ -1185,10 +1212,16 @@ function _aioRenderPortfolioExposure(positions, returnsMap) {
   var base = _pfBaseValues(positions);
   if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
   var rows = base.rows.map(function(r){ return { sym: r.sym, value: r.value, stock: find(r.sym) }; });
-  var total = rows.reduce(function(s,r){return s+(r.value||0);},0);
+  // v57.50 review R1 (C24): weights over total assets including cash, the denominator of the native sector bars and the
+  // 포트폴리오 해석; without a known total the panel falls back to the position sum and says so. Cash is not a sector.
+  var surf = window._aioPortfolioSurface || {};
+  var posSum = rows.reduce(function(s,r){return s+(r.value||0);},0);
+  var total = surf.totalAssets != null && isFinite(surf.totalAssets) && surf.totalAssets >= posSum && surf.totalAssets > 0 ? surf.totalAssets : posSum;
+  var basisNote = total === posSum ? '주식 부분 중' : '현금 포함 총자산 대비';
   if (total <= 0) { el.innerHTML = _pfBaseNote(base); return; }
   rows.forEach(function(r){ r.w = r.value/total; });
-  var bySec = {}; rows.forEach(function(r){ var sec=(r.stock&&r.stock.sector)||'기타'; bySec[sec]=(bySec[sec]||0)+r.w; });
+  var secLabel = typeof window._aioPortfolioSectorLabel === 'function' ? window._aioPortfolioSectorLabel : function(s) { return s; };
+  var bySec = {}; rows.forEach(function(r){ var sec=secLabel((r.stock&&r.stock.sector)||'기타'); bySec[sec]=(bySec[sec]||0)+r.w; });
   var secArr = Object.keys(bySec).map(function(k){return [k,bySec[k]];}).sort(function(a,b){return b[1]-a[1];});
   var topSorted = rows.slice().sort(function(a,b){return b.w-a.w;});
   var top3 = topSorted.slice(0,3).reduce(function(s,r){return s+r.w;},0);
@@ -1205,7 +1238,7 @@ function _aioRenderPortfolioExposure(positions, returnsMap) {
   if (avgCorr != null && avgCorr > 0.7) warns.push('평균 상관 '+avgCorr.toFixed(2)+' — 분산효과 약함(>0.70)');
   var secHtml = secArr.slice(0,5).map(function(s){ var pct=Math.round(s[1]*100); var col=s[1]>0.4?'var(--data-red)':s[1]>0.25?'var(--data-amber)':'var(--text-secondary)'; return '<div style="display:flex;justify-content:space-between;font-size:11px;padding:1px 0;"><span style="color:var(--text-secondary);">'+_escHtmlSafe(s[0])+'</span><span style="color:'+col+';font-weight:700;">'+pct+'%</span></div>'; }).join('');
   el.innerHTML =
-    '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">익스포저 · 집중도</div>' +
+    '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">익스포저 · 집중도 <span style="font-weight:500;">(' + basisNote + ')</span></div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">' +
       '<div>' + secHtml + '</div>' +
       '<div style="font-size:11px;">' +
@@ -1349,25 +1382,30 @@ function _renderRiskMetrics(el, data) {
 
   // 지표 카드
   var mdd = mddRes ? mddRes.mdd : null;
+  // v57.50 D03: every card names its real sample ("최근 n거래일 표본"); Sharpe needs about a year of returns.
+  var sampleTag = ' · 최근 ' + n + '거래일 표본';
+  var sharpeThin = !(n >= 250);
   var cards = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px;margin-bottom:14px;">';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (95%)' + scopeSuffix + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (95%)' + scopeSuffix + sampleTag + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var95) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">과거 표본 95% 손실 경계(초과 가능) · 표본 ' + n + '일 중 하위 ' + Math.max(1, Math.ceil(n * 0.05 - 1e-9)) + '번째 손실</div></div>';
   var tail99 = Math.max(1, Math.ceil(n * 0.01 - 1e-9)), thin99 = !(n >= 100); // #8: under 100 days the 99% "boundary" is just the worst day(s) of the sample
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">' + (thin99 ? '표본 최악일 (1일 손실)' : '1일 VaR (99%)') + scopeSuffix + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">' + (thin99 ? '표본 최악일 (1일 손실)' : '1일 VaR (99%)') + scopeSuffix + sampleTag + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var99) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (thin99 ? '표본 ' + n + '일이라 99% 꼬리 관측이 ' + tail99 + '개뿐 — 99% 경계가 아니라 표본 최악일입니다' : '과거 표본 99% 손실 경계(초과 가능) · 표본 ' + n + '일 · 꼬리 ' + tail99 + '개') + '</div></div>';
-  var sharpeSub = sharpe !== null && sharpe !== undefined ? 'RF 입력 · 표본 ' + n + '일(연율화)' : (rfAnnual == null && est ? 'RF 미입력 — 보류 (' + n + '일)' : '데이터 부족');
+  var sharpeShown = sharpeThin ? null : sharpe;
+  var sharpeSub = sharpeThin ? '표본 부족 · 보류 (' + n + '거래일 — 250일 미만이면 연율화 값이 표본 구간에 크게 좌우됩니다)'
+    : sharpe !== null && sharpe !== undefined ? 'RF 입력 · 표본 ' + n + '일(연율화)' : (rfAnnual == null && est ? 'RF 미입력 — 보류 (' + n + '일)' : '데이터 부족');
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">Sharpe Ratio' + scopeSuffix + '</div>' +
-    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + plainColor(sharpe) + ';">' + fmtN(sharpe) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">Sharpe Ratio' + scopeSuffix + sampleTag + '</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + plainColor(sharpeShown) + ';">' + fmtN(sharpeShown) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + sharpeSub + '</div></div>';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">최대낙폭 (MDD)' + scopeSuffix + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">표본 기간 최대낙폭 (MDD)' + scopeSuffix + sampleTag + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + plainColor(mdd) + ';">' + fmtLoss(mdd) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (mdd !== null ? '표본 ' + n + '일 중 고점 대비 최대 하락' : '데이터 부족') + '</div></div>';
 
@@ -1391,7 +1429,13 @@ function _renderRiskMetrics(el, data) {
     // 데이터 행
     corrRes.matrix.forEach(function(row, i) {
       heatHtml += '<tr><td style="padding:4px 8px;font-size:10px;font-weight:700;color:var(--text-secondary);">' + ts[i] + '</td>';
-      row.forEach(function(val) {
+      row.forEach(function(val, j) {
+        // v57.50 D04: Korea-US cells are weekly returns (non-synchronous closes); no red/blue diversification reading.
+        if (corrRes.mixedMarket && corrRes.mixedMarket[i] && corrRes.mixedMarket[i][j]) {
+          heatHtml += '<td style="padding:5px 10px;background:var(--surface-2);text-align:center;border-radius:3px;font-weight:600;color:var(--text-muted);" title="한국·미국 종목 쌍 — 장 마감 시각이 달라 5거래일(주간) 수익률로 계산">' +
+            (val == null || !isFinite(val) ? '비동시' : val.toFixed(2) + '*') + '</td>';
+          return;
+        }
         var abs = Math.abs(val);
         var bg, textC;
         if (val >= 0.99) {
@@ -1409,7 +1453,9 @@ function _renderRiskMetrics(el, data) {
       heatHtml += '</tr>';
     });
     heatHtml += '</table></div>';
-    heatHtml += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">빨강=정상관(분산 효과↓) · 파랑=역상관(분산 효과↑) · 기간: ' + n + '거래일</div>';
+    var _hasMixed = !!(corrRes.mixedMarket && corrRes.mixedMarket.some(function(r) { return r.some(Boolean); }));
+    heatHtml += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">빨강=정상관(분산 효과↓) · 파랑=역상관(분산 효과↑) · 같은 시장 종목끼리 일간 수익률 · 기간: ' + n + '거래일' +
+      (_hasMixed ? '<br>회색 칸(*)은 한국·미국 종목 쌍입니다 — 같은 날짜라도 장 마감 시각이 달라 동시 관측이 아니므로 5거래일(주간) 수익률' + (corrRes.weeklyN ? ' ' + corrRes.weeklyN + '개' : '') + '로 계산했고, 분산 효과 해석은 보류합니다(\'비동시\'는 주간 표본 8개 미만).' : '') + '</div>';
     heatHtml += '</div>';
   }
 
@@ -2322,6 +2368,9 @@ function _liveSnap() {
   if (!_ld('^VIX','price')) stale.push('VIX');
   if (!_ld('CL=F','price')) stale.push('유가');
   var _fgLiveSnapMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+  // v57.50 C06: F&G is a daily close figure; the snapshot carries the home card's completed-close reading.
+  var _fgCloseRead = typeof window._aioFgCloseReading === 'function' ? window._aioFgCloseReading() : undefined;
+  if (_fgCloseRead !== undefined) _fgLiveSnapMetric = _fgCloseRead && _fgCloseRead.value != null ? { value: _fgCloseRead.value, status: 'VALID', asOf: _fgCloseRead.date } : null;
   if (!_fgLiveSnapMetric || _fgLiveSnapMetric.status !== 'VALID') stale.push('F&G');
   if (!window._tradingScore) stale.push('트레이딩스코어');
   if (!(window._spxMA && window._spxMA[50])) stale.push('이동평균');
@@ -2465,7 +2514,10 @@ function _closeSnap() {
     tnx: _liveFmt('^TNX',2), tyx: _liveFmt('^TYX',2),
     wti: _liveFmt('CL=F',1), brent: _liveFmt('BZ=F',1),
     gold: _liveFmt('GC=F'), krw: _liveFmt('KRW=X'),
-    fg: (function() { var _fgCloseMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null; return _fgCloseMetric && _fgCloseMetric.value != null ? _fgCloseMetric.value : '데이터 없음'; })(),
+    fg: (function() {
+      // v57.50 C06: the same completed-close F&G reading as the home card.
+      if (typeof window._aioFgCloseReading === 'function') { var _r = window._aioFgCloseReading(); return _r && _r.value != null ? _r.value : '데이터 없음'; }
+      var _fgCloseMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null; return _fgCloseMetric && _fgCloseMetric.value != null ? _fgCloseMetric.value : '데이터 없음'; })(),
     score: window._tradingScore || '산출 대기',
     spx50ma: (window._spxMA && window._spxMA[50]) || '—',
     spx200ma: (window._spxMA && window._spxMA[200]) || '—',

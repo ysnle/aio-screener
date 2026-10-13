@@ -423,6 +423,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
     blocked: gate.blocked === true,
     reasons: gate.reasons || [],
     limitations: gate.limitations || [], limitationNotes: gate.limitationNotes || [], closeBasisDates: publishedClaims.filter(function(claim) { return claim && claim.source === 'close-basis' && claim.asOf; }).map(function(claim) { return String(claim.asOf).slice(0, 10); }).sort(), // review: only published close-basis claims label the answer
+    otherPublishedClaims: publishedClaims.filter(function(claim) { return claim && claim.source !== 'close-basis' && typeof claim.value === 'number'; }).length, // QA-VERIFY-16: numbers that are not closes
     actionGate: gate,
     claimAudit: claimAudit,
     conductAudit: conductAudit,
@@ -506,9 +507,12 @@ function _aioBuildAIResponseDisclosure(meta) {
   // v57.48 #7/#19: an answer bound to the screen's completed closes says so (date, not "미확인"), and the detailed
   // limitation notes the answer no longer stacks at its top are listed here, in Korean.
   var closeDates = Array.isArray(meta.closeBasisDates) ? meta.closeBasisDates : []; // published close-basis claims only, not every collected row
-  var evidenceStatus = rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : closeDates.length && !blocked ? '종가 기준 근거' : '확인 필요';
-  if (!rows.length && closeDates.length) asOf = closeDates[closeDates.length - 1] + ' 종가';
-  var sourceLabel = sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : closeDates.length ? '완료된 종가 기록' : '원천 확인 필요';
+  // QA-VERIFY-16 live check (2026-10-13): an answer whose only published numbers are completed closes is labelled by
+  // those closes, even when page quote rows were collected (live rows it never cited cannot make it "확인 필요").
+  var closeOnly = closeDates.length > 0 && !(meta.otherPublishedClaims > 0);
+  var evidenceStatus = closeOnly ? '종가 기준 근거' : rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : '확인 필요';
+  if (closeOnly) asOf = closeDates[closeDates.length - 1] + ' 종가';
+  var sourceLabel = closeOnly ? '완료된 종가 기록' : sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : '원천 확인 필요';
   var notes = meta.actionGate && Array.isArray(meta.actionGate.limitationNotes) ? meta.actionGate.limitationNotes : [];
   return {
     label: _AIO_PUBLIC_AI_POLICY.label,
@@ -2678,9 +2682,18 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
   var blocks = [];
   for (var i = 0; i < list.length; i++) {
     _aioThrowIfChatAborted(opts.signal);
-    var t = list[i], snap = null;
+    var t = list[i], snap = null, _droppedOpenBar = null, _lastBarDate = null;
     try {
       var ohlcv = settled[i];
+      // v57.50 C17: the block says "종가", so it is computed from completed daily bars only. A bar dated after the
+      // market's latest completed session is the session in progress and is left out (the screen uses the same rule).
+      if (ohlcv && ohlcv.length) {
+        var _mkt = /\.(KS|KQ)$/i.test(String(t)) ? 'KR' : 'US';
+        var _doneDate = typeof window._aioLatestCompletedSessionDate === 'function' ? window._aioLatestCompletedSessionDate(_mkt) : null;
+        var _tailDate = String(ohlcv[ohlcv.length - 1] && ohlcv[ohlcv.length - 1].time || '').slice(0, 10);
+        if (_doneDate && /^\d{4}-\d{2}-\d{2}$/.test(_tailDate) && _tailDate > _doneDate) { _droppedOpenBar = _tailDate; ohlcv = ohlcv.slice(0, -1); }
+        _lastBarDate = ohlcv.length ? String(ohlcv[ohlcv.length - 1].time || '').slice(0, 10) || null : null;
+      }
       if (ohlcv && ohlcv.length) snap = calc(ohlcv);
     } catch (_) { snap = null; }
     if (!snap || !snap.ok) {
@@ -2700,12 +2713,22 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
                   snap.shortMAState === 'SHORT_BULL_STACK_5_10_20' ? '단기 정배열 / 장기 확인 필요' :
                   snap.longMAState === 'LONG_BULL_STACK_50_100_200' ? '장기 정배열 / 단기 혼조' :
                   (snap.above50SMA === false) ? '50일선 이탈(추세 훼손)' : '혼조';
-    var stageKr = snap.stageEstimate === 'STAGE_2_ADVANCE' ? 'Stage 2(상승추세·매수 국면)' :
-                  snap.stageEstimate === 'STAGE_4_OR_BASE_REPAIR' ? 'Stage 4 또는 바닥 다지기(회피/관망)' : 'Stage 1/3 전환 구간';
+    // v57.50 C19: this is a moving-average stack reading, not Weinstein's 30-week Stage, and it carries no buy/avoid call.
+    var stageKr = snap.stageEstimate === 'STAGE_2_ADVANCE' ? '이동평균 상승 배열(가격 > 50 > 100 > 200일선)' :
+                  snap.stageEstimate === 'STAGE_4_OR_BASE_REPAIR' ? '이동평균 하락 배열 또는 바닥 다지기' : '이동평균 배열 전환 구간';
     var hi20 = snap.recentHigh20, lo20 = snap.recentLow20;
     var posVs20 = (hi20 && lo20 && hi20 > lo20) ? Math.round((snap.price - lo20) / (hi20 - lo20) * 100) : null;
-    var lines = '━━ [' + t + ' 기술적 데이터 · OHLCV ' + snap.bars + '봉 일봉 실측] ━━\n';
-    lines += '• 종가 $' + f(snap.price) + ' (' + (snap.dayGainPct >= 0 ? '+' : '') + f(snap.dayGainPct) + '%) · RSI(14) ' + f(snap.rsi14, 1) + (snap.rsi14 >= 70 ? ' 과매수' : snap.rsi14 <= 30 ? ' 과매도' : ' 중립') + '\n';
+    // v57.50 C17: RSI is the screener row's value (same number and session the screen shows) when it exists.
+    var _scrRow = null;
+    try {
+      var _scrRowsT = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+      for (var _ri = 0; _ri < (_scrRowsT || []).length; _ri++) { if (_scrRowsT[_ri] && String(_scrRowsT[_ri].sym || '').toUpperCase() === String(t).toUpperCase()) { _scrRow = _scrRowsT[_ri]; break; } }
+    } catch (_) { _scrRow = null; }
+    var _scrRsi = _scrRow && _scrRow.rsi != null && isFinite(Number(_scrRow.rsi)) && /^\d{4}-\d{2}-\d{2}/.test(String(_scrRow.factorSessionDate || '')) ? Number(_scrRow.rsi) : null;
+    var _rsiShown = _scrRsi != null ? _scrRsi : snap.rsi14;
+    var _rsiBasis = _scrRsi != null ? ' (' + String(_scrRow.factorSessionDate).slice(0, 10) + ' 종가 · 스크리너 값)' : (_lastBarDate ? ' (' + _lastBarDate + ' 종가)' : '');
+    var lines = '━━ [' + t + ' 기술적 데이터 · OHLCV ' + snap.bars + '봉 일봉 실측 · 완료 봉 기준' + (_droppedOpenBar ? ' · 진행 중 ' + _droppedOpenBar + ' 봉 제외' : '') + '] ━━\n';
+    lines += '• 종가 $' + f(snap.price) + (_lastBarDate ? ' (' + _lastBarDate + ')' : '') + ' (' + (snap.dayGainPct >= 0 ? '+' : '') + f(snap.dayGainPct) + '%) · RSI(14) ' + f(_rsiShown, 1) + _rsiBasis + (_rsiShown >= 70 ? ' 과매수' : _rsiShown <= 30 ? ' 과매도' : ' 중립') + '\n';
     lines += '• 이동평균: 5SMA ' + f(snap.sma5) + ' · 10SMA ' + f(snap.sma10) + ' · 20SMA ' + f(snap.sma20) + ' · 50SMA ' + f(snap.sma50) + ' · 100SMA ' + f(snap.sma100) + ' · 200SMA ' + f(snap.sma200) + ' → ' + maAlign + ' (배열점수 ' + (snap.maStackScore != null ? snap.maStackScore : 'N/A') + '/100)\n';
     lines += '• 추세/Stage: ' + snap.trendState + ' · ' + stageKr + '\n';
     lines += '• 50SMA 이격 ' + (snap.dist50Atr != null ? f(snap.dist50Atr, 1) + ' ATR' : 'N/A') + ' · 20SMA 이격 ' + (snap.dist20Atr != null ? f(snap.dist20Atr, 1) + ' ATR' : 'N/A') + ' · ATR(14) $' + f(snap.atr14) + '\n';
@@ -2889,6 +2912,29 @@ var AIO_CHAT_PIPELINE_REGISTRY = [
 ];
 window.AIO_CHAT_PIPELINE_REGISTRY = AIO_CHAT_PIPELINE_REGISTRY;
 
+// v57.50 C05/C06/C08: the market header reads what the screen shows — the completed-close rows
+// (_aioScreenBasisEvidence), the home card's F&G close reading and the 시장 상태 overall verdict. Returns null when
+// no close row exists yet, so the caller keeps its older live path (labelled as live).
+function _aioChatCloseMarketBasis() {
+  var rows = [];
+  try { rows = typeof window._aioScreenBasisEvidence === 'function' ? (window._aioScreenBasisEvidence() || []) : []; } catch (_) { rows = []; }
+  var pick = function(metric) { for (var i = 0; i < rows.length; i++) { if (rows[i] && rows[i].metric === metric) return rows[i]; } return null; };
+  var spx = pick('close.spx'), vix = pick('close.vix'), tnx = pick('close.us10y');
+  if (!spx && !vix && !tnx) return null;
+  var fgRead;
+  try { fgRead = typeof window._aioFgCloseReading === 'function' ? window._aioFgCloseReading() : undefined; } catch (_) { fgRead = null; }
+  var regime = null;
+  try { regime = typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null; } catch (_) { regime = null; }
+  var dates = [spx, vix, tnx].filter(Boolean).map(function(row) { return row.asOf; }).filter(Boolean).sort();
+  return {
+    asOf: dates.length ? dates[dates.length - 1] : null,
+    spx: spx ? spx.value : null, vix: vix ? vix.value : null, tnx: tnx ? tnx.value : null,
+    fg: fgRead && fgRead.value != null ? fgRead.value : null, fgDate: fgRead ? fgRead.date : null, fgKnown: fgRead !== undefined,
+    regime: regime
+  };
+}
+window._aioChatCloseMarketBasis = _aioChatCloseMarketBasis;
+
 async function _fetchTickerDataForChat(tickers, opts) {
   if (!tickers || tickers.length === 0) return '';
   opts = opts || {};
@@ -2965,14 +3011,21 @@ async function _fetchTickerDataForChat(tickers, opts) {
     // v49.67 P353: cache hit 경로에도 시장 환경 헤더 주입 (R122 일관성)
     var _ccHeader = '';
     try {
-      var _ccS = (typeof _liveSnap === 'function') ? _liveSnap() : null;
+      var _ccClose = _aioChatCloseMarketBasis(); // v57.50 C05: screen close basis first
+      if (_ccClose) {
+        var _ccCloseFgZ = _ccClose.fg == null ? null : window._aioFgZoneIndex(Number(_ccClose.fg));
+        _ccHeader = '【현재 시장 환경 · 화면과 같은 직전 완료 종가 · 기준일 ' + (_ccClose.asOf || '확인 불가') + '】 VIX ' + (_ccClose.vix != null ? _ccClose.vix : '—')
+          + ' · F&G ' + (_ccClose.fg != null ? Math.round(_ccClose.fg) + ' (' + (['극단 공포', '공포', '중립', '탐욕', '극단 탐욕'][_ccCloseFgZ] || '—') + ')' : '—')
+          + (_ccClose.regime && _ccClose.regime.overall ? ' · 시장 상태 종합 ' + _ccClose.regime.overall : '') + '\n\n';
+      }
+      var _ccS = !_ccClose && (typeof _liveSnap === 'function') ? _liveSnap() : null;
       // v50.43: cache-hit 경로도 marketState 단일 두뇌 우선(레짐/심리 라벨 일관) + _liveSnap 폴백.
-      var _ccM = (window.AIO && window.AIO.marketState && (Date.now() - (window.AIO.marketState.ts || 0) < 15 * 60 * 1000)) ? window.AIO.marketState : null;
+      var _ccM = !_ccClose && (window.AIO && window.AIO.marketState && (Date.now() - (window.AIO.marketState.ts || 0) < 15 * 60 * 1000)) ? window.AIO.marketState : null;
       if (_ccS || _ccM) {
         var _ccVix = (_ccM && _ccM.vix != null) ? _ccM.vix : ((_ccS && _ccS.vix) || '—');
         var _ccFg = (_ccM && _ccM.fg != null) ? _ccM.fg : ((_ccS && _ccS.fg != null) ? _ccS.fg : '—');
         var _ccFgL = (_ccM && _ccM.fgZoneLabel) ? _ccM.fgZoneLabel : (_ccFg === '—' ? '—' : (Math.round(_ccFg) < 25 ? '극단 공포' : Math.round(_ccFg) < 45 ? '공포' : Math.round(_ccFg) <= 55 ? '중립' : Math.round(_ccFg) <= 75 ? '탐욕' : '극단 탐욕'));
-        _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ')\n\n'; // P1657: the composite score failed validation and is not quoted to users
+        _ccHeader = '【현재 시장 환경 · 실시간 관측(종가 기준 미수신)】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ')\n\n'; // P1657: the composite score failed validation and is not quoted to users
       }
     } catch(_) {}
     return '\n\n' + _ccHeader + '【사용자가 물어본 종목 source 확인 데이터 (cache hit · 5분 이내)】\n' + cachedBlocks.join('\n') + '\n\nABSOLUTE RULES (R122): 종목 답변은 위 "현재 시장 환경" 인용으로 시작. 캐시는 마지막 관측값의 참고 사본이므로 관측시각·출처를 확인하고 최신성은 원천에서 재검증하라.\n';
@@ -3420,49 +3473,66 @@ async function _fetchTickerDataForChat(tickers, opts) {
   // v49.67 P353 R122: 응답 첫 줄에 "현재 시장 환경" 자동 헤더 주입 — 모든 종목 답변에 시장 흐름 유기적 도입 의무
   var _mktHeader = '';
   try {
+    // v57.50 C05: the header states the screen's completed-close numbers (same rows the regime board and the AI
+    // claim binder use). Live values appear only as a labelled intraday aside; without close rows the older live
+    // path runs and says so.
+    var _close = _aioChatCloseMarketBasis();
     var _s = (typeof _liveSnap === 'function') ? _liveSnap() : null;
     // v50.43: 단일 두뇌(AIO.marketState) 우선 — 채팅 시장환경 레짐/심리 라벨을 앱 전체(home/페이지 배너)와 동일 출처로 통일.
     //   marketState 미계산/구버전이면 _liveSnap 기반 독립 계산으로 폴백(무회귀).
     var _ms = (window.AIO && window.AIO.marketState && (Date.now() - (window.AIO.marketState.ts || 0) < 15 * 60 * 1000)) ? window.AIO.marketState : null;
-    if (_s || _ms) {
-      var _vix = (_ms && _ms.vix != null) ? _ms.vix : ((_s && _s.vix) || '—');
-      var _fg = (_ms && _ms.fg != null) ? _ms.fg : ((_s && _s.fg != null) ? _s.fg : '—');
-      var _spx = (_s && _s.spx) || (_ms && _ms.spx) || '—';
-      var _tnx = (_s && _s.tnx) || '—';
-      var _score = (_s && _s.score != null) ? _s.score : '—';
-      var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 32 ? '고변동 구간' : _vix !== '—' && Number(_vix) >= 25 ? '변동성 경계 구간' : _vix !== '—' && Number(_vix) >= 18 ? '통상 범위' : '저변동 구간')); // P1367 canonical band
-      var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (Math.round(_fg) < 25 ? '극단 공포' : Math.round(_fg) < 45 ? '공포' : Math.round(_fg) <= 55 ? '중립' : Math.round(_fg) <= 75 ? '탐욕' : '극단 탐욕'));
+    if (_close || _s || _ms) {
+      var _vix = _close ? (_close.vix != null ? _close.vix : '—') : ((_ms && _ms.vix != null) ? _ms.vix : ((_s && _s.vix) || '—'));
+      var _fg = _close && _close.fgKnown ? (_close.fg != null ? Math.round(_close.fg) : '—') : ((_ms && _ms.fg != null) ? _ms.fg : ((_s && _s.fg != null) ? _s.fg : '—'));
+      var _spx = _close ? (_close.spx != null ? _close.spx : '—') : ((_s && _s.spx) || (_ms && _ms.spx) || '—');
+      var _tnx = _close ? (_close.tnx != null ? _close.tnx : '—') : ((_s && _s.tnx) || '—');
       // v49.68 R128 시각 단서 표준 — P1500: 이모지 대신 [위험]/[주의]/[안정] 단어 표지
-      // P1564: the tags come from the same band index as the labels above (the earlier 20/25 and 25/45/55/75 edges contradicted them).
+      // P1564: the tags come from the same band index as the labels (the earlier 20/25 and 25/45/55/75 edges contradicted them).
       var _vixBandIdx = _vix === '—' ? null : window._aioVixBandIndex(Number(_vix));
       var _fgZoneIdx = _fg === '—' ? null : window._aioFgZoneIndex(Number(_fg));
+      var _regime = _vixBandIdx == null ? '—' : ['저변동 구간', '통상 범위', '변동성 경계 구간', '고변동 구간'][_vixBandIdx]; // P1367 canonical band
+      var _fgLabel = _fgZoneIdx == null ? '—' : ['극단 공포', '공포', '중립', '탐욕', '극단 탐욕'][_fgZoneIdx];
       var _vixEmoji = _vix === '—' ? '[미수신]' : _vixBandIdx >= 3 ? '[위험]' : _vixBandIdx === 2 ? '[주의]' : '[안정]';
-      var _fgEmoji = _fg === '—' ? '[미수신]' : (_fgZoneIdx === 0 || _fgZoneIdx === 4) ? '[위험]' : (_fgZoneIdx === 1 || _fgZoneIdx === 3) ? '[주의]' : '[안정]';
-      var _scoreEmoji = _score === '—' ? '[미수신]' : Number(_score) >= 65 ? '[안정]' : Number(_score) >= 40 ? '[주의]' : '[위험]';
-      // Use producer observation timestamps when present.  The assembly clock
-      // is not a data date, so an absent timestamp must remain explicit rather
-      // than being replaced with `new Date()`.
-      var _marketObservedMs = [];
-      var _marketRows = window._liveData || {};
-      ['^GSPC', '^VIX', '^TNX', 'CL=F', 'DX-Y.NYB'].forEach(function(symbol) {
-        var row = _marketRows[symbol];
-        var raw = row && (row.observedAt || row.asOf || row.sourceTs);
-        if (typeof raw === 'number' && raw > 0 && raw < 100000000000) raw *= 1000;
-        var ms = typeof raw === 'number' ? raw : Date.parse(raw || '');
-        if (isFinite(ms) && ms > 0 && ms <= Date.now() + 60000) _marketObservedMs.push(ms);
-      });
-      var _marketAsOf = _marketObservedMs.length
-        ? new Date(Math.max.apply(null, _marketObservedMs)).toISOString().slice(0, 19).replace('T', ' ') + ' UTC'
-        : '관측시각 미확인 · 현재시각을 기준일로 사용하지 않음';
-      _mktHeader = '【현재 시장 환경 (v49.68 자동 헤더 · 관측시각: ' + _marketAsOf + ')】\n' +
-        '• **SPX**: ' + _spx + ' · **VIX**: ' + _vixEmoji + ' ' + _vix + ' (' + _regime + ') · **10Y**: ' + _tnx + '% · **F&G**: ' + _fgEmoji + ' ' + _fg + ' (' + _fgLabel + ')\n' +
+      // v57.50 C08 + D19: the retired trading-score 65/40 tag is gone, and sentiment levels carry no good/bad tag; the
+      // market-wide verdict is the 시장 상태 screen's overall (same axes and counts the user sees).
+      var _regimeSum = _close ? _close.regime : (typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null);
+      var _overallLine = _regimeSum && _regimeSum.overall
+        ? '• **시장 상태 종합**: ' + _regimeSum.overall + (_regimeSum.counts ? ' (우호 ' + _regimeSum.counts.favorable + ' · 중립 ' + _regimeSum.counts.neutral + ' · 부담 ' + _regimeSum.counts.burden + ')' : '') + (_regimeSum.asOf ? ' · ' + _regimeSum.asOf + ' 종가' : '') + '\n'
+        : '';
+      var _marketAsOf;
+      if (_close) {
+        _marketAsOf = '화면과 같은 직전 완료 종가 · 기준일: ' + (_close.asOf || '확인 불가') + (_close.fgDate && _close.fgDate !== _close.asOf ? ' (F&G ' + _close.fgDate + ')' : '');
+      } else {
+        // Use producer observation timestamps when present.  The assembly clock
+        // is not a data date, so an absent timestamp must remain explicit rather
+        // than being replaced with `new Date()`.
+        var _marketObservedMs = [];
+        var _marketRows = window._liveData || {};
+        ['^GSPC', '^VIX', '^TNX', 'CL=F', 'DX-Y.NYB'].forEach(function(symbol) {
+          var row = _marketRows[symbol];
+          var raw = row && (row.observedAt || row.asOf || row.sourceTs);
+          if (typeof raw === 'number' && raw > 0 && raw < 100000000000) raw *= 1000;
+          var ms = typeof raw === 'number' ? raw : Date.parse(raw || '');
+          if (isFinite(ms) && ms > 0 && ms <= Date.now() + 60000) _marketObservedMs.push(ms);
+        });
+        _marketAsOf = '실시간 관측(종가 기준 미수신) · 관측시각: ' + (_marketObservedMs.length
+          ? new Date(Math.max.apply(null, _marketObservedMs)).toISOString().slice(0, 19).replace('T', ' ') + ' UTC'
+          : '미확인 · 현재시각을 기준일로 사용하지 않음');
+      }
+      // Intraday aside: only when the close header is in use and a live quote exists; never the basis of a judgement.
+      var _liveAside = _close && _s && Number(_s._liveCoreCount) > 0 && (_s.spx !== '—' || _s.vix !== '—')
+        ? '• 장중 참고(보조 · 판단 근거 아님): SPX ' + _s.spx + ' · VIX ' + _s.vix + '\n'
+        : '';
+      _mktHeader = '【현재 시장 환경 (자동 헤더 · ' + _marketAsOf + ')】\n' +
+        '• **SPX**: ' + _spx + ' · **VIX**: ' + _vixEmoji + ' ' + _vix + ' (' + _regime + ') · **10Y**: ' + _tnx + '% · **F&G**: ' + _fg + ' (' + _fgLabel + ')\n' +
+        _overallLine + _liveAside +
         (_forceScenarioAnswer
           ? '**답변 가이드 (R122/R127/R128)**: 매매 판단·전망·추천 질문이면 위 시장 환경을 연결하고, **Bull/Base/Bear** 3 시나리오의 트리거·반대 가설·무효화 조건을 제시하라. 보정(calibration) 모델 ID가 주입된 경우에만 확률 숫자를 표시하고, 그 외에는 확률을 만들지 마라. 데이터 출처 [Source · 기준일]과 필요한 시각 단서 를 사용한다. 기관급 프레임은 도움이 될 때 1~2개만 인용한다.\n\n'
           : '**답변 가이드 (R122/R128)**: 단순 사실·용어·요약 질문이면 시장 환경은 배경으로만 짧게 쓰고, Bull/Base/Bear·기관 프레임을 강제하지 말라. 질문에 바로 답하고 필요한 출처·기준일만 붙인다.\n\n');
     }
   } catch(_hdrErr) {}
   var _flexScope = '\n\n【최우선 답변·안전 계약】\n아래 유산 ABSOLUTE RULES와 충돌하면 이 계약을 우선한다. 질문의 QuestionPlan에 선택된 근거와 형식만 사용하고, Bull/Base/Bear·확률·기관 프레임을 일괄 강제하지 마라. 보정 모델이 없으면 확률 숫자를 만들지 않는다. 사용자가 투자·법률·세무 분석을 요청하면 회피하지 말고 전제, 관할, 기준일, 근거, 계산, 조건부 시나리오와 무효화 조건까지 답한다. 특정 가격·수량·시점·손절·목표가 같은 매매 지시는 쓰지 않는다(owner 2026-10-12). 대신 흐름별 확인할 것과 반증 조건만 말하고, 비중·현금·시점 권유는 쓰지 않는다. 흐름은 "현재 조건 부합 n/m"으로만 말한다(만든 확률 % 금지). 수치는 화면과 같은 직전 완료 종가 기준을 쓰고 그 기준일을 밝힌다. 단순 사실·용어·요약 질문은 질문에 바로 답하고 필요한 출처·기준일·한계만 붙인다.\n';
-  return '\n\n' + _mktHeader + _flexScope + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\nABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 현재 시장 환경은 질문의 결론에 영향을 줄 때만 연결하고, 무관한 사실·용어·요약 질문에는 강제하지 않는다. 시세 미수신 시 현재 수치를 만들지 말고 일반 원리와 확인 방법은 계속 설명한다.\n9. Bull/Base/Bear 시나리오는 전망·의사결정 질문에서 유용할 때만 사용한다. 보정 모델 ID가 없으면 확률 숫자를 만들지 않고 조건·트리거·무효화 기준으로 표현한다.\n10. 시각 단서와 답변 구조는 질문 복잡도에 맞춘다. 핵심 결론, 근거, 출처·기준일, 조건과 한계를 우선하되 고정 형식을 강제하지 않는다.\n11. 기관급 프레임은 분석력을 실제로 높일 때만 1~2개 사용하고, 단순 질문이나 근거가 부족한 경우 억지로 인용하지 않는다.\n12. **데이터 소스 우선순위 명문화 (R128)**: 모든 수치 인용 시 출처 우선순위 — **1순위: _liveSnap() 실시간** (시세/VIX/금리/달러/유가, < 5분) → **2순위: _closeSnap() 일별 종가** (SPX/NASDAQ/DOW 분석 기준) → **3순위: DATA_SNAPSHOT 폴백** (실시간/종가 미수신 시 정적, 신선도 명시 의무) → **4순위: SEC/FMP/Naver/Finnhub fetched** (종목별 5분 캐시). 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n13. **[SCREENER_DB Memo] 신선도 인용 의무 (R135)**: 답변에 SCREENER_DB Memo 인용 시 반드시 위 [SCREENER_DB Memo · X일 전] 라벨의 일수 표기. 30일+ stale memo는 "이 memo는 N일 전 데이터 — 최근 [SEC 8-K]/[News]로 검증 후 인용" 경고 의무. 90일+ stale 또는 confidence:stale 표시 시 "memo만으로 결론 금지 — 외부 확인 필수" 강제. 날짜 미상 (unknown) memo는 "작성일 불명 — 보조 데이터로만 활용" 명시.\n14. **[SCREENER_DB Memo 없음] 종목 fallback 의무 (R136)**: SCREENER_DB.memo가 없는 종목 (위 표시)은 [SEC 10-K]/[Wikipedia]/[Naver]/[News] 4 소스 폴백만 사용. 답변에 "이 종목은 수동 memo 미작성 — dataConfidence:medium" 명시 의무 + "memo 등록 종목 (예: NVDA/AAPL) 대비 정성 분석 한계 — 외부 확인 권장" 경고 강제.\n\n17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\nfundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
+  return '\n\n' + _mktHeader + _flexScope + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\nABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 현재 시장 환경은 질문의 결론에 영향을 줄 때만 연결하고, 무관한 사실·용어·요약 질문에는 강제하지 않는다. 시세 미수신 시 현재 수치를 만들지 말고 일반 원리와 확인 방법은 계속 설명한다.\n9. Bull/Base/Bear 시나리오는 전망·의사결정 질문에서 유용할 때만 사용한다. 보정 모델 ID가 없으면 확률 숫자를 만들지 않고 조건·트리거·무효화 기준으로 표현한다.\n10. 시각 단서와 답변 구조는 질문 복잡도에 맞춘다. 핵심 결론, 근거, 출처·기준일, 조건과 한계를 우선하되 고정 형식을 강제하지 않는다.\n11. 기관급 프레임은 분석력을 실제로 높일 때만 1~2개 사용하고, 단순 질문이나 근거가 부족한 경우 억지로 인용하지 않는다.\n12. **데이터 소스 우선순위 명문화 (R128)**: 현재 시장 판단과 시장 수치는 **1순위: 화면과 같은 직전 완료 종가** (위 헤더·Screen basis·close-basis evidence의 SPX/VIX/10Y/F&G/시장 상태 종합, 기준일 명시) → **2순위: SEC/FMP/Naver/Finnhub fetched** (종목별 조회 블록, 관측시각 명시) → **3순위: DATA_SNAPSHOT 폴백** (종가 미수신 시 정적, 신선도 명시 의무). 실시간 값(_liveSnap)은 "장중"이라고 표기한 보조 정보로만 쓰고, 종가 기준 판단을 실시간 값으로 바꾸지 않는다. 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n13. **[SCREENER_DB Memo] 신선도 인용 의무 (R135)**: 답변에 SCREENER_DB Memo 인용 시 반드시 위 [SCREENER_DB Memo · X일 전] 라벨의 일수 표기. 30일+ stale memo는 "이 memo는 N일 전 데이터 — 최근 [SEC 8-K]/[News]로 검증 후 인용" 경고 의무. 90일+ stale 또는 confidence:stale 표시 시 "memo만으로 결론 금지 — 외부 확인 필수" 강제. 날짜 미상 (unknown) memo는 "작성일 불명 — 보조 데이터로만 활용" 명시.\n14. **[SCREENER_DB Memo 없음] 종목 fallback 의무 (R136)**: SCREENER_DB.memo가 없는 종목 (위 표시)은 [SEC 10-K]/[Wikipedia]/[Naver]/[News] 4 소스 폴백만 사용. 답변에 "이 종목은 수동 memo 미작성 — dataConfidence:medium" 명시 의무 + "memo 등록 종목 (예: NVDA/AAPL) 대비 정성 분석 한계 — 외부 확인 권장" 경고 강제.\n\n17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\nfundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──

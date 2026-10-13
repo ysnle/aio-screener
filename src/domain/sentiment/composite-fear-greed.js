@@ -2,7 +2,7 @@
 // components CNN publishes for its Fear & Greed Index. CNN's endpoint answers only browser-impersonating
 // requests (honest client → HTTP 418), so this index is built to run beside it and replace it once the
 // comparison holds. It is NOT CNN's number: each component is ranked against its own trailing year
-// (percentile, greed = high) and the score is the mean of the available component ranks.
+// (percentile, greed = high). v57.50 D02: the ranks are shown side by side; no mean score or band is formed.
 //
 // Inputs are the published artifacts only: public-data/history.json rows (spx, vix, tlt, pcr,
 // advanceRatio, breadthNewHighs/Lows) and public-data/macro-history.json (hyOas, igOas).
@@ -78,13 +78,17 @@ function macroSeries(macroHistory, key) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export function bandForCompositeScore(score) {
-  if (score == null) return '판정 보류';
-  if (score < 25) return '극단적 공포';
-  if (score < 45) return '공포';
-  if (score <= 55) return '중립';
-  if (score <= 75) return '탐욕';
-  return '극단적 탐욕';
+// v57.50 D02 (coordinator decision): no 0-100 average and no CNN-style band (극단적 공포~탐욕) on top of it. Averaging
+// one-year ranks of components that disagree (e.g. 5 and 89) and banding the mean at CNN's 25/45/55/75 edges produced
+// a grade with no validation behind it. The model now returns each component's rank side by side and the spread
+// between the lowest and highest one; components without an observation stay listed as '자료 부족'.
+export function compositeSpread(components = []) {
+  const ready = components.filter((row) => row.status === 'ok' && Number.isFinite(row.score));
+  if (ready.length < 2) return null;
+  const sorted = [...ready].sort((a, b) => a.score - b.score);
+  const low = sorted[0];
+  const high = sorted[sorted.length - 1];
+  return Object.freeze({ low: Object.freeze({ id: low.id, label: low.label, score: low.score }), high: Object.freeze({ id: high.id, label: high.label, score: high.score }), gap: Math.round((high.score - low.score) * 10) / 10 });
 }
 
 export function computeCompositeFearGreed({ history = [], macroHistory = null } = {}) {
@@ -129,17 +133,16 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
     ? Object.freeze({ ...row, status: 'stale', score: null }) : row);
   components.splice(0, components.length, ...checked);
   const ready = components.filter((row) => row.status === 'ok');
-  const score = ready.length >= MIN_COMPONENTS ? Math.round(ready.reduce((sum, row) => sum + row.score, 0) / ready.length) : null;
-  const asOf = score == null ? null : basis;
+  // D02: below MIN_COMPONENTS the side-by-side view is withheld too (two or three ranks are not a market picture).
+  const shown = ready.length >= MIN_COMPONENTS;
   return Object.freeze({
     version: COMPOSITE_FEAR_GREED_VERSION,
-    score,
-    band: bandForCompositeScore(score),
-    status: score == null ? 'withheld' : ready.length === components.length ? 'complete' : 'partial',
+    status: !shown ? 'withheld' : ready.length === components.length ? 'complete' : 'partial',
     componentsReady: ready.length,
     componentsTotal: components.length,
-    asOf,
+    asOf: shown ? basis : null,
+    spread: shown ? compositeSpread(components) : null,
     components: Object.freeze(components),
-    method: '구성 요소별 최근 1년 백분위(높을수록 탐욕)의 평균. CNN 지수와 같은 값이 아니다.'
+    method: '구성 요소별 최근 1년 백분위(높을수록 낙관 쪽)를 나란히 보여 준다. 평균 점수나 공포·탐욕 구간을 만들지 않으며 CNN 지수와 같은 값이 아니다.'
   });
 }

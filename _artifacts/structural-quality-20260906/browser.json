@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T05:53:52.653Z",
+  "generatedAt": "2026-10-13T07:24:41.447Z",
   "routes": [
     {
       "id": "home",
@@ -9,6 +9,30 @@
         {
           "tag": "A",
           "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "정유"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "서버/HW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "엔터프라이즈 SaaS"
         },
         {
           "tag": "BUTTON",
@@ -104,7 +128,31 @@
         },
         {
           "tag": "BUTTON",
+          "name": "미 10년물 명목금리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "10년 TIPS 실질금리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "10년 기대인플레이션"
+        },
+        {
+          "tag": "BUTTON",
           "name": "금리·환율 화면에서 실질금리와 기간 프리미엄 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 현재가치(할인) →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "하이일드 OAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CCC − B 등급 스프레드 격차"
         },
         {
           "tag": "BUTTON",
@@ -124,6 +172,50 @@
         },
         {
           "tag": "BUTTON",
+          "name": "개념 노트 · 한 상품의 가격 상승과 전반적 물가 상승 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "정유"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "서버/HW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "엔터프라이즈 SaaS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
           "name": "시장 폭 →"
         },
         {
@@ -133,6 +225,14 @@
         {
           "tag": "BUTTON",
           "name": "거시 경제 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "S&P 500 지도 · 섹터 →"
         }
       ],
       "headings": [
@@ -179,11 +279,23 @@
         },
         {
           "tag": "BUTTON",
+          "name": "개념 노트 · 기저율 →"
+        },
+        {
+          "tag": "BUTTON",
           "name": "시장 상태에서 과거 VIX 구간별 결과 보기 →"
         },
         {
           "tag": "BUTTON",
           "name": "금리·환율 화면에서 스프레드 추이 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 기저율 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 상관관계와 인과 →"
         },
         {
           "tag": "BUTTON",
@@ -202,7 +314,7 @@
         "HY 신용 스프레드",
         "풋/콜 비율",
         "AAII 개인 설문",
-        "자체 계산 심리 지수 (참고)",
+        "심리 구성 요소 백분위 (참고)",
         "이어서 볼 곳"
       ]
     },
@@ -333,11 +445,31 @@
         {
           "tag": "BUTTON",
           "name": "시장 상태에서 한국 시장 카드 보기 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 노트 · 외국인 투자자의 달러 기준 수익 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마 · 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "데일리 브리핑 →"
         }
       ],
       "headings": [
         "금리 · 환율",
-        "미 국채 수익률 곡선",
+        "미 국채 수익률 곡선 재무부 공식 곡선 · 10/9 기준",
         "실질금리 · 기대인플레이션 · 신용",
         "10년 실질금리 (TIPS)",
         "10년 기대인플레이션",
@@ -350,7 +482,8 @@
         "원/달러",
         "엔/달러",
         "미 10년물 금리 (일별 종가)",
-        "그 밖의 통화 시세 대기"
+        "그 밖의 통화 시세 대기",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -450,91 +583,91 @@
         },
         {
           "tag": "BUTTON",
-          "name": "P +58.2%"
+          "name": "COP +2.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "FICO -24.9%"
+          "name": "BKR -0.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "MRNA +48.5%"
+          "name": "KDP +3.1%"
         },
         {
           "tag": "BUTTON",
-          "name": "BMY -8.6%"
+          "name": "DLTR -0.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "META +14.7%"
+          "name": "META +3.4%"
         },
         {
           "tag": "BUTTON",
-          "name": "CHTR -29.7%"
+          "name": "TKO -2.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "KR +7.0%"
+          "name": "PLD +2.3%"
         },
         {
           "tag": "BUTTON",
-          "name": "BG -14.9%"
+          "name": "ARE -3.0%"
         },
         {
           "tag": "BUTTON",
-          "name": "MPC +15.9%"
+          "name": "MDT +3.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "SLB -13.0%"
+          "name": "MRNA -5.0%"
         },
         {
           "tag": "BUTTON",
-          "name": "CCL +16.4%"
+          "name": "MET +1.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "MGM -26.5%"
+          "name": "CBOE -2.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "VST +6.7%"
+          "name": "NEE +1.5%"
         },
         {
           "tag": "BUTTON",
-          "name": "NRG -6.3%"
+          "name": "PEG -2.1%"
         },
         {
           "tag": "BUTTON",
-          "name": "GNRC +16.8%"
+          "name": "CF +2.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "JBHT -15.6%"
+          "name": "ALB -2.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "LIN +4.5%"
+          "name": "TXT +2.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "MOS -25.2%"
+          "name": "BE -6.5%"
         },
         {
           "tag": "BUTTON",
-          "name": "CCI +8.7%"
+          "name": "TJX +2.3%"
         },
         {
           "tag": "BUTTON",
-          "name": "WY -14.1%"
+          "name": "CVNA -6.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "FDS +11.2%"
+          "name": "FICO +10.8%"
         },
         {
           "tag": "BUTTON",
-          "name": "GS -13.1%"
+          "name": "CIEN -9.9%"
         },
         {
           "tag": "BUTTON",
@@ -654,22 +787,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "MSTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "IBIT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BITO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
           "name": "PANW"
         },
         {
@@ -766,22 +883,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "VEEV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HIMS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TEM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
           "name": "TMO"
         },
         {
@@ -843,22 +944,6 @@
         {
           "tag": "BUTTON",
           "name": "GEHC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SNPS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CDNS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ADSK"
         },
         {
           "tag": "BUTTON",
@@ -938,6 +1023,78 @@
         },
         {
           "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HCA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MCK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "COR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CAH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DVA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NVDA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AVGO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AMD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MRVL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ARM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NFLX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DIS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SPOT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WBD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PSKY"
+        },
+        {
+          "tag": "BUTTON",
           "name": "전체 86개 보기"
         },
         {
@@ -1001,14 +1158,6 @@
           "name": "산업재/물류 -1.9%"
         },
         {
-          "tag": "BUTTON",
-          "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
-        },
-        {
           "tag": "A",
           "name": "네이버 테마별 시세 ↗"
         },
@@ -1055,6 +1204,14 @@
         {
           "tag": "BUTTON",
           "name": "테마 더 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
         }
       ],
       "headings": [
@@ -1068,8 +1225,8 @@
         "네트워크",
         "냉각",
         "시설·건설",
-        "이어서 볼 곳",
-        "국내 테마 흐름"
+        "국내 테마 흐름",
+        "이어서 볼 곳"
       ]
     },
     {

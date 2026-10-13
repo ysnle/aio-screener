@@ -5,7 +5,7 @@
 import { SECTOR_ETF } from '../entity/stock-read.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
-const SECTOR_KO = Object.freeze({ Technology: '기술', Financials: '금융', Energy: '에너지', Healthcare: '헬스케어', Industrials: '산업재', 'Consumer Cyclical': '경기소비재', Consumer: '경기소비재', 'Consumer Defensive': '필수소비재', 'Real Estate': '부동산', Materials: '소재', 'Basic Materials': '소재', Utilities: '유틸리티', 'Communication Services': '통신', ETF: 'ETF' });
+const SECTOR_KO = Object.freeze({ Technology: '기술', Financials: '금융', 'Financial Services': '금융', Energy: '에너지', Healthcare: '헬스케어', Industrials: '산업재', 'Consumer Cyclical': '경기소비재', Consumer: '경기소비재', 'Consumer Defensive': '필수소비재', 'Real Estate': '부동산', Materials: '소재', 'Basic Materials': '소재', Utilities: '유틸리티', 'Communication Services': '통신', ETF: 'ETF' });
 const QUADRANT_KO = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
 
 export function sectorLabel(sector) {
@@ -40,8 +40,10 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     const withQuadrant = over.filter((row) => row.quadrant);
     if (withQuadrant.length) {
       const leading = withQuadrant.filter((row) => row.quadrant === 'Leading' || row.quadrant === 'Improving');
-      points.push({ id: 'rotation', tone: leading.length ? 'favorable' : 'burden', title: '섹터 회전과',
-        text: `${withQuadrant.map((row) => `${row.label} ${QUADRANT_KO[row.quadrant]}`).join(' · ')} — ${leading.length === withQuadrant.length ? '쏠린 업종이 섹터 회전에서도 앞서는 쪽이라 순위와 업종 흐름이 같은 방향입니다' : leading.length ? '쏠린 업종 중 일부만 섹터 회전에서 앞섭니다' : '쏠린 업종이 섹터 회전에서는 뒤처지는 쪽이라, 순위가 지난 강세를 늦게 반영하고 있을 수 있습니다'}.` });
+      // v57.50 D12: the ranking (momentum·trend) and the rotation quadrant are both built from relative price strength,
+      // so agreement between them is the same information seen twice — not a second confirmation. Neutral tone.
+      points.push({ id: 'rotation', tone: 'neutral', title: '섹터 회전과',
+        text: `${withQuadrant.map((row) => `${row.label} ${QUADRANT_KO[row.quadrant]}`).join(' · ')} — ${leading.length === withQuadrant.length ? '쏠린 업종이 섹터 회전에서도 앞서는 쪽입니다' : leading.length ? '쏠린 업종 중 일부만 섹터 회전에서 앞섭니다' : '쏠린 업종이 섹터 회전에서는 뒤처지는 쪽이라, 순위가 지난 강세를 늦게 반영하고 있을 수 있습니다'}. 순위와 섹터 회전은 같은 가격 상대강도 정보에서 나온 결과라, 둘이 같은 방향이어도 서로를 확인하는 독립 근거는 아닙니다.` });
     }
   } else {
     points.push({ id: 'mix', tone: 'neutral', title: '상위권 구성', text: `${topLabel}의 업종 비중이 전체와 비슷합니다 — 특정 업종 쏠림 없이 종목별 차이로 순위가 갈렸습니다.` });
@@ -62,6 +64,10 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     if (validation.modelMatch === false) {
       points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
         text: '과거 기록이 지금 순위와 다른 모델(가중치·정의 지문 불일치)로 계산되어, 이 화면의 순위 검증으로 읽지 않습니다 — 기록이 다시 쌓이기 전까지 성과 문구는 표시하지 않습니다.' });
+    } else if (validation.distinguishable === false) {
+      // v57.50 D11: the same "cannot tell yet" admission as the validation panel — no 앞섬/뒤처짐 from a small sample.
+      points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
+        text: `${validation.undecided || '아직 구별 불가'} — 같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%와 하위 20%의 평균 차이는 ${spread == null ? '—' : `${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%`}였지만 이 표본으로는 우연과 구별되지 않습니다. 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.` });
     } else {
       points.push({ id: 'trust', tone: spread != null && spread > 0 ? 'favorable' : 'burden', title: '순위의 과거 성과',
         text: spread != null && spread > 0

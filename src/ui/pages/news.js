@@ -1,4 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { renderBriefingRead } from '../components/briefing-read.js';
 import { closeBasis } from '../../domain/briefing/market-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -330,6 +331,40 @@ function createNewsCard(documentRef, root, item, index) {
 
 const newsKey = (item) => newsArticleKey(item);
 
+// v57.50 I23: 재무 공시 → 뉴스 arrives with one ticker. The feed is narrowed to stories whose issuer resolves to that
+// ticker (the same resolver the card badges use), until the reader clears it.
+function newsTickerFocus(root) {
+  const value = String(root?._aioNewsTickerFocus || '').trim().toUpperCase();
+  return /^[A-Z0-9][A-Z0-9.^=-]{0,11}$/.test(value) ? value : null;
+}
+function mentionsTicker(root, item, ticker) {
+  if (String(item?.issuerSymbol || '').toUpperCase() === ticker) return true;
+  const issuers = resolveNewsIssuers(item, displayValue(root, 'getDisplayTickers', item, []), root?.AIO_TICKER_NAME_REGISTRY?.entries || {});
+  return issuers.some((symbol) => String(symbol).toUpperCase() === ticker);
+}
+function focusModel(root, model, ticker) {
+  if (!ticker || !model) return model;
+  const keep = (list) => (Array.isArray(list) ? list.filter((item) => mentionsTicker(root, item, ticker)) : list);
+  return { ...model, items: keep(model.items), eligibleItems: keep(model.eligibleItems), eligibleCount: Array.isArray(model.eligibleItems) ? keep(model.eligibleItems).length : model.eligibleCount };
+}
+function renderTickerFocusNote(documentRef, root, container, ticker, count) {
+  let note = documentRef.getElementById('news-ticker-focus');
+  if (!ticker) { note?.remove?.(); return; }
+  if (!note) {
+    note = documentRef.createElement('p');
+    note.id = 'news-ticker-focus';
+    note.className = 'theme-strength-basis';
+    container.insertAdjacentElement?.('beforebegin', note);
+  }
+  const clear = documentRef.createElement('button');
+  clear.type = 'button'; clear.className = 'aio-btn-table'; clear.textContent = '전체 뉴스 보기';
+  clear.addEventListener('click', () => {
+    root._aioNewsTickerFocus = null;
+    documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-ticker-focus' } }));
+  });
+  note.replaceChildren(documentRef.createTextNode(`${ticker} 관련 기사 ${count}건만 표시 중 · `), clear);
+}
+
 // P1391 (owner review 2026-10-02): the news screen leads with important stories — the highest-scored
 // item per topic inside the completed 24h window — and the full feed below excludes them.
 function pickImportantNews(items = [], limit = 5) {
@@ -458,7 +493,8 @@ function render({ documentRef, root, store, route }) {
   if (route !== 'market-news') return;
 
   const controls = root?.AIO?.getNewsSurfaceControls?.() || { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'time' };
-  const model = root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { ...controls, nowMs: Date.now() }) || { items: [], eligibleCount: 0, emptyReason: 'native-model-unavailable' };
+  const tickerFocus = newsTickerFocus(root);
+  const model = focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { ...controls, nowMs: Date.now() }) || { items: [], eligibleCount: 0, emptyReason: 'native-model-unavailable' }, tickerFocus);
   const container = documentRef?.getElementById('live-news-feed');
   if (!container) return;
   const configuredLimit = Number(root?._aioNewsVisibleLimit);
@@ -467,7 +503,8 @@ function render({ documentRef, root, store, route }) {
   syncNewsControlState(documentRef, controls);
   // P1428 (Codex review): the important list follows the same country/topic filter as the feed — a 한국
   // filter that emptied the feed still showed overseas stories above it.
-  const importantModel = root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });
+  const importantModel = focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() }), tickerFocus);
+  renderTickerFocusNote(documentRef, root, container, tickerFocus, Array.isArray(model?.eligibleItems) ? model.eligibleItems.length : (model?.items || []).length);
   const tgScope = documentRef?.getElementById('news-tg-scope');
   if (tgScope) tgScope.textContent = describeNewsScope(controls).channel;
   const important = pickImportantNews(groupNewsStories(importantModel?.eligibleItems || importantModel?.items || []));
@@ -512,7 +549,7 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       const renderNow = (force = false) => {
         const rows = selectNewsItems(store?.getState?.() || {});
         const keys = new Set(rows.map(newsArticleKey));
-        const controls = JSON.stringify([root?.AIO?.getNewsSurfaceControls?.() || {}, root?._aioNewsVisibleLimit]);
+        const controls = JSON.stringify([root?.AIO?.getNewsSurfaceControls?.() || {}, root?._aioNewsVisibleLimit, root?._aioNewsTickerFocus || null]);
         const changed = renderedKeys && (keys.size !== renderedKeys.size || [...keys].some((key) => !renderedKeys.has(key)));
         const explicit = force === true || (force?.type === 'aio:newsSurfaceInvalidated' && ['news-sort', 'news-type-tab', 'news-load-more', 'news-country-telegram', 'news-country-filter', 'news-topic-filter'].includes(force?.detail?.reason)) || controls !== renderedControls;
         if (updates && renderedKeys?.size > 0 && changed && !explicit) {
@@ -544,6 +581,14 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       if (suppliedMaterialBridge) {
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge.remove());
+      }
+      // v57.50 I23: a ticker handed over from 재무 공시 opens 기업 뉴스 narrowed to it; a plain visit shows everything.
+      if (route === 'market-news') {
+        const focus = String(consumeResearchHandoff({ root, routeId: 'market-news' })?.context?.ticker || '').trim().toUpperCase();
+        root._aioNewsTickerFocus = focus || null;
+        if (focus && typeof root?.setNewsTypeTab === 'function') {
+          try { root.setNewsTypeTab('company', documentRef.querySelector('#news-type-tabs [data-arg="company"]')); } catch (_) {}
+        }
       }
       // P1408: a render that throws during mount releases what this page already attached; the
       // router disposes only its own scope.

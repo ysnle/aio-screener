@@ -5555,7 +5555,8 @@ async function _aioLoadServerData() {
     var _serverGeneratedMs = d.meta.generatedAt ? new Date(d.meta.generatedAt).getTime() : NaN;
     var _serverNowMs = Date.now();
     var _serverAgeMs = isFinite(_serverGeneratedMs) ? _serverNowMs - _serverGeneratedMs : NaN;
-    var ageMin = isFinite(_serverAgeMs) ? _serverAgeMs / 60000 : null;
+    // v57.50: whole minutes — the raw quotient reached the news stale banner as "118.27963333333334분".
+    var ageMin = isFinite(_serverAgeMs) ? Math.max(0, Math.round(_serverAgeMs / 60000)) : null;
     // R646/P1295/P1296: canonical policy is 12h; artifact metadata does not configure runtime freshness.
     var _marketCycleFreshnessSlaHours = 12;
     var _liveCoreAgeHours = isFinite(_serverAgeMs) ? _serverAgeMs / 3600000 : Infinity;
@@ -15382,6 +15383,8 @@ window._aioFactorWeights = function(ms) {
   // belongs to the native pure module and is shared by native + compatibility consumers.
   var _weightFn = window.AIO_ARCH && typeof window.AIO_ARCH.deriveFactorWeights === 'function' ? window.AIO_ARCH.deriveFactorWeights : null;
   if (!_weightFn) return null;
+  // v57.50 C09: the regime input is the 시장 상태 screen's overall verdict (bootstrap), not the legacy marketState.
+  if (typeof window._aioScreenRegimeWeightInput === 'function') { try { ms = window._aioScreenRegimeWeightInput(); } catch(_) { ms = null; } }
   try {
     var profileKey = localStorage.getItem('aio_trader_profile');
     if (profileKey && profileKey !== 'balanced' && typeof AIO_TRADER_PROFILES !== 'undefined') {
@@ -15740,8 +15743,8 @@ function refreshHomeDashboard() {
   const spx = ld['^GSPC'] || {};
   const vix = ld['^VIX'] || {};
   const dxy = ld['DX-Y.NYB'] || {};
-  const _fgHomeMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-  const fg = _fgHomeMetric && _fgHomeMetric.value != null ? _fgHomeMetric.value : 35;
+  // v57.50 C06: the unused F&G read with a default of 35 is removed — the native home card owns F&G (P1010), and a
+  // missing value is '—', never a substitute number.
   const ts = new Date();
 
   // SECTION 0: One-line market summary
@@ -15768,74 +15771,23 @@ function refreshHomeDashboard() {
   // (aio:liveQuotes vs aio:marketStateUpdated)에서 독립 갱신되어 같은 화면에 다른 점수가
   // 동시에 보이던 문제 — 게이지가 갱신되는 시점에 헤더도 항상 함께 강제 재렌더해 절대 어긋나지 않게 한다.
   try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('home'); } catch(_) {}
-  const signalEl = document.querySelector('#home-trading-signal');
-  const explanEl = document.getElementById('home-trading-explanation');
-  if (signalEl && !_aioIsNativeHomeSummaryElement(signalEl)) {
-    // v50.50 [UX] 결론바·범례와 동일 5밴드 척도로 정렬 — 이전 YES/CAUTION/NO(>70/>50) 임계가 결론바(75/60/45/30)와
-    //   모순(같은 62점이 카드 'CAUTION' vs 결론바 '선별매수')이라 사용자 혼란. 동일 라벨/임계로 통일.
-    var sc = tradingScore;
-    if (sc >= 75) {
-      signalEl.textContent = '스트레스 신호 적음'; signalEl.style.color = '#00e5a0';
-      if (explanEl) explanEl.textContent = '현재 입력 조합에서 스트레스 신호가 적게 관측됩니다. 예측·매수 신호가 아니며 종목별 근거는 별도로 확인할 항목입니다.';
-    } else if (sc >= 60) {
-      signalEl.textContent = '스트레스 신호 일부'; signalEl.style.color = '#4ade80';
-      if (explanEl) explanEl.textContent = '일부 입력에서 스트레스가 관측되며 통계적 예측력은 미검증입니다. 점수 단독으로 판단하지 않습니다.';
-    } else if (sc >= 45) {
-      signalEl.textContent = '중립 · 신호 혼재'; signalEl.style.color = '#ffa31a';
-      if (explanEl) explanEl.textContent = '신호가 혼재된 구간입니다. 점수만으로 방향을 정하기 어렵습니다.';
-    } else if (sc >= 30) {
-      signalEl.textContent = '주의 · 부담 점검'; signalEl.style.color = '#ffa31a';
-      if (explanEl) explanEl.textContent = '시장 품질이 약해진 신호가 늘었습니다. 리스크 자산 비중과 현금은 본인 기준으로 확인할 항목입니다.';
-    } else {
-      signalEl.textContent = '위험 · 방어 조건 점검'; signalEl.style.color = '#ff5b50';
-      if (explanEl) explanEl.textContent = '극단 약세 구간 · 역사적으로 방어적 운용이 우선시되던 환경.' + (sc <= 25 ? ' 참고: 과거 유사 극단에서 이후 수익률이 높았던 사례가 있으나 보장이 아닙니다.' : '');
-    }
-  }
-
-  // Market Regime
-  const regimeEl = document.getElementById('home-market-regime');
-  const regimeExplEl = document.getElementById('home-regime-explanation');
+  // v57.50 I16: the retired home trading grid ("지금 매매해도 될까?" score bands, Quality, the four-step Regime card)
+  // is no longer written from here. The score is still computed above for its legacy readers (_liveSnap); the only
+  // remaining home sinks are the S&P 500 distance-from-high badge, the action items and the heatmap, each of which
+  // is skipped when its element is absent. A missing S&P input no longer returns early and skips the VIX/news blocks.
   var riskBadgeEl = document.getElementById('home-risk-regime-badge');
-  const setHomeRegime = (text, color, expl, badge, badgeClass) => {
-    if (regimeEl) { regimeEl.textContent = text; regimeEl.style.color = color; }
-    if (regimeExplEl) regimeExplEl.textContent = expl;
-    if (riskBadgeEl) { riskBadgeEl.textContent = badge; riskBadgeEl.className = badgeClass; }
-  };
-  if (regimeEl) {
+  // v49.28 E1 → v50.43: home Action Item 갱신은 단일 경로(_aioRefreshActionPlan). 실패해도 home 렌더 차단 X.
+  try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(actErr) {}
+  // v50.75: 실데이터 시장 팩터 히트맵 갱신
+  try { if (typeof window._aioRenderMarketHeatmap === 'function' && document.getElementById('home-market-heatmap')) window._aioRenderMarketHeatmap('home-market-heatmap'); } catch(_) {}
+  if (riskBadgeEl) {
     const SPX_ATH = _aioSpxAthFloor();  // v50.24/WO-2: 단일 출처 헬퍼 (L12303과 동일 floor — 레짐 오표시 방지)
     const spxPrice = Number(spx.price || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spx));
-    if (!Number.isFinite(SPX_ATH) || !Number.isFinite(spxPrice) || SPX_ATH <= 0 || spxPrice <= 0) {
-      setHomeRegime('판정 보류', 'var(--text-muted)', 'S&P 500 현재값 또는 관측 ATH 미수신', '판정 보류', 'status-pill sp-neutral');
-      return;
-    }
-    const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100);
-    // v50.16: 'ATH 근처' 막연 → 실제 갭 + VIX 맥락 (사용자 지적: 이면까지). VIX는 라이브 우선.
-    var _rVix = (ld && ld['^VIX'] && ld['^VIX'].price) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-    var _rVixCtx = isNaN(_rVix) ? '' : (' · VIX ' + _rVix.toFixed(1) + (' (' + vixRegime(_rVix).label + ')'));
-    let regime = 'UPTREND', regimeColor = '#00e5a0', regimeDesc = 'ATH ' + (pctFromATH >= -0.5 ? '근접' : pctFromATH.toFixed(1) + '%') + _rVixCtx;
-    if (pctFromATH < -20) { regime = 'DOWNTREND'; regimeColor = '#ff5b50'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
-    else if (pctFromATH < -10) { regime = 'CORRECTION'; regimeColor = '#ffa31a'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
-    else if (pctFromATH < -5) { regime = 'PULLBACK'; regimeColor = '#ffa31a'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
-    regimeEl.textContent = regime;
-    regimeEl.style.color = regimeColor;
-    // v35.4 B2: 국면별 역사적 참고 한 줄
-    var _regimeRef = {
-      'UPTREND': '',
-      'PULLBACK': ' · 참고: 5~10% 조정은 연평균 3회 발생하는 정상 패턴',
-      'CORRECTION': ' · 참고: 10~20% 조정 후 12개월 내 회복한 비율이 역사적으로 높음',
-      'DOWNTREND': ' · 참고: 항복 매도(거래량 폭증+VIX 스파이크) 이후 12개월 수익률이 역사적으로 양(+)인 경우가 많음'
-    };
-    if (regimeExplEl) regimeExplEl.textContent = regimeDesc + (_regimeRef[regime] || '');
-
-    // v49.28 E1 → v50.43: home Action Item 갱신을 단일 경로(_aioRefreshActionPlan)로 통합(dedup).
-    //   이전엔 동일 ACTION_RULES 로직이 여기 + aio-core.js _aioRefreshActionPlan 두 곳에 중복. 한쪽만 고쳐지는 버그 클래스 제거.
-    //   _aioRefreshActionPlan은 AIO.marketState.actionPlan(단일 두뇌) 우선 + 폴백 내장. Action Item 실패해도 home 렌더 차단 X.
-    try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(actErr) {}
-    // v50.75: 실데이터 시장 팩터 히트맵 갱신
-    try { if (typeof window._aioRenderMarketHeatmap === 'function') window._aioRenderMarketHeatmap('home-market-heatmap'); } catch(_) {}
-
+    const pctFromATH = Number.isFinite(SPX_ATH) && Number.isFinite(spxPrice) && SPX_ATH > 0 && spxPrice > 0 ? ((spxPrice - SPX_ATH) / SPX_ATH * 100) : null;
+    const regime = pctFromATH == null ? null : pctFromATH < -20 ? 'DOWNTREND' : pctFromATH < -10 ? 'CORRECTION' : pctFromATH < -5 ? 'PULLBACK' : 'UPTREND';
     // 홈 상단 리스크 뱃지 동적 업데이트 — ATH 거리 참고 관측이며 추세 모델이 아니다.
-    if (riskBadgeEl) {
+    if (regime == null) { riskBadgeEl.textContent = '판정 보류'; riskBadgeEl.className = 'status-pill sp-neutral'; }
+    else {
       if (regime === 'DOWNTREND') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −20% 이하'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
       else if (regime === 'CORRECTION') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −10% 이하'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
       else if (regime === 'PULLBACK') { riskBadgeEl.textContent = 'S&P 500 고점 대비 −5% 이하'; riskBadgeEl.className = 'status-pill sp-neutral'; }

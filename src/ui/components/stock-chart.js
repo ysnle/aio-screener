@@ -1,6 +1,6 @@
 // P1397: 종목 차트 — candles with the evidence drawn on the price (Lightweight Charts, Apache-2.0,
 // already loaded by the shell) and an evidence panel with a setup state. No composite grade.
-import { analyzeChart, chartReading } from '../../domain/technical/chart-analysis.js';
+import { TEMPLATE_LABEL, analyzeChart, chartReading } from '../../domain/technical/chart-analysis.js';
 import { buildCloseSeries, buildMarketRegime, maOrder } from '../../domain/briefing/market-read.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { emptyState } from './empty-state.js';
@@ -198,7 +198,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     visuals.append(stage);
   }
   const template = el(doc, 'div', null, 'chart-template');
-  template.append(el(doc, 'span', `추세 템플릿 ${analysis.templatePass}/8`, 'chart-vis-title'));
+  template.append(el(doc, 'span', `${TEMPLATE_LABEL} ${analysis.templatePass}/8`, 'chart-vis-title'));
   const dots = el(doc, 'ul', null, 'chart-template-dots');
   for (const [label, ok] of analysis.templateChecks) {
     const li = el(doc, 'li', ok === true ? '✓' : ok === false ? '✕' : '?', `chart-template-dot ${ok === true ? 'is-pass' : ok === false ? 'is-fail' : 'is-unknown'}`);

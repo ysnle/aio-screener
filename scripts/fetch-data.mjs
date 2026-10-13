@@ -3220,9 +3220,12 @@ async function _enrichPriceFactors(syms) {
 // Daily market breadth from the same price history used by the screener factors.
 // The former pipeline fetched 800+ histories but left breadth on a manual snapshot/RSP proxy.
 // This output is explicitly the AIO screener universe, not official exchange breadth.
-export function computeScreenerBreadth(syms, results) {
+export function computeScreenerBreadth(syms, results, assetTypeOf = null) {
   const isKr = (sym) => /\.(KS|KQ)$/i.test(String(sym || ''));
-  const validRows = (results || []).filter(r => r && !r.__error && Array.isArray(r.adjCloses) && r.adjCloses.length >= 2
+  // v57.50 D21: stocks only — ETFs are excluded from numerator and denominator when the asset type is known.
+  const isEtf = (sym) => typeof assetTypeOf === 'function' && assetTypeOf(sym) === 'ETF';
+  syms = (syms || []).filter((sym) => !isEtf(sym));
+  const validRows = (results || []).filter(r => r && !r.__error && !isEtf(r.sym) && Array.isArray(r.adjCloses) && r.adjCloses.length >= 2
     && r.adjustedCloseStatus !== 'unavailable'
     && Number.isFinite(Number(r.adjCloses[r.adjCloses.length - 1]))
     && Number.isFinite(Number(r.adjCloses[r.adjCloses.length - 2])));
@@ -3386,10 +3389,11 @@ export async function enrichScreener() {
     });
   }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
-  const breadth = computeScreenerBreadth(syms, results);
+  const assetTypeOf = (sym) => universeInfo.assetType?.[sym] ?? null;
+  const breadth = computeScreenerBreadth(syms, results, assetTypeOf);
   // P1449: breadth contributors carry each symbol's asset type so the drilldown can say which
-  // rows are ETFs and which single-day moves need a corporate-action check.
-  const breadthHistory = computeScreenerBreadthHistory(syms, results, undefined, Date.now(), (sym) => universeInfo.assetType?.[sym] ?? null);
+  // single-day moves need a corporate-action check. v57.50 D21: ETFs are no longer in the breadth population.
+  const breadthHistory = computeScreenerBreadthHistory(syms, results, undefined, Date.now(), assetTypeOf);
   // P1416: distribution days need the index's own volume; one extra daily-bar request.
   let distribution = null;
   try {
@@ -3991,7 +3995,10 @@ export function isSessionComplete(date, segment, nowMs = Date.now()) {
 // align different securities. This remains AIO-universe research data, not
 // official exchange advance/decline data.
 export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowMs = Date.now(), assetTypeOf = null) {
-  const symbolSet = new Set(syms || []);
+  // v57.50 D21: breadth is a share of stocks; ETFs (index trackers, VIX products) are excluded from both
+  // the numerator and the denominator when the universe's asset type is known.
+  const isEtf = (sym) => typeof assetTypeOf === 'function' && assetTypeOf(sym) === 'ETF';
+  const symbolSet = new Set((syms || []).filter((sym) => !isEtf(sym)));
   const buckets = new Map();
   const windows = [20, 50, 200];
   const segmentFor = (sym) => /\.(KS|KQ)$/i.test(String(sym || '')) ? 'kr' : 'us';
@@ -4248,7 +4255,7 @@ async function writeBreadthContributors(rows, nowMs = Date.now()) {
       counts: { up4: point.us.breadthUp4, down4: point.us.breadthDown4, newHigh: point.us.breadthNewHighs, newLow: point.us.breadthNewLows }
     }));
   if (!sessions.length) return { written: false };
-  const payload = { schemaVersion: 'breadth-contributors.v2', model: BREADTH_SIGNAL_MODEL_VERSION, generatedAt: new Date(nowMs).toISOString(), universeScope: 'aio-us-screener-universe-not-official-exchange', universeAssetTypes: 'stocks-and-etfs-mixed', columns: ['symbol', 'dayChangePct', 'assetType', 'corporateActionSuspected'], corporateActionPolicy: 'none-adjusted — a >=20% one-day move is flagged only as a suspicion to check against the filing, not adjusted or confirmed', sessions };
+  const payload = { schemaVersion: 'breadth-contributors.v2', model: BREADTH_SIGNAL_MODEL_VERSION, generatedAt: new Date(nowMs).toISOString(), universeScope: 'aio-us-screener-universe-not-official-exchange', universeAssetTypes: 'stocks-only-etfs-excluded', columns: ['symbol', 'dayChangePct', 'assetType', 'corporateActionSuspected'], corporateActionPolicy: 'none-adjusted — a >=20% one-day move is flagged only as a suspicion to check against the filing, not adjusted or confirmed', sessions };
   await atomicWriteFile(BREADTH_CONTRIBUTORS_OUT, JSON.stringify(payload));
   return { written: true, sessions: sessions.length };
 }
@@ -4356,6 +4363,11 @@ export function marketAnalysisRegimeInput(data, history = [], macroHistory = rea
   const num = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
   const hy = num(macro.hyOAS);
   const hyDelta5 = num(macro.hyOASDelta5);
+  // v57.50 C03: the screen's credit axis also reads the Cboe total put/call (briefing-read collectMarketInputs);
+  // the narrative gets the same value and observation date, or the two surfaces judge credit on different inputs.
+  const putCall = data?.putCall && !data.putCall.error ? data.putCall : null;
+  const pcr = num(putCall?.totalPutCall);
+  const pcrAsOf = pcr != null && /^\d{4}-\d{2}-\d{2}$/.test(String(putCall?.asOf || '')) ? putCall.asOf : null;
   return {
     history: Array.isArray(history) ? history : [],
     macroHistory: macroHistory || null,
@@ -4363,7 +4375,7 @@ export function marketAnalysisRegimeInput(data, history = [], macroHistory = rea
     credit: {
       hyBp: hy == null ? null : Math.round(hy * 100), hyAsOf: macro._asOf_hyOAS || null,
       hyDelta5Bp: hyDelta5 == null ? null : Math.round(hyDelta5 * 100),
-      fg: num(data?.fearGreed?.score), fgAsOf: data?.fearGreed?.asOf || null, pcr: null, pcrAsOf: null, aaiiAsOf: null
+      fg: num(data?.fearGreed?.score), fgAsOf: data?.fearGreed?.asOf || null, pcr: pcrAsOf ? pcr : null, pcrAsOf, aaiiAsOf: null
     },
     rates: {
       realYield10: num(macro.realYield10), realYield10Delta5: num(macro.realYield10Delta5),

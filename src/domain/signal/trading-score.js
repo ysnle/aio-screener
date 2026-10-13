@@ -66,7 +66,8 @@ export function deriveTradingScoreComponents(score = {}) {
  * @param {number|null} input.spx50ma    legacy `_spxMA[50]` when maCurrent, else null
  * @param {number|null} input.spxPrice   closing/live ^GSPC price
  * @param {boolean} input.breadthAvailable
- * @param {number|null} input.breadth200 % above 20-SMA, when breadthAvailable
+ * @param {number|null} input.breadth20  % of AIO US stocks above their 20-SMA, when breadthAvailable
+ * @param {number|null} input.breadth200 legacy name of the same 20-SMA share (kept for older callers)
  * @param {number|null} input.pcr        put/call ratio, already evidence-gated
  * @param {number|null} input.hyBp       FRED HY OAS in bp, already evidence-gated
  * @param {number|null} input.newsSentimentScore  null means "skip the news sentiment adjustment"
@@ -111,7 +112,9 @@ export function computeTradingScoreModel(input = {}) {
   const spxPrice = decisionValue('spxPrice', input.spxPrice, Number.MIN_VALUE, Number.MAX_VALUE);
   const pcr = decisionValue('pcr', input.pcr, 0, 10);
   const hyBp = decisionValue('hyBp', input.hyBp, 0, 10_000);
-  const breadth200 = decisionValue('breadth200', input.breadth200, 0, 100);
+  // v57.50 C07: this input is the share of AIO US stocks above their 20-day SMA (the bands below were set for it).
+  // `breadth200` is the legacy evidence key kept for the decision-evidence contract; `breadth20` is the accurate name.
+  const breadth20 = decisionValue('breadth200', input.breadth20 ?? input.breadth200, 0, 100);
   // Keyword-count news heuristics are reference-only unless a producer supplies
   // an independently current, decision-authorized evidence envelope. Raw news
   // output must not bypass the same contract required from market observations.
@@ -120,7 +123,7 @@ export function computeTradingScoreModel(input = {}) {
   const maCurrent = hasDecisionEvidence
     ? !!(spx200ma != null && spx50ma != null && spxPrice != null)
     : input.maCurrent === true;
-  const breadthAvailable = hasDecisionEvidence ? breadth200 != null : input.breadthAvailable === true;
+  const breadthAvailable = hasDecisionEvidence ? breadth20 != null : input.breadthAvailable === true;
 
   // 1. Volatility Score (25%) — lower VIX is better for trading
   let volScore = null;
@@ -157,11 +160,11 @@ export function computeTradingScoreModel(input = {}) {
 
   // 4. Breadth Score (20%) — % above 20 SMA
   let breadthCalcScore = null;
-  if (breadth200 != null && breadth200 > 70) breadthCalcScore = 88;
-  else if (breadth200 != null && breadth200 > 55) breadthCalcScore = 72;
-  else if (breadth200 != null && breadth200 > 40) breadthCalcScore = 52;
-  else if (breadth200 != null && breadth200 > 25) breadthCalcScore = 28;
-  else if (breadth200 != null) breadthCalcScore = 12;
+  if (breadth20 != null && breadth20 > 70) breadthCalcScore = 88;
+  else if (breadth20 != null && breadth20 > 55) breadthCalcScore = 72;
+  else if (breadth20 != null && breadth20 > 40) breadthCalcScore = 52;
+  else if (breadth20 != null && breadth20 > 25) breadthCalcScore = 28;
+  else if (breadth20 != null) breadthCalcScore = 12;
   let breadthScore = breadthAvailable ? breadthCalcScore : null;
 
   // 5. Macro Score (10%) — 기저 55, 누진 감점

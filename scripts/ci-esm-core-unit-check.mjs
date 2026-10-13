@@ -1012,7 +1012,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const defensive = computeMarketHealth({ quotes: { SPY: { pct: -2, price: 400 }, QQQ: { pct: -2 }, '^VIX': { price: 35 } }, spxMA: { 50: 450, 200: 500 } });
   if (!defensive.available || defensive.score !== 4 || defensive.grade !== 'F' || defensive.regime !== '극심한 약세') fail(`market-health: defensive thresholds drifted, got ${JSON.stringify(defensive)}`);
   const neutral = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
-  if (!neutral.available || neutral.score !== 42 || neutral.grade !== 'C' || neutral.bars.spy !== 50 || neutral.bars.qqq !== 50) fail(`market-health: neutral baseline drifted, got ${JSON.stringify(neutral)}`);
+  // v57.50 C13: VIX 20 sits in the RULES.volatility 통상 범위 (18-25, no points), so 50 - 4 (QQQ flat) = 46.
+  if (!neutral.available || neutral.score !== 46 || neutral.grade !== 'C' || !neutral.details.some((line) => /VIX 20\.0 통상 범위/.test(line)) || neutral.bars.spy !== 50 || neutral.bars.qqq !== 50) fail(`market-health: neutral baseline drifted, got ${JSON.stringify(neutral)}`);
   const invalidOptional = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 }, AAPL: { pct: null }, XLK: { pct: 'bad' } } });
   if (invalidOptional.inputs.leaderTotal !== 0 || invalidOptional.inputs.sectorTotal !== 0) fail('market-health: invalid optional quotes were counted as declining observations');
   if (computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: -1 } } }).available) fail('market-health: impossible negative VIX was accepted');
@@ -2041,11 +2042,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 
   const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
   const empty = derivePortfolioSurface({ state: { status: 'unavailable', holdings: [], cash: null }, liveData: {}, vix: null });
-  if (empty.status !== 'unavailable' || empty.dailyChange !== null || empty.exposureCap !== null || empty.sectorBreakdown.length !== 0) fail(`portfolio-surface: empty input must remain unavailable, got ${JSON.stringify(empty)}`);
+  if (empty.status !== 'unavailable' || empty.dailyChange !== null || 'exposureCap' in empty || empty.sectorBreakdown.length !== 0) fail(`portfolio-surface: empty input must remain unavailable, got ${JSON.stringify(empty)}`);
   const quoteNow = Date.parse('2026-09-12T15:00:00Z');
   const currentQuote = (price, extra = {}) => ({ price, observedAt: '2026-09-12T14:55:00Z', source: 'runtime-test-provider', sourceKind: 'LIVE', sourceTier: 'T2_LICENSED', rightsId: 'runtime-test-rights', revisionId: 'runtime-test-r1', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { status: 'live', freshness: 'live', timestampValid: true, ageMs: 5 * 60 * 1000, freshnessMs: 15 * 60 * 1000 }, ...extra, dailyPct: extra.dailyPct ?? extra.pct ?? null, changeBasis: extra.changeBasis || 'previous-close' });
   const live = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, sector: 'Technology' }], cash: 50 }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
-  if (live.modelVersion !== 'portfolio-surface.v3' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || live.exposureCap !== 50 || live.sectorBreakdown.length !== 2 || live.valuationState !== 'complete' || live.allowedUse !== 'reference-only' || live.decisionEligible !== false || live.snapshotFallbackBlocked !== true || live.costFallbackBlocked !== true) fail(`portfolio-surface: live/cash derivation or reference boundary drifted, got ${JSON.stringify(live)}`);
+  if (live.modelVersion !== 'portfolio-surface.v3' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || 'exposureCap' in live ||live.sectorBreakdown.length !== 2 || live.valuationState !== 'complete' || live.allowedUse !== 'reference-only' || live.decisionEligible !== false || live.snapshotFallbackBlocked !== true || live.costFallbackBlocked !== true) fail(`portfolio-surface: live/cash derivation or reference boundary drifted, got ${JSON.stringify(live)}`);
   const partial = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: null }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
   if (partial.positionValue !== null || partial.totalPnl !== null || partial.dailyChange !== null || partial.sectorBreakdown.length !== 0) fail(`portfolio-surface: partial holdings must not sum unknown rows as zero, got ${JSON.stringify(partial)}`);
   const daily = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 110, dailyPct: 10 }], cash: 0 } });
@@ -2059,10 +2060,10 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const invalidPortfolio = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'BAD', shares: -2, avgCost: -10 }], cash: -5 }, liveData: { BAD: { price: 12 } }, vix: -1 });
 
   const unprovenRuntime = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, price: 11 }], cash: 0 }, liveData: { ABC: { price: 99, pct: 4 }, '^VIX': { price: 40 } }, vix: { price: 40 }, now: quoteNow });
-  if (unprovenRuntime.rows[0]?.price !== 11 || unprovenRuntime.rows[0]?.sourceKind !== 'portfolio-state' || unprovenRuntime.exposureCap !== null || unprovenRuntime.vix !== null) throw new Error('portfolio surface must not promote undated/source-less runtime prices or VIX');
+  if (unprovenRuntime.rows[0]?.price !== 11 || unprovenRuntime.rows[0]?.sourceKind !== 'portfolio-state' ||unprovenRuntime.vix !== null) throw new Error('portfolio surface must not promote undated/source-less runtime prices or VIX');
   const staleRuntime = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, price: 11 }], cash: 0 }, liveData: { ABC: { price: 99, observedAt: '2026-09-12T13:00:00Z', source: 'runtime-test-provider' } }, vix: { price: 40, observedAt: '2026-09-12T14:55:00Z', source: 'snapshot:last-known-good' }, now: quoteNow });
-  if (staleRuntime.rows[0]?.price !== 11 || staleRuntime.sourceKind !== 'portfolio-state' || staleRuntime.exposureCap !== null) throw new Error('portfolio surface must reject stale quotes and snapshot VIX as current runtime evidence');
-  if (invalidPortfolio.positionValue !== null || invalidPortfolio.cash !== null || invalidPortfolio.exposureCap !== null || invalidPortfolio.exposurePolicyStatus !== 'reference-only') fail(`portfolio-surface: invalid balances or VIX entered the portfolio projection, got ${JSON.stringify(invalidPortfolio)}`);
+  if (staleRuntime.rows[0]?.price !== 11 || staleRuntime.sourceKind !== 'portfolio-state') throw new Error('portfolio surface must reject stale quotes and snapshot VIX as current runtime evidence');
+  if (invalidPortfolio.positionValue !== null || invalidPortfolio.cash !== null ||invalidPortfolio.exposurePolicyStatus !== 'reference-only') fail(`portfolio-surface: invalid balances or VIX entered the portfolio projection, got ${JSON.stringify(invalidPortfolio)}`);
   // W02/P1143: cash-only reads as total=cash, partial never sums unknown rows as zero.
   const cashOnly = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, holdings: [], cash: 10000, cashKnown: true }, liveData: {}, vix: null });
   if (cashOnly.modelVersion !== 'portfolio-surface.v3' || cashOnly.valuationState !== 'cash-only' || cashOnly.positionValue !== 0 || cashOnly.totalAssets !== 10000 || cashOnly.cashPct !== 100 || cashOnly.status !== 'current') fail(`W02/P1143 portfolio-surface: cash-only must read total=cash, got ${JSON.stringify(cashOnly)}`);
@@ -3668,7 +3669,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (rankGrade(85) !== '상위 15%' || rankGrade(100) !== '상위 1%' || rankGrade(null) !== null || /^[A-F]$/.test(String(rankGrade(90)))) fail('P1419 the rank cell must show the percentile position, not a letter grade');
   const { summarizeValidation } = await load('src/ui/components/screener-validation.js');
   const sample = summarizeValidation([{ date: '2026-09-30', n: 800, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 } }, { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: -3.27, netHitRate: 33.3, transactionCostPct: 0.23, ic: { composite: -0.039 } }], { status: 'BLOCKED', predictiveValidation: 'not-established' });
-  if (sample.wins !== 2 || sample.tone !== 'burden' || sample.series.length !== 2 || !/생존 편향/.test(sample.validation)) fail(`P1419 validation summary wrong: ${JSON.stringify(sample)}`);
+  if (sample.wins !== 2 || sample.tone !== 'neutral' || sample.distinguishable !== false || !/아직 구별 불가\(표본 6회\)/.test(sample.undecided) || sample.series.length !== 2 || !/생존 편향/.test(sample.validation)) fail(`P1419/D11 a 6-rebalance record without |t|>=2 must read as undecided, not 뒤처짐: ${JSON.stringify(sample)}`);
+  const decided = summarizeValidation([{ date: '2026-10-01', n: 845, dates: 12, quantileSpreadNet: -3.27, netHitRate: 25, transactionCostPct: 0.23, ic: { composite: -0.039, compositeT: -2.4 } }], null);
+  if (decided.tone !== 'burden' || decided.distinguishable !== true) fail(`D11 12 rebalances with |t|>=2 keep the sign verdict: ${JSON.stringify(decided)}`);
   if (summarizeValidation([], null).available) fail('P1419 no history must not read as a result');
 }
 
@@ -3687,7 +3690,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const matchRow = { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 }, modelFingerprint: live };
   if (summarizeValidation([matchRow], { status: 'BLOCKED' }).modelMatch !== true) fail('P1449 a same-fingerprint record must read as the live ranking validation');
   const stale = summarizeValidation([matchRow], { status: 'BLOCKED' });
-  if (!/같은 순위를|앞섰습니다/.test(stale.verdict)) fail('P1449 a matched record keeps the performance claim');
+  if (!/같은 순위를|앞섰습니다|아직 구별 불가/.test(stale.verdict)) fail('P1449 a matched record keeps the performance claim');
   const mismatchRow = { ...matchRow, modelFingerprint: buildScreenerModelFingerprint({ weights: { momentum: 0.39, trend: 0.28, lowvol: 0.22, kalman: 0.11 } }) };
   const mismatch = summarizeValidation([mismatchRow], { status: 'BLOCKED' });
   if (mismatch.modelMatch !== false || !/다른 이전 모델|모델 지문/.test(mismatch.verdict)) fail(`P1449 a mismatching fingerprint must read as a different-model disclosure: ${JSON.stringify(mismatch)}`);
@@ -3711,7 +3714,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!vcp.valid || vcp.contractions.length < 3 || !(vcp.contractions[0].depth > vcp.contractions[vcp.contractions.length - 1].depth)) fail(`P1397 VCP run not detected: ${JSON.stringify(vcp.contractions.map((row) => row.depth.toFixed(1)))}`);
   const result = analyzeChart(bars);
   if (!result.available || !['setup', 'none', 'extended', 'breakout', 'failed', 'downtrend'].includes(result.state) || /등급|grade/i.test(JSON.stringify(result.evidence))) fail(`P1397 chart analysis contract: ${result.state}`);
-  if (!result.evidence.some(([label]) => label === '추세 템플릿 (미너비니)') || !result.evidence.some(([label]) => label === '마지막 수축 저점') || result.evidence.some(([label]) => /무효화/.test(label))) fail('P1397/S14 evidence rows missing or carry instruction wording');
+  if (!result.evidence.some(([label]) => label === '미너비니 템플릿(변형: 6개월 S&P 초과)') || !result.evidence.some(([label]) => label === '마지막 수축 저점') || result.evidence.some(([label]) => /무효화/.test(label))) fail('P1397/S14 evidence rows missing or carry instruction wording');
   if (analyzeChart(bars.slice(0, 40)).available) fail('P1397 fewer than 60 bars must not be analysed');
 }
 
@@ -3924,18 +3927,20 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 // P1586: self-computed sentiment composite — withholds below four components, ranks each against its own
 // trailing year, labels the stand-in junk-bond basis, and never borrows CNN's value.
 {
-  const { computeCompositeFearGreed, bandForCompositeScore } = await import(pathToFileURL(path.join(root, 'src/domain/sentiment/composite-fear-greed.js')).href);
+  const { computeCompositeFearGreed } = await import(pathToFileURL(path.join(root, 'src/domain/sentiment/composite-fear-greed.js')).href);
   const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
   const rising = Array.from({ length: 300 }, (_, i) => ({ date: day(i), spx: 5000 + i * 5, vix: 20 - i * 0.02, advanceRatio: 0.5 + Math.sin(i / 9) * 0.1 + i * 0.0004, fg: 99 }));
   // P1644 (M03): the spread series must reach the price basis (within two sessions) to count as current.
   const hy = { series: { hyOas: { observations: Array.from({ length: 300 }, (_, i) => [day(i), 4 - i * 0.004]) } } };
   const thin = computeCompositeFearGreed({ history: rising.slice(0, 80), macroHistory: null });
-  if (thin.score !== null || thin.status !== 'withheld') fail(`P1586 composite must withhold below four ready components: ${JSON.stringify({ score: thin.score, ready: thin.componentsReady })}`);
+  if (thin.spread !== null || thin.status !== 'withheld') fail(`P1586 composite must withhold below four ready components: ${JSON.stringify({ spread: thin.spread, ready: thin.componentsReady })}`);
   const full = computeCompositeFearGreed({ history: rising, macroHistory: hy });
-  if (full.componentsReady !== 4 || !(full.score >= 65) || !['탐욕', '극단적 탐욕'].includes(full.band)) fail(`P1586 a steadily rising market with falling VIX and spreads must rank as greed: ${JSON.stringify({ score: full.score, ready: full.componentsReady, band: full.band })}`);
+  const rank = (id) => full.components.find((c) => c.id === id)?.score;
+  if (full.componentsReady !== 4 || !(rank('volatility') >= 65) || !(rank('junkBond') >= 65)) fail(`P1586 falling VIX and spreads must rank on the greed side: ${JSON.stringify(full.components.map((c) => [c.id, c.score]))}`);
   if (!/대체/.test(full.components.find((c) => c.id === 'junkBond').basis)) fail('P1586 the HY-only junk-bond stand-in must say so');
   if (full.components.some((c) => c.raw === 99)) fail('P1586 composite must not read the CNN fg column');
-  if (bandForCompositeScore(null) !== '판정 보류' || bandForCompositeScore(50) !== '중립' || bandForCompositeScore(24) !== '극단적 공포') fail('P1586 composite bands');
+  // v57.50 D02: no averaged 0-100 score and no 공포~탐욕 band; the lowest and highest component are named instead.
+  if ('score' in full || 'band' in full || !full.spread || full.spread.low.score > full.spread.high.score || full.spread.gap !== Math.round((full.spread.high.score - full.spread.low.score) * 10) / 10) fail(`v57.50 D02 composite must expose the component spread, not a score or band: ${JSON.stringify({ spread: full.spread, score: full.score, band: full.band })}`);
 }
 // P1592: Korean particles follow the spoken final syllable of an interpolated word (F72 '스프레드을 본다').
 {

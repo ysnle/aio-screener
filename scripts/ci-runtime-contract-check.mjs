@@ -503,7 +503,9 @@ check('theme-detail route resolves to themes inline detail surface',
   (/id === 'theme-detail'/.test(core) && /_aioOpenThemeDetailOnThemes/.test(core) && /showThemeDetail\(themeId\)/.test(core))
   || (/createThemesPage/.test(themesPage) && /createThemesPage\(\{[^}]*route:\s*'theme-detail'/.test(bootstrap) && /aioArchitectureSlice/.test(themesPage)));
 // P1342: the legacy briefing summary helper (no caller since P770) was deleted; F&G consumers still read the canonical envelope.
-check('briefing summary F&G reads canonical currentness envelope', /getCanonicalMetric\('fg'\)/.test(data) && !/_buildBriefingDecisionSummary/.test(data));
+// v57.50 C06: aio-data no longer reads F&G (its only reader was an unused value with a 35 default); the legacy F&G
+// readers share the home card's completed-close reader (_aioFgCloseReading), and no numeric default may return.
+check('C06/P1699: briefing summary F&G reads the shared close reader, no deleted helper, no numeric default', /_aioFgCloseReading/.test(core) && !/_buildBriefingDecisionSummary/.test(data) && !/getCanonicalMetric\('fg'\)[^;\n]*:\s*35\b/.test(data));
 check('KR candle chart auto-loads from canvas and avoids zero-baseline compression', /krCandleCanvas/.test(ui) && /loadKrCandleChart\(krCode \|\| '005930'\)/.test(ui) && /beginAtZero:\s*false/.test(ui) && /suggestedMin:\s*ySuggestedMin/.test(ui) && /suggestedMax:\s*ySuggestedMax/.test(ui));
 check('headless tests validate every theme record and representative renderer boundaries plus route redirect', /T860 theme_detail_registry_and_representative_render_v5460/.test(tests) && /T861 theme_detail_route_redirect_v5227/.test(tests));
 check('theme composition audit indexes canonical semantic evidence once instead of rebuilding the screener universe per symbol', (() => {
@@ -539,7 +541,7 @@ check('value slot renderer encodes value/pending/failed/na states and touched ma
   const boardTouched = /ratioSeries = vix\.filter/.test(read('src/ui/components/sentiment-board.js'));
   return (valueSlotBase && legacyTouched) || (valueSlotBase && nativeTouched) || (valueSlotBase && boardTouched);
 })());
-check('briefing decision summary F&G uses canonical currentness source, not dead snap fields', /getCanonicalMetric\('fg'\)/.test(data) && !/snap\.fg\.value|snap\.fearGreed/.test(data));
+check('C06/P1699: briefing decision summary F&G uses the shared close reader, not dead snap fields', /_aioFgCloseReading/.test(core) && !/snap\.fg\.value|snap\.fearGreed/.test(data));
 // P1134/R620: the VKOSPI failure-state helpers now live in js/aio-kr-data.js (block C) while
 // calcKrHealthScore lives in js/aio-ui.js (block F) — the check spans two owners, so each token is
 // asserted against the file that actually holds it.

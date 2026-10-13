@@ -2,6 +2,11 @@
 // what it measures and why (the principle), how practitioners read it and where it misleads, and how it connects
 // to the other axes, then links to the page that goes deeper. Text is static teaching content: it states no
 // current value, so it cannot go stale; live numbers stay in the card's evidence rows.
+// v57.50 I17: `conceptId` names the canonical concept (src/domain/knowledge/concept-core.js) a fold teaches; the fold
+// ends with a link to that concept note. Only ids that exist in CONCEPT_CORE are used (deep-dive.js drops others).
+import { RULES } from '../rules/thresholds.js';
+
+const CREDIT = RULES.credit;
 
 export const AXIS_DEEP_DIVES = Object.freeze({
   trend: Object.freeze({
@@ -34,7 +39,8 @@ export const AXIS_DEEP_DIVES = Object.freeze({
       ['전문가는 이렇게 읽는다', '금리 수준보다 오르는 속도가 중요합니다. 몇 주 사이에 크게 오르면 주식이 흔들리기 쉽습니다. 또 금리가 오르는 이유가 성장 기대인지, 물가·재정 우려인지를 실질금리와 기대인플레이션으로 나눠 봅니다. 앞의 경우는 주식이 버티는 일이 많고, 뒤의 경우는 부담이 큽니다.'],
       ['다른 축과의 연결', '금리 급등이 달러 강세와 함께 오면 한국 같은 신흥국 증시와 해외 매출 비중이 큰 기업에 더 부담입니다. 하이일드 스프레드가 안정적이면 금리 부담이 아직 신용 문제로 번지지 않은 상태입니다.']
     ],
-    related: [['fxbond', '금리·환율 화면에서 실질금리와 기간 프리미엄 보기']]
+    related: [['fxbond', '금리·환율 화면에서 실질금리와 기간 프리미엄 보기']],
+    conceptId: 'present-value'
   }),
   credit: Object.freeze({
     blocks: [
@@ -50,7 +56,8 @@ export const AXIS_DEEP_DIVES = Object.freeze({
       ['전문가는 이렇게 읽는다', '유가 급등은 물가를 자극해 금리 인하 기대를 낮추고, 달러 급등은 해외 매출이 큰 기업과 신흥국에 부담입니다. 금이 오르는 이유가 실질금리 하락인지 지정학 불안인지에 따라 같은 상승도 의미가 다릅니다.'],
       ['다른 축과의 연결', '원자재·달러는 금리 축과 함께 물가와 정책의 경로로, 아래 한국 시장 카드의 원/달러와 함께 자금 흐름의 경로로 이어서 읽습니다.']
     ],
-    related: [['macro', '거시 화면에서 물가·유동성 흐름 보기']]
+    related: [['macro', '거시 화면에서 물가·유동성 흐름 보기']],
+    conceptId: 'one-price-vs-general'
   })
 });
 
@@ -70,7 +77,8 @@ export const MACRO_GROUP_DEEP_DIVES = Object.freeze({
       ['전문가는 이렇게 읽는다', '구인이 줄어도 해고가 늘지 않으면 연착륙, 둘 다 나빠지면 경기 둔화 쪽으로 읽습니다. 소비자심리는 휘발유 가격과 주가에 크게 흔들려 한 달 수치보다 몇 달의 추세를 봅니다.'],
       ['다른 지표와의 연결', '성장이 식는데 물가가 버티면 금리 인하가 늦어져 주식에 불리한 조합이 되고, 둘 다 식으면 인하 기대가 커집니다. 위의 물가·고용 카드와 이어서 연준의 다음 걸음을 가늠합니다.']
     ],
-    related: [['briefing', '브리핑에서 이번 주 발표 일정과 해석 보기']]
+    related: [['briefing', '브리핑에서 이번 주 발표 일정과 해석 보기']],
+    conceptId: 'level-vs-change'
   }),
   'commodities-fx': Object.freeze({
     blocks: [
@@ -78,7 +86,8 @@ export const MACRO_GROUP_DEEP_DIVES = Object.freeze({
       ['전문가는 이렇게 읽는다', '구리와 금리가 함께 오르면 성장 기대, 구리는 내리는데 금리만 오르면 물가·재정 우려 쪽으로 읽는 식으로 다른 지표와 짝지어 봅니다. 위안화 약세는 중국 수출품 가격을 낮춰 한국 수출 기업과 경쟁 구도에 영향을 줍니다.'],
       ['다른 지표와의 연결', '에너지 가격은 몇 달 뒤 물가 지표로 이어지고, 위안화와 원화는 함께 움직이는 경향이 있어 한국 시장 화면의 원/달러와 이어서 봅니다.']
     ],
-    related: [['themes', '테마 화면에서 에너지·소재 흐름 보기']]
+    related: [['themes', '테마 화면에서 에너지·소재 흐름 보기']],
+    conceptId: 'one-price-vs-general'
   })
 });
 
@@ -89,7 +98,8 @@ export const SENTIMENT_DEEP_DIVES = Object.freeze({
       ['무엇을 재나', 'CNN 공포·탐욕 지수는 일곱 가지 시장 지표를 0~100으로 바꿔 평균한 값입니다. 지수가 125일 평균보다 얼마나 위에 있는지, 신고가와 신저가 종목 수, 상승·하락 거래량, 풋/콜 비율, 정크본드 수요, VIX, 주식과 채권의 최근 수익률 차이가 들어갑니다.'],
       ['전문가는 이렇게 읽는다', '극단값을 거꾸로 읽는 역발상 지표로 많이 씁니다. 극단 공포 뒤 반등이 많았지만, 하락장에서는 공포가 몇 주씩 이어지기도 해 바닥 시점을 알려주지는 않습니다. 이 화면의 VIX·풋/콜·신용과 재료가 겹치므로 서로 독립된 증거로 세지 않습니다.']
     ],
-    related: [['signal', '시장 상태에서 변동성·신용 축 함께 보기']]
+    related: [['signal', '시장 상태에서 변동성·신용 축 함께 보기']],
+    conceptId: 'base-rate'
   }),
   term: Object.freeze({
     blocks: [
@@ -101,7 +111,7 @@ export const SENTIMENT_DEEP_DIVES = Object.freeze({
   hy: Object.freeze({
     blocks: [
       ['무엇을 재나', '하이일드 스프레드는 낮은 등급 회사채가 국채보다 더 주는 금리입니다. 예상 부도 손실, 위험을 떠안는 대가, 팔기 어려운 데 대한 보상이 합쳐져 있습니다.'],
-      ['전문가는 이렇게 읽는다', '흔히 300bp대는 여유, 500bp를 넘으면 스트레스로 부릅니다. 이는 관행적 교육 구간이고, AIO 판정은 화면의 규칙(350bp 미만 안정 · 450bp 이상 부담)을 따릅니다. 2008년에는 2,000bp 가까이, 2020년 3월에는 1,000bp를 넘었습니다. 주가보다 먼저 벌어지기 시작하는 경우가 있어 주식 투자자도 같이 봅니다.']
+      ['전문가는 이렇게 읽는다', `흔히 300bp대는 여유, 500bp를 넘으면 스트레스로 부릅니다. 이는 관행적 교육 구간이고 AIO 판정 기준이 아닙니다. AIO는 ${CREDIT.stressAtBp}bp 이상이거나 5거래일 사이 ${CREDIT.widen5dBp}bp 이상 벌어지면 부담, ${CREDIT.tightBelowBp}bp 미만이면서 5거래일 동안 좁아지거나 그대로이고 20거래일 확대가 ${CREDIT.widen20dBp}bp 미만이며 풋/콜이 ${CREDIT.putCallHedgeAt} 미만일 때만 안정, 그 사이는 중립으로 판정합니다. 2008년에는 2,000bp 가까이, 2020년 3월에는 1,000bp를 넘었습니다. 주가보다 먼저 벌어지기 시작하는 경우가 있어 주식 투자자도 같이 봅니다.`]
     ],
     related: [['fxbond', '금리·환율 화면에서 스프레드 추이 보기']]
   }),
@@ -117,14 +127,16 @@ export const SENTIMENT_DEEP_DIVES = Object.freeze({
       ['무엇을 재나', '미국 개인투자자협회(AAII)가 매주 회원에게 앞으로 6개월 주가를 어떻게 보는지 묻는 설문입니다. 약세 응답의 장기 평균은 약 31%입니다.'],
       ['전문가는 이렇게 읽는다', '약세 응답이 아주 높을 때 이후 수익률이 평균보다 좋았다는 분석이 많아 역발상 지표로 쓰입니다. 다만 주 1회 설문이고 응답자 구성이 치우칠 수 있어, 가격·신용 지표와 함께 볼 때만 의미가 있습니다.']
     ],
-    related: []
+    related: [],
+    conceptId: 'base-rate'
   }),
   composite: Object.freeze({
     blocks: [
-      ['무엇을 재나', 'CNN 공포·탐욕 지수의 일곱 구성 요소를 본떠 공개 자료로 AIO가 직접 계산한 값입니다. 지수 모멘텀, 변동성, 풋/콜, 시장 폭, 신고가·신저가, 신용 스프레드, 안전자산 수요를 각각 지난 1년 안의 순위로 바꾼 뒤 평균합니다. CNN 숫자와 같지 않으며, 둘을 나란히 비교하려고 만든 지표입니다.'],
-      ['한계', '재료 지표들이 서로 겹쳐 있어 독립된 증거 여러 개가 아닙니다. 예측력이 검증된 점수가 아니므로 방향 판단은 위의 개별 지표와 시장 상태의 축으로 확인합니다.']
+      ['무엇을 재나', 'CNN 공포·탐욕 지수의 일곱 구성 요소를 본떠 공개 자료로 AIO가 직접 계산한 값입니다. 지수 모멘텀, 변동성, 풋/콜, 시장 폭, 신고가·신저가, 신용 스프레드, 안전자산 수요를 각각 지난 1년 안의 순위(백분위)로 바꿔 나란히 보여 줍니다. 평균해 한 점수로 만들거나 공포·탐욕 구간을 붙이지 않으며, CNN 숫자와 같지 않습니다.'],
+      ['한 점수로 합치지 않는 이유', '재료 지표들이 서로 겹쳐 있어 독립된 증거 여러 개가 아니고, 어떤 가중으로 합쳐야 예측력이 생기는지 검증된 근거가 없습니다. 그래서 요소마다 따로 보고, 가장 낮은 요소와 가장 높은 요소가 얼마나 벌어졌는지로 심리가 한쪽으로 쏠렸는지 읽습니다. 방향 판단은 위의 개별 지표와 시장 상태의 축으로 확인합니다.']
     ],
-    related: []
+    related: [],
+    conceptId: 'correlation'
   })
 });
 
@@ -136,7 +148,8 @@ export const MACRO_AXIS_DEEP_DIVES = Object.freeze({
       ['전문가는 이렇게 읽는다', '한 달 수치보다 3개월 평균의 방향을 봅니다. 3개월 평균 실업률이 지난 1년 저점보다 0.5%p 이상 오르면 경기 침체가 시작됐을 가능성이 크다는 경험칙(삼 규칙)이 자주 인용됩니다. 발표 뒤 수정치가 크게 바뀌는 일도 많아 첫 숫자에 과하게 반응하지 않습니다.'],
       ['다른 축과의 연결', '성장이 버티는데 물가가 내려가면 주식에 가장 좋은 조합(골디락스), 성장이 식는데 물가가 버티면 가장 어려운 조합(스태그플레이션)으로 묶어 읽습니다. 이 화면 위쪽의 국면 판정이 바로 그 조합입니다.']
     ],
-    related: [['briefing', '브리핑에서 이번 주 지표 발표 일정 보기']]
+    related: [['briefing', '브리핑에서 이번 주 지표 발표 일정 보기']],
+    conceptId: 'seasonal-revision'
   }),
   inflation: Object.freeze({
     blocks: [
@@ -144,7 +157,8 @@ export const MACRO_AXIS_DEEP_DIVES = Object.freeze({
       ['전문가는 이렇게 읽는다', '전년 대비 숫자는 1년 전 기저에 끌려가므로, 최근 3개월이나 6개월을 연율로 바꾼 속도를 함께 봅니다. 주거비처럼 늦게 반영되는 항목과 서비스 물가(임금과 연결)가 끈적한지가 금리 인하의 속도를 정합니다.'],
       ['다른 축과의 연결', '물가가 목표보다 높게 버티면 연준이 금리를 오래 높게 두고, 그만큼 할인율이 높아 주식 밸류에이션에 부담이 됩니다. 유가와 기대인플레이션이 그 다음 물가의 방향을 미리 알려줍니다.']
     ],
-    related: [['fxbond', '금리·환율 화면에서 기대인플레이션 보기']]
+    related: [['fxbond', '금리·환율 화면에서 기대인플레이션 보기']],
+    conceptId: 'level-vs-change'
   }),
   policy: Object.freeze({
     blocks: [
@@ -152,7 +166,8 @@ export const MACRO_AXIS_DEEP_DIVES = Object.freeze({
       ['전문가는 이렇게 읽는다', '실제 결정보다 시장이 이미 예상한 것과의 차이가 중요합니다. 예상대로 내리면 반응이 작고, 점도표나 기자회견이 앞으로의 경로를 바꿀 때 크게 움직입니다. 2년물이 정책금리보다 낮으면 인하 쪽, 높으면 인상·동결 장기화 쪽으로 기대가 기운 경우가 많습니다. 다만 2년물에는 기간 프리미엄과 수급도 섞여 있어 이 차이만으로 정책 경로를 단정하지는 않고, 선물·점도표와 함께 확인합니다.'],
       ['다른 축과의 연결', '정책 기대가 바뀌면 2년물이 먼저, 10년물과 달러가 뒤따라 움직입니다. 물가와 고용 두 축이 연준의 다음 결정을 정하는 재료입니다.']
     ],
-    related: [['fxbond', '금리·환율 화면에서 수익률 곡선 보기']]
+    related: [['fxbond', '금리·환율 화면에서 수익률 곡선 보기']],
+    conceptId: 'policy-vs-long-rate'
   }),
   korea: Object.freeze({
     blocks: [
@@ -160,6 +175,7 @@ export const MACRO_AXIS_DEEP_DIVES = Object.freeze({
       ['전문가는 이렇게 읽는다', '원화가 약해지면 외국인 투자자가 주가 하락에 환차손까지 겹쳐 한국 주식을 팔기 쉽고, 수출 기업에는 가격 경쟁력이 생깁니다. 엔화가 짧은 기간에 급하게 강해지면 캐리 거래가 청산되며 세계 위험자산이 함께 흔들린 사례(2024년 8월)가 있습니다.'],
       ['다른 축과의 연결', '미국 금리와 달러가 오르면 원화가 약해지는 경로가 가장 흔합니다. 시장 상태 화면의 한국 시장 카드에서 코스피와 함께 이어서 봅니다.']
     ],
-    related: [['signal', '시장 상태에서 한국 시장 카드 보기']]
+    related: [['signal', '시장 상태에서 한국 시장 카드 보기']],
+    conceptId: 'fx-return-for-foreigners'
   })
 });

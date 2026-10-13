@@ -76,7 +76,6 @@ export function createThemesProvider({
       }
       const live = readLiveData() || {};
       const historyBySymbol = readHistory() || {};
-      const weeklyPerf = readWeeklyPerf() || {};
       const producedArtifact = readRotationHistory();
       const observationNow = typeof now() === 'number' ? now() : Date.parse(now());
       const definitions = asDefinitions(readDefinitions());
@@ -100,25 +99,30 @@ export function createThemesProvider({
         });
         const currentQuote = runtimeQuote(live, symbol);
         const produced = selectProducedRotation(producedArtifact, symbol, observationNow);
-        const dailyPct = currentQuote.pct ?? produced?.dailyPct;
+        // v57.50 C21/C22: the sector bars and summary are labelled "<date> 미국 종가 기준", so the 1-day and 1-week
+        // returns come only from the session-checked completed-close artifact. The live quote (intraday pct) and the
+        // legacy 5-day cache (today's open→close first) no longer stand in under a close label; the live move is kept
+        // separately as livePct for any reader that labels it as live.
+        const closePct = finite(produced?.dailyPct);
         return {
           id: String(item?.id || symbol),
           symbol,
           label: item?.name || item?.label || symbol,
           price: currentQuote.price,
-          pct: finite(dailyPct),
-          weeklyPct: finite(weeklyPerf[symbol]) ?? finite(produced?.weeklyPct),
+          pct: closePct,
+          livePct: finite(currentQuote.pct),
+          weeklyPct: finite(produced?.weeklyPct),
           rsRatio: finite(produced?.rsRatio ?? rotation?.rsRatio ?? item?.rsRatio),
           rsMomentum: finite(produced?.rsMomentum ?? rotation?.rsMom ?? item?.rsMomentum),
           quadrant: produced?.quadrant || rotation?.quadrant || item?.quadrant || 'neutral',
           view: item?.view || 'sectors',
-          source: currentQuote.directionCompatible ? currentQuote.source : produced?.source || currentQuote.source,
-          sourceKind: currentQuote.directionCompatible ? 'runtime-quote' : produced?.sourceKind || 'unavailable',
-          observedAt: currentQuote.directionCompatible ? currentQuote.observedAt : produced?.observedAt || null,
-          fetchedAt: currentQuote.directionCompatible ? currentQuote.fetchedAt : produced?.fetchedAt || null,
+          source: closePct != null ? produced?.source : currentQuote.source,
+          sourceKind: closePct != null ? produced?.sourceKind || 'unavailable' : 'unavailable',
+          observedAt: closePct != null ? produced?.observedAt || null : null,
+          fetchedAt: closePct != null ? produced?.fetchedAt || null : null,
           revision: produced?.revision || currentQuote.revision,
-          changeBasis: currentQuote.directionCompatible ? currentQuote.changeBasis : produced?.changeBasis || 'unknown',
-          directionCompatible: currentQuote.directionCompatible || finite(produced?.dailyPct) != null,
+          changeBasis: closePct != null ? produced?.changeBasis || 'unknown' : 'unknown',
+          directionCompatible: closePct != null,
           rotationSource: rotation?.modelVersion ? `native-rrg:${rotation.modelVersion}` : (item?.source || 'native-rrg')
         };
       });

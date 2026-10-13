@@ -6,10 +6,12 @@
 // 20 days. The home took the last 20 history ROWS — one per collection day, weekends and holidays included with the
 // close carried forward — i.e. about 14 sessions. Both screens now use the same session series (one point per
 // trading date, carried-forward values excluded), so 20 sessions means 20 sessions on every screen.
-import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, closeBasis, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
 import { createTrendChart } from './trend-chart.js';
 import { buildBreadthSnapshot } from '../../domain/market/breadth-snapshot.js';
 
+// C25: the second cell is the Nasdaq-100 (^NDX); the briefing's "나스닥 종합" is the Composite.
 const CELLS = Object.freeze([
   { selector: '[data-live-price="ES=F"]', field: 'spx', label: 'S&P 500' },
   { selector: '[data-live-price="NQ=F"]', field: 'ndx', label: '나스닥 100 현물' },
@@ -22,7 +24,11 @@ export function trendPoints(history, field, sessions = SESSIONS) {
   // sessions + 1 closes span `sessions` session-to-session changes. P1527: stop at the common close basis (the S&P 500's
   // last completed close) like 시장 상태 does; an intraday or pre-market row dated after it is not a completed close and
   // moved the 10-year yield "20거래일" change to +45bp on the home against +47bp on 시장 상태.
-  return buildCloseSeries(history, field, { through: closeBasis(history) }).slice(-(sessions + 1));
+  // v57.50 C12: the start is the first close at least `sessions` exchange sessions back (market-read's sessionPointBack),
+  // not 21 rows — a missing session no longer stretches "20거래일" over a longer period; too large a gap draws nothing.
+  const series = buildCloseSeries(history, field, { through: closeBasis(history) });
+  const start = sessionPointBack(series, sessions);
+  return start ? series.filter((point) => point.date >= start.date) : [];
 }
 
 function svgLine(doc, points, width = 120, height = 26, neutral = false) {
@@ -70,14 +76,15 @@ export function renderHomeKpiTrends({ documentRef: doc, root }) {
     const change = cell.field === 'tnx' ? `${last - first >= 0 ? '+' : ''}${Math.round((last - first) * 100)}bp` : `${last >= first ? '+' : ''}${((last / first - 1) * 100).toFixed(1)}%`;
     const caption = doc.createElement('span');
     caption.className = 'kpi-trend-caption';
-    caption.textContent = `${points.length - 1}거래일 ${change}`;
+    const sessions = countOpenSessionsBetween(points[0].date, points[points.length - 1].date, 'US');
+    caption.textContent = `${sessions}거래일 ${change}`;
     box.replaceChildren(svgLine(doc, points, 120, 26, cell.field === 'tnx'), caption);
     const lo = Math.min(...points.map((point) => point.value));
     const hi = Math.max(...points.map((point) => point.value));
     const digits = cell.field === 'tnx' ? 2 : lo >= 100 ? 0 : 2;
     box.setAttribute('data-observed-at', points[points.length - 1].date); // P1643
     box.tabIndex = 0; // U01
-    box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${points.length - 1}거래일) · 기간 저점 ${lo.toFixed(digits)} · 고점 ${hi.toFixed(digits)} · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다`;
+    box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${sessions}거래일) · 기간 저점 ${lo.toFixed(digits)} · 고점 ${hi.toFixed(digits)} · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다`;
     drawn += 1;
   }
   renderHomeParticipation({ documentRef: doc, root, history });

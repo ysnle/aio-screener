@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.49';
+const APP_VERSION = 'v57.50';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2331,10 +2331,10 @@ window._aioDetectTickerPattern = function(symbol, requestEpoch) {
     if (epoch !== window._aioTickerSelectionEpoch || sym !== window._currentTickerId) return;
     // Codex browser audit H31: classify completed bars only — drop a bar dated after the latest completed
     // session of the ticker's market (the US session still trading at Korean night time).
-    var completedDate = typeof window._aioLatestCompletedSessionDate === 'function' ? window._aioLatestCompletedSessionDate(/^d{6}(.K[SQ])?$/.test(sym) ? 'KR' : 'US') : null;
+    var completedDate = typeof window._aioLatestCompletedSessionDate === 'function' ? window._aioLatestCompletedSessionDate(/^\d{6}(\.K[SQ])?$/.test(sym) ? 'KR' : 'US') : null; // C18: backslashes restored (lost in an edit)
     var droppedForming = false;
     if (completedDate && Array.isArray(series)) {
-      var kept = series.filter(function(bar) { var d = String((bar && (bar.time || bar.date)) || '').slice(0, 10); return !/^d{4}-d{2}-d{2}$/.test(d) || d <= completedDate; });
+      var kept = series.filter(function(bar) { var d = String((bar && (bar.time || bar.date)) || '').slice(0, 10); return !/^\d{4}-\d{2}-\d{2}$/.test(d) || d <= completedDate; });
       if (kept.length !== series.length) { droppedForming = true; kept.dataQuality = series.dataQuality; series = kept; }
     }
     if (series.length < 3 || !series.slice(-3).every(function(bar) { return bar && [bar.open, bar.high, bar.low, bar.close].every(function(value) { return value != null && isFinite(Number(value)) && Number(value) > 0; }); })) { ind.textContent = sym + ' · OHLCV 3봉 미수신 · 판정 보류'; return; }
@@ -2832,6 +2832,14 @@ if (typeof document !== 'undefined') {
     var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function'
       ? window.AIO.getCanonicalMetric('fg') : null;
     var fgAllowed = fgMetric && fgMetric.allowedUse === true && fgMetric.value != null;
+    // v57.50 C06: F&G follows the home card's completed-close reading (bootstrap _aioFgCloseReading); the live canonical
+    // value is used only before the native reader exists. A held close is null ('—'), never a substitute number.
+    if (typeof window._aioFgCloseReading === 'function') {
+      var fgClose = window._aioFgCloseReading();
+      var fgCloseValue = fgClose && fgClose.value != null ? _num(fgClose.value) : null;
+      fgMetric = fgCloseValue != null ? { value: fgCloseValue, asOf: fgClose.date, basis: fgClose.basis, source: fgClose.basis === 'close' ? 'completed-close-history' : 'canonical', allowedUse: true } : null;
+      fgAllowed = fgCloseValue != null;
+    }
     return {
       spx: spxMetric ? _num(spxMetric.value) : null,
       vix: vixMetric ? _num(vixMetric.value) : null,
@@ -3284,8 +3292,9 @@ if (typeof document !== 'undefined') {
           mcSignal = lastOsc > 5 ? 'bullish' : lastOsc < -5 ? 'bearish' : 'neutral';
         } else if (breadthEvidence.available) { var mom = bSma5 - bSma50; mcSignal = mom > 8 ? 'bullish' : mom < -8 ? 'bearish' : 'neutral'; }
       } catch(_) {}
-      // Weinstein stage proxy: 50일선 위 비율로 국면 추정(>55=2단계 상승, <40=4단계 하락).
-      var weinSignal = breadthEvidence.available ? (bSma50 >= 55 ? 'bullish' : bSma50 <= 40 ? 'bearish' : 'neutral') : 'neutral';
+      // Weinstein stage proxy: 50일선 위 비율로 국면 추정. v57.50 C15: 시장 상태 화면과 같은 RULES.breadth 경계
+      // (60 이상 넓음 · 40 미만 약함)를 쓴다 — 이전 55/40(이하)는 화면 판정과 어긋났다.
+      var weinSignal = breadthEvidence.available ? (bSma50 >= 60 ? 'bullish' : bSma50 < 40 ? 'bearish' : 'neutral') : 'neutral';
       // Golden Cross proxy: 20일선 breadth가 50일선 breadth 위면 단기 선도(강세 tilt).
       var gcSignal = breadthEvidence.available ? ((bSma20 - bSma50) > 5 ? 'bullish' : (bSma20 - bSma50) < -5 ? 'bearish' : 'neutral') : 'neutral';
       var breadth = breadthEvidence.available && (typeof A.diagnoseBreadthConsensus === 'function') ? A.diagnoseBreadthConsensus({
@@ -18496,7 +18505,9 @@ function computeExecutionWindow() {
   const fg = _fgExec && _fgExec.allowedUse && isFinite(Number(_fgExec.value)) ? Number(_fgExec.value) : null;
   const breadthCandidate = (typeof window._breadth200 === 'number') ? window._breadth200 :
                            (typeof window._breadth20 === 'number') ? window._breadth20 : null;
-  const breadth200 = (function() {
+  // v57.50 C07: `_breadth200` / 'breadth200-participation' are legacy names; the value is the share of AIO US stocks
+  // above their 20-day SMA, so the conditions below read short-term participation, not the 200-day trend.
+  const breadth20 = (function() {
     try {
       var a = window.AIO.getTradingDecisionInputEvidence();
       var r = a.rows.find(function(x) { return x.id === 'breadth200-participation'; });
@@ -18511,7 +18522,7 @@ function computeExecutionWindow() {
       return r && r.status === 'verified_current' && isFinite(Number(window._putCallRatio)) ? Number(window._putCallRatio) : null;
     } catch(_) { return null; }
   })();
-  if (vix == null || fg == null || breadth200 == null || pcr == null) {
+  if (vix == null || fg == null || breadth20 == null || pcr == null) {
     ['ew-breakout','ew-pullback','ew-followthru','ew-leaders'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) { el.textContent = 'N/A'; el.style.color = 'var(--text-muted)'; }
@@ -18522,9 +18533,9 @@ function computeExecutionWindow() {
   // v46.9: 기저값 상향 — 중립 시 MOD(65) 판정되도록 (이전 46.25→WEAK)
   // Breakout holding: are breakouts sustaining?
   let breakoutHold = 65;
-  if (breadth200 < 30) breakoutHold -= 25;
+  if (breadth20 < 30) breakoutHold -= 25;
   if (vix > 25) breakoutHold -= 15;
-  if (breadth200 > 60 && vix < 20) breakoutHold += 10;
+  if (breadth20 > 60 && vix < 20) breakoutHold += 10;
   breakoutHold = Math.max(0, Math.min(100, breakoutHold));
 
   // Pullback buying: are dips getting bought quickly?
@@ -18536,14 +18547,14 @@ function computeExecutionWindow() {
 
   // Follow-through: multi-day continuation
   let followThru = 55;
-  if (breadth200 < 35) followThru -= 20;
+  if (breadth20 < 35) followThru -= 20;
   if (vix > 22) followThru -= 10;
-  if (breadth200 > 55 && vix < 22) followThru += 10;
+  if (breadth20 > 55 && vix < 22) followThru += 10;
   followThru = Math.max(0, Math.min(100, followThru));
 
   // Leader retention: are leading stocks holding gains?
   let leaderHold = 65;
-  if (breadth200 < 40) leaderHold -= 15;
+  if (breadth20 < 40) leaderHold -= 15;
   if (pcr > 1.2) leaderHold -= 10;
   leaderHold = Math.max(0, Math.min(100, leaderHold));
 
@@ -18584,7 +18595,8 @@ function classifyMarketRegime() {
   const breadthCurrent = !!(breadthEvidence && breadthEvidence.status === 'verified_current');
   // Missing breadth is unknown, not neutral. A synthetic 50% would change the
   // regime branch while the source is unavailable and make the score look complete.
-  const breadth200 = breadthCurrent && typeof window._breadth200 === 'number' && Number.isFinite(window._breadth200) ? window._breadth200 : null;
+  // v57.50 C07: `_breadth200` is the legacy global name of the 20-day-SMA share.
+  const breadth20 = breadthCurrent && typeof window._breadth200 === 'number' && Number.isFinite(window._breadth200) ? window._breadth200 : null;
 
   let regime = 'CHOP';
   let label = '횡보·혼조';
@@ -18593,9 +18605,9 @@ function classifyMarketRegime() {
 
   if (!spxPrice || !spx50ma || !spx200ma || !breadthCurrent) {
     regime = 'DATA_CHECK'; label = '근거 확인 필요'; color = 'var(--data-amber)'; sub = !breadthCurrent ? '시장폭 최신 근거 미수신' : 'SPX OHLCV·이동평균 최신 근거 필요';
-  } else if (spxPrice > spx50ma && breadth200 > 55) {
-    regime = 'UPTREND'; label = '상승 추세'; color = 'var(--data-green)'; sub = '50MA 위 + 시장폭 양호';
-  } else if (spxPrice < spx200ma && breadth200 < 30) {
+  } else if (spxPrice > spx50ma && breadth20 > 55) {
+    regime = 'UPTREND'; label = '상승 추세'; color = 'var(--data-green)'; sub = '50MA 위 + 20일선 위 종목 비율 양호';
+  } else if (spxPrice < spx200ma && breadth20 < 30) {
     regime = 'DOWNTREND'; label = '하락 추세'; color = 'var(--data-red)'; sub = '200MA 하회 + 시장폭 붕괴';
   } else if (spxPrice < spx50ma && spxPrice > spx200ma) {
     regime = 'CORRECTION'; label = '세속 상승장 내 순환적 조정'; color = 'var(--data-amber)'; sub = 'Secular Bull → Cyclical Correction';

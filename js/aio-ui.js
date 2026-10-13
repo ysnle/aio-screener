@@ -28,7 +28,7 @@ function updateBreadthBars() {
   }
   window._breadth5 = currentBreadth.sma5;
   window._breadth20 = currentBreadth.sma20;
-  window._breadth200 = currentBreadth.sma20;
+  window._breadth200 = currentBreadth.sma20; // v57.50 C07: legacy global name — the value is the 20-day-SMA share
   window._breadth50 = currentBreadth.sma50;
   var diagSummary = '5/20/50일선 상회 ' + Math.round(currentBreadth.sma5) + '/' + Math.round(currentBreadth.sma20) + '/' + Math.round(currentBreadth.sma50) + '%';
   var breadthHeader = document.getElementById('breadth-header-badge');
@@ -2028,8 +2028,10 @@ window._aioDiagram = (function () {
     out += _r(rx, ry, 94, 68, _alphaRgb(col, 0.10), 6, col, 1);
     out += _t(rx + 47, ry + 16, regime, col, 10, 700, 'middle');
     out += _t(rx + 47, ry + 31, '점수 ' + _n(score), C.muted, 10, 600, 'middle');
-    out += _t(rx + 47, ry + 47, 'VIX ' + _n(vix, 1), vix >= 25 ? C.red : vix >= 18 ? C.amber : C.green, 10, 700, 'middle');
-    out += _t(rx + 47, ry + 61, vix >= 25 ? '고변동 경계' : vix >= 18 ? '주의 구간' : '저변동 안정', C.muted, 10, 400, 'middle');
+    // v57.50 C13: the shared VIX bands (RULES.volatility 18/25/32 via _aioVixBandIndex), not a private 18/25 pair.
+    var _vb = typeof window._aioVixBandIndex === 'function' ? window._aioVixBandIndex(vix) : (vix >= 32 ? 3 : vix >= 25 ? 2 : vix >= 18 ? 1 : 0);
+    out += _t(rx + 47, ry + 47, 'VIX ' + _n(vix, 1), _vb >= 2 ? C.red : _vb === 1 ? C.amber : C.green, 10, 700, 'middle');
+    out += _t(rx + 47, ry + 61, ['저변동 구간', '통상 범위', '변동성 경계 구간', '고변동 구간'][_vb] || '', C.muted, 10, 400, 'middle');
     return _svg(W, H, out);
   }
 
@@ -2432,25 +2434,6 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     return 'EARLY';
   }
 
-  function _buildScore() {
-    var s = _getScore();
-    var rawRequired = [s.total,s.volScore,s.momScore,s.trendScore,s.breadthScore,s.macroScore];
-    if (rawRequired.some(function(v) { return v == null || v === ''; })) return { available:false };
-    var required = rawRequired.map(Number);
-    if (!required.every(Number.isFinite)) return { available:false };
-    var total = required[0];
-    return {
-      total: total,
-      components: [
-        { label: 'VIX 레짐',  value: Math.round(_cl(s.volScore    || 0, 0, 100) * 0.25), max: 25 },
-        { label: 'F&G 심리', value: Math.round(_cl(s.momScore     || 0, 0, 100) * 0.25), max: 25 },
-        { label: 'SPX 추세',  value: Math.round(_cl(s.trendScore  || 0, 0, 100) * 0.20), max: 20 },
-        { label: '시장 폭',   value: Math.round(_cl(s.breadthScore|| 0, 0, 100) * 0.20), max: 20 },
-        { label: '매크로',    value: Math.round(_cl(s.macroScore  || 0, 0, 100) * 0.10), max: 10 },
-      ],
-    };
-  }
-
   function _buildRegime() {
     var s = _getScore();
     var snap = _snap();
@@ -2462,7 +2445,8 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     if (!Number.isFinite(total) || !Number.isFinite(vix) || vix <= 0) return { available:false };
     var regime = total >= 75 ? 'BULL' : total >= 60 ? '매수우호' : total >= 45 ? 'NEUTRAL' : total >= 30 ? '경계' : 'BEAR';
     var spyScore = _cl(s.trendScore || 50, 0, 100);
-    var vixScore = vix >= 35 ? 8 : vix >= 25 ? 28 : vix >= 18 ? 55 : vix >= 14 ? 78 : 92;
+    var _vbr = typeof window._aioVixBandIndex === 'function' ? window._aioVixBandIndex(vix) : (vix >= 32 ? 3 : vix >= 25 ? 2 : vix >= 18 ? 1 : 0); // v57.50 C13: shared bands
+    var vixScore = _vbr >= 3 ? 8 : _vbr === 2 ? 28 : _vbr === 1 ? 55 : vix >= 14 ? 78 : 92;
     return { regime: regime, score: total, vix: vix, spyScore: spyScore, vixScore: vixScore };
   }
 
@@ -2705,9 +2689,8 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     try {
       var q = ((question    || '') + ' ' + (responseText || '')).toLowerCase();
       // 우선순위 순으로 가장 명확한 매치만 반환 (과잉 삽입 방지)
-      if (/매매 점수|거래 점수|trading score|점수 분해/.test(q)) {
-        return { type: 'score-breakdown', data: _buildScore(),    label: '시장 환경 점수 분해 (예측 지표 아님)' };
-      }
+      // v57.50 (W3 follow-up): the score-breakdown and market-regime diagrams drew the trading score retired from
+      // every screen in P1392; an AI answer no longer attaches them (the market-state screen carries the regime).
       if (/수익률 곡선|yield curve|장단기 금리|금리 역전|inverted yield|tyx/.test(q)) {
         return { type: 'yield-curve',     data: _buildYield(),    label: '수익률 곡선' };
       }
@@ -2716,9 +2699,6 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
       }
       if (/경기 사이클|business cycle|침체 국면|recessio|확장 국면|후기 사이클|초기 확장/.test(q)) {
         return { type: 'economic-cycle',  data: _buildEcon(),     label: '경기 사이클' };
-      }
-      if (/시장 국면|market regime|레짐 포지셔닝|bull.*bear.*사분면/.test(q)) {
-        return { type: 'market-regime',   data: _buildRegime(),   label: '시장 국면 레짐' };
       }
       if (/팩터 백테스트|factor backtest|정보계수|ic.*모멘텀|spearman/.test(q)) {
         return { type: 'factor-backtest', data: _buildBacktest(), label: '팩터 백테스트 IC' };
@@ -6747,7 +6727,7 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
     bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99990;background:var(--bg-elevated,#f5f1e8);border-top:1px solid var(--border,#d8d2c4);box-shadow:0 -2px 12px rgba(33,29,22,0.12);padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;line-height:1.6;color:var(--text-secondary,#57513f);';
     var txt = document.createElement('div');
     txt.style.cssText = 'flex:1;min-width:240px;';
-    txt.innerHTML = '<b style="color:var(--text-primary);">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 지연/스냅샷/참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 내부 점수의 예측력은 검증되지 않았고 부분 백테스트에서는 음(−)의 상관이 관측됐습니다. 투자 결정과 그 결과는 이용자 본인에게 있습니다.';
+    txt.innerHTML = '<b style="color:var(--text-primary);">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 지연/스냅샷/참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과는 이용자 본인에게 있습니다.';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = '확인했습니다';

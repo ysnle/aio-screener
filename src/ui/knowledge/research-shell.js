@@ -6,6 +6,7 @@ import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { searchKnowledgeIndex } from './glossary-bridge.js';
 import { createStorageGateway } from '../../platform/storage.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
+import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 
 export const RESEARCH_PAGES = Object.freeze([
   { route: 'principles', title: '개념·분석 프레임', summary: '쟁점별 분석 노트, 개념 정의, 원리 레슨, 칼럼' },
@@ -189,8 +190,8 @@ export function routeHref(root, route) {
 export function openResearchRoute(root, route, { currentPage, onLocal } = {}) {
   if (!route?.page) return;
   if (route.page === currentPage && typeof onLocal === 'function') { onLocal(route.params || {}); return; }
-  root.history?.pushState?.(null, '', routeHref(root, route));
-  if (typeof root.showPage === 'function') root.showPage(route.page);
+  // v57.50: pushState + showPage lost the selection (showPage strips the knowledge keys); the pending route URL keeps it.
+  if (typeof root.showPage === 'function') navigateKnowledgeRoute({ root, page: route.page, params: route.params || {} });
   else root.location.assign(routeHref(root, route));
 }
 

@@ -65,20 +65,16 @@
       "nativePrimarySurface": [
         "#page-home #home-hero-total",
         "#page-home #home-hero-headline",
-        "#page-home #home-hero-desc",
-        "#page-home #home-trading-signal"
+        "#page-home #home-hero-desc"
       ],
       "nativeSecondarySurface": [
         "#page-home #home-fg-score",
         "#page-home #home-fg-label",
-        "#page-home #home-hero-components",
-        "#page-home #home-quality-meter",
-        "#page-home #home-quality-score",
-        "#page-home #home-quality-label"
+        "#page-home #home-hero-components"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-data.js: refreshHomeDashboard #home-trading-signal writer is fenced by _aioIsNativeHomeSummaryElement",
+        "v57.50 I16: the retired-score cards (#home-trading-grid: #home-trading-signal, #home-quality-*, #home-market-regime) and #home-risk-regime-badge left index.html; js/aio-data.js refreshHomeDashboard writers are null-guarded no-ops until W3 removes them",
         "P1010 DELETE-LEDGER: _aioRenderHomeHero, its callers/export, and legacy Fear & Greed score/label writers removed"
       ],
       "p787Boundary": "analysis.js owns the four home score/decision summary sinks from trading-score.v3/signal-presentation.v1. Quality meter, Fear & Greed, market regime, factor detail, chart, and narrative remain legacy secondary boundaries.",
@@ -178,7 +174,6 @@
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=technical)",
       "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
-        "#page-technical #tech-health-pill",
         "#page-technical #tech-regime-overall",
         "#page-technical #tech-regime-basis",
         "#page-technical #tech-regime-chips",

@@ -46,11 +46,13 @@ const AXIS_SOURCES = Object.freeze({
   korea: '원/달러·엔/달러·코스피 (Yahoo Finance)'
 });
 
-function requestRegimeMacroHistory(root, doc) {
+// v57.50 D01: home reads the same credit axis (20-session HY change from macro-history) as 시장 상태; without it home
+// showed '집중 유지 4/4' with credit '우호' while 시장 상태 showed 3/4 with credit '중립'.
+function requestRegimeMacroHistory(root, doc, pageId = 'page-signal', rerender = () => renderRegimePage({ documentRef: doc, root })) {
   if (!sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) return;
   refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => {
-    if (changed && doc.getElementById('page-signal')?.classList?.contains('active')) renderRegimePage({ documentRef: doc, root });
-  });
+    if (changed && doc.getElementById(pageId)?.classList?.contains('active')) rerender();
+  }).catch(() => {});
 }
 
 function chartPanel(doc, charts, range) {
@@ -79,6 +81,29 @@ function chartPanel(doc, charts, range) {
   return panel;
 }
 
+// I03: "관련 섹터·테마" names are buttons — a theme opens its detail page, a sector (or a theme without an id) opens
+// 테마 · 섹터. Without link data the plain sentence stays.
+function opportunityNode(doc, root, view, className) {
+  const node = el(doc, 'p', null, className);
+  const parts = Array.isArray(view?.opportunityLinks) ? view.opportunityLinks.filter((part) => part?.links?.length) : [];
+  if (!parts.length) { node.textContent = view?.opportunity || ''; return node; }
+  parts.forEach((part, index) => {
+    if (index) node.append(doc.createTextNode(' · '));
+    node.append(doc.createTextNode(`${part.label}: `));
+    for (const link of part.links) {
+      const button = el(doc, 'button', link.label, 'regime-opportunity-chip');
+      button.type = 'button';
+      button.title = link.kind === 'theme' && link.themeId ? `${link.label} 테마 상세` : '테마 · 섹터 화면에서 보기';
+      button.addEventListener('click', () => {
+        if (link.kind === 'theme' && link.themeId && typeof root?.showThemeDetail === 'function') root.showThemeDetail(link.themeId);
+        else root?.showPage?.('themes');
+      });
+      node.append(button);
+    }
+  });
+  return node;
+}
+
 function listBlock(doc, title, items) {
   const box = el(doc, 'div', null, 'regime-scenario-list');
   box.append(el(doc, 'h4', title));
@@ -88,7 +113,7 @@ function listBlock(doc, title, items) {
 
 // P1633: each path says how likely it is from today's conditions and what it would mean for the
 // reader (possibility and opportunity cost), with check / caution / ignore lists on demand.
-function scenarioSection(doc, model, outlook, openIds = new Set()) {
+function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   const section = el(doc, 'section', null, 'regime-scenarios');
   section.dataset.aioRegimeScenarios = 'native';
   section.append(el(doc, 'h2', '세 가지 흐름과 현재 조건 부합도', 'briefing-h2'),
@@ -109,7 +134,7 @@ function scenarioSection(doc, model, outlook, openIds = new Set()) {
     card.append(head);
     if (view) {
       card.append(el(doc, 'p', view.posture, 'regime-scenario-reading'));
-      card.append(el(doc, 'p', view.opportunity, 'regime-scenario-opportunity'));
+      card.append(opportunityNode(doc, root, view, 'regime-scenario-opportunity'));
     } else card.append(el(doc, 'p', scenario.interpretation, 'regime-scenario-reading'));
     const more = el(doc, 'details', null, 'regime-scenario-more');
     more.open = openIds.has(scenario.id);
@@ -220,8 +245,8 @@ export function renderRegimePage({ documentRef: doc, root }) {
   const openIds = new Set([...(previous?.querySelectorAll?.('.regime-scenario-more[open]') || [])].map(node => node.closest('.regime-scenario-card')?.dataset.scenario));
   previous?.remove();
   root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime }) : null;
-  if (board) board.insertAdjacentElement('afterend', scenarioSection(doc, scenarios, root.__aioScenarioOutlook, openIds));
-  renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime }).next); // P1431
+  if (board) board.insertAdjacentElement('afterend', scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds));
+  renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   page.dataset.aioRegimeRenderer = 'native';
   return regime;
 }
@@ -288,6 +313,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
   const hero = doc?.getElementById('home-score-hero');
   if (!hero) return null;
   const regime = readMarketRegime(root);
+  requestRegimeMacroHistory(root, doc, 'page-home', () => renderHomeRegime({ documentRef: doc, root }));
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 축 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
@@ -349,7 +375,7 @@ export function renderHomeRegime({ documentRef: doc, root }) {
       const more = el(doc, 'button', '세 가지 흐름과 확인할 것 보기 →', 'flow-next-link');
       more.type = 'button';
       more.addEventListener('click', () => root.showPage?.('signal'));
-      outlookBox.replaceChildren(el(doc, 'p', outlook.headline, 'home-outlook-lead'), el(doc, 'p', lead.posture, 'home-outlook-posture'), el(doc, 'p', lead.opportunity, 'home-outlook-opportunity'), more);
+      outlookBox.replaceChildren(el(doc, 'p', outlook.headline, 'home-outlook-lead'), el(doc, 'p', lead.posture, 'home-outlook-posture'), opportunityNode(doc, root, lead, 'home-outlook-opportunity'), more);
     }
   }
   hero.dataset.aioRegimeRenderer = 'native';

@@ -4,9 +4,13 @@ last_verified: 2026-10-13
 confidence: medium
 ---
 
+## v57.50 검증 스킬 (2026-10-13)
+
+- [ ] QA-VERIFY-17: P1693/P1697: 배포 사이트에서 종목 화면 "같은 섹터 비교"가 스크리너 섹터 필터로 1건 이상 열리고, #ticker?sym=MSFT 주소로 새로고침해도 MSFT가 유지된다. verify_by: push 뒤 배포 사이트 브라우저 확인(verify-aio stock·screener)
+
 ## v57.49 검증 스킬 (2026-10-13)
 
-- [ ] QA-VERIFY-16: P1688: 배포 사이트에서 VIX·10년물 수준을 기준일과 함께 물으면 화면 기준 종가 값이 'YYYY-MM-DD 종가'와 함께 답에 남고, 경고는 한국어 한 줄 이하다. verify_by: push 뒤 배포 사이트 AI 질문 1회(scratch live-ai 스크립트)
+- [x] QA-VERIFY-16: P1688: 배포 사이트에서 VIX·10년물 수준을 기준일과 함께 물으면 화면 기준 종가 값이 'YYYY-MM-DD 종가'와 함께 답에 남고, 경고는 한국어 한 줄 이하다. verify_by: push 뒤 배포 사이트 AI 질문 1회(scratch live-ai 스크립트)
 
 ## v57.48 verify-aio user-path verification (2026-10-13)
 

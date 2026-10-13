@@ -12,6 +12,9 @@ import { latestCompletedKrSession, latestCompletedUsSession } from '../market/ma
 export const GROUP_STRENGTH_MODEL_VERSION = 'theme-group-strength.v1';
 export const GROUP_WINDOWS = Object.freeze({ ret1m: '1개월', ret3m: '3개월', ret6m: '6개월' });
 export const MIN_GROUP_MEMBERS = 3;
+// v57.50 D15: a 3-stock median can swing on one name; such a group stays in the table as '표본 n종목 · 참고' but does
+// not take a rank, so it never heads the order (1위) or closes it (최하위) in the lead sentence.
+export const HEADLINE_MIN_MEMBERS = 4;
 
 const finite = (value) => (value == null || value === '' ? null : Number.isFinite(Number(value)) ? Number(value) : null);
 
@@ -24,7 +27,7 @@ export function median(values) {
 
 function rankBy(groups, key) {
   // E07: only groups on the market's latest completed session compete; an older group stays as a dated reference.
-  const ranked = groups.filter((group) => group[key] != null && group.current !== false).sort((a, b) => b[key] - a[key]);
+  const ranked = groups.filter((group) => group[key] != null && group.current !== false && !group.smallSample).sort((a, b) => b[key] - a[key]);
   const ranks = new Map();
   ranked.forEach((group, index) => ranks.set(group.id, index + 1));
   return ranks;
@@ -66,7 +69,7 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
       });
       groups.push({
         id, themeId: theme.id, themeName: theme.nameKr, name: sub.name,
-        members: members.length, listed: tickers.length,
+        members: members.length, listed: tickers.length, smallSample: members.length < HEADLINE_MIN_MEMBERS,
         constituents: tickers.map((sym) => ({ sym, name: bySymbol.get(sym)?.name || '', included: members.some((row) => String(row.sym).toUpperCase() === sym) })),
         rankedMembers, comparisonAligned, basis: comparisonAligned ? dates[0] : null,
         ret1m: comparisonAligned ? median(members.map((row) => finite(row.ret1m))) : null,
@@ -97,7 +100,7 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
     const band = Math.max(3, Math.round(total * 0.15));
     const direction = shift == null ? null : shift >= band ? 'improving' : shift <= -band ? 'weakening' : 'steady';
     return { ...group, rank: rankSort.get(group.id) ?? null, rank1m: r1, rank3m: r3, direction, vsBenchmark: group.basis && group.basis === benchmark.asOf && group[key] != null && bench != null ? group[key] - bench : null };
-  }).sort((a, b) => (a.rank ?? 1e9) - (b.rank ?? 1e9));
+  }).sort((a, b) => (a.rank ?? 1e9) - (b.rank ?? 1e9) || (a.smallSample === b.smallSample ? (b[key] ?? -1e9) - (a[key] ?? -1e9) : a.smallSample ? 1 : -1));
   // Theme level (all sub-theme members once), used where a layer links to a whole theme.
   // Expert review M15: one member on another close (HUBB on 10/9 among 10/12 rows) used to blank the whole theme
   // (energy, industrials). A member that is stale, or on an older session than the theme's newest, is held out —

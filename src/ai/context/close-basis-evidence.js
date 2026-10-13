@@ -13,7 +13,7 @@ export const CLOSE_BASIS_VERSION = 'close-basis-evidence.v1';
 // `change`: 'pct' publishes a one-session % change row, 'bp' a basis-point change row (rates never move in %).
 const METRICS = Object.freeze([
   { field: 'spx', metric: 'close.spx', entity: 'SPX', label: 'S&P 500 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^GSPC', 'SPX'] },
-  { field: 'nasdaq', metric: 'close.nasdaq', entity: 'NASDAQ', label: '나스닥 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^IXIC'] },
+  { field: 'nasdaq', metric: 'close.nasdaq', entity: 'NASDAQ', label: '나스닥 종합 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^IXIC'] },
   { field: 'vix', metric: 'close.vix', entity: 'VIX', label: 'VIX 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^VIX', 'VIX'] },
   { field: 'tnx', metric: 'close.us10y', entity: 'US10Y', label: '미 10년물 금리 종가', unit: 'percent', digits: 3, change: 'bp', symbols: ['^TNX', 'US10Y'] },
   { field: 'dxy', metric: 'close.dxy', entity: 'DXY', label: '달러 인덱스 종가', unit: 'index', digits: 2, change: null, symbols: ['DX-Y.NYB', 'DXY'] },

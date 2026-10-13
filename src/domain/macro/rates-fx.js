@@ -4,7 +4,7 @@
 // 10Y >= 5% = '높은 수준', 10Y >= 4.7% = '주식 압박') and the four-axis bull/bear count with the
 // observed level, its change and its date. The only rule shown is the one 시장 상태 already uses:
 // a yen rally of 3% or more in 20 sessions marks the FX axis as a burden.
-import { buildCloseSeries, closeBasis } from '../briefing/market-read.js';
+import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../briefing/market-read.js';
 import { resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { RULES } from '../rules/thresholds.js';
 
@@ -19,6 +19,11 @@ export const TREASURY_TENORS = Object.freeze([
   Object.freeze({ id: 'dgs30', label: '30년', years: 30 })
 ]);
 
+// v57.50 (W1 request): the completed-close series on this tab (FX cards, ^TNX) count sessions with the 시장 상태 helper
+// `closeSessionPointBack` (market-read.js), so a "5일/20일" here is the same point as there — verified identical on every
+// close field × 1/5/20/63 sessions × 60 cut-offs of public-data/history.json (1,920 cases, 0 differences). This local
+// helper stays for series that are not completed-close rows (FRED daily observations, weekend-row inputs: on a Sunday
+// row the market-read helper returns that row, this one the Friday — the M01 fixture).
 // Expert review M01 (2026-10-13): a close series can carry a weekend row, so "20일" counted as 20 rows covered fewer
 // sessions. A change span is counted in exchange sessions instead: the point is the last observation on or before
 // the day that lies `sessions` open sessions before the latest observation (registered calendar; weekdays when unknown).
@@ -111,7 +116,12 @@ function treasury(macro) {
   // The New York Fed's term-spread research: inversions preceded most U.S. recessions since the
   // 1960s, with a variable lead. It is a hypothesis about the economy, not a market timing rule.
   const reading = inverted ? '과거 미국 경기침체 대부분에 앞서 장단기 금리 역전이 나타났습니다(뉴욕 연준 연구). 다만 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.' : null;
-  return { yields, asOf: dates.length === 1 ? dates[0] : dates.sort().pop() || null, sameCut, curve, fact, reading, source: '미 재무부 공식 수익률 곡선' };
+  const asOf = dates.length === 1 ? dates[0] : dates.sort().pop() || null;
+  // v57.50 C10: the curve's levels and 1-day/1-week changes are the Treasury's official cut on its own date, which can be
+  // a session or more behind the ^TNX close the 시장 상태 10-year "5일" change reads. The label carries the source and date.
+  const [, month, day] = String(asOf || '').split('-').map(Number);
+  const basisLabel = asOf ? `재무부 공식 곡선 · ${month}/${day} 기준` : null;
+  return { yields, asOf, sameCut, curve, fact, reading, basisLabel, source: '미 재무부 공식 수익률 곡선' };
 }
 
 function fredLevel(macro, key, label, { toBp = false, note }) {
@@ -133,8 +143,8 @@ function fxCard(history, basis, spec) {
   const series = buildCloseSeries(history, spec.id, { through: basis });
   if (!series.length) return { ...spec, available: false, series: [] };
   const last = series[series.length - 1];
-  const prior = sessionPointBack(series, 1);
-  const back20 = sessionPointBack(series, 20);
+  const prior = closeSessionPointBack(series, 1);
+  const back20 = closeSessionPointBack(series, 20);
   const change20 = back20 ? (last.value / back20.value - 1) * 100 : null;
   return {
     ...spec,
@@ -169,7 +179,18 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
       burden: yenStrength >= YEN_RALLY_RULE,
       text: `엔화 20일 ${signed(yenStrength, 1, '%')} (${yenStrength >= 0 ? '엔 강세' : '엔 약세'}) — 3% 이상 강세면 시장 상태 환율 축이 '부담'으로 바뀝니다.`
     };
-  const tnx = buildCloseSeries(history, 'tnx', { through: basis }).slice(-CHART_SESSIONS);
+  const tnxAll = buildCloseSeries(history, 'tnx', { through: basis });
+  const tnx = tnxAll.slice(-CHART_SESSIONS);
+  // v57.50 C10: the 10-year "5일/20일" change on this tab is the ^TNX completed-close series — the same series and session
+  // count as the 시장 상태 rates axis — so the two screens print the same number for the same day.
+  const tnxLast = tnxAll[tnxAll.length - 1] || null;
+  const tnxBack5 = closeSessionPointBack(tnxAll, 5);
+  const tnxBack20 = closeSessionPointBack(tnxAll, 20);
+  const tnxChange = {
+    date: tnxLast?.date || null,
+    d5Bp: tnxLast && tnxBack5 ? Math.round((tnxLast.value - tnxBack5.value) * 10000) / 100 : null,
+    d20Bp: tnxLast && tnxBack20 ? Math.round((tnxLast.value - tnxBack20.value) * 10000) / 100 : null
+  };
   // Codex browser audit H17: TIPS read 10/5 while the breakeven and nominal yields read 10/6, and the cards sat
   // side by side as if "명목 = 실질 + 기대물가" held on one date. A date mismatch is stated on both cards.
   const real = [
@@ -189,6 +210,7 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
     real,
     credit: fredLevel(m, 'hyOAS', '하이일드 스프레드', { toBp: true, note: '투기등급 회사채가 국채보다 더 받는 금리입니다. 넓어질수록 신용 위험을 크게 봅니다.' }),
     tnx,
+    tnxChange,
     fx,
     carry
   };

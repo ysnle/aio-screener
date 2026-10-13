@@ -6,7 +6,8 @@ import { vixBand } from '../../domain/sentiment/narrative.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
 import { renderPortfolioRead } from '../components/portfolio-read.js';
-import { portfolioRowsForAI } from '../../domain/portfolio/portfolio-read.js';
+import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio/portfolio-read.js';
+import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
@@ -119,14 +120,16 @@ function setSurfaceText(documentRef, id, text, value, surface, color = null) {
   markSurfaceElement(element, value, surface.sourceKind, surface.sourceLabel, surface.observedAt);
 }
 
-function sectorLabel(name) {
-  const labels = {
-    Technology: '테크', Healthcare: '헬스', 'Financial Services': '금융', Financials: '금융',
-    'Consumer Cyclical': '임의소비', Consumer: '임의소비', Materials: '소재', Energy: '에너지', Industrials: '산업재',
-    'Consumer Defensive': '필수소비', 'Communication Services': '통신', Utilities: '유틸',
-    'Real Estate': '리츠', 'Basic Materials': '소재', CASH: '현금', Unclassified: '미분류'
-  };
-  return labels[name] || name;
+// v57.50 I11: the bars and the 포트폴리오 해석 use one sector vocabulary (the screener's labels via portfolioSectorLabel).
+const sectorLabel = portfolioSectorLabel;
+
+// v57.50 C24: the sector of a holding comes from the same screener row the 포트폴리오 해석 reads.
+function screenerSectorOf(root) {
+  let rows = [];
+  try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
+  if (!rows.length && Array.isArray(root?.SCREENER_DB)) rows = root.SCREENER_DB;
+  const bySymbol = new Map(rows.map((row) => [String(row?.sym || '').toUpperCase(), row]));
+  return (symbol) => bySymbol.get(String(symbol || '').toUpperCase())?.sector || null;
 }
 
 function renderPortfolioSurface(documentRef, page, surface) {
@@ -199,7 +202,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
         label.textContent = sectorLabel(sector.name);
         label.title = `${sectorLabel(sector.name)} · 현금 포함 총자산 대비`;
         label.dataset.basis = sector.basis || 'total-assets-including-cash';
-        label.style.cssText = 'width:56px;font-size:11px;color:var(--text-secondary);text-align:right;flex-shrink:0;font-weight:600;';
+        label.style.cssText = 'width:64px;font-size:11px;color:var(--text-secondary);text-align:right;flex-shrink:0;font-weight:600;';
         const track = documentRef.createElement('div');
         track.style.cssText = 'flex:1;height:14px;background:var(--surface-3);border-radius:4px;overflow:hidden;';
         const bar = documentRef.createElement('div');
@@ -426,8 +429,9 @@ function render({ root, documentRef, store, charts }) {
     page.dataset.aioArchitectureRenderer = 'native';
   }
   const liveData = root?._liveData || {};
-  const surface = derivePortfolioSurface({ state, liveData, vix: liveData?.['^VIX'] || null });
+  const surface = derivePortfolioSurface({ state, liveData, vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(root) });
   if (root) root._aioPortfolioSurface = surface; // P1445: legacy exposure/stress panels share these base-currency values
+  if (root) root._aioPortfolioSectorLabel = portfolioSectorLabel; // v57.50 review R1: one sector vocabulary for the legacy exposure panel
   // #12: the legacy AI workbench sends these rows (ticker·sector·weight·return in the base currency, with the date).
   if (root) root._aioPortfolioAiRows = () => portfolioRowsForAI(root._aioPortfolioSurface, { sectorOf: (symbol) => (Array.isArray(root.SCREENER_DB) ? root.SCREENER_DB : []).find((row) => String(row?.sym || '').toUpperCase() === symbol)?.sector || null });
   renderPortfolioSurface(documentRef, page, surface);
@@ -483,6 +487,9 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       bag.add(charts.dispose);
       const renderNow = () => render({ root, documentRef, store, charts });
       renderNow();
+      // v57.50 I05: what a research document sent the reader here to check (each entry to this route mounts again).
+      renderKnowledgeArrival({ documentRef, root, routeId: 'portfolio' });
+      bag.add(() => clearKnowledgeArrival({ documentRef, routeId: 'portfolio' }));
       bag.add(subscribeToSlices(store, ['portfolio'], renderNow));
       const eventTarget = documentRef || globalThis;
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);

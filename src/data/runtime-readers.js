@@ -482,7 +482,7 @@ function decisionInputs(root, nowMs = Date.now()) {
     spxPrice: value('spx-price'),
     spx50ma: null,
     spx200ma: null,
-    breadth200: value('breadth200-participation'),
+    breadth200: value('breadth200-participation'), // v57.50 C07: legacy key; the value is the 20-day-SMA share
     pcr: value('pcr-putcall'),
     hyBp: value('hy-spread-bp')
   };
@@ -526,7 +526,9 @@ function decisionInputs(root, nowMs = Date.now()) {
   try { snapshotQuotes = root?.AIO_ARCH?.getMarketSnapshot?.()?.quotes || []; } catch (_) {}
   const fields = { vix: ['vix', '^VIX'], vvix: ['vvix', '^VVIX'], dxy: ['dxy', 'DX-Y.NYB'],
     tnx: ['tnx', '^TNX'], oilPrice: ['wti', 'CL=F'], spxPrice: ['spx', '^GSPC'],
-    fg: ['fg'], breadth200: ['breadth200'], pcr: ['pcr'], hyBp: ['hySpread'] };
+    // v57.50 C07: the score's participation input is the 20-day-SMA share (the live evidence row and the score bands
+    // both mean it); the close path read the history column `breadth200` (200-day share) under the same key.
+    fg: ['fg'], breadth200: ['breadth20'], pcr: ['pcr'], hyBp: ['hySpread'] };
   const snapshot = root?.DATA_SNAPSHOT || {};
   const daily = { fg: fearGreedObservation(root, snapshot), pcr: putCallObservation(root, snapshot), hyBp: hySpreadObservation(root, snapshot) };
   // P1388: DXY and WTI trade almost around the clock, so the producer records the last COMPLETED

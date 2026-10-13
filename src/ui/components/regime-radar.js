@@ -62,10 +62,13 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.
   const stateOf = new Map((verdicts || []).map((row) => [row.id, row.state]));
   const gaps = model.axes.filter((axis) => axis.now != null && ((stateOf.get(axis.id) === 'favorable' && axis.now <= 25) || (stateOf.get(axis.id) === 'burden' && axis.now >= 75)));
+  // v57.50 D22: each axis has its own comparison window (추세 69, 시장 폭 182 sessions while their records are short), so the
+  // sentence names that window instead of "최근 1년".
+  const windowOf = (axis) => axis.sample ? `지난 ${axis.sample}거래일${axis.sample >= 252 ? '(약 1년)' : ''}` : '비교 표본';
   if (gaps.length) {
     section.append(el(doc, 'p', gaps.map((axis) => stateOf.get(axis.id) === 'favorable'
-      ? `${axis.label}: 판정은 우호(절대 수준)지만 지난 ${axis.sample || 252}거래일 안에서는 부담 쪽(${axis.now})입니다 — 수준은 아직 괜찮아도 최근 1년 기준으로는 나빠진 편이라는 뜻입니다.`
-      : `${axis.label}: 판정은 부담(절대 수준)이지만 지난 ${axis.sample || 252}거래일 안에서는 우호 쪽(${axis.now})입니다 — 최근보다는 나아졌어도 수준 자체는 아직 부담입니다.`).join(' '), 'regime-radar-gap'));
+      ? `${axis.label}: 판정은 우호(절대 수준)지만 ${windowOf(axis)} 안에서는 부담 쪽(${axis.now})입니다 — 수준은 아직 괜찮아도 그 기간 기준으로는 나빠진 편이라는 뜻입니다.`
+      : `${axis.label}: 판정은 부담(절대 수준)이지만 ${windowOf(axis)} 안에서는 우호 쪽(${axis.now})입니다 — 그 기간보다는 나아졌어도 수준 자체는 아직 부담입니다.`).join(' '), 'regime-radar-gap'));
   }
   const body = el(doc, 'div', null, 'regime-radar-body');
   body.append(radarSvg(doc, model));

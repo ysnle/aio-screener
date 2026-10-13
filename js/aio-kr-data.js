@@ -2087,8 +2087,11 @@ function _generatePortfolioAnalysis(positions, ld, surf) {
   if (positions.length >= 2) {
     var sectorWeights = {};
     var _aioScreenerRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    var totalVal = surf.positionValue;
-    vals.forEach(function(p) {
+    // v57.50 C24: the same denominator as the portfolio surface's sector breakdown — total assets including cash —
+    // so this diagnosis and the native sector chart give one weight per sector. Without a known total it is held.
+    var totalVal = surf.totalAssets != null && isFinite(surf.totalAssets) && surf.totalAssets > 0 ? surf.totalAssets : null;
+    if (totalVal != null && surf.cash != null && isFinite(surf.cash) && surf.cash > 0) sectorWeights['현금'] = surf.cash;
+    if (totalVal != null) vals.forEach(function(p) {
       var val = p.val; // base-currency value (surface)
       // SCREENER_DB에서 섹터 조회
       var sec = 'Unknown';
@@ -2101,17 +2104,18 @@ function _generatePortfolioAnalysis(positions, ld, surf) {
       sectorWeights[sec] += val;
     });
     var sectorEntries = [];
-    for (var sk in sectorWeights) { sectorEntries.push({ name: sk, weight: sectorWeights[sk] / totalVal * 100 }); }
+    if (totalVal != null) for (var sk in sectorWeights) { sectorEntries.push({ name: sk, weight: sectorWeights[sk] / totalVal * 100 }); }
     sectorEntries.sort(function(a, b) { return b.weight - a.weight; });
-    h += '<br><b>【섹터 분산도 진단】</b> ';
+    h += '<br><b>【섹터 분산도 진단】</b> ' + (totalVal == null ? '현금을 포함한 총자산이 확인되지 않아 섹터 비중을 보류합니다.' : '<span>(총자산 기준 · 현금 포함)</span> ');
     var secLabels = sectorEntries.map(function(s) { return s.name + ' ' + s.weight.toFixed(0) + '%'; });
     h += secLabels.join(' · ');
-    if (sectorEntries.length > 0 && sectorEntries[0].weight > 50) {
-      h += '<br><span style="color:var(--red);font-weight:700;">경고: ' + sectorEntries[0].name + ' 섹터에 ' + sectorEntries[0].weight.toFixed(0) + '% 집중. ';
+    var stockSectors = sectorEntries.filter(function(s) { return s.name !== '현금'; }); // cash is not a sector concentration
+    if (stockSectors.length > 0 && stockSectors[0].weight > 50) {
+      h += '<br><span style="color:var(--red);font-weight:700;">경고: ' + stockSectors[0].name + ' 섹터에 ' + stockSectors[0].weight.toFixed(0) + '% 집중. ';
       h += '해당 섹터에 악재가 나오면 포트폴리오 전체가 영향을 받는 구성입니다.</span>';
-    } else if (sectorEntries.length > 0 && sectorEntries[0].weight > 35) {
-      h += '<br><span style="color:var(--yellow);">' + sectorEntries[0].name + ' 비중 높음(' + sectorEntries[0].weight.toFixed(0) + '%).</span>';
-    } else if (sectorEntries.length >= 3) {
+    } else if (stockSectors.length > 0 && stockSectors[0].weight > 35) {
+      h += '<br><span style="color:var(--yellow);">' + stockSectors[0].name + ' 비중 높음(' + stockSectors[0].weight.toFixed(0) + '%).</span>';
+    } else if (stockSectors.length >= 3) {
       h += '<br><span style="color:var(--green);">양호한 섹터 분산. 특정 섹터 충격에 대한 버퍼 확보.</span>';
     }
     h += '<br>';

@@ -22,7 +22,7 @@ function outlookThemes(root) {
   try {
     // X03 (2026-10-13): "현재 주도" may name only themes measured on the latest completed session.
     const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows: typed, sortKey: 'ret3m', now: Date.now() });
-    return (model.groups || []).filter((group) => group.ret3m != null && group.rankable !== false && group.current).map((group) => ({ name: group.name || group.subTheme || group.id, ret3m: group.ret3m }));
+    return (model.groups || []).filter((group) => group.ret3m != null && group.rankable !== false && group.current).map((group) => ({ name: group.name || group.subTheme || group.id, ret3m: group.ret3m, themeId: group.themeId || null })); // I03: chips open the theme
   } catch (_) { return []; }
 }
 

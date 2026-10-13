@@ -1,4 +1,8 @@
-const ALLOWED_ROUTE_IDS = Object.freeze(['atlas', 'principles', 'macro', 'fxbond', 'fundamental', 'themes', 'technical', 'market-news', 'screener', 'entity', 'portfolio', 'options']); // P1321: 'options' kept only for generated knowledge links; navigation aliases it to sentiment
+import { ROUTE_IDS } from '../../app/routes.js';
+
+// v57.50 I24: the allowlist is the route registry itself. The hand list allowed 'entity' (not a route) and the retired
+// 'options' while it left out signal, breadth, sentiment and ticker; the volatility chapter now targets sentiment.
+const ALLOWED_ROUTE_IDS = Object.freeze([...ROUTE_IDS]);
 const ALLOWED_ROUTE_SET = new Set(ALLOWED_ROUTE_IDS);
 
 // Read-only compatibility facade. Exporting the mutable Set let any consumer

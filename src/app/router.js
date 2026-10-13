@@ -120,6 +120,82 @@ function entityIdFor(route, detail = {}) {
   return null;
 }
 
+// v57.50 I28: the selected company and theme live in the address, so a copied link, a reload and back/forward
+// reopen the same subject. #ticker?sym=NVDA seeds the 종목 summary; #themes?theme=<id> seeds the theme detail.
+// Other query keys (knowledge context) are left untouched.
+const THEME_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/;
+
+export function parseRouteDeepLink(hash) {
+  const match = String(hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
+  if (!match) return null;
+  const rawRoute = match[1] || 'home';
+  const routeId = rawRoute === 'theme-detail' ? 'themes' : rawRoute;
+  if (!isRouteId(routeId)) return null;
+  const params = new URLSearchParams(match[2] || '');
+  const entityId = routeId === 'ticker' ? normalizeEntityId(params.get('sym')) : null;
+  // #theme-detail?… keeps its own reader in the themes page; only #themes?theme= is read here.
+  const theme = rawRoute === 'themes' ? String(params.get('theme') || '').trim() : '';
+  return Object.freeze({ routeId, entityId, themeId: THEME_ID_PATTERN.test(theme) ? theme : null });
+}
+
+// The hash for `routeId` with `key` set to `value` (or removed when value is empty), keeping the other keys.
+export function routeDeepLinkHash(hash, routeId, key, value) {
+  const match = String(hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
+  const params = new URLSearchParams(match && match[1] === routeId ? match[2] || '' : '');
+  if (value == null || value === '') params.delete(key); else params.set(key, String(value));
+  const query = params.toString();
+  return `#${routeId}${query ? `?${query}` : ''}`;
+}
+
+function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
+  const location = runtimeRoot?.location;
+  const history = runtimeRoot?.history;
+  if (!location || typeof history?.replaceState !== 'function' || typeof runtimeRoot.addEventListener !== 'function') return () => {};
+  const events = documentRef || runtimeRoot;
+  const currentRoute = () => String(location.hash || '').match(/^#([^?]*)/)?.[1] || null;
+  const writeHash = (routeId, key, value) => {
+    const next = routeDeepLinkHash(location.hash, routeId, key, value);
+    if (next === location.hash) return;
+    try { history.replaceState(history.state ?? null, '', `${location.pathname}${location.search}${next}`); } catch (_) {}
+  };
+  // Address → selection: the first load and every back/forward step.
+  const applyAddress = () => {
+    const link = parseRouteDeepLink(location.hash);
+    if (!link) return;
+    if (link.entityId) {
+      const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
+      if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') runtimeRoot.showTicker(link.entityId);
+    }
+    if (link.themeId) {
+      const page = documentRef?.getElementById?.('page-themes');
+      // A themes page still loading its module consumes the pending id when it mounts.
+      const ready = activeRoute() === 'themes' && page?.dataset?.aioRouteModuleState === 'ready';
+      if (ready && runtimeRoot._currentThemeId !== link.themeId && typeof runtimeRoot.showThemeDetail === 'function') runtimeRoot.showThemeDetail(link.themeId);
+      else if (!ready) runtimeRoot._aioOpenThemeDetailOnThemes = link.themeId;
+    }
+  };
+  // Selection → address (replace, not push: the route change already made the history step).
+  const onTicker = (event) => { if (currentRoute() === 'ticker') writeHash('ticker', 'sym', normalizeEntityId(event?.detail?.id)); };
+  const onThemeShown = (event) => {
+    const themeId = String(event?.detail?.themeId || '').trim();
+    if (currentRoute() === 'themes' && THEME_ID_PATTERN.test(themeId)) writeHash('themes', 'theme', themeId);
+  };
+  const onThemeClosed = () => { if (currentRoute() === 'themes') writeHash('themes', 'theme', null); };
+  runtimeRoot.addEventListener('popstate', applyAddress);
+  events.addEventListener?.('aio:tickerViewReset', onTicker);
+  events.addEventListener?.('aio:themeDetailShown', onThemeShown);
+  events.addEventListener?.('aio:themeDetailClosed', onThemeClosed);
+  let bootTimer = null;
+  try { bootTimer = setTimeout(applyAddress, 0); } catch (_) { applyAddress(); }
+  return () => {
+    if (bootTimer != null) clearTimeout(bootTimer);
+    runtimeRoot.removeEventListener('popstate', applyAddress);
+    events.removeEventListener?.('aio:tickerViewReset', onTicker);
+    events.removeEventListener?.('aio:themeDetailShown', onThemeShown);
+    events.removeEventListener?.('aio:themeDetailClosed', onThemeClosed);
+  };
+}
+
 export function normalizeNavigationCommand(input = {}) {
   const route = typeof input === 'string' ? input : input.routeId || input.route || input.pageId || null;
   const canonical = route === 'theme-detail' ? 'themes' : route;
@@ -353,6 +429,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     if (started) return startedHandle;
     root.addEventListener('aio:pageShown', onPageShown);
     rootBag.add(() => root.removeEventListener('aio:pageShown', onPageShown));
+    rootBag.add(installRouteDeepLinks({ runtimeRoot: context.runtimeRoot, documentRef: context.documentRef, activeRoute: () => activeRoute }));
     started = true;
     startedHandle = Object.freeze({ transition, active: () => activeRoute, activeScope: () => activeScope, activeViewState: () => activeViewState, dispose, claimNavigationAuthority, releaseNavigationAuthority });
     return startedHandle;

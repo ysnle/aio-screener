@@ -7,6 +7,7 @@ import { detectValueScaleSuspects, withholdSuspectValues, withholdManagerValues,
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
+import { consumeResearchHandoff } from '../../app/research-handoff.js';
 
 const REVIEWED_AT = '2026-08-16';
 const FILINGS_URL = './public-data/masters/filings.json';
@@ -240,6 +241,14 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           element(documentRef, 'span', 'masters-ticker-lookup-issuer', (record.issuerReferences || []).join(' · ') || '발행인명 확인 필요'),
           element(documentRef, 'span', 'masters-ticker-lookup-meta', `CUSIP ${record.cusips?.join(', ') || '확인 필요'}`)
         );
+        // v57.50 I12: from a holder back to the stock itself (the reference ticker the ledger already names).
+        if (/^[A-Z][A-Z0-9.-]{0,9}$/.test(String(record.tickerReference || ''))) {
+          const open = element(documentRef, 'button', 'aio-btn-table masters-ticker-lookup-open', `${record.tickerReference} 종목 요약`);
+          open.type = 'button';
+          open.dataset.action = 'showTicker';
+          open.dataset.arg = record.tickerReference;
+          card.appendChild(open);
+        }
         // Codex review 2026-10-05: the same manager appeared on several raw rows (separate filing lines,
         // classes, puts/calls) while the question is "who holds it". One line per manager: the latest
         // period's shares and value summed over direct holdings, with option positions named separately
@@ -1231,6 +1240,9 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
        const initialView = Object.hasOwn(VIEW_LABELS, sharedRoute.mode) ? sharedRoute.mode : 'changes';
        const state = { query: '', tickerQuery: '', filter: 'ALL', arrivalContext: arrivalContext?.routeId === 'masters' ? arrivalContext : null, selectedId: sharedRoute.manager || MASTER_REGISTRY[0].id, view: initialView, actionFilter: 'ALL', holdingsQuery: '', page: 1, pageSize: 25, compareIds: [], managerRows: new Map(), managerRowErrors: new Set(), loadingManagers: new Set(), loadingCapabilities: new Set(), quarterBundles: new Map(), loadingQuarterManagers: new Set(), filings: null, holdings: null, catalog: null, previews: null, discovery: null, principles: null, securityMaster: null, referenceMaster: null, history: null, tickerIndex: null, filingsError: false, holdingsError: false, catalogError: false, previewsError: false, discoveryError: false, principlesError: false, securityMasterError: false, referenceMasterError: false, historyError: false, historyRowsError: false, issuerAggregatesError: false, tickerIndexError: false };
        const isAlive = () => !scope?.disposed && (typeof scope?.isCurrent !== 'function' || scope.isCurrent());
+       // v57.50 I12: 종목 요약's '운용사·13F' link arrives with its ticker — the reverse lookup opens on it.
+       const handoffTicker = String(consumeResearchHandoff({ root, routeId: 'masters' })?.context?.ticker || '').trim().toUpperCase();
+       if (/^[A-Z][A-Z0-9.-]{0,9}$/.test(handoffTicker)) state.tickerQuery = handoffTicker;
       page.dataset.aioArchitectureRoute = 'masters';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -1559,6 +1571,10 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       bag.add(() => page.removeEventListener('input', onInput));
        bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersCoverageState; delete page.dataset.aioMastersCurrentFull; delete page.dataset.aioMastersStaleFull; delete page.dataset.aioMastersPreviewOnly; delete page.dataset.aioMastersMetadataOnly; delete page.dataset.aioMastersMethodOnly; delete page.dataset.aioMastersOfficialPrinciples; delete page.dataset.aioMastersVerifiedSecurityRecords; delete page.dataset.aioMastersLatestPeriodMissing; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersDiscovery; delete page.dataset.aioMastersPrinciples; delete page.dataset.aioMastersSelectedShard; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersTickerIndex; delete page.dataset.aioMastersView; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });
       render();
+      if (state.tickerQuery) {
+        loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS);
+        queueMicrotask(() => page.querySelector('.masters-ticker-lookup')?.scrollIntoView?.({ block: 'start', behavior: 'auto' }));
+      }
        if (typeof fetchFn === 'function') {
           const entries = [['holdings', HOLDINGS_URL], ['catalog', MANAGER_CATALOG_URL]];
          Promise.allSettled(entries.map(([, url]) => loadJson(url))).then((results) => {

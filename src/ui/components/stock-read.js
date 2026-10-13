@@ -8,6 +8,39 @@ import { benchmarkRowFor } from '../../domain/market/benchmarks.js';
 import { marketRows, screenerMarket } from '../../domain/screener/market-scope.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { latestCompletedKrSession, latestCompletedUsSession, countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
+import { loadJsonArtifact } from '../../data/artifact-cache.js';
+
+const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
+
+// v57.50 I13: the position weight only from the portfolio surface the portfolio screen already built (vault open,
+// one currency basis, total assets known). Nothing is read or unlocked from here.
+function holdingFor(root, sym) {
+  const surface = root?._aioPortfolioSurface;
+  if (!surface || surface.readState !== 'ready' || surface.currencyState === 'mixed-without-conversion') return null;
+  const total = Number(surface.totalAssets);
+  const row = (Array.isArray(surface.rows) ? surface.rows : []).find((item) => String(item?.symbol || item?.ticker || '').toUpperCase() === sym);
+  const value = Number(row?.value);
+  if (!row || !(total > 0) || !Number.isFinite(value) || value <= 0) return null;
+  return { weightPct: value / total * 100, basisLabel: '현금 포함 총자산 대비' };
+}
+
+// v57.50 I12: whether the 13F reference ledger lists this ticker. Loaded once (shared cache with 대가의 포트폴리오);
+// until it arrives the 13F link is simply not offered.
+function thirteenFFor(root, sym, onLoaded) {
+  const index = root?._aioTickerIndexReference;
+  if (index && typeof index === 'object') {
+    const records = Array.isArray(index.records) ? index.records : [];
+    return { covered: index.status === 'REFERENCE_ONLY' && records.some((record) => String(record?.tickerReference || '').toUpperCase() === sym), tickerCount: records.length };
+  }
+  const fetchFn = root?.fetch || globalThis.fetch;
+  if (root && !root._aioTickerIndexReferenceRequested && typeof fetchFn === 'function') {
+    root._aioTickerIndexReferenceRequested = true;
+    loadJsonArtifact(fetchFn.bind(root), TICKER_INDEX_REFERENCE_URL, { timeoutMs: 8000 })
+      .then((value) => { if (value && typeof value === 'object') { root._aioTickerIndexReference = value; onLoaded?.(); } })
+      .catch(() => {});
+  }
+  return null;
+}
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -95,7 +128,9 @@ export function renderStockRead({ documentRef: doc, root, symbol }) {
   const latestSession = market === 'KR' ? latestCompletedKrSession(Date.now()) : latestCompletedUsSession(Date.now(), { requirePrevious: false });
   const factorSession = String(row?.factorSessionDate || '').slice(0, 10);
   const sessionLag = factorSession && latestSession?.date && factorSession < latestSession.date ? { session: factorSession, latest: latestSession.date, sessions: countOpenSessionsBetween(factorSession, latestSession.date, market) } : null;
-  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: ranked.length || null, sessionLag });
+  host.dataset.aioStockReadSymbol = sym;
+  const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym }); });
+  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: ranked.length || null, sessionLag, holding: holdingFor(root, sym), thirteenF });
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));
   if (!read.available) {
     host.append(emptyState(doc, { title: '추세·상대강도 기록 없음', reason: read.reason, compact: true }));

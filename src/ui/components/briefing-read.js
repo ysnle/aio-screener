@@ -5,6 +5,8 @@ import { alignInput, buildMarketRead } from '../../domain/briefing/market-read.j
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
 import { ensureResearchSnapshots } from './research-snapshots.js';
 import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
+import { briefingFlow } from '../../domain/market/page-flow.js';
+import { renderNextSteps } from './page-flow.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -72,6 +74,8 @@ export function collectMarketInputs(root) {
   // (10/2) from different days are not split against each other.
   rates.realAsOf = fieldTs.macro_realYield10 || null;
   rates.breakevenAsOf = fieldTs.macro_breakeven10 || null;
+  // v57.50 C10: the 2-year change carries its own date so the curve rule reads the 10-year close series over the same window.
+  rates.dgs2AsOf = fieldTs.macro_dgs2 || null;
   // T05/P1685: the 20-session HY widening comes from macro-history; every screen that reads these inputs gets it.
   return { history: root._aioHistory || [], credit, rates, now: Date.now(), macroHistory: root._aioMacroHistory || null }; // M05: admit only a current basis
 }
@@ -181,6 +185,8 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     if (nextRelease) items.push(`다음 주요 발표: ${nextRelease.when} ${nextRelease.label} (아래 일정에서 무엇을 볼지 확인)`);
     checks.replaceChildren(...(items.length ? items.map((text) => el(doc, 'li', text)) : [el(doc, 'li', '특별히 확인할 변곡 신호가 없습니다.')]));
   }
+  // I21: the checks and asset groups continue to the screens that explain them (#briefing-next, hidden while empty).
+  renderNextSteps(doc, doc.getElementById('briefing-next'), briefingFlow({ read }).next);
   page.dataset.aioBriefingRenderer = 'native-read';
   if (typeof root._aioRenderMarketAnalysisSinks === 'function') {
     try { root._aioRenderMarketAnalysisSinks(); } catch (_) {}

@@ -1,4 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { consumeResearchHandoff } from '../../app/research-handoff.js';
+import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { chartPalette } from '../components/color-theme.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
 import { subscribeToSlices } from '../../state/memoize.js';
@@ -18,7 +20,7 @@ import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js'
 import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
-import { rrgAxisDomain } from '../../domain/themes/rrg.js';
+import { rrgAxisDomain, RRG_DEFINITION } from '../../domain/themes/rrg.js';
 import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
 import { renderNextSteps } from '../components/page-flow.js';
@@ -86,7 +88,8 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   }
   // Expert review M08: no grade or risk colour from the quadrant counts. The benchmark (SPY) is cap-weighted, so a
   // few mega-caps lifting the index put most sectors below 100 without any sector "weakening" on its own.
-  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging} — 기준인 SPY가 시가총액 가중이라, 소수 대형주가 지수를 끌면 많은 섹터가 100 아래에 놓입니다.`;
+  // v57.50 D14: the full caveat sits under the scatter (rrg-method-note); the status keeps the counts and the basis.
+  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging} — 시가총액 가중 SPY 대비라 초대형주가 지수를 끄는 국면에서는 여러 섹터가 함께 100 아래에 놓일 수 있습니다.`;
   status.style.color = 'var(--text-dim)';
 }
 
@@ -150,12 +153,21 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   context.setLineDash([]);
   context.font = '11px Inter, sans-serif';
   context.textAlign = 'center';
-  context.fillText('RS-Ratio (100 = SPY와 같음) →', (plot.left + plot.right) / 2, height - 6);
+  // v57.50 D13: 100 is the sector's own 100-session average relative price, not "the same as SPY".
+  context.fillText('RS-Ratio (100 = 100일 평균 상대강도) →', (plot.left + plot.right) / 2, height - 6);
   context.save();
   context.translate(11, (plot.top + plot.bottom) / 2);
   context.rotate(-Math.PI / 2);
-  context.fillText('RS-Momentum ↑', 0, 0);
+  context.fillText('RS-Momentum (50일 전 대비) ↑', 0, 0);
   context.restore();
+  // v57.50 D13/D14: the axis definitions and the cap-weighted benchmark caveat sit under the (folded) scatter.
+  if (canvas.parentElement && !documentRef.getElementById('rrg-method-note')) {
+    const note = documentRef.createElement('p');
+    note.id = 'rrg-method-note';
+    note.className = 'theme-strength-basis';
+    note.textContent = `${RRG_DEFINITION.ratio} · ${RRG_DEFINITION.momentum}. ${RRG_DEFINITION.benchmarkBias}`;
+    canvas.insertAdjacentElement?.('afterend', note);
+  }
   context.font = 'bold 12px Inter, sans-serif';
   context.textAlign = 'right'; context.fillStyle = colors.Leading; context.fillText('선도', plot.right - 6, plot.top + 14);
   context.fillStyle = colors.Weakening; context.fillText('약화', plot.right - 6, plot.bottom - 6);
@@ -450,7 +462,8 @@ function renderThemes({ documentRef, root, store, route }) {
   const legend = documentRef.createElement('div');
   legend.dataset.themeDetailLegend = 'true';
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
-  legend.textContent = `사분면 = SPY 대비 상대가격의 수준과 최근 변화(완료 종가, 30거래일 이상) · 칩 옆 % = 위에서 고른 기간의 수익률 — 그래서 후행 사분면 종목이 이번 기간에는 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
+  // v57.50 D13: the quadrant's real definition (100-session average position · change against ~50 sessions ago).
+  legend.textContent = `사분면 = SPY 대비 상대가격이 100일 평균보다 위인지와 50일 전보다 나아졌는지 · 완료 종가 기준 · 칩 옆 % = 위에서 고른 기간의 수익률 — 그래서 후행 사분면 종목이 이번 기간에는 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
   legend.style.cssText = 'grid-column:1/-1;font-size:11px;color:var(--text-muted);padding:2px 0 6px;';
   if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
@@ -574,7 +587,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       line.className = 'stock-read-bars';
       const name = documentRef.createElement('span');
       name.className = 'stock-read-bar-label';
-      name.textContent = group.name;
+      name.textContent = group.smallSample ? `${group.name} · 표본 ${group.members}종목 · 참고` : group.name; // D15
       const item = documentRef.createElement('div');
       item.className = 'stock-read-bar-row';
       const bar = documentRef.createElement('div');
@@ -589,6 +602,16 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       box.append(line);
     }
     host.append(box);
+  }
+  // v57.50 (W1 request): the theme detail continues where its reading points — W1's themeDetailFlow().next
+  // (screener items carry ctx.sector, consumed by the screener handoff like I01).
+  if (Array.isArray(flow.next) && flow.next.length) {
+    const nav = documentRef.createElement('nav');
+    nav.className = 'flow-next';
+    nav.id = 'theme-detail-next';
+    nav.setAttribute('aria-label', '이어서 볼 곳');
+    host.append(nav);
+    renderNextSteps(documentRef, nav, flow.next);
   }
   host.hidden = false;
 }
@@ -1210,6 +1233,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
       bag.add(() => suppliedMaterialBridge.remove());
       page.dataset.aioArchitectureRoute = route;
       page.dataset.aioArchitectureSlice = 'themes';
+      // v57.50 I05: what a research document sent the reader here to check, and the way back.
+      renderKnowledgeArrival({ documentRef, root, routeId: route });
       if (route === 'themes') {
         page.dataset.aioArchitectureRenderer = 'native';
         const container = documentRef.getElementById('rrg-quadrant-cards');
@@ -1267,6 +1292,15 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            try { renderSectorMap({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map
          };
         renderNow();
+        // v57.50 I22: a link that asked for a section (국내 테마 from the KR screener) opens and shows it once.
+        const handoff = consumeResearchHandoff({ root, routeId: 'themes' });
+        const anchorId = handoff?.context?.anchor ? String(handoff.context.anchor) : '';
+        if (/^[a-z0-9-]+$/i.test(anchorId)) {
+          const section = documentRef.getElementById(anchorId);
+          const fold = section?.closest?.('details');
+          if (fold) fold.open = true;
+          section?.scrollIntoView?.({ block: 'start' });
+        }
         const unsubscribe = store && subscribeToSlices(store, ['themes', 'screener'], renderNow);
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;

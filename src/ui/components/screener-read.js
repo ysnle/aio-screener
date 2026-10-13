@@ -58,6 +58,11 @@ export function syncScreenerNextLead(doc, row, { scoped = false } = {}) {
   if (why) why.textContent = tableLead.scoped ? '지금 표(조건·표시 필터·정렬)의 맨 위 종목을 요약·차트·재무로 확인' : '상위 종목 하나를 요약·차트·재무로 확인';
 }
 
+// v57.50 I22: a next list rendered outside renderScreenerRead (the KR branch) re-points its ticker link the same way.
+export function reapplyScreenerNextLead(doc) {
+  if (tableRendered) syncScreenerNextLead(doc, tableLead, { scoped: tableLead?.scoped });
+}
+
 export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   const host = doc?.getElementById('screener-read');
   if (!host) return null;

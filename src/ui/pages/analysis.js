@@ -9,6 +9,7 @@ import { renderDailyLoop } from '../components/daily-loop.js';
 import { renderKoreaParticipation } from '../components/korea-participation.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
 import { fearGreedBand } from '../../domain/sentiment/metrics.js';
+import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/knowledge-arrival.js';
 
 function finite(value) {
   if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
@@ -183,6 +184,10 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       bag.add(() => eventTarget?.removeEventListener?.('aio:serverDataLoaded', renderNow));
       bag.add(() => eventTarget?.removeEventListener?.('aio:historyLoaded', renderNow));
       const page = documentRef?.getElementById(`page-${route}`);
+      // v57.50 I05: a research document that links here (#signal?metric=… / #technical?metric=…) names what the reader
+      // came to check; the note leaves with the route.
+      renderKnowledgeArrival({ documentRef, root, routeId: route });
+      bag.add(() => clearKnowledgeArrival({ documentRef, routeId: route }));
       let suppliedMaterialBridge = page?.querySelector?.(`[data-aio-supplied-material-route="${route}"]`) || null;
       if (page && !suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
