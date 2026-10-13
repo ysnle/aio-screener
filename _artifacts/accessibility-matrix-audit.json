@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-13T06:07:11.023Z",
+  "observedAt": "2026-10-13T06:45:52.605Z",
   "appRevision": "v57.49",
-  "gitHead": "63b09b71c0a222a94603c67c5ebe749df58fb753",
+  "gitHead": "a34e7c3de154b593d31f8a4050cd4766e812d98e",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -77,8 +77,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "풋/콜 비율 근거 보기",
+          "width": 1,
+          "height": 36,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

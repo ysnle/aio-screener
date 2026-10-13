@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1690 - v57.49 - 배포판 AI가 종가 근거 행을 정확히 복사했는데도 claim 유형 표시가 'market_data'라 수치가 모두 제거됨 (2026-10-13)
+
+- symptom/reproduction: v57.49 배포 뒤 'VIX와 10년물 수준을 기준일과 함께' 질문에 답이 '※ 최신 수치 확인 안 됨 — 일반 설명만'으로 시작하고 값이 없었다. 응답을 캡처하니 모델은 close.vix 15.21·close.us10y 5.24%를 evidenceId·asOf 2026-10-12·source close-basis까지 그대로 복사했지만 type을 'market_data'로 붙였다.
+- root_cause: 검증기는 numeric|metric|percentage|probability 유형만 숫자 claim으로 검증하고, 그 밖의 유형에 숫자 문장이 있으면 'untyped-numeric-content'로 버렸다. 프롬프트는 type 값의 목록을 제시하지 않았다. node fixture는 type을 'metric'으로 넣어 이 경로를 재현하지 못했다.
+- fix: metric과 숫자 value가 있는 claim은 유형 표시와 무관하게 숫자 claim으로 검증한다(claim ledger 정규화와 발행 검증 둘 다). 명시적 type 'text'는 예외로 두어, 숫자를 텍스트 claim에 끼워 넣는 우회는 계속 막는다.
+- violated_rule: 실제 모델 출력 형태로 계약 검증
+- prevention: P1690: ci-ai-intelligence-contract-check(배포판 실제 응답 그대로 type market_data claim이 결합·게시되고 경고 없음; 기존 text 유형 우회 차단 유지)
+- verification/residual: 배포판 응답 캡처로 원인을 확인했고, 같은 claim으로 fixture를 재현해 통과시켰다. 배포 후 실제 질문 1회로 재확인한다(QA-VERIFY-16).
+
 ## P1689 - v57.49 - S&P 500 지도의 1일·1주 탭이 데이터가 있어도 배포판에서 한 번도 켜지지 않고, 신용 충돌 문구가 한 달째 확대를 '좁아졌다'로만 말함 (2026-10-13)
 
 - symptom/reproduction: screener.json에는 989행 모두 ret1d·ret5d가 있었지만 배포판과 로컬 모두 지도 1일·1주 탭이 '다음 데이터 갱신부터 표시됩니다'로 비활성이었다(QA-VERIFY-13 미충족). 시장 상태 충돌 문구는 HY가 20거래일 +45bp 넓어졌는데도 'HY 스프레드는 5일간 9bp 좁아졌습니다 — 확대로 돌아서면…'이라고 써 신용 축의 '한 달째 확대' 판정과 엇갈렸다.

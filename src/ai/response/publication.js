@@ -123,7 +123,10 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     var reasons = [];
     var type = String(claim && claim.type || '');
     var ids = Array.isArray(claim && claim.evidenceIds) ? claim.evidenceIds.map(String) : [];
-    if (/^(?:numeric|metric|percentage|probability)$/.test(type)) {
+    // P1688 live check (2026-10-13): the model labelled exact registry copies type "market_data"; a claim that carries a
+    // metric and a numeric value is numeric whatever its label, so it is validated (not dropped as untyped content).
+    var numeric = /^(?:numeric|metric|percentage|probability)$/.test(type) || (type !== 'text' && !!(claim && claim.metric) && typeof (claim && claim.value) === 'number');
+    if (numeric) {
       if (typeof claim.value !== 'number' || !isFinite(claim.value)) reasons.push('numeric-value');
       if (!claim.unit || !claim.asOf || !claim.source || !ids.length) reasons.push('traceability');
     }
@@ -132,7 +135,6 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     if (claim.allowedUse === 'decision' && (!ids.length || claim.status !== 'verified')) reasons.push('decision-use');
     ids.forEach(function(id) { if (!bindingIds.has(id)) { reasons.push('evidence-unbound'); unboundEvidenceIds.push(id); } });
     var boundRows = rows.filter(function(row) { return ids.indexOf(claimEvidenceId(row)) >= 0; });
-    var numeric = /^(?:numeric|metric|percentage|probability)$/.test(type);
     if (currentSensitive && !numeric && hasCurrentNumericContent(claim.text)) reasons.push('untyped-numeric-content');
     var matchedRow = null;
     if ((numeric || currentSensitive || ids.length) && !boundRows.some(function(row) {
@@ -159,7 +161,7 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     if (matchedRow && matchedRow.label) boundLabels.set(claim, String(matchedRow.label));
     return true;
   }).map(function(claim) {
-    if (!/^(?:numeric|metric|percentage|probability)$/.test(String(claim.type || ''))) return claim;
+    if (!/^(?:numeric|metric|percentage|probability)$/.test(String(claim.type || '')) && !(String(claim.type || '') !== 'text' && claim.metric && typeof claim.value === 'number')) return claim;
     // Render the verified tuple separately; model prose must not smuggle a
     // second, conflicting number alongside a valid structured value.
     // v57.48 #7: a bound evidence row that carries its own display label (close-basis rows: "VIX 종가") names the value.

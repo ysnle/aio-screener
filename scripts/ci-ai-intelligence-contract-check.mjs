@@ -585,6 +585,12 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   detail('#7 VIX and the 10-year yield publish with their close date and no warning line (the live answer dropped both)',
     bound.text.includes('VIX 종가: 15.21 [종가 기준 · 2026-10-12 종가]') && bound.text.includes('미 10년물 금리 종가: 5.24% [종가 기준 · 2026-10-12 종가]')
       && !bound.text.includes('※') && bound.limitations.length === 0 && bound.answerPlanBindingAudit.droppedClaims.length === 0, JSON.stringify({ text: bound.text, limitations: bound.limitations, audit: bound.answerPlanBindingAudit }));
+  // Live check 2026-10-13 (deployed v57.49): the model copied both rows exactly but labelled them type "market_data";
+  // they were dropped as untyped numeric content. A metric + numeric value is a metric claim whatever its label.
+  const liveLabelled = run([{ ...vixClaim, type: 'market_data', text: 'VIX 종가: 15.21 (2026-10-12).' }, { ...tnxClaim, type: 'market_data', text: '미국 10년물 금리 종가: 5.24% (2026-10-12).' }]);
+  detail('#7 live: claims labelled market_data still bind and publish with their close date',
+    liveLabelled.text.includes('VIX 종가: 15.21') && liveLabelled.text.includes('5.24%') && !liveLabelled.text.includes('※') && liveLabelled.answerPlanBindingAudit.droppedClaims.length === 0,
+    JSON.stringify({ text: liveLabelled.text, audit: liveLabelled.answerPlanBindingAudit }));
   const staleClaim = { ...vixClaim, value: 15.3, unit: 'unknown', metric: 'vix', entity: '^VIX', source: 'live:yahoo', asOf: staleLiveVix.asOf, evidenceIds: [staleLiveVix.evidenceId] };
   const staleOnly = run([staleClaim]);
   detail('#7/#19 a stale live value is still withheld, and the answer opens with one Korean line (details folded)',

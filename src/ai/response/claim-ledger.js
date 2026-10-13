@@ -15,7 +15,9 @@ function freezeRows(values) {
 export function createClaimLedger(claims = []) {
   const normalized = (Array.isArray(claims) ? claims : []).map((claim, index) => Object.freeze({
     claimId: text(claim?.claimId) || `claim:${index + 1}`,
-    type: text(claim?.type) || 'text',
+    // P1688 live check: a model label such as "market_data" on a claim with a metric and a numeric value is a metric
+    // claim; normalising the label keeps one validation path (it was dropped as untyped numeric content).
+    type: !NUMERIC_TYPES.has(text(claim?.type)) && text(claim?.type) !== 'text' && text(claim?.metric) && typeof claim?.value === 'number' && Number.isFinite(claim.value) ? 'metric' : text(claim?.type) || 'text',
     text: text(claim?.text) || '',
     metric: text(claim?.metric),
     entity: text(claim?.entity),
