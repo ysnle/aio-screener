@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-13T14:59:35.785Z",
-  "attemptedAt": "2026-10-13T14:59:35.785Z",
-  "lastSuccessfulAt": "2026-10-13T14:59:35.785Z",
+  "generatedAt": "2026-10-13T15:51:01.419Z",
+  "attemptedAt": "2026-10-13T15:51:01.419Z",
+  "lastSuccessfulAt": "2026-10-13T15:51:01.419Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-29T14:59:26.953Z",
-  "until": "2026-10-13T14:59:26.953Z",
+  "since": "2026-09-29T15:50:51.645Z",
+  "until": "2026-10-13T15:50:51.645Z",
   "current24hWindow": {
     "start": "2026-10-11T23:00:00.000Z",
     "end": "2026-10-12T23:00:00.000Z",
@@ -78,15 +78,15 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 247,
-      "freshCount": 18,
-      "eligibleTextCount": 156,
-      "selectedCount": 93,
+      "count": 249,
+      "freshCount": 37,
+      "eligibleTextCount": 158,
+      "selectedCount": 94,
       "error": null,
-      "lastPostId": 25817
+      "lastPostId": 25819
     },
     {
       "channel": "insidertracking",
@@ -125,35 +125,35 @@
       "lastPostId": 70365
     }
   ],
-  "count": 2221,
-  "retainedItemCount": 434,
+  "count": 2223,
+  "retainedItemCount": 441,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2221,
-    "eligibleTextCount": 1122,
+    "observedCount": 2223,
+    "eligibleTextCount": 1124,
     "mediaOnlyCount": 1099,
     "highSignalCount": 502,
-    "broadSignalCount": 1020,
-    "selectedRawCount": 411,
-    "selectedEligibleCount": 401,
-    "selectedRawCoveragePct": 35.7,
+    "broadSignalCount": 1021,
+    "selectedRawCount": 412,
+    "selectedEligibleCount": 402,
+    "selectedRawCoveragePct": 35.8,
     "selectedOfObservedPct": 18.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "ai-policy": 196,
+    "market-note": 682,
     "credit": 86,
     "macro": 756,
     "semi": 583,
-    "ai-policy": 195,
     "optical": 53,
     "power": 341,
     "kr-market": 227,
     "earnings": 406,
     "equity": 164,
-    "market-note": 681,
     "japan": 142,
     "insider": 42,
     "healthcare": 117,
@@ -269,13 +269,13 @@
   },
   "themes": [
     "Macro/Rates (756 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터 캐펙스 전망을 2026년과 2027년 모두 다시 상향했습니다. 2026년 성장률 전망은 기존 +80%에서...",
-    "Market Notes (681 posts in 14-day research window): 2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,...",
+    "Market Notes (682 posts in 14-day research window): 2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,...",
     "Semiconductors/Memory (583 posts in 14-day research window): JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을 관통한 핵심 주제는 AI 인프라 확장의 복잡성 증가였다고 전했습니다. 추론 및 에이전틱 워크로드가 빠르게 늘면서...",
     "Earnings/Corporate (406 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터 캐펙스 전망을 2026년과 2027년 모두 다시 상향했습니다. 2026년 성장률 전망은 기존 +80%에서...",
     "Geopolitics (355 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 마크 저커버그 CEO가 장기적인 AI 시장 주도권 확보를 위해 최대 2,000억 달러 규모의 투자도 감수할 준비가 되어 있다고 언급. 대규모 AI 인프라 투자 전략을...",
     "AI Power/Grid (341 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터 캐펙스 전망을 2026년과 2027년 모두 다시 상향했습니다. 2026년 성장률 전망은 기존 +80%에서...",
     "Korea Market (227 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터 캐펙스 전망을 2026년과 2027년 모두 다시 상향했습니다. 2026년 성장률 전망은 기존 +80%에서...",
-    "AI Policy/Export Controls (195 posts in 14-day research window): JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을 관통한 핵심 주제는 AI 인프라 확장의 복잡성 증가였다고 전했습니다. 추론 및 에이전틱 워크로드가 빠르게 늘면서..."
+    "AI Policy/Export Controls (196 posts in 14-day research window): JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을 관통한 핵심 주제는 AI 인프라 확장의 복잡성 증가였다고 전했습니다. 추론 및 에이전틱 워크로드가 빠르게 늘면서..."
   ],
   "catalysts": [
     {
@@ -400,7 +400,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 195,
+      "count": 196,
       "focus": "JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을 관통한 핵심 주제는 AI 인프라 확장의 복잡성 증가였다고 전했습니다. 추론 및 에이전틱 워크로드가 빠르게 늘면서..."
     },
     {
@@ -481,7 +481,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 681,
+      "count": 682,
       "focus": "2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,..."
     }
   ],
@@ -1714,6 +1714,20 @@
   ],
   "broadItems": [
     {
+      "id": "aetherjapanresearch/25819",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25819",
+      "datetime": "2026-10-13T15:50:18.000Z",
+      "localDateKst": "2026-10-14",
+      "tags": [
+        "ai-policy"
+      ],
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "뮤즈, 성인용 대화 가능해.. 와이어드(WIRED) 기자는 메타가 최근 출시한 AI 에이전트 '뮤즈(Muse)'를 테스트한 결과, 간단한 프롬프트만으로도 노골적인 성적 대화와 포르노성 묘사가 생성되었다고..."
+    },
+    {
       "id": "HANAchina/70365",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70365",
@@ -2567,14 +2581,18 @@
       "datetime": "2026-10-13T04:15:34.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
       ],
       "score": 91,
       "hasText": true,
-      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure...",
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure..."
     },
     {
       "id": "aetherjapanresearch/25795",
@@ -2583,15 +2601,18 @@
       "datetime": "2026-10-13T04:11:05.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "ai-policy",
+        "earnings"
       ],
       "score": 78,
       "hasText": true,
-      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를...",
       "tickers": [],
       "relatedTickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를..."
     },
     {
       "id": "aetherjapanresearch/25794",
@@ -2601,17 +2622,18 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "semi",
+        "optical",
         "insider"
       ],
       "score": 76,
       "hasText": true,
-      "summary": "JP모건 APAC테크 코멘트(삼전/이비덴/엔비) 삼성전자(SEC): 시장이 재매입을 요구하는 가운데, 거래소에 공시된 대로 15조 원 규모의 자사주 매입을 완료했습니다(링크). SK하이닉스의 자사주 매입도 곧...",
       "tickers": [
         "NVDA",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "JP모건 APAC테크 코멘트(삼전/이비덴/엔비) 삼성전자(SEC): 시장이 재매입을 요구하는 가운데, 거래소에 공시된 대로 15조 원 규모의 자사주 매입을 완료했습니다(링크). SK하이닉스의 자사주 매입도 곧..."
     },
     {
       "id": "HANAchina/70343",
@@ -2853,12 +2875,14 @@
       "datetime": "2026-10-12T23:55:24.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "earnings"
+        "macro",
+        "earnings",
+        "flows"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "JP모건) 투자자 논쟁 - 3가지 약세론 반박에 대한 대응 저희는 주식에 대해 건설적인 시각을 갖고 있으며, EPS 성장이 가장 강하게 유지될 것으로 예상되는 테크에 대해 비중확대(OW)를 유지하고 있습니다....",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 투자자 논쟁 - 3가지 약세론 반박에 대한 대응 저희는 주식에 대해 건설적인 시각을 갖고 있으며, EPS 성장이 가장 강하게 유지될 것으로 예상되는 테크에 대해 비중확대(OW)를 유지하고 있습니다...."
     },
     {
       "id": "aetherjapanresearch/25789",
@@ -2867,14 +2891,17 @@
       "datetime": "2026-10-12T23:52:41.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "earnings",
+        "healthcare"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "JP모건) APAC 테크 - 현장 피드백 해외 투자자들은 현재 아시아 테크에 대해 어떻게 생각하고 있을까요? 당사의 애널리스트 고쿨은 지난 2주간 영국과 미국에서 100명의 투자자를 만났습니다. 그의 피드백에...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "JP모건) APAC 테크 - 현장 피드백 해외 투자자들은 현재 아시아 테크에 대해 어떻게 생각하고 있을까요? 당사의 애널리스트 고쿨은 지난 2주간 영국과 미국에서 100명의 투자자를 만났습니다. 그의 피드백에..."
     },
     {
       "id": "HANAchina/70327",
@@ -2899,16 +2926,18 @@
       "datetime": "2026-10-12T23:42:05.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
+        "macro",
+        "semi",
         "earnings"
       ],
       "score": 81,
       "hasText": true,
-      "summary": "블룸버그) 어플라이드 머티리얼즈, AI 덕분에 매출은 두 배로 늘리되 인력은 두 배로 늘리지 않을 것 요약 어플라이드 머티리얼즈의 게리 디커슨 CEO는 인터뷰에서 향후 수년간 회사 매출을 두 배로 키우겠지만...",
       "tickers": [
         "TSM",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "블룸버그) 어플라이드 머티리얼즈, AI 덕분에 매출은 두 배로 늘리되 인력은 두 배로 늘리지 않을 것 요약 어플라이드 머티리얼즈의 게리 디커슨 CEO는 인터뷰에서 향후 수년간 회사 매출을 두 배로 키우겠지만..."
     },
     {
       "id": "HANAchina/70325",
@@ -3398,18 +3427,19 @@
       "datetime": "2026-10-12T15:43:19.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
+        "macro",
         "semi",
         "earnings"
       ],
       "score": 95,
       "hasText": true,
-      "summary": "BofA) TSMC 3Q26 실적 프리뷰: 가파른 2nm 램프업으로 매출 상방, 마진은 견조 (2026년 10월 12일) BofA는 TSMC에 대해 매수 의견을 유지하고 목표주가를 NT$3,100에서...",
       "tickers": [
         "AMD",
         "GOOG",
         "AMZN",
         "TSM"
-      ]
+      ],
+      "summary": "BofA) TSMC 3Q26 실적 프리뷰: 가파른 2nm 램프업으로 매출 상방, 마진은 견조 (2026년 10월 12일) BofA는 TSMC에 대해 매수 의견을 유지하고 목표주가를 NT$3,100에서..."
     },
     {
       "id": "HANAchina/70304",
@@ -3433,13 +3463,14 @@
       "localDateKst": "2026-10-12",
       "tags": [
         "semi",
+        "kr-market",
         "earnings",
         "flows"
       ],
       "score": 65,
       "hasText": true,
-      "summary": "JP모건) 난야 테크놀로지; 3분기 예상 부합: 단기적으로 레거시 DRAM 수급 타이트; 2030년까지 AI 매출 비중 40~50% 및 LTA 커버리지 50% 이상 목표; 비중확대(OW) 난야 테크놀로지는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 난야 테크놀로지; 3분기 예상 부합: 단기적으로 레거시 DRAM 수급 타이트; 2030년까지 AI 매출 비중 40~50% 및 LTA 커버리지 50% 이상 목표; 비중확대(OW) 난야 테크놀로지는..."
     },
     {
       "id": "aetherjapanresearch/25783",
@@ -3448,15 +3479,17 @@
       "datetime": "2026-10-12T13:46:44.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "power"
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 83,
       "hasText": true,
-      "summary": "Microsoft, Azure Maia 시스템을 멀티 GW 규모로 확대 1. Maia 200 상용화 및 Maia 300 출시 Microsoft는 2027년부터 Azure Maia 제품군을 멀티 기가와트(GW)...",
       "tickers": [
         "MSFT",
         "TSM"
-      ]
+      ],
+      "summary": "Microsoft, Azure Maia 시스템을 멀티 GW 규모로 확대 1. Maia 200 상용화 및 Maia 300 출시 Microsoft는 2027년부터 Azure Maia 제품군을 멀티 기가와트(GW)..."
     },
     {
       "id": "aetherjapanresearch/25782",
@@ -3465,15 +3498,15 @@
       "datetime": "2026-10-12T13:33:33.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "마소 CEO 사티아 나델라: 오늘 저희는 자체 실리콘에 대한 지금까지 가장 큰 베팅을 발표합니다. 내년(역년 기준)부터 저희는 Maia 제품군을 멀티 기가와트 규모로 확대 배치하여, 이를 저희 자체 제품과...",
       "tickers": [],
       "relatedTickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "마소 CEO 사티아 나델라: 오늘 저희는 자체 실리콘에 대한 지금까지 가장 큰 베팅을 발표합니다. 내년(역년 기준)부터 저희는 Maia 제품군을 멀티 기가와트 규모로 확대 배치하여, 이를 저희 자체 제품과..."
     },
     {
       "id": "HANAchina/70301",
@@ -3496,12 +3529,12 @@
       "datetime": "2026-10-12T13:11:11.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "market-note"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
-      "summary": "암호화폐 채굴 악성코드 PoeLLM이 깃허브에 게시된 시(詩)를 이용해 제어 서버 주소를 숨기면서 3,400대 이상의 서버를 공격했습니다. 루멘의 보안 연구팀 블랙 로터스 랩스는 2026년 4월부터 진행된...",
-      "tickers": []
+      "tickers": [],
+      "summary": "암호화폐 채굴 악성코드 PoeLLM이 깃허브에 게시된 시(詩)를 이용해 제어 서버 주소를 숨기면서 3,400대 이상의 서버를 공격했습니다. 루멘의 보안 연구팀 블랙 로터스 랩스는 2026년 4월부터 진행된..."
     },
     {
       "id": "bornlupin/20582",
@@ -3527,12 +3560,14 @@
       "datetime": "2026-10-12T13:08:57.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "earnings"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "이제 미 연방법원 판사조차 RISC-V는 현재로서 사실상 쓸모가 없으며 Arm과 인텔의 x86만이 유일한 선택지라고 선언하고 있습니다 RISC 원칙에 기반한 무료 오픈소스 명령어 집합 아키텍처(ISA)인...",
-      "tickers": []
+      "tickers": [],
+      "summary": "이제 미 연방법원 판사조차 RISC-V는 현재로서 사실상 쓸모가 없으며 Arm과 인텔의 x86만이 유일한 선택지라고 선언하고 있습니다 RISC 원칙에 기반한 무료 오픈소스 명령어 집합 아키텍처(ISA)인..."
     },
     {
       "id": "HANAchina/70300",
@@ -8248,26 +8283,6 @@
       "hasText": true,
       "summary": "Citi) 북미 인터넷: 뮤즈 모멘트, 버티컬별 매출 분석 및 섹터별 영향 평가 프레임워크 (2026.10.06) Citi는 메타의 개인 AI 에이전트 뮤즈(Muse)가 누적 다운로드 660만 건 이상, 일간...",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/25675",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25675",
-      "datetime": "2026-10-07T01:01:58.000Z",
-      "localDateKst": "2026-10-07",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "Citi) 미국 반도체: 메타 뮤즈 모멘텀, CPU TAM 상향 및 AMD 목표주가 800달러 (2026.10.06) Citi는 최근 메타의 뮤즈(Muse)를 비롯해 Dots, Instinct,...",
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "TSM"
-      ]
     }
   ],
   "current24hItems": [
@@ -8693,18 +8708,19 @@
       "datetime": "2026-10-12T15:43:19.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
+        "macro",
         "semi",
         "earnings"
       ],
       "score": 95,
       "hasText": true,
-      "summary": "BofA) TSMC 3Q26 실적 프리뷰: 가파른 2nm 램프업으로 매출 상방, 마진은 견조 (2026년 10월 12일) BofA는 TSMC에 대해 매수 의견을 유지하고 목표주가를 NT$3,100에서...",
       "tickers": [
         "AMD",
         "GOOG",
         "AMZN",
         "TSM"
-      ]
+      ],
+      "summary": "BofA) TSMC 3Q26 실적 프리뷰: 가파른 2nm 램프업으로 매출 상방, 마진은 견조 (2026년 10월 12일) BofA는 TSMC에 대해 매수 의견을 유지하고 목표주가를 NT$3,100에서..."
     },
     {
       "id": "HANAchina/70304",
@@ -8721,6 +8737,20 @@
       "tickers": []
     },
     {
+      "id": "aetherjapanresearch/25785",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25785",
+      "datetime": "2026-10-12T14:39:07.000Z",
+      "localDateKst": "2026-10-12",
+      "tags": [
+        "market-note"
+      ],
+      "score": 35,
+      "hasText": true,
+      "tickers": [],
+      "summary": "마소도 시총 4T넘었네요"
+    },
+    {
       "id": "aetherjapanresearch/25784",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25784",
@@ -8728,13 +8758,14 @@
       "localDateKst": "2026-10-12",
       "tags": [
         "semi",
+        "kr-market",
         "earnings",
         "flows"
       ],
       "score": 65,
       "hasText": true,
-      "summary": "JP모건) 난야 테크놀로지; 3분기 예상 부합: 단기적으로 레거시 DRAM 수급 타이트; 2030년까지 AI 매출 비중 40~50% 및 LTA 커버리지 50% 이상 목표; 비중확대(OW) 난야 테크놀로지는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 난야 테크놀로지; 3분기 예상 부합: 단기적으로 레거시 DRAM 수급 타이트; 2030년까지 AI 매출 비중 40~50% 및 LTA 커버리지 50% 이상 목표; 비중확대(OW) 난야 테크놀로지는..."
     },
     {
       "id": "aetherjapanresearch/25783",
@@ -8743,15 +8774,17 @@
       "datetime": "2026-10-12T13:46:44.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "power"
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 83,
       "hasText": true,
-      "summary": "Microsoft, Azure Maia 시스템을 멀티 GW 규모로 확대 1. Maia 200 상용화 및 Maia 300 출시 Microsoft는 2027년부터 Azure Maia 제품군을 멀티 기가와트(GW)...",
       "tickers": [
         "MSFT",
         "TSM"
-      ]
+      ],
+      "summary": "Microsoft, Azure Maia 시스템을 멀티 GW 규모로 확대 1. Maia 200 상용화 및 Maia 300 출시 Microsoft는 2027년부터 Azure Maia 제품군을 멀티 기가와트(GW)..."
     },
     {
       "id": "aetherjapanresearch/25782",
@@ -8760,15 +8793,15 @@
       "datetime": "2026-10-12T13:33:33.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "마소 CEO 사티아 나델라: 오늘 저희는 자체 실리콘에 대한 지금까지 가장 큰 베팅을 발표합니다. 내년(역년 기준)부터 저희는 Maia 제품군을 멀티 기가와트 규모로 확대 배치하여, 이를 저희 자체 제품과...",
       "tickers": [],
       "relatedTickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "마소 CEO 사티아 나델라: 오늘 저희는 자체 실리콘에 대한 지금까지 가장 큰 베팅을 발표합니다. 내년(역년 기준)부터 저희는 Maia 제품군을 멀티 기가와트 규모로 확대 배치하여, 이를 저희 자체 제품과..."
     },
     {
       "id": "HANAchina/70301",
@@ -8791,12 +8824,12 @@
       "datetime": "2026-10-12T13:11:11.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "market-note"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
-      "summary": "암호화폐 채굴 악성코드 PoeLLM이 깃허브에 게시된 시(詩)를 이용해 제어 서버 주소를 숨기면서 3,400대 이상의 서버를 공격했습니다. 루멘의 보안 연구팀 블랙 로터스 랩스는 2026년 4월부터 진행된...",
-      "tickers": []
+      "tickers": [],
+      "summary": "암호화폐 채굴 악성코드 PoeLLM이 깃허브에 게시된 시(詩)를 이용해 제어 서버 주소를 숨기면서 3,400대 이상의 서버를 공격했습니다. 루멘의 보안 연구팀 블랙 로터스 랩스는 2026년 4월부터 진행된..."
     },
     {
       "id": "bornlupin/20582",
@@ -8822,12 +8855,14 @@
       "datetime": "2026-10-12T13:08:57.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "earnings"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "이제 미 연방법원 판사조차 RISC-V는 현재로서 사실상 쓸모가 없으며 Arm과 인텔의 x86만이 유일한 선택지라고 선언하고 있습니다 RISC 원칙에 기반한 무료 오픈소스 명령어 집합 아키텍처(ISA)인...",
-      "tickers": []
+      "tickers": [],
+      "summary": "이제 미 연방법원 판사조차 RISC-V는 현재로서 사실상 쓸모가 없으며 Arm과 인텔의 x86만이 유일한 선택지라고 선언하고 있습니다 RISC 원칙에 기반한 무료 오픈소스 명령어 집합 아키텍처(ISA)인..."
     },
     {
       "id": "HANAchina/70300",
