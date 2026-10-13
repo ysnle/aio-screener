@@ -37,10 +37,10 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
 
@@ -63,7 +63,7 @@ jobs:
 
       - name: Upload failed market snapshot diagnostics
         if: ${{ always() && !cancelled() && steps.snapshot-diagnostic.outputs.capture == 'true' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: market-snapshot-diagnostic-${{ github.run_id }}
           path: ${{ runner.temp }}/market-snapshot-diagnostic.json
@@ -129,7 +129,7 @@ jobs:
       - name: Restore official-reference call ledger (P1734)
         if: ${{ !cancelled() && steps.official-ref-ledger.outcome == 'success' }}
         continue-on-error: true
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .cache/official-references
           key: official-ref-ledger-${{ steps.official-ref-ledger.outputs.month }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -152,7 +152,7 @@ jobs:
       - name: Save official-reference call ledger (P1734)
         if: ${{ !cancelled() && steps.official-ref-ledger.outcome == 'success' && steps.official-references.outcome != 'skipped' }}
         continue-on-error: true
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .cache/official-references
           key: official-ref-ledger-${{ steps.official-ref-ledger.outputs.month }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -353,10 +353,10 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
 
