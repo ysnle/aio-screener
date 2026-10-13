@@ -39,7 +39,7 @@ export function benchmarkReturns(history = []) {
 // Codex browser audit H24: factorObservedAt is a bar start (the Korean session's 10/7 00:00 UTC), so during
 // the US session it printed "10/7 종가 기준" for US closes of 10/6. The basis is the completed session date
 // per market; the bar start is only a fallback for artifacts without per-market dates.
-function basisOf(rows, metadata = null, history = []) {
+export function basisOf(rows, metadata = null, history = []) {
   const sessions = metadata?.factorSessionDateByMarket;
   if (sessions && typeof sessions === 'object') {
     const us = /^\d{4}-\d{2}-\d{2}$/.test(sessions.US || '') ? sessions.US : null;
@@ -75,7 +75,9 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   head.append(controls);
   host.append(head);
   // P1431: what the order says, beyond the order — momentum moving and leaders cooling.
-  const lead = themeStrengthLead(model);
+  // P1681 (X03 follow-up): on a stale basis the table stays as a dated reference, but the "now leading/improving"
+  // reading is held — the same admission the US screener applies when it holds its ranks.
+  const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model);
   if (lead) host.append(sectionLead(doc, lead));
   host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 방향은 1개월 순위와 3개월 순위 비교(1개월이 크게 앞서면 개선)`, 'theme-strength-basis'));
   if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }

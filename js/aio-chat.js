@@ -2536,17 +2536,9 @@ function _extractTickers(text) {
     'ALSO':1,'BEEN':1,'BEST':1,'BOTH':1,'BULL':1,'BEAR':1,'CALL':1,'COME':1,'EACH':1,'FROM':1,'GOOD':1,'HAVE':1,'HERE':1,'HIGH':1,'JUST':1,'KNOW':1,'LAST':1,'LIKE':1,'LONG':1,'LOOK':1,'MADE':1,'MAKE':1,'MORE':1,'MOST':1,'MUCH':1,'MUST':1,'NEED':1,'NEXT':1,'ONLY':1,'OVER':1,'SELL':1,'SOME':1,'SUCH':1,'TAKE':1,'TELL':1,'THAN':1,'THAT':1,'THEM':1,'THEN':1,'THEY':1,'THIS':1,'TIME':1,'VERY':1,'WANT':1,'WEEK':1,'WELL':1,'WENT':1,'WERE':1,'WHAT':1,'WHEN':1,'WILL':1,'WITH':1,'WORK':1,'YOUR':1,
     'ABOUT':1,'AFTER':1,'COULD':1,'EVERY':1,'FIRST':1,'GREAT':1,'OTHER':1,'SHORT':1,'SINCE':1,'STILL':1,'THEIR':1,'THERE':1,'THESE':1,'THINK':1,'THOSE':1,'THREE':1,'TODAY':1,'UNDER':1,'WHERE':1,'WHICH':1,'WHILE':1,'WOULD':1,
     'ETF':1,'IPO':1,'RSI':1,'MACD':1,'VIX':1,'ATR':1,'EMA':1,'SMA':1,'VCP':1,'SEPA':1,'VWAP':1,'FOMC':1,'GDP':1,'CPI':1,'PPI':1,'NFP':1,'PCE':1,'PMI':1,'ISM':1,'YOY':1,'MOM':1,'QOQ':1,'EPS':1,'PER':1,'PBR':1,'ROE':1,'ROA':1,'FCF':1,'DCF':1,'DDM':1,'NAV':1,'PEG':1,'FFR':1,'QE':1,'QT':1};
-  // P1550: finance acronyms and currency codes are not tickers (USD is a listed ETF symbol, SEC/CEO/FED/WTI are plain terms).
-  var nonTickerAcronyms = {'SEC':1,'CEO':1,'CFO':1,'COO':1,'CTO':1,'USD':1,'KRW':1,'EUR':1,'JPY':1,'CNY':1,'GBP':1,'FED':1,'WTI':1,'ECB':1,'BOJ':1,'IMF':1,'OPEC':1,'NYSE':1,'FDA':1,'DOJ':1,'FTC':1,'KOSPI':1,'KRX':1};
-  // X22: role/industry words ("멀티에셋 PM", "서버/HW") are not companies by default, but several are real listed
-  // symbols (PM Philip Morris, IR, HR, UI, ACM, ESS, SW...). Treat them as tickers only when the word right after
-  // asks about a company ("PM 실적", "IR 주가"); $PM always resolves through the explicit pattern above.
-  var roleOrIndustryWords = {'PM':1,'HW':1,'SW':1,'IB':1,'PE':1,'VC':1,'HY':1,'IG':1,'IR':1,'HR':1,'PR':1,'QA':1,'UI':1,'UX':1,'OS':1,'CIO':1,'AUM':1,'CFA':1,'LP':1,'GP':1,'EM':1,'DM':1,'ESG':1,'OEM':1,'ODM':1,'SAAS':1,'API':1,'GPU':1,'CPU':1,'HBM':1,'DRAM':1,'NAND':1,'EUV':1,'LLM':1,'IDC':1,'EV':1,'ESS':1,'TAM':1,'KPI':1,'CAGR':1,'EBIT':1,'ROIC':1,'WACC':1,'OAS':1,'BEI':1,'TIPS':1,'ACM':1,'CCC':1,'RRG':1,'ADR':1,'OHLC':1,'IC':1,'VAR':1,'CAPEX':1,'OPEX':1};
-  var companyIntentAfter = function(word) {
-    var re = new RegExp('\\b' + word + '\\b\\s*(?:의\\s*)?(?:주가|실적|매출|종목|주식|티커|배당|차트|목표가|어때|전망|stock|shares|earnings)', 'i');
-    return re.test(text);
-  };
-  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t] && !nonTickerAcronyms[t] && (!roleOrIndustryWords[t] || companyIntentAfter(t))) { seen[t]=1; tickers.push(t); } });
+  // P1550: finance acronyms and currency codes are not tickers (USD is a listed ETF symbol, SEC/CEO/FED/WTI are plain terms). X22/P1680: role/industry words ("멀티에셋 PM", "서버/HW") are tickers only when a company question follows ("PM 실적", "IR 주가"; PM/IR/HR/UI are listed); $PM always resolves.
+  var nonTickerAcronyms = {'SEC':1,'CEO':1,'CFO':1,'COO':1,'CTO':1,'USD':1,'KRW':1,'EUR':1,'JPY':1,'CNY':1,'GBP':1,'FED':1,'WTI':1,'ECB':1,'BOJ':1,'IMF':1,'OPEC':1,'NYSE':1,'FDA':1,'DOJ':1,'FTC':1,'KOSPI':1,'KRX':1}, roleOrIndustryWords = {'PM':1,'HW':1,'SW':1,'IB':1,'PE':1,'VC':1,'HY':1,'IG':1,'IR':1,'HR':1,'PR':1,'QA':1,'UI':1,'UX':1,'OS':1,'CIO':1,'AUM':1,'CFA':1,'LP':1,'GP':1,'EM':1,'DM':1,'ESG':1,'OEM':1,'ODM':1,'SAAS':1,'API':1,'GPU':1,'CPU':1,'HBM':1,'DRAM':1,'NAND':1,'EUV':1,'LLM':1,'IDC':1,'EV':1,'ESS':1,'TAM':1,'KPI':1,'CAGR':1,'EBIT':1,'ROIC':1,'WACC':1,'OAS':1,'BEI':1,'TIPS':1,'ACM':1,'CCC':1,'RRG':1,'ADR':1,'OHLC':1,'IC':1,'VAR':1,'CAPEX':1,'OPEX':1};
+  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t] && !nonTickerAcronyms[t] && (!roleOrIndustryWords[t] || new RegExp('\\b' + t + '\\b\\s*(?:의\\s*)?(?:주가|실적|매출|종목|주식|티커|배당|차트|목표가|어때|전망|stock|shares|earnings)', 'i').test(text))) { seen[t]=1; tickers.push(t); } });
   // 한국 종목코드 (6자리 숫자)
   var m3 = text.match(/\b(\d{6})\b/g);
   if (m3) m3.forEach(function(c) { var s = c + '.KS'; if (!seen[s]) { seen[s]=1; tickers.push(s); } });
@@ -2790,7 +2782,7 @@ function _fetchDomainContextForChat(ctxId) {
     if (ctxId === 'macro' || ctxId === 'kr-macro') {
       if (reg && (reg.vix != null || reg.fg != null)) lines.push('• 시장 레짐: VIX ' + (reg.vix != null ? Number(reg.vix).toFixed(1) : '—') + ' · F&G ' + (reg.fg != null ? Math.round(reg.fg) : '—'));
       var cpi = num(pick('cpi','cpiYoy')), core = num(pick('coreCpi','coreCpiYoy')), pce = num(pick('pce','pceYoy')), cpce = num(pick('corePce','corePceYoy'));
-      var infl = []; if (cpi != null) infl.push('CPI ' + cpi + '%'); if (core != null) infl.push('Core CPI ' + core + '%'); if (pce != null) infl.push('PCE ' + pce + '%'); if (cpce != null) infl.push('Core PCE ' + cpce + '%');
+      var obsM = function(k) { var ev = window._serverMacroEvidence && window._serverMacroEvidence[k]; var d = String((ev && ev.observedAt) || (snap._fieldTs && snap._fieldTs['macro_' + k]) || ''); return /^\d{4}-\d{2}/.test(d) ? '(' + d.slice(0, 7) + ' 관측분)' : '(관측월 미확인)'; }, infl = []; /* P1681 (X16): monthly prints carry their observed month, as on screen */ if (cpi != null) infl.push('CPI ' + cpi + '%' + obsM('cpi')); if (core != null) infl.push('Core CPI ' + core + '%' + obsM('coreCpi')); if (pce != null) infl.push('PCE ' + pce + '%' + obsM('pce')); if (cpce != null) infl.push('Core PCE ' + cpce + '%' + obsM('corePce'));
       if (infl.length) lines.push('• 인플레(FRED/스냅샷): ' + infl.join(' · '));
       var fed = pick('fedRate','fed-rate'), nfp = pick('nfp'), unemp = num(pick('usUnemploy','unemployment')), fomc = pick('fomc');
       // P1142: NFP 단위(천 명)를 문맥에 명시한다 — P735 10배 오류 클래스의 마지막 미방어 경로가

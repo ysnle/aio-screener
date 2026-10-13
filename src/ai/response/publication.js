@@ -68,7 +68,8 @@ export function splitAnswerSentences(line) {
 export function stripUnverifiedCurrentNumericSentences(value) {
   return String(value || '').split('\n').map(function(line) {
     if (!line.trim()) return '';
-    var kept = splitAnswerSentences(line).filter(function(sentence) { return !hasCurrentNumericContent(sentence); }).join(' ');
+    // P1681: a date or number inside a cited URL path ("…/2026/10/12/fed-…") is not a current claim of the sentence.
+    var kept = splitAnswerSentences(line).filter(function(sentence) { return !hasCurrentNumericContent(sentence.replace(/(?:https?:\/\/|www\.)\S+/gi, ' ')); }).join(' ');
     return kept || null;
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }

@@ -43,7 +43,8 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     // close. When both closes are dated and differ, the gap is a calendar artifact, not selection — hold it out.
     const rBasis = dateOf(row?.factorSessionDate || row?.asOf);
     const mBasis = dateOf(market?.asOf);
-    if (rBasis && mBasis && rBasis !== mBasis) { skipped.push({ symbol: holding.symbol, value, reason: 'basis-mismatch', rBasis, mBasis }); continue; }
+    // P1681: an undated side cannot be shown to end on the same close either — hold it out instead of assuming it does.
+    if (!rBasis || !mBasis || rBasis !== mBasis) { skipped.push({ symbol: holding.symbol, value, reason: 'basis-mismatch', rBasis, mBasis }); continue; }
     const etf = isKr(holding.symbol) ? null : SECTOR_ETF[row?.sector] || null;
     const s = etf ? finite(rowFor(etf)?.ret3m) : null;
     const local = r / 100;

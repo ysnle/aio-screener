@@ -3892,5 +3892,22 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   await Promise.all([aborted, after]);
   if (calls !== 12) fail(`P1668 a read must not reuse a fetch whose caller aborted, saw ${calls} requests`);
 }
+// P1679/P1681: S&P 500 map domain — tiles stay inside the canvas, the fallback names what is missing, a member on an
+// older close is greyed and kept out of the averages, and a tab is enabled only by the members' own returns.
+{
+  const { buildSectorMap, layoutSectorMap, squarify } = await load('src/domain/market/sector-map.js');
+  const tiles = squarify([{ value: 6 }, { value: 6 }, { value: 4 }, { value: 3 }, { value: 2 }, { value: 2 }, { value: 1 }], { x: 0, y: 0, w: 600, h: 400 });
+  if (tiles.length !== 7 || tiles.some((t) => t.x < -1e-6 || t.y < -1e-6 || t.x + t.w > 600 + 1e-6 || t.y + t.h > 400 + 1e-6)) fail('P1679 squarify tiles must stay inside the rectangle');
+  const sectors = ['Technology', 'Financial Services', 'Healthcare', 'Energy'];
+  const members = Array.from({ length: 40 }, (_, i) => ({ sym: `S${i}`, name: `S${i}`, index: 'SP500', sector: sectors[i % 4], _valuationPePrice: 100, _valuationSharesOutstanding: 1e9 * (i + 1), dollarVolume30d: 1e9 * (i + 1) * 100 * 0.005, ret1m: i % 2 ? 2 : -1, factorSessionDate: i === 39 ? '2026-10-08' : '2026-10-09' }));
+  members.push({ sym: 'MEGA', index: 'SP500', sector: 'Technology', _valuationPePrice: 100, ret1m: 50, factorSessionDate: '2026-10-09' });
+  members.push({ sym: '005930.KS', index: 'KOSPI', sector: 'Technology', ret1d: 1 });
+  const map = buildSectorMap({ rows: members, period: 'ret1m', expectedSession: '2026-10-09' });
+  if (!map.available || map.sizeBasis !== 'shares-times-close' || !map.missingNames.includes('MEGA') || !/MEGA/.test(map.lead)) fail('P1679 the fallback map must name the member it could not size');
+  if (map.staleCount !== 1 || !/회색/.test(map.lead) || map.sectors.flatMap((s) => s.members).find((m) => m.sym === 'S39')?.ret !== null) fail('P1681 a member on an older close must be greyed and left out of the averages');
+  if (map.periods.ret1d !== false || map.periods.ret1m !== true) fail('P1681 a Korean row ret1d must not enable the S&P 500 map 1일 tab');
+  const laid = layoutSectorMap(map, 960, 520);
+  if (laid.tiles.length !== map.drawn || laid.tiles.some((t) => t.x + t.w > 960 + 1e-6 || t.y + t.h > 520 + 1e-6)) fail('P1679 every drawn member must get one tile inside the map');
+}
 // P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
 await import('./fixtures/architecture-lifecycle-regressions.mjs');

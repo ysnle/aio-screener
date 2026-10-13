@@ -83,7 +83,7 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
 
   const canvas = el(doc, 'div', null, 'sector-map-canvas');
   canvas.setAttribute('role', 'img');
-  canvas.setAttribute('aria-label', `S&P 500 섹터 지도, ${model.periodLabel} 수익률. ${model.lead}`);
+  canvas.setAttribute('aria-label', `S&P 500 섹터 지도, ${model.periodLabel} 수익률. ${model.lead} 섹터별 숫자와 종목 이동은 아래 '섹터별 숫자'에서 볼 수 있습니다.`);
   host.append(canvas);
   const detail = el(doc, 'p', '타일에 마우스를 올리거나 누르면 종목이 표시됩니다. 두 번 누르면 종목 화면으로 이동합니다.', 'sector-map-detail');
   detail.setAttribute('aria-live', 'polite');
@@ -112,9 +112,9 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
         const size = Math.max(10, Math.min(20, Math.sqrt(tile.w * tile.h) / 5.2));
         node.style.fontSize = `${size.toFixed(1)}px`;
         node.append(el(doc, 'strong', tile.sym));
-        if (tile.h >= size * 2.6 && tile.w >= 40) node.append(el(doc, 'span', signed(tile.ret, Math.abs(tile.ret ?? 0) >= 10 ? 1 : 2)));
+        if (tile.h >= size * 2.6 && tile.w >= 40) node.append(el(doc, 'span', tile.staleRet != null ? '기준일 다름' : signed(tile.ret, Math.abs(tile.ret ?? 0) >= 10 ? 1 : 2)));
       }
-      const describe = () => `${tile.sym}${tile.name ? ` · ${tile.name}` : ''} · ${tile.sectorLabel} · ${model.sizeBasis === 'index-weight' ? `지수 비중 ${tile.value.toFixed(2)}%` : `시가총액 약 ${tile.value >= 1e12 ? `${(tile.value / 1e12).toFixed(2)}조` : `${Math.round(tile.value / 1e8).toLocaleString('ko-KR')}억`} 달러`} · ${model.periodLabel} ${signed(tile.ret)}${tile.basis && tile.basis !== model.basis ? ` (${shortDate(tile.basis)} 종가)` : ''}`;
+      const describe = () => `${tile.sym}${tile.name ? ` · ${tile.name}` : ''} · ${tile.sectorLabel} · ${model.sizeBasis === 'index-weight' ? `지수 비중 ${tile.value.toFixed(2)}%` : `시가총액 약 ${tile.value >= 1e12 ? `${(tile.value / 1e12).toFixed(2)}조` : `${Math.round(tile.value / 1e8).toLocaleString('ko-KR')}억`} 달러`} · ${model.periodLabel} ${tile.staleRet != null ? `${signed(tile.staleRet)} (${shortDate(tile.basis)} 종가 · 기준일이 달라 색과 평균에서 제외)` : `${signed(tile.ret)}${tile.basis && tile.basis !== model.basis ? ` (${shortDate(tile.basis)} 종가)` : ''}`}`;
       node.addEventListener('mouseenter', () => { detail.textContent = describe(); });
       node.addEventListener('click', () => {
         if (selected === tile.sym && typeof root.showTicker === 'function') { root.showTicker(tile.sym); return; }
@@ -131,7 +131,15 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     root._aioSectorMapObserver?.disconnect?.();
     let lastWidth = canvas.clientWidth;
     if (typeof root.ResizeObserver === 'function') {
-      const observer = new root.ResizeObserver(() => { if (!canvas.isConnected) { observer.disconnect(); return; } if (Math.abs(canvas.clientWidth - lastWidth) > 8) { lastWidth = canvas.clientWidth; paint(); } });
+      // P1681: paint sets the canvas height, which can toggle the page scrollbar and resize the canvas again inside the
+      // same observation ("ResizeObserver loop completed with undelivered notifications") — repaint on the next frame.
+      let frame = 0;
+      const schedule = typeof root.requestAnimationFrame === 'function' ? (fn) => root.requestAnimationFrame(fn) : (fn) => setTimeout(fn, 16);
+      const observer = new root.ResizeObserver(() => {
+        if (!canvas.isConnected) { observer.disconnect(); return; }
+        if (frame || Math.abs(canvas.clientWidth - lastWidth) <= 8) return;
+        frame = schedule(() => { frame = 0; if (!canvas.isConnected) return; lastWidth = canvas.clientWidth; paint(); });
+      });
       observer.observe(canvas);
       root._aioSectorMapObserver = observer;
     }
@@ -144,7 +152,16 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     const movers = sector.members.filter((item) => item.ret != null);
     const best = [...movers].sort((a, b) => b.ret - a.ret)[0];
     const worst = [...movers].sort((a, b) => a.ret - b.ret)[0];
-    dl.append(el(doc, 'dt', sector.label), el(doc, 'dd', `${signed(sector.ret)} · ${sector.count}종목 중 ${sector.up}개 상승 · 가장 강한 ${best ? `${best.sym} ${signed(best.ret, 1)}` : '—'} · 가장 약한 ${worst ? `${worst.sym} ${signed(worst.ret, 1)}` : '—'}`));
+    // P1681: the tiles are pointer-only, so the table is the keyboard path — its strongest/weakest names open the stock page.
+    const dd = el(doc, 'dd', `${signed(sector.ret)} · ${sector.count}종목 중 ${sector.up}개 상승 · `);
+    const symbolButton = (item) => {
+      const button = el(doc, 'button', `${item.sym} ${signed(item.ret, 1)}`, 'breadth-drill-symbol');
+      button.type = 'button';
+      button.addEventListener('click', () => root.showTicker?.(item.sym));
+      return button;
+    };
+    dd.append('가장 강한 ', best ? symbolButton(best) : '—', ' · 가장 약한 ', worst ? symbolButton(worst) : '—');
+    dl.append(el(doc, 'dt', sector.label), dd);
   }
   table.append(dl);
   const guide = el(doc, 'details', null, 'sector-map-table');

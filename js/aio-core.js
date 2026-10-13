@@ -3408,7 +3408,7 @@ if (typeof document !== 'undefined') {
       var sinks = document.querySelectorAll('[data-market-analysis-sink]');
       if (!sinks.length) return;
       var syn = window.AIO.synthesizeMarketAnalysis();
-      var serverLLM = (window._serverMarketAnalysis && window._serverMarketAnalysis.status === 'verified' && typeof window._serverMarketAnalysis.full === 'string' && /[가-힣]/.test(window._serverMarketAnalysis.full) && !/^#/.test(window._serverMarketAnalysis.oneLine || '')) ? window._serverMarketAnalysis : null;
+      var serverLLM = (window._serverMarketAnalysis && window._serverMarketAnalysis.status === 'verified' && typeof window._serverMarketAnalysis.full === 'string' && /[가-힣]/.test(window._serverMarketAnalysis.full) && !/^#/.test(window._serverMarketAnalysis.oneLine || '') && !(Date.now() - Date.parse(window._serverMarketAnalysis.generatedAt || '') > 36 * 3600000)) ? window._serverMarketAnalysis : null; // P1681 (X20): a narrative older than 36h is yesterday's reading, not today's briefing
       var esc = (typeof escHtml === 'function') ? escHtml : function(s){ return String(s); };
       sinks.forEach(function(el){
         var mode = el.getAttribute('data-market-analysis-sink') || 'one'; if (el.hasAttribute('data-analysis-server-only') && !serverLLM) { el.textContent = ''; el.hidden = true; return; } el.hidden = false; // P1383: the template synthesis printed '?' slots and an uncalibrated n/100
@@ -8065,7 +8065,7 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
         // v49.41 P296: CP2 fed-rate lastUpdated 메타 부재
         { sub: 'signal-spx-tech-dash', axis: '최신성', severity: 'medium', note: 'CP2 cell fed-rate/fomc lastUpdated 표시 부재 — R77 MACRO_CALENDAR 인프라 있으나 인라인 노출 안 됨', fixedIn: 'v49.41 A2/P296 (MACRO_CALENDAR에 us-fomc/us-fed-rate 추가 + #cp2-fed-rate-meta dynamic D-day 표시)' },
         // v49.41 P297: updateExitTriggers 호출 보장 (verify-only)
-        { sub: 'signal-exit-triggers', axis: '로직성', severity: 'ok',    note: 'updateExitTriggers L22547 — refreshSignal 초기 호출(L22675) + aio:liveQuotes 이벤트(L22927) 두 곳에서 호출 보장 OK. SPX×0.9/DXY×1.05/HYG×0.95 동적 계산', verifiedIn: 'v49.41 A3/P297' },
+        { sub: 'signal-exit-triggers', axis: '로직성', severity: 'ok',    note: 'updateExitTriggers L22547 — refreshSignal 초기 호출(L22675) + aio:liveQuotes 이벤트(L22927) 두 곳에서 호출 보장 OK. SPX×0.9/DXY×1.05/HYG×0.95 동적 계산', verifiedIn: 'v49.41 A3/P297', retiredIn: 'v57.47 P1670 (updateExitTriggers/refreshSignal writer 제거 — 이 기록은 당시 검증 이력)' },
         // v49.41 P298: L4485 영문 병기
         { sub: 'signal-entry-exit', axis: '정확성', severity: 'minor', note: '"브레드스 쓰러스트" 단독 표기 → "브레드쓰 스러스트 (Breadth Thrust)" 영문 병기', fixedIn: 'v49.41 A4/P298 (index.html L5185 + L22485)' }
       ],

@@ -36,7 +36,7 @@ function attributionBox(doc, attribution) {
   if (!attribution.cashDeclared) notes.push('현금을 입력하지 않아 주식 부분만 계산(현금 효과 0)');
   else if (attribution.cashSharePct > 0) notes.push(`현금 ${attribution.cashSharePct.toFixed(0)}% — 지수에 투자됐다면 얻었을 수익률만큼이 현금 효과`);
   const mismatched = (attribution.skipped || []).filter((item) => item.reason === 'basis-mismatch');
-  if (mismatched.length) notes.push(`종가 기준일이 비교 지수와 다른 ${mismatched.length}종목은 제외`);
+  if (mismatched.length) notes.push(`종가 기준일이 비교 지수와 다르거나 확인되지 않는 ${mismatched.length}종목은 제외`);
   if (attribution.fxHoldingsPct > 0) notes.push(`환율 효과는 기준 통화로 환산한 보유액 ${attribution.fxHoldingsPct.toFixed(0)}%의 원/달러 3개월 변동`);
   notes.push('지금 비중을 3개월 동안 들고 있었다고 가정한 계산이라 실제 계좌 성과와 다릅니다');
   box.append(el(doc, 'p', `${notes.join(' · ')}.`, 'theme-strength-basis'));

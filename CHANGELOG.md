@@ -5,6 +5,7 @@
 - **Honest reading surfaces (P1678):** VaR as a past-sample boundary, conditional deep-dive education, KR chart benchmark label, 13F ledger scope with SEC link, industry document sources, document-first phone reading, stress-outcome horizon on the real session axis, and a radar note when verdict and position disagree.
 - **S&P 500 map (P1679):** finviz-style sector map on 테마 — area = index weight (IVV holdings, refreshed in Actions), colour = 1일/1주/1개월/3개월 return, one reading sentence on breadth vs mega-cap concentration; the partial-data fallback names missing members. The Telegram digest no longer blocks the boot data path.
 - **인계 재검증 보완 (P1680):** 'PM 실적' 같은 실제 종목 질문 인식 복구, 브리핑 정상 괄호어 보존, S&P 500 지도가 시세 갱신마다 다시 그려지며 접힘·선택이 풀리던 문제, verify-aio 자체 검사 실패, 스트레스 표 설명 모순을 고쳤다.
+- **전문가 검토 잔여 보완 (P1681):** 오래된 테마 순위의 '지금' 판단 보류(표·상세·AI 공통), 날짜 없는 기여 분석 제외, AI 물가 관측월, 인용 URL 날짜 오판, 36시간 지난 AI 브리핑 내림, S&P 지도 기준일 혼합·키보드 경로·기간 탭 판정을 고쳤다.
 - R1 7곳 v57.48
 
 ## v57.47 (2026-10-12)

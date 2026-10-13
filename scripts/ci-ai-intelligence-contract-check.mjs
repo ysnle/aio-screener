@@ -426,6 +426,10 @@ check('P1525 periods and qualitative prose are not read as current figures',
   ['최근 3개월 동안 완만했다.', '지난 2개년 평균과 비교한다.', '금리 방향은 엇갈린다.', '지표가 서로 다른 신호를 보인다.'].every((sentence) => answerPublication.hasCurrentNumericContent(sentence) === false));
 check('P1525 an unbound count is stripped from a current-sensitive fallback while the qualitative sentence stays',
   answerPublication.extractAnswerFallback('지표가 엇갈린다. 200일선 위 44개 종목이다.', true) === '지표가 엇갈린다.');
+check('P1676 (X02) a decimal or URL dot does not split a sentence: the numeric sentence leaves whole, no "84, 미 10년물" fragment',
+  answerPublication.extractAnswerFallback('VIX는 14.84, 미 10년물 5.1%다. 정책 판단은 보류한다.', true) === '정책 판단은 보류한다.');
+check('P1681 a date inside a cited URL path is not a current claim — the sentence and its URL survive intact',
+  answerPublication.extractAnswerFallback('발언은 경로를 바꾸지 않았다. 출처 https://apnews.com/article/2026-10-12-fed?utm_source=x 참고.', true) === '발언은 경로를 바꾸지 않았다. 출처 https://apnews.com/article/2026-10-12-fed?utm_source=x 참고.');
 const savedPublication = bindingContext.window.AIO_ARCH;
 bindingContext.window.AIO_ARCH = null;
 check('P1519 missing bridge cannot publish a structured plan', bind(bindingClaim).plan === null && bind(bindingClaim).droppedClaims[0].reasons.includes('publication-unavailable'));

@@ -121,9 +121,19 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     }
     missingNames = missing.sort((a, b) => (finite(b.dollarVolume30d) || 0) - (finite(a.dollarVolume30d) || 0)).slice(0, 4).map((row) => String(row.sym || row.symbol).toUpperCase());
   }
-  const available = Object.fromEntries(Object.keys(SECTOR_MAP_PERIODS).map((id) => [id, list.some((row) => finite(row[id]) != null)]));
+  // P1681: a tab is enabled by the S&P 500 members' own returns, not by any row (a Korean row's ret1d says nothing here).
+  const memberRows = weightRows ? weightRows.map((item) => bySym.get(String(item.sym || '').toUpperCase())).filter(Boolean) : list.filter((row) => row && row.index === 'SP500');
+  const available = Object.fromEntries(Object.keys(SECTOR_MAP_PERIODS).map((id) => [id, memberRows.some((row) => finite(row[id]) != null)]));
   if (priced.length < 20) {
     return { available: false, version: SECTOR_MAP_VERSION, period: key, periods: available, reason: `시가총액을 계산할 수 있는 구성 종목이 ${priced.length}개라 지도를 그리지 않습니다.` };
+  }
+  // P1681: one map, one close. A member still on an older session would paint yesterday's move beside today's —
+  // it keeps its area but is greyed and left out of every average, and the lead counts it.
+  const dates = [...new Set(priced.map((item) => item.basis).filter(Boolean))].sort();
+  const basis = dates.at(-1) || null;
+  let staleCount = 0;
+  for (const item of priced) {
+    if (basis && item.basis && item.basis !== basis && item.ret != null) { item.staleRet = item.ret; item.ret = null; staleCount += 1; }
   }
   const total = priced.reduce((sum, item) => sum + item.value, 0);
   const bySector = new Map();
@@ -146,8 +156,6 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     ret: weighted(list),
     members: list.sort((a, b) => b.value - a.value)
   })).sort((a, b) => b.value - a.value);
-  const dates = [...new Set(priced.map((item) => item.basis).filter(Boolean))].sort();
-  const basis = dates.at(-1) || null;
   const all = weighted(priced);
   const ranked = sectors.filter((row) => row.ret != null).sort((a, b) => b.ret - a.ret);
   const top10 = [...priced].sort((a, b) => b.value - a.value).slice(0, 10);
@@ -160,7 +168,7 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
   const sectorsUp = ranked.filter((row) => row.ret > 0).length;
   const leadSentence = all == null
     ? `${spec.label} 수익률이 아직 발행되지 않아 크기(시가총액)만 그립니다.`
-    : `시가총액 가중 ${signed(all)} · ${withRet}종목 중 ${upCount}개 상승 · ${ranked.length}개 섹터 중 ${sectorsUp}개 상승.`;
+    : `시가총액 가중 ${signed(all)} · ${withRet}종목 중 ${upCount}개 상승 · ${ranked.length}개 섹터 중 ${sectorsUp}개 상승${staleCount ? ` · 종가 기준일이 다른 ${staleCount}종목은 회색으로 두고 계산에서 뺐습니다` : ''}.`;
   const spread = ranked.length >= 2 ? `가장 강한 섹터는 ${ranked[0].label}(${signed(ranked[0].ret)}), 가장 약한 섹터는 ${ranked.at(-1).label}(${signed(ranked.at(-1).ret)})입니다.` : '';
   // The point a finviz map makes at a glance: is the index carried by its largest names or by the many?
   const concentration = top10Ret != null && restRet != null
@@ -183,6 +191,7 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     missingNames,
     noValue,
     noReturn,
+    staleCount,
     total,
     sectors,
     weightedReturn: all,

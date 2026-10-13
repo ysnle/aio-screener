@@ -5,6 +5,7 @@ import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/
 import { koreaParticipationContext } from '../../domain/market/korea-participation.js';
 import { companyAnalysisContext } from '../../domain/entity/company-analysis.js';
 import { renderMarketScenarioContext } from '../../domain/market/regime-scenarios.js';
+import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
 export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '' } = {}) {
@@ -51,7 +52,11 @@ export function buildMarketContentContext({ query = '', history = [], themes = [
     const model = buildGroupStrength({ themes, rows });
     const exact = model.groups.filter((group) => query.includes(group.name) || (group.themeName && query.includes(group.themeName)));
     const groups = exact.length ? exact : model.groups.slice(0, 15);
-    if (groups.length) parts.push('AIO 하위 테마 · 1/3/6개월 수익률 중앙값. 아래는 자료가 있는 테마이며 전체 시장이 아니다.\n' + groups.slice(0, 30).map((group) => {
+    // P1681 (X03): the AI reads the same stale admission the theme table prints.
+    const usDates = rows.filter((row) => !/\.(KS|KQ)$/i.test(String(row?.sym || ''))).map((row) => String(row?.factorSessionDate || '')).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
+    const expected = latestCompletedUsSession(Date.now(), { requirePrevious: false })?.date || null;
+    const staleNote = usDates.length && expected && usDates[usDates.length - 1] < expected ? ` 미국 종가 기준일 ${usDates[usDates.length - 1]}은 최신 완료 거래일 ${expected} 이전이다 — 이 순위를 지금의 주도·개선으로 단정하지 말고 기준일 참고 값으로만 설명한다.` : '';
+    if (groups.length) parts.push(`AIO 하위 테마 · 1/3/6개월 수익률 중앙값. 아래는 자료가 있는 테마이며 전체 시장이 아니다.${staleNote}\n` + groups.slice(0, 30).map((group) => {
       const dates = [...new Set(group.constituents.map((item) => rows.find((row) => String(row.sym).toUpperCase() === item.sym)?.factorSessionDate).filter(Boolean))];
       // X16 (2026-10-13): the theme table shows 1/3/6-month medians; the AI got only 3 months and said 1-month was missing.
       const pct = (value) => (value == null ? '보류' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);

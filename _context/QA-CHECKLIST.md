@@ -12,6 +12,7 @@ confidence: medium
 - [x] QA-VERIFY-12: Industry documents expose 근거와 가정; phone reading puts the open document before the shelf; 13F ledger scope matches the bounded shard. verify_by: verify-aio drive learn (desktop/phone) and a masters BlackRock changes view check
 - [ ] QA-VERIFY-13: S&P 500 map sizes by index weight with 1일/1주 tabs after the refresh-screener producer runs (indexWeights and ret1d/ret5d present) verify_by: after push: refresh-screener log shows '[sp500-weights] ~500 members'; screener.json has indexWeights and ret1d; verify-aio drive themes
 - [ ] QA-VERIFY-14: P1680: 테마 화면에서 '섹터별 숫자'를 열고 타일을 한 번 누른 뒤 시세 갱신이 와도 접힘과 선택이 유지된다. verify_by: 배포 사이트 테마 화면에서 장중 시세 갱신 후 확인
+- [ ] QA-VERIFY-15: P1681: 미국 종가가 최신 거래일보다 오래된 동안 테마 표·테마 상세·AI 테마 답변이 '지금 주도'를 단정하지 않고 기준일 참고로 말한다. verify_by: 데이터 갱신 전 시간대에 배포 사이트 테마 화면과 AI 테마 질문 1회
 
 ## v57.47 깊이 보기 학습 접힘 (2026-10-12)
 

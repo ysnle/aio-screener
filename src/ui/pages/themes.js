@@ -18,7 +18,7 @@ import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js'
 import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
-import { benchmarkReturns } from '../components/theme-strength.js';
+import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
 import { renderNextSteps } from '../components/page-flow.js';
 
@@ -540,7 +540,9 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   if (flow.rows.length) {
     const box = documentRef.createElement('div');
     box.className = 'theme-detail-flow';
-    if (flow.read) { const p = documentRef.createElement('p'); p.className = 'flow-lead'; p.textContent = flow.read; box.append(p); }
+    // P1681 (X03): the same stale admission as the theme table — the read is a dated reference, not today's leaders.
+    const basis = basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []);
+    if (flow.read) { const p = documentRef.createElement('p'); p.className = 'flow-lead'; p.textContent = basis?.stale ? `${basis.label}. ${flow.read}` : flow.read; box.append(p); }
     const max = Math.max(1, ...flow.rows.map((group) => Math.abs(group.ret3m ?? 0)));
     for (const group of flow.rows) {
       const line = documentRef.createElement('div');

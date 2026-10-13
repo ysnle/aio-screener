@@ -271,7 +271,9 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   // X17 (2026-10-13): browsing and reading are different moments. With no document chosen the shelf is the
   // way in (remembered open/closed); once a document is open the text comes first and the shelf folds to its
   // one-line summary — on a phone it otherwise pushed the chosen document several screens down.
-  const documentOpen = /[?&](?:node|chapter|lesson|domain|manager)=/.test(String(root?.location?.search || ''));
+  // P1681: the graph view (mode=graph&node=…) is browsing, not reading — it keeps the shelf.
+  const locationQuery = String(root?.location?.search || '');
+  const documentOpen = /[?&](?:node|chapter|lesson|domain|manager)=/.test(locationQuery) && !/[?&]mode=graph(?:&|$)/.test(locationQuery);
   shelf.open = documentOpen ? false : shelfPref ? shelfPref === 'open' : true;
   shelf.addEventListener('toggle', () => { if (!documentOpen) prefs.set('research_shelf', shelf.open ? 'open' : 'closed'); });
   const shelfTitle = el(doc, 'summary', null, '서가 · 컬렉션 불러오는 중');

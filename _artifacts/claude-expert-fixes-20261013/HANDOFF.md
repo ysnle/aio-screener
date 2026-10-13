@@ -58,6 +58,15 @@
 2. 배포 AI에 질문 1회로 문장 파편·URL 공백 소멸 확인(QA-VERIFY-10).
 3. 테마 화면 지도가 지수 비중 모드로 바뀌고 문장에 상위 10종목 비중 비교가 나오는지.
 
+## aio-64 재검증 결과 (2026-10-13)
+
+- 서브에이전트 3개로 X01~X22·요청 1~6을 코드와 직접 대조했다. 위 표의 "수정"은 대부분 사실이었지만 잔여·회귀가 있었다.
+  - 회귀: X22 수정이 PM·IR 등 실제 종목을 막았다. 브리핑 ID 제거가 정상 괄호어도 지웠다.
+  - 계약 위반: verify-aio check가 실패하는데 기록에는 OK로 남아 있었다.
+  - 사용자 영향: 지도가 시세 tick마다 다시 그려졌다.
+  - 잔여: X03·X08·X16·X20·X02(URL 날짜)·지도 기준일 혼합·키보드 경로·탭 판정·ResizeObserver 루프.
+- 처리: P1680, P1681. 근거와 남긴 것은 [THREE-CRITERIA-ASSESSMENT.md](./THREE-CRITERIA-ASSESSMENT.md), KR 수급 설계는 [KR-INVESTOR-FLOWS-DESIGN.md](./KR-INVESTOR-FLOWS-DESIGN.md)에 있다.
+
 ## 커밋 제외 권고
 
 - 이 세션 산출물 중 제외할 파일은 없다. `_artifacts/verify-aio/<timestamp>/` 증거는 기존 관례대로 처리.

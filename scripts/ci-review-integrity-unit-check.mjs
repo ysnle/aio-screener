@@ -32,8 +32,8 @@ const rankColumn = SCREENER_COLUMN_REGISTRY.find((column) => column.key === 'ran
 if (rankColumn?.label !== '백분위' || /상대 점수/.test(read('src/ui/pages/screener.js'))) fail('P1464 rank column must read 백분위, not 상대 점수');
 
 // P1466: attribution identity R − B = sector + stock + fx + cash, and FX inversion.
-const rows = { AAA: { sym: 'AAA', ret3m: 10, sector: 'Technology' }, XLK: { sym: 'XLK', ret3m: 6 }, '000001.KS': { sym: '000001.KS', ret3m: -12, sector: 'Technology' } };
-const market = (symbol) => (/\.KS$/.test(symbol) ? { ret3m: -15, label: '코스피' } : { ret3m: 3, label: 'S&P 500(SPY)' });
+const rows = { AAA: { sym: 'AAA', ret3m: 10, sector: 'Technology', factorSessionDate: '2026-10-12' }, XLK: { sym: 'XLK', ret3m: 6 }, '000001.KS': { sym: '000001.KS', ret3m: -12, sector: 'Technology', factorSessionDate: '2026-10-12' } };
+const market = (symbol) => (/\.KS$/.test(symbol) ? { ret3m: -15, label: '코스피', asOf: '2026-10-12' } : { ret3m: 3, label: 'S&P 500(SPY)', asOf: '2026-10-12' });
 const attribution = buildAttribution({ holdings: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }, { symbol: '000001.KS', value: 200 }], cash: 200, baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: 2 });
 const excessSum = attribution.excess.reduce((sum, part) => sum + part.pct, 0);
 if (!attribution.available || !near(excessSum, attribution.excessPct) || !near(attribution.totalPct, 4.92) || !near(attribution.blendedPct, -1.5)) fail(`P1466 attribution identity broken: ${JSON.stringify(attribution.excess)} total ${attribution.totalPct}`);
@@ -41,6 +41,9 @@ if (attribution.components.find((c) => c.id === 'sector').pct !== 1.8 || attribu
 if (!near(fxReturnInto('KRW', 'USD', 2), 1 / 1.02 - 1, 1e-9) || fxReturnInto('EUR', 'KRW', 2) !== null) fail('P1466 FX conversion must invert KRW→USD and refuse unknown pairs');
 const noFx = buildAttribution({ holdings: [{ symbol: 'AAA', value: 100, convertedFrom: 'USD' }], baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: null });
 if (noFx.available || noFx.skipped[0]?.reason !== 'no-fx') fail('P1466 a converted holding without an FX return must be skipped, not counted at 0');
+// P1681 (X08): an undated index (or stock) close cannot be shown to match — the holding is held out, not assumed aligned.
+const undated = buildAttribution({ holdings: [{ symbol: 'AAA', value: 100 }], rowFor: (s) => rows[s], marketReturnFor: () => ({ ret3m: 3, label: 'S&P 500(SPY)', asOf: null }) });
+if (undated.available || undated.skipped[0]?.reason !== 'basis-mismatch') fail('P1681 an undated benchmark close must hold the holding out of attribution');
 const held = buildPortfolioRead({ surface: { currencyState: 'mixed-without-conversion', declaredCurrencies: ['USD', 'KRW'], rows: [] } });
 if (held.available !== false) fail('P1449 mixed currencies without rates must still hold the read');
 const book = buildPortfolioRead({ surface: { rows: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }, { symbol: '000001.KS', value: 200 }], cash: 200, baseCurrency: 'KRW' }, rows: Object.values(rows), marketReturnFor: market, usdkrwReturnPct: 2 });
