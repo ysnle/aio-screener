@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-13T08:01:55.951Z",
-  "attemptedAt": "2026-10-13T08:01:55.951Z",
-  "lastSuccessfulAt": "2026-10-13T08:01:55.951Z",
+  "generatedAt": "2026-10-13T08:29:00.310Z",
+  "attemptedAt": "2026-10-13T08:29:00.310Z",
+  "lastSuccessfulAt": "2026-10-13T08:29:00.310Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-29T08:01:50.583Z",
-  "until": "2026-10-13T08:01:50.583Z",
+  "since": "2026-09-29T08:28:57.270Z",
+  "until": "2026-10-13T08:28:57.270Z",
   "current24hWindow": {
     "start": "2026-10-11T23:00:00.000Z",
     "end": "2026-10-12T23:00:00.000Z",
@@ -78,11 +78,11 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 242,
-      "freshCount": 37,
+      "freshCount": 18,
       "eligibleTextCount": 144,
       "selectedCount": 86,
       "error": null,
@@ -90,11 +90,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1104,
-      "freshCount": 38,
+      "count": 1099,
+      "freshCount": 18,
       "eligibleTextCount": 477,
       "selectedCount": 120,
       "error": null,
@@ -102,11 +102,11 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 218,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 114,
       "selectedCount": 84,
       "error": null,
@@ -119,24 +119,24 @@
       "reachedKnown": true,
       "count": 669,
       "freshCount": 39,
-      "eligibleTextCount": 348,
+      "eligibleTextCount": 349,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 70353
+      "lastPostId": 70354
     }
   ],
-  "count": 2233,
-  "retainedItemCount": 496,
+  "count": 2228,
+  "retainedItemCount": 451,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2233,
-    "eligibleTextCount": 1083,
-    "mediaOnlyCount": 1150,
+    "observedCount": 2228,
+    "eligibleTextCount": 1084,
+    "mediaOnlyCount": 1144,
     "highSignalCount": 498,
-    "broadSignalCount": 1017,
+    "broadSignalCount": 1016,
     "selectedRawCount": 411,
     "selectedEligibleCount": 401,
     "selectedRawCoveragePct": 37,
@@ -144,16 +144,16 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "macro": 756,
     "kr-market": 236,
-    "semi": 582,
-    "market-note": 687,
+    "semi": 581,
+    "market-note": 683,
     "equity": 165,
     "japan": 139,
     "earnings": 405,
     "ai-policy": 194,
-    "geo": 366,
+    "geo": 365,
     "power": 337,
-    "macro": 757,
     "flows": 188,
     "credit": 85,
     "optical": 46,
@@ -171,11 +171,11 @@
     "ORCL": 20,
     "GOOG": 63,
     "NVDA": 90,
-    "TSM": 110,
+    "TSM": 109,
     "AVGO": 37,
     "LITE": 26,
     "AMZN": 43,
-    "BE": 37,
+    "BE": 36,
     "SNDK": 8,
     "COIN": 3,
     "IONQ": 9,
@@ -341,11 +341,11 @@
     "INTU": 1
   },
   "themes": [
-    "Macro/Rates (757 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는...",
-    "Market Notes (687 posts in 14-day research window): 2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,...",
-    "Semiconductors/Memory (582 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는...",
+    "Macro/Rates (756 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는...",
+    "Market Notes (683 posts in 14-day research window): 2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,...",
+    "Semiconductors/Memory (581 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는...",
     "Earnings/Corporate (405 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는...",
-    "Geopolitics (366 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는...",
+    "Geopolitics (365 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는...",
     "AI Power/Grid (337 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 10월 13일 > 오전 6시~오후 3시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령과 젤렌스키 우크라이나 대통령이 직접 만나 전쟁을 끝내야 한다고 강조. 푸틴은 평화협상을 원하고 있으며 양측 모두 에너지 시설에 대한 휴전을 지지하는...",
     "Korea Market (236 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는...",
     "AI Policy/Export Controls (194 posts in 14-day research window): 2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는..."
@@ -353,7 +353,7 @@
   "catalysts": [
     {
       "key": "TSM",
-      "count": 110,
+      "count": 109,
       "text": "2026년 10월 12일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (71.83%) 2위: DIREXION SHARES..."
     },
     {
@@ -408,7 +408,7 @@
     },
     {
       "key": "BE",
-      "count": 37,
+      "count": 36,
       "text": "2026년 10월 12일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (71.83%) 2위: DIREXION SHARES..."
     }
   ],
@@ -419,7 +419,7 @@
       "topics": [
         "macro"
       ],
-      "count": 757,
+      "count": 756,
       "focus": "2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는..."
     },
     {
@@ -428,7 +428,7 @@
       "topics": [
         "geo"
       ],
-      "count": 366,
+      "count": 365,
       "focus": "2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "semi"
       ],
-      "count": 582,
+      "count": 581,
       "focus": "2026년 10월 13일 미국 증시 프리마켓 브리핑 미국 증시 선물은 아시아 증시 급락과 기술주 투자심리 악화 속 혼조세. 한국시간 오후 3시 기준 나스닥100 -0.76%, S&P500 -0.11%, 다우 +0.35%, 러셀2000 +0.30% 기록. VIX는 16.88로 변동성 확대는 제한적. 한국 코스피는..."
     },
     {
@@ -519,7 +519,7 @@
         "healthcare"
       ],
       "count": 117,
-      "focus": "JP모건 아시아 테마 전략) AI가 여전히 최우선인 이유 (2026년 10월 11일) JP모간은 2026년 아시아 증시가 가장 큰 틀에서 AI 대 비AI 구도로 움직였고, 다른 섹터나 국가 사이의 차별화는 상대적으로 작았다고 평가했습니다. 이 구도는 2027년에도 이어질 것으로 보며, AI 종목의 성과가 배분..."
+      "focus": "JP모건) APAC 테크 - 현장 피드백 해외 투자자들은 현재 아시아 테크에 대해 어떻게 생각하고 있을까요? 당사의 애널리스트 고쿨은 지난 2주간 영국과 미국에서 100명의 투자자를 만났습니다. 그의 피드백에 따르면 AI 트레이드에 대한 투자자 심리는 여전히 엇갈리고 있으며, 주요 우려 사항은 (i) 오픈소스..."
     },
     {
       "id": "japan",
@@ -554,7 +554,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 687,
+      "count": 683,
       "focus": "2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,..."
     }
   ],
@@ -978,15 +978,7 @@
       "datetime": "2026-10-12T00:14:37.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings",
-        "flows",
-        "healthcare",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "TSM",
@@ -1048,14 +1040,7 @@
       "datetime": "2026-10-11T10:23:01.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "247540.KQ",
@@ -1131,11 +1116,6 @@
       "datetime": "2026-10-09T23:59:09.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
         "japan"
       ],
       "tickers": [
@@ -1758,6 +1738,20 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/70354",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70354",
+      "datetime": "2026-10-13T08:04:15.000Z",
+      "localDateKst": "2026-10-13",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "•브렌트유: 105달러/배럴 하회 (-1.60%) •WTI유: 92달러/배럴 하회 (-1.91%) >布伦特原油失守105美元/桶，日内跌1.60%。WTI原油失守92美元/桶，日内跌1.91%。"
+    },
+    {
       "id": "aetherjapanresearch/25803",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25803",
@@ -2313,9 +2307,7 @@
       "datetime": "2026-10-13T00:46:08.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "credit",
-        "macro",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 84,
@@ -2563,7 +2555,6 @@
       "datetime": "2026-10-12T22:20:57.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
         "semi",
         "earnings"
       ],
@@ -2672,9 +2663,7 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [],
       "score": 74,
@@ -2968,9 +2957,7 @@
       "datetime": "2026-10-12T13:46:44.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "power"
       ],
       "tickers": [
         "MSFT",
@@ -2987,7 +2974,7 @@
       "datetime": "2026-10-12T13:33:33.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "tickers": [
         "MSFT"
@@ -3017,7 +3004,7 @@
       "datetime": "2026-10-12T13:11:11.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "tickers": [],
       "score": 50,
@@ -3048,9 +3035,7 @@
       "datetime": "2026-10-12T13:08:57.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 64,
@@ -3252,8 +3237,7 @@
       "datetime": "2026-10-12T11:55:08.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "AAPL"
@@ -3298,8 +3282,6 @@
       "datetime": "2026-10-12T10:46:48.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "semi",
         "flows"
       ],
       "tickers": [
@@ -3509,13 +3491,7 @@
       "datetime": "2026-10-12T07:42:25.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "macro"
       ],
       "tickers": [],
       "score": 97,
@@ -3559,9 +3535,7 @@
       "datetime": "2026-10-12T06:54:34.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "tickers": [
         "AMD"
@@ -3577,8 +3551,7 @@
       "datetime": "2026-10-12T05:21:35.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [],
       "score": 52,
@@ -3732,8 +3705,7 @@
       "datetime": "2026-10-12T02:29:53.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [
         "BE",
@@ -3796,7 +3768,6 @@
       "datetime": "2026-10-12T01:35:05.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
         "earnings"
       ],
       "tickers": [
@@ -3889,8 +3860,7 @@
       "datetime": "2026-10-12T00:23:34.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "japan"
+        "semi"
       ],
       "tickers": [
         "AMD",
@@ -3911,9 +3881,7 @@
       "tags": [
         "macro",
         "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "ai-policy"
       ],
       "tickers": [
         "GOOG",
@@ -3930,15 +3898,7 @@
       "datetime": "2026-10-12T00:14:37.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings",
-        "flows",
-        "healthcare",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "TSM",
@@ -3957,7 +3917,6 @@
       "datetime": "2026-10-12T00:08:45.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
         "semi"
       ],
       "tickers": [
@@ -3974,9 +3933,7 @@
       "datetime": "2026-10-11T23:54:06.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "kr-market",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 65,
@@ -3992,8 +3949,7 @@
       "tags": [
         "macro",
         "power",
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "tickers": [
         "AMZN",
@@ -4010,10 +3966,7 @@
       "datetime": "2026-10-11T23:34:33.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "optical",
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [],
       "score": 65,
@@ -4027,10 +3980,7 @@
       "datetime": "2026-10-11T23:22:35.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "power",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "tickers": [],
       "score": 73,
@@ -4317,9 +4267,7 @@
       "datetime": "2026-10-11T11:03:38.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "macro",
         "semi",
-        "power",
         "flows"
       ],
       "tickers": [
@@ -4382,8 +4330,7 @@
       "datetime": "2026-10-11T10:47:13.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "power",
-        "japan"
+        "power"
       ],
       "tickers": [],
       "score": 53,
@@ -4426,14 +4373,7 @@
       "datetime": "2026-10-11T10:23:01.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "tickers": [
         "247540.KQ",
@@ -4701,11 +4641,7 @@
       "datetime": "2026-10-11T01:15:28.000Z",
       "localDateKst": "2026-10-11",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "tickers": [
         "TSM",
@@ -4910,11 +4846,7 @@
       "datetime": "2026-10-10T14:01:22.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "healthcare"
+        "semi"
       ],
       "tickers": [],
       "score": 87,
@@ -5396,11 +5328,6 @@
       "datetime": "2026-10-09T23:59:09.000Z",
       "localDateKst": "2026-10-10",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
         "japan"
       ],
       "tickers": [
@@ -5829,9 +5756,7 @@
       "datetime": "2026-10-09T13:53:07.000Z",
       "localDateKst": "2026-10-09",
       "tags": [
-        "semi",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "LITE"
@@ -5849,7 +5774,6 @@
       "tags": [
         "macro",
         "semi",
-        "power",
         "equity"
       ],
       "tickers": [
@@ -7223,20 +7147,6 @@
       "summary": "미국 개인투자자협회(AAII) 투자심리 조사에서 10월 7일 기준 향후 6개월간 미국 증시 상승 전망은 40.3%로 장기 평균 37.5%를 상회. 중립 전망은 20.8%로 장기 평균 31.0%를 밑돌았으며,..."
     },
     {
-      "id": "HANAchina/70079",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70079",
-      "datetime": "2026-10-08T11:25:54.000Z",
-      "localDateKst": "2026-10-08",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>독일, 2026년 경제성장률 전망 1.3%로 대폭 상향, 제조업 회복이 핵심 •독일 경제부는 2026년 GDP 성장률 전망을 기존 0.5%에서 1.3%로 대폭 상향함. 수출 회복, 제조업 안정, 정부의..."
-    },
-    {
       "id": "insidertracking/65731",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/65731",
@@ -8410,27 +8320,12 @@
       "summary": ">>중국, 공업박람회서 반도체 자립 역량 과시…국산 반도체 공급망 총망라, 상하이마이크로일렉트로닉스 DUV 실물은 미공개 (대만경제일보) •12일 상하이에서 제26회 중국국제공업박람회가 개막, 이번에 처음으로..."
     },
     {
-      "id": "insidertracking/66096",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66096",
-      "datetime": "2026-10-12T22:23:12.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "윈도우 PC의 새로운 시작을 기념하기 위해 전 세계에서 특별한 행사가 열립니다. 엔비디아 RTX 스파크 출시 행사에 여러분을 초대합니다. 새로운 노트북을 직접 체험하고, 기념품을 받으며, 젠슨 황..."
-    },
-    {
       "id": "HANAchina/70314",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70314",
       "datetime": "2026-10-12T22:20:57.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
         "semi",
         "earnings"
       ],
@@ -8458,20 +8353,6 @@
       "summary": ">>영국 기관: 호르무즈 해협 및 인근 해역에서 선박 6척 하루 동안 잇따라 피격 •영국 UKMTO가 발표한 여러 해사 공지에 따르면, 11일 호르무즈 해협과 인근 오만만 해역에서 선박 6척이 잇따라 공격을..."
     },
     {
-      "id": "insidertracking/66095",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66095",
-      "datetime": "2026-10-12T22:14:49.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
-    },
-    {
       "id": "bornlupin/20584",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20584",
@@ -8484,20 +8365,6 @@
       "score": 52,
       "hasText": true,
       "summary": "일론 머스크 중국이 어떤 제품의 제조 방법을 알아내면, 생산 규모를 확대하는 능력은 종종 전 세계 나머지 국가를 모두 합친 것보다 뛰어납니다. 예를 들어, 리튬 배터리와 태양광 산업에서 이러한 현상을 확인할..."
-    },
-    {
-      "id": "insidertracking/66093",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66093",
-      "datetime": "2026-10-12T21:51:10.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "구글이 플래닛랩스와 협력해 '프로젝트 선캐처(Project Suncatcher)'의 시제품 위성을 개발하고, 스페이스X의 트랜스포터-18 임무를 통해 발사."
     },
     {
       "id": "HANAchina/70311",
@@ -8560,20 +8427,6 @@
       "summary": "Evercore ISI, 루멘텀( $LITE ), 목표주가 1,100달러에서 1,500달러로 상향 9월 분기 실적 발표를 앞두고 LITE를 TAP OP(Outperform) 추천 리스트에 추가 1. 11월..."
     },
     {
-      "id": "insidertracking/66092",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66092",
-      "datetime": "2026-10-12T21:07:15.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "사우디아라비아 정부는 미사일과 드론 요격 장면을 촬영하거나 관련 정보를 게시·공유하는 행위, 미사일 및 드론의 낙하·충돌 지점에 관한 정보를 유포하는 행위가 법적 책임을 초래할 수 있다고 경고."
-    },
-    {
       "id": "insidertracking/66091",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66091",
@@ -8581,155 +8434,12 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [],
       "score": 74,
       "hasText": true,
       "summary": "💬 💬 💬 💬 💬 💬 🎙 10월 13일 미주인 브리핑 • 나스닥 하락 · 다우 상승, 미국 증시 혼조 • 연준 추가 금리 인상 경고 · 국채금리 5.24% • 엔비디아·마이크로소프트 AI 인프라..."
-    },
-    {
-      "id": "insidertracking/66090",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66090",
-      "datetime": "2026-10-12T20:44:47.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "media-only"
-      ],
-      "tickers": [],
-      "score": 0,
-      "hasText": false,
-      "summary": ""
-    },
-    {
-      "id": "insidertracking/66089",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66089",
-      "datetime": "2026-10-12T20:43:18.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "프랑스 전역에서 대규모 학생 시위가 확산하는 가운데, 시위 현장에서 프랑스 국기는 보이지 않고 팔레스타인, 시리아, 알제리 국기가 등장했다는 지적 제기. 시위가 프랑스 주요 도시를 넘어 벨기에까지 확산하면서..."
-    },
-    {
-      "id": "insidertracking/66088",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66088",
-      "datetime": "2026-10-12T20:42:24.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "우리는 우리의 국가를 되찾고 있습니다. 🇺🇸"
-    },
-    {
-      "id": "insidertracking/66087",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66087",
-      "datetime": "2026-10-12T20:41:47.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "미국 드라마 '브레이킹 배드'에서 월터 화이트 주니어 역으로 잘 알려진 배우 RJ 미트가 10월 12일 텍사스에서 34세의 나이로 사망. 보도에 따르면 사인은 극단적 선택으로 알려졌으며, 당국은 현재 사망..."
-    },
-    {
-      "id": "insidertracking/66086",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66086",
-      "datetime": "2026-10-12T20:40:58.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ CNN에 따르면 트럼프 대통령이 사우디아라비아 공항에서 발생한 후티 반군의 공격으로 사망자가 발생한 이후 군사 개입 가능성을 검토 중."
-    },
-    {
-      "id": "insidertracking/66085",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66085",
-      "datetime": "2026-10-12T20:40:32.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "japan"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "독일 매체 벨트에 따르면 독일이 이탈리아에서 진행되는 북대서양조약기구(NATO)의 핵무기 운용 훈련에 전투기를 파견할 예정. 독일은 토네이도 전투폭격기 3대를 이탈리아 아비아노 공군기지에 배치해 NATO의..."
-    },
-    {
-      "id": "insidertracking/66084",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66084",
-      "datetime": "2026-10-12T20:40:19.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "로이터에 따르면 이란 전쟁 여파로 폴란드가 미국으로부터 도입할 예정인 패트리엇 방공 시스템용 미사일 인도가 지연될 전망. 폴란드군 작전부대 사령관 이레네우시 노바크 장군은 패트리엇 방공 시스템에 사용되는..."
-    },
-    {
-      "id": "insidertracking/66083",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66083",
-      "datetime": "2026-10-12T20:39:59.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "CNN에 따르면 미국이 우크라이나에 러시아 에너지 기반시설 공격을 중단하지 않을 경우 정보 공유와 무기 공급을 중단할 수 있다고 경고. 미 국무부와 국방부는 우크라이나 측에 러시아 에너지 시설에 대한 공격이..."
-    },
-    {
-      "id": "insidertracking/66082",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66082",
-      "datetime": "2026-10-12T20:39:46.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "kr-market",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 43,
-      "hasText": true,
-      "summary": "월스트리트저널에 따르면 사우디아라비아가 방공망 강화를 위해 파키스탄에 지원을 요청한 것으로 보도. 사우디아라비아는 후티 반군의 미사일과 드론 공격을 요격하는 데 필요한 방공 시스템이 부족한 상황. 이와 함께..."
-    },
-    {
-      "id": "insidertracking/66081",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66081",
-      "datetime": "2026-10-12T20:39:20.000Z",
-      "localDateKst": "2026-10-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "악시오스는 백악관 대변인을 인용해 트럼프 대통령이 볼로디미르 젤렌스키 우크라이나 대통령에게 매우 강한 분노를 표출하고 있다고 보도. 보도에 따르면 트럼프 대통령은 젤렌스키 대통령이 미국의 지원을 당연하게..."
     },
     {
       "id": "insidertracking/66078",
@@ -9032,9 +8742,7 @@
       "datetime": "2026-10-12T13:46:44.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "power"
       ],
       "tickers": [
         "MSFT",
@@ -9051,7 +8759,7 @@
       "datetime": "2026-10-12T13:33:33.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "tickers": [
         "MSFT"
@@ -9081,7 +8789,7 @@
       "datetime": "2026-10-12T13:11:11.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "tickers": [],
       "score": 50,
@@ -9112,9 +8820,7 @@
       "datetime": "2026-10-12T13:08:57.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 64,
@@ -9282,20 +8988,6 @@
       "summary": "온다스와 팔란티어가 국방 및 핵심 임무 수행을 위한 소버린 AI(주권형 인공지능) 기술 개발을 추진하기 위해 레그나 AI(Regna AI) 설립. 레그나 AI는 독립적인 비상장 기업으로 운영되며, 초기에는..."
     },
     {
-      "id": "aetherjapanresearch/25779",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25779",
-      "datetime": "2026-10-12T12:08:35.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "JP모건) 디스코 (6146); 최대 제조 거점인 쿠와바타 공장을 견학 9일, 최대 제조 거점인 쿠와바타 공장(히로시마현 쿠레시)을 견학할 기회를 얻었습니다. 쿠와바타 공장은 주력 생산 거점으로서..."
-    },
-    {
       "id": "insidertracking/66052",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/66052",
@@ -9308,20 +9000,6 @@
       "score": 75,
       "hasText": true,
       "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 10월 12일 > 오후 2시~오후 9시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아·우크라이나 간 에너지 시설 공격 중단을 제안하고..."
-    },
-    {
-      "id": "aetherjapanresearch/25778",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25778",
-      "datetime": "2026-10-12T12:02:28.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "[단독] “20년 살았으면 내집이지”…장기전세 ‘생떼’ 이번엔 은평·마포 차례 - 매일경제"
     },
     {
       "id": "insidertracking/66051",
@@ -9344,8 +9022,7 @@
       "datetime": "2026-10-12T11:55:08.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "earnings"
+        "market-note"
       ],
       "tickers": [
         "AAPL"
@@ -9390,8 +9067,6 @@
       "datetime": "2026-10-12T10:46:48.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "semi",
         "flows"
       ],
       "tickers": [
@@ -9488,20 +9163,6 @@
       "score": 57,
       "hasText": true,
       "summary": ">>헤지펀드는 기술주 비중을 줄였지만, Mag 7 보유 규모는 사상 최고치 기록 - 골드만삭스: 시장 곳곳에서 기록이 나오고 있지만, 유일하게 부족한 것은 신뢰 (중국언론 ) •골드만삭스는 현재 시장의 위험은..."
-    },
-    {
-      "id": "aetherjapanresearch/25775",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25775",
-      "datetime": "2026-10-12T09:16:23.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "[단독] “저 강사, 주가조작하다 걸린 분 아닌가요”…네이버 유료채널 논란"
     },
     {
       "id": "insidertracking/66035",
@@ -9629,13 +9290,7 @@
       "datetime": "2026-10-12T07:42:25.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "macro"
       ],
       "tickers": [],
       "score": 97,
@@ -9673,29 +9328,13 @@
       "summary": ">>현재 시장을 좌우하는 최대 변수: 디젤 가격 •트럼프의 디젤 협정은 수급 부족 문제를 해결하기 어렵지만, 글로벌 위험자산 가격결정 체계를 재편하려는 다자간 경쟁을 촉발함. 현재 ‘디젤 가격 스프레드가 곧..."
     },
     {
-      "id": "aetherjapanresearch/25773",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25773",
-      "datetime": "2026-10-12T06:54:43.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "?????????"
-    },
-    {
       "id": "aetherjapanresearch/25772",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25772",
       "datetime": "2026-10-12T06:54:34.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "tickers": [
         "AMD"
@@ -9705,28 +9344,13 @@
       "summary": "2026.10.12 15:43:06 기업명: 올릭스(시가총액: 2조 4,293억) A226950 보고서명: 투자판단관련주요경영사항 (임상시험계획 승인 신청 반려) 제목 : 양측성 지도 모양 위축(GA)을..."
     },
     {
-      "id": "aetherjapanresearch/25771",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25771",
-      "datetime": "2026-10-12T05:42:38.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "\"비타민 주사라더니 납배출 주사\"…노동부, 업무방해 수사 의뢰 자동차 배터리 제조사 DN오토모티브가 노동자들에게 '비타민 주사'라고 속여 체내 납 배출을 촉진하는 주사를 맞혔다는 의혹과 관련해 고용노동부가..."
-    },
-    {
       "id": "bornlupin/20576",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20576",
       "datetime": "2026-10-12T05:21:35.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "tickers": [],
       "score": 52,
@@ -9846,20 +9470,6 @@
       "summary": ">>TSMC, 20억 달러 규모 실리콘 인터포저 대형 계약을 GlobalFoundries에 맡겨… CoWoS 핵심 부품 최초로 미국에서 생산 •이번 계약으로 AI 패키징 공급망의 핵심 단계가 미국 현지로..."
     },
     {
-      "id": "aetherjapanresearch/25770",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25770",
-      "datetime": "2026-10-12T03:58:20.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "와우"
-    },
-    {
       "id": "HANAchina/70266",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70266",
@@ -9894,8 +9504,7 @@
       "datetime": "2026-10-12T02:29:53.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [
         "BE",
@@ -9938,20 +9547,6 @@
       "summary": ">>AI 데이터센터 전력 순부족 32GW… 전력 공급 시점이 설비투자의 핵심 변수로 부상 (중국언론) •AI 전력난은 단순한 공급량 부족에서 필요한 시점에 전력을 실제로 공급할 수 있는지의 문제로 바뀌고..."
     },
     {
-      "id": "aetherjapanresearch/25769",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25769",
-      "datetime": "2026-10-12T01:45:23.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "신현송 한국은행 총재 • 물가는 상당 기간 목표 수준 상회하는 오름세 예상"
-    },
-    {
       "id": "HANAchina/70255",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70255",
@@ -9972,7 +9567,6 @@
       "datetime": "2026-10-12T01:35:05.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
         "earnings"
       ],
       "tickers": [
@@ -9983,20 +9577,6 @@
       "score": 69,
       "hasText": true,
       "summary": "「수주가 나빠질 요소는 없다」 레이저텍 사장, 보이기 시작한 강세 전망의 이유 레이저텍의 센도다 테츠야 사장은 2026년 6월기에 매출과 이익이 모두 감소했음에도 8월 결산 설명회에서 수주가 나빠질 요소가..."
-    },
-    {
-      "id": "aetherjapanresearch/25767",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25767",
-      "datetime": "2026-10-12T01:32:09.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "금호건설=전라도 건설업체=호남반도체 수혜 최태원, 호남 반도체부지 첫 방문…\"가장 빠른 속도로 짓겠다\""
     },
     {
       "id": "HANAchina/70250",
@@ -10079,8 +9659,7 @@
       "datetime": "2026-10-12T00:23:34.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "japan"
+        "semi"
       ],
       "tickers": [
         "AMD",
@@ -10101,9 +9680,7 @@
       "tags": [
         "macro",
         "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "ai-policy"
       ],
       "tickers": [
         "GOOG",
@@ -10120,15 +9697,7 @@
       "datetime": "2026-10-12T00:14:37.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings",
-        "flows",
-        "healthcare",
-        "japan"
+        "market-note"
       ],
       "tickers": [
         "TSM",
@@ -10147,7 +9716,6 @@
       "datetime": "2026-10-12T00:08:45.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
         "semi"
       ],
       "tickers": [
@@ -10164,9 +9732,7 @@
       "datetime": "2026-10-11T23:54:06.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "kr-market",
-        "earnings"
+        "market-note"
       ],
       "tickers": [],
       "score": 65,
@@ -10182,8 +9748,7 @@
       "tags": [
         "macro",
         "power",
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "tickers": [
         "AMZN",
@@ -10200,10 +9765,7 @@
       "datetime": "2026-10-11T23:34:33.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "optical",
-        "power",
-        "earnings"
+        "power"
       ],
       "tickers": [],
       "score": 65,
@@ -10217,32 +9779,12 @@
       "datetime": "2026-10-11T23:22:35.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "power",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "tickers": [],
       "score": 73,
       "hasText": true,
       "summary": "재생에너지·AI 확산에 美 ESS 수요 폭발⋯韓 기업엔 ‘기회의 땅’[K배터리 주도권 탈환] 글로벌 배터리 산업의 성장축이 에너지저장장치(ESS)로 확대되는 가운데 미국 시장이 한국 배터리 기업들의 새로운..."
-    },
-    {
-      "id": "bornlupin/20568",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20568",
-      "datetime": "2026-10-11T23:16:04.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "373220.KS"
-      ],
-      "score": 49,
-      "hasText": true,
-      "summary": "[다올투자증권 자동차/이차전지 유지웅] ★ LG에너지솔루션(373220) - 3Q26 잠정실적 발표: 매출 가속 시작 ▶ 투자의견 BUY 및 적정주가 62만원 유지. 4Q26 ESS 수주 모멘텀(90GWh..."
     },
     {
       "id": "insidertracking/66009",
@@ -10258,23 +9800,6 @@
       "score": 55,
       "hasText": true,
       "summary": "오펜하이머는 3분기 전력 기술 기업들의 실적이 엇갈릴 것으로 예상되는 가운데, GE 버노바, 아메리칸 슈퍼컨덕터, 숄스 테크놀로지스, 오매트 테크놀로지스를 선호 종목으로 제시. 강력한 전력 수요에도 불구하고..."
-    },
-    {
-      "id": "bornlupin/20567",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20567",
-      "datetime": "2026-10-11T23:11:03.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "373220.KS"
-      ],
-      "score": 49,
-      "hasText": true,
-      "summary": "[유진투자증권] 황성현 (02-368-6878) <LG에너지솔루션 - 보상금 제외해도 호실적> *3Q26 매출액 9.6조원(+28%qoq, +59%yoy), 영업이익 7,560억원(+567%qoq,..."
     }
   ]
 }
