@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T08:57:16.562Z",
+  "generatedAt": "2026-10-13T09:07:44.859Z",
   "routes": [
     {
       "id": "home",
@@ -316,7 +316,7 @@
     {
       "id": "fundamental",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "INPUT",
@@ -334,48 +334,8 @@
     {
       "id": "themes",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "에너지 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헬스케어/제약 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "통신서비스 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "리츠/부동산 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금융 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "원자재 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "산업재/물류 테마 상세 열기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "임의소비재 테마 상세 열기"
-        },
         {
           "tag": "BUTTON",
           "name": "11섹터"
@@ -391,634 +351,6 @@
         {
           "tag": "BUTTON",
           "name": "1주"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1일"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1주"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1개월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "3개월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COP +2.6%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BKR -0.9%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KDP +3.1%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DLTR -0.9%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "META +3.4%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TKO -2.6%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PLD +2.3%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARE -3.0%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MDT +3.9%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA -5.0%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MET +1.9%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CBOE -2.2%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NEE +1.5%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PEG -2.1%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CF +2.7%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ALB -2.7%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TXT +2.2%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BE -6.5%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TJX +2.3%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CVNA -6.6%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FICO +10.8%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CIEN -9.9%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1개월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "3개월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "6개월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MPC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PSX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VLO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DELL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SMCI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HPE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CLS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ORCL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CRM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NOW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "INTU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ADBE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WDAY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TEAM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PLTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SNOW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DDOG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MDB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ESTC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PANW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CRWD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FTNT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ZS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NET"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "S"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RBRK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NEM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AEM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "B"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WPM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KGC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VRTX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "REGN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMGN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GILD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BIIB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ALNY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARGX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VKTX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TMO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DHR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "A"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WAT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "IDXX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ISRG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ABT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SYK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BSX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MDT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BDX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DXCM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RMD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GEHC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EOG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CNQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OXY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DVN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FANG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TPL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SCCO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FCX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NUE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HCA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MCK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CAH"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DVA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NVDA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AVGO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRVL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HON"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MMM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ITW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EMR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PH"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AME"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WAB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NDSN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COST"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WMT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TGT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DLTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "전체 86개 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TER"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMKR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FORM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COHU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KLIC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PATH"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APPN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PEGA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COIN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HOOD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ISRG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PRCT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GMED"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "반도체 -8.9%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티 -11.7%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "전력장비/그리드 비교 보류"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "광통신/포토닉스 -7.3%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +0.6%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 +0.6%"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "산업재/물류 -1.9%"
         },
         {
           "tag": "A",
@@ -1067,29 +399,11 @@
         {
           "tag": "BUTTON",
           "name": "테마 더 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
         }
       ],
       "headings": [
         "테마 · 트렌드",
-        "섹터 회전 판정",
-        "S&P 500 지도",
-        "미국 하위 테마 상대강도 순위",
-        "AI 설비투자 100달러는 어디로 가나",
-        "반도체",
-        "전력",
-        "네트워크",
-        "냉각",
-        "시설·건설",
-        "국내 테마 흐름",
-        "이어서 볼 곳"
+        "섹터 회전 판정"
       ]
     },
     {
@@ -1226,6 +540,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "공용 AI 연결 시 해석 추가"
+        },
+        {
+          "tag": "BUTTON",
           "name": "전체"
         },
         {
@@ -1274,10 +592,6 @@
         },
         {
           "tag": "A",
-          "name": "Gold defies multi-decade high bond yields, but Q4 headwinds remain – Invesco — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
           "name": "SCYB: Rising Credit Spreads Provide An Opportunity As Yield Approaches 8% (NYSEARCA:SCYB) — 원문 새 창에서 열기"
         },
         {
@@ -1287,6 +601,10 @@
         {
           "tag": "A",
           "name": "Fitch expects durable deal to reopen Strait of Hormuz in early 2027 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Gold fails to sustain a break above $4,200, US CPI in focus — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -1318,10 +636,6 @@
         },
         {
           "tag": "A",
-          "name": "반도체중립 어조@insidertracking · 미국 속보 · 10-13윈도우 PC의 새로운 시작을 기념하기 위해 전 세계에서 특별한 행사가 열립니다. 엔비디아 RTX 스파크 출시 행사에 여러분을 "
-        },
-        {
-          "tag": "A",
           "name": "실적중립 어조@HANAchina · 중국·신흥국 · 10-13>>난야테크, 3분기 매출총이익률 85.7%로 대만 반도체 사상 최고치 기록 (대만경제일보) •난야테크(2408)는 3분기 매출총이익률 "
         },
         {
@@ -1334,11 +648,15 @@
         },
         {
           "tag": "A",
-          "name": "시장소식중립 어조@insidertracking · 미국 속보 · 10-13구글이 플래닛랩스와 협력해 '프로젝트 선캐처(Project Suncatcher)'의 시제품 위성을 개발하고, 스페이스X의 트"
+          "name": "실적긍정 어조@HANAchina · 중국·신흥국 · 10-13>>중국 사업 부진에 명품 브랜드 실적 타격…LVMH 3분기 핵심 사업 매출 5% 감소, 예상 하회 •LVMH의 3분기 매출은 예상에 부"
         },
         {
           "tag": "A",
-          "name": "실적긍정 어조@HANAchina · 중국·신흥국 · 10-13>>중국 사업 부진에 명품 브랜드 실적 타격…LVMH 3분기 핵심 사업 매출 5% 감소, 예상 하회 •LVMH의 3분기 매출은 예상에 부"
+          "name": "반도체중립 어조@HANAchina · 중국·신흥국 · 10-13>>AI 팩토리 연결 구조 재편: 엔비디아와 시스코, 단일 채널 400Gb/s 플러그형 광모듈 최초 공개 •엔비디아와 시스코가 차세대 "
+        },
+        {
+          "tag": "A",
+          "name": "매크로긍정 어조@HANAchina · 중국·신흥국 · 10-13>>미 모기지 금리 7%대로 재상승…미국 기존주택 계약 건수 12년만의 최저치 •프레디맥에 따르면 30년 만기 고정 모기지 금리는 7."
         }
       ],
       "headings": [
