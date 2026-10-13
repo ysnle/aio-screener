@@ -2,7 +2,7 @@
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
 last_verified: 2026-10-13
 confidence: medium
-target_version: v57.52
+target_version: v57.53
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -1161,7 +1161,7 @@ target_version: v57.52
 
 **Rule**: a public current publisher observation must be audited from its dated artifact and may not be labeled `SKIPPED` merely because it is reference-only. Subscriber/current-access restrictions are `BLOCKED` with the last permissible reference kept separately. A model computed from runtime OHLCV is `DYNAMIC`, not an unavailable external feed. Local environment absence must never be used as proof that a GitHub Actions repository variable is absent; configuration and execution evidence are reported separately.
 
-**Validation**: `scripts/refresh-web-research.mjs`, `scripts/ci-web-research-contract-check.mjs`, `scripts/ci-data-refresh-audit.mjs`, and the SEC workflow/configuration evidence ledger.
+**Validation**: `scripts/refresh-web-research.mjs`, `scripts/ci-web-research-contract-check.mjs`, `scripts/ci-data-refresh-audit.mjs`, and the SEC workflow/configuration evidence ledger. (2026-10-13, P1734/P1737: `refresh-web-research.mjs` is no longer run by hand — it is the automated official-reference lane inside refresh-data and writes `public-data/official-references.json`; NAAIM is retired from the screen and stays `BLOCKED`.)
 
 ## R506. Detail artifacts belong to the narrowest interaction and retain honest failure state (v54.40, P950)
 

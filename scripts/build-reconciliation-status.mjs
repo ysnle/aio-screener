@@ -217,7 +217,9 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
       evidenceCheck('latest-public-reference', naaimLatestPublic, 'public-data/data.json', naaim?.observedAt, 'Last public NAAIM value is retained with its observation date.'),
       evidenceCheck('current-freshness', naaimFresh, 'public-data/data.json', naaim?.observedAt, 'The public page is stale after its subscription transition.'),
       evidenceCheck('redistribution-rights-for-trading', false, 'operator/provider-contract', null, 'NAAIM page requires subscription for current access.')
-    ], { gate: 'latest-public-reference-with-rights-boundary', policyBlocked: !naaimLatestPublic, rights: 'OPERATOR_REQUIRED', partialReason: 'Last public NAAIM observation is available, but it is stale/reference-only.', blockedReason: 'No public NAAIM observation is available; inference forbidden.' }),
+    // P1737 (2026-10-13): NAAIM is retired from the screen and no longer carried in data.json, so this category stays
+    // BLOCKED with the reason below; the category itself is kept so the 22-category contract does not shift.
+    ], { gate: 'latest-public-reference-with-rights-boundary', policyBlocked: !naaimLatestPublic, rights: 'OPERATOR_REQUIRED', partialReason: 'Last public NAAIM observation is available, but it is stale/reference-only.', blockedReason: 'NAAIM retired: the official page shows only an undated three-month-delayed number that cannot be verified; inference forbidden.' }),
 
     categoryDefinition('investors-intelligence', [
       evidenceCheck('subscriber-current', false, 'operator/provider-contract', null, 'Subscriber value unavailable; extrapolation forbidden.')

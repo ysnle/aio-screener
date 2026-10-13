@@ -3690,8 +3690,14 @@
     var krPpiOk  = ds2.krPpi  >= 5 && ds2.krPpi  <= 10;      // 이란 유가 충격 반영 (1.5 평시값 stale 제외)
     var krCrOk   = ds2.krCreditBalance >= 30;                // record 빚투 36조 (19.2 stale 제외)
     var krInflationRef = window.AIO_MANUAL_REFERENCE && window.AIO_MANUAL_REFERENCE.krInflation;
-    var krInflationContractOk = DATA_SNAPSHOT.krCpi === 2.9
-      && DATA_SNAPSHOT.krCoreCpi === 2.8
+    // P1736/P1737: the snapshot carries the effective value — the verified artifact, the manual value inside its window,
+    // or null once the manual value expired; never the manual value past its window.
+    var krInflationState = DATA_SNAPSHOT._manualReferenceState && DATA_SNAPSHOT._manualReferenceState.krInflation;
+    var krInflationEffectiveOk = !krInflationState ? false
+      : krInflationState.status === 'superseded' ? Number.isFinite(DATA_SNAPSHOT.krCpi)
+      : krInflationState.held ? DATA_SNAPSHOT.krCpi == null && DATA_SNAPSHOT.krCoreCpi == null
+      : DATA_SNAPSHOT.krCpi === krInflationRef.headline && DATA_SNAPSHOT.krCoreCpi === krInflationRef.core;
+    var krInflationContractOk = krInflationEffectiveOk
       && krInflationRef && krInflationRef.observation === '2026-09'
       && krInflationRef.publishedAt === '2026-10-02'
       && krInflationRef.coreDefinition === 'food-and-energy-excluded'
@@ -7751,7 +7757,8 @@
       var cal884 = (calRoot884 && calRoot884.releases) ? calRoot884.releases['kr-bok'] : null;
       var bokTs884 = Date.parse(String(bokNext884 || ''));
       var calTs884 = cal884 ? Date.parse(String(cal884.nextRelease || '')) : NaN;
-      var notStale884 = Number.isFinite(bokTs884) && bokTs884 >= (Date.now() - 36 * 3600 * 1000);
+      // P1736: with no official future meeting left, bokNext is null (nothing guessed) and the calendar row has none either.
+      var notStale884 = (bokNext884 == null && (!cal884 || !cal884.nextRelease)) || (Number.isFinite(bokTs884) && bokTs884 >= (Date.now() - 36 * 3600 * 1000));
       var calConsistent884 = !cal884 || cal884.nextRelease === bokNext884 ||
         (Number.isFinite(calTs884) && calTs884 >= bokTs884);
       _assert('T884 bok_next_meeting_date_valid (EF-03/P713): bokNext가 유효한 당일/미래 날짜이고 MACRO_CALENDAR[kr-bok].nextRelease와 정합(날짜 하드코딩 제거 — 이벤트 당일 CI 부패 방지)',

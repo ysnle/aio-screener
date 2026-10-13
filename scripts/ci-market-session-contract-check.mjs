@@ -126,5 +126,23 @@ check('temporal evidence separates event/observed/collected/published', temporal
   check('P1533 src/domain must not import from src/ai (the domain layer sits below it)', offenders.length === 0, offenders);
 }
 
+// P1735: one holiday table. The briefing schedule derives its holiday rows from the registry (it kept a 2026-only copy);
+// the classic DATE_ENGINE copy is held equal above (it runs before any module loads, so it cannot import the registry).
+{
+  const scheduleSource = readFileSync(new URL('../src/domain/briefing/schedule.js', import.meta.url), 'utf8');
+  const { MARKET_HOLIDAY_NAMES } = await import('../src/domain/market/market-calendar.js');
+  const { marketStructureEvents } = await import('../src/domain/briefing/schedule.js');
+  check('P1735 the briefing schedule keeps no literal holiday table and reads the exchange registry', !/HOLIDAYS_20\d\d\s*=/.test(scheduleSource) && !/'20\d\d-\d\d-\d\d':\s*'[^']*(?:휴장|절|날)'/.test(scheduleSource) && /import \{[^}]*MARKET_CALENDAR_REGISTRY[^}]*\} from '\.\.\/market\/market-calendar\.js'/.test(scheduleSource));
+  for (const calendarKey of ['KRX', 'NYSE']) {
+    const registered = new Set(Object.values(MARKET_CALENDAR_REGISTRY[calendarKey]).flatMap((calendar) => calendar.holidays));
+    const names = Object.keys(MARKET_HOLIDAY_NAMES?.[calendarKey] || {});
+    check(`P1735 ${calendarKey} holiday names only label registered closures`, names.length > 0 && names.every((date) => registered.has(date)), names.filter((date) => !registered.has(date)));
+  }
+  const yearTurn = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-12-29T00:00:00Z'), days: 7 }).map((row) => `${row.id}|${row.label}`);
+  check('P1735 the briefing schedule shows the 2027 closures across the year turn (KRX and NYSE)', yearTurn.includes('krx-holiday-2026-12-31|한국 증시 휴장 (연말 휴장)') && yearTurn.includes('krx-holiday-2027-01-01|한국 증시 휴장 (신정)') && yearTurn.includes('nyse-holiday-2027-01-01|미국 증시 휴장 (신정)'), yearTurn);
+  const chuseok2027 = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2027-09-12T00:00:00Z'), days: 5 }).filter((row) => row.id.startsWith('krx-holiday-')).map((row) => row.id);
+  check('P1735 2027 KRX holidays come from the registry (Chuseok 9/14-16)', JSON.stringify(chuseok2027) === JSON.stringify(['krx-holiday-2027-09-14', 'krx-holiday-2027-09-15', 'krx-holiday-2027-09-16']), chuseok2027);
+}
+
 if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }
 console.log('Market session contract check OK: NYSE/KRX adapters, DST/holiday/half-day/weekend fixtures, and unknown fail-closed state passed.');

@@ -1,3 +1,5 @@
+import { MARKET_CALENDAR_REGISTRY, MARKET_HOLIDAY_NAMES } from '../market/market-calendar.js';
+
 // P1389: the briefing opens with what is coming. Official release dates come from
 // AIO_MACRO_CALENDAR (advanced by AIO_MACRO_OFFICIAL_SCHEDULES); release clock times are the
 // agencies' standing times (BLS/BEA/Census 08:30 ET, ISM 10:00 ET, FOMC statement 14:00 ET).
@@ -57,10 +59,12 @@ export function formatKstWhen(ms) {
 // - KRX index futures/options expiry: the second Thursday of each month (the business day before when it is
 //   a holiday); March/June/September/December are the quarterly simultaneous expiry.
 // - US monthly listed options expiry: the third Friday (quarterly months: index futures expire the same day).
-// - Exchange holidays: the published 2026 KRX and NYSE closures still ahead.
-const KRX_HOLIDAYS_2026 = Object.freeze({ '2026-10-09': '한글날', '2026-12-25': '성탄절', '2026-12-31': '연말 휴장' });
-const NYSE_HOLIDAYS_2026 = Object.freeze({ '2026-11-26': '추수감사절', '2026-12-25': '성탄절' });
+// - Exchange holidays: every registered KRX and NYSE closure (P1735: read from the one exchange calendar in
+//   src/domain/market/market-calendar.js — this file kept a 2026-only copy that would have shown no 2027 holiday).
 const QUARTER_MONTHS = new Set([3, 6, 9, 12]);
+const registeredHolidays = (calendarKey) => Object.values(MARKET_CALENDAR_REGISTRY[calendarKey] || {}).flatMap((calendar) => calendar.holidays);
+const isKrxHoliday = (iso) => (MARKET_CALENDAR_REGISTRY.KRX?.[iso.slice(0, 4)]?.holidays || []).includes(iso);
+const holidayLabel = (prefix, calendarKey, date) => (MARKET_HOLIDAY_NAMES[calendarKey]?.[date] ? `${prefix} (${MARKET_HOLIDAY_NAMES[calendarKey][date]})` : prefix);
 
 function isoDate(y, m, d) { return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
 function nthWeekday(y, m, weekday, n) {
@@ -72,7 +76,7 @@ function previousKrxBusinessDay(date) {
   for (;;) {
     const day = new Date(ms).getUTCDay();
     const iso = new Date(ms).toISOString().slice(0, 10);
-    if (day !== 0 && day !== 6 && !KRX_HOLIDAYS_2026[iso]) return iso;
+    if (day !== 0 && day !== 6 && !isKrxHoliday(iso)) return iso;
     ms -= 86400000;
   }
 }
@@ -98,8 +102,8 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
     push(`us-expiry-${us}`, etWallClockToMs(us, [16, 0]), QUARTER_MONTHS.has(m) ? '미국 지수 선물·옵션 분기 만기' : '미국 월물 옵션 만기',
       '대규모 옵션 포지션이 정리되며 만기 주간 지수 변동이 커지거나 눌릴 수 있음');
   }
-  for (const [date, name] of Object.entries(KRX_HOLIDAYS_2026)) push(`krx-holiday-${date}`, Date.parse(`${date}T09:00:00+09:00`), `한국 증시 휴장 (${name})`, '국내 거래가 없는 날 — 해외 시장 변화는 다음 거래일에 한꺼번에 반영');
-  for (const [date, name] of Object.entries(NYSE_HOLIDAYS_2026)) push(`nyse-holiday-${date}`, etWallClockToMs(date, [9, 30]), `미국 증시 휴장 (${name})`, '미국 거래가 없는 날 — 다음 거래일 갭에 유의');
+  for (const date of registeredHolidays('KRX')) push(`krx-holiday-${date}`, Date.parse(`${date}T09:00:00+09:00`), holidayLabel('한국 증시 휴장', 'KRX', date), '국내 거래가 없는 날 — 해외 시장 변화는 다음 거래일에 한꺼번에 반영');
+  for (const date of registeredHolidays('NYSE')) push(`nyse-holiday-${date}`, etWallClockToMs(date, [9, 30]), holidayLabel('미국 증시 휴장', 'NYSE', date), '미국 거래가 없는 날 — 다음 거래일 갭에 유의');
   return rows;
 }
 
@@ -135,7 +139,9 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
       : etWallClockToMs(date, profile.et);
     if (!Number.isFinite(atMs) || atMs < nowMs - 6 * 3600000 || atMs > nowMs + days * 86400000) continue;
     const when = formatKstWhen(atMs);
-    rows.push({ id: `macro:${key === 'us-fed-rate' ? 'us-fomc' : key}:${date}`, kind: 'macro', atMs, when: `${when.label} KST`, label: profile.label, why: profile.why,
+    // P1737: the economic-projection flag is shown only when the Fed calendar the producer read marks this meeting.
+    const label = profile === RELEASE_PROFILES['us-fomc'] && release?.sepMeeting === true ? `${profile.label} · 경제전망 발표` : profile.label;
+    rows.push({ id: `macro:${key === 'us-fed-rate' ? 'us-fomc' : key}:${date}`, kind: 'macro', atMs, when: `${when.label} KST`, label, why: profile.why,
       originalTimeZone: profile.kst ? 'Asia/Seoul' : 'America/New_York', source: release.source || null,
       comparisonBasis: ['us-cpi', 'us-pce'].includes(key) ? '전년 동월 대비(%)' : key === 'us-retail' ? '전월 대비(%)' : null,
       last: profile.last(snapshot || {}, { policyRange }), today: when.date === today, passed: atMs < nowMs, status: atMs < nowMs ? 'time-passed' : 'upcoming' });

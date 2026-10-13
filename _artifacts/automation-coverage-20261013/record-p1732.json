@@ -1,0 +1,22 @@
+{
+  "version": "v57.53",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.53 수동 데이터 자동화·만료 감시(공식 일정·연준 금리·웹검색 검증 lane·휴장일·만료 레지스트리) 반영(P1731~P1737).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1732,
+    "title": "연준 정책금리 범위가 문자열 \"3.75-4.00%\"로 하드코딩돼 다음 FOMC 이후 낡음",
+    "symptom": "브리핑·일정·대시보드가 수동 문자열을 현재 범위로 표시했다.",
+    "root_cause": "FRED DFEDTARL/DFEDTARU를 수집하면서도 화면 범위는 수동 레지스트리에서 읽었다.",
+    "fix": "data.json policyRates.fed{lower,upper,asOf,status}를 FRED 상·하단에서 파생(날짜 불일치·폭 이상·5일 초과는 stale)하고, AIO.getFedPolicyRange가 current 산출물 → FRED 스냅샷 → 기한 내 수동 → 보류 순으로 읽는다.",
+    "violated_rule": "수동 값 자동화",
+    "prevention": "P1732: ci-data-pipeline-contract-check·ci-runtime-contract-check(P1275/P1737)",
+    "verification": "현재 데이터: 3.75–4.00, asOf 10/12, current."
+  },
+  "qa": [],
+  "changelog": [
+    "**연준 금리 범위 자동화 (P1732):** 정책금리 범위를 수집 중인 FRED 상·하단에서 계산해 FOMC 결정이 바뀌면 다음 갱신에 반영한다."
+  ]
+}

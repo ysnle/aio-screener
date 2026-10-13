@@ -1,0 +1,22 @@
+{
+  "version": "v57.53",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.53 수동 데이터 자동화·만료 감시(공식 일정·연준 금리·웹검색 검증 lane·휴장일·만료 레지스트리) 반영(P1731~P1737).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1735,
+    "title": "휴장일 표가 세 곳에 따로 있고 브리핑 일정 표는 2026년만 있음",
+    "symptom": "2027년 이후 브리핑 일정의 휴장일이 비게 돼 있었다.",
+    "root_cause": "market-calendar.js·aio-core.js DATE_ENGINE·schedule.js가 각자 표를 가졌다.",
+    "fix": "schedule.js의 별도 표를 없애 market-calendar.js 레지스트리(2026·2027 이름표)를 쓰게 하고, classic 부팅 순서 때문에 남는 aio-core.js 사본은 동일성 gate로 고정했다.",
+    "violated_rule": "단일 원천",
+    "prevention": "P1735: ci-market-session-contract-check",
+    "verification": "fixture: 연말연시·2027 추석 행 표시."
+  },
+  "qa": [],
+  "changelog": [
+    "**휴장일 원천 통일 (P1735):** 브리핑 일정이 시장 달력 레지스트리를 쓰고 2027년 휴장일을 반영한다."
+  ]
+}

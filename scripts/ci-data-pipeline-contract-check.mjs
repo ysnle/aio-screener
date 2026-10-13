@@ -3,7 +3,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
-import { backtestFactors, classifyCboePutCallCurrentness, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage } from './fetch-data.mjs';
+import { backtestFactors, classifyCboePutCallCurrentness, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage, writeMacroCalendar } from './fetch-data.mjs';
+import { FOMC_RECHECK_MS, buildIsmRuleEvents, deriveFedPolicyRate, parseFomcCalendarHtml, selectFomcMeetings } from './lib/official-calendars.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
@@ -1391,6 +1392,71 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const runtimeReadersSource = read('src/data/runtime-readers.js');
   check('R24-03/P1179 the runtime reader publishes the observation basis beside the bar-start timestamp',
     (runtimeReadersSource.match(/observedAtBasis/g) || []).length >= 2);
+}
+
+// P1731/P1732/P1733: official FOMC page, FRED-derived policy range and ISM rule dates (fixtures only, no network).
+{
+  const row = (month, date) => `<div class="row fomc-meeting"><div class="fomc-meeting__month col-xs-5"><strong>${month}</strong></div><div class="fomc-meeting__date col-xs-4">${date}</div></div>`;
+  const panel = (year, rows) => `<div class="panel"><div class="panel-heading"><h4><a id="${year}">${year} FOMC Meetings</a></h4></div>${rows.map(([m, d]) => row(m, d)).join('')}<div class="panel-footer">* Meeting associated with a Summary of Economic Projections.</div></div>`;
+  const y2026 = [['January', '27-28'], ['March', '17-18*'], ['April', '28-29'], ['June', '16-17*'], ['July', '28-29'], ['August', '22 (notation vote)'], ['September', '15-16*'], ['Oct/Nov', '31-1'], ['December', '8-9*']];
+  const y2027 = [['January', '26-27'], ['March', '16-17*'], ['April', '27-28'], ['June', '8-9*'], ['July', '27-28'], ['September', '14-15*'], ['October', '26-27'], ['December', '7-8*']];
+  const html = panel(2026, y2026) + panel(2027, y2027) + panel(2025, y2026.slice(0, 3));
+  const now = Date.parse('2026-10-13T09:00:00Z');
+  const parsed = parseFomcCalendarHtml(html);
+  const selected = selectFomcMeetings(parsed, now);
+  const fomc2026 = selected.events.filter((event) => event.date.startsWith('2026-'));
+  check('P1731 FOMC parser reads decision days, cross-month meetings and SEP marks from the official layout',
+    selected.ok && fomc2026.length === 8 && fomc2026.filter((event) => event.sep).length === 4
+      && fomc2026.some((event) => event.startDate === '2026-10-31' && event.date === '2026-11-01')
+      && fomc2026.every((event) => event.source === 'fed-official' && typeof event.sep === 'boolean')
+      && parsed.skipped.some((item) => /notation vote/.test(item.text)), JSON.stringify(selected));
+  check('P1731 FOMC parser fails closed on an abnormal meeting count (current or posted next year)',
+    !selectFomcMeetings(parseFomcCalendarHtml(panel(2026, y2026.slice(0, 6))), now).ok
+      && !selectFomcMeetings(parseFomcCalendarHtml(panel(2026, y2026) + panel(2027, y2027.slice(0, 7))), now).ok
+      && selectFomcMeetings(parseFomcCalendarHtml(panel(2026, y2026)), now).ok);
+  const memory = new Map();
+  let fetches = 0;
+  const io = (text) => ({
+    fetchFn: async () => ({ release_dates: [{ date: '2026-11-10' }] }),
+    fetchTextFn: async () => { fetches += 1; if (text instanceof Error) throw text; return text; },
+    readFn: async () => { if (!memory.has('out')) throw new Error('missing'); return memory.get('out'); },
+    writeFn: async (_path, body) => { memory.set('out', body); }
+  });
+  await writeMacroCalendar('fixture-key', { ...io(html), nowMs: now });
+  const first = JSON.parse(memory.get('out') || '{}');
+  await writeMacroCalendar('fixture-key', { ...io(html), nowMs: now + FOMC_RECHECK_MS - 60000 });
+  const fetchesWithinGate = fetches;
+  await writeMacroCalendar('fixture-key', { ...io(new Error('HTTP 503')), nowMs: now + FOMC_RECHECK_MS + 60000 });
+  const failed = JSON.parse(memory.get('out') || '{}');
+  check('P1731 macro-calendar publishes FOMC schedule + provenance and keeps the consumer schedules contract',
+    first.schemaVersion === 'macro-calendar.v1' && first.meta?.fomcStatus === 'ok' && first.meta?.fomcFetchedAt === new Date(now).toISOString()
+      && first.schedules?.['us-fomc']?.includes('2026-12-09') && first.schedules?.['us-fed-rate']?.join() === first.schedules?.['us-fomc']?.join()
+      && first.events?.filter((event) => event.source === 'fed-official').length === 16, JSON.stringify(first.meta));
+  check('P1731 the FOMC page is rechecked only after 12 hours', fetches === 2 && fetchesWithinGate === 1, String(fetches));
+  check('P1731 a failed FOMC refresh keeps the previous official dates and names the reason',
+    failed.meta?.fomcStatus === 'stale' && /HTTP 503/.test(failed.meta?.fomcReason || '') && failed.meta?.fomcFetchedAt === first.meta?.fomcFetchedAt
+      && failed.schedules?.['us-fomc']?.join() === first.schedules?.['us-fomc']?.join() && failed.status === 'partial', JSON.stringify(failed.meta));
+  memory.clear();
+  await writeMacroCalendar(undefined, { ...io(new Error('HTTP 503')), nowMs: now });
+  const coldFail = JSON.parse(memory.get('out') || '{}');
+  check('P1731 with no previous parse a failed FOMC refresh publishes no FOMC dates',
+    coldFail.meta?.fomcStatus === 'unavailable' && !coldFail.schedules?.['us-fomc'] && Array.isArray(coldFail.schedules?.['us-ism-mfg']), JSON.stringify(coldFail.meta));
+  const ism = buildIsmRuleEvents({ fromMs: Date.parse('2026-01-01T00:00:00Z'), toMs: Date.parse('2027-01-31T00:00:00Z') });
+  const ismDate = (id, month) => ism.find((event) => event.calendarId === id && event.date.startsWith(month))?.date;
+  check('P1733 ISM rule dates: 1st/3rd business day, January 2nd/4th, federal holidays skipped, rule-labelled',
+    ismDate('us-ism-mfg', '2026-01') === '2026-01-05' && ismDate('us-ism-svc', '2026-01') === '2026-01-07'
+      && ismDate('us-ism-svc', '2026-07') === '2026-07-06' && ismDate('us-ism-mfg', '2026-09') === '2026-09-01'
+      && ismDate('us-ism-svc', '2026-10') === '2026-10-05' && ismDate('us-ism-mfg', '2026-11') === '2026-11-02'
+      && ismDate('us-ism-mfg', '2027-01') === '2027-01-05' && ism.every((event) => event.source === 'ism-rule' && /^\d{4}-\d{2}$/.test(event.referenceMonth)),
+    JSON.stringify(ism.slice(0, 4)));
+  const fed = (overrides) => deriveFedPolicyRate({ fedTargetLower: 3.75, fedTargetUpper: 4, _asOf_fedTargetLower: '2026-10-12', _asOf_fedTargetUpper: '2026-10-12', ...overrides }, now);
+  check('P1732 policyRates.fed is current only for a same-date, 25bp, recent FRED range',
+    fed({}).status === 'current' && fed({}).lower === 3.75 && fed({}).upper === 4 && fed({}).asOf === '2026-10-12' && fed({}).source === 'FRED DFEDTARL/DFEDTARU'
+      && fed({ _asOf_fedTargetUpper: '2026-10-11' }).status === 'stale' && fed({ fedTargetUpper: 4.25 }).status === 'stale'
+      && fed({ _asOf_fedTargetLower: '2026-10-01', _asOf_fedTargetUpper: '2026-10-01' }).status === 'stale'
+      && fed({ fedTargetLower: null }).status === 'stale');
+  check('P1732 the producer publishes data.policyRates.fed from the merged macro block',
+    /policyRates: \{ fed: deriveFedPolicyRate\(macro, Date\.parse\(attemptedAt\)\) \}/.test(read('scripts/fetch-data.mjs')));
 }
 
 if (errors.length) {

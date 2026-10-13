@@ -4,6 +4,10 @@ last_verified: 2026-10-13
 confidence: medium
 ---
 
+## v57.53 검증 스킬 (2026-10-13)
+
+- [ ] QA-VERIFY-20: P1731~P1737: 배포 후 refresh-data에서 macro-calendar.json meta.fomcStatus=ok·us-fomc 16개, data.json policyRates.fed.status=current, official-references.json에 bokBaseRate·krCpi·krExports가 verified 또는 stale(원인 기재)로 발행되고 lane.callsThisMonth가 상한 안이며, data-watchdog manual-reference-expiry 이슈가 만료 항목만 연다. verify_by: push 뒤 refresh-data 2회·data-watchdog 1회 후 산출물·이슈 확인
+
 ## v57.52 검증 스킬 (2026-10-13)
 
 - [ ] QA-VERIFY-19: P1718~P1730: 배포 후 Worker /health의 schedulerDispatch.lastObservation이 accepted 또는 recent-success이고 refresh-data 실행 간격이 1시간 이내로 줄며, data.json에 newsIntraday가 발행되고 marketAnalysis가 verified(또는 retained)로 나오며, 운영 사이트 005930 히어로 등락률이 스크리너 ret1d와 같다. verify_by: push·배포 뒤 2~3시간 Worker /health·gh run list·운영 사이트 확인

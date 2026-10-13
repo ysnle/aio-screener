@@ -107,6 +107,7 @@ const POLICIES = {
   'macro-calendar.json': { kind: 'official-calendar-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1654: FRED release dates (refresh-data)
   'sp500-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // 2026-10-13: IVV holdings weights for the S&P 500 sector map (refresh-screener)
   'stress-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1661: VIX-band forward outcomes (refresh-data operator slot, weekly)
+  'official-references.json': { kind: 'official-web-reference', timestamp: ['checkedAt'], maxAgeHours: 48 }, // P1734: page-verified KR references (NAAIM retired) (refresh-data, 12h heartbeat)
   'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1654: OpenDART annual accounts (refresh-screener, weekly; needs DART_API_KEY)
   'market-snapshot.json': { kind: 'live-core', timestamp: ['generatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'market-snapshot-status.json': { kind: 'operational-status', timestamp: ['updatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },

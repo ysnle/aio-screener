@@ -1,0 +1,22 @@
+{
+  "version": "v57.53",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.53 수동 데이터 자동화·만료 감시(공식 일정·연준 금리·웹검색 검증 lane·휴장일·만료 레지스트리) 반영(P1731~P1737).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1734,
+    "title": "한은 기준금리·한국 CPI·수출 잠정치·NAAIM이 운영자 수동 웹검색 스냅샷(8/21)에 멈춤",
+    "symptom": "수출 잠정치는 7/13, NAAIM은 7/22 값이 표시됐다.",
+    "root_cause": "refresh-web-research.mjs가 고정 CHECKED_AT 스냅샷을 다시 쓰는 수동 스크립트였다.",
+    "fix": "refresh-data에 자동 lane을 넣었다: 공용 Worker AI 웹검색(공식 도메인만, low context)으로 값·날짜·출처 URL 후보를 받고, 스크립트가 그 공식 페이지를 직접 가져와 본문에서 값·날짜·라벨을 확인한 것만 official-references.json에 verified로 발행한다. 실패하면 직전 검증값을 stale로 유지. 발표일이 지난 항목만 하루 1회, 아니면 30일 재확인, 월 40회 상한. NAAIM은 공식 페이지가 날짜 없는 지연값만 보여 검증 불가 → 퇴역.",
+    "violated_rule": "모델 요약값 발행 금지 / 공식 원천 대조",
+    "prevention": "P1734: ci-official-references-check(약 45 단언)·worker/openai-contract.test.mjs",
+    "verification": "실제 페이지 fixture: 한은 3.00%(8/27)·다음 10/22 verified, 이웃 행 2.75 거부, 관세청 7월 잠정치 verified."
+  },
+  "qa": [],
+  "changelog": [
+    "**공식 참고값 자동 수집 (P1734):** 한은 기준금리·다음 금통위, 한국 CPI, 수출 잠정치를 AI 웹검색으로 찾고 공식 페이지 본문에서 직접 확인한 값만 발행한다. 검증할 수 없는 NAAIM은 화면에서 뺐다."
+  ]
+}

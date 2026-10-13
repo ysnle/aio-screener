@@ -98,33 +98,41 @@ if (!aaii.fetchedAt || Date.now() - parseDate(aaii.fetchedAt, 'AAII fetchedAt').
 if (aaii.relayUrl && aaii.sourceKind !== 'publisher-public-web-via-reader-relay') fail('AAII relay lineage is not explicit');
 }
 
+// P1737 (2026-10-13): NAAIM is retired from the screen (undated three-month-delayed page number, not verifiable); a
+// carried NAAIM value may not reappear as a promoted reference.
 const naaim = surveys.naaim;
-if (!naaim || naaim.status !== 'stale-reference' || !Number.isFinite(Number(naaim.exposure))) {
-  fail('NAAIM last public reference is missing or incorrectly promoted');
-}
-parseDate(naaim.observedAt, 'NAAIM observedAt');
-assertOfficialUrl(naaim.sourceUrl, 'NAAIM sourceUrl');
-if (naaim.allowedUse !== 'reference-only') fail('NAAIM must remain reference-only');
+if (naaim && naaim.status !== 'stale-reference') fail('P1737 retired NAAIM value must not be promoted');
 
 if (surveys.investorsIntelligence?.status !== 'blocked-no-public-numeric') {
   fail('Investors Intelligence must remain blocked without a public numeric reading');
 }
 
+// P1737: the Korea export reference lives in public-data/official-references.json (P1734 lane; its own gate is
+// ci-official-references-check.mjs). The legacy data.json copy is checked only while an older data.json still carries it.
 const krExports = data.officialWebReferences?.krExports;
-if (!krExports || !['latest-public-found', 'stale-reference'].includes(krExports.status) || krExports.allowedUse !== 'reference-only') {
-  fail('Korea customs reference is missing or incorrectly promoted');
+if (krExports) {
+  if (!['latest-public-found', 'stale-reference'].includes(krExports.status) || krExports.allowedUse !== 'reference-only') fail('Korea customs legacy reference is incorrectly promoted');
+  for (const field of ['exportsBillionUsd', 'exportsYoyPct']) if (!Number.isFinite(Number(krExports[field]))) fail(`Korea customs ${field} is not numeric`);
+  parseDate(krExports.observedAt, 'Korea customs observedAt');
+  assertOfficialUrl(krExports.sourceUrl, 'Korea customs sourceUrl');
 }
-for (const field of ['exportsBillionUsd', 'importsBillionUsd', 'tradeBalanceBillionUsd', 'exportsYoyPct', 'importsYoyPct']) {
-  if (!Number.isFinite(Number(krExports[field]))) fail(`Korea customs ${field} is not numeric`);
+let officialReferences = null;
+try { officialReferences = JSON.parse(await readFile(resolve(ROOT, 'public-data/official-references.json'), 'utf8')); } catch (_) { /* not yet written by the lane */ }
+const exportsItem = officialReferences?.items?.krExports;
+if (exportsItem) {
+  if (!['verified', 'stale', 'unverified', 'unavailable'].includes(exportsItem.status)) fail(`P1737 official-references krExports status unsupported: ${exportsItem.status}`);
+  if (exportsItem.status === 'verified') {
+    if (!Number.isFinite(Number(exportsItem.exportsBillionUsd)) || !Number.isFinite(Number(exportsItem.exportsYoyPct))) fail('P1737 verified Korea export reference is not numeric');
+    assertOfficialUrl(exportsItem.sourceUrl, 'P1737 Korea export sourceUrl');
+  }
 }
-parseDate(krExports.observedAt, 'Korea customs observedAt');
-assertOfficialUrl(krExports.sourceUrl, 'Korea customs sourceUrl');
 
 console.log(JSON.stringify({
   ok: true,
   checkedAt: evidence.checkedAt,
   ageDays: Number(ageDays.toFixed(2)),
   evidenceEntries: entries.length,
-  marketSurveys: { aaii: aaii.status, naaim: naaim.status, investorsIntelligence: surveys.investorsIntelligence.status },
+  marketSurveys: { aaii: aaii.status, naaim: naaim ? 'retired-carried' : 'retired', investorsIntelligence: surveys.investorsIntelligence.status },
+  officialReferences: exportsItem ? { krExports: exportsItem.status } : 'not-yet-written',
   policy: 'official-source-only; reference-only; no synthesis'
 }));

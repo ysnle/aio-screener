@@ -222,8 +222,13 @@ function readSnapshotMetric(root, key) {
     const lower = finite(root?.DATA_SNAPSHOT?.fedTargetLower);
     const upper = finite(root?.DATA_SNAPSHOT?.fedTargetUpper);
     if (lower != null && upper != null) return { value: `${lower.toFixed(2)}–${upper.toFixed(2)}%`, source: 'FRED:DFEDTARL/DFEDTARU', formatted: true };
+    // P1737: then the producer range (policyRates.fed), then the manual decision within its window; an expired manual
+    // value reads '기한 지남' instead of passing as the current range.
+    const fed = typeof root?.AIO?.getFedPolicyRange === 'function' ? root.AIO.getFedPolicyRange() : null;
+    if (fed?.range) return { value: fed.range.replace('-', '–'), source: fed.origin === 'manual' ? `FOMC 결정 ${fed.asOf || ''}`.trim() : `FRED:DFEDTARL/DFEDTARU ${fed.asOf || ''}`.trim(), formatted: true };
+    if (fed?.held) return { value: '기한 지남', source: `FOMC 결정 ${fed.asOf || ''} · 기한 지남`.trim(), formatted: true };
     const fomc = root?.AIO_EVENT_FRESHNESS_REGISTRY?.fomc;
-    if (fomc?.policyRange) return { value: String(fomc.policyRange), source: `FOMC 결정 ${fomc.eventDate || ''}`.trim(), formatted: true };
+    if (!fed && fomc?.policyRange) return { value: String(fomc.policyRange), source: `FOMC 결정 ${fomc.eventDate || ''}`.trim(), formatted: true };
     return null;
   }
   if (key === 'fed-rate') {

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.52';
+const APP_VERSION = 'v57.53';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -6501,7 +6501,9 @@ window._aioApplyEventFreshnessGate = function() {
       cp2.setAttribute('data-source-kind', claim.allowedUse ? 'SNAPSHOT' : 'REFERENCE');
       cp2.setAttribute('data-as-of', fomcDate);
       cp2.setAttribute('data-claim-state', claim.status);
-      cp2.textContent = claimPrefix + 'Fed ' + (fomc.policyRange || '금리 검증 대기') + ' · ' + fomcLabel + (fomcDate ? ' ' + fomcDate : '') + ': ' + fomcResult.slice(0, 50) + ' · 다음 확인: ' + fomcNextCP.slice(0, 40);
+      // P1737: the range comes from the shared Fed-range answer (producer -> FRED -> manual within its window), not the event text.
+      var cp2Fed = typeof window.AIO.getFedPolicyRange === 'function' ? window.AIO.getFedPolicyRange() : { range: fomc.policyRange || null };
+      cp2.textContent = claimPrefix + 'Fed ' + (cp2Fed.range || (cp2Fed.held ? '범위 기한 지남' : '금리 검증 대기')) + ' · ' + fomcLabel + (fomcDate ? ' ' + fomcDate : '') + ': ' + fomcResult.slice(0, 50) + ' · 다음 확인: ' + fomcNextCP.slice(0, 40);
     }
     var fed = document.getElementById('macro-fed-meaning');
     if (fed && fed.dataset.aioMacroFedMeaningRenderer !== 'native') {
@@ -10841,7 +10843,7 @@ window.AIO_MACRO_CALENDAR = {
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
     // 유지, 확인됨) lastRelease로 승격. 7/28-29 회의도 종료되어 다음 결정일(9/16)로 이동.
-    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fomc', sepMeeting: true, source: 'Federal Reserve official calendar', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
+    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fomc', sepMeeting: null, source: 'Federal Reserve official calendar', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
     'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fedRate', source: 'FOMC 결정', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
     // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/16)
     // v52.42: 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
@@ -10860,6 +10862,12 @@ window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
   'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
   'kr-bok': ['2026-07-16', '2026-08-27', '2026-10-22', '2026-11-26']
+};
+// P1736: the date each hand-kept schedule above was last checked against its official calendar (from the notes above
+// and the commit that last changed the row). The expiry registry pairs it with the last date the row covers.
+window.AIO_MACRO_OFFICIAL_SCHEDULES_ASOF = {
+  'us-nfp': '2026-10-02', 'us-cpi': '2026-10-10', 'us-pce': '2026-10-01', 'us-ism-mfg': '2026-10-02', 'us-ism-svc': '2026-10-02',
+  'us-retail': '2026-10-10', 'us-fomc': '2026-09-17', 'us-fed-rate': '2026-09-17', 'kr-bok': '2026-08-29'
 };
 
 // The schedule arrays above are an official-calendar artifact, not a promise
@@ -10886,6 +10894,13 @@ window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {
   var today = _aioMacroTodayIso(now);
   var updated = [];
   if (!registry) return { status: 'unavailable', today: today, updated: updated };
+  // P1737: a verified next BOK meeting from the official-reference artifact extends the kr-bok row (dates only added).
+  var bokProduced = (window.AIO_PRODUCED_REFERENCES || {}).bokPolicy;
+  var bokNextProduced = bokProduced && bokProduced.status === 'verified' ? _aioMacroIsoDate(bokProduced.next) : null;
+  if (bokNextProduced) {
+    var bokRow = Array.isArray(artifact['kr-bok']) ? artifact['kr-bok'] : [];
+    if (bokRow.indexOf(bokNextProduced) < 0) artifact['kr-bok'] = bokRow.concat([bokNextProduced]).sort();
+  }
   Object.keys(registry).forEach(function(key) {
     var entry = registry[key] || {};
     var dates = Array.isArray(artifact[key]) ? artifact[key].map(_aioMacroIsoDate).filter(Boolean).sort() : [];
@@ -10896,8 +10911,16 @@ window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {
     entry.scheduleArtifact = dates.length ? 'AIO_MACRO_OFFICIAL_SCHEDULES' : null;
     entry.scheduleState = next ? 'official-current' : 'unavailable-expired';
     entry.scheduleAsOf = dates.length ? dates[dates.length - 1] : null;
+    // P1737: the economic-projection (SEP) flag comes only from the Fed calendar the producer read; unknown stays null.
+    if (key === 'us-fomc') {
+      var fomcSep = (window.AIO_FOMC_PRODUCED && window.AIO_FOMC_PRODUCED.accepted && window.AIO_FOMC_PRODUCED.sep) || {};
+      entry.sepMeeting = next && typeof fomcSep[next] === 'boolean' ? fomcSep[next] : null;
+    }
     updated.push({ key: key, nextRelease: next, state: entry.scheduleState });
   });
+  if (window.AIO && typeof window.AIO.applyManualReferenceState === 'function') {
+    try { window.AIO.applyManualReferenceState(now); } catch (_) {}
+  }
   return {
     status: updated.some(function(item) { return item.state === 'unavailable-expired'; }) ? 'stale' : 'ok',
     today: today,
@@ -17489,6 +17512,229 @@ const DATA_SNAPSHOT = {
 window.DATA_SNAPSHOT = DATA_SNAPSHOT;
 window.AIO_MANUAL_REFERENCE = AIO_MANUAL_REFERENCE;
 
+// P1736:BEGIN manual-reference-expiry
+// P1736 (automation coverage 2026-10-13): a hand-kept value used to go stale silently. Every remaining manual value now
+// declares when it was checked (asOf) and when it stops being current: the next official release (nextExpectedAt +
+// graceDays), an age limit (maxAgeDays) or the last date its table covers (coverageEnd). An expired value is held on
+// screen as '기한 지남' instead of being shown as current, and the data watchdog opens an issue
+// (scripts/ci-manual-reference-expiry-check.mjs evaluates this same block). P1737: a producer artifact whose status is
+// current/verified supersedes the manual value; otherwise the manual value stays on screen with its dates.
+var AIO_MANUAL_REFERENCE_EXPIRY_RULES = Object.freeze({
+  fedPolicy: Object.freeze({ label: '연준 정책금리 범위', where: 'js/aio-core.js AIO_MANUAL_REFERENCE.fedPolicy', graceDays: 1, producer: 'public-data/data.json policyRates.fed', screen: '정책금리 범위(대체 표시·일정의 현재 범위·CP2)를 기한 지남으로 보류' }),
+  bokPolicy: Object.freeze({ label: '한국은행 기준금리', where: 'js/aio-core.js AIO_MANUAL_REFERENCE.bokPolicy', graceDays: 1, producer: 'public-data/official-references.json items.bokBaseRate', screen: '기준금리 값·결정 방향을 기한 지남으로 보류, 다음 회의일은 공식 일정에서 계속 표시' }),
+  krInflation: Object.freeze({ label: '한국 소비자물가', where: 'js/aio-core.js AIO_MANUAL_REFERENCE.krInflation', maxAgeDays: 35, producer: 'public-data/official-references.json items.krCpi', screen: '한국 CPI 값을 기한 지남으로 보류' }),
+  usCpiCalendar: Object.freeze({ label: '미국 CPI 다음 발표일', where: 'js/aio-core.js AIO_MANUAL_REFERENCE.usCpiCalendar', graceDays: 0, producer: 'public-data/macro-calendar.json schedules.us-cpi', screen: '다음 CPI 일정을 공표 일정표에서 표시하고, 없으면 비움' }),
+  fomcEvent: Object.freeze({ label: 'FOMC 결정 결과 서술', where: 'js/aio-core.js AIO_EVENT_FRESHNESS_REGISTRY.fomc', producer: null, screen: '결정 결과를 과거 참고로만 표시(현재 판단 문구 차단, getEventClaimState)' }),
+  // NAAIM retired from the screen (2026-10-13: the official page shows only an undated, three-month-delayed number that
+  // cannot be verified against its page), so it carries no expiry item.
+  krExports: Object.freeze({ label: '한국 수출 잠정치', where: 'public-data/data.json officialWebReferences.krExports', maxAgeDays: 15, producer: 'public-data/official-references.json items.krExports', screen: '수출 잠정치 문구를 기한 지남으로 보류' }),
+  structuralResearch: Object.freeze({ label: '구조 데이터 원천 조사 기록', where: 'public-data/structural-data-research.json', maxAgeDays: 180, reviewLeadDays: 30, producer: null, screen: '화면 노출 없음(원천 경계 근거) · 만료 시 웹 조사 계약 gate가 배포를 막음' }),
+  schedule: Object.freeze({ label: '공식 발표 일정표', where: 'js/aio-core.js AIO_MACRO_OFFICIAL_SCHEDULES', graceDays: 0, reviewLeadDays: 21, producer: 'public-data/macro-calendar.json', screen: '그 발표의 다음 일정을 일정 확인 필요로 보류' }),
+  holidays: Object.freeze({ label: '거래소 휴장일 표', where: 'src/domain/market/market-calendar.js + js/aio-core.js DATE_ENGINE', asOf: '2026-09-29', reviewLeadDays: 61, producer: null, screen: '미등록 연도는 거래일 판정을 unknown으로 보류' })
+});
+function _aioRefDate(value) {
+  var text = String(value == null ? '' : value).trim().slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(text) && Number.isFinite(Date.parse(text + 'T00:00:00Z')) ? text : null;
+}
+function _aioRefAddDays(iso, days) { return new Date(Date.parse(iso + 'T00:00:00Z') + days * 86400000).toISOString().slice(0, 10); }
+function _aioRefKstToday(now) {
+  var ts = now == null ? Date.now() : (now instanceof Date ? now.getTime() : (typeof now === 'string' ? Date.parse(now) : Number(now)));
+  if (!Number.isFinite(ts)) ts = Date.now();
+  return new Date(ts + 9 * 3600000).toISOString().slice(0, 10);
+}
+function _aioEvaluateManualReferences(input) {
+  input = input || {};
+  var R = AIO_MANUAL_REFERENCE_EXPIRY_RULES;
+  var today = _aioRefKstToday(input.now);
+  var manual = input.manual || {};
+  var produced = Object.assign({}, input.produced || {});
+  var schedules = input.schedules || {};
+  var scheduleAsOf = input.scheduleAsOf || {};
+  var producedAt = input.scheduleProducedAt || {};
+  var items = [];
+  function add(id, rule, fields) {
+    var asOf = _aioRefDate(fields.asOf != null ? fields.asOf : rule.asOf);
+    var next = _aioRefDate(fields.nextExpectedAt);
+    var coverageEnd = _aioRefDate(fields.coverageEnd);
+    var maxAge = fields.maxAgeDays != null ? Number(fields.maxAgeDays) : (rule.maxAgeDays != null ? Number(rule.maxAgeDays) : null);
+    if (!Number.isFinite(maxAge)) maxAge = null;
+    var expiresAt = coverageEnd || (next ? _aioRefAddDays(next, Number(rule.graceDays) || 0) : (asOf && maxAge != null ? _aioRefAddDays(asOf, maxAge) : null));
+    var reviewFrom = expiresAt && rule.reviewLeadDays ? _aioRefAddDays(expiresAt, -Number(rule.reviewLeadDays)) : null;
+    var replacement = produced[id] || null;
+    var superseded = !!(replacement && (replacement.status === 'current' || replacement.status === 'verified'));
+    var status = superseded ? 'superseded' : (!asOf && fields.neverVerified) ? 'unverified' : (!asOf || !expiresAt) ? 'invalid' : today > expiresAt ? 'expired' : (reviewFrom && today >= reviewFrom) ? 'due' : 'current';
+    items.push({ id: id, label: fields.label || rule.label, where: fields.where || rule.where, asOf: asOf, nextExpectedAt: next, maxAgeDays: maxAge, coverageEnd: coverageEnd,
+      expiresAt: expiresAt, reviewFrom: reviewFrom, status: status, held: status === 'expired' || status === 'invalid' || status === 'unverified', screen: rule.screen, producer: rule.producer || null,
+      producedAsOf: superseded ? _aioRefDate(replacement.asOf) : null });
+  }
+  var cpiRow = (Array.isArray(schedules['us-cpi']) ? schedules['us-cpi'] : []).map(_aioRefDate).filter(Boolean).sort();
+  var cpiFuture = cpiRow.filter(function(date) { return date >= today; })[0] || null;
+  // DATA_SNAPSHOT.cpiNext follows the us-cpi schedule row, which carries its own expiry item below.
+  if (cpiFuture && !produced.usCpiCalendar) produced.usCpiCalendar = { status: 'current', asOf: producedAt['us-cpi'] || scheduleAsOf['us-cpi'] || null };
+  if (manual.fedPolicy) add('fedPolicy', R.fedPolicy, { asOf: manual.fedPolicy.asOf, nextExpectedAt: manual.fedPolicy.next });
+  if (manual.bokPolicy) add('bokPolicy', R.bokPolicy, { asOf: manual.bokPolicy.asOf, nextExpectedAt: manual.bokPolicy.next });
+  if (manual.krInflation) add('krInflation', R.krInflation, { asOf: manual.krInflation.publishedAt });
+  if (manual.usCpiCalendar) add('usCpiCalendar', R.usCpiCalendar, { asOf: manual.usCpiCalendar.asOf, nextExpectedAt: manual.usCpiCalendar.next });
+  var fomcEvent = (input.eventRegistry || {}).fomc;
+  if (fomcEvent) add('fomcEvent', R.fomcEvent, { asOf: fomcEvent.eventDate, maxAgeDays: fomcEvent.maxClaimAgeDays });
+  var meta = input.serverMeta || {};
+  // The artifact copy (any status) dates the value when present; otherwise the older data.json copy does.
+  if (input.structuralResearch) add('structuralResearch', R.structuralResearch, { asOf: input.structuralResearch.checkedAt });
+  // P1736: the artifact item dates the value once it has one; an artifact item never verified (no figure, no publish
+  // date) stays as an 'unverified' held item so the watchdog issue does not close just because the legacy copy is gone.
+  var exportsItem = produced.krExports || null;
+  var exportsAsOf = exportsItem && exportsItem.asOf ? exportsItem.asOf : (meta.krExports ? (meta.krExports.publishedAt || meta.krExports.observedAt) : null);
+  if (exportsItem || meta.krExports) add('krExports', R.krExports, { asOf: exportsAsOf, neverVerified: !!exportsItem && !exportsAsOf, where: exportsItem ? R.krExports.producer : R.krExports.where });
+  Object.keys(schedules).sort().forEach(function(key) {
+    var dates = (Array.isArray(schedules[key]) ? schedules[key] : []).map(_aioRefDate).filter(Boolean).sort();
+    add('schedule:' + key, R.schedule, { asOf: producedAt[key] || scheduleAsOf[key] || null, coverageEnd: dates.length ? dates[dates.length - 1] : null,
+      label: R.schedule.label + ' ' + key, where: producedAt[key] ? 'public-data/macro-calendar.json schedules.' + key : R.schedule.where + "['" + key + "']" });
+  });
+  var years = input.calendarYears || {};
+  ['KRX', 'NYSE'].forEach(function(market) {
+    var list = (years[market] || []).map(Number).filter(Number.isFinite).sort();
+    if (list.length) add('holidays:' + market, R.holidays, { coverageEnd: list[list.length - 1] + '-12-31', label: (market === 'KRX' ? '한국' : '미국') + ' ' + R.holidays.label });
+  });
+  return {
+    schemaVersion: 'manual-reference-expiry.v1', today: today, items: items,
+    expired: items.filter(function(item) { return item.held; }).map(function(item) { return item.id; }),
+    due: items.filter(function(item) { return item.status === 'due'; }).map(function(item) { return item.id; })
+  };
+}
+// P1737: producer artifacts -> produced references keyed like the rules. data.json passes { policyRates }, the
+// official-reference artifact passes { officialReferences }; a field that is not passed leaves its entries untouched.
+function _aioRefNumber(value) {
+  if (value == null || typeof value === 'boolean' || (typeof value === 'string' && value.trim() === '')) return null;
+  var number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+function _aioNormalizeProducedReferences(previous, input) {
+  var P = Object.assign({}, previous || {});
+  input = input || {};
+  if (Object.prototype.hasOwnProperty.call(input, 'policyRates')) {
+    var fed = input.policyRates && input.policyRates.fed;
+    var lower = _aioRefNumber(fed && fed.lower), upper = _aioRefNumber(fed && fed.upper);
+    P.fedPolicy = fed && lower != null && upper != null && upper > lower
+      ? { status: String(fed.status || 'unavailable'), value: lower.toFixed(2) + '-' + upper.toFixed(2), lower: lower, upper: upper, asOf: _aioRefDate(fed.asOf), reason: fed.reason || null }
+      : null;
+  }
+  var refs = input.officialReferences;
+  if (refs && refs.items && typeof refs.items === 'object') {
+    var items = refs.items;
+    var bok = items.bokBaseRate, bokValue = _aioRefNumber(bok && bok.value);
+    P.bokPolicy = bok && bokValue != null ? { status: String(bok.status || 'unverified'), value: bokValue, asOf: _aioRefDate(bok.effectiveDate || bok.publishedAt),
+      next: _aioRefDate(bok.nextMeeting), decision: typeof bok.decision === 'string' ? bok.decision : null } : null;
+    var cpi = items.krCpi, yoy = _aioRefNumber(cpi && cpi.yoy);
+    P.krInflation = cpi && yoy != null ? { status: String(cpi.status || 'unverified'), headline: yoy, core: _aioRefNumber(cpi.coreYoy), observation: cpi.period || null, asOf: _aioRefDate(cpi.publishedAt) } : null;
+    var exports = items.krExports;
+    // Kept even without a figure (unverified/unavailable) so the expiry registry still lists it; only a verified item
+    // with a numeric figure reaches the screen (applyManualReferenceState). A check time never dates the figure.
+    var exportsHasFigure = !!exports && _aioRefNumber(exports.exportsBillionUsd) != null;
+    P.krExports = exports && typeof exports === 'object' ? Object.assign({}, exports, { status: exportsHasFigure ? String(exports.status || 'unverified') : (exports.status === 'verified' ? 'unverified' : String(exports.status || 'unverified')), asOf: exportsHasFigure ? _aioRefDate(exports.publishedAt) : null }) : null;
+  }
+  return P;
+}
+// P1736:END manual-reference-expiry
+
+window.AIO_PRODUCED_REFERENCES = window.AIO_PRODUCED_REFERENCES || {};
+window.AIO.getManualReferenceAudit = function(now) {
+  var years = { KRX: [], NYSE: [] };
+  try {
+    var engine = DATE_ENGINE; // const declared later in this file; before it initialises the holiday rows are omitted
+    var y0 = new Date().getFullYear();
+    for (var y = y0 - 1; y <= y0 + 3; y++) {
+      if (engine.hasMarketCalendar('KR', y)) years.KRX.push(y);
+      if (engine.hasMarketCalendar('US', y)) years.NYSE.push(y);
+    }
+  } catch (_) {}
+  var meta = window._serverDataMeta || {};
+  return _aioEvaluateManualReferences({
+    now: now, manual: AIO_MANUAL_REFERENCE, eventRegistry: window.AIO_EVENT_FRESHNESS_REGISTRY,
+    schedules: window.AIO_MACRO_OFFICIAL_SCHEDULES, scheduleAsOf: window.AIO_MACRO_OFFICIAL_SCHEDULES_ASOF,
+    scheduleProducedAt: window.AIO_MACRO_SCHEDULE_PRODUCED_AT, calendarYears: years, produced: window.AIO_PRODUCED_REFERENCES,
+    serverMeta: { krExports: meta.officialWebReferences && meta.officialWebReferences.krExports }
+  });
+};
+window.AIO.getManualReferenceState = function(id, now) {
+  var items = window.AIO.getManualReferenceAudit(now).items;
+  for (var i = 0; i < items.length; i++) if (items[i].id === id) return items[i];
+  return null;
+};
+// P1737: one answer for "what is the Fed target range" — the producer's FRED-derived range while it is current, then the
+// FRED bounds already in the snapshot, then the manual decision until it expires; after that, held (range null).
+window.AIO.getFedPolicyRange = function(now) {
+  var produced = (window.AIO_PRODUCED_REFERENCES || {}).fedPolicy;
+  if (produced && produced.status === 'current') return { range: produced.value + '%', lower: produced.lower, upper: produced.upper, asOf: produced.asOf, origin: 'produced', held: false };
+  var snap = window.DATA_SNAPSHOT || {};
+  if (typeof snap.fedTargetLower === 'number' && typeof snap.fedTargetUpper === 'number' && isFinite(snap.fedTargetLower) && isFinite(snap.fedTargetUpper)) {
+    return { range: snap.fedTargetLower.toFixed(2) + '-' + snap.fedTargetUpper.toFixed(2) + '%', lower: snap.fedTargetLower, upper: snap.fedTargetUpper, asOf: (snap._fieldTs && (snap._fieldTs.macro_fedTargetLower || snap._fieldTs.macro_fred)) || null, origin: 'fred-snapshot', held: false };
+  }
+  var state = window.AIO.getManualReferenceState('fedPolicy', now) || {};
+  var manual = AIO_MANUAL_REFERENCE.fedPolicy;
+  return { range: state.held ? null : manual.value + '%', asOf: manual.asOf, expiresAt: state.expiresAt || null, origin: 'manual', held: !!state.held };
+};
+// Projects the effective reference values (produced -> manual within its window -> held) into DATA_SNAPSHOT.
+window.AIO.applyManualReferenceState = function(now) {
+  var S = window.DATA_SNAPSHOT;
+  if (!S) return null;
+  var M = AIO_MANUAL_REFERENCE;
+  var P = window.AIO_PRODUCED_REFERENCES || {};
+  var audit = window.AIO.getManualReferenceAudit(now);
+  var state = {};
+  audit.items.forEach(function(item) { state[item.id] = item; });
+  S._manualReferenceState = state;
+  S._fieldTs = S._fieldTs || {};
+  var releases = (window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases) || {};
+  var held = function(id) { return !!(state[id] && state[id].held); };
+  // Fed: DATA_SNAPSHOT.fedRate is replaced by the FRED effective rate once data.json loads; only the manual string is held.
+  var fed = window.AIO.getFedPolicyRange(now);
+  if (S.fedRate === M.fedPolicy.value) {
+    if (fed.origin === 'produced') { S.fedRate = fed.range.replace('%', ''); S.fedStatus = fed.range === M.fedPolicy.value + '%' ? M.fedPolicy.status : null; S._fieldTs.fed_rate = fed.asOf; }
+    else if (fed.origin === 'manual' && fed.held) { S.fedRate = null; S.fedStatus = null; }
+  }
+  S.fomcNext = (releases['us-fomc'] && releases['us-fomc'].nextRelease) || _aioFutureReferenceDate(M.fedPolicy.next);
+  var bok = P.bokPolicy && P.bokPolicy.status === 'verified' ? P.bokPolicy : null;
+  if (bok) {
+    S.bokRate = bok.value;
+    S.bokStatus = bok.decision || (bok.asOf && bok.asOf === M.bokPolicy.asOf ? M.bokPolicy.status : null);
+    S._fieldTs.bok_rate = bok.asOf;
+  } else if (held('bokPolicy')) { S.bokRate = null; S.bokStatus = null; }
+  else { S.bokRate = M.bokPolicy.value; S.bokStatus = M.bokPolicy.status; S._fieldTs.bok_rate = M.bokPolicy.asOf; }
+  S.bokNext = (releases['kr-bok'] && releases['kr-bok'].nextRelease) || (bok && _aioFutureReferenceDate(bok.next)) || _aioFutureReferenceDate(M.bokPolicy.next);
+  var cpi = P.krInflation && P.krInflation.status === 'verified' ? P.krInflation : null;
+  if (cpi) {
+    S.krCpi = cpi.headline;
+    S.krCoreCpi = cpi.core != null ? cpi.core : (cpi.observation && cpi.observation === M.krInflation.observation ? M.krInflation.core : null);
+    S._fieldTs.kr_cpi = cpi.asOf;
+  } else if (held('krInflation')) { S.krCpi = null; S.krCoreCpi = null; }
+  else { S.krCpi = M.krInflation.headline; S.krCoreCpi = M.krInflation.core; S._fieldTs.kr_cpi = M.krInflation.publishedAt; }
+  S.cpiNext = (releases['us-cpi'] && releases['us-cpi'].nextRelease) || _aioFutureReferenceDate(M.usCpiCalendar.next);
+  if (P.krExports && P.krExports.status === 'verified') { S.krExportReference = P.krExports; S._fieldTs.krExportReference = P.krExports.asOf; }
+  return audit;
+};
+// P1737: producer artifacts -> window.AIO_PRODUCED_REFERENCES. data.json passes { policyRates }, the official-reference
+// artifact passes { officialReferences }; a missing field leaves the other source untouched.
+window.AIO.applyProducedReferences = function(input) {
+  input = input || {};
+  var P = _aioNormalizeProducedReferences(window.AIO_PRODUCED_REFERENCES || {}, input);
+  window.AIO_PRODUCED_REFERENCES = P;
+  if (P.bokPolicy && P.bokPolicy.status === 'verified' && P.bokPolicy.next && typeof window.AIO.refreshMacroCalendarFromOfficialSchedule === 'function') {
+    window.AIO.refreshMacroCalendarFromOfficialSchedule(); // also re-applies the reference state below
+  }
+  var audit = window.AIO.applyManualReferenceState();
+  if (typeof applyDataSnapshot === 'function') { try { applyDataSnapshot(); } catch (_) {} }
+  return audit;
+};
+// '기한 지남' hover/attributes for a manual value (no provider names; dates only).
+function _aioManualReferenceTitle(item) {
+  if (!item) return '';
+  var md = function(iso) { return iso ? Number(iso.slice(5, 7)) + '/' + Number(iso.slice(8, 10)) : '—'; };
+  if (item.status === 'superseded') return '자동 확인 ' + md(item.producedAsOf);
+  if (item.held) return '기한 지남 · 마지막 확인 ' + md(item.asOf) + ' · 기한 ' + md(item.expiresAt) + ' 이후 새 공표 확인 필요';
+  return '기준 ' + md(item.asOf) + ' · 기한 ' + md(item.expiresAt);
+}
+try { window.AIO.applyManualReferenceState(); } catch (e) { if (typeof _aioLog === 'function') _aioLog('warn', 'reference', 'manual reference state: ' + (e && e.message || e)); }
+
 // P712/R340: 미국채 만기별 금리를 한 경로에서만 해석한다. 과거 일부 화면이
 // 5Y(^FVX)*0.95를 2Y로 합성하거나 ^TNX를 tnx2y에 덮어써 2s10s를 왜곡했다.
 // 현재값 우선순위는 live/FRED -> 명시적 snapshot이며, 관측치가 없으면 null로 닫는다.
@@ -17610,9 +17856,13 @@ const NARRATIVE_ENGINE = (function() {
     var claim = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('fomc') : { allowedUse:false };
     // P1275: DATA_SNAPSHOT.fedRate is an older effective-rate observation, not
     // the latest FOMC target range. The visible CP2 and event footer share one decision.
-    var range = fomc.policyRange && fomc.eventDate
-      ? 'Fed 목표범위 ' + fomc.policyRange + ' (' + fomc.eventDate + ' 결정' + (claim.allowedUse ? '' : ' · 과거 참고') + ')'
-      : null;
+    // P1737: the range is the shared Fed-range answer; a producer/FRED range is dated by its observation, the manual one by the decision.
+    var fedRange = window.AIO && typeof window.AIO.getFedPolicyRange === 'function' ? window.AIO.getFedPolicyRange() : { range: fomc.policyRange || null, origin: 'manual', asOf: fomc.eventDate };
+    var range = fedRange.range && fedRange.origin !== 'manual'
+      ? 'Fed 목표범위 ' + fedRange.range + (fedRange.asOf ? ' (' + fedRange.asOf + ' 기준)' : '')
+      : fedRange.range && fomc.eventDate
+        ? 'Fed 목표범위 ' + fedRange.range + ' (' + fomc.eventDate + ' 결정' + (claim.allowedUse ? '' : ' · 과거 참고') + ')'
+        : fedRange.held ? 'Fed 목표범위 기한 지남' : null;
     return availableText([range, c.vix == null ? null : valueText('VIX', c.vix)]);
   }
   function getCP3Text() { return getFGInternalStructureText(); }
@@ -17982,6 +18232,13 @@ function applyDataSnapshot() {
     var currentBreadth = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
     function unit(v, digits, suffix, prefix) { return _snap.valid(v) ? (prefix || '') + Number(v).toFixed(digits) + (suffix || '') : '—'; }
     function signed(v, digits, suffix) { return _snap.valid(v) ? (Number(v) > 0 ? '+' : '') + Number(v).toFixed(digits) + (suffix || '') : '—'; }
+    // P1736/P1737: a manual reference past its window reads '기한 지남' (never its old value as current); a manual value
+    // still in its window carries its decision date beside the direction.
+    var _refState = S._manualReferenceState || {};
+    function refHeld(id, value) { return !!(_refState[id] && _refState[id].held) && !_snap.valid(value); }
+    var _bokRef = _refState.bokPolicy || null;
+    var _bokBasis = _bokRef && (_bokRef.status === 'superseded' ? _bokRef.producedAsOf : _bokRef.asOf);
+    var _fedRange = window.AIO && typeof window.AIO.getFedPolicyRange === 'function' ? window.AIO.getFedPolicyRange() : null;
     const map = {
       'wti':           unit(S.wti, 2, '', '$'),
       'brent':         unit(S.brent, 2, '', '$'),
@@ -17999,14 +18256,14 @@ function applyDataSnapshot() {
       'move':          '—', // current ^MOVE observation required
       'kr-unemploy':   '—', // current official observation is not wired; do not promote an undated seed
       'fed-rate':      S.fedRate || '—',
-      'fed-target':    typeof S.fedTargetLower === 'number' && typeof S.fedTargetUpper === 'number' ? S.fedTargetLower.toFixed(2) + '–' + S.fedTargetUpper.toFixed(2) + '%' : (AIO_MANUAL_REFERENCE.fedPolicy.value ? AIO_MANUAL_REFERENCE.fedPolicy.value + '%' : '—'), // FOMC target: FRED DFEDTARL/U, else official manual reference
+      'fed-target':    typeof S.fedTargetLower === 'number' && typeof S.fedTargetUpper === 'number' ? S.fedTargetLower.toFixed(2) + '–' + S.fedTargetUpper.toFixed(2) + '%' : (_fedRange && _fedRange.range ? _fedRange.range.replace('-', '–') : _fedRange && _fedRange.held ? '기한 지남' : '—'), // FOMC target: FRED DFEDTARL/U, else the producer range, else the manual reference within its window (P1737)
       'cpi':           unit(S.cpi, 1, '%'),
       // v34.6: 한국 매크로 data-snap 매핑
-      'bok-rate':      unit(S.bokRate, 2, '%'),
-      'bok-status':    S.bokStatus || '—',
+      'bok-rate':      refHeld('bokPolicy', S.bokRate) ? '기한 지남' : unit(S.bokRate, 2, '%'),
+      'bok-status':    S.bokStatus ? S.bokStatus + (_bokBasis ? ' (' + Number(_bokBasis.slice(5, 7)) + '/' + Number(_bokBasis.slice(8, 10)) + ' 결정)' : '') : '—',
       'bok-next':      S.bokNext || '—',
       'kr-bond-10y':   '—', // current official observation required
-      'kr-cpi':        unit(S.krCpi, 1, '%'),
+      'kr-cpi':        refHeld('krInflation', S.krCpi) ? '기한 지남' : unit(S.krCpi, 1, '%'),
       'kr-gdp':        signed(S.krGdp, 1, '%'),
       // v42.4: macro 페이지 소비·고용·주택 카드 매핑 누락 수정 (A-3)
       'retail-sales':  signed(S.retailSales, 1, '%'),
@@ -18062,7 +18319,8 @@ function applyDataSnapshot() {
       'kr-ppi':        '—',
       'kr-pmi':        unit(S.krPmi, 1),
       'kr-export':     unit(S.krExport, 1),
-      'kr-export-reference': (S.krExportReference && S.krExportReference.status !== 'stale-reference' && isFinite(Number(S.krExportReference.exportsBillionUsd)))
+      'kr-export-reference': (_refState.krExports && _refState.krExports.held && !(S.krExportReference && S.krExportReference.status === 'verified')) ? (_refState.krExports.status === 'unverified' ? '공식 잠정치 미수신' : '공식 잠정치 기한 지남')
+        : (S.krExportReference && S.krExportReference.status !== 'stale-reference' && isFinite(Number(S.krExportReference.exportsBillionUsd)))
         ? String(S.krExportReference.periodLabel || '공식 잠정치') + ' 수출 $' + Number(S.krExportReference.exportsBillionUsd).toFixed(1) + 'B (' + (Number(S.krExportReference.exportsYoyPct) >= 0 ? '+' : '') + Number(S.krExportReference.exportsYoyPct).toFixed(1) + '% YoY)'
         : '공식 잠정치 미수신',
       'kr-import':     unit(S.krImport, 1),
@@ -18076,7 +18334,7 @@ function applyDataSnapshot() {
       'kr-advance':    unit(S.krAdvance, 0, '개'),
       'kr-decline':    unit(S.krDecline, 0, '개'),
       // v48.15: kr-macro 페이지 세부 지표 data-snap 바인딩 (텍스트-B)
-      'kr-cpi-yoy':    signed(S.krCpi, 1, '% YoY'),
+      'kr-cpi-yoy':    refHeld('krInflation', S.krCpi) ? '기한 지남' : signed(S.krCpi, 1, '% YoY'),
       'kr-ppi-yoy':    '—',
       'kr-manuf-pmi':  _snap.fixed(S.krManufPmi, 1),
       'kr-gdp-qoq':    signed(S.krGdp, 1, '%'),
@@ -18104,6 +18362,15 @@ function applyDataSnapshot() {
       }
     });
     if (_snapFailed > 0 && typeof _aioLog === 'function') _aioLog('warn', 'snap', 'applyDataSnapshot: ' + _snapFailed + ' key(s) failed / ' + _snapApplied + ' applied');
+    // P1736: the reference date and window of a manual value sit in its hover; the reference state is on the element.
+    [['bok-rate', 'bokPolicy'], ['bok-status', 'bokPolicy'], ['kr-cpi', 'krInflation'], ['kr-cpi-yoy', 'krInflation']].forEach(function(pair) {
+      var item = _refState[pair[1]];
+      if (!item) return;
+      document.querySelectorAll('[data-snap="' + pair[0] + '"]').forEach(function(el) {
+        el.title = _aioManualReferenceTitle(item);
+        el.setAttribute('data-reference-state', item.status);
+      });
+    });
     // P1583 (AGENTS: hide widgets whose source does not exist): a marked widget appears once any of its values arrives.
     document.querySelectorAll('[data-aio-hide-when-empty]').forEach(function(box) { box.hidden = !Array.prototype.some.call(box.querySelectorAll('[data-snap]'), function(el) { return !/^(—|-|.*미수신)$/.test(String(el.textContent || '').trim()); }); });
 

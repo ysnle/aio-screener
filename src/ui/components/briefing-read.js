@@ -116,7 +116,8 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     fomcDecisions: Array.isArray(root.AIO_MACRO_OFFICIAL_SCHEDULES?.['us-fomc']) ? root.AIO_MACRO_OFFICIAL_SCHEDULES['us-fomc'] : [],
     releases: root.AIO_MACRO_CALENDAR?.releases || {},
     snapshot,
-    policyRange: root.AIO_EVENT_FRESHNESS_REGISTRY?.fomc?.policyRange || null,
+    // P1737: one Fed-range answer (producer -> FRED -> manual within its window; null once the manual value expired).
+    policyRange: typeof root.AIO?.getFedPolicyRange === 'function' ? root.AIO.getFedPolicyRange()?.range || null : root.AIO_EVENT_FRESHNESS_REGISTRY?.fomc?.policyRange || null,
     earnings: root._aioEarningsSnapshot?.earnings || [],
     earningsMeta: root._aioEarningsSnapshot || {},
     names: universeNames(root),

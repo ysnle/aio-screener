@@ -90,3 +90,60 @@ jobs:
       - name: Preserve watchdog failure conclusion
         if: always() && steps.qa.outcome != 'success'
         run: exit 1
+
+  # P1736: a hand-kept reference value past its window (policy rate, KR CPI, schedule row, holiday table, web snapshot)
+  # is held on screen as 기한 지남; this job keeps exactly one open issue listing them and closes it once none remain.
+  # It never fails the watchdog for an expiry (only the qa job above judges health).
+  manual-reference-expiry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '20'
+      - name: Evaluate the manual reference expiry registry
+        id: expiry
+        run: node scripts/ci-manual-reference-expiry-check.mjs --issue-body "$RUNNER_TEMP/manual-reference-expiry.md" --github-output
+      - name: Open, update or close the expiry issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPIRED: ${{ steps.expiry.outputs.expired }}
+          DIGEST: ${{ steps.expiry.outputs.digest }}
+        run: |
+          set -euo pipefail
+          title="[AIO] Manual reference values past their window"
+          body_file="$RUNNER_TEMP/manual-reference-expiry.md"
+          # P1736: list open issues directly (no search index: an unindexed HTML-comment marker would open a duplicate
+          # every run); match the body marker, then fall back to the exact title.
+          open_issues="$(gh issue list --state open --limit 200 --json number,title,body,createdAt)"
+          open_issue="$(jq -r '[.[] | select((.body // "") | contains("<!-- aio-manual-reference-expiry -->"))] | sort_by(.createdAt) | last | .number // empty' <<< "$open_issues")"
+          if [ -z "$open_issue" ]; then
+            open_issue="$(jq -r --arg title "$title" '[.[] | select(.title == $title)] | sort_by(.createdAt) | last | .number // empty' <<< "$open_issues")"
+          fi
+          if [ "$EXPIRED" = "true" ]; then
+            if [ -n "$open_issue" ]; then
+              current_body="$(gh issue view "$open_issue" --json body --jq .body)"
+              if printf '%s' "$current_body" | grep -qF "aio-manual-reference-expiry-digest:${DIGEST} "; then
+                echo "Expiry issue #${open_issue} already lists ${DIGEST}"
+              else
+                gh issue edit "$open_issue" --title "$title" --body-file "$body_file"
+                echo "Updated expiry issue #${open_issue}"
+              fi
+            else
+              gh issue create --title "$title" --body-file "$body_file"
+              echo "Created expiry issue"
+            fi
+          elif [ -n "$open_issue" ]; then
+            gh issue close "$open_issue" --comment "No manual reference value is past its window any more (watchdog run ${GITHUB_RUN_ID})."
+            echo "Closed expiry issue #${open_issue}"
+          else
+            echo "No expired manual reference."
+          fi

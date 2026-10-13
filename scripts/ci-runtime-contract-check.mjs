@@ -1308,9 +1308,10 @@ try {
 } catch (_) {}
 check('P1274: native current 50SMA reaches theme selector; stale legacy and inadequate coverage do not replace it', breadthParityP1274);
 // P1275: the CP2 text must use the same official FOMC decision as the registry.
-check('P1275: CP2 Fed range is registry-owned and prior 3.50-3.75% literal cannot override the September result',
-  /cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed '\s*\+\s*\(fomc\.policyRange/.test(core)
-    && /function getCP2Text\(\)[\s\S]{0,900}fomc\.policyRange[\s\S]{0,900}Fed 목표범위/.test(core)
+// P1737: both CP2 writers read the one Fed-range answer (producer policyRates.fed -> FRED -> manual within its window).
+check('P1275/P1737: CP2 Fed range comes from AIO.getFedPolicyRange and prior 3.50-3.75% literal cannot override the September result',
+  /var cp2Fed = typeof window\.AIO\.getFedPolicyRange === 'function'[\s\S]{0,200}cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed '\s*\+\s*\(cp2Fed\.range/.test(core)
+    && /function getCP2Text\(\)[\s\S]{0,900}getFedPolicyRange\(\)[\s\S]{0,900}Fed 목표범위/.test(core)
     && !/공식 정책금리 참고 '\s*\+\s*c\.fedRate/.test(core)
     && !/cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed 3\.50-3\.75%/.test(core)
     && /sourceUrl:\s*'https:\/\/www\.federalreserve\.gov\/newsevents\/pressreleases\/monetary20260916a\.htm'/.test(core));

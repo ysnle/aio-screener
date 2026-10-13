@@ -76,7 +76,8 @@
         "scripts/ci-source-registry-contract-check.mjs",
         "scripts/ci-professional-data-gap-check.mjs",
         "scripts/ci-static-data-contract-check.mjs",
-        "scripts/ci-data-refresh-audit.mjs"
+        "scripts/ci-data-refresh-audit.mjs",
+        "scripts/ci-manual-reference-expiry-check.mjs"
       ]
     },
     {
@@ -803,6 +804,17 @@
           ]
         },
         {
+          "id": "official-references",
+          "script": "scripts/ci-official-references-check.mjs",
+          "inputs": [
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "worker/openai-budget.mjs",
+            ".github/workflows/refresh-data.yml"
+          ]
+        },
+        {
           "id": "screener-workbench",
           "script": "scripts/ci-screener-workbench-contract.mjs"
         },
@@ -1022,6 +1034,8 @@
             "public-data/history.json",
             "public-data/market-snapshot.json",
             "public-data/operations-status.json",
+            "public-data/macro-calendar.json",
+            "scripts/lib/official-calendars.mjs",
             "src/domain/signal/trading-score.js",
             "src/data/contracts/operations.js",
             "scripts/fetch-data.mjs",
@@ -1040,6 +1054,28 @@
             "public-data/screener-universe.json",
             "scripts/build-universe-review.mjs",
             "js/aio-qa-audits.js"
+          ]
+        },
+        {
+          "id": "manual-reference-expiry",
+          "script": "scripts/ci-manual-reference-expiry-check.mjs",
+          "cache": false,
+          "inputs": [
+            "js/aio-core.js",
+            "js/aio-data.js",
+            "js/aio-ui.js",
+            "src/data/macro-calendar.js",
+            "src/data/shared-artifacts.js",
+            "src/data/artifact-cache.js",
+            "src/domain/market/market-calendar.js",
+            "src/ui/components/daily-loop.js",
+            "src/ui/components/briefing-read.js",
+            "src/ui/pages/market.js",
+            "public-data/data.json",
+            "public-data/macro-calendar.json",
+            "public-data/official-references.json",
+            "public-data/structural-data-research.json",
+            "scripts/ci-web-research-contract-check.mjs"
           ]
         },
         {
@@ -1943,6 +1979,28 @@
           ]
         },
         {
+          "id": "watchdog-manual-reference-expiry",
+          "script": "scripts/ci-manual-reference-expiry-check.mjs",
+          "cache": false,
+          "inputs": [
+            "js/aio-core.js",
+            "js/aio-data.js",
+            "js/aio-ui.js",
+            "src/data/macro-calendar.js",
+            "src/data/shared-artifacts.js",
+            "src/data/artifact-cache.js",
+            "src/domain/market/market-calendar.js",
+            "src/ui/components/daily-loop.js",
+            "src/ui/components/briefing-read.js",
+            "src/ui/pages/market.js",
+            "public-data/data.json",
+            "public-data/macro-calendar.json",
+            "public-data/official-references.json",
+            "public-data/structural-data-research.json",
+            "scripts/ci-web-research-contract-check.mjs"
+          ]
+        },
+        {
           "id": "watchdog-web-research",
           "script": "scripts/ci-web-research-contract-check.mjs",
           "cache": false
@@ -2435,6 +2493,39 @@
     },
     {
       "patterns": [
+        "js/aio-core.js",
+        "js/aio-data.js",
+        "js/aio-ui.js",
+        "src/data/macro-calendar.js",
+        "src/data/shared-artifacts.js",
+        "src/data/artifact-cache.js",
+        "src/domain/market/market-calendar.js",
+        "src/ui/components/daily-loop.js",
+        "src/ui/components/briefing-read.js",
+        "src/ui/pages/market.js",
+        "public-data/data.json",
+        "public-data/macro-calendar.json",
+        "public-data/official-references.json",
+        "public-data/structural-data-research.json",
+        "scripts/ci-web-research-contract-check.mjs",
+        ".github/workflows/data-watchdog.yml"
+      ],
+      "groups": [],
+      "gates": [
+        "manual-reference-expiry"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/lib/official-calendars.mjs"
+      ],
+      "groups": [],
+      "gates": [
+        "artifact-semantics"
+      ]
+    },
+    {
+      "patterns": [
         "scripts/build-universe-review.mjs"
       ],
       "groups": [
@@ -2521,6 +2612,15 @@
       "groups": [],
       "gates": [
         "desktop-scope"
+      ]
+    },
+    {
+      "patterns": [
+        "worker/openai-budget.mjs"
+      ],
+      "groups": [],
+      "gates": [
+        "official-references"
       ]
     },
     {

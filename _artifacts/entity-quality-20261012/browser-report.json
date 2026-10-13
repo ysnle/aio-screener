@@ -6,9 +6,9 @@
     "P1626",
     "P1627"
   ],
-  "version": "v57.52",
+  "version": "v57.53",
   "sourceHashes": {
-    "index.html": "503f886917e3714570babb1cd97f86daf25897e1668d4594225a85a1061fdd1e",
+    "index.html": "7496661fd0ac0cebb86c38a182c762858e3143a90860c37176c46f1a05ce8548",
     "src/ui/pages/entity.js": "3a35f4617b8b477c9ac14da4e4709e5157e55d051b87db22ddee7c43b70dfd7a",
     "src/ui/pages/screener.js": "a6f76c6b23910aef91d72567c25e746951328235d77a2ea9bb92e5005ed73e39",
     "src/ui/pages/analysis.js": "5c67b260d0349bbfa585d4a3d3b47c699b5329b02a8ad54295e4e3ce80abb8b9",
@@ -59,74 +59,6 @@
     "dark"
   ],
   "observations": [
-    {
-      "label": "phone-light",
-      "summary": {
-        "price": "$84.64",
-        "basis": "정규장 관측가 · 2026-10-10 05:00 한국 시간",
-        "business": "Aehr Test Systems · 미국 상장 기업Technology종목 등록 정보",
-        "source": "https://finance.yahoo.com/quote/AEHR/history/",
-        "canvas": {
-          "width": 328,
-          "height": 380
-        },
-        "lastDate": "2026-10-09",
-        "native": "native",
-        "chart": {
-          "real": true,
-          "points": 23,
-          "pixels": 17511
-        },
-        "active": "page-ticker",
-        "signed": [
-          {
-            "down": true,
-            "left": 0,
-            "width": 50,
-            "title": "AEHR -17.4%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 5.63,
-            "title": "S&P 500 +2.0%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 24.57,
-            "title": "AEHR +8.6%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 10.02,
-            "title": "S&P 500 +3.5%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 26.09,
-            "title": "AEHR +9.1%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 38.34,
-            "title": "S&P 500 +13.4%"
-          }
-        ]
-      },
-      "fixtureRequests": 2
-    },
-    {
-      "label": "phone-light/summary",
-      "layout": {
-        "route": "page-ticker",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
     {
       "label": "tablet-light",
       "summary": {
@@ -188,7 +120,75 @@
       "fixtureRequests": 2
     },
     {
+      "label": "phone-light",
+      "summary": {
+        "price": "$84.64",
+        "basis": "정규장 관측가 · 2026-10-10 05:00 한국 시간",
+        "business": "Aehr Test Systems · 미국 상장 기업Technology종목 등록 정보",
+        "source": "https://finance.yahoo.com/quote/AEHR/history/",
+        "canvas": {
+          "width": 328,
+          "height": 380
+        },
+        "lastDate": "2026-10-09",
+        "native": "native",
+        "chart": {
+          "real": true,
+          "points": 23,
+          "pixels": 17511
+        },
+        "active": "page-ticker",
+        "signed": [
+          {
+            "down": true,
+            "left": 0,
+            "width": 50,
+            "title": "AEHR -17.4%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 5.63,
+            "title": "S&P 500 +2.0%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 24.57,
+            "title": "AEHR +8.6%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 10.02,
+            "title": "S&P 500 +3.5%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 26.09,
+            "title": "AEHR +9.1%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 38.34,
+            "title": "S&P 500 +13.4%"
+          }
+        ]
+      },
+      "fixtureRequests": 2
+    },
+    {
       "label": "tablet-light/summary",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone-light/summary",
       "layout": {
         "route": "page-ticker",
         "overflow": 0,
@@ -474,14 +474,6 @@
       "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
     },
     {
-      "label": "phone-light/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "tablet-light",
       "market": "KR",
       "listing": [
@@ -556,6 +548,14 @@
         "missing": "—"
       },
       "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "phone-light/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
     },
     {
       "label": "tablet-light/screener",
@@ -771,44 +771,6 @@
       }
     },
     {
-      "label": "tablet-light/fiscal",
-      "layout": {
-        "route": "page-fundamental",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "tablet-light",
-      "technical": {
-        "scenarios": [
-          {
-            "id": "recovery",
-            "text": "회복·확장 조건최근 20거래일 고점 88.71 위 종가와 이후 유지 여부를 확인합니다. 거래량이 함께 증가하면 가격과 참여가 같은 방향이라는 근거가 보강됩니다. 다시 이 가격 아래로 마감하면 회복 해석은 약해집니다."
-          },
-          {
-            "id": "range",
-            "text": "범위 안 흐름73.93~88.71 안에서 머무르면 방향보다 범위와 거래량 변화를 살펴봅니다. 고점·저점이 함께 높아지는지, 하락일 거래량이 늘어나는지가 다음 구분 기준입니다."
-          },
-          {
-            "id": "weakness",
-            "text": "약화 조건최근 20거래일 저점 73.93 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다."
-          }
-        ],
-        "volume": "거래 집중 가격대 · 일봉 추정2026-04-13~2026-10-09 · 130거래일75.89~76.857.9%78.77~79.726.2%73.98~74.945.1%일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.",
-        "zones": 3,
-        "logic": "차트를 읽는 순서와 계산 기준① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다."
-      }
-    },
-    {
-      "label": "tablet-light/technical",
-      "layout": {
-        "route": "page-technical",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "phone-light",
       "fiscal": {
         "rows": 14,
@@ -863,9 +825,47 @@
       }
     },
     {
+      "label": "tablet-light/fiscal",
+      "layout": {
+        "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
       "label": "phone-light/fiscal",
       "layout": {
         "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "tablet-light",
+      "technical": {
+        "scenarios": [
+          {
+            "id": "recovery",
+            "text": "회복·확장 조건최근 20거래일 고점 88.71 위 종가와 이후 유지 여부를 확인합니다. 거래량이 함께 증가하면 가격과 참여가 같은 방향이라는 근거가 보강됩니다. 다시 이 가격 아래로 마감하면 회복 해석은 약해집니다."
+          },
+          {
+            "id": "range",
+            "text": "범위 안 흐름73.93~88.71 안에서 머무르면 방향보다 범위와 거래량 변화를 살펴봅니다. 고점·저점이 함께 높아지는지, 하락일 거래량이 늘어나는지가 다음 구분 기준입니다."
+          },
+          {
+            "id": "weakness",
+            "text": "약화 조건최근 20거래일 저점 73.93 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다."
+          }
+        ],
+        "volume": "거래 집중 가격대 · 일봉 추정2026-04-13~2026-10-09 · 130거래일75.89~76.857.9%78.77~79.726.2%73.98~74.945.1%일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.",
+        "zones": 3,
+        "logic": "차트를 읽는 순서와 계산 기준① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다."
+      }
+    },
+    {
+      "label": "tablet-light/technical",
+      "layout": {
+        "route": "page-technical",
         "overflow": 0,
         "clipped": []
       }
@@ -1076,7 +1076,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 62531
+          "pixels": 62595
         },
         "active": "page-ticker",
         "signed": [
@@ -1186,7 +1186,7 @@
           }
         ]
       },
-      "fixtureRequests": 2
+      "fixtureRequests": 3
     },
     {
       "label": "tablet-dark/summary",

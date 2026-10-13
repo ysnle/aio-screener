@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-13T12:08:02.301Z",
-  "appRevision": "v57.52",
-  "gitHead": "b21c6cdf2a2e29015a3c8f57e7096510d863ba75",
+  "observedAt": "2026-10-13T12:57:59.469Z",
+  "appRevision": "v57.53",
+  "gitHead": "5ab9a28723078485dc29c4f3dfbce763a4d0c53a",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -157,8 +157,37 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 4,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "10년 실질금리 (TIPS) 근거 보기",
+          "width": 1,
+          "height": 36,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "10년 기대인플레이션 근거 보기",
+          "width": 1,
+          "height": 36,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "하이일드 스프레드 근거 보기",
+          "width": 1,
+          "height": 36,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
+          "width": 1,
+          "height": 36,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

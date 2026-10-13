@@ -5759,7 +5759,7 @@ function calcKrYieldSpreads() {
   var live = window._liveData || {};
   var bond3y = live['^KR3Y'] && Number(live['^KR3Y'].price);
   var bond10y = live['^KR10Y'] && Number(live['^KR10Y'].price);
-  var bokRate = Number(snap.bokRate);
+  var bokRate = snap.bokRate == null || snap.bokRate === '' ? NaN : Number(snap.bokRate); // P1736: a held (expired) rate is null, not 0
   var cd91 = live['^KRCD91'] && Number(live['^KRCD91'].price);
 
   // 장단기 스프레드 (10Y - 3Y)
@@ -6607,14 +6607,11 @@ async function updateBenchmarkChart() {
 }
 
 
+// P1736: this used to roll a hand-typed month/day list forward every year (10/16, 11/27 against the official 10/22,
+// 11/26). The next meeting now comes only from the official kr-bok schedule; when it has none, nothing is guessed.
 function getNextBOK() {
-  var schedule = [[0,16],[1,27],[3,17],[4,29],[6,10],[7,28],[9,16],[10,27]];
-  var now = new Date(), year = now.getFullYear();
-  for (var i = 0; i < schedule.length; i++) {
-    var d = new Date(year, schedule[i][0], schedule[i][1]);
-    if (d > now) return year + '-' + String(schedule[i][0]+1).padStart(2,'0') + '-' + String(schedule[i][1]).padStart(2,'0');
-  }
-  return (year+1) + '-01-16';
+  var release = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases && window.AIO_MACRO_CALENDAR.releases['kr-bok'];
+  return (release && release.nextRelease) || '일정 확인 필요';
 }
 
 // ── Phase 4-1: 색각 이상 접근성 (▲/▼ 아이콘 병용) ──

@@ -51,3 +51,49 @@ export async function requestSharedAnalysis(prompt, { env = process.env, fetchIm
     return { text: null, reason: error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error' };
   } finally { clearTimeout(timeout); }
 }
+
+// P1734: one bounded hosted-search request for the official-reference lane. The body mirrors the Worker
+// admission contract (worker/openai-budget.mjs): exactly one web_search tool, search_context_size 'low',
+// return_token_budget 'default', an explicit official allowed_domains filter, and at most two tool calls.
+// The answer is only a candidate; scripts/lib/web-reference-verify.mjs publishes nothing it cannot find on
+// the official page itself.
+const SEARCH_DOMAIN = /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}$/;
+export function buildSharedWebSearchBody(prompt, { allowedDomains, schemaName, schema, maxToolCalls = 1, maxOutputTokens = 1200 } = {}) {
+  if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('search prompt required');
+  if (!Array.isArray(allowedDomains) || !allowedDomains.length || allowedDomains.length > 10
+    || allowedDomains.some(domain => typeof domain !== 'string' || !SEARCH_DOMAIN.test(domain))) throw new Error('official allowed_domains required');
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(String(schemaName || '')) || !schema || typeof schema !== 'object') throw new Error('json schema required');
+  if (![1, 2].includes(maxToolCalls)) throw new Error('max_tool_calls must be 1 or 2');
+  return { model: SHARED_AI_MODEL, input: [{ role: 'user', content: prompt }],
+    tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default', filters: { allowed_domains: [...allowedDomains] } }],
+    tool_choice: 'required', max_tool_calls: maxToolCalls, max_output_tokens: maxOutputTokens,
+    reasoning: { effort: 'low' }, store: false, stream: false,
+    text: { format: { type: 'json_schema', name: schemaName, schema, strict: true } } };
+}
+
+export async function requestSharedWebSearch(prompt, { env = process.env, fetchImpl = fetch, timeoutMs = 90000, purpose = 'official-reference', ...options } = {}) {
+  const config = resolveSharedAiConfig(env);
+  if (!config) return { text: null, reason: 'shared-ai-not-configured' };
+  let body;
+  try { body = buildSharedWebSearchBody(prompt, options); } catch { return { text: null, reason: 'search-request-invalid' }; }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const run = String(env.GITHUB_RUN_ID || 'local-fixture').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 40);
+    const attempt = String(env.GITHUB_RUN_ATTEMPT || '1').replace(/[^0-9]/g, '').slice(0, 8);
+    const label = String(purpose).replace(/[^a-zA-Z0-9-]/g, '').slice(0, 40) || 'official-reference';
+    const response = await fetchImpl(config.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-AIO-Automation-Token': config.token,
+        'X-AIO-Idempotency-Key': `${label}-${run}-${attempt}-${randomUUID()}` },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+      redirect: 'error',
+    });
+    if (!response.ok) return { text: null, reason: `provider-http-${response.status}` };
+    const text = extractCompletedResponseText(await response.json());
+    return { text, reason: text ? null : 'provider-response-incomplete' };
+  } catch (error) {
+    return { text: null, reason: error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error' };
+  } finally { clearTimeout(timeout); }
+}

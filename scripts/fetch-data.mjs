@@ -21,6 +21,7 @@ import { deriveMarketSession, publishMarketSnapshot } from './build-market-snaps
 import { writeOperationsStatus } from './build-operations-status.mjs';
 import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { buildIsmRuleEvents, buildMacroCalendarPayload, deriveFedPolicyRate, resolveFomcSchedule } from './lib/official-calendars.mjs'; // P1731-P1733
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 import { newsArticleKey, issuerNameMentioned } from '../src/domain/news/stories.js';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
@@ -4893,16 +4894,21 @@ async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date.now() 
 
 // P1654: the release dates of the four FRED-published indicators the calendar shows. The browser calendar was a
 // hand-maintained array that ran out after 2026-12; the producer now writes the official FRED release schedule each
-// run (FOMC, BOK and ISM are not FRED releases and stay on their annual official calendars).
+// run (BOK is not a FRED release and stays on its annual official calendar; FOMC/ISM: see P1731/P1733 below).
 const MACRO_CALENDAR_OUT = `${__dir}/../public-data/macro-calendar.json`;
 export const MACRO_CALENDAR_RELEASES = Object.freeze({ 'us-retail': 9, 'us-cpi': 10, 'us-nfp': 50, 'us-pce': 54 });
-export async function writeMacroCalendar(key, { fetchFn = fetchJSON, nowMs = Date.now() } = {}) {
-  if (!key) return { written: false, reason: 'api-key-not-configured' };
+// P1731/P1733: the same artifact now also carries the FOMC meetings (official Fed page, rechecked at most every 12h,
+// previous parse kept on failure) and the rule-derived ISM PMI dates; neither needs the FRED key. I/O is injectable
+// so the gate can run this end to end on fixtures without touching public-data.
+export async function writeMacroCalendar(key, { fetchFn = fetchJSON, fetchTextFn = (url) => _fetchRss(url, 15000), nowMs = Date.now(), outPath = MACRO_CALENDAR_OUT, readFn = readFile, writeFn = atomicWriteFile } = {}) {
+  let previous = null;
+  try { previous = JSON.parse(await readFn(outPath, 'utf8')); } catch { /* first producer run */ }
   const start = new Date(nowMs - 45 * 86400000).toISOString().slice(0, 10);
   const end = new Date(nowMs + 400 * 86400000).toISOString().slice(0, 10);
   const schedules = {};
   const failed = [];
   for (const [calendarId, releaseId] of Object.entries(MACRO_CALENDAR_RELEASES)) {
+    if (!key) { failed.push(calendarId); continue; }
     const url = `https://api.stlouisfed.org/fred/release/dates?release_id=${releaseId}&realtime_start=${start}&realtime_end=${end}&include_release_dates_with_no_data=true&sort_order=asc&limit=60&api_key=${key}&file_type=json`;
     try {
       const payload = await fetchFn(url);
@@ -4914,10 +4920,13 @@ export async function writeMacroCalendar(key, { fetchFn = fetchJSON, nowMs = Dat
       console.warn(`[fetch-data] macro calendar ${calendarId} failed: ${error?.message || error}`);
     }
   }
-  if (!Object.keys(schedules).length) return { written: false, reason: 'all-releases-failed' };
-  const payload = { schemaVersion: 'macro-calendar.v1', generatedAt: new Date(nowMs).toISOString(), source: 'FRED release dates, Federal Reserve Bank of St. Louis', sourceKind: 'T1_OFFICIAL', status: failed.length ? 'partial' : 'ok', failed, schedules };
-  await atomicWriteFile(MACRO_CALENDAR_OUT, JSON.stringify(payload));
-  return { written: true, releases: Object.keys(schedules).length, failed };
+  const fomc = await resolveFomcSchedule({ previous, fetchHtml: fetchTextFn, nowMs });
+  if (fomc.meta.fomcStatus !== 'ok') console.warn(`[fetch-data] FOMC calendar ${fomc.meta.fomcStatus}: ${fomc.meta.fomcReason}`);
+  const ismEvents = buildIsmRuleEvents({ fromMs: nowMs - 45 * 86400000, toMs: nowMs + 400 * 86400000 });
+  const payload = buildMacroCalendarPayload({ nowMs, fredSchedules: schedules, fredFailed: failed, fredFailureReason: key ? null : 'api-key-not-configured', previous, fomc, ismEvents });
+  if (!payload) return { written: false, reason: 'nothing-to-publish' };
+  await writeFn(outPath, JSON.stringify(payload));
+  return { written: true, releases: Object.keys(payload.schedules).length, failed, fomcStatus: payload.meta.fomcStatus, fomcReason: payload.meta.fomcReason, fomcFetched: fomc.fetched };
 }
 
 // P1416: which stocks made each count — the latest 20 completed sessions, US segment. Names come
@@ -5238,7 +5247,9 @@ async function main() {
     previousFredDexkous = previous && previous.providerCrossChecks && previous.providerCrossChecks.fx && previous.providerCrossChecks.fx.official || null;
     previousMacro = previous && previous.macro || null;
     previousMarketSurveys = previous && previous.marketSurveys || null;
-    previousOfficialWebReferences = previous && previous.officialWebReferences || null;
+    // P1737: the Korea export reference moved to public-data/official-references.json (verified by the P1734 lane);
+    // the operator snapshot in data.json is no longer carried forward.
+    previousOfficialWebReferences = null;
     previousFearGreed = previous && previous.fearGreed || null;
     previousNews = previous && Array.isArray(previous.news) ? previous.news : null;
   } catch (_) {}
@@ -5304,8 +5315,11 @@ async function main() {
   // fields with opposite meanings in one object, and the frozen one was the one
   // whose name read as authoritative (P1107). `checkedAt` now means the live
   // automated check; the carried editorial snapshot time keeps its own name.
+  // P1737 (2026-10-13): NAAIM is retired (undated three-month-delayed page number, not verifiable), so the carried
+  // snapshot no longer brings it forward; AAII and the Investors Intelligence boundary are unchanged.
+  const { naaim: _retiredNaaim, ...carriedSurveys } = previousMarketSurveys || {};
   const marketSurveys = {
-    ...(previousMarketSurveys || {}),
+    ...carriedSurveys,
     schemaVersion: 'web-research-surveys.v2',
     checkedAt: surveyAttemptedAt,
     automatedCheckedAt: surveyAttemptedAt,
@@ -5581,6 +5595,11 @@ async function main() {
       marketSurveysStatus: marketSurveys ? 'web-research-captured-reference' : null,
       marketSurveysCheckedAt: marketSurveys?.checkedAt || null,
       marketSurveysWebResearchCheckedAt: marketSurveys?.webResearchCheckedAt || null,
+      // P1737: announces public-data/official-references.json (written by the P1734 lane later in the same workflow)
+      // so the browser fetches it only once it exists; the value is that artifact's own checkedAt.
+      officialReferencesCheckedAt: await readFile(`${__dir}/../public-data/official-references.json`, 'utf8')
+        .then((text) => { const refs = JSON.parse(text); return /^official-web-references\.v\d+$/.test(String(refs?.schemaVersion || '')) ? refs.checkedAt || null : null; })
+        .catch(() => null),
       elapsedMs: Date.now() - t0,
       // `generatedAt` is the payload/attempt clock for macro/news planes. Keep
       // market publication lineage in separate fields; a failed publish must
@@ -5591,6 +5610,9 @@ async function main() {
     },
     quotes,
     macro,
+    // P1732: the FOMC target range derived from the FRED bounds above; 'stale' (with reason) unless both bounds
+    // share a recent observation date and are 25bp apart.
+    policyRates: { fed: deriveFedPolicyRate(macro, Date.parse(attemptedAt)) },
     fearGreed,
     putCall,
     providerCrossChecks: { crypto: cryptoCrossCheck },

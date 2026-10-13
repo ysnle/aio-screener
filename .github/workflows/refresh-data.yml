@@ -119,6 +119,44 @@ jobs:
           node scripts/ci-13f-currentness-check.mjs
           node scripts/ci-masters-contract-check.mjs
 
+      - name: Prepare official-reference ledger key (P1734)
+        # The lane runs only when this cycle can actually publish; its call ledger lives in the Actions cache
+        # (not public-data), so calls from a cycle whose commit is later lost still count toward the caps.
+        id: official-ref-ledger
+        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' && steps.fetch-telegram.outcome == 'success' }}
+        run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore official-reference call ledger (P1734)
+        if: ${{ !cancelled() && steps.official-ref-ledger.outcome == 'success' }}
+        continue-on-error: true
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: .cache/official-references
+          key: official-ref-ledger-${{ steps.official-ref-ledger.outputs.month }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            official-ref-ledger-${{ steps.official-ref-ledger.outputs.month }}-
+
+      - name: Verify official web references (P1734)
+        # Hosted search runs only for items whose release is due (at most once per KST day per item,
+        # daily and monthly lane caps); a value is published only after the official page text confirms it.
+        # A failed lane keeps the previous artifact and never blocks the market publish.
+        id: official-references
+        if: ${{ !cancelled() && steps.official-ref-ledger.outcome == 'success' }}
+        continue-on-error: true
+        timeout-minutes: 12
+        env:
+          AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+          AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
+        run: node scripts/refresh-web-research.mjs
+
+      - name: Save official-reference call ledger (P1734)
+        if: ${{ !cancelled() && steps.official-ref-ledger.outcome == 'success' && steps.official-references.outcome != 'skipped' }}
+        continue-on-error: true
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: .cache/official-references
+          key: official-ref-ledger-${{ steps.official-ref-ledger.outputs.month }}-${{ github.run_id }}-${{ github.run_attempt }}
+
       - name: Promote one data release revision
         if: ${{ !cancelled() }}
         run: node scripts/sync-data-release-manifests.mjs
@@ -232,6 +270,7 @@ jobs:
           stage_if_exists public-data/macro-history.json # P1426: 거시 direction reads
           stage_if_exists public-data/macro-calendar.json # P1654: FRED release schedule
           stage_if_exists public-data/stress-outcomes.json # P1661: VIX-band forward outcomes
+          stage_if_exists public-data/official-references.json # P1734: page-verified official web references
           stage_if_exists public-data/market-snapshot.json
           stage_if_exists public-data/market-snapshot-status.json
           stage_if_exists public-data/operations-status.json

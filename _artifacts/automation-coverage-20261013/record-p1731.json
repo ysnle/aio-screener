@@ -1,0 +1,22 @@
+{
+  "version": "v57.53",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.53 수동 데이터 자동화·만료 감시(공식 일정·연준 금리·웹검색 검증 lane·휴장일·만료 레지스트리) 반영(P1731~P1737).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1731,
+    "title": "FOMC 회의 일정이 손으로 적은 표(12/9까지)뿐이라 다음 해 일정·일정 변경이 반영되지 않음",
+    "symptom": "화면 일정의 FOMC 행이 2026-12-09에서 끝났고 SEP 표시는 고정값이었다.",
+    "root_cause": "AIO_MACRO_OFFICIAL_SCHEDULES의 us-fomc가 수동 목록이었고 생산 경로가 없었다.",
+    "fix": "scripts/lib/official-calendars.mjs가 연준 공식 FOMC 일정 페이지를 12시간마다 읽어 올해·내년 회의(결정일·시작일·SEP)를 macro-calendar.json schedules·events·meta에 싣는다. 올해 8회·SEP 4회·오름차순 등 검사를 통과하지 못하면 직전 일정을 stale로 유지(fail-closed). 브라우저는 fomcStatus ok일 때만 해당 연도 날짜를 교체한다.",
+    "violated_rule": "수동 값 자동화 / fail-closed",
+    "prevention": "P1731: ci-data-pipeline-contract-check(파서 fixture 6건)·ci-artifact-semantics-check",
+    "verification": "실제 페이지: 2026 8회(SEP 4), 2027 8회 파싱, 수동 값과 일치."
+  },
+  "qa": [],
+  "changelog": [
+    "**FOMC 일정 자동 수집 (P1731):** 연준 공식 일정 페이지에서 올해·내년 회의와 경제전망 발표 회의를 자동으로 가져오고, 구조가 바뀌면 직전 일정을 유지한다."
+  ]
+}

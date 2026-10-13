@@ -456,6 +456,39 @@ for (const retired of ['public-data/knowledge/quantitative-labs.json', 'public-d
   check(`excluded product scope republishes nothing (${retired})`, !existsSync(retired), 'retired artifact is published again');
 }
 
+// P1731/P1733: macro-calendar events say where each date came from, and the FOMC
+// schedule the consumers merge is exactly the official decision days. P1732: a
+// current policyRates.fed is the same 25bp range as the published FRED bounds.
+// Transition: the committed artifacts predate these fields; assert once present.
+{
+  const macroCalendar = readIf('public-data/macro-calendar.json');
+  if (Array.isArray(macroCalendar?.events)) {
+    const fomcEvents = macroCalendar.events.filter((event) => event?.calendarId === 'us-fomc');
+    const ismEvents = macroCalendar.events.filter((event) => /^us-ism-(mfg|svc)$/.test(event?.calendarId || ''));
+    const fomcDates = [...new Set(fomcEvents.map((event) => event.date))].sort().join();
+    check('P1731 FOMC events are official, carry a boolean SEP flag and match the published schedule',
+      fomcEvents.every((event) => event.source === 'fed-official' && typeof event.sep === 'boolean' && event.startDate < event.date)
+        && (fomcEvents.length === 0 || ((macroCalendar.schedules?.['us-fomc'] || []).join() === fomcDates && (macroCalendar.schedules?.['us-fed-rate'] || []).join() === fomcDates)),
+      `events=${fomcEvents.length}`);
+    const years = [...new Set(fomcEvents.map((event) => event.date.slice(0, 4)))];
+    check('P1731 every published FOMC year has 8 meetings with 4 SEP meetings',
+      years.every((year) => fomcEvents.filter((event) => event.date.startsWith(year)).length === 8 && fomcEvents.filter((event) => event.date.startsWith(year) && event.sep).length === 4),
+      years.join(','));
+    check('P1731 FOMC status is declared with its check time', ['ok', 'stale', 'unavailable'].includes(macroCalendar.meta?.fomcStatus)
+      && (macroCalendar.meta?.fomcStatus === 'ok') === (macroCalendar.meta?.fomcReason == null), JSON.stringify(macroCalendar.meta));
+    check('P1733 ISM dates are labelled as rule-derived weekdays', ismEvents.every((event) => event.source === 'ism-rule' && ![0, 6].includes(new Date(`${event.date}T00:00:00Z`).getUTCDay())),
+      `ism=${ismEvents.length}`);
+  }
+  const fedRate = data?.policyRates?.fed;
+  if (fedRate) {
+    check('P1732 policyRates.fed declares source and status', fedRate.source === 'FRED DFEDTARL/DFEDTARU' && ['current', 'stale'].includes(fedRate.status), JSON.stringify(fedRate));
+    check('P1732 a current policyRates.fed is the published FRED range, 25bp wide',
+      fedRate.status !== 'current' || (fedRate.lower === data.macro?.fedTargetLower && fedRate.upper === data.macro?.fedTargetUpper
+        && Math.abs(fedRate.upper - fedRate.lower - 0.25) < 1e-9 && fedRate.asOf === data.macro?._asOf_fedTargetUpper),
+      JSON.stringify(fedRate));
+  }
+}
+
 // A rebase conflict resolved by staging the conflicted file (instead of choosing a
 // side) commits `<<<<<<<` markers into JSON, which then breaks every reader with a
 // JSON parse error far from the cause. This session shipped exactly that: two

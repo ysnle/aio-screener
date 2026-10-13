@@ -6021,18 +6021,13 @@ async function _aioLoadServerData() {
         window.DATA_SNAPSHOT._aaiiSource = _aaiiSurvey.sourceUrl || null;
         if (window.DATA_SNAPSHOT._fieldTs && _aaiiSurvey.observedAt) window.DATA_SNAPSHOT._fieldTs.aaii = _aaiiSurvey.observedAt;
       }
-      var _naaimSurvey = _marketSurveys.naaim || null;
-      if (_naaimSurvey && typeof _naaimSurvey.exposure === 'number' && isFinite(_naaimSurvey.exposure)) {
-        window.DATA_SNAPSHOT.naaimExposure = _naaimSurvey.exposure;
-        window.DATA_SNAPSHOT._naaimSource = _naaimSurvey.sourceUrl || null;
-        if (window.DATA_SNAPSHOT._fieldTs && _naaimSurvey.observedAt) window.DATA_SNAPSHOT._fieldTs.naaim = _naaimSurvey.observedAt;
-      }
+      // P1737 (2026-10-13): NAAIM is retired — the official page shows only an undated three-month-delayed number that
+      // cannot be verified against the page, so no NAAIM value is projected (DATA_SNAPSHOT.naaimExposure stays null).
       if (window._serverDataMeta) {
         window._serverDataMeta.marketSurveys = {
           status: _marketSurveys.policy || 'unavailable',
           checkedAt: _marketSurveys.checkedAt || null,
           aaii: _aaiiSurvey,
-          naaim: _naaimSurvey,
           investorsIntelligence: _marketSurveys.investorsIntelligence || null
         };
         window._serverDataMeta.officialWebReferences = _officialWebReferences;
@@ -6045,6 +6040,16 @@ async function _aioLoadServerData() {
         }
       }
     }
+    // P1737: the producer's Fed range (policyRates.fed) and the official web-reference artifact replace the hand-kept
+    // policy/CPI/export values while they are current/verified; otherwise the manual values stay with their dates
+    // and expire on their own (P1736). A missing or malformed artifact changes nothing.
+    try {
+      if (window.AIO && typeof window.AIO.applyProducedReferences === 'function') {
+        window.AIO.applyProducedReferences({ policyRates: d.policyRates && typeof d.policyRates === 'object' ? d.policyRates : null });
+        // Fetched only once the producer announces it in data.json (a 404 before the first lane run is a console error).
+        if (d.meta && d.meta.officialReferencesCheckedAt) _aioLoadOfficialReferences();
+      }
+    } catch (_refErr) { if (typeof _aioLog === 'function') _aioLog('warn', 'reference', 'produced references: ' + (_refErr && _refErr.message || _refErr)); }
     // v51.67: F&G previousScore → _fearGreedDelta 계산
     if (d.fearGreed && typeof d.fearGreed.score === 'number') {
       if (typeof d.fearGreed.previousScore === 'number') {
@@ -6510,6 +6515,24 @@ function _aioUpdatePipelineStatusToggle() {
   } catch (_e) {}
 }
 window._aioUpdatePipelineStatusToggle = _aioUpdatePipelineStatusToggle;
+
+// P1737: public-data/official-references.json (BOK base rate, KR CPI, KR exports; each item carries its own
+// status). Loaded after each data.json apply; a missing file (404) or another schema leaves the manual values in place.
+var _aioOfficialReferencesInFlight = null;
+function _aioLoadOfficialReferences() {
+  if (_aioOfficialReferencesInFlight) return _aioOfficialReferencesInFlight;
+  var url = './public-data/official-references.json?t=' + Math.floor(Date.now() / 600000);
+  _aioOfficialReferencesInFlight = fetch(url, { cache: 'no-cache' }).then(function(r) {
+    return r.ok ? r.json() : null;
+  }).then(function(payload) {
+    if (!payload || !/^official-web-references\.v\d+$/.test(String(payload.schemaVersion || '')) || !payload.items || typeof payload.items !== 'object') return null;
+    window._serverDataMeta = window._serverDataMeta || {};
+    window._serverDataMeta.officialReferences = { schemaVersion: payload.schemaVersion, checkedAt: payload.checkedAt || null };
+    if (window.AIO && typeof window.AIO.applyProducedReferences === 'function') return window.AIO.applyProducedReferences({ officialReferences: payload });
+    return null;
+  }).catch(function() { return null; }).then(function(result) { _aioOfficialReferencesInFlight = null; return result; });
+  return _aioOfficialReferencesInFlight;
+}
 
 // v51.18: 운영자 노트 — public-data/operator-note.json 로드 + 홈 카드 렌더
 function _aioIsOperatorNotePlaceholder(note) {

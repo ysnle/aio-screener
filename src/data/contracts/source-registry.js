@@ -48,8 +48,10 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     ],
     structuralLimit: { kind: 'publisher-terms-and-reference-cadence', reason: 'The official public page provides weekly values, but this is reference-only and not a licensed real-time trading input.', remediation: 'Keep the dated public observation and obtain licensed rights before promotion beyond reference use.' }
   }),
+  // P1737 (2026-10-13): retired from the screen — the official page shows only an undated three-month-delayed number
+  // that cannot be verified against the page; data.json no longer carries it and the category stays BLOCKED.
   naaim: entry({
-    cadence: 'weekly', refreshMode: 'operator-web-research', producer: 'scripts/refresh-web-research.mjs', artifacts: ['public-data/data.json', 'public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],
+    cadence: 'weekly', refreshMode: 'retired-unverifiable', producer: 'none (retired 2026-10-13)', artifacts: ['public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],
     origins: [{ id: 'naaim-exposure-index', authority: 'publisher', sourceKind: 'publisher-public-web', access: 'public-web-terms-apply', url: 'https://naaim.org/programs/naaim-exposure-index/', fields: ['exposureIndex'] }],
     structuralLimit: { kind: 'publisher-current-subscription-and-commercial-use-permission', reason: 'The publisher exposes public values with a three-month delay, reserves current/API access for subscribers, and requires express permission for commercial use.', remediation: 'Retain dated public values as stale reference only; configure licensed/direct access and permitted display rights for current data.' }
   }),
@@ -106,8 +108,8 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     structuralLimit: { kind: 'multi-central-bank-registry', reason: 'Point-level automatic reconciliation for BOK/ECB/BOJ/BOE is incomplete.', remediation: 'Add official adapters per bank and release-event tests.' }
   }),
   'macro-calendar': entry({
-    cadence: 'daily-audit/event-refresh', refreshMode: 'scheduled-and-static-registry', producer: 'scripts/fetch-data.mjs + calendar registry', artifacts: ['public-data/data.json', 'js/aio-data.js'], consumers: ['macro', 'briefing'],
-    origins: [{ id: 'fomc-calendar', authority: 'official-central-bank', sourceKind: 'T1_OFFICIAL', access: 'public-web', url: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm', fields: ['FOMC meetings'] }, { id: 'bls-release-calendar', authority: 'official-government', sourceKind: 'T1_OFFICIAL', access: 'public-web', url: 'https://www.bls.gov/schedule/', fields: ['CPI', 'Employment'] }, { id: 'bea-release-schedule', authority: 'official-government', sourceKind: 'T1_OFFICIAL', access: 'public-web', url: 'https://www.bea.gov/news/schedule', fields: ['PCE', 'GDP'] }],
+    cadence: 'daily-audit/event-refresh', refreshMode: 'scheduled-and-static-registry', producer: 'scripts/fetch-data.mjs:writeMacroCalendar + scripts/lib/official-calendars.mjs + calendar registry', artifacts: ['public-data/macro-calendar.json', 'public-data/data.json', 'js/aio-data.js'], consumers: ['macro', 'briefing'],
+    origins: [{ id: 'fomc-calendar', authority: 'official-central-bank', sourceKind: 'T1_OFFICIAL', access: 'public-web', url: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm', fields: ['FOMC meetings'] }, { id: 'bls-release-calendar', authority: 'official-government', sourceKind: 'T1_OFFICIAL', access: 'public-web', url: 'https://www.bls.gov/schedule/', fields: ['CPI', 'Employment'] }, { id: 'bea-release-schedule', authority: 'official-government', sourceKind: 'T1_OFFICIAL', access: 'public-web', url: 'https://www.bea.gov/news/schedule', fields: ['PCE', 'GDP'] }, { id: 'ism-release-rule', authority: 'publisher-rule', sourceKind: 'publisher-public-web', access: 'computed-from-published-rule', url: 'https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/', fields: ['ISM manufacturing PMI (1st business day)', 'ISM services PMI (3rd business day)'] }],
     structuralLimit: { kind: 'multi-agency-trigger', reason: 'Calendar dates are registered, but a single release-triggered ingestion adapter is incomplete.', remediation: 'Poll official schedules daily and trigger post-release refresh by event identity.' }
   }),
   news: entry({

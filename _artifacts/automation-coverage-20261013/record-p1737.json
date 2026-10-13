@@ -1,0 +1,29 @@
+{
+  "version": "v57.53",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.53 수동 데이터 자동화·만료 감시(공식 일정·연준 금리·웹검색 검증 lane·휴장일·만료 레지스트리) 반영(P1731~P1737).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1737,
+    "title": "자동 산출물이 생겨도 화면이 수동 값을 읽음",
+    "symptom": "화면 FOMC·ISM·연준 범위·한은·CPI·수출이 수동 레지스트리를 읽었다.",
+    "root_cause": "소비처가 새 산출물을 읽지 않았다.",
+    "fix": "mergeProducedMacroCalendar로 FOMC(ok일 때 연도 교체)·ISM(산출 달 교체)·FRED(합집합)를 반영하고, SEP 표시는 공식 이벤트에서만, policyRates.fed와 official-references.json(verified만 대체)을 로드한다. 산출물이 없거나 검증 전이면 수동 값을 기한과 함께 표시한다.",
+    "violated_rule": "자동 원천 우선",
+    "prevention": "P1737: ci-manual-reference-expiry-check·ci-runtime-contract-check·aio-tests T684/T884",
+    "verification": "fixture: verified 대체, unverified 미대체·만료 시 보류."
+  },
+  "qa": [
+    {
+      "id": "QA-VERIFY-20",
+      "text": "P1731~P1737: 배포 후 refresh-data에서 macro-calendar.json meta.fomcStatus=ok·us-fomc 16개, data.json policyRates.fed.status=current, official-references.json에 bokBaseRate·krCpi·krExports가 verified 또는 stale(원인 기재)로 발행되고 lane.callsThisMonth가 상한 안이며, data-watchdog manual-reference-expiry 이슈가 만료 항목만 연다.",
+      "verify_by": "push 뒤 refresh-data 2회·data-watchdog 1회 후 산출물·이슈 확인",
+      "done": false
+    }
+  ],
+  "changelog": [
+    "**화면이 자동 원천을 우선 사용 (P1737):** FOMC·ISM 일정, 연준 금리, 한은·물가·수출 값을 자동 산출물에서 먼저 읽고, 없으면 수동 값을 기한과 함께 보여 준다."
+  ]
+}

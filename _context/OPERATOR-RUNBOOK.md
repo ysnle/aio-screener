@@ -102,7 +102,8 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 | 항목 | 주기 | 근거 |
 |---|---|---|
 | 손 큐레이션 정적 DB(S1~S6) | 월 단위 검토 | `ci-static-db-expiry-check.mjs`가 `screener-universe.json`에 대해 90일 하드 만료를 건다. 만료되면 preflight가 red가 되어 **배포가 정지**한다. |
-| 공식 웹 리서치 스냅샷(`public-data/structural-data-research.json`) | 180일 계약 | `ci-web-research-contract-check.mjs`의 `MAX_AGE_DAYS=180`. AAII 수치는 `fetch-data.mjs`가 자동 갱신하지만, NAAIM·KR 수출입 등 운영자 캡처 값은 `node scripts/refresh-web-research.mjs`를 직접 실행해야 갱신된다. |
+| 공식 웹 리서치 스냅샷(`public-data/structural-data-research.json`) | 180일 계약 | `ci-web-research-contract-check.mjs`의 `MAX_AGE_DAYS=180`(만료 레지스트리 항목 `structuralResearch`, 30일 전 검토 예고). 이 파일은 원천 경계 근거 문서라 생산자가 없고 사람이 갱신한다. 값 자체는 자동이다: AAII는 `fetch-data.mjs`, 한국은행 기준금리·한국 CPI·한국 수출 잠정치는 refresh-data 안의 공식 웹 참조 lane(P1734, `public-data/official-references.json`)이 갱신한다. NAAIM은 2026-10-13 화면에서 퇴역했다(공식 페이지에 날짜 없는 3개월 지연 숫자만 있어 검증 불가). |
+| 수동 참조 값 만료 레지스트리 | 상시 | `js/aio-core.js` P1736 블록이 남은 수동 값마다 기준일과 기한(다음 공표일·최대 경과일·표가 덮는 마지막 날)을 둔다. 기한이 지나면 화면은 '기한 지남'으로 보류하고, `data-watchdog.yml`의 `manual-reference-expiry` job이 이슈 하나를 열거나 갱신하며 모두 해소되면 닫는다(`ci-manual-reference-expiry-check.mjs`). |
 | `public-data/operator-note.json` | 필요 시 | 사람이 GitHub UI에서 편집한다. |
 | 지식 아티팩트 재생성 | 원문 수정 시 | 16개 `build-knowledge-*`/`build-principles-*` 빌더는 자동 실행되지 않는다. 실행을 빠뜨리면 `ci-knowledge-generated-parity-check.mjs`가 실패한다. |
 | 버전 범프 | 릴리스 시 | `node scripts/bump-version.mjs <v>` — 유일한 버전 패치 경로이며 워크플로가 호출하지 않는다. |
