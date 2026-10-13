@@ -411,6 +411,8 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
     const titleNode = documentRef.createElement(href ? 'a' : 'span');
     titleNode.textContent = String(item.title || '');
     if (href) { titleNode.href = href; titleNode.target = '_blank'; titleNode.rel = 'noopener noreferrer'; }
+    // P1739: a 12px/1.5 link was an 18-21px target; padding keeps every headline link at least 24px tall.
+    titleNode.style.cssText = 'display:inline-block;min-height:24px;padding:3px 0;box-sizing:border-box;';
     // Sources stay off the screen text (owner 2026-10-06): publisher and full time live in the hover.
     titleNode.title = [item.source, formatAbsoluteTime(item.publishedMs ? new Date(item.publishedMs) : null)].filter(Boolean).join(' · ');
     row.append(time, titleNode);

@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1739 - v57.53 - 장중 속보 목록 링크가 24px보다 낮아 접근성 게이트가 실패 (2026-10-13)
+
+- symptom/reproduction: 장중 속보 6건이 수집되자 시장 뉴스 화면의 헤드라인 링크가 높이 21px로 그려져 browser-a11y의 작은 터치 영역 검사가 실패했다.
+- root_cause: P1730 장중 속보 행이 12px·줄높이 1.5의 인라인 링크만 두어 터치 영역 최소 높이를 보장하지 않았고, 배포 당시에는 데이터가 비어 영역이 그려지지 않아 게이트가 잡지 못했다.
+- fix: 헤드라인 링크를 inline-block·min-height 24px·상하 3px 여백으로 그려 모든 링크가 24px 이상이 되게 했다.
+- violated_rule: WCAG 2.5.8 터치 영역 24px
+- prevention: P1739: ci-accessibility-matrix(browser-a11y) market-news smallTargets
+- verification/residual: browser-surface 그룹 3/3 통과(장중 속보 6건 표시 상태).
+
+## P1738 - v57.53 - 10년물·3개월물 금리의 정규장 전 시세를 '장 마감 종가'로 표시해 스냅샷·히스토리가 어긋나고 데이터 커밋 CI가 실패 (2026-10-13)
+
+- symptom/reproduction: 10/13 13:21Z 갱신에서 ^TNX 09:05 ET 값 5.206이 MARKET_CLOSED로 발행되고 히스토리는 직전 종가 5.24를 유지해 history-time 게이트가 실패했다.
+- root_cause: P1703의 장외 시세 판별이 주가지수·VIX만 대상으로 삼아 ^TNX/^IRX의 장전 값이 일정 판정으로 넘어가 MARKET_CLOSED가 됐다.
+- fix: deriveMarketSession의 장외 판별 대상에 ^TNX/^IRX를 추가해 평일 09:30 ET 이전 값이 최신 정규 종가가 아니면 AFTER_HOURS로 분류한다. 14:55 ET 이후 종가 관측은 isLatestUsRegularClose가 먼저 MARKET_CLOSED로 인정한다.
+- violated_rule: 완료 종가만 종가로 표시
+- prevention: P1738: ci-market-snapshot-contract-check(^TNX 09:05 ET → AFTER_HOURS, 14:59 ET → MARKET_CLOSED)·ci-history-field-time-contract-check(세션 재판정)
+- verification/residual: fixture 2건 통과, 현재 데이터로 history-time 통과.
+
 ## P1737 - v57.53 - 자동 산출물이 생겨도 화면이 수동 값을 읽음 (2026-10-13)
 
 - symptom/reproduction: 화면 FOMC·ISM·연준 범위·한은·CPI·수출이 수동 레지스트리를 읽었다.

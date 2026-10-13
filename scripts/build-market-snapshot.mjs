@@ -121,7 +121,8 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   // labelled MARKET_CLOSED beside the 10/12 completed close (15.21), so the snapshot, the history close and the
   // commentary prompt disagreed. A US index observation outside its regular window that is not the latest regular
   // close is an extended-hours print, not a completed close.
-  if (/^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M)$/.test(symbol)) {
+  // P1738: ^TNX/^IRX print before the cash open too (10/13 09:05 ET 5.206 beside the 5.24 completed close).
+  if (/^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)$/.test(symbol)) {
     const observedLocal = zoneParts(observedMs, 'America/New_York');
     const minute = minuteOfDay(observedLocal);
     const closeMinute = /^\^VIX/.test(symbol) ? 16 * 60 + 15 : 16 * 60;

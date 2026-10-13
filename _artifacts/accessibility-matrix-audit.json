@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-13T12:57:59.469Z",
+  "observedAt": "2026-10-13T13:46:48.372Z",
   "appRevision": "v57.53",
-  "gitHead": "5ab9a28723078485dc29c4f3dfbce763a4d0c53a",
+  "gitHead": "e136c6e7209efd752b5f378eee01bbb255f435be",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -50,7 +50,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 0,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -77,8 +77,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "풋/콜 비율 근거 보기",
+          "width": 1,
+          "height": 36,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -157,37 +165,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 4,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "10년 실질금리 (TIPS) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "10년 기대인플레이션 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "하이일드 스프레드 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },

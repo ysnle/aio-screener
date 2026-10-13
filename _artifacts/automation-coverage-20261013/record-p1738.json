@@ -1,0 +1,22 @@
+{
+  "version": "v57.53",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.53 push 전 병합 QA: 10년물 금리 장전 시세를 종가로 오분류(P1703 동일 클래스) 수정(P1738).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1738,
+    "title": "10년물·3개월물 금리의 정규장 전 시세를 '장 마감 종가'로 표시해 스냅샷·히스토리가 어긋나고 데이터 커밋 CI가 실패",
+    "symptom": "10/13 13:21Z 갱신에서 ^TNX 09:05 ET 값 5.206이 MARKET_CLOSED로 발행되고 히스토리는 직전 종가 5.24를 유지해 history-time 게이트가 실패했다.",
+    "root_cause": "P1703의 장외 시세 판별이 주가지수·VIX만 대상으로 삼아 ^TNX/^IRX의 장전 값이 일정 판정으로 넘어가 MARKET_CLOSED가 됐다.",
+    "fix": "deriveMarketSession의 장외 판별 대상에 ^TNX/^IRX를 추가해 평일 09:30 ET 이전 값이 최신 정규 종가가 아니면 AFTER_HOURS로 분류한다. 14:55 ET 이후 종가 관측은 isLatestUsRegularClose가 먼저 MARKET_CLOSED로 인정한다.",
+    "violated_rule": "완료 종가만 종가로 표시",
+    "prevention": "P1738: ci-market-snapshot-contract-check(^TNX 09:05 ET → AFTER_HOURS, 14:59 ET → MARKET_CLOSED)·ci-history-field-time-contract-check(세션 재판정)",
+    "verification": "fixture 2건 통과, 현재 데이터로 history-time 통과."
+  },
+  "qa": [],
+  "changelog": [
+    "**금리 장전 시세 오분류 수정 (P1738):** 10년물·3개월물 금리가 정규장 전에 찍힌 값을 종가로 표시하지 않고 직전 종가를 유지한다."
+  ]
+}

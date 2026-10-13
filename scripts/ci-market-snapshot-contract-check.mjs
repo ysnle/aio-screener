@@ -37,7 +37,10 @@ const sessionFixtures = [
   ['BTC-USD', '2026-07-28T04:00:01.000Z', '2026-07-28T03:00:00.000Z', 'SOURCE_UNAVAILABLE'],
   // P1703: a ^VIX global-trading-hours print (03:46 ET) is not the completed close; the 16:15 ET close still is.
   ['^VIX', '2026-10-13T07:46:31.000Z', '2026-10-13T08:01:37.000Z', 'AFTER_HOURS', 'REGULAR'],
-  ['^VIX', '2026-10-12T20:15:00.000Z', '2026-10-13T08:01:37.000Z', 'MARKET_CLOSED', 'REGULAR']
+  ['^VIX', '2026-10-12T20:15:00.000Z', '2026-10-13T08:01:37.000Z', 'MARKET_CLOSED', 'REGULAR'],
+  // P1738: a ^TNX pre-open print (09:05 ET) is not the completed close; the 14:59 ET close still is.
+  ['^TNX', '2026-10-13T13:05:25.000Z', '2026-10-13T13:20:35.555Z', 'AFTER_HOURS'],
+  ['^TNX', '2026-10-09T18:59:00.000Z', '2026-10-09T21:00:00.000Z', 'MARKET_CLOSED']
 ];
 for (const [instrumentId, observedAt, now, expected, providerSession] of sessionFixtures) {
   const actual = deriveMarketSession({ instrumentId, observedAt, providerSession, now: Date.parse(now) });
