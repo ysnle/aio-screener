@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-13T16:28:04.562Z",
-  "attemptedAt": "2026-10-13T16:28:04.562Z",
-  "lastSuccessfulAt": "2026-10-13T16:28:04.562Z",
+  "generatedAt": "2026-10-13T17:20:58.267Z",
+  "attemptedAt": "2026-10-13T17:20:58.267Z",
+  "lastSuccessfulAt": "2026-10-13T17:20:58.267Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-29T16:27:55.570Z",
-  "until": "2026-10-13T16:27:55.570Z",
+  "since": "2026-09-29T17:20:50.514Z",
+  "until": "2026-10-13T17:20:50.514Z",
   "current24hWindow": {
     "start": "2026-10-11T23:00:00.000Z",
     "end": "2026-10-12T23:00:00.000Z",
@@ -78,11 +78,11 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 250,
-      "freshCount": 37,
+      "freshCount": 19,
       "eligibleTextCount": 159,
       "selectedCount": 94,
       "error": null,
@@ -126,7 +126,7 @@
     }
   ],
   "count": 2224,
-  "retainedItemCount": 442,
+  "retainedItemCount": 436,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -2343,19 +2343,16 @@
       "datetime": "2026-10-13T07:18:46.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "geo",
         "semi",
-        "power",
-        "kr-market",
-        "equity"
+        "power"
       ],
       "score": 91,
       "hasText": true,
+      "summary": "중국 CXMT, 삼성·하이닉스보다 앞서 메모리 기술 돌파 주장 요약 중국 메모리 선두업체 CXMT(창신메모리)의 차오칸위 총재는 주말 상하이에서 열린 업계 콘퍼런스에서 4F² 설계를 적용한 데이터센터 서버용...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "중국 CXMT, 삼성·하이닉스보다 앞서 메모리 기술 돌파 주장 요약 중국 메모리 선두업체 CXMT(창신메모리)의 차오칸위 총재는 주말 상하이에서 열린 업계 콘퍼런스에서 4F² 설계를 적용한 데이터센터 서버용..."
+      ]
     },
     {
       "id": "insidertracking/66117",
@@ -2581,18 +2578,14 @@
       "datetime": "2026-10-13T04:15:34.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings"
+        "market-note"
       ],
       "score": 91,
       "hasText": true,
+      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": "JP모건) 마이크로소프트 — Maia 제품군이 주력 추론 역할을 맡고, Maia 300은 상당한 성능 향상을 제공하며 강력한 램프업 계획을 뒷받침할 것으로 예상 요약 마이크로소프트는 10월 12일 Azure..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25795",
@@ -2601,18 +2594,15 @@
       "datetime": "2026-10-13T04:11:05.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
-        "semi",
-        "ai-policy",
-        "earnings"
+        "macro"
       ],
       "score": 78,
       "hasText": true,
+      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를...",
       "tickers": [],
       "relatedTickers": [
         "GOOG"
-      ],
-      "summary": "JP모건) 메타 — 뮤즈 원더 모델이 개인 에이전트 및 엔터프라이즈 서비스를 뒷받침, 비중확대 및 목표주가 920달러 유지 요약 메타가 큰 기대를 모았던 뮤즈 원더(코드명 워터멜론) 모델 시리즈를..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25794",
@@ -2622,18 +2612,17 @@
       "localDateKst": "2026-10-13",
       "tags": [
         "semi",
-        "optical",
         "insider"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "JP모건 APAC테크 코멘트(삼전/이비덴/엔비) 삼성전자(SEC): 시장이 재매입을 요구하는 가운데, 거래소에 공시된 대로 15조 원 규모의 자사주 매입을 완료했습니다(링크). SK하이닉스의 자사주 매입도 곧...",
       "tickers": [
         "NVDA",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "JP모건 APAC테크 코멘트(삼전/이비덴/엔비) 삼성전자(SEC): 시장이 재매입을 요구하는 가운데, 거래소에 공시된 대로 15조 원 규모의 자사주 매입을 완료했습니다(링크). SK하이닉스의 자사주 매입도 곧..."
+      ]
     },
     {
       "id": "HANAchina/70343",
@@ -2875,14 +2864,12 @@
       "datetime": "2026-10-12T23:55:24.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "JP모건) 투자자 논쟁 - 3가지 약세론 반박에 대한 대응 저희는 주식에 대해 건설적인 시각을 갖고 있으며, EPS 성장이 가장 강하게 유지될 것으로 예상되는 테크에 대해 비중확대(OW)를 유지하고 있습니다...."
+      "summary": "JP모건) 투자자 논쟁 - 3가지 약세론 반박에 대한 대응 저희는 주식에 대해 건설적인 시각을 갖고 있으며, EPS 성장이 가장 강하게 유지될 것으로 예상되는 테크에 대해 비중확대(OW)를 유지하고 있습니다....",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25789",
@@ -2891,17 +2878,14 @@
       "datetime": "2026-10-12T23:52:41.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "semi",
-        "power",
-        "earnings",
-        "healthcare"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
+      "summary": "JP모건) APAC 테크 - 현장 피드백 해외 투자자들은 현재 아시아 테크에 대해 어떻게 생각하고 있을까요? 당사의 애널리스트 고쿨은 지난 2주간 영국과 미국에서 100명의 투자자를 만났습니다. 그의 피드백에...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "JP모건) APAC 테크 - 현장 피드백 해외 투자자들은 현재 아시아 테크에 대해 어떻게 생각하고 있을까요? 당사의 애널리스트 고쿨은 지난 2주간 영국과 미국에서 100명의 투자자를 만났습니다. 그의 피드백에..."
+      ]
     },
     {
       "id": "HANAchina/70327",
@@ -2926,18 +2910,16 @@
       "datetime": "2026-10-12T23:42:05.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
-        "semi",
         "earnings"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "블룸버그) 어플라이드 머티리얼즈, AI 덕분에 매출은 두 배로 늘리되 인력은 두 배로 늘리지 않을 것 요약 어플라이드 머티리얼즈의 게리 디커슨 CEO는 인터뷰에서 향후 수년간 회사 매출을 두 배로 키우겠지만...",
       "tickers": [
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "블룸버그) 어플라이드 머티리얼즈, AI 덕분에 매출은 두 배로 늘리되 인력은 두 배로 늘리지 않을 것 요약 어플라이드 머티리얼즈의 게리 디커슨 CEO는 인터뷰에서 향후 수년간 회사 매출을 두 배로 키우겠지만..."
+      ]
     },
     {
       "id": "HANAchina/70325",
@@ -3427,19 +3409,18 @@
       "datetime": "2026-10-12T15:43:19.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
         "semi",
         "earnings"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "BofA) TSMC 3Q26 실적 프리뷰: 가파른 2nm 램프업으로 매출 상방, 마진은 견조 (2026년 10월 12일) BofA는 TSMC에 대해 매수 의견을 유지하고 목표주가를 NT$3,100에서...",
       "tickers": [
         "AMD",
         "GOOG",
         "AMZN",
         "TSM"
-      ],
-      "summary": "BofA) TSMC 3Q26 실적 프리뷰: 가파른 2nm 램프업으로 매출 상방, 마진은 견조 (2026년 10월 12일) BofA는 TSMC에 대해 매수 의견을 유지하고 목표주가를 NT$3,100에서..."
+      ]
     },
     {
       "id": "HANAchina/70304",
@@ -3463,14 +3444,13 @@
       "localDateKst": "2026-10-12",
       "tags": [
         "semi",
-        "kr-market",
         "earnings",
         "flows"
       ],
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "JP모건) 난야 테크놀로지; 3분기 예상 부합: 단기적으로 레거시 DRAM 수급 타이트; 2030년까지 AI 매출 비중 40~50% 및 LTA 커버리지 50% 이상 목표; 비중확대(OW) 난야 테크놀로지는..."
+      "summary": "JP모건) 난야 테크놀로지; 3분기 예상 부합: 단기적으로 레거시 DRAM 수급 타이트; 2030년까지 AI 매출 비중 40~50% 및 LTA 커버리지 50% 이상 목표; 비중확대(OW) 난야 테크놀로지는...",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25783",
@@ -3479,17 +3459,15 @@
       "datetime": "2026-10-12T13:46:44.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "power"
       ],
       "score": 83,
       "hasText": true,
+      "summary": "Microsoft, Azure Maia 시스템을 멀티 GW 규모로 확대 1. Maia 200 상용화 및 Maia 300 출시 Microsoft는 2027년부터 Azure Maia 제품군을 멀티 기가와트(GW)...",
       "tickers": [
         "MSFT",
         "TSM"
-      ],
-      "summary": "Microsoft, Azure Maia 시스템을 멀티 GW 규모로 확대 1. Maia 200 상용화 및 Maia 300 출시 Microsoft는 2027년부터 Azure Maia 제품군을 멀티 기가와트(GW)..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25782",
@@ -3498,15 +3476,15 @@
       "datetime": "2026-10-12T13:33:33.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "마소 CEO 사티아 나델라: 오늘 저희는 자체 실리콘에 대한 지금까지 가장 큰 베팅을 발표합니다. 내년(역년 기준)부터 저희는 Maia 제품군을 멀티 기가와트 규모로 확대 배치하여, 이를 저희 자체 제품과...",
       "tickers": [],
       "relatedTickers": [
         "MSFT"
-      ],
-      "summary": "마소 CEO 사티아 나델라: 오늘 저희는 자체 실리콘에 대한 지금까지 가장 큰 베팅을 발표합니다. 내년(역년 기준)부터 저희는 Maia 제품군을 멀티 기가와트 규모로 확대 배치하여, 이를 저희 자체 제품과..."
+      ]
     },
     {
       "id": "HANAchina/70301",
@@ -3529,12 +3507,12 @@
       "datetime": "2026-10-12T13:11:11.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "암호화폐 채굴 악성코드 PoeLLM이 깃허브에 게시된 시(詩)를 이용해 제어 서버 주소를 숨기면서 3,400대 이상의 서버를 공격했습니다. 루멘의 보안 연구팀 블랙 로터스 랩스는 2026년 4월부터 진행된..."
+      "summary": "암호화폐 채굴 악성코드 PoeLLM이 깃허브에 게시된 시(詩)를 이용해 제어 서버 주소를 숨기면서 3,400대 이상의 서버를 공격했습니다. 루멘의 보안 연구팀 블랙 로터스 랩스는 2026년 4월부터 진행된...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20582",
@@ -8706,19 +8684,18 @@
       "datetime": "2026-10-12T15:43:19.000Z",
       "localDateKst": "2026-10-13",
       "tags": [
-        "macro",
         "semi",
         "earnings"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "BofA) TSMC 3Q26 실적 프리뷰: 가파른 2nm 램프업으로 매출 상방, 마진은 견조 (2026년 10월 12일) BofA는 TSMC에 대해 매수 의견을 유지하고 목표주가를 NT$3,100에서...",
       "tickers": [
         "AMD",
         "GOOG",
         "AMZN",
         "TSM"
-      ],
-      "summary": "BofA) TSMC 3Q26 실적 프리뷰: 가파른 2nm 램프업으로 매출 상방, 마진은 견조 (2026년 10월 12일) BofA는 TSMC에 대해 매수 의견을 유지하고 목표주가를 NT$3,100에서..."
+      ]
     },
     {
       "id": "HANAchina/70304",
@@ -8735,20 +8712,6 @@
       "tickers": []
     },
     {
-      "id": "aetherjapanresearch/25785",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25785",
-      "datetime": "2026-10-12T14:39:07.000Z",
-      "localDateKst": "2026-10-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 35,
-      "hasText": true,
-      "tickers": [],
-      "summary": "마소도 시총 4T넘었네요"
-    },
-    {
       "id": "aetherjapanresearch/25784",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25784",
@@ -8756,14 +8719,13 @@
       "localDateKst": "2026-10-12",
       "tags": [
         "semi",
-        "kr-market",
         "earnings",
         "flows"
       ],
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "JP모건) 난야 테크놀로지; 3분기 예상 부합: 단기적으로 레거시 DRAM 수급 타이트; 2030년까지 AI 매출 비중 40~50% 및 LTA 커버리지 50% 이상 목표; 비중확대(OW) 난야 테크놀로지는..."
+      "summary": "JP모건) 난야 테크놀로지; 3분기 예상 부합: 단기적으로 레거시 DRAM 수급 타이트; 2030년까지 AI 매출 비중 40~50% 및 LTA 커버리지 50% 이상 목표; 비중확대(OW) 난야 테크놀로지는...",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25783",
@@ -8772,17 +8734,15 @@
       "datetime": "2026-10-12T13:46:44.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "power"
       ],
       "score": 83,
       "hasText": true,
+      "summary": "Microsoft, Azure Maia 시스템을 멀티 GW 규모로 확대 1. Maia 200 상용화 및 Maia 300 출시 Microsoft는 2027년부터 Azure Maia 제품군을 멀티 기가와트(GW)...",
       "tickers": [
         "MSFT",
         "TSM"
-      ],
-      "summary": "Microsoft, Azure Maia 시스템을 멀티 GW 규모로 확대 1. Maia 200 상용화 및 Maia 300 출시 Microsoft는 2027년부터 Azure Maia 제품군을 멀티 기가와트(GW)..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25782",
@@ -8791,15 +8751,15 @@
       "datetime": "2026-10-12T13:33:33.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "마소 CEO 사티아 나델라: 오늘 저희는 자체 실리콘에 대한 지금까지 가장 큰 베팅을 발표합니다. 내년(역년 기준)부터 저희는 Maia 제품군을 멀티 기가와트 규모로 확대 배치하여, 이를 저희 자체 제품과...",
       "tickers": [],
       "relatedTickers": [
         "MSFT"
-      ],
-      "summary": "마소 CEO 사티아 나델라: 오늘 저희는 자체 실리콘에 대한 지금까지 가장 큰 베팅을 발표합니다. 내년(역년 기준)부터 저희는 Maia 제품군을 멀티 기가와트 규모로 확대 배치하여, 이를 저희 자체 제품과..."
+      ]
     },
     {
       "id": "HANAchina/70301",
@@ -8822,12 +8782,12 @@
       "datetime": "2026-10-12T13:11:11.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "ai-policy"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "암호화폐 채굴 악성코드 PoeLLM이 깃허브에 게시된 시(詩)를 이용해 제어 서버 주소를 숨기면서 3,400대 이상의 서버를 공격했습니다. 루멘의 보안 연구팀 블랙 로터스 랩스는 2026년 4월부터 진행된..."
+      "summary": "암호화폐 채굴 악성코드 PoeLLM이 깃허브에 게시된 시(詩)를 이용해 제어 서버 주소를 숨기면서 3,400대 이상의 서버를 공격했습니다. 루멘의 보안 연구팀 블랙 로터스 랩스는 2026년 4월부터 진행된...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20582",
