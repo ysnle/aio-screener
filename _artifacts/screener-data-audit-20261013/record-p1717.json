@@ -1,0 +1,30 @@
+{
+  "version": "v57.51",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.51 스크리너 데이터 품질·원천·커버리지 전수 점검(F01–F23·V01–V24·N01–N24) 반영(P1704~P1717).",
+  "p": {
+    "id": 1717,
+    "title": "배포 후 확인: 13F 자료 도착 시 종목 요약 재렌더가 '최근 공시' 줄을 지우고, 실적 달력 '대형주 일정 미확인 N개'가 매주 30여 개로 소음이 됨",
+    "symptom": "운영 사이트 확인에서 13F 보유 자료가 늦게 오는 종목은 종목 요약이 다시 그려질 때 fundamentals 인자 없이 호출되어 '최근 공시' 줄이 사라질 수 있음을 발견했다. 실적 달력 상태에는 '대형주 일정 미확인 33개'가 표시됐는데, 대부분(NVDA·AAPL·MSFT 등)은 그 주에 발표가 없을 뿐이라 매주 같은 숫자가 반복된다.",
+    "root_cause": "stock-read의 13F 재렌더 콜백이 symbol만 넘겼다. N19 표시는 공급자 누락(ASML·TSM)과 '그 주 발표 없음'을 구분할 수 없는데도 본문 숫자로 노출됐다.",
+    "fix": "13F 재렌더 콜백에 fundamentals를 함께 넘긴다. 실적 달력 상태 본문에서 개수를 빼고, 목록은 hover 설명(이번 주 발표가 없거나 공급자 목록에서 빠졌을 수 있음 — 날짜 추정 없음)으로만 둔다.",
+    "violated_rule": "근거 없는 신호 금지 — 구분할 수 없는 상태를 수치로 노출하지 않음",
+    "prevention": "P1717: verify-aio stock·market drive와 운영 사이트 수동 확인(CW·CRS 최근 공시, 재무 공시 탭 실적 달력)",
+    "verification": "운영 사이트: CW '10/6 8-K 임원·이사 변동 · 9/22 … (10/13 확인). SEC 공시 원문', CRS 8-K 주주총회 결과, NVDA·LSCC 재무 요약 'SEC 연간(FY) 기준', 스크리너 근거 칸 '순환 대기', 시장 폭 'S&P 500 구성 종목만(500개) 보면 50일선 위 37%, 200일선 위 52%' 확인. 산출물: 한국 종가 교정 237/239, 8035.T JPY·Asia/Tokyo, sp500 구간 500/503, margin>100 0건, rvol20 1,142행."
+  },
+  "qa": [
+    {
+      "id": "QA-VERIFY-18",
+      "text": "P1704~P1716: refresh-screener 다음 실행 뒤 screener.json에서 krCloseReconciliation이 reconciled 위주이고 005930 factorSessionDate가 최신 한국 세션, 8035.T currency JPY, breadth.segments.sp500 표본 약 500, 신규 종목(SPCX·SKYD·VYLR) 수신, newsStatus·newsMemoVerified 존재, margin>100 행 0, rvol20 채움을 확인한다.",
+      "verify_by": "push 뒤 refresh-screener 1회 실행 후 산출물 검사(로그 KR exchange close 한 줄 포함)",
+      "done": true,
+      "update": true
+    }
+  ],
+  "qa_section": "검증 스킬",
+  "changelog": [
+    "**배포 후 확인 반영 (P1717):** 13F 자료가 늦게 와도 종목 요약의 '최근 공시' 줄이 유지되고, 실적 달력의 대형주 누락 목록은 본문 숫자 대신 hover 설명으로만 보여 준다. QA-VERIFY-18 확인 완료(VYLR만 공급자 미수신)."
+  ]
+}

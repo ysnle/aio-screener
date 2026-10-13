@@ -131,7 +131,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const factorSession = String(row?.factorSessionDate || '').slice(0, 10);
   const sessionLag = factorSession && latestSession?.date && factorSession < latestSession.date ? { session: factorSession, latest: latestSession.date, sessions: countOpenSessionsBetween(factorSession, latestSession.date, market) } : null;
   host.dataset.aioStockReadSymbol = sym;
-  const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym }); });
+  const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals }); });
   const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: ranked.length || null, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));
   if (!read.available) {

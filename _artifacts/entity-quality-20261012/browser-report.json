@@ -13,7 +13,7 @@
     "src/ui/pages/screener.js": "a6f76c6b23910aef91d72567c25e746951328235d77a2ea9bb92e5005ed73e39",
     "src/ui/pages/analysis.js": "5c67b260d0349bbfa585d4a3d3b47c699b5329b02a8ad54295e4e3ce80abb8b9",
     "src/ui/components/stock-chart.js": "6e44d3bc06c1f28bca6b7acec0a94f7993d37eefb22523dba56a09015264b4b3",
-    "src/ui/components/stock-read.js": "37b5a0d4ea95b2ab5f57f6365304bc02c32549bdc520c663d740f5a35242bb7b",
+    "src/ui/components/stock-read.js": "a5d708061ef5d931a685467b812fe15ee27781f3d4e74d0e8cc42b3b5a8b977c",
     "src/ui/components/fiscal-read.js": "9b7bec8b15830a944aeb72ab1a079d840ad6f9daa4f8aacbeb7850a77be7f88b",
     "src/domain/entity/summary-hydration.js": "30a394ec500ac7430ff0de02acfa92576e7818618c4850952993cdd09e656c37",
     "src/domain/screener/market-scope.js": "ac4a26f2d0b195ef36157cb7dcd88b2a1e8c004b32f9f2c360dc5c7c1157701e",
@@ -75,7 +75,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 17572
+          "pixels": 17512
         },
         "active": "page-ticker",
         "signed": [
@@ -143,7 +143,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 41217
+          "pixels": 41185
         },
         "active": "page-ticker",
         "signed": [
@@ -211,7 +211,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 17512
+          "pixels": 17576
         },
         "active": "page-ticker",
         "signed": [
@@ -253,12 +253,163 @@
           }
         ]
       },
-      "fixtureRequests": 2
+      "fixtureRequests": 3
     },
     {
       "label": "phone-dark/summary",
       "layout": {
         "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone-light",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "—",
+          "ret3m": 216.9
+        },
+        {
+          "symbol": "TEAM",
+          "price": "—",
+          "ret3m": 133.2
+        },
+        {
+          "symbol": "P",
+          "price": "—",
+          "ret3m": 101.6
+        },
+        {
+          "symbol": "GTLB",
+          "price": "—",
+          "ret3m": 69.8
+        },
+        {
+          "symbol": "PAYC",
+          "price": "—",
+          "ret3m": 63.9
+        },
+        {
+          "symbol": "ACN",
+          "price": "—",
+          "ret3m": 59.7
+        },
+        {
+          "symbol": "PTC",
+          "price": "—",
+          "ret3m": 58.7
+        },
+        {
+          "symbol": "MSTR",
+          "price": "—",
+          "ret3m": 56.5
+        },
+        {
+          "symbol": "PLTR",
+          "price": "—",
+          "ret3m": 56.3
+        },
+        {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 54.6
+        },
+        {
+          "symbol": "ESTC",
+          "price": "—",
+          "ret3m": 53.3
+        },
+        {
+          "symbol": "VEEV",
+          "price": "—",
+          "ret3m": 53.2
+        }
+      ],
+      "note": "미국 모집단 904개 · 순위 계산 898개 · 표시 363개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "phone-light",
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 127.6
+        },
+        {
+          "symbol": "031980.KQ",
+          "price": "—",
+          "ret3m": 88
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 81.1
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 66.4
+        },
+        {
+          "symbol": "036930.KQ",
+          "price": "—",
+          "ret3m": 64.7
+        },
+        {
+          "symbol": "403870.KQ",
+          "price": "—",
+          "ret3m": 64.4
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 57.6
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 56.4
+        },
+        {
+          "symbol": "096770.KS",
+          "price": "—",
+          "ret3m": 56.3
+        },
+        {
+          "symbol": "098460.KQ",
+          "price": "—",
+          "ret3m": 49.6
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 48.2
+        },
+        {
+          "symbol": "131970.KQ",
+          "price": "—",
+          "ret3m": 48.1
+        }
+      ],
+      "note": "한국 모집단 239개 · 순위 계산 239개 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "phone-light",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "phone-light/screener",
+      "layout": {
+        "route": "page-screener",
         "overflow": 0,
         "clipped": []
       }
@@ -313,6 +464,11 @@
           "ret3m": 56.3
         },
         {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 54.6
+        },
+        {
           "symbol": "ESTC",
           "price": "—",
           "ret3m": 53.3
@@ -321,81 +477,93 @@
           "symbol": "VEEV",
           "price": "—",
           "ret3m": 53.2
-        },
-        {
-          "symbol": "AMC",
-          "price": "—",
-          "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "미국 모집단 904개 · 순위 계산 898개 · 표시 363개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
-      "label": "phone-light",
-      "market": "US",
+      "label": "tablet-light",
+      "market": "KR",
       "listing": [
         {
-          "symbol": "MRNA",
+          "symbol": "036540.KQ",
           "price": "—",
-          "ret3m": 216.9
+          "ret3m": 127.6
         },
         {
-          "symbol": "TEAM",
+          "symbol": "031980.KQ",
           "price": "—",
-          "ret3m": 133.2
+          "ret3m": 88
         },
         {
-          "symbol": "P",
+          "symbol": "323280.KQ",
           "price": "—",
-          "ret3m": 101.6
+          "ret3m": 81.1
         },
         {
-          "symbol": "GTLB",
+          "symbol": "043260.KQ",
           "price": "—",
-          "ret3m": 69.8
+          "ret3m": 66.4
         },
         {
-          "symbol": "PAYC",
+          "symbol": "036930.KQ",
           "price": "—",
-          "ret3m": 63.9
+          "ret3m": 64.7
         },
         {
-          "symbol": "ACN",
+          "symbol": "403870.KQ",
           "price": "—",
-          "ret3m": 59.7
+          "ret3m": 64.4
         },
         {
-          "symbol": "PTC",
+          "symbol": "192820.KS",
           "price": "—",
-          "ret3m": 58.7
+          "ret3m": 57.6
         },
         {
-          "symbol": "MSTR",
+          "symbol": "030530.KQ",
           "price": "—",
-          "ret3m": 56.5
+          "ret3m": 56.4
         },
         {
-          "symbol": "PLTR",
+          "symbol": "096770.KS",
           "price": "—",
           "ret3m": 56.3
         },
         {
-          "symbol": "ESTC",
+          "symbol": "098460.KQ",
           "price": "—",
-          "ret3m": 53.3
+          "ret3m": 49.6
         },
         {
-          "symbol": "VEEV",
+          "symbol": "229640.KS",
           "price": "—",
-          "ret3m": 53.2
+          "ret3m": 48.2
         },
         {
-          "symbol": "AMC",
+          "symbol": "131970.KQ",
           "price": "—",
-          "ret3m": 53.1
+          "ret3m": 48.1
         }
       ],
-      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "한국 모집단 239개 · 순위 계산 239개 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "tablet-light",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "tablet-light/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
     },
     {
       "label": "phone-dark",
@@ -447,6 +615,11 @@
           "ret3m": 56.3
         },
         {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 54.6
+        },
+        {
           "symbol": "ESTC",
           "price": "—",
           "ret3m": 53.3
@@ -455,23 +628,79 @@
           "symbol": "VEEV",
           "price": "—",
           "ret3m": 53.2
-        },
-        {
-          "symbol": "AMC",
-          "price": "—",
-          "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "미국 모집단 904개 · 순위 계산 898개 · 표시 363개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
-      "label": "phone-light",
+      "label": "phone-dark",
       "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+      "listing": [
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 127.6
+        },
+        {
+          "symbol": "031980.KQ",
+          "price": "—",
+          "ret3m": 88
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 81.1
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 66.4
+        },
+        {
+          "symbol": "036930.KQ",
+          "price": "—",
+          "ret3m": 64.7
+        },
+        {
+          "symbol": "403870.KQ",
+          "price": "—",
+          "ret3m": 64.4
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 57.6
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 56.4
+        },
+        {
+          "symbol": "096770.KS",
+          "price": "—",
+          "ret3m": 56.3
+        },
+        {
+          "symbol": "098460.KQ",
+          "price": "—",
+          "ret3m": 49.6
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 48.2
+        },
+        {
+          "symbol": "131970.KQ",
+          "price": "—",
+          "ret3m": 48.1
+        }
+      ],
+      "note": "한국 모집단 239개 · 순위 계산 239개 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
-      "label": "phone-light",
+      "label": "phone-dark",
       "currencyFormat": {
         "usd": "$84.64",
         "krw": "₩73,000",
@@ -480,30 +709,7 @@
       "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
     },
     {
-      "label": "phone-light/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "tablet-light",
-      "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
-    },
-    {
-      "label": "tablet-light",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "tablet-light/screener",
+      "label": "phone-dark/screener",
       "layout": {
         "route": "page-screener",
         "overflow": 0,
@@ -565,32 +771,9 @@
       }
     },
     {
-      "label": "phone-dark",
-      "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
-    },
-    {
       "label": "phone-light/fiscal",
       "layout": {
         "route": "page-fundamental",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "phone-dark",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "phone-dark/screener",
-      "layout": {
-        "route": "page-screener",
         "overflow": 0,
         "clipped": []
       }
@@ -658,36 +841,6 @@
       }
     },
     {
-      "label": "phone-light",
-      "technical": {
-        "scenarios": [
-          {
-            "id": "recovery",
-            "text": "회복·확장 조건최근 20거래일 고점 88.71 위 종가와 이후 유지 여부를 확인합니다. 거래량이 함께 증가하면 가격과 참여가 같은 방향이라는 근거가 보강됩니다. 다시 이 가격 아래로 마감하면 회복 해석은 약해집니다."
-          },
-          {
-            "id": "range",
-            "text": "범위 안 흐름73.93~88.71 안에서 머무르면 방향보다 범위와 거래량 변화를 살펴봅니다. 고점·저점이 함께 높아지는지, 하락일 거래량이 늘어나는지가 다음 구분 기준입니다."
-          },
-          {
-            "id": "weakness",
-            "text": "약화 조건최근 20거래일 저점 73.93 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다."
-          }
-        ],
-        "volume": "거래 집중 가격대 · 일봉 추정2026-04-13~2026-10-09 · 130거래일75.89~76.857.9%78.77~79.726.2%73.98~74.945.1%일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.",
-        "zones": 3,
-        "logic": "차트를 읽는 순서와 계산 기준① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다."
-      }
-    },
-    {
-      "label": "phone-light/technical",
-      "layout": {
-        "route": "page-technical",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "tablet-light",
       "technical": {
         "scenarios": [
@@ -711,6 +864,36 @@
     },
     {
       "label": "tablet-light/technical",
+      "layout": {
+        "route": "page-technical",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone-light",
+      "technical": {
+        "scenarios": [
+          {
+            "id": "recovery",
+            "text": "회복·확장 조건최근 20거래일 고점 88.71 위 종가와 이후 유지 여부를 확인합니다. 거래량이 함께 증가하면 가격과 참여가 같은 방향이라는 근거가 보강됩니다. 다시 이 가격 아래로 마감하면 회복 해석은 약해집니다."
+          },
+          {
+            "id": "range",
+            "text": "범위 안 흐름73.93~88.71 안에서 머무르면 방향보다 범위와 거래량 변화를 살펴봅니다. 고점·저점이 함께 높아지는지, 하락일 거래량이 늘어나는지가 다음 구분 기준입니다."
+          },
+          {
+            "id": "weakness",
+            "text": "약화 조건최근 20거래일 저점 73.93 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다."
+          }
+        ],
+        "volume": "거래 집중 가격대 · 일봉 추정2026-04-13~2026-10-09 · 130거래일75.89~76.857.9%78.77~79.726.2%73.98~74.945.1%일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.",
+        "zones": 3,
+        "logic": "차트를 읽는 순서와 계산 기준① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다."
+      }
+    },
+    {
+      "label": "phone-light/technical",
       "layout": {
         "route": "page-technical",
         "overflow": 0,
@@ -825,7 +1008,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 62531
+          "pixels": 62580
         },
         "active": "page-ticker",
         "signed": [
@@ -893,7 +1076,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 62531
+          "pixels": 62530
         },
         "active": "page-ticker",
         "signed": [
@@ -961,7 +1144,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 41249
+          "pixels": 41079
         },
         "active": "page-ticker",
         "signed": [
@@ -1003,7 +1186,7 @@
           }
         ]
       },
-      "fixtureRequests": 2
+      "fixtureRequests": 3
     },
     {
       "label": "tablet-dark/summary",
@@ -1014,73 +1197,6 @@
       }
     },
     {
-      "label": "desktop-light",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "—",
-          "ret3m": 216.9
-        },
-        {
-          "symbol": "TEAM",
-          "price": "—",
-          "ret3m": 133.2
-        },
-        {
-          "symbol": "P",
-          "price": "—",
-          "ret3m": 101.6
-        },
-        {
-          "symbol": "GTLB",
-          "price": "—",
-          "ret3m": 69.8
-        },
-        {
-          "symbol": "PAYC",
-          "price": "—",
-          "ret3m": 63.9
-        },
-        {
-          "symbol": "ACN",
-          "price": "—",
-          "ret3m": 59.7
-        },
-        {
-          "symbol": "PTC",
-          "price": "—",
-          "ret3m": 58.7
-        },
-        {
-          "symbol": "MSTR",
-          "price": "—",
-          "ret3m": 56.5
-        },
-        {
-          "symbol": "PLTR",
-          "price": "—",
-          "ret3m": 56.3
-        },
-        {
-          "symbol": "ESTC",
-          "price": "—",
-          "ret3m": 53.3
-        },
-        {
-          "symbol": "VEEV",
-          "price": "—",
-          "ret3m": 53.2
-        },
-        {
-          "symbol": "AMC",
-          "price": "—",
-          "ret3m": 53.1
-        }
-      ],
-      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
       "label": "desktop-dark",
       "market": "US",
       "listing": [
@@ -1130,6 +1246,11 @@
           "ret3m": 56.3
         },
         {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 54.6
+        },
+        {
           "symbol": "ESTC",
           "price": "—",
           "ret3m": 53.3
@@ -1138,17 +1259,12 @@
           "symbol": "VEEV",
           "price": "—",
           "ret3m": 53.2
-        },
-        {
-          "symbol": "AMC",
-          "price": "—",
-          "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "미국 모집단 904개 · 순위 계산 898개 · 표시 363개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
-      "label": "tablet-dark",
+      "label": "desktop-light",
       "market": "US",
       "listing": [
         {
@@ -1197,6 +1313,11 @@
           "ret3m": 56.3
         },
         {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 54.6
+        },
+        {
           "symbol": "ESTC",
           "price": "—",
           "ret3m": 53.3
@@ -1205,43 +1326,76 @@
           "symbol": "VEEV",
           "price": "—",
           "ret3m": 53.2
-        },
-        {
-          "symbol": "AMC",
-          "price": "—",
-          "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
-      "label": "desktop-light",
-      "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
-    },
-    {
-      "label": "desktop-light",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "desktop-light/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
+      "note": "미국 모집단 904개 · 순위 계산 898개 · 표시 363개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "desktop-dark",
       "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+      "listing": [
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 127.6
+        },
+        {
+          "symbol": "031980.KQ",
+          "price": "—",
+          "ret3m": 88
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 81.1
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 66.4
+        },
+        {
+          "symbol": "036930.KQ",
+          "price": "—",
+          "ret3m": 64.7
+        },
+        {
+          "symbol": "403870.KQ",
+          "price": "—",
+          "ret3m": 64.4
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 57.6
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 56.4
+        },
+        {
+          "symbol": "096770.KS",
+          "price": "—",
+          "ret3m": 56.3
+        },
+        {
+          "symbol": "098460.KQ",
+          "price": "—",
+          "ret3m": 49.6
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 48.2
+        },
+        {
+          "symbol": "131970.KQ",
+          "price": "—",
+          "ret3m": 48.1
+        }
+      ],
+      "note": "한국 모집단 239개 · 순위 계산 239개 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "desktop-dark",
@@ -1262,71 +1416,221 @@
     },
     {
       "label": "desktop-light",
-      "fiscal": {
-        "rows": 14,
-        "captions": [
-          "연간 금액 · USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스) · 자료 없음은 0이 아닙니다",
-          "분기 금액 · USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스) · 자료 없음은 0이 아닙니다"
-        ],
-        "loss": [
-          {
-            "top": 90.284,
-            "height": 2.764,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 5.331,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 9.716,
-            "zero": 90.284
-          },
-          {
-            "top": 85.361,
-            "height": 4.659,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 2.914,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 9.445,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 14.639,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 14.516,
-            "zero": 85.361
-          }
-        ],
-        "tableText": "연간 금액 · USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스) · 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-31$16.6M−$2.0M−$2.7M$227,000−$2.9M$11.4M$024.2M주2022-05-31$50.8M$9.4M$1.5M$416,000$1.1M$51.0M자료 없음27.3M주2023-05-31$65.0M$14.6M$10.0M$1.4M$8.6M$75.6M자료 없음28.8M주2024-05-31$66.2M$33.2M$1.8M$749,000$1.0M$111.6M자료 없음29M주2025-05-30$59.0M−$3.9M−$7.4M$5.0M−$12.4M$122.9M자료 없음29.9M주2026-05-29$50.0M−$7.1M−$3.3M$2.1M−$5.4M$219.5M자료 없음32.6M주",
-        "basis": "연간 공시 · 회계연도 말 2026-05-29 · 제출 2026-07-27 · 금액 USD · 이 연간 공시 원문 확인"
-      }
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 127.6
+        },
+        {
+          "symbol": "031980.KQ",
+          "price": "—",
+          "ret3m": 88
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 81.1
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 66.4
+        },
+        {
+          "symbol": "036930.KQ",
+          "price": "—",
+          "ret3m": 64.7
+        },
+        {
+          "symbol": "403870.KQ",
+          "price": "—",
+          "ret3m": 64.4
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 57.6
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 56.4
+        },
+        {
+          "symbol": "096770.KS",
+          "price": "—",
+          "ret3m": 56.3
+        },
+        {
+          "symbol": "098460.KQ",
+          "price": "—",
+          "ret3m": 49.6
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 48.2
+        },
+        {
+          "symbol": "131970.KQ",
+          "price": "—",
+          "ret3m": 48.1
+        }
+      ],
+      "note": "한국 모집단 239개 · 순위 계산 239개 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
-      "label": "desktop-light/fiscal",
+      "label": "desktop-light",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "desktop-light/screener",
       "layout": {
-        "route": "page-fundamental",
+        "route": "page-screener",
         "overflow": 0,
         "clipped": []
       }
     },
     {
       "label": "tablet-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "—",
+          "ret3m": 216.9
+        },
+        {
+          "symbol": "TEAM",
+          "price": "—",
+          "ret3m": 133.2
+        },
+        {
+          "symbol": "P",
+          "price": "—",
+          "ret3m": 101.6
+        },
+        {
+          "symbol": "GTLB",
+          "price": "—",
+          "ret3m": 69.8
+        },
+        {
+          "symbol": "PAYC",
+          "price": "—",
+          "ret3m": 63.9
+        },
+        {
+          "symbol": "ACN",
+          "price": "—",
+          "ret3m": 59.7
+        },
+        {
+          "symbol": "PTC",
+          "price": "—",
+          "ret3m": 58.7
+        },
+        {
+          "symbol": "MSTR",
+          "price": "—",
+          "ret3m": 56.5
+        },
+        {
+          "symbol": "PLTR",
+          "price": "—",
+          "ret3m": 56.3
+        },
+        {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 54.6
+        },
+        {
+          "symbol": "ESTC",
+          "price": "—",
+          "ret3m": 53.3
+        },
+        {
+          "symbol": "VEEV",
+          "price": "—",
+          "ret3m": 53.2
+        }
+      ],
+      "note": "미국 모집단 904개 · 순위 계산 898개 · 표시 363개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "tablet-dark",
       "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+      "listing": [
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 127.6
+        },
+        {
+          "symbol": "031980.KQ",
+          "price": "—",
+          "ret3m": 88
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 81.1
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 66.4
+        },
+        {
+          "symbol": "036930.KQ",
+          "price": "—",
+          "ret3m": 64.7
+        },
+        {
+          "symbol": "403870.KQ",
+          "price": "—",
+          "ret3m": 64.4
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 57.6
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 56.4
+        },
+        {
+          "symbol": "096770.KS",
+          "price": "—",
+          "ret3m": 56.3
+        },
+        {
+          "symbol": "098460.KQ",
+          "price": "—",
+          "ret3m": 49.6
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 48.2
+        },
+        {
+          "symbol": "131970.KQ",
+          "price": "—",
+          "ret3m": 48.1
+        }
+      ],
+      "note": "한국 모집단 239개 · 순위 계산 239개 · 표시 97개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "tablet-dark",
@@ -1409,30 +1713,62 @@
     },
     {
       "label": "desktop-light",
-      "technical": {
-        "scenarios": [
+      "fiscal": {
+        "rows": 14,
+        "captions": [
+          "연간 금액 · USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스) · 자료 없음은 0이 아닙니다",
+          "분기 금액 · USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스) · 자료 없음은 0이 아닙니다"
+        ],
+        "loss": [
           {
-            "id": "recovery",
-            "text": "회복·확장 조건최근 20거래일 고점 88.71 위 종가와 이후 유지 여부를 확인합니다. 거래량이 함께 증가하면 가격과 참여가 같은 방향이라는 근거가 보강됩니다. 다시 이 가격 아래로 마감하면 회복 해석은 약해집니다."
+            "top": 90.284,
+            "height": 2.764,
+            "zero": 90.284
           },
           {
-            "id": "range",
-            "text": "범위 안 흐름73.93~88.71 안에서 머무르면 방향보다 범위와 거래량 변화를 살펴봅니다. 고점·저점이 함께 높아지는지, 하락일 거래량이 늘어나는지가 다음 구분 기준입니다."
+            "top": 90.284,
+            "height": 5.331,
+            "zero": 90.284
           },
           {
-            "id": "weakness",
-            "text": "약화 조건최근 20거래일 저점 73.93 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다."
+            "top": 90.284,
+            "height": 9.716,
+            "zero": 90.284
+          },
+          {
+            "top": 85.361,
+            "height": 4.659,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 2.914,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 9.445,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 14.639,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 14.516,
+            "zero": 85.361
           }
         ],
-        "volume": "거래 집중 가격대 · 일봉 추정2026-04-13~2026-10-09 · 130거래일75.89~76.857.9%78.77~79.726.2%73.98~74.945.1%일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.",
-        "zones": 3,
-        "logic": "차트를 읽는 순서와 계산 기준① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다."
+        "tableText": "연간 금액 · USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스) · 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-31$16.6M−$2.0M−$2.7M$227,000−$2.9M$11.4M$024.2M주2022-05-31$50.8M$9.4M$1.5M$416,000$1.1M$51.0M자료 없음27.3M주2023-05-31$65.0M$14.6M$10.0M$1.4M$8.6M$75.6M자료 없음28.8M주2024-05-31$66.2M$33.2M$1.8M$749,000$1.0M$111.6M자료 없음29M주2025-05-30$59.0M−$3.9M−$7.4M$5.0M−$12.4M$122.9M자료 없음29.9M주2026-05-29$50.0M−$7.1M−$3.3M$2.1M−$5.4M$219.5M자료 없음32.6M주",
+        "basis": "연간 공시 · 회계연도 말 2026-05-29 · 제출 2026-07-27 · 금액 USD · 이 연간 공시 원문 확인"
       }
     },
     {
-      "label": "desktop-light/technical",
+      "label": "desktop-light/fiscal",
       "layout": {
-        "route": "page-technical",
+        "route": "page-fundamental",
         "overflow": 0,
         "clipped": []
       }
@@ -1461,6 +1797,36 @@
     },
     {
       "label": "desktop-dark/technical",
+      "layout": {
+        "route": "page-technical",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop-light",
+      "technical": {
+        "scenarios": [
+          {
+            "id": "recovery",
+            "text": "회복·확장 조건최근 20거래일 고점 88.71 위 종가와 이후 유지 여부를 확인합니다. 거래량이 함께 증가하면 가격과 참여가 같은 방향이라는 근거가 보강됩니다. 다시 이 가격 아래로 마감하면 회복 해석은 약해집니다."
+          },
+          {
+            "id": "range",
+            "text": "범위 안 흐름73.93~88.71 안에서 머무르면 방향보다 범위와 거래량 변화를 살펴봅니다. 고점·저점이 함께 높아지는지, 하락일 거래량이 늘어나는지가 다음 구분 기준입니다."
+          },
+          {
+            "id": "weakness",
+            "text": "약화 조건최근 20거래일 저점 73.93 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다."
+          }
+        ],
+        "volume": "거래 집중 가격대 · 일봉 추정2026-04-13~2026-10-09 · 130거래일75.89~76.857.9%78.77~79.726.2%73.98~74.945.1%일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.",
+        "zones": 3,
+        "logic": "차트를 읽는 순서와 계산 기준① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다."
+      }
+    },
+    {
+      "label": "desktop-light/technical",
       "layout": {
         "route": "page-technical",
         "overflow": 0,

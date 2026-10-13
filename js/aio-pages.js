@@ -555,9 +555,10 @@ async function loadEarningsCalendar() {
         if (snapSt) {
           snapSt.textContent = snapshot.earnings.length + '건 어닝 + ' + snapshot.ipos.length + 'IPO · '
             + fromStr.slice(5) + '~' + toStr.slice(5)
-            + ' (저장 스냅샷 ' + String(snapshot.weekStart || '—').slice(5) + '~' + String(snapshot.weekEnd || '—').slice(5) + ')'
-            + (snapshot.unconfirmed.length ? ' · 대형주 일정 미확인 ' + snapshot.unconfirmed.length + '개' : '');
-          if (snapshot.unconfirmed.length) snapSt.title = '이 기간 목록에 없는 대형주(발표가 없다는 뜻이 아님): ' + snapshot.unconfirmed.join(', ');
+            + ' (저장 스냅샷 ' + String(snapshot.weekStart || '—').slice(5) + '~' + String(snapshot.weekEnd || '—').slice(5) + ')';
+          // Most listed large caps simply do not report in a given week, so the gap list is hover context only:
+          // it lets a reader see that a name like ASML/TSM is absent from the provider window, without a weekly count.
+          snapSt.title = snapshot.unconfirmed.length ? '이 목록에 없는 대형주(이번 주 발표가 없거나 공급자 목록에서 빠졌을 수 있음 — 날짜는 추정하지 않음): ' + snapshot.unconfirmed.join(', ') : '';
         }
         return;
       }

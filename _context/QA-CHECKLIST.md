@@ -6,7 +6,7 @@ confidence: medium
 
 ## v57.51 검증 스킬 (2026-10-13)
 
-- [ ] QA-VERIFY-18: P1704~P1716: refresh-screener 다음 실행 뒤 screener.json에서 krCloseReconciliation이 reconciled 위주이고 005930 factorSessionDate가 최신 한국 세션, 8035.T currency JPY, breadth.segments.sp500 표본 약 500, 신규 종목(SPCX·SKYD·VYLR) 수신, newsStatus·newsMemoVerified 존재, margin>100 행 0, rvol20 채움을 확인한다. verify_by: push 뒤 refresh-screener 1회 실행 후 산출물 검사(로그 KR exchange close 한 줄 포함)
+- [x] QA-VERIFY-18: P1704~P1716: refresh-screener 다음 실행 뒤 screener.json에서 krCloseReconciliation이 reconciled 위주이고 005930 factorSessionDate가 최신 한국 세션, 8035.T currency JPY, breadth.segments.sp500 표본 약 500, 신규 종목(SPCX·SKYD·VYLR) 수신, newsStatus·newsMemoVerified 존재, margin>100 행 0, rvol20 채움을 확인한다. verify_by: push 뒤 refresh-screener 1회 실행 후 산출물 검사(로그 KR exchange close 한 줄 포함)
 
 ## v57.50 검증 스킬 (2026-10-13)
 
