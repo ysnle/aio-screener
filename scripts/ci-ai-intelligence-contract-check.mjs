@@ -111,7 +111,7 @@ check('answer-plan-untracked-current-number-fails', untrackedNumeric.status === 
 const harmlessOrdinal = parseAnswerPlanText('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"확인할 3가지 조건을 정리합니다","claims":[],"sections":[],"citations":[],"followUps":[]}[/AI_ANSWER_PLAN]', { currentSensitive:true });
 check('answer-plan-ordinal-is-not-a-market-number', harmlessOrdinal.status === 'valid');
 const renderedClaim = createAnswerPlan({ summary:'현재 관측', claims:[{ type:'metric', text:'VIX', value:15.2, unit:'index', asOf:'2026-08-10T12:00:00Z', source:'verified snapshot', evidenceIds:['vix:1'], status:'verified' }] });
-check('answer-plan-renderer-surfaces-verified-claims', renderAnswerPlan(renderedClaim).includes('VIX: 15.2index'));
+check('answer-plan-renderer-surfaces-verified-claims', renderAnswerPlan(renderedClaim).includes('VIX: 15.2 [verified snapshot') && !renderAnswerPlan(renderedClaim).includes('15.2index'));
 
 const causal = buildCausalAttribution({
   target: { metricId: 'SPX', direction: 'BEARISH', observedAt: '2026-07-28T12:00:00Z' },
@@ -529,6 +529,105 @@ check('fred-official-host-is-correct', read('src/ai/research/evidence.js').inclu
 check('quote-provenance-is-persisted', core.includes('observedAt: observedAt') && core.includes('fetchedAt: fetchedAt') && core.includes('marketState: provenanceOpts.marketState'));
 check('sentiment-does-not-stamp-missing-observation-now', !/raw\[field\.observedAt\]\s*\|\|\s*raw\.now/.test(read('src/data/orchestrators/sentiment.js')));
 check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.sourceUrl && tamMeta\.observedAt/.test(core) && /missingProvenance:\s*'withhold-numeric-output'/.test(core) && /출처·기준일이 검증된 시장규모가 없어 숫자를 표시하지 않습니다/.test(core));
+
+// ── v57.48 expert review (2026-10-13): #7 close-basis evidence, #13 directive gate, #19 one warning line, #4 base-currency simulation ──
+{
+  const detail = (label, condition, info) => check(condition ? label : `${label} :: ${String(info).slice(0, 900)}`, condition);
+  const { buildCloseBasisEvidence, closeBasisSubstituteFor } = await import('../src/ai/context/close-basis-evidence.js');
+  const { simulatePortfolioAddition } = await import('../src/ai/context/portfolio-simulation.js');
+  // A deterministic close history ending on the 2026-10-12 US/KRX close (the day the live answer lost its numbers).
+  const days = [];
+  for (let at = Date.parse('2025-09-01T00:00:00Z'); at <= Date.parse('2026-10-12T00:00:00Z'); at += 86400000) {
+    const day = new Date(at).getUTCDay();
+    if (day !== 0 && day !== 6) days.push(new Date(at).toISOString().slice(0, 10));
+  }
+  const history = days.map((date, index) => ({ date, spx: 6000 + index * 5, nasdaq: 20000 + index * 10, vix: 15 + (index % 7) / 10, vix3m: 18, tnx: 4.9 + (index % 9) / 100, dxy: 100, wti: 90, gold: 4000, kospi: 5900 + index, usdkrw: 1450 }));
+  history[history.length - 1] = { ...history[history.length - 1], vix: 15.21, tnx: 5.24 };
+  history[history.length - 2] = { ...history[history.length - 2], vix: 14.84, tnx: 5.244 };
+  const closeRows = buildCloseBasisEvidence({ history, credit: {}, rates: {}, now: Date.parse('2026-10-13T04:00:00Z') });
+  const vixRow = closeRows.find((row) => row.metric === 'close.vix');
+  const tnxRow = closeRows.find((row) => row.metric === 'close.us10y');
+  const tnxMove = closeRows.find((row) => row.metric === 'close.us10y.chg1d');
+  detail('#7 close-basis rows carry fixed ids, the real close date and a publishable reference status',
+    vixRow?.value === 15.21 && vixRow.asOf === '2026-10-12' && vixRow.source === 'close-basis' && vixRow.status === 'reference' && vixRow.evidenceId === 'ev-close-vix-2026-10-12'
+      && tnxRow?.value === 5.24 && tnxRow.unit === 'percent' && tnxMove?.unit === 'bp' && tnxMove.value === -0.4
+      && answerPublication.evidenceCanPublish(vixRow, Date.parse('2026-10-13T04:00:00Z')) && closeBasisSubstituteFor('^VIX', closeRows) === vixRow,
+    JSON.stringify(closeRows.slice(0, 8)));
+  // Review negative control: a basis more than two sessions behind the latest close is held (regime-board M05 parity).
+  const staleRows = buildCloseBasisEvidence({ history: history.filter((row) => row.date <= '2026-10-02'), credit: {}, rates: {}, now: Date.parse('2026-10-13T04:00:00Z') });
+  detail('#7 an old close basis publishes no close-basis evidence (same hold as the regime board)', staleRows.length === 0, String(staleRows.length));
+
+  const chatSource = read('js/aio-chat.js');
+  const coreSource = read('js/aio-core.js');
+  const orchestrator = createAIAnswerOrchestrator({ now: () => new Date('2026-10-13T04:00:00Z') });
+  const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (text, options = {}) => orchestrator.parseAnswerPlanText(text, options), renderAIAnswerPlan: (plan, options = {}) => orchestrator.renderAnswerPlan(plan, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
+  vm.runInContext(coreSource.slice(coreSource.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), coreSource.indexOf('function _aioClaimEvidenceList')), ctx);
+  vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioAIClaimEvidenceId('), chatSource.indexOf('function _aioPublicAIActionPolicyPrompt(')), ctx);
+  vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioPublicAIFormatAsOf('), chatSource.indexOf('function _aioAppendAIPublicDisclosure(')), ctx);
+  const registryStart = chatSource.indexOf('function _aioBuildAIClaimEvidenceRegistry(');
+  vm.runInContext(chatSource.slice(registryStart, chatSource.indexOf("if (typeof window !== 'undefined') {", registryStart)), ctx);
+  ctx.window._aioScreenBasisEvidence = () => closeRows;
+  const staleLiveVix = { id: 'vix-price', symbol: '^VIX', label: 'VIX', value: 15.3, source: 'live:yahoo', status: 'stale_live', evidenceId: 'ev-trading-input-vix-price-stale_live', asOf: '2026-10-12T20:15:00.000Z', closeBasisEvidenceId: 'ev-close-vix-2026-10-12' };
+  const registry = ctx._aioBuildAIClaimEvidenceRegistry(ctx._aioCollectAIClaimEvidence({ evidence: [], provenanceBundle: { rows: [staleLiveVix] } }));
+  const fromRegistry = (metric) => {
+    const match = registry.match(new RegExp(`evidenceId=(\\S+) metric=${metric.replace(/\./g, '\\.')} entity=(\\S*) value=(\\S+) unit=(\\S+) scale=(\\S+) asOf=(\\S+) source=(\\S+)`));
+    return match ? { type: 'metric', metric, entity: match[2], value: Number(match[3]), unit: match[4], scale: match[5], asOf: match[6], source: match[7], evidenceIds: [match[1]], status: 'verified', text: metric } : null;
+  };
+  const vixClaim = fromRegistry('close.vix');
+  const tnxClaim = fromRegistry('close.us10y');
+  detail('#7 the registry exposes the close rows and points a stale live row at its close substitute',
+    !!vixClaim && !!tnxClaim && /closeSubstitute=ev-close-vix-2026-10-12/.test(registry) && /status=stale_live/.test(registry), registry);
+  // The live question: "지금 VIX와 미국 10년물 금리 수준이 위험자산에 주는 의미를 기준일과 함께 짧게 설명해줘."
+  const plan = (claims) => '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '변동성은 낮지만 장기금리가 높아 위험자산의 할인율 부담이 남아 있습니다.', claims, sections: [{ title: '의미', body: '금리 부담이 이어지는 동안 변동성이 낮다는 사실만으로 위험 선호를 단정하기 어렵습니다.' }], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+  const request = { requestId: 'fixture-close-basis', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
+  const run = (claims) => ctx._aioRunAIResponsePipeline(plan(claims), { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false });
+  const bound = run([vixClaim, tnxClaim]);
+  detail('#7 VIX and the 10-year yield publish with their close date and no warning line (the live answer dropped both)',
+    bound.text.includes('VIX 종가: 15.21 [종가 기준 · 2026-10-12 종가]') && bound.text.includes('미 10년물 금리 종가: 5.24% [종가 기준 · 2026-10-12 종가]')
+      && !bound.text.includes('※') && bound.limitations.length === 0 && bound.answerPlanBindingAudit.droppedClaims.length === 0, JSON.stringify({ text: bound.text, limitations: bound.limitations, audit: bound.answerPlanBindingAudit }));
+  const staleClaim = { ...vixClaim, value: 15.3, unit: 'unknown', metric: 'vix', entity: '^VIX', source: 'live:yahoo', asOf: staleLiveVix.asOf, evidenceIds: [staleLiveVix.evidenceId] };
+  const staleOnly = run([staleClaim]);
+  detail('#7/#19 a stale live value is still withheld, and the answer opens with one Korean line (details folded)',
+    !staleOnly.text.includes('15.3') && staleOnly.text.startsWith('※ 최신 수치 확인 안 됨 — 일반 설명만') && (staleOnly.text.match(/※/g) || []).length === 1
+      && !/decision-grade|Web Research|Evidence:/.test(staleOnly.text) && staleOnly.limitationNotes.length >= 2 && staleOnly.limitations.includes('answer-plan-claim-degraded'), JSON.stringify(staleOnly));
+  const mixed = run([vixClaim, staleClaim]);
+  detail('#19 a partly confirmed answer says only part was withheld', mixed.text.startsWith('※ 일부 최신 수치 확인 안 됨 — 확인된 값만 표시') && mixed.text.includes('VIX 종가: 15.21'), mixed.text);
+  const disclosure = ctx._aioBuildAIResponseDisclosure({ evidence: bound.evidence, closeBasisDates: bound.closeBasisDates, actionGate: staleOnly.actionGate });
+  detail('#19 the folded evidence panel is Korean, names the close date and lists the detailed notes',
+    disclosure.status === '종가 기준 근거' && disclosure.asOf === '2026-10-12 종가' && /근거 상태/.test(disclosure.text) && !/Evidence:/.test(disclosure.text) && /출처나 관측 시각을 확인할 수 없는 주장/.test(disclosure.text), JSON.stringify(disclosure));
+  // Review negative control: collected close rows alone (every answer has them) must not label an answer whose
+  // numbers were all withheld as "종가 기준 근거".
+  const withheld = ctx._aioBuildAIResponseDisclosure({ evidence: staleOnly.evidence, closeBasisDates: staleOnly.closeBasisDates, actionGate: staleOnly.actionGate });
+  detail('#19 an answer with no published close-basis claim is not labelled close-basis', withheld.status === '확인 필요' && (staleOnly.closeBasisDates || []).length === 0, JSON.stringify(withheld));
+  delete ctx.window._aioScreenBasisEvidence;
+  const withoutClose = run([vixClaim, tnxClaim]);
+  detail('#7 control: without the close-basis rows the same claims are dropped', withoutClose.answerPlanBindingAudit.droppedClaims.length === 2 && !withoutClose.text.includes('15.21'), withoutClose.text);
+
+  // #13: education and attribution stay; a weight imperative, an "opportunity" call and a cross-clause negation are replaced.
+  const gate = (text) => ctx._aioApplyAIActionGate(text, {});
+  const kept = ['오닐은 매수가에서 7~8% 하락하면 손절해야 한다고 봤습니다.', '분할 매수를 권장하는 이유는 진입 시점의 오차를 줄이기 위해서입니다.', '이것은 매수 추천이 아닙니다.', '현재는 매수에 우호적이다.', '손절가 150달러', '매수 기회인지 판단하려면 거래량을 함께 봅니다.'];
+  const replaced = ['지금 비중을 늘리세요.', '매수 기회로 보입니다.', '지금 매수하세요, 이것은 지시가 아닙니다.', '반도체 비중을 줄여야 합니다.', '지금은 매수해야 한다고 봅니다.', 'NVDA $100 매수 추천', 'MSFT 비중 20% 확대'];
+  detail('#13 directive gate: attribution/reason/negated sentences are kept',
+    kept.every((text) => gate(text).text === text), JSON.stringify(kept.map(gate)));
+  detail('#13 directive gate: weight, opportunity and cross-clause negation directives are replaced',
+    replaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify(replaced.map(gate)));
+
+  // #4: base-currency what-if.
+  const krwUsd = { currencyState: 'mixed-without-conversion', rows: [{ symbol: 'AAPL', value: 1000, currency: 'USD' }, { symbol: '005930.KS', value: 1000000, currency: 'KRW' }] };
+  const converted = { currencyState: 'converted-with-declared-rates', baseCurrency: 'KRW', rows: [{ symbol: 'AAPL', value: 1400000, currency: 'KRW' }, { symbol: '005930.KS', value: 1000000, currency: 'KRW' }] };
+  const positions = [{ ticker: 'AAPL', qty: 5 }, { ticker: '005930.KS', qty: 10 }];
+  const heldMix = simulatePortfolioAddition({ query: 'AAPL 10% 추가하면?', target: 'AAPL', positions, surface: krwUsd });
+  const krw = simulatePortfolioAddition({ query: 'AAPL 10% 추가하면?', target: 'AAPL', positions, surface: converted });
+  const foreignNew = simulatePortfolioAddition({ query: 'NVDA 10% 추가', target: 'NVDA', positions, surface: converted, targetQuote: { price: 180, currency: 'USD' } });
+  detail('#4 the X% simulation uses base-currency values, holds an unconverted mix and labels the base currency',
+    heldMix.available === false && /환율이 선언되지 않아/.test(heldMix.reason)
+      && krw.available === true && krw.currency === 'KRW' && krw.currencySymbol === '₩' && krw.currentTotal === 2400000 && krw.weights.find((row) => row.symbol === 'AAPL').currentPct === 58.33
+      && foreignNew.available === false && /기준 통화\(KRW\)와 달라/.test(foreignNew.reason)
+      && !/현재 총 가치: \$'/.test(chatSource) && /_pfSim\.currencySymbol/.test(chatSource), JSON.stringify({ heldMix, krw, foreignNew }));
+  // #20: portfolio and research pages receive the close-basis block; live values carry an observation time.
+  detail('#20 portfolio/research contexts get the screen basis and live values carry their observation time',
+    /home\|briefing\|signal\|breadth\|sentiment\|macro\|fxbond\|themes\|market-news\|portfolio\|principles\|atlas\|masters/.test(chatSource) && /실시간 관측 ' \+ _aioPublicAIFormatAsOf/.test(chatSource), 'source');
+}
 
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);

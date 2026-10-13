@@ -91,8 +91,8 @@ function listBlock(doc, title, items) {
 function scenarioSection(doc, model, outlook, openIds = new Set()) {
   const section = el(doc, 'section', null, 'regime-scenarios');
   section.dataset.aioRegimeScenarios = 'native';
-  section.append(el(doc, 'h2', '앞으로의 세 가지 흐름과 개연성', 'briefing-h2'),
-    el(doc, 'p', `${model.asOf || '기준일 미확인'} 완료 종가 기준 · 개연성은 현재 충족된 조건 수로 매긴 등급이며 보정된 확률이 아닙니다. 특정 종목의 매매 시점·가격을 알려 주지 않고, 흐름별로 유리할 가능성이 큰 선택과 기회비용을 설명합니다.`, 'regime-scenario-basis'));
+  section.append(el(doc, 'h2', '세 가지 흐름과 현재 조건 부합도', 'briefing-h2'),
+    el(doc, 'p', `${model.asOf || '기준일 미확인'} 완료 종가 기준 · 부합도는 지금 맞는 조건 수이며 앞날의 확률이 아닙니다. 흐름마다 확인할 것과 반대 근거를 함께 둡니다.`, 'regime-scenario-basis'));
   if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold')); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
   if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
@@ -105,7 +105,7 @@ function scenarioSection(doc, model, outlook, openIds = new Set()) {
     if (view) card.dataset.likelihood = view.likelihood;
     if (outlook?.leadId === scenario.id) card.dataset.lead = 'true';
     const head = el(doc, 'div', null, 'regime-scenario-head');
-    head.append(el(doc, 'h3', scenario.title), el(doc, 'span', view ? `개연성 ${view.likelihood} · 조건 ${view.met}/${view.total}` : scenario.status, 'regime-scenario-status'));
+    head.append(el(doc, 'h3', scenario.title), el(doc, 'span', view ? view.fit : scenario.status, 'regime-scenario-status'));
     card.append(head);
     if (view) {
       card.append(el(doc, 'p', view.posture, 'regime-scenario-reading'));
@@ -115,7 +115,7 @@ function scenarioSection(doc, model, outlook, openIds = new Set()) {
     more.open = openIds.has(scenario.id);
     more.append(el(doc, 'summary', '확인할 것 · 조심할 것 · 넘겨도 되는 것'));
     if (view) {
-      more.append(el(doc, 'p', `개연성 근거: ${view.basis}`, 'regime-scenario-basis'));
+      more.append(el(doc, 'p', `조건 근거: ${view.basis}`, 'regime-scenario-basis'));
       more.append(listBlock(doc, '확인할 것', view.check), listBlock(doc, '조심할 것', view.caution), listBlock(doc, '넘겨도 되는 것', view.ignore));
     }
     more.append(el(doc, 'h4', '이 흐름의 뜻'), el(doc, 'p', scenario.interpretation));

@@ -144,7 +144,8 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
     return last ? { id, title, scope, series, asOf: last.date, last: last.value, change, unit: '지수 pt',
       stale: !!completed && last.date !== completed.date,
       read: change == null ? '1개월 변화를 계산할 완료 세션 기록이 부족합니다.' : `최근 21개 한국 거래일 ${change >= 0 ? '+' : ''}${change.toFixed(1)}%. 이 지수 안 종목들이 같은 방향인지 한국 시장 폭과 함께 확인합니다.`,
-      observe: '미국장 기준일과 분리해 읽습니다. 지수 상승이 참여 종목 확대로 이어지는지 다음 한국 종가에서 확인합니다.' } : null;
+      // T20 (expert review 2026-10-13): the follow-up names the direction the index actually moved (-8.7% read "지수 상승이…").
+      observe: `미국장 기준일과 분리해 읽습니다. ${change == null ? '지수 움직임이 참여 종목의 같은 방향 움직임으로 이어지는지' : change >= 0 ? '지수 상승이 참여 종목 확대로 이어지는지' : '지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지'} 다음 한국 종가에서 확인합니다.` } : null;
   }).filter(Boolean);
   const fx = buildCloseSeries(input.history, 'usdkrw', { through }).filter(point => {
     const weekday = new Date(`${point.date}T12:00:00Z`).getUTCDay(); return weekday !== 0 && weekday !== 6;
@@ -153,7 +154,8 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
   const fxChange = lastFx && priorFx?.value > 0 ? (lastFx.value / priorFx.value - 1) * 100 : null;
   const cards = [...indices];
   if (lastFx) cards.push({ id: 'usdkrw', title: '원 / 달러', scope: '외환 관측일 · 뉴욕 날짜', series: fx, asOf: lastFx.date, last: lastFx.value, change: fxChange, unit: 'KRW / USD', stale: false,
-    read: fxChange == null ? '방향을 계산할 외환 관측 기록이 부족합니다.' : `21개 외환 관측 ${fxChange >= 0 ? '+' : ''}${fxChange.toFixed(1)}%. ${fxChange > 0 ? '같은 달러에 더 많은 원화가 필요해 원화 약세 방향입니다.' : fxChange < 0 ? '같은 달러에 필요한 원화가 줄어 원화 강세 방향입니다.' : '같은 구간의 변화가 없습니다.'} 외국인 수급이나 수출 실적의 실제 변화는 별도 자료로 확인합니다.`,
+    // T20: a move inside ±0.5% is 보합권, not a currency direction.
+    read: fxChange == null ? '방향을 계산할 외환 관측 기록이 부족합니다.' : `21개 외환 관측 ${fxChange >= 0 ? '+' : ''}${fxChange.toFixed(1)}%. ${Math.abs(fxChange) < 0.5 ? '±0.5% 안의 움직임이라 원화 방향을 말하기 어려운 보합권입니다.' : fxChange > 0 ? '같은 달러에 더 많은 원화가 필요해 원화 약세 방향입니다.' : '같은 달러에 필요한 원화가 줄어 원화 강세 방향입니다.'} 외국인 수급이나 수출 실적의 실제 변화는 별도 자료로 확인합니다.`,
     observe: '환율 움직임과 한국 주가를 같은 날짜·기간으로 확인합니다. 서로 관측일이 다르면 직접적인 인과나 상대강도로 단정하지 않습니다.' });
   const dates = indices.map(item => item.asOf);
   return { available: cards.length > 0, cards, asOf: dates.length ? dates.sort().at(-1) : null,

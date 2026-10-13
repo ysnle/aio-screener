@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-portfolio-vault-evidence.v1",
-  "observedAt": "2026-10-13T04:02:01.200Z",
-  "appRevision": "v57.48",
-  "gitHead": "e4c9cc9081d1af2c65b25f490782f671bfc3d160",
+  "observedAt": "2026-10-13T06:06:38.368Z",
+  "appRevision": "v57.49",
+  "gitHead": "63b09b71c0a222a94603c67c5ebe749df58fb753",
   "checks": [
     {
       "id": "P1277 evidence revision bound",
@@ -112,32 +112,32 @@
     {
       "id": "PFE2-17 declared_currency_and_performance_render (P1188/P1191/P1458)",
       "ok": true,
-      "detail": "{\"failed\":[],\"currencyNote\":\"통화 USD\",\"ledgerHtml\":\"<b>실제 계좌 성과 TWR +10.00% · MWR +8.01%</b> — USD · end-of-period · 1기간 2026-01-01~2027-01-01 (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)\"}"
+      "detail": "{\"failed\":[],\"currencyNote\":\"통화 USD\",\"ledgerHtml\":\"<b>실제 계좌 성과 TWR(기간 누적) +10.00% · MWR(연율) +8.01%</b> — USD · end-of-period · 1기간 2026-01-01~2027-01-01 (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)\"}"
     },
     {
       "id": "PFE2-18 strategy_path_and_currency_holds_render (P1193/P1181)",
       "ok": true,
-      "detail": "{\"strategyHtml\":\"<div style=\\\"font-size:10px;color:var(--text-muted);line-height:1.6;padding:6px 8px;margin-bottom:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;\\\">경로 fixed_target_weight_strategy · rebalance monthly · 분모 invested_sleeve(주식 부분) · RF 입력 · 표본 39일 · snapshot pfcomp-fbbe47a7677d3991 @ 2026-10-13T04:02:18.871Z · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%<br>현금 보류: 전략 경로의 계좌 범위 미선언 — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).</div><div style=\\\"display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px;margin-bottom:14px;\\\"><div style=\\\"background:var(--s\",\"mixedNote\":\"통화 혼합(USD/KRW) — 환산 없어 합계 보류 · 원가/시세 불일치 — P&L 보류\",\"declaredPath\":\"current_composition_retrospective\"}"
+      "detail": "{\"strategyHtml\":\"<div style=\\\"font-size:10px;color:var(--text-muted);line-height:1.6;padding:6px 8px;margin-bottom:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;\\\" data-exposure-path=\\\"fixed_target_weight_strategy\\\" data-risk-scope=\\\"invested_sleeve\\\" data-path-lineage=\\\"fixed-target-weight-strategy\\\">고정 목표비중 전략 · 분모 주식 부분 · RF 입력 · 표본 39일 · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%<br>현금 보류: 전략 경로의 계좌 범위 미선언 — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).<details><summary>계산 식별자</summary>path fixed_target_weight_strategy · rebalance monthly · scope invested_sleeve · lineage fixed-target-\",\"mixedNote\":\"통화 혼합(USD/KRW) — 환산 없어 합계 보류 · 원가/시세 불일치 — P&L 보류\",\"declaredPath\":\"current_composition_retrospective\"}"
     },
     {
       "id": "PFE2-19 declared_fx_leg_converts_and_reverts (P1194)",
       "ok": true,
-      "detail": "{\"stored\":[{\"from\":\"USD\",\"to\":\"KRW\",\"rate\":1350,\"observedAt\":\"2026-10-13T00:00:00.000Z\",\"source\":\"declared-user\"}],\"listed\":1,\"convertedNote\":\"통화 환산(선언 rate) → USD\",\"heldNote\":\"통화 혼합(USD/KRW) — 환산 없어 합계 보류\",\"removedOk\":true,\"remaining\":0}"
+      "detail": "{\"stored\":[{\"from\":\"USD\",\"to\":\"KRW\",\"rate\":1350,\"observedAt\":\"2026-10-13T00:00:00.000Z\",\"source\":\"declared-user\"}],\"listed\":1,\"convertedNote\":\"통화 환산(선언 rate) → USD · 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외\",\"heldNote\":\"통화 혼합(USD/KRW) — 환산 없어 합계 보류\",\"removedOk\":true,\"remaining\":0}"
     },
     {
       "id": "PFE2-20 declared_leg_enables_cost_axis_pnl (P1196)",
       "ok": true,
-      "detail": "{\"held\":{\"note\":\"통화 USD · 원가/시세 불일치 — P&L 보류\",\"pnl\":\"—\"},\"converted\":{\"note\":\"통화 USD · 원가/시세 불일치 — 선언 rate로 환산\",\"pnl\":\"+$1,889\"},\"legs\":1}"
+      "detail": "{\"held\":{\"note\":\"통화 USD · 원가/시세 불일치 — P&L 보류\",\"pnl\":\"—\"},\"converted\":{\"note\":\"통화 USD · 원가/시세 불일치 — 선언 rate로 환산 · 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외\",\"pnl\":\"+$1,889\"},\"legs\":1}"
     },
     {
       "id": "PFE2-21 undeclared_policy_is_never_invented (P1198)",
       "ok": true,
-      "detail": "{\"retrospective\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      경로 current_composition_retrospective · rebalance monthly(미사용) · 분모 whole_account(계좌 전체) · RF 입력 · 표본 39일 · snapshot pfcomp-5a1ba1059da9d3f7 @ 2026-10-13T04:02:24.383Z · legacy-risk-path · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용1일 VaR (95%) · 계좌 전체-0.52%과거 표본 95% 손실 경계(초과 가능) · 표본 39일1일 VaR (99%) · 계좌 전\",\"undeclared\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      위험 추정 입력을 확정하지 못해 보류합니다: rebalance-policy-required.\\n      \\n      실제 계좌 성과 TWR +10.00% · MWR +8.01% — USD · end-of-period · 1기간 2026-01-01~2027-01-01 (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)\\n      \\n      익스포저 · 집중도기타100%상위3 집중100%평균 상관0.58평균 퀀트 랭크—종목/섹터 수1/1기타 섹터 100% 집중(>40%) · 상위 3종목 100% 집중(>60%)평가\",\"declared\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      경로 fixed_target_weight_strategy · rebalance monthly · 분모 invested_sleeve(주식 부분) · RF 입력 · 표본 39일 · snapshot pfcomp-d8808b9cf3509faa @ 2026-10-13T04:02:25.857Z · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%현금 보류: 전략 경로의 계좌 범위 미선언 — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).1일 VaR (95%) · 주식 부분-0.56%과거\"}"
+      "detail": "{\"retrospective\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-risk-path · snapshot pfcomp-9273bef558af3307 @ 2026-10-13T06:07:00.915Z1일 VaR (95%) · 계좌 전체-0.52%\",\"undeclared\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      위험 추정 입력을 확정하지 못해 보류합니다: rebalance-policy-required.\\n      \\n      실제 계좌 성과 TWR(기간 누적) +10.00% · MWR(연율) +8.01% — USD · end-of-period · 1기간 2026-01-01~2027-01-01 (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)\\n      \\n      익스포저 · 집중도기타100%상위3 집중100%평균 상관0.58평균 퀀트 랭크—종목/섹터 수1/1기타 섹터 100% 집중(>40%) · 상위 3종목 100%\",\"declared\":\"\\n      \\n        \\n          리스크 분석\\n          VaR · Sharpe · MDD · 상관계수\\n        \\n        ⟳ 계산\\n      \\n      고정 목표비중 전략 · 분모 주식 부분 · RF 입력 · 표본 39일 · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%현금 보류: 전략 경로의 계좌 범위 미선언 — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope invested_sleeve · lineage fixed-target-weight-strategy · snapshot pfcomp-8c80ae4\"}"
     },
     {
       "id": "PFE2-22 strategy_cash_share_and_inert_policy_ux (P1200/P1201)",
       "ok": true,
-      "detail": "{\"partial\":\"경로 fixed_target_weight_strategy · rebalance monthly · 분모 whole_account(계좌 전체) · RF 입력 · 표본 39일 · snapshot pfcomp-f2203abe30820464 @ 2026-10-13T04:02:26.764Z · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 현금 20.0% · 목표 AAA 40.0%/BBB 40.0%1일 VaR (95%) · 계좌 전체-0.45%과거 표본 95% 손실 경계(초과 가능) · 표본 39일1일 VaR (99%) · 계좌 전체-0.4\",\"over\":\"위험 추정 입력을 확정하지 못해 보류합니다: strategy-target-weights-invalid.\",\"retrospective\":{\"panel\":\"경로 current_composition_retrospective · rebalance monthly(미사용) · 분모 whole_account(계좌 전체) · RF 입력 · 표본 39일 · snapshot pfcomp-4df962a459c35cca @ 2026-10-13T04:02:28.254Z · legacy-risk-path · 실제 계좌 이력 아님 \",\"disabled\":true}}"
+      "detail": "{\"partial\":\"고정 목표비중 전략 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 고정 목표비중 전략 · 실제 계좌 이력 아님 · 현금 20.0% · 목표 AAA 40.0%/BBB 40.0%계산 식별자path fixed_target_weight_strategy · rebalance monthly · scope whole_account · lineage fixed-target-weight-strategy · snapshot pfcomp-ceed05901bc85782 @ 2026-10-13T06:07:03.311Z1일 VaR (95%) · 계좌\",\"over\":\"위험 추정 입력을 확정하지 못해 보류합니다: strategy-target-weights-invalid.\",\"retrospective\":{\"panel\":\"현재 구성을 표본 기간에 그대로 적용한 소급 계산 · 분모 계좌 전체 · RF 입력 · 표본 39일 · 실제 계좌 이력 아님 · 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective · rebalance monthly(미사용) · scope whole_account · lineage legacy-ri\",\"disabled\":true}}"
     },
     {
       "id": "PFE2-23 var_certification_render_states (P1203)",

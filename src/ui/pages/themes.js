@@ -18,6 +18,7 @@ import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js'
 import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
+import { rrgAxisDomain } from '../../domain/themes/rrg.js';
 import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
 import { renderNextSteps } from '../components/page-flow.js';
@@ -83,10 +84,10 @@ function renderRRGStatus({ documentRef, root, store, route }) {
     status.style.color = 'var(--text-muted)';
     return;
   }
-  const healthRatio = (counts.Leading + counts.Improving) / total;
-  const health = healthRatio >= 0.6 ? '건강한 로테이션' : healthRatio <= 0.3 ? '약세 주도' : '혼재 (방향 탐색 중)';
-  status.textContent = `선도:${counts.Leading} 개선:${counts.Improving} 약화:${counts.Weakening} 후행:${counts.Lagging} · ${health}`;
-  status.style.color = healthRatio >= 0.6 ? 'var(--data-green)' : healthRatio <= 0.3 ? 'var(--data-red)' : 'var(--text-dim)';
+  // Expert review M08: no grade or risk colour from the quadrant counts. The benchmark (SPY) is cap-weighted, so a
+  // few mega-caps lifting the index put most sectors below 100 without any sector "weakening" on its own.
+  status.textContent = `선도 ${counts.Leading} · 개선 ${counts.Improving} · 약화 ${counts.Weakening} · 후행 ${counts.Lagging} — 기준인 SPY가 시가총액 가중이라, 소수 대형주가 지수를 끌면 많은 섹터가 100 아래에 놓입니다.`;
+  status.style.color = 'var(--text-dim)';
 }
 
 function renderRRGCanvas({ documentRef, root, store, route }) {
@@ -105,66 +106,90 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   }
   const context = canvas.getContext('2d');
   if (!context) return;
-  const centerX = width / 2;
-  const centerY = height / 2;
   const palette = chartPalette(root);
+  // Expert review M19: the point colours are the legend's own CSS tokens, so the 개선 dot matches its legend entry
+  // and every colour follows the dark theme (the old hard-coded ink vanished on the dark canvas).
+  let style = null;
+  try { style = root.getComputedStyle(documentRef.body); } catch (_) { style = null; }
+  const token = (key, fallback) => style?.getPropertyValue?.(key)?.trim() || fallback;
+  const colors = { Leading: token('--data-green', '#22754c'), Improving: token('--data-cyan', '#211d16'), Weakening: token('--data-amber', '#a06a12'), Lagging: token('--data-red', '#b13a30') };
+  const muted = token('--text-muted', '#8a8271');
+  // M09: axes span the plotted points (and the 100 baseline) instead of clipping at ±3.5.
+  const domain = rrgAxisDomain(validItems);
+  const plot = { left: 46, right: width - 14, top: 30, bottom: height - 40 };
+  const px = (value) => plot.left + (value - domain.x.min) / (domain.x.max - domain.x.min) * (plot.right - plot.left);
+  const py = (value) => plot.bottom - (value - domain.y.min) / (domain.y.max - domain.y.min) * (plot.bottom - plot.top);
+  const baseX = px(100);
+  const baseY = py(100);
   context.clearRect(0, 0, width, height);
-  context.fillStyle = 'rgba(34,117,76,0.08)'; context.fillRect(centerX, 0, width / 2, centerY);
-  context.fillStyle = 'rgba(33,29,22,0.08)'; context.fillRect(0, 0, centerX, centerY);
-  context.fillStyle = 'rgba(33,29,22,0.06)'; context.fillRect(centerX, centerY, width / 2, height / 2);
-  context.fillStyle = 'rgba(177,58,48,0.06)'; context.fillRect(0, centerY, centerX, height / 2);
+  const shade = (color, x0, y0, x1, y1) => { context.globalAlpha = 0.07; context.fillStyle = color; context.fillRect(x0, y0, x1 - x0, y1 - y0); context.globalAlpha = 1; };
+  shade(colors.Leading, baseX, plot.top, plot.right, baseY);
+  shade(colors.Improving, plot.left, plot.top, baseX, baseY);
+  shade(colors.Weakening, baseX, baseY, plot.right, plot.bottom);
+  shade(colors.Lagging, plot.left, baseY, baseX, plot.bottom);
   context.strokeStyle = palette.grid;
   context.lineWidth = 1;
+  context.font = '10px Inter, sans-serif';
+  context.fillStyle = palette.text;
+  context.textAlign = 'center';
+  for (const tick of domain.x.ticks) {
+    const x = px(tick);
+    context.beginPath(); context.moveTo(x, plot.bottom); context.lineTo(x, plot.bottom + 4); context.stroke();
+    context.fillText(String(tick), x, plot.bottom + 15);
+  }
+  context.textAlign = 'right';
+  for (const tick of domain.y.ticks) {
+    const y = py(tick);
+    context.beginPath(); context.moveTo(plot.left - 4, y); context.lineTo(plot.left, y); context.stroke();
+    context.fillText(String(tick), plot.left - 6, y + 3);
+  }
+  context.strokeRect(plot.left, plot.top, plot.right - plot.left, plot.bottom - plot.top);
   context.setLineDash([4, 4]);
-  context.beginPath(); context.moveTo(centerX, 0); context.lineTo(centerX, height); context.stroke();
-  context.beginPath(); context.moveTo(0, centerY); context.lineTo(width, centerY); context.stroke();
+  context.beginPath(); context.moveTo(baseX, plot.top); context.lineTo(baseX, plot.bottom); context.stroke();
+  context.beginPath(); context.moveTo(plot.left, baseY); context.lineTo(plot.right, baseY); context.stroke();
   context.setLineDash([]);
   context.font = '11px Inter, sans-serif';
   context.textAlign = 'center';
-  context.fillStyle = palette.text;
-  context.fillText('RS-Ratio →', centerX, height - 8);
+  context.fillText('RS-Ratio (100 = SPY와 같음) →', (plot.left + plot.right) / 2, height - 6);
   context.save();
-  context.translate(16, centerY);
+  context.translate(11, (plot.top + plot.bottom) / 2);
   context.rotate(-Math.PI / 2);
   context.fillText('RS-Momentum ↑', 0, 0);
   context.restore();
   context.font = 'bold 12px Inter, sans-serif';
-  context.globalAlpha = 0.75;
-  context.fillStyle = '#22754c'; context.fillText('선도 · 강도↑ 모멘텀↑', width * 3 / 4, 22);
-  context.fillStyle = palette.text; context.fillText('개선 · 강도↓ 모멘텀↑', width / 4, 22);
-  context.fillStyle = palette.text; context.fillText('약화 · 강도↑ 모멘텀↓', width * 3 / 4, height - 14);
-  context.fillStyle = '#b13a30'; context.fillText('후행 · 강도↓ 모멘텀↓', width / 4, height - 14);
-  context.globalAlpha = 1;
+  context.textAlign = 'right'; context.fillStyle = colors.Leading; context.fillText('선도', plot.right - 6, plot.top + 14);
+  context.fillStyle = colors.Weakening; context.fillText('약화', plot.right - 6, plot.bottom - 6);
+  context.textAlign = 'left'; context.fillStyle = colors.Improving; context.fillText('개선', plot.left + 6, plot.top + 14);
+  context.fillStyle = colors.Lagging; context.fillText('후행', plot.left + 6, plot.bottom - 6);
+  context.textAlign = 'center';
   if (!validItems.length) {
-    context.fillStyle = '#8a8271';
+    context.fillStyle = muted;
     context.font = '12px Inter, sans-serif';
-    context.fillText('상대강도·모멘텀 데이터 수신 대기', centerX, centerY);
+    context.fillText('상대강도·모멘텀 데이터 수신 대기', (plot.left + plot.right) / 2, (plot.top + plot.bottom) / 2);
     return;
   }
-  const colors = { Leading: '#22754c', Improving: '#211d16', Weakening: '#a06a12', Lagging: '#b13a30' };
+  const placed = [];
   validItems.forEach((item) => {
-    const xNorm = Math.max(-0.95, Math.min(0.95, (item.rsRatio - 100) / 3.5));
-    const yNorm = Math.max(-0.95, Math.min(0.95, (item.rsMomentum - 100) / 3.5));
-    const x = Math.max(25, Math.min(width - 25, centerX + xNorm * (width / 2 - 40)));
-    const y = Math.max(25, Math.min(height - 25, centerY - yNorm * (height / 2 - 40)));
-    const color = colors[item.quadrant] || '#8a8271';
+    const x = px(item.rsRatio);
+    const y = py(item.rsMomentum);
+    const color = colors[item.quadrant] || muted;
     context.beginPath();
-    context.arc(x, y, 14, 0, Math.PI * 2);
-    context.fillStyle = item.quadrant === 'Lagging' ? 'rgba(177,58,48,0.3)' : 'rgba(33,29,22,0.18)';
-    context.fill();
-    context.beginPath();
-    context.arc(x, y, 7, 0, Math.PI * 2);
+    context.arc(x, y, 6, 0, Math.PI * 2);
     context.fillStyle = color;
     context.fill();
-    context.strokeStyle = 'rgba(0,0,0,0.4)';
+    context.strokeStyle = palette.grid;
     context.stroke();
+    // Labels that would land on an earlier one move up a line, so close neighbours stay readable.
+    let labelY = y - 9;
+    while (placed.some((spot) => Math.abs(spot.x - x) < 34 && Math.abs(spot.y - labelY) < 11)) labelY -= 11;
+    placed.push({ x, y: labelY });
     context.font = 'bold 11px system-ui';
     context.fillStyle = color;
-    context.fillText(String(item.symbol || item.id || ''), x, y - 9);
-    if (activeView(root) !== 'all') {
-      context.font = '11px system-ui';
-      context.fillStyle = '#8a8271';
-      context.fillText(String(item.label || ''), x, y + 14);
+    context.fillText(String(item.symbol || item.id || ''), x, labelY);
+    if (activeView(root) !== 'all' && labelY === y - 9) {
+      context.font = '10px system-ui';
+      context.fillStyle = muted;
+      context.fillText(String(item.label || ''), x, y + 16);
     }
   });
 }
@@ -193,8 +218,8 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
     pill.textContent = `섹터 회전 대기 · ${viewLabel} ${items.length}개 중 ${total}개 판정`; // P1591 (T01)
     return;
   }
-  const riskOn = counts.Leading + counts.Improving >= counts.Weakening + counts.Lagging;
-  pill.className = `status-pill ${riskOn ? 'sp-risk-on' : 'sp-risk-off'}`;
+  // Expert review M08: the split is a count, not a risk-on/off grade — one neutral pill colour.
+  pill.className = 'status-pill sp-neutral';
   // P1352: quadrant counts describe relative strength, not sector identity or the business cycle.
   pill.textContent = `${viewLabel} 상대강도 · 선도·개선 ${counts.Leading + counts.Improving}/${total} · 약화·후행 ${counts.Weakening + counts.Lagging}/${total}`;
 }
@@ -311,7 +336,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     const track = documentRef.createElement('span');
     track.style.cssText = 'flex:1;display:flex;align-items:center;position:relative;min-width:40px;height:12px;';
     const zero = documentRef.createElement('span');
-    zero.style.cssText = 'position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(33,29,22,0.1);';
+    zero.style.cssText = 'position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);';
     track.appendChild(zero);
     if (row.pct != null) {
       const bar = documentRef.createElement('span');

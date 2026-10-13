@@ -1,7 +1,7 @@
 // P1432 (stage 5): the 오늘 daily loop — what changed since the last session, what happened to my
 // names, what is scheduled next and which news is about my names — right after the market verdict.
 import { buildDailyChanges, buildMyNames } from '../../domain/briefing/daily-diff.js';
-import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
+import { buildBriefingSchedule, sp500NameMap } from '../../domain/briefing/schedule.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderSectorMoves } from './sector-moves.js';
 import { emptyState } from './empty-state.js';
@@ -72,14 +72,36 @@ function renderMyNames(doc, host, root, store) {
   return model;
 }
 
+// T16 (expert review 2026-10-13): the home schedule passed names: {} so every earnings row was filtered out, and it
+// never loaded the calendar. It now uses the briefing's S&P 500 name list and requests the calendar once itself.
+function homeNames(root) {
+  if (root._aioSp500Names) return root._aioSp500Names;
+  const names = sp500NameMap(root.SCREENER_DB);
+  if (Object.keys(names).length) root._aioSp500Names = names;
+  return names;
+}
+
+function requestEarnings(doc, host, root) {
+  const nowMs = Date.now();
+  if (root._aioEarningsSnapshot || typeof root._fetchEarningsCalendarSnapshot !== 'function' || root._aioBriefingEarningsRequested || nowMs - (Number(root._aioBriefingEarningsRequestedAt) || 0) < 60000) return;
+  root._aioBriefingEarningsRequested = true;
+  root._aioBriefingEarningsRequestedAt = nowMs;
+  Promise.resolve(root._fetchEarningsCalendarSnapshot()).then((snap) => { if (snap && !root._aioEarningsSnapshot) root._aioEarningsSnapshot = snap; }).catch(() => {}).finally(() => {
+    root._aioBriefingEarningsRequested = false;
+    if (root._aioEarningsSnapshot && host.isConnected !== false && doc.getElementById('page-home')?.classList?.contains('active')) renderSchedule(doc, host, root);
+  });
+}
+
 function renderSchedule(doc, host, root) {
+  requestEarnings(doc, host, root);
   const schedule = buildBriefingSchedule({
     fomcDecisions: Array.isArray(root.AIO_MACRO_OFFICIAL_SCHEDULES?.['us-fomc']) ? root.AIO_MACRO_OFFICIAL_SCHEDULES['us-fomc'] : [],
     releases: root.AIO_MACRO_CALENDAR?.releases || {},
     snapshot: root.DATA_SNAPSHOT || {},
     policyRange: root.AIO_EVENT_FRESHNESS_REGISTRY?.fomc?.policyRange || null,
     earnings: root._aioEarningsSnapshot?.earnings || [],
-    names: {},
+    earningsMeta: root._aioEarningsSnapshot || {},
+    names: homeNames(root),
     nowMs: Date.now(),
     days: 3,
     maxEarnings: 3
@@ -91,6 +113,7 @@ function renderSchedule(doc, host, root) {
   for (const row of schedule.slice(0, 5)) {
     const li = el(doc, 'li', null, `daily-event${row.today ? ' is-today' : ''}`);
     li.append(el(doc, 'span', row.when, 'daily-event-when'), el(doc, 'span', row.label, 'daily-event-label'));
+    if (row.sourceTitle) li.title = row.sourceTitle;
     if (row.why) li.append(el(doc, 'span', row.why, 'daily-event-why'));
     list.append(li);
   }

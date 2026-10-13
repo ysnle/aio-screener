@@ -18,7 +18,7 @@ function trendState(row) {
 }
 export const TREND_LABEL = Object.freeze({ up: '상승 추세', pullback: '추세 속 조정', rebound: '장기 추세 아래 반등', down: '하락 추세' });
 
-export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, marketReturnFor = null, usdkrwReturnPct = null, rotation = {}, regime = null } = {}) {
+export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, marketReturnFor = null, usdkrwReturnPct = null, usdkrwAsOf, rotation = {}, regime = null } = {}) {
   // P1449: like the checks panel, this read refuses sums it cannot honestly stand behind.
   // A mixed surface without declared FX legs holds only local-unit values — summing them is
   // the same fabrication the surface already refuses (P1175), while an undeclared-single
@@ -93,7 +93,9 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     baseCurrency: surface?.baseCurrency || null,
     rowFor: (symbol) => (symbol === undefined ? null : bySymbol.get(String(symbol).toUpperCase()) || null),
     marketReturnFor: typeof marketReturnFor === 'function' ? marketReturnFor : typeof benchmarkFor === 'function' ? benchmarkFor : () => benchmark,
-    usdkrwReturnPct
+    usdkrwReturnPct,
+    usdkrwAsOf,
+    holdingsValue: total // #10: the whole book, so held-out names do not inflate the cash share
   });
   const book3 = attribution.available ? attribution.totalPct : null;
   const bench3 = attribution.available ? attribution.blendedPct : null;
@@ -119,4 +121,26 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   next.push({ route: 'themes', label: '테마 · 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });
   next.push({ route: 'signal', label: '시장 상태', why: '부담 축이 무엇이고 무엇이 바뀌면 완화되는지' });
   return { available: true, total, headline, points, trendMix, sectorMix, attribution, excluded, excludedValue, containedPct: trendContainedPct, next };
+}
+
+// v57.48 expert review #12: what the portfolio AI request may carry — ticker, sector, weight and return
+// only (no quantity, cost, amount or memo), measured on the surface's base-currency values so a won and a
+// dollar holding are weighed in one unit. The base currency and the valuation date travel with the rows.
+export function portfolioRowsForAI(surface, { sectorOf = () => null } = {}) {
+  if (!surface || surface.currencyState === 'mixed-without-conversion') return { available: false, reason: 'currency-unconverted', rows: [] };
+  const total = finite(surface.totalAssets);
+  const costComparable = surface.costCurrencyState !== 'cost-price-mismatch-held' && !(surface.conversion?.costHeld?.length);
+  const round1 = (value) => Math.round(value * 10) / 10;
+  const rows = (Array.isArray(surface.rows) ? surface.rows : []).filter((row) => row?.symbol).map((row) => {
+    const value = finite(row.value);
+    const cost = finite(row.cost);
+    return {
+      ticker: String(row.symbol).toUpperCase().slice(0, 16),
+      sector: String(sectorOf(row.symbol) || row.sector || '미분류').slice(0, 48),
+      allocationPct: value != null && total > 0 ? round1(value / total * 100) : null,
+      returnPct: costComparable && value != null && cost > 0 ? round1((value - cost) / cost * 100) : null
+    };
+  });
+  const asOf = /^\d{4}-\d{2}-\d{2}/.test(String(surface.observedAt || '')) ? String(surface.observedAt).slice(0, 10) : null;
+  return { available: true, baseCurrency: surface.baseCurrency || null, currencyState: surface.currencyState || null, asOf, cashPct: finite(surface.cashPct) == null ? null : round1(surface.cashPct), rows };
 }

@@ -7,6 +7,8 @@ import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../compone
 import { installStockChart } from '../components/stock-chart.js';
 import { renderDailyLoop } from '../components/daily-loop.js';
 import { renderKoreaParticipation } from '../components/korea-participation.js';
+import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
+import { fearGreedBand } from '../../domain/sentiment/metrics.js';
 
 function finite(value) {
   if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
@@ -32,21 +34,27 @@ function setText(documentRef, id, value, color = null) {
 // P1392: the score hero, adjustment rows and home score summary were retired; the 시장 상태
 // board and the home regime card are rendered by ../components/market-regime.js.
 
-function renderHomeFearGreed({ documentRef, sentimentValues }) {
+// T09/T11 (expert review 2026-10-13): the home score was the intraday value beside a close-based '전일 대비', its label
+// banded the rounded value while the colour banded the raw one ('극단적 공포' vs the sentiment card's '극단 공포'), and
+// greed used a hard-coded #86efac (1.3:1 on ivory). The score is now the completed-close value (fgClose, computed by the
+// caller from the shared series), banded once by fearGreedBand, coloured with theme tokens.
+const FEAR_GREED_COLOR = Object.freeze({ '극단 공포': 'var(--data-red)', '공포': 'var(--data-amber)', '중립': 'var(--text-muted)', '탐욕': 'var(--data-green)', '극단 탐욕': 'var(--data-green)' });
+function renderHomeFearGreed({ documentRef, sentimentValues, fgClose = null, fgStale = false }) {
   const element = documentRef?.getElementById('home-fg-score');
   if (!element) return;
-  const score = finite(sentimentValues?.fearGreed);
+  const score = fgStale ? null : fgClose ? finite(fgClose.value) : finite(sentimentValues?.fearGreed);
+  const band = score == null ? null : fearGreedBand(score);
+  const known = band && !band.blocked;
   const label = documentRef?.getElementById('home-fg-label');
-  if (label) label.textContent = score == null ? '미수신' : Math.round(score) < 25 ? '극단적 공포' : Math.round(score) < 45 ? '공포' : Math.round(score) <= 55 ? '중립' : Math.round(score) <= 75 ? '탐욕' : '극단적 탐욕';
-  element.textContent = score == null ? '—' : String(Math.round(score));
-  element.style.color = score == null
-    ? 'var(--text-muted)'
-    : score <= 25 ? 'var(--data-red)' : score <= 45 ? 'var(--data-amber)' : score <= 55 ? 'var(--text-muted)' : score <= 75 ? '#86efac' : 'var(--data-green)';
+  if (label) label.textContent = known ? band.label : fgStale ? '오래됨' : '미수신';
+  element.textContent = known ? String(Math.round(score)) : '—';
+  element.style.color = known ? FEAR_GREED_COLOR[band.label] : 'var(--text-muted)';
   element.dataset.aioHomeFearGreedRenderer = 'native';
-  element.setAttribute('data-source-kind', score == null ? 'unavailable' : (sentimentValues?.fearGreedSourceKind || 'legacy-runtime'));
-  element.setAttribute('data-source-label', score == null ? 'sentiment unavailable' : (sentimentValues?.fearGreedSource || 'sentiment state'));
+  element.setAttribute('data-source-kind', !known ? 'unavailable' : fgClose ? 'completed-close-history' : (sentimentValues?.fearGreedSourceKind || 'legacy-runtime'));
+  element.setAttribute('data-source-label', !known ? 'sentiment unavailable' : fgClose ? 'completed-close history' : (sentimentValues?.fearGreedSource || 'sentiment state'));
   element.setAttribute('data-operational-use', 'reference-only');
-  if (sentimentValues?.fearGreedObservedAt) element.setAttribute('data-observed-at', sentimentValues.fearGreedObservedAt);
+  const observedAt = fgClose ? fgClose.date : sentimentValues?.fearGreedObservedAt;
+  if (observedAt) element.setAttribute('data-observed-at', observedAt);
   else element.removeAttribute('data-observed-at');
 }
 
@@ -60,7 +68,7 @@ function renderHomeQuality({ documentRef, home }) {
   const available = quality?.modelVersion && score != null;
   const color = !available
     ? 'var(--text-muted)'
-    : score >= 75 ? 'var(--data-green)' : score >= 55 ? '#86efac' : score >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
+    : score >= 55 ? 'var(--data-green)' : score >= 35 ? 'var(--data-amber)' : 'var(--data-red)'; // T11: theme tokens only
   scoreElement.textContent = available ? String(Math.round(score)) : '—';
   scoreElement.style.color = color;
   const fill = meter.querySelector('div');
@@ -140,7 +148,12 @@ function render({ root, documentRef, store, route }) {
       page.dataset.aioHomeRenderer = 'native';
       renderHomeRegime({ documentRef, root });
       renderDailyLoop({ documentRef, root, store }); // P1432
-      renderHomeFearGreed({ documentRef, sentimentValues });
+      const history = root?._aioHistory || [];
+      const basis = closeBasis(history);
+      const fgClose = buildCloseSeries(history, 'fg', { through: basis }).at(-1) || null;
+      // T09 + review: the close value counts only when it is aligned with the basis (same rule as the sentiment card);
+      // a stalled F&G series shows as held, not as today's score.
+      renderHomeFearGreed({ documentRef, sentimentValues, fgClose, fgStale: !!fgClose && !isUsable(alignInput(fgClose.date, basis)) });
       renderHomeQuality({ documentRef, home });
     }
     if (route === 'signal') {

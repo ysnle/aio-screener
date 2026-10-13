@@ -91,6 +91,26 @@ export function extractAnswerFallback(rawText, currentSensitive) {
   return currentSensitive ? stripUnverifiedCurrentNumericSentences(fallback) : fallback;
 }
 
+// v57.48 review #19: an answer opened with up to five "※" notices, three of them in English ("decision-grade",
+// "Web Research", "Evidence"). The reader now gets one Korean line naming what was not confirmed; each detailed
+// notice moves to the folded answer-evidence panel. `publishedClaimCount` keeps the line truthful when some values
+// were confirmed (close-basis or live) and only the rest was withheld.
+const NUMERIC_DROP_REASONS = ['answer-plan-claim-degraded', 'current-numeric-claim-unverified', 'typed-claim-validation'];
+const CURRENT_GAP_REASONS = ['market-session-evidence-unavailable', 'current-evidence-limited', 'research-evidence-unavailable', 'research-freshness-unverified'];
+export function summarizeAnswerLimitations(reasons = [], { publishedClaimCount = 0 } = {}) {
+  var list = Array.from(new Set(Array.isArray(reasons) ? reasons.map(String) : []));
+  var phrases = [];
+  var numericDropped = list.some(function(reason) { return NUMERIC_DROP_REASONS.indexOf(reason) >= 0; });
+  var currentGap = list.some(function(reason) { return CURRENT_GAP_REASONS.indexOf(reason) >= 0; });
+  if (publishedClaimCount > 0 && (numericDropped || currentGap)) phrases.push(numericDropped ? '일부 최신 수치 확인 안 됨 — 확인된 값만 표시' : '표시한 값 외의 최신 수치는 확인 안 됨');
+  else if (numericDropped || currentGap) phrases.push('최신 수치 확인 안 됨 — 일반 설명만');
+  if (list.indexOf('suitability-context-missing') >= 0) phrases.push('투자 성향 정보 없음 — 조건부 분석');
+  if (list.indexOf('model-output-truncated') >= 0) phrases.push('응답 길이 한도 — 일부만 표시');
+  var premise = list.filter(function(reason) { return /^premise-/.test(reason); })[0];
+  if (premise) phrases.push(premise === 'premise-contradicted' ? '질문 전제와 반대 관측 — 조건부 설명' : '질문 전제 확인 안 됨 — 조건부 설명');
+  return phrases.length ? '※ ' + phrases.join(' · ') : '';
+}
+
 export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now() } = {}) {
   if (!plan) return { plan: null, droppedClaims: [], unboundEvidenceIds: [] };
   var rows = (Array.isArray(bindingEvidence) ? bindingEvidence : []).filter(row => evidenceCanPublish(row, nowMs));
@@ -98,6 +118,7 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
   var claims = plan.claims && Array.isArray(plan.claims.claims) ? plan.claims.claims : [];
   var droppedClaims = [];
   var unboundEvidenceIds = [];
+  var boundLabels = new Map();
   var safeClaims = claims.filter(function(claim) {
     var reasons = [];
     var type = String(claim && claim.type || '');
@@ -113,6 +134,7 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     var boundRows = rows.filter(function(row) { return ids.indexOf(claimEvidenceId(row)) >= 0; });
     var numeric = /^(?:numeric|metric|percentage|probability)$/.test(type);
     if (currentSensitive && !numeric && hasCurrentNumericContent(claim.text)) reasons.push('untyped-numeric-content');
+    var matchedRow = null;
     if ((numeric || currentSensitive || ids.length) && !boundRows.some(function(row) {
       var source = String(claim.source || '').trim();
       var sourceMatches = source && (source === String(row.source || '').trim() || source === String(row.publisher || '').trim() ||
@@ -124,20 +146,24 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
       var identityMatches = !!claim.metric && claim.metric === row.metric &&
         String(claim.entity || '').trim() === rowEntity &&
         String(claim.scale || 'raw') === String(row.scale || 'raw');
-      return sourceMatches && (!(numeric || currentSensitive) || timeMatches) &&
+      var matches = sourceMatches && (!(numeric || currentSensitive) || timeMatches) &&
         (!numeric || (identityMatches && typeof row.value === 'number' && claim.value === row.value && claim.unit === row.unit));
+      if (matches) matchedRow = row;
+      return matches;
     })) reasons.push('evidence-content-mismatch');
     if (claim.status === 'blocked') reasons.push('claim-blocked');
     if (reasons.length) {
       droppedClaims.push({ claimId: claim.claimId || null, reasons: Array.from(new Set(reasons)) });
       return false;
     }
+    if (matchedRow && matchedRow.label) boundLabels.set(claim, String(matchedRow.label));
     return true;
   }).map(function(claim) {
     if (!/^(?:numeric|metric|percentage|probability)$/.test(String(claim.type || ''))) return claim;
     // Render the verified tuple separately; model prose must not smuggle a
     // second, conflicting number alongside a valid structured value.
-    var label = [claim.entity, claim.metric].filter(Boolean).join(' · ');
+    // v57.48 #7: a bound evidence row that carries its own display label (close-basis rows: "VIX 종가") names the value.
+    var label = boundLabels.get(claim) || [claim.entity, claim.metric].filter(Boolean).join(' · ');
     return Object.assign({}, claim, { text: label || '검증된 수치' });
   });
   var summary = currentSensitive ? stripUnverifiedCurrentNumericSentences(plan.summary) : String(plan.summary || '').trim();

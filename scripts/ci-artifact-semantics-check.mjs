@@ -371,9 +371,11 @@ if (telegram?.coverage) {
     check('selectedOfObservedPct cannot exceed 100', Number(coverage.selectedOfObservedPct) <= 100, `${coverage.selectedOfObservedPct}%`);
   }
   check('the selected set is a subset of the observed window', selected <= observed, `${selected} > ${observed}`);
+  // P1683: the lineage rows moved to telegram-observed.json; a digest still carrying them (pre-split) is read as before.
+  const lineageRows = Array.isArray(telegram.observedItems) ? telegram.observedItems : readIf('public-data/telegram-observed.json')?.observedItems;
   check('telegram observed lineage count matches the published payload',
-    observed === (Array.isArray(telegram.observedItems) ? telegram.observedItems.length : -1),
-    `coverage=${observed} items=${telegram.observedItems?.length ?? 'missing'}`);
+    observed === (Array.isArray(lineageRows) ? lineageRows.length : -1),
+    `coverage=${observed} items=${lineageRows?.length ?? 'missing'}`);
 }
 
 // ── P1109 : published references must resolve, retired scopes must stay retired

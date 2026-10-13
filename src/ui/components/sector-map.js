@@ -1,5 +1,5 @@
 // 2026-10-13 (owner: "finviz maps 같은 S&P 500 지도"): sectors as boxes, members as tiles sized by index weight
-// and shaded by return over one completed window (Korean convention: rising red, falling blue). One lead sentence
+// and shaded by return over one completed window (app-wide convention, M07: rising green, falling red). One lead sentence
 // reads the map; the sector table and the reading guide stay folded. A tile opens the stock page.
 import { buildSectorMap, layoutSectorMap, SECTOR_MAP_PERIODS, shadeOf } from '../../domain/market/sector-map.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
@@ -153,7 +153,9 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     const best = [...movers].sort((a, b) => b.ret - a.ret)[0];
     const worst = [...movers].sort((a, b) => a.ret - b.ret)[0];
     // P1681: the tiles are pointer-only, so the table is the keyboard path — its strongest/weakest names open the stock page.
-    const dd = el(doc, 'dd', `${signed(sector.ret)} · ${sector.count}종목 중 ${sector.up}개 상승 · `);
+    // M21: the up count reads over the members that have a return; members without one are named apart.
+    const withRet = sector.withRet ?? movers.length;
+    const dd = el(doc, 'dd', `${signed(sector.ret)} · ${withRet}종목 중 ${sector.up}개 상승${sector.count > withRet ? `(수익률 없음 ${sector.count - withRet})` : ''} · `);
     const symbolButton = (item) => {
       const button = el(doc, 'button', `${item.sym} ${signed(item.ret, 1)}`, 'breadth-drill-symbol');
       button.type = 'button';
@@ -166,8 +168,8 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
   table.append(dl);
   const guide = el(doc, 'details', null, 'sector-map-table');
   guide.append(el(doc, 'summary', '지도 읽는 법'));
-  guide.append(el(doc, 'p', `큰 상자는 섹터, 그 안의 타일은 종목입니다. 타일 넓이는 지수 안에서 차지하는 비중이라, 큰 타일 몇 개의 색이 지수 등락을 거의 결정합니다. 색은 ${model.periodLabel} 수익률이며 오르면 빨강, 내리면 파랑, 진할수록 크게 움직였습니다. 기간이 길수록 색 구간도 넓혀 같은 진하기가 비슷한 정도의 움직임을 뜻합니다. 회색은 AIO가 수익률을 수집하지 않는 종목입니다.`, 'regime-read'));
-  guide.append(el(doc, 'p', '지도에 빨강이 넓어도 소수 대형주만 오른 날이면 시장 폭은 좁을 수 있습니다 — 위 문장의 상위 10종목과 나머지 비교, 시장 상태의 시장 폭과 함께 봅니다. 색은 지난 움직임이며 매수·매도 신호가 아닙니다.', 'regime-read'));
+  guide.append(el(doc, 'p', `큰 상자는 섹터, 그 안의 타일은 종목입니다. 타일 넓이는 지금의 지수 비중이고, 위 평균은 기간이 시작될 때의 비중(지금 비중 ÷ (1 + 그 종목 수익률))으로 가중해 지수 수익률과 같은 방식으로 셉니다. 색은 ${model.periodLabel} 수익률이며 오르면 초록, 내리면 빨강, 진할수록 크게 움직였습니다. 기간이 길수록 색 구간도 넓혀 같은 진하기가 비슷한 정도의 움직임을 뜻합니다. 회색은 AIO가 수익률을 수집하지 않는 종목입니다.`, 'regime-read'));
+  guide.append(el(doc, 'p', '지도에 초록이 넓어도 소수 대형주만 오른 날이면 시장 폭은 좁을 수 있습니다 — 위 문장의 상위 10개 기업과 나머지, 같은 비중 평균을 시장 상태의 시장 폭과 함께 봅니다. 색은 지난 움직임이며 매수·매도 신호가 아닙니다.', 'regime-read'));
   host.append(table, guide);
   return model;
 }

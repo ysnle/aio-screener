@@ -4,6 +4,7 @@ import { canonicalSourceTier, isDecisionEligibleSourceKind } from '../contracts/
 import { isValidRightsId } from '../contracts/evidence.js';
 import { createPublicationPolicy, evaluatePublicationSet } from './publication-set.js';
 import { evaluateQuoteContract } from './quote-contract.js';
+import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../../domain/fundamental/period.js';
 
 // P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
 // artifacts may be refreshed on their own cadence, so equal generation dates are not required; what is
@@ -37,12 +38,8 @@ export function snapshotIdentityRows(rows = []) {
 // compatibility enrichment/fallback for non-route consumers that have not yet migrated.
 // P1652: an annual filing whose period ended more than 15 months before the price session is not the company's
 // current fundamentals (WFC FY2019, NEE FY2012 were ranked as current). Its valuation and quality fields are held.
-export const FUNDAMENTAL_MAX_PERIOD_AGE_DAYS = 456;
-export function fundamentalPeriodTooOld(periodEnd, sessionDate) {
-  const end = Date.parse(String(periodEnd || '').slice(0, 10));
-  const session = Date.parse(String(sessionDate || '').slice(0, 10));
-  return Number.isFinite(end) && Number.isFinite(session) && (session - end) / 86400000 > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
-}
+// 2026-10-13 S01: the rule lives in the domain so the factor ranker reads the same 456-day budget.
+export { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld };
 function fundamentalHeld(factor) {
   return fundamentalPeriodTooOld(factor?.fundamentalPeriodEnd, factor?.factorSessionDate || factor?.factorObservedAt);
 }
@@ -329,6 +326,12 @@ export function createScreenerProvider({
       // Capture primitive quote projections before yielding: the legacy map can
       // mutate during a provider turn, but one snapshot must keep one quote cut.
       const liveBySymbol = new Map(symbols.map(symbol => [symbol, liveEnrichment(symbol, liveData)]));
+      // 2026-10-13 review S04: the producer publishes no benchmark return, so relative strength was missing on
+      // every row. The same artifact carries SPY's 3-month return on the same session; a US row with that
+      // session compares against it. KR has no index row in the artifact and stays unavailable.
+      const usBenchmark = artifact.data.SPY || null;
+      const usBenchmarkRet3m = finite(usBenchmark?.ret3m);
+      const usBenchmarkSession = usBenchmark?.factorSessionDate || null;
       const rows = [];
       for (const symbol of symbols) {
         const identity = universeBySymbol.get(symbol) || {};
@@ -388,7 +391,6 @@ export function createScreenerProvider({
           name: identity.name || '',
           sector: identity.sector || null,
           index: identity.index || null,
-          signal: null,
           memo: identity.memo || null,
           source: factor.source || 'screener-artifact',
           sourceKind: factor.sourceKind || null,
@@ -458,7 +460,8 @@ export function createScreenerProvider({
           ret6m: finite(factor.ret6m),
           vol: finite(factor.vol),
           rvol20: finite(factor.rvol20 ?? factor.rvol),
-          benchmarkRet: finite(factor.benchmarkRet),
+          benchmarkRet: finite(factor.benchmarkRet) ?? (market === 'US' && symbol !== 'SPY' && usBenchmarkRet3m != null && usBenchmarkSession && factor.factorSessionDate === usBenchmarkSession ? usBenchmarkRet3m : null),
+          benchmarkSymbol: finite(factor.benchmarkRet) != null ? (factor.benchmarkSymbol || null) : market === 'US' && symbol !== 'SPY' && usBenchmarkRet3m != null && usBenchmarkSession && factor.factorSessionDate === usBenchmarkSession ? 'SPY' : null,
           benchmarkRelativeStrength: finite(factor.benchmarkRelativeStrength),
           pctSma50: finite(factor.pctSma50),
           pctSma200: finite(factor.pctSma200),

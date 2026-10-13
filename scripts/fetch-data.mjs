@@ -13,6 +13,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import { readFile, mkdir } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runBacktest as runTradingScoreBacktest } from './backtest-trading-score.mjs';
@@ -1755,9 +1756,12 @@ async function fetchHistory(symbol, range = '6mo') {
       const adjArr = res?.indicators?.adjclose?.[0]?.adjclose;
       if (!Array.isArray(ts) || !Array.isArray(closes)) throw new Error('no history arrays');
       const out = [];
+      // P1683: a session the provider lists with an empty close (KRX 2026-10-12 on Yahoo) is a gap, not a
+      // non-session — remember its date so short-window returns across it are not labelled one session.
+      out.nullCloseDates = [];
       for (let i = 0; i < ts.length; i++) {
         const c = closes[i];
-        if (typeof c !== 'number' || !isFinite(c)) continue;
+        if (typeof c !== 'number' || !isFinite(c)) { if (Number.isFinite(ts[i])) out.nullCloseDates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10)); continue; }
         const h = q0.high?.[i], l = q0.low?.[i], v = q0.volume?.[i];
         const a = Array.isArray(adjArr) ? adjArr[i] : undefined;
         out.push({
@@ -3128,6 +3132,7 @@ async function _enrichPriceFactors(syms) {
     return {
       sym,
       partialSessionDropped,
+      nullCloseDates: (fetched?.nullCloseDates || []).filter((date) => isSessionComplete(date, market)),
       dates:     (rows || []).map(r => r.date),
       observedAts:(rows || []).map(r => r.observedAt || null),
       closes:    (rows || []).map(r => r.close),
@@ -3159,6 +3164,13 @@ async function _enrichPriceFactors(syms) {
     const factorPriceSeries = hasCompleteAdjusted ? r.adjCloses : r.closes;
     const f = closesToFactors(factorPriceSeries);
     if (f) {
+      // P1683: a completed session with an empty provider close inside the 1- or 5-session window makes that
+      // return span an extra session — publish null (the map greys it) instead of a mislabelled move.
+      const gaps = Array.isArray(r.nullCloseDates) ? r.nullCloseDates : [];
+      const dates = Array.isArray(r.dates) ? r.dates : [];
+      const gapInside = (n) => dates.length > n && gaps.some((date) => date > dates[dates.length - 1 - n] && date < dates[dates.length - 1]);
+      if (gapInside(1)) f.ret1d = null;
+      if (gapInside(5)) f.ret5d = null;
       // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close, 조정종가 아님 — 위 주석 참조)
       if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
         const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
@@ -3604,6 +3616,102 @@ function _analysisNumberAfterLabel(body, labels) {
   return analysisLevelsAfterLabels(body, labels, { allLabels })[0] ?? null;
 }
 
+// T03/T08 (v57.48 review, 2026-10-13): a verified analysis opened "유가 -6.40%인 코스피는 장중 하락" (-6.40% was
+// KOSPI's move) and "금리 -0.08%" (a relative change of the yield, read as -8bp). The validator compared only the
+// level after an English label, so Korean names and % moves were never checked. Every mention — English label or the
+// Korean name the model actually writes — now has its % move checked against that metric's own changePct, a rate may
+// move only in bp, and an in-session value must be written as 장중 with its time.
+export const MARKET_ANALYSIS_CLOSED_SESSIONS = Object.freeze(['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'REGULAR']);
+const MARKET_ANALYSIS_MENTIONS = Object.freeze({
+  'market.spx': ['S&P\\s?500', 'SPX', 'S&P', '에스앤피\\s?(?:오백|500)'],
+  'market.vix': ['VIX', '변동성\\s?지수', '공포\\s?지수'],
+  'market.us10y': ['US 10Y', '10Y', 'Treasury', '(?:미(?:국)?\\s?)?(?:10년물|10년\\s?국채|국채\\s?10년물?)(?:\\s?(?:금리|수익률))?',
+    // review: a bare 금리 is the 10-year only when no other tenor/kind qualifies it (2년물·실질·정책·기준 금리 are other series).
+    '(?<![가-힣])(?<!(?:\\d\\s?(?:년물|년|개월물|개월)|실질|정책|기준|단기|장기|명목|모기지|대출|예금|회사채)\\s?)금리'],
+  'market.dxy': ['DXY', '달러\\s?(?:지수|인덱스)'],
+  'market.wti': ['WTI', 'oil', '(?<![가-힣])유가', '(?<![가-힣])원유'],
+  'market.gold': ['Gold', '(?<![가-힣])금(?:값|\\s?가격|\\s?선물)?(?=[은는이가을를도의과와·,\\s]|$)'],
+  'market.kospi': ['KOSPI', '코스피(?!\\s?200)'],
+});
+const MARKET_ANALYSIS_MENTION_ENTRIES = Object.entries(MARKET_ANALYSIS_MENTIONS).flatMap(([metricId, patterns]) => patterns.map((source) => {
+  const latin = /^[A-Za-z]/.test(source);
+  return { metricId, latin, source: latin ? `(?<![A-Za-z0-9_.:-])${source}(?![A-Za-z0-9_.:-])` : source };
+}));
+const MARKET_ANALYSIS_MENTION_RE = new RegExp(MARKET_ANALYSIS_MENTION_ENTRIES.map((entry) => `(${entry.source})`).join('|'), 'gi');
+
+/** Every metric mention with the clause that belongs to it (up to the next mention or the sentence end). */
+export function analysisMetricMentions(text) {
+  const body = String(text || '').replace(/https?:\/\/\S+/g, ' ').replace(/\[[^\]]*\]/g, ' ');
+  const hits = [...body.matchAll(MARKET_ANALYSIS_MENTION_RE)].map((match) => {
+    const entry = MARKET_ANALYSIS_MENTION_ENTRIES[match.slice(1).findIndex((group) => group !== undefined)];
+    return { metricId: entry.metricId, latin: entry.latin, start: match.index, end: match.index + match[0].length };
+  });
+  return hits.map((hit, index) => {
+    const stop = Math.min(hit.end + 60, hits[index + 1]?.start ?? Infinity);
+    const clause = body.slice(hit.end, stop).split(/(?<!\d)[.。](?!\d)|\n|[;；]/)[0];
+    const sentenceStart = Math.max(body.lastIndexOf('.', hit.start), body.lastIndexOf('\n', hit.start), body.lastIndexOf('。', hit.start)) + 1;
+    const sentenceEnd = body.slice(hit.end).search(/(?<!\d)[.。](?!\d)|\n/);
+    return { ...hit, clause, sentence: body.slice(sentenceStart, sentenceEnd < 0 ? body.length : hit.end + sentenceEnd) };
+  });
+}
+
+const ANALYSIS_UP = /(?:상승|오른|올라|올랐|급등|반등|강세|높아|뛴|확대)/;
+const ANALYSIS_DOWN = /(?:하락|내린|내려|내렸|떨어|급락|약세|낮아|빠진|축소)/;
+/** % moves, bp moves and Korean-name levels checked against each metric's own evidence. */
+export function validateAnalysisMetricMentions(text, metricEvidence = [], changes = new Map(), { context = '' } = {}) {
+  const issues = [];
+  const supported = (digits) => !!context && context.includes(digits);
+  for (const mention of analysisMetricMentions(text)) {
+    const row = metricEvidence.find((item) => item.metricId === mention.metricId);
+    if (!row) continue;
+    const rate = row.unit === 'percent';
+    const level = Number(row.value);
+    const changePct = changes.get(row.evidenceId);
+    const bpChange = rate && Number.isFinite(changePct) ? (level - level / (1 + changePct / 100)) * 100 : null;
+    const inSession = !!row.session && !MARKET_ANALYSIS_CLOSED_SESSIONS.includes(row.session);
+    let usedIntraday = false;
+    let levelSeen = false;
+    for (const match of mention.clause.matchAll(/([+\-−±]?)(\d[\d,]*(?:\.\d+)?)\s*(%포인트|%p|bps|bp|포인트|%)?/gi)) {
+      const [, sign, digits, suffix = ''] = match;
+      const after = mention.clause.slice(match.index + match[0].length, match.index + match[0].length + 14);
+      if (/^\s*(?:일|주|개월|년|거래일|세션|배|명|개|종목|조건|시|분|KST|ET\b)|^:\d/.test(after) || mention.clause[match.index - 1] === ':' || /^(?:%p|%포인트|포인트)$/i.test(suffix)) continue;
+      // review: a multi-period move ("20일 동안 8.2% 하락") or a share ("40%를 차지") is not the one-session change.
+      const before = mention.clause.slice(Math.max(0, match.index - 16), match.index);
+      if (/(?:\d\s?(?:일|주|개월|년|거래일|세션)|연초|연간|올해|분기|월간|주간)[^\d]{0,8}$/.test(before) || /^\s*(?:를|을|의|가|이)?\s*(?:차지|비중|비율|확률|가능성|점유)/.test(after)) continue;
+      const magnitude = Number(digits.replace(/,/g, ''));
+      if (!Number.isFinite(magnitude)) continue;
+      const direction = sign === '-' || sign === '−' ? -1 : sign === '+' ? 1 : ANALYSIS_DOWN.test(after) ? -1 : ANALYSIS_UP.test(after) ? 1 : 0;
+      const moved = direction !== 0;
+      const stated = direction ? direction * magnitude : magnitude;
+      const plain = digits.replace(/,/g, '');
+      if (/^bps?$/i.test(suffix)) {
+        const gap = direction ? Math.abs(stated - bpChange) : Math.abs(magnitude - Math.abs(bpChange));
+        if (rate && bpChange != null && gap > Math.max(1, Math.abs(bpChange) * 0.25) && !supported(plain)) issues.push(`metric-change-mismatch:${row.metricId}`);
+        continue;
+      }
+      if (suffix === '%') {
+        if (rate) {
+          if (moved) issues.push(`rate-change-not-bp:${row.metricId}`);
+          else if (!mention.latin && Math.abs(magnitude - level) > 0.15 && !supported(plain)) issues.push(`metric-value-mismatch:${row.metricId}`);
+          continue;
+        }
+        if (!Number.isFinite(changePct)) continue;
+        const matches = direction ? Math.abs(stated - changePct) <= 0.15 : Math.abs(magnitude - Math.abs(changePct)) <= 0.15;
+        if (matches) usedIntraday = usedIntraday || inSession;
+        else if (!supported(plain)) issues.push(`metric-change-mismatch:${row.metricId}`);
+        continue;
+      }
+      if (moved || levelSeen) continue;
+      levelSeen = true;
+      const tolerance = Math.max(rate ? 0.15 : 0.5, Math.abs(level) * 0.02);
+      if (Math.abs(magnitude - level) <= tolerance) usedIntraday = usedIntraday || inSession;
+      else if (!mention.latin && !supported(plain)) issues.push(`metric-value-mismatch:${row.metricId}`);
+    }
+    if (usedIntraday && !(/장중/.test(mention.sentence) && /\d{1,2}:\d{2}|\d{1,2}시(?:\s?\d{1,2}분)?/.test(mention.sentence))) issues.push(`intraday-time-missing:${row.metricId}`);
+  }
+  return [...new Set(issues)];
+}
+
 // M06: typed admission for the claims the prompt forbids or the evidence can disprove. These are blocking issues.
 const ANALYSIS_TRADE_INSTRUCTION = /(?:매수|매도|매집|손절|익절|진입|청산)(?:하세요|하십시오|해라|하라|할\s*때입니다|하시길)|(?:사세요|파세요|사라|팔아라|담으세요|비중을\s*(?:늘리|줄이)세요)|목표\s*가(?:는|를)?\s*\$?\d|\b(?:buy|sell)\s+now\b/i;
 const ANALYSIS_PROBABILITY = /\d+(?:\.\d+)?\s*%\s*(?:의\s*)?(?:확률|가능성|승률)|(?:확률|가능성|승률)(?:은|이|는|로|이\s*약)?\s*(?:약\s*)?\d+(?:\.\d+)?\s*%/;
@@ -3612,7 +3720,7 @@ export function validateAnalysisAdmission(body, { changes = new Map(), context =
   if (ANALYSIS_TRADE_INSTRUCTION.test(body)) issues.push('trade-instruction');
   if (ANALYSIS_PROBABILITY.test(body)) issues.push('probability-claim');
   // Condition counts must be well-formed and, when a regime context was supplied, appear in it.
-  for (const match of body.matchAll(/(\d+)\s*\/\s*(\d+)\s*(?:개)?\s*(?:조건|충족)|조건\s*(\d+)\s*\/\s*(\d+)/g)) {
+  for (const match of body.matchAll(/(\d+)\s*\/\s*(\d+)\s*(?:개)?\s*(?:조건|충족)|(?:조건|부합)\s*(\d+)\s*\/\s*(\d+)/g)) { // T06: "현재 조건 부합 n/m"
     const met = Number(match[1] ?? match[3]); const total = Number(match[2] ?? match[4]);
     if (!(total > 0) || met > total || total > 10) issues.push('condition-count-invalid');
     else if (context && !new RegExp(String.raw`(?:조건\s*${met}\s*/\s*${total}|${met}\s*/\s*${total})`).test(context)) issues.push('condition-count-unsupported');
@@ -3651,9 +3759,8 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   const hangul = (prose.match(/[가-힣]/g) || []).length;
   const latin = (prose.match(/[A-Za-z]/g) || []).length;
   if (body && latin >= 30 && hangul < latin * 0.6) issues.push('language-not-korean');
-  const CLOSED_SESSIONS = ['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'REGULAR'];
   for (const row of metricEvidence) {
-    if (!row.session || CLOSED_SESSIONS.includes(row.session)) continue;
+    if (!row.session || MARKET_ANALYSIS_CLOSED_SESSIONS.includes(row.session)) continue;
     const label = String(row.label || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     if (label && new RegExp(`${label}(?:(?![.。,]\\s|\\n|이고|이며|[A-Z]{2,}).){0,40}(?:마감|종가|closed|closing|close at)`).test(body)) issues.push(`session-wording-mismatch:${row.metricId}`);
   }
@@ -3672,6 +3779,8 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
     const tolerance = Math.max(row.unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(row.value)) * 0.02); // P1585: 5% let SPX 7,500 pass for 7,816
     if (levels.some(mentioned => Math.abs(mentioned - Number(row.value)) > tolerance)) issues.push(`metric-value-mismatch:${def.metricId}`);
   }
+  // T03/T08: % moves against each metric's own changePct, rates in bp only, Korean metric names, 장중 + time for in-session values.
+  issues.push(...validateAnalysisMetricMentions(body, metricEvidence, changes, { context }));
   // PAYEMS delta is stored in thousands. A model may mention NFP without a
   // number, but if it writes one, reject the known 10x forms before publish.
   if (Number.isFinite(value) && /NFP|nonfarm|비농업|고용/i.test(body)) {
@@ -4236,13 +4345,20 @@ function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketA
 // "the two indicators are different indicators". It now receives the same deterministic regime,
 // scenario and likelihood reading the 시장 상태 screen shows (same domain modules, same completed
 // closes in history.json), and is asked to connect change -> meaning -> path -> what to check.
-export function marketAnalysisRegimeInput(data, history = []) {
+// P1685 review: the screen's credit axis reads the 20-session HY change from macro-history; the narrative must get
+// the same series or it calls credit 'favorable' while the screen says 'neutral'.
+function readPublishedMacroHistory() {
+  try { return JSON.parse(readFileSync(MACRO_HISTORY_OUT, 'utf8')); } catch (_) { return null; }
+}
+
+export function marketAnalysisRegimeInput(data, history = [], macroHistory = readPublishedMacroHistory()) {
   const macro = data?.macro || {};
   const num = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
   const hy = num(macro.hyOAS);
   const hyDelta5 = num(macro.hyOASDelta5);
   return {
     history: Array.isArray(history) ? history : [],
+    macroHistory: macroHistory || null,
     now: Date.now(), // M05: the narrative uses the same latest-session admission as the screen
     credit: {
       hyBp: hy == null ? null : Math.round(hy * 100), hyAsOf: macro._asOf_hyOAS || null,
@@ -4286,16 +4402,28 @@ export async function genMarketAnalysis(data, snapshot = null) {
   if (!resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence);
   try {
     const changeOf = new Map((snapshot?.quotes || []).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
-    const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeOf.has(row.evidenceId) ? ` change=${changeOf.get(row.evidenceId) >= 0 ? '+' : ''}${changeOf.get(row.evidenceId).toFixed(2)}% vs previous close` : ''} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
+    // T08 (v57.48 review): the briefing shows completed closes, and the commentary under it opened with KOSPI/WTI/DXY/gold
+    // in-session moves. Only completed-session values reach the prompt; in-session rows stay out (the validator still
+    // requires 장중 + time if one appears). T03: a rate's change is given in bp — its changePct is a relative change of
+    // the yield (-0.08% of 5.24% is -0.4bp), which the model wrote as "금리 -0.08%".
+    const promptEvidence = metricEvidence.filter((row) => !row.session || MARKET_ANALYSIS_CLOSED_SESSIONS.includes(row.session));
+    const changeText = (row) => {
+      if (!changeOf.has(row.evidenceId)) return '';
+      const pct = changeOf.get(row.evidenceId);
+      if (row.unit === 'percent') { const bp = (row.value - row.value / (1 + pct / 100)) * 100; return ` change=${bp >= 0 ? '+' : ''}${bp.toFixed(1)}bp vs previous close`; }
+      return ` change=${pct >= 0 ? '+' : ''}${pct.toFixed(2)}% vs previous close`;
+    };
+    const evidenceLines = promptEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit}${changeText(row)} observedAt=${row.observedAt} session=${row.session || 'n/a'} source=${row.source}`).join('\n');
     const regimeContext = buildMarketAnalysisRegimeContext(data, await readHistoryRows());
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const model = SHARED_AI_MODEL;
     const prompt = [
       '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 5~7줄 평문으로 쓴다. Write the whole answer in Korean.',
-      '순서: (1) 무엇이 얼마나 바뀌었나(change 값 — 절대값이 가장 큰 변화부터, 미국장 이후 끝난 한국장 지수 변화도 포함) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름과 개연성(조건 충족 수) (4) 다음에 확인할 것·조심할 것·넘겨도 되는 것 (5) 이 흐름에서 상대적으로 유리할 가능성이 큰 선택과 기회비용. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
-      '매매 지시(특정 가격·수량·시점, 사라/팔아라)는 쓰지 않는다. 가능성과 기회비용(예: "이 흐름이면 현금 비중을 두는 쪽이 유리할 가능성이 높다")으로만 쓴다. 개연성은 규칙 충족 수이며 확률이 아니므로 %로 바꾸지 마라.',
-      'session=DELAYED_IN_SESSION/IN_SESSION 값은 "장중"이라고 쓰고 "마감·종가"라고 쓰지 마라. Only MARKET_CLOSED/COMPLETED values may be called a close.',
+      '순서: (1) 완료된 종가 기준으로 무엇이 얼마나 바뀌었나(METRIC_EVIDENCE의 change 값 — 절대값이 가장 큰 변화부터) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름("현재 조건 부합 n/m"으로만 표기) (4) 다음에 확인할 것·조심할 것 (5) 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
+      '매매·비중·시점 지시(특정 가격·수량·시점, 사라/팔아라, 현금·주식 비중을 늘리거나 줄이는 쪽이 유리하다는 권유)는 쓰지 않는다. 흐름별로 확인할 것과 반증 조건만 쓴다. "현재 조건 부합 n/m"은 확률이 아니므로 %로 바꾸지 마라.',
+      '각 변화율은 반드시 그 지표 이름 바로 뒤에 쓴다(예: "코스피 -1.2%"). 다른 지표의 변화율을 앞 지표 이름에 붙이지 마라. 금리(10Y)의 변화는 bp로만 쓰고 %로 쓰지 마라(금리 수준만 % 단위).',
+      'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 쓰지 마라. 부득이 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',
       'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 5-7 concise lines.',
       'REGIME_CONTEXT (deterministic reading from the same completed closes the site shows; cite as [regime-context]):\n' + (regimeContext || 'none'),

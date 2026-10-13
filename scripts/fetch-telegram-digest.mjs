@@ -106,10 +106,17 @@ let previousDigest = null;
 let lineageStatus = 'complete';
 let legacyReportedCount = null;
 let lineageCompleteAfter = null;
+// P1683: the whole-window observed lineage (~2,200 rows, ~650KB of the digest) is producer state that no
+// screen reads, so it lives in its own artifact next to the digest; the digest keeps the counts. The first
+// run after the split still reads the lineage from the previous digest.
+const observedPath = outPath ? join(dirname(outPath), 'telegram-observed.json') : null;
 if (outPath && existsSync(outPath)) {
   try {
     const prev = JSON.parse(readFileSync(outPath, 'utf8'));
     previousDigest = prev;
+    let observedState = null;
+    try { observedState = observedPath && existsSync(observedPath) ? JSON.parse(readFileSync(observedPath, 'utf8')) : null; } catch (e) { console.warn(`[fetch-telegram-digest] observed lineage read failed (falls back to the digest): ${e.message}`); }
+    if (Array.isArray(observedState?.observedItems)) prev.observedItems = observedState.observedItems;
     if (!forceFullScan) {
       for (const ch of (prev.channels || [])) {
         if (ch.channel && Number.isFinite(ch.lastPostId)) previousLastPostId.set(ch.channel, ch.lastPostId);
@@ -157,6 +164,10 @@ function decodeEntities(s) {
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&nbsp;/g, ' ')
+    // P1683: Telegram's web preview writes "$" as &#036; — numeric references decode here, once, before &amp;
+    // (so a literal "&amp;#036;" stays one level of text, as in the RSS/news contract).
+    .replace(/&#(\d{1,7});/g, (m, code) => { const n = Number(code); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m; })
+    .replace(/&#x([0-9a-f]{1,6});/gi, (m, hex) => { const n = parseInt(hex, 16); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m; })
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -495,7 +506,7 @@ const digest = {
   }),
   count: observedItems.length,
   retainedItemCount: items.length,
-  observedItems,
+  observedLineageArtifact: 'public-data/telegram-observed.json', // P1683: the rows behind `count` (producer state)
   coverage: {
     lineageStatus,
     legacyReportedCount,
@@ -550,16 +561,23 @@ const outputDigest = collectionStatus === 'failed' && previousDigest && Number(p
       })
     })
   : digest;
-const json = JSON.stringify(outputDigest, null, 2);
+// P1683: a failed run re-publishes the previous digest, whose lineage now arrives through `prev.observedItems`;
+// it never goes back into the served digest.
+const { observedItems: _observedState, ...servedDigest } = outputDigest;
+const lineageRows = collectionStatus === 'failed' && previousDigest && Number(previousDigest.count || 0) > 0 ? (_observedState || []) : observedItems;
+const json = JSON.stringify(servedDigest, null, 2);
 if (outPath) {
   writeFileSync(outPath, json + '\n', 'utf8');
+  if (observedPath) {
+    writeFileSync(observedPath, JSON.stringify({ schemaVersion: 'telegram-observed.v1', generatedAt: servedDigest.generatedAt || new Date().toISOString(), count: lineageRows.length, semantics: 'Lightweight whole-window lineage behind telegram-digest.json `count` (ids, channel, time, score, tags, tickers; no text). Producer state, not read by the app.', observedItems: lineageRows }) + '\n', 'utf8');
+  }
   // Telegram digest and Atlas discovery index are one publication unit. Keep
   // the derived lineage count synchronized in the producer so a scheduled
   // refresh cannot commit a digest that the Atlas contract immediately rejects.
   const atlasIndexPath = join(ROOT, 'public-data', 'atlas', 'index.json');
   if (existsSync(atlasIndexPath)) {
     const atlasIndex = JSON.parse(readFileSync(atlasIndexPath, 'utf8'));
-    const lineageCount = outputDigest.retainedItemCount ?? outputDigest.observedItems?.length ?? null;
+    const lineageCount = servedDigest.retainedItemCount ?? lineageRows.length ?? null;
     if (lineageCount != null && atlasIndex.telegramObservedLineage !== lineageCount) {
       atlasIndex.telegramObservedLineage = lineageCount;
       writeFileSync(atlasIndexPath, JSON.stringify(atlasIndex, null, 2) + '\n', 'utf8');

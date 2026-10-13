@@ -72,15 +72,15 @@ export function buildBreadthCards(history = []) {
   return [
     { id: 'b50', group: 'participation', title: '50일선 위 종목 비율', note: '중기 참여도 — 60% 이상이면 확산, 40% 미만이면 위축', series: pctSeries('breadth50'), refLines: [40, 60], format: pct, domain: [0, 100] },
     { id: 'b20', group: 'participation', title: '20일선 위 종목 비율', note: '단기 참여도 — 빠르게 움직여 반등·이탈을 먼저 보여 줌', series: pctSeries('breadth20'), refLines: [40, 60], format: pct, domain: [0, 100] },
-    { id: 'b40', group: 'participation', title: '40일선 위 종목 비율 (T2108 계열)', note: '20% 아래는 과매도, 80% 위는 과열로 보는 관례 구간 — 극단에서 방향이 바뀌는지 확인', series: pctSeries('breadth40'), refLines: [20, 80], format: pct, domain: [0, 100] },
+    { id: 'b40', group: 'participation', title: '40일선 위 종목 비율', note: '20% 아래는 지나친 하락(과매도), 80% 위는 지나친 상승(과열)으로 보는 관례 구간 — 극단에서 방향이 바뀌는지 확인', source: 'Worden T2108 계열 지표와 같은 정의', series: pctSeries('breadth40'), refLines: [20, 80], format: pct, domain: [0, 100] },
     { id: 'b200', group: 'participation', title: '200일선 위 종목 비율', note: '장기 추세에 올라탄 종목 비율', series: pctSeries('breadth200'), refLines: [40, 60], format: pct, domain: [0, 100] },
     { id: 'adv', group: 'participation', title: '상승 종목 비율 (10일 평균)', note: '하루치는 소음이 커서 10일 평균으로 봄 — 50% 위면 상승 종목 우세', series: rolling(advance, 10).slice(-WINDOW), refLines: [50], format: pct },
     { id: 'ad', group: 'participation', title: '누적 상승-하락 종목 수 (A/D 라인)', note: '지수와 같이 오르면 건강한 상승, 지수만 오르면 괴리', series: cumulative(series('advanceDecline')).slice(-WINDOW), refLines: [], format: count, changeUnit: '', changeDigits: 0 },
-    { id: 'hl', group: 'leadership', title: '52주 신고가 − 신저가 종목 수', note: '신고가가 신저가보다 많으면 주도주가 넓어지는 중 — 지수 고점에서 신저가가 늘면 괴리 신호', series: difference(highs, lows).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
+    { id: 'hl', group: 'leadership', title: '52주 신고가 − 신저가 종목 수', note: '신고가가 신저가보다 많으면 그날은 강한 종목이 우세 — 며칠 이어지는지로 확산 여부를 봄 · 지수 고점에서 신저가가 늘면 괴리 신호', series: difference(highs, lows).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
       latest: lastOf(highs) && lastOf(lows) ? `신고가 ${count(lastOf(highs).value)} · 신저가 ${count(lastOf(lows).value)}` : null, drill: ['newHigh', 'newLow'] },
-    { id: 'mv', group: 'leadership', title: '4% 이상 상승 − 하락 종목 수 (5일 합계)', note: '거래량이 늘며 하루 4% 넘게 움직인 종목 — 상승 쪽이 우세하면 매수세, 하락 쪽이 몰리면 투매', series: rolling(difference(up4, down4), 5, { sum: true }).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
+    { id: 'mv', group: 'leadership', title: '4% 이상 상승 − 하락 종목 수 (5일 합계)', note: '거래량이 늘며 하루 4% 넘게 움직인 종목 — 5일 합계에서 상승·하락 중 어느 쪽이 우세한지 봄', series: rolling(difference(up4, down4), 5, { sum: true }).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
       latest: lastOf(up4) && lastOf(down4) ? `오늘 상승 ${count(lastOf(up4).value)} · 하락 ${count(lastOf(down4).value)}` : null, drill: ['up4', 'down4'] },
-    { id: 'dd', group: 'index', title: 'S&P 500 분배일 (최근 25거래일)', note: '지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 오닐 방식에서는 5~6회 이상이면 추세 약화 경고로 봄', series: pctSeries('distributionDays'), refLines: [5], format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
+    { id: 'dd', group: 'index', title: 'S&P 500 분배일 (최근 25거래일)', note: '지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 봄', source: '윌리엄 오닐의 분배일 관례', series: pctSeries('distributionDays'), refLines: [5], format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
     { id: 'spx', group: 'index', title: 'S&P 500 (같은 기간 비교)', note: '위 참여도 차트와 나란히 보면 지수와 시장 폭의 괴리가 보임', series: spx, refLines: [], format: count, changeUnit: '%', percentChange: true }
   ];
 }
@@ -151,15 +151,16 @@ function renderDrill(doc, root, card, contributors, basis) {
 export function renderBreadthBoard({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-breadth');
   if (!page) return null;
-  const inputs = collectMarketInputs(root);
+  const inputs = { ...collectMarketInputs(root), macroHistory: root._aioMacroHistory || null }; // T05: same credit read as 시장 상태
   const regime = buildMarketRegime(inputs);
   const axis = regime.axes?.find((row) => row.id === 'breadth');
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   // Codex browser audit H09: the denominator is named — how many symbols were judged, and that stocks and ETFs are
   // mixed — so 33% is not read as a share of the whole exchange or of the S&P 500.
   const eligible = contributorSession(root?._aioBreadthContributors, regime.asOf)?.eligible || null;
-  const judgedSegment = root?.AIO_ARCH?.getScreenerState?.()?.metadata?.breadth?.segments?.us || null;
-  const judgedCount = Number.isFinite(judgedSegment?.eligible) ? judgedSegment.eligible : null;
+  // T12 (expert review 2026-10-13): the count came from screener.json (811) while the ratios come from the history row
+  // (804 judged); the denominator is now the one stored with the shown 50-day ratio.
+  const judgedCount = buildCloseSeries(inputs.history, 'breadth50', { through: regime.asOf, includeProvenance: true }).at(-1)?.eligible ?? null;
   const denominator = judgedCount ? ` · 판정 대상 ${judgedCount}개 종목` : '';
   set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator} · AIO 미국 스크리너 수집 대상(개별 주식과 ETF 혼합, 동일 비중) — 거래소 전체나 S&P 500 구성 종목 집계가 아니며, 시가총액 가중 지수와 달리 종목마다 같은 무게로 셉니다.` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
@@ -195,6 +196,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       box.append(el(doc, 'div', `${changes || '변화 기록 수집 중'}${lateStart}`, 'trend-card-change'),
         createTrendChart(doc, { series: points, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }),
         el(doc, 'p', card.note, 'trend-card-note'));
+      if (card.source) box.title = card.source; // T22: names and conventions sit in the hover, not the body
       if (card.drill) box.append(renderDrill(doc, root, card, root._aioBreadthContributors, basis));
       return box;
     };

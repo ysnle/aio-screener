@@ -11,6 +11,17 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+// 2026-10-13 review S09: one set of reference bands for "50-day distance in units of the average daily range".
+// The stock summary called 3.8x "near the line" while the screener called only <=2x near; both read these now.
+export const EXTENSION_BANDS = Object.freeze({ nearBase: 2, extended: 4, stretched: 7 });
+export function extensionStateFor(multiple) {
+  const value = finite(multiple);
+  return value == null ? 'unavailable'
+    : value >= EXTENSION_BANDS.stretched ? 'stretched' : value >= EXTENSION_BANDS.extended ? 'extended'
+      : value <= EXTENSION_BANDS.nearBase ? 'near-base' : 'normal';
+}
+export const EXTENSION_STATE_LABELS = Object.freeze({ 'near-base': '기준선 가까이', normal: '기준선에서 보통 거리', extended: '기준선에서 확장', stretched: '확장 7배 이상(참고 구간)', unavailable: '자료 없음' });
+
 /**
  * @param {object} row normalized screener row, optionally after factor ranking
  * @returns {object} fail-closed, research-only setup profile
@@ -54,8 +65,7 @@ export function deriveScreenerSetupProfile(row = {}) {
   // range. A late entry pays for the base-building time with no profit cushion; this says how late. ADR stands in for
   // ATR (same idea, published already). Reference bands, not signals: under 2 near the line, 4+ extended, 7+ stretched.
   const extensionMultiple = pctSma50 != null && adrPct != null && adrPct > 0 ? Math.round((pctSma50 / adrPct) * 10) / 10 : null;
-  const extensionState = extensionMultiple == null ? 'unavailable'
-    : extensionMultiple >= 7 ? 'stretched' : extensionMultiple >= 4 ? 'extended' : extensionMultiple <= 2 ? 'near-base' : 'normal';
+  const extensionState = extensionStateFor(extensionMultiple);
   const relativeStrengthEvidenceAvailable = rank != null && benchmarkRelativeStrength != null && ret1m != null
     && (ret3m != null || ret6m != null) && pctSma200 != null && pctSma50 != null;
   const volumeEvidence = rvol20 == null ? 'unavailable'
@@ -104,15 +114,16 @@ export function deriveScreenerSetupProfile(row = {}) {
   if (relativeStrengthPullback) tags.push('상대강도 눌림 후보');
   if (support200 === 'near') tags.push('200일선 부근');
   if (climaxRisk) tags.push('클라이맥스 관찰');
-  if (extensionState === 'stretched') tags.push('추격 위험 (50일선에서 일평균 변동폭의 7배 이상)');
-  if (volumeEvidence === 'unavailable') tags.push('거래량 확인 필요');
+  // S14: an observed band, not a warning about entering. S04: no per-row "거래량 확인 필요" — RVOL is not
+  // published for any row, so the tag carried no information; the gap stays in missingEvidence.
+  if (extensionState === 'stretched') tags.push('50일선 확장 7배 이상(참고 구간)');
   if (!relativeStrengthPullback && support200 !== 'near' && !climaxRisk) tags.push('추가 셋업 근거 필요');
 
   const label = climaxRisk ? '클라이맥스 관찰'
     : relativeStrengthPullback ? '상대강도 눌림'
       : support200 === 'near' ? '200일선 부근' : '관찰';
-  if (winnerFilter === 'candidate') tags.push('TradingView winner filter candidate');
-  if (winnerFilter === 'unavailable') tags.push('TradingView filter evidence unavailable');
+  // S13: no provider name in the visible tag; an unavailable filter is shown once on the filter control.
+  if (winnerFilter === 'candidate') tags.push('승자 필터 통과(가격·ADR·유동성·EMA)');
 
   const explanation = relativeStrengthPullback
     ? '중기 수익률·상대 랭크는 유지되지만 최근 수익률이 눌린 후보입니다. 지지/리클레임과 거래량 확인이 필요합니다.'

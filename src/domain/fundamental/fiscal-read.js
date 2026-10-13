@@ -12,7 +12,9 @@ export function formatUsdShort(value) {
   const v = finite(value);
   if (v == null) return '—';
   const abs = Math.abs(v);
-  return abs >= 1e12 ? `$${(v / 1e12).toFixed(2)}조` : abs >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : abs >= 1e6 ? `$${(v / 1e6).toFixed(0)}M` : `$${v.toFixed(0)}`;
+  // 2026-10-13 review S18: the sign precedes the currency ("−$147.8B", not "$-147.8B").
+  const sign = v < 0 ? '−' : '';
+  return abs >= 1e12 ? `${sign}$${(abs / 1e12).toFixed(2)}T` : abs >= 1e9 ? `${sign}$${(abs / 1e9).toFixed(1)}B` : abs >= 1e6 ? `${sign}$${(abs / 1e6).toFixed(0)}M` : `${sign}$${abs.toFixed(0)}`;
 }
 
 // P1627: the compact history used to round every amount to a whole USD million.
@@ -76,10 +78,18 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
       const niGrowth = (niNow / niPrev - 1) * 100;
       const pe = finite(row?.pe);
       const peg = pe != null && pe > 0 && niGrowth > 0 ? pe / niGrowth : null;
+      // 2026-10-13 review S06: the PER's earnings are the last filed fiscal year, which can be more than a year old.
+      // Name that year and how many months have passed since it closed (TTM is out of scope).
+      const earningsEnd = String(row?._fundamentalPeriodEnd || latest.periodEnd || '').slice(0, 10);
+      const sessionEnd = String(row?.factorSessionDate || '').slice(0, 10);
+      const monthsSince = /^\d{4}-\d{2}-\d{2}$/.test(earningsEnd) && /^\d{4}-\d{2}-\d{2}$/.test(sessionEnd)
+        ? (Number(sessionEnd.slice(0, 4)) - Number(earningsEnd.slice(0, 4))) * 12 + Number(sessionEnd.slice(5, 7)) - Number(earningsEnd.slice(5, 7)) - (Number(sessionEnd.slice(8, 10)) < Number(earningsEnd.slice(8, 10)) ? 1 : 0)
+        : null;
+      const earningsBasis = /^\d{4}-\d{2}/.test(earningsEnd) ? `FY${earningsEnd.slice(0, 4)}(${earningsEnd.slice(0, 7)} 마감) 순이익 기준${monthsSince != null && monthsSince >= 0 ? ` · 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
       points.push({ id: 'earnings', tone: niGrowth >= 0 ? 'favorable' : 'burden', title: '이익과 가격',
         // Codex review 2026-10-05: a PEG from last year's income growth cannot say whether the price is a
         // burden — that needs the growth ahead. The number is shown with its basis, without a verdict.
-        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${pe != null ? `, 공시 이익 기준 PER ${pe.toFixed(1)}배` : ''}${peg != null ? `, PEG ${peg.toFixed(2)}(PER ÷ 지난 1년 순이익 성장률)` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.` });
+        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${pe != null ? `, PER ${pe.toFixed(1)}배(${earningsBasis})` : ''}${peg != null ? `, PEG ${peg.toFixed(2)}(PER ÷ 그 회계연도 순이익 성장률)` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.` });
     }
   } else if (latest) {
     const growth = finite(fundamentals?.revGrowth);
@@ -99,7 +109,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
   if (roe != null) points.push({ id: 'roe', tone: roe >= 15 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율',
     // Codex browser audit H37: the generic "buybacks or debt" explanation read as this company's cause. The reading
     // now uses what is measured here (margin, equity change) and names what is not (assets, so no DuPont split).
-    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 40 ? ` 이 수준에서는 순이익률${latest?.margin != null ? `(${latest.margin.toFixed(1)}%)` : ''}·자산 회전·재무 레버리지 중 무엇이 끌어올렸는지 나눠 봐야 합니다. 이 화면에는 자산 총계가 없어 그 분해는 하지 않습니다${equityChange != null ? ` — 자기자본은 전년보다 ${signed(equityChange)} 변했습니다` : ''}.` : ''}` });
+    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe < 0 ? '순손실로 자본이 줄어든 해' : roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 40 ? ` 이 수준에서는 순이익률${latest?.margin != null ? `(${latest.margin.toFixed(1)}%)` : ''}·자산 회전·재무 레버리지 중 무엇이 끌어올렸는지 나눠 봐야 합니다. 이 화면에는 자산 총계가 없어 그 분해는 하지 않습니다${equityChange != null ? ` — 자기자본은 전년보다 ${signed(equityChange)} 변했습니다` : ''}.` : ''}` });
   // P1446: the cash chain — earnings → operating cash → capital spending → free cash → debt and share count.
   const ocf = finite(latest?.operatingCashFlow);
   const capex = finite(latest?.capex);

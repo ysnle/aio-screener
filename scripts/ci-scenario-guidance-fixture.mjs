@@ -29,7 +29,12 @@ for (const item of outlook.items) {
   assert.ok(['높음', '중간', '낮음', '판단 보류'].includes(item.likelihood), 'likelihood is a count-based label');
   assert.ok(item.posture && item.opportunity && item.check.length && item.caution.length && item.ignore.length, `P1633: ${item.id} has posture, opportunity, check, caution, ignore`);
   assert.doesNotMatch(`${item.posture} ${item.opportunity}`, /\d+(?:\.\d+)?\s*%\s*(?:확률|가능성)|매수하세요|매도하세요|목표가/, 'no probability percentages or trade instructions');
+  // T06 (expert review 2026-10-13): a count of met conditions, never a likelihood grade; no allocation or timing advice.
+  assert.match(item.fit, /^(현재 조건 부합 \d+\/\d+|판단 보류)$/, 'T06 fit is the met-condition count');
+  assert.doesNotMatch(item.posture, /현금|단기채|비중|기다리는 쪽|유리할 가능성|기회비용/, `T06 ${item.id} posture carries no allocation/timing advice`);
+  assert.match(item.posture, /반증/, `T06 ${item.id} posture names what would refute it`);
 }
+assert.doesNotMatch(outlook.headline, /개연성/, 'T06 headline drops the likelihood grade');
 assert.match(renderScenarioOutlookContext(outlook), /매매 지시/, 'AI context restates the no-instruction boundary');
 
 // P1634: eight intervals; 4-hour bars combine at most four 1-hour bars of one exchange day.
@@ -51,7 +56,7 @@ assert.equal(intervalStructure(hourly).long, null, 'P1634: too few bars leaves t
 const data = { macro: { hyOAS: 3.15, hyOASDelta5: -0.09 }, fearGreed: { score: 45 } };
 const context = buildMarketAnalysisRegimeContext(data, rows);
 assert.match(context, /종합:/, 'P1635: regime summary present');
-assert.match(context, /개연성/, 'P1635: scenario likelihood present');
+assert.match(context, /현재 조건 부합/, 'P1635/T06: scenario condition count present');
 
 // P1636: research-page observations that the site refreshes are replaced by the latest values.
 const artifact = { observations: [

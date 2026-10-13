@@ -47,7 +47,9 @@ const schedule = buildBriefingSchedule({ nowMs: Date.parse('2026-10-09T00:00:00Z
 assert.equal(schedule.length, 2, 'P1602: event id dedupes same issuer/date/session only');
 assert.equal(schedule[0].status, 'received', 'P1602: received actual supersedes pending duplicate');
 assert.notEqual(schedule[0].id, schedule[1].id, 'P1602: event ids contain date');
-assert.match(schedule[0].last, /fixture-calendar.*회계기간 미제공/, 'P1602: estimate source and absent period are explicit');
+// T15 (expert review 2026-10-13): the estimate source moves to the hover; a missing period is omitted, not printed as '미제공'.
+assert.match(schedule[0].sourceTitle || '', /fixture-calendar/, 'P1602/T15: estimate source stays attached (hover)');
+assert.doesNotMatch(schedule[0].last, /fixture-calendar|미제공/, 'T15: no provider name or 미제공 in the line');
 assert.equal(secFilingUrl('0001045810', '0001045810-26-000001'), 'https://www.sec.gov/Archives/edgar/data/1045810/000104581026000001/0001045810-26-000001-index.html', 'P1602: official SEC index');
 assert.equal(secFilingUrl('../1', 'bad'), null, 'P1602: invalid filing identity creates no link');
 let saved = null;

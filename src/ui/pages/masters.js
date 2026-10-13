@@ -39,8 +39,28 @@ const ACTION_LABELS = Object.freeze({
   REDUCED: '감소',
   UNCHANGED: '변화 없음',
   EXITED: '전량 제외',
+  SPLIT_SUSPECT: '분할 의심 · 수량 변화 보류',
   UNAVAILABLE: '비교 불가'
 });
+
+// v57.48 expert review #9: 13F share counts are not split-adjusted, so a 23.35× share count at ×0.99 value
+// read as '증가'. When the share count moves ≥1.5× (or ≤0.67×) while the value stays within 0.6~1.6×, AND the
+// implied per-share price moved by more than a quarter's plausible range (≤0.6× or ≥1.67×), the row is a split
+// suspect and its quantity change is held. The per-share condition keeps a real half-sale whose price rose
+// (shares ×0.48, value ×0.63 → per-share ×1.31) classified as 감소.
+export function displayActionOf(row) {
+  const action = row?.action || 'UNAVAILABLE';
+  if (action !== 'INCREASED' && action !== 'REDUCED') return action;
+  const shares = Number(row.shares);
+  const priorShares = Number(row.priorShares ?? (Number(row.shares) - Number(row.sharesDelta)));
+  const value = Number(row.value);
+  const priorValue = Number(row.priorValue ?? (Number(row.value) - Number(row.valueDelta)));
+  if (!(shares > 0 && priorShares > 0 && value > 0 && priorValue > 0)) return action;
+  const shareRatio = shares / priorShares;
+  const valueRatio = value / priorValue;
+  const perShare = valueRatio / shareRatio;
+  return (shareRatio >= 1.5 || shareRatio <= 0.67) && valueRatio >= 0.6 && valueRatio <= 1.6 && (perShare <= 0.6 || perShare >= 1.67) ? 'SPLIT_SUSPECT' : action;
+}
 
 const VIEW_LABELS = Object.freeze({
   changes: '핵심 변화',
@@ -452,8 +472,9 @@ function formatQuarterLabel(period) {
   return `${year} Q${Math.min(4, Math.max(1, Math.ceil(month / 3)))}`;
 }
 
-function createChangeSummary(documentRef, verification) {
+function createChangeSummary(documentRef, verification, comparisonRows = []) {
   if (!verification?.priorReportPeriod) return null;
+  const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
   const summary = element(documentRef, 'div', 'masters-change-summary');
   summary.appendChild(element(documentRef, 'strong', 'masters-change-summary-title', `${verification.reportPeriod} 보고 주식 수 변화 · 이전 보고분기 ${verification.priorReportPeriod}`));
   const counts = element(documentRef, 'div', 'masters-change-counts');
@@ -462,6 +483,8 @@ function createChangeSummary(documentRef, verification) {
     counts.appendChild(element(documentRef, 'span', `masters-change-count masters-change-${action.toLowerCase()}`, `보고 수량상 ${ACTION_LABELS[action]} ${count}`));
   });
   summary.appendChild(counts);
+  // #9: the counts are the filing's share deltas, not split-adjusted.
+  summary.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `주식 분할·병합 미보정 수량 기준${splitSuspects ? ` · 불러온 행 중 분할 의심 ${splitSuspects}건이 증가·감소 수에 들어 있습니다` : ''}.`));
   return summary;
 }
 
@@ -543,8 +566,8 @@ function createHoldingRow(documentRef, row, index, includeAction = true) {
   values.push(row.putCall || '—');
   values.forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
   if (includeAction) {
-    const action = row.action || 'UNAVAILABLE';
-    const prefix = row.actionConfidence === 'REVIEW_REQUIRED' ? '신고 수량상 ' : '';
+    const action = displayActionOf(row);
+    const prefix = row.actionConfidence === 'REVIEW_REQUIRED' && action !== 'SPLIT_SUSPECT' ? '신고 수량상 ' : '';
     tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${action.toLowerCase()}`, `${prefix}${ACTION_LABELS[action] || action}`));
   }
   tr.title = `${row.evidenceId || 'SEC reference'} · ${row.reportPeriod || ''}`;
@@ -577,9 +600,10 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
 function createChangeLedger(documentRef, comparisonRows, state) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-change-ledger');
   section.appendChild(element(documentRef, 'h4', 'masters-holdings-title', '분기 변화 원장 · CUSIP·주식 유형·Put/Call 집계'));
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이에서 계산한 분류이며 모든 행은 재검토 대상입니다. 변화가 있는 행을 먼저, 변화 없는 행을 뒤에 놓았고 각 묶음 안은 신고 가치 순이며, 왼쪽 번호는 가치 순위가 아니라 이 표시 순서입니다. 현재 가격, 실제 체결 매매, 매매 신호, 목표가를 뜻하지 않습니다.'));
+  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이에서 계산한 분류이며 모든 행은 재검토 대상입니다. 주식 분할·병합은 보정하지 않았으므로, 주식 수가 크게 바뀌었는데 신고 가치는 비슷한 행은 분할 의심으로 따로 두고 수량 변화를 판정하지 않습니다. 변화가 있는 행을 먼저, 변화 없는 행을 뒤에 놓았고 각 묶음 안은 신고 가치 순이며, 왼쪽 번호는 가치 순위가 아니라 이 표시 순서입니다. 현재 가격, 실제 체결 매매, 매매 신호, 목표가를 뜻하지 않습니다.'));
   const filters = element(documentRef, 'div', 'masters-action-filters');
-  ['ALL', 'NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED'].forEach((action) => {
+  const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
+  ['ALL', 'NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED', ...(splitSuspects ? ['SPLIT_SUSPECT'] : [])].forEach((action) => {
     const label = action === 'ALL' ? '전체' : ACTION_LABELS[action];
     const filterButton = button(documentRef, `masters-action-filter${state.actionFilter === action ? ' is-active' : ''}`, label, 'change-filter', action);
     filterButton.setAttribute('aria-pressed', state.actionFilter === action ? 'true' : 'false');
@@ -588,7 +612,7 @@ function createChangeLedger(documentRef, comparisonRows, state) {
   // P1593 (F99/F110): a 'changes' view shows rows that changed before unchanged ones (each group keeps the
   // reported-value order); the preview itself is the top rows by current reported value, and says so above.
   const changedFirst = [...comparisonRows].sort((a, b) => Number(a.action === 'UNCHANGED') - Number(b.action === 'UNCHANGED'));
-  const filtered = state.actionFilter === 'ALL' ? changedFirst : comparisonRows.filter((row) => row.action === state.actionFilter);
+  const filtered = state.actionFilter === 'ALL' ? changedFirst : comparisonRows.filter((row) => displayActionOf(row) === state.actionFilter);
   const pageCount = Math.max(1, Math.ceil(filtered.length / state.pageSize));
   state.page = Math.min(state.page, pageCount);
   const start = (state.page - 1) * state.pageSize;
@@ -597,7 +621,8 @@ function createChangeLedger(documentRef, comparisonRows, state) {
     const tr = element(documentRef, 'tr', '');
     const formatter = new Intl.NumberFormat('en-US');
     [String(start + index + 1), row.issuer || '—', row.cusipNormalized || row.cusip || '—', formatReportedValue(row.value), formatter.format(row.shares || 0), formatDelta(row.sharesDelta, formatter), formatDelta(row.valueDelta, formatter)].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
-    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${String(row.action || 'UNAVAILABLE').toLowerCase()}`, `${ACTION_LABELS[row.action] || row.action || '비교 불가'}`));
+    const shown = displayActionOf(row);
+    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${String(shown).toLowerCase().replace(/_/g, '-')}`, `${ACTION_LABELS[shown] || shown || '비교 불가'}`));
     tr.title = `${row.evidenceId || 'SEC comparison'} · 이전 보고분기 ${row.priorReportPeriod || '확인 필요'} · ${row.actionBasis || 'REPORTED_SHARE_DELTA'} · ${row.actionConfidence || 'REVIEW_REQUIRED'}`;
     return tr;
   }, 'masters-comparison-table masters-holdings-table');
@@ -1091,7 +1116,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   } else if (state.view === 'compare') {
     detail.appendChild(createInvestorCompareView(documentRef, state.compareIds, registry, holdingManagers, rowsByManager));
   } else if (state.view === 'changes') {
-    const summary = createChangeSummary(documentRef, holdingMeta?.verification);
+    const summary = createChangeSummary(documentRef, holdingMeta?.verification, comparisonRows);
     if (summary) detail.appendChild(summary);
     if (compactRows.length && !comparisonRows.length) detail.appendChild(createTopHoldingTable(documentRef, manager, holdingMeta, compactRows));
     if (comparisonRows.length) {
@@ -1315,13 +1340,16 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
             detailNode.prepend(notice);
           }
         }
-        if (state.filingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 공시 메타데이터를 불러오지 못했습니다. 기관 소개는 계속 볼 수 있습니다.'));
-        if (state.holdingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 보유 행을 불러오지 못했습니다. 공시 메타데이터는 계속 볼 수 있습니다.'));
-         if (state.securityMasterError || state.referenceMasterError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', '종목 분류 원장을 불러오지 못해 섹터를 임의로 추정하지 않습니다.'));
-          if (state.historyError || state.historyRowsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 과거 공시 행을 불러오지 못했습니다. 현재·직전 분기 행과 공시 메타데이터는 계속 볼 수 있습니다.'));
-          if (state.issuerAggregatesError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', '종목별 과거 합산 자료를 불러오지 못했습니다. 원본 현재·직전 분기 행은 계속 볼 수 있습니다.'));
-         if (state.previewsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', '공시 행 미리보기를 불러오지 못했습니다. 전체 행 요청과 메타데이터는 계속 사용할 수 있습니다.'));
-         if (state.discoveryError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 최신 제출 확인 자료를 불러오지 못했습니다. 저장된 제출일은 표시하되 최신이라고 단정하지 않습니다.'));
+        // v57.48 expert review #14: `layout` itself is not mounted (only its detail node is), so load-failure notices
+        // appended to it never reached the screen — they are collected and put at the top of the document column.
+        const loadNotices = [];
+        if (state.filingsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 공시 메타데이터를 불러오지 못했습니다. 기관 소개는 계속 볼 수 있습니다.'));
+        if (state.holdingsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 보유 행을 불러오지 못했습니다. 공시 메타데이터는 계속 볼 수 있습니다.'));
+         if (state.securityMasterError || state.referenceMasterError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', '종목 분류 원장을 불러오지 못해 섹터를 임의로 추정하지 않습니다.'));
+          if (state.historyError || state.historyRowsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 과거 공시 행을 불러오지 못했습니다. 현재·직전 분기 행과 공시 메타데이터는 계속 볼 수 있습니다.'));
+          if (state.issuerAggregatesError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', '종목별 과거 합산 자료를 불러오지 못했습니다. 원본 현재·직전 분기 행은 계속 볼 수 있습니다.'));
+         if (state.previewsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', '공시 행 미리보기를 불러오지 못했습니다. 전체 행 요청과 메타데이터는 계속 사용할 수 있습니다.'));
+         if (state.discoveryError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 최신 제출 확인 자료를 불러오지 못했습니다. 저장된 제출일은 표시하되 최신이라고 단정하지 않습니다.'));
          const discoveryState = state.discovery || state.holdings?.filingDiscoverySummary;
          const coverageSummary = deriveCoverageSummary(registry, state.catalog, state.holdings, state.previews, discoveryState, state.principles, state.securityMaster);
          const coverage = createCatalogCoverage(documentRef, state.catalog, registry, state.holdings, state.previews, discoveryState, state.principles, state.securityMaster);
@@ -1366,6 +1394,8 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
             tickerLookup,
             onLocal: (params = {}) => { if (params.manager) { state.selectedId = params.manager; state.styleOverview = false; render(); } }
           });
+          if (loadNotices.length) loadNotices.forEach((notice) => notice.setAttribute('role', 'status'));
+          if (loadNotices.length) shell.querySelector('.rl-main')?.prepend(...loadNotices);
           if (arrival) shell.querySelector('.rl-main')?.prepend(arrival);
           content.replaceChildren(shell);
          if (focusSelector) {

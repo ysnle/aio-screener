@@ -39,6 +39,8 @@ import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { readMarketRegime } from '../ui/components/market-regime.js';
+import { collectMarketInputs } from '../ui/components/briefing-read.js';
+import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBasisEvidenceContext } from '../ai/context/close-basis-evidence.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
@@ -303,12 +305,18 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // Codex browser audit H104: the AI answered from live intraday breadth ("200일선 위 44.") while the screen read
   // the 10/6 close (50% above the 200-day). The chat now receives the same close-basis readings the screen shows,
   // as the first and authoritative block; live values are labelled as live and secondary.
+  // v57.48 review #7: the same closes are also registered as typed reference evidence (fixed metric ids, the real
+  // close date as asOf, source 'close-basis'), so an answer's VIX/10Y claim binds instead of being dropped as unverified.
+  // The chat claim collector adds these rows on both surfaces; a stale live row points at its close substitute.
+  root._aioScreenBasisEvidence = createCloseBasisEvidenceReader(() => collectMarketInputs(root), { now: () => clock.now() });
+  root._aioCloseBasisSubstitute = (symbol) => closeBasisSubstituteFor(symbol, root._aioScreenBasisEvidence())?.evidenceId || null;
   root._aioScreenBasisContext = () => {
     try {
       const regime = readMarketRegime(root);
       if (!regime?.available) return '';
       const axes = (regime.axes || []).map((axis) => `- ${axis.title}: ${axis.stateLabel}${axis.basis ? ` (${axis.basis})` : ''} — ${(axis.evidence || []).map(([label, value]) => `${label} ${value}`).join(', ')}`);
-      return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes].join('\n');
+      const typed = renderCloseBasisEvidenceContext(root._aioScreenBasisEvidence());
+      return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes, typed].filter(Boolean).join('\n');
     } catch (_) { return ''; }
   };
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;

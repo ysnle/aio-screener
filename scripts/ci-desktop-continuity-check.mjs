@@ -108,7 +108,8 @@ const documentRef = {
   querySelector(selector) { return this.getElementById(selector.match(/id="([^"]+)"/)?.[1] || selector); }
 };
 const analysisSource = read('src/ui/pages/analysis.js');
-const uiContext = vm.createContext({ documentRef });
+const { fearGreedBand } = await import(new URL('../src/domain/sentiment/metrics.js', import.meta.url));
+const uiContext = vm.createContext({ documentRef, fearGreedBand }); // T11: the home card bands through the shared fearGreedBand
 vm.runInContext(analysisSource.slice(analysisSource.indexOf('function finite('), analysisSource.indexOf('function renderTechnicalHealth(')), uiContext);
 // P1392: the home card is the six-axis regime summary; without close history it waits instead of
 // inventing a state (the retired score summary asserted the same fail-closed behaviour).
@@ -130,6 +131,14 @@ assert.equal(nodes.get('home-fg-label').textContent, '중립');
 uiContext.renderHomeFearGreed({ documentRef, sentimentValues: { fearGreed: null } });
 assert.equal(nodes.get('home-fg-score').textContent, '—');
 assert.equal(nodes.get('home-fg-label').textContent, '미수신');
+// T09/T11: the completed-close value wins over the intraday one, and label/colour share one band (24.6 rounds to 25 = 공포).
+uiContext.renderHomeFearGreed({ documentRef, sentimentValues: { fearGreed: 60 }, fgClose: { date: '2026-10-12', value: 24.6 } });
+assert.equal(nodes.get('home-fg-score').textContent, '25');
+assert.equal(nodes.get('home-fg-label').textContent, '공포');
+assert.equal(nodes.get('home-fg-score').style.color, 'var(--data-amber)');
+assert.equal(nodes.get('home-fg-score').attrs.get('data-observed-at'), '2026-10-12');
+uiContext.renderHomeFearGreed({ documentRef, sentimentValues: { fearGreed: 70 } });
+assert.equal(nodes.get('home-fg-score').style.color, 'var(--data-green)', 'T11 greed uses the theme token, not #86efac');
 
 const entitySource = read('src/ui/pages/entity.js');
 vm.runInContext(entitySource.slice(entitySource.indexOf('function tickerElement('), entitySource.indexOf('function renderTickerActivity(')) + entitySource.slice(entitySource.indexOf('function renderTickerNavigation('), entitySource.indexOf('function renderTickerChart(')), uiContext);

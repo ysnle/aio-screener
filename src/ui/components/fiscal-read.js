@@ -72,6 +72,21 @@ export function formatFiscalAmount(value) {
   return `${v < 0 ? '−' : ''}$${(Math.abs(v) / 1e6).toLocaleString('en-US', { maximumFractionDigits: 3 })}M`;
 }
 
+// 2026-10-13 review S20: the table and bar labels read in the same B/T units as the reading ($416.2B, not
+// $416,161M); the exact filed amount (formatFiscalAmount) stays in the cell title.
+export function formatFiscalCompact(value) {
+  const v = number(value);
+  if (v == null) return '자료 없음';
+  const abs = Math.abs(v);
+  const body = abs >= 1e12 ? `${(abs / 1e12).toFixed(2)}T` : abs >= 1e9 ? `${(abs / 1e9).toFixed(1)}B` : abs >= 1e6 ? `${(abs / 1e6).toFixed(1)}M` : abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  return `${v < 0 ? '−' : ''}$${body}`;
+}
+function amountNode(doc, tag, prefix, value, className) {
+  const node = el(doc, tag, `${prefix}${formatFiscalCompact(value)}`, className);
+  if (number(value) != null) node.title = `${prefix}${formatFiscalAmount(value)}`;
+  return node;
+}
+
 function fiscalChart(doc, rows, { quarter = false } = {}) {
   const scale = fiscalBarGeometry(rows.flatMap((year) => [year.revenue, year.netIncome]));
   const box = el(doc, 'div', null, 'fiscal-bars');
@@ -79,8 +94,8 @@ function fiscalChart(doc, rows, { quarter = false } = {}) {
   for (const year of rows) {
     const col = el(doc, 'div', null, 'fiscal-col');
     const amounts = el(doc, 'div', null, 'fiscal-values');
-    amounts.append(el(doc, 'span', `매출 ${formatFiscalAmount(year.revenue)}`, 'fiscal-value'),
-      el(doc, 'span', `순이익 ${formatFiscalAmount(year.netIncome)}`, `fiscal-value${year.netIncome < 0 ? ' is-loss' : ''}`));
+    amounts.append(amountNode(doc, 'span', '매출 ', year.revenue, 'fiscal-value'),
+      amountNode(doc, 'span', '순이익 ', year.netIncome, `fiscal-value${year.netIncome < 0 ? ' is-loss' : ''}`));
     const stack = el(doc, 'div', null, 'fiscal-stack');
     if (box.children.length === 0) {
       const zero = el(doc, 'span', '0', 'fiscal-zero-label');
@@ -119,7 +134,7 @@ function fiscalTable(doc, rows, { quarter = false } = {}) {
   region.setAttribute('role', 'region');
   region.setAttribute('aria-label', quarter ? '분기 공시 금액표, 가로 스크롤' : '연간 공시 금액표, 가로 스크롤');
   const table = el(doc, 'table', null, 'fiscal-amount-table');
-  table.append(el(doc, 'caption', `${quarter ? '분기' : '연간'} 금액 · USD 백만(M) · 자료 없음은 0이 아닙니다`));
+  table.append(el(doc, 'caption', `${quarter ? '분기' : '연간'} 금액 · USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스) · 자료 없음은 0이 아닙니다`));
   const head = el(doc, 'thead'); const headRow = el(doc, 'tr');
   const definitions = quarter ? [['periodEnd', '분기 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['margin', '순이익률']]
     : [['periodEnd', '회계연도 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['operatingCashFlow', '영업현금흐름'], ['capex', '설비투자'], ['fcf', '잉여현금흐름'], ['equity', '자기자본(기말)'], ['longTermDebt', '장기부채'], ['shares', '주식 수']];
@@ -132,9 +147,10 @@ function fiscalTable(doc, rows, { quarter = false } = {}) {
       const value = field === 'fcf' ? number(year.operatingCashFlow) != null && number(year.capex) != null ? year.operatingCashFlow - year.capex : null : year[field];
       const text = field === 'periodEnd' ? `${year.periodEnd}${year.derived ? '*' : ''}` : field === 'margin' ? number(value) == null ? '자료 없음' : `${Number(value).toFixed(1)}%`
         : field === 'shares' ? number(value) == null ? '자료 없음' : `${(Number(value) / 1e6).toLocaleString('en-US', { maximumFractionDigits: Number(value) < 1e8 ? 1 : 0 })}M주`
-          : formatFiscalAmount(value);
+          : formatFiscalCompact(value);
       const cell = el(doc, field === 'periodEnd' ? 'th' : 'td', text, number(value) < 0 ? 'is-loss' : null);
       if (field === 'periodEnd') cell.scope = 'row';
+      else if (!['margin', 'shares'].includes(field) && number(value) != null) cell.title = formatFiscalAmount(value);
       if (field === 'shares') cell.title = year.sharesObservedAt ? `관측일 ${year.sharesObservedAt}` : '해당 회계연도 종료 뒤 표지에 신고한 주식 수';
       tr.append(cell);
     }
@@ -198,6 +214,20 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
   return box;
 }
 
+// S12: the Korean filing button. A receipt number opens that report (DART viewer, rcpNo); without one the DART
+// disclosure search opens. The address stays in href/title, never in the body text.
+export function dartLinkHref(company) {
+  const receipt = String(company?.receiptNo || '').trim();
+  return /^\d{14}$/.test(receipt) ? `https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${receipt}` : 'https://dart.fss.or.kr/dsab007/main.do';
+}
+export function dartLink(doc, company) {
+  const href = dartLinkHref(company);
+  const link = el(doc, 'a', company?.receiptNo ? '한국 공시(DART) 사업보고서 원문' : '한국 공시(DART)에서 공시 검색', 'aio-btn-table fiscal-source-link');
+  link.href = href; link.target = '_blank'; link.rel = 'noopener noreferrer';
+  link.title = '금융감독원 전자공시시스템(DART) · 새 창';
+  return link;
+}
+
 function sourceLink(doc, fundamentals, { filings = false } = {}) {
   const cik = String(fundamentals?.cik || '');
   const href = filings ? /^\d{1,10}$/.test(cik) && Number(cik) > 0 ? `https://www.sec.gov/edgar/browse/?CIK=${Number(cik)}&owner=exclude` : null
@@ -226,10 +256,15 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   const read = buildFiscalRead({ symbol, fundamentals, row });
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
   if (!read.available) {
-    host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분하며, 한국 종목은 한국 공시를 확인합니다.', compact: true }));
+    // 2026-10-13 review S12: a KRX listing is read from Korean filings (DART), not as "SEC 미수신".
+    if (/\.K[SQ]$/.test(symbol)) {
+      host.append(emptyState(doc, { title: '한국 공시(DART) 재무', reason: `${symbol} — 한국 상장 종목이라 SEC 공시 대상이 아닙니다. 연간 재무는 한국 공시(DART) 사업보고서 기준이며, 이 화면의 한국 공시 수집본은 아직 연결되지 않았습니다.`, next: '공시 원문은 아래 버튼에서 확인합니다.', compact: true }));
+      const dart = dartLink(doc, root?._aioKrFundamentals?.companies?.[symbol]);
+      if (dart) host.append(dart);
+    } else host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분합니다.', compact: true }));
   } else {
     host.querySelector('h2').append(el(doc, 'span', `SEC 연간 · ${read.history.length}개 회계연도`, 'briefing-h2-note'));
-    const basis = el(doc, 'p', `연간 공시 · 회계연도 말 ${read.latest.periodEnd || '미상'}${fundamentals?.filedAt ? ` · 제출 ${fundamentals.filedAt}` : ''} · 금액 USD 백만(M)`, 'fiscal-period-basis');
+    const basis = el(doc, 'p', `연간 공시 · 회계연도 말 ${read.latest.periodEnd || '미상'}${fundamentals?.filedAt ? ` · 제출 ${fundamentals.filedAt}` : ''} · 금액 USD`, 'fiscal-period-basis');
     const annualSource = sourceLink(doc, fundamentals);
     if (annualSource) basis.append(doc.createTextNode(' · '), annualSource);
     host.append(basis);

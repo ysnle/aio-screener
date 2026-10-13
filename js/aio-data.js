@@ -1791,15 +1791,6 @@ var SCR_KEYWORD_ALIASES = {
   // 가치주
   '가치주': ['JPM','GS','XOM','CVX','WMT','COST','V','DE','CAT'],
   'value': ['JPM','GS','XOM','CVX','WMT','COST','V','DE','CAT'],
-  // 매수/매도 신호
-  '매수': 'BUY',
-  'buy': 'BUY',
-  '매도': 'SELL',
-  'sell': 'SELL',
-  '관망': 'WATCH',
-  'watch': 'WATCH',
-  '보유': 'HOLD',
-  'hold': 'HOLD',
   // 추가 키워드 (확장)
   '다우': ['AAPL','MSFT','JPM','V','UNH','GS','HD','CAT','AMGN','MCD','CRM','HON','BA','IBM','DIS','NKE','KO','PG','MRK','JNJ','CVX','XOM','INTC','CSCO','WMT','MMM','VZ','DOW','TRV','AXP'],
   'dow': ['AAPL','MSFT','JPM','V','UNH','GS','HD','CAT','AMGN','MCD','CRM','HON','BA','IBM','DIS','NKE','KO','PG','MRK','JNJ','CVX','XOM','INTC','CSCO','WMT','MMM','VZ','DOW','TRV','AXP'],
@@ -1986,7 +1977,7 @@ var SCR_KEYWORD_ALIASES = {
 
 // ARX-10: native screener owns controls, table, factor panel, and backtest DOM.
 var AIO_TRADER_PROFILES = {
-  balanced: { label:'균형', desc:'레짐 기반 자동 가중 (권장)', weights:null },
+  balanced: { label:'균형', desc:'고정 균형 가중 (시장 국면 자동 조정은 검증 전이라 미적용)', weights:null },
   momentum: { label:'모멘텀', desc:'단기 추세 추종 · 1~4주 보유', weights:{momentum:0.40,trend:0.25,lowvol:0.08,size:0.05,value:0.06,quality:0.06,kalman:0.10} },
   swing: { label:'스윙', desc:'중기 기술적 매매 · 2~8주 보유', weights:{momentum:0.30,trend:0.28,lowvol:0.12,size:0.07,value:0.07,quality:0.07,kalman:0.09} },
   value: { label:'가치', desc:'저평가 장기 투자 · 3~12개월 보유', weights:{momentum:0.12,trend:0.15,lowvol:0.15,size:0.08,value:0.30,quality:0.15,kalman:0.05} },

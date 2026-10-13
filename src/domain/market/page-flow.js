@@ -54,9 +54,10 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
 
   const leadership = hl == null && mv == null
     ? '신고가·신저가와 4% 급등락 기록이 아직 쌓이는 중이라 이 묶음은 판정 근거로 쓰지 않습니다 — 위 참여도가 주 근거입니다.'
-    : [hl == null ? null : hl > 0 ? `신고가가 신저가보다 ${round(hl)}개 많아 주도주가 넓어지는 쪽입니다` : hl < 0 ? `신저가가 신고가보다 ${round(-hl)}개 많아 주도주가 좁아지는 쪽입니다` : '신고가와 신저가가 같은 수입니다',
-      mv == null ? null : mv > 0 ? `최근 5일 4% 급등 종목이 급락보다 ${round(mv)}개 많아 매수세가 살아 있습니다` : mv < 0 ? `최근 5일 4% 급락 종목이 급등보다 ${round(-mv)}개 많아 투매 쪽입니다` : '최근 5일 급등·급락 종목 수가 같습니다'
-    ].filter(Boolean).join('. ') + '.';
+    // T13 (expert review 2026-10-13): one day's count is an observation of today, not a trend ("넓어지는 쪽", "투매").
+    : [hl == null ? null : hl > 0 ? `오늘 기준 52주 신고가가 신저가보다 ${round(hl)}개 많습니다` : hl < 0 ? `오늘 기준 52주 신저가가 신고가보다 ${round(-hl)}개 많습니다` : '오늘 기준 신고가와 신저가가 같은 수입니다',
+      mv == null ? null : mv > 0 ? `최근 5일 4% 급등 종목이 급락보다 ${round(mv)}개 많아 상승 쪽이 우세합니다` : mv < 0 ? `최근 5일 4% 급락 종목이 급등보다 ${round(-mv)}개 많아 하락 쪽이 우세합니다` : '최근 5일 급등·급락 종목 수가 같습니다'
+    ].filter(Boolean).join('. ') + '. 하루·5일 집계라 확산이나 이탈의 추세인지는 며칠 이어지는지로 확인합니다.';
 
   let index = 'S&P 500과 참여도를 같은 기간으로 비교할 기록이 부족합니다.';
   if (spx20 != null && b50d20 != null) {
@@ -137,12 +138,12 @@ export function rotationFlow({ groups = {}, regime = null } = {}) {
   const lagging = groups.Lagging || [];
   const ahead = [...lead, ...improving];
   const defensiveAhead = ahead.filter((item) => DEFENSIVE.has(String(item.symbol || '').toUpperCase())).length;
+  // Coordinator follow-up (M08 class, 2026-10-13): quadrant membership alone does not establish a "위험 선호/회피 회전"
+  // verdict, so the line only counts which kinds of sectors sit ahead of the benchmark.
   const style = !ahead.length ? '시장보다 강해지는 섹터가 없습니다'
-    : defensiveAhead && defensiveAhead === ahead.length ? '앞서는 섹터가 모두 방어 업종(유틸리티·필수소비·헬스케어·부동산)이라 위험 회피 쪽 회전입니다'
-      : defensiveAhead ? '경기 민감 업종과 방어 업종이 함께 앞서 방향이 섞여 있습니다'
-        : '앞서는 섹터가 경기 민감 업종이라 위험 선호 쪽 회전입니다';
+    : `선도·개선 ${ahead.length}개 중 방어 업종(유틸리티·필수소비·헬스케어·부동산) ${defensiveAhead}개, 경기 민감 업종 ${ahead.length - defensiveAhead}개입니다`;
   const concentration = lead.length <= 2 && lagging.length >= Math.ceil(total / 2)
-    ? ` ${total}개 중 선도는 ${lead.length}개뿐이고 후행이 ${lagging.length}개 — 상승이 소수 섹터에 몰린 구조입니다.` : '';
+    ? ` ${total}개 중 선도 ${lead.length}개, 후행 ${lagging.length}개입니다. 기준이 시가총액 가중 S&P 500(SPY)이라 대형 기술주 비중이 클수록 나머지 섹터가 후행에 몰리기 쉽습니다.` : '';
   const breadth = regime?.axes?.find((row) => row.id === 'breadth');
   const tie = concentration && breadth?.state === 'burden' ? ' 시장 상태의 시장 폭 부담(참여 종목 감소)과 같은 그림입니다.'
     : concentration && breadth?.state === 'favorable' ? ' 다만 시장 폭은 우호라 종목 참여는 아직 넓습니다.' : '';

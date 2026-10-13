@@ -1106,6 +1106,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (invalidRotation.quadrant !== 'unknown') fail('rrg: invalid history produced a quadrant');
   const shortRotation = computeRelativeRotation({ history: Array.from({ length: 29 }, (_, index) => 100 + index), benchmarkHistory: Array(29).fill(100), hasQuote: true, hasBenchmarkQuote: true });
   if (shortRotation.quadrant !== 'unknown' || shortRotation.reason !== 'relative_history_lt_30') fail(`P1591 rrg: fewer than 30 aligned sessions must stay unclassified, got ${JSON.stringify(shortRotation)}`);
+  // Expert review M09: the scatter axes span every plotted sector (10/12: XLI 92.9 … XLE 107.9) and keep the 100 baseline inside.
+  const { rrgAxisDomain } = await load('src/domain/themes/rrg.js');
+  const rrgPoints = [{ rsRatio: 92.92, rsMomentum: 92.09 }, { rsRatio: 107.91, rsMomentum: 105.65 }, { rsRatio: 102.41, rsMomentum: 106.99 }, { rsRatio: 93.11, rsMomentum: 93.45 }];
+  const rrgAxes = rrgAxisDomain(rrgPoints);
+  if (rrgPoints.some((p) => p.rsRatio <= rrgAxes.x.min || p.rsRatio >= rrgAxes.x.max || p.rsMomentum <= rrgAxes.y.min || p.rsMomentum >= rrgAxes.y.max) || rrgAxes.x.ticks.length < 3 || !(rrgAxes.x.min < 100 && rrgAxes.x.max > 100)) fail(`M09 rrg axes must contain every point and the 100 baseline: ${JSON.stringify(rrgAxes)}`);
+  const nearAxes = rrgAxisDomain([{ rsRatio: 101, rsMomentum: 101.2 }]);
+  if (!(nearAxes.x.min < 100 && nearAxes.y.min < 100)) fail('M09 rrg axes must include the 100 baseline even when every point is above it');
   const { deriveHomeSummary } = await load('src/domain/home/summary.js');
   if (deriveHomeSummary({ sentiment: { fearGreed: NaN }, signal: { score: Infinity }, newsCount: -2 }).status !== 'unavailable') fail('home: non-finite inputs counted as available');
   const { deriveSentimentSummary } = await load('src/domain/sentiment/metrics.js');
@@ -1841,6 +1848,81 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     fail(`setup-profile: empty row must remain unavailable, got ${JSON.stringify(empty)}`);
   }
 
+  // 2026-10-13 expert review S04/S13/S14/S09: no per-row tag for an input nobody publishes, no provider name
+  // in a visible tag, an observed band instead of a chase warning, and one shared extension band table.
+  const { EXTENSION_BANDS, extensionStateFor } = await load('src/domain/screener/setup-profile.js');
+  const stretched = deriveScreenerSetupProfile({ observedAt: '2026-08-09', rank: 70, ret1m: 5, ret3m: 20, pctSma50: 40, adrPct: 5, pctSma200: 30, rsi: 60 });
+  if (stretched.tags.some((tag) => /거래량 확인 필요|TradingView|추격/.test(tag)) || !stretched.tags.includes('50일선 확장 7배 이상(참고 구간)')) fail(`S04/S13/S14 setup tags drifted, got ${JSON.stringify(stretched.tags)}`);
+  if (!winner.tags.includes('승자 필터 통과(가격·ADR·유동성·EMA)')) fail(`S13 winner tag must name the checks without the provider, got ${JSON.stringify(winner.tags)}`);
+  if (EXTENSION_BANDS.nearBase !== 2 || extensionStateFor(3.8) !== 'normal' || extensionStateFor(2) !== 'near-base' || extensionStateFor(7) !== 'stretched') fail('S09 extension bands drifted');
+
+  // S09/S02/S07: the stock summary reads the same bands, judges RSI on the shown digits, and names a lagging factor session.
+  const { buildStockRead } = await load('src/domain/entity/stock-read.js');
+  const summary = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', pctSma50: 11.4, adrPct: 3, pctSma200: 14, rsi: 69.94, pctFrom52wLow: 50, pctFrom52wHigh: -10 }, sessionLag: { session: '2026-10-08', latest: '2026-10-12', sessions: 1 } });
+  const ext = summary.points.find((point) => point.id === 'extension')?.text || '';
+  const rsiText = summary.points.find((point) => point.id === 'rsi')?.text || '';
+  if (/기준선 가까이에 있는 상태/.test(ext) || !/3\.8배/.test(ext)) fail(`S09 stock summary must not call 3.8x near the line, got ${ext}`);
+  if (!/RSI 69\.9/.test(rsiText) || /과열도 과매도도 아닌/.test(rsiText)) fail(`S02 RSI 69.9 must be shown with its digit and not read as neutral, got ${rsiText}`);
+  if (!/^1거래일 전 종가 기준\(10\/8\)/.test(summary.headline)) fail(`S07 lagging factor session must lead the headline, got ${summary.headline}`);
+  const { benchmarkRowFor } = await load('src/domain/market/benchmarks.js');
+  const benchHistory = ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-12'].map((date, index) => ({ date, kospi: 100 + index }));
+  if (benchmarkRowFor('005930.KS', benchHistory, { through: '2026-10-08' }).asOf !== '2026-10-08' || benchmarkRowFor('005930.KS', benchHistory).asOf !== '2026-10-12') fail('S07 benchmark must cut at the factor session when asked');
+
+  // S11: the company headline keeps the return only (the factor rank above has a different denominator).
+  const { buildCompanyAnalysis } = await load('src/domain/entity/company-analysis.js');
+  const peerRows = ['AAA', 'BBB', 'CCC'].map((sym, index) => ({ sym, name: sym, factorSessionDate: '2026-10-09', ret3m: 10 - index }));
+  const company = buildCompanyAnalysis({ symbol: 'BBB', row: peerRows[1], rows: peerRows, nowMs: Date.parse('2026-10-13T12:00:00Z') });
+  if (/번째/.test(company.headline || '')) fail(`S11 company headline must not carry a second rank, got ${company.headline}`);
+
+  // S06/S18/S19: PER names its fiscal year and months since; losses read with the sign first; negative ROE says why.
+  const { buildFiscalRead, formatUsdShort } = await load('src/domain/fundamental/fiscal-read.js');
+  if (formatUsdShort(-147.8e9) !== '−$147.8B' || formatUsdShort(416.2e9) !== '$416.2B') fail(`S18 signed USD format drifted: ${formatUsdShort(-147.8e9)}`);
+  const per = buildFiscalRead({ symbol: 'AAPL', row: { pe: 45, factorSessionDate: '2026-10-12' }, fundamentals: { symbol: 'AAPL', fiscalHistory: [{ periodEnd: '2024-09-28', revenue: 391e9, netIncome: 93.7e9, equity: 57e9 }, { periodEnd: '2025-09-27', revenue: 416e9, netIncome: 112e9, equity: 74e9 }] } });
+  const earnings = per.points.find((point) => point.id === 'earnings')?.text || '';
+  if (!/PER 45\.0배\(FY2025\(2025-09 마감\) 순이익 기준 · 경과 12개월\)/.test(earnings)) fail(`S06 PER must name its fiscal-year basis and age, got ${earnings}`);
+  const loss = buildFiscalRead({ symbol: 'LOSS', fundamentals: { symbol: 'LOSS', fiscalHistory: [{ periodEnd: '2024-12-31', revenue: 10e9, netIncome: 1e9, equity: 10e9 }, { periodEnd: '2025-12-31', revenue: 9e9, netIncome: -2e9, equity: 8e9 }] } });
+  if (!/순손실로 자본이 줄어든 해/.test(loss.points.find((point) => point.id === 'roe')?.text || '')) fail('S19 negative ROE must be read as a loss year');
+
+  // S01: value/quality freshness is the provider's 456-day fiscal-period rule — a filing 12 months old is current.
+  const period = await load('src/domain/fundamental/period.js');
+  const providerModule = await load('src/data/providers/screener.js');
+  if (period.FUNDAMENTAL_MAX_PERIOD_AGE_DAYS !== 456 || providerModule.FUNDAMENTAL_MAX_PERIOD_AGE_DAYS !== 456 || providerModule.fundamentalPeriodTooOld !== period.fundamentalPeriodTooOld) fail('S01 provider and ranker must share one fundamental period rule');
+  const { computeFactorRanks: rankS01 } = await load('src/domain/screener/factor-ranks.js');
+  const fundamentalRow = (index, periodEnd) => ({ sym: `F${index}`, sector: 'Tech', ret1m: index, ret3m: index * 0.8, ret6m: index * 0.5, pctSma50: index, pctSma200: index * 0.6, vol: 20 - index,
+    observedAt: '2026-10-12T13:30:00.000Z', factorObservedAt: '2026-10-12T13:30:00.000Z', factorSessionDate: '2026-10-12', factorSourceKind: 'T3_PUBLIC_DELAYED', factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT', stale: false },
+    pe: 10 + index, pb: 1 + index / 10, roe: 10 + index, margin: 5 + index, revGrowth: index,
+    _fundamentalObservedAt: '2025-10-31T14:01:26.000Z', _fundamentalPeriodEnd: periodEnd, _fundamentalSourceKind: 'T1_OFFICIAL', _fundamentalAllowedUse: 'research-relative-ranking-only', _fundamentalQuality: { status: 'CURRENT', stale: false } });
+  const fresh = rankS01({ rows: Array.from({ length: 8 }, (_, i) => fundamentalRow(i + 1, '2025-09-27')), now: Date.parse('2026-10-13T06:00:00Z') });
+  const old = rankS01({ rows: Array.from({ length: 8 }, (_, i) => fundamentalRow(i + 1, '2025-06-30')), now: Date.parse('2026-10-13T06:00:00Z') });
+  if (!fresh.activeFactors.includes('value') || !fresh.activeFactors.includes('quality')) fail(`S01 a fiscal period 380 days before the session must keep value/quality active, got ${JSON.stringify(fresh.activeFactors)}`);
+  if (old.activeFactors.includes('value') || !/456일/.test(old.inactiveFactorReasons.value || '')) fail(`S01 a fiscal period 469 days old must be held with the 456-day reason, got ${JSON.stringify(old.inactiveFactorReasons)}`);
+
+  // S01/S03/S04/S16 UI: a profile under the 80% computable floor is measured; structure-class aliases are retired.
+  const screenerPage = await load('src/ui/pages/screener.js');
+  const coverage = { momentum: { active: true }, trend: { active: true }, lowvol: { active: true }, kalman: { active: true }, size: { active: false }, value: { active: false }, quality: { active: false } };
+  const swing = screenerPage.profileComputability({ momentum: 0.30, trend: 0.28, lowvol: 0.12, size: 0.07, value: 0.07, quality: 0.07, kalman: 0.09 }, coverage);
+  if (!swing || swing.available !== false || swing.pct !== 79 || swing.missing.join(',') !== 'size,value,quality') fail(`S01 swing profile computability drifted, got ${JSON.stringify(swing)}`);
+  if (screenerPage.SCREENER_COLUMN_REGISTRY.some((column) => column.key === 'signal')) fail('S03 the always-null structure-class column must be retired');
+  const optionDoc = (() => {
+    const options = ['', 'WINNER', 'RSPULLBACK'].map((value) => ({ value, textContent: value || '전체', dataset: {}, disabled: false }));
+    const nodes = { 'scr-cap': { value: 'MEGA', hidden: false }, 'scr-setup': { value: 'WINNER', options } };
+    return { getElementById: (id) => nodes[id] || null, querySelectorAll: () => [], nodes };
+  })();
+  screenerPage.syncScreenerControlAvailability(optionDoc, { rows: [{ sym: '005930.KS', setupProfile: { winnerFilter: 'unavailable', relativeStrengthPullback: 'not-confirmed' } }], listingMarket: 'KR' });
+  if (optionDoc.nodes['scr-cap'].hidden !== true || optionDoc.nodes['scr-cap'].value !== '' || optionDoc.nodes['scr-setup'].options[1].disabled !== true || !/자료 미발행/.test(optionDoc.nodes['scr-setup'].options[1].textContent) || optionDoc.nodes['scr-setup'].options[2].disabled !== false || optionDoc.nodes['scr-setup'].value !== '') fail('S04/S16 controls without published input must be disabled or hidden with the reason');
+
+  // S04: a US row compares its 3-month return with SPY from the same artifact session; KR stays unavailable.
+  const spyArtifact = { asOf: '2026-10-13T04:07:00.000Z', factorObservedAt: '2026-10-12T13:30:00.000Z', data: {
+    SPY: { ret3m: 3.75, factorSessionDate: '2026-10-12' }, AAA: { ret3m: 10, factorSessionDate: '2026-10-12' }, OLD: { ret3m: 5, factorSessionDate: '2026-10-09' }, '005930.KS': { ret3m: -17, factorSessionDate: '2026-10-08' } } };
+  const spyProvider = providerModule.createScreenerProvider({ httpClient: { requestJson: async (url) => url.includes('screener.json') ? { ok: true, data: spyArtifact } : { ok: false, error: 'HTTP_404' } }, clock: { now: () => Date.parse('2026-10-13T06:00:00Z') }, yieldImpl: async () => {} });
+  const spyRows = (await spyProvider.readCurrent()).rows;
+  const byBench = Object.fromEntries(spyRows.map((row) => [row.sym, row.benchmarkRet]));
+  if (byBench.AAA !== 3.75 || byBench.OLD !== null || byBench['005930.KS'] !== null || byBench.SPY !== null) fail(`S04 SPY benchmark must apply only to same-session US rows, got ${JSON.stringify(byBench)}`);
+
+  // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
+  const fiscalUi = await load('src/ui/components/fiscal-read.js');
+  if (fiscalUi.dartLinkHref({ receiptNo: '20250311001085' }) !== 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250311001085' || fiscalUi.dartLinkHref(null) !== 'https://dart.fss.or.kr/dsab007/main.do') fail('S12 DART link format drifted');
+  if (fiscalUi.formatFiscalCompact(416161e6) !== '$416.2B' || fiscalUi.formatFiscalCompact(-7126000) !== '−$7.1M') fail('S20 fiscal table must use B/T units');
 }
 
 // ── data/providers/entity.js ─────────────────────────────────────────────────────────────────
@@ -3469,11 +3551,11 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const nowMs = Date.parse('2026-10-02T01:00:00Z');
   const schedule = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' }, 'us-cpi': { nextRelease: '2026-10-14' } }, snapshot: { nfp: 162, unemployment: 4.1 }, nowMs,
     earnings: [{ symbol: 'NKE', date: '2026-10-05', hour: 'amc', epsEstimate: 0.44 }, { symbol: 'TINY', date: '2026-10-05', hour: 'amc' }], names: { NKE: 'Nike' } });
-  if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30 KST' || !/162천 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
+  if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30 KST' || !/직전 \+16\.2만 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
   // P1501: rule-derived market-structure dates (FOMC minutes, KRX expiry, exchange holidays).
   const week = buildBriefingSchedule({ fomcDecisions: ['2026-09-16', '2026-10-28'], nowMs: Date.parse('2026-10-06T12:00:00+09:00'), days: 7 });
   const labels = week.map((row) => `${row.when} ${row.label}`);
-  if (labels.join('|') !== '10/8(목) 03:00 FOMC 의사록 (9/16 회의)|10/8(목) 15:20 국내 옵션 만기|10/9(금) 09:00 한국 증시 휴장 (한글날)') fail(`P1501 structure events wrong: ${JSON.stringify(labels)}`);
+  if (labels.join('|') !== '10/8(목) 03:00 KST FOMC 의사록 (9/16 회의)|10/8(목) 15:20 KST 국내 옵션 만기|10/9(금) 09:00 KST 한국 증시 휴장 (한글날)') fail(`P1501 structure events wrong: ${JSON.stringify(labels)}`);
   const december = buildBriefingSchedule({ fomcDecisions: [], nowMs: Date.parse('2026-12-07T00:00:00Z'), days: 14 }).map((row) => row.label);
   if (!december.includes('국내 선물·옵션 동시 만기') || !december.includes('미국 지수 선물·옵션 분기 만기')) fail(`P1501 quarterly expiry missing: ${JSON.stringify(december)}`);
 }
@@ -3536,6 +3618,15 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (mixed.ret3m != null || mixed.rank != null || mixed.rankedMembers.some(member => member.rank != null)) fail('P1623 mixed close dates must hold group medians and intra-theme ranks');
   const unknown = buildGroupStrength({ themes, rows: rows.map(item => ({ ...item, factorSessionDate: null })) }).groups[0];
   if (unknown.ret3m != null || unknown.rankedMembers.some(member => member.rank != null)) fail('P1623 missing close dates cannot certify relative strength');
+  // Expert review M15: one member on an older close is held out of the theme-level value (and counted), not the whole theme.
+  const lagged = buildGroupStrength({ themes, rows: rows.map(item => item.sym === 'A1' ? { ...item, factorSessionDate: '2026-10-08' } : item) }).themes.t1;
+  if (lagged.value == null || lagged.members !== 7 || lagged.excluded !== 1 || lagged.basis !== '2026-10-09') fail(`M15 a theme summary must drop the older-close member and keep its median: ${JSON.stringify(lagged)}`);
+  // M10/M20: the AI capex power layer never links the oil-and-gas energy theme; provider names stay off the body text.
+  const { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } = await load('src/domain/themes/ai-capex-flow.js');
+  const power = AI_CAPEX_FLOW.layers.find((layer) => layer.id === 'power');
+  if (power.themes.includes('energy') || !power.groups?.includes('industrials:전력장비/그리드')) fail('M10 the power layer must link utilities and the power-equipment sub-theme, not the energy theme');
+  const capexSource = readFileSync(path.join(root, 'src/ui/components/theme-strength.js'), 'utf8');
+  if (!AI_CAPEX_FLOW.asOf || !AI_BOTTLENECK_LEAD_TIMES.asOf || /el\(doc, 'p', `[^`]*\$\{AI_(CAPEX_FLOW|BOTTLENECK_LEAD_TIMES)\.source\}/.test(capexSource)) fail('M20 the capex body must show the date and keep the provider in the hover title');
 }
 
 // P1620/P1621: same-session breadth facts, zero events and question-selected prompt parity.
@@ -3620,7 +3711,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!vcp.valid || vcp.contractions.length < 3 || !(vcp.contractions[0].depth > vcp.contractions[vcp.contractions.length - 1].depth)) fail(`P1397 VCP run not detected: ${JSON.stringify(vcp.contractions.map((row) => row.depth.toFixed(1)))}`);
   const result = analyzeChart(bars);
   if (!result.available || !['setup', 'none', 'extended', 'breakout', 'failed', 'downtrend'].includes(result.state) || /등급|grade/i.test(JSON.stringify(result.evidence))) fail(`P1397 chart analysis contract: ${result.state}`);
-  if (!result.evidence.some(([label]) => label === '추세 템플릿 (미너비니)') || !result.evidence.some(([label]) => label === '무효화 가격 (마지막 수축 저점)')) fail('P1397 evidence rows missing');
+  if (!result.evidence.some(([label]) => label === '추세 템플릿 (미너비니)') || !result.evidence.some(([label]) => label === '마지막 수축 저점') || result.evidence.some(([label]) => /무효화/.test(label))) fail('P1397/S14 evidence rows missing or carry instruction wording');
   if (analyzeChart(bars.slice(0, 40)).available) fail('P1397 fewer than 60 bars must not be analysed');
 }
 
@@ -3892,6 +3983,14 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   await Promise.all([aborted, after]);
   if (calls !== 12) fail(`P1668 a read must not reuse a fetch whose caller aborted, saw ${calls} requests`);
 }
+// P1686: the normalizer keeps the one/five-session returns the map's 1일/1주 tabs read (it dropped them, so the
+// tabs stayed disabled on the deployed site even after the producer published ret1d/ret5d).
+{
+  const { normalizeScreener } = await load('src/data/normalize/screener.js');
+  const normalized = normalizeScreener({ rows: [{ sym: 'AAPL', ret1d: 1.29, ret5d: 2.43, ret1m: 2.62 }] });
+  const row = (normalized.rows || [])[0] || {};
+  if (row.ret1d !== 1.29 || row.ret5d !== 2.43) fail('P1686 normalizeScreener must keep ret1d/ret5d for the map tabs');
+}
 // P1679/P1681: S&P 500 map domain — tiles stay inside the canvas, the fallback names what is missing, a member on an
 // older close is greyed and kept out of the averages, and a tab is enabled only by the members' own returns.
 {
@@ -3908,6 +4007,85 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (map.periods.ret1d !== false || map.periods.ret1m !== true) fail('P1681 a Korean row ret1d must not enable the S&P 500 map 1일 tab');
   const laid = layoutSectorMap(map, 960, 520);
   if (laid.tiles.length !== map.drawn || laid.tiles.some((t) => t.x + t.w > 960 + 1e-6 || t.y + t.h > 520 + 1e-6)) fail('P1679 every drawn member must get one tile inside the map');
+  // Expert review M02: averages weight each member by its START-of-window size, w0 ∝ w_now / (1 + r). A member that
+  // doubled to half the index started at a third of it: (25×100 + 50×0) / 75 = +33.3%, not today's-weight +50%.
+  const weightRows = [{ sym: 'BIG', sector: 'Information Technology', weight: 50, name: 'BIG' }, ...Array.from({ length: 449 }, (_, i) => ({ sym: `W${i}`, sector: i % 2 ? 'Financials' : 'Energy', weight: 50 / 449, name: `W${i}` }))];
+  const weightMembers = weightRows.map((item) => ({ sym: item.sym, name: item.name, index: 'SP500', ret3m: item.sym === 'BIG' ? 100 : 0, ret1d: item.sym === 'BIG' ? 100 : 0, factorSessionDate: '2026-10-12' }));
+  weightMembers.push({ sym: 'SPY', ret3m: 33.3, ret1d: 50, factorSessionDate: '2026-10-12' });
+  const startWeighted = buildSectorMap({ rows: weightMembers, weights: { asOf: '2026-10-12', rows: weightRows }, period: 'ret3m', expectedSession: '2026-10-12' });
+  if (Math.abs(startWeighted.weightedReturn - 100 / 3) > 1e-6 || startWeighted.weightBasis !== 'period-start' || /SPY/.test(startWeighted.lead)) fail(`M02 the map average must use start-of-window weights: ${startWeighted.weightedReturn}`);
+  // Holdings dated before the close are already the 1일 window's start weights — no back-out there.
+  const dayMap = buildSectorMap({ rows: weightMembers, weights: { asOf: '2026-10-09', rows: weightRows }, period: 'ret1d', expectedSession: '2026-10-12' });
+  if (Math.abs(dayMap.weightedReturn - 50) > 1e-6) fail(`M02 the 1일 map must weight by holdings dated at the window start: ${dayMap.weightedReturn}`);
+  // A gap to the index's own return is stated beside the average, not hidden.
+  const gapMap = buildSectorMap({ rows: weightMembers.map((row) => (row.sym === 'SPY' ? { ...row, ret3m: 20 } : row)), weights: { asOf: '2026-10-12', rows: weightRows }, period: 'ret3m', expectedSession: '2026-10-12' });
+  if (gapMap.benchmarkReturn !== 20 || !/SPY \+20\.0%/.test(gapMap.lead)) fail(`M02 a gap to SPY must be stated in the lead: ${gapMap.lead}`);
+  // M21: share classes are one issuer in the top 10; the sector table counts over members with a return; the lead
+  // carries the equal-weight average; no "소수 대형주가 끌었습니다" verdict.
+  const classRows = [...weightRows.slice(0, 448), { sym: 'GOOGL', sector: 'Communication', weight: 0.06, name: 'ALPHABET CLASS A' }, { sym: 'GOOG', sector: 'Communication', weight: 0.06, name: 'ALPHABET CLASS C' }];
+  const classMembers = [...weightMembers.filter((row) => row.sym !== 'W447' && row.sym !== 'W446'), { sym: 'GOOGL', index: 'SP500', ret3m: 5, factorSessionDate: '2026-10-12' }];
+  const classMap = buildSectorMap({ rows: classMembers, weights: { asOf: '2026-10-12', rows: classRows }, period: 'ret3m', expectedSession: '2026-10-12' });
+  if (!classMap.top10Issuers.includes('GOOGL·GOOG') || classMap.top10Issuers.length !== 10) fail(`M21 GOOGL and GOOG must be one issuer in the top 10: ${classMap.top10Issuers}`);
+  const comm = classMap.sectors.find((sector) => sector.sector === 'Communication');
+  if (comm.count !== 2 || comm.withRet !== 1) fail('M21 the sector table denominator must be the members with a return');
+  if (!/같은 비중을 두면 평균/.test(classMap.lead) || /끌었습니다/.test(classMap.lead)) fail(`M21 the concentration sentence must carry the equal-weight average: ${classMap.lead}`);
+  // M07: the map follows the app-wide colour rule (rising green, falling red).
+  const mapCss = readFileSync(path.join(root, 'src/ui/styles/regime-quality.css'), 'utf8');
+  if (!/\.sector-map \.is-u3 \{ background: #1f7048/.test(mapCss) || !/\.sector-map \.is-d3 \{ background: #b8302a/.test(mapCss) || /오르면 빨강/.test(readFileSync(path.join(root, 'src/ui/components/sector-map.js'), 'utf8'))) fail('M07 the S&P 500 map must colour rises green and falls red');
 }
 // P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
+// T01/T02/T05/T19/T04/T15 (expert review v57.48, 2026-10-13): the shared close series keeps one value per session of the
+// field's own market. A Sunday-evening FX/oil tick was a "close" (20 rows = ~16 sessions, basis chip 10/11(일), won 20일
+// -2.57% vs weekdays +0.13% -> 환율 축 '우호'); the credit axis ignored a 20-session HY widening.
+{
+  const { buildCloseSeries, alignMarketInputs, buildMarketRegime, hyDelta20Bp } = await load('src/domain/briefing/market-read.js');
+  const { formatPayrollChange, buildBriefingSchedule } = await load('src/domain/briefing/schedule.js');
+  const { openSessionDatesBetween } = await load('src/domain/market/market-calendar.js');
+  const sessions = openSessionDatesBetween('2026-01-30', '2026-10-12', { market: 'US' });
+  const history = sessions.map((date, i) => ({ date, spx: 6000 + i, usdkrw: 1400, kospi: 3000 + i,
+    fieldMeta: { spx: { observedAt: `${date}T20:10:00Z` }, usdkrw: { observedAt: `${date}T20:10:00Z` } } }));
+  // Sunday-evening 24h ticks (NY 19:00) far below the weekday level, plus a US-holiday tick.
+  const sundays = [];
+  for (const row of history) {
+    const sunday = new Date(Date.parse(`${row.date}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+    if (new Date(`${sunday}T12:00:00Z`).getUTCDay() === 0) sundays.push(sunday);
+  }
+  for (const sunday of sundays) history.push({ date: sunday, usdkrw: 1300, fieldMeta: { usdkrw: { observedAt: `${sunday}T23:00:00Z` } } });
+  history.push({ date: '2026-09-07', usdkrw: 1300, fieldMeta: { usdkrw: { observedAt: '2026-09-07T15:00:00Z' } } });
+  const krw = buildCloseSeries(history, 'usdkrw');
+  if (krw.some((point) => [0, 6].includes(new Date(`${point.date}T12:00:00Z`).getUTCDay()) || point.date === '2026-09-07' || point.value !== 1400)) fail('T01 a weekend or US-holiday tick must not become a close of a US-basis field');
+  if (buildCloseSeries(history, 'usdkrw', { market: null }).length !== krw.length + sundays.length + 1) fail('T01 market:null keeps every observation (24/7 fields)');
+  const aligned = alignMarketInputs({ history, now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) });
+  if (aligned.s.usdkrw?.date !== sessions.at(-1) || aligned.s.usdkrw.d20 !== 1400 || aligned.s.usdkrw.d20Date !== sessions.at(-21)) fail(`T01 the won 20일 must start 20 sessions back on a weekday close: ${JSON.stringify(aligned.s.usdkrw && { date: aligned.s.usdkrw.date, d20: aligned.s.usdkrw.d20, from: aligned.s.usdkrw.d20Date })}`);
+  const fx = buildMarketRegime({ history, now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).axes.find((axis) => axis.id === 'korea');
+  if (fx?.state !== 'neutral') fail(`T01 a flat weekday won must not read as 원화 강세·우호 (got ${fx?.state})`);
+  // T01: "20일" counts sessions; a gappy series (no Friday bars) still finds the point at least 20 sessions back.
+  const gappy = history.filter((row) => !(row.usdkrw === 1400 && new Date(`${row.date}T12:00:00Z`).getUTCDay() === 5));
+  const gap = alignMarketInputs({ history: gappy.map((row) => row.date === sessions.at(-1) ? row : row), now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).s.usdkrw;
+  if (!gap || gap.d20 == null) fail('T01 a series missing one weekday a week keeps a session-counted 20-day change');
+  // T19: a Korean field is checked against the KRX calendar (10/5, 10/9 closed), not the US one.
+  const krHistory = sessions.map((date, i) => ({ date, spx: 6000 + i, kospi: 3000 + i, fieldMeta: { kospi: { observedAt: `${date}T06:30:00Z` } } }))
+    .filter((row) => !['2026-10-05', '2026-10-09', '2026-09-24', '2026-09-25'].includes(row.date));
+  const kr = alignMarketInputs({ history: krHistory, now: Date.parse(`${sessions.at(-1)}T09:00:00Z`) }).s.kospi;
+  if (!kr || kr.d20 == null) fail('T19 KRX holidays must not withhold the KOSPI 20-day change');
+  // T05: +45bp over 20 sessions keeps the credit axis at 중립 at best and the read names the 20-day change.
+  const hyObs = sessions.slice(-30).map((date, i) => [date, i < 9 ? 2.7 : 2.7 + (i - 9) * 0.0215]);
+  const macroHistory = { series: { hyOas: { observations: hyObs } } };
+  const hy20 = hyDelta20Bp(macroHistory, sessions.at(-1));
+  if (!hy20 || Math.round(hy20.value) !== 43) fail(`T05 hyDelta20Bp must be the 20-session change in bp: ${JSON.stringify(hy20)}`);
+  const credit = { hyBp: 315, hyDelta5Bp: -9, hyAsOf: sessions.at(-1) };
+  const creditAxis = (extra) => buildMarketRegime({ history, credit, now: Date.parse(`${sessions.at(-1)}T23:00:00Z`), ...extra }).axes.find((axis) => axis.id === 'credit');
+  if (creditAxis({}).state !== 'favorable') fail('T05 fixture: without the 20-day change the old favorable rule still applies');
+  const widened = creditAxis({ macroHistory });
+  if (widened.state !== 'neutral' || !/20거래일 동안 \+43bp/.test(widened.read) || !widened.evidence.some(([, value]) => /20거래일 \+43bp/.test(value))) fail(`T05 a 20-session widening keeps credit at 중립 with the change named: ${widened.state} ${widened.read}`);
+  // T04: a payroll loss is signed once and shown in 만 명.
+  if (formatPayrollChange(-15) !== '-1.5만 명' || formatPayrollChange(29) !== '+2.9만 명' || formatPayrollChange(null) !== null) fail('T04 payroll change format');
+  const nfp = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' } }, snapshot: { nfp: -15, unemployment: 4.3 }, nowMs: Date.parse('2026-10-02T01:00:00Z') });
+  if (/\+-/.test(nfp[0]?.last || '') || !/직전 -1\.5만 명/.test(nfp[0]?.last || '')) fail(`T04 negative payrolls printed as "+-": ${nfp[0]?.last}`);
+  // T15: no provider name or '미제공' in the earnings line; the provider goes to the hover title.
+  const earn = buildBriefingSchedule({ nowMs: Date.parse('2026-10-09T00:00:00Z'), names: { NVDA: 'NVIDIA' }, earningsMeta: { source: 'Finnhub calendar/earnings' },
+    earnings: [{ symbol: 'NVDA', date: '2026-10-09', hour: 'amc', epsEstimate: 1 }] });
+  if (/Finnhub|미제공/.test(earn[0]?.last || '') || !/Finnhub/.test(earn[0]?.sourceTitle || '')) fail(`T15 earnings line must keep provider names in the hover: ${JSON.stringify(earn[0])}`);
+}
+
 await import('./fixtures/architecture-lifecycle-regressions.mjs');

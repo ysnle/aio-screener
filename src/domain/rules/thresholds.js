@@ -15,7 +15,9 @@ export const RULES = Object.freeze({
   // ICE BofA US High Yield OAS: below 350bp tight, 450bp+ stressed, +25bp in five sessions a fast widening;
   // +15bp in five sessions is the early-watch level (P1449: HY 324bp +44bp must read as widening
   // stress forming, not calm), and ≤5bp / five sessions counts as calm for the smallcap reading.
-  credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, putCallHedgeAt: 1.1 }),
+  // T05 (2026-10-13): +25bp over 20 sessions keeps the credit axis at 중립 at best (a month-long widening is not calm).
+  // T10: total put/call 1.1+ is heavy hedging, below 0.7 call-heavy optimism (one table for the card and the axis).
+  credit: Object.freeze({ tightBelowBp: 350, stressAtBp: 450, widen5dBp: 25, widenWatch5dBp: 15, calm5dBp: 5, widen20dBp: 25, putCallHedgeAt: 1.1, putCallOptimismBelow: 0.7 }),
   // WTI against its own one-year range (P1394) and 20-session change; the dollar index 20-session change.
   oil: Object.freeze({ rise20dPct: 10, fall20dPct: -5, rangeHighAt: 0.85 }),
   dollar: Object.freeze({ rise20dPct: 2, fall20dPct: -2 }),

@@ -68,4 +68,56 @@ if (!/독립된 신호 약/.test(overlapSentence(overlap)) || measureFactorOverl
 // P1469: the term premium comes from the official FRED series and is named by its model.
 if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(read('scripts/fetch-data.mjs')) || !/Kim-Wright/.test(read('src/ui/components/macro-board.js'))) fail('P1469 term premium series or model label missing');
 
-console.log(JSON.stringify({ ok: true, checks: ['P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469'] }));
+// v57.48 expert review (portfolio · 13F · research). Hypothetical holdings only.
+{
+  const { derivePortfolioSurface } = await import('../src/domain/portfolio/surface.js');
+  const { derivePortfolioChecks } = await import('../src/domain/portfolio/checks.js');
+  const { portfolioRowsForAI } = await import('../src/domain/portfolio/portfolio-read.js');
+  const { assessAccountPerformance } = await import('../src/domain/portfolio/risk.js');
+  const now = Date.parse('2026-10-13T12:00:00Z');
+  const legs = [{ from: 'USD', to: 'KRW', rate: 1400, observedAt: '2026-10-13T06:00:00Z' }];
+  // #1: a quote without a currency falls back to the listing currency on the cost axis too — $2,000 → $2,440 is +22%, not +333%.
+  const us = derivePortfolioSurface({ state: { readState: 'ready', baseCurrency: 'KRW', cashCurrency: 'KRW', cash: 0, fxLegs: legs, holdings: [{ symbol: 'AAA', shares: 10, avgCost: 200, price: 244 }] }, now });
+  if (!(us.totalPnlPct > 21.9 && us.totalPnlPct < 22.1)) fail(`#1 undeclared US cost must convert from the listing currency (+22.0%), got ${us.totalPnlPct}`);
+  // #10: a held-out holding does not inflate the cash share — cash ÷ (whole book + cash), and R − B still sums.
+  const partial = buildAttribution({ holdings: [{ symbol: 'AAA', value: 600 }], holdingsValue: 800, cash: 200, rowFor: (s) => rows[s], marketReturnFor: market });
+  const partialSum = partial.excess.reduce((sum, part) => sum + part.pct, 0);
+  if (partial.cashSharePct !== 20 || !near(partialSum, partial.excessPct)) fail(`#10 cash share must use the whole book (20%), got ${partial.cashSharePct}; identity ${partialSum} vs ${partial.excessPct}`);
+  // #22: a converted holding whose close differs from the USD/KRW close has its FX effect held, not mixed.
+  const fxStale = buildAttribution({ holdings: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }], baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: 2, usdkrwAsOf: '2026-10-09' });
+  if (fxStale.available || fxStale.skipped[0]?.reason !== 'fx-basis-mismatch') fail('#22 a USD/KRW close on another date must hold the FX effect');
+  const fxSame = buildAttribution({ holdings: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }], baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: 2, usdkrwAsOf: '2026-10-12' });
+  if (!fxSame.available || fxSame.fxAsOf !== '2026-10-12') fail('#22 a matching USD/KRW close must keep the FX effect and carry its date');
+  // #18/#25: the 10/15/25% bands are internal — 10~25% is 참고, only above 25% is 주의; product names stay out of body text.
+  const book18 = (top) => derivePortfolioChecks({ surface: { currencyState: 'declared-single', baseCurrency: 'USD', totalAssets: 100, positionValue: 100, rows: [{ symbol: 'AAA', value: top, currency: 'USD' }, ...Array.from({ length: 4 }, (_, i) => ({ symbol: `F${i}`, value: (100 - top) / 4, currency: 'USD' }))] } }).checks.find((check) => check.id === 'single-holding');
+  if (book18(20).status !== 'info' || book18(26).status !== 'attention' || !/내부 구간/.test(book18(20).basis)) fail('#18 single-holding bands must read 내부 구간 · 10~25% 참고 · 25% 초과 주의');
+  const checks25 = derivePortfolioChecks({ surface: { currencyState: 'declared-single', baseCurrency: 'USD', totalAssets: 100, positionValue: 100, rows: [{ symbol: 'AAA', value: 100, currency: 'USD' }] } }).checks;
+  if (checks25.some((check) => /Ghostfolio/.test(`${check.detail} ${check.basis}`)) || !/\d{4}-\d{2}-\d{2}/.test(checks25.find((check) => check.id === 'region').detail)) fail('#25 product names belong in the hover source and the 65~69% band needs its date');
+  // #12: the AI rows carry ticker·sector·weight·return in the base currency with the date — no amounts.
+  const ai = portfolioRowsForAI(us, { sectorOf: () => 'Technology' });
+  if (!ai.available || ai.baseCurrency !== 'KRW' || ai.rows[0].allocationPct !== 100 || ai.rows[0].returnPct !== 22 || 'value' in ai.rows[0] || 'cost' in ai.rows[0]) fail(`#12 portfolio AI rows wrong: ${JSON.stringify(ai)}`);
+  if (portfolioRowsForAI({ currencyState: 'mixed-without-conversion', rows: [] }).available) fail('#12 an unconverted mix must not produce AI weights');
+  // #6: TWR is period-cumulative, MWR annualized — the result names both units and the panel prints them.
+  const coverage = Object.fromEntries(['trades', 'deposits-withdrawals', 'dividends-splits', 'fees-taxes', 'fx', 'valuation-cuts'].map((name) => [name, true]));
+  const perf = assessAccountPerformance({ ledger: { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage, transactions: [{ date: '2026-03-01', kind: 'trade', amount: 0 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2027-01-01', amount: 121 }] } });
+  if (perf.status !== 'ready' || perf.units?.twr !== 'period-cumulative' || perf.units?.mwr !== 'annualized-irr') fail(`#6 account performance must name the TWR/MWR units: ${perf.status} ${JSON.stringify(perf.units)}`);
+  const workspace = read('js/aio-workspace.js');
+  if (!/TWR\(기간 누적\)/.test(workspace) || !/MWR\(연율\)/.test(workspace)) fail('#6 the ledger panel must label TWR(기간 누적) and MWR(연율)');
+  // #8/#17/#16: thin 99% sample reads 표본 최악일 with the tail count; no Sharpe/MDD grades; internal codes folded.
+  if (!/표본 최악일/.test(workspace) || !/thin99 = !\(n >= 100\)/.test(workspace)) fail('#8 a sub-100-day 99% VaR must read 표본 최악일');
+  if (/'우수' : v >= 1 \? '양호'|'위험' : v >= 0\.15 \? '주의'/.test(workspace)) fail('#17 3-month Sharpe/MDD must not carry grades');
+  if (/'경로 ' \+ est\.exposureHistoryMode/.test(workspace) || !/<summary>계산 식별자<\/summary>/.test(workspace)) fail('#16 internal path codes must not be printed in the panel body');
+  // #2/#3: technical risk and the legacy diagnosis read the surface's base-currency values; no cost stand-in, no `$` hard-coding.
+  const krData = read('js/aio-kr-data.js');
+  if (/value: price != null \? price \* p\.qty/.test(workspace) || !/_aioPortfolioSurface/.test(workspace)) fail('#2 technical-risk weights must come from the base-currency surface');
+  if (/\(d \? d\.price : p\.cost\)/.test(krData) || /현재 \$' \+ curPrice/.test(krData) || /일부 이익 실현 고려|리밸런싱 검토/.test(krData)) fail('#3/#5 the diagnosis must not value at cost, hard-code $, or instruct');
+  // #9: a split (shares ×23.35, value ×0.99) is held as a split suspect; a real half-sale with a price rise is not.
+  const { displayActionOf } = await import('../src/ui/pages/masters.js');
+  if (displayActionOf({ action: 'INCREASED', shares: 2335, priorShares: 100, value: 99, priorValue: 100 }) !== 'SPLIT_SUSPECT') fail('#9 a split must not read as 증가');
+  if (displayActionOf({ action: 'REDUCED', shares: 48, priorShares: 100, value: 63, priorValue: 100 }) !== 'REDUCED') fail('#9 a real reduction with a price rise must stay 감소');
+  // #15: the glossary carries the portfolio/13F terms.
+  const glossary = read('js/aio-glossary.js');
+  if (!['VaR (Value at Risk)', '최대낙폭(MDD)', 'TWR(시간가중수익률)', 'MWR(금액가중수익률)', '13F (기관 보유 공시)', 'CUSIP', 'ROIC (투하자본이익률)'].every((term) => glossary.includes(`{term:'${term}'`))) fail('#15 glossary must define VaR·MDD·TWR·MWR·13F·CUSIP·ROIC');
+}
+
+console.log(JSON.stringify({ ok: true, checks: ['P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25'] }));

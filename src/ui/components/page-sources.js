@@ -15,7 +15,11 @@ export const PAGE_SOURCES = Object.freeze({
   signal: ['추세·시장 폭: S&P 500·나스닥 종가와 스크리너 유니버스 수정 종가로 자체 계산', '변동성: VIX·VIX3M (Cboe)', '금리: 미 재무부 국채 수익률 (FRED DGS2·DGS10)', '신용: ICE BofA 하이일드 OAS (FRED) · CNN Fear & Greed', '달러·원자재·환율: Yahoo Finance'],
   macro: [FRED, 'ISM 제조업·서비스업 지수: ISM', '정책금리·회의 일정: 연방준비제도 FOMC'],
   fxbond: ['국채 수익률 곡선: 미 재무부 일별 par curve', '금리차·실질금리·기대인플레이션·기간 프리미엄: FRED (T10Y3M, DFII10, T10YIE, THREEFYTP10)', '하이일드 스프레드: ICE BofA OAS (FRED)', '환율·달러 인덱스: Yahoo Finance'],
-  themes: ['섹터·테마 ETF와 종목 일봉: Yahoo Finance (상대강도는 자체 계산)'],
+  themes: [
+    '섹터·테마 ETF와 종목 일봉: Yahoo Finance (상대강도는 자체 계산)',
+    'S&P 500 지도 넓이: iShares IVV 일별 보유 비중(지수 비중 근사) · 기간 수익률은 기간 시작 비중으로 역산',
+    'AI 설비투자 배분: BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용 · 부품 납기: TrendForce(2026-09-14)'
+  ],
   ticker: ['가격·차트: Yahoo Finance 일봉', SEC, '팩터 점수: 스크리너와 같은 자체 계산'],
   fundamental: [SEC],
   screener: ['가격 팩터(수익률·추세·변동성): Yahoo Finance 수정 종가로 자체 계산', SEC, '종목별 원시 가격은 공개 데이터에 싣지 않습니다'],

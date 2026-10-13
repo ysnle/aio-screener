@@ -177,4 +177,61 @@ for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
 const watchdogWf = loadYaml(fs.readFileSync(new URL('../.github/workflows/data-watchdog.yml', import.meta.url), 'utf8'));
 assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes('Deploy GitHub Pages'), 'P1666: watchdog follows each Pages deploy');
 
+// Expert review 2026-10-13 (거시 · 금리, M03-M06/M12-M14/M16/M18/M22, M01 consumers): synthetic counterexamples.
+{
+  const { buildLiquidityGrowthGroups, brentWtiCheck } = await import('../src/domain/macro/liquidity-growth.js');
+  const { sessionPointBack, derivedThreeMonth } = await import('../src/domain/macro/rates-fx.js');
+  const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
+  const month = (i) => new Date(Date.UTC(2024, i, 1)).toISOString().slice(0, 10);
+  const wk = (i) => new Date(Date.UTC(2026, 6, 1) + i * 7 * 86400000).toISOString().slice(0, 10);
+  const day = (i) => new Date(Date.UTC(2026, 7, 3) + i * 86400000).toISOString().slice(0, 10);
+  const weekdays = Array.from({ length: 70 }, (_, i) => day(i)).filter((d) => ![0, 6].includes(new Date(`${d}T12:00:00Z`).getUTCDay()));
+  const mh = { schemaVersion: 'macro-history.v1', series: {
+    ppiFinalDemand: { frequency: 'monthly', observations: Array.from({ length: 26 }, (_, i) => [month(i), 140 * 1.004 ** i]) },
+    realGdp: { frequency: 'quarterly', observations: Array.from({ length: 10 }, (_, i) => [month(i * 3), 22000 * 1.005 ** i]) },
+    jobOpenings: { frequency: 'monthly', observations: Array.from({ length: 12 }, (_, i) => [month(i + 14), 7000 + i * 50]) },
+    fedBalanceSheet: { frequency: 'weekly', observations: Array.from({ length: 10 }, (_, i) => [wk(i), 6700000 + (i % 2) * 90000]) },
+    treasuryAccount: { frequency: 'weekly', observations: Array.from({ length: 10 }, (_, i) => [wk(i), 900000]) },
+    reverseRepo: { frequency: 'daily', observations: Array.from({ length: 10 }, (_, i) => [wk(i), 1]) },
+    sofr: { frequency: 'daily', observations: weekdays.map((d) => [d, 3.87]) },
+    fedTargetUpper: { frequency: 'daily', observations: [[day(0), 4]] },
+    brent: { frequency: 'daily', observations: weekdays.map((d, i) => [d, 90 * (i < weekdays.length - 10 ? 1 : 1.25)]) }
+  } };
+  const lastWeekday = weekdays.at(-1);
+  const history = weekdays.map((d) => ({ date: d, spx: 6000, wti: 85 }));
+  const referenceMs = Date.parse(`${lastWeekday}T00:00:00Z`) + 2 * 86400000;
+  const items = Object.fromEntries(buildLiquidityGrowthGroups(mh, { history, referenceMs }).flatMap((g) => g.items).map((item) => [item.id, item]));
+  const ppi = items.ppiFinalDemand;
+  assert.ok(ppi.series.every((p) => Math.abs(p.value - (1.004 ** 12 - 1) * 100) < 1e-6), 'M03: the PPI line draws year-over-year %, not the index level');
+  assert.equal(ppi.format(ppi.series[0].value), '+4.9%', 'M03/M16: the PPI range uses the value format');
+  assert.ok(items.realGdp.series.every((p) => Math.abs(p.value - (1.005 ** 4 - 1) * 100) < 1e-6), 'M04: GDP draws annualized quarterly growth');
+  assert.equal(items.realGdp.period, '26년 2분기', 'M04/M13: a 2026-04-01 GDP observation is 26년 2분기, not 4/1');
+  assert.equal(items.jobOpenings.period, '2월분', 'M13: a monthly card names its month');
+  assert.match(items.jobOpenings.format(9368), /^9\.37백만 건$/, 'M16: the JOLTS range keeps the 백만 건 unit');
+  assert.match(items.netLiquidity.reading, /뚜렷한 방향이 없습니다/, 'M05: a 4-week change inside ±1,000억 달러 has no direction');
+  assert.match(items.netLiquidity.format(5986.7), /조 달러$/, 'M16: the net-liquidity range keeps 조 달러');
+  assert.match(items.sofr.changeText, /목표 범위 3\.75–4\.00% 안/, 'M22: SOFR shows the target range');
+  assert.equal(items.sofr.stale, false, 'M14: a 2-day-old daily series is current');
+  assert.equal(buildLiquidityGrowthGroups(mh, { history, referenceMs: referenceMs + 6 * 86400000 }).flatMap((g) => g.items).find((i) => i.id === 'brent').stale, true, 'M14: a daily series 8 days old is stale');
+  const oil = brentWtiCheck(mh, history);
+  assert.ok(oil.diverges && Math.round(oil.spread) === 28 && /보류/.test(oil.sentence), 'M06: Brent up 25% with WTI flat is flagged with the same-day spread');
+  const read = buildMacroRead({ macroHistory: mh, history, rateFx: { wti20: -8 } });
+  const oilNode = read.chain.nodes.find((n) => n.id === 'oil');
+  assert.ok(oilNode.impact === 'unknown' && /브렌트/.test(oilNode.value), 'M06: the WTI oil node is not coloured favourable while Brent spikes');
+  assert.ok(read.axes.find((a) => a.id === 'commodities').caveat, 'M06: the oil/dollar axis carries the Brent caveat');
+  // M01 consumers: a Sunday row is not a session, so "1 session back" from Monday is Friday.
+  const withSunday = [{ date: '2026-10-08', value: 1 }, { date: '2026-10-09', value: 2 }, { date: '2026-10-11', value: 3 }, { date: '2026-10-12', value: 4 }];
+  assert.equal(sessionPointBack(withSunday, 1).date, '2026-10-09', 'M01: session count skips a weekend row');
+  assert.equal(derivedThreeMonth({ series: { t10y3m: { observations: [['2026-10-09', 0.99]] } } }, { asOf: '2026-10-09', value: 5.24 }).value, 4.25, 'M22: 3-month = 10-year − T10Y3M on the same date');
+  assert.equal(derivedThreeMonth({ series: { t10y3m: { observations: [['2026-10-08', 0.99]] } } }, { asOf: '2026-10-09', value: 5.24 }), null, 'M22: no 3-month point across dates');
+  // M12/M18: a growth direction 5천 명 past its cut is 근소, and a neutral growth axis names the slow payrolls.
+  const payrolls = [100000, 100080, 100160, 100240, 100290, 100340, 100392].map((v, i) => [month(i + 20), v]);
+  const unemployment = Array.from({ length: 16 }, (_, i) => [month(i + 11), 4.1]);
+  const corePceIndex = Array.from({ length: 16 }, (_, i) => [month(i + 11), 100 * 1.0025 ** i]);
+  const macroRead = buildMacroRead({ macroHistory: { schemaVersion: 'macro-history.v1', series: { payrolls: { observations: payrolls }, unemployment: { observations: unemployment }, corePceIndex: { observations: corePceIndex } } } });
+  assert.ok(macroRead.regime.near?.growth && macroRead.regime.inputs[1][3].endsWith('(근소)'), 'M12: a direction within half a rule step is 근소');
+  assert.match(macroRead.regime.timing, /고용 26년 3월/, 'M12: the quadrant names the month it reads');
+  assert.match(macroRead.axes.find((a) => a.id === 'growth').read, /51천 명씩 늘어 기준\(10만 명\)에 못 미칩니다/, 'M18: the neutral growth read names its cause');
+}
+
 console.log('codex-structure-regression-fixture: OK');

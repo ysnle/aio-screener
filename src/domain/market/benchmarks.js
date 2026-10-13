@@ -13,8 +13,8 @@ export function benchmarkOf(symbol) {
   return { id: 'spx', label: 'S&P 500', field: 'spx', market: 'US' };
 }
 
-export function indexReturns(history = [], field) {
-  const series = buildCloseSeries(history, field);
+export function indexReturns(history = [], field, { through = null } = {}) {
+  const series = buildCloseSeries(history, field, { through });
   const last = series[series.length - 1];
   const out = {};
   for (const [key, sessions] of Object.entries(WINDOWS)) {
@@ -24,9 +24,11 @@ export function indexReturns(history = [], field) {
   return out;
 }
 
-// One benchmark row for a symbol: the market's index returns, labelled.
-export function benchmarkRowFor(symbol, history = []) {
+// One benchmark row for a symbol: the market's index returns, labelled. 2026-10-13 review S07: `through` cuts the
+// index at the stock's own factor session, so a 10/08 KR factor row is compared with the 10/08 KOSPI close
+// instead of dropping the comparison because the index already reached 10/12.
+export function benchmarkRowFor(symbol, history = [], { through = null } = {}) {
   const bench = benchmarkOf(symbol);
-  const series = buildCloseSeries(history, bench.field);
-  return { ...indexReturns(history, bench.field), asOf: series.at(-1)?.date || null, label: bench.label, id: bench.id, market: bench.market };
+  const series = buildCloseSeries(history, bench.field, { through });
+  return { ...indexReturns(history, bench.field, { through }), asOf: series.at(-1)?.date || null, label: bench.label, id: bench.id, market: bench.market };
 }

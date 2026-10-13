@@ -99,13 +99,18 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
     return { ...group, rank: rankSort.get(group.id) ?? null, rank1m: r1, rank3m: r3, direction, vsBenchmark: group.basis && group.basis === benchmark.asOf && group[key] != null && bench != null ? group[key] - bench : null };
   }).sort((a, b) => (a.rank ?? 1e9) - (b.rank ?? 1e9));
   // Theme level (all sub-theme members once), used where a layer links to a whole theme.
+  // Expert review M15: one member on another close (HUBB on 10/9 among 10/12 rows) used to blank the whole theme
+  // (energy, industrials). A member that is stale, or on an older session than the theme's newest, is held out —
+  // the same "one close" admission the S&P 500 map uses — and the count of held-out members travels with the value.
   const themeSummary = {};
+  const staleRow = (row) => row?.factorQuality?.stale === true || String(row?.factorQuality?.status || '').toUpperCase() === 'STALE';
   for (const theme of Array.isArray(themes) ? themes : []) {
     const tickers = [...new Set((theme?.subThemes || []).flatMap((sub) => sub?.tickers || []).map((sym) => String(sym).toUpperCase()))].filter(sym => screenerMarket(bySymbol.get(sym) || { sym }) === market);
-    const members = tickers.map((sym) => bySymbol.get(sym)).filter((row) => row && finite(row[key]) != null);
-    const dates = [...new Set(members.map((row) => row.factorSessionDate).filter(Boolean))];
-    const aligned = dates.length === 1 && members.every((row) => row.factorSessionDate === dates[0]);
-    themeSummary[theme.id] = { id: theme.id, name: theme.nameKr, members: members.length, value: aligned && members.length >= MIN_GROUP_MEMBERS ? median(members.map((row) => finite(row[key]))) : null };
+    const measured = tickers.map((sym) => bySymbol.get(sym)).filter((row) => row && finite(row[key]) != null);
+    const fresh = measured.filter((row) => !staleRow(row) && /^\d{4}-\d{2}-\d{2}$/.test(String(row.factorSessionDate || '')));
+    const basis = fresh.map((row) => row.factorSessionDate).sort().at(-1) || null;
+    const members = fresh.filter((row) => row.factorSessionDate === basis);
+    themeSummary[theme.id] = { id: theme.id, name: theme.nameKr, members: members.length, excluded: measured.length - members.length, basis, value: members.length >= MIN_GROUP_MEMBERS ? median(members.map((row) => finite(row[key]))) : null };
   }
   return { model: GROUP_STRENGTH_MODEL_VERSION, market, sortKey: key, windowLabel: GROUP_WINDOWS[key], total, benchmark: bench, groups: out, excluded, themes: themeSummary, latestBasis, expectedSession, sessionCurrent: expectedSession ? latestBasis === expectedSession : null };
 }

@@ -125,6 +125,7 @@ const POLICIES = {
   'screener-candidate-archive.json': { kind: 'research-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // P1465: forward candidate record (refresh-screener)
   'sec-fiscal-history.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt'], maxAgeHours: 48 },
   'telegram-digest.json': { kind: 'reference-digest', timestamp: ['generatedAt', 'lastSuccessfulAt', 'meta.generatedAt'], maxAgeHours: 12 },
+  'telegram-observed.json': { kind: 'producer-state', timestamp: ['generatedAt'], maxAgeHours: 24 * 3 }, // P1683: lineage rows behind telegram-digest count (refresh-data)
   'telegram-reference-window.json': { kind: 'research-reference', timestamp: ['reviewedAt', 'generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'user-research-digest.json': { kind: 'research-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'model-validation-status.json': { kind: 'research-horizon', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },

@@ -4,6 +4,7 @@
 import { alignInput, buildMarketRead } from '../../domain/briefing/market-read.js';
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
 import { ensureResearchSnapshots } from './research-snapshots.js';
+import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -71,13 +72,20 @@ export function collectMarketInputs(root) {
   // (10/2) from different days are not split against each other.
   rates.realAsOf = fieldTs.macro_realYield10 || null;
   rates.breakevenAsOf = fieldTs.macro_breakeven10 || null;
-  return { history: root._aioHistory || [], credit, rates, now: Date.now() }; // M05: admit only a current basis
+  // T05/P1685: the 20-session HY widening comes from macro-history; every screen that reads these inputs gets it.
+  return { history: root._aioHistory || [], credit, rates, now: Date.now(), macroHistory: root._aioMacroHistory || null }; // M05: admit only a current basis
 }
 
 export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() }) {
   const page = doc?.getElementById('page-briefing');
   if (!page) return;
   const snapshot = root.DATA_SNAPSHOT || {};
+  // T05/P1685: the credit axis needs the 20-session HY change; load it like 시장 상태 does and redraw once it lands.
+  if (sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) {
+    refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => {
+      if (changed && page.classList?.contains('active')) renderBriefingRead({ documentRef: doc, root });
+    }).catch(() => {});
+  }
   const read = buildMarketRead(collectMarketInputs(root));
   ensureResearchSnapshots({ documentRef: doc, root, host: page, kind: 'briefing', collect: () => ({
     kind: 'briefing', sessionDate: read.asOf, publishedAt: root._serverDataMeta?.generatedAt || null,
@@ -116,6 +124,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       const item = el(doc, 'div', null, `briefing-event${row.today ? ' is-today' : ''}${row.passed ? ' is-passed' : ''}`);
       item.dataset.kind = row.kind;
       item.dataset.eventId = row.id;
+      if (row.sourceTitle) item.title = row.sourceTitle;
       const when = el(doc, 'span', row.status === 'received' ? `${row.when} · 발표됨` : row.status === 'time-passed' ? `${row.when} · 예정 시각 지남` : row.when, 'briefing-event-when');
       const body = el(doc, 'div', null, 'briefing-event-body');
       body.append(el(doc, 'span', row.label, 'briefing-event-label'));

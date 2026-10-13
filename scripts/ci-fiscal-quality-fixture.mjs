@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { parseFiscalHistory, renderFiscalRead, fiscalBarGeometry, formatFiscalAmount } from '../src/ui/components/fiscal-read.js';
+import { parseFiscalHistory, renderFiscalRead, fiscalBarGeometry, formatFiscalAmount, formatFiscalCompact } from '../src/ui/components/fiscal-read.js';
 import { buildFiscalRead, reconcileFiscalHistory } from '../src/domain/fundamental/fiscal-read.js';
 import { fiscalMetrics, buildPeerRead } from '../src/domain/fundamental/peer-read.js';
 
@@ -26,6 +26,9 @@ assert.equal(reconcileFiscalHistory(history, { ...fixture, operatingCashFlow: nu
 assert.equal(formatFiscalAmount(-7126000), '−$7.126M', 'P1627 displayed losses must retain sign and precision');
 assert.equal(formatFiscalAmount(null), '자료 없음', 'P1627 missing is not a zero');
 assert.equal(formatFiscalAmount(0), '$0M', 'P1627 an observed zero must remain zero');
+assert.equal(formatFiscalCompact(416161e6), '$416.2B', 'S20 table amounts read in billions like the paragraph');
+assert.equal(formatFiscalCompact(-147.8e9), '−$147.8B', 'S18/S20 the sign precedes the currency');
+assert.equal(formatFiscalCompact(null), '자료 없음', 'S20 missing is not a zero');
 
 const scale = fiscalBarGeometry([66e6, 33e6, 50e6, -7e6, 0, null]);
 const loss = scale.rect(-7e6); const gain = scale.rect(33e6);
@@ -93,7 +96,9 @@ const doc = { createElement: (tag) => new Element(tag), createTextNode: (text) =
 const root = { _aioSecFiscalHistory: { AEHR: compact }, _aioSecQuarterHistory: {}, _aioGetCanonicalScreenerRows: () => [{ sym: 'AEHR', sector: 'Technology' }] };
 renderFiscalRead({ documentRef: doc, root, state: { id: 'AEHR', fundamentals: fixture } });
 const nodes = descendants(host);
-assert.ok(nodes.some((node) => node.tagName === 'table' && node.textContent.includes('−$7.126M')), 'P1627 render must expose an annual amount table with signed exact income');
+// 2026-10-13 review S20: the table reads in B/T/M units like the paragraph; the exact signed amount stays in the cell title.
+assert.ok(nodes.some((node) => node.tagName === 'table' && node.textContent.includes('−$7.1M')), 'S20 render must expose an annual amount table with signed compact income');
+assert.ok(nodes.some((node) => node.tagName === 'td' && node.title === '−$7.126M'), 'P1627/S20 the exact signed income must remain available on the cell');
 assert.ok(host.textContent.includes('분기 실적 자료 없음'), 'P1627 annual data must not masquerade as recent quarter data');
 assert.ok(host.textContent.includes('과거 기록의 표시 정밀도'), 'P1627 old whole-million history must disclose approximation');
 assert.ok(nodes.some((node) => node.tagName === 'a' && node.href.includes('/1040470/')), 'P1627 annual absence/reading must have a safe exact filing link');

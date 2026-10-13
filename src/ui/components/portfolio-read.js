@@ -5,6 +5,7 @@ import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
 import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
+import { buildCloseSeries } from '../../domain/briefing/market-read.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -37,7 +38,10 @@ function attributionBox(doc, attribution) {
   else if (attribution.cashSharePct > 0) notes.push(`현금 ${attribution.cashSharePct.toFixed(0)}% — 지수에 투자됐다면 얻었을 수익률만큼이 현금 효과`);
   const mismatched = (attribution.skipped || []).filter((item) => item.reason === 'basis-mismatch');
   if (mismatched.length) notes.push(`종가 기준일이 비교 지수와 다르거나 확인되지 않는 ${mismatched.length}종목은 제외`);
-  if (attribution.fxHoldingsPct > 0) notes.push(`환율 효과는 기준 통화로 환산한 보유액 ${attribution.fxHoldingsPct.toFixed(0)}%의 원/달러 3개월 변동`);
+  const md = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
+  const fxHeld = (attribution.skipped || []).filter((item) => item.reason === 'fx-basis-mismatch');
+  if (fxHeld.length) notes.push(`원/달러 종가(${fxHeld[0].fxBasis ? md(fxHeld[0].fxBasis) : '날짜 미확인'})가 종목 종가 기준일과 달라 환율 효과를 계산하지 않은 ${fxHeld.length}종목은 제외`);
+  if (attribution.fxHoldingsPct > 0) notes.push(`환율 효과는 기준 통화로 환산한 보유액 ${attribution.fxHoldingsPct.toFixed(0)}%의 원/달러 3개월 변동${attribution.fxAsOf ? `(${md(attribution.fxAsOf)} 종가까지)` : ''}`);
   notes.push('지금 비중을 3개월 동안 들고 있었다고 가정한 계산이라 실제 계좌 성과와 다릅니다');
   box.append(el(doc, 'p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
   return box;
@@ -61,7 +65,10 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
     }
     return bench;
   };
-  const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, history), marketReturnFor, usdkrwReturnPct: indexReturns(history, 'usdkrw').ret3m, rotation: currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now()), regime: readMarketRegime(root) });
+  // #22: the USD/KRW 3-month return ends on the series' last close; that date travels with it so a holding whose
+  // close is on another day has its FX effect held instead of mixing two windows.
+  const usdkrwAsOf = buildCloseSeries(history, 'usdkrw').at(-1)?.date || null;
+  const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, history), marketReturnFor, usdkrwReturnPct: indexReturns(history, 'usdkrw').ret3m, usdkrwAsOf, rotation: currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now()), regime: readMarketRegime(root) });
   const next = doc.getElementById('pf-next');
   if (!read.available) {
     // P1449: a hold is not an absence — the reason (currency mix without declared rates) is

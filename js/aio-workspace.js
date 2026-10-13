@@ -790,8 +790,7 @@ function renderPortfolio() {
     return;
   }
 
-  let totalValue = 0, totalCost = 0, totalDailyChg = 0;
-  const rows = positions.map(p => {
+  const rows = positions.map(p => { // #3: per-row cells stay in each position's own currency; no cross-currency total is summed here
     const live = ld[p.ticker];
     const currentPrice = live && isFinite(live.price) && live.price > 0 ? live.price : null;
     const dailyPct = live ? (live.pct != null ? live.pct : 0) : 0;
@@ -799,9 +798,6 @@ function renderPortfolio() {
     const posCost = p.cost * p.qty;
     const pnl = posValue != null ? posValue - posCost : null;
     const pnlPct = pnl != null && posCost > 0 ? (pnl / posCost * 100) : null;
-    const dailyChg = posValue != null ? posValue * (dailyPct / 100) : 0;
-    if (posValue != null) { totalValue += posValue; totalCost += posCost; }
-    totalDailyChg += dailyChg;
 
     const pnlColor = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--green)' : 'var(--red)';
     const pnlSign = pnl != null && pnl >= 0 ? '+' : '';
@@ -832,15 +828,14 @@ function renderPortfolio() {
   if (!_nativePortfolioTable) tbody.innerHTML = rows.join('');
 
   // Update weights
+  var _bw = typeof _pfBaseValues === 'function' ? _pfBaseValues(positions) : { blocked: true, rows: [] }, _bt = _bw.rows.reduce(function(s, r) { return s + r.value; }, 0); // #3: base-currency weights, no cost stand-in
   if (!_nativePortfolioTable) positions.forEach(p => {
-    const live = ld[p.ticker];
-    const val = (live ? live.price : p.cost) * p.qty;
-    const wt = totalValue > 0 ? (val / totalValue * 100).toFixed(1) : 0;
+    const row = _bw.blocked ? null : _bw.rows.find(function(r) { return r.sym === p.ticker; });
     const el = document.getElementById('pf-weight-' + p.ticker);
-    if (el) el.textContent = wt + '%';
+    if (el) el.textContent = row && _bt > 0 ? (row.value / _bt * 100).toFixed(1) + '%' : '—';
   });
 
-  updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDailyChg);
+  updatePortfolioSummary(positions, ld);
   // v40.4: 포지션 도넛 + 섹터 브레이크다운 갱신
   drawPositionDonut();
   // 현금 입력 필드 복원
@@ -969,37 +964,11 @@ function _pfLegacyCurrencyOf(position) {
   return String((position && (position.costCurrency || position.currency)) || '').trim().toUpperCase()
     || (/\.KS|\.KQ/.test(String((position && position.ticker) || '')) ? 'KRW' : 'USD');
 }
-function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDailyChg) {
-  totalValue = totalValue || 0;
-  totalCost = totalCost || 0;
-  totalDailyChg = totalDailyChg || 0;
-  var cashValue = 0;
-  try { cashValue = Math.max(0, parseFloat(localStorage.getItem('aio_portfolio_cash') || '0') || 0); } catch(e) {}
-  const totalAssets = totalValue + cashValue;
-  const totalPnl = totalValue - totalCost;
-  const totalPnlPct = totalCost > 0 ? (totalPnl / totalCost * 100) : 0;
-  const dailyPct = totalAssets > 0 ? (totalDailyChg / totalAssets * 100) : 0;
-
-  // Allocation summary
-  const alloc = {};
-  positions.forEach(p => {
-    const tag = p.memo || 'etc';
-    const live = ld[p.ticker];
-    const val = (live ? live.price : p.cost) * p.qty;
-    alloc[tag] = (alloc[tag] || 0) + val;
-  });
-  const allocEl = document.getElementById('pf-allocation');
-  if (allocEl && positions.length > 0) {
-    const sorted = Object.entries(alloc).sort((a,b) => b[1]-a[1]);
-    allocEl.innerHTML = sorted.slice(0,4).map(([k,v]) => {
-      const pct = totalValue > 0 ? (v/totalValue*100).toFixed(0) : 0;
-      return `<span style="color:var(--text-secondary);font-size:11px;">${escHtml(k)} ${pct}%</span>`;
-    }).join(' · ');
-  }
-  // v37.8: 동적 포트폴리오 진단
-  if (typeof _generatePortfolioAnalysis === 'function') {
-    _generatePortfolioAnalysis(positions, ld, { totalValue: totalValue, totalCost: totalCost, totalDailyChg: totalDailyChg, totalPnl: totalPnl, totalPnlPct: totalPnlPct });
-  }
+// v57.48 expert review #3: the legacy totals summed price × qty across listing currencies (and the retired
+// #pf-allocation block valued unpriced holdings at cost). The diagnosis now reads the native surface's
+// base-currency values (window._aioPortfolioSurface) — no `$` hard-coding, no cost stand-in for a missing quote.
+function updatePortfolioSummary(positions, ld) {
+  if (typeof _generatePortfolioAnalysis === 'function') _generatePortfolioAnalysis(positions, ld, window._aioPortfolioSurface || null);
 }
 
 function refreshPortfolioPrices() {
@@ -1062,7 +1031,7 @@ function refreshPortfolioLedgerPerformance() {
   var perfPct = function(v) { return v == null ? '보류' : (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%'; };
   var html;
   if (accountPerf.status === 'ready') {
-    html = '<b>실제 계좌 성과 TWR ' + _escHtmlSafe(perfPct(accountPerf.twr)) + ' · MWR ' + _escHtmlSafe(perfPct(accountPerf.mwr)) + '</b> — '
+    html = '<b>실제 계좌 성과 TWR(기간 누적) ' + _escHtmlSafe(perfPct(accountPerf.twr)) + ' · MWR(연율) ' + _escHtmlSafe(perfPct(accountPerf.mwr)) + '</b> — ' // #6: different units, both named
       + _escHtmlSafe(accountPerf.currency + ' · ' + accountPerf.flowTiming + ' · ' + accountPerf.sample.periods + '기간 ' + accountPerf.sample.from + '~' + accountPerf.sample.to)
       + (accountPerf.mwr == null ? ' · ' + _escHtmlSafe((accountPerf.warnings && accountPerf.warnings[0]) || 'MWR 계산 불가') : '')
       + ' (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)';
@@ -1265,7 +1234,9 @@ function _aioRenderPortfolioStress(positions) {
   var DEF = {eq:1.0,rate:-0.4,oil:0.0};
   var base = _pfBaseValues(positions);
   if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
-  var rows = base.rows.map(function(r){ var st=find(r.sym); return { sym: r.sym, value: r.value, sr: (st&&SECTOR_RISK[st.sector])||DEF }; });
+  // #11: the keys match the screener's sector names (Consumer/Materials — verified against screener-universe.json).
+  // US sector betas do not describe KRX holdings, so those take the plain market beta (DEF) instead.
+  var rows = base.rows.map(function(r){ var st=find(r.sym); return { sym: r.sym, value: r.value, kr: /\.(KS|KQ)$/i.test(r.sym), sr: /\.(KS|KQ)$/i.test(r.sym) ? DEF : (st&&SECTOR_RISK[st.sector])||DEF }; });
   var total = rows.reduce(function(s,r){return s+(r.value||0);},0); if (total<=0){ el.innerHTML=_pfBaseNote(base); return; }
   rows.forEach(function(r){ r.w=r.value/total; });
   // 시나리오: 주식충격(eq)·금리+100bp(rate)·유가+30%(oil×0.30)
@@ -1282,9 +1253,9 @@ function _aioRenderPortfolioStress(positions) {
     return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">'+_escHtmlSafe(sc.name)+'</span><span style="font-weight:700;color:'+col+';">'+(port>=0?'+':'')+(port*100).toFixed(1)+'%'+(worst&&worst.imp<0?' <span style="color:var(--text-muted);font-weight:400;">('+_escHtmlSafe(worst.sym)+')</span>':'')+'</span></div>';
   }).join('');
   el.innerHTML =
-    '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">스트레스 시나리오 <span style="font-weight:400;color:var(--text-muted);">— 섹터 베타 기반 추정</span></div>' +
+    '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">스트레스 시나리오 <span style="font-weight:400;color:var(--text-muted);">— 주식 부분 · 가정 베타</span></div>' +
     lines +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">섹터 주식/금리/유가 베타 휴리스틱 추정치 — 실제 손익과 다를 수 있음.</div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">현금을 뺀 주식 부분에 미국 섹터별 주식·금리·유가 베타를 가정해 곱한 값입니다' + (rows.some(function(r){ return r.kr; }) ? '(한국 종목은 시장 베타 1.0 가정)' : '') + ' — 측정된 베타가 아니며 실제 손익과 다를 수 있습니다.</div>';
   el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
 }
 function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -1297,13 +1268,13 @@ async function refreshPortfolioTechnicalRisk() {
     if (typeof renderPortfolioTechnicalRisk === 'function') renderPortfolioTechnicalRisk({ items: [] });
     return;
   }
-  let ld = window._liveData || {};
+  var _sf = window._aioPortfolioSurface, _sr = {}, _costOk = !!_sf && !(_sf.conversion && _sf.conversion.costHeld && _sf.conversion.costHeld.length); if (_sf && _sf.currencyState !== 'mixed-without-conversion') (_sf.rows || []).forEach(function(r) { _sr[r.symbol] = r; }); // #2: weights from the surface's base-currency values, not price × qty in each listing currency
   var enriched = positions.map(function(p) {
     var evidence = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
-    var price = evidence && evidence.allowedUse === true ? evidence.value : null;
+    var row = _sr[String(p.ticker || '').toUpperCase()], q = Number(p.qty), price = evidence && evidence.allowedUse === true && row && row.value > 0 && q > 0 ? row.value / q : null; // per-share base value; calcPositionTechnicalRisk multiplies it back by qty
     return Object.assign({}, p, {
-      price: price,
-      value: price != null ? price * p.qty : null,
+      price: price, cost: price != null && _costOk && row.cost != null ? row.cost / q : null,
+      value: price != null ? row.value : null,
       currentQuoteAllowedUse: evidence && evidence.allowedUse === true,
       quoteSourceKind: evidence && evidence.allowedUse === true ? 'live-quote' : 'unavailable',
       quoteObservedAt: evidence && evidence.allowedUse === true ? evidence.ts : null
@@ -1346,36 +1317,17 @@ function _renderRiskMetrics(el, data) {
 
   function fmtLoss(v) { return (v !== null && v !== undefined) ? '-' + (v * 100).toFixed(2) + '%' : '—'; } // v50.22: null일 때 "-—" 대신 "—"
   function fmtN(v, d) { return (v !== null && v !== undefined) ? v.toFixed(d !== undefined ? d : 2) : '—'; }
-  function sharpeColor(v) {
-    if (v === null || v === undefined) return 'var(--text-muted)';
-    return v >= 2 ? 'var(--data-green)' : v >= 1 ? '#211d16' : v >= 0 ? 'var(--text-secondary)' : 'var(--data-red)';
-  }
-  function sharpeLabel(v) {
-    if (v === null || v === undefined) return '';
-    return v >= 2 ? '우수' : v >= 1 ? '양호' : v >= 0 ? '보통' : '부진';
-  }
-  function mddColor(v) {
-    if (v === null || v === undefined) return 'var(--text-muted)';
-    return v >= 0.3 ? 'var(--data-red)' : v >= 0.15 ? 'var(--data-amber)' : 'var(--data-green)';
-  }
-  function mddLabel(v) {
-    if (v === null || v === undefined) return '';
-    return v >= 0.3 ? '위험' : v >= 0.15 ? '주의' : '양호';
-  }
+  // #17: a 3-month Sharpe/MDD carries no 우수/양호/위험 grade — the value and its sample period only.
+  function plainColor(v) { return v === null || v === undefined ? 'var(--text-muted)' : 'var(--text-primary)'; }
 
   // 선언 블록 — 측정 경로/분모/RF/표본/snapshot. 실제 계좌 성과(TWR/MWR)는 P1449부터
   // pf-ledger-performance 요약으로 분리됐다(시세 이력 게이트와 무관).
   var declLines = [];
   if (est) {
-    var declParts = [
-      '경로 ' + est.exposureHistoryMode,
-      'rebalance ' + (est.rebalancePolicyApplied ? est.rebalancePolicy : (est.rebalancePolicyDeclared ? est.rebalancePolicyDeclared + '(미사용)' : '미선언')),
-      '분모 ' + (scopeToken || '—') + (scopeLabel ? '(' + scopeLabel + ')' : ''),
-      'RF ' + (est.rf && est.rf.status === 'accepted' ? '입력' : '미입력 — Sharpe 보류'),
-      '표본 ' + (est.sample && est.sample.n != null ? est.sample.n : n) + '일',
-      'snapshot ' + est.compositionSnapshotId + ' @ ' + (est.valuationCut || '—')
-    ];
-    if (est.pathLineage === 'legacy-risk-path') declParts.push('legacy-risk-path · 실제 계좌 이력 아님' + (est.rebalancePolicyDeclared ? ' · 선언 정책 ' + _escHtmlSafe(est.rebalancePolicyDeclared) + ' 미사용' : '')); // P1197: 소비되지 않는 선언을 화면이 말한다
+    // #16: one Korean line on screen; the internal codes (path/scope/lineage/snapshot) go to the folded detail below.
+    var declParts = [est.exposureHistoryMode === 'current_composition_retrospective' ? '현재 구성을 표본 기간에 그대로 적용한 소급 계산' : est.exposureHistoryMode === 'fixed_target_weight_strategy' ? '고정 목표비중 전략' : '실제 계좌 이력', '분모 ' + (scopeLabel || '—'), 'RF ' + (est.rf && est.rf.status === 'accepted' ? '입력' : '미입력 — Sharpe 보류'), '표본 ' + (est.sample && est.sample.n != null ? est.sample.n : n) + '일'];
+    var declCodes = ['path ' + est.exposureHistoryMode, 'rebalance ' + (est.rebalancePolicyApplied ? est.rebalancePolicy : (est.rebalancePolicyDeclared ? est.rebalancePolicyDeclared + '(미사용)' : '미선언')), 'scope ' + (scopeToken || '—'), 'lineage ' + (est.pathLineage || '—'), 'snapshot ' + est.compositionSnapshotId + ' @ ' + (est.valuationCut || '—')];
+    if (est.pathLineage === 'legacy-risk-path') declParts.push('실제 계좌 이력 아님' + (est.rebalancePolicyDeclared ? ' · 선언 정책 ' + _escHtmlSafe(est.rebalancePolicyDeclared) + ' 미사용' : '')); // P1197: 소비되지 않는 선언을 화면이 말한다
     if (est.pathLineage === 'fixed-target-weight-strategy') {
       var declaredTargets = est.strategy && est.strategy.targetWeights ? Object.keys(est.strategy.targetWeights) : [];
       declParts.push('고정 목표비중 전략 · 실제 계좌 이력 아님' + (est.strategy && est.strategy.cashWeight > 0 ? ' · 현금 ' + (est.strategy.cashWeight * 100).toFixed(1) + '%' : '') + (declaredTargets.length
@@ -1392,7 +1344,7 @@ function _renderRiskMetrics(el, data) {
     }
   }
   var declHtml = declLines.length
-    ? '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;padding:6px 8px;margin-bottom:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;">' + declLines.join('<br>') + '</div>'
+    ? '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;padding:6px 8px;margin-bottom:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;" data-exposure-path="' + _escHtmlSafe(est.exposureHistoryMode || '') + '" data-risk-scope="' + _escHtmlSafe(scopeToken || '') + '" data-path-lineage="' + _escHtmlSafe(est.pathLineage || '') + '">' + declLines.join('<br>') + (declCodes ? '<details><summary>계산 식별자</summary>' + _escHtmlSafe(declCodes.join(' · ')) + '</details>' : '') + '</div>'
     : '';
 
   // 지표 카드
@@ -1402,25 +1354,22 @@ function _renderRiskMetrics(el, data) {
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
     '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (95%)' + scopeSuffix + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var95) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">과거 표본 95% 손실 경계(초과 가능) · 표본 ' + n + '일</div></div>';
-
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">과거 표본 95% 손실 경계(초과 가능) · 표본 ' + n + '일 중 하위 ' + Math.max(1, Math.ceil(n * 0.05 - 1e-9)) + '번째 손실</div></div>';
+  var tail99 = Math.max(1, Math.ceil(n * 0.01 - 1e-9)), thin99 = !(n >= 100); // #8: under 100 days the 99% "boundary" is just the worst day(s) of the sample
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (99%)' + scopeSuffix + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">' + (thin99 ? '표본 최악일 (1일 손실)' : '1일 VaR (99%)') + scopeSuffix + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var99) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">과거 표본 99% 손실 경계(초과 가능) · 표본 ' + n + '일</div></div>';
-
-  var sharpeSub = sharpe !== null && sharpe !== undefined
-    ? sharpeLabel(sharpe) + ' (RF 입력, ' + n + '일)'
-    : (rfAnnual == null && est ? 'RF 미입력 — 보류 (' + n + '일)' : '데이터 부족');
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (thin99 ? '표본 ' + n + '일이라 99% 꼬리 관측이 ' + tail99 + '개뿐 — 99% 경계가 아니라 표본 최악일입니다' : '과거 표본 99% 손실 경계(초과 가능) · 표본 ' + n + '일 · 꼬리 ' + tail99 + '개') + '</div></div>';
+  var sharpeSub = sharpe !== null && sharpe !== undefined ? 'RF 입력 · 표본 ' + n + '일(연율화)' : (rfAnnual == null && est ? 'RF 미입력 — 보류 (' + n + '일)' : '데이터 부족');
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
     '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">Sharpe Ratio' + scopeSuffix + '</div>' +
-    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + sharpeColor(sharpe) + ';">' + fmtN(sharpe) + '</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + plainColor(sharpe) + ';">' + fmtN(sharpe) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + sharpeSub + '</div></div>';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
     '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">최대낙폭 (MDD)' + scopeSuffix + '</div>' +
-    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + mddColor(mdd) + ';">' + fmtLoss(mdd) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (mdd !== null ? mddLabel(mdd) + ' (기간: ' + n + '일)' : '데이터 부족') + '</div></div>';
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + plainColor(mdd) + ';">' + fmtLoss(mdd) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (mdd !== null ? '표본 ' + n + '일 중 고점 대비 최대 하락' : '데이터 부족') + '</div></div>';
 
   cards += '</div>';
 
@@ -1708,14 +1657,15 @@ function _aioBuildPortfolioActionPrompt(kind) {
   var ticker = _aioSelectedPortfolioTicker();
   var noteEl = document.getElementById('pf-journal-note');
   var consent = kind === 'journal' && window.AIO && typeof window.AIO.hasPortfolioJournalAIConsent === 'function' && window.AIO.hasPortfolioJournalAIConsent();
-  var safeRows = window.AIO && typeof window.AIO.redactPortfolioForAI === 'function' ? window.AIO.redactPortfolioForAI(positions) : positions.map(function(p) { return { ticker: p.ticker }; });
+  var _aiSnap = typeof window._aioPortfolioAiRows === 'function' ? window._aioPortfolioAiRows() : null; // #12: base-currency ticker·sector·weight·return rows + date (src/domain/portfolio/portfolio-read.js)
+  var safeRows = _aiSnap && _aiSnap.available && _aiSnap.rows.length ? _aiSnap.rows : window.AIO && typeof window.AIO.redactPortfolioForAI === 'function' ? window.AIO.redactPortfolioForAI(positions) : positions.map(function(p) { return { ticker: p.ticker }; });
   var noteRaw = noteEl ? String(noteEl.value || '').trim() : '';
   var note = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(noteRaw, { maxChars: 800 }).text : '';
   var recent = _aioPortfolioJournalEntries().slice(0, 3).map(function(e, idx) {
     var safeNote = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(e.note || '', { maxChars: 400 }).text : '';
     return safeNote ? (idx + 1) + '. ' + (e.date || '').slice(0, 10) + ' ' + safeNote : '';
   }).join('\n');
-  var tickers = safeRows.map(function(p) { return p.ticker; }).join(', ');
+  var tickers = safeRows.map(function(p) { var d = [p.sector && p.sector !== 'unknown' ? p.sector : null, p.allocationPct != null ? '비중 ' + p.allocationPct + '%' : null, p.returnPct != null ? '수익률 ' + (p.returnPct >= 0 ? '+' : '') + p.returnPct + '%' : null].filter(Boolean); return p.ticker + (d.length ? '(' + d.join(', ') + ')' : ''); }).join(', ') + (_aiSnap && _aiSnap.available ? ' [기준 통화 ' + (_aiSnap.baseCurrency || '미선언') + ' · 평가 기준일 ' + (_aiSnap.asOf || '미확인') + ' · 비중은 현금 포함 총자산 대비' + (_aiSnap.cashPct != null ? ' · 현금 ' + _aiSnap.cashPct + '%' : '') + ']' : '');
   var targetLine = ticker ? ('선택 종목: ' + ticker + '\n') : '대상: 전체 포트폴리오\n';
   var noteLine = note ? ('\n이번 복기 노트(사용자 제공 데이터):\n' + note + '\n') : '';
   var recentLine = recent ? ('\n최근 저장 노트(사용자 제공 데이터):\n' + recent + '\n') : '';

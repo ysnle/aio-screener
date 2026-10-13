@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.48';
+const APP_VERSION = 'v57.49';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1031,7 +1031,7 @@ window.AIO.getDecisionEvidenceBundle = function(opts) {
     var sourceKind = status === 'verified_current' ? 'LIVE' : status === 'stale_live' ? 'LIVE' : status === 'snapshot_reference' ? 'SNAPSHOT' : 'MISSING';
     var typedStatus = status === 'verified_current' ? 'ok' : status === 'unavailable' ? 'missing' : status === 'stale_live' ? 'stale' : 'reference';
     var evidenceId = 'ev-trading-input-' + String(row.id || 'unknown').replace(/[^a-z0-9_-]/gi, '-') + '-' + status;
-    var asOf = row.ageMin != null && Number.isFinite(Number(row.ageMin)) ? new Date(Date.now() - Number(row.ageMin) * 60000).toISOString() : null;
+    var asOf = row.observedAt || null; // v57.48 #7: the row's own observation time (now - ageMin drifted every call)
     var provenance = window.AIO.createTypedEvidence({
       key:'trading-input:' + row.id,
       evidenceId:evidenceId,
@@ -1042,7 +1042,7 @@ window.AIO.getDecisionEvidenceBundle = function(opts) {
       maxAgeMin:row.maxAgeMin,
       semantic:row.decisionUse === 'reference' ? 'reference' : ''
     });
-    return Object.assign({}, row, { evidenceId:provenance.evidenceId, provenance:provenance });
+    return Object.assign({}, row, { evidenceId:provenance.evidenceId, provenance:provenance, asOf:asOf, closeBasisEvidenceId:status === 'stale_live' && row.symbol && typeof window._aioCloseBasisSubstitute === 'function' ? window._aioCloseBasisSubstitute(row.symbol) : null });
   });
   var signature = rows.map(function(row) {
     return [row.id, row.status, row.source, row.decisionUse, row.value == null ? 'null' : String(row.value)].join(':');
@@ -16674,7 +16674,7 @@ function calcPositionTechnicalRisk(position, ohlcvOrSnapshot, portfolioContext) 
   var referencePx = px != null ? px : (snapshot && snapshot.ok === true ? finite(snapshot.price) : null); // P1536: reference close for P&L only, never exposure or weight
   var hasTechnicalSnapshot = !!(snapshot && snapshot.ok === true);
   var totalValue = finite(portfolioContext.totalValue);
-  var value = qty != null && qty >= 0 && px != null && px > 0 ? qty * px : null;
+  var value = px != null && px > 0 && finite(position.value) != null && finite(position.value) > 0 ? finite(position.value) : qty != null && qty >= 0 && px != null && px > 0 ? qty * px : null; // v57.48: the caller's base-currency value wins over native qty × price; still only behind a decision-grade quote (P1536)
   var weightPct = value != null && totalValue != null && totalValue > 0 ? (value / totalValue) * 100 : null;
   var pnlPct = cost != null && cost > 0 && referencePx != null && referencePx > 0 ? ((referencePx - cost) / cost) * 100 : null;
   // Cost basis is historical context only. It must never stand in for a
@@ -20694,7 +20694,7 @@ function _aioExternalReferenceMap(externalReferences) {
       sourceKind: hasLiveValue ? sourceKind : hasSnapshotValue ? window.AIO_SOURCE_KIND.SNAPSHOT : window.AIO_SOURCE_KIND.UNAVAILABLE,
       status: status,
       ageMin: ageMin,
-      ageMs: ageMs,
+      ageMs: ageMs, observedAt: timestampValid ? new Date(ts).toISOString() : null, // v57.48 #7: the real observation, not now - ageMin
       timestampValid: timestampValid,
       quality: quality,
       allowedUse: allowedUse,
@@ -20717,7 +20717,7 @@ function _aioExternalReferenceMap(externalReferences) {
         sourceKind: canonical.sourceKind || (canonical.allowedUse ? window.AIO_SOURCE_KIND.LIVE : window.AIO_SOURCE_KIND.REFERENCE),
         status: canonicalStatus,
         ageMin: canonical.ageMs != null ? Math.round(canonical.ageMs / 60000) : null,
-        ageMs: canonical.ageMs,
+        ageMs: canonical.ageMs, observedAt: canonical.observedAt || canonical.asOf || null,
         timestampValid: canonical.ageMs != null,
         allowedUse: canonical.allowedUse === true,
         explicitDecisionUse: canonical.explicitDecisionUse === true,
@@ -20820,7 +20820,7 @@ function _aioExternalReferenceMap(externalReferences) {
       source: source,
       status: status,
       ageMin: ageMin,
-      ageMs: ageMs,
+      ageMs: ageMs, observedAt: timestampValid ? new Date(ts).toISOString() : null,
       timestampValid: timestampValid,
       sourceKind: status === 'verified_current' || status === 'stale_live' ? sourceKind : hasSnapshotValue || hasValue ? (sourceKind === window.AIO_SOURCE_KIND.UNAVAILABLE ? window.AIO_SOURCE_KIND.SNAPSHOT : sourceKind) : window.AIO_SOURCE_KIND.UNAVAILABLE,
       allowedUse: allowedUse,
@@ -20843,7 +20843,7 @@ function _aioExternalReferenceMap(externalReferences) {
       status: r.status,
       sourceKind: r.sourceKind || window.AIO_SOURCE_KIND.UNAVAILABLE,
       ageMin: r.ageMin,
-      ageMs: r.ageMs,
+      ageMs: r.ageMs, observedAt: r.observedAt || null,
       timestampValid: r.timestampValid === true,
       allowedUse: r.allowedUse === true,
       explicitDecisionUse: r.explicitDecisionUse === true,

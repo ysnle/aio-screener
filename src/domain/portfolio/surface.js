@@ -238,7 +238,10 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   // 값·현금 환산은 합계를 좌우하므로 하나라도 실패하면 보류하고, 원가 환산 실패는 P&L만 보류한다.
   const costBasisConflict = rows.some((row) => row.costCurrency && row.currency && row.costCurrency !== row.currency);
   // 원가 축이 이미 기준 통화면 환산할 것이 없다 — 필요한 경우에만 leg를 요구한다.
-  const costConversionNeeded = rows.some((row) => row.cost != null && (row.costCurrency || row.currency) !== declaredBaseCurrency);
+  // P1684: the cost axis falls back exactly like the value axis (quote currency, then listing currency) — a quote
+  // without a currency once left a US cost of $2,000 as ₩2,000 and printed +333% instead of +22%.
+  const costCurrencyOf = (row) => row.costCurrency || row.currency || row.listingCurrency || null;
+  const costConversionNeeded = rows.some((row) => row.cost != null && (costCurrencyOf(row) || declaredBaseCurrency) !== declaredBaseCurrency);
   const fxLegs = Array.isArray(state?.fxLegs) ? state.fxLegs : [];
   const conversion = {
     basis: 'declared-observed-rates',
@@ -295,7 +298,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     // 원가 환산은 값 환산과 독립이다: 원가쌍이 없으면 P&L만 보류하고 합계는 그대로 둔다.
     if (costConversionNeeded) {
       const convertedCosts = rows.map((row) => {
-        const costCurrency = row.costCurrency || row.currency;
+        const costCurrency = costCurrencyOf(row);
         return {
           ...row,
           cost: convert(row.cost, costCurrency, costHeld),

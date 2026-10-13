@@ -16,6 +16,17 @@ export function sameFiscalPeriod(left, right) {
   return !leftStart || !rightStart || leftStart === rightStart;
 }
 
+// P1652 + 2026-10-13 review S01: one fundamental freshness rule. A filing whose fiscal period ended more than
+// 15 months (456 days) before the price session is not the company's current fundamentals. The screener
+// provider holds such values and the factor ranker gates value/quality with the same rule — a second,
+// filing-date budget (180 days) used to switch both factors off for 731 of 810 US rows.
+export const FUNDAMENTAL_MAX_PERIOD_AGE_DAYS = 456;
+export function fundamentalPeriodTooOld(periodEnd, sessionDate) {
+  const end = Date.parse(String(periodEnd || '').slice(0, 10));
+  const session = Date.parse(String(sessionDate || '').slice(0, 10));
+  return Number.isFinite(end) && Number.isFinite(session) && (session - end) / 86400000 > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
+}
+
 export function isPriorAnnualPeriod(current, prior) {
   const days = (Date.parse(current?.periodEnd || current?.end || '') - Date.parse(prior?.periodEnd || prior?.end || '')) / 86400000;
   // Matches the producer's supported annual duration range; a missing fiscal

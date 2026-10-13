@@ -17,6 +17,8 @@ export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, un
       const [, sign, digits, suffix = ''] = match;
       const after = clause.slice(match.index + match[0].length);
       if (/^\s*(?:일|주|개월|년)(?:간|동안|치|전|후|\s|$)/.test(after)) continue;
+      // P1688 review: a count ("상위 10개 기업", "500종목") is not the metric's level.
+      if (/^\s*(?:개|종목|곳|명|건|위|번째|거래일|세션|배)/.test(after)) continue;
       if (/^(?:%p|%포인트|bp|포인트)$/i.test(suffix) || moveVerb.test(after)
           || (suffix === '%' && unit !== 'percent') || sign === '+' || sign === '±') continue;
       const value = Number((sign + digits).replace(/,/g, ''));

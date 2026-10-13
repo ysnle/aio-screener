@@ -1385,13 +1385,8 @@ function drawRRG() {
     var lc = quadrantCounts.Leading||0, ic = quadrantCounts.Improving||0;
     var wc = quadrantCounts.Weakening||0, lac = quadrantCounts.Lagging||0;
     var txt = spy ? 'SPY $' + spy.toFixed(2) + ' | ' : '';
-    txt += '선도:' + lc + ' 개선:' + ic + ' 약화:' + wc + ' 후행:' + lac;
-    // v39.2: 시장 건강도 요약 판단
-    var healthRatio = (lc + ic) / Math.max(lc + ic + wc + lac, 1);
-    if (healthRatio >= 0.6) txt += ' · 건강한 로테이션';
-    else if (healthRatio <= 0.3) txt += ' · 약세 주도 ';
-    else txt += ' · 혼재 (방향 탐색 중)';
-    st.textContent = txt;
+    // P1686/M08: counts only — the quadrant mix is not a market-health grade.
+    st.textContent = txt + '선도 ' + lc + ' · 개선 ' + ic + ' · 약화 ' + wc + ' · 후행 ' + lac;
   }
 }
 

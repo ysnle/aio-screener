@@ -7088,7 +7088,7 @@
       var macroText836 = macroStory836 ? (macroStory836.textContent || '') : '';
       var macroParagraphs836 = macroStory836 ? macroStory836.querySelectorAll('p').length : 0;
       var macroBlocked836 = !!(macroStory836 && macroStory836.querySelector('[data-runtime-state="unavailable"][data-operational-use="blocked"]'));
-      var macroCompact836 = !!macroBoard836 && !document.getElementById('macro-storyline') && (macroBoard836.querySelectorAll('.macro-group').length === 0 || macroBoard836.querySelectorAll('.macro-group').length === 4);
+      var macroCompact836 = !!macroBoard836 && !document.getElementById('macro-storyline') && [0, 4, 5, 6, 7].indexOf(macroBoard836.querySelectorAll('.macro-group').length) >= 0; // P1682: 4 core + up to 3 data-gated groups
       t836ok = !!macroCompact836;
       t836detail = JSON.stringify({ macroCompact: macroCompact836, macroBlocked:macroBlocked836, macroParagraphs: macroParagraphs836 });
     } catch(e) { t836detail = 'ERR:' + e.message; }
@@ -8153,7 +8153,7 @@
     var disclosure934 = window._aioBuildAIResponseDisclosure ? window._aioBuildAIResponseDisclosure({
       freshness: { status: 'pass', after: { quoteRows: [{ hasLivePrice: true, truthStatus: 'verified', source: 'Yahoo', asOf: '2026-07-13T12:00:00Z' }] } }
     }) : null;
-    _assert('T935 public_ai_disclosure_has_asof_evidence_source (P1619): assistant label, as-of, Evidence, and recheck text are present', !!disclosure934 && /AI 도우미/.test(disclosure934.text) && /기준시각/.test(disclosure934.text) && /Evidence/.test(disclosure934.text) && /원문 재확인/.test(disclosure934.text), JSON.stringify(disclosure934));
+    _assert('T935 public_ai_disclosure_has_asof_evidence_source (P1619): assistant label, as-of, Evidence, and recheck text are present', !!disclosure934 && /AI 도우미/.test(disclosure934.text) && /기준시각/.test(disclosure934.text) && /근거 상태/.test(disclosure934.text) && !/Evidence:/.test(disclosure934.text) && /원문 재확인/.test(disclosure934.text), JSON.stringify(disclosure934));
     var sink935 = document.getElementById('home-market-analysis');
     var render935 = typeof window._aioRenderMarketAnalysisSinks === 'function';
     var prev935 = window._serverMarketAnalysis;
@@ -8454,7 +8454,7 @@
       evidence: [{ sourceKind: 'REFERENCE', hasLivePrice: false }]
     });
     _assert('T965 shared_pipeline_conduct_audit (P1120): an unsupported personalized action is disclosed and the answer is kept',
-      pipeline965.blocked === false && pipeline965.conductAudit && pipeline965.conductAudit.blocked === false && pipeline965.conductAudit.limitations.indexOf('current-evidence-limited') >= 0 && pipeline965.limitations.indexOf('current-evidence-limited') >= 0 && pipeline965.text.indexOf('decision-grade') >= 0,
+      pipeline965.blocked === false && pipeline965.conductAudit && pipeline965.conductAudit.blocked === false && pipeline965.conductAudit.limitations.indexOf('current-evidence-limited') >= 0 && pipeline965.limitations.indexOf('current-evidence-limited') >= 0 && pipeline965.text.indexOf('※ ') === 0 && pipeline965.text.indexOf('decision-grade') < 0 && (pipeline965.limitationNotes || []).join(' ').indexOf('결정용 근거') >= 0,
       JSON.stringify(pipeline965));
     window.AIO.setPortfolioAIConsent(oldConsent);
 

@@ -2,6 +2,12 @@ export const AI_RENDERER_VERSION = 'answer-renderer.v1';
 
 function line(value) { return String(value == null ? '' : value).trim(); }
 
+// v57.48 #7: a bound value reads as the user sees it on screen — "VIX 종가: 15.21 [종가 기준 · 2026-10-12 종가]",
+// not "15.21index [close-basis · 2026-10-12]". Unknown units and sources pass through unchanged.
+const UNIT_TEXT = Object.freeze({ index: '', percent: '%', bp: 'bp', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' });
+const SOURCE_TEXT = Object.freeze({ 'close-basis': '종가 기준' });
+const unitText = (unit) => Object.prototype.hasOwnProperty.call(UNIT_TEXT, unit) ? UNIT_TEXT[unit] : (unit || '');
+
 function safeUrl(value) {
   try {
     const url = new URL(line(value));
@@ -15,8 +21,8 @@ export function renderAnswerPlan(plan, { format = 'text' } = {}) {
   if (line(plan.summary)) parts.push(line(plan.summary));
   const claims = Array.isArray(plan.claims?.claims) ? plan.claims.claims : [];
   claims.filter((claim) => claim.status !== 'blocked').forEach((claim) => {
-    const value = claim.value == null ? '' : `: ${claim.value}${claim.unit || ''}`;
-    const trace = claim.asOf && claim.source ? ` [${claim.source} · ${claim.asOf}]` : '';
+    const value = claim.value == null ? '' : `: ${claim.value}${unitText(claim.unit)}`;
+    const trace = claim.asOf && claim.source ? ` [${SOURCE_TEXT[claim.source] || claim.source} · ${claim.asOf}${claim.source === 'close-basis' ? ' 종가' : ''}]` : '';
     parts.push(`- ${line(claim.text)}${value}${trace}`);
   });
   (Array.isArray(plan.sections) ? plan.sections : []).forEach((section) => {

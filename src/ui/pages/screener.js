@@ -25,6 +25,7 @@ import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '.
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
 import { MARKET_LABELS, screenerMarket, marketRows, marketRankingMetadata, formatScreenerPrice } from '../../domain/screener/market-scope.js';
+import { EXTENSION_BANDS } from '../../domain/screener/setup-profile.js';
 
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
@@ -41,7 +42,7 @@ const FACTOR_LABELS = {
   trend: { label: '추세', color: 'var(--data-green)', description: '50일선 거리 60%·200일선 거리 40%' },
   lowvol: { label: '저변동', color: 'var(--data-cyan)', description: '실현 변동성의 역순' },
   size: { label: '사이즈', color: 'var(--text-muted)', description: '시가총액의 역순' },
-  value: { label: '밸류', color: 'var(--data-amber)', description: '저PER/PBR/EV-EBITDA' },
+  value: { label: '밸류', color: 'var(--data-amber)', description: '저PER·저PBR' },
   quality: { label: '퀄리티', color: 'var(--data-amber)', description: 'ROE·마진·매출성장' },
   kalman: { label: '추세 속도', color: 'var(--accent)', description: '칼만 추세 신뢰도' }
 };
@@ -82,7 +83,6 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'vcpScore', label: 'VCP 구조·충족도', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
   { key: 'entry', label: '상대 상태', sortable: false, align: 'center', width: 118, group: 'setup', researchOnly: true },
-  { key: 'signal', label: '구조 분류', sortable: false, align: 'center', width: 88, group: 'setup' },
   { key: 'news', label: '최신뉴스·근거', sortable: false, align: 'left', width: 190, group: 'evidence' }
 ]);
 
@@ -92,17 +92,16 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 // price-position reading even when the quote is missing.
 const COLUMN_PRESETS = Object.freeze({
   discovery: ['watchlist', 'rank', 'grade', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore'],
-  fundamentals: ['watchlist', 'rank', 'grade', 'sym', 'value', 'quality', 'price', 'pctFrom52wHigh', 'ret3m', 'signal', 'news'],
+  fundamentals: ['watchlist', 'rank', 'grade', 'sym', 'value', 'quality', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
   trend: ['watchlist', 'rank', 'grade', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'entry'],
-  risk: ['watchlist', 'rank', 'grade', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'signal', 'news'],
-  events: ['watchlist', 'rank', 'grade', 'sym', 'signal', 'entry', 'vcpScore', 'news'],
+  risk: ['watchlist', 'rank', 'grade', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'news'],
+  events: ['watchlist', 'rank', 'grade', 'sym', 'entry', 'vcpScore', 'news'],
   all: SCREENER_COLUMN_REGISTRY.map((column) => column.key)
 });
 
 const FILTER_LABELS = Object.freeze({
   'scr-market': '지수',
   'scr-sector': '섹터',
-  'scr-signal': '구조 분류',
   'scr-cap': '시총',
   'scr-text-search': '검색',
   'scr-setup': '구조·근거',
@@ -116,7 +115,6 @@ const FILTER_LABELS = Object.freeze({
 
 const BUILDER_FIELDS = Object.freeze([
   { value: 'sector', label: '섹터', target: 'scr-sector' },
-  { value: 'signal', label: '구조 분류', target: 'scr-signal' },
   { value: 'setup', label: '구조·근거', target: 'scr-setup' },
   { value: 'rank', label: '최소 백분위', target: 'scr-min-rank' },
   { value: 'rsi', label: 'RSI 하한', target: 'scr-rsi-min' },
@@ -160,12 +158,6 @@ function returnText(value) { return finite(value) == null ? '—' : `${value >= 
 function returnColor(value) { return finite(value) == null ? 'var(--text-muted)' : value >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
 function rankColor(rank) {
   return rank == null ? 'var(--text-muted)' : rank >= 60 ? 'var(--data-green)' : rank >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
-}
-function signalColor(signal) {
-  return signal === 'BUY' ? 'var(--data-green)' : signal === 'SELL' ? 'var(--data-red)' : signal === 'WATCH' ? 'var(--data-amber)' : 'var(--text-muted)';
-}
-function signalLabel(signal) {
-  return signal === 'BUY' ? '강세 구조' : signal === 'SELL' ? '약세 구조' : signal === 'WATCH' ? '관찰' : signal === 'HOLD' ? '중립' : '—';
 }
 function entryTiming(row) {
   const rank = finite(row.rank);
@@ -229,7 +221,6 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
   const market = selectedValue(documentRef, 'scr-market');
   const sector = selectedValue(documentRef, 'scr-sector');
-  const signal = selectedValue(documentRef, 'scr-signal');
   const cap = selectedValue(documentRef, 'scr-cap');
   const query = selectedValue(documentRef, 'scr-text-search').trim().toLowerCase();
   const exactSymbol = query && rows.some((row) => row.sym?.toLowerCase() === query) ? query : null;
@@ -246,18 +237,17 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
   const aliases = readAliases?.() || {};
   const words = query ? query.split(/[\s,;·+&]+/).filter(Boolean) : [];
   const matchedSymbols = new Set();
-  let signalFromText = null;
+  // 2026-10-13 review S03: structure-class aliases (매수 -> BUY) are retired with the column; only symbol-list
+  // aliases remain, and any other word is matched as text.
   words.forEach((word) => {
     const alias = aliases[word];
-    if (typeof alias === 'string') signalFromText = alias;
-    else if (Array.isArray(alias)) alias.forEach((symbol) => matchedSymbols.add(symbol));
+    if (Array.isArray(alias)) alias.forEach((symbol) => matchedSymbols.add(symbol));
   });
 
   return rows.filter((row) => {
     if (screenerMarket(row) !== listingMarket) return false;
     if (market && row.index !== market) return false;
     if (sector && row.sector !== sector) return false;
-    if (signal && row.signal !== signal) return false;
     // P1318/R664: a size bucket is a reference filter — use the decision-grade live value when it
     // exists, otherwise the plausibility-checked SEC reference value; unknown size stays excluded.
     const capValue = capFilterValue(row);
@@ -276,18 +266,16 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     if (setupFilter === 'RSPULLBACK' && row.setupProfile?.relativeStrengthPullback !== 'candidate') return false;
     if (setupFilter === 'SUPPORT200' && row.setupProfile?.support200 !== 'near') return false;
     if (setupFilter === 'CLIMAX' && row.setupProfile?.climaxRisk !== 'watch') return false;
-    if (setupFilter === 'MISSING' && !(row.setupProfile?.winnerFilter === 'unavailable' || (row.setupProfile?.missingEvidence || []).length)) return false;
     if (watchlist && !watchlist.has(row.sym)) return false;
     if (passedOnly && row.screenStatus !== 'passed') return false;
     if (!query) return true;
     if (exactSymbol) return row.sym?.toLowerCase() === exactSymbol;
-    if (signalFromText && row.signal !== signalFromText) return false;
     const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
     const haystack = `${row.sym} ${row.name} ${row.memo || ''} ${row.newsMemo || ''} ${row.sector || ''} ${setupText}`.toLowerCase();
     const direct = haystack.includes(query);
-    const residualWords = words.filter((word) => !aliases[word]);
+    const residualWords = words.filter((word) => !Array.isArray(aliases[word]));
     const allWords = residualWords.length > 0 && residualWords.every((word) => haystack.includes(word));
-    return direct || allWords || matchedSymbols.has(row.sym) || (!!signalFromText && residualWords.length === 0 && matchedSymbols.size === 0);
+    return direct || allWords || matchedSymbols.has(row.sym);
   });
 }
 
@@ -471,8 +459,8 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const multiple = extensionMultiple(row);
     const node = documentRef.createElement('span');
     node.textContent = multiple == null ? '—' : `${multiple.toFixed(1)}배`;
-    node.title = multiple == null ? '50일선 거리 또는 일평균 변동폭 자료 없음' : `50일선 대비 ${Number(row.pctSma50).toFixed(1)}% ÷ 일평균 변동폭 ${Number(row.adrPct).toFixed(1)}% — 4배 이상은 확장, 7배 이상은 추격 위험(참고 구간)`;
-    node.style.color = multiple == null ? 'var(--text-muted)' : multiple >= 7 ? 'var(--data-red)' : multiple >= 4 ? 'var(--data-amber)' : 'var(--text-primary)';
+    node.title = multiple == null ? '50일선 거리 또는 일평균 변동폭 자료 없음' : `50일선 대비 ${Number(row.pctSma50).toFixed(1)}% ÷ 일평균 변동폭 ${Number(row.adrPct).toFixed(1)}% — ${EXTENSION_BANDS.nearBase}배 이하는 기준선 가까이, ${EXTENSION_BANDS.extended}배 이상은 확장, ${EXTENSION_BANDS.stretched}배 이상은 크게 확장된 구간(참고 구간)`;
+    node.style.color = multiple == null ? 'var(--text-muted)' : multiple >= EXTENSION_BANDS.stretched ? 'var(--data-red)' : multiple >= EXTENSION_BANDS.extended ? 'var(--data-amber)' : 'var(--text-primary)';
     return node;
   }
   if (key === 'pctFrom52wHigh') return returnText(row.pctFrom52wHigh);
@@ -509,13 +497,6 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     entryNode.textContent = entry[0];
     entryNode.title = row.setupProfile?.explanation || 'RSI·랭크·모멘텀 기반 설명형 분류';
     return entryNode;
-  }
-  if (key === 'signal') {
-    if (row.screenStatus === 'unavailable') return '근거 부족';
-    const signalNode = documentRef.createElement('span');
-    signalNode.textContent = signalLabel(row.signal);
-    signalNode.style.cssText = `background:${row.signal === 'BUY' ? 'var(--data-green-soft)' : row.signal === 'SELL' ? 'var(--data-red-soft)' : row.signal === 'WATCH' ? 'var(--data-amber-soft)' : 'var(--data-muted-soft)'};color:${signalColor(row.signal)};padding:3px 7px;border-radius:4px;font-size:11px;font-weight:700;`;
-    return signalNode;
   }
   if (key === 'news') {
     const provenance = documentRef.createElement('div');
@@ -597,6 +578,81 @@ export function describeStaleDates(dates = []) {
   return `흐리게 표시된 값은 ${span} 기준 관측값으로 최신이 아닙니다(참고용). 셀에 마우스를 올리면 출처·관측 시각이 보입니다.`;
 }
 
+// 2026-10-13 review S01: a weight profile whose computable share is under the model's 80% floor can only
+// produce a held ranking. Measure it from the ranking's own per-factor coverage so the button can say so.
+export function profileComputability(weights, factorCoverage) {
+  const entries = Object.entries(weights || {}).filter(([, value]) => Number.isFinite(Number(value)) && Number(value) > 0);
+  const total = entries.reduce((sum, [, value]) => sum + Number(value), 0);
+  if (!(total > 0) || !factorCoverage || !Object.keys(factorCoverage).length) return null;
+  const missing = entries.filter(([key]) => factorCoverage[key]?.active !== true).map(([key]) => key);
+  const covered = entries.filter(([key]) => factorCoverage[key]?.active === true).reduce((sum, [, value]) => sum + Number(value), 0);
+  const pct = Math.round(covered / total * 1000) / 10;
+  return { pct, available: pct >= 80, missing };
+}
+
+// S01/S04/S16: a control whose input is not published for the selected market is disabled (or hidden) with
+// its reason instead of offering a choice that always returns 0 rows or a held ranking.
+const SETUP_OPTION_EVIDENCE = Object.freeze({
+  WINNER: (setup) => setup?.winnerFilter && setup.winnerFilter !== 'unavailable',
+  RSPULLBACK: (setup) => setup?.relativeStrengthPullback && setup.relativeStrengthPullback !== 'unavailable',
+  SUPPORT200: (setup) => setup?.support200 && setup.support200 !== 'unavailable',
+  CLIMAX: (setup) => setup?.climaxRisk && setup.climaxRisk !== 'unavailable'
+});
+export function syncScreenerControlAvailability(documentRef, { rows = [], listingMarket = 'US', ranking = {}, profiles = null } = {}) {
+  const marketList = marketRows(rows, listingMarket);
+  const cap = documentRef?.getElementById?.('scr-cap');
+  if (cap) {
+    const capAvailable = marketList.some((row) => capFilterValue(row) != null);
+    cap.hidden = !capAvailable;
+    if (!capAvailable) cap.value = '';
+  }
+  const setup = documentRef?.getElementById?.('scr-setup');
+  if (setup?.options) {
+    Array.prototype.slice.call(setup.options).forEach((option) => {
+      const hasEvidence = SETUP_OPTION_EVIDENCE[option.value];
+      if (!hasEvidence) return;
+      if (!option.dataset.baseLabel) option.dataset.baseLabel = option.textContent;
+      const available = marketList.some((row) => hasEvidence(row.setupProfile));
+      option.disabled = !available;
+      option.textContent = available ? option.dataset.baseLabel : `${option.dataset.baseLabel} — 자료 미발행`;
+      if (!available && setup.value === option.value) setup.value = '';
+    });
+  }
+  const notes = [];
+  const anyActive = Object.values(ranking?.factorCoverage || {}).some((entry) => entry?.active === true);
+  documentRef?.querySelectorAll?.('[data-aio-screener-action="profile"]').forEach((button) => {
+    const key = button.dataset.aioScreenerArg;
+    const weights = profiles?.[key]?.weights;
+    if (key === 'balanced' || !weights) { button.disabled = false; button.removeAttribute('title'); return; }
+    const measured = profileComputability(weights, ranking?.factorCoverage);
+    const blocked = !!measured && !measured.available;
+    button.disabled = blocked;
+    button.setAttribute('aria-disabled', String(blocked));
+    if (!blocked) { button.removeAttribute('title'); return; }
+    const missing = measured.missing.map((factor) => FACTOR_LABELS[factor]?.label || factor).join('·');
+    const reason = anyActive ? `요청 비중 중 계산 가능 ${measured.pct}%(기준 80%) — ${missing} 자료 부족` : '이 시장의 팩터 자료가 최신 종가 기준이 아니어서 계산 대기';
+    button.title = `${button.textContent.trim()}: ${reason}`;
+    notes.push({ label: button.textContent.trim(), pct: measured.pct, missing });
+  });
+  const fold = documentRef?.getElementById?.('scr-weight-profiles');
+  if (fold) {
+    let note = documentRef.getElementById('scr-profile-availability');
+    if (!note && notes.length) {
+      note = documentRef.createElement('p');
+      note.id = 'scr-profile-availability';
+      note.style.cssText = 'margin:6px 0 0;font-size:12px;color:var(--text-secondary);line-height:1.5;';
+      fold.appendChild(note);
+    }
+    if (note) {
+      note.hidden = !notes.length;
+      const missingAll = [...new Set(notes.flatMap((entry) => entry.missing))].map((factor) => FACTOR_LABELS[factor]?.label || factor).join('·');
+      note.textContent = !notes.length ? '' : anyActive
+        ? `${withTopicParticle(notes.map((entry) => entry.label).join('·'))} 지금 계산할 수 없습니다 — 요청 비중 중 계산 가능한 몫이 ${notes.map((entry) => `${entry.pct}%`).join('·')}로 기준 80%에 못 미칩니다(${missingAll} 자료 부족).`
+        : `${MARKET_LABELS[listingMarket] || listingMarket} 팩터 자료가 최신 종가 기준이 아니어서 가중치 프로필을 계산하지 않습니다.`;
+    }
+  }
+}
+
 // P1449: user copy for a held re-rank — the same vocabulary as the model's own fail-closed
 // semantics (결측은 중립 취급하지 않음, W07-A/P1146).
 // Codex structure review 2026-10-12 (UI): the selected market's own factor session versus that market's
@@ -619,7 +675,7 @@ export function describeRankingHold(hold, { factorSessionDate = null, market = '
   }
   const coverage = hold.requestedWeightCoveragePct != null ? `${hold.requestedWeightCoveragePct}%` : null;
   const requested = hold.requestedFactorWeights && Object.keys(hold.requestedFactorWeights).length
-    ? Object.entries(hold.requestedFactorWeights).map(([key, value]) => `${key} ${((Number(value) || 0) * 100).toFixed(0)}%`).join(' · ')
+    ? Object.entries(hold.requestedFactorWeights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${((Number(value) || 0) * 100).toFixed(0)}%`).join(' · ')
     : null;
   if (hold.reason === 'requested-factor-coverage-below-threshold') {
     return `순위 보류 — "${hold.requestedProfile || '선택한 프로필'}"의 요청 가중(${requested || '가중치 확인 필요'}) 중 계산 가능 비중이 ${coverage ?? '확인 필요'}로 80% 미만입니다(결측 팩터는 중립값으로 대체하지 않습니다). 이전 계산은 폐기됐습니다 — 표의 순위·점수 칸은 비워 둡니다.`;
@@ -747,7 +803,9 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   const gross = finite(backtest.quantileSpread);
   const rebalances = finite(backtest.rebalancesCounted) ?? (Array.isArray(backtest.rebalanceDates) ? backtest.rebalanceDates.length : null);
   const wins = finite(backtest.hitRate) != null && rebalances ? Math.round(backtest.hitRate / 100 * rebalances) : null;
-  const parity = fingerprintMatches ? '현재 화면 순위와 같은 모델(같은 팩터 정의 · 같은 가중 지문 · 같은 유니버스 정책)으로 과거 시점을 다시 매긴 결과입니다'
+  // 2026-10-13 review S05: the fingerprint proves the factor definition and weights; the IC/spread sample itself
+  // pools the US and KR rows (n=986), so the sentence names the pooled sample instead of claiming one population.
+  const parity = fingerprintMatches ? `현재 화면 순위와 같은 모델(같은 팩터 정의 · 같은 가중 지문)로 과거 시점을 다시 매긴 결과입니다 — 순위는 시장별로 매기지만 IC·분위 수익률은 미국·한국 합산 표본(${backtest.n ?? '—'}종목)입니다`
     : backtest.modelFingerprint == null ? '이 검증 기록은 모델 지문이 생기기 전에 만들어져 지금 화면 순위와 같은 모델인지 확인할 수 없습니다 — 지금 순위의 검증으로 읽지 않습니다(다음 데이터 갱신부터 지문이 붙습니다)'
       : '저장된 검증 기록의 모델 지문이 지금 화면 순위와 다릅니다(다른 가중치 프로필이거나 이전 모델) — 이 기록은 지금 순위의 검증으로 읽지 않습니다';
   const verdict = composite == null ? '종합 IC가 계산되지 않았습니다.'
@@ -771,7 +829,7 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   const add = (k, v) => facts.append(el('dt', k), el('dd', v));
   add('상위−하위 20% (21거래일)', `비용 전 ${gross == null ? '—' : `${gross.toFixed(2)}%`} · 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`} (같은 ±1 노출 기준)`);
   add('상위가 하위를 앞선 횟수', wins == null ? '—' : `${rebalances}번 중 ${wins}번 — 종목별 방향 적중률이 아니라 분위 수익률 차이가 양수였던 리밸런스의 비율입니다`);
-  add('표본', `${backtest.n ?? '—'}종목 · 리밸런스 ${rebalances ?? '—'}회 · 현재 종목 구성(생존 편향) · 거래비용은 가정값`);
+  add('표본', `미국·한국 합산 ${backtest.n ?? '—'}종목 · 리밸런스 ${rebalances ?? '—'}회 · 현재 종목 구성(생존 편향) · 거래비용은 가정값`);
   add('검증하지 않은 요인', (backtest.modelParity?.notValidated || backtest.excludedFactors || ['size', 'value · quality']).join(' · '));
   add('가중치', `${backtest.weightRegime || 'NEUTRAL'} 고정 — 레짐 틸트 후보는 검증·적용되지 않음`);
   add('겹치는 근거', `${overlapSentence(currentOverlap(rows, metadata?.ranking))} 가중치는 바꾸지 않았습니다 — 겹침을 줄인 모델은 다른 모델이라 실제 순위 기록으로 따로 검증해야 합니다.`);
@@ -1128,6 +1186,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const page = documentRef?.getElementById('page-screener');
   if (!page) return;
   const rows = rowsOverride || state?.rows || [];
+  syncScreenerControlAvailability(documentRef, { rows: currentState.rows || [], listingMarket, ranking: currentState.metadata.ranking, profiles: root?.AIO_TRADER_PROFILES || null });
   const filtered = sortRows(filterRows(rows, documentRef, { readWatchlist, readAliases }), sortState.column, sortState.ascending, readLiveData);
   const chosenDefinition = workbenchResult?.definition || preview?.definition || state?.screenDefinition;
   const presetOrder = documentRef.getElementById('scr-order')?.querySelector('option[value="screenRank"]');
@@ -1233,13 +1292,11 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const allRows = marketRows(rows, listingMarket);
   const total = documentRef.getElementById('scr-kpi-total');
   const top = documentRef.getElementById('scr-kpi-top');
-  const buy = documentRef.getElementById('scr-kpi-buy');
   const factorCount = documentRef.getElementById('scr-kpi-factors');
   if (total) total.textContent = String(allRows.length);
   const ranked = documentRef.getElementById('scr-kpi-ranked');
   if (ranked) ranked.textContent = String(allRows.filter((row) => row.screenStatus === 'passed').length);
   if (top) top.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= 80).length);
-  if (buy) buy.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && row.signal === 'BUY').length);
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
   const marketFactorSession = state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorObservedAt;
@@ -1324,8 +1381,12 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const active = ranking.activeFactors || [];
     const reasons = ranking.inactiveFactorReasons || {};
     const omitted = ['size', 'value', 'quality'].filter((key) => !active.includes(key));
-    coverage.textContent = active.length ? `활성 팩터 ${active.length}개: ${active.join(' · ')}${omitted.length ? ` | 제외: ${omitted.map((key) => `${key}${reasons[key] ? ` (${reasons[key]})` : ''}`).join(' · ')}` : ''}` : '활성 팩터 없음 — 서버 팩터 파일 미수신';
-    coverage.title = hold ? `순위 보류 사유: ${hold.reason} — 이전 계산은 폐기됐습니다` : '';
+    // 2026-10-13 review S15: reader labels and one short reason per excluded factor; the model's full reason
+    // (coverage %, gate list) stays in the hover title.
+    const label = (key) => FACTOR_LABELS[key]?.label || key;
+    const shortReason = (key) => key === 'size' ? '시가총액 미수신' : ['value', 'quality'].includes(key) ? `재무 자료 커버리지 ${finite(ranking.factorCoverage?.[key]?.coveragePct) ?? '—'}%(기준 80%)` : '자료 부족';
+    coverage.textContent = active.length ? `활성 팩터 ${active.length}개: ${active.map(label).join(' · ')}${omitted.length ? ` | 제외: ${omitted.map((key) => `${label(key)}(${shortReason(key)})`).join(' · ')}` : ''}` : '활성 팩터 없음 — 서버 팩터 파일 미수신';
+    coverage.title = [omitted.map((key) => reasons[key] ? `${label(key)}: ${reasons[key]}` : '').filter(Boolean).join(' / '), hold ? `순위 보류 사유: ${hold.reason} — 이전 계산은 폐기됐습니다` : ''].filter(Boolean).join(' | ');
   }
   if (holdEl) {
     // LC-73 style (P1449): when a re-rank is held, the visible summary (not just a tooltip)
@@ -1859,7 +1920,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const options = target?.options ? Array.prototype.slice.call(target.options).map((option) => option.value).filter((optionValue) => optionValue && optionValue !== '0') : null;
          value.placeholder = options?.length
            ? `허용값: ${options.slice(0, 6).join(', ')}${options.length > 6 ? ' …' : ''}`
-           : ({ sector: '섹터 이름 (예: Technology)', signal: '구조 분류 이름', setup: '구조·근거 이름', rank: '허용값: 40, 50, 65, 80', rsi: 'RSI 하한 (예: 40)', momentum: '3M 수익률 하한 % (예: 10)', query: '티커 또는 이름' }[definition.value] || '값');
+           : ({ sector: '섹터 이름 (예: Technology)', setup: '구조·근거 이름', rank: '허용값: 40, 50, 65, 80', rsi: 'RSI 하한 (예: 40)', momentum: '3M 수익률 하한 % (예: 10)', query: '티커 또는 이름' }[definition.value] || '값');
        };
        syncBuilderHint();
        const readVisualCondition = () => {
@@ -2029,7 +2090,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              const visualDefinition = buildVisualDefinition();
              if (!visualDefinition) throw new Error('SCREEN_DRAFT_EMPTY');
              runDefinition(visualDefinition);
-             if (workbenchStatus && readBuilderConditions().some((condition) => ['query', 'setup', 'sector', 'signal'].includes(condition.field))) workbenchStatus.textContent += ' · 검색/구조/섹터는 현재 표 필터이며 저장 실행 조건에는 포함되지 않음';
+             if (workbenchStatus && readBuilderConditions().some((condition) => ['query', 'setup', 'sector'].includes(condition.field))) workbenchStatus.textContent += ' · 검색/구조/섹터는 현재 표 필터이며 저장 실행 조건에는 포함되지 않음';
            } catch (error) {
              if (workbenchStatus) workbenchStatus.textContent = '실행할 수 없습니다 · 조건을 확인하세요.';
              const detail = documentRef.getElementById('scr-definition-error-detail');
@@ -2135,7 +2196,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            visibleLimit.value = 12;
            renderNow();
          } else if (action === 'reset-all-filters') {
-           ['scr-market', 'scr-sector', 'scr-signal', 'scr-cap', 'scr-text-search', 'scr-setup', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom'].forEach((id) => { const field = documentRef.getElementById(id); if (field) field.value = ''; });
+           ['scr-market', 'scr-sector', 'scr-cap', 'scr-text-search', 'scr-setup', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom'].forEach((id) => { const field = documentRef.getElementById(id); if (field) field.value = ''; });
            const rank = documentRef.getElementById('scr-min-rank'); if (rank) rank.value = '0';
            const watchlist = documentRef.getElementById('scr-watchlist-only'); if (watchlist) watchlist.checked = false;
            const passedOnly = documentRef.getElementById('scr-passed-only'); if (passedOnly) passedOnly.checked = true;
@@ -2183,7 +2244,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            columnState.preset = event.target.value || 'discovery';
            columnState.custom = [];
            renderNow();
-         } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-signal, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only, #scr-passed-only')) {
+         } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only, #scr-passed-only')) {
            event.stopPropagation();
            visibleLimit.value = 12;
            renderNow();

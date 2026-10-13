@@ -661,12 +661,9 @@ async function fetchVkospiDynamic() {
     if (!val || isNaN(val)) { _vkospiFailCount++; if (_vkospiIsFailedState()) _showVkospiFailureState('응답 값 파싱 실패'); return; }
     _vkospiFailCount = 0;
     _vkospiLastOkTs = Date.now();
-    // DOM 업데이트 — VKOSPI 값 표시 요소들
-    var vEl = document.getElementById('kr-vkospi-val');
-    if (vEl) window._aioRenderValueSlot(vEl, 'value', val.toFixed(2), { color: val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-amber)' : val >= 15 ? 'var(--data-amber)' : 'var(--green)' });
-    var hEl = document.getElementById('kr-health-vkospi');
-    // v49.58 P278: 임계값 표준화 (정상<20 / 경계 20~25 / 공포 25~35 / 극단공포 35+) — calcKrHealth 정합
-    if (hEl) { var label = val >= 35 ? '극단공포' : val >= 25 ? '공포' : val >= 20 ? '경계' : '정상'; window._aioRenderValueSlot(hEl, 'value', val.toFixed(2) + ' (' + label + ')', { color: val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-red)' : val >= 20 ? 'var(--data-amber)' : 'var(--green)' }); }
+    // M11 (v57.48): the 15/20/25/35 colour bands and 정상/경계/공포 labels had no published basis — value and date only.
+    var vDay = String(d.localTradedAt || d.tradedAt || '').slice(0, 10), vText = val.toFixed(2) + (/^\d{4}-\d{2}-\d{2}$/.test(vDay) ? ' (' + Number(vDay.slice(5, 7)) + '/' + Number(vDay.slice(8, 10)) + ')' : '');
+    ['kr-vkospi-val', 'kr-health-vkospi'].forEach(function(id) { var el = document.getElementById(id); if (el) window._aioRenderValueSlot(el, 'value', id === 'kr-vkospi-val' ? val.toFixed(2) : vText, { color: 'var(--text-primary)' }); });
     // DATA_SNAPSHOT 동기화 — live 성공 플래그(P713): 배너/채팅 컨텍스트는 이 플래그가
     // true일 때만 vkospi를 현재값으로 사용한다(시드 16.00이 라벨 없이 노출되는 것 방지).
     if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.vkospi = val;
@@ -1710,25 +1707,6 @@ function initKoreaMacro() {
     }
   }
 
-  // 한국 3Y는 관측된 현재 원천만 허용한다. 과거/추정 snapshot을 현재 금리처럼 승격하지 않는다.
-  var kr3y = ld['^KR3Y'];
-  var kr3yEl = document.getElementById('kr-macro-kr3y');
-  var kr3ySourceEl = document.getElementById('kr-macro-kr3y-source');
-  if (kr3y && kr3y.price !== undefined) {
-    if (kr3yEl) {
-      kr3yEl.textContent = kr3y.price.toFixed(2) + '%';
-      kr3yEl.style.color = 'var(--text-primary)';
-      var chgEl = kr3yEl.parentElement && kr3yEl.parentElement.querySelector('.kr-idx-chg');
-      if (chgEl && kr3y.pct !== undefined) {
-        chgEl.textContent = (kr3y.pct >= 0 ? '+' : '') + kr3y.pct.toFixed(2) + '%';
-        chgEl.className = kr3y.pct >= 0 ? 'pnl pos' : 'pnl neg';
-      }
-    }
-    if (kr3ySourceEl) kr3ySourceEl.textContent = '현재 시세 원천 수신';
-  } else {
-    if (kr3yEl) { kr3yEl.textContent = '—'; kr3yEl.style.color = 'var(--text-muted)'; }
-    if (kr3ySourceEl) kr3ySourceEl.textContent = '현재 금리 원천 미수신 · 과거 추정값 미사용';
-  }
   _generateKrMacroAnalysis(ld);
 }
 
@@ -2077,43 +2055,41 @@ function _generateKrThemesAnalysis(ld) {
 }
 
 // ── 3) 포트폴리오 자동 진단 ──
-function _generatePortfolioAnalysis(positions, ld, stats) {
+// v57.48 expert review #3/#5: the third argument is the native portfolio surface. Every share, return and amount
+// below is its base-currency value — a held currency mix or an unpriced holding holds the diagnosis instead of
+// being summed across currencies or valued at cost — and the sentences are observations, not instructions.
+function _generatePortfolioAnalysis(positions, ld, surf) {
   var el = document.getElementById('pf-analysis-text'); if (!el) return;
   if (!positions || positions.length === 0) { el.textContent = '포트폴리오를 추가하면 자동 분석됩니다'; return; }
-  var h = '';
-  // 집중도 분석
-  var vals = positions.map(function(p) { var d = ld[p.ticker]; return { ticker: p.ticker, val: (d ? d.price : p.cost) * p.qty }; });
+  if (!surf || surf.currencyState === 'mixed-without-conversion' || !(surf.positionValue > 0)) { el.textContent = surf && surf.currencyState === 'mixed-without-conversion' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아 자동 진단을 보류합니다.' : '모든 보유 종목의 평가액이 확인되면 자동 진단을 표시합니다(원가로 대신 평가하지 않습니다).'; return; }
+  var h = '', cur = surf.baseCurrency || null, byTk = {}, esc = typeof escHtml === 'function' ? escHtml : String;
+  var money = function(v) { return typeof _pfLegacyMoney === 'function' ? _pfLegacyMoney(v, cur || 'USD', 0) : Math.round(Math.abs(v)).toLocaleString('en'); };
+  (surf.rows || []).forEach(function(r) { byTk[r.symbol] = r; });
+  var vals = (surf.rows || []).filter(function(r) { return r.value > 0; }).map(function(r) { return { ticker: r.symbol, val: r.value }; });
   vals.sort(function(a, b) { return b.val - a.val; });
-  var topPct = stats.totalValue > 0 ? (vals[0].val / stats.totalValue * 100) : 0;
-  h += '<b>집중도:</b> 최대 비중 ' + vals[0].ticker + ' <b>' + topPct.toFixed(0) + '%</b>';
-  h += topPct > 40 ? ' <span style="color:var(--red);">— 40% 초과. 이 종목이 급락하면 포트폴리오 변동이 크게 커지는 구성입니다.</span>' :
-       topPct > 25 ? ' <span style="color:var(--yellow);">— 25% 초과. 비중이 높은 편입니다.</span>' :
-       ' <span style="color:var(--green);">— 25% 이하.</span>';
+  var topPct = vals[0].val / surf.positionValue * 100;
+  h += '<b>집중도:</b> 최대 비중 ' + esc(vals[0].ticker) + ' <b>' + topPct.toFixed(0) + '%</b>' + (cur ? ' (' + cur + ' 환산 주식 평가액 기준)' : '');
+  h += topPct > 25 ? ' <span style="color:var(--yellow);">— 25% 초과(내부 구간 주의). 이 종목이 급락하면 포트폴리오 변동이 크게 커지는 구성입니다.</span>' :
+       topPct > 10 ? ' <span>— 10~25%(내부 구간 참고).</span>' : ' <span>— 10% 이하.</span>';
   h += '<br>';
-  // 일간 손익 판단
-  var dpct = stats.totalValue > 0 ? (stats.totalDailyChg / stats.totalValue * 100) : 0;
-  h += '<b>오늘:</b> ' + (dpct >= 0 ? '+' : '') + dpct.toFixed(2) + '% ';
-  h += Math.abs(dpct) > 3 ? '<span style="color:var(--red);">— 변동 과대. 리밸런싱 검토.</span>' :
-       dpct > 1 ? '<span style="color:var(--green);">— 양호한 수익. 추세 지속 확인.</span>' :
-       dpct < -1 ? '<span style="color:var(--yellow);">— 오늘 1% 넘게 하락.</span>' :
-       '<span>— 보합권.</span>';
+  // 일간 변동 — 기준 통화 평가액 대비, 확인되지 않으면 0으로 두지 않는다
+  var dpct = surf.dailyPct;
+  h += '<b>오늘:</b> ' + (dpct == null ? '일간 변동 미확인' : (dpct >= 0 ? '+' : '') + dpct.toFixed(2) + '% ');
+  if (dpct != null) h += Math.abs(dpct) > 3 ? '<span style="color:var(--red);">— 하루 변동이 3%를 넘었습니다.</span>' : dpct > 1 ? '<span style="color:var(--green);">— 오늘 1% 넘게 상승.</span>' : dpct < -1 ? '<span style="color:var(--yellow);">— 오늘 1% 넘게 하락.</span>' : '<span>— 보합권.</span>';
   h += '<br>';
-  // 총 손익
-  h += '<b>누적 P&L:</b> ' + (stats.totalPnlPct >= 0 ? '+' : '') + stats.totalPnlPct.toFixed(1) + '% ';
-  h += stats.totalPnlPct > 20 ? '<span style="color:var(--green);">— 고수익 구간. 일부 이익 실현 고려.</span>' :
-       stats.totalPnlPct > 0 ? '<span style="color:var(--green);">— 평가 수익.</span>' :
-       stats.totalPnlPct > -10 ? '<span style="color:var(--yellow);">— 평가 손실 10% 이내.</span>' :
-       '<span style="color:var(--red);">— 평가 손실 10% 초과.</span>';
+  // 총 손익 — 원가·평가액이 같은 기준 통화일 때만
+  var tp = surf.totalPnlPct;
+  h += '<b>누적 P&L:</b> ' + (tp == null ? '원가 또는 환율 근거가 없어 보류' : (tp >= 0 ? '+' : '') + tp.toFixed(1) + '% ');
+  if (tp != null) h += tp > 20 ? '<span style="color:var(--green);">— 평가 수익 20% 초과.</span>' : tp > 0 ? '<span style="color:var(--green);">— 평가 수익.</span>' : tp > -10 ? '<span style="color:var(--yellow);">— 평가 손실 10% 이내.</span>' : '<span style="color:var(--red);">— 평가 손실 10% 초과.</span>';
   h += '<br>';
 
   // v38.5: 섹터 분산도 진단
   if (positions.length >= 2) {
     var sectorWeights = {};
     var _aioScreenerRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    var totalVal = stats.totalValue || 1;
-    positions.forEach(function(p) {
-      var d = ld[p.ticker];
-      var val = (d ? d.price : p.cost) * p.qty;
+    var totalVal = surf.positionValue;
+    vals.forEach(function(p) {
+      var val = p.val; // base-currency value (surface)
       // SCREENER_DB에서 섹터 조회
       var sec = 'Unknown';
       if (Array.isArray(_aioScreenerRows)) {
@@ -2185,18 +2161,17 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     } else if (riskFlags.length === 1) {
       h += '<span style="color:var(--yellow);">' + riskFlags[0] + ' 주의.</span>';
     } else {
-      h += '<span style="color:var(--green);">매크로 지표 양호.</span>';
+      h += '<span>VIX 25 · 10년물 4.5% · DXY 106 기준을 넘은 항목이 없습니다.</span>';
     }
     h += '<br>';
   }
 
   // v38.5: 승자-패자 분석 강화 (보유기간 대비 수익률 효율성 추가)
-  if (positions.length >= 3) {
+  if (positions.length >= 3 && tp != null) { // the surface's P&L stands only when every cost is in the base currency
     var posPerfs = positions.map(function(p) {
-      var d = ld[p.ticker];
-      var curVal = d ? d.price * p.qty : p.cost * p.qty;
-      var costVal = p.cost * p.qty;
-      var pnlPct = costVal > 0 ? ((curVal - costVal) / costVal * 100) : 0;
+      var d = ld[p.ticker], r = byTk[String(p.ticker || '').toUpperCase()] || {};
+      var curVal = r.value, costVal = r.cost;
+      var pnlPct = costVal > 0 && curVal != null ? ((curVal - costVal) / costVal * 100) : 0;
       var holdDays = p.addedAt ? Math.max(1, Math.floor((Date.now() - p.addedAt) / 86400000)) : null;
       var efficiency = holdDays ? (pnlPct / holdDays) : null; // 일평균 수익률
       return { ticker: p.ticker, pnl: pnlPct, dailyChg: d ? (d.pct != null ? d.pct : 0) : 0, holdDays: holdDays, efficiency: efficiency };
@@ -2204,10 +2179,10 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     posPerfs.sort(function(a, b) { return b.pnl - a.pnl; });
     var topPerf = posPerfs[0], botPerf = posPerfs[posPerfs.length - 1];
     h += '<br><b>【승자-패자 분석】</b><br>';
-    h += '<span style="color:var(--green);">최고: ' + topPerf.ticker + ' ' + (topPerf.pnl >= 0 ? '+' : '') + topPerf.pnl.toFixed(1) + '%</span>';
+    h += '<span style="color:var(--green);">최고: ' + esc(topPerf.ticker) + ' ' + (topPerf.pnl >= 0 ? '+' : '') + topPerf.pnl.toFixed(1) + '%</span>';
     if (topPerf.holdDays) h += ' (' + topPerf.holdDays + '일 보유, 일평균 ' + (topPerf.efficiency >= 0 ? '+' : '') + topPerf.efficiency.toFixed(2) + '%/일)';
     h += '<br>';
-    h += '<span style="color:var(--red);">최저: ' + botPerf.ticker + ' ' + (botPerf.pnl >= 0 ? '+' : '') + botPerf.pnl.toFixed(1) + '%</span>';
+    h += '<span style="color:var(--red);">최저: ' + esc(botPerf.ticker) + ' ' + (botPerf.pnl >= 0 ? '+' : '') + botPerf.pnl.toFixed(1) + '%</span>';
     if (botPerf.holdDays) h += ' (' + botPerf.holdDays + '일 보유, 일평균 ' + (botPerf.efficiency >= 0 ? '+' : '') + botPerf.efficiency.toFixed(2) + '%/일)';
     h += '<br>';
     // 효율성 기반 인사이트
@@ -2229,18 +2204,19 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
   if (targetPositions.length > 0) {
     h += '<br><b>【목표가 대비 포지셔닝】</b><br>';
     targetPositions.forEach(function(p) {
-      var d = ld[p.ticker];
-      var curPrice = d ? d.price : p.cost;
-      var distPct = ((p.target - curPrice) / curPrice * 100);
-      var progressPct = p.cost > 0 ? ((curPrice - p.cost) / (p.target - p.cost) * 100) : 0;
-      progressPct = Math.max(0, Math.min(progressPct, 200));
+      // The target is entered in the position's own currency; it is compared with the quote only in that same
+      // currency, and a missing quote is said instead of being replaced by the cost.
+      var r = byTk[String(p.ticker || '').toUpperCase()] || {}, tcur = typeof _pfLegacyCurrencyOf === 'function' ? _pfLegacyCurrencyOf(p) : 'USD';
+      var curPrice = r.price > 0 && (r.currency || r.listingCurrency || tcur) === tcur ? r.price : null;
+      if (curPrice == null) { h += '<span style="font-size:11px;">' + esc(p.ticker) + ': 같은 통화의 현재 시세가 없어 목표가 비교 보류</span><br>'; return; }
+      var distPct = ((p.target - curPrice) / curPrice * 100), fmt = function(v) { return typeof _pfLegacyMoney === 'function' ? _pfLegacyMoney(v, tcur) : v.toFixed(2); };
       var color = distPct <= 0 ? 'var(--green)' : distPct < 10 ? 'var(--accent)' : distPct < 30 ? 'var(--yellow)' : 'var(--text-muted)';
-      h += '<span style="font-size:11px;">' + p.ticker + ': 현재 $' + curPrice.toFixed(2) + ' → 목표 $' + p.target.toFixed(2) + ' (';
+      h += '<span style="font-size:11px;">' + esc(p.ticker) + ': 현재 ' + fmt(curPrice) + ' → 목표 ' + fmt(p.target) + ' (';
       if (distPct <= 0) {
-        h += '<b style="color:var(--green);">목표 달성!</b> +' + Math.abs(distPct).toFixed(1) + '% 초과';
+        h += '<b style="color:var(--green);">목표가 도달</b> +' + Math.abs(distPct).toFixed(1) + '% 초과';
       } else {
         h += '<b style="color:' + color + ';">잔여 ' + distPct.toFixed(1) + '%</b>';
-        if (distPct < 5) h += ' — 목표가 부근. 프레임워크상 이익 보호가 논의되는 지점(지시 아님)';
+        if (distPct < 5) h += ' — 목표가까지 5% 이내';
         else if (distPct < 15) h += ' — 목표가까지 15% 이내';
       }
       h += ')</span><br>';
@@ -2272,30 +2248,16 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     var _SECTOR_BETA = { 'Technology': 1.3, 'Semiconductors': 1.4, 'Consumer': 1.1, 'Communication': 1.15,
       'Financials': 1.1, 'Industrials': 1.0, 'Energy': 0.9, 'Materials': 0.95,
       'Healthcare': 0.8, 'Utilities': 0.5, 'Consumer Defensive': 0.6, 'Real Estate': 0.75 };
-    // 섹터간 상관 매트릭스 (근사)
-    var _SECTOR_CORR = {
-      'Technology_Technology': 0.85, 'Technology_Semiconductors': 0.80, 'Technology_Consumer': 0.55,
-      'Technology_Healthcare': 0.25, 'Technology_Utilities': -0.05, 'Technology_Energy': 0.20,
-      'Technology_Financials': 0.45, 'Technology_Industrials': 0.50,
-      'Semiconductors_Semiconductors': 0.85, 'Energy_Energy': 0.80, 'Healthcare_Healthcare': 0.70,
-      'Financials_Financials': 0.75, 'Utilities_Utilities': 0.65,
-      'Healthcare_Utilities': 0.35, 'Energy_Utilities': 0.15, 'Energy_Technology': 0.20
-    };
-    function _getSectorCorr(s1, s2) {
-      if (s1 === s2) return _SECTOR_CORR[s1 + '_' + s1] || 0.75;
-      var key1 = s1 + '_' + s2, key2 = s2 + '_' + s1;
-      return _SECTOR_CORR[key1] || _SECTOR_CORR[key2] || 0.30;
-    }
     // 포지션별 섹터+비중+베타 계산
     var pfBeta = 0, totalW = 0;
     var posInfo = positions.map(function(p) {
-      var d = ld[p.ticker]; var val = (d ? d.price : p.cost) * p.qty;
+      var val = (byTk[String(p.ticker || '').toUpperCase()] || {}).value || 0; // base-currency value (surface)
       var sec = 'Unknown';
       for (var si = 0; si < _aioScreenerRows.length; si++) {
         if (_aioScreenerRows[si].sym === p.ticker) { sec = _aioScreenerRows[si].sector || 'Unknown'; break; }
       }
       var beta = _SECTOR_BETA[sec] || 1.0;
-      var w = stats.totalValue > 0 ? val / stats.totalValue : 0;
+      var w = val / surf.positionValue;
       pfBeta += beta * w; totalW += w;
       return { ticker: p.ticker, sector: sec, beta: beta, weight: w, val: val };
     });
@@ -2307,23 +2269,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
          pfBeta < 0.8 ? ' — 방어적 포트폴리오. 시장 하락 시 완충.' : ' — 시장과 유사한 변동성.';
     h += '</span><br>';
 
-    // 상관계수 다양화 점수 (0~100, 높을수록 분산)
-    if (posInfo.length >= 2) {
-      var totalCorr = 0, corrPairs = 0;
-      for (var ci = 0; ci < posInfo.length; ci++) {
-        for (var cj = ci + 1; cj < posInfo.length; cj++) {
-          totalCorr += _getSectorCorr(posInfo[ci].sector, posInfo[cj].sector);
-          corrPairs++;
-        }
-      }
-      var avgCorr = corrPairs > 0 ? totalCorr / corrPairs : 0;
-      var divScore = Math.round((1 - avgCorr) * 100);
-      h += '<span style="font-size:11px;">종목간 평균 상관계수: <b>' + avgCorr.toFixed(2) + '</b> → 분산화 점수: <b style="color:' + (divScore > 60 ? 'var(--green)' : divScore > 40 ? 'var(--yellow)' : 'var(--red)') + ';">' + divScore + '/100</b>';
-      h += divScore > 60 ? ' — 양호한 분산. 개별 종목 리스크 상호 완충.' :
-           divScore > 40 ? ' — 보통. 비상관 섹터 추가 시 개선 가능.' :
-           ' — 높은 동조성. 같은 방향으로 동시 하락 위험.';
-      h += '</span><br>';
-    }
+    // P1684: the assumed sector-correlation "분산화 점수 /100" was an ungrounded grade; measured pair correlations live in the risk panel.
 
     // MDD 시나리오 (VIX 기반)
     h += '<br><b>【스트레스 테스트 시나리오】</b><br>';
@@ -2333,23 +2279,16 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
       { name: '유가 $150 시', factor: 0.05 + (techCount > positions.length * 0.5 ? 0.03 : 0), color: '#b13a30' }
     ];
     scenarios.forEach(function(sc) {
-      var loss = stats.totalValue * sc.factor;
-      h += '<span style="font-size:11px;color:' + sc.color + ';">' + sc.name + ': 예상 손실 약 <b>-' + (sc.factor * 100).toFixed(1) + '%</b> ($' + Math.round(loss).toLocaleString() + ')</span><br>';
+      var loss = surf.positionValue * sc.factor;
+      h += '<span style="font-size:11px;color:' + sc.color + ';">' + sc.name + ': 예상 손실 약 <b>-' + (sc.factor * 100).toFixed(1) + '%</b> (' + money(loss) + (cur ? ' · ' + cur + ' 기준' : '') + ')</span><br>';
     });
 
     // 평가 손실 -7% 이하 종목 나열 (사실 표시; 매도 지시가 아니다)
-    var cutLossCandidates = positions.filter(function(p) {
-      var d = ld[p.ticker]; if (!d) return false;
-      var pnlPct = p.cost > 0 ? ((d.price - p.cost) / p.cost * 100) : 0;
-      return pnlPct <= -7;
-    });
+    var pnlOf = function(p) { var r = byTk[String(p.ticker || '').toUpperCase()] || {}; return tp != null && r.cost > 0 && r.value != null ? (r.value - r.cost) / r.cost * 100 : null; }; // base currency, both axes
+    var cutLossCandidates = positions.filter(function(p) { var x = pnlOf(p); return x != null && x <= -7; });
     if (cutLossCandidates.length > 0) {
       h += '<br><span style="color:var(--red);font-weight:700;"> 평가 손실 -7% 이하 종목 (' + cutLossCandidates.length + '개):</span><br>';
-      cutLossCandidates.forEach(function(p) {
-        var d = ld[p.ticker];
-        var pnlPct = ((d.price - p.cost) / p.cost * 100);
-        h += '<span style="font-size:11px;color:var(--red);">' + p.ticker + ': ' + pnlPct.toFixed(1) + '%</span><br>';
-      });
+      cutLossCandidates.forEach(function(p) { h += '<span style="font-size:11px;color:var(--red);">' + esc(p.ticker) + ': ' + pnlOf(p).toFixed(1) + '%</span><br>'; });
     }
   }
 

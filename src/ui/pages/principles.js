@@ -620,7 +620,29 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           else if (state.arrivalContext?.returnContext?.route && typeof root?.showPage === 'function') root.showPage(state.arrivalContext.returnContext.route);
         });
         if (arrival) shell.querySelector('.rl-main')?.prepend(arrival);
+        markLessonAuthoring(shell);
         content.replaceChildren(shell);
+      }
+
+      // v57.48 expert review #21: each lesson states its own document's authoring status and review date
+      // (articles.json authoringStatus/reviewedAt) — a draft reads "초안 · 검토일 YYYY-MM-DD"; no catalog-wide date.
+      function markLessonAuthoring(shell) {
+        const node = shell.querySelector?.('article[data-principles-lesson-id]');
+        const lessonId = node?.dataset.principlesLessonId;
+        if (!lessonId) return;
+        const doc = state.knowledgeArticles?.articles?.find((item) => item.surface === 'principles' && item.lessonId === lessonId) || null;
+        if (!doc && !state.loadingArticleIds.has(lessonId) && !state.articleErrors.has(lessonId)) queueMicrotask(() => loadKnowledgeArticle(lessonId));
+        const lesson = (state.lessonLibrary?.lessons || []).find((item) => item.id === lessonId) || null;
+        const status = doc?.authoringStatus || (lesson?.deepStatus === 'RECONSTRUCTION_REQUIRED' ? 'RECONSTRUCTION_REQUIRED' : lesson?.status) || '';
+        const reviewedAt = doc?.reviewedAt || lesson?.reviewedAt || null;
+        const draft = /DRAFT|UNREVIEWED|REQUIRED|CANDIDATE/i.test(status);
+        const kicker = node.querySelector('.af-kicker');
+        if (!kicker || (!draft && !reviewedAt)) return;
+        const mark = documentRef.createElement('span');
+        mark.className = 'af-authoring-status';
+        mark.dataset.authoringStatus = status || 'UNKNOWN';
+        mark.textContent = ` · ${draft ? '초안 · ' : ''}${reviewedAt ? `검토일 ${reviewedAt}` : '검토일 미기재'}`;
+        kicker.appendChild(mark);
       }
 
       let ensureSearchCapabilities = () => {};

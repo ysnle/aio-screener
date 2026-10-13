@@ -26,7 +26,12 @@ export function fxReturnInto(from, base, usdkrwReturnPct) {
   return null;
 }
 
-export function buildAttribution({ holdings = [], cash = null, baseCurrency = null, rowFor = () => null, marketReturnFor = () => null, usdkrwReturnPct = null } = {}) {
+// v57.48 expert review #10: `holdingsValue` is the whole book's base-currency holdings (screener-unknown
+// names included). With names held out, the cash is scaled to the covered sleeve (cash × covered ÷ whole),
+// so the cash share is the account's (24.8%), not cash ÷ (covered + cash) (30.9%); the identity is unchanged.
+// #22: `usdkrwAsOf` is the USD/KRW close the FX return ends on. A converted holding whose close differs
+// from it would mix two windows — its FX effect is held (the holding is held out), not assumed aligned.
+export function buildAttribution({ holdings = [], cash = null, baseCurrency = null, rowFor = () => null, marketReturnFor = () => null, usdkrwReturnPct = null, usdkrwAsOf, holdingsValue: wholeHoldingsValue = null } = {}) {
   const parts = [];
   const skipped = [];
   for (const holding of holdings) {
@@ -45,6 +50,7 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     const mBasis = dateOf(market?.asOf);
     // P1681: an undated side cannot be shown to end on the same close either — hold it out instead of assuming it does.
     if (!rBasis || !mBasis || rBasis !== mBasis) { skipped.push({ symbol: holding.symbol, value, reason: 'basis-mismatch', rBasis, mBasis }); continue; }
+    if (from && usdkrwAsOf !== undefined && dateOf(usdkrwAsOf) !== rBasis) { skipped.push({ symbol: holding.symbol, value, reason: 'fx-basis-mismatch', rBasis, fxBasis: dateOf(usdkrwAsOf) }); continue; }
     const etf = isKr(holding.symbol) ? null : SECTOR_ETF[row?.sector] || null;
     const s = etf ? finite(rowFor(etf)?.ret3m) : null;
     const local = r / 100;
@@ -52,7 +58,9 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     parts.push({ symbol: holding.symbol, value, r: local, m: m / 100, s: s == null ? m / 100 : s / 100, sectorKnown: s != null, base, fx, converted: !!from, marketLabel: market.label, basis: rBasis || mBasis });
   }
   const invested = parts.reduce((sum, part) => sum + part.value, 0);
-  const cashValue = finite(cash) != null && cash > 0 ? Number(cash) : 0;
+  const holdingsValue = Math.max(holdings.reduce((t, h) => t + (finite(h?.value) > 0 ? Number(h.value) : 0), 0), finite(wholeHoldingsValue) || 0);
+  const declaredCash = finite(cash) != null && cash > 0 ? Number(cash) : 0;
+  const cashValue = holdingsValue > 0 ? declaredCash * invested / holdingsValue : declaredCash;
   const denominator = invested + cashValue;
   if (!(invested > 0) || parts.length === 0) return { available: false, skipped };
   const sum = (fn) => parts.reduce((total, part) => total + part.value / denominator * fn(part), 0);
@@ -65,7 +73,6 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
   const blended = parts.reduce((t, part) => t + part.value * part.m, 0) / invested;
   const cashEffect = -cashShare * blended;
   const pct = (value) => Math.round(value * 10000) / 100;
-  const holdingsValue = holdings.reduce((t, h) => t + (finite(h?.value) > 0 ? Number(h.value) : 0), 0);
   const labels = [...new Set(parts.map((part) => part.marketLabel).filter(Boolean))];
   const contributors = parts.map((part) => ({ symbol: part.symbol, stockPct: pct(part.value / denominator * (part.r - part.s)) }))
     .sort((a, b) => Math.abs(b.stockPct) - Math.abs(a.stockPct));
@@ -93,6 +100,7 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     cashDeclared: finite(cash) != null,
     coveredPct: holdingsValue > 0 ? Math.round(invested / holdingsValue * 1000) / 10 : null,
     sectorMappedPct: Math.round(parts.filter((part) => part.sectorKnown).reduce((t, part) => t + part.value, 0) / invested * 1000) / 10,
+    fxAsOf: usdkrwAsOf ? dateOf(usdkrwAsOf) : null,
     fxHoldingsPct: Math.round(parts.filter((part) => part.converted).reduce((t, part) => t + part.value, 0) / invested * 1000) / 10,
     topStock: contributors.slice(0, 3),
     skipped

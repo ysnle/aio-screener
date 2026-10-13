@@ -174,7 +174,10 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
 function renderCapexFlow(doc, root, host, model) {
   host.replaceChildren();
   host.append(el(doc, 'h2', AI_CAPEX_FLOW.title, 'briefing-h2'));
-  host.append(el(doc, 'p', `${AI_CAPEX_FLOW.source} · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준`, 'theme-strength-basis'));
+  // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
+  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 추정 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준`, 'theme-strength-basis');
+  basisLine.title = `출처: ${AI_CAPEX_FLOW.source}`;
+  host.append(basisLine);
   const bar = el(doc, 'div', null, 'capex-flow-bar');
   bar.setAttribute('role', 'img');
   bar.setAttribute('aria-label', AI_CAPEX_FLOW.layers.map((layer) => `${layer.label} ${layer.share}`).join(', '));
@@ -199,7 +202,19 @@ function renderCapexFlow(doc, root, host, model) {
       if (!theme) continue;
       const button = el(doc, 'button', `${theme.name} ${pct(theme.value)}`, 'capex-flow-theme');
       button.type = 'button';
+      // M15: members on another close are held out of the theme median; the hover says how many.
+      if (theme.excluded) button.title = `종가 기준일이 다르거나 오래된 ${theme.excluded}종목을 빼고 ${theme.members}종목 중앙값`;
       button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(themeId); });
+      links.append(button);
+    }
+    // M10: a layer can name one sub-theme (전력장비/그리드) instead of a whole theme.
+    for (const groupId of layer.groups || []) {
+      const group = model.groups?.find((row) => row.id === groupId);
+      if (!group) continue;
+      const button = el(doc, 'button', `${group.name} ${group[model.sortKey] == null ? '비교 보류' : pct(group[model.sortKey])}`, 'capex-flow-theme');
+      button.type = 'button';
+      if (group[model.sortKey] == null) button.title = '구성 종목의 종가 기준일이 달라 중앙값 비교를 보류합니다';
+      button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(group.themeId); });
       links.append(button);
     }
     card.append(links);
@@ -223,7 +238,9 @@ function renderCapexFlow(doc, root, host, model) {
   }
   host.append(el(doc, 'p', `각 카드 아래 막대는 관련 부품·장비의 납기 범위(최소~최대)입니다. 모든 카드가 같은 0~${maxWeeks}주 축이라 길이를 서로 비교할 수 있습니다.`, 'theme-strength-basis'));
   host.append(grid);
-  host.append(el(doc, 'p', `리드타임: ${AI_BOTTLENECK_LEAD_TIMES.source} — ${AI_BOTTLENECK_LEAD_TIMES.note}`, 'theme-strength-basis'));
+  const leadLine = el(doc, 'p', `납기: ${AI_BOTTLENECK_LEAD_TIMES.asOf} 기준 — ${AI_BOTTLENECK_LEAD_TIMES.note}`, 'theme-strength-basis');
+  leadLine.title = `출처: ${AI_BOTTLENECK_LEAD_TIMES.source}`;
+  host.append(leadLine);
 }
 
 export function renderThemeStrength({ documentRef: doc, root, store }) {

@@ -51,6 +51,9 @@ export function normalizeScreener(raw = {}) {
     _mcapQuality: row?._mcapQuality && typeof row._mcapQuality === 'object' ? { ...row._mcapQuality } : null,
     _mcapRevision: row?._mcapRevision || null,
     rsi: finite(row?.rsi),
+    // P1686: the S&P 500 map's 1일/1주 tabs read these; the normalizer dropped them, so the tabs never enabled.
+    ret1d: finite(row?.ret1d),
+    ret5d: finite(row?.ret5d),
     ret1m: finite(row?.ret1m),
     ret3m: finite(row?.ret3m),
     ret6m: finite(row?.ret6m),

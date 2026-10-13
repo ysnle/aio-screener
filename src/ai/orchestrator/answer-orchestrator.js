@@ -9,6 +9,7 @@ import { createQuestionPremise } from './premise.js';
 import { validateResearchDecision } from '../research/decision.js';
 import { validateResearchPlan } from '../research/plan.js';
 import { createResearchCapability, validateResearchCapability } from '../research/capability.js';
+import { simulatePortfolioAddition } from '../context/portfolio-simulation.js';
 
 export const AI_ANSWER_ORCHESTRATOR_VERSION = 'answer-orchestrator.v1';
 
@@ -86,6 +87,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     parseAnswerPlanText,
     renderAnswerPlan,
     answerPublication,
+    simulatePortfolioAddition, // v57.48 #4: base-currency what-if for the legacy chat adapter
     createCapabilityPlan,
     buildAIKnowledgeContext: (query, options = {}) => knowledgeRetriever?.buildContext
       ? knowledgeRetriever.buildContext(query, options)

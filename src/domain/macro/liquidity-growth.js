@@ -1,6 +1,13 @@
 // P1654 (owner 2026-10-12: fill free official data gaps): three supporting groups for the 거시 screen built only from
 // public-data/macro-history.json (FRED raw observations). Each card states a dated value, one change over a named
 // period and one reading; a series that has not been produced yet is left out instead of shown as "—".
+// Expert review 2026-10-13 (M03-M06, M13, M14, M16, M22): the line draws the quantity the value states (PPI and GDP
+// as growth rates, not index levels), the range under it uses the value's own format, the date names the period the
+// observation covers (월 "8월분", 분기 "26년 2분기", 주 "10/7 주", 일 "10/6"), and a series past its cadence's normal
+// delay carries a stale chip.
+import { buildCloseSeries, closeBasis } from '../briefing/market-read.js';
+import { RULES } from '../rules/thresholds.js';
+import { sessionPointBack } from './rates-fx.js';
 
 const seriesOf = (macroHistory, field) => (macroHistory?.series?.[field]?.observations || [])
   .map(([date, value]) => ({ date, value: Number(value) }))
@@ -15,8 +22,14 @@ const atOrBefore = (series, date) => {
 
 const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 const pct = (now, then) => (then && then !== 0 ? (now / then - 1) * 100 : null);
-const signed = (value, digits = 1, unit = '%') => (value == null || !Number.isFinite(value) ? null : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`);
+const signed = (value, digits = 1, unit = '%') => (value == null || !Number.isFinite(value) ? null : `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}${unit}`);
 const fmt = (value, digits = 0) => value.toLocaleString('en-US', { maximumFractionDigits: digits, minimumFractionDigits: digits });
+const median = (values) => {
+  const sorted = [...values].sort((a, b) => a - b);
+  if (!sorted.length) return null;
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+};
 
 // Change against the observation closest to `days` calendar days earlier (never a later one).
 function changeOver(series, days) {
@@ -25,6 +38,26 @@ function changeOver(series, days) {
   const target = new Date(Date.parse(last.date) - days * 86400000).toISOString().slice(0, 10);
   const then = atOrBefore(series, target);
   return then ? { then, last } : null;
+}
+
+// M13: the period an observation covers, by the series' declared cadence.
+export function periodText(date, frequency) {
+  const [year, month, day] = String(date || '').split('-').map(Number);
+  if (!year || !month) return '';
+  if (frequency === 'quarterly') return `${String(year).slice(2)}년 ${Math.floor((month - 1) / 3) + 1}분기`;
+  if (frequency === 'monthly') return `${month}월분`;
+  if (frequency === 'weekly') return `${month}/${day} 주`;
+  return `${month}/${day}`;
+}
+
+// M14: calendar days after the period's first day beyond which a new observation should already exist
+// (daily FRED series run 1-2 sessions behind, plus a weekend and a holiday; a monthly release lands within about six weeks of the month's end;
+// a quarterly GDP estimate within about a month of the quarter's end, plus one more quarter of tolerance).
+export const STALE_AFTER_DAYS = Object.freeze({ daily: 6, weekly: 14, monthly: 100, quarterly: 200 });
+export function isStaleObservation(date, frequency, referenceMs) {
+  const limit = STALE_AFTER_DAYS[frequency];
+  if (!limit || !date || !Number.isFinite(referenceMs)) return false;
+  return (referenceMs - Date.parse(`${date}T00:00:00Z`)) / 86400000 > limit;
 }
 
 // Net liquidity in USD billions: Fed total assets minus the Treasury General Account minus overnight reverse repo,
@@ -42,90 +75,159 @@ export function netLiquiditySeries(macroHistory) {
   }).filter(Boolean);
 }
 
-function card({ id, label, series, valueText, changeText, reading, unit = '', asOf }) {
-  return { id, label, series: series.slice(-104), valueText, changeText, reading, unit, asOf };
+// M05 (coordinator decision 2026-10-13): a 4-week net-liquidity change inside ±1,000억 달러 (USD 100bn) has no direction.
+export const NET_LIQUIDITY_FLAT_BN = 100;
+
+/** M03: year-over-year % for each month that has the same month one year earlier. */
+export function monthlyYoySeries(series) {
+  const byMonth = new Map(series.map((row) => [row.date.slice(0, 7), row.value]));
+  return series.map((row) => {
+    const [year, month] = row.date.split('-');
+    const base = byMonth.get(`${Number(year) - 1}-${month}`);
+    return base ? { date: row.date, value: (row.value / base - 1) * 100 } : null;
+  }).filter(Boolean);
 }
 
-function liquidityGroup(macroHistory) {
+/** M04: quarter-over-quarter growth at an annual rate, for each quarter whose previous quarter is present. */
+export function annualizedQuarterlySeries(series) {
+  return series.map((row, index) => {
+    const prev = series[index - 1];
+    if (!prev || prev.value <= 0 || daysBetween(prev.date, row.date) > 100) return null;
+    return { date: row.date, value: ((row.value / prev.value) ** 4 - 1) * 100 };
+  }).filter(Boolean);
+}
+
+/** M06: Brent against WTI on their latest common date, and both 20-session changes over the same span of sessions. */
+export function brentWtiCheck(macroHistory, history = []) {
+  const brent = seriesOf(macroHistory, 'brent');
+  const wti = buildCloseSeries(history, 'wti', { through: closeBasis(history) });
+  if (!brent.length || !wti.length) return null;
+  const wtiByDate = new Map(wti.map((row) => [row.date, row.value]));
+  const pairs = brent.filter((row) => wtiByDate.has(row.date)).map((row) => ({ date: row.date, brent: row.value, wti: wtiByDate.get(row.date) }));
+  const last = pairs.at(-1);
+  if (!last) return null;
+  const spread = last.brent - last.wti;
+  const spreadMedian = median(pairs.filter((row) => daysBetween(row.date, last.date) <= 365).map((row) => row.brent - row.wti));
+  const b0 = sessionPointBack(brent.filter((row) => row.date <= last.date), 20);
+  const w0 = sessionPointBack(wti.filter((row) => row.date <= last.date), 20);
+  const brent20 = b0 ? pct(last.brent, b0.value) : null;
+  const wti20 = w0 ? pct(last.wti, w0.value) : null;
+  const diverges = brent20 != null && brent20 >= RULES.oil.rise20dPct && (wti20 == null || wti20 < RULES.oil.rise20dPct);
+  const [, month, day] = last.date.split('-').map(Number);
+  const md = `${month}/${day}`;
+  const sentence = `같은 날(${md}) 브렌트 ${fmt(last.brent, 2)}달러 · WTI ${fmt(last.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다(최근 1년 같은 날 차이의 중앙값 ${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러). ${md}까지 20거래일 기준 브렌트 ${signed(brent20, 1) ?? '—'}, WTI ${signed(wti20, 1) ?? '—'}${diverges ? ' — 국제 유가는 오르는데 WTI만 내린 구간이라, WTI 하락을 물가 완화로 읽는 판단은 보류합니다.' : '.'}`;
+  return { date: last.date, brent: last.brent, wti: last.wti, spread, spreadMedian, brent20, wti20, diverges, sentence };
+}
+
+function card({ id, label, series, valueText, changeText, reading, unit = '', asOf, frequency, referenceMs, format }) {
+  return { id, label, series: series.slice(-104), valueText, changeText, reading, unit, asOf, frequency, period: periodText(asOf, frequency), stale: isStaleObservation(asOf, frequency, referenceMs), format };
+}
+
+const frequencyOf = (macroHistory, field, fallback) => macroHistory?.series?.[field]?.frequency || fallback;
+
+function liquidityGroup(macroHistory, { macro, referenceMs }) {
   const items = [];
   const net = netLiquiditySeries(macroHistory);
   const netChange = changeOver(net, 28);
   if (net.length >= 6) {
     const d = netChange ? netChange.last.value - netChange.then.value : null;
-    items.push(card({ id: 'netLiquidity', label: '순유동성 (연준 자산 − TGA − 역레포)', series: net, asOf: net.at(-1).date,
-      valueText: `${fmt(net.at(-1).value / 1000, 2)}조 달러`,
+    const weekly = net.slice(-53).slice(1).map((row, index) => Math.abs(row.value - net.slice(-53)[index].value));
+    const typicalWeek = median(weekly);
+    const typical = typicalWeek == null ? '' : ` 한 주 변동의 1년 중앙값만 약 ${fmt(typicalWeek * 10, 0)}억 달러입니다.`;
+    const toTrillion = (value) => `${fmt(value / 1000, 2)}조 달러`;
+    items.push(card({ id: 'netLiquidity', label: '순유동성 (연준 자산 − TGA − 역레포)', series: net, asOf: net.at(-1).date, frequency: 'weekly', referenceMs, format: toTrillion,
+      valueText: toTrillion(net.at(-1).value),
       // d is in USD billions; 1 billion = 10억.
       changeText: d == null ? null : `4주 ${d >= 0 ? '+' : ''}${fmt(d * 10, 0)}억 달러`,
-      reading: d == null ? '4주 비교 관측이 부족합니다.' : d > 0 ? '시장에 풀린 달러가 늘어난 구간입니다. 위험자산에 우호적인 배경이 되기 쉽지만 지수 방향을 단독으로 정하지는 않습니다.' : '시장에 풀린 달러가 줄어든 구간입니다. 유동성이 빠질 때는 고평가·고변동 종목이 먼저 흔들리는 경향이 있습니다.' }));
+      reading: d == null ? '4주 비교 관측이 부족합니다.'
+        : Math.abs(d) < NET_LIQUIDITY_FLAT_BN ? `4주 변화가 ±1,000억 달러 안쪽이라 뚜렷한 방향이 없습니다.${typical} 재무부 계좌·역레포 출렁임보다 작은 변화는 유동성 방향으로 읽지 않습니다.`
+          : d > 0 ? '4주 동안 시장에 풀린 달러가 1,000억 달러 넘게 늘었습니다. 위험자산에 우호적인 배경이 되기 쉽지만 지수 방향을 단독으로 정하지는 않습니다.'
+            : '4주 동안 시장에 풀린 달러가 1,000억 달러 넘게 줄었습니다. 유동성이 빠질 때는 고평가·고변동 종목이 먼저 흔들리는 경향이 있습니다.' }));
   }
   const nfci = seriesOf(macroHistory, 'financialConditions');
   if (nfci.length >= 6) {
     const last = nfci.at(-1); const c = changeOver(nfci, 28);
-    items.push(card({ id: 'nfci', label: '금융여건지수 (시카고 연은)', series: nfci, asOf: last.date,
-      valueText: fmt(last.value, 2), changeText: c ? `4주 ${signed(c.last.value - c.then.value, 2, '')}` : null,
-      reading: last.value < 0 ? '0보다 낮아 평균보다 돈을 빌리기 쉬운 여건입니다. 값이 오르면 여건이 조여지는 방향입니다.' : '0보다 높아 평균보다 금융 여건이 빡빡합니다. 신용 스프레드와 함께 확인합니다.' }));
+    const move = c ? c.last.value - c.then.value : null;
+    const level = last.value < 0 ? '0보다 낮아 평균보다 돈을 빌리기 쉬운 여건입니다.' : '0보다 높아 평균보다 금융 여건이 빡빡합니다. 신용 스프레드와 함께 확인합니다.';
+    const direction = move == null ? '' : move > 0 ? ` 4주 동안 ${signed(move, 2, '')} 올라 조여지는 쪽으로 움직였습니다.` : move < 0 ? ` 4주 동안 ${signed(move, 2, '')} 내려 풀리는 쪽으로 움직였습니다.` : ' 4주 동안 변화가 없습니다.';
+    items.push(card({ id: 'nfci', label: '금융여건지수 (시카고 연은)', series: nfci, asOf: last.date, frequency: frequencyOf(macroHistory, 'financialConditions', 'weekly'), referenceMs, format: (value) => fmt(value, 2),
+      valueText: fmt(last.value, 2), changeText: c ? `4주 ${signed(move, 2, '')}` : null,
+      reading: `${level}${direction}` }));
   }
   const sofr = seriesOf(macroHistory, 'sofr');
   if (sofr.length >= 6) {
     const last = sofr.at(-1);
-    items.push(card({ id: 'sofr', label: 'SOFR 단기 자금 금리', series: sofr, asOf: last.date, unit: '%',
-      valueText: `${fmt(last.value, 2)}%`, changeText: null,
+    // M22: the target range the reading refers to, on the SOFR date.
+    const upper = atOrBefore(seriesOf(macroHistory, 'fedTargetUpper'), last.date)?.value ?? (Number.isFinite(Number(macro?.fedTargetUpper)) ? Number(macro.fedTargetUpper) : null);
+    const lower = upper == null ? null : Number.isFinite(Number(macro?.fedTargetLower)) && Number(macro?.fedTargetUpper) === upper ? Number(macro.fedTargetLower) : upper - 0.25;
+    const range = upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`;
+    const where = upper == null ? null : last.value > upper ? `목표 범위 ${range} 위 ${((last.value - upper) * 100).toFixed(0)}bp` : last.value < lower ? `목표 범위 ${range} 아래 ${((lower - last.value) * 100).toFixed(0)}bp` : `목표 범위 ${range} 안`;
+    items.push(card({ id: 'sofr', label: 'SOFR 단기 자금 금리', series: sofr, asOf: last.date, unit: '%', frequency: frequencyOf(macroHistory, 'sofr', 'daily'), referenceMs, format: (value) => `${fmt(value, 2)}%`,
+      valueText: `${fmt(last.value, 2)}%`, changeText: where,
       reading: '은행 간 하루짜리 담보 대출 금리입니다. 연준 목표 범위를 벗어나 튀면 단기 자금 시장의 긴장 신호로 봅니다.' }));
   }
   return { id: 'liquidity', title: '유동성 · 금융 여건', fact: '시장에 풀린 달러와 돈을 빌리는 조건 — 위험자산 가격의 배경입니다.', items };
 }
 
-function growthGroup(macroHistory) {
+function growthGroup(macroHistory, { referenceMs }) {
   const items = [];
   const gdp = seriesOf(macroHistory, 'realGdp');
-  if (gdp.length >= 3) {
-    const last = gdp.at(-1), prev = gdp.at(-2);
-    const annualized = prev?.value > 0 ? ((last.value / prev.value) ** 4 - 1) * 100 : null;
-    items.push(card({ id: 'realGdp', label: '실질 GDP 성장률 (전기 대비 연율)', series: gdp, asOf: last.date,
-      valueText: annualized == null ? '—' : `${signed(annualized, 1)}`, changeText: `${last.date.slice(0, 7)} 분기`,
-      reading: annualized == null ? '' : annualized >= 2 ? '잠재 성장(약 2%) 이상으로 경기가 견조합니다.' : annualized >= 0 ? '성장은 이어지지만 잠재 성장보다 느립니다.' : '분기 성장이 마이너스입니다 — 경기 둔화가 실제 생산으로 나타난 구간입니다.' }));
+  const growth = annualizedQuarterlySeries(gdp);
+  if (gdp.length >= 3 && growth.length) {
+    const last = growth.at(-1); const prev = growth.at(-2);
+    const quarter = periodText(last.date, 'quarterly');
+    items.push(card({ id: 'realGdp', label: '실질 GDP 성장률 (전기 대비 연율)', series: growth.length >= 6 ? growth : [], asOf: last.date, unit: '%', frequency: 'quarterly', referenceMs, format: (value) => signed(value, 1),
+      valueText: signed(last.value, 1), changeText: prev ? `직전 분기 ${signed(prev.value, 1)}` : null,
+      reading: last.value >= 2 ? `${quarter} 성장은 잠재 성장(약 2%) 이상이었습니다. 그 뒤 달의 고용 흐름은 위 사분면이 더 최근 기준입니다.` : last.value >= 0 ? `${quarter} 성장은 이어졌지만 잠재 성장(약 2%)보다 느립니다.` : `${quarter} 성장이 마이너스입니다 — 경기 둔화가 실제 생산으로 나타난 구간입니다.` }));
   }
   const jolts = seriesOf(macroHistory, 'jobOpenings');
   if (jolts.length >= 6) {
     const c = changeOver(jolts, 365);
-    items.push(card({ id: 'jobOpenings', label: '구인 건수 (JOLTS)', series: jolts, asOf: jolts.at(-1).date,
-      valueText: `${fmt(jolts.at(-1).value / 1000, 2)}백만 건`, changeText: c ? `1년 ${signed(pct(c.last.value, c.then.value))}` : null,
+    const toMillions = (value) => `${fmt(value / 1000, 2)}백만 건`;
+    items.push(card({ id: 'jobOpenings', label: '구인 건수 (JOLTS)', series: jolts, asOf: jolts.at(-1).date, frequency: 'monthly', referenceMs, format: toMillions,
+      valueText: toMillions(jolts.at(-1).value), changeText: c ? `1년 ${signed(pct(c.last.value, c.then.value))}` : null,
       reading: '기업이 채우려는 일자리 수입니다. 꾸준히 줄면 고용 둔화가 실업률보다 먼저 나타납니다.' }));
   }
   const sentiment = seriesOf(macroHistory, 'consumerSentiment');
   if (sentiment.length >= 6) {
     const c = changeOver(sentiment, 92);
-    items.push(card({ id: 'consumerSentiment', label: '미시간대 소비자심리', series: sentiment, asOf: sentiment.at(-1).date,
+    items.push(card({ id: 'consumerSentiment', label: '미시간대 소비자심리', series: sentiment, asOf: sentiment.at(-1).date, frequency: 'monthly', referenceMs, format: (value) => fmt(value, 1),
       valueText: fmt(sentiment.at(-1).value, 1), changeText: c ? `3개월 ${signed(c.last.value - c.then.value, 1, '')}` : null,
       reading: '가계가 느끼는 경기와 물가 부담입니다. 심리는 실제 소비보다 먼저 움직이지만 소비와 어긋나는 때도 많습니다.' }));
   }
-  const ppi = seriesOf(macroHistory, 'ppiFinalDemand');
-  if (ppi.length >= 14) {
-    const c = changeOver(ppi, 365);
-    const yoy = c ? pct(c.last.value, c.then.value) : null;
-    items.push(card({ id: 'ppiFinalDemand', label: '생산자물가 (최종수요, 전년 대비)', series: ppi, asOf: ppi.at(-1).date, unit: '%',
-      valueText: signed(yoy, 1) || '—', changeText: null,
+  const ppi = monthlyYoySeries(seriesOf(macroHistory, 'ppiFinalDemand'));
+  if (ppi.length >= 2) {
+    const last = ppi.at(-1);
+    const back = changeOver(ppi, 92);
+    items.push(card({ id: 'ppiFinalDemand', label: '생산자물가 (최종수요, 전년 대비)', series: ppi.length >= 6 ? ppi : [], asOf: last.date, unit: '%', frequency: 'monthly', referenceMs, format: (value) => signed(value, 1),
+      valueText: signed(last.value, 1), changeText: back ? `3개월 전 ${signed(back.then.value, 1)}` : null,
       reading: '기업이 받는 가격입니다. 생산자물가가 오르면 몇 달 뒤 소비자물가나 기업 마진에 압력이 됩니다.' }));
   }
   return { id: 'growth', title: '성장 · 고용 선행', fact: '분기 성장, 일자리 수요, 가계 심리, 기업 가격 — 경기의 다음 방향을 미리 보는 지표입니다.', items };
 }
 
-function commodityFxGroup(macroHistory) {
+function commodityFxGroup(macroHistory, { referenceMs, oil }) {
   const items = [];
-  const add = (field, label, digits, unitText, reading) => {
+  const add = (field, label, digits, unitText, reading, extra = null) => {
     const s = seriesOf(macroHistory, field);
     if (s.length < 6) return;
-    const c = changeOver(s, 30);
-    items.push(card({ id: field, label, series: s, asOf: s.at(-1).date, valueText: `${fmt(s.at(-1).value, digits)}${unitText}`,
-      changeText: c ? `1개월 ${signed(pct(c.last.value, c.then.value))}` : null, reading }));
+    const frequency = frequencyOf(macroHistory, field, 'daily');
+    // M06: a daily series changes over 20 exchange sessions (the WTI span on the same screen); a monthly one over a month.
+    const daily = frequency === 'daily';
+    const back = daily ? sessionPointBack(s, 20) : changeOver(s, 30)?.then;
+    const format = (value) => `${fmt(value, digits)}${unitText}`;
+    items.push(card({ id: field, label, series: s, asOf: s.at(-1).date, frequency, referenceMs, format, valueText: format(s.at(-1).value),
+      changeText: back ? `${daily ? '20거래일' : '1개월'} ${signed(pct(s.at(-1).value, back.value))}` : null, reading: extra ? `${reading} ${extra}` : reading }));
   };
-  add('brent', '브렌트유', 2, '달러', '국제 유가 기준입니다. WTI와 차이가 벌어지면 미국 밖 공급 차질을 반영하는 경우가 많습니다.');
+  add('brent', '브렌트유', 2, '달러', '국제 유가 기준입니다. WTI와 차이가 벌어지면 미국 밖 공급 차질을 반영하는 경우가 많습니다.', oil?.sentence || null);
   add('natGas', '천연가스 (헨리허브)', 2, '달러', '전기·난방·화학 원가입니다. 겨울철과 수출 수요에 크게 흔들립니다.');
   add('copper', '구리 (월평균)', 0, '달러/톤', '건설·전력망·전기차에 쓰여 경기 체력을 비추는 금속입니다. 데이터센터 전력 투자와도 연결됩니다.');
   add('usdCny', '위안 / 달러', 3, '위안', '오르면 위안화 약세입니다. 중국 경기와 아시아 통화(원화 포함)가 같은 방향으로 움직이는 경향이 있습니다.');
   return { id: 'commodities-fx', title: '원자재 · 아시아 통화', fact: '유가 외 에너지, 산업 금속, 위안화 — 물가와 한국 시장에 닿는 경로입니다.', items };
 }
 
-export function buildLiquidityGrowthGroups(macroHistory) {
-  return [liquidityGroup(macroHistory), growthGroup(macroHistory), commodityFxGroup(macroHistory)].filter((group) => group.items.length);
+// referenceMs: the time staleness is judged against (now on screen; fixed in tests).
+export function buildLiquidityGrowthGroups(macroHistory, { macro = null, history = [], referenceMs = Date.now() } = {}) {
+  const context = { macro, referenceMs, oil: brentWtiCheck(macroHistory, history) };
+  return [liquidityGroup(macroHistory, context), growthGroup(macroHistory, context), commodityFxGroup(macroHistory, context)].filter((group) => group.items.length);
 }

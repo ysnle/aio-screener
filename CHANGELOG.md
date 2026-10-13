@@ -1,3 +1,13 @@
+## v57.49 (2026-10-13)
+- **텔레그램 계보 분리·결측 종가 처리 (P1683):** 화면용 텔레그램 요약에서 관측 계보 행을 별도 파일로 빼 약 946KB를 약 299KB로 줄였다. 숫자 HTML 엔티티를 해제한다. 원천 종가가 빈 세션이 1일·5일 창에 있으면 해당 수익률을 비운다.
+- **포트폴리오 통화·등급 정리 (P1684):** 시세 통화 누락 시 +333% 가짜 손익, 레거시 패널 3곳의 달러·원화 혼합 합산, 근거 없는 분산화 점수·Sharpe 등급·리밸런싱 권유, 13F 주식 분할의 '확대' 오분류를 고쳤다. VaR 표본, TWR/MWR 단위, 현금 비중 분모, 환율 효과 기준일, AI 포트폴리오 문맥을 바로잡았다.
+- **종가 시계열 거래일 정렬·거시 카드 정리 (P1685):** 일요일 체결이 종가로 섞여 원/달러 20일 부호와 환율 축 판정이 뒤집히던 문제를 고쳤다. 신용 축에 HY 20일 확대를 넣고, 시나리오의 '개연성'·권유 문구를 조건 부합 수로 바꿨다. 거시 새 카드의 단위(PPI·GDP)·주기 표기·stale 칩·순유동성 횡보·브렌트-WTI 차이를 바로잡고, 한국 접힌 칸의 묵은 고정 표를 지웠다.
+- **S&P 지도 기간 가중·테마 화면 정리 (P1686):** 지도 1·3개월 수익률을 기간 시작 비중으로 계산해 SPY와 맞췄다(3개월 +5.91% → +3.75%). 지도 색을 옆 표와 같은 상승 초록으로 통일하고, RRG '약세 주도' 등급과 잘린 산점도, 전력 층 오연결, 테마 값 공백을 고쳤다.
+- **스크리너·종목 정합 (P1687):** 재무 팩터 신선도를 회계기간 456일 하나로 통일했다(밸류 커버리지 7.4% → 65.6%). 늘 0건이던 구조 분류·승자 필터·한국 시총 필터를 정리하고, RSI 경계 판정, PER 기간 표시, 한국 종목 기준일·공시 안내, ROE·순위·확장 구간의 이중 정의를 고쳤다.
+- **AI 근거 결합·서버 해설 검증 (P1688):** 화면의 VIX·10년물 종가를 AI 근거 행으로 등록해, 기준일과 함께 수치를 답하게 했다(이전에는 모두 지워짐). 경고를 한국어 한 줄로 줄이고, 매매 지시 필터의 오탐·누락, 'X% 추가' 시뮬레이션의 통화 혼합, 서버 해설의 지표·등락률 엇갈림과 금리 bp 표기를 고쳤다.
+- **지도 1일·1주 탭 활성 (P1689):** 정규화 단계에서 1일·1주 수익률이 빠져 배포판 지도의 해당 탭이 켜지지 않던 문제를 고쳤다. 신용 충돌 문구에 20거래일 확대를 함께 쓴다.
+- R1 7곳 v57.49
+
 ## v57.48 (2026-10-13)
 - **Benchmark, date and cohort arithmetic (P1675):** portfolio vs SPY/KOSPI selection fixed, mismatched return dates held out of attribution, stale theme members no longer rank, currency check separated from economic FX exposure, small screener cohorts named by count.
 - **AI answer and briefing integrity (P1676):** no more decimal/URL fragments, role words like PM/HW are not tickers, theme context carries all three windows, the briefing AI card shows its generation time and which numbers are closes vs intraday, ledger ids no longer leak, portfolio AI prompts ask about exposure and counter-evidence instead of trades.

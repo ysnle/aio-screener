@@ -1,10 +1,11 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { renderBriefingRead } from '../components/briefing-read.js';
+import { closeBasis } from '../../domain/briefing/market-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { groupNewsStories, newsArticleKey, newsEvidence, resolveNewsIssuers } from '../../domain/news/stories.js';
-import { briefingWindowKST, classifyNewsTextStance, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
+import { briefingWindowKST, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -22,7 +23,7 @@ function finite(value) {
 // unknown token falls back to a generic sentence instead of leaking itself.
 const NEWS_EMPTY_REASON_COPY = Object.freeze({
   'no-input-news': '수신된 뉴스가 없습니다.',
-  'all-news-outside-time-window': '선택한 조건의 완료 24h 창 안에 들어온 뉴스가 없습니다.',
+  'all-news-outside-time-window': '선택한 조건으로 오늘 08:00 KST까지 24시간 동안 들어온 뉴스가 없습니다.',
   'below-score-threshold-or-policy-excluded': '수신된 뉴스가 중요도·정책 기준을 통과하지 못했습니다.',
   'filters-removed-all-eligible-news': '현재 필터 조합이 적격 뉴스를 모두 제외했습니다.',
   'no-verified-current-news-for-surface-policy': '이 화면의 검증·현재성 기준을 통과한 뉴스가 없습니다.',
@@ -99,17 +100,13 @@ function safeUrl(value) {
   }
 }
 
-function sentimentTone(item) {
-  if (!isNewsAnalysisEligible(item)) {
-    return isNewsHeadlineOnly(item)
-      ? { label: '본문 미수신', color: 'var(--text-muted)' }
-      : { label: '검증 대기', color: 'var(--data-amber)' };
-  }
-  const sentiment = classifyNewsTextStance(`${item?.title || ''} ${item?.summary || item?.desc || ''}`);
-  if (sentiment === 'bull') return { label: '긍정', color: 'var(--data-green)' };
-  if (sentiment === 'bear') return { label: '부정', color: 'var(--data-red)' };
-  if (sentiment === 'warn') return { label: '주의', color: 'var(--data-amber)' };
-  return { label: '중립', color: 'var(--text-muted)' };
+// T17 (expert review 2026-10-13): the 긍정/부정/주의 badge counted bull/bear words in the headline — a grade with no
+// validated basis. Only the article's verification state is shown; an analysed article carries no badge.
+function articleStatus(item) {
+  if (isNewsAnalysisEligible(item)) return { label: '', color: 'transparent' };
+  return isNewsHeadlineOnly(item)
+    ? { label: '본문 미수신', color: 'var(--text-muted)' }
+    : { label: '검증 대기', color: 'var(--data-amber)' };
 }
 
 function displayValue(root, functionName, item, fallback = '') {
@@ -184,7 +181,7 @@ const TOPIC_LABELS = Object.freeze({ macro: '매크로', semi: '반도체·AI', 
 
 function createNewsCard(documentRef, root, item, index) {
   const card = documentRef.createElement('div');
-  const tone = sentimentTone(item);
+  const tone = articleStatus(item);
   const link = safeUrl(item?.link);
   const publishedIso = publicationIso(item);
   // The legacy hook is still preferred when a host actually provides it; otherwise the local
@@ -364,8 +361,8 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     empty.textContent = status === 'unavailable'
       ? '뉴스 수신 대기 — 새로고침 후 검증된 뉴스가 표시됩니다.'
       : (model?.emptyReason === 'all-news-outside-time-window' && outOfWindow > 0
-          ? `현재 조건에서 오늘(08:00 KST 완료 24h) 자료 미확보 · 이전 수집분 ${outOfWindow}건은 수집 제외 항목을 뺀 뒤 창 밖으로 분류되어 오늘 뉴스가 아닙니다.`
-          : `현재 조건에서 08:00 KST 완료 24h · 중요도 기준 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${outOfWindow > 0 ? ` (수집 제외 항목 제외 후 · 창 밖 이전 수집분 ${outOfWindow}건 제외)` : ''}${reviewFlagged > 0 ? ` · 피드 분류로만 걸러진 항목 ${reviewFlagged}건은 기사별 검토가 필요합니다.` : ''}`);
+          ? `현재 조건에서 오늘(08:00 KST까지 24시간) 자료 미확보 · 이전 수집분 ${outOfWindow}건은 수집 제외 항목을 뺀 뒤 창 밖으로 분류되어 오늘 뉴스가 아닙니다.`
+          : `현재 조건에서 08:00 KST까지 24시간 · 중요도 기준 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${outOfWindow > 0 ? ` (수집 제외 항목 제외 후 · 창 밖 이전 수집분 ${outOfWindow}건 제외)` : ''}${reviewFlagged > 0 ? ` · 피드 분류로만 걸러진 항목 ${reviewFlagged}건은 기사별 검토가 필요합니다.` : ''}`);
     container.appendChild(empty);
     if (describeNewsScope(controls).articles === '필터 적용') {
       const reset = documentRef.createElement('button');
@@ -454,6 +451,8 @@ function render({ documentRef, root, store, route }) {
     // P1389: the briefing is a connected read of the completed close plus the schedule; its news
     // list moved to the news screen (important / general split).
     renderBriefingRead({ documentRef, root });
+    // T18: the title date is the US close the read is based on, not the KST calendar day.
+    root?._aioRenderBriefingDateLine?.(undefined, closeBasis(root?._aioHistory || []));
     return;
   }
   if (route !== 'market-news') return;

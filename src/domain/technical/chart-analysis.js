@@ -287,7 +287,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(상승일 거래량 우위)' : pressure <= 0.77 ? '(하락일 거래량 우위)' : '(비슷함)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],
     ['피벗 (마지막 수축 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],
-    ['무효화 가격 (마지막 수축 저점)', lastContraction ? `${fmt(lastContraction.low)} (현재가 대비 ${signed((lastContraction.low / last.close - 1) * 100)})` : '—'],
+    // 2026-10-13 review S14: an observed level, not an instruction ('무효화 가격' read as a stop to act on).
+    ['마지막 수축 저점', lastContraction ? `${fmt(lastContraction.low)} (현재가 대비 ${signed((lastContraction.low / last.close - 1) * 100)})` : '—'],
     ['전일 고가 / 저가', `${fmt(prev.high)} / ${fmt(prev.low)}`]
   ];
   return {
@@ -341,7 +342,7 @@ export function chartReading(analysis, regime = null) {
     breakout: '피벗을 거래량과 함께 넘었습니다 — 돌파 직후는 피벗 위에서 버티는지가 관건입니다',
     extended: `피벗에서 이미 ${analysis.pivot ? pct((analysis.last.close / analysis.pivot - 1) * 100) : '—'} 올라 기준점에서 멀어진 구간입니다 — 새 수축(쉬어 가기)이 생기는지 관찰할 자리입니다`,
     failed: '돌파 뒤 피벗 아래로 되돌아왔습니다 — 돌파한 가격 위에서 유지되지 못한 상태입니다',
-    downtrend: '하락 추세라 셋업을 따지는 단계가 아닙니다 — 200일선 회복이 먼저입니다',
+    downtrend: '하락 추세(200일선 아래) 구간이라 VCP 셋업 조건이 성립하지 않습니다',
     // Codex browser audit H33: "상승 추세 · 템플릿 8/8 · 셋업 없음" read as a contradiction. Trend and setup answer
     // different questions; the sentence says which condition is missing and that no setup is not a negative.
     none: analysis.templatePass >= 6

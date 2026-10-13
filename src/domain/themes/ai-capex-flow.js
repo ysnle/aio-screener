@@ -8,10 +8,14 @@ export const AI_CAPEX_FLOW = Object.freeze({
   id: 'ai-capex-flow-2026-08',
   sourceKind: 'REFERENCE',
   title: 'AI 설비투자 100달러는 어디로 가나',
+  // M20: provider names stay in `source` (hover title and the folded 데이터 출처); the body shows `asOf` only.
+  asOf: '2026-08',
   source: 'BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용',
   layers: Object.freeze([
     Object.freeze({ id: 'semis', label: '반도체', share: 50, parts: '가속기 25 · 메모리 15 · CPU·서버 10 (이 중 반도체 장비 약 8)', themes: ['semiconductor'] }),
-    Object.freeze({ id: 'power', label: '전력', share: 20, parts: '계통 연결·자가발전 10 · 전력 분배 6.5 · 현장 배전 3.5', themes: ['utilities', 'energy'] }),
+    // Expert review M10: the power layer is grid hook-up, generation and distribution equipment — not oil majors,
+    // E&P or refiners, so the energy theme is not linked. Utilities plus the power-equipment sub-theme only.
+    Object.freeze({ id: 'power', label: '전력', share: 20, parts: '계통 연결·자가발전 10 · 전력 분배 6.5 · 현장 배전 3.5', themes: ['utilities'], groups: ['industrials:전력장비/그리드'] }),
     Object.freeze({ id: 'network', label: '네트워크', share: 15, parts: '광 트랜시버 5.5 · 스위치 4.5 · 네트워크 칩 3 · 케이블 2', themes: ['photonics'] }),
     Object.freeze({ id: 'cooling', label: '냉각', share: 7.5, parts: '액체·공랭 냉각 설비', themes: ['ai_infra'] }),
     Object.freeze({ id: 'facility', label: '시설·건설', share: 7.5, parts: '데이터센터 건물·부지·건설', themes: ['ai_infra', 'industrials'] })
@@ -20,6 +24,7 @@ export const AI_CAPEX_FLOW = Object.freeze({
 
 // Lead times are the bottleneck map: the longer the wait, the scarcer the capacity.
 export const AI_BOTTLENECK_LEAD_TIMES = Object.freeze({
+  asOf: '2026-09-14',
   source: 'TrendForce 리드타임(2026-09-14), a16z State of Markets II 인용',
   note: '칩은 제때 오지만 짓고 전원을 넣는 것이 병목 — 공급사는 원 자료에 나온 곳만 표시',
   rows: Object.freeze([

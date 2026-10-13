@@ -502,6 +502,40 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && wrongLevel.issues.includes('metric-value-mismatch:market.spx') && wrongLevel.issues.includes('metric-value-mismatch:market.vix'),
       JSON.stringify({ moveFirst: moveFirst.issues, wrongLevel: wrongLevel.issues }));
   }
+  {
+    // T03/T08 (v57.48 review): the 10/13 artifact published, as verified, "유가 -6.40%인 코스피는 장중 하락" (-6.40% was KOSPI's
+    // move) and "금리 -0.08%" (a relative change of the yield). A % move is now checked against the named metric's own
+    // changePct under its Korean name too, a rate moves only in bp, and an in-session value needs 장중 + its time.
+    const { validateMarketAnalysisText } = await import('./fetch-data.mjs');
+    const snapshot = { quotes: [
+      { instrumentId: '^KS11', evidenceId: 'market.index.kospi:t', value: 5975.74, changePct: -6.3986, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-13T03:55:30.000Z', session: 'DELAYED_IN_SESSION' },
+      { instrumentId: 'CL=F', evidenceId: 'market.commodity.wti:t', value: 92.53, changePct: -1.2908, unit: 'USD/barrel', source: 'Yahoo chart', observedAt: '2026-10-13T04:05:27.000Z', session: 'DELAYED_IN_SESSION' },
+      { instrumentId: '^TNX', evidenceId: 'market.rates.us10y:t', value: 5.24, changePct: -0.0763, unit: 'percent', source: 'Yahoo chart', observedAt: '2026-10-12T18:59:53.000Z', session: 'MARKET_CLOSED' },
+      { instrumentId: '^GSPC', evidenceId: 'market.index.spx:t', value: 7651.5, changePct: -0.06, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-12T20:00:00.000Z', session: 'MARKET_CLOSED' },
+      { instrumentId: '^VIX', evidenceId: 'market.volatility.vix:t', value: 15.21, changePct: 2.4933, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-12T20:15:00.000Z', session: 'MARKET_CLOSED' }
+    ] };
+    const data = { meta: { generatedAt: '2026-10-13T04:17:00.000Z' }, news: [], macro: {} };
+    const published = validateMarketAnalysisText('유가 -6.40%인 코스피는 장중 하락했고[market.index.kospi:780d058c], 유가 -1.29%도 약세였다.\n미국장에선 금리 -0.08%, 에스앤피오백 -0.06%로 소폭 하락했고 변동성지수는 +2.49% 상승했지만 15.21로 낮은 수준이다.', data, snapshot);
+    const correct = validateMarketAnalysisText('미국장에선 10년물 금리가 0.4bp 내린 5.24%, 에스앤피오백 -0.06%로 소폭 하락했고 변동성지수는 +2.49% 상승했지만 15.21로 낮은 수준이다. 기준금리 4.50%는 이번 판단과 별개다.', data, snapshot);
+    const timed = validateMarketAnalysisText('코스피는 13:05 KST 장중 -6.40%로 하락했다.', data, snapshot);
+    const untimed = validateMarketAnalysisText('코스피는 장중 -6.40%로 하락했다.', data, snapshot);
+    const wrongBp = validateMarketAnalysisText('10년물은 8bp 하락했다.', data, snapshot);
+    // Review false blocks: other tenors/kinds of 금리, multi-period moves and shares are not the 10-year / one-session move.
+    const otherRates = validateMarketAnalysisText('2년물 금리 4.80%와 실질 금리 1.85%는 10년물 5.24%보다 낮다.', data, snapshot);
+    const multiPeriod = validateMarketAnalysisText('코스피는 20일 동안 8.2% 하락했고, S&P 500 상위 10개 기업이 40%를 차지한다.', data, snapshot);
+    check('P1688/T03 review: other rate tenors, multi-period moves and shares do not trip the one-session check',
+      !otherRates.issues.length && !multiPeriod.issues.length, JSON.stringify({ otherRates: otherRates.issues, multiPeriod: multiPeriod.issues }));
+    const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+    check('P1688/T03 a % move is checked against its own metric (Korean names included) and a rate moves only in bp',
+      published.issues.includes('metric-change-mismatch:market.wti') && published.issues.includes('rate-change-not-bp:market.us10y')
+        && !correct.issues.length && wrongBp.issues.includes('metric-change-mismatch:market.us10y'),
+      JSON.stringify({ published: published.issues, correct: correct.issues, wrongBp: wrongBp.issues }));
+    check('P1688/T08 the commentary prompt carries completed closes only and an in-session value needs 장중 + its time',
+      !timed.issues.length && untimed.issues.includes('intraday-time-missing:market.kospi')
+        && /const promptEvidence = metricEvidence\.filter\(\(row\) => !row\.session \|\| MARKET_ANALYSIS_CLOSED_SESSIONS\.includes\(row\.session\)\)/.test(source)
+        && /promptEvidence\.slice\(0, 16\)/.test(source) && /금리\(10Y\)의 변화는 bp로만/.test(source) && !/현금 비중을 두는 쪽이 유리할 가능성/.test(source),
+      JSON.stringify({ timed: timed.issues, untimed: untimed.issues }));
+  }
 }
 {
   // P1385: a FRED series added after the previous artifact (fedTargetLower/Upper) must still get an
@@ -984,7 +1018,7 @@ check('server news backstop preserves score tier and news-cycle metadata', /news
 check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /filterByKst0800NewsCycle/.test(data) && /newsCycle:\s*cycleWindow/.test(data));
 // P1391: the developer timestamp bar was removed; the user-facing window wording lives in the subtitle and the important-news heading.
 check('P1601 market-news labels derive completed 24h cycle rather than a stale today label', /표시 기간 기준/.test(marketNewsHtml) && /id="news-important-list"/.test(marketNewsHtml) && /fmt\(olderCycle \? cycleEnd : newsWindow.end\)/.test(newsPage) && !/최근 48시간|48시간 이내|필터:\s*48시간/.test(marketNewsHtml));
-check('market-news empty state uses 24h completed-cycle wording', /08:00 KST 완료 24h/.test(newsPage) && !/48.?\uC2DC\uAC04/.test(newsPage));
+check('market-news empty state uses 24h completed-cycle wording', /08:00 KST까지 24시간/.test(newsPage) && !/완료 24h/.test(newsPage) && !/48.?\uC2DC\uAC04/.test(newsPage));
 // P1389/P1391: the briefing no longer carries a news list (moved to the news screen's important/full split);
 // its native owner renders the connected read, and no surface writes the retired list.
 check('briefing primary feed has a native owner and no legacy primary DOM writer', /route === 'briefing'/.test(newsPage) && /renderBriefingRead/.test(newsPage) && /pickImportantNews/.test(newsPage) && !/briefing-live-news-list/.test(newsPage) && !/briefing-live-news-list/.test(core) && !/briefing-live-news-list/.test(data));

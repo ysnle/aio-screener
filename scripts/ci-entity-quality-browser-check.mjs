@@ -138,7 +138,7 @@ try {
         && !/Palantir/.test(summary.business),`${label}: selected issuer profile/source identity lost (P1624)`,summary);
       check(summary.canvas.width>100 && summary.canvas.height>100 && summary.native==='native' && summary.lastDate==='2026-10-09',`${label}: first summary chart absent (P1624)`,summary);
       check(summary.chart.real && summary.chart.points>=20 && summary.chart.pixels>1000,`${label}: native canvas has no actual pinned Chart.js data/render (P1624)`,summary.chart);
-      check(summary.basis.includes('2026-10-09') && !/실시간/.test(summary.basis),`${label}: observation basis lost/promoted (P1624)`,summary);
+      check(summary.basis.includes('2026-10-10 05:00 한국 시간') && !/UTC|실시간/.test(summary.basis),`${label}: observation basis lost/promoted or not in Korean time (P1624/S21)`,summary);
       check(summary.signed.some(bar=>bar.down && bar.width>0) && summary.signed.every(bar=>bar.down ? Math.abs(bar.left+bar.width-50)<.05 : Math.abs(bar.left-50)<.05),`${label}: signed returns cross common zero incorrectly (P1624)`,summary.signed);
       await captureLayout(page,`${label}/summary`);
       await page.screenshot({path:resolve(out,`browser-${label}-summary.png`)});
@@ -198,7 +198,7 @@ try {
         tableText:host.querySelector('.fiscal-amount-table')?.textContent,
         basis:host.querySelector('.fiscal-period-basis')?.textContent }));
       observations.push({label,fiscal});
-      check(fiscal.rows>=2 && fiscal.captions.some(text=>/USD.*백만/.test(text)),`${label}: fiscal period/amount table absent (P1627)`,fiscal);
+      check(fiscal.rows>=2 && fiscal.captions.some(text=>/USD.*B=10억/.test(text)) /* P1687/S20: compact B/T units, exact amount in the cell title */,`${label}: fiscal period/amount table absent (P1627)`,fiscal);
       check(fiscal.loss.length>0 && fiscal.loss.every(bar=>Math.abs(bar.top-bar.zero)<.02 && bar.height>0),`${label}: fiscal losses extend above zero (P1627)`,fiscal);
       check(/순이익/.test(fiscal.tableText) && /[−-]\$/.test(fiscal.tableText),`${label}: explicit monetary losses absent from table (P1627)`,fiscal.tableText);
       await captureLayout(page,`${label}/fiscal`);

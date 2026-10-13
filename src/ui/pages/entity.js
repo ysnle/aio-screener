@@ -15,6 +15,14 @@ import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js'
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
 
+// 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
+export function formatKstStamp(value) {
+  const ms = Date.parse(value || '');
+  if (!Number.isFinite(ms)) return null;
+  return `${new Date(ms).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul', hour12: false }).slice(0, 16)} 한국 시간`;
+}
+const isKrSymbol = (symbol) => /\.K[SQ]$/i.test(String(symbol || ''));
+
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
@@ -84,7 +92,10 @@ function renderTickerHero(documentRef, state, root) {
     ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · 시세 수신 대기`)))
     : '종목을 검색하세요');
   // P1317: a KRX listing (.KS/.KQ) trades only in KRW — the venue, not a guess, fixes the quote currency.
-  setText(documentRef, 'ticker-hero-price', formatMoney(price, quote.currency || (/\.(KS|KQ)$/.test(String(id || '')) ? 'KRW' : null)));
+  // P1689: a fallback quote can arrive without a currency; use one already observed for this symbol (live envelope or
+  // entity summary) before saying "통화 미확인" — still never inferred from the symbol alone outside the KRX suffix.
+  const heroCurrency = quote.currency || root?._liveData?.[id]?.currency || root?._liveData?.[id]?.quoteEnvelope?.currency || root?._aioEntitySummaries?.[id]?.quote?.currency || (/\.(KS|KQ)$/.test(String(id || '')) ? 'KRW' : null);
+  setText(documentRef, 'ticker-hero-price', formatMoney(price, heroCurrency));
   const change = setText(documentRef, 'ticker-hero-chg', pct == null ? '—' : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`);
   if (change) change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
   const priceNode = documentRef?.getElementById('ticker-hero-price');
@@ -93,13 +104,13 @@ function renderTickerHero(documentRef, state, root) {
     if (!status) { status = documentRef.createElement('div'); status.id = 'ticker-summary-price-basis'; status.className = 'entity-summary-price-basis'; priceNode.after(status); }
     const meta = root?._aioEntitySummaries?.[id];
     const valueBasis = root?._liveData?.[id]?.quoteEnvelope?.valueBasis || meta?.quote?.valueBasis;
-    status.textContent = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세 제공처 응답 없음 · 다시 선택해 확인' : '현재 시세 확인 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${String(quote.observedAt).replace('T', ' ').replace('.000Z', ' UTC')}` : ' · 관측 시각 미확인'}`;
+    status.textContent = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세 제공처 응답 없음 · 다시 선택해 확인' : '현재 시세 확인 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}`;
   }
   // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
   // history and bookmarks kept "종목 선택 대기" (or the previous symbol). The owner of the hero owns the title.
   if (id && documentRef && documentRef.getElementById?.('page-ticker')?.classList?.contains('active')) {
     const label = state?.name && state.name !== id ? `${state.name} (${id})` : id;
-    documentRef.title = `${label}${price == null ? '' : ` ${formatMoney(price, quote.currency || (/\.(KS|KQ)$/.test(String(id)) ? 'KRW' : null))}`} · AIO Screener`;
+    documentRef.title = `${label}${price == null ? '' : ` ${formatMoney(price, heroCurrency)}`} · AIO Screener`;
   }
 }
 
@@ -217,7 +228,8 @@ function renderTickerNavigation(documentRef, state, root) {
   if (fundamentalLink) {
     const symbol = String(state?.id || root?._currentTickerId || '').trim();
     fundamentalLink.disabled = !symbol;
-    fundamentalLink.textContent = symbol ? `${symbol} SEC 재무 보기` : '종목 선택 후 SEC 재무 보기';
+    // 2026-10-13 review S12: a KRX listing's filings are Korean (DART), not SEC.
+    fundamentalLink.textContent = symbol ? `${symbol} ${/\.K[SQ]$/i.test(symbol) ? '한국 공시(DART)' : 'SEC'} 재무 보기` : '종목 선택 후 재무 공시 보기';
     fundamentalLink.setAttribute('aria-label', fundamentalLink.textContent);
   }
   // P1505: with no symbol the page showed an empty price block, chart circle and factor panel; it now shows the
@@ -323,8 +335,8 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   const periodMeta = unavailable
     ? rows.length < 2 ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오는 중이거나 제공처 응답이 없습니다. 종목을 다시 선택해 확인할 수 있습니다.` : '가격 이력은 수신했지만 차트 표시를 준비하지 못했습니다. 새로고침해 다시 확인할 수 있습니다.'
     // P1255 (07:M04 계열 잔여 D4): 차트는 close 계열(배당 미조정)이다 — "수익률"과 섞이지 않도록
-    // 가격 기준을 메타에 함께 말한다(분할 반영 여부는 공급자 관례에 의존, 미검증).
-    : `${periodLabel} · ${view.rowCount}개 관측 · ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)} · 가격 기준 close(배당 미조정 price return · 분할 반영 여부 미검증)`;
+    // 가격 기준을 메타에 함께 말한다. S21: 내부 용어 대신 한 줄 독자 문장.
+    : `${periodLabel} · ${view.rowCount}개 관측 · ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)} · 배당 제외 가격 · 요약 수익률은 배당 포함`;
   canvas.dataset.aioTickerChartRenderer = 'native';
   canvas.dataset.sourceKind = unavailable ? 'unavailable' : 'native-runtime';
   canvas.dataset.sourceLabel = unavailable ? 'entity-history-unavailable' : 'native:entity-history';
@@ -383,7 +395,7 @@ function renderFundamentalStatus(documentRef, state) {
     && Array.isArray(fundamentals.coverage) && fundamentals.coverage.length > 0;
   const observedAt = fundamentals?.observedAt || fundamentals?.filedAt || null;
   const unselected = !String(state?.id || '').trim(); // P1365: no selection ≠ SEC 미수신.
-  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `회계연도 말 ${String(observedAt).slice(0, 10)}` : '회계연도 말 미수신'}` : unselected ? '○ 종목 선택 전' : '○ SEC 데이터 미수신';
+  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `회계연도 말 ${String(observedAt).slice(0, 10)}` : '회계연도 말 미수신'}` : unselected ? '○ 종목 선택 전' : isKrSymbol(state?.id) ? '○ 한국 공시(DART) 기준 · SEC 대상 아님' : '○ SEC 데이터 미수신';
   element.className = 'freshness-badge fb-static';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
@@ -427,7 +439,7 @@ function renderFundamentalSummary(documentRef, state) {
   const observedAt = fundamentals?.observedAt || '미상';
   element.textContent = available
     ? `SEC ${period} · 관측 항목 ${report.coverage.length}개 · 회계연도 말 ${observedAt}${facts.length ? ` · ${facts.join(' · ')}` : ''}`
-    : !String(state?.id || '').trim() ? '종목 선택 전 · 선택 기업의 SEC 연간 재무 해석 없음' : 'SEC 연간 재무 데이터 수신 대기 · 해석 보류';
+    : !String(state?.id || '').trim() ? '종목 선택 전 · 선택 기업의 SEC 연간 재무 해석 없음' : isKrSymbol(state?.id) ? '한국 상장 종목 · 연간 재무는 한국 공시(DART) 사업보고서 기준' : 'SEC 연간 재무 데이터 수신 대기 · 해석 보류';
   element.dataset.aioFundamentalSummaryRenderer = 'native';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
@@ -482,11 +494,13 @@ function renderFundamentalWatchlist(documentRef, state) {
   const notice = documentRef.createElement('div');
   const generatedMs = Date.parse(meta.generatedAt || '');
   const ageHours = Number.isFinite(generatedMs) ? Math.max(0, (Date.now() - generatedMs) / 3600000) : null;
-  const projectionState = ageHours == null ? '투영 확인시각 미수신' : ageHours <= 48 ? '자동 투영 확인 정상' : '자동 투영 확인 지연 · 참고 전용';
+  // 2026-10-13 review S13: no provider name or pipeline vocabulary in the body; the source sits in the title.
+  const projectionState = ageHours == null ? '확인 시각 미수신' : ageHours <= 48 ? '최근 확인' : '확인 지연 · 참고 전용';
   const coverageText = Number.isFinite(meta.stored) && Number.isFinite(meta.eligible)
-    ? ` · ${meta.stored}/${meta.eligible}개 SEC 대상 보유`
+    ? ` · 공시 대상 ${meta.eligible}개 중 ${meta.stored}개 보유`
     : '';
-  notice.textContent = `SEC EDGAR companyfacts · ${projectionState}${meta.generatedAt ? ` · 확인 ${String(meta.generatedAt).replace('T', ' ').slice(0, 16)}Z` : ''}${coverageText} · 연간 공시와 시세는 서로 다른 시계로 분리`;
+  notice.textContent = `연간 공시 · ${projectionState}${meta.generatedAt ? ` · ${formatKstStamp(meta.generatedAt) || String(meta.generatedAt).slice(0, 10)}` : ''}${coverageText} · 연간 공시와 시세는 서로 다른 시계로 분리`;
+  notice.title = `${meta.source || 'SEC EDGAR companyfacts'} 연간 공시 요약`;
   notice.style.cssText = `grid-column:1/-1;padding:9px 10px;border-left:2px solid ${ageHours != null && ageHours <= 48 ? 'var(--data-green)' : 'var(--data-amber)'};background:var(--surface-2);color:var(--text-secondary);font-size:10px;line-height:1.5;`;
   grid.appendChild(notice);
   for (const row of rows) {
@@ -525,11 +539,13 @@ function renderFundamentalWatchlist(documentRef, state) {
     appendSecWatchlistMetric(documentRef, metrics, '순이익', formatSecWatchlistValue(row.netIncome));
     appendSecWatchlistMetric(documentRef, metrics, '매출 성장', formatSecWatchlistValue(row.revGrowth, { percent: true }));
     appendSecWatchlistMetric(documentRef, metrics, '순이익률', formatSecWatchlistValue(row.margin, { percent: true }));
-    appendSecWatchlistMetric(documentRef, metrics, 'ROE (기말 자기자본 기준)', formatSecWatchlistValue(row.roe, { percent: true }));
+    // 2026-10-13 review S08: the card's year-end-equity ROE (NVDA 76.3%) disagreed with the fiscal reading's
+    // average-equity ROE (101.5%); the summary row has no prior equity, so ROE is read in 재무 흐름 only.
     card.appendChild(metrics);
 
     const source = documentRef.createElement('div');
-    source.textContent = `SEC ${row.form || 'annual filing'} · 제출 ${row.filedAt || '미상'} · 추정치 없음`;
+    source.textContent = `${row.form || '연간 보고서'} · 제출 ${row.filedAt || '미상'} · 추정치 없음`;
+    source.title = `${row.source || meta.source || 'SEC EDGAR companyfacts'}`;
     source.style.cssText = 'font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.35;';
     card.appendChild(source);
     grid.appendChild(card);
@@ -622,7 +638,8 @@ function renderFundamentalReport(documentRef, page, state) {
     meta.textContent = report.status === 'current'
       ? `${report.form || '연간 보고서'} · 회계연도 말 ${report.observedAt || '—'} · 제출 ${report.filedAt || '—'}${report.freshness?.ageDays != null ? ` · 회계연도 말로부터 ${report.freshness.ageDays}일` : ''}${report.freshness?.state && report.freshness.state !== 'current' ? ' · 최신 연간 보고서 아님' : ''}`
       : unselected ? '선택한 종목 없음 · 티커를 입력하거나 관심종목을 선택하면 해당 기업의 SEC 연간 보고서를 표시합니다'
-        : 'SEC 연간 보고서를 아직 받지 못했습니다 · 값이 없는 항목은 추정하지 않습니다';
+        : isKrSymbol(state?.id) ? '한국 상장 종목은 SEC 연간 보고서 대상이 아닙니다 · 연간 재무는 한국 공시(DART) 기준'
+          : 'SEC 연간 보고서를 아직 받지 못했습니다 · 값이 없는 항목은 추정하지 않습니다';
     if (report.status === 'current') meta.title = [report.filingMetadata?.acceptedAt ? `접수 ${report.filingMetadata.acceptedAt}` : null, report.accession ? `접수번호 ${report.accession}` : null, report.pointInTime?.observationCount ? `시점 기록(PIT) ${report.pointInTime.observationCount}건 (${report.pointInTime.status})` : null].filter(Boolean).join(' · ');
     if (report.filingUrl && report.status === 'current') {
       const original = documentRef.createElement('a');
@@ -632,14 +649,17 @@ function renderFundamentalReport(documentRef, page, state) {
       meta.append(documentRef.createTextNode(' · '), original);
     }
   }
-  if (coverage) coverage.textContent = report.status === 'current'
-    ? `관측 항목 ${report.coverage.length}개 · ${report.source} · ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`
-    : unselected ? '선택 기업 없음' : '관측 항목 없음';
+  if (coverage) {
+    coverage.textContent = report.status === 'current'
+      ? `관측 항목 ${report.coverage.length}개 · ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`
+      : unselected ? '선택 기업 없음' : '관측 항목 없음';
+    if (report.status === 'current' && report.source) coverage.title = report.source; else coverage.removeAttribute?.('title');
+  }
   if (!grid) return;
   grid.replaceChildren();
   if (report.metrics.length === 0) {
     const empty = documentRef.createElement('div');
-    empty.textContent = unselected ? '종목을 선택하면 핵심 재무 지표가 표시됩니다.' : '공식 SEC annual fact가 수신되면 핵심 재무 지표가 표시됩니다.';
+    empty.textContent = unselected ? '종목을 선택하면 핵심 재무 지표가 표시됩니다.' : isKrSymbol(state?.id) ? '한국 상장 종목의 핵심 재무는 기업 요약의 한국 공시(DART) 카드에서 확인합니다.' : '공식 SEC annual fact가 수신되면 핵심 재무 지표가 표시됩니다.';
     empty.style.cssText = 'grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:8px 0;';
     grid.appendChild(empty);
     return;

@@ -18,6 +18,7 @@ import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
 import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
 import { screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
 import { latestCompletedUsSession, latestCompletedKrSession, resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
 
 export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v6';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
@@ -28,7 +29,9 @@ const DAY_MS = 86_400_000;
 // budgets let a row read CURRENT at fetch and stale at render, or vice versa.
 export const FACTOR_FRESHNESS_MS = 4 * DAY_MS;
 const MIN_RANKED_ROWS = 5;
-const FUNDAMENTAL_FRESHNESS_MS = 180 * DAY_MS;
+// 2026-10-13 review S01: value/quality use the provider's period rule (fiscal period end within 456 days of
+// the price session). The former 180-day filing-date budget left 79 of 810 US rows current.
+const FUNDAMENTAL_FRESHNESS_MS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS * DAY_MS;
 const MIN_CROSS_SECTION_COVERAGE = 0.8;
 // A cross-sectionally active factor can still be absent for an individual security. Do not
 // compare a materially different residual model against complete rows: keep the row visible,
@@ -214,9 +217,20 @@ function factorLineage(row, key) {
   return { observedAt, timeBasis, barStart, sessionDate, sourceKind, sourceTier: canonicalSourceTier(sourceKind), allowedUse, quality };
 }
 
+// S01: a fundamental is current when its fiscal period ended within 456 days of the row's price session
+// (the provider's rule). Rows without a published period end fall back to the filing time under the same budget.
+function fundamentalFresh(row, observedAt, now) {
+  const observed = isoMs(observedAt);
+  if (!Number.isFinite(observed) || !Number.isFinite(now) || observed > now) return false;
+  if (!row?._fundamentalPeriodEnd) return isFreshPast(observedAt, now, FUNDAMENTAL_FRESHNESS_MS);
+  const session = row.factorSessionDate || row.factorObservedAt || new Date(now).toISOString();
+  return Number.isFinite(Date.parse(String(row._fundamentalPeriodEnd).slice(0, 10))) && !fundamentalPeriodTooOld(row._fundamentalPeriodEnd, session);
+}
+
 function factorEvidenceUsable(row, key, now) {
   const lineage = factorLineage(row, key);
-  const budget = key === 'size' ? FACTOR_FRESHNESS_MS : ['value', 'quality'].includes(key) ? FUNDAMENTAL_FRESHNESS_MS : FACTOR_FRESHNESS_MS;
+  const budget = FACTOR_FRESHNESS_MS;
+  const fundamentalFactor = key === 'value' || key === 'quality';
   const reasons = [];
   if (!lineage.observedAt) reasons.push('observedAt_missing');
   if (!lineage.sourceKind || !lineage.sourceTier) reasons.push('source_tier_missing_or_unknown');
@@ -225,7 +239,7 @@ function factorEvidenceUsable(row, key, now) {
   if (!lineage.quality || typeof lineage.quality !== 'object') reasons.push('quality_missing');
   else if (lineage.quality.stale === true || lineage.quality.blocked === true || lineage.quality.status === 'STALE' || lineage.quality.status === 'MISSING') reasons.push('quality_stale_or_blocked');
   // P1625: a latest completed KRX close remains current through a holiday + weekend.
-  if (!isFreshPast(lineage.observedAt, now, budget) && !(PRICE_FACTOR_KEYS.has(key) && isLatestCompletedPriceSession(row,lineage,now))) reasons.push('observedAt_stale_or_future');
+  if (fundamentalFactor ? !fundamentalFresh(row, lineage.observedAt, now) : (!isFreshPast(lineage.observedAt, now, budget) && !(PRICE_FACTOR_KEYS.has(key) && isLatestCompletedPriceSession(row,lineage,now)))) reasons.push('observedAt_stale_or_future');
   return { ok: reasons.length === 0, lineage, reasons };
 }
 
@@ -485,14 +499,14 @@ function computeFactorRanksForPopulation({
     trend: factorCoverage.trend.active ? null : `추세 유효값 커버리지 80% 미만 (${factorCoverage.trend.coveragePct.toFixed(1)}%)`,
     lowvol: factorCoverage.lowvol.active ? null : `변동성 유효값 커버리지 80% 미만 (${factorCoverage.lowvol.coveragePct.toFixed(1)}%)`,
     size: sizeActive ? null : '시가총액 관측시각·출처 tier·quality·허용용도 또는 80% 커버리지 미확보',
-    value: valueActive ? null : `재무 관측시각·출처 tier·quality·허용용도·180일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
-    quality: qualityActive ? null : `재무 관측시각·출처 tier·quality·허용용도·180일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
+    value: valueActive ? null : `재무 관측시각·출처 tier·quality·허용용도·회계기간 456일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
+    quality: qualityActive ? null : `재무 관측시각·출처 tier·quality·허용용도·회계기간 456일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
     kalman: factorCoverage.kalman.active ? null : `칼만 유효값 커버리지 80% 미만 (${factorCoverage.kalman.coveragePct.toFixed(1)}%)`
   };
   // Preserve the established reason text when only the freshness gate is responsible. Existing
   // parity fixtures and UI consumers use these two exact messages.
   if (!fundamentalCurrent) {
-    const reason = `재무 관측시각·180일 신선도 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`;
+    const reason = `재무 관측시각·회계기간 456일 신선도 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`;
     inactiveFactorReasons.value = reason;
     inactiveFactorReasons.quality = reason;
   }

@@ -5,18 +5,49 @@
 // observed level, its change and its date. The only rule shown is the one 시장 상태 already uses:
 // a yen rally of 3% or more in 20 sessions marks the FX axis as a burden.
 import { buildCloseSeries, closeBasis } from '../briefing/market-read.js';
+import { resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { RULES } from '../rules/thresholds.js';
 
 export const YEN_RALLY_RULE = RULES.fx.yenRally20dPct; // % in 20 sessions — the 시장 상태 FX-axis rule (P1428 registry)
 const CHART_SESSIONS = 126; // about six months of completed sessions
 
 export const TREASURY_TENORS = Object.freeze([
-  Object.freeze({ id: 'dgs2', label: '2년' }),
-  Object.freeze({ id: 'dgs5', label: '5년' }),
-  Object.freeze({ id: 'dgs10', label: '10년' }),
-  Object.freeze({ id: 'dgs20', label: '20년' }),
-  Object.freeze({ id: 'dgs30', label: '30년' })
+  Object.freeze({ id: 'dgs2', label: '2년', years: 2 }),
+  Object.freeze({ id: 'dgs5', label: '5년', years: 5 }),
+  Object.freeze({ id: 'dgs10', label: '10년', years: 10 }),
+  Object.freeze({ id: 'dgs20', label: '20년', years: 20 }),
+  Object.freeze({ id: 'dgs30', label: '30년', years: 30 })
 ]);
+
+// Expert review M01 (2026-10-13): a close series can carry a weekend row, so "20일" counted as 20 rows covered fewer
+// sessions. A change span is counted in exchange sessions instead: the point is the last observation on or before
+// the day that lies `sessions` open sessions before the latest observation (registered calendar; weekdays when unknown).
+export function sessionPointBack(series, sessions, market = 'US') {
+  const last = series?.[series.length - 1];
+  if (!last || !(sessions > 0)) return null;
+  let cursor = Date.parse(`${last.date}T12:00:00Z`);
+  let left = sessions;
+  for (let guard = 0; left > 0 && guard < sessions * 3 + 20; guard += 1) {
+    cursor -= 86400000;
+    const date = new Date(cursor).toISOString().slice(0, 10);
+    const day = resolveMarketCalendarSession({ market, date });
+    if (day.status === 'open' || (day.status === 'unknown' && ![0, 6].includes(new Date(cursor).getUTCDay()))) left -= 1;
+  }
+  if (left > 0) return null;
+  const target = new Date(cursor).toISOString().slice(0, 10);
+  let found = null;
+  for (const row of series) { if (row.date <= target) found = row; else break; }
+  return found;
+}
+
+// Expert review M22: no 3-month bill yield is collected, but T10Y3M (10-year minus 3-month, same H.15 constant-maturity
+// basis) is. On a day the official curve and that spread share, 3-month = 10-year - spread; on any other day no point.
+export function derivedThreeMonth(macroHistory, tenYear) {
+  if (!tenYear?.asOf || tenYear.value == null) return null;
+  const row = (macroHistory?.series?.t10y3m?.observations || []).find(([date]) => date === tenYear.asOf);
+  const spread = row ? finite(row[1]) : null;
+  return spread == null ? null : { id: 'dgs3mo', label: '3개월', years: 0.25, value: Math.round((tenYear.value - spread) * 100) / 100, day: null, week: null, asOf: tenYear.asOf, derived: true };
+}
 
 export const FX_SERIES = Object.freeze([
   Object.freeze({ id: 'dxy', label: '달러 인덱스 (DXY)', digits: 2, unit: '' }),
@@ -102,8 +133,8 @@ function fxCard(history, basis, spec) {
   const series = buildCloseSeries(history, spec.id, { through: basis });
   if (!series.length) return { ...spec, available: false, series: [] };
   const last = series[series.length - 1];
-  const prior = series.length > 1 ? series[series.length - 2] : null;
-  const back20 = series.length > 20 ? series[series.length - 21] : null;
+  const prior = sessionPointBack(series, 1);
+  const back20 = sessionPointBack(series, 20);
   const change20 = back20 ? (last.value / back20.value - 1) * 100 : null;
   return {
     ...spec,
@@ -117,8 +148,14 @@ function fxCard(history, basis, spec) {
   };
 }
 
-export function buildRatesFx({ macro = null, history = [] } = {}) {
+export function buildRatesFx({ macro = null, history = [], macroHistory = null } = {}) {
   const m = macro && typeof macro === 'object' ? macro : {};
+  const curve = treasury(m);
+  const threeMonth = derivedThreeMonth(macroHistory, curve.yields.find((row) => row.id === 'dgs10'));
+  if (threeMonth) {
+    curve.yields = [threeMonth, ...curve.yields];
+    curve.fact = `${curve.fact} 3개월물은 같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값입니다.`;
+  }
   const basis = closeBasis(history);
   const fx = FX_SERIES.map((spec) => fxCard(history, basis, spec));
   const yen = fx.find((card) => card.id === 'usdjpy');
@@ -148,7 +185,7 @@ export function buildRatesFx({ macro = null, history = [] } = {}) {
   }
   return {
     basis,
-    treasury: treasury(m),
+    treasury: curve,
     real,
     credit: fredLevel(m, 'hyOAS', '하이일드 스프레드', { toBp: true, note: '투기등급 회사채가 국채보다 더 받는 금리입니다. 넓어질수록 신용 위험을 크게 봅니다.' }),
     tnx,

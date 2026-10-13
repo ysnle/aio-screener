@@ -4,6 +4,7 @@
 // Pure: every input is the published screener row, the SPY row of the same artifact, the sector /
 // theme rotation items and the market regime. A missing input drops its sentence; nothing is guessed.
 import { withTopicParticle } from '../content/korean-particle.js';
+import { EXTENSION_BANDS, extensionStateFor } from '../screener/setup-profile.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 // 은/는 by the final Hangul syllable of the label (the ticker in parentheses is not read).
@@ -46,7 +47,7 @@ function trendOf(row) {
   return { id: 'down', tone: 'burden', label: '하락 추세', text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 아래 — 단기·장기 추세가 모두 아래쪽입니다` };
 }
 
-export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], regime = null, universeSize = null } = {}) {
+export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], regime = null, universeSize = null, sessionLag = null } = {}) {
   if (!row) return { available: false, reason: `${withTopicParticle(symbol || '이 종목')} 스크리너 유니버스 밖이라 추세·상대강도 기록이 없습니다. 차트 탭의 일봉과 재무 공시는 그대로 볼 수 있습니다.` };
   const name = row.name || symbol;
   const points = [];
@@ -79,23 +80,30 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // here would be. Volatile names run further, so the raw % alone overstates or understates the stretch.
   const pct50 = finite(row.pctSma50);
   const adr = finite(row.adrPct);
+  // 2026-10-13 review S09: the bands are the screener's (setup-profile EXTENSION_BANDS) — 3.8x is not "near".
   if (pct50 != null && adr != null && adr > 0) {
-    const multiple = pct50 / adr;
-    const text = multiple >= 7
-      // Codex browser audit H32: the distance is an observed fact; entry/stop wording read as a trade instruction.
-      ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 기준선에서 크게 벌어져, 50일선까지 되돌리기만 해도 지금 가격에서 ${(pct50 / (100 + pct50) * 100).toFixed(1)}% 하락하는 거리입니다.`
-      : multiple >= 4
-        ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 추세 위에 있으면서 기준선과의 거리가 꽤 벌어진 상태입니다.`
-        : multiple >= 0
-          ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 기준선 가까이에 있는 상태입니다.`
-          : `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래 — 기준선 아래에 있는 상태입니다.`;
-    points.push({ id: 'extension', tone: multiple >= 7 ? 'burden' : multiple >= 0 && multiple < 4 ? 'favorable' : 'neutral', title: '기준선 대비 거리', text });
+    const multiple = Math.round(pct50 / adr * 10) / 10;
+    const band = extensionStateFor(multiple);
+    const text = multiple < 0
+      ? `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래 — 기준선 아래에 있는 상태입니다.`
+      : band === 'stretched'
+        // Codex browser audit H32: the distance is an observed fact; entry/stop wording read as a trade instruction.
+        ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 기준선에서 크게 벌어져, 50일선까지 되돌리기만 해도 지금 가격에서 ${(pct50 / (100 + pct50) * 100).toFixed(1)}% 하락하는 거리입니다.`
+        : band === 'extended'
+          ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 추세 위에 있으면서 기준선과의 거리가 꽤 벌어진 상태입니다(${EXTENSION_BANDS.extended}배 이상).`
+          : band === 'near-base'
+            ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 기준선 가까이에 있는 상태입니다(${EXTENSION_BANDS.nearBase}배 이하).`
+            : `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭의 ${multiple.toFixed(1)}배 — 기준선 가까이(${EXTENSION_BANDS.nearBase}배 이하)와 확장(${EXTENSION_BANDS.extended}배 이상) 사이입니다.`;
+    points.push({ id: 'extension', tone: band === 'stretched' ? 'burden' : band === 'near-base' || multiple < 0 ? 'favorable' : 'neutral', title: '기준선 대비 거리', text });
   }
 
-  const rsi = finite(row.rsi);
+  // 2026-10-13 review S02: 69.9 printed as "RSI 70" next to "not overheated". The value is shown to one decimal
+  // (the screener's digits) and judged on that same number.
+  const rsi = finite(row.rsi) == null ? null : Math.round(finite(row.rsi) * 10) / 10;
   if (rsi != null) {
+    const shown = rsi.toFixed(1);
     points.push({ id: 'rsi', tone: rsi >= 70 || rsi <= 30 ? 'neutral' : 'favorable', title: '단기 과열',
-      text: rsi >= 70 ? `RSI ${rsi.toFixed(0)} — 과열권이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= 30 ? `RSI ${rsi.toFixed(0)} — 과매도권이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : `RSI ${rsi.toFixed(0)} — 과열도 과매도도 아닌 구간입니다.` });
+      text: rsi >= 70 ? `RSI ${shown} — 과열권(70 이상)이라 추세가 강해도 쉬어 가기 쉬운 자리입니다.` : rsi <= 30 ? `RSI ${shown} — 과매도권(30 이하)이라 반등 시도가 나오기 쉬운 자리이지만 추세 확인이 먼저입니다.` : rsi >= 65 ? `RSI ${shown} — 과열 기준(70) 바로 아래 구간입니다.` : rsi <= 35 ? `RSI ${shown} — 과매도 기준(30) 바로 위 구간입니다.` : `RSI ${shown} — 과열도 과매도도 아닌 구간입니다.` });
   }
 
   // P1447: US sector ETFs describe US sectors; a KRX listing is not read against them.
@@ -128,7 +136,10 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const rank = finite(row.screenRank);
   const ranking = rank != null && finite(universeSize) ? { rank, of: universeSize, topPct: Math.max(1, Math.round(rank / universeSize * 100)) } : null;
   const relative3 = spans.find((span) => span.key === 'ret3m');
+  // 2026-10-13 review S07: a factor file older than the market's latest completed session says so in the headline.
+  const lagSessions = finite(sessionLag?.sessions);
   const headline = [
+    lagSessions != null && lagSessions > 0 ? `${lagSessions}거래일 전 종가 기준${sessionLag?.session ? `(${Number(String(sessionLag.session).slice(5, 7))}/${Number(String(sessionLag.session).slice(8, 10))})` : ''}` : null,
     trend ? trend.label : null,
     position != null ? `52주 범위 ${Math.round(position * 100)}% 지점` : null,
     relative3?.gap != null ? `3개월 지수 대비 ${signed(relative3.gap, 1, '%p')}` : null,
@@ -139,5 +150,5 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마 · ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
   const sectorName = sector?.label || row.sector || '';
   next.push({ route: 'screener', label: '스크리너', why: `같은 섹터(${sectorName || '—'})에서 상대 순위가 높은 종목과 비교`, ctx: sectorName ? { q: sectorName, ticker: symbol } : { ticker: symbol } });
-  return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, benchmarkLabel: benchmark?.label || 'S&P 500' };
+  return { available: true, symbol, name, headline, points, position, high, spans, sector, themes: themed, ranking, next, benchmarkLabel: benchmark?.label || 'S&P 500', sessionLag: lagSessions != null && lagSessions > 0 ? lagSessions : null };
 }

@@ -3,6 +3,9 @@
 // input that carried most of the old score's signal); outcomes are the S&P 500's forward price returns.
 // Pure function shared by the producer (scripts/build-stress-outcomes.mjs) and the regression fixture.
 
+// T14 (expert review 2026-10-13, coordinator decision): these producer bands (15/20/25/30/40) stay as published so the
+// artifact and its history keep one definition; they are outcome buckets, not RULES.volatility (18/25/32) judgement edges,
+// and the screen says so in one line.
 export const STRESS_BANDS = Object.freeze([
   Object.freeze({ id: 'calm', label: 'VIX 15 미만', min: -Infinity, max: 15 }),
   Object.freeze({ id: 'normal', label: '15~20', min: 15, max: 20 }),

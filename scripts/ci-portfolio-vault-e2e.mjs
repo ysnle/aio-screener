@@ -495,8 +495,8 @@ async function main() {
     });
     const cres = [
       ['currencyNote', rendered.currencyNote.includes('통화 USD')],
-      ['twr-in-ledger-panel', /실제 계좌 성과 TWR \+10\.00%/.test(rendered.ledgerHtml)],
-      ['mwr-in-ledger-panel', /MWR \+8\.\d\d%/.test(rendered.ledgerHtml)],
+      ['twr-in-ledger-panel', /실제 계좌 성과 TWR\(기간 누적\) \+10\.00%/.test(rendered.ledgerHtml)],
+      ['mwr-in-ledger-panel', /MWR\(연율\) \+8\.\d\d%/.test(rendered.ledgerHtml)], // P1684: units named (TWR period-cumulative, MWR annualized)
       ['period-in-ledger-panel', /USD · end-of-period · \d+기간/.test(rendered.ledgerHtml)],
       ['no-price-claim', /시세 이력.*무관하게/.test(rendered.ledgerHtml)],
       ['pointer-in-risk-panel', /원장 성과 요약/.test(rendered.riskHtml)],
@@ -537,7 +537,7 @@ async function main() {
     check('PFE2-18 strategy_path_and_currency_holds_render (P1193/P1181)',
       /고정 목표비중 전략/.test(declaredStates.strategyHtml)
       && /목표 AAA 50\.0%\/BBB 50\.0%/.test(declaredStates.strategyHtml)
-      && /invested_sleeve\(주식 부분\)/.test(declaredStates.strategyHtml)
+      && /분모 주식 부분/.test(declaredStates.strategyHtml) && /data-risk-scope="invested_sleeve"/.test(declaredStates.strategyHtml) // P1684: Korean line; codes in data-* and the folded identifiers
       && /전략 경로의 계좌 범위 미선언/.test(declaredStates.strategyHtml)
       && declaredStates.declaredPath === 'current_composition_retrospective'
       && declaredStates.mixedNote.includes('통화 혼합')

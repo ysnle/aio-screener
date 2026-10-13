@@ -47,7 +47,7 @@ export function fearGreedBand(value) {
 }
 
 export function buildSentimentModel({ history = [], credit = {}, rates = {}, snapshot = {}, macroHistory = null } = {}) {
-  const { basis, c, alignments, fgSeries: fgAll } = alignMarketInputs({ history, credit, rates });
+  const { basis, c, alignments, fgSeries: fgAll } = alignMarketInputs({ history, credit, rates, macroHistory }); // T05: macroHistory gives the 20-session HY change
   const fgSeries = fgAll.slice(-126);
   const vix = buildCloseSeries(history, 'vix', { through: basis });
   const vix3m = new Map(buildCloseSeries(history, 'vix3m', { through: basis }).map((point) => [point.date, point.value]));
@@ -64,7 +64,8 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   };
   const fg = c.fg;
   const ratio = isUsable(ratioAlign) ? shown.ratio : null;
-  const { hyBp, hy5, pcr } = c;
+  const { hyBp, hy5, hy20, pcr } = c;
+  const hyWide20 = hy20 != null && hy20 >= RULES.credit.widen20dBp;
   const bear = isUsable(aaiiAlign) ? shown.bear : null;
   const bull = bear == null ? null : shown.bull;
   const judged = (value, state) => value == null ? (state === undefined ? null : EXCLUDED) : state;
@@ -83,11 +84,12 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       note: '1 미만이면 단기 공포가 중기보다 작은 정상 상태, 1을 넘으면 당장의 충격을 크게 반영하는 역전' },
     { id: 'hy', title: 'HY 신용 스프레드', value: shown.hyBp == null ? '—' : `${Math.round(shown.hyBp)}bp`, basis: alignmentLabel(alignments.hy), basisStatus: alignments.hy.status,
       // Same bands as the 시장 상태 credit axis (P1392): < 350bp calm, 350-450 watch, >= 450 stress.
-      state: shown.hyBp == null ? null : judged(hyBp, hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp) ? { label: '신용 스트레스', tone: 'burden' } : hyBp >= RULES.credit.tightBelowBp ? { label: '경계', tone: 'neutral' } : { label: '안정', tone: 'favorable' }),
-      change: shown.hy5 == null ? '' : `5일 ${shown.hy5 >= 0 ? '+' : ''}${Math.round(shown.hy5)}bp`, note: '고위험 회사채가 국채보다 더 받는 금리 — 돈을 빌리기 어려워질수록 커짐 · 350bp 이상 경계, 450bp 이상 스트레스' },
+      state: shown.hyBp == null ? null : judged(hyBp, hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp) ? { label: '신용 스트레스', tone: 'burden' } : hyBp >= RULES.credit.tightBelowBp || hyWide20 ? { label: '경계', tone: 'neutral' } : { label: '안정', tone: 'favorable' }),
+      change: [shown.hy5 == null ? null : `5일 ${shown.hy5 >= 0 ? '+' : ''}${Math.round(shown.hy5)}bp`, hy20 == null ? null : `20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp`].filter(Boolean).join(' · '), note: `고위험 회사채가 국채보다 더 받는 금리 — 돈을 빌리기 어려워질수록 커짐 · ${RULES.credit.tightBelowBp}bp 이상 또는 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대면 경계, ${RULES.credit.stressAtBp}bp 이상 스트레스` },
     { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status,
-      state: shown.pcr == null ? null : judged(pcr, pcr > 1 ? { label: '헤지 수요 높음', tone: 'burden' } : pcr < 0.7 ? { label: '낙관 (콜 우위)', tone: 'favorable' } : { label: '중립', tone: 'neutral' }),
-      change: '', note: 'CBOE 전체 기준 — 하락에 대비하는 풋옵션 거래가 콜옵션보다 얼마나 많은지 — 높을수록 방어적' },
+      // T10: the card reads the same RULES edges as the credit axis (1.1 hedging, below 0.7 optimism).
+      state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '헤지 수요 높음', tone: 'burden' } : pcr < RULES.credit.putCallOptimismBelow ? { label: '낙관 (콜 우위)', tone: 'favorable' } : { label: '중립', tone: 'neutral' }),
+      change: '', source: 'CBOE 전체 옵션 풋/콜 비율', note: `미국 상장 옵션 전체에서 하락에 대비하는 풋옵션 거래가 콜옵션보다 얼마나 많은지 — 높을수록 방어적 · ${RULES.credit.putCallHedgeAt} 이상 헤지 수요 높음, ${RULES.credit.putCallOptimismBelow} 미만 낙관` },
     { id: 'aaii', title: 'AAII 개인 설문', value: shown.bear == null ? '—' : `약세 ${shown.bear.toFixed(1)}%`, basis: credit.aaiiAsOf ? `${alignmentLabel(aaiiAlign)} 주간` : '미수신', basisStatus: isUsable(aaiiAlign) ? 'aligned' : aaiiAlign.status,
       state: shown.bear == null ? null : judged(bear, bear >= 45 ? { label: '비관 강함', tone: 'burden' } : bull != null && bull >= 50 ? { label: '낙관 강함', tone: 'favorable' } : { label: '보통', tone: 'neutral' }),
       change: shown.bull == null ? '' : `강세 ${shown.bull.toFixed(1)}% · 장기 평균 강세 ${AAII_AVERAGE.bull}% / 약세 ${AAII_AVERAGE.bear}%`,
@@ -108,10 +110,10 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   const fearful = fgFear || aaiiFear;
   // P1428: greed needs a measured put/call; a missing one is '미확인', never 'low hedging'.
   const greedy = fg != null && fg > RULES.fearGreed.extremeGreedAbove;
-  const hedgeLow = pcr != null && pcr < 0.7;
+  const hedgeLow = pcr != null && pcr < RULES.credit.putCallOptimismBelow;
   const creditKnown = hyBp != null;
   // P1428: the same credit bands as 시장 상태 (the summary used 350bp / +15bp beside cards using 450bp / +25bp).
-  const creditCalm = creditKnown && hyBp < RULES.credit.tightBelowBp && (hy5 == null || hy5 < RULES.credit.widen5dBp);
+  const creditCalm = creditKnown && hyBp < RULES.credit.tightBelowBp && (hy5 == null || hy5 < RULES.credit.widen5dBp) && !hyWide20;
   const creditStress = creditKnown && (hyBp >= RULES.credit.stressAtBp || (hy5 != null && hy5 >= RULES.credit.widen5dBp));
   const volKnown = ratio != null;
   const volCalm = volKnown && ratio < 1;
@@ -122,7 +124,8 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   if (!moodKnown) synthesis = '기준일에 맞는 심리 지표(F&G·AAII)가 없어 종합 판단을 보류합니다.';
   else if (fearful && creditCalm && volCalm) synthesis = `${fearSource}는 비관 쪽인데 신용(${Math.round(hyBp)}bp)과 변동성 구조(${ratio.toFixed(2)})는 안정 — 비관이 심리 지표에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.${otherMood}`;
   else if (fearful && (creditStress || (volKnown && !volCalm))) synthesis = `${fearSource}의 비관과 함께 ${[creditStress ? `신용 스프레드(${Math.round(hyBp)}bp${hy5 != null ? `, 5일 ${hy5 >= 0 ? '+' : ''}${Math.round(hy5)}bp` : ''})도 경계 구간` : null, volKnown && !volCalm ? `변동성 구조도 역전(${ratio.toFixed(2)})` : null].filter(Boolean).join(', ')} — 위험 회피가 심리 지표를 넘어 퍼지고 있습니다.${otherMood}`;
-  else if (fearful) synthesis = `${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.${otherMood}`;
+  else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 경계 구간입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.${otherMood}`;
+  else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.${otherMood}`;
   else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 헤지 수요가 낮음(풋/콜 ${pcr.toFixed(2)}) — 충격에 대비가 얇은 배치입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 헤지 수요는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 헤지 수요가 낮지는 않습니다`}.`;
   else synthesis = `심리 지표(${parts})가 한쪽으로 치우치지 않은 상태입니다.`;
   const mixed = cards.filter((card) => card.value !== '—' && card.basisStatus !== 'aligned').map((card) => card.title);
@@ -159,7 +162,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   set('sentiment-synthesis', model.synthesis);
   set('sentiment-aaii-note', model.aaiiNote || '');
   // P1431: tie the synthesis back to the 시장 상태 axes that use the same numbers.
-  const flow = sentimentFlow({ model, regime: buildMarketRegime(inputs) });
+  const flow = sentimentFlow({ model, regime: buildMarketRegime({ ...inputs, macroHistory: root._aioMacroHistory || null }) });
   set('sentiment-bridge', flow.bridge);
   renderNextSteps(doc, doc.getElementById('sentiment-next'), flow.next);
   // Charted cards share one row and the value-only cards another, so card heights match.
@@ -181,6 +184,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       if (card.change) box.append(el(doc, 'div', card.change, 'trend-card-change'));
       if (card.series) box.append(createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
       box.append(el(doc, 'p', card.note, 'trend-card-note'));
+      if (card.source) box.title = card.source; // T22: provider names in the hover
       const fold = deepDiveFold(doc, root, card.title.replace(/ \(.*\)$/, ''), SENTIMENT_DEEP_DIVES[card.id]); // P1660
       if (fold) box.append(fold);
       return box;

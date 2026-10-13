@@ -142,8 +142,11 @@ if (exists('public-data/telegram-digest.json')) {
     const produced = Object.entries(digest.topicCounts || {}).filter(([, count]) => Number(count) > 0).map(([topic]) => topic);
     const missing = produced.filter((topic) => topic !== 'media-only' && !telegramConsumedTags.has(topic));
     check('produced Telegram digest topics are consumed by at least one page', missing.length === 0, missing.join(', '));
-    if (Array.isArray(digest.observedItems)) {
-      check('public Telegram digest count matches observed whole-window lineage', digest.count === digest.observedItems.length, `count=${digest.count}, observed=${digest.observedItems.length}`);
+    // P1683: the lineage rows live in telegram-observed.json once the producer has split them out.
+    const lineage = Array.isArray(digest.observedItems) ? digest.observedItems : (exists('public-data/telegram-observed.json') ? JSON.parse(read('public-data/telegram-observed.json')).observedItems : null);
+    if (!Array.isArray(digest.observedItems)) check('P1683 a digest without lineage rows names its lineage artifact', digest.observedLineageArtifact === 'public-data/telegram-observed.json' && Array.isArray(lineage));
+    if (Array.isArray(lineage)) {
+      check('public Telegram digest count matches observed whole-window lineage', digest.count === lineage.length, `count=${digest.count}, observed=${lineage.length}`);
       check('public Telegram digest reports capped-payload coverage funnel', digest.coverage && digest.coverage.observedCount === digest.count && Number.isFinite(digest.coverage.selectedRawCoveragePct));
     }
   } catch (error) {
@@ -722,7 +725,7 @@ check('headless tests exercise the final human UX state contracts', /_testV5290H
 // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) structural gates
 check('EF-13: FOMC decision-header footnote prefixes the registry eventDate on every consuming page (previously date-less outside macro calendar table)', /_fomcFoot\.eventDate\s*\?\s*_fomcFoot\.eventDate\s*\+/.test(core) && /_fomcAsOfAge/.test(core));
 check('EF-13: FOMC footnote auto-badges past 21 days and collapses past 30 days instead of asserting a dateless "today" frame forever', /_fomcAsOfAge\s*>\s*21/.test(core) && /_fomcTooStale/.test(core));
-check('EF-04: briefing date-line is a named, mockable-`now` renderer instead of an unconditional new Date() write', /window\._aioRenderBriefingDateLine\s*=\s*function\(nowOverride\)/.test(html) && /isPreCutoff/.test(html));
+check('EF-04: briefing date-line is a named, mockable-`now` renderer instead of an unconditional new Date() write', /window\._aioRenderBriefingDateLine\s*=\s*function\(nowOverride(?:, closeDate)?\)/.test(html) && /_aioRenderBriefingDateLine\?\.\(undefined, closeBasis\(/.test(read('src/ui/pages/news.js')) && /isPreCutoff/.test(html));
 check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called from both the Chart.js-independent snapshot path and updateBreadthBars, not duplicated', !/_aioSyncBreadth50Readout/.test(core + ui + data)); // P1672: readout/bar sinks retired (P1395)
 check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', !/_aioRenderBreadthConsensus/.test(core)); // P1672: badge sinks retired (P1395)
 check('EF-02b: home market-pulse breadth strip uses NARRATIVE_ENGINE.getBreadthRegime instead of an independent 60/30 threshold', /NARRATIVE_ENGINE\.getBreadthRegime\(bVal\)/.test(pagesSource));

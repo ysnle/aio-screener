@@ -11,7 +11,7 @@ import { alignInput, alignmentLabel, buildCloseSeries, closeBasis } from '../../
 import { buildMacroRead, seriesOf } from '../../domain/macro/macro-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { buildMacroBoard } from '../../domain/macro/indicators.js';
-import { buildRatesFx, signed } from '../../domain/macro/rates-fx.js';
+import { buildRatesFx, sessionPointBack, signed } from '../../domain/macro/rates-fx.js';
 import { createTrendChart } from './trend-chart.js';
 import { buildLiquidityGrowthGroups } from '../../domain/macro/liquidity-growth.js';
 import { AXIS_DEEP_DIVES, MACRO_AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
@@ -42,7 +42,7 @@ const DIRECTION_TITLE = '최근 3개월 평균을 6개월 전 3개월 평균과 
 
 // A 24-month sparkline for an indicator card: the line, its last point and the range labels.
 // A minimum vertical span keeps a near-flat series flat instead of stretching rounding noise to full height.
-function sparkline(doc, series, { unitLabel = '', minSpan = null } = {}) {
+function sparkline(doc, series, { unitLabel = '', minSpan = null, format = null } = {}) {
   const W = 220;
   const H = 54;
   const svg = doc.createElementNS(SVG, 'svg');
@@ -78,9 +78,11 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null } = {}) {
   // observations is one year, not "260개월" — the declared frequency of the series decides the
   // unit, and it is preserved (R570) because the aria label is part of the observation record.
   const spanDays = Math.round((Date.parse(series[series.length - 1].date) - Date.parse(series[0].date)) / 86400000);
-  const cadence = series.length >= 2 && spanDays / (series.length - 1) > 20 ? '월별' : '일별';
-  const spanLabel = cadence === '월별' ? `${Math.min(Math.round(spanDays / 30.4), 999)}개월` : `${Math.min(Math.round(spanDays / 30.4), 999)}개월(일별 관측 ${series.length}개)`;
-  svg.setAttribute('aria-label', `최근 ${spanLabel} 추이 ${first}~${last}, 범위 ${signedNumber(rawLo, 1)}~${signedNumber(rawHi, 1)}${unitLabel}`);
+  const gap = series.length >= 2 ? spanDays / (series.length - 1) : 1;
+  const cadence = gap > 20 ? '월별' : gap > 5 ? '주별' : '일별'; // weekly series (순유동성 · 금융여건) were labelled 일별
+  const spanLabel = cadence === '월별' ? `${Math.min(Math.round(spanDays / 30.4), 999)}개월` : `${Math.min(Math.round(spanDays / 30.4), 999)}개월(${cadence} 관측 ${series.length}개)`;
+  const ends = format ? `${format(rawLo)}~${format(rawHi)}` : `${signedNumber(rawLo, 1)}~${signedNumber(rawHi, 1)}${unitLabel}`;
+  svg.setAttribute('aria-label', `최근 ${spanLabel} 추이 ${first}~${last}, 범위 ${ends}`);
   return svg;
 }
 
@@ -93,7 +95,7 @@ function splitMeta(meta) {
   for (const part of parts) (SOURCE_TOKEN.test(part.trim()) ? sources : shown).push(part);
   return { shown: shown.join(' · '), sources };
 }
-function statCard(doc, { label, valueText, lines = [], meta, note, status, series = null, direction = null, unit = null }) {
+function statCard(doc, { label, valueText, lines = [], meta, note, status, series = null, direction = null, unit = null, format = null, staleText = null }) {
   const card = el(doc, 'article', null, `macro-stat${status === 'missing' ? ' is-missing' : ''}`);
   const { shown: metaShown, sources: metaSources } = splitMeta(meta);
   if (metaSources.length) card.title = `출처: ${metaSources.join(' · ')}`;
@@ -103,15 +105,16 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   card.append(head, el(doc, 'div', valueText, 'macro-stat-value'));
   lines.filter(Boolean).forEach((line) => card.append(el(doc, 'div', line, 'macro-stat-line')));
   if (series && series.length >= 6) {
-    card.append(sparkline(doc, series, { minSpan: unit === '%' ? 1 : null }));
+    card.append(sparkline(doc, series, { minSpan: unit === '%' ? 1 : null, format }));
     // P1599 (A05): the period's high and low in words under the line, so the shape has a scale (inside the SVG
     // the labels scaled with wide cards and collided with the date ticks).
     const values = series.map((row) => row.value).filter(Number.isFinite);
-    const fmtRange = (value) => signedNumber(value, Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 10 ? 1 : 2);
-    const suffix = unit || '';
+    // Expert review M16: the range uses the value's own format, so "5.86조 달러" is not ranged as "5987 · 5596".
+    const fmtRange = format || ((value) => `${signedNumber(value, Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 10 ? 1 : 2)}${unit || ''}`);
+    const suffix = '';
     card.append(el(doc, 'p', `기간 고점 ${fmtRange(Math.max(...values))}${suffix} · 저점 ${fmtRange(Math.min(...values))}${suffix}`, 'macro-spark-range'));
   }
-  if (status === 'stale') card.append(el(doc, 'span', '이번 수집 실패 · 직전 발표값', 'basis-chip is-off'));
+  if (status === 'stale') card.append(el(doc, 'span', staleText || '이번 수집 실패 · 직전 발표값', 'basis-chip is-off'));
   if (metaShown) card.append(el(doc, 'div', metaShown, 'macro-stat-meta'));
   if (note) card.append(el(doc, 'p', note, 'macro-stat-note'));
   return card;
@@ -184,6 +187,7 @@ function axisCard(doc, row, root = null) {
     if (band && row.state !== 'unknown' && band.tone !== row.state) card.append(el(doc, 'p', `막대는 ${TONE_WORD[band.tone]} 구간이지만 다른 조건 때문에 ${row.stateLabel}입니다 — 아래 판정 기준 참고.`, 'macro-gauge-note'));
   }
   card.append(el(doc, 'p', row.read, 'regime-read'));
+  if (row.caveat) card.append(el(doc, 'p', row.caveat, 'macro-gauge-note')); // M06: Brent against the WTI-only reading
   // P1660: the fold teaches first (principle · reading · links), then today's numbers, the equity link and the rule.
   const extra = [];
   if (row.shared) extra.push(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
@@ -296,9 +300,13 @@ function renderRegime(doc, read) {
   const r = read.regime;
   const left = el(doc, 'div', null, 'macro-overview-map');
   left.append(quadrantChart(doc, r));
+  // Expert review M12: which month each input describes, and a direction decided near its cut is called 근소.
+  const nearText = [r.near?.growth ? `성장 방향은 근소 — ${r.near.growth}` : null, r.near?.inflation ? `물가 방향은 근소 — ${r.near.inflation}` : null].filter(Boolean).join(' · ');
+  if (r.available && (r.timing || nearText)) left.append(el(doc, 'p', [r.timing, nearText ? `${nearText}.` : null].filter(Boolean).join(' '), 'briefing-footnote macro-quadrant-note'));
   const right = el(doc, 'div', null, 'macro-overview-side');
   const head = el(doc, 'div', null, 'macro-regime-head');
   head.append(el(doc, 'span', r.label, `macro-regime-label is-${r.tone}`));
+  if (r.available && (r.near?.growth || r.near?.inflation)) head.append(el(doc, 'span', '경계 근소', 'basis-chip is-off'));
   if (r.available && r.provisional) head.append(el(doc, 'span', '잠정 — 월별 추세 일부 미반영', 'basis-chip is-off'));
   const counts = read.counts;
   const tally = el(doc, 'div', null, 'macro-tally');
@@ -329,15 +337,15 @@ function renderRegime(doc, read) {
   host.replaceChildren(grid);
 }
 
-function renderCommodities(doc, root) {
+function renderCommodities(doc, root, oil = null) {
   const grid = doc.getElementById('macro-commodities');
   if (!grid) return;
   const history = root._aioHistory || [];
   const basis = closeBasis(history);
-  const card = (field, title, digits, note) => {
+  const card = (field, title, digits, note, extra = null) => {
     const series = buildCloseSeries(history, field, { through: basis });
     const last = series[series.length - 1] || null;
-    const back = (n) => series.length > n ? series[series.length - 1 - n].value : null;
+    const back = (n) => sessionPointBack(series, n)?.value ?? null; // M01: n exchange sessions, not n rows
     const year = series.filter((row) => Date.parse(row.date) >= Date.parse(last?.date || 0) - 365 * 86400000).map((row) => row.value);
     const pos = year.length > 20 ? (last.value - Math.min(...year)) / ((Math.max(...year) - Math.min(...year)) || 1) * 100 : null;
     const chg = (n) => back(n) ? (last.value / back(n) - 1) * 100 : null;
@@ -350,15 +358,40 @@ function renderCommodities(doc, root) {
       const tags = el(doc, 'div', null, 'trend-card-tags');
       tags.append(el(doc, 'span', `${alignmentLabel(alignInput(last.date, basis))} 종가`, `basis-chip${alignInput(last.date, basis).status === 'aligned' ? '' : ' is-off'}`));
       box.append(tags, el(doc, 'div', `20일 ${signed(chg(20), 1, '%')} · 3개월 ${signed(chg(63), 1, '%')}${pos == null ? '' : ` · 1년 범위의 ${pos.toFixed(0)}% 위치`}`, 'trend-card-change'));
+      if (extra) box.append(el(doc, 'div', extra, 'trend-card-change'));
     }
     box.append(createTrendChart(doc, { series: series.slice(-252), format: (value) => `${value.toFixed(0)}달러`, label: title }));
     box.append(el(doc, 'p', note, 'trend-card-note'));
     return box;
   };
   grid.replaceChildren(
-    card('wti', 'WTI 원유', 2, '유가는 휘발유·운송비를 거쳐 물가(에너지는 CPI의 약 7%)와 소비 여력을 움직입니다. 빠르게 오르면 기대인플레이션과 금리를 밀어 올리고, 에너지주에는 유리하지만 항공·운송·소비재에는 비용 부담입니다. 시장 상태에서는 1년 범위 85% 이상이나 20일 +10% 이상을 부담으로 봅니다.'),
+    card('wti', 'WTI 원유', 2, `유가는 휘발유·운송비를 거쳐 물가(에너지는 CPI의 약 7%)와 소비 여력을 움직입니다. 빠르게 오르면 기대인플레이션과 금리를 밀어 올리고, 에너지주에는 유리하지만 항공·운송·소비재에는 비용 부담입니다. 시장 상태에서는 1년 범위 85% 이상이나 20일 +10% 이상을 부담으로 봅니다.`, oil?.sentence || null),
     card('gold', '금', 0, '금은 이자가 없는 자산이라 보통 실질금리가 오르면 약해집니다. 실질금리가 높은데도 금이 오르면 중앙은행 매입·위험 회피·달러 약세 같은 다른 수요가 작용했을 수 있습니다. 어느 쪽인지는 이 화면만으로 확정하지 않습니다.')
   );
+}
+
+// Expert review M11: the 한국 시장 fold's 1-year range and 3-month move of the won, from the completed-close history.
+function renderKoreaWon(doc, root) {
+  const range = doc.getElementById('kr-macro-krw-range');
+  const trend = doc.getElementById('kr-macro-krw-3m');
+  if (!range && !trend) return;
+  const history = root._aioHistory || [];
+  const series = buildCloseSeries(history, 'usdkrw', { through: closeBasis(history) });
+  const last = series[series.length - 1];
+  const won = (value) => `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}원`;
+  const set = (node, text) => { if (node) node.textContent = text; };
+  const year = last ? series.filter((row) => Date.parse(row.date) >= Date.parse(last.date) - 365 * 86400000) : [];
+  if (year.length > 20) {
+    const values = year.map((row) => row.value);
+    const lo = Math.min(...values); const hi = Math.max(...values);
+    set(range, `${won(lo)}–${won(hi)}`);
+    set(doc.getElementById('kr-macro-krw-range-note'), `${shortDate(last.date)} 종가 ${won(last.value)} · 1년 범위의 ${((last.value - lo) / ((hi - lo) || 1) * 100).toFixed(0)}% 위치`);
+  }
+  const back = last ? sessionPointBack(series, 63) : null;
+  if (back) {
+    set(trend, signed((last.value / back.value - 1) * 100, 1, '%'));
+    set(doc.getElementById('kr-macro-krw-3m-note'), `${shortDate(back.date)} ${won(back.value)} → ${shortDate(last.date)} ${won(last.value)} · 오르면 원화 약세`);
+  }
 }
 
 export function renderMacroBoard({ documentRef: doc, root }) {
@@ -384,22 +417,25 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     return section;
   }));
   // P1654: liquidity, growth-lead and commodity/Asia-FX groups from the extended FRED lane (hidden until produced).
-  for (const group of buildLiquidityGrowthGroups(macroHistory)) {
+  for (const group of buildLiquidityGrowthGroups(macroHistory, { macro: root._aioServerMacro || null, history: root._aioHistory || [] })) {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = group.id;
     const grid = el(doc, 'div', null, 'macro-stat-grid');
-    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: `${shortDate(item.asOf)} 기준 · FRED`, note: item.reading, series: item.series, unit: item.unit })));
+    // M13/M14: the period the observation covers, and a stale chip once the cadence's normal delay has passed.
+    grid.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: `${item.period} · FRED`, note: item.reading, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연' })));
     section.append(el(doc, 'h3', group.title, 'macro-group-title'), el(doc, 'p', group.fact, 'macro-group-fact'), grid);
     const fold = deepDiveFold(doc, root, group.title, MACRO_GROUP_DEEP_DIVES[group.id]); // P1660: a teaching fold
     if (fold) section.append(fold);
     host.append(section);
   }
-  renderCommodities(doc, root);
+  renderCommodities(doc, root, read.oil);
+  renderKoreaWon(doc, root);
   host.dataset.aioMacroBoardRenderer = 'native';
   return { board, read };
 }
 
-// The Treasury par curve as five points on an ordinal tenor axis.
+// The Treasury par curve on a log-maturity axis (expert review M22: an evenly spaced axis drew 2→5 years as wide as
+// 20→30 years and bent the curve's shape).
 function curveSvg(doc, yields) {
   const points = yields.filter((row) => row.value != null);
   const W = 520;
@@ -414,7 +450,9 @@ function curveSvg(doc, yields) {
   const values = points.map((row) => row.value);
   const lo = Math.floor((Math.min(...values) - 0.1) * 10) / 10;
   const hi = Math.ceil((Math.max(...values) + 0.1) * 10) / 10;
-  const x = (index) => pad.left + (index / (yields.length - 1)) * (W - pad.left - pad.right);
+  const logs = yields.map((row) => Math.log(row.years || 1));
+  const lx0 = Math.min(...logs); const lx1 = Math.max(...logs);
+  const x = (index) => pad.left + ((logs[index] - lx0) / ((lx1 - lx0) || 1)) * (W - pad.left - pad.right);
   const y = (value) => pad.top + (1 - (value - lo) / (hi - lo)) * (H - pad.top - pad.bottom);
   const add = (tag, attrs, text) => {
     const node = doc.createElementNS(SVG, tag);
@@ -456,7 +494,7 @@ function trendCard(doc, { id, title, valueText, chip, chipOff, lines, series, fo
 export function renderRatesFxBoard({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-fxbond');
   if (!page) return null;
-  const model = buildRatesFx({ macro: root._aioServerMacro || null, history: root._aioHistory || [] });
+  const model = buildRatesFx({ macro: root._aioServerMacro || null, history: root._aioHistory || [], macroHistory: root._aioMacroHistory || null });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   const t = model.treasury;
   // P1426: the equity-impact axes for this tab — policy from the 거시 read, the rest shared with 시장 상태.
@@ -478,6 +516,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   if (yieldRow) {
     yieldRow.replaceChildren(...t.yields.map((row) => {
       const cell = el(doc, 'div', null, 'rates-yield');
+      if (row.derived) cell.title = '같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값';
       cell.append(el(doc, 'span', row.label, 'rates-yield-label'), el(doc, 'span', row.value == null ? '—' : `${row.value.toFixed(2)}%`, 'rates-yield-value'));
       const changes = [row.day == null ? null : `1일 ${signed(row.day * 100, 0, 'bp')}`, row.week == null ? null : `1주 ${signed(row.week * 100, 0, 'bp')}`].filter(Boolean).join(' · ');
       if (changes) cell.append(el(doc, 'span', changes, 'rates-yield-change'));
@@ -519,7 +558,8 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         note: row.note,
         status: row.value == null ? 'missing' : row.stale ? 'stale' : 'observed',
         series: daily.length >= 20 ? daily : null,
-        unit: row.id === 'hyOAS' ? null : '%'
+        unit: row.id === 'hyOAS' ? null : '%',
+        format: row.id === 'hyOAS' ? (value) => `${value.toFixed(0)}bp` : null // M16: the range keeps the bp unit
       });
     }));
     // P1469: the share of the 10-year yield that is compensation for holding duration rather than the
@@ -550,7 +590,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   const grid = doc.getElementById('rates-fx-grid');
   if (grid) {
     const tnxLast = model.tnx[model.tnx.length - 1] || null;
-    const tnxBack = model.tnx.length > 20 ? model.tnx[model.tnx.length - 21] : null;
+    const tnxBack = sessionPointBack(model.tnx, 20); // M01: 20 exchange sessions, not 20 rows
     const cards = [
       ...model.fx.map((card) => {
         const align = alignInput(card.asOf, model.basis);

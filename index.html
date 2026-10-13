@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v57.48 — 올인원 투자 터미널</title>
+  <title>AIO Screener v57.49 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=57.48" defer></script>
-<script src="./js/aio-macro-tech.js?v=57.48" defer></script>
-<script src="./js/aio-kr-data.js?v=57.48" defer></script>
-<script src="./js/aio-pages.js?v=57.48" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=57.48">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=57.48">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.48">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.48">
+<script src="./js/aio-workspace.js?v=57.49" defer></script>
+<script src="./js/aio-macro-tech.js?v=57.49" defer></script>
+<script src="./js/aio-kr-data.js?v=57.49" defer></script>
+<script src="./js/aio-pages.js?v=57.49" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=57.49">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=57.49">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=57.49">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=57.49">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -6227,7 +6227,7 @@ button[data-filter-active="true"] {
           </span>
           <span id="live-quote-ts" style="font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;">연결 중...</span>
           <!-- R1: visible release identity; market volatility stays in the market card. -->
-          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.48</span>
+          <span class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;" id="app-version-badge">v57.49</span>
           <!-- v48.43: AI 분석가 버튼 -->
           <button id="topbar-help-btn" class="aio-btn-table" data-action="showPage" data-arg="guide" title="도움말 · 화면 안내와 판정 기준">도움말</button>
           <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 도우미 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 도우미 · 교육/리서치 보조 사이드바">AI 도우미</button>
@@ -6582,19 +6582,19 @@ button[data-filter-active="true"] {
           // v52.40 (P655/EF-04): 자정~08:00 KST 구간은 "오늘 08:00 브리핑"이 아직 생성되지 않은
           // 미래 시각이다 — 가장 최근 실제 생성분(어제 08:00 기준)으로 라벨링해 미래 시각 표기를 금지한다.
           // nowOverride 인자로 테스트에서 임의 시각 주입 가능(T-테스트: 00:30 KST 시뮬레이션).
-          window._aioRenderBriefingDateLine = function(nowOverride) {
+          window._aioRenderBriefingDateLine = function(nowOverride, closeDate) {
             var el = document.getElementById('briefing-date-line');
             if (!el) return null;
-            // v52.65 아이보리 2b: 시안(comp 2b)은 "2026-07-10 (금) · 08:00 KST 기준 24시간 브리핑" —
-            // 영문 요일 약어는 터미널 클리셰(핸드오프 §1/§4)라 한국어 요일로 교체.
+            // T18 (2026-10-13): once the read is built, the title names its US close date (one date with the "M/D 미국 종가 기준" note);
+            // before that it falls back to the KST day (EF-04: never a not-yet-generated future label). 요일은 한국어.
             var days = ['일', '월', '화', '수', '목', '금', '토'];
             var base = (nowOverride instanceof Date) ? nowOverride : new Date();
             var kst = new Date(base.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-            var isPreCutoff = kst.getHours() < 8;
-            var basis = new Date(kst);
-            if (isPreCutoff) basis.setDate(basis.getDate() - 1);
+            var isPreCutoff = kst.getHours() < 8, close = /^\d{4}-\d{2}-\d{2}$/.test(String(closeDate || '')) ? new Date(closeDate + 'T12:00:00Z') : null;
+            var basis = close ? new Date(close.getUTCFullYear(), close.getUTCMonth(), close.getUTCDate()) : new Date(kst);
+            if (isPreCutoff && !close) basis.setDate(basis.getDate() - 1);
             var label = basis.getFullYear() + '-' + String(basis.getMonth() + 1).padStart(2, '0') + '-' + String(basis.getDate()).padStart(2, '0') +
-              ' (' + days[basis.getDay()] + ')'; // P1393: the briefing is close-based now; the news-window wording moved with the news list
+              ' (' + days[basis.getDay()] + ')' + (close ? ' 미국 종가 기준' : ''); // P1393: the briefing is close-based
             el.textContent = label;
             return { label: label, isPreCutoff: isPreCutoff, basisDate: basis };
           };
@@ -7271,7 +7271,7 @@ button[data-filter-active="true"] {
 
   <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-macro) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
   <details class="aio-page-advanced-toggle" id="kr-integrated-macro" style="margin-top:16px;">
-    <summary>한국 시장 — 핵심 지수 · 한국 매크로 (KOSPI/KOSDAQ · BOK 기준금리 · 물가 · 경기 · 환율 · 수출입)</summary>
+    <summary>한국 시장 — 핵심 지수 · 한국 매크로 (KOSPI/KOSDAQ · BOK 기준금리 · 물가 · 경기 · 환율)</summary>
     <div class="aio-page-advanced-body">
 
     <!-- ═══ v53.7 (P725): 핵심 지수 카드 — 구 kr-home 섹션 1 이관 (P636/P721 KR 전일종가·변화폭 계약 sink 보존) ═══ -->
@@ -7301,7 +7301,6 @@ button[data-filter-active="true"] {
         <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--text-muted)" title="VKOSPI(한국 변동성지수) — Naver 비공식 릴레이(공식 KRX/Koscom 승인 전 참고용) · 실시간 수신 성공 시 표시">—</div>
         <div class="kr-idx-chg" style="color:var(--text-muted)">현재 원천 수신 대기</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">변동성 지수 (KRX 공포지수 · 비공식 릴레이)</div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">15~20: 정상 · 30 이상: 극단적 공포</div>
       </div>
     </div>
     </div><!-- /aio-section 핵심지수 -->
@@ -7312,7 +7311,7 @@ button[data-filter-active="true"] {
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div style="font-size:15px;font-weight:800;">한국 매크로 <span class="kr-badge">BOK</span></div>
-        <div class="page-subtitle">기준금리 · 물가 · 경기 · 환율 · 수출입 · 부동산</div>
+        <div class="page-subtitle">기준금리 · 물가 · 경기 · 환율</div>
       </div>
       <div class="page-actions">
       </div>
@@ -7386,18 +7385,18 @@ button[data-filter-active="true"] {
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 환율</div>
-          <div id="kr-macro-krw" style="font-size:26px;font-weight:800;color:var(--red);font-family:var(--font-mono);margin-bottom:4px;" data-snap="krw-full">—</div>
+          <div id="kr-macro-krw" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="krw-full">—</div>
           <div class="kr-idx-chg" data-live-kr-change="KRW=X" style="font-size:11px;color:var(--text-muted);">—</div>
         </div>
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">1년 범위</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">현재 1년 OHLC 원천 미연결</div>
+          <div id="kr-macro-krw-range" style="font-size:18px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">—</div>
+          <div id="kr-macro-krw-range-note" style="font-size:11px;color:var(--text-muted);">종가 기록 대기</div>
         </div>
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">3개월 추이</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">현재 3개월 OHLC 원천 미연결</div>
+          <div id="kr-macro-krw-3m" style="font-size:18px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">—</div>
+          <div id="kr-macro-krw-3m-note" style="font-size:11px;color:var(--text-muted);">종가 기록 대기</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
@@ -7430,70 +7429,16 @@ button[data-filter-active="true"] {
     <div class="aio-section-hd"><span class="aio-section-label">주요 채권 금리</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">주요 채권 금리</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">미국 10년물</div>
           <div id="kr-macro-us10y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="tnx">—</div>
           <div style="font-size:11px;color:var(--text-muted);">Fed 정책 금리와 연관</div>
         </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">한국 3년물</div>
-          <div id="kr-macro-kr3y" style="font-size:26px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-          <div id="kr-macro-kr3y-source" style="font-size:11px;color:var(--text-muted);">현재 금리 원천 미수신</div>
-        </div>
       </div>
     </div>
 
     </div><!-- /aio-section 주요채권금리 -->
-
-    <!-- ═══ 섹션 4: 수출입 동향 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">수출입 동향</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-      <div class="aio-widget">
-        <div class="widget-title">주요 수출 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">2026-02 아카이브 · 현재 판단 제외 · 최신 잠정치는 상단 지표 참조</span></div>
-        <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-export-2026-02" title="Archived export table. Current-use data requires refresh evidence.">
-          <tr><th>품목</th><th>2월 수출 (참고)</th><th>YoY</th></tr>
-          <tr><td>반도체</td><td style="color:var(--green);" data-snap="kr-semi-export-feb">—</td><td style="color:var(--green);">+157.9%</td></tr>
-          <tr><td>자동차</td><td style="color:var(--text-muted);">58억 USD</td><td style="color:var(--green);">+3.2%</td></tr>
-          <tr><td>디스플레이</td><td style="color:var(--text-muted);">22억 USD</td><td style="color:var(--green);">+12.8%</td></tr>
-          <tr><td>조선</td><td style="color:var(--text-muted);">24억 USD</td><td style="color:var(--green);">+18.6%</td></tr>
-          <tr><td>화학</td><td style="color:var(--text-muted);">38억 USD</td><td style="color:var(--red);">-2.8%</td></tr>
-        </table>
-        <div style="margin-top:10px;padding:8px;background:rgba(34,117,76,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-          2월 수출 674.5억$ 역대 최대 (+28.7% YoY). 반도체가 전체의 37% 차지. 3개월 연속 200억$ 돌파
-        </div>
-      </div>
-
-      <div class="aio-widget">
-        <div class="widget-title">주요 수입 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">2026-02 아카이브</span></div>
-        <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-import-2026-02">
-          <tr><th>품목</th><th>2월 수입 (참고)</th><th>YoY</th></tr>
-          <tr><td>원유</td><td style="color:var(--text-muted);">28억 USD</td><td style="color:var(--green);">+1.2%</td></tr>
-          <tr><td>가스</td><td style="color:var(--text-muted);">24억 USD</td><td style="color:var(--green);">+3.8%</td></tr>
-          <tr><td>반도체 부품</td><td style="color:var(--text-muted);">32억 USD</td><td style="color:var(--green);">+18.4%</td></tr>
-          <tr><td>광물</td><td style="color:var(--text-muted);">22억 USD</td><td style="color:var(--text-muted);">-1.6%</td></tr>
-          <tr><td>식품</td><td style="color:var(--text-muted);">15억 USD</td><td style="color:var(--red);">-3.2%</td></tr>
-        </table>
-        <div style="margin-top:10px;padding:8px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-          에너지 수입 부담은 현재 WTI <span data-live-price="CL=F">—</span>, Brent <span data-live-price="BZ=F">—</span>, 원/달러 환율을 함께 확인합니다. 고정 가격만으로 무역수지 개선을 단정하지 않습니다.
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 수출입동향 -->
-
-    <!-- ═══ 섹션 5: 부동산 & 건설 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">부동산 · 건설 시장</span></div>
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">부동산 / 건설 시장</div>
-      <div data-runtime-state="unavailable" data-operational-use="blocked" style="background:var(--surface-1);border-radius:4px;padding:12px;font-size:10px;color:var(--text-muted);">
-        주택가격·전세·미분양·PF 원천이 연결되지 않아 수치와 현재 상태 판단을 표시하지 않습니다.
-      </div>
-    </div>
-
-    </div><!-- /aio-section 부동산건설시장 -->
 
     <!-- ═══ v37.8: 한국 매크로 동적 분석 ═══ -->
     <div class="aio-section">
@@ -7509,12 +7454,6 @@ button[data-filter-active="true"] {
       <div data-runtime-state="official-reference" data-operational-use="calendar-only" style="padding:10px;color:var(--text-muted);font-size:10px;">미국·한국의 다음 정책·물가 일정은 거시경제 페이지의 공식 일정 레지스트리에서 단일 관리합니다.</div>
     </div>
 
-    <!-- ═══ 섹션 6: 한국 경기 선행지수 ═══ -->
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">경기 선행·동행·후행 지수 <span class="kr-tag">통계청</span></div>
-      <div data-runtime-state="unavailable" data-operational-use="blocked" style="padding:12px;background:var(--surface-2);border-radius:4px;font-size:10px;color:var(--text-muted);">통계청 경기종합지수 원천 미연결 · 수치와 경기 국면 판단을 보류합니다.</div>
-    </div>
-
     <!-- ═══ 섹션 7: 국제 비교 ═══ -->
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
@@ -7528,14 +7467,6 @@ button[data-filter-active="true"] {
       </div>
     </div>
     </div><!-- /aio-section 매크로환경분석 -->
-
-    <!-- 한국 반도체 구조 분석 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">한국 반도체 — 성장→지속가능성 전환</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-      <div data-runtime-state="unavailable" data-operational-use="blocked" style="font-size:10px;color:var(--text-muted);line-height:1.8;">실적·메모리 가격·외국인 지분·포지셔닝 원천을 함께 수신한 경우에만 현재 반도체 구조 판단을 생성합니다.</div>
-    </div>
-    </div><!-- /aio-section 한국반도체 -->
 
     <!-- ═══ 텔레그램 한국 매크로 최신 소식 ═══ -->
     <div class="aio-section aio-comp-secondary-feed">
@@ -7931,7 +7862,7 @@ button[data-filter-active="true"] {
         <span data-action="setRRGView" data-arg="subsectors" data-pass-el="1" class="is-interactive news-sort-btn rrg-view-pill" style="font-size:13px;padding:6px 16px;cursor:pointer;">서브섹터</span>
         <span data-action="setRRGView" data-arg="all" data-pass-el="1" class="is-interactive news-sort-btn rrg-view-pill" style="font-size:13px;padding:6px 16px;cursor:pointer;">전체</span>
       </div>
-      <span id="theme-cycle-pill" class="status-pill sp-risk-off">— 사이클 분석 중</span>
+      <span id="theme-cycle-pill" class="status-pill sp-neutral">— 사이클 분석 중</span>
     </div>
   </div>
 
@@ -7958,7 +7889,7 @@ button[data-filter-active="true"] {
     <div class="aio-section-hd"><span class="aio-section-label">섹터 ETF 퍼포먼스</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px 18px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
-        <span style="font-size:14px;font-weight:700;color:var(--text-secondary);">성과와 사분면 상태<span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="섹터 RS 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 RS (Relative Strength)</span>SPY 대비 각 섹터 ETF의 상대 강도. RS &gt;1 = 시장 초과, &lt;1 = 부진. <strong>Early-cycle</strong>: XLY/XLK 주도. <strong>Mid</strong>: XLI/XLB. <strong>Late</strong>: XLE/XLP/XLV. <strong>Recession</strong>: XLU/XLP 방어.</span></span></span>
+        <span style="font-size:14px;font-weight:700;color:var(--text-secondary);">성과와 사분면 상태<span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="섹터 RS 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 RS (Relative Strength)</span>SPY 대비 각 섹터 ETF의 상대가격. 100 = SPY와 같은 흐름, 100 위 = 최근 평균보다 SPY 대비 강함, 100 아래 = 약함. 기준인 SPY가 시가총액 가중이라 소수 대형주가 지수를 끌면 많은 섹터가 100 아래에 놓입니다. 경기 국면을 판정하지 않습니다.</span></span></span>
         <div style="display:flex;gap:4px;">
           <div style="display:flex;gap:3px;" id="sector-perf-view-tabs">
             <button class="news-sort-btn active" data-action="setSectorPerfView" data-arg="sectors" data-pass-el="1">11섹터</button>
@@ -8869,7 +8800,7 @@ button[data-filter-active="true"] {
         <button class="aio-btn-table" data-action="refreshPortfolioRisk" style="font-size:11px;">⟳ 계산</button>
       </div>
       <div id="pf-risk-metrics" style="padding:10px 12px;">
-        <div style="font-size:11px;color:var(--text-muted);padding:6px 0;">최소 2종목 · 5거래일+ 가격 기록이 필요합니다. <strong style="color:var(--text-secondary);">⟳ 계산</strong> 버튼을 클릭하세요. 실제 계좌 성과(TWR/MWR)는 거래·입출금 원장 연동 전까지 보류 상태입니다.</div>
+        <div style="font-size:11px;color:var(--text-muted);padding:6px 0;">보유 종목 모두에 최근 3개월 조정주가 이력이 있고 공통 거래일이 6일 이상이면 계산합니다(상관계수는 2종목 이상). <strong style="color:var(--text-secondary);">⟳ 계산</strong>을 누르세요. 실제 계좌 성과(TWR/MWR)는 원장의 평가액·입출금과 규약을 선언하면 아래에 따로 표시됩니다.</div>
       </div>
       <!-- P1449: 원장 계좌 성과(TWR/MWR)는 시세 이력 게이트와 무관하게 계산되므로 별도 요약으로 표시한다 -->
       <div id="pf-ledger-performance" hidden style="padding:10px 12px;border-top:1px solid var(--border);font-size:11px;line-height:1.7;color:var(--text-secondary);"></div>
@@ -9205,7 +9136,7 @@ button[data-filter-active="true"] {
           <div class="scr-builder-panel" aria-labelledby="scr-builder-title">
             <div id="scr-builder-title" style="font-size:12px;color:var(--text-primary);font-weight:800;">조건 직접 조합 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">모든 조건을 함께 만족 · 백분위·RSI·3M 수익률은 순위 후보 자체를 바꾸고, 섹터·분류·검색은 지금 결과 안에서 좁히기만 합니다</span></div>
             <div class="scr-builder-row">
-              <select id="scr-builder-field" aria-label="추가할 조건 필드"><option value="sector">섹터</option><option value="signal">구조 분류</option><option value="setup">구조·근거</option><option value="rank">최소 백분위</option><option value="rsi">RSI 하한</option><option value="momentum">3M 수익률 하한</option><option value="query">티커·이름 검색</option></select>
+              <select id="scr-builder-field" aria-label="추가할 조건 필드"><option value="sector">섹터</option><option value="setup">구조·근거</option><option value="rank">최소 백분위</option><option value="rsi">RSI 하한</option><option value="momentum">3M 수익률 하한</option><option value="query">티커·이름 검색</option></select>
               <input id="scr-builder-value" type="text" aria-label="조건 값" placeholder="섹터 이름 (예: Technology)">
               <button class="aio-btn-table" data-aio-screener-action="add-builder-condition">조건 추가</button>
             </div>
@@ -9288,7 +9219,6 @@ button[data-filter-active="true"] {
         <!-- P1499: "상위 20%" here was rank ≥ 80 over all rows while the reading above counts the top fifth of ranked rows; name each count by its own rule. -->
         총 <span id="scr-kpi-total" style="color:var(--text-primary);font-weight:600;">—</span>종목 · 조건 통과 <span id="scr-kpi-ranked" style="color:var(--text-primary);font-weight:600;">—</span> ·
         <b style="color:var(--text-primary);">그중 랭크 80 이상 <span id="scr-kpi-top">—</span></b> ·
-        <span hidden>기존 편집 분류 강세 구조 <span id="scr-kpi-buy">—</span> · </span>
         활성팩터 <span id="scr-kpi-factors">—</span>
       </span>
       <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="toggle-filters" title="조건·순위 결과는 그대로 두고 표에 보이는 행만 줄입니다">표 범위 좁히기</button>
@@ -9369,7 +9299,6 @@ button[data-filter-active="true"] {
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
       <select id="scr-market" aria-label="시장 지수 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 지수</option></select>
       <select id="scr-sector" aria-label="섹터 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 섹터</option></select>
-      <select id="scr-signal" aria-label="구조 분류 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 분류</option><option value="BUY">강세 구조</option><option value="HOLD">중립</option><option value="WATCH">관찰</option><option value="SELL">약세 구조</option></select>
       <select id="scr-cap" aria-label="시가총액 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시총</option><option value="MEGA">메가캡 (≥$1T... )</option><option value="LARGE">대형 ($10B~1T)</option><option value="MID">중형 ($2~10B)</option><option value="SMALL">소형 (&lt;$2B)</option></select>
       <input id="scr-text-search" type="text" placeholder="티커·이름·메모 검색" aria-label="스크리너 티커 이름 메모 검색" class="aio-btn-table" style="font-size:11px;padding:4px 8px;min-width:160px;">
       <label for="scr-column-preset" style="font-size:12px;color:var(--text-muted);margin-left:auto;">컬럼</label>
@@ -9387,9 +9316,8 @@ button[data-filter-active="true"] {
     <div id="scr-adv-filter-row">
       <span style="font-size:10px;color:var(--data-cyan);font-weight:700;letter-spacing:.03em;text-transform:uppercase;flex-shrink:0;" title="조건·순위 결과는 그대로이고 표에 보이는 행만 줄어듭니다">표 범위만 좁히기</span>
       <select id="scr-setup" aria-label="구조·근거 필터" class="aio-btn-table" style="font-size:11px;padding:3px 7px;">
-        <option value="">전체 구조·근거</option><option value="WINNER">TradingView 승자 필터 통과</option>
-        <option value="RSPULLBACK">상대강도 풀백 후보</option><option value="SUPPORT200">200일선 부근</option>
-        <option value="CLIMAX">클라이맥스 탑 주의</option><option value="MISSING">근거 미수신/결측</option>
+        <option value="">전체 구조·근거</option><option value="WINNER" title="TradingView 승자 화면 조건 기준">승자 필터(가격·ADR·유동성·EMA)</option>
+        <option value="RSPULLBACK">상대강도 풀백 후보</option><option value="SUPPORT200">200일선 부근</option><option value="CLIMAX">클라이맥스 탑 주의</option>
       </select>
       <label style="font-size:11px;color:var(--text-muted);">랭크 ≥</label>
       <select id="scr-min-rank" aria-label="최소 랭크 필터" class="aio-btn-table" style="font-size:11px;padding:3px 7px;">
@@ -9993,15 +9921,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=57.48" defer></script>
-  <script src="./js/aio-data.js?v=57.48" defer></script>
-  <script src="./js/aio-ui.js?v=57.48" defer></script>
+  <script src="./js/aio-core.js?v=57.49" defer></script>
+  <script src="./js/aio-data.js?v=57.49" defer></script>
+  <script src="./js/aio-ui.js?v=57.49" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=57.48" defer></script>
+<script src="./js/aio-chat.js?v=57.49" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -10059,7 +9987,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=57.48" defer></script>
+<script src="./js/aio-glossary.js?v=57.49" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

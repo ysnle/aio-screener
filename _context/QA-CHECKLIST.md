@@ -4,10 +4,14 @@ last_verified: 2026-10-13
 confidence: medium
 ---
 
+## v57.49 검증 스킬 (2026-10-13)
+
+- [ ] QA-VERIFY-16: P1688: 배포 사이트에서 VIX·10년물 수준을 기준일과 함께 물으면 화면 기준 종가 값이 'YYYY-MM-DD 종가'와 함께 답에 남고, 경고는 한국어 한 줄 이하다. verify_by: push 뒤 배포 사이트 AI 질문 1회(scratch live-ai 스크립트)
+
 ## v57.48 verify-aio user-path verification (2026-10-13)
 
 - [x] QA-VERIFY-09: Portfolio attribution uses SPY for US, KOSPI/KOSDAQ for KR and holds out mismatched basis dates; theme internal ranks exclude stale members. verify_by: Codex reproduce.mjs counterexamples + verify-aio drive portfolio
-- [ ] QA-VERIFY-10: AI answer filter drops whole numeric sentences without breaking URLs/decimals; role/industry acronyms do not become tickers; briefing AI card shows its own generation time and observation scope. verify_by: node counterexample run of stripUnverifiedCurrentNumericSentences and _extractTickers; one deployed AI question after push
+- [x] QA-VERIFY-10: AI answer filter drops whole numeric sentences without breaking URLs/decimals; role/industry acronyms do not become tickers; briefing AI card shows its own generation time and observation scope. verify_by: node counterexample run of stripUnverifiedCurrentNumericSentences and _extractTickers; one deployed AI question after push (2026-10-13 배포판 1회: 소수점·URL 조각 없음, 링크 보존. 수치 결합 소실은 별도 항목으로 수정)
 - [x] QA-VERIFY-11: Theme board, scenario outlook, stock/screener/portfolio rotation and news header all apply the latest-completed-session admission. verify_by: verify-aio drive themes/today/stock with a stale local artifact, then again after the producer reaches the latest session
 - [x] QA-VERIFY-12: Industry documents expose 근거와 가정; phone reading puts the open document before the shelf; 13F ledger scope matches the bounded shard. verify_by: verify-aio drive learn (desktop/phone) and a masters BlackRock changes view check
 - [ ] QA-VERIFY-13: S&P 500 map sizes by index weight with 1일/1주 tabs after the refresh-screener producer runs (indexWeights and ret1d/ret5d present) verify_by: after push: refresh-screener log shows '[sp500-weights] ~500 members'; screener.json has indexWeights and ret1d; verify-aio drive themes

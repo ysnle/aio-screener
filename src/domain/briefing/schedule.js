@@ -5,8 +5,17 @@
 // P1399 (Codex review 2026-10-03): a passed clock time is not a received result. status is
 // 'received' only when the result itself is in hand (an EPS actual); otherwise 'time-passed'.
 
+// T04 (expert review 2026-10-13): "직전 +${nfp}천 명" printed "+-15천 명" for a job loss. Payrolls arrive in thousands and are
+// shown signed in 만 명 (29 -> +2.9만 명, -15 -> -1.5만 명).
+export function formatPayrollChange(thousands) {
+  const value = thousands == null || thousands === '' ? NaN : Number(thousands);
+  if (!Number.isFinite(value)) return null;
+  if (value === 0) return '0명';
+  return `${value > 0 ? '+' : value < 0 ? '-' : ''}${Number((Math.abs(value) / 10).toFixed(1)).toLocaleString('en-US')}만 명`;
+}
+
 const RELEASE_PROFILES = Object.freeze({
-  'us-nfp': { label: '미국 고용보고서 (비농업 고용·실업률)', et: [8, 30], why: '고용이 강하면 금리 인하 기대가 줄어 금리·달러 상승 요인', last: (snap) => snap.nfp != null && snap.unemployment != null ? `직전 +${snap.nfp}천 명 · 실업률 ${snap.unemployment}%` : null },
+  'us-nfp': { label: '미국 고용보고서 (비농업 고용·실업률)', et: [8, 30], why: '고용이 강하면 금리 인하 기대가 줄어 금리·달러 상승 요인', last: (snap) => formatPayrollChange(snap.nfp) != null && snap.unemployment != null ? `직전 ${formatPayrollChange(snap.nfp)} · 실업률 ${snap.unemployment}%` : null },
   'us-cpi': { label: '미국 소비자물가 (CPI)', et: [8, 30], why: '예상보다 높으면 금리 상승·성장주 부담', last: (snap) => snap.cpi != null ? `직전 ${snap.cpi}% · 근원 ${snap.coreCpi ?? '—'}%` : null },
   'us-pce': { label: '미국 PCE 물가', et: [8, 30], why: '연준이 가장 중시하는 물가 지표', last: (snap) => snap.pce != null ? `직전 ${snap.pce}% · 근원 ${snap.corePce ?? '—'}%` : null },
   'us-ism-mfg': { label: 'ISM 제조업 지수', et: [10, 0], why: '50 위면 제조업 확장 · 경기 방향 확인', last: (snap) => snap.ismPmi != null ? `직전 ${snap.ismPmi}` : null },
@@ -97,13 +106,20 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
 /**
  * @returns {Array<{ id, kind, atMs, when, label, why, last, today, passed, status }>} the next `days` days
  */
+// T16: the briefing and the home schedule filter earnings to the same S&P 500 names.
+export function sp500NameMap(rows = []) {
+  const names = {};
+  for (const row of Array.isArray(rows) ? rows : []) if (row?.sym && row?.name && row.index === 'SP500') names[row.sym] = row.name;
+  return names;
+}
+
 export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], earningsMeta = {}, names = {}, nowMs = Date.now(), days = 7, maxEarnings = 6, fomcDecisions = null } = {}) {
   const rows = [];
   const today = kstParts(nowMs).date;
   if (Array.isArray(fomcDecisions)) {
     for (const event of marketStructureEvents({ fomcDecisions, nowMs, days })) {
       const when = formatKstWhen(event.atMs);
-      rows.push({ ...event, when: when.label, today: when.date === today, passed: event.atMs < nowMs, status: event.atMs < nowMs ? 'time-passed' : 'upcoming' });
+      rows.push({ ...event, when: `${when.label} KST`, today: when.date === today, passed: event.atMs < nowMs, status: event.atMs < nowMs ? 'time-passed' : 'upcoming' });
     }
   }
   const seenDates = new Set();
@@ -148,7 +164,9 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     const est = estimateSource && row.epsEstimate != null && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
     const actual = row.epsActual != null && Number.isFinite(Number(row.epsActual)) ? Number(row.epsActual) : null;
     const estimate = actual != null ? `EPS ${actual.toFixed(2)}${est != null ? ` (예상 ${est.toFixed(2)})` : ''}` : est != null ? `EPS 예상 ${est.toFixed(2)}` : null;
-    const epsContext = estimate ? `${estimate} · 주당 ${row.currency || '통화 미제공'} · ${estimateSource || '출처 미제공'}${row.fiscalPeriod ? ` · ${row.fiscalPeriod}` : ' · 회계기간 미제공'}` : null;
+    // T15: the provider name moves to the hover (sourceTitle) and a missing currency or period is left out, not printed
+    // as '미제공'; the fiscal period is already the row's comparisonBasis.
+    const epsContext = estimate ? [estimate, row.currency ? `주당 ${row.currency}` : null].filter(Boolean).join(' · ') : null;
     // Codex browser audit H20: the calendar only says before-open / after-close; "21:00" was our placeholder hour
     // shown as if the company had announced it. Earnings rows show the US date and session, not a clock time.
     const usDate = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}`;
@@ -156,6 +174,7 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     void when;
     rows.push({ id: `earnings:${row.symbol}:${row.date}:${row.hour || 'unknown'}`, kind: 'earnings', atMs, when: whenLabel, label: `${names[row.symbol]} (${row.symbol}) 실적`,
       originalTimeZone: 'America/New_York', source: earningsMeta.source || null, sourceUrl: earningsMeta.sourceUrl || null,
+      sourceTitle: [earningsMeta.source ? `일정: ${earningsMeta.source}` : null, est != null && estimateSource ? `예상치: ${estimateSource}` : null].filter(Boolean).join(' · ') || null,
       observedAt: earningsMeta.generatedAt || null, comparisonBasis: row.fiscalPeriod || null,
       why: session, last: epsContext, today: when.date === today, passed: atMs < nowMs, status: actual != null ? 'received' : atMs < nowMs ? 'time-passed' : 'upcoming' });
   }

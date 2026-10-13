@@ -16,6 +16,18 @@ export const SECTOR_MAP_PERIODS = Object.freeze({
 });
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
+const sumValue = (list) => list.reduce((sum, item) => sum + item.value, 0);
+
+// One company listed in several share classes. The holdings file names them "ALPHABET CLASS A/C"; the alias table
+// covers rows whose names differ by more than the class suffix.
+const ISSUER_ALIAS = Object.freeze({ GOOG: 'GOOGL', GOOGL: 'GOOGL', FOX: 'FOXA', FOXA: 'FOXA', NWS: 'NWSA', NWSA: 'NWSA' });
+export function issuerKey(item) {
+  const sym = String(item?.sym || '').toUpperCase();
+  if (ISSUER_ALIAS[sym]) return ISSUER_ALIAS[sym];
+  const name = String(item?.name || '').toUpperCase().replace(/[.,]/g, ' ').replace(/\s+/g, ' ').trim();
+  const classless = name.replace(/\s(CLASS|CL)\s[A-Z]$/, '');
+  return classless && classless !== name ? `name:${classless}` : sym;
+}
 
 export function shadeOf(value, steps) {
   const v = finite(value);
@@ -136,6 +148,13 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     if (basis && item.basis && item.basis !== basis && item.ret != null) { item.staleRet = item.ret; item.ret = null; staleCount += 1; }
   }
   const total = priced.reduce((sum, item) => sum + item.value, 0);
+  // Expert review M02: the areas are today's weights, but an index return weights each member by its size at the
+  // START of the period. Today's weight already contains the member's own move (a stock that doubled carries twice
+  // its starting weight), so averaging with it over-counts the winners — the 3개월 map read +5.91% while SPY made
+  // +3.75%. The start weight is backed out per member, w₀ ∝ w_now / (1 + r). Holdings dated before the close
+  // already are the 1일 window's start weights; for longer windows that one-session drift is left in.
+  const holdingsAtStart = key === 'ret1d' && sizeBasis === 'index-weight' && !!weights?.asOf && !!basis && String(weights.asOf) < basis;
+  for (const item of priced) item.startValue = !holdingsAtStart && item.ret != null && item.ret > -100 ? item.value / (1 + item.ret / 100) : item.value;
   const bySector = new Map();
   for (const item of priced) {
     if (!bySector.has(item.sector)) bySector.set(item.sector, []);
@@ -143,14 +162,16 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
   }
   const weighted = (list) => {
     const withRet = list.filter((item) => item.ret != null);
-    const w = withRet.reduce((sum, item) => sum + item.value, 0);
-    return w > 0 ? withRet.reduce((sum, item) => sum + item.value * item.ret, 0) / w : null;
+    const w = withRet.reduce((sum, item) => sum + item.startValue, 0);
+    return w > 0 ? withRet.reduce((sum, item) => sum + item.startValue * item.ret, 0) / w : null;
   };
   const sectors = [...bySector.entries()].map(([sector, list]) => ({
     sector,
     label: list[0]?.label || sectorLabel(sector),
     value: list.reduce((sum, item) => sum + item.value, 0),
     count: list.length,
+    // M21: the up/down counts read over the members that have a return, so the table states that denominator.
+    withRet: list.filter((item) => item.ret != null).length,
     up: list.filter((item) => item.ret > 0).length,
     down: list.filter((item) => item.ret < 0).length,
     ret: weighted(list),
@@ -158,21 +179,39 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
   })).sort((a, b) => b.value - a.value);
   const all = weighted(priced);
   const ranked = sectors.filter((row) => row.ret != null).sort((a, b) => b.ret - a.ret);
-  const top10 = [...priced].sort((a, b) => b.value - a.value).slice(0, 10);
-  const top10Share = top10.reduce((sum, item) => sum + item.value, 0) / total;
+  // M21: share classes of one company (GOOGL·GOOG, FOXA·FOX, NWSA·NWS) are one issuer in the top-10 reading.
+  const issuers = new Map();
+  for (const item of priced) {
+    const key = issuerKey(item);
+    if (!issuers.has(key)) issuers.set(key, []);
+    issuers.get(key).push(item);
+  }
+  const top10Groups = [...issuers.values()].sort((a, b) => sumValue(b) - sumValue(a)).slice(0, 10);
+  const top10 = top10Groups.flat();
+  const top10Share = sumValue(top10) / total;
   const top10Ret = weighted(top10);
   const restRet = weighted(priced.filter((item) => !top10.includes(item)));
   const upCount = priced.filter((item) => item.ret > 0).length;
-  const withRet = priced.filter((item) => item.ret != null).length;
+  const retValues = priced.filter((item) => item.ret != null).map((item) => item.ret);
+  const withRet = retValues.length;
+  const equalRet = withRet ? retValues.reduce((sum, value) => sum + value, 0) / withRet : null;
   const signed = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(Math.abs(value) < 10 ? 2 : 1)}%`);
   const sectorsUp = ranked.filter((row) => row.ret > 0).length;
+  // The index's own return over the same window (SPY's completed-close row), stated beside the map's average so a
+  // gap left by uncollected members or the holdings date is visible rather than hidden.
+  const benchmarkRow = bySym.get('SPY');
+  const benchmark = benchmarkRow && (!basis || !benchmarkRow.factorSessionDate || benchmarkRow.factorSessionDate === basis) ? finite(benchmarkRow[key]) : null;
+  const benchmarkText = benchmark != null && all != null && Math.abs(benchmark - all) >= Math.max(0.1, spec.steps[0] / 4) ? ` (지수 ETF SPY ${signed(benchmark)})` : '';
   const leadSentence = all == null
     ? `${spec.label} 수익률이 아직 발행되지 않아 크기(시가총액)만 그립니다.`
-    : `시가총액 가중 ${signed(all)} · ${withRet}종목 중 ${upCount}개 상승 · ${ranked.length}개 섹터 중 ${sectorsUp}개 상승${staleCount ? ` · 종가 기준일이 다른 ${staleCount}종목은 회색으로 두고 계산에서 뺐습니다` : ''}.`;
+    : `기간 시작 비중으로 가중한 평균 ${signed(all)}${benchmarkText} · ${withRet}종목 중 ${upCount}개 상승 · ${ranked.length}개 섹터 중 ${sectorsUp}개 상승${staleCount ? ` · 종가 기준일이 다른 ${staleCount}종목은 회색으로 두고 계산에서 뺐습니다` : ''}.`;
   const spread = ranked.length >= 2 ? `가장 강한 섹터는 ${ranked[0].label}(${signed(ranked[0].ret)}), 가장 약한 섹터는 ${ranked.at(-1).label}(${signed(ranked.at(-1).ret)})입니다.` : '';
-  // The point a finviz map makes at a glance: is the index carried by its largest names or by the many?
-  const concentration = top10Ret != null && restRet != null
-    ? `시가총액 상위 10종목이 지도 면적의 ${Math.round(top10Share * 100)}%이고 ${signed(top10Ret)}, 나머지는 ${signed(restRet)} — ${Math.abs(top10Ret - restRet) < (spec.steps[0]) ? '대형주와 나머지가 비슷하게 움직였습니다.' : top10Ret > restRet ? '지수는 소수 대형주가 끌었습니다.' : '대형주보다 나머지 종목이 강했습니다.'}`
+  // The point a finviz map makes at a glance: did the largest companies move with the many or apart from them?
+  // M02/M21: stated as a measured comparison (same start weights), with the equal-weight average beside it — a day
+  // when most members rose while the index stood still is not "대형주와 나머지가 비슷".
+  const gap = top10Ret != null && restRet != null ? top10Ret - restRet : null;
+  const concentration = gap != null
+    ? `시가총액 상위 10개 기업이 지도 면적의 ${Math.round(top10Share * 100)}%이고 ${signed(top10Ret)}, 나머지는 ${signed(restRet)}로 ${Math.abs(gap) < spec.steps[0] ? '비슷했습니다' : `상위 10개 기업이 ${Math.abs(gap).toFixed(1)}%p ${gap > 0 ? '강했습니다' : '약했습니다'}`}. 종목마다 같은 비중을 두면 평균 ${signed(equalRet)}입니다.`
     : '';
   return {
     available: true,
@@ -195,6 +234,10 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     total,
     sectors,
     weightedReturn: all,
+    weightBasis: 'period-start',
+    equalWeightedReturn: equalRet,
+    benchmarkReturn: benchmark,
+    top10Issuers: top10Groups.map((group) => group.map((item) => item.sym).join('·')),
     // Without the index weights a missing mega-cap (META, GOOGL) bends the sector averages and the concentration
     // share, so the fallback names what is missing instead of making the concentration claim.
     lead: sizeBasis === 'index-weight'

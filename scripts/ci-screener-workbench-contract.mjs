@@ -217,7 +217,7 @@ async function run() {
   const queryDocument = (query) => ({ getElementById: (id) => ({ value: id === 'scr-text-search' ? query : '', checked: false }) });
   const queryRows = [{ sym: 'NVDA', name: 'NVIDIA', signal: 'BUY' }, { sym: 'QQQ', name: 'Nasdaq ETF', memo: 'NVDA exposure', signal: 'HOLD' }];
   const queryAliases = () => ({ nvda: ['NVDA'], 매수: 'BUY' });
-  assert(filterRows(queryRows, queryDocument('NVDA'), { readAliases: queryAliases }).map((row) => row.sym).join(',') === 'NVDA' && filterRows(queryRows, queryDocument('매수'), { readAliases: queryAliases }).length === 1, 'G-SCR-SEARCH: alias-only queries do not match every row and signal aliases still work');
+  assert(filterRows(queryRows, queryDocument('NVDA'), { readAliases: queryAliases }).map((row) => row.sym).join(',') === 'NVDA' && filterRows(queryRows, queryDocument('매수'), { readAliases: queryAliases }).length === 0, 'G-SCR-SEARCH: alias-only queries do not match every row; retired structure-class aliases (S03, provider signal is always null) no longer filter');
   const presetsA = createDefaultScreenDefinitions();
   const presetsB = createDefaultScreenDefinitions();
   assert(presetsA.length === 6 && stableHash(presetsA) === stableHash(presetsB), 'G-SCR-PRESET: six deterministic presets are registered');

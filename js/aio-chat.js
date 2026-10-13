@@ -212,7 +212,7 @@ function _aioCollectAIClaimEvidence(meta) {
       collected.push(normalized);
     });
   }
-  addRows(meta.evidence);
+  addRows(meta.evidence); addRows(typeof window._aioScreenBasisEvidence === 'function' ? window._aioScreenBasisEvidence() : []); // v57.48 #7: completed-close reference rows on every surface
   addRows(meta.provenanceBundle && meta.provenanceBundle.rows);
   addRows(meta.chatEvidence && meta.chatEvidence.tickers);
   addRows(meta.researchResult && meta.researchResult.researchEvidence && meta.researchResult.researchEvidence.evidenceDocuments);
@@ -353,68 +353,65 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   // answer-plan renderer already drops unbound claims, so the recoverable prose is kept and
   // the dropped numeric scope is disclosed instead of the entire answer being withheld.
   var claimAuditBlocked = claimAudit.blocked === true;
+  // v57.48 #19: each limitation keeps its detailed Korean note for the folded answer-evidence panel; the answer itself
+  // opens with one Korean line (answerPublication.summarizeAnswerLimitations) instead of a stack of "※" notices.
+  var limitationNotes = [];
   function applyLimitation(reason, notice) {
     if (gate.blocked === true) return;
     var existing = Array.isArray(gate.limitations) ? gate.limitations : [];
     if (existing.indexOf(reason) >= 0) return;
-    gate = Object.assign({}, gate, {
-      blocked: false,
-      degraded: true,
-      text: notice + '\n\n' + gate.text,
-      reasons: (gate.reasons || []).concat([reason]),
-      limitations: existing.concat([reason])
-    });
+    limitationNotes.push(String(notice).replace(/^※\s*/, ''));
+    gate = Object.assign({}, gate, { blocked: false, degraded: true, reasons: (gate.reasons || []).concat([reason]), limitations: existing.concat([reason]) });
   }
   // P1120: the personalized-action and typed-claim boundaries are disclosures now, not
   // refusals. The answer is kept; the scope that could not be verified is named.
   var conductLimitations = Array.isArray(conductAudit && conductAudit.limitations) ? conductAudit.limitations : [];
   if (!isPartialStream && conductLimitations.indexOf('suitability-context-missing') >= 0) {
-    applyLimitation('suitability-context-missing', '※ 투자 성향·적합성 정보가 없어 개인화된 매수·매도·비중 지시가 아니라 조건부 분석으로 표시합니다.');
+    applyLimitation('suitability-context-missing', '투자 성향·적합성 정보가 없어 개인화된 매수·매도·비중 지시가 아니라 조건부 분석으로 표시합니다.');
   }
   if (!isPartialStream && conductLimitations.indexOf('current-evidence-limited') >= 0) {
-    applyLimitation('current-evidence-limited', '※ 현재 decision-grade 근거(1차 출처·현재·SLA 내)가 부족합니다. 아래 내용은 참고·조건부 분석이며 실행 지시가 아닙니다.');
+    applyLimitation('current-evidence-limited', '현재 결정용 근거(1차 출처·현재 시각·허용 지연 이내)가 부족합니다. 아래 내용은 참고·조건부 분석이며 실행 지시가 아닙니다.');
   }
   if (!isPartialStream && claimAuditBlocked) {
-    applyLimitation('typed-claim-validation', '※ 출처와 대조되지 않은 수치 주장은 제외했습니다. 표시된 설명은 근거가 확인된 범위입니다.');
+    applyLimitation('typed-claim-validation', '출처와 대조되지 않은 수치 주장은 제외했습니다. 표시된 설명은 근거가 확인된 범위입니다.');
   }
   // Current-data gaps degrade only the affected claim scope. They must not
   // erase educational, legal/tax, or conditional analysis that remains useful.
   var sessionEvidence = questionPlan && questionPlan.sessionEvidence;
+  var publishedClaims = publishablePlan.plan ? publishablePlan.plan.claims.claims : [];
   var sessionReady = !!(sessionEvidence && sessionEvidence.verified === true && sessionEvidence.observedAt && /^(open|closed|pre|post)$/.test(sessionEvidence.status));
-  if (!isPartialStream && currentSensitive && !sessionReady) {
-    applyLimitation('market-session-evidence-unavailable', '※ 시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다.');
+  // v57.48 #7: completed closes do not depend on the live session, so an answer whose values all bind to close-basis rows needs no session notice.
+  if (!isPartialStream && currentSensitive && !sessionReady && !(publishedClaims.length && publishedClaims.every(function(claim) { return claim.source === 'close-basis'; }))) {
+    applyLimitation('market-session-evidence-unavailable', '시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다.');
   }
-  if (!isPartialStream && publishablePlan.droppedClaims.length) {
-    applyLimitation('answer-plan-claim-degraded', '※ 출처나 관측 시각을 확인할 수 없는 주장은 제외했습니다. 확인 가능한 설명을 아래에 제공합니다.');
-  }
+  if (!isPartialStream && publishablePlan.droppedClaims.length) applyLimitation('answer-plan-claim-degraded', '출처나 관측 시각을 확인할 수 없는 주장은 제외했습니다. 확인 가능한 설명을 아래에 제공합니다.');
   if (!isPartialStream && currentSensitive && _aioHasCurrentNumericContent(raw) && answerPlanAudit.status !== 'valid') {
-    applyLimitation('current-numeric-claim-unverified', '※ 최신 수치의 근거를 확인하지 못했습니다. 숫자를 활용하기 전에 관측 시각과 원문을 확인하세요.');
-  } else if (gate.blocked !== true && claimAudit && claimAudit.status === 'not-structured' &&
-      /(현재|지금|오늘|현시점|방금|as of)/i.test(visible) && /\d/.test(visible)) {
-    gate = Object.assign({}, gate, {
-      text: gate.text + '\n\n※ 이 답변의 수치는 자동 검증되지 않았습니다. 관측 시각과 원문을 직접 확인하세요.',
-      unverifiedNumericNotice: true
-    });
+    applyLimitation('current-numeric-claim-unverified', '최신 수치의 근거를 확인하지 못했습니다. 숫자를 활용하기 전에 관측 시각과 원문을 확인하세요.');
+  } else if (!isPartialStream && gate.blocked !== true && claimAudit && claimAudit.status === 'not-structured' && /(현재|지금|오늘|현시점|방금|as of)/i.test(visible) && /\d/.test(visible)) {
+    limitationNotes.push('이 답변의 수치는 자동 검증되지 않았습니다. 관측 시각과 원문을 직접 확인하세요.');
+    gate = Object.assign({}, gate, { unverifiedNumericNotice: true });
   }
   if (!isPartialStream && researchRequired && (!meta.researchGate || meta.researchGate.ready !== true)) {
-    applyLimitation('research-evidence-unavailable', '※ Web Research 근거 미수신: 최신 사실·수치·원인 단정은 확인 보류합니다. 아래 답변은 주입된 데이터, 기존 검증 근거와 일반 원리에 기반한 조건부 분석입니다.');
+    applyLimitation('research-evidence-unavailable', '웹 검색 근거 미수신: 최신 사실·수치·원인 단정은 확인 보류합니다. 아래 답변은 주입된 데이터, 기존 검증 근거와 일반 원리에 기반한 조건부 분석입니다.');
   }
   if (!isPartialStream && researchRequired && meta.researchGate?.ready === true && meta.researchGate.currentClaimsAllowed !== true) {
-    applyLimitation('research-freshness-unverified', '※ 검색 출처를 바탕으로 설명합니다. 자료의 발행·사건 시점을 확인하지 못한 부분은 최신 사실로 확정하지 않았습니다.');
+    applyLimitation('research-freshness-unverified', '검색 출처를 바탕으로 설명합니다. 자료의 발행·사건 시점을 확인하지 못한 부분은 최신 사실로 확정하지 않았습니다.');
   }
   if (!isPartialStream && meta.completion && meta.completion.truncated === true) {
-    applyLimitation('model-output-truncated', '※ 응답 길이 한도 도달: 완결되지 않은 구조에서 복구 가능한 설명만 표시했습니다. 누락된 항목은 후속 질문으로 나눠 확인하세요.');
+    applyLimitation('model-output-truncated', '응답 길이 한도 도달: 완결되지 않은 구조에서 복구 가능한 설명만 표시했습니다. 누락된 항목은 후속 질문으로 나눠 확인하세요.');
   }
   var premiseState = questionPlan && questionPlan.premise;
   var premiseStatus = String(premiseState && premiseState.status || '').toUpperCase();
   if (!isPartialStream && premiseState && Array.isArray(premiseState.assertions) && premiseState.assertions.length &&
       ['CONTRADICTED', 'CONFLICT', 'UNVERIFIED'].indexOf(premiseStatus) >= 0) {
-    var premiseNotice = premiseStatus === 'CONTRADICTED'
-      ? '※ 질문의 전제와 반대인 관측이 확인되었습니다. 전제를 사실로 단정하지 않고 조건부로 설명합니다.'
-      : premiseStatus === 'CONFLICT'
-        ? '※ 질문의 전제를 판정하는 관측이 서로 충돌합니다. 전제를 확인되지 않은 상태로 두고 조건부로 설명합니다.'
-        : '※ 질문의 전제를 확인할 근거가 부족합니다. 전제를 확인되지 않은 상태로 두고 조건부로 설명합니다.';
+    var premiseNotice = premiseStatus === 'CONTRADICTED' ? '질문의 전제와 반대인 관측이 확인되었습니다. 전제를 사실로 단정하지 않고 조건부로 설명합니다.'
+      : premiseStatus === 'CONFLICT' ? '질문의 전제를 판정하는 관측이 서로 충돌합니다. 전제를 확인되지 않은 상태로 두고 조건부로 설명합니다.' : '질문의 전제를 확인할 근거가 부족합니다. 전제를 확인되지 않은 상태로 두고 조건부로 설명합니다.';
     applyLimitation('premise-' + premiseStatus.toLowerCase(), premiseNotice);
+  }
+  if (limitationNotes.length && gate.blocked !== true) {
+    var limitationSummary = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication?.summarizeAnswerLimitations;
+    var limitationLine = (limitationSummary ? limitationSummary((gate.limitations || []).concat(gate.unverifiedNumericNotice ? ['current-numeric-claim-unverified'] : []), { publishedClaimCount: publishedClaims.length }) : '') || '※ 확인 안 된 부분이 있어 조건부로 설명합니다';
+    gate = Object.assign({}, gate, { text: limitationLine + '\n\n' + gate.text, limitationNotes: limitationNotes });
   }
   var result = {
     request: request,
@@ -425,7 +422,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
     text: gate.text,
     blocked: gate.blocked === true,
     reasons: gate.reasons || [],
-    limitations: gate.limitations || [],
+    limitations: gate.limitations || [], limitationNotes: gate.limitationNotes || [], closeBasisDates: publishedClaims.filter(function(claim) { return claim && claim.source === 'close-basis' && claim.asOf; }).map(function(claim) { return String(claim.asOf).slice(0, 10); }).sort(), // review: only published close-basis claims label the answer
     actionGate: gate,
     claimAudit: claimAudit,
     conductAudit: conductAudit,
@@ -506,14 +503,19 @@ function _aioBuildAIResponseDisclosure(meta) {
     var observationTime = observedAt ? new Date(observedAt).getTime() : NaN;
     return !row || row.hasLivePrice === false || row.decisionUse !== true || !/^(verified|current)$/.test(truth) || !Number.isFinite(observationTime) || observationTime > Date.now() + 60000 || !String(row.source || '').trim() || (row.truthIssues && row.truthIssues.length > 0);
   });
-  var evidenceStatus = rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : '확인 필요';
-  var sourceLabel = sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : '원천 확인 필요';
+  // v57.48 #7/#19: an answer bound to the screen's completed closes says so (date, not "미확인"), and the detailed
+  // limitation notes the answer no longer stacks at its top are listed here, in Korean.
+  var closeDates = Array.isArray(meta.closeBasisDates) ? meta.closeBasisDates : []; // published close-basis claims only, not every collected row
+  var evidenceStatus = rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : closeDates.length && !blocked ? '종가 기준 근거' : '확인 필요';
+  if (!rows.length && closeDates.length) asOf = closeDates[closeDates.length - 1] + ' 종가';
+  var sourceLabel = sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : closeDates.length ? '완료된 종가 기록' : '원천 확인 필요';
+  var notes = meta.actionGate && Array.isArray(meta.actionGate.limitationNotes) ? meta.actionGate.limitationNotes : [];
   return {
     label: _AIO_PUBLIC_AI_POLICY.label,
     status: evidenceStatus,
     asOf: asOf,
     source: sourceLabel,
-    text: _AIO_PUBLIC_AI_POLICY.label + ' · 기준시각: ' + asOf + ' · Evidence: ' + evidenceStatus + ' · 원천: ' + sourceLabel + ' · 원문 재확인 필요'
+    text: _AIO_PUBLIC_AI_POLICY.label + ' · 기준시각: ' + asOf + ' · 근거 상태: ' + evidenceStatus + ' · 원천: ' + sourceLabel + ' · 원문 재확인 필요' + (notes.length ? '\n' + notes.map(function(note) { return '- ' + note; }).join('\n') : '')
   };
 }
 
@@ -530,17 +532,23 @@ function _aioApplyAIActionGate(text, meta) {
   var imperative = new RegExp(action + '\\s*(?:하세요|하십시오|하라|하시기\\s*바랍니다|해야\\s*(?:합니다|한다|해요))');
   var colloquial = /(?:사세요|파세요|담으세요|사야\s*(?:합니다|한다)|팔아야\s*(?:합니다|한다))/;
   var tickerAction = /(?:^|[\s:：(])[A-Z]{1,5}\s*(?:비중\s*)?\$?\d[\d,.]*\s*(?:달러|원|%)?\s*(?:매수|매도|확대|축소)\s*[.!)]?\s*$/;
+  // v57.48 #13: a weight imperative and a "buy/sell opportunity" call are directives too; a past-tense attribution
+  // ("오닐은 … 손절해야 한다고 봤습니다"), a named rule, or the reason a practice exists ("권장하는 이유") is education.
+  var weight = /비중\s*(?:을|를)?\s*(?:(?:늘리|줄이|확대하|축소하|높이|낮추)(?:세요|십시오|시기\s*바랍니다)|(?:늘려|줄여|확대해|축소해|높여|낮춰)(?:야\s*(?:합니다|한다)|라))/;
+  var opportunity = /(?:매수|매도|진입|매집|저가\s*매수|추가\s*매수)\s*(?:의\s*)?(?:기회|적기|타이밍)\s*(?:로|으로|입니다|이다|라고|가\s*될|일\s*수)/;
+  var indirect = /(?:한다|하라|해라|하세요|된다|합니다)\s*(?:고|라고|는|라는)\s*(?:봤|보았|했|말했|주장했|강조했|설명했|조언했|권했|가르쳤|규칙|원칙|격언)|(?:라는|이라는|다는)\s*(?:규칙|원칙|격언)|(?:하는|한|권장하는|추천하는|권하는)\s*(?:이유|까닭|배경)/;
   var negated = /(?:아닙니다|아니다|않습니다|않는다|금지|하지\s*마|하지\s*않|제공하지|드리지|지시가\s*아|지시 아님)/;
   var sentences = raw.match(/[^.!?。\n]+(?:[.!?。]+|\n|$)\s*/g) || [raw];
   var replaced = 0;
   var out = sentences.map(function(sentence) {
-    var plain = sentence.trim();
-    if (!plain || negated.test(plain)) return sentence;
-    if (recommend.test(plain) || imperative.test(plain) || colloquial.test(plain) || tickerAction.test(plain)) {
-      replaced += 1;
-      return _AIO_DIRECTIVE_NOTICE + (/\n\s*$/.test(sentence) ? '\n' : ' ');
-    }
-    return sentence;
+    // A negation counts only inside the clause that carries the directive ("지금 매수하세요, 이것은 지시가 아닙니다" is replaced).
+    var directive = sentence.trim().split(/[,，;；]+|\s(?:그러나|하지만|다만)\s/).some(function(clause) {
+      clause = clause.trim();
+      return !!clause && !negated.test(clause) && !indirect.test(clause) && [recommend, imperative, colloquial, weight, opportunity, tickerAction].some(function(re) { return re.test(clause); });
+    });
+    if (!directive) return sentence;
+    replaced += 1;
+    return _AIO_DIRECTIVE_NOTICE + (/\n\s*$/.test(sentence) ? '\n' : ' ');
   }).join('');
   if (!replaced) return { blocked: false, text: raw, reasons: [] };
   return { blocked: false, text: out.replace(/(?:\[개별 매매 지시는 제공하지 않습니다\. 조건과 근거를 확인해 직접 판단하세요\.\]\s*){2,}/g, _AIO_DIRECTIVE_NOTICE + ' ').trim(), reasons: ['directive-sentence-replaced'], replacedSentences: replaced };
@@ -563,7 +571,7 @@ function _aioAppendAIPublicDisclosure(parent, meta) {
     el.appendChild(summary);
     var detail = document.createElement('div');
     detail.textContent = info.text;
-    detail.style.cssText = 'padding-top:6px;font-size:12px;overflow-wrap:anywhere;';
+    detail.style.cssText = 'padding-top:6px;font-size:12px;overflow-wrap:anywhere;white-space:pre-line;';
     el.appendChild(detail);
     parent.appendChild(el);
     return info;
@@ -950,11 +958,11 @@ function _aioBuildAIClaimEvidenceRegistry(rows) {
       ' asOf=' + String(item.asOf || 'unknown').slice(0, 40) +
       ' source=' + String(item.source || 'unknown').slice(0, 80) +
       ' sourceKind=' + String(item.sourceKind || 'MISSING').slice(0, 24) +
-      ' status=' + String(item.status || item.truthStatus || 'unknown').slice(0, 24);
+      ' status=' + String(item.status || item.truthStatus || 'unknown').slice(0, 24) + (item.closeBasisEvidenceId ? ' closeSubstitute=' + String(item.closeBasisEvidenceId).slice(0, 80) : '');
   }).filter(Boolean);
   return '\n\n[AI_TYPED_EVIDENCE_REGISTRY v1]\n' +
     (lines.length ? lines.join('\n') : 'none') + '\n' +
-    'rule: For current-sensitive numeric claims, use exactly one matching evidenceId from this registry and preserve its metric/value/unit/scale/asOf/source. If no matching row exists, say 확인 필요 and do not invent a current number. This rule does not restrict general education or framework explanations.\n';
+    'rule: For current-sensitive numeric claims, use exactly one matching evidenceId from this registry and preserve its metric/value/unit/scale/asOf/source. If no matching row exists, say 확인 필요 and do not invent a current number. A stale live row cannot be published: use its closeSubstitute (source=close-basis, a completed close) and name its date as the close date. This rule does not restrict general education or framework explanations.\n';
 }
 if (typeof window !== 'undefined') {
   if (typeof window._aioBuildAIClaimEvidenceRegistry !== 'function') {
@@ -1133,12 +1141,13 @@ function _aioCreateEvidenceContext(title, focus) {
     title: title,
     referenceFrameworks: ['ai-infrastructure-cycle', 'supplied-materials-2026-08-29', 'supplied-materials-2026-08-30', 'supplied-materials-2026-09-05', 'supplied-materials-2026-09-11'],
     system: function() {
-      var snap = typeof _liveSnap === 'function' ? _liveSnap() : {};
+      // v57.48 #20: live values carry their own observation time (the screen basis below carries the close date).
+      var snap = typeof _liveSnap === 'function' ? _liveSnap() : {}, live = function(sym, v) { var r = (window._liveData || {})[sym] || {}, t = r.observedAt || r._atomicObservedAt || r.ts; return v == null || v === '—' ? '—' : v + (t ? ' (실시간 관측 ' + _aioPublicAIFormatAsOf(typeof _aioAIQuoteObservation === 'function' ? _aioAIQuoteObservation(t) : t) + ')' : ' (관측 시각 미확인)'); };
       var lines = [
         '역할: ' + title + ' · 페이지 초점: ' + focus,
         '현재 검증된 런타임 관측치만 사용합니다.',
-        'S&P ' + (snap.spx == null ? '—' : snap.spx) + ' · VIX ' + (snap.vix == null ? '—' : snap.vix) + ' · US10Y ' + (snap.tnx == null ? '—' : snap.tnx),
-        'DXY ' + (snap.dxy == null ? '—' : snap.dxy) + ' · USD/KRW ' + (snap.krw == null ? '—' : snap.krw),
+        '실시간 값(화면 종가 기준과 다를 수 있음): S&P ' + live('^GSPC', snap.spx) + ' · VIX ' + live('^VIX', snap.vix) + ' · US10Y ' + live('^TNX', snap.tnx),
+        'DXY ' + live('DX-Y.NYB', snap.dxy) + ' · USD/KRW ' + live('KRW=X', snap.krw),
         '값이 —이면 추정·보간·과거 수치 대입 없이 판단을 보류합니다.',
         '현재형 뉴스·목표가·확률·컨센서스·승률은 내장 텍스트에서 가져오지 않습니다. 승률/적중률은 검증된 백테스트·캘리브레이션 근거가 있을 때만 reference로 표시합니다.',
         '답변 가이드: 관측 → 해석 → 무효화 조건 → 사용자가 확인할 다음 증거 순서로 씁니다.',
@@ -1146,17 +1155,13 @@ function _aioCreateEvidenceContext(title, focus) {
         'OPEX·감마·Lockout/LOCKOUT_CONTINUATION·시나리오는 해당 런타임 증거가 주입된 경우에만 사용합니다.',
         'RATIO/DISTANCE thresholds are calibration constants, NOT absolute prices.'
       ];
-      if (focus === 'themes') {
-        var themeId = window._currentThemeId || null;
-        var aliases = window.SCR_KEYWORD_ALIASES || {};
-        lines.push('현재 테마: ' + (themeId || '미선택') + ' · 키워드 별칭 ' + Object.keys(aliases).length + '개');
-      }
+      if (focus === 'themes') lines.push('현재 테마: ' + (window._currentThemeId || '미선택') + ' · 키워드 별칭 ' + Object.keys(window.SCR_KEYWORD_ALIASES || {}).length + '개');
       if (focus === 'ticker' && !window._currentTicker && !window._currentTickerId) {
         lines.push('현재 종목이 미선택 상태입니다. 예: NVDA처럼 티커를 먼저 선택해야 종목별 분석이 가능합니다.');
         lines.push('HARD STOP: 시세 미수신 상태에서는 가격 인용·진입가·목표가 계산을 하지 않습니다.');
       }
-      // Codex browser audit H104: market pages hand the model the screen's own close-basis readings first.
-      if (/^(home|briefing|signal|breadth|sentiment|macro|fxbond|themes|market-news)$/.test(String(focus || ''))) {
+      // Codex browser audit H104: market pages hand the model the screen's own close-basis readings first. v57.48 #20: portfolio and research pages too.
+      if (/^(home|briefing|signal|breadth|sentiment|macro|fxbond|themes|market-news|portfolio|principles|atlas|masters)$/.test(String(focus || ''))) {
         var screenBasis = typeof window._aioScreenBasisContext === 'function' ? window._aioScreenBasisContext() : '';
         if (screenBasis) lines.push(screenBasis, 'Live or intraday values elsewhere in this context may differ from the screen basis; cite the screen basis for current facts, label any live value with its time, and never quote a truncated number.');
       }
@@ -3456,7 +3461,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
           : '**답변 가이드 (R122/R128)**: 단순 사실·용어·요약 질문이면 시장 환경은 배경으로만 짧게 쓰고, Bull/Base/Bear·기관 프레임을 강제하지 말라. 질문에 바로 답하고 필요한 출처·기준일만 붙인다.\n\n');
     }
   } catch(_hdrErr) {}
-  var _flexScope = '\n\n【최우선 답변·안전 계약】\n아래 유산 ABSOLUTE RULES와 충돌하면 이 계약을 우선한다. 질문의 QuestionPlan에 선택된 근거와 형식만 사용하고, Bull/Base/Bear·확률·기관 프레임을 일괄 강제하지 마라. 보정 모델이 없으면 확률 숫자를 만들지 않는다. 사용자가 투자·법률·세무 분석을 요청하면 회피하지 말고 전제, 관할, 기준일, 근거, 계산, 조건부 시나리오와 무효화 조건까지 답한다. 특정 가격·수량·시점·손절·목표가 같은 매매 지시는 쓰지 않는다(owner 2026-10-12). 대신 흐름별로 확인할 것·조심할 것·넘겨도 되는 것, 그 흐름에서 상대적으로 유리할 가능성이 큰 선택(예: 현금 비중, 주도 업종)과 기회비용을 가능성으로 설명하고, 개연성은 충족된 조건 수로만 말한다(만든 확률 % 금지). 수치는 화면과 같은 직전 완료 종가 기준을 쓰고 그 기준일을 밝힌다. 단순 사실·용어·요약 질문은 질문에 바로 답하고 필요한 출처·기준일·한계만 붙인다.\n';
+  var _flexScope = '\n\n【최우선 답변·안전 계약】\n아래 유산 ABSOLUTE RULES와 충돌하면 이 계약을 우선한다. 질문의 QuestionPlan에 선택된 근거와 형식만 사용하고, Bull/Base/Bear·확률·기관 프레임을 일괄 강제하지 마라. 보정 모델이 없으면 확률 숫자를 만들지 않는다. 사용자가 투자·법률·세무 분석을 요청하면 회피하지 말고 전제, 관할, 기준일, 근거, 계산, 조건부 시나리오와 무효화 조건까지 답한다. 특정 가격·수량·시점·손절·목표가 같은 매매 지시는 쓰지 않는다(owner 2026-10-12). 대신 흐름별 확인할 것과 반증 조건만 말하고, 비중·현금·시점 권유는 쓰지 않는다. 흐름은 "현재 조건 부합 n/m"으로만 말한다(만든 확률 % 금지). 수치는 화면과 같은 직전 완료 종가 기준을 쓰고 그 기준일을 밝힌다. 단순 사실·용어·요약 질문은 질문에 바로 답하고 필요한 출처·기준일·한계만 붙인다.\n';
   return '\n\n' + _mktHeader + _flexScope + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\nABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 현재 시장 환경은 질문의 결론에 영향을 줄 때만 연결하고, 무관한 사실·용어·요약 질문에는 강제하지 않는다. 시세 미수신 시 현재 수치를 만들지 말고 일반 원리와 확인 방법은 계속 설명한다.\n9. Bull/Base/Bear 시나리오는 전망·의사결정 질문에서 유용할 때만 사용한다. 보정 모델 ID가 없으면 확률 숫자를 만들지 않고 조건·트리거·무효화 기준으로 표현한다.\n10. 시각 단서와 답변 구조는 질문 복잡도에 맞춘다. 핵심 결론, 근거, 출처·기준일, 조건과 한계를 우선하되 고정 형식을 강제하지 않는다.\n11. 기관급 프레임은 분석력을 실제로 높일 때만 1~2개 사용하고, 단순 질문이나 근거가 부족한 경우 억지로 인용하지 않는다.\n12. **데이터 소스 우선순위 명문화 (R128)**: 모든 수치 인용 시 출처 우선순위 — **1순위: _liveSnap() 실시간** (시세/VIX/금리/달러/유가, < 5분) → **2순위: _closeSnap() 일별 종가** (SPX/NASDAQ/DOW 분석 기준) → **3순위: DATA_SNAPSHOT 폴백** (실시간/종가 미수신 시 정적, 신선도 명시 의무) → **4순위: SEC/FMP/Naver/Finnhub fetched** (종목별 5분 캐시). 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n13. **[SCREENER_DB Memo] 신선도 인용 의무 (R135)**: 답변에 SCREENER_DB Memo 인용 시 반드시 위 [SCREENER_DB Memo · X일 전] 라벨의 일수 표기. 30일+ stale memo는 "이 memo는 N일 전 데이터 — 최근 [SEC 8-K]/[News]로 검증 후 인용" 경고 의무. 90일+ stale 또는 confidence:stale 표시 시 "memo만으로 결론 금지 — 외부 확인 필수" 강제. 날짜 미상 (unknown) memo는 "작성일 불명 — 보조 데이터로만 활용" 명시.\n14. **[SCREENER_DB Memo 없음] 종목 fallback 의무 (R136)**: SCREENER_DB.memo가 없는 종목 (위 표시)은 [SEC 10-K]/[Wikipedia]/[Naver]/[News] 4 소스 폴백만 사용. 답변에 "이 종목은 수동 memo 미작성 — dataConfidence:medium" 명시 의무 + "memo 등록 종목 (예: NVDA/AAPL) 대비 정성 분석 한계 — 외부 확인 권장" 경고 강제.\n\n17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\nfundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
@@ -5056,84 +5061,16 @@ window._autoNavigatePage = _autoNavigatePage;
 // 답변에 시나리오 결과 자동 삽입 (보유 종목 라이브 가격 + 시뮬레이션 후 가중치)
 function _simulatePortfolioAddition(userQuery, detectedTickers) {
   if (!userQuery || typeof userQuery !== 'string') return null;
-  var q = userQuery.toLowerCase();
-  // 의도 감지: "X% 추가" / "X 주 매수" / "X 만큼 늘리면"
-  var addMatch = q.match(/(\d+\.?\d*)\s*(%|퍼센트|percent)\s*(추가|매수|늘리|increase|add|buy)/i);
-  var percentToAdd = addMatch ? Number(addMatch[1]) : null;
-  if (!percentToAdd || percentToAdd <= 0 || percentToAdd > 100) return null;
   var target = (Array.isArray(detectedTickers) && detectedTickers[0]) || null;
   if (!target) return null;
   // E0/P1281: 포트폴리오 단일 소유자는 getPortfolioData(Vault-aware, 스키마 {ticker, qty, cost})다.
-  // 옛 읽기 경로 — `window.getPortfolioState`(저장소에 정의 없음) + 폐기 키 `aio_portfolio_v1`
-  // (holdings/quantity/symbol 스키마, writer 없음) — 은 실데이터에서 항상 "포트폴리오 비어 있음"만
-  // 돌려주는 죽은 reader였고, 가동됐어도 필드명이 현행과 어긋난다.
+  // v57.48 #4: 계산은 src/ai/context/portfolio-simulation.js — 포트폴리오 화면과 같은 기준 통화 평가액(_aioPortfolioSurface)을
+  // 쓰고, 환율 없는 통화 혼합·평가액 미확인 종목이 있으면 보류한다(시세 × 수량을 통화 구분 없이 더하지 않는다).
   var positions = null;
-  try {
-    if (typeof window.getPortfolioData === 'function') positions = window.getPortfolioData();
-  } catch(_) {}
-  var holdings = (Array.isArray(positions) ? positions : []).map(function(p) {
-    return { symbol: String((p && p.ticker) || '').toUpperCase(), qty: Number(p && p.qty) || 0 };
-  }).filter(function(h) { return h.symbol && h.qty > 0; });
-  if (holdings.length === 0) {
-    return {
-      target: target,
-      percentToAdd: percentToAdd,
-      available: false,
-      note: '포트폴리오 비어 있음 — 보유 종목 추가 후 시뮬레이션 가능 (PIN 잠금 상태도 대상으로 계산하지 않는다)'
-    };
-  }
-  // 관측 시세 없는 보유 종목을 0으로 합치지 않는다 — 비중 분모가 조용히 왜곡되므로 보류한다.
-  var ld = window._liveData || {};
-  var priceOf = function(sym) {
-    var v = Number((ld[sym] || {}).price);
-    return isFinite(v) && v > 0 ? v : null;
-  };
-  var missingPrices = holdings.filter(function(h) { return priceOf(h.symbol) === null; }).map(function(h) { return h.symbol; });
-  if (missingPrices.length) {
-    return { target: target, percentToAdd: percentToAdd, available: false, reason: '시세 미수신(보유 종목): ' + missingPrices.join(', ') };
-  }
-  // 현재 총 가치 + 가중치
-  var currentTotal = holdings.reduce(function(sum, h) { return sum + priceOf(h.symbol) * h.qty; }, 0);
-  if (currentTotal <= 0) return null;
-  // 시뮬레이션: target ticker를 percentToAdd% 비중으로 추가
-  var targetPrice = priceOf(target);
-  if (!targetPrice) return { target: target, percentToAdd: percentToAdd, available: false, reason: '시세 미수신(대상 종목)' };
-  var addAmount = currentTotal * (percentToAdd / 100);
-  var addQty = Math.floor(addAmount / targetPrice);
-  var newTotal = currentTotal + (addQty * targetPrice);
-  // 신규 가중치 계산
-  var newWeights = holdings.map(function(h) {
-    var currentValue = priceOf(h.symbol) * h.qty;
-    var newValue = h.symbol === target ? currentValue + (addQty * targetPrice) : currentValue;
-    return {
-      symbol: h.symbol,
-      currentPct: +(currentValue / currentTotal * 100).toFixed(2),
-      newPct: +(newValue / newTotal * 100).toFixed(2),
-      change: +((newValue / newTotal * 100) - (currentValue / currentTotal * 100)).toFixed(2)
-    };
-  });
-  // target이 holdings에 없으면 신규 추가
-  var existsInHoldings = holdings.some(function(h) { return h.symbol === target; });
-  if (!existsInHoldings) {
-    newWeights.push({
-      symbol: target,
-      currentPct: 0,
-      newPct: +(addQty * targetPrice / newTotal * 100).toFixed(2),
-      change: +(addQty * targetPrice / newTotal * 100).toFixed(2)
-    });
-  }
-  return {
-    target: target,
-    percentToAdd: percentToAdd,
-    available: true,
-    targetPrice: targetPrice,
-    addAmount: Math.round(addAmount),
-    addQty: addQty,
-    currentTotal: Math.round(currentTotal),
-    newTotal: Math.round(newTotal),
-    weights: newWeights,
-    note: 'currentPct → newPct 가중치 변화. addQty = floor(addAmount / targetPrice)로 정수 주식 수만 시뮬레이션.'
-  };
+  try { if (typeof window.getPortfolioData === 'function') positions = window.getPortfolioData(); } catch(_) {}
+  var orchestrator = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' ? window.AIO_ARCH.getAIOrchestrator() : null;
+  if (!orchestrator || typeof orchestrator.simulatePortfolioAddition !== 'function') return null;
+  return orchestrator.simulatePortfolioAddition({ query: userQuery, target: target, positions: positions, surface: window._aioPortfolioSurface || null, targetQuote: (window._liveData || {})[String(target).toUpperCase()] || null });
 }
 window._simulatePortfolioAddition = _simulatePortfolioAddition;
 
@@ -5935,7 +5872,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         badgeEl.textContent = modelLabel;
         aiBubble.parentNode.appendChild(badgeEl);
         if (typeof _aioAppendAIPublicDisclosure === 'function') {
-          _aioAppendAIPublicDisclosure(aiBubble.parentNode, { ctxId: ctxId, tickers: detectedTickers, freshness: chatFreshPreflight, actionGate: _publicGate });
+          _aioAppendAIPublicDisclosure(aiBubble.parentNode, { ctxId: ctxId, tickers: detectedTickers, freshness: chatFreshPreflight, actionGate: _publicGate, evidence: _pageDoneResult.evidence });
         }
 
         // AIQ-P0-04: a blocked answer must not regain actionable meaning through
@@ -6203,7 +6140,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
             var _pfDiv = document.createElement('div');
             _pfDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(0,229,160,0.06);border-left:3px solid var(--data-green);border-radius:4px;font-size:11px;color:var(--text-primary);';
             var _pfHTML = '<div style="font-weight:700;color:var(--data-green);margin-bottom:6px;">포트폴리오 시뮬레이션 — ' + escHtml(_pfSim.target) + ' ' + _pfSim.percentToAdd + '% 추가</div>';
-            _pfHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">현재 총 가치: $' + _pfSim.currentTotal.toLocaleString() + ' → 신규 총 가치: $' + _pfSim.newTotal.toLocaleString() + ' (추가 ' + _pfSim.addQty + '주 × $' + _pfSim.targetPrice.toFixed(2) + ' = $' + _pfSim.addAmount.toLocaleString() + ')</div>';
+            var _pfCur = escHtml(_pfSim.currencySymbol || ''); _pfHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">현재 총 가치(기준 통화 ' + escHtml(_pfSim.currency || '') + '): ' + _pfCur + _pfSim.currentTotal.toLocaleString() + ' → 신규 총 가치: ' + _pfCur + _pfSim.newTotal.toLocaleString() + ' (추가 ' + _pfSim.addQty + '주 × ' + _pfCur + _pfSim.targetPrice.toFixed(2) + ' = ' + _pfCur + _pfSim.addAmount.toLocaleString() + ')</div>';
             _pfHTML += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-family:var(--font-mono);font-size:10px;">';
             _pfHTML += '<div style="color:var(--text-muted);font-weight:600;">종목</div><div style="color:var(--text-muted);font-weight:600;text-align:right;">현재 %</div><div style="color:var(--text-muted);font-weight:600;text-align:right;">신규 %</div>';
             _pfSim.weights.forEach(function(w) {
@@ -8068,7 +8005,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
       _bubbleParent.appendChild(badgeEl);
       if (typeof _aioAppendAIPublicDisclosure === 'function') {
-        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate });
+        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate, evidence: _uniDoneResult.evidence });
       }
 
       // AIQ-P0-04: blocked model text cannot be followed by an actionable card or

@@ -600,6 +600,9 @@ export function assessAccountPerformance(input) {
     flowTiming: flowTiming,
     periods: periods,
     sample: { from: firstDate, to: lastDate, periods: periods.length, years: terminalYears },
+    // v57.48 expert review #6: the two numbers are on different units — TWR is the chained return over the
+    // whole sample (not annualized), MWR is the annualized IRR. A display must name both units.
+    units: { twr: 'period-cumulative', mwr: 'annualized-irr' },
     conventions: { returnBasis: 'time-weighted-subperiod-chain', flowTiming: flowTiming, annualization: 'actual-365', irrMethod: 'bisection' },
     requiredInputs: requiredInputs,
     warnings: warnings

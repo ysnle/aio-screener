@@ -1,10 +1,11 @@
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
-import { parseFiscalHistory, requestFiscalHistory } from './fiscal-read.js';
+import { parseFiscalHistory, requestFiscalHistory, dartLink } from './fiscal-read.js';
 import { MARKET_LABELS } from '../../domain/screener/market-scope.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { krFundamentalPoints, KR_FUNDAMENTALS } from '../../domain/entity/kr-fundamentals.js';
+import { sectorLabel } from '../../domain/screener/screener-read.js';
 
 function element(doc, tag, text, className) { const node=doc.createElement(tag); if (text != null) node.textContent=text; if (className) node.className=className; return node; }
 function detail(doc, title, lines, sourceUrl = null, source = null) {
@@ -61,7 +62,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   const meta=model.identity;
   identity.append(element(doc,'p',`${meta.name} (${id}) · ${MARKET_LABELS[meta.market] || '시장 미확인'} · ${meta.assetType==='ETF' ? '상장지수펀드(ETF)' : meta.assetType==='INDEX' ? '지수' : meta.assetType==='STOCK' ? '상장 기업' : '유형 미확인'}`,'company-analysis-identity'));
   if (model.business.description) identity.append(element(doc,'p',model.business.description));
-  if (meta.sector || meta.industry) identity.append(element(doc,'p',[meta.sector ? `섹터 ${meta.sector}` : null,meta.industry ? `산업 ${meta.industry}` : null].filter(Boolean).join(' · '),'company-analysis-meta'));
+  if (meta.sector || meta.industry) identity.append(element(doc,'p',[meta.sector ? `섹터 ${sectorLabel(meta.sector)}` : null,meta.industry ? `산업 ${meta.industry}` : null].filter(Boolean).join(' · '),'company-analysis-meta'));
   if (model.associations.length) {
     const themes=element(doc,'div',null,'company-analysis-themes');
     for (const theme of model.associations) { const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? ` · ${theme.subThemes.join(' / ')}` : ''}`); button.type='button'; button.addEventListener('click',()=>root?.showThemeDetail?.(theme.id)); themes.append(button); }
@@ -73,12 +74,14 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   const financial=card(doc,'실적·현금·재무 구조',krFundamental ? '공시' : model.financial.status==='reference' ? '참고' : model.financial.status==='not-applicable' ? '기업 재무 대상 아님' : '자료 없음');
   if (krFundamental) {
     const list=element(doc,'ul'); for (const point of krFundamental.points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text)); list.append(li); } financial.append(list);
-    financial.append(detail(doc,'재무 기간·원문',krFundamental.basisLines));
+    financial.append(detail(doc,'재무 기간·원문',krFundamental.basisLines), dartLink(doc, root?._aioKrFundamentals?.companies?.[id]));
   } else if (model.financial.fiscal.available) {
     const points=model.financial.fiscal.points.filter(point=>['growth','margin','cash','roe','debt','shares','single'].includes(point.id)).slice(0,4);
     const list=element(doc,'ul'); for (const point of points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text)); list.append(li); } financial.append(list);
     financial.append(detail(doc,'재무 기간·원문',[`연간 회계연도 말 ${model.financial.periodEnd || '미확인'}`,model.financial.filedAt ? `제출 ${model.financial.filedAt}` : '제출 시각 미확인',`${model.financial.source} · 주가 수익률 기간과 직접 동일시하지 않습니다.`],model.financial.sourceUrl,'SEC 공시 원문'));
-  } else financial.append(element(doc,'p',model.financial.status==='not-applicable' ? 'ETF·지수는 사업회사 매출·순이익·ROE로 분석하지 않습니다. 추종 대상·구성·비용은 해당 상품 자료에서 확인합니다.' : model.financial.status==='kr-disclosure-required' ? '한국 종목의 재무는 한국 공시 기준으로 확인해야 합니다. SEC 달러 공시를 이 종목의 재무로 가져오지 않습니다.' : '동일 기업의 검증된 연간 공시 자료가 없습니다. 이전에 보던 기업의 재무나 다른 기간의 숫자를 대신 표시하지 않습니다.'));
+  } else financial.append(element(doc,'p',model.financial.status==='not-applicable' ? 'ETF·지수는 사업회사 매출·순이익·ROE로 분석하지 않습니다. 추종 대상·구성·비용은 해당 상품 자료에서 확인합니다.' : model.financial.status==='kr-disclosure-required' ? '한국 종목의 재무는 한국 공시(DART) 사업보고서 기준입니다. 이 화면의 한국 공시 수집본이 아직 연결되지 않아, 원문은 아래 버튼에서 확인합니다.' : '동일 기업의 검증된 연간 공시 자료가 없습니다. 이전에 보던 기업의 재무나 다른 기간의 숫자를 대신 표시하지 않습니다.'));
+  // 2026-10-13 review S12: the Korean filing source button (address in href/title only).
+  if (!krFundamental && model.financial.status==='kr-disclosure-required') financial.append(dartLink(doc, root?._aioKrFundamentals?.companies?.[id]));
   grid.append(financial);
   // Codex review (P1640 remainder): the price, 3-month return, rank and moving-average distance are shown once, in
   // '이 종목의 지금' directly above (the stock half). This block is the company half: business and filings.

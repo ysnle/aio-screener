@@ -6,6 +6,7 @@ import { vixBand } from '../../domain/sentiment/narrative.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
 import { renderPortfolioRead } from '../components/portfolio-read.js';
+import { portfolioRowsForAI } from '../../domain/portfolio/portfolio-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
@@ -121,7 +122,7 @@ function setSurfaceText(documentRef, id, text, value, surface, color = null) {
 function sectorLabel(name) {
   const labels = {
     Technology: '테크', Healthcare: '헬스', 'Financial Services': '금융', Financials: '금융',
-    'Consumer Cyclical': '임의소비', Energy: '에너지', Industrials: '산업재',
+    'Consumer Cyclical': '임의소비', Consumer: '임의소비', Materials: '소재', Energy: '에너지', Industrials: '산업재',
     'Consumer Defensive': '필수소비', 'Communication Services': '통신', Utilities: '유틸',
     'Real Estate': '리츠', 'Basic Materials': '소재', CASH: '현금', Unclassified: '미분류'
   };
@@ -137,7 +138,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
   setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${surface.totalPnlPct >= 0 ? '+' : ''}${surface.totalPnlPct.toFixed(1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
-  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${surface.dailyPct >= 0 ? '+' : ''}${surface.dailyPct.toFixed(2)}% today`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
+  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `오늘 ${surface.dailyPct >= 0 ? '+' : ''}${surface.dailyPct.toFixed(2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
   // P1449: cash is denominated in the declared cash currency, not the base currency — that
   // is exactly the "cash currency = KRW로 선언했는데 $100,000" repro this fixes.
   setSurfaceText(documentRef, 'pf-cash-hero', formatSurfaceMoney(surface.cash, surface.declaredCashCurrency || surface.declaredBaseCurrency), surface.cash, surface);
@@ -154,8 +155,11 @@ function renderPortfolioSurface(documentRef, page, surface) {
           : '통화 미선언 · 단일 기준 가정';
   // E3/P1196: 원가/시세 불일치는 이제 두 갈래다 — 선언된 leg로 환산됐으면 P&L이 성립하고, 근거가
   // 없으면 예전처럼 보류한다. 화면이 둘을 구분해야 "값 소실"과 "의도된 보류"가 구분된다.
-  const currencyHeld = surface.costCurrencyState === 'cost-price-mismatch-held' ? ' · 원가/시세 불일치 — P&L 보류'
-    : surface.costCurrencyState === 'cost-price-mismatch-converted' ? ' · 원가/시세 불일치 — 선언 rate로 환산' : '';
+  // v57.48 expert review #23: a converted cost uses today's declared rate, not the rate on the purchase date —
+  // the P&L then leaves out the currency move since purchase, and the note says so.
+  const currencyHeld = (surface.costCurrencyState === 'cost-price-mismatch-held' ? ' · 원가/시세 불일치 — P&L 보류'
+    : surface.costCurrencyState === 'cost-price-mismatch-converted' ? ' · 원가/시세 불일치 — 선언 rate로 환산' : '')
+    + (surface.conversion?.costApplied ? ' · 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외' : '');
   const currencyHeldActive = (surface.currencyState === 'mixed-without-conversion' || surface.costCurrencyState === 'cost-price-mismatch-held') && surface.readState === 'ready' && !!surface.holdingCount;
   setSurfaceText(documentRef, 'pf-currency-note', currencyNoteBase === '—' ? '—' : currencyNoteBase + currencyHeld, surface.holdingCount || null, surface, currencyHeldActive ? 'var(--data-amber)' : 'var(--text-dim)');
   // Codex browser audit H50: "VIX 확인 중" stayed while every market screen showed VIX — the live quote did not
@@ -183,12 +187,18 @@ function renderPortfolioSurface(documentRef, page, surface) {
     sectorElement.dataset.sourceLabel = surface.sectorBreakdown.length ? surface.sourceLabel : 'portfolio-sector-unavailable';
     sectorElement.dataset.operationalUse = 'reference-only';
     if (surface.sectorBreakdown.length) {
+      // v57.48 expert review #24: the denominator is stated once above the bars, not on every label.
+      const basisHead = documentRef.createElement('div');
+      basisHead.textContent = '현금 포함 총자산 대비 비중';
+      basisHead.style.cssText = 'font-size:11px;color:var(--text-muted);margin-bottom:6px;';
+      sectorElement.appendChild(basisHead);
       for (const sector of surface.sectorBreakdown) {
         const row = documentRef.createElement('div');
         row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:5px;';
         const label = documentRef.createElement('span');
-        label.textContent = `${sectorLabel(sector.name)} · 현금 포함 자산 비중`;
-        label.title = `분모: ${sector.basis || 'total-assets-including-cash'}`;
+        label.textContent = sectorLabel(sector.name);
+        label.title = `${sectorLabel(sector.name)} · 현금 포함 총자산 대비`;
+        label.dataset.basis = sector.basis || 'total-assets-including-cash';
         label.style.cssText = 'width:56px;font-size:11px;color:var(--text-secondary);text-align:right;flex-shrink:0;font-weight:600;';
         const track = documentRef.createElement('div');
         track.style.cssText = 'flex:1;height:14px;background:var(--surface-3);border-radius:4px;overflow:hidden;';
@@ -418,6 +428,8 @@ function render({ root, documentRef, store, charts }) {
   const liveData = root?._liveData || {};
   const surface = derivePortfolioSurface({ state, liveData, vix: liveData?.['^VIX'] || null });
   if (root) root._aioPortfolioSurface = surface; // P1445: legacy exposure/stress panels share these base-currency values
+  // #12: the legacy AI workbench sends these rows (ticker·sector·weight·return in the base currency, with the date).
+  if (root) root._aioPortfolioAiRows = () => portfolioRowsForAI(root._aioPortfolioSurface, { sectorOf: (symbol) => (Array.isArray(root.SCREENER_DB) ? root.SCREENER_DB : []).find((row) => String(row?.sym || '').toUpperCase() === symbol)?.sector || null });
   renderPortfolioSurface(documentRef, page, surface);
   renderPortfolioHero(documentRef, surface);
   renderPortfolioStatus(documentRef, state, surface);
@@ -447,11 +459,12 @@ function renderPortfolioChecks(documentRef, root, surface) {
     host.append(el('p', result.reason === 'currency-unconverted' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.' : '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
     return;
   }
-  host.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? ` · 평가액이 없는 ${result.excluded}종목 제외` : ''} · 공개된 기준값이 있는 항목만 양호/주의로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
+  host.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? ` · 평가액이 없는 ${result.excluded}종목 제외` : ''} · 한 종목은 내부 구간(10~25% 참고 · 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
   const list = el('div', null, 'pf-checks-list');
   for (const check of result.checks) {
     const card = el('section', null, 'pf-check');
     card.dataset.check = check.id;
+    if (check.source) card.title = check.source; // #25: product/rule reference on hover, not in the body
     const head = el('div', null, 'pf-check-head');
     const tone = CHECK_TONE[check.status] || CHECK_TONE.info;
     head.append(el('span', check.label, 'pf-check-label'), el('span', tone[0], `regime-state is-${tone[1]}`));

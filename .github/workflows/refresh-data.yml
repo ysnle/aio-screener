@@ -239,6 +239,7 @@ jobs:
           stage_if_exists public-data/reconciliation-status.json
           stage_if_exists public-data/screener.json
           stage_if_exists public-data/telegram-digest.json
+          stage_if_exists public-data/telegram-observed.json # P1683: lineage rows split out of the served digest
           stage_if_exists public-data/atlas/index.json
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/score-backtest-history.json

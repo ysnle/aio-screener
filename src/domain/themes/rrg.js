@@ -61,3 +61,32 @@ export function computeRelativeRotation({ history = null, benchmarkHistory = nul
   }
   return Object.freeze({ rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'relative_history_lt_30', modelVersion: RRG_MODEL_VERSION });
 }
+
+// Expert review M09: the scatter used a fixed ±3.5 window around 100, so 8 of 11 sectors sat clipped on the edge
+// (XLI·XLY·XLRE·XLU on one corner point). The axes now span the plotted points, always include the 100 baseline
+// that splits the quadrants, and carry round tick values so a position can be read back.
+function niceStep(span, target = 5) {
+  const raw = span / target;
+  const power = 10 ** Math.floor(Math.log10(raw));
+  const unit = raw / power;
+  return (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 2.5 ? 2.5 : unit <= 5 ? 5 : 10) * power;
+}
+
+function axisOf(values) {
+  const list = values.filter((value) => Number.isFinite(value));
+  let min = Math.min(100, ...list);
+  let max = Math.max(100, ...list);
+  const pad = Math.max(0.5, (max - min) * 0.08);
+  min -= pad; max += pad;
+  const step = niceStep(max - min);
+  min = Math.floor(min / step) * step;
+  max = Math.ceil(max / step) * step;
+  const ticks = [];
+  for (let tick = min; tick <= max + step / 1e6; tick += step) ticks.push(Number(tick.toFixed(6)));
+  return Object.freeze({ min, max, step, ticks: Object.freeze(ticks) });
+}
+
+export function rrgAxisDomain(points = []) {
+  const list = (points || []).filter((point) => Number.isFinite(point?.rsRatio) && Number.isFinite(point?.rsMomentum));
+  return Object.freeze({ x: axisOf(list.map((point) => point.rsRatio)), y: axisOf(list.map((point) => point.rsMomentum)) });
+}
