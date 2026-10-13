@@ -130,7 +130,8 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const regime = buildMarketRegime({ history: rows, now });
   const regimeCalm = buildMarketRegime({ history: calm, now });
   assert.deepEqual(regime.axes.map((row) => row.state), regimeCalm.axes.map((row) => row.state), 'P1723 a Korean shock never changes a US axis state');
-  assert.ok(['trend', 'volatility'].every((id) => regime.axes.find((row) => row.id === id).read.includes('단, 한국은 10/13 코스피 -6.0%')), 'P1723 trend and volatility readings name the rare Korean move');
+  // P1746 (audit 2026-10-14): the note was printed twice on adjacent axis cards; it now rides the volatility axis only.
+  assert.ok(regime.axes.find((row) => row.id === 'volatility').read.includes('단, 한국은 10/13 코스피 -6.0%') && !regime.axes.find((row) => row.id === 'trend').read.includes('단, 한국은'), 'P1723/P1746 the rare Korean move is named once, on the volatility reading');
   assert.ok(!regimeCalm.axes.find((row) => row.id === 'trend').read.includes('단, 한국은'), 'P1723 an ordinary Korean day adds nothing to the US axis readings');
   const fxAxis = regime.axes.find((row) => row.id === 'korea');
   assert.ok(fxAxis.basisStatus === 'mixed' && fxAxis.basis === '10/12~10/13' && fxAxis.evidence.find(([label]) => label === '코스피')[1].endsWith('· 10/13'), `P1725 the won/KOSPI card shows each value's own date (${JSON.stringify(fxAxis)})`);

@@ -5,6 +5,7 @@ import { chartPalette } from '../components/color-theme.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { renderThemeStrength } from '../components/theme-strength.js';
+import { renderThemePlaybook, renderThemeDetailPlaybook } from '../components/theme-playbook.js'; // P1743
 import { renderSectorMap } from '../components/sector-map.js';
 import {
   AI_INFERENCE_EFFICIENCY_REFERENCE,
@@ -115,7 +116,7 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   let style = null;
   try { style = root.getComputedStyle(documentRef.body); } catch (_) { style = null; }
   const token = (key, fallback) => style?.getPropertyValue?.(key)?.trim() || fallback;
-  const colors = { Leading: token('--data-green', '#22754c'), Improving: token('--data-cyan', '#211d16'), Weakening: token('--data-amber', '#a06a12'), Lagging: token('--data-red', '#b13a30') };
+  const colors = { Leading: token('--data-green', '#22754c'), Improving: token('--data-cyan', '#211d16'), Weakening: token('--data-amber', '#7a5000'), Lagging: token('--data-red', '#b13a30') };
   const muted = token('--text-muted', '#8a8271');
   // M09: axes span the plotted points (and the 100 baseline) instead of clipping at ±3.5.
   const domain = rrgAxisDomain(validItems);
@@ -225,6 +226,8 @@ function renderThemeCyclePill({ documentRef, root, store, route }) {
       && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) counts[quadrant] += 1;
   });
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+  // v57.54 audit (2): with nothing judged the verdict line below is the one status line; the pill would repeat it.
+  pill.hidden = total === 0;
   if (total < 6) {
     pill.className = 'status-pill sp-neutral';
     pill.textContent = `섹터 회전 대기 · ${viewLabel} ${items.length}개 중 ${total}개 판정`; // P1591 (T01)
@@ -270,7 +273,7 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
   const read = krThemeArtifactRead({ themeMap, rows: store?.getState?.()?.screener?.rows || [] });
   const krClose = krCloseSession(store?.getState?.()?.screener?.rows || []);
   const summary = documentRef.getElementById('kr-themes-summary');
-  if (summary) summary.textContent = `한국 시장 — 국내 테마 (KRX ${read.totalThemes}개 중 ${read.coveredThemes}개 테마를 ${krClose ? `${shortSession(krClose)} ` : ''}완료 종가로 비교)`;
+  if (summary) summary.textContent = `한국 시장 — 국내 테마 (${read.totalThemes}개 중 ${read.coveredThemes}개를 ${krClose ? `${shortSession(krClose)} ` : ''}완료 종가로 비교)`;
   host.dataset.aioKrThemeArtifactRenderer = 'native';
   host.hidden = false;
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
@@ -319,6 +322,9 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
       return b.pct - a.pct;
     });
   host.replaceChildren();
+  // v57.54 audit (2): eleven "— 대기" rows are not a reading; with no completed-close return at all the section hides.
+  const section = host.closest('.aio-section');
+  if (section) section.hidden = !selectThemesItems(store?.getState?.() || {}).some((item) => finite(item?.pct) != null || finite(item?.weeklyPct) != null); // either period, so a tab never hides its own way back
   if (!rows.length) {
     const empty = documentRef.createElement('div');
     empty.textContent = '섹터 성과 데이터 수신 대기';
@@ -463,8 +469,8 @@ function renderThemes({ documentRef, root, store, route }) {
   legend.dataset.themeDetailLegend = 'true';
   // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
   // v57.50 D13: the quadrant's real definition (100-session average position · change against ~50 sessions ago).
-  legend.textContent = `사분면 = SPY 대비 상대가격이 100일 평균보다 위인지와 50일 전보다 나아졌는지 · 완료 종가 기준 · 칩 옆 % = 위에서 고른 기간의 수익률 — 그래서 후행 사분면 종목이 이번 기간에는 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
-  legend.style.cssText = 'grid-column:1/-1;font-size:11px;color:var(--text-muted);padding:2px 0 6px;';
+  legend.textContent = `사분면 = SPY 대비 상대가격이 100일 평균보다 위인지와 50일 전보다 나아졌는지 · 완료 종가 기준 · 칩 옆 % = 1일 등락률(아래 섹터 막대의 1일·1주 전환과 별개) — 그래서 후행 사분면 종목이 그날은 올랐을 수 있습니다. 상세 제공 ${detailCount}개 · 점선 칩 ${Math.max(0, items.length - detailCount)}개는 하위 테마 순위로 연결됩니다.`;
+  legend.style.cssText = 'grid-column:1/-1;font-size:12px;color:var(--text-muted);padding:2px 0 6px;';
   if (classifiedCount) container.appendChild(legend); // P1591 (T01): no quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
     const pending = items.filter((item) => !groups.has(String(item?.quadrant || 'unknown')) || finite(item?.rsRatio) == null || finite(item?.rsMomentum) == null);
@@ -475,16 +481,23 @@ function renderThemes({ documentRef, root, store, route }) {
     pending.forEach((item) => catalog.appendChild(createChip(documentRef, item, root)));
     container.appendChild(catalog);
   };
+  // v57.54 audit (2): with no sector judged, the page shows one status line (the verdict) instead of empty quadrants and
+  // hides the dead view tabs. The sector chips stay as a flat row: they are the page's entry to each theme's detail.
+  const quadrantBlock = container.parentElement;
+  const viewTabs = documentRef.getElementById('rrg-view-tabs');
   if (!classifiedCount) {
-    const empty = documentRef.createElement('div');
-    empty.textContent = '섹터 회전 대기 — 완료 종가 30거래일 이상의 SPY 대비 기록이 최신 세션까지 들어오면 사분면을 표시합니다. 아래 하위 테마 순위는 지금 읽을 수 있습니다.';
-    empty.style.cssText = 'grid-column:span 2;text-align:center;padding:20px;color:var(--text-dim);font-size:12px;';
-    container.appendChild(empty);
+    if (quadrantBlock) quadrantBlock.hidden = false;
     appendUnclassified();
+    const anyJudged = viewItems(selectThemesItems(store?.getState?.() || {}), 'all')
+      .some((item) => QUADRANTS.some((q) => q.key === String(item?.quadrant || '')) && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null);
+    if (viewTabs) viewTabs.hidden = !anyJudged;
     const read = documentRef.getElementById('rrg-rotation-read');
-    if (read) read.textContent = '상대강도·모멘텀 시계열이 아직 없어 사분면을 표시하지 않습니다.';
+    const close = usCloseSession(root);
+    if (read) read.textContent = `섹터 회전은 최신 완료 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 하위 테마 순위로 읽습니다.`;
     return;
   }
+  if (quadrantBlock) quadrantBlock.hidden = false;
+  if (viewTabs) viewTabs.hidden = false;
 
   QUADRANTS.forEach((quadrant) => {
     const card = documentRef.createElement('section');
@@ -595,7 +608,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       bar.style.width = `${Math.max(2, Math.abs(group.ret3m ?? 0) / max * 100).toFixed(1)}%`;
       const value = documentRef.createElement('span');
       value.className = 'stock-read-bar-value';
-      const dir = { improving: '개선', steady: '유지', weakening: '약화' }[group.direction] || '';
+      const dir = { improving: '순위 상승', steady: '순위 유지', weakening: '순위 하락' }[group.direction] || ''; // 1개월 vs 3개월 순위 (audit 19: not the playbook stage words)
       value.textContent = `3개월 ${group.ret3m == null ? '—' : `${group.ret3m >= 0 ? '+' : ''}${group.ret3m.toFixed(1)}%`} · 1개월 ${group.ret1m == null ? '—' : `${group.ret1m >= 0 ? '+' : ''}${group.ret1m.toFixed(1)}%`}${group.above50Pct != null ? ` · 50일선 위 ${group.above50Pct}%` : ''}${dir ? ` · ${dir}` : ''}`;
       item.append(bar, value);
       line.append(name, item);
@@ -605,6 +618,14 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   }
   // v57.50 (W1 request): the theme detail continues where its reading points — W1's themeDetailFlow().next
   // (screener items carry ctx.sector, consumed by the screener handoff like I01).
+  // P1743 (audit 18): the theme's 갈림길 read (renderThemeDetailPlaybook fills this) sits before "이어서 볼 곳"; a stale
+  // copy outside the summary (older placement) is dropped so the id stays unique.
+  documentRef.getElementById('theme-detail-native-playbook')?.remove();
+  const playbookSlot = documentRef.createElement('div');
+  playbookSlot.id = 'theme-detail-native-playbook';
+  playbookSlot.className = 'theme-detail-native-section tp-detail';
+  playbookSlot.hidden = true;
+  host.append(playbookSlot);
   if (Array.isArray(flow.next) && flow.next.length) {
     const nav = documentRef.createElement('nav');
     nav.className = 'flow-next';
@@ -965,7 +986,7 @@ function renderThemeDetailInsights({ documentRef, root, store, themeId = null })
   body.style.cssText = 'display:grid;gap:4px;font-size:11px;line-height:1.7;color:var(--text-secondary);';
   const insight = detail.insight || {};
   const rows = [
-    ['매크로 조건', insight.macro],
+    ['거시 조건', insight.macro],
     ['역설', insight.paradox],
     ['연쇄 효과', insight.chainEffect],
     ['센티멘트 함정', insight.sentiment]
@@ -1270,6 +1291,9 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
          if (performanceNarrativeHost) performanceNarrativeHost.dataset.aioThemePerformanceRenderer = 'native';
          if (performanceBarsHost) performanceBarsHost.dataset.aioThemePerformanceBarsRenderer = 'native';
          if (detailPanel) detailPanel.dataset.aioThemeDetailPanelRenderer = 'native';
+        // v57.54 (CI flake, 1 in ~12 under 4x CPU): a refresh/store re-render right after the detail panel closes can
+        // replace the trigger the close handler just focused, dropping focus to <body>. Re-focus it once after render.
+        let restoreDetailFocus = null;
         const renderNow = () => {
            renderThemes({ documentRef, root, store, route });
           renderRRGStatus({ documentRef, root, store, route });
@@ -1289,7 +1313,9 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderThemeDetailInsights({ documentRef, root, store });
            renderAiInfrastructureLens({ documentRef, root, route });
            renderThemeStrength({ documentRef, root, store }); // P1417
+           try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743
            try { renderSectorMap({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map
+           restoreDetailFocus?.();
          };
         renderNow();
         // v57.50 I22: a link that asked for a section (국내 테마 from the KR screener) opens and shows it once.
@@ -1322,6 +1348,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             detailPanel.style.display = 'block';
             if (event?.detail?.themeId) detailPanel.dataset.currentTheme = String(event.detail.themeId);
           }
+          try { renderThemeDetailPlaybook({ documentRef, root }); } catch (_) {} // P1743: needs the theme id set above
           // The architecture listener synchronously refreshes the store before this
           // compatibility event reaches the mounted page. The store subscription is
           // the sole detail renderer; this listener owns visibility only.
@@ -1330,6 +1357,14 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           const trigger = currentDetailTrigger();
           trigger?.setAttribute?.('aria-expanded', 'false');
           trigger?.focus?.({ preventScroll: true });
+          const closedAt = Date.now();
+          restoreDetailFocus = () => {
+            if (Date.now() - closedAt > 3000) { restoreDetailFocus = null; return; }
+            const active = documentRef.activeElement;
+            if (active && active !== documentRef.body) return;
+            const next = currentDetailTrigger();
+            if (next) { next.setAttribute?.('aria-expanded', 'false'); next.focus?.({ preventScroll: true }); restoreDetailFocus = null; }
+          };
           if (detailPanel) {
             detailPanel.style.display = 'none';
             delete detailPanel.dataset.currentTheme;

@@ -123,7 +123,7 @@ try {
         && document.getElementById('ticker-price-chart')?.dataset.tickerChartEnd === '2026-10-09', null, {timeout:20000});
       const summary = await page.evaluate(()=>({ price:document.getElementById('ticker-hero-price').textContent,
         basis:document.getElementById('ticker-summary-price-basis').textContent,
-        business:document.getElementById('ticker-business-profile').textContent,
+        business:`${document.getElementById('ticker-business-profile').dataset.issuerName || ''} ${document.getElementById('ticker-business-profile').textContent}`, // 2026-10-14 audit #10: heading reads '무엇을 하는 회사'; issuer named on the section
         source:document.querySelector('#ticker-business-profile a')?.href,
         canvas:{ width:document.getElementById('ticker-price-chart').clientWidth,height:document.getElementById('ticker-price-chart').clientHeight },
         lastDate:document.getElementById('ticker-price-chart').dataset.tickerChartEnd,
@@ -162,8 +162,14 @@ try {
       await page.locator('#scr-order').selectOption('ret3m');
       for (const market of ['US','KR']) {
         await page.locator('#scr-listing-market').selectOption(market);
-        await page.waitForFunction(()=>document.querySelectorAll('#screener-results-body tr[data-aio-screener-ticker]').length>0,null,{timeout:5000}).catch(()=>{});
-        await page.waitForTimeout(300);
+        // Settle on an observable outcome instead of a swallowed wait + fixed sleep: rows of THIS market
+        // (no stale rows from the previous selection) or the population note stating a deferral (P1649/P1650).
+        const settled = await page.waitForFunction((selected)=>{
+          const rows=[...document.querySelectorAll('#screener-results-body tr[data-aio-screener-ticker]')];
+          if (rows.length && rows.every(row=>/\.K[QS]$/.test(row.dataset.aioScreenerTicker)===(selected==='KR'))) return true;
+          return /반영 대기/.test(document.getElementById('scr-population-note')?.textContent || '');
+        },market,{timeout:8000}).then(()=>true,()=>false);
+        check(settled,`${label}: ${market} screener rendered neither ${market} rows nor a stated deferral in #scr-population-note within 8s (P1625)`);
         const listing = await page.locator('#screener-results-body').evaluate(body=>[...body.querySelectorAll('tr[data-aio-screener-ticker]')].map(row=>({
           symbol:row.dataset.aioScreenerTicker,price:row.querySelector('[data-column-key="price"]')?.textContent || '',
           ret3m:parseFloat(row.querySelector('[data-column-key="ret3m"]')?.textContent) })));
@@ -189,7 +195,7 @@ try {
       await page.evaluate(()=>window.showTicker('AEHR'));
       await page.waitForFunction(()=>document.querySelector('.page.active')?.id==='page-ticker');
       await page.locator('#aio-hub-tabs [data-arg="fundamental"]').click();
-      await page.waitForSelector('.fiscal-amount-table tbody tr', {timeout:20000});
+      await page.waitForSelector('.fiscal-amount-table tbody tr', {timeout:20000, state:'attached'}); // 2026-10-14 audit #21: amount tables fold closed under the chart
       const fiscal = await page.locator('#fund-flow').evaluate(host=>({
         rows:host.querySelectorAll('.fiscal-amount-table tbody tr').length,
         captions:[...host.querySelectorAll('.fiscal-amount-table caption')].map(el=>el.textContent),

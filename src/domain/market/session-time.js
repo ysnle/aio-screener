@@ -47,18 +47,24 @@ export function isValidMarketDate(value) {
   return Number.isFinite(ms) && new Date(ms).toISOString().slice(0, 10) === value;
 }
 
+// P1755: one formatter per time zone (construction dominated boot self-time, not formatting).
+const SESSION_DATE_FORMATTERS = new Map();
+function sessionDateFormatter(timeZone) {
+  let formatter = SESSION_DATE_FORMATTERS.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
+    SESSION_DATE_FORMATTERS.set(timeZone, formatter);
+  }
+  return formatter;
+}
+
 export function sessionDateInMarket(isoTimestamp, market) {
   // P1349: Date.parse normalizes impossible dates instead of rejecting them.
   if (!isValidMarketDate(String(isoTimestamp || '').slice(0, 10))) return null;
   const ms = Date.parse(isoTimestamp || '');
   if (!Number.isFinite(ms)) return null;
   try {
-    return new Intl.DateTimeFormat('en-CA', {
-      timeZone: timeZoneForMarket(market),
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).format(new Date(ms));
+    return sessionDateFormatter(timeZoneForMarket(market)).format(new Date(ms));
   } catch (_) {
     return null;
   }

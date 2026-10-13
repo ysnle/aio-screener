@@ -233,7 +233,9 @@ jobs:
 
       - name: Smoke check fast plane
         id: smoke
-        if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true'
+        # A failed optional step above (the dispatch-token publish) must not skip the smoke check of a Worker that
+        # was deployed, or a broken deploy would also skip its rollback.
+        if: ${{ !cancelled() && steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && steps.deploy.outcome == 'success' }}
         env:
           FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
           EXPECTED_SHA: ${{ steps.release.outputs.sha }}

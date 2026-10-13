@@ -10,6 +10,8 @@ export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-bu
  * same 32+ character AIO_AUTOMATION_TOKEN in GitHub and Worker secrets.
  * AI_MONTHLY_BUDGET_USD defaults to $20 and accepts only $0-$20. AI_DAILY_CAP
  * defaults to 300; AI_MAX_OUTPUT_TOKENS defaults to 4000 (up to 8192).
+ * P1759: AI_PER_CLIENT_DAILY_CAP (default 150, 1-1000, clamped to AI_DAILY_CAP) bounds each browser
+ * connection per UTC day in the same DO admission; below 20% of the month hosted search is removed.
  * The stable anthropic-authority-v1 DO identity/claude: day keys intentionally
  * retain historical reservations. They identify the ledger, not the provider.
  * Text/function Responses and bounded opt-in web search share the ledger;
@@ -245,6 +247,12 @@ function transportFailureMessage(error) {
   return error?.name === 'AbortError' ? 'timeout' : error?.code === 'too-large' ? 'too-large' : error?.code === 'redirect-refused' || error?.code === 'redirect-limit' ? 'redirect-refused' : 'upstream-error';
 }
 
+// Edge cache by upstream status: successes keep the route TTL, a 404 is held briefly, every other 4xx/5xx
+// expires immediately (ranges kept disjoint so no precedence rule is assumed).
+function edgeCacheTtlByStatus(ttl) {
+  return { '200-299': ttl, '404': 30, '400-403': 0, '405-599': 0 };
+}
+
 function targetExpectsJson(parsedUrl) {
   const s = `${parsedUrl.hostname}${parsedUrl.pathname}`.toLowerCase();
   return /\/api\/|finance\/chart|query1\.finance\.yahoo\.com|query2\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com|production\.dataviz\.cnn\.io|api\.fear-and-greed\.com|api\.alternative\.me/.test(s);
@@ -268,6 +276,13 @@ const OPENAI_RATE_LIMIT = 20; // 요청/분 — AI 호출은 데이터 프록시
 
 const relayRateLimitMap = new Map();
 const RELAY_RATE_LIMIT = 60; // 요청/분 — 운영자 키로 나가는 공유 쿼터 소비 경로
+
+// P1759: /health has its own lighter bucket. Sharing the data proxy's 300/min bucket meant a page's
+// readiness polls and its market-data GETs competed, so a shared IP (office/mobile NAT) reached 429 on
+// data sooner. The answer is memoized (authority 60 s, client budget 20 s), so an isolate-local bucket is
+// enough; an operator may still bind RATE_LIMIT_HEALTH later without a code change.
+const healthRateLimitMap = new Map();
+const HEALTH_RATE_LIMIT = 120; // 요청/분 — /health 전용
 
 function checkRateLimit(ip, map, limit) {
   map = map || rateLimitMap;
@@ -312,6 +327,11 @@ async function enforceRateLimit(env, bindingName, fallbackMap, limit, key) {
 }
 
 // 오래된 항목 정리 (isolate 장기 유지 시 메모리 방어)
+// Operator-visible denial reason (Workers logs). Route and reason only: never headers, keys, tokens or bodies.
+function logDenial(route, reason) {
+  console.warn({ route, reason });
+}
+
 function cleanupRateLimitMap(map) {
   map = map || rateLimitMap;
   const now = Date.now();
@@ -328,6 +348,8 @@ function getCorsHeaders(requestOrigin, env) {
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id, X-AIO-Provider-Key',
     'Access-Control-Max-Age': '86400',
+    // The allowed origin is echoed per request; a shared cache must not serve one origin's ACAO to another.
+    'Vary': 'Origin',
   };
 }
 
@@ -369,21 +391,72 @@ function errorResponse(message, status = 400, origin = '', aiContext = null, env
 // DO admission and settlement are atomic across browser/automation concurrency.
 // Public readiness is metadata-only: it reveals whether the Worker can serve
 // AI traffic, never the secret itself or its value.
-async function healthResponse(origin, env, method = 'GET', appToken = '') {
+// /health is public and polled by every open page; the DO round trip it makes is memoized for 60 s per
+// isolate (keyed by the binding so a different namespace never reads another's answer).
+// P1759: only a ready answer is held for 60 s. A failed probe (brief DO glitch, cold start) is held for
+// 5 s, so the AI route does not report not-ready for a whole minute after one transient error.
+const AUTHORITY_HEALTH_MEMO_MS = 60000;
+const AUTHORITY_HEALTH_FAILURE_MEMO_MS = 5000;
+let authorityHealthMemo = null;
+async function readAuthorityHealth(env) {
+  const binding = env && env.AIO_QUOTA_DO;
+  const now = Date.now();
+  if (authorityHealthMemo && authorityHealthMemo.binding === binding && now - authorityHealthMemo.at < authorityHealthMemo.ttl) return authorityHealthMemo.value;
+  let authority = { ready: false, jurisdiction: null, reason: 'us-authority-unavailable' };
+  try {
+    const response = await aiAuthorityDurableObjectStub(env).fetch('https://aio-authority.internal/health');
+    if (response.ok) authority = await response.json();
+  } catch (_) {}
+  const healthy = authority?.ready === true && authority?.jurisdiction === 'us';
+  authorityHealthMemo = { binding, at: now, ttl: healthy ? AUTHORITY_HEALTH_MEMO_MS : AUTHORITY_HEALTH_FAILURE_MEMO_MS, value: authority };
+  return authority;
+}
+
+// P1759: coarse budget state plus the caller's own remaining daily questions. Memoized per (binding,
+// client key) for 20 s; the fresh count also arrives on every /openai response header. Bounded memory.
+const CLIENT_BUDGET_MEMO_MS = 20000;
+const CLIENT_BUDGET_MEMO_MAX = 512;
+const clientBudgetMemo = new WeakMap();
+async function readClientBudgetStatus(env, clientIp) {
+  const binding = env && env.AIO_QUOTA_DO;
+  const now = Date.now();
+  const day = new Date(now).toISOString().slice(0, 10);
+  const clientKey = await deriveClientKey(env, clientIp, day);
+  const memoKey = clientKey || 'none';
+  let memo = clientBudgetMemo.get(binding);
+  if (!memo) { memo = new Map(); clientBudgetMemo.set(binding, memo); }
+  const hit = memo.get(memoKey);
+  if (hit && hit.day === day && now - hit.at < CLIENT_BUDGET_MEMO_MS) return hit.value;
+  let value = null;
+  try {
+    const status = await quotaRpc(env, 'status', { dayKey: 'claude:' + day, monthlyCapMicroUsd: aiMonthlyBudgetMicroUsd(env),
+      ...(clientKey ? { clientKey, clientCap: perClientDailyCap(env) } : {}) });
+    if (status?.ok === true && AI_BUDGET_STATES.includes(status.budgetState)) value = status;
+  } catch (_) {}
+  if (memo.size >= CLIENT_BUDGET_MEMO_MAX) memo.clear();
+  // A failed lookup is not memoized, mirroring the authority probe: the next poll retries.
+  if (value) memo.set(memoKey, { day, at: now, value });
+  return value;
+}
+
+async function healthResponse(origin, env, method = 'GET', appToken = '', clientIp = 'unknown') {
   const configured = !!(env && env.OPENAI_API_KEY);
   const quotaConfigured = hasAtomicQuotaBinding(env);
   const killSwitch = !!(env && env.AI_KILL_SWITCH === '1');
   let configurationValid = false;
-  try { aiMonthlyBudgetMicroUsd(env); quotaInteger(env?.AI_DAILY_CAP, 300); quotaInteger(env?.AI_MAX_OUTPUT_TOKENS, 4000, 8192); configurationValid = true; } catch (_) {}
-  let authority = { ready: false, jurisdiction: null, reason: 'us-authority-unavailable' };
-  if (hasDurableObjectNamespace(env)) {
-    try {
-      const response = await aiAuthorityDurableObjectStub(env).fetch('https://aio-authority.internal/health');
-      if (response.ok) authority = await response.json();
-    } catch (_) {}
-  }
+  try { aiMonthlyBudgetMicroUsd(env); quotaInteger(env?.AI_DAILY_CAP, 300); quotaInteger(env?.AI_MAX_OUTPUT_TOKENS, 4000, 8192); perClientDailyCap(env); configurationValid = true; } catch (_) {}
+  const authority = hasDurableObjectNamespace(env)
+    ? await readAuthorityHealth(env)
+    : { ready: false, jurisdiction: null, reason: 'us-authority-unavailable' };
+  // Compared only when the caller sent a token; an absent header is simply "not accepted".
+  const appTokenAccepted = !env?.AIO_APP_TOKEN || (!!appToken && await constantTimeTokenEquals(env.AIO_APP_TOKEN, appToken));
   const authorityReady = authority?.ready === true && authority?.jurisdiction === 'us';
   const ready = configured && quotaConfigured && authorityReady && configurationValid && !killSwitch;
+  // P1759: coarse budget visibility only (never spend, cap or reservation amounts).
+  const budgetStatus = method !== 'HEAD' && configured && configurationValid && authorityReady && hasDurableObjectNamespace(env)
+    ? await readClientBudgetStatus(env, clientIp) : null;
+  const budgetState = budgetStatus ? budgetStatus.budgetState : 'unknown';
+  const budgetSaverActive = budgetState === 'low' || budgetState === 'exhausted';
   const payload = {
     schemaVersion: 'aio-worker-health.v1',
     ok: true,
@@ -393,8 +466,16 @@ async function healthResponse(origin, env, method = 'GET', appToken = '') {
     ai: { configured, quotaConfigured, authorityReady, authorityJurisdiction: authority?.jurisdiction || null, configurationValid, killSwitch, ready, maxTokens: parseInt((env && env.AI_MAX_OUTPUT_TOKENS) || '4000', 10), provider: 'openai', model: OPENAI_MODEL,
       automationConfigured: typeof env?.AIO_AUTOMATION_TOKEN === 'string' && env.AIO_AUTOMATION_TOKEN.length >= 32,
       appTokenRequired: !!env?.AIO_APP_TOKEN,
-      appTokenAccepted: !env?.AIO_APP_TOKEN || appToken === env.AIO_APP_TOKEN,
-      paidWebSearchEnabled: paidWebSearchEnabled(env) },
+      appTokenAccepted,
+      paidWebSearchEnabled: paidWebSearchEnabled(env),
+      // P1759: 'ok' | 'low' (<20% of the month left) | 'exhausted' | 'unknown'. In low/exhausted the Worker
+      // removes hosted web search from new requests itself; webSearchAvailable is what a client should gate on.
+      budgetState,
+      budgetSaver: { active: budgetSaverActive, webSearch: !budgetSaverActive, label: budgetSaverActive ? AI_BUDGET_SAVER_LABEL : null },
+      webSearchAvailable: paidWebSearchEnabled(env) && budgetState === 'ok',
+      client: budgetStatus && Number.isSafeInteger(budgetStatus.clientLimit)
+        ? { dailyLimit: budgetStatus.clientLimit, remainingToday: budgetStatus.clientRemaining, resetsAt: budgetStatus.resetsAt, basis: 'utc-day-per-connection' }
+        : null },
     // Presence only — never the relay key value.
     relay: {
       providers: Object.keys(RELAY_PROVIDERS),
@@ -457,6 +538,12 @@ async function quotaRpc(env, operation, payload) {
 
 async function matchesOperatorToken(expected, supplied) {
   if (typeof expected !== 'string' || expected.length < 32 || typeof supplied !== 'string' || supplied.length < 32) return false;
+  return constantTimeTokenEquals(expected, supplied);
+}
+
+// Fixed-length digest comparison: timing does not depend on where the supplied token first differs.
+async function constantTimeTokenEquals(expected, supplied) {
+  if (typeof expected !== 'string' || !expected || typeof supplied !== 'string' || !supplied) return false;
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) return false;
   const encoder = new TextEncoder();
@@ -534,6 +621,111 @@ async function deriveRequestId(request, bodyText) {
 
 const QUOTA_STATE_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
 
+// ── P1759: per-client daily AI admission + coarse budget state ──────────────────────────────────
+// The global AI_DAILY_CAP and the monthly dollar ledger stay the authority. A browser connection also
+// gets its own, lower UTC-day count so one client (Origin/app token are spoofable by curl) cannot burn
+// the shared day or month. The count lives in the same DO ledger and is checked inside the same
+// blockConcurrencyWhile transaction that admits the request. Authenticated GitHub Actions requests carry
+// no client key and are not per-client limited (still global + monthly).
+// The client key is HMAC-SHA256(secret, UTC day | address): raw IPs are never stored or sent to the DO,
+// and the same address maps to unrelated keys on different days. IPv6 is grouped by /64 so rotating
+// addresses inside one allocation does not mint new allowances.
+const AI_PER_CLIENT_DAILY_CAP_DEFAULT = 150; // v57.54: a household shares one IP; half the 300/day global cap still stops one outsider draining it
+const AI_PER_CLIENT_DAILY_CAP_MAX = 1000;
+// Entries <= admitted browser requests today <= AI_DAILY_CAP; this ceiling only binds if an operator raises
+// AI_DAILY_CAP above it. A new client beyond it is refused (fail closed) rather than left uncounted.
+const AI_CLIENT_LEDGER_MAX_ENTRIES = 2000;
+const AI_CLIENT_KEY_RE = /^[0-9a-f]{32}$/;
+const AI_BUDGET_STATES = ['ok', 'low', 'exhausted'];
+// Below this headroom no ordinary answer fits (a short 4000-token answer reserves ~$0.003-0.01).
+const AI_BUDGET_EXHAUSTED_FLOOR_MICRO_USD = 10000;
+const AI_BUDGET_SAVER_LABEL = '예산 절약 모드 · 웹 검색 없이';
+const AI_META_HEADERS = ['Retry-After', 'X-AIO-Budget-State', 'X-AIO-Budget-Saver', 'X-AIO-Web-Search-Removed', 'X-AIO-Client-Limit', 'X-AIO-Client-Remaining', 'X-AIO-Client-Reset'];
+
+function perClientDailyCap(env) {
+  return Math.min(quotaInteger(env?.AI_PER_CLIENT_DAILY_CAP, AI_PER_CLIENT_DAILY_CAP_DEFAULT, AI_PER_CLIENT_DAILY_CAP_MAX), quotaInteger(env?.AI_DAILY_CAP, 300));
+}
+
+function normalizeClientAddress(value) {
+  const raw = String(value || '').trim().toLowerCase();
+  if (!raw) return 'unknown';
+  const mapped = raw.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/);
+  if (mapped) return mapped[1];
+  if (!raw.includes(':')) return raw;
+  const halves = raw.split('::');
+  const left = halves[0] ? halves[0].split(':') : [];
+  const right = halves.length > 1 && halves[1] ? halves[1].split(':') : [];
+  const groups = halves.length > 1 ? [...left, ...Array(Math.max(0, 8 - left.length - right.length)).fill('0'), ...right] : left;
+  return groups.slice(0, 4).map(group => (parseInt(group, 16) || 0).toString(16)).join(':') + '::/64';
+}
+
+export async function deriveClientKey(env, address, day) {
+  const secret = String(env?.AI_CLIENT_KEY_SALT || env?.OPENAI_API_KEY || '').trim();
+  const subtle = globalThis.crypto?.subtle;
+  if (!secret || !subtle || !/^\d{4}-\d{2}-\d{2}$/.test(String(day))) return null;
+  const encoder = new TextEncoder();
+  const key = await subtle.importKey('raw', encoder.encode('aio-client-key-v1|' + secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const signature = new Uint8Array(await subtle.sign('HMAC', key, encoder.encode(day + '|' + normalizeClientAddress(address))));
+  return Array.from(signature.slice(0, 16), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function nextUtcDayStartMs(now = Date.now()) {
+  const date = new Date(now);
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1);
+}
+
+function aiBudgetState(reservedMicroUsd, capMicroUsd, legacyUnknown) {
+  const remaining = capMicroUsd - reservedMicroUsd;
+  if (legacyUnknown || capMicroUsd <= 0 || remaining < AI_BUDGET_EXHAUSTED_FLOOR_MICRO_USD) return 'exhausted';
+  return remaining * 5 < capMicroUsd ? 'low' : 'ok';
+}
+
+// The same request without hosted search: used only when the ledger says the month is low, decided inside
+// the admission transaction (reserve), so the reservation and the dispatched body always agree.
+function budgetSaverVariant(budget, env) {
+  if (!(budget?.searchReserveMicroUsd > 0)) return null;
+  const { tools, max_tool_calls: _maxToolCalls, tool_choice: _toolChoice, ...rest } = budget.body;
+  const note = '\n[예산 절약 모드] 이번 답변은 웹 검색 없이 제공된 자료만으로 작성하세요. 최신 사실이 필요한데 자료에 없으면 확인되지 않았다고 밝히세요.';
+  return prepareOpenAiBudget({ ...rest, instructions: (typeof rest.instructions === 'string' ? rest.instructions : '') + note }, env);
+}
+
+function aiAdmissionHeaders(reservation) {
+  const headers = {};
+  if (AI_BUDGET_STATES.includes(reservation?.budgetState)) {
+    headers['X-AIO-Budget-State'] = reservation.budgetState;
+    headers['X-AIO-Budget-Saver'] = reservation.budgetState === 'ok' ? '0' : '1';
+  }
+  if (reservation?.budgetSaverApplied === true) headers['X-AIO-Web-Search-Removed'] = '1';
+  if (Number.isSafeInteger(reservation?.clientLimit) && Number.isSafeInteger(reservation?.clientRemaining)) {
+    headers['X-AIO-Client-Limit'] = String(reservation.clientLimit);
+    headers['X-AIO-Client-Remaining'] = String(reservation.clientRemaining);
+    headers['X-AIO-Client-Reset'] = new Date(nextUtcDayStartMs()).toISOString();
+  }
+  return headers;
+}
+
+function copyAiMetaHeaders(from) {
+  const headers = {};
+  for (const name of AI_META_HEADERS) { const value = from?.get?.(name); if (value) headers[name] = value; }
+  return headers;
+}
+
+function withAiMetaHeaders(response, extra) {
+  if (!extra || !Object.keys(extra).length) return response;
+  const headers = new Headers(response.headers);
+  for (const [name, value] of Object.entries(extra)) headers.set(name, value);
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
+// A hosted-search request or a long (> 4000-token, reasoning-inclusive) answer routinely needs more than a
+// minute; cutting it at 60 s retained the whole reservation for an answer the caller never received. The
+// Actions search client (scripts/lib/ai-shared-analysis.mjs) waits 115 s, inside this 120 s bound.
+const OPENAI_DEADLINE_MS = 60000;
+const OPENAI_LONG_DEADLINE_MS = 120000;
+function openAiDeadlineMs(budget) {
+  return (budget?.searchReserveMicroUsd > 0 || Number(budget?.body?.max_output_tokens) > 4000) ? OPENAI_LONG_DEADLINE_MS : OPENAI_DEADLINE_MS;
+}
+
 // Keep the established quota schema and DO identity across the provider migration.
 // The persisted month ledger includes all previously reserved Anthropic spend.
 const BUDGET_SCHEMA = 2;
@@ -561,7 +753,7 @@ async function fetchOpenAiWithDeadline(apiKey, budget, callerSignal, settle) {
     cleanup();
   };
   const cancelFromCaller = () => abort(new DOMException('AI request cancelled', 'AbortError'));
-  timeout = setTimeout(() => abort(new DOMException('OpenAI timeout', 'AbortError')), 60000);
+  timeout = setTimeout(() => abort(new DOMException('OpenAI timeout', 'AbortError')), openAiDeadlineMs(budget));
   callerSignal?.addEventListener('abort', cancelFromCaller, { once: true });
   if (callerSignal?.aborted) cancelFromCaller();
   try {
@@ -624,12 +816,16 @@ export class AIOQuotaDurableObject {
     this.state = state;
     this.storage = state.storage;
     this.env = env;
-    this.counts = { schemaVersion: BUDGET_SCHEMA, days: {}, months: {}, reservations: {}, legacyUnknownMonths: {} };
+    this.counts = { schemaVersion: BUDGET_SCHEMA, days: {}, months: {}, reservations: {}, legacyUnknownMonths: {}, clients: {} };
+    // Validated state stays in memory for this object's lifetime (every caller runs under
+    // blockConcurrencyWhile, so there is one writer); a failed save drops it so the next call re-reads storage.
+    this.loaded = false;
   }
 
   async load() {
+    if (this.loaded) return;
     const saved = await this.storage.get('quota-state');
-    if (saved === undefined) return;
+    if (saved === undefined) { this.loaded = true; return; }
     const record = value => value && typeof value === 'object' && !Array.isArray(value);
     if (!record(saved) || !record(saved.days) || !record(saved.reservations)) throw new Error('corrupt quota state');
     this.counts = saved;
@@ -642,6 +838,11 @@ export class AIOQuotaDurableObject {
       await this.save();
     }
     if (!record(this.counts.months) || !record(this.counts.legacyUnknownMonths)) throw new Error('corrupt monthly quota state');
+    // P1759: per-client day counts are an abuse bound, not money. A missing or malformed map (older
+    // ledger, unexpected shape) resets to empty instead of bricking AI; the global day/month caps still hold.
+    const clientsValid = record(this.counts.clients) && Object.entries(this.counts.clients).every(([day, bucket]) => /^claude:\d{4}-\d{2}-\d{2}$/.test(day)
+      && record(bucket) && Object.entries(bucket).every(([key, used]) => AI_CLIENT_KEY_RE.test(key) && Number.isSafeInteger(used) && used >= 0));
+    if (!clientsValid) this.counts.clients = {};
     for (const count of Object.values(this.counts.days)) if (!Number.isSafeInteger(count) || count < 0) throw new Error('corrupt daily quota count');
     for (const [month, amount] of Object.entries(this.counts.months)) {
       if (!/^\d{4}-(?:0[1-9]|1[0-2])$/.test(month) || !Number.isSafeInteger(amount) || amount < 0) throw new Error('corrupt monthly quota count');
@@ -676,16 +877,26 @@ export class AIOQuotaDurableObject {
       if (count > 0 && day.startsWith('claude:') && Date.parse(day.slice(7) + 'T00:00:00Z') >= Date.now() - QUOTA_STATE_RETENTION_MS
         && !Object.hasOwn(this.counts.months, day.slice(7, 14))) throw new Error('monthly ledger missing for existing AI usage');
     }
+    this.loaded = true;
   }
 
-  async save() { await this.storage.put('quota-state', this.counts); }
+  async save() {
+    try { await this.storage.put('quota-state', this.counts); }
+    catch (error) { this.loaded = false; throw error; }
+  }
 
+  // The whole ledger is one storage value, so it must stay bounded. A started or settled AI reservation can
+  // never be released, and its amount already lives in months[monthKey]; past the 3-day idempotency window
+  // it only answers duplicate request IDs, so it drops with the day counters. Dropping a row only lowers
+  // the per-month reservation sums, so load()'s sums <= months check still holds. An un-started
+  // reservation may still be released (its amount returned to the month), so it keeps the month-retention rule.
   prune(now = Date.now()) {
     let changed = false;
     const cutoff = now - QUOTA_STATE_RETENTION_MS;
     for (const [key, reservation] of Object.entries(this.counts.reservations || {})) {
-      const reservedAt = typeof reservation === 'object' ? reservation.createdAt : reservation;
-      const expiresBefore = typeof reservation === 'object' ? now - MONTH_RETENTION_MS : cutoff;
+      const isAiRow = typeof reservation === 'object' && reservation !== null;
+      const reservedAt = isAiRow ? reservation.createdAt : reservation;
+      const expiresBefore = isAiRow && !reservation.started ? now - MONTH_RETENTION_MS : cutoff;
       if (Number(reservedAt) < expiresBefore) {
         delete this.counts.reservations[key];
         changed = true;
@@ -697,6 +908,11 @@ export class AIOQuotaDurableObject {
       if (nextMonth.getTime() < now - MONTH_RETENTION_MS) {
         delete this.counts.months[month]; delete this.counts.legacyUnknownMonths[month]; changed = true;
       }
+    }
+    // P1759: per-client counts expire at the UTC day boundary the ledger already uses.
+    const currentClientDay = 'claude:' + new Date(now).toISOString().slice(0, 10);
+    for (const day of Object.keys(this.counts.clients || {})) {
+      if (day !== currentClientDay) { delete this.counts.clients[day]; changed = true; }
     }
     for (const dayKey of Object.keys(this.counts.days || {})) {
       const match = dayKey.match(/(\d{4}-\d{2}-\d{2})$/);
@@ -732,6 +948,24 @@ export class AIOQuotaDurableObject {
           monthlyPastSpendUnknown: this.counts.legacyUnknownMonths[monthKey] === true };
         return;
       }
+      if (operation === 'status') {
+        // P1759: read-only coarse state for /health. Never returns amounts.
+        const day = dayKey.slice(7);
+        const parsedDay = Date.parse(`${day}T00:00:00.000Z`);
+        if (!/^claude:\d{4}-\d{2}-\d{2}$/.test(dayKey) || !Number.isFinite(parsedDay) || new Date(parsedDay).toISOString().slice(0, 10) !== day
+          || !Number.isSafeInteger(body.monthlyCapMicroUsd) || body.monthlyCapMicroUsd < 0 || body.monthlyCapMicroUsd > AI_MONTHLY_MAX_MICRO_USD) throw new Error('valid AI budget status request required');
+        const monthKey = day.slice(0, 7);
+        result = { ok: true, budgetState: aiBudgetState(this.counts.months[monthKey] || 0, body.monthlyCapMicroUsd, this.counts.legacyUnknownMonths[monthKey] === true),
+          resetsAt: new Date(parsedDay + 24 * 60 * 60 * 1000).toISOString() };
+        if (body.clientKey !== undefined) {
+          if (typeof body.clientKey !== 'string' || !AI_CLIENT_KEY_RE.test(body.clientKey)) throw new Error('valid client key required');
+          const clientCap = quotaInteger(body.clientCap, AI_PER_CLIENT_DAILY_CAP_DEFAULT, AI_PER_CLIENT_DAILY_CAP_MAX);
+          const used = this.counts.clients[dayKey]?.[body.clientKey] || 0;
+          result.clientLimit = clientCap;
+          result.clientRemaining = Math.max(0, clientCap - used);
+        }
+        return;
+      }
       if (!dayKey || !requestId) throw new Error('dayKey and requestId are required');
       if (operation === 'reserve') {
         if (this.counts.reservations[key]) {
@@ -742,29 +976,57 @@ export class AIOQuotaDurableObject {
         const cap = quotaInteger(body.cap, 300);
         const isAi = dayKey.startsWith('claude:');
         const monthKey = dayKey.slice(7, 14);
+        let amount = body.reservationMicroUsd, budgetState = null, budgetSaverApplied = false, clientKey = null, clientCap = null, clientUsed = 0;
         if (isAi) {
           const day = dayKey.slice(7);
           const instant = Date.parse(`${day}T00:00:00Z`);
           if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isFinite(instant) || new Date(instant).toISOString().slice(0, 10) !== day
             || !Number.isSafeInteger(body.reservationMicroUsd) || body.reservationMicroUsd < 1
             || !Number.isSafeInteger(body.monthlyCapMicroUsd) || body.monthlyCapMicroUsd < 0 || body.monthlyCapMicroUsd > AI_MONTHLY_MAX_MICRO_USD) throw new Error('valid AI budget reservation required');
+          if (body.clientKey !== undefined && body.clientKey !== null) {
+            if (typeof body.clientKey !== 'string' || !AI_CLIENT_KEY_RE.test(body.clientKey)) throw new Error('valid client key required');
+            clientKey = body.clientKey;
+            clientCap = quotaInteger(body.clientCap, AI_PER_CLIENT_DAILY_CAP_DEFAULT, AI_PER_CLIENT_DAILY_CAP_MAX);
+          }
           const monthlyReservedMicroUsd = this.counts.months[monthKey] || 0;
-          if (this.counts.legacyUnknownMonths[monthKey] || monthlyReservedMicroUsd + body.reservationMicroUsd > body.monthlyCapMicroUsd) {
-            result = { ok: false, reserved: false, count, reason: this.counts.legacyUnknownMonths[monthKey] ? 'legacy-month-spend-unknown' : 'monthly-budget', monthlyReservedMicroUsd };
+          const legacyUnknown = this.counts.legacyUnknownMonths[monthKey] === true;
+          budgetState = aiBudgetState(monthlyReservedMicroUsd, body.monthlyCapMicroUsd, legacyUnknown);
+          // P1759: below 20% of the month, a searched request is admitted (if at all) as its no-search variant.
+          if (budgetState !== 'ok' && Number.isSafeInteger(body.saverReservationMicroUsd) && body.saverReservationMicroUsd >= 1 && body.saverReservationMicroUsd < amount) {
+            amount = body.saverReservationMicroUsd; budgetSaverApplied = true;
+          }
+          if (legacyUnknown || monthlyReservedMicroUsd + amount > body.monthlyCapMicroUsd) {
+            result = { ok: false, reserved: false, count, reason: legacyUnknown ? 'legacy-month-spend-unknown' : 'monthly-budget', monthlyReservedMicroUsd, budgetState };
             return;
           }
         }
         if (count >= cap) {
-          result = { ok: false, reserved: false, duplicate: false, count, reason: 'daily-cap' };
+          result = { ok: false, reserved: false, duplicate: false, count, reason: 'daily-cap', budgetState };
           return;
+        }
+        if (clientKey) {
+          const bucket = this.counts.clients[dayKey] || {};
+          clientUsed = bucket[clientKey] || 0;
+          const ledgerFull = !Object.hasOwn(bucket, clientKey) && Object.keys(bucket).length >= AI_CLIENT_LEDGER_MAX_ENTRIES;
+          if (clientUsed >= clientCap || ledgerFull) {
+            result = { ok: false, reserved: false, duplicate: false, count, reason: 'client-daily-cap', budgetState, clientLimit: clientCap, clientRemaining: Math.max(0, clientCap - clientUsed) };
+            return;
+          }
         }
         this.counts.days[dayKey] = count + 1;
         if (isAi) {
-          this.counts.months[monthKey] = (this.counts.months[monthKey] || 0) + body.reservationMicroUsd;
-          this.counts.reservations[key] = { createdAt: Date.now(), dayKey, monthKey, reservationMicroUsd: body.reservationMicroUsd, started: false };
+          this.counts.months[monthKey] = (this.counts.months[monthKey] || 0) + amount;
+          this.counts.reservations[key] = { createdAt: Date.now(), dayKey, monthKey, reservationMicroUsd: amount, started: false, ...(clientKey ? { clientKey } : {}) };
+          if (clientKey) (this.counts.clients[dayKey] ||= {})[clientKey] = clientUsed + 1;
+          budgetState = aiBudgetState(this.counts.months[monthKey], body.monthlyCapMicroUsd, false);
         } else this.counts.reservations[key] = Date.now();
         await this.save();
         result = { ok: true, reserved: true, duplicate: false, count: count + 1 };
+        if (isAi) {
+          result.budgetState = budgetState;
+          result.budgetSaverApplied = budgetSaverApplied;
+          if (clientKey) { result.clientLimit = clientCap; result.clientRemaining = Math.max(0, clientCap - clientUsed - 1); }
+        }
         return;
       }
       if (operation === 'release') {
@@ -781,6 +1043,12 @@ export class AIOQuotaDurableObject {
         }
         if (typeof reservation === 'object') {
           this.counts.months[reservation.monthKey] -= reservation.reservationMicroUsd;
+          // P1759: a pre-dispatch release also returns the client's daily question.
+          const bucket = reservation.clientKey ? this.counts.clients[reservation.dayKey] : null;
+          if (bucket && bucket[reservation.clientKey] > 0) {
+            if (bucket[reservation.clientKey] === 1) delete bucket[reservation.clientKey];
+            else bucket[reservation.clientKey] -= 1;
+          }
         }
         delete this.counts.reservations[key];
         this.counts.days[dayKey] = Math.max(0, Number(this.counts.days[dayKey] || 0) - 1);
@@ -835,17 +1103,21 @@ export class AIOQuotaDurableObject {
       if (jurisdiction !== 'us') {
         return Response.json({ error: { type: 'authority_location_error', message: 'US AI authority required' } }, { status: 503 });
       }
-      let budget, cap;
+      let budget, cap, clientCap;
       try {
         budget = prepareOpenAiBudget(body.responseBody, this.env);
         cap = quotaInteger(this.env.AI_DAILY_CAP, 300);
+        clientCap = perClientDailyCap(this.env);
       } catch (error) {
         return Response.json({ error: { type: 'budget_validation_error', message: error.message } }, { status: 400 });
       }
+      // P1759: the Worker sends only the HMAC client key (never the address); automation sends none.
+      const clientKey = typeof body.clientKey === 'string' && AI_CLIENT_KEY_RE.test(body.clientKey) ? body.clientKey : null;
       const payload = { dayKey: 'claude:' + new Date().toISOString().slice(0, 10), cap, requestId: body.requestId,
-        reservationMicroUsd: budget.reservationMicroUsd, monthlyCapMicroUsd: budget.monthlyCapMicroUsd };
+        reservationMicroUsd: budget.reservationMicroUsd, monthlyCapMicroUsd: budget.monthlyCapMicroUsd,
+        ...(clientKey ? { clientKey, clientCap } : {}) };
       const upstream = await dispatchOpenAi(this.env, budget, payload, request.signal, (operation, value) => this.mutateQuota(operation, value));
-      return new Response(upstream.body, { status: upstream.status, headers: { 'Content-Type': upstream.headers.get('content-type') || 'application/json', 'X-AIO-Upstream-Authority': 'durable-object-us' } });
+      return new Response(upstream.body, { status: upstream.status, headers: { 'Content-Type': upstream.headers.get('content-type') || 'application/json', 'X-AIO-Upstream-Authority': 'durable-object-us', ...copyAiMetaHeaders(upstream.headers) } });
     }
     const result = await this.mutateQuota(operation, body);
     return Response.json(result || { ok: false }, { status: 200 });
@@ -874,14 +1146,29 @@ async function releaseQuota(env, dayKey, requestId) {
 }
 
 async function dispatchOpenAi(env, budget, payload, signal, rpc) {
-  const reservation = await rpc('reserve', payload);
+  // P1759: a searched request also offers its no-search price; the ledger picks one inside the admission
+  // transaction (low/exhausted month -> no search) so the reservation always matches the dispatched body.
+  let saver = null;
+  try { saver = budgetSaverVariant(budget, env); } catch (_) { /* no cheaper variant fits: admit as requested or not at all */ }
+  const reservation = await rpc('reserve', saver ? { ...payload, saverReservationMicroUsd: saver.reservationMicroUsd } : payload);
   if (!reservation?.ok || !reservation.reserved) {
-    const message = reservation?.reason === 'legacy-month-spend-unknown'
+    const reason = reservation?.reason || 'quota-unavailable';
+    const daily = reason === 'daily-cap' || reason === 'client-daily-cap';
+    const resetMs = nextUtcDayStartMs();
+    const retryAfterSeconds = Math.max(1, Math.ceil((resetMs - Date.now()) / 1000));
+    const message = reason === 'legacy-month-spend-unknown'
       ? '이번 UTC 월의 과거 AI 비용을 확인할 수 없어 서버 AI를 보호 차단했습니다. 공급자 Console의 월 한도를 확인하세요.'
-      : reservation?.reason === 'monthly-budget' ? '월 AI 예산의 보수적 예약 상한에 도달했습니다. 실제 청구액이 아니며 반복 재시도로 복구되지 않습니다.' : 'daily AI quota exceeded';
-    return Response.json({ error: { type: 'rate_limit_error', message, quotaReason: reservation?.reason || 'quota-unavailable' } }, { status: 429 });
+      : reason === 'monthly-budget' ? '월 AI 예산의 보수적 예약 상한에 도달했습니다. 실제 청구액이 아니며 반복 재시도로 복구되지 않습니다.'
+      : reason === 'client-daily-cap' ? `이 연결의 오늘 AI 질문 한도(${Number.isSafeInteger(reservation?.clientLimit) ? reservation.clientLimit + '회' : '일일 한도'})를 모두 사용했습니다. UTC 자정(한국 시간 오전 9시)에 다시 사용할 수 있습니다.`
+      : 'daily AI quota exceeded';
+    logDenial('/openai', reason);
+    return Response.json({ error: { type: 'rate_limit_error', code: reason, message, quotaReason: reason,
+      ...(daily ? { retryAfterSeconds, resetAt: new Date(resetMs).toISOString() } : {}) } },
+    { status: 429, headers: { ...aiAdmissionHeaders(reservation), ...(daily ? { 'Retry-After': String(retryAfterSeconds) } : {}) } });
   }
   if (reservation.duplicate) return Response.json({ error: { type: 'idempotency_conflict', message: 'duplicate request is already reserved' } }, { status: 409 });
+  if (reservation.budgetSaverApplied === true && saver) budget = saver;
+  const meta = aiAdmissionHeaders(reservation);
   if (signal?.aborted) {
     await rpc('release', payload);
     return Response.json({ error: { type: 'cancelled', message: 'AI request cancelled before upstream dispatch' } }, { status: 502 });
@@ -890,11 +1177,11 @@ async function dispatchOpenAi(env, budget, payload, signal, rpc) {
   catch (error) { await rpc('release', payload); throw error; }
   // P1433: a secret pasted with a trailing newline/space makes the Authorization header invalid and fetch
   // throws before any request leaves (live 2026-10-04: every call 502 in under 0.5 s). Trim it here.
-  try { return await fetchOpenAiWithDeadline(String(env.OPENAI_API_KEY).trim(), budget, signal,
-    chargeMicroUsd => rpc('settle', { ...payload, chargeMicroUsd })); }
+  try { return withAiMetaHeaders(await fetchOpenAiWithDeadline(String(env.OPENAI_API_KEY).trim(), budget, signal,
+    chargeMicroUsd => rpc('settle', { ...payload, chargeMicroUsd })), meta); }
   catch (error) {
     // The error class only (no message, no key material) so an operator can tell a local throw from a network failure.
-    return Response.json({ error: { type: error.name === 'AbortError' ? 'timeout' : 'upstream_error', message: 'OpenAI upstream unavailable; monthly reservation retained', errorClass: String(error?.name || 'Error').slice(0, 40) } }, { status: 502 });
+    return Response.json({ error: { type: error.name === 'AbortError' ? 'timeout' : 'upstream_error', message: 'OpenAI upstream unavailable; monthly reservation retained', errorClass: String(error?.name || 'Error').slice(0, 40) } }, { status: 502, headers: meta });
   }
 }
 
@@ -936,13 +1223,13 @@ async function handleOpenAi(request, env, origin) {
   if (!env?.OPENAI_API_KEY) return errorResponse('server OpenAI key is not configured', 503, origin, aiError, env);
   if (origin) {
     if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, aiError, env);
-    if (env.AIO_APP_TOKEN && request.headers.get('X-AIO-App-Token') !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin, aiError, env);
+    if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, aiError, env);
   } else if (!await matchesOperatorToken(env.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'))) {
     return errorResponse('Authorized automation token required', 403, origin, aiError, env);
   }
   cleanupRateLimitMap(openAiRateLimitMap);
   const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
-  if (!await enforceRateLimit(env, 'RATE_LIMIT_OPENAI', openAiRateLimitMap, OPENAI_RATE_LIMIT, clientIp)) return errorResponse('Too many AI requests', 429, origin, aiError, env);
+  if (!await enforceRateLimit(env, 'RATE_LIMIT_OPENAI', openAiRateLimitMap, OPENAI_RATE_LIMIT, clientIp)) { logDenial('/openai', 'rate-limit'); return errorResponse('Too many AI requests', 429, origin, aiError, env); }
   if (!hasAtomicQuotaBinding(env)) return errorResponse('atomic AI quota is not configured', 503, origin, aiError, env);
   const maxBodyBytes = 200 * 1024;
   let bodyText;
@@ -951,21 +1238,26 @@ async function handleOpenAi(request, env, origin) {
   let body;
   try { body = JSON.parse(bodyText); } catch { return errorResponse('Invalid JSON body', 400, origin, aiError, env); }
   if (!body || typeof body !== 'object' || Array.isArray(body)) return errorResponse('JSON object required', 400, origin, aiError, env);
-  let cap, budget;
+  let cap, budget, clientCap;
   try {
     cap = quotaInteger(env.AI_DAILY_CAP, 300);
+    clientCap = perClientDailyCap(env);
     budget = prepareOpenAiBudget(body, env);
     body = budget.body;
   } catch (error) { return errorResponse(error.message, /configuration|monthly AI budget/.test(error.message) ? 503 : 400, origin, aiError, env); }
   const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
   const requestId = await deriveRequestId(request, bodyText);
   const maxTokens = body.max_output_tokens;
+  // P1759: browser (Origin) requests carry a per-connection HMAC key; authenticated automation does not.
+  const clientKey = origin ? await deriveClientKey(env, clientIp, dayKey.slice(7)) : null;
+  const clientFields = clientKey ? { clientKey, clientCap } : {};
+  const exposeAiMeta = { 'Access-Control-Expose-Headers': ['X-AIO-Max-Tokens', ...AI_META_HEADERS].join(', ') };
   if (hasDurableObjectNamespace(env)) {
     try {
-      const upstream = await fetchOpenAiThroughDurableObject(env, { dayKey, cap, requestId, responseBody: body }, request.signal);
+      const upstream = await fetchOpenAiThroughDurableObject(env, { dayKey, cap, requestId, responseBody: body, ...clientFields }, request.signal);
       return new Response(upstream.body, { status: upstream.status, headers: {
         'Content-Type': upstream.headers.get('content-type') || 'application/json',
-        ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
+        ...getCorsHeaders(origin, env), ...SECURITY_HEADERS, ...exposeAiMeta, ...copyAiMetaHeaders(upstream.headers),
         'X-AIO-Proxy': 'cloudflare-worker-openai', 'X-AIO-Max-Tokens': String(maxTokens),
         'X-AIO-Upstream-Authority': upstream.headers.get('X-AIO-Upstream-Authority') || 'durable-object',
       }});
@@ -977,10 +1269,10 @@ async function handleOpenAi(request, env, origin) {
   }
   try {
     const upstream = await dispatchOpenAi(env, budget, { dayKey, cap, requestId,
-      reservationMicroUsd: budget.reservationMicroUsd, monthlyCapMicroUsd: budget.monthlyCapMicroUsd }, request.signal, (operation, payload) => quotaRpc(env, operation, payload));
+      reservationMicroUsd: budget.reservationMicroUsd, monthlyCapMicroUsd: budget.monthlyCapMicroUsd, ...clientFields }, request.signal, (operation, payload) => quotaRpc(env, operation, payload));
     return new Response(upstream.body, { status: upstream.status, headers: {
       'Content-Type': upstream.headers.get('content-type') || 'application/json',
-      ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
+      ...getCorsHeaders(origin, env), ...SECURITY_HEADERS, ...exposeAiMeta, ...copyAiMetaHeaders(upstream.headers),
       'X-AIO-Proxy': 'cloudflare-worker-openai', 'X-AIO-Max-Tokens': String(maxTokens),
     }});
   } catch (error) {
@@ -999,10 +1291,10 @@ async function handleRelay(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
   if (request.method !== 'GET') return errorResponse('GET required for /relay', 405, origin);
   if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin);
-  if (env.AIO_APP_TOKEN && request.headers.get('X-AIO-App-Token') !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin);
+  if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin);
   cleanupRateLimitMap(relayRateLimitMap);
   const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
-  if (!await enforceRateLimit(env, 'RATE_LIMIT_RELAY', relayRateLimitMap, RELAY_RATE_LIMIT, clientIp)) return errorResponse('Too many relay requests', 429, origin, null, env);
+  if (!await enforceRateLimit(env, 'RATE_LIMIT_RELAY', relayRateLimitMap, RELAY_RATE_LIMIT, clientIp)) { logDenial('/relay', 'rate-limit'); return errorResponse('Too many relay requests', 429, origin, null, env); }
 
   const url = new URL(request.url);
   const providerId = String(url.searchParams.get('provider') || '').toLowerCase();
@@ -1032,7 +1324,7 @@ async function handleRelay(request, env, origin) {
   let ownedReservation = false;
   try {
     const reservation = await quotaRpc(env, 'reserve', { dayKey, cap, requestId });
-    if (!reservation?.ok || !reservation.reserved) return errorResponse('Daily relay quota exceeded', 429, origin);
+    if (!reservation?.ok || !reservation.reserved) { logDenial('/relay', reservation?.reason || 'daily-cap'); return errorResponse('Daily relay quota exceeded', 429, origin); }
     ownedReservation = !reservation.duplicate;
   } catch { return errorResponse('Relay quota unavailable', 503, origin); }
 
@@ -1049,7 +1341,8 @@ async function handleRelay(request, env, origin) {
         method: 'GET',
         headers: { 'Accept': 'application/json,text/plain,*/*', 'User-Agent': 'AIO-Screener-relay/1.0' },
         signal: controller.signal,
-        cf: { cacheTtl: providerId === 'fred' ? 0 : provider.cacheTtl || 600 },
+        // Upstream errors are never cached at the edge (a 5xx or quota error must not pin for the full TTL).
+        cf: providerId === 'fred' ? { cacheTtl: 0 } : { cacheTtlByStatus: edgeCacheTtlByStatus(provider.cacheTtl || 600) },
       }, (next) => providerId !== 'fred' && next.protocol === 'https:' && next.hostname === providerUrl.hostname);
       rawBody = await readUpstreamText(response);
     } finally {
@@ -1065,7 +1358,7 @@ async function handleRelay(request, env, origin) {
       status: response.status,
       headers: {
         'Content-Type': response.headers.get('content-type') || 'application/json',
-        'Cache-Control': providerId === 'fred' ? 'private, no-store' : `public, max-age=${provider.cacheTtl || 600}`,
+        'Cache-Control': providerId === 'fred' ? 'private, no-store' : response.ok ? `public, max-age=${provider.cacheTtl || 600}` : 'no-store',
         ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
         'X-AIO-Proxy': 'cloudflare-worker-relay',
         'X-AIO-Relay-Provider': providerId,
@@ -1088,7 +1381,15 @@ export default {
     if (_u.pathname === '/health') {
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin, env) });
       if (request.method !== 'GET' && request.method !== 'HEAD') return errorResponse('GET required for /health', 405, requestOrigin);
-      return healthResponse(requestOrigin, env, request.method, request.headers.get('X-AIO-App-Token') || '');
+      // P1759: /health reaches the Durable Object (memoized) and must not be a free amplifier, but it has its
+      // own per-IP bucket so readiness polls never consume the data proxy's allowance.
+      cleanupRateLimitMap(healthRateLimitMap);
+      const healthClientIp = request.headers.get('cf-connecting-ip') || 'unknown';
+      if (!await enforceRateLimit(env, 'RATE_LIMIT_HEALTH', healthRateLimitMap, HEALTH_RATE_LIMIT, healthClientIp)) {
+        logDenial('/health', 'rate-limit');
+        return errorResponse('Too many requests', 429, requestOrigin, null, env);
+      }
+      return healthResponse(requestOrigin, env, request.method, request.headers.get('X-AIO-App-Token') || '', healthClientIp);
     }
 
     // P1421: AI provider route branches before the independent data proxy.
@@ -1133,6 +1434,7 @@ export default {
     // Rate limit 체크 + 정리 (v2.2: cleanup 호출이 주석에 붙어 미실행이던 버그 시정)
     cleanupRateLimitMap();
     if (!await enforceRateLimit(env, 'RATE_LIMIT_PROXY', rateLimitMap, RATE_LIMIT, clientIp)) {
+      logDenial('/proxy', 'rate-limit');
       return errorResponse('Too many requests', 429, requestOrigin, null, env);
     }
 
@@ -1197,7 +1499,7 @@ export default {
           method: 'GET',
           headers: upstreamHeaders,
           signal: controller.signal,
-          cf: { cacheTtl: _cacheTtl },
+          cf: { cacheTtlByStatus: edgeCacheTtlByStatus(_cacheTtl) },
         }, allowedHop);
         data = await readUpstreamText(response);
       } finally {
@@ -1212,7 +1514,7 @@ export default {
         status: response.status,
         headers: {
           'Content-Type': contentType,
-          'Cache-Control': `public, max-age=${_cacheTtl}`,
+          'Cache-Control': response.ok ? `public, max-age=${_cacheTtl}` : 'no-store',
           ...getCorsHeaders(requestOrigin, env),
           ...SECURITY_HEADERS,
           'X-AIO-Proxy': 'cloudflare-worker',

@@ -117,8 +117,11 @@
 /* P1643: one basis card for every explained number (hover, focus, or tap). */
 .aio-basis-card { position: fixed; z-index: 1000; max-width: min(340px, calc(100vw - 16px)); padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius); box-shadow: var(--shadow-md); color: var(--text-secondary); font-size: var(--fs-xs, 12px); line-height: 1.55; pointer-events: none; }
 .aio-basis-card p { margin: 0; }
-.aio-basis-btn { position: absolute; width: 1px; height: 1px; min-width: 0; min-height: 0; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-.aio-basis-btn:focus-visible { position: static; width: auto; height: auto; min-width: 44px; min-height: 28px; margin: 6px 0 0; padding: 2px 8px; clip: auto; overflow: visible; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--bg-elevated); color: var(--text-primary); font-size: var(--fs-xs, 12px); }
+/* v57.54 audit: `.page button { min-height:36px }` (0,1,1) and the phone `.page :is(button,…)` (0,2,0) outranked the
+   hidden state (0,1,0), so the skip button measured 1x36 in flex rows; `.page button.aio-basis-btn` (0,2,1) wins. Focused, it is a self-sized chip (not a
+   stretched flex item, not a 1px column) on every card container (macro-stat, regime-axis, sentiment cards). */
+.page button.aio-basis-btn { position: absolute; width: 1px; height: 1px; min-width: 0; min-height: 0; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; flex: 0 0 auto; }
+.page button.aio-basis-btn:focus-visible { position: static; width: auto; height: auto; min-width: 44px; min-height: 28px; flex: 0 0 auto; align-self: flex-start; justify-self: start; margin: 6px 0 0; padding: 2px 8px; clip: auto; overflow: visible; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--bg-elevated); color: var(--text-primary); font-size: var(--fs-xs, 12px); }
 .aio-basis-meta { margin-top: 6px !important; padding-top: 6px; border-top: 1px solid var(--border-subtle); color: var(--text-muted); font-variant-numeric: tabular-nums; }
 .aio-basis-meta.is-stale { color: var(--warning, #a15c00); }
 [data-basis] { cursor: help; }
@@ -175,3 +178,135 @@ body.dark-theme .sector-map .is-d1 { background: #4e2d2b; color: #f0f0ed; } body
 body.dark-theme .sector-map .is-na { background: #36383b; color: #c8c6c0; }
 @media (max-width: 720px) { .sector-map-tab { padding: 5px 10px; } .sector-map-legend { max-width: none; } }
 @media (prefers-reduced-motion: reduce) { .sector-map-tile { transition: none; } }
+
+/* P1742: 앞으로의 갈림길 — forward branches (거시 full, 오늘·시장 상태 compact). */
+.page .xr-section { margin-bottom: 30px; }
+.page .xr-lead { font-size: 17px; line-height: 1.7; font-weight: 600; color: var(--text-primary); margin: 6px 0 8px; }
+.page .xr-basis, .page .xr-caveat { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); margin: 6px 0 14px; }
+.page .xr-reading { font-size: 15px; line-height: 1.75; color: var(--text-secondary); margin: 8px 0; }
+.page .xr-tension { font-size: 15px; line-height: 1.75; color: var(--text-primary); margin: 10px 0; padding: 10px 14px; border-left: 3px solid var(--data-red); background: var(--bg-elevated); border-radius: 4px; }
+.page .xr-h3 { font-size: 17px; margin: 18px 0 6px; color: var(--text-primary); }
+.page .xr-h4 { font-size: 14px; margin: 16px 0 6px; color: var(--text-primary); }
+.page .xr-timeline { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; padding: 0; }
+.page .xr-event { display: inline-flex; gap: 6px; align-items: baseline; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); font-size: 13.5px; }
+.page .xr-event[data-next="true"] { border-color: var(--text-primary); font-weight: 600; }
+.page .xr-event-date { font-family: var(--font-mono); color: var(--text-primary); }
+.page .xr-event-name { color: var(--text-secondary); }
+.page .xr-map { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 0 12px; align-items: stretch; margin: 8px 0 18px; }
+.page .xr-map-now { display: flex; align-items: center; justify-content: center; border: 1px solid var(--text-primary); border-radius: 6px; font-weight: 700; font-size: 14px; color: var(--text-primary); background: var(--bg-card); }
+.page .xr-map-branches { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--border-strong); display: grid; gap: 8px; }
+.page .xr-map-branch { position: relative; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); min-height: 44px; }
+.page .xr-map-branch::before { content: ''; position: absolute; left: -16px; top: 22px; width: 14px; border-top: 2px solid var(--border-strong); }
+/* The map row is the branch's <details>: summary = the row, body = that branch's detail opened in place. */
+.page .xr-map-branch > .xr-branch { margin: 0; padding: 0; border: 0; border-radius: 6px; background: none; }
+.page .xr-map-branch > .xr-branch > .xr-branch-summary { display: block; padding: 10px 12px; min-height: 44px; list-style: none; }
+.page .xr-map-branch > .xr-branch > .xr-branch-summary::-webkit-details-marker { display: none; }
+.page .xr-map-branch > .xr-branch > .xr-branch-summary:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+.page .xr-map-sub { display: block; margin-top: 2px; font-size: 13px; color: var(--text-secondary); }
+.page .xr-map-more { display: inline-block; margin-top: 6px; font-size: 12.5px; color: var(--text-secondary); }
+.page .xr-map-more::before { content: '▸ '; }
+.page .xr-branch[open] .xr-map-more::before { content: '▾ '; }
+.page .xr-branch-body { padding: 4px 12px 12px; border-top: 1px solid var(--border-subtle); }
+.page .xr-hub-note { font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin: 2px 0 8px; }
+.page .xr-path.is-mixed { border-style: dashed; border-color: var(--text-primary); }
+/* Lead line of the compact block on 오늘·시장 상태 ("지금 구조: …", rendered by market-regime.js). */
+.page .xr-compact .xr-structure, .page .xr-structure { font-size: 15px; font-weight: 600; line-height: 1.6; color: var(--text-primary); margin: 0 0 6px; }
+.page .xr-map-branch[data-lead="true"] { border-color: var(--text-primary); box-shadow: inset 3px 0 0 var(--text-primary); }
+.page .xr-map-head, .page .xr-branch-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.page .xr-map-title, .page .xr-branch-title { font-weight: 600; font-size: 15px; color: var(--text-primary); }
+.page .xr-map-fit { font-size: 13px; color: var(--text-secondary); }
+.page .xr-map-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.page .xr-map-tags > .xr-tag { display: inline-block; }
+.page .xr-tag { font-size: 12.5px; padding: 2px 8px; border-radius: 3px; border: 1px solid var(--border); color: var(--text-secondary); }
+.page .xr-tag.is-same { color: var(--text-primary); border-color: var(--text-primary); }
+.page .xr-tag.is-against { color: var(--data-red); border-color: var(--data-red); }
+.page .xr-tag.is-choice { color: var(--data-green); border-color: var(--data-green); }
+.page .xr-meter { display: inline-flex; gap: 4px; align-items: center; }
+.page .xr-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--text-secondary); }
+.page .xr-dot.is-met { background: var(--text-primary); border-color: var(--text-primary); }
+.page .xr-dot.is-unknown { border-style: dashed; opacity: .6; }
+.page .xr-hub { margin: 18px 0; padding-top: 6px; border-top: 1px solid var(--border); }
+.page .xr-hub-now { font-family: var(--font-mono); font-size: 14px; color: var(--text-primary); margin: 4px 0; }
+.page .xr-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.page .xr-path { padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); display: flex; flex-direction: column; gap: 4px; }
+.page .xr-path.is-met { border-color: var(--data-green); }
+.page .xr-path-label { font-weight: 600; color: var(--text-primary); }
+.page .xr-path-state { font-size: 13px; color: var(--text-secondary); }
+.page .xr-path.is-met .xr-path-state { color: var(--data-green); }
+.page .xr-path-evidence, .page .xr-path-next { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text-secondary); }
+.page .xr-branch { margin: 10px 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); }
+.page .xr-branch[data-lead="true"] { border-color: var(--text-primary); }
+.page .xr-branch-summary { cursor: pointer; min-height: 32px; }
+.page .xr-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0; }
+.page .xr-chain-step { padding: 4px 9px; border-radius: 4px; background: var(--bg-elevated); font-size: 13.5px; color: var(--text-primary); }
+.page .xr-chain-sep { color: var(--text-secondary); }
+.page .xr-impact { display: grid; grid-template-columns: minmax(110px, auto) minmax(0, 1fr); gap: 4px 12px; font-size: 14px; line-height: 1.65; margin: 8px 0; }
+.page .xr-impact dt { color: var(--text-secondary); }
+.page .xr-impact dd { margin: 0; color: var(--text-primary); }
+.page .xr-evidence, .page .xr-triggers { margin: 4px 0 8px; padding-left: 18px; font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+.page .xr-choices { display: grid; gap: 6px; }
+.page .xr-choice { display: grid; grid-template-columns: minmax(120px, 150px) minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 8px 10px; border: 1px solid var(--border-subtle); border-radius: 4px; font-size: 14px; line-height: 1.6; }
+.page .xr-choice[data-favored="true"] { border-color: var(--data-green); }
+.page .xr-choice-name { font-weight: 600; color: var(--text-primary); }
+.page .xr-choice-text { color: var(--text-secondary); }
+.page .xr-choice-flag { font-size: 12.5px; color: var(--data-green); white-space: nowrap; }
+.page .xr-explore { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.page .xr-explore-label { font-size: 13.5px; color: var(--text-secondary); }
+.page .xr-compact { margin: 16px 0 6px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); }
+.page .xr-compact .xr-h3 { margin-top: 0; }
+@media (max-width: 760px) {
+  .page .xr-paths { grid-template-columns: minmax(0, 1fr); }
+  .page .xr-map { grid-template-columns: minmax(0, 1fr); }
+  .page .xr-map-now { padding: 6px; margin-bottom: 8px; }
+  .page .xr-choice { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+/* 거시: quadrant axis/subtitle labels and the sparkline range at the 12px floor; the held-regime fold; axis → branch links. */
+.page .macro-quadrant-axis, .page .macro-quadrant-sub { font-size: 12px; }
+.page p.macro-spark-range { font-size: 12px; }
+.page .macro-regime-held { font-size: 15px; line-height: 1.7; color: var(--text-primary); margin: 8px 0; }
+.page .macro-axis-branches { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 4px; }
+.page .macro-axis-branches-label { font-size: 13px; color: var(--text-secondary); }
+.page .macro-axis-branch { font-size: 12.5px; padding: 3px 9px; min-height: 28px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); color: var(--text-primary); cursor: pointer; }
+.page .macro-axis-branch:hover { border-color: var(--text-primary); }
+.page .macro-axis-branch:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+/* P1743 theme playbook (테마 갈림길) */
+.page .tp-section { margin-bottom: 26px; }
+.page .tp-map { width: 100%; max-width: 760px; height: auto; display: block; margin: 8px 0 4px; }
+.page .tp-axis { stroke: var(--border-strong); stroke-width: 1; }
+.page .tp-quad { font-size: 13px; fill: var(--text-secondary); }
+.page .tp-axis-label { font-size: 13px; fill: var(--text-muted); }
+.page .tp-label { font-size: 13px; fill: var(--text-primary); }
+/* The map is drawn twice (640 × 360 and 320 × 300); the section width picks one, so labels stay at 12px or more. */
+.page .tp-map-wrap { container-type: inline-size; max-width: 760px; }
+.page .tp-map.is-narrow { display: none; max-width: 480px; }
+.page .tp-map.is-narrow .tp-label, .page .tp-map.is-narrow .tp-axis-label { font-size: 13.5px; }
+.page .tp-map.is-narrow .tp-quad { font-size: 13.5px; }
+@container (max-width: 599px) {
+  .page .tp-map.is-wide { display: none; }
+  .page .tp-map.is-narrow { display: block; }
+}
+.page .tp-dot { stroke: var(--bg-card); stroke-width: 1.5; fill: var(--text-muted); }
+.page .tp-dot.is-tail, .page .tp-swatch.is-tail { fill: var(--data-green); background: var(--data-green); }
+.page .tp-dot.is-head, .page .tp-swatch.is-head { fill: var(--data-red); background: var(--data-red); }
+.page .tp-dot.is-mixed, .page .tp-swatch.is-mixed { fill: var(--text-primary); background: var(--text-primary); }
+.page .tp-dot.is-none, .page .tp-swatch.is-none { fill: var(--text-muted); background: var(--text-muted); }
+.page .tp-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 13px; color: var(--text-secondary); margin: 2px 0 10px; }
+.page .tp-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.page .tp-swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.page .tp-legend-note { color: var(--text-muted); }
+.page .tp-stage { margin: 10px 0; border-top: 1px solid var(--border); padding-top: 8px; }
+.page .tp-stage-summary { cursor: pointer; font-weight: 600; font-size: 15px; color: var(--text-primary); min-height: 32px; display: flex; align-items: center; }
+.page .tp-card { margin: 8px 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); }
+.page .tp-card-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; cursor: pointer; min-height: 32px; }
+.page .tp-card-title { font-weight: 600; color: var(--text-primary); }
+.page .tp-card-num { font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary); }
+.page .xr-tag.is-wind-tail { color: var(--data-green); border-color: var(--data-green); }
+.page .xr-tag.is-wind-head { color: var(--data-red); border-color: var(--data-red); }
+.page .xr-changes { margin: 18px 0; padding-top: 6px; border-top: 1px solid var(--border); }
+.page .xr-scored, .page .xr-transitions { margin: 4px 0 8px; padding-left: 18px; font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+/* v57.54 audit (14): every fold label in a page is a 24px-high target at least (집계 기준 19px, 데이터 출처 20px,
+   확인할 것·조심할 것 20px, news 출처·시각 22px). Larger per-component minimums above still win. */
+.page details > summary { min-height: 24px; box-sizing: border-box; }
+/* The detail panels' close buttons were empty (an icon glyph was removed with the emoji sweep): name them, 44px wide. */
+.page .btn-close:empty::before { content: '닫기'; font-size: 13px; }
+.page .btn-close { min-width: 44px; }

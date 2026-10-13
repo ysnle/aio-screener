@@ -94,12 +94,16 @@ try {
   if (!result.ranking?.available || result.ranking?.inputVersion !== result.timeline.checks.find((check) => check.id === 'screener.snapshot')?.revision) throw new Error(`ranking revision mismatch: ${JSON.stringify(result.ranking)}`);
   if ((result.ranking.activeFactors || []).includes('value') || (result.ranking.activeFactors || []).includes('quality')) throw new Error(`stale fundamentals activated ranking factors: ${JSON.stringify(result.ranking.activeFactors)}`);
 
-  const screenChoices = await page.locator('#scr-screen-select option').evaluateAll(nodes => nodes.map(node => node.value));
+  // v57.54: the condition list is shown once — the preset buttons; the select stays as hidden internal state.
+  const screenChoices = await page.locator('#scr-workbench-presets [data-aio-screener-action="screen-preset"]').evaluateAll(nodes => nodes.map(node => node.dataset.aioScreenerArg));
   if (screenChoices.length < 2) throw new Error('screen selector fixture requires distinct definitions');
-  await page.locator('#scr-screen-select').selectOption(screenChoices[1]);
+  const selectState = await page.evaluate(() => ({ hidden: !document.getElementById('scr-screen-select')?.offsetParent, options: [...(document.getElementById('scr-screen-select')?.options || [])].map(o => o.value) }));
+  if (!selectState.hidden || selectState.options.join('|') !== screenChoices.join('|')) throw new Error(`v57.54 the same screen list must appear once (visible buttons, hidden select in sync): ${JSON.stringify({ selectState, screenChoices })}`);
+  const choosePreset = (id) => page.locator(`#scr-workbench-presets [data-aio-screener-arg="${id}"]`).click();
+  await choosePreset(screenChoices[1]);
   const selectedDefinition = JSON.parse(await page.locator('#scr-definition-editor').inputValue()).definition;
-  if (selectedDefinition.screenId !== screenChoices[1]) throw new Error('select control did not change the actual definition');
-  await page.locator('#scr-screen-select').selectOption(screenChoices[0]);
+  if (selectedDefinition.screenId !== screenChoices[1]) throw new Error('preset button did not change the actual definition');
+  await choosePreset(screenChoices[0]);
   const sticky = await page.locator('#screener-results-body td[data-column-key="sym"]').first().evaluate(node => node.style.left);
   if (sticky !== '0px') throw new Error(`single frozen symbol column must start at zero, got ${sticky}`);
   // P1165 (19 스크리너 작업 카드 / 12 U01): 실행 전 미리보기는 **선택한 정의**로 계산되고 그 정의의
@@ -118,7 +122,7 @@ try {
   const sweepIds = screenChoices.slice(0, 3);
   const previewSweep = [];
   for (const screenId of sweepIds) {
-    await page.locator('#scr-screen-select').selectOption(screenId);
+    await choosePreset(screenId);
     await page.waitForFunction((id) => (document.getElementById('screener-readiness-note')?.textContent || '').includes(id), screenId);
     previewSweep.push(await page.evaluate(readPreviewUi));
   }
@@ -126,7 +130,7 @@ try {
   if (previewSweep.some((entry) => !/내장 조건: .+/.test(entry.title))) throw new Error(`P1165 built-in preset conditions were not surfaced: ${JSON.stringify(previewSweep.map((entry) => entry.title))}`);
   if (previewSweep.some((entry, index) => !entry.status.includes(sweepIds[index]) || entry.status.includes('native-screener-workbench'))) throw new Error(`P1165 pre-run status must cite the selected definition, not the pipeline default: ${JSON.stringify(previewSweep.map((entry) => entry.status))}`);
   if (previewSweep.some((entry) => entry.history !== historyBeforeSweep)) throw new Error('P1165 preview must not record a run');
-  await page.locator('#scr-screen-select').selectOption(screenChoices[0]);
+  await choosePreset(screenChoices[0]);
 
   // P1167 (15 D04/D05): 일봉 timestamp는 그 세션 바의 시작이며 종가 기반 팩터의 관측시각이 아니다.
   // 정적 유니버스가 MIC·assetType을 발행하지 않으면 그 미확인이 행과 화면에 남아야 한다.

@@ -1,6 +1,6 @@
 // P1618: UI-only responsive lifecycle; preferences stay in the app boundary.
-const CARD_GRIDS = '#home-kpi-strip,#tech-indicators-live,#mtf-analysis,#fund-rpt-fin-grid,#fund-cards-grid,#earnings-surprise-body,#sub-themes-grid,#pf-hero-stats,#pf-analysis-dashboard,#fund-valuation-cards';
-const LAYOUTS = '#deep-charts-wrap,#fund-qual-grid,#fund-qual-charts,#rrg-quadrant-cards';
+const CARD_GRIDS = '#home-kpi-strip,#tech-indicators-live,#mtf-analysis,#fund-rpt-fin-grid,#fund-cards-grid,#sub-themes-grid,#pf-hero-stats,#pf-analysis-dashboard,#fund-valuation-cards';
+const LAYOUTS = '#fund-qual-grid,#fund-qual-charts,#rrg-quadrant-cards';
 const FOCUSABLE = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[role="button"][tabindex],[tabindex]:not([tabindex="-1"])';
 
 export function installResponsiveShell(root, doc) {

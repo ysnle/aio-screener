@@ -1,0 +1,22 @@
+{
+  "version": "v57.54",
+  "date": "2026-10-14",
+  "r": null,
+  "status": null,
+  "note": "v57.54: QA·CI·배포 파이프라인 — 교차 대상 거짓 실패 제거, 시계 의존 게이트 비캐시·다음 행동 안내, record-fix 자동 재생성, 필드 단위 충돌 해소, --keep-going, 문법 검사 캐시(P1752).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1752,
+    "title": "검증 파이프라인의 빨간 실행 대부분이 코드 결함이 아닌 거짓 실패이고, 실패해도 무엇을 해야 하는지 알려 주지 않음",
+    "symptom": "Pages 배포 후 점검이 동시에 배포 중인 AI 프록시의 이전 리비전과 이전 Pages 실행의 cancelled 결론 때문에 실패했다(실행 38345286786·38375028345). 같은 버전 동등성이 4개 게이트, 같은 문서 문구가 2개 게이트에서 중복 검사돼 한 번의 누락이 여러 실패로 번졌다. record-fix 뒤 CURRENT-STATE가 매번 낡아 preflight가 실패하면 나머지 12분이 SKIP됐다. 시계에 의존하는 신선도 게이트가 파일 내용으로 캐시돼 SLA가 지난 뒤에도 PASS가 남았다. 생성물 충돌 해소 스크립트는 main 쪽 블록을 통째로 골라 R626(필드 단위 합집합)을 어겼고, 다른 스크립트는 'ours'를 항상 봇 쪽으로 가정해 버전 브랜치 병합에서 낡은 값을 남겼다. 로컬 캐시 적중률은 약 6.5%였다.",
+    "root_cause": "게이트마다 소유 범위가 명시되지 않아 같은 사실을 여러 곳에서 확인했고, 릴리스 점검이 자기 대상과 다른 배포 대상을 같은 심각도로 판정했다. 생성 상태 재생성이 수동 단계로 남아 있었다.",
+    "fix": "ci-external-pipeline-check 릴리스 모드에서 proxy-source-revision과 이전 실행 결론(ci 제외)을 경고로. 생성 상태 동등성은 generate-workspace-state --check 하나가 소유, 버전 동등성은 ci-version-check가 소유(다른 게이트는 bump-version 안내), 문서 문구 중복 grep 제거. record-fix가 쓰기 뒤 generate-workspace-state --write를 자동 실행(--no-regen, --root 제외). data-lineage·data-refresh·static-db-expiry cache:false, 게이트별 remedy를 실패 시 '[qa] NEXT …'로 출력. resolve-generated-conflicts는 resolve-data-manifest-merge(필드 경로 소유권, --data-side, diff3, JSON 검증)에 위임하고 릴리스 동등성 게이트를 실행, 새 픽스처 ci-generated-conflict-fixture(33개). qa-runner --keep-going(로컬 전용, 인증 규칙 불변). ci-syntax-check 파일별 다이제스트 캐시(9.2초→0.26초). 엔터티 품질 브라우저 게이트는 고정 대기 대신 행 또는 '반영 대기' 문구를 기다리고, 부팅 게이트는 Playwright 페이지 시계로 5.2초 고정 대기를 없앰.",
+    "violated_rule": "R1 버전 동기화 단일 소유 / R626 생성물 충돌 필드 단위 / AGENTS: 기록 순서 bump → record-fix → generate-workspace-state",
+    "prevention": "P1752: ci-generated-conflict-fixture, ci-qa-runner-behavior-check(--keep-going), ci-qa-pipeline-contract-check(remedy 형식·group 모드·13D/G 일일 레인), ci-record-fix-check",
+    "verification": "로컬: qa-runner preflight --no-cache 14/14, workspace 그룹(동시 편집 중 CURRENT-STATE 낡음 제외 통과), ci-generated-conflict-fixture 33개, 부팅 게이트 delayedPrimaryChart 통과."
+  },
+  "qa": [],
+  "changelog": [
+    "**검증 파이프라인 정리 (P1752):** 다른 배포 대상의 진행 상태 때문에 Pages 배포가 빨갛게 표시되던 거짓 실패를 없앴고, 실패하면 다음에 실행할 명령을 함께 보여 줍니다. 생성물 병합 충돌은 필드 단위로 안전하게 풀리고, 로컬 QA는 앞 단계가 실패해도 끝까지 돌려 볼 수 있습니다."
+  ]
+}

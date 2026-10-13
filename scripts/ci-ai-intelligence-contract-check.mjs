@@ -635,6 +635,141 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     /home\|briefing\|signal\|breadth\|sentiment\|macro\|fxbond\|themes\|market-news\|portfolio\|principles\|atlas\|masters/.test(chatSource) && /실시간 관측 ' \+ _aioPublicAIFormatAsOf/.test(chatSource), 'source');
 }
 
+// P1740: question context, answer shape and number policy of the AI chat.
+{
+  const { classifyQuestionIntent } = await import('../src/ai/intent/taxonomy.js');
+  const { companyEntitySymbols } = await import('../src/ai/orchestrator/question-planner.js');
+  const chat = read('js/aio-chat.js');
+  check('P1740 colloquial trade question is an action question', classifyQuestionIntent('NVDA 지금 사도 돼?').actionRequested === true && classifyQuestionIntent('삼성전자 살까?').actionRequested === true);
+  check('P1740 a company named in Korean is an entity question', classifyQuestionIntent('엔비디아 어때?', { hasEntity: true }).intents.includes('ENTITY_ANALYSIS'));
+  const namedPlan = createQuestionPlan({ query: '엔비디아랑 삼성전자 실적 비교해줘', route: 'home', root: {}, now: new Date('2026-10-13T03:00:00Z') });
+  const named = companyEntitySymbols(namedPlan);
+  check('P1740 plan-resolved company names feed chat data injection (no index/topic proxies)', named.includes('NVDA') && named.includes('005930.KS') && !named.some((s) => s.startsWith('^') || s === 'SMH'));
+  const { resolveChatTickers } = await import('../src/ai/entity/chat-tickers.js');
+  const nick = { '하이닉스': '000660.KS', '나스닥': '^IXIC' };
+  const fuzzy = (tok) => nick[tok] || null;
+  const chatState = {};
+  check('P1740 chat tickers: nickname with particle, market proxies dropped for companies, demonstrative follow-up only',
+    resolveChatTickers({ query: '하이닉스는 어때?', state: chatState, fuzzy }).join() === '000660.KS'
+    && resolveChatTickers({ query: '나스닥은?', companiesOnly: true, fuzzy }).length === 0
+    && resolveChatTickers({ query: '이 종목 밸류에이션은?', state: chatState, fuzzy }).join() === '000660.KS'
+    && resolveChatTickers({ query: '밸류에이션은?', state: chatState, fuzzy }).length === 0);
+  check('P1740 topic words stay topics', companyEntitySymbols(createQuestionPlan({ query: '반도체 코스피 어때', route: 'home', root: {}, now: new Date('2026-10-13T03:00:00Z') })).length === 0);
+  check('P1740 conditional thresholds are rules, observations are not',
+    ['VIX가 20을 넘으면 변동성 국면으로 본다.', 'RSI 70 이상이면 과매수로 해석한다.', '10년물이 5%를 웃돌면 밸류에이션 부담이 커진다.'].every(answerPublication.isConditionalNumericSentence)
+    && !['현재 15인 VIX가 20을 넘으면 경계한다.', 'VIX는 15.2로 낮다.', '반면 금리는 4.5%다.', '어제 3% 올랐다면 차익실현이 나온다.'].some(answerPublication.isConditionalNumericSentence));
+  const stripped = answerPublication.stripUnverifiedCurrentNumericSentences('| 종목 | PER |\n|---|---|\n| NVDA | 35배 |\nVIX는 15.2다. VIX가 20을 넘으면 경계한다.');
+  check('P1740 stripping keeps conditions and table rows, removes only unverified current values', /\| NVDA \| 확인 필요 \|/.test(stripped) && /VIX가 20을 넘으면/.test(stripped) && !/15\.2/.test(stripped) && !/35배/.test(stripped));
+  const conditionalOnly = validateAnswerPlan(createAnswerPlan({ summary: '변동성은 낮은 편이다.', sections: [{ title: '확인 신호', body: 'VIX가 20을 넘으면 위험 회피가 강해진다.' }] }), { currentSensitive: true });
+  check('P1740 a condition is not untracked numeric content', !conditionalOnly.errors.includes('untracked_numeric_content'));
+  const rendered = renderAnswerPlan(createAnswerPlan({ summary: '요약', sections: [{ title: '금리 경로', body: '- a' }], claims: [{ type: 'metric', text: 'VIX', metric: 'close.vix', value: 15.2, unit: 'index', asOf: '2026-10-12', source: 'close-basis', evidenceIds: ['e1'], status: 'verified' }] }));
+  check('P1740 section titles render as headings and verified values are labelled', /### 금리 경로/.test(rendered) && /\*\*확인된 수치\*\*/.test(rendered));
+  check('P1740 no hard-coded training cutoff and no fixed 2-sentence/4-section contract', !/커트오프는 약 2025년 초/.test(chat) && !/sections는 최대 4개/.test(chat) && !/1,500토큰/.test(chat));
+  const { chooseAnswerMode, answerModeGuide } = await import('../src/ai/response/answer-modes.js');
+  const { buildAnswerPrinciples } = await import('../src/ai/response/answer-principles.js');
+  check('P1740 answer shape follows the question',
+    chooseAnswerMode({ asksDecision: true, hasTicker: true, intent: {} }) === 'decision' && chooseAnswerMode({ intent: { wantsCompare: true, canonical: ['COMPARISON'] } }) === 'comparison'
+    && chooseAnswerMode({ intent: { intents: ['EXPLAIN_BEGINNER'] } }) === 'explain' && chooseAnswerMode({ isBroadRecommendation: true }) === 'screen' && chooseAnswerMode(null) === 'analysis'
+    && /mode=comparison/.test(answerModeGuide('comparison')) && /mode=analysis/.test(answerModeGuide('unknown'))
+    && /answerModeGuide\(_uniMode\)/.test(chat) && /answerModeGuide\(window\.AIO\.chooseAnswerMode\(_answerPolicyCS\)\)/.test(chat));
+  const principlesPlain = buildAnswerPrinciples({ today: '2026-10-13', mode: 'explain', liveStatus: 'ok' });
+  const principlesStock = buildAnswerPrinciples({ today: '2026-10-13', mode: 'decision', hasTickers: true, webSearch: true, liveStatus: 'ok', snapAgeHours: 80 });
+  check('P1740 principles follow the question and state the real web-search decision',
+    !/종목 질문 규칙/.test(principlesPlain) && /웹검색: 사용하지 않음/.test(principlesPlain) && /종목 질문 규칙/.test(principlesStock) && /필요한 축만/.test(principlesStock)
+    && /웹검색: 이번 답변에서 사용/.test(principlesStock) && /정적 데이터: 80시간/.test(principlesStock) && /buildAnswerPrinciples\(\{ today: _todayStr, mode: _uniMode/.test(chat));
+  const unified = chat.slice(chat.indexOf('async function chatSendUnified('));
+  check('P1740 web search is decided before the status blocks are written', unified.indexOf('_uniWsDecided = true') > 0 && unified.indexOf('_uniWsDecided = true') < unified.indexOf('_buildChatIntentContext(ctxId, q'));
+  check('P1740 unified panel resolves company names and a knowledge timeout cannot skip data injection',
+    /_aioResolveChatTickers\(q, _uniQuestionPlan, state, \{ companiesOnly: true \}\)/.test(unified) && /지식 참고 검색 실패\/타임아웃/.test(unified));
+  check('P1740 reference frameworks are question-selected and static text precedes runtime values',
+    /_aioAIInfraCycleContext\(focus, activeQuery\)/.test(chat) && /framework \+ supplied \+ aiInfra \+ marketLearning \+ '\\n\\n【현재 관측】\\n' \+ liveLines/.test(chat));
+  check('P1740 an unsaved profile is not sent as the user profile', /미설정 — 위험 성향·투자 기간을 가정하지 말고/.test(chat));
+  const { buildChatPolicyLines } = await import('../src/ai/context/policy-lines.js');
+  const policyNow = Date.parse('2026-10-13T03:00:00Z');
+  const policyRoot = { AIO: { getFedPolicyRange: () => ({ range: '3.75-4.00%', asOf: '2026-10-13' }), getManualReferenceState: () => ({ held: false }) },
+    DATA_SNAPSHOT: { bokRate: 3, bokNext: '2026-10-22', krCpi: 2.1, krExportReference: { exportsYoyPct: 5, publishedAt: '2026-09-01T00:00:00Z' } },
+    AIO_MACRO_CALENDAR: { releases: { 'us-cpi': { name: 'CPI', nextRelease: '2026-10-15' }, 'kr-cpi': { name: '한국 CPI', nextRelease: '2026-11-03' }, 'us-fed-rate': { name: 'FOMC', nextRelease: '2026-10-28' } } } };
+  const usLines = buildChatPolicyLines({ root: policyRoot, now: policyNow }).join('\n');
+  const krLines = buildChatPolicyLines({ root: policyRoot, includeKorea: true, now: policyNow }).join('\n');
+  check('P1740 macro context reads the policy range, Korean references and the release calendar (expired export flash held)',
+    /연준 목표금리 범위: 3\.75-4\.00%/.test(usLines) && /10-15 CPI/.test(usLines) && !/한국/.test(usLines) && !/FOMC/.test(usLines)
+    && /한국은행 기준금리: 3%/.test(krLines) && /다음 금통위 2026-10-22/.test(krLines) && /확인 기한을 넘겨/.test(krLines) && !/전년 대비 5%/.test(krLines)
+    && /buildChatPolicyLines\(\{ root: window, includeKorea: ctxId === 'kr-macro' \}\)/.test(chat));
+  const { chooseAnswerVisuals } = await import('../src/ui/components/ai-answer-visuals.js');
+  const kinds = (input) => chooseAnswerVisuals(input).map((pick) => pick.kind).join(',');
+  check('P1741 visuals follow the question and need a company',
+    kinds({ query: 'NVDA 실적 어때?', mode: 'analysis', tickers: ['NVDA'] }) === 'fundamentals'
+    && kinds({ query: 'NVDA 차트 추세 어때?', mode: 'analysis', tickers: ['NVDA'] }) === 'price'
+    && kinds({ query: 'NVDA AMD 비교', mode: 'comparison', tickers: ['NVDA', 'AMD'] }).startsWith('relative')
+    && kinds({ query: 'PER이 뭐야?', mode: 'explain', tickers: [] }) === ''
+    && kinds({ query: '삼성전자 실적', mode: 'analysis', tickers: ['005930.KS'] }) === 'price'
+    && kinds({ query: 'NVDA 주가 얼마야', mode: 'quick', tickers: ['NVDA'] }) === '');
+  check('P1741 the unified panel draws figures only after the blocked-answer return', unified.indexOf('attachAnswerVisuals') > unified.indexOf('_publicGate && _publicGate.blocked === true'));
+}
+
+// Owner 2026-10-14: saved conversations — nothing stored before consent, one conversation across screens, reopen restores
+// the recent context, declining wipes everything.
+{
+  const sessions = await import('../src/ai/session/chat-sessions.js');
+  const store = new Map();
+  const storage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
+  check('P1745 chat sessions: unasked by default', sessions.consentState(storage) === 'unasked');
+  sessions.appendTurn(storage, { sessionId: 's1', ctx: 'home', question: 'q1', answer: 'a1' });
+  check('P1745 chat sessions: nothing is stored before consent', !store.has(sessions.SESSIONS_KEY));
+  sessions.setConsent(storage, true);
+  sessions.appendTurn(storage, { sessionId: 's1', ctx: 'home', question: '앞으로 시장 어떻게 봐?', answer: 'a1', at: 1 });
+  const saved = sessions.appendTurn(storage, { sessionId: 's1', ctx: 'macro', question: '그럼 CPI는?', answer: 'a2', at: 2 });
+  check('P1745 chat sessions: one conversation keeps turns from different screens', saved.turns.map((t) => t.ctx).join(',') === 'home,macro' && saved.title === '앞으로 시장 어떻게 봐?');
+  const messages = sessions.sessionMessages(sessions.loadSessions(storage)[0]);
+  check('P1745 chat sessions: reopening restores alternating user/assistant context', messages.length === 4 && messages[0].role === 'user' && messages[3].content === 'a2');
+  check('P1745 chat sessions: the recent part fits the context budget', sessions.sessionMessages({ turns: Array.from({ length: 50 }, (_, i) => ({ q: 'x'.repeat(1000), a: 'y'.repeat(1000), at: i })) }, { maxChars: 10000 }).length === 10);
+  sessions.setConsent(storage, false);
+  check('P1745 chat sessions: declining wipes saved conversations and the summary history', !store.has(sessions.SESSIONS_KEY) && !store.has('aio_chat_history'));
+  const ui = fs.readFileSync(new URL('../src/ui/components/chat-sessions.js', import.meta.url), 'utf8');
+  check('P1745 chat sessions: the panel asks once after the first answer and shares one state across screens', /askConsent\(\)/.test(ui) && /root\.getChatState = \(\) => shared/.test(ui));
+  check('P1745 chat sessions: a declined reader can turn saving back on from the list', /'저장 켜기'/.test(ui) && /consentState\(storage\) === 'unasked'/.test(ui));
+  check('P1745 chat sessions: the ui layer never opens browser storage and never writes the classic message list', !/localStorage|sessionStorage/.test(ui) && !/getElementById\('ai-panel-msgs'\)/.test(ui));
+  {
+    // v57.54 review: a full store keeps the newest conversations instead of failing silently.
+    const tight = new Map([[sessions.CONSENT_KEY, '1']]);
+    const small = { getItem: (k) => (tight.has(k) ? tight.get(k) : null), removeItem: (k) => tight.delete(k), setItem: (k, v) => { if (String(v).length > 9000) throw new Error('QuotaExceededError'); tight.set(k, String(v)); } };
+    const many = Array.from({ length: 8 }, (_, i) => ({ id: `s${i}`, title: 't', createdAt: i, updatedAt: i, turns: [{ ctx: 'home', q: 'q'.repeat(1500), a: 'a', at: i }] }));
+    const ok = sessions.saveSessions(small, many);
+    const kept = sessions.loadSessions(small);
+    check('v57.54 chat sessions: a full store keeps the newest conversations', ok && kept.length > 0 && kept.length < 8 && kept[0].id === 's7');
+  }
+  check('v57.54 chat sessions: deleting the open conversation also clears it from the panel context', /if \(session\.id === api\.sessionId\) \{ cancel\('session-delete'\); setActive\(null\); shared\.messages\.length = 0; repaint\(\); \}/.test(ui));
+  check('P1745 chat sessions: installed at boot', /installChatSessions\(window, document, \{ storage:/.test(fs.readFileSync(new URL('../src/app/bootstrap.js', import.meta.url), 'utf8')));
+}
+
+{
+  // P1758: kr-tech had a CHAT_CONTEXTS entry, aliases and a model tier but no screen mapped to it after the 19→8
+  // consolidation (KR technicals render in the technical screen's folded section, answered by `technical`).
+  const krTechFiles = ['js/aio-chat.js', 'js/aio-core.js', 'js/aio-ui.js', 'js/aio-qa-audits.js', 'src/ai/intent/taxonomy.js'];
+  const stale = krTechFiles.filter((file) => /['"|]kr-tech['"|)]/.test(read(file)));
+  check(`P1758 retired kr-tech chat context has no context, alias, tag or tier entry (${stale.join(', ') || 'none'})`, stale.length === 0);
+  const chatSource = read('js/aio-chat.js');
+  const panelMap = chatSource.slice(chatSource.indexOf('var _aiCtxMap = {'), chatSource.indexOf('};', chatSource.indexOf('var _aiCtxMap = {')));
+  check('P1758 the technical screen keeps its own AI context (where the KR technical section lives)', /'technical':'technical'/.test(panelMap) && /technical:_aioCreateEvidenceContext\(/.test(chatSource));
+}
+
+{
+  // v57.54: kr-macro (CHAT_CONTEXTS) and kr-themes (panel key, chips, context) had no route after the 19→8 consolidation —
+  // KR macro lives inside 거시 and KR themes inside 테마, answered by `macro` / `themes`. Retired like kr-tech (P1758).
+  // `kr-macro` survives only as the question-selected Korean domain block (P1740, market-content.js) — not a context.
+  const chatSource = read('js/aio-chat.js');
+  const block = (start) => { const at = chatSource.indexOf(start); return at < 0 ? '' : chatSource.slice(at, chatSource.indexOf('};', at)); };
+  const contexts = block('const CHAT_CONTEXTS = {'), panelMap = block('var _aiCtxMap = {'), chips = block('var _aiDefaultChips = {');
+  const live = [['CHAT_CONTEXTS', contexts], ['_aiCtxMap', panelMap], ['_aiDefaultChips', chips]].filter(([, text]) => /['"]kr-(?:macro|themes)['"]\s*:/.test(text)).map(([name]) => name);
+  check(`v57.54 retired kr-macro/kr-themes chat contexts have no context, panel key or chip set (${live.join(', ') || 'none'})`, live.length === 0 && contexts.length > 0 && panelMap.length > 0 && chips.length > 0);
+  const tiers = read('js/aio-ui.js'), audit = read('js/aio-core.js'), taxonomy = read('src/ai/intent/taxonomy.js');
+  check('v57.54 retired kr-macro/kr-themes have no model tier, answer-quality audit slot or intent route', !/ctxId === 'kr-(?:macro|themes)'/.test(tiers)
+    && !/var ctxIds = \[[^\]]*kr-(?:macro|themes)/.test(audit) && !/kr-(?:macro|themes)/.test(taxonomy));
+  check('v57.54 the 거시/테마 screens keep their own AI contexts and chips (where the KR sections live)', /'macro':'macro'/.test(panelMap) && /'themes':'themes'/.test(panelMap)
+    && /macro:_aioCreateEvidenceContext\(/.test(contexts) && /themes:_aioCreateEvidenceContext\(/.test(contexts) && /'macro':\[/.test(chips) && /'themes':\[/.test(chips));
+  check('v57.54 a Korean policy question still selects the Korean macro domain block (P1740)', /contexts\.add\('kr-macro'\)/.test(read('src/ai/context/market-content.js')) && /ctxId === 'macro' \|\| ctxId === 'kr-macro'/.test(chatSource));
+}
+
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);
   failures.forEach((failure) => console.error(`- ${failure}`));

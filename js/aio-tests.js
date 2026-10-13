@@ -840,8 +840,8 @@
     }
 
     // T100: empirical CDF is non-decreasing; insufficient history stays null.
-    if (typeof window.vixToPercentile === 'function' || typeof vixToPercentile !== 'undefined') {
-      var _vtp = (typeof window.vixToPercentile === 'function') ? window.vixToPercentile : vixToPercentile;
+    if (typeof window._aioVixPercentile === 'function') {
+      var _vtp = window._aioVixPercentile;
       // 기존 구간 단조 증가
       var _v10 = _vtp(10), _v20 = _vtp(20), _v40 = _vtp(40), _v80 = _vtp(80);
       var _vMissing = [_v10,_v20,_v40,_v80].every(function(v) { return v === null; });
@@ -850,7 +850,7 @@
       _assert('T100 vix_mono_80plus: no invented tail', _vMissing ? _v90 === null && _v100 === null : _v80 <= _v90 && _v90 <= _v100, '80=' + _v80 + ',90=' + _v90 + ',100=' + _v100);
       _assert('T100 vix_mono_80plus: bounded rank', _v100 === null || (_v100 >= 0 && _v100 <= 100), 'v100pct=' + _v100);
     } else {
-      _assert('T100 vix_mono: vixToPercentile 미존재 (skip)', true);
+      _assert('T100 P1753 vix_mono: _aioVixPercentile 미존재 (skip)', true);
     }
 
     // T101: _aioMemoStaleInfo DST grace — 3월에는 +1h 허용 여부 확인
@@ -1623,9 +1623,10 @@
       pgs && pgs.ticker && Array.isArray(pgs.ticker.subSections) && pgs.ticker.subSections.length === 5,
       'count=' + (pgs && pgs.ticker && pgs.ticker.subSections ? pgs.ticker.subSections.length : '?'));
 
-    _assert('T353 options_subsections_6: enumerate',
-      pgs && pgs.options && Array.isArray(pgs.options.subSections) && pgs.options.subSections.length === 6,
-      'count=' + (pgs && pgs.options && pgs.options.subSections ? pgs.options.subSections.length : '?'));
+    // P1321 retired the options route; P1753 removed its sequential-audit entry.
+    _assert('T353 P1753 options_sequential_entry_retired',
+      !!pgs && !pgs.options,
+      'present=' + !!(pgs && pgs.options));
 
     // T354 getAutoOpsReadiness 27축 (liveSymbolsCoverage 통합)
     var ops = _getFullAutoOpsAudit();
@@ -1647,40 +1648,34 @@
       r101 && r101.issueCount < 20,
       'issueCount=' + (r101 ? r101.issueCount : '?'));
 
-    // T357: kr-home subSections 6 enumerate
+    // T357/T358: retired routes (P725 KR pages, P1321 options) have no sequential-audit entry
     var pgs = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages;
-    _assert('T357 kr_home_subsections_6: enumerate',
-      pgs && pgs['kr-home'] && Array.isArray(pgs['kr-home'].subSections) && pgs['kr-home'].subSections.length === 6,
-      'count=' + (pgs && pgs['kr-home'] && pgs['kr-home'].subSections ? pgs['kr-home'].subSections.length : '?'));
+    var retiredSeq = ['options','kr-home','kr-supply','kr-macro','kr-technical'].filter(function(id) { return pgs && pgs[id]; });
+    _assert('T357 P1753 retired_route_sequential_entries_absent: options/kr-home/kr-supply/kr-macro/kr-technical',
+      !!pgs && retiredSeq.length === 0,
+      'present=' + retiredSeq.join(','));
 
-    // T358: kr-supply subSections 4
-    _assert('T358 kr_supply_subsections_4',
-      pgs && pgs['kr-supply'] && pgs['kr-supply'].subSections.length === 4,
-      'count=' + (pgs && pgs['kr-supply'] && pgs['kr-supply'].subSections ? pgs['kr-supply'].subSections.length : '?'));
-
-    // T359: kr-themes 3 + kr-macro 6 + kr-technical 5
-    _assert('T359 kr_remaining_pages: themes/macro/technical subSections',
-      pgs && pgs['kr-themes'] && pgs['kr-themes'].subSections.length === 3 &&
-      pgs['kr-macro'] && pgs['kr-macro'].subSections.length === 6 &&
-      pgs['kr-technical'] && pgs['kr-technical'].subSections.length === 5,
-      'themes=' + (pgs['kr-themes']?pgs['kr-themes'].subSections.length:'?') +
-      ' macro=' + (pgs['kr-macro']?pgs['kr-macro'].subSections.length:'?') +
-      ' tech=' + (pgs['kr-technical']?pgs['kr-technical'].subSections.length:'?'));
+    // T359: kr-themes 3 (KR 테마 섹션은 themes 페이지에 통합되어 유지)
+    _assert('T359 P1753 kr_themes_subsections_3',
+      pgs && pgs['kr-themes'] && pgs['kr-themes'].subSections.length === 3,
+      'themes=' + (pgs && pgs['kr-themes'] ? pgs['kr-themes'].subSections.length : '?'));
 
     // T360: guide subSections 5
     _assert('T360 guide_subsections_5',
       pgs && pgs.guide && pgs.guide.subSections.length === 5,
       'count=' + (pgs && pgs.guide && pgs.guide.subSections ? pgs.guide.subSections.length : '?'));
 
-    // T361: 21 페이지 모두 enumerate 완료 — auditStatus 객체 (6축) 또는 'na' 보유
+    // T361: 모든 현재 라우트가 enumerate 완료 (정적 항목 또는 계약 파생 항목)
     var allPages = Object.keys(pgs || {});
     var enumeratedPages = allPages.filter(function(k) {
       var p = pgs[k];
       return p && Array.isArray(p.subSections) && p.subSections.length > 0;
     });
-    _assert('T361 all_21_pages_enumerated: subSections.length > 0',
-      enumeratedPages.length >= 21,
-      enumeratedPages.length + '/' + allPages.length);
+    var routeIds361 = (window.AIO_PAGE_CONTRACTS && window.AIO_PAGE_CONTRACTS.routePageIds) || [];
+    var unenumerated361 = routeIds361.filter(function(id) { return enumeratedPages.indexOf(id) < 0; });
+    _assert('T361 P1753 all_route_pages_enumerated: subSections.length > 0',
+      routeIds361.length > 0 && unenumerated361.length === 0,
+      enumeratedPages.length + '/' + allPages.length + ' missing=' + unenumerated361.join(','));
 
     // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.58
     _assert('T362 page_seq_v4958: version v49.58',
@@ -1747,7 +1742,6 @@
       'slots=' + !!krTempOk);
 
     var regime = window.AIO && window.AIO.getCurrentMarketRegime ? window.AIO.getCurrentMarketRegime() : null;
-    var krTemp = window.AIO && window.AIO.getKrMarketTemperature ? window.AIO.getKrMarketTemperature() : null;
     // P722: `available === false`를 영구 단언하면 "데이터 없음"이 불변식이 된다 — artifact에
     // 시세가 있으면(정당한 상태) CI가 깨진다. 진짜 불변식은 fail-closed 계약의 형태다:
     // 미수신이면 available:false + 판정 필드 null, 수신이면 유효한 레짐/점수.
@@ -2523,7 +2517,7 @@
 
     // T493: 14 CHAT_CONTEXTS 모두 _getV48IntegratedContext 호출 (partial 0건)
     var cfc = window.AIO && window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
-    _assert('T493 all_chat_contexts_use_evidence_first_runtime_contract', ['home','technical','macro','themes','kr-home'].every(function(k){ return window.CHAT_CONTEXTS[k] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS[k].system()); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T493 P1753 all_chat_contexts_use_evidence_first_runtime_contract', ['home','technical','macro','themes','fxbond'].every(function(k){ return window.CHAT_CONTEXTS[k] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS[k].system()); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T494: _chatTickerCache 실 구현 — save/load/LRU 모두 동작 + getChatTickerCacheStats 존재
     _assert('T494 chat_ticker_cache_implemented_v4966: cache save+load+LRU + getChatTickerCacheStats 함수 정의',
@@ -2660,7 +2654,7 @@
   function _testV4969Interactive() {
     // T531: _suggestFollowUpQuestions 함수 정의 + 14 컨텍스트 분기
     var fuqSrc = typeof window._suggestFollowUpQuestions === 'function' ? window._suggestFollowUpQuestions.toString() : '';
-    var has14Branches = /ctxId === 'macro'/.test(fuqSrc) && /'sentiment'/.test(fuqSrc) && /'fundamental'/.test(fuqSrc) && /'portfolio'/.test(fuqSrc) && /'kr-/.test(fuqSrc);
+    var has14Branches = /ctxId === 'macro'/.test(fuqSrc) && /'sentiment'/.test(fuqSrc) && /'fundamental'/.test(fuqSrc) && /'portfolio'/.test(fuqSrc) && /'themes'/.test(fuqSrc) && !/'kr-(?:macro|themes)'/.test(fuqSrc); // v57.54: KR follow-ups retired with their contexts
     _assert('T531 follow_up_questions_v4969: _suggestFollowUpQuestions + 14 컨텍스트 분기',
       typeof window._suggestFollowUpQuestions === 'function' && has14Branches,
       'fn=' + typeof window._suggestFollowUpQuestions + ' branches=' + has14Branches);
@@ -2724,7 +2718,7 @@
 
     // T536: chatSend 통합 — 5 신규 함수 모두 호출 (followUp/autoNav/pfSim/macroSim/fuzzyResolve)
     var csSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
-    var allIntegrated = csSrc.indexOf('_suggestFollowUpQuestions') >= 0 && csSrc.indexOf('_autoNavigatePage') >= 0 && csSrc.indexOf('_simulatePortfolioAddition') >= 0 && csSrc.indexOf('_simulateMacroScenario') >= 0 && csSrc.indexOf('_resolveTickerFromFuzzy') >= 0;
+    var allIntegrated = csSrc.indexOf('_suggestFollowUpQuestions') >= 0 && csSrc.indexOf('_autoNavigatePage') >= 0 && csSrc.indexOf('_simulatePortfolioAddition') >= 0 && csSrc.indexOf('_simulateMacroScenario') >= 0 && (csSrc.indexOf('_resolveTickerFromFuzzy') >= 0 || csSrc.indexOf('_aioResolveChatTickers(') >= 0);
     _assert('T536 chat_send_integrates_5_v4969: chatSend가 5 신규 함수 모두 호출',
       allIntegrated, 'integrated=' + allIntegrated);
 
@@ -3052,12 +3046,12 @@
   // v49.74 P393~P396 R143~R144: KR 4 페이지 audit 확장 + 멀티턴 윈도잉 회귀 방지
   // ─────────────────────────────────────────────────────────────────
   function _testV4974KrMultiTurn() {
-    // T581: assertChatAnswerQualityAudit가 11 페이지 평가 (7→11 확장, KR 4 포함)
+    // T581: assertChatAnswerQualityAudit가 7 컨텍스트 평가 (kr-supply P725/P1671, kr-tech P1758, kr-macro/kr-themes v57.54 퇴역)
     var aq = window.AIO && typeof window.AIO.assertChatAnswerQualityAudit === 'function' && window.AIO.assertChatAnswerQualityAudit();
     var perPageIds = aq && aq.perPageDetail ? aq.perPageDetail.map(function(p){ return p.id; }) : [];
-    _assert('T581 audit_pages_11_v4974: assertChatAnswerQualityAudit 11 페이지 평가 (7→11, KR 4 포함)',
-      perPageIds.length === 11 && perPageIds.indexOf('kr-macro') >= 0 && perPageIds.indexOf('kr-supply') >= 0 && perPageIds.indexOf('kr-themes') >= 0 && perPageIds.indexOf('kr-tech') >= 0,
-      'count=' + perPageIds.length + ' krMacro=' + (perPageIds.indexOf('kr-macro') >= 0));
+    _assert('T581 v57.54 audit_pages_7: assertChatAnswerQualityAudit 7 컨텍스트 평가 (KR 컨텍스트 전부 퇴역)',
+      perPageIds.length === 7 && perPageIds.every(function(id){ return !/^kr-/.test(id); }),
+      'count=' + perPageIds.length + ' ids=' + perPageIds.join(','));
     // T582: 멀티턴 통계 객체 초기화
     _assert('T582 multiturn_stats_init_v4974: _chatMultiTurnStats 객체 초기화 + 키 4개',
       window._chatMultiTurnStats && typeof window._chatMultiTurnStats.trimEvents === 'number' && typeof window._chatMultiTurnStats.summaryInsertions === 'number',
@@ -3067,20 +3061,21 @@
     var hasTurnCap = chatSendSrc.indexOf('_MAX_TURNS') >= 0 || chatSendSrc.indexOf('이전 대화 요약') >= 0;
     _assert('T583 multiturn_windowing_v4974: chatSend에 turn-cap + 요약 prepend 로직',
       hasTurnCap, 'turnCap=' + hasTurnCap);
-    // T584: KR 페이지 CHAT_CONTEXTS 정의 (4개 모두)
-    var krIds = ['kr-macro','kr-supply','kr-themes','kr-tech'];
+    // T584: 퇴역 KR 컨텍스트(kr-home/kr-supply/kr-technical/kr-tech/kr-macro/kr-themes) 부재 — 한국 섹션은 macro/themes/technical이 답한다
+    var krIds = ['macro','themes','technical'];
     var krCount = krIds.filter(function(id){ return window.CHAT_CONTEXTS && window.CHAT_CONTEXTS[id] && typeof window.CHAT_CONTEXTS[id].system === 'function'; }).length;
-    _assert('T584 kr_contexts_4_v4974: KR 4 페이지 CHAT_CONTEXTS 모두 정의',
-      krCount === 4, 'krCount=' + krCount);
+    var krRetired = ['kr-home','kr-supply','kr-technical','kr-tech','kr-macro','kr-themes'].filter(function(id){ return window.CHAT_CONTEXTS && window.CHAT_CONTEXTS[id]; });
+    _assert('T584 v57.54 kr_contexts_retired: KR 섹션을 품은 3 컨텍스트 정의 + 퇴역 컨텍스트 부재',
+      krCount === 3 && krRetired.length === 0, 'hostCount=' + krCount + ' retiredPresent=' + krRetired.join(','));
     // T585: P395 R144 멀티턴 통계 keys
     _assert('T585 multiturn_summary_trigger_v4974: SUMMARY_TRIGGER 로직 + maxTurnsBeforeTrim 추적',
       chatSendSrc.indexOf('_SUMMARY_TRIGGER') >= 0 && chatSendSrc.indexOf('maxTurnsBeforeTrim') >= 0,
       'trigger=' + (chatSendSrc.indexOf('_SUMMARY_TRIGGER') >= 0) + ' maxTurns=' + (chatSendSrc.indexOf('maxTurnsBeforeTrim') >= 0));
-    // T586: 분모 11 적용 (assertChatAnswerQualityAudit 내부 freshnessScore 계산)
+    // T586: 분모는 평가 컨텍스트 수 (assertChatAnswerQualityAudit 내부 freshnessScore 계산)
     var auditSrc = window.AIO && window.AIO.assertChatAnswerQualityAudit ? window.AIO.assertChatAnswerQualityAudit.toString() : '';
-    _assert('T586 freshness_denominator_11_v4974: assertChatAnswerQualityAudit 분모 11 적용',
-      auditSrc.indexOf('/ 11)') >= 0,
-      'denom11=' + (auditSrc.indexOf('/ 11)') >= 0));
+    _assert('T586 P1753 freshness_denominator_ctx_count_v4974: assertChatAnswerQualityAudit 분모 = ctxIds.length',
+      auditSrc.indexOf('/ ctxIds.length)') >= 0,
+      'denomCtx=' + (auditSrc.indexOf('/ ctxIds.length)') >= 0));
     // T587: APP_VERSION v49.7x or newer within this workstream
     _assert('T587 app_version_v4974_final: APP_VERSION === "v49.74" or newer v49.7x',
       typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
@@ -3142,14 +3137,14 @@
   // v49.76 P405~P409: 사용자 좌절 hotfix 회귀 방지 — 시세 / 가격 환각 / 모바일 / diagnose
   // ─────────────────────────────────────────────────────────────────
   function _testV4976UserFrustrationFix() {
-    // T597: dynamicTickerLookup proxy 5개 (codetabs 1순위 + allorigins + corsproxy + thingproxy + cors-sh)
+    // T597 (P1758): dynamicTickerLookup uses the shared relay chain (Worker first), never its own public-relay list
     var dynSrc = typeof window.dynamicTickerLookup === 'function' ? window.dynamicTickerLookup.toString() : '';
-    _assert('T597 ticker_lookup_5proxies_v4976: dynamicTickerLookup 5 proxy (codetabs/allorigins/corsproxy/thingproxy/cors-sh)',
-      dynSrc.indexOf('codetabs') >= 0 && dynSrc.indexOf('allorigins') >= 0 && dynSrc.indexOf('corsproxy') >= 0 && dynSrc.indexOf('thingproxy') >= 0 && dynSrc.indexOf('cors-sh') >= 0,
-      'codetabs=' + (dynSrc.indexOf('codetabs') >= 0) + ' thing=' + (dynSrc.indexOf('thingproxy') >= 0));
+    _assert('T597 P1758 ticker_lookup_relay_chain: dynamicTickerLookup goes through fetchViaProxy with no direct codetabs/allorigins/corsproxy URL',
+      dynSrc.indexOf('fetchViaProxy(url') >= 0 && !/codetabs\.com|allorigins\.win|corsproxy\.io|proxy\.cors\.sh/.test(dynSrc),
+      'relay=' + (dynSrc.indexOf('fetchViaProxy(url') >= 0));
     // T598: _aioTickerLookupDiag 진단 로깅 객체
     _assert('T598 ticker_diag_logging_v4976: window._aioTickerLookupDiag 진단 객체 + 코드에 attempts 기록',
-      dynSrc.indexOf('_aioTickerLookupDiag') >= 0 && dynSrc.indexOf('attempts.push') >= 0,
+      dynSrc.indexOf('_aioTickerLookupDiag') >= 0 && dynSrc.indexOf('.attempts = (e && e.attempts)') >= 0,
       'diag=' + (dynSrc.indexOf('_aioTickerLookupDiag') >= 0));
     // T599: 시세 ✗ 시 가격 환각 HARD STOP system prompt
     var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
@@ -3243,15 +3238,15 @@
   // v49.78 P415~P421 R156~R158: 코드 단위 정밀 진단 5 CRITICAL fix 회귀 방지
   // ─────────────────────────────────────────────────────────────────
   function _testV4978CodeAuditFixes() {
-    // T622 C1: dynamicTickerLookup 5 proxy 병렬 race + Promise.any 적용 (sequential 금지)
+    // T622 (P1758): the public-relay race is gone; the relay chain's shared deadline bounds the wait instead
     var dynSrc = typeof window.dynamicTickerLookup === 'function' ? window.dynamicTickerLookup.toString() : '';
-    _assert('T622 ticker_parallel_race_v4978: dynamicTickerLookup에 Promise.any + parallel-race 적용 (sequential 금지)',
-      dynSrc.indexOf('Promise.any') >= 0 && dynSrc.indexOf('parallel-race') >= 0,
-      'promiseAny=' + (dynSrc.indexOf('Promise.any') >= 0) + ' parallel=' + (dynSrc.indexOf('parallel-race') >= 0));
-    // T623: 5 proxy timeout 3.5s 단축 (8s → 3.5s)
-    _assert('T623 ticker_timeout_short_v4978: dynamicTickerLookup proxy timeout 3500ms (8s에서 단축)',
-      dynSrc.indexOf('_PROXY_TIMEOUT = 3500') >= 0,
-      'timeout=' + (dynSrc.indexOf('_PROXY_TIMEOUT = 3500') >= 0));
+    _assert('T622 P1758 ticker_no_public_race: dynamicTickerLookup has no Promise.any race and keeps a shared deadline',
+      dynSrc.indexOf('Promise.any') < 0 && dynSrc.indexOf('totalTimeout: 7000') >= 0,
+      'promiseAny=' + (dynSrc.indexOf('Promise.any') >= 0) + ' deadline=' + (dynSrc.indexOf('totalTimeout: 7000') >= 0));
+    // T623: per-attempt timeout 3.5s (8s → 3.5s, v49.78)
+    _assert('T623 ticker_timeout_short_v4978: dynamicTickerLookup per-attempt timeout 3500ms',
+      dynSrc.indexOf('timeout: 3500') >= 0,
+      'timeout=' + (dynSrc.indexOf('timeout: 3500') >= 0));
     // T624 C3: _aioSafeMD fallback chain
     var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
     _assert('T624 safemd_fallback_chain_v4978: chatSend에 _aioSafeMD typeof 체크 + escHtml fallback',
@@ -3297,13 +3292,13 @@
     _assert('T631 ticker_live_hard_stop_v4979: ticker context에 "시세 미수신" + "HARD STOP" 패턴',
       tickerSys.indexOf('HARD STOP') >= 0 || tickerSys.indexOf('가격 인용 금지') >= 0,
       'hardStop=' + (tickerSys.indexOf('HARD STOP') >= 0));
-    // T632 R160: kr-macro staleness 경고 진입부 추가
-    var krMacroCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS['kr-macro'];
+    // T632 R160 (v57.54: kr-macro 퇴역 — 한국 거시는 macro 컨텍스트가 답한다): staleness 경고 진입부
+    var krMacroCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.macro;
     var krMacroSys = '';
     if (krMacroCtx && typeof krMacroCtx.system === 'function') {
       try { krMacroSys = krMacroCtx.system() || ''; } catch(_) {}
     }
-    _assert('T632 kr_macro_chat_does_not_ship_historical_anchor_as_current', window.CHAT_CONTEXTS['kr-macro'] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS['kr-macro'].system()), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T632 macro_chat_does_not_ship_historical_anchor_as_current', !!krMacroSys && /현재 검증된 런타임 관측치/.test(krMacroSys), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T633 R161: _saveChatHistory QuotaExceededError 강화 처리
     var saveHistSrc = typeof window._saveChatHistory === 'function' ? window._saveChatHistory.toString() : '';
     _assert('T633 quota_3stage_prune_v4979: _saveChatHistory 3단계 prune (50→10→0) + toast',
@@ -3888,7 +3883,7 @@
     var ensureFreshSrc707 = (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') ? window.AIO.ensureFreshDataForUse.toString() : '';
     var dynSrc707 = typeof window.dynamicTickerLookup === 'function' ? window.dynamicTickerLookup.toString() : '';
     _assert('T707 chat_forcefresh_bypasses_live_cache_and_throttle_v49105: AI answer freshness bypasses live cache and minGap throttle',
-      ensureFreshSrc707.indexOf('!scope.forceFresh') >= 0 && dynSrc707.indexOf('!opts.forceFresh') >= 0 && dynSrc707.indexOf('force-fresh-parallel-race-v49.105') >= 0,
+      ensureFreshSrc707.indexOf('!scope.forceFresh') >= 0 && dynSrc707.indexOf('!opts.forceFresh') >= 0 && dynSrc707.indexOf('relay-chain-p1758') >= 0,
       'ensureFresh=' + (ensureFreshSrc707.indexOf('!scope.forceFresh') >= 0) + ' dynForce=' + (dynSrc707.indexOf('!opts.forceFresh') >= 0));
 
     var covSrc708 = typeof window._buildChatAnswerCoverageContext === 'function' ? window._buildChatAnswerCoverageContext.toString() : '';
@@ -5246,21 +5241,21 @@
   }
 
   function _testKrContextsAndArchive() {
-    // T180: CHAT_CONTEXTS KR 4개 키 존재 확인
-    var ctxKeys = ['kr-macro', 'kr-supply', 'kr-themes', 'kr-tech'];
-    var missing = ctxKeys.filter(function(k) {
-      return !window.CHAT_CONTEXTS || typeof window.CHAT_CONTEXTS[k] === 'undefined';
+    // T180 (v57.54): 화면이 없는 KR 컨텍스트 퇴역 — kr-supply P1753, kr-tech P1758, kr-macro/kr-themes v57.54 (패널 키·칩 포함)
+    var ctxKeys = ['kr-macro', 'kr-themes', 'kr-supply', 'kr-tech'];
+    var present = ctxKeys.filter(function(k) {
+      return (window.CHAT_CONTEXTS && window.CHAT_CONTEXTS[k]) || (window._aiCtxMap && window._aiCtxMap[k]) || (window._aiDefaultChips && window._aiDefaultChips[k]);
     });
-    _assert('T180 kr_ctx_keys: CHAT_CONTEXTS has kr-macro/supply/themes/tech',
-      missing.length === 0, missing.length ? 'missing: ' + missing.join(',') : 'ok');
+    _assert('T180 v57.54 kr_ctx_retired: no KR chat context, panel key or chip set remains',
+      present.length === 0, present.length ? 'present: ' + present.join(',') : 'ok');
 
-    // T181: KR context system() 함수 호출 가능 + 한국 텍스트 포함
-    var krMacroCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS['kr-macro'];
-    var sysText = '';
-    try { sysText = krMacroCtx && typeof krMacroCtx.system === 'function' ? krMacroCtx.system() : ''; } catch(_e) {}
-    _assert('T181 kr_macro_system: kr-macro system() returns non-empty KR text',
-      typeof sysText === 'string' && sysText.length > 50 && /한국|KOSPI|BOK/.test(sysText),
-      'system() returned: ' + (sysText ? sysText.slice(0, 60) : 'empty/error'));
+    // T181 (v57.54): a Korean policy question on the 거시 screen still selects the Korean macro block (P1740), not a chat context
+    var seenBlocks = [];
+    var sysText = window.AIO && typeof window.AIO.buildQuestionDomainContext === 'function' ? 'ok' : '';
+    try { if (sysText) window.AIO.buildQuestionDomainContext({ ctxId: 'macro', query: '한국은행 기준금리 전망', root: {}, readDomain: function(id) { seenBlocks.push(id); return ''; } }); } catch(_e) { sysText = ''; }
+    _assert('T181 v57.54 kr_macro_block: macro + Korean question reads the kr-macro domain block once',
+      !!sysText && seenBlocks.indexOf('kr-macro') >= 0 && seenBlocks.indexOf('macro') < 0,
+      'blocks=' + seenBlocks.join(','));
 
     // T182: kr-home-kosdaq-comment stale 텍스트 제거 확인
     var el = document.getElementById('kr-home-kosdaq-comment');
@@ -5600,7 +5595,7 @@
       var namedOk = typeof window._aioRenderBreadthConsensus === 'undefined' // P1672: sinks retired
         && typeof window._aioRenderOptionsRec === 'undefined'
         && typeof window._aioRenderThemesCycle === 'function'
-        && typeof window._aioRenderBriefingAction === 'function';
+        && typeof window._aioRenderBriefingAction === 'undefined'; // briefing action sinks retired
       var hasRefresh = typeof window.AIO.refreshActivePageNarratives === 'function';
       var hasStamp = typeof window._aioStampNarrativeUpdate === 'function';
       // 동작: breadth 페이지에서 live breadth 주입 후 재생성 → consensus verdict 갱신 + 스로틀
@@ -6118,8 +6113,8 @@
       var exitUp = (entryI < 0 && exitI < 0) || (entryI >= 0 && exitI > entryI && (lockI < 0 || exitI < lockI)); // P1392: both retired
       // cross-asset 안내 스텁 제거
       var crossGone = ps803 ? !/환율·채권 페이지의 Cross-Asset 매트릭스에서 상세/.test(ps803.textContent || '') : false;
-      // 브리핑 뉴스 캡 함수 존재
-      var capFn = typeof window._aioCapBriefingNews === 'function';
+      // 브리핑 뉴스 캡: native news.js 소유 — 레거시 어댑터는 퇴역(부재해야 함)
+      var capFn = typeof window._aioCapBriefingNews === 'undefined';
       t803ok = exitUp && crossGone && capFn;
       t803detail = 'entry=' + entryI + ' exit=' + exitI + ' lock=' + lockI + ' crossGone=' + crossGone + ' capFn=' + capFn;
     } catch(e) { t803detail = 'ERR:' + e.message; }
@@ -6368,7 +6363,7 @@
       // A1: 정본 full 객체 + breadthScore가 .consensus(수치)로 채워짐(이전 .score=undefined 버그 시정)
       var fullOk = !!(ms817 && ms817.breadthConsensusFull && ms817.breadthConsensusFull.verdict && ms817.cycleFull && ms817.cycleFull.phase && typeof ms817.breadthScore === 'number');
       // A2: 페이지 렌더러 4종이 marketState 우선 분기를 갖는지(소스 회귀 가드)
-      var renderers = ['_aioRenderThemesCycle','_aioRenderBriefingAction']; // P1672: breadth consensus renderer retired with its sinks
+      var renderers = ['_aioRenderThemesCycle']; // P1672: breadth consensus renderer retired with its sinks; briefing action renderer retired with its sinks
       var consumerOk = renderers.every(function(fn){ return typeof window[fn] === 'function' && /marketState/.test(window[fn].toString()); });
       // A2 실재 정합: breadth 렌더러 실행 후 verdict sink가 marketState verdict와 일치
       var breadthMatch = false;
@@ -8045,7 +8040,7 @@
     var table910 = document.querySelector('#scr-tab-ranking .aio-table-scroll');
     _assert('T911 screener_horizontal_scroll_affordance (H3-D)', !!table910 && table910.getAttribute('role') === 'region' && table910.getAttribute('tabindex') === '0', table910 ? table910.outerHTML.slice(0, 180) : 'wrapper missing');
     var bootCdn912 = Array.prototype.slice.call(document.querySelectorAll('script[src]')).filter(function(el) { return /chart\.js@4\.4\.0|dompurify@3\.0\.9|lightweight-charts@4\.2\.0/.test(el.src || ''); });
-    _assert('T912 external_cdn_does_not_block_local_boot_queue (H3-F)', bootCdn912.length === 3 && bootCdn912.every(function(el) { return el.async === true && el.defer === false; }), bootCdn912.map(function(el) { return { src: el.src, async: el.async, defer: el.defer }; }));
+    _assert('T912 P1756 external_cdn_does_not_block_local_boot_queue (H3-F)', bootCdn912.some(function(el) { return /dompurify@3\.0\.9/.test(el.src); }) && typeof window._aioEnsureChartLibrary === 'function' && bootCdn912.every(function(el) { return el.async === true && el.defer === false; }), bootCdn912.map(function(el) { return { src: el.src, async: el.async, defer: el.defer }; }));
     var contract913 = window.AIO.getPageContractAudit && window.AIO.getPageContractAudit();
     var lineage913 = window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
     // P1076: the contract audit must REPORT authored-vs-derived coverage instead of

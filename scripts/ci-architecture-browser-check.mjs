@@ -518,7 +518,7 @@ try {
     || new Set(tickerRangeEvidence.map((item) => item.range)).size !== 4
     || tickerRangeEvidence.some((item) => item.sourceKind !== 'native-runtime' || !item.rendered)) throw new Error(`ticker native range windows failed: ${JSON.stringify(tickerRangeEvidence)}`);
   tickerRoute.tabRangeEvidence = tickerRangeEvidence;
-  const relatedTheme = page.locator('#page-ticker [data-action="showThemeDetail"][data-arg]').first();
+  const relatedTheme = page.locator('#page-ticker [data-action="showThemeDetail"][data-arg]:visible').first(); // 2026-10-14 audit #10: the duplicate 관련 테마 chips are hidden; the visible theme action is used
   if (await relatedTheme.count() < 1) throw new Error('ticker related-theme action is unavailable for NVDA');
   const relatedThemeId = await relatedTheme.getAttribute('data-arg');
   await relatedTheme.click();
@@ -623,6 +623,7 @@ try {
       summaryRenderer: document.getElementById('tech-regime-summary')?.dataset.aioTechRegimeRenderer || null,
       overall: document.getElementById('tech-regime-overall')?.textContent || '',
       chips: document.querySelectorAll('#tech-regime-chips .regime-chip').length,
+      fxReference: document.querySelectorAll('#tech-regime-chips .regime-chip-reference').length, // 2026-10-14 audit #4: six US chips + one muted FX reference line
       retiredScore: !!document.getElementById('health-score-display') || !!document.getElementById('health-components'),
       chartFirst: order.indexOf('tech-regime-summary') >= 0 && order.indexOf('tech-regime-summary') < order.indexOf('stock-chart-section'),
       stockChartForm: document.getElementById('stock-chart-form')?.dataset.aioStockChart || null,
@@ -630,7 +631,7 @@ try {
       retiredCandle: !!document.getElementById('tech-candle-chart')
     };
   });
-  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.summaryRenderer !== 'native' || !technicalRoute.overall.trim() || technicalRoute.chips !== 7 || technicalRoute.retiredScore || !technicalRoute.chartFirst || technicalRoute.stockChartForm !== 'installed' || !technicalRoute.candleTitle.trim() || technicalRoute.retiredCandle) throw new Error(`P1420 technical regime summary / stock chart surface failed: ${JSON.stringify(technicalRoute)}`);
+  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.summaryRenderer !== 'native' || !technicalRoute.overall.trim() || technicalRoute.chips !== 6 || technicalRoute.fxReference !== 1 || technicalRoute.retiredScore || !technicalRoute.chartFirst || technicalRoute.stockChartForm !== 'installed' || !technicalRoute.candleTitle.trim() || technicalRoute.retiredCandle) throw new Error(`P1420 technical regime summary / stock chart surface failed: ${JSON.stringify(technicalRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('signal'));
   await page.waitForFunction(() => document.getElementById('page-signal')?.dataset.aioArchitectureRoute === 'signal');
   // P1392: the 시장 상태 screen is the native six-axis regime board; the legacy signal dashboard

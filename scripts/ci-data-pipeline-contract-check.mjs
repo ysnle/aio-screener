@@ -149,9 +149,8 @@ const marketPage = read('src/ui/pages/market.js');
 const html = read('index.html');
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
 const pagesSource = read('js/aio-pages.js');
-const qa = read('_context/QA-CHECKLIST.md');
-const rules = read('_context/RULES.md');
-const postmortem = read('_context/BUG-POSTMORTEM.md');
+// v57.54: the P517/P531/P535 + R222/R230/R232 ledger prose-marker check moved to architecture/governance-markers.json
+// (policy "data-pipeline-contract"); this gate no longer reads QA-CHECKLIST/RULES/BUG-POSTMORTEM.
 const marketNewsStart = html.indexOf('id="page-market-news"');
 const marketNewsEnd = marketNewsStart >= 0 ? html.indexOf('<!-- ═══════════════ PAGE:', marketNewsStart + 1) : -1;
 const marketNewsHtml = marketNewsStart >= 0 ? html.slice(marketNewsStart, marketNewsEnd > marketNewsStart ? marketNewsEnd : marketNewsStart + 9000) : '';
@@ -210,8 +209,9 @@ check('P1273 home full-article card retains its summary path', homeArticleSummar
 
 check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(refresh));
 check('P1309/R654/QA-DATA-51 daily 13D/G poll runs ownership-only while filing-season Monday, unconnected HR/HR-A, and manual runs can invoke the full 13F chain',
-  /cron:\s*'13 7 \* \* \*'/.test(refresh)
-    && /GITHUB_EVENT_NAME.*schedule/.test(mastersLane)
+  /cron:\s*'33 7 \* \* \*'/.test(refresh)
+    && /steps\.daily-lane\.outputs\.due == 'true'/.test(mastersLane)
+    && /MASTERS_MODE.*operator/.test(mastersLane)
     && /collect-13f-discovery\.mjs --ownership-only/.test(mastersLane)
     && /pending_13f_hr.*-gt 0/.test(mastersLane)
     && /in_filing_season.*true/.test(mastersLane)
@@ -273,7 +273,12 @@ check('screener workflow default automation uses only free SEC path', /fetch-sec
 check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(read('scripts/fetch-data.mjs')) && exists('scripts/backtest-trading-score.mjs'));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
 check('refresh summary exposes automated AAII relay and same-date Treasury producer states', /AAII weekly/.test(refresh) && /aaiiRelayUsed/.test(refresh) && /Treasury curve/.test(refresh) && /treasuryObservedAt/.test(refresh));
-check('core refresh validates evidence-derived reconciliation before commit', /ci-reconciliation-contract-check\.mjs/.test(refresh) && refresh.indexOf('ci-reconciliation-contract-check.mjs') < refresh.indexOf('Commit refreshed public data if changed'));
+// The producer runs the whole CI data QA group (which contains ci-reconciliation-contract-check.mjs) before commit.
+const dataGroupGates = JSON.parse(readFileSync(new URL('../architecture/qa-pipeline.json', import.meta.url), 'utf8'))?.groups?.data?.gates || [];
+const reconciliationGateAt = refresh.indexOf('qa-runner.mjs --group data');
+check('P1751 core refresh validates evidence-derived reconciliation before commit', reconciliationGateAt >= 0
+  && dataGroupGates.some((gate) => gate.script === 'scripts/ci-reconciliation-contract-check.mjs')
+  && reconciliationGateAt < refresh.indexOf('Commit refreshed public data if changed'));
 check('screener refresh atomically rebuilds and commits reconciliation and operations status', /build-reconciliation-status\.mjs/.test(screenerRefresh) && /build-operations-status\.mjs/.test(screenerRefresh) && /public-data\/reconciliation-status\.json/.test(screenerRefresh) && /public-data\/operations-status\.json/.test(screenerRefresh));
 check('both refresh workflows keep generated workspace state outside data promotion while committing readiness artifacts', [refresh, screenerRefresh].every((workflow) => !/generate-workspace-state\.mjs --write/.test(workflow)
   && !/git add[^\n]*_context\/(?:CURRENT-STATE|CONTEXT-CATALOG)/.test(workflow)
@@ -589,6 +594,23 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && expired.status === 'blocked' && retainVerifiedMarketAnalysis({ ...previous, semanticIssues: ['x'] }, { nowMs: now }) === null
       && /08:00 이후 장중 속보\(잠정\)/.test(prompts[0] || ''),
     JSON.stringify({ retried: retried?.status, retained: retained?.retained, expired: expired?.status, prompts: prompts.length }));
+  {
+    // Unchanged evidence and headlines reuse a verified <12h analysis without a model call; any change, an older
+    // analysis, or a flagged one calls again.
+    const { reusableMarketAnalysis } = await import('./fetch-data.mjs');
+    const firstPrompts = prompts.length;
+    const fresh = await genMarketAnalysis(data, snapshot, { request: stub([good]), nowMs: now });
+    const reusedRun = await genMarketAnalysis(data, snapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now });
+    const callsAfterReuse = prompts.length;
+    const movedSnapshot = { quotes: snapshot.quotes.map((row) => row.instrumentId === '^GSPC' ? { ...row, evidenceId: 'market.index.spx:t2' } : row) };
+    const moved = await genMarketAnalysis(data, movedSnapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now });
+    check('P1751 market analysis reuse skips the model only for unchanged evidence/headlines under 12 h',
+      fresh.status === 'verified' && reusedRun.generatedAt === '2026-10-13T08:00:00.000Z' && callsAfterReuse === firstPrompts + 1
+        && moved.generatedAt !== '2026-10-13T08:00:00.000Z' && prompts.length === callsAfterReuse + 1
+        && reusableMarketAnalysis({ ...fresh, generatedAt: '2026-10-12T20:00:00.000Z' }, { metricEvidence: fresh.metricEvidence, newsEvidence: fresh.newsEvidence, headlineContext: fresh.headlineContext, nowMs: now }) === null
+        && reusableMarketAnalysis({ ...fresh, semanticIssues: ['x'] }, { metricEvidence: fresh.metricEvidence, newsEvidence: fresh.newsEvidence, headlineContext: fresh.headlineContext, nowMs: now }) === null,
+      JSON.stringify({ fresh: fresh.status, reused: reusedRun.generatedAt, moved: moved.generatedAt, calls: prompts.length - firstPrompts }));
+  }
   const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
   check('P1719 a rejected text is logged (400 chars) and never published; the run passes the previous artifact analysis',
     /\.slice\(0, 400\)/.test(source) && /genMarketAnalysis\(data, marketSnapshotForConsumers, \{ previous: previous\?\.marketAnalysis \|\| null \}\)/.test(source)
@@ -1013,7 +1035,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
 // rather than implying the full live composite rank is validated.
 check('server backtest discloses its excluded factors and fixed weight regime', /excludedFactors/.test(fetchData) && /weightRegime:\s*'NEUTRAL'/.test(fetchData) && /excludedFactorsReason/.test(fetchData));
 check('server backtest accumulates an IC time series artifact', /updateBacktestHistory/.test(fetchData) && /public-data\/backtest-history\.json/.test(fetchData));
-check('client backtest panel surfaces the excluded-factors/weight-regime disclosure, not a blanket "validated" claim', /backtest\.excludedFactors/.test(screenerPage) && /backtest\.weightRegime/.test(screenerPage) && (/실시간 적응형 종합 랭크 검증 아님/.test(screenerPage) || /레짐 틸트 후보는 검증·적용되지 않음/.test(screenerPage)) && !/종합 랭크가 검증 기반/.test(data + screenerPage));
+check('client backtest panel surfaces the excluded-factors/weight-regime disclosure, not a blanket "validated" claim', /backtest\.excludedFactors/.test(screenerPage) && /backtest\.weightRegime/.test(screenerPage) && (/실시간 적응형 종합 랭크 검증 아님/.test(screenerPage) || /(?:레짐|국면) 틸트 후보는 검증·적용되지 않음/.test(screenerPage)) && !/종합 랭크가 검증 기반/.test(data + screenerPage));
 
 // P587/R265/C6: dividend-unadjusted close systematically understates momentum/trend for
 // high-yield names (measured: KO 6m return understated by 1.56pp raw vs adjusted). Factor/backtest
@@ -1170,10 +1192,12 @@ check('operational health includes data pipeline', /getOperationalHealth/.test(c
 
 check('chat consumes news context and screener memo', /_buildNewsContext/.test(chat) && /newsCache/.test(chat) && /SCREENER_DB Memo/.test(chat) && /_aioGetMemoForTicker/.test(chat));
 check('news Korean translation and local insight fallback are wired', /_aioBuildNewsLocalKoreanInsight/.test(data) && /_aioGetNewsTranslation/.test(data) && /ko_explain/.test(data) && /getNewsTranslationQualityAudit/.test(data));
-check('news Korean rewrite brief is wired to market news surface', /_aioBuildNewsKoreanRewriteBrief/.test(data) && /_aioRenderNewsKoreanRewriteBrief/.test(data) && /ko_rewrite/.test(data) && /ko_section/.test(data) && /ko_market/.test(data) && /news-korean-rewrite-brief/.test(read('index.html')));
+// The Korean rewrite brief renderer was never called (its #news-korean-rewrite-brief slot stayed hidden);
+// the renderer trio and slot were retired. The per-item ko_rewrite/ko_section/ko_market fields stay.
+check('P1753 news Korean rewrite fields stay on items and the uncalled rewrite brief stays retired', /ko_rewrite/.test(data) && /ko_section/.test(data) && /ko_market/.test(data) && !/_aioBuildNewsKoreanRewriteBrief|_aioRenderNewsKoreanRewriteBrief/.test(data) && !/news-korean-rewrite-brief/.test(read('index.html')));
 // P1391: an untranslated headline is shown as written; no generated category sentence and no [EN]/[번역 중] prefixes.
 check('P1391 market news title shows the original headline when no translation exists', !/_aioBuildNewsVisibleFallbackTitle/.test(data) && /P1391: no translation → the original headline/.test(data) && !/\[EN\]\s*'\s*\+/.test(data) && !/\[번역 중\]\s*'\s*\+\s*\(item\.title/.test(data));
-check('market news native surface consumes normalized server/RSS items before Telegram fallback', /buildNewsSurfaceModel/.test(newsPage) && /selectNewsItems/.test(newsPage) && /_aioApplyNewsBackstop/.test(data) && /_aioApplyTelegramDigestToScreenerDb/.test(data) && /news-korean-rewrite-brief/.test(read('index.html')));
+check('P1753 market news native surface consumes normalized server/RSS items before Telegram fallback', /buildNewsSurfaceModel/.test(newsPage) && /selectNewsItems/.test(newsPage) && /_aioApplyNewsBackstop/.test(data) && /_aioApplyTelegramDigestToScreenerDb/.test(data) && /id="live-news-feed"/.test(read('index.html')));
 check('news selection audit exposes score criteria and surface eligibility', /getNewsSelectionAudit/.test(data) && /scoreBuckets/.test(data) && /scoreReasons/.test(data) && /homeEligible/.test(data) && /marketNewsEligible/.test(data) && /unverified=-8/.test(data));
 check('server news backstop preserves score tier and news-cycle metadata', /newsCycleStart/.test(data) && /newsCycleEnd/.test(data) && /serverCycleTrusted/.test(data) && /isFinite\(Number\(n\.score\)\)/.test(data));
 check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /filterByKst0800NewsCycle/.test(data) && /newsCycle:\s*cycleWindow/.test(data));
@@ -1212,7 +1236,8 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
 // normalized (corporation/INC suffix-insensitive, case/hyphen-insensitive) token-first-name match,
 // with the light fixture pinning the concrete incident and warnings for newly observed drifts.
 try {
-  const secFund = JSON.parse(read('public-data/sec-fundamentals.json') || '{}');
+  // P1757: the full ledger is producer-only (data-store branch); the projection keeps entityName per row.
+  const secFund = JSON.parse(exists('public-data/sec-fundamentals.json') ? read('public-data/sec-fundamentals.json') : read('public-data/sec-fundamentals-summary.json'));
   const universeRows = JSON.parse(read('public-data/screener-universe.json')).universe || [];
   const normalizeIssuerName = (value) => String(value || '')
     .toUpperCase().replace(/[,.\(\)]/g, ' ').replace(/\b(INC|INCORPORATED|CORPORATION|CORP|LTD|LIMITED|CO|COMPANY|PLC|NV|SA|CLASS)\b/g, ' ')
@@ -1235,7 +1260,6 @@ try {
 }
 
 check('data pipeline contract is wired into CI', qaPipeline.profiles?.full?.includes('core') && Object.values(qaPipeline.groups || {}).flatMap((group) => group.gates || []).some((gate) => gate.script === 'scripts/ci-data-pipeline-contract-check.mjs'));
-check('data pipeline contract documented in QA/rules/postmortem', /P517/.test(qa) && /R222/.test(rules) && /P517/.test(postmortem) && /P531/.test(qa) && /R230/.test(rules) && /P531/.test(postmortem) && /P535/.test(qa) && /R232/.test(rules) && /P535/.test(postmortem));
 const lineageAuditSource = read('scripts/ci-data-lineage-audit.mjs');
 check('P1283/R634 lineage freshness reference uses the wall clock and ignores ambient overrides', /const NOW = createAuditTime\(\);/.test(lineageAuditSource) && !/process\.env\.AIO_LINEAGE_AS_OF/.test(lineageAuditSource));
 check('P1287/R637 live-core freshness has no market-closed age waiver', !/marketClosedGraceEligible|deriveMarketSession|isLatestUsRegularClose/.test(lineageAuditSource) && /policy\.maxAgeHours != null && age\.ageHours > policy\.maxAgeHours/.test(lineageAuditSource));
@@ -1457,6 +1481,69 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && fed({ fedTargetLower: null }).status === 'stale');
   check('P1732 the producer publishes data.policyRates.fed from the merged macro block',
     /policyRates: \{ fed: deriveFedPolicyRate\(macro, Date\.parse\(attemptedAt\)\) \}/.test(read('scripts/fetch-data.mjs')));
+}
+
+// P1757 (owner decision 2026-10-14): weekend cadence + producer-only SEC ledger.
+{
+  const { decideRefreshCadence, marketQuietWindow, WEEKEND_NEWS_INTERVAL_MIN, WEEKEND_NEWS_DUE_MIN } = await import('./refresh-cadence.mjs');
+  const cron = (iso, lastNewsAt = null) => decideRefreshCadence({ nowMs: Date.parse(iso), eventName: 'schedule', schedule: '17,47 * * * *', lastNewsAt });
+  // EDT: Fri 2026-10-16 close 20:00Z (Sat 05:00 KST) is final at 21:00Z (Sat 06:00 KST); Mon 07:00 KST = Sun 22:00Z.
+  check('P1757 weekend window opens at Sat 06:00 KST (Friday US close + 60 min) and closes at Mon 07:00 KST under EDT',
+    cron('2026-10-16T20:59:00Z').mode === 'full' && cron('2026-10-16T21:00:00Z').mode === 'news'
+      && cron('2026-10-18T21:59:00Z').mode === 'news' && cron('2026-10-18T22:00:00Z').mode === 'full',
+    JSON.stringify([cron('2026-10-16T20:59:00Z'), cron('2026-10-16T21:00:00Z'), cron('2026-10-18T22:00:00Z')].map((row) => row.reason)));
+  check('P1757 the window follows the registered calendar: EST shifts the start to 07:00 KST, a half day moves it earlier, an unregistered year fails open',
+    cron('2026-11-13T21:59:00Z').mode === 'full' && cron('2026-11-13T22:00:00Z').mode === 'news'
+      && cron('2026-11-27T19:00:00Z').mode === 'news' && cron('2026-11-27T18:59:00Z').mode === 'full'
+      && cron('2027-12-31T23:00:00Z').mode === 'full' && /calendar-unregistered/.test(cron('2027-12-31T23:00:00Z').reason));
+  check('P1757 a weekday holiday is never quiet (futures, FX and the other market still print)',
+    marketQuietWindow(Date.parse('2026-10-09T03:00:00Z')).quiet === false && marketQuietWindow(Date.parse('2026-11-26T15:00:00Z')).quiet === false);
+  check('P1757 weekend news runs at most every 2 hours: skip below the due age, news at or past it or when the clock is unknown',
+    cron('2026-10-17T12:00:00Z', '2026-10-17T11:00:00Z').mode === 'skip'
+      && cron('2026-10-17T12:00:00Z', new Date(Date.parse('2026-10-17T12:00:00Z') - WEEKEND_NEWS_DUE_MIN * 60000).toISOString()).mode === 'news'
+      && cron('2026-10-17T12:00:00Z', null).mode === 'news' && WEEKEND_NEWS_DUE_MIN < WEEKEND_NEWS_INTERVAL_MIN && WEEKEND_NEWS_INTERVAL_MIN <= 120);
+  check('P1757 operator dispatch and the daily cron are always full; a Worker scheduler dispatch follows the weekend rule',
+    decideRefreshCadence({ nowMs: Date.parse('2026-10-17T12:00:00Z'), eventName: 'workflow_dispatch', trigger: 'operator', lastNewsAt: '2026-10-17T11:55:00Z' }).mode === 'full'
+      && decideRefreshCadence({ nowMs: Date.parse('2026-10-17T12:00:00Z'), eventName: 'workflow_dispatch', trigger: '', lastNewsAt: '2026-10-17T11:55:00Z' }).mode === 'full'
+      && decideRefreshCadence({ nowMs: Date.parse('2026-10-17T07:33:00Z'), eventName: 'schedule', schedule: '33 7 * * *', lastNewsAt: '2026-10-17T07:30:00Z' }).mode === 'full'
+      && decideRefreshCadence({ nowMs: Date.parse('2026-10-17T12:00:00Z'), eventName: 'workflow_dispatch', trigger: 'scheduler', lastNewsAt: '2026-10-17T11:55:00Z' }).mode === 'skip');
+  // Freshness consumers of the weekend gap: every live-age threshold must exceed the news interval plus one missed slot.
+  const lineageSource = read('scripts/ci-data-lineage-audit.mjs');
+  const dataMaxAgeHours = Number(lineageSource.match(/'data\.json': \{[^}]*maxAgeHours: (\d+)/)?.[1]);
+  const telegramMaxAgeHours = Number(lineageSource.match(/'telegram-digest\.json': \{[^}]*maxAgeHours: (\d+)/)?.[1]);
+  const watchdogMaxAgeMin = Number(watchdog.match(/default:\s*'(\d+)'/)?.[1]);
+  const worstWeekendGapMin = WEEKEND_NEWS_INTERVAL_MIN + 60;
+  check('P1757 weekend publish gap stays inside every live freshness threshold (lineage data/telegram, watchdog live age, refresh-audit A1 12h SLA)',
+    worstWeekendGapMin < dataMaxAgeHours * 60 && worstWeekendGapMin < telegramMaxAgeHours * 60 && worstWeekendGapMin < watchdogMaxAgeMin
+      && /SLA=12h/.test(read('scripts/ci-data-refresh-audit.mjs')),
+    'gap=' + worstWeekendGapMin + 'm data=' + dataMaxAgeHours + 'h telegram=' + telegramMaxAgeHours + 'h watchdog=' + watchdogMaxAgeMin + 'm');
+  const cadenceJob = refresh.match(/\n  cadence:\n[\s\S]*?(?=\n  refresh:\n)/)?.[0] || '';
+  const refreshJobHead = refresh.match(/\n  refresh:\n[\s\S]*?\n    steps:/)?.[0] || '';
+  const convergeJobHead = refresh.match(/\n  converge:\n[\s\S]*?\n    steps:/)?.[0] || '';
+  check('P1757 refresh-data decides cadence in a sparse, read-only job before the producer, and fails open to full',
+    /node scripts\/refresh-cadence\.mjs --github-output/.test(cadenceJob) && /sparse-checkout:/.test(cadenceJob)
+      && ['scripts/refresh-cadence.mjs', 'src/domain/market/market-calendar.js', 'public-data/data.json'].every((file) => cadenceJob.includes(file))
+      && !/npm ci|setup-node/.test(cadenceJob) && /contents:\s*read/.test(cadenceJob) && !/\n    if:/.test(cadenceJob)
+      && /needs: cadence/.test(refreshJobHead) && /if: \$\{\{ !cancelled\(\) && needs\.cadence\.outputs\.mode != 'skip' \}\}/.test(refreshJobHead)
+      && /needs: \[cadence, refresh\]/.test(convergeJobHead) && /needs\.cadence\.outputs\.mode != 'skip'/.test(convergeJobHead)
+      && /EVENT_SCHEDULE: \$\{\{ github\.event\.schedule \}\}/.test(cadenceJob) && /DISPATCH_TRIGGER: \$\{\{ inputs\.trigger \}\}/.test(cadenceJob));
+  const commitStep = screenerRefresh.match(/- name: Commit only validated screener artifacts[\s\S]*?(?=\n      - name: )/)?.[0] || '';
+  check('P1757 the SEC ledger is restored before the producer and published to the data-store branch before main is pushed',
+    screenerRefresh.indexOf('sec-fundamentals-store.mjs restore') > 0
+      && screenerRefresh.indexOf('sec-fundamentals-store.mjs restore') < screenerRefresh.indexOf('node scripts/fetch-sec-fundamentals.mjs')
+      && /SEC_FULL_REBUILD/.test(screenerRefresh)
+      && screenerRefresh.indexOf('sec-fundamentals-store.mjs guard') > screenerRefresh.indexOf('node scripts/fetch-sec-fundamentals.mjs')
+      && screenerRefresh.indexOf('sec-fundamentals-store.mjs guard') < screenerRefresh.indexOf('node scripts/build-sec-runtime-projection.mjs')
+      && commitStep.indexOf('sec-fundamentals-store.mjs publish') > 0 && commitStep.indexOf('sec-fundamentals-store.mjs publish') < commitStep.indexOf('git commit -m')
+      && commitStep.indexOf('sec-fundamentals-store.mjs publish') < commitStep.indexOf('until git push'));
+  check('P1757 neither producer stages the SEC ledger on main, it is gitignored, and Pages still excludes it',
+    [refresh, screenerRefresh].every((workflow) => !/git add[^\n]*public-data\/sec-fundamentals\.json/.test(workflow) && !/stage_if_exists public-data\/sec-fundamentals\.json/.test(workflow) && !/"\$staged" = "public-data\/sec-fundamentals\.json"/.test(workflow))
+      && /^\/?public-data\/sec-fundamentals\.json$/m.test(read('.gitignore'))
+      && /--exclude 'sec-fundamentals\.json'/.test(read('.github/workflows/pages-deploy.yml')));
+  check('P1757 CI restores the ledger only when its digest matches the checkout manifest, and gates degrade with a labelled skip otherwise',
+    /sec-fundamentals-store\.mjs restore --match-manifest/.test(ci)
+      && ['scripts/ci-sec-runtime-projection-check.mjs', 'scripts/ci-professional-data-gap-check.mjs'].every((file) => /readSecLedger/.test(read(file)) && /secLedgerSkipNote/.test(read(file)))
+      && /fullRebuild/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /GITHUB_ACTIONS === 'true' && !fullRebuild/.test(read('scripts/fetch-sec-fundamentals.mjs')));
 }
 
 if (errors.length) {

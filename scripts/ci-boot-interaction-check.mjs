@@ -30,32 +30,61 @@ function startServer() {
   });
 }
 
+// P1756: Chart.js loads on first chart use. A boot requests nothing; the first `new Chart()` requests the primary, a
+// slow primary (2 s) still wins without a secondary request or the local fallback, the pending chart is built on the
+// real constructor, defaults written early are replayed, and the #aio-chart-cdn element receives its load event.
 async function verifyDelayedPrimaryChart(browserInstance) {
-  const coordinator = indexSource.match(/<script>\s*\/\/ Chart\.js is async, so DOMContentLoaded does not prove that its request has settled\.([\s\S]*?)<\/script>/)?.[1];
-  if (!coordinator) return { passed: false, reason: 'chart coordinator source missing' };
+  const coordinator = indexSource.match(/<script>\s*\/\/ Chart libraries load on demand \(P1756\)\.([\s\S]*?)<\/script>/)?.[1];
+  // The fixture body is not the pinned file, so its SRI attribute is dropped (the real hash is pinned by ci-runtime-contract-check).
+  const placeholder = indexSource.match(/<script id="aio-chart-cdn"[^>]*><\/script>/)?.[0]?.replace(/ data-aio-integrity="[^"]*"/, '');
+  if (!coordinator || !placeholder) return { passed: false, reason: 'chart coordinator source missing' };
   const fixture = await browserInstance.newPage();
+  let primaryRequests = 0;
   let secondaryRequests = 0;
+  let lwcRequests = 0;
   try {
     await fixture.route('**/*', async (route) => {
       const url = route.request().url();
       if (url.includes('cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js')) {
+        primaryRequests++;
         await new Promise((resolveDelay) => setTimeout(resolveDelay, 2000));
-        return route.fulfill({ status: 200, contentType: 'application/javascript', body: 'window.Chart=function DelayedPrimaryChart(){};window.Chart.defaults={font:{}};' });
+        return route.fulfill({ status: 200, contentType: 'application/javascript', body: 'window.Chart=function DelayedPrimaryChart(item,config){this.item=item;this.config=config;};window.Chart.defaults={font:{},plugins:{tooltip:{}}};' });
       }
-      if (url.includes('cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js')) {
-        secondaryRequests++;
-      }
+      if (url.includes('cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js')) secondaryRequests++;
+      if (url.includes('lightweight-charts')) lwcRequests++;
       return route.abort();
     });
-    await fixture.setContent(`<script id="aio-chart-cdn" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" async></script><script>// Chart.js is async, so DOMContentLoaded does not prove that its request has settled.${coordinator}</script>`, { waitUntil: 'domcontentloaded' });
-    await fixture.waitForTimeout(5200);
+    // Fake page timers (time still flows) so the coordinator's 5000 ms secondary-CDN timer can be
+    // fast-forwarded instead of slept through. A timer that was not cleared still fires here.
+    await fixture.clock.install();
+    await fixture.setContent(`${placeholder}<script>// Chart libraries load on demand (P1756).${coordinator}</script>`, { waitUntil: 'domcontentloaded' });
+    await fixture.waitForTimeout(300);
+    const bootRequests = primaryRequests + secondaryRequests + lwcRequests;
+    await fixture.evaluate(() => {
+      window.__placeholderLoads = 0;
+      document.getElementById('aio-chart-cdn').addEventListener('load', () => { window.__placeholderLoads++; });
+      window.__Deferred = window.Chart;
+      window.Chart.defaults.color = '#123456';
+      const canvas = document.createElement('canvas');
+      document.body.appendChild(canvas);
+      window.__deferred = new window.Chart(canvas, { type: 'line', data: { labels: [], datasets: [] } });
+    });
+    await fixture.waitForFunction(() => window.Chart?.name === 'DelayedPrimaryChart', null, { timeout: 8000, polling: 50 }).catch(() => {});
+    await fixture.clock.runFor(5200);
+    await fixture.waitForTimeout(100);
     const state = await fixture.evaluate(() => ({
       chartName: window.Chart?.name || '',
-      localFallback: !!window.Chart?.__aioFallback
+      localFallback: !!window.Chart?.__aioFallback,
+      built: !!(window.__deferred && window.__deferred._real instanceof window.Chart),
+      defaultsReplayed: window.Chart?.defaults?.color === '#123456',
+      placeholderLoads: window.__placeholderLoads,
+      direct: new window.__Deferred(document.createElement('canvas'), {}) instanceof window.Chart
     }));
     return {
-      passed: secondaryRequests === 0 && state.chartName === 'DelayedPrimaryChart' && state.localFallback === false,
-      secondaryRequests,
+      passed: bootRequests === 0 && primaryRequests === 1 && secondaryRequests === 0 && lwcRequests === 0
+        && state.chartName === 'DelayedPrimaryChart' && state.localFallback === false && state.built
+        && state.defaultsReplayed && state.placeholderLoads === 1 && state.direct,
+      bootRequests, primaryRequests, secondaryRequests, lwcRequests,
       ...state
     };
   } finally {
@@ -108,6 +137,9 @@ try {
   const interactiveStart = Date.now();
   await page.evaluate(() => window.showPage('signal'));
   const routeMs = Date.now() - interactiveStart;
+  // Deliberate post-boot observation window, not a settle guess: it spans the coordinator's 5000 ms
+  // Chart.js fallback timer and the deferred fetches counted in totalExternalRequests/quoteRequests,
+  // so the evidence reports what a user's first ~6.5 s actually requested (long tasks use the 2 s window).
   await page.waitForTimeout(6500);
   const result = await page.evaluate((bootWindowMs) => {
     const nav = performance.getEntriesByType('navigation')[0] || {};
@@ -141,7 +173,7 @@ try {
   if (result.maxLongTaskMs > 2500) failures.push(`max long task ${result.maxLongTaskMs}ms > 2500ms`);
   if (result.activePage !== 'page-signal') failures.push(`route did not activate signal (${result.activePage})`);
   if (result.bootStatusPresent) failures.push('boot status did not hard-release');
-  if (!result.delayedPrimaryChart.passed) failures.push(`delayed primary Chart.js triggered a false fallback (${JSON.stringify(result.delayedPrimaryChart)})`);
+  if (!result.delayedPrimaryChart.passed) failures.push(`P1756 on-demand Chart.js: boot fetched a chart library, or a delayed primary triggered a false fallback (${JSON.stringify(result.delayedPrimaryChart)})`);
   const targets = operationsSlo.targets?.bootPerformance || {};
   const targetFailures = [];
   if (result.initialExternalRequests > targets.initialExternalRequestsMax) targetFailures.push(`initial external ${result.initialExternalRequests} > ${targets.initialExternalRequestsMax}`);

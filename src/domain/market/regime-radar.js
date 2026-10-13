@@ -11,10 +11,10 @@ const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? 
 export const RADAR_AXES = Object.freeze([
   { id: 'trend', label: '추세', note: 'S&P 500의 200일선 대비 거리' },
   { id: 'breadth', label: '시장 폭', note: '50일선 위 종목 비율' },
-  { id: 'volatility', label: '변동성 안정', note: 'VIX가 낮을수록 바깥' },
-  { id: 'rates', label: '금리 여유', note: '미 10년물이 낮을수록 바깥' },
-  { id: 'credit', label: '신용 안정', note: 'HY OAS가 좁을수록 바깥' },
-  { id: 'commodities', label: '달러·유가 여유', note: '달러지수·WTI가 낮을수록 바깥' }
+  { id: 'volatility', label: '변동성', note: 'VIX가 낮을수록 바깥(우호)' },
+  { id: 'rates', label: '금리', note: '미 10년물이 낮을수록 바깥' },
+  { id: 'credit', label: '신용 · 위험선호', note: 'HY OAS가 좁을수록 바깥' },
+  { id: 'commodities', label: '달러 · 원자재', note: '달러지수·WTI가 낮을수록 바깥' }
 ]);
 
 function macroSeries(macroHistory, key, factor = 1) {

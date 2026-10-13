@@ -71,7 +71,10 @@ export function buildSharedWebSearchBody(prompt, { allowedDomains, schemaName, s
     text: { format: { type: 'json_schema', name: schemaName, schema, strict: true } } };
 }
 
-export async function requestSharedWebSearch(prompt, { env = process.env, fetchImpl = fetch, timeoutMs = 90000, purpose = 'official-reference', ...options } = {}) {
+// The Worker's hosted-search deadline is 120 s (cloudflare-worker-proxy.js openAiDeadlineMs). The old 90 s
+// client wait abandoned searches the Worker was still completing (and charging); 115 s keeps the client inside
+// the Worker bound while covering those completions.
+export async function requestSharedWebSearch(prompt, { env = process.env, fetchImpl = fetch, timeoutMs = 125000, purpose = 'official-reference', ...options } = {}) {
   const config = resolveSharedAiConfig(env);
   if (!config) return { text: null, reason: 'shared-ai-not-configured' };
   let body;

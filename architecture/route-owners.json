@@ -103,7 +103,7 @@
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "index.html:refreshSignalDashboard score-gauge-val/score-decision-badge/score-decision-sub writers are fenced by _aioIsNativeSignalHero()",
+        "js/aio-pages.js:refreshSignalDashboard no longer writes score-gauge-val/score-decision-badge/score-decision-sub (P1670 removed those legacy writers, so the former native-hero fence helper was retired as dead code)",
         "index.html:renderScoreBars owns score-bars-container only; score-adjustments-container has no legacy writer"
       ],
       "p786Boundary": "analysis.js owns the score display, five-tier decision text, and the post-composite adjustment rows from trading-score.v3/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
@@ -133,7 +133,7 @@
       "contestedIds": [],
       "legacyWriterEvidence": [
         "js/aio-ui.js: updateBreadthBars/initBreadthPage primary card, stage, McClellan, and chart fallback writers fence native breadth elements",
-        "js/aio-data.js: updateBreadthUI breadth-advance-ratio writer fences native breadth element; its RSP/SPY breadth-signal writer is fenced by aioBreadthSignalRenderer"
+        "js/aio-data.js: the updateBreadthUI KPI writer (breadth-advance-ratio, RSP/SPY breadth-signal-val, breadth-source) was retired with its sinks; fetchBreadthData no longer renders"
       ],
       "notes": "P803 extends P773 to the bounded breadth signal label, P819 adds the current-evidence diagnostic signal/text, and P827 transfers stage/McClellan status plus five chart lifecycles. market.js reads the native screener artifact metadata first and retains the legacy breadth evidence helper as a compatibility fallback. Missing multi-day breadth history remains blocked; no synthetic breadth series is promoted.",
       "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."

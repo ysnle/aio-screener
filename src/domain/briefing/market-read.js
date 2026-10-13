@@ -93,7 +93,27 @@ const settleRank = (minute, close) => minute <= close ? close - minute : 10000 +
 // let the later row win unless C11's settle-time preference decides. Carried-forward weekend copies are not
 // observations, and neither is an observation dated on a day its market was closed (T01). `through` drops
 // observations after the basis date.
+// P1755: history arrays are replaced wholesale on reload (never mutated in place), and one render reads the same
+// (field, through) series many times, so results are memoised per array identity (+ length guard) and options.
+// Callers always receive fresh point objects, so a consumer that edits its copy cannot alter the memo.
+const CLOSE_SERIES_MEMO = new WeakMap();
+const copyPoints = (points) => points.map((point) => ({ ...point }));
 export function buildCloseSeries(history = [], field, { through = null, includeProvenance = false, market = closeSessionMarket(field) } = {}) {
+  if (!Array.isArray(history)) return computeCloseSeries(history, field, { through, includeProvenance, market });
+  let memo = CLOSE_SERIES_MEMO.get(history);
+  if (!memo || memo.length !== history.length) {
+    memo = { length: history.length, series: new Map() };
+    CLOSE_SERIES_MEMO.set(history, memo);
+  }
+  const key = JSON.stringify([field, through ?? null, !!includeProvenance, market ?? null]);
+  let series = memo.series.get(key);
+  if (!series) {
+    series = computeCloseSeries(history, field, { through, includeProvenance, market });
+    memo.series.set(key, series);
+  }
+  return copyPoints(series);
+}
+function computeCloseSeries(history, field, { through, includeProvenance, market }) {
   const byDate = new Map();
   const rankOf = new Map();
   const close = SESSION_CLOSE_NY_MINUTE[field] ?? null;
@@ -435,9 +455,9 @@ export function buildMarketRead(input = {}) {
   // 2. Index vs participation.
   const b50 = s.breadth50?.value ?? null;
   if (b50 != null && spxFromHigh != null) {
-    if (spxFromHigh > -3 && b50 < 40) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 AIO 수집 종목 중 50일선 위 종목은 ${fmt(b50, 0)}%뿐입니다.`, 'index', { reading: '지수 상승이 일부 종목에 집중된 좁은 장세일 수 있습니다 — 어느 종목이 끌어올렸는지는 테마 화면의 S&P 500 지도(타일 넓이 = 지수 비중)에서 구성 종목 기여로 확인합니다.', check: `50일선 위 종목 비율이 40% 위로 회복되는지(현재 ${fmt(b50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
-    else if (b50 >= 60 && spx20 != null && spx20 > 0) add('broad-rally', 55, `AIO 수집 종목 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
-    else if (b50 < 30 && spx20 != null && spx20 < 0) add('broad-weakness', 70, `AIO 수집 종목 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
+    if (spxFromHigh > -3 && b50 < 40) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 AIO 관찰 종목 중 50일선 위 종목은 ${fmt(b50, 0)}%뿐입니다.`, 'index', { reading: '지수 상승이 일부 대형주에 집중된 좁은 장세일 수 있습니다.', check: `50일선 위 종목 비율이 40% 위로 회복되는지(현재 ${fmt(b50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
+    else if (b50 >= 60 && spx20 != null && spx20 > 0) add('broad-rally', 55, `AIO 관찰 종목 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
+    else if (b50 < 30 && spx20 != null && spx20 < 0) add('broad-weakness', 70, `AIO 관찰 종목 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
   }
   // P1416: leadership and distribution (definitions in src/domain/market/breadth-signals.js).
   const nh = s.breadthNewHighs?.date === spx.date ? s.breadthNewHighs.value : null;
@@ -480,7 +500,7 @@ export function buildMarketRead(input = {}) {
         : creditCalm ? `HY 스프레드(${fmt(hyBp, 0)}bp)가 낮고 5일·20거래일 모두 넓어지지 않아 신용 위험이 원인이라는 신호는 없습니다. 금리 부담이 그럴듯한 설명이지만, 실적 차이·업종 구성·유동성도 같은 결과를 만들 수 있습니다.`
           : credit === 'burden' ? `HY 스프레드가 부담 구간(${fmt(hyBp, 0)}bp${hyWeek != null ? `, 5일 ${signed(hyWeek, 0, 'bp')}` : ''})이라 자금 조달 여건이 중소형주를 누르는 경로일 수 있습니다. 금리 부담, 실적 차이, 업종 구성도 함께 확인합니다.`
             : credit === 'neutral' && widening20 ? `HY 스프레드는 ${fmt(hyBp, 0)}bp로 낮은 편이지만 20거래일 동안 ${signed(c.hy20, 0, 'bp')} 넓어지는 중이라 신용 원인을 배제하지 못합니다. 금리 부담, 실적 차이, 업종 구성도 같은 결과를 만들 수 있습니다.`
-              : credit === 'neutral' ? `신용 여건이 경계선(HY ${fmt(hyBp, 0)}bp${hyWeek != null ? `, 5일 ${signed(hyWeek, 0, 'bp')}` : ''})이라 신용 원인을 배제하지 못합니다. 금리 부담, 실적 차이, 업종 구성 중 무엇 때문인지는 이 숫자만으로 가려지지 않습니다.`
+              : credit === 'neutral' ? `신용 축이 중립(HY ${fmt(hyBp, 0)}bp${hyWeek != null ? `, 5일 ${signed(hyWeek, 0, 'bp')}` : ''})이라 신용 원인을 배제하지 못합니다. 금리 부담, 실적 차이, 업종 구성 중 무엇 때문인지는 이 숫자만으로 가려지지 않습니다.`
                 : '중소형주가 상대적으로 약합니다. 금리 부담, 실적 차이, 업종 구성 중 무엇 때문인지는 이 숫자만으로 가려지지 않습니다.'
     });
   }
@@ -505,7 +525,7 @@ export function buildMarketRead(input = {}) {
       reading: widening || widening20
         ? `아직 ${RULES.credit.tightBelowBp}bp 아래지만 ${widening ? `5일 ${signed(hyWeek, 0, 'bp')}` : `20거래일 ${signed(c.hy20, 0, 'bp')}`} 확대됐습니다 — 공포가 신용으로 번지지 않았다고 말하려면 확대가 멈추는지 확인이 필요합니다.`
         : '공포가 아직 신용 시장으로 번지지 않았습니다.',
-      check: `HY 스프레드가 ${RULES.credit.tightBelowBp}bp(경계 구간)를 넘는지(현재 ${fmt(hyBp, 0)}bp), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
+      check: `HY 스프레드가 ${RULES.credit.tightBelowBp}bp(신용 축이 우호에서 벗어나는 선)를 넘는지(현재 ${fmt(hyBp, 0)}bp), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
     });
   } else if (fg != null && fg > 70 && vix && vix.value < 14) {
     add('complacency', 60, `F&G ${fmt(fg, 0)}(탐욕)·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });
@@ -696,7 +716,7 @@ export function buildMarketRegime(input = {}) {
     const recordText = (rec) => rec?.pct == null ? '' : ` · 기록 ${rec.n}일 중 ${rec.pct}백분위${rec.provisional ? '(잠정)' : ''}`;
     const recordRead = rec50?.pct == null ? '' : ` 50일선 위 비율 ${fmt(b50, 0)}%는 AIO 자체 기록 ${rec50.n}일 중 ${rec50.pct}백분위입니다${rec50.provisional ? `(기록 ${RECORD_FULL_YEAR}거래일 미만 · 잠정)` : ''}.`;
     const read = (state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
-      : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 AIO 수집 종목 가운데 이동평균선 위 비율이 낮은 좁은 장세 — 지수가 소수 대형주에 기대고 있을 수 있습니다(어느 종목이 끌어올렸는지는 테마 화면의 S&P 500 지도에서 확인).` : '약세가 시장 전반에 퍼져 있습니다.')
+      : state === 'burden' ? (narrow ? `지수는 고점권(${signed(fromHigh)})인데 AIO 관찰 종목 가운데 이동평균선 위 비율이 낮은 좁은 장세 — 지수가 소수 대형주에 기대고 있을 수 있습니다(어느 종목이 끌어올렸는지는 테마 화면의 S&P 500 지도에서 확인).` : '약세가 시장 전반에 퍼져 있습니다.')
         : state === 'unknown' ? staleRead('시장 폭', alignments.breadth50) : '참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다.') + partial + recordRead
       // P1633: the 20-day ratio moves first; a gap to the 50-day ratio says which way participation is turning.
       + (state !== 'unknown' && b20 != null && b50 != null && Math.abs(b20 - b50) >= 10
@@ -865,7 +885,8 @@ export function buildMarketRegime(input = {}) {
   const kr = s.kospi ? koreaMoveRecord(input.history, { now: input.now ?? Date.now() }) : null;
   if (kr?.extreme && kr.date === s.kospi.date && kr.d1 != null) {
     const note = ` 단, 한국은 ${shortDate(kr.date)} 코스피 ${signed(kr.d1)}${kr.d5 != null ? `(5거래일 ${signed(kr.d5)})` : ''}로 ${koreaRecordText(kr)}입니다 — 미국과 다른 시장이며, 이 축은 미국 종가로만 판정합니다.`;
-    for (const row of axes) if (row.id === 'trend' || row.id === 'volatility') row.read += note;
+    // P1745: once, on the volatility axis (the trend card no longer repeats the same sentence).
+    for (const row of axes) if (row.id === 'volatility') row.read += note;
   }
 
   const us = axes.filter((row) => row.id !== 'korea');

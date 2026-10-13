@@ -43,8 +43,10 @@ if (!/collect-13f-discovery\.mjs/.test(workflow) || !/SEC_USER_AGENT/.test(workf
 const mastersWorkflowStep = workflow.match(/      - name: Refresh weekly SEC 13F and daily 13D-G discovery[\s\S]*?(?=\n      - name: )/)?.[0] || '';
 const full13fChain = mastersWorkflowStep.match(/run_full_13f\(\)\s*\{([\s\S]*?)\n\s*\}/)?.[1] || '';
 if ((workflow.match(/name: Refresh weekly SEC 13F and daily 13D-G discovery/g) || []).length !== 1
-  || !/cron: '13 7 \* \* \*'/.test(workflow)
-  || !/GITHUB_EVENT_NAME.*schedule/.test(mastersWorkflowStep)
+  || !/cron: '33 7 \* \* \*'/.test(workflow)
+  || !/steps\.daily-lane\.outputs\.due == 'true'/.test(mastersWorkflowStep)
+  || !/daily-lane-age\.mjs/.test(workflow)
+  || !/MASTERS_MODE.*operator/.test(mastersWorkflowStep)
   || !/collect-13f-discovery\.mjs --ownership-only/.test(mastersWorkflowStep)
   || !/pending_13f_hr.*-gt 0/.test(mastersWorkflowStep)
   || !/in_filing_season.*true/.test(mastersWorkflowStep)

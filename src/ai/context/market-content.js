@@ -7,15 +7,24 @@ import { companyAnalysisContext } from '../../domain/entity/company-analysis.js'
 import { renderMarketScenarioContext } from '../../domain/market/regime-scenarios.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { collectMarketInputs } from '../../ui/components/briefing-read.js';
+import { buildMarketRegime } from '../../domain/briefing/market-read.js';
+import { renderMacroCrossroadsContext } from '../../domain/market/macro-crossroads.js';
+import { crossroadsForRoot } from '../../ui/components/macro-crossroads.js';
+import { renderThemePlaybookContext } from '../../domain/scenarios/theme-playbook.js';
+import { themePlaybookForRoot } from '../../ui/components/theme-playbook.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
 export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '' } = {}) {
   const contexts = new Set();
-  if (/^(macro|kr-macro|fxbond|themes|theme-detail|kr-themes)$/.test(ctxId)) contexts.add(ctxId);
+  if (/^(macro|fxbond|themes|theme-detail)$/.test(ctxId)) contexts.add(ctxId); // v57.54: kr-macro/kr-themes are no longer chat contexts
   const text = String(query || '');
   if (/CPI|PCE|FOMC|인플레|물가|고용|실업|연준|거시/i.test(text)) contexts.add('macro');
   if (/DXY|OAS|달러|환율|국채|채권|금리|스프레드/i.test(text)) contexts.add('fxbond');
   if (/섹터|테마|업종|로테이션/i.test(text)) contexts.add('themes');
+  // P1740: Korean policy/official-release questions get the Korean macro block (BOK rate, CPI, export flash, 금통위);
+  // it already carries the US block, so the plain macro one is dropped to avoid sending it twice.
+  if (/한국은행|한은|기준금리|금통위|한국\s*(?:물가|소비자물가|cpi|경제|수출)|국내\s*물가|수출\s*(?:잠정|동향|증가|감소)/i.test(text)) contexts.add('kr-macro');
+  if (contexts.has('kr-macro')) contexts.delete('macro');
   const parts = [...contexts].map(readDomain).filter(Boolean);
   const state = root.AIO_ARCH?.getScreenerState?.();
   const facts = buildMarketContentContext({ query: text, history: root._aioHistory || [], themes: root.THEME_MAP || [], rows: state?.rows || root.SCREENER_DB || [] });
@@ -25,6 +34,25 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
     // "신용 관측이 없어 보류" while the screen judged the credit axis.
     const scenarios = renderMarketScenarioContext(collectMarketInputs(root));
     if(scenarios) parts.push(scenarios);
+  }
+  // P1742: forward, rate/inflation/jobs and "what should I do" questions get the same branches the 거시 screen draws.
+  if (/앞으로|향후|전망|시나리오|대응|어떻게\s*(?:해야|하지|할까|될까)|뭘\s*해야|무엇을\s*해야|금리|물가|CPI|PCE|고용|연준|FOMC|유가|경기|침체|인하|인상/i.test(text) && root._aioHistory?.length) {
+    try {
+      const regime = buildMarketRegime(collectMarketInputs(root));
+      // P1743: with the automated record (what changed since the last refreshes, how the latest releases scored).
+      const crossroads = renderMacroCrossroadsContext(crossroadsForRoot(root, { regime }), { state: root._aioScenarioState || null });
+      if (crossroads) parts.push(crossroads);
+    } catch (_) {}
+  }
+  // P1743: theme/sector, rotation and "should I stage into X" questions get every theme read by the same rule
+  // (stage × macro wind × choices × evidence × structural hypothesis), not only the themes the question names.
+  if ((ctxId === 'themes' || ctxId === 'theme-detail' || /섹터|테마|업종|로테이션|순환|주도|병목|조정|반등|분할|비중|들어가|살까|담을|앞으로|향후|대응/.test(text)) && root._aioHistory?.length) {
+    try {
+      const rows = state?.rows || root.SCREENER_DB || [];
+      const { playbook } = themePlaybookForRoot(root, { getState: () => ({ screener: { rows } }) });
+      const themesBlock = renderThemePlaybookContext(playbook, { query: text });
+      if (themesBlock) parts.push(themesBlock);
+    } catch (_) {}
   }
   if (/한국|코스피|코스닥|원화|한국.*시장|국내.*시장/.test(text)) {
     const korea = koreaParticipationContext(root.__aioKoreaParticipation);

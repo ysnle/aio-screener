@@ -3,7 +3,8 @@ import { evaluateResearchEvidenceFloor } from './evidence.js';
 export function selectNativeSearch({ decision = {}, questionPlan, externalResult, preparation = {}, internalEvidenceReady = false, internalReferenceEvidence = {}, optedOut = false, health } = {}) {
   if (optedOut || decision.userOptOut || preparation.cancelled || preparation.externalEvidenceReady ||
       ['FORBIDDEN', 'NOT_NEEDED'].includes(decision.requirement)) return false;
-  if (health?.ai && health.ai.paidWebSearchEnabled !== true) return false;
+  // P1759: in the month's last 20% the Worker strips search anyway (webSearchAvailable:false) — don't ask for it.
+  if (health?.ai && (health.ai.paidWebSearchEnabled !== true || health.ai.webSearchAvailable === false)) return false;
   if (externalResult && evaluateResearchEvidenceFloor({ questionPlan, externalResult, required: true }).ready) return false;
   if (decision.requestedByUser || decision.requirement === 'REQUIRED') return true;
   if (decision.currentSensitive) return !internalEvidenceReady;
@@ -19,7 +20,7 @@ export function selectNativeSearch({ decision = {}, questionPlan, externalResult
 }
 
 export function attachNativeSearch(body, { enabled = false, health } = {}) {
-  if (!enabled || health?.ai?.paidWebSearchEnabled !== true) return body;
+  if (!enabled || health?.ai?.paidWebSearchEnabled !== true || health?.ai?.webSearchAvailable === false) return body;
   return { ...body,
     tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }],
     max_tool_calls: 2, tool_choice: 'required', reasoning: { effort: 'low' },

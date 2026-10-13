@@ -42,6 +42,9 @@ try {
   const page = await context.newPage();
   await page.goto(`${base}index.html`);
   await page.waitForFunction(() => window.AIO_ARCH && typeof window.toggleTheme === 'function');
+  // P1756: lightweight-charts loads on first chart use. This journey replaces window._aioFetchYahooChartData (whose
+  // chart-screen wrapper waits for the library), so it requests the library through the same loader first.
+  await page.evaluate(() => window._aioEnsureChartLibrary('lwc'));
   await page.waitForFunction(() => window.LightweightCharts?.createChart);
   const disclaimer = page.locator('#aio-first-visit-disclaimer button').filter({ hasText: '확인했습니다' });
   if (await disclaimer.isVisible()) await disclaimer.click();
@@ -68,6 +71,9 @@ try {
     assert.equal(await page.locator('body').evaluate((body) => body.classList.contains('dark-theme')), mode === 'dark', 'P1604: mode survives reload');
   }
   await page.evaluate(() => window.showPage('themes'));
+  // v57.54: the sector-performance section (home of the only role=button tooltip) hides when no sector has a 1-day or
+  // 1-week value — always the case in this offline fixture. The tooltip mechanics are what is under test, so show it.
+  await page.addStyleTag({ content: '#page-themes .aio-section[hidden]:has([aria-label="섹터 RS 설명"]) { display: block !important; }' });
   const tooltip = page.getByRole('button', { name: '섹터 RS 설명', exact: true });
   await tooltip.click(); assert.equal(await tooltip.getAttribute('aria-expanded'), 'true', 'P1604: click opens the tooltip');
   await tooltip.press('Escape'); assert.equal(await tooltip.getAttribute('aria-expanded'), 'false', 'P1604: Escape closes the tooltip');

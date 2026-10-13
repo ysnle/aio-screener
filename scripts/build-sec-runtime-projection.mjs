@@ -73,7 +73,11 @@ export function quarterlyHistory(observations = {}) {
   return rows.length >= 2 ? rows.map((q) => [q.periodEnd, m(q.revenue), m(q.netIncome), q.derived ? 'd' : 'r'].join(':')).join(';') : null;
 }
 
-const sourceText = await readFile(SOURCE, 'utf8');
+// P1757: the canonical ledger is producer-only (data-store branch); a checkout without it cannot rebuild the projection.
+const sourceText = await readFile(SOURCE, 'utf8').catch((error) => {
+  if (error?.code === 'ENOENT') throw new Error('P1757: public-data/sec-fundamentals.json is absent; restore it first with `node scripts/sec-fundamentals-store.mjs restore`');
+  throw error;
+});
 const source = JSON.parse(sourceText);
 // P1436 (재무 공시 redesign): the page reads a trend, not one year. A compact fiscal-year series (at most
 // six full years of revenue / net income from 10-K FY facts of about twelve months, one row per period end —

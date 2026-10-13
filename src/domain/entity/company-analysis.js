@@ -37,7 +37,10 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   const associations = [];
   for (const theme of Array.isArray(themes) ? themes : []) {
     const subThemes = (theme.subThemes || []).filter(sub => (sub.tickers || []).some(ticker => sym(ticker) === id));
-    if (subThemes.length || (theme.leaders || []).some(ticker => sym(ticker) === id)) associations.push({ id: theme.id, name: theme.nameKr || theme.name || theme.id, subThemes: [...new Set(subThemes.map(sub => sub.name))] });
+    const themeName = theme.nameKr || theme.name || theme.id;
+    // v57.54: a KR theme group's only sub-theme carries the group's own name ("반도체 / HBM · 반도체 / HBM") — a sub-theme
+    // equal to its theme is not repeated, and one theme id is listed once.
+    if ((subThemes.length || (theme.leaders || []).some(ticker => sym(ticker) === id)) && !associations.some(item => item.id === theme.id)) associations.push({ id: theme.id, name: themeName, subThemes: [...new Set(subThemes.map(sub => sub.name))].filter(sub => sub && sub !== themeName) });
   }
   const lastSession = market === 'KR' ? latestCompletedKrSession(nowMs) : market === 'US' ? latestCompletedUsSession(nowMs, { requirePrevious: false }) : null;
   const sessionDate = matchedRow?.factorSessionDate;

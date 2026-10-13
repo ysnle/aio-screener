@@ -73,7 +73,8 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   if (!read.available) {
     // P1449: a hold is not an absence — the reason (currency mix without declared rates) is
     // user-facing content, printed here instead of silently removing the section.
-    host.hidden = false;
+    // Audit 2026-10-14: with no holdings the table's own empty state is the one message; this section stays hidden.
+    host.hidden = read.empty === true;
     host.replaceChildren(el(doc, 'h2', '내 포트폴리오와 시장', 'briefing-h2'), el(doc, 'p', read.reason, 'daily-empty'));
     renderNextSteps(doc, next, []);
     return read;

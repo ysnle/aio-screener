@@ -170,7 +170,8 @@ assert.ok(/scheduler-dispatch-token-missing/.test(fs.readFileSync(new URL('../.g
 // P1666: the producer job alone holds the refresh lock; waiting for CI/Pages runs in a separate job, and the watchdog follows each Pages deploy.
 for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
   const wf = loadYaml(fs.readFileSync(new URL(`../.github/workflows/${file}`, import.meta.url), 'utf8'));
-  const producer = Object.entries(wf.jobs).find(([name]) => name !== 'converge');
+  // P1757: refresh-data.yml gains a read-only `cadence` job ahead of the producer; it holds no lock and writes nothing.
+  const producer = Object.entries(wf.jobs).find(([name]) => !['converge', 'cadence'].includes(name));
   assert.ok(!wf.concurrency && producer[1].concurrency?.group === 'refresh-data' && wf.jobs.converge?.concurrency?.group === 'live-convergence', `P1666: ${file} convergence does not hold the refresh lock`);
   assert.ok(!producer[1].steps.some((step) => /ensure-live-convergence/.test(step.run || '')), `P1666: ${file} producer does not wait for Pages`);
 }

@@ -114,7 +114,9 @@ async function observeOnce() {
       result.proxy = { revision: health?.revision || null, sourceSha: health?.sourceSha || null, ready: health?.ai?.ready === true, authority: health?.ai?.authorityJurisdiction || null };
       check('proxy-health', health?.ok === true && health?.ai?.configured === true && health?.ai?.quotaConfigured === true && health?.ai?.authorityReady === true && health?.ai?.authorityJurisdiction === 'us' && health?.ai?.ready === true, JSON.stringify(result.proxy));
       check('proxy-exact-source-identity', /^[0-9a-f]{40}$/.test(health?.sourceSha || ''), `sourceSha=${health?.sourceSha || 'missing'}`);
-      check('proxy-source-revision', !proxyExpectedRevision || health?.revision === proxyExpectedRevision, `live=${health?.revision || 'missing'} source=${proxyExpectedRevision || 'missing'}`);
+      // Release mode: the AI-proxy workflow deploys concurrently and owns its own smoke + rollback, so a
+      // revision lag observed from the Pages deploy is a warning there, not a failed release.
+      check('proxy-source-revision', !proxyExpectedRevision || health?.revision === proxyExpectedRevision, `live=${health?.revision || 'missing'} source=${proxyExpectedRevision || 'missing'}`, mode === 'release' ? 'warning' : 'error');
     } else check('proxy-fetch', false, proxy.reason?.message || String(proxy.reason));
 
     if (fast.status === 'fulfilled') {
@@ -162,7 +164,9 @@ async function observeOnce() {
         // P1665: the watchdog cannot certify itself — treating its own previous failure as an error latched every
         // later run red after one upstream failure (observed 6 consecutive failures, 2026-10-11~12).
         const selfObservation = mode === 'watchdog' && id === 'watchdog';
-        const severity = (mode === 'release' && !['ci', 'pages'].includes(id)) || selfObservation ? 'warning' : 'error';
+        // Release mode: only the attested CI run stays an error. A previous cancelled/failed Pages run must
+        // not fail a successful deploy; pages-exact-expected-sha and provenance checks stay errors below.
+        const severity = (mode === 'release' && id !== 'ci') || selfObservation ? 'warning' : 'error';
         check(`github-${id}-latest-completed`, run?.conclusion === 'success' || isCurrentReleaseRun, run ? `conclusion=${run.conclusion} run=${run.html_url}${latest?.status === 'in_progress' ? ` active=${latest.html_url}` : ''}` : (isCurrentReleaseRun ? `current release=${latest.html_url}` : 'no completed workflow run'), severity);
       });
       if (result.pages?.sourceSha && result.pages?.attestationRunId) {

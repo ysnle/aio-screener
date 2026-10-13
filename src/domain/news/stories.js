@@ -89,11 +89,56 @@ export const COMMON_WORD_ISSUER_NAMES = new Set(['block', 'snap', 'progressive',
   'lowe\'s', 'lowes', 'target']);
 const CORPORATE_CUE = /\b(?:Inc|Corp|Corporation|Co|Company|Companies|Holdings|Group|Ltd|plc|Laboratories|Labs|stocks?|shares?|earnings|CEO|results|revenue|guidance|quarter(?:ly)?|profits?|sales|dividends?|buybacks?|outlook)\b/i;
 const apostrophes = (text) => String(text || '').replace(/[’‘`]/g, '\'');
+// P1755: boot ran these matchers per article x registry entry x name, compiling a fresh RegExp each time.
+// Compiled patterns are cached per name/symbol (the pattern depends only on that string) and a plain
+// substring test rejects texts that cannot match before any regex runs. The prefilter is only used when
+// it is exact: ASCII/Hangul names, whose case-insensitive Unicode matches are all found by toLowerCase
+// once U+017F (long s, which folds to "s") is mapped. Other names always run the regex.
+const MATCHER_CACHE_LIMIT = 4096;
+const cachedMatcher = (cache, key, build) => {
+  let hit = cache.get(key);
+  if (hit === undefined) {
+    if (cache.size >= MATCHER_CACHE_LIMIT) cache.clear();
+    hit = build(key);
+    cache.set(key, hit);
+  }
+  return hit;
+};
+const explicitCueCache = new Map();
+const nameMatcherCache = new Map();
+const explicitSymbolCache = new Map();
+const PREFILTER_SAFE_NAME = /^[\x00-\x7F가-힣]*$/;
+const foldedText = (text) => text.toLowerCase().replace(/ſ/g, 's');
+let lastFoldSource = null;
+let lastFolded = '';
+const foldOnce = (text) => {
+  if (text !== lastFoldSource) { lastFoldSource = text; lastFolded = foldedText(text); }
+  return lastFolded;
+};
 function symbolNamedExplicitly(text, symbol) {
   if (!symbol) return false;
-  const sym = escaped(String(symbol).toUpperCase());
-  return new RegExp(`\\$${sym}(?=$|[^A-Za-z0-9.])|\\(\\s*(?:(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*:\\s*)?${sym}\\s*\\)|(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX)\\s*:\\s*${sym}(?=$|[^A-Za-z0-9.])`).test(text);
+  const re = cachedMatcher(explicitCueCache, String(symbol).toUpperCase(), (upper) => {
+    const sym = escaped(upper);
+    return new RegExp(`\\$${sym}(?=$|[^A-Za-z0-9.])|\\(\\s*(?:(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*:\\s*)?${sym}\\s*\\)|(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX)\\s*:\\s*${sym}(?=$|[^A-Za-z0-9.])`);
+  });
+  return re.test(text);
 }
+// The Unicode pattern is compiled on the first text that passes the prefilter (most names never do).
+const buildNameMatcher = (name) => {
+  let re = null;
+  return {
+    get re() {
+      if (!re) {
+        const particle = /[가-힣]/.test(name) ? '(?:은|는|이|가|을|를|의|와|과|도|에서|에게|으로|로)?' : '';
+        re = new RegExp(`(^|[^\\p{L}\\p{N}])(${escaped(name)})${particle}(?=$|[^\\p{L}\\p{N}])`, 'giu');
+      }
+      return re;
+    },
+    needle: PREFILTER_SAFE_NAME.test(name) ? foldedText(name) : null,
+    oneWord: /^[A-Z][a-z]+(?:'s)?$/.test(name),
+    commonWord: COMMON_WORD_ISSUER_NAMES.has(name.toLowerCase())
+  };
+};
 /**
  * True when `text` names the company `name` (case rules above); `symbol` lets an explicit ticker count as the cue.
  * `requireCue` applies the common-word rule to any one-word name (used when a longer legal name was shortened).
@@ -104,10 +149,10 @@ export function issuerNameMentioned(rawText, rawName, symbol = '', { requireCue 
   const text = apostrophes(rawText);
   // P1601: "price target" is not Target the issuer, even when an AI cache suggested TGT.
   if (name.toLowerCase() === 'target') return /\bTarget\s+(?:Corporation|stores?)\b/i.test(text);
-  const particle = /[가-힣]/.test(name) ? '(?:은|는|이|가|을|를|의|와|과|도|에서|에게|으로|로)?' : '';
-  const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${escaped(name)})${particle}(?=$|[^\\p{L}\\p{N}])`, 'giu');
-  const oneWord = /^[A-Z][a-z]+(?:'s)?$/.test(name);
-  const common = COMMON_WORD_ISSUER_NAMES.has(name.toLowerCase()) || (requireCue && oneWord);
+  const matcher = cachedMatcher(nameMatcherCache, name, buildNameMatcher);
+  if (matcher.needle !== null && !foldOnce(text).includes(matcher.needle)) return false;
+  const { re, oneWord } = matcher;
+  const common = matcher.commonWord || (requireCue && oneWord);
   for (const match of text.matchAll(re)) {
     if (!oneWord && !common) return true;
     const found = match[2];
@@ -162,7 +207,16 @@ const issuerNames = (entry) => [entry?.en, entry?.kr, ...koreanAlts(entry)].filt
 
 export function resolveNewsIssuers(row, candidates = [], entries = {}) {
   const text = `${value(row?.title || row?.headline)} ${value(row?.desc || row?.summary)}`;
-  const explicit = (symbol) => new RegExp(`\\$${escaped(symbol)}(?=$|[^A-Z0-9.])|\\(${escaped(symbol)}\\)`, 'i').test(text);
+  // P1755: same pattern, compiled once per symbol; "$sym"/"(sym)" must appear (ASCII case-insensitive) first.
+  const folded = foldedText(text);
+  const explicit = (symbol) => {
+    const matcher = cachedMatcher(explicitSymbolCache, symbol, (sym) => ({
+      re: new RegExp(`\\$${escaped(sym)}(?=$|[^A-Z0-9.])|\\(${escaped(sym)}\\)`, 'i'),
+      needles: /^[\x00-\x7F]*$/.test(sym) ? ['$' + sym.toLowerCase(), '(' + sym.toLowerCase() + ')'] : null
+    }));
+    if (matcher.needles && !matcher.needles.some((needle) => folded.includes(needle))) return false;
+    return matcher.re.test(text);
+  };
   const requested = Array.isArray(candidates) ? candidates : [];
   const result = new Set();
   for (const candidate of requested) {

@@ -69,7 +69,8 @@ function renderNewsSummary(documentRef, root, model, status) {
   // data revision's older cut ("기준시각 경과 · 10/04 08:00") beside 10/5 articles. The header now names
   // the window the list actually uses, and staleness is stated as the last collection time.
   const newsWindow = briefingWindowKST(Date.now());
-  const fmt = (ms) => new Date(ms).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+  // Audit 2026-10-14: one date format on the news screen (M/D HH:MM), the same as the cards and the intraday list.
+  const fmt = (ms) => { const t = compactKstTime(new Date(ms).toISOString()); return t ? `${t.date} ${t.time}` : ''; };
   // P1591 (E03): when the published cycle is older than today's 08:00 window, the header names the cycle the
   // articles actually come from instead of the wall-clock window they do not fill.
   // X21 (2026-10-13): the list is filtered by the model's own window (the published cycle when it is admissible,
@@ -82,8 +83,8 @@ function renderNewsSummary(documentRef, root, model, status) {
   const cycleEnd = hasModelWindow ? modelEnd : Date.parse(root?._serverDataMeta?.newsCycleEnd || '');
   const olderCycle = Number.isFinite(cycleEnd) && newsWindow.end != null && cycleEnd < newsWindow.end - 60000;
   if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본 · ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
-  else if (hasModelWindow) set('news-window-label', `오늘의 중요 뉴스와 전체 뉴스 · ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사`);
-  else if (newsWindow.start != null) set('news-window-label', `오늘의 중요 뉴스와 전체 뉴스 · ${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
+  else if (hasModelWindow) set('news-window-label', `${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사`);
+  else if (newsWindow.start != null) set('news-window-label', `${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
   const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
   if (importantNote) importantNote.textContent = `주제별 핵심 · ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간`;
   set('last-fetch-time', cut?.status === 'stale' || status === 'stale'
@@ -178,7 +179,10 @@ function realTitle(root, item) {
   return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(title) : title; // P1500
 }
 
-const TOPIC_LABELS = Object.freeze({ macro: '매크로', semi: '반도체·AI', geo: '지정학', energy: '에너지', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
+// Audit 2026-10-14: a topic names the forward branch it feeds (거시 · 앞으로의 갈림길), so a headline is read as
+// evidence for or against a path rather than as an isolated event. Topics without a clear branch stay unlabelled.
+const TOPIC_BRANCHES = Object.freeze({ macro: '물가·고용 갈림길', fxbond: '물가·달러 갈림길', bond: '물가 재가속 갈림길', fx: '달러 급등 갈림길', energy: '유가 충격 갈림길', credit: '신용 경색 갈림길', geo: '유가·변동성 충격 갈림길' });
+const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo: '지정학', energy: '에너지', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
 
 function createNewsCard(documentRef, root, item, index) {
   const card = documentRef.createElement('div');
@@ -283,7 +287,8 @@ function createNewsCard(documentRef, root, item, index) {
   const topicLabel = TOPIC_LABELS[item?.topic || item?.feedTopic] || '';
   const providerDelay = item?.providerDelayPolicy === 'plan-dependent-free-12h' ? '지연 가능' : '';
   if (providerDelay) meta.title = 'NewsData 무료 요금제는 12시간 지연됩니다. 게시 시각과 전달 지연은 다릅니다.';
-  meta.textContent = [source, topicLabel, timeAgo, providerDelay]
+  const branchLabel = TOPIC_BRANCHES[item?.topic || item?.feedTopic] || '';
+  meta.textContent = [source, topicLabel, branchLabel, timeAgo, providerDelay]
     .filter(Boolean)
     .join(' · ');
   body.appendChild(meta);
@@ -294,6 +299,8 @@ function createNewsCard(documentRef, root, item, index) {
   const facts = newsEvidence(item);
   const evidenceTitle = documentRef.createElement('summary');
   evidenceTitle.textContent = [facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '출처·시각'].filter(Boolean).join(' · ');
+  // v57.54 audit (11): seventeen identical "기사 · 출처·시각" folds were indistinguishable to a screen reader; each names its headline.
+  evidenceTitle.setAttribute('aria-label', `${evidenceTitle.textContent} — ${String(title || '').slice(0, 80)}`);
   evidence.appendChild(evidenceTitle);
   const detail = documentRef.createElement('div');
   detail.textContent = [`발행 ${formatAbsoluteTime(facts.publishedAt) || '미제공'}`, `관찰 ${formatAbsoluteTime(facts.observedAt) || '미제공'}`,
@@ -478,7 +485,8 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
       group.className = 'news-category-group';
       const heading = documentRef.createElement('div');
       heading.style.cssText = 'padding:8px 12px 4px;font-size:11px;font-weight:700;color:var(--accent);border-bottom:1px solid var(--border-accent-dim);';
-      heading.textContent = `${topic} · ${items.length}건`;
+      const branch = TOPIC_BRANCHES[items[0]?.topic || items[0]?.feedTopic] || '';
+      heading.textContent = `${topic} · ${items.length}건${branch ? ` · ${branch}` : ''}`;
       group.appendChild(heading);
       items.forEach((item, index) => group.appendChild(createNewsCard(documentRef, root, item, index)));
       container.appendChild(group);
@@ -488,7 +496,7 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   }
 
   const count = documentRef.getElementById('market-news-count');
-  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `중요 사건 ${exclude.size}건 · 전체 목록 ${eligible.length}건 중 ${displayed.length}건 표시 · ${describeNewsScope(controls).articles}`; }
+  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `조건에 맞는 기사 ${model?.eligibleCount || 0}건 · 같은 사건 묶은 뒤 ${eligible.length}건 중 ${displayed.length}건 표시 · 중요 사건 ${exclude.size}건 · ${describeNewsScope(controls).articles}`; }
   const summary = documentRef.getElementById('news-visible-summary');
   if (summary) summary.textContent = `기사 ${model?.eligibleCount || 0}건 · 아래 사건 ${eligible.length}건 중 ${displayed.length}건 표시`;
   const more = documentRef.getElementById('news-load-more-wrap');
@@ -527,6 +535,24 @@ function syncNewsControlState(documentRef, controls) {
 }
 
 const NEWS_GROUP_LABELS = Object.freeze({ ...TOPIC_LABELS, general: '기타', defense: '방산', healthcare: '헬스케어', analyst: '애널리스트', shipbuilding: '조선', space: '우주', quantum: '양자', power: '전력', optical: '광통신', 'ai-policy': 'AI 정책' });
+
+// v57.54 audit (11): the native list never asked for translation — the legacy trigger ran only at the end of a direct
+// RSS fetch, which the published-news path skips, so live headlines stayed English (translation cache 0 on 10/14). The
+// shown, untranslated titles are requested once per session through the same pipeline, which repaints this list
+// through aio:newsSurfaceInvalidated when it finishes.
+function requestShownTranslations(root, items) {
+  if (typeof root?.autoTranslateNews !== 'function') return;
+  const asked = root.__aioNewsTranslationAsked || (root.__aioNewsTranslationAsked = new Set());
+  const pending = (items || []).filter((item) => {
+    const title = String(item?.title || '');
+    if (!title || /[가-힣]/.test(title) || asked.has(title)) return false;
+    const cached = root?._translationCache?.get?.(root?._tcKey?.(title));
+    return !(cached && cached.ko_title && /[가-힣]/.test(cached.ko_title));
+  }).slice(0, 18);
+  if (!pending.length) return;
+  pending.forEach((item) => asked.add(String(item.title)));
+  try { Promise.resolve(root.autoTranslateNews(pending)).catch(() => {}); } catch (_) {}
+}
 
 function render({ documentRef, root, store, route }) {
   const state = store?.getState?.() || {};
@@ -588,6 +614,7 @@ function render({ documentRef, root, store, route }) {
     }).catch(() => {});
   }
   appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)));
+  requestShownTranslations(root, [...important, ...(model?.items || []).slice(0, visibleLimit)]);
   container.dataset.aioNewsRenderer = 'native';
 }
 

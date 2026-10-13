@@ -327,7 +327,9 @@ for (const fixture of factorRanksGolden.fixtures) {
   const fgLabels = ['극단 공포', '공포', '중립', '탐욕', '극단 탐욕'];
   const vixLabels = ['저변동 구간', '통상 범위', '변동성 경계 구간', '고변동 구간'];
   const legacyFg = pick('_fgZone'), legacyVix = pick('_vixBand');
-  if (legacyFg.length !== 2 || legacyVix.length !== 2) fail(`P1534 expected two legacy copies each of _fgZone/_vixBand in js/aio-core.js, found ${legacyFg.length}/${legacyVix.length}`);
+  // P1753: AIO.computeMarketState reuses window._aioVixBandIndex/_aioFgZoneIndex instead of its own copy, so exactly one
+  // legacy copy of each band function may exist (a second copy coming back is drift risk again).
+  if (legacyFg.length !== 1 || legacyVix.length !== 1) fail(`P1534/P1753 expected exactly one legacy copy each of _fgZone/_vixBand in js/aio-core.js, found ${legacyFg.length}/${legacyVix.length}`);
   if (RULES.volatility.highAt !== 32 || RULES.volatility.calmBelow !== 18 || RULES.volatility.stressAt !== 25) fail('P1534 RULES.volatility must carry the 18 / 25 / 32 band edges');
   const mismatches = [];
   for (let tenth = 0; tenth <= 1000; tenth += 1) {

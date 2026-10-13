@@ -25,8 +25,11 @@ export function screenerNativePublished(state) {
 
 export function resolveScreenerRows(root, intent = SCREENER_ROW_INTENT.EVIDENCE) {
   const nativeRows = typeof root?.AIO_ARCH?.getScreenerRows === 'function' ? root.AIO_ARCH.getScreenerRows() : null;
-  const nativeState = typeof root?.AIO_ARCH?.getScreenerState === 'function' ? root.AIO_ARCH.getScreenerState() : null;
   if (Array.isArray(nativeRows) && nativeRows.length) return nativeRows;
+  // P1755: only the publication status is needed, so read that one field (the facade snapshots a dot path)
+  // instead of deep-cloning the whole screener slice. A reader that ignores the path still returns the slice.
+  const statusRead = typeof root?.AIO_ARCH?.getScreenerState === 'function' ? root.AIO_ARCH.getScreenerState('status') : null;
+  const nativeState = statusRead && typeof statusRead === 'object' ? statusRead : { status: statusRead ?? null };
   // A published-but-empty canonical state is authoritative for both intents: a documented empty
   // break outranks substituting the bundled legacy DB.
   if (screenerNativePublished(nativeState)) return Array.isArray(nativeRows) ? nativeRows : [];

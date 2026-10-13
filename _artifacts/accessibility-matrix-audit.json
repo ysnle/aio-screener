@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-13T13:46:48.372Z",
-  "appRevision": "v57.53",
-  "gitHead": "e136c6e7209efd752b5f378eee01bbb255f435be",
+  "observedAt": "2026-10-13T22:13:54.647Z",
+  "appRevision": "v57.54",
+  "gitHead": "c3ee29a0d5ac5222ac39fca7539d0fca74414092",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -50,7 +50,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 2,
+      "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -77,13 +77,20 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
+      "smallTargetExceptionCount": 2,
       "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "공포·탐욕 지수 (F&G) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
         {
           "id": "",
           "text": "풋/콜 비율 근거 보기",
           "width": 1,
-          "height": 36,
+          "height": 1,
           "exception": "keyboard-focus-only"
         }
       ],
@@ -362,7 +369,7 @@
       "routeId": "screener",
       "active": true,
       "nameless": [],
-      "selectCount": 6,
+      "selectCount": 5,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,

@@ -119,9 +119,28 @@ export function renderMarketScenarioContext(input = {}, options = {}) {
 
 // P1628: a Korean index observation belongs to its KRX session, never the US
 // cycle row carrying it through a Korean holiday/weekend.
+// P1755: one shared formatter (toLocaleDateString built one per row) and a memo per history array identity
+// (+ length guard), field and completed KRX session date — the only time-dependent input. Callers get fresh points.
+const KST_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'numeric', day: 'numeric' });
+const KOREA_SERIES_MEMO = new WeakMap();
 export function buildKoreaIndexSeries(history = [], field, { nowMs = Date.now() } = {}) {
   const completed = latestCompletedKrSession(nowMs);
   if (!completed) return [];
+  if (!Array.isArray(history)) return computeKoreaIndexSeries(history, field, completed);
+  let memo = KOREA_SERIES_MEMO.get(history);
+  if (!memo || memo.length !== history.length) {
+    memo = { length: history.length, series: new Map() };
+    KOREA_SERIES_MEMO.set(history, memo);
+  }
+  const key = JSON.stringify([field, completed.date]);
+  let series = memo.series.get(key);
+  if (!series) {
+    series = computeKoreaIndexSeries(history, field, completed);
+    memo.series.set(key, series);
+  }
+  return series.map((point) => ({ ...point }));
+}
+function computeKoreaIndexSeries(history, field, completed) {
   const byDate = new Map();
   for (const row of Array.isArray(history) ? history : []) {
     const value = finite(row?.[field]);
@@ -129,7 +148,7 @@ export function buildKoreaIndexSeries(history = [], field, { nowMs = Date.now() 
     if (!(value > 0) || meta?.observationRelation === 'current-session' || meta?.valueBasis === 'current-session') continue;
     const stamp = String(meta?.observedAt || row?.date || '');
     let observed = date(stamp);
-    if (!observed && Number.isFinite(Date.parse(stamp))) observed = new Date(stamp).toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
+    if (!observed && Number.isFinite(Date.parse(stamp))) observed = KST_DATE.format(new Date(stamp));
     if (!observed || observed > completed.date || resolveMarketCalendarSession({ market: 'KR', date: observed }).status !== 'open') continue;
     byDate.set(observed, value);
   }

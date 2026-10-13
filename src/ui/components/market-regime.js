@@ -13,6 +13,7 @@ import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../
 import { buildRegimeAxisHistory, buildMarketScenarios, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
 import { outlookForRoot } from './scenario-outlook.js';
+import { renderCrossroadsCompact } from './macro-crossroads.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -117,8 +118,9 @@ function listBlock(doc, title, items) {
 function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   const section = el(doc, 'section', null, 'regime-scenarios');
   section.dataset.aioRegimeScenarios = 'native';
-  section.append(el(doc, 'h2', '세 가지 흐름과 현재 조건 부합도', 'briefing-h2'),
-    el(doc, 'p', `${model.asOf || '기준일 미확인'} 완료 종가 기준 · 부합도는 지금 맞는 조건 수이며 앞날의 확률이 아닙니다. 흐름마다 확인할 것과 반대 근거를 함께 둡니다.`, 'regime-scenario-basis'));
+  section.id = 'regime-structure';
+  section.append(el(doc, 'h2', '지금 구조와 앞으로의 갈림길', 'briefing-h2'),
+    el(doc, 'p', `${model.asOf || '기준일 미확인'} 완료 종가 기준 · 먼저 지금 시장이 세 구조 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 보고, 이어서 다음 발표가 그 구조를 어느 쪽으로 옮길지 봅니다.`, 'regime-scenario-basis'));
   if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold')); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
   if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
@@ -246,7 +248,8 @@ export function renderRegimePage({ documentRef: doc, root }) {
   const openIds = new Set([...(previous?.querySelectorAll?.('.regime-scenario-more[open]') || [])].map(node => node.closest('.regime-scenario-card')?.dataset.scenario));
   previous?.remove();
   root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime }) : null;
-  if (board) board.insertAdjacentElement('afterend', scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds));
+  const scenarioNode = board ? scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds) : null;
+  if (scenarioNode) { board.insertAdjacentElement('afterend', scenarioNode); renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: scenarioNode.lastElementChild || scenarioNode, id: 'signal-crossroads', title: '다음 발표가 가를 길' }); } // P1742: the branches continue the structure section
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장 참고) shows it once.
   const handoff = consumeResearchHandoff({ root, routeId: 'signal' });
@@ -371,26 +374,24 @@ export function renderHomeRegime({ documentRef: doc, root }) {
       chip.append(el(doc, 'span', reference ? `${row.title} · 참고` : row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
       return chip;
     }));
-    // P1633: home answers "so what" in one block — the most likely path and what it means.
+    // P1633/P1745: home answers "so what" in ONE forward block — the present structure (which of the three it is
+    // closest to, and the themes leading it), then the branch the next releases would confirm and where it leads.
     let outlookBox = doc.getElementById('home-outlook');
     if (!outlookBox) { outlookBox = el(doc, 'div', null, 'home-outlook'); outlookBox.id = 'home-outlook'; chips.insertAdjacentElement('afterend', outlookBox); }
+    outlookBox.hidden = true; // anchor only; the merged block below carries the structure line
     const scenarios = regime.available ? buildMarketScenarios(collectMarketInputs(root), { regime }) : null;
     const outlook = scenarios?.available ? outlookForRoot(root, { scenarios, regime }) : null;
     const lead = outlook?.items?.find((item) => item.id === outlook.leadId);
-    // M07: while the scenarios are held, say which observation is missing instead of a representative posture.
-    outlookBox.hidden = !lead && !scenarios?.held;
-    if (!lead && scenarios?.held) {
-      const more = el(doc, 'button', '세 가지 흐름의 조건 보기 →', 'flow-next-link');
-      more.type = 'button';
-      more.addEventListener('click', () => root.showPage?.('signal'));
-      outlookBox.replaceChildren(el(doc, 'p', outlook?.headline || '필요한 관측이 없어 판단을 보류합니다.', 'home-outlook-lead'), el(doc, 'p', scenarios.reason, 'home-outlook-posture'), more);
-    }
+    const structure = [];
     if (lead) {
-      const more = el(doc, 'button', '세 가지 흐름과 확인할 것 보기 →', 'flow-next-link');
-      more.type = 'button';
-      more.addEventListener('click', () => root.showPage?.('signal'));
-      outlookBox.replaceChildren(el(doc, 'p', outlook.headline, 'home-outlook-lead'), el(doc, 'p', lead.posture, 'home-outlook-posture'), opportunityNode(doc, root, lead, 'home-outlook-opportunity'), more);
-    }
+      const toStructure = el(doc, 'button', '세 구조의 조건 보기 →', 'flow-next-link');
+      toStructure.type = 'button';
+      toStructure.addEventListener('click', () => { root.showPage?.('signal'); setTimeout(() => doc.getElementById('regime-structure')?.scrollIntoView?.({ block: 'start' }), 60); });
+      // v57.54 audit (9): 오늘 shows the related sectors/themes only as named links; without current names the line is omitted.
+      const named = (lead.opportunityLinks || []).some((part) => part?.links?.length);
+      structure.push(el(doc, 'p', `지금 구조: '${lead.title}'(${lead.fit}) — ${lead.posture}`, 'xr-structure'), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
+    } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
+    renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 구조와 앞으로' }); // P1742/P1745
   }
   hero.dataset.aioRegimeRenderer = 'native';
   hero.dataset.state = regime.available ? 'regime' : 'pending';

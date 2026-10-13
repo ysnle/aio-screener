@@ -83,6 +83,11 @@ const sinceRef = option('--since');
 const sessionName = option('--session');
 const noCache = has('--no-cache') || process.env.CI === 'true';
 const listOnly = has('--list');
+// --keep-going (local only): a FAIL in an earlier phase no longer SKIPs later phases, so one run shows every
+// failure. CI ignores it (fail-fast phases stay the CI contract) and certification is unchanged: `full --no-cache`
+// still writes verified-tree only when every gate PASSes, and `candidate` still requires that proof.
+const keepGoing = has('--keep-going') && process.env.CI !== 'true';
+if (has('--keep-going') && !keepGoing) console.log('[qa] NOTE --keep-going is ignored under CI=true');
 const explain = has('--explain');
 const positiveInteger = (value, fallback) => {
   const number = Number(value);
@@ -307,7 +312,9 @@ const allGates = Object.entries(manifest.groups).flatMap(([groupName, group]) =>
     phase: Number(group.phase || 0),
     kind: group.kind || 'static',
     cache: gate.cache ?? group.cache ?? true,
-    inputs: gate.inputs || group.inputs || []
+    inputs: gate.inputs || group.inputs || [],
+    // Operator hint printed on FAIL; deliberately absent from gateFingerprint().
+    remedy: typeof gate.remedy === 'string' ? gate.remedy : null
   }))
 );
 let selectedGroups = [];
@@ -647,7 +654,8 @@ function runGate(gate) {
     const args = [gate.script, ...(gate.args || []).map((value) => String(value).replaceAll('{cacheDir}', cacheDir))];
     const started = Date.now();
     const evidencePath = join(runsDir, runId, gateFileStem(gate.id), 'evidence.json');
-    const childEnv = { ...process.env, ...(gate.env || {}), AIO_QA_RUN_ID: runId,
+    // AIO_QA_NO_CACHE tells gates with their own internal caches (ci-syntax-check) to bypass them too.
+    const childEnv = { ...process.env, ...(gate.env || {}), AIO_QA_RUN_ID: runId, ...(noCache ? { AIO_QA_NO_CACHE: '1' } : {}),
       ...(gate.evidence ? { AIO_QA_EVIDENCE_PATH: evidencePath } : {}) };
     const secrets = collectSecretValues(childEnv);
     const fileStem = gateFileStem(gate.id);
@@ -752,6 +760,7 @@ function runGate(gate) {
           output: redactText(stdout, secrets).trim(),
           error: redactText(stderr, secrets).trim(),
           ...(failureOutput ? { failureOutput } : {}),
+          ...(status === 'FAIL' && gate.remedy ? { remedy: gate.remedy } : {}),
           ...(failureOutputError && status === 'FAIL' ? { failureOutputError: failureOutputError.code || 'capture-failed' } : {})
         };
         if (status === 'PASS') {
@@ -775,6 +784,7 @@ function runGate(gate) {
           if (boundedDetail) console.error(boundedDetail);
           if (failureOutput) console.error(`[qa] FAILURE-OUTPUT ${failureOutput.stdout} ${failureOutput.stderr}`);
           if (failureOutputError) console.error(`[qa] WARN could not retain redacted failure output for ${gate.id} (${failureOutputError.code || 'capture-failed'})`);
+          if (gate.remedy) console.error(`[qa] NEXT ${gate.id}: ${gate.remedy}`);
         }
         resolveResult(result);
       })();
@@ -822,7 +832,7 @@ for (const phase of phases) {
   const externalPhase = gates.some((gate) => gate.kind === 'external');
   const phaseResults = await runPool(gates, browserPhase ? maxBrowserJobs : (externalPhase ? 2 : maxStaticJobs));
   results.push(...phaseResults);
-  blockedBy = phaseResults.filter((result) => result.status === 'FAIL').map((result) => result.id);
+  if (!keepGoing) blockedBy = phaseResults.filter((result) => result.status === 'FAIL').map((result) => result.id);
 }
 
 try { rmSync(outputStagingDir, { recursive: true, force: true }); }
@@ -841,6 +851,7 @@ const report = {
   completedAt: new Date().toISOString(),
   durationMs: Date.now() - startedMs,
   noCache,
+  keepGoing,
   concurrency: { static: maxStaticJobs, browser: maxBrowserJobs, external: 2 },
   counts,
   results

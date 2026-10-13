@@ -1,4 +1,4 @@
-import { createQuestionPlan } from './question-planner.js';
+import { createQuestionPlan, companyEntitySymbols } from './question-planner.js';
 import { createCapabilityPlan } from './capability-planner.js';
 import { createAnswerPlan, validateAnswerPlan, parseAnswerPlanText } from '../response/claim-ledger.js';
 import * as answerPublication from '../response/publication.js';
@@ -87,6 +87,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     parseAnswerPlanText,
     renderAnswerPlan,
     answerPublication,
+    companyEntitySymbols, // P1740: names a question resolved (엔비디아 → NVDA) for the legacy chat data injection
     simulatePortfolioAddition, // v57.48 #4: base-currency what-if for the legacy chat adapter
     createCapabilityPlan,
     buildAIKnowledgeContext: (query, options = {}) => knowledgeRetriever?.buildContext

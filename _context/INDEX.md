@@ -52,7 +52,7 @@ Latest desktop journey evidence and open boundaries: [`user-flow-remediation-202
 | Skill optimization | `autoresearch` skill → eval guide and experiment log |
 | Product scope or architecture | `AGENTS.md` "Product decisions (fixed)" → `AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md` → relevant architecture contracts |
 | Recording a fix, delegating, post-PR trim | `record-fix.mjs` (`/version-up`), `.claude/skills/_shared/agent-prompt-anatomy.md`, `/restate` `/assumptions` `/trim-pr` |
-| Merging main into a version branch | `node scripts/resolve-generated-conflicts.mjs` → the release gates it prints |
+| Merging main into a version branch | `node scripts/resolve-generated-conflicts.mjs` — R626 field-level merge (delegates to `resolve-data-manifest-merge.mjs`), then runs the release parity gates |
 
 ## Context lifecycle
 

@@ -326,6 +326,34 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (legacyRoot.AIO_ARCH.getState().rows[0].value !== 3) fail('facade cache: non-canonical mutable input cached');
 }
 
+// P1755: a dot-path state read snapshots only the selected branch. It stays frozen and isolated, is
+// reused while that branch's reference is unchanged (even when unrelated slices change), refreshes when
+// the branch is replaced, and never disturbs the full-state snapshot cache.
+{
+  const score = { total: 61, parts: [1, 2] };
+  let state = { analysis: { tradingScore: score, signal: { presentation: { description: 'close basis' } } }, screener: { rows: [{ v: 1 }] } };
+  const root = {};
+  exposeArchitecture(root, { getState: () => state }, { immutableState: true });
+  const fullBefore = root.AIO_ARCH.getState();
+  const a = root.AIO_ARCH.getState('analysis.tradingScore');
+  if (a === score || !Object.isFrozen(a) || !Object.isFrozen(a.parts) || a.total !== 61) fail('P1755 facade path read: snapshot isolation lost');
+  try { a.parts[0] = 9; } catch (_) {}
+  if (score.parts[0] !== 1) fail('P1755 facade path read: consumer mutated native branch');
+  state = { ...state, screener: { rows: [{ v: 2 }] } };
+  if (root.AIO_ARCH.getState('analysis.tradingScore') !== a) fail('P1755 facade path read: unrelated slice change recloned the branch');
+  if (root.AIO_ARCH.getState('analysis.signal.presentation.description') !== 'close basis') fail('P1755 facade path read: primitive leaf not returned');
+  if (root.AIO_ARCH.getState('analysis.missing.deeper') !== undefined) fail('P1755 facade path read: missing branch did not read as undefined');
+  const fullAfter = root.AIO_ARCH.getState();
+  if (fullAfter === fullBefore || fullAfter.screener.rows[0].v !== 2) fail('P1755 facade path read: full-state snapshot cache disturbed');
+  state = { ...state, analysis: { ...state.analysis, tradingScore: { total: 62, parts: [] } } };
+  const b = root.AIO_ARCH.getState('analysis.tradingScore');
+  if (b === a || b.total !== 62 || a.total !== 61) fail('P1755 facade path read: replaced branch not refreshed');
+  const plainRoot = {};
+  exposeArchitecture(plainRoot, { getState: () => state });
+  const plain = plainRoot.AIO_ARCH.getState('analysis.tradingScore');
+  if (plain.total !== 62 || !Object.isFrozen(plain) || plain === state.analysis.tradingScore) fail('P1755 facade path read: non-canonical path read not snapshotted');
+}
+
 // P1035: unrelated writes must not rebuild a mounted page; every dependency and
 // disposal still has to work, including a single action replacing two slices.
 {
@@ -1834,6 +1862,12 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (/기준선 가까이에 있는 상태/.test(ext) || !/3\.8배/.test(ext)) fail(`S09 stock summary must not call 3.8x near the line, got ${ext}`);
   if (!/RSI 69\.9/.test(rsiText) || /과열도 과매도도 아닌/.test(rsiText)) fail(`S02 RSI 69.9 must be shown with its digit and not read as neutral, got ${rsiText}`);
   if (!/^1거래일 전 종가 기준\(10\/8\)/.test(summary.headline)) fail(`S07 lagging factor session must lead the headline, got ${summary.headline}`);
+  // v57.54: a rank outside its own denominator (KR "890/239") is a mixed row set and is not shown; Korean sector name in the handoff.
+  const mixedRank = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', screenRank: 890 }, universeSize: 239 });
+  const inRange = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', screenRank: 188 }, universeSize: 239 });
+  if (mixedRank.ranking || mixedRank.points.some((point) => point.id === 'rank')) fail('v57.54 rank above its denominator must not be shown');
+  if (!/가격 흐름 순위 188\/239/.test(inRange.points.find((point) => point.id === 'rank')?.text || '')) fail('v57.54 in-range market rank must be shown on its own denominator');
+  if (!/같은 섹터\(기술\)/.test(inRange.next.find((step) => step.route === 'screener')?.why || '')) fail('v57.54 screener handoff must use the Korean sector name');
   const { benchmarkRowFor } = await load('src/domain/market/benchmarks.js');
   const benchHistory = ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-12'].map((date, index) => ({ date, kospi: 100 + index }));
   if (benchmarkRowFor('005930.KS', benchHistory, { through: '2026-10-08' }).asOf !== '2026-10-08' || benchmarkRowFor('005930.KS', benchHistory).asOf !== '2026-10-12') fail('S07 benchmark must cut at the factor session when asked');
@@ -1843,13 +1877,20 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const peerRows = ['AAA', 'BBB', 'CCC'].map((sym, index) => ({ sym, name: sym, factorSessionDate: '2026-10-09', ret3m: 10 - index }));
   const company = buildCompanyAnalysis({ symbol: 'BBB', row: peerRows[1], rows: peerRows, nowMs: Date.parse('2026-10-13T12:00:00Z') });
   if (/번째/.test(company.headline || '')) fail(`S11 company headline must not carry a second rank, got ${company.headline}`);
+  // v57.54: a KR theme group whose only sub-theme carries its own name reads once ("반도체 / HBM · 반도체 / HBM").
+  const krThemed = buildCompanyAnalysis({ symbol: 'BBB', row: peerRows[1], rows: peerRows, nowMs: Date.parse('2026-10-13T12:00:00Z'), themes: [{ id: 'kr-hbm', nameKr: '반도체 / HBM', subThemes: [{ name: '반도체 / HBM', tickers: ['BBB'] }] }, { id: 'kr-hbm', nameKr: '반도체 / HBM', subThemes: [{ name: '반도체 / HBM', tickers: ['BBB'] }] }] });
+  if (krThemed.associations.length !== 1 || krThemed.associations[0].subThemes.length) fail(`v57.54 duplicate theme chip, got ${JSON.stringify(krThemed.associations)}`);
 
   // S06/S18/S19: PER names its fiscal year and months since; losses read with the sign first; negative ROE says why.
   const { buildFiscalRead, formatUsdShort } = await load('src/domain/fundamental/fiscal-read.js');
   if (formatUsdShort(-147.8e9) !== '−$147.8B' || formatUsdShort(416.2e9) !== '$416.2B') fail(`S18 signed USD format drifted: ${formatUsdShort(-147.8e9)}`);
   const per = buildFiscalRead({ symbol: 'AAPL', row: { pe: 45, factorSessionDate: '2026-10-12' }, fundamentals: { symbol: 'AAPL', fiscalHistory: [{ periodEnd: '2024-09-28', revenue: 391e9, netIncome: 93.7e9, equity: 57e9 }, { periodEnd: '2025-09-27', revenue: 416e9, netIncome: 112e9, equity: 74e9 }] } });
   const earnings = per.points.find((point) => point.id === 'earnings')?.text || '';
-  if (!/PER 45\.0배\(FY2025\(2025-09 마감\) 순이익 기준 · 경과 12개월\)/.test(earnings)) fail(`S06 PER must name its fiscal-year basis and age, got ${earnings}`);
+  // 2026-10-14 audit #2: basis reads "FY2025 순이익 기준 · 2025-09 마감 · 경과 n개월"; four newer quarters add a labelled second figure.
+  if (!/PER 45\.0배\(FY2025 순이익 기준 · 2025-09 마감 · 경과 12개월\)/.test(earnings)) fail(`S06 PER must name its fiscal-year basis and age, got ${earnings}`);
+  if (/최근 4개 분기/.test(earnings)) fail(`audit #2 no trailing-quarter PER without newer quarters, got ${earnings}`);
+  const perTtm = buildFiscalRead({ symbol: 'AAPL', row: { pe: 45, factorSessionDate: '2026-10-12' }, quarters: [['2025-12-27', 30e9], ['2026-03-28', 25e9], ['2026-06-27', 24e9], ['2025-09-27', 28e9]].map(([periodEnd, netIncome]) => ({ periodEnd, netIncome, revenue: netIncome * 4 })), fundamentals: { symbol: 'AAPL', fiscalHistory: [{ periodEnd: '2024-09-28', revenue: 391e9, netIncome: 93.7e9, equity: 57e9 }, { periodEnd: '2025-09-27', revenue: 416e9, netIncome: 112e9, equity: 74e9 }] } }).points.find((point) => point.id === 'earnings')?.text || '';
+  if (!/PER 약 47\.1배\(최근 4개 분기 합 · 2026-06 분기까지\) · FY2025 기준 45\.0배\(FY2025 순이익 기준[^)]*\)/.test(perTtm)) fail(`audit #2 / v57.54: the trailing four-quarter PER leads and the FY PER sits beside it, labelled, got ${perTtm}`);
   const loss = buildFiscalRead({ symbol: 'LOSS', fundamentals: { symbol: 'LOSS', fiscalHistory: [{ periodEnd: '2024-12-31', revenue: 10e9, netIncome: 1e9, equity: 10e9 }, { periodEnd: '2025-12-31', revenue: 9e9, netIncome: -2e9, equity: 8e9 }] } });
   if (!/순손실로 자본이 줄어든 해/.test(loss.points.find((point) => point.id === 'roe')?.text || '')) fail('S19 negative ROE must be read as a loss year');
 

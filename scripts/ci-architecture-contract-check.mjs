@@ -8,7 +8,6 @@ const fail = (message) => { throw new Error(`[architecture-contract] ${message}`
 
 const golden = JSON.parse(read('architecture/golden-routes.json'));
 const release = JSON.parse(read('architecture/release-manifest.json'));
-const version = JSON.parse(read('version.json'));
 const executionPlan = read('_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md');
 const publicManifest = JSON.parse(read('public-artifact-manifest.json'));
 const serviceWorkerSource = read('sw.js');
@@ -24,7 +23,7 @@ if (!serviceWorkerSource.includes('cache.addAll(CRITICAL_SHELL_ASSETS)')) fail('
 for (const field of ['appRevision', 'dataRevision', 'evidenceRevision']) {
   if (!release[field] || release[field] === 'unknown') fail(`release revision missing: ${field}`);
 }
-if (release.appRevision !== version.version) fail(`release appRevision ${release.appRevision} != version ${version.version}`);
+// release.appRevision === version.json is R1, owned by ci-version-check (node scripts/bump-version.mjs <version>).
 for (const required of golden.requiredEvidenceFields) {
   if (!read('src/data/contracts/evidence.js').includes(required)) fail(`evidence field missing: ${required}`);
 }
@@ -149,8 +148,10 @@ if (!dataSource.includes("var hMacroTopics = ['macro','geopolitics','policy','fe
 }
 // P1132/R619: the deep-chart teardown moved from index.html's inline block F into js/aio-ui.js,
 // so the disconnect half of the lifecycle is asserted there; the registration half stays in core.
-if (!coreSource.includes('mc.__aioResizeObserver = deepChartObserver') || !uiSource.includes('c.__aioResizeObserver.disconnect()')) {
-  fail('deep technical chart ResizeObserver lifecycle must be registered and disconnected');
+// P1753: the deep technical chart (and its ResizeObserver lifecycle) was retired with the dead deep-analysis fold;
+// neither half of that lifecycle may return without a sink.
+if (coreSource.includes('mc.__aioResizeObserver = deepChartObserver') || coreSource.includes('window._renderDeepChart') || uiSource.includes('function _daDestroyCharts(')) {
+  fail('retired deep technical chart renderer/teardown returned (P1753)');
 }
 const sentimentPageSource = read('src/ui/pages/sentiment.js');
 const guidePageSource = read('src/ui/pages/guide.js');
@@ -301,10 +302,11 @@ for (const marker of ['THEME_MEMBERSHIP_POLICY', 'membershipPolicy', '구성 기
   // P1133/R620: the theme-membership provenance markers moved with block D into js/aio-pages.js.
   if (!(indexHtmlSource.includes(marker) || themesPageSource.includes(marker) || pagesSource.includes(marker))) fail(`theme membership provenance marker missing: ${marker}`);
 }
-// P803: market.js owns the bounded breadth signal label from the normalized advance ratio;
-// the legacy RSP/SPY signal writer must not overwrite the native element.
+// P803: market.js owns the bounded breadth signal label from the normalized advance ratio.
+// The legacy updateBreadthUI writer (breadth-advance-ratio / RSP-SPY breadth-signal-val / breadth-source)
+// was retired with its sinks; it must not come back to write over the native breadth route.
 if (!marketPageSource.includes('breadth-signal-val') || !marketPageSource.includes('aioBreadthSignalRenderer')) fail('native breadth signal renderer marker missing');
-if (!dataSource.includes("querySelector('[id=\"breadth-signal-val\"]')") || !dataSource.includes('aioBreadthSignalRenderer') || !dataSource.includes("dataset.aioBreadthSignalRenderer !== 'native'")) fail('legacy breadth signal writer fence missing');
+if (/function updateBreadthUI\b|updateBreadthUI\(/.test(dataSource) || dataSource.includes("querySelector('[id=\"breadth-signal-val\"]')")) fail('retired legacy breadth KPI writer (updateBreadthUI) returned');
 // P777/P778/P779: entity.js owns the ticker hero, bounded options replacement metrics, and the
 // bounded fundamental SEC source-status surface. Fundamental report and ticker secondary surfaces
 // stay legacy until their own packets.

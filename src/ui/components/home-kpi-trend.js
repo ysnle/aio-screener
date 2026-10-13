@@ -133,14 +133,14 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   const card = (label, chart) => { const box = doc.createElement('div'); const caption = doc.createElement('div'); caption.className = 'home-participation-label'; caption.textContent = label; box.append(caption, chart); return box; };
   grid.append(
     card('S&P 500 종가', createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
-    card('50일선 위 종목 비율(%) · AIO 수집 종목 기준', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
+    card('50일선 위 종목 비율(%) · AIO 관찰 종목 기준', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
   );
   host.replaceChildren(head, grid);
   const snapshot = buildBreadthSnapshot(history);
   if (snapshot.cards.length) {
     const summary = doc.createElement('div'); summary.className = 'home-breadth-snapshot';
     const caption = doc.createElement('p'); caption.className = 'home-participation-label';
-    caption.textContent = `${snapshot.asOf} 미국 종가 · AIO 수집 종목의 시장 폭`;
+    caption.textContent = `${String(snapshot.asOf || '').split('-').slice(1).map(Number).join('/')} 미국 종가 · AIO 관찰 종목의 시장 폭`;
     const cards = doc.createElement('div'); cards.className = 'home-breadth-cards';
     for (const item of snapshot.cards) {
       const box = doc.createElement('section'); box.dataset.metric = item.id;
@@ -153,6 +153,7 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
       }
       const detail = doc.createElement('details'), label = doc.createElement('summary'), text = doc.createElement('p');
       label.textContent = '집계 기준';
+      label.setAttribute('aria-label', `${item.title} 집계 기준`); // v57.54 audit (11/14): five identical folds named by their card
       text.textContent = `${item.detail}${item.eligible != null ? ` 판정 표본 ${item.eligible}개` : ''}${item.universe != null ? ` / 수집 대상 ${item.universe}개` : ''}. ETF를 뺀 AIO 관찰 목록의 개별 주식 표본으로 거래소 전체 집계와 다릅니다.`;
       detail.append(label, text); box.append(detail); cards.append(box);
     }

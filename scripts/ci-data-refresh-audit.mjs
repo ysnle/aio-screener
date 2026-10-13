@@ -375,18 +375,31 @@ function assertSnapshotDiagnosticWorkflowContract(source = read('.github/workflo
   check(/AIO_MARKET_FETCH_OUTCOME:\s*\$\{\{\s*steps\.fetch-market\.outcome\s*\}\}/.test(capture), 'capture records market fetch outcome');
   check(/run:\s*node scripts\/ci-data-refresh-audit\.mjs --write-snapshot-diagnostic "\$RUNNER_TEMP\/market-snapshot-diagnostic\.json"/.test(capture), 'capture writes the runner-temp diagnostic');
   check(/if:\s*\$\{\{\s*always\(\)\s*&&\s*!cancelled\(\)\s*&&\s*steps\.snapshot-diagnostic\.outputs\.capture\s*==\s*'true'\s*\}\}/.test(upload), 'upload runs only for a captured diagnostic');
-  check(/uses:\s*actions\/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02(?:\s|$)/.test(upload), 'artifact action is pinned to its reviewed full SHA');
+  // v57.54: the invariant is an immutable pin, not one specific SHA. Hard-coding the SHA here failed every
+  // Dependabot github-actions bump PR (3 of 28 CI failures in the last 100 runs); the bump is reviewed on the PR.
+  check(/uses:\s*actions\/upload-artifact@[0-9a-f]{40}(?:\s|$)/.test(upload), 'v57.54 artifact action is pinned to an immutable full commit SHA');
   check(/name:\s*market-snapshot-diagnostic-\$\{\{\s*github\.run_id\s*\}\}/.test(upload), 'artifact name is run scoped');
   check(/path:\s*\$\{\{\s*runner\.temp\s*\}\}\/market-snapshot-diagnostic\.json/.test(upload), 'upload path matches the captured file');
   check(/if-no-files-found:\s*error\b/.test(upload), 'missing diagnostic file fails the upload step');
   check(/retention-days:\s*7\b/.test(upload), 'diagnostic retention is limited to seven days');
 
-  const auditAt = reconciliation.indexOf('node scripts/ci-data-refresh-audit.mjs');
+  const auditAt = refreshAuditPosition(reconciliation);
   const recordAt = reconciliation.indexOf('node scripts/verify-refresh-candidate.mjs --record');
   check(auditAt >= 0 && recordAt > auditAt, 'full freshness audit remains before candidate recording');
   check(/node scripts\/verify-refresh-candidate\.mjs --expect "\$RUNNER_TEMP\/aio-refresh-data-candidate\.json"/.test(promotion), 'fail-closed promotion candidate check remains wired');
 
   if (failures.length) throw new Error(`P1289/R639/QA-DATA-32 diagnostic workflow contract failed: ${failures.join('; ')}`);
+}
+
+// The producer runs this audit either directly or as part of the CI data QA group (qa-runner --group data), whose
+// manifest must then still list it.
+function refreshAuditPosition(step) {
+  const direct = step.indexOf('node scripts/ci-data-refresh-audit.mjs');
+  if (direct >= 0) return direct;
+  const groupAt = step.indexOf('node scripts/qa-runner.mjs --group data');
+  if (groupAt < 0) return -1;
+  const manifest = JSON.parse(read('architecture/qa-pipeline.json'));
+  return (manifest?.groups?.data?.gates || []).some((gate) => gate.script === 'scripts/ci-data-refresh-audit.mjs') ? groupAt : -1;
 }
 
 function assertSnapshotDiagnosticWorkflowNegativeControl() {
@@ -408,7 +421,7 @@ function assertSnapshotDiagnosticWorkflowNegativeControl() {
 function assertRefreshCandidateSelfTestWiring(source = read('.github/workflows/refresh-data.yml')) {
   const reconciliation = workflowStep(source, 'Validate evidence-derived 22-category reconciliation') || '';
   const selfTestAt = reconciliation.indexOf('node scripts/verify-refresh-candidate.mjs --self-test');
-  const auditAt = reconciliation.indexOf('node scripts/ci-data-refresh-audit.mjs');
+  const auditAt = refreshAuditPosition(reconciliation);
   // P1299/QA-DATA-42: a valid >1 MiB staged/commit blob must be exercised on every data refresh.
   if (selfTestAt < 0 || auditAt < 0 || selfTestAt >= auditAt) {
     throw new Error('P1299/QA-DATA-42 candidate helper self-test must run before the refresh data audit');

@@ -39,10 +39,9 @@ const sw = read('sw.js');
 const rootGuide = read('CLAUDE.md');
 const contextGuide = read('_context/CLAUDE.md');
 const changelog = read('CHANGELOG.md');
-const auditContract = JSON.parse(read('_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json'));
-const handoffManifest = JSON.parse(read('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json'));
-const structuralHandoff = read('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md');
-const rules = read('_context/RULES.md');
+// v57.54: dated handoff documents (MARKET-PRINCIPLES-ATLAS-*-2026-08-10.*, SCREENER-...-HANDOFF-2026-08-12.md)
+// and the RULES.md frontmatter target_version are frozen history. They are no longer required to carry the
+// current version — requiring it made bump-version relabel stale documents as current on every release.
 const publicConfig = JSON.parse(read('public-config.json'));
 const architectureRevisionFiles = [
   'architecture/asset-manifest.json',
@@ -52,20 +51,23 @@ const architectureRevisionFiles = [
   'architecture/public-readiness.json',
 ].map((path) => ({ path, data: JSON.parse(read(path)) }));
 const operationsStatus = JSON.parse(read('public-data/operations-status.json'));
-const screenerHandoff = read('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md');
 const bumpScript = read('scripts/bump-version.mjs');
 
 check('index title', html.includes(`<title>AIO Screener ${version} `), `expected ${version}`);
 check('index badge', new RegExp(`id="app-version-badge">${versionRe}<`).test(html), `expected ${version}`);
 check('APP_VERSION', core.includes(`APP_VERSION = '${version}'`), `expected ${version}`);
 check('service worker', sw.includes(`SW_VERSION = '${version}'`), `expected ${version}`);
-check('root CLAUDE.md', rootGuide.includes(version), `expected ${version}`);
-check('_context/CLAUDE.md', contextGuide.includes(version), `expected ${version}`);
+// Agent guides need not restate the version (CURRENT-STATE.md is canonical). A guide that does carry a
+// "현재 버전" line must not lie, so only an existing line is compared.
+for (const [label, text, pattern] of [
+  ['root CLAUDE.md', rootGuide, /현재 버전:\s*\*\*(v[\d.]+)\*\*/],
+  ['_context/CLAUDE.md', contextGuide, /\*\*현재 버전\*\*:\s*(v[\d.]+)/],
+]) {
+  const stated = text.match(pattern)?.[1];
+  check(`v57.54 ${label} 현재 버전 line`, !stated || stated === version, `states ${stated}, expected ${version} (or remove the line)`);
+}
 check('CHANGELOG.md', new RegExp(`^## ${versionRe}\\b`, 'm').test(changelog), `expected heading for ${version}`);
-check('active audit contract version', auditContract.targetVersion === version, `expected ${version}`);
-check('active handoff manifest version', handoffManifest.applicationVersion === version && String(handoffManifest.packageName || '').endsWith(`-${version}`), `expected ${version}`);
-check('active structural handoff version', new RegExp(`^\\s*target_version:\\s*${versionRe}\\s*$`, 'm').test(structuralHandoff) && new RegExp(`^\\s*local_revision:\\s*${versionRe}\\s*$`, 'm').test(structuralHandoff), `expected ${version}`);
-check('RULES frontmatter version', new RegExp(`^target_version:\\s*${versionRe}\\s*$`, 'm').test(rules), `expected ${version}`);
+check('v57.54 bump-version rewrites no _context document other than the guide version line', !/write\(\s*['"`]_context\/(?!CLAUDE\.md['"`])/.test(bumpScript) && !/read\(\s*['"`]_context\/(?:MARKET-PRINCIPLES|SCREENER-OPEN-SOURCE|RULES\.md)/.test(bumpScript), 'dated handoffs and ledger frontmatter are frozen history');
 check('bump script canonicalizes one-digit patches', /padStart\(2, '0'\)/.test(bumpScript) && /monotonic|단조 증가/.test(bumpScript), 'bump-version.mjs must normalize v54.1 to v54.01 and reject regressions');
 
 check('public-config appRevision', publicConfig.appRevision === version, `expected ${version}`);
@@ -78,7 +80,6 @@ architectureRevisionFiles.forEach(({ path, data }) => {
 check('P1155 proxy worker revision', new RegExp(`AIO_APP_REVISION\\s*=\\s*"${versionRe}"`).test(read('worker/wrangler.proxy.toml')), `expected ${version}`);
 check('operations status appRevision', operationsStatus.appRevision === version, `expected ${version}`);
 check('operations status browser revision', operationsStatus.planes?.browser?.revision === version, `expected ${version}`);
-check('screener handoff repository_version', new RegExp(`^repository_version:\\s*${versionRe}\\s*$`, 'm').test(screenerHandoff), `expected ${version}`);
 check('CHANGELOG latest release header', new RegExp(`^##\\s+${versionRe}\\b`, 'm').test(changelog), `expected ${version} at the current release boundary`);
 
 const cachebusters = [...html.matchAll(/\?v=([\d.]+)"/g)].map((match) => match[1]);

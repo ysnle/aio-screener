@@ -2,7 +2,7 @@
 // 운용 방식 비교 opens the side-by-side table. The open manager's quarterly holdings and changes are the
 // document; the right column says what that style is for and what 13F cannot show about it.
 import { createResearchShell, asideBlock, el } from './research-shell.js';
-import { STYLE_FRAMES, groupManagersByStyle, styleFrameOf } from '../../domain/masters/style-frames.js';
+import { STYLE_FRAMES, styleFrameOf } from '../../domain/masters/style-frames.js';
 import { ensureFrameStyle } from './analysis-frames.js';
 
 function navButton(doc, label, { active = false, action, value = null, sub = false } = {}) {
@@ -69,12 +69,8 @@ export function renderManagersPage(doc, { root, catalog, registry, selectedId, o
       box.appendChild(row);
     });
     aside.appendChild(box);
-    const peers = (groupManagersByStyle(catalog?.managers || []).get(frame.id) || []);
-    if (peers.length > 1) {
-      const peersBox = asideBlock(doc, '같은 방식의 운용사');
-      (catalog?.managers || []).filter((manager) => styleFrameOf(manager.style)?.id === frame.id && manager.id !== selectedId && nameById.has(manager.id) && nameById.get(manager.id).type !== 'METHOD_ONLY').forEach((manager) => peersBox.appendChild(navButton(doc, nameById.get(manager.id).name, { action: 'select-manager', value: manager.id })));
-      aside.appendChild(peersBox);
-    }
+    // 2026-10-14 audit: the "같은 방식의 운용사" list repeated the left TOC group (same styleFrameOf grouping,
+    // same 13F-only filter), so the right column keeps only the style frame and the ticker lookup.
   }
   if (tickerLookup) {
     const box = asideBlock(doc, '종목으로 찾기');

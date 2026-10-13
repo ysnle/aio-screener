@@ -10,6 +10,15 @@ import { createQuestionPremise } from './premise.js';
 import { buildNathanAnalysisContext } from '../../domain/knowledge/nathan-framework-pack.js';
 
 export const AI_QUESTION_PLAN_VERSION = 'question-plan.v1';
+// Sector/index topic words resolve to proxy symbols (반도체 → SMH); they are topics, not a named company.
+export const CHAT_TOPIC_PROXIES = new Set(['SMH', 'IGV', 'DX-Y.NYB']);
+
+// P1740: the companies a question names, for data injection: verified US/KR listings, never an index or topic proxy.
+export function companyEntitySymbols(questionPlan, limit = 5) {
+  const list = questionPlan?.entities?.entities || [];
+  return [...new Set(list.filter((entity) => entity && entity.verified && (entity.market === 'US' || entity.market === 'KR')
+    && !String(entity.symbol).startsWith('^') && !CHAT_TOPIC_PROXIES.has(entity.symbol)).map((entity) => String(entity.symbol)))].slice(0, limit);
+}
 
 const REQUIRED_BY_INTENT = Object.freeze({
   MARKET_STATUS: ['market-session', 'market-snapshot'],
@@ -44,8 +53,9 @@ function validDate(value) {
 export function createQuestionPlan({ query = '', route = null, now = new Date(), root = globalThis, sessionSchedule = null, userLevel = null, researchOptOut = false, premiseEvidence = [], premiseAssertions = null, premisePeriod = null } = {}) {
   const planNow = validDate(now);
   const normalized = String(query || '').trim();
-  const intent = classifyQuestionIntent(normalized, { route });
   const entities = resolveEntities(normalized, { root, route });
+  // P1740: company names resolve before classification, so "엔비디아 어때?" is an entity question like "NVDA 어때?".
+  const intent = classifyQuestionIntent(normalized, { route, hasEntity: entities.entities.some((entity) => entity.verified && (entity.market === 'US' || entity.market === 'KR') && !String(entity.symbol).startsWith('^') && !CHAT_TOPIC_PROXIES.has(entity.symbol)) });
   const time = resolveQuestionTime(normalized, planNow);
   const currentSensitive = intent.currentSensitive || time.currentSensitive;
   // Composite questions must retain every matched analytical axis. The old

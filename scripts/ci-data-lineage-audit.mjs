@@ -107,6 +107,8 @@ const POLICIES = {
   'macro-calendar.json': { kind: 'official-calendar-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1654: FRED release dates (refresh-data)
   'sp500-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // 2026-10-13: IVV holdings weights for the S&P 500 sector map (refresh-screener)
   'stress-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1661: VIX-band forward outcomes (refresh-data operator slot, weekly)
+  'scenario-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1743: long-history branch/theme-stage outcomes (refresh-data operator slot, weekly)
+  'scenario-state.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // P1743: recomputed every refresh from published artifacts (no network)
   'official-references.json': { kind: 'official-web-reference', timestamp: ['checkedAt'], maxAgeHours: 48 }, // P1734: page-verified KR references (NAAIM retired) (refresh-data, 12h heartbeat)
   'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1654: OpenDART annual accounts (refresh-screener, weekly; needs DART_API_KEY)
   'market-snapshot.json': { kind: 'live-core', timestamp: ['generatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
@@ -119,7 +121,7 @@ const POLICIES = {
   'screener-universe.json': { kind: 'universe-reference', custom: 'universe-bulk-update' },
   'screener.json': { kind: 'research-screener', timestamp: ['asOf', 'meta.asOf'], maxAgeHours: 48 },
   'screener-validation-gate.json': { kind: 'research-validation-gate', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },
-  'sec-fundamentals.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
+  'sec-fundamentals.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 }, // P1757: producer-only (data-store branch); audited when a local or restored copy exists
   'sec-fundamentals-summary.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
   'sec-fundamentals-summary.manifest.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
   // P1436: compact SEC fiscal-year series for the 재무 공시 page, written with the summary.
@@ -197,7 +199,9 @@ function evaluateArtifact(name, data, { now = NOW } = {}) {
     }
   }
 
-  if (name === 'sec-fundamentals.json') {
+  // P1757: the full ledger is producer-only (data-store branch) and usually absent from a checkout; the projection
+  // carries the same eligible/stored counters, so the 80% coverage reading moves to it instead of disappearing.
+  if (name === 'sec-fundamentals.json' || (name === 'sec-fundamentals-summary.json' && !existsSync(join(DATA_DIR, 'sec-fundamentals.json')))) {
     const stored = Number(data.meta?.stored ?? data.stored ?? 0);
     const eligible = Number(data.meta?.eligible ?? data.eligible ?? 0);
     const coverage = eligible > 0 ? stored / eligible : null;

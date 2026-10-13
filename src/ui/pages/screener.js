@@ -28,6 +28,39 @@ import { MARKET_LABELS, screenerMarket, marketRows, marketRankingMetadata, forma
 import { EXTENSION_BANDS } from '../../domain/screener/setup-profile.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { sectorsForEtf } from '../../domain/entity/stock-read.js';
+import { sectorLabel } from '../../domain/screener/screener-read.js';
+import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
+import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
+
+// 2026-10-14 audit #18: index keys as the artifact writes them → the names a Korean reader uses.
+const INDEX_LABELS = Object.freeze({ SP500: 'S&P 500', SP400: 'S&P 400', NASDAQ100: '나스닥100', NASDAQ: '나스닥', RUSSELL2000: '러셀2000' });
+// v57.54: exchange codes read as jargon in the 지수 filter — Korean name first, the code kept in brackets, a short
+// explanation on hover.
+const INDEX_CODE_LABELS = Object.freeze({
+  NYSE: ['뉴욕증권거래소(NYSE)', '미국 뉴욕증권거래소 상장 종목'],
+  ADR: ['미국예탁증서(ADR)', '해외 기업 주식을 미국 시장에서 거래하도록 만든 예탁증서'],
+  OTC: ['장외 거래(OTC)', '거래소 정규 상장이 아닌 장외 시장에서 거래되는 종목'],
+  TSE: ['도쿄 상장(TSE)', '도쿄증권거래소 상장 — 미국에서는 예탁증서 등으로 거래'],
+  TWSE: ['대만 상장(TWSE)', '대만증권거래소 상장 — 미국에서는 예탁증서 등으로 거래']
+});
+
+// 2026-10-14 audit #5: each ranked row carries its themes' stages (same rows as 테마 갈림길) so the reading can count
+// the top fifth by stage. Nothing is attached when the per-refresh scenario state is not 'ok'.
+function withThemeStages(root, rows) {
+  if (root?._aioScenarioState?.status !== 'ok') return rows;
+  const membership = new Map();
+  const add = (sym, id) => { if (!sym || !id) return; const key = String(sym).toUpperCase(); if (!membership.has(key)) membership.set(key, new Set()); membership.get(key).add(id); };
+  for (const theme of Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []) {
+    for (const sym of theme.leaders || []) add(sym, theme.id);
+    for (const sub of theme.subThemes || []) for (const sym of sub.tickers || []) add(sym, theme.id);
+  }
+  for (const group of koreanThemeGroups(root?.KR_THEME_MAP || {}, rows)) for (const sub of group.subThemes) for (const sym of sub.tickers) add(sym, group.id);
+  return rows.map((row) => {
+    const ids = membership.get(String(row?.sym || '').toUpperCase());
+    return ids && Number.isFinite(row?.screenRank) ? { ...row, themeStages: themeStagesFor(root, { symbol: row.sym, themeIds: [...ids] }) } : row;
+  });
+}
 import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { renderNextSteps } from '../components/page-flow.js';
 
@@ -76,15 +109,15 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'quality', label: '퀄리티', sortable: true, align: 'right', width: 78, group: 'factor' },
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
   { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
-  { key: 'ret1m', label: '1M', sortable: true, align: 'right', width: 70, group: 'market' },
-  { key: 'ret3m', label: '3M', sortable: true, align: 'right', width: 70, group: 'market' },
+  { key: 'ret1m', label: '1개월', sortable: true, align: 'right', width: 70, group: 'market' },
+  { key: 'ret3m', label: '3개월', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret6m', label: '6M', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'rsi', label: 'RSI', sortable: true, align: 'right', width: 64, group: 'market' },
   { key: 'pctSma50', label: 'vs 50MA', sortable: true, align: 'right', width: 82, group: 'market' },
   // P1507: the same 50-day distance in units of the stock's own average daily range — how late an entry would be.
   { key: 'extension', label: '50일선 거리(변동폭 배수)', sortable: true, align: 'right', width: 118, group: 'setup' },
-  { key: 'kalman', label: '추세 신뢰도', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
-  { key: 'vcpScore', label: 'VCP 구조·충족도', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
+  { key: 'kalman', label: '추세 신뢰도', hint: '칼만 추세(잡음을 걸러 낸 추세 추정)의 방향 확신도 — 연구 지표, 매매 신호 아님', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
+  { key: 'vcpScore', label: '수축 구조(VCP)·충족도', hint: 'VCP(변동성 수축 패턴): 조정 폭이 차례로 줄며 바닥을 다지는 가격 구조 — 충족도는 그 조건을 얼마나 채웠는지', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
   { key: 'entry', label: '상대 상태', sortable: false, align: 'center', width: 118, group: 'setup', researchOnly: true },
   { key: 'news', label: '최신뉴스·근거', sortable: false, align: 'left', width: 190, group: 'evidence' }
@@ -94,12 +127,15 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 // price), and on 2026-10-04 the live site showed 미수신 on 10 of 12 rows while the Worker deploy was
 // blocked. 52주 고점 대비 comes from the artifact itself, so the default presets always carry a
 // price-position reading even when the quote is missing.
+// v57.54: the '상위 N%' column repeated the percentile beside it as emphasis ("100 · 상위 1%") while the post-check
+// above says the ranking does not yet distinguish later returns. The presets show the percentile once; 'grade'
+// stays in the registry for the 전체/직접 고른 컬럼.
 const COLUMN_PRESETS = Object.freeze({
-  discovery: ['watchlist', 'rank', 'grade', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore'],
-  fundamentals: ['watchlist', 'rank', 'grade', 'sym', 'value', 'quality', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
-  trend: ['watchlist', 'rank', 'grade', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'entry'],
-  risk: ['watchlist', 'rank', 'grade', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'news'],
-  events: ['watchlist', 'rank', 'grade', 'sym', 'entry', 'vcpScore', 'news'],
+  discovery: ['watchlist', 'rank', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore'],
+  fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
+  trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'entry'],
+  risk: ['watchlist', 'rank', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'news'],
+  events: ['watchlist', 'rank', 'sym', 'entry', 'vcpScore', 'news'],
   all: SCREENER_COLUMN_REGISTRY.map((column) => column.key)
 });
 
@@ -160,9 +196,6 @@ function numberText(value, digits = 1, suffix = '') {
 }
 function returnText(value) { return finite(value) == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`; }
 function returnColor(value) { return finite(value) == null ? 'var(--text-muted)' : value >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
-function rankColor(rank) {
-  return rank == null ? 'var(--text-muted)' : rank >= 60 ? 'var(--data-green)' : rank >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
-}
 function entryTiming(row) {
   const rank = finite(row.rank);
   const rsi = finite(row.rsi);
@@ -395,11 +428,12 @@ function createRankNode(documentRef, row, hold = null) {
     const value = documentRef.createElement('div');
     value.textContent = String(rank);
     wrap.title = `${MARKET_LABELS[screenerMarket(row)]} 시장의 계산 가능한 종목 중 백분위 ${rank} — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.`;
-    value.style.cssText = `font-family:var(--font-mono);font-weight:800;font-size:11px;color:${rankColor(rank)};`;
+    // v57.54: a descriptive position, not a verdict — one neutral colour, no green/red judgement.
+    value.style.cssText = 'font-family:var(--font-mono);font-weight:700;font-size:11px;color:var(--text-primary);';
     const bar = documentRef.createElement('div');
     bar.style.cssText = 'height:3px;background:var(--border-subtle);border-radius:2px;margin-top:3px;overflow:hidden;';
     const fill = documentRef.createElement('div');
-    fill.style.cssText = `height:100%;width:${Math.max(0, Math.min(100, rank))}%;background:${rankColor(rank)};border-radius:2px;`;
+    fill.style.cssText = `height:100%;width:${Math.max(0, Math.min(100, rank))}%;background:var(--text-muted);border-radius:2px;`;
     bar.appendChild(fill);
     wrap.append(value, bar);
   }
@@ -425,7 +459,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     compare.type = 'button';
     compare.className = `scr-compare-btn${compareSymbols?.has(row.sym) ? ' active' : ''}`;
     compare.textContent = compareSymbols?.has(row.sym) ? '✓' : '+';
-    compare.title = compareSymbols?.has(row.sym) ? '비교 tray에서 제거' : '비교 tray에 추가';
+    compare.title = compareSymbols?.has(row.sym) ? '비교 목록에서 빼기' : '비교 목록에 넣기';
     compare.setAttribute('aria-label', `${row.sym} 비교 ${compareSymbols?.has(row.sym) ? '제거' : '추가'}`);
     compare.dataset.aioScreenerCompare = row.sym;
     compare.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); onCompare?.(row); });
@@ -774,7 +808,7 @@ function renderFactorTab(documentRef, metadata) {
   const regimeNode = documentRef.getElementById('screener-regime-note');
   if (regimeNode) regimeNode.textContent = regime;
   const desc = documentRef.getElementById('scr-regime-desc');
-  if (desc) desc.textContent = REGIME_DESCRIPTIONS[regime] || '검증·승인 전에는 중립 고정 가중치를 적용하고 레짐 틸트는 후보 진단으로만 표시합니다.';
+  if (desc) desc.textContent = REGIME_DESCRIPTIONS[regime] || '검증·승인 전에는 중립 고정 가중치를 적용하고 국면 틸트는 후보 진단으로만 표시합니다.';
   const confidenceNode = documentRef.getElementById('screener-factor-confidence');
   if (confidenceNode) {
     const confidence = finite(ranking.confidence);
@@ -802,7 +836,7 @@ function renderFactorTab(documentRef, metadata) {
       `섹터 중립 ${sector.status || '미확인'}${sectorGroups != null ? ` (${sectorGroups}개 그룹${sectorUnknown ? `, 미분류 ${sectorUnknown}` : ''})` : ''}`,
       `극단치 완화 ${outlierCount != null ? `${outlierCount}건` : '미확인'}`,
       `상위군 회전 ${turnoverPct != null ? `${turnoverPct}%` : turnover.status || '이전 스냅샷 없음'}`,
-      `레짐 안정성 ${regimeStability.status || '이전 스냅샷 없음'}`
+      `국면 안정성 ${regimeStability.status || '이전 스냅샷 없음'}`
     ];
     diagnosticsNode.textContent = `${parts.join(' · ')} · 연구용 상대 순위이며 매매 신호/자동 가중 승격에 사용하지 않습니다.`;
     diagnosticsNode.dataset.decisionEligible = String(ranking.researchBoundary?.decisionEligible === true);
@@ -870,7 +904,7 @@ function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   add('상위가 하위를 앞선 횟수', wins == null ? '—' : `${rebalances}번 중 ${wins}번 — 종목별 방향 적중률이 아니라 분위 수익률 차이가 양수였던 리밸런스의 비율입니다`);
   add('표본', `미국·한국 합산 ${backtest.n ?? '—'}종목 · 리밸런스 ${rebalances ?? '—'}회 · 현재 종목 구성(생존 편향) · 거래비용은 가정값`);
   add('검증하지 않은 요인', (backtest.modelParity?.notValidated || backtest.excludedFactors || ['size', 'value · quality']).join(' · '));
-  add('가중치', `${backtest.weightRegime || 'NEUTRAL'} 고정 — 레짐 틸트 후보는 검증·적용되지 않음`);
+  add('가중치', `${backtest.weightRegime || 'NEUTRAL'} 고정 — 국면 틸트 후보는 검증·적용되지 않음`);
   add('겹치는 근거', `${overlapSentence(currentOverlap(rows, metadata?.ranking))} 가중치는 바꾸지 않았습니다 — 겹침을 줄인 모델은 다른 모델이라 실제 순위 기록으로 따로 검증해야 합니다.`);
   panel.append(facts);
   const longrun = root?._aioFactorLongrun;
@@ -1035,6 +1069,8 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
     th.dataset.columnKey = column.key;
     th.className = `scr-column-header${column.sticky ? ' scr-column-sticky' : ''}`;
     th.style.cssText = `text-align:${column.align};min-width:${column.width}px;padding:8px;`;
+    // v57.54: jargon columns carry a one-line explanation on hover.
+    if (column.hint) th.title = column.hint;
     if (column.sticky) th.style.left = `${stickyLeft}px`;
     if (column.sortable) {
       const button = documentRef.createElement('button');
@@ -1323,7 +1359,22 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const ranking = currentState.metadata.ranking;
     const weights = ranking.appliedFactorWeights || {};
     const order = documentRef.getElementById('scr-order')?.selectedOptions?.[0]?.textContent || SCREENER_COLUMN_REGISTRY.find(column => column.key === sortState.column)?.label || '조건 순위';
-    diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${marketRows(currentState.rows || [], listingMarket).length}개 · 순위 계산 ${ranking.ranked || 0}개 · 표시 ${filtered.length}개 · ${order} · 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
+    // 2026-10-14 audit #3: one denominator on this screen — the rows the ranking actually ranked (the same set the
+    // reading's top 20% and the stock summary's rank use). Why the rest of the population is not ranked is folded.
+    const population = marketRows(currentState.rows || [], listingMarket);
+    const screened = population.filter((row) => finite(row?.screenRank) != null).length;
+    const rankedCount = screened || ranking.ranked || 0;
+    diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 순위 계산 ${rankedCount}종목 · 표시 ${filtered.length}개 · ${order} · 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
+    const excluded = documentRef.getElementById('scr-population-excluded');
+    if (excluded) {
+      const left = population.length - rankedCount;
+      const missing = population.filter((row) => row?.screenStatus === 'unavailable').length;
+      const rejected = population.filter((row) => row?.screenStatus === 'rejected').length;
+      const unscored = population.filter((row) => row?.screenStatus === 'passed' && finite(row?.screenRank) == null).length;
+      excluded.hidden = !(screened && left > 0);
+      excluded.querySelector('summary').textContent = `순위 밖 ${left}종목`;
+      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(' · ') || '사유 미확인'}.`;
+    }
     const sessionLag = !(ranking.ranked > 0) ? factorSessionLag(listingMarket, currentState.metadata.factorSessionDateByMarket?.[listingMarket], Date.now()) : null;
     if (sessionLag) diagnostics.textContent += ` · 가격 자료 ${sessionLag.session.slice(5).replace('-', '/')} 종가 기준, ${sessionLag.latest.slice(5).replace('-', '/')} ${sessionLag.label} 반영 대기`;
     diagnostics.title = '백분위는 같은 시장의 계산 가능한 종목끼리 비교합니다. 정렬과 조건, 표시 필터는 서로 다른 역할입니다. 데이터가 없거나 조건을 통과하지 못한 종목은 순위에서 제외합니다.';
@@ -1335,7 +1386,12 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (total) total.textContent = String(allRows.length);
   const ranked = documentRef.getElementById('scr-kpi-ranked');
   if (ranked) ranked.textContent = String(allRows.filter((row) => row.screenStatus === 'passed').length);
-  if (top) top.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= 80).length);
+  if (top) {
+    top.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= 80).length);
+    // 2026-10-14 audit #3: this count is the factor percentile ≥ 80, not a rank — name it so (index.html label follows).
+    const lead = top.parentElement?.firstChild;
+    if (lead?.nodeType === 3 && /랭크 80 이상/.test(lead.textContent)) lead.textContent = lead.textContent.replace('랭크 80 이상', '백분위 80 이상');
+  }
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
   const marketFactorSession = state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorObservedAt;
@@ -1508,7 +1564,15 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         const summary = documentRef.createElement('summary'); summary.textContent = '순위가 계산되는 방식';
         const explanation = documentRef.createElement('p'); explanation.textContent = '모멘텀은 1개월·3개월·6개월 수익률을 40%·40%·20%로, 추세는 50일선·200일선 대비 거리를 60%·40%로 묶습니다. 각 팩터를 같은 시장의 업종 내 분포로 조정한 뒤 선택한 비중으로 합산합니다. 표본이 작은 업종은 같은 시장 전체 분포를 함께 씁니다. 높은 추세 값은 이동평균에서 멀다는 뜻도 있으므로 과열·변동폭과 함께 읽습니다. 3개월 수익률 정렬은 이 합산과 별도로 실제 수익률을 비교합니다. 필수 자료가 없거나 선택 조건을 통과하지 못하면 순위를 보류합니다.';
         method.append(summary, explanation); marketControls.append(method);
-        page.prepend(marketControls);
+        // 2026-10-14 audit #17: the market/sort selectors and the universe line sit under the page title, not above it.
+        const header = page.querySelector('.page-title')?.parentElement?.parentElement;
+        if (header && page.contains(header) && header !== page) header.after(marketControls); else page.prepend(marketControls);
+      }
+      // audit #3: why some of the population is not ranked — one folded line under the universe line.
+      if (!documentRef.getElementById('scr-population-excluded')) {
+        const excluded = documentRef.createElement('details'); excluded.id = 'scr-population-excluded'; excluded.className = 'scr-ranking-method'; excluded.hidden = true;
+        excluded.append(documentRef.createElement('summary'), documentRef.createElement('p'));
+        documentRef.getElementById('scr-population-note')?.after(excluded);
       }
       // P1449 (검토판 9): a link that came here with its own 조사 맥락 (e.g. 같은 섹터에서 비교)
       // fills the display search/scope from that context once, instead of surfacing whatever
@@ -1537,7 +1601,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       let readSignature = '';
       const renderRead = () => {
         const rows = marketRows(selectScreenerState(store?.getState?.() || {})?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US');
-        const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
+        const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}|${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
         if (signature === readSignature) return;
         readSignature = signature;
         const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
@@ -1556,14 +1620,16 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const lead = ranked[0] || null;
           renderNextSteps(documentRef, documentRef.getElementById('screener-next'), [
             { route: 'themes', label: '국내 테마', why: '상위권 한국 종목이 몰린 테마가 완료 종가 기준으로 어떻게 움직였는지', ctx: { anchor: 'kr-integrated-themes' } },
-            ...(lead ? [{ action: 'showTicker', arg: lead.sym, route: 'ticker', label: `1위 ${lead.sym}`, why: `${lead.name || lead.sym} — 한국 순위 1위 종목을 요약·차트·재무로 확인` }] : [])
+            ...(lead ? [{ action: 'showTicker', arg: lead.sym, route: 'ticker', label: `순위 맨 앞 ${lead.sym}`, why: `${lead.name || lead.sym} — 한국 순위 맨 앞 종목을 요약·차트·재무로 확인(검증 전이라 후보로 읽음)` }] : [])
           ]);
           reapplyScreenerNextLead(documentRef);
         } else {
           const next = documentRef.getElementById('screener-next'); if (next) next.hidden = false;
-          renderScreenerRead({ documentRef, root, rows });
+          renderScreenerRead({ documentRef, root, rows: withThemeStages(root, rows) });
         }
       };
+      // 2026-10-14 audit #5: theme stage rows for the reading's "상위권의 테마 단계" (nothing renders until status is ok).
+      refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && mountActive) { readSignature = ''; renderRead(); } }).catch(() => {});
       // P1419: post-hoc validation of the default ranking (small daily artifacts, read once per mount).
       renderScreenerValidation({ documentRef, root });
       {
@@ -1867,6 +1933,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              button.type = 'button';
              button.className = 'aio-btn-table';
              button.className += ` scr-screen-chip${screen.definition.screenId === activeScreenId ? ' active' : ''}`;
+             button.setAttribute('aria-pressed', screen.definition.screenId === activeScreenId ? 'true' : 'false');
              button.dataset.aioScreenerAction = 'screen-preset';
              button.dataset.aioScreenerArg = screen.definition.screenId;
              button.textContent = screen.label;
@@ -2334,7 +2401,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         options[0].textContent = label;
         values.forEach((value, index) => {
           options[index + 1].value = value;
-          options[index + 1].textContent = value;
+          // 2026-10-14 audit #18: Korean option names; the value stays the artifact's own key.
+          options[index + 1].textContent = key === 'index' ? (INDEX_LABELS[value] || INDEX_CODE_LABELS[value]?.[0] || value) : key === 'sector' ? sectorLabel(value) : value;
+          if (key === 'index' && INDEX_CODE_LABELS[value]) options[index + 1].title = INDEX_CODE_LABELS[value][1];
         });
         select.replaceChildren(...options);
         select.value = values.includes(current) ? current : '';

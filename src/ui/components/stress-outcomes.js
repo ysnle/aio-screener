@@ -101,10 +101,11 @@ export function renderStressOutcomes({ documentRef: doc, root, anchor }) {
     const table = el(doc, 'dl', null, 'regime-evidence');
     for (const band of rows) { const q = quarter(band); const qr = meanRange(q, 63); table.append(el(doc, 'dt', `${band.label} · 석 달 뒤`), el(doc, 'dd', `평균 ${pct(q.mean)}${qr ? ` ±${qr.half.toFixed(1)}%p` : ''} · 오른 비율 ${q.hitRate ?? '—'}% · 나쁜 10% ${pct(q.p10)}`)); }
     deep.append(el(doc, 'h4', '석 달 뒤 결과'), table);
-    deep.append(el(doc, 'h4', '예전 0~100 점수 대신 이 표를 쓰는 이유'), el(doc, 'p', '예전 시장 점수는 2016~2026년 검증에서 점수가 높을수록 오히려 이후 수익률이 낮았고(한 달 기준 순위상관 -0.17), 급락장에서는 관계가 반대로 기우는 경향도 보였습니다. 점수를 거꾸로 쓰면 바로 그런 위기 때 틀릴 수 있어, 점수를 만들지 않고 실제로 있었던 결과의 분포를 그대로 보여줍니다.'));
+    // P1745: the retired-score history paragraph was a changelog, not analysis — removed from the screen.
 
     // T14: the title names the one thing that was matched (VIX), and the bands are said to differ from the judgement bands.
-    section.replaceChildren(el(doc, 'h2', 'VIX가 비슷했던 날, 그 뒤 실제로는', 'briefing-h2'),
+    section.replaceChildren(el(doc, 'h2', '과거 빈도 — VIX가 비슷했던 날, 그 뒤 한 달', 'briefing-h2'),
+      el(doc, 'p', '위 갈림길의 가능성을 재는 세 번째 근거입니다. 지금 변동성 구간에서 시작했던 과거의 한 달이 실제로 어떻게 끝났는지를 봅니다 — 변동성 충격 길(VIX 30 이상)과 신용 경색 길을 가늠할 때 특히 씁니다.', 'regime-read'),
       el(doc, 'p', `변동성(VIX) 구간별 S&P 500 한 달 뒤 평균 · ${from}~${String(payload.to || '').slice(0, 4)}`, 'regime-chart-caption'), chart, el(doc, 'p', reading, 'regime-read'),
       el(doc, 'p', `이 표의 VIX 구간(${payload.bands.map((band) => band.label.replace(/^VIX /, '')).join(' · ')})은 과거 결과를 나누는 구간이라, 시장 상태 변동성 축의 판정 기준(${RULES.volatility.calmBelow} · ${RULES.volatility.stressAt} · ${RULES.volatility.highAt})과 다릅니다.`, 'regime-chart-caption'), deep);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`;

@@ -519,6 +519,13 @@ export async function refreshSecFundamentals(priceHints = null) {
   let previousExists = true;
   let previous;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { previousExists = false; previous = { schemaVersion: '2.0', data: {} }; }
+  // P1757: the ledger is producer-only (data-store branch) and restored before this runs. In Actions a missing ledger
+  // means the restore chain failed; starting from nothing with a 24-symbol batch would publish a near-empty projection,
+  // so only an explicit full rebuild (SEC_FULL_REBUILD=1, set by the workflow when every restore source is gone) may.
+  const fullRebuild = process.env.SEC_FULL_REBUILD === '1';
+  if (!previousExists && process.env.GITHUB_ACTIONS === 'true' && !fullRebuild) {
+    throw new Error('P1757: public-data/sec-fundamentals.json was not restored (run scripts/sec-fundamentals-store.mjs restore, or set SEC_FULL_REBUILD=1 for a deliberate full rebuild)');
+  }
   const migration = migrateLegacyPointInTimeData(previous.data || {});
   previous = { ...previous, schemaVersion: '2.0', model: 'sec-fy-normalized-v2', data: migration.data };
   if (!/\S+@\S+\.\S+/.test(USER_AGENT)) {
@@ -551,7 +558,8 @@ export async function refreshSecFundamentals(priceHints = null) {
   const tickerMap = buildTickerMap(tickerPayload);
   const eligible = symbols.filter(symbol => tickerMap.has(tickerKey(symbol)));
   const now = Date.now();
-  const limit = Math.max(1, Math.min(100, Number(process.env.SEC_BATCH_LIMIT) || DEFAULT_BATCH_LIMIT));
+  // P1757: a full rebuild collects every eligible issuer in one run (~2 SEC requests each at the 150 ms pace).
+  const limit = fullRebuild ? Math.max(1, eligible.length) : Math.max(1, Math.min(100, Number(process.env.SEC_BATCH_LIMIT) || DEFAULT_BATCH_LIMIT));
   const force = process.env.SEC_REFRESH === '1';
   const retryFailedNow = process.env.SEC_RETRY_FAILED === '1';
   const previousFailureRecords = new Map((previous.failures || []).map(row => [row && row.symbol, row]).filter(([symbol]) => symbol));

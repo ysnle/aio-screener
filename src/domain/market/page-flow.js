@@ -53,7 +53,9 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
           : `중기와 장기 참여가 ${B.weakBelow}~${B.broadAtLeast}% 사이에서 엇갈립니다`;
     const shortTerm = b20 == null ? '' : b20 < b50 - 5 ? ` 20일선 위 비율(${round(b20)}%)이 더 낮아 단기 이탈이 아직 이어지는 중입니다.`
       : b20 > b50 + 5 ? ` 20일선 위 비율(${round(b20)}%)이 먼저 올라 단기 반등이 시작됐는지 확인할 구간입니다.` : ' 단기(20일선)와 중기 참여가 같은 흐름입니다.';
-    participation = `50일선 위 ${round(b50)}% · 200일선 위 ${round(b200)}% — ${both}.${shortTerm}`;
+    // Audit 2026-10-14: the first sentence carries the direction, not only the level.
+    const move = b50d20 == null ? '' : `(20거래일 ${signed(b50d20, 1, '%p')}${b50d5 != null ? ` · 5거래일 ${signed(b50d5, 1, '%p')}` : ''})`;
+    participation = `50일선 위 ${round(b50)}%${move} · 200일선 위 ${round(b200)}% — ${both}.${shortTerm}`;
   }
 
   const leadership = hl == null && mv == null
@@ -108,6 +110,8 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
   if (hyState === 'burden') next.push({ route: 'fxbond', label: '금리 · 환율', why: '신용 스프레드 확대가 실질금리·달러와 같은 방향인지' });
   if (byId.breadth?.state === 'burden') next.push({ route: 'breadth', label: '시장 폭', why: `심리와 별개로 참여 종목이 줄고 있는지(시장 폭 ${byId.breadth.stateLabel})` });
   next.push({ route: 'signal', label: '시장 상태', why: '공포·탐욕과 AAII를 넣지 않은 6개 축(변동성·신용 포함)의 전체 판정' });
+  // Audit 2026-10-14: mood is a reading of today; where it leads is decided by the next releases.
+  next.push({ route: 'macro', label: '거시 갈림길', why: '지금의 심리가 다음 발표가 가를 길(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지' });
   return { bridge, next };
 }
 
@@ -273,7 +277,7 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
   const parts = [];
   const rotationDate = etf && rotation[etf]?.sessionDate ? `(${Number(rotation[etf].sessionDate.slice(5, 7))}/${Number(rotation[etf].sessionDate.slice(8, 10))} 종가 기준)` : '';
-  if (quadrant) parts.push(`테마 ETF ${withTopicParticle(etf)} 섹터 회전에서 ${quadrant}${rotationDate}`);
+  if (quadrant) parts.push(`테마 ETF ${withTopicParticle(etf)} S&P 500 대비 상대강도 회전에서 ${quadrant}${rotationDate}`); // P1747: not one of the 11 sector cards above
   if (byThree.length >= 2 && strongest.ret3m != null && weakest.ret3m != null) parts.push(`3개월 기준 가장 강한 곳은 ${strongest.name}(${pct(strongest.ret3m)}), 가장 약한 곳은 ${weakest.name}(${pct(weakest.ret3m)})`);
   if (moving.length && moving.length === mine.length && mine.length >= 2) {
     // P1449/R679: an improving 1-month vs 3-month rank is a RELATIVE PRICE observation. Without a

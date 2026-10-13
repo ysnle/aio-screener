@@ -55,19 +55,22 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   const short = (date) => date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—';
   // Codex M-screen: the radar is a position inside each axis's own past, not the 우호/부담 verdict above.
   const head = el(doc, 'h2', '국면 레이더 · 과거 대비 지금 위치', 'briefing-h2');
-  head.append(el(doc, 'span', '바깥일수록 그 축의 지난 기간 중 우호적인 쪽', 'briefing-h2-note'));
+  // v57.54 audit (6): the numbers are a position (0~100), not a grade — the subtitle says so and each row names its card verdict.
+  head.append(el(doc, 'span', '숫자 = 최근 1년(최대 252거래일) 중 지금 위치(0~100, 클수록 우호) — 카드의 우호·중립·부담 판정과는 다른 잣대', 'briefing-h2-note'));
   section.append(head);
   section.append(el(doc, 'p', model.lead, 'regime-radar-lead'));
   // X-review (2026-10-13, PM/credit view): "우호" above and 9 here read as a contradiction at first glance. When an
   // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.
   const stateOf = new Map((verdicts || []).map((row) => [row.id, row.state]));
-  const gaps = model.axes.filter((axis) => axis.now != null && ((stateOf.get(axis.id) === 'favorable' && axis.now <= 25) || (stateOf.get(axis.id) === 'burden' && axis.now >= 75)));
+  const gaps = model.axes.filter((axis) => axis.now != null && ((stateOf.get(axis.id) === 'favorable' && axis.now <= 25) || (stateOf.get(axis.id) === 'neutral' && axis.now <= 15) || (stateOf.get(axis.id) === 'burden' && axis.now >= 75)));
   // v57.50 D22: each axis has its own comparison window (추세 69, 시장 폭 182 sessions while their records are short), so the
   // sentence names that window instead of "최근 1년".
   const windowOf = (axis) => axis.sample ? `지난 ${axis.sample}거래일${axis.sample >= 252 ? '(약 1년)' : ''}` : '비교 표본';
   if (gaps.length) {
     section.append(el(doc, 'p', gaps.map((axis) => stateOf.get(axis.id) === 'favorable'
       ? `${axis.label}: 판정은 우호(절대 수준)지만 ${windowOf(axis)} 안에서는 부담 쪽(${axis.now})입니다 — 수준은 아직 괜찮아도 그 기간 기준으로는 나빠진 편이라는 뜻입니다.`
+      : stateOf.get(axis.id) === 'neutral'
+        ? `${axis.label}: 판정은 중립(절대 수준)이지만 ${windowOf(axis)} 안에서는 가장 나쁜 쪽 가까이(${axis.now})까지 밀렸습니다${axis.change20 != null ? ` (20거래일 ${axis.change20 >= 0 ? '+' : ''}${axis.change20})` : ''} — 이 속도가 이어지면 판정이 부담으로 바뀔 수 있어 다음 갱신에서 먼저 확인할 축입니다.`
       : `${axis.label}: 판정은 부담(절대 수준)이지만 ${windowOf(axis)} 안에서는 우호 쪽(${axis.now})입니다 — 그 기간보다는 나아졌어도 수준 자체는 아직 부담입니다.`).join(' '), 'regime-radar-gap'));
   }
   const body = el(doc, 'div', null, 'regime-radar-body');
@@ -85,7 +88,8 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
     if (axis.observed?.[0]) dd.setAttribute('data-observed-at', axis.observed[0]);
     dd.setAttribute('data-basis', `${axis.note} · 비교 표본 ${axis.sample ? `${axis.sample}거래일` : '부족'}`);
     dd.tabIndex = 0;
-    table.append(el(doc, 'dt', axis.label), dd);
+    const verdict = { favorable: '우호', neutral: '중립', burden: '부담' }[stateOf.get(axis.id)];
+    table.append(el(doc, 'dt', verdict ? `${axis.label} · 판정 ${verdict}` : axis.label), dd);
   }
   side.append(table);
   const details = el(doc, 'details', null, 'regime-axis-details');

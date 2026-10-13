@@ -9,7 +9,8 @@
 // so the loop runs one way (ledger → code) and never back (code → ledger).
 //
 // This gate makes the link mandatory for NEW assertions without rewriting the
-// existing ones: anything not in the frozen baseline must cite a ledger id.
+// existing ones: anything not in the frozen baseline must cite a ledger id, or (v57.54)
+// for non-defect work the release that introduced it (vNN.NN with a CHANGELOG heading).
 //
 // Usage:
 //   node scripts/ci-assertion-trace-check.mjs            # verify
@@ -58,12 +59,23 @@ const ledgerText = [
   ...readdirSync(join(root, '_context')).filter((name) => name.endsWith('.md')).map((name) => `_context/${name}`),
   'CHANGELOG.md',
 ].filter((rel) => existsSync(join(root, rel))).map(read).join('\n');
+// v57.54: non-defect assertions (features, cleanups, refactors) have no postmortem to cite and were being pushed
+// into the defect ledger just to satisfy this gate. They may instead cite the release that introduced them —
+// a "v57.54"-style token that resolves to an existing "## v57.54" CHANGELOG.md heading. Some evidence is still
+// mandatory, and a release that has no CHANGELOG heading is not evidence.
+const changelogPath = join(root, 'CHANGELOG.md');
+const releaseHeadings = new Set(existsSync(changelogPath)
+  ? [...read('CHANGELOG.md').matchAll(/^##\s+(v\d{1,3}(?:\.\d{1,2})?)(?![0-9.])/gm)].map((match) => match[1])
+  : []);
+const RELEASE_ID = /(?:^|[^A-Za-z0-9.])(v\d{1,3}\.\d{1,2})(?![0-9.])/g;
+const citesRelease = (label) => [...label.matchAll(RELEASE_ID)].some((match) => releaseHeadings.has(match[1]));
+const hasEvidence = (label) => EVIDENCE.test(label) || citesRelease(label);
 const ledgerHas = (id) => new RegExp(`(?:^|[^A-Za-z0-9])${id}(?![0-9])`).test(ledgerText);
 const LEDGER_ID = /(?:^|[^A-Za-z0-9])([PR]\d{2,4})(?![0-9])/g;
 const OTHER_EVIDENCE = /(?:^|[^A-Za-z0-9])(?:QA-[A-Z0-9-]+|T\d{3,5}|WP-AI\d+|WP-\d+|AIQ-[A-Z0-9-]+|RM-\d+|EF-\d+|H[23]-[A-Z0-9]+|LIVE3-\d+|W\d-\d+|SA-?\d{2}|PFE2-\d+|AR-\d+|S\d)(?![0-9])/;
 function unresolvedLedgerOnly(label) {
   const ids = [...label.matchAll(LEDGER_ID)].map((match) => match[1]);
-  if (!ids.length || ids.some(ledgerHas) || OTHER_EVIDENCE.test(label)) return null;
+  if (!ids.length || ids.some(ledgerHas) || OTHER_EVIDENCE.test(label) || citesRelease(label)) return null;
   return ids;
 }
 
@@ -76,7 +88,7 @@ for (const file of targets) {
   if (!existsSync(path)) continue;
   const labels = collectLabels(read(file));
   total += labels.length;
-  const missing = labels.filter((label) => !EVIDENCE.test(label));
+  const missing = labels.filter((label) => !hasEvidence(label));
   unlabeledTotal += missing.length;
   if (missing.length) unlabeled[file] = missing.map(hash).sort();
   for (const label of labels) {
@@ -121,9 +133,9 @@ if (dangling.length) {
 
 if (untraced.length) {
   console.error('Assertion trace check failed:');
-  console.error(` - ${untraced.length} new assertion label(s) do not cite a ledger id (R###/P####/QA-/T###):`);
+  console.error(` - ${untraced.length} new assertion label(s) cite no evidence (R###/P####/QA-/T### ledger id, or a vNN.NN release with a CHANGELOG heading):`);
   for (const entry of untraced.slice(0, 20)) console.error(`   ${entry}`);
-  console.error('   Add the id the assertion prevents a regression of, or rerun with --write after an authorised bulk change.');
+  console.error('   Cite the P/R id the assertion prevents a regression of; for a feature or cleanup, cite the release that introduced it (e.g. "v57.54 ..."). Rerun with --write only after an authorised bulk change.');
   process.exit(1);
 }
 

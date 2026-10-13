@@ -7,6 +7,7 @@ import { ensureResearchSnapshots } from './research-snapshots.js';
 import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { briefingFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
+import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -183,8 +184,29 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     // the same CPI line twice. Checks are what the tape itself asks to confirm, plus one pointer to the next release.
     const nextRelease = schedule.find((row) => !row.passed && row.kind === 'macro');
     const items = [...(read.checks || [])];
-    if (nextRelease) items.push(`다음 주요 발표: ${nextRelease.when} ${nextRelease.label} (아래 일정에서 무엇을 볼지 확인)`);
+    // Audit 2026-10-14: the next release is named with what each of the two leading branches needs from it, so the
+    // check is a threshold to compare against, not only a date.
+    let split = null;
+    let xr = null;
+    try {
+      xr = crossroadsForRoot(root, { nowMs });
+      const event = xr?.nextEvent;
+      const sides = event ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId)
+        .map((item) => { const trigger = item.triggers.find((row) => row.id === event.id); return trigger ? `'${item.title.split(' — ')[0]}' 쪽이면 ${trigger.text}` : null; }).filter(Boolean) : [];
+      if (event && sides.length) { const [, m, d] = String(event.date || '').split('-').map(Number); split = `다음 분기점: ${m && d ? `${m}/${d} ` : ''}${event.name} — ${sides.join(', ')}`; }
+    } catch (_) { split = null; }
+    if (split) items.push(split);
+    else if (nextRelease) items.push(`다음 주요 발표: ${nextRelease.when} ${nextRelease.label} (아래 일정에서 무엇을 볼지 확인)`);
     checks.replaceChildren(...(items.length ? items.map((text) => el(doc, 'li', text)) : [el(doc, 'li', '특별히 확인할 변곡 신호가 없습니다.')]));
+    // v57.54 audit (13): the two paths the next release splits link to the themes each one favours.
+    doc.getElementById('briefing-xr-themes')?.remove();
+    const rows = split && xr ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId).map((item) => themeLinkRow(doc, root, item)).filter(Boolean) : [];
+    if (rows.length) {
+      const box = el(doc, 'div', null, 'briefing-xr-themes');
+      box.id = 'briefing-xr-themes';
+      box.append(...rows);
+      checks.insertAdjacentElement('afterend', box);
+    }
   }
   // I21: the checks and asset groups continue to the screens that explain them (#briefing-next, hidden while empty).
   renderNextSteps(doc, doc.getElementById('briefing-next'), briefingFlow({ read }).next);

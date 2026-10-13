@@ -121,7 +121,16 @@ function trendOf(row) {
   return { id: 'down', tone: 'burden', label: '하락 추세', text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 아래 — 단기·장기 추세가 모두 아래쪽입니다` };
 }
 
-export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], regime = null, universeSize = null, sessionLag = null, holding = null, thirteenF = null, fundamentals = null, now = Date.now() } = {}) {
+// 2026-10-14 audit #13: the screener's own validation verdict for its ranking, said in one clause — or nothing.
+function rankVerdict(validation) {
+  if (!validation?.available || validation.modelMatch === false) return '';
+  if (validation.distinguishable === false) return ' — 과거 검증상 이 순위와 이후 수익의 관계는 아직 구별 불가';
+  const spread = finite(validation.spreadNet);
+  if (spread == null) return '';
+  return spread > 0 ? ` — 과거 검증에서 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 ${validation.wins ?? '—'}회)` : ` — 과거 검증에서 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 ${validation.wins ?? '—'}회 앞섬)`;
+}
+
+export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], themeStages = [], regime = null, universeSize = null, validation = null, sessionLag = null, holding = null, thirteenF = null, fundamentals = null, now = Date.now() } = {}) {
   if (!row) return { available: false, reason: `${withTopicParticle(symbol || '이 종목')} 스크리너 유니버스 밖이라 추세·상대강도 기록이 없습니다. 차트 탭의 일봉과 재무 공시는 그대로 볼 수 있습니다.` };
   const name = row.name || symbol;
   const points = [];
@@ -194,14 +203,27 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const sector = etf && rotation[etf] ? { etf, label: SECTOR_KO[etf] || etf, quadrant: QUADRANT[rotation[etf].quadrant] || null } : null;
   const themed = (themes || []).map((theme) => ({ ...theme, quadrant: theme.etf && rotation[theme.etf] ? QUADRANT[rotation[theme.etf].quadrant] || null : null }));
   const topTheme = themed.find((theme) => theme.quadrant) || themed[0] || null;
+  // 2026-10-14 audit #5: the theme's stage (same rows as 테마 갈림길) leads this point, one line per theme. The favoured
+  // choice is the theme's, never an instruction on this stock. The rotation-quadrant wording stays as folded evidence.
+  const stages = (Array.isArray(themeStages) ? themeStages : []).filter((stage) => stage?.id && stage.stateLabel);
+  const stageLines = stages.map((stage) => ({ id: stage.id, label: stage.label,
+    text: `테마 ${stage.label}: ${stage.stateLabel}${stage.wind ? ` · 거시 ${stage.wind}` : ''}${stage.favoured?.length ? ` · 상대적으로 유리한 쪽: ${stage.favoured.join(', ')}` : ''}` }));
+  let rotationText = null;
+  let tailwind = false;
   if (sector?.quadrant || topTheme?.quadrant) {
     const parts = [];
     if (sector?.quadrant) parts.push(`섹터 ${sector.label}(${sector.etf})${topic(sector.label)} ${sector.quadrant.label} — ${sector.quadrant.read}`);
     if (topTheme?.quadrant && topTheme.etf !== sector?.etf) parts.push(`테마 ${topTheme.label}(${topTheme.etf})${topic(topTheme.label)} ${topTheme.quadrant.label}`);
-    const tailwind = sector?.quadrant?.tone === 'favorable' || topTheme?.quadrant?.tone === 'favorable';
+    tailwind = sector?.quadrant?.tone === 'favorable' || topTheme?.quadrant?.tone === 'favorable';
     const stockStrong = trend?.id === 'up';
     const tie = tailwind && stockStrong ? '종목 강세가 섹터 흐름과 같은 방향입니다' : !tailwind && stockStrong ? '섹터 흐름이 약한데 종목만 강한 개별 강세입니다' : tailwind && !stockStrong ? '섹터는 강한데 종목은 뒤처져 있습니다' : '섹터와 종목이 함께 약합니다';
-    points.push({ id: 'sector', tone: tailwind ? 'favorable' : 'neutral', title: '섹터·테마', text: `${parts.join(' · ')}. ${tie}.` });
+    rotationText = `${parts.join(' · ')}. ${tie}.`;
+  }
+  if (stageLines.length) {
+    points.push({ id: 'sector', tone: 'neutral', title: '섹터·테마', text: stageLines.map((line) => line.text).join(' / '), lines: stageLines,
+      ...(rotationText ? { evidence: { summary: '섹터 회전(상대강도) 근거', text: rotationText } } : {}) });
+  } else if (rotationText) {
+    points.push({ id: 'sector', tone: tailwind ? 'favorable' : 'neutral', title: '섹터·테마', text: rotationText });
   }
 
   const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
@@ -227,7 +249,11 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   }
 
   const rank = finite(row.screenRank);
-  const ranking = rank != null && finite(universeSize) ? { rank, of: universeSize, topPct: Math.max(1, Math.round(rank / universeSize * 100)) } : null;
+  // v57.54: a rank outside its own denominator is a mixed row set — say nothing rather than "890/239".
+  const ranking = rank != null && rank >= 1 && finite(universeSize) && rank <= universeSize ? { rank, of: universeSize, topPct: Math.max(1, Math.round(rank / universeSize * 100)) } : null;
+  // 2026-10-14 audit #13: the rank lives in the reading (not the heading), on the screener's denominator, with the
+  // screener's own validation verdict when it is loaded — otherwise the rank alone, without a claim.
+  if (ranking) points.push({ id: 'rank', tone: 'neutral', title: '순위', text: `가격 흐름 순위 ${ranking.rank}/${ranking.of}${rankVerdict(validation)}.` });
   const relative3 = spans.find((span) => span.key === 'ret3m');
   // 2026-10-13 review S07: a factor file older than the market's latest completed session says so in the headline.
   const lagSessions = finite(sessionLag?.sessions);
@@ -243,7 +269,9 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마 · ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
   // v57.50 I01: the Korean label (기술) is for the sentence; the screener filters on the artifact's own sector value
   // (Technology), so the handoff carries that value, not a search word that matches no row.
-  const sectorName = sector?.label || row.sector || '';
+  // v57.54: one Korean sector name on the page ("섹터 기술" above, "같은 섹터(Technology)" here) — the label map is the
+  // same SECTOR_ETF → SECTOR_KO path the sector point uses, for KR listings too; the handoff ctx keeps the raw value.
+  const sectorName = sector?.label || SECTOR_KO[SECTOR_ETF[normalizeSectorKey(row.sector)]] || row.sector || '';
   next.push({ route: 'screener', label: '스크리너', why: `같은 섹터(${sectorName || '—'})에서 상대 순위가 높은 종목과 비교`, ctx: row.sector ? { sector: row.sector, ticker: symbol } : { ticker: symbol } });
   // v57.50 I12: 13F holders only when the reference ledger lists this ticker; the ledger's scope is stated.
   if (thirteenF?.covered && !isKr) {

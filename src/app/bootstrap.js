@@ -28,6 +28,7 @@ import { selectForDecision, selectForDisplay, selectLastKnown, selectCompletenes
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { finalizePageDecision } from '../domain/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
+import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
 import { openMarketChart } from '../ui/components/stock-chart.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
 import { installConnectionPanel } from '../ui/panels/connections.js';
@@ -37,6 +38,14 @@ import { installResponsiveShell } from '../ui/components/responsive-shell.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
+import { renderAnswerVisuals, chooseAnswerVisuals, attachAnswerVisuals } from '../ui/components/ai-answer-visuals.js';
+import { installChatSessions } from '../ui/components/chat-sessions.js'; // owner 2026-10-14: saved conversations
+import { installPanelContexts } from '../ai/context/panel-contexts.js'; // audit 2026-10-14: AI on masters/guide
+import { installBackgroundAlerts } from './background-alerts.js'; // v57.54: armed alerts keep a slow hidden-tab check
+import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
+import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } from '../ai/response/answer-principles.js';
+import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
+import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { readMarketRegime } from '../ui/components/market-regime.js';
 import { collectMarketInputs } from '../ui/components/briefing-read.js';
@@ -129,6 +138,14 @@ if (typeof window !== 'undefined') {
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
   window.AIO.buildMarketContentContext = buildMarketContentContext;
   window.AIO.buildQuestionDomainContext = buildQuestionDomainContext;
+  window.AIO.renderAnswerVisuals = renderAnswerVisuals; // P1741: data-drawn figures under an AI answer
+  window.AIO.chooseAnswerVisuals = chooseAnswerVisuals;
+window.AIO.attachAnswerVisuals = attachAnswerVisuals;
+try { installPanelContexts(window); } catch (_) { /* masters/guide keep the disabled panel */ }
+try { installBackgroundAlerts(window, document); } catch (_) { /* alerts still fire when the tab is visible */ }
+try { installChatSessions(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() }); } catch (_) { /* the panel keeps working without saved conversations */ }
+// P1740: chat prompt pieces moved out of js/aio-chat.js (answer shape, principles, policy lines, ticker resolver).
+Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, buildChatPolicyLines, resolveChatTickers });
   window.AIO.selectNativeSearch = selectNativeSearch;
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;
@@ -320,7 +337,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes, typed].filter(Boolean).join('\n');
     } catch (_) { return ''; }
   };
-  // v57.50 C06: one Fear & Greed reader for the legacy surfaces (AI header, _liveSnap/_closeSnap, AIO.marketState).
+  // v57.50 C06: one Fear & Greed reader for the legacy surfaces (AI header, _liveSnap, AIO.marketState).
   // Same rule as the home card (analysis.js renderHomeFearGreed): the completed-close value aligned with the US close
   // basis; a close that is behind the basis is held (null); with no close series yet, the canonical value is used and
   // labelled as such. Callers show '—' for null — never a default number.
@@ -635,7 +652,15 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules.technical = createLazyPage({ route: 'technical', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'technical' }) });
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock, documentRef, runtimeRoot: root } });
 
+  // P1755: every legacy refresh cycle (aio:refresh:done) used to re-download and re-validate screener.json
+  // (2.6 MB) + universe + validation although the artifact changes on a multi-hour cadence. A refresh cycle
+  // now re-reads the artifacts only when the cycle was forced, no rows are held (failed/empty read), or the
+  // last artifact read is older than the legacy server-data reload interval; otherwise it re-derives rows
+  // from the held artifacts plus current live quotes (refresh:false), exactly like the live-quote path.
+  const SCREENER_ARTIFACT_RECHECK_MS = 30 * 60 * 1000;
+  let screenerArtifactReadAt = null;
   function syncScreenerData({ scope = router.activeScope(), refresh = true } = {}) {
+    if (refresh) screenerArtifactReadAt = clock.now();
     return syncScreener.sync({ scope, refresh }).then((result) => {
       if (result) {
         eventTarget.dispatchEvent(new CustomEvent('aio:nativeScreenerReady', { detail: result }));
@@ -803,7 +828,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental']), syncEntityOnDemand, { withScope: true }));
     const stopPortfolioShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['portfolio']), syncPortfolio.sync));
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
-    const stopScreenerRefresh = compatibilityEvents.on('aio:refresh:done', syncScreenerData);
+    const stopScreenerRefresh = compatibilityEvents.on('aio:refresh:done', (event) => {
+      const forced = event?.detail?.forceRefresh === true;
+      const held = !!store.getState()?.screener?.rows?.length;
+      const due = screenerArtifactReadAt == null || clock.now() - screenerArtifactReadAt >= SCREENER_ARTIFACT_RECHECK_MS;
+      return syncScreenerData({ refresh: forced || !held || due });
+    });
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
       if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false });
     });
@@ -901,6 +931,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // W00-B: the initial route commits through the same typed boundary. router.start()
     // first so observers of aio:navigationCommitted see the very first commit.
     const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
+    installScreenShortcuts({ root, documentRef }); // v57.54: ? help rows and 1..8 keys from ROUTE_HUBS
     root.aioOpenMarketChart = (symbol) => openMarketChart(root, symbol); // P1430: 오늘 index cards → that index's chart
     const initialRoute = resolveInitialRoute({ root });
     router.start();

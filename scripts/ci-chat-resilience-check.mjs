@@ -31,11 +31,11 @@ const unifiedRun=root._aioBeginChatRequest('home','unified',{entrypoint:'unified
 assert.equal(unifiedRun.entrypoint,'unified-chat'); assert(states.home.streaming && states.home._activeRequest===unifiedRun);
 documentListeners['aio:pageShown']({detail:'technical'});
 assert(unifiedRun.controller.signal.aborted && !root._aioIsCurrentChatRequest('home', unifiedRun));
-root._aiCtxMap={'kr-technical':'kr-tech','kr-tech':'kr-tech'};
-const aliasRun=root._aioBeginChatRequest('kr-tech','alias',{entrypoint:'unified-chat',routeId:'kr-tech',buttonId:'ai-panel-btn',loadingId:'ai-panel-loading',streamingId:'ai-panel-streaming'});
-documentListeners['aio:pageShown']({detail:'kr-technical'});
-assert(!aliasRun.controller.signal.aborted && root._aioIsCurrentChatRequest('kr-tech', aliasRun));
-root._aioCancelChatRequest('kr-tech','route-test');
+root._aiCtxMap={'trend':'themes','themes':'themes'}; // a legacy route alias (kr-themes retired v57.54)
+const aliasRun=root._aioBeginChatRequest('themes','alias',{entrypoint:'unified-chat',routeId:'themes',buttonId:'ai-panel-btn',loadingId:'ai-panel-loading',streamingId:'ai-panel-streaming'});
+documentListeners['aio:pageShown']({detail:'trend'});
+assert(!aliasRun.controller.signal.aborted && root._aioIsCurrentChatRequest('themes', aliasRun));
+root._aioCancelChatRequest('themes','route-test');
 let timedOutSignal;
 await assert.rejects(root._aioRunChatTask(signal => { timedOutSignal = signal; return new Promise(()=>{}); },{timeoutMs:5}),{code:'RESEARCH_TIMEOUT'});
 assert(timedOutSignal && timedOutSignal.aborted);
@@ -75,7 +75,8 @@ resolveLoad({ok:true,json:async()=>({articles:[]})}); assert.equal((await b).aud
 for(const marker of ['var _pageOnChunk = function(fullText) {','var _pageOnDone = function(fullText, completion) {','var _pageOnError = function(errMsg) {']) {
   assert(source.slice(source.indexOf(marker),source.indexOf(marker)+150).includes('if (!_isCurrentChatRun()) return;'));
 }
-assert(source.includes("_aioCancelChatRequest(ctxId, 'history-cleared')"));
+// P1740: the uncalled per-page chatClear (no .acp-clear button exists) was removed; any clear entry point must cancel first.
+assert(!/function chatClear\(/.test(source) || source.includes("_aioCancelChatRequest(ctxId, 'history-cleared')"));
 vm.runInContext(section('window._aioChatFreshnessInfo = function()', 'async function chatSend('), root);
 root._liveData={AAA:{price:100,observedAt:new Date(Date.now()-60000).toISOString()}};
 assert(!root._aioChatFreshnessInfo().liveStatus.includes('인용 자체 금지'));
@@ -114,7 +115,21 @@ const tickerChat=section('async function _fetchTickerDataForChat(', 'function _d
 assert(tickerChat.includes('signal: opts.signal || null') && tickerChat.includes('_aioThrowIfChatAborted(opts.signal)'));
 assert(!source.includes('function _aioChatAbortPromise('));
 assert(source.includes('function _aioCanonicalSuppliedMaterialsContext(') && source.includes('var canonicalRegistry = window.AIO && window.AIO.SUPPLIED_MATERIALS_REFERENCE;'));
-assert(source.includes("'kr-tech': 'technical'") && source.includes("'kr-macro': 'macro'"));
+assert(source.includes("'kr-market': 'macro'") && !source.includes("'kr-tech'") && !source.includes("'kr-themes':") && !/'kr-macro':\s*(?:'|_aio)/.test(source)); // P1758/v57.54: kr-tech, kr-themes, kr-macro retired
 assert(source.includes('function _aioWrapChatExternalContext(') && source.includes("_aioWrapChatExternalContext('TECHNICAL_ENRICHMENT'"));
 assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wrapUnifiedExternal('DEEP_COMPARISON'"));
+// P1756: the first attempt keeps automatic web search; a retry after a timeout/5xx repeats the request without it (each
+// searched attempt is billed and reserves search budget), says so in its status line, and every attempt resets the
+// citation collector so a failed searched attempt's sources are never bound to the retry's answer.
+{
+  const pageRetry = section('var _pageOnError = function(errMsg) {', 'state.streaming = false;');
+  const uniRetry = section('var _uniOnError = function(errMsg) {', "var loadEl = document.getElementById('ai-panel-loading');");
+  assert(/webSearch: false, signal: _chatSignal, requestId: _pageRequestId/.test(pageRetry) && !/webSearch: _useClaudeWebSearch/.test(pageRetry), 'P1756 per-page retry runs without web search');
+  assert(/modelKey: nextModel, webSearch: false, signal: _uniSignal/.test(uniRetry), 'P1756 unified-panel retry runs without web search');
+  assert(pageRetry.includes("' · 웹 검색 없이'") && uniRetry.includes("' · 웹 검색 없이'"), 'P1756 retry status says search is off');
+  assert(/promptWithoutWebSearch \|\| String\)\(systemPrompt\)/.test(pageRetry) && /promptWithoutWebSearch \|\| String\)\(sysPrompt\)/.test(uniRetry), 'v57.54 a retry without search also tells the model it did not search (prompt line swapped)');
+  assert(/webSearch: _useClaudeWebSearch, signal: _chatSignal, requestId: _pageRequestId \}/.test(source) && /modelOpts\.webSearch = true;/.test(source), 'P1756 first attempts keep automatic web search');
+  const stream = section('async function callClaude(', 'function _pushWebCite(');
+  assert(/\n\s*if \(_streamState\) \{[^\n]*\n\s*_streamState\.citations\.length = 0;/.test(stream), 'P1756 each attempt resets its citation collector');
+}
 console.log('Chat resilience PASS: shared cancellation/epochs across unified+per-page, retry, route/quota fail-closed, modal liveness, empty+timeout search fallback, evidence objects, source spoofing, safe links, deduplication and shared knowledge retry/cancellation (offline).');

@@ -15,7 +15,7 @@ const DEFENSIVE = new Set(['XLV', 'XLP', 'XLU']);
 
 const join = (items) => items.filter(Boolean).join(' · ');
 const likelihoodOf = (met, total, confirmed) => confirmed ? '높음' : met / total >= 0.5 ? '중간' : '낮음'; // internal ordering key only
-export const fitLabel = (met, total) => `현재 조건 부합 ${met}/${total}`;
+export const fitLabel = (met, total) => `조건 부합 ${met}/${total}`; // P1745: one notation with the branches
 
 /**
  * @param {object} input
@@ -32,13 +32,14 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   // credit axis — e.g. HY +45bp over 20 sessions — is not stable, and the unmet note says whether it is widening.
   const creditAxis = (regime.axes || []).find((axis) => axis.id === 'credit');
   const creditStable = state.credit === 'favorable';
-  const creditNote = creditStable || state.credit === 'burden' ? null : state.credit === 'unknown' || !state.credit ? '확인 불가' : creditAxis?.widening ? '확대 중' : '경계선';
+  const creditNote = creditStable || state.credit === 'burden' ? null : state.credit === 'unknown' || !state.credit ? '확인 불가' : creditAxis?.widening ? '확대 중' : '신용 축 중립';
   const leading = sectors.filter((row) => row.quadrant === 'Leading').map((row) => row.label);
   const improving = sectors.filter((row) => row.quadrant === 'Improving').map((row) => row.label);
   const defensiveHolding = sectors.filter((row) => DEFENSIVE.has(row.symbol) && (row.quadrant === 'Leading' || row.quadrant === 'Improving' || row.quadrant === 'Weakening')).map((row) => row.label);
   const topThemeRows = themes.slice(0, 3);
   const topThemes = topThemeRows.map((row) => row.name);
-  const sectorNote = sectors.length ? '' : ' (섹터 회전 자료가 현재 세션 기준으로 없어 섹터 이름은 표시하지 않습니다)';
+  // v57.54 audit (9): the missing-rotation reason was developer copy on the reader's face; the sentence just points to 테마.
+  const sectorNote = '';
   const checks = {
     expansion: [['추세 우호', state.trend === 'favorable'], [`시장 폭 우호(50·200일선 위 ${RULES.breadth.broadAtLeast}% 이상)`, state.breadth === 'favorable'], ['신용 안정', creditStable, creditNote], ['변동성 안정', calm('volatility')]],
     concentration: [['추세 우호', state.trend === 'favorable'], [`시장 폭 부담(${RULES.breadth.weakBelow}% 미만)`, state.breadth === 'burden'], ['신용 안정', creditStable, creditNote], ['변동성 안정', calm('volatility')]],
@@ -96,5 +97,6 @@ export function renderScenarioOutlookContext(outlook) {
   if (!outlook?.available) return '';
   return `${outlook.asOf} 완료 종가 기준 시나리오별 현재 조건 부합 수(규칙 충족 수이며 확률이나 가능성 등급이 아님). ${outlook.headline}\n`
     + outlook.items.map((item) => `${item.title}: ${item.fit} (${item.basis}). 읽기: ${item.posture} 관련 섹터·테마: ${item.opportunity} 확인: ${item.check.join('; ')} 조심: ${item.caution.join(' ')} 넘겨도 됨: ${item.ignore.join('; ')}`).join('\n')
-    + '\n매매 지시(가격·수량·시점)와 비중·현금·시점 권유는 하지 않고, 확인할 것과 반증 조건으로만 설명할 것.';
+    // P1742 (owner 2026-10-13, supersedes T06): choices and opportunity cost come from the 갈림길 block; only instructions stay out.
+    + '\n가격·수량·시점·특정 종목 매매 지시는 하지 않는다. 선택지별 기회비용과 상대적으로 유리한 쪽은 【앞으로의 갈림길】 근거로만 말할 것.';
 }

@@ -19,6 +19,19 @@ function el(doc, tag, text, className) {
   return node;
 }
 
+// v57.54: the chart library is loaded on demand by the shell (window._aioEnsureChartLibrary). The first visit to 차트
+// could read window.LightweightCharts before that load finished and print the failure text. Wait for it here, bounded,
+// and report the failure only after the wait itself fails.
+export async function ensureChartLibrary(root, timeoutMs = 8000) {
+  if (root?.LightweightCharts?.createChart) return root.LightweightCharts;
+  if (typeof root?._aioEnsureChartLibrary !== 'function') return null;
+  let timer = null;
+  const timeout = new Promise((resolve) => { timer = setTimeout(() => resolve(null), timeoutMs); });
+  await Promise.race([Promise.resolve().then(() => root._aioEnsureChartLibrary('lwc')).catch(() => null), timeout]);
+  clearTimeout(timer);
+  return root.LightweightCharts?.createChart ? root.LightweightCharts : null;
+}
+
 function cssVar(root, name, fallback) {
   try { return root.getComputedStyle(root.document.body).getPropertyValue(name).trim() || fallback; } catch (_) { return fallback; }
 }
@@ -103,6 +116,21 @@ function drawChart(root, host, analysis, previous) {
   } };
 }
 
+// 2026-10-14 audit #6: with no bars there is nothing for the legend (8일 EMA …) or the setup chip to describe. The
+// empty canvas column and those two hide, and the empty-state card spans the whole width; data restores them.
+function setChartEmpty(doc, empty) {
+  const section = doc.getElementById('stock-chart-section');
+  const layout = section?.querySelector('.stock-chart-layout');
+  const canvasColumn = doc.getElementById('stock-chart-canvas')?.parentElement;
+  if (layout) layout.style.gridTemplateColumns = empty ? 'minmax(0, 1fr)' : '';
+  if (canvasColumn && canvasColumn !== layout) canvasColumn.style.display = empty ? 'none' : '';
+  const legend = section?.querySelector('.stock-chart-legend');
+  if (legend) legend.style.display = empty ? 'none' : '';
+  const badge = doc.getElementById('stock-chart-state');
+  if (badge) badge.style.display = empty ? 'none' : '';
+  section?.toggleAttribute?.('data-chart-empty', empty);
+}
+
 export async function renderStockChart({ documentRef: doc, root, symbol, interval = null }) {
   const host = doc.getElementById('stock-chart-canvas');
   const panel = doc.getElementById('stock-chart-evidence');
@@ -136,6 +164,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const ticket = (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1);
   root.__aioStockChartAnalysis = null;
   const pending = Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, '2y', '1d')).catch(() => null);
+  const library = ensureChartLibrary(root);
   let slowTimer = null;
   const slow = new Promise((resolve) => { slowTimer = setTimeout(() => resolve('__slow__'), 4000); });
   const first = await Promise.race([pending, slow]);
@@ -143,6 +172,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (ticket !== root.__aioStockChartTicket) return null;
   if (first === '__slow__') {
     set('stock-chart-status', `${sym} 시세 응답이 늦어 계속 시도 중입니다`);
+    if (!root.__aioStockChartInstance) setChartEmpty(doc, true);
     panel.replaceChildren(emptyState(doc, { title: `${sym} 시세를 아직 받아오지 못했습니다`, reason: '시세 제공처나 중계 서버 응답이 늦어지고 있습니다.', next: '응답이 오면 차트가 나타납니다 — 기다리거나 다시 시도하세요.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) } }));
   }
   const payload = await pending;
@@ -167,13 +197,17 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     if (staleBadge) { staleBadge.textContent = ''; staleBadge.className = 'regime-state is-unknown'; }
     if (root.__aioStockChartInstance?.chart) { try { root.__aioStockChartInstance.chart.remove(); } catch (_) {} }
     root.__aioStockChartInstance = null;
+    setChartEmpty(doc, true);
     return null;
   }
+  setChartEmpty(doc, false);
   const change = analysis.prev ? (analysis.last.close / analysis.prev.close - 1) * 100 : null;
   root.__aioStockChartAnalysis = { symbol: sym, analysis };
   set('stock-chart-status', `${analysis.asOf} 종가 ${formatScreenerPrice(analysis.last.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%)${droppedLive ? ' · 장중인 오늘 봉은 분석에서 제외' : ''}`);
   const badge = doc.getElementById('stock-chart-state');
   if (badge) { badge.textContent = analysis.stateLabel; badge.className = `regime-state is-${STATE_TONE[analysis.state] || 'neutral'}`; }
+  await library;
+  if (ticket !== root.__aioStockChartTicket) return null;
   root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance);
   const regime = buildMarketRegime(collectMarketInputs(root));
   // P1435: reading first (state → why → market → flip), two pictures (Weinstein stage, trend template),
@@ -318,7 +352,9 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   set('stock-chart-status', '불러오는 중…');
   root.__aioStockChartAnalysis = null;
   panel.replaceChildren(emptyState(doc, { title: `${sym} ${spec.label}봉을 불러오는 중입니다`, reason: '시세 제공처에서 봉 데이터를 받아오는 중입니다.', compact: true }));
+  const library = ensureChartLibrary(root);
   const payload = await Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, spec.range, spec.interval)).catch(() => null);
+  await library;
   if (ticket !== root.__aioStockChartTicket) return null;
   const bars = intervalBars(payload, spec);
   if (root.__aioStockChartInstance?.chart) { try { root.__aioStockChartInstance.chart.remove(); } catch (_) {} }
@@ -330,8 +366,10 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   if (bars.length < 2) {
     set('stock-chart-status', '');
     panel.replaceChildren(emptyState(doc, { title: `${sym} ${spec.label}봉을 받아오지 못했습니다`, reason: payload == null ? '시세 제공처나 중계 서버가 응답하지 않았습니다.' : '이 주기의 봉 데이터가 없습니다.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym, interval: spec.id }) } }));
+    setChartEmpty(doc, true);
     return null;
   }
+  setChartEmpty(doc, false);
   const LWC = root.LightweightCharts;
   if (!LWC?.createChart) { host.append(el(doc, 'div', '차트 라이브러리를 불러오지 못했습니다.', 'briefing-empty')); return null; }
   const text = cssVar(root, '--text-secondary', '#57513f');

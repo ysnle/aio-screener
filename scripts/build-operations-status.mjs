@@ -7,6 +7,7 @@ import { describeDomainReceipt } from './lib/domain-receipt.mjs';
 export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.json', import.meta.url);
 const ROUTE_OWNERS_PATH = new URL('../architecture/route-owners.json', import.meta.url);
 const SEC_FUNDAMENTALS_PATH = new URL('../public-data/sec-fundamentals.json', import.meta.url);
+const SEC_FUNDAMENTALS_SUMMARY_PATH = new URL('../public-data/sec-fundamentals-summary.json', import.meta.url);
 const WORKER_ENDPOINTS_PATH = new URL('../architecture/worker-endpoints.json', import.meta.url);
 const PUBLIC_READINESS_PATH = new URL('../architecture/public-readiness.json', import.meta.url);
 const PUBLIC_CONFIG_PATH = new URL('../public-config.json', import.meta.url);
@@ -441,6 +442,11 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   let sec = secFundamentals;
   if (!sec) {
     try { sec = JSON.parse(await readFile(SEC_FUNDAMENTALS_PATH, 'utf8')); } catch (_) { sec = null; }
+  }
+  if (!sec) {
+    // P1757: the full ledger is producer-only (data-store branch) and absent from the refresh-data checkout; the
+    // published projection carries the same eligible/stored counters, so coverage never falls back to a guess.
+    try { sec = JSON.parse(await readFile(SEC_FUNDAMENTALS_SUMMARY_PATH, 'utf8')); } catch (_) { sec = null; }
   }
   const secCoverage = deriveSecCoverage(sec, data?.meta?.fundamentalCoveragePct);
   const ownership = deriveRouteOwnership(routeOwners);

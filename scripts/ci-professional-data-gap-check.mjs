@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CRITICAL_DATA_GAP_REGISTRY } from '../src/data/contracts/source-registry.js';
 import { selectSecFundamentalsAsOf } from '../src/domain/fundamental/sec-report.js';
+import { readSecLedger, secLedgerSkipNote } from './lib/sec-ledger.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -25,11 +26,16 @@ const expectedBlocked = [
 ];
 for (const id of expectedBlocked) if (byId.get(id)?.status !== 'BLOCKED') fail(`${id} must remain blocked until external rights/data are configured`);
 
-const sec = json('public-data/sec-fundamentals.json');
+// P1757: the full ledger is producer-only (data-store branch). Without it the published projection, which keeps each
+// row's pit.schemaVersion/observationCount, still proves PIT coverage; only the ledger's own counter cross-check skips.
+const ledger = readSecLedger();
+const sec = ledger.present ? ledger.data : json('public-data/sec-fundamentals-summary.json');
 const secRows = Object.values(sec.data || {});
 const pitRows = secRows.filter((row) => row?.pit?.schemaVersion === 'sec-pit-facts.v1' && row.pit.observationCount > 0);
 if (byId.get('point-in-time-fundamentals')?.status !== 'PARTIAL') fail('PIT fundamentals must be partial, not complete or blocked');
-if (!pitRows.length || sec.pointInTimeCoverage !== pitRows.length) fail('SEC PIT artifact coverage is missing or inconsistent');
+if (!pitRows.length) fail('SEC PIT artifact coverage is missing');
+if (ledger.present && sec.pointInTimeCoverage !== pitRows.length) fail('SEC PIT artifact coverage is inconsistent with the ledger counter');
+if (!ledger.present) console.log(secLedgerSkipNote('professional-data-gap', 'ledger pointInTimeCoverage counter cross-check (PIT rows counted from the projection)'));
 if (!/SEC_SUBMISSIONS_BASE/.test(read('scripts/fetch-sec-fundamentals.mjs')) || !/acceptanceDateTime/.test(read('scripts/fetch-sec-fundamentals.mjs'))) fail('SEC submissions acceptance-time adapter missing');
 
 const pitFixture = {
@@ -69,6 +75,7 @@ console.log(JSON.stringify({
   partial: CRITICAL_DATA_GAP_REGISTRY.filter((gap) => gap.status === 'PARTIAL').map((gap) => gap.id),
   blocked: expectedBlocked,
   secPitRows: pitRows.length,
+  secLedger: ledger.present ? 'present' : 'P1757-projection-fallback',
   secPitAcceptedRows: secRows.filter((row) => row?.pit?.acceptedTimeCount > 0).length,
   institutionalManagers: masters.reconciledManagers,
   institutionalHistoryPeriods: history.totalPeriods,

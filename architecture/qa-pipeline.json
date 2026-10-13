@@ -38,7 +38,8 @@
   "workflowContracts": [
     {
       "workflow": ".github/workflows/refresh-data.yml",
-      "mode": "direct",
+      "mode": "group",
+      "group": "data",
       "requiredScripts": [
         "scripts/ci-source-registry-contract-check.mjs",
         "scripts/ci-professional-data-gap-check.mjs",
@@ -213,6 +214,7 @@
         {
           "id": "version",
           "script": "scripts/ci-version-check.mjs",
+          "remedy": "node scripts/bump-version.mjs <version>",
           "inputs": [
             "version.json",
             "index.html",
@@ -307,6 +309,7 @@
         {
           "id": "generated-state",
           "script": "scripts/generate-workspace-state.mjs",
+          "remedy": "node scripts/generate-workspace-state.mjs --write",
           "args": [
             "--check"
           ],
@@ -380,7 +383,8 @@
         },
         {
           "id": "decomposition",
-          "script": "scripts/ci-decomp-hotspot-check.mjs"
+          "script": "scripts/ci-decomp-hotspot-check.mjs",
+          "remedy": "shrink: node scripts/ci-decomp-hotspot-check.mjs --write; growth needs --allow-growth + justification"
         },
         {
           "id": "baseline",
@@ -412,7 +416,15 @@
         },
         {
           "id": "service-worker-cache-policy",
-          "script": "scripts/ci-service-worker-cache-policy-check.mjs"
+          "script": "scripts/ci-service-worker-cache-policy-check.mjs",
+          "inputs": [
+            "sw.js",
+            "index.html",
+            "js/**",
+            "src/**",
+            "public-data/**",
+            ".github/workflows/pages-deploy.yml"
+          ]
         },
         {
           "id": "ai-intelligence",
@@ -641,10 +653,6 @@
             ".github/workflows/knowledge-lint.yml",
             "public-data/telegram-digest.json",
             "public-data/telegram-observed.json",
-            "_context/RULES.md",
-            "_context/QA-CHECKLIST.md",
-            "_context/BUG-POSTMORTEM.md",
-            "CHANGELOG.md",
             "public-data/screener.json",
             "public-data/score-backtest-longrun.json",
             "public-data/factor-backtest-longrun.json"
@@ -686,10 +694,10 @@
             ".github/workflows/refresh-screener.yml",
             ".github/workflows/data-watchdog.yml",
             ".github/workflows/ci.yml",
-            "_context/QA-CHECKLIST.md",
-            "_context/RULES.md",
-            "_context/BUG-POSTMORTEM.md",
+            ".github/workflows/pages-deploy.yml",
+            ".gitignore",
             "public-data/sec-fundamentals.json",
+            "public-data/sec-fundamentals-summary.json",
             "public-data/screener-universe.json",
             "public-data/screener.json"
           ]
@@ -721,11 +729,7 @@
             "public-artifact-manifest.json",
             "architecture/**",
             "scripts/**",
-            "_headers",
-            "_context/RULES.md",
-            "_context/QA-CHECKLIST.md",
-            "_context/BUG-POSTMORTEM.md",
-            "CHANGELOG.md"
+            "_headers"
           ]
         },
         {
@@ -771,6 +775,11 @@
         {
           "id": "regime-scenarios-fixture",
           "script": "scripts/ci-regime-scenarios-fixture.mjs"
+        },
+        {
+          "id": "ui-vocabulary",
+          "script": "scripts/ci-ui-vocabulary-check.mjs",
+          "remedy": "v57.54: use the preferred term from architecture/ui-vocabulary.json; after fixes run node scripts/ci-ui-vocabulary-check.mjs --prune-baseline"
         }
       ]
     },
@@ -965,6 +974,8 @@
         {
           "id": "data-lineage",
           "script": "scripts/ci-data-lineage-audit.mjs",
+          "cache": false,
+          "remedy": "Freshness SLA is wall-clock (R634 strict). If only data age failed: git pull (bot refreshes hourly) or run the data-refresh skill — not a code defect.",
           "inputs": [
             "public-data/**",
             "architecture/**",
@@ -1046,6 +1057,7 @@
         {
           "id": "static-db-expiry",
           "script": "scripts/ci-static-db-expiry-check.mjs",
+          "cache": false,
           "inputs": [
             "js/aio-core.js",
             "js/aio-data.js",
@@ -1081,6 +1093,8 @@
         {
           "id": "data-refresh",
           "script": "scripts/ci-data-refresh-audit.mjs",
+          "cache": false,
+          "remedy": "Freshness SLA is wall-clock (R634 strict). If only data age failed: git pull (bot refreshes hourly) or run the data-refresh skill — not a code defect.",
           "inputs": [
             "public-data/**",
             "architecture/**",
@@ -1411,9 +1425,9 @@
             "architecture/agent-profiles.json",
             "architecture/skill-eval-cases.json",
             "architecture/qa-pipeline.json",
+            "architecture/governance-markers.json",
             "scripts/**",
-            "version.json",
-            "CHANGELOG.md"
+            "version.json"
           ]
         },
         {
@@ -1478,8 +1492,23 @@
           "script": "scripts/ci-record-fix-check.mjs"
         },
         {
+          "id": "generated-conflict-fixture",
+          "script": "scripts/ci-generated-conflict-fixture.mjs",
+          "inputs": [
+            "scripts/ci-generated-conflict-fixture.mjs",
+            "scripts/resolve-generated-conflicts.mjs",
+            "scripts/resolve-data-manifest-merge.mjs"
+          ]
+        },
+        {
           "id": "assertion-trace",
-          "script": "scripts/ci-assertion-trace-check.mjs"
+          "script": "scripts/ci-assertion-trace-check.mjs",
+          "inputs": [
+            "scripts/**",
+            "js/aio-tests.js",
+            "_context/**",
+            "CHANGELOG.md"
+          ]
         },
         {
           "id": "qa-pipeline-contract",
@@ -1906,6 +1935,12 @@
           "id": "browser-a11y",
           "script": "scripts/ci-accessibility-matrix-check.mjs",
           "timeoutMs": 300000
+        },
+        {
+          "id": "browser-ui-render-hygiene",
+          "script": "scripts/ci-ui-render-hygiene-check.mjs",
+          "timeoutMs": 300000,
+          "remedy": "v57.54: give the target 24x24 CSS px (or a name to the empty heading/summary); after fixes run node scripts/ci-ui-render-hygiene-check.mjs --prune-baseline"
         }
       ]
     },
@@ -2149,7 +2184,8 @@
         "_context/**",
         "architecture/qa-pipeline.json",
         "architecture/agent-profiles.json",
-        "architecture/skill-eval-cases.json"
+        "architecture/skill-eval-cases.json",
+        "architecture/governance-markers.json"
       ],
       "groups": [
         "workspace"
@@ -2158,6 +2194,15 @@
     {
       "patterns": [
         "scripts/ci-operator-secrets-contract-check.mjs"
+      ],
+      "groups": [
+        "workspace"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/resolve-generated-conflicts.mjs",
+        "scripts/resolve-data-manifest-merge.mjs"
       ],
       "groups": [
         "workspace"
@@ -2191,7 +2236,8 @@
       "patterns": [
         ".github/workflows/refresh-data.yml",
         ".github/workflows/refresh-screener.yml",
-        ".github/workflows/macro-calendar-review.yml"
+        ".github/workflows/macro-calendar-review.yml",
+        ".gitignore"
       ],
       "groups": [
         "core",
@@ -2652,46 +2698,12 @@
     },
     {
       "patterns": [
-        "_context/RULES.md"
+        "CHANGELOG.md",
+        "js/aio-tests.js"
       ],
       "groups": [],
       "gates": [
-        "runtime",
-        "data-pipeline",
-        "semantic-review"
-      ]
-    },
-    {
-      "patterns": [
-        "_context/QA-CHECKLIST.md"
-      ],
-      "groups": [],
-      "gates": [
-        "runtime",
-        "data-pipeline",
-        "semantic-review"
-      ]
-    },
-    {
-      "patterns": [
-        "_context/BUG-POSTMORTEM.md"
-      ],
-      "groups": [],
-      "gates": [
-        "runtime",
-        "data-pipeline",
-        "semantic-review"
-      ]
-    },
-    {
-      "patterns": [
-        "CHANGELOG.md"
-      ],
-      "groups": [],
-      "gates": [
-        "runtime",
-        "semantic-review",
-        "workflow-compaction"
+        "assertion-trace"
       ]
     },
     {

@@ -75,6 +75,8 @@ const STYLE = `
 .rl-shelf-toggle{margin-left:auto;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border-subtle)}
 .rl-shelf-tools{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 18px;margin:0 0 6px}
 .rl-shelf-chips{display:flex;flex-wrap:wrap;gap:6px}
+.rl-shelf-legend{margin:0 0 2px;font-size:12px;color:var(--text-muted)}
+.rl-shelf-legend[hidden]{display:none}
 .rl-shelf-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border-subtle);border-radius:999px;background:var(--bg-card,#fbf9f5);padding:5px 12px 5px 10px;font:inherit;font-size:12.5px;color:var(--text-secondary);cursor:pointer;min-height:30px;transition:border-color .15s ease,background-color .15s ease}
 .rl-shelf-chip i{width:9px;height:9px;border-radius:2px;background:var(--chip-tone,var(--text-muted));flex:none}
 .rl-shelf-chip span{font-size:11.5px;color:var(--text-muted);font-variant-numeric:tabular-nums}
@@ -274,8 +276,12 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   // one-line summary — on a phone it otherwise pushed the chosen document several screens down.
   // P1681: the graph view (mode=graph&node=…) is browsing, not reading — it keeps the shelf.
   const locationQuery = String(root?.location?.search || '');
+  // 2026-10-14 audit: on a phone the shelf starts folded unless the reader opened it before. A bare mode=frames is not
+  // a chosen document (mount rewrites a fresh #principles to it), so the shelf stays the way in there.
   const documentOpen = /[?&](?:node|chapter|lesson|domain|manager)=/.test(locationQuery) && !/[?&]mode=graph(?:&|$)/.test(locationQuery);
-  shelf.open = documentOpen ? false : shelfPref ? shelfPref === 'open' : true;
+  let narrowView = false;
+  try { narrowView = Boolean(root?.matchMedia?.('(max-width: 720px)')?.matches); } catch (_) { narrowView = false; }
+  shelf.open = documentOpen ? false : shelfPref ? shelfPref === 'open' : !narrowView;
   shelf.addEventListener('toggle', () => { if (!documentOpen) prefs.set('research_shelf', shelf.open ? 'open' : 'closed'); });
   const shelfTitle = el(doc, 'summary', null, '서가 · 컬렉션 불러오는 중');
   const shelfBody = el(doc, 'div', 'rl-shelf-body');
@@ -478,6 +484,9 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   const sorts = el(doc, 'div', 'rl-shelf-sort');
   sorts.setAttribute('role', 'group');
   sorts.setAttribute('aria-label', '정렬');
+  // 2026-10-14 audit: the spine shade is the topic group inside a collection; say so once next to the chips.
+  // Shades repeat across distant groups, so the line names neighbouring spines and shows only in topic order.
+  const legend = el(doc, 'p', 'rl-shelf-legend', '같은 색 묶음 = 같은 주제');
   tools.append(chips, sorts);
   const stage = el(doc, 'div', 'rl-shelf-stage');
   stage.setAttribute('role', 'group');
@@ -488,7 +497,7 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   const book = el(doc, 'section', 'rl-book');
   book.hidden = true;
   book.setAttribute('aria-live', 'polite');
-  shelfBody.replaceChildren(tools, stage, book);
+  shelfBody.replaceChildren(tools, legend, stage, book);
 
   const stat = (value, unit) => { const span = el(doc, 'span'); span.append(el(doc, 'b', null, String(value)), doc.createTextNode(unit)); return span; };
   const updateTitle = () => {
@@ -531,7 +540,7 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   };
   const spines = () => [...stage.querySelectorAll('.rl-spine')];
   const showTip = (spine, entry) => {
-    tip.replaceChildren(doc.createTextNode(entry.title), el(doc, 'small', null, [entry.surfaceLabel, entry.group, isRead(entry) ? '읽음' : null].filter(Boolean).join(' · ')));
+    tip.replaceChildren(doc.createTextNode(entry.title), el(doc, 'small', null, [entry.surfaceLabel, entry.group ? `주제 ${entry.group}` : null, isRead(entry) ? '읽음' : null].filter(Boolean).join(' · ')));
     tip.hidden = false;
     const s = spine.getBoundingClientRect();
     const box = stage.getBoundingClientRect();
@@ -593,7 +602,7 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
     title.appendChild(el(doc, 'span', null, shape.shown));
     spine.appendChild(title);
     if (isRead(entry)) { spine.classList.add('is-read'); spine.appendChild(el(doc, 'span', 'rl-spine-ribbon')); }
-    spine.setAttribute('aria-label', `${entry.title} — ${[entry.surfaceLabel, entry.group].filter(Boolean).join(' · ')}${isRead(entry) ? ' · 읽음' : ''}`);
+    spine.setAttribute('aria-label', `${entry.title} — ${[entry.surfaceLabel, entry.group ? `주제 ${entry.group}` : null].filter(Boolean).join(' · ')}${isRead(entry) ? ' · 읽음' : ''}`);
     spine.setAttribute('aria-current', selected?.id === entry.id ? 'true' : 'false');
     spine.tabIndex = -1;
     spine.addEventListener('click', () => openBook(entry));
@@ -609,6 +618,7 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   const drawShelf = () => {
     hideTip();
     const list = visible();
+    legend.hidden = sort !== 'topic';
     const width = Math.max(260, (stage.clientWidth || 880) - 24);
     packedWidth = stage.clientWidth;
     const tiers = [[]];

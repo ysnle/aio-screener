@@ -1746,7 +1746,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
           + '</div>';
 
     // 카드 렌더
-    cards.forEach(function(item) {
+    cards.forEach(function(item, cardIdx) {
       var it = item.it, info = item.info;
       var src = _TG_CH_SRC[it.channel] || (it.channel || '');
       var date = (it.localDateKst || '').slice(5, 10);
@@ -1758,7 +1758,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
             + '<span class="tg-card-src">' + src + ' · ' + date + '</span>'
             + '</div>'
             + '<div class="tg-card-headline">' + info.hlHeadline + '</div>'
-            + (showBody && info.body ? '<div class="tg-card-body">' + info.body + '</div>' : '')
+            + (showBody && info.body && (pageId !== 'market-news' || cardIdx < 3) ? '<div class="tg-card-body">' + info.body + '</div>' : '') // v57.54: the full feed opens 3 bodies, then headlines
             + (info.tickerHtml ? '<div class="tg-card-ft">' + info.tickerHtml + '</div>' : '')
             + '</a>'
             + '</div>';
@@ -2215,8 +2215,25 @@ async function _aioFetchYahooChartData(symbol, range, interval, requestOptions) 
     return null;
   }
 }
-window._aioFetchYahooChartData = _aioFetchYahooChartData;
-window._fetchYahooChartData = _aioFetchYahooChartData;
+// P1756: lightweight-charts loads on first chart use (index.html coordinateChartDependency). The 종목 차트
+// (src/ui/components/stock-chart.js) reads window.LightweightCharts right after this fetch resolves, so while that
+// screen is open the fetch also waits — in parallel, bounded — for the library instead of racing it.
+// A classic script's top-level function is itself a window property, so the producer is captured before
+// window._aioFetchYahooChartData is reassigned (otherwise the wrapper would call itself).
+var _aioFetchYahooChartDataDirect = _aioFetchYahooChartData;
+function _aioChartDataForScreen(symbol, range, interval, requestOptions) {
+  var data = _aioFetchYahooChartDataDirect(symbol, range, interval, requestOptions);
+  var screen = typeof document !== 'undefined' ? document.getElementById('page-technical') : null;
+  if (!screen || !screen.classList.contains('active') || typeof window.LightweightCharts !== 'undefined'
+    || typeof window._aioEnsureChartLibrary !== 'function') return data;
+  var library = Promise.race([
+    Promise.resolve(window._aioEnsureChartLibrary('lwc')).catch(function() { return null; }),
+    new Promise(function(resolve) { setTimeout(resolve, 8000); })
+  ]);
+  return Promise.all([data, library]).then(function(settled) { return settled[0]; });
+}
+window._fetchYahooChartData = _aioFetchYahooChartDataDirect;
+window._aioFetchYahooChartData = _aioChartDataForScreen;
 // 모듈 스코프에서도 typeof _fetchYahooChartData 가드가 통하도록 로컬 별칭 (aio-ui.js 등 비-window 참조 호환)
 var _fetchYahooChartData = window._fetchYahooChartData;
 
@@ -2366,6 +2383,29 @@ function _scrSignalLabel(sig) {
   return { BUY:'강세 구조', HOLD:'중립', WATCH:'관찰', SELL:'약세 구조' }[sig] || sig || '—';
 }
 try { window._scrSignalLabel = _scrSignalLabel; } catch(_) {}
+
+// P1756: the shared Worker relays only these upstream hosts (ALLOWED_DOMAINS in cloudflare-worker-proxy.js; exact host
+// or a subdomain of one). It answered 403 to every other host, so a 4-minute idle on 오늘 spent dozens of requests
+// on feeds it would never relay. scripts/ci-proxy-continuity-check.mjs fails if this copy drifts from the Worker's.
+const _AIO_SHARED_WORKER_HOSTS = [
+  'query1.finance.yahoo.com', 'query2.finance.yahoo.com', 'finance.yahoo.com',
+  'api.rss2json.com', 'rss2json.com',
+  'www.alphavantage.co', 'api.twelvedata.com', 'finnhub.io', 'api.stlouisfed.org', 'financialmodelingprep.com', 'newsdata.io',
+  'efts.sec.gov', 'data.sec.gov',
+  'stooq.com', 'www.stooq.com',
+  'rsshub.app', 'nitter.net', 't.me',
+  'm.stock.naver.com', 'api.stock.naver.com', 'polling.finance.naver.com', 'api.finance.naver.com', 'fchart.stock.naver.com',
+  'api.fear-and-greed.com', 'production.dataviz.cnn.io', 'api.alternative.me',
+  'api.coingecko.com',
+  'open.er-api.com', 'api.exchangerate-api.com',
+  'cdn.cboe.com',
+  'translate.googleapis.com', 'translate.google.com'
+];
+function _aioSharedWorkerRelays(url) {
+  var host;
+  try { host = new URL(url).hostname.toLowerCase(); } catch (_) { return false; }
+  return _AIO_SHARED_WORKER_HOSTS.some(function(d) { return host === d || host.slice(-(d.length + 1)) === '.' + d; });
+}
 
 const _PROXY_REGISTRY = {
   list: [],
@@ -2522,10 +2562,10 @@ async function _aioValidateProxyResponse(url, response, opts) {
     var requestUrl = new URL(url);
     var symbol = decodeURIComponent(requestUrl.pathname.split('/').pop()).toUpperCase();
     var result = json && json.chart && json.chart.result && json.chart.result[0];
-    var meta = result && result.meta;
-    if (!meta || String(meta.symbol || '').toUpperCase() !== symbol) throw new Error('chart symbol mismatch');
-    var interval = requestUrl.searchParams.get('interval');
-    if (interval && meta.dataGranularity && meta.dataGranularity !== interval) throw new Error('chart interval mismatch');
+    var meta = result && result.meta, interval = requestUrl.searchParams.get('interval');
+    // P1758: a well-formed answer for the wrong identity is the upstream's verdict, not a relay fault.
+    var mismatch = !meta || String(meta.symbol || '').toUpperCase() !== symbol ? 'chart symbol mismatch' : (interval && meta.dataGranularity && meta.dataGranularity !== interval ? 'chart interval mismatch' : '');
+    if (mismatch) throw Object.assign(new Error(mismatch), { aioUpstreamVerdict: true });
   }
   return { jsonReady: expectJson, json: json, body: expectJson ? JSON.stringify(json) : probe };
 }
@@ -2577,7 +2617,7 @@ async function _aioProxyDeliver(entry, opts, cacheState) {
   } });
   var validation = await _aioValidateProxyResponse(entry.url, response, opts);
   var payload = opts.parseJson ? validation.json : opts.parseText ? validation.body : new Response(validation.body, { status:200, headers:response.headers });
-  if (typeof opts.accept === 'function' && !await opts.accept(payload)) throw new Error('invalid-payload');
+  if (typeof opts.accept === 'function' && !await opts.accept(payload)) throw Object.assign(new Error('invalid-payload'), { aioUpstreamVerdict: validation.jsonReady });
   if (payload && typeof payload === 'object') Object.defineProperty(payload, '_aioTransport', { value:provenance, configurable:true });
   return payload;
 }
@@ -2593,6 +2633,9 @@ async function fetchViaProxy(url, timeout) {
   // may relay credential-bearing requests; the shared public Worker is rejected even
   // though _cfWorkerUrl() happily returns it for anonymous traffic.
   if (sensitive) active = active.filter(function(p) { return p.id === 'cf-worker' && p.userOwned === true; });
+  // P1756: the shared Worker refuses hosts outside its allowlist (403), so such a URL goes straight to the next relay.
+  // A Worker the user deployed may allow more, so it is still tried.
+  else if (!_aioSharedWorkerRelays(url)) active = active.filter(function(p) { return !(p.id === 'cf-worker' && p.userOwned !== true); });
   // Per-proxy timeouts are not enough when the registry falls back sequentially.
   // A shared deadline aborts the current attempt and prevents a 5× timeout hang.
   var deadlineCtrl = new AbortController();
@@ -2605,10 +2648,12 @@ async function fetchViaProxy(url, timeout) {
   var totalTimeout = Number(opts.totalTimeout || opts.deadline || 0);
   if (!isFinite(totalTimeout) || totalTimeout <= 0) totalTimeout = Math.max(timeout, Math.min(timeout * Math.max(1, active.length), 15000));
   var deadlineTimer = setTimeout(relayAbort, totalTimeout);
-  var errors = [];
+  var errors = [], upstreamVerdict = false;
   try {
     for (var i = 0; i < active.length; i++) {
-      if (deadlineCtrl.signal.aborted) break;
+      // P1758: once the Worker relayed a definitive upstream answer (missing symbol, unauthorized, wrong identity), a
+      // public relay would fetch the same answer — the chain stops; it continues only for relay faults (5xx/403/429/timeout).
+      if (deadlineCtrl.signal.aborted || upstreamVerdict) break;
       var proxy = active[i];
       if (!_PROXY_REGISTRY.claim(proxy, url)) continue;
       var attemptCtrl = new AbortController();
@@ -2621,8 +2666,9 @@ async function fetchViaProxy(url, timeout) {
           var retryHeader = r.headers.get('retry-after');
           var retryMs = /^\d+$/.test(retryHeader || '') ? Number(retryHeader) * 1000 : Date.parse(retryHeader || '') - Date.now();
           errors.push({ provider:proxy.id, status:r.status });
+          upstreamVerdict = proxy.tier === 0 && [400, 401, 404, 410, 422].indexOf(r.status) >= 0;
           // A missing ticker/endpoint is not proof the entire relay is broken.
-          if ([400, 404, 422].indexOf(r.status) === -1) _PROXY_REGISTRY.markFail(proxy.id, r.status, url, retryMs);
+          if ([400, 401, 404, 410, 422].indexOf(r.status) === -1) _PROXY_REGISTRY.markFail(proxy.id, r.status, url, retryMs);
           continue;
         }
         // The attempt timer stays alive while the body is read and validated.
@@ -2635,8 +2681,9 @@ async function fetchViaProxy(url, timeout) {
         if (!sensitive && opts.cache !== false) _aioProxyWriteCache(entry);
         return payload;
       } catch(e) {
-        if (!deadlineCtrl.signal.aborted) _PROXY_REGISTRY.markFail(proxy.id, e && e.aioProxyBlockedHtml ? 'html' : 'network-or-payload', url);
-        errors.push({ provider:proxy.id, reason:attemptCtrl.signal.aborted ? 'timeout' : 'network-or-payload' });
+        upstreamVerdict = proxy.tier === 0 && !attemptCtrl.signal.aborted && !!(e && e.aioUpstreamVerdict);
+        if (!deadlineCtrl.signal.aborted && !upstreamVerdict) _PROXY_REGISTRY.markFail(proxy.id, e && e.aioProxyBlockedHtml ? 'html' : 'network-or-payload', url);
+        errors.push({ provider:proxy.id, reason:attemptCtrl.signal.aborted ? 'timeout' : upstreamVerdict ? 'upstream-verdict' : 'network-or-payload' });
       } finally {
         clearTimeout(attemptTimer);
         deadlineCtrl.signal.removeEventListener('abort', attemptAbort);
@@ -2652,14 +2699,14 @@ async function fetchViaProxy(url, timeout) {
     callerAbort.name = 'AbortError';
     throw callerAbort;
   }
-  if (typeof _reportApiError === 'function') _reportApiError('proxy-primary', '전체 프록시 실패');
+  if (!upstreamVerdict && typeof _reportApiError === 'function') _reportApiError('proxy-primary', '전체 프록시 실패');
   // Cached research is opt-in. Legacy callers must not label an old response LIVE.
   if (!sensitive && opts.allowStale === true) {
     var cached = _aioProxyReadCache(url);
     if (cached) { try { return await _aioProxyDeliver(cached, opts, 'stale-cache'); } catch (_) {} }
   }
   var failure = new Error('시세/자료 연결 실패: 사용 가능한 중계 경로 없음');
-  failure.code = sensitive && !active.length ? 'PRIVATE_ROUTE_REQUIRED' : 'PROXY_UNAVAILABLE';
+  failure.code = upstreamVerdict ? 'UPSTREAM_REJECTED' : sensitive && !active.length ? 'PRIVATE_ROUTE_REQUIRED' : 'PROXY_UNAVAILABLE';
   // Distinguish the two reasons a credential-bearing URL has no route, so the UI
   // and logs stop implying "the shared Worker is broken" when it is simply not
   // trusted with personal keys.
@@ -3652,15 +3699,6 @@ function applyFredToUI(data) {
     }
   }
 
-  // v35.8: Put/Call Ratio → regime-pcr 동적 연결
-  if (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr) {
-    var pcrEl = document.getElementById('regime-pcr');
-    if (pcrEl) {
-      pcrEl.textContent = DATA_SNAPSHOT.pcr.toFixed(2);
-      pcrEl.style.color = DATA_SNAPSHOT.pcr > 1.2 ? '#ff5b50' : DATA_SNAPSHOT.pcr > 0.9 ? '#ffa31a' : '#00e5a0';
-    }
-  }
-
   // v31.9: FRED 데이터 신선도 요약 콘솔 로그
   const fredSummary = Object.entries(data).map(([id, d]) => {
     const src = d._source ? (d._source.startsWith('yahoo') ? 'Yahoo' : 'FRED') : 'FRED';
@@ -3772,19 +3810,6 @@ async function fetchFinnhubIpoCalendar(fromDate, toDate) {
   } catch(e) { _aioLog('warn', 'fetch', 'Finnhub IPO calendar error: ' + e.message); return []; }
 }
 
-// v48.56: Finnhub 경제 이벤트 캘린더 — 리스크 레이더 데이터 소스 (FOMC/CPI/GDP/PMI 등)
-async function fetchFinnhubEconomicCalendar(fromDate, toDate) {
-  const key = DATA_APIS.finnhub.key();
-  if (!key) return [];
-  try {
-    const url = `${DATA_APIS.finnhub.base}/calendar/economic?from=${fromDate}&to=${toDate}&token=${key}`;
-    const r = await fetchWithTimeout(url, {}, 7000);
-    if (!r.ok) return [];
-    const d = await r.json();
-    return d && Array.isArray(d.economicCalendar) ? d.economicCalendar : [];
-  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub economic calendar error: ' + e.message); return []; }
-}
-
 
 // ═══ 6b. NewsData.io — CORS 지원 뉴스 API (무료 200건/일) ═══════
 async function fetchNewsDataIO(category = 'business') {
@@ -3835,92 +3860,14 @@ async function fetchFinnhubNewsFormatted() {
   })).filter(i => i.title.length > 10);
 }
 
-// ═══ 7. 시장 폭 (Breadth) — Yahoo Finance 기반 동적 계산 ═══════
+// ═══ 7. 시장 폭 (Breadth) — 서버 산출물 소유 (클라이언트 수집 없음) ═══════
 async function fetchBreadthData() {
-  // The server artifact is the primary value-specific collector. Do not overwrite a verified
-  // universe breadth reading with top-movers/RSP proxy output during the same page session.
+  // The server artifact is the primary value-specific collector and the native breadth board owns
+  // the route. P1754: the client-side top-movers call that used to follow here was removed — its
+  // response was no longer rendered anywhere and it only spent the shared Alpha Vantage quota.
   if (window._aioScreenerBreadthState && window._aioScreenerBreadthState.status === 'verified_current') {
     return { updated:false, source:'screener-breadth-primary' };
   }
-  // B계층 갭: MMFI/MMTW/MMFD는 심볼 목록에만 존재하고 실 fetch 미구현.
-  //   이유: NYSE Advance/Decline 실측 API 없음 — Seeking Alpha/CBOE는 유료.
-  //   실제 동작: (1) Alpha Vantage TOP_GAINERS_LOSERS 비율 또는 (2) RSP/SPY 비율 프록시만 사용.
-  //   실측 %aboveMA 필요 시 CBOE 유료 API 또는 서버-사이드 계산 필요 (B계층 WO-1 참고).
-  // Use SPY component ETFs to approximate breadth
-  const breadthSymbols = [
-    { sym: 'RSP', name: 'Equal Weight S&P' },    // RSP vs SPY ratio = breadth proxy
-    { sym: 'MMFI', name: '50D% Index' },          // % above 50MA (목록만, 미fetch)
-    { sym: 'MMTW', name: '20D% Index' },          // % above 20MA (목록만, 미fetch)
-    { sym: 'MMFD', name: '200D% Index' },         // % above 200MA (목록만, 미fetch)
-  ];
-
-  // Also fetch advance/decline via ETFs
-  try {
-    // Method 1: Try Alpha Vantage market movers for breadth approximation
-    const avKey = DATA_APIS.alphaVantage.key();
-    // v48.9: AV 무료 25/day 쿼터 사전 체크
-    if (avKey && avKey !== 'demo' && !(typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('alphaVantage'))) {
-      const url = `${DATA_APIS.alphaVantage.base}?function=TOP_GAINERS_LOSERS&apikey=${avKey}`;
-      const r = await fetchWithTimeout(url, {}, 8000);
-      if (r.ok) {
-        if (typeof _bumpApiCounter === 'function') _bumpApiCounter('alphaVantage');
-        const data = await r.json();
-        if (data.top_gainers && data.top_losers) {
-          const gainers = data.top_gainers.length;
-          const losers = data.top_losers.length;
-          const advDecline = gainers / (gainers + losers);
-          // Update breadth display
-          updateBreadthUI({ advanceRatio: advDecline, gainers, losers, source: 'Alpha Vantage' });
-          return;
-        }
-      }
-    }
-
-    // Method 2: Fetch RSP/SPY ratio as breadth proxy
-    const rspData = window._liveData?.['RSP'];
-    const spyData = window._liveData?.['SPY'];
-    if (rspData && spyData) {
-      const ratio = rspData.price / spyData.price;
-      const rspChg = rspData.pct;
-      const spyChg = spyData.pct;
-      const breadthSignal = rspChg - spyChg; // positive = broad rally, negative = narrow
-      updateBreadthUI({
-        rspSpyRatio: ratio,
-        breadthSignal,
-        spyChg, rspChg,
-        source: 'RSP/SPY Ratio'
-      });
-    }
-  } catch(e) {
-    _aioLog('warn', 'breadth', 'Breadth data error: ' + (e && e.message || e));
-    showDataError('시장폭', '시장 폭 데이터 수신 실패 — 정적 데이터 사용 중', 'warn');
-  }
-}
-
-function updateBreadthUI(data) {
-  // Update breadth KPI cards
-  // v52.66: 하드코딩 네온 hex(#00e5a0 등, 구 다크테마 잔재 — P1/P2 스윕 누락)를 토큰으로,
-  // 영문 터미널 라벨(BROAD RALLY 등)을 한국어로 교체.
-  if (data.advanceRatio !== undefined) {
-    const pct = (data.advanceRatio * 100).toFixed(1);
-    const el = document.getElementById('breadth-advance-ratio');
-    if (el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) {
-      el.textContent = pct + '%';
-      el.style.color = data.advanceRatio > 0.5 ? 'var(--data-green)' : data.advanceRatio > 0.3 ? 'var(--data-amber)' : 'var(--data-red)';
-    }
-  }
-  if (data.breadthSignal !== undefined) {
-    const el = document.querySelector('[id="breadth-signal-val"]');
-    if (el && el.dataset.aioBreadthSignalRenderer !== 'native') {
-      const txt = data.breadthSignal > 0.5 ? '광범위 상승' : data.breadthSignal > -0.5 ? '중립' : '쏠림 장세';
-      el.textContent = txt;
-      el.style.color = data.breadthSignal > 0.5 ? 'var(--data-green)' : data.breadthSignal > -0.5 ? 'var(--data-amber)' : 'var(--data-red)';
-    }
-  }
-  // Update source badge
-  const srcEl = document.getElementById('breadth-source');
-  if (srcEl) srcEl.textContent = data.source || 'Live Data';
-  console.log('[AIO v20] Breadth updated:', data);
 }
 
 // ═══ 8. 센티먼트 차트 실시간 업데이트 ═══════════════════════
@@ -4040,17 +3987,6 @@ function _aioMarkSchedulerFetch(key, result) {
   };
   window._markFetch(map[key] || key);
 }
-
-function _aioCallOptionalGlobal(fnName, args) {
-  try {
-    var fn = window && window[fnName];
-    if (typeof fn === 'function') return fn.apply(window, args || []);
-    return { ok: false, skipped: true, updated: false, reason: fnName + ' unavailable on this bundle' };
-  } catch (e) {
-    return { ok: false, skipped: false, updated: false, reason: e && e.message || String(e) };
-  }
-}
-window._aioCallOptionalGlobal = _aioCallOptionalGlobal;
 
 window.AIO = window.AIO || {};
 window.AIO.getRefreshState = function() {
@@ -4468,7 +4404,7 @@ function restartScheduler() {
   });
 }
 
-// v30.11: Page Visibility API — 백그라운드 탭에서 스케줄러 일시정지
+// v30.11: Page Visibility API — 백그라운드 탭에서 스케줄러 일시정지 (P1756: dataStatus·serverDataReload 등 named interval은 aio-core 타이머 레지스트리가 멈춤/재개)
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     _schedulerPaused = true;
@@ -4477,7 +4413,6 @@ document.addEventListener('visibilitychange', () => {
       cfg._scheduleEpoch = (cfg._scheduleEpoch || 0) + 1;
       if (cfg.timer) { clearTimeout(cfg.timer); cfg.timer = null; }
     });
-    if (window._dataStatusInterval) { clearInterval(window._dataStatusInterval); window._dataStatusInterval = null; }
     console.log('[AIO] Tab hidden — scheduler paused');
   } else {
     _schedulerPaused = false;
@@ -4493,7 +4428,6 @@ document.addEventListener('visibilitychange', () => {
       try { setTimeout(function(){ window.AIO.runScheduledRefresh({ keys: resumeKeys, reason: 'visibility-resume', symbols: _aioGetComprehensiveSymbols() }).catch(function(){}); }, 0); } catch(e) {}
     }
     restartScheduler();
-    if (!window._dataStatusInterval) window._dataStatusInterval = _aioRegisterTimer('dataStatus', updateDataStatus, T.COOLDOWN); // v48.91
     _lastVisibleTime = Date.now();
     console.log('[AIO] Tab visible — scheduler resumed (elapsed ' + Math.round(elapsed/1000) + 's)');
   }
@@ -7088,7 +7022,7 @@ try {
 } catch(_) {}
 
 // v50.24/WO-4: 부팅 후에도 탭을 열어두면 data.json을 30분마다 재로드 (boot-only 갭 해소).
-// 배지 나이는 1분마다 재렌더(카운트업). 둘 다 _aioRegisterTimer로 등록(중복 방지·visibility pause 연계).
+// 배지 나이는 1분마다 재렌더(카운트업). 둘 다 _aioRegisterTimer로 등록 — 탭 숨김 중엔 멈추고 복귀 시 주기 경과분 1회 실행(P1756).
 function _aioStartServerDataPolling() {
   try {
     if (typeof _aioRegisterTimer !== 'function') return;
@@ -9957,33 +9891,6 @@ function getSentimentFromText(text) {
   return 'neut';
 }
 
-/* ── getTopicBadge(): 토픽별 뱃지 HTML ─────────────────────── */
-function getTopicBadge(topic) {
-  const map = {
-    macro:    { cls:'nit-warn', icon:'', label:'매크로' },
-    geo:      { cls:'nit-bear', icon:'', label:'지정학' },
-    semi:     { cls:'nit-neut', icon:'', label:'반도체' },
-    earnings: { cls:'nit-bull', icon:'', label:'실적' },
-    energy:   { cls:'nit-bear', icon:'', label:'에너지' },
-    crypto:   { cls:'nit-neut', icon:'',  label:'크립토' },
-    analyst:  { cls:'nit-neut', icon:'', label:'분석' },
-    equity:   { cls:'nit-bull', icon:'', label:'주식' },
-    bond:     { cls:'nit-warn', icon:'', label:'채권' },
-    credit:   { cls:'nit-warn', icon:'', label:'크레딧' },
-    fx:       { cls:'nit-warn', icon:'', label:'외환' },
-    defense:  { cls:'nit-bear', icon:'', label:'방산' },
-    healthcare:{ cls:'nit-bull', icon:'', label:'바이오' },
-    shipbuilding:{ cls:'nit-neut', icon:'', label:'조선' },
-    space:    { cls:'nit-neut', icon:'', label:'우주' },
-    quantum:  { cls:'nit-neut', icon:'', label:'양자' },
-    kr:       { cls:'nit-bull', icon:'', label:'한국' },
-    fxbond:   { cls:'nit-warn', icon:'', label:'FX·채권' },
-    general:  { cls:'nit-neut', icon:'', label:'일반' },
-  };
-  const m = map[topic] || map.general;
-  return `<span class="news-item-tag ${m.cls}">${m.icon} ${m.label}</span>`;
-}
-
 /* ── v42.9: 미확인 소식통 감지 — 익명 소식통·교차검증 없는 기사 탐지 ── */
 function isUnverifiedClaim(item) {
   var text = ((item.title || '') + ' ' + (item.desc || '') + ' ' + (item.translated || '')).toLowerCase();
@@ -10356,174 +10263,6 @@ function _aioNewsMarketMeaning(item, sectionKey) {
   if (sectionKey === 'analyst') return '목표가 변화보다 실적 추정치와 실제 수급 반응 동반 여부가 중요합니다.';
   return label + ' 관련 시장 영향은 가격 반응과 후속 보도로 교차검증해야 합니다.';
 }
-
-function _aioBuildNewsRewriteBullet(item, tr) {
-  item = item || {};
-  tr = tr || _aioGetNewsTranslation(item);
-  var sectionKey = _aioNormalizeNewsRewriteSectionKey(tr.ko_section) || _aioNewsRewriteSectionKey(item);
-  var rewrite = _aioCleanNewsText(tr.ko_rewrite || tr.ko_title || item.ko_title || item.title || '', 170);
-  var explain = _aioCleanNewsText(tr.ko_market || tr.ko_explain || tr.ko_summary || '', 130);
-  if (!rewrite) rewrite = _aioCleanNewsText(item.desc || item.description || '', 170);
-  if (!rewrite) rewrite = '확인 가능한 원문 제목이 부족해 후속 데이터 교차검증이 필요합니다.';
-  if (!/[.?!다요음임함됨니다]$/.test(rewrite)) rewrite += '라고 전해졌습니다.';
-  if (explain && rewrite.indexOf(explain) === -1) rewrite += ' ' + explain;
-  else if (!explain) rewrite += ' ' + _aioNewsMarketMeaning(item, sectionKey);
-  return rewrite.replace(/\s+/g, ' ').trim();
-}
-
-function _aioBuildNewsKoreanRewriteBrief(items, opts) {
-  opts = opts || {};
-  var maxSections = opts.maxSections || 8;
-  var maxItemsPerSection = opts.maxItemsPerSection || 5;
-  var src = Array.isArray(items) ? items : [];
-  var groups = {};
-  var order = ['us-politics','diplomacy','geo','middle-east','fed-econ','ai-bigtech','us-equity','analyst','semi','crypto','energy','global-econ','market'];
-  src.slice(0, opts.maxScan || 60).forEach(function(item) {
-    if (!item) return;
-    var tr = _aioGetNewsTranslation(item);
-    var key = _aioNormalizeNewsRewriteSectionKey(tr.ko_section) || _aioNewsRewriteSectionKey(item);
-    if (!groups[key]) groups[key] = [];
-    if (groups[key].length >= maxItemsPerSection) return;
-    groups[key].push({
-      bullet: _aioBuildNewsRewriteBullet(item, tr),
-      source: item.source || '',
-      tickers: tr.tickers || []
-    });
-  });
-  var sections = order.filter(function(key) { return groups[key] && groups[key].length; }).slice(0, maxSections).map(function(key) {
-    return { key: key, label: _aioNewsRewriteSectionLabel(key), items: groups[key] };
-  });
-  var now = new Date();
-  var dateLabel = now.getFullYear() + '년 ' + (now.getMonth() + 1) + '월 ' + now.getDate() + '일';
-  return {
-    generatedAt: now.toISOString(),
-    dateLabel: dateLabel,
-    sections: sections,
-    count: sections.reduce(function(sum, sec) { return sum + sec.items.length; }, 0)
-  };
-}
-
-function _aioRenderNewsKoreanRewriteBrief(items, targetId) {
-  var el = document.getElementById(targetId || 'news-korean-rewrite-brief');
-  if (!el) return null;
-  var brief = _aioBuildNewsKoreanRewriteBrief(items, { maxSections: 8, maxItemsPerSection: 5, maxScan: 60 });
-  if (!brief.sections.length) {
-    el.innerHTML = '';
-    el.style.display = 'none';
-    return brief;
-  }
-  var sectionHtml = brief.sections.map(function(sec) {
-    var bullets = sec.items.map(function(row) {
-      return '<div style="font-size:11px;line-height:1.58;color:var(--text-secondary);margin:3px 0;">· ' + escHtml(row.bullet) + '</div>';
-    }).join('');
-    return '<div style="padding:10px 12px;border-top:1px solid var(--border);">' +
-      '<div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">' + escHtml(sec.label) + '</div>' +
-      bullets +
-      '</div>';
-  }).join('');
-  el.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;">' +
-    '<div style="padding:10px 12px;background:var(--surface-1);display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;">' +
-    '<div style="font-size:12px;font-weight:900;color:var(--text-primary);">시장 핵심 요약 - ' + escHtml(brief.dateLabel) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">한국어 재구성 · ' + brief.count + '건</div>' +
-    '</div>' + sectionHtml +
-    '<div style="padding:8px 12px;border-top:1px solid var(--border);font-size:10px;line-height:1.5;color:var(--text-muted);">외신·Telegram·RSS를 한국어 투자 브리핑 문장으로 재작성한 요약입니다. 원문 확인과 가격·거래량 교차검증이 필요합니다.</div>' +
-    '</div>';
-  el.style.display = 'block';
-  return brief;
-}
-
-// ── v51.56: 텔레그램 다이제스트 포스트 파싱 + 구조화 한국어 렌더러 ──────────
-// 목적: Weekend Summary / Market Summary 등 다이제스트 포스트를
-//       카테고리별 불릿 구조로 파싱해 market-news / briefing 페이지에 표시
-
-function _aioParseTgDigestSections(text) {
-  var lines = (text || '').split('\n');
-  var sections = [];
-  var cur = null;
-  lines.forEach(function(line) {
-    line = line.trim();
-    if (!line) return;
-    // 구분선/푸터/작성자 줄 건너뜀
-    if (/^━+$/.test(line) || /^작성자:|^t\.me\/|^위켄드 서머리/.test(line)) return;
-    // 섹션 헤더: 국기/핀/특수 이모지로 시작하는 40자 이하 줄
-    if (/^[📍🌎🇺🇸🇪🇺🌍🌏🌐◆■▶⚡💡🔴🟡🟢🇰🇷🇯🇵🇨🇳]/.test(line) && line.length <= 45) {
-      var label = line.replace(/^[^\w가-힣]+/, '').replace(/^\s+/, '').trim();
-      if (label && label.length > 1 && label !== '특이사항 없음') {
-        cur = { label: label, bullets: [] };
-        sections.push(cur);
-      }
-      return;
-    }
-    // 불릿 포인트: ·, •, - 로 시작
-    if (/^[·•\-]/.test(line) && cur) {
-      var bullet = line.replace(/^[·•\-\s]+/, '').trim();
-      if (bullet.length >= 10 && bullet !== '특이사항 없음') {
-        cur.bullets.push(bullet);
-      }
-    }
-  });
-  return sections.filter(function(s) { return s.bullets.length > 0; });
-}
-
-function _aioGetTgDigestPosts() {
-  return (window.AIO_TELEGRAM_BROAD_ITEMS || []).filter(function(it) {
-    return (it.text || '').includes('━━━━') || (it.text || '').length > 800;
-  }).sort(function(a, b) {
-    return (b.localDateKst || '').localeCompare(a.localDateKst || '');
-  });
-}
-
-function _aioRenderTgDigestBrief(targetId) {
-  var el = document.getElementById(targetId);
-  if (!el) return;
-  var digests = _aioGetTgDigestPosts();
-  if (!digests.length) { el.style.display = 'none'; return; }
-
-  var allSections = [];
-  var title = '';
-  var dateLabel = '';
-  var seenLabels = {};
-
-  digests.slice(0, 3).forEach(function(d) {
-    var firstLine = (d.text || '').split('\n')[0].replace(/━+/g, '').trim();
-    if (!title && firstLine.length > 3) {
-      title = firstLine;
-      dateLabel = (d.localDateKst || '').slice(0, 10);
-    }
-    _aioParseTgDigestSections(d.text).forEach(function(sec) {
-      if (!seenLabels[sec.label]) {
-        seenLabels[sec.label] = true;
-        allSections.push(sec);
-      }
-    });
-  });
-
-  if (!allSections.length) { el.style.display = 'none'; return; }
-
-  var html = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;">';
-  html += '<div style="padding:10px 12px;background:var(--surface-1);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">';
-  html += '<div style="font-size:12px;font-weight:900;color:var(--text-primary);">' + escHtml(title || '시장 요약') + '</div>';
-  html += '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">' + escHtml(dateLabel) + ' · ' + allSections.length + '개 카테고리</div>';
-  html += '</div>';
-
-  allSections.forEach(function(sec) {
-    html += '<div style="padding:9px 12px;border-top:1px solid var(--border);">';
-    html += '<div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:5px;">' + escHtml(sec.label) + '</div>';
-    sec.bullets.forEach(function(bullet) {
-      html += '<div style="font-size:11px;line-height:1.62;color:var(--text-secondary);margin:3px 0 3px 6px;padding-left:8px;border-left:2px solid var(--border);">· ' + escHtml(bullet) + '</div>';
-    });
-    html += '</div>';
-  });
-
-  html += '<div style="padding:7px 12px;border-top:1px solid var(--border);font-size:10px;color:var(--text-muted);">@insidertracking 채널 원문 기반 주간 요약 · 투자 결정 전 원문과 가격 교차 확인 필요</div>';
-  html += '</div>';
-
-  el.innerHTML = html;
-  el.style.display = 'block';
-}
-
-try { window._aioRenderTgDigestBrief = _aioRenderTgDigestBrief; } catch(_) {}
-// ── END v51.56 텔레그램 다이제스트 렌더러 ──────────────────────────────────
 
 function _aioBuildNewsLocalKoreanInsight(item, preferredTitle) {
   item = item || {};
@@ -11037,8 +10776,6 @@ function getDisplaySummary(item) {
 }
 window._aioBuildNewsLocalKoreanInsight = _aioBuildNewsLocalKoreanInsight;
 window._aioGetNewsTranslation = _aioGetNewsTranslation;
-window._aioBuildNewsKoreanRewriteBrief = _aioBuildNewsKoreanRewriteBrief;
-window._aioRenderNewsKoreanRewriteBrief = _aioRenderNewsKoreanRewriteBrief;
 window.AIO = window.AIO || {};
 window.AIO.getNewsTranslationQualityAudit = function(items) {
   var src = items || window.newsCache || window._allNewsItems || [];
@@ -11807,9 +11544,9 @@ function _aioMarketAnalysisScope(analysis, generatedAt) {
       if (shortId && text.indexOf(shortId) < 0) return;
       var at = new Date(row.asOf);
       if (isNaN(at.getTime())) return;
-      var key = (row.session || row.basis) === 'DELAYED_IN_SESSION'
-        ? part(at, 'Asia/Seoul', true) + ' KST 장중'
-        : part(at, /kospi|kosdaq/.test(row.metricId) ? 'Asia/Seoul' : 'America/New_York', false) + ' 종가';
+      var sess = row.session || row.basis, kr = /kospi|kosdaq/.test(row.metricId), nyH = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', hourCycle: 'h23' }).format(at));
+      var key = sess === 'DELAYED_IN_SESSION' ? part(at, 'Asia/Seoul', true) + ' KST 장중' // v57.54: a US pre-open/after-hours print (e.g. 09:05 ET) is not a close
+        : (!kr && (sess === 'AFTER_HOURS' || sess === 'PRE_MARKET' || nyH < 16)) ? part(at, 'Asia/Seoul', true) + ' KST 장외 시세' : part(at, kr ? 'Asia/Seoul' : 'America/New_York', false) + ' 종가';
       if (!byKey[key]) { byKey[key] = []; groups.push(key); }
       byKey[key].push(names[row.metricId]);
     });
@@ -12474,6 +12211,18 @@ async function fetchTelegramDirect(channelSlug, sourceName) {
   return [];
 }
 
+// P1756: data.json's news bundle counts as fresh for two hours after the artifact was generated (hourly producer).
+function _aioServerNewsFresh() {
+  var bundle = window._serverNewsBackstop;
+  var meta = window._serverDataMeta || {};
+  if (!Array.isArray(bundle) || !bundle.length || !meta.generatedAt) return false;
+  var age = Date.now() - Date.parse(meta.generatedAt);
+  return isFinite(age) && age > -300000 && age < 7200000;
+}
+function _aioPersonalNewsKeys() {
+  try { return !!((DATA_APIS.finnhub && DATA_APIS.finnhub.key()) || _getApiKey('aio_newsdata_key')); } catch (_) { return false; }
+}
+
 async function fetchAllNews(forceRefresh = false) {
   // v39.0: isFetching 안전장치 — 180초로 확장 (80소스 x 1.5초 딜레이 + 프록시 타임아웃 고려)
   if (isFetching && _fetchStartTime && Date.now() - _fetchStartTime > 180000) {
@@ -12482,6 +12231,14 @@ async function fetchAllNews(forceRefresh = false) {
     _aioNotifyNewsSurfaceInvalidated('news-fetch-timeout');
   }
   if (isFetching) return;
+  // P1756: while the server news bundle is fresh the browser RSS run is skipped. The news screens render that bundle
+  // whenever the run returns nothing, and in production it always did: the shared Worker refuses every feed host and
+  // the public relays abort, so a run was ~300 failed requests for an identical screen. Personal-key APIs still merge.
+  var _serverNewsFresh = _aioServerNewsFresh();
+  if (_serverNewsFresh && !_aioPersonalNewsKeys()) {
+    if (!newsCache.length || forceRefresh) _aioApplyNewsBackstop(!!forceRefresh); if (forceRefresh && typeof showToast === 'function') showToast('뉴스는 서버가 ' + Math.max(1, Math.round((Date.now() - Date.parse((window._serverDataMeta || {}).generatedAt)) / 60000)) + '분 전에 모은 최신본입니다', 'info'); // v57.54: a forced refresh says why nothing new arrived
+    return;
+  }
   // v21: 캐시 유효 시간 10분 (5명 동시접속 시 불필요한 중복 호출 방지)
   if (!forceRefresh && Date.now() - lastFetchTime < 600000) {
     if (newsCache.length) {
@@ -12531,6 +12288,7 @@ async function fetchAllNews(forceRefresh = false) {
   // tier:1 소스를 앞으로 정렬 → 핵심 15~20개 먼저 렌더링
   activeSources.sort(function(a, b) { return (a.tier || 9) - (b.tier || 9); });
   const _skippedCount = AIO_NEWS_SOURCES.length - activeSources.length;
+  if (_serverNewsFresh) activeSources = []; // P1756: only the personal-key APIs below run (see the gate at the top).
   if (_skippedCount > 0) {
     _aioLog('info', 'rss-health', _skippedCount + '개 RSS 소스 헬스체크로 자동 스킵');
   }
@@ -13748,83 +13506,43 @@ async function fetchLiveQuotes(requestedSymbols) {
   const CHART_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart/';
   const CHART_PARAMS = '?interval=1d&range=1d&includePrePost=true';
 
-  // v47.12: Yahoo v7/finance/quote 배치 캐시 — CF Worker 활성 시 PRIORITY_SYMS 전체를 1~3회 호출로 압축
-  // v7/quote는 직접 호출 시 crumb 요구로 불안정 → CF Worker 미설정 시 스킵하여 기존 v8 개별 경로로 폴백
-  // 배치 수신 시 fetchYFChart가 캐시 우선 조회하여 개별 호출 건너뜀 → 500+ 심볼 × 개별 요청 → 3회 배치로 압축 (~99% 감소)
+  // P1758: one quote poll = one Yahoo spark request per 20 symbols through the Worker. v7/finance/quote answered 401
+  // (crumb required) on every cycle, so each symbol fell to its own chart request. spark's per-symbol meta is the same
+  // object the v8 chart returns, so both paths share one mapper; per-symbol chart requests remain only for misses.
   const _yfBatch = {};
+  function _yfQuoteFromMeta(symbol, meta, transport) {
+    const price = meta.regularMarketPrice;
+    // previousClose is the prior session; chartPreviousClose may be range-start.
+    const previous = meta.previousClose ?? meta.chartPreviousClose ?? null;
+    const pct = meta.regularMarketChangePercent ?? (previous > 0 ? (price - previous) / previous * 100 : null);
+    const change = meta.regularMarketChange ?? (previous > 0 ? price - previous : null);
+    const state = String(meta.marketState || '').toUpperCase();
+    let extended = {};
+    if (state === 'PRE' && meta.preMarketPrice > 0) extended = { extPrice:meta.preMarketPrice, extPct:meta.preMarketChangePercent ?? null, extSession:'pre' };
+    if ((state === 'POST' || state === 'POSTPOST') && meta.postMarketPrice > 0) extended = { extPrice:meta.postMarketPrice, extPct:meta.postMarketChangePercent ?? null, extSession:'post' };
+    return { ...meta, symbol, ...extended, regularMarketChangePercent:pct, regularMarketChange:change,
+      chartPreviousClose:previous, _source:'live:yahoo-proxy', sourceKind:'T3_PUBLIC_DELAYED', allowedUse:'reference-only', allowedUseCeiling:'reference', rightsId:'PUBLIC_REFERENCE', qualityStatus:'CURRENT', quality:{ status:'CURRENT', stale:false, decisionUse:false, allowedUse:'reference' }, _transport:transport };
+  }
   async function _yfBatchFetch(syms) {
-    if (!syms || syms.length === 0) return;
-    const cfW = _cfWorkerUrl();
-    if (!cfW) return;
     const chunks = [];
-    for (let i = 0; i < syms.length; i += 100) chunks.push(syms.slice(i, i + 100));
+    for (let i = 0; i < (syms || []).length; i += 20) chunks.push(syms.slice(i, i + 20));
     await Promise.allSettled(chunks.map(async function(chunk) {
-      const qUrl = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(chunk.join(','));
+      const sUrl = 'https://query1.finance.yahoo.com/v7/finance/spark?symbols=' + chunk.map(encodeURIComponent).join(',') + '&range=1d&interval=1d';
       try {
-        const r = await fetchWithTimeout(cfW + '?url=' + encodeURIComponent(qUrl), {}, 10000);
-        if (!r.ok) return;
-        const d = await r.json();
-        const list = d && d.quoteResponse && Array.isArray(d.quoteResponse.result) ? d.quoteResponse.result : [];
-        list.forEach(function(q) {
-          if (!q || !q.symbol || !chunk.includes(q.symbol) || !q.regularMarketPrice) return;
-          if (!_validatePrice(q.symbol, q.regularMarketPrice)) return;
-          var _pct = q.regularMarketChangePercent;
-          var _prev = q.regularMarketPreviousClose != null ? q.regularMarketPreviousClose : (q.chartPreviousClose || 0);
-          if (_pct == null && _prev > 0) _pct = ((q.regularMarketPrice - _prev) / _prev) * 100;
-          var out = {
-            symbol: q.symbol,
-            regularMarketPrice: q.regularMarketPrice,
-            chartPreviousClose: _prev,
-            regularMarketChangePercent: _pct != null ? _pct : null,
-            regularMarketChange: q.regularMarketChange != null ? q.regularMarketChange : (_prev > 0 ? q.regularMarketPrice - _prev : null),
-            regularMarketDayHigh: q.regularMarketDayHigh,
-            regularMarketDayLow: q.regularMarketDayLow,
-            regularMarketVolume: q.regularMarketVolume,
-            fiftyTwoWeekHigh: q.fiftyTwoWeekHigh,
-            fiftyTwoWeekLow: q.fiftyTwoWeekLow,
-            // v48.6: 52W 관련 확장 필드 + 거래량 평균 — 52W 위치 바 + 거래량 스파이크 계산 근거
-            fiftyTwoWeekHighChangePercent: q.fiftyTwoWeekHighChangePercent != null ? q.fiftyTwoWeekHighChangePercent : null,
-            fiftyTwoWeekLowChangePercent: q.fiftyTwoWeekLowChangePercent != null ? q.fiftyTwoWeekLowChangePercent : null,
-            averageDailyVolume3Month: q.averageDailyVolume3Month != null ? q.averageDailyVolume3Month : null,
-            averageDailyVolume10Day: q.averageDailyVolume10Day != null ? q.averageDailyVolume10Day : null,
-            marketCap: q.marketCap,
-            trailingPE: q.trailingPE,
-            marketState: q.marketState,
-            regularMarketTime: q.regularMarketTime ?? null,
-            exchangeTimezoneName: q.exchangeTimezoneName ?? null,
-            fullExchangeName: q.fullExchangeName ?? null,
-            _source: 'live:yahoo-v7-batch', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
-          };
-          var _ms = (q.marketState || '').toUpperCase();
-          if (_ms === 'PRE' && q.preMarketPrice > 0) {
-            out.extPrice = q.preMarketPrice;
-            out.extPct = q.preMarketChangePercent != null ? q.preMarketChangePercent : null;
-            out.extSession = 'pre';
-          } else if ((_ms === 'POST' || _ms === 'POSTPOST') && q.postMarketPrice > 0) {
-            out.extPrice = q.postMarketPrice;
-            out.extPct = q.postMarketChangePercent != null ? q.postMarketChangePercent : null;
-            out.extSession = 'post';
-          }
-          _yfBatch[q.symbol] = out;
+        const d = await fetchViaProxy(sUrl, { parseJson:true, timeout:6000, totalTimeout:12000, accept: function(p) { return Array.isArray(p?.spark?.result); } });
+        d.spark.result.forEach(function(row) {
+          const meta = row?.response?.[0]?.meta, sym = String(row?.symbol || '').toUpperCase();
+          if (meta && chunk.includes(sym) && String(meta.symbol || '').toUpperCase() === sym && _validatePrice(sym, meta.regularMarketPrice)) _yfBatch[sym] = _yfQuoteFromMeta(sym, meta, d._aioTransport);
         });
-      } catch(e) { _aioLog('warn', 'fetch', 'Yahoo v7 batch chunk error: ' + e.message); }
+      } catch(e) { _aioLog('warn', 'fetch', 'Yahoo spark batch chunk error: ' + e.message); }
     }));
-    if (Object.keys(_yfBatch).length > 0) {
-      console.log('[AIO] Yahoo v7 배치: ' + Object.keys(_yfBatch).length + '/' + syms.length + '개 수신 (' + chunks.length + '청크)');
-    }
+    if (Object.keys(_yfBatch).length > 0) console.log('[AIO] Yahoo spark 배치: ' + Object.keys(_yfBatch).length + '/' + syms.length + '개 수신 (' + chunks.length + '청크)');
   }
 
-  // PRIORITY_SYMS 전체 평탄화 후 중복 제거 → 1회 배치 호출
-  try {
-    const _allSymsFlat = Array.from(new Set(PRIORITY_SYMS.flat().concat(_requestedQuoteSyms)));
-    await _yfBatchFetch(_allSymsFlat);
-  } catch(e) { _aioLog('warn', 'init', 'v7 배치 초기화 실패: ' + e.message); }
-
   async function fetchYFChart(symbol) {
-    // v47.12: v7/quote 배치 캐시 우선 조회 — 진입부에서 이미 수신된 심볼이면 개별 호출 스킵
+    // v47.12: 배치 캐시 우선 조회 — 진입부에서 이미 수신된 심볼이면 개별 호출 스킵
     if (_yfBatch[symbol]) return _yfBatch[symbol];
     const url = CHART_BASE + encodeURIComponent(symbol) + CHART_PARAMS;
-
     try {
       const raw = await fetchViaProxy(url, { parseJson:true, timeout:4000, totalTimeout:10000,
         accept: function(payload) {
@@ -13832,18 +13550,7 @@ async function fetchLiveQuotes(requestedSymbols) {
           return meta && _validatePrice(symbol, meta.regularMarketPrice);
         }
       });
-      const meta = raw.chart.result[0].meta;
-      const price = meta.regularMarketPrice;
-      // previousClose is the prior session; chartPreviousClose may be range-start.
-      const previous = meta.previousClose ?? meta.chartPreviousClose ?? null;
-      const pct = meta.regularMarketChangePercent ?? (previous > 0 ? (price - previous) / previous * 100 : null);
-      const change = meta.regularMarketChange ?? (previous > 0 ? price - previous : null);
-      const state = String(meta.marketState || '').toUpperCase();
-      let extended = {};
-      if (state === 'PRE' && meta.preMarketPrice > 0) extended = { extPrice:meta.preMarketPrice, extPct:meta.preMarketChangePercent ?? null, extSession:'pre' };
-      if ((state === 'POST' || state === 'POSTPOST') && meta.postMarketPrice > 0) extended = { extPrice:meta.postMarketPrice, extPct:meta.postMarketChangePercent ?? null, extSession:'post' };
-      return { ...meta, symbol, ...extended, regularMarketChangePercent:pct, regularMarketChange:change,
-        chartPreviousClose:previous, _source:'live:yahoo-proxy', sourceKind:'T3_PUBLIC_DELAYED', allowedUse:'reference-only', allowedUseCeiling:'reference', rightsId:'PUBLIC_REFERENCE', qualityStatus:'CURRENT', quality:{ status:'CURRENT', stale:false, decisionUse:false, allowedUse:'reference' }, _transport:raw._aioTransport };
+      return _yfQuoteFromMeta(symbol, raw.chart.result[0].meta, raw._aioTransport);
     } catch (_) {}
     return null;
   }
@@ -13917,6 +13624,12 @@ async function fetchLiveQuotes(requestedSymbols) {
 
   // v30.11: 프록시 건강도 추적 — 연속 실패 시 그룹 스킵으로 전환
   if (!window._proxyHealth) window._proxyHealth = { consecutiveFails: 0, lastSuccess: 0, dead: false };
+  // PRIORITY_SYMS 전체 평탄화 후 중복 제거 → 배치 호출 (_PRICE_RULES 초기화 뒤 — 검증이 그 상수를 읽는다)
+  try {
+    const _allSymsFlat = Array.from(new Set(PRIORITY_SYMS.flat().concat(_requestedQuoteSyms)));
+    await _yfBatchFetch(_allSymsFlat);
+  } catch(e) { _aioLog('warn', 'init', 'spark 배치 초기화 실패: ' + e.message); }
+
 
   // v30.11: 적응형 배치 처리 — 프록시 상태에 따라 동작 조정
   // - 프록시 정상: 그룹(5개) 병렬 + 그룹 간 순차 (기존과 동일)
@@ -13985,96 +13698,9 @@ async function fetchLiveQuotes(requestedSymbols) {
   console.log('[AIO] Yahoo Finance 갱신:', yfCount, '/' + PRIORITY_SYMS.reduce((a,g)=>a+g.length,0) + '개',
     groupFailStreak >= MAX_GROUP_FAILS ? '(프록시 불안정으로 조기 종료)' : '');
 
-  // ─── v46.3: Stooq 폴백 — Yahoo 실패/부분 실패 시 미국 주식/ETF/원자재 보완 ───
-  // Stooq: 무료, API키 불필요, 배치 지원 (+ 구분), CSV 응답
-  // 지원: 미국 주식(.US), ETF(.US), WTI(CL.F), Gold(GC.F), DXY(DX.F)
-  // 미지원: VIX, 채권 금리 (Yahoo 유지)
-  var gotSyms = {};
-  allQuotes.forEach(function(q) { gotSyms[q.symbol] = true; });
-  var usMissing = [];
-  var stooqMap = {}; // Yahoo심볼 → Stooq심볼 매핑
-  // Stooq 미지원: 지수(^GSPC/^DJI/^IXIC — 가격 체계 다름), VIX, 금리, 암호화폐, 환율
-  var _stooqSkip = {'^GSPC':1,'^DJI':1,'^IXIC':1,'^RUT':1,'^VIX':1,'^VVIX':1,'^TNX':1,'^TYX':1,'^IRX':1,'^FVX':1,'BTC-USD':1,'ETH-USD':1};
-  PRIORITY_SYMS.forEach(function(group) {
-    group.forEach(function(sym) {
-      if (gotSyms[sym]) return;
-      if (sym.endsWith('.KS') || sym.endsWith('.KQ') || sym === '^KS11' || sym === '^KQ11') return;
-      if (_stooqSkip[sym]) return;
-      if (sym.includes('=X')) return; // 환율은 별도 API
-      var stSym = null;
-      // 원자재 선물: 명시 매핑만 (ES=F/NQ=F/YM=F 등 지수 선물은 Stooq 미지원)
-      if (sym === 'CL=F') stSym = 'cl.f';
-      else if (sym === 'BZ=F') stSym = 'bz.f';
-      else if (sym === 'GC=F') stSym = 'gc.f';
-      else if (sym === 'SI=F') stSym = 'si.f';
-      else if (sym === 'NG=F') stSym = 'ng.f';
-      else if (sym === 'HG=F') stSym = 'hg.f';
-      else if (sym === 'DX-Y.NYB' || sym === 'DX=F') stSym = 'dx.f';
-      else if (sym.includes('=F')) return; // 기타 선물(ES=F/NQ=F/YM=F 등) Stooq 미지원 → 스킵
-      else {
-        // 일반 미국 주식/ETF: AAPL → aapl.us, XLK → xlk.us
-        var clean = sym.replace(/[^A-Z0-9]/gi, '');
-        if (clean.length >= 1 && clean.length <= 5) stSym = clean.toLowerCase() + '.us';
-      }
-      if (stSym) { usMissing.push(sym); stooqMap[sym] = stSym; }
-    });
-  });
-
+  // P1756: the Stooq CSV fallback was removed — every Stooq request answered 404 (direct and through the Worker), so it
+  // only added ~20 failed requests per refresh cycle. The rescue chain below keeps its order.
   const hasMarketSnapshotFallback = !!(_aioMarketSnapshotMeta && Number(_aioMarketSnapshotMeta.count) > 0);
-  if (usMissing.length > 0 && !(quoteProxyCircuitOpen && hasMarketSnapshotFallback)) {
-    // 배치: 최대 30개씩 + 구분 쿼리
-    var stBatches = [];
-    for (var si = 0; si < usMissing.length; si += 30) {
-      stBatches.push(usMissing.slice(si, si + 30));
-    }
-    for (var sbi = 0; sbi < stBatches.length; sbi++) {
-      var stBatch = stBatches[sbi];
-      var stSymStr = stBatch.map(function(s) { return stooqMap[s]; }).join('+');
-      var stUrl = 'https://stooq.com/q/l/?s=' + stSymStr + '&f=sd2t2ohlcv&h&e=csv';
-      try {
-        var stResp;
-        try { stResp = await fetchWithTimeout(stUrl, {}, 6000); } catch(e) { stResp = await fetchViaProxy(stUrl, 8000); }
-        if (stResp.ok) {
-          var stText = await stResp.text();
-          // 프록시 래퍼 처리
-          if (stText.startsWith('{')) { try { var stJ = JSON.parse(stText); stText = stJ.contents || stText; } catch(e){} }
-          var stLines = stText.trim().split('\n').slice(1); // 헤더 제거
-          stLines.forEach(function(line) {
-            var cols = line.split(',');
-            if (cols.length < 8 || cols[1] === 'N/D') return;
-            var stSym = cols[0].trim();
-            // 역매핑: Stooq심볼 → Yahoo심볼
-            var yahooSym = null;
-            for (var ys in stooqMap) { if (stooqMap[ys] === stSym.toLowerCase()) { yahooSym = ys; break; } }
-            if (!yahooSym) return;
-            // Stooq CSV: Symbol,Date,Time,Open,High,Low,Close,Volume → cols[6]=Close, cols[3]=Open
-            var close = parseFloat(cols[6]);
-            var open = parseFloat(cols[3]);
-            // v46.4: CSV 파싱 검증 — NaN/Infinity/음수 방어
-            if (!isFinite(close) || close <= 0) return;
-            // Stooq copper sometimes reports HG in cents while Yahoo HG=F uses dollars per lb.
-            // Normalize before jump validation so a valid live rescue is not rejected as -99%.
-            if (yahooSym === 'HG=F' && close > 100 && open > 100) {
-              close = close / 100;
-              open = open / 100;
-            }
-            // This CSV has no previous-session close or timezone. Opening
-            // price and another provider's cached close are not substitutes.
-            allQuotes.push({
-              symbol: yahooSym,
-              regularMarketPrice: close,
-              regularMarketChangePercent: null,
-              regularMarketChange: null,
-              observedAt: /^\d{4}-\d{2}-\d{2}$/.test(cols[1]) ? cols[1] : null,
-              valueBasis: 'daily-close-reference', changeBasis: 'unknown',
-              _source: 'reference:stooq', sourceKind: 'T4_REFERENCE', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
-            });
-          });
-          console.log('[AIO-Stooq] 폴백 배치 ' + (sbi+1) + ':', stBatch.length + '개 시도');
-        }
-      } catch(e) { _aioLog('warn', 'fetch', 'Stooq 폴백 실패: ' + e.message); }
-    }
-  }
 
   async function _fetchQuoteRescue(symbols, label, limit) {
     symbols = Array.from(new Set((symbols || []).map(function(s) {
@@ -14212,31 +13838,10 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
   function _isCrypto(sym) { return /^(BTC|ETH|SOL|BNB)-USD$/.test(sym); }
   function _isFx(sym) { return /=X$/.test(sym); }
   function _isStockLike(sym) { return !_isKr(sym) && !_isCrypto(sym) && !_isFx(sym) && !/^\^/.test(sym) && !/=F$/.test(sym) && /^[A-Z][A-Z0-9.-]{0,7}$/.test(sym); }
-  function _stooqSymbol(sym) {
-    if (sym === 'CL=F') return 'cl.f';
-    if (sym === 'BZ=F') return 'bz.f';
-    if (sym === 'GC=F') return 'gc.f';
-    if (sym === 'SI=F') return 'si.f';
-    if (sym === 'NG=F') return 'ng.f';
-    if (sym === 'HG=F') return 'hg.f';
-    if (sym === 'DX-Y.NYB' || sym === 'DX=F') return 'dx.f';
-    if (_isStockLike(sym)) return sym.replace(/[^A-Z0-9]/g, '').toLowerCase() + '.us';
-    return null;
-  }
   async function _fetchJson(url, ms) {
     var r = await fetchWithTimeout(url, {}, ms || 6500);
     if (!r || !r.ok) return null;
     return r.json();
-  }
-  async function _fetchText(url, ms) {
-    var r;
-    try { r = await fetchWithTimeout(url, {}, ms || 6500); } catch(e) { r = await fetchViaProxy(url, (ms || 6500) + 2000); }
-    if (!r || !r.ok) return null;
-    var text = await r.text();
-    if (text && text.charAt(0) === '{') {
-      try { var j = JSON.parse(text); text = j.contents || text; } catch(_parseProxy) {}
-    }
-    return text;
   }
   async function _yahooCross(sym) {
     if (!_isKr(sym)) return false;
@@ -14257,24 +13862,6 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
       if (_krCross) { pct = _krCross.pct; prev = _krCross.prevClose; }
       if (price > 0) { _record(sym, 'yahoo:cross-chart', price, pct, { previousClose: prev || null }); return true; }
     } catch(_yahooErr) {}
-    return false;
-  }
-  async function _stooqCross(sym) {
-    var st = _stooqSymbol(sym);
-    if (!st) return false;
-    try {
-      var text = await _fetchText('https://stooq.com/q/l/?s=' + encodeURIComponent(st) + '&f=sd2t2ohlcv&h&e=csv', 6500);
-      if (!text) return false;
-      var line = text.trim().split('\n')[1];
-      if (!line) return false;
-      var cols = line.split(',');
-      if (cols.length < 8 || cols[1] === 'N/D') return false;
-      var close = parseFloat(cols[6]) || parseFloat(cols[7]);
-      var open = parseFloat(cols[3]) || parseFloat(cols[4]);
-      if (sym === 'HG=F' && close > 100 && open > 100) { close = close / 100; open = open / 100; }
-      var pct = close > 0 && open > 0 ? (close - open) / open * 100 : null;
-      if (close > 0) { _record(sym, 'stooq:eod-cross', close, pct, { delayed: true, previousClose: open || null }); return true; }
-    } catch(_stooqErr) {}
     return false;
   }
   async function _finnhubCross(sym) {
@@ -14345,7 +13932,7 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
     cache[sym].lastFetchAt = now;
     await Promise.allSettled([
       _yahooCross(sym),
-      _stooqCross(sym),
+      // P1756: Stooq cross-check removed (every symbol answered 404, direct and via the Worker).
       _finnhubCross(sym),
       _fmpCross(sym),
       _coingeckoCross(sym),
@@ -14372,11 +13959,8 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
 
 
 // ── Dynamic VIX Percentile ──────────────────────────────────────
-// Compatibility name; only the observed sample distribution is authoritative.
-function vixToPercentile(vix) {
-  return _aioVixPercentile(vix);
-}
-// Minimum 60 observed sessions, not a 52-week distribution or ticker IV rank.
+// Only the observed sample distribution is authoritative: minimum 60 observed sessions, not a
+// 52-week distribution or ticker IV rank.
 function _aioVixPercentile(vix) {
   try {
     if (typeof vix !== 'number' || !isFinite(vix)) return null;
@@ -14392,11 +13976,16 @@ function _aioVixPercentile(vix) {
 window._aioVixPercentile = _aioVixPercentile;
 
 function vixRegime(vix) {
-  // P1534: the same 18 / 25 / 32 band edges and wording as src RULES.volatility and the regime alert (parity: ci-domain-parity-check).
-  if (vix < 18) return { label: '저변동 구간', color: '#00bcd4' };
-  if (vix < 25) return { label: '통상 범위', color: '#a8b5c8' };
-  if (vix < 32) return { label: '변동성 경계 구간', color: '#ffa31a' };
-  return { label: '고변동 구간', color: '#ff5b50' };
+  // P1534/P1753: the 18 / 25 / 32 edges come from the one legacy band function (window._aioVixBandIndex,
+  // js/aio-core.js, pinned to src RULES.volatility by ci-domain-parity-check); colours are theme tokens.
+  var band = typeof window._aioVixBandIndex === 'function' ? window._aioVixBandIndex(vix) : null;
+  if (band == null) return { label: '—', color: 'var(--text-muted)' };
+  return [
+    { label: '저변동 구간', color: 'var(--data-cyan)' },
+    { label: '통상 범위', color: 'var(--text-secondary)' },
+    { label: '변동성 경계 구간', color: 'var(--data-amber)' },
+    { label: '고변동 구간', color: 'var(--data-red)' }
+  ][band];
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -15709,12 +15298,6 @@ function _aioApplyScreenerBreadth(sd) {
     window.DATA_SNAPSHOT._fieldTs.breadth_screener = b.observedAt;
   }
   try {
-    if (typeof updateBreadthUI === 'function') updateBreadthUI({
-      advanceRatio: b.advanceRatio,
-      gainers: b.advances,
-      losers: b.declines,
-      source: b.label
-    });
     if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
     if (typeof updateBreadthBars === 'function') updateBreadthBars();
     // Native analysis owns the visible home/signal decision surfaces.  The
@@ -16059,29 +15642,8 @@ function toggleSignalMode(mode) {
     : (String(mode || '').toLowerCase() === 'day' ? 'day' : 'swing');
   _signalMode = normalized; // legacy global kept in sync for compatibility readers
   if (window.AIO_PAGE_SCORE_MODE) window.AIO_PAGE_SCORE_MODE.signal = normalized;
-  const swBtn = document.getElementById('sig-sw-btn');
-  const dyBtn = document.getElementById('sig-dy-btn');
-  const desc  = document.getElementById('sig-mode-desc');
-  // v52.65 아이보리 2a: 모드 필은 상태색이 아닌 무채 반전(ink bg + paper text)만 사용 (원칙 §1 — 색은 3계열만)
-  if (normalized === 'swing') {
-    if (swBtn) { swBtn.classList.add('primary'); swBtn.style.background='var(--text-primary)'; swBtn.style.color='var(--bg-base)'; }
-    if (dyBtn) { dyBtn.classList.remove('primary'); dyBtn.style.background='transparent'; dyBtn.style.color='var(--text-muted)'; }
-    if (swBtn) swBtn.setAttribute('aria-pressed', 'true');
-    if (dyBtn) dyBtn.setAttribute('aria-pressed', 'false');
-  } else {
-    if (dyBtn) { dyBtn.classList.add('primary'); dyBtn.style.background='var(--text-primary)'; dyBtn.style.color='var(--bg-base)'; }
-    if (swBtn) { swBtn.classList.remove('primary'); swBtn.style.background='transparent'; swBtn.style.color='var(--text-muted)'; }
-    if (dyBtn) dyBtn.setAttribute('aria-pressed', 'true');
-    if (swBtn) swBtn.setAttribute('aria-pressed', 'false');
-  }
-  var descriptor = bridge && typeof bridge.describe === 'function' ? bridge.describe(normalized) : null;
-  if (desc) {
-    desc.textContent = descriptor
-      ? descriptor.label + ' 모드 · ' + descriptor.note + ' · 자동 갱신 45초'
-      : (normalized === 'day' ? '데이트레이딩 모드 · 자동 갱신 45초' : '스윙 모드 · 자동 갱신 45초');
-    desc.setAttribute('data-score-mode', normalized);
-    if (descriptor) desc.title = descriptor.revision; else desc.removeAttribute('title');
-  }
+  // P1392 retired the swing/day pill and its description line (sig-sw-btn/sig-dy-btn/sig-mode-desc);
+  // the mode stays a score input and the native analysis slice carries its descriptor revision.
   // Recompute the shared score (legacy sinks) and let the native analysis slice re-derive from the
   // same revision so the pill, the hero and the score input cannot disagree.
   try { if (typeof refreshSignalDashboard === 'function') refreshSignalDashboard(); } catch(_) {}
@@ -16092,11 +15654,6 @@ function toggleSignalMode(mode) {
 // v52.65 아이보리 리디자인 1b: 종합 거래 점수 히어로 (레거시 _aioDiagram score-breakdown/market-regime
 // 원형게이지+2x2쿼드런트 완전 대체). P787 transfers the four score/decision summary sinks to
 // the native analysis renderer; factor details, quality meter, and other home surfaces remain legacy.
-function _aioIsNativeHomeSummaryElement(el) {
-  try { return !!(el && el.closest && el.closest('#page-home[data-aio-home-renderer="native"]')); } catch(_) { return false; }
-}
-window._aioIsNativeHomeSummaryElement = _aioIsNativeHomeSummaryElement;
-
 function refreshHomeDashboard() {
   try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
   const ld = window._liveData || {};
@@ -16437,7 +15994,6 @@ function _aioUpdatePutCallDom(payload) {
   payload = payload || {};
   var pcr = Number(payload.totalPutCall);
   if (!isFinite(pcr)) return false;
-  var text = pcr.toFixed(2);
   var tone = _aioPutCallTone(pcr);
   var sourceKind = payload.sourceKind || 'snapshot';
   var sourceLabel = payload.sourceLabel || (sourceKind === 'live' ? 'CBOE' : 'DATA_SNAPSHOT');
@@ -16446,46 +16002,7 @@ function _aioUpdatePutCallDom(payload) {
     ? window.AIO.makeOperationalMetric('putCallRatioTotal', pcr, sourceKind, asOf, sourceLabel, { domain: 'options' })
     : { name: 'putCallRatioTotal', value: pcr, sourceKind: sourceKind, sourceLabel: sourceLabel, ts: asOf, allowedUse: sourceKind === 'live' };
 
-  ['regime-pcr'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    if (_aioIsNativeMacroElement(el)) return;
-    el.textContent = text;
-    el.style.color = tone.color;
-    el.setAttribute('data-source-kind', sourceKind);
-    el.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
-  });
-
-  Array.prototype.slice.call(document.querySelectorAll('[data-live-price="PCR"]')).forEach(function(el) {
-    if (_aioIsNativeMacroElement(el)) return;
-    el.textContent = text;
-    el.style.color = tone.color;
-    el.setAttribute('data-source-kind', sourceKind);
-    el.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
-  });
-
-  // OPT-02: 설명·상세 문구 라이터에도 네이티브 가드를 붙인다 — options 네이티브 페이지의
-  // 안내문(수신 실패 시 스냅샷 참고 하향)을 톤 라벨이 출처 메타 없이 덮어쓰던 경로 차단.
-  ['opt-pcr-desc', 'opt-pcr-desc-secondary'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    if (_aioIsNativeMacroElement(el)) return;
-    el.textContent = tone.label;
-    el.style.color = tone.color;
-  });
-
-  var detail = document.getElementById('opt-pcr-text');
-  if (detail && !_aioIsNativeMacroElement(detail)) {
-    var mode = metric.allowedUse ? '현재 의사결정 사용 가능' : '참고용 표시';
-    // v50.14 R206: 내부 소스 식별자(DATA_SNAPSHOT)를 사용자 친화 라벨로 표시
-    var srcDisplay = sourceLabel === 'DATA_SNAPSHOT' ? '스냅샷 · 참고' : sourceLabel;
-    var parts = ['CBOE Total P/C ' + text, tone.narrative, srcDisplay + ' · ' + mode];
-    if (payload.equityPutCall != null) parts.push('Equity P/C ' + Number(payload.equityPutCall).toFixed(2));
-    detail.textContent = parts.join(' · ');
-    detail.setAttribute('data-source-kind', sourceKind);
-    detail.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
-  }
-
+  // P1754: the PCR DOM writers (macro regime cell, live-price PCR spans) had no targets left; the payload below feeds state only.
   if (typeof DATA_SNAPSHOT !== 'undefined') {
     DATA_SNAPSHOT.pcr = pcr;
     // The observed Cboe equity/index ratios are authoritative whenever the

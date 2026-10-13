@@ -11,15 +11,22 @@
 //   2. js/aio-core.js — APP_VERSION 상수
 //   3. sw.js       — SW_VERSION + SW_BUILD
 //   4. version.json
-//   5. CLAUDE.md (루트)   — 현재 버전 줄
-//   6. _context/CLAUDE.md — 현재 버전 줄
-//   7. CHANGELOG.md — 새 버전 섹션 헤더 삽입
-//   8. _context/CURRENT-STATE.md + CONTEXT-CATALOG.json 재생성
+//   5. CLAUDE.md (루트)   — "현재 버전" 줄 (있을 때만; 없으면 건너뜀)
+//   6. _context/CLAUDE.md — "현재 버전" 줄 (있을 때만; 없으면 건너뜀)
+//   7. 런타임/배포 메타데이터 — public-config.json, architecture/*.json appRevision·workerRevision,
+//      worker/wrangler.proxy.toml AIO_APP_REVISION, public-data/operations-status.json
+//   8. CHANGELOG.md — 새 버전 섹션 헤더 삽입
+//   9. _context/CURRENT-STATE.md + CONTEXT-CATALOG.json 재생성
 //
 // 설계 원칙 (R1):
 //   - 이 스크립트가 유일한 버전 패치 경로. 직접 파일 편집은 금지.
-//   - CI ci-version-check.mjs가 결과를 검증 (7곳 일치 필수).
+//   - CI ci-version-check.mjs가 결과를 검증.
 //   - CHANGELOG.md에 새 섹션 헤더를 자동 삽입하지만 내용은 직접 채워야 함.
+//   - v57.54: 날짜가 박힌 과거 핸드오프 문서(MARKET-PRINCIPLES-ATLAS-*-2026-08-10.*,
+//     SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md)와 RULES.md frontmatter
+//     target_version은 더 이상 다시 쓰지 않는다. 그 문서들은 마지막 값(v57.54)에 동결된 이력이며,
+//     매 범프마다 "현재 버전"으로 재라벨링하면 이력을 위조하고 diff만 늘린다. 앱·배포가 실제로
+//     읽는 표면(1~4, 7)만 패치한다.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
@@ -163,13 +170,6 @@ try {
   requirePreflight('index.html', new RegExp(`id="app-version-badge">${escRe(prevVer)}</span>`), 'badge');
   requirePreflight('js/aio-core.js', new RegExp(`const APP_VERSION = '${escRe(prevVer)}'`), 'APP_VERSION');
   requirePreflight('sw.js', new RegExp(`SW_VERSION = '${escRe(prevVer)}'`), 'SW_VERSION');
-  requirePreflight('CLAUDE.md', new RegExp(escRe(prevVer)), 'root guide version');
-  requirePreflight('_context/CLAUDE.md', new RegExp(escRe(prevVer)), 'context guide version');
-  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json', new RegExp(`(\"targetVersion\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'audit targetVersion');
-  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json', new RegExp(`AIO-Knowledge-System-Structural-Handoff-${escRe(prevVer)}`), 'handoff packageName');
-  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json', new RegExp(`(\"applicationVersion\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'handoff applicationVersion');
-  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md', new RegExp(`target_version:\\s*${escRe(prevVer)}`), 'handoff target_version');
-  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md', new RegExp(`local_revision:\\s*${escRe(prevVer)}`), 'handoff local_revision');
   for (const artifactPath of [
     'public-config.json',
     'architecture/asset-manifest.json',
@@ -189,8 +189,6 @@ try {
   requirePreflight('worker/wrangler.proxy.toml', new RegExp(`AIO_APP_REVISION\\s*=\\s*\"${escRe(prevVer)}\"`), 'proxy worker revision');
   requirePreflight('public-data/operations-status.json', new RegExp(`(\"appRevision\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'operations appRevision');
   requirePreflight('public-data/operations-status.json', new RegExp(`(\"browser\"[\\s\\S]*?\"revision\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'operations browser revision');
-  requirePreflight('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md', new RegExp(`repository_version:\\s*${escRe(prevVer)}`), 'screener handoff repository_version');
-  requirePreflight('_context/RULES.md', new RegExp(`target_version:\\s*${escRe(prevVer)}`), 'RULES target_version');
 } catch (error) {
   console.error(`버전 범프 사전 검증 실패: ${error.message}`);
   process.exit(1);
@@ -280,106 +278,35 @@ try {
   errors.push(`version.json: ${e.message}`);
 }
 
-// ── 5. 루트 CLAUDE.md ────────────────────────────────────────────────────────
-console.log('5. CLAUDE.md (루트) 패치...');
-try {
-  let md = read('CLAUDE.md');
-  // 패턴: "현재 버전: **v51.XX**"
-  const rootPattern = new RegExp(`현재 버전:\\s*\\*\\*${escRe(prevVer)}\\*\\*`);
-  if (rootPattern.test(md)) {
-    md = md.replace(rootPattern, `현재 버전: **${newVer}**`);
-    write('CLAUDE.md', md);
-    console.log('   ✓ CLAUDE.md 루트');
-  } else if (resumeFrom && targetPattern(rootPattern).test(md)) {
-    console.log('   ✓ CLAUDE.md already synchronized');
-  } else {
-    // 대체 패턴: "현재 버전 → v51.XX" 등 찾기
-    const altPattern = new RegExp(escRe(prevVer), 'g');
-    const matches = (md.match(altPattern) || []).length;
-    if (matches > 0) {
-      console.log(`   ⚠ 표준 패턴 미발견. ${matches}개 단순 문자열 치환 시도 중...`);
-      md = replaceAll(md, prevVer, newVer);
-      write('CLAUDE.md', md);
-      console.log('   ✓ CLAUDE.md 루트 (단순 치환)');
+// ── 5–6. 에이전트 가이드의 "현재 버전" 줄 ─────────────────────────────────────
+// 정본은 version.json과 생성형 _context/CURRENT-STATE.md다. 가이드가 "현재 버전" 줄을 들고 있으면
+// 그 한 줄만 바꾸고(P596: 문서 전체 치환은 과거 기록을 위조했다), 줄이 없으면 아무것도 쓰지 않는다.
+// 예전에는 줄이 없을 때 파일 전체의 prevVer를 치환하는 대체 경로가 있었는데, 그 경로가 이력 텍스트를
+// 오염시키는 원인이었으므로 제거했다. 가이드에서 이 줄을 지우면 범프 대상에서 자연스럽게 빠진다.
+for (const [step, rel, pattern] of [
+  ['5', 'CLAUDE.md', new RegExp(`(현재 버전:\\s*\\*\\*)${escRe(prevVer)}(\\*\\*)`)],
+  ['6', '_context/CLAUDE.md', new RegExp(`(\\*\\*현재 버전\\*\\*:\\s*)${escRe(prevVer)}\\b()`)],
+]) {
+  console.log(`${step}. ${rel} 패치...`);
+  try {
+    const md = read(rel);
+    if (pattern.test(md)) {
+      write(rel, md.replace(pattern, `$1${newVer}$2`));
+      console.log(`   ✓ ${rel} (현재 버전 줄만 치환)`);
     } else {
-      errors.push('CLAUDE.md (루트): 버전 패턴 미발견 — 수동 확인 필요');
+      console.log(`   - ${rel}: "현재 버전" 줄 없음 또는 이미 동기화됨 — 건너뜀`);
     }
+  } catch (e) {
+    errors.push(`${rel}: ${e.message}`);
   }
-} catch (e) {
-  errors.push(`CLAUDE.md (루트): ${e.message}`);
-}
-
-// ── 6. _context/CLAUDE.md ────────────────────────────────────────────────────
-// P596: this used to be a blanket replaceAll(prevVer, newVer) across the WHOLE file — which also
-// silently rewrote any historical reference to the old version elsewhere in the doc (e.g. a table
-// row like "GATE-BASELINE-2026-07-03.md | v51.91→v51.96 ...") into a false "→v51.98"-style claim
-// on every single bump. Scope this to the "현재 버전" line specifically, exactly like the root
-// CLAUDE.md patch above — fall back to a whole-file replace only if that precise line isn't found
-// (and warn loudly, since that fallback is exactly what silently corrupted history before).
-console.log('6. _context/CLAUDE.md 패치...');
-try {
-  let ctxMd = read('_context/CLAUDE.md');
-  const ctxPattern = new RegExp(`(\\*\\*현재 버전\\*\\*:\\s*)${escRe(prevVer)}\\b`);
-  if (ctxPattern.test(ctxMd)) {
-    ctxMd = ctxMd.replace(ctxPattern, `$1${newVer}`);
-    write('_context/CLAUDE.md', ctxMd);
-    console.log('   ✓ _context/CLAUDE.md (현재 버전 줄만 치환)');
-  } else if (resumeFrom && targetPattern(ctxPattern).test(ctxMd)) {
-    console.log('   ✓ _context/CLAUDE.md already synchronized');
-  } else {
-    const ctxOccurrences = (ctxMd.match(new RegExp(escRe(prevVer), 'g')) || []).length;
-    if (ctxOccurrences === 0) {
-      errors.push('_context/CLAUDE.md: 버전 문자열 미발견');
-    } else {
-      console.log(`   ⚠ "현재 버전" 줄 패턴 미발견. ${ctxOccurrences}개 전체 치환 시도 중 (히스토리 텍스트 오염 위험 — 결과 수동 확인 권장)...`);
-      ctxMd = replaceAll(ctxMd, prevVer, newVer);
-      write('_context/CLAUDE.md', ctxMd);
-      console.log(`   ✓ _context/CLAUDE.md (전체 ${ctxOccurrences}개 치환 — 수동 검토 필요)`);
-    }
-  }
-} catch (e) {
-  errors.push(`_context/CLAUDE.md: ${e.message}`);
 }
 
 // ── 7. CHANGELOG.md — 새 섹션 헤더 삽입 ────────────────────────────────────
 console.log('7. CHANGELOG.md 패치...');
 try {
-  // R1 extension: keep active machine-readable handoff metadata on the same version.
+  // R1 extension: runtime/deploy revision metadata that the app, Worker /health and release gates read.
+  // Dated handoff documents and ledger frontmatter are frozen history and are not rewritten (v57.54).
   try {
-    let contract = read('_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json');
-    contract = replaceOnce(contract,
-      new RegExp(`("targetVersion"\\s*:\\s*")${escRe(prevVer)}(")`),
-      `$1${newVer}$2`,
-      'principles audit targetVersion'
-    );
-    write('_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json', contract);
-
-    let manifest = read('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json');
-    manifest = replaceOnce(manifest,
-      new RegExp(`(AIO-Knowledge-System-Structural-Handoff-)${escRe(prevVer)}`),
-      `$1${newVer}`,
-      'principles handoff packageName'
-    );
-    manifest = replaceOnce(manifest,
-      new RegExp(`("applicationVersion"\\s*:\\s*")${escRe(prevVer)}(")`),
-      `$1${newVer}$2`,
-      'principles handoff applicationVersion'
-    );
-    write('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json', manifest);
-
-    let handoff = read('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md');
-    handoff = replaceOnce(handoff,
-      new RegExp(`(target_version:\\s*)${escRe(prevVer)}`),
-      `$1${newVer}`,
-      'principles handoff target_version'
-    );
-    handoff = replaceOnce(handoff,
-      new RegExp(`(local_revision:\\s*)${escRe(prevVer)}`),
-      `$1${newVer}`,
-      'principles handoff local_revision'
-    );
-    write('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md', handoff);
-
     for (const artifactPath of [
       'public-config.json',
       'architecture/asset-manifest.json',
@@ -458,21 +385,6 @@ try {
     );
     write('public-data/operations-status.json', operations);
 
-    let screenerHandoff = read('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md');
-    screenerHandoff = replaceOnce(screenerHandoff,
-      new RegExp(`(repository_version:\\s*)${escRe(prevVer)}`),
-      `$1${newVer}`,
-      'screener handoff repository_version'
-    );
-    write('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md', screenerHandoff);
-
-    let rules = read('_context/RULES.md');
-    rules = replaceOnce(rules,
-      new RegExp(`(target_version:\\s*)${escRe(prevVer)}`),
-      `$1${newVer}`,
-      'RULES target_version'
-    );
-    write('_context/RULES.md', rules);
   } catch (e) {
     errors.push(`active metadata: ${e.message}`);
   }

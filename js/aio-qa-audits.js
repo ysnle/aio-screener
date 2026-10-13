@@ -1468,7 +1468,7 @@ window.AIO.assertChatInteractivityAudit = function() {
     autoNavInChatSend: chatSendSrc.indexOf('_autoNavigatePage') >= 0,
     pfSimInChatSend: chatSendSrc.indexOf('_simulatePortfolioAddition') >= 0,
     macroSimInChatSend: chatSendSrc.indexOf('_simulateMacroScenario') >= 0,
-    fuzzyResolveInTickerExtract: chatSendSrc.indexOf('_resolveTickerFromFuzzy') >= 0
+    fuzzyResolveInTickerExtract: chatSendSrc.indexOf('_resolveTickerFromFuzzy') >= 0 || chatSendSrc.indexOf('_aioResolveChatTickers(') >= 0 // P1740 shared resolver passes the fuzzy table
   };
   var fnCount = Object.values(checks).filter(Boolean).length;
   var integCount = Object.values(integrations).filter(Boolean).length;
@@ -2580,7 +2580,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
       fourthFifthPass: 'AIO.getFourthFifthPassAudit()',
       applyMarketCurrentnessGuard: 'AIO.applyMarketCurrentnessGuard()',
       marketRegime: 'AIO.getCurrentMarketRegime()',
-      krMarketTemperature: 'AIO.getKrMarketTemperature()',
       marketState: 'AIO.computeMarketState()',
       marketStateCoherence: 'AIO.getMarketStateCoherenceAudit()',
       connectiveLayer: 'AIO.getConnectiveLayerAudit()',
@@ -2797,7 +2796,7 @@ function _aioRunNamedAuditForPage(name, pageId) {
 window.AIO.runPageDeepAudit = function(pageId, opts) {
   opts = opts || {};
   var id = String(pageId || 'home').replace(/^page-/, '');
-  var aliases = { signals: 'signal', 'kr-tech': 'technical', 'kr-technical': 'technical', korea: 'macro', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro' };
+  var aliases = { signals: 'signal', 'kr-technical': 'technical', korea: 'macro', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro' };
   id = aliases[id] || id;
   var profile = window.AIO.getDataRequirementProfile({ pageId: id, reason: 'page-deep-audit', symbolLimit: opts.symbolLimit || 999 });
   var symbols = profile.symbols || [];
@@ -3148,7 +3147,7 @@ window.AIO.getDataLineageAudit = function() {
     // 핵심 데이터 13종 lineage 정의 (코드 조사 v49.89 기반 — source URL은 실제 fetch 함수 확인)
     var LINEAGE = [
       { id:'quotes',     label:'시세 (지수/종목)',  source:'Yahoo v8 chart (query1.finance.yahoo.com)', schedKey:'quotes',     transform:'PriceStore.set 검증',        renderAttr:'data-live-price', tier:'auto' },
-      { id:'vix',        label:'VIX',              source:'Yahoo ^VIX 3mo',                            schedKey:'vixHistory', transform:'vixToPercentile',            renderAttr:'data-live-price', tier:'auto' },
+      { id:'vix',        label:'VIX',              source:'Yahoo ^VIX 3mo',                            schedKey:'vixHistory', transform:'_aioVixPercentile',           renderAttr:'data-live-price', tier:'auto' },
       { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
       { id:'putCall',    label:'Put/Call',         source:'CBOE cdn (CORS_PROXY 경유)',                 schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
       { id:'fred',       label:'FRED 매크로',       source:'api.stlouisfed.org (CORS 친화, 키 필요)',     schedKey:'fred',       transform:'applyTechIndicators',        renderAttr:null,              tier:'auto', needsKey:true },
@@ -3830,7 +3829,7 @@ window.AIO.getDataPipelineAudit = function() {
     'fetchWithTimeout', 'fetchViaProxy', 'fetchLiveQuotes', 'applyLiveQuotes',
     'applyDataSnapshot', 'fetchAllNews', 'renderFeed', 'renderHomeFeed',
     'renderBriefingFeed', 'computeTradingScore', 'computeMarketHealth',
-    'computeExecutionWindow', 'updateRiskMonitor', 'updateBenchmarkChart'
+    'updateRiskMonitor', 'updateBenchmarkChart'
   ];
   var missingFns = requiredFns.filter(function(name) { return !exists(name); });
   var freshness = null;

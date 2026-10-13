@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { buildContextCatalog, buildWorkspaceState, canonicalTextBytes, renderCurrentState, serializeJson } from './workspace-state-lib.mjs';
+import { buildWorkspaceState, canonicalTextBytes, renderCurrentState } from './workspace-state-lib.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -15,9 +15,8 @@ const check = (label, condition, detail = '') => {
 
 const state = buildWorkspaceState(root);
 const expectedState = renderCurrentState(state);
-const expectedCatalog = serializeJson(buildContextCatalog(root));
-check('generated current state is present and current', exists('_context/CURRENT-STATE.md') && read('_context/CURRENT-STATE.md') === expectedState);
-check('generated context catalog is present and current', exists('_context/CONTEXT-CATALOG.json') && read('_context/CONTEXT-CATALOG.json') === expectedCatalog);
+// Byte equality of CURRENT-STATE.md / CONTEXT-CATALOG.json is owned by `generate-workspace-state.mjs --check`
+// (preflight generated-state gate); asserting it here too produced a second, less actionable failure.
 check('generated workspace byte accounting is checkout-newline invariant', canonicalTextBytes('alpha\nbeta\n') === canonicalTextBytes('alpha\r\nbeta\r\n'));
 const renderedOperationsSection = expectedState.split('## Operations Boundary')[1]?.split('## Read Policy')[0] || '';
 check('generated operations boundary pins no data-refresh-scoped timestamp', renderedOperationsSection.length > 0 && !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(renderedOperationsSection), 'a data-refresh timestamp here makes preflight fail on every data promotion (R603/P1079)');
@@ -209,7 +208,10 @@ check('data watchdog declares the GitHub Pages header policy', /LIVE_HEADER_POLI
 check('header limitations cannot silently become publication-ready', /OPERATOR_REQUIRED|PUBLIC_DEPLOY.*OPERATOR_REQUIRED/s.test(liveInvariant));
 check('live header policy has a deterministic behavior gate', exists('scripts/ci-live-header-policy-contract-check.mjs') && qaScripts.includes('scripts/ci-live-header-policy-contract-check.mjs'));
 
-const noAutoCommitSurfaces = ['AGENTS.md', 'CLAUDE.md', '_context/WORKFLOW-GOVERNANCE.md', '_context/OPERATOR-RUNBOOK.md', '.codex/hooks.json'];
+// v57.54: the no-auto-commit policy is enforced in code above (hook config and agent-hook.mjs never commit,
+// push or deploy). Its prose is required only in its canonical home (AGENTS.md) and the Codex hook config;
+// CLAUDE.md, WORKFLOW-GOVERNANCE.md and OPERATOR-RUNBOOK.md may restate or drop it freely when compressed.
+const noAutoCommitSurfaces = ['AGENTS.md', '.codex/hooks.json'];
 for (const file of noAutoCommitSurfaces) {
   const text = read(file);
   check(`${file} forbids automatic commit/deploy`, /automatic commit|자동 커밋|auto-commit|never commit|commit.*explicit|커밋.*명시/i.test(text));

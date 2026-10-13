@@ -8,7 +8,11 @@
 // validates it, and only then writes all files atomically (tmp file + rename).
 //
 // Usage:
-//   node scripts/record-fix.mjs <entry.json> [--root DIR] [--dry-run]
+//   node scripts/record-fix.mjs <entry.json> [--root DIR] [--dry-run] [--no-regen]
+//
+// After a real write (no --dry-run) against the repository itself (no --root fixture), the tool runs
+// `node scripts/generate-workspace-state.mjs --write` so CURRENT-STATE/CONTEXT-CATALOG never lag the
+// ledgers. Pass --no-regen to skip it (e.g. while batching several entries before one regeneration).
 //
 // entry.json:
 //   { "version": "v56.80", "date": "2026-09-29",
@@ -22,12 +26,25 @@
 //     "status": { "time": "10:40 KST", "title", "agent"?, "bullets": [] } | null }
 //   Any text may contain {P} / {R}; they become the allocated ids (e.g. P1322).
 //
+// Change-only entry (v57.54) — features, cleanups, refactors and other non-defect work. Omit "p" (or set
+// it to null): no P id is allocated and BUG-POSTMORTEM.md is not touched, so the defect ledger only holds
+// defects. "r" must then be null/absent (a rule is anchored to the postmortem that motivated it), and no
+// text may use {P}/{R}. Everything else behaves as for a fix entry:
+//   { "version": "v57.54", "date": "2026-10-14",
+//     "changelog": [ "**Lead (v57.54):** what changed and why" ],
+//     "note": "version.json note",
+//     "qa": [ ... ]?, "qa_section": "..."?,          // optional, same shape as above
+//     "status": { "time", "title", "bullets" }? }     // optional, same shape as above
+//   New assertions for such work cite the release instead of a P id ("v57.54 ..."), which
+//   ci-assertion-trace-check.mjs accepts when CHANGELOG.md has that version heading.
+//
 // The tool never reads or writes ledger frontmatter counters (latest_P_number,
 // next_P_number, current_total_entries, ...). It only bumps `last_verified`
 // when that field exists. Ids are always derived from the ledger bodies.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { existsSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -116,7 +133,10 @@ function validateEntry(entry) {
   scanControlChars(entry, 'entry', errors);
   if (!/^v\d+\.\d+$/.test(entry.version || '')) errors.push('version must look like "v56.80"');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.date || '')) errors.push('date must be YYYY-MM-DD');
-  if (!isObject(entry.p)) errors.push('p is required (title, symptom, root_cause, fix, violated_rule, prevention, verification)');
+  if (entry.p == null) {
+    // Change-only entry: nothing goes into the defect ledger.
+    if (entry.r != null) errors.push('r requires p: a change-only entry (no "p") cannot add a rule; record the defect that motivates the rule');
+  } else if (!isObject(entry.p)) errors.push('p must be an object (title, symptom, root_cause, fix, violated_rule, prevention, verification), or omitted for a change-only entry');
   else {
     for (const key of ['title', 'symptom', 'root_cause', 'fix', 'violated_rule', 'prevention', 'verification']) {
       if (!nonEmpty(entry.p[key])) errors.push(`p.${key} is required`);
@@ -176,13 +196,20 @@ export function computeRecord(root, entry) {
   const changed = new Map(); // key -> new doc text
 
   // ids ---------------------------------------------------------------------
-  const pm = need('postmortem');
-  const pIds = [...pm.text.matchAll(/^##\s+P(\d+)\b/gm)].map((m) => Number(m[1]));
-  if (!pIds.length) throw new RecordFixError(`${PATHS.postmortem}: no "## P<n>" headings found; parser cannot allocate an id`);
-  const maxP = Math.max(...pIds);
-  const pNum = entry.p.id != null ? Number(String(entry.p.id).replace(/^P/, '')) : maxP + 1;
-  if (pIds.includes(pNum)) throw new RecordFixError(`P${pNum} already exists in ${PATHS.postmortem}; refusing duplicate`);
-  const pId = `P${pNum}`;
+  // A change-only entry (no "p") allocates no P id and never reads or writes the postmortem ledger.
+  const changeOnly = entry.p == null;
+  let pm = null;
+  let maxP = null;
+  let pId = null;
+  if (!changeOnly) {
+    pm = need('postmortem');
+    const pIds = [...pm.text.matchAll(/^##\s+P(\d+)\b/gm)].map((m) => Number(m[1]));
+    if (!pIds.length) throw new RecordFixError(`${PATHS.postmortem}: no "## P<n>" headings found; parser cannot allocate an id`);
+    maxP = Math.max(...pIds);
+    const pNum = entry.p.id != null ? Number(String(entry.p.id).replace(/^P/, '')) : maxP + 1;
+    if (pIds.includes(pNum)) throw new RecordFixError(`P${pNum} already exists in ${PATHS.postmortem}; refusing duplicate`);
+    pId = `P${pNum}`;
+  }
 
   let rId = null;
   let rules = null;
@@ -209,7 +236,10 @@ export function computeRecord(root, entry) {
 
   const sub = (value) => {
     let out = String(value);
-    if (/\{P\}/.test(out)) out = out.replace(/\{P\}/g, pId);
+    if (/\{P\}/.test(out)) {
+      if (!pId) throw new RecordFixError('a text field uses {P} but this is a change-only entry (no "p"); cite the release (e.g. the entry version) instead');
+      out = out.replace(/\{P\}/g, pId);
+    }
     if (/\{R\}/.test(out)) {
       if (!rId) throw new RecordFixError('a text field uses {R} but "r" is null');
       out = out.replace(/\{R\}/g, rId);
@@ -221,7 +251,7 @@ export function computeRecord(root, entry) {
   const { version, date } = entry;
 
   // P entry -----------------------------------------------------------------
-  {
+  if (!changeOnly) {
     const p = entry.p;
     const block = [
       `## ${pId} - ${version} - ${one(p.title)} (${date})`,
@@ -357,7 +387,7 @@ export function computeRecord(root, entry) {
   if (leftovers.length) throw new RecordFixError(`unreplaced {P}/{R} placeholder in ${leftovers.map((d) => d.rel).join(', ')}`);
   const files = [...changed.values()]
     .map((doc) => ({ rel: doc.rel, path: doc.path, content: serialize(doc), unchanged: serialize(doc) === (doc.bom ? '﻿' : '') + doc.original, eol: doc.eol, mixed: doc.mixed }));
-  return { pId, rId, maxP, maxR, files, inserts };
+  return { pId, rId, maxP, maxR, changeOnly, files, inserts };
 }
 
 // ── atomic write ────────────────────────────────────────────────────────────
@@ -391,11 +421,12 @@ export function writeAtomically(files) {
 function main(argv) {
   const args = argv.slice(2);
   const dryRun = args.includes('--dry-run');
+  const noRegen = args.includes('--no-regen');
   const rootIdx = args.indexOf('--root');
   const rootArg = rootIdx >= 0 ? args[rootIdx + 1] : null;
   if (rootIdx >= 0 && !rootArg) throw new RecordFixError('--root requires a directory');
   const positional = args.filter((a, i) => !a.startsWith('--') && !(rootIdx >= 0 && i === rootIdx + 1));
-  if (positional.length !== 1) throw new RecordFixError('usage: node scripts/record-fix.mjs <entry.json> [--root DIR] [--dry-run]');
+  if (positional.length !== 1) throw new RecordFixError('usage: node scripts/record-fix.mjs <entry.json> [--root DIR] [--dry-run] [--no-regen]');
   const root = rootArg ? resolve(rootArg) : resolve(dirname(fileURLToPath(import.meta.url)), '..');
   let raw;
   try { raw = readFileSync(resolve(positional[0]), 'utf8').replace(/^﻿/, ''); } catch (error) { throw new RecordFixError(`cannot read ${positional[0]}: ${error.message}`); }
@@ -405,7 +436,8 @@ function main(argv) {
   const result = computeRecord(root, entry);
   for (const f of result.files) if (f.mixed) console.warn(`[record-fix] warning: ${f.rel} has mixed line endings; wrote back using ${f.eol === '\r\n' ? 'CRLF' : 'LF'}`);
   console.log(`[record-fix] root: ${root}`);
-  console.log(`[record-fix] allocated: ${result.pId}${result.rId ? `, ${result.rId}` : ''} (previous max P${result.maxP}${result.maxR != null ? `, R${result.maxR}` : ''})`);
+  if (result.changeOnly) console.log('[record-fix] change-only entry: no P id allocated; BUG-POSTMORTEM.md untouched');
+  else console.log(`[record-fix] allocated: ${result.pId}${result.rId ? `, ${result.rId}` : ''} (previous max P${result.maxP}${result.maxR != null ? `, R${result.maxR}` : ''})`);
   if (dryRun) {
     for (const ins of result.inserts) {
       console.log(`\n--- ${ins.rel}`);
@@ -416,7 +448,21 @@ function main(argv) {
   }
   const written = writeAtomically(result.files);
   console.log(`[record-fix] wrote ${written.length} file(s): ${written.join(', ')}`);
-  console.log('[record-fix] next: run `node scripts/generate-workspace-state.mjs --write` (or bump-version/the gates), then ci-ledger-integrity-check, ci-knowledge-lint-check, ci-version-check, ci-workspace-contract-check.');
+  // A --root run is a fixture/foreign tree: never regenerate there (the generator always targets this repo).
+  if (rootArg || noRegen) {
+    console.log('[record-fix] next: run `node scripts/generate-workspace-state.mjs --write` (or bump-version/the gates), then ci-ledger-integrity-check, ci-knowledge-lint-check, ci-version-check, ci-workspace-contract-check.');
+    return;
+  }
+  const regen = spawnSync(process.execPath, [join(root, 'scripts', 'generate-workspace-state.mjs'), '--write'], { cwd: root, encoding: 'utf8' });
+  if (regen.status === 0) {
+    console.log(`[record-fix] regenerated workspace state: ${String(regen.stdout || '').trim()}`);
+    console.log('[record-fix] next: ci-ledger-integrity-check, ci-knowledge-lint-check, ci-version-check, ci-workspace-contract-check.');
+  } else {
+    console.error(`[record-fix] ledger rows were written, but workspace-state regeneration failed (exit ${regen.status}):`);
+    console.error(String(regen.stderr || regen.stdout || regen.error?.message || '').trim());
+    console.error('[record-fix] next: fix the error, then run `node scripts/generate-workspace-state.mjs --write`.');
+    process.exitCode = 1;
+  }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

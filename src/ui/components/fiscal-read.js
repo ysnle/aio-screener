@@ -1,6 +1,6 @@
 // P1436: 재무 공시's lead block — annual revenue and net income as bars, the margin under each year,
 // and the connected reading (growth → profitability → earnings vs price → price vs results).
-import { buildFiscalRead, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
+import { buildFiscalRead, reconcileFiscalHistory, shareSplitBreaks } from '../../domain/fundamental/fiscal-read.js';
 import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { buildQuarterRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
@@ -111,9 +111,11 @@ function fiscalChart(doc, rows, { quarter = false } = {}) {
       bar.title = `${year.periodEnd} ${label} ${formatFiscalAmount(year[field])}`;
       stack.append(bar);
     }
-    const change = quarter ? year.revenueYoy : year.margin;
+    // 2026-10-14 audit #8: quarters carry the same net margin label as years (the table below has it); the
+    // year-over-year line says plainly when the same quarter a year earlier is not in the record.
     col.append(amounts, stack, el(doc, 'span', `${quarter ? '분기' : '연간'} ${year.periodEnd}${year.derived ? '*' : ''}`, 'fiscal-year'),
-      el(doc, 'span', change == null ? '비율 자료 없음' : quarter ? `매출 전년비 ${change >= 0 ? '+' : ''}${change.toFixed(1)}%` : `순이익률 ${change.toFixed(1)}%`, 'fiscal-margin'));
+      el(doc, 'span', year.margin == null ? '순이익률 자료 없음' : `순이익률 ${year.margin.toFixed(1)}%`, 'fiscal-margin'));
+    if (quarter) col.append(el(doc, 'span', year.revenueYoy == null ? '전년 같은 분기 없음' : `매출 전년비 ${year.revenueYoy >= 0 ? '+' : ''}${year.revenueYoy.toFixed(1)}%`, 'fiscal-margin'));
     box.append(col);
   }
   const scroll = el(doc, 'div', null, 'fiscal-chart-scroll');
@@ -136,8 +138,13 @@ function fiscalTable(doc, rows, { quarter = false } = {}) {
   const table = el(doc, 'table', null, 'fiscal-amount-table');
   table.append(el(doc, 'caption', `${quarter ? '분기' : '연간'} 금액 · USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스) · 자료 없음은 0이 아닙니다`));
   const head = el(doc, 'thead'); const headRow = el(doc, 'tr');
+  // 2026-10-14 audit #21: a cover-page share count is not split-adjusted (620M → 24,400M across a split); the column
+  // says so when such a jump is in the rows, and every year uses one unit (M주, one digit count for all rows).
+  const splitBreaks = quarter ? [] : shareSplitBreaks(rows);
+  const shareValues = rows.map((year) => number(year.shares)).filter((value) => value != null);
+  const shareDigits = shareValues.length && Math.max(...shareValues) < 1e8 ? 1 : 0;
   const definitions = quarter ? [['periodEnd', '분기 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['margin', '순이익률']]
-    : [['periodEnd', '회계연도 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['operatingCashFlow', '영업현금흐름'], ['capex', '설비투자'], ['fcf', '잉여현금흐름'], ['equity', '자기자본(기말)'], ['longTermDebt', '장기부채'], ['shares', '주식 수']];
+    : [['periodEnd', '회계연도 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['operatingCashFlow', '영업현금흐름'], ['capex', '설비투자'], ['fcf', '잉여현금흐름'], ['equity', '자기자본(기말)'], ['longTermDebt', '장기부채'], ['shares', splitBreaks.length ? '주식 수(분할 미조정)' : '주식 수']];
   for (const [, label] of definitions) { const th = el(doc, 'th', label); th.scope = 'col'; headRow.append(th); }
   head.append(headRow); table.append(head);
   const body = el(doc, 'tbody');
@@ -146,18 +153,25 @@ function fiscalTable(doc, rows, { quarter = false } = {}) {
     for (const [field] of definitions) {
       const value = field === 'fcf' ? number(year.operatingCashFlow) != null && number(year.capex) != null ? year.operatingCashFlow - year.capex : null : year[field];
       const text = field === 'periodEnd' ? `${year.periodEnd}${year.derived ? '*' : ''}` : field === 'margin' ? number(value) == null ? '자료 없음' : `${Number(value).toFixed(1)}%`
-        : field === 'shares' ? number(value) == null ? '자료 없음' : `${(Number(value) / 1e6).toLocaleString('en-US', { maximumFractionDigits: Number(value) < 1e8 ? 1 : 0 })}M주`
+        : field === 'shares' ? number(value) == null ? '자료 없음' : `${(Number(value) / 1e6).toLocaleString('en-US', { minimumFractionDigits: shareDigits, maximumFractionDigits: shareDigits })}M주${splitBreaks.includes(year.periodEnd) ? '*' : ''}`
           : formatFiscalCompact(value);
       const cell = el(doc, field === 'periodEnd' ? 'th' : 'td', text, number(value) < 0 ? 'is-loss' : null);
       if (field === 'periodEnd') cell.scope = 'row';
       else if (!['margin', 'shares'].includes(field) && number(value) != null) cell.title = formatFiscalAmount(value);
-      if (field === 'shares') cell.title = year.sharesObservedAt ? `관측일 ${year.sharesObservedAt}` : '해당 회계연도 종료 뒤 표지에 신고한 주식 수';
+      if (field === 'shares') cell.title = `${year.sharesObservedAt ? `관측일 ${year.sharesObservedAt}` : '해당 회계연도 종료 뒤 표지에 신고한 주식 수'}${splitBreaks.includes(year.periodEnd) ? ' · 직전 해와의 차이는 주식 분할로 보이며 조정하지 않은 값' : ''}`;
       tr.append(cell);
     }
     body.append(tr);
   }
   table.append(body); region.append(table);
   return region;
+}
+
+// 2026-10-14 audit #21: amount tables fold (closed) under the chart so the chart and the reading come first.
+function tableFold(doc, label, ...nodes) {
+  const fold = el(doc, 'details', null, 'fiscal-method-details fiscal-table-fold');
+  fold.append(el(doc, 'summary', label), ...nodes.filter(Boolean));
+  return fold;
 }
 
 // Codex review 2026-10-05: the last eight fiscal quarters — revenue bars with the change against the same
@@ -169,8 +183,9 @@ function quarterSection(doc, root, symbol) {
   if (!read.available) return null;
   const box = el(doc, 'div', null, 'fiscal-quarters');
   box.append(el(doc, 'span', `분기 흐름 · 최근 ${read.rows.length}개 분기`, 'stock-read-vis-title'), el(doc, 'p', read.headline, 'briefing-read-headline'));
-  box.append(fiscalChart(doc, read.rows, { quarter: true }), fiscalTable(doc, read.rows, { quarter: true }),
-    el(doc, 'p', `각 3개월의 실적이며 연간 금액과 구분합니다.${read.hasDerived ? ' * 분기는 연간 실적에서 1~3분기를 뺀 계산값입니다.' : ''}`, 'theme-strength-basis'));
+  box.append(fiscalChart(doc, read.rows, { quarter: true }),
+    el(doc, 'p', `각 3개월의 실적이며 연간 금액과 구분합니다.${read.hasDerived ? ' * 분기는 연간 실적에서 1~3분기를 뺀 계산값입니다.' : ''}`, 'theme-strength-basis'),
+    tableFold(doc, `분기 금액표 보기 · ${read.rows.length}개 분기`, fiscalTable(doc, read.rows, { quarter: true })));
   return box;
 }
 
@@ -253,25 +268,29 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   requestFiscalHistory(root, () => renderFiscalRead({ documentRef: doc, root, state }));
   const series = root?._aioSecFiscalHistory?.[symbol];
   const fundamentals = series ? { ...(state?.fundamentals || {}), fiscalHistory: parseFiscalHistory(series) } : state?.fundamentals || null;
-  const read = buildFiscalRead({ symbol, fundamentals, row });
+  const quarterText = root?._aioSecQuarterHistory?.[symbol];
+  const read = buildFiscalRead({ symbol, fundamentals, row, quarters: quarterText ? parseQuarterHistory(quarterText) : [] });
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
   if (!read.available) {
     // 2026-10-13 review S12: a KRX listing is read from Korean filings (DART), not as "SEC 미수신".
     if (/\.K[SQ]$/.test(symbol)) {
-      host.append(emptyState(doc, { title: '한국 공시(DART) 재무', reason: `${symbol} — 한국 상장 종목이라 SEC 공시 대상이 아닙니다. 연간 재무는 한국 공시(DART) 사업보고서 기준이며, 이 화면의 한국 공시 수집본은 아직 연결되지 않았습니다.`, next: '공시 원문은 아래 버튼에서 확인합니다.', compact: true }));
+      host.append(emptyState(doc, { title: '한국 공시(DART) 재무', reason: `${symbol} — 한국 상장 종목의 연간 재무는 한국 공시(DART) 사업보고서 원문에서 확인합니다.`, compact: true }));
       const dart = dartLink(doc, root?._aioKrFundamentals?.companies?.[symbol]);
       if (dart) host.append(dart);
     } else host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분합니다.', compact: true }));
   } else {
     host.querySelector('h2').append(el(doc, 'span', `SEC 연간 · ${read.history.length}개 회계연도`, 'briefing-h2-note'));
-    const basis = el(doc, 'p', `연간 공시 · 회계연도 말 ${read.latest.periodEnd || '미상'}${fundamentals?.filedAt ? ` · 제출 ${fundamentals.filedAt}` : ''} · 금액 USD`, 'fiscal-period-basis');
+    // 2026-10-14 audit #9: how old the annual figures are sits on this one basis line (it was on the SEC card).
+    const fyAgeDays = /^\d{4}-\d{2}-\d{2}$/.test(String(read.latest.periodEnd || '')) ? Math.floor((Date.now() - Date.parse(read.latest.periodEnd)) / 86400000) : null;
+    const basis = el(doc, 'p', `연간 공시 · 회계연도 말 ${read.latest.periodEnd || '미상'}${fyAgeDays != null && fyAgeDays >= 0 ? ` · 회계연도 말로부터 ${fyAgeDays}일` : ''}${fundamentals?.filedAt ? ` · 제출 ${fundamentals.filedAt}` : ''} · 금액 USD`, 'fiscal-period-basis');
     const annualSource = sourceLink(doc, fundamentals);
     if (annualSource) basis.append(doc.createTextNode(' · '), annualSource);
     host.append(basis);
     if (read.headline) host.append(el(doc, 'p', `${symbol} — ${read.headline}`, 'briefing-read-headline'));
     if (read.history.length >= 2) host.append(fiscalChart(doc, read.history));
-    host.append(fiscalTable(doc, read.history));
-    host.append(el(doc, 'p', '잉여현금흐름 = 영업현금흐름 − 설비투자. 주식 수는 회계연도 종료 뒤 공시 표지의 관측값으로, 평균 유통주식 수와 다릅니다.', 'theme-strength-basis'));
+    const splitNote = shareSplitBreaks(read.history).length ? ' 주식 수는 분할을 조정하지 않은 값이라, * 표시 해의 차이는 주식 분할입니다.' : '';
+    host.append(tableFold(doc, `연간 금액표 보기 · ${read.history.length}개 회계연도`, fiscalTable(doc, read.history),
+      el(doc, 'p', `잉여현금흐름 = 영업현금흐름 − 설비투자. 주식 수는 회계연도 종료 뒤 공시 표지의 관측값으로, 평균 유통주식 수와 다릅니다.${splitNote}`, 'theme-strength-basis')));
     if (root._aioSecFiscalPrecision?.decimalPlaces !== 3 && series) {
       const precision = el(doc, 'details', null, 'fiscal-method-details');
       precision.append(el(doc, 'summary', '과거 기록의 표시 정밀도'),
@@ -310,7 +329,10 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     { action: 'showTicker', arg: symbol, route: 'ticker', label: '요약', why: '실적 흐름과 주가 추세·섹터 회전이 같은 방향인지' },
     { route: 'technical', label: '차트', why: '실적이 뒷받침하는 추세에서 지금이 셋업 구간인지' },
     // v57.50 I23: the news screen opens on 기업 뉴스 narrowed to this ticker.
-    { route: 'market-news', label: '뉴스', why: `${symbol} 실적 발표·가이던스 소식`, ctx: { ticker: symbol } }
+    { route: 'market-news', label: '뉴스', why: `${symbol} 실적 발표·가이던스 소식`, ctx: { ticker: symbol } },
+    // 2026-10-14 audit #22: the company's numbers continue into the theme and macro crossroads.
+    { route: 'themes', label: '테마 갈림길', why: '이 회사가 속한 테마가 지금 어느 단계이고 거시와 어떤 방향인지', ctx: { anchor: 'theme-playbook' } },
+    { route: 'macro', label: '거시 갈림길', why: '금리·경기 갈림길에서 이 실적 흐름이 순풍인지 역풍인지' }
   ]);
   return read;
 }

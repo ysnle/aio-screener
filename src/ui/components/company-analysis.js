@@ -1,9 +1,10 @@
+import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { parseFiscalHistory, requestFiscalHistory, dartLink } from './fiscal-read.js';
 import { MARKET_LABELS } from '../../domain/screener/market-scope.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
-import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { krFundamentalPoints, KR_FUNDAMENTALS } from '../../domain/entity/kr-fundamentals.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 
@@ -25,6 +26,8 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   const id=String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
   if (!id) { host.hidden=true; host.replaceChildren(); root.__aioCompanyAnalysis=null; return null; }
   // P1654: Korean listings read OpenDART annual accounts (loaded once per TTL; re-render when a new copy arrives).
+  // 2026-10-14 audit #5: the theme stage rows (scenario-state.json) are read here too, not only after 거시 opened them.
+  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); }).catch(() => {});
   if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); }).catch(() => {});
   requestFiscalHistory(root, () => {
     if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,state});
@@ -40,13 +43,16 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   root.__aioCompanyAnalysis = model;
   // P1630: the page re-renders on every quote tick. An unchanged model keeps its DOM so open
   // details and keyboard focus survive; a changed model restores both after rebuilding.
-  const signature=JSON.stringify(model);
+  const signature=`${JSON.stringify(model)}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}`; // stage chips follow a new scenario state
   if (host.dataset.signature===signature && host.childElementCount) return model;
   const wasOpen=host.querySelector('.company-analysis-expanded')?.open||false;
   const observationsOpen=host.querySelector('.company-analysis-observations')?.open||false;
   const focused=host.contains(doc.activeElement) ? doc.activeElement.textContent : null;
   host.hidden=false; host.classList.add('company-analysis'); host.dataset.model=model.modelVersion; host.dataset.symbol=id;
-  host.replaceChildren(element(doc,'h2','기업 요약','briefing-h2'), element(doc,'p',model.headline,'company-analysis-lead'));
+  // 2026-10-14 audit #9: the 3-month return is already in '이 종목의 지금'; this lead carries the company half only.
+  const lead = model.financial.fiscal?.headline ? `${model.identity.name} — 연간 공시 ${model.financial.fiscal.headline}` : null;
+  host.replaceChildren(element(doc,'h2','기업 요약','briefing-h2'));
+  if (lead) host.append(element(doc,'p',lead,'company-analysis-lead'));
   // P1640: one summary for the stock and the company, with the two analyses it continues into.
   const routes=element(doc,'div',null,'company-analysis-routes');
   for (const [label,page,why] of [['차트 분석 (기술적)','technical','추세·이동평균 정배열·셋업·거래량을 주기별로'],['재무 분석 (펀더멘탈)','fundamental','매출·이익률·현금흐름·부채를 공시 원문 기준으로']]) { const go=element(doc,'button',null,'company-analysis-route'); go.type='button'; go.append(element(doc,'strong',label),element(doc,'span',why)); go.addEventListener('click',()=>root?.showPage?.(page)); routes.append(go); }
@@ -60,12 +66,16 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   const grid=element(doc,'div',null,'company-analysis-grid');
   const identity=card(doc,'무엇을 하는 기업·종목인가','참고');
   const meta=model.identity;
-  identity.append(element(doc,'p',`${meta.name} (${id}) · ${MARKET_LABELS[meta.market] || '시장 미확인'} · ${meta.assetType==='ETF' ? '상장지수펀드(ETF)' : meta.assetType==='INDEX' ? '지수' : meta.assetType==='STOCK' ? '상장 기업' : '유형 미확인'}`,'company-analysis-identity'));
+  // 2026-10-14 audit #10: an unknown asset type is left out rather than printed as '유형 미확인'.
+  const assetLabel = meta.assetType==='ETF' ? '상장지수펀드(ETF)' : meta.assetType==='INDEX' ? '지수' : meta.assetType==='STOCK' ? '상장 기업' : null;
+  identity.append(element(doc,'p',[`${meta.name} (${id})`,MARKET_LABELS[meta.market] || '시장 미확인',assetLabel].filter(Boolean).join(' · '),'company-analysis-identity'));
   if (model.business.description) identity.append(element(doc,'p',model.business.description));
   if (meta.sector || meta.industry) identity.append(element(doc,'p',[meta.sector ? `섹터 ${sectorLabel(meta.sector)}` : null,meta.industry ? `산업 ${meta.industry}` : null].filter(Boolean).join(' · '),'company-analysis-meta'));
   if (model.associations.length) {
     const themes=element(doc,'div',null,'company-analysis-themes');
-    for (const theme of model.associations) { const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? ` · ${theme.subThemes.join(' / ')}` : ''}`); button.type='button'; button.addEventListener('click',()=>root?.showThemeDetail?.(theme.id)); themes.append(button); }
+    // P1743 / 2026-10-14 audit #5: the same stage rows as 테마 갈림길, for this listing's own market (US or KR).
+    const stages=themeStagesFor(root,{symbol:id,themeIds:model.associations.map(theme=>theme.id)});
+    for (const theme of model.associations) { const stage=stages.find(row=>row.id===theme.id); const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? ` · ${theme.subThemes.join(' / ')}` : ''}${stage ? ` · 테마 단계: ${stage.stateLabel}` : ''}`); button.type='button'; button.addEventListener('click',()=>root?.showThemeDetail?.(theme.id)); themes.append(button); }
     identity.append(element(doc,'p','연결된 테마 · AIO 분류','company-analysis-meta'), themes);
   }
   identity.append(detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'} · 유형 검증 ${meta.verification}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source));
@@ -76,10 +86,11 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
     const list=element(doc,'ul'); for (const point of krFundamental.points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text)); list.append(li); } financial.append(list);
     financial.append(detail(doc,'재무 기간·원문',krFundamental.basisLines), dartLink(doc, root?._aioKrFundamentals?.companies?.[id]));
   } else if (model.financial.fiscal.available) {
-    const points=model.financial.fiscal.points.filter(point=>['growth','margin','cash','roe','debt','shares','single'].includes(point.id)).slice(0,4);
-    const list=element(doc,'ul'); for (const point of points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text)); list.append(li); } financial.append(list);
-    financial.append(detail(doc,'재무 기간·원문',[`연간 회계연도 말 ${model.financial.periodEnd || '미확인'}`,model.financial.filedAt ? `제출 ${model.financial.filedAt}` : '제출 시각 미확인',`${model.financial.source} · 주가 수익률 기간과 직접 동일시하지 않습니다.`],model.financial.sourceUrl,'SEC 공시 원문'));
-  } else financial.append(element(doc,'p',model.financial.status==='not-applicable' ? 'ETF·지수는 사업회사 매출·순이익·ROE로 분석하지 않습니다. 추종 대상·구성·비용은 해당 상품 자료에서 확인합니다.' : model.financial.status==='kr-disclosure-required' ? '한국 종목의 재무는 한국 공시(DART) 사업보고서 기준입니다. 이 화면의 한국 공시 수집본이 아직 연결되지 않아, 원문은 아래 버튼에서 확인합니다.' : '동일 기업의 검증된 연간 공시 자료가 없습니다. 이전에 보던 기업의 재무나 다른 기간의 숫자를 대신 표시하지 않습니다.'));
+    // 2026-10-14 audit #9: 요약 keeps a three-line summary; the full reading, periods and filing link live on 재무 공시.
+    const points=model.financial.fiscal.points.filter(point=>['growth','margin','cash','roe','debt','shares','single'].includes(point.id)).slice(0,3);
+    const list=element(doc,'ul'); for (const point of points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text.split(' — ')[0])); list.append(li); } financial.append(list);
+    const more=element(doc,'button',`재무 공시 →`,'aio-btn-table'); more.type='button'; more.setAttribute('aria-label',`${id} 재무 공시 화면에서 전체 재무 흐름 보기`); more.addEventListener('click',()=>root?.showPage?.('fundamental')); financial.append(more);
+  } else financial.append(element(doc,'p',model.financial.status==='not-applicable' ? 'ETF·지수는 사업회사 매출·순이익·ROE로 분석하지 않습니다. 추종 대상·구성·비용은 해당 상품 자료에서 확인합니다.' : model.financial.status==='kr-disclosure-required' ? '한국 상장 종목의 재무는 한국 공시(DART) 사업보고서 원문에서 확인합니다.' : '동일 기업의 검증된 연간 공시 자료가 없습니다. 이전에 보던 기업의 재무나 다른 기간의 숫자를 대신 표시하지 않습니다.'));
   // 2026-10-13 review S12: the Korean filing source button (address in href/title only).
   if (!krFundamental && model.financial.status==='kr-disclosure-required') financial.append(dartLink(doc, root?._aioKrFundamentals?.companies?.[id]));
   grid.append(financial);

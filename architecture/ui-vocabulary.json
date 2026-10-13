@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "owner": "v57.54 UI vocabulary — the single dictionary for retired user-facing terms. scripts/ci-ui-vocabulary-check.mjs reads it; architecture/ui-render-baseline.json (vocabulary) holds offenders accepted at introduction.",
+  "scope": {
+    "markup": ["index.html"],
+    "scripts": ["src/ui/**/*.js"],
+    "visibleAttributes": ["title", "aria-label", "placeholder", "alt"],
+    "note": "Markup text nodes and visible attributes (no <script>, <style> or comments); JS string literals and template text (no comments). Only strings with Hangul or a pattern match are inspected."
+  },
+  "terms": [
+    {
+      "id": "regime",
+      "banned": "레짐",
+      "pattern": "레짐",
+      "preferred": "국면",
+      "reason": "2026-10 IA: the 시장 상태 screen judges a 국면; the loan word is not used on screen.",
+      "allowedContexts": []
+    },
+    {
+      "id": "signal-screen",
+      "banned": "시그널 (as a screen name)",
+      "pattern": "시그널\\s*(?:화면|페이지|탭|메뉴)|^\\s*시그널\\s*·",
+      "preferred": "시장 상태",
+      "reason": "19→8 consolidation: the old 시그널 page is the 시장 상태 screen (국면 판정 tab). A data column or indicator called 시그널 is not a screen name and is not banned.",
+      "allowedContexts": []
+    },
+    {
+      "id": "macro",
+      "banned": "매크로",
+      "pattern": "매크로",
+      "preferred": "거시",
+      "reason": "The screen is 거시 · 금리; Korean UI uses 거시 (거시 경제, 거시 지표, 거시 조건).",
+      "allowedContexts": [
+        { "pattern": "매크로\\s*(?:헤지\\s*)?펀드", "reason": "글로벌 매크로 펀드 is the industry name of a fund style (운용사·13F), not the screen or the economy." }
+      ]
+    },
+    {
+      "id": "theme-trend",
+      "banned": "테마·트렌드",
+      "pattern": "테마\\s*·\\s*트렌드",
+      "preferred": "테마 · 섹터",
+      "reason": "The screen is 테마 · 섹터 (ROUTE_HUBS).",
+      "allowedContexts": []
+    },
+    {
+      "id": "global-market-overview",
+      "banned": "글로벌 마켓 오버뷰",
+      "pattern": "글로벌\\s*마켓\\s*오버뷰",
+      "preferred": "(retired — no such section is rendered)",
+      "reason": "The home overview table no longer renders; its G shortcut was removed in v57.54.",
+      "allowedContexts": []
+    },
+    {
+      "id": "kalman-untranslated",
+      "banned": "Kalman without Korean",
+      "pattern": "Kalman",
+      "unlessPattern": "칼만",
+      "preferred": "칼만 필터(Kalman)",
+      "reason": "Technical names are shown in Korean first with the English term in parentheses.",
+      "allowedContexts": []
+    }
+  ]
+}

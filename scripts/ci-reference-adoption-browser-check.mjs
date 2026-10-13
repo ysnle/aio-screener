@@ -103,13 +103,32 @@ try {
   await page.locator('#page-briefing [data-research-snapshots=briefing] > summary').click();
   await capture({ stepId: 'briefing-local-archive-empty', route: 'briefing', stateId: 'archive-empty', action: { type: 'disclose', target: 'local briefing archive' }, locator: '#page-briefing [data-research-snapshots=briefing]', expected: 'only explicitly saved reports, no fabricated past briefings', actual: 'empty isolated archive' });
   await page.evaluate(() => window.showPage('themes'));
-  await page.waitForFunction(() => document.querySelector('#page-themes [data-action=showThemeDetail]'));
-  const trigger = page.locator('#page-themes [data-action=showThemeDetail]').first();
-  const themeId = await trigger.getAttribute('data-arg');
+  // v57.54: while the sector-rotation artifact lags the latest close its quadrant chips are hidden; the theme playbook's
+  // detail buttons (data-theme-id) are then the visible triggers. Either kind is a detail trigger (themes.js rule).
+  const TRIGGERS = '#page-themes [data-action=showThemeDetail]:visible, #page-themes button[data-theme-id]:visible';
+  await page.locator(TRIGGERS).first().waitFor({ state: 'visible' });
+  const trigger = page.locator(TRIGGERS).first();
+  const themeId = (await trigger.getAttribute('data-arg')) || (await trigger.getAttribute('data-theme-id'));
   await trigger.click();
   await page.waitForFunction(() => document.getElementById('theme-detail-panel')?.style.display !== 'none');
+  // v57.54: this wait failed in 4 of the last 100 CI runs (bare "waitForFunction: Timeout 30000ms"). Under 4x CPU
+  // throttling focus ends on <body> with no theme event after close, i.e. the trigger node is replaced by a
+  // background re-render (store/refresh cycle) rather than never focused. Name which case occurred instead of a
+  // bare timeout, so a recurrence points at src/ui/pages/themes.js focus preservation, not at the harness.
+  await page.evaluate((id) => {
+    window.__referenceThemeTrigger = [...document.querySelectorAll('#page-themes [data-action=showThemeDetail], #page-themes button[data-theme-id]')].find((node) => (node.dataset.arg || node.dataset.themeId) === id && !node.closest('#theme-detail-panel')) || null;
+  }, themeId);
   await page.evaluate(() => window.closeThemeDetail());
-  await page.waitForFunction((id) => document.activeElement?.dataset.arg === id, themeId);
+  try {
+    await page.waitForFunction((id) => (document.activeElement?.dataset.arg || document.activeElement?.dataset.themeId) === id, themeId);
+  } catch (error) {
+    const state = await page.evaluate((id) => ({
+      triggerStillMounted: window.__referenceThemeTrigger ? window.__referenceThemeTrigger.isConnected : null,
+      matchingTriggers: document.querySelectorAll(`#page-themes [data-action=showThemeDetail][data-arg="${CSS.escape(id)}"], #page-themes button[data-theme-id="${CSS.escape(id)}"]`).length,
+      active: `${document.activeElement?.tagName || 'none'}#${document.activeElement?.id || ''}`,
+    }), themeId);
+    throw new Error(`theme close focus not restored to ${themeId}: ${JSON.stringify(state)} (triggerStillMounted=false: a re-render replaced the trigger after close; true: focus was never returned)`, { cause: error });
+  }
   await capture({ stepId: 'theme-close-focus', route: 'themes', stateId: 'close-focus', action: { type: 'close', target: 'theme-detail-panel' }, locator: '#page-themes', expected: 'focus returns to current trigger after rerender', actual: `trigger ${themeId} focused` });
   const errors = validateBrowserEvidence(report);
   assert.deepEqual(errors, [], 'P1603: bounded complete scenario evidence');

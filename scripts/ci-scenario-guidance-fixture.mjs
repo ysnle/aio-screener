@@ -30,7 +30,7 @@ for (const item of outlook.items) {
   assert.ok(item.posture && item.opportunity && item.check.length && item.caution.length && item.ignore.length, `P1633: ${item.id} has posture, opportunity, check, caution, ignore`);
   assert.doesNotMatch(`${item.posture} ${item.opportunity}`, /\d+(?:\.\d+)?\s*%\s*(?:확률|가능성)|매수하세요|매도하세요|목표가/, 'no probability percentages or trade instructions');
   // T06 (expert review 2026-10-13): a count of met conditions, never a likelihood grade; no allocation or timing advice.
-  assert.match(item.fit, /^(현재 조건 부합 \d+\/\d+|판단 보류)$/, 'T06 fit is the met-condition count');
+  assert.match(item.fit, /^(조건 부합 \d+\/\d+|판단 보류)$/, 'T06 fit is the met-condition count (one notation with the branches, P1745)');
   assert.doesNotMatch(item.posture, /현금|단기채|비중|기다리는 쪽|유리할 가능성|기회비용/, `T06 ${item.id} posture carries no allocation/timing advice`);
   assert.match(item.posture, /반증/, `T06 ${item.id} posture names what would refute it`);
 }
@@ -125,3 +125,177 @@ assert.equal(basisAge('', 0), null);
 const bootstrapSource = readFileSync(new URL('../src/app/bootstrap.js', import.meta.url), 'utf8');
 assert.match(bootstrapSource, /installValueBasis\(documentRef/, 'P1643: the basis card is installed at boot');
 console.log('scenario guidance fixture (basis card): PASS');
+
+// P1742/P1743 (owner 2026-10-13): forward branches as a registry — chain, dated triggers, three likelihood lines, choices
+// with opportunity cost — plus every theme by one rule, scored releases and the automated transition log.
+{
+  const { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext, releaseActuals, scoreRelease, BRANCHES, CHOICES } = await import('../src/domain/market/macro-crossroads.js');
+  const { BRANCH_ANALOGS, analogOutcome, themeStateOutcomes, themeStateOf, THEME_STATES } = await import('../src/domain/scenarios/analogs.js');
+  const { EXPOSURE_TAGS, US_THEME_PROFILES, KR_THEME_PROFILES, windFor } = await import('../src/domain/scenarios/exposures.js');
+  const { buildThemePlaybook, renderThemePlaybookContext, rotationOf } = await import('../src/domain/scenarios/theme-playbook.js');
+  const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
+  const { loadThemeMaps, buildScenarioState, diffSnapshots, scoreNewReleases } = await import('./build-scenario-state.mjs');
+  const { buildScenarioOutcomes } = await import('./build-scenario-outcomes.mjs');
+  const now = Date.parse('2026-10-13T03:00:00Z');
+  const events = upcomingMacroEvents({ schedules: { 'us-cpi': ['2026-09-11', '2026-10-14'], 'us-fomc': ['2026-10-28'], 'us-nfp': ['2026-11-06'], 'us-pce': ['2027-01-30'] }, releases: { 'us-fed-rate': { nextRelease: '2026-12-09' } }, nowMs: now });
+  assert.deepEqual(events.map((e) => `${e.id}@${e.date}`), ['us-cpi@2026-10-14', 'us-fed-rate@2026-10-28', 'us-nfp@2026-11-06'], 'P1742: next dates only, FOMC page aliases the policy-rate release, beyond the horizon dropped');
+  // Registry integrity: every branch is complete data, every tag it names exists, every branch has a past analog.
+  assert.ok(BRANCHES.length >= 8, 'P1743: the branch registry covers more than the owner examples');
+  for (const branch of BRANCHES) {
+    assert.ok(BRANCH_ANALOGS[branch.id], `P1743 ${branch.id}: has a past-frequency analog`);
+    for (const tag of [...branch.firmer, ...branch.weaker, ...(branch.mixed || [])]) assert.ok(EXPOSURE_TAGS[tag], `P1743 ${branch.id}: exposure tag ${tag} defined`);
+    assert.deepEqual(Object.keys(branch.choices), Object.keys(CHOICES), `P1743 ${branch.id}: all four choices`);
+    for (const [eventId] of branch.triggers) assert.ok(['us-cpi', 'us-nfp', 'us-pce', 'us-retail', 'us-fed-rate', 'us-ism-mfg'].includes(eventId), `P1743 ${branch.id}: trigger on a known release`);
+  }
+  // Every curated theme (US THEME_MAP, KR_THEME_MAP) has a structural profile, so no theme is left out of the rule.
+  const maps = loadThemeMaps();
+  assert.ok(maps.usThemes.length >= 15 && Object.keys(maps.krThemeMap).length >= 20, 'P1743: theme maps load from the classic scripts');
+  for (const theme of maps.usThemes) assert.ok(US_THEME_PROFILES[theme.id]?.tags?.length && US_THEME_PROFILES[theme.id].breaks?.length, `P1743: US theme ${theme.id} has tags and break conditions`);
+  for (const id of Object.keys(maps.krThemeMap)) assert.ok(KR_THEME_PROFILES[id]?.tags?.length && KR_THEME_PROFILES[id].breaks?.length, `P1743: KR theme ${id} has tags and break conditions`);
+  const macroHistory = JSON.parse(readFileSync(new URL('../public-data/macro-history.json', import.meta.url), 'utf8'));
+  const data = JSON.parse(readFileSync(new URL('../public-data/data.json', import.meta.url), 'utf8'));
+  const read = buildMacroRead({ macro: data.macro, macroHistory, history: rows });
+  const model = buildMacroCrossroads({ read, macroHistory, history: rows, events });
+  assert.equal(model.items.length, BRANCHES.length, 'P1743: one item per registered branch');
+  for (const item of model.items) {
+    assert.match(item.fit, /^(조건 부합 \d\/\d( · 확인 가능 \d개)?|판단 보류)$/, `P1742 ${item.id}: likelihood is a met-condition count`);
+    assert.ok(item.chain.length >= 4, `P1742 ${item.id}: cause→effect chain`);
+    assert.ok(item.favored.length && item.favored.every((key) => CHOICES[key]) && item.favoredWhy, `P1742 ${item.id}: names the relatively favoured choice and why`);
+    assert.ok(['same', 'against', 'neutral', 'unknown'].includes(item.pricing.tone), `P1742 ${item.id}: market-pricing line`);
+    // Audit 3: the 2-year proxy caveat (P1449) is said once in the rate hub; each branch keeps one short line.
+    if (['reheat', 'softland', 'slowdown', 'dollarsurge'].includes(item.id) && item.pricing.tone !== 'unknown') {
+      assert.match(model.rateHub.pricingNote, /프리미엄/, `P1742 ${item.id}: the 2-year proxy states its premium caveat in the hub (P1449)`);
+      assert.match(item.pricing.text, /^2년물−기준금리 [+−±]\d+\.\d{2}%p \(금리 (상단|하단) 쪽|^2년물−기준금리 [+−±]\d+\.\d{2}%p \(동결 부근/, `audit 3 ${item.id}: one short market-price line`);
+      assert.doesNotMatch(item.pricing.text, /프리미엄/, `audit 3 ${item.id}: the caveat is not repeated per branch`);
+    }
+    assert.match(item.past.text, /AIO 종가 기록|장기 일봉 기록|빈도를 계산하지|빈도로 말하지/, `P1742 ${item.id}: past-frequency line with its record span`);
+  }
+  if (!model.held) assert.notEqual(model.altId, model.leadId, 'P1743: the alternative branch is a different path');
+  const noProbability = /\d+(?:\.\d+)?\s*%\s*(?:의\s*)?(?:확률|가능성)|확률\s*\d/;
+  const noInstruction = /(?:사세요|파세요|비중을\s*(?:늘리|줄이)세요|목표\s*가)/;
+  const text = renderMacroCrossroadsContext(model, { state: { transitions: [{ at: '2026-10-13T00:00:00Z', text: '테스트 전환' }], eventOutcomes: [{ name: 'CPI', period: '2026-09-01', actualText: 'x', matched: [] }] } });
+  assert.doesNotMatch(text, noProbability, 'P1742: no probability percentage');
+  assert.doesNotMatch(text, noInstruction, 'P1742: no trade instruction');
+  assert.match(text, /금리가 내려가려면/, 'P1742: the rate hub names what would lower rates');
+  assert.match(text, /최근 변화\(자동 기록\)/, 'P1743: the AI gets the automated transition log');
+  assert.match(text, /지난 발표 판정\(자동\)/, 'P1743: the AI gets the scored releases');
+  // Past frequency: non-overlapping episodes, long-history artifact preferred when it has a sample.
+  const synthetic = Array.from({ length: 200 }, (_, i) => ({ date: new Date(Date.UTC(2000, 0, 1) + i * 86400000).toISOString().slice(0, 10), spx: 100 + i, tnx: 4 + (i >= 30 ? 0.5 : 0) + (i >= 120 ? 0.5 : 0), vix: 15, wti: 70, dxy: 100 }));
+  const freq = analogOutcome(synthetic, BRANCH_ANALOGS.reheat);
+  assert.ok(freq.n >= 1 && freq.n <= 3, `P1743: overlapping windows are counted once per episode (n=${freq.n})`);
+  const longModel = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 41, up: 22, median: 0.4, p25: -2.1, p75: 2.9, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } });
+  assert.match(longModel.items.find((item) => item.id === 'reheat').past.text, /장기 일봉 기록\(1990~2026-10\)의 겹치지 않는 41번 중 22번/, 'P1743: long-history outcomes replace the one-year record');
+  const held = buildMacroCrossroads({ read: null, macroHistory: null, history: [], events: [] });
+  assert.equal(held.leadId, null, 'P1742: no lead without observations');
+  // Audit 1: branches level on met conditions are named as a tie, and the next release is what separates them.
+  if (model.tiedIds.length >= 2) assert.match(model.headline, /조건 부합이 같은.*길이 (둘|셋|넷)/, 'audit 1: a tie is said as a tie');
+  else if (!model.held) assert.match(model.headline, /가장 많이 맞는 갈림길/);
+  // Audit 4: a past sample pointing opposite to the favoured choice carries one bridging sentence (no invented %).
+  const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
+  assert.match(bridged.pastBridge, /^과거 표본에서는 이후 주가가 대체로 올랐습니다 — 이 길의 결론\(기다림·방어 전환\)은 '금리가 더 오르는 길'이 실제로 이어질 때의 비용 기준이며, 표본이 작습니다\.$/, 'audit 4: the bridge sentence');
+  assert.doesNotMatch(bridged.pastBridge, /\d+(\.\d+)?%/, 'audit 4: the bridge invents no percentage');
+  // Audit 5: a split exposure (달러) is named instead of "no beneficiary".
+  const dollar = model.items.find((item) => item.id === 'dollarsurge');
+  assert.ok(dollar.impact.mixed && !/수혜 영역 없음/.test(dollar.impact.firmer), 'audit 5: the mixed exposure is rendered, not "수혜 영역 없음"');
+  // Audit 6: WTI and Brent 20-session moves in opposite directions are 엇갈림, not "유가 하락 진행 중".
+  const wtiDown = /WTI 20거래일 −/.test(model.rateHub.pathsDown.find((path) => path.id === 'oil').evidence);
+  const split = buildMacroCrossroads({ read: { ...read, oil: { brent20: wtiDown ? 0.9 : -0.9, basis: 'futures', abnormal: false } }, macroHistory, history: rows, events }).rateHub.pathsDown.find((path) => path.id === 'oil');
+  if (/WTI 20거래일 [+−]/.test(split.evidence)) assert.ok(split.stateText === '엇갈림' && split.ok == null && /브렌트 [+−]0\.9%/.test(split.evidence), 'audit 6: the WTI/Brent split is labelled 엇갈림 with both moves');
+  // Audit 7/10: every branch names the 거시 axes it tests; the oil-shock branch no longer links to its own screen.
+  for (const branch of BRANCHES) assert.ok(branch.axes?.length, `audit 7 ${branch.id}: axes for the six-axis card links`);
+  assert.ok(!BRANCHES.find((branch) => branch.id === 'oilshock').explore.some(([route]) => route === 'macro'), 'audit 10: 거시 does not link to itself');
+  // Releases: the latest published value is scored against every branch rule; the daily policy rate counts its last change.
+  const actuals = releaseActuals(macroHistory);
+  assert.ok(actuals['us-cpi']?.period && typeof actuals['us-cpi'].coreMoM === 'number', 'P1743: CPI actual from the published index');
+  if (actuals['us-fed-rate']) assert.ok(actuals['us-fed-rate'].upperDelta !== 0, 'P1743: the policy-rate "release" is its last change, not every daily print');
+  assert.deepEqual(scoreRelease('us-cpi', { coreMoM: 0.5, headMoM: 0.5 }).map((m) => m.branchId).sort(), ['dollarsurge', 'reheat'], 'P1743: a hot core CPI matches the reheat and dollar rules');
+  assert.deepEqual(scoreRelease('us-cpi', { coreMoM: 0.15, headMoM: 0.1 }).map((m) => m.branchId), ['softland'], 'P1743: a soft core CPI matches the soft-landing rule');
+  assert.deepEqual(scoreRelease('us-nfp', { payroll: 20, unempDelta: 0.3, wageMoM: 0.2 }).map((m) => m.branchId), ['slowdown'], 'P1743: a weak jobs report matches the slowdown rule');
+  const first = scoreNewReleases(macroHistory, {}, 'T1');
+  assert.ok(first.scored.length >= 3, 'P1743: the first run scores the latest of each release');
+  assert.equal(scoreNewReleases(macroHistory, first.lastScored, 'T2').scored.length, 0, 'P1743: a release is scored once');
+  // Themes: one rule for every theme; state × wind decide the choices; rotation reads exposure tags.
+  assert.equal(themeStateOf(20, -5), 'pullback'); assert.equal(themeStateOf(-10, 4), 'rebound'); assert.equal(themeStateOf(null, 3), null);
+  assert.equal(windFor(['growth', 'aicapex'], { firmer: ['growth'], weaker: [] }), 'tail');
+  assert.equal(windFor(['energy'], { firmer: ['growth'], weaker: ['energy'] }), 'head');
+  const fakeCross = { leadId: 'softland', altId: 'reheat', items: [{ id: 'softland', title: '물가 둔화 — x', firmer: ['growth', 'aicapex'], weaker: ['energy'] }, { id: 'reheat', title: '물가 재가속 — x', firmer: ['energy'], weaker: ['growth'] }] };
+  const groups = [
+    { themeId: 'semiconductor', themeName: '반도체', name: 'A', ret1m: -8, ret3m: 5, ret6m: 30, above50Pct: 40, basis: '2026-10-12', current: true },
+    { themeId: 'semiconductor', themeName: '반도체', name: 'B', ret1m: -6, ret3m: 4, ret6m: 25, above50Pct: 45, basis: '2026-10-12', current: true },
+    { themeId: 'software', themeName: '소프트웨어', name: 'C', ret1m: 9, ret3m: 12, ret6m: 18, above50Pct: 80, basis: '2026-10-12', current: true },
+    { themeId: 'energy', themeName: '에너지', name: 'D', ret1m: -4, ret3m: -9, ret6m: -12, above50Pct: 20, basis: '2026-10-12', current: true },
+    { themeId: 'stale', themeName: '옛것', name: 'E', ret1m: 50, ret3m: 50, ret6m: 50, basis: '2026-10-01', current: false }
+  ];
+  const krThemes = [{ id: 'semiconductor', label: '반도체', covered: 5, ret1m: 3, ret3m: 20, above50Pct: 60 }, { id: 'shipbuilding', label: '조선', covered: 2, ret1m: -20, ret3m: -5 }];
+  const playbook = buildThemePlaybook({ usGroups: groups, krThemes, crossroads: fakeCross, credit: 'favorable', labels: { semiconductor: '반도체', software: '소프트웨어', energy: '에너지' } });
+  const semi = playbook.themes.find((row) => row.market === 'US' && row.id === 'semiconductor');
+  assert.equal(semi.state, 'pullback', 'P1743: a long uptrend with a 1-month drop is read as a pullback inside the trend');
+  assert.equal(semi.wind.lead, 'tail', 'P1743: semiconductors get the soft-landing tailwind through their exposure tags');
+  assert.deepEqual(semi.favored, ['stage'], 'P1743: pullback × tailwind favours staging in');
+  assert.ok(semi.thesis && semi.breaks.length, 'P1743: the structural hypothesis and its break conditions travel with the theme');
+  assert.match(semi.fit, /^조건 부합 \d\/5$/, 'P1743: a pullback adds the depth condition');
+  const deepPlay = buildThemePlaybook({ usGroups: [{ themeId: 'energy', ret1m: -25, ret3m: 5, ret6m: 8, above50Pct: 35, basis: '2026-10-12', current: true }], crossroads: fakeCross, credit: 'favorable' });
+  assert.deepEqual(deepPlay.themes[0].favored, ['wait'], 'P1743: a drop that took back over half the prior gain is not read as a pause to stage into');
+  assert.equal(deepPlay.highlights.structuralPullbacks.length, 0, 'P1743: a deep drop is not surfaced as a structural pullback');
+  assert.ok(!playbook.themes.some((row) => row.id === 'stale'), 'P1743: a theme off the latest session is not read as current');
+  assert.ok(!playbook.themes.some((row) => row.id === 'shipbuilding'), 'P1743: a KR theme with fewer than three priced members is not read');
+  assert.ok(playbook.highlights.structuralPullbacks.some((row) => row.id === 'semiconductor'), 'P1743: structural pullbacks are surfaced generically');
+  assert.equal(playbook.themes.find((row) => row.id === 'energy').favored[0], 'wait', 'P1743: weak × headwind favours waiting');
+  assert.match(rotationOf(playbook.themes).text, /힘이 옮겨 갔습니다|뚜렷한 가격 기준 강약 이동은|부족해/, 'P1743: rotation is read from exposure tags across all themes');
+  assert.doesNotMatch(rotationOf(playbook.themes).text, /자금 이동/, 'audit 15: a price-only rotation is not called a money move');
+  {
+    const mk = (market, id, ret1m) => ({ market, id, label: id, ret1m, tags: ['growth'] });
+    const krHeavy = rotationOf([mk('KR', 'a', 12), mk('KR', 'b', 10), mk('KR', 'c', 9), mk('US', 'd', 8), mk('KR', 'e', -9), mk('KR', 'f', -10), mk('KR', 'g', -11), mk('KR', 'h', -12)].map((row, i) => ({ ...row, tags: [i < 4 ? 'growth' : 'energy'] })));
+    assert.match(krHeavy.text, /강한 쪽: 국내 a\(\+12\.0%\)/, 'audit 15: every named theme carries its market');
+    assert.match(krHeavy.text, /주로 국내 시장/, 'audit 15: the rotation says which market the named moves sit in');
+  }
+  const themeText = renderThemePlaybookContext(playbook, { query: '반도체 지금 분할로 들어가도 돼?' });
+  assert.match(themeText, /반도체: 추세 속 조정/, 'P1743: a named theme is always in the AI block');
+  assert.match(themeText, /가설이 깨지는 신호/);
+  assert.doesNotMatch(themeText, noProbability); assert.doesNotMatch(themeText, noInstruction);
+  assert.match(themeText, /레버리지·포지션 쏠림은 직접 자료가 없다/, 'P1743: positioning claims need a web source');
+  // Producers: per-refresh state (no network) with diff + scoring + snapshots; weekly long history is a pure function.
+  const screener = JSON.parse(readFileSync(new URL('../public-data/screener.json', import.meta.url), 'utf8'));
+  const calendar = JSON.parse(readFileSync(new URL('../public-data/macro-calendar.json', import.meta.url), 'utf8'));
+  const state1 = buildScenarioState({ data, history: rows, macroHistory, calendar, screener, themeMaps: maps, previous: null, nowMs: now });
+  assert.equal(state1.schemaVersion, 'scenario-state.v1');
+  assert.equal(state1.crossroads.items.length, BRANCHES.length, 'P1743: the state carries every branch');
+  assert.ok(state1.themes.length >= 20, `P1743: the state reads every measured theme (${state1.themes.length})`);
+  assert.ok(state1.eventOutcomes.length >= 3 && state1.eventOutcomes.every((row) => row.actualText && Array.isArray(row.matched)), 'P1743: releases scored on the first run');
+  const state2 = buildScenarioState({ data, history: rows, macroHistory, calendar, screener, themeMaps: maps, previous: state1, nowMs: now + 3600000 });
+  assert.equal(state2.transitions.length, state1.transitions.length, 'P1743: an unchanged market adds no transitions');
+  assert.equal(state2.eventOutcomes.length, state1.eventOutcomes.length, 'P1743: releases are not re-scored');
+  const moved = JSON.parse(JSON.stringify(state1));
+  moved.crossroads.leadId = moved.crossroads.items.find((item) => item.id !== state1.crossroads.leadId).id;
+  moved.themes[0].state = moved.themes[0].state === 'leading' ? 'weak' : 'leading';
+  const diffs = diffSnapshots(moved, state1, 'T');
+  assert.ok(diffs.some((row) => row.kind === 'lead') && diffs.some((row) => row.kind === 'theme'), 'P1743: lead and theme-stage changes are logged');
+  const series = (n, f) => Array.from({ length: n }, (_, i) => [new Date(Date.UTC(1990, 0, 1) + i * 86400000).toISOString().slice(0, 10), f(i)]);
+  const outcomes = buildScenarioOutcomes({ market: { spx: series(3000, (i) => 100 + i * 0.05 + 10 * Math.sin(i / 40)), tnx: series(3000, (i) => 5 + Math.sin(i / 30)), vix: series(3000, (i) => 18 + 12 * Math.sin(i / 25)), wti: series(3000, (i) => 50 + 20 * Math.sin(i / 35)), dxy: series(3000, (i) => 95 + 5 * Math.sin(i / 50)) }, proxies: { SMH: series(3000, (i) => 50 + i * 0.02 + 8 * Math.sin(i / 20)) }, themeProxy: { semiconductor: 'SMH' } });
+  assert.ok(Object.keys(outcomes.branches).length >= 6 && outcomes.branches.reheat.n > 0 && outcomes.branches.reheat.h63, 'P1743: weekly producer computes 20/63-session branch outcomes');
+  assert.ok(Object.keys(THEME_STATES).every((stage) => outcomes.themes.semiconductor[stage]?.n != null) && outcomes.themes.semiconductor.symbol === 'SMH', 'P1743: theme-stage outcomes per proxy ETF');
+  assert.ok(themeStateOutcomes([]).leading.n === 0);
+  // Wiring: the narrative producer, the screens and the workflow.
+  assert.match(buildMarketAnalysisRegimeContext(data, rows), /【앞으로의 갈림길/, 'P1742: the narrative producer gets the forward branches');
+  const { chooseAnswerMode } = await import('../src/ai/response/answer-modes.js');
+  assert.equal(chooseAnswerMode({ intent: { canonical: ['OUTLOOK'] } }), 'outlook', 'P1742: a market outlook question is answered as branches');
+  assert.equal(chooseAnswerMode({ asksDecision: true, hasTicker: true, intent: { canonical: ['OUTLOOK'] } }), 'decision', 'P1742: a single-company decision stays a decision');
+  const component = readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8');
+  assert.match(component, /함께 볼 길: /, 'P1742: the compact block never shows one path alone');
+  assert.match(component, /refreshScenarioArtifacts/, 'P1743: screens load the long-history outcomes and the per-refresh state');
+  const themesPage = readFileSync(new URL('../src/ui/pages/themes.js', import.meta.url), 'utf8');
+  assert.match(themesPage, /renderThemePlaybook\(/, 'P1743: 테마 renders the theme playbook');
+  const marketContent = readFileSync(new URL('../src/ai/context/market-content.js', import.meta.url), 'utf8');
+  assert.match(marketContent, /renderThemePlaybookContext/, 'P1743: the chat gets the theme playbook');
+  const workflow = readFileSync(new URL('../.github/workflows/refresh-data.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /node scripts\/build-scenario-state\.mjs/, 'P1743: the state recomputes every refresh');
+  assert.match(workflow, /node scripts\/build-scenario-outcomes\.mjs/, 'P1743: long history refreshes weekly');
+  assert.match(workflow, /stage_if_exists public-data\/scenario-state\.json/);
+  assert.match(workflow, /stage_if_exists public-data\/scenario-outcomes\.json/);
+  assert.ok(workflow.indexOf('build-scenario-state.mjs') < workflow.indexOf('sync-data-release-manifests.mjs'), 'P1743: state is built before the release is promoted');
+  const { chooseAnswerVisuals } = await import('../src/ui/components/ai-answer-visuals.js');
+  assert.deepEqual(chooseAnswerVisuals({ query: '앞으로 시장 어떻게 대응해야 돼?', mode: 'outlook' }).map((p) => p.kind), ['crossroads'], 'P1743: a market outlook answer carries the branch table');
+  assert.deepEqual(chooseAnswerVisuals({ query: '반도체 조정인데 분할로 들어갈까?', mode: 'outlook' }).map((p) => p.kind), ['crossroads', 'themes'], 'P1743: a theme outlook answer also carries the theme stages');
+  assert.match(readFileSync(new URL('../src/ai/response/answer-modes.js', import.meta.url), 'utf8'), /거시 전략가·업종 애널리스트·위험 관리자/, 'P1743: outlook answers contrast expert lenses');
+  console.log('scenario guidance fixture (macro crossroads + theme playbook + scenario producers): PASS');
+}

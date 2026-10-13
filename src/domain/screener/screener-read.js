@@ -76,10 +76,39 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
           : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread == null ? '—' : spread.toFixed(2)}%로 뒤처졌고 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
     }
   }
-  const headline = `조건 순위가 매겨진 ${ranked.length}종목 중 ${topLabel}${over.length ? ` · ${over.map((row) => row.label).join('·')} 쏠림` : ''}${validation?.available && validation.modelMatch !== false && finite(validation.spreadNet) != null ? ` · 과거 상위−하위 ${validation.spreadNet >= 0 ? '+' : ''}${Number(validation.spreadNet).toFixed(2)}%` : ''}`;
+  // 2026-10-14 audit #5: how many of the top fifth sit in themes at each stage (same rows as 테마 갈림길). Counts only;
+  // a stock in two themes at different stages counts once per stage. Absent rows (state not 'ok') add nothing.
+  const STAGE_ORDER = ['leading', 'pullback', 'rebound', 'weak'];
+  const stageCounts = new Map();
+  for (const row of top) {
+    const seen = new Set();
+    for (const stage of Array.isArray(row?.themeStages) ? row.themeStages : []) {
+      if (!stage?.state || seen.has(stage.state)) continue;
+      seen.add(stage.state);
+      if (!stageCounts.has(stage.state)) stageCounts.set(stage.state, { label: stage.stateLabel, n: 0 });
+      stageCounts.get(stage.state).n += 1;
+    }
+  }
+  if (stageCounts.size) {
+    const themed = top.filter((row) => Array.isArray(row?.themeStages) && row.themeStages.length).length;
+    points.push({ id: 'theme-stage', tone: 'neutral', title: '상위권의 테마 단계',
+      text: `${topName} 중 테마에 속한 ${themed}종목의 테마 단계: ${STAGE_ORDER.filter((key) => stageCounts.has(key)).map((key) => `${stageCounts.get(key).label} ${stageCounts.get(key).n}종목`).join(' · ')}. 단계는 테마 전체의 흐름이며 개별 종목의 매매 신호가 아닙니다.` });
+  }
+  // 2026-10-14 audit #3/#14: the verdicts lead (sector tilt, then what the past record says), then the one denominator.
+  const spreadValue = finite(validation?.spreadNet);
+  const trustVerdict = !validation?.available ? null
+    : validation.modelMatch === false ? '순위의 과거 성과는 다른 모델 기록이라 판단 보류'
+      : validation.distinguishable === false ? `순위의 과거 성과는 아직 구별 불가(${validation.rebalances}회 중 ${validation.wins ?? '—'}회 앞섬)`
+        : spreadValue == null ? null
+          : spreadValue > 0 ? `과거 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 ${validation.wins ?? '—'}회)`
+            : `과거 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 ${validation.wins ?? '—'}회 앞섬)`;
+  const headline = `${topName} 구성은 ${over.length ? `${over.map((row) => row.label).join('·')} 쏠림` : '업종 쏠림 없음'}${trustVerdict ? ` · ${trustVerdict}` : ''} — 순위 계산 ${ranked.length}종목 중 ${topLabel}`;
   const next = [];
   if (over[0]) next.push({ route: 'themes', label: '테마 · 섹터', why: `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });
-  next.push({ action: 'showTicker', arg: top[0].sym, route: 'ticker', label: `1위 ${top[0].sym}`, why: '상위 종목 하나를 요약·차트·재무로 확인' });
+  // audit #22: the ranking always continues into the two crossroads.
+  next.push({ route: 'themes', label: '테마 갈림길', why: '이 단계 테마의 구성 종목을 차트·재무로 직접 확인', ctx: { anchor: 'theme-playbook' } });
+  next.push({ route: 'macro', label: '거시 갈림길', why: '금리·경기 갈림길이 상위권 업종에 순풍인지 역풍인지' });
+  next.push({ action: 'showTicker', arg: top[0].sym, route: 'ticker', label: `순위 맨 앞 ${top[0].sym}`, why: '상위 종목 하나를 요약·차트·재무로 확인' });
   next.push({ route: 'signal', label: '시장 상태', why: `순위가 놓인 환경 — ${regime?.available ? regime.overall : '판정 대기'}` });
   return { available: true, total: ranked.length, topCount: top.length, topName, mix, headline, points, next };
 }

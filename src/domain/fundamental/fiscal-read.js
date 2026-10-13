@@ -38,7 +38,34 @@ export function reconcileFiscalHistory(history = [], fundamentals = null, symbol
   return rows;
 }
 
-export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}) {
+// 2026-10-14 audit #2: the four latest consecutive fiscal quarters (about 3 months apart, no gap), newest last, or null.
+// A derived fourth quarter (FY − Q1..Q3) counts; nothing is estimated beyond the published quarters.
+export function trailingQuarters(quarters = [], count = 4) {
+  const rows = (Array.isArray(quarters) ? quarters : []).filter((q) => /^\d{4}-\d{2}-\d{2}$/.test(String(q?.periodEnd || '')))
+    .slice().sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
+  if (rows.length < count) return null;
+  const span = rows.slice(-count);
+  for (let i = 1; i < span.length; i += 1) {
+    const gapDays = (Date.parse(span[i].periodEnd) - Date.parse(span[i - 1].periodEnd)) / 86400000;
+    if (!(gapDays >= 75 && gapDays <= 105)) return null;
+  }
+  return span.every((q) => finite(q.netIncome) != null) ? span : null;
+}
+
+// 2026-10-14 audit #21: year-over-year share counts that jump by a near-integer ratio (a split the cover-page count
+// was not adjusted for). Returns the periodEnd of each year that starts a new split basis.
+export function shareSplitBreaks(history = []) {
+  const years = (Array.isArray(history) ? history : []).filter((year) => finite(year?.shares) > 0);
+  const breaks = [];
+  const nearSplit = (x) => x >= 1.9 && Math.abs(x - Math.round(x)) / Math.round(x) < 0.06;
+  for (let k = 1; k < years.length; k += 1) {
+    const ratio = years[k].shares / years[k - 1].shares;
+    if (nearSplit(ratio) || nearSplit(1 / ratio)) breaks.push(years[k].periodEnd);
+  }
+  return breaks;
+}
+
+export function buildFiscalRead({ symbol, fundamentals = null, row = null, quarters = [] } = {}) {
   // P1627: a previous issuer's transient receipt cannot become this issuer's one-year fallback.
   if (fundamentals?.symbol && String(fundamentals.symbol).toUpperCase() !== String(symbol).toUpperCase()) fundamentals = null;
   // Before the runtime summary carries fiscalHistory, the latest FY facts still give a one-year reading.
@@ -79,17 +106,34 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null } = {}
       const pe = finite(row?.pe);
       const peg = pe != null && pe > 0 && niGrowth > 0 ? pe / niGrowth : null;
       // 2026-10-13 review S06: the PER's earnings are the last filed fiscal year, which can be more than a year old.
-      // Name that year and how many months have passed since it closed (TTM is out of scope).
+      // Name that year and how many months have passed since it closed.
       const earningsEnd = String(row?._fundamentalPeriodEnd || latest.periodEnd || '').slice(0, 10);
       const sessionEnd = String(row?.factorSessionDate || '').slice(0, 10);
       const monthsSince = /^\d{4}-\d{2}-\d{2}$/.test(earningsEnd) && /^\d{4}-\d{2}-\d{2}$/.test(sessionEnd)
         ? (Number(sessionEnd.slice(0, 4)) - Number(earningsEnd.slice(0, 4))) * 12 + Number(sessionEnd.slice(5, 7)) - Number(earningsEnd.slice(5, 7)) - (Number(sessionEnd.slice(8, 10)) < Number(earningsEnd.slice(8, 10)) ? 1 : 0)
         : null;
-      const earningsBasis = /^\d{4}-\d{2}/.test(earningsEnd) ? `FY${earningsEnd.slice(0, 4)}(${earningsEnd.slice(0, 7)} 마감) 순이익 기준${monthsSince != null && monthsSince >= 0 ? ` · 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
+      const fyLabel = /^\d{4}-\d{2}/.test(earningsEnd) ? `FY${earningsEnd.slice(0, 4)}` : null;
+      const earningsBasis = fyLabel ? `${fyLabel} 순이익 기준 · ${earningsEnd.slice(0, 7)} 마감${monthsSince != null && monthsSince >= 0 ? ` · 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
+      // 2026-10-14 audit #2: the PER method is unchanged (the last fiscal year's net income). When four newer
+      // consecutive quarters are filed, the same price over their summed net income is shown beside it, labelled.
+      // Valid only when the PER's own year is the latest annual row (so PER × FY income recovers the same market value).
+      const ttm = pe != null && pe > 0 && earningsEnd === String(latest.periodEnd || '').slice(0, 10) ? trailingQuarters(quarters, 4) : null;
+      const ttmIncome = ttm && ttm[ttm.length - 1].periodEnd > earningsEnd ? ttm.reduce((sum, q) => sum + q.netIncome, 0) : null;
+      const peTtm = ttmIncome != null && ttmIncome > 0 ? pe * niNow / ttmIncome : null;
+      const prior = peTtm != null ? trailingQuarters(quarters, 8) : null;
+      const priorIncome = prior ? prior.slice(0, 4).reduce((sum, q) => sum + q.netIncome, 0) : null;
+      const ttmGrowth = priorIncome != null && priorIncome > 0 ? (ttmIncome / priorIncome - 1) * 100 : null;
+      const pegTtm = peTtm != null && ttmGrowth != null && ttmGrowth > 0 ? peTtm / ttmGrowth : null;
+      // v57.54 review: the four-quarter figure is the more current one, so it leads when it exists; the fiscal-year
+      // PER (the screener's value factor basis) stays beside it, labelled.
+      const peText = pe == null ? '' : peTtm != null
+        ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합 · ${ttm[ttm.length - 1].periodEnd.slice(0, 7)} 분기까지) · ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
+        : `, PER ${pe.toFixed(1)}배(${earningsBasis})`;
       points.push({ id: 'earnings', tone: niGrowth >= 0 ? 'favorable' : 'burden', title: '이익과 가격',
         // Codex review 2026-10-05: a PEG from last year's income growth cannot say whether the price is a
         // burden — that needs the growth ahead. The number is shown with its basis, without a verdict.
-        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${pe != null ? `, PER ${pe.toFixed(1)}배(${earningsBasis})` : ''}${peg != null ? `, PEG ${peg.toFixed(2)}(PER ÷ 그 회계연도 순이익 성장률)` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.` });
+        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${peText}${peg != null ? `, PEG ${peg.toFixed(2)}(${fyLabel ? `${fyLabel} ` : ''}PER ÷ ${fyLabel ? `${fyLabel} ` : '그 회계연도 '}순이익 성장률)${pegTtm != null ? ` · 최근 4개 분기 합 기준 약 ${pegTtm.toFixed(2)}` : ''}` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.`,
+        ...(peTtm != null ? { peTtm, ttmThrough: ttm[ttm.length - 1].periodEnd } : {}) });
     }
   } else if (latest) {
     const growth = finite(fundamentals?.revGrowth);

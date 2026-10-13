@@ -1,0 +1,327 @@
+// P1742 (owner 2026-10-13): "앞으로의 갈림길" — the forward branches on 거시 (full), 오늘 and 시장 상태 (compact).
+// One visual (the upcoming releases and the branch map with each branch's met-condition dots), a short reading
+// (why rates matter and what would have to happen for them to fall), then per-branch detail folded inside each map
+// row (one list, not the map plus a second accordion of the same branches): the
+// cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
+// opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
+import { buildMacroRead } from '../../domain/macro/macro-read.js';
+import { buildMacroCrossroads, upcomingMacroEvents, CHOICES, SHAPES } from '../../domain/market/macro-crossroads.js';
+import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { themesForBranch } from '../../domain/scenarios/exposures.js';
+import { krThemeLabel } from '../../domain/themes/kr-themes.js';
+
+function el(doc, tag, text, className) {
+  const node = doc.createElement(tag);
+  if (text != null) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
+// Korean particles follow the last Hangul syllable of a quoted path name (quotes are skipped).
+const batchim = (text) => { const syllables = String(text || '').match(/[가-힣]/g); return syllables ? (syllables.at(-1).charCodeAt(0) - 0xac00) % 28 !== 0 : false; };
+const josa = (text, withFinal, withoutFinal) => (batchim(text) ? withFinal : withoutFinal);
+const TONE = { same: '시장 가격 같은 방향', against: '시장 가격 반대 방향', neutral: '시장 가격 중립', unknown: '시장 가격 보류' };
+
+export { themeLinkRow };
+
+export function crossroadsForRoot(root, { regime = null, nowMs = Date.now() } = {}) {
+  const macroHistory = root?._aioMacroHistory || null;
+  const history = root?._aioHistory || [];
+  const read = buildMacroRead({ macro: root?._aioServerMacro || null, macroHistory, regime: regime?.available ? regime : null, history });
+  const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
+  const events = upcomingMacroEvents({ releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {}, nowMs });
+  return buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory, history, events, outcomes: root?.[SCENARIO_OUTCOMES.key] || null });
+}
+
+/** P1743: load the weekly long-history outcomes and the per-refresh state once; repaint when either arrives. */
+export function refreshScenarioArtifacts(root, repaint) {
+  for (const spec of [SCENARIO_OUTCOMES, SCENARIO_STATE]) {
+    refreshSharedArtifact(root, spec).then(({ changed }) => { if (changed) repaint?.(); }).catch(() => {});
+  }
+}
+
+function meter(doc, item) {
+  const box = el(doc, 'span', null, 'xr-meter');
+  box.setAttribute('role', 'img');
+  box.setAttribute('aria-label', item.fit);
+  const order = (ok) => ok === true ? 0 : ok === false ? 1 : 2; // filled dots first, so 3/4 reads as three filled
+  for (const [, ok] of [...item.conditions].sort((a, b) => order(a[1]) - order(b[1]))) box.append(el(doc, 'span', null, `xr-dot ${ok == null ? 'is-unknown' : ok ? 'is-met' : 'is-unmet'}`));
+  return box;
+}
+
+function chainRow(doc, chain) {
+  const row = el(doc, 'div', null, 'xr-chain');
+  chain.forEach((step, index) => {
+    if (index) row.append(el(doc, 'span', '→', 'xr-chain-sep'));
+    row.append(el(doc, 'span', step, 'xr-chain-step'));
+  });
+  return row;
+}
+
+function linkButton(doc, root, label, route, anchor = null) {
+  const button = el(doc, 'button', `${label} →`, 'flow-next-link');
+  button.type = 'button';
+  button.addEventListener('click', () => {
+    root.showPage?.(route);
+    if (anchor) setTimeout(() => doc.getElementById(anchor)?.scrollIntoView?.({ block: 'start' }), 60);
+  });
+  return button;
+}
+
+// v57.54 audit (13): each path links straight to the themes its exposure tags favour (US: the theme's detail; KR: the
+// domestic theme stages on 테마). The same registry the playbook uses; no ticker is named.
+function themeLinkRow(doc, root, item, { max = 4 } = {}) {
+  if (!item) return null;
+  const { wind, themes } = themesForBranch(item);
+  const usNames = new Map((Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []).map((theme) => [theme.id, theme.nameKr || theme.name || theme.id]));
+  const us = themes.filter((theme) => theme.market === 'US' && usNames.has(theme.id)).slice(0, max);
+  const kr = themes.filter((theme) => theme.market === 'KR');
+  if (!us.length && !kr.length) return null;
+  const row = el(doc, 'div', null, 'xr-explore xr-theme-links');
+  row.append(el(doc, 'span', `'${item.title.split(' — ')[0]}' 길에서 ${wind === 'tail' ? '순풍인' : '업종·기업마다 갈리는'} 테마:`, 'xr-explore-label'));
+  for (const theme of us) {
+    const button = el(doc, 'button', `${usNames.get(theme.id)} →`, 'flow-next-link');
+    button.type = 'button';
+    button.title = '테마 상세 · 구성 종목';
+    button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(theme.id); else root?.showPage?.('themes'); });
+    row.append(button);
+  }
+  if (kr.length) {
+    const names = kr.slice(0, 3).map((theme) => krThemeLabel(theme.id).split(' / ')[0]);
+    const button = linkButton(doc, root, `국내 ${names.join('·')}${kr.length > 3 ? ` 외 ${kr.length - 3}개` : ''}`, 'themes', 'theme-playbook-title');
+    button.title = '테마 화면의 국내 테마 단계';
+    row.append(button);
+  }
+  return row;
+}
+
+function timeline(doc, model) {
+  const strip = el(doc, 'ol', null, 'xr-timeline');
+  strip.setAttribute('aria-label', '다가오는 공식 발표');
+  for (const event of model.events.slice(0, 6)) {
+    const item = el(doc, 'li', null, 'xr-event');
+    if (model.nextEvent && event.id === model.nextEvent.id) item.dataset.next = 'true';
+    item.append(el(doc, 'span', md(event.date), 'xr-event-date'), el(doc, 'span', event.name, 'xr-event-name'));
+    strip.append(item);
+  }
+  return strip;
+}
+
+// The map is the only list of branches: each row is a <details class="xr-branch"> whose summary is the map row (keyboard
+// operable, expanded state announced) and whose body is that branch's detail, opened in place.
+function branchMap(doc, root, model, openIds) {
+  const map = el(doc, 'div', null, 'xr-map');
+  map.append(el(doc, 'div', '지금', 'xr-map-now'));
+  const list = el(doc, 'ul', null, 'xr-map-branches');
+  for (const item of model.items) {
+    const row = el(doc, 'li', null, 'xr-map-branch');
+    row.dataset.branch = item.id;
+    if (item.id === model.leadId) row.dataset.lead = 'true';
+    row.append(branchCard(doc, root, item, item.id === model.leadId, openIds.has(item.id)));
+    list.append(row);
+  }
+  map.append(list);
+  return map;
+}
+
+/** Open one branch's detail on 거시 (from the six-axis cards or another screen) and bring it into view. */
+export function openCrossroadsBranch(doc, root, branchId) {
+  const reveal = () => {
+    const card = doc?.querySelector?.(`.xr-branch[data-branch="${branchId}"]`);
+    if (!card) return false;
+    card.open = true;
+    card.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+    card.querySelector('summary')?.focus?.({ preventScroll: true });
+    return true;
+  };
+  const onMacro = doc?.getElementById('page-macro')?.classList?.contains('active');
+  if (onMacro !== false && reveal()) return;
+  root?.showPage?.('macro');
+  // The 거시 section may still be mounting after the route change: try a few times, then give up quietly.
+  const retry = (delays) => { if (!delays.length) return; setTimeout(() => { if (!reveal()) retry(delays.slice(1)); }, delays[0]); };
+  retry([80, 300, 900]);
+}
+
+function rateHub(doc, model) {
+  const hub = el(doc, 'div', null, 'xr-hub');
+  hub.append(el(doc, 'h3', '왜 금리가 중심인가', 'xr-h3'));
+  if (model.rateHub.now) hub.append(el(doc, 'p', model.rateHub.now, 'xr-hub-now'));
+  if (model.rateHub.pricingNote) hub.append(el(doc, 'p', model.rateHub.pricingNote, 'xr-hub-note'));
+  hub.append(el(doc, 'p', model.rateHub.whyHigherHurts, 'xr-reading'));
+  if (model.rateHub.tension) hub.append(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
+  hub.append(el(doc, 'h4', '금리가 내려가려면 — 무엇이 필요하고 어디서 확인하나', 'xr-h4'));
+  const grid = el(doc, 'div', null, 'xr-paths');
+  for (const path of model.rateHub.pathsDown) {
+    const card = el(doc, 'div', null, `xr-path is-${path.stateText ? 'mixed' : path.ok == null ? 'unknown' : path.ok ? 'met' : 'unmet'}`);
+    card.append(el(doc, 'span', path.label, 'xr-path-label'), el(doc, 'span', path.stateText || (path.ok == null ? '확인 불가' : path.ok ? '진행 중' : '아직 아님'), 'xr-path-state'),
+      el(doc, 'p', path.evidence, 'xr-path-evidence'), el(doc, 'p', path.next ? `확인: ${path.next}` : '', 'xr-path-next'));
+    grid.append(card);
+  }
+  hub.append(grid, el(doc, 'p', model.rateHub.caveat, 'xr-caveat'));
+  return hub;
+}
+
+function branchCard(doc, root, item, lead, open = false) {
+  const card = el(doc, 'details', null, 'xr-branch');
+  card.dataset.branch = item.id;
+  if (lead) card.dataset.lead = 'true';
+  card.open = open;
+  const summary = el(doc, 'summary', null, 'xr-branch-summary');
+  const [name, sub] = item.title.split(' — ');
+  const head = el(doc, 'span', null, 'xr-map-head');
+  head.append(el(doc, 'span', name, 'xr-map-title'), meter(doc, item), el(doc, 'span', item.fit, 'xr-map-fit'));
+  const tags = el(doc, 'span', null, 'xr-map-tags');
+  tags.append(el(doc, 'span', TONE[item.pricing.tone] || TONE.unknown, `xr-tag is-${item.pricing.tone}`),
+    el(doc, 'span', `이 길이라면 유리: ${item.favored.map((key) => CHOICES[key]).join(' · ')}`, 'xr-tag is-choice'));
+  summary.append(head, ...(sub ? [el(doc, 'span', sub, 'xr-map-sub')] : []), tags, el(doc, 'span', '근거와 선택지', 'xr-map-more'));
+  card.append(summary);
+  const body = el(doc, 'div', null, 'xr-branch-body');
+  body.append(chainRow(doc, item.chain));
+  const impact = el(doc, 'dl', null, 'xr-impact');
+  impact.append(el(doc, 'dt', '상대적으로 강한 쪽'), el(doc, 'dd', item.impact.firmer), el(doc, 'dt', '상대적으로 약한 쪽'), el(doc, 'dd', item.impact.weaker));
+  if (item.impact.mixed) impact.append(el(doc, 'dt', '엇갈리는 쪽'), el(doc, 'dd', `${item.impact.mixed} — 업종·기업마다 이익과 부담이 갈립니다`));
+  body.append(impact);
+  const themeRow = themeLinkRow(doc, root, item, { max: 6 });
+  if (themeRow) body.append(themeRow);
+  body.append(el(doc, 'h4', '가능성의 근거 — 세 가지', 'xr-h4'));
+  const evidence = el(doc, 'ul', null, 'xr-evidence');
+  evidence.append(el(doc, 'li', `조건: ${item.basis.join(' · ')}`), el(doc, 'li', `시장 가격: ${item.pricing.text}`), el(doc, 'li', `과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`));
+  body.append(evidence);
+  if (item.triggers.length) {
+    body.append(el(doc, 'h4', '이 길이 맞는지 가를 발표', 'xr-h4'));
+    const triggers = el(doc, 'ul', null, 'xr-triggers');
+    for (const trigger of item.triggers) triggers.append(el(doc, 'li', `${trigger.when} — ${trigger.text}`));
+    body.append(triggers);
+  }
+  body.append(el(doc, 'h4', '이 길이라면 — 선택지와 기회비용', 'xr-h4'));
+  const table = el(doc, 'div', null, 'xr-choices');
+  for (const [key, text] of Object.entries(item.choices)) {
+    const row = el(doc, 'div', null, 'xr-choice');
+    if (item.favored.includes(key)) row.dataset.favored = 'true';
+    row.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
+    if (item.favored.includes(key)) row.append(el(doc, 'span', '상대적으로 유리', 'xr-choice-flag'));
+    table.append(row);
+  }
+  body.append(table, el(doc, 'p', item.favoredWhy, 'xr-reading'));
+  const explore = el(doc, 'div', null, 'xr-explore');
+  explore.append(el(doc, 'span', '세부 선별은 직접:', 'xr-explore-label'), ...item.explore.map((link) => { const b = linkButton(doc, root, link.label, link.route, link.route === 'themes' ? 'theme-playbook-title' : null); b.title = link.why; return b; }));
+  body.append(explore);
+  card.append(body);
+  return card;
+}
+
+const shortDate = (iso) => md(String(iso || '').slice(0, 10));
+/** P1743: what the automated record saw change — branch lead/alt shifts, condition flips, and scored releases. */
+function changeLog(doc, state) {
+  const transitions = (state?.transitions || []).slice(-6).reverse();
+  const scored = (state?.eventOutcomes || []).slice(-6).reverse();
+  if (!transitions.length && !scored.length) return null;
+  const box = el(doc, 'div', null, 'xr-changes');
+  box.append(el(doc, 'h3', '자동 기록 — 무엇이 바뀌었나', 'xr-h3'));
+  if (scored.length) {
+    box.append(el(doc, 'h4', '지난 발표 판정', 'xr-h4'));
+    const list = el(doc, 'ul', null, 'xr-scored');
+    for (const row of scored) list.append(el(doc, 'li', `${shortDate(row.at)} ${row.name} (${row.period} 기준): ${row.actualText} → ${row.matched.length ? `${row.matched.map((m) => `'${m.title}'`).join(' · ')} 길의 기준 충족` : '어느 길의 기준에도 해당하지 않음'}`));
+    box.append(list);
+  }
+  if (transitions.length) {
+    box.append(el(doc, 'h4', '최근 변화', 'xr-h4'));
+    const list = el(doc, 'ul', null, 'xr-transitions');
+    for (const row of transitions) list.append(el(doc, 'li', `${shortDate(row.at)} ${row.text}`));
+    box.append(list);
+  }
+  box.append(el(doc, 'p', `데이터 갱신마다 자동으로 다시 계산해 기록합니다${state?.generatedAt ? ` · 마지막 계산 ${shortDate(state.generatedAt)}` : ''}.`, 'xr-caveat'));
+  return box;
+}
+
+/** Full section on 거시. */
+export function renderMacroCrossroads({ documentRef: doc, root, regime = null, host = null } = {}) {
+  let target = host || doc?.getElementById('macro-crossroads');
+  // The section is created here (the shell stays unchanged): first on 거시, before the current-regime section.
+  const before = !target ? doc?.getElementById('macro-regime')?.closest('section') : null;
+  if (before) {
+    const section = el(doc, 'section', null, 'briefing-block macro-section xr-section');
+    section.setAttribute('aria-labelledby', 'macro-crossroads-title');
+    const title = el(doc, 'h2', '앞으로의 갈림길 — 다음 발표가 가를 길', 'briefing-h2');
+    title.id = 'macro-crossroads-title';
+    target = el(doc, 'div');
+    target.id = 'macro-crossroads';
+    section.append(title, target);
+    before.insertAdjacentElement('beforebegin', section);
+  }
+  if (!target) return null;
+  const model = crossroadsForRoot(root, { regime });
+  root.__aioMacroCrossroads = model;
+  if (!target.dataset.aioScenarioLoad) { target.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderMacroCrossroads({ documentRef: doc, root, regime, host: target })); }
+  const openIds = new Set([...target.querySelectorAll('.xr-branch[open]')].map((node) => node.dataset.branch));
+  const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('.xr-branch')?.dataset.branch : null;
+  if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
+  const basis = el(doc, 'p', `${model.asOf || '기준일 미확인'} 관측 기준 · 예측이 아니라, 다음 발표가 어느 길로 갈지 가를 때 무엇을 보고 어떻게 대응할지의 지도입니다. 가능성은 조건 부합 수 · 시장 가격 방향 · 과거 빈도로만 말하고 확률 숫자는 쓰지 않습니다.`, 'xr-basis');
+  // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
+  const mapHead = el(doc, 'h3', `${model.items.length}갈래의 길 — 눌러서 근거와 선택지 보기`, 'xr-h3');
+  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), basis, timeline(doc, model), rateHub(doc, model), mapHead, branchMap(doc, root, model, openIds), ...[changeLog(doc, root?.[SCENARIO_STATE.key])].filter(Boolean),
+    el(doc, 'p', '세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다. 이 지도는 가격·수량·시점을 제시하지 않습니다.', 'xr-caveat'));
+  target.dataset.aioCrossroads = 'native';
+  if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
+  return model;
+}
+
+// P1743: the theme side of the same picture, from the per-refresh state (every theme read by one rule).
+function themeLines(doc, root) {
+  const state = root?.[SCENARIO_STATE.key];
+  const themes = state?.themes || [];
+  if (!themes.length) return [];
+  const byKey = new Map(themes.map((row) => [`${row.market}:${row.id}`, row]));
+  const pullbacks = (state.highlights?.structuralPullbacks || []).map((key) => byKey.get(key)).filter(Boolean).slice(0, 4);
+  const lines = [];
+  if (state.rotation?.text) lines.push(el(doc, 'p', `테마: ${state.rotation.text}`, 'xr-reading'));
+  if (pullbacks.length) lines.push(el(doc, 'p', `긴 추세 속 조정이면서 거시 역풍이 아닌 테마: ${pullbacks.map((row) => row.label).join(', ')} — 나눠 접근하는 쪽의 기회비용이 상대적으로 작은 조합입니다(구조 가설이 깨지면 중단).`, 'xr-reading'));
+  return lines;
+}
+
+/** Compact block on 오늘 and 시장 상태: one forward view — the present structure (when given), the branch the next
+ * releases would most likely confirm and the structure it leads to, its chain and favoured choice, the alternative,
+ * the rate tension and the theme side — then links to 거시 and 테마. */
+export function renderCrossroadsCompact({ documentRef: doc, root, regime = null, anchor = null, id = 'home-crossroads', structure = null, title = '앞으로의 갈림길' } = {}) {
+  if (!doc || !anchor) return null;
+  const model = crossroadsForRoot(root, { regime });
+  let box = doc.getElementById(id);
+  if (!box) { box = el(doc, 'div', null, 'xr-compact'); box.id = id; anchor.insertAdjacentElement('afterend', box); }
+  if (!box.dataset.aioScenarioLoad) { box.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderCrossroadsCompact({ documentRef: doc, root, regime, anchor, id, structure, title })); }
+  const lead = model.items?.find((item) => item.id === model.leadId);
+  box.hidden = (!model.available || !lead) && !structure;
+  if (box.hidden) return model;
+  const alt = model.items.find((item) => item.id === model.altId) || null;
+  const short = (item) => item.title.split(' — ')[0];
+  const priced = (item) => item.pricing.tone === 'same' ? ', 시장 가격도 이 방향' : item.pricing.tone === 'against' ? ', 시장 가격은 반대 방향' : '';
+  const toShape = (item) => item.shape && SHAPES[item.shape] ? ` 이 길이면 시장 구조는 '${SHAPES[item.shape]}' 쪽으로 갑니다.` : '';
+  const links = el(doc, 'div', null, 'xr-explore');
+  links.append(linkButton(doc, root, '모든 갈림길과 선택지', 'macro', 'macro-crossroads-title'));
+  if (root?.[SCENARIO_STATE.key]?.themes?.length) links.append(linkButton(doc, root, '모든 테마의 단계', 'themes', 'theme-playbook-title'));
+  const parts = [el(doc, 'h3', title, 'xr-h3')];
+  if (structure) parts.push(...structure);
+  // v57.54 audit (8): the same tie rule as 거시 (tiedIds, P1747) — a tie names both paths up front and says why one is
+  // written first, instead of featuring one as "the" path and the other as a footnote.
+  const tied = lead && alt && model.tiedIds?.includes(lead.id) && model.tiedIds.includes(alt.id);
+  if (lead && tied) {
+    const sameFit = lead.met === alt.met && lead.total === alt.total;
+    const order = lead.pricing.tone === 'same' && alt.pricing.tone !== 'same' ? ` 시장 가격이 같은 방향인 '${short(lead)}'${josa(short(lead), '을', '를')} 먼저 적습니다.` : '';
+    parts.push(el(doc, 'p', `다음 발표가 가를 길 — 조건 부합이 같은 두 길${sameFit ? `(${lead.met}/${lead.total})` : ''}: '${short(lead)}'(${[sameFit ? '' : lead.fit, priced(lead).replace(/^, /, '')].filter(Boolean).join(', ') || '시장 가격 보류'})${josa(short(lead), '과', '와')} '${short(alt)}'(${[sameFit ? '' : alt.fit, priced(alt).replace(/^, /, '')].filter(Boolean).join(', ') || '시장 가격 보류'})${model.nextEvent ? ` · ${md(model.nextEvent.date)} ${model.nextEvent.name} 발표가 둘을 가릅니다` : ''}.${order}`, 'xr-lead'),
+      chainRow(doc, lead.chain),
+      el(doc, 'p', `'${short(lead)}'${josa(short(lead), '이라면', '라면')} 상대적으로 유리: ${lead.favored.map((key) => CHOICES[key]).join(' · ')}.${toShape(lead)} '${short(alt)}'${josa(short(alt), '이라면', '라면')} ${alt.favored.map((key) => CHOICES[key]).join(' · ')}.${toShape(alt)}`, 'xr-reading'));
+    parts.push(...[themeLinkRow(doc, root, lead), themeLinkRow(doc, root, alt)].filter(Boolean));
+    if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
+  } else if (lead) {
+    parts.push(el(doc, 'p', `다음 발표가 가를 길: '${short(lead)}'(${lead.fit}${priced(lead)})${model.nextEvent ? ` · 다음 분기점 ${md(model.nextEvent.date)} ${model.nextEvent.name}` : ''}.${toShape(lead)}`, 'xr-lead'),
+      chainRow(doc, lead.chain),
+      el(doc, 'p', `이 길이라면 상대적으로 유리한 쪽: ${lead.favored.map((key) => CHOICES[key]).join(' · ')} — ${lead.favoredWhy}`, 'xr-reading'));
+    const leadThemes = themeLinkRow(doc, root, lead);
+    if (leadThemes) parts.push(leadThemes);
+    if (alt) parts.push(el(doc, 'p', `함께 볼 길: '${short(alt)}'(${alt.fit}${priced(alt)}) — 이 길이라면 ${alt.favored.map((key) => CHOICES[key]).join(' · ')} 쪽이 상대적으로 유리합니다.${toShape(alt)}`, 'xr-reading'));
+    if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
+  } else parts.push(el(doc, 'p', model.headline, 'xr-reading'));
+  parts.push(...themeLines(doc, root), links);
+  box.replaceChildren(...parts);
+  box.dataset.aioCrossroads = 'compact';
+  return model;
+}

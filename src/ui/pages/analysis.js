@@ -106,7 +106,18 @@ function renderTechnicalHealth({ documentRef, root }) {
   }
   const chips = documentRef?.getElementById('tech-regime-chips');
   if (chips) {
-    chips.replaceChildren(...(regime.axes || []).map((row) => {
+    // 2026-10-14 audit #4: the sentence above counts the six US axes, so the Korea FX reference (원·엔) is not a
+    // seventh chip — it follows them as one muted reference line, outside the tally.
+    const axes = regime.axes || [];
+    const reference = axes.find((row) => row.id === 'korea');
+    const referenceNode = reference ? documentRef.createElement('div') : null;
+    if (referenceNode) {
+      referenceNode.className = 'regime-chip-reference';
+      referenceNode.style.cssText = 'flex-basis:100%;font-size:12px;color:var(--text-muted);margin-top:2px;';
+      referenceNode.title = '한국 참고 — 위 우호·중립·부담 합계에 넣지 않습니다';
+      referenceNode.textContent = `참고 · 환율(원·엔) ${reference.stateLabel || '확인 불가'}`;
+    }
+    chips.replaceChildren(...axes.filter((row) => row.id !== 'korea').map((row) => {
       const chip = documentRef.createElement('div');
       chip.className = 'regime-chip';
       chip.dataset.state = row.state;
@@ -118,7 +129,7 @@ function renderTechnicalHealth({ documentRef, root }) {
       state.textContent = row.stateLabel;
       chip.append(label, state);
       return chip;
-    }));
+    }), ...(referenceNode ? [referenceNode] : []));
   }
   const pill = documentRef?.getElementById('tech-health-pill');
   if (pill) pill.textContent = regime.available ? `시장 상태 · ${regime.overall}` : '시장 상태 판정 대기';
@@ -192,7 +203,7 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       if (page && !suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
           routeId: route,
-          heading: route === 'home' ? '홈 · 시장 확인과 거시 시차' : route === 'signal' ? '시그널 · 확인 증거와 리스크 과정' : '기술 · 가격 우선과 다중 시계열'
+          heading: route === 'home' ? '홈 · 시장 확인과 거시 시차' : route === 'signal' ? '시장 상태 · 확인 증거와 리스크 과정' : '기술 · 가격 우선과 다중 시계열'
         });
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge?.remove?.());

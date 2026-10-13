@@ -6,6 +6,8 @@ import { SECTOR_ETF_LABELS } from '../../domain/market/scenario-outlook.js';
 
 const el = (doc, tag, text, className) => { const node = doc.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
 const particle = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return code >= 0 && code < 11172 && code % 28 ? '이' : '가'; };
+// Audit 2026-10-14: one date format on 오늘 (M/D), and the block is an h2 like its sibling sections.
+const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : String(date || ''); };
 const QUADRANT = { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' };
 
 export function sectorMoves(artifact, nowMs = Date.now()) {
@@ -26,7 +28,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor, nowMs = Date
   section.id = 'home-sector-moves';
   section.setAttribute('data-observed-at', model.session); // P1643: the basis card dates each bar.
   const head = el(doc, 'div', null, 'home-sector-head');
-  head.append(el(doc, 'h3', '섹터 등락', 'briefing-h2'), el(doc, 'span', `${model.session} 종가 · 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note'));
+  head.append(el(doc, 'h2', '섹터 등락', 'briefing-h2'), el(doc, 'span', `${md(model.session)} 종가 · 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note'));
   const top = model.rows[0], bottom = model.rows.at(-1);
   const lead = el(doc, 'p', `${top.label}(${top.daily >= 0 ? '+' : ''}${top.daily.toFixed(2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${bottom.daily >= 0 ? '+' : ''}${bottom.daily.toFixed(2)}%)${particle(bottom.label)} 가장 약했습니다. ${model.rows.filter((row) => row.daily > 0).length}개 섹터가 올랐습니다.`, 'home-sector-lead');
   const max = Math.max(0.5, ...model.rows.map((row) => Math.abs(row.daily)));

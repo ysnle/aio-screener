@@ -1,0 +1,22 @@
+{
+  "version": "v57.54",
+  "date": "2026-10-14",
+  "r": null,
+  "status": null,
+  "note": "v57.54: Worker·워크플로 신뢰성·비용 — AI 마감 시간, DO 장부 상한, 오류 응답 캐시 금지, 일일 13F 판정, 시장 해설 재사용, 권한·Node 24(P1751).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1751,
+    "title": "Worker가 웹검색·긴 답변을 60초에 끊어 예약 비용을 날리고, 장부가 한 덩어리로 커지며, 업스트림 오류를 공개 캐시함",
+    "symptom": "OpenAI 프록시는 스트림 전체를 60초에 끊어 90초 클라이언트 타임아웃의 웹검색 호출이 시작 후 중단되면 예약액(검색 $0.10 포함)이 환불되지 않고 502가 났다. Durable Object 장부는 70일치 예약을 한 값에 담아 AI 호출마다 세 번 통째로 다시 썼고 값 크기 한도에 다가갔다. 일반 프록시·릴레이는 429/403/5xx에도 'public, max-age'를 붙여 브라우저가 오류를 2~60분 붙잡았다. 13D/G·13F 일일 레인은 한 번의 cron에만 의존했고 :17 cron과 같은 동시성 그룹이라 조용히 취소될 수 있었다. 시장 해설 AI는 근거가 같아도 매 갱신마다 호출됐다. continue-on-error 레인 실패는 초록 실행 뒤에 숨었고, 리베이스 충돌은 진단 없이 끝났으며, 갱신 봇은 CI가 나중에 거부하는 데이터를 푸시했다(history-time 게이트 누락).",
+    "root_cause": "Worker 마감 시간이 예산(웹검색·출력 토큰)과 독립된 상수였고, 장부 정리 규칙이 시작·정산된 예약을 월 보존 기간까지 남겼다. 캐시 헤더가 응답 상태와 무관하게 붙었다. 워크플로는 이벤트 이름으로 레인을 정했고 사전 푸시 게이트를 손으로 나열했다.",
+    "fix": "openAiDeadlineMs: 웹검색 예약 또는 출력 4000토큰 초과면 120초, 아니면 60초, 클라이언트 125초. prune()가 3일 지난 시작·정산 예약을 정리하고 검증된 상태를 메모리에 캐시(저장 실패 시 해제). ok 응답만 public 캐시, 나머지 no-store, 엣지 캐시는 상태별 TTL, Vary: Origin. /health DO 결과 60초 메모·속도 제한, 토큰 비교 상수 시간, 거부 사유 로그(헤더·키 미기록). data-plane KV 읽기 cacheTtl 30. refresh-data 일일 레인은 마커·generatedAt 나이(20시간)·운영자 실행으로 판정, cron 07:33. 시장 해설은 근거·헤드라인 id가 같고 12시간 이내 검증본이면 재사용. 레인 실패 요약 경고, 리베이스 충돌 시 파일 목록과 함께 중단·지터, 잡 단위 권한(converge는 contents read, persist-credentials false), Node 24, operations-alert는 skipped/cancelled/neutral에 러너를 띄우지 않음, converge 15분, 50MB 초과 스테이징 차단(sec-fundamentals.json은 95MiB까지 경고). 사전 푸시 게이트는 qa-runner --group data로 CI와 같은 집합. 데이터 플레인 스모크는 배포 성공 시 항상 실행. CI는 Playwright 브라우저 캐시, Pages 배포는 npm ci 생략.",
+    "violated_rule": "AGENTS 2026-10-11: AI 월 $20 예산 안에서 항상 사용 / R606 자동 수렴 / R634 신선도 엄격",
+    "prevention": "P1751: worker/openai-contract.test.mjs (마감 60/120초, 1만 건 정리·월 합계 불변, 저장 실패 시 캐시 해제), ci-13f-currentness-check, ci-data-pipeline-contract-check (시장 해설 재사용 픽스처), ci-data-refresh-audit (qa-runner data 그룹 위치), ci-qa-pipeline-contract-check",
+    "verification": "로컬: Worker 계약 테스트 107개, QA data 그룹 32/32, cloudflare 그룹 6/6, 모든 워크플로 js-yaml 파싱·run 블록 bash -n. 배포 후 확인: refresh-data 로그의 'Daily lane due=… reason=…', daily-lane-marker 캐시 항목, Worker 응답 cf-cache-status."
+  },
+  "qa": [],
+  "changelog": [
+    "**Worker·자동화 안정화 (P1751):** 웹검색이 들어간 AI 답변이 60초에 끊기며 비용만 쓰던 문제를 고쳤고, 일시적 시세 오류가 브라우저에 몇 분씩 남지 않습니다. 같은 근거로 반복하던 시장 해설 AI 호출을 재사용해 예산을 아끼고, 일일 13F 갱신이 cron 한 번에 의존하지 않습니다."
+  ]
+}

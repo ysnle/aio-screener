@@ -36,15 +36,15 @@ export const MACRO_GROUPS = Object.freeze([
   }),
   Object.freeze({
     id: 'labor', title: '고용', items: Object.freeze([
-      Object.freeze({ id: 'unemployment', history: { field: 'unemployment', derive: 'level' }, key: 'unemployment', label: '실업률', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: 'BLS 가계 조사 기준입니다.' }),
-      Object.freeze({ id: 'nfp', history: { field: 'payrolls', derive: 'diff' }, key: 'nfp', label: '비농업 고용 증감', unit: '천 명', digits: 0, signed: true, priorPrint: true, release: 'us-nfp', note: '전월 대비 늘어난 일자리 수(BLS 사업체 조사)입니다.' }),
+      Object.freeze({ id: 'unemployment', history: { field: 'unemployment', derive: 'level' }, key: 'unemployment', label: '실업률', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: '가계 조사 기준입니다.' }),
+      Object.freeze({ id: 'nfp', history: { field: 'payrolls', derive: 'diff' }, key: 'nfp', label: '비농업 고용 증감', unit: '천 명', digits: 0, signed: true, priorPrint: true, release: 'us-nfp', note: '전월 대비 늘어난 일자리 수(사업체 조사 기준)입니다.' }),
       Object.freeze({ id: 'usWageGrowth', history: { field: 'hourlyEarnings', derive: 'yoy' }, key: 'usWageGrowth', label: '시간당 임금 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-nfp', note: '민간 부문 평균 시간당 임금 상승률입니다.' }),
       Object.freeze({ id: 'participation', key: 'blsLaborForceParticipation', blsSeries: 'laborForceParticipation', label: '경제활동참가율', unit: '%', digits: 1, release: 'us-nfp', note: '16세 이상 인구 중 일하거나 구직 중인 비율입니다.' })
     ])
   }),
   Object.freeze({
     id: 'activity', title: '소비 · 주택', items: Object.freeze([
-      Object.freeze({ id: 'retailSales', history: { field: 'retailSales', derive: 'mom' }, key: 'retailSales', label: '소매판매 (전월 대비)', unit: '%', digits: 1, signed: true, release: 'us-retail', note: '미 인구조사국 소매판매 증감률입니다.' }),
+      Object.freeze({ id: 'retailSales', history: { field: 'retailSales', derive: 'mom' }, key: 'retailSales', label: '소매판매 (전월 대비)', unit: '%', digits: 1, signed: true, release: 'us-retail', note: '소매·음식점 매출의 전월 대비 증감률입니다.' }),
       Object.freeze({ id: 'housingStarts', history: { field: 'housingStarts', derive: 'level', scale: 0.1 }, key: 'housingStarts', label: '주택 착공 (연율)', unit: '만 호', scale: 100, digits: 1, deltaUnit: '만 호', note: '착공된 신규 주택 수의 연간 환산치입니다.' })
     ])
   })

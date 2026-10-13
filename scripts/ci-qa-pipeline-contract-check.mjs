@@ -204,9 +204,10 @@ check('P1306/R651/QA-DATA-47 Principles lesson sources precede every direct gene
     && conceptManifestBuilderIndex < integratedFrameworkBuilderIndex
     && sourceLessonEnrichmentIndex < integratedFrameworkBuilderIndex);
 check('P1309/R654/QA-DATA-51 13D/G remains daily while the complete 13F chain runs in filing season, on an unconnected HR/HR-A filing, or by explicit dispatch',
-  /cron:\s*'13 7 \* \* \*'/.test(refreshDataSource)
+  /cron:\s*'33 7 \* \* \*'/.test(refreshDataSource)
     && mastersRefreshStep.includes('collect-13f-discovery.mjs --ownership-only')
-    && /GITHUB_EVENT_NAME.*schedule/.test(mastersRefreshStep)
+    && /MASTERS_MODE.*operator/.test(mastersRefreshStep)
+    && /steps\.daily-lane\.outputs\.due == 'true'/.test(mastersRefreshStep)
     && /pending_13f_hr.*-gt 0/.test(mastersRefreshStep)
     && /in_filing_season.*true/.test(mastersRefreshStep)
     && /date -u \+%u/.test(mastersRefreshStep)
@@ -257,6 +258,9 @@ check('P1289/R639 refresh-data captures and uploads bounded snapshot diagnostics
   && /actions\/upload-artifact@[0-9a-f]{40}/.test(refreshDataSource)
   && /retention-days:\s*7/.test(refreshDataSource));
 
+const dataGroupScriptNames = new Set((manifest.groups?.data?.gates || []).map((gate) => basename(gate.script)));
+const runsQaGroup = (source, groupName) => !!groupName
+  && new RegExp(`qa-runner\\.mjs\\s+--group\\s+${String(groupName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w-])`).test(source);
 const reachableScriptsForProfile = (profileName, candidateManifest = manifest) => new Set(
   (candidateManifest.profiles?.[profileName] || []).flatMap((groupName) =>
     (candidateManifest.groups?.[groupName]?.gates || []).map((gate) => gate.script)
@@ -266,7 +270,7 @@ const reachableScriptsForProfile = (profileName, candidateManifest = manifest) =
 function validateWorkflowContract(contract, source, candidateManifest = manifest) {
   const contractErrors = [];
   const requiredScripts = Array.isArray(contract?.requiredScripts) ? contract.requiredScripts : [];
-  if (!contract?.workflow || !['direct', 'profile'].includes(contract?.mode) || requiredScripts.length === 0) {
+  if (!contract?.workflow || !['direct', 'profile', 'group'].includes(contract?.mode) || requiredScripts.length === 0) {
     contractErrors.push('identity/mode/requiredScripts incomplete');
     return contractErrors;
   }
@@ -276,6 +280,16 @@ function validateWorkflowContract(contract, source, candidateManifest = manifest
   if (contract.mode === 'direct') {
     for (const script of requiredScripts) {
       if (!source.includes(script) && !source.includes(basename(script))) contractErrors.push(`direct gate missing: ${script}`);
+    }
+  } else if (contract.mode === 'group') {
+    // Group mode: the workflow runs `qa-runner.mjs --group <name>`; each required script must be a gate of that
+    // group or still be invoked directly (a script outside the group, e.g. a --staged lane, stays direct).
+    const group = candidateManifest.groups?.[contract.group];
+    if (!contract.group || !group) contractErrors.push(`group missing: ${contract.group || 'undefined'}`);
+    const invokesGroup = runsQaGroup(source, contract.group);
+    const reachable = new Set(invokesGroup ? (group?.gates || []).map((gate) => gate.script) : []);
+    for (const script of requiredScripts) {
+      if (!reachable.has(script) && !source.includes(script) && !source.includes(basename(script))) contractErrors.push(`group gate unreachable: ${script}`);
     }
   } else {
     if (!contract.profile || !candidateManifest.profiles?.[contract.profile]) contractErrors.push(`profile missing: ${contract.profile || 'undefined'}`);
@@ -307,7 +321,21 @@ const profileNegativeControl = validateWorkflowContract({
   profile: 'watchdog',
   requiredScripts: ['scripts/__missing-gate-negative-control__.mjs']
 }, 'run: node scripts/qa-runner.mjs watchdog --no-cache');
+const groupNegativeControl = validateWorkflowContract({
+  workflow: '.github/workflows/negative-control.yml',
+  mode: 'group',
+  group: 'data',
+  requiredScripts: ['scripts/ci-data-refresh-audit.mjs']
+}, 'run: node scripts/qa-runner.mjs --group data-other --no-cache');
+const groupPositiveControl = validateWorkflowContract({
+  workflow: '.github/workflows/negative-control.yml',
+  mode: 'group',
+  group: 'data',
+  requiredScripts: ['scripts/ci-data-refresh-audit.mjs']
+}, 'run: node scripts/qa-runner.mjs --group data --no-cache');
 check('workflow contract negative controls reject missing direct/profile gates', directNegativeControl.length > 0 && profileNegativeControl.length > 0);
+check('P1289 workflow contract group mode rejects a missing --group invocation and accepts the declared group', groupNegativeControl.length > 0 && groupPositiveControl.length === 0,
+  `group negative=${groupNegativeControl.join('; ')} positive=${groupPositiveControl.join('; ')}`);
 
 const ids = [];
 for (const [groupName, group] of Object.entries(manifest.groups || {})) {
@@ -317,6 +345,8 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
   for (const gate of group.gates || []) {
     ids.push(gate.id);
     check(`${groupName}/${gate.id} script exists`, existsSync(gate.script));
+    // Optional `remedy`: a one-line next action printed by qa-runner on FAIL (never part of the fingerprint).
+    if ('remedy' in gate) check(`R690 ${groupName}/${gate.id} remedy is a non-empty one-line string`, typeof gate.remedy === 'string' && gate.remedy.trim().length > 0 && !/[\r\n]/.test(gate.remedy));
   }
 }
 const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
@@ -473,7 +503,12 @@ const workflowStepBlock = (jobSource, stepName) => {
   const next = lines.findIndex((line, index) => index > start && /^      - name:/.test(line));
   return lines.slice(start, next < 0 ? lines.length : next).join('\n');
 };
-const qaFailureUploadSha = 'ea165f8d65b6e75b540449e92b4886f43607fa02';
+// v57.54: require an immutable full-SHA pin that is the same in every job, instead of one hard-coded SHA.
+// The literal SHA made every Dependabot github-actions bump PR fail this gate (3 of 28 CI failures in the
+// last 100 runs) although the bump itself is what the PR review covers.
+const qaFailureUploadPins = [...new Set([...ciSource.matchAll(/uses:\s*actions\/upload-artifact@([0-9a-f]{40})\b/g)].map((match) => match[1]))];
+check('v57.54 CI pins actions/upload-artifact to one immutable full commit SHA', qaFailureUploadPins.length === 1 && !/uses:\s*actions\/upload-artifact@(?![0-9a-f]{40}\b)/.test(ciSource));
+const qaFailureUploadSha = qaFailureUploadPins[0] || '(unpinned)';
 for (const jobName of ['preflight', 'contracts', 'browser']) {
   const source = workflowJobBlock(jobName);
   const qaRunStepName = jobName === 'preflight' ? 'Run aggregate preflight' : 'Run all gates in shard';
@@ -588,17 +623,32 @@ for (const [name, source] of refreshSources) {
   const committedAt = source.indexOf('verify-refresh-candidate.mjs --expect-commit');
   const rebaseAt = source.indexOf('git rebase origin/main');
   const lastProducerAt = source.indexOf(name === 'refresh-data.yml' ? 'name: Promote one data release revision' : 'name: Refresh screener independently');
-  const producerGateTokens = name === 'refresh-data.yml'
-    ? ['ci-refresh-artifact-integrity-check.mjs', 'ci-data-continuity-check.mjs', 'ci-data-refresh-audit.mjs']
-    : ['ci-sec-runtime-projection-check.mjs', 'validate-screener-artifact.mjs', 'ci-screener-workbench-contract.mjs'];
-  // P1270/P1289: strict producer checks run before recording the exact candidate; the second
+  // P1270/P1289: strict producer checks run before recording the exact candidate; the extra
   // data-audit invocation only captures bounded diagnostics and cannot replace that producer gate.
   // Promotion re-hashes the candidate after all assembly writes. Repeating heavy checks there only masks drift/cost.
+  // Counts are taken over `node scripts/<gate>` invocations, never over comments that name a gate.
+  const invocations = (token, text = source) => (text.match(new RegExp(`node scripts/${token.replaceAll('.', '\\.')}(?![\\w.-])`, 'g')) || []).length;
+  let producerGateOk;
+  if (name === 'refresh-data.yml') {
+    // refresh-data runs its producer gates as one `qa-runner.mjs --group data` invocation after the last
+    // producer and before the candidate record; the data group must contain the strict data audit and the
+    // artifact-integrity gate. Continuity is not in the data group, so it stays a direct invocation.
+    const beforeRecord = source.slice(0, recordAt);
+    const groupLine = /qa-runner\.mjs\s+--group\s+data(?![\w-])/.exec(beforeRecord);
+    producerGateOk = !!groupLine && groupLine.index > lastProducerAt
+      && ['ci-data-refresh-audit.mjs', 'ci-refresh-artifact-integrity-check.mjs'].every((token) => dataGroupScriptNames.has(token))
+      && invocations('ci-data-continuity-check.mjs', beforeRecord) === 1 && invocations('ci-data-continuity-check.mjs') === 1
+      && invocations('ci-refresh-artifact-integrity-check.mjs') <= 1
+      // The only direct data-audit call left is the bounded snapshot diagnostic.
+      && invocations('ci-data-refresh-audit.mjs') === 1
+      && /node scripts\/ci-data-refresh-audit\.mjs --write-snapshot-diagnostic/.test(source);
+  } else {
+    const producerGateTokens = ['ci-sec-runtime-projection-check.mjs', 'validate-screener-artifact.mjs', 'ci-screener-workbench-contract.mjs'];
+    producerGateOk = producerGateTokens.every((token) => source.slice(0, recordAt).includes(token))
+      && producerGateTokens.every((token) => (source.match(new RegExp(token.replaceAll('.', '\\.'), 'g')) || []).length === 1);
+  }
   check(`${name} has a fail-closed producer gate before publish`, prePushAt >= 0
-    && producerGateTokens.every((token) => source.slice(0, recordAt).includes(token))
-    && producerGateTokens.every((token) => (source.match(new RegExp(token.replaceAll('.', '\\.'), 'g')) || []).length
-      === (name === 'refresh-data.yml' && token === 'ci-data-refresh-audit.mjs' ? 2 : 1))
-    && (name !== 'refresh-data.yml' || source.includes('--write-snapshot-diagnostic'))
+    && producerGateOk
     && lastProducerAt >= 0 && recordAt > lastProducerAt
     && expectAt > recordAt && expectAt > prePushAt
     && stagedAt > expectAt && stagedAt < commitAt

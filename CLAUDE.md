@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v57.53**
+- 현재 버전: **v57.54**
 - **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md` §6.
 - 이 파일에는 버전별 작업 요약을 **누적하지 않는다** (2026-07-18 통합 — CHANGELOG가 단일 출처).
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -31,9 +31,9 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 ## 절대 규칙 (R1~R3만 — 나머지는 `_context/RULES.md`)
 
-**R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · root/context docs · CHANGELOG.md · JS cachebusters — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치** (v51.64~)
+**R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · 런타임·배포 revision 메타데이터(public-config·architecture·wrangler·operations-status) · CHANGELOG.md · JS cachebusters (날짜가 박힌 핸드오프 문서는 동결) — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치** (v51.64~)
 **R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
-**R3. 버그 수정 시 사후 분석**: P/R/QA/CHANGELOG/상태는 `node scripts/record-fix.mjs <entry.json>`로 한 번에 기록 (수기 편집 금지, 형식은 `/version-up`)
+**R3. 버그 수정 시 사후 분석**: P/R/QA/CHANGELOG/상태는 `node scripts/record-fix.mjs <entry.json>`로 한 번에 기록 (수기 편집 금지, 형식은 `/version-up`). 결함이 아닌 기능·정리는 `p` 없는 change-only 항목으로 기록(P 번호 미할당)하고, 새 assertion은 도입 릴리스(`v57.54 …`)를 인용한다
 **R27. Commands↔Skills 동기화**: 새 스킬 시 command wrapper 동시 생성
 
 ---
@@ -45,7 +45,8 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - **코드 전면 재작성 금지** — CODE-MAP/owner registry 기반으로 가장 낮은 공통 원인을 부분 패치
 - **제품 결정·변경 흐름은 `AGENTS.md`가 정본**: 종가 기준 점수, 데스크톱·모바일·아이패드 반응형 지원(2026-10-11 재승인), 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(PR 없음, push는 요청 시), 생성물 충돌 해소 스크립트
 - **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
-- **게이트-문서 계약 주의**: CI 게이트가 QA-CHECKLIST §7 마커·RULES 특정 문구·CHANGELOG v50.89 섹션을 grep한다 — 문서 압축/정리 시 삭제 금지
+- **게이트-문서 계약**: 원장(RULES/QA-CHECKLIST/BUG-POSTMORTEM/CHANGELOG) 산문은 자유롭게 압축·정리해도 된다. 게이트는 구조만 검사한다 — `## R<n>.` 헤딩(번호 보존), QA 행 형식·`verify_by`, CHANGELOG `## v<버전>` 헤딩. 정책↔원장 추적은 `architecture/governance-markers.json`이 담당한다
+- **배치 마감 시 push 여부를 한 번 묻는다** — 로컬 미푸시가 길어지면 실서비스 생산자·라이브가 어긋난다(v57.54 검토)
 
 ---
 

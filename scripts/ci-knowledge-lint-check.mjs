@@ -102,10 +102,8 @@ check('postmortem does not repeat an exact P heading', duplicatePostmortemHeadin
 check('QA checklist does not repeat an exact row', duplicateQaRows.length === 0, duplicateQaRows.join(', '));
 check('duplicate rule IDs are explicit historical exceptions only', duplicateRuleIds.length === 0, duplicateRuleIds.join(', '));
 check('postmortem-to-rule workflow is explicit', /Postmortem-To-Gate Rule/.test(governance));
-check('generated-state rule is present', /R520/.test(rules) && /CURRENT-STATE/.test(rules));
-check('hook authority rule is present', /R521/.test(rules) && /automatic commit|자동 커밋/i.test(rules));
-check('workspace regression QA is present', /QA-WORKSPACE-01/.test(qa) && /ci-workspace-contract-check\.mjs/.test(qa));
-check('workspace drift postmortem is present', /P964/.test(postmortem) && /workspace|작업환경/i.test(postmortem));
+// v57.54: the R520/R521/QA-WORKSPACE-01/P964 prose-marker checks moved to architecture/governance-markers.json
+// (policies "generated-current-state" and "hook-authority"); the checks above stay because they validate ledger structure.
 const defaultWorkingSet = read('_context/INDEX.md').match(/## Default working set([\s\S]*?)## Search-only ledgers/)?.[1] || '';
 check('default working set does not route to the frozen v48 worktree audit', !/WORKTREE-AUDIT\.md/.test(defaultWorkingSet));
 check('knowledge current-observations gate is reachable through the QA manifest', Object.values(JSON.parse(read('architecture/qa-pipeline.json')).groups || {}).some((group) => (group.gates || []).some((gate) => gate.script === 'scripts/ci-knowledge-current-observations-check.mjs')));

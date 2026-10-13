@@ -6,12 +6,16 @@
 @import url('./chart-quality.css');
 @import url('./company-analysis.css');
 @import url('./regime-quality.css');
+@import url('./chat-sessions.css');
 .regime-kr-participation { margin:24px 0; padding:24px; border:1px solid var(--border); border-radius:8px; font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
 .regime-kr-metrics { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:8px 20px; }
 .regime-kr-metrics dd { margin:0; font-variant-numeric:tabular-nums; }
 .regime-kr-tickers { color:var(--text-secondary); font-size:12px; overflow-wrap:anywhere; }
 .regime-kr-participation summary, .company-analysis-expanded > summary { cursor:pointer; padding:12px 0; }
 .aio-navigation-backdrop, .aio-navigation-close { display: none; }
+/* v57.54 (WCAG 2.5.8): the desktop sidebar toggle rendered 25×22. */
+#sidebar-toggle-btn { min-width: 24px; min-height: 24px; }
+.sidebar details > summary { min-height: 24px; line-height: 24px; box-sizing: border-box; }
 #app-version-badge { text-transform: none; }
 #glossary-search { background:var(--bg-surface) !important; color:var(--text-primary) !important; border-color:var(--border) !important; }
 #glossary-search:focus-visible { outline:2px solid var(--accent) !important; outline-offset:2px; }
@@ -80,20 +84,35 @@
   .topbar { gap: 4px; }
   .topbar > div:first-child { flex: 1 1 100%; }
   .topbar-actions-right { width: 100%; display: grid !important; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; }
+  /* Audit 2026-10-14: the phone topbar was three rows (~130px); the actions now share one row and the quote
+     time shows its compact form (below; the version stays visible — release checks read it). */
+  .topbar-actions-right { grid-template-columns: auto minmax(0, 1fr) auto auto auto; column-gap: 6px; }
   #topbar-live-badge { grid-column: 1; grid-row: 1; justify-self: start; }
-  #live-quote-ts { grid-column: 2 / -1; grid-row: 1; text-align: right; }
-  #app-version-badge { grid-column: 2; grid-row: 2; }
-  #topbar-help-btn { grid-column: 3; grid-row: 2; }
-  #topbar-ai-btn { grid-column: 4; grid-row: 2; }
-  #live-quote-ts { white-space: normal !important; overflow-wrap: anywhere; flex: 1 1 110px; }
+  #live-quote-ts { grid-column: 2; grid-row: 1; text-align: right; }
+  #app-version-badge { grid-column: 3; grid-row: 1; }
+  #topbar-help-btn { grid-column: 4; grid-row: 1; }
+  #topbar-ai-btn { grid-column: 5; grid-row: 1; }
+  #live-quote-ts { white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  /* v57.54: "서버 10/13 2…" was cut mid-time. The phone shows only the compact time the writer derives
+     (data-compact, e.g. "10/13 22:20"); the full sentence stays the element's text and title for readers. */
+  #live-quote-ts[data-compact]:not([data-compact=""]) { font-size: 0 !important; text-overflow: clip; }
+  #live-quote-ts[data-compact]:not([data-compact=""])::after { content: attr(data-compact); font-size: 11px; font-variant-numeric: tabular-nums; }
+  /* Room for that time at 360px: tighter chips and gaps (help/AI keep their 44px height). */
+  .topbar-actions-right { column-gap: 4px !important; }
+  #topbar-live-badge { padding-inline: 6px !important; }
+  #topbar-help-btn, #topbar-ai-btn { padding-inline: 8px !important; }
+  /* Portfolio hero: two columns and no vertical divider on a phone (the three-column grid broke words). */
+  #pf-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px !important; min-width: 0 !important; flex: 1 1 100% !important; }
+  /* The nine-column holdings table keeps readable column widths and scrolls sideways (its wrapper is .aio-table-scroll). */
+  #page-portfolio .aio-table-scroll > table { min-width: 680px; }
+  #page-portfolio .pf-hero-divider { display: none; }
   .page :is(.home-participation-grid, .briefing-move-chart, .breadth-drill-body, .scr-why-grid,
       .principles-reference-body, .principles-explainer, .atlas-domain-grid, .atlas-claim-grid,
-      .atlas-source-grid, .atlas-curriculum-layer-grid, .masters-principles-list, .aio-vis-panel,
-      .fxb-dynamic-comment .dc-grid, .tac-sector-grid) { grid-template-columns: minmax(0, 1fr); }
+      .atlas-source-grid, .atlas-curriculum-layer-grid, .masters-principles-list, .aio-vis-panel) { grid-template-columns: minmax(0, 1fr); }
   .page :is(.principles-chapter-grid, .principles-learning-grid, .principles-lesson-library-grid,
       .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid, .atlas-curriculum-module-grid,
       .aio-action-hub-grid, .energy-grid) { grid-template-columns: minmax(0, 1fr); }
-  .page :is(.rates-yields, .rates-other, .macro-tiles, .kr-index-grid, .tac-score-grid, .stage-grid,
+  .page :is(.rates-yields, .rates-other, .macro-tiles, .kr-index-grid,
       .breadth-summary, .sig-guide-grid, .metric-explainer, .scr-funnel, .atlas-metric-grid,
       .atlas-telegram-channel-grid, .atlas-level-rail, .principles-reference-loop,
       .integrated-framework-flow, .page .daily-moves, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }

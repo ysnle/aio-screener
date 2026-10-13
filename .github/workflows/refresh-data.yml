@@ -7,7 +7,10 @@ name: Refresh market data
 on:
   schedule:
     - cron: '17,47 * * * *'
-    - cron: '13 7 * * *'
+    # Daily 13D/G·13F and outcomes lane. :33 keeps it off the :17/:47 cron that shares the refresh-data
+    # concurrency group (a newer pending run cancels an older pending one). It is a trigger, not the only
+    # one: the lane also runs whenever its last poll is more than 20 h old (see "Decide daily lane").
+    - cron: '33 7 * * *'
   # P1377: the data-plane Worker cron dispatches with trigger=scheduler every 30 min because
   # GitHub schedules ran only every 4-6 h. Operator dispatches keep the default trigger.
   workflow_dispatch:
@@ -18,13 +21,50 @@ on:
         default: operator
         type: string
 
-permissions:
-  contents: write
-  actions: write
+# Permissions are granted per job (producer writes data and dispatches CI; converge only reads and dispatches).
+permissions: {}
 
 jobs:
-  refresh:
+  # P1757 (owner decision 2026-10-14): weekend cadence. While NYSE and KRX are both closed (Sat ~06:00 KST after the
+  # Friday US close is final, until Mon 07:00 KST; derived from the exchange-calendar registry in
+  # scripts/refresh-cadence.mjs) no new prices exist, so the producer runs only as a news cycle at most every 2 hours
+  # and the other slots stop here, before the full checkout and installs. Operator dispatches and the daily cron are
+  # always full; Worker scheduler dispatches (trigger=scheduler) follow the same rule as the :17/:47 cron. A failed
+  # decision leaves mode empty, which the refresh job treats as full (fail open).
+  cadence:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      mode: ${{ steps.decide.outputs.mode }}
+    steps:
+      - name: Sparse checkout of the cadence inputs
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            scripts/refresh-cadence.mjs
+            src/domain/market/market-calendar.js
+            public-data/data.json
+
+      - name: Decide refresh mode (full, news or skip)
+        id: decide
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+          DISPATCH_TRIGGER: ${{ inputs.trigger }}
+        run: node scripts/refresh-cadence.mjs --github-output
+
+  refresh:
+    needs: cadence
+    # `!cancelled()` replaces the implicit success() so a failed cadence job still runs the full producer.
+    if: ${{ !cancelled() && needs.cadence.outputs.mode != 'skip' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     # P1666: the producer job alone owns the shared refresh lock. Waiting for CI and Pages moved to the
     # converge job below, which used to hold this lock for 5-9 minutes and delay the next refresh slot.
     concurrency:
@@ -42,7 +82,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Fetch market data
         id: fetch-market
@@ -81,16 +121,64 @@ jobs:
           TG_PAGE_LIMIT: 50
         run: node scripts/fetch-telegram-digest.mjs --days=14 --out=public-data/telegram-digest.json
 
-      - name: Refresh past stress-band outcomes (weekly, P1661)
-        if: ${{ !cancelled() && ((github.event_name == 'workflow_dispatch' && inputs.trigger != 'scheduler') || github.event.schedule == '13 7 * * *') }}
+      - name: Restore daily-lane poll marker
+        # The daily cron is best-effort and its pending run can be cancelled by a newer one in the same
+        # concurrency group, so the lane is also due by age. filing-discovery.json's generatedAt only moves
+        # when the SEC evidence changes (semantic writes), so it alone would keep the lane "due" on every
+        # 30-minute cycle after a quiet day; this marker records the last successfully published poll.
+        id: daily-lane-marker
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: .cache/daily-lane
+          key: daily-lane-marker-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            daily-lane-marker-
+
+      - name: Decide daily lane (13D/G·13F poll and outcome refresh)
+        id: daily-lane
+        if: ${{ !cancelled() }}
+        env:
+          OPERATOR_DISPATCH: ${{ github.event_name == 'workflow_dispatch' && inputs.trigger != 'scheduler' }}
+          DAILY_CRON: ${{ github.event.schedule == '33 7 * * *' }}
+        run: |
+          set -euo pipefail
+          if [[ "$OPERATOR_DISPATCH" == "true" ]]; then
+            due=true; mode=operator; reason=operator-dispatch
+          elif [[ "$DAILY_CRON" == "true" ]]; then
+            due=true; mode=daily; reason=daily-cron
+          else
+            # Due when the newest known poll (marker, or the artifact's own clock fields) is > 20 h old or unknown.
+            age_hours="$(node scripts/daily-lane-age.mjs)"
+            if [[ "$age_hours" == "unknown" || "$age_hours" -gt 20 ]]; then
+              due=true; mode=daily; reason="last-poll-age-${age_hours}h"
+            else
+              due=false; mode=none; reason="last-poll-age-${age_hours}h"
+            fi
+          fi
+          echo "due=$due" >> "$GITHUB_OUTPUT"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Daily lane due=$due mode=$mode reason=$reason"
+
+      - name: Refresh past stress-band outcomes (daily lane, P1661)
+        id: stress-outcomes
+        if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' }}
         continue-on-error: true
         run: node scripts/build-stress-outcomes.mjs
 
+      - name: Refresh long-history scenario outcomes (daily lane, P1743)
+        id: scenario-outcomes
+        if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' }}
+        continue-on-error: true
+        run: node scripts/build-scenario-outcomes.mjs
+
       - name: Refresh weekly SEC 13F and daily 13D-G discovery
         id: masters
-        if: ${{ !cancelled() && ((github.event_name == 'workflow_dispatch' && inputs.trigger != 'scheduler') || github.event.schedule == '13 7 * * *') }}
+        if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' }}
         env:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+          MASTERS_MODE: ${{ steps.daily-lane.outputs.mode }}
         run: |
           set -euo pipefail
           run_full_13f() {
@@ -102,8 +190,8 @@ jobs:
             node scripts/build-masters-runtime-artifacts.mjs
             node scripts/build-13f-reference-ticker-index.mjs
           }
-          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
-            # Poll 13D/G daily. Import quarter rows weekly only within the SEC
+          if [[ "$MASTERS_MODE" != "operator" ]]; then
+            # Daily lane (cron or age-due): poll 13D/G. Import quarter rows weekly only within the SEC
             # filing window, or immediately when a new HR/HR-A is unconnected.
             ownership_result="$(node scripts/collect-13f-discovery.mjs --ownership-only)"
             printf '%s\n' "$ownership_result"
@@ -127,6 +215,7 @@ jobs:
         run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
 
       - name: Restore official-reference call ledger (P1734)
+        id: official-ref-restore
         if: ${{ !cancelled() && steps.official-ref-ledger.outcome == 'success' }}
         continue-on-error: true
         uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
@@ -150,12 +239,20 @@ jobs:
         run: node scripts/refresh-web-research.mjs
 
       - name: Save official-reference call ledger (P1734)
+        id: official-ref-save
         if: ${{ !cancelled() && steps.official-ref-ledger.outcome == 'success' && steps.official-references.outcome != 'skipped' }}
         continue-on-error: true
         uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: .cache/official-references
           key: official-ref-ledger-${{ steps.official-ref-ledger.outputs.month }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Recompute forward scenarios, score new releases, log transitions (every refresh, P1743)
+        # No network: reads the artifacts this run just wrote. A failure keeps the previous state artifact.
+        id: scenario-state
+        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' }}
+        continue-on-error: true
+        run: node scripts/build-scenario-state.mjs
 
       - name: Promote one data release revision
         if: ${{ !cancelled() }}
@@ -171,18 +268,25 @@ jobs:
         if: ${{ !cancelled() }}
         run: node scripts/ci-data-continuity-check.mjs
 
+      - name: Install gate dependencies
+        # The data QA group includes gates that parse workflow YAML (js-yaml). No browsers are downloaded.
+        id: gate-deps
+        if: ${{ !cancelled() }}
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm ci --no-audit --no-fund
+
       - name: Validate evidence-derived 22-category reconciliation
         id: reconciliation-gate
         if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
-          node scripts/ci-reconciliation-contract-check.mjs
-          node scripts/ci-source-registry-contract-check.mjs
-           node scripts/ci-professional-data-gap-check.mjs
-           node scripts/ci-static-data-contract-check.mjs
-           node scripts/ci-web-research-contract-check.mjs
           node scripts/verify-refresh-candidate.mjs --self-test
-            node scripts/ci-data-refresh-audit.mjs
+          # The whole CI data group (reconciliation, source registry, data gaps, static data, the full refresh
+          # audit ci-data-refresh-audit.mjs, history-field time, release parity, ...) runs here, not a hand-picked
+          # subset: CI rejected bot pushes on gates this list had omitted (ci-history-field-time-contract-check.mjs). ~10 s.
+          AIO_QA_CACHE_DIR="$RUNNER_TEMP/aio-qa" node scripts/qa-runner.mjs --group data --no-cache
+          node scripts/ci-web-research-contract-check.mjs
           node scripts/verify-refresh-candidate.mjs --record "$RUNNER_TEMP/aio-refresh-data-candidate.json"
 
       - name: Fail-closed promotion candidate gate before push
@@ -270,6 +374,8 @@ jobs:
           stage_if_exists public-data/macro-history.json # P1426: 거시 direction reads
           stage_if_exists public-data/macro-calendar.json # P1654: FRED release schedule
           stage_if_exists public-data/stress-outcomes.json # P1661: VIX-band forward outcomes
+          stage_if_exists public-data/scenario-outcomes.json # P1743: long-history branch/theme-stage outcomes (weekly)
+          stage_if_exists public-data/scenario-state.json # P1743: per-refresh branches, themes, transitions, scored releases
           stage_if_exists public-data/official-references.json # P1734: page-verified official web references
           stage_if_exists public-data/market-snapshot.json
           stage_if_exists public-data/market-snapshot-status.json
@@ -299,6 +405,19 @@ jobs:
           git add -- architecture/asset-manifest.json architecture/release-manifest.json architecture/public-readiness.json
           node scripts/ci-masters-contract-check.mjs --staged
           node scripts/verify-refresh-candidate.mjs --expect-staged "$RUNNER_TEMP/aio-refresh-data-candidate.json"
+          # GitHub warns at 50 MB and rejects a push containing a file over 100 MB. Fail before the commit,
+          # naming the file. P1757: sec-fundamentals.json (~67 MB) no longer lives on main (data-store branch),
+          # so no staged file is exempt.
+          oversized=""
+          while IFS= read -r -d '' staged; do
+            [ -f "$staged" ] || continue
+            bytes="$(stat -c %s -- "$staged")"
+            if [ "$bytes" -gt 52428800 ]; then oversized="$oversized $staged($((bytes / 1048576))MB)"; fi
+          done < <(git diff --staged --name-only -z --diff-filter=ACMR)
+          if [ -n "$oversized" ]; then
+            echo "::error::staged file(s) over the 50 MB publish limit:$oversized"
+            exit 1
+          fi
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -322,10 +441,12 @@ jobs:
             fi
             echo "push rejected (attempt ${attempt}/${max_attempts}) — fetching latest main and rebasing"
             git fetch origin main
-            git rebase origin/main
+            # A conflicting concurrent edit cannot be resolved by retrying; leave no half-applied rebase behind.
+            git rebase origin/main || { conflicted="$(git diff --name-only --diff-filter=U | tr '\n' ' ')"; git rebase --abort || true; echo "::error::rebase conflict on ${conflicted:-unknown files}"; exit 1; }
             node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-data-candidate.json"
             attempt=$((attempt + 1))
-            sleep $((attempt * 3))
+            # Jitter so two producers that lost the same race do not retry in lockstep.
+            sleep $((attempt * 3 + RANDOM % 5))
           done
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "Pushed refreshed public-data files"
@@ -343,22 +464,31 @@ jobs:
           echo "Dispatched CI for exact refresh commit $final_sha"
 
   converge:
-    needs: refresh
-    # Runs even when the producer failed so a lost hand-over self-heals (R606).
-    if: ${{ !cancelled() }}
+    needs: [cadence, refresh]
+    # Runs even when the producer failed so a lost hand-over self-heals (R606). A weekend skip slot (P1757) has
+    # nothing to hand over; the next news cycle, at most 2 hours later, converges instead.
+    if: ${{ !cancelled() && needs.cadence.outputs.mode != 'skip' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The driver gives up waiting after 12 min (AWAITING_CI_ATTESTATION) and the next cycle's converge
+    # finds the attested run and dispatches Pages (R606 self-heal), so a 30-minute hold bought nothing.
+    timeout-minutes: 15
+    # Reads main/runs/artifacts and dispatches ci.yml / pages-deploy.yml; it never writes the repository.
+    permissions:
+      contents: read
+      actions: write
     concurrency:
       group: live-convergence
       cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Converge live deployment to the attested revision
         # R606: a workflow_dispatch run created with the built-in GITHUB_TOKEN does
@@ -373,7 +503,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -n "${{ needs.refresh.outputs.sha }}" ]; then
-            node scripts/ensure-live-convergence.mjs --await-sha "${{ needs.refresh.outputs.sha }}"
+            node scripts/ensure-live-convergence.mjs --await-sha "${{ needs.refresh.outputs.sha }}" --timeout-min 12
           else
             node scripts/ensure-live-convergence.mjs
           fi

@@ -40,10 +40,14 @@ import { analysisLevelsAfterLabels, analysisProse, isNonMetricNumber } from './l
 import { buildMarketRegime } from '../src/domain/briefing/market-read.js'; // P1635
 import { buildMarketScenarios, renderMarketScenarioContext } from '../src/domain/market/regime-scenarios.js';
 import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
+import { buildMacroRead } from '../src/domain/macro/macro-read.js';
+import { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext } from '../src/domain/market/macro-crossroads.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
 const HIST = `${__dir}/../public-data/history.json`;
+const SCENARIO_STATE_OUT = `${__dir}/../public-data/scenario-state.json`; // P1743 (written by build-scenario-state.mjs)
+const SCENARIO_OUTCOMES_OUT = `${__dir}/../public-data/scenario-outcomes.json`; // P1743 (weekly)
 const MARKET_SNAPSHOT_OUT = `${__dir}/../public-data/market-snapshot.json`;
 const SEC_FUNDAMENTALS_OUT = `${__dir}/../public-data/sec-fundamentals.json`;
 
@@ -5090,10 +5094,40 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const axes = (regime.axes || []).map((axis) => `${axis.label || axis.id}: ${axis.state}${axis.read ? ` — ${axis.read}` : ''}`).join('\n');
     const outlook = buildScenarioOutlook({ scenarios, regime });
     return [`종합: ${regime.overall} (우호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, axes,
-      renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook)].filter(Boolean).join('\n');
+      renderMarketScenarioContext(input, { regime }), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(data, input, regime)].filter(Boolean).join('\n');
   } catch (error) {
     return '';
   }
+}
+
+// P1742 (owner 2026-10-13): the narrative looks forward with the same branches the 거시 screen draws — the next official
+// releases, each branch's chain, its three likelihood lines and the reader's choices with their opportunity cost.
+export function marketAnalysisCrossroadsContext(data, input, regime) {
+  try {
+    let schedules = {};
+    try { schedules = JSON.parse(readFileSync(MACRO_CALENDAR_OUT, 'utf8'))?.schedules || {}; } catch (_) { schedules = {}; }
+    const read = buildMacroRead({ macro: data?.macro || null, macroHistory: input.macroHistory, regime: regime?.available ? regime : null, history: input.history });
+    // P1743: the previous refresh's scenario state (scripts/build-scenario-state.mjs runs after this producer) adds the
+    // automated record — what changed, how the latest releases scored — and every theme's stage under the same branches.
+    let state = null, outcomes = null;
+    try { state = JSON.parse(readFileSync(SCENARIO_STATE_OUT, 'utf8')); } catch (_) { state = null; }
+    try { outcomes = JSON.parse(readFileSync(SCENARIO_OUTCOMES_OUT, 'utf8')); } catch (_) { outcomes = null; }
+    const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
+    const model = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory: input.macroHistory, history: input.history, events: upcomingMacroEvents({ schedules }), outcomes });
+    return [renderMacroCrossroadsContext(model, { state }), scenarioStateThemeLines(state)].filter(Boolean).join('\n');
+  } catch (_) { return ''; }
+}
+
+export function scenarioStateThemeLines(state) {
+  const themes = Array.isArray(state?.themes) ? state.themes : [];
+  if (!themes.length) return '';
+  const byKey = new Map(themes.map((row) => [`${row.market}:${row.id}`, row]));
+  const named = (keys = []) => keys.map((key) => byKey.get(key)).filter(Boolean).map((row) => `${row.label}(1개월 ${row.ret1m >= 0 ? '+' : ''}${Number(row.ret1m).toFixed(1)}%)`).slice(0, 6).join(', ');
+  const h = state.highlights || {};
+  return [`【테마 갈림길 — 모든 테마를 같은 규칙으로(${state.basis?.themeAsOf || '기준일 미확인'} 완료 종가, 직전 갱신)】`, state.rotation?.text ? `가격 기준 강약 이동: ${state.rotation.text}` : '',
+    h.structuralPullbacks?.length ? `긴 추세 속 조정 + 거시 역풍 아님: ${named(h.structuralPullbacks)}` : '',
+    h.headwindLeaders?.length ? `거시 역풍에도 주도: ${named(h.headwindLeaders)}` : '',
+    h.tailwindLaggards?.length ? `거시 순풍인데 약세: ${named(h.tailwindLaggards)}` : ''].filter(Boolean).join('\n');
 }
 
 async function readHistoryRows() {
@@ -5138,10 +5172,31 @@ export function retainVerifiedMarketAnalysis(previous, { reason, nowMs = Date.no
   };
 }
 
+// Every 30-minute refresh used to call the model even when nothing it reads had moved (nights, weekends). A verified,
+// un-flagged previous analysis under 12 h old whose metric/news evidence ids and headline ids equal this run's is
+// reused as-is (its generatedAt keeps aging, so it still expires at 12 h). Anything else calls as before.
+export function reusableMarketAnalysis(previous, { metricEvidence = [], newsEvidence = [], headlineContext = [], nowMs = Date.now() } = {}) {
+  if (!previous || previous.status !== 'verified' || previous.semanticStatus !== 'verified') return null;
+  if (Array.isArray(previous.semanticIssues) && previous.semanticIssues.length) return null;
+  const generatedMs = Date.parse(previous.generatedAt || '');
+  if (!Number.isFinite(generatedMs) || generatedMs > nowMs + 5 * 60000 || nowMs - generatedMs >= MARKET_ANALYSIS_RETAIN_MAX_MS) return null;
+  const idSet = (rows) => JSON.stringify([...new Set((Array.isArray(rows) ? rows : []).map((row) => String(row?.evidenceId || '')))].sort());
+  if (!Array.isArray(previous.metricEvidence) || !previous.metricEvidence.length) return null;
+  if (idSet(previous.metricEvidence) !== idSet(metricEvidence)) return null;
+  if (idSet(previous.newsEvidence) !== idSet(newsEvidence)) return null;
+  if (idSet(previous.headlineContext) !== idSet(headlineContext)) return null;
+  return previous;
+}
+
 export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now() } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence);
+  const reused = reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext: buildMarketAnalysisHeadlineContext(data), nowMs });
+  if (reused) {
+    console.log(`[fetch-data] marketAnalysis evidence and headlines unchanged — reusing verified analysis from ${reused.generatedAt} (no AI call)`);
+    return reused;
+  }
   // `request` is a fixture seam (ci contract); production always uses the shared Worker.
   if (!request && !resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence);
   const ask = request || requestSharedAnalysis;
@@ -5169,13 +5224,13 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       .map((row) => `- [08:00 이후 장중 속보(잠정)] ${row.title} [${row.source || 'unknown'}] publishedAt=${row.publishedAt}`).join('\n');
     const model = SHARED_AI_MODEL;
     const prompt = [
-      '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 5~7줄 평문으로 쓴다. Write the whole answer in Korean.',
-      '순서: (1) 완료된 종가 기준으로 무엇이 얼마나 바뀌었나(METRIC_EVIDENCE의 change 값 — 절대값이 가장 큰 변화부터) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름("현재 조건 부합 n/m"으로만 표기) (4) 다음에 확인할 것·조심할 것 (5) 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
-      '매매·비중·시점 지시(특정 가격·수량·시점, 사라/팔아라, 현금·주식 비중을 늘리거나 줄이는 쪽이 유리하다는 권유)는 쓰지 않는다. 흐름별로 확인할 것과 반증 조건만 쓴다. "현재 조건 부합 n/m"은 확률이 아니므로 %로 바꾸지 마라.',
+      '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 7~9줄 평문으로 쓴다. Write the whole answer in Korean.',
+      '순서: (1) 완료된 종가 기준으로 무엇이 얼마나 바뀌었나(METRIC_EVIDENCE의 change 값 — 절대값이 가장 큰 변화부터) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·갈림길 이름과 함께("「이름」 — 조건 부합 n/m"), 숫자만 단독으로 쓰지 않는다 (4) 앞으로의 갈림길: REGIME_CONTEXT의 【앞으로의 갈림길】에서 다음 분기점(발표 날짜)과 조건이 가장 많이 맞는 길, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 길이라면 선택지(기다림·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽, 반대 길로 가면 무엇이 바뀌는지, 【테마 갈림길】이 있으면 그 길에서 순풍·역풍인 테마와 추세 속 조정 테마를 한 문장으로 (6) 다음에 확인할 것과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.',
+      '가격·수량·시점·특정 종목 매매 지시(사라/팔아라, 목표가, "비중을 늘리세요" 같은 명령)는 쓰지 않는다. 대신 갈림길별 선택지의 기회비용과 "이 길이라면 상대적으로 유리한 쪽"은 REGIME_CONTEXT 근거로 쓴다(소유자 2026-10-13). 가능성은 조건 부합 n/m · 시장 가격 방향 · 과거 빈도(표본 수와 함께)로만 말하고 %·확률 숫자를 만들지 마라. 세부 종목 선택은 사용자가 차트·기업·테마·스크리너에서 한다고 밝혀도 된다.',
       '각 변화율은 반드시 그 지표 이름 바로 뒤에 쓴다(예: "코스피 -1.2%"). 다른 지표의 변화율을 앞 지표 이름에 붙이지 마라. 금리(10Y)의 변화는 bp로만 쓰고 %로 쓰지 마라(금리 수준만 % 단위).',
       'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 쓰지 마라. 부득이 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',
-      'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 5-7 concise lines.',
+      'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 7-9 concise lines.',
       'REGIME_CONTEXT (deterministic reading from the same completed closes the site shows; cite as [regime-context]):\n' + (regimeContext || 'none'),
       'METRIC_EVIDENCE:\n' + evidenceLines,
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),

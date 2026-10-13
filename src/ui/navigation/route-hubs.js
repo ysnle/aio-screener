@@ -19,7 +19,7 @@ export function hubForRoute(routeId) {
 }
 
 // P1430: the 종목 screen names the company all three tabs are about, and where the user came from.
-const SUBJECT_ORIGINS = Object.freeze({ home: '대시보드', briefing: '브리핑', 'market-news': '뉴스', screener: '스크리너', themes: '테마', portfolio: '포트폴리오', masters: '대가의 포트폴리오', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리' });
+const SUBJECT_ORIGINS = Object.freeze({ home: '대시보드', briefing: '브리핑', 'market-news': '뉴스', screener: '스크리너', themes: '테마', portfolio: '포트폴리오', masters: '운용사·13F', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리' });
 
 export function readStockSubject(root) {
   const symbol = String(root?._aioLastOpenedSymbol || '').trim().toUpperCase();
@@ -59,7 +59,11 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   const hub = hubForRoute(routeId);
   const tabs = hub ? hub.routes.filter((route) => route.tab !== false) : [];
   nav.replaceChildren();
-  if (tabs.length < 2) {
+  // Audit 2026-10-14: a hidden route with no parent tab (도움말 under 리서치 라이브러리) is not one of the hub's views —
+  // showing the three research tabs with none selected read as a broken state.
+  const current = hub ? hub.routes.find((route) => route.id === routeId) : null;
+  const orphan = current?.tab === false && !tabs.some((tab) => (tab.also || []).includes(routeId));
+  if (tabs.length < 2 || orphan) {
     nav.hidden = true;
     delete nav.dataset.hub;
     return null;

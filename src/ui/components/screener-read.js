@@ -53,7 +53,7 @@ export function syncScreenerNextLead(doc, row, { scoped = false } = {}) {
   if (!tableLead) { if (item) item.hidden = true; return; }
   if (item) item.hidden = false;
   button.dataset.arg = tableLead.sym;
-  button.textContent = `${tableLead.scoped ? '표 첫 행' : '1위'} ${tableLead.sym} →`;
+  button.textContent = `${tableLead.scoped ? '표 첫 행' : '순위 맨 앞'} ${tableLead.sym} →`;
   const why = item?.querySelector('.flow-next-why');
   if (why) why.textContent = tableLead.scoped ? '지금 표(조건·표시 필터·정렬)의 맨 위 종목을 요약·차트·재무로 확인' : '상위 종목 하나를 요약·차트·재무로 확인';
 }

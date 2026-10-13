@@ -1,10 +1,226 @@
 ---
-last_verified: 2026-10-13
+last_verified: 2026-10-14
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1763 - v57.54 - 단축키 도움말이 화면 통합 전 이름(시그널·매크로·테마·트렌드)과 숫자를 그대로 쓰고, 폰 상단 시각이 잘리며, 1px로 접힌 버튼 같은 렌더 결함을 잡는 게이트가 없음 (2026-10-14)
+
+- symptom/reproduction: ? 키 도움말이 '2 시그널 / 4 매크로 / 8 테마·트렌드', 존재하지 않는 'G 글로벌 마켓 오버뷰', 'CLOSE (ESC)'를 보였다. 폰 360px에서 '서버 10/13 2…'로 잘렸다. AI 패널 첫 문단이 법적 제한 문구였고 칩 '크로스체크'는 음차였다. kr-macro·kr-themes 대화 문맥은 어느 화면에도 연결되지 않았다. 정적 게이트만 있어 화면에 실제로 그려진 크기·빈 제목·금지 용어를 검사하지 못했다.
+- root_cause: 단축키 표와 키 처리기가 각자 하드코딩되어 정보 구조(ROUTE_HUBS)를 따르지 않았다. 사용자 용어 사전이 코드로 강제되지 않았다.
+- fix: src/ui/navigation/screen-shortcuts.js가 ROUTE_HUBS에서 1~8 표와 키 처리 경로를 함께 만든다. 폰은 data-compact로 '10/13 22:20'만 표시(전체 문장은 화면 낭독기용으로 유지). AI 패널은 하는 일 한 줄로 시작하고 제한 문구는 '답변 범위' 접기, 칩 '다른 화면과 맞춰 보기'. kr-macro·kr-themes 문맥 퇴역(한국 질문의 kr-macro 도메인 블록은 유지). ci-ui-render-hygiene-check(19개 라우트·데스크톱/폰, 24×24 대상·빈 h1–h4/summary·360px 상단 바, 자체 카나리아)와 ci-ui-vocabulary-check(architecture/ui-vocabulary.json 사전) 신설, 기준 목록은 수정 후 0건.
+- violated_rule: AGENTS: 8화면 정보 구조 / WCAG 2.5.8 대상 크기
+- prevention: v57.54: ci-ui-render-hygiene-check, ci-ui-vocabulary-check, ci-ai-intelligence-contract-check(kr-* 문맥 부재·거시/테마 칩 유지), ci-responsive-browser-check
+- verification/residual: 브라우저: 1→오늘 … 8→리서치 라이브러리, 360·390px 상단 바 넘침 없음. 렌더 위반 0, 금지 용어 18→0. ci-headless-tests 1145/1145, browser-viewport 3/3.
+
+## P1762 - v57.54 - 한국 종목 순위가 분모보다 크게(890/239) 나오고, 예측력이 없다고 스스로 밝힌 팩터 점수를 백분위·상위 1%처럼 보이며, 차트 첫 방문에서 라이브러리 실패 문구가 뜰 수 있음 (2026-10-14)
+
+- symptom/reproduction: 순위를 미국·한국을 합친 행에서 매기고 분모만 시장별로 써서 삼성전자 890/239, NVDA 451/894(실제 356). 종목 팩터 프로파일은 50+z×16.67 값인데 '점수'로 보였고, 스크리너 표는 '100 · 상위 1%'를 반복·녹색 강조, '1위' 표현. 같은 조건 목록이 선택 상자와 버튼으로 두 번. 팩터·레짐, Kalman, VCP, TSE/TWSE/OTC 설명 없음. 'OHLCV 3봉 미수신', '다시 감지 ↻', 섹터 Technology/기술 혼용, 테마 칩 중복. 종목 화면 h1 없음. 13F 가치 변화가 원시 정수, CUSIP 열 노출. 한국 재무 빈 상태가 작업 메모처럼 읽힘. 차트 화면은 라이브러리 대기가 화면 active 클래스 시점에 의존해 첫 방문에 실패 문구가 뜰 수 있었다. PER은 1년 넘게 지난 회계연도 이익 기준이 앞에 나왔다.
+- root_cause: 순위 계산과 분모의 행 집합이 달랐고, 화면 라벨이 계산 방식(z 기반 위치)과 검증 결과를 반영하지 않았다. 지연 로딩 대기를 소비자가 아니라 데이터 래퍼에 두었다.
+- fix: 순위를 해당 시장 행 집합의 서수로 재계산하고 순위<1·순위>분모면 숨김. 팩터 제목 '팩터 성격 · 섹터 대비 위치(0~100, 50 = 섹터 평균)'와 '백분위·등급이 아님, 10년 검증에서 이후 수익률 구별 못함' 한 줄. 스크리너 기본 열에서 '상위 N%' 제거, 백분위 색 중립, '순위 맨 앞'. 조건 목록 버튼 한 줄(aria-pressed), 팩터·국면, 과거 검증(IC)·칼만 추세·수축 구조(VCP)·거래소 이름 설명. 사용자 문구로 교체, 섹터 한국어 하나, 테마 칩 중복 제거. sr-only h1(종목 이름 반영). 13F +$12.56B 형식, CUSIP은 hover. 한국 재무 빈 상태 중립 한 줄. stock-chart.js가 그리기 전에 라이브러리를 최대 8초 기다림. PER은 최근 4개 분기 합 기준을 앞에, 회계연도 기준(스크리너 밸류 팩터의 기준)을 옆에.
+- violated_rule: AGENTS: 근거 없는 등급·점수 금지, 개발자 문구 금지 / WCAG 1.3.1 제목 구조
+- prevention: v57.54: ci-esm-core-unit-check(순위>분모 숨김·시장별 순위·한국어 섹터·테마 중복 제거·TTM 우선 PER), ci-screener-auto-refresh-browser-check(조건 목록 하나), ci-ui-vocabulary-check, masters·entity 게이트
+- verification/residual: Playwright: 삼성전자 188/239, NVDA 356/894, 차트 라이브러리 2.5초 지연에서도 첫 방문 canvas 7개·실패 문구 없음. browser-runtime 8/8, masters·entity·portfolio 게이트 통과.
+
+## P1761 - v57.54 - 같은 신용 지표를 화면마다 중립/경계로 다르게 부르고, 미국 장 시작 전 시세를 '종가'로 표기하며, 운영 사이트에서 영어 뉴스 제목 번역이 한 번도 요청되지 않음 (2026-10-14)
+
+- symptom/reproduction: 홈 신용 축은 '중립', 투자 심리 HY 카드는 '경계'(creditState 중립을 경계로 매핑). 금리 변화가 홈 %p·브리핑 bp로 섞임. 레이더(1년 중 위치)와 축 카드(우호/부담)가 한 화면에서 다른 잣대인데 설명이 없음. 거시·테마·심리에 BLS·KRX·CNN 같은 출처명이 숫자 옆에 남음. 홈이 조건 부합 3/4 동률인 두 갈림길 중 하나만 대표로 내세움. 갈림길이 유리한 테마로 이어지지 않음. 섹터 회전 0/11일 때 빈 상태가 세 겹. AI 해설 678자가 한 덩어리였고 기준 표기가 맨 아래. 해설 범위 라벨이 09:05 ET의 VIX·10년물을 '10/13 종가'로 부름. 운영 사이트 번역 캐시 0 — 자동 번역은 브라우저 RSS 수집 끝에서만 발동했는데 그 수집이 운영에서 실패하고, 서버 뉴스 경로는 번역을 요청하지 않았음. 근거 버튼은 초점을 받으면 줄 전체 폭으로 늘어남. 텔레그램 전체 피드는 12개 본문(1,847자)을 모두 펼침.
+- root_cause: 판정 어휘·단위·출처 표기 규칙이 화면별 문자열로 흩어져 있었고, 번역 트리거가 퇴역한 수집 경로에만 묶여 있었다. 장외 시세의 세션 판정이 DELAYED_IN_SESSION 하나만 장중으로 보았다.
+- fix: HY 카드 라벨 우호/중립/부담(creditState 그대로)과 축과의 관계 문구, 시장 해석 문장 정합. macro-crossroads bpChange로 금리 변화 bp 통일(수준 차이는 %p 유지). 레이더 부제 '최근 1년 중 위치(0~100) — 카드 판정과 다른 잣대'와 행별 카드 판정. 출처명은 방법(가계/사업체 조사)만 남기고 hover로. 홈 갈림길은 macro와 같은 tiedIds 규칙으로 두 길을 함께, 시장 가격 방향으로 순서. themesForBranch()로 갈림길별 유리/엇갈림 테마 링크(티커 없음)를 거시·홈·브리핑에. 섹터 회전 0개 판정이면 한 줄 상태만 두고 사분면·빈 표 숨김. AI 해설은 기준 칩을 위로, 약 230자만 펼치고 나머지 접기. 범위 라벨은 미국 지표가 장외/뉴욕 16시 이전이면 'KST 장외 시세'. 뉴스 화면이 보이는 미번역 제목 최대 18개를 세션당 한 번 기존 autoTranslateNews로 번역. 근거 버튼 초점 상태 크기 고정, 페이지 summary 최소 24px, 빈 닫기 버튼에 '닫기'. 텔레그램 전체 피드는 본문 3개만 펼침. 테마 상세를 닫은 직후 다시 그리기가 트리거를 교체해 초점이 body로 떨어지던 경우(CI 100회 중 4회 불안정 실패) 렌더 뒤 한 번 다시 초점을 돌림. 섹터 회전이 판정 전이어도 섹터 칩은 상세 입구로 남김.
+- violated_rule: AGENTS: 화면 정직성(한 가지 상태 어휘), 출처는 화면 밖, 읽기 길이 3–5줄, 근거 없는 대표 선택 금지
+- prevention: v57.54: ci-ui-vocabulary-check(금지 용어 사전 architecture/ui-vocabulary.json), ci-ui-render-hygiene-check(24px 대상·빈 제목), ci-regime-scenarios-fixture·ci-esm-core-unit-check, ci-proxy-continuity-check
+- verification/residual: Playwright 9개 라우트 데스크톱 1280–1440·폰 390: 작은 탭 대상 0, HY 카드 '315bp | 중립', 홈 '+28bp(10년 기간 프리미엄 +20bp)', 동률 두 길 표기, 갈림길 테마 링크, 섹터 회전 한 줄. 범위 라벨 모듈 실행으로 'VIX·미 10년물 10/13 22:05 KST 장외 시세' 확인. browser-surface 4/4, browser-viewport 3/3. 번역은 로컬에서 Worker가 막혀 운영 확인 필요.
+
+## P1760 - v57.54 - 버전 숫자 없이 나간 코드 수정이 재방문자에게 닿지 않고, 숨은 탭에서 알림이 울릴 수 없으며, 검색 없는 재시도가 '검색했다'는 프롬프트로 나감 (2026-10-14)
+
+- symptom/reproduction: P1755의 버전 키 캐시 우선 정책에서 b21c6cdf·c3ee29a0처럼 같은 버전으로 나간 코드 수정은 다음 버전까지 옛 js가 남고 새 src 모듈과 섞일 수 있었다. 시세 갱신(v46.9)과 알림 점검(P1756)이 숨은 탭에서 모두 멈춰 OS 알림이 사실상 울릴 수 없었다. 웹 검색 시도가 시간 초과된 뒤 검색 없이 재시도할 때 시스템 프롬프트에는 '웹검색: 이번 답변에서 사용'이 남았다. 저장 대화 한도(150만 자, 약 3MB)가 다른 로컬 저장을 밀어낼 수 있었고 실패는 조용했다. 열린 대화를 지워도 화면과 다음 질문 문맥에는 남았다. 서버 뉴스가 신선할 때 강제 새로고침은 아무 반응이 없었다.
+- root_cause: 캐시 무효화가 버전 문자열에만 묶였고, 숨김 일시정지가 알림 기능의 목적을 고려하지 않았다. 재시도 경로가 첫 시도의 프롬프트를 그대로 재사용했다.
+- fix: sw.js SHELL_CACHE를 버전+SW_CODE_HASH로, pages-deploy가 배포본 index.html·js·src의 해시를 찍음(데이터만 바뀐 배포는 해시 동일). 캐시 채움은 cache:'no-cache'. src/app/background-alerts.js: 무장된 알림과 알림 권한이 있을 때만 숨은 탭에서 그 종목 시세를 5분마다 받고 점검. promptWithoutWebSearch()로 재시도 프롬프트의 웹검색 줄을 '사용하지 않음(지연으로 검색 없이 다시 시도)'로 교체. 대화 저장 한도 50만 자, 저장 실패 시 오래된 절반씩 덜어 내며 재시도, 열린 대화 삭제·저장 끄기 시 화면 대화도 비움. 서버 뉴스가 신선할 때 강제 새로고침은 서버 묶음을 다시 적용하고 몇 분 전 최신본인지 안내.
+- violated_rule: R1 버전 동기화의 전제(코드 변경=버전 변경)가 실제 운영에서 깨짐 / AI 근거 정직성
+- prevention: v57.54: ci-service-worker-cache-policy-check(같은 버전·새 코드 해시에서 옛 셸 캐시 삭제·재요청, 배포 워크플로의 해시 스탬프), ci-runtime-contract-check(숨은 탭 알림 조건), ci-chat-resilience-check(재시도 프롬프트 교체), ci-ai-intelligence-contract-check(용량 초과 시 최신 대화 유지, 열린 대화 삭제 시 문맥 비움)
+- verification/residual: 서비스 워커 시뮬레이션: 해시 변경 시 이전 셸 캐시 삭제·스크립트 재요청. 배포 스탬프 명령을 임시 사본에 실행해 해시 주입·문법 확인. promptWithoutWebSearch가 검색 줄을 교체함을 모듈 실행으로 확인. 각 게이트 PASS.
+
+## P1759 - v57.54 - Origin 헤더는 위조할 수 있어 한 접속이 공용 AI의 하루 한도(300회)를 모두 써 버릴 수 있었고, 예산이 바닥나기 직전까지 웹 검색을 그대로 사용 (2026-10-14)
+
+- symptom/reproduction: 공용 Worker의 AI는 전역 일일 상한과 월 예산만 있었고 접속별 상한이 없었다. 브라우저 Origin 검사는 curl로 우회되므로 외부인 한 명이 하루 300회를 소진하면 가족 사용자 모두가 그날 AI를 쓰지 못했다. 월 예산이 거의 남지 않아도 검색 비용이 큰 요청이 계속 나갔고, 사용자는 예산 상태를 알 수 없었다. 실패한 Durable Object 상태 점검이 60초 캐시돼 짧은 장애 뒤 1분간 AI가 준비 안 됨으로 보였고, /health가 데이터 중계와 같은 IP 속도 제한을 써 공유 IP에서 429 위험이 있었다.
+- root_cause: 예산 원장이 요청 주체를 구분하지 않았고, 예산 상태가 요청 정책(검색 여부)과 화면에 연결되지 않았다.
+- fix: Durable Object 예약 트랜잭션 안에서 접속 키(일별 솔트 HMAC, IPv6 /64 묶음, 원 IP 미저장)별 하루 상한 AI_PER_CLIENT_DAILY_CAP=150(전역 300의 절반: 한 가구는 IP를 공유하므로 넉넉히, 외부인 한 명이 전역 한도를 다 쓰지는 못하게). Actions 인증 요청은 접속 상한 제외(전역·월 상한은 적용). 월 예산 20% 미만이면 검색 도구를 뺀 요청으로 예약·발송하고 X-AIO-Web-Search-Removed 등 헤더로 알림, 소진이면 429 monthly-budget. /health에 ai.budgetState·budgetSaver·webSearchAvailable·client(하루 한도·남은 수·초기화 시각, 금액·IP 없음). 클라이언트는 webSearchAvailable=false면 검색을 요청하지 않고, AI 상태 표시에 '예산 절약 모드 · 웹 검색 없이'를 보인다. 실패한 상태 점검은 5초만 캐시, /health는 전용 120/분 버킷.
+- violated_rule: AGENTS: AI 공용 예산 월 $20(owner 2026-10-11) — 예산이 위조 가능한 경계에만 의존
+- prevention: P1759: worker/openai-contract.test.mjs(동시 6요청 중 상한 3만 통과, Retry-After=다음 UTC 자정, 다른 IP·Actions 영향 없음, 원장에 원 IP 없음, /64 묶음, 설정 범위 검증, 발송 전 반환, 날짜 넘김 정리, 2,000키 상한, 절약 모드 본문·헤더·정산, 소진 429, /health 필드·상태 실패 캐시 5초·전용 속도 제한), ci-worker-anthropic-check 135건
+- verification/residual: qa-runner cloudflare 6/6, ci-worker-anthropic-check·ci-ai-budget-scope-check·ci-ai-chat-reliability-contract-check·ci-cloudflare-deployment-contract-check·ci-worker-relay-check 통과. 배포·실서비스 /health 확인은 푸시 후.
+
+## P1758 - v57.54 - 일괄 시세 호출이 항상 401로 실패해 종목마다 따로 받았고, Worker가 전달한 원천의 404를 중계 장애로 보고 공개 프록시 3곳에 같은 요청을 다시 보냄 (2026-10-14)
+
+- symptom/reproduction: 운영 방문 4분마다 allorigins·codetabs로 약 22건이 나갔다. v7/finance/quote 일괄 호출은 crumb이 필요해 항상 401이었고, 그때마다 종목별 차트 요청으로 대체됐다(홈 9분 45건, 테마 109건). 없는 종목의 404나 다른 심볼·간격 응답은 relay 실패로 집계돼 공개 프록시 3곳을 차례로 거쳤고, 3회 누적 시 Yahoo 호스트 전체가 60초 이상 공개 프록시로 밀렸다. dynamicTickerLookup은 Worker를 거치지 않고 공개 프록시 4곳에 동시에 보냈고, SEC submissions는 항상 403인 corsproxy.io부터 시도했다. kr-tech 대화 문맥은 어느 화면에도 연결되지 않았고, --data-amber는 사실상 회색이라 주의 상태가 보이지 않았다.
+- root_cause: 중계 경로가 '원천이 거절한 응답'과 '중계 장애'를 구분하지 않았고, 일괄 시세 엔드포인트의 인증 요구 변화를 감지하지 못했다. 화면 통합(19→8) 뒤 문맥 레지스트리를 정리하지 않았다.
+- fix: Worker가 전달한 원천 400/401/404/410/422와 거절된 JSON은 UPSTREAM_REJECTED로 체인을 멈추고 Worker를 실패로 표시하지 않음(5xx·403·429·타임아웃·HTML 차단은 기존처럼 공개 프록시로). 일괄 시세는 v7/finance/spark 20종목 묶음(_yfQuoteFromMeta 공용 매퍼, 가격 규칙 초기화 뒤 실행). 종목 조회·SEC submissions도 fetchViaProxy 경유. kr-tech 문맥 전부 퇴역(테스트 9개 문맥). amber 라이트 #7a5000(아이보리 위 6.10:1), 다크 #e0a43a(7.24:1), 회색이 필요했던 크롬 요소는 --text-secondary로.
+- violated_rule: AGENTS: 비용·느린 데이터 정적화 / 화면 정직성(상태 색) / WCAG AA
+- prevention: P1758: ci-proxy-continuity-check(Worker 404가 공개 프록시로 가지 않음, 잘못된 응답이 Worker를 실패로 표시하지 않음, 503은 공개 프록시 1곳으로, spark 묶음·가격 규칙 순서, 종목 조회·SEC가 중계 체인 사용), ci-ai-intelligence-contract-check(kr-tech 부재), ci-runtime-contract-check(amber 채도·대비 4.5:1 이상·크롬에 amber 없음)
+- verification/residual: Playwright 모의 9분: 홈 Worker 57→23건(차트 45→6), 테마 140→81건, 503 1/5 주입 시 공개 프록시 11→3건, 404 종목 20→0건. spark 묶음으로 ^GSPC·ES=F·^VIX·KRW=X·^KS11 시세 반영. AIO.runTests 1145/1145, browser-runtime 8/8, browser-surface 3/3.
+
+## P1757 - v57.54 - 새 가격이 없는 주말에도 30분마다 전체 갱신이 돌고, 브라우저가 읽지 않는 66.7MB SEC 원장이 하루 3번 main 이력에 커밋됨 (2026-10-14)
+
+- symptom/reproduction: refresh-data는 '17,47 * * * *'로 주말에도 하루 48회 전체 생산을 돌렸다(미국·한국 모두 휴장이라 새 가격 없음). refresh-screener는 public-data/sec-fundamentals.json(66.7MB)을 주 21회 main에 커밋해 저장소 이력이 계속 불어났다. 이 파일은 브라우저가 읽지 않는 생산 중간물이다(Pages 배포에서도 이미 제외).
+- root_cause: 생산 주기가 시장 세션을 보지 않았고, 생산자 간 상태 전달 수단으로 main 커밋을 썼다.
+- fix: scripts/refresh-cadence.mjs가 단일 시장 달력(src/domain/market/market-calendar.js)으로 조용한 구간(서울 토·일·월 07시 전, 두 시장 마지막 종가 60분 경과, 다음 개장 120분 초과)을 판정. 그 구간의 :17/:47 크론과 Worker scheduler 호출은 data.json 나이가 105분 이상일 때만 실행(약 2시간마다), 나머지는 건너뜀. 운영자 수동 실행·일일 레인은 항상 전체. 달력 미등록 연도·스크립트 오류는 전체 실행(fail-open). SEC 원장은 data-store 고아 브랜치에 단일 커밋으로 force-with-lease 게시, 실행 시작 시 로컬→data-store→main 이력→전체 재구축 순으로 복원, 90% 미만 축소는 guard가 차단, main 커밋 전에 게시해 매니페스트와 저장소 일관성 유지. 게이트는 파일이 없으면 요약으로 검사하고 'P1757 SKIP'을 표시. .gitignore에 추가하고 인덱스에서만 제거.
+- violated_rule: AGENTS: 느린 데이터 정적화·비용 / 로컬 프로듀서 금지(생산은 Actions)
+- prevention: P1757: ci-data-pipeline-contract-check(조용한 구간 경계: 서머타임·표준시·반일장·평일 휴장·미등록 연도, 2시간 규칙, 트리거별 모드, 잡 연결, SEC 저장 연결), ci-sec-runtime-projection-check·ci-professional-data-gap-check·ci-data-lineage-audit 부재 시 요약 기반 강등
+- verification/residual: 경계 픽스처, 스크래치 bare 원격에서 restore(main 이력 다이제스트 일치)·publish(생성·unchanged·교체 후에도 1커밋)·guard(빈 원장 거부). 파일을 치운 상태에서 data 그룹 32/32. qa-runner data 32/32, core 49/49. 모든 워크플로 js-yaml 파싱 통과.
+
+## P1756 - v57.54 - 첫 화면이 쓰지 않는 글꼴 전체와 차트 라이브러리를 받고, 서버 뉴스가 이미 있는데도 브라우저가 RSS를 다시 모으며, 모두 실패하는 Stooq를 계속 부름 (2026-10-14)
+
+- symptom/reproduction: 첫 방문에 Pretendard 전체 굵기 2,303KB를 받았고, Chart.js·lightweight-charts가 차트가 없는 화면에서도 부팅 경로에 실렸다. 서버 뉴스가 2시간 안에 갱신돼 있어도 브라우저가 공개 프록시로 RSS를 다시 모아 유휴 상태 외부 요청이 367건이었다. Stooq는 Worker 경유 404·직접 호출 실패(20/20)인데 시세 대체 경로에 남아 있었다. AI 응답이 시간 초과·5xx로 재시도할 때 웹 검색을 다시 걸어 두 번째 시도도 같은 이유로 실패했다. 숨은 탭에서도 data.json·history.json(30분)·version.json(5분) 재조회와 상태 타이머가 계속 돌았다.
+- root_cause: 자산 로딩이 화면 필요와 무관하게 정적 태그로 고정돼 있었고, 클라이언트 뉴스 수집이 서버 산출물의 신선도를 보지 않았다. 퇴역한 공급자를 제거하는 단일 목록이 없었고, AI 재시도 정책이 실패 원인(웹 검색 지연)을 구분하지 않았다.
+- fix: Pretendard 동적 부분집합으로 교체. Chart.js 생성자를 지연 래퍼로 두고 실제 차트가 그려질 때 로드, lightweight-charts는 차트 탭에서만 로드. _aioServerNewsFresh()(2시간)이면 브라우저 RSS 팬아웃 생략, 공용 Worker 호스트 허용 목록 미러(_AIO_SHARED_WORKER_HOSTS)는 게이트가 드리프트를 검사. aio-data·aio-pages·aio-kr-data(종목 상세 대체 경로)의 Stooq 호출 제거. 시간 초과·5xx 뒤 재시도는 웹 검색 없이 보내고 상태에 '웹 검색 없이'를 표시, 인용은 시도마다 비움. responsive.css 죽은 선택자 제거. 숨은 탭에서는 네트워크 갱신 타이머를 멈추고 돌아오면 밀린 작업을 한 번 실행. 일시정지는 aio-core 타이머 레지스트리 한 곳(대상 7개)에서 처리.
+- violated_rule: AGENTS: 느린 데이터 정적화·비용(AI 월 $20) / R620 분해 래칫
+- prevention: P1756: ci-proxy-continuity-check(Worker 호스트 미러·Stooq 부재·RSS 생략 조건·AI 재시도 웹 검색 해제), ci-runtime-contract-check(지연 차트 생성자), browser-runtime·browser-resilience, ci-runtime-contract-check P1756(숨은 탭 타이머 일시정지·복귀 시 1회 실행)
+- verification/residual: 글꼴 2,303KB→649KB, 서버 뉴스 신선 시 유휴 외부 요청 367→33, ci-sa-04 99/100, ci-proxy-continuity 54 PASS, browser-runtime 8/8, browser-resilience 4/4. index.html 7,935→8,014줄은 지연 차트 래퍼 때문으로 --allow-growth 사유 기록. Playwright 모의 시계: 숨은 탭 40분 동안 data·history·version 요청 0건, 복귀 즉시 각 1회, 다음 1분 중복 0건.
+
+## P1755 - v57.54 - 점수 하나를 읽으려고 전체 상태를 깊은 복제·동결하고, 뉴스마다 정규식을 새로 만들며, 서비스 워커가 재방문 때 모든 스크립트를 다시 내려받음 (2026-10-14)
+
+- symptom/reproduction: 데스크톱 홈 부팅에 긴 작업 9개 약 3.3초(로컬 측정, 최악 1.1초), 폰 4배 CPU 종목 화면 렌더 11.7~12.9초. CPU 프로파일 자기 시간: computeTradingScore → AIO_ARCH.getState()의 전체 상태 clone/freeze 약 1.9초, issuerNameMentioned 1.6초(뉴스 × 유니버스 × 이름마다 새 유니코드 RegExp), Intl.DateTimeFormat 매 호출 생성·세션 날짜·한국 지수 시계열 재계산 약 0.9초. sw.js는 /js/·/src/를 cache:'no-store'로 받아 재방문마다 9.7MB를 다시 받았고, 갱신 사이클마다 screener.json(2.6MB)을 새로 받아 검증했다.
+- root_cause: 호환 퍼사드의 읽기 전용 스냅샷이 경로 없이 전체 상태만 반환했고, 순수 함수의 반복 계산(정규식 컴파일·포맷터·시계열)에 캐시가 없었다. 서비스 워커는 버전이 붙은 자산과 아닌 자산을 구분하지 않았다.
+- fix: getState/getScreenerState가 점 경로를 받아 그 가지만 스냅샷(경로별 캐시, 여전히 동결, 퍼사드 이름 61/61 유지) — 점수·신호 설명·스크리너 시장 폭·행 정책 읽기를 경로 읽기로. 발행사 패턴을 이름·심볼별로 캐시(상한 4096)하고 정확성이 증명되는 경우에만 부분 문자열 사전 필터(57,570회·1,380만 회 비교 0차이). 시간대별 포맷터 공유, openSessionDatesBetween·buildCloseSeries·buildKoreaIndexSeries 메모(입력 배열 WeakMap, 4만 2천 회 비교 0차이). sw.js: 현재 버전 ?v= 자산은 캐시 우선, 그 밖은 네트워크 우선 cache:'no-cache'(304 재검증), 오프라인 대체·버전 회전 유지. 갱신 사이클은 강제·행 없음·30분 경과일 때만 스크리너 산출물 재조회, 공급자는 no-cache.
+- violated_rule: AGENTS: 데스크톱·모바일·아이패드 반응형 지원(폰 성능) / R620 분해 래칫
+- prevention: P1755: ci-esm-core-unit-check(퍼사드 경로 읽기), ci-reference-adoption-contract-check(발행사 매칭 동등성), ci-service-worker-cache-policy-check(현재 버전 캐시 우선·다른 버전 금지·no-cache 재검증·버전 증가 시 캐시 삭제), ci-runtime-contract-check P1364·P1274 경로 읽기
+- verification/residual: 같은 작업 트리 기준선(:8798) 대 패치(:8799) GitHub Pages식 헤더: 데스크톱 홈 긴 작업 3.27~3.31초→1.00~1.02초, 종목 2.63초→0.44초, 폰 4배 종목 렌더 11.7~12.9초→3.1~3.2초, 재방문 9.73MB→0.16MB, 경로 10회 이동 스크리너 13.7MB→0바이트(304). 홈·뉴스·스크리너·종목 보이는 글자 0줄 차이, 점수·시장 폭·스크리너 1,143행 순서 동일. browser-runtime 8/8.
+
+## P1754 - v57.54 - index.html 스타일의 3분의 1이 쓰이지 않는 규칙이고, 고정 근흑색 리터럴이 다크 모드에서 테두리·구분선·배지를 지움 (2026-10-14)
+
+- symptom/reproduction: index.html <style>에 마크업·js·src 어디에도 없는 클래스/id만 쓰는 규칙이 약 1,070개(약 2,000줄) 남아 매 방문 HTML과 함께 내려가고 스타일 계산에 들어갔다(구 원리·지도·대가 클래스, 전술 분석 레이어, KR 수급). rgba(33,29,22,…) 409곳·#211d16 46곳이 다크 모드에서 바뀌지 않아 로고 밑줄·사이드바 구분선·'지난 시세' 배지·RRG 전환 버튼 테두리·용어 툴팁 글자가 보이지 않았다. fetchBreadthData는 Alpha Vantage TOP_GAINERS_LOSERS를 호출하고 결과를 버려 무료 할당량만 썼다.
+- root_cause: 화면 재설계(아이보리, 리서치 라이브러리 네이티브화) 때 새 클래스로 옮기면서 옛 규칙을 지우는 단계가 없었고, 잉크 색이 토큰이 아닌 리터럴로 퍼져 있었다.
+- fix: 선택자의 모든 클래스·id가 어디에도 없을 때만 규칙(그룹은 죽은 구성원만)을 제거하는 스크립트로 3단계 정리(1,070규칙, 빈 @media·안 쓰는 @keyframes 포함, 게이트가 grep하는 주석 보존). --ink-rgb 토큰(라이트 33,29,22 / 다크 240,240,237)으로 CSS·인라인 style 278곳과 js 인라인 문자열 62곳을 바꾸고, 캔버스 RRG는 계산된 토큰을 읽음. 그림자·고정 밝은 패널·토큰 정의는 의도적으로 리터럴 유지. fetchFinnhubEconomicCalendar 삭제, fetchBreadthData의 버려지던 Alpha Vantage 호출 제거, regime-pcr·PCR 라이브 가격 작성기 삭제(상태·이벤트 유지), CARD_GRIDS의 죽은 선택자 제거. index.html 9,921→7,934줄.
+- violated_rule: 소유자: 다크 모드 지원 / R620 분해 래칫 순감소
+- prevention: P1754: ci-decomp-hotspot-check(index.html 7,935 상한), ci-runtime-contract-check LC-35 주석 보존, browser-viewport·browser-surface 그룹
+- verification/residual: Playwright 21장(데스크톱 라이트·다크, 폰 다크 × 7화면): 라이트 0픽셀 차이, 다크는 의도한 테두리·배지만 변화. browser-viewport 3/3, browser-surface 3/3, 정적 게이트 56개 통과.
+
+## P1753 - v57.54 - 사용자에게 매번 내려가는 고전 스크립트에 호출자 없는 코드와 대상 없는 작성기가 남고, 차트 탭의 '심층 종목 기술 분석' 버튼이 v56.96 이후 아무 일도 하지 않음 (2026-10-14)
+
+- symptom/reproduction: js/*.js에 호출자가 없는 함수(텔레그램 다이제스트 3종, getTopicBadge, _lazyInit 등)와 대상 DOM이 사라진 작성기(Risk Radar, 실적 서프라이즈, 브리핑 액션, KR 온도, 시장 국면 배지·실행 창)가 남아 매 부팅에 파싱되고 일부는 페이지 표시마다 실행됐다. 퇴역 라우트(options·kr-home·kr-supply·kr-macro·kr-technical)의 감사 레지스트리·문맥 맵 잔재가 있었다. '심층 종목 기술 분석' 접기의 분석 버튼은 #ticker-analysis-result가 v56.96에서 빠진 뒤 analyzeTickerDeep이 바로 반환해 '분석 대기 중'에 머물렀고, research-flow 게이트는 vm에서 함수를 돌려 통과했다. VIX/F&G 구간 경계가 고전 코드에 세 벌 있었고 '극단공포'/'극단 공포' 라벨이 갈렸다. 일부 게이트는 호출되지 않는 함수가 '연결돼 있다'고 단언했다.
+- root_cause: 화면 퇴역·네이티브 전환 때 표면(마크업)만 지우고 작성기·감사 레지스트리·게이트 단언을 함께 정리하는 단계가 없었다.
+- fix: 1) 호출자 없는 함수 삭제, 2) 대상 없는 작성기와 퇴역 라우트 잔재 삭제(KR 테마·kr-macro 문맥처럼 살아 있는 것은 유지), 3) 게이트만 붙잡던 이름 삭제와 게이트를 '퇴역 이름이 돌아오지 않음' 단언으로 교체(vixToPercentile 구간 표지는 _aioVixPercentile로), 4) 심층 기술 분석 접기·analyzeTickerDeep·Minervini 엔진 체인·_renderDeepChart 퇴역, _aioOpenTechnicalAnalysis와 뉴스 티커 클릭은 차트 탭으로 연결, 6) computeMarketState·펄스 라벨·vixRegime이 하나의 구간 함수를 재사용하고 라벨을 '극단 공포'로 통일, 색은 테마 토큰. 감소: aio-core 22424→21806, aio-data 16989→16682, aio-ui 6750→5945, aio-pages 2299→2054, aio-workspace 2653→2549, index.html 10008→9922(분해 래칫 --write).
+- violated_rule: AGENTS: 원천 없는 위젯·근거 없는 표시 제거 / R620 분해 래칫(순감소)
+- prevention: P1753: ci-runtime-contract-check·ci-research-flow-contract-check·ci-data-pipeline-contract-check·ci-architecture-contract-check의 퇴역 이름 부재 단언, ci-domain-parity-check(구간 함수 고전 사본 1개), 헤드리스 T180·T353·T357·T359·T361·T493·T581·T584·T586·T769·T817
+- verification/residual: qa-runner core 49/49, browser-unit(헤드리스 1145개) 통과, ci-structural·runtime·architecture·data-pipeline·proxy-continuity·semantic-review·research-flow·domain-parity·esm-core-unit·chat-resilience·retirement-contract 통과.
+
+## P1752 - v57.54 - 검증 파이프라인의 빨간 실행 대부분이 코드 결함이 아닌 거짓 실패이고, 실패해도 무엇을 해야 하는지 알려 주지 않음 (2026-10-14)
+
+- symptom/reproduction: Pages 배포 후 점검이 동시에 배포 중인 AI 프록시의 이전 리비전과 이전 Pages 실행의 cancelled 결론 때문에 실패했다(실행 38345286786·38375028345). 같은 버전 동등성이 4개 게이트, 같은 문서 문구가 2개 게이트에서 중복 검사돼 한 번의 누락이 여러 실패로 번졌다. record-fix 뒤 CURRENT-STATE가 매번 낡아 preflight가 실패하면 나머지 12분이 SKIP됐다. 시계에 의존하는 신선도 게이트가 파일 내용으로 캐시돼 SLA가 지난 뒤에도 PASS가 남았다. 생성물 충돌 해소 스크립트는 main 쪽 블록을 통째로 골라 R626(필드 단위 합집합)을 어겼고, 다른 스크립트는 'ours'를 항상 봇 쪽으로 가정해 버전 브랜치 병합에서 낡은 값을 남겼다. 로컬 캐시 적중률은 약 6.5%였다.
+- root_cause: 게이트마다 소유 범위가 명시되지 않아 같은 사실을 여러 곳에서 확인했고, 릴리스 점검이 자기 대상과 다른 배포 대상을 같은 심각도로 판정했다. 생성 상태 재생성이 수동 단계로 남아 있었다.
+- fix: ci-external-pipeline-check 릴리스 모드에서 proxy-source-revision과 이전 실행 결론(ci 제외)을 경고로. 생성 상태 동등성은 generate-workspace-state --check 하나가 소유, 버전 동등성은 ci-version-check가 소유(다른 게이트는 bump-version 안내), 문서 문구 중복 grep 제거. record-fix가 쓰기 뒤 generate-workspace-state --write를 자동 실행(--no-regen, --root 제외). data-lineage·data-refresh·static-db-expiry cache:false, 게이트별 remedy를 실패 시 '[qa] NEXT …'로 출력. resolve-generated-conflicts는 resolve-data-manifest-merge(필드 경로 소유권, --data-side, diff3, JSON 검증)에 위임하고 릴리스 동등성 게이트를 실행, 새 픽스처 ci-generated-conflict-fixture(33개). qa-runner --keep-going(로컬 전용, 인증 규칙 불변). ci-syntax-check 파일별 다이제스트 캐시(9.2초→0.26초). 엔터티 품질 브라우저 게이트는 고정 대기 대신 행 또는 '반영 대기' 문구를 기다리고, 부팅 게이트는 Playwright 페이지 시계로 5.2초 고정 대기를 없앰.
+- violated_rule: R1 버전 동기화 단일 소유 / R626 생성물 충돌 필드 단위 / AGENTS: 기록 순서 bump → record-fix → generate-workspace-state
+- prevention: P1752: ci-generated-conflict-fixture, ci-qa-runner-behavior-check(--keep-going), ci-qa-pipeline-contract-check(remedy 형식·group 모드·13D/G 일일 레인), ci-record-fix-check
+- verification/residual: 로컬: qa-runner preflight --no-cache 14/14, workspace 그룹(동시 편집 중 CURRENT-STATE 낡음 제외 통과), ci-generated-conflict-fixture 33개, 부팅 게이트 delayedPrimaryChart 통과.
+
+## P1751 - v57.54 - Worker가 웹검색·긴 답변을 60초에 끊어 예약 비용을 날리고, 장부가 한 덩어리로 커지며, 업스트림 오류를 공개 캐시함 (2026-10-14)
+
+- symptom/reproduction: OpenAI 프록시는 스트림 전체를 60초에 끊어 90초 클라이언트 타임아웃의 웹검색 호출이 시작 후 중단되면 예약액(검색 $0.10 포함)이 환불되지 않고 502가 났다. Durable Object 장부는 70일치 예약을 한 값에 담아 AI 호출마다 세 번 통째로 다시 썼고 값 크기 한도에 다가갔다. 일반 프록시·릴레이는 429/403/5xx에도 'public, max-age'를 붙여 브라우저가 오류를 2~60분 붙잡았다. 13D/G·13F 일일 레인은 한 번의 cron에만 의존했고 :17 cron과 같은 동시성 그룹이라 조용히 취소될 수 있었다. 시장 해설 AI는 근거가 같아도 매 갱신마다 호출됐다. continue-on-error 레인 실패는 초록 실행 뒤에 숨었고, 리베이스 충돌은 진단 없이 끝났으며, 갱신 봇은 CI가 나중에 거부하는 데이터를 푸시했다(history-time 게이트 누락).
+- root_cause: Worker 마감 시간이 예산(웹검색·출력 토큰)과 독립된 상수였고, 장부 정리 규칙이 시작·정산된 예약을 월 보존 기간까지 남겼다. 캐시 헤더가 응답 상태와 무관하게 붙었다. 워크플로는 이벤트 이름으로 레인을 정했고 사전 푸시 게이트를 손으로 나열했다.
+- fix: openAiDeadlineMs: 웹검색 예약 또는 출력 4000토큰 초과면 120초, 아니면 60초, 클라이언트 125초. prune()가 3일 지난 시작·정산 예약을 정리하고 검증된 상태를 메모리에 캐시(저장 실패 시 해제). ok 응답만 public 캐시, 나머지 no-store, 엣지 캐시는 상태별 TTL, Vary: Origin. /health DO 결과 60초 메모·속도 제한, 토큰 비교 상수 시간, 거부 사유 로그(헤더·키 미기록). data-plane KV 읽기 cacheTtl 30. refresh-data 일일 레인은 마커·generatedAt 나이(20시간)·운영자 실행으로 판정, cron 07:33. 시장 해설은 근거·헤드라인 id가 같고 12시간 이내 검증본이면 재사용. 레인 실패 요약 경고, 리베이스 충돌 시 파일 목록과 함께 중단·지터, 잡 단위 권한(converge는 contents read, persist-credentials false), Node 24, operations-alert는 skipped/cancelled/neutral에 러너를 띄우지 않음, converge 15분, 50MB 초과 스테이징 차단(sec-fundamentals.json은 95MiB까지 경고). 사전 푸시 게이트는 qa-runner --group data로 CI와 같은 집합. 데이터 플레인 스모크는 배포 성공 시 항상 실행. CI는 Playwright 브라우저 캐시, Pages 배포는 npm ci 생략.
+- violated_rule: AGENTS 2026-10-11: AI 월 $20 예산 안에서 항상 사용 / R606 자동 수렴 / R634 신선도 엄격
+- prevention: P1751: worker/openai-contract.test.mjs (마감 60/120초, 1만 건 정리·월 합계 불변, 저장 실패 시 캐시 해제), ci-13f-currentness-check, ci-data-pipeline-contract-check (시장 해설 재사용 픽스처), ci-data-refresh-audit (qa-runner data 그룹 위치), ci-qa-pipeline-contract-check
+- verification/residual: 로컬: Worker 계약 테스트 107개, QA data 그룹 32/32, cloudflare 그룹 6/6, 모든 워크플로 js-yaml 파싱·run 블록 bash -n. 배포 후 확인: refresh-data 로그의 'Daily lane due=… reason=…', daily-lane-marker 캐시 항목, Worker 응답 cf-cache-status.
+
+## P1750 - v57.54 - 다크 모드에서 주요 버튼이 보이지 않고, 화면 제목이 제목 요소가 아니며, 값이 채워지지 않는 위젯이 남아 있음 (2026-10-14)
+
+- symptom/reproduction: AI 전송 버튼은 다크 모드에서 흰 바탕에 흰 글자, primary 버튼(종목 추가·검색)과 SPY 비교선은 고정 근흑색이라 배경과 구분되지 않았다. 15개 화면의 제목이 div여서 화면 낭독기가 제목을 찾지 못했다. 포트폴리오 리스크 카드 4개(Sharpe·Beta·MDD·Drift)는 값을 쓰는 코드가 없어 늘 '—'였고, 빈 포트폴리오는 같은 빈 상태를 세 번, 저장 안내를 두 번 보였으며 폰 히어로가 음절 단위로 줄바꿈됐다. 도움말은 같은 제목·용어 사전 버튼이 두 번, 이모지를 뺀 빈 칸 6개가 남았고 리서치 탭이 선택 없이 보였다. AI 답변 그림 글자는 약 6px로 렌더됐다.
+- root_cause: 색을 토큰이 아닌 리터럴로 적은 스타일이 다크 토큰 전환을 따라가지 않았고, 이전 정리 작업(이모지 제거, 위젯 퇴역)의 흔적이 다시 점검되지 않았다.
+- fix: primary·btn-cta·AI 전송·칩·상단 AI 버튼·말풍선·패널 테두리·SPY 비교선을 테마 토큰으로, 화면 제목 15곳 h1(page-title margin 0), 테마 제목 '테마 · 섹터', AI 정책 띠 12px. AI 답변 그림 viewBox 400·글자 13단위·범례 선 견본·조건 n/m 텍스트. 포트폴리오: 값 없는 리스크 카드 숨김(쓰는 코드 생기면 복원), 빈 상태 하나만, 부제 한 줄 + '저장·전송 범위' 접기, 리스크 라벨 한글, SPY 범례 견본, 폰 2열 히어로·표 가로 스크롤, 상태 문구 평이화, 공급자명 대신 '월말 종가 기준'. 도움말: 반복 eyebrow·버튼·빈 칸 삭제, 유의사항 13px·토큰 색, 도움말에서 허브 탭 숨김. 폰 상단바 한 줄 액션(3줄→2줄). 종목 출처 버튼 '운용사·13F'. AI 상태 'AI 연결 안 됨 · 잠시 뒤 다시 시도'.
+- violated_rule: 소유자: 다크 모드 지원 / 원천 없는 위젯 제거 / 최소 글자 12px / WCAG AA
+- prevention: P1750: ci-runtime-contract-check, ci-capability-claim-contract-check, ci-responsive-browser-check(버전 배지 노출), 브라우저 스모크(폰 다크 상단바 105px, h1 존재)
+- verification/residual: 브라우저(데스크톱 라이트·폰 다크): 각 화면 h1 하나, 빈 포트폴리오 pf-read·pf-checks·리스크 카드 숨김, 도움말 허브 탭 숨김, 폰 상단바 130→105px.
+
+## P1749 - v57.54 - 리서치 화면에 같은 목록이 세 번 나오고 제목·섹션명·입력창 표기가 제각각 (2026-10-14)
+
+- symptom/reproduction: 산업·밸류체인은 같은 세부 영역 5개를 왼쪽 목록·읽는 순서·오른쪽 블록에 세 번 보였다. 분석 프레임의 H3가 12px로 본문(15px)보다 작았고, 같은 역할 섹션이 '반대로 흘러가는 경우'와 '자주 빗나가는 해석'으로 갈렸다. 운용사 화면은 법인명을 두 줄 연달아 반복하고, 종목 찾기 입력창이 다크 모드에서 흰 상자였으며, 보유 비중을 보여 주는 그림이 없었다. 서가 책등 색이 주제 묶음을 뜻하는데 설명이 없었고 폰에서 서가가 문서를 몇 화면 아래로 밀었다.
+- root_cause: 화면을 나눠 만든 뒤 한 화면 안의 중복과 표기 기준을 다시 맞추지 않았다.
+- fix: industry-view 오른쪽 세부 영역 블록 삭제, .af-section 14px/700, 섹션명 '자주 빗나가는 해석' 통일, 운용사 둘째 줄 일반 문장·같은 방식 운용사 블록 삭제·상세 제목 h2, 종목 찾기 입력창 스타일·점선 예시 삭제, 상위 10개 보유 비중 막대(분기 합계 대비, 합계가 검증된 경우만), 책등 툴팁 '주제 …'와 '같은 색 묶음 = 같은 주제' 한 줄, 폰에서 서가 기본 접힘(문서가 열린 경우 항상 접힘).
+- violated_rule: 소유자 2026-10-03: 섹션마다 시각 하나 + 짧은 해설 / 중복 제거
+- prevention: P1749: ci-masters-contract-check, ci-atlas-contract-check, ci-principles-contract-check, ci-research-flow-contract-check, 브라우저 게이트(masters·atlas·principles)
+- verification/residual: 브라우저: 운용사 h2 제목·비중 막대(Berkshire APPLE 22.0% … 상위 10 합 88.5%, 37개 운용사에서 공개 상위 10 집중도와 일치), 다크 입력창, principles 섹션 제목 14px, atlas 오른쪽 블록 없음.
+
+## P1748 - v57.54 - 종목·스크리너 화면에서 섹션 순서가 렌더마다 바뀌고 분모·PER 기준·용어가 화면 안에서 서로 맞지 않음 (2026-10-14)
+
+- symptom/reproduction: 요약 탭은 첫 렌더와 다음 렌더의 섹션 순서가 달랐다. PER 45.8배는 FY 순이익 기준인데 같은 화면의 최근 4개 분기 합으로는 약 28.5배였고 기준 표기가 없었다. 스크리너 한 화면에 904/898/894/184가 섞였고, 헤드라인이 판정보다 '-3.27%'를 먼저 말했다. 차트 탭 시장 상태 문장은 6개 축인데 칩은 환율 포함 7개였다. 테마 단계(P1743)는 시장을 'US'로 고정해 국내 종목에 나오지 않았다. 분기 막대는 표에 있는 순이익률을 '비율 자료 없음'으로 표기했고, 재무 숫자가 요약·재무·SEC 카드에 반복됐으며 관련 테마가 두 곳, 주식 수가 분할 미조정으로 620M→24,400M로 보였다.
+- root_cause: 요약 섹션 호스트를 늦게 만들고 다음 렌더에서 옮겼다. 순위·검증·표가 서로 다른 집계(factor percentile vs screenRank)를 썼고, 테마 단계 접근이 화면마다 따로 있었다. 재무 흐름(P1436)이 생긴 뒤 이전 SEC 카드·관련 테마 위젯을 정리하지 않았다.
+- fix: entity.js가 기업 요약 호스트를 최종 위치에 한 번 만든다. PER은 'FY 순이익 기준 · 마감 · 경과'를 붙이고 연속 4개 분기가 더 새로우면 '최근 4개 분기 합 기준 약 n배'를 함께 쓴다(계산 방식 자체는 바꾸지 않음). 스크리너·요약 순위는 screenRank 분모 하나(순위 밖 사유는 접기), '백분위 80 이상', 헤드라인은 판정 먼저. 차트 탭은 미국 6개 칩 + '참고 · 환율(원·엔)'. src/domain/scenarios/theme-stage.js(themeStagesFor) 하나로 요약·기업 요약·스크리너가 테마 단계를 읽고(.KS/.KQ면 국내, state ok일 때만), 선택지는 테마 단위로만. 시세 실패 시 차트 빈 상태가 전체 폭·범례/판정 칩 숨김. 분기 막대 순이익률 통일. 요약 재무 3줄 + '재무 공시 →', SEC 기본 보고는 접힌 원자료, 관련 테마 위젯과 고전 작성기 퇴역. 주식 수 '분할 미조정' 표시·단위 통일, 금액표 접기. 재무·스크리너 이어서 볼 곳에 테마·거시 갈림길. 1M/3M→1개월/3개월, 지수 이름 한글, 11px→12px, '스크리너 아티팩트'→'완료 종가 기준'.
+- violated_rule: 소유자 2026-10-14: 한 화면 안의 논리 일관성과 화면 간 유기적 연결
+- prevention: P1748: ci-esm-core-unit-check (PER 기준·4개 분기 병기), ci-entity-quality-browser-check, ci-architecture-browser-check (6칩 + 환율 참고), ci-screener-workbench·ci-screener-market 계열
+- verification/residual: 브라우저 NVDA 요약/재무/차트·스크리너: 순서 프로필→기업 요약→가격→이 종목의 지금, 'PER 45.8배(FY2026 순이익 기준 · 2026-01 마감 · 경과 8개월) · 최근 4개 분기 합 기준 약 28.5배', 스크리너 '순위 계산 894종목 중 상위 20%(179종목)', 테마 단계는 가짜 상태 스니펫으로 확인(로컬 scenario-state는 pending).
+
+## P1747 - v57.54 - 거시 갈림길이 동점을 숨기고 같은 8갈래를 두 번 보이며, 테마 회전 문장이 국내 현상을 시장 전체처럼 읽게 함 (2026-10-14)
+
+- symptom/reproduction: 헤드라인은 '달러 급등(3/4)'만 말했지만 '물가 둔화+고용 완만'도 3/4였다. 지도와 아코디언이 같은 8갈래를 두 번 그렸고, 같은 시장 가격 두 문장이 4갈래에 반복됐다. 과거 빈도가 '4번 중 4번 상승'인데 결론이 기다림인 이유가 없었고, 달러 급등은 '수혜 영역 없음'과 '수출 기업 환율 이익'이 충돌했다. 금리 허브는 WTI −7.5%만 보고 '유가 하락 진행 중'이라 했다(브렌트 선물 +0.9%). 6개 축 카드에서 갈림길로 가는 길이 없었다. 테마 회전 문장에 나온 8개 중 7개가 국내 테마인데 시장 표기가 없었고, AI 설비투자 칩과 갈림길 카드의 같은 3개월 수익률이 계산 방식 차이로 달랐다. '국내 테마 흐름 →'는 닫힌 접기 안으로 스크롤해 아무 일도 없었다.
+- root_cause: 갈림길(P1742)·테마 플레이북(P1743)을 기존 거시·테마 화면 위에 덧붙이면서 기존 섹션(아코디언·축 카드·AI 설비투자·순위표)과의 중복·용어·계산 방식을 한 기준으로 다시 맞추지 않았다.
+- fix: 동점 갈림길을 데이터로 판정해 헤드라인·축약 블록에 명시(tiedIds). 지도 행 자체를 details로 바꿔 그 자리에서 상세를 펼치고 아코디언 삭제, 허브를 지도 앞으로. 시장 가격 한 줄 + 대용 지표 주의는 허브에 한 번. 과거 빈도가 결론과 반대면 다리 문장(pastBridge). impact.mixed '엇갈리는 쪽' 렌더. WTI·브렌트를 함께 쓰고 부호가 갈리면 '엇갈림'(금리 인하 경로로 세지 않음). 갈래마다 axes를 두고 6개 축 카드에 '이 축이 가르는 길' 버튼(openCrossroadsBranch). 브렌트 카드 중복 문장 삭제·'현물 · M/D까지 20거래일'. 국면 보류 한 줄 + 접기, 12px. 테마 이름에 국내/미국, 움직임이 어느 시장 것인지 문장화, '자금 이동'→'가격 기준 강약 이동'. AI 설비투자 칩을 하위 테마 중앙값의 중앙값으로 통일. 순위표 방향 열 '순위 변화(1개월 vs 3개월)'. 모멘텀 지도 폰 전용 판(라벨 15px). 테마 카드 스크리너 링크에 섹터 문맥 전달, 테마 상세에서 갈림길 블록을 이어서 볼 곳 앞으로. 테마 ETF 사분면 문장은 'S&P 500 대비 상대강도 회전'으로.
+- violated_rule: 소유자 2026-10-14: 애매하면 안 하느니 못함 — 근거와 결론, 화면 간 연결이 일관돼야 함
+- prevention: P1747: ci-scenario-guidance-fixture (동점 헤드라인, 시장 가격 한 줄, pastBridge, mixed 렌더, 브렌트 엇갈림, axes 연결, 유가 링크 대상, 국내/미국 표기), ci-esm-core-unit-check (theme-strength M20)
+- verification/residual: 브라우저 데스크톱·390px, 라이트·다크: 동점 헤드라인 '조건 부합이 같은(3/4) 길이 둘입니다 — 달러 급등(시장 가격도 같은 방향)과 물가 둔화 + 고용 완만(시장 가격은 반대). 다음 분기점 10/14 CPI 발표가 둘을 가릅니다.', 지도 행 펼침, 축 버튼 → 갈래 열림, 폰 모멘텀 지도 라벨 15.4px.
+
+## P1746 - v57.54 - 오늘·시장 상태 화면에서 '지금 구조'와 '앞으로의 갈림길'이 따로 놀고 문구·순서·날짜 형식이 화면마다 다름 (2026-10-14)
+
+- symptom/reproduction: 대시보드와 시장 상태에 세 구조(확산·집중·약화)와 8갈래 갈림길이 서로 다른 블록으로 나와 연결이 보이지 않았다. 조건 표기가 '현재 조건 부합'·'조건 n/m'으로 섞였고, 시장 폭 첫 문장에 방향이 없고 차트 순서가 50→20→40→200, 투자 심리 요약에 F&G 방향이 없고 AAII가 따로 각주, HY 카드만 추세선이 없었다. 브리핑 다음 확인은 날짜만, 뉴스는 '10. 13. 08:00'과 10/13 형식이 섞이고 주제가 갈림길과 이어지지 않았다.
+- root_cause: 화면별로 시점이 다른 작업(P1742~P1744 갈림길 추가 이전의 구조 블록)이 이어 붙어 한 흐름으로 다시 설계되지 않았고, 공용 표기 함수(fitLabel)·날짜 형식이 화면마다 따로 있었다.
+- fix: 갈림길마다 시장 구조(shape)를 붙이고 renderCrossroadsCompact가 '지금 구조 → 다음 발표가 가를 길 → 그 길의 구조'를 한 블록으로 그린다(대시보드·시장 상태). fitLabel을 '조건 부합 n/m'으로 통일, 스트레스 빈도에 갈림길 다리 문장, 레이더 축 이름·중립 축 급락 문장. 시장 폭 첫 문장에 20·5거래일 변화, 차트 20→40→50→200. 심리 종합에 F&G 20거래일 방향과 AAII 통합, HY 6개월 추세선, 이어서 볼 곳에 거시 갈림길. 브리핑 다음 분기점에 선두·대안 길의 발표 기준값. 뉴스 M/D HH:MM, 건수 줄 '조건에 맞는 기사 → 같은 사건 묶은 뒤 → 표시', 주제별 갈림길 표시. 섹터 등락 h2·M/D. AI 브리핑 프롬프트는 조건 부합 수를 길 이름과 함께 쓴다.
+- violated_rule: 소유자 2026-10-14: 새 기능이 기존 화면에 녹아들게, 문구·시각 하나하나와 인과 흐름
+- prevention: P1746: ci-scenario-guidance-fixture (fitLabel 형식, 구조 shape, 축약 블록 문구), ci-esm-core-unit-check (시장 폭·심리 모델)
+- verification/residual: 브라우저(데스크톱 라이트·폰 다크): 브리핑 '다음 분기점: 10/14 CPI — 물가 둔화+고용 완만 쪽이면 근원 CPI 0.2% 이하, 달러 급등 쪽이면 0.4% 이상', 심리 'F&G는 20거래일 전보다 15 높아져 낙관 쪽', HY 카드 추세선, 뉴스 '10/12 08:00 ~ 10/13 08:00 KST', 시장 폭 카드 20/40/50/200 순.
+
+## P1745 - v57.54 - AI 패널이 화면마다 대화가 끊기고 이전 대화를 다시 열 수 없음 (2026-10-14)
+
+- symptom/reproduction: AI 패널은 화면별로 대화 상태가 따로 있어 거시에서 묻고 종목으로 넘어가면 앞 질문을 잇지 못했고, 새로고침하면 대화가 사라졌다. LLM 사이트처럼 지난 대화를 목록에서 다시 열어 이어 묻는 방법이 없었다. 투자 대가(masters)·도움말(guide) 화면은 문맥 맵에 없어 입력창이 꺼져 있었다.
+- root_cause: 고전 패널(js/aio-chat.js)이 getChatState(ctxId)로 화면별 상태를 만들고 완료된 대화를 요약 이력(aio_chat_history)으로만 남겼다. 화면 문맥 맵이 고전 파일 안에 고정돼 있어 새 화면이 빠졌다.
+- fix: src/ai/session/chat-sessions.js(저장소: 동의 상태·세션·한도·모델 문맥 잘라내기)와 src/ui/components/chat-sessions.js(공유 대화 상태, 완료 턴 기록, 첫 답변 뒤 저장 동의 카드, 새 대화·대화 목록, 2단계 삭제, 저장 끄고 모두 지우기, 거절 뒤 목록에서 저장 켜기)를 추가했다. 저장은 동의한 뒤에만 이 브라우저에 하며 거절하면 기존 기록도 지운다. src/ai/context/panel-contexts.js가 masters·guide 문맥과 질문 칩을 같은 전역에 등록한다(고전 파일 증가 없음).
+- violated_rule: 소유자 2026-10-14: 이전 대화를 세션처럼 저장·기억, 저장 여부는 첫 대화 때 묻기 / AI 항상 사용
+- prevention: P1745: ci-ai-intelligence-contract-check (동의 전 저장 금지, 거절 시 삭제, 한도·잘라내기, 세션 문맥 복원)
+- verification/residual: 브라우저: 첫 답변 뒤 동의 카드 → 저장 → 거시·종목 화면을 오가며 같은 대화 유지, 새로고침 뒤 복원, 목록에서 열기·삭제, 저장하지 않음 뒤 목록에서 저장 켜기. masters 화면 h1·AI 입력 활성.
+
+## P1744 - v57.54 - 티커 없는 전망·테마 질문의 AI 답변에 시각 자료가 없고 관점 대비가 없음 (2026-10-14)
+
+- symptom/reproduction: AI 답변 시각 자료(P1741)는 티커가 있을 때만 그려져 '앞으로 어떻게 대응해야 돼?', '반도체 조정인데 분할로 들어갈까?' 같은 시장·테마 질문에는 글만 나왔다. 소유자가 요청한 '각 영역과 전문가 입장에서'의 관점 대비도 outlook 지침에 없었다. 새 산출물 scenario-state.json·scenario-outcomes.json은 첫 갱신 전 404여서 헤드리스 게이트가 런타임 오류로 실패했다.
+- root_cause: 시각 자료 선택이 종목 단위로만 설계되어 시장 단위 모델(갈림길·테마 플레이북)을 그리는 빌더가 없었고, 새 산출물을 클라이언트가 바로 읽게 하면서 첫 생산 전 상태를 고려하지 않았다.
+- fix: src/ui/components/ai-answer-visuals.js에 crossroads(갈래별 조건 부합 점·시장 가격 쪽·유리한 선택지 표)와 themes(모든 테마의 단계별 목록, 선두 거시 길에서의 순풍·역풍 색) 빌더를 더하고, 티커 없는 outlook 답변과 테마 질문에 자동으로 붙인다. outlook 지침에 테마 갈림길 적용과 거시 전략가·업종 애널리스트·위험 관리자 관점 대비를 넣었다. public-data에 status 'pending' 자리 파일을 두고 생산자는 pending을 이전 상태·장기 기록으로 쓰지 않는다.
+- violated_rule: 소유자 2026-10-13: 직관적으로 이해할 수 있게(시각) + 각 영역·전문가 관점의 선택지 설명
+- prevention: P1744: ci-scenario-guidance-fixture (outlook 답변 → crossroads 시각, 테마 outlook → crossroads+themes, 관점 대비 지침 문구)
+- verification/residual: 브라우저 채팅(응답 스텁): '반도체 조정인데 앞으로 어떻게 대응해야 돼?' 답변 아래 갈림길 표(달러 급등 선두·신용 경색 함께 볼 길)와 테마 단계 그림(4단계 46개 테마) 렌더. 계보 감사 자리 파일 PASS.
+
+## P1743 - v57.54 - 앞을 보는 갈림길이 소유자 예시(금리·CPI·고용)에만 묶여 있고 테마·자동 운영이 없음 (2026-10-14)
+
+- symptom/reproduction: P1742의 갈림길은 물가 재가속·연착륙·고용 급랭·유가 충격 네 갈래를 화면을 열 때만 계산했다. 신용 경색·달러 급등·성장 재가속·변동성 충격 같은 다른 국면은 다루지 않았고, 소유자가 든 두 번째 예시(소프트웨어 상승·반도체 조정·광통신·메모리·전력 병목)를 일반화한 테마 단위 판단은 없었다. 발표가 나와도 어느 길로 갔는지 기록하지 않았고, 과거 빈도는 AIO 종가 기록 약 1년치뿐이어서 대부분 '표본 부족'이었다.
+- root_cause: 갈림길이 코드에 박힌 네 개의 사례로 구현되어 새 국면·새 테마를 더하려면 화면·AI·생성기를 각각 고쳐야 했고, 앞날 판단을 시간에 따라 이어 붙이는 생산자(상태 스냅숏·발표 판정·변화 기록·장기 과거 기록)가 없어 시장이 바뀌어도 판단이 자동으로 따라가지 않았다.
+- fix: (1) src/domain/market/macro-crossroads.js를 레지스트리(macro-crossroads.v2)로 바꿨다: 여덟 갈래마다 조건·인과·강해지고 약해지는 노출 태그·발표 판정 규칙·시장 가격 줄·선택지 네 개와 유리한 쪽이 데이터로 있고, 선두 길과 함께 볼 길(시장 가격 쪽 우선)을 고른다. (2) src/domain/scenarios/exposures.js에 노출 태그 11개와 미국 18개·국내 28개 테마 전부의 구조 가설·깨지는 신호·태그를 두고, 거시 길과 태그의 겹침으로 순풍·역풍을 정한다. (3) src/domain/scenarios/analogs.js에 갈래별 과거 비교 기준과 겹치지 않는 표본 계산, 테마 단계(주도 지속·추세 속 조정·반등 시도·약세 지속)를 둔다. (4) src/domain/scenarios/theme-playbook.js가 모든 테마를 같은 규칙으로 읽는다: 단계, 3개월 중기 흐름, 선두·대안 길의 바람, 조건 부합(조정이면 낙폭이 직전 상승분의 절반 이하인지 포함), 선택지별 기회비용과 유리한 쪽(깊은 조정은 기다림), 대표 ETF의 같은 단계 과거 빈도, 레버리지 자료 부재 고지, 노출 태그로 읽는 자금 이동. (5) scripts/build-scenario-state.mjs가 매 갱신(네트워크 없음) 갈림길·테마를 다시 계산하고, 새로 나온 CPI·고용·PCE·소매판매·정책금리(마지막 변경일 기준)를 모든 갈래 규칙으로 판정하며, 직전 스냅숏과 비교해 선두 길·조건 수·시장 가격 쪽·테마 단계·자금 이동 변화를 기록하고 테마 일별 기록을 쌓는다(public-data/scenario-state.json). scripts/build-scenario-outcomes.mjs가 매주 1990년 이후 일봉으로 갈래별 20·63거래일 결과와 테마 대표 ETF의 단계별 63거래일 결과를 만든다(public-data/scenario-outcomes.json). 둘 다 refresh-data에 등록·스테이징·계보 감사에 넣었다. (6) 거시 섹션에 자동 기록(지난 발표 판정·최근 변화), 테마 화면에 '테마 갈림길'(모멘텀 지도·자금 이동·단계별 접힘 카드), 오늘·시장 상태 요약에 테마 줄을 더했다. (7) AI 채팅은 전망·테마·분할 질문에 테마 블록과 자동 기록을 받고(도메인 문맥 상한 14000자), 시장 해석 생성기는 직전 상태의 테마 흐름까지 받는다.
+- violated_rule: AGENTS 소유자 2026-10-13: 예시가 아니라 모든 국면·테마에 같은 구조로 적용, 가능성·해석은 데이터와 함께 자동으로 계속 갱신
+- prevention: P1743: ci-scenario-guidance-fixture (레지스트리 무결성 — 갈래마다 과거 비교 기준·정의된 태그·선택지 네 개·알려진 발표 규칙; THEME_MAP·KR_THEME_MAP 모든 테마에 태그와 깨지는 신호; 갈래 수만큼 항목; 장기 기록 우선; 발표 판정 규칙과 1회 판정; 정책금리는 마지막 변경; 테마 단계·바람·조정 깊이·유리한 쪽; 오래된 세션·표본 3 미만 제외; AI 블록의 지명 테마·가설·확률 % 부재; 상태 생산자 멱등·변화 기록; 주간 생산자 순수 함수; 워크플로 등록·승격 전 순서)
+- verification/residual: 실데이터: 선두 '달러 급등' 3/4(시장 가격 같은 쪽)·함께 볼 길 '신용 경색', 9/17 정책금리 +0.25%p가 '물가 재가속'·'달러 급등' 기준 충족으로 판정, 8월 소매판매 +1.1%가 '성장 재가속' 기준 충족; 테마 46개(미국 18·국내 28) 단계 판정, 조정 테마는 모두 낙폭이 직전 상승분의 절반을 넘어 '기다림'으로 판정. 상태 생산자 두 번 연속 실행 시 변화 기록 증가 없음. 브라우저: 거시 여덟 갈래·자동 기록, 테마 지도 46점·단계 접힘, 오늘 요약의 테마 줄, 모바일 375px 가로 넘침 없음. 채팅 캡처: '반도체랑 광통신 지금 조정인데 분할로 들어가는게 맞을까?'가 갈림길·테마 블록(반도체·광통신 줄 포함)·자동 기록을 10.7K자로 받음.
+
+## P1742 - v57.54 - 화면과 AI가 지금까지의 시장만 요약하고 앞으로의 갈림길과 사용자 대응을 말하지 못함 (2026-10-13)
+
+- symptom/reproduction: 시장 상태·오늘 화면의 세 흐름(확산·집중·약화)은 지금 어느 상태에 가까운지만 말했고, 다음 CPI·고용·FOMC가 어떤 길로 갈라지는지, 금리가 내려가려면 무엇이 필요한지, 각 길에서 기다림·분할 접근·보유·방어 중 무엇의 기회비용이 작은지는 어디에도 없었다. 시장 해석 생성기 프롬프트는 '유리한 쪽 권유 금지'로 이런 문장을 막았다.
+- root_cause: 2026-10-13 전문가 검토(T06)가 '매매 지시 금지'를 '선택지·기회비용·유리한 쪽 설명 금지'로 넓혀 소유자 2026-10-12 결정과 어긋났고, 앞날을 다루는 도메인 모델(발표 일정 × 거시 조건 × 시장 가격 × 과거 빈도)이 없어 화면과 AI가 현재 상태 서술에서 멈췄다.
+- fix: src/domain/market/macro-crossroads.js를 추가해 네 갈림길(물가 재가속·물가 둔화+고용 완만·고용 급랭·유가 충격)마다 인과 사슬, 날짜가 붙은 확인 발표, 가능성 근거 세 가지(조건 부합 n/m · 2년물−기준금리 중간값 방향(프리미엄 단서 포함) · AIO 종가 기록의 겹치지 않는 과거 빈도와 표본 수), 선택지 네 개의 기회비용과 상대적으로 유리한 쪽, 세부 선별 화면 링크를 만든다. 금리 허브는 금리가 오르면 왜 부담인지, 금리가 내려가려면 필요한 조건(물가 둔화·유가 하락·고용 둔화)의 현재 상태와 확인 일정, 조건과 금리 움직임이 어긋날 때의 괴리를 설명한다. 거시 화면 맨 앞에 전체 섹션(발표 일정·갈림길 지도·금리 허브·갈림길별 접힘 상세), 오늘·시장 상태에 요약(선두 길과 반대편 길을 함께)을 둔다. AI 채팅은 전망·대응 질문을 outlook 형식(갈림길·근거·선택지·유리한 쪽·선별 화면 안내)으로 답하고 같은 갈림길 문맥을 받으며, 시장 해석 생성기는 7~9줄로 갈림길과 선택지까지 쓴다. AGENTS 제품 결정에 소유자 2026-10-13 결정을 기록했다.
+- violated_rule: AGENTS 소유자 2026-10-12/10-13: 가능성·기회비용·유리한 쪽 설명은 허용·기대, 가격·수량·시점·종목 지시와 지어낸 확률만 금지
+- prevention: P1742: ci-scenario-guidance-fixture (macro crossroads — 발표 일정 별칭·지평, 네 갈림길의 n/m·인과·선택지 4개·유리한 쪽·시장 가격 프리미엄 단서·과거 빈도 문구, 확률 %·매매 지시 부재, 겹치지 않는 표본, 관측 없을 때 보류, 생성기 문맥 포함, outlook 모드, 요약의 반대편 길)
+- verification/residual: 실데이터: 선두 '물가 둔화+고용 완만' 3/4·시장 가격 반대(2년물−중간값 +0.92%p), 금리 괴리 문장(조건 3개 진행 중인데 10년물 +0.28%p, 기간 프리미엄 +0.20%p), 다음 분기점 10/14 CPI. 브라우저: 거시 섹션·오늘/시장 상태 요약 렌더, 모바일 375px 가로 넘침 없음. 채팅 프롬프트 캡처: '앞으로 시장 어떻게 대응해야 돼?'가 mode=outlook·luna-low·갈림길 문맥 포함(58K).
+
+## P1741 - v57.54 - AI 답변이 실적·차트 질문에도 글만 내보내 수치 흐름을 한눈에 볼 수 없음 (2026-10-13)
+
+- symptom/reproduction: '엔비디아 실적 어때?'나 '차트 어때?'에 답이 문장과 표뿐이어서 분기 매출 추세·이익률·이동평균 위치·상대 성과를 그림으로 확인할 수 없었다.
+- root_cause: 답변 렌더러가 텍스트만 다뤘고, 화면에 이미 있는 완료 일봉 분석(analyzeChart)과 공시 분기 이력을 답변 영역에서 재사용하는 경로가 없었다.
+- fix: src/ui/components/ai-answer-visuals.js를 추가해 질문 형태와 낱말로 최대 2개 그림을 고른다: 실적 질문은 미국 공시 분기 매출 막대와 순이익률, 차트·판단·분석 질문은 최근 126일 종가와 50·200일선 및 차트 상태, 2개 이상 회사 비교는 63거래일 100 기준 상대수익. 모델 숫자는 쓰지 않고 앱이 검증 자료로만 그리며, 공시 게이트가 막은 답에는 붙이지 않는다.
+- violated_rule: owner 2026-10-03 텍스트+시각 균형 원칙
+- prevention: P1741: ci-ai-intelligence-contract-check (chooseAnswerVisuals 선택 사례, 차단 반환 뒤 그림 배치, bootstrap 노출)
+- verification/residual: 로컬 브라우저에서 NVDA 실적 질문에 fundamentals 그림 렌더(실제 공시 분기 2024-10-27→2026-07-26 매출 +174%, 기간별 순이익률 표시) 스크린샷 확인. 가격·상대수익 그림은 로컬 시세 프록시가 localhost를 막아 합성 일봉으로만 확인 — 배포 후 실데이터 확인 필요.
+
+## P1740 - v57.54 - AI 채팅이 질문 의도·종목 맥락을 놓치고 한 가지 답변 틀과 오래된 지식 경계를 강제 (2026-10-13)
+
+- symptom/reproduction: '엔비디아 사도 돼?'가 판단 질문으로 분류되지 않고 회사명 질문이 종목으로 잡히지 않았으며, 모든 답변이 같은 6단계 틀·최대 4섹션·1,500토큰으로 잘렸다. 프롬프트는 '커트오프 약 2025년 초'와 웹검색 사용 여부를 실제와 다르게 적었고, 'PER이 뭐야?'에도 AI 인프라 사이클 블록이 붙어 55K를 보냈다. '50일선을 넘으면' 같은 조건 문장도 현재 수치로 오인되어 삭제됐고, 한국 정책 질문에는 만료된 수출 잠정치가 들어갔다.
+- root_cause: 의도 분류가 엔터티 해석보다 먼저 돌아 회사명 맥락을 쓰지 못했고, 매수 판단 표현 패턴이 좁았다. 답변 계약이 질문 형태와 무관한 고정 구조였고, 웹검색 결정이 컨텍스트 조립 뒤에 있어 데이터 상태 문구가 틀렸다. 화면별 고정 블록 매핑이 질문과 무관하게 큰 블록을 붙였고, 공시 검증 단계가 조건문과 관측문을 구분하지 않았으며, 수동 참조 만료 상태를 AI 주입부가 읽지 않았다.
+- fix: 엔터티를 먼저 해석해 hasEntity를 분류에 넘기고 매수·매도 판단 표현을 넓혔다. 공용 종목 해석기(별칭·조사 제거·지시어 이어받기)를 두 채팅 경로에 쓰고, 질문 형태 6종(quick/explain/analysis/comparison/decision/screen)별 형식 안내와 시니어 애널리스트 문체 계약(결론 우선, 사실·해석·추정 분리, 표·목록 허용, 약 2,500자)을 넣었다. 웹검색 결정을 컨텍스트 조립 앞으로 옮기고 오늘 날짜·지식 경계·데이터 상태를 실제대로 적었으며, AI 인프라 블록은 관련 질문에만, 실시간 관측은 프롬프트 끝(캐시 접두 유지)으로 옮겼다. 조건·임계 문장은 수치 삭제에서 제외하고 표의 미검증 수치 셀만 '확인 필요'로 바꿨다. 한국 정책 질문에 기준금리·CPI·수출(만료 시 미확인 표기)·21일 내 공식 발표를 주입하고, 분석·판단·비교는 luna-low와 출력 8,000토큰(심층 16,000)을 쓴다.
+- violated_rule: AGENTS AI 협업 원칙: 질문 맥락 이해·근거 기반 답변·만료 자료 단정 금지
+- prevention: P1740: ci-ai-intelligence-contract-check (taxonomy hasEntity·판단 표현, companyEntitySymbols, 조건문 보존·표 셀 대체, 오래된 계약 문자열 부재, 형태 안내, 웹검색 결정 순서, 지식 경계, AI 인프라 질문 게이트, 프로필 미설정, 정책 줄 만료 가드)
+- verification/residual: 로컬 프롬프트 캡처 7건: 엔비디아 실적(analysis·luna-low·NVDA·심층 16,000), NVDA 사도 돼(decision), PER이 뭐야(explain·38K, 기존 55K), 삼성전자(005930.KS), 엔비디아랑 AMD(comparison·AMD,NVDA), HBM(AI 인프라 포함), Fed·한국 정책(연준 3.75-4.00%·한은 3%·다음 금통위 10/22). 모든 캡처에서 웹 상태 문구 일치, 커트오프·6단계 틀 부재.
 
 ## P1739 - v57.53 - 장중 속보 목록 링크가 24px보다 낮아 접근성 게이트가 실패 (2026-10-13)
 

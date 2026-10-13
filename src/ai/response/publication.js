@@ -65,11 +65,34 @@ export function splitAnswerSentences(line) {
   return pieces.map(function(piece) { return piece.trim(); }).filter(Boolean);
 }
 
+// P1740: a threshold inside a condition ("VIX가 20을 넘으면", "RSI 70 이상이면 과매수로 본다", "if yields top 5%")
+// is a rule, not an observation. Stripping every sentence with a number removed exactly the invalidation levels and
+// confirmation signals the answer contract asks for. A sentence is a condition only when it has a conditional
+// ending and no marker of a present or past observation; "현재 15인 VIX가 20을 넘으면" still carries a current value.
+var CONDITIONAL_MARKER = /(?:[가-힣](?:으면|면|라면|이라면)(?=[\s,.!?)]|$)|(?:경우|때)(?:에는|에|는)?(?=[\s,.!?)]|$)|\s시(?:에는|에)?(?=[\s,.!?)]|$)|이상이면|이하이면|넘어서면|웃돌면|밑돌면|조건|기준선|임계|트리거|무효화|\b(?:if|when|unless|above|below)\b)/i;
+var NON_CONDITIONAL_MYEON = /(?:반면|측면|전면|국면|이면서|표면|화면|단면|정면|방면|양면|평면|내면|외면|지면|장면)(?=[\s,.!?)]|$)/;
+var OBSERVATION_MARKER = /(?:현재|지금|오늘|금일|현시점|방금|최근|어제|전일|전날|지난\s*(?:주|달|분기|해)|이번\s*(?:주|달|분기)|마감|종가|기록(?:했|한|하)|나타냈|보였|올랐|내렸|떨어졌|하락했|상승했|급등|급락|발표된|발표했|as of|currently|today|yesterday|closed at|now)/i;
+export function isConditionalNumericSentence(sentence) {
+  var text = String(sentence || '');
+  if (!CONDITIONAL_MARKER.test(text.replace(NON_CONDITIONAL_MYEON, ' '))) return false;
+  if (OBSERVATION_MARKER.test(text)) return false;
+  return !/\b(?:19|20)\d{2}-\d{2}-\d{2}\b|\b(?:19|20)\d{2}년\s*\d{1,2}월/.test(text);
+}
+
 export function stripUnverifiedCurrentNumericSentences(value) {
   return String(value || '').split('\n').map(function(line) {
     if (!line.trim()) return '';
+    // P1740: a markdown table keeps its rows; only an unverified current-number cell becomes "확인 필요". Dropping the
+    // whole row left a header with no body.
+    if (/^\s*\|.*\|\s*$/.test(line)) {
+      if (/^\s*\|[\s\-:|]+\|\s*$/.test(line)) return line;
+      return line.split('|').map(function(cell, index, cells) {
+        if (index === 0 || index === cells.length - 1) return cell;
+        return hasCurrentNumericContent(cell) || /^\s*[+\-−]?\d[\d,.]*\s*$/.test(cell) ? ' 확인 필요 ' : cell;
+      }).join('|');
+    }
     // P1681: a date or number inside a cited URL path ("…/2026/10/12/fed-…") is not a current claim of the sentence.
-    var kept = splitAnswerSentences(line).filter(function(sentence) { return !hasCurrentNumericContent(sentence.replace(/(?:https?:\/\/|www\.)\S+/gi, ' ')); }).join(' ');
+    var kept = splitAnswerSentences(line).filter(function(sentence) { var bare = sentence.replace(/(?:https?:\/\/|www\.)\S+/gi, ' '); return !hasCurrentNumericContent(bare) || isConditionalNumericSentence(bare); }).join(' ');
     return kept || null;
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }

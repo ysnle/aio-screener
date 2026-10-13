@@ -21,7 +21,7 @@ const STYLE = `
 .af-issue{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);margin:0 0 14px;line-height:1.35}
 .af-lead{font-size:15px;line-height:1.75;color:var(--text-primary);margin:0 0 18px}
 .af-prose p{font-size:14px;line-height:1.8;color:var(--text-secondary);margin:0 0 12px}
-.af-section{font-size:12px;font-weight:700;color:var(--text-primary);margin:24px 0 8px;letter-spacing:.02em}
+.af-section{font-size:14px;font-weight:700;color:var(--text-primary);margin:24px 0 8px;letter-spacing:.02em}
 .af-flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 14px}
 .af-flow-step{font-size:12px;padding:6px 10px;border:1px solid var(--border-subtle);border-radius:3px;background:var(--surface-2);color:var(--text-primary)}
 .af-flow-arrow{font-size:12px;color:var(--text-muted)}
@@ -46,6 +46,8 @@ const STYLE = `
 .af-bar-fill{position:absolute;top:0;bottom:0;background:var(--accent);opacity:.75;border-radius:2px}
 .af-bar-fill.is-neg{background:var(--data-red)}
 .af-bar-value{text-align:right;font-variant-numeric:tabular-nums;color:var(--text-primary)}
+.af-bar-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width: 720px){.af-bar-row{grid-template-columns:minmax(0,110px) 1fr 56px}}
 .af-calc{border:1px solid var(--border-subtle);border-radius:4px;padding:12px 14px;background:var(--surface-1);margin:4px 0 6px}
 .af-calc dl{display:grid;grid-template-columns:64px 1fr;gap:5px 12px;margin:0;font-size:13px;line-height:1.55}
 .af-calc dt{color:var(--text-muted)}
@@ -224,7 +226,7 @@ export function renderFrameArticle(doc, lesson) {
     calc.appendChild(dl);
     article.appendChild(calc);
   }
-  article.append(el(doc, 'h3', 'af-section', '반대로 흘러가는 경우'), el(doc, 'p', 'af-twist', lesson.reverse));
+  article.append(el(doc, 'h3', 'af-section', '자주 빗나가는 해석'), el(doc, 'p', 'af-twist', lesson.reverse));
   const basis = renderBasis(doc, {
     sources: [...(lesson.sources || []), ...(FRAME_EXTRA_SOURCES[lesson.id] || [])],
     assumptions: lesson.example ? ['‘숫자로 따라가 보면’에서 연도와 지수·금리 이름이 붙은 값은 실제 관측치이고, 나머지는 구조를 보여 주기 위한 설명용 가정이며 특정 회사의 실제 수치가 아니다. 관측치가 함께 움직였다는 사실은 그 원인을 증명하지 않는다.'] : []

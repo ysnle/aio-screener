@@ -1,13 +1,17 @@
 // AIO Screener Service Worker — offline-first v48.27 (P3-4 1단계)
-// 전략: shell (index.html/version.json/js)은 Network-First, API는 Network-First + 캐시 폴백
+// 전략: shell (index.html/version.json/js)은 Network-First(HTTP 재검증), 이번 버전 ?v= 클래식 스크립트는 Cache-First(P1755), API는 Network-First + 캐시 폴백
 // 제약: GitHub Pages HTTPS + 정적 호스팅 (POST 캐싱 불가, CORS 프록시는 제3자 도메인)
 // v48.27 (QA-3): SW_VERSION을 APP_VERSION과 동기화 — activate 시 신규 캐시로 전환 (R1 7번째 동기화 지점)
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v57.53';
-const SW_BUILD = '2026-10-13T21:49:00+09:00';
-const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
+const SW_VERSION = 'v57.54';
+const SW_BUILD = '2026-10-13T23:09:00+09:00';
+// v57.54 review: code can ship without a version bump (post-deploy fixes), so the cache-first shell is also keyed
+// on the shipped code. pages-deploy.yml replaces 'local' with a hash of the staged index.html + js/ + src/; a data-only
+// deploy keeps the same hash (no cache churn), a code change renames SHELL_CACHE and the old one is deleted on activate.
+const SW_CODE_HASH = 'local';
+const SHELL_CACHE = 'aio-shell-' + SW_VERSION + '-' + SW_CODE_HASH;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
 // Only the bounded critical shell is installed atomically. The larger registry
@@ -34,6 +38,11 @@ const CRITICAL_SHELL_ASSETS = [
   './src/app/bootstrap.js'
 ];
 const RUNTIME_SHELL_PATH_RE = /\/(?:js|src)\//;
+// P1755: index.html requests classic scripts as `./js/<name>.js?v=<version without the leading v>`.
+const SHELL_ASSET_VERSION = SW_VERSION.replace(/^v/, '');
+function isVersionedShellUrl(reqUrl) {
+  return /\.js$/.test(reqUrl.pathname) && reqUrl.searchParams.get('v') === SHELL_ASSET_VERSION;
+}
 
 
 
@@ -230,9 +239,39 @@ self.addEventListener('fetch', function(event) {
   });
   const isRuntimeShell = reqUrl.origin === scopeUrl.origin && RUNTIME_SHELL_PATH_RE.test(reqUrl.pathname);
   const isShell = isCriticalShell || isRuntimeShell;
+  // P1755: a classic script whose ?v= names THIS worker's version is immutable for this release
+  // (R1 bump-version rewrites both together), so it is served cache-first from this version's
+  // SHELL_CACHE. A version bump renames SHELL_CACHE (old caches are deleted on activate), and a URL
+  // carrying any other ?v= falls through to the network-first path, so a stale version is never
+  // served cache-first. Everything else in the shell (index.html, version.json, unversioned src/
+  // modules) stays network-first but revalidates with the HTTP cache (ETag/304) instead of
+  // re-downloading every byte ('no-store'); the offline cache fallback is unchanged.
+  const isVersionedShell = isShell && isVersionedShellUrl(reqUrl) && !isSensitiveUrl(url);
+  if (isVersionedShell) {
+    event.respondWith(
+      caches.open(SHELL_CACHE).then(function(c) {
+        return c.match(request).then(function(hit) {
+          if (hit) return hit;
+          // Fill from a revalidated response, not the HTTP cache's copy from before this deploy.
+          return fetch(request, { cache: 'no-cache' }).then(function(resp) {
+            if (resp && resp.ok && resp.status === 200) {
+              var copy = resp.clone();
+              event.waitUntil(c.put(request, copy).catch(function() {}));
+            }
+            return resp;
+          });
+        });
+      }).catch(function() {
+        return caches.match(request).then(function(cached) {
+          return cached || new Response('Offline shell asset unavailable', { status: 503, statusText: 'Service Unavailable' });
+        });
+      })
+    );
+    return;
+  }
   if (isShell) {
     event.respondWith(
-      fetch(request, { cache: 'no-store' }).then(function(resp) {
+      fetch(request, { cache: 'no-cache' }).then(function(resp) {
         // 데이터 경로와 같은 민감 URL 제외를 적용한다. 이 경로는 셸 판정이 pathname만 보므로
         // `./js/aio-core.js?token=…` 같은 same-origin 요청이 그대로 SHELL_CACHE에 저장됐다 —
         // 두 c.put 경로가 서로 다른 규칙을 쓰던 비대칭이다.

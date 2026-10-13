@@ -39,7 +39,8 @@ const PATTERNS = Object.freeze({
 
 const CURRENT_PATTERN = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|최신|이번\s*주|as\s*of|now|today|current|live|latest|recent)/i;
 const HISTORICAL_PATTERN = /(과거|당시|지난\s*\d+|\b(?:19|20)\d{2}\b|historical|back\s+in)/i;
-const ACTION_PATTERN = /(추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|사야|팔아|recommend|buy|sell|entry|exit|stop.?loss|allocation|position)/i;
+// P1740: colloquial trade questions ("사도 돼?", "살까", "팔까", "담아도", "들어가도") are action questions too.
+const ACTION_PATTERN = /(추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|사야|팔아|사도\s*(?:돼|될까|되나|괜찮)|살까|사볼까|팔까|팔아도|담아도|담을까|들어가도|물타기|불타기|recommend|buy|sell|entry|exit|stop.?loss|allocation|position)/i;
 // Suitability is a pre-provider boundary for personalized or executable
 // actions, not a vocabulary filter. Educational/conditional discussions may
 // contain the same trading words and must still reach the analysis model.
@@ -68,11 +69,12 @@ export function classifyQuestionIntent(query, context = {}) {
   const route = String(context.route || '').toLowerCase();
   const tickerMatch = text.match(TICKER_PATTERN);
   const tickerToken = tickerMatch ? tickerMatch[1].replace(/^\$/, '').toUpperCase() : '';
-  const hasTicker = Boolean(tickerToken && !NON_TICKER_TERMS.has(tickerToken));
-  if (/^(themes|theme-detail|kr-themes)$/.test(route)) scores.SECTOR_ANALYSIS += 5;
+  // P1740: a company resolved by name ("엔비디아", "삼성전자") is the same signal as a typed symbol.
+  const hasTicker = Boolean(tickerToken && !NON_TICKER_TERMS.has(tickerToken)) || context.hasEntity === true;
+  if (/^(themes|theme-detail)$/.test(route)) scores.SECTOR_ANALYSIS += 5;
   if (/^(ticker|fundamental|company)$/.test(route)) scores.ENTITY_ANALYSIS += 4;
-  if (/^(technical|signal|kr-tech|kr-technical)$/.test(route)) scores.TECHNICAL_ANALYSIS += 5;
-  if (/^(macro|kr-macro)$/.test(route)) scores.MACRO_ANALYSIS += 4;
+  if (/^(technical|signal|kr-technical)$/.test(route)) scores.TECHNICAL_ANALYSIS += 5;
+  if (route === 'macro') scores.MACRO_ANALYSIS += 4;
   if (route === 'fxbond') scores.FX_ANALYSIS += 4;
   if (route === 'portfolio') scores.PORTFOLIO_ACTION += 5;
   if (route === 'screener') scores.SCREENING += 5;

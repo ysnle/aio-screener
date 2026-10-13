@@ -8,7 +8,8 @@ import { latestCompletedUsSession } from '../../domain/market/market-calendar.js
 import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
 
 const SESSIONS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
-const DIRECTION = Object.freeze({ improving: ['개선', 'favorable'], steady: ['유지', 'neutral'], weakening: ['약화', 'burden'] });
+// Audit 19: rank movement words, kept apart from the playbook's stage words (주도·조정·반등·약세).
+const DIRECTION = Object.freeze({ improving: ['순위 상승', 'favorable'], steady: ['순위 유지', 'neutral'], weakening: ['순위 하락', 'burden'] });
 
 function el(doc, tag, text, className) {
   const node = doc.createElement(tag);
@@ -79,12 +80,12 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // reading is held — the same admission the US screener applies when it holds its ranks.
   const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model);
   if (lead) host.append(sectionLead(doc, lead));
-  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 방향은 1개월 순위와 3개월 순위 비교(1개월이 크게 앞서면 개선)`, 'theme-strength-basis'));
+  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 순위 변화는 1개월 순위와 3개월 순위 비교(1개월 순위가 크게 앞서면 순위 상승)`, 'theme-strength-basis'));
   if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
   const hr = el(doc, 'tr');
-  ['순위', '하위 테마', '1개월', '3개월', '6개월', 'S&P 대비', '50일선 위', '방향', '구성 종목 전체'].forEach((label) => hr.append(el(doc, 'th', label)));
+  ['순위', '하위 테마', '1개월', '3개월', '6개월', 'S&P 대비', '50일선 위', '순위 변화(1개월 vs 3개월)', '구성 종목 전체'].forEach((label) => hr.append(el(doc, 'th', label)));
   thead.append(hr);
   const tbody = el(doc, 'tbody');
   const visible = expanded ? model.groups : model.groups.slice(0, 15);
@@ -174,11 +175,20 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   }
 }
 
+// A whole theme's value = the median of its sub-theme medians on the newest common session (the playbook's method in
+// src/domain/scenarios/theme-playbook.js), so the same theme never shows two different 3-month numbers on one page.
+function themeGroupValues(model, themeId) {
+  const values = (model.groups || []).filter((group) => group.themeId === themeId && group.current !== false && Number.isFinite(group[model.sortKey])).map((group) => group[model.sortKey]).sort((a, b) => a - b);
+  if (!values.length) return { value: null, count: 0 };
+  const mid = Math.floor(values.length / 2);
+  return { value: values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2, count: values.length };
+}
+
 function renderCapexFlow(doc, root, host, model) {
   host.replaceChildren();
   host.append(el(doc, 'h2', AI_CAPEX_FLOW.title, 'briefing-h2'));
   // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
-  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 추정 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준`, 'theme-strength-basis');
+  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 추정 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준 · 테마 값은 하위 테마 중앙값의 중앙값(테마 갈림길과 같은 방식)`, 'theme-strength-basis');
   basisLine.title = `출처: ${AI_CAPEX_FLOW.source}`;
   host.append(basisLine);
   const bar = el(doc, 'div', null, 'capex-flow-bar');
@@ -203,10 +213,11 @@ function renderCapexFlow(doc, root, host, model) {
     for (const themeId of layer.themes) {
       const theme = model.themes?.[themeId];
       if (!theme) continue;
-      const button = el(doc, 'button', `${theme.name} ${pct(theme.value)}`, 'capex-flow-theme');
+      // Audit 16: one method with the 테마 갈림길 cards — the median of the sub-theme medians on the latest session.
+      const subs = themeGroupValues(model, themeId);
+      const button = el(doc, 'button', `${theme.name} ${subs.value == null ? '비교 보류' : pct(subs.value)}`, 'capex-flow-theme');
       button.type = 'button';
-      // M15: members on another close are held out of the theme median; the hover says how many.
-      if (theme.excluded) button.title = `종가 기준일이 다르거나 오래된 ${theme.excluded}종목을 빼고 ${theme.members}종목 중앙값`;
+      button.title = subs.value == null ? '같은 종가 기준일의 하위 테마 중앙값이 없어 비교를 보류합니다' : `하위 테마 ${subs.count}개 중앙값의 중앙값 (테마 갈림길 카드와 같은 방식)`;
       button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(themeId); });
       links.append(button);
     }

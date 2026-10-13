@@ -14,6 +14,7 @@ import { renderFiscalRead } from '../components/fiscal-read.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
+import { sectorLabel } from '../../domain/screener/screener-read.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
 export function formatKstStamp(value) {
@@ -142,20 +143,27 @@ function renderSummaryIdentity(documentRef, root, state) {
   const id = String(state?.id || root?._currentTickerId || '').toUpperCase();
   let profileNode = documentRef.getElementById('ticker-business-profile');
   if (!profileNode) { profileNode = documentRef.createElement('section'); profileNode.id = 'ticker-business-profile'; profileNode.className = 'entity-business-profile'; readHost.before(profileNode); }
+  // 2026-10-14 audit #1: the company summary host is created once, directly at its final place (after the profile),
+  // so the section order never changes between the first render and later ones.
+  if (!documentRef.getElementById('ticker-company-analysis')) { const company = documentRef.createElement('section'); company.id = 'ticker-company-analysis'; profileNode.after(company); }
   profileNode.hidden = !id;
   if (!id) return;
   const rows = root?._aioGetCanonicalScreenerRows?.() || [];
   const row = rows.find(item => item?.sym === id) || {};
   const metadata = root?._aioEntitySummaries?.[id] || {};
   const profile = businessProfileFor(id, row, metadata);
-  const title = documentRef.createElement('h2'); title.textContent = `${profile.name} · ${profile.kind}`;
+  // 2026-10-14 audit #10: the hero already carries the name; the section heading says what it answers.
+  const title = documentRef.createElement('h2'); title.textContent = /ETF|지수/.test(profile.kind) ? '무엇을 추종하는 상품' : '무엇을 하는 회사';
   const description = documentRef.createElement('p');
   // P1630: no producer publishes businessProfile yet, so the missing description is not announced on every ticker.
-  description.textContent = profile.description || [profile.sector,profile.industry].filter(Boolean).join(' · ');
+  description.textContent = profile.description || [profile.sector ? sectorLabel(profile.sector) : null,profile.industry].filter(Boolean).join(' · ');
   description.hidden = !description.textContent;
   const source = documentRef.createElement(profile.sourceUrl ? 'a' : 'span'); source.textContent = profile.source;
   if (profile.sourceUrl) { source.href = profile.sourceUrl; source.target = '_blank'; source.rel = 'noopener noreferrer'; }
   profileNode.replaceChildren(title, description, source);
+  // The heading no longer repeats the name; the section still names its issuer for assistive tech and checks.
+  profileNode.dataset.issuerName = profile.name;
+  profileNode.setAttribute('aria-label', `${profile.name} — ${title.textContent}`);
   // P1624: summary owns its first-load price chart; opening the technical tab is not a prerequisite.
   const panel = documentRef.getElementById('ticker-price-panel');
   if (panel && panel.parentElement !== readHost.parentElement) readHost.before(panel);
@@ -733,10 +741,6 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals }); // P1434; v57.51 N20 recent filings
-    const readHost = documentRef.getElementById('ticker-read');
-    if (readHost && !documentRef.getElementById('ticker-company-analysis')) {
-      const host = documentRef.createElement('section'); host.id = 'ticker-company-analysis'; readHost.after(host);
-    }
     renderCompanyAnalysis({ documentRef, root, state });
   }
   if (route === 'fundamental') {

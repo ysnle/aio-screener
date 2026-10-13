@@ -9,6 +9,11 @@ head_sampling_rate = 0.1
 
 [vars]
 AI_DAILY_CAP = "300"
+# P1759: each browser connection (HMAC of UTC day + IP, IPv6 grouped by /64; raw IPs never stored) gets at
+# most this many AI requests per UTC day inside the same DO admission. Bounded 1-1000 and clamped to
+# AI_DAILY_CAP. Authenticated GitHub Actions requests are not per-client limited. Optional secret
+# AI_CLIENT_KEY_SALT separates the client-key HMAC from OPENAI_API_KEY (the fallback key material).
+AI_PER_CLIENT_DAILY_CAP = "150"
 # P1421: all AIO browser + GitHub Actions AI shares one UTC-month authority.
 # Reserve worst input/output cost before dispatch, settle only verified usage.
 # Failed/cancelled/unknown usage retains its full reservation. Never an invoice.
@@ -19,11 +24,13 @@ AI_WEB_SEARCH_ENABLED = "true"
 # P1433 (owner, 2026-10-04): October 2026 prior spend on this OpenAI path was $0 (the new route never
 # served before this date); clears the P1353 unknown-month block once. Ignored for other months.
 AI_LEGACY_MONTH_ACK = "2026-10:0"
-AI_MAX_OUTPUT_TOKENS = "4000"
+# P1740 (2026-10-13): analysis/comparison answers request up to 8000 output tokens (reasoning included); the
+# reservation grows by at most 4000 x $0.55/1M per call, inside the same $20 monthly admission budget.
+AI_MAX_OUTPUT_TOKENS = "8000"
 # Per-provider daily ceiling for /relay (operator-key server-side fetches).
 RELAY_DAILY_CAP = "2000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v57.53"
+AIO_APP_REVISION = "v57.54"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 [[durable_objects.bindings]]

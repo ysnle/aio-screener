@@ -1,0 +1,22 @@
+{
+  "version": "v57.54",
+  "date": "2026-10-14",
+  "r": null,
+  "status": null,
+  "note": "v57.54: 죽은 CSS 약 2,000줄 제거, --ink-rgb 테마 토큰으로 다크 모드 근흑색 리터럴 정리, 할당량만 쓰던 Alpha Vantage 호출·대상 없는 PCR 작성기 퇴역(P1754).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1754,
+    "title": "index.html 스타일의 3분의 1이 쓰이지 않는 규칙이고, 고정 근흑색 리터럴이 다크 모드에서 테두리·구분선·배지를 지움",
+    "symptom": "index.html <style>에 마크업·js·src 어디에도 없는 클래스/id만 쓰는 규칙이 약 1,070개(약 2,000줄) 남아 매 방문 HTML과 함께 내려가고 스타일 계산에 들어갔다(구 원리·지도·대가 클래스, 전술 분석 레이어, KR 수급). rgba(33,29,22,…) 409곳·#211d16 46곳이 다크 모드에서 바뀌지 않아 로고 밑줄·사이드바 구분선·'지난 시세' 배지·RRG 전환 버튼 테두리·용어 툴팁 글자가 보이지 않았다. fetchBreadthData는 Alpha Vantage TOP_GAINERS_LOSERS를 호출하고 결과를 버려 무료 할당량만 썼다.",
+    "root_cause": "화면 재설계(아이보리, 리서치 라이브러리 네이티브화) 때 새 클래스로 옮기면서 옛 규칙을 지우는 단계가 없었고, 잉크 색이 토큰이 아닌 리터럴로 퍼져 있었다.",
+    "fix": "선택자의 모든 클래스·id가 어디에도 없을 때만 규칙(그룹은 죽은 구성원만)을 제거하는 스크립트로 3단계 정리(1,070규칙, 빈 @media·안 쓰는 @keyframes 포함, 게이트가 grep하는 주석 보존). --ink-rgb 토큰(라이트 33,29,22 / 다크 240,240,237)으로 CSS·인라인 style 278곳과 js 인라인 문자열 62곳을 바꾸고, 캔버스 RRG는 계산된 토큰을 읽음. 그림자·고정 밝은 패널·토큰 정의는 의도적으로 리터럴 유지. fetchFinnhubEconomicCalendar 삭제, fetchBreadthData의 버려지던 Alpha Vantage 호출 제거, regime-pcr·PCR 라이브 가격 작성기 삭제(상태·이벤트 유지), CARD_GRIDS의 죽은 선택자 제거. index.html 9,921→7,934줄.",
+    "violated_rule": "소유자: 다크 모드 지원 / R620 분해 래칫 순감소",
+    "prevention": "P1754: ci-decomp-hotspot-check(index.html 7,935 상한), ci-runtime-contract-check LC-35 주석 보존, browser-viewport·browser-surface 그룹",
+    "verification": "Playwright 21장(데스크톱 라이트·다크, 폰 다크 × 7화면): 라이트 0픽셀 차이, 다크는 의도한 테두리·배지만 변화. browser-viewport 3/3, browser-surface 3/3, 정적 게이트 56개 통과."
+  },
+  "qa": [],
+  "changelog": [
+    "**스타일 정리와 다크 모드 (P1754):** 쓰이지 않던 스타일 약 2,000줄을 걷어 첫 화면 HTML이 20% 가벼워졌고, 다크 모드에서 사라져 보이던 구분선·배지·전환 버튼 테두리가 다시 보입니다. 결과를 버리면서 외부 시세 할당량만 쓰던 호출도 없앴습니다."
+  ]
+}

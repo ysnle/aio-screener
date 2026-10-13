@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Require SEC provisioning before the SEC lanes
         env:
@@ -49,10 +49,25 @@ jobs:
             exit 1
           fi
 
+      - name: Restore the producer-only SEC ledger (P1757)
+        # public-data/sec-fundamentals.json (~67 MB) is not on main: it lives on the orphan data-store branch as one
+        # force-pushed commit. Chain: data-store branch -> last copy in main's history -> none (full rebuild below).
+        id: sec-ledger
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node scripts/sec-fundamentals-store.mjs restore --github-output
+          if [ "$(grep -c '^source=none$' "$GITHUB_OUTPUT" || true)" != "0" ]; then
+            echo "::warning::P1757 no SEC ledger copy was restorable (data-store branch and main history); this run rebuilds every eligible issuer"
+          fi
+
       - name: Refresh bounded SEC companyfacts batch
         env:
           SEC_BATCH_LIMIT: 24
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+          # P1757: only when no ledger copy survived; the producer refuses to start from nothing otherwise.
+          SEC_FULL_REBUILD: ${{ steps.sec-ledger.outputs.source == 'none' && '1' || '' }}
         run: node scripts/fetch-sec-fundamentals.mjs
 
       - name: Refresh Korean listed-company fundamentals (OpenDART, weekly)
@@ -89,6 +104,9 @@ jobs:
 
       - name: Build bounded SEC runtime projection
         run: |
+          set -euo pipefail
+          # P1757: a ledger below 90% of main's published records (lost and rebuilt short) must not shrink the projection.
+          node scripts/sec-fundamentals-store.mjs guard
           node scripts/build-sec-runtime-projection.mjs
           node scripts/ci-sec-runtime-projection-check.mjs
 
@@ -141,7 +159,8 @@ jobs:
               git add -- "$1"
             fi
           }
-          git add -- public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
+          # P1757: public-data/sec-fundamentals.json is gitignored and published to the data-store branch below.
+          git add -- public-data/screener.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
           stage_if_exists public-data/earnings-calendar.json
           stage_if_exists public-data/sp500-weights.json # 2026-10-13: S&P 500 sector map weights
           stage_if_exists public-data/kr-fundamentals.json # P1654: OpenDART Korean fundamentals
@@ -150,6 +169,21 @@ jobs:
           stage_if_exists public-data/sec-fiscal-history.json # P1436: 재무 공시 fiscal-year series
           stage_if_exists public-data/screener-candidate-archive.json # P1465: forward candidate record
           node scripts/verify-refresh-candidate.mjs --expect-staged "$RUNNER_TEMP/aio-refresh-screener-candidate.json"
+          # GitHub warns at 50 MB and rejects a push containing a file over 100 MB. Fail before the commit,
+          # naming the file. P1757: the ~67 MB SEC ledger is no longer staged, so no file is exempt.
+          oversized=""
+          while IFS= read -r -d '' staged; do
+            [ -f "$staged" ] || continue
+            bytes="$(stat -c %s -- "$staged")"
+            if [ "$bytes" -gt 52428800 ]; then oversized="$oversized $staged($((bytes / 1048576))MB)"; fi
+          done < <(git diff --staged --name-only -z --diff-filter=ACMR)
+          if [ -n "$oversized" ]; then
+            echo "::error::staged file(s) over the 50 MB publish limit:$oversized"
+            exit 1
+          fi
+          # P1757: publish the ledger BEFORE main so main's projection manifest never names a digest the store never
+          # held. One parentless commit, lease-protected force push; skipped when the branch already holds this blob.
+          node scripts/sec-fundamentals-store.mjs publish
           if git diff --staged --quiet; then
             echo "No screener changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -190,18 +224,26 @@ jobs:
     # Runs even when the producer failed so a lost hand-over self-heals (R606).
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The driver gives up waiting after 12 min (AWAITING_CI_ATTESTATION) and the next cycle's converge
+    # finds the attested run and dispatches Pages (R606 self-heal), so a 30-minute hold bought nothing.
+    timeout-minutes: 15
+    # Reads main/runs/artifacts and dispatches ci.yml / pages-deploy.yml; it never writes the repository.
+    permissions:
+      contents: read
+      actions: write
     concurrency:
       group: live-convergence
       cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Converge live deployment to the attested revision
         # R606: this run owns the SEC/screener revision, so it must also hand the
@@ -212,7 +254,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -n "${{ needs.refresh-screener.outputs.sha }}" ]; then
-            node scripts/ensure-live-convergence.mjs --await-sha "${{ needs.refresh-screener.outputs.sha }}"
+            node scripts/ensure-live-convergence.mjs --await-sha "${{ needs.refresh-screener.outputs.sha }}" --timeout-min 12
           else
             node scripts/ensure-live-convergence.mjs
           fi

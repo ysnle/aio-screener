@@ -1,0 +1,22 @@
+{
+  "version": "v57.54",
+  "date": "2026-10-14",
+  "r": null,
+  "status": null,
+  "note": "v57.54: 고전 번들 정리 — 호출자 없는 함수·사라진 DOM 작성기·퇴역 라우트 잔재·작동하지 않던 심층 기술 분석 접기 퇴역, VIX/F&G 구간 단일화(약 2,200줄 감소, P1753).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1753,
+    "title": "사용자에게 매번 내려가는 고전 스크립트에 호출자 없는 코드와 대상 없는 작성기가 남고, 차트 탭의 '심층 종목 기술 분석' 버튼이 v56.96 이후 아무 일도 하지 않음",
+    "symptom": "js/*.js에 호출자가 없는 함수(텔레그램 다이제스트 3종, getTopicBadge, _lazyInit 등)와 대상 DOM이 사라진 작성기(Risk Radar, 실적 서프라이즈, 브리핑 액션, KR 온도, 시장 국면 배지·실행 창)가 남아 매 부팅에 파싱되고 일부는 페이지 표시마다 실행됐다. 퇴역 라우트(options·kr-home·kr-supply·kr-macro·kr-technical)의 감사 레지스트리·문맥 맵 잔재가 있었다. '심층 종목 기술 분석' 접기의 분석 버튼은 #ticker-analysis-result가 v56.96에서 빠진 뒤 analyzeTickerDeep이 바로 반환해 '분석 대기 중'에 머물렀고, research-flow 게이트는 vm에서 함수를 돌려 통과했다. VIX/F&G 구간 경계가 고전 코드에 세 벌 있었고 '극단공포'/'극단 공포' 라벨이 갈렸다. 일부 게이트는 호출되지 않는 함수가 '연결돼 있다'고 단언했다.",
+    "root_cause": "화면 퇴역·네이티브 전환 때 표면(마크업)만 지우고 작성기·감사 레지스트리·게이트 단언을 함께 정리하는 단계가 없었다.",
+    "fix": "1) 호출자 없는 함수 삭제, 2) 대상 없는 작성기와 퇴역 라우트 잔재 삭제(KR 테마·kr-macro 문맥처럼 살아 있는 것은 유지), 3) 게이트만 붙잡던 이름 삭제와 게이트를 '퇴역 이름이 돌아오지 않음' 단언으로 교체(vixToPercentile 구간 표지는 _aioVixPercentile로), 4) 심층 기술 분석 접기·analyzeTickerDeep·Minervini 엔진 체인·_renderDeepChart 퇴역, _aioOpenTechnicalAnalysis와 뉴스 티커 클릭은 차트 탭으로 연결, 6) computeMarketState·펄스 라벨·vixRegime이 하나의 구간 함수를 재사용하고 라벨을 '극단 공포'로 통일, 색은 테마 토큰. 감소: aio-core 22424→21806, aio-data 16989→16682, aio-ui 6750→5945, aio-pages 2299→2054, aio-workspace 2653→2549, index.html 10008→9922(분해 래칫 --write).",
+    "violated_rule": "AGENTS: 원천 없는 위젯·근거 없는 표시 제거 / R620 분해 래칫(순감소)",
+    "prevention": "P1753: ci-runtime-contract-check·ci-research-flow-contract-check·ci-data-pipeline-contract-check·ci-architecture-contract-check의 퇴역 이름 부재 단언, ci-domain-parity-check(구간 함수 고전 사본 1개), 헤드리스 T180·T353·T357·T359·T361·T493·T581·T584·T586·T769·T817",
+    "verification": "qa-runner core 49/49, browser-unit(헤드리스 1145개) 통과, ci-structural·runtime·architecture·data-pipeline·proxy-continuity·semantic-review·research-flow·domain-parity·esm-core-unit·chat-resilience·retirement-contract 통과."
+  },
+  "qa": [],
+  "changelog": [
+    "**코드 정리 (P1753):** 매번 내려받던 고전 스크립트에서 쓰이지 않는 코드 약 2,200줄을 걷어냈습니다. 차트 탭의 작동하지 않던 '심층 종목 기술 분석' 접기는 퇴역하고, 뉴스·종목에서 기술 분석을 열면 차트 탭으로 바로 갑니다."
+  ]
+}

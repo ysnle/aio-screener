@@ -71,8 +71,20 @@ export const MARKET_CALENDAR_REGISTRY = Object.freeze({
 });
 
 // New York wall-clock date and minute-of-day for an instant (DST aware).
+// P1755: formatters are built once per time zone; constructing them per call dominated boot self-time.
+const NY_PARTS_FORMATTER = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+const ZONE_DATE_FORMATTERS = new Map();
+function zoneDateFormatter(timeZone) {
+  let formatter = ZONE_DATE_FORMATTERS.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
+    if (ZONE_DATE_FORMATTERS.size >= 64) ZONE_DATE_FORMATTERS.clear();
+    ZONE_DATE_FORMATTERS.set(timeZone, formatter);
+  }
+  return formatter;
+}
 export function nyParts(ms) {
-  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
+  const p = Object.fromEntries(NY_PARTS_FORMATTER.formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
   return { date: `${p.year}-${p.month}-${p.day}`, minute: Number(p.hour) * 60 + Number(p.minute) };
 }
 
@@ -164,7 +176,7 @@ export function dateOnly(value) {
 
 export function dateInTimezone(ms, timezone) {
   try {
-    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
+    const parts = Object.fromEntries(zoneDateFormatter(timezone).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
     return `${parts.year}-${parts.month}-${parts.day}`;
   } catch (_) {
     return null;
@@ -205,13 +217,18 @@ export function currentCalendarContext(market, now) {
 // exchange is open, from the registered calendars. A date in an unregistered year is a weekday when unknownYear is
 // 'weekday' (a lag count must never read stale data as aligned) and not a session when it is 'closed' (a gap report must
 // not claim a missing session it cannot verify). maxDays bounds the walk.
+// P1755: the registered calendars are static, so a (range, market, options) walk is memoised; callers get a copy.
+const OPEN_SESSION_MEMO = new Map();
 export function openSessionDatesBetween(fromDate, toDate, { market = 'US', includeEnd = true, unknownYear = 'weekday', maxDays = 800 } = {}) {
-  const from = dateOnly(fromDate);
-  const to = dateOnly(toDate);
-  const out = [];
-  if (!from || !to || to <= from) return out;
   const marketKey = String(market).toUpperCase();
   const calendarKey = marketKey === 'KR' || marketKey === 'KRX' ? 'KRX' : 'NYSE';
+  const memoKey = `${calendarKey}|${String(fromDate || '')}|${String(toDate || '')}|${includeEnd ? 1 : 0}|${String(unknownYear)}|${String(maxDays)}`;
+  const memo = OPEN_SESSION_MEMO.get(memoKey);
+  if (memo) return memo.slice();
+  const from = dateOnly(fromDate);
+  const to = dateOnly(toDate);
+  if (!from || !to || to <= from) return [];
+  const out = [];
   const end = Date.parse(`${to}T12:00:00Z`);
   let cursor = Date.parse(`${from}T12:00:00Z`);
   for (let i = 0; i < maxDays; i += 1) {
@@ -227,6 +244,8 @@ export function openSessionDatesBetween(fromDate, toDate, { market = 'US', inclu
     }
     if (!registered.holidays.includes(date)) out.push(date);
   }
+  if (OPEN_SESSION_MEMO.size >= 5000) OPEN_SESSION_MEMO.clear();
+  OPEN_SESSION_MEMO.set(memoKey, out.slice());
   return out;
 }
 

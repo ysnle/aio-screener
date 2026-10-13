@@ -66,7 +66,7 @@ const kvValues = new Map([
 const kv = {
   async get(key, type) {
     const value = kvValues.get(key) ?? null;
-    return value && type === 'json' ? JSON.parse(value) : value;
+    return value && (type?.type ?? type) === 'json' ? JSON.parse(value) : value;
   },
   async put(key, value) { kvValues.set(key, String(value)); }
 };
@@ -81,6 +81,15 @@ const smokeBody = await smokeResponse.json();
 if (smokeResponse.status !== 200 || smokeBody.ok !== true || smokeBody.revision !== 'fixture:kv-only' || smokeBody.sourceSha !== '1'.repeat(40)) fail('KV-only /health smoke/exact-source identity failed');
 // P1578: /health states whether the refresh dispatcher is configured and never echoes the token.
 if (smokeBody.schedulerDispatch?.configured !== false) fail('P1578 /health must report schedulerDispatch.configured=false without a token');
+{
+  // Public reads use the KV colo read cache (30 s); a wrong cron token is rejected by the digest compare.
+  const readOptions = [];
+  const cachedKv = { async get(key, type) { readOptions.push(type); return kv.get(key, type); }, put: kv.put };
+  await (await dataPlane.fetch(new Request('https://fast.example/quotes'), { AIO_QUOTES_KV: cachedKv })).arrayBuffer();
+  if (!readOptions.length || !readOptions.every(option => option?.type === 'json' && option?.cacheTtl === 30)) fail('public /quotes read must use kv.get(key, { type: json, cacheTtl: 30 })');
+  const wrongCron = await dataPlane.fetch(new Request('https://fast.example/admin/run', { method: 'POST', headers: { 'X-AIO-Cron-Token': 'cron-fixturX' } }), { AIO_QUOTES_KV: kv, AIO_CRON_SECRET: 'cron-fixture' });
+  if (wrongCron.status !== 401) fail('wrong cron token must be rejected');
+}
 {
   const tokenBody = await (await dataPlane.fetch(new Request('https://fast.example/health'), { AIO_QUOTES_KV: kv, GITHUB_DISPATCH_TOKEN: 'github_pat_fixture_secret' })).json();
   if (tokenBody.schedulerDispatch?.configured !== true || JSON.stringify(tokenBody).includes('github_pat_fixture_secret')) fail('P1578 /health must report a configured dispatcher without exposing the token');
@@ -120,7 +129,7 @@ const values = new Map();
 const policyKv = {
   async get(key, type) {
     const value = values.get(key) ?? null;
-    return value && type === 'json' ? JSON.parse(value) : value;
+    return value && (type?.type ?? type) === 'json' ? JSON.parse(value) : value;
   },
   async put(key, value) { writes.push(key); values.set(key, String(value)); }
 };

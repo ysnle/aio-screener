@@ -77,3 +77,7 @@ debug.log
 
 # verify-aio skill evidence (run-local proof, survives cleanup)
 _artifacts/verify-aio/
+
+# P1757: the canonical SEC ledger (~67 MB) is producer-only. It lives on the orphan `data-store` branch as one
+# force-pushed commit (scripts/sec-fundamentals-store.mjs); main carries only the bounded projection.
+public-data/sec-fundamentals.json

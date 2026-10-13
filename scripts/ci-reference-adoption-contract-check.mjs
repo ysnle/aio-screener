@@ -48,6 +48,19 @@ assert.deepEqual(resolveNewsIssuers({ title: 'JP모건) 마벨 인베스터 데�
 assert.deepEqual(resolveNewsIssuers({ title: 'JPMorgan earnings beat estimates' }, [], banks), ['JPM'], 'N07: a bank reporting its own results stays the issuer');
 assert.deepEqual(resolveNewsIssuers({ title: '하이닉스 HBM 증설' }, [], { '000660.KS': { en: 'SK Hynix', kr: 'SK하이닉스', alt: ['hynix', '하이닉스'] } }), ['000660.KS'], 'N08: Korean registry alias longer than two characters');
 assert.deepEqual(resolveNewsIssuers({ title: '삼전 급락' }, [], { '005930.KS': { en: 'Samsung Electronics', kr: '삼성전자', alt: ['삼전'] } }), [], 'N08: two-character abbreviation stays out');
+// P1755: compiled matchers are cached per name/symbol and a substring prefilter skips texts that cannot
+// match. The cache must not leak one text's answer into another, and the prefilter must keep every
+// case-insensitive Unicode match the regex finds (long s folds to "s", Kelvin sign to "k").
+{
+  const tesla = { TSLA: { en: 'Tesla', kr: '테슬라' }, KO: { en: 'Coca-Cola', kr: '코카콜라' } };
+  assert.deepEqual(resolveNewsIssuers({ title: 'Tesla deliveries beat' }, [], tesla), ['TSLA'], 'P1755 cached matcher finds the issuer');
+  assert.deepEqual(resolveNewsIssuers({ title: 'Ford deliveries beat' }, [], tesla), [], 'P1755 cached matcher does not reuse the previous text');
+  assert.deepEqual(resolveNewsIssuers({ title: 'Teſla shares rise' }, [], tesla), ['TSLA'], 'P1755 prefilter keeps the long-s case fold the regex matches');
+  assert.deepEqual(resolveNewsIssuers({ title: 'COCA-COLA quarterly sales' }, [], tesla), ['KO'], 'P1755 prefilter is case-insensitive');
+  assert.deepEqual(resolveNewsIssuers({ title: '테슬라가 실적을 발표했다' }, [], tesla), ['TSLA'], 'P1755 Hangul name with particle passes the prefilter');
+  assert.deepEqual(resolveNewsIssuers({ title: 'Watch $tsla into the close' }, [], tesla), ['TSLA'], 'P1755 explicit symbol prefilter is case-insensitive');
+  assert.deepEqual(resolveNewsIssuers({ title: 'Watch $tslax into the close' }, [], tesla), [], 'P1755 explicit symbol boundary still enforced after the prefilter');
+}
 assert.equal(normalizeNews({ fetchedAt: '2026-10-10T00:00:00Z', items: [{ ...row, publishedAt: row.pubDate }] }).items[0].fetchedAt, '2026-10-10T00:00:00Z', 'P1601: collection distinct from publication');
 const core = readFileSync('js/aio-core.js', 'utf8');
 const storeSource = core.slice(core.indexOf('const NewsStore ='), core.indexOf('// ── DataHealth'));

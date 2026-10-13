@@ -173,6 +173,17 @@ async function readLatest(env) {
   return await env?.AIO_QUOTES_KV?.get?.('quotes:current', 'json') || null;
 }
 
+// Public /health and /quotes reads may come from the colo's KV read cache for up to 30 s (the minimum KV
+// cacheTtl); the writer path above keeps uncached reads so revision comparisons never see a stale snapshot.
+// A runtime that rejects the option falls back to the plain read rather than failing the route.
+const PUBLIC_READ_CACHE_TTL_SECONDS = 30;
+async function readPublicJson(env, key) {
+  const kv = env?.AIO_QUOTES_KV;
+  if (!kv?.get) return null;
+  try { return await kv.get(key, { type: 'json', cacheTtl: PUBLIC_READ_CACHE_TTL_SECONDS }) || null; }
+  catch (_) { return await kv.get(key, 'json') || null; }
+}
+
 async function readHeartbeat(env) {
   return await env?.AIO_QUOTES_KV?.get?.('quotes:heartbeat', 'json') || null;
 }
@@ -247,6 +258,19 @@ export async function publishQuotes({ env, now = Date.now(), fetchImpl = globalT
   return Object.freeze({ ok: true, published: true, snapshot, heartbeat, snapshotWritten: snapshotChanged, heartbeatWritten: heartbeatWrite.written, heartbeatWrittenAt: heartbeatWrite.writtenAt || null, heartbeatWriteReason: heartbeatWrite.reason });
 }
 
+// Fixed-length digest comparison (same style as the proxy Worker's token checks): timing does not depend on
+// where the supplied cron token first differs.
+async function constantTimeSecretEquals(expected, supplied) {
+  if (typeof expected !== 'string' || !expected || typeof supplied !== 'string' || !supplied) return false;
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) return false;
+  const encoder = new TextEncoder();
+  const [left, right] = (await Promise.all([subtle.digest('SHA-256', encoder.encode(expected)), subtle.digest('SHA-256', encoder.encode(supplied))])).map(digest => new Uint8Array(digest));
+  let difference = 0;
+  for (let index = 0; index < left.length; index += 1) difference |= left[index] ^ right[index];
+  return difference === 0;
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -254,7 +278,7 @@ export default {
     // The write route keeps its own POST + cron-token gate and is dispatched first.
     if (url.pathname === '/admin/run' && request.method === 'POST') {
       const supplied = request.headers.get('X-AIO-Cron-Token') || '';
-      if (!env?.AIO_CRON_SECRET || supplied !== env.AIO_CRON_SECRET) return jsonResponse({ ok: false, error: 'unauthorized' }, request, env, 401);
+      if (!env?.AIO_CRON_SECRET || !await constantTimeSecretEquals(env.AIO_CRON_SECRET, supplied)) return jsonResponse({ ok: false, error: 'unauthorized' }, request, env, 401);
       const result = await publishQuotes({ env });
       return jsonResponse(result, request, env, result.ok ? 200 : 503);
     }
@@ -265,16 +289,16 @@ export default {
       return jsonResponse({ ok: false, error: 'method_not_allowed' }, request, env, 405);
     }
     if (url.pathname === '/health') {
-      const heartbeat = await env?.AIO_QUOTES_KV?.get?.('quotes:heartbeat', 'json');
-      const current = await readLatest(env);
+      const heartbeat = await readPublicJson(env, 'quotes:heartbeat');
+      const current = await readPublicJson(env, 'quotes:current');
       // P1578: report whether the refresh dispatcher can run (never the token itself), so the
       // watchdog can tell "GitHub schedule only" from a working 30-minute driver.
-      const receipt = await env?.AIO_QUOTES_KV?.get?.('scheduler:dispatch', 'json');
+      const receipt = await readPublicJson(env, 'scheduler:dispatch');
       const schedulerDispatch = { configured: !!env?.GITHUB_DISPATCH_TOKEN, workflow: REFRESH_DISPATCH_POLICY.workflow, slotMinutes: REFRESH_DISPATCH_POLICY.slotMinutes, lastObservation: receipt || null };
       return jsonResponse({ ok: !!current, heartbeat, revision: current?.revision || null, sourceSha: env?.AIO_SOURCE_SHA || null, coverage: current?.coverage || null, schedulerDispatch }, request, env, current ? 200 : 503);
     }
     if (url.pathname === '/quotes') {
-      const current = await readLatest(env);
+      const current = await readPublicJson(env, 'quotes:current');
       if (!current) return jsonResponse({ ok: false, error: 'quotes_unavailable', status: 'UNAVAILABLE' }, request, env, 503);
       return jsonResponse(current, request, env, 200, { ETag: `"${current.revision}"` });
     }

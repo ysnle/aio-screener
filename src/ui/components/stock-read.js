@@ -9,6 +9,10 @@ import { marketRows, screenerMarket } from '../../domain/screener/market-scope.j
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { latestCompletedKrSession, latestCompletedUsSession, countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
+import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
+import { summarizeValidation } from './screener-validation.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -58,6 +62,15 @@ function themesFor(root, symbol) {
   return map.filter((theme) => (Array.isArray(theme.leaders) && theme.leaders.includes(symbol))
     || (theme.subThemes || []).some((sub) => Array.isArray(sub.tickers) && sub.tickers.includes(symbol)))
     .map((theme) => ({ id: theme.id, label: theme.nameKr || theme.id, etf: theme.etf || null }));
+}
+
+// 2026-10-14 audit #5: the theme ids this symbol belongs to (US THEME_MAP; KR_THEME_MAP for KRX listings), the same
+// association the company card uses, so both read the same stage rows.
+function themeIdsFor(root, symbol, rows) {
+  if (/\.K[SQ]$/i.test(symbol)) {
+    return koreanThemeGroups(root?.KR_THEME_MAP || {}, rows).filter((group) => group.subThemes.some((sub) => sub.tickers.includes(symbol))).map((group) => group.id);
+  }
+  return themesFor(root, symbol).map((theme) => theme.id);
 }
 
 function rangeVisual(doc, read) {
@@ -112,13 +125,21 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const sym = String(symbol || '').trim().toUpperCase();
   host.dataset.aioStockReadRenderer = 'native';
   const next = doc.getElementById('ticker-next');
+  // v57.54: the 종목 screen's h1 (screen-reader heading; the hub line shows the subject visually).
+  const title = doc.getElementById('ticker-page-title');
+  if (title) title.textContent = sym ? `종목 · ${sym}` : '종목';
   if (!sym) { host.replaceChildren(); host.hidden = true; renderNextSteps(doc, next, []); return null; }
   host.hidden = false;
   const rows = call(root, '_aioGetCanonicalScreenerRows', []);
   const list = marketRows(Array.isArray(rows) ? rows : [], screenerMarket({ sym }));
   const rawRow = list.find((item) => item?.sym === sym) || null;
-  const ranked = list.filter(item => item.rankingEligibility === 'eligible' && Number.isFinite(item.rank)).sort((a,b) => b.rank-a.rank);
-  const rank = rawRow && ranked.findIndex(item => item.sym === sym);
+  // 2026-10-14 audit #3/#13: one denominator with the screener — the rows its ranking actually ranked (screenRank).
+  // Without a screen result the factor-eligible ordering is the fallback (the same model, before conditions).
+  // v57.54: a KR row carried a screenRank from another market's run (삼성전자 "890/239"). The rank is this market's
+  // ordinal inside the same row set as its denominator, never the raw field.
+  const screened = list.filter(item => Number.isFinite(item?.screenRank)).sort((a, b) => a.screenRank - b.screenRank);
+  const ranked = screened.length ? screened : list.filter(item => item.rankingEligibility === 'eligible' && Number.isFinite(item.rank)).sort((a,b) => b.rank-a.rank);
+  const rank = rawRow ? ranked.findIndex(item => item.sym === sym) : -1;
   const row = rawRow ? { ...rawRow, screenRank: rank >= 0 ? rank+1 : null } : null;
   // P1447: compare with the stock's own market index (KOSPI/KOSDAQ for KRX listings) over the same windows.
   // 2026-10-13 review S07: cut the index at the row's own factor session (same-date comparison), and say how many
@@ -132,19 +153,25 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const sessionLag = factorSession && latestSession?.date && factorSession < latestSession.date ? { session: factorSession, latest: latestSession.date, sessions: countOpenSessionsBetween(factorSession, latestSession.date, market) } : null;
   host.dataset.aioStockReadSymbol = sym;
   const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals }); });
-  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: ranked.length || null, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
+  // The screener's validation verdict only when its record is already loaded (the 스크리너 screen loads it); the
+  // US validation does not describe the KR ranking.
+  const validation = market === 'US' && (root?._aioScreenerBacktestHistory || []).length ? summarizeValidation(root._aioScreenerBacktestHistory, root?._aioModelValidationStatus || null, root?._aioRankingWeights || null) : null;
+  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals }); }).catch(() => {});
+  const themeStages = themeStagesFor(root, { symbol: sym, themeIds: themeIdsFor(root, sym, Array.isArray(rows) ? rows : []) });
+  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), themeStages, regime: readMarketRegime(root), universeSize: ranked.length || null, validation, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
+  if (title && read.available && read.name && read.name !== sym) title.textContent = `종목 · ${read.name} (${sym})`;
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));
   if (!read.available) {
     host.append(emptyState(doc, { title: '추세·상대강도 기록 없음', reason: read.reason, compact: true }));
     renderNextSteps(doc, next, [{ route: 'technical', label: '차트', why: '일봉과 이동평균 위치' }, { route: 'fundamental', label: '재무 공시', why: '매출·이익·현금흐름' }]);
     return read;
   }
-  host.querySelector('h2').append(el(doc, 'span', read.ranking ? `${screenerMarket({ sym }) === 'KR' ? '한국' : '미국'} 균형 팩터 계산 대상 ${read.ranking.of}종목 중 ${read.ranking.rank}번째 (상위 약 ${read.ranking.topPct}%)` : '', 'briefing-h2-note'));
+  // 2026-10-14 audit #13: the rank moved from this heading into the reading ('순위' point).
   host.append(el(doc, 'p', `${read.name} — ${read.headline}`, 'briefing-read-headline'));
-  // P1599 (S03): the position and returns below come from the screener's completed-close collection, not the live
-  // quote at the top (which can be '—'). Name that basis once, beside the figures it governs.
+  // P1599 (S03): the position and returns below are completed-close figures, not the live quote at the top (which
+  // can be '—'). Name that basis once, beside the figures it governs — by its date, not by its collection.
   const basisDate = String(row?.factorSessionDate || row?.priceDate || '').slice(0, 10);
-  host.append(el(doc, 'p', `아래 위치·수익률은 ${basisDate ? `${Number(basisDate.slice(5, 7))}/${Number(basisDate.slice(8, 10))} ` : ''}종가 기준 스크리너 수집본입니다 — 위 현재가와 시점이 다를 수 있습니다.`, 'briefing-footnote'));
+  host.append(el(doc, 'p', `아래 위치·수익률은 ${basisDate ? `${Number(basisDate.slice(5, 7))}/${Number(basisDate.slice(8, 10))} ` : '완료 '}종가 기준입니다 — 위 현재가와 시점이 다를 수 있습니다.`, 'briefing-footnote'));
   const visuals = el(doc, 'div', null, 'stock-read-visuals');
   if (read.position != null) visuals.append(rangeVisual(doc, read));
   if (read.spans.some((span) => span.stock != null)) visuals.append(relativeVisual(doc, read));
@@ -154,7 +181,27 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const charted = new Set([read.position != null ? 'range' : null, read.spans.some((span) => span.stock != null) ? 'relative' : null].filter(Boolean));
   const item = (point) => {
     const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
-    const text = el(doc, 'span', point.text, 'stock-read-point-text');
+    const text = el(doc, 'span', Array.isArray(point.lines) ? null : point.text, 'stock-read-point-text');
+    // 2026-10-14 audit #5: one line per theme with its crossroads link; the rotation evidence folds under them.
+    if (Array.isArray(point.lines)) {
+      for (const line of point.lines) {
+        const row = el(doc, 'span', line.text, 'stock-read-theme-line');
+        row.style.display = 'block';
+        if (typeof root?.showThemeDetail === 'function') {
+          const go = el(doc, 'button', '이 테마의 갈림길 →', 'stock-read-point-link');
+          go.type = 'button';
+          go.setAttribute('aria-label', `${line.label} 테마의 갈림길 보기`);
+          go.addEventListener('click', () => root.showThemeDetail(line.id));
+          row.append(doc.createTextNode(' '), go);
+        }
+        text.append(row);
+      }
+      if (point.evidence?.text) {
+        const fold = el(doc, 'details', null, 'stock-read-fold');
+        fold.append(el(doc, 'summary', point.evidence.summary), el(doc, 'p', point.evidence.text));
+        text.append(fold);
+      }
+    }
     li.append(el(doc, 'span', point.title, 'stock-read-point-title'), text);
     if (point.link?.href) {
       const anchor = el(doc, 'a', point.link.label, 'stock-read-point-link');

@@ -1,3 +1,5 @@
+import { splitAnswerSentences, isConditionalNumericSentence } from './publication.js';
+
 export const AI_CLAIM_LEDGER_VERSION = 'claim-ledger.v1';
 
 const NUMERIC_TYPES = new Set(['numeric', 'metric', 'percentage', 'probability']);
@@ -80,8 +82,10 @@ export function validateAnswerPlan(plan, options = {}) {
   // 사실 숫자가 그대로 공개될 수 있었다.
   const planClaims = plan?.claims?.claims || [];
   const numericClaims = planClaims.filter((claim) => NUMERIC_TYPES.has(claim?.type));
+  // P1740: a threshold inside a condition ("VIX가 20을 넘으면") is a rule, not an untracked current value.
+  const UNTRACKED = /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i;
   const hasUntrackedNumericContent = options.currentSensitive === true
-    && /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i.test(prose)
+    && prose.split('\n').flatMap((line) => splitAnswerSentences(line)).some((sentence) => UNTRACKED.test(sentence) && !isConditionalNumericSentence(sentence))
     && numericClaims.length === 0;
   const ledger = validateClaimLedger(plan?.claims, { ...options, requireClaims: hasUntrackedNumericContent });
   if (!ledger.ok) errors.push(...ledger.errors);

@@ -86,7 +86,11 @@ const helperStart = chat.indexOf('function _shouldUseClaudeWebSearch(');
 vm.runInContext(chat.slice(helperStart, chat.indexOf('\nwindow._shouldUseClaudeWebSearch', helperStart)), context);
 for (const [variable, marker] of [['_useClaudeWebSearch', 'var _useClaudeWebSearch = false;'], ['_uniUseClaudeWebSearch', 'var _uniUseClaudeWebSearch = false;']]) {
   const blockStart = chat.indexOf(marker);
-  const block = chat.slice(blockStart, chat.indexOf('if (' + variable + ') {', blockStart));
+  // P1740: the unified caller decides once in _uniDecideWebSearch (before its status blocks); run that actual function.
+  const block = variable === '_uniUseClaudeWebSearch'
+    ? chat.slice(blockStart, chat.indexOf('var _withTimeout', blockStart)) + '\n_uniDecideWebSearch();'
+    : chat.slice(blockStart, chat.indexOf('if (' + variable + ') {', blockStart));
+  assert.ok(blockStart >= 0 && !/\bawait\b/.test(block), 'P1608 decision block is extractable without async preparation');
   vm.runInContext(block, context);
   assert.equal(context[variable], false, 'P1608 actual caller passes the question plan and uses internal coverage');
   context.chatFreshPreflight = null; context._uniFreshPreflight = null;

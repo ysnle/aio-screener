@@ -17,6 +17,8 @@ import { createTrendChart } from './trend-chart.js';
 import { buildLiquidityGrowthGroups } from '../../domain/macro/liquidity-growth.js';
 import { AXIS_DEEP_DIVES, MACRO_AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { deepDiveFold } from './deep-dive.js';
+import { renderMacroCrossroads, openCrossroadsBranch } from './macro-crossroads.js';
+import { BRANCHES } from '../../domain/market/macro-crossroads.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -189,6 +191,20 @@ function axisCard(doc, row, root = null) {
   }
   card.append(el(doc, 'p', row.read, 'regime-read'));
   if (row.caveat) card.append(el(doc, 'p', row.caveat, 'macro-gauge-note')); // M06: Brent against the WTI-only reading
+  // The forward branches whose conditions this axis tests (BRANCHES[].axes) — each opens that branch on 거시.
+  const branches = BRANCHES.filter((branch) => (branch.axes || []).includes(row.id));
+  if (branches.length) {
+    const strip = el(doc, 'div', null, 'macro-axis-branches');
+    strip.append(el(doc, 'span', '이 축이 가르는 길:', 'macro-axis-branches-label'));
+    for (const branch of branches) {
+      const button = el(doc, 'button', branch.title.split(' — ')[0], 'macro-axis-branch');
+      button.type = 'button';
+      button.title = `${branch.title} — 앞으로의 갈림길에서 근거와 선택지 보기`;
+      button.addEventListener('click', () => openCrossroadsBranch(doc, root, branch.id));
+      strip.append(button);
+    }
+    card.append(strip);
+  }
   // P1660: the fold teaches first (principle · reading · links), then today's numbers, the equity link and the rule.
   const extra = [];
   if (row.shared) extra.push(el(doc, 'span', '시장 상태와 같은 판정', 'basis-chip'));
@@ -310,6 +326,16 @@ function overviewTiles(doc, axes) {
   return strip;
 }
 
+// The held quadrant in one sentence: why each undecided direction is held, and which direction is settled.
+function heldRegimeLine(r) {
+  const reasons = [];
+  if (!r.growthDir) reasons.push(r.held?.growth === '근소(경계)' ? ['성장 방향이 기준과 차이가 작고', '성장 방향이 기준과 차이가 작아'] : r.held?.growth ? ['성장 방향이 견조·둔화 어느 기준에도 닿지 않고', '성장 방향이 견조·둔화 어느 기준에도 닿지 않아'] : ['성장 방향 자료가 부족하고', '성장 방향 자료가 부족해']);
+  if (!r.inflationDir) reasons.push(r.held?.inflation ? ['물가 속도가 기준과 차이가 작고', '물가 속도가 기준과 차이가 작아'] : ['물가 방향 자료가 부족하고', '물가 방향 자료가 부족해']);
+  const why = reasons.map(([and, so], index) => (index === reasons.length - 1 ? so : and)).join(' ');
+  const settled = [r.growthDir ? `성장 ${r.growthDir === 'up' ? '견조' : '둔화'}` : null, r.inflationDir ? `물가 속도 ${r.inflationDir === 'up' ? '상승' : '둔화'}` : null].filter(Boolean);
+  return `${why || '방향이 정해지지 않아'} 국면을 정하지 않습니다${settled.length ? ` — 확정된 것은 ${settled.join(' · ')}입니다` : ''}.`;
+}
+
 function renderRegime(doc, read) {
   const host = doc.getElementById('macro-regime');
   if (!host) return;
@@ -319,7 +345,8 @@ function renderRegime(doc, read) {
   // Expert review M12: which month each input describes, and a direction decided near its cut is called 근소.
   // v57.50 D16/D17: a direction inside its dead band is held — the note names the gap whether or not the quadrant is set.
   const nearText = [r.near?.growth ? `성장 방향은 근소(경계)로 보류 — ${r.near.growth}` : null, r.near?.inflation ? `물가 방향 보류 — ${r.near.inflation}` : null].filter(Boolean).join(' · ');
-  if (r.timing || nearText) left.append(el(doc, 'p', [r.timing, nearText ? `${nearText}.` : null].filter(Boolean).join(' '), 'briefing-footnote macro-quadrant-note'));
+  const timingNote = r.timing || nearText ? el(doc, 'p', [r.timing, nearText ? `${nearText}.` : null].filter(Boolean).join(' '), 'briefing-footnote macro-quadrant-note') : null;
+  if (r.available && timingNote) left.append(timingNote);
   const right = el(doc, 'div', null, 'macro-overview-side');
   const head = el(doc, 'div', null, 'macro-regime-head');
   head.append(el(doc, 'span', r.label, `macro-regime-label is-${r.tone}`));
@@ -336,9 +363,16 @@ function renderRegime(doc, read) {
   // P1506: the quadrant reads the 3-month direction of growth and prices; the six cards judge today's level
   // against a threshold. A disinflation quadrant beside a 부담 price card is consistent once that is said.
   const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 수준이 목표보다 높으면 물가 축은 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
-  right.append(head, tally, lens, overviewTiles(doc, read.axes), reading);
   const criteria = el(doc, 'details', null, 'macro-axis-more');
-  criteria.append(el(doc, 'summary', '국면 판정 기준과 지금 읽은 값'), el(doc, 'p', r.criteria || '', 'regime-flip'));
+  if (r.available) {
+    right.append(head, tally, lens, overviewTiles(doc, read.axes), reading);
+    criteria.append(el(doc, 'summary', '국면 판정 기준과 지금 읽은 값'));
+  } else {
+    // A held quadrant is one line (why it is held, and which direction is settled); the reasoning folds below.
+    right.append(head, tally, el(doc, 'p', heldRegimeLine(r), 'macro-regime-held'), overviewTiles(doc, read.axes));
+    criteria.append(el(doc, 'summary', '보류 이유와 국면 판정 기준'), ...[timingNote, reading, lens].filter(Boolean));
+  }
+  criteria.append(el(doc, 'p', r.criteria || '', 'regime-flip'));
   if (Array.isArray(r.inputs) && r.inputs.length) {
     const table = el(doc, 'table', null, 'macro-regime-inputs');
     const head = el(doc, 'tr');
@@ -420,6 +454,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   const read = buildMacroRead({ macro: root._aioServerMacro || null, macroHistory, regime: regime.available ? regime : null, history: root._aioHistory || [] });
   const basis = doc.getElementById('macro-board-basis');
   if (basis) basis.textContent = board.available ? '공식 발표와 미국 종가 기준 · 각 판정의 기준은 카드 아래에 표시' : '공식 발표 자료를 불러오는 중입니다.';
+  renderMacroCrossroads({ documentRef: doc, root, regime }); // P1742: the forward branches lead the page
   renderRegime(doc, read);
   const axesHost = doc.getElementById('macro-axes');
   if (axesHost) axesHost.replaceChildren(...read.axes.map((row) => axisCard(doc, row, root)));

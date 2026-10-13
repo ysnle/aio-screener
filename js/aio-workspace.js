@@ -13,7 +13,7 @@
 
 
 // ════════════════════════════════════════════════════════════════════════
-// AI Chat Engine — callClaude · chatSend · chatClear · chatFromChip
+// AI Chat Engine — callClaude · chatSend · chatFromChip
 // ════════════════════════════════════════════════════════════════════════
 
 // AI credentials are server-only. Existing saved secrets are preserved but
@@ -697,10 +697,10 @@ function showPromptModal(title, label, defaultValue, onSubmit, opts) {
   modal.innerHTML = '<div style="background:var(--bg-card,#fbf9f5);border:1px solid var(--border,rgba(33,29,22,0.1));border-radius:4px;padding:20px;max-width:420px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.5);">' +
     '<div id="aio-prompt-title" style="font-size:14px;font-weight:700;color:var(--text-primary,#fff);margin-bottom:6px;">' + escHtml(title || '입력') + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted,var(--text-muted));margin-bottom:10px;line-height:1.5;white-space:pre-wrap;">' + escHtml(label || '') + '</div>' +
-    '<input id="aio-prompt-input" type="text" aria-label="값 입력" placeholder="값을 입력하세요" style="width:100%;padding:8px 10px;background:var(--surface-5);border:1px solid rgba(33,29,22,0.15);border-radius:3px;color:var(--text-primary,#fff);font-size:12px;font-family:inherit;box-sizing:border-box;" maxlength="' + (opts.maxLength || 200) + '" />' +
+    '<input id="aio-prompt-input" type="text" aria-label="값 입력" placeholder="값을 입력하세요" style="width:100%;padding:8px 10px;background:var(--surface-5);border:1px solid rgba(var(--ink-rgb),0.15);border-radius:3px;color:var(--text-primary,#fff);font-size:12px;font-family:inherit;box-sizing:border-box;" maxlength="' + (opts.maxLength || 200) + '" />' +
     '<div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end;">' +
-    '<button id="aio-prompt-cancel" style="padding:7px 14px;background:transparent;border:1px solid rgba(33,29,22,0.2);color:var(--text-muted,var(--text-muted));border-radius:3px;cursor:pointer;font-size:11px;">취소</button>' +
-    '<button id="aio-prompt-ok" style="padding:7px 14px;background:rgba(33,29,22,0.2);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:3px;cursor:pointer;font-size:11px;font-weight:700;">확인</button>' +
+    '<button id="aio-prompt-cancel" style="padding:7px 14px;background:transparent;border:1px solid rgba(var(--ink-rgb),0.2);color:var(--text-muted,var(--text-muted));border-radius:3px;cursor:pointer;font-size:11px;">취소</button>' +
+    '<button id="aio-prompt-ok" style="padding:7px 14px;background:rgba(var(--ink-rgb),0.2);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:3px;cursor:pointer;font-size:11px;font-weight:700;">확인</button>' +
     '</div></div>';
   document.body.appendChild(modal);
   var input = document.getElementById('aio-prompt-input');
@@ -779,7 +779,7 @@ function renderPortfolio() {
     // v48.3: 빈 상태 안내 강화 — 폰트 크기 상향 + 명확한 3단계 가이드
     if (!_nativePortfolioTable) tbody.innerHTML = '<tr class="pf-empty-state"><td colspan="9" style="padding:28px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
       '<div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">포트폴리오가 비어 있습니다</div>' +
-      '<div><b style="color:var(--text-primary);">티커 · 수량 · 매수 단가</b>를 입력하면 보유 현황과 리스크 분석이 시작됩니다.</div>' +
+      '<div>종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다.</div>' +
       '<button class="aio-btn-table primary" data-action="_aioTogglePortfolioEntry" style="margin-top:10px;min-height:36px;padding:7px 16px;">첫 종목 추가</button>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN 설정 후 저장 시 AES-256 암호화.</div>' +
       '</td></tr>';
@@ -933,7 +933,7 @@ function _aioRenderPortfolioHoldingCharts(positions, ld) {
           (chg != null ? '<span style="font-size:12px;font-weight:600;color:' + chgColor + ';font-variant-numeric:tabular-nums;">' + (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%</span>' : '') +
         '</div>' +
         '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;overflow:visible;" role="img" aria-label="' + escHtml(ticker) + ' 최근 3개월 가격 추이">' +
-          '<polyline points="' + pathPts + '" fill="none" stroke="#211d16" stroke-width="1.6"></polyline>' +
+          '<polyline points="' + pathPts + '" fill="none" stroke="#211d16" style="stroke:var(--text-primary)" stroke-width="1.6"></polyline>' +
         '</svg>' +
         '<div style="display:flex;flex-direction:column;gap:4px;margin-top:10px;border-top:1px solid var(--border-subtle);padding-top:8px;">' +
           '<div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--text-muted);">MA5 / MA20 / MA50</span><span style="font-size:11px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">' +
@@ -1439,7 +1439,7 @@ function _renderRiskMetrics(el, data) {
         var abs = Math.abs(val);
         var bg, textC;
         if (val >= 0.99) {
-          bg = 'rgba(33,29,22,0.4)'; textC = 'var(--text-muted)';
+          bg = 'rgba(var(--ink-rgb),0.4)'; textC = 'var(--text-muted)';
         } else if (val > 0) {
           bg = 'rgba(' + Math.round(210 * abs) + ',' + Math.round(50 * (1 - abs)) + ',' + Math.round(50 * (1 - abs)) + ',0.4)';
           textC = abs > 0.5 ? '#fff' : 'var(--text-secondary)';
@@ -2033,7 +2033,7 @@ function renderWatchlistContent() {
     var chgStr = chg !== null ? ((chg >= 0 ? '+' : '') + chg.toFixed(2) + '%') : '—';
     var signal = db ? db.signal : '—';
     var sc = signal === 'BUY' ? 'var(--data-green)' : signal === 'SELL' ? 'var(--data-red)' : signal === 'WATCH' ? 'var(--data-amber)' : 'var(--text-muted)';
-    var sb = signal === 'BUY' ? 'rgba(34,117,76,0.15)' : signal === 'SELL' ? 'rgba(177,58,48,0.15)' : signal === 'WATCH' ? 'rgba(33,29,22,0.15)' : 'rgba(33,29,22,0.15)';
+    var sb = signal === 'BUY' ? 'rgba(34,117,76,0.15)' : signal === 'SELL' ? 'rgba(177,58,48,0.15)' : signal === 'WATCH' ? 'rgba(var(--ink-rgb),0.15)' : 'rgba(var(--ink-rgb),0.15)';
     var nameStr = db ? db.name : '';
 
     var _eSym = escHtml(t.sym); // v46.9: XSS 방어
@@ -2308,7 +2308,7 @@ function openChatHistory(ctxId) {
           history.map((h, i) => {
             const dt = new Date(h.ts);
             const timeStr = dt.toLocaleDateString('ko-KR', {month:'short',day:'numeric'}) + ' ' + dt.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
-            const ctxBadge = h.ctx ? '<span style="font-size:11px;background:rgba(33,29,22,0.1);color:var(--data-cyan);padding:1px 5px;border-radius:3px;margin-right:6px;">' + escHtml(h.ctx) + '</span>' : '';
+            const ctxBadge = h.ctx ? '<span style="font-size:11px;background:rgba(var(--ink-rgb),0.1);color:var(--data-cyan);padding:1px 5px;border-radius:3px;margin-right:6px;">' + escHtml(h.ctx) + '</span>' : '';
             return '<div class="ch-item" data-action="_aioToggleWhiteSpace" data-pass-el="1">' +
               '<div class="ch-item-q">' + ctxBadge + escHtml(h.q || '') + '</div>' +
               '<div class="ch-item-a">' + (h.a ? escHtml(h.a) : '(응답 없음)') + '</div>' +
@@ -2356,7 +2356,7 @@ function renderStaleWarning(containerId) {
   badge.className = 'stale-badge';
   // grid-column:1/-1 — 컨테이너가 CSS grid일 때 이 배지가 셀 하나를 차지해 열 수를 밀어내지 않도록
   // 전체 너비 배너로 스팬(v52.65, risk-monitor-grid 6열 고정화로 발견). flex/block 컨테이너에선 무시되는 안전한 속성.
-  badge.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(33,29,22,0.15);border:1px solid rgba(33,29,22,0.3);border-radius:4px;font-size:11px;color:var(--data-amber);font-weight:700;margin-bottom:6px;grid-column:1/-1;width:fit-content;';
+  badge.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(var(--ink-rgb),0.15);border:1px solid rgba(var(--ink-rgb),0.3);border-radius:4px;font-size:11px;color:var(--data-amber);font-weight:700;margin-bottom:6px;grid-column:1/-1;width:fit-content;';
   badge.textContent = '정적 데이터 · ' + age.label + ' 기준 · 실시간 아님';
   el.insertBefore(badge, el.firstChild);
 }
@@ -2468,110 +2468,6 @@ function _liveSnap() {
     _liveCoreCount: liveCoreCount,
     _freshness: liveCoreCount >= 4 && stale.length <= 1 ? 'live 우선/source 확인' : (stale.length <= 2 ? 'live+snapshot 혼합' : '대부분 snapshot/fallback')
   };
-}
-
-/**
- * v36.7: 분석/해석/근거용 종가 스냅샷 (LLM 분석 전용)
- * 항상 "전일 종가" 기준 — 장중이어도 실시간 데이터가 아닌 가장 최근 확정 종가 사용
- * 이유: 분석의 일관성·재현성 확보 (장중 변동에 분석이 흔들리지 않음)
- */
-function _closeSnap() {
-  let ld = window._liveData || {};
-  // ═══ v37.2: 이원화 원칙을 _closeSnap에도 완전 적용 ═══
-  // 주가/지수 → chartPreviousClose(종가), 시장환경 → 실시간(_ld)
-  function _close(sym) {
-    var d = ld[sym];
-    if (!d) return null;
-    return d.chartPreviousClose || d.previousClose || d.price || null;
-  }
-  function _closeFmt(sym, dec) {
-    var v = _close(sym);
-    return v != null ? Number(v).toFixed(dec || 0) : '—';
-  }
-  // 시장환경 데이터는 실시간 (VIX, DXY, TNX, 유가 등은 24시간/선물 거래)
-  function _liveFmt(sym, dec) {
-    var v = _ld(sym, 'price');
-    return v != null ? Number(v).toFixed(dec || 0) : '—';
-  }
-  return {
-    // ── 주가·지수: 종가 (확정 데이터) ──
-    stockBasis: '전일 종가 (확정)',
-    spx: _closeFmt('^GSPC'), nasdaq: _closeFmt('^IXIC'),
-    dow: _closeFmt('^DJI'), rut: _closeFmt('^RUT'),
-    // ── 시장환경: 실시간 (24h/선물 거래) ──
-    envBasis: '실시간',
-    vix: _liveFmt('^VIX',1), vvix: _liveFmt('^VVIX',1),
-    vvixVixRatio: (function() {
-      var vix = _ld('^VIX','price'), vvix = _ld('^VVIX','price');
-      if (vix && vvix && vix > 0) {
-        var r = vvix / vix;
-        var label = r < 5 ? '과잉 안도' : r < 6 ? '정상' : r < 7 ? '긴장 감지' : '고위험';
-        return r.toFixed(2) + ' (' + label + ')';
-      }
-      return '—';
-    })(),
-    dxy: _liveFmt('DX-Y.NYB',1),
-    tnx: _liveFmt('^TNX',2), tyx: _liveFmt('^TYX',2),
-    wti: _liveFmt('CL=F',1), brent: _liveFmt('BZ=F',1),
-    gold: _liveFmt('GC=F'), krw: _liveFmt('KRW=X'),
-    fg: (function() {
-      // v57.50 C06: the same completed-close F&G reading as the home card.
-      if (typeof window._aioFgCloseReading === 'function') { var _r = window._aioFgCloseReading(); return _r && _r.value != null ? _r.value : '데이터 없음'; }
-      var _fgCloseMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null; return _fgCloseMetric && _fgCloseMetric.value != null ? _fgCloseMetric.value : '데이터 없음'; })(),
-    score: window._tradingScore || '산출 대기',
-    spx50ma: (window._spxMA && window._spxMA[50]) || '—',
-    spx200ma: (window._spxMA && window._spxMA[200]) || '—',
-  };
-}
-
-/**
- * v36.9: 분석용 종가 데이터 접근 헬퍼
- * chartPreviousClose가 있으면 종가, 없으면 현재 price를 폴백
- *
- * ═══ v37.2: 분석 데이터 소스 이원화 원칙 (분석함수 + LLM 답변 완전 적용) ═══
- * ┌─────────────────┬───────────┬──────────────────────────────────────────┐
- * │ 데이터 유형      │ 소스      │ 사용 함수/위치                            │
- * ├─────────────────┼───────────┼──────────────────────────────────────────┤
- * │ 주가 (SPX,SPY,  │ _closingVal│ computeTradingScore(SPX,RSP,SPY)        │
- * │ QQQ,RSP,개별종목)│ (종가)     │ computeMarketHealth(SPY,QQQ)            │
- * │                 │           │ classifyMarketRegime(SPX)               │
- * │                 │           │ CHAT: home(분석기준), technical, macro   │
- * │                 │           │ CHAT: kr-themes, kr-macro, kr-tech,     │
- * │                 │           │       kr-supply (종가 기준)              │
- * ├─────────────────┼───────────┼──────────────────────────────────────────┤
- * │ 시장 환경       │ _ldSafe   │ computeTradingScore(VIX,VVIX,DXY,TNX,   │
- * │ (VIX,DXY,TNX,   │ _ld       │   HYG,유가)                             │
- * │ HYG,CL=F,환율)  │ (source)   │ computeMarketHealth(VIX)                │
- * │                 │           │ classifyMarketRegime(VIX)               │
- * │                 │           │ CHAT: _closeSnap().envBasis=실시간       │
- * │                 │           │ CHAT: 모든 컨텍스트에서 VIX/DXY/TNX/환율 │
- * │                 │           │       = _liveSnap() 또는 _liveFmt() 사용 │
- * └─────────────────┴───────────┴──────────────────────────────────────────┘
- * 이유: 주가는 장 마감까지 봐야 정확한 분석 → 종가 고정
- *       시장 환경은 실시간성이 중요 → 선물/24시간 거래 데이터 즉각 반영
- *
- * @param {string} sym - Yahoo Finance 심볼
- * @param {string} [field='price'] - 'price' | 'pct'
- * @returns {number|null}
- */
-function _closingVal(sym, field) {
-  let ld = window._liveData || {};
-  var d = ld[sym];
-  if (!d) {
-    // _SNAP_FALLBACK에서 폴백
-    var sf = (typeof _SNAP_FALLBACK !== 'undefined') ? _SNAP_FALLBACK[sym] : null;
-    if (sf && sf[field || 'price']) return sf[field || 'price']();
-    return null;
-  }
-  if (field === 'pct') {
-    // 종가 기준 변동률: chartPreviousClose 대비 현재 price
-    // 하지만 분석에서는 "전일 종가" 자체가 기준이므로 pct=0 (당일 종가 ↔ 전일 종가 변동률은 의미 없음)
-    // 실제로는 "직전 거래일의 일간 변동률"이 필요하지만 이건 별도 계산 필요
-    // → 기존 pct를 그대로 사용하되, _closingVal 취지는 "가격" 안정성 확보
-    return d.pct != null ? d.pct : null;
-  }
-  // 가격: chartPreviousClose → previousClose → price 순
-  return d.chartPreviousClose || d.previousClose || d.price || null;
 }
 
 // ═══ v48.14: 한국 주요 이슈 카드 자동 렌더링 (Agent P1-21 — newsCache 재사용) ═══

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "aio-governance-markers.v1",
+  "generatedBy": "hand-maintained (v57.54)",
+  "note": "Machine-readable replacement for gates that used to grep prose markers (\"R219\", \"P513-Q1\", \"v50.89 ... semantic review\") inside RULES.md, QA-CHECKLIST.md, BUG-POSTMORTEM.md and CHANGELOG.md. Each policy names the ledger ids it traces to and the gate scripts that actually enforce it. scripts/ci-workflow-compaction-check.mjs verifies that every enforcing gate exists and is wired into architecture/qa-pipeline.json, and that every rule id is still a RULES.md heading. Ledger prose can be compressed or reworded freely; deleting the enforcing gate or unwiring it is what fails.",
+  "policies": [
+    {
+      "id": "semantic-review",
+      "summary": "An audit/gate pass is not semantic review; release claims stay fail-closed until line-level semantic coverage is certified.",
+      "rules": ["R219"],
+      "postmortems": ["P513"],
+      "qa": ["P513-Q1"],
+      "release": "v50.89",
+      "enforcedBy": ["scripts/ci-semantic-review-check.mjs", "scripts/ci-runtime-contract-check.mjs"]
+    },
+    {
+      "id": "workflow-compaction",
+      "summary": "Workflow memory is compacted: default preflight stays under 64 KiB and large ledgers are search-only, routed through INDEX.",
+      "rules": ["R220"],
+      "postmortems": ["P514"],
+      "qa": ["P514-Q1"],
+      "release": "v50.89",
+      "enforcedBy": ["scripts/ci-workflow-compaction-check.mjs"]
+    },
+    {
+      "id": "data-pipeline-contract",
+      "summary": "Producer, workflow and consumer data contracts (freshness, provenance, publish boundaries) are gate-enforced.",
+      "rules": ["R222", "R230", "R232"],
+      "postmortems": ["P517", "P531", "P535"],
+      "enforcedBy": ["scripts/ci-data-pipeline-contract-check.mjs"]
+    },
+    {
+      "id": "default-path-ux",
+      "summary": "Default routes carry no flow noise or auto-fill grids; operator note leads the home route; visual hierarchy is not a one-note terminal style.",
+      "rules": ["R228", "R231"],
+      "postmortems": ["P529", "P532", "P534"],
+      "enforcedBy": ["scripts/ci-ux-default-path-check.mjs"]
+    },
+    {
+      "id": "generated-current-state",
+      "summary": "Live workspace facts come from the generated _context/CURRENT-STATE.md and CONTEXT-CATALOG.json, never hand-copied into guides.",
+      "rules": ["R520"],
+      "postmortems": ["P964"],
+      "qa": ["QA-WORKSPACE-01"],
+      "enforcedBy": ["scripts/ci-knowledge-lint-check.mjs", "scripts/ci-workspace-contract-check.mjs"]
+    },
+    {
+      "id": "hook-authority",
+      "summary": "Agent hooks block destructive commands and give advisory checks only; no hook commits, pushes or deploys.",
+      "rules": ["R521"],
+      "enforcedBy": ["scripts/ci-workspace-contract-check.mjs"]
+    }
+  ]
+}

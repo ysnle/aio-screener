@@ -144,4 +144,93 @@ if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core
   if (dataKeys.some((key) => /[?&]t=/.test(key))) fail(`P1410 data cache keyed by the cache-buster: ${dataKeys.join(', ')}`);
 }
 
+// P1755: behaviour of the shell branch. A classic script carrying THIS worker's ?v= is served
+// cache-first from this version's shell cache; any other ?v= and every unversioned shell asset go
+// to the network with HTTP revalidation ('no-cache', never 'no-store'); a version bump renames the
+// shell cache, activation deletes the old one, and the new worker re-fetches the versioned script.
+{
+  const vm = await import('node:vm');
+  const run = (workerSource, stores, fetchLog, online) => {
+    const keyOf = (input) => (typeof input === 'string' ? input : input.url);
+    const caches = {
+      async open(name) {
+        if (!stores.has(name)) stores.set(name, new Map());
+        const store = stores.get(name);
+        return { put: async (req, res) => { store.set(keyOf(req), res.clone()); }, match: async (req) => store.get(keyOf(req))?.clone(), keys: async () => [...store.keys()].map((url) => new Request(url)), delete: async (req) => store.delete(keyOf(req)), addAll: async () => {} };
+      },
+      async match(req) { for (const store of stores.values()) { const hit = store.get(keyOf(req)); if (hit) return hit.clone(); } return undefined; },
+      async keys() { return [...stores.keys()]; },
+      async delete(name) { return stores.delete(name); }
+    };
+    const handlers = {};
+    const origin = 'https://example.test';
+    const self = { addEventListener: (type, fn) => { handlers[type] = fn; }, registration: { scope: `${origin}/aio/` }, location: { origin }, clients: { claim: async () => {} }, skipWaiting: async () => {} };
+    const fetchImpl = async (req, init) => {
+      if (!online.value) throw new TypeError('offline');
+      fetchLog.push({ url: keyOf(req), cache: init?.cache || 'default' });
+      return new Response(`body ${fetchLog.length}`, { status: 200, headers: { 'content-type': 'text/javascript' } });
+    };
+    vm.runInNewContext(workerSource, { self, caches, fetch: fetchImpl, Request, Response, Headers, URL, console, setTimeout, Date });
+    const dispatch = async (url) => {
+      let responded; const pending = [];
+      handlers.fetch({ request: new Request(url), respondWith: (p) => { responded = p; }, waitUntil: (p) => pending.push(p) });
+      const response = await responded;
+      await Promise.all(pending);
+      return { status: response.status, text: await response.text() };
+    };
+    const activate = async () => { let done; handlers.activate({ waitUntil: (p) => { done = p; } }); await done; };
+    return { dispatch, activate };
+  };
+  const swVersion = source.match(/const SW_VERSION = '(v?[^']+)'/)?.[1];
+  if (!swVersion) fail('P1755 SW_VERSION not found');
+  const assetVersion = swVersion.replace(/^v/, '');
+  const base = 'https://example.test/aio';
+  const stores = new Map(); const log = []; const online = { value: true };
+  const sw = run(source, stores, log, online);
+  const versioned = `${base}/js/aio-core.js?v=${assetVersion}`;
+  const first = await sw.dispatch(versioned);
+  const second = await sw.dispatch(versioned);
+  if (first.status !== 200 || second.text !== first.text || log.filter((entry) => entry.url === versioned).length !== 1) fail('P1755 a current-version classic script is not served cache-first after the first fetch');
+  online.value = false;
+  if ((await sw.dispatch(versioned)).text !== first.text) fail('P1755 a cached current-version classic script is unavailable offline');
+  online.value = true;
+  const otherVersion = `${base}/js/aio-core.js?v=0.0`;
+  await sw.dispatch(otherVersion); await sw.dispatch(otherVersion);
+  if (log.filter((entry) => entry.url === otherVersion).length !== 2) fail('P1755 a classic script with a different ?v= was served cache-first');
+  for (const url of [`${base}/index.html`, `${base}/version.json`, `${base}/src/app/bootstrap.js`, `${base}/src/domain/news/stories.js`]) {
+    await sw.dispatch(url); await sw.dispatch(url);
+    const hits = log.filter((entry) => entry.url === url);
+    if (hits.length !== 2) fail(`P1755 an unversioned shell asset is not network-first: ${url}`);
+    if (hits.some((entry) => entry.cache !== 'no-cache')) fail(`P1755 an unversioned shell asset is not revalidated with cache:'no-cache': ${url} ${hits.map((entry) => entry.cache).join(',')}`);
+  }
+  online.value = false;
+  if ((await sw.dispatch(`${base}/src/domain/news/stories.js`)).status !== 200) fail('P1755 unversioned shell module lost its offline cache fallback');
+  online.value = true;
+  // Version bump: a new worker (new SW_VERSION, same ?v= rewritten by bump-version) must not reuse the old cache.
+  const bumped = source.replace(`const SW_VERSION = '${swVersion}'`, `const SW_VERSION = '${swVersion}9'`);
+  if (bumped === source) fail('P1755 could not derive a bumped worker for the invalidation check');
+  const oldShell = [...stores.keys()].find((name) => name.startsWith('aio-shell-'));
+  const sw2 = run(bumped, stores, log, online);
+  await sw2.activate();
+  if (stores.has(oldShell)) fail('P1755 a version bump did not delete the previous versioned shell cache');
+  const bumpedUrl = `${base}/js/aio-core.js?v=${assetVersion}9`;
+  const before = log.length;
+  const fresh = await sw2.dispatch(bumpedUrl);
+  if (log.length !== before + 1 || fresh.text === first.text) fail('P1755 the bumped worker served a versioned script without fetching it');
+  const staleAfterBump = await sw2.dispatch(versioned);
+  if (log.length !== before + 2 || staleAfterBump.text === first.text) fail('P1755 the bumped worker served the previous version cache-first');
+  // v57.54 review: a code change shipped under the SAME version must still reach returning readers.
+  const rehashed = source.replace("const SW_CODE_HASH = 'local';", "const SW_CODE_HASH = 'c0ffee000001';");
+  if (rehashed === source) fail('v57.54 sw.js has no SW_CODE_HASH placeholder for the deploy-time code hash');
+  const sameVersionShell = [...stores.keys()].find((name) => name.startsWith('aio-shell-'));
+  const sw3 = run(rehashed, stores, log, online);
+  await sw3.activate();
+  if (stores.has(sameVersionShell)) fail('v57.54 a new code hash under the same version did not retire the previous shell cache');
+  const beforeHash = log.length;
+  await sw3.dispatch(`${base}/js/aio-core.js?v=${assetVersion}9`);
+  if (log.length !== beforeHash + 1) fail('v57.54 a new code hash served a same-version script from the old cache');
+}
+const deployYml = fs.readFileSync('.github/workflows/pages-deploy.yml', 'utf8');
+if (!/code_hash=.*find index\.html js src -type f/.test(deployYml) || !/s\/\^const SW_CODE_HASH = 'local';\$\//.test(deployYml)) fail('v57.54 pages-deploy no longer stamps the shipped-code hash into sw.js');
+
 console.log(`Service-worker cache policy OK: ${critical.length} critical assets; ${routedPaths.length} routed artifacts all have a client consumer; ${CORE_DATA_ARTIFACTS.length} consumed core artifacts are age-bounded with their own TTL; route modules are request-driven.`);

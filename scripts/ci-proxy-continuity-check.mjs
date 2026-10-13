@@ -100,6 +100,19 @@ for(let i=0;i<8;i++) check(reg.getRotated('https://example.org/')[0].id==='cf-wo
 const missing = harness({fetcher:async()=>new Response('',{status:404})});
 await assert.rejects(missing.root.fetchViaProxy(url(),{parseJson:true}));
 check(missing.root.registry.list.every(p=>missing.root.registry.state(p,url()).fails===0),'missing ticker does not poison relay health');
+// P1758: a definitive upstream answer relayed by the Worker ends the chain; only a relay fault reaches a public relay.
+check(missing.calls.length===1 && missing.calls[0][0].startsWith('https://owned.example?url='), 'P1758 a Worker-relayed upstream 404 never fans out to public relays');
+const verdict = harness({fetcher:async()=>new Response(JSON.stringify(chart('SPY')))});
+await assert.rejects(verdict.root.fetchViaProxy(url('AAPL'),{parseJson:true}),{code:'UPSTREAM_REJECTED'});
+check(verdict.calls.length===1 && verdict.root.registry.state(verdict.root.registry.list[0],url('AAPL')).fails===0, 'P1758 a wrong-identity JSON answer from the Worker stops the chain without marking the Worker failed');
+const fault = harness({fetcher:async(u)=>u.startsWith('https://owned.example') ? new Response('',{status:503}) : new Response(JSON.stringify(chart()))});
+check((await fault.root.fetchViaProxy(url(),{parseJson:true}))._aioTransport.provider==='allorigins-raw' && fault.calls.length===2, 'P1758 a Worker 503 still falls back to exactly one public relay');
+const krData1758 = readFileSync(new URL('../js/aio-kr-data.js', import.meta.url), 'utf8');
+const core1758 = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
+const quotes1758 = section(source, 'async function fetchLiveQuotes(', 'function scheduleQuoteCrossSourceValidation(');
+check(/v7\/finance\/spark\?symbols=/.test(quotes1758) && /i \+= 20\)/.test(quotes1758) && !/yahoo\.com\/v7\/finance\/quote/.test(quotes1758) && /function _yfQuoteFromMeta\(/.test(quotes1758), 'P1758 quote polling batches 20 symbols per spark request through the relay chain (v7/quote needs a crumb and 401s)');
+check(quotes1758.indexOf('const _PRICE_RULES') < quotes1758.indexOf('await _yfBatchFetch('), 'P1758 the batch runs after the price rules it validates against are initialised');
+check(!/codetabs\.com|allorigins\.win|corsproxy\.io|proxy\.cors\.sh|Promise\.any/.test(section(krData1758, 'async function dynamicTickerLookup(', '// 한국 종목: siseJson 폴백')) && !/corsproxy\.io\/\?'|allorigins\.win\/raw\?url='/.test(core1758), 'P1758 ticker lookup and SEC submissions use the relay chain, not a public-relay race or list');
 
 const controller=new AbortController();
 const cancel=harness({fetcher:async(_,options)=>new Promise((resolve,reject)=>{
@@ -111,6 +124,34 @@ check(cancel.root.registry.list.every(p=>cancel.root.registry.state(p,url()).fai
 const privateRequest=harness();
 await assert.rejects(privateRequest.root.fetchViaProxy('https://example.org/api?api_key=fixture-secret',{parseJson:true}),{code:'PRIVATE_ROUTE_REQUIRED'});
 check(privateRequest.calls.length===0 && privateRequest.store.size===0,'credential-bearing requests never reach public relays or persistent cache');
+
+// P1756: the client mirror of the Worker allowlist must equal ALLOWED_DOMAINS, and a host outside it never reaches
+// the shared Worker (it answered 403 to every client RSS feed host), while a Worker the user owns is still tried.
+const worker = readFileSync(new URL('../cloudflare-worker-proxy.js', import.meta.url), 'utf8');
+const workerHosts = [...section(worker, 'const ALLOWED_DOMAINS = [', '];').matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
+const clientHosts = [...vm.runInContext('_AIO_SHARED_WORKER_HOSTS', h.context)].sort();
+check(workerHosts.length > 20 && JSON.stringify(workerHosts) === JSON.stringify(clientHosts), 'P1756 client shared-Worker host mirror equals the Worker ALLOWED_DOMAINS');
+check(h.root._aioSharedWorkerRelays('https://query1.finance.yahoo.com/v8/finance/chart/NVDA') && h.root._aioSharedWorkerRelays('https://sub.rsshub.app/x')
+  && !h.root._aioSharedWorkerRelays('https://feeds.a.dj.com/rss/RSSMarketsMain.xml') && !h.root._aioSharedWorkerRelays('https://notrsshub.app/x'), 'P1756 allowlist matching is exact host or subdomain');
+const feedXml = '<rss><channel><item><title>fixture feed headline</title></item></channel></rss>';
+const shared = harness({fetcher:async()=>new Response(feedXml)});
+check(await shared.root.fetchViaProxy('https://feeds.a.dj.com/rss/RSSMarketsMain.xml',{parseText:true})===feedXml
+  && shared.calls.every(([u])=>!u.startsWith('https://owned.example')), 'P1756 a feed host outside the allowlist goes straight past the shared Worker');
+const owned = harness({personal:'https://mine.example', fetcher:async()=>new Response(feedXml)});
+await owned.root.fetchViaProxy('https://feeds.a.dj.com/rss/RSSMarketsMain.xml',{parseText:true});
+check(owned.calls[0][0].startsWith('https://mine.example?url='), 'P1756 a Worker the user owns is still tried for any host');
+// P1756: the browser RSS run is skipped while data.json news is fresh (< 2 h) — the screens render that bundle either way.
+const fresh = vm.createContext({ Date, isFinite, window:{}, DATA_APIS:{ finnhub:{ key:()=>'' } }, _getApiKey:()=>'' });
+vm.runInContext(section(source, 'function _aioServerNewsFresh()', 'async function fetchAllNews('), fresh);
+const freshAt = (ms) => { fresh.window._serverNewsBackstop=[{title:'x'}]; fresh.window._serverDataMeta={generatedAt:new Date(Date.now()-ms).toISOString()}; return fresh._aioServerNewsFresh(); };
+check(freshAt(30*60000) && !freshAt(3*3600000) && (fresh.window._serverNewsBackstop=[], !fresh._aioServerNewsFresh()), 'P1756 server news is fresh only when present and generated under 2 hours ago');
+const fetchAll = section(source, 'async function fetchAllNews(', '// ═══ v20+: 추가 뉴스 API 병합');
+check(/_serverNewsFresh && !_aioPersonalNewsKeys\(\)\) \{[\s\S]{0,480}return;/.test(fetchAll) && /if \(forceRefresh && typeof showToast === 'function'\) showToast\('뉴스는 서버가 /.test(fetchAll) && /if \(_serverNewsFresh\) activeSources = \[\];/.test(fetchAll), 'P1756 fetchAllNews skips the feed fan-out while server news is fresh; personal-key APIs still merge');
+const pagesSource = readFileSync(new URL('../js/aio-pages.js', import.meta.url), 'utf8');
+const krDataSource = readFileSync(new URL('../js/aio-kr-data.js', import.meta.url), 'utf8');
+check(![source, pagesSource, krDataSource].some((text) => /stooq\.com\/q\//.test(text)) && !/_stooqCross/.test(source), 'P1756 Stooq (404 on every symbol) is out of the quote, cross-check, sector and ticker-detail fallbacks');
+check(/var _aioFetchYahooChartDataDirect = _aioFetchYahooChartData;/.test(source) && /window\._aioFetchYahooChartData = _aioChartDataForScreen;/.test(source)
+  && /window\._fetchYahooChartData = _aioFetchYahooChartDataDirect;/.test(source), 'P1756 the chart-screen fetch wrapper calls the captured producer, never itself');
 
 const canonical=harness({fetcher:async()=>new Response(JSON.stringify(chart('NVDA','1wk')))});
 vm.runInContext(section(source,'async function _aioFetchYahooChartData(', '// 모듈 스코프'),canonical.context);
@@ -135,9 +176,10 @@ const groups=observations._aioPlanQuoteGroups(['NVDA','NVDA','BRK-B','<bad>'],['
 check(groups.flat().join(',')==='NVDA,BRK-B,^GSPC,KRW=X' && groups.every(group=>group.length<=5), 'request-owned quote scope deduplicates and validates symbols without hidden catalogue fanout');
 observations.window=observations;
 observations._aioHistorySeries=()=>Array.from({length:60},(_,i)=>({value:i+1}));
-vm.runInContext(section(source, 'function vixToPercentile(', 'function vixRegime('), observations);
-check(observations.vixToPercentile(30)===50, 'VIX percentile uses actual observed sample');
+vm.runInContext(section(source, 'function _aioVixPercentile(', 'function vixRegime('), observations);
+check(observations._aioVixPercentile(30)===50, 'P1753 VIX percentile uses actual observed sample');
 observations._aioHistorySeries=()=>Array.from({length:59},(_,i)=>({value:i+1}));
-check(observations.vixToPercentile(30)===null, 'insufficient VIX sample never uses a fabricated distribution');
+check(observations._aioVixPercentile(30)===null, 'P1753 insufficient VIX sample never uses a fabricated distribution');
+check(!/function vixToPercentile\(/.test(source), 'P1753 the retired vixToPercentile compatibility wrapper stays gone');
 check(!source.includes('(82.5 -') && !/goldWeeklyPct\s*=/.test(section(source, 'function applyLiveQuotes(', 'function updateScreenerFromLiveData(')), 'quote application cannot invent HY spread or turn daily gold return into weekly return');
 console.log(`Proxy continuity: ${checks} PASS (offline VM; no live/provider or browser claim)`);

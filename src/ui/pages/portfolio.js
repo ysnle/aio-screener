@@ -31,13 +31,13 @@ function renderPortfolioStatus(documentRef, state, surface) {
   } else if (readState === 'failed') {
     element.textContent = '포트폴리오 읽기 실패 — 입력 유무를 단정하지 않습니다. 재시도해 주세요.';
   } else if (valuation === 'cash-only') {
-    element.textContent = `현금 전용 계정 · 총자산과 현금 일치 · 주식 보유 없음 · 현재 시세 증거 없이는 의사결정 승격 불가`;
+    element.textContent = '현금만 보유 중입니다 · 총자산 = 현금';
   } else if (valuation === 'empty') {
     element.textContent = '포트폴리오 등록 후 자동 계산됩니다.';
   } else if (valuation === 'partial') {
-    element.textContent = `부분 평가 · ${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0} 종목 확인 · 미확인분은 총자산에 합산하지 않습니다 · 현재 시세 증거 없이는 의사결정 승격 불가`;
+    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가 · 시세를 받지 못한 종목은 총자산에 넣지 않았습니다`;
   } else if (valuation === 'complete') {
-    element.textContent = `포트폴리오 참고용 입력 수신 · ${surface?.holdingCount ?? 0}개 포지션 · 현재 시세 증거 없이는 의사결정 승격 불가`;
+    element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료 · 참고용 계산이며 실제 계좌 손익과 다를 수 있습니다`;
   } else {
     element.textContent = '포트폴리오 데이터 수신 대기';
   }
@@ -262,7 +262,8 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     heading.textContent = '포트폴리오가 비어 있습니다';
     heading.style.cssText = 'font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;';
     const body = documentRef.createElement('div');
-    body.textContent = '티커 · 수량 · 매수 단가를 입력하면 보유 현황과 리스크 분석이 시작됩니다.';
+    // v57.54: one line on what appears, no how-to prose.
+    body.textContent = '종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다.';
     const addButton = documentRef.createElement('button');
     addButton.className = 'aio-btn-table primary';
     addButton.setAttribute('data-action', '_aioTogglePortfolioEntry');
@@ -459,6 +460,8 @@ function renderPortfolioChecks(documentRef, root, surface) {
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
   host.replaceChildren(el('h2', '포트폴리오 점검', 'briefing-h2'));
   host.dataset.aioPortfolioChecksRenderer = 'native';
+  // Audit 2026-10-14: an empty portfolio shows one empty state (the holdings table); a currency hold is still explained.
+  host.hidden = result.status !== 'current' && result.reason !== 'currency-unconverted';
   if (result.status !== 'current') {
     host.append(el('p', result.reason === 'currency-unconverted' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.' : '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
     return;

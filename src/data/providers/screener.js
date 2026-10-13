@@ -253,10 +253,12 @@ export function createScreenerProvider({
       } else if (!refresh) responses = cachedResponses;
       if (!responses) {
         const generation = ++fetchGeneration;
+        // P1755: 'no-cache' still revalidates every read with the server, but an unchanged artifact comes
+        // back as a 304 from the HTTP cache instead of a fresh 2.6 MB download ('no-store').
         const pending = Promise.all([
-          httpClient.requestJson(url, { cache: 'no-store', signal }),
-          httpClient.requestJson(universeUrl, { cache: 'no-store', signal }),
-          httpClient.requestJson(modelValidationUrl, { cache: 'no-store', signal })
+          httpClient.requestJson(url, { cache: 'no-cache', signal }),
+          httpClient.requestJson(universeUrl, { cache: 'no-cache', signal }),
+          httpClient.requestJson(modelValidationUrl, { cache: 'no-cache', signal })
         ]);
         pendingResponses = pending;
         pendingSignal = signal;

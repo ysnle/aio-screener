@@ -2,11 +2,17 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildDomainReceipt } from './fetch-sec-fundamentals.mjs';
 import { reconcileSecEquity, reconcileSecRevenueShares } from '../src/domain/fundamental/sec-report.js';
+import { readSecLedger, secLedgerSkipNote } from './lib/sec-ledger.mjs';
 
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
-const sourceText = read('public-data/sec-fundamentals.json');
+// P1757: the canonical ledger is producer-only (data-store branch). The producer runs this gate with the ledger it
+// just wrote; CI restores it only when its digest matches this checkout's manifest. Without it, the projection-only
+// contract (identity, size bound, manifest self-consistency, receipt fixtures) still runs and the source-vs-projection
+// comparison is skipped with a label, never passed silently.
+const ledger = readSecLedger();
+const sourceText = ledger.present ? ledger.text : null;
 const runtimeText = read('public-data/sec-fundamentals-summary.json');
-const source = JSON.parse(sourceText);
+const source = ledger.present ? ledger.data : null;
 const runtime = JSON.parse(runtimeText);
 const manifest = JSON.parse(read('public-data/sec-fundamentals-summary.manifest.json'));
 const canonicalText = (value) => value.replace(/\r\n?/g, '\n');
@@ -18,14 +24,17 @@ if (sha256('alpha\nbeta\n') !== sha256('alpha\r\nbeta\r\n') || canonicalBytes('a
 
 if (runtime.schemaVersion !== 'sec-fundamentals-runtime-summary.v1' || runtime.artifactRole !== 'BOUNDED_PAGE_PROJECTION') fail('runtime projection identity is invalid');
 if (canonicalBytes(runtimeText) > 1024 * 1024) fail(`runtime projection exceeds 1 MiB: ${canonicalBytes(runtimeText)}`);
-const sourceSymbols = Object.keys(source.data || {});
 const runtimeSymbols = Object.keys(runtime.data || {});
+if (manifest.runtimeSha256 !== sha256(runtimeText) || manifest.runtimeBytes !== canonicalBytes(runtimeText) || manifest.records !== runtimeSymbols.length) fail('projection runtime digest/byte/count manifest drifted');
+if (!/^[0-9a-f]{64}$/.test(String(manifest.sourceSha256 || '')) || !(manifest.sourceBytes > 0)) fail('projection manifest does not name its canonical source digest');
+if (!source) console.log(secLedgerSkipNote('sec-runtime-projection', 'source-vs-projection field, equity, digest and published-receipt checks'));
+const sourceSymbols = source ? Object.keys(source.data || {}) : [];
 // 2026-10-13 F03/F05: the publish-time heal is idempotent, so a healed source passes through the projection unchanged.
 for (const symbol of sourceSymbols) {
   const once = reconcileSecRevenueShares(source.data[symbol]);
   if (reconcileSecRevenueShares(once) !== once) fail(`${symbol} revenue/shares heal is not idempotent`);
 }
-if (sourceSymbols.length !== runtimeSymbols.length || sourceSymbols.some((symbol) => !runtime.data[symbol])) fail('runtime symbol coverage differs from canonical source');
+if (source && (sourceSymbols.length !== runtimeSymbols.length || sourceSymbols.some((symbol) => !runtime.data[symbol]))) fail('runtime symbol coverage differs from canonical source');
 for (const symbol of sourceSymbols) {
   // 2026-10-13 F03/F05: the producer heals revenue/shares at publish time (reconcileSecRevenueShares) before the
   // projection is built, so the projection's own idempotent heal leaves these fields equal to the source.
@@ -64,8 +73,8 @@ for (const symbol of sourceSymbols) {
     }
   }
 }
-if (manifest.sourceSha256 !== sha256(sourceText) || manifest.runtimeSha256 !== sha256(runtimeText)) fail('projection digest manifest drifted');
-if (manifest.sourceBytes !== canonicalBytes(sourceText) || manifest.runtimeBytes !== canonicalBytes(runtimeText) || manifest.records !== runtimeSymbols.length) fail('projection byte/count manifest drifted');
+if (source && (manifest.sourceSha256 !== sha256(sourceText) || manifest.runtimeSha256 !== sha256(runtimeText))) fail('projection digest manifest drifted');
+if (source && (manifest.sourceBytes !== canonicalBytes(sourceText) || manifest.runtimeBytes !== canonicalBytes(runtimeText) || manifest.records !== runtimeSymbols.length)) fail('projection byte/count manifest drifted');
 
 // ── P1169 (17 작업 단위 1 / 06 O06): domain receipt ────────────────────────────────────────────
 // A SEC batch records per-symbol errors, keeps going and returns normally, so the job's exit code
@@ -99,16 +108,18 @@ if (legacy.ledger.legacyUnknown !== 24 || legacy.ledger.transientFailed !== 0 ||
 if (legacy.publication.status !== 'NOT_ATTEMPTED') fail(`a batch with nothing due is not a collection result: ${legacy.publication.status}`);
 
 // 발행된 원장 그대로의 성격 구분(문서 17의 terminal 68 / transient 3 / status 없는 구형 24).
-const publishedLedger = buildDomainReceipt({
-  ...base,
-  attempted: source.attempted || 0,
-  updated: source.updated || 0,
-  stored: source.stored || 0,
-  eligible: source.eligible || 0,
-  failures: source.failures || []
-});
-if (publishedLedger.ledger.total !== (source.failures || []).length) fail('receipt ledger total drifted from the published failure ledger');
-if (publishedLedger.ledger.terminalUnsupported + publishedLedger.ledger.transientFailed + publishedLedger.ledger.legacyUnknown !== publishedLedger.ledger.total) fail('every published ledger row must fall into exactly one receipt class');
+if (source) {
+  const publishedLedger = buildDomainReceipt({
+    ...base,
+    attempted: source.attempted || 0,
+    updated: source.updated || 0,
+    stored: source.stored || 0,
+    eligible: source.eligible || 0,
+    failures: source.failures || []
+  });
+  if (publishedLedger.ledger.total !== (source.failures || []).length) fail('receipt ledger total drifted from the published failure ledger');
+  if (publishedLedger.ledger.terminalUnsupported + publishedLedger.ledger.transientFailed + publishedLedger.ledger.legacyUnknown !== publishedLedger.ledger.total) fail('every published ledger row must fall into exactly one receipt class');
+}
 
 // 배선: 생산자가 receipt를 발행하고 projection이 소비자에게 넘긴다.
 // P1256: 계약의 정본 구현은 scripts/lib/domain-receipt.mjs로 이전했다 — 본체 토큰은 정본에서,
@@ -123,14 +134,14 @@ for (const token of ['buildDomainReceipt', 'domainReceipt:']) {
 }
 if (!read('scripts/build-sec-runtime-projection.mjs').includes('domainReceipt')) fail('the runtime projection must forward the domain receipt instead of dropping it with the failure ledger');
 
-if (source.domainReceipt) {
+if (source?.domainReceipt) {
   const receipt = source.domainReceipt;
   if (receipt.schemaVersion !== 'domain-receipt.v1' || receipt.domain !== 'sec-fundamentals') fail('the published receipt identity is invalid');
   if (receipt.counts.updated !== source.updated || receipt.counts.attempted !== source.attempted) fail('the published receipt does not reconcile with the artifact counters');
   if (receipt.counts.retained !== Math.max(0, (source.stored || 0) - (source.updated || 0))) fail('the published receipt retained count does not reconcile with stored - updated');
   if (receipt.counts.updated === 0 && receipt.publication.status === 'SUCCESS') fail('the published receipt claims success for a batch that updated nothing');
-} else {
+} else if (source) {
   console.log('[sec-runtime-projection] domain receipt not yet published in the checked-in artifact; it is written by the next SEC producer run.');
 }
 
-console.log(JSON.stringify({ ok: true, records: runtimeSymbols.length, sourceBytes: manifest.sourceBytes, runtimeBytes: manifest.runtimeBytes, reductionPct: Math.round((1 - manifest.runtimeBytes / manifest.sourceBytes) * 1000) / 10, receiptFixtures: 5 }));
+console.log(JSON.stringify({ ok: true, ledger: source ? 'compared' : 'P1757-skipped-absent', records: runtimeSymbols.length, sourceBytes: manifest.sourceBytes, runtimeBytes: manifest.runtimeBytes, reductionPct: Math.round((1 - manifest.runtimeBytes / manifest.sourceBytes) * 1000) / 10, receiptFixtures: 5 }));

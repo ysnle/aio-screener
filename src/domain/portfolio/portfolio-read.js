@@ -39,7 +39,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     .filter((row) => row.symbol && row.value != null && row.value > 0)
     .map((row) => ({ ...row, data: bySymbol.get(row.symbol) || null }));
   const total = holdings.reduce((sum, row) => sum + row.value, 0);
-  if (!holdings.length || !(total > 0)) return { available: false, reason: '평가액이 있는 보유 종목이 없어 시장과 연결해 읽을 내용이 없습니다.' };
+  if (!holdings.length || !(total > 0)) return { available: false, empty: true, reason: '평가액이 있는 보유 종목이 없어 시장과 연결해 읽을 내용이 없습니다.' };
   const known = holdings.filter((row) => row.data);
   const knownValue = known.reduce((sum, row) => sum + row.value, 0);
   const points = [];

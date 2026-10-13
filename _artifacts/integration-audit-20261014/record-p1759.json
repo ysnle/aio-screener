@@ -1,0 +1,22 @@
+{
+  "version": "v57.54",
+  "date": "2026-10-14",
+  "r": null,
+  "status": null,
+  "note": "v57.54: 공용 AI 예산 보호 — 접속(IP 해시)당 하루 150회 상한, 월 예산 마지막 20%에는 서버가 웹 검색을 빼는 절약 모드, /health에 예산 상태·남은 질문 수(금액·IP 미노출), 상태 실패 캐시 5초·/health 전용 속도 제한(P1759).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1759,
+    "title": "Origin 헤더는 위조할 수 있어 한 접속이 공용 AI의 하루 한도(300회)를 모두 써 버릴 수 있었고, 예산이 바닥나기 직전까지 웹 검색을 그대로 사용",
+    "symptom": "공용 Worker의 AI는 전역 일일 상한과 월 예산만 있었고 접속별 상한이 없었다. 브라우저 Origin 검사는 curl로 우회되므로 외부인 한 명이 하루 300회를 소진하면 가족 사용자 모두가 그날 AI를 쓰지 못했다. 월 예산이 거의 남지 않아도 검색 비용이 큰 요청이 계속 나갔고, 사용자는 예산 상태를 알 수 없었다. 실패한 Durable Object 상태 점검이 60초 캐시돼 짧은 장애 뒤 1분간 AI가 준비 안 됨으로 보였고, /health가 데이터 중계와 같은 IP 속도 제한을 써 공유 IP에서 429 위험이 있었다.",
+    "root_cause": "예산 원장이 요청 주체를 구분하지 않았고, 예산 상태가 요청 정책(검색 여부)과 화면에 연결되지 않았다.",
+    "fix": "Durable Object 예약 트랜잭션 안에서 접속 키(일별 솔트 HMAC, IPv6 /64 묶음, 원 IP 미저장)별 하루 상한 AI_PER_CLIENT_DAILY_CAP=150(전역 300의 절반: 한 가구는 IP를 공유하므로 넉넉히, 외부인 한 명이 전역 한도를 다 쓰지는 못하게). Actions 인증 요청은 접속 상한 제외(전역·월 상한은 적용). 월 예산 20% 미만이면 검색 도구를 뺀 요청으로 예약·발송하고 X-AIO-Web-Search-Removed 등 헤더로 알림, 소진이면 429 monthly-budget. /health에 ai.budgetState·budgetSaver·webSearchAvailable·client(하루 한도·남은 수·초기화 시각, 금액·IP 없음). 클라이언트는 webSearchAvailable=false면 검색을 요청하지 않고, AI 상태 표시에 '예산 절약 모드 · 웹 검색 없이'를 보인다. 실패한 상태 점검은 5초만 캐시, /health는 전용 120/분 버킷.",
+    "violated_rule": "AGENTS: AI 공용 예산 월 $20(owner 2026-10-11) — 예산이 위조 가능한 경계에만 의존",
+    "prevention": "P1759: worker/openai-contract.test.mjs(동시 6요청 중 상한 3만 통과, Retry-After=다음 UTC 자정, 다른 IP·Actions 영향 없음, 원장에 원 IP 없음, /64 묶음, 설정 범위 검증, 발송 전 반환, 날짜 넘김 정리, 2,000키 상한, 절약 모드 본문·헤더·정산, 소진 429, /health 필드·상태 실패 캐시 5초·전용 속도 제한), ci-worker-anthropic-check 135건",
+    "verification": "qa-runner cloudflare 6/6, ci-worker-anthropic-check·ci-ai-budget-scope-check·ci-ai-chat-reliability-contract-check·ci-cloudflare-deployment-contract-check·ci-worker-relay-check 통과. 배포·실서비스 /health 확인은 푸시 후."
+  },
+  "qa": [],
+  "changelog": [
+    "**공용 AI 예산 보호 (P1759):** 한 접속이 하루 150회까지 AI에 질문할 수 있어, 누군가 한 명이 모두의 하루 한도를 다 써 버리는 일을 막습니다. 월 예산이 20% 아래로 남으면 웹 검색 없이 답하는 절약 모드로 바뀌고, AI 상태에 그 사실이 표시됩니다."
+  ]
+}

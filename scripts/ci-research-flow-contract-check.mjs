@@ -19,7 +19,7 @@ function section(source, start, end) {
   assert(from >= 0 && to > from, `Missing extraction boundary: ${start}`);
   return source.slice(from, to);
 }
-function node() { return { textContent: '', innerHTML: '', value: '', style: {}, dataset: {}, querySelector: () => node(), querySelectorAll: () => [] }; }
+function node() { return { textContent: '', innerHTML: '', value: '', style: {}, dataset: {}, classList: { contains: () => false }, querySelector: () => node(), querySelectorAll: () => [] }; }
 function context(extra = {}) {
   const nodes = new Map();
   const events = [];
@@ -61,32 +61,11 @@ vm.runInContext(section(data, 'async function _aioFetchYahooChartData(', '// 모
 const weekly = await y.root._aioFetchYahooChartData('NVDA', '2y', '1wk');
 check(requestedUrl.includes('interval=1wk') && weekly.interval === '1wk', 'inline Yahoo helper preserves timeframe contract');
 
-// A late technical summary cannot overwrite the newly selected symbol.
-const a = deferred(), b = deferred();
-const t = context({ _fetchYahooChartData: (symbol) => symbol === 'AAA' ? a.promise : b.promise, initDeepAnalysisSection: async () => {} });
-vm.runInContext(section(ui, 'async function analyzeTickerDeep(ticker)', '// ═══════════════════════════════════════════════════════════════'), t.root);
-const first = t.root.analyzeTickerDeep('AAA');
-const second = t.root.analyzeTickerDeep('BBB');
-const loadingB = t.nodes.get('ticker-analysis-result').innerHTML;
-a.resolve(null); await first;
-check(t.nodes.get('ticker-analysis-result').innerHTML === loadingB && t.root._currentTickerId === 'BBB', 'late technical response cannot overwrite current selection');
-b.resolve(null); await second;
-check(t.nodes.get('ticker-analysis-input').value === 'BBB' && t.nodes.get('deep-sym-input').value === 'BBB', 'both technical inputs share the selected symbol');
-check(t.events.some((event) => event.type === 'aio:entityChanged' && event.detail.id === 'BBB'), 'technical selection publishes the canonical document event');
-
-const empty = context({ _currentTickerId: 'AAA', _technicalSelectionEpoch: 1, _daDestroyCharts: () => {}, fetchOHLCVWithFallback: async () => [] });
-vm.runInContext(section(ui, 'async function initDeepAnalysisSection(symbol,', 'window.runDeepAnalysis ='), empty.root);
-await empty.root.initDeepAnalysisSection('AAA', 1);
-check(empty.nodes.get('deep-sym-label').textContent.includes('미수신'), 'empty arrays render a completed unavailable state, not an endless loader');
-
-const old = deferred();
-const stale = context({ _currentTickerId: 'AAA', _technicalSelectionEpoch: 1, _daDestroyCharts: () => {}, fetchOHLCVWithFallback: () => old.promise });
-vm.runInContext(section(ui, 'async function initDeepAnalysisSection(symbol,', 'window.runDeepAnalysis ='), stale.root);
-const pending = stale.root.initDeepAnalysisSection('AAA', 1);
-stale.root._currentTickerId = 'BBB'; stale.root._technicalSelectionEpoch = 2;
-stale.nodes.get('deep-sym-label').textContent = 'BBB';
-old.resolve([]); await pending;
-check(stale.nodes.get('deep-sym-label').textContent === 'BBB', 'late multi-timeframe response is ignored');
+// P1753: the legacy US deep-analysis fold (analyzeTickerDeep/initDeepAnalysisSection/runDeepAnalysis) lost its
+// #ticker-analysis-result sink in v56.96 and returned early ever since; it was retired. The technical bridge
+// now only names the subject and opens the native 차트 route, so the late-response races above it are gone.
+check(!/async function (?:analyzeTickerDeep|initDeepAnalysisSection)\(/.test(ui) && !ui.includes('window.runDeepAnalysis ='), 'P1753 retired legacy deep-analysis runner stays gone');
+check(/function _aioOpenTechnicalAnalysis\(ticker\)[\s\S]{0,700}window\._aioChartRequest = sym;[\s\S]{0,120}showPage\('technical'\)/.test(core), 'P1753 technical bridge opens the native chart route for the selected subject');
 
 const invalid = context({ _currentTickerId: 'NVDA', _currentTickerName: 'NVIDIA', _fundAnalysisData: { ticker: 'NVDA' }, AIO: { state: {} } });
 vm.runInContext(section(chat, 'function _resetFundamentalReport(message)', '// ── 기업분석 렌더러'), invalid.root);
@@ -106,7 +85,7 @@ check(!core.includes('window._aioFillEntryFromTicker =') && !core.includes('p * 
 // P1132/R619: the relative-strength and deep-analysis renderers moved to js/aio-ui.js. Repointing these
 // matters for the absence check too — pinned to index.html it would now pass vacuously.
 check(!ui.includes('모멘텀 강세(비중 확대)') && !ui.includes('Leading</strong>: 초강세'), 'relative strength labels do not prescribe trades');
-check(ui.includes('rows.dataQuality && rows.dataQuality.source') && ui.includes('if (daily && daily.length >= 20)'), 'deep analysis keeps source labels and does not substitute weekly data into daily levels');
+check(!ui.includes('function _daKeyLevels(') && !ui.includes('function _daDestroyCharts('), 'P1753 retired deep-analysis multi-timeframe level panel stays gone');
 check(chat.includes("var _period = 'CY' + _year + 'Q' + _q;") && !chat.includes("var _period = 'CY' + _year + 'Q' + _q + 'I'"), 'SEC revenue/net-income frames use duration periods, not instant periods');
 check(read('src/app/bootstrap.js').includes("legacy.on('aio:entityChanged', syncAnalysis.sync)"), 'native analysis refreshes when entity selection changes');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');

@@ -20,10 +20,9 @@ const ui = read('js/aio-ui.js');
 const tests = read('js/aio-tests.js');
 const runtimeGate = read('scripts/ci-runtime-contract-check.mjs');
 const tradingScoreDomain = read('src/domain/signal/trading-score.js');
-const rules = read('_context/RULES.md');
-const qa = read('_context/QA-CHECKLIST.md');
-const postmortem = read('_context/BUG-POSTMORTEM.md');
-const changelog = read('CHANGELOG.md');
+// v57.54: the R219/P513/P513-Q1/v50.89 prose-marker checks that used to read RULES.md, QA-CHECKLIST.md,
+// BUG-POSTMORTEM.md and CHANGELOG.md are replaced by architecture/governance-markers.json (policy
+// "semantic-review"), verified by ci-workflow-compaction-check.mjs. This gate checks code and evidence only.
 const coveragePath = '_artifacts/exhaustive-audit-20260831/coverage-summary.json';
 let coverage = null;
 try { coverage = JSON.parse(read(coveragePath)); } catch (_) {}
@@ -60,10 +59,6 @@ const report = {
 
 check('semantic review script exists', exists('scripts/ci-semantic-review-check.mjs'));
 check('audit inventory is measurable', auditDefs >= 50 && auditLikeLabels.length >= 100 && shapeOnlyLabels.length >= 50, JSON.stringify(report));
-check('R219 semantic review rule exists', /R219/.test(rules) && /Audit\/gate is not semantic review/.test(rules));
-check('P513 semantic QA checklist exists', /P513-Q1/.test(qa) && /ci-semantic-review-check\.mjs/.test(qa));
-check('P513 postmortem exists', /P513/.test(postmortem) && /audit-only/.test(postmortem) && /semantic review/.test(postmortem));
-check('v50.89 changelog records semantic review gate', /## v50\.89/.test(changelog) && /semantic review/.test(changelog));
 check('runtime contract gate references semantic review', /ci-semantic-review-check\.mjs/.test(runtimeGate) && /semantic review/.test(runtimeGate));
 check('line-level semantic coverage ledger exists and stays fail-closed until certified',
   !!coverage
@@ -87,14 +82,10 @@ warnings.push(`SEMANTIC_REVIEW_OPEN current=${currentCoveragePct === null ? 'unk
 // extraction) — checks the domain module (where the shape now genuinely lives) plus proof the
 // legacy wrapper in `core` actually delegates to it.
 check('trading score semantic gate is present', /computeTradingScore returns both total and score/.test(runtimeGate) && /AIO_ARCH\.computeTradingScoreModel/.test(core) && /\{\s*total\s*,\s*score\s*:\s*total/.test(tradingScoreDomain));
-const _semanticRegimeIdx = core.search(/function\s+classifyMarketRegime/);
-const _semanticRegimeBody = _semanticRegimeIdx >= 0 ? core.slice(_semanticRegimeIdx, _semanticRegimeIdx + 1500) : '';
-check('breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && _semanticRegimeIdx >= 0 && !/breadth200[\s\S]{0,220}:\s*75\)/.test(_semanticRegimeBody));
-check('P1538 ticker deep analysis shows the market score as a reference and issues no entry verdict', /ticker deep analysis shows the market score as a reference/.test(runtimeGate) && /computeTradingScore\('swing'\)/.test(ui) && !/marketAllowsEntry/.test(ui));
+// The legacy classifyMarketRegime was retired as dead code; the runtime gate now asserts it stays gone.
+check('P1753 breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && !/function\s+classifyMarketRegime\b/.test(core));
+check('P1753 P1538 ticker deep analysis is retired and issues no entry verdict', /retired ticker deep analysis stays gone and issues no entry verdict/.test(runtimeGate) && !/function\s+analyzeTickerDeep\b/.test(ui) && !/marketAllowsEntry/.test(ui));
 check('event-risk semantic gate fails closed without an embedded point-in-time timeline', /event risk context fails closed/.test(runtimeGate) && /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core));
-
-const r219Path = /user request\/intent -> affected function\(s\) and criteria[\s\S]*affected function\(s\) -> downstream consumer\(s\)[\s\S]*downstream consumer\(s\) -> visible page\/chat\/report output[\s\S]*visible output -> market\/domain meaning/.test(rules);
-check('R219 defines the full semantic path', r219Path);
 
 if (errors.length) {
   console.error('Semantic review check failed:');

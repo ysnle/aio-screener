@@ -20,14 +20,17 @@ export function renderAnswerPlan(plan, { format = 'text' } = {}) {
   const parts = [];
   if (line(plan.summary)) parts.push(line(plan.summary));
   const claims = Array.isArray(plan.claims?.claims) ? plan.claims.claims : [];
-  claims.filter((claim) => claim.status !== 'blocked').forEach((claim) => {
+  // P1740: verified values read as one labelled list and each section title renders as a heading, so a longer
+  // analysis keeps a visible structure instead of a run of plain paragraphs.
+  const claimLines = claims.filter((claim) => claim.status !== 'blocked').map((claim) => {
     const value = claim.value == null ? '' : `: ${claim.value}${unitText(claim.unit)}`;
     const trace = claim.asOf && claim.source ? ` [${SOURCE_TEXT[claim.source] || claim.source} · ${claim.asOf}${claim.source === 'close-basis' ? ' 종가' : ''}]` : '';
-    parts.push(`- ${line(claim.text)}${value}${trace}`);
+    return `- ${line(claim.text)}${value}${trace}`;
   });
+  if (claimLines.length) parts.push(`**확인된 수치**\n${claimLines.join('\n')}`);
   (Array.isArray(plan.sections) ? plan.sections : []).forEach((section) => {
     if (typeof section === 'string' && line(section)) parts.push(line(section));
-    else if (section?.title && section?.body) parts.push(`${line(section.title)}\n${line(section.body)}`);
+    else if (section?.title && section?.body) parts.push(`### ${line(section.title).replace(/^#+\s*/, '')}\n${line(section.body)}`);
   });
   if (Array.isArray(plan.citations) && plan.citations.length) {
     const citationLines = plan.citations.slice(0, 8).map((citation) => {

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "owner": "v57.54 accepted offenders for scripts/ci-ui-render-hygiene-check.mjs (render) and scripts/ci-ui-vocabulary-check.mjs (vocabulary). Only offenders missing from this file fail; shrink with --prune-baseline after page fixes land. Never add entries by hand.",
+  "render": {
+    "note": "v57.54 target-size (<24px) and empty heading/summary offenders accepted at introduction; key = kind|viewport|route|signature. Shrink with --prune-baseline.",
+    "offenders": []
+  },
+  "vocabulary": {
+    "note": "v57.54 offenders accepted at introduction; shrink with --prune-baseline as pages are fixed.",
+    "offenders": []
+  }
+}

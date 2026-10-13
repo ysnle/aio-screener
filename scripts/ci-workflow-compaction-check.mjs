@@ -13,11 +13,14 @@ const check = (label, condition, detail = '') => {
 };
 
 const version = JSON.parse(read('version.json')).version;
+// v57.54: RULES.md is read for its "## R<n>." headings only (ledger structure). The prose markers this
+// gate and its siblings used to grep ("R220 ... Workflow memory must be compacted", "P514-Q1", "v50.89
+// workflow compaction") moved to architecture/governance-markers.json, so compressing a ledger no longer
+// breaks CI. What must not silently disappear is the enforcing gate, and that is what is checked below.
 const rules = read('_context/RULES.md');
-const qa = read('_context/QA-CHECKLIST.md');
-const postmortem = read('_context/BUG-POSTMORTEM.md');
 const index = read('_context/INDEX.md');
-const changelog = read('CHANGELOG.md');
+const governanceMarkers = JSON.parse(read('architecture/governance-markers.json'));
+const qaPipeline = JSON.parse(read('architecture/qa-pipeline.json'));
 const contextCatalog = JSON.parse(read('_context/CONTEXT-CATALOG.json'));
 
 function findProjectRoot(start) {
@@ -73,15 +76,25 @@ const oversizedSkills = skillStats.filter((item) => item.lines > 300 || item.byt
 const preflightBytes = ['AGENTS.md', '_context/CURRENT-STATE.md']
   .reduce((sum, path) => sum + statSync(join(worktreeRoot, path)).size, 0);
 
-check('workflow compaction rule R220 exists', /R220/.test(rules) && /Workflow memory must be compacted/.test(rules));
-check('workflow compaction QA P514 exists', /P514-Q1/.test(qa) && /ci-workflow-compaction-check\.mjs/.test(qa));
-check('workflow compaction postmortem P514 exists', /P514/.test(postmortem) && /compaction/.test(postmortem));
-check('workflow compaction changelog entry exists', /workflow compaction/i.test(changelog) && /v50\.89/.test(changelog));
+// v57.54 governance markers: each policy keeps its ledger trace (rule/postmortem/QA ids) in JSON, and
+// the check is on what enforces it — the gate scripts exist and run in a qa-pipeline group.
+const wiredGateScripts = new Set(Object.values(qaPipeline.groups || {}).flatMap((group) => (group.gates || []).map((gate) => gate.script)));
+const ruleHeadings = new Set([...rules.matchAll(/^## (R\d+)\./gm)].map((match) => match[1]));
+const markerPolicies = Array.isArray(governanceMarkers.policies) ? governanceMarkers.policies : [];
+const requiredMarkerPolicies = ['semantic-review', 'workflow-compaction', 'data-pipeline-contract', 'default-path-ux', 'generated-current-state', 'hook-authority'];
+check('v57.54 governance-markers.json keeps every migrated policy', requiredMarkerPolicies.every((id) => markerPolicies.some((policy) => policy.id === id)), requiredMarkerPolicies.filter((id) => !markerPolicies.some((policy) => policy.id === id)).join(', '));
+for (const policy of markerPolicies) {
+  const enforcers = Array.isArray(policy.enforcedBy) ? policy.enforcedBy : [];
+  const unwired = enforcers.filter((script) => !exists(script) || !wiredGateScripts.has(script));
+  check(`v57.54 governance marker ${policy.id} is enforced by existing, qa-pipeline-wired gates`, enforcers.length > 0 && unwired.length === 0, unwired.join(', ') || 'enforcedBy is empty');
+  const missingRules = (policy.rules || []).filter((id) => !ruleHeadings.has(id));
+  check(`v57.54 governance marker ${policy.id} rule ids are RULES.md headings`, missingRules.length === 0, missingRules.join(', '));
+}
 check('context index acknowledges compaction policy', /Workflow Compaction|Context lifecycle/.test(index));
 check('generated state and catalog define progressive disclosure', exists('_context/CURRENT-STATE.md') && /Read Policy/.test(read('_context/CURRENT-STATE.md')) && /explicit-only/.test(read('_context/INDEX.md')));
 check('default preflight remains under 64 KiB', preflightBytes <= 65_536, `${preflightBytes} bytes`);
-check('semantic gate remains present', exists('scripts/ci-semantic-review-check.mjs') && /R219/.test(rules));
-check('governed large context files are routed through INDEX and gates', governedLargeContext.every((item) => index.includes('`' + item.name + '`')) && /ci-workflow-compaction-check\.mjs/.test(qa) && /Postmortem-To-Gate Rule/.test(read('_context/WORKFLOW-GOVERNANCE.md')));
+check('semantic gate remains present', exists('scripts/ci-semantic-review-check.mjs') && wiredGateScripts.has('scripts/ci-semantic-review-check.mjs'));
+check('governed large context files are routed through INDEX and gates', governedLargeContext.every((item) => index.includes('`' + item.name + '`')) && wiredGateScripts.has('scripts/ci-workflow-compaction-check.mjs') && /Postmortem-To-Gate Rule/.test(read('_context/WORKFLOW-GOVERNANCE.md')));
 
 if (oversizedContext.length) {
   warnings.push('Oversized context files: ' + oversizedContext.map((item) => `${item.name}:${item.bytes}`).join(', '));

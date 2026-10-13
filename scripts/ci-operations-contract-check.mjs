@@ -55,11 +55,8 @@ const requiredHeaders = [
 ];
 
 check('canonical version format', /^v\d{1,3}(?:\.\d{2})?$/.test(version), version);
-for (const file of ['architecture/asset-manifest.json', 'architecture/release-manifest.json', 'architecture/visual-state-matrix.json', 'architecture/operations-slo.json', 'architecture/public-readiness.json', 'public-data/operations-status.json']) {
-  check(`${file} appRevision`, json(file).appRevision === version, `${json(file).appRevision} != ${version}`);
-}
-check('asset manifest worker revision', json('architecture/asset-manifest.json').workerRevision === `sw:${version}`);
-check('release manifest worker revision', json('architecture/release-manifest.json').workerRevision === `sw:${version}`);
+// appRevision/workerRevision equality across the manifests is R1, owned by ci-version-check (same preflight
+// phase); repeating it here turned one stale bump into several failures. Fix: node scripts/bump-version.mjs <version>.
 check('release/asset/operations data revision coherence', [json('architecture/asset-manifest.json').dataRevision, json('architecture/release-manifest.json').dataRevision, operations.dataRevision].every((value) => value === snapshot.revision), `${snapshot.revision}`);
 
 check('vertical slice route coverage', sameSet(declaredSliceRoutes, routeIds), `${declaredSliceRoutes.length} != ${routeIds.length}`);

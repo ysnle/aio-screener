@@ -259,6 +259,33 @@ try {
     check('a second entry for the same version appends to the existing QA section and gets the next P (QA-OPS-REC-14)', second.code === 0 && (qa2.match(/^## v99\.1 /gm) || []).length === 1 && qa2.indexOf('QA-OPS-REC-97') > qa2.indexOf('QA-OPS-REC-99') && qa2.indexOf('QA-OPS-REC-97') < qa2.indexOf('## v56.79') && read(d, FILES[0]).includes(`## P${maxP + 2} - v99.1 - second fixture`), second.err);
   }
 
+  // ── v57.54 change-only entry: features/cleanups stay out of the defect ledger ──
+  {
+    const changeOnly = () => ({ version: 'v99.1', date: '2026-10-01', changelog: ['**Fixture feature (v99.1):** non-defect change.'], note: 'v99.1 — change-only fixture note.' });
+    const d = makeRoot();
+    const snap = snapshot(d);
+    const r = run(d, changeOnly());
+    const after = snapshot(d);
+    const changedFiles = FILES.filter((rel) => after[rel] !== snap[rel]);
+    check('v57.54 change-only entry exits 0 and allocates no P id', r.code === 0 && /change-only entry: no P id allocated/.test(r.out) && !/allocated: P/.test(r.out), r.err || r.out);
+    check('v57.54 change-only entry writes only CHANGELOG.md and version.json (postmortem, rules, QA, status untouched)', JSON.stringify(changedFiles) === JSON.stringify(['CHANGELOG.md', 'version.json']), changedFiles.join(', '));
+    check('v57.54 change-only bullets replace the bump-version placeholder', read(d, 'CHANGELOG.md').startsWith('## v99.1 (2026-10-01)\n- **Fixture feature (v99.1):** non-defect change.\n- R1 7곳 v99.1\n'));
+    check('v57.54 change-only note lands in version.json', JSON.parse(read(d, 'version.json')).note === 'v99.1 — change-only fixture note.');
+    const withQa = { ...changeOnly(), qa: [{ id: 'QA-OPS-REC-96', text: 'Change-only QA row', verify_by: 'ci-record-fix-check.mjs', done: true }], qa_section: 'change-only fixture' };
+    const d2 = makeRoot();
+    const pmBefore = read(d2, FILES[0]);
+    const r2 = run(d2, withQa);
+    check('v57.54 change-only entry may still add QA rows without touching the postmortem', r2.code === 0 && /QA-OPS-REC-96: Change-only QA row\./.test(read(d2, FILES[2])) && read(d2, FILES[0]) === pmBefore, r2.err);
+    const changeOnlyRejected = (label, entry, expectText) => {
+      const d3 = makeRoot();
+      const snap3 = snapshot(d3);
+      const r3 = run(d3, entry);
+      check(`v57.54 change-only ${label} is rejected and writes nothing`, r3.code !== 0 && expectText.test(r3.err) && JSON.stringify(snapshot(d3)) === JSON.stringify(snap3), r3.err || `exit ${r3.code}`);
+    };
+    changeOnlyRejected('entry with a rule', { ...changeOnly(), r: { title: 't', rule: 'r', validation: 'v' } }, /r requires p/);
+    changeOnlyRejected('entry using {P}', { ...changeOnly(), changelog: ['**Lead ({P}):** text.'] }, /change-only entry/);
+  }
+
   // ── independence from postmortem frontmatter fields ───────────────────────
   {
     const d = makeRoot({ mutate: (root) => {

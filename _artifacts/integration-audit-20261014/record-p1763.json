@@ -1,0 +1,22 @@
+{
+  "version": "v57.54",
+  "date": "2026-10-14",
+  "r": null,
+  "status": null,
+  "note": "v57.54: 셸 정리 — 단축키 1~8을 현재 8화면에서 생성, 폰 상단 시각 축약, AI 패널 첫 문장, 연결되지 않은 kr-macro·kr-themes 대화 문맥 퇴역, 화면 렌더 위생·금지 용어 게이트 신설(P1763).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1763,
+    "title": "단축키 도움말이 화면 통합 전 이름(시그널·매크로·테마·트렌드)과 숫자를 그대로 쓰고, 폰 상단 시각이 잘리며, 1px로 접힌 버튼 같은 렌더 결함을 잡는 게이트가 없음",
+    "symptom": "? 키 도움말이 '2 시그널 / 4 매크로 / 8 테마·트렌드', 존재하지 않는 'G 글로벌 마켓 오버뷰', 'CLOSE (ESC)'를 보였다. 폰 360px에서 '서버 10/13 2…'로 잘렸다. AI 패널 첫 문단이 법적 제한 문구였고 칩 '크로스체크'는 음차였다. kr-macro·kr-themes 대화 문맥은 어느 화면에도 연결되지 않았다. 정적 게이트만 있어 화면에 실제로 그려진 크기·빈 제목·금지 용어를 검사하지 못했다.",
+    "root_cause": "단축키 표와 키 처리기가 각자 하드코딩되어 정보 구조(ROUTE_HUBS)를 따르지 않았다. 사용자 용어 사전이 코드로 강제되지 않았다.",
+    "fix": "src/ui/navigation/screen-shortcuts.js가 ROUTE_HUBS에서 1~8 표와 키 처리 경로를 함께 만든다. 폰은 data-compact로 '10/13 22:20'만 표시(전체 문장은 화면 낭독기용으로 유지). AI 패널은 하는 일 한 줄로 시작하고 제한 문구는 '답변 범위' 접기, 칩 '다른 화면과 맞춰 보기'. kr-macro·kr-themes 문맥 퇴역(한국 질문의 kr-macro 도메인 블록은 유지). ci-ui-render-hygiene-check(19개 라우트·데스크톱/폰, 24×24 대상·빈 h1–h4/summary·360px 상단 바, 자체 카나리아)와 ci-ui-vocabulary-check(architecture/ui-vocabulary.json 사전) 신설, 기준 목록은 수정 후 0건.",
+    "violated_rule": "AGENTS: 8화면 정보 구조 / WCAG 2.5.8 대상 크기",
+    "prevention": "v57.54: ci-ui-render-hygiene-check, ci-ui-vocabulary-check, ci-ai-intelligence-contract-check(kr-* 문맥 부재·거시/테마 칩 유지), ci-responsive-browser-check",
+    "verification": "브라우저: 1→오늘 … 8→리서치 라이브러리, 360·390px 상단 바 넘침 없음. 렌더 위반 0, 금지 용어 18→0. ci-headless-tests 1145/1145, browser-viewport 3/3."
+  },
+  "qa": [],
+  "changelog": [
+    "**화면 공통 정리 (P1763):** 단축키 1~8이 지금의 여덟 화면과 정확히 맞고, 폰 상단에는 갱신 시각이 잘리지 않고 짧게 보입니다. 화면 이름과 판정 용어는 하나의 사전으로 관리되어 예전 이름이 다시 섞이지 않습니다."
+  ]
+}

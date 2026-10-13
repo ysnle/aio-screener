@@ -97,6 +97,13 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 
 자동 배포는 exact successful main CI attestation을 소비하고, 현재 live `/health` source SHA부터 해당 CI SHA까지의 누적 Worker 변경을 비교해 취소되거나 대체된 실행의 변경을 회수한다. attested SHA가 계속 main HEAD이고 live SHA가 그 조상일 때만 자동 복구를 허용하며, 배포 직전에도 main HEAD를 재확인한다. 지연 이벤트나 더 최신·분기된 live Worker를 과거 SHA로 되돌리지 않는다. 데이터 플레인 감지는 정적 로컬 import graph를 포함한다. 변경된 Worker는 smoke 확인을 거치며 실패하면 명시된 이전 버전으로 rollback한다. live SHA를 확인할 수 없으면 자동 결정이 fail-closed된다. 저장소 측 revision은 `worker/wrangler.proxy.toml`의 `AIO_APP_REVISION`이 `version.json`을 따라가며 `ci-version-check.mjs`와 `bump-version.mjs`가 동기화를 강제한다. 첫 GitHub artifact handoff·자동 실행·live rollback은 아직 미검증이므로 외부 운영 증거가 추가될 때까지 운영자가 확인해야 한다.
 
+### 5a. 되돌리기 (v57.54)
+
+- **사이트(Pages)**: 표준 경로는 `git revert <문제 커밋>` → main push다. CI가 통과한 revert SHA만 attestation을 받아 배포된다. 과거 SHA를 `pages-deploy.yml` dispatch로 다시 올리는 방법은 쓰지 않는다 — §7의 라이브 수렴이 다음 refresh 주기에 main HEAD를 다시 배포하므로 오래가지 않는다.
+- **데이터만 틀린 경우**: 해당 data-bot 커밋을 revert하면 다음 refresh가 같은 값을 다시 만들 수 있다. 생산자 원인을 고치기 전까지는 `workflow_dispatch`로 refresh를 수동 실행하지 말고, 화면이 값을 보류하는지(stale/기한 지남 표시) 먼저 확인한다.
+- **Worker**: 배포 워크플로가 smoke 실패 시 캡처한 이전 버전으로 자동 rollback한다. 라이브에서 문제가 늦게 드러나면 Cloudflare 대시보드 Workers → 해당 Worker → Deployments에서 직전 버전으로 rollback한 뒤, 저장소에서도 원인 커밋을 revert해 다음 자동 배포가 문제를 되살리지 않게 한다.
+- 되돌린 뒤 `/health`의 source SHA와 라이브 `deployment.json`의 `sourceSha`가 revert SHA와 같은지 확인한다.
+
 ## 6. 운영자 주기의 수동 데이터 작업
 
 | 항목 | 주기 | 근거 |

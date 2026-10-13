@@ -366,21 +366,28 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
 export function exposeArchitecture(root, api, { immutableState = false } = {}) {
   if (!root || !api) return;
   const snapshotCall = (fn) => (...args) => readonlySnapshot(typeof fn === 'function' ? fn(...args) : null);
+  // P1755: canonical state readers accept an optional dot path ('analysis.tradingScore') so a
+  // legacy caller that needs one field snapshots only that branch, not the whole store.
+  const selectStatePath = (value, path) => String(path).split('.').reduce((node, key) => (node == null ? undefined : node[key]), value);
   // Only the canonical structural-sharing store opts in. Time-sensitive evidence
   // selectors and arbitrary legacy readers still create fresh snapshots.
   const stateSnapshotCall = (fn) => {
-    if (!immutableState) return snapshotCall(fn);
-    let hasSnapshot = false;
-    let previous;
-    let snapshot;
+    if (!immutableState) {
+      return (...args) => (typeof args[0] === 'string' && args[0]
+        ? readonlySnapshot(selectStatePath(typeof fn === 'function' ? fn() : null, args[0]))
+        : readonlySnapshot(typeof fn === 'function' ? fn(...args) : null));
+    }
+    // One cached snapshot per selected path, refreshed only when that branch's reference changes.
+    const cache = new Map();
     return (...args) => {
-      const value = typeof fn === 'function' ? fn(...args) : null;
-      if (hasSnapshot && value === previous) return snapshot;
+      const path = typeof args[0] === 'string' && args[0] ? args[0] : '';
+      const root = typeof fn === 'function' ? (path ? fn() : fn(...args)) : null;
+      const value = path ? selectStatePath(root, path) : root;
+      const entry = cache.get(path);
+      if (entry && value === entry.previous) return entry.snapshot;
       const nextSnapshot = readonlySnapshot(value);
-      previous = value;
-      snapshot = nextSnapshot;
-      hasSnapshot = true;
-      return snapshot;
+      cache.set(path, { previous: value, snapshot: nextSnapshot });
+      return nextSnapshot;
     };
   };
   Object.defineProperty(root, 'AIO_ARCH', {

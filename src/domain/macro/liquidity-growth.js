@@ -229,9 +229,9 @@ function growthGroup(macroHistory, { referenceMs }) {
   return { id: 'growth', title: '성장 · 고용 선행', fact: '분기 성장, 일자리 수요, 가계 심리, 기업 가격 — 경기의 다음 방향을 미리 보는 지표입니다.', items };
 }
 
-function commodityFxGroup(macroHistory, { referenceMs, oil }) {
+function commodityFxGroup(macroHistory, { referenceMs }) {
   const items = [];
-  const add = (field, label, digits, unitText, reading, extra = null) => {
+  const add = (field, label, digits, unitText, reading, extra = null, { spot = false } = {}) => {
     const s = seriesOf(macroHistory, field);
     if (s.length < 6) return;
     const frequency = frequencyOf(macroHistory, field, 'daily');
@@ -239,11 +239,15 @@ function commodityFxGroup(macroHistory, { referenceMs, oil }) {
     const daily = frequency === 'daily';
     const back = daily ? sessionPointBack(s, 20) : changeOver(s, 30)?.then;
     const format = (value) => `${fmt(value, digits)}${unitText}`;
+    const [, month, day] = s.at(-1).date.split('-').map(Number);
+    // A spot card names its basis and end date on the change, so it is not read as the futures span beside it.
+    const span = daily ? (spot ? `현물 · ${month}/${day}까지 20거래일` : '20거래일') : '1개월';
     items.push(card({ id: field, label, series: s, asOf: s.at(-1).date, frequency, referenceMs, format, valueText: format(s.at(-1).value),
-      changeText: back ? `${daily ? '20거래일' : '1개월'} ${signed(pct(s.at(-1).value, back.value))}` : null, reading: extra ? `${reading} ${extra}` : reading }));
+      changeText: back ? `${span} ${signed(pct(s.at(-1).value, back.value))}` : null, reading: extra ? `${reading} ${extra}` : reading }));
   };
   // P1726: this card is the FRED dated European spot series; its basis is named and it is not set against the WTI future.
-  add('brent', '브렌트유 (유럽 현물)', 2, '달러', '국제 유가 기준인 유럽 현물 가격입니다(WTI와의 비교는 같은 선물 종가끼리만 합니다).', oil?.sentence || null);
+  // The Brent-WTI futures comparison sentence is shown once, under the WTI chart on the same screen (macro-board.js).
+  add('brent', '브렌트유 (유럽 현물)', 2, '달러', '국제 유가 기준인 유럽 현물 가격입니다(WTI와의 비교는 같은 선물 종가끼리만 하며, 그 비교는 아래 WTI 차트에 있습니다).', null, { spot: true });
   add('natGas', '천연가스 (헨리허브)', 2, '달러', '전기·난방·화학 원가입니다. 겨울철과 수출 수요에 크게 흔들립니다.');
   add('copper', '구리 (월평균)', 0, '달러/톤', '건설·전력망·전기차에 쓰여 경기 체력을 비추는 금속입니다. 데이터센터 전력 투자와도 연결됩니다.');
   add('usdCny', '위안 / 달러', 3, '위안', '오르면 위안화 약세입니다. 중국 경기와 아시아 통화(원화 포함)가 같은 방향으로 움직이는 경향이 있습니다.');

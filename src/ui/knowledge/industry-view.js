@@ -338,9 +338,8 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
         if (guide) article.appendChild(guide);
       }
       main.appendChild(article);
-      const box = block('이 분야의 세부 영역');
-      (domain.nodes || []).forEach((node) => { const b = el(doc, 'button', 'af-route'); b.type = 'button'; b.dataset.atlasAction = 'domain-node'; b.dataset.atlasValue = node.id; b.append(el(doc, 'strong', null, labels.node(node)), el(doc, 'span', null, labels.category(node.kind))); box.appendChild(b); });
-      aside.appendChild(box);
+      // 2026-10-14 audit: the sub-areas already sit in the left TOC and in the reading-order map above;
+      // a third list in the right column repeated them, so the domain view leaves that column empty.
       return shell;
     }
     const node = (domain.nodes || []).find((item) => item.id === state.selectedDomainNodeId) || domain.nodes?.[0];

@@ -1,5 +1,5 @@
 // P1421: shared OpenAI gateway, conservative admission and verified settlement.
-import worker, { AIOQuotaDurableObject, prepareOpenAiBudget, aiMonthlyBudgetMicroUsd } from '../cloudflare-worker-proxy.js';
+import worker, { AIOQuotaDurableObject, prepareOpenAiBudget, aiMonthlyBudgetMicroUsd, deriveClientKey } from '../cloudflare-worker-proxy.js';
 import { verifiedOpenAiCharge } from './openai-budget.mjs';
 import { createOpenAiReceiptObserver } from './openai-usage.mjs';
 import { readFileSync } from 'node:fs';
@@ -177,6 +177,28 @@ async function main() {
     const pruning = harness({ schemaVersion: 2, months: { [expiredMonth]: 1000, [currentMonth]: 50 }, legacyUnknownMonths: {}, days: { ['claude:' + expiredDay]: 5, ['relay:fred:' + expiredDay]: 2, ['claude:' + currentDay]: 1 }, reservations: { [expiredKey]: { createdAt: expiredInstant.getTime(), dayKey: 'claude:' + expiredDay, monthKey: expiredMonth, reservationMicroUsd: 1000, started: true }, ['relay:fred:' + expiredDay + ':old']: expiredInstant.getTime(), [freshKey]: { createdAt: Date.now(), dayKey: 'claude:' + currentDay, monthKey: currentMonth, reservationMicroUsd: 50, started: true } } });
     await pruning.durable.mutateQuota('usage', { dayKey: 'claude:' + currentDay });
     check('P1421 expired day/relay/AI reservations and old month prune while current ledger remains', !Object.hasOwn(pruning.saved().days, 'claude:' + expiredDay) && !Object.hasOwn(pruning.saved().days, 'relay:fred:' + expiredDay) && !Object.hasOwn(pruning.saved().reservations, expiredKey) && !Object.hasOwn(pruning.saved().reservations, 'relay:fred:' + expiredDay + ':old') && !Object.hasOwn(pruning.saved().months, expiredMonth) && pruning.saved().months[currentMonth] === 50 && Object.hasOwn(pruning.saved().reservations, freshKey));
+    // Ledger bound: the whole ledger is one storage value. Started/settled rows past the 3-day idempotency window
+    // drop (their amounts already live in months); un-started rows keep the month-retention rule; totals never move.
+    const bulkReservations = {}, bulkHour = 60 * 60 * 1000;
+    for (let i = 0; i < 10000; i++) {
+      const old = i < 5000, createdAt = Date.now() - (old ? 5 * 24 : 1) * bulkHour;
+      bulkReservations['claude:' + currentDay + ':bulk-' + i] = { createdAt, dayKey: 'claude:' + currentDay, monthKey: currentMonth, reservationMicroUsd: 7, originalReservationMicroUsd: 900, started: true, settled: true };
+    }
+    bulkReservations['claude:' + currentDay + ':old-unstarted'] = { createdAt: Date.now() - 5 * 24 * bulkHour, dayKey: 'claude:' + currentDay, monthKey: currentMonth, reservationMicroUsd: 900, started: false };
+    const bulkMonthTotal = 10000 * 7 + 900 + 123;
+    const bulk = harness({ schemaVersion: 2, months: { [currentMonth]: bulkMonthTotal }, legacyUnknownMonths: {}, days: { ['claude:' + currentDay]: 10001 }, reservations: bulkReservations });
+    await bulk.durable.mutateQuota('usage', { dayKey: 'claude:' + currentDay });
+    const bulkSaved = bulk.saved(), bulkKeys = Object.keys(bulkSaved.reservations);
+    check('ledger prune drops 10k-scale settled rows outside the idempotency window and keeps month totals', bulkKeys.length === 5001 && bulkKeys.every(key => !/:bulk-(?:[0-9]|[1-9][0-9]{1,2}|[1-4][0-9]{3})$/.test(key)) && Object.hasOwn(bulkSaved.reservations, 'claude:' + currentDay + ':old-unstarted') && bulkSaved.months[currentMonth] === bulkMonthTotal);
+    const bulkReload = harness(bulkSaved);
+    const bulkUsage = await bulkReload.durable.mutateQuota('usage', { dayKey: 'claude:' + currentDay });
+    check('ledger prune keeps the reservation-sum <= month-total check satisfied on reload', bulkUsage.ok === true && bulkUsage.monthlyReservedMicroUsd === bulkMonthTotal);
+    let failingPut = false; const flaky = harness();
+    flaky.state.storage.put = async (key, value) => { if (failingPut) throw new Error('fixture storage failure'); return undefined; };
+    await flaky.durable.mutateQuota('reserve', payload('flaky-ok'));
+    failingPut = true; let flakyThrew = false;
+    try { await flaky.durable.mutateQuota('reserve', payload('flaky-lost')); } catch { flakyThrew = true; }
+    check('in-memory ledger cache is dropped after a failed save', flakyThrew && flaky.durable.loaded === false);
     const corrupt = harness({ schemaVersion: 2, months: {}, legacyUnknownMonths: {}, days: { ['claude:' + currentDay]: 1 }, reservations: {} });
     check('P1353/P1421 missing dollar ledger cannot silently reopen budget', (await worker.fetch(req(), corrupt.env)).status === 503);
     const privateEnv = { ...fixture.env, AIO_OPERATOR_TOKEN: TOKEN }, privateUsage = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Operator-Token': TOKEN } }), privateEnv), privateJson = await privateUsage.json();
@@ -204,6 +226,128 @@ async function main() {
       const stalled = await worker.fetch(req({ ...body, stream: true }), timeoutFixture.env); let rejected = false; try { await stalled.text(); } catch { rejected = true; }
       check('P1353/P1421 streaming deadline survives header arrival and retains reserve', rejected && deadlineAbort && timeoutFixture.saved().months[currentMonth] === prepareOpenAiBudget({ ...body, stream: true }).reservationMicroUsd);
     } finally { globalThis.setTimeout = originalTimeout; }
+    const deadlineDelays = [];
+    globalThis.setTimeout = (callback, delay, ...args) => { deadlineDelays.push(delay); return originalTimeout(callback, delay, ...args); };
+    try {
+      upstream = async () => Response.json(usageResponse());
+      for (const [label, data] of [['short', body], ['search', { ...searchBody }], ['long', { ...body, max_output_tokens: 8000 }]]) {
+        const deadlineFixture = harness(undefined, { AI_MAX_OUTPUT_TOKENS: '8000' }); deadlineDelays.length = 0;
+        const response = await worker.fetch(req(data, { headers: { 'cf-connecting-ip': '198.51.100.40' } }), deadlineFixture.env); await response.arrayBuffer();
+        check('upstream deadline ' + label, deadlineDelays.includes(label === 'short' ? 60000 : 120000) && !deadlineDelays.includes(label === 'short' ? 120000 : 60000), deadlineDelays);
+      }
+    } finally { globalThis.setTimeout = originalTimeout; }
+
+    // ── P1759: per-client daily AI cap, coarse budget state, budget-saver search removal ─────────────
+    upstream = async () => Response.json(usageResponse());
+    const ip = (address, extra = {}) => ({ 'cf-connecting-ip': address, ...extra });
+    const clientCap = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: '3' }), clientCapBefore = upstreamCalls;
+    const clientRace = await Promise.all(Array.from({ length: 6 }, (_, i) => worker.fetch(req(body, { headers: ip('203.0.113.9', { 'X-AIO-Idempotency-Key': 'client-race-' + i }) }), clientCap.env)));
+    const clientRaceJson = await Promise.all(clientRace.map(response => response.status === 429 ? response.json() : response.arrayBuffer().then(() => null)));
+    const deniedClient = clientRace.find(response => response.status === 429), deniedClientJson = clientRaceJson.find(Boolean);
+    check('P1759 concurrent admits from one connection stop exactly at the per-client cap inside the ledger transaction',
+      clientRace.filter(response => response.status === 200).length === 3 && clientRace.filter(response => response.status === 429).length === 3 && upstreamCalls - clientCapBefore === 3);
+    const retryAfter = Number(deniedClient?.headers.get('Retry-After'));
+    check('P1759 client cap returns 429 JSON code client-daily-cap with Retry-After to the next UTC day',
+      deniedClientJson?.error?.code === 'client-daily-cap' && deniedClientJson.error.quotaReason === 'client-daily-cap' && Number.isInteger(retryAfter) && retryAfter >= 1 && retryAfter <= 86400
+      && deniedClientJson.error.retryAfterSeconds === retryAfter && deniedClientJson.error.resetAt === new Date(Date.parse(currentDay + 'T00:00:00Z') + 86400000).toISOString()
+      && /UTC 자정/.test(deniedClientJson.error.message) && deniedClient.headers.get('X-AIO-Client-Remaining') === '0', deniedClientJson);
+    const admittedClient = clientRace.find(response => response.status === 200);
+    check('P1759 admitted browser responses expose limit/remaining/budget headers to CORS readers',
+      admittedClient.headers.get('X-AIO-Client-Limit') === '3' && /^[0-2]$/.test(admittedClient.headers.get('X-AIO-Client-Remaining') || '') && admittedClient.headers.get('X-AIO-Budget-State') === 'ok'
+      && admittedClient.headers.get('X-AIO-Budget-Saver') === '0' && /X-AIO-Client-Remaining/.test(admittedClient.headers.get('Access-Control-Expose-Headers') || '') && /Retry-After/.test(admittedClient.headers.get('Access-Control-Expose-Headers') || ''));
+    const otherClient = await worker.fetch(req(body, { headers: ip('203.0.113.10') }), clientCap.env); await otherClient.arrayBuffer();
+    const automationAfterCap = await worker.fetch(req(body, { origin: '', headers: ip('203.0.113.9', { 'X-AIO-Automation-Token': TOKEN }) }), clientCap.env); await automationAfterCap.arrayBuffer();
+    check('P1759 one capped connection never blocks another connection or authenticated Actions (global cap stays the authority)',
+      otherClient.status === 200 && otherClient.headers.get('X-AIO-Client-Remaining') === '2' && automationAfterCap.status === 200 && !automationAfterCap.headers.has('X-AIO-Client-Limit')
+      && clientCap.saved().days['claude:' + currentDay] === 5);
+    const clientLedger = clientCap.saved().clients['claude:' + currentDay], clientLedgerText = JSON.stringify(clientCap.saved());
+    check('P1759 ledger stores only HMAC client keys, never raw addresses', Object.keys(clientLedger).length === 2 && Object.keys(clientLedger).every(key => /^[0-9a-f]{32}$/.test(key))
+      && Object.values(clientLedger).sort().join(',') === '1,3' && !clientLedgerText.includes('203.0.113'));
+    const keyEnv = { OPENAI_API_KEY: 'fake-not-a-live-key' };
+    const [keyToday, keyTomorrow, keySame64, keyOther64, keySalted] = await Promise.all([
+      deriveClientKey(keyEnv, '2001:db8:1:2::1', '2026-10-14'), deriveClientKey(keyEnv, '2001:db8:1:2::1', '2026-10-15'),
+      deriveClientKey(keyEnv, '2001:0db8:0001:0002:ffff:0:0:5', '2026-10-14'), deriveClientKey(keyEnv, '2001:db8:1:3::1', '2026-10-14'),
+      deriveClientKey({ ...keyEnv, AI_CLIENT_KEY_SALT: 'separate-salt' }, '2001:db8:1:2::1', '2026-10-14')]);
+    check('P1759 client key rotates daily, groups IPv6 by /64 and depends on the secret salt', keyToday !== keyTomorrow && keyToday === keySame64 && keyToday !== keyOther64 && keyToday !== keySalted && /^[0-9a-f]{32}$/.test(keyToday));
+    const v6 = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: '2' });
+    const v6Responses = [];
+    for (const address of ['2001:db8:9:9::1', '2001:db8:9:9::2', '2001:db8:9:9:abcd::3', '2001:db8:9:a::1']) { const response = await worker.fetch(req(body, { headers: ip(address) }), v6.env); await response.arrayBuffer(); v6Responses.push(response.status); }
+    check('P1759 rotating addresses inside one IPv6 /64 cannot mint new allowances', v6Responses.join(',') === '200,200,429,200', v6Responses);
+    const clamp = harness(undefined, { AI_DAILY_CAP: '2', AI_PER_CLIENT_DAILY_CAP: '40' }), clamped = await worker.fetch(req(body, { headers: ip('198.51.100.60') }), clamp.env); await clamped.arrayBuffer();
+    check('P1759 per-client cap is clamped to the global day cap', clamped.headers.get('X-AIO-Client-Limit') === '2');
+    for (const value of ['0', '1001', '4.5', 'x']) {
+      const invalid = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: value }), invalidBefore = upstreamCalls;
+      const invalidResponse = await worker.fetch(req(body, { headers: ip('198.51.100.61') }), invalid.env);
+      const invalidHealth = await (await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), invalid.env)).json();
+      check('P1759 out-of-range AI_PER_CLIENT_DAILY_CAP fails closed and reports not ready ' + value, invalidResponse.status === 503 && upstreamCalls === invalidBefore && invalidHealth.ai.ready === false && invalidHealth.ai.configurationValid === false);
+    }
+    // Ledger-level: release returns the question, day rollover prunes, malformed map resets, bucket bound.
+    const ledger = harness(), clientKeyA = 'a'.repeat(32), withClient = id => ({ ...payload(id), clientKey: clientKeyA, clientCap: 2 });
+    await ledger.durable.mutateQuota('reserve', withClient('client-release-1'));
+    await ledger.durable.mutateQuota('release', withClient('client-release-1'));
+    const afterRelease = structuredClone(ledger.saved().clients['claude:' + currentDay] || {});
+    await ledger.durable.mutateQuota('reserve', withClient('client-release-2')); await ledger.durable.mutateQuota('start', withClient('client-release-2')); await ledger.durable.mutateQuota('release', withClient('client-release-2'));
+    check('P1759 pre-dispatch release returns the question; a dispatched attempt keeps it', afterRelease[clientKeyA] === undefined && ledger.saved().clients['claude:' + currentDay][clientKeyA] === 1);
+    let badKeyRejected = false; try { await ledger.durable.mutateQuota('reserve', { ...payload('client-bad-key'), clientKey: '203.0.113.9' }); } catch { badKeyRejected = true; }
+    check('P1759 the ledger refuses anything but a hashed client key', badKeyRejected && !JSON.stringify(ledger.saved()).includes('203.0.113.9'));
+    const yesterday = new Date(Date.parse(currentDay + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
+    const rolled = harness({ schemaVersion: 2, months: { [currentMonth]: 0 }, legacyUnknownMonths: {}, days: {}, reservations: {}, clients: { ['claude:' + yesterday]: { [clientKeyA]: 2 } } });
+    const rolledReserve = await rolled.durable.mutateQuota('reserve', withClient('client-rollover'));
+    check('P1759 per-client counts expire at the UTC day boundary (yesterday pruned, today admitted)', rolledReserve.reserved === true && rolledReserve.clientRemaining === 1
+      && !Object.hasOwn(rolled.saved().clients, 'claude:' + yesterday) && rolled.saved().clients['claude:' + currentDay][clientKeyA] === 1);
+    const malformedClients = harness({ schemaVersion: 2, months: { [currentMonth]: 0 }, legacyUnknownMonths: {}, days: {}, reservations: {}, clients: { ['claude:' + currentDay]: { 'raw-ip': 'x' } } });
+    const malformedReserve = await malformedClients.durable.mutateQuota('reserve', withClient('client-malformed'));
+    check('P1759 malformed client map resets instead of bricking AI', malformedReserve.reserved === true && Object.keys(malformedClients.saved().clients['claude:' + currentDay]).join() === clientKeyA);
+    const fullBucket = {}; for (let i = 0; i < 2000; i++) fullBucket[i.toString(16).padStart(32, '0')] = 1;
+    const bounded = harness({ schemaVersion: 2, months: { [currentMonth]: 0 }, legacyUnknownMonths: {}, days: {}, reservations: {}, clients: { ['claude:' + currentDay]: fullBucket } });
+    const boundedNew = await bounded.durable.mutateQuota('reserve', withClient('client-bound-new'));
+    const boundedOld = await bounded.durable.mutateQuota('reserve', { ...payload('client-bound-old'), clientKey: '0'.repeat(32), clientCap: 2 });
+    check('P1759 client map is bounded: a new key past the ceiling fails closed, a known key still counts', boundedNew.reserved === false && boundedNew.reason === 'client-daily-cap' && boundedOld.reserved === true
+      && Object.keys(bounded.saved().clients['claude:' + currentDay]).length === 2000);
+    // Budget state and server-side search removal.
+    const monthCap = 1000000, lowSpent = 850000, exhaustedSpent = monthCap - 100;
+    const ledgerAt = spent => ({ schemaVersion: 2, months: { [currentMonth]: spent }, legacyUnknownMonths: {}, days: {}, reservations: {} });
+    const okSearch = harness(ledgerAt(0), { AI_MONTHLY_BUDGET_USD: '1' }); lastRequest = null;
+    const okSearchResponse = await worker.fetch(req(searchBody, { headers: ip('198.51.100.70') }), okSearch.env); await okSearchResponse.arrayBuffer();
+    check('P1759 healthy month keeps hosted search and says so', okSearchResponse.status === 200 && JSON.parse(lastRequest.init.body).tools?.[0]?.type === 'web_search' && okSearchResponse.headers.get('X-AIO-Budget-State') === 'ok' && !okSearchResponse.headers.has('X-AIO-Web-Search-Removed')
+      && okSearch.saved().months[currentMonth] === searchBudget.reservationMicroUsd);
+    const lowSearch = harness(ledgerAt(lowSpent), { AI_MONTHLY_BUDGET_USD: '1' }); lastRequest = null;
+    const lowSearchResponse = await worker.fetch(req(searchBody, { headers: ip('198.51.100.71') }), lowSearch.env); await lowSearchResponse.arrayBuffer();
+    const lowSent = JSON.parse(lastRequest.init.body);
+    check('P1759 below 20% of the month the Worker removes hosted search from new requests and flags it',
+      lowSearchResponse.status === 200 && lowSent.tools === undefined && lowSent.max_tool_calls === undefined && lowSent.tool_choice === undefined && /예산 절약 모드/.test(lowSent.instructions)
+      && lowSearchResponse.headers.get('X-AIO-Budget-State') === 'low' && lowSearchResponse.headers.get('X-AIO-Budget-Saver') === '1' && lowSearchResponse.headers.get('X-AIO-Web-Search-Removed') === '1', lowSent);
+    check('P1759 the saver request is reserved and settled at its no-search price inside the same ledger', lowSearch.saved().months[currentMonth] > lowSpent && lowSearch.saved().months[currentMonth] < lowSpent + searchBudget.searchReserveMicroUsd
+      && Object.values(lowSearch.saved().reservations)[0].settled === true);
+    const lowPlain = await worker.fetch(req(body, { headers: ip('198.51.100.72') }), lowSearch.env); await lowPlain.arrayBuffer();
+    check('P1759 plain requests in a low month are admitted and carry the saver flag without a removal marker', lowPlain.status === 200 && lowPlain.headers.get('X-AIO-Budget-Saver') === '1' && !lowPlain.headers.has('X-AIO-Web-Search-Removed'));
+    const exhausted = harness(ledgerAt(exhaustedSpent), { AI_MONTHLY_BUDGET_USD: '1' }), exhaustedBefore = upstreamCalls;
+    const exhaustedResponse = await worker.fetch(req(searchBody, { headers: ip('198.51.100.73') }), exhausted.env), exhaustedJson = await exhaustedResponse.json();
+    check('P1759 exhausted month denies before upstream with budget-state header and no Retry-After', exhaustedResponse.status === 429 && exhaustedJson.error.code === 'monthly-budget' && exhaustedResponse.headers.get('X-AIO-Budget-State') === 'exhausted' && !exhaustedResponse.headers.has('Retry-After') && upstreamCalls === exhaustedBefore, { status: exhaustedResponse.status, json: exhaustedJson, state: exhaustedResponse.headers.get('X-AIO-Budget-State'), ra: exhaustedResponse.headers.get('Retry-After') });
+    // /health: coarse state + caller's own remaining questions; no amounts.
+    const healthOf = async (fixture, address) => (await worker.fetch(req(undefined, { path: '/health', method: 'GET', headers: ip(address) }), fixture.env)).json();
+    const okHealth = await healthOf(okSearch, '198.51.100.70'), lowHealth = await healthOf(lowSearch, '198.51.100.71'), exhaustedHealth = await healthOf(exhausted, '198.51.100.73');
+    const capHealth = await healthOf(clientCap, '203.0.113.9'), freshHealth = await healthOf(clientCap, '203.0.113.11');
+    check('P1759 health reports coarse budgetState and the matching saver label/web-search availability',
+      okHealth.ai.budgetState === 'ok' && okHealth.ai.budgetSaver.active === false && okHealth.ai.webSearchAvailable === true
+      && lowHealth.ai.budgetState === 'low' && lowHealth.ai.budgetSaver.active === true && lowHealth.ai.budgetSaver.label === '예산 절약 모드 · 웹 검색 없이' && lowHealth.ai.webSearchAvailable === false && lowHealth.ai.paidWebSearchEnabled === true
+      && exhaustedHealth.ai.budgetState === 'exhausted' && exhaustedHealth.ai.ready === true, { ok: okHealth.ai, low: lowHealth.ai });
+    check('P1759 health reports the caller\'s own remaining daily questions from its hashed key', capHealth.ai.client?.dailyLimit === 3 && capHealth.ai.client.remainingToday === 0
+      && freshHealth.ai.client?.remainingToday === 3 && freshHealth.ai.client.resetsAt === deniedClientJson.error.resetAt, capHealth.ai.client);
+    const lowHealthText = JSON.stringify(lowHealth);
+    check('P1759 health never leaks spend, reservation or cap amounts', !/monthlyReserved|monthlyBudget|MicroUsd|requestCount|aiDailyCap|850000|1000000/.test(lowHealthText) && !lowHealthText.includes('198.51.100'));
+    // Review items: transient authority failure is not held for a minute; /health has its own bucket.
+    const flakyAuthority = harness(); let failNextHealth = true;
+    const realBinding = flakyAuthority.env.AIO_QUOTA_DO;
+    flakyAuthority.env.AIO_QUOTA_DO = { jurisdiction(value) { const ns = realBinding.jurisdiction(value); return { getByName(name) { const stub = ns.getByName(name); return { fetch(url, init) { if (String(url).endsWith('/health') && failNextHealth) { failNextHealth = false; throw new Error('fixture DO glitch'); } return stub.fetch(url, init); } }; } }; } };
+    const firstProbe = await healthOf(flakyAuthority, '198.51.100.80'), cachedProbe = await healthOf(flakyAuthority, '198.51.100.80');
+    const realNow = Date.now; let laterProbe;
+    try { Date.now = () => realNow() + 6000; laterProbe = await healthOf(flakyAuthority, '198.51.100.80'); } finally { Date.now = realNow; }
+    check('P1759 a failed authority probe is cached for seconds, not a minute', firstProbe.ai.ready === false && cachedProbe.ai.ready === false && laterProbe.ai.ready === true);
+    const healthOwnBucket = await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), { ...fixture.env, RATE_LIMIT_PROXY: { limit: async () => ({ success: false }) } });
+    const healthRefused = await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), { ...fixture.env, RATE_LIMIT_HEALTH: { limit: async () => ({ success: false }) } });
+    check('P1759 /health no longer spends the data-proxy bucket and has its own limiter', healthOwnBucket.status === 200 && healthRefused.status === 429);
+    check('P1759 Worker source keeps per-client admission inside the reserve transaction', source.includes("reason: 'client-daily-cap'") && source.includes('AUTHORITY_HEALTH_FAILURE_MEMO_MS') && source.includes("'RATE_LIMIT_HEALTH', healthRateLimitMap"));
   } finally { globalThis.fetch = originalFetch; }
   if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1; } else console.log(`PASS: shared GPT-6 Luna Worker (${checks} assertions; no live API requests)`);
 }

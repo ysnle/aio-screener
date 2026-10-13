@@ -1,8 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-macro-tech.js — P1135/R620: index.html 인라인 블록 B(1,174줄)에서 추출한 매크로/기술 렌더 계층.
 // computeMarketHealth 인라인 구현(및 _aioIsNativeTechnicalHealth/_aioLegacyHealthElement/
-// _aioRenderLegacyMarketHealth 네이티브 fence), updateTechIndicators/_aioTechSma/
-// _aioTechSymSwitch/updatePatternSignals
+// _aioRenderLegacyMarketHealth 네이티브 fence), updateTechIndicators/updatePatternSignals
 // (P1425: the 거시 writers moved to native ESM boards).
 //
 // 왜 별도 파일이고 왜 aio-pages.js보다 앞에 로드되는가: js/aio-ui.js가 자기 모듈 평가 시점에
@@ -141,23 +140,6 @@ async function updateTechIndicators() {
     updateMTF(null);
   }
 }
-
-// ── Native 캔들 차트 (US) — v52.69 아이보리 3c: TradingView 위젯을 details로 보존하고
-// kr-technical의 loadKrCandleChart() 캔들 시뮬레이션 패턴(Chart.js bar-type)을 SPY/QQQ/개별 종목에 재적용.
-// 매물대(volume profile) 히스토그램은 신규 알고리즘이 필요해 범위 밖으로 명시 제외 — 대신 표준 시간축 거래량 바 사용.
-function _aioTechSma(closes, period) {
-  var out = [];
-  for (var i = 0; i < closes.length; i++) {
-    if (i < period - 1) { out.push(null); continue; }
-    var sum = 0;
-    for (var j = 0; j < period; j++) sum += closes[i - j];
-    out.push(sum / period);
-  }
-  return out;
-}
-
-function _aioTechSymSwitch(sym) { return analyzeTickerDeep(sym); }
-window._aioTechSymSwitch = _aioTechSymSwitch;
 
 // ── Pattern & Signal Detection ──
 function updatePatternSignals() {
