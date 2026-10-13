@@ -7,9 +7,9 @@ on:
     # and :23, and puts the 06:xx UTC run after the KR completed-session cutoff (15:45 KST = 06:45 UTC);
     # at :41 that run fell four minutes short and every KR row stayed on the previous session.
     - cron: '53 */6 * * *'
-    # v57.54: one weekday run right after the US close (16:00 ET = 20:00 UTC EDT / 21:00 UTC EST) so home breadth reaches
+    # v57.54: one run right after the US close (daily: the SLO window derives runs/day only from daily crons) (16:00 ET = 20:00 UTC EDT / 21:00 UTC EST) so home breadth reaches
     # the new session in about an hour instead of waiting up to ~4h for the 00:53 slot.
-    - cron: '53 21 * * 1-5'
+    - cron: '53 21 * * *'
   workflow_dispatch: {}
 
 permissions:
