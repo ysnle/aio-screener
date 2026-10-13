@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1703 - v57.50 - VIX 장외(글로벌 거래 시간) 값을 '장 마감 종가'로 표시해 스냅샷·히스토리·시장 해설 입력이 어긋나고 데이터 커밋 CI가 실패 (2026-10-13)
+
+- symptom/reproduction: 10/13 08:03Z 데이터 커밋의 CI가 history-time에서 실패했다: 'latest row 2026-10-13 field vix: 15.21 != ^VIX completed value 15.53 (MARKET_CLOSED)'. 스냅샷은 03:46 ET에 관측한 VIX 15.53을 session=MARKET_CLOSED로 기록했고, 같은 값이 서버 시장 해설 프롬프트에 '완료 종가'로 들어갔다. 히스토리는 10/12 종가 15.21을 올바르게 담고 있었다.
+- root_cause: build-market-snapshot의 세션 판정은 미국 지수가 정규장 밖이면 관측 시각과 무관하게 MARKET_CLOSED로 보았다. ^VIX는 Cboe 글로벌 거래 시간에 값이 움직이므로, 정규 종가가 아닌 장외 값이 종가로 승격됐다. 텔레그램 계보 파일 분리(P1683) 뒤 QA 캐시 입력 목록에도 telegram-observed.json이 빠져 있었다.
+- fix: 미국 지수(^GSPC·^IXIC·^DJI·^RUT·^VIX·^VIX3M)의 관측이 정규 시간(9:30~16:00, VIX는 16:15) 밖이고 최신 정규 종가가 아니면 AFTER_HOURS로 분류한다. 그러면 종가 비교는 previousValue를 쓰고, 시장 해설 프롬프트의 완료 종가 목록에서도 빠진다. history-time gate는 저장된 라벨이 아니라 같은 분류기로 세션을 다시 판정한다. qa-pipeline 캐시 입력에 telegram-observed.json을 추가했다.
+- violated_rule: 종가 기준(close-basis) — 장외 값은 종가가 아님
+- prevention: P1703: ci-market-snapshot-contract-check(^VIX 03:46 ET → AFTER_HOURS, 16:15 ET → MARKET_CLOSED)·ci-history-field-time-contract-check(세션 재판정)·ci-qa-pipeline-contract-check
+- verification/residual: 실패한 CI 로그 재현 후 로컬 history-time·snapshot·qa-pipeline gate 통과.
+
+## P1702 - v57.50 - 코스피 -5.46% 급락일에 서버 시장 해설 전체가 'N% 이상' 같은 근사 표현 때문에 차단됨 (2026-10-13)
+
+- symptom/reproduction: 10/13 08:01Z 데이터 갱신에서 시장 해설이 status=blocked, reason=metric-change-mismatch:market.kospi로 게시되지 않았다. 코스피는 6,384→6,035(-5.46%)였고, 인용 뉴스의 표현은 '한국 증시 5% 이상 급락', '장중 5.1% 하락'이었다.
+- root_cause: P1688/T03 검증기는 문장 속 % 수치를 그 지표의 등락률과 ±0.15%p 안에서만 같다고 보았다. 'N% 이상', '약 N%', 'N% 가까이' 같은 범위·근사 표현도 정확한 값으로 비교해, 사실에 맞는 문장 하나 때문에 해설 전체가 막혔다. 차단 산출물에 원문이 남지 않아 모델 문장은 직접 확인하지 못했다(추정 원인).
+- fix: 'N% 이상/넘게/초과'는 등락 크기가 N 이상이면 통과, '약·거의 N%'·'N% 가까이/가량/안팎'은 N의 max(0.5, 10%) 안이면 통과로 본다. 방향을 쓴 경우 방향은 반드시 일치해야 한다. 범위나 방향이 틀리면 계속 막는다.
+- violated_rule: 검증은 표현의 뜻대로(과잉 차단 금지)
+- prevention: P1702: ci-data-pipeline-contract-check(6% 이상 급락·약 1.3% 통과, 8% 이상·6% 이상 급등은 차단)
+- verification/residual: fixture로 통과·차단 경계를 확인. 다음 refresh-data 실행에서 시장 해설 게시 여부를 확인한다.
+
 ## P1701 - v57.50 - VIX 구간 결과 산출물이 일주일 캐시라 새 군집 수·표준오차 필드가 10/20까지 공개되지 않음 (2026-10-13)
 
 - symptom/reproduction: P1698로 VIX 구간 결과에 21세션 간격 군집 수와 평균의 표준오차를 추가했지만, 생산자는 산출물이 7일 안에 만들어졌으면 건너뛰어 10/13 04:16 산출물(군집·표준오차 없음)이 10/20까지 유지된다. 그동안 화면은 분위수 근사 범위와 대체 표기만 보여 준다.

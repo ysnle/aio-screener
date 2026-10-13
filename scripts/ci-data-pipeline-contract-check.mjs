@@ -523,6 +523,13 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     // Review false blocks: other tenors/kinds of 금리, multi-period moves and shares are not the 10-year / one-session move.
     const otherRates = validateMarketAnalysisText('2년물 금리 4.80%와 실질 금리 1.85%는 10년물 5.24%보다 낮다.', data, snapshot);
     const multiPeriod = validateMarketAnalysisText('코스피는 20일 동안 8.2% 하락했고, S&P 500 상위 10개 기업이 40%를 차지한다.', data, snapshot);
+    // P1702 (live 10/13): bound/approximate wording of a real move publishes; a wrong bound or direction still blocks.
+    const boundOk = validateMarketAnalysisText('코스피는 13:05 KST 장중 6% 이상 급락했고 유가는 약 1.3% 내렸다.', data, snapshot);
+    const boundWrong = validateMarketAnalysisText('코스피는 13:05 KST 장중 8% 이상 급락했다.', data, snapshot);
+    const wayWrong = validateMarketAnalysisText('코스피는 13:05 KST 장중 6% 이상 급등했다.', data, snapshot);
+    check('P1702 bound ("N% 이상") and approximate ("약 N%") moves are checked as such, not as exact values',
+      !boundOk.issues.some((issue) => /metric-change-mismatch/.test(issue)) && boundWrong.issues.includes('metric-change-mismatch:market.kospi') && wayWrong.issues.includes('metric-change-mismatch:market.kospi'),
+      JSON.stringify({ boundOk: boundOk.issues, boundWrong: boundWrong.issues, wayWrong: wayWrong.issues }));
     check('P1688/T03 review: other rate tenors, multi-period moves and shares do not trip the one-session check',
       !otherRates.issues.length && !multiPeriod.issues.length, JSON.stringify({ otherRates: otherRates.issues, multiPeriod: multiPeriod.issues }));
     const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');

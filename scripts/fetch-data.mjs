@@ -3700,7 +3700,15 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
           continue;
         }
         if (!Number.isFinite(changePct)) continue;
-        const matches = direction ? Math.abs(stated - changePct) <= 0.15 : Math.abs(magnitude - Math.abs(changePct)) <= 0.15;
+        // v57.50 (live 10/13): KOSPI fell 5.46% and the commentary was blocked for "5% 이상 급락", the wording of the
+        // news it cited. A bound ("N% 이상/넘게") holds when the move reaches N; an approximation ("약·거의 N%",
+        // "N% 가까이/안팎/가량") holds within max(0.5, 10%) of N. The direction must still agree when one is stated.
+        const bound = /^\s*(?:이상|넘게|넘는|넘어|초과|웃도)/.test(after);
+        const approx = /(?:약|거의|대략|무려)\s*$/.test(before) || /^\s*(?:가까이|가량|안팎|내외|정도|근처)/.test(after);
+        const sameWay = !direction || Math.sign(changePct) === direction || changePct === 0;
+        const matches = bound ? sameWay && Math.abs(changePct) >= magnitude - 0.15
+          : approx ? sameWay && Math.abs(Math.abs(changePct) - magnitude) <= Math.max(0.5, magnitude * 0.1)
+            : direction ? Math.abs(stated - changePct) <= 0.15 : Math.abs(magnitude - Math.abs(changePct)) <= 0.15;
         if (matches) usedIntraday = usedIntraday || inSession;
         else if (!supported(plain)) issues.push(`metric-change-mismatch:${row.metricId}`);
         continue;

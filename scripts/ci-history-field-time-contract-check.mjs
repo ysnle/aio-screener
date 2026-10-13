@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { deriveMarketSession } from './build-market-snapshot.mjs';
 import { mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -111,7 +112,11 @@ for (const [field, symbol] of Object.entries(fieldSymbols)) {
   // exposes that same previous value. The old continuous special case compared two DIFFERENT
   // live observations through a 2% band precisely because the artifacts deliberately disagreed;
   // they no longer do, so one rule covers every instrument (P1160 follow-up).
-  const expected = ['CURRENT_SESSION','DELAYED_IN_SESSION'].includes(quote.session) ? Number(quote.previousValue) : Number(quote.value);
+  // P1703: an extended-hours print (^VIX global trading hours) is not the completed close either.
+  // The session is re-derived from the observation with the producer's own classifier, so a snapshot written before the
+  // classifier learned about extended-hours prints is judged by today's rule.
+  const session = deriveMarketSession({ instrumentId: symbol, observedAt: quote.observedAt, now: Date.parse(quote.fetchedAt || snapshot.generatedAt || '') }) || quote.session;
+  const expected = ['CURRENT_SESSION','DELAYED_IN_SESSION','PREMARKET','AFTER_HOURS'].includes(session) || ['CURRENT_SESSION','DELAYED_IN_SESSION'].includes(quote.session) ? Number(quote.previousValue) : Number(quote.value);
   const tolerance = 0.02;
   if (Number.isFinite(expected) && Math.abs(Number(latest[field]) - expected) > tolerance) {
     errors.push(`latest row ${latest.date} field ${field}: ${latest[field]} != ${symbol} completed value ${expected} (${quote.session})`);

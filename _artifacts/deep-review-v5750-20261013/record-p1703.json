@@ -1,0 +1,22 @@
+{
+  "version": "v57.50",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.50 이면·의미와 화면 간 연결 심층 검토 78건 반영(P1691~P1703) · AI 종가 근거 표시 정리.",
+  "p": {
+    "id": 1703,
+    "title": "VIX 장외(글로벌 거래 시간) 값을 '장 마감 종가'로 표시해 스냅샷·히스토리·시장 해설 입력이 어긋나고 데이터 커밋 CI가 실패",
+    "symptom": "10/13 08:03Z 데이터 커밋의 CI가 history-time에서 실패했다: 'latest row 2026-10-13 field vix: 15.21 != ^VIX completed value 15.53 (MARKET_CLOSED)'. 스냅샷은 03:46 ET에 관측한 VIX 15.53을 session=MARKET_CLOSED로 기록했고, 같은 값이 서버 시장 해설 프롬프트에 '완료 종가'로 들어갔다. 히스토리는 10/12 종가 15.21을 올바르게 담고 있었다.",
+    "root_cause": "build-market-snapshot의 세션 판정은 미국 지수가 정규장 밖이면 관측 시각과 무관하게 MARKET_CLOSED로 보았다. ^VIX는 Cboe 글로벌 거래 시간에 값이 움직이므로, 정규 종가가 아닌 장외 값이 종가로 승격됐다. 텔레그램 계보 파일 분리(P1683) 뒤 QA 캐시 입력 목록에도 telegram-observed.json이 빠져 있었다.",
+    "fix": "미국 지수(^GSPC·^IXIC·^DJI·^RUT·^VIX·^VIX3M)의 관측이 정규 시간(9:30~16:00, VIX는 16:15) 밖이고 최신 정규 종가가 아니면 AFTER_HOURS로 분류한다. 그러면 종가 비교는 previousValue를 쓰고, 시장 해설 프롬프트의 완료 종가 목록에서도 빠진다. history-time gate는 저장된 라벨이 아니라 같은 분류기로 세션을 다시 판정한다. qa-pipeline 캐시 입력에 telegram-observed.json을 추가했다.",
+    "violated_rule": "종가 기준(close-basis) — 장외 값은 종가가 아님",
+    "prevention": "P1703: ci-market-snapshot-contract-check(^VIX 03:46 ET → AFTER_HOURS, 16:15 ET → MARKET_CLOSED)·ci-history-field-time-contract-check(세션 재판정)·ci-qa-pipeline-contract-check",
+    "verification": "실패한 CI 로그 재현 후 로컬 history-time·snapshot·qa-pipeline gate 통과."
+  },
+  "qa": [],
+  "qa_section": "검증 스킬",
+  "changelog": [
+    "**VIX 장외 값 분리 (P1703):** 미국 장외 시간의 VIX 값을 종가로 표시하지 않는다. 데이터 커밋 CI 실패와 시장 해설 입력 불일치를 함께 고쳤다."
+  ]
+}

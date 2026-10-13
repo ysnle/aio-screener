@@ -34,7 +34,10 @@ const sessionFixtures = [
   ['^KS11', '2026-07-28T01:55:00.000Z', '2026-07-28T02:00:00.000Z', 'CURRENT_SESSION'],
   ['KRW=X', '2026-07-28T01:59:00.000Z', '2026-07-28T02:00:00.000Z', 'CURRENT_SESSION'],
   ['BTC-USD', '2026-07-28T01:00:00.000Z', '2026-07-28T03:00:00.000Z', 'DELAYED_IN_SESSION'],
-  ['BTC-USD', '2026-07-28T04:00:01.000Z', '2026-07-28T03:00:00.000Z', 'SOURCE_UNAVAILABLE']
+  ['BTC-USD', '2026-07-28T04:00:01.000Z', '2026-07-28T03:00:00.000Z', 'SOURCE_UNAVAILABLE'],
+  // P1703: a ^VIX global-trading-hours print (03:46 ET) is not the completed close; the 16:15 ET close still is.
+  ['^VIX', '2026-10-13T07:46:31.000Z', '2026-10-13T08:01:37.000Z', 'AFTER_HOURS', 'REGULAR'],
+  ['^VIX', '2026-10-12T20:15:00.000Z', '2026-10-13T08:01:37.000Z', 'MARKET_CLOSED', 'REGULAR']
 ];
 for (const [instrumentId, observedAt, now, expected, providerSession] of sessionFixtures) {
   const actual = deriveMarketSession({ instrumentId, observedAt, providerSession, now: Date.parse(now) });

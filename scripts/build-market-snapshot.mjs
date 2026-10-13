@@ -117,6 +117,16 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   if (isLatestUsRegularClose({ instrumentId: symbol, observedAt, now: nowMs })) return 'MARKET_CLOSED';
   if (provider === 'PRE') return 'PREMARKET';
   if (provider === 'POST' || provider === 'POSTPOST') return 'AFTER_HOURS';
+  // v57.50 (CI on the 10/13 08:03Z data commit): ^VIX prints in Cboe global trading hours. A 03:46 ET value (15.53) was
+  // labelled MARKET_CLOSED beside the 10/12 completed close (15.21), so the snapshot, the history close and the
+  // commentary prompt disagreed. A US index observation outside its regular window that is not the latest regular
+  // close is an extended-hours print, not a completed close.
+  if (/^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M)$/.test(symbol)) {
+    const observedLocal = zoneParts(observedMs, 'America/New_York');
+    const minute = minuteOfDay(observedLocal);
+    const closeMinute = /^\^VIX/.test(symbol) ? 16 * 60 + 15 : 16 * 60;
+    if (observedLocal && isWeekday(observedLocal.weekday) && minute != null && (minute < 9 * 60 + 30 || minute > closeMinute + 5) && ageMs <= 24 * 60 * 60 * 1000) return 'AFTER_HOURS';
+  }
   if (provider === 'REGULAR') {
     // Yahoo can retain REGULAR after the venue has closed (especially across
     // weekends). Resolve the provider hint against the instrument schedule
