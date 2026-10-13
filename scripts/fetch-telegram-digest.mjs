@@ -2,7 +2,8 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { matchTickers } from './lib/telegram-tickers.mjs';
+import { classifyPostTickers, LIST_POST_TICKER_THRESHOLD } from './lib/telegram-tickers.mjs';
+import { COMMON_WORD_ISSUER_NAMES } from '../src/domain/news/stories.js';
 
 const CHANNEL_CATALOG = [
   { slug:'aetherjapanresearch', role:'asia-semi-flow', region:'jp-us', evidence:'secondary-public-mirror' },
@@ -130,11 +131,14 @@ if (outPath && existsSync(outPath)) {
           // as the internal text-equivalent so incremental merges keep classification/selection working.
           // Codex browser audit H06: retained posts are re-tagged with the current rules instead of carrying tags
           // from an older classifier for the whole 14-day window. (Tickers are re-derived later in the run.)
-          const keptText = it.text || it.summary || '';
-          const carried = it.text || !it.summary ? it : { ...it, text: it.summary };
+          // N17 (2026-10-13 audit): summaries published before P1683 still carry "&#036;"; numeric references are
+          // decoded again when a retained post is carried forward.
+          const fixed = { ...it, ...(it.summary ? { summary: redecodeNumericEntities(it.summary) } : {}), ...(it.text ? { text: redecodeNumericEntities(it.text) } : {}) };
+          const keptText = fixed.text || fixed.summary || '';
+          const carried = fixed.text || !fixed.summary ? fixed : { ...fixed, text: fixed.summary };
           previousMergePool.push(keptText ? { ...carried, tags: classify(keptText) } : carried);
           if (!prevObservedIds.has(it.id)) {
-            previousObservedPool.push({ id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst, score:Number(it.score || 0), tags:it.tags || [], tickers:it.tickers || [], hasText:!!String(it.text || it.summary || '').trim() });
+            previousObservedPool.push({ id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst, score:Number(it.score || 0), tags:it.tags || [], tickers:it.tickers || [], ...(it.relatedTickers?.length ? { relatedTickers:it.relatedTickers } : {}), ...(it.listTickers?.length ? { listTickers:it.listTickers } : {}), hasText:!!String(it.text || it.summary || '').trim() });
           }
         }
       }
@@ -175,6 +179,12 @@ function decodeEntities(s) {
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+// N17: numeric references only (a retained summary is already decoded text; "&amp;" there is literal).
+function redecodeNumericEntities(s) {
+  return String(s || '')
+    .replace(/&#(\d{1,7});/g, (m, code) => { const n = Number(code); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m; })
+    .replace(/&#x([0-9a-f]{1,6});/gi, (m, hex) => { const n = parseInt(hex, 16); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m; });
 }
 
 // P1503: short Latin keywords match whole words only (FedEx, soil, metal, buyback, software were tagged
@@ -218,6 +228,12 @@ function loadScreenerAliases() {
       const sym = m[1].toUpperCase();
       const name = decodeEntities(m[2]).trim();
       if (!name || name.length < 4 || generic.has(name)) continue;
+      // N06: an ordinary-word company name ("Visa", "Shell", "Snap") counts only as a proper noun
+      // (Capitalized or UPPERCASE), the rule the fixed patterns already use.
+      if (COMMON_WORD_ISSUER_NAMES.has(name.toLowerCase())) {
+        rows.push([sym, new RegExp(`(?:^|[^\\p{L}\\p{N}])(?:${escapeRegex(name)}|${escapeRegex(name.toUpperCase())})(?:$|[^\\p{L}\\p{N}-])`, 'u')]);
+        continue;
+      }
       rows.push([sym, new RegExp(`(?:^|[^\\p{L}\\p{N}])${escapeRegex(name)}(?:$|[^\\p{L}\\p{N}])`, 'iu')]);
     }
   } catch (e) { console.warn(`[fetch-telegram-digest] screener alias load failed (non-fatal): ${e.message}`); }
@@ -226,8 +242,26 @@ function loadScreenerAliases() {
 
 const SCREENER_ALIASES = loadScreenerAliases();
 
+// N15/N16: { tickers, relatedTickers, listTickers } — see scripts/lib/telegram-tickers.mjs classifyPostTickers.
 function extractTickers(text) {
-  return matchTickers(stripLinks(text), SCREENER_ALIASES);
+  return classifyPostTickers(stripLinks(text), SCREENER_ALIASES);
+}
+
+// Rows carried from earlier runs keep their recorded tickers (the lineage rows have no text). The list rule needs
+// only the count; a product-only inference is moved to relatedTickers when the retained text shows it.
+function carriedTickerRoles(it) {
+  let tickers = Array.isArray(it.tickers) ? it.tickers.slice() : [];
+  let relatedTickers = Array.isArray(it.relatedTickers) ? it.relatedTickers.slice() : [];
+  let listTickers = Array.isArray(it.listTickers) ? it.listTickers.slice() : [];
+  const text = String(it.text || it.summary || '');
+  if (text) {
+    const now = extractTickers(text);
+    const productOnly = now.relatedTickers.filter((t) => tickers.includes(t));
+    tickers = tickers.filter((t) => !productOnly.includes(t));
+    relatedTickers = [...new Set([...relatedTickers, ...productOnly])];
+  }
+  if (tickers.length >= LIST_POST_TICKER_THRESHOLD) { listTickers = [...new Set([...listTickers, ...tickers])]; tickers = []; }
+  return { tickers, ...(relatedTickers.length ? { relatedTickers } : {}), ...(listTickers.length ? { listTickers } : {}) };
 }
 
 // 채널 공지/일정/단순 안내 여부 감지 (저점수 패널티용)
@@ -272,7 +306,8 @@ function parsePage(html, channel) {
     const text = decodeEntities(textMatch ? textMatch[1] : '');
     const date = new Date(tm[1]);
     const tags = text ? classify(text) : ['media-only'];
-    const tickers = text ? extractTickers(text) : [];
+    const roles = text ? extractTickers(text) : { tickers: [], relatedTickers: [], listTickers: [] };
+    const tickers = roles.tickers;
     out.push({
       id: post,
       channel,
@@ -281,7 +316,10 @@ function parsePage(html, channel) {
       localDateKst: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit' }).format(date),
       tags,
       tickers,
-      score: text ? scoreItem(text, tags, tickers) : 0,
+      ...(roles.relatedTickers.length ? { relatedTickers: roles.relatedTickers } : {}),
+      ...(roles.listTickers.length ? { listTickers: roles.listTickers } : {}),
+      // Selection score still counts every named or inferred company, as before the split (selection unchanged).
+      score: text ? scoreItem(text, tags, [...tickers, ...roles.listTickers, ...roles.relatedTickers]) : 0,
       hasText: !!text,
       text,
     });
@@ -361,7 +399,9 @@ for (const it of [...previousMergePool, ...freshItems]) {
   if (!it || !it.id) continue;
   const d = new Date(it.datetime);
   if (!(d >= since && d <= now)) continue;
-  mergedById.set(it.id, it); // fresh items processed after pool entries win on id collision
+  // N15/N16: carried rows are re-read under the issuer/list/product split (fresh rows are already split; idempotent).
+  const { tickers: _t, relatedTickers: _r, listTickers: _l, ...rest } = it;
+  mergedById.set(it.id, { ...rest, ...carriedTickerRoles(it) }); // fresh items processed after pool entries win on id collision
 }
 const items = [...mergedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 const observedById = new Map();
@@ -369,10 +409,13 @@ for (const it of [...previousObservedPool, ...freshItems]) {
   if (!it || !it.id) continue;
   const d = new Date(it.datetime);
   if (!(d >= since && d <= now)) continue;
+  const roles = carriedTickerRoles(mergedById.get(it.id) || it);
   observedById.set(it.id, {
     id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst,
     score:Number(it.score || 0), tags:Array.isArray(it.tags) ? it.tags : [],
-    tickers:Array.isArray(it.tickers) ? it.tickers : [],
+    tickers:roles.tickers,
+    ...(roles.relatedTickers ? { relatedTickers:roles.relatedTickers } : {}),
+    ...(roles.listTickers ? { listTickers:roles.listTickers } : {}),
     // P1503: carried-over lineage rows have no text field by design (P715); keep their recorded hasText instead of
     // re-deriving it from an absent body, which turned every carried post into 'media only' run after run.
     hasText: typeof it.text === 'string' || typeof it.summary === 'string' ? !!String(it.text || it.summary || '').trim() : it.hasText === true

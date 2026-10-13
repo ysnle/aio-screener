@@ -1,0 +1,22 @@
+{
+  "version": "v57.51",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.51 스크리너 데이터 품질·원천·커버리지 전수 점검(F01–F23·V01–V24·N01–N24) 반영(P1704~P1716).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1707,
+    "title": "SEC 발행주식 수가 2009년 값이거나 1000배인 종목이 PER·참고 시가총액·밸류 순위를 왜곡",
+    "symptom": "V는 2009-11 주식수로 PER 9.13·참고 시총 $183B, MA PER 4.39, CMCSA 2.13 등 약 20종목이 밸류 점수 포화. PKG PER 26,255·PBR 4,420(10-K 표지 주식수 1000배). GOOGL·META는 주식수 null. 참고 시총은 순이익>0일 때만 생겨 미국 41% 결측.",
+    "root_cause": "closestEnd(...)||shares[0]에 나이 제한이 없었고, 저장 레코드 494건에 sharesCheck가 없어 병합 시 재검사가 없었다.",
+    "fix": "주식수 후보를 표지(회계연도 말 ±400일)→같은 연도 가중 희석→CommonStockSharesOutstanding 순으로 고르고 없으면 stale-period 보류. 병합은 sharesCheck consistent 또는 30일 거래대금 회전율 0.05~20% 통과만 사용. 이전 정규화 레코드는 재수집 대상. 참고 시총은 검증된 주식수×종가(valuationPrice)로 손실 기업까지 산출.",
+    "violated_rule": "근거 없는 값 금지 — 기간이 다른 주식수와 현재 가격 혼합",
+    "prevention": "P1707: ci-sec-runtime-projection-check(heal 멱등)·ci-entity-summary-fixture·ci-domain-parity-check",
+    "verification": "MA 가중 희석 9.06억 주(SEC 원천 확인) → PER 33.9, V 보류, PKG fixture PER 26.45, GOOGL 122.3억·META 25.74억 주."
+  },
+  "qa": [],
+  "changelog": [
+    "**스크리너 데이터 점검 수정 (P1707):** SEC 발행주식 수가 2009년 값이거나 1000배인 종목이 PER·참고 시가총액·밸류 순위를 왜곡."
+  ]
+}

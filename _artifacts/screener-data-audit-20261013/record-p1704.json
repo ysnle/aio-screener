@@ -1,0 +1,22 @@
+{
+  "version": "v57.51",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.51 스크리너 데이터 품질·원천·커버리지 전수 점검(F01–F23·V01–V24·N01–N24) 반영(P1704~P1716).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1704,
+    "title": "한국 종가가 거래소 종가와 달랐고(마감 동시호가 미반영) 공급자 결측 세션(10/12) 때문에 한국 179행 전체가 한 세션 뒤처짐",
+    "symptom": "005930 10/08 종가 262,000(거래소 263,000), 000660 1,681,000(1,686,000) 등 최근 한 달에 1~2% 차이가 몰림. Yahoo KRX 10/12 봉이 close null이라 산출 시각 기준 마지막 완료 세션 10/12 대신 전 행이 10-08에 머묾. 06:41Z 크론은 한국 마감 판정(06:45Z) 직전이라 당일 봉을 항상 버림.",
+    "root_cause": "fetch-data는 Yahoo KRX 일봉 종가를 그대로 종가로 썼고 null 종가 봉은 건너뛰기만 했다. 교차 원천이 없었다.",
+    "fix": "한국 행의 1년 일봉 종가를 거래소 종가 재배포 원천(공개 참고용 2차 원천, 공식 KRX 아님)으로 교정하고 결측 세션을 채운다. 조정 종가는 Yahoo 조정/원시 비율을 교정 종가에 곱해 낸다. 기준 불일치(분할 의심)는 거부, 원천 실패 시 연속 8회 차단기 뒤 기존 값과 providerMissingSessions를 남긴다. 행 closeReconciliation·산출물 krCloseReconciliation·로그 한 줄 기록. refresh-screener 크론 :41→:53.",
+    "violated_rule": "종가 기준 — 공급자 종가를 거래소 종가와 대조 없이 사용",
+    "prevention": "P1704: ci-data-pipeline-contract-check(parseKrDailySeries·reconcileKrExchangeCloses fixture)·ci-operations-slo(크론 분)",
+    "verification": "캡처한 Yahoo 응답+단발 거래소 종가 조회로 005930 10/08 263,000 교정, 10/12 251,000 채움, 배당 비율 유지, 2:1 불일치 거부 확인."
+  },
+  "qa": [],
+  "changelog": [
+    "**스크리너 데이터 점검 수정 (P1704):** 한국 종가가 거래소 종가와 달랐고(마감 동시호가 미반영) 공급자 결측 세션(10/12) 때문에 한국 179행 전체가 한 세션 뒤처짐."
+  ]
+}

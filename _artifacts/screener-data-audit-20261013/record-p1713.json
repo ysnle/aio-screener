@@ -1,0 +1,22 @@
+{
+  "version": "v57.51",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.51 스크리너 데이터 품질·원천·커버리지 전수 점검(F01–F23·V01–V24·N01–N24) 반영(P1704~P1716).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1713,
+    "title": "유니버스 정합성: 상장폐지·티커 변경 종목 잔존, 코드-이름 불일치, GICS와 다른 섹터, 노후 지수 태그, 주식 클래스 이중 계산",
+    "symptom": "WBD(10/6 인수 완료)·EA(8/4 비공개 전환)·012510.KQ(상장폐지) 잔존, PSKY→SKYD 미반영. 131970.KQ가 '테크윙'(실제 두산테스나), 950130.KQ '엑시큐어'(실제 엑세스바이오), 315640.KQ 뉴로메카(실제 딥노이드). GEV·WM·BE Utilities, DHR·STE Industrials 등 GICS와 다른 섹터 21건. NASDAQ100 태그 중 NDX 비구성 32행. GOOG/GOOGL·FOX/FOXA·NWS/NWSA 이중 계산.",
+    "root_cause": "SCREENER_DB는 수기 큐레이션이고 공식 구성 목록과의 대조 절차가 없었다.",
+    "fix": "IVV·NDX·IJH·IWM·KODEX PDF·KIND 목록 기준으로 삭제·교체·이름 정정, S&P 500 구성 종목 섹터를 GICS로 교정, 지수 태그 재계산(SP500 503·SP400·RUSSELL2000·NASDAQ100·ETF), 보조 클래스 shareClassOf 표시 후 시장 폭에서 한 번만 집계. 섹터 키 정규화 normalizeSectorKey 정본화. 이름 레지스트리·세부 테마·시세 구독·KR 매핑 감사 동기화.",
+    "violated_rule": "티커 추정 금지 — 공식 구성 목록 근거",
+    "prevention": "P1713: ci-data-pipeline(미러 drift)·ci-runtime-contract-check(P1588·P1622 갱신)·ci-structural-check·ci-architecture-contract-check(1200행 성능)",
+    "verification": "SP500 태그 = IVV 503, GICS 불일치 0, 테마 유니버스 밖 티커 0, sync-screener-universe 1143건."
+  },
+  "qa": [],
+  "changelog": [
+    "**스크리너 데이터 점검 수정 (P1713):** 유니버스 정합성: 상장폐지·티커 변경 종목 잔존, 코드-이름 불일치, GICS와 다른 섹터, 노후 지수 태그, 주식 클래스 이중 계산."
+  ]
+}

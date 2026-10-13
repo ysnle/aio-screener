@@ -46,8 +46,8 @@ const FACTOR_LABELS = {
   trend: { label: '추세', color: 'var(--data-green)', description: '50일선 거리 60%·200일선 거리 40%' },
   lowvol: { label: '저변동', color: 'var(--data-cyan)', description: '실현 변동성의 역순' },
   size: { label: '사이즈', color: 'var(--text-muted)', description: '시가총액의 역순' },
-  value: { label: '밸류', color: 'var(--data-amber)', description: '저PER·저PBR' },
-  quality: { label: '퀄리티', color: 'var(--data-amber)', description: 'ROE·마진·매출성장' },
+  value: { label: '밸류', color: 'var(--data-amber)', description: '저PER·저PBR — 최근 연간(FY) 순이익·자본 기준' },
+  quality: { label: '퀄리티', color: 'var(--data-amber)', description: 'ROE·마진·매출성장 — 최근 연간(FY) 공시 기준' },
   kalman: { label: '추세 속도', color: 'var(--accent)', description: '칼만 추세 신뢰도' }
 };
 
@@ -300,7 +300,9 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     if (!query) return true;
     if (exactSymbol) return row.sym?.toLowerCase() === exactSymbol;
     const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
-    const haystack = `${row.sym} ${row.name} ${row.memo || ''} ${row.newsMemo || ''} ${row.sector || ''} ${setupText}`.toLowerCase();
+    // 2026-10-13 news audit N03: the headline memo is not searchable — a word in another company's headline (or in
+    // this company's) is not a property of the stock, and it made searches return unrelated rows.
+    const haystack = `${row.sym} ${row.name} ${row.memo || ''} ${row.sector || ''} ${setupText}`.toLowerCase();
     const direct = haystack.includes(query);
     const residualWords = words.filter((word) => !Array.isArray(aliases[word]));
     const allWords = residualWords.length > 0 && residualWords.every((word) => haystack.includes(word));
@@ -533,7 +535,13 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const provenance = documentRef.createElement('div');
     provenance.className = 'scr-evidence-cell';
     const memo = documentRef.createElement('span');
-    memo.textContent = row.newsMemo ? row.newsMemo.slice(0, 70) : '근거 미수신';
+    // N21: an empty cell says why — waiting for its rotation turn, fetch failed, no headline that names the
+    // company, or not collected for this market. Sources stay in the hover only.
+    const newsEmpty = { 'rotation-pending': '순환 대기', 'fetch-failed': '수신 실패', 'no-verified-article': '확인된 기사 없음', 'not-covered': '수집 대상 아님' };
+    memo.textContent = row.newsMemo ? row.newsMemo.slice(0, 70) : (newsEmpty[row.newsStatus] || '근거 미수신');
+    const newsSources = Array.isArray(row.newsMemoSources) ? row.newsMemoSources.filter(Boolean) : [];
+    if (row.newsMemo) memo.title = `${row.newsMemo}${newsSources.length ? `\n출처: ${newsSources.join(', ')}` : ''}`;
+    else if (row.newsStatus === 'rotation-pending') memo.title = '종목 뉴스는 실행마다 일부 종목씩 돌아가며 수집합니다. 다음 차례에 갱신됩니다.';
     const why = documentRef.createElement('button');
     why.type = 'button';
     why.textContent = 'Why';

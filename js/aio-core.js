@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.50';
+const APP_VERSION = 'v57.51';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -6996,7 +6996,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'SBUX':  { en: 'Starbucks',        kr: '스타벅스',     alt: ['starbucks', 'sbux'] },
     'PG':    { en: 'Procter & Gamble', kr: 'P&G',          alt: ['procter gamble', 'p&g', 'pg'] },
     'HD':    { en: 'Home Depot',       kr: '홈디포',       alt: ['home depot', 'hd'] },
-    'LOW':   { en: 'Lowes',            kr: '로우스',       alt: ['lowes', 'low'] },
+    'LOW':   { en: 'Lowe\'s',          kr: '로우스',       alt: ['lowes', 'lowe’s', 'lowe\'s'] }, // v57.51 N01: 'low' matched "12-Year Low"
     'LULU':  { en: 'Lululemon',        kr: '룰루레몬',     alt: ['lululemon', 'lulu'] },
 
     // ── v49.57 신규: 여행/배달/숙박 (7) ──
@@ -7048,7 +7048,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '005930.KS': { en: 'Samsung Electronics', kr: '삼성전자',     alt: ['samsung', 'samsung electronics', '005930', '삼전'] },
     '000660.KS': { en: 'SK Hynix',           kr: 'SK하이닉스',    alt: ['hynix', 'sk hynix', '000660', '하이닉스'] },
     '005380.KS': { en: 'Hyundai Motor',      kr: '현대차',         alt: ['hyundai', 'hyundai motor', '005380', '현대자동차'] },
-    '373220.KS': { en: 'LG Energy Solution', kr: 'LG에너지솔루션',  alt: ['lges', 'lg energy', '373220', 'lg엔솔'] },
+    '373220.KS': { en: 'LG Energy Solution', kr: 'LG에너지솔루션',  alt: ['lges', 'lg energy', '373220', 'lg엔솔', '엘지엔솔'] },
     '035720.KS': { en: 'Kakao',              kr: '카카오',         alt: ['kakao', '035720'] },
     '035420.KS': { en: 'NAVER',              kr: '네이버',         alt: ['naver', '035420'] },
     '207940.KS': { en: 'Samsung Biologics',  kr: '삼성바이오로직스',  alt: ['samsung biologics', '207940', '삼바'] },
@@ -7142,7 +7142,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'PINS_dup': { en: '_skip', kr: '_skip', alt: ['_skip'] }, // duplicate placeholder skip
     // 미디어/엔터 (3)
     'PARA':  { en: 'Paramount',        kr: '파라마운트',   alt: ['paramount', 'para'] },
-    'PSKY':  { en: 'Paramount Skydance', kr: '파라마운트스카이댄스', alt: ['paramount skydance', 'psky'] },
+    'SKYD':  { en: 'Skydance',         kr: '스카이댄스',   alt: ['paramount skydance', 'skydance'] }, // v57.51 V07: PSKY renamed SKYD (10/6)
     'FUBO':  { en: 'fuboTV',           kr: 'fuboTV',       alt: ['fubo', 'fubotv'] },
     // 위성/우주 추가 (2)
     'IRDM':  { en: 'Iridium',          kr: '이리듐',       alt: ['iridium', 'irdm'] },
@@ -7210,7 +7210,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '048410.KQ': { en: 'Hyundai Bioscience', kr: '현대바이오',    alt: ['hyundai bio', '048410'] },
     '199800.KQ': { en: 'Toolgen',            kr: '툴젠',          alt: ['toolgen', '199800'] },
     '950140.KQ': { en: 'Jinyang Inc',        kr: '진양제약',      alt: ['jinyang', '950140'] },
-    '950130.KQ': { en: 'EXICURE',            kr: '엑시큐어',      alt: ['exicure', '950130'] },
+    '950130.KQ': { en: 'Access Bio',         kr: '엑세스바이오',  alt: ['access bio', '950130'] },
     '950220.KQ': { en: 'Neowiz',             kr: '네오위즈',      alt: ['neowiz', '950220'] },
     '280360.KS': { en: 'Lotte Wellfood',     kr: '롯데웰푸드',      alt: ['lotte wellfood', '280360'] },
 
@@ -7240,7 +7240,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '298020.KS': { en: 'HHI Construction',   kr: 'HHI건설',       alt: ['hhi construction', '298020'] },
     '003490.KS': { en: 'Korean Air',         kr: '대한항공',      alt: ['korean air', '003490'] },
     '180640.KS': { en: 'Hanjin KAL',          kr: '한진칼',        alt: ['hanjin kal', '180640'] },
-    '079550.KS': { en: 'LIG Nex1',           kr: 'LIG넥스원',     alt: ['lig nex1', '079550'] },
+    '079550.KS': { en: 'LIG Defense & Aerospace', kr: 'LIG디펜스앤에어로스페이스', alt: ['lig nex1', 'lig넥스원', '079550'] },
     '028260.KS': { en: 'Samsung C&T',        kr: '삼성물산',      alt: ['samsung cnt', 'samsung c&t', '028260'] },
     '009150.KS': { en: 'Samsung Electro-Mechanics', kr: '삼성전기', alt: ['samsung em', '009150'] },
 

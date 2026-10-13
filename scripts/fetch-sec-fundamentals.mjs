@@ -10,8 +10,8 @@ import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod } from '../src/domain/fundamental/period.js';
-import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js';
+import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
+import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS } from '../src/domain/fundamental/sec-report.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 
 // P1256: 도메인 receipt 계약은 이제 모든 수집 도메인이 공유한다(SEC는 첫 수용자).
@@ -61,6 +61,13 @@ async function fetchJSON(url, tries = 3) {
     }
   }
   throw lastError;
+}
+
+// F08: same reading as the screener universe (fetch-data getScreenerUniverse assetType): an explicit assetType,
+// else sector or index 'ETF'.
+export function isEtfUniverseRow(row) {
+  if (!row || !row.sym) return false;
+  return [row.assetType, row.sector, row.index].some((value) => String(value || '').trim().toUpperCase() === 'ETF');
 }
 
 function tickerKey(symbol) {
@@ -119,8 +126,11 @@ function acceptedAtByAccession(submissions) {
 }
 
 // W09-A/P1148: a fiscal year older than this is not "current financials" however recently we
-// fetched it. ~18 months keeps one normal reporting lag while excluding genuinely stale FYs.
-const REPORT_RECENCY_MAX_DAYS = 550;
+// fetched it. 2026-10-13 F15: the producer uses the project's single 456-day rule (15 months after the
+// fiscal year end, period.js) instead of its own 550-day budget, so its quality label and the screener agree.
+const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
+// Stored records written by an older normalizer are due for re-fetch (in addition to the publish-time heal).
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-10-13';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -143,7 +153,8 @@ function latestIso(values) {
  */
 // P1374: concept-coverage failures are only terminal for the concept set that produced them.
 // Bump when the annual revenue/income concept lists change so those rows are rechecked once.
-export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v2';
+// v3 (2026-10-13 F06): RevenueFromContractWithCustomerIncludingAssessedTax added (VLO; XOM rechecked).
+export const SEC_CONCEPT_SET_VERSION = 'sec-annual-concepts.v3';
 
 export function classifyIssuerCapability(companyFacts, submissions = null) {
   const taxonomies = Object.keys(companyFacts?.facts || {});
@@ -189,20 +200,13 @@ function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
 
 function buildPointInTimeFacts(companyFacts, submissions) {
   const acceptedMap = acceptedAtByAccession(submissions);
-  const REVENUE_CONCEPTS = ['RevenueFromContractWithCustomerExcludingAssessedTax', 'Revenues', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense'];
+  const REVENUE_CONCEPTS = [...SEC_PRIMARY_REVENUE_CONCEPTS, ...SEC_FALLBACK_REVENUE_CONCEPTS]; // F05/F06: consumers pick per period via bestRevenueRowsByPeriod
   // Codex review 2026-10-05 (분기 추이): discrete-quarter facts (about three months) from 10-Q/10-K.
   // A fourth quarter is rarely tagged on its own; the projection derives it from FY minus Q1–Q3 and labels it.
   const quarterly = (row) => { const days = durationDays(row); return /^(10-Q|10-K)(\/A)?$/.test(row.form || '') && days != null && days >= 80 && days <= 100; };
   const revenueQRows = factRows(companyFacts, 'us-gaap', REVENUE_CONCEPTS, 'USD').filter(quarterly);
   const incomeQRows = factRows(companyFacts, 'us-gaap', ['NetIncomeLoss', 'ProfitLoss'], 'USD').filter(quarterly);
-  const revenueRows = factRows(companyFacts, 'us-gaap', [
-    'RevenueFromContractWithCustomerExcludingAssessedTax',
-    'Revenues',
-    'SalesRevenueNet',
-    // P1374: banks/broker-dealers (GS, FITB, RF, TFC…) report total revenue net of interest expense.
-    // Lowest priority: dedupeLatestFiled keeps the earlier concept for the same period/filing.
-    'RevenuesNetOfInterestExpense'
-  ], 'USD').filter(row => {
+  const revenueRows = factRows(companyFacts, 'us-gaap', REVENUE_CONCEPTS, 'USD').filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
   });
@@ -286,15 +290,77 @@ function migrateLegacyPointInTimeData(data = {}) {
   return { data: next, migrated };
 }
 
+// 2026-10-13 audit F03/F04/F16: the share count that prices P/E, P/B and the reference market cap. Candidates in
+// order — the cover-page count (same 10-K first, else the nearest within 400 days of the fiscal year end), the
+// same fiscal year's weighted diluted count, the year-end common shares outstanding. Before this, a missing
+// current cover count fell back to the newest cover count of ANY year (V/MA/CMCSA/CHTR priced on 2009-2015
+// shares, P/E 2-9) and multi-class filers (GOOGL/META) whose cover counts are only class-dimensioned — which
+// companyfacts omits, so a per-class sum is not available here — had none. Each candidate is checked against
+// net income ÷ diluted EPS (P1587); a scale mismatch moves on to the next candidate.
+function selectShareCount(companyFacts, currentRevenue, netIncome, eps) {
+  const fiscalEnd = currentRevenue.end;
+  const gap = (row) => shareGapDays(row.end, fiscalEnd);
+  const withinYear = (rows) => rows.filter((row) => { const days = gap(row); return days != null && days <= SEC_SHARES_MAX_GAP_DAYS; });
+  const dei = instantRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares');
+  const deiNear = withinYear(dei);
+  const cover = deiNear.find((row) => row.accn && row.accn === currentRevenue.accn) || deiNear.sort((a, b) => gap(a) - gap(b))[0] || null;
+  const weighted = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['WeightedAverageNumberOfDilutedSharesOutstanding'], 'shares').filter((row) => {
+    const days = durationDays(row);
+    return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && sameFiscalPeriod(currentRevenue, row) && finiteFact(row.val) != null;
+  }))[0] || null;
+  const yearEnd = withinYear(instantRows(companyFacts, 'us-gaap', ['CommonStockSharesOutstanding'], 'shares')).sort((a, b) => gap(a) - gap(b))[0] || null;
+  const implied = Number.isFinite(netIncome) && Number.isFinite(eps) && eps !== 0 && Math.sign(netIncome) === Math.sign(eps) ? netIncome / eps : null;
+  const weightedValue = finiteFact(weighted?.val);
+  const checkAgainst = (value, reference) => {
+    const ratio = value > 0 && reference > 0 ? value / reference : null;
+    return ratio == null ? null : ratio > 3 || ratio < 1 / 3 ? 'scale-mismatch' : 'consistent';
+  };
+  const candidates = [[cover, 'dei-cover'], [weighted, 'weighted-diluted'], [yearEnd, 'common-shares-outstanding']].filter(([row]) => row && finiteFact(row.val) > 0);
+  let rejected = null;
+  for (const [row, basis] of candidates) {
+    const value = finiteFact(row.val);
+    // Without EPS, a cover or year-end count is cross-checked against the weighted diluted count of the same year.
+    const check = checkAgainst(value, implied) || (basis !== 'weighted-diluted' ? checkAgainst(value, weightedValue) : null) || 'unchecked';
+    if (check === 'scale-mismatch') { rejected = rejected || { row, basis }; continue; }
+    return { row, value, basis, check };
+  }
+  if (rejected) return { row: rejected.row, value: null, basis: rejected.basis, check: 'scale-mismatch' };
+  return { row: null, value: null, basis: null, check: dei.length ? 'stale-period' : 'unreported' };
+}
+
+// N20 (2026-10-13): the issuer's own recent filings from the submissions document this job already reads —
+// 8-K (with Item numbers), 10-Q, 10-K and their amendments within 30 days before the fetch, newest first, at most 5.
+export const RECENT_FILING_WINDOW_DAYS = 30;
+export const RECENT_FILING_MAX = 5;
+export function recentFilingsFrom(submissions, nowMs = Date.now()) {
+  const recent = submissions?.filings?.recent || {};
+  const forms = Array.isArray(recent.form) ? recent.form : [];
+  const cutoff = nowMs - RECENT_FILING_WINDOW_DAYS * 86400000;
+  const rows = [];
+  forms.forEach((form, index) => {
+    if (!/^(8-K|10-Q|10-K)(\/A)?$/.test(String(form || ''))) return;
+    const filedAt = String(recent.filingDate?.[index] || '').slice(0, 10);
+    const accession = String(recent.accessionNumber?.[index] || '');
+    const filedMs = Date.parse(filedAt);
+    if (!Number.isFinite(filedMs) || filedMs < cutoff || filedMs > nowMs + 86400000 || !/^\d{10}-\d{2}-\d{6}$/.test(accession)) return;
+    const items = String(recent.items?.[index] || '').split(',').map((item) => item.trim()).filter((item) => /^\d\.\d{2}$/.test(item));
+    rows.push({ form: String(form), filedAt, accession, ...(items.length ? { items } : {}), ...(recent.reportDate?.[index] ? { reportDate: String(recent.reportDate[index]).slice(0, 10) } : {}) });
+  });
+  return rows.sort((a, b) => b.filedAt.localeCompare(a.filedAt) || b.accession.localeCompare(a.accession)).slice(0, RECENT_FILING_MAX);
+}
+
 export function normalizeSecCompanyFacts(symbol, companyFacts, price, submissions = null) {
-  const revenues = annualDurationRows(companyFacts, [
-    'RevenueFromContractWithCustomerExcludingAssessedTax',
-    'Revenues',
-    'SalesRevenueNet',
-    // P1374: banks/broker-dealers (GS, FITB, RF, TFC…) report total revenue net of interest expense.
-    // Lowest priority: dedupeLatestFiled keeps the earlier concept for the same period/filing.
-    'RevenuesNetOfInterestExpense'
-  ]);
+  // F05/F06: every annual revenue concept is collected; bestRevenueRowsByPeriod picks one row per fiscal period
+  // (largest primary concept, assessed-tax-inclusive only as a fallback). P1374 bank net revenue stays a
+  // primary concept.
+  // (annualDurationRows dedupes by period+form across concepts, so the per-concept rows are filtered here instead.)
+  const revenues = bestRevenueRowsByPeriod(factRows(companyFacts, 'us-gaap', [
+    ...SEC_PRIMARY_REVENUE_CONCEPTS,
+    ...SEC_FALLBACK_REVENUE_CONCEPTS
+  ], 'USD').filter(row => {
+    const days = durationDays(row);
+    return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && finiteFact(row.val) != null;
+  }));
   const incomes = annualDurationRows(companyFacts, ['NetIncomeLoss', 'ProfitLoss']);
   if (!revenues.length) return null;
 
@@ -305,25 +371,21 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     'StockholdersEquity', // P1402: parent equity first; see buildPointInTimeFacts
     'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'
   ], 'USD');
-  const shares = instantRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares');
   const currentEquity = closestEnd(equities, currentRevenue.end) || null;
-  const currentShares = closestEnd(shares, currentRevenue.end) || shares[0] || null;
   const acceptedMap = acceptedAtByAccession(submissions);
 
   const revenue = Number(currentRevenue.val);
   const netIncome = finiteFact(currentIncome?.val);
   const equity = finiteFact(currentEquity?.val);
-  // P1587: the cover-page share count is cross-checked against net income ÷ diluted EPS for the same
-  // fiscal year. PKG's companyfacts carried 89,213,394,000 shares (1000x), which published P/E 26,500 and
-  // P/B 4,461 into the screener. A count more than 3x away from the EPS-implied count is withheld.
+  // P1587: the share count is cross-checked against net income ÷ diluted EPS for the same fiscal year. PKG's
+  // companyfacts carried 89,213,394,000 cover shares (1000x), which published P/E 26,500 and P/B 4,461.
   const epsRow = dedupeLatestFiled(factRows(companyFacts, 'us-gaap', ['EarningsPerShareDiluted', 'EarningsPerShareBasic'], 'USD/shares')
     .filter((row) => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && row.end === currentRevenue.end && finiteFact(row.val) != null))[0] || null;
   const eps = finiteFact(epsRow?.val);
-  const reportedShares = finiteFact(currentShares?.val);
-  const impliedShares = Number.isFinite(netIncome) && Number.isFinite(eps) && eps !== 0 && Math.sign(netIncome) === Math.sign(eps) ? netIncome / eps : null;
-  const shareScaleRatio = reportedShares > 0 && impliedShares > 0 ? reportedShares / impliedShares : null;
-  const sharesCheck = shareScaleRatio == null ? 'unchecked' : shareScaleRatio > 3 || shareScaleRatio < 1 / 3 ? 'scale-mismatch' : 'consistent';
-  const sharesOutstanding = sharesCheck === 'scale-mismatch' ? null : reportedShares;
+  const shareSelection = selectShareCount(companyFacts, currentRevenue, netIncome, eps);
+  const currentShares = shareSelection.row;
+  const sharesCheck = shareSelection.check;
+  const sharesOutstanding = shareSelection.value;
   const px = Number(price);
   const marketCap = px > 0 && sharesOutstanding > 0 ? px * sharesOutstanding : null;
 
@@ -395,14 +457,24 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     // parent-only NetIncomeLoss numerator, so consumers can see when the ratio mixes bases.
     equityBasis: !Number.isFinite(equity) ? null : currentEquity?.concept === 'StockholdersEquity' ? 'parent' : 'including-noncontrolling-interest',
     sharesOutstanding: Number.isFinite(sharesOutstanding) ? sharesOutstanding : null,
-    sharesCheck, // P1587: consistent | scale-mismatch (withheld) | unchecked
-    sharesObservedAt: currentShares?.end || null,
+    // P1587 + F03/F04: consistent | scale-mismatch (withheld) | unchecked | stale-period / unreported (no count
+    // within 400 days of the fiscal year end — withheld, P/E·P/B·reference market cap stay empty)
+    sharesCheck,
+    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding
+    sharesObservedAt: Number.isFinite(sharesOutstanding) ? currentShares?.end || null : null,
+    normalizerVersion: SEC_NORMALIZER_VERSION,
+    revenueConcept: currentRevenue.concept || null,
+    // N20: recent 8-K/10-Q/10-K filings within 30 days before this fetch (`fetchedAt`): date, form, Item numbers,
+    // accession only — no filing text.
+    recentFilings: recentFilingsFrom(submissions),
     coverage: ['revenue', ...(netIncome != null ? ['netIncome'] : []), ...(equity != null ? ['equity'] : []), ...(sharesOutstanding != null ? ['sharesOutstanding'] : [])],
     pit: buildPointInTimeFacts(companyFacts, submissions)
   };
 
   if (priorRevenue && Number(priorRevenue.val) > 0) record.revGrowth = round((revenue / Number(priorRevenue.val) - 1) * 100, 1);
   if (netIncome != null && revenue !== 0) record.margin = round(netIncome / revenue * 100, 1);
+  // F05: a margin above 100% means a revenue subtotal, not the business; withheld (value kept for audit).
+  if (record.margin > SEC_MARGIN_HOLD_ABOVE_PCT) { record.marginHeld = { value: record.margin, reason: 'margin-above-100pct-revenue-subtotal' }; delete record.margin; }
   if (netIncome != null && equity > 0) record.roe = round(netIncome / equity * 100, 1);
   if (marketCap && netIncome > 0) record.pe = round(marketCap / netIncome, 2);
   if (marketCap && equity > 0) record.pb = round(marketCap / equity, 2);
@@ -471,7 +543,10 @@ export async function refreshSecFundamentals(priceHints = null) {
     console.warn('[sec-fundamentals] skipped: SEC_USER_AGENT repository variable is required by SEC fair-access policy');
     return skipped;
   }
-  const symbols = (universePayload.universe || []).map(row => row && row.sym).filter(sym => sym && !/\.(KS|KQ)$/i.test(sym));
+  // F08 (2026-10-13): ETFs/trusts are not operating companies — a commodity trust's "revenue" is its trading
+  // gain or loss (USO margin 115%, SLV negative revenue). They are excluded from collection and pruned below.
+  const etfSymbols = new Set((universePayload.universe || []).filter(isEtfUniverseRow).map(row => row.sym));
+  const symbols = (universePayload.universe || []).map(row => row && row.sym).filter(sym => sym && !/\.(KS|KQ)$/i.test(sym) && !etfSymbols.has(sym));
   const tickerPayload = await fetchJSON(SEC_TICKERS_URL);
   const tickerMap = buildTickerMap(tickerPayload);
   const eligible = symbols.filter(symbol => tickerMap.has(tickerKey(symbol)));
@@ -493,6 +568,9 @@ export async function refreshSecFundamentals(priceHints = null) {
       // fetches, but stored records only refresh after REFRESH_AFTER_MS, so all 592 published issuers
       // still lacked it. A stored record without the cash-chain observations is due now.
       cashChainMissing: Boolean(previous.data && previous.data[symbol] && (!Array.isArray(previous.data[symbol]?.pit?.observations?.operatingCashFlow) || !Array.isArray(previous.data[symbol]?.pit?.observations?.revenueQ))),
+      // 2026-10-13 F04: a record from an older normalizer (494 of 659 lacked the P1587 share check) is due now;
+      // the publish-time heal below covers what its stored observations allow until then.
+      normalizerOutdated: Boolean(previous.data && previous.data[symbol] && previous.data[symbol].normalizerVersion !== SEC_NORMALIZER_VERSION),
       lastFailureAt: previousFailureAt.get(symbol) || null,
       priorFailure: previousFailureRecords.get(symbol) || null
     }))
@@ -502,7 +580,7 @@ export async function refreshSecFundamentals(priceHints = null) {
         && row.priorFailure?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION;
       if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported && !conceptSetChanged) return false;
       if (conceptSetChanged) return true;
-      const dataDue = !row.fetchedAt || row.cashChainMissing || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
+      const dataDue = !row.fetchedAt || row.cashChainMissing || row.normalizerOutdated || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
       const retryDue = retryFailedNow || !row.lastFailureAt || now - new Date(row.lastFailureAt).getTime() >= FAILURE_RETRY_AFTER_MS;
       return dataDue && retryDue;
     })
@@ -572,9 +650,14 @@ export async function refreshSecFundamentals(priceHints = null) {
   // concept order (for example Agilent, whose NCI-inclusive tag carried its AOCI value) keep
   // shipping -226M until their 28-day re-fetch; when the same filing's parent
   // StockholdersEquity row is in the stored PIT observations, use it without waiting.
+  // 2026-10-13 F03/F05: the same publish-time heal re-selects revenue per period, withholds margins above 100%
+  // and drops share counts from another fiscal year (reconcileSecRevenueShares), so every stored row follows
+  // the new policy on the next run instead of waiting for its re-fetch. F08: ETF rows are pruned.
   let healedCount = 0;
+  let etfPruned = 0;
   for (const [symbol, record] of Object.entries(data)) {
-    const healed = reconcileSecEquity(record);
+    if (etfSymbols.has(symbol)) { delete data[symbol]; etfPruned++; continue; }
+    const healed = reconcileSecEquity(reconcileSecRevenueShares(record));
     if (healed !== record) { data[symbol] = healed; healedCount++; }
   }
 
@@ -621,7 +704,7 @@ export async function refreshSecFundamentals(priceHints = null) {
     data
   };
   await atomicWrite(OUT, payload);
-  console.log(`[sec-fundamentals] stored=${payload.stored}/${payload.eligible} attempted=${payload.attempted} updated=${updated} failed=${payload.failures.length} terminalUnsupported=${payload.terminalUnsupported.length} healed=${healedCount}`);
+  console.log(`[sec-fundamentals] stored=${payload.stored}/${payload.eligible} attempted=${payload.attempted} updated=${updated} failed=${payload.failures.length} terminalUnsupported=${payload.terminalUnsupported.length} healed=${healedCount} etfPruned=${etfPruned}`);
   return payload;
 }
 

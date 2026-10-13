@@ -56,13 +56,87 @@ export function groupNewsStories(rows = []) {
 }
 
 const escaped = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-function mentions(text, name) {
-  if (!name) return false;
-  // P1601: "price target" is not Target the issuer, even when an AI cache suggested TGT.
-  if (value(name).toLowerCase() === 'target') return /\bTarget\s+(?:Corporation|stores?)\b/i.test(text);
-  const particle = /[가-힣]/.test(name) ? '(?:은|는|이|가|을|를|의|와|과|도|에서|에게|으로|로)?' : '';
-  return new RegExp(`(^|[^\\p{L}\\p{N}])${escaped(value(name))}${particle}(?=$|[^\\p{L}\\p{N}])`, 'iu').test(text);
+// 2026-10-13 news audit N06: one-word company names that are also ordinary English words ("US moves to block …",
+// "Fed officials snap back", "Progressive Democrats", "investors grab Treasuries", "a lucid explanation"). The
+// Telegram matcher (scripts/lib/telegram-tickers.mjs COMMON_WORD_NAMES) already requires a proper noun; news
+// issuers now require the proper noun AND a corporate cue near it (Inc/Corp/stock/shares/earnings or the symbol),
+// because Title Case headlines capitalise every word.
+export const COMMON_WORD_ISSUER_NAMES = new Set(['block', 'snap', 'progressive', 'grab', 'toast', 'lucid', 'vertex', 'elastic',
+  'shell', 'visa', 'cadence', 'coherent', 'carnival', 'upstart', 'affirm', 'chewy', 'travelers', 'workday', 'confluent',
+  'microchip', 'snowflake', 'paramount', 'iridium', 'occidental', 'abbott', 'vale', 'cactus', 'shoals', 'chevron', 'arm',
+  'lowe\'s', 'lowes', 'target']);
+const CORPORATE_CUE = /\b(?:Inc|Corp|Corporation|Co|Company|Companies|Holdings|Group|Ltd|plc|Laboratories|Labs|stocks?|shares?|earnings|CEO|results|revenue|guidance|quarter(?:ly)?|profits?|sales|dividends?|buybacks?|outlook)\b/i;
+const apostrophes = (text) => String(text || '').replace(/[’‘`]/g, '\'');
+function symbolNamedExplicitly(text, symbol) {
+  if (!symbol) return false;
+  const sym = escaped(String(symbol).toUpperCase());
+  return new RegExp(`\\$${sym}(?=$|[^A-Za-z0-9.])|\\(\\s*(?:(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*:\\s*)?${sym}\\s*\\)|(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX)\\s*:\\s*${sym}(?=$|[^A-Za-z0-9.])`).test(text);
 }
+/**
+ * True when `text` names the company `name` (case rules above); `symbol` lets an explicit ticker count as the cue.
+ * `requireCue` applies the common-word rule to any one-word name (used when a longer legal name was shortened).
+ */
+export function issuerNameMentioned(rawText, rawName, symbol = '', { requireCue = false } = {}) {
+  const name = apostrophes(value(rawName));
+  if (!name) return false;
+  const text = apostrophes(rawText);
+  // P1601: "price target" is not Target the issuer, even when an AI cache suggested TGT.
+  if (name.toLowerCase() === 'target') return /\bTarget\s+(?:Corporation|stores?)\b/i.test(text);
+  const particle = /[가-힣]/.test(name) ? '(?:은|는|이|가|을|를|의|와|과|도|에서|에게|으로|로)?' : '';
+  const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${escaped(name)})${particle}(?=$|[^\\p{L}\\p{N}])`, 'giu');
+  const oneWord = /^[A-Z][a-z]+(?:'s)?$/.test(name);
+  const common = COMMON_WORD_ISSUER_NAMES.has(name.toLowerCase()) || (requireCue && oneWord);
+  for (const match of text.matchAll(re)) {
+    if (!oneWord && !common) return true;
+    const found = match[2];
+    // A one-word Title-case name only counts as a proper noun ("visa rules" is not Visa).
+    if (!/^[A-Z]/.test(found)) continue;
+    if (!common) return true;
+    const at = match.index + match[1].length;
+    if (/^-\p{L}/u.test(text.slice(at + found.length))) continue; // "Carnival-like", "Block-level"
+    const near = text.slice(Math.max(0, at - 30), at + found.length + 40);
+    if (CORPORATE_CUE.test(near) || symbolNamedExplicitly(text, symbol)) return true;
+  }
+  return false;
+}
+function mentions(text, name, symbol) { return issuerNameMentioned(text, name, symbol); }
+
+// N07: a bank or broker named as the analyst ("Goldman Sachs raises oil target", "… – Bank of America",
+// "JP모건) TSMC: …") is the opinion's source, not the article's issuer — the same principle as the P1428
+// earnings-path correction in src/ui/pages/news.js (the reporting company, not the analyst's firm).
+const ANALYST_FIRM_ALIASES = { JPM: ['J.P. Morgan', 'JP Morgan', 'JPMorgan Chase'], BAC: ['BofA', 'BofA Securities', 'BofA Global Research'],
+  GS: ['Goldman'], MS: [], C: ['Citi', 'Citigroup'], WFC: [], SCHW: ['Schwab'], BLK: [], UBS: ['UBS'], DB: ['Deutsche Bank'],
+  JEF: ['Jefferies'], RJF: ['Raymond James'], EVR: ['Evercore', 'Evercore ISI'], PIPR: ['Piper Sandler'], SF: ['Stifel'],
+  HSBC: ['HSBC'], BCS: ['Barclays'], NMR: ['Nomura'], MUFG: ['MUFG'] };
+const ANALYST_VERB = '(?:analysts?|strategists?|economists?|research|says|said|raises?|raised|cuts?|lifts?|lowers?|flags?|forecasts?|sees|expects?|predicts?|estimates?|upgrades?|downgrades?|initiates?|reiterates?|maintains?|warns?|boosts?|trims?|hikes?|recommends?|bullish|bearish|calls?|projects?|thinks|believes|likes)';
+function analystFirmOnly(text, symbol, entry) {
+  if (!Object.hasOwn(ANALYST_FIRM_ALIASES, symbol)) return false;
+  const names = [entry?.en, entry?.kr, ...ANALYST_FIRM_ALIASES[symbol]].map(value).filter((name) => name && name.length >= 3);
+  if (!names.length) return false;
+  const alt = names.map(escaped).join('|');
+  const N = `(?:${alt})`;
+  const t = apostrophes(text);
+  const role = [
+    new RegExp(`${N}\\s*\\)`, 'iu'),
+    new RegExp(`(?:^|\\s)(?:at|from|by|per|via|according to)\\s+${N}`, 'iu'),
+    new RegExp(`${N}(?:'s)?\\s+${ANALYST_VERB}\\b`, 'iu'),
+    new RegExp(`[–—-]\\s*${N}\\s*$`, 'iu'),
+    new RegExp(`^\\s*${N}\\s*:`, 'iu'),
+    new RegExp(`:\\s*${N}\\s*$`, 'iu'),
+    new RegExp(`${N}(?:은|는|이|가)?\\s*[^.\\n]{0,30}(?:목표주가|투자의견|리포트|보고서|전망치)`, 'u'),
+    new RegExp(`${N}(?:에 따르면|\\s*(?:애널리스트|이코노미스트|전략가))`, 'u')
+  ].some((re) => re.test(t));
+  if (!role) return false;
+  const issuerEvidence = symbolNamedExplicitly(t, symbol)
+    || new RegExp(`${N}(?:'s)?\\s+(?:shares|stock|earnings|profit|results|revenue|quarterly|Q[1-4]|reports|posts|beats|misses|CEO|board|layoffs|to buy|to acquire|acquires|settles)\\b`, 'iu').test(t)
+    || new RegExp(`${N}\\s*(?:의\\s*)?(?:실적|주가|순이익|영업이익|주주)`, 'u').test(t);
+  return !issuerEvidence;
+}
+
+// N08: Korean short names from the registry `alt` list ("하이닉스", "lg엔솔") count with the same boundary
+// rule when longer than two characters; two-character abbreviations ("삼전", "삼바") stay out.
+const koreanAlts = (entry) => (Array.isArray(entry?.alt) ? entry.alt : []).map(value).filter((name) => /[가-힣]/.test(name) && name.length > 2);
+const issuerNames = (entry) => [entry?.en, entry?.kr, ...koreanAlts(entry)].filter((name) => name && !/^[A-Z0-9.^=-]{1,5}$/.test(name));
 
 export function resolveNewsIssuers(row, candidates = [], entries = {}) {
   const text = `${value(row?.title || row?.headline)} ${value(row?.desc || row?.summary)}`;
@@ -75,16 +149,17 @@ export function resolveNewsIssuers(row, candidates = [], entries = {}) {
     if (Object.hasOwn(entries, symbol)) {
       const entry = entries[symbol];
       // An AI-supplied symbol alone cannot establish that this article mentions the company.
-      if (explicit(symbol) || [entry.en, entry.kr].some((name) => name && !/^[A-Z0-9.^=-]{1,5}$/.test(name) && mentions(text, name))) result.add(symbol);
+      if (explicit(symbol) || issuerNames(entry).some((name) => mentions(text, name, symbol))) result.add(symbol);
     } else if (!/^[A-Z0-9.^=-]{1,5}$/i.test(raw)) {
-      const matches = Object.entries(entries).filter(([, entry]) => [entry.en, entry.kr].some((name) => value(name).toLowerCase() === raw.toLowerCase() && mentions(text, name)));
+      const matches = Object.entries(entries).filter(([symbol, entry]) => issuerNames(entry).some((name) => value(name).toLowerCase() === raw.toLowerCase() && mentions(text, name, symbol)));
       if (matches.length === 1) result.add(matches[0][0]);
     }
   }
   // Explicit known symbols and exact canonical company names are useful without an AI cache.
   for (const [symbol, entry] of Object.entries(entries)) {
-    if (explicit(symbol) || [entry.en, entry.kr].some((name) => name && !/^[A-Z0-9.^=-]{1,5}$/.test(name) && mentions(text, name))) result.add(symbol);
+    if (explicit(symbol) || issuerNames(entry).some((name) => mentions(text, name, symbol))) result.add(symbol);
   }
+  for (const symbol of [...result]) if (analystFirmOnly(text, symbol, entries[symbol])) result.delete(symbol);
   return [...result];
 }
 

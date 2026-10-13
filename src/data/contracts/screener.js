@@ -3,6 +3,7 @@
 // can consume the same immutable shapes without importing the legacy shell.
 import { CANONICAL_SOURCE_TIERS, canonicalSourceTier } from './source-kind.js';
 import { latestCompletedUsSession, latestCompletedKrSession, nyParts } from '../../ai/time/market-session.js';
+import { listingMarketOfSymbol, timeZoneForSymbol } from '../../domain/market/session-time.js';
 
 export const SCREENER_CONTRACT_VERSION = 'screener-workbench.v1';
 export const FIELD_STATUS = Object.freeze([
@@ -189,7 +190,6 @@ const FIELD_ROWS = [
   ['valuation.marketCap', '시가총액', 'number', 'USD_bn', 'mcap', 7],
   ['valuation.pe', 'PER', 'number', 'multiple', 'pe', 30],
   ['valuation.pb', 'PBR', 'number', 'multiple', 'pb', 30],
-  ['valuation.evEbitda', 'EV/EBITDA', 'number', 'multiple', 'evEbitda', 30],
   ['quality.roe', 'ROE', 'number', 'percent', 'roe', 90],
   ['quality.margin', '순이익률', 'number', 'percent', 'margin', 90],
   ['quality.revGrowth', '매출 성장률', 'number', 'percent', 'revGrowth', 90],
@@ -360,14 +360,39 @@ function nyDate(ms) {
   if (!nyDateMemo.has(ms)) { if (nyDateMemo.size > 5000) nyDateMemo.clear(); nyDateMemo.set(ms, nyParts(ms).date); }
   return nyDateMemo.get(ms);
 }
-export function isLatestSessionObservation(observedMs, now, market = 'US') {
+// v57.51 F07/V04 (D1 request): Tokyo/Taipei listings were judged against the New York session. There is no
+// exchange holiday calendar for them here, so the latest completed session is the latest weekday whose local
+// close (+30 min) has passed; a local holiday reads as one session behind and falls back to the calendar budget.
+const INTL_CLOSE_MINUTES = Object.freeze({ 'Asia/Tokyo': 15 * 60 + 30, 'Asia/Taipei': 13 * 60 + 30 });
+const intlFormatters = new Map();
+function localParts(ms, timeZone) {
+  if (!intlFormatters.has(timeZone)) intlFormatters.set(timeZone, new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', weekday: 'short', hourCycle: 'h23' }));
+  const parts = Object.fromEntries(intlFormatters.get(timeZone).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
+  return { date: `${parts.year}-${parts.month}-${parts.day}`, minutes: Number(parts.hour) * 60 + Number(parts.minute), weekday: parts.weekday };
+}
+function latestCompletedLocalSession(now, timeZone) {
+  const close = INTL_CLOSE_MINUTES[timeZone];
+  if (close == null) return null;
+  for (let back = 0; back < 8; back++) {
+    const local = localParts(now - back * 86400000, timeZone);
+    if (local.weekday === 'Sat' || local.weekday === 'Sun') continue;
+    if (back === 0 && local.minutes < close + 30) continue;
+    return local.date;
+  }
+  return null;
+}
+export function isLatestSessionObservation(observedMs, now, market = 'US', timeZone = null) {
   if (!Number.isFinite(observedMs)) return false;
+  if (market === 'INTL') {
+    const latest = timeZone ? latestCompletedLocalSession(now, timeZone) : null;
+    return Boolean(latest) && localParts(observedMs, timeZone).date >= latest;
+  }
   const { us, kr } = latestSessions(now);
   if (market === 'KR') return Boolean(kr) && new Date(observedMs + 9 * 3600000).toISOString().slice(0, 10) >= kr.date;
   return Boolean(us) && nyDate(observedMs) >= us.date;
 }
 
-export function classifyFieldStatus({ value, observedAt, now = Date.now(), freshnessBudgetMs = null, supported = true, rights = 'UNKNOWN', conflict = false, sourceKind = 'T3_PUBLIC_DELAYED', lastGood = false, cadence = null, market = 'US' } = {}) {
+export function classifyFieldStatus({ value, observedAt, now = Date.now(), freshnessBudgetMs = null, supported = true, rights = 'UNKNOWN', conflict = false, sourceKind = 'T3_PUBLIC_DELAYED', lastGood = false, cadence = null, market = 'US', timeZone = null } = {}) {
   if (!supported) return 'UNSUPPORTED';
   // A known public delayed source can support research while its redistribution
   // rights remain under review. UNKNOWN/denied access is still blocked, and the
@@ -378,7 +403,7 @@ export function classifyFieldStatus({ value, observedAt, now = Date.now(), fresh
   if (value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value))) return 'MISSING';
   const observedMs = observedAt ? Date.parse(observedAt) : NaN;
   if (!Number.isFinite(observedMs) || !Number.isFinite(now) || observedMs > now) return 'STALE';
-  const sessionCurrent = cadence === 'session/eod' && isLatestSessionObservation(observedMs, now, market);
+  const sessionCurrent = cadence === 'session/eod' && isLatestSessionObservation(observedMs, now, market, timeZone);
   if (!sessionCurrent && freshnessBudgetMs != null && (!Number.isFinite(freshnessBudgetMs) || freshnessBudgetMs < 0 || now - observedMs > freshnessBudgetMs)) return lastGood ? 'LAST_GOOD' : 'STALE';
   return reviewedPublicReference || String(sourceKind) === 'T3_PUBLIC_DELAYED' ? 'DELAYED' : 'CURRENT';
 }
@@ -410,6 +435,11 @@ export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGIST
   const instrumentRef = row.instrumentRef || createInstrumentRef(row);
   const observations = [];
   const readiness = {};
+  // v57.51 F07/V04: KR, INTL (Tokyo/Taipei, judged on their own local session) or US.
+  const symbol = String(row.sym || row.symbol || '');
+  const listingMarket = /\.(KS|KQ)$/i.test(symbol) || row.market === 'KR' ? 'KR'
+    : String(row.listingMarket || '').toUpperCase() === 'INTL' || listingMarketOfSymbol(symbol) === 'INTL' ? 'INTL' : 'US';
+  const sessionTimeZone = listingMarket === 'INTL' ? (row.factorSessionTimezone || timeZoneForSymbol(symbol)) : null;
   for (const definition of registry.fields) {
     const value = rowValue(row, definition);
     const context = fieldObservationContext(row, definition);
@@ -426,7 +456,8 @@ export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGIST
       now,
       freshnessBudgetMs: definition.freshnessBudgetMs,
       cadence: definition.cadence,
-      market: /\.(KS|KQ)$/i.test(String(row.sym || row.symbol || '')) || row.market === 'KR' ? 'KR' : 'US',
+      market: listingMarket,
+      timeZone: sessionTimeZone,
       supported: supported ? supported.has(definition.fieldId) : !row._unsupportedFields?.includes?.(definition.fieldId),
       rights: fieldRights,
       conflict: conflicts.has(definition.fieldId),

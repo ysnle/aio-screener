@@ -716,14 +716,15 @@ var KR_STOCK_DB = {
   '058470': {name:'리노공업', sector:'반도체장비', themes:['semi']},
   '240810': {name:'원익IPS', sector:'반도체장비', themes:['semi']},
   '036930': {name:'주성엔지니어링', sector:'반도체장비', themes:['semi']},
-  '131970': {name:'테크윙', sector:'반도체장비', themes:['semi']},
+  '131970': {name:'두산테스나', sector:'반도체테스트', themes:['semi']}, // 2026-10-13: KIND/KOSDAQ150 PDF name; was mislabelled 테크윙
+  '089030': {name:'테크윙', sector:'반도체장비', themes:['semi']},
   '005290': {name:'동진쎄미켐', sector:'반도체소재', themes:['semi']},
   '007660': {name:'이수페타시스', sector:'서버용PCB', themes:['semi']},
   '095340': {name:'ISC', sector:'반도체테스트', themes:['semi']},
   // ════════ 방산 (7) ════════
   '012450': {name:'한화에어로스페이스', sector:'방산', themes:['defense']},
   '047810': {name:'한국항공우주(KAI)', sector:'방산', themes:['defense']},
-  '079550': {name:'LIG넥스원', sector:'방산', themes:['defense']},
+  '079550': {name:'LIG디펜스앤에어로스페이스', sector:'방산', themes:['defense']},
   '064350': {name:'현대로템', sector:'방산', themes:['defense']},
   '272210': {name:'한화시스템', sector:'방산IT', themes:['defense']},
   '000880': {name:'한화', sector:'방산지주', themes:['defense']},
@@ -741,7 +742,6 @@ var KR_STOCK_DB = {
   '035420': {name:'NAVER', sector:'IT플랫폼', themes:['ai-sw','telecom']},
   '035720': {name:'카카오', sector:'IT플랫폼', themes:['ai-sw','crypto']},
   '041020': {name:'폴라리스오피스', sector:'SW', themes:['ai-sw']},
-  '012510': {name:'더존비즈온', sector:'ERP', themes:['ai-sw']},
   '030520': {name:'한글과컴퓨터', sector:'SW', themes:['ai-sw']},
   '018260': {name:'삼성SDS', sector:'IT서비스', themes:['ai-sw']},
   '304100': {name:'솔트룩스', sector:'AI', themes:['ai-sw']},
@@ -812,7 +812,7 @@ var KR_STOCK_DB = {
   '018880': {name:'한온시스템', sector:'열관리', themes:['auto']},
   // ════════ 로봇 (6) ════════
   '277810': {name:'레인보우로보틱스', sector:'로봇', themes:['robot']},
-  '315640': {name:'뉴로메카', sector:'협동로봇', themes:['robot']},
+  '315640': {name:'딥노이드', sector:'의료AI', themes:[]}, // 2026-10-13: KIND name for 315640 (뉴로메카 is 348340, not in the universe)
   '178320': {name:'서진시스템', sector:'통신장비/ESS', themes:['telecom','wind_solar']},
   '454910': {name:'두산로보틱스', sector:'협동로봇', themes:['robot']},
   '056080': {name:'유진로봇', sector:'서비스로봇', themes:['robot']},
@@ -903,7 +903,7 @@ var KR_STOCK_DB = {
   '041190': {name:'우리기술투자', sector:'크립토투자', themes:['crypto']},
   '047080': {name:'한빛소프트', sector:'크립토게임', themes:['crypto']},
   // ════════ v35.8 신규: 의료기기/디지털헬스 재구성 ════════
-  '047820': {name:'삼천당제약', sector:'GLP-1 제약', themes:['medtech_kr']},
+  '000250': {name:'삼천당제약', sector:'GLP-1 제약', themes:['medtech_kr']}, // 2026-10-13: was keyed 047820 (초록뱀미디어 in KIND)
   '018670': {name:'SK가스', sector:'에너지', themes:['energy_kr']},
   // ════════ v41.9 신규: 신재생/양자/UAM/수소/우주 테마 종목 ════════
   '112610': {name:'씨에스윈드', sector:'풍력타워', themes:['wind_solar']},
@@ -917,7 +917,7 @@ var KR_STOCK_DB = {
   // v46.10: KR_THEME_MAP 누락 종목 보충 (8건)
   '007310': {name:'오뚜기', sector:'식품', themes:['kfood']},
   '018290': {name:'브이티', sector:'뷰티', themes:['kbeauty']},
-  '950130': {name:'엑시큐어', sector:'바이오', themes:['bio']},
+  '950130': {name:'엑세스바이오', sector:'진단키트', themes:['bio']}, // 2026-10-13: KIND name for 950130 (was mislabelled 엑시큐어)
   '439090': {name:'마녀공장', sector:'뷰티', themes:['kbeauty']},
   '085660': {name:'차바이오텍', sector:'바이오', themes:['medtech_kr']},
   '950160': {name:'코오롱티슈진', sector:'바이오', themes:['medtech_kr']},
@@ -934,7 +934,7 @@ var KR_THEME_MAP = {
   'defense': [
     {code:'012450'}, // 한화에어로스페이스 (K방산 절대 대장, 수출 주도)
     {code:'047810'}, // KAI (경공격기/KF-21)
-    {code:'079550'}, // LIG넥스원 (미사일/정밀유도)
+    {code:'079550'}, // LIG디펜스앤에어로스페이스 (미사일/정밀유도)
     {code:'064350'}, // 현대로템 (전차/철도)
     {code:'272210'}, // 한화시스템 (C4I/레이더)
     {code:'000880'},  // 한화 (방산 지주)
@@ -952,7 +952,8 @@ var KR_THEME_MAP = {
     {code:'058470'},  // 리노공업 (IC 테스트소켓)
     {code:'240810'},  // 원익IPS (CVD 장비)
     {code:'036930'},  // 주성엔지니어링 (ALD 장비)
-    {code:'131970'},  // 테크윙 (테스트핸들러)
+    {code:'131970'},  // 두산테스나 (웨이퍼 테스트 외주)
+    {code:'089030'},  // 테크윙 (테스트핸들러)
     {code:'000990'},  // DB하이텍 (파운드리)
     {code:'005290'},  // 동진쎄미켐 (포토레지스트)
     {code:'402340'}   // SK스퀘어 (SK하이닉스 지주)
@@ -970,7 +971,6 @@ var KR_THEME_MAP = {
     {code:'035420'}, // NAVER (HyperCLOVA X, AI 대장)
     {code:'018260'}, // 삼성SDS (AI ERP/Brity)
     {code:'035720'}, // 카카오 (카나나/AI)
-    {code:'012510'}, // 더존비즈온 (AI ERP)
     {code:'030520'},  // 한글과컴퓨터 (한컴AI)
     {code:'041020'},  // 폴라리스오피스 (글로벌 오피스)
     {code:'304100'}   // 솔트룩스 (한국어 LLM)
@@ -1176,7 +1176,7 @@ var KR_THEME_MAP = {
     {code:'047810'}, // KAI (위성/항공기)
     {code:'272210'}, // 한화시스템 (위성통신/SAR)
     {code:'064350'}, // 현대로템 (발사대/지상장비)
-    {code:'079550'}, // LIG넥스원 (위성탑재체/유도무기)
+    {code:'079550'}, // LIG디펜스앤에어로스페이스 (위성탑재체/유도무기)
     {code:'298040'},  // 효성중공업 (발사체 부품)
     {code:'000880'}   // 한화 (그룹 우주사업 지주)
   ]
@@ -1209,15 +1209,15 @@ function krTickerToYahoo(code) {
   var kosdaq = {
     '028300':1,'030520':1,'033100':1,'035900':1,'036930':1,'039030':1,'041020':1,
     '056080':1,'058470':1,'086520':1,
-    '094480':1,'112040':1,'122870':1,'131970':1,'141080':1,'145020':1,'178320':1,
+    '094480':1,'112040':1,'122870':1,'131970':1,'089030':1,'141080':1,'145020':1,'178320':1,
     '196170':1,'237880':1,'240810':1,'247540':1,'253450':1,'257720':1,'263750':1,
     '277810':1,'304100':1,'315640':1,'357780':1,
-    '403870':1,'950130':1,'047080':1,'047820':1,
+    '403870':1,'950130':1,'047080':1,'000250':1,
     '095340':1,'108320':1,'108490':1,'090360':1,'090710':1,'388720':1,
     '214150':1,'328130':1,'338220':1,'322510':1,'049950':1,
     '069540':1,'032500':1,'138080':1,'327260':1,'010170':1,'062970':1,'368770':1,'100590':1,'218410':1,'050890':1,
     '439090':1,'085660':1,'950160':1,'322310':1,'041190':1,
-    '005290':1,'012510':1,'083650':1,'018290':1,'041510':1,'035760':1 // P1589: corrected from listing exchange 2026-10-10
+    '005290':1,'083650':1,'018290':1,'041510':1,'035760':1 // P1589: corrected from listing exchange 2026-10-10
   };
   return code + (kosdaq[code] ? '.KQ' : '.KS');
 }

@@ -1,0 +1,22 @@
+{
+  "version": "v57.51",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.51 스크리너 데이터 품질·원천·커버리지 전수 점검(F01–F23·V01–V24·N01–N24) 반영(P1704~P1716).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1706,
+    "title": "섹터 ETF 11개와 IWM·DIA가 주식으로 집계되고, ETF·원자재 신탁에 SEC 재무가 붙음",
+    "symptom": "XLB~XLY(index ETF, sector 업종명)와 IWM·DIA(sector Financials)가 시장 폭·섹터 집계에 주식으로 포함. USO margin 115, SLV 매출 음수.",
+    "root_cause": "assetType 판정이 sector==='ETF'만 보았고 SEC 병합에 ETF 제외가 없었다.",
+    "fix": "screenerAssetType이 index·sector·이름 패턴(SPDR/ETF/Trust)과 명시 목록을 함께 본다(57개 ETF). SEC 수집·저장 레코드·병합에서 ETF 제외. IWM·DIA sector를 ETF로 정정.",
+    "violated_rule": "원천 없는 값 금지 — ETF에는 발행사 재무가 없음",
+    "prevention": "P1706: ci-data-pipeline(assetType 판정)·ci-sec-runtime-projection-check(ETF 정리)",
+    "verification": "57개 ETF 판정, NTRS·NFLX 주식 유지, 병합 fixture에서 USO·SLV 0건."
+  },
+  "qa": [],
+  "changelog": [
+    "**스크리너 데이터 점검 수정 (P1706):** 섹터 ETF 11개와 IWM·DIA가 주식으로 집계되고, ETF·원자재 신탁에 SEC 재무가 붙음."
+  ]
+}

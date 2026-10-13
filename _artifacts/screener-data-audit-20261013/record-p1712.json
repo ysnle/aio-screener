@@ -1,0 +1,22 @@
+{
+  "version": "v57.51",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.51 스크리너 데이터 품질·원천·커버리지 전수 점검(F01–F23·V01–V24·N01–N24) 반영(P1704~P1716).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1712,
+    "title": "실적 일정이 주말 UTC 실행에서 지난주를 조회하고 ASML·TSM 같은 대형주 누락을 알리지 않음",
+    "symptom": "토·일 실행이 지난주 창을 받음. 일정 119건 중 ASML·TSM 없음, 누락 여부 표시 없음.",
+    "root_cause": "fetch-earnings-calendar가 UTC 요일로 이번 주 월요일을 계산했고 대형주 커버리지 대조가 없었다.",
+    "fix": "주말이면 다음 월요일, 평일이면 이번 주 월요일부터 +7일. S&P 500 비중 상위 30+ADR 중 목록에 없는 종목을 largeCapCoverage.unconfirmed로 발행하고 실적 달력 상태에 '대형주 일정 미확인 N개'(hover 목록)로 표시. 날짜는 추정하지 않음.",
+    "violated_rule": "원천 없는 값 금지 — 누락을 \"발표 없음\"으로 읽히게 두지 않음",
+    "prevention": "P1712: ci-data-pipeline-contract-check(earningsCalendarWindow fixture)",
+    "verification": "토·일·월·금 fixture 모두 10-12~10-19, 현재 일정에서 ASML·TSM 포함 33개 미확인."
+  },
+  "qa": [],
+  "changelog": [
+    "**스크리너 데이터 점검 수정 (P1712):** 실적 일정이 주말 UTC 실행에서 지난주를 조회하고 ASML·TSM 같은 대형주 누락을 알리지 않음."
+  ]
+}

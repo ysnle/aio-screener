@@ -1001,8 +1001,42 @@ check('telegram digest registers four channels and fail-closed source catalog', 
   const plain = matchTickers('To be or not to be: a cat, a mu, a meta lite plan, a coherent oracle of apple and azure gemini');
   check('P1544 ordinary English words (be/cat/mu/meta/lite/coherent/oracle/apple) are not tagged as tickers', plain.length === 0, plain.join(','));
   const real = matchTickers('BE rose on SOFC demand while Micron and MU, TSMC TPU, Oracle, Coherent and Apple moved');
-  check('P1544 uppercase symbols and capitalized names still resolve', ['BE', 'MU', 'TSM', 'AVGO', 'ORCL', 'COHR', 'AAPL'].every((t) => real.includes(t)), real.join(','));
-  check('P1544 telegram producer delegates ticker matching to the case-sensitive matcher', /matchTickers\(stripLinks\(text\), SCREENER_ALIASES\)/.test(fetchTelegram) && !/\['BE', \/\\bBE\\b\|Bloom Energy\|SOFC\/i\]/.test(fetchTelegram));
+  check('P1544 uppercase symbols and capitalized names still resolve', ['BE', 'MU', 'TSM', 'ORCL', 'COHR', 'AAPL'].every((t) => real.includes(t)), real.join(','));
+  // 2026-10-13 news audit N15/N16: a product name (TPU) relates a company without making it the issuer, and a post
+  // naming six or more issuers is a list whose names leave the issuer tally.
+  const { classifyPostTickers } = await import('./lib/telegram-tickers.mjs');
+  const product = classifyPostTickers('TPU orders rise as SOFC demand grows');
+  check('P1711 N16 product names are related tickers, not issuers', product.tickers.length === 0 && ['AVGO', 'BE'].every((t) => product.relatedTickers.includes(t)) && !real.includes('AVGO'), JSON.stringify(product));
+  const list = classifyPostTickers('Net buying TOP: NVDA, AMZN, TSMC, Oracle, Tesla, Micron');
+  check('P1711 N15 six-or-more-issuer list posts leave the issuer tally', list.tickers.length === 0 && list.listTickers.length >= 6, JSON.stringify(list));
+  check('P1544 telegram producer delegates ticker matching to the case-sensitive matcher', /classifyPostTickers\(stripLinks\(text\), SCREENER_ALIASES\)/.test(fetchTelegram) && !/\['BE', \/\\bBE\\b\|Bloom Energy\|SOFC\/i\]/.test(fetchTelegram));
+}
+{
+  // 2026-10-13 news audit N01/N04/N09/N10/N11/N12/N13: ticker memos name their issuer or stay empty, rotate over
+  // the universe, carry KST dates without the publisher in the text; market news caps paraphrases of one story.
+  const fd = await import('./fetch-data.mjs');
+  const now = Date.parse('2026-10-13T08:00:00Z');
+  const at = (h) => now - h * 3600000;
+  const wrong = [['V', 'Visa', 'Nvidia (NVDA) vs. Broadcom (AVGO): Which AI Stock Is a Better Buy?'], ['MA', 'Mastercard', 'MA Financial Group Issues Shares'],
+    ['DE', 'Deere & Co', 'Edel SE shares fall'], ['LIN', 'Linde', 'Taiwan Stock Exchange Chairman Lin Hsiu-ming: In Talks'], ['NOW', 'ServiceNow', 'Microsoft Now Has 3 Generations of Its Own AI Chips'],
+    ['LOW', 'Lowe\'s', 'WEN Stock Heads From A 12-Year Low'], ['BROS', 'Dutch Bros', 'Warner Bros. Discovery stock rises']];
+  const leaked = wrong.filter(([sym, name, title]) => fd.selectTickerNewsMemo([{ title, source: 'Reuters', ts: at(2) }], { sym, name, nowMs: now }));
+  check('P1709 N01 ticker memo keeps only headlines that name the issuer (fail-closed)', leaked.length === 0, leaked.map((x) => x[0]).join(','));
+  const memo = fd.selectTickerNewsMemo([{ title: 'Deere Raises Outlook As Farm Demand Recovers - Reuters', source: 'Reuters', ts: Date.parse('2026-10-12T22:30:00Z') },
+    { title: 'Deere stock price target raised - MarketBeat', source: 'MarketBeat', ts: at(1) }], { sym: 'DE', name: 'Deere & Co', nowMs: now });
+  check('P1709 N05/N09/N10 memo drops low-quality sources, dates in KST, keeps the publisher out of the text', memo?.memo === '[10-13] Deere Raises Outlook As Farm Demand Recovers' && memo.sources[0] === 'Reuters', JSON.stringify(memo));
+  const eligible = Array.from({ length: 768 }, (_, i) => `S${i}`);
+  const covered = new Set();
+  for (let run = 0; run < 12; run += 1) fd.planTickerNewsTargets(eligible, run * fd.TICKER_NEWS_ROTATION_SLOT_MS).targets.forEach((sym) => covered.add(sym));
+  check('P1709 N04 ticker news keeps the 90 cap and reaches every eligible stock by rotation', fd.planTickerNewsTargets(eligible, now).targets.length === fd.TICKER_NEWS_RUN_CAP && covered.size === eligible.length, `covered=${covered.size}`);
+  check('P1709 N04/N21 producer records why a memo is empty and carries only verified memos', /applyTickerNewsResults\(data,/.test(fetchData) && /'rotation-pending'/.test(fetchData) && /'fetch-failed'/.test(fetchData) && /prior\.newsMemoVerified === true/.test(fetchData) && !/\.slice\(0, 90\)/.test(fetchData));
+  const cap = fd.createNewsTopicCap();
+  const saudi = ['Oil prices rise on Saudi Arabia attacks', 'Oil prices spike after Houthi attacks on Saudi airports', 'Oil Jumps 2% as Saudi Attacks Revive Hormuz Fears', 'Oil Prices Recover as Saudi Arabia Attacks Offset Diesel Supply'];
+  const taken = saudi.filter((title) => { if (cap.full(title)) return false; cap.add(title); return true; });
+  check('P1710 N11 market news allows at most two paraphrases sharing the same key entities', taken.length === 2, taken.join(' | '));
+  check('P1710 N12 CFD-broker desks are low-quality sources (host-normalised)', fd.newsSourceLabel('https://www.tmgm.com/') === 'tmgm.com' && /low-quality-source/.test(fd.scoreServerNewsItem({ title: 'Gold fails to sustain a break above $4,200, US CPI in focus', source: fd.newsSourceLabel('www.tmgm.com') }).selectionReason)
+    && /low-quality-source/.test(fd.scoreServerNewsItem({ title: 'Dow Jones open 190 pts higher as investors eye bank earnings', source: 'Invezz' }).selectionReason));
+  check('P1710 N13 promise-of-wealth headlines are clickbait', fd.scoreServerNewsItem({ title: 'Adding Nvidia During The Current Uncertainty is How Fortunes Are Made', source: 'Reuters' }).selectionReason === 'clickbait-filter');
 }
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));

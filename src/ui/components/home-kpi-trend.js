@@ -153,7 +153,7 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
       }
       const detail = doc.createElement('details'), label = doc.createElement('summary'), text = doc.createElement('p');
       label.textContent = '집계 기준';
-      text.textContent = `${item.detail}${item.eligible != null ? ` 판정 표본 ${item.eligible}개` : ''}${item.universe != null ? ` / 수집 대상 ${item.universe}개` : ''}. 주식·ETF 혼합 표본으로 거래소 전체 집계와 다릅니다.`;
+      text.textContent = `${item.detail}${item.eligible != null ? ` 판정 표본 ${item.eligible}개` : ''}${item.universe != null ? ` / 수집 대상 ${item.universe}개` : ''}. ETF를 뺀 AIO 관찰 목록의 개별 주식 표본으로 거래소 전체 집계와 다릅니다.`;
       detail.append(label, text); box.append(detail); cards.append(box);
     }
     const link = doc.createElement('button'); link.type = 'button'; link.textContent = '시장 폭 추세와 구성 종목 보기'; link.className = 'theme-strength-more';

@@ -35,6 +35,19 @@ assert.deepEqual(resolveNewsIssuers({ title: 'Former FTX COO resigns' }, ['$COO'
 assert.deepEqual(resolveNewsIssuers({ title: '삼성전자 실적 발표' }, ['$삼성전자'], entries), ['005930.KS'], 'P1601: exact Korean registry issuer');
 assert.deepEqual(resolveNewsIssuers({ title: '삼성전자가 실적을 발표했다' }, [], entries), ['005930.KS'], 'P1601: Korean particle does not alter exact issuer name');
 assert.deepEqual(resolveNewsIssuers({ title: '$MS shares fall' }, ['MS'], entries), [], 'P1601: ticker-shaped alias never rewrites');
+// 2026-10-13 news audit N06/N07/N08.
+const wordNames = { XYZ: { en: 'Block' }, SNAP: { en: 'Snap' }, PGR: { en: 'Progressive' }, SHEL: { en: 'Shell' }, V: { en: 'Visa' } };
+for (const title of ['US moves to block Nvidia chip exports', 'Fed Officials Snap Back At Tariff Critics', 'Progressive Democrats push rate cut', 'Visa-free travel boosts retail']) {
+  assert.deepEqual(resolveNewsIssuers({ title }, [], wordNames), [], `N06: ordinary-word name is not an issuer: ${title}`);
+}
+assert.deepEqual(resolveNewsIssuers({ title: 'Block shares jump after results' }, [], wordNames), ['XYZ'], 'N06: proper noun with a corporate cue stays an issuer');
+const banks = { GS: { en: 'Goldman Sachs', kr: '골드만삭스' }, BAC: { en: 'Bank of America', kr: '뱅크오브아메리카' }, JPM: { en: 'JPMorgan', kr: 'JP모건' } };
+assert.deepEqual(resolveNewsIssuers({ title: 'Goldman Sachs raises December oil price target to $90' }, [], banks), [], 'N07: analyst bank is not the issuer');
+assert.deepEqual(resolveNewsIssuers({ title: 'Gold price needs a dovish Fed to reverse its downtrend – Bank of America' }, [], banks), [], 'N07: attributed bank is not the issuer');
+assert.deepEqual(resolveNewsIssuers({ title: 'JP모건) 마벨 인베스터 데이 리뷰' }, [], banks), [], 'N07: Korean broker-note prefix is not the issuer');
+assert.deepEqual(resolveNewsIssuers({ title: 'JPMorgan earnings beat estimates' }, [], banks), ['JPM'], 'N07: a bank reporting its own results stays the issuer');
+assert.deepEqual(resolveNewsIssuers({ title: '하이닉스 HBM 증설' }, [], { '000660.KS': { en: 'SK Hynix', kr: 'SK하이닉스', alt: ['hynix', '하이닉스'] } }), ['000660.KS'], 'N08: Korean registry alias longer than two characters');
+assert.deepEqual(resolveNewsIssuers({ title: '삼전 급락' }, [], { '005930.KS': { en: 'Samsung Electronics', kr: '삼성전자', alt: ['삼전'] } }), [], 'N08: two-character abbreviation stays out');
 assert.equal(normalizeNews({ fetchedAt: '2026-10-10T00:00:00Z', items: [{ ...row, publishedAt: row.pubDate }] }).items[0].fetchedAt, '2026-10-10T00:00:00Z', 'P1601: collection distinct from publication');
 const core = readFileSync('js/aio-core.js', 'utf8');
 const storeSource = core.slice(core.indexOf('const NewsStore ='), core.indexOf('// ── DataHealth'));

@@ -162,7 +162,12 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   // (804 judged); the denominator is now the one stored with the shown 50-day ratio.
   const judgedCount = buildCloseSeries(inputs.history, 'breadth50', { through: regime.asOf, includeProvenance: true }).at(-1)?.eligible ?? null;
   const denominator = judgedCount ? ` · 판정 대상 ${judgedCount}개 종목` : '';
-  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator} · AIO 미국 스크리너 수집 대상(개별 주식과 ETF 혼합, 동일 비중) — 거래소 전체나 S&P 500 구성 종목 집계가 아니며, 시가총액 가중 지수와 달리 종목마다 같은 무게로 셉니다.` : '종가 기록을 불러오는 중입니다.');
+  // v57.51 V16: the same measure on S&P 500 members only, read from the screener artifact, so the watch list's theme
+  // tilt is visible next to the headline ratios. Shown only when the segment is on the shown close date.
+  const sp500 = root?.AIO_ARCH?.getScreenerState?.()?.metadata?.breadth?.segments?.sp500 || null;
+  const sp500Same = sp500 && Number(sp500.eligible) >= 300 && Number.isFinite(sp500.above50) && String(sp500.observedAt || '').slice(0, 10) === String(regime.asOf || '').slice(0, 10);
+  const sp500Read = sp500Same ? ` S&P 500 구성 종목만(${sp500.eligible}개) 보면 50일선 위 ${sp500.above50.toFixed(0)}%${Number.isFinite(sp500.above200) ? `, 200일선 위 ${sp500.above200.toFixed(0)}%` : ''}입니다.` : '';
+  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator} · AIO 미국 관찰 목록의 개별 주식(ETF 제외, 동일 비중) — 거래소 전체 집계가 아니며, 시가총액 가중 지수와 달리 종목마다 같은 무게로 셉니다.${sp500Read}` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
   if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'}`; }
   set('breadth-read', axis?.read || '');

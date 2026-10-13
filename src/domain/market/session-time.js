@@ -6,12 +6,38 @@
 // 날짜만 주는 공급자를 가짜 정밀 timestamp로 승격하지 않는다.
 export const MARKET_TIME_ZONE = Object.freeze({ US: 'America/New_York', KR: 'Asia/Seoul' });
 
+// 2026-10-13 F07/V04: Tokyo and Taiwan listings (285A.T, 8035.T, 6702.T, 2454.TW) were read as US rows —
+// USD currency, New York session date one day behind, inside US breadth. The listing suffix names the
+// exchange; its local zone is declared here and the producer prefers the provider's exchange zone.
+export const INTL_LISTING_TIME_ZONE = Object.freeze({ T: 'Asia/Tokyo', TW: 'Asia/Taipei', TWO: 'Asia/Taipei' });
+
+function intlSuffixOf(symbol) {
+  const match = /\.([A-Z]{1,3})$/i.exec(String(symbol || ''));
+  const suffix = match ? match[1].toUpperCase() : null;
+  return suffix && Object.prototype.hasOwnProperty.call(INTL_LISTING_TIME_ZONE, suffix) ? suffix : null;
+}
+
+// Two-market split kept for callers that bucket only US/KR (candidate archive, ranking anchors).
 export function marketOfSymbol(symbol) {
   return /\.(KS|KQ)$/i.test(String(symbol || '')) ? 'KR' : 'US';
 }
 
+// Listing market including non-US/KR exchanges. INTL rows are not part of the US population.
+export function listingMarketOfSymbol(symbol) {
+  if (/\.(KS|KQ)$/i.test(String(symbol || ''))) return 'KR';
+  return intlSuffixOf(symbol) ? 'INTL' : 'US';
+}
+
+export function timeZoneForSymbol(symbol) {
+  const suffix = intlSuffixOf(symbol);
+  return suffix ? INTL_LISTING_TIME_ZONE[suffix] : timeZoneForMarket(marketOfSymbol(symbol));
+}
+
+// A market key (US/KR) or an IANA zone such as the provider's exchangeTimezoneName.
 export function timeZoneForMarket(market) {
-  return MARKET_TIME_ZONE[String(market || '').toUpperCase()] || 'UTC';
+  const text = String(market || '');
+  if (/^[A-Za-z]+\/[A-Za-z_]+(?:\/[A-Za-z_]+)?$/.test(text)) return text;
+  return MARKET_TIME_ZONE[text.toUpperCase()] || 'UTC';
 }
 
 // 세션 날짜 = 주어진 시각이 속한, 해당 시장의 달력상 날짜. 시각이 없으면 null.
@@ -44,8 +70,9 @@ export function factorScopesByMarket(rows) {
   for (const [symbol, row] of Object.entries(rows || {})) {
     const barStart = row && row.factorBarStart;
     if (!barStart) continue;
-    const market = marketOfSymbol(symbol);
-    const scope = scopes[market] || (scopes[market] = { timezone: timeZoneForMarket(market), rows: 0, barStart: null, sessionDate: null });
+    // INTL rows keep their own scope: a Tokyo bar must not advance the US session date.
+    const market = listingMarketOfSymbol(symbol);
+    const scope = scopes[market] || (scopes[market] = { timezone: market === 'INTL' ? 'exchange-local-per-row' : timeZoneForMarket(market), rows: 0, barStart: null, sessionDate: null });
     scope.rows += 1;
     if (!scope.barStart || barStart > scope.barStart) scope.barStart = barStart;
     if (row.factorSessionDate && (!scope.sessionDate || row.factorSessionDate > scope.sessionDate)) scope.sessionDate = row.factorSessionDate;

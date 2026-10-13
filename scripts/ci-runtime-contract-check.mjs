@@ -888,7 +888,7 @@ check('H3-F: Chart secondary CDN waits for primary error or a bounded timeout wh
   }
   check('P1588: US theme taxonomy follows its membership rules', themes.length >= 17 && !issues.length, issues.slice(0, 6).join(' | '));
   const themeOf = (id) => themes.find((theme) => theme.id === id);
-  check('P1622: verified core memberships and physical/software roles are preserved', themeOf('software')?.leaders.includes('RBRK') && themeOf('photonics')?.leaders.includes('FN') && ['MPWR','AMKR','ONTO'].every((symbol) => themeOf('semiconductor')?.leaders.includes(symbol)) && themeOf('ai_infra')?.leaders.includes('NVT') && ['SHEL','ENB'].every((symbol) => themeOf('energy')?.leaders.includes(symbol)) && themeOf('robotics')?.subThemes.find((sub) => sub.tickers.includes('PATH'))?.name === '업무 자동화 소프트웨어');
+  check('P1622: verified core memberships and physical/software roles are preserved', themeOf('software')?.leaders.includes('RBRK') && themeOf('photonics')?.leaders.includes('FN') && ['MPWR','AMKR','ONTO'].every((symbol) => themeOf('semiconductor')?.leaders.includes(symbol)) && themeOf('ai_infra')?.leaders.includes('NVT') && ['SHEL','ENB'].every((symbol) => themeOf('energy')?.leaders.includes(symbol)) && themeOf('software')?.subThemes.find((sub) => sub.tickers.includes('PATH'))?.tickers.length >= 3 && !themeOf('robotics')?.leaders.includes('PATH')); // v57.51 V10: PATH is workflow software (with APPN·PEGA), not a one-name robotics sub-theme that could never rank
   const subStart = pagesSource.indexOf('var SUB_THEMES = [');
   const subs = subStart >= 0 ? runInNewContext(pagesSource.slice(subStart + 'var SUB_THEMES = '.length, pagesSource.indexOf('\n];', subStart) + 2)) : [];
   const subOf = (id) => subs.find((sub) => sub.id === id);

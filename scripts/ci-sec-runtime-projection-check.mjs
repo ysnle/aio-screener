@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildDomainReceipt } from './fetch-sec-fundamentals.mjs';
-import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js';
+import { reconcileSecEquity, reconcileSecRevenueShares } from '../src/domain/fundamental/sec-report.js';
 
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
 const sourceText = read('public-data/sec-fundamentals.json');
@@ -20,8 +20,15 @@ if (runtime.schemaVersion !== 'sec-fundamentals-runtime-summary.v1' || runtime.a
 if (canonicalBytes(runtimeText) > 1024 * 1024) fail(`runtime projection exceeds 1 MiB: ${canonicalBytes(runtimeText)}`);
 const sourceSymbols = Object.keys(source.data || {});
 const runtimeSymbols = Object.keys(runtime.data || {});
+// 2026-10-13 F03/F05: the publish-time heal is idempotent, so a healed source passes through the projection unchanged.
+for (const symbol of sourceSymbols) {
+  const once = reconcileSecRevenueShares(source.data[symbol]);
+  if (reconcileSecRevenueShares(once) !== once) fail(`${symbol} revenue/shares heal is not idempotent`);
+}
 if (sourceSymbols.length !== runtimeSymbols.length || sourceSymbols.some((symbol) => !runtime.data[symbol])) fail('runtime symbol coverage differs from canonical source');
 for (const symbol of sourceSymbols) {
+  // 2026-10-13 F03/F05: the producer heals revenue/shares at publish time (reconcileSecRevenueShares) before the
+  // projection is built, so the projection's own idempotent heal leaves these fields equal to the source.
   const canonical = source.data[symbol];
   const projected = runtime.data[symbol];
   for (const field of ['symbol', 'cik', 'observedAt', 'filedAt', 'accession', 'revenue', 'netIncome']) {

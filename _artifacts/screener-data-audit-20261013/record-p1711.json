@@ -1,0 +1,22 @@
+{
+  "version": "v57.51",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.51 스크리너 데이터 품질·원천·커버리지 전수 점검(F01–F23·V01–V24·N01–N24) 반영(P1704~P1716).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1711,
+    "title": "뉴스·텔레그램 발행 주체 판정이 일반 단어 회사명·분석 주체 은행·목록형 게시물·제품명 추론으로 오탐",
+    "symptom": "block→XYZ, snap, Progressive, grab, 비자 발급→V, \"Goldman raises oil forecast\"→GS. 한국 약칭(하이닉스) 누락. 티커 6개 이상 목록 게시물이 TSM 110·NVDA 90 카운트를 부풀림. TPU→AVGO 같은 제품 추론이 발행 주체로 집계. 보관 요약 32건에 &#036; 잔존.",
+    "root_cause": "stories.js는 한 단어 이름을 대소문자 무시로 매칭했고 증권사 발언 패턴 제외가 없었다. 텔레그램 집계는 게시물 유형을 구분하지 않았다.",
+    "fix": "일반 단어 이름 약 40개는 기업 단서(Inc/Corp/stock/shares/(SYM)) 필수, 한 단어 이름은 대문자 시작만. \"<증권사>) \", \"at <bank>\", \"<bank> raises/cuts/says\"는 분석 주체로 제외. 한글 alt 2글자 초과 허용(엘지엔솔 추가). 6개 이상 목록 게시물은 listTickers로 분리, 제품 추론은 relatedTickers로 분리. 숫자 엔티티 재디코딩.",
+    "violated_rule": "티커 추정 금지",
+    "prevention": "P1711: ci-reference-adoption-contract-check(N06·N07·N08)·ci-data-pipeline(N15·N16·P1544)",
+    "verification": "실데이터 381건 중 19건 교정, 은행 오탐 9건 제거, 목록 게시물 19건 분리(TSM 110→93), &#036; 34→0."
+  },
+  "qa": [],
+  "changelog": [
+    "**스크리너 데이터 점검 수정 (P1711):** 뉴스·텔레그램 발행 주체 판정이 일반 단어 회사명·분석 주체 은행·목록형 게시물·제품명 추론으로 오탐."
+  ]
+}

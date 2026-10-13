@@ -705,7 +705,7 @@ const storageFixture = createStorageGateway({ storage: { getItem: (key) => stora
 storageFixture.set('key', 'value');
 if (storageFixture.get('key') !== 'value') fail('storage gateway fixture contract failed');
 
-// RM-02 performance gate: dispatch+notify must stay fast for a screener-sized (1000-row) slice
+// RM-02 performance gate: dispatch+notify must stay fast for a screener-sized (1200-row; universe 1143 on 2026-10-13) slice
 // with several subscribers, so W5's real screener/portfolio tables don't reintroduce the
 // clone-per-dispatch-per-listener cost RM-02 removed from src/state/store.js. Measured locally:
 // the RM-02 design (no clone) is p95=0.111ms for this fixture; the pre-RM-02 clone-per-dispatch
@@ -715,7 +715,7 @@ const { createInitialScreenerState: perfInitialScreenerState, screenerReducer: p
 const PERF_SCREENER_DISPATCH_P95_BUDGET_MS = 5;
 const perfStore = createStore({ initialState: { screener: perfInitialScreenerState() }, reducer: (state, action) => ({ ...state, screener: perfScreenerReducer(state.screener, action) }) });
 for (let index = 0; index < 5; index += 1) perfStore.subscribe(() => {});
-const perfRows = Array.from({ length: 1000 }, (_, index) => ({ symbol: `SYM${index}`, name: `Company ${index}`, sector: 'Tech', score: index % 100, rank: index + 1 }));
+const perfRows = Array.from({ length: 1200 }, (_, index) => ({ symbol: `SYM${index}`, name: `Company ${index}`, sector: 'Tech', score: index % 100, rank: index + 1 }));
 const perfAction = perfCreateScreenerDataAction({ status: 'current', rows: perfRows, revision: 'perf-fixture', updatedAt: '2026-07-19T00:00:00Z' });
 const perfSamples = [];
 for (let index = 0; index < 200; index += 1) {
@@ -725,6 +725,6 @@ for (let index = 0; index < 200; index += 1) {
 }
 perfSamples.sort((a, b) => a - b);
 const perfP95 = perfSamples[Math.floor(perfSamples.length * 0.95)];
-if (perfP95 > PERF_SCREENER_DISPATCH_P95_BUDGET_MS) fail(`RM-02 performance budget exceeded: 1000-row screener dispatch+notify p95=${perfP95.toFixed(3)}ms > ${PERF_SCREENER_DISPATCH_P95_BUDGET_MS}ms`);
+if (perfP95 > PERF_SCREENER_DISPATCH_P95_BUDGET_MS) fail(`RM-02 performance budget exceeded: ${perfRows.length}-row screener dispatch+notify p95=${perfP95.toFixed(3)}ms > ${PERF_SCREENER_DISPATCH_P95_BUDGET_MS}ms`);
 
 console.log(JSON.stringify({ ok: true, routes: golden.routes.length, firstVerticalSlice: golden.firstVerticalSlice, baseline, current, perfScreenerDispatchP95Ms: Number(perfP95.toFixed(3)) }));

@@ -3101,7 +3101,7 @@ window.AIO.assertKrTickerMappingAudit = function() {
       '403870.KQ': 'HPSP',
       '267250.KS': 'HD현대',
       '011200.KS': 'HMM',
-      '950130.KQ': '엑시큐어',
+      '950130.KQ': '엑세스바이오',
       '041510.KQ': 'SM엔터테인먼트',
       '023530.KS': '롯데쇼핑',
       '180640.KS': '한진칼'

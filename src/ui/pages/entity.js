@@ -5,7 +5,7 @@ import { parseKnowledgeTargetContext } from '../../app/knowledge-route-state.js'
 import { selectEntityState } from '../../state/selectors/entity.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
-import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
+import { deriveSecReport, fundamentalValueFlags } from '../../domain/fundamental/sec-report.js';
 import { canonicalEpochMs } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
@@ -437,8 +437,11 @@ function renderFundamentalSummary(documentRef, state) {
   }
   const period = fundamentals?.periodType || 'FY';
   const observedAt = fundamentals?.observedAt || '미상';
+  // v57.51 F17/F18: an extreme ratio (P/E above 1000, ROE beyond 200%, growth off a tiny base) is labelled, not hidden.
+  const flagged = fundamentalValueFlags(fundamentals || {}).map((flag) => flag.label.split(' — ')[0]);
+  const flagText = flagged.length ? ` · 해석 주의: ${[...new Set(flagged)].join(', ')}` : '';
   element.textContent = available
-    ? `SEC ${period} · 관측 항목 ${report.coverage.length}개 · 회계연도 말 ${observedAt}${facts.length ? ` · ${facts.join(' · ')}` : ''}`
+    ? `SEC ${period === 'FY' ? '연간(FY)' : period} 기준 · 관측 항목 ${report.coverage.length}개 · 회계연도 말 ${observedAt}${facts.length ? ` · ${facts.join(' · ')}` : ''}${flagText}`
     : !String(state?.id || '').trim() ? '종목 선택 전 · 선택 기업의 SEC 연간 재무 해석 없음' : isKrSymbol(state?.id) ? '한국 상장 종목 · 연간 재무는 한국 공시(DART) 사업보고서 기준' : 'SEC 연간 재무 데이터 수신 대기 · 해석 보류';
   element.dataset.aioFundamentalSummaryRenderer = 'native';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
@@ -708,7 +711,7 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
-    renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '' }); // P1434
+    renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals }); // P1434; v57.51 N20 recent filings
     const readHost = documentRef.getElementById('ticker-read');
     if (readHost && !documentRef.getElementById('ticker-company-analysis')) {
       const host = documentRef.createElement('section'); host.id = 'ticker-company-analysis'; readHost.after(host);

@@ -6,19 +6,19 @@
     "P1626",
     "P1627"
   ],
-  "version": "v57.50",
+  "version": "v57.51",
   "sourceHashes": {
-    "index.html": "f8f968b3ad589a326a3918a94c1f84433faae802d1877b77a29ee6cdeedc7b6c",
-    "src/ui/pages/entity.js": "037c49b61e10c51bc98c2d9c46f115039b3f1a758313aed09664a8d2f2feabe5",
-    "src/ui/pages/screener.js": "ef9ad6b020aa464ad83f917721d6747a4de8198887611694520d88cd5769cc77",
+    "index.html": "b6c724162bf3db4589f7c0925e1d0622a2a0b794e93a8a11c557a6b52438a208",
+    "src/ui/pages/entity.js": "1782bb755090043365affe2d383e07ea9e0ccdc87115d7328b9f8f0ef9480bbe",
+    "src/ui/pages/screener.js": "a6f76c6b23910aef91d72567c25e746951328235d77a2ea9bb92e5005ed73e39",
     "src/ui/pages/analysis.js": "5c67b260d0349bbfa585d4a3d3b47c699b5329b02a8ad54295e4e3ce80abb8b9",
     "src/ui/components/stock-chart.js": "6e44d3bc06c1f28bca6b7acec0a94f7993d37eefb22523dba56a09015264b4b3",
-    "src/ui/components/stock-read.js": "9d37f2c5f616533f980460a4f1fb111c4acc9acfee14a8a6a03368a0cd24d317",
+    "src/ui/components/stock-read.js": "37b5a0d4ea95b2ab5f57f6365304bc02c32549bdc520c663d740f5a35242bb7b",
     "src/ui/components/fiscal-read.js": "9b7bec8b15830a944aeb72ab1a079d840ad6f9daa4f8aacbeb7850a77be7f88b",
     "src/domain/entity/summary-hydration.js": "30a394ec500ac7430ff0de02acfa92576e7818618c4850952993cdd09e656c37",
     "src/domain/screener/market-scope.js": "ac4a26f2d0b195ef36157cb7dcd88b2a1e8c004b32f9f2c360dc5c7c1157701e",
-    "src/domain/screener/factor-ranks.js": "37a77a48288d484e4bcd195dc870525c9fe237f08d9daba906ddedc7e847bfe9",
-    "src/data/providers/screener.js": "5ecd9ea67ff35181fe39a5038768e5a3772449953eeb511863323beda31a903b",
+    "src/domain/screener/factor-ranks.js": "abe32faf5295122bd671c5f5f1e437ed4b4dc9af7c001795d3ac2b7167a55748",
+    "src/data/providers/screener.js": "70f5e6c9fb89078e1256cd1f44c989be7f69d3c38c0fdb8464c148893c43ba0c",
     "src/domain/fundamental/fiscal-read.js": "08a9c4868aaaf99d2f8f92869d353e00d0ecee21067fdb689cf7fb3fd589e23a",
     "src/domain/technical/chart-scenarios.js": "7fd18311ba3371ef1ef2744ec7702885c80c34685fa89355e1732622ff4cf1dd"
   },
@@ -75,7 +75,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 17511
+          "pixels": 17572
         },
         "active": "page-ticker",
         "signed": [
@@ -143,7 +143,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 41185
+          "pixels": 41217
         },
         "active": "page-ticker",
         "signed": [
@@ -211,7 +211,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 17551
+          "pixels": 17512
         },
         "active": "page-ticker",
         "signed": [
@@ -264,73 +264,6 @@
       }
     },
     {
-      "label": "phone-light",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "—",
-          "ret3m": 216.9
-        },
-        {
-          "symbol": "TEAM",
-          "price": "—",
-          "ret3m": 133.2
-        },
-        {
-          "symbol": "P",
-          "price": "—",
-          "ret3m": 101.6
-        },
-        {
-          "symbol": "GTLB",
-          "price": "—",
-          "ret3m": 69.8
-        },
-        {
-          "symbol": "PAYC",
-          "price": "—",
-          "ret3m": 63.9
-        },
-        {
-          "symbol": "ACN",
-          "price": "—",
-          "ret3m": 59.7
-        },
-        {
-          "symbol": "PTC",
-          "price": "—",
-          "ret3m": 58.7
-        },
-        {
-          "symbol": "MSTR",
-          "price": "—",
-          "ret3m": 56.5
-        },
-        {
-          "symbol": "PLTR",
-          "price": "—",
-          "ret3m": 56.3
-        },
-        {
-          "symbol": "ESTC",
-          "price": "—",
-          "ret3m": 53.3
-        },
-        {
-          "symbol": "VEEV",
-          "price": "—",
-          "ret3m": 53.2
-        },
-        {
-          "symbol": "AMC",
-          "price": "—",
-          "ret3m": 53.1
-        }
-      ],
-      "note": "미국 모집단 813개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
       "label": "tablet-light",
       "market": "US",
       "listing": [
@@ -395,53 +328,74 @@
           "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 813개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "phone-light",
-      "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
-    },
-    {
-      "label": "phone-light",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "phone-light/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "tablet-light",
-      "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
-    },
-    {
-      "label": "tablet-light",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "tablet-light/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "—",
+          "ret3m": 216.9
+        },
+        {
+          "symbol": "TEAM",
+          "price": "—",
+          "ret3m": 133.2
+        },
+        {
+          "symbol": "P",
+          "price": "—",
+          "ret3m": 101.6
+        },
+        {
+          "symbol": "GTLB",
+          "price": "—",
+          "ret3m": 69.8
+        },
+        {
+          "symbol": "PAYC",
+          "price": "—",
+          "ret3m": 63.9
+        },
+        {
+          "symbol": "ACN",
+          "price": "—",
+          "ret3m": 59.7
+        },
+        {
+          "symbol": "PTC",
+          "price": "—",
+          "ret3m": 58.7
+        },
+        {
+          "symbol": "MSTR",
+          "price": "—",
+          "ret3m": 56.5
+        },
+        {
+          "symbol": "PLTR",
+          "price": "—",
+          "ret3m": 56.3
+        },
+        {
+          "symbol": "ESTC",
+          "price": "—",
+          "ret3m": 53.3
+        },
+        {
+          "symbol": "VEEV",
+          "price": "—",
+          "ret3m": 53.2
+        },
+        {
+          "symbol": "AMC",
+          "price": "—",
+          "ret3m": 53.1
+        }
+      ],
+      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "phone-dark",
@@ -508,7 +462,53 @@
           "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 813개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "phone-light",
+      "market": "KR",
+      "listing": [],
+      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+    },
+    {
+      "label": "phone-light",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "phone-light/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "tablet-light",
+      "market": "KR",
+      "listing": [],
+      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+    },
+    {
+      "label": "tablet-light",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "tablet-light/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
     },
     {
       "label": "phone-light",
@@ -565,9 +565,32 @@
       }
     },
     {
+      "label": "phone-dark",
+      "market": "KR",
+      "listing": [],
+      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+    },
+    {
       "label": "phone-light/fiscal",
       "layout": {
         "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone-dark",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "phone-dark/screener",
+      "layout": {
+        "route": "page-screener",
         "overflow": 0,
         "clipped": []
       }
@@ -690,29 +713,6 @@
       "label": "tablet-light/technical",
       "layout": {
         "route": "page-technical",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "phone-dark",
-      "market": "KR",
-      "listing": [],
-      "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
-    },
-    {
-      "label": "phone-dark",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "phone-dark/screener",
-      "layout": {
-        "route": "page-screener",
         "overflow": 0,
         "clipped": []
       }
@@ -893,7 +893,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 62516
+          "pixels": 62531
         },
         "active": "page-ticker",
         "signed": [
@@ -961,7 +961,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 41185
+          "pixels": 41249
         },
         "active": "page-ticker",
         "signed": [
@@ -1078,7 +1078,7 @@
           "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 813개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "desktop-dark",
@@ -1145,7 +1145,7 @@
           "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 813개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "tablet-dark",
@@ -1212,13 +1212,13 @@
           "ret3m": 53.1
         }
       ],
-      "note": "미국 모집단 813개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "note": "미국 모집단 905개 · 순위 계산 804개 · 표시 326개 · 3개월 수익률 · 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
     },
     {
       "label": "desktop-light",
       "market": "KR",
       "listing": [],
-      "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
     },
     {
       "label": "desktop-light",
@@ -1241,7 +1241,7 @@
       "label": "desktop-dark",
       "market": "KR",
       "listing": [],
-      "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
     },
     {
       "label": "desktop-dark",
@@ -1326,7 +1326,7 @@
       "label": "tablet-dark",
       "market": "KR",
       "listing": [],
-      "note": "한국 모집단 180개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
+      "note": "한국 모집단 239개 · 순위 계산 0개 · 표시 0개 · 3개월 수익률 · 비중 계산 보류 · 가격 자료 10/08 종가 기준, 10/13 한국장 반영 대기"
     },
     {
       "label": "tablet-dark",

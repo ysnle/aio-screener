@@ -6,17 +6,85 @@
 import { withTopicParticle } from '../content/korean-particle.js';
 import { EXTENSION_BANDS, extensionStateFor } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
+import { secFilingUrl } from '../fundamental/sec-report.js';
+
+// N20 (2026-10-13): the issuer's own recent filings, from the annual-facts record's submissions snapshot (8-K with
+// Item numbers, 10-Q, 10-K). Labels name what the filing is; nothing is read from the filing text.
+const FORM_LABEL = Object.freeze({ '10-K': '연간 보고서', '10-Q': '분기 보고서', '8-K': '수시 공시' });
+const ITEM_LABEL = Object.freeze({
+  '1.01': '중요 계약 체결', '1.02': '중요 계약 종료', '1.03': '파산·회생', '1.05': '사이버보안 사고',
+  '2.01': '인수·처분 완료', '2.02': '실적 발표', '2.03': '채무 발생', '2.04': '채무 조기상환 사유', '2.05': '구조조정 비용', '2.06': '자산 손상',
+  '3.01': '상장 유지 기준 통지', '3.02': '사모 증권 발행', '3.03': '주주 권리 변경',
+  '4.01': '감사인 변경', '4.02': '과거 재무제표 신뢰 불가',
+  '5.01': '지배권 변경', '5.02': '임원·이사 변동', '5.03': '정관 변경', '5.07': '주주총회 결과',
+  '7.01': '공정공시 자료', '8.01': '기타 중요 사항', '9.01': '재무제표·첨부 서류'
+});
+export const RECENT_FILING_DISPLAY_DAYS = 30;
+
+export function parseRecentFilings(value) {
+  return (Array.isArray(value) ? value : []).map((entry) => {
+    if (typeof entry === 'string') {
+      const [filedAt, form, items, accession] = entry.split('|');
+      return { filedAt, form, items: items ? items.split(',').filter(Boolean) : [], accession };
+    }
+    return entry && typeof entry === 'object' ? { filedAt: entry.filedAt, form: entry.form, items: Array.isArray(entry.items) ? entry.items : [], accession: entry.accession } : null;
+  }).filter((filing) => filing && /^\d{4}-\d{2}-\d{2}$/.test(String(filing.filedAt || '')) && /^(8-K|10-Q|10-K)(\/A)?$/.test(String(filing.form || '')));
+}
+
+export function filingLabel(filing) {
+  const base = String(filing?.form || '').replace(/\/A$/, '');
+  const amended = /\/A$/.test(String(filing?.form || '')) ? ' 정정' : '';
+  const items = (filing?.items || []).filter((item) => ITEM_LABEL[item]);
+  const named = items.length > 1 ? items.filter((item) => item !== '9.01') : items;
+  const what = base === '8-K' && named.length ? named.map((item) => ITEM_LABEL[item]).join('·') : FORM_LABEL[base] || base;
+  return `${filing.form} ${what}${amended}`;
+}
+
+// Only filings dated within the last 30 days are named; an older collection never reads as "no filings".
+export function recentFilingsPoint(fundamentals, now = Date.now()) {
+  const cutoff = now - RECENT_FILING_DISPLAY_DAYS * 86400000;
+  const filings = parseRecentFilings(fundamentals?.recentFilings)
+    .filter((filing) => { const ms = Date.parse(filing.filedAt); return Number.isFinite(ms) && ms >= cutoff && ms <= now + 86400000; })
+    .sort((a, b) => b.filedAt.localeCompare(a.filedAt));
+  if (!filings.length) return null;
+  const md = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
+  const shown = filings.slice(0, 3);
+  const more = filings.length > shown.length ? ` 외 ${filings.length - shown.length}건` : '';
+  const checked = String(fundamentals?.fetchedAt || '').slice(0, 10);
+  const href = secFilingUrl(fundamentals?.cik, shown[0].accession);
+  return {
+    id: 'filings', tone: 'neutral', title: '최근 공시',
+    text: `${shown.map((filing) => `${md(filing.filedAt)} ${filingLabel(filing)}`).join(' · ')}${more}${/^\d{4}-\d{2}-\d{2}$/.test(checked) ? ` (${md(checked)} 확인)` : ''}.`,
+    ...(href ? { link: { href, label: 'SEC 공시 원문', ariaLabel: `${shown[0].form} ${shown[0].filedAt} 제출 SEC 공시 원문 새 창` } } : {})
+  };
+}
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 // 은/는 by the final Hangul syllable of the label (the ticker in parentheses is not read).
 const topic = (label) => { const code = String(label || '').charCodeAt(String(label || '').length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
 const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
 
-// GICS-style sector names in the screener artifact → the SPDR sector ETF tracked by the rotation model.
+// V13 (2026-10-13): the one canonical sector key. The universe uses these eleven keys; names from other
+// taxonomies (Yahoo/FMP "Consumer Cyclical", "Financial Services", "Basic Materials"; GICS "Health Care",
+// "Information Technology", "Consumer Staples"…) fold into them here and nowhere else.
+const CANONICAL_SECTOR_ETF = Object.freeze({
+  Technology: 'XLK', Financials: 'XLF', Energy: 'XLE', Healthcare: 'XLV', Industrials: 'XLI', Consumer: 'XLY',
+  'Consumer Defensive': 'XLP', 'Real Estate': 'XLRE', Materials: 'XLB', Utilities: 'XLU', 'Communication Services': 'XLC'
+});
+export const SECTOR_KEY_ALIAS = Object.freeze({
+  'Consumer Cyclical': 'Consumer', 'Consumer Discretionary': 'Consumer', 'Financial Services': 'Financials',
+  'Basic Materials': 'Materials', 'Health Care': 'Healthcare', 'Information Technology': 'Technology',
+  Communication: 'Communication Services', 'Consumer Staples': 'Consumer Defensive'
+});
+export function normalizeSectorKey(sector) {
+  const key = String(sector ?? '').trim();
+  return SECTOR_KEY_ALIAS[key] || key || null;
+}
+// Sector name → the SPDR sector ETF tracked by the rotation model. Alias names resolve through the same table,
+// so a direct lookup with a provider's sector name still lands on the canonical ETF.
 export const SECTOR_ETF = Object.freeze({
-  Technology: 'XLK', Financials: 'XLF', Energy: 'XLE', Healthcare: 'XLV', Industrials: 'XLI',
-  'Consumer Cyclical': 'XLY', Consumer: 'XLY', 'Consumer Defensive': 'XLP', 'Real Estate': 'XLRE',
-  Materials: 'XLB', 'Basic Materials': 'XLB', Utilities: 'XLU', 'Communication Services': 'XLC'
+  ...CANONICAL_SECTOR_ETF,
+  ...Object.fromEntries(Object.entries(SECTOR_KEY_ALIAS).map(([alias, key]) => [alias, CANONICAL_SECTOR_ETF[key]]))
 });
 // v57.50 I01: an ETF code handed to the screener is read back as the artifact's own sector name(s).
 export function sectorsForEtf(code) {
@@ -53,7 +121,7 @@ function trendOf(row) {
   return { id: 'down', tone: 'burden', label: '하락 추세', text: `50일선(${signed(s50)})과 200일선(${signed(s200)}) 아래 — 단기·장기 추세가 모두 아래쪽입니다` };
 }
 
-export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], regime = null, universeSize = null, sessionLag = null, holding = null, thirteenF = null } = {}) {
+export function buildStockRead({ symbol, row = null, benchmark = null, rotation = {}, themes = [], regime = null, universeSize = null, sessionLag = null, holding = null, thirteenF = null, fundamentals = null, now = Date.now() } = {}) {
   if (!row) return { available: false, reason: `${withTopicParticle(symbol || '이 종목')} 스크리너 유니버스 밖이라 추세·상대강도 기록이 없습니다. 차트 탭의 일봉과 재무 공시는 그대로 볼 수 있습니다.` };
   const name = row.name || symbol;
   const points = [];
@@ -122,7 +190,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
 
   // P1447: US sector ETFs describe US sectors; a KRX listing is not read against them.
   const isKr = /\.(KS|KQ)$/i.test(String(symbol || ''));
-  const etf = isKr ? null : SECTOR_ETF[row.sector] || null;
+  const etf = isKr ? null : SECTOR_ETF[normalizeSectorKey(row.sector)] || null;
   const sector = etf && rotation[etf] ? { etf, label: SECTOR_KO[etf] || etf, quadrant: QUADRANT[rotation[etf].quadrant] || null } : null;
   const themed = (themes || []).map((theme) => ({ ...theme, quadrant: theme.etf && rotation[theme.etf] ? QUADRANT[rotation[theme.etf].quadrant] || null : null }));
   const topTheme = themed.find((theme) => theme.quadrant) || themed[0] || null;
@@ -146,6 +214,10 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
         : `시장 상태는 ‘${regime.overall}’${breadth ? `, 시장 폭은 ${breadth.stateLabel}` : ''}입니다.`;
     points.push({ id: 'market', tone: regime.counts?.burden >= 4 ? 'burden' : 'neutral', title: '시장 환경', text });
   }
+
+  // N20: the issuer's recent filings, when the caller passes this symbol's annual-facts record.
+  const filingsPoint = !isKr && fundamentals && String(fundamentals.symbol || symbol || '').toUpperCase() === String(symbol || '').toUpperCase() ? recentFilingsPoint(fundamentals, now) : null;
+  if (filingsPoint) points.push(filingsPoint);
 
   // v57.50 I13: the reader's own position, only from a portfolio surface that was already opened and valued in one
   // currency basis (the caller passes nothing otherwise). A weight, not an instruction.

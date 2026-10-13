@@ -5,6 +5,7 @@ import { isValidRightsId } from '../contracts/evidence.js';
 import { createPublicationPolicy, evaluatePublicationSet } from './publication-set.js';
 import { evaluateQuoteContract } from './quote-contract.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../../domain/fundamental/period.js';
+import { SEC_REFERENCE_TURNOVER_BOUNDS, SEC_MARGIN_HOLD_ABOVE_PCT } from '../../domain/fundamental/sec-report.js';
 
 // P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
 // artifacts may be refreshed on their own cadence, so equal generation dates are not required; what is
@@ -53,9 +54,12 @@ function finite(value) {
 // close gives a reproducible USD reference value. Share-basis errors (XBRL scale, ADR ratio,
 // share-class mix) show up as implausible daily turnover, so those rows stay unknown instead of
 // landing in the wrong bucket. Never used as a factor or a decision input.
-export const REFERENCE_MCAP_TURNOVER_BOUNDS = Object.freeze({ min: 0.0005, max: 0.2 });
+// 2026-10-13 F10: the close is the merge's valuationPrice (set whenever a verified share count exists), else the
+// P/E or P/B basis close — before, only rows with positive earnings (pePrice) had one, so 41% of US rows were blank.
+// Korean rows have no share-count source and stay unknown (currency gate below).
+export const REFERENCE_MCAP_TURNOVER_BOUNDS = SEC_REFERENCE_TURNOVER_BOUNDS;
 export function referenceMarketCapFrom(factor = {}, currency = null) {
-  const price = finite(factor.pePrice);
+  const price = finite(factor.valuationPrice) ?? finite(factor.pePrice) ?? finite(factor.pbPrice);
   const shares = finite(factor.valuationSharesOutstanding);
   const dollarVolume = finite(factor.dollarVolume30d);
   if (String(currency || '').toUpperCase() !== 'USD' || price == null || price <= 0 || shares == null || shares <= 0) return null;
@@ -65,8 +69,10 @@ export function referenceMarketCapFrom(factor = {}, currency = null) {
   return Object.freeze({
     billions: Math.round(value / 1e8) / 10,
     basis: 'sec-shares-x-artifact-close',
-    priceBasis: factor.pePriceBasis || null,
+    priceBasis: factor.valuationPriceBasis || factor.pePriceBasis || factor.pbPriceBasis || null,
     sharesObservedAt: factor.valuationSharesObservedAt || null,
+    sharesCheck: factor.valuationSharesCheck || null,
+    sharesBasis: factor.valuationSharesBasis || null,
     allowedUse: 'reference-only'
   });
 }
@@ -337,7 +343,9 @@ export function createScreenerProvider({
         const identity = universeBySymbol.get(symbol) || {};
         const factor = artifact.data[symbol] || {};
         const live = liveBySymbol.get(symbol);
-        const market = /\.K[QS]$/i.test(symbol) || ['KOSPI', 'KOSDAQ'].includes(String(identity.index || '').toUpperCase()) ? 'KR' : 'US';
+        // F07/V04: a Tokyo/Taiwan listing is neither US nor KR; the producer's listingMarket (or the suffix) says so.
+        const market = /\.K[QS]$/i.test(symbol) || ['KOSPI', 'KOSDAQ'].includes(String(identity.index || '').toUpperCase()) ? 'KR'
+          : String(factor.listingMarket || '').toUpperCase() === 'INTL' || /\.(T|TWO?)$/i.test(symbol) ? 'INTL' : 'US';
         const artifactCurrency = String(factor.currency || identity.currency || '').trim().toUpperCase() || null;
         const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
         // P1174 (15 D06): 가격·통화·identity·시각은 하나의 quote다. 통화를 잃은 quote는 "충돌이 없으니
@@ -391,6 +399,8 @@ export function createScreenerProvider({
           name: identity.name || '',
           sector: identity.sector || null,
           index: identity.index || null,
+          // v57.51 V09: a secondary share class names its primary line so equal-weight counts take one issuer once.
+          shareClassOf: identity.shareClassOf || null,
           memo: identity.memo || null,
           source: factor.source || 'screener-artifact',
           sourceKind: factor.sourceKind || null,
@@ -436,7 +446,12 @@ export function createScreenerProvider({
           pctFrom52wHigh: finite(factor.pctFrom52wHigh),
           adrPct: finite(factor.adrPct),
           avgVolume30d: finite(factor.avgVolume30d),
+          // F13: non-USD rows arrive converted at each session's FX close (dollarVolumeFx says how); the
+          // native traded value travels beside it with its own currency.
           dollarVolume30d: volumeCurrency === 'USD' ? finite(factor.dollarVolume30d) : null,
+          dollarVolumeFx: volumeCurrency === 'USD' && factor.dollarVolumeFx && typeof factor.dollarVolumeFx === 'object' ? { ...factor.dollarVolumeFx } : null,
+          tradedValue30d: String(factor.tradedValueCurrency || '').trim() ? finite(factor.tradedValue30d) : null,
+          tradedValueCurrency: String(factor.tradedValueCurrency || '').trim().toUpperCase() || null,
           lastVolume: finite(factor.lastVolume),
           dollarVolume: volumeCurrency === 'USD' ? finite(factor.dollarVolume) : null,
           ema8: finite(factor.ema8),
@@ -477,12 +492,16 @@ export function createScreenerProvider({
           // unit mismatch (BRK-B 0.01/0, IBKR 0.85), not a bargain; held so it cannot top the value rank.
           pe: fundamentalHeld(factor) || !(finite(factor.pe) >= 2) ? null : finite(factor.pe),
           pb: fundamentalHeld(factor) || !(finite(factor.pb) >= 0.1) ? null : finite(factor.pb),
-          evEbitda: fundamentalHeld(factor) ? null : finite(factor.evEbitda),
           roe: fundamentalHeld(factor) ? null : finite(factor.roe),
-          margin: fundamentalHeld(factor) ? null : finite(factor.margin),
+          // 2026-10-13 F05: a margin above 100% is a revenue-subtotal artifact (ESS 7,491%), held until re-normalized.
+          margin: fundamentalHeld(factor) || finite(factor.margin) > SEC_MARGIN_HOLD_ABOVE_PCT ? null : finite(factor.margin),
           revGrowth: fundamentalHeld(factor) ? null : finite(factor.revGrowth),
           _fundamentalHeldReason: fundamentalHeld(factor) ? 'period-too-old' : null,
           newsMemo: factor.newsMemo || null,
+          // v57.51 N02/N21: only an issuer-verified memo reaches AI context; the status names why a cell is empty.
+          newsMemoVerified: factor.newsMemoVerified === true,
+          newsMemoSources: Array.isArray(factor.newsMemoSources) ? factor.newsMemoSources : [],
+          newsStatus: factor.newsStatus || null,
           newsTs: newsObservedAt,
           newsObservedAt: newsObservedAt,
           newsFetchedAt: newsFetchedAt,

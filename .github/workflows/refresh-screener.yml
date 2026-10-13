@@ -3,8 +3,10 @@ name: Refresh screener and SEC fundamentals
 on:
   schedule:
     # :23 is already taken every hour by data-watchdog.yml, and refresh-data.yml offsets its own
-    # crons away from crowded minutes for exactly this reason. :41 keeps the two apart.
-    - cron: '41 */6 * * *'
+    # crons away from crowded minutes for exactly this reason. :53 keeps clear of :17/:47 (refresh-data)
+    # and :23, and puts the 06:xx UTC run after the KR completed-session cutoff (15:45 KST = 06:45 UTC);
+    # at :41 that run fell four minutes short and every KR row stayed on the previous session.
+    - cron: '53 */6 * * *'
   workflow_dispatch: {}
 
 permissions:

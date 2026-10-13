@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFile, rename, writeFile } from 'node:fs/promises';
-import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js';
+import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod } from '../src/domain/fundamental/sec-report.js';
 
 const SOURCE = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 const OUTPUT = new URL('../public-data/sec-fundamentals-summary.json', import.meta.url);
@@ -51,13 +51,14 @@ export function quarterlyHistory(observations = {}) {
     && (Date.parse(row.periodEnd) - Date.parse(row.periodStart)) / 86400000 >= 330);
   const quarters = new Map();
   for (const [field, qField, fyField] of [['revenue', 'revenueQ', 'revenue'], ['netIncome', 'netIncomeQ', 'netIncome']]) {
-    const discrete = pick(observations[qField]);
+    // 2026-10-13 F05: revenue rows are reduced to one per period by the shared concept rule first.
+    const discrete = pick(field === 'revenue' ? bestRevenueRowsByPeriod(observations[qField]) : observations[qField]);
     for (const [end, row] of discrete) {
       const q = quarters.get(end) || { periodEnd: end, derived: false };
       q[field] = row.value;
       quarters.set(end, q);
     }
-    for (const fy of annual(observations[fyField])) {
+    for (const fy of annual(field === 'revenue' ? bestRevenueRowsByPeriod(observations[fyField]) : observations[fyField])) {
       if (discrete.has(fy.periodEnd)) continue;
       const inside = [...discrete.values()].filter((row) => row.periodEnd > fy.periodStart && row.periodEnd < fy.periodEnd);
       if (inside.length !== 3) continue;
@@ -86,7 +87,10 @@ export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operati
 function fiscalHistory(observations = {}) {
   const byEnd = new Map();
   for (const field of FY_FIELDS) {
-    for (const row of Array.isArray(observations[field]) ? observations[field] : []) {
+    // 2026-10-13 F05: one revenue row per period by the shared concept rule (a REIT's customer-contract subtotal
+    // no longer wins a same-filing tie against total revenues).
+    const fieldRows = field === 'revenue' ? bestRevenueRowsByPeriod(observations.revenue) : observations[field];
+    for (const row of Array.isArray(fieldRows) ? fieldRows : []) {
       // P1627: the source also collects annual foreign-issuer 20-F/40-F facts.
       // Dropping their form here left ARM/BABA/NBIS/MNDY on a one-year fallback.
       if (!/^(10-K|20-F|40-F)(\/A)?$/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) continue;
@@ -143,13 +147,19 @@ function fiscalHistory(observations = {}) {
 // per-record value (sourceTier T1_OFFICIAL, periodType used by the report, allowedUse scoping)
 // are intentionally NOT trimmed, so no record silently loses its own declared basis.
 const data = Object.fromEntries(Object.entries(source.data || {}).map(([symbol, record]) => {
-  const reconciled = reconcileSecEquity(record);
+  // 2026-10-13 F03/F05: the same revenue/shares heal the producer and the screener merge apply (idempotent).
+  const reconciled = reconcileSecEquity(reconcileSecRevenueShares(record));
   if (reconciled && reconciled.equityConcept === 'StockholdersEquity') delete reconciled.equityConcept; // restates the projection policy; conflict evidence stays
   delete reconciled.source; // uniform: equals the artifact header every record
   delete reconciled.model; // uniform: sec-fy-normalized-v2; unused by the page render
   // P1632: producer-side availability/PIT audit fields have no page consumer and pushed the projection
   // past its 1 MiB bound (1,055,257 B), failing the whole screener/SEC lane. The canonical artifact keeps them.
-  for (const field of ['operandAvailability', 'derivedAvailability', 'accessionByField', 'transportFetchedAt', 'availabilityModel', 'reportRecency']) delete reconciled[field];
+  for (const field of ['operandAvailability', 'derivedAvailability', 'accessionByField', 'transportFetchedAt', 'availabilityModel', 'reportRecency', 'normalizerVersion', 'revenueConcept', 'revenueHealedFrom']) delete reconciled[field];
+  // N20 (2026-10-13): recent filings ship as compact "filedAt|form|items|accession" strings (1 MiB bound).
+  if (Array.isArray(reconciled.recentFilings)) {
+    reconciled.recentFilings = reconciled.recentFilings.map((filing) => [filing.filedAt, filing.form, (filing.items || []).join(','), filing.accession].join('|'));
+    if (!reconciled.recentFilings.length) delete reconciled.recentFilings;
+  }
   const pit = reconciled?.pit && typeof reconciled.pit === 'object'
     ? Object.fromEntries(Object.entries(reconciled.pit).filter(([key]) => key !== 'observations'))
     : null;

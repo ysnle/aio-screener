@@ -3,17 +3,22 @@
 // English ("to be", "mu", "cat", "meta", "lite") with tickers, which the digest then counted as catalysts.
 const SYMBOL_PART = /^(?:\\b)?[A-Z][A-Z0-9]{1,5}(?:\\b)?$/;
 
+// 2026-10-13 news audit N16: product names (TPU, Trainium, Gemini, SOFC, MI450, Copilot) say which company a
+// post is RELATED to, not who published or is the subject of it; they live in RELATED_PATTERNS and never count
+// toward the issuer tally (tickerCounts/catalysts).
 const TICKER_PATTERNS = [
-  ['NVDA', /\bNVDA\b|nvidia/i], ['AMD', /\bAMD\b|Advanced Micro|MI450/i],
+  ['NVDA', /\bNVDA\b|nvidia/i], ['AMD', /\bAMD\b|Advanced Micro/i],
   ['TSLA', /\bTSLA\b|Tesla/i], ['CAT', /\bCAT\b|Caterpillar/i], ['AMAT', /\bAMAT\b|Applied Materials/i],
-  ['AAPL', /\bAAPL\b|\bApple\b/i], ['MSFT', /\bMSFT\b|\bMicrosoft\b|Azure|Copilot/i],
-  ['GOOG', /\bGOOG\b|\bGOOGL\b|Google|Alphabet|Gemini/i], ['META', /\bMETA\b|Meta Platforms/i],
-  ['AVGO', /\bAVGO\b|Broadcom|TPU/i], ['AMZN', /\bAMZN\b|Amazon|AWS|Trainium/i],
+  // The companies behind the product names below also carry their Korean names, so a Korean post that names the
+  // company ("구글 … Gemini") keeps it as the issuer instead of a product-only relation.
+  ['AAPL', /\bAAPL\b|\bApple\b/i], ['MSFT', /\bMSFT\b|\bMicrosoft\b|Azure|마이크로소프트/i],
+  ['GOOG', /\bGOOG\b|\bGOOGL\b|Google|Alphabet|구글|알파벳/i], ['META', /\bMETA\b|Meta Platforms/i],
+  ['AVGO', /\bAVGO\b|Broadcom|브로드컴/i], ['AMZN', /\bAMZN\b|Amazon|AWS|아마존/i],
   ['MU', /\bMU\b|Micron/i], ['TSM', /\bTSM\b|TSMC|Taiwan Semiconductor/i],
   ['MRVL', /\bMRVL\b|Marvell/i], ['ALAB', /\bALAB\b|Astera/i],
   ['LITE', /\bLITE\b|Lumentum/i], ['COHR', /\bCOHR\b|Coherent/i],
   ['AAOI', /\bAAOI\b|Applied Optoelectronics/i], ['MTSI', /\bMTSI\b|MACOM/i],
-  ['ORCL', /\bORCL\b|Oracle/i], ['BE', /\bBE\b|Bloom Energy|SOFC/i],
+  ['ORCL', /\bORCL\b|Oracle/i], ['BE', /\bBE\b|Bloom Energy|블룸\s*에너지/i],
   ['PLTR', /\bPLTR\b|Palantir/i], ['BMY', /\bBMY\b|Bristol[- ]Myers/i],
   ['SNDK', /\bSNDK\b|SanDisk/i], ['WDC', /\bWDC\b|Western Digital/i], ['STX', /\bSTX\b|Seagate/i],
   ['2454.TW', /\bMTK\b|MediaTek/i], ['PWR', /\bPWR\b|Quanta Services/i],
@@ -32,9 +37,14 @@ const commonWordName = (part) => {
   return COMMON_WORD_NAMES.has(word) ? word : null;
 };
 
+const RELATED_PATTERNS = [
+  ['AVGO', /\bTPU\b/], ['AMZN', /Trainium/i], ['GOOG', /\bGemini\b/], ['BE', /\bSOFC\b/], ['AMD', /\bMI450\b/],
+  ['MSFT', /\bCopilot\b/],
+];
+
 // Split each alternation: all-caps symbol/acronym parts keep their case, common-word names need a capital,
 // remaining distinctive names stay case-insensitive.
-export const COMPILED_TICKER_PATTERNS = TICKER_PATTERNS.map(([ticker, re]) => {
+const compilePatterns = (rows) => rows.map(([ticker, re]) => {
   const parts = re.source.split('|');
   const strict = [];
   const names = [];
@@ -46,7 +56,10 @@ export const COMPILED_TICKER_PATTERNS = TICKER_PATTERNS.map(([ticker, re]) => {
   }
   return [ticker, strict, names.length ? new RegExp(names.join('|'), 'i') : null];
 });
+export const COMPILED_TICKER_PATTERNS = compilePatterns(TICKER_PATTERNS);
+const COMPILED_RELATED_PATTERNS = compilePatterns(RELATED_PATTERNS);
 
+/** Issuer tickers only (named company, symbol or registered alias); product-inferred tickers are excluded. */
 export function matchTickers(raw, aliasRows = []) {
   const text = String(raw || '');
   const out = [];
@@ -59,4 +72,24 @@ export function matchTickers(raw, aliasRows = []) {
     if (re.test(text) && !out.includes(ticker)) out.push(ticker);
   }
   return out;
+}
+
+// N15: a post naming six or more issuers is a list (net-buy TOP 50, sector round-ups, 52-week-high lists); its
+// tickers are not each the subject, so the post does not add to any issuer's tally.
+export const LIST_POST_TICKER_THRESHOLD = 6;
+
+/**
+ * { tickers, relatedTickers, listTickers } — `tickers` are the issuers a post is about (empty for a list post,
+ * whose names move to `listTickers`); `relatedTickers` are companies inferred from a product name only.
+ */
+export function classifyPostTickers(raw, aliasRows = []) {
+  const text = String(raw || '');
+  const issuers = matchTickers(text, aliasRows);
+  const related = [];
+  for (const [ticker, symbols, names] of COMPILED_RELATED_PATTERNS) {
+    if (issuers.includes(ticker) || related.includes(ticker)) continue;
+    if (symbols.some((re) => re.test(text)) || (names && names.test(text))) related.push(ticker);
+  }
+  if (issuers.length >= LIST_POST_TICKER_THRESHOLD) return { tickers: [], relatedTickers: related, listTickers: issuers };
+  return { tickers: issuers, relatedTickers: related, listTickers: [] };
 }

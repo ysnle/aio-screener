@@ -76,8 +76,10 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   if (!revenue) return null;
   const netIncome = selectObservationAsOf(observations.netIncome, asOfMs, revenue);
   const equity = selectObservationAsOf(observations.equity, asOfMs, revenue);
+  // 2026-10-13 F03: the fallback share count must belong to the same fiscal year (within 400 days of its end).
+  const fallbackShares = selectObservationAsOf(observations.sharesOutstanding, asOfMs);
   const shares = selectObservationAsOf(observations.sharesOutstanding, asOfMs, revenue)
-    || selectObservationAsOf(observations.sharesOutstanding, asOfMs);
+    || (fallbackShares && shareGapDays(fallbackShares.periodEnd, revenue.periodEnd) <= SEC_SHARES_MAX_GAP_DAYS ? fallbackShares : null);
   const priorRevenue = (Array.isArray(observations.revenue) ? observations.revenue : [])
     .filter((row) => isPriorAnnualPeriod(revenue, row) && Date.parse(observationEffectiveAt(row) || '') <= asOfMs && finite(row.value) != null)
     .sort((a, b) => String(b.periodEnd).localeCompare(String(a.periodEnd)) || Date.parse(observationEffectiveAt(b)) - Date.parse(observationEffectiveAt(a)))[0] || null;
@@ -145,6 +147,149 @@ export function reconcileSecEquity(record) {
   return corrected;
 }
 
+// 2026-10-13 screener data audit (F03/F04/F05/F06/F10/F16/F17): one SEC normalization policy shared by the
+// producer (companyfacts rows: start/end/val/filed), the screener merge and the page projection (PIT rows:
+// periodStart/periodEnd/value/filedAt), so a stored record is healed by the same rule a fresh fetch applies.
+// A cover-page share count dated more than 400 days from the fiscal year end is a different year's count
+// (V/MA/CMCSA carried 2009 shares and printed P/E 2-9).
+export const SEC_SHARES_MAX_GAP_DAYS = 400;
+// F05: a net margin above 100% means the revenue concept is a subtotal (ESS customer-contract revenue 9.4M
+// against 1.89B total revenues), not a business fact; the margin is withheld.
+export const SEC_MARGIN_HOLD_ABOVE_PCT = 100;
+// Primary revenue concepts compete on size for the same fiscal period: a customer-contract subtotal never
+// exceeds total revenues (REITs, insurers, banks report rent/premium/interest outside ASC 606). The
+// assessed-tax-inclusive concept (XOM/VLO style) is used only when no primary concept reported the period.
+export const SEC_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense']);
+export const SEC_FALLBACK_REVENUE_CONCEPTS = Object.freeze(['RevenueFromContractWithCustomerIncludingAssessedTax']);
+// Reference market-cap plausibility (P1318): a share basis whose implied daily turnover falls outside this band is
+// a scale, ADR-ratio or share-class error, not a company size.
+export const SEC_REFERENCE_TURNOVER_BOUNDS = Object.freeze({ min: 0.0005, max: 0.2 });
+
+const rowStart = (row) => row?.periodStart ?? row?.start ?? null;
+const rowEnd = (row) => row?.periodEnd ?? row?.end ?? null;
+const rowValue = (row) => finite(row?.value ?? row?.val);
+const rowFiled = (row) => String(row?.filedAt ?? row?.filed ?? '');
+
+export function shareGapDays(sharesObservedAt, fiscalPeriodEnd) {
+  const shares = Date.parse(String(sharesObservedAt || '').slice(0, 10));
+  const fiscal = Date.parse(String(fiscalPeriodEnd || '').slice(0, 10));
+  return Number.isFinite(shares) && Number.isFinite(fiscal) ? Math.abs(shares - fiscal) / 86400000 : null;
+}
+
+// One revenue row per fiscal period (start|end): the latest filing per concept, then the largest primary concept,
+// else the assessed-tax-inclusive fallback. Sorted latest period first.
+export function bestRevenueRowsByPeriod(rows = []) {
+  const groups = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (!row || rowValue(row) == null || !rowEnd(row)) continue;
+    const concept = String(row.concept || '');
+    // A concept-less row (legacy PIT migration) competes as a primary row.
+    if (concept && !SEC_PRIMARY_REVENUE_CONCEPTS.includes(concept) && !SEC_FALLBACK_REVENUE_CONCEPTS.includes(concept)) continue;
+    const key = `${rowStart(row) || ''}|${rowEnd(row)}`;
+    const byConcept = groups.get(key) || new Map();
+    const prev = byConcept.get(concept);
+    if (!prev || rowFiled(row) > rowFiled(prev)) byConcept.set(concept, row);
+    groups.set(key, byConcept);
+  }
+  const chosen = [];
+  for (const byConcept of groups.values()) {
+    const candidates = [...byConcept.values()];
+    const primary = candidates.filter((row) => !row.concept || SEC_PRIMARY_REVENUE_CONCEPTS.includes(row.concept));
+    const pool = primary.length ? primary : candidates;
+    pool.sort((a, b) => rowValue(b) - rowValue(a) || rowFiled(b).localeCompare(rowFiled(a)));
+    chosen.push(pool[0]);
+  }
+  return chosen.sort((a, b) => String(rowEnd(b)).localeCompare(String(rowEnd(a))) || rowFiled(b).localeCompare(rowFiled(a)));
+}
+
+// Heals a stored record (written before this policy) from its own PIT observations; idempotent. Revenue is
+// re-selected for the record's period and its prior year, margin above 100% is withheld, and a share count
+// more than 400 days from the fiscal year end is dropped with the price ratios that used it.
+export function reconcileSecRevenueShares(record) {
+  if (!record || typeof record !== 'object') return record;
+  const observations = record.pit?.observations || {};
+  let next = record;
+  const edit = () => { if (next === record) next = { ...record, coverage: Array.isArray(record.coverage) ? [...record.coverage] : [] }; return next; };
+  const dropCoverage = (...keys) => { edit(); next.coverage = next.coverage.filter((key) => !keys.includes(key)); };
+  const annual = (Array.isArray(observations.revenue) ? observations.revenue : []).filter((row) => {
+    const days = (Date.parse(rowEnd(row) || '') - Date.parse(rowStart(row) || '')) / 86400000;
+    return row?.fiscalPeriod === 'FY' && days >= 300 && days <= 400;
+  });
+  const best = bestRevenueRowsByPeriod(annual);
+  const current = best.find((row) => rowEnd(row) === record.observedAt) || null;
+  const stored = finite(record.revenue);
+  if (current && stored != null && rowValue(current) !== stored) {
+    edit();
+    next.revenue = rowValue(current);
+    next.revenueConcept = current.concept || null;
+    next.revenueHealedFrom = stored;
+    const netIncome = finite(record.netIncome);
+    delete next.margin;
+    if (netIncome != null && next.revenue !== 0) next.margin = Math.round(netIncome / next.revenue * 1000) / 10;
+    const prior = best.find((row) => isPriorAnnualPeriod(current, row));
+    delete next.revGrowth;
+    if (prior && rowValue(prior) > 0) next.revGrowth = Math.round((next.revenue / rowValue(prior) - 1) * 1000) / 10;
+    dropCoverage('margin', 'revGrowth');
+    if (next.margin != null) next.coverage.push('margin');
+    if (next.revGrowth != null) next.coverage.push('revGrowth');
+  }
+  const margin = finite(next.margin);
+  if (margin != null && margin > SEC_MARGIN_HOLD_ABOVE_PCT) {
+    edit();
+    next.marginHeld = { value: margin, reason: 'margin-above-100pct-revenue-subtotal' };
+    delete next.margin;
+    dropCoverage('margin');
+  }
+  const gap = shareGapDays(next.sharesObservedAt, next.observedAt);
+  if (finite(next.sharesOutstanding) != null && gap != null && gap > SEC_SHARES_MAX_GAP_DAYS) {
+    edit();
+    next.sharesHeld = { value: finite(next.sharesOutstanding), observedAt: next.sharesObservedAt, reason: 'shares-period-mismatch' };
+    next.sharesOutstanding = null;
+    next.sharesCheck = 'stale-period';
+    delete next.pe;
+    delete next.pb;
+    dropCoverage('sharesOutstanding', 'pe', 'pb');
+  }
+  return next;
+}
+
+export function reconcileSecRecord(record) {
+  return reconcileSecEquity(reconcileSecRevenueShares(record));
+}
+
+// F04/F10: which share count may price a market cap. A count the producer matched to net income ÷ diluted EPS
+// is used as is; an older record without that check (494 of 659 on 2026-10-09) or an unchecked one is used only
+// when the implied daily turnover is plausible. A stale-period or scale-mismatched count is never used.
+export function secSharesTrust(record, { price = null, dollarVolume30d = null } = {}) {
+  const shares = finite(record?.sharesOutstanding);
+  if (shares == null || shares <= 0) return { shares: null, check: null, reason: record?.sharesCheck === 'stale-period' ? 'stale-period' : 'shares-unavailable' };
+  const gap = shareGapDays(record?.sharesObservedAt, record?.observedAt);
+  if (gap != null && gap > SEC_SHARES_MAX_GAP_DAYS) return { shares: null, check: null, reason: 'stale-period' };
+  if (record?.sharesCheck === 'scale-mismatch') return { shares: null, check: null, reason: 'scale-mismatch' };
+  if (record?.sharesCheck === 'consistent') return { shares, check: 'eps-consistent', reason: null };
+  const px = finite(price);
+  const volume = finite(dollarVolume30d);
+  const turnover = px > 0 && volume > 0 ? volume / (px * shares) : null;
+  if (turnover != null && turnover >= SEC_REFERENCE_TURNOVER_BOUNDS.min && turnover <= SEC_REFERENCE_TURNOVER_BOUNDS.max) return { shares, check: 'turnover-plausible', reason: null };
+  return { shares: null, check: null, reason: 'unverified-share-basis' };
+}
+
+// F17/F18: extreme annual ratios are kept for display with a reading flag. Ranking already bounds them — the value
+// factor ignores P/E at or above 200 and the quality factor clamps ROE (-30..60), margin (-20..40) and revenue
+// growth (-30..60) — so a flagged value cannot dominate a rank.
+export function fundamentalValueFlags(row = {}) {
+  const flags = [];
+  const pe = finite(row?.pe);
+  const roe = finite(row?.roe);
+  const growth = finite(row?.revGrowth);
+  const margin = finite(row?.margin);
+  if (pe != null && pe > 1000) flags.push({ field: 'pe', code: 'low-meaning', label: '의미 낮음 — 이익이 시가총액에 비해 매우 작음' });
+  if (roe != null && Math.abs(roe) > 200) flags.push({ field: 'roe', code: 'low-meaning', label: '의미 낮음 — 자기자본이 매우 작거나 음수에 가까움' });
+  if (growth != null && growth > 1000) flags.push({ field: 'revGrowth', code: 'one-off-possible', label: '일회성 가능 — 전년 매출이 매우 작은 기저 효과' });
+  if (margin != null && margin < -1000) flags.push({ field: 'margin', code: 'low-meaning', label: '의미 낮음 — 매출이 매우 작음' });
+  return flags;
+}
+
 export function secFilingUrl(cik, accession) {
   const company = String(cik || '');
   const filing = String(accession || '');
@@ -153,7 +298,7 @@ export function secFilingUrl(cik, accession) {
 }
 
 export function deriveSecReport(fundamentals = null) {
-  const input = reconcileSecEquity(fundamentals && typeof fundamentals === 'object' ? fundamentals : {});
+  const input = reconcileSecRecord(fundamentals && typeof fundamentals === 'object' ? fundamentals : {});
   const knownMetrics = new Set(METRIC_DEFINITIONS.map(([key]) => key));
   const coverage = Array.isArray(input.coverage) ? input.coverage.filter((field) => typeof field === 'string' && knownMetrics.has(field)) : [];
   const metrics = METRIC_DEFINITIONS

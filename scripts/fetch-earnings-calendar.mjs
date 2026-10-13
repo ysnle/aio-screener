@@ -7,7 +7,7 @@
 
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -30,16 +30,49 @@ async function fetchJSON(url) {
   }
 }
 
+// 2026-10-13 news audit N18: on a Saturday/Sunday (UTC) the window used to be the week that had just ended, so the
+// weekend snapshot showed only past reports. The window starts at this week's Monday on a weekday and at the next
+// Monday on a weekend, and runs seven days past that Monday (through the following Monday) so a Friday run already
+// shows the start of the next week.
+export function earningsCalendarWindow(now = new Date()) {
+  const day = now.getUTCDay();
+  const offset = day === 0 ? 1 : day === 6 ? 2 : 1 - day;
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) + offset * 86400000);
+  const end = new Date(monday.getTime() + 7 * 86400000);
+  return { from: isoDay(monday), to: isoDay(end) };
+}
 
+// N19: the provider calendar omits some large issuers (ASML and TSM were absent in the week they reported). Large
+// names that the window does not list are published as 'schedule unconfirmed' — never as "no report this week".
+// The watch set comes only from official lists already in the repo: the top S&P 500 weights and the universe's
+// ADR listings. No dates are inferred.
+export const LARGE_CAP_WATCH_TOP_WEIGHTS = 30;
+export function largeCapScheduleGaps(earningsRows = [], { sp500Rows = [], universeRows = [], top = LARGE_CAP_WATCH_TOP_WEIGHTS } = {}) {
+  const norm = (sym) => String(sym || '').trim().toUpperCase().replace(/[.\/]/g, '-');
+  const listed = new Set((Array.isArray(earningsRows) ? earningsRows : []).map((row) => norm(row?.symbol)).filter(Boolean));
+  const byWeight = (Array.isArray(sp500Rows) ? sp500Rows : []).filter((row) => row?.sym && Number.isFinite(Number(row.weight)))
+    .sort((a, b) => Number(b.weight) - Number(a.weight)).slice(0, top).map((row) => norm(row.sym));
+  const adrs = (Array.isArray(universeRows) ? universeRows : []).filter((row) => row?.sym && row.index === 'ADR').map((row) => norm(row.sym));
+  const watch = [...new Set([...byWeight, ...adrs])];
+  const unconfirmed = watch.filter((sym) => !listed.has(sym));
+  return {
+    basis: `S&P 500 top ${top} by index weight + universe ADR listings`,
+    watchCount: watch.length,
+    listedCount: watch.length - unconfirmed.length,
+    unconfirmed,
+    semantics: 'unconfirmed = not listed in this provider window; the issuer may or may not report in it (schedule unconfirmed, not "no report").'
+  };
+}
+
+async function readJsonIf(path) {
+  try { return JSON.parse(await readFile(path, 'utf8')); } catch { return null; }
+}
 
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
   const now = new Date();
-  const monday = new Date(now.getTime() + ((1 - (now.getUTCDay() || 7)) * 86400000));
-  const friday = new Date(monday.getTime() + 4 * 86400000);
-  const from = isoDay(monday);
-  const to = isoDay(friday);
+  const { from, to } = earningsCalendarWindow(now);
   if (!FINNHUB_KEY) {
     // This header always claimed the artifact is "preserved with status
     // operator-key-required", but the code returned without writing anything, so
@@ -70,6 +103,8 @@ async function main() {
     fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : [])),
     fetchJSON(`${FINNHUB_BASE}/calendar/ipo?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.ipoCalendar) ? d.ipoCalendar : []))
   ]);
+  const sp500 = await readJsonIf(`${ROOT}/public-data/sp500-weights.json`);
+  const universe = await readJsonIf(`${ROOT}/public-data/screener-universe.json`);
   const payload = {
     schemaVersion: 'earnings-calendar.v1',
     status: 'current-reference',
@@ -80,6 +115,7 @@ async function main() {
     weekStart: from,
     weekEnd: to,
     generatedAt: new Date().toISOString(),
+    largeCapCoverage: largeCapScheduleGaps(earnings, { sp500Rows: sp500?.rows, universeRows: universe?.universe }),
     earnings: earnings.map((row) => ({
       symbol: row.symbol || null,
       date: row.date || null,
@@ -101,4 +137,7 @@ async function main() {
   console.log(`[earnings-calendar] ${payload.earnings.length} earnings + ${payload.ipos.length} ipos (${from}~${to})`);
 }
 
-main().catch((error) => { console.error('[earnings-calendar] failed:', error?.message || error); process.exit(1); });
+// Run only as a script, so the window/coverage helpers can be imported by checks without a provider call.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => { console.error('[earnings-calendar] failed:', error?.message || error); process.exit(1); });
+}

@@ -22,15 +22,15 @@ import { writeOperationsStatus } from './build-operations-status.mjs';
 import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
-import { newsArticleKey } from '../src/domain/news/stories.js';
+import { newsArticleKey, issuerNameMentioned } from '../src/domain/news/stories.js';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
-import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
+import { factorScopesByMarket, listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../src/domain/market/session-time.js';
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../src/ai/time/market-session.js';
 import { FACTOR_FRESHNESS_MS, computeFactorRanks } from '../src/domain/screener/factor-ranks.js';
 import { MODEL_DEFAULT_WEIGHTS } from '../src/domain/screener/factor-weights.js';
 import { buildScreenerModelFingerprint } from '../src/domain/screener/model-fingerprint.js';
-import { reconcileSecEquity } from '../src/domain/fundamental/sec-report.js'; // P1402
+import { reconcileSecRecord, secSharesTrust } from '../src/domain/fundamental/sec-report.js'; // P1402 + 2026-10-13 F03-F05
 import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERSION } from '../src/domain/market/breadth-signals.js'; // P1416
 import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
@@ -1382,13 +1382,23 @@ const SERVER_NEWS_PRIORITY_RULES = [
   { label: 'mega-cap', points: 8, re: /\b(aapl|apple|msft|microsoft|nvda|nvidia|amzn|amazon|meta|tesla|tsla|googl|google|avgo|broadcom|amd|oracle|orcl|jpm|exxon|xom)\b/i },
 ];
 
-const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now)\b/i;
+// 2026-10-13 news audit N13: "Adding Nvidia … is How Fortunes Are Made" and the same promise-of-wealth family.
+const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now|fortunes? (?:are|is|was|were|could be|can be|will be) made|make you (?:rich|a fortune)|life[- ]changing (?:money|wealth|returns?)|generational wealth|set (?:you )?up for life|retire (?:rich|early|a millionaire)|turn \$?[\d,]+ into)\b/i;
 const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumor|reportedly|may be considering|is said to)\b/i;
 const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC)\b/i;
 const SERVER_NEWS_TIER2_SOURCE_RE = /\b(MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance)\b/i;
 // P1504: the list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
 // that filled the 2026-10-06 cycle (TradingKey ×4, livetradingnews, BBN Times, simplywall.st).
-const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News)\b/i;
+const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News|TMGM|VT Markets|Markets\.com|Admirals?|Action Forex|Moomoo|Invezz|Capital\.com|Plus500|XTB|FXOpen|Exness|AvaTrade|eToro|MarketBeat|24\/7 Wall St)\b/i;
+// N12 (2026-10-13 audit): the additions after Blockchain.News are CFD-broker and trading-app marketing desks (TMGM,
+// VT Markets, Markets.com, Admirals, Action Forex, Moomoo, Invezz …) and template/listicle farms (MarketBeat,
+// 24/7 Wall St). Matching runs on the host-normalised source label, so "www.tmgm.com" is caught as well.
+// Google News sometimes returns the publisher as a bare URL; only its host is kept as the source label.
+export function newsSourceLabel(raw) {
+  const text = String(raw || '').trim();
+  if (!/^https?:\/\//i.test(text) && !/^www\./i.test(text)) return text;
+  try { return new URL(/^https?:\/\//i.test(text) ? text : `https://${text}`).hostname.replace(/^www\./i, ''); } catch (_) { return text; }
+}
 // P1504: Korean headlines matched none of the English priority rules, so every Korean item scored on source and
 // recency alone. The same topics in Korean.
 const SERVER_NEWS_PRIORITY_RULES_KO = [
@@ -1524,7 +1534,8 @@ function _parseRssXml(xml, opts) {
     if (!title || (needLink && !link)) continue;
     const ts = pub ? new Date(pub).getTime() : 0;
     const guid = _decodeNewsEntities((b.match(/<guid[^>]*>([\s\S]*?)<\/guid>/i) || [])[1]);
-    items.push({ title: title.slice(0, titleLen), guid: guid || null, sourceArticleId: guid || null, fetchedAt: new Date().toISOString(), link: link || null, source: src || '', pubDate: pub || null, ts: isFinite(ts) ? ts : 0 });
+    // N13: a URL-shaped publisher becomes its host name; the raw value is kept only to strip the title suffix.
+    items.push({ title: title.slice(0, titleLen), guid: guid || null, sourceArticleId: guid || null, fetchedAt: new Date().toISOString(), link: link || null, source: newsSourceLabel(src), _sourceRaw: src || '', pubDate: pub || null, ts: isFinite(ts) ? ts : 0 });
   }
   return items;
 }
@@ -1543,6 +1554,64 @@ export function newsSameEvent(a, b) {
   const jaccard = shared / Math.max(1, a.grams.size + b.grams.size - shared);
   const sameFigure = [...a.figures].some((figure) => b.figures.has(figure));
   return jaccard >= 0.6 || (sameFigure && jaccard >= 0.25);
+}
+
+// Google News appends " - Source" to every title; the source is shown separately (hover / folded sources only).
+export function cleanNewsTitle(title, source, rawSource = '') {
+  const text = String(title || '');
+  for (const src of [String(source || '').trim(), String(rawSource || '').trim()]) {
+    if (src && text.endsWith(` - ${src}`)) return text.slice(0, -(src.length + 3)).trim();
+  }
+  return text;
+}
+
+// N11 (2026-10-13 audit): paraphrases of one story are not the same headline, so newsSameEvent let seven
+// "oil rises on Saudi attacks" and eight "stocks wait for bank earnings and CPI" items through. Within one 24h
+// cycle (the date is the cycle), a headline's key entities are its topic; at most two picks may share a pair of
+// key entities and at most four (three for an index wrap) a single one.
+const NEWS_KEY_ENTITIES = [
+  ['oil', /\b(?:oil|crude|brent|wti|opec)\b|유가|원유/i],
+  ['gold', /\b(?:gold|bullion|xau)\b|금값|금 가격/i],
+  ['inflation', /\b(?:cpi|inflation|ppi|pce)\b|물가|인플레/i],
+  ['fed', /\b(?:fed|fomc|powell|federal reserve)\b|연준/i],
+  ['index-wrap', /\b(?:s&p 500|dow(?: jones)?|nasdaq|wall street|stock (?:index )?futures|us stocks|stock market today|new york stocks)\b|코스피|코스닥|뉴욕증시/i],
+  ['bank-earnings', /\bbank(?:s'|s)? earnings\b|은행 실적/i],
+  ['saudi', /\bsaudi\b|사우디/i],
+  ['iran', /\b(?:iran|tehran)\b|이란/i],
+  ['hormuz', /\bhormuz\b|호르무즈/i],
+  ['houthi', /\b(?:houthis?|red sea)\b|후티|홍해/i],
+  ['russia-ukraine', /\b(?:russia|ukraine|kremlin)\b|러시아|우크라이나/i],
+  ['israel', /\b(?:israel|gaza|hezbollah|lebanon)\b|이스라엘/i],
+  ['china', /\b(?:china|chinese|beijing)\b|중국/i],
+  ['tariff', /\btariffs?\b|관세/i],
+  ['dollar-fx', /\b(?:dollar|dxy|yen|euro|yuan)\b|환율|원·?달러|엔화/i],
+  ['treasury', /\b(?:treasur(?:y|ies)|bond yields?|10-year)\b|국채/i],
+  ['nvidia', /\bnvidia\b|엔비디아/i],
+  ['semis', /\b(?:semiconductors?|chips?|chipmakers?)\b|반도체/i],
+];
+const NEWS_ENTITY_SINGLE_CAP = { 'index-wrap': 3 };
+const NEWS_ENTITY_SINGLE_CAP_DEFAULT = 4;
+const NEWS_ENTITY_PAIR_CAP = 2;
+export function newsKeyEntities(title) {
+  const text = String(title || '');
+  return NEWS_KEY_ENTITIES.filter(([, re]) => re.test(text)).map(([key]) => key);
+}
+export function createNewsTopicCap() {
+  const single = new Map();
+  const pairs = new Map();
+  const pairKeys = (keys) => keys.flatMap((a, i) => keys.slice(i + 1).map((b) => `${a}+${b}`));
+  return {
+    full(title) {
+      const keys = newsKeyEntities(title);
+      if (keys.some((key) => (single.get(key) || 0) >= (NEWS_ENTITY_SINGLE_CAP[key] ?? NEWS_ENTITY_SINGLE_CAP_DEFAULT))) return true;
+      return pairKeys(keys).some((key) => (pairs.get(key) || 0) >= NEWS_ENTITY_PAIR_CAP);
+    },
+    add(title) {
+      const keys = newsKeyEntities(title);
+      for (const key of keys) single.set(key, (single.get(key) || 0) + 1);
+      for (const key of pairKeys(keys)) pairs.set(key, (pairs.get(key) || 0) + 1);
+    }
+  };
 }
 
 async function fetchNews() {
@@ -1567,7 +1636,7 @@ async function fetchNews() {
         const t = p.ts;
         if (!isFinite(t) || t < cycle.startMs || t >= cycle.endMs) continue;
         const item = {
-          title: p.title, link: p.link, source: p.source || feed.source,
+          title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw,
           guid: p.guid, sourceArticleId: p.sourceArticleId, fetchedAt: p.fetchedAt, evidenceKind: p.evidenceKind,
           pubDate: p.pubDate, ts: isFinite(t) ? t : 0,
           topic: isKr ? 'kr' : feed.topic,  // 'korea' → 'kr' 정규화
@@ -1607,14 +1676,14 @@ async function fetchNews() {
     return pickedGrams.some((other) => newsSameEvent(mine, other));
   };
   // Google News appends " - Source" to every title; the source is shown separately.
-  const cleanTitle = (it) => {
-    const src = String(it.source || '').trim();
-    const title = String(it.title || '');
-    return src && title.endsWith(` - ${src}`) ? title.slice(0, -(src.length + 3)).trim() : title;
-  };
+  const cleanTitle = (it) => cleanNewsTitle(it.title, it.source, it._sourceRaw);
+  // N11: paraphrases of one story share key entities ("oil" + "saudi"); see createNewsTopicCap.
+  const topicCap = createNewsTopicCap();
+  const topicFull = (it) => topicCap.full(cleanTitle(it));
   function pushItem(it) {
     pickedGrams.push(newsHeadlineSignature(it.title));
     perSource.set(sourceKey(it), (perSource.get(sourceKey(it)) || 0) + 1);
+    topicCap.add(cleanTitle(it));
     out.push({
       title: cleanTitle(it), link: it.link, source: it.source,
       guid: it.guid, sourceArticleId: it.sourceArticleId, fetchedAt: it.fetchedAt, evidenceKind: it.evidenceKind,
@@ -1636,7 +1705,7 @@ async function fetchNews() {
   const KR_SLOTS = 3;
   for (const it of krItems) {
     if (out.length >= KR_SLOTS) break;
-    if (sourceFull(it)) continue;
+    if (sourceFull(it) || topicFull(it)) continue;
     const k = newsArticleKey(it);
     if (seen.has(k) || sameEvent(it)) continue;
     seen.add(k);
@@ -1649,7 +1718,7 @@ async function fetchNews() {
     for (const it of items) {
       if (taken >= floor || out.length >= 40) break;
       if (it.topic !== topic) continue;
-      if (sourceFull(it)) continue;
+      if (sourceFull(it) || topicFull(it)) continue;
       const k = newsArticleKey(it);
       if (seen.has(k) || sameEvent(it)) continue;
       seen.add(k);
@@ -1660,7 +1729,7 @@ async function fetchNews() {
   // 나머지 슬롯을 US/글로벌 뉴스로 채움
   for (const it of items) {
     if (out.length >= 40) break;
-    if (sourceFull(it)) continue;
+    if (sourceFull(it) || topicFull(it)) continue;
     const k = newsArticleKey(it);
     if (seen.has(k) || sameEvent(it)) continue;
     seen.add(k);
@@ -1671,22 +1740,91 @@ async function fetchNews() {
 
 // ── v51.15: 개별 종목 뉴스 enrichment — Google News RSS per-ticker → screener.json newsMemo ──
 // _fetchRss + _parseRssXml 공용 헬퍼 기반으로 중복 없이 구현.
-async function fetchTickerNewsItems(sym, days) {
-  const url = 'https://news.google.com/rss/search?q=' + encodeURIComponent(sym + ' stock when:' + (days || 3) + 'd') + '&hl=en-US&gl=US&ceid=US:en';
-  try { return _parseRssXml(await _fetchRss(url, 8000), { limit: 5, titleLen: 130 }); }
-  catch (e) { return []; }
+// 2026-10-13 news audit N01: the query was "<SYM> stock", so about one memo in five was another company's story
+// (V → "NVDA vs AVGO", MA → MA Financial, DE → Edel SE, LIN → Lin Hsiu-ming, NOW → "Microsoft Now Has",
+// LOW → "12-Year Low", BROS → Warner Bros.). The query now uses the company's core name, and a headline is kept
+// only when it names the issuer (core name, "(SYM)", ":SYM", "$SYM" or "SYM stock"); otherwise the memo is empty.
+export function tickerNewsCoreName(name) {
+  const original = String(name || '').replace(/[’‘]/g, '\'').trim();
+  let core = original.replace(/\s+Class\s+[A-C]$/i, '').replace(/\s+[A-C]$/, '');
+  const suffix = /(?:,?\s+(?:Inc\.?|Incorporated|Corp\.?|Corporation|Co\.?|Company|Companies|Holdings?|Group|Ltd\.?|plc|PLC|N\.?V\.?|S\.?A\.?|AG|SE|Technologies|Technology|Tech|Systems|Platforms|Motor|Chase|Intl|International)|\s*&\s*Co\.?)$/;
+  for (let prev = null; prev !== core && core;) { prev = core; core = core.replace(suffix, '').trim(); }
+  return core || original;
+}
+export const TICKER_NEWS_WORD_SYMBOLS = new Set(['AI', 'IT', 'ON', 'ALL', 'NOW', 'SO', 'ARE', 'HAS', 'KEY', 'NET', 'APP', 'FAST', 'BE', 'LOW', 'CAT', 'DOW', 'ED', 'PEG', 'AN', 'ONE', 'OR', 'GO', 'MA', 'DE', 'LIN', 'BROS', 'CASH', 'GOLD', 'FUN', 'PLAY', 'MAIN', 'WELL', 'TECH', 'HOOD', 'PATH', 'RUN', 'SHOP', 'SNOW', 'TEAM', 'ZS', 'EV', 'US', 'UK', 'EU', 'CEO', 'IPO', 'ETF', 'GDP', 'CPI', 'FED']);
+const _escTickerRe = (text) => String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** 'symbol' | 'name' | null — how (whether) the headline names this issuer. */
+export function tickerNewsHeadlineNamesIssuer(title, sym, name) {
+  const text = String(title || '').replace(/[’‘]/g, '\'');
+  const S = String(sym || '').trim().toUpperCase();
+  if (!text || !S) return null;
+  const esc = _escTickerRe(S);
+  if (new RegExp(`\\$${esc}(?![A-Za-z0-9])|\\(\\s*(?:(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*:\\s*)?${esc}\\s*(?::\\s*(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX|OTC)\\s*)?\\)|(?:NYSE|NASDAQ|Nasdaq|NYSEARCA|AMEX)\\s*:\\s*${esc}(?![A-Za-z0-9])`).test(text)) return 'symbol';
+  // A ticker that is also a word or common abbreviation ("This AI Stock", "AI's power demand", "KEY stocks") does not
+  // name its issuer by "SYM stock" / "SYM's"; those tickers need $SYM, (SYM) or an exchange prefix.
+  if (S.length >= 2 && !TICKER_NEWS_WORD_SYMBOLS.has(S) && new RegExp(`(?:^|[^A-Za-z0-9$])${esc}(?=\\s+(?:Stock|stock|Shares|shares|Earnings|earnings)\\b|'s\\b)`).test(text)) return 'symbol';
+  const core = tickerNewsCoreName(name);
+  // A legal name shortened to one word ("Booking Holdings" → "Booking", "Cisco Systems" → "Cisco") must sit next
+  // to a corporate cue (stock/shares/earnings/…), as an ordinary-word company name does.
+  const shortened = core !== String(name || '').replace(/[’‘]/g, '\'').trim();
+  return issuerNameMentioned(text, core, S, { requireCue: shortened }) ? 'name' : null;
+}
+const _kstMonthDay = (ms) => new Date(ms + KST_OFFSET_MS).toISOString().slice(5, 10);
+export const TICKER_NEWS_MAX_AGE_MS = 3 * DAY_MS;
+/**
+ * N01/N05/N09/N10/N22: pick at most two recent headlines that name the issuer, from sources and page types the
+ * market-news selection would also accept, one per event. Dates are KST; sources travel separately (never in the
+ * memo text). Returns null when nothing qualifies (fail-closed: no memo rather than another company's story).
+ */
+export function selectTickerNewsMemo(items, { sym, name, nowMs = Date.now(), maxItems = 2 } = {}) {
+  const candidates = (Array.isArray(items) ? items : [])
+    .map((it) => ({ ...it, title: cleanNewsTitle(it?.title, it?.source, it?._sourceRaw).slice(0, 130) }))
+    .filter((it) => it.title && Number.isFinite(it.ts) && it.ts > 0 && it.ts <= nowMs + 3600000 && nowMs - it.ts <= TICKER_NEWS_MAX_AGE_MS)
+    .sort((a, b) => b.ts - a.ts);
+  const picked = [];
+  const signatures = [];
+  for (const it of candidates) {
+    if (picked.length >= maxItems) break;
+    if (getServerNewsSourceTier(it.source, 3) >= 4) continue;
+    if (SERVER_NEWS_NOT_ARTICLE_RE.test(it.title) || SERVER_NEWS_CLICKBAIT_RE.test(it.title) || serverNewsHeadlineMonthStale(it.title, nowMs)) continue;
+    const issuerMatch = tickerNewsHeadlineNamesIssuer(it.title, sym, name);
+    if (!issuerMatch) continue;
+    const signature = newsHeadlineSignature(it.title);
+    if (signatures.some((other) => newsSameEvent(signature, other))) continue;
+    signatures.push(signature);
+    picked.push({ ...it, issuerMatch });
+  }
+  if (!picked.length) return null;
+  return {
+    memo: picked.map((it) => `[${_kstMonthDay(it.ts)}] ${it.title}`).join(' · '),
+    sources: picked.map((it) => it.source || null),
+    items: picked
+  };
 }
 
-// 뉴스 아이템 배열 → 스크리너 메모 문자열 (최신 2건, "[MM-DD] 제목 (출처)" 형식)
-function _fmtTickerNewsMemo(items) {
-  if (!items || !items.length) return null;
-  const top = items.filter(i => i.title).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 2);
-  if (!top.length) return null;
-  return top.map(it => {
-    const d = it.ts ? new Date(it.ts).toISOString().slice(5, 10) : '';
-    const src = it.source ? ' (' + it.source + ')' : '';
-    return '[' + d + '] ' + it.title + src;
-  }).join(' · ');
+async function fetchTickerNewsItems(sym, name, days) {
+  const core = tickerNewsCoreName(name);
+  const query = core ? `"${core}" stock when:${days || 3}d` : `${sym} stock when:${days || 3}d`;
+  const url = 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=en-US&gl=US&ceid=US:en';
+  try { return { items: _parseRssXml(await _fetchRss(url, 8000), { limit: 15, titleLen: 220 }), error: null }; }
+  catch (e) { return { items: [], error: String(e && e.message || e) }; }
+}
+
+// N04: the run cap stays at 90 requests; the targets rotate. The first ten universe names (the largest) are
+// fetched every run and the rest move through in 80-name slices keyed by the 6-hour run slot, so every U.S. stock
+// is reached within about ten runs (~2.5 days); a verified memo is kept for three days in between.
+export const TICKER_NEWS_RUN_CAP = 90;
+export const TICKER_NEWS_FIXED_HEAD = 10;
+export const TICKER_NEWS_ROTATION_SLOT_MS = 6 * 3600000;
+export function planTickerNewsTargets(eligible, nowMs = Date.now(), { cap = TICKER_NEWS_RUN_CAP, head = TICKER_NEWS_FIXED_HEAD, slotMs = TICKER_NEWS_ROTATION_SLOT_MS } = {}) {
+  const list = [...new Set(Array.isArray(eligible) ? eligible : [])];
+  if (list.length <= cap) return { targets: list, fixed: list.length, perRun: 0, cycleRuns: 1, offset: 0 };
+  const fixed = list.slice(0, Math.min(head, cap));
+  const rest = list.slice(fixed.length);
+  const perRun = cap - fixed.length;
+  const cycleRuns = Math.ceil(rest.length / perRun);
+  const offset = (Math.floor(nowMs / slotMs) % cycleRuns) * perRun;
+  return { targets: [...fixed, ...rest.slice(offset, offset + perRun)], fixed: fixed.length, perRun, cycleRuns, offset };
 }
 
 function _tickerNewsTimestampMs(value) {
@@ -1759,6 +1897,9 @@ async function fetchHistory(symbol, range = '6mo') {
       // P1683: a session the provider lists with an empty close (KRX 2026-10-12 on Yahoo) is a gap, not a
       // non-session — remember its date so short-window returns across it are not labelled one session.
       out.nullCloseDates = [];
+      // 2026-10-13 F07: the listing's own currency and exchange zone travel with the series so a Tokyo or
+      // Taipei row is never published as USD on a New York session date.
+      out.meta = { currency: res.meta?.currency || null, exchangeTimezoneName: res.meta?.exchangeTimezoneName || null, symbol: res.meta?.symbol || null };
       for (let i = 0; i < ts.length; i++) {
         const c = closes[i];
         if (typeof c !== 'number' || !isFinite(c)) { if (Number.isFinite(ts[i])) out.nullCloseDates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10)); continue; }
@@ -1789,6 +1930,156 @@ async function fetchHistory(symbol, range = '6mo') {
     } catch (e) { /* 호스트 폴백 */ }
   }
   return [];
+}
+
+// 2026-10-13 F01/F02: Yahoo's KRX daily close is often not the exchange close (closing call auction not
+// reflected — 005930 2026-10-08 262,000 vs 263,000; 14 of the last 26 sessions differed by up to 2.3%), and
+// a session it lists with an empty close (KRX 2026-10-12) froze every KR row on the prior session. The
+// exchange daily series redistributed by the KR portal keeps the same volumes and split basis, so its
+// close/high/low replace Yahoo's on matching dates and fill the empty sessions. Yahoo's adjusted/raw
+// ratio is carried onto the corrected close so dividend adjustment is unchanged. If the series is
+// missing or disagrees beyond a corporate-action-sized gap, Yahoo values stay and the gap stays listed.
+export const KR_EXCHANGE_CLOSE_SOURCE = 'naver-sisejson-daily';
+const KR_EXCHANGE_CLOSE_MAX_DEVIATION = 0.15;
+const KR_EXCHANGE_FAILURE_LIMIT = 8;
+let _krExchangeFailures = 0;
+let _krExchangeSuccesses = 0;
+
+export function parseKrDailySeries(text) {
+  const rows = [];
+  const seen = new Set();
+  const rx = /\["(\d{8})",\s*(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?),\s*(\d+)/g;
+  let m;
+  while ((m = rx.exec(String(text || ''))) !== null) {
+    const d = m[1];
+    const date = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+    const check = new Date(`${date}T12:00:00Z`);
+    if (!Number.isFinite(check.getTime()) || check.toISOString().slice(0, 10) !== date || seen.has(date)) continue;
+    const [open, high, low, close, volume] = m.slice(2, 7).map(Number);
+    // An exchange bar must be internally consistent; anything else is not used to correct a provider bar.
+    if (!(close > 0) || !(high > 0) || !(low > 0) || high < low || close > high || close < low) continue;
+    seen.add(date);
+    rows.push({ date, open, high, low, close, volume: Number.isFinite(volume) ? volume : null });
+  }
+  return rows.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function reconcileKrExchangeCloses(rows, exchangeRows, { nullCloseDates = [], maxDeviation = KR_EXCHANGE_CLOSE_MAX_DEVIATION, fetchedAt = new Date().toISOString(), nowMs = Date.now() } = {}) {
+  const base = Array.isArray(rows) ? rows.filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || ''))) : [];
+  const gaps = Array.isArray(nullCloseDates) ? [...nullCloseDates] : [];
+  const report = { source: KR_EXCHANGE_CLOSE_SOURCE, status: 'unavailable', reason: null, compared: 0, correctedCloses: 0, correctedRanges: 0, filledSessions: 0, filledDates: [], maxDeviationPct: null, providerMissingSessions: gaps };
+  // An in-session exchange bar (KST trading hours) is a live print, not a close: it neither corrects, fills nor
+  // enters the basis-mismatch comparison (an intraday 15% move must not reject the whole year's reconciliation).
+  const byDate = new Map((Array.isArray(exchangeRows) ? exchangeRows : []).filter((row) => row && isSessionComplete(row.date, 'kr', nowMs)).map((row) => [row.date, row]));
+  if (!base.length || !byDate.size) {
+    report.reason = !base.length ? 'provider-series-empty' : 'exchange-series-unavailable';
+    return { rows: base, nullCloseDates: gaps, report };
+  }
+  let maxDev = 0;
+  for (const row of base) {
+    const x = byDate.get(row.date);
+    if (!x || !(row.close > 0)) continue;
+    report.compared += 1;
+    maxDev = Math.max(maxDev, Math.abs(x.close / row.close - 1));
+  }
+  report.maxDeviationPct = report.compared ? round(maxDev * 100, 2) : null;
+  if (!report.compared) { report.reason = 'no-overlapping-sessions'; return { rows: base, nullCloseDates: gaps, report }; }
+  // A split or a different adjustment basis shows up as a large uniform gap; a closing auction does not.
+  if (maxDev > maxDeviation) { report.status = 'rejected'; report.reason = 'adjustment-basis-mismatch'; return { rows: base, nullCloseDates: gaps, report }; }
+  const ratioOf = (row) => row && row.close > 0 && typeof row.adjClose === 'number' && row.adjClose > 0 ? row.adjClose / row.close : null;
+  const out = base.map((row) => {
+    const x = byDate.get(row.date);
+    if (!x || !(row.close > 0)) return row;
+    const closeChanged = x.close !== row.close;
+    const rangeChanged = x.high !== row.high || x.low !== row.low;
+    if (!closeChanged && !rangeChanged) return row;
+    if (closeChanged) report.correctedCloses += 1;
+    if (rangeChanged) report.correctedRanges += 1;
+    const ratio = ratioOf(row);
+    return { ...row, close: round(x.close, 2), high: round(x.high, 2), low: round(x.low, 2), adjClose: ratio == null ? row.adjClose : round(x.close * ratio, 2), closeSource: KR_EXCHANGE_CLOSE_SOURCE };
+  });
+  const have = new Set(out.map((row) => row.date));
+  const firstDate = out[0].date;
+  for (const x of byDate.values()) {
+    if (x.date < firstDate || have.has(x.date)) continue;
+    const prev = [...out].reverse().find((row) => row.date < x.date) || null;
+    const next = out.find((row) => row.date > x.date) || null;
+    const prevRatio = ratioOf(prev), nextRatio = ratioOf(next);
+    // The adjusted/raw ratio of a filled session is known only when both neighbours agree (no ex-date in
+    // between) or, for a new latest session, when the previous bar carries no pending adjustment.
+    // Tolerance covers the two-decimal rounding of both series relative to the price (a 1,000원 stock's rounding moves
+    // the ratio by ~1e-5), still far below any real dividend step. An unknown ratio leaves the session unfilled rather
+    // than adding a null adjusted close that breadth and SMA windows would misread.
+    const tol = Math.max(1e-6, 0.011 / Math.max(1, Math.min(prev?.close || Infinity, next?.close || Infinity)));
+    const ratio = next ? (prevRatio != null && nextRatio != null && Math.abs(prevRatio - nextRatio) < tol ? nextRatio : null)
+      : (prevRatio != null && Math.abs(prevRatio - 1) < tol ? 1 : null);
+    if (ratio == null) continue;
+    const template = prev || next;
+    out.push({
+      date: x.date,
+      observedAt: `${x.date}T00:00:00.000Z`,
+      instrumentId: template?.instrumentId || null,
+      timeframe: template?.timeframe || null,
+      currency: template?.currency || 'KRW',
+      close: round(x.close, 2),
+      adjClose: round(x.close * ratio, 2),
+      high: round(x.high, 2),
+      low: round(x.low, 2),
+      volume: x.volume == null ? null : Math.round(x.volume),
+      fetchedAt,
+      closeSource: KR_EXCHANGE_CLOSE_SOURCE,
+    });
+    have.add(x.date);
+    report.filledSessions += 1;
+    report.filledDates.push(x.date);
+  }
+  out.sort((a, b) => a.date.localeCompare(b.date));
+  const filled = new Set(report.filledDates);
+  report.providerMissingSessions = gaps.filter((date) => !filled.has(date));
+  report.status = 'reconciled';
+  return { rows: out, nullCloseDates: report.providerMissingSessions, report };
+}
+
+// Run-level summary for the artifact: how many KR rows were reconciled, and which were left on provider values.
+export function summarizeKrCloseReconciliation(results) {
+  const reports = (Array.isArray(results) ? results : []).filter((r) => r && r.closeReconciliation).map((r) => [r.sym, r.closeReconciliation]);
+  const byStatus = {};
+  let correctedCloses = 0, filledSessions = 0;
+  for (const [, report] of reports) {
+    byStatus[report.status] = (byStatus[report.status] || 0) + 1;
+    correctedCloses += report.correctedCloses || 0;
+    filledSessions += report.filledSessions || 0;
+  }
+  return {
+    source: KR_EXCHANGE_CLOSE_SOURCE,
+    basis: 'exchange daily close/high/low replace provider values on matching sessions; provider adjusted/raw ratio kept',
+    rows: reports.length,
+    byStatus,
+    correctedCloses,
+    filledSessions,
+    notReconciled: reports.filter(([, report]) => report.status !== 'reconciled').map(([sym, report]) => [sym, report.reason || report.status]).slice(0, 40),
+  };
+}
+
+function _krTodayDate(nowMs = Date.now()) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(nowMs));
+}
+
+async function fetchKrExchangeDaily(sym, startDate, endDate = _krTodayDate()) {
+  const code = String(sym || '').replace(/\.(KS|KQ)$/i, '').toUpperCase();
+  if (!/^[0-9A-Z]{6}$/.test(code)) return { rows: [], error: 'unsupported-code' };
+  // A blocked endpoint (for example from a non-KR runner) fails fast for the rest of the run.
+  if (_krExchangeSuccesses === 0 && _krExchangeFailures >= KR_EXCHANGE_FAILURE_LIMIT) return { rows: [], error: 'circuit-open' };
+  const url = 'https://api.finance.naver.com/siseJson.naver?symbol=' + code + '&requestType=1&startTime='
+    + String(startDate || '').replace(/-/g, '') + '&endTime=' + String(endDate || '').replace(/-/g, '') + '&timeframe=day';
+  try {
+    const rows = parseKrDailySeries(await _fetchRss(url, 12000));
+    if (rows.length) _krExchangeSuccesses += 1; else _krExchangeFailures += 1;
+    return { rows, error: rows.length ? null : 'empty-series' };
+  } catch (e) {
+    _krExchangeFailures += 1;
+    return { rows: [], error: String((e && e.message) || e).slice(0, 80) };
+  }
 }
 
 // history.json 레코드 필드 ↔ Yahoo 심볼 매핑 (백필 대상). F&G/IV는 과거 무료 소스 없어 제외(해당 일자 null).
@@ -2197,6 +2488,20 @@ const BACKTEST_DEFAULT_TRANSACTION_COST_BPS = 20;
 const BACKTEST_DEFAULT_LIQUIDITY_WINDOW_DAYS = 20;
 const BACKTEST_MIN_LIQUIDITY_OBSERVATIONS = 10;
 
+// 2026-10-13 V03: the fund flag read only `sector === 'ETF'`, so the eleven sector SPDRs (index 'ETF',
+// sector = their GICS sector) and IWM/DIA (sector Financials) were counted as stocks in breadth. A fund is
+// declared by the catalogue's index or sector, or named as one (ETF / SPDR); a company name such as
+// "Northern Trust" is not matched.
+const KNOWN_FUND_SYMBOLS = new Set(['IWM', 'DIA', 'SPY', 'QQQ', 'VOO', 'IVV', 'VTI']);
+export function screenerAssetType(row) {
+  const sym = String(row?.sym || '').toUpperCase();
+  const index = String(row?.index || '').toUpperCase();
+  const sector = String(row?.sector || '').toUpperCase();
+  const name = String(row?.name || '');
+  if (index === 'ETF' || sector === 'ETF' || KNOWN_FUND_SYMBOLS.has(sym) || /\bETF\b|\bSPDR\b/i.test(name)) return 'ETF';
+  return 'stock';
+}
+
 // v51.94/Phase 2 [B6]: 심볼 목록을 js/aio-data.js 소스 텍스트 정규식 스크래핑 대신
 // public-data/screener-universe.json(scripts/sync-screener-universe.mjs가 SCREENER_DB에서
 // 생성하는 JSON 아티팩트)에서 직접 읽는다. 이전 방식은 "\n];" 문자열 탐색으로 배열 끝을
@@ -2214,7 +2519,8 @@ async function getScreenerUniverse() {
       sectors: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, r.sector || null])),
       // P1449: breadth contributors must say which entries are ETFs (asset type), not silently
       // mix them into "미국 주식" counts — ETFs are already inside the screener universe.
-      assetType: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, String(r.sector || '').toUpperCase() === 'ETF' ? 'ETF' : 'stock'])),
+      assetType: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, screenerAssetType(r)])),
+      shareClassOf: Object.fromEntries((j.universe || []).filter(r => r && r.sym && r.shareClassOf).map(r => [r.sym, r.shareClassOf])),
       meta: j.meta && typeof j.meta === 'object' ? j.meta : {},
       generatedFrom: j.generatedFrom || 'unknown',
       generatedBy: j.generatedBy || 'unknown'
@@ -2884,7 +3190,7 @@ async function enrichFundamentals(syms) {
   return { data: out, hasKey: true, ok, total: us.length, planError: false };
 }
 
-async function enrichSecFundamentals(syms, priceData, priceResults = null) {
+export async function enrichSecFundamentals(syms, priceData, priceResults = null, assetTypeOf = {}) {
   try {
     const payload = JSON.parse(await readFile(SEC_FUNDAMENTALS_OUT, 'utf8'));
     const rows = payload && payload.data || {};
@@ -2903,42 +3209,60 @@ async function enrichSecFundamentals(syms, priceData, priceResults = null) {
       if (typeof last === 'number' && Number.isFinite(last) && last > 0) priceBySym.set(r.sym, last);
     }
     for (const sym of syms) {
-      const row = reconcileSecEquity(rows[sym]); // P1402: parent-company equity for ROE/P-B
+      // 2026-10-13 F08: ETFs/trusts carry no operating financials (USO margin 115%, SLV negative revenue).
+      if (assetTypeOf?.[sym] === 'ETF' || String(priceData?.[sym]?.assetType || '').toUpperCase() === 'ETF') continue;
+      // P1402 parent equity + F03/F05 heal (revenue per period, margin > 100% withheld, other-year shares dropped).
+      const row = reconcileSecRecord(rows[sym]);
       if (!row || !row.fetchedAt || Date.now() - new Date(row.fetchedAt).getTime() > maxFetchAge) continue;
       const rec = {};
-      ['pe','pb','roe','margin','revGrowth'].forEach(key => {
+      const px = priceBySym.get(sym);
+      // F04/F10: only a share count matched to EPS by the producer, or (older/unchecked records) one whose implied
+      // daily turnover is plausible, may price P/E, P/B or the reference market cap. PKG's stored 1000x cover count
+      // (P/E 26,255) fails the turnover band; a stale-period or scale-mismatched count is never used.
+      const trust = secSharesTrust(row, { price: px, dollarVolume30d: priceData?.[sym]?.dollarVolume30d });
+      ['roe','margin','revGrowth'].concat(trust.shares ? ['pe','pb'] : []).forEach(key => {
         if (typeof row[key] === 'number' && Number.isFinite(row[key])) rec[key] = row[key];
       });
-      if (rec.pe == null || rec.pb == null) {
-        const px = priceBySym.get(sym);
-        const shares = Number(row.sharesOutstanding);
+      if (Number.isFinite(px) && px > 0 && trust.shares) {
+        const shares = trust.shares;
         const netIncome = Number(row.netIncome);
         const equity = Number(row.equity);
-        if (Number.isFinite(px) && px > 0 && Number.isFinite(shares) && shares > 0) {
-          const mcap = px * shares;
-          if (rec.pe == null && Number.isFinite(netIncome) && netIncome > 0) {
-            rec.pe = Math.round(mcap / netIncome * 100) / 100;
-            rec.pePrice = px;
-            rec.pePriceBasis = 'adjusted-close';
-          }
-          if (rec.pb == null && Number.isFinite(equity) && equity > 0) {
-            rec.pb = Math.round(mcap / equity * 100) / 100;
-            rec.pbPrice = px;
-            rec.pbPriceBasis = 'adjusted-close';
-          }
-          if (rec.pePrice != null || rec.pbPrice != null) {
-            rec.valuationSharesOutstanding = shares;
-            rec.valuationSharesObservedAt = row.sharesObservedAt || null;
-          }
+        const mcap = px * shares;
+        if (rec.pe == null && Number.isFinite(netIncome) && netIncome > 0) {
+          rec.pe = Math.round(mcap / netIncome * 100) / 100;
+          rec.pePrice = px;
+          rec.pePriceBasis = 'adjusted-close';
         }
+        if (rec.pb == null && Number.isFinite(equity) && equity > 0) {
+          rec.pb = Math.round(mcap / equity * 100) / 100;
+          rec.pbPrice = px;
+          rec.pbPriceBasis = 'adjusted-close';
+        }
+        // F10: the reference market cap needs only a close and a verified count, not positive earnings or equity.
+        rec.valuationPrice = px;
+        rec.valuationPriceBasis = 'adjusted-close';
+        rec.valuationSharesOutstanding = shares;
+        rec.valuationSharesObservedAt = row.sharesObservedAt || null;
+        rec.valuationSharesCheck = trust.check;
+        rec.valuationSharesBasis = row.sharesBasis || 'dei-cover';
       }
       // P1652: a filing whose period ended over 15 months ago is not current fundamentals (companyfacts concept gaps
       // left WFC on FY2019 and NEE on FY2012); the fields stay missing rather than ranking on a stale year.
+      // F15: the same 456-day fiscal-year-end age (period.js FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) sets the quality label.
+      const sessionMs = Date.parse(String(priceData?.[sym]?.factorSessionDate || '').slice(0, 10));
+      const reportAgeDays = row.observedAt ? Math.floor(((Number.isFinite(sessionMs) ? sessionMs : Date.now()) - Date.parse(row.observedAt)) / 86400000) : null;
       if (row.observedAt && (Date.now() - Date.parse(row.observedAt)) / 86400000 > 456) continue;
-      // P1652: P/E under 2 or P/B under 0.1 is a share-class/unit mismatch (BRK-B, IBKR), not a valuation.
+      // P1652: P/E under 2 or P/B under 0.1 is a share-class/unit mismatch (BRK-B, IBKR), not a valuation — and the
+      // same share basis cannot size a reference market cap either.
+      const shareBasisMismatch = (rec.pe != null && !(rec.pe >= 2)) || (rec.pb != null && !(rec.pb >= 0.1));
       if (rec.pe != null && !(rec.pe >= 2)) { delete rec.pe; delete rec.pePrice; delete rec.pePriceBasis; }
       if (rec.pb != null && !(rec.pb >= 0.1)) { delete rec.pb; delete rec.pbPrice; delete rec.pbPriceBasis; }
-      if (!Object.keys(rec).length) continue;
+      if (shareBasisMismatch) {
+        ['valuationPrice', 'valuationPriceBasis', 'valuationSharesOutstanding', 'valuationSharesObservedAt', 'valuationSharesCheck', 'valuationSharesBasis'].forEach((key) => delete rec[key]);
+        rec.valuationHeldReason = 'share-class-or-unit-mismatch';
+      }
+      if (!trust.shares) rec.valuationHeldReason = trust.reason;
+      if (!['pe', 'pb', 'roe', 'margin', 'revGrowth', 'valuationSharesOutstanding'].some((key) => rec[key] != null)) continue;
       Object.assign(rec, {
         fundamentalSource: 'SEC EDGAR companyfacts',
         fundamentalModel: row.model || payload.model || 'sec-fy-normalized-v2',
@@ -2952,9 +3276,15 @@ async function enrichSecFundamentals(syms, priceData, priceResults = null) {
         fundamentalAccession: row.accession || null,
         fundamentalSourceKind: 'T1_OFFICIAL',
         fundamentalAllowedUse: 'research-relative-ranking-only',
+        // F15: CURRENT meant "has a filing date" (624/624 rows). The label now follows the fiscal-year-end age
+        // against the factor session (456-day rule); rows past it are not merged at all (above).
         fundamentalQuality: {
-          status: row.availableAt || row.acceptedAt || row.filedAt ? 'CURRENT' : 'MISSING',
-          stale: !(row.availableAt || row.acceptedAt || row.filedAt),
+          status: !(row.availableAt || row.acceptedAt || row.filedAt) ? 'MISSING' : reportAgeDays != null && reportAgeDays <= 456 ? 'CURRENT' : 'STALE',
+          stale: !(row.availableAt || row.acceptedAt || row.filedAt) || !(reportAgeDays != null && reportAgeDays <= 456),
+          basis: 'fiscal-year-end-age',
+          period: 'FY',
+          reportAgeDays,
+          maxAgeDays: 456,
           decisionUse: false,
           allowedUse: 'reference'
         },
@@ -3050,6 +3380,33 @@ function _calcVCPServer(closes, highs, lows, volumes) {
 // v53.91: materialize the observable pieces of the TradingView "best winners"
 // screen. These are evidence fields, not a buy score: missing source series
 // stays null and the setup layer fails closed.
+// Mean of daily close x volume over the last `window` sessions, the same rule as _historicalLiquidity
+// (positive close and volume only, at least min(10, window) usable sessions). `divisors` converts each
+// session at its own FX rate (native units per USD); a session without a rate is not counted.
+export function dailyNotionalAverage(closes, volumes, { window = 30, divisors = null, minObservations = BACKTEST_MIN_LIQUIDITY_OBSERVATIONS } = {}) {
+  const n = Math.min(Array.isArray(closes) ? closes.length : 0, Array.isArray(volumes) ? volumes.length : 0);
+  const lookback = Math.max(1, Number(window) || 30);
+  const values = [];
+  for (let i = Math.max(0, n - lookback); i < n; i += 1) {
+    const close = Number(closes[i]);
+    const volume = Number(volumes[i]);
+    const divisor = divisors ? Number(divisors[i]) : 1;
+    if (Number.isFinite(close) && close > 0 && Number.isFinite(volume) && volume > 0 && Number.isFinite(divisor) && divisor > 0) values.push(close * volume / divisor);
+  }
+  if (!values.length || values.length < Math.min(minObservations, lookback)) return null;
+  return { value: _mean(values), observations: values.length, windowSessions: lookback };
+}
+
+// FX close on or before a session date (at most `maxLagDays` earlier). `series` is date-sorted [{date, close}].
+export function fxRateOnOrBefore(series, date, maxLagDays = 4) {
+  if (!Array.isArray(series) || !/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return null;
+  let found = null;
+  for (const point of series) { if (point.date <= date) found = point; else break; }
+  if (!found || !(found.close > 0)) return null;
+  const lagDays = (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${found.date}T00:00:00Z`)) / 86400000;
+  return lagDays <= maxLagDays ? found.close : null;
+}
+
 function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) {
   const n = Math.min(closes.length, adjCloses.length, highs.length, lows.length, volumes.length);
   if (n < 1) return null;
@@ -3087,8 +3444,18 @@ function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) {
     pctFrom52wHigh: high52 > 0 ? round((price - high52) / high52 * 100, 1) : null,
     adrPct: adrPct == null ? null : round(adrPct, 2),
     avgVolume30d: avgVolume30d == null ? null : Math.round(avgVolume30d),
-    dollarVolume30d: price > 0 && avgVolume30d != null ? Math.round(price * avgVolume30d) : null,
+    // 2026-10-13 F21: traded value is the mean of each session's close x volume (the backtest liquidity
+    // definition), not today's close times the average volume, which moved the 30-day figure with one print.
+    dollarVolume30d: (() => { const notional = dailyNotionalAverage(closes.slice(0, n), volumes.slice(0, n), { window: 30 }); return notional ? Math.round(notional.value) : null; })(),
     lastVolume: latestVolume == null ? null : Math.round(latestVolume),
+    // v57.51 F11: 20-session relative volume — the last session's volume over the mean of the 20 sessions before it
+    // (the chart's _calcRVOL definition). The '돌파 관찰' preset read this field while no producer wrote it.
+    rvol20: (() => {
+      if (latestVolume == null || n < 16) return null;
+      const base = volumes.slice(Math.max(0, n - 21), n - 1).filter((v) => typeof v === 'number' && Number.isFinite(v) && v > 0);
+      const mean = base.length >= 15 ? avg(base) : null;
+      return mean > 0 ? round(latestVolume / mean, 2) : null;
+    })(),
     dollarVolume: price > 0 && latestVolume != null ? Math.round(price * latestVolume) : null,
     ema8: ema(closes, 8),
     ema21: ema(closes, 21),
@@ -3125,14 +3492,33 @@ async function _enrichPriceFactors(syms) {
     // P1442 (review 2026-10-04): factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
     // US open used the in-progress daily bar for returns, volume, ranges and VCP. Only bars whose session
     // has closed (isSessionComplete, the same guard the breadth path uses) enter any factor.
-    const fetched = await fetchHistory(_yhSym(sym), '1y');
-    const market = /\.(KS|KQ)$/i.test(String(sym || '')) ? 'kr' : 'us';
+    let fetched = await fetchHistory(_yhSym(sym), '1y');
+    const providerMeta = fetched?.meta || null;
+    const market = sessionSegmentOfSymbol(sym);
+    let providerNullCloseDates = fetched?.nullCloseDates || [];
+    let closeReconciliation = null;
+    if (market === 'kr' && Array.isArray(fetched) && fetched.length) {
+      const exchange = await fetchKrExchangeDaily(sym, fetched[0].date);
+      const reconciled = reconcileKrExchangeCloses(fetched, exchange.rows, { nullCloseDates: providerNullCloseDates });
+      if (exchange.error && reconciled.report.status !== 'reconciled') reconciled.report.reason = exchange.error;
+      fetched = reconciled.rows;
+      providerNullCloseDates = reconciled.nullCloseDates;
+      closeReconciliation = reconciled.report;
+    }
     const rows = (fetched || []).filter((row) => !row?.date || isSessionComplete(row.date, market));
     const partialSessionDropped = (fetched || []).length - rows.length;
+    const nullCloseDates = providerNullCloseDates.filter((date) => isSessionComplete(date, market));
+    if (closeReconciliation) {
+      closeReconciliation.providerMissingSessions = nullCloseDates;
+      closeReconciliation.filledDates = closeReconciliation.filledDates.filter((date) => isSessionComplete(date, market));
+      closeReconciliation.filledSessions = closeReconciliation.filledDates.length;
+    }
     return {
       sym,
       partialSessionDropped,
-      nullCloseDates: (fetched?.nullCloseDates || []).filter((date) => isSessionComplete(date, market)),
+      providerMeta,
+      closeReconciliation,
+      nullCloseDates,
       dates:     (rows || []).map(r => r.date),
       observedAts:(rows || []).map(r => r.observedAt || null),
       closes:    (rows || []).map(r => r.close),
@@ -3151,6 +3537,17 @@ async function _enrichPriceFactors(syms) {
         : (rows || []).some(r => typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) && r.adjClose > 0) ? 'partial' : 'unavailable',
     };
   });
+  // 2026-10-13 F13: non-USD traded value is converted session by session at that currency's daily USD
+  // close (one 1y FX series per currency), so KR/JP/TW rows carry a USD figure with its basis instead of null.
+  const quoteCurrencyOf = (r) => listingCurrencyOf(r?.sym, r?.providerMeta);
+  const fxSeries = new Map();
+  for (const currency of new Set(results.filter((r) => r && !r.__error && r.closes).map(quoteCurrencyOf).filter((c) => c && c !== 'USD'))) {
+    try {
+      const bars = await fetchHistory(`${currency}=X`, '1y');
+      const series = (bars || []).filter((bar) => bar && bar.close > 0).map((bar) => ({ date: bar.date, close: bar.close }));
+      if (series.length) fxSeries.set(currency, series);
+    } catch { /* conversion stays unavailable for this currency */ }
+  }
   const data = {};
   let ok = 0;
   for (const r of results) {
@@ -3185,8 +3582,29 @@ async function _enrichPriceFactors(syms) {
       // Yahoo's KR suffix is part of the upstream instrument identifier. Persist
       // the quote currency with the derived price/liquidity fields so consumers
       // never have to infer that a numeric amount is USD.
-      f.currency = /\.(KS|KQ)$/i.test(String(r.sym || '')) ? 'KRW' : 'USD';
+      f.currency = quoteCurrencyOf(r);
+      f.listingMarket = listingMarketOfSymbol(r.sym);
       f.dollarVolumeCurrency = f.currency;
+      const nativeNotional = dailyNotionalAverage(r.closes, r.volumes, { window: 30 });
+      f.tradedValue30d = nativeNotional ? Math.round(nativeNotional.value) : null;
+      f.tradedValueCurrency = f.currency;
+      f.tradedValueBasis = 'mean-session-close-x-volume-30-sessions';
+      if (f.currency && f.currency !== 'USD') {
+        const fx = fxSeries.get(f.currency) || null;
+        const divisors = fx ? (r.dates || []).map((date) => fxRateOnOrBefore(fx, date)) : null;
+        const lastDivisor = divisors && divisors.length ? divisors[divisors.length - 1] : null;
+        if (divisors && lastDivisor > 0) {
+          const usd = dailyNotionalAverage(r.closes, r.volumes, { window: 30, divisors });
+          f.dollarVolume30d = usd ? Math.round(usd.value) : null;
+          f.dollarVolume = f.dollarVolume != null ? Math.round(f.dollarVolume / lastDivisor) : null;
+          f.dollarVolumeCurrency = 'USD';
+          f.dollarVolumeFx = { symbol: `${f.currency}=X`, quote: `${f.currency} per USD`, basis: 'daily-close-on-or-before-session-date', maxLagDays: 4 };
+        } else {
+          // No rate: the native figure stays in tradedValue30d; the USD fields are not published.
+          f.dollarVolume30d = null;
+          f.dollarVolume = null;
+        }
+      }
       f.priceBasis = hasCompleteAdjusted ? 'adjusted-close' : 'raw-close-partial-no-adjusted-series';
       f.adjustedCloseStatus = r.adjustedCloseStatus;
       f.backtestEligible = hasCompleteAdjusted;
@@ -3202,8 +3620,12 @@ async function _enrichPriceFactors(syms) {
       // P1170 (15 D04): barStart와 그 세션 날짜를 분리해 남긴다. factorObservedAt은 호환 필드로
       // 유지하되 'bar-start' basis를 함께 발행해 관측시각으로 읽히지 않게 한다.
       f.factorBarStart = r.observedAt;
-      f.factorSessionDate = sessionDateInMarket(r.observedAt, marketOfSymbol(r.sym));
-      f.factorSessionTimezone = timeZoneForMarket(marketOfSymbol(r.sym));
+      // F07: the session date is read in the listing's exchange zone (provider zone first, suffix map second).
+      const sessionZone = timeZoneForMarket(r.providerMeta?.exchangeTimezoneName || timeZoneForSymbol(r.sym));
+      f.factorSessionDate = sessionDateInMarket(r.observedAt, sessionZone);
+      f.factorSessionTimezone = sessionZone;
+      if (r.closeReconciliation) f.closeReconciliation = r.closeReconciliation;
+      else if (Array.isArray(r.nullCloseDates) && r.nullCloseDates.length) f.providerMissingSessions = r.nullCloseDates;
       f.factorTimeBasis = 'bar-start';
       f.factorComputedAt = computedAt;
       f.factorSourceKind = 'T3_PUBLIC_DELAYED';
@@ -3220,20 +3642,25 @@ async function _enrichPriceFactors(syms) {
 // Daily market breadth from the same price history used by the screener factors.
 // The former pipeline fetched 800+ histories but left breadth on a manual snapshot/RSP proxy.
 // This output is explicitly the AIO screener universe, not official exchange breadth.
-export function computeScreenerBreadth(syms, results, assetTypeOf = null) {
+export function computeScreenerBreadth(syms, results, assetTypeOf = null, options = null) {
+  const sp500Members = options && options.sp500Members instanceof Set ? options.sp500Members : null;
   const isKr = (sym) => /\.(KS|KQ)$/i.test(String(sym || ''));
+  // F07/V04: Tokyo/Taiwan listings are not US stocks; they stay in `all` only. Self-contained on purpose
+  // (the contract gate evaluates this function alone); suffixes mirror INTL_LISTING_TIME_ZONE in session-time.js.
+  const isUs = (sym) => !isKr(sym) && !/\.(T|TW|TWO)$/i.test(String(sym || ''));
   // v57.50 D21: stocks only — ETFs are excluded from numerator and denominator when the asset type is known.
   const isEtf = (sym) => typeof assetTypeOf === 'function' && assetTypeOf(sym) === 'ETF';
   syms = (syms || []).filter((sym) => !isEtf(sym));
   const validRows = (results || []).filter(r => r && !r.__error && !isEtf(r.sym) && Array.isArray(r.adjCloses) && r.adjCloses.length >= 2
     && r.adjustedCloseStatus !== 'unavailable'
-    && Number.isFinite(Number(r.adjCloses[r.adjCloses.length - 1]))
-    && Number.isFinite(Number(r.adjCloses[r.adjCloses.length - 2])));
+    // Number(null) is 0: a missing adjusted close must fail this check, not count as a decline.
+    && typeof r.adjCloses[r.adjCloses.length - 1] === 'number' && Number.isFinite(r.adjCloses[r.adjCloses.length - 1])
+    && typeof r.adjCloses[r.adjCloses.length - 2] === 'number' && Number.isFinite(r.adjCloses[r.adjCloses.length - 2]));
   const pct = (n, d) => d > 0 ? round(n / d * 100, 1) : null;
   const meanLast = (arr, n) => {
     if (!Array.isArray(arr) || arr.length < n) return null;
-    const values = arr.slice(-n).map(Number);
-    return values.every(Number.isFinite) ? _mean(values) : null;
+    const values = arr.slice(-n);
+    return values.every((v) => typeof v === 'number' && Number.isFinite(v)) ? _mean(values) : null;
   };
 
   function buildSegment(id, label, include) {
@@ -3278,35 +3705,96 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null) {
     decisionScope: 'research/reference; AIO screener universe, not official exchange breadth',
     segments: {
       all: buildSegment('all', 'AIO 전체 스크리너 유니버스', () => true),
-      us: buildSegment('us', 'AIO 미국 스크리너 유니버스', sym => !isKr(sym)),
+      us: buildSegment('us', 'AIO 미국 스크리너 유니버스', sym => isUs(sym)),
       kr: buildSegment('kr', 'AIO 한국 스크리너 유니버스', sym => isKr(sym)),
+      // V16: the same measure on S&P 500 members only (membership from sp500-weights.json), so the
+      // participation read is not tilted by the watch list's theme names. Absent membership → no segment.
+      ...(sp500Members && sp500Members.size ? { sp500: sp500Segment(sp500Members) } : {}),
     },
   };
+
+  function sp500Segment(members) {
+    const segment = buildSegment('sp500', 'S&P 500 구성 종목', (sym) => isUs(sym) && members.has(String(sym).toUpperCase()));
+    return { ...segment, indexMembers: members.size, memberCoveragePct: pct(segment.eligible, members.size), membershipSource: 'public-data/sp500-weights.json' };
+  }
+}
+
+// V16: S&P 500 member symbols from the weights artifact (index-provider ETF holdings), or null.
+export function sp500MemberSet(weights) {
+  if (weights?.schemaVersion !== 'sp500-weights.v1' || !Array.isArray(weights.rows) || weights.rows.length < 450) return null;
+  const members = new Set(weights.rows.map((row) => String(row?.sym || '').trim().toUpperCase()).filter(Boolean));
+  return members.size >= 450 ? members : null;
 }
 
 // Phase 3: 주요 종목 Google News RSS fetch → data[sym].newsMemo 인라인 갱신.
 //   prioSyms: 지수/선물/FX/크립토/KR 제외 후 전달. 동시성 3(레이트리밋 방어).
-async function _enrichTickerNews(prioSyms, data) {
-  const extraSyms = Object.keys(data).filter(s => !prioSyms.includes(s)).slice(0, 60);
-  const newsTargets = [...new Set([...prioSyms, ...extraSyms])].slice(0, 90);
-  const tickerNewsResults = await mapLimit(newsTargets, 3, async (sym) => {
-    const items = await fetchTickerNewsItems(sym, 3);
-    return { sym, items, fetchedAt: new Date().toISOString() };
-  });
-  let ok = 0;
-  for (const nr of tickerNewsResults) {
-    if (!nr || nr.__error) continue;
-    const memo = _fmtTickerNewsMemo(nr.items);
-    if (memo && data[nr.sym]) {
-      const lineage = deriveTickerNewsLineage(nr.items, nr.fetchedAt);
-      data[nr.sym].newsMemo = memo;
-      data[nr.sym].newsTs = lineage.newsTs;
-      data[nr.sym].newsObservedAt = lineage.newsObservedAt;
-      data[nr.sym].newsFetchedAt = lineage.newsFetchedAt;
-      ok++;
+// 2026-10-13 news audit: U.S. stocks only (ETFs have no issuer news; Korean codes returned English noise), names
+// from the universe for the company-name query (N01), a rotating 90-name slice (N04), verified memos carried for
+// three days (N04), and a per-row newsStatus so the screener can tell "waiting for its turn" from "fetch failed"
+// (N21). newsMemoVerified marks memos whose headline names the issuer (N02 reads it).
+export function applyTickerNewsResults(data, { eligible = [], targets = [], results = [], previous = {}, names = {}, nowMs = Date.now() } = {}) {
+  const targeted = new Set(targets);
+  const eligibleSet = new Set(eligible);
+  const bySym = new Map((Array.isArray(results) ? results : []).filter((row) => row && row.sym).map((row) => [row.sym, row]));
+  const counts = { collected: 0, retained: 0, noVerifiedArticle: 0, fetchFailed: 0, rotationPending: 0, notCovered: 0 };
+  const retain = (sym) => {
+    const prior = previous?.[sym];
+    const observed = Date.parse(prior?.newsObservedAt || '');
+    if (!(prior && prior.newsMemoVerified === true && prior.newsMemo && Number.isFinite(observed) && nowMs - observed <= TICKER_NEWS_MAX_AGE_MS)) return false;
+    Object.assign(data[sym], { newsMemo: prior.newsMemo, newsTs: prior.newsObservedAt, newsObservedAt: prior.newsObservedAt,
+      newsFetchedAt: prior.newsFetchedAt || null, newsMemoVerified: true, newsMemoSources: Array.isArray(prior.newsMemoSources) ? prior.newsMemoSources : [], newsStatus: 'retained' });
+    return true;
+  };
+  for (const sym of Object.keys(data)) {
+    const row = data[sym];
+    if (!row) continue;
+    for (const key of ['newsMemo', 'newsTs', 'newsObservedAt', 'newsFetchedAt', 'newsMemoVerified', 'newsMemoSources', 'newsStatus']) delete row[key];
+    if (!eligibleSet.has(sym)) { row.newsStatus = 'not-covered'; counts.notCovered++; continue; }
+    if (!targeted.has(sym)) {
+      if (retain(sym)) counts.retained++; else { row.newsStatus = 'rotation-pending'; counts.rotationPending++; }
+      continue;
     }
+    const result = bySym.get(sym);
+    if (!result || result.__error || result.error) {
+      if (retain(sym)) counts.retained++; else { row.newsStatus = 'fetch-failed'; counts.fetchFailed++; }
+      continue;
+    }
+    const selected = selectTickerNewsMemo(result.items, { sym, name: names[sym], nowMs });
+    // An empty feed is often transient (P734); like a failed fetch it keeps a still-valid verified memo.
+    if (!selected && !(Array.isArray(result.items) && result.items.length) && retain(sym)) { counts.retained++; continue; }
+    if (!selected) { row.newsStatus = 'no-verified-article'; counts.noVerifiedArticle++; continue; }
+    const lineage = deriveTickerNewsLineage(selected.items, result.fetchedAt);
+    row.newsMemo = selected.memo;
+    row.newsTs = lineage.newsTs;
+    row.newsObservedAt = lineage.newsObservedAt;
+    row.newsFetchedAt = lineage.newsFetchedAt;
+    row.newsMemoVerified = true;
+    row.newsMemoSources = selected.sources;
+    row.newsStatus = 'collected';
+    counts.collected++;
   }
-  return ok;
+  return counts;
+}
+
+async function _enrichTickerNews(prioSyms, data) {
+  let universeRows = [];
+  try { universeRows = JSON.parse(await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8')).universe || []; } catch (_) { universeRows = []; }
+  const meta = new Map(universeRows.filter((row) => row && row.sym).map((row) => [row.sym, row]));
+  const names = Object.fromEntries([...meta].map(([sym, row]) => [sym, row.name || '']));
+  // Universe order (largest names first) is the rotation order; ETFs and rows without a name are not covered.
+  // v57.51: the same ETF rule as breadth and SEC (sector SPDRs carry a GICS sector but index 'ETF').
+  const eligible = prioSyms.filter((sym) => data[sym] && meta.has(sym) && screenerAssetType(meta.get(sym)) !== 'ETF' && names[sym]);
+  let previous = {};
+  try { previous = JSON.parse(await readFile(SCREENER_OUT, 'utf8')).data || {}; } catch (_) { previous = {}; }
+  const nowMs = Date.now();
+  const plan = planTickerNewsTargets(eligible, nowMs);
+  const tickerNewsResults = await mapLimit(plan.targets, 3, async (sym) => {
+    const fetched = await fetchTickerNewsItems(sym, names[sym], 3);
+    return { sym, items: fetched.items, error: fetched.error, fetchedAt: new Date().toISOString() };
+  });
+  const counts = applyTickerNewsResults(data, { eligible, targets: plan.targets, results: tickerNewsResults, previous, names, nowMs });
+  console.log(`[fetch-data] ticker news rotation: ${plan.targets.length}/${eligible.length} targets (offset ${plan.offset}, ${plan.cycleRuns} runs/cycle) · ${JSON.stringify(counts)}`);
+  return counts.collected + counts.retained;
 }
 
 export async function enrichScreener() {
@@ -3337,6 +3825,7 @@ export async function enrichScreener() {
 
   // 1단계: 가격 팩터 계산
   const { data, results, ok, computedAt } = await _enrichPriceFactors(syms);
+  { const kr = summarizeKrCloseReconciliation(results); console.log(`[fetch-data] KR exchange close: ${JSON.stringify(kr.byStatus)} rows ${kr.rows} · closes corrected ${kr.correctedCloses} · sessions filled ${kr.filledSessions}`); }
 
   // 2단계: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 없으면 4팩터 폴백)
   let fmpResult = { data: null, hasKey: false, ok: 0, total: 0, planError: false };
@@ -3351,7 +3840,7 @@ export async function enrichScreener() {
 
   // 3단계: 무료 공식 SEC annual facts를 FMP 결측 필드에 병합.
   // SEC는 annual filing facts이고 FMP는 TTM이므로 서로 같은 모델처럼 섞지 않는다.
-  const secResult = await enrichSecFundamentals(syms, data, results);
+  const secResult = await enrichSecFundamentals(syms, data, results, universeInfo.assetType || {}); // F08: ETFs excluded
   for (const sym in secResult.data) {
     // A screener row represents a successfully derived factor observation. A
     // filing-only row belongs in sec-fundamentals.json, not in this factor map.
@@ -3367,7 +3856,8 @@ export async function enrichScreener() {
       });
       // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
       // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
-      ['pePrice','pePriceBasis','pbPrice','pbPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt'].forEach(key => {
+      // 2026-10-13 F04/F10: the verified share basis and the close it multiplies travel with the row.
+      ['pePrice','pePriceBasis','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationHeldReason'].forEach(key => {
         if (sec[key] != null) data[sym][key] = sec[key];
       });
     }
@@ -3390,10 +3880,16 @@ export async function enrichScreener() {
   }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
   const assetTypeOf = (sym) => universeInfo.assetType?.[sym] ?? null;
-  const breadth = computeScreenerBreadth(syms, results, assetTypeOf);
+  let sp500Weights = null;
+  try { sp500Weights = JSON.parse(await readFile(new URL('../public-data/sp500-weights.json', import.meta.url), 'utf8')); } catch { /* not collected yet */ }
+  // v57.51 V09: a secondary share class (GOOG→GOOGL, FOX→FOXA, NWS→NWSA) is one issuer; equal-weight breadth counts it once.
+  const secondaryClass = new Set(Object.keys(universeInfo.shareClassOf || {}));
+  const breadthSyms = syms.filter((sym) => !secondaryClass.has(sym));
+  const breadthResults = (results || []).filter((row) => !secondaryClass.has(row?.sym));
+  const breadth = computeScreenerBreadth(breadthSyms, breadthResults, assetTypeOf, { sp500Members: sp500MemberSet(sp500Weights) });
   // P1449: breadth contributors carry each symbol's asset type so the drilldown can say which
   // single-day moves need a corporate-action check. v57.50 D21: ETFs are no longer in the breadth population.
-  const breadthHistory = computeScreenerBreadthHistory(syms, results, undefined, Date.now(), assetTypeOf);
+  const breadthHistory = computeScreenerBreadthHistory(breadthSyms, breadthResults, undefined, Date.now(), assetTypeOf);
   // P1416: distribution days need the index's own volume; one extra daily-bar request.
   let distribution = null;
   try {
@@ -3402,7 +3898,7 @@ export async function enrichScreener() {
   } catch (e) { console.warn('[fetch-data] distribution-day bars unavailable:', e && e.message || e); }
   const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now(), distribution);
   await writeBreadthContributors(breadthHistory, Date.now());
-  const usUniverse = syms.filter(s => !/\.(KS|KQ)$/i.test(s)).length;
+  const usUniverse = syms.filter(s => listingMarketOfSymbol(s) === 'US').length;
   const fundamentalCount = syms.filter(sym => {
     const row = data[sym] || {};
     return ['pe','pb','roe','margin','revGrowth'].some(key => typeof row[key] === 'number' && Number.isFinite(row[key]));
@@ -3429,7 +3925,7 @@ export async function enrichScreener() {
   // inside the screener artifact, so the page needs no extra request and a missing file is simply an absent field.
   let indexWeights = null;
   try {
-    const weights = JSON.parse(await readFile(new URL('../public-data/sp500-weights.json', import.meta.url), 'utf8'));
+    const weights = sp500Weights;
     if (weights?.schemaVersion === 'sp500-weights.v1' && Array.isArray(weights.rows) && weights.rows.length >= 450) {
       indexWeights = { index: 'SP500', asOf: weights.asOf || null, source: weights.source, basis: weights.basis, columns: ['sym', 'sector', 'weight', 'name'], rows: weights.rows.map((row) => [row.sym, row.sector, row.weight, row.name]) };
     }
@@ -3464,6 +3960,7 @@ export async function enrichScreener() {
     fundamentalCoverageDenominator: usUniverse,
     fundamentalModels: ['fmp-ttm', 'sec-fy-normalized-v2'],
     fundamentalCoverageScope: 'US screener universe; mixed fundamental fields, separate from SEC-only coverage',
+    krCloseReconciliation: summarizeKrCloseReconciliation(results),
     breadth,
     breadthHistory: {
       status: breadthHistoryInfo.updated ? 'CURRENT' : 'BLOCKED',
@@ -3988,9 +4485,36 @@ function buildStructuredMarketAnalysis({ data, text, model, status, reason, metr
 // P1399: a daily bar is a completed close only after its session ends. A run during the US
 // session (or before the KR close) sees a partial bar for today; breadth built from it was
 // stamped 'latest-completed-close' while the index inputs used the previous close.
+// 2026-10-13 F07: Tokyo (close 15:30) and Taiwan (close 13:30) listings are judged on their own clock with
+// the same 15-minute settlement margin; any other segment keeps the US rule.
+const SESSION_CLOSE_RULES = Object.freeze({
+  us: { zone: 'America/New_York', closeMinutes: 16 * 60 + 15 },
+  kr: { zone: 'Asia/Seoul', closeMinutes: 15 * 60 + 45 },
+  jp: { zone: 'Asia/Tokyo', closeMinutes: 15 * 60 + 45 },
+  tw: { zone: 'Asia/Taipei', closeMinutes: 13 * 60 + 45 },
+});
+
+export function sessionSegmentOfSymbol(sym) {
+  const text = String(sym || '').toUpperCase();
+  if (/\.(KS|KQ)$/.test(text)) return 'kr';
+  if (/\.T$/.test(text) && listingMarketOfSymbol(text) === 'INTL') return 'jp';
+  if (/\.TWO?$/.test(text)) return 'tw';
+  return 'us';
+}
+
+// Quote currency of a listing: the provider's declared currency first; the suffix rule only for US/KR.
+// An overseas listing without a declared currency stays unknown rather than defaulting to USD.
+export function listingCurrencyOf(sym, providerMeta = null) {
+  const declared = String(providerMeta?.currency || '').trim().toUpperCase();
+  if (/^[A-Z]{3}$/.test(declared)) return declared;
+  const market = listingMarketOfSymbol(sym);
+  return market === 'KR' ? 'KRW' : market === 'US' ? 'USD' : null;
+}
+
 export function isSessionComplete(date, segment, nowMs = Date.now()) {
-  const zone = segment === 'kr' ? 'Asia/Seoul' : 'America/New_York';
-  const closeMinutes = segment === 'kr' ? 15 * 60 + 45 : 16 * 60 + 15;
+  const rule = SESSION_CLOSE_RULES[segment] || SESSION_CLOSE_RULES.us;
+  const zone = rule.zone;
+  const closeMinutes = rule.closeMinutes;
   const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
     .formatToParts(new Date(nowMs)).map((part) => [part.type, part.value]));
   const today = `${parts.year}-${parts.month}-${parts.day}`;
@@ -4009,7 +4533,8 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
   const symbolSet = new Set((syms || []).filter((sym) => !isEtf(sym)));
   const buckets = new Map();
   const windows = [20, 50, 200];
-  const segmentFor = (sym) => /\.(KS|KQ)$/i.test(String(sym || '')) ? 'kr' : 'us';
+  // F07/V04: a Tokyo/Taiwan listing has no US/KR bucket; it counts only in `all`, judged on its own close.
+  const segmentFor = (sym) => /\.(KS|KQ)$/i.test(String(sym || '')) ? 'kr' : listingMarketOfSymbol(sym) === 'INTL' ? 'intl' : 'us';
   const universe = {
     all: symbolSet.size,
     us: [...symbolSet].filter((sym) => segmentFor(sym) === 'us').length,
@@ -4069,18 +4594,19 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       finitePrefix.push(finitePrefix[finitePrefix.length - 1] + (Number.isFinite(value) ? 1 : 0));
     }
     const market = segmentFor(row.sym);
+    const sessionSegment = market === 'intl' ? sessionSegmentOfSymbol(row.sym) : market;
     const signals = Array.isArray(row.closes) && row.closes.length === values.length
       ? evaluateSymbolSignals({ closes: row.closes, adjCloses: row.adjCloses, highs: row.highs || [], lows: row.lows || [], volumes: row.volumes || [] })
       : [];
     for (let index = 1; index < values.length; index += 1) {
       const date = String(row.dates[index] || '');
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !isSessionComplete(date, market, nowMs)) continue;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !isSessionComplete(date, sessionSegment, nowMs)) continue;
       const observedAt = row.observedAts?.[index] || `${date}T00:00:00.000Z`;
       const bucket = getBucket(date);
       update(bucket.all, values, prefix, finitePrefix, index, observedAt);
-      update(bucket[market], values, prefix, finitePrefix, index, observedAt);
+      if (bucket[market]) update(bucket[market], values, prefix, finitePrefix, index, observedAt);
       addSignals(bucket.all, signals[index], row.sym);
-      addSignals(bucket[market], signals[index], row.sym);
+      if (bucket[market]) addSignals(bucket[market], signals[index], row.sym);
     }
   }
 

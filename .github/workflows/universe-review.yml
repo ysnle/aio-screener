@@ -3,7 +3,7 @@ name: Monthly screener universe review
 on:
   schedule:
     # :29 is offset from the recurring market refreshes (:17/:47), watchdog (:23),
-    # and screener refresh (:41).
+    # and screener refresh (:53, after the KR close cut at 06:45Z).
     - cron: '29 9 1 * *'
   workflow_dispatch:
     inputs:

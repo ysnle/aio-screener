@@ -104,7 +104,9 @@ export function relativeVisual(doc, read) {
   return box;
 }
 
-export function renderStockRead({ documentRef: doc, root, symbol }) {
+// N20: `fundamentals` is the route's SEC annual-facts record for this symbol (state.fundamentals); its recent
+// filings become one "최근 공시" line with the original-filing link.
+export function renderStockRead({ documentRef: doc, root, symbol, fundamentals = null }) {
   const host = doc?.getElementById('ticker-read');
   if (!host) return null;
   const sym = String(symbol || '').trim().toUpperCase();
@@ -130,7 +132,7 @@ export function renderStockRead({ documentRef: doc, root, symbol }) {
   const sessionLag = factorSession && latestSession?.date && factorSession < latestSession.date ? { session: factorSession, latest: latestSession.date, sessions: countOpenSessionsBetween(factorSession, latestSession.date, market) } : null;
   host.dataset.aioStockReadSymbol = sym;
   const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym }); });
-  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: ranked.length || null, sessionLag, holding: holdingFor(root, sym), thirteenF });
+  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), regime: readMarketRegime(root), universeSize: ranked.length || null, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2'));
   if (!read.available) {
     host.append(emptyState(doc, { title: '추세·상대강도 기록 없음', reason: read.reason, compact: true }));
@@ -152,7 +154,14 @@ export function renderStockRead({ documentRef: doc, root, symbol }) {
   const charted = new Set([read.position != null ? 'range' : null, read.spans.some((span) => span.stock != null) ? 'relative' : null].filter(Boolean));
   const item = (point) => {
     const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
-    li.append(el(doc, 'span', point.title, 'stock-read-point-title'), el(doc, 'span', point.text, 'stock-read-point-text'));
+    const text = el(doc, 'span', point.text, 'stock-read-point-text');
+    li.append(el(doc, 'span', point.title, 'stock-read-point-title'), text);
+    if (point.link?.href) {
+      const anchor = el(doc, 'a', point.link.label, 'stock-read-point-link');
+      anchor.href = point.link.href; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer';
+      if (point.link.ariaLabel) anchor.setAttribute('aria-label', point.link.ariaLabel);
+      text.append(doc.createTextNode(' '), anchor);
+    }
     return li;
   };
   const points = el(doc, 'ul', null, 'stock-read-points');

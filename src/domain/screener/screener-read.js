@@ -2,14 +2,15 @@
 // which sectors fill the top fifth (against their share of the universe), whether those sectors are the
 // ones leading the rotation, how healthy the top names' trends are, and how the same ranking has done
 // after the fact. Pure: the ranked rows, the rotation items, the regime and the validation summary.
-import { SECTOR_ETF } from '../entity/stock-read.js';
+import { SECTOR_ETF, normalizeSectorKey } from '../entity/stock-read.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
-const SECTOR_KO = Object.freeze({ Technology: '기술', Financials: '금융', 'Financial Services': '금융', Energy: '에너지', Healthcare: '헬스케어', Industrials: '산업재', 'Consumer Cyclical': '경기소비재', Consumer: '경기소비재', 'Consumer Defensive': '필수소비재', 'Real Estate': '부동산', Materials: '소재', 'Basic Materials': '소재', Utilities: '유틸리티', 'Communication Services': '통신', ETF: 'ETF' });
+// V13: labels are keyed by the canonical sector key only; aliases fold through normalizeSectorKey.
+const SECTOR_KO = Object.freeze({ Technology: '기술', Financials: '금융', Energy: '에너지', Healthcare: '헬스케어', Industrials: '산업재', Consumer: '경기소비재', 'Consumer Defensive': '필수소비재', 'Real Estate': '부동산', Materials: '소재', Utilities: '유틸리티', 'Communication Services': '통신', ETF: 'ETF' });
 const QUADRANT_KO = Object.freeze({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' });
 
 export function sectorLabel(sector) {
-  return SECTOR_KO[sector] || sector || '분류 없음';
+  return SECTOR_KO[normalizeSectorKey(sector)] || sector || '분류 없음';
 }
 
 export function buildScreenerRead({ rows = [], rotation = {}, regime = null, validation = null } = {}) {
@@ -23,7 +24,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   const topLabel = exactQuintile ? `상위 20%(${topCount}종목)` : `상위 ${topCount}종목(전체의 ${Math.round(topCount / ranked.length * 100)}%)`;
   const share = (list) => {
     const counts = new Map();
-    for (const row of list) counts.set(row.sector || '분류 없음', (counts.get(row.sector || '분류 없음') || 0) + 1);
+    for (const row of list) { const key = normalizeSectorKey(row.sector) || '분류 없음'; counts.set(key, (counts.get(key) || 0) + 1); }
     return counts;
   };
   const topShare = share(top);

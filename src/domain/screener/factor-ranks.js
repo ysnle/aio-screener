@@ -106,6 +106,9 @@ function valueRaw(row) {
   };
   addInverse(row?.pe, 200, 0.20);
   addInverse(row?.pb, 50, 2.0);
+  // 2026-10-13 F11: EV/EBITDA is retired at the provider (no automated producer; 0 of 873 rows), so this term is
+  // inert on live rows. The line stays only because the legacy-derived factor-ranks golden fixture
+  // (architecture/fixtures/factor-ranks-golden.json) feeds evEbitda inputs; removing it needs a golden refresh.
   addInverse(row?.evEbitda, 100, 0.20);
   return parts.length ? avg(parts) : null;
 }
@@ -771,10 +774,13 @@ function computeFactorRanksForPopulation({
 
 // P1625: both legacy compatibility and native orchestration call this boundary.
 export function computeFactorRanks(input = {}) {
-  const rows = Array.isArray(input.rows) ? input.rows : [];
+  // v57.51 F07/V04: Tokyo/Taiwan listings (listingMarket INTL) stay visible in the US list but are not ranked against
+  // the US cross-section — a different session calendar and currency are not one comparison population.
+  const isIntl = (row) => [row?.market, row?.listingMarket, row?.instrumentRef?.market].some((value) => String(value || '').toUpperCase() === 'INTL') || /\.(T|TWO?)$/i.test(String(row?.sym || row?.symbol || ''));
+  const rows = (Array.isArray(input.rows) ? input.rows : []).filter((row) => !isIntl(row));
   const markets = [...new Set(rows.map(screenerMarket).filter(Boolean))];
   if (markets.length <= 1) {
-    const result = computeFactorRanksForPopulation(input);
+    const result = computeFactorRanksForPopulation({ ...input, rows });
     const market = markets[0] || 'US';
     return Object.freeze({ ...result, populationPolicy: MARKET_POPULATION_POLICY, populationMarket: market, byMarket: Object.freeze({ [market]: result }) });
   }

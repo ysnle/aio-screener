@@ -1,0 +1,22 @@
+{
+  "version": "v57.51",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.51 스크리너 데이터 품질·원천·커버리지 전수 점검(F01–F23·V01–V24·N01–N24) 반영(P1704~P1716).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1714,
+    "title": "유니버스 커버리지 공백: 코스닥150 비중 50%·미국 중형주 91% 누락, 3종목 미만 하위 테마가 순위에서 제외",
+    "symptom": "KOSDAQ150 39/149(비중 49.68% 누락), KOSPI200 113/199, S&P 400 37/408, Nasdaq-100 최대 종목 SPCX 누락, S&P 500 신규 TWLO·VYLR·SKYD 누락. 테스트·패키징·업무 자동화·의료 로봇 하위 테마가 1~2종목.",
+    "root_cause": "정적 유니버스에 편입 동기화가 없었다.",
+    "fix": "KQ150 비중 상위 40·K200 상위 20·IJH 섹터별 상위 86·SPCX·TWLO·VYLR·SKYD·COHU·KLIC·APPN·PRCT 추가(993→1,143행). 테마: 테스트·패키징 +FORM·COHU·KLIC, 업무 자동화 +APPN·PEGA(PATH는 소프트웨어로 일원화), 의료 로봇 +PRCT·GMED, 휴머노이드는 산업 자동화로 병합. Russell 2000 표본 150은 대표성이 없어 보류.",
+    "violated_rule": "커버리지 — 대표 지수 대비 공백 명시",
+    "prevention": "P1714: ci-runtime-contract-check(P1588 테마 규칙)·ci-architecture-contract-check(1200행 dispatch p95)",
+    "verification": "원자료 대조 스크립트 diff 0, 테마 규칙 위반 0. 수신 여부는 다음 refresh-screener에서 확인(QA-VERIFY-18)."
+  },
+  "qa": [],
+  "changelog": [
+    "**스크리너 데이터 점검 수정 (P1714):** 유니버스 커버리지 공백: 코스닥150 비중 50%·미국 중형주 91% 누락, 3종목 미만 하위 테마가 순위에서 제외."
+  ]
+}

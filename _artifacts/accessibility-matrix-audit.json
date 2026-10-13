@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-13T07:35:15.268Z",
-  "appRevision": "v57.50",
-  "gitHead": "94aade6024f4a630c8a511e3de718c7b6e7d0424",
+  "observedAt": "2026-10-13T09:03:29.755Z",
+  "appRevision": "v57.51",
+  "gitHead": "a2a3bb31843e3c1d3ca0b7934667c311e3ce5e62",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -50,7 +50,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 2,
+      "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -59,23 +59,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "40일선 위 종목 비율 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "S&P 500 분배일 (최근 25거래일) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -154,170 +139,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 23,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "연준 목표 범위 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실효 연방기금금리 (월평균) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 CPI (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "PCE 물가 (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "근원 PCE (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실업률 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "비농업 고용 증감 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "시간당 임금 (전년 대비) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "경제활동참가율 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "소매판매 (전월 대비) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "주택 착공 (연율) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "순유동성 (연준 자산 − TGA − 역레포) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "금융여건지수 (시카고 연은) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "SOFR 단기 자금 금리 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "실질 GDP 성장률 (전기 대비 연율) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "구인 건수 (JOLTS) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "미시간대 소비자심리 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "생산자물가 (최종수요, 전년 대비) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "브렌트유 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "천연가스 (헨리허브) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "구리 (월평균) 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "위안 / 달러 근거 보기",
-          "width": 1,
-          "height": 36,
-          "exception": "keyboard-focus-only"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },

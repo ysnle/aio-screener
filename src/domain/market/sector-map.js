@@ -120,9 +120,13 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     members = candidates.length;
     const missing = [];
     for (const row of candidates) {
+      // v57.51 F10: the provider's referenceMarketCap already carries the verified share count and a loss-making
+      // company's close; the raw pe-price pair is the fallback for rows built before it existed.
+      const referenceBillions = finite(row.referenceMarketCap?.billions);
       const close = finite(row._valuationPePrice ?? row.pePrice);
       const shares = finite(row._valuationSharesOutstanding ?? row.valuationSharesOutstanding);
-      let value = close != null && shares != null && close > 0 && shares > 0 ? close * shares : null;
+      let value = referenceBillions != null && referenceBillions > 0 ? referenceBillions * 1e9
+        : close != null && shares != null && close > 0 && shares > 0 ? close * shares : null;
       // A share count in the wrong unit or class (one stock at 20조 달러) shows up as a turnover no listed stock has.
       const turnover = value ? finite(row.dollarVolume30d) / value : null;
       if (value != null && turnover != null && (turnover < 0.0002 || turnover > 0.2)) value = null;

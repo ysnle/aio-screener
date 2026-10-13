@@ -219,7 +219,7 @@ const SCREENER_FACTOR_FIELD_IDS = Object.freeze([
   'technical.ema8', 'technical.ema21', 'technical.ema60'
 ]);
 const SCREENER_FUNDAMENTAL_FIELD_IDS = Object.freeze([
-  'valuation.pe', 'valuation.pb', 'valuation.evEbitda', 'quality.roe', 'quality.margin', 'quality.revGrowth'
+  'valuation.pe', 'valuation.pb', 'quality.roe', 'quality.margin', 'quality.revGrowth'
 ]);
 
 function screenerObservationCoverage(rows, fieldIds, { now = Date.now(), maxAgeMs, minCoverage = 0.8, source, cache } = {}) {
