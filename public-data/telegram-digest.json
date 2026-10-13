@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-13T15:51:01.419Z",
-  "attemptedAt": "2026-10-13T15:51:01.419Z",
-  "lastSuccessfulAt": "2026-10-13T15:51:01.419Z",
+  "generatedAt": "2026-10-13T16:28:04.562Z",
+  "attemptedAt": "2026-10-13T16:28:04.562Z",
+  "lastSuccessfulAt": "2026-10-13T16:28:04.562Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-29T15:50:51.645Z",
-  "until": "2026-10-13T15:50:51.645Z",
+  "since": "2026-09-29T16:27:55.570Z",
+  "until": "2026-10-13T16:27:55.570Z",
   "current24hWindow": {
     "start": "2026-10-11T23:00:00.000Z",
     "end": "2026-10-12T23:00:00.000Z",
@@ -81,12 +81,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 249,
+      "count": 250,
       "freshCount": 37,
-      "eligibleTextCount": 158,
+      "eligibleTextCount": 159,
       "selectedCount": 94,
       "error": null,
-      "lastPostId": 25819
+      "lastPostId": 25820
     },
     {
       "channel": "insidertracking",
@@ -125,27 +125,27 @@
       "lastPostId": 70365
     }
   ],
-  "count": 2223,
-  "retainedItemCount": 441,
+  "count": 2224,
+  "retainedItemCount": 442,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2223,
-    "eligibleTextCount": 1124,
+    "observedCount": 2224,
+    "eligibleTextCount": 1125,
     "mediaOnlyCount": 1099,
     "highSignalCount": 502,
     "broadSignalCount": 1021,
     "selectedRawCount": 412,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 35.8,
+    "selectedRawCoveragePct": 35.7,
     "selectedOfObservedPct": 18.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "market-note": 683,
     "ai-policy": 196,
-    "market-note": 682,
     "credit": 86,
     "macro": 756,
     "semi": 583,
@@ -163,6 +163,7 @@
     "crypto": 6
   },
   "tickerCounts": {
+    "GOOG": 49,
     "NVDA": 65,
     "TER": 1,
     "AMD": 61,
@@ -179,7 +180,6 @@
     "V": 2,
     "MSFT": 25,
     "ORCL": 10,
-    "GOOG": 48,
     "LITE": 12,
     "AMZN": 29,
     "PLTR": 7,
@@ -269,7 +269,7 @@
   },
   "themes": [
     "Macro/Rates (756 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터 캐펙스 전망을 2026년과 2027년 모두 다시 상향했습니다. 2026년 성장률 전망은 기존 +80%에서...",
-    "Market Notes (682 posts in 14-day research window): 2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,...",
+    "Market Notes (683 posts in 14-day research window): 2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,...",
     "Semiconductors/Memory (583 posts in 14-day research window): JPM) OCP 2026 1일차 인사이트: AI 인프라 확장의 복잡성 증가 (2026.10.13) JP모건은 캘리포니아 산호세에서 열린 OCP 2026 1일차에 참석했으며, 기조연설과 경영진 세션 전반을 관통한 핵심 주제는 AI 인프라 확장의 복잡성 증가였다고 전했습니다. 추론 및 에이전틱 워크로드가 빠르게 늘면서...",
     "Earnings/Corporate (406 posts in 14-day research window): JPM) 클라우드 데이터센터 캐펙스 전망, 2026·2027년 모두 상향… 전력 캐파 확대가 뒷받침 (2026.10.13) JP모건은 미국 상위 4개 CSP(구글, 아마존, 마이크로소프트, 메타)의 데이터센터 캐펙스 전망을 2026년과 2027년 모두 다시 상향했습니다. 2026년 성장률 전망은 기존 +80%에서...",
     "Geopolitics (355 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 마크 저커버그 CEO가 장기적인 AI 시장 주도권 확보를 위해 최대 2,000억 달러 규모의 투자도 감수할 준비가 되어 있다고 언급. 대규모 AI 인프라 투자 전략을...",
@@ -300,7 +300,7 @@
     },
     {
       "key": "GOOG",
-      "count": 48,
+      "count": 49,
       "text": "BofA) AI/ 클라우드 CAPEX 투자 전망 1. AI 설비투자 CY26/27 전망, 현재 전년 대비 +98%/+37% 3분기 반도체 실적 시즌을 앞두고 데이터센터는 여전히 핵심 거점으로 남아 있으며,..."
     },
     {
@@ -481,7 +481,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 682,
+      "count": 683,
       "focus": "2026년 10월 12일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승세를 보이며 주간 거래 시작을 앞둔 상황. 한국시간 오후 2시 기준 나스닥100 선물 +0.47%, 다우 선물 +0.38%,..."
     }
   ],
@@ -3560,14 +3560,12 @@
       "datetime": "2026-10-12T13:08:57.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": "이제 미 연방법원 판사조차 RISC-V는 현재로서 사실상 쓸모가 없으며 Arm과 인텔의 x86만이 유일한 선택지라고 선언하고 있습니다 RISC 원칙에 기반한 무료 오픈소스 명령어 집합 아키텍처(ISA)인..."
+      "summary": "이제 미 연방법원 판사조차 RISC-V는 현재로서 사실상 쓸모가 없으며 Arm과 인텔의 x86만이 유일한 선택지라고 선언하고 있습니다 RISC 원칙에 기반한 무료 오픈소스 명령어 집합 아키텍처(ISA)인...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70300",
@@ -8855,14 +8853,12 @@
       "datetime": "2026-10-12T13:08:57.000Z",
       "localDateKst": "2026-10-12",
       "tags": [
-        "macro",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": "이제 미 연방법원 판사조차 RISC-V는 현재로서 사실상 쓸모가 없으며 Arm과 인텔의 x86만이 유일한 선택지라고 선언하고 있습니다 RISC 원칙에 기반한 무료 오픈소스 명령어 집합 아키텍처(ISA)인..."
+      "summary": "이제 미 연방법원 판사조차 RISC-V는 현재로서 사실상 쓸모가 없으며 Arm과 인텔의 x86만이 유일한 선택지라고 선언하고 있습니다 RISC 원칙에 기반한 무료 오픈소스 명령어 집합 아키텍처(ISA)인...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70300",
