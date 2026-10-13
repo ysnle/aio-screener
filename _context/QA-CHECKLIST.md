@@ -6,7 +6,7 @@ confidence: medium
 
 ## v57.50 검증 스킬 (2026-10-13)
 
-- [ ] QA-VERIFY-17: P1693/P1697: 배포 사이트에서 종목 화면 "같은 섹터 비교"가 스크리너 섹터 필터로 1건 이상 열리고, #ticker?sym=MSFT 주소로 새로고침해도 MSFT가 유지된다. verify_by: push 뒤 배포 사이트 브라우저 확인(verify-aio stock·screener)
+- [x] QA-VERIFY-17: P1693/P1697: 배포 사이트에서 종목 화면 "같은 섹터 비교"가 스크리너 섹터 필터로 1건 이상 열리고, #ticker?sym=MSFT 주소로 새로고침해도 MSFT가 유지된다. verify_by: push 뒤 배포 사이트 브라우저 확인(verify-aio stock·screener)
 
 ## v57.49 검증 스킬 (2026-10-13)
 

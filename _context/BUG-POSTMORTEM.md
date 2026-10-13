@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1701 - v57.50 - VIX 구간 결과 산출물이 일주일 캐시라 새 군집 수·표준오차 필드가 10/20까지 공개되지 않음 (2026-10-13)
+
+- symptom/reproduction: P1698로 VIX 구간 결과에 21세션 간격 군집 수와 평균의 표준오차를 추가했지만, 생산자는 산출물이 7일 안에 만들어졌으면 건너뛰어 10/13 04:16 산출물(군집·표준오차 없음)이 10/20까지 유지된다. 그동안 화면은 분위수 근사 범위와 대체 표기만 보여 준다.
+- root_cause: 생산자의 신선도 판정이 생성 시각만 보고 산출물 형태(필드 존재)를 보지 않았다.
+- fix: 기존 산출물의 모든 구간에 clusters가, 전체 21일 요약에 se가 없으면 신선도와 무관하게 한 번 다시 만든다. 다음 refresh-data 실행에서 적용된다.
+- violated_rule: 생산물 필드 추가 시 소비 경로 끝까지 확인
+- prevention: P1701: scripts/build-stress-outcomes.mjs shapeCurrent 조건(현재 공개 산출물에서 false 확인)
+- verification/residual: 현재 공개 산출물에 대해 shapeCurrent=false를 node로 확인. 배포 사이트에서 QA-VERIFY-17(같은 섹터 비교 → Technology 필터 결과, #ticker?sym=MSFT 새로고침 유지)을 확인.
+
 ## P1700 - v57.50 - 퇴역한 점수·화면 조각이 DOM과 계산에 남음 — 홈 "지금 매매해도 될까?" 그리드, 재무 화면 시장 리스크 레이더, AI 자동 점수 그림 (2026-10-13)
 
 - symptom/reproduction: P1392에서 퇴역한 거래 점수·국면 카드가 CSS로만 숨겨진 채 매번 계산됐고 매매 지시성 문구를 담고 있었다. 재무 화면에 시장 이벤트 레이더·실적 서프라이즈가 남아 일정이 3중으로 겹쳤다. 홈 KOSPI 칩은 숨겨진 섹션으로, BTC 칩은 BTC가 없는 화면으로 갔다. AI 답에 퇴역 점수 분해 그림이 붙을 수 있었다. 면책 문구가 퇴역 점수를 가리켰다.

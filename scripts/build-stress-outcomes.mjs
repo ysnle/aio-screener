@@ -38,7 +38,10 @@ async function dailyCloses(symbol) {
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
-  if (previous?.status === 'current' && Date.now() - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && process.env.STRESS_FORCE !== '1') {
+  // v57.50 D07/D08: an artifact built before the cluster count and the standard error existed is rebuilt once,
+  // not kept for up to a week (the screen falls back to an approximate range until then).
+  const shapeCurrent = Array.isArray(previous?.bands) && previous.bands.every((band) => band?.clusters != null) && previous?.all?.['21']?.se != null;
+  if (shapeCurrent && previous?.status === 'current' && Date.now() - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && process.env.STRESS_FORCE !== '1') {
     console.log(`[stress-outcomes] fresh (${previous.generatedAt}) — skipping`); return;
   }
   const [spx, vix] = await Promise.all([dailyCloses('^GSPC'), dailyCloses('^VIX')]);
