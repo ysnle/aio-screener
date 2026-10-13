@@ -168,7 +168,7 @@ if (homeNewsStart >= 0 && homeNewsEnd > homeNewsStart) {
   const source = data.slice(homeNewsStart, homeNewsEnd);
   const renderFixture = (item) => {
     const host = { innerHTML: '' };
-    const calls = { sentiment: 0, summary: 0, translatedTitle: 0, tickers: 0 };
+    const calls = { sentiment: 0, summary: 0, translatedTitle: 0, tickers: 0, translateRequested: 0 };
     const sandbox = {
       window: { AIO: { buildNewsSurfaceModel: () => ({ items: [item] }) } },
       document: { getElementById: (id) => id === 'home-news-highlights' ? host : null },
@@ -178,7 +178,10 @@ if (homeNewsStart >= 0 && homeNewsEnd > homeNewsStart) {
       getDisplayTitle: () => { calls.translatedTitle++; return '근거 없는 번역 제목'; },
       getDisplaySummary: () => { calls.summary++; return '확인되지 않은 시장 영향과 수혜 해석'; },
       getDisplayTickers: () => { calls.tickers++; return ['$FAKE']; },
-      getTimeAgo: () => '방금'
+      getTimeAgo: () => '방금',
+      // v57.54: the model path must request a real translation for uncached cards (P554 trigger).
+      _tcHas: () => false, _translationInProgress: false,
+      autoTranslateNews: (items) => { calls.translateRequested += items.length; return Promise.resolve(); }
     };
     runInNewContext(`${source}\nrenderHomeFeed([]);`, sandbox, { timeout: 2000 });
     return { html: host.innerHTML, calls };
@@ -195,7 +198,8 @@ if (homeNewsStart >= 0 && homeNewsEnd > homeNewsStart) {
       && !headline.html.includes('근거 없는 번역 제목')
       && !headline.html.includes('확인되지 않은 시장 영향과 수혜 해석')
       && !headline.html.includes('$FAKE')
-      && headline.calls.sentiment === 0 && headline.calls.summary === 0 && headline.calls.translatedTitle === 0 && headline.calls.tickers === 0;
+      && headline.calls.sentiment === 0 && headline.calls.summary === 0 && headline.calls.translatedTitle === 0 && headline.calls.tickers === 0
+      && headline.calls.translateRequested === 1;
     const article = renderFixture({ title: 'Article with an excerpt', desc: 'This independently reviewed excerpt is longer than forty characters and supplies article-level context.', link: 'https://example.com/full', score: 75, topic: 'macro', source: 'Reuters', contentDepth: 'summary', pubDate: '2026-09-25T20:00:00Z' });
     homeArticleSummaryPreserved = article.html.includes('확인되지 않은 시장 영향과 수혜 해석')
       && !article.html.includes('헤드라인 전용·본문 미검증')

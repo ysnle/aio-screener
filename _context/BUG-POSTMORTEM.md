@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1766 - v57.54 - AI 번역 응답이 배치의 일부 기사를 빠뜨리면 그 기사는 캐시에도 대체 번역에도 들어가지 않고 사라짐 (2026-10-14)
+
+- symptom/reproduction: P1765 수정 후 browser-ai-public 검사가 5회 중 5회 시간 초과로 실패했다(수정 전 3/3 통과). 추적 결과 부팅 중 대기열에 들어간 대시보드 기사 3건과 검사 기사가 한 배치로 묶였고, 응답이 1번 기사만 돌려주자 나머지 2건이 캐시·대기열·요청 어디에도 남지 않았다.
+- root_cause: autoTranslateNews는 HTTP 오류와 호출 예외에서만 무료 번역 → 로컬 보강 대체를 실행했다. 정상 완료 응답의 JSON 배열에 없는 idx 항목은 아무 경로도 타지 않았다. 실제 모델이 배열을 짧게 돌려주면 그 제목은 영어로 남거나, 화면이 다시 그릴 때마다 같은 기사를 다시 요청했다.
+- fix: 대체 경로를 응답 처리 뒤 한 곳으로 모아, 오류·예외·누락 idx 모두 같은 대체를 거쳐 캐시되게 함(실패도 _failed로 캐시되어 재요청 반복 없음). aio-data.js는 1줄 줄어듦. 검사 모의 응답은 배치의 모든 [n]에 답하도록 바꿈(화면 기사와 같은 배치를 쓰는 실제 동작 반영).
+- violated_rule: R245: 화면에 보이는 뉴스는 번역 요청 경로를 가져야 함 / 실패는 명시적 대체로 처리
+- prevention: P1766: ci-ai-chat-public-route-browser-check가 한 idx를 빼고 응답하는 모의로 두 기사 모두 캐시되는지 확인(수정을 되돌리면 실패하는 것 확인)
+- verification/residual: browser-ai-public 3회 연속 통과, 수정 전 코드로는 새 단언에서 실패.
+
+## P1765 - v57.54 - 대시보드 '핵심 뉴스'의 영어 제목이 번역되지 않고 원문으로 계속 남음 (2026-10-14)
+
+- symptom/reproduction: v57.54 배포 후 라이브 대시보드에서 핵심 뉴스 3건 중 영어 제목 2건이 부팅 30초 뒤에도 원문이었고 번역 캐시가 0건이었다. 같은 항목을 autoTranslateNews로 직접 넘기면 AI 프록시가 6.8초 만에 정상 번역해, 번역 기능이 아니라 요청이 빠진 문제였다.
+- root_cause: P554/R245의 '선택된 상위 뉴스 즉시 번역 요청'은 renderHomeFeed의 옛 경로에만 있었다. v50.2 뉴스 표면 모델 경로(buildNewsSurfaceModel)가 먼저 렌더하고 return하므로 그 요청이 실행되지 않았다. 서버 뉴스가 신선하면 fetchAllNews의 상위 6건 번역도 돌지 않아, 대시보드 카드는 번역을 받을 경로가 없었다.
+- fix: 모델 경로에서 카드 렌더 전에 캐시에 없는 카드의 번역을 요청(_translationInProgress 중복 방지, 실패는 _failed로 캐시돼 재요청 루프 없음). 옛 경로 주석을 줄여 aio-data.js 줄 수는 그대로.
+- violated_rule: R245: 화면에 보이는 뉴스는 번역 요청 경로를 가져야 함
+- prevention: P1765: ci-data-pipeline-contract-check P1273 픽스처가 모델 경로에서 번역 요청 1건을 확인(수정을 되돌리면 실패하는 것 확인)
+- verification/residual: 로컬 미리보기에서 캐시를 비우고 renderHomeFeed를 호출해 번역 요청 3건과 재렌더 후 한국어 제목 확인. 수정 전 라이브는 캐시 0건, 원문 2건.
+
 ## P1764 - v57.54 - S&P 500 종가가 새 거래일로 넘어간 뒤 시장 폭이 도착하기 전까지 대시보드 시장 폭 카드가 통째로 사라지고, 같은 이유로 CI가 실패해 그 시간대의 배포가 모두 막힘 (2026-10-14)
 
 - symptom/reproduction: 푸시 6ffa5e8f의 CI가 browser-responsive(폰·태블릿 '같은 세션 시장 폭 카드 없음')와 browser-vault(PFE2-22)에서 실패해 Pages·Worker 배포가 건너뛰어졌다. 기록상 종가 기준은 10/13인데 breadth50 등은 6시간 주기 스크리너 갱신에서 만들어져 10/12까지만 있었고, buildBreadthSnapshot은 같은 세션만 받아 카드 0개를 반환했다. 미국 장 마감(20–21시 UTC) 뒤 다음 스크리너 슬롯(00:53 UTC)까지 매일 수 시간 이 상태가 반복될 수 있었다. 금고 검사는 다시 그리기 뒤 180ms 고정 대기로 패널을 읽어, 느린 CI에서 초과 배분 경우가 이전 패널을 읽었다.

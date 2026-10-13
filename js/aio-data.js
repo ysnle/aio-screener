@@ -10675,15 +10675,14 @@ ${prompt}`
         // 가면 원문이 영문일 때 헤드라인 없는 일반 분류 템플릿만 남는다(B5: CF Worker /anthropic
         // 미배포 상태에선 이게 상시 발생). 무료 Google Translate로 실제 한국어 제목을 먼저 시도하고,
         // 그마저 실패한 항목만 localEnrichSingle의 최종 폴백(내부에서 이미 처리)으로 남긴다.
-        var _failedBatch = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
-        if (_failedBatch.length) { try { await freeTranslateNews(_failedBatch); } catch(_gtErr) { _failedBatch.forEach(orig => { if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig); }); } }
       }
     } catch(e) {
       if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(e, { source: 'translation' });
       _aioLog('warn', 'translate', '번역 API 호출 에러: ' + (e && e.message || e));
-      var _failedBatch2 = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
-      if (_failedBatch2.length) { try { await freeTranslateNews(_failedBatch2); } catch(_gtErr2) { _failedBatch2.forEach(orig => { if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig); }); } }
     }
+    // v57.54: one fallback for an error, a thrown call, or a completed reply that omitted some idx (those were dropped uncached).
+    var _failedBatch = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
+    if (_failedBatch.length) { try { await freeTranslateNews(_failedBatch); } catch(_gtErr) { _failedBatch.forEach(orig => { if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig); }); } }
 
     // 배치 간 딜레이 + 중간 렌더링
     if (i + BATCH < needTranslation.length) {
@@ -11577,6 +11576,7 @@ function renderHomeFeed(items) {
         '</div>';
       return;
     }
+    try { var _homeUntr = homeModelV502.items.filter(function(i) { return i.title && !_tcHas(i.title); }); if (_homeUntr.length && !_translationInProgress) autoTranslateNews(_homeUntr).catch(function(){}); } catch(_) {} // v57.54: P554 trigger on the model path too (server news never ran it)
     container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
       homeModelV502.items.map(function(item) {
         var headlineOnly = _aioHomeNewsHeadlineOnly(item);
@@ -11692,8 +11692,7 @@ function renderHomeFeed(items) {
   // newsCache 원본 순서 앞 6건만 즉시 처리하고 나머지는 data-news-idx 뷰포트 진입 시에만
   // 번역되는 lazy observer에 의존한다. 홈 카드 DOM에는 data-news-idx가 없어 그 observer
   // 대상이 아니므로, 정확히 "중요해서 부스트된" 뉴스일수록 [번역 대기]가 영구 고정되는
-  // 구조적 문제가 있었다. 선택된 상위 뉴스가 아직 캐시에 없으면 즉시 우선 번역을 요청한다
-  // (autoTranslateNews 완료 시 renderHomeFeed를 다시 호출하므로 별도 재렌더는 불필요).
+  // 구조적 문제가 있었다. 선택된 상위 뉴스가 캐시에 없으면 즉시 번역을 요청한다(완료 시 재렌더).
   try {
     var _untranslated = filtered.filter(function(i) { return i.title && !_tcHas(i.title); });
     if (_untranslated.length && typeof autoTranslateNews === 'function' && !_translationInProgress) {

@@ -53,7 +53,9 @@ try {
       const requestBody = JSON.parse(request.postData() || '{}');
       observedRequests.push({ headers: request.headers(), body: requestBody });
       if (requestBody.stream === false) {
-        const translated = JSON.stringify([{ idx: 1, title: '공용 번역 연결 확인', desc: '수집된 자료의 번역입니다.', summary: '번역 응답을 확인했습니다.', tickers: [] }]);
+        // v57.54: answer every [n] in the batch (on-screen headlines can share a batch with the fixture item).
+        const prompt = JSON.stringify(requestBody.input || '');
+        const translated = JSON.stringify([...prompt.matchAll(/\[(\d+)\] Title: ([^\\]*)/g)].filter(([, , title]) => !title.startsWith('Omit item')).map(([, n, title]) => ({ idx: Number(n), title: title.includes('Luna transport fixture') ? '공용 번역 연결 확인' : '화면 기사 번역 ' + n, desc: '수집된 자료의 번역입니다.', summary: '번역 응답을 확인했습니다.', tickers: [] })));
         return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'completed', model: 'gpt-6-luna', output: [{ type: 'message', content: [{ type: 'output_text', text: translated }] }], usage: { input_tokens: 10, output_tokens: 20 } }) });
       }
       const plan = '[AI_ANSWER_PLAN]' + JSON.stringify({
@@ -129,11 +131,18 @@ try {
   // P1423: another background batch may own the route while this item queues.
   await page.waitForFunction(() => _translationCache.has(_tcKey('Luna transport fixture unique news')), { timeout: 30000 });
   const translation = await page.evaluate(() => _translationCache.get(_tcKey('Luna transport fixture unique news'))?.ko_title);
+  // v57.54: a completed reply that omits an idx must still settle that item (fallback), not drop it uncached.
+  await page.waitForFunction(() => !_translationInProgress);
+  const omittedSettled = await page.evaluate(async () => {
+    await autoTranslateNews([{ title: 'Kept item fixture one', source: 'fixture', desc: '' }, { title: 'Omit item fixture two', source: 'fixture', desc: '' }]);
+    return _translationCache.has(_tcKey('Kept item fixture one')) && _translationCache.has(_tcKey('Omit item fixture two'));
+  });
   const failures = [];
   const assert = (label, condition) => { if (!condition) failures.push(label); };
   assert('P1423: concurrent translation preserves the requested item', queuedTranslation === true);
   // P1421: translation must share the same authority and expose no provider key.
   assert('shared Luna translation reaches completed JSON', translation === '공용 번역 연결 확인');
+  assert('v57.54: an idx omitted from a completed translation reply falls back instead of being dropped', omittedSettled === true);
   const translationRequest = observedRequests.find(candidate => candidate.body?.stream === false && JSON.stringify(candidate.body.input).includes('Luna transport fixture unique news'));
   assert('translation uses shared Responses caps and idempotency', translationRequest?.body?.model === 'gpt-6-luna' && translationRequest?.body?.max_output_tokens === 1500 && translationRequest?.headers?.['x-aio-idempotency-key'] && !translationRequest?.headers?.authorization);
   const publicRequest = observedRequests.find((candidate) => JSON.stringify(candidate.body?.input || '').includes('공용 경로 확인'))

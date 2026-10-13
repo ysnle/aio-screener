@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T22:19:16.031Z",
+  "generatedAt": "2026-10-13T23:05:33.016Z",
   "routes": [
     {
       "id": "home",
@@ -40,6 +40,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "시장 폭 추세와 구성 종목 보기"
+        },
+        {
+          "tag": "BUTTON",
           "name": "7일 일정과 시장 해석 → 브리핑"
         },
         {
@@ -70,6 +74,11 @@
       "headings": [
         "시장 현황",
         "지금 구조와 앞으로",
+        "상승 · 하락 종목",
+        "52주 신고가 · 신저가",
+        "20일선 위 종목",
+        "50일선 위 종목",
+        "200일선 위 종목",
         "직전 종가 대비 변화미국 종가 10/12 → 10/13 · 위 실시간 시세의 등락과 기간이 다릅니다",
         "내 종목",
         "다가오는 일정3일 · 한국 시간",
@@ -277,358 +286,6 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
-        {
-          "tag": "SELECT",
-          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GME"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RNR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EBAY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OKTA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DDOG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ABBV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GTLB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BIIB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RGA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SHEL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "E"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DINO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FFIV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "V"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FTNT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NTAP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NTNX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PBR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TEAM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EXEL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PLTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SOUN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OKLO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SMR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NNE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "JOBY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RKT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LEU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LAC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AVAV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PLUG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARRY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BROS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BLDR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CHTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MOS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HRL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WYNN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MGM"
-        },
-        {
-          "tag": "SELECT",
-          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FICO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PRCT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SHOP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "XNDU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SMTC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LITE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LCID"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FCEL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "IONQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SATL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WOLF"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VIAV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "POET"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SOUN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AEHR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "UCTT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NVTS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CRDO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OKLO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MTSI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ONTO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SMR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SITM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "QUBT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NNE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FORM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CVNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SIMO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GLW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SNDK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SPIR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "QBTS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RGTI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MKSI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RKT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BKSY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LEU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MOD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NBIS"
-        },
         {
           "tag": "BUTTON",
           "name": "시장 상태에서 추세 축과 함께 보기 →"
@@ -882,50 +539,20 @@
     {
       "id": "fxbond",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
           "name": "거시 경제의 6축 판정"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태에서 한국 시장 카드 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 노트 · 외국인 투자자의 달러 기준 수익 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "데일리 브리핑 →"
         }
       ],
       "headings": [
         "금리 · 환율",
-        "미 국채 수익률 곡선 재무부 공식 곡선 · 10/13 기준",
+        "미 국채 수익률 곡선",
         "실질금리 · 기대인플레이션 · 신용",
-        "10년 실질금리 (TIPS)",
-        "10년 기대인플레이션",
-        "하이일드 스프레드",
-        "10년 기간 프리미엄 (Kim-Wright)",
         "환율이 증시에 주는 영향",
-        "환율 (원 · 엔)",
         "달러 · 원화 · 엔화 · 10년물 — 최근 6개월",
-        "달러 인덱스 (DXY)",
-        "원/달러",
-        "엔/달러",
-        "미 10년물 금리 (일별 종가)",
-        "그 밖의 통화 시세 대기",
-        "이어서 볼 곳"
+        "그 밖의 통화 시세 대기"
       ]
     },
     {
@@ -2051,11 +1678,15 @@
         },
         {
           "tag": "A",
+          "name": "Gold defies multi-decade high bond yields, but Q4 headwinds remain – Invesco — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "Jamie Dimon Sharpened His Warning About a Looming Corporate Credit Squeeze, Saying Global Competition for Capi"
         },
         {
           "tag": "A",
-          "name": "Gold defies multi-decade high bond yields, but Q4 headwinds remain – Invesco — 원문 새 창에서 열기"
+          "name": "European stocks close higher. Spain leads while the dollar strengthens — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -2086,12 +1717,8 @@
           "name": "Gold ETF demand defies rising bond yields as investors pour $31 billion into record third quarter – WGC — 원문 새"
         },
         {
-          "tag": "A",
-          "name": "코스피 6300선 급락, 환율 2년 만에 최저… ‘예측불허’ 증권가 — 원문 새 창에서 열기"
-        },
-        {
           "tag": "BUTTON",
-          "name": "9개 더 보기"
+          "name": "10개 더 보기"
         },
         {
           "tag": "A",
