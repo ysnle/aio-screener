@@ -79,8 +79,19 @@ function formatMoney(value, currency, { maximumFractionDigits = 2 } = {}) {
 function renderTickerHero(documentRef, state, root) {
   const requestedId = String(root?._currentTickerId || '').trim().toUpperCase() || null;
   const id = state?.id || requestedId;
-  const quote = state?.quote || {};
+  let quote = state?.quote || {};
   const price = finite(quote.value);
+  // P1728: the change basis travels on the live envelope; a state quote built from the same envelope keeps it.
+  const envelope = root?._liveData?.[id]?.quoteEnvelope;
+  if (envelope && quote.changeBasisDate == null && envelope.changeBasis && (quote.changeBasis == null || quote.changeBasis === envelope.changeBasis) && finite(envelope.pct) === finite(quote.pct)) {
+    quote = { ...quote, changeBasis: envelope.changeBasis, changeBasisDate: envelope.changeBasisDate, changeCheck: envelope.changeCheck,
+      providerPreviousClose: envelope.providerPreviousClose, providerPct: envelope.providerPct };
+  }
+  // P1728: a KR change withheld before the history/screener arrived is checked again at render time.
+  if (quote.changeCheck === 'unverified' && price != null && typeof root?._aioVerifyKrQuoteChange === 'function') {
+    const recheck = root._aioVerifyKrQuoteChange({ symbol: id, _source: quote.source, observedAt: quote.observedAt, regularMarketPreviousClose: quote.providerPreviousClose }, price, finite(quote.providerPct));
+    if (recheck && recheck.status !== 'unverified') quote = { ...quote, pct: recheck.pct, changeBasis: recheck.basis, changeBasisDate: recheck.basisDate, changeCheck: recheck.status };
+  }
   const pct = finite(quote.pct);
   // P1317: Korean users recognise a KRX listing by its name, not its code — lead with the name.
   // P1652: the provider name is English ("Samsung Electronics Co., Ltd."); the exact KRX registry name comes first.
@@ -96,15 +107,25 @@ function renderTickerHero(documentRef, state, root) {
   // entity summary) before saying "통화 미확인" — still never inferred from the symbol alone outside the KRX suffix.
   const heroCurrency = quote.currency || root?._liveData?.[id]?.currency || root?._liveData?.[id]?.quoteEnvelope?.currency || root?._aioEntitySummaries?.[id]?.quote?.currency || (/\.(KS|KQ)$/.test(String(id || '')) ? 'KRW' : null);
   setText(documentRef, 'ticker-hero-price', formatMoney(price, heroCurrency));
-  const change = setText(documentRef, 'ticker-hero-chg', pct == null ? '—' : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`);
-  if (change) change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
+  // P1728: a Korean change without a verified previous KRX close says so instead of showing a dash or a wrong base.
+  const krUnverified = pct == null && price != null && quote.changeBasis === 'kr-previous-close-unverified';
+  const change = setText(documentRef, 'ticker-hero-chg', pct == null ? (krUnverified ? '전일 기준 미확인' : '—') : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`);
+  if (change) {
+    change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
+    const basisDate = String(quote.changeBasisDate || '').slice(5).replace('-', '/');
+    change.title = krUnverified ? '직전 완료 거래일 종가를 검증하지 못해 등락률을 보류합니다.'
+      : quote.changeBasis === 'screener-reconciled-session-change' && basisDate ? `${basisDate} 거래소 종가 기준 1일 변화`
+      : quote.changeBasis === 'krx-history-previous-close' && basisDate ? `${basisDate} 거래소 종가 대비`
+      : quote.changeBasis === 'provider-previous-close-index-checked' && basisDate ? `${basisDate} 종가 대비 · 같은 날 지수 기준 일치 확인`
+      : '';
+  }
   const priceNode = documentRef?.getElementById('ticker-hero-price');
   if (priceNode) {
     let status = documentRef.getElementById('ticker-summary-price-basis');
     if (!status) { status = documentRef.createElement('div'); status.id = 'ticker-summary-price-basis'; status.className = 'entity-summary-price-basis'; priceNode.after(status); }
     const meta = root?._aioEntitySummaries?.[id];
     const valueBasis = root?._liveData?.[id]?.quoteEnvelope?.valueBasis || meta?.quote?.valueBasis;
-    status.textContent = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세 제공처 응답 없음 · 다시 선택해 확인' : '현재 시세 확인 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}`;
+    status.textContent = price == null ? root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세 제공처 응답 없음 · 다시 선택해 확인' : '현재 시세 확인 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? ` · 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
   }
   // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
   // history and bookmarks kept "종목 선택 대기" (or the previous symbol). The owner of the hero owns the title.

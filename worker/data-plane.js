@@ -57,7 +57,9 @@ export async function dispatchRefreshData({ env, scheduledTime = Date.now(), fet
     const client = createHttpClient({ fetchImpl, defaultTimeoutMs: timeoutMs });
     const base = `https://api.github.com/repos/${repo}/actions/workflows/${REFRESH_DISPATCH_POLICY.workflow}`;
     const headers = { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', 'user-agent': 'aio-data-plane-scheduler', 'content-type': 'application/json' };
-    const recent = await client.requestJson(`${base}/runs?branch=main&per_page=20`, { headers, redirect: 'error' });
+    // P1718: Workers throw TypeError on the "error" redirect mode (P1433), which left every slot at status 0 and dispatched nothing.
+    // 'manual' returns any 3xx as a non-ok response, which the checks below already refuse.
+    const recent = await client.requestJson(`${base}/runs?branch=main&per_page=20`, { headers, redirect: 'manual' });
     if (!recent.ok || !Array.isArray(recent.data?.workflow_runs)) return finish({ dispatched: false, reason: 'workflow-observation-failed', status: recent.status });
     const runs = recent.data.workflow_runs.filter(run => run.head_branch === REFRESH_DISPATCH_POLICY.ref);
     const active = runs.find(run => ['queued', 'in_progress', 'waiting', 'requested', 'pending'].includes(run.status));
@@ -68,7 +70,7 @@ export async function dispatchRefreshData({ env, scheduledTime = Date.now(), fet
       return finish({ dispatched: false, reason: 'recent-success', runId: latest.id });
     }
     const response = await client.requestJson(`${base}/dispatches`, {
-      method: 'POST', headers, redirect: 'error',
+      method: 'POST', headers, redirect: 'manual',
       body: JSON.stringify({ ref: REFRESH_DISPATCH_POLICY.ref, inputs: { trigger: REFRESH_DISPATCH_POLICY.trigger } })
     });
     return finish({ dispatched: response.status === 204, reason: response.status === 204 ? 'accepted' : 'dispatch-failed', status: response.status });

@@ -249,7 +249,7 @@ function renderKrThemeCardsFromMap() {
     'logistics':    {emoji:'',name:'물류 / 운송 / 항공',en:'LOGISTICS · AIRLINE · FREIGHT',bg:'rgba(33,29,22,0.12)'},
   'medtech_kr':   {emoji:'',name:'의료기기 / 디지털헬스',en:'AI DIAGNOSIS · MED DEVICE · SURGICAL ROBOT',bg:'rgba(33,29,22,0.12)'},
     'energy_kr':    {emoji:'',name:'에너지 / 정유',en:'OIL REFINERY · LNG · ENERGY',bg:'rgba(34,117,76,0.12)'},
-    'photonics_kr': {emoji:'',name:'광 / 포토닉스',en:'PHOTONICS · OPTICAL · CPO · FIBER',bg:'rgba(33,29,22,0.12)'},
+    'photonics_kr': {emoji:'',name:'광통신 / 포토닉스',en:'PHOTONICS · OPTICAL · CPO · FIBER',bg:'rgba(33,29,22,0.12)'},
     'wind_solar':   {emoji:'',name:'풍력 / 태양광 / 신재생',en:'WIND · SOLAR · RENEWABLE ENERGY',bg:'rgba(34,117,76,0.12)'},
     'quantum':      {emoji:'',name:'양자컴퓨팅 / 양자암호',en:'QUANTUM COMPUTING · QKD · PQC',bg:'rgba(33,29,22,0.12)'},
     'uam':          {emoji:'',name:'UAM / 도심항공',en:'UAM · eVTOL · VERTIPORT',bg:'rgba(33,29,22,0.12)'},

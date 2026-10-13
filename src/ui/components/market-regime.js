@@ -3,7 +3,8 @@
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveFold } from './deep-dive.js';
-import { buildCloseSeries, buildMarketRegime, buildMarketRead, closeBasis } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, buildMarketRegime, buildMarketRead, closeBasis, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT } from '../../domain/briefing/market-read.js';
+import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { collectMarketInputs } from './briefing-read.js';
 import { regimeFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
@@ -247,6 +248,14 @@ export function renderRegimePage({ documentRef: doc, root }) {
   root.__aioScenarioOutlook = scenarios.available ? outlookForRoot(root, { scenarios, regime }) : null;
   if (board) board.insertAdjacentElement('afterend', scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds));
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
+  // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장 참고) shows it once.
+  const handoff = consumeResearchHandoff({ root, routeId: 'signal' });
+  const anchorId = handoff?.context?.anchor ? String(handoff.context.anchor) : '';
+  if (/^[a-z0-9-]+$/i.test(anchorId)) {
+    const section = doc.getElementById(anchorId);
+    const heading = section?.previousElementSibling?.tagName === 'H2' ? section.previousElementSibling : section;
+    heading?.scrollIntoView?.({ block: 'start' });
+  }
   page.dataset.aioRegimeRenderer = 'native';
   return regime;
 }
@@ -271,7 +280,12 @@ function paintKoreaLine(doc, root) {
   if (!kospi) { if (line) line.hidden = true; return; }
   if (!line) { line = el(doc, 'div', null, 'home-kr-line'); line.id = 'home-kr-line'; headline.insertAdjacentElement('afterend', line); }
   const [, month, day] = kospi.date.split('-').map(Number);
-  const tone = kospi.d5 != null && Math.abs(kospi.d5) >= 5 ? (kospi.d5 < 0 ? ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.' : ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.') : '';
+  // P1723: a move rare in AIO's own KOSPI record (1-session or 5-session, outer 5%) is named with that record even when
+  // the 5-session change stays under 5%; the US six-axis tally is unchanged.
+  const record = koreaMoveRecord(history, { now: Date.now() });
+  const rare = record?.extreme && record.date === kospi.date ? koreaRecordText(record, { maxTail: KR_SHOCK_TAIL_PCT }) : '';
+  const tone = rare ? ` — 코스피 변화가 ${rare}라 미국장과 따로 확인할 구간입니다.`
+    : kospi.d5 != null && Math.abs(kospi.d5) >= 5 ? (kospi.d5 < 0 ? ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.' : ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.') : '';
   line.textContent = `한국장 ${month}/${day} 마감 · ${[kospi.text, kosdaq?.text].filter(Boolean).join(' · ')}${tone}`;
   line.dataset.observedAt = kospi.date;
   line.dataset.market = 'KR';

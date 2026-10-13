@@ -286,7 +286,8 @@ function sharedGauges({ macro, rateFx, regime }) {
       : gauge({ label: '달러 인덱스 20일 변화', value: dxy20, unit: '%', digits: 1, ...cuts(-5, 5, [0, RULES.dollar.rise20dPct], ['favorable', 'neutral', 'burden'], [[RULES.dollar.rise20dPct, `+${RULES.dollar.rise20dPct}%`]]) });
   return {
     rates: { gauge: rates, headline: tnx20 == null ? null : `10년물 20일 ${signed(tnx20, 0, 'bp')}` },
-    commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI 20일 ${signed(wti20, 1, '%')} · 달러 ${signed(dxy20, 1, '%')}` },
+    // P1726: the 5-session WTI move is named when it runs against the 20-session direction.
+    commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI 20일 ${signed(wti20, 1, '%')}${rateFx?.wti5 != null && Math.abs(rateFx.wti5) >= 3 && Math.sign(rateFx.wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(rateFx.wti5, 1, '%')})` : ''} · 달러 ${signed(dxy20, 1, '%')}` },
     credit: { gauge: credit, headline: hyBp == null ? null : `HY ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')})`}` },
     korea: stateOf('korea') === 'burden' && (rateFx?.krw20 == null || rateFx.krw20 < RULES.fx.krwMove20dPct) && rateFx?.jpy20 != null && rateFx.jpy20 <= -RULES.fx.yenRally20dPct
       ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -rateFx.jpy20, unit: '%', digits: 1, ...cuts(-5, 8, [RULES.fx.yenRally20dPct], ['neutral', 'burden'], [[RULES.fx.yenRally20dPct, `+${RULES.fx.yenRally20dPct}% 엔 급강세`]]) }), headline: `엔화 20일 ${signed(-rateFx.jpy20, 1, '%')} 강세` }
@@ -378,7 +379,12 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   const fx = rateFx || {};
   const wti20 = fx.wti20 ?? null;
   // Expert review M06: WTI alone read as easing oil while Brent rose sharply; such a node is held, not coloured favourable.
-  const oilHeld = !!oil?.diverges && (wti20 == null || wti20 < RULES.oil.rise20dPct);
+  // P1726: a same-day Brent-WTI gap far outside its usual range (abnormal) holds the node as well — neither the
+  // Brent reading nor "WTI 하락 = 물가 완화" is drawn from a pair that may not be comparable.
+  const oilHeld = !!(oil?.diverges || oil?.abnormal) && (wti20 == null || wti20 < RULES.oil.rise20dPct);
+  // P1726 (P1592 pattern): a 5-session move against the 20-session direction is named beside it (direction unchanged).
+  const wti5 = fx.wti5 ?? null;
+  const oilShort = wti20 != null && wti5 != null && Math.abs(wti5) >= 3 && Math.sign(wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(wti5, 1, '%')} ${wti5 > 0 ? '반등' : '반락'})` : '';
   // P1528 (audit H17): a real yield and a breakeven observed on different days are not comparable. The briefing already
   // holds them apart (market-read splitHeld); the chain must not draw or compare their 5-day moves either.
   const asOfDay = (value) => String(value || '').slice(0, 10);
@@ -398,7 +404,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
         : '신용 축 판정 보류 — 스프레드 기록을 기다립니다';
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
   const nodes = [
-    { id: 'oil', label: '유가 (WTI)', held: oilHeld, value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}${oilHeld ? ` · 브렌트 ${signed(oil.brent20, 1, '%')}` : ''}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
+    { id: 'oil', label: '유가 (WTI)', held: oilHeld, value: wti20 == null ? '—' : `20일 ${signed(wti20, 1, '%')}${oilShort}${oilHeld ? (oil?.abnormal ? ' · 브렌트 비교 보류' : ` · 브렌트 ${signed(oil.brent20, 1, '%')}`) : ''}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },
     { id: 'breakeven', label: '기대인플레이션', value: bei5 == null ? (splitReal ? '기준일이 달라 보류' : '—') : `5거래일 ${signed(bei5 * 100, 0, 'bp')}`, dir: dir(bei5 == null ? null : bei5 * 100, RULES.breakeven.move5dBp, -RULES.breakeven.move5dBp) },
     { id: 'policy', label: '연준 경로 (2년물)', value: pricing == null ? '—' : pricing >= P.pricedMovePp ? `경로 이상 ${signed(pricing, 2, '%p')}` : pricing <= -P.pricedMovePp ? `경로 이하 ${signed(pricing, 2, '%p')}` : '동결 근접', dir: dir(pricing, P.pricedMovePp, -P.pricedMovePp) },
     { id: 'rates', label: '장기금리 (10년물)', value: tnx20 == null ? '—' : `20일 ${signed(tnx20, 0, 'bp')}`, dir: dir(tnx20, RULES.rates.move20dBp, -RULES.rates.move20dBp) },
@@ -436,9 +442,9 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
 /** 20-session changes on the completed-close basis (the 시장 상태 basis). */
 export function closeChanges(history = []) {
   const basis = closeBasis(history);
-  const change = (field, kind) => {
+  const change = (field, kind, sessions = 20) => {
     const series = buildCloseSeries(history, field, { through: basis });
-    const point = closeSessionPointBack(series, 20); // M01 → v57.50: the 시장 상태 session helper on the same close series
+    const point = closeSessionPointBack(series, sessions); // M01 → v57.50: the 시장 상태 session helper on the same close series
     if (!point) return null;
     const last = series[series.length - 1].value;
     const back = point.value;
@@ -454,7 +460,7 @@ export function closeChanges(history = []) {
     const year = end ? series.filter((row) => Date.parse(row.date) >= Date.parse(end.date) - 365 * 86400000).map((row) => row.value) : [];
     return year.length > 20 ? (end.value - Math.min(...year)) / ((Math.max(...year) - Math.min(...year)) || 1) : null;
   };
-  return { basis, wti20: change('wti'), dxy20: change('dxy'), tnx20: change('tnx', 'bp'), gold20: change('gold'), krw20: change('usdkrw'), jpy20: change('usdjpy'), wtiPosition, wtiHigh: wtiPosition != null && wtiPosition >= RULES.oil.rangeHighAt, tnxPosition: position('tnx') };
+  return { basis, wti20: change('wti'), wti5: change('wti', 'pct', 5), dxy20: change('dxy'), tnx20: change('tnx', 'bp'), gold20: change('gold'), krw20: change('usdkrw'), jpy20: change('usdjpy'), wtiPosition, wtiHigh: wtiPosition != null && wtiPosition >= RULES.oil.rangeHighAt, tnxPosition: position('tnx') };
 }
 
 // v57.50 I04: where the 거시 경제 / 금리 · 환율 reading continues. Links follow the axis states and name why; sectors are
@@ -497,7 +503,7 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   const axes = [
     growth, inflation, policy,
     reuse(regime, 'rates', '금리 · 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),
-    { ...reuse(regime, 'commodities', '유가 · 달러', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.', gauges.commodities), caveat: oil?.diverges ? oil.sentence : null },
+    { ...reuse(regime, 'commodities', '유가 · 달러', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.', gauges.commodities), caveat: oil?.diverges || oil?.abnormal ? oil.sentence : null },
     reuse(regime, 'credit', '신용', '하이일드 스프레드가 넓어지면 기업 자금 조달이 어려워지고, 주식 하락이 신용 위험으로 번지고 있다는 신호가 됩니다.', gauges.credit)
   ];
   const known = axes.filter((row) => row.state !== 'unknown');

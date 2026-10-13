@@ -1,0 +1,22 @@
+{
+  "version": "v57.52",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.52 급변 장세 반영·통합 점검(갱신 경로·해설·판정·실시간·AI·뉴스) 반영(P1718~P1730).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1720,
+    "title": "뉴스가 KST 08:00 마감 묶음뿐이라 한국 장중 급락(코스피 −5.46%) 기사가 다음 날 08시 이후까지 화면·해설·AI에 0건",
+    "symptom": "오늘 화면의 중요 뉴스 1위가 1일 전 환율 기사였고, 해설 프롬프트는 급락 원인 기사 없이 종가만 받았다.",
+    "root_cause": "정본 창(전날 08:00~오늘 08:00 KST) 밖 기사를 모두 버렸고 장중 사건을 담을 별도 경로가 없었다. 한국어 tier2 매체 표기(연합뉴스 등)가 tier 정규식에 없어 한국 기사가 tier3로 분류됐다.",
+    "fix": "정본 묶음은 그대로 두고, 같은 수집 결과에서 08:00 이후 tier1·2 기사 최대 6건(한국 2건 우선, 기존 저품질·낚시·주제 상한·정본 중복 제외)을 data.newsIntraday로 발행한다. 해설 프롬프트·AI 뉴스 맥락·뉴스 화면에 '08:00 이후 장중 속보 · 잠정'으로 연결하고, 15:30 이후 머리말에 기준을 밝힌다. tier2 정규식에 기존 매체의 한글 표기를 추가했다.",
+    "violated_rule": "정본 창 유지 + 잠정 칸은 명시 라벨",
+    "prevention": "P1720: ci-data-pipeline-contract-check(selectNewsIntraday)·ci-artifact-semantics-check(newsIntraday)·ci-esm-core-unit-check(selectIntradayNews)",
+    "verification": "fixture 13건→6건(한국 2), 정본 중복·컷 이전·tier3 제외, 빈 입력 []."
+  },
+  "qa": [],
+  "changelog": [
+    "**장중 속보 칸 (P1720):** 08:00 정본 묶음은 그대로 두고, 그 이후 주요 매체 기사 최대 6건을 '장중 속보 · 잠정'으로 뉴스 화면·해설·AI에 함께 넣는다."
+  ]
+}

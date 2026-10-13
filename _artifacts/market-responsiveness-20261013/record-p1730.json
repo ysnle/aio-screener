@@ -1,0 +1,29 @@
+{
+  "version": "v57.52",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.52 급변 장세 반영·통합 점검(갱신 경로·해설·판정·실시간·AI·뉴스) 반영(P1718~P1730).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1730,
+    "title": "장중 속보 칸 화면과 브리핑→뉴스 주제 handoff",
+    "symptom": "뉴스 화면에 08:00 이후 사건을 보여 줄 자리가 없었고, 브리핑 다음 단계의 topic/country 문맥을 뉴스 화면이 무시했다.",
+    "root_cause": "news.js가 정본 묶음만 렌더하고 handoff에서 ticker만 읽었다.",
+    "fix": "selectIntradayNews(컷 이전·정본 중복 제외, 최대 6)로 중요 뉴스 위에 '08:00 이후 장중 속보 · 잠정' 칸(제목·시각, 출처는 hover, 데이터 없으면 숨김)을 두고, 15:30 이후 머리말에 기준을 밝힌다. topic/country handoff를 기존 필터와 칩에 연결했다.",
+    "violated_rule": "잠정 표시 명시",
+    "prevention": "P1730: ci-esm-core-unit-check(selectIntradayNews)·브라우저 news 확인",
+    "verification": "브라우저: 칸 표시·빈 데이터 hidden·kr/energy 필터 aria-pressed."
+  },
+  "qa": [
+    {
+      "id": "QA-VERIFY-19",
+      "text": "P1718~P1730: 배포 후 Worker /health의 schedulerDispatch.lastObservation이 accepted 또는 recent-success이고 refresh-data 실행 간격이 1시간 이내로 줄며, data.json에 newsIntraday가 발행되고 marketAnalysis가 verified(또는 retained)로 나오며, 운영 사이트 005930 히어로 등락률이 스크리너 ret1d와 같다.",
+      "verify_by": "push·배포 뒤 2~3시간 Worker /health·gh run list·운영 사이트 확인",
+      "done": false
+    }
+  ],
+  "changelog": [
+    "**장중 속보 화면 (P1730):** 뉴스 화면 위쪽에 08:00 이후 주요 기사 칸을 잠정 표시와 함께 두고, 브리핑에서 에너지·지정학·한국 뉴스로 바로 이어진다."
+  ]
+}

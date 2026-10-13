@@ -6,6 +6,7 @@ import { koreaParticipationContext } from '../../domain/market/korea-participati
 import { companyAnalysisContext } from '../../domain/entity/company-analysis.js';
 import { renderMarketScenarioContext } from '../../domain/market/regime-scenarios.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { collectMarketInputs } from '../../ui/components/briefing-read.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
 export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '' } = {}) {
@@ -20,7 +21,9 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   const facts = buildMarketContentContext({ query: text, history: root._aioHistory || [], themes: root.THEME_MAP || [], rows: state?.rows || root.SCREENER_DB || [] });
   if (facts) parts.push(facts);
   if (/시장|시나리오|앞으로|향후|관찰|금리|신용|변동성/.test(text) && root._aioHistory?.length) {
-    const scenarios = renderMarketScenarioContext({ history:root._aioHistory });
+    // P1729: the same inputs as the 시장 상태 screen (credit, rates, macro history, now) — history alone made the AI say
+    // "신용 관측이 없어 보류" while the screen judged the credit axis.
+    const scenarios = renderMarketScenarioContext(collectMarketInputs(root));
     if(scenarios) parts.push(scenarios);
   }
   if (/한국|코스피|코스닥|원화|한국.*시장|국내.*시장/.test(text)) {

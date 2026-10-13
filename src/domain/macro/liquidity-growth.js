@@ -97,11 +97,28 @@ export function annualizedQuarterlySeries(series) {
   }).filter(Boolean);
 }
 
-/** M06: Brent against WTI on their latest common date, and both 20-session changes over the same span of sessions. */
+/** M06: Brent against WTI on their latest common date, and both 20-session changes over the same span of sessions.
+ *  P1726 (R1 2026-10-13): Brent futures closes (BZ=F, same contract type as the CL=F WTI series) live in history.json as
+ *  `brent` and are the comparison source. The FRED series is dated European spot Brent; spot against a WTI future is a
+ *  basis mix (10/6: spot 125.44 vs future 100.58 made a $36 "spread"), so with spot only no spread or Brent/WTI
+ *  divergence is drawn — the spot level is quoted as a reference with its basis named. */
+export const BRENT_WTI_SPREAD_HOLD_USD = 15;
 export function brentWtiCheck(macroHistory, history = []) {
-  const brent = seriesOf(macroHistory, 'brent');
-  const wti = buildCloseSeries(history, 'wti', { through: closeBasis(history) });
-  if (!brent.length || !wti.length) return null;
+  const basis = closeBasis(history);
+  const wti = buildCloseSeries(history, 'wti', { through: basis });
+  const futures = buildCloseSeries(history, 'brent', { through: basis });
+  if (!wti.length) return null;
+  if (futures.length < 2) {
+    const spot = seriesOf(macroHistory, 'brent');
+    const lastSpot = spot.at(-1);
+    if (!lastSpot) return null;
+    const s0 = sessionPointBack(spot, 20);
+    const spot20 = s0 ? pct(lastSpot.value, s0.value) : null;
+    const [, sm, sd] = lastSpot.date.split('-').map(Number);
+    return { date: lastSpot.date, brent: lastSpot.value, wti: null, spread: null, spreadMedian: null, brent20: spot20, wti20: null, diverges: false, abnormal: false, basis: 'spot',
+      sentence: `브렌트 선물 종가 기록이 아직 없어 유럽 현물 브렌트(${sm}/${sd} ${fmt(lastSpot.value, 2)}달러${spot20 == null ? '' : `, 20거래일 ${signed(spot20, 1)}`})만 참고합니다 — 현물과 WTI 선물은 가격 기준이 달라 둘의 차이를 비교하거나 WTI 판단을 바꾸는 근거로 쓰지 않습니다.` };
+  }
+  const brent = futures;
   const wtiByDate = new Map(wti.map((row) => [row.date, row.value]));
   const pairs = brent.filter((row) => wtiByDate.has(row.date)).map((row) => ({ date: row.date, brent: row.value, wti: wtiByDate.get(row.date) }));
   const last = pairs.at(-1);
@@ -113,10 +130,16 @@ export function brentWtiCheck(macroHistory, history = []) {
   const brent20 = b0 ? pct(last.brent, b0.value) : null;
   const wti20 = w0 ? pct(last.wti, w0.value) : null;
   const diverges = brent20 != null && brent20 >= RULES.oil.rise20dPct && (wti20 == null || wti20 < RULES.oil.rise20dPct);
+  // P1726: even between the two futures, a same-day gap above $15 is outside the range where the series have been
+  // comparable (one-year median about $6) — a roll mismatch or a source error. The spread and the Brent-based reading
+  // are held instead of explained.
+  const abnormal = Math.abs(spread) > BRENT_WTI_SPREAD_HOLD_USD;
   const [, month, day] = last.date.split('-').map(Number);
   const md = `${month}/${day}`;
-  const sentence = `같은 날(${md}) 브렌트 ${fmt(last.brent, 2)}달러 · WTI ${fmt(last.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다(최근 1년 같은 날 차이의 중앙값 ${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러). ${md}까지 20거래일 기준 브렌트 ${signed(brent20, 1) ?? '—'}, WTI ${signed(wti20, 1) ?? '—'}${diverges ? ' — 국제 유가는 오르는데 WTI만 내린 구간이라, WTI 하락을 물가 완화로 읽는 판단은 보류합니다.' : '.'}`;
-  return { date: last.date, brent: last.brent, wti: last.wti, spread, spreadMedian, brent20, wti20, diverges, sentence };
+  const sentence = abnormal
+    ? `같은 날(${md}) 브렌트 선물 ${fmt(last.brent, 2)}달러 · WTI 선물 ${fmt(last.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다 — 최근 1년 같은 날 차이의 중앙값(${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러)과 동떨어져 두 가격의 기준이 다르거나 원천 오류일 수 있습니다. 차이의 해석과 브렌트 기준 판단, WTI 하락을 물가 완화로 읽는 판단을 모두 보류합니다.`
+    : `같은 날(${md}) 브렌트 선물 ${fmt(last.brent, 2)}달러 · WTI 선물 ${fmt(last.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다(최근 1년 같은 날 차이의 중앙값 ${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러). ${md}까지 20거래일 기준 브렌트 ${signed(brent20, 1) ?? '—'}, WTI ${signed(wti20, 1) ?? '—'}${diverges ? ' — 국제 유가는 오르는데 WTI만 내린 구간이라, WTI 하락을 물가 완화로 읽는 판단은 보류합니다.' : '.'}`;
+  return { date: last.date, brent: last.brent, wti: last.wti, spread, spreadMedian, brent20, wti20, diverges, abnormal, basis: 'futures', sentence };
 }
 
 function card({ id, label, series, valueText, changeText, reading, unit = '', asOf, frequency, referenceMs, format }) {
@@ -219,7 +242,8 @@ function commodityFxGroup(macroHistory, { referenceMs, oil }) {
     items.push(card({ id: field, label, series: s, asOf: s.at(-1).date, frequency, referenceMs, format, valueText: format(s.at(-1).value),
       changeText: back ? `${daily ? '20거래일' : '1개월'} ${signed(pct(s.at(-1).value, back.value))}` : null, reading: extra ? `${reading} ${extra}` : reading }));
   };
-  add('brent', '브렌트유', 2, '달러', '국제 유가 기준입니다. WTI와 차이가 벌어지면 미국 밖 공급 차질을 반영하는 경우가 많습니다.', oil?.sentence || null);
+  // P1726: this card is the FRED dated European spot series; its basis is named and it is not set against the WTI future.
+  add('brent', '브렌트유 (유럽 현물)', 2, '달러', '국제 유가 기준인 유럽 현물 가격입니다(WTI와의 비교는 같은 선물 종가끼리만 합니다).', oil?.sentence || null);
   add('natGas', '천연가스 (헨리허브)', 2, '달러', '전기·난방·화학 원가입니다. 겨울철과 수출 수요에 크게 흔들립니다.');
   add('copper', '구리 (월평균)', 0, '달러/톤', '건설·전력망·전기차에 쓰여 경기 체력을 비추는 금속입니다. 데이터센터 전력 투자와도 연결됩니다.');
   add('usdCny', '위안 / 달러', 3, '위안', '오르면 위안화 약세입니다. 중국 경기와 아시아 통화(원화 포함)가 같은 방향으로 움직이는 경향이 있습니다.');

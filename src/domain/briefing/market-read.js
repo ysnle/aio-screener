@@ -67,7 +67,7 @@ const SESSION_CLOSE_NY_MINUTE = Object.freeze({
   spx: 960, nasdaq: 960, ndx: 960, dow: 960, rut: 960, tlt: 960, // NYSE/Nasdaq close 16:00 ET
   vix: 975, vix3m: 975, vvix: 975, // Cboe volatility indices settle 16:15 ET
   tnx: 900, // the 10-year yield index stops at 15:00 ET
-  dxy: 1020, wti: 1020, gold: 1020, usdkrw: 1020, usdjpy: 1020 // FX and futures trading day ends 17:00 ET
+  dxy: 1020, wti: 1020, brent: 1020, gold: 1020, usdkrw: 1020, usdjpy: 1020 // FX and futures trading day ends 17:00 ET (P1726: Brent futures too)
 });
 const NY_CLOCK = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const NY_MINUTE_MEMO = new Map();
@@ -278,6 +278,53 @@ export function creditState({ hyBp = null, hy5 = null, hy20 = null, pcr = null }
   return 'neutral';
 }
 
+// P1723 (2026-10-13: KOSPI -5.46%, five sessions -13.8%): the six US axes are judged on US closes, so a Korean shock
+// never reached the briefing lead or the axis reads. Where the KOSPI 1- and 5-session changes sit in AIO's own record
+// of those changes (last 252 KRX sessions, exact session spans only) decides how prominently the Korean sentence is
+// placed. The US axis states are unchanged; this is description and ordering only.
+export const KR_SHOCK_TAIL_PCT = 5;
+const KR_RECORD_MEMO = new WeakMap();
+export function koreaMoveRecord(history = [], { now = Date.now() } = {}) {
+  const through = krSessionThrough(now);
+  const memo = Array.isArray(history) ? KR_RECORD_MEMO.get(history) : null;
+  if (memo && memo.through === through) return memo.result;
+  const series = buildCloseSeries(history, 'kospi', { through });
+  let result = null;
+  if (series.length >= 2) {
+    const changes = (n) => {
+      const out = [];
+      for (let index = n; index < series.length; index += 1) {
+        if (countOpenSessionsBetween(series[index - n].date, series[index].date, 'KR') === n) out.push({ date: series[index].date, value: (series[index].value / series[index - n].value - 1) * 100 });
+      }
+      return out;
+    };
+    const last = series[series.length - 1];
+    const one = changes(1);
+    const five = changes(5);
+    const latest = (list) => list.at(-1)?.date === last.date ? list.at(-1).value : null;
+    const d1 = latest(one);
+    const d5 = latest(five);
+    const rec1 = d1 == null ? null : recordPercentile(one, d1);
+    const rec5 = d5 == null ? null : recordPercentile(five, d5);
+    const tailOf = (rec) => rec?.pct == null ? null : Math.min(rec.pct, 100 - rec.pct);
+    const tails = [tailOf(rec1), tailOf(rec5)].filter((value) => value != null);
+    const tail = tails.length ? Math.min(...tails) : null;
+    result = { date: last.date, d1, d5, rec1, rec5, tail1: tailOf(rec1), tail5: tailOf(rec5), tail, extreme: tail != null && tail <= KR_SHOCK_TAIL_PCT };
+  }
+  if (Array.isArray(history)) KR_RECORD_MEMO.set(history, { through, result });
+  return result;
+}
+/** "하위 6%" — the side of the record a change sits on, never a grade. */
+export const recordSide = (rec) => rec?.pct == null ? '' : rec.pct <= 0 ? '최저' : rec.pct >= 100 ? '최고' : rec.pct <= 50 ? `하위 ${rec.pct}%` : `상위 ${100 - rec.pct}%`;
+/** "최근 252거래일 기록에서 하루 하위 6%·5거래일 하위 2%" for the parts of a koreaMoveRecord that are named. */
+export function koreaRecordText(record, { maxTail = 100 } = {}) {
+  const parts = [[record?.rec1, record?.tail1, '하루'], [record?.rec5, record?.tail5, '5거래일']]
+    .filter(([rec, tail]) => rec?.pct != null && tail != null && tail <= maxTail);
+  if (!parts.length) return '';
+  const n = Math.max(...parts.map(([rec]) => rec.n));
+  return `최근 ${n}거래일 기록에서 ${parts.map(([rec, , label]) => `${label} ${recordSide(rec)}`).join('·')}${parts.some(([rec]) => rec.provisional) ? '(기록 1년 미만 · 잠정)' : ''}`;
+}
+
 export function alignMarketInputs({ history = [], credit = {}, rates = {}, now = Date.now(), macroHistory = null } = {}) {
   const basis = closeBasis(history);
   const krThrough = krSessionThrough(now);
@@ -486,17 +533,30 @@ export function buildMarketRead(input = {}) {
   });
   else if (s.wti?.yearPosition != null && s.wti.yearPosition >= 0.85) add('oil-high', 50, `WTI ${fmt(s.wti.value)}달러, 1년 범위 상단(${fmt(s.wti.yearPosition * 100, 0)}%).`, 'commodities', { reading: '높은 유가는 물가·금리 부담 요인입니다.', check: 'WTI가 1년 범위 상단에 머무는지 — 머물면 다음 물가 지표 부담' }); // P1394: range-relative
 
-  // 7. Korea relative to the US, with the currency.
-  const kospi5 = s.kospi ? pct(s.kospi.value, s.kospi.d5) : null;
-  const krw5 = s.usdkrw ? pct(s.usdkrw.value, s.usdkrw.d5) : null;
-  if (kospi5 != null && spx5 != null && Math.abs(kospi5 - spx5) >= 2) {
-    add('korea-relative', 45, `코스피 5일 ${signed(kospi5)}로 미국(${signed(spx5)})보다 ${kospi5 > spx5 ? '강함' : '약함'}${krw5 != null ? ` · 원/달러 5일 ${signed(krw5)}(${krw5 > 0 ? '원화 약세' : '원화 강세'})` : ''}.`, 'korea');
-  }
-
-  const kospi1 = s.kospi ? pct(s.kospi.value, s.kospi.d1) : null;
+  // 7. Korea relative to the US, with the currency. P1723: one sentence carries the KRX session's 1- and 5-session move
+  // beside the last US close, each with its own date (the former 5-day and 1-day sentences compared a 10/13 KRX close
+  // with a 10/12 US close without saying so). Its weight follows where the move sits in AIO's own KOSPI record, so a
+  // rare move reaches the four-sentence lead. P1725: the won joins with its own date when it differs from the KRX date.
+  // P1727: a won move inside ±0.5% is 보합권, the same band the 시장 상태 won card uses.
+  const kospi = s.kospi;
+  const kospi1 = kospi ? pct(kospi.value, kospi.d1) : null;
+  const kospi5 = kospi ? pct(kospi.value, kospi.d5) : null;
   const spx1 = pct(spx.value, spx.d1);
-  if (!statements.some((row) => row.axis === 'korea') && kospi1 != null && spx1 != null && Math.abs(kospi1 - spx1) >= 1.5) {
-    add('korea-day', 40, `코스피 ${signed(kospi1)}로 직전 미국장(S&P 500 ${signed(spx1)})과 다르게 움직였습니다${krw5 != null && Math.abs(krw5) >= 0.3 ? ` · 원/달러 5일 ${signed(krw5)}` : ''}.`, 'korea');
+  const krw5 = s.usdkrw ? pct(s.usdkrw.value, s.usdkrw.d5) : null;
+  const krRecord = kospi ? koreaMoveRecord(input.history, { now: input.now ?? Date.now() }) : null;
+  const krRec = krRecord?.date === kospi?.date ? krRecord : null;
+  const apart = (kospi5 != null && spx5 != null && Math.abs(kospi5 - spx5) >= 2) || (kospi1 != null && spx1 != null && Math.abs(kospi1 - spx1) >= 1.5);
+  if (kospi1 != null && (apart || (krRec?.tail != null && krRec.tail <= 10))) {
+    const tail = krRec?.tail ?? null;
+    const weight = tail == null || tail > 10 ? 45 : tail <= 2 ? 84 : tail <= KR_SHOCK_TAIL_PCT ? 76 : 58;
+    const usText = spx1 == null ? '' : ` · 직전 미국장(${shortDate(spx.date)}) S&P 500 ${signed(spx1)}${spx5 != null ? `(5거래일 ${signed(spx5)})` : ''}`;
+    const fxDate = s.usdkrw?.date && s.usdkrw.date !== kospi.date ? `${shortDate(s.usdkrw.date)}까지 ` : '';
+    const krwText = krw5 == null ? '' : ` · 원/달러 ${fxDate}5거래일 ${signed(krw5)}(${Math.abs(krw5) < 0.5 ? '보합권' : krw5 > 0 ? '원화 약세' : '원화 강세'})`;
+    const where = koreaRecordText(krRec, { maxTail: 10 });
+    const rare = tail != null && tail <= KR_SHOCK_TAIL_PCT;
+    add('korea-relative', weight, `코스피 ${shortDate(kospi.date)} ${signed(kospi1)}${kospi5 != null ? `(5거래일 ${signed(kospi5)})` : ''}${usText}${krwText}.${where ? ` 코스피 변화는 ${where}입니다.` : ''}`, 'korea', {
+      reading: rare ? '미국 6개 축 판정은 미국 종가로만 내려 이 움직임을 반영하지 않습니다 — 한국 고유 요인인지, 대형주에 몰린 움직임인지 표본 종목 전반으로 번졌는지는 시장 상태의 한국 시장 참고에서 따로 확인합니다.' : null,
+      check: rare ? '한국 수집 종목의 하루 수익률 중앙값이 지수만큼 움직였는지(대형주 집중인지 전반적인 움직임인지)' : null });
   }
 
   statements.sort((a, b) => b.weight - a.weight);
@@ -757,15 +817,20 @@ export function buildMarketRegime(input = {}) {
     else if (wtiHigh || (wti20 != null && wti20 >= RULES.oil.rise20dPct) || (dxy20 != null && dxy20 >= RULES.dollar.rise20dPct)) state = 'burden';
     else if (wti20 != null && dxy20 != null && wti20 <= RULES.oil.fall20dPct && dxy20 <= 0) state = 'favorable';
     const missing = state !== 'unknown' && (wti20 == null || dxy20 == null) ? ` (${wti20 == null ? 'WTI' : '달러'} 20일 변화 미수신)` : '';
+    // P1726 (P1592 pattern): a 5-session move against the 20-session direction is named beside it — a +4.8% rebound
+    // was hidden under "20일 -7.5%". The state still follows the 20-session rule.
+    const wti5 = wti ? pct(wti.value, wti.d5) : null;
+    const oilTurn = wti20 != null && wti5 != null && Math.abs(wti5) >= 3 && Math.sign(wti5) !== Math.sign(wti20) ? (wti5 > 0 ? '반등' : '반락') : null;
+    const oilShort = oilTurn ? ` WTI는 20일 ${signed(wti20)}이지만 최근 5일 ${signed(wti5)} ${oilTurn}했습니다(판정은 20일 기준).` : '';
     const read = (state === 'burden' ? (wti20 != null && wti20 >= RULES.oil.rise20dPct ? '유가가 빠르게 오르며 물가·금리 부담을 키우고 있습니다.' : wtiHigh ? `유가가 1년 범위 상단(${fmt(wti.yearPosition * 100, 0)}%)에 머물러 물가·금리 부담입니다.` : '달러 강세가 해외 매출 기업과 신흥국 자금 흐름에 부담입니다.')
       : state === 'favorable' ? '유가와 달러가 함께 내려오며 물가·금융 여건 부담이 줄고 있습니다.'
-        : state === 'unknown' ? staleRead('유가·달러', alignments.wti) : '유가·달러가 중립 범위입니다.') + missing;
+        : state === 'unknown' ? staleRead('유가·달러', alignments.wti) : '유가·달러가 중립 범위입니다.') + missing + oilShort;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 미만, WTI 20일 +${RULES.oil.rise20dPct}% 미만, 달러 20일 +${RULES.dollar.rise20dPct}% 미만이 모두 충족되면 완화`
         : state === 'favorable' ? `WTI 20일 ${RULES.oil.fall20dPct}% 위 또는 달러 20일 상승이면 중립 · WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${RULES.dollar.rise20dPct}% 중 하나면 부담`
           : `WTI 20일 ${RULES.oil.fall20dPct}% 이하이면서 달러 20일 하락이면 우호 · WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${RULES.dollar.rise20dPct}% 중 하나면 부담`;
     axes.push(axis('commodities', '달러 · 원자재', state, [
-      ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)})` : null],
+      ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)}${oilTurn ? ` · 최근 5일 ${signed(wti5)} ${oilTurn}` : ''})` : null],
       ['WTI 1년 범위 내 위치', wti?.yearPosition == null ? null : `${fmt(wti.yearPosition * 100, 0)}%`],
       ['달러 인덱스', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)})` : null],
       ['금', s.gold ? `${fmt(s.gold.value, 0)}달러 (20일 ${signed(gold20)})` : null]
@@ -790,7 +855,17 @@ export function buildMarketRegime(input = {}) {
       ['원/달러', s.usdkrw ? `${fmt(s.usdkrw.value, 1)}원 (20일 ${signed(krw20)})` : null],
       ['엔/달러', s.usdjpy ? `${fmt(s.usdjpy.value, 2)}엔 (20일 ${signed(jpy20)})` : '수집 시작 대기'],
       ['코스피', s.kospi ? `${fmt(s.kospi.value)} (20일 ${signed(kospi20)})` : null]
-    ], read, state === 'unknown' ? null : `원/달러 20일 +${RULES.fx.krwMove20dPct}% 이상 또는 엔/달러 20일 -${RULES.fx.yenRally20dPct}% 이하(엔 급강세)면 부담 · 원/달러 20일 -${RULES.fx.krwMove20dPct}% 이하면 우호`, alignments.usdkrw));
+      // P1725: each value carries its own observation date (won/yen on the FX calendar, KOSPI on KRX), so a 10/9 won beside
+      // a 10/13 KOSPI shows a mixed-date chip instead of one "10/9 · 1거래일 전" chip for all three.
+    ], read, state === 'unknown' ? null : `원/달러 20일 +${RULES.fx.krwMove20dPct}% 이상 또는 엔/달러 20일 -${RULES.fx.yenRally20dPct}% 이하(엔 급강세)면 부담 · 원/달러 20일 -${RULES.fx.krwMove20dPct}% 이하면 우호`, alignments.usdkrw, [alignments.usdkrw, alignments.usdjpy, alignments.kospi]));
+  }
+
+  // P1723: the trend and volatility axes stay US-only; when the KOSPI move is rare in its own record, their reading
+  // ends with one sentence saying so, so a calm US read is not taken as a calm Korean market.
+  const kr = s.kospi ? koreaMoveRecord(input.history, { now: input.now ?? Date.now() }) : null;
+  if (kr?.extreme && kr.date === s.kospi.date && kr.d1 != null) {
+    const note = ` 단, 한국은 ${shortDate(kr.date)} 코스피 ${signed(kr.d1)}${kr.d5 != null ? `(5거래일 ${signed(kr.d5)})` : ''}로 ${koreaRecordText(kr)}입니다 — 미국과 다른 시장이며, 이 축은 미국 종가로만 판정합니다.`;
+    for (const row of axes) if (row.id === 'trend' || row.id === 'volatility') row.read += note;
   }
 
   const us = axes.filter((row) => row.id !== 'korea');

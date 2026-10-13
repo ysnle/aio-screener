@@ -247,11 +247,15 @@ if (data?.marketAnalysis) {
   }
   const unitDefs = new Map();
   for (const [, row] of snapshotByInstrument) unitDefs.set(row.metricId, row.unit);
+  // P1719: a retained (earlier verified, ≤12 h) narrative cites the values it was verified against, not this run's
+  // snapshot; its unit and metricId must still match, but the value is from its own, labelled observation time.
+  const retainedAt = Date.parse(data.marketAnalysis.retained?.from || '');
+  const retained = Number.isFinite(retainedAt) && Date.parse(data.meta?.generatedAt || data.generatedAt || '') - retainedAt <= 12 * 3600000;
   for (const row of canonicalRows) {
     const canonical = (snapshot?.quotes || []).find((entry) => entry.metricId === row.canonicalMetricId);
     if (!canonical) { disagreements.push(`${row.canonicalMetricId} not in snapshot`); continue; }
     if (row.unit !== canonical.unit) disagreements.push(`${row.label} unit ${row.unit} != snapshot ${canonical.unit}`);
-    if (Number(row.value) !== Number(canonical.value)) disagreements.push(`${row.label} value ${row.value} != snapshot ${canonical.value}`);
+    if (!retained && Number(row.value) !== Number(canonical.value)) disagreements.push(`${row.label} value ${row.value} != snapshot ${canonical.value}`);
   }
   check('canonical narrative evidence agrees with the snapshot row it cites', disagreements.length === 0, disagreements.join(', '));
   check('narrative evidence uses the snapshot unit rather than a duplicated table',
@@ -306,6 +310,17 @@ if (data) {
   check('reported quote counts reconcile with the cycle manifest',
     Number(data.meta?.symbolsOk) + Number(data.meta?.symbolsFail) === Number(cycle.requiredQuoteCount),
     `symbolsOk+symbolsFail=${Number(data.meta?.symbolsOk) + Number(data.meta?.symbolsFail)} requiredQuoteCount=${cycle.requiredQuoteCount}`);
+}
+
+// ── P1720 : the provisional intraday news slot holds only post-cut tier 1-2 headlines ────
+if (data && Array.isArray(data.newsIntraday)) {
+  const cutMs = Date.parse(data.meta?.newsCycleEnd || '');
+  const intraday = data.newsIntraday;
+  const bad = intraday.filter((item) => !item?.title || !item?.source || !(Number(item?.tier) <= 2) || item?.provisional !== true
+    || !Number.isFinite(Date.parse(item?.publishedAt || '')) || (Number.isFinite(cutMs) && Date.parse(item.publishedAt) < cutMs));
+  check('P1720 newsIntraday carries at most six post-cut tier 1-2 provisional headlines and its count is reported',
+    intraday.length <= 6 && bad.length === 0 && Number(data.meta?.newsIntradayCount) === intraday.length,
+    `count=${intraday.length} meta=${data.meta?.newsIntradayCount} bad=${bad.slice(0, 3).map((item) => item?.title).join(' | ')}`);
 }
 
 // ── P1100 : the fear-greed daily series must be joinable by calendar day ────

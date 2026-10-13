@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v57.51';
+const APP_VERSION = 'v57.52';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3428,8 +3428,15 @@ if (typeof document !== 'undefined') {
         // X20 (2026-10-13): the narrative mixes completed US closes, delayed intraday quotes and the KOSPI close and was
         // generated at its own time — say that on the card instead of letting the parent "미국 종가 기준" title cover it.
         var scope = (mode === 'full' && serverLLM && typeof serverLLM.scope === 'string') ? serverLLM.scope : '';
+        // P1729 (coordinator, P1719): when this run's commentary was blocked the producer keeps the previous verified one
+        // (<= 12h); the card names its time instead of passing it off as the latest run.
+        var retainedMs = serverLLM && serverLLM.retained ? Date.parse(serverLLM.retained.from || '') : NaN;
+        // Up to 12h old, so a retained copy from the previous KST day carries its date.
+        var retainedKst = isFinite(retainedMs) ? new Date(retainedMs + 9 * 3600000).toISOString() : '';
+        var todayKst = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+        var retainedLabel = retainedKst ? (retainedKst.slice(0, 10) === todayKst ? '' : (+retainedKst.slice(5, 7)) + '/' + (+retainedKst.slice(8, 10)) + ' ') + retainedKst.slice(11, 16) + ' 기준 직전 검증본' : '';
         // full은 줄바꿈을 <br>로, 한 줄은 그대로.
-        el.innerHTML = esc(txt).replace(/\n/g, '<br>') + (scope ? '<div class="ai-analysis-scope" style="margin-top:6px;font-size:11px;font-weight:400;color:var(--text-muted);line-height:1.6;">' + esc(scope) + '</div>' : '') + (note ? '<div style="margin-top:6px;font-size:11px;font-weight:400;color:var(--text-muted);line-height:1.6;">' + esc(note) + '</div>' : '');
+        el.innerHTML = (retainedLabel ? '<span class="ai-analysis-retained" style="font-size:11px;font-weight:600;color:var(--text-muted);">' + esc(retainedLabel) + (mode === 'full' ? '</span><br>' : ' · </span>') : '') + esc(txt).replace(/\n/g, '<br>') + (scope ?'<div class="ai-analysis-scope" style="margin-top:6px;font-size:11px;font-weight:400;color:var(--text-muted);line-height:1.6;">' + esc(scope) + '</div>' : '') + (note ? '<div style="margin-top:6px;font-size:11px;font-weight:400;color:var(--text-muted);line-height:1.6;">' + esc(note) + '</div>' : '');
         el.setAttribute('data-analysis-source', serverLLM ? 'server-llm' : 'template');
         el.setAttribute('data-analysis-ts', serverLLM && serverLLM.generatedAt ? String(serverLLM.generatedAt) : new Date().toISOString());
       });

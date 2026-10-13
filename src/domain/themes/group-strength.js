@@ -25,6 +25,30 @@ export function median(values) {
   return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2;
 }
 
+// P1723 (2026-10-13): an equal-weight median hid the two largest Korean semiconductor names falling (-12%, -18% over a
+// month) under a +12.6% theme median. The three members with the largest 30-session average traded value (already in
+// each row; no market-cap source is assumed) carry their own 1-month returns. Ranked only when every member has a
+// traded value, so an unmeasured large name is never silently left out.
+export const HEAVYWEIGHT_COUNT = 3;
+export function heavyweightsOf(members) {
+  const sized = members.filter((row) => finite(row.dollarVolume30d) != null && finite(row.ret1m) != null);
+  // Six or more members: with fewer, three names are most of the group and say nothing apart from its median.
+  if (members.length < HEAVYWEIGHT_COUNT * 2 || sized.length !== members.length) return null;
+  return [...sized].sort((a, b) => finite(b.dollarVolume30d) - finite(a.dollarVolume30d)).slice(0, HEAVYWEIGHT_COUNT)
+    .map((row) => ({ sym: String(row.sym).toUpperCase(), name: row.name || '', ret1m: finite(row.ret1m) }));
+}
+
+/** One line when the largest-traded members moved apart from the group median (5%p or more over 1 month); else ''. */
+export function heavyweightLine(group, nameOf = (member) => member.name || member.sym) {
+  const heavy = group?.heavyweights;
+  if (!heavy?.length || group.ret1m == null) return '';
+  const middle = median(heavy.map((member) => member.ret1m));
+  if (middle == null || Math.abs(middle - group.ret1m) < 5) return '';
+  const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+  const opposite = Math.sign(middle) !== Math.sign(group.ret1m);
+  return `거래대금 상위 ${heavy.length}종목의 1개월 수익률 중앙값은 ${pct(middle)}(${heavy.map((member) => `${nameOf(member)} ${pct(member.ret1m)}`).join(' · ')})로, 동일가중 테마 중앙값 ${pct(group.ret1m)}${opposite ? '와 방향이 반대입니다' : `보다 훨씬 ${middle < group.ret1m ? '약합니다' : '강합니다'}`} — 거래대금이 큰 종목의 움직임이 중앙값에 가려져 있습니다.`;
+}
+
 function rankBy(groups, key) {
   // E07: only groups on the market's latest completed session compete; an older group stays as a dated reference.
   const ranked = groups.filter((group) => group[key] != null && group.current !== false && !group.smallSample).sort((a, b) => b[key] - a[key]);
@@ -76,7 +100,8 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
         ret3m: comparisonAligned ? median(members.map((row) => finite(row.ret3m))) : null,
         ret6m: comparisonAligned ? median(members.map((row) => finite(row.ret6m))) : null,
         above50Pct: above.length ? Math.round(above.filter((row) => finite(row.pctSma50) > 0).length / above.length * 100) : null,
-        leader: comparisonAligned && leader ? { sym: String(leader.sym).toUpperCase(), name: leader.name || '', value: finite(leader[key]) } : null
+        leader: comparisonAligned && leader ? { sym: String(leader.sym).toUpperCase(), name: leader.name || '', value: finite(leader[key]) } : null,
+        heavyweights: comparisonAligned ? heavyweightsOf(members) : null
       });
     }
   }

@@ -1,0 +1,22 @@
+{
+  "version": "v57.52",
+  "date": "2026-10-13",
+  "r": null,
+  "status": null,
+  "note": "v57.52 급변 장세 반영·통합 점검(갱신 경로·해설·판정·실시간·AI·뉴스) 반영(P1718~P1730).",
+  "qa_section": "검증 스킬",
+  "p": {
+    "id": 1727,
+    "title": "시나리오 '현재 조건 부합'과 부합 수의 신용 정의가 다르고, 원화 보합권 기준·브리핑 다음 단계(한국·뉴스)가 어긋남",
+    "symptom": "상태는 '집중 유지 · 현재 조건 부합'인데 부합 수는 3/4였다. 원/달러 5일 −0.2%를 브리핑은 '원화 강세', 한국 카드는 '보합권'으로 썼다. 브리핑 한국 링크는 코스피가 없는 거시 화면으로 갔고 뉴스로 가는 길이 없었다.",
+    "root_cause": "regime-scenarios는 신용 '부담 아님', scenario-outlook은 '우호'를 조건으로 썼다. 원화 보합권 ±0.5%가 한 곳에만 있었다. page-flow korea 목적지가 거시였다.",
+    "fix": "신용 조건을 favorable로 통일, 원화 ±0.5% 보합권을 브리핑에도 적용, 한국 링크를 시장 상태 한국 보드로(리드에 있으면 첫 링크), 에너지·지정학·한국 뉴스 필터 링크와 뉴스 화면 topic/country handoff를 연결했다. 소비처 없는 decision-summary.js 삭제.",
+    "violated_rule": "한 정의",
+    "prevention": "P1727: ci-regime-scenarios-fixture·ci-scenario-guidance-fixture·ci-esm-core-unit-check",
+    "verification": "오늘: 시나리오 셋 다 '관찰할 조건'·3/4 일치, 다음 단계 1위 '시장 상태 · 한국 시장 참고'."
+  },
+  "qa": [],
+  "changelog": [
+    "**시나리오·다음 단계 정합 (P1727):** 시나리오 부합 정의와 원화 보합권 기준을 하나로 맞추고, 브리핑에서 한국 보드와 주제별 뉴스로 바로 이어진다."
+  ]
+}

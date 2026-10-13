@@ -3,6 +3,18 @@ const escapeRe = value => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const moveVerb = /^\s*(?:오른|내린|상승|하락|올라|내려|떨어|급등|급락|반등|증가|감소|높아|낮아|올랐|내렸|빠진|뛴)/;
 const labelPattern = labels => `(?<![A-Za-z0-9_.:-])(?:${[...new Set(labels)].sort((a, b) => b.length - a.length).map(escapeRe).join('|')})(?![A-Za-z0-9_.:-])`;
 
+// P1719 (live 10/13): "S&P 500은 10월 12일 7,807.24로 마감" was read as SPX=10 and "한국시간 오후 3시 기준" as a level of 3,
+// blocking a correct commentary. A date, clock time, period or count is never a metric level or move. Both validators
+// (label levels here, Korean-name mentions in fetch-data validateAnalysisMetricMentions) share this one rule.
+const NON_METRIC_AFTER = /^\s*(?:일(?!본)|주(?![가식요])|월(?![가요])|개월|년|거래일|세션|배(?!럴)|명|개|종목|곳|건|위(?![로에])|번째|조건|시(?![장점가총작])|분|KST\b|ET\b)|^[:/]\d/;
+const CLOCK_BEFORE = /(?:오전|오후|한국\s?시간|미국\s?시간|현지\s?시간|뉴욕\s?시간)\s*$/;
+export function isNonMetricNumber(text, index, length) {
+  const source = String(text);
+  const after = source.slice(index + length, index + length + 14);
+  const prev = source[index - 1];
+  return NON_METRIC_AFTER.test(after) || prev === ':' || prev === '/' || CLOCK_BEFORE.test(source.slice(Math.max(0, index - 8), index));
+}
+
 export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, unit = null } = {}) {
   const body = String(text).replace(/https?:\/\/\S+/g, ' ').replace(/\b[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+(?::[a-zA-Z0-9_-]+)?/g, ' ');
   const values = [];
@@ -16,9 +28,8 @@ export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, un
     for (const match of clause.matchAll(numbers)) {
       const [, sign, digits, suffix = ''] = match;
       const after = clause.slice(match.index + match[0].length);
-      if (/^\s*(?:일|주|개월|년)(?:간|동안|치|전|후|\s|$)/.test(after)) continue;
-      // P1688 review: a count ("상위 10개 기업", "500종목") is not the metric's level.
-      if (/^\s*(?:개|종목|곳|명|건|위|번째|거래일|세션|배)/.test(after)) continue;
+      // P1688 review: a count ("상위 10개 기업", "500종목") is not the metric's level. P1719: nor a date or clock time.
+      if (isNonMetricNumber(clause, match.index, match[0].length)) continue;
       if (/^(?:%p|%포인트|bp|포인트)$/i.test(suffix) || moveVerb.test(after)
           || (suffix === '%' && unit !== 'percent') || sign === '+' || sign === '±') continue;
       const value = Number((sign + digits).replace(/,/g, ''));

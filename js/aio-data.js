@@ -1619,17 +1619,8 @@ function _aioProcessTelegramItem(it) {
   // every downstream consumer at once instead of patching each render call site.
   var raw = escHtml((it.text || it.summary || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim()); // P715: summary-only 아티팩트 호환
 
-  // 1) 감성 판단
-  var bearKw = ['급락','하락','하향','약세','사이드카','손실','주의','경계','붕괴','폭락','위험','매도','하락세','공포','리스크','충격','쇼크','제재','관세','위기'];
-  var bullKw = ['급등','상승','상향','강세','호실적','목표주가 상향','매수','반등','돌파','신고가','수혜','호조','강한','증가','성장','상회','수주','호재','회복'];
-  var t = raw;
-  // Codex browser audit H06: "하락하지 않았다", "위험은 없다" counted as negative words. A keyword directly
-  // followed by a negation is not counted toward either tone.
-  var _tgHit = function(k) { var at = t.indexOf(k); while (at >= 0) { var tail = t.slice(at + k.length, at + k.length + 6); if (!/^\S{0,2}\s?(?:않|없|아니|못)/.test(tail)) return 1; at = t.indexOf(k, at + k.length); } return 0; };
-  var bScore = bearKw.reduce(function(s,k){ return s + _tgHit(k); }, 0);
-  var uScore = bullKw.reduce(function(s,k){ return s + _tgHit(k); }, 0);
-  var sent = bScore > uScore ? 'bear' : uScore > bScore ? 'bull' : 'neutral';
-  if (it.score && it.score < 45) sent = 'neutral';
+  // 1) P1729 (coordinator 2026-10-13): the word-count 긍정/부정/중립 '어조' tone was a residue of the retired
+  // sentiment badges (P1391/T17) — a grade with no validated basis. It is no longer computed or shown.
 
   // 2) 1차 카테고리
   // P1503: the card label is the most specific tag, not the first matched — a revenue note matched credit,
@@ -1664,19 +1655,18 @@ function _aioProcessTelegramItem(it) {
   if (!body && bodyRaw.length >= 12) body = bodyRaw;
   if (body.length > 100) body = body.slice(0, 97) + '…';
 
-  // 6) 티커 방향 (base class 항상 포함)
+  // 6) 티커 방향 (base class 항상 포함) — only a signed number printed next to the ticker colours it (P1729: no
+  // fallback to the retired word-count tone).
   var tickerHtml = (it.tickers || []).slice(0, 4).map(function(tk) {
     var tkRe = new RegExp(tk.replace(/\./g, '\\.') + '[^가-힣]{0,20}([+\\-▲▼]\\d)', 'i');
     var m = raw.match(tkRe);
     var dirCls = '';
     if (m) dirCls = /[+▲]/.test(m[1]) ? ' tg-ticker-bull' : ' tg-ticker-bear';
-    else if (sent === 'bull') dirCls = ' tg-ticker-bull';
-    else if (sent === 'bear') dirCls = ' tg-ticker-bear';
     var label = _TG_KR_NAME[tk] || escHtml(tk);
     return '<span class="tg-ticker' + dirCls + '">' + label + '</span>';
   }).join('');
 
-  return { sent: sent, cat: cat, hlHeadline: hlHeadline, body: body, tickerHtml: tickerHtml };
+  return { cat: cat, hlHeadline: hlHeadline, body: body, tickerHtml: tickerHtml };
 }
 
 function _aioTelegramStandalone(text) {
@@ -1734,12 +1724,9 @@ function _aioRenderTelegramFeedHtml(pageId) {
     filtered = filtered.slice(0, maxItems);
     if (!filtered.length) return statusMarkup('unavailable', 0, maxItems);
 
-    // 감성 집계 + 카드 사전 처리
-    var sentCounts = { bull: 0, bear: 0, neutral: 0 };
+    // 카드 사전 처리 (P1729: no tone tally)
     var cards = filtered.map(function(it) {
-      var info = _aioProcessTelegramItem(it);
-      sentCounts[info.sent]++;
-      return { it: it, info: info };
+      return { it: it, info: _aioProcessTelegramItem(it) };
     });
 
     // 헤더
@@ -1752,23 +1739,15 @@ function _aioRenderTelegramFeedHtml(pageId) {
     var feedState = filtered.length < maxItems ? 'partial' : 'success';
     var html = '<div class="' + feedCls + '">' + statusMarkup(feedState, filtered.length, maxItems);
 
-    var sentBar = '';
-    if (sentCounts.bull)    sentBar += '<span class="tg-sb-bull" title="긍정 어조 글 수 (가격 방향 아님)">긍정 ' + sentCounts.bull + '</span>';
-    if (sentCounts.neutral) sentBar += '<span class="tg-sb-neu" title="중립 어조 글 수">중립 ' + sentCounts.neutral + '</span>';
-    if (sentCounts.bear)    sentBar += '<span class="tg-sb-bear" title="부정 어조 글 수 (가격 방향 아님)">부정 ' + sentCounts.bear + '</span>';
-
     html += '<div class="tg-live-feed-hd">'
           + '<span class="tg-live-dot"></span>'
           + '<span class="tg-live-hd-label">' + feedLabel + '</span>'
-          + (sentBar ? '<span class="tg-sent-bar">' + sentBar + '</span>' : '')
           + '<span class="tg-live-hd-ts" title="' + escHtml(windowLabel) + '">' + latestDate + ' · ' + filtered.length + '건 · 수집 당시 24시간 자료</span>'
           + '</div>';
 
     // 카드 렌더
     cards.forEach(function(item) {
       var it = item.it, info = item.info;
-      var sentLabel = { bull:'긍정 어조', bear:'부정 어조', neutral:'중립 어조' }[info.sent]; // P1428: word-count tone of the text, not a price direction
-      var sentCls   = { bull:'tg-sent-bull', bear:'tg-sent-bear', neutral:'tg-sent-neutral' }[info.sent];
       var src = _TG_CH_SRC[it.channel] || (it.channel || '');
       var date = (it.localDateKst || '').slice(5, 10);
 
@@ -1776,7 +1755,6 @@ function _aioRenderTelegramFeedHtml(pageId) {
             + '<a href="' + escHtml(escUrl(it.url || '#')) + '" target="_blank" rel="noopener" class="tg-card-inner">'
             + '<div class="tg-card-hd">'
             + '<span class="tg-cat ' + info.cat.cls + '">' + info.cat.label + '</span>'
-            + '<span class="tg-sent ' + sentCls + '">' + sentLabel + '</span>'
             + '<span class="tg-card-src">' + src + ' · ' + date + '</span>'
             + '</div>'
             + '<div class="tg-card-headline">' + info.hlHeadline + '</div>'
@@ -2410,8 +2388,8 @@ const _PROXY_REGISTRY = {
       var personalWorker = typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '';
       add('cf-worker', 'CF Worker', 0, cf, function(u){ return cf+'?url='+encodeURIComponent(u); }).userOwned = !!personalWorker;
     }
-    // Tier 1: 검증된 공개 프록시
-    add('corsproxy', 'corsproxy.io', 1, 'https://corsproxy.io/', function(u){ return 'https://corsproxy.io/?'+encodeURIComponent(u); });
+    // 2026-10-13 network audit: corsproxy.io answers 403 to this production origin on every request (its free tier
+    // rejects non-development origins), so it only added a failed hop after each Worker miss. Removed from the chain.
     // Tier 2: 보조 프록시
     add('allorigins-raw', 'allorigins/raw', 2, 'https://api.allorigins.win/raw', function(u){ return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u); });
     add('allorigins-get', 'allorigins/get', 2, 'https://api.allorigins.win/get', function(u){ return 'https://api.allorigins.win/get?url='+encodeURIComponent(u); });
@@ -5792,6 +5770,9 @@ async function _aioLoadServerData() {
       // an explicit semantic-gate pass.
       marketAnalysisSemanticOk: d.meta.marketAnalysisSemanticOk === true,
       marketAnalysisOk: d.meta.marketAnalysisOk === true && d.meta.marketAnalysisSemanticOk === true,
+      // P1729: the AI panel names a blocked scheduled analysis or the retained previous verified one.
+      marketAnalysisReason: d.meta.marketAnalysisReason || null,
+      marketAnalysisRetained: d.meta.marketAnalysisRetained || null,
       fmpHasKey: d.meta.fmpHasKey != null ? !!d.meta.fmpHasKey : null, // null = screener skipped이라 미확인
       fmpOk: !!d.meta.fmpOk,
       fmpCount: d.meta.fmpCount == null ? null : Number(d.meta.fmpCount),
@@ -6125,6 +6106,8 @@ async function _aioLoadServerData() {
       window._serverNewsBackstop = d.news;
       try { _aioApplyNewsBackstop(false); } catch(_) {}
     }
+    // P1729/P1730: post-08:00 provisional headlines (producer P1720) — a separate slot, never merged into the 08:00 bundle.
+    window._serverNewsIntraday = Array.isArray(d.newsIntraday) ? d.newsIntraday.slice(0, 6) : [];
     // 2026-10-13 boot payload review: the 1MB Telegram digest was awaited here, so the market analysis, AI briefing
     // and every step below waited on a channel feed no first screen needs. It now loads beside them; the feeds
     // repaint themselves when it lands (_aioApplyTelegramDigestPayload) and the meta is filled in then.
@@ -6180,6 +6163,8 @@ async function _aioLoadServerData() {
           disclosure: typeof d.marketAnalysis.disclosure === 'string' ? d.marketAnalysis.disclosure : null,
           scope: _aioMarketAnalysisScope(d.marketAnalysis, _serverMarketAnalysisGeneratedAt),
           semanticWarnings: Array.isArray(d.marketAnalysis.semanticWarnings) ? d.marketAnalysis.semanticWarnings : [],
+          // P1719/P1729: this run's text was blocked and the previous verified analysis is shown (<= 12h old).
+          retained: d.marketAnalysis.retained && typeof d.marketAnalysis.retained === 'object' ? d.marketAnalysis.retained : null,
           publishAudit: _serverMarketPublishAudit,
           sourceLabel: window.AIO && typeof window.AIO.getAIOutputSourceLabel === 'function' ? window.AIO.getAIOutputSourceLabel('AI_GENERATED', _serverMarketPublishAudit) : 'AI_GENERATED'
         };
@@ -6192,6 +6177,8 @@ async function _aioLoadServerData() {
           fullLength: String(d.marketAnalysis.full || d.marketAnalysis.oneLine || '').length,
           metricEvidenceCount: _serverMarketMetricEvidence.length,
           reason: _serverMarketAnalysisVerified ? null : (_serverMarketPublishAudit.blocked ? 'automated-publish-gate' : (_serverMarketMetricEvidenceValid ? 'semantic-gate-required' : 'metric-evidence-required')),
+          // P1719/P1729: the producer kept the previous verified analysis because this run's text was blocked.
+          retained: d.marketAnalysis.retained && typeof d.marketAnalysis.retained === 'object' ? d.marketAnalysis.retained : null,
           disclosure: typeof d.marketAnalysis.disclosure === 'string' ? d.marketAnalysis.disclosure : null,
           publishAudit: _serverMarketPublishAudit,
           fallback: 'AIO.synthesizeMarketAnalysis'
@@ -7084,6 +7071,8 @@ function _aioStartServerDataPolling() {
     if (typeof _aioRegisterTimer !== 'function') return;
     _aioRegisterTimer('serverDataReload', function() {
       _aioLoadServerData().catch(function(){});
+      // P1728: the KR previous-close check reads history; a tab left open overnight must not keep yesterday's basis.
+      _aioLoadHistory().catch(function(){});
     }, 30 * 60 * 1000);
     _aioRegisterTimer('serverDataAgeBadge', _aioRenderServerDataAge, 60 * 1000);
   } catch(_) {}
@@ -11831,7 +11820,8 @@ function renderHomeFeed(items) {
     container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
       homeModelV502.items.map(function(item) {
         var headlineOnly = _aioHomeNewsHeadlineOnly(item);
-        var sent = headlineOnly ? null : getSentimentFromText(item.title + ' ' + (item.desc || ''));
+        // P1729: word-count sentiment dots are retired with the badges (an up/down word count is not a reading).
+        var sent = headlineOnly ? null : 'neut';
         var sentIcon = headlineOnly ? '' : sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
         var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
         // P1380: a real translation of the headline may be shown; without one keep the original headline (never a generated fallback sentence).
@@ -11954,7 +11944,7 @@ function renderHomeFeed(items) {
   // v39.0c: 간결 불릿 — 한국어 제목, 기업 뉴스에만 티커, 클릭 시 원문
   container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
     filtered.map(item => {
-    const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
+    const sent = 'neut'; // P1729: word-count sentiment dot retired
     const sentIcon = sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
     const timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
     const displayTitle = escHtml(getDisplayTitle(item));
@@ -14228,12 +14218,20 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
   async function _yahooCross(sym) {
     if (!_isKr(sym)) return false;
     try {
-      var d = await _fetchJson('https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?interval=1m&range=1d', 6500);
+      // 2026-10-13 network audit: a direct browser call to Yahoo has no CORS grant (503 on 005930.KS/^KS11/^KQ11 every
+      // cycle); the request goes through the Worker relay that allows this host.
+      var d = await fetchViaProxy('https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?interval=1m&range=1d', { parseJson: true, timeout: 6500 });
       var result = d && d.chart && d.chart.result && d.chart.result[0];
       var meta = result && result.meta;
       var price = meta && (meta.regularMarketPrice || meta.previousClose);
       var prev = meta && meta.previousClose;
       var pct = price && prev ? (price - prev) / prev * 100 : null;
+      // P1728: the chart meta's previous close is the value that ran one KRX session behind; the cross-check records it
+      // only when the verified previous KRX close agrees.
+      var _krCross = price > 0 && typeof _aioVerifyKrQuoteChange === 'function'
+        ? _aioVerifyKrQuoteChange({ symbol: sym, _source: 'yahoo:cross-chart', regularMarketTime: meta && meta.regularMarketTime, regularMarketPreviousClose: prev }, price, pct)
+        : null;
+      if (_krCross) { pct = _krCross.pct; prev = _krCross.prevClose; }
       if (price > 0) { _record(sym, 'yahoo:cross-chart', price, pct, { previousClose: prev || null }); return true; }
     } catch(_yahooErr) {}
     return false;
@@ -14863,6 +14861,146 @@ function _aioUpdateVixBadge(vixValue) {
   els.forEach(function(el) { el.textContent = text; });
 }
 
+// P1728 (2026-10-13): a Korean quote's daily change is measured from the previous completed KRX session's close.
+// The provider's previous close ran one session behind after the 10/9 holiday (it dropped the 10/12 session):
+// 005930 -6.59% against -5.58%, ^KQ11 -6.19% against -1.43%. The quote is checked against closes this page has
+// already loaded — the producer's KR index history (window._aioHistory) and the reconciled screener row (ret1d of the
+// same session). A disagreement is recomputed from the verified basis; with no verified basis the change is withheld
+// ('전일 기준 미확인') rather than shown on an unknown base.
+var _AIO_KR_INDEX_FIELD = { '^KS11': 'kospi', '^KQ11': 'kosdaq' };
+function _aioKstSessionDate(value) {
+  var ms = typeof value === 'number' ? (value > 0 && value < 1e12 ? value * 1000 : value) : Date.parse(value || '');
+  if (!isFinite(ms) || ms <= 0) return null;
+  return new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
+}
+// Latest history close of `field` in a KRX session before `sessionDate` (KST date of the observation, not the US cycle
+// row carrying it). The history must reach the day before the session, so a missing session is a closed market day and
+// not a producer run that has not happened yet.
+function _aioKrIndexHistoryBasis(field, sessionDate, history) {
+  var rows = Array.isArray(history) ? history : [];
+  if (!field || !/^\d{4}-\d{2}-\d{2}$/.test(String(sessionDate || ''))) return null;
+  var latestRowDate = null, best = null;
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    if (!row) continue;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) && (!latestRowDate || row.date > latestRowDate)) latestRowDate = row.date;
+    var value = Number(row[field]);
+    if (!(value > 0)) continue;
+    var meta = (row.fieldMeta && row.fieldMeta[field]) || {};
+    if (meta.observationRelation === 'current-session' || meta.valueBasis === 'current-session') continue;
+    var session = _aioKstSessionDate(meta.observedAt) || (/^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) ? row.date : null);
+    if (!session || session >= sessionDate) continue;
+    if (!best || session >= best.date) best = { date: session, close: value };
+  }
+  var dayBefore = new Date(Date.parse(sessionDate + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
+  if (!best || !latestRowDate || latestRowDate < dayBefore) return null;
+  // P1728 review: a history loaded before the previous KRX session closed (a tab kept open overnight) carries an older
+  // close under a current-looking row date. Only a history fetched within the last six hours is a basis.
+  var loadedAt = history === window._aioHistory && window._aioHistoryMeta ? Number(window._aioHistoryMeta.loadedAt) : null;
+  if (loadedAt != null && Number.isFinite(loadedAt) && Date.now() - loadedAt > 6 * 3600000) return null;
+  return best;
+}
+// Latest completed KRX close of an index with its own one-session change (both from the producer history).
+function _aioKrIndexCloseRead(field, history) {
+  var rows = Array.isArray(history) ? history : [];
+  var last = null;
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    var value = row && Number(row[field]);
+    if (!(value > 0)) continue;
+    var meta = (row.fieldMeta && row.fieldMeta[field]) || {};
+    if (meta.observationRelation === 'current-session' || meta.valueBasis === 'current-session') continue;
+    var session = _aioKstSessionDate(meta.observedAt) || (/^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) ? row.date : null);
+    if (session && (!last || session >= last.date)) last = { date: session, close: value };
+  }
+  if (!last) return null;
+  var prev = _aioKrIndexHistoryBasis(field, last.date, rows);
+  return { field: field, date: last.date, close: last.close, prevDate: prev ? prev.date : null, prevClose: prev ? prev.close : null,
+    pct: prev && prev.close > 0 ? (last.close / prev.close - 1) * 100 : null };
+}
+function _aioKrScreenerRowFor(symbol) {
+  try {
+    var rows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+    for (var i = 0; i < (rows || []).length; i++) {
+      if (rows[i] && String(rows[i].sym || '').toUpperCase() === symbol) return rows[i];
+    }
+  } catch (_) {}
+  return null;
+}
+// Verified one-session change of a KR symbol for a completed session: index from the history, stock from the
+// reconciled screener row of that same session. null when no verified basis exists.
+function _aioKrVerifiedDayChange(symbol, sessionDate, close) {
+  var sym = String(symbol || '').toUpperCase();
+  var field = _AIO_KR_INDEX_FIELD[sym];
+  if (field) {
+    var ref = _aioKrIndexHistoryBasis(field, sessionDate, window._aioHistory);
+    var px = Number(close);
+    return ref && px > 0 ? { pct: (px / ref.close - 1) * 100, prevClose: ref.close, basisDate: ref.date, basis: 'krx-history-previous-close' } : null;
+  }
+  if (!/\.(KS|KQ)$/.test(sym)) return null;
+  var row = _aioKrScreenerRowFor(sym);
+  var ret = row && row.ret1d != null && row.ret1d !== '' ? Number(row.ret1d) : NaN;
+  if (!row || row.factorSessionDate !== sessionDate || !isFinite(ret)) return null;
+  return { pct: ret, prevClose: Number(close) > 0 ? Number(close) / (1 + ret / 100) : null, basisDate: sessionDate, basis: 'screener-reconciled-session-change' };
+}
+// One quote: returns null for a non-KR or KRX-origin (Naver) quote, otherwise the change to publish and its basis.
+function _aioVerifyKrQuoteChange(q, price, providerPct) {
+  var sym = String(q && q.symbol || '').toUpperCase();
+  var isIndex = !!_AIO_KR_INDEX_FIELD[sym];
+  if (!isIndex && !/\.(KS|KQ)$/.test(sym)) return null;
+  if (/^live:naver/.test(String(q._source || ''))) return null;
+  var session = _aioKstSessionDate(q._atomicObservedAt || q.observedAt || q.regularMarketTime);
+  var providerPrev = Number(q.regularMarketPreviousClose || q.chartPreviousClose);
+  if (!(providerPrev > 0)) providerPrev = null;
+  var hasProviderPct = typeof providerPct === 'number' && isFinite(providerPct);
+  var out = { symbol: sym, session: session, providerPrev: providerPrev, providerPct: hasProviderPct ? providerPct : null,
+    pct: null, prevClose: null, basis: 'kr-previous-close-unverified', basisDate: null, status: 'unverified' };
+  if (!session) return out;
+  var verified = _aioKrVerifiedDayChange(sym, session, price);
+  if (verified) {
+    var agrees = isIndex
+      ? (providerPrev > 0 && Math.abs(providerPrev / verified.prevClose - 1) <= 0.0005)
+      : (hasProviderPct && Math.abs(providerPct - verified.pct) <= 0.15);
+    out.status = agrees ? 'agree' : 'corrected';
+    out.basis = verified.basis;
+    out.basisDate = verified.basisDate;
+    // Agreeing provider values stay exact; a disagreement publishes the verified change.
+    out.pct = agrees && hasProviderPct ? providerPct : verified.pct;
+    out.prevClose = agrees && providerPrev ? providerPrev : verified.prevClose;
+    return out;
+  }
+  // A stock in a session the screener has not closed yet: the provider's previous close is trusted only when the KRX
+  // indices in the same session agree with the verified history (the off-by-one is a venue calendar fault).
+  var health = window._aioKrPrevCloseHealth;
+  if (!isIndex && health && health.session === session && health.status === 'agree' && hasProviderPct && providerPrev) {
+    out.pct = providerPct; out.prevClose = providerPrev; out.basis = 'provider-previous-close-index-checked';
+    out.basisDate = health.basisDate || null; out.status = 'agree';
+  }
+  return out;
+}
+// Offline harnesses evaluate this file section without a window; the browser gets the shared readers.
+if (typeof window !== 'undefined') {
+  window._aioKrIndexCloseRead = _aioKrIndexCloseRead;
+  window._aioKrVerifiedDayChange = _aioKrVerifiedDayChange;
+  window._aioVerifyKrQuoteChange = _aioVerifyKrQuoteChange;
+}
+// A quote withheld before the history/screener arrived is re-applied once they land, unless a newer quote replaced it.
+function _aioReverifyKrQuotes() {
+  var pending = window._aioKrPendingQuotes || {};
+  var redo = [];
+  Object.keys(pending).forEach(function(sym) {
+    var entry = pending[sym];
+    var live = window._liveData && window._liveData[sym];
+    if (entry && live && live.revision === entry.revision) redo.push(entry.quote);
+  });
+  window._aioKrPendingQuotes = {};
+  if (redo.length) applyLiveQuotes(redo);
+}
+try {
+  window.addEventListener('aio:historyLoaded', _aioReverifyKrQuotes);
+  document.addEventListener('aio:nativeScreenerReady', _aioReverifyKrQuotes);
+} catch (_) {}
+
 function applyLiveQuotes(quotes) {
   if (!Array.isArray(quotes)) return;
   window._liveData = window._liveData || {};
@@ -14907,12 +15045,40 @@ function applyLiveQuotes(quotes) {
     'SI=F':     ['silver',   'silverPct']
   };
 
+  // P1728: the KRX indices in this batch decide whether the provider's KR previous close can be trusted for stocks
+  // whose session the screener has not closed yet (both must agree with the verified history).
+  var _krHealthChecks = atomicQuotes.filter(function(q) { return _AIO_KR_INDEX_FIELD[q.symbol]; }).map(function(q) {
+    return _aioVerifyKrQuoteChange(q, q.regularMarketPrice, q.regularMarketChangePercent);
+  }).filter(Boolean);
+  if (_krHealthChecks.length) {
+    var _krHealthSession = _krHealthChecks[0].session;
+    var _krSameSession = _krHealthChecks.every(function(c) { return c.session && c.session === _krHealthSession; });
+    var _krAllAgree = _krSameSession && _krHealthChecks.every(function(c) { return c.status === 'agree'; });
+    var _krAnyCorrected = _krHealthChecks.some(function(c) { return c.status === 'corrected'; });
+    if (_krAllAgree || _krAnyCorrected) {
+      window._aioKrPrevCloseHealth = { session: _krHealthSession, status: _krAllAgree ? 'agree' : 'disagree',
+        basisDate: _krHealthChecks[0].basisDate, checkedAt: new Date(now).toISOString() };
+    }
+  }
+  window._aioKrQuoteChecks = window._aioKrQuoteChecks || {};
+  window._aioKrPendingQuotes = window._aioKrPendingQuotes || {};
+
   atomicQuotes.forEach(q => {
     const rawPct = q.regularMarketChangePercent;
-    const hasPct = (typeof rawPct === 'number' && isFinite(rawPct));
-    const pct   = hasPct ? rawPct : null;
+    let hasPct = (typeof rawPct === 'number' && isFinite(rawPct));
+    let pct   = hasPct ? rawPct : null;
     const price = q.regularMarketPrice;
     if (typeof price !== 'number' || !isFinite(price) || price <= 0) return;
+    // P1728: Korean change from the verified previous KRX close (or withheld).
+    const _krCheck = _aioVerifyKrQuoteChange(q, price, pct);
+    if (_krCheck) {
+      pct = _krCheck.pct;
+      hasPct = (typeof pct === 'number' && isFinite(pct));
+      window._aioKrQuoteChecks[q.symbol] = Object.assign({ checkedAt: new Date(now).toISOString() }, _krCheck);
+      if (_krCheck.status === 'unverified') window._aioKrPendingQuotes[q.symbol] = { quote: q, revision: _quoteBatchRevision };
+      else delete window._aioKrPendingQuotes[q.symbol];
+      if (_krCheck.status === 'corrected') _aioLog('warn', 'data', q.symbol + ' 전일종가 불일치 — 제공처 ' + _krCheck.providerPrev + ' 대신 검증 기준(' + _krCheck.basisDate + ')으로 등락률 재계산');
+    }
 
     // v31.8: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
     // KR 지수는 서버 Yahoo 배치와 브라우저 Naver가 합쳐진다. 프록시 캐시가 옛 값을
@@ -14930,7 +15096,10 @@ function applyLiveQuotes(quotes) {
       }
     }
     // v53.9 P728: 아래 canonical batch DOM pass가 lineage annotation을 소유한다.
-    const _quoteChangeBasis = q.changeBasis || q.valueBasis || ((q.regularMarketPreviousClose || q.chartPreviousClose) > 0 ? 'provider-previous-value' : 'unknown');
+    const _quoteChangeBasis = _krCheck ? _krCheck.basis : (q.changeBasis || q.valueBasis || ((q.regularMarketPreviousClose || q.chartPreviousClose) > 0 ? 'provider-previous-value' : 'unknown'));
+    const _quotePrevClose = _krCheck ? _krCheck.prevClose : (q.regularMarketPreviousClose || q.chartPreviousClose || null);
+    // The price basis is unchanged by the change verification.
+    const _quoteValueBasis = q.valueBasis || q.changeBasis || ((q.regularMarketPreviousClose || q.chartPreviousClose) > 0 ? 'provider-previous-value' : 'unknown');
     const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo', { deferDomAnnotation: true,
       revision: _quoteBatchRevision,
       revisionId: _quoteBatchRevision,
@@ -14944,9 +15113,9 @@ function applyLiveQuotes(quotes) {
       rightsId: q.rightsId || null,
       marketState: q.marketState || null,
       venue: q.fullExchangeName || q.exchangeName || null,
-      regularMarketPreviousClose: q.regularMarketPreviousClose || q.chartPreviousClose || null,
+      regularMarketPreviousClose: _quotePrevClose,
       changeBasis: _quoteChangeBasis,
-      valueBasis: q.valueBasis || _quoteChangeBasis, session: q.session || q.marketState || null, marketState: q.marketState || null
+      valueBasis: _quoteValueBasis, session: q.session || q.marketState || null, marketState: q.marketState || null
     });
     if (!accepted) return;
     if (q.symbol === '^VVIX' && window.DATA_SNAPSHOT) {
@@ -14974,9 +15143,10 @@ function applyLiveQuotes(quotes) {
       // chartPreviousClose는 미국 휴장일 인접 주간에 한 세션 어긋난 값을 반환하는 경우가 실측되어,
       // KRX 원천인 Naver(_source==='live:naver')가 한 번이라도 전일종가를 확정하면 그 값을
       // sticky하게 유지하고 이후 Yahoo 값이 이를 덮어쓰지 못하게 한다(전일종가는 하루 1회만 변함).
+      // P1728: a verified KRX history close counts as KRX-origin; an unverified provider value is not published.
       if (q.symbol === '^KS11') {
-        var _ksPrev = q.regularMarketPreviousClose || q.chartPreviousClose;
-        var _ksIsNaver = (q._source === 'live:naver');
+        var _ksPrev = _krCheck ? _krCheck.prevClose : (q.regularMarketPreviousClose || q.chartPreviousClose);
+        var _ksIsNaver = (q._source === 'live:naver') || !!(_krCheck && _krCheck.status !== 'unverified');
         if (_ksPrev > 0 && (_ksIsNaver || !window.DATA_SNAPSHOT._kospiPrevFromNaver)) {
           window.DATA_SNAPSHOT.kospiPrev = _ksPrev;
           if (_ksIsNaver) window.DATA_SNAPSHOT._kospiPrevFromNaver = true;
@@ -14986,8 +15156,8 @@ function applyLiveQuotes(quotes) {
         }
       }
       if (q.symbol === '^KQ11') {
-        var _kqPrev = q.regularMarketPreviousClose || q.chartPreviousClose;
-        var _kqIsNaver = (q._source === 'live:naver');
+        var _kqPrev = _krCheck ? _krCheck.prevClose : (q.regularMarketPreviousClose || q.chartPreviousClose);
+        var _kqIsNaver = (q._source === 'live:naver') || !!(_krCheck && _krCheck.status !== 'unverified');
         if (_kqPrev > 0 && (_kqIsNaver || !window.DATA_SNAPSHOT._kosdaqPrevFromNaver)) {
           window.DATA_SNAPSHOT.kosdaqPrev = _kqPrev;
           if (_kqIsNaver) window.DATA_SNAPSHOT._kosdaqPrevFromNaver = true;
@@ -15004,6 +15174,14 @@ function applyLiveQuotes(quotes) {
       window._extHoursData[q.symbol] = { price: q.extPrice, pct: q.extPct != null ? q.extPct : null, session: q.extSession, ts: now };
     }
     // v36.7: chartPreviousClose를 _liveData에 보존 (분석/해석용 종가 기준)
+    // P1728: for a KR quote only the verified previous close is kept (an unverified provider value would let a
+    // reader recompute the off-by-one change).
+    if (_krCheck) {
+      window._liveData[q.symbol] = window._liveData[q.symbol] || {};
+      window._liveData[q.symbol].chartPreviousClose = _krCheck.prevClose || null;
+      window._liveData[q.symbol].regularMarketPreviousClose = _krCheck.prevClose || null;
+      window._liveData[q.symbol].krChangeCheck = { status: _krCheck.status, basis: _krCheck.basis, basisDate: _krCheck.basisDate, session: _krCheck.session, providerPrev: _krCheck.providerPrev };
+    } else {
     if (q.chartPreviousClose && q.chartPreviousClose > 0) {
       window._liveData[q.symbol] = window._liveData[q.symbol] || {};
       window._liveData[q.symbol].chartPreviousClose = q.chartPreviousClose;
@@ -15011,6 +15189,7 @@ function applyLiveQuotes(quotes) {
     if (q.regularMarketPreviousClose && q.regularMarketPreviousClose > 0) {
       window._liveData[q.symbol] = window._liveData[q.symbol] || {};
       window._liveData[q.symbol].regularMarketPreviousClose = q.regularMarketPreviousClose;
+    }
     }
     // v53.6 (P724): v7 quote 확장 필드(52주 범위·당일 고저·거래량) 보존 — PriceStore.set은
     // price/pct만 저장하므로 이 필드들은 지금까지 _liveData에 남은 적이 없었고, 이를 1순위
@@ -15040,9 +15219,13 @@ function applyLiveQuotes(quotes) {
       revisionId: _quoteBatchRevision,
       source: q._source,
       price: price,
-      change: isFinite(q.regularMarketChange) ? q.regularMarketChange : null,
+      change: _krCheck ? (_krCheck.prevClose > 0 && hasPct ? price - _krCheck.prevClose : null) : (isFinite(q.regularMarketChange) ? q.regularMarketChange : null),
       pct: hasPct ? pct : null,
-      previousClose: isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null,
+      previousClose: _krCheck ? (_krCheck.prevClose || null) : (isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null),
+      changeBasisDate: _krCheck ? _krCheck.basisDate : null,
+      changeCheck: _krCheck ? _krCheck.status : null,
+      providerPreviousClose: _krCheck ? _krCheck.providerPrev : null,
+      providerPct: _krCheck ? _krCheck.providerPct : null,
       observedAt: q._atomicObservedAt,
        fetchedAt: q._atomicFetchedAt,
        sourceKind: q.sourceKind || null,
@@ -15973,7 +16156,7 @@ function refreshHomeDashboard() {
     } else if (window._newsItems && window._newsItems.length > 0) {
       const top3 = window._newsItems.slice(0, 3);
       newsEl.innerHTML = top3.map(item => {
-        const sent = typeof getSentimentFromText === 'function' ? getSentimentFromText(item.headline || '') : 'neut';
+        const sent = 'neut'; // P1729: word-count sentiment colour retired
         const sentColor = sent === 'bull' ? 'var(--data-green)' : sent === 'bear' ? 'var(--data-red)' : sent === 'warn' ? 'var(--data-amber)' : 'var(--text-muted)';
         const tickers = typeof getDisplayTickers === 'function' && item.title ? getDisplayTickers(item) : [];
         const tickerStr = tickers.length > 0 ? `<div style="margin-top:3px;">${tickers.map(t => `<span style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:2px;">${escHtml(t)}</span>`).join('')}</div>` : '';

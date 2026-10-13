@@ -35,7 +35,7 @@ import { evaluateSymbolSignals, distributionDaySeries, BREADTH_SIGNAL_MODEL_VERS
 import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { updateCandidateArchive } from './lib/candidate-archive.mjs'; // P1465
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
-import { analysisLevelsAfterLabels, analysisProse } from './lib/market-analysis-numbers.mjs';
+import { analysisLevelsAfterLabels, analysisProse, isNonMetricNumber } from './lib/market-analysis-numbers.mjs';
 import { buildMarketRegime } from '../src/domain/briefing/market-read.js'; // P1635
 import { buildMarketScenarios, renderMarketScenarioContext } from '../src/domain/market/regime-scenarios.js';
 import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
@@ -234,7 +234,7 @@ async function fetchQuote(symbol) {
         pct  = (prev && prev > 0) ? ((price - prev) / prev) * 100 : null;
         pctSource = 'chart-meta-fallback';
       }
-      return {
+      const quote = {
         symbol,
         regularMarketPrice: price,
         regularMarketChangePercent: pct,
@@ -289,9 +289,67 @@ async function fetchQuote(symbol) {
         qualityStatus: Number.isFinite(m.regularMarketTime) ? 'CURRENT' : 'MISSING',
         quality: { status: Number.isFinite(m.regularMarketTime) ? 'CURRENT' : 'MISSING', stale: false, decisionUse: false, allowedUse: 'reference' },
       };
+      // P1721: on a weekday an FX pair is always in session, so its history row and daily change rest entirely on the
+      // previous close. Yahoo's daily FX bars dropped Mon 10/12 and left 10/13 null, so closes[-2] reached back to the
+      // Friday 10/9 bar and 10/12-10/13 both recorded 1,342.99 (the screen froze at 10/9). The FX previous close is now
+      // the hourly close at the 23:00Z (KST 08:00) cut — the same cut the history row carries. A failed hourly read
+      // keeps the daily path above.
+      if (/=X$/.test(symbol) && FX_WEEKDAY_SESSION(Date.now())) {
+        try {
+          const hourly = await fetchJSON(host + '/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=60m&range=5d', {}, 1);
+          const hres = hourly?.chart?.result?.[0];
+          const cut = fxCloseAtCut(hres?.timestamp || [], hres?.indicators?.quote?.[0]?.close || [], Date.now());
+          if (cut && cut.close > 0) {
+            quote.regularMarketPreviousClose = cut.close;
+            quote.chartPreviousClose = cut.close;
+            quote.regularMarketChangePercent = ((price - cut.close) / cut.close) * 100;
+            quote.regularMarketPreviousCloseObservedAt = cut.observedAt;
+            quote.previousBarOpenedAt = cut.previousBoundary;
+            quote._pctSource = 'fx-hourly-cut-close';
+          }
+        } catch (_) { /* daily path stays */ }
+      }
+      return quote;
     } catch (e) { lastErr = e; }
   }
   throw lastErr;
+}
+
+// P1721: FX trades Sunday 22:00Z to Friday ~21:00Z; Saturday/Sunday (UTC) keep the daily-bar path (a Friday close).
+function FX_WEEKDAY_SESSION(nowMs) {
+  const day = new Date(nowMs).getUTCDay();
+  return day >= 1 && day <= 5;
+}
+
+/**
+ * P1721: the FX close at the latest completed 23:00Z (KST 08:00) cut whose day was a weekday session, read from
+ * hourly bars (open timestamps). The last non-null hourly close in the four hours before the cut is the close; its
+ * observation time is that bar's end (never after the cut). Returns null when no bar qualifies — never a guess.
+ */
+export function fxCloseAtCut(timestamps = [], closes = [], nowMs = Date.now()) {
+  const HOUR = 3600000;
+  let boundary = Date.UTC(new Date(nowMs).getUTCFullYear(), new Date(nowMs).getUTCMonth(), new Date(nowMs).getUTCDate(), 23);
+  if (boundary > nowMs) boundary -= 24 * HOUR;
+  const weekdaySessionEndingAt = (b) => { const day = new Date(b - 1).getUTCDay(); return day >= 1 && day <= 5; };
+  for (let guard = 0; guard < 4 && !weekdaySessionEndingAt(boundary); guard += 1) boundary -= 24 * HOUR;
+  if (!weekdaySessionEndingAt(boundary)) return null;
+  let best = null;
+  for (let i = 0; i < timestamps.length; i += 1) {
+    const openMs = Number(timestamps[i]) * 1000;
+    const close = Number(closes[i]);
+    if (!Number.isFinite(openMs) || closes[i] == null || !Number.isFinite(close) || close <= 0) continue;
+    if (openMs >= boundary || openMs < boundary - 4 * HOUR) continue;
+    if (!best || openMs > best.openMs) best = { openMs, close };
+  }
+  if (!best) return null;
+  let previous = boundary - 24 * HOUR;
+  for (let guard = 0; guard < 4 && !weekdaySessionEndingAt(previous); guard += 1) previous -= 24 * HOUR;
+  return {
+    close: best.close,
+    observedAt: new Date(Math.min(best.openMs + HOUR, boundary)).toISOString(),
+    boundary: new Date(boundary).toISOString(),
+    previousBoundary: new Date(previous).toISOString(),
+  };
 }
 
 // v50.99: fetch 성공처럼 보이는 데이터 품질 검증.
@@ -1386,7 +1444,9 @@ const SERVER_NEWS_PRIORITY_RULES = [
 const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now|fortunes? (?:are|is|was|were|could be|can be|will be) made|make you (?:rich|a fortune)|life[- ]changing (?:money|wealth|returns?)|generational wealth|set (?:you )?up for life|retire (?:rich|early|a millionaire)|turn \$?[\d,]+ into)\b/i;
 const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumor|reportedly|may be considering|is said to)\b/i;
 const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC)\b/i;
-const SERVER_NEWS_TIER2_SOURCE_RE = /\b(MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance)\b/i;
+// P1720: the Korean-edition feed labels these same tier-2 publishers in Korean (연합뉴스 = Yonhap), which `\b` never
+// matches around Hangul, so a Yonhap headline ranked as tier 3. Same publishers, their Korean labels — not new sources.
+const SERVER_NEWS_TIER2_SOURCE_RE = /\b(?:MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance)\b|^(?:연합뉴스|중앙일보|코리아\s?헤럴드)$/i;
 // P1504: the list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
 // that filled the 2026-10-06 cycle (TradingKey ×4, livetradingnews, BBN Times, simplywall.st).
 const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News|TMGM|VT Markets|Markets\.com|Admirals?|Action Forex|Moomoo|Invezz|Capital\.com|Plus500|XTB|FXOpen|Exness|AvaTrade|eToro|MarketBeat|24\/7 Wall St)\b/i;
@@ -1614,10 +1674,13 @@ export function createNewsTopicCap() {
   };
 }
 
-async function fetchNews() {
-  const cycle = getKst0800NewsCycle();
+// P1720: the caller passes the run's attempt time so the collected cycle and meta.newsCycleEnd are one cut even when a
+// run straddles 08:00 KST (23:00Z); otherwise newsIntraday is picked against the previous cut and fails the gate.
+async function fetchNews(nowMs = Date.now()) {
+  const cycle = getKst0800NewsCycle(nowMs);
   const items = [];    // US/글로벌 피드
   const krItems = [];  // 한국 전용 (reserved slot)
+  const intradayCandidates = []; // P1720: published after cycle.endMs (08:00 KST)
   for (const feed of NEWS_FEEDS) {
     const isKr = feed.country === 'kr';
     try {
@@ -1634,6 +1697,13 @@ async function fetchNews() {
       }
       for (const p of parsed) {
         const t = p.ts;
+        // P1720: articles published after the 08:00 cut are kept aside for the provisional intraday slot; the
+        // completed 08:00 bundle below stays the canonical window.
+        if (isFinite(t) && t >= cycle.endMs) {
+          intradayCandidates.push({ title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw,
+            guid: p.guid, sourceArticleId: p.sourceArticleId, ts: t, topic: isKr ? 'kr' : feed.topic, country: feed.country,
+            feedTier: feed.tier, feedSource: feed.source });
+        }
         if (!isFinite(t) || t < cycle.startMs || t >= cycle.endMs) continue;
         const item = {
           title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw,
@@ -1735,7 +1805,58 @@ async function fetchNews() {
     seen.add(k);
     pushItem(it);
   }
+  // P1720: the provisional intraday slot rides on the same array without entering its JSON (non-enumerable), so every
+  // existing consumer of `news` keeps the canonical 08:00 bundle unchanged.
+  Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, canonical: out }), enumerable: false });
   return out;
+}
+
+// P1720 (coordinator N14, 2026-10-13): the completed 08:00 KST bundle left a Korean session's events out until the next
+// morning (KOSPI -5.46% on 10/13 had no headline all day). Articles published after the cut get a separate, provisional
+// slot: tier 1-2 publishers only, the same clickbait/not-article/off-topic/stale filters and topic cap as the bundle,
+// one slot per event (including events already in the bundle), at most two per publisher, at most six. When the next
+// 08:00 bundle is cut, these articles fall inside its window and leave this slot by construction.
+export const NEWS_INTRADAY_MAX = 6;
+export const NEWS_INTRADAY_POLICY = 'kst-0800-after-provisional';
+export const NEWS_INTRADAY_LABEL = '08:00 이후 장중 속보 · 잠정';
+export function selectNewsIntraday(candidates, { cycleEndMs, nowMs = Date.now(), canonical = [], max = NEWS_INTRADAY_MAX } = {}) {
+  if (!Number.isFinite(cycleEndMs)) return [];
+  const scored = [];
+  for (const raw of Array.isArray(candidates) ? candidates : []) {
+    const ts = Number(raw?.ts);
+    if (!raw?.title || !raw?.link || !Number.isFinite(ts) || ts < cycleEndMs || ts > nowMs + 15 * 60000) continue;
+    const item = { ...raw, ts, scoringNowMs: nowMs };
+    Object.assign(item, scoreServerNewsItem(item));
+    if (!(item.topicHits > 0) || !(item.score > 0) || !(item.tier <= 2)) continue;
+    scored.push(item);
+  }
+  scored.sort((a, b) => (b.score || 0) - (a.score || 0) || b.ts - a.ts);
+  const seen = new Set((Array.isArray(canonical) ? canonical : []).map((row) => newsArticleKey(row)));
+  const signatures = (Array.isArray(canonical) ? canonical : []).map((row) => newsHeadlineSignature(row?.title));
+  const perSource = new Map();
+  const topicCap = createNewsTopicCap();
+  const picked = [];
+  // As in the bundle (KR_SLOTS), Korean-session items take up to two slots first; the rest is score order.
+  const take = (it) => {
+    if (picked.length >= max) return;
+    const title = cleanNewsTitle(it.title, it.source, it._sourceRaw);
+    const key = newsArticleKey(it);
+    const signature = newsHeadlineSignature(it.title);
+    const publisher = String(it.source || '').trim().toLowerCase();
+    if (seen.has(key) || signatures.some((other) => newsSameEvent(signature, other)) || (perSource.get(publisher) || 0) >= 2 || topicCap.full(title)) return;
+    seen.add(key);
+    signatures.push(signature);
+    perSource.set(publisher, (perSource.get(publisher) || 0) + 1);
+    topicCap.add(title);
+    picked.push({
+      title, link: it.link, source: it.source, publishedAt: new Date(it.ts).toISOString(),
+      topic: it.topic, market: it.country, tier: it.tier, sourceTierLabel: serverNewsSourceTierLabel(it.tier),
+      score: it.score, selectionReason: it.selectionReason, contentDepth: 'headline-only', provisional: true,
+    });
+  };
+  for (const it of scored) if (it.country === 'kr' && picked.length < 2) take(it);
+  for (const it of scored) take(it);
+  return picked.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
 // ── v51.15: 개별 종목 뉴스 enrichment — Google News RSS per-ticker → screener.json newsMemo ──
@@ -2087,6 +2208,10 @@ const HIST_SYMBOLS = {
   '^GSPC': 'spx', '^IXIC': 'nasdaq', '^NDX': 'ndx', '^DJI': 'dow', '^RUT': 'rut',
   '^VIX': 'vix', '^VIX3M': 'vix3m', '^VVIX': 'vvix', '^TNX': 'tnx',
   'DX-Y.NYB': 'dxy', 'CL=F': 'wti', 'GC=F': 'gold',
+  // P1721: Brent front-month futures, collected in SYMBOLS already, get the same completed-close column as WTI (CL=F).
+  // The 거시 Brent value was FRED's Europe Brent *spot* (DCOILBRENTEU, days behind, 125-135 vs futures ~105 on 10/2-10/6),
+  // a different basis than the WTI futures beside it.
+  'BZ=F': 'brent',
   '^KS11': 'kospi', '^KQ11': 'kosdaq', 'BTC-USD': 'btc',
   // P1246 (E3/E4 FX 축): USD/KRW도 같은 producer 경로(Yahoo chart 일별 종가, worker 프록시가
   // CORS를 처리)로 일별 히스토리를 갖는다. 새 출처·새 키·새 약관이 없고, 백테스트 랩의 통화 축이
@@ -2097,13 +2222,13 @@ const HIST_SYMBOLS = {
   // P1586: 20-year Treasury ETF closes feed the safe-haven component of the self-computed sentiment index.
   'TLT': 'tlt',
 };
-const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','fg'];
+const HIST_FIELDS = ['spx','nasdaq','ndx','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','brent','gold','kospi','kosdaq','btc','usdkrw','usdjpy','tlt','fg'];
 // P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
 // 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
 // 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
 export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
   spx: [500, 50000], nasdaq: [500, 100000], ndx: [500, 100000], dow: [2000, 150000], rut: [100, 10000],
-  vix: [5, 200], vvix: [20, 400], tnx: [0, 20], dxy: [50, 200], wti: [1, 400],
+  vix: [5, 200], vvix: [20, 400], tnx: [0, 20], dxy: [50, 200], wti: [1, 400], brent: [1, 400],
   gold: [100, 20000], kospi: [300, 20000], kosdaq: [100, 5000], btc: [1000, 2000000],
   // 원/달러는 1997년 외환위기 이후 800~2000원대를 벗어난 적이 없다. 공급자 오류(예: 지수/배율
   // 혼동)로 한 자리·두 자리 수가 들어오면 그대로 히스토리에 남아 백테스트 환산을 오염시킨다.
@@ -4175,7 +4300,8 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
     for (const match of mention.clause.matchAll(/([+\-−±]?)(\d[\d,]*(?:\.\d+)?)\s*(%포인트|%p|bps|bp|포인트|%)?/gi)) {
       const [, sign, digits, suffix = ''] = match;
       const after = mention.clause.slice(match.index + match[0].length, match.index + match[0].length + 14);
-      if (/^\s*(?:일|주|개월|년|거래일|세션|배|명|개|종목|조건|시|분|KST|ET\b)|^:\d/.test(after) || mention.clause[match.index - 1] === ':' || /^(?:%p|%포인트|포인트)$/i.test(suffix)) continue;
+      // P1719: one date/time/count rule shared with the label-level reader (10월·오후 3시 are not levels).
+      if (isNonMetricNumber(mention.clause, match.index, match[0].length) || /^(?:%p|%포인트|포인트)$/i.test(suffix)) continue;
       // review: a multi-period move ("20일 동안 8.2% 하락") or a share ("40%를 차지") is not the one-session change.
       const before = mention.clause.slice(Math.max(0, match.index - 16), match.index);
       if (/(?:\d\s?(?:일|주|개월|년|거래일|세션)|연초|연간|올해|분기|월간|주간)[^\d]{0,8}$/.test(before) || /^\s*(?:를|을|의|가|이)?\s*(?:차지|비중|비율|확률|가능성|점유)/.test(after)) continue;
@@ -4245,6 +4371,28 @@ export function validateAnalysisAdmission(body, { changes = new Map(), context =
   return [...new Set(issues)];
 }
 
+function analysisContextHasNumber(context, value) {
+  if (!context || !Number.isFinite(value)) return false;
+  const forms = new Set([String(value), value.toLocaleString('en-US', { maximumFractionDigits: 6 })]);
+  return [...forms].some((form) => new RegExp(`(?<![\\d.,-])${form.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\d])`).test(context));
+}
+
+const ANALYSIS_REFERENCE_LEVEL = /^\s*[(（]?\s*(?:\d+\s*일\s*(?:선|이동평균|평균)|이동평균|이평|고점|저점|평균|전일|직전|지지|저항|대비|52주)/;
+export function analysisNumberMarkedAsReference(body, value) {
+  const forms = new Set([String(value), Number(value).toLocaleString('en-US', { maximumFractionDigits: 6 })]);
+  const text = String(body || '');
+  for (const form of forms) {
+    const pattern = new RegExp(`(?<![\\d.,-])${form.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\d])`, 'g');
+    let match;
+    while ((match = pattern.exec(text))) {
+      const before = text.slice(Math.max(0, match.index - 16), match.index);
+      if (/(?:일선|이동평균|이평|고점|저점|평균|전일|직전|지지|저항|52주)\s*$|(?:일선|이동평균|고점|저점)\D{0,6}$/.test(before)) return true;
+      if (ANALYSIS_REFERENCE_LEVEL.test(text.slice(match.index + match[0].length))) return true;
+    }
+  }
+  return false;
+}
+
 export function validateMarketAnalysisText(text, data, snapshot = null, { context = '' } = {}) {
   const issues = [];
   // P1122: `warnings` never withholds the analysis; it names what the reader must treat
@@ -4286,7 +4434,12 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
     // Tolerance follows the unit the evidence actually carries (canonical snapshot
     // unit when available), not the duplicated def table.
     const tolerance = Math.max(row.unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(row.value)) * 0.02); // P1585: 5% let SPX 7,500 pass for 7,816
-    if (levels.some(mentioned => Math.abs(mentioned - Number(row.value)) > tolerance)) issues.push(`metric-value-mismatch:${def.metricId}`);
+    // P1719: the same context exception as validateAnalysisMetricMentions (a value quoted from REGIME_CONTEXT), bounded to
+    // a whole number so "10" does not pass because "100" or "2026-10" appears somewhere in the context.
+    // Review: the exception also needs the text to mark the number as a reference level (moving average, high, prior
+    // close …) so a context value written as the current level ("S&P 500 7,650") is still blocked.
+    const referenced = (mentioned) => analysisContextHasNumber(context, mentioned) && analysisNumberMarkedAsReference(body, mentioned);
+    if (levels.some(mentioned => Math.abs(mentioned - Number(row.value)) > tolerance && !referenced(mentioned))) issues.push(`metric-value-mismatch:${def.metricId}`);
   }
   // T03/T08: % moves against each metric's own changePct, rates in bp only, Korean metric names, 장중 + time for in-session values.
   issues.push(...validateAnalysisMetricMentions(body, metricEvidence, changes, { context }));
@@ -4941,11 +5094,48 @@ async function readHistoryRows() {
   } catch (_) { return []; }
 }
 
-export async function genMarketAnalysis(data, snapshot = null) {
+// P1719: what the validator blocked, in terms the model can act on — the issue, the metric's evidence value and change,
+// and the level the validator read after the label. Appended once to the retry prompt.
+export function describeMarketAnalysisIssues(text, issues = [], metricEvidence = [], changes = new Map()) {
+  const defs = [...MARKET_ANALYSIS_QUOTE_DEFS, ...MARKET_ANALYSIS_MACRO_DEFS];
+  const allLabels = defs.flatMap((def) => [def.label, ...(def.aliases || [])]);
+  return [...new Set(issues)].slice(0, 8).map((issue) => {
+    const metricId = String(issue).split(':')[1] || '';
+    const row = metricEvidence.find((item) => item.metricId === metricId);
+    if (!row) return `- ${issue}`;
+    const def = defs.find((item) => item.metricId === metricId);
+    const read = def ? analysisLevelsAfterLabels(text, [def.label, ...(def.aliases || [])], { allLabels, unit: row.unit }) : [];
+    const change = changes.get(row.evidenceId);
+    const changeText = Number.isFinite(change)
+      ? (row.unit === 'percent' ? `, change ${((row.value - row.value / (1 + change / 100)) * 100).toFixed(1)}bp` : `, change ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`)
+      : '';
+    return `- ${issue}: evidence ${row.label}=${row.value} ${row.unit}${changeText} (${row.evidenceId})${read.length ? `; the text was read as ${read.join(', ')}` : ''}`;
+  }).join('\n');
+}
+
+export const MARKET_ANALYSIS_RETAIN_MAX_MS = 12 * 3600000;
+// P1719 (coordinator decision 2026-10-13): when the retry is also blocked, the previous verified analysis is kept for up
+// to 12 hours from its own generatedAt. It keeps status/semanticStatus 'verified' (every consumer — client sink,
+// meta.marketAnalysisOk, operations status — reads those) and carries `retained` so a surface can say
+// "HH:MM 기준 직전 검증본". Older than 12 hours, or never verified, falls through to the blocked fallback.
+export function retainVerifiedMarketAnalysis(previous, { reason, nowMs = Date.now() } = {}) {
+  if (!previous || previous.status !== 'verified' || previous.semanticStatus !== 'verified') return null;
+  if (Array.isArray(previous.semanticIssues) && previous.semanticIssues.length) return null;
+  const generatedMs = Date.parse(previous.generatedAt || '');
+  if (!Number.isFinite(generatedMs) || generatedMs > nowMs + 5 * 60000 || nowMs - generatedMs > MARKET_ANALYSIS_RETAIN_MAX_MS) return null;
+  return {
+    ...previous,
+    retained: { at: new Date(nowMs).toISOString(), from: previous.generatedAt, reason: String(reason || 'analysis-blocked').slice(0, 300), maxAgeHours: 12 },
+  };
+}
+
+export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now() } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence);
-  if (!resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence);
+  // `request` is a fixture seam (ci contract); production always uses the shared Worker.
+  if (!request && !resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence);
+  const ask = request || requestSharedAnalysis;
   try {
     const changeOf = new Map((snapshot?.quotes || []).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
     // T08 (v57.48 review): the briefing shows completed closes, and the commentary under it opened with KOSPI/WTI/DXY/gold
@@ -4963,6 +5153,11 @@ export async function genMarketAnalysis(data, snapshot = null) {
     const regimeContext = buildMarketAnalysisRegimeContext(data, await readHistoryRows());
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
+    // P1719/P1720: post-08:00 headlines are the only news on a Korean session's events before the next bundle; they are
+    // labelled provisional so the model does not present them as settled.
+    const intradayLines = (Array.isArray(data?.newsIntraday) ? data.newsIntraday : []).slice(0, NEWS_INTRADAY_MAX)
+      .filter((row) => row && row.title && row.publishedAt)
+      .map((row) => `- [08:00 이후 장중 속보(잠정)] ${row.title} [${row.source || 'unknown'}] publishedAt=${row.publishedAt}`).join('\n');
     const model = SHARED_AI_MODEL;
     const prompt = [
       '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 5~7줄 평문으로 쓴다. Write the whole answer in Korean.',
@@ -4975,14 +5170,37 @@ export async function genMarketAnalysis(data, snapshot = null) {
       'REGIME_CONTEXT (deterministic reading from the same completed closes the site shows; cite as [regime-context]):\n' + (regimeContext || 'none'),
       'METRIC_EVIDENCE:\n' + evidenceLines,
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
-      'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none'),
+      'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
+        + (intradayLines ? '\n08:00 이후 장중 속보(잠정 — 다음 08:00 묶음 전의 미확정 헤드라인, 인용 시 "잠정"으로 표시):\n' + intradayLines : ''),
       'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
     ].join('\n\n');
-    const result = await requestSharedAnalysis(prompt);
+    const result = await ask(prompt);
     if (!result.text) return buildMarketAnalysisFallback(data, result.reason, metricEvidence, newsEvidence);
-    const text = result.text;
-    const semantic = validateMarketAnalysisText(text, data, snapshot, { context: regimeContext });
-    if (!text || !semantic.ok) return buildMarketAnalysisFallback(data, semantic.issues.join(','), metricEvidence, newsEvidence);
+    let text = result.text;
+    let semantic = validateMarketAnalysisText(text, data, snapshot, { context: regimeContext });
+    // P1719: the rejected text goes to the Actions log only (400 chars), never into a public artifact.
+    const logRejected = (attempt, body, issues) => console.warn(`[fetch-data] marketAnalysis ${attempt} blocked: ${issues.join(',').slice(0, 300)} :: ${String(body || '').replace(/\s+/g, ' ').slice(0, 400)}`);
+    if (!semantic.ok) {
+      // P1719: one retry with the validator's reasons; a second block is final for this run.
+      logRejected('attempt-1', text, semantic.issues);
+      const retryPrompt = prompt + '\n\nPREVIOUS_ATTEMPT_REJECTED (자동 검증기가 직전 답을 아래 이유로 차단했다. 같은 오류 없이 처음부터 다시 쓴다. 날짜·시각 숫자를 지표 이름 바로 뒤에 두지 말고, 지표 수준·변화는 METRIC_EVIDENCE 값만 쓴다):\n'
+        + describeMarketAnalysisIssues(text, semantic.issues, metricEvidence, changeOf);
+      const retry = await ask(retryPrompt).catch(() => ({ text: null }));
+      if (retry.text) {
+        text = retry.text;
+        semantic = validateMarketAnalysisText(text, data, snapshot, { context: regimeContext });
+        if (!semantic.ok) logRejected('attempt-2', text, semantic.issues);
+      }
+    }
+    if (!text || !semantic.ok) {
+      const reason = semantic.issues.join(',');
+      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs });
+      if (retained) {
+        console.warn(`[fetch-data] marketAnalysis retained previous verified analysis from ${retained.retained.from}`);
+        return retained;
+      }
+      return buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence);
+    }
     return buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic });
   } catch (error) {
     return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence);
@@ -5040,7 +5258,7 @@ async function main() {
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
     fetchFearGreed(previousFearGreed),
-    fetchNews(),
+    fetchNews(Date.parse(attemptedAt)),
     fetchCboePutCall(),
     fetchBlsSeries(previousBls),
     fetchBeaPce(previousBea),
@@ -5070,6 +5288,8 @@ async function main() {
     attemptedAt, fetchedAt: null, failureReason: 'fear-greed-plane-failed'
   }, 'Fear & Greed');
   const news = settledValue(3, previousNews && previousNews.length ? previousNews : [], 'news');
+  // P1720: only a fresh collection carries the intraday slot; a fallback to the previous bundle publishes none.
+  const newsIntraday = Array.isArray(news?.intraday) ? news.intraday : [];
   const putCall = settledValue(4, { source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, totalPutCall: null, error: 'put-call-plane-failed' }, 'Put/Call');
   const bls = settledValue(5, previousBls?.series ? { ...previousBls, status: 'stale', attemptedAt, failureReason: 'bls-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, lastSuccessfulAt: null, values: {}, series: {}, failures: [{ metricId: 'batch', reason: 'bls-plane-failed' }] }, 'BLS');
   const bea = settledValue(6, previousBea ? { ...previousBea, status: 'last-known-good', attemptedAt, failureReason: 'bea-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, lastSuccessfulAt: null, values: {}, failureReason: 'bea-plane-failed' }, 'BEA');
@@ -5210,7 +5430,7 @@ async function main() {
   const fredLkgSource = fredLkgUsed ? 'previous-public-data-macro' : null;
   const fredStatus = fredCycle.status;
   const newsScores = Array.isArray(news) ? news.map(n => Number(n.score)).filter(n => isFinite(n)) : [];
-  const newsCycle = getKst0800NewsCycle();
+  const newsCycle = getKst0800NewsCycle(Date.parse(attemptedAt));
   const fredOk = fredFetchOk; // 하위 호환 유지
   const generatedAt = attemptedAt;
 
@@ -5349,6 +5569,10 @@ async function main() {
       newsCycleEnd: newsCycle.end,
       newsCycleLabel: newsCycle.label,
       newsNextRefresh: newsCycle.nextRefresh,
+      newsIntradayPolicy: NEWS_INTRADAY_POLICY,
+      newsIntradayLabel: NEWS_INTRADAY_LABEL,
+      newsIntradayCount: newsIntraday.length,
+      newsIntradayMax: NEWS_INTRADAY_MAX,
       serverNewsScored: true,
       newsScoreMin: newsScores.length ? Math.min(...newsScores) : null,
       newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
@@ -5377,6 +5601,8 @@ async function main() {
     marketSurveys,
     officialWebReferences: previousOfficialWebReferences,
     news,
+    // P1720: provisional post-08:00 slot (empty array when the news plane failed or nothing qualified).
+    newsIntraday,
   };
 
   if (fredHasKey && !fredFetchOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키 유효성/레이트리밋 확인');
@@ -5420,10 +5646,12 @@ async function main() {
   // M01: append this cycle's completed close first, so the narrative's regime context reads the same session the
   // published history (and therefore the screen) will show.
   const histInfo = await updateHistory(data, marketSnapshotForConsumers, fredDexkous);
-  const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers);
+  const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null });
   if (marketAnalysis) {
     data.marketAnalysis = marketAnalysis;
     data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
+    // P1719: a retained previous verification is still verified prose, but this run's attempt was blocked.
+    data.meta.marketAnalysisRetained = marketAnalysis.retained || null;
     data.meta.marketAnalysisSemanticOk = marketAnalysis.status === 'verified' && marketAnalysis.semanticStatus === 'verified' && Array.isArray(marketAnalysis.metricEvidence) && marketAnalysis.metricEvidence.length >= 2 && (!marketAnalysis.semanticIssues || marketAnalysis.semanticIssues.length === 0);
     data.meta.marketAnalysisEvidenceCount = Array.isArray(marketAnalysis.metricEvidence) ? marketAnalysis.metricEvidence.length : 0;
     data.meta.marketAnalysisNewsEvidenceCount = Array.isArray(marketAnalysis.newsEvidence) ? marketAnalysis.newsEvidence.length : 0;

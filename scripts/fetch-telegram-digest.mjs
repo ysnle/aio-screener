@@ -2,7 +2,7 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classifyPostTickers, LIST_POST_TICKER_THRESHOLD } from './lib/telegram-tickers.mjs';
+import { classifyPostTickers, LIST_POST_TICKER_THRESHOLD, KR_INSTITUTIONAL_FLOW } from './lib/telegram-tickers.mjs';
 import { COMMON_WORD_ISSUER_NAMES } from '../src/domain/news/stories.js';
 
 const CHANNEL_CATALOG = [
@@ -204,12 +204,13 @@ function classify(text) {
   if (/\bcpo\b|\bnpo\b|optical|laser|\beml\b|cw laser|coherent corp|\bcohr\b|lumentum|aaoi|mtsi|\bsivers\b|photonics/i.test(raw)) add('optical');
   if (/power (?:grid|demand|supply|plants?|generation|capacity|prices?|utilit(?:y|ies)|equipment)|data center power|sofc|bloom energy|transformer|\bgrid\b|\bgw\b|800v|fuel cell|electricity|hvdc|전력|데이터센터|변압기|송전|전력망|연료전지/i.test(raw)) add('power');
   if (/anthropic|openai|gpt-|chatgpt|gemini|llama|claude|sovereign ai|export control|ai policy|ai model|소버린|수출통제|AI\s*모델/i.test(raw)) add('ai-policy');
-  if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|기관|코스피|코스닥|국장|한국장|코스피\s*선물|환율/i.test(raw)) add('kr-market');
+  // P1722: a bare 기관 is any agency; KR_INSTITUTIONAL_FLOW (lib/telegram-tickers.mjs) is the investor-group reading.
+  if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|코스피|코스닥|국장|한국장|코스피\s*선물|환율/i.test(raw) || KR_INSTITUTIONAL_FLOW.test(raw)) add('kr-market');
   if (/spacex|prime day|amazon|adobe|\bsmci\b|\bmeta\b|murata|\bipo\b|\bbuy\b|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
   if (/crypto|bitcoin|ethereum|coinbase/i.test(raw)) add('crypto');
   if (/insider (?:buy|purchase|sale|selling|transaction)|open.market (?:buy|purchase)|form 4|director bought|executive bought|내부자|임원 매수|자사주/i.test(raw)) add('insider');
   if (/earnings|revenue|\beps\b|guidance|operating profit|quarterly results|실적|매출|영업이익|가이던스|컨센서스/i.test(raw)) add('earnings');
-  if (/fund flow|etf flow|positioning|short interest|gamma|option flow|foreign buying|institutional buying|수급|외국인|기관|순매수|포지셔닝/i.test(raw)) add('flows');
+  if (/fund flow|etf flow|positioning|short interest|gamma|option flow|foreign buying|institutional buying|수급|외국인|순매수|포지셔닝/i.test(raw) || KR_INSTITUTIONAL_FLOW.test(raw)) add('flows');
   if (/healthcare|pharma|biotech|glp.?1|wegovy|ozempic|mounjaro|novo nordisk|eli lilly|비만약|제약|바이오/i.test(raw)) add('healthcare');
   if (/\bjapan\b|nikkei|topix|\byen\b|\bjgb\b|tokyo stock|일본|닛케이|토픽스|엔화|일은/i.test(raw)) add('japan');
   return tags.length ? tags : ['market-note'];

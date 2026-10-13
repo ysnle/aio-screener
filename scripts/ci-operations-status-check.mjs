@@ -145,7 +145,8 @@ if (status.routes.legacyOwner + nativeOwner.length > status.routes.supported) th
 if (nativeOwner.some((route) => !nativeRendererOwner.includes(route))) throw new Error('[operations-status] complete native owner must also own the renderer');
 if (nativeRendererOwner.some((route) => typeof route !== 'string' || route.length === 0)) throw new Error('[operations-status] native renderer owner entry is invalid');
 if (status.overall === 'VERIFIED_LIVE') throw new Error('[operations-status] invalid unsupported overall status');
-const scheduledAnalysisOk = data.meta?.marketAnalysisOk === true;
+// P1719: a retained previous analysis is not a successful call this run.
+const scheduledAnalysisOk = data.meta?.marketAnalysisOk === true && !data.meta?.marketAnalysisRetained;
 if ((status.ai?.scheduledAnalysis?.status === 'CURRENT') !== scheduledAnalysisOk) throw new Error('[operations-status] scheduledAnalysis status does not match data.meta.marketAnalysisOk');
 if ((status.ai?.scheduledAnalysis?.lastCallSucceeded === 'CURRENT') !== scheduledAnalysisOk) throw new Error('[operations-status] scheduledAnalysis lastCallSucceeded does not match data.meta.marketAnalysisOk');
 const expectedFredAttempt = data.meta?.fredAttemptedAt || data.meta?.generatedAt || null;

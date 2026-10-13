@@ -545,6 +545,125 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   }
 }
 {
+  // P1719 (live 10/13): dates and clock times were read as index levels ("S&P 500은 10월 12일 7,807.24로 마감" -> SPX=10,
+  // "한국시간 오후 3시 기준" -> 3) and blocked a correct commentary; a blocked attempt gets one retry with its reasons, and
+  // a second block keeps the previous verified analysis for 12 hours, marked `retained`.
+  const { validateMarketAnalysisText, genMarketAnalysis, retainVerifiedMarketAnalysis } = await import('./fetch-data.mjs');
+  const snapshot = { quotes: [
+    { instrumentId: '^GSPC', evidenceId: 'market.index.spx:t', value: 7807.24, changePct: -0.4, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-12T20:00:00.000Z', session: 'MARKET_CLOSED' },
+    { instrumentId: '^VIX', evidenceId: 'market.vol.vix:t', value: 15.21, changePct: 2.49, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-12T20:00:00.000Z', session: 'MARKET_CLOSED' },
+    { instrumentId: '^KS11', evidenceId: 'market.index.kospi:t', value: 5975.74, changePct: -5.46, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-13T06:30:00.000Z', session: 'MARKET_CLOSED' }
+  ] };
+  const data = { meta: { generatedAt: '2026-10-13T09:00:00.000Z' }, news: [], macro: {} };
+  const issues = (text, context = '') => validateMarketAnalysisText(text, data, snapshot, { context }).issues;
+  const dated = issues('S&P 500은 10월 12일 7,807.24로 마감했다. 위험 선호는 제한적이다.');
+  const clock = issues('KOSPI는 한국시간 오후 3시 기준 5,975.74로 마감했다. 코스피는 5.46% 하락했다.');
+  const wrong = issues('S&P 500은 7,100으로 마감했다. 위험 선호는 제한적이다.');
+  const wrongAfterDate = issues('S&P 500은 10월 12일 7,100으로 마감했다.');
+  const contextQuoted = issues('S&P 500은 20일 고점 7,100 아래에서 7,807.24로 마감했다.', '20일 고점 7,100 대비');
+  // Review (v57.52): a context value written as the current level is still a wrong level.
+  const contextAsLevel = issues('S&P 500은 7,100으로 마감했다.', '20일 고점 7,100 대비');
+  const contextBounded = issues('S&P 500은 10으로 마감했다.', '종합: 2026-10-13 100');
+  check('P1719 dates and clock times are not metric levels; a wrong level still blocks; the REGIME_CONTEXT exception is whole-number bounded and needs a reference marker',
+    !dated.length && !clock.length && wrong.includes('metric-value-mismatch:market.spx') && wrongAfterDate.includes('metric-value-mismatch:market.spx')
+      && !contextQuoted.length && contextAsLevel.includes('metric-value-mismatch:market.spx') && contextBounded.includes('metric-value-mismatch:market.spx'),
+    JSON.stringify({ dated, clock, wrong, wrongAfterDate, contextQuoted, contextAsLevel, contextBounded }));
+  const bad = 'S&P 500은 7,100으로 마감했다. 위험 선호는 제한적이다.';
+  const good = 'S&P 500은 10월 12일 7,807.24로 마감했다. 위험 선호는 제한적이다.';
+  const prompts = [];
+  const stub = (answers) => async (prompt) => { prompts.push(prompt); return { text: answers.shift() ?? null }; };
+  const now = Date.parse('2026-10-13T09:00:00.000Z');
+  const previous = { status: 'verified', semanticStatus: 'verified', semanticIssues: [], generatedAt: '2026-10-13T03:00:00.000Z', full: 'prev', oneLine: 'prev', metricEvidence: [] };
+  const withIntraday = { ...data, newsIntraday: [{ title: '코스피 5% 급락', source: '연합뉴스', publishedAt: '2026-10-13T05:00:00.000Z' }] };
+  const warn = console.warn; console.warn = () => {};
+  let retried; let retained; let expired;
+  try {
+    retried = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, good]), nowMs: now });
+    retained = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, bad]), nowMs: now });
+    expired = await genMarketAnalysis(withIntraday, snapshot, { previous: { ...previous, generatedAt: '2026-10-12T20:00:00.000Z' }, request: stub([bad, bad]), nowMs: now });
+  } finally { console.warn = warn; }
+  check('P1719 one retry carries the blocked reasons and values; a second block keeps a <=12h verified analysis marked retained; older falls back',
+    retried.status === 'verified' && !retried.retained && /PREVIOUS_ATTEMPT_REJECTED/.test(prompts[1] || '') && /evidence SPX=7807\.24/.test(prompts[1] || '') && /7100/.test(prompts[1] || '')
+      && retained.status === 'verified' && retained.semanticStatus === 'verified' && retained.retained?.from === previous.generatedAt && /metric-value-mismatch/.test(retained.retained?.reason || '')
+      && expired.status === 'blocked' && retainVerifiedMarketAnalysis({ ...previous, semanticIssues: ['x'] }, { nowMs: now }) === null
+      && /08:00 이후 장중 속보\(잠정\)/.test(prompts[0] || ''),
+    JSON.stringify({ retried: retried?.status, retained: retained?.retained, expired: expired?.status, prompts: prompts.length }));
+  const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+  check('P1719 a rejected text is logged (400 chars) and never published; the run passes the previous artifact analysis',
+    /\.slice\(0, 400\)/.test(source) && /genMarketAnalysis\(data, marketSnapshotForConsumers, \{ previous: previous\?\.marketAnalysis \|\| null \}\)/.test(source)
+      && /data\.meta\.marketAnalysisRetained = marketAnalysis\.retained \|\| null/.test(source));
+  // Review (v57.52): one news cut per run — fetchNews and meta.newsCycleEnd use the same attempt time, so a run that
+  // straddles 08:00 KST cannot pick newsIntraday against the previous cut and fail P1720.
+  check('P1720 fetchNews and meta.newsCycleEnd share the run attempt time',
+    /fetchNews\(Date\.parse\(attemptedAt\)\)/.test(source) && /const newsCycle = getKst0800NewsCycle\(Date\.parse\(attemptedAt\)\)/.test(source));
+}
+{
+  // P1720: post-08:00 articles go to a separate provisional slot (tier 1-2, curation filters, one per event, max 6,
+  // Korean items first); the completed 08:00 bundle is unchanged.
+  const { selectNewsIntraday, NEWS_INTRADAY_MAX } = await import('./fetch-data.mjs');
+  const end = Date.parse('2026-10-12T23:00:00.000Z');
+  const now = Date.parse('2026-10-13T09:00:00.000Z');
+  const h = (x) => end + x * 3600000;
+  const row = (title, source, ts, extra = {}) => ({ title: `${title} - ${source}`, link: `https://news.example/${encodeURIComponent(title)}`, source, _sourceRaw: source, ts, topic: 'kr', country: 'kr', feedTier: 2, ...extra });
+  const picked = selectNewsIntraday([
+    row('코스피 5% 급락…외국인 반도체 매도 확대', '연합뉴스', h(5)),
+    row('코스피 5% 급락, 외국인 반도체 매도 확대', '연합뉴스', h(5.1)),
+    row('삼성전자 하락 반도체주 동반 약세 SK하이닉스', '연합뉴스', h(6)),
+    row('코스닥 급락 원달러 환율 1,340원대', '아시아경제', h(4)),
+    row('Stocks to buy now: the next Nvidia', 'Reuters', h(3), { topic: 'semi', country: 'us' }),
+    row('Old bundle story on oil prices', 'Reuters', h(-1), { topic: 'geo', country: 'global' }),
+    row('Gold hits record as investors seek safety', 'Financial Times', h(1), { topic: 'fxbond', country: 'global' }),
+    row('Oil jumps as tanker hit near Hormuz', 'Reuters', h(2), { topic: 'geo', country: 'global' }),
+    row('Treasury yields climb as dollar strengthens', 'Bloomberg', h(6), { topic: 'fxbond', country: 'global' }),
+    row('Fed officials signal patience on rate cuts', 'CNBC', h(7), { topic: 'macro', country: 'us' }),
+    row('Nvidia shares fall as chip stocks slide', 'CNBC', h(8), { topic: 'semi', country: 'us' }),
+    row('Wall Street futures slip; S&P 500 eyes CPI', 'CNBC', h(8.5), { topic: 'macro', country: 'us' }),
+    row('Copper falls on China demand worries', 'Bloomberg', h(9), { topic: 'fxbond', country: 'global' })
+  ], { cycleEndMs: end, nowMs: now, canonical: [{ title: 'Gold hits record as investors seek safety', link: 'x', source: 'FT' }] });
+  const titles = picked.map((item) => item.title);
+  check('P1720 intraday slot: after the cut, tier 1-2, filters, one per event (bundle included), <=2 per publisher, Korean first, max 6',
+    picked.length === NEWS_INTRADAY_MAX && picked.filter((item) => item.market === 'kr').length === 2
+      && picked.every((item) => item.tier <= 2 && Date.parse(item.publishedAt) >= end && item.provisional === true && item.source && item.topic && item.market)
+      && !titles.some((t) => /next Nvidia|Old bundle|Gold hits|1,340원대/.test(t)) && titles.filter((t) => /코스피 5% 급락/.test(t)).length === 1
+      && picked.filter((item) => item.source === 'CNBC').length <= 2
+      && selectNewsIntraday([], { cycleEndMs: end, nowMs: now }).length === 0,
+    JSON.stringify(titles));
+  const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+  check('P1720 the slot is published beside the canonical bundle and the bundle window is unchanged',
+    /newsIntraday,\n\s*\};/.test(source) && /newsIntradayCount: newsIntraday\.length/.test(source)
+      && /if \(!isFinite\(t\) \|\| t < cycle\.startMs \|\| t >= cycle\.endMs\) continue;/.test(source)
+      && /Object\.defineProperty\(out, 'intraday', \{ value: selectNewsIntraday\(/.test(source));
+}
+{
+  // P1721: Yahoo's daily FX bars dropped Mon 10/12 and left 10/13 null, so the FX previous close reached back to 10/9 and
+  // the won froze at 1,342.99 for two days. The FX previous close is the hourly close at the 23:00Z (KST 08:00) cut.
+  const { fxCloseAtCut, boundPreviousCloseToCut, HIST_FIELD_PLAUSIBILITY } = await import('./fetch-data.mjs');
+  const fri20 = Date.parse('2026-10-09T20:00:00Z') / 1000;
+  const mon22 = Date.parse('2026-10-12T22:00:00Z') / 1000;
+  const tue = fxCloseAtCut([fri20, fri20 + 3600, mon22, mon22 + 3600], [1340.02, null, 1334.2, 1334.63], Date.parse('2026-10-13T08:28:00Z'));
+  const mon = fxCloseAtCut([fri20, fri20 + 3600, mon22], [1340.02, null, 1334.2], Date.parse('2026-10-12T08:00:00Z'));
+  const none = fxCloseAtCut([fri20], [null], Date.parse('2026-10-12T08:00:00Z'));
+  const bySym = { 'KRW=X': tue?.close };
+  const bySymQuote = { 'KRW=X': { observationRelation: 'previous-completed-close', observedAt: tue?.observedAt, previousBarOpenedAt: tue?.previousBoundary } };
+  const bound = boundPreviousCloseToCut({ bySym, bySymQuote, cycleEnd: '2026-10-12T23:00:00.000Z' });
+  const source = readFileSync(new URL('./fetch-data.mjs', import.meta.url), 'utf8');
+  check('P1721 FX previous close is the hourly close at the KST 08:00 cut (Monday close on Tuesday, Friday close on Monday) and stays within the row cut',
+    tue?.close === 1334.2 && tue?.observedAt === '2026-10-12T23:00:00.000Z' && mon?.close === 1340.02 && mon?.observedAt === '2026-10-09T21:00:00.000Z'
+      && none === null && !bound.adjusted.length && !bound.dropped.length && bySym['KRW=X'] === 1334.2
+      && /_pctSource = 'fx-hourly-cut-close'/.test(source),
+    JSON.stringify({ tue, mon, none, bound }));
+  check('P1721 Brent futures (BZ=F) get the same completed-close history column as WTI (CL=F)',
+    /'BZ=F': 'brent'/.test(source) && /'wti','brent','gold'/.test(source) && Array.isArray(HIST_FIELD_PLAUSIBILITY.brent));
+}
+{
+  // P1722: a bare 기관 ("영국 기관: 호르무즈 … 선박 피격") is not the Korean institutional-investor flow.
+  const { KR_INSTITUTIONAL_FLOW } = await import('./lib/telegram-tickers.mjs');
+  const digestSource = read('scripts/fetch-telegram-digest.mjs');
+  check('P1722 telegram 한국장/수급 tags need 기관 as an investor group, not any agency',
+    !KR_INSTITUTIONAL_FLOW.test('영국 기관: 호르무즈 해협 및 인근 해역에서 선박 6척 하루 동안 잇따라 피격') && KR_INSTITUTIONAL_FLOW.test('외국인과 기관이 동반 매도')
+      && KR_INSTITUTIONAL_FLOW.test('기관이 3,000억 순매도') && !/외국인\|기관\|코스피/.test(digestSource) && !/수급\|외국인\|기관\|순매수/.test(digestSource));
+}
+{
   // P1385: a FRED series added after the previous artifact (fedTargetLower/Upper) must still get an
   // explicit freshness marker; the semantics gate rejects `_source_*` without `_freshness_*`.
   let ok = false;

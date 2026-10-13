@@ -80,11 +80,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   for (const bad of [{ value: true }, { source: '' }, { observedAt: '2026-10-01T01:00:00Z' }, { observedAt: '2026-09-01T00:00:00Z' }, { quality: 'BLOCKED' }, { allowedUse: 'none' }]) {
     if (selectReferenceObservation([{ ...oil, ...bad }], { nowMs })) fail('P1357 invalid reference observation was accepted');
   }
-  const { buildBriefingDecisionSummary } = await load('src/domain/briefing/decision-summary.js');
-  const summary = buildBriefingDecisionSummary({ observations: { oilPrice: [oil], kospi: [{ ...oil, value: 6813.15 }] }, nowMs });
-  if (summary.axes.find((row) => row.id === 'oil').values[0].value !== 90.4 || !summary.axes.find((row) => row.id === 'korea').basisLabel.includes('각 값의 관측')) fail('P1357 continuous market/Korea observations hidden by a US-close clock');
-  const previouslyBlocked = buildBriefingDecisionSummary({ scoreInputs: { decisionEvidence: { oilPrice: { ...oil, value: null, allowedUse: 'none', status: 'blocked' } } }, observations: { oilPrice: [oil] }, nowMs });
-  if (previouslyBlocked.axes.find((row) => row.id === 'oil').values[0].value !== 90.4) fail('P1357 same-timestamp score rejection hid a valid reference observation');
+  // P1727: the briefing decision-summary model (no product consumer since the briefing read replaced it) was deleted.
 }
 
 // P1353: refuse unsupported paid search before incrementing counters; personal-key cost stays separate.
@@ -1378,35 +1374,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     const proven = createRuntimeReaders({ root: { _liveData: { '^GSPC': { marketState: 'CLOSED', quoteEnvelope: { price: '500', observedAt: '2026-09-29T20:00:00Z', valueBasis: 'latest-completed-close' } } } }, now: () => nowMs }).readTradingScoreInputs();
     if (proven.spxPrice !== 500 || typeof proven.decisionEvidence.spxPrice.value !== 'number') fail('P1349: valid completed close did not normalize its numeric type');
   }
-  // P1346/QA-UX-11: six reference axes, one missing input, basis label and no buy/sell actions.
+  // P1346/QA-UX-11: the briefing decision-summary assertions retired with the module (P1727, zero product consumers).
   {
-    const { buildBriefingDecisionSummary } = await load('src/domain/briefing/decision-summary.js');
-    const { resolveCloseBasis } = await load('src/domain/signal/close-basis.js');
-    const nowMs = Date.parse('2026-09-30T02:00:00Z');
-    const closeBasis = resolveCloseBasis(nowMs);
-    const closeEv = (value) => ({ value, observedAt: '2026-09-29T20:00:00Z', status: 'session_close', allowedUse: 'close-basis' });
-    const scoreInputs = { closeBasis, decisionEvidence: Object.fromEntries(Object.entries({ spxPrice: 500, vix: 16, fg: 32, tnx: 4.2, dxy: 101, oilPrice: 80 }).map(([key,value]) => [key,closeEv(value)])) };
-    const quote = (value) => ({ value, observedAt: '2026-09-29T20:00:00Z', session: 'MARKET_CLOSED', valueBasis: 'latest-completed-close' });
-    const observations = { usdJpy: quote(150), nvda: quote(200), smh: quote(250), kospi: { ...quote(3000), observedAt: '2026-09-29T06:30:00Z' } };
-    const full = buildBriefingDecisionSummary({ scoreInputs, observations, nowMs });
-    const held = buildBriefingDecisionSummary({ scoreInputs, observations: { ...observations, smh: null }, nowMs });
-    if (full.axes.length !== 6 || full.axes.some(axis => axis.tone === 'held') || full.decisionEligible || full.basisLabel !== '9/29 미국 정규장 종가 기준'
-      || held.axes.filter(axis => axis.tone === 'held').map(axis => axis.id).join() !== 'ai'
-      || full.checks.some(check => /매수|매도|분할.*진입/.test(check))) fail('P1346: briefing summary axis/basis/missing-input/action contract failed');
-    const krNow = Date.parse('2026-09-30T08:00:00Z');
-    const korean = (kospi, at = krNow) => buildBriefingDecisionSummary({ scoreInputs, observations: { ...observations, kospi }, nowMs: at }).axes.find(axis => axis.id === 'korea');
-    const currentKr = { ...quote(3100), observedAt: '2026-09-30T06:30:00Z' };
-    if (korean([observations.kospi, currentKr]).values[0].value !== 3100 || !/2026-09-30 한국/.test(korean([observations.kospi, currentKr]).basisLabel)
-      || korean({ ...currentKr, observedAt: '2026-09-30T00:05:00Z' }).tone !== 'held'
-      || korean({ ...currentKr, observedAt: '2026-09-24T06:30:00Z' }, Date.parse('2026-09-24T08:00:00Z')).tone !== 'held') fail('P1349: Korean session/candidate order/close window contract failed');
-    if (korean({ ...currentKr, observedAt: '2026-09-30' }).values[0].value !== 3100
-      || korean({ ...currentKr, valueBasis: 'previous-completed-close' }).tone !== 'held'
-      || korean({ ...currentKr, valueBasis: 'provider-current-value', observedAt: '2026-09-30T06:26:00Z' }).tone !== 'held') fail('P1349: Korean completed-date declaration or pre-close boundary failed');
-    const dubai = buildBriefingDecisionSummary({ scoreInputs, observations, nowMs, items: [{ title: 'Dubai tourism recovery', summary: 'Tourism demand improved and visitor arrivals increased over the prior quarter.' }] });
-    if (dubai.axes.find(axis => axis.id === 'ai').newsLabel !== '관련 기사 미확보'
-      || !full.axes.find(axis => axis.id === 'ai').values.some(row => /SMH.*ETF/.test(row.label))) fail('P1349: AI article false-positive or unlabelled ETF proxy');
-    const numeric = buildBriefingDecisionSummary({ scoreInputs: { ...scoreInputs, decisionEvidence: Object.fromEntries(Object.entries(scoreInputs.decisionEvidence).map(([key,row]) => [key, { ...row, value: String(row.value) }])) }, observations, nowMs });
-    if (numeric.axes[0].tone === 'held') fail('P1349: numeric string evidence disagreed between score and briefing');
     const completeBase = computeTradingScoreModel({ vix: 18, pcr: 1, dxy: 100, tnx: 3.5, maCurrent: true, spxPrice: 500, spx50ma: 480, spx200ma: 450, breadthAvailable: true, breadth200: 60 });
     if (completeBase.componentCoveragePct !== 100 || completeBase.missingOptionalInputs.length !== 3
       || !/보조 입력 미수신/.test(deriveTradingScoreDecisionPresentation({ score: completeBase }).description)) fail('P1349: base-axis coverage hid missing optional risk observations');
@@ -3645,6 +3614,61 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { homeParticipationSeries } = await load('src/ui/components/home-kpi-trend.js');
   const low = [{ date: '2026-10-09', spx: 7800, breadth50: .5 }];
   if (homeParticipationSeries(low).b50[0]?.value !== .5 || buildBreadthSnapshot(low).cards[0]?.share !== .5) fail('P1623 sub-one percent breadth must retain the same percent unit in chart and snapshot');
+  // P1729: the AI scenario context reads the screen's inputs (credit, rates, macro history), not history alone.
+  const { buildQuestionDomainContext } = await load('src/ai/context/market-content.js');
+  const marketSource = readFileSync(path.join(root, 'src/ai/context/market-content.js'), 'utf8');
+  if (!/renderMarketScenarioContext\(collectMarketInputs\(root\)\)/.test(marketSource) || /renderMarketScenarioContext\(\{\s*history\s*:/.test(marketSource)) fail('P1729 the AI scenario context must be built from collectMarketInputs(root)');
+  if (typeof buildQuestionDomainContext !== 'function') fail('P1729 buildQuestionDomainContext export missing');
+}
+
+// P1728: a Korean quote's change comes from the verified previous KRX close (2026-10-13: the provider's previous close
+// was one session behind after the 10/9 holiday — ^KQ11 -6.19% against -1.43%, 005930 -6.59% against -5.58%).
+{
+  const vm = await import('node:vm');
+  const dataSource = readFileSync(path.join(root, 'js/aio-data.js'), 'utf8');
+  const block = dataSource.slice(dataSource.indexOf('var _AIO_KR_INDEX_FIELD'), dataSource.indexOf('function applyLiveQuotes(quotes) {'));
+  const history = [
+    { date: '2026-10-08', kosdaq: 892.27, kospi: 6625.93, fieldMeta: { kosdaq: { observedAt: '2026-10-08T00:00:00.000Z' } } },
+    { date: '2026-10-09', kosdaq: 892.27, kospi: 6625.93, fieldMeta: { kosdaq: { observedAt: '2026-10-08T11:05:40.000Z' } } },
+    { date: '2026-10-11', kosdaq: 892.27, kospi: 6625.93, fieldMeta: { kosdaq: { observedAt: '2026-10-08T11:05:40.000Z' } } },
+    { date: '2026-10-12', kosdaq: 849.19, kospi: 6384.24, fieldMeta: { kosdaq: { observedAt: '2026-10-12T00:00:00.000Z' } } },
+    { date: '2026-10-13', kosdaq: 837.03, kospi: 6035.35, fieldMeta: { kosdaq: { observedAt: '2026-10-13T06:32:50.000Z', valueBasis: 'latest-completed-close' } } }];
+  const rows = [{ sym: '005930.KS', ret1d: -5.58, factorSessionDate: '2026-10-13' }];
+  const win = { _aioHistory: history, addEventListener() {} };
+  const ctx = { window: win, document: { addEventListener() {} }, _aioGetCanonicalScreenerRows: () => rows, applyLiveQuotes() {} };
+  vm.createContext(ctx);
+  vm.runInContext(block, ctx);
+  const verify = win._aioVerifyKrQuoteChange;
+  const kq = verify({ symbol: '^KQ11', _source: 'live:yahoo-proxy', _atomicObservedAt: '2026-10-13T06:32:50.000Z', regularMarketPreviousClose: 892.27 }, 837.03, -6.19);
+  if (!kq || kq.status !== 'corrected' || Math.abs(kq.pct + 1.432) > 0.01 || kq.prevClose !== 849.19 || kq.basisDate !== '2026-10-12') fail(`P1728 ^KQ11 must be recomputed from the verified 10/12 close: ${JSON.stringify(kq)}`);
+  const samsung = verify({ symbol: '005930.KS', _source: 'live:yahoo-proxy', _atomicObservedAt: '2026-10-13T06:30:12.000Z', regularMarketPreviousClose: 250500 }, 234000, -6.59);
+  if (!samsung || samsung.pct !== -5.58 || samsung.basis !== 'screener-reconciled-session-change') fail(`P1728 005930 must use the reconciled same-session change: ${JSON.stringify(samsung)}`);
+  const nextDay = verify({ symbol: '005930.KS', _source: 'live:yahoo-proxy', _atomicObservedAt: '2026-10-14T02:00:00.000Z', regularMarketPreviousClose: 250500 }, 236000, -5.8);
+  if (!nextDay || nextDay.pct !== null || nextDay.basis !== 'kr-previous-close-unverified') fail(`P1728 a KR change with no verified basis must be withheld: ${JSON.stringify(nextDay)}`);
+  win._aioHistory = history.slice(0, 3);
+  const stale = verify({ symbol: '^KQ11', _source: 'live:yahoo-proxy', _atomicObservedAt: '2026-10-13T06:32:50.000Z', regularMarketPreviousClose: 892.27 }, 837.03, -6.19);
+  if (!stale || stale.status !== 'unverified') fail('P1728 a history that stops before the previous day must not verify the change');
+  if (verify({ symbol: '^KQ11', _source: 'live:naver' }, 837, -1.4) !== null || verify({ symbol: 'NVDA' }, 100, 1) !== null) fail('P1728 KRX-origin and non-KR quotes pass through unchanged');
+  win._aioHistory = history;
+  const read = win._aioKrIndexCloseRead('kosdaq', history);
+  if (!read || read.date !== '2026-10-13' || read.prevDate !== '2026-10-12' || Math.abs(read.pct + 1.432) > 0.01) fail(`P1729 the AI header KR close read must name both sessions: ${JSON.stringify(read)}`);
+  const chatSource = readFileSync(path.join(root, 'js/aio-chat.js'), 'utf8');
+  if (!/_aioKrIndexCloseRead\('kospi'/.test(chatSource) || !/확산·집중·동반 약화/.test(chatSource) || !/_aioKrVerifiedDayChange\(t, _lastBarDate/.test(chatSource)) fail('P1728/P1729 the chat header and technical block must use the verified KR change and the three flows');
+}
+
+// P1730: the provisional post-08:00 news slot — after the bundle end, not already in the bundle, newest first, at most six.
+{
+  const { selectIntradayNews } = await load('src/domain/news/stories.js');
+  const end = Date.parse('2026-10-12T23:00:00Z');
+  const row = (minutes, title, link) => ({ title, link, source: 'Wire', publishedAt: new Date(end + minutes * 60000).toISOString() });
+  const rows = [row(-5, 'before cut', 'https://a/1'), row(30, 'kept one', 'https://a/2'), row(60, 'in bundle', 'https://a/3?utm=x'),
+    row(90, 'dup title', 'https://a/4'), ...Array.from({ length: 8 }, (_, i) => row(100 + i, `extra ${i}`, `https://b/${i}`))];
+  const canonical = [{ title: 'other', link: 'https://a/3' }, { title: 'Dup  Title', link: 'https://c/9' }];
+  const picked = selectIntradayNews(rows, { cycleEndMs: end, canonical, nowMs: end + 6 * 3600000 });
+  if (picked.length !== 6 || picked.some((item) => ['before cut', 'in bundle', 'dup title'].includes(item.title)) || picked[0].title !== 'extra 7') fail(`P1730 intraday slot selection wrong: ${picked.map((item) => item.title).join(',')}`);
+  if (selectIntradayNews(rows, { cycleEndMs: NaN }).length || selectIntradayNews(null, { cycleEndMs: end }).length) fail('P1730 no bundle end or no rows must hide the slot');
+  const newsPage = readFileSync(path.join(root, 'src/ui/pages/news.js'), 'utf8');
+  if (!/08:00 이후 장중 속보 · 잠정/.test(newsPage) || !/한국장 시간대 기사는 장중 속보 칸에, 정식 묶음은 다음 08:00 수집본/.test(newsPage)) fail('P1730 the news screen must label the slot and the post-close header');
 }
 
 // ── P1418: portfolio 점검 — published-default verdicts only, hidden currency mix detected ─────

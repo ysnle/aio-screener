@@ -12,6 +12,28 @@ export function newsArticleKey(row) {
     value(row?.correctionOf || row?.retractionOf || row?.supersedes), value(row?.revisionType)]);
 }
 
+// P1730: the provisional post-08:00 slot. The 08:00 bundle stays canonical; this slot holds only headlines published at
+// or after that bundle's end that the bundle does not already carry (same link or title), newest first, at most `max`.
+// A headline that a newer bundle absorbs leaves the slot because its time falls before that bundle's end.
+export function selectIntradayNews(rows = [], { cycleEndMs = null, canonical = [], max = 6, nowMs = Date.now() } = {}) {
+  if (!Number.isFinite(cycleEndMs)) return [];
+  const linkOf = (row) => value(row?.link || row?.url).replace(/[?#].*$/, '').replace(/\/$/, '').toLowerCase();
+  const titleOf = (row) => value(row?.title || row?.headline).replace(/\s+/g, ' ').toLowerCase();
+  const links = new Set((Array.isArray(canonical) ? canonical : []).map(linkOf).filter(Boolean));
+  const titles = new Set((Array.isArray(canonical) ? canonical : []).map(titleOf).filter(Boolean));
+  const picked = [];
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const ms = Date.parse(stamp(row));
+    const link = linkOf(row), title = titleOf(row);
+    if (!title || !Number.isFinite(ms) || ms < cycleEndMs || ms > nowMs + 15 * 60000) continue;
+    if ((link && links.has(link)) || titles.has(title)) continue;
+    if (link) links.add(link);
+    titles.add(title);
+    picked.push({ ...row, publishedMs: ms });
+  }
+  return picked.sort((a, b) => b.publishedMs - a.publishedMs).slice(0, Math.max(0, max));
+}
+
 export function dedupeNewsArticles(rows = []) {
   const seen = new Set();
   return rows.filter((row) => { const key = newsArticleKey(row); if (seen.has(key)) return false; seen.add(key); return true; });

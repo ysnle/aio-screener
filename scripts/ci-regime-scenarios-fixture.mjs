@@ -92,4 +92,67 @@ assert.equal(selectors[1].attributes['aria-pressed'], 'true', 'P1628 chart selec
 assert.equal(descendants(page).filter(node => node.dataset.scenario).length, 3, 'P1628 screen must show the three model-backed conditional paths');
 const css = readFileSync(new URL('../src/ui/styles/regime-quality.css', import.meta.url), 'utf8');
 assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && css.includes('@media (max-width: 900px)'), 'P1628 six-axis layout must fill desktop in two columns and stack compact screens');
-console.log('[regime-scenarios] PASS P1628: six actual charts, conditional recovery/concentration/weakness, missing/stale holds, units/date bounds, KR holiday/KST separation, chart selection. Offline.');
+// P1723-P1727 (2026-10-13 market responsiveness): a rare KOSPI day reaches the briefing lead and the axis reads without
+// changing any US axis state; KRX-session daily change; mixed-date FX chip; WTI 5-session rebound; one credit rule.
+{
+  const { buildMarketRead, koreaMoveRecord } = await import('../src/domain/briefing/market-read.js');
+  const { buildDailyChanges } = await import('../src/domain/briefing/daily-diff.js');
+  const { briefingFlow } = await import('../src/domain/market/page-flow.js');
+  const { brentWtiCheck } = await import('../src/domain/macro/liquidity-growth.js');
+  const { buildScenarioOutlook } = await import('../src/domain/market/scenario-outlook.js');
+  const now = Date.parse('2026-10-13T09:00:00Z');
+  const open = (market, date) => resolveMarketCalendarSession({ market, date }).status === 'open';
+  const build = (shock) => {
+    const rows = []; let k = 3000;
+    for (let t = Date.parse('2025-08-01T12:00:00Z'), i = 0; t <= Date.parse('2026-10-13T12:00:00Z'); t += 86400000, i += 1) {
+      const date = new Date(t).toISOString().slice(0, 10), us = open('US', date) && date <= '2026-10-12', krOpen = open('KR', date);
+      if (!us && !krOpen) continue;
+      const row = { date };
+      if (us) Object.assign(row, { spx: 6000 + i, nasdaq: 22000 + i * 3, vix: 14, vix3m: 17, breadth50: 65, breadth200: 68, tnx: 4.1, wti: 92, dxy: 100, gold: 2000, usdkrw: 1350 + (i % 3) * 0.5 });
+      if (krOpen) { k = shock && date === '2026-10-13' ? k * 0.94 : k * (1 + ((i % 5) - 2) * 0.004); row.kospi = k; }
+      rows.push(row);
+    }
+    const usRows = rows.filter((row) => row.spx != null);
+    // WTI 92 twenty sessions back, 80 five sessions back, 84 now: 20일 -8.7%, 최근 5일 +5.0%.
+    usRows.slice(-21).forEach((row, j, list) => { const back = list.length - 1 - j; row.wti = back <= 4 ? 84 - back : 80 + (back - 5) * 12 / 15; });
+    return rows;
+  };
+  const rows = build(true);
+  const calm = build(false);
+  const record = koreaMoveRecord(rows, { now });
+  assert.ok(record?.date === '2026-10-13' && record.extreme && record.tail1 <= 2, `P1723 a -6% KRX day is at the edge of its own one-year record (${JSON.stringify(record)})`);
+  const read = buildMarketRead({ history: rows, now });
+  const korea = read.statements.find((row) => row.id === 'korea-relative');
+  assert.ok(korea && read.statements.slice(0, 4).includes(korea) && korea.weight >= 76, `P1723 the rare Korean move enters the four-sentence lead (${JSON.stringify(read.statements.map((row) => [row.id, row.weight]))})`);
+  assert.ok(/코스피 10\/13 -6\.0%/.test(korea.text) && /직전 미국장\(10\/12\)/.test(korea.text) && /최근 \d+거래일 기록에서 하루 최저/.test(korea.text), `P1723 one sentence names the KRX and US dates and the record position (${korea.text})`);
+  assert.ok(/원\/달러 10\/12까지 5거래일 [+-]\d\.\d%\(보합권\)/.test(korea.text), `P1725/P1727 the won carries its own date and a ±0.5% move is 보합권 (${korea.text})`);
+  assert.ok(!read.statements.some((row) => row.id === 'korea-day'), 'P1723 the 1-day and 5-day Korean sentences are one sentence');
+  const regime = buildMarketRegime({ history: rows, now });
+  const regimeCalm = buildMarketRegime({ history: calm, now });
+  assert.deepEqual(regime.axes.map((row) => row.state), regimeCalm.axes.map((row) => row.state), 'P1723 a Korean shock never changes a US axis state');
+  assert.ok(['trend', 'volatility'].every((id) => regime.axes.find((row) => row.id === id).read.includes('단, 한국은 10/13 코스피 -6.0%')), 'P1723 trend and volatility readings name the rare Korean move');
+  assert.ok(!regimeCalm.axes.find((row) => row.id === 'trend').read.includes('단, 한국은'), 'P1723 an ordinary Korean day adds nothing to the US axis readings');
+  const fxAxis = regime.axes.find((row) => row.id === 'korea');
+  assert.ok(fxAxis.basisStatus === 'mixed' && fxAxis.basis === '10/12~10/13' && fxAxis.evidence.find(([label]) => label === '코스피')[1].endsWith('· 10/13'), `P1725 the won/KOSPI card shows each value's own date (${JSON.stringify(fxAxis)})`);
+  const oil = regime.axes.find((row) => row.id === 'commodities');
+  assert.ok(/WTI","84\.00달러 \(20일 -8\.7% · 최근 5일 \+5\.0% 반등\)/.test(JSON.stringify(oil.evidence)) && /최근 5일 \+5\.0% 반등했습니다\(판정은 20일 기준\)/.test(oil.read), `P1726 a 5-session WTI rebound is named beside the 20-session fall (${JSON.stringify(oil)})`);
+  assert.equal(oil.state, regimeCalm.axes.find((row) => row.id === 'commodities').state, 'P1726 the oil wording never changes the axis state');
+  const daily = buildDailyChanges(rows, { now });
+  const kospiMove = daily.moves.find((move) => move.key === 'kospi');
+  assert.ok(kospiMove?.market === 'KR' && kospiMove.from === '2026-10-12' && kospiMove.to === '2026-10-13' && Math.abs(kospiMove.value + 6) < 1e-9 && daily.big.includes('kospi'), `P1724 KOSPI compares its own previous KRX session (${JSON.stringify(daily)})`);
+  const flow = briefingFlow({ read }).next;
+  assert.ok(flow[0].route === 'signal' && flow[0].ctx?.anchor === 'regime-board-kr' && flow.some((item) => item.route === 'market-news' && item.ctx?.country === 'kr'), `P1727 the Korean lead continues to the 한국 시장 참고 board first, then Korean news (${JSON.stringify(flow)})`);
+  const withBrent = rows.map((row) => (row.wti != null ? { ...row, brent: row.wti + 30 } : row));
+  const brent = brentWtiCheck(null, withBrent);
+  assert.ok(brent.basis === 'futures' && brent.abnormal && /보류/.test(brent.sentence) && !/20거래일 기준 브렌트/.test(brent.sentence), `P1726 an abnormal Brent-WTI futures gap holds the spread reading (${brent.sentence})`);
+  const spot = brentWtiCheck({ series: { brent: { observations: rows.filter((row) => row.wti != null).slice(-25).map((row) => [row.date, 120]) } } }, rows);
+  assert.ok(spot.basis === 'spot' && spot.spread == null && spot.diverges === false, `P1726 FRED spot Brent is not compared with the WTI future (${JSON.stringify(spot)})`);
+  // P1727: scenario confirmation and the outlook count use one credit rule (creditState favorable).
+  const neutralCredit = { ...narrow, credit: { ...narrow.credit, hyDelta20Bp: 45 } };
+  const neutralRegime = buildMarketRegime(neutralCredit);
+  const scenarios = buildMarketScenarios(neutralCredit, { regime: neutralRegime });
+  const outlook = buildScenarioOutlook({ scenarios, regime: neutralRegime });
+  assert.equal(neutralRegime.axes.find((row) => row.id === 'credit').state, 'neutral', 'P1727 fixture: a 20-session widening makes credit neutral');
+  assert.ok(scenarios.scenarios.find((item) => item.id === 'concentration').confirmed === false && outlook.items.find((item) => item.id === 'concentration').met === 3, 'P1727 a neutral credit axis neither confirms 집중 유지 nor counts as 신용 안정');
+}
+console.log('[regime-scenarios] PASS P1628: six actual charts, conditional recovery/concentration/weakness, missing/stale holds, units/date bounds, KR holiday/KST separation, chart selection; P1723-P1727 Korean shock lead/axis notes, KRX daily change, mixed-date chip, WTI rebound, Brent hold, one credit rule. Offline.');

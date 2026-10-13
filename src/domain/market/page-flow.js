@@ -150,21 +150,37 @@ const BRIEFING_ROUTES = Object.freeze({
   rates: { route: 'fxbond', label: '금리 · 환율', why: '금리 움직임이 실질금리·기대인플레·수익률 곡선 중 어디서 오는지' },
   commodities: { route: 'macro', label: '거시 경제', why: '유가·금·달러 움직임이 물가와 금리 경로에 주는 압력' },
   risk: { route: 'sentiment', label: '투자 심리', why: '변동성·신용·공포 심리가 같은 쪽을 가리키는지' },
-  korea: { route: 'macro', label: '거시 경제', why: '한국 증시와 원화 흐름을 미국장과 따로 확인' }
+  // P1727: the Korea box continues to 시장 상태's 한국 시장 참고 board (코스피·코스닥·원화·한국 표본 참여도), not 거시 경제.
+  korea: { route: 'signal', label: '시장 상태 · 한국 시장 참고', why: '코스피·코스닥과 원화, 한국 수집 종목의 참여도를 미국 판정과 따로 확인', ctx: { anchor: 'regime-board-kr' } }
+});
+// P1727: the asset groups whose moves usually start in the news continue to that topic of 뉴스 as well (one link at most).
+// The context names the news topic/country chip; the news page applies it when it reads the handoff.
+const BRIEFING_NEWS = Object.freeze({
+  commodities: { route: 'market-news', label: '뉴스 · 에너지', why: '유가를 움직인 공급·지정학 기사', ctx: { topic: 'energy' } },
+  risk: { route: 'market-news', label: '뉴스 · 지정학', why: '변동성·위험 회피를 부른 사건 기사', ctx: { topic: 'geo' } },
+  korea: { route: 'market-news', label: '뉴스 · 한국', why: '한국 증시 움직임과 관련된 국내 기사', ctx: { country: 'kr' } }
 });
 
 export function briefingFlow({ read = null } = {}) {
   if (!read?.available) return { next: [] };
-  const next = [{ route: 'signal', label: '시장 상태', why: '오늘 해석이 6개 축(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정과 같은 쪽인지' }];
-  const seen = new Set(['signal']);
+  const lead = new Set((read.statements || []).slice(0, 4).map((row) => row.axis));
+  const next = [];
+  const seen = new Set();
+  const keyOf = (item) => `${item.route}#${item.ctx?.anchor || ''}`;
+  // P1727: when the Korea sentence is in the four-sentence lead, its board comes first.
+  if (lead.has('korea')) { next.push({ ...BRIEFING_ROUTES.korea, why: `오늘 해석의 한국 문장 — ${BRIEFING_ROUTES.korea.why}` }); seen.add(keyOf(BRIEFING_ROUTES.korea)); }
+  next.push({ route: 'signal', label: '시장 상태', why: '오늘 해석이 6개 축(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정과 같은 쪽인지' });
+  seen.add('signal#');
   const axes = [...(read.statements || []).map((row) => row.axis), ...(read.drivers || []).filter((row) => row.values?.length).map((row) => row.id)];
   for (const axis of axes) {
     const target = BRIEFING_ROUTES[axis];
-    if (!target || seen.has(target.route) || next.length >= 4) continue;
-    seen.add(target.route);
+    if (!target || seen.has(keyOf(target)) || next.length >= 4) continue;
+    seen.add(keyOf(target));
     const title = (read.drivers || []).find((row) => row.id === axis)?.title;
     next.push({ ...target, why: `${title ? `자산별 흐름 '${title}' — ` : ''}${target.why}` });
   }
+  const newsAxis = [...(read.statements || []).slice(0, 4).map((row) => row.axis)].find((axis) => BRIEFING_NEWS[axis]);
+  if (newsAxis) next.push(BRIEFING_NEWS[newsAxis]);
   return { next };
 }
 

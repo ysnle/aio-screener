@@ -54,7 +54,8 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       opportunityLinks: [{ label: '섹터 회전에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) }].filter((part) => part.links.length),
       check: ['50일선·200일선 위 종목 비율이 함께 60% 이상을 유지하는지', '52주 신고가 종목이 신저가보다 꾸준히 많은지', '러셀 2000이 S&P 500을 따라오거나 앞서는지'],
       caution: ['20일선 위 비율만 오르고 50일선 비율이 따라오지 않으면 확산이라고 보기 이릅니다.', 'HY 스프레드가 다시 넓어지면 회복의 근거가 약해집니다.'],
-      ignore: ['VIX의 하루 등락', '지수 하루 하락 — 참여 비율이 유지되면 추세 판단을 바꿀 근거가 아닙니다.']
+      // P1727: "지수 하루 하락" read as "ignore today's -5.5% KOSPI"; the item names the ordinary US day and excludes rare moves.
+      ignore: ['VIX의 하루 등락', '미국 지수의 평범한 하루 하락 — 참여 비율이 유지되면 추세 판단을 바꿀 근거가 아닙니다(기록상 드문 급락이나 한국 시장의 급락은 넘기지 않고 따로 확인).']
     },
     concentration: {
       posture: '이 흐름이라면 지수는 소수 주도 영역이 끌어올리고 나머지 종목의 참여는 약한 상태입니다. 주도 영역의 상대강도가 유지되는 동안 지수는 버틸 수 있지만, 주도 영역이 꺾이면 지수 전체가 함께 흔들릴 수 있습니다. 반증: 참여 비율이 다시 넓어지면 확산 쪽, 주도 섹터가 약화로 바뀌고 분배일이 늘면 약화 쪽을 확인합니다.',

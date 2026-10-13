@@ -29,7 +29,9 @@ function renderChanges(doc, host, history) {
   if (!model.available) { host.append(emptyState(doc, { title: '비교 대기', reason: model.reason, compact: true })); return model; }
   const gap = Array.isArray(model.missing) && model.missing.length > 0;
   if (gap) host.querySelector('h2').firstChild.textContent = '직전 기록과 달라진 점';
-  host.querySelector('h2').append(el(doc, 'span', `${shortDate(model.prevDate)} → ${shortDate(model.date)} 종가${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}`, 'briefing-h2-note'));
+  // P1725: the strip above shows live/delayed quotes against each quote's own previous close; this block compares two
+  // completed US closes, so the same asset can carry opposite signs (WTI +2.06% here, -1.92% live). The note says which.
+  host.querySelector('h2').append(el(doc, 'span', `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''} · 위 실시간 시세의 등락과 기간이 다릅니다`, 'briefing-h2-note'));
   host.append(el(doc, 'p', model.headline, 'daily-headline'));
   const grid = el(doc, 'div', null, 'daily-moves');
   for (const move of model.moves) {
@@ -37,9 +39,13 @@ function renderChanges(doc, host, history) {
     cell.dataset.measure = move.key;
     cell.append(el(doc, 'span', move.label, 'daily-move-label'), el(doc, 'span', move.text, `daily-move-value ${move.value > 0 ? 'is-up' : move.value < 0 ? 'is-down' : ''}`));
     if (move.level) cell.append(el(doc, 'span', move.level, 'daily-move-level'));
+    // P1724: a Korean index is compared on its own KRX sessions; the cell names that pair.
+    if (move.market === 'KR') { cell.dataset.market = 'KR'; cell.append(el(doc, 'span', `한국 ${shortDate(move.from)} → ${shortDate(move.to)}`, 'daily-move-level')); }
     grid.append(cell);
   }
   host.append(grid);
+  // P1724: measures left out are named on one line with why (no previous close, or the latest close is older).
+  if (model.notComparedNotes?.length) host.append(el(doc, 'p', `비교 제외: ${model.notComparedNotes.map((item) => `${item.label}(${item.reason})`).join(' · ')}`, 'daily-empty'));
   return model;
 }
 

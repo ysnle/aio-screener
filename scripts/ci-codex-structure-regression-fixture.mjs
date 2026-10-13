@@ -198,7 +198,8 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
     brent: { frequency: 'daily', observations: weekdays.map((d, i) => [d, 90 * (i < weekdays.length - 10 ? 1 : 1.25)]) }
   } };
   const lastWeekday = weekdays.at(-1);
-  const history = weekdays.map((d) => ({ date: d, spx: 6000, wti: 85 }));
+  // P1726: the Brent comparison reads Brent futures closes from history (same contract type as WTI), not FRED spot.
+  const history = weekdays.map((d, i) => ({ date: d, spx: 6000, wti: 85, brent: 90 * (i < weekdays.length - 10 ? 1 : 1.25) }));
   const referenceMs = Date.parse(`${lastWeekday}T00:00:00Z`) + 2 * 86400000;
   const items = Object.fromEntries(buildLiquidityGrowthGroups(mh, { history, referenceMs }).flatMap((g) => g.items).map((item) => [item.id, item]));
   const ppi = items.ppiFinalDemand;
@@ -214,7 +215,9 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
   assert.equal(items.sofr.stale, false, 'M14: a 2-day-old daily series is current');
   assert.equal(buildLiquidityGrowthGroups(mh, { history, referenceMs: referenceMs + 6 * 86400000 }).flatMap((g) => g.items).find((i) => i.id === 'brent').stale, true, 'M14: a daily series 8 days old is stale');
   const oil = brentWtiCheck(mh, history);
-  assert.ok(oil.diverges && Math.round(oil.spread) === 28 && /보류/.test(oil.sentence), 'M06: Brent up 25% with WTI flat is flagged with the same-day spread');
+  assert.ok(oil.diverges && oil.basis === 'futures' && Math.round(oil.spread) === 28 && /보류/.test(oil.sentence), 'M06: Brent up 25% with WTI flat is flagged with the same-day spread');
+  const spotOnly = brentWtiCheck(mh, history.map(({ brent, ...row }) => row));
+  assert.ok(spotOnly.basis === 'spot' && spotOnly.spread == null && !spotOnly.diverges && /비교하거나/.test(spotOnly.sentence), 'P1726: spot Brent is never set against the WTI future (no spread, no divergence)');
   const read = buildMacroRead({ macroHistory: mh, history, rateFx: { wti20: -8 } });
   const oilNode = read.chain.nodes.find((n) => n.id === 'oil');
   assert.ok(oilNode.impact === 'unknown' && /브렌트/.test(oilNode.value), 'M06: the WTI oil node is not coloured favourable while Brent spikes');

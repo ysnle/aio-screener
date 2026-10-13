@@ -3,8 +3,10 @@ import { deriveQuotePresentation } from '../market/quote-presentation.js';
 // answers "what changed since the last session" and "what happened to my names" before anything else.
 // Pure functions over the completed-close history and the published screener rows — no live quote is
 // promoted to a close, and a measure missing on either session is left out rather than read as zero.
-import { buildCloseSeries, buildMarketRegime, closeBasis } from './market-read.js';
-import { openSessionDatesBetween } from '../market/market-calendar.js';
+import { buildCloseSeries, buildMarketRegime, closeBasis, krSessionThrough } from './market-read.js';
+import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/market-calendar.js';
+
+const shortDay = (date) => { const [, month, day] = String(date || '').split('-').map(Number); return month && day ? `${month}/${day}` : ''; };
 
 // Codex browser audit H02: "어제와 달라진 점" compared 10/2 with 10/6 because the 10/5 record was missing, and
 // still read as a one-day change. US trading sessions strictly between the two compared dates are listed so the
@@ -30,11 +32,27 @@ const MEASURES = Object.freeze([
   { key: 'wti', label: 'WTI', kind: 'pct' },
   { key: 'breadth50', label: '50일선 위 종목', kind: 'pp' },
   { key: 'fg', label: '공포·탐욕', kind: 'level', digits: 0 },
-  { key: 'kospi', label: '코스피', kind: 'pct' },
+  { key: 'kospi', label: '코스피', kind: 'pct', market: 'KR' },
+  { key: 'kosdaq', label: '코스닥', kind: 'pct', market: 'KR' },
   { key: 'usdkrw', label: '원/달러', kind: 'pct' }
 ]);
 
-function measureChange(measure, history, basis, prevDate) {
+// P1724: a Korean index is compared with its own previous KRX session, not with the US session pair — 10/9 was a
+// Korean holiday, so "10/9 → 10/12" never had a KOSPI pair and the -5.5% day dropped into notCompared.
+function krMeasureChange(measure, history, krThrough) {
+  if (!krThrough) return null;
+  const series = buildCloseSeries(history, measure.key, { through: krThrough });
+  const now = series.at(-1) || null;
+  const prev = series.at(-2) || null;
+  if (!now || !prev || prev.value === 0 || now.date !== krThrough || countOpenSessionsBetween(prev.date, now.date, 'KR') !== 1) return null;
+  return { from: prev.date, to: now.date, value: (now.value / prev.value - 1) * 100 };
+}
+
+function measureChange(measure, history, basis, prevDate, krThrough = null) {
+  if (measure.market === 'KR') {
+    const kr = krMeasureChange(measure, history, krThrough);
+    return kr ? { key: measure.key, label: measure.label, value: kr.value, text: signed(kr.value, 2, '%'), level: null, market: 'KR', from: kr.from, to: kr.to } : null;
+  }
   // One value per NY trading date (buildCloseSeries): carried-forward weekend rows are not sessions.
   const series = buildCloseSeries(history, measure.key, { through: basis });
   const now = series.length ? series[series.length - 1] : null;
@@ -54,16 +72,29 @@ function measureChange(measure, history, basis, prevDate) {
 }
 
 // "어제와 달라진 점": the last completed session against the one before it (by S&P 500 trading date).
-export function buildDailyChanges(history = []) {
+export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
   const rows = completedRows(history);
   const sessions = buildCloseSeries(rows, 'spx');
   if (sessions.length < 2) return { available: false, reason: '비교할 두 거래일의 종가 기록이 없습니다.' };
   const basis = closeBasis(rows);
   const prevDate = sessions[sessions.length - 2].date;
-  const measured = MEASURES.map((measure) => ({ measure, move: measureChange(measure, rows, basis, prevDate) }));
+  const krThrough = krSessionThrough(now);
+  // A KRX session on a US holiday has no S&P 500 close; Korean measures read every dated row, not only US-session rows.
+  const krRows = (Array.isArray(history) ? history : []).filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')));
+  const rowsFor = (measure) => measure.market === 'KR' ? krRows : rows;
+  const measured = MEASURES.map((measure) => ({ measure, move: measureChange(measure, rowsFor(measure), basis, prevDate, krThrough) }));
   const moves = measured.map((item) => item.move).filter(Boolean);
   // Measures with a value today but none on the previous session: named so the reader knows they were skipped.
-  const notCompared = measured.filter((item) => !item.move && buildCloseSeries(rows, item.measure.key, { through: basis }).at(-1)?.date === basis).map((item) => item.measure.label);
+  // P1724: a measure whose latest close predates the basis (a won stuck at 10/9 on 10/12) is named too, with its date.
+  const notComparedNotes = measured.filter((item) => !item.move).map(({ measure }) => {
+    const latest = buildCloseSeries(rowsFor(measure), measure.key, { through: measure.market === 'KR' ? krThrough || basis : basis }).at(-1);
+    if (!latest) return null;
+    if (measure.market === 'KR') return { label: measure.label, reason: krThrough && latest.date !== krThrough ? `최근 종가 ${shortDay(latest.date)}` : '직전 한국 거래일 종가 없음' };
+    if (latest.date === basis) return { label: measure.label, reason: `${shortDay(prevDate)} 종가 없음` };
+    // A series that stopped long ago is not news on this screen; a recent gap (up to five sessions) is named.
+    return countOpenSessionsBetween(latest.date, basis, 'US') <= 5 ? { label: measure.label, reason: `최근 종가 ${shortDay(latest.date)}` } : null;
+  }).filter(Boolean);
+  const notCompared = notComparedNotes.map((item) => item.label);
   // Axis flips are compared on the same inputs (closes only) so a credit or rate input that exists only
   // today cannot read as a change; an axis unknown on either session is left out.
   const regimeNow = buildMarketRegime({ history: rows });
@@ -73,15 +104,15 @@ export function buildDailyChanges(history = []) {
   const flips = (regimeNow.axes || [])
     .filter((axis) => axis.id !== 'korea' && axis.state !== 'unknown' && before[axis.id] && before[axis.id].state !== 'unknown' && before[axis.id].state !== axis.state)
     .map((axis) => ({ id: axis.id, title: axis.title, from: before[axis.id].stateLabel, to: axis.stateLabel, toState: axis.state }));
-  const big = moves.filter((move) => (move.key === 'spx' || move.key === 'nasdaq' || move.key === 'kospi') ? Math.abs(move.value) >= 1
+  const big = moves.filter((move) => ['spx', 'nasdaq', 'kospi', 'kosdaq'].includes(move.key) ? Math.abs(move.value) >= 1
     : move.key === 'vix' ? Math.abs(move.value) >= 2 : move.key === 'tnx' ? Math.abs(move.value) >= 8
       : move.key === 'breadth50' ? Math.abs(move.value) >= 5 : move.key === 'fg' ? Math.abs(move.value) >= 8
         : Math.abs(move.value) >= 1.5);
   const headline = flips.length
     ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(' · ')} — 시장 상태 판정에 들어가는 축이 바뀌었습니다.`
-    : big.length ? `축 판정은 그대로이고, 크게 움직인 것은 ${big.map((move) => `${move.label} ${move.text}`).join(' · ')}입니다.`
+    : big.length ? `축 판정은 그대로이고, 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(' · ')}입니다.`
       : '축 판정이 바뀌지 않았고 크게 움직인 지표도 없습니다 — 직전 종가와 같은 분류가 이어집니다(분류가 같다는 것이 해석이 맞았다는 뜻은 아닙니다).';
-  return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), notCompared, moves, flips, big: big.map((move) => move.key), headline };
+  return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), notCompared, notComparedNotes, moves, flips, big: big.map((move) => move.key), headline };
 }
 
 // "내 종목": watchlist and holdings, with what moved and what crossed a level worth knowing.

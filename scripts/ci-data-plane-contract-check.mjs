@@ -165,6 +165,12 @@ try {
   const refreshWorkflow = read('.github/workflows/refresh-data.yml');
   if (!/workflow_dispatch:\n\s+inputs:\n\s+trigger:/.test(refreshWorkflow) || !/inputs\.trigger != 'scheduler'/.test(refreshWorkflow)) fail('P1377 refresh-data must accept trigger=scheduler and keep the full 13F chain operator-only');
   if (!/dispatchRefreshData\(\{ env, scheduledTime: controller\?\.scheduledTime/.test(worker)) fail('P1377 scheduled() must dispatch refresh-data');
+  // P1718: Cloudflare Workers throw TypeError on redirect:'error' (Node accepts it, so fixtures passed while every live
+  // slot failed at status 0). Worker fetches use 'manual' and refuse 3xx themselves.
+  if (!calls.every((call) => call.init?.redirect === 'manual')) fail(`P1718 dispatcher fetches must use redirect:'manual' (Workers reject 'error'): ${calls.map((call) => call.init?.redirect).join(',')}`);
+  const workerSources = fs.readdirSync(path.join(root, 'worker')).filter((name) => /\.m?js$/.test(name) && !/\.test\.m?js$/.test(name));
+  const offenders = workerSources.filter((name) => /redirect:\s*['"]error['"]/.test(read(`worker/${name}`)));
+  if (offenders.length) fail(`P1718 Worker sources must not use redirect:'error' (TypeError on Workers): ${offenders.join(', ')}`);
 }
 
 // P1595: fallback dispatch coalesces healthy work, persists safe receipts and bounds stalled bodies.

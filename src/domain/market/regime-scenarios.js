@@ -84,16 +84,18 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
   const hold = missing.length > 0;
   const facts = essential.flatMap(id => (byId[id]?.evidence || []).slice(0, id === 'trend' ? 2 : 1).map(([label, value]) => `${label} ${value}`));
   const confirmed = states => !hold && states;
-  const calmRisk = byId.credit?.state !== 'burden' && byId.volatility?.state !== 'burden';
+  // P1727: "credit calm" is the shared creditState 'favorable' (the outlook's 부합 count uses the same rule); a neutral
+  // credit axis (HY +45bp over 20 sessions) confirmed 집중 유지 here while the outlook counted it 미충족 (3/4).
+  const calmRisk = byId.credit?.state === 'favorable' && byId.volatility?.state !== 'burden';
   const scenarios = [
     { id: 'expansion', title: '확산 회복', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'favorable' && calmRisk),
       interpretation: '이 조건들이 함께 충족되면 지수의 상승 추세를 다수 종목의 참여가 뒷받침하는 흐름으로 읽습니다. 반등이 이어질지는 참여도와 자금 조달 여건의 다음 관측으로 확인합니다.',
-      conditions: [`S&P 500이 상승하는 50일선 위이고 50일선이 200일선 위인 상태.`, `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상.`, `HY OAS·변동성이 부담 판정에 들어가지 않는지 함께 확인.`],
+      conditions: [`S&P 500이 상승하는 50일선 위이고 50일선이 200일선 위인 상태.`, `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상.`, `신용 축이 우호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`],
       counterEvidence: `지수의 추세가 약해지거나 참여도 둘 중 하나가 ${RULES.breadth.broadAtLeast}% 아래로 내려오면 확산 해석을 다시 확인합니다. HY 확대나 VIX 기간 구조 역전이 동반되면 회복의 근거가 약해집니다.`,
       observe: ['지수만 상승하는지, 50일·200일 참여도도 동행하는지', '신고가가 신저가보다 많아지는지', 'HY 스프레드가 급격히 넓어지는지'] },
     { id: 'concentration', title: '집중 유지', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden' && calmRisk),
       interpretation: '이 조건들이 함께 보이면 지수 추세와 표본 종목의 참여도가 갈라진 흐름으로 읽습니다. 일부 종목에 상승이 집중됐을 가능성을 살피되, 실제 지수 구성 종목의 기여도를 확인하기 전에는 대형주가 원인이라고 단정하지 않습니다.',
-      conditions: [`S&P 500의 상승 추세가 유지되지만 50일선·200일선 위 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, 'HY OAS와 변동성이 부담 판정으로 함께 넘어가지 않는 상태.'],
+      conditions: [`S&P 500의 상승 추세가 유지되지만 50일선·200일선 위 비율 중 하나가 ${RULES.breadth.weakBelow}% 미만.`, `신용 축이 우호(HY ${RULES.credit.tightBelowBp}bp 미만, 5일·20거래일 확대 없음)이고 변동성이 부담 판정이 아닌 상태.`],
       counterEvidence: `참여도 두 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상으로 넓어지면 확산 쪽을 확인합니다. 지수 추세가 약해지면서 HY·변동성 부담까지 커지면 집중 유지 해석은 약해집니다.`,
       observe: ['지수 고점과 참여 종목 비율 사이의 괴리가 줄어드는지', '기존 주도 종목과 새로 강해지는 종목이 바뀌는지', '신용·변동성이 주가와 다른 경고를 내는지'] },
     { id: 'weakness', title: '동반 약화', confirmed: confirmed(byId.trend?.state === 'burden' && byId.breadth?.state === 'burden' && (byId.credit?.state === 'burden' || byId.volatility?.state === 'burden')),

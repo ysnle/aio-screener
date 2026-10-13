@@ -78,6 +78,10 @@ export function matchTickers(raw, aliasRows = []) {
 // tickers are not each the subject, so the post does not add to any issuer's tally.
 export const LIST_POST_TICKER_THRESHOLD = 6;
 
+// P1722 (10/13): "영국 기관: 호르무즈 … 선박 6척 피격" was tagged 한국장·수급 because a bare 기관 matched. 기관 is the
+// Korean institutional-investor group only next to a trade/flow word or listed with 외국인·개인 — not any agency.
+export const KR_INSTITUTIONAL_FLOW = /기관(?:\s*투자자)?(?:들?[이은의])?[^.\n:]{0,12}?(?:순?매수|순?매도|매매|수급|자금\s*유입|자금\s*유출)|(?:외국인|개인)\s*(?:과|와|·|,|및|\/)\s*기관|기관\s*(?:과|와|·|,|및|\/)\s*(?:외국인|개인)/;
+
 /**
  * { tickers, relatedTickers, listTickers } — `tickers` are the issuers a post is about (empty for a list post,
  * whose names move to `listTickers`); `relatedTickers` are companies inferred from a product name only.

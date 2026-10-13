@@ -5,7 +5,7 @@ import { closeBasis } from '../../domain/briefing/market-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { groupNewsStories, newsArticleKey, newsEvidence, resolveNewsIssuers } from '../../domain/news/stories.js';
+import { groupNewsStories, newsArticleKey, newsEvidence, resolveNewsIssuers, selectIntradayNews } from '../../domain/news/stories.js';
 import { briefingWindowKST, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
 
 function text(documentRef, value, fallback = '—') {
@@ -367,6 +367,60 @@ function renderTickerFocusNote(documentRef, root, container, ticker, count) {
 
 // P1391 (owner review 2026-10-02): the news screen leads with important stories — the highest-scored
 // item per topic inside the completed 24h window — and the full feed below excludes them.
+// P1730: '08:00 이후 장중 속보 · 잠정' — a short slot above the important list for headlines published after the 08:00
+// bundle closed (producer P1720 newsIntraday). Title and time only; the publisher sits in the hover. No data, no slot.
+function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now()) {
+  const anchor = documentRef?.getElementById('news-important');
+  let section = documentRef?.getElementById('news-intraday');
+  const cycleEndMs = Date.parse(root?._serverDataMeta?.newsCycleEnd || '');
+  const picked = selectIntradayNews(root?._serverNewsIntraday, { cycleEndMs, canonical: canonicalItems, nowMs });
+  if (!picked.length || !anchor) {
+    if (section) section.hidden = true;
+    return 0;
+  }
+  if (!section) {
+    section = documentRef.createElement('section');
+    section.id = 'news-intraday';
+    section.className = 'aio-section briefing-block';
+    section.setAttribute('aria-labelledby', 'news-intraday-title');
+    anchor.before(section);
+  }
+  const kst = (ms) => compactKstTime(new Date(ms).toISOString());
+  const end = kst(cycleEndMs);
+  const today = kst(nowMs)?.date;
+  const heading = documentRef.createElement('h2');
+  heading.className = 'briefing-h2';
+  heading.id = 'news-intraday-title';
+  heading.append('08:00 이후 장중 속보 · 잠정 ');
+  const note = documentRef.createElement('span');
+  note.className = 'briefing-h2-note';
+  note.textContent = `${end ? `${end.date} ${end.time}` : '08:00'} 이후 헤드라인 · 다음 08:00 수집본 전까지`;
+  heading.append(note);
+  const list = documentRef.createElement('ul');
+  list.className = 'news-intraday-list';
+  list.style.cssText = 'list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;';
+  picked.forEach((item) => {
+    const row = documentRef.createElement('li');
+    row.style.cssText = 'display:flex;gap:8px;align-items:baseline;font-size:12px;line-height:1.5;';
+    const stampParts = kst(item.publishedMs);
+    const time = documentRef.createElement('time');
+    time.dateTime = new Date(item.publishedMs).toISOString();
+    time.textContent = stampParts ? (stampParts.date === today ? stampParts.time : `${stampParts.date} ${stampParts.time}`) : '';
+    time.style.cssText = 'flex:0 0 auto;color:var(--text-muted);font-variant-numeric:tabular-nums;';
+    const href = safeUrl(item.link || item.url);
+    const titleNode = documentRef.createElement(href ? 'a' : 'span');
+    titleNode.textContent = String(item.title || '');
+    if (href) { titleNode.href = href; titleNode.target = '_blank'; titleNode.rel = 'noopener noreferrer'; }
+    // Sources stay off the screen text (owner 2026-10-06): publisher and full time live in the hover.
+    titleNode.title = [item.source, formatAbsoluteTime(item.publishedMs ? new Date(item.publishedMs) : null)].filter(Boolean).join(' · ');
+    row.append(time, titleNode);
+    list.appendChild(row);
+  });
+  section.replaceChildren(heading, list);
+  section.hidden = false;
+  return picked.length;
+}
+
 function pickImportantNews(items = [], limit = 5) {
   const picked = items.filter((item) => item.storyHasRevision);
   const topics = new Set();
@@ -500,6 +554,14 @@ function render({ documentRef, root, store, route }) {
   const configuredLimit = Number(root?._aioNewsVisibleLimit);
   const visibleLimit = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 12;
   renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
+  // P1730: after the Korean close (15:30 KST) until the next 08:00 bundle, the header says where the session's articles are.
+  const nowMs = Date.now();
+  const intradayCount = renderIntradayNews(documentRef, root, items, nowMs);
+  const kstMinutes = ((new Date(nowMs).getUTCHours() + 9) % 24) * 60 + new Date(nowMs).getUTCMinutes();
+  const windowLabel = documentRef?.getElementById('news-window-label');
+  if (intradayCount && windowLabel && (kstMinutes >= 15 * 60 + 30 || kstMinutes < 8 * 60)) {
+    windowLabel.textContent = `${windowLabel.textContent} · 한국장 시간대 기사는 장중 속보 칸에, 정식 묶음은 다음 08:00 수집본`;
+  }
   syncNewsControlState(documentRef, controls);
   // P1428 (Codex review): the important list follows the same country/topic filter as the feed — a 한국
   // filter that emptied the feed still showed overseas stories above it.
@@ -584,10 +646,22 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       }
       // v57.50 I23: a ticker handed over from 재무 공시 opens 기업 뉴스 narrowed to it; a plain visit shows everything.
       if (route === 'market-news') {
-        const focus = String(consumeResearchHandoff({ root, routeId: 'market-news' })?.context?.ticker || '').trim().toUpperCase();
+        const handoffContext = consumeResearchHandoff({ root, routeId: 'market-news' })?.context || {};
+        const focus = String(handoffContext.ticker || '').trim().toUpperCase();
         root._aioNewsTickerFocus = focus || null;
         if (focus && typeof root?.setNewsTypeTab === 'function') {
           try { root.setNewsTypeTab('company', documentRef.querySelector('#news-type-tabs [data-arg="company"]')); } catch (_) {}
+        }
+        // P1730 (R2 next-step links): a briefing link that names a topic or country opens the list already filtered,
+        // through the same filter functions and chips the reader would press.
+        const chip = (group, value) => [...(documentRef.querySelectorAll?.(`#${group} [data-arg]`) || [])].find((node) => node.dataset.arg === value) || null;
+        const topic = String(handoffContext.topic || '').trim();
+        const country = String(handoffContext.country || '').trim();
+        if (topic && chip('news-topic-chips', topic) && typeof root?.filterNewsByTopic === 'function') {
+          try { root.filterNewsByTopic(topic, chip('news-topic-chips', topic)); } catch (_) {}
+        }
+        if (country && chip('news-country-chips', country) && typeof root?.filterNewsByCountry === 'function') {
+          try { root.filterNewsByCountry(country, chip('news-country-chips', country)); } catch (_) {}
         }
       }
       // P1408: a render that throws during mount releases what this page already attached; the

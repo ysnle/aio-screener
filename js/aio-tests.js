@@ -2620,7 +2620,8 @@
       'emoji=' + hasEmojiStd + ' stamp=' + hasMktHdrTimestamp + ' R128=' + /R128/.test(chatFn));
 
     // T525: 시나리오·시각·기관 프레임은 질문에 유용할 때 선택하고 데이터 우선순위는 유지한다.
-    var hasRule9 = chatFn.indexOf('9. Bull/Base/Bear 시나리오는 전망·의사결정 질문에서 유용할 때만 사용') >= 0;
+    // P1729: market-wide flows are the screen's three (확산·집중·동반 약화); stock Bull/Base/Bear stays optional.
+    var hasRule9 = chatFn.indexOf('9. 시장 전체 흐름은 화면의 세 흐름(확산·집중·동반 약화)으로 말하고, 종목 Bull/Base/Bear 시나리오는 전망·의사결정 질문에서 유용할 때만 사용') >= 0;
     var hasRule10 = chatFn.indexOf('10. 시각 단서와 답변 구조는 질문 복잡도에 맞춘다') >= 0;
     var hasRule11 = chatFn.indexOf('11. 기관급 프레임은 분석력을 실제로 높일 때만') >= 0;
     var hasRule12 = chatFn.indexOf('12. **데이터 소스 우선순위') >= 0;

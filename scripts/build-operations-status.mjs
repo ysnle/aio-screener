@@ -469,7 +469,9 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     && coverage.tier0Observed === coverage.tier0Required
     && coverage.tier0Required > 0
     && durableFreshness.fresh;
-  const scheduledAnalysisOk = data?.meta?.marketAnalysisOk === true;
+  // P1719: a retained (previous verified) analysis is shown, but this run's call was blocked — not CURRENT.
+  const scheduledAnalysisRetained = data?.meta?.marketAnalysisRetained || null;
+  const scheduledAnalysisOk = data?.meta?.marketAnalysisOk === true && !scheduledAnalysisRetained;
   const fastConfigured = fastEndpoint !== 'not-configured';
   const [fastObserved, fastRequired] = String(fastEvidence.fastCoverage || '').split('/').map(Number);
   const fastHealthy = fastEvidence.fastEvidenceFresh === true && Number(fastEvidence.fastHealthStatus) === 200 && Number.isFinite(fastObserved) && fastObserved === fastRequired && fastRequired === 16;
@@ -599,7 +601,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       }
     },
     ai: {
-      scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', statusCode: deriveOperationalState({ configured: true, healthy: scheduledAnalysisOk }), source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, generatedAt: data?.meta?.generatedAt || null } },
+      scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : (scheduledAnalysisRetained ? 'STALE' : 'BLOCKED'), statusCode: deriveOperationalState({ configured: true, healthy: scheduledAnalysisOk }), source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, retainedFrom: scheduledAnalysisRetained?.from || null, generatedAt: data?.meta?.generatedAt || null } },
       publicChat: {
         status: proxyHealthy ? 'CURRENT' : 'NO_ROUTE', statusCode: deriveOperationalState({ configured: proxyConfigured, healthy: proxyHealthy, stale: proxyConfigured && fastEvidence.proxyHealthStatus != null && fastEvidence.proxyEvidenceFresh !== true }),
         personalKey: 'UNSUPPORTED',

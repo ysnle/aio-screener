@@ -4,6 +4,10 @@ last_verified: 2026-10-13
 confidence: medium
 ---
 
+## v57.52 검증 스킬 (2026-10-13)
+
+- [ ] QA-VERIFY-19: P1718~P1730: 배포 후 Worker /health의 schedulerDispatch.lastObservation이 accepted 또는 recent-success이고 refresh-data 실행 간격이 1시간 이내로 줄며, data.json에 newsIntraday가 발행되고 marketAnalysis가 verified(또는 retained)로 나오며, 운영 사이트 005930 히어로 등락률이 스크리너 ret1d와 같다. verify_by: push·배포 뒤 2~3시간 Worker /health·gh run list·운영 사이트 확인
+
 ## v57.51 검증 스킬 (2026-10-13)
 
 - [x] QA-VERIFY-18: P1704~P1716: refresh-screener 다음 실행 뒤 screener.json에서 krCloseReconciliation이 reconciled 위주이고 005930 factorSessionDate가 최신 한국 세션, 8035.T currency JPY, breadth.segments.sp500 표본 약 500, 신규 종목(SPCX·SKYD·VYLR) 수신, newsStatus·newsMemoVerified 존재, margin>100 행 0, rvol20 채움을 확인한다. verify_by: push 뒤 refresh-screener 1회 실행 후 산출물 검사(로그 KR exchange close 한 줄 포함)

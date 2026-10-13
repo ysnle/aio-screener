@@ -8,6 +8,8 @@ function requirement(id, maxAgeMs, options = {}) {
 // A02 (Codex review): the news cycle closes daily at 08:00 KST (23:00 UTC). A wall-clock 30-hour allowance let
 // yesterday's cycle read as current all day. A cycle is current only when it is the latest one that should have
 // been published (the newest 08:00 KST boundary at least `graceMs` ago).
+// P1720: `newsIntraday` (articles after the 08:00 cut, '08:00 이후 장중 속보 · 잠정') is a provisional slot beside this
+// completed cycle, not a requirement — an empty slot is a quiet session, never a stale page.
 const NEWS_CYCLE = Object.freeze({ boundaryUtcHour: 23, graceMs: 3 * HOUR });
 export function expectedCycleEnd(now, { boundaryUtcHour, graceMs } = NEWS_CYCLE) {
   const ready = new Date(now - graceMs);
